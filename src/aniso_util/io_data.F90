@@ -189,23 +189,31 @@ complex(kind=wp), intent(in) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
 integer(kind=iwp) :: i, j, l
 complex(kind=wp) :: tr
-complex(kind=wp), allocatable :: XY(:,:), XZ(:,:), YX(:,:), YZ(:,:), ZX(:,:), ZY(:,:)
+complex(kind=wp), allocatable :: X(:,:), Y(:,:), Z(:,:), XY(:,:), XZ(:,:), YX(:,:), YZ(:,:), ZX(:,:), ZY(:,:)
 
 ! verify the commutation relations for S
+call mma_allocate(X,n,n,label='X')
+call mma_allocate(Y,n,n,label='Y')
+call mma_allocate(Z,n,n,label='Z')
 call mma_allocate(XY,n,n,label='XY')
 call mma_allocate(YX,n,n,label='YX')
 call mma_allocate(YZ,n,n,label='YZ')
 call mma_allocate(ZY,n,n,label='ZY')
 call mma_allocate(ZX,n,n,label='ZX')
 call mma_allocate(XZ,n,n,label='XZ')
-call zgemm_('n','n',n,n,n,cOne,moment(1,:,:),n,moment(2,:,:),n,cZero,XY,n)
-call zgemm_('n','n',n,n,n,cOne,moment(2,:,:),n,moment(1,:,:),n,cZero,YX,n)
 
-call zgemm_('n','n',n,n,n,cOne,moment(2,:,:),n,moment(3,:,:),n,cZero,YZ,n)
-call zgemm_('n','n',n,n,n,cOne,moment(3,:,:),n,moment(2,:,:),n,cZero,ZY,n)
+X(:,:) = moment(1,:,:)
+Y(:,:) = moment(2,:,:)
+Z(:,:) = moment(3,:,:)
 
-call zgemm_('n','n',n,n,n,cOne,moment(3,:,:),n,moment(1,:,:),n,cZero,ZX,n)
-call zgemm_('n','n',n,n,n,cOne,moment(1,:,:),n,moment(3,:,:),n,cZero,XZ,n)
+call zgemm_('n','n',n,n,n,cOne,X,n,Y,n,cZero,XY,n)
+call zgemm_('n','n',n,n,n,cOne,Y,n,X,n,cZero,YX,n)
+
+call zgemm_('n','n',n,n,n,cOne,Y,n,Z,n,cZero,YZ,n)
+call zgemm_('n','n',n,n,n,cOne,Z,n,Y,n,cZero,ZY,n)
+
+call zgemm_('n','n',n,n,n,cOne,Z,n,X,n,cZero,ZX,n)
+call zgemm_('n','n',n,n,n,cOne,X,n,Z,n,cZero,XZ,n)
 
 if (dbg) then
   do l=1,3
@@ -245,6 +253,9 @@ else
   write(u6,'(A,ES22.14)') 'check_commutation:  The input moment passes all three commutation tests.'
 end if
 
+call mma_deallocate(X)
+call mma_deallocate(Y)
+call mma_deallocate(Z)
 call mma_deallocate(XY)
 call mma_deallocate(YX)
 call mma_deallocate(YZ)
@@ -270,18 +281,24 @@ logical(kind=iwp), intent(in) :: dbg
 integer(kind=iwp) :: i
 real(kind=wp) :: S2_theoretic
 complex(kind=wp) :: tr
-complex(kind=wp), allocatable :: S2(:,:), X2(:,:), Y2(:,:), Z2(:,:)
+complex(kind=wp), allocatable :: M(:,:), S2(:,:), X2(:,:), Y2(:,:), Z2(:,:)
 
 call mma_allocate(X2,n,n,label='X2')
 call mma_allocate(Y2,n,n,label='Y2')
 call mma_allocate(Z2,n,n,label='Z2')
+call mma_allocate(M,n,n,label='M')
+
+M(:,:) = moment(1,:,:)
+call zgemm_('c','n',n,n,n,cOne,M,n,M,n,cZero,X2,n)
+
+M(:,:) = moment(2,:,:)
+call zgemm_('c','n',n,n,n,cOne,M,n,M,n,cZero,Y2,n)
+
+M(:,:) = moment(3,:,:)
+call zgemm_('c','n',n,n,n,cOne,M,n,M,n,cZero,Z2,n)
+
+call mma_deallocate(M)
 call mma_allocate(S2,n,n,label='S2')
-
-call zgemm_('c','n',n,n,n,cOne,moment(1,:,:),n,moment(1,:,:),n,cZero,X2,n)
-
-call zgemm_('c','n',n,n,n,cOne,moment(2,:,:),n,moment(2,:,:),n,cZero,Y2,n)
-
-call zgemm_('c','n',n,n,n,cOne,moment(3,:,:),n,moment(3,:,:),n,cZero,Z2,n)
 
 ! matrix add:
 ! S2 = X2 + Y2 + Z2
@@ -405,6 +422,7 @@ complex(kind=wp), intent(out) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
 integer(kind=iwp) :: i, j
 real(kind=wp), allocatable :: ri(:,:), rr(:,:)
+complex(kind=wp), allocatable :: M(:,:)
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 real(kind=wp), external :: dnrm2_, dznrm2_
 logical(kind=iwp), external :: inquire_key_presence
@@ -422,7 +440,11 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
 moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(1,:,:),dbg)
+if (dbg) then
+  call mma_allocate(M,n,n,label='M')
+  M(:,:) = moment(1,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+end if
 ! projection Y
 rr = Zero
 ri = Zero
@@ -433,7 +455,10 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
 moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
+if (dbg) then
+  M(:,:) = moment(2,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+end if
 ! projection Z
 rr = Zero
 ri = Zero
@@ -445,7 +470,11 @@ if (dbg) then
 end if
 moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_magnetic_moment:: the norm of the read moment is zero!')
-if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
+if (dbg) then
+  M(:,:) = moment(3,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+  call mma_deallocate(M)
+end if
 call mma_deallocate(rr)
 call mma_deallocate(ri)
 if (dbg) then
@@ -480,6 +509,7 @@ complex(kind=wp), intent(out) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
 integer(kind=iwp) :: i, j
 real(kind=wp), allocatable :: ri(:,:), rr(:,:)
+complex(kind=wp), allocatable :: M(:,:)
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 real(kind=wp), external :: dnrm2_, dznrm2_
 logical(kind=iwp), external :: inquire_key_presence
@@ -497,7 +527,11 @@ if (dbg) then
   write(u6,*) 'read_electric_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
 moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(1,:,:),dbg)
+if (dbg) then
+  call mma_allocate(M,n,n,label='M')
+  M(:,:) = moment(1,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+end if
 ! projection Y
 rr = Zero
 ri = Zero
@@ -508,7 +542,10 @@ if (dbg) then
   write(u6,*) 'read_electric_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
 moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
+if (dbg) then
+  M(:,:) = moment(2,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+end if
 ! projection Z
 rr = Zero
 ri = Zero
@@ -520,7 +557,11 @@ if (dbg) then
 end if
 moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_electric_moment:: the norm of the read moment is zero!')
-if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
+if (dbg) then
+  M(:,:) = moment(3,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+  call mma_deallocate(M)
+end if
 call mma_deallocate(rr)
 call mma_deallocate(ri)
 if (dbg) then
@@ -555,6 +596,7 @@ complex(kind=wp), intent(out) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
 integer(kind=iwp) :: i, j
 real(kind=wp), allocatable :: ri(:,:), rr(:,:)
+complex(kind=wp), allocatable :: M(:,:)
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 real(kind=wp), external :: dnrm2_, dznrm2_
 logical(kind=iwp), external :: inquire_key_presence
@@ -591,7 +633,9 @@ end if
 moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) then
   write(u6,*) 'ENTER read_spin_moment p6'
-  call check_hermiticity_matrix(n,moment(1,:,:),dbg)
+  call mma_allocate(M,n,n,label='M')
+  M(:,:) = moment(1,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
   call xFlush(u6)
 end if
 ! projection Y
@@ -605,7 +649,10 @@ if (dbg) then
   call xFlush(u6)
 end if
 moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
+if (dbg) then
+  M(:,:) = moment(2,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+end if
 ! projection Z
 rr = Zero
 ri = Zero
@@ -618,7 +665,11 @@ if (dbg) then
 end if
 moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
-if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
+if (dbg) then
+  M(:,:) = moment(3,:,:)
+  call check_hermiticity_matrix(n,M,dbg)
+  call mma_deallocate(M)
+end if
 call mma_deallocate(rr)
 call mma_deallocate(ri)
 if (dbg) call check_commutation(n,moment,dbg)
@@ -1461,6 +1512,7 @@ end subroutine write_spin_moment
 !=!=
 subroutine write_angmom(ANISO_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1468,10 +1520,16 @@ integer(kind=iwp), intent(in) :: ANISO_FILE
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: tmp(:,:)
 
-call write_2d_real_array(ANISO_FILE,'$angmom_x',n,n,moment(1,:,:),dbg)
-call write_2d_real_array(ANISO_FILE,'$angmom_y',n,n,moment(2,:,:),dbg)
-call write_2d_real_array(ANISO_FILE,'$angmom_z',n,n,moment(3,:,:),dbg)
+call mma_allocate(tmp,N,N,label='tmp')
+tmp(:,:) = moment(1,:,:)
+call write_2d_real_array(ANISO_FILE,'$angmom_x',n,n,tmp,dbg)
+tmp(:,:) = moment(2,:,:)
+call write_2d_real_array(ANISO_FILE,'$angmom_y',n,n,tmp,dbg)
+tmp(:,:) = moment(3,:,:)
+call write_2d_real_array(ANISO_FILE,'$angmom_z',n,n,tmp,dbg)
+call mma_deallocate(tmp)
 
 return
 
@@ -1479,6 +1537,7 @@ end subroutine write_angmom
 !=!=
 subroutine write_edipmom(ANISO_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1486,10 +1545,16 @@ integer(kind=iwp), intent(in) :: ANISO_FILE
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: tmp(:,:)
 
-call write_2d_real_array(ANISO_FILE,'$edmom_x',n,n,moment(1,:,:),dbg)
-call write_2d_real_array(ANISO_FILE,'$edmom_y',n,n,moment(2,:,:),dbg)
-call write_2d_real_array(ANISO_FILE,'$edmom_z',n,n,moment(3,:,:),dbg)
+call mma_allocate(tmp,N,N,label='tmp')
+tmp(:,:) = moment(1,:,:)
+call write_2d_real_array(ANISO_FILE,'$edmom_x',n,n,tmp,dbg)
+tmp(:,:) = moment(2,:,:)
+call write_2d_real_array(ANISO_FILE,'$edmom_y',n,n,tmp,dbg)
+tmp(:,:) = moment(3,:,:)
+call write_2d_real_array(ANISO_FILE,'$edmom_z',n,n,tmp,dbg)
+call mma_deallocate(tmp)
 
 return
 
@@ -1497,6 +1562,7 @@ end subroutine write_edipmom
 !=!=
 subroutine write_amfi(ANISO_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1504,10 +1570,16 @@ integer(kind=iwp), intent(in) :: ANISO_FILE
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: moment(3,N,N)
 logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: tmp(:,:)
 
-call write_2d_real_array(ANISO_FILE,'$amfi_x',n,n,moment(1,:,:),dbg)
-call write_2d_real_array(ANISO_FILE,'$amfi_y',n,n,moment(2,:,:),dbg)
-call write_2d_real_array(ANISO_FILE,'$amfi_z',n,n,moment(3,:,:),dbg)
+call mma_allocate(tmp,N,N,label='tmp')
+tmp(:,:) = moment(1,:,:)
+call write_2d_real_array(ANISO_FILE,'$amfi_x',n,n,tmp,dbg)
+tmp(:,:) = moment(2,:,:)
+call write_2d_real_array(ANISO_FILE,'$amfi_y',n,n,tmp,dbg)
+tmp(:,:) = moment(3,:,:)
+call write_2d_real_array(ANISO_FILE,'$amfi_z',n,n,tmp,dbg)
+call mma_deallocate(tmp)
 
 return
 

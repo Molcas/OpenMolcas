@@ -72,7 +72,7 @@ integer(kind=iwp), intent(in) :: nneq, nTempMagn, nDir, nDirZee, nMult
 integer(kind=iwp), intent(out) :: neq(nneq), nexch(nneq), nK, mG, ncut, nP, AngPoints, nBlock, encut_definition, iopt, iPrint, &
                                   nsymm, ngrid
 real(kind=wp), intent(out) :: dltT0, dltH0, zJ, tmin, tmax, hmin, hmax, Xfield, thrs, TempMagn(nTempMagn), cryst(6), coord(3), &
-                              encut_rate, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(nneq,3,3)
+                              encut_rate, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(3,3,nneq)
 logical(kind=iwp), intent(out) :: decompose_exchange, AnisoLines1, AnisoLines3, AnisoLines9, DM_exchange, Dipol, KE, &
                                   JITO_exchange, fitCHI, fitM, Do_structure_abc, DoPlot, compute_g_tensors, tinput, &
                                   compute_susceptibility, compute_torque, compute_barrier, compute_magnetization, hinput, &
@@ -105,7 +105,7 @@ if (nneq > 0) then
   EoverD_fact(:) = Zero
   gtens_input(:,:) = -gElectron
   do i=1,nneq
-    call unitmat(riso(i,:,:),3)
+    call unitmat(riso(:,:,i),3)
   end do
 end if
 !-----------------------------------------------------------------------

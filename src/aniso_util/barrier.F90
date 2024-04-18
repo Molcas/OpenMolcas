@@ -32,7 +32,8 @@ character(len=90) :: string2
 character(len=5) :: s1, s2
 integer(kind=iwp), allocatable :: ibas(:,:)
 real(kind=wp), allocatable :: E(:), wz(:,:)
-complex(kind=wp), allocatable :: CZ(:,:,:), dipN(:,:,:), dipN3(:,:,:), dipso5(:,:,:,:,:), ML(:,:,:), tmp(:,:), Ztr(:,:)
+complex(kind=wp), allocatable :: CZ(:,:,:), dipN(:,:,:), dipN3(:,:,:), dipso5(:,:,:,:,:), ML(:,:,:), tmp(:,:), tmp2(:,:), &
+                                 tmp3(:,:,:), Ztr(:,:)
 
 if ((nmult > 0) .and. (nBlock > 0)) then
   call mma_allocate(ibas,nmult,nBlock,'ibas')
@@ -120,7 +121,13 @@ do il=1,nmult
     WZ(il,1) = W(Ifunct)
   else ! dimi > 1
 
-    call pseudospin(dipN(:,Ifunct:(Ifunct+ndim(il)-1),Ifunct:(Ifunct+ndim(il)-1)),ndim(il),CZ(il,1:ndim(il),1:ndim(il)),3,1,iprint)
+    call mma_allocate(tmp2,ndim(il),ndim(il),label='tmp2')
+    call mma_allocate(tmp3,3,ndim(il),ndim(il),label='tmp3')
+    tmp3(:,:,:) = dipN(:,Ifunct:Ifunct+ndim(il)-1,Ifunct:Ifunct+ndim(il)-1)
+    call pseudospin(tmp3,ndim(il),tmp2,3,1,iprint)
+    CZ(il,1:ndim(il),1:ndim(il)) = tmp2(:,:)
+    call mma_deallocate(tmp2)
+    call mma_deallocate(tmp3)
 
     if (iPrint > 2) call pa_prMat('barrier:  CZ',CZ(il,1:nDim(il),1:nDim(il)),nDim(il))
   end if
@@ -152,10 +159,14 @@ do iMult=1,nmult
   end do
 end do
 
+call mma_allocate(tmp2,nBlock,nblock,label='tmp2')
 do L=1,3
-  call ZGEMM_('C','N',nBlock,nBlock,nBlock,cOne,Ztr,nBlock,dipN(L,:,:),nBlock,cZero,TMP,nBlock)
-  call ZGEMM_('N','N',nBlock,nBlock,nBlock,cOne,TMP,nBlock,Ztr,nBlock,cZero,ML(L,:,:),nBlock)
+  tmp2(:,:) = dipN(L,:,:)
+  call ZGEMM_('C','N',nBlock,nBlock,nBlock,cOne,Ztr,nBlock,tmp2,nBlock,cZero,TMP,nBlock)
+  call ZGEMM_('N','N',nBlock,nBlock,nBlock,cOne,TMP,nBlock,Ztr,nBlock,cZero,tmp2,nBlock)
+  ML(L,:,:) = tmp2(:,:)
 end do !L
+call mma_deallocate(tmp2)
 
 if (iprint > 2) then
   write(u6,*)

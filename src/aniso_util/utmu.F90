@@ -19,10 +19,13 @@ implicit none
 integer(kind=iwp), intent(in) :: EXCH, N
 complex(kind=wp), intent(in) :: Z(N,N), M1(3,EXCH,EXCH)
 complex(kind=wp), intent(out) :: M2(3,EXCH,EXCH)
-integer(kind=iwp) :: I, J, L
+integer(kind=iwp) :: I, L
 real(kind=wp) :: R1, R2
-complex(kind=wp), allocatable :: TMP(:,:)
+complex(kind=wp), allocatable :: M1_TMP(:,:), M2_TMP(:,:), TMP(:,:)
 real(kind=wp), external :: dznrm2_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: J
+#endif
 
 if ((N <= 0) .or. (EXCH <= 0)) then
   write(u6,'(A)') 'in UTMU:   EXCH or N<=0 !!!'
@@ -59,13 +62,17 @@ do i=1,EXCH
 end do
 #endif
 
-call mma_allocate(TMP,EXCH,EXCH,'TMP')
+call mma_allocate(M1_TMP,N,EXCH,'M1_TMP')
+call mma_allocate(M2_TMP,N,N,'M2_TMP')
+call mma_allocate(TMP,N,EXCH,'TMP')
 
 if (N == EXCH) then
 
   do L=1,3
-    call ZGEMM_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,M1(L,:,:),EXCH,cZero,TMP,EXCH)
-    call ZGEMM_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,M2(L,:,:),EXCH)
+    M1_TMP(:,:) = M1(L,:,:)
+    call ZGEMM_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,M1_TMP,EXCH,cZero,TMP,EXCH)
+    call ZGEMM_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,M2_TMP,EXCH)
+    M2(L,:,:) = M2_TMP(:,:)
   end do !L
 
 else
@@ -73,15 +80,15 @@ else
   M2(:,:,:) = cZero
 
   do L=1,3
-    call ZGEMM_('C','N',N,N,N,cOne,Z,N,M1(L,1:N,1:N),N,cZero,TMP,N)
-    call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z,N,cZero,M2(L,1:N,1:N),N)
-    call ZGEMM_('C','N',N,EXCH,N,cOne,Z,N,M1(L,1:N,:),N,cZero,TMP(1:N,:),N)
+    M1_TMP(:,:) = M1(L,1:N,:)
+    call ZGEMM_('C','N',N,N,N,cOne,Z,N,M1_TMP(:,1:N),N,cZero,TMP(:,1:N),N)
+    call ZGEMM_('N','N',N,N,N,cOne,TMP(:,1:N),N,Z,N,cZero,M2_TMP,N)
+    call ZGEMM_('C','N',N,EXCH,N,cOne,Z,N,M1_TMP,N,cZero,TMP,N)
+    M2(L,1:N,1:N) = M2_TMP(:,:)
 
     do I=1,N
-      do J=N+1,EXCH
-        M2(L,I,J) = TMP(I,J)
-        M2(L,J,I) = conjg(TMP(I,J))
-      end do
+      M2(L,I,N+1:) = TMP(I,N+1:)
+      M2(L,N+1:,I) = conjg(TMP(I,N+1:))
     end do
     M2(L,N+1:,N+1:) = M1(L,N+1:,N+1:)
   end do !L
@@ -108,6 +115,8 @@ do i=1,EXCH
   end do
 end do
 #endif
+call mma_deallocate(M1_TMP)
+call mma_deallocate(M2_TMP)
 call mma_deallocate(TMP)
 
 return

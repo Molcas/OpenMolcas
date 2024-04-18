@@ -22,7 +22,7 @@ complex(kind=wp), intent(in) :: z(n,n)
 complex(kind=wp), intent(inout) :: m(3,exch,exch)
 integer(kind=iwp) :: i, i1, j, j1, l
 real(kind=wp) :: r1, r2
-complex(kind=wp), allocatable :: mtmp(:,:,:), tmp(:,:)
+complex(kind=wp), allocatable :: mtmp(:,:,:), tmp(:,:), tmp2(:,:)
 real(kind=wp), external :: dznrm2_
 
 if ((n <= 0) .or. (exch <= 0)) then
@@ -60,8 +60,9 @@ do i=1,exch
 end do
 #endif
 
-call mma_allocate(tmp,exch,exch,'tmp')
-if (n < exch) then
+call mma_allocate(tmp,n,exch,'tmp')
+call mma_allocate(tmp2,n,exch,'tmp2')
+if (n /= exch) then
   call mma_allocate(mtmp,3,(exch-n),(exch-n),'mtmp')
   ! save the part which is not altered
   do i=n+1,exch
@@ -76,22 +77,24 @@ end if
 if (n == exch) then
 
   do l=1,3
-    call zgemm_('c','n',exch,exch,exch,cOne,z,exch,m(l,:,:),exch,cZero,tmp,exch)
-    call zgemm_('n','n',exch,exch,exch,cOne,tmp,exch,z,exch,cZero,m(l,:,:),exch)
+    tmp2(:,:) = m(l,:,:)
+    call zgemm_('c','n',exch,exch,exch,cOne,z,exch,tmp2,exch,cZero,tmp,exch)
+    call zgemm_('n','n',exch,exch,exch,cOne,tmp,exch,z,exch,cZero,tmp2,exch)
+    m(l,:,:) = tmp2(:,:)
   end do !l
 
 else
 
   do l=1,3
-    call zgemm_('c','n',n,n,n,cOne,z,n,m(l,1:n,1:n),n,cZero,tmp,n)
-    call zgemm_('n','n',n,n,n,cOne,tmp,n,z,n,cZero,m(l,1:n,1:n),n)
-    call zgemm_('c','n',n,exch,n,cOne,z,n,m(l,1:n,:),n,cZero,tmp(1:n,:),n)
+    tmp2(:,:) = m(l,1:n,:)
+    call zgemm_('c','n',n,n,n,cOne,z,n,tmp2(:,1:n),n,cZero,tmp(:,1:n),n)
+    call zgemm_('n','n',n,n,n,cOne,tmp(:,1:n),n,z,n,cZero,tmp2(:,1:n),n)
+    m(l,1:n,1:n) = tmp2(:,1:n)
+    call zgemm_('c','n',n,exch,n,cOne,z,n,tmp2,n,cZero,tmp,n)
 
     do i=1,n
-      do j=n+1,exch
-        m(l,i,j) = tmp(i,j)
-        m(l,j,i) = conjg(tmp(i,j))
-      end do
+      m(l,i,n+1:) = tmp(i,n+1:)
+      m(l,n+1:,i) = conjg(tmp(i,n+1:))
     end do
     m(l,n+1:,n+1:) = mtmp(l,1:exch-n,1:exch-n)
   end do !l
@@ -114,6 +117,7 @@ end do
 
 if (n < exch) call mma_deallocate(mtmp)
 call mma_deallocate(tmp)
+call mma_deallocate(tmp2)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'at the end of utmu2'

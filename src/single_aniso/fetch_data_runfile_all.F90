@@ -27,7 +27,7 @@ real(kind=wp) :: diff
 logical(kind=iwp) :: found_amfi, found_edmom, found_hsoi, found_hsor
 integer(kind=iwp), allocatable :: ibas(:,:), jbnum(:), mltplt(:), nstat(:)
 real(kind=wp), allocatable :: tmpI(:,:), tmpR(:,:), W(:)
-complex(kind=wp), allocatable :: tmp(:,:), u1(:,:)
+complex(kind=wp), allocatable :: M_tmp(:,:), tmp(:,:), u1(:,:)
 complex(kind=wp), external :: Spin
 real(kind=wp), parameter :: g_e = -gElectron, thr_deg = 0.2e-13_wp ! a.u. = 0.2e-13*auTocm = 4.38949263e-9 cm-1
 
@@ -179,24 +179,34 @@ call mma_deallocate(ibas)
 
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:
+call mma_allocate(M_tmp,nss,nss,'M_tmp')
 call mma_allocate(tmp,nss,nss,'tmp')
 do L=1,3
   ! spin moment
-  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MS(L,:,:),nss,cZero,TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MS(L,:,:),nss)
+  M_tmp(:,:) = MS(L,:,:)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,M_tmp,nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,M_tmp,nss)
+  MS(L,:,:) = M_tmp(:,:)
   ! orbital moment
-  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,ML(L,:,:),nss,cZero,TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,ML(L,:,:),nss)
+  M_tmp(:,:) = ML(L,:,:)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,M_tmp,nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,M_tmp,nss)
+  ML(L,:,:) = M_tmp(:,:)
   ! magnetic moment
-  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MM(L,:,:),nss,cZero,TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MM(L,:,:),nss)
+  M_tmp(:,:) = MM(L,:,:)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,M_tmp,nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,M_tmp,nss)
+  MM(L,:,:) = M_tmp(:,:)
 
   if (found_EDMOM) then
     ! electric dipole moment
-    call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,DM(L,:,:),nss,cZero,TMP,nss)
-    call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,DM(L,:,:),nss)
+    M_tmp(:,:) = DM(L,:,:)
+    call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,M_tmp,nss,cZero,TMP,nss)
+    call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,M_tmp,nss)
+    DM(L,:,:) = M_tmp(:,:)
   end if
 end do ! L
+call mma_deallocate(M_tmp)
 call mma_deallocate(tmp)
 
 ! check the commutation rules of spin:

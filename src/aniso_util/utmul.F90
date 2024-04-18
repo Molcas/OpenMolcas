@@ -23,7 +23,7 @@ complex(kind=wp), intent(in) :: Z(N,N)
 complex(kind=wp), intent(inout) :: ML(EXCH,EXCH)
 integer(kind=iwp) :: I, i1, J, j1
 real(kind=wp) :: R1, R2
-complex(kind=wp), allocatable :: TMP(:,:), MTMP(:,:)
+complex(kind=wp), allocatable :: MTMP(:,:), TMP(:,:), TMP2(:,:)
 real(kind=wp), external :: dznrm2_
 
 if ((N <= 0) .or. (EXCH <= 0)) then
@@ -59,8 +59,8 @@ do i=1,EXCH
 end do
 #endif
 
-call mma_allocate(TMP,EXCH,EXCH,'TMP')
-if (N < EXCH) then
+call mma_allocate(TMP,N,EXCH,'TMP')
+if (N /= EXCH) then
   call mma_allocate(MTMP,(EXCH-N),(EXCH-N),'MTMP')
   ! save the part which is not altered
   do i=N+1,EXCH
@@ -78,15 +78,17 @@ if (N == EXCH) then
 
 else
 
-  call ZGEMM_('C','N',N,N,N,cOne,Z,N,ML(1:N,1:N),N,cZero,TMP,N)
-  call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z,N,cZero,ML(1:N,1:N),N)
-  call ZGEMM_('C','N',N,EXCH,N,cOne,Z,N,ML(1:N,:),N,cZero,TMP(1:N,:),N)
+  call mma_allocate(TMP2,N,EXCH,'TMP2')
+  TMP2(:,:) = ML(1:N,:)
+  call ZGEMM_('C','N',N,N,N,cOne,Z,N,TMP2(:,1:N),EXCH,cZero,TMP(:,1:N),N)
+  call ZGEMM_('N','N',N,N,N,cOne,TMP(:,1:N),N,Z,N,cZero,TMP2(:,1:N),EXCH)
+  ML(1:N,1:N) = TMP2(:,1:N)
+  call ZGEMM_('C','N',N,EXCH,N,cOne,Z,N,TMP2,EXCH,cZero,TMP,N)
+  call mma_deallocate(TMP2)
 
   do I=1,N
-    do J=N+1,EXCH
-      ML(I,J) = TMP(I,J)
-      ML(J,I) = conjg(TMP(I,J))
-    end do
+    ML(I,N+1:) = TMP(I,N+1:)
+    ML(N+1:,I) = conjg(TMP(I,N+1:))
   end do
   ML(N+1:,N+1:) = MTMP(1:EXCH-N,1:EXCH-N)
 

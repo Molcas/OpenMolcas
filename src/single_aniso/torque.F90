@@ -22,6 +22,7 @@ complex(kind=wp), intent(in) :: DIPM(3,nss,nss), SM(3,nss,nss)
 logical(kind=iwp), intent(in) :: m_paranoid, smagn, DBG
 integer(kind=iwp) :: I, IM, J, mem_local, nT_torq
 real(kind=wp) :: AngRad, AngStep, g(3), mg(3,3), MT(3), ST(3), ZT(1) !, det, dlth, ma_inv(3,3)
+complex(kind=wp) :: MM(3,2,2)
 character(len=99) :: STLNE1, STLNE2
 real(kind=wp), allocatable :: Ang(:), dX(:), dY(:), dZ(:), ty(:), W(:) !, tx(:,:), tz(:,:)
 complex(kind=wp), allocatable :: M(:,:,:), S(:,:,:)
@@ -101,7 +102,8 @@ end if
 call rotmom2(DIPM,nss,ma,M)
 call rotmom2(SM,nss,ma,S)
 
-call atens(M(:,1:2,1:2),2,g,mg,2)
+MM(:,:,:) = M(:,1:2,1:2)
+call atens(MM,2,g,mg,2)
 !-----------------------------------------------------------------------
 !call hdir2(AngPoints,2,dX,dY,dZ,Ang,2)
 dY(:) = Zero

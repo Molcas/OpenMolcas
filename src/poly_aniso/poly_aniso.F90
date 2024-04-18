@@ -88,7 +88,8 @@ integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
 integer(kind=iwp) :: AngPoints, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, iopt, iPrint, j, KEOPT, l, lant, LuAniso, &
                      mem, mG, multLn, nBlock, ncut, nDirTot, ngrid, nK, nM, nP, nsymm
-real(kind=wp) :: coord(3), cryst(6), dltH0, dltT0, em, encut_rate, hmax, hmin, thrs, tmax, tmin, tpar, upar, Xfield, zJ
+real(kind=wp) :: coord(3), cryst(6), dltH0, dltT0, em, encut_rate, gtens(3), hmax, hmin, maxes(3,3), thrs, tmax, tmin, tpar, upar, &
+                 Xfield, zJ
 logical(kind=iwp) :: AnisoLines1, AnisoLines3, AnisoLines9, check_title, compute_barrier, compute_g_tensors, &
                      compute_magnetization, compute_Mdir_vector, compute_susceptibility, compute_torque, decompose_exchange, &
                      Dipol, DM_exchange, Do_structure_abc, DoPlot, fitCHI, fitM, GRAD, hinput, ifHDF, JITO_exchange, KE, &
@@ -97,11 +98,12 @@ character(len=180) :: fname, namefile_aniso(nneq), Title
 character :: itype(nneq)
 integer(kind=iwp), allocatable :: i_pair(:,:), imaxrank(:,:), LuZee(:), nDim(:), neq(:), nexch(:), nsfs(:), nss(:)
 real(kind=wp), allocatable :: chit_exp(:), D_fact(:), dir_weight(:,:), dirX(:), dirY(:), dirZ(:), EoverD_fact(:), eso(:,:), &
-                              eso_au(:,:), gtens(:,:), gtens_input(:,:), Hexp(:), JAex(:,:), JAex9(:,:,:), JDMex(:,:), Jex(:), &
-                              JITOexI(:,:,:,:,:), JITOexR(:,:,:,:,:), MagnCoords(:,:), maxes(:,:,:), Mexp(:,:), R_LG(:,:,:,:), &
-                              R_ROT(:,:,:,:), riso(:,:,:), T(:), TempMagn(:), Texp(:), W(:), XLM(:,:,:,:), XRM(:,:,:,:), &
-                              XT_no_field(:), XTexp(:), ZLM(:,:), ZRM(:,:)
-complex(kind=wp), allocatable :: dipexch(:,:,:), dipso(:,:,:,:), s_exch(:,:,:), s_so(:,:,:,:), Z(:,:)
+                              eso_au(:,:), eso_tmp(:), eso_tmp2(:,:), gtens_input(:,:), Hexp(:), JAex(:,:), JAex9(:,:,:), &
+                              JDMex(:,:), Jex(:), JITOexI(:,:,:,:,:), JITOexR(:,:,:,:,:), MagnCoords(:,:), Mexp(:,:), &
+                              R_LG(:,:,:,:), R_ROT(:,:,:,:), riso(:,:,:), T(:), TempMagn(:), Texp(:), W(:), XLM(:,:,:,:), &
+                              XRM(:,:,:,:), XT_no_field(:), XTexp(:), ZLM(:,:), ZRM(:,:)
+complex(kind=wp), allocatable :: dipexch(:,:,:), dipexch_tmp(:,:,:), dipso(:,:,:,:), dipso_tmp(:,:,:), dipso_tmp2(:,:,:,:), &
+                                 s_exch(:,:,:), s_exch_tmp(:,:,:), s_so(:,:,:,:), s_so_tmp(:,:,:), s_so_tmp2(:,:,:,:), Z(:,:)
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 #else
@@ -198,12 +200,6 @@ write(u6,'(A,I16)') 'mem 2 =',mem
 call mma_allocate(nDim,nMult,'nDim')
 nDim(:) = 0
 mem = mem+size(nDim)*ItoB
-! g_tensor for each multiplet
-call mma_allocate(gtens,nMult,3,'gtens')
-mem = mem+size(gtens)*RtoB
-! main axes of the g tensor for each multiplet
-call mma_allocate(maxes,nMult,3,3,'maxes')
-mem = mem+size(maxes)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 3 =',mem
@@ -237,7 +233,7 @@ call mma_allocate(MagnCoords,nneq,3,'MagnCoords')
 MagnCoords(:,:) = Zero
 mem = mem+size(MagnCoords)*RtoB
 ! riso
-call mma_allocate(riso,nneq,3,3,'riso')
+call mma_allocate(riso,3,3,nneq,'riso')
 riso(:,:,:) = Zero
 mem = mem+size(riso)*RtoB
 
@@ -419,8 +415,17 @@ do i=1,nneq
     write(u6,*) 'Enter generate_isotrop_site'
     call xFlush(u6)
 #   endif
-    call generate_isotrop_site(nss(i),nsfs(i),nexch(i),gtens_input(:,i),riso(i,:,:),D_fact(i),EoverD_fact(i),eso(i,1:nexch(i)), &
-                               dipso(i,:,1:nexch(i),1:nexch(i)),s_so(i,:,1:nexch(i),1:nexch(i)))
+    call mma_allocate(eso_tmp,nexch(i),label='eso_tmp')
+    call mma_allocate(dipso_tmp,3,nexch(i),nexch(i),label='dipso_tmp')
+    call mma_allocate(s_so_tmp,3,nexch(i),nexch(i),label='s_so_tmp')
+    call generate_isotrop_site(nss(i),nsfs(i),nexch(i),gtens_input(:,i),riso(:,:,i),D_fact(i),EoverD_fact(i),eso_tmp,dipso_tmp, &
+                               s_so_tmp)
+    eso(i,1:nexch(i)) = eso_tmp(:)
+    dipso(i,:,1:nexch(i),1:nexch(i)) = dipso_tmp(:,:,:)
+    s_so(i,:,1:nexch(i),1:nexch(i)) = s_so_tmp(:,:,:)
+    call mma_deallocate(eso_tmp)
+    call mma_deallocate(dipso_tmp)
+    call mma_deallocate(s_so_tmp)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Exit generate_isotrop_site'
     call xFlush(u6)
@@ -450,8 +455,16 @@ do i=1,nneq
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'i=',i,'nsfs(i),nss(i)=',nsfs(i),nss(i)
 #     endif
-      call read_hdf5_poly(namefile_aniso(i),nss(i),nsfs(i),eso(i,1:nss(i)),dipso(i,:,1:nss(i),1:nss(i)), &
-                          s_so(i,:,1:nss(i),1:nss(i)),iReturn)
+      call mma_allocate(eso_tmp,nss(i),label='eso_tmp')
+      call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+      call mma_allocate(s_so_tmp,3,nss(i),nss(i),label='s_so_tmp')
+      call read_hdf5_poly(namefile_aniso(i),nss(i),nsfs(i),eso_tmp,dipso_tmp,s_so_tmp,iReturn)
+      eso(i,1:nss(i)) = eso_tmp(:)
+      dipso(i,:,1:nss(i),1:nss(i)) = dipso_tmp(:,:,:)
+      s_so(i,:,1:nss(i),1:nss(i)) = s_so_tmp(:,:,:)
+      call mma_deallocate(eso_tmp)
+      call mma_deallocate(dipso_tmp)
+      call mma_deallocate(s_so_tmp)
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Exit read_hdf5_poly'
       write(u6,*) 'ESO(i)=',(ESO(i,j),j=1,nss(i))
@@ -479,8 +492,16 @@ do i=1,nneq
         call xFlush(u6)
 #       endif
 
-        call read_formatted_aniso_poly(namefile_aniso(i),nss(i),nsfs(i),nLoc,eso(i,1:nLoc),dipso(i,:,1:nLoc,1:nLoc), &
-                                       s_so(i,:,1:nLoc,1:nLoc),iReturn)
+        call mma_allocate(eso_tmp,nLoc,label='eso_tmp')
+        call mma_allocate(dipso_tmp,3,nLoc,nLoc,label='dipso_tmp')
+        call mma_allocate(s_so_tmp,3,nLoc,nLoc,label='s_so_tmp')
+        call read_formatted_aniso_poly(namefile_aniso(i),nss(i),nsfs(i),nLoc,eso_tmp,dipso_tmp,s_so_tmp,iReturn)
+        eso(i,1:nLoc) = eso_tmp(:)
+        dipso(i,:,1:nLoc,1:nLoc) = dipso_tmp(:,:,:)
+        s_so(i,:,1:nLoc,1:nLoc) = s_so_tmp(:,:,:)
+        call mma_deallocate(eso_tmp)
+        call mma_deallocate(dipso_tmp)
+        call mma_deallocate(s_so_tmp)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'Exit read_formatted_aniso_poly'
 #       endif
@@ -497,19 +518,28 @@ do i=1,nneq
         ! nss(i) is yet undefined up till this place
         call read_nss(LuAniso,nss(i),dbg)
         call read_nstate(LuAniso,nsfs(i),dbg)
-        call read_eso(LuAniso,nss(i),eso_au(i,1:nss(i)),dbg)
+        call mma_allocate(eso_tmp,nss(i),label='eso_tmp')
+        call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+        call mma_allocate(s_so_tmp,3,nss(i),nss(i),label='s_so_tmp')
+        call read_eso(LuAniso,nss(i),eso_tmp,dbg)
+        eso_au(i,1:nss(i)) = eso_tmp(:)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'poly_aniso: eso_au=',(eso_au(i,j),j=1,nss(i))
 #       endif
-        call read_magnetic_moment(LuAniso,nss(i),dipso(i,:,1:nss(i),1:nss(i)),dbg)
+        call read_magnetic_moment(LuAniso,nss(i),dipso_tmp,dbg)
+        dipso(i,:,1:nss(i),1:nss(i)) = dipso_tmp(:,:,:)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'Call read_spin_moment'
         call xFlush(u6)
 #       endif
-        call read_spin_moment(LuAniso,nss(i),s_so(i,:,1:nss(i),1:nss(i)),dbg)
+        call read_spin_moment(LuAniso,nss(i),s_so_tmp,dbg)
+        s_so(i,:,1:nss(i),1:nss(i)) = s_so_tmp(:,:,:)
         ! compute the relative spin-orbit energies in cm-1
         eso(i,1:nss(i)) = (eso_au(i,1:nss(i))-eso_au(i,1))*auTocm
         close(LuAniso)
+        call mma_deallocate(eso_tmp)
+        call mma_deallocate(dipso_tmp)
+        call mma_deallocate(s_so_tmp)
 
       end if
     end if ! ifHDF
@@ -520,10 +550,16 @@ end do
 
 #ifdef _DEBUGPRINT_
 do i=1,nneq
+  call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+  call mma_allocate(s_so_tmp,3,nss(i),nss(i),label='s_so_tmp')
+  dipso_tmp(:,:,:) = dipso(i,:,1:nss(i),1:nss(i))
+  s_so_tmp(:,:,:) = s_so(i,:,1:nss(i),1:nss(i))
   write(u6,*) 'MAGNETIC MOMENT  ON  SITE 1'
-  call prMom('site i',dipso(i,:,1:nss(i),1:nss(i)),nss(i))
+  call prMom('site i',dipso_tmp,nss(i))
   write(u6,*) 'SPIN MOMENT  ON  SITE 1'
-  call prMom('site i',s_so(i,:,1:nss(i),1:nss(i)),nss(i))
+  call prMom('site i',s_so_tmp,nss(i))
+  call mma_deallocate(dipso_tmp)
+  call mma_deallocate(s_so_tmp)
 end do
 #endif
 
@@ -569,10 +605,18 @@ write(u6,*) 'JITO_exchange = ',JITO_exchange
 write(u6,*) 'nmax          = ',nmax
 #endif
 
+call mma_allocate(eso_tmp2,nneq,nmax,label='eso_tmp2')
+call mma_allocate(dipso_tmp2,nneq,3,nmax,nmax,label='dipso_tmp2')
+call mma_allocate(s_so_tmp2,nneq,3,nmax,nmax,label='s_so_tmp2')
+eso_tmp2(:,:) = eso(1:nneq,1:nmax)
+dipso_tmp2(:,:,:,:) = dipso(1:nneq,:,1:nmax,1:nmax)
+s_so_tmp2(:,:,:,:) = s_so(1:nneq,:,1:nmax,1:nmax)
+
 call exchctl(exch,nneq,neqv,neq,nexch,nmax,nCenter,npair,i_pair,MxRank1,MxRank2,imaxrank,Jex,JAex,JAex9,JDMex,JITOexR,JITOexI, &
-             eso(1:nneq,1:nmax),s_so(1:nneq,:,1:nmax,1:nmax),dipso(1:nneq,:,1:nmax,1:nmax),MagnCoords,R_ROT,R_LG,riso,tpar, &
-             upar,lant,itype,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,KEOPT,DM_exchange,JITO_exchange,W,Z,S_EXCH,DIPEXCH, &
-             iPrint,mem)
+             eso_tmp2,s_so_tmp2,dipso_tmp2,MagnCoords,R_ROT,R_LG,riso,tpar,upar,lant,itype,Dipol,AnisoLines1,AnisoLines3, &
+             AnisoLines9,KE,KEOPT,DM_exchange,JITO_exchange,W,Z,S_EXCH,DIPEXCH,iPrint,mem)
+dipso(1:nneq,:,1:nmax,1:nmax) = dipso_tmp2(:,:,:,:)
+s_so(1:nneq,:,1:nmax,1:nmax) = s_so_tmp2(:,:,:,:)
 !-----------------------------------------------------------------------
 !     generate an 'aniso -like file' for testign exchange proj in SA
 fname = 'ANISOINPUT_POLY'
@@ -581,8 +625,11 @@ call write_formatted_aniso_poly(fname,exch,W,dipexch,s_exch)
 ! compute the magnetic moments on individual metal sites, for
 ! the lowest NSTA exchange states;
 !   NMAX = maximal number of local states which participate into the exchange coupling
-call MOMLOC2(exch,nmax,nneq,neq,neqv,r_rot,nCenter,nExch,W,Z,dipexch,s_exch,dipso(1:nneq,:,1:nmax,1:nmax), &
-             s_so(1:nneq,:,1:nmax,1:nmax))
+call MOMLOC2(exch,nmax,nneq,neq,neqv,r_rot,nCenter,nExch,W,Z,dipexch,s_exch,dipso_tmp2,s_so_tmp2)
+
+call mma_deallocate(eso_tmp2)
+call mma_deallocate(dipso_tmp2)
+call mma_deallocate(s_so_tmp2)
 
 !-----------------------------------------------------------------------
 if (compute_g_tensors) then
@@ -600,14 +647,21 @@ if (compute_g_tensors) then
     if (ndim(imltpl) > 1) then
       if (i2 > exch) exit
 
+      call mma_allocate(s_exch_tmp,3,ndim(imltpl),ndim(imltpl),label='s_exch_tmp')
+      call mma_allocate(dipexch_tmp,3,ndim(imltpl),ndim(imltpl),label='dipexch_tmp')
+      s_exch_tmp(:,:,:) = s_exch(:,i1:i2,i1:i2)
+      dipexch_tmp(:,:,:) = dipexch(:,i1:i2,i1:i2)
+
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
-      call prmom('PA: s_exch:',s_exch(:,i1:i2,i1:i2),ndim(imltpl))
-      call prmom('PA: dip_exch:',dipexch(:,i1:i2,i1:i2),ndim(imltpl))
+      call prmom('PA: s_exch:',s_exch_tmp,ndim(imltpl))
+      call prmom('PA: dip_exch:',dipexch_tmp,ndim(imltpl))
 #     endif
 
-      call g_high(w(i1:i2),GRAD,s_exch(:,i1:i2,i1:i2),dipexch(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
-                  gtens(imltpl,:),maxes(imltpl,:,:),iprint)
+      call g_high(w(i1:i2),GRAD,s_exch_tmp,dipexch_tmp,imltpl,ndim(imltpl),Do_structure_abc,cryst,coord,gtens,maxes,iprint)
+
+      call mma_deallocate(s_exch_tmp)
+      call mma_deallocate(dipexch_tmp)
 
     end if
     Ifunct = Ifunct+ndim(imltpl)
@@ -632,7 +686,10 @@ if (compute_barrier) then
       end do
     end do
 
-    call BARRIER(nBlock,dipexch(:,1:nBlock,1:nBlock),W(1:nBlock),imanifold,nMult,nDim(1:nMult),DoPlot,iprint)
+    call mma_allocate(dipexch_tmp,3,nBlock,nBlock,label='dipexch_tmp')
+    dipexch_tmp(:,:,:) = dipexch(:,1:nBlock,1:nBlock)
+    call BARRIER(nBlock,dipexch_tmp,W(1:nBlock),imanifold,nMult,nDim(1:nMult),DoPlot,iprint)
+    call mma_deallocate(dipexch_tmp)
 
   else
     write(u6,'(A)') 'nBlock parameter is not defined. '
@@ -724,8 +781,6 @@ call mma_deallocate(JITOexR)
 call mma_deallocate(JITOexI)
 
 call mma_deallocate(nDim)
-call mma_deallocate(gtens)
-call mma_deallocate(maxes)
 call mma_deallocate(neq)
 call mma_deallocate(nss)
 call mma_deallocate(nsfs)

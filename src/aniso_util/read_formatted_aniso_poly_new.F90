@@ -26,6 +26,7 @@ complex(kind=wp), intent(out) :: MM(3,nss,nss), MS(3,nss,nss)
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: LuAniso
 real(kind=wp), allocatable :: eso_au(:)
+complex(kind=wp), allocatable :: MTMP(:,:,:)
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 integer(kind=iwp) :: i, j, l
@@ -56,12 +57,16 @@ call read_eso(LuAniso,nss,eso_au,dbg)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'read_formatted_aniso_poly_NEW: eso_au=',(eso_au(i),i=1,nss)
 #endif
-call read_magnetic_moment(LuAniso,nss,MM(:,1:nss,1:nss),dbg)
+call mma_allocate(MTMP,3,nss,nss)
+call read_magnetic_moment(LuAniso,nss,MTMP,dbg)
+MM(:,1:nss,1:nss) = MTMP(:,:,:)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Call read_spin_moment'
 call xFlush(u6)
 #endif
-call read_spin_moment(LuAniso,nss,MS(:,1:nss,1:nss),dbg)
+call read_spin_moment(LuAniso,nss,MTMP,dbg)
+MS(:,1:nss,1:nss) = MTMP(:,:,:)
+call mma_deallocate(MTMP)
 
 ! compute the relative spin-orbit energies in cm-1
 eso(:) = (eso_au(:)-eso_au(1))*auTocm

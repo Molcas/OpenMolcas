@@ -26,12 +26,13 @@ real(kind=wp), intent(out) :: XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn)
                               ZRM(nCenter,nTempMagn), chit_theta(nT+nTempMagn)
 integer(kind=iwp) :: i, ic, im, info, isite, iT, j, jc, jm, jT, mem_local, n1, n2
 real(kind=wp) :: A_dir(3,3), A_inv(3,3), chit_tens_ex(3,3), det, Fa, Fb, Fc, Fd, Fe, Ff, smu_chit_tens_ex(3,3), &
-                 smu_chit_tens_tot(3,3), ss_chit_tens_ex(3,3), unity(3,3), xxm, zstat_ex
+                 smu_chit_tens_tot(3,3), ss_chit_tens_ex(3,3), ss_chit_tens_tot(3,3), unity(3,3), xxm, zstat_ex
 character(len=50) :: label
 real(kind=wp), allocatable :: chi_theta_1(:), chit(:), chit_tens_l(:,:,:), chit_tens_lr(:,:,:), chit_tens_tot(:,:,:), &
-                              chit_theta_tens(:,:,:), smu_chit_tens_l(:,:,:), smu_chit_tens_lr(:,:,:), SMUL(:,:,:), SMUR(:,:,:), &
-                              ss_chit_tens_l(:,:,:), ss_chit_tens_lr(:,:,:), ss_chit_tens_tot(:,:), SSL(:,:,:), SSR(:,:,:), wt(:), &
-                              zt(:,:), XL(:,:,:), XR(:,:,:), ZL(:), ZR(:), zstat_l(:), zstat_lr(:), zstat_tot(:)
+                              chit_theta_tens(:,:,:), eso_tmp(:), smu_chit_tens_l(:,:,:), smu_chit_tens_lr(:,:,:), SMUL(:,:,:), &
+                              SMUR(:,:,:), ss_chit_tens_l(:,:,:), ss_chit_tens_lr(:,:,:), SSL(:,:,:), SSR(:,:,:), wt(:), zt(:,:), &
+                              XL(:,:,:), XR(:,:,:), ZL(:), ZR(:), zstat_l(:), zstat_lr(:), zstat_tot(:)
+complex(kind=wp), allocatable :: dipso_tmp(:,:,:), s_so_tmp(:,:,:)
 real(kind=wp), parameter :: boltz_k = kBoltzmann/(cm_s*hPlanck), & ! in cm^-1*k-1
                             coeff_chi = rNAVO*mBohr**2/kBoltzmann/Ten ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
 real(kind=wp), external :: dev, dnrm2_
@@ -66,13 +67,19 @@ write(u6,*) 'W()           ',(W(i),i=1,exch)
 write(u6,*) 'zJ:           ',zJ
 write(u6,*) 'tinput:       ',tinput
 write(u6,*) 'doplot:       ',doplot
+!call mma_allocate(s_so_tmp,3,nLoc,nLoc,label='s_so_tmp')
+!call mma_allocate(dipso_tmp,3,nLoc,nLoc,label='dipso_tmp')
 !do i=1,nneq
 !  write(u6,*) 'eso()         ',(eso(i,j),j=1,nss(i))
-!  call prMom('SUSC: input  s_so(i,:,:,:):',s_so(i,:,:,:),nexch(i))
-!  call prMom('SUSC: input dipso(i,:,:,:):',dipso(i,:,:,:),nexch(i))
-!  call atens(s_so(i,:,:,:),nexch(i),gtens,maxes,2)
-!  call atens(dipso(i,:,:,:),nexch(i),gtens,maxes,2)
-!End Do
+!  s_so_tmp(:,:,:) = s_so(i,:,:,:)
+!  dipso_tmp(:,:,:) = dipso(i,:,:,:)
+!  call prMom('SUSC: input  s_so(i,:,:,:):',s_so_tmp,nexch(i))
+!  call prMom('SUSC: input dipso(i,:,:,:):',dipso_tmp,nexch(i))
+!  call atens(s_so_tmp,nexch(i),gtens,maxes,2)
+!  call atens(dipso_tmp,nexch(i),gtens,maxes,2)
+!end do
+!call mma_deallocate(s_so_tmp)
+!call mma_deallocate(dipso_tmp)
 !call prMom('SUSC: input  S_EXCH(l,i,j):',s_exch,exch)
 !call prMom('SUSC: input DIPEXCH(l,i,j):',dipexch,exch)
 !call atens(s_exch,exch,gtens,maxes,2)
@@ -105,10 +112,10 @@ else
 end if
 call XFlush(u6)
 !-----------------------------------------------------------------------
-call mma_allocate(chit_tens_tot,(nT+nTempMagn),3,3,'XT_tens_tot')
-call mma_allocate(chit_theta_tens,(nT+nTempMagn),3,3,'XT_theta_t')
-call mma_allocate(chit_tens_l,nneq,3,3,'XT_tens_l')
-call mma_allocate(chit_tens_lr,nneq,3,3,'XT_tens_lr')
+call mma_allocate(chit_tens_tot,3,3,(nT+nTempMagn),'XT_tens_tot')
+call mma_allocate(chit_theta_tens,3,3,(nT+nTempMagn),'XT_theta_t')
+call mma_allocate(chit_tens_l,3,3,nneq,'XT_tens_l')
+call mma_allocate(chit_tens_lr,3,3,nneq,'XT_tens_lr')
 call mma_allocate(zstat_l,nneq,'Zstat_l')
 call mma_allocate(zstat_lr,nneq,'Zstat_lr')
 mem_local = mem_local+size(chit_tens_tot)*RtoB
@@ -156,10 +163,21 @@ if (zJ == Zero) then
       write(u6,'(A,9F10.6)') 'W(:)    =',W(:)
       write(u6,'(A,9F10.6)') 'T(iT)=',T(iT)
 #     endif
-      call chi(dipso(i,:,1:nss(i),1:nss(i)),dipso(i,:,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(it),zstat_l(i),chit_tens_l(i,:,:))
+      call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+      call mma_allocate(eso_tmp,nss(i),label='eso_tmp')
+      dipso_tmp(:,:,:) = dipso(i,:,1:nss(i),1:nss(i))
+      eso_tmp(:) = eso(i,1:nss(i))
+      call chi(dipso_tmp,dipso_tmp,eso_tmp,nss(i),T(it),zstat_l(i),chit_tens_l(:,:,i))
+      call mma_deallocate(dipso_tmp)
+      call mma_deallocate(eso_tmp)
 
-      call chi(dipso(i,:,1:nexch(i),1:nexch(i)),dipso(i,:,1:nexch(i),1:nexch(i)),eso(i,1:nexch(i)),nexch(i),T(iT),zstat_lr(i), &
-               chit_tens_lr(i,:,:))
+      call mma_allocate(dipso_tmp,3,nexch(i),nexch(i),label='dipso_tmp')
+      call mma_allocate(eso_tmp,nexch(i),label='eso_tmp')
+      dipso_tmp(:,:,:) = dipso(i,:,1:nexch(i),1:nexch(i))
+      eso_tmp(:) = eso(i,1:nexch(i))
+      call chi(dipso_tmp,dipso_tmp,eso_tmp,nexch(i),T(iT),zstat_lr(i),chit_tens_lr(:,:,i))
+      call mma_deallocate(dipso_tmp)
+      call mma_deallocate(eso_tmp)
 
     end do ! i (nneq)
     call chi(dipexch,dipexch,W,exch,T(iT),zstat_ex,chit_tens_ex)
@@ -186,8 +204,8 @@ if (zJ == Zero) then
         do jc=1,3
           do n1=1,3
             do n2=1,3
-              XL(isite,:,jc) = XL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_l(i,n1,n2)
-              XR(isite,:,jc) = XR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_lr(i,n1,n2)
+              XL(isite,:,jc) = XL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_l(n1,n2,i)
+              XR(isite,:,jc) = XR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_lr(n1,n2,i)
             end do
           end do
         end do
@@ -207,7 +225,7 @@ if (zJ == Zero) then
       ZRM(:,iT) = ZR(:)
       ZLM(:,iT) = ZL(:)
     end if
-    call chi_sum(nCenter,chit_tens_ex,zstat_ex,XL,ZL,XR,ZR,iopt,chit_tens_tot(it,:,:),zstat_tot(it))
+    call chi_sum(nCenter,chit_tens_ex,zstat_ex,XL,ZL,XR,ZR,iopt,chit_tens_tot(:,:,it),zstat_tot(it))
 
     Fa = dnrm2_(nCenter,ZL,1)
     Fb = dnrm2_(nCenter,ZR,1)
@@ -215,7 +233,7 @@ if (zJ == Zero) then
     call Add_Info('XT:  ZR',[Fb],1,6)
     call Add_Info('XT: ZEx',[zstat_ex],1,6)
 
-    chit(it) = coeff_chi*(chit_tens_tot(iT,1,1)+chit_tens_tot(iT,2,2)+chit_tens_tot(iT,3,3))/Three
+    chit(it) = coeff_chi*(chit_tens_tot(1,1,iT)+chit_tens_tot(2,2,iT)+chit_tens_tot(3,3,iT))/Three
     chit_theta(iT) = chit(iT)
 
     if (abs(chit(iT)) < 1.0e-20_wp) then
@@ -224,8 +242,8 @@ if (zJ == Zero) then
     end if
     chi_theta_1(iT) = T(iT)/chit(iT)
     ! add some verification data:
-    chit_theta_tens(iT,:,:) = Zero
-    Fa = dnrm2_(9,chit_theta_tens(iT,:,:),1)
+    chit_theta_tens(:,:,iT) = Zero
+    Fa = dnrm2_(9,chit_theta_tens(:,:,iT),1)
     call Add_Info('XT: chit_theta_tens',[Fa],1,6)
   end do ! iT
   Fb = dnrm2_(nT+nTempMagn,T,1)
@@ -234,11 +252,10 @@ if (zJ == Zero) then
 else ! i.e. when (zJ /= 0)
 
   ! allocate memory for temporary arrays:
-  call mma_allocate(smu_chit_tens_l,nneq,3,3,'smu_X_tens_l')
-  call mma_allocate(smu_chit_tens_lr,nneq,3,3,'smu_X_tens_lr')
-  call mma_allocate(ss_chit_tens_l,nneq,3,3,'ss_chit_tens_l')
-  call mma_allocate(ss_chit_tens_lr,nneq,3,3,'ss_chit_tens_lr')
-  call mma_allocate(ss_chit_tens_tot,3,3,'SS_XT')
+  call mma_allocate(smu_chit_tens_l,3,3,nneq,'smu_X_tens_l')
+  call mma_allocate(smu_chit_tens_lr,3,3,nneq,'smu_X_tens_lr')
+  call mma_allocate(ss_chit_tens_l,3,3,nneq,'ss_chit_tens_l')
+  call mma_allocate(ss_chit_tens_lr,3,3,nneq,'ss_chit_tens_lr')
   call mma_allocate(SMUR,nCenter,3,3,'SMUR')
   call mma_allocate(SMUL,nCenter,3,3,'SMUL')
   call mma_allocate(SSR,nCenter,3,3,'SSR')
@@ -247,7 +264,6 @@ else ! i.e. when (zJ /= 0)
   mem_local = mem_local+size(smu_chit_tens_lr)*RtoB
   mem_local = mem_local+size(ss_chit_tens_l)*RtoB
   mem_local = mem_local+size(ss_chit_tens_lr)*RtoB
-  mem_local = mem_local+size(ss_chit_tens_tot)*RtoB
   mem_local = mem_local+size(SMUR)*RtoB
   mem_local = mem_local+size(SMUL)*RtoB
   mem_local = mem_local+size(SSR)*RtoB
@@ -272,22 +288,31 @@ else ! i.e. when (zJ /= 0)
 
     ! compute local tensors  L, and LR:
     do i=1,nneq
-      call chi(dipso(i,:,1:nss(i),1:nss(i)),dipso(i,:,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(iT),zstat_l(i),chit_tens_l(i,:,:))
+      call mma_allocate(eso_tmp,nss(i),label='eso_tmp')
+      call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+      call mma_allocate(s_so_tmp,3,nss(i),nss(i),label='s_so_tmp')
+      eso_tmp(:) = eso(i,1:nss(i))
+      dipso_tmp(:,:,:) = dipso(i,:,1:nss(i),1:nss(i))
+      s_so_tmp(:,:,:) = s_so(i,:,1:nss(i),1:nss(i))
+      call chi(dipso_tmp,dipso_tmp,eso_tmp,nss(i),T(iT),zstat_l(i),chit_tens_l(:,:,i))
+      call chi(s_so_tmp,dipso_tmp,eso_tmp,nss(i),T(iT),zstat_l(i),smu_chit_tens_l(:,:,i))
+      call chi(s_so_tmp,s_so_tmp,eso_tmp,nss(i),T(iT),zstat_l(i),ss_chit_tens_l(:,:,i))
+      call mma_deallocate(eso_tmp)
+      call mma_deallocate(dipso_tmp)
+      call mma_deallocate(s_so_tmp)
 
-      call chi(s_so(i,:,1:nss(i),1:nss(i)),dipso(i,:,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(iT),zstat_l(i), &
-               smu_chit_tens_l(i,:,:))
-
-      call chi(s_so(i,:,1:nss(i),1:nss(i)),s_so(i,:,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(iT),zstat_l(i), &
-               ss_chit_tens_l(i,:,:))
-
-      call chi(dipso(i,:,1:nexch(i),1:nexch(i)),dipso(i,:,1:nexch(i),1:nexch(i)),eso(i,1:nexch(i)),nexch(i),T(iT),zstat_lr(i), &
-               chit_tens_lr(i,:,:))
-
-      call chi(s_so(i,:,1:nexch(i),1:nexch(i)),dipso(i,:,1:nexch(i),1:nexch(i)),eso(i,1:nexch(i)),nexch(i),T(iT),zstat_lr(i), &
-               smu_chit_tens_lr(i,:,:))
-
-      call chi(s_so(i,:,1:nexch(i),1:nexch(i)),s_so(i,:,1:nexch(i),1:nexch(i)),eso(i,1:nexch(i)),nexch(i),T(iT),zstat_lr(i), &
-               ss_chit_tens_lr(i,:,:))
+      call mma_allocate(eso_tmp,nexch(i),label='eso_tmp')
+      call mma_allocate(dipso_tmp,3,nexch(i),nexch(i),label='dipso_tmp')
+      call mma_allocate(s_so_tmp,3,nexch(i),nexch(i),label='s_so_tmp')
+      eso_tmp(:) = eso(i,1:nexch(i))
+      dipso_tmp(:,:,:) = dipso(i,:,1:nexch(i),1:nexch(i))
+      s_so_tmp(:,:,:) = s_so(i,:,1:nexch(i),1:nexch(i))
+      call chi(dipso_tmp,dipso_tmp,eso_tmp,nexch(i),T(iT),zstat_lr(i),chit_tens_lr(:,:,i))
+      call chi(s_so_tmp,dipso_tmp,eso_tmp,nexch(i),T(iT),zstat_lr(i),smu_chit_tens_lr(:,:,i))
+      call chi(s_so_tmp,s_so_tmp,eso_tmp,nexch(i),T(iT),zstat_lr(i),ss_chit_tens_lr(:,:,i))
+      call mma_deallocate(eso_tmp)
+      call mma_deallocate(dipso_tmp)
+      call mma_deallocate(s_so_tmp)
     end do ! i (nneq)
 
     ! compute exchange tensors:
@@ -311,14 +336,14 @@ else ! i.e. when (zJ /= 0)
         do jc=1,3
           do n1=1,3
             do n2=1,3
-              XR(isite,:,jc) = XR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_lr(i,n1,n2)
-              XL(isite,:,jc) = XL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_l(i,n1,n2)
+              XR(isite,:,jc) = XR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_lr(n1,n2,i)
+              XL(isite,:,jc) = XL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*chit_tens_l(n1,n2,i)
 
-              SMUL(isite,:,jc) = SMUL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*smu_chit_tens_l(i,n1,n2)
-              SMUR(isite,:,jc) = SMUR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*smu_chit_tens_lr(i,n1,n2)
+              SMUL(isite,:,jc) = SMUL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*smu_chit_tens_l(n1,n2,i)
+              SMUR(isite,:,jc) = SMUR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*smu_chit_tens_lr(n1,n2,i)
 
-              SSL(isite,:,jc) = SSL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*ss_chit_tens_l(i,n1,n2)
-              SSR(isite,:,jc) = SSR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*ss_chit_tens_lr(i,n1,n2)
+              SSL(isite,:,jc) = SSL(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*ss_chit_tens_l(n1,n2,i)
+              SSR(isite,:,jc) = SSR(isite,:,jc)+r_lg(i,j,:,n1)*r_lg(i,j,jc,n2)*ss_chit_tens_lr(n1,n2,i)
             end do
           end do
         end do
@@ -350,7 +375,7 @@ else ! i.e. when (zJ /= 0)
     end if
 
     ! compute total tensors:
-    call chi_sum(nCenter,chit_tens_ex,zstat_ex,XL,ZL,XR,ZR,iopt,chit_tens_tot(iT,:,:),zstat_tot(iT))
+    call chi_sum(nCenter,chit_tens_ex,zstat_ex,XL,ZL,XR,ZR,iopt,chit_tens_tot(:,:,iT),zstat_tot(iT))
 
     call chi_sum(nCenter,smu_chit_tens_ex,zstat_ex,SMUL,ZL,SMUR,ZR,iopt,smu_chit_tens_tot,zstat_tot(iT))
 
@@ -369,13 +394,13 @@ else ! i.e. when (zJ /= 0)
             xxm = xxm+smu_chit_tens_tot(im,ic)*a_inv(im,jm)*smu_chit_tens_tot(jm,jc)
           end do
         end do
-        chit_theta_tens(iT,ic,jc) = chit_tens_tot(iT,ic,jc)+zj*xxm
+        chit_theta_tens(ic,jc,iT) = chit_tens_tot(ic,jc,iT)+zj*xxm
       end do ! jc
     end do ! ic
 
-    chit(iT) = coeff_chi*(chit_tens_tot(iT,1,1)+chit_tens_tot(iT,2,2)+chit_tens_tot(iT,3,3))/Three
+    chit(iT) = coeff_chi*(chit_tens_tot(1,1,iT)+chit_tens_tot(2,2,iT)+chit_tens_tot(3,3,iT))/Three
 
-    chit_theta(iT) = coeff_chi*(chit_theta_tens(iT,1,1)+chit_theta_tens(iT,2,2)+chit_theta_tens(iT,3,3))/Three
+    chit_theta(iT) = coeff_chi*(chit_theta_tens(1,1,iT)+chit_theta_tens(2,2,iT)+chit_theta_tens(3,3,iT))/Three
     if (abs(chit(iT)) < 1.0e-20_wp) then
       chit(iT) = 1.0e-20_wp
       chit_theta(iT) = 1.0e-20_wp
@@ -385,10 +410,10 @@ else ! i.e. when (zJ /= 0)
     chi_theta_1(iT) = t(iT)/chit_theta(iT)
 
     ! add some verification data:
-    Fa = dnrm2_(9,chit_tens_tot(it,:,:),1)
-    Fb = dnrm2_(9,chit_theta_tens(it,:,:),1)
-    Fc = dnrm2_(9,smu_chit_tens_tot(:,:),1)
-    Fd = dnrm2_(9,ss_chit_tens_tot(:,:),1)
+    Fa = dnrm2_(9,chit_tens_tot(:,:,it),1)
+    Fb = dnrm2_(9,chit_theta_tens(:,:,it),1)
+    Fc = dnrm2_(9,smu_chit_tens_tot,1)
+    Fd = dnrm2_(9,ss_chit_tens_tot,1)
 
     call Add_Info('XT: chit_tens_tot',[Fa],1,6)
     call Add_Info('XT: chit_theta_tens',[Fb],1,6)
@@ -402,7 +427,6 @@ else ! i.e. when (zJ /= 0)
   call mma_deallocate(smu_chit_tens_lr)
   call mma_deallocate(ss_chit_tens_l)
   call mma_deallocate(ss_chit_tens_lr)
-  call mma_deallocate(ss_chit_tens_tot)
   call mma_deallocate(SMUR)
   call mma_deallocate(SMUL)
   call mma_deallocate(SSR)
@@ -414,8 +438,8 @@ end if  !zJ
 do iT=1,nT+nTempMagn
   do ic=1,3
     do jc=1,3
-      chit_tens_tot(iT,ic,jc) = coeff_chi*chit_tens_tot(iT,ic,jc)
-      if (zJ /= Zero) chit_theta_tens(iT,ic,jc) = coeff_chi*chit_theta_tens(iT,ic,jc)
+      chit_tens_tot(ic,jc,iT) = coeff_chi*chit_tens_tot(ic,jc,iT)
+      if (zJ /= Zero) chit_theta_tens(ic,jc,iT) = coeff_chi*chit_theta_tens(ic,jc,iT)
     end do
   end do
 end do
@@ -467,14 +491,14 @@ if (zJ == Zero) then
   do iT=1,nT
     jT = iT+nTempMagn
     info = 0
-    call DIAG_R2(chit_tens_tot(jT,:,:),3,info,wt,zt)
+    call DIAG_R2(chit_tens_tot(:,:,jT),3,info,wt,zt)
     write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- '// &
                     'z ----|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_tens_tot(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_tens_tot(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
                                                     (zt(j,1),j=1,3),'|'
-    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_tens_tot(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
+    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_tens_tot(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
                                                              (zt(j,2),j=1,3),'|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens_tot(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens_tot(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
   write(u6,'(111A)') ('-',i=1,110),'|'
@@ -490,14 +514,14 @@ else ! zJ /= Zero
   do iT=1,nT
     jT = iT+nTempMagn
     info = 0
-    call DIAG_R2(chit_theta_tens(jT,:,:),3,info,wt,zt)
+    call DIAG_R2(chit_theta_tens(:,:,jT),3,info,wt,zt)
     write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- '// &
                     'z ----|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_theta_tens(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_theta_tens(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
                                                     (zt(j,1),j=1,3),'|'
-    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
+    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
                                                              (zt(j,2),j=1,3),'|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
   write(u6,'(111A)') ('-',i=1,110),'|'

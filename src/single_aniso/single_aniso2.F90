@@ -24,14 +24,15 @@ integer(kind=iwp), intent(out) :: iReturn
 logical(kind=iwp), intent(in) :: GRAD
 integer(kind=iwp) :: AngPoints, axisoption, d, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, input_to_read, iprint, &
                      lDIM, ldimcf, mem, MG, nBlock, ncut, ndimcf, nDirTot, ngrid, nK, nlanth, nm, nss2, nstate2, nsymm
-real(kind=wp) :: coord(3), cryst(6), em, encut_rate, H_torq, HMAX, HMIN, T_torq, thrs, tmax, tmin, xfield, zJ, zmagn(3,3)
+real(kind=wp) :: coord(3), cryst(6), em, encut_rate, gtens(3), H_torq, HMAX, HMIN, maxes(3,3), T_torq, thrs, tmax, tmin, xfield, &
+                 zJ, zmagn(3,3)
 logical(kind=iwp) :: compute_barrier, compute_cf, compute_g_tensors, compute_magnetization, compute_Mdir_vector, compute_torque, &
                      Do_structure_abc, DoPlot, hinput, m_paranoid, poly_file, smagn, tinput, zeeman_energy
 integer(kind=iwp), allocatable :: LuZee(:), multiplicity(:), ndim(:)
-real(kind=wp), allocatable :: amfi(:,:,:), angmom(:,:,:), chit_exp(:), dir_weight(:,:), dirX(:), dirY(:), dirZ(:), eDmom(:,:,:), &
-                              esfs(:), esfs_au(:), eso(:), eso_au(:), gtens(:,:), hexp(:), magn_exp(:,:), maxes(:,:,:), t(:), &
-                              TempMagn(:), Texp(:), XT_no_field(:), XTexp(:)
-complex(kind=wp), allocatable :: DM(:,:,:), HSO(:,:), ML(:,:,:), MM(:,:,:), MS(:,:,:), U(:,:)
+real(kind=wp), allocatable :: amfi(:,:,:), amfi_tmp(:,:,:), angmom(:,:,:), angmom_tmp(:,:,:), chit_exp(:), dir_weight(:,:), &
+                              dirX(:), dirY(:), dirZ(:), eDmom(:,:,:), esfs(:), esfs_au(:), eso(:), eso_au(:), hexp(:), &
+                              magn_exp(:,:), t(:), TempMagn(:), Texp(:), XT_no_field(:), XTexp(:)
+complex(kind=wp), allocatable :: DM(:,:,:), HSO(:,:), ML(:,:,:), MM(:,:,:), MM_TMP(:,:,:), MS(:,:,:), MS_TMP(:,:,:), U(:,:)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: j, l
 #  define _DBG_ .true.
@@ -120,12 +121,6 @@ mem = mem+size(TempMagn)*RtoB
 ! dimensions of pseudospins
 call mma_allocate(ndim,nMult,'ndim')
 mem = mem+size(ndim)*ItoB
-! temperature points for magnetization
-call mma_allocate(gtens,nMult,3,'gtens')
-mem = mem+size(gtens)*RtoB
-! temperature points for magnetization
-call mma_allocate(maxes,nMult,3,3,'maxes')
-mem = mem+size(maxes)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 4 =',mem
@@ -326,12 +321,17 @@ if (compute_g_tensors .and. (nMult > 0)) then
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'SINGLE_ANISO2::  Enter g_high',IMLTPL
 #       endif
-        call g_high(eso(i1:i2),GRAD,MS(:,i1:i2,i1:i2),MM(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
-                    gtens(imltpl,:),maxes(imltpl,:,:),iprint)
+        call mma_allocate(MS_TMP,3,ndim(imltpl),ndim(imltpl),label='MS_TMP')
+        call mma_allocate(MM_TMP,3,ndim(imltpl),ndim(imltpl),label='MM_TMP')
+        MS_TMP(:,:,:) = MS(:,i1:i2,i1:i2)
+        MM_TMP(:,:,:) = MM(:,i1:i2,i1:i2)
+        call g_high(eso(i1:i2),GRAD,MS_TMP,MM_TMP,imltpl,ndim(imltpl),Do_structure_abc,cryst,coord,gtens,maxes,iprint)
+        call mma_deallocate(MS_TMP)
+        call mma_deallocate(MM_TMP)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
 #       endif
-        call Add_Info('GTENS_MAIN',gtens(imltpl,:),3,4)
+        call Add_Info('GTENS_MAIN',gtens,3,4)
       end if
     end if
 
@@ -354,7 +354,13 @@ if (compute_CF .and. (nDIMCF > 0)) then
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Enter CF',nDIMCF
 #   endif
-    call CRYSTALFIELD(ESO(1:nDIMCF),MM(:,1:nDIMCF,1:nDIMCF),MS(:,1:nDIMCF,1:nDIMCF),nDIMcf,d,nlanth,zmagn,axisoption,GRAD,iPrint)
+    call mma_allocate(MS_TMP,3,nDIMCF,nDIMCF,label='MS_TMP')
+    call mma_allocate(MM_TMP,3,nDIMCF,nDIMCF,label='MM_TMP')
+    MS_TMP(:,:,:) = MS(:,1:nDIMCF,1:nDIMCF)
+    MM_TMP(:,:,:) = MM(:,1:nDIMCF,1:nDIMCF)
+    call CRYSTALFIELD(ESO(1:nDIMCF),MM_TMP,MS_TMP,nDIMcf,d,nlanth,zmagn,axisoption,GRAD,iPrint)
+    call mma_deallocate(MS_TMP)
+    call mma_deallocate(MM_TMP)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Exit CF',nDIMCF
 #   endif
@@ -378,7 +384,13 @@ if (compute_CF .and. (lDIMCF > 0) .and. (lDIMCF <= nstate)) then
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Enter t-CF',lDIMCF
 #   endif
-    call termCF(angmom(:,1:lDIMCF,1:lDIMCF),AMFI(:,1:lDIMCF,1:lDIMCF),esfs(1:lDIMCF),lDIMCF,lDIM,zmagn,axisoption,nlanth,iPrint)
+    call mma_allocate(amfi_tmp,3,lDIMCF,lDIMCF,label='amfi_tmp')
+    call mma_allocate(angmom_tmp,3,lDIMCF,lDIMCF,label='angmom_tmp')
+    amfi_tmp(:,:,:) = AMFI(:,1:lDIMCF,1:lDIMCF)
+    angmom_tmp(:,:,:) = angmom(:,1:lDIMCF,1:lDIMCF)
+    call termCF(angmom_tmp,AMFI_tmp,esfs(1:lDIMCF),lDIMCF,lDIM,zmagn,axisoption,nlanth,iPrint)
+    call mma_deallocate(amfi_tmp)
+    call mma_deallocate(angmom_tmp)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Exit t-CF',lDIMCF
 #   endif
@@ -394,7 +406,10 @@ if (compute_barrier) then
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Enter barrier',nBlock
 #   endif
-    call BARRIER(nBlock,MM(:,1:nBlock,1:nBlock),eso(1:nBlock),imanifold,nMult,nDim,doplot,iPrint)
+    call mma_allocate(MM_TMP,3,nBlock,nBlock,label='MM_TMP')
+    MM_TMP(:,:,:) = MM(:,1:nBlock,1:nBlock)
+    call BARRIER(nBlock,MM_TMP,eso(1:nBlock),imanifold,nMult,nDim,doplot,iPrint)
+    call mma_deallocate(MM_TMP)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Exit barrier',nBlock
 #   endif
@@ -501,8 +516,6 @@ call mma_deallocate(magn_exp)
 call mma_deallocate(TempMagn)
 
 call mma_deallocate(ndim)
-call mma_deallocate(gtens)
-call mma_deallocate(maxes)
 call mma_deallocate(T)
 call mma_deallocate(XTexp)
 call mma_deallocate(XT_no_field)

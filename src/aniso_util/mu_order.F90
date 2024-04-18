@@ -28,7 +28,7 @@ complex(kind=wp), intent(out) :: HCF2(d,3,d,d), AMM(3,d,d), AMS(3,d,d), Z(d,d)
 integer(kind=iwp) :: i, i1, i2, j, l, m, n
 real(kind=wp) :: m_fact, maxes(3,3)
 complex(kind=wp) :: O1, O2, SP_DIPO(3), SP_DIPW(3), SP_MOW
-complex(kind=wp), allocatable :: B(:,:,:), BNMC(:,:,:), BNMS(:,:,:), DIP_O(:,:), DIP_W(:,:)
+complex(kind=wp), allocatable :: AMS_TMP(:,:), B(:,:,:), BNMC(:,:,:), BNMS(:,:,:), DIP_O(:,:), DIP_W(:,:), TMP(:,:,:)
 complex(kind=wp), external :: trace
 !------------------------------------------------------------
 
@@ -59,6 +59,7 @@ call mma_allocate(BNMC,[1,3],[1,d],[0,d],label='BNMC')
 call mma_allocate(BNMS,[1,3],[1,d],[0,d],label='BNMS')
 call mma_allocate(DIP_O,d,d,label='DIP_O')
 call mma_allocate(DIP_W,d,d,label='DIP_W')
+call mma_allocate(AMS_TMP,d,d,label='AMS_TMP')
 B(:,:,:) = cZero
 do N=1,d-1
   do M=0,N
@@ -84,8 +85,9 @@ do N=1,d-1
     SP_DIPW(:) = czero
     SP_MOW = trace(d,DIP_O,DIP_W)
     do l=1,3
-      SP_DIPO(l) = trace(d,AMS(l,:,:),DIP_O)
-      SP_DIPW(l) = trace(d,AMS(l,:,:),DIP_W)
+      AMS_TMP(:,:) = AMS(l,:,:)
+      SP_DIPO(l) = trace(d,AMS_TMP,DIP_O)
+      SP_DIPW(l) = trace(d,AMS_TMP,DIP_W)
 
       B(l,n,-m) = SP_DIPO(l)/SP_MOW
       B(l,n,m) = SP_DIPW(l)/SP_MOW
@@ -148,6 +150,7 @@ call mma_deallocate(BNMC)
 call mma_deallocate(BNMS)
 call mma_deallocate(DIP_O)
 call mma_deallocate(DIP_W)
+call mma_deallocate(AMS_TMP)
 
 if (iprint > 2) then
   do N=1,d-1,2
@@ -164,7 +167,10 @@ if (iprint > 2) then
   end do
 end if
 
-call ATENS(HCF2(order,:,:,:),d,gtens,maxes,1)
+call mma_allocate(TMP,3,d,d,label='TMP')
+TMP(:,:,:) = HCF2(order,:,:,:)
+call ATENS(TMP,d,gtens,maxes,1)
+call mma_deallocate(TMP)
 
 return
 

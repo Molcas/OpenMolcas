@@ -85,7 +85,7 @@ real(kind=wp), intent(inout) :: TempMagn(nTempMagn), R_LG(nneq,neqv,3,3), R_ROT(
                                 JAex9(nPair,3,3), JDMex(nPair,3), &
                                 JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), &
                                 JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), tpar, upar, cryst(6), coord(3), &
-                                Xfield, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(nneq,3,3), MagnCoords(nneq,3), &
+                                Xfield, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(3,3,nneq), MagnCoords(nneq,3), &
                                 thrs, tmin, tmax, hmin, hmax, Texp(nT), chit_exp(nT), Hexp(nH), Mexp(nH,nTempMagn), encut_rate, &
                                 zJ, dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3)
 character(len=180), intent(inout) :: Title
@@ -749,12 +749,12 @@ do
                 ((gtens_input(1,i) /= gtens_input(2,i)) .or. (gtens_input(1,i) /= gtens_input(3,i)) .or. &
                  (gtens_input(2,i) /= gtens_input(3,i)))) then
               do ic=1,3
-                read(u5,*,iostat=istatus) (riso(i,jc,ic),jc=1,3)
+                read(u5,*,iostat=istatus) (riso(jc,ic,i),jc=1,3)
                 if (istatus /= 0) call Error(4)
               end do
 
             else
-              call unitmat(riso(i,:,:),3)
+              call unitmat(riso(:,:,i),3)
             end if
           end if
 

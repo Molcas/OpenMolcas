@@ -11,6 +11,7 @@
 
 subroutine mean_field(EXCH,N,H,X,Y,Z,zJ,T,W,thrs,dM,sM,ST,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -20,13 +21,20 @@ complex(kind=wp), intent(in) :: DM(3,EXCH,EXCH), SM(3,EXCH,EXCH)
 real(kind=wp), intent(out) :: ST(3)
 logical(kind=iwp), intent(in) :: dbg
 integer(kind=iwp) :: iopt
+complex(kind=wp), allocatable :: DM_TMP(:,:,:), SM_TMP(:,:,:)
 
 iopt = 2
 
 if (iopt == 1) then
 
   if (dbg) write(u6,'(A)') 'mean_field: enter mean_field_exch'
-  call mean_field_exch(N,H,X,Y,Z,zJ,T,W(1:N),thrs,DM(:,1:N,1:N),SM(:,1:N,1:N),ST)
+  call mma_allocate(DM_TMP,3,N,N,label='DM_TMP')
+  call mma_allocate(SM_TMP,3,N,N,label='SM_TMP')
+  DM_TMP(:,:,:) = DM(:,1:N,1:N)
+  SM_TMP(:,:,:) = SM(:,1:N,1:N)
+  call mean_field_exch(N,H,X,Y,Z,zJ,T,W(1:N),thrs,DM_TMP,SM_TMP,ST)
+  call mma_deallocate(DM_TMP)
+  call mma_deallocate(SM_TMP)
   if (dbg) write(u6,'(A)') 'mean_field: exit mean_field_exch'
 
 else if (iopt == 2) then

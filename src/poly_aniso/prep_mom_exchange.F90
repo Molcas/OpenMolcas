@@ -84,9 +84,16 @@ call mma_deallocate(St)
 ! old preparation of the data for Lines exchange
 !! rotate the moments to the general coordinate system
 !
-!call rotmom2(SM(i1,:,1:n1,1:n1),n1,rot(i1,j1,:,:),S1(:,1:n1,1:n1))
-!call rotmom2(SM(i2,:,1:n2,1:n2),n2,rot(i2,j2,:,:),S2(:,1:n2,1:n2))
-!call Lines_Exchange(Jex(lp),n1,n2,S1(:,1:n1,1:n1),S2(:,1:n2,1:n2),HLIN1(lp,1:n1,1:n1,1:n2,1:n2))
+!SM_tmp(:,:,:) = SM(i1,:,1:n1,1:n1)
+!r1(:,:) = rot(i1,j1,:,:)
+!call rotmom2(SM_tmp,n1,r1,S1_tmp)
+!SM_tmp(:,:,:) = SM(i2,:,1:n2,1:n2)
+!r2(:,:) = rot(i2,j2,:,:)
+!call rotmom2(SM_tmp,n2,r2,S2_tmp)
+!call Lines_Exchange(Jex(lp),n1,n2,S1_tmp,S2_tmp,HTMP)
+!HLIN1(lp,1:n1,1:n1,1:n2,1:n2) = HTMP(:,:,:,:)
+!S1(:,1:n1,1:n1) = S1_tmp(:,:)
+!S2(:,1:n2,1:n2) = S2_tmp(:,:)
 !-----------------------------------------------------------------------
 
 return

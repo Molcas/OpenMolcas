@@ -28,7 +28,7 @@ integer(kind=iwp) :: i, iter, l
 real(kind=wp) :: S(3), SCHK, SL(3), ZB
 logical(kind=iwp) :: Conv
 real(kind=wp), allocatable :: RWORK(:), WM(:)
-complex(kind=wp), allocatable :: HZEE(:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
+complex(kind=wp), allocatable :: DM_TMP(:,:,:), HZEE(:), SM_TMP(:,:,:), SZ(:,:,:), TMP(:,:), W_c(:), WORK(:), ZM(:,:)
 integer(kind=iwp), parameter :: mxIter = 100
 real(kind=wp), parameter :: THRS2 = 1.0e-12_wp ! FIXME: overriding input thrs
 #ifdef _DEBUGPRINT_
@@ -53,6 +53,12 @@ call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
 call mma_allocate(HZEE,nTri_Elem(N),'ZEEM_HZEE')
 call mma_allocate(WORK,2*N-1,'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
+if (N == EXCH) then
+  call mma_allocate(TMP,EXCH,EXCH,label='TMP')
+else
+  call mma_allocate(DM_TMP,3,N,N,label='DM_TMP')
+  call mma_allocate(SM_TMP,3,N,N,label='SM_TMP')
+end if
 
 ! zero everything:
 RWORK(:) = Zero
@@ -67,7 +73,13 @@ do iter=1,mxIter
   ZM(:,:) = cZero
   ! build and diagonalize the Zeeman Hamiltonian (size N x N)
   ! for the field direction (X,Y,Z) and strength (H)
-  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM,_DBG_,RWORK,HZEE,WORK,W_c)
+  if (N == EXCH) then
+    call ZEEM_SA(N,H,X,Y,Z,W,dM,sM,ST,zJ,WM,ZM,_DBG_,RWORK,HZEE,WORK,W_c)
+  else
+    DM_TMP(:,:,:) = dM(:,1:N,1:N)
+    SM_TMP(:,:,:) = sM(:,1:N,1:N)
+    call ZEEM_SA(N,H,X,Y,Z,W(1:N),DM_TMP,SM_TMP,ST,zJ,WM(1:N),ZM,_DBG_,RWORK,HZEE,WORK,W_c)
+  end if
   WM(N+1:) = W(N+1:)
 
   ! transform the spin momenta to the Zeeman eigenstate basis
@@ -80,7 +92,8 @@ do iter=1,mxIter
   S(:) = Zero
   if (N == EXCH) then
     do L=1,3
-      call calcmagn1(EXCH,WM,SZ(l,:,:),T,S(l),ZB)
+      TMP(:,:) = SZ(l,:,:)
+      call calcmagn1(EXCH,WM,TMP,T,S(l),ZB)
     end do
   else
     do L=1,3
@@ -122,6 +135,12 @@ call mma_deallocate(RWORK)
 call mma_deallocate(HZEE)
 call mma_deallocate(WORK)
 call mma_deallocate(W_c)
+if (N == EXCH) then
+  call mma_deallocate(TMP)
+else
+  call mma_deallocate(DM_TMP)
+  call mma_deallocate(SM_TMP)
+end if
 
 return
 

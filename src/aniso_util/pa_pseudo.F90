@@ -36,6 +36,7 @@ complex(kind=wp), intent(out) :: zfin(d,d), MF(3,d,d), SF(3,d,d)
 real(kind=wp), intent(inout) :: coord(3,3)
 integer(kind=iwp) :: i, i1, i2, info, j, k
 real(kind=wp) :: coord2(3,3), det, gtens(3), maxes(3,3)
+complex(kind=wp) :: MM(3,2,2)
 real(kind=wp), allocatable :: w(:)
 complex(kind=wp), allocatable :: dipso2(:,:,:), hzee(:,:), s_so2(:,:,:), z(:,:)
 real(kind=wp), external :: FindDetR
@@ -50,14 +51,11 @@ call mma_allocate(z,d,d,label='z')
 ! set to zero important variables:
 ! choose the quantization axis:
 if (iopt == 1) then
-  gtens(:) = Zero
-  maxes(:,:) = Zero
   call atens(M,d,gtens,maxes,2)
 
 else if (iopt == 2) then
-  gtens(:) = Zero
-  maxes(:,:) = Zero
-  call atens(M(:,1:2,1:2),2,gtens,maxes,2)
+  MM(:,:,:) = M(:,1:2,1:2)
+  call atens(MM,2,gtens,maxes,2)
 
 else if (iopt == 3) then
   write(u6,'(A)') 'User provided the COORD to the PA_PSEUDo:'

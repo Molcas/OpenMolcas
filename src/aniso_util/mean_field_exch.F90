@@ -22,13 +22,13 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: H, X, Y, Z, zJ, T, W(N), thrs
-real(kind=wp), intent(out) :: ST(3)
 complex(kind=wp), intent(in) :: DM(3,N,N), SM(3,N,N)
+real(kind=wp), intent(out) :: ST(3)
 integer(kind=iwp) :: i, iter, l
 real(kind=wp) :: S(3), SCHK, SL(3), ZB
 logical(kind=iwp) :: Conv
 real(kind=wp), allocatable :: RWORK(:), WM(:)
-complex(kind=wp), allocatable :: HZEE(:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
+complex(kind=wp), allocatable :: HZEE(:), SZ(:,:,:), TMP(:,:), W_c(:), WORK(:), ZM(:,:)
 integer(kind=iwp), parameter :: mxIter = 100
 real(kind=wp), parameter :: THRS2 = 1.0e-12_wp ! FIXME: overriding input thrs
 #ifdef _DEBUGPRINT_
@@ -47,6 +47,7 @@ ST(:) = Zero
 call mma_allocate(WM,N,label='WM')
 call mma_allocate(SZ,3,N,N,label='SZ')
 call mma_allocate(ZM,N,N,label='ZM')
+call mma_allocate(TMP,N,N,label='TMP')
 
 ! temporary arrays used in ZEEM_SA:
 call mma_allocate(RWORK,3*N-2,'ZEEM_RWORK')
@@ -78,7 +79,8 @@ do iter=1,mxIter
   S(:) = Zero
   do l=1,3
     ZB = Zero
-    call calcmagn1(N,WM,SZ(l,:,:),T,S(l),ZB)
+    TMP(:,:) = SZ(l,:,:)
+    call calcmagn1(N,WM,TMP,T,S(l),ZB)
   end do
 
   ! check if average spin is converged
@@ -111,6 +113,7 @@ end if
 call mma_deallocate(WM)
 call mma_deallocate(SZ)
 call mma_deallocate(ZM)
+call mma_deallocate(TMP)
 call mma_deallocate(RWORK)
 call mma_deallocate(HZEE)
 call mma_deallocate(WORK)

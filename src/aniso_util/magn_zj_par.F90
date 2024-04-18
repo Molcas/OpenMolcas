@@ -63,7 +63,7 @@ real(kind=wp), intent(out) :: WZ(N), ZB(nT), S(3,nT), M(3,nT)
 integer(kind=iwp) :: i, iT, l
 real(kind=wp) :: ST(3), STsave(3)
 real(kind=wp), allocatable :: RWORK(:), WM(:)
-complex(kind=wp), allocatable :: HZEE(:), MZ(:,:,:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
+complex(kind=wp), allocatable :: dM_TMP(:,:,:), HZEE(:), MZ(:,:,:), sM_TMP(:,:,:), SZ(:,:,:), TMP(:,:), W_c(:), WORK(:), ZM(:,:)
 
 WZ(:) = Zero
 ZB(:) = Zero
@@ -79,7 +79,7 @@ if (N > EXCH) return
 
 ! allocate memory:
 call mma_allocate(WM,exch,'WM')
-call mma_allocate(ZM,exch,exch,'ZM')
+call mma_allocate(ZM,N,N,'ZM')
 call mma_allocate(SZ,3,exch,exch,'SZ')
 call mma_allocate(MZ,3,exch,exch,'MZ')
 
@@ -88,6 +88,12 @@ call mma_allocate(RWORK,3*N-2,'ZEEM_RWORK')
 call mma_allocate(HZEE,nTri_Elem(N),'ZEEM_HZEE')
 call mma_allocate(WORK,2*N-1,'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
+if (N == EXCH) then
+  call mma_allocate(TMP,exch,exch,label='TMP')
+else
+  call mma_allocate(dM_TMP,3,N,N,label='dM_TMP')
+  call mma_allocate(sM_TMP,3,N,N,label='sM_TMP')
+end if
 
 ! zero everything:
 WM(:) = Zero
@@ -128,7 +134,13 @@ do iT=1,nT
   WM(:) = Zero
   ZM(:,:) = cZero
 
-  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM(1:N,1:N),DBG,RWORK,HZEE,WORK,W_c)
+  if (N == EXCH) then
+    call ZEEM_SA(N,H,X,Y,Z,W,dM,sM,ST,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
+  else
+    dM_TMP(:,:,:) = dM(:,1:N,1:N)
+    sM_TMP(:,:,:) = sM(:,1:N,1:N)
+    call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM_TMP,sM_TMP,ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
+  end if
 
   ! move WM energies to WZ:
   WZ(:) = WM(:)
@@ -138,14 +150,18 @@ do iT=1,nT
   ! transform the momenta
   SZ(:,:,:) = cZero
   MZ(:,:,:) = cZero
-  call UTMU(EXCH,N,ZM(1:N,1:N),SM,SZ)
-  call UTMU(EXCH,N,ZM(1:N,1:N),DM,MZ)
+  call UTMU(EXCH,N,ZM,SM,SZ)
+  call UTMU(EXCH,N,ZM,DM,MZ)
 
   ! calculation of magnetizations at different temperatures:
   if (N == EXCH) then
     do l=1,3
-      if (sopt) call calcmagn1(EXCH,WM,SZ(l,:,:),T(iT),S(l,iT),ZB(iT))
-      call calcmagn1(EXCH,WM,MZ(l,:,:),T(iT),M(l,iT),ZB(iT))
+      if (sopt) then
+        TMP(:,:) = SZ(l,:,:)
+        call calcmagn1(EXCH,WM,TMP,T(iT),S(l,iT),ZB(iT))
+      end if
+      TMP(:,:) = MZ(l,:,:)
+      call calcmagn1(EXCH,WM,TMP,T(iT),M(l,iT),ZB(iT))
     end do
   else
     do l=1,3
@@ -166,6 +182,12 @@ call mma_deallocate(WM)
 call mma_deallocate(ZM)
 call mma_deallocate(SZ)
 call mma_deallocate(MZ)
+if (N == EXCH) then
+  call mma_deallocate(TMP)
+else
+  call mma_deallocate(dM_TMP)
+  call mma_deallocate(sM_TMP)
+end if
 
 return
 

@@ -28,7 +28,7 @@ subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir
 !  Mex : magnetisation, from the exchange block
 ! data for individual sites (all states):
 !  ZL : local statistical sum, Boltzmann distribution
-!  WL : Zeeman local energis
+!  WL : Zeeman local energies
 !  SL : spin magnetisation, from the local sites, using ALL states ;
 !  ML : magnetisation, from local sites, using ALL states;
 ! data for individual sites (only states that enter exchange):
@@ -62,10 +62,11 @@ logical(kind=iwp), intent(in) :: hinput, zeeman_energy, compute_Mdir_vector, m_p
 integer(kind=iwp) :: I, ibuf, iDir, iH, IM, isite, it, itEnd, J, k, mem_local, n, nP
 real(kind=wp) :: dltH
 character(len=15) :: lbl_X, lbl_Y, lbl_Z
-real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), Mex(:,:), ML(:,:,:), MLT(:,:,:), MR(:,:,:), &
-                              MRT(:,:,:), MT(:,:,:), MVEC(:,:,:,:), SAV(:,:), Sex(:,:), SL(:,:,:), SLT(:,:,:), SR(:,:,:), &
-                              SRT(:,:,:), ST(:,:,:), SVEC(:,:,:,:), Wex(:), WL(:,:), WR(:,:), Zex(:), ZL(:,:), ZLT(:,:), ZR(:,:), &
-                              ZRT(:,:), ZT(:,:)
+real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), ESO_TMP(:), H(:), MAV(:,:), Mex(:,:), ML(:,:,:), MLT(:,:,:), &
+                              MR(:,:,:), MRT(:,:,:), MT(:,:,:), MVEC(:,:,:,:), SAV(:,:), Sex(:,:), SL(:,:,:), SLT(:,:,:), &
+                              SR(:,:,:), SRT(:,:,:), ST(:,:,:), SVEC(:,:,:,:), Wex(:), WL(:,:), WR(:,:), Zex(:), ZL(:,:), &
+                              ZLT(:,:), ZR(:,:), ZRT(:,:), ZT(:,:)
+complex(kind=wp), allocatable :: dipso_tmp(:,:,:), s_so_tmp(:,:,:)
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
@@ -110,30 +111,30 @@ call mma_allocate(Mex,3,nTempMagn,'Mex')
 mem_local = mem_local+size(Mex)*RtoB
 
 ! local statistical sum, Boltzmann distribution
-call mma_allocate(ZL,nneq,nTempMagn,'ZL')
+call mma_allocate(ZL,nTempMagn,nneq,'ZL')
 mem_local = mem_local+size(ZL)*RtoB
 ! spin magnetisation, from the local sites, using ALL states
-call mma_allocate(SL,nneq,3,nTempMagn,'SL')
+call mma_allocate(SL,3,nTempMagn,nneq,'SL')
 mem_local = mem_local+size(SL)*RtoB
 ! magnetisation, from local sites, using ALL states
-call mma_allocate(ML,nneq,3,nTempMagn,'ML')
+call mma_allocate(ML,3,nTempMagn,nneq,'ML')
 mem_local = mem_local+size(ML)*RtoB
 
 ! local statistical sum, Boltzmann distribution, using only Nexch states
-call mma_allocate(ZR,nneq,nTempMagn,'ZR')
+call mma_allocate(ZR,nTempMagn,nneq,'ZR')
 mem_local = mem_local+size(ZR)*RtoB
 ! spin magnetisation, from the local sites, using only Nexch states
-call mma_allocate(SR,nneq,3,nTempMagn,'SR')
+call mma_allocate(SR,3,nTempMagn,nneq,'SR')
 mem_local = mem_local+size(SR)*RtoB
 ! magnetisation, from local sites, using only Nexch states
-call mma_allocate(MR,nneq,3,nTempMagn,'MR')
+call mma_allocate(MR,3,nTempMagn,nneq,'MR')
 mem_local = mem_local+size(MR)*RtoB
 
 ! Zeeman local energies
-call mma_allocate(WL,nneq,nLoc,'WL')
+call mma_allocate(WL,nLoc,nneq,'WL')
 mem_local = mem_local+size(WL)*RtoB
 ! Zeeman local reduced energies, using only Nexch states
-call mma_allocate(WR,nneq,nLoc,'WR')
+call mma_allocate(WR,nLoc,nneq,'WR')
 mem_local = mem_local+size(WR)*RtoB
 
 ! ZRT(nCenter,nTempMagn)
@@ -174,10 +175,10 @@ call mma_allocate(MAV,nH,nTempMagn,'MAV')
 MAV(:,:) = Zero
 mem_local = mem_local+size(MAV)*RtoB
 ! total spin magnetisation vector
-call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
+call mma_allocate(SVEC,nDirTot,nTempMagn,nH,3,'SVEC')
 mem_local = mem_local+size(SVEC)*RtoB
 ! total magnetisation vector
-call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
+call mma_allocate(MVEC,nDirTot,nTempMagn,nH,3,'MVEC')
 mem_local = mem_local+size(MVEC)*RtoB
 
 ! orientation of the field
@@ -362,21 +363,37 @@ do iH=1,nH
       do i=1,nneq
         ! all states:
         if (NSS(i) > NEXCH(i)) then
+          call mma_allocate(ESO_TMP,nss(i),label='ESO_TMP')
+          call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+          call mma_allocate(s_so_tmp,3,nss(i),nss(i),label='s_so_tmp')
+          ESO_TMP(:) = ESO(i,1:NSS(i))
+          dipso_tmp(:,:,:) = DIPSO(i,:,1:NSS(i),1:NSS(i))
+          s_so_tmp(:,:,:) = S_SO(i,:,1:NSS(i),1:NSS(i))
           ! this check is to avoid the unnecessary computation, in cases when no local excited states are present
-          call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,:,1:NSS(i),1:NSS(i)), &
-                    S_SO(i,:,1:NSS(i),1:NSS(i)),nTempMagn,TempMagn,smagn,WL(i,1:NEXCH(i)),ZL(i,:),SL(i,:,:),ML(i,:,:),m_paranoid, &
-                    DBG)
-          if (IM == 2) call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL(i,:),1)],1,8)
+          call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempMagn,TempMagn,smagn, &
+                    WL(1:NEXCH(i),i),ZL(:,i),SL(:,:,i),ML(:,:,i),m_paranoid,DBG)
+          call mma_deallocate(ESO_TMP)
+          call mma_deallocate(dipso_tmp)
+          call mma_deallocate(s_so_tmp)
+          if (IM == 2) call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL(:,i),1)],1,8)
 #         ifdef _DEBUGPRINT_
-          write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
+          write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(l,1,i),l=1,3)
 #         endif
+          call mma_allocate(ESO_TMP,nexch(i),label='ESO_TMP')
+          call mma_allocate(dipso_tmp,3,nexch(i),nexch(i),label='dipso_tmp')
+          call mma_allocate(s_so_tmp,3,nexch(i),nexch(i),label='s_so_tmp')
+          ESO_TMP(:) = ESO(i,1:NEXCH(i))
+          dipso_tmp(:,:,:) = DIPSO(i,:,1:NEXCH(i),1:NEXCH(i))
+          s_so_tmp(:,:,:) = S_SO(i,:,1:NEXCH(i),1:NEXCH(i))
           ! only local "exchange states":
-          call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)), &
-                    S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,:),SR(i,:,:),MR(i,:,:), &
-                    m_paranoid,DBG)
-          if (IM == 2) call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR(i,:),1)],1,8)
+          call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempMagn,TempMagn,smagn, &
+                    WR(1:NEXCH(i),i),ZR(:,i),SR(:,:,i),MR(:,:,i),m_paranoid,DBG)
+          call mma_deallocate(ESO_TMP)
+          call mma_deallocate(dipso_tmp)
+          call mma_deallocate(s_so_tmp)
+          if (IM == 2) call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR(:,i),1)],1,8)
 #         ifdef _DEBUGPRINT_
-          write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)
+          write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(l,1,i),l=1,3)
 #         endif
         end if
       end do
@@ -397,17 +414,17 @@ do iH=1,nH
         do j=1,NEQ(i)
           isite = isite+1
           ! statistical distributions
-          ZLT(isite,:) = ZL(i,:)
-          ZRT(isite,:) = ZR(i,:)
+          ZLT(isite,:) = ZL(:,i)
+          ZRT(isite,:) = ZR(:,i)
           ! magnetizations:
           !  use R_rot matrices, which have determinant +1.
           !  note that  R_lg matrices have arbitrary determinant.
           do iT=1,nTempMagn
             do n=1,3
-              MLT(isite,:,iT) = MLT(isite,:,iT)+r_rot(i,j,:,n)*ML(i,n,iT)
-              SLT(isite,:,iT) = SLT(isite,:,iT)+r_rot(i,j,:,n)*SL(i,n,iT)
-              MRT(isite,:,iT) = MRT(isite,:,iT)+r_rot(i,j,:,n)*MR(i,n,iT)
-              SRT(isite,:,iT) = SRT(isite,:,iT)+r_rot(i,j,:,n)*SR(i,n,iT)
+              MLT(isite,:,iT) = MLT(isite,:,iT)+r_rot(i,j,:,n)*ML(n,iT,i)
+              SLT(isite,:,iT) = SLT(isite,:,iT)+r_rot(i,j,:,n)*SL(n,iT,i)
+              MRT(isite,:,iT) = MRT(isite,:,iT)+r_rot(i,j,:,n)*MR(n,iT,i)
+              SRT(isite,:,iT) = SRT(isite,:,iT)+r_rot(i,j,:,n)*SR(n,iT,i)
             end do
           end do
         end do ! j, neq(i)
@@ -456,8 +473,8 @@ do iH=1,nH
     ! computing the AVERAGE MOMENTS calculated at different temperatures
     ! (TempMagn(i))
     do iT=1,nTempMagn
-      MVEC(iM,iH,iT,:) = MT(:,iH,iT)
-      SVEC(iM,iH,iT,:) = ST(:,iH,iT)
+      MVEC(iM,iT,iH,:) = MT(:,iH,iT)
+      SVEC(iM,iT,iH,:) = ST(:,iH,iT)
     end do !iT
 
     ! accumulate contributions:
@@ -496,10 +513,10 @@ if (smagn) then
                              '|--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
       do iH=1,nH
         write(u6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') &
-          H(iH),'|',MVEC(iDir,iH,iT,1),' ',MVEC(iDir,iH,iT,2),' ',MVEC(iDir,iH,iT,3),'|', &
-          (MVEC(iDir,iH,iT,1)*dHX(iDir)+MVEC(iDir,iH,iT,2)*dHY(iDir)+MVEC(iDir,iH,iT,3)*dHZ(iDir)),'|','|',SVEC(iDir,iH,iT,1),' ', &
-          SVEC(iDir,iH,iT,2),' ',SVEC(iDir,iH,iT,3),'|', &
-          (SVEC(iDir,iH,iT,1)*dHX(iDir)+SVEC(iDir,iH,iT,2)*dHY(iDir)+SVEC(iDir,iH,iT,3)*dHZ(iDir)),'|'
+          H(iH),'|',MVEC(iDir,iT,iH,1),' ',MVEC(iDir,iT,iH,2),' ',MVEC(iDir,iT,iH,3),'|', &
+          (MVEC(iDir,iT,iH,1)*dHX(iDir)+MVEC(iDir,iT,iH,2)*dHY(iDir)+MVEC(iDir,iT,iH,3)*dHZ(iDir)),'|','|',SVEC(iDir,iT,iH,1),' ', &
+          SVEC(iDir,iT,iH,2),' ',SVEC(iDir,iT,iH,3),'|', &
+          (SVEC(iDir,iT,iH,1)*dHX(iDir)+SVEC(iDir,iT,iH,2)*dHY(iDir)+SVEC(iDir,iT,iH,3)*dHZ(iDir)),'|'
       end do
       write(u6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
                              '|------------------------------------------------------------|'
@@ -521,8 +538,8 @@ else
       write(u6,'(5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
       do iH=1,nH
         write(u6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') &
-          H(iH),'|',MVEC(iDir,iH,iT,1),' ',MVEC(iDir,iH,iT,2),' ',MVEC(iDir,iH,iT,3),'|', &
-          (MVEC(iDir,iH,iT,1)*dHX(iDir)+MVEC(iDir,iH,iT,2)*dHY(iDir)+MVEC(iDir,iH,iT,3)*dHZ(iDir)),'|'
+          H(iH),'|',MVEC(iDir,iT,iH,1),' ',MVEC(iDir,iT,iH,2),' ',MVEC(iDir,iT,iH,3),'|', &
+          (MVEC(iDir,iT,iH,1)*dHX(iDir)+MVEC(iDir,iT,iH,2)*dHY(iDir)+MVEC(iDir,iT,iH,3)*dHZ(iDir)),'|'
       end do
       write(u6,'(2A)') '--------|','------------------------------------------------------------|'
     end do !iDir
@@ -584,9 +601,9 @@ do iH=1,nH
   write(lbl_Y,'(A,i3)') 'MAGN_VECT Y ',iH
   write(lbl_Z,'(A,i3)') 'MAGN_VECT Z ',iH
   ibuf = nDirTot*nTempMagn
-  call Add_Info(lbl_X,[dnrm2_(ibuf,MVEC(:,iH,:,1),1)],1,8)
-  call Add_Info(lbl_Y,[dnrm2_(ibuf,MVEC(:,iH,:,2),1)],1,8)
-  call Add_Info(lbl_Z,[dnrm2_(ibuf,MVEC(:,iH,:,3),1)],1,8)
+  call Add_Info(lbl_X,[dnrm2_(ibuf,MVEC(:,:,iH,1),1)],1,8)
+  call Add_Info(lbl_Y,[dnrm2_(ibuf,MVEC(:,:,iH,2),1)],1,8)
+  call Add_Info(lbl_Z,[dnrm2_(ibuf,MVEC(:,:,iH,3),1)],1,8)
 end do
 
 !-------------------------  PLOTs -------------------------------------!

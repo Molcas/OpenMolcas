@@ -59,7 +59,7 @@ logical(kind=iwp), intent(in) :: DBG
 integer(kind=iwp) :: iT, l
 real(kind=wp) :: ST(3), zJ
 real(kind=wp), allocatable :: RWORK(:), WM(:)
-complex(kind=wp), allocatable :: HZEE(:), MZ(:,:,:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
+complex(kind=wp), allocatable :: dM_TMP(:,:,:), HZEE(:), MZ(:,:,:), sM_TMP(:,:,:), SZ(:,:,:), TMP(:,:), W_c(:), WORK(:), ZM(:,:)
 
 WZ(:) = Zero
 ZB(:) = Zero
@@ -113,7 +113,17 @@ end if
 
 ! Build and diagonalize the Zeeman Hamiltonian
 ! most important output are: WM (energies) and ZM (eigenvectors)
-call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
+if (N == EXCH) then
+  call ZEEM_SA(N,H,X,Y,Z,W,dM,sM,ST,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
+else
+  call mma_allocate(dM_TMP,3,N,N,label='dM_TMP')
+  call mma_allocate(sM_TMP,3,N,N,label='sM_TMP')
+  dM_TMP(:,:,:) = dM(:,1:N,1:N)
+  sM_TMP(:,:,:) = sM(:,1:N,1:N)
+  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM_TMP,sM_TMP,ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
+  call mma_deallocate(dM_TMP)
+  call mma_deallocate(sM_TMP)
+end if
 if (DBG) write(u6,*) 'Exit ZEEM::'
 
 WZ(:) = WM(1:N)
@@ -126,12 +136,18 @@ call UTMU(EXCH,N,ZM,dM,MZ)
 ! compute magnetization at different temperatures:
 
 if (N == EXCH) then
+  call mma_allocate(TMP,EXCH,EXCH,label='TMP')
   do iT=1,nT
     do l=1,3
-      if (sopt) call calcmagn1(EXCH,WM,SZ(l,:,:),T(iT),S(l,iT),ZB(iT))
-      call calcmagn1(EXCH,WM,MZ(l,:,:),T(iT),M(l,iT),ZB(iT))
+      if (sopt) then
+        TMP(:,:) = SZ(l,:,:)
+        call calcmagn1(EXCH,WM,TMP,T(iT),S(l,iT),ZB(iT))
+      end if
+      TMP(:,:) = MZ(l,:,:)
+      call calcmagn1(EXCH,WM,TMP,T(iT),M(l,iT),ZB(iT))
     end do
   end do
+  call mma_deallocate(TMP)
 else
   do iT=1,nT
     do l=1,3

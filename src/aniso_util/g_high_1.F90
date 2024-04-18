@@ -29,10 +29,10 @@ integer(kind=iwp) :: I, I1, I2, J, L, LuDgrad, M, N, nmax, rc
 real(kind=wp) :: axes_in_abc(3,3), CHECK_SGN2, E0, ESUM, knm(12,0:12), m_fact
 complex(kind=wp) :: CHECK_SGN, ES(0:2), FS(0:2), SP_HZFSO, SP_HZFSW, SP_MOW
 real(kind=wp), allocatable :: ELOC(:)
-complex(kind=wp), allocatable :: AMS(:,:,:), AMSSPIN(:,:,:), B(:,:,:), BNMC(:,:,:), BNMS(:,:,:), C(:,:), CNMC(:,:), CNMS(:,:), &
-                                 DIP_MOW(:,:), DIP_O(:,:), DIP_W(:,:), DIPSO2(:,:,:), HCF2(:,:,:,:), HZFS(:,:), HZFS_MONM(:,:), &
-                                 HZFS_MWNM(:,:), MUX(:,:), MUXZ(:,:), MUY(:,:), MUZ(:,:), MUZX(:,:), S_SO2(:,:,:), SP_DIPO(:), &
-                                 SP_DIPW(:), ZOUT(:,:)
+complex(kind=wp), allocatable :: AMS(:,:,:), AMS_TMP(:,:), AMSSPIN(:,:,:), B(:,:,:), BNMC(:,:,:), BNMS(:,:,:), C(:,:), CNMC(:,:), &
+                                 CNMS(:,:), DIP_MOW(:,:), DIP_O(:,:), DIP_W(:,:), DIPSO2(:,:,:), HCF2(:,:,:,:), HZFS(:,:), &
+                                 HZFS_MONM(:,:), HZFS_MWNM(:,:), MUX(:,:), MUXZ(:,:), MUY(:,:), MUZ(:,:), MUZX(:,:), S_SO2(:,:,:), &
+                                 SP_DIPO(:), SP_DIPW(:), ZOUT(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 complex(kind=wp), external :: trace
 !-----------------------------------------------------------------------
@@ -52,6 +52,7 @@ call mma_allocate(HZFS_MONM,d,d,'HZFS_MONM')
 call mma_allocate(HZFS_MWNM,d,d,'HZFS_MWNM')
 call mma_allocate(ZOUT,d,d,'ZOUT')
 call mma_allocate(AMS,3,d,d,'AMS')
+call mma_allocate(AMS_TMP,d,d,'AMS_TMP')
 call mma_allocate(AMSSPIN,3,d,d,'AMSSPIN')
 call mma_allocate(DIPSO2,3,d,d,'DIPSO2')
 call mma_allocate(S_SO2,3,d,d,'S_SO2')
@@ -159,8 +160,9 @@ do N=1,d-1,2
     SP_MOW = cZero
     SP_MOW = trace(d,DIP_O,DIP_W)
     do l=1,3
-      SP_DIPO(l) = trace(d,AMS(l,:,:),DIP_O)
-      SP_DIPW(l) = trace(d,AMS(l,:,:),DIP_W)
+      AMS_TMP(:,:) = AMS(l,:,:)
+      SP_DIPO(l) = trace(d,AMS_TMP,DIP_O)
+      SP_DIPW(l) = trace(d,AMS_TMP,DIP_W)
 
       B(l,n,-m) = SP_DIPO(l)/SP_MOW
       B(l,n,m) = SP_DIPW(l)/SP_MOW
@@ -502,6 +504,7 @@ call mma_deallocate(HZFS_MONM)
 call mma_deallocate(HZFS_MWNM)
 call mma_deallocate(ZOUT)
 call mma_deallocate(AMS)
+call mma_deallocate(AMS_TMP)
 call mma_deallocate(AMSSPIN)
 call mma_deallocate(DIPSO2)
 call mma_deallocate(S_SO2)

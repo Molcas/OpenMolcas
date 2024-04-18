@@ -46,8 +46,8 @@ real(kind=wp), intent(in) :: angmom(3,ldimcf,ldimcf), amfi(3,ldimcf,ldimcf), esf
 integer(kind=iwp) :: i, i2, info, j, l
 real(kind=wp) :: det, gtens(3), maxes(3,3)
 real(kind=wp), allocatable :: BNC(:,:), BNS(:,:), Bstev(:,:), eloc(:), Winit(:)
-complex(kind=wp), allocatable :: Akq(:,:), amfi2(:,:,:), amfi_c(:,:,:), amfi_l(:,:,:), Angm(:,:,:), dipso(:,:,:), HCF(:,:), &
-                                 tmp(:,:), Z(:,:), Zinit(:,:)
+complex(kind=wp), allocatable :: Akq(:,:), amfi2(:,:,:), amfi_c(:,:,:), amfi_l(:,:,:), amfi_tmp(:,:), Angm(:,:,:), dipso(:,:,:), &
+                                 dipso_tmp(:,:,:), HCF(:,:), tmp(:,:), Z(:,:), Zinit(:,:)
 logical(kind=iwp), parameter :: debug = .false.
 real(kind=wp), external :: finddetr
 #ifdef _DISABLED_
@@ -92,7 +92,10 @@ amfi_c(:,:,:) = amfi(:,:,:)*cOne
 ! diagonalize the angmom
 if (iopt == 1) then
   ! iopt = 1   -- axis of the ground orbital doublet
-  call atens(dipso(:,1:d,1:d),d,gtens,maxes,iprint)
+  call mma_allocate(dipso_tmp,3,d,d,label='dipso_tmp')
+  dipso_tmp(:,:,:) = dipso(:,1:d,1:d)
+  call atens(dipso_tmp,d,gtens,maxes,iprint)
+  call mma_deallocate(dipso_tmp)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   if (mod(d,2) == 0) then
     write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudo-L = |',d-1,'/2> orbital multiplet.'
@@ -194,12 +197,15 @@ end if
 !  transform AMFI integrals to pseudo-L basis:
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:
+call mma_allocate(amfi_tmp,ldimcf,ldimcf,label='amfi_tmp')
 do L=1,3
   ! amfi:
-  call ZGEMM_('C','N',lDIMcf,lDIMcf,lDIMcf,cOne,Z,lDIMcf,AMFI2(L,:,:),lDIMcf,cZero,TMP,lDIMcf)
-  call ZGEMM_('N','N',lDIMcf,lDIMcf,lDIMcf,cOne,TMP,lDIMcf,Z,lDIMcf,cZero,AMFI_L(L,:,:),lDIMcf)
-
+  amfi_tmp(:,:) = AMFI2(L,:,:)
+  call ZGEMM_('C','N',lDIMcf,lDIMcf,lDIMcf,cOne,Z,lDIMcf,amfi_tmp,lDIMcf,cZero,TMP,lDIMcf)
+  call ZGEMM_('N','N',lDIMcf,lDIMcf,lDIMcf,cOne,TMP,lDIMcf,Z,lDIMcf,cZero,amfi_tmp,lDIMcf)
+  AMFI_L(L,:,:) = amfi_tmp(:,:)
 end do !L
+call mma_deallocate(amfi_tmp)
 
 if (debug) call prMom_herm('TERMCF:: AMFI_L',amfi_l*auTocm,ldimcf)
 

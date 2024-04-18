@@ -23,6 +23,7 @@ subroutine atens(moment,d,gtens,maxes,iprint)
 !           iprint = 3 => print for debug
 !-----------------------------------------------------------------------
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Twelve, Half
 use Definitions, only: wp, iwp, u6
 
@@ -34,6 +35,7 @@ real(kind=wp), intent(out) :: maxes(3,3)
 integer(kind=iwp) :: i, ic1, ic2, info, j
 real(kind=wp) :: A_TENS_TERM(3,3), Det_gtens, diff12, diff23, dnorm, MAIN(3), W(3), Z(3,3), ZR(3,3)
 complex(kind=wp) :: AC_TENS(3,3)
+complex(kind=wp), allocatable :: tmp1(:,:), tmp2(:,:)
 real(kind=wp), external :: dznrm2, FindDetR
 complex(kind=wp), external :: trace
 
@@ -50,11 +52,17 @@ end if
 
 ! initialization:
 
+call mma_allocate(tmp1,d,d,label='tmp1')
+call mma_allocate(tmp2,d,d,label='tmp1')
 do ic1=1,3
+  tmp1(:,:) = moment(ic1,:,:)
   do ic2=1,3
-    Ac_tens(ic1,ic2) = trace(d,moment(ic1,:,:),moment(ic2,:,:))
+    tmp2(:,:) = moment(ic2,:,:)
+    Ac_tens(ic1,ic2) = trace(d,tmp1,tmp2)
   end do
 end do
+call mma_deallocate(tmp1)
+call mma_deallocate(tmp2)
 
 do ic1=1,3
   do ic2=1,3

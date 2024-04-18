@@ -88,7 +88,7 @@ end if
 call mma_allocate(chiT,nT+nTempMagn,'chiT')
 call mma_allocate(Zstat1,nT+nTempMagn,'Zstat1')
 call mma_allocate(chi_theta_1,nT+nTempMagn,'chi_theta_1')
-call mma_allocate(chiT_tens,nT+nTempMagn,3,3,'chiT_tens')
+call mma_allocate(chiT_tens,3,3,nT+nTempMagn,'chiT_tens')
 mem_local = mem_local+size(chiT)*RtoB
 mem_local = mem_local+size(Zstat1)*RtoB
 mem_local = mem_local+size(chi_theta_1)*RtoB
@@ -112,9 +112,9 @@ if (zJ == 0) then
     end if
 
     !XMM(:,:) = coeff_X*XMM(:,:)
-    chiT_tens(iT,:,:) = coeff_X*XMM(:,:)
+    chiT_tens(:,:,iT) = coeff_X*XMM(:,:)
 
-    !chiT_tens(iT,:,:) = XMM(:,:)
+    !chiT_tens(:,:,iT) = XMM(:,:)
     ! compute the powder XT for this temperature:
     chiT(iT) = coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/Three
 
@@ -127,7 +127,7 @@ if (zJ == 0) then
 else  ! i.e. when zJ /= Zero
   if (iPrint > 2) write(u6,*) 'SUSC:  zJ \= 0'
   ! allocate matrices:
-  call mma_allocate(chiT_theta_tens,nT+nTempMagn,3,3,'XTT')
+  call mma_allocate(chiT_theta_tens,3,3,nT+nTempMagn,'XTT')
   ! initialize:
   mem_local = mem_local+size(chiT_theta_tens)*RtoB
   if (iPrint > 2) then
@@ -167,8 +167,8 @@ else  ! i.e. when zJ /= Zero
     XMM(:,:) = coeff_X*XMM(:,:)
     XZJ(:,:) = coeff_X*XZJ(:,:)
     ! place the tensors in the corresponding part of the "big" arrays:
-    chiT_tens(iT,:,:) = XMM(:,:)
-    chiT_theta_tens(iT,:,:) = XZJ(:,:)
+    chiT_tens(:,:,iT) = XMM(:,:)
+    chiT_theta_tens(:,:,iT) = XZJ(:,:)
     ! compute powder:
     chiT(iT) = (XMM(1,1)+XMM(2,2)+XMM(3,3))/Three
     chiT_theta(iT) = (XZJ(1,1)+XZJ(2,2)+XZJ(3,3))/Three
@@ -230,14 +230,14 @@ if (zJ == Zero) then
   do iT=1,nT
     jT = iT+nTempMagn
     info = 0
-    call DIAG_R2(chiT_tens(jT,:,:),3,info,wt,zt)
+    call DIAG_R2(chiT_tens(:,:,jT),3,info,wt,zt)
     write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y ---------'// &
                     ' z ----|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chiT_tens(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chiT_tens(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
                                                     (zt(j,1),j=1,3),'|'
-    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_tens(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
+    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_tens(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
                                                              (zt(j,2),j=1,3),'|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
   write(u6,'(111A)') ('-',i=1,110),'|'
@@ -252,14 +252,14 @@ else ! zJ /= Zero
   do iT=1,nT
     jT = iT+nTempMagn
     info = 0
-    call DIAG_R2(chiT_theta_tens(jT,:,:),3,info,wt,zt)
+    call DIAG_R2(chiT_theta_tens(:,:,jT),3,info,wt,zt)
     write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y ---------'// &
                     ' z ----|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chiT_theta_tens(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chiT_theta_tens(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
                                                     (zt(j,1),j=1,3),'|'
-    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
+    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
                                                              (zt(j,2),j=1,3),'|'
-    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
   write(u6,'(111A)') ('-',i=1,110),'|'

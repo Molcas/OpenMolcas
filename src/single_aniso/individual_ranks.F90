@@ -26,8 +26,8 @@ complex(kind=wp) :: redME
 character(len=16) :: field(8)
 character(len=6) :: iprog
 integer(kind=iwp), allocatable :: projKQ(:), rankKQ(:)
-real(kind=wp), allocatable :: ListKQ(:), Rnrm(:), RnrmKQ(:,:), Snrm(:), Winit(:), Wk(:,:), Ws(:,:)
-complex(kind=wp), allocatable :: HCF(:,:,:), HCFS(:,:,:), HKQ(:,:), O(:,:), W(:,:), Zkq(:,:), Ztmp(:,:)
+real(kind=wp), allocatable :: ListKQ(:), Rnrm(:), RnrmKQ(:,:), Snrm(:), Winit(:), Wk(:,:), Ws(:,:), Wtmp(:)
+complex(kind=wp), allocatable :: HCF(:,:,:), HCFS(:,:,:), HKQ(:,:), O(:,:), Tmp(:,:), W(:,:), Ztmp(:,:)
 real(kind=wp), external :: dznrm2_
 
 !-----------------------------------------------------------------------
@@ -35,6 +35,7 @@ call mma_allocate(Rnrm,nDIMCF,label='Rnrm')
 call mma_allocate(Snrm,nDIMCF,label='Snrm')
 call mma_allocate(Wk,nDIMCF,nDIMCF,label='Wk')
 call mma_allocate(Ws,nDIMCF,nDIMCF,label='Ws')
+call mma_allocate(Wtmp,nDIMCF,label='Wtmp')
 call mma_allocate(Winit,nDIMCF,label='Winit')
 call mma_allocate(RnrmKQ,[1,nDIMcf],[-nDIMcf,nDIMcf],label='RnrmKQ')
 call mma_allocate(ListKQ,nDIMCF*(2*nDIMCF+1),label='ListKQ')
@@ -44,9 +45,9 @@ call mma_allocate(projKQ,nDIMCF*(2*nDIMCF+1),label='projKQ')
 call mma_allocate(O,nDIMCF,nDIMCF,label='O')
 call mma_allocate(W,nDIMCF,nDIMCF,label='W')
 call mma_allocate(HKQ,nDIMCF,nDIMCF,label='HKQ')
-call mma_allocate(ZKQ,nDIMCF,nDIMCF,label='ZKQ')
 call mma_allocate(HCF,nDIMCF,nDIMCF,nDIMCF,label='HCF')
 call mma_allocate(HCFS,nDIMCF,nDIMCF,nDIMCF,label='HCFS')
+call mma_allocate(Tmp,nDIMCF,nDIMCF,label='Tmp')
 call mma_allocate(Ztmp,nDIMCF,nDIMCF,label='Ztmp')
 
 Rnrm(:) = Zero
@@ -82,7 +83,8 @@ do k=2,nDIMCF-1,2
 end do
 
 do N=2,nDIMCF-1,2
-  Rnrm(N) = dznrm2_(nDIMcf*nDIMcf,HCF(N,:,:),1)
+  Tmp(:,:) = HCF(N,:,:)
+  Rnrm(N) = dznrm2_(nDIMcf*nDIMcf,Tmp,1)
   Tnrm = Tnrm+Rnrm(N)
   do i=2,N,2
     Snrm(N) = Snrm(N)+Rnrm(i)
@@ -90,11 +92,17 @@ do N=2,nDIMCF-1,2
 end do
 ! compute the CF spinting of individual weight operators:
 do k=2,nDIMcf-1,2
-  call DIAG_C2(HCF(k,:,:),nDIMcf,info,Wk(k,:),Ztmp)
-  call DIAG_C2(HCFS(k,:,:),nDIMcf,info,Ws(k,:),Ztmp)
+  Tmp(:,:) = HCF(k,:,:)
+  call DIAG_C2(Tmp,nDIMcf,info,Wtmp,Ztmp)
+  Wk(k,:) = Wtmp(:)
+  Tmp(:,:) = HCFS(k,:,:)
+  call DIAG_C2(Tmp,nDIMcf,info,Wtmp,Ztmp)
+  Ws(k,:) = Wtmp(:)
 end do
 ! set the initial energies as to the sum of all contributions:
 call DIAG_C2(Hinit,nDIMcf,info,Winit,Ztmp)
+call mma_deallocate(Wtmp)
+call mma_deallocate(Tmp)
 
 !-----------------------------------------------------------------------
 ! individual parameter contribution:
@@ -117,7 +125,7 @@ do N=2,nDIMcf-1,2
     end if
     ! find the rank value of each NM operator
     ! for further estimate the effect of the corresponding CF parameter
-    RnrmKQ(N,M) = dznrm2_(nDIMcf*nDIMcf,HKQ(:,:),1)
+    RnrmKQ(N,M) = dznrm2_(nDIMcf*nDIMcf,HKQ,1)
     TnrmKQ = TnrmKQ+RnrmKQ(N,M)
 
     ! indexing lists
@@ -262,7 +270,6 @@ call mma_deallocate(W)
 call mma_deallocate(HKQ)
 call mma_deallocate(HCF)
 call mma_deallocate(HCFS)
-call mma_deallocate(Zkq)
 call mma_deallocate(Ztmp)
 call mma_deallocate(RnrmKQ)
 call mma_deallocate(ListKQ)

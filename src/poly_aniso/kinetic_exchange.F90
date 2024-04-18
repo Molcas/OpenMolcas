@@ -28,10 +28,11 @@ complex(kind=wp), intent(in) :: M1(3,N1,N1), S1(3,N1,N1), M2(3,N2,N2), S2(3,N2,N
 real(kind=wp), intent(in) :: eso1(N1), eso2(N2), tpar, upar
 complex(kind=wp), intent(out) :: HKEX(N1,N1,N2,N2), MR1(3,N1,N1), SR1(3,N1,N1), MR2(3,N2,N2), SR2(3,N2,N2)
 integer(kind=iwp) :: i, i1, i2, info, iprint, is1, is2, j, l
-real(kind=wp) :: gtens(4,3), maxes(4,3,3)
+real(kind=wp) :: gtens(3,4), maxes(3,3,4)
+complex(kind=wp) :: MM(3,2,2)
 real(kind=wp), allocatable :: eloc1(:), eloc2(:), wcr(:)
 complex(kind=wp), allocatable :: ABIT(:,:,:,:), H1(:,:), H1T(:,:), H2(:,:), HCOV(:,:), HEXC(:,:,:,:), MM1(:,:,:), SM1(:,:,:), &
-                                 TMP(:,:), Z1(:,:), Z2(:,:), ZCR(:,:), ZZ1(:,:), ZZ2(:,:)
+                                 TMP(:), TMP2(:,:), TMP3(:,:), Z1(:,:), Z2(:,:), ZCR(:,:), ZZ1(:,:), ZZ2(:,:)
 
 ! determine the pseudospin on each site (Z1 and Z2):
 iprint = 1
@@ -77,31 +78,31 @@ else if ((OPT == 2) .or. (OPT == 4)) then ! 1/U model
 end if
 
 call mma_allocate(H1T,N1,N1,label='H1T')
-call mma_allocate(TMP,max(N1,N2),max(N1,N2),label='TMP')
+call mma_allocate(TMP,max(N1,N2)**2,label='TMP')
 H1T(:,:) = H1(:,:)+HCOV(:,:)
 ! rewrite the HCOV in the initial ab initio basis:
-call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,HCOV,N1,cZero,TMP(1:N1,1:N1),N1)
-call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,HCOV,N1)
+call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,HCOV,N1,cZero,TMP,N1)
+call ZGEMM_('N','C',N1,N1,N1,cOne,TMP,N1,Z1,N1,cZero,HCOV,N1)
 ! rewrite the H1 in the initial ab initio basis:
-call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,H1,N1,cZero,TMP(1:N1,1:N1),N1)
-call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,H1,N1)
+call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,H1,N1,cZero,TMP,N1)
+call ZGEMM_('N','C',N1,N1,N1,cOne,TMP,N1,Z1,N1,cZero,H1,N1)
 ! rewrite the H2 in the initial ab initio basis:
-call ZGEMM_('N','N',N2,N2,N2,cOne,Z2,N2,H2,N2,cZero,TMP(1:N2,1:N2),N2)
-call ZGEMM_('N','C',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2,N2,cZero,H2,N2)
+call ZGEMM_('N','N',N2,N2,N2,cOne,Z2,N2,H2,N2,cZero,TMP,N2)
+call ZGEMM_('N','C',N2,N2,N2,cOne,TMP,N2,Z2,N2,cZero,H2,N2)
 ! rewrite the H1T in the initial ab initio basis:
-call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,H1T,N1,cZero,TMP(1:N1,1:N1),N1)
-call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,H1T,N1)
+call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,H1T,N1,cZero,TMP,N1)
+call ZGEMM_('N','C',N1,N1,N1,cOne,TMP,N1,Z1,N1,cZero,H1T,N1)
 ! rewrite the HEXC in the initial ab initio basis:
 do is1=1,N2
   do is2=1,N2
-    call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,HEXC(:,:,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-    call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,HEXC(:,:,is1,is2),N1)
+    call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,HEXC(:,:,is1,is2),N1,cZero,TMP,N1)
+    call ZGEMM_('N','C',N1,N1,N1,cOne,TMP,N1,Z1,N1,cZero,HEXC(:,:,is1,is2),N1)
   end do
 end do
 do is1=1,N1
   do is2=1,N1
-    call ZGEMM_('N','N',N2,N2,N2,cOne,Z2,N2,HEXC(is1,is2,:,:),N2,cZero,TMP(1:N2,1:N2),N2)
-    call ZGEMM_('N','C',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2,N2,cZero,HEXC(is1,is2,:,:),N2)
+    call ZGEMM_('N','N',N2,N2,N2,cOne,Z2,N2,HEXC(is1,is2,:,:),N2,cZero,TMP,N2)
+    call ZGEMM_('N','C',N2,N2,N2,cOne,TMP,N2,Z2,N2,cZero,HEXC(is1,is2,:,:),N2)
   end do
 end do
 
@@ -140,47 +141,57 @@ call mma_deallocate(H1T)
 if ((opt == 3) .or. (opt == 4)) then
   do is1=1,N2
     do is2=1,N2
-      call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,HKEX(:,:,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,ZCR,N1,cZero,HKEX(:,:,is1,is2),N1)
+      call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,HKEX(:,:,is1,is2),N1,cZero,TMP,N1)
+      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,HKEX(:,:,is1,is2),N1)
     end do
   end do
 end if
 ! compute the g tensors for initial and initial+covalence:
 call mma_allocate(MM1,3,N1,N1,label='MM1')
 call mma_allocate(SM1,3,N1,N1,label='SM1')
-call atens(M1(:,1:2,1:2),2,gtens(1,:),maxes(1,:,:),1)
-call atens(M1(:,3:4,3:4),2,gtens(2,:),maxes(2,:,:),1)
+MM(:,:,:) = M1(:,1:2,1:2)
+call atens(MM,2,gtens(:,1),maxes(:,:,1),1)
+MM(:,:,:) = M1(:,3:4,3:4)
+call atens(MM,2,gtens(:,2),maxes(:,:,2),1)
+call mma_allocate(TMP2,N1,N1,label='TMP2')
 do L=1,3
-  call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,M1(L,:,:),N1,cZero,TMP,N1)
-  call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,MM1(L,:,:),N1)
-  call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,S1(L,:,:),N1,cZero,TMP,N1)
-  call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,SM1(L,:,:),N1)
+  TMP2(:,:) = M1(L,:,:)
+  call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,TMP2,N1,cZero,TMP,N1)
+  call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,TMP2,N1)
+  MM1(L,:,:) = TMP2(:,:)
+  TMP2(:,:) = S1(L,:,:)
+  call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,TMP2,N1,cZero,TMP,N1)
+  call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,TMP2,N1)
+  SM1(L,:,:) = TMP2(:,:)
 end do
 call mma_deallocate(zcr)
-call atens(MM1(:,1:2,1:2),2,gtens(3,:),maxes(3,:,:),1)
-call atens(MM1(:,3:4,3:4),2,gtens(4,:),maxes(4,:,:),1)
+call mma_deallocate(TMP2)
+MM(:,:,:) = MM1(:,1:2,1:2)
+call atens(MM,2,gtens(:,3),maxes(:,:,3),1)
+MM(:,:,:) = MM1(:,3:4,3:4)
+call atens(MM,2,gtens(:,4),maxes(:,:,4),1)
 write(u6,'(A)') 'Initial g tensors of the ground and first excited KD'
 do i=1,2
-  write(u6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(i,1),' axis X: ',(maxes(i,j,1),j=1,3)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(i,2),' axis Y: ',(maxes(i,j,2),j=1,3)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(i,3),' axis Z: ',(maxes(i,j,3),j=1,3)
+  write(u6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(1,i),' axis X: ',(maxes(j,1,i),j=1,3)
+  write(u6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(2,i),' axis Y: ',(maxes(j,2,i),j=1,3)
+  write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3,i),' axis Z: ',(maxes(j,3,i),j=1,3)
   write(u6,*)
 end do
 write(u6,'(A)') 'Initial+Covalence g tensors of the ground and first excited KD'
 do i=3,4
-  write(u6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(i,1),' axis X: ',(maxes(i,j,1),j=1,3)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(i,2),' axis Y: ',(maxes(i,j,2),j=1,3)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(i,3),' axis Z: ',(maxes(i,j,3),j=1,3)
+  write(u6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(1,i),' axis X: ',(maxes(j,1,i),j=1,3)
+  write(u6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(2,i),' axis Y: ',(maxes(j,2,i),j=1,3)
+  write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3,i),' axis Z: ',(maxes(j,3,i),j=1,3)
   write(u6,*)
 end do
 !------
 if ((opt == 3) .or. (opt == 4)) then
   ! rotate the magnetic moment to the coordinate
   ! system of main magnetic axes on Ln
-  call rotmom2(SM1,N1,maxes(3,:,:),SR1)
-  call rotmom2(MM1,N1,maxes(3,:,:),MR1)
-  call rotmom2(S2,N2,maxes(3,:,:),SR2)
-  call rotmom2(M2,N2,maxes(3,:,:),MR2)
+  call rotmom2(SM1,N1,maxes(:,:,3),SR1)
+  call rotmom2(MM1,N1,maxes(:,:,3),MR1)
+  call rotmom2(S2,N2,maxes(:,:,3),SR2)
+  call rotmom2(M2,N2,maxes(:,:,3),MR2)
   ! find the local pseudospins on both sites:
   call mma_allocate(ZZ1,N1,N1,label='ZZ1')
   call mma_allocate(ZZ2,N2,N2,label='ZZ2')
@@ -190,34 +201,47 @@ if ((opt == 3) .or. (opt == 4)) then
   call pa_prMat('KE_Exchange:: Pseudospin site 1',ZZ1,N1)
   call pa_prMat('KE_Exchange:: Pseudospin site 2',ZZ2,N2)
 # endif
+  call mma_allocate(TMP2,N1,N1,label='TMP2')
+  call mma_allocate(TMP3,N2,N2,label='TMP3')
   ! rewrite the magnetic moments and spin moments in new local bases:
   do L=1,3
-    call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,MR1(L,:,:),N1,cZero,TMP,N1)
-    call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZZ1,N1,cZero,MR1(L,:,:),N1)
+    TMP2(:,:) = MR1(L,:,:)
+    call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,TMP2,N1,cZero,TMP,N1)
+    call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZZ1,N1,cZero,TMP2,N1)
+    MR1(L,:,:) = TMP2(:,:)
+    TMP2(:,:) = SR1(L,:,:)
+    call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,TMP2,N1,cZero,TMP,N1)
+    call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZZ1,N1,cZero,TMP2,N1)
+    SR1(L,:,:) = TMP2(:,:)
 
-    call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,SR1(L,:,:),N1,cZero,TMP,N1)
-    call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZZ1,N1,cZero,SR1(L,:,:),N1)
-
-    call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,MR2(L,:,:),N2,cZero,TMP,N2)
-    call ZGEMM_('N','N',N2,N2,N2,cOne,TMP,N2,ZZ2,N2,cZero,MR2(L,:,:),N2)
-    call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,SR2(L,:,:),N2,cZero,TMP,N2)
-    call ZGEMM_('N','N',N2,N2,N2,cOne,TMP,N2,ZZ2,N2,cZero,SR2(L,:,:),N2)
+    TMP3(:,:) = MR2(L,:,:)
+    call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,TMP3,N2,cZero,TMP,N2)
+    call ZGEMM_('N','N',N2,N2,N2,cOne,TMP,N2,ZZ2,N2,cZero,TMP3,N2)
+    MR2(L,:,:) = TMP3(:,:)
+    TMP3(:,:) = SR2(L,:,:)
+    call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,TMP3,N2,cZero,TMP,N2)
+    call ZGEMM_('N','N',N2,N2,N2,cOne,TMP,N2,ZZ2,N2,cZero,TMP3,N2)
+    SR2(L,:,:) = TMP3(:,:)
   end do
   ! rewrite the exchnage matrix in the basis of local pseudospins:
   do is1=1,N2
     do is2=1,N2
-      call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,HKEX(:,:,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,ZZ1,N1,cZero,HKEX(:,:,is1,is2),N1)
+      call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,HKEX(:,:,is1,is2),N1,cZero,TMP,N1)
+      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZZ1,N1,cZero,HKEX(:,:,is1,is2),N1)
     end do
   end do
   do is1=1,N1
     do is2=1,N1
-      call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,HKEX(is1,is2,:,:),N2,cZero,TMP(1:N2,1:N2),N2)
-      call ZGEMM_('N','N',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,ZZ2,N2,cZero,HKEX(is1,is2,:,:),N2)
+      TMP3(:,:) = HKEX(is1,is2,:,:)
+      call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,TMP3,N2,cZero,TMP,N2)
+      call ZGEMM_('N','N',N2,N2,N2,cOne,TMP,N2,ZZ2,N2,cZero,TMP3,N2)
+      HKEX(is1,is2,:,:) = TMP3(:,:)
     end do
   end do
   call mma_deallocate(ZZ1)
   call mma_deallocate(ZZ2)
+  call mma_deallocate(TMP2)
+  call mma_deallocate(TMP3)
 else !opt=1, opt=2, and opt>4
   MR1(:,:,:) = M1(:,:,:)
   SR1(:,:,:) = S1(:,:,:)

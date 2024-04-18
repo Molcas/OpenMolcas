@@ -30,16 +30,17 @@ integer(kind=iwp) :: i, i1, i2, ibuf, j, k, k1, k2, l, lb1, lb2, lp, n1, n2, nin
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: is1, is2, js1, js2
 #endif
-real(kind=wp) :: g1(3), g2(3), J1C(3,3), J1Cr(3,3), mg1(3,3), mg2(3,3), RDI, RDM, RIT, RL1, RL3, RL9 !, J1C_trans(3,3)
-complex(kind=wp), allocatable :: JB(:,:,:,:), JN(:,:,:,:), JS(:,:,:,:)
+real(kind=wp) :: g1(3), g2(3), J1C(3,3), J1Cr(3,3), mg1(3,3), mg2(3,3), RDI, RDM, RIT, RL1, RL3, RL9
+complex(kind=wp) :: J_tmp(-1:1,-1:1)
+complex(kind=wp), allocatable :: HTMP(:,:,:,:), JB(:,:,:,:), JN(:,:,:,:), JS(:,:,:,:), MM_tmp1(:,:,:), MM_tmp2(:,:,:)
 !real(kind=wp), parameter :: cm_to_MHz = cm_s*1.0e-6_wp
 real(kind=wp), external :: dznrm2_
 
-#ifndef _DEBUGPRINT_
 #include "macros.fh"
+unused_var(SM)
+#ifndef _DEBUGPRINT_
 unused_var(itype)
 unused_var(soe)
-unused_var(SM)
 unused_var(rot)
 #endif
 
@@ -181,8 +182,14 @@ do lp=1,npair
   end if
 
 end do !lp
-call prMom('SM(i1) bf Lines1',SM(i1,:,1:n1,1:n1),n1)
-call prMom('SM(i2) bf Lines1',SM(i2,:,1:n2,1:n2),n2)
+!call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+!call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+!SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+!SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+!call prMom('SM(i1) bf Lines1',SM_tmp1,n1)
+!call prMom('SM(i2) bf Lines1',SM_tmp2,n2)
+!call mma_deallocate(SM_tmp1)
+!call mma_deallocate(SM_tmp2)
 #endif
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -238,6 +245,11 @@ do lp=1,npair
   write(u6,'(100A)') ('-',i=1,100)
   write(u6,'(A,i2)') 'Interacting pair',lp
 
+  call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+  call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+  MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+  MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
   ! JN= exch. parameters in Naoya's ITO operators
   ! JL= exch. parameters in Liviu's ITO operators
   ! JS= exch. parameters in Stevens ESO operators
@@ -248,17 +260,21 @@ do lp=1,npair
   !=====================================================================
   if (AnisoLines1 .and. (RL1 > Zero)) then
 
-    call newjkqpar(n1,n2,HLIN1(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
+    call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+    HTMP(:,:,:,:) = HLIN1(lp,1:n1,1:n1,1:n2,1:n2)
+    call newjkqpar(n1,n2,HTMP,JN,JB,JS)
+    call mma_deallocate(HTMP)
 
     ! re-write the first rank tensor in cartesian representation:
     ! using Naoya's ITO parameters
     J1Cr(:,:) = Zero
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
+    J_tmp(:,:) = JB(1,-1:1,1,-1:1)
+    call tensor2cart(J_tmp,J1C)
 
     ! rotate cartesian J1C matrix by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM_tmp1,n1,g1,mg1,2)
+    call atens(MM_tmp2,n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -306,17 +322,35 @@ do lp=1,npair
     !S1a(:,:,:) = cZero
     !S2a(:,:,:) = cZero
     !
-    !call ESO(n1,1,1,S1b(1,1:n1,1:n1),S1b(2,1:n1,1:n1),redME)
-    !call ESO(n1,1,0,S1b(3,1:n1,1:n1),W1b(1:n1,1:n1),redME)
+    !call mma_allocate(tmp1,n1,n1,label='tmp1')
+    !call mma_allocate(tmp2,n1,n1,label='tmp2')
+    !call ESO(n1,1,1,tmp1,tmp2,redME)
+    !S1b(1,1:n1,1:n1) = tmp1(:,:)
+    !S1b(2,1:n1,1:n1) = tmp2(:,:)
+    !call ESO(n1,1,0,tmp1,tmp2,redME)
+    !S1b(3,1:n1,1:n1) = tmp1(:,:)
+    !W1b(1:n1,1:n1) = tmp2(:,:)
     !S2b(:,:,:) = S1b(:,:,:)
+    !call mma_deallocate(tmp1)
+    !call mma_deallocate(tmp2
     !
-    !call prmom('SM(i1) bf recover HAM',SM(i1,:,1:n1,1:n1),n1)
-    !call prmom('SM(i2) bf recover HAM',SM(i2,:,1:n2,1:n2),n2)
+    !call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+    !call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+    !SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+    !SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+    !call prmom('SM(i1) bf recover HAM',SM_tmp,n1)
+    !call prmom('SM(i2) bf recover HAM',SM_tmp,n2)
     !
     !J1C_trans(:,:) = -J1Cr(:,:)
     !write(u6,'(/)')
-    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,S1b(:,1:n1,1:n1),S2b(:,1:n2,1:n2),HAM)
-    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,SM(i1,:,1:n1,1:n1),SM(i2,:,1:n2,1:n2),HAM)
+    !SM_tmp1(:,:,:) = S1b(:,1:n1,1:n1)
+    !SM_tmp2(:,:,:) = S2b(:,1:n2,1:n2)
+    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,SM_tmp1,SM_tmp2,HAM)
+    !SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+    !SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,SM_tmp1,SM_tmp2,HAM)
+    !call mma_deallocate(SM_tmp1)
+    !call mma_deallocate(SM_tmp2)
     !
     !write(u6,'(A,i5)') 'HLIN1: ORIG, REGEN, DIFF:'
     !do is1=1,n1
@@ -336,16 +370,20 @@ do lp=1,npair
   !====================================================================
   if (AnisoLines3 .and. (RL3 > Zero)) then
 
-    call newjkqpar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
+    call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+    HTMP(:,:,:,:) = HLIN3(lp,1:n1,1:n1,1:n2,1:n2)
+    call newjkqpar(n1,n2,HTMP,JN,JB,JS)
+    call mma_deallocate(HTMP)
 
     J1Cr(:,:) = Zero
     ! using Liviu's ITO parameters
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
+    J_tmp(:,:) = JB(1,-1:1,1,-1:1)
+    call tensor2cart(J_tmp,J1C)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM_tmp1,n1,g1,mg1,2)
+    call atens(MM_tmp2,n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -391,15 +429,19 @@ do lp=1,npair
   !=====================================================================
   if (AnisoLines9 .and. (RL9 > Zero)) then
 
-    call newjkqpar(n1,n2,HLIN9(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
+    call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+    HTMP(:,:,:,:) = HLIN9(lp,1:n1,1:n1,1:n2,1:n2)
+    call newjkqpar(n1,n2,HTMP,JN,JB,JS)
+    call mma_deallocate(HTMP)
 
     J1Cr(:,:) = Zero
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
+    J_tmp(:,:) = JB(1,-1:1,1,-1:1)
+    call tensor2cart(J_tmp,J1C)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM_tmp1,n1,g1,mg1,2)
+    call atens(MM_tmp2,n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -444,15 +486,19 @@ do lp=1,npair
 
   if (Dipol .and. (RDI > Zero)) then
 
-    call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
+    call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+    HTMP(:,:,:,:) = HDIP(lp,1:n1,1:n1,1:n2,1:n2)
+    call newjkqpar(n1,n2,HTMP,JN,JB,JS)
+    call mma_deallocate(HTMP)
 
     J1Cr(:,:) = Zero
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
+    J_tmp(:,:) = JB(1,-1:1,1,-1:1)
+    call tensor2cart(J_tmp,J1C)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM_tmp1,n1,g1,mg1,2)
+    call atens(MM_tmp2,n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -491,13 +537,17 @@ do lp=1,npair
 
   if (DM_exchange .and. (RDM > Zero)) then
 
-    call newjkqpar(n1,n2,HDMO(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
+    call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+    HTMP(:,:,:,:) = HDMO(lp,1:n1,1:n1,1:n2,1:n2)
+    call newjkqpar(n1,n2,HTMP,JN,JB,JS)
+    call mma_deallocate(HTMP)
 
     J1Cr(:,:) = Zero
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
+    J_tmp(:,:) = JB(1,-1:1,1,-1:1)
+    call tensor2cart(J_tmp,J1C)
 
-    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM_tmp1,n1,g1,mg1,2)
+    call atens(MM_tmp2,n2,g2,mg2,2)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
@@ -539,13 +589,17 @@ do lp=1,npair
 
   if (JITO_exchange .and. (RIT > Zero)) then
 
-    call newjkqpar(n1,n2,HITO(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
+    call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+    HTMP(:,:,:,:) = HITO(lp,1:n1,1:n1,1:n2,1:n2)
+    call newjkqpar(n1,n2,HTMP,JN,JB,JS)
+    call mma_deallocate(HTMP)
 
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
+    J_tmp(:,:) = JB(1,-1:1,1,-1:1)
+    call tensor2cart(J_tmp,J1C)
 
     J1Cr(:,:) = Zero
-    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM_tmp1,n1,g1,mg1,2)
+    call atens(MM_tmp2,n2,g2,mg2,2)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
@@ -597,10 +651,20 @@ do lp=1,npair
   !
   !if (Lines .or. AnisoLines) then
   !
-  !  call transHam(n1,n2,unity,unity,MM(i1,:,1:n1,1:n1),MM(i2,:,1:n2,1:n2),itype(i1),itype(i2),HLIN(lp,1:n1,1:n1,1:n2,1:n2), &
-  !                HLIN3(lp,1:n1,1:n1,1:n2,1:n2),iopt)
-  !  call JKQPar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),JLinG(lp,1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
-  !  call tensor2cart(1,1,JLinG(lp,1,-1:1,1,-1:1),JLinCG(lp,:,:))
+  !  call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+  !  call mma_allocate(HTMP3,n1,n1,n2,n2,label='HTMP3')
+  !  call mma_allocate(J_tmp2,[1,n1-1],[-(n1-1),n1-1],[1,n2-1],[-(n2-1),n2-1],label='J_tmp2')
+  !  HTMP(:,:,:,:) = HLIN(lp,1:n1,1:n1,1:n2,1:n2)
+  !  call transHam(n1,n2,unity,unity,MM_tmp1,MM_tmp2,itype(i1),itype(i2),HTMP,HTMP3),iopt)
+  !  HLIN3(lp,1:n1,1:n1,1:n2,1:n2) = HTMP3(:,:,:,:)
+  !  call JKQPar(n1,n2,HTMP3,J_tmp2)
+  !  JLinG(lp,1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1) = J_tmp2(:,:,:,:)
+  !  J_tmp(:,:) = JLinG(lp,1,-1:1,1,-1:1)
+  !  call tensor2cart(1,1,J_tmp,J1C)
+  !  JLinCG(lp,:,:) = J1C(:,:)
+  !  call mma_deallocate(HTMP)
+  !  call mma_deallocate(HTMP3)
+  !  call mma_deallocate(J_tmp2)
   !  write(u6,'(A)')
   !  write(u6,'(A)') 'Cartesian representation of the (rank-1)*(rank-1) exchange interaction: LINES'
   !  write(u6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
@@ -614,10 +678,20 @@ do lp=1,npair
   !end if
   !
   !if (Dipol) then
-  !  call transHam(n1,n2,unity,unity,MM(i1,:,1:n1,1:n1),MM(i2,:,1:n2,1:n2),itype(i1),itype(i2),HDIP(lp,1:n1,1:n1,1:n2,1:n2), &
-  !                HDIP3(lp,1:n1,1:n1,1:n2,1:n2),iopt)
-  !  call JKQPar(n1,n2,HDIP3(lp,1:n1,1:n1,1:n2,1:n2),JDipG(lp,1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
-  !  call tensor2cart(1,1,JDipG(lp,1,-1:1,1,-1:1),JDipCG(lp,:,:))
+  !  call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+  !  call mma_allocate(HTMP3,n1,n1,n2,n2,label='HTMP3')
+  !  call mma_allocate(J_tmp2,[1,n1-1],[-(n1-1),n1-1],[1,n2-1],[-(n2-1),n2-1],label='J_tmp2')
+  !  HDIP(:,:,:,:) = HLIN(lp,1:n1,1:n1,1:n2,1:n2)
+  !  call transHam(n1,n2,unity,unity,MM_tmp1,MM_tmp2,itype(i1),itype(i2),HTMP,HTMP3),iopt)
+  !  HDIP3(lp,1:n1,1:n1,1:n2,1:n2) = HTMP3(:,:,:,:)
+  !  call JKQPar(n1,n2,HTMP3,J_tmp2)
+  !  JDipG(lp,1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1) = J_tmp2(:,:,:,:)
+  !  J_tmp(:,:) = JDipG(lp,1,-1:1,1,-1:1)
+  !  call tensor2cart(1,1,J_tmp,JDipCG(lp,:,:))
+  !  JDipCG(lp,:,:) = J1C(:,:)
+  !  call mma_deallocate(HTMP)
+  !  call mma_deallocate(HTMP3)
+  !  call mma_deallocate(J_tmp2)
   !  write(u6,'(A)') 'Cartesian representation of the (rank-1)*(rank-1) exchange interaction: DIPOL'
   !  write(u6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
   !  write(u6,'(A)') 'GENERAL COORD:::'
@@ -786,6 +860,9 @@ do lp=1,npair
   !    write(u6,'(3F12.6)') (SDip(lp,is1,is2),is2=1,3)
   !  end do
   !end if
+
+  call mma_deallocate(MM_tmp1)
+  call mma_deallocate(MM_tmp2)
 
   call mma_deallocate(JN)
   call mma_deallocate(JB)

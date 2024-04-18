@@ -22,7 +22,7 @@ logical(kind=iwp), intent(in) :: GRAD
 integer(kind=iwp) :: i, info, j
 real(kind=wp) :: gtens(3), zmagn(3,3)
 real(kind=wp), allocatable :: wtmp(:)
-complex(kind=wp), allocatable :: DIPJ(:,:,:), SJ(:,:,:), ztmp(:,:)
+complex(kind=wp), allocatable :: DIPJ(:,:,:), SJ(:,:,:), TMP(:,:,:), ztmp(:,:)
 
 write(u6,'(/)')
 write(u6,'(100A)') ('%',i=1,95)
@@ -37,7 +37,10 @@ write(u6,*)
 if (iopt == 1) then
   ! coordinate system for decomposition of the CF matrix identic to the coordinate system
   ! of the main magnetic axes of the ground multiplet (NDIM(1))
-  call atens(DIPSO(:,1:d,1:d),d,GTENS,ZMAGN,1)
+  call mma_allocate(TMP,3,d,d,label='TMP')
+  TMP(:,:,:) = DIPSO(:,1:d,1:d)
+  call atens(TMP,d,GTENS,ZMAGN,1)
+  call mma_deallocate(TMP)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   if (mod(d,2) == 0) then
     write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudospin S = |',d-1,'/2> multiplet.'

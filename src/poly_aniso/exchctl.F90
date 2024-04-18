@@ -29,20 +29,24 @@ integer(kind=iwp), intent(in) :: exch, nneq, neqv, neq(nneq), nexch(nneq), nmax,
 real(kind=wp), intent(in) :: Jex(npair), JAex(npair,3), JAex9(npair,3,3), JDMex(npair,3), &
                              JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), &
                              JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), eso(nneq,nmax), coord(nneq,3), &
-                             rot(nneq,neqv,3,3), rlg(nneq,neqv,3,3), riso(nneq,3,3), tpar, upar
+                             rot(nneq,neqv,3,3), rlg(nneq,neqv,3,3), riso(3,3,nneq), tpar, upar
 complex(kind=wp), intent(inout) :: SM(nneq,3,nmax,nmax), MM(nneq,3,nmax,nmax)
 character, intent(in) :: itype(nneq)
 logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE, DM_exchange, JITO_exchange
 real(kind=wp), intent(out) :: W(exch)
 complex(kind=wp), intent(out) :: Z(exch,exch), S(3,exch,exch), M(3,exch,exch)
 integer(kind=iwp) :: i, i1, i2, is1, isite, j, j1, j2, js1, l, lb1, lb2, lp, mem_local, n1, n2, nb, nb1, nb2, NmaxPop, nmaxR, nsta
-real(kind=wp) :: dist, mg1(3,3), mg2(3,3), vect(3)
+real(kind=wp) :: dist, JAex_tmp(3), mg1(3,3), mg2(3,3), p1(3), p2(3), r1(3,3), r2(3,3), vect(3)
 integer(kind=iwp), allocatable :: ibas(:,:), ibasR(:,:), icoord(:), intc(:), intcR(:), nexchR(:), nind(:,:)
-real(kind=wp), allocatable :: rotR(:,:,:,:), wdip(:), wdmo(:), wito(:), wkex(:), wlin(:), wlin1(:), wlin3(:), wlin9(:), WR(:)
-complex(kind=wp), allocatable :: HDIP(:,:,:,:,:), HDMO(:,:,:,:,:), HITO(:,:,:,:,:), HKEX(:,:,:,:,:), HKEXR(:,:,:,:,:), &
-                                 HLIN1(:,:,:,:,:), HLIN3(:,:,:,:,:), HLIN9(:,:,:,:,:), M1(:,:,:), M2(:,:,:), MM1(:,:,:), &
-                                 MM2(:,:,:), MMR(:,:,:,:), MR(:,:,:), S1(:,:,:), S2(:,:,:), SM1(:,:,:), SM2(:,:,:), SMR(:,:,:,:), &
-                                 SR(:,:,:), tmp(:,:), ZR(:,:)
+real(kind=wp), allocatable :: eso_tmp(:,:), rotR(:,:,:,:), rotR_tmp(:,:,:,:), wdip(:), wdmo(:), wito(:), wkex(:), wlin(:), &
+                              wlin1(:), wlin3(:), wlin9(:), WR(:)
+complex(kind=wp), allocatable :: HDIP(:,:,:,:,:), HDIP_tmp(:,:,:,:,:), HDMO(:,:,:,:,:), HDMO_tmp(:,:,:,:,:), HITO(:,:,:,:,:), &
+                                 HITO_tmp(:,:,:,:,:), HKEX(:,:,:,:,:), HKEXR(:,:,:,:,:), HKEXR_tmp(:,:,:,:,:), HLIN1(:,:,:,:,:), &
+                                 HLIN1_tmp(:,:,:,:,:), HLIN3(:,:,:,:,:), HLIN3_tmp(:,:,:,:,:), HLIN9(:,:,:,:,:), &
+                                 HLIN9_tmp(:,:,:,:,:), HTMP(:,:,:,:), M1(:,:,:), M2(:,:,:), MM_tmp1(:,:,:), MM_tmp2(:,:,:), &
+                                 MM1(:,:,:), MM2(:,:,:), MMR(:,:,:,:), MR(:,:,:), S1(:,:,:), S2(:,:,:), SM_tmp1(:,:,:), &
+                                 SM_tmp2(:,:,:), SM1(:,:,:), SM2(:,:,:), SMR(:,:,:,:), SR(:,:,:), tmp(:,:), tmp2(:,:), &
+                                 tmp3(:,:,:,:,:), ZR(:,:)
 integer(kind=iwp), parameter :: exchR = 8
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
@@ -136,7 +140,7 @@ write(u6,'(A,  i8)') 'neqv   = ',neqv
 do i=1,nneq
   write(u6,'(A,  i8)') 'riso( site=',i,'):'
   do j=1,3
-    write(u6,'(3ES22.14)') (riso(i,j,k),k=1,3)
+    write(u6,'(3ES22.14)') (riso(j,k,i),k=1,3)
   end do
 end do
 #endif
@@ -313,20 +317,42 @@ if (AnisoLines1) then
       n1 = nexch(i1)
       n2 = nexch(i2)
 
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,:,:),SM(i1,:,1:n1,1:n1),MM(i1,:,1:n1,1:n1),mg1,.true.)
-      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,:,:),SM(i2,:,1:n2,1:n2),MM(i2,:,1:n2,1:n2),mg2,.true.)
+      if (itype(i1) == 'A') then
+        r1(:,:) = rot(i1,j1,:,:)
+        call prep_mom_exchange(n1,r1,SM_tmp1,MM_tmp1,mg1,.true.)
+        SM(i1,:,1:n1,1:n1) = SM_tmp1(:,:,:)
+        MM(i1,:,1:n1,1:n1) = MM_tmp1(:,:,:)
+      end if
+      if (itype(i2) == 'A') then
+        r2(:,:) = rot(i2,j2,:,:)
+        call prep_mom_exchange(n2,r2,SM_tmp2,MM_tmp2,mg2,.true.)
+        SM(i2,:,1:n2,1:n2) = SM_tmp2(:,:,:)
+        MM(i2,:,1:n2,1:n2) = MM_tmp2(:,:,:)
+      end if
 
-      call prMom('SM(i1) bf Lines1',SM(i1,:,1:n1,1:n1),n1)
-      call prMom('SM(i2) bf Lines1',SM(i2,:,1:n2,1:n2),n2)
+      call prMom('SM(i1) bf Lines1',SM_tmp1,n1)
+      call prMom('SM(i2) bf Lines1',SM_tmp2,n2)
 
       ! build the Lines exchange matrix:
-      call Lines_Exchange(Jex(lp),n1,n2,SM(i1,:,1:n1,1:n1),SM(i2,:,1:n2,1:n2),HLIN1(lp,1:n1,1:n1,1:n2,1:n2))
+      call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+      call Lines_Exchange(Jex(lp),n1,n2,SM_tmp1,SM_tmp2,HTMP)
+      HLIN1(lp,1:n1,1:n1,1:n2,1:n2) = HTMP(:,:,:,:)
+      call mma_deallocate(HTMP)
 
 #     ifdef _DEBUGPRINT_
-      call prMom('SM(i1) af Lines1',SM(i1,:,1:n1,1:n1),n1)
-      call prMom('SM(i2) af Lines1',SM(i2,:,1:n2,1:n2),n2)
+      call prMom('SM(i1) af Lines1',SM_tmp1,n1)
+      call prMom('SM(i2) af Lines1',SM_tmp2,n2)
       write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
       write(u6,'(A,i2)') 'in local pseudospin basis'
       do i=1,n1
@@ -339,6 +365,11 @@ if (AnisoLines1) then
         end do
       end do
 #     endif
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
 
     end do
   end if ! nPair
@@ -360,12 +391,35 @@ if (AnisoLines3) then
       n1 = nexch(i1)
       n2 = nexch(i2)
 
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,:,:),SM(i1,:,1:n1,1:n1),MM(i1,:,1:n1,1:n1),mg1,dbg)
-      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,:,:),SM(i2,:,1:n2,1:n2),MM(i2,:,1:n2,1:n2),mg2,dbg)
+      if (itype(i1) == 'A') then
+        r1(:,:) = rot(i1,j1,:,:)
+        call prep_mom_exchange(n1,r1,SM_tmp1,MM_tmp1,mg1,dbg)
+        SM(i1,:,1:n1,1:n1) = SM_tmp1(:,:,:)
+        MM(i1,:,1:n1,1:n1) = MM_tmp1(:,:,:)
+      end if
+      if (itype(i2) == 'A') then
+        r2(:,:) = rot(i2,j2,:,:)
+        call prep_mom_exchange(n2,r2,SM_tmp2,MM_tmp2,mg2,dbg)
+        SM(i2,:,1:n2,1:n2) = SM_tmp2(:,:,:)
+        MM(i2,:,1:n2,1:n2) = MM_tmp2(:,:,:)
+      end if
 
-      call Aniso_Lines_Exchange3(JAex(lp,:),n1,n2,SM(i1,:,1:n1,1:n1),SM(i2,:,1:n2,1:n2),HLIN3(lp,1:n1,1:n1,1:n2,1:n2))
+      call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+      JAex_tmp(:) = JAex(lp,:)
+      call Aniso_Lines_Exchange3(JAex_tmp,n1,n2,SM_tmp1,SM_tmp2,HTMP)
+      HLIN3(lp,1:n1,1:n1,1:n2,1:n2) = HTMP(:,:,:,:)
+      call mma_deallocate(HTMP)
 
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
@@ -379,6 +433,11 @@ if (AnisoLines3) then
         end do
       end do
 #     endif
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
 
     end do ! lp
   end if ! nPair
@@ -400,22 +459,44 @@ if (AnisoLines9) then
       n1 = nexch(i1)
       n2 = nexch(i2)
 
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,:,:),SM(i1,:,1:n1,1:n1),MM(i1,:,1:n1,1:n1),mg1,dbg)
-      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,:,:),SM(i2,:,1:n2,1:n2),MM(i2,:,1:n2,1:n2),mg2,dbg)
+      if (itype(i1) == 'A') then
+        r1(:,:) = rot(i1,j1,:,:)
+        call prep_mom_exchange(n1,r1,SM_tmp1,MM_tmp1,mg1,dbg)
+        SM(i1,:,1:n1,1:n1) = SM_tmp1(:,:,:)
+        MM(i1,:,1:n1,1:n1) = MM_tmp1(:,:,:)
+      end if
+      if (itype(i2) == 'A') then
+        r2(:,:) = rot(i2,j2,:,:)
+        call prep_mom_exchange(n2,r2,SM_tmp2,MM_tmp2,mg2,dbg)
+        SM(i2,:,1:n2,1:n2) = SM_tmp2(:,:,:)
+        MM(i2,:,1:n2,1:n2) = MM_tmp2(:,:,:)
+      end if
 
       ! rotate the input J matrix by the mg1 and mg2
 #     ifdef _DEBUGPRINT_
-      call prMom('SM(i1) bf Lines9',SM(i1,:,1:n1,1:n1),n1)
-      call prMom('SM(i2) bf Lines9',SM(i2,:,1:n2,1:n2),n2)
+      call prMom('SM(i1) bf Lines9',SM_tmp1,n1)
+      call prMom('SM(i2) bf Lines9',SM_tmp2,n2)
 #     endif
 
-      call Aniso_Lines_Exchange9(JAex9(lp,:,:),n1,n2,SM(i1,:,1:n1,1:n1),SM(i2,:,1:n2,1:n2),HLIN9(lp,1:n1,1:n1,1:n2,1:n2))
+      call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+      call Aniso_Lines_Exchange9(JAex9(lp,:,:),n1,n2,SM_tmp1,SM_tmp2,HTMP)
+      HLIN9(lp,1:n1,1:n1,1:n2,1:n2) = HTMP(:,:,:,:)
+      call mma_deallocate(HTMP)
 
 #     ifdef _DEBUGPRINT_
-      call prMom('SM(i1) af Lines9',SM(i1,:,1:n1,1:n1),n1)
-      call prMom('SM(i2) af Lines9',SM(i2,:,1:n2,1:n2),n2)
+      call prMom('SM(i1) af Lines9',SM_tmp1,n1)
+      call prMom('SM(i2) af Lines9',SM_tmp2,n2)
       write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
       do i=1,n1
         do j=1,n1
@@ -427,6 +508,11 @@ if (AnisoLines9) then
         end do
       end do
 #     endif
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
 
     end do
   end if ! nPair
@@ -447,16 +533,43 @@ if (Dipol) then
       n1 = nexch(i1)
       n2 = nexch(i2)
 
-      call dirvect(coord(i1,:),rlg(i1,j1,:,:),coord(i2,:),rlg(i2,j2,:,:),vect,dist)
+      p1(:) = coord(i1,:)
+      p2(:) = coord(i2,:)
+      r1(:,:) = rlg(i1,j1,:,:)
+      r2(:,:) = rlg(i2,j2,:,:)
+      call dirvect(p1,r1,p2,r2,vect,dist)
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,i3,3ES20.12,2x,ES20.12)') 'EXCHCTL: DIPOL: lp, vect, R:',lp,(vect(i),i=1,3),dist
 #     endif
+
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,:,:),SM(i1,:,1:n1,1:n1),MM(i1,:,1:n1,1:n1),mg1,dbg)
-      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,:,:),SM(i2,:,1:n2,1:n2),MM(i2,:,1:n2,1:n2),mg2,dbg)
+      if (itype(i1) == 'A') then
+        r1(:,:) = rot(i1,j1,:,:)
+        call prep_mom_exchange(n1,r1,SM_tmp1,MM_tmp1,mg1,dbg)
+        SM(i1,:,1:n1,1:n1) = SM_tmp1(:,:,:)
+        MM(i1,:,1:n1,1:n1) = MM_tmp1(:,:,:)
+      end if
+      if (itype(i2) == 'A') then
+        r2(:,:) = rot(i2,j2,:,:)
+        call prep_mom_exchange(n2,r2,SM_tmp2,MM_tmp2,mg2,dbg)
+        SM(i2,:,1:n2,1:n2) = SM_tmp2(:,:,:)
+        MM(i2,:,1:n2,1:n2) = MM_tmp2(:,:,:)
+      end if
 
-      call Dipol_Exchange(n1,n2,vect(:),dist,MM(i1,:,1:n1,1:n1),MM(i2,:,1:n2,1:n2),HDIP(lp,1:n1,1:n1,1:n2,1:n2))
+      call mma_allocate(HTMP,n1,n1,n2,n2,label='HTMP')
+      call Dipol_Exchange(n1,n2,vect,dist,MM_tmp1,MM_tmp2,HTMP)
+      HDIP(lp,1:n1,1:n1,1:n2,1:n2) = HTMP(:,:,:,:)
+      call mma_deallocate(HTMP)
 
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
@@ -470,6 +583,11 @@ if (Dipol) then
         end do
       end do
 #     endif
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
 
     end do ! lp
   end if
@@ -489,12 +607,32 @@ if (DM_exchange) then
 
       n1 = nexch(i1)
       n2 = nexch(i2)
+
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,:,:),SM(i1,:,1:n1,1:n1),MM(i1,:,1:n1,1:n1),mg1,dbg)
-      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,:,:),SM(i2,:,1:n2,1:n2),MM(i2,:,1:n2,1:n2),mg2,dbg)
+      if (itype(i1) == 'A') then
+        r1(:,:) = rot(i1,j1,:,:)
+        call prep_mom_exchange(n1,r1,SM_tmp1,MM_tmp1,mg1,dbg)
+        SM(i1,:,1:n1,1:n1) = SM_tmp1(:,:,:)
+        MM(i1,:,1:n1,1:n1) = MM_tmp1(:,:,:)
+      end if
+      if (itype(i2) == 'A') then
+        r2(:,:) = rot(i2,j2,:,:)
+        call prep_mom_exchange(n2,r2,SM_tmp2,MM_tmp2,mg2,dbg)
+        SM(i2,:,1:n2,1:n2) = SM_tmp2(:,:,:)
+        MM(i2,:,1:n2,1:n2) = MM_tmp2(:,:,:)
+      end if
 
-      call Dzyaloshinsky_Morya_Exchange(JDMex(lp,:),n1,n2,SM(i1,:,1:n1,1:n1),SM(i2,:,1:n2,1:n2),HDMO(lp,1:n1,1:n1,1:n2,1:n2))
+      call Dzyaloshinsky_Morya_Exchange(JDMex(lp,:),n1,n2,SM_tmp1,SM_tmp2,HDMO(lp,1:n1,1:n1,1:n2,1:n2))
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
       do i=1,n1
@@ -507,6 +645,11 @@ if (DM_exchange) then
         end do
       end do
 #     endif
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
 
     end do
   end if ! nPair
@@ -529,10 +672,30 @@ if (JITO_exchange) then
 
       n1 = nexch(i1)
       n2 = nexch(i2)
+
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,:,:),SM(i1,:,1:n1,1:n1),MM(i1,:,1:n1,1:n1),mg1,dbg)
-      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,:,:),SM(i2,:,1:n2,1:n2),MM(i2,:,1:n2,1:n2),mg2,dbg)
+      if (itype(i1) == 'A') then
+        r1(:,:) = rot(i1,j1,:,:)
+        call prep_mom_exchange(n1,r1,SM_tmp1,MM_tmp1,mg1,dbg)
+        SM(i1,:,1:n1,1:n1) = SM_tmp1(:,:,:)
+        MM(i1,:,1:n1,1:n1) = MM_tmp1(:,:,:)
+      end if
+      if (itype(i2) == 'A') then
+        r2(:,:) = rot(i2,j2,:,:)
+        call prep_mom_exchange(n2,r2,SM_tmp2,MM_tmp2,mg2,dbg)
+        SM(i2,:,1:n2,1:n2) = SM_tmp2(:,:,:)
+        MM(i2,:,1:n2,1:n2) = MM_tmp2(:,:,:)
+      end if
 
       ! using Naoya's ITO:, in general coordinate system
       call JITO_Exchange_Int(MxRank1,MxRank2,imaxrank(lp,:),n1,n2,JITOexR(lp,:,:,:,:),JITOexI(lp,:,:,:,:), &
@@ -549,6 +712,11 @@ if (JITO_exchange) then
         end do
       end do
 #     endif
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
 
     end do
   end if ! nPair
@@ -574,10 +742,36 @@ if (KE) then
 
       n1 = nexch(i1)
       n2 = nexch(i2)
-      call rotmom2(MM(i1,:,1:n1,1:n1),n1,rot(i1,j1,:,:),M1(:,1:n1,1:n1))
-      call rotmom2(SM(i1,:,1:n1,1:n1),n1,rot(i1,j1,:,:),S1(:,1:n1,1:n1))
-      call rotmom2(MM(i2,:,1:n2,1:n2),n2,rot(i2,j2,:,:),M2(:,1:n2,1:n2))
-      call rotmom2(SM(i2,:,1:n2,1:n2),n2,rot(i2,j2,:,:),S2(:,1:n2,1:n2))
+
+      call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+      call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+      call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
+      call mma_allocate(MM_tmp2,3,n2,n2,label='MM_tmp2')
+      SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+      SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+      MM_tmp1(:,:,:) = MM(i1,:,1:n1,1:n1)
+      MM_tmp2(:,:,:) = MM(i2,:,1:n2,1:n2)
+
+      r1(:,:) = rot(i1,j1,:,:)
+      call mma_allocate(tmp3,3,n1,n1,1,1,label='tmp3')
+      call rotmom2(MM_tmp1,n1,r1,tmp3)
+      M1(:,1:n1,1:n1) = tmp3(:,:,:,1,1)
+      call rotmom2(SM_tmp1,n1,r1,tmp3)
+      S1(:,1:n1,1:n1) = tmp3(:,:,:,1,1)
+      call mma_deallocate(tmp3)
+      r2(:,:) = rot(i2,j2,:,:)
+      call mma_allocate(tmp3,3,n2,n2,1,1,label='tmp3')
+      call rotmom2(MM_tmp2,n2,r2,tmp3)
+      M2(:,1:n2,1:n2) = tmp3(:,:,:,1,1)
+      call rotmom2(SM_tmp2,n2,r2,tmp3)
+      S2(:,1:n2,1:n2) = tmp3(:,:,:,1,1)
+      call mma_deallocate(tmp3)
+
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(SM_tmp2)
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(MM_tmp2)
+
       ! KEOPT=1 ! FULL
       ! KEOPT=2 ! Full, 1/U
       ! KEOPT=3 ! FULL  + reduced form
@@ -586,7 +780,7 @@ if (KE) then
       SM1(:,:,:) = cZero
       MM2(:,:,:) = cZero
       SM2(:,:,:) = cZero
-      !FIXME: this call to KE_Exchange does not match at all its definition, please fix
+      !FIXME: this call to KE_Exchange does not match at all its definition, please fix (and avoid passing non-contiguous arrays)
       call WarningMessage(2,'There is surely a bug here')
 #     include "macros.fh"
       unused_var(tpar)
@@ -661,6 +855,7 @@ if (KE) then
 #       endif
 
       end if ! KEOPT
+
     end do ! lp
 
     ! in case of KEOPT=3 or KEOPT=4 Then we need to compute the spectrum and the properties
@@ -695,22 +890,33 @@ if (KE) then
       WLIN9(:) = Zero
       WDIP(:) = Zero
       WKEX(:) = Zero
+      call mma_allocate(eso_tmp,nneq,nmaxR,label='eso_tmp')
+      call mma_allocate(HLIN1_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HLIN1_tmp')
+      call mma_allocate(HLIN3_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HLIN3_tmp')
+      call mma_allocate(HLIN9_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HLIN9_tmp')
+      call mma_allocate(HDIP_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HDIP_tmp')
+      call mma_allocate(HKEXR_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HKEXR_tmp')
+      call mma_allocate(HDMO_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HDMO_tmp')
+      call mma_allocate(HITO_tmp,npair,nmaxR,nmaxR,nmaxR,nmaxR,label='HITO_tmp')
+      eso_tmp(:,:) = eso(:,1:nmaxR)
+      HLIN1_tmp(:,:,:,:,:) = HLIN1(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
+      HLIN3_tmp(:,:,:,:,:) = HLIN3(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
+      HLIN9_tmp(:,:,:,:,:) = HLIN9(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
+      HDIP_tmp(:,:,:,:,:) = HDIP(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
+      HKEXR_tmp(:,:,:,:,:) = HKEXR(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
+      HDMO_tmp(:,:,:,:,:) = HDMO(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
+      HITO_tmp(:,:,:,:,:) = HITO(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR)
       ! print the Exchange Hamiltonian:
-      call pa_prham(exchR,npair,i_pair,nneq,neq,nexchR,nmaxR,lmax,eso(:,1:nmaxR), &
-                    HLIN1(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HLIN3(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
-                    HLIN9(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HDIP(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
-                    HKEXR(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HDMO(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
-                    HITO(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,DM_exchange,.false.)
+      call pa_prham(exchR,npair,i_pair,nneq,neq,nexchR,nmaxR,lmax,eso_tmp,HLIN1_tmp,HLIN3_tmp,HLIN9_tmp,HDIP_tmp,HKEXR_tmp, &
+                    HDMO_tmp,HITO_tmp,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,DM_exchange,.false.)
       ! diagonalize the Hamiltonian:
-      call pa_diagham(exchR,npair,i_pair,nneq,neq,nexchR,nmaxR,lmax,eso(:,1:nmaxR),HLIN1(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
-                      HLIN3(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HLIN9(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
-                      HDIP(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HKEXR(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
-                      HDMO(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HITO(:,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),Dipol,.false.,AnisoLines1, &
-                      AnisoLines3,AnisoLines9,KE,.false.,WLIN1(1:exchR),WLIN3(1:exchR),WLIN9(1:exchR),WLIN(1:exchR),WDIP(1:exchR), &
-                      WKEX(1:exchR),WDMO(1:exchR),WITO(1:exchR),WR(1:exchR),Z(1:exchR,1:exchR))
+      call pa_diagham(exchR,npair,i_pair,nneq,neq,nexchR,nmaxR,lmax,eso_tmp,HLIN1_tmp,HLIN3_tmp,HLIN9_tmp,HDIP_tmp,HKEXR_tmp, &
+                      HDMO_tmp,HITO_tmp,Dipol,.false.,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false.,WLIN1(1:exchR), &
+                      WLIN3(1:exchR),WLIN9(1:exchR),WLIN(1:exchR),WDIP(1:exchR),WKEX(1:exchR),WDMO(1:exchR),WITO(1:exchR), &
+                      WR,ZR)
       ! print the resulting eigenstates:
       call pa_preigen(exchR,lmax,ibasR,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false.,WLIN(1:exchR),WDIP(1:exchR), &
-                      WKEX(1:exchR),WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR),0)
+                      WKEX(1:exchR),WITO(1:exchR),WR,ZR,0)
       ! compute the moments:
       rotR(:,:,:,:) = Zero
       rotR(1,1,1,1) = One
@@ -724,6 +930,7 @@ if (KE) then
       rotR(2,1,3,3) = One
       MR(:,:,:) = cZero
       SR(:,:,:) = cZero
+      call mma_allocate(tmp2,EXCHR,EXCHR,label='tmp2')
       do L=1,3
         do isite=1,lmax
           do nb1=1,exchR
@@ -743,25 +950,45 @@ if (KE) then
             end do  ! js1
           end do  ! nb1
         end do  ! isite
-        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,cOne,ZR,EXCHR,MR(L,:,:),EXCHR,cZero,TMP,EXCHR)
-        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,cOne,TMP,EXCHR,ZR,EXCHR,cZero,MR(L,:,:),EXCHR)
-        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,cOne,ZR,EXCHR,SR(L,:,:),EXCHR,cZero,TMP,EXCHR)
-        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,cOne,TMP,EXCHR,ZR,EXCHR,cZero,SR(L,:,:),EXCHR)
+        tmp2(:,:) = MR(L,:,:)
+        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,cOne,ZR,EXCHR,tmp2,EXCHR,cZero,TMP,EXCHR)
+        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,cOne,TMP,EXCHR,ZR,EXCHR,cZero,tmp2,EXCHR)
+        MR(L,:,:) = tmp2(:,:)
+        tmp2(:,:) = SR(L,:,:)
+        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,cOne,ZR,EXCHR,tmp2,EXCHR,cZero,TMP,EXCHR)
+        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,cOne,TMP,EXCHR,ZR,EXCHR,cZero,tmp2,EXCHR)
+        SR(L,:,:) = tmp2(:,:)
         do is1=1,8
           do js1=1,8
             write(u6,'(3(A,i1),A,2F20.14)') 'MR(',l,',',is1,',',js1,') = ',MR(l,is1,js1)
           end do
         end do
       end do  ! L
+      call mma_deallocate(tmp2)
       ! print the localized moments on sites:
       nsta = exchR
       ! assuming max 10 equivalent magnetic sites
-      call momloc2(nsta,nmaxR,nneq,neq,neqv,rotR(:,1:10,:,:),lmax,nexchR,wR(1:nsta),zR(1:nsta,1:nsta),MR(:,1:nsta,1:nsta), &
-                   SR(:,1:nsta,1:nsta),MMR(:,:,1:nmaxR,1:nmaxR),SMR(:,:,1:nmaxR,1:nmaxR))
+      call mma_allocate(MM_tmp1,3,nsta,nsta,label='MM_tmp1')
+      call mma_allocate(SM_tmp1,3,nsta,nsta,label='SM_tmp1')
+      call mma_allocate(rotR_tmp,nneq,10,3,3,'rotR_tmp')
+      call mma_allocate(tmp2,nsta,nsta,label='tmp2')
+      call mma_allocate(tmp3,nneq,3,2,2,2,label='tmp3')
+      MM_tmp1(:,:,:) = MR(:,1:nsta,1:nsta)
+      SM_tmp1(:,:,:) = SR(:,1:nsta,1:nsta)
+      rotR_tmp(:,:,:,:) = rotR(:,1:10,:,:)
+      tmp2(:,:) = zR(1:nsta,1:nsta)
+      tmp3(:,:,:,:,1) = MMR(:,:,1:nmaxR,1:nmaxR)
+      tmp3(:,:,:,:,2) = SMR(:,:,1:nmaxR,1:nmaxR)
+      call momloc2(nsta,nmaxR,nneq,neq,neqv,rotR_tmp,lmax,nexchR,wR(1:nsta),tmp2,MM_tmp1,SM_tmp1,tmp3(:,:,:,:,1),tmp3(:,:,:,:,2))
+      call mma_deallocate(MM_tmp1)
+      call mma_deallocate(SM_tmp1)
+      call mma_deallocate(rotR_tmp)
+      call mma_deallocate(tmp2)
+      call mma_deallocate(tmp3)
 
       call WarningMessage(2,'Wrong code in poly_aniso/exchctl.f')
       ! FIXME: This call is missing 3 arguments
-      !call barrier(exchR,MR(:,1:exchR,1:exchR),WR(1:exchR),1,2)
+      !call barrier(exchR,MR,WR,1,2)
       call Abend()
     end if !KEOPT
 
@@ -839,14 +1066,21 @@ if (nPair > 0) then
     i2 = nind(lb2,1) ! indices of non-equivalent sites
     n1 = nexch(i1)
     n2 = nexch(i2)
-    call prMom('EXCHCTL,Before M ans S, SM(i1):',SM(i1,:,1:n1,1:n1),n1)
-    call prMom('EXCHCTL,Before M ans S, SM(i2):',SM(i2,:,1:n2,1:n2),n2)
-    call prMom('EXCHCTL,Before M ans S, MM(i1):',MM(i1,:,1:n1,1:n1),n1)
-    call prMom('EXCHCTL,Before M ans S, MM(i2):',MM(i2,:,1:n2,1:n2),n2)
+    call mma_allocate(SM_tmp1,3,n1,n1,label='SM_tmp1')
+    call mma_allocate(SM_tmp2,3,n2,n2,label='SM_tmp2')
+    SM_tmp1(:,:,:) = SM(i1,:,1:n1,1:n1)
+    SM_tmp2(:,:,:) = SM(i2,:,1:n2,1:n2)
+    call prMom('EXCHCTL,Before M ans S, SM(i1):',SM_tmp1,n1)
+    call prMom('EXCHCTL,Before M ans S, SM(i2):',SM_tmp2,n2)
+    call prMom('EXCHCTL,Before M ans S, MM(i1):',MM_tmp1,n1)
+    call prMom('EXCHCTL,Before M ans S, MM(i2):',MM_tmp2,n2)
+    call mma_deallocate(SM_tmp1)
+    call mma_deallocate(SM_tmp2)
   end do
 end if
 #endif
 
+call mma_allocate(tmp2,EXCH,EXCH,label='tmp2')
 do L=1,3
   do isite=1,lmax
     do nb1=1,exch
@@ -866,12 +1100,17 @@ do L=1,3
   end do  ! isite
 
   ! magnetic moment
-  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,M(L,:,:),EXCH,cZero,TMP,EXCH)
-  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,M(L,:,:),EXCH)
+  tmp2(:,:) = M(L,:,:)
+  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,tmp2,EXCH,cZero,TMP,EXCH)
+  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,tmp2,EXCH)
+  M(L,:,:) = tmp2(:,:)
   ! spin moment
-  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,S(L,:,:),EXCH,cZero,TMP,EXCH)
-  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,S(L,:,:),EXCH)
+  tmp2(:,:) = S(L,:,:)
+  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,tmp2,EXCH,cZero,TMP,EXCH)
+  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,tmp2,EXCH)
+  S(L,:,:) = tmp2(:,:)
 end do  ! L
+call mma_deallocate(tmp2)
 
 ! ITO decomposition of the exchange and dipolar interactions:
 if (npair > 0) &

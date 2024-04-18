@@ -27,7 +27,7 @@ integer(kind=iwp) :: info, l
 real(kind=wp) :: RM, RS
 complex(kind=wp) :: redme
 real(kind=wp), allocatable :: W(:)
-complex(kind=wp), allocatable :: HZFS(:,:), MTMP(:,:,:), S2(:,:), STMP(:,:,:), SX2(:,:), SY2(:,:), SZ2(:,:), tmp(:,:), Wc(:,:), &
+complex(kind=wp), allocatable :: HZFS(:,:), MTMP(:,:,:), S2(:,:), STMP(:,:,:), SX2(:,:), SY2(:,:), SZ2(:,:), tmp(:,:), tmp2(:,:), &
                                  Z(:,:)
 real(kind=wp), external :: dznrm2_
 #ifdef _DEBUGPRINT_
@@ -54,10 +54,14 @@ S(:,:,:) = cZero
 M(:,:,:) = cZero
 
 if (nss >= 2) then
-  call mma_allocate(Wc,nss,nss,'Wc')
-  call ESO(nss,1,1,S(1,:,:),S(2,:,:),redME)
-  call ESO(nss,1,0,S(3,:,:),Wc,redME)
-  call mma_deallocate(Wc)
+  call mma_allocate(tmp,nss,nss,'tmp')
+  call mma_allocate(tmp2,nss,nss,'tmp2')
+  call ESO(nss,1,1,tmp,tmp2,redME)
+  S(1,:,:) = tmp(:,:)
+  S(2,:,:) = tmp2(:,:)
+  call ESO(nss,1,0,tmp,tmp2,redME)
+  S(3,:,:) = tmp(:,:)
+  call mma_deallocate(tmp2)
   M(1,:,:) = -gtens_input(1)*S(1,:,:)
   M(2,:,:) = -gtens_input(2)*S(2,:,:)
   M(3,:,:) = -gtens_input(3)*S(3,:,:)
@@ -67,8 +71,8 @@ if (nss >= 2) then
   call prmom('GENERATE_SITE: MAGNETIC MOMENT:',M,nss)
 # endif
 
-  RM = dznrm2_(3*nss*nss,M(:,1:nss,1:nss),1)
-  RS = dznrm2_(3*nss*nss,S(:,1:nss,1:nss),1)
+  RM = dznrm2_(3*nss*nss,M,1)
+  RS = dznrm2_(3*nss*nss,S,1)
 # ifdef _DEBUGPRINT_
   write(u6,'(A,2ES22.14)') 'Norms of M and S:',RM,RS
 # endif
@@ -78,7 +82,6 @@ if (nss >= 2) then
     call mma_allocate(MTMP,3,nExch,nExch,'MTMP')
     call mma_allocate(STMP,3,nExch,nExch,'STMP')
     call mma_allocate(Z,nExch,nExch,'Z')
-    call mma_allocate(tmp,nExch,nExch,'tmp')
 
     MTMP(:,:,:) = M(:,:,:)
     STMP(:,:,:) = S(:,:,:)
@@ -108,9 +111,13 @@ if (nss >= 2) then
 
       W(:) = Zero
 
-      call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,S(1,:,:),nEXCH,S(1,:,:),nEXCH,cZero,SX2,nEXCH)
-      call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,S(2,:,:),nEXCH,S(2,:,:),nEXCH,cZero,SY2,nEXCH)
-      call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,S(3,:,:),nEXCH,S(3,:,:),nEXCH,cZero,SZ2,nEXCH)
+      call mma_allocate(tmp2,nEXCH,nEXCH,label='tmp2')
+      tmp2(:,:) = S(1,:,:)
+      call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,tmp2,nEXCH,tmp2,nEXCH,cZero,SX2,nEXCH)
+      tmp2(:,:) = S(2,:,:)
+      call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,tmp2,nEXCH,tmp2,nEXCH,cZero,SY2,nEXCH)
+      tmp2(:,:) = S(3,:,:)
+      call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,tmp2,nEXCH,tmp2,nEXCH,cZero,SZ2,nEXCH)
 
       S2(:,:) = SX2(:,:)+SY2(:,:)+SZ2(:,:)
 
@@ -139,11 +146,15 @@ if (nss >= 2) then
       ! rotate the spin and magnetic moment:
 
       do L=1,3
-        call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,Z,nEXCH,M(L,:,:),nEXCH,cZero,TMP,nEXCH)
-        call zgemm_('N','N',nEXCH,nEXCH,nEXCH,cOne,TMP,nEXCH,Z,nEXCH,cZero,M(L,:,:),nEXCH)
+        tmp2(:,:) = M(L,:,:)
+        call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,Z,nEXCH,tmp2,nEXCH,cZero,TMP,nEXCH)
+        call zgemm_('N','N',nEXCH,nEXCH,nEXCH,cOne,TMP,nEXCH,Z,nEXCH,cZero,tmp2,nEXCH)
+        M(L,:,:) = tmp2(:,:)
 
-        call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,Z,nEXCH,S(L,:,:),nEXCH,cZero,TMP,nEXCH)
-        call zgemm_('N','N',nEXCH,nEXCH,nEXCH,cOne,TMP,nEXCH,Z,nEXCH,cZero,S(L,:,:),nEXCH)
+        tmp2(:,:) = S(L,:,:)
+        call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,Z,nEXCH,tmp2,nEXCH,cZero,TMP,nEXCH)
+        call zgemm_('N','N',nEXCH,nEXCH,nEXCH,cOne,TMP,nEXCH,Z,nEXCH,cZero,tmp2,nEXCH)
+        S(L,:,:) = tmp2(:,:)
       end do  ! L
 
       call mma_deallocate(SX2)
@@ -152,13 +163,14 @@ if (nss >= 2) then
       call mma_deallocate(S2)
       call mma_deallocate(W)
       call mma_deallocate(HZFS)
+      call mma_deallocate(tmp2)
     end if ! ZFS is defined
 
     call mma_deallocate(MTMP)
     call mma_deallocate(STMP)
     call mma_deallocate(Z)
-    call mma_deallocate(tmp)
   end if ! dznrm2_ M and S
+  call mma_deallocate(tmp)
 
 # ifdef _DEBUGPRINT_
   write(u6,'(A)') 'g tensor at the end of GENERATE_SPIN'

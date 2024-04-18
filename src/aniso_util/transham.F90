@@ -28,26 +28,23 @@ integer(kind=iwp) :: i1, i2, iprint, j1, j2
 integer(kind=iwp) :: i
 #endif
 real(kind=wp), allocatable :: ax1(:,:), ax2(:,:), gt1(:), gt2(:)
-complex(kind=wp), allocatable :: HI(:,:,:,:), M1(:,:,:), M2(:,:,:), MR1(:,:,:), MR2(:,:,:), TMP1(:,:), TMP2(:,:), Z1(:,:), Z2(:,:)
+complex(kind=wp), allocatable :: HI(:,:,:,:), HTMP(:,:), M1(:,:,:), M2(:,:,:), MR1(:,:,:), MR2(:,:,:), TMP1(:,:), TMP2(:,:), &
+                                 Z1(:,:), Z2(:,:)
 
 !-----------------------------------------------------------------------
 call mma_allocate(gt1,3,'gt1')
 call mma_allocate(gt2,3,'gt2')
 call mma_allocate(ax1,3,3,'ax1')
 call mma_allocate(ax2,3,3,'ax2')
-if (n1 > 0) then
-  call mma_allocate(M1,3,n1,n1,'M1')
-  call mma_allocate(MR1,3,n1,n1,'MR1')
-  call mma_allocate(Z1,n1,n1,'Z1')
-  call mma_allocate(TMP1,n1,n1,'TMP1')
-end if
-if (n2 > 0) then
-  call mma_allocate(M2,3,n2,n2,'M2')
-  call mma_allocate(MR2,3,n2,n2,'MR2')
-  call mma_allocate(Z2,n2,n2,'Z2')
-  call mma_allocate(TMP2,n2,n2,'TMP2')
-end if
-if ((n1 > 0) .and. (n2 > 0)) call mma_allocate(HI,n1,n1,n2,n2,'HI')
+call mma_allocate(M1,3,n1,n1,'M1')
+call mma_allocate(MR1,3,n1,n1,'MR1')
+call mma_allocate(Z1,n1,n1,'Z1')
+call mma_allocate(TMP1,n1,n1,'TMP1')
+call mma_allocate(M2,3,n2,n2,'M2')
+call mma_allocate(MR2,3,n2,n2,'MR2')
+call mma_allocate(Z2,n2,n2,'Z2')
+call mma_allocate(TMP2,n2,n2,'TMP2')
+call mma_allocate(HI,n1,n1,n2,n2,'HI')
 HT(:,:,:,:) = cZero
 !-----------------------------------------------------------------------
 
@@ -130,7 +127,7 @@ call prMom('transHam:: magnetic moment, coordinate MR2, site 2',MR2,n2)
 #endif
 
 ! save a local copy:
-if (allocated(HI)) HI(:,:,:,:) = H(:,:,:,:)
+HI(:,:,:,:) = H(:,:,:,:)
 
 do i1=1,n1
   do j1=1,n1
@@ -154,14 +151,18 @@ do i2=1,n2
   end do
 end do
 
+call mma_allocate(HTMP,n2,n2,label='HTMP')
 do i1=1,n1
   do j1=1,n1
-    call zgemm_('C','N',n2,n2,n2,cOne,Z2,n2,HI(i1,j1,:,:),n2,cZero,TMP2,n2)
-    call zgemm_('N','N',n2,n2,n2,cOne,TMP2,n2,Z2,n2,cZero,HI(i1,j1,:,:),n2)
+    HTMP(:,:) = HI(i1,j1,:,:)
+    call zgemm_('C','N',n2,n2,n2,cOne,Z2,n2,HTMP,n2,cZero,TMP2,n2)
+    call zgemm_('N','N',n2,n2,n2,cOne,TMP2,n2,Z2,n2,cZero,HTMP,n2)
+    HI(i1,j1,:,:) = HTMP(:,:)
   end do
 end do
+call mma_deallocate(HTMP)
 
-if (allocated(HI)) HT(:,:,:,:) = HI(:,:,:,:)
+HT(:,:,:,:) = HI(:,:,:,:)
 
 do i1=1,n1
   do j1=1,n1
@@ -182,19 +183,15 @@ call mma_deallocate(gt1)
 call mma_deallocate(gt2)
 call mma_deallocate(ax1)
 call mma_deallocate(ax2)
-if (n1 > 0) then
-  call mma_deallocate(M1)
-  call mma_deallocate(MR1)
-  call mma_deallocate(Z1)
-  call mma_deallocate(TMP1)
-end if
-if (n2 > 0) then
-  call mma_deallocate(M2)
-  call mma_deallocate(MR2)
-  call mma_deallocate(Z2)
-  call mma_deallocate(TMP2)
-end if
-if ((n1 > 0) .and. (n2 > 0)) call mma_deallocate(HI)
+call mma_deallocate(M1)
+call mma_deallocate(MR1)
+call mma_deallocate(Z1)
+call mma_deallocate(TMP1)
+call mma_deallocate(M2)
+call mma_deallocate(MR2)
+call mma_deallocate(Z2)
+call mma_deallocate(TMP2)
+call mma_deallocate(HI)
 
 return
 

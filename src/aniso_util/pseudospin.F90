@@ -15,7 +15,6 @@ subroutine pseudospin(M,d,z,iDir,iOpt,iprint)
 ! z - pseudospin eigenfunctions (output)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,17 +23,16 @@ complex(kind=wp), intent(in) :: M(3,d,d)
 complex(kind=wp), intent(out) :: z(d,d)
 integer(kind=iwp) :: i, info
 real(kind=wp), allocatable :: w(:)
-complex(kind=wp), allocatable :: z1(:,:)
+complex(kind=wp), allocatable :: M_tmp(:,:), z1(:,:)
 real(kind=wp), external :: dznrm2_
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 call mma_allocate(W,d,'W')
 call mma_allocate(Z1,d,d,'Z1')
-W(:) = Zero
-Z(:,:) = cZero
-Z1(:,:) = cZero
+call mma_allocate(M_tmp,d,d,'M_tmp')
 info = 0
-call diag_c2(M(iDir,:,:),d,info,w,z1)
+M_tmp(:,:) = M(iDir,:,:)
+call diag_c2(M_tmp,d,info,w,z1)
 if (iprint >= 3) then
   do i=1,d
     write(u6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
@@ -62,6 +60,7 @@ end if
 
 call mma_deallocate(W)
 call mma_deallocate(Z1)
+call mma_deallocate(M_tmp)
 
 return
 

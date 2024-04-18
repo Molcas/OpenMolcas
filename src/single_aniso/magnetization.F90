@@ -59,8 +59,8 @@ complex(kind=wp), intent(in) :: dipm(3,nss,nss), sm(3,nss,nss)
 integer(kind=iwp) :: I, IDIR, IH, IM, iT, iTemp, iTEnd, J, L, mem_local, nP
 real(kind=wp) :: DLTH, mv, sv
 character(len=99) :: STLNE1, STLNE2
-real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), MT(:,:,:), MVEC(:,:,:,:), SAV(:,:), ST(:,:,:), &
-                              STDEV(:), SVEC(:,:,:,:), WM(:), ZT(:,:)
+real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), MT(:,:,:), MT_TMP(:,:), MVEC(:,:,:,:), SAV(:,:), &
+                              ST(:,:,:), ST_TMP(:,:), STDEV(:), SVEC(:,:,:,:), WM(:), ZT(:,:), ZT_TMP(:)
 real(kind=wp), external :: dev
 
 !-----------------------------------------------------------------------
@@ -72,10 +72,14 @@ call mma_allocate(WM,nM,'W')
 mem_local = mem_local+size(WM)*RtoB
 
 call mma_allocate(MT,3,nH,nTempMagn,'MT')
+call mma_allocate(MT_TMP,3,nTempMagn,'MT_TMP')
 mem_local = mem_local+size(MT)*RtoB
+mem_local = mem_local+size(MT_TMP)*RtoB
 
 call mma_allocate(ST,3,nH,nTempMagn,'ST')
+call mma_allocate(ST_TMP,3,nTempMagn,'ST_TMP')
 mem_local = mem_local+size(ST)*RtoB
+mem_local = mem_local+size(ST_TMP)*RtoB
 
 call mma_allocate(MAV,nH,nTempMagn,'MAV')
 MAV(:,:) = Zero
@@ -86,7 +90,9 @@ SAV(:,:) = Zero
 mem_local = mem_local+size(SAV)*RtoB
 
 call mma_allocate(ZT,nH,nTempMagn,'ZT')
+call mma_allocate(ZT_TMP,nTempMagn,'ZT_TMP')
 mem_local = mem_local+size(ZT)*RtoB
+mem_local = mem_local+size(ZT_TMP)*RtoB
 
 call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
 call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
@@ -254,8 +260,11 @@ do iH=1,nH
     write(STLNE2,'(A,I4,A,I4,A,I4,A,I4)') ' Field: ',IH,' from ',nH,' at direction ',IM,' from ',NDIRTOT
     call StatusLine(trim(STLNE1),trim(STLNE2))
     ! actual calculation of the MT and ST, ZT
-    call MAGN(NSS,NM,dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO,zJ,THRS,DIPM,SM,nTempMagn,TempMagn,smagn,WM,ZT(iH,:),ST(:,iH,:), &
-              MT(:,iH,:),m_paranoid,DBG)
+    call MAGN(NSS,NM,dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO,zJ,THRS,DIPM,SM,nTempMagn,TempMagn,smagn,WM,ZT_TMP,ST_TMP,MT_TMP, &
+              m_paranoid,DBG)
+    ZT(iH,:) = ZT_TMP(:)
+    ST(:,iH,:) = ST_TMP(:,:)
+    MT(:,iH,:) = MT_TMP(:,:)
     if (DBG .and. (iH == nH) .and. (iM == 23)) then
       write(u6,'(A,3ES16.8)') 'iM:',dHX(iM),dHY(iM),dHZ(iM)
       write(u6,'(2(A,3ES16.8,1x),A,ES16.8)') 'MT:',(MT(l,iH,1),l=1,3),'ST:',(ST(l,iH,1),l=1,3),'ZSTAT:',ZT(iH,1)
@@ -448,10 +457,13 @@ end if
 ! Deallocate necessary memory
 call mma_deallocate(WM)
 call mma_deallocate(MT)
+call mma_deallocate(MT_TMP)
 call mma_deallocate(ST)
+call mma_deallocate(ST_TMP)
 call mma_deallocate(MAV)
 call mma_deallocate(SAV)
 call mma_deallocate(ZT)
+call mma_deallocate(ZT_TMP)
 call mma_deallocate(MVEC)
 call mma_deallocate(SVEC)
 call mma_deallocate(H)

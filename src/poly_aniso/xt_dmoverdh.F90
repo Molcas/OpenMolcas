@@ -65,14 +65,15 @@ integer(kind=iwp) :: i, ibuf, ibuf1, ibuf3, iM, info, isite, iT, j, jT, mem_loca
 real(kind=wp) :: dHX(3), dHY(3), dHZ(3), dltXF, F1, F2, wt(3), Xfield_1, Xfield_2, zt(3,3)
 logical(kind=iwp) :: m_accurate
 character(len=50) :: label
-real(kind=wp), allocatable :: MEX0(:,:), MEX1(:,:), MEX2(:,:), ML0(:,:,:), ML1(:,:,:), ML2(:,:,:), MLT0(:,:,:), MLT1(:,:,:), &
-                              MLT2(:,:,:), MR0(:,:,:), MR1(:,:,:), MR2(:,:,:), MRT0(:,:,:), MRT1(:,:,:), MRT2(:,:,:), MT0(:,:), &
-                              MT1(:,:), MT2(:,:), SEX0(:,:), SEX1(:,:), SEX2(:,:), SL0(:,:,:), SL1(:,:,:), SL2(:,:,:), &
+real(kind=wp), allocatable :: ESO_TMP(:), MEX0(:,:), MEX1(:,:), MEX2(:,:), ML0(:,:,:), ML1(:,:,:), ML2(:,:,:), MLT0(:,:,:), &
+                              MLT1(:,:,:), MLT2(:,:,:), MR0(:,:,:), MR1(:,:,:), MR2(:,:,:), MRT0(:,:,:), MRT1(:,:,:), MRT2(:,:,:), &
+                              MT0(:,:), MT1(:,:), MT2(:,:), SEX0(:,:), SEX1(:,:), SEX2(:,:), SL0(:,:,:), SL1(:,:,:), SL2(:,:,:), &
                               SLT0(:,:,:), SLT1(:,:,:), SLT2(:,:,:), SR0(:,:,:), SR1(:,:,:), SR2(:,:,:), SRT0(:,:,:), SRT1(:,:,:), &
                               SRT2(:,:,:), ST0(:,:), ST1(:,:), ST2(:,:), WEX0(:), WEX1(:), WEX2(:), WL0(:,:), WL1(:,:), WL2(:,:), &
                               WR0(:,:), WR1(:,:), WR2(:,:), XTM_dMdH(:), XTM_MH(:), XTtens_dMdH(:,:,:), XTtens_MH(:,:,:), ZEX0(:), &
                               ZEX1(:), ZEX2(:), ZL0(:,:), ZL1(:,:), ZL2(:,:), ZLT0(:,:), ZLT1(:,:), ZLT2(:,:), ZR0(:,:), ZR1(:,:), &
                               ZR2(:,:), ZRT0(:,:), ZRT1(:,:), ZRT2(:,:), ZT0(:), ZT1(:), ZT2(:)
+complex(kind=wp), allocatable :: dipso_tmp(:,:,:), s_so_tmp(:,:,:)
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
@@ -172,12 +173,12 @@ mem_local = mem_local+size(WEX0)*RtoB
 mem_local = mem_local+size(WEX1)*RtoB
 mem_local = mem_local+size(WEX2)*RtoB
 
-call mma_allocate(WL0,nneq,nLoc,'WL0')
-call mma_allocate(WL1,nneq,nLoc,'WL1')
-call mma_allocate(WL2,nneq,nLoc,'WL2')
-call mma_allocate(WR0,nneq,nLoc,'WR0')
-call mma_allocate(WR1,nneq,nLoc,'WR1')
-call mma_allocate(WR2,nneq,nLoc,'WR2')
+call mma_allocate(WL0,nLoc,nneq,'WL0')
+call mma_allocate(WL1,nLoc,nneq,'WL1')
+call mma_allocate(WL2,nLoc,nneq,'WL2')
+call mma_allocate(WR0,nLoc,nneq,'WR0')
+call mma_allocate(WR1,nLoc,nneq,'WR1')
+call mma_allocate(WR2,nLoc,nneq,'WR2')
 mem_local = mem_local+size(WL0)*RtoB
 mem_local = mem_local+size(WL1)*RtoB
 mem_local = mem_local+size(WL2)*RtoB
@@ -185,12 +186,12 @@ mem_local = mem_local+size(WR0)*RtoB
 mem_local = mem_local+size(WR1)*RtoB
 mem_local = mem_local+size(WR2)*RtoB
 
-call mma_allocate(ZL0,nneq,nTempTotal,'ZL0')
-call mma_allocate(ZR0,nneq,nTempTotal,'ZR0')
-call mma_allocate(ZL1,nneq,nTempTotal,'ZL1')
-call mma_allocate(ZR1,nneq,nTempTotal,'ZR1')
-call mma_allocate(ZL2,nneq,nTempTotal,'ZL2')
-call mma_allocate(ZR2,nneq,nTempTotal,'ZR2')
+call mma_allocate(ZL0,nTempTotal,nneq,'ZL0')
+call mma_allocate(ZR0,nTempTotal,nneq,'ZR0')
+call mma_allocate(ZL1,nTempTotal,nneq,'ZL1')
+call mma_allocate(ZR1,nTempTotal,nneq,'ZR1')
+call mma_allocate(ZL2,nTempTotal,nneq,'ZL2')
+call mma_allocate(ZR2,nTempTotal,nneq,'ZR2')
 mem_local = mem_local+size(ZL0)*RtoB
 mem_local = mem_local+size(ZR0)*RtoB
 mem_local = mem_local+size(ZL1)*RtoB
@@ -198,18 +199,18 @@ mem_local = mem_local+size(ZR1)*RtoB
 mem_local = mem_local+size(ZL2)*RtoB
 mem_local = mem_local+size(ZR2)*RtoB
 
-call mma_allocate(SL0,nneq,3,nTempTotal,'SL0')
-call mma_allocate(SR0,nneq,3,nTempTotal,'SR0')
-call mma_allocate(SL1,nneq,3,nTempTotal,'SL1')
-call mma_allocate(SR1,nneq,3,nTempTotal,'SR1')
-call mma_allocate(SL2,nneq,3,nTempTotal,'SL2')
-call mma_allocate(SR2,nneq,3,nTempTotal,'SR2')
-call mma_allocate(ML0,nneq,3,nTempTotal,'ML0')
-call mma_allocate(MR0,nneq,3,nTempTotal,'MR0')
-call mma_allocate(ML1,nneq,3,nTempTotal,'ML1')
-call mma_allocate(MR1,nneq,3,nTempTotal,'MR1')
-call mma_allocate(ML2,nneq,3,nTempTotal,'ML2')
-call mma_allocate(MR2,nneq,3,nTempTotal,'MR2')
+call mma_allocate(SL0,3,nTempTotal,nneq,'SL0')
+call mma_allocate(SR0,3,nTempTotal,nneq,'SR0')
+call mma_allocate(SL1,3,nTempTotal,nneq,'SL1')
+call mma_allocate(SR1,3,nTempTotal,nneq,'SR1')
+call mma_allocate(SL2,3,nTempTotal,nneq,'SL2')
+call mma_allocate(SR2,3,nTempTotal,nneq,'SR2')
+call mma_allocate(ML0,3,nTempTotal,nneq,'ML0')
+call mma_allocate(MR0,3,nTempTotal,nneq,'MR0')
+call mma_allocate(ML1,3,nTempTotal,nneq,'ML1')
+call mma_allocate(MR1,3,nTempTotal,nneq,'MR1')
+call mma_allocate(ML2,3,nTempTotal,nneq,'ML2')
+call mma_allocate(MR2,3,nTempTotal,nneq,'MR2')
 mem_local = mem_local+size(SL0)*RtoB
 mem_local = mem_local+size(SR0)*RtoB
 mem_local = mem_local+size(SL1)*RtoB
@@ -405,52 +406,67 @@ do iM=1,nDirX
     do i=1,nneq
       ! all states:
       if (NSS(i) > NEXCH(i)) then
+        call mma_allocate(ESO_TMP,nss(i),label='ESO_TMP')
+        call mma_allocate(dipso_tmp,3,nss(i),nss(i),label='dipso_tmp')
+        call mma_allocate(s_so_tmp,3,nss(i),nss(i),label='s_so_tmp')
         ! this check is to avoid the unnecessary computation, in cases when no local excited states are present
-        call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField,ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,:,1:NSS(i),1:NSS(i)), &
-                  S_SO(i,:,1:NSS(i),1:NSS(i)),nTempTotal,T,smagn,WL0(i,1:NSS(i)),ZL0(i,:),SL0(i,:,:),ML0(i,:,:),m_paranoid,DBG)
+        ESO_TMP(:) = ESO(i,1:NSS(i))
+        dipso_tmp(:,:,:) = DIPSO(i,:,1:NSS(i),1:NSS(i))
+        s_so_tmp(:,:,:) = S_SO(i,:,1:NSS(i),1:NSS(i))
+        call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField,ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempTotal,T,smagn, &
+                  WL0(1:NSS(i),i),ZL0(:,i),SL0(:,:,i),ML0(:,:,i),m_paranoid,DBG)
 
-        call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_1,ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,:,1:NSS(i),1:NSS(i)), &
-                  S_SO(i,:,1:NSS(i),1:NSS(i)),nTempTotal,T,smagn,WL1(i,1:NSS(i)),ZL1(i,:),SL1(i,:,:),ML1(i,:,:),m_paranoid,DBG)
+        call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_1,ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempTotal,T,smagn, &
+                  WL1(1:NSS(i),i),ZL1(:,i),SL1(:,:,i),ML1(:,:,i),m_paranoid,DBG)
 
-        call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),Xfield_2,ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,:,1:NSS(i),1:NSS(i)), &
-                  S_SO(i,:,1:NSS(i),1:NSS(i)),nTempTotal,T,smagn,WL2(i,1:NSS(i)),ZL2(i,:),SL2(i,:,:),ML2(i,:,:),m_paranoid,DBG)
+        call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),Xfield_2,ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempTotal,T,smagn, &
+                  WL2(1:NSS(i),i),ZL2(:,i),SL2(:,:,i),ML2(:,:,i),m_paranoid,DBG)
+        call mma_deallocate(ESO_TMP)
+        call mma_deallocate(dipso_tmp)
+        call mma_deallocate(s_so_tmp)
+        call mma_allocate(ESO_TMP,nexch(i),label='ESO_TMP')
+        call mma_allocate(dipso_tmp,3,nexch(i),nexch(i),label='dipso_tmp')
+        call mma_allocate(s_so_tmp,3,nexch(i),nexch(i),label='s_so_tmp')
+        ESO_TMP(:) = ESO(i,1:NEXCH(i))
+        dipso_tmp(:,:,:) = DIPSO(i,:,1:NEXCH(i),1:NEXCH(i))
+        s_so_tmp(:,:,:) = S_SO(i,:,1:NEXCH(i),1:NEXCH(i))
         ! only local "exchange states":
-        call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField,ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)), &
-                  S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempTotal,T,smagn,WR0(i,1:Nexch(i)),ZR0(i,:),SR0(i,:,:),MR0(i,:,:),m_paranoid, &
-                  DBG)
+        call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField,ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempTotal,T,smagn, &
+                  WR0(1:NEXCH(i),i),ZR0(:,i),SR0(:,:,i),MR0(:,:,i),m_paranoid,DBG)
 
-        call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_1,ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)), &
-                  S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempTotal,T,smagn,WR1(i,1:Nexch(i)),ZR1(i,:),SR1(i,:,:),MR1(i,:,:),m_paranoid, &
-                  DBG)
+        call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_1,ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempTotal,T,smagn, &
+                  WR1(1:NEXCH(i),i),ZR1(:,i),SR1(:,:,i),MR1(:,:,i),m_paranoid,DBG)
 
-        call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_2,ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)), &
-                  S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempTotal,T,smagn,WR2(i,1:Nexch(i)),ZR2(i,:),SR2(i,:,:),MR2(i,:,:),m_paranoid, &
-                  DBG)
+        call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_2,ESO_TMP,zJ,THRS,dipso_tmp,s_so_tmp,nTempTotal,T,smagn, &
+                  WR2(1:NEXCH(i),i),ZR2(:,i),SR2(:,:,i),MR2(:,:,i),m_paranoid,DBG)
+        call mma_deallocate(ESO_TMP)
+        call mma_deallocate(dipso_tmp)
+        call mma_deallocate(s_so_tmp)
 #       ifdef _DEBUGPRINT_
         do iT=1,nTempTotal
-          write(u6,'(A,i1,A,i3,A,3ES22.14)') 'ML(',i,',L,',iT,')=',(ML2(i,l,iT)-ML1(i,l,iT),l=1,3)
-          write(u6,'(A,i1,A,i3,A,3ES22.14)') 'MR(',i,',L,',iT,')=',(MR2(i,l,iT)-MR1(i,l,iT),l=1,3)
+          write(u6,'(A,i1,A,i3,A,3ES22.14)') 'ML(',i,',L,',iT,')=',(ML2(l,iT,i)-ML1(l,iT,i),l=1,3)
+          write(u6,'(A,i1,A,i3,A,3ES22.14)') 'MR(',i,',L,',iT,')=',(MR2(l,iT,i)-MR1(l,iT,i),l=1,3)
         end do
 #       endif
       else
-        ZL0(i,:) = Zero
-        ZR0(i,:) = Zero
-        ZL1(i,:) = Zero
-        ZR1(i,:) = Zero
-        ZL2(i,:) = Zero
-        ZR2(i,:) = Zero
-        SL0(i,:,:) = Zero
-        SR0(i,:,:) = Zero
-        SL1(i,:,:) = Zero
-        SR1(i,:,:) = Zero
-        SL2(i,:,:) = Zero
-        SR2(i,:,:) = Zero
-        ML0(i,:,:) = Zero
-        MR0(i,:,:) = Zero
-        ML1(i,:,:) = Zero
-        MR1(i,:,:) = Zero
-        ML2(i,:,:) = Zero
-        MR2(i,:,:) = Zero
+        ZL0(:,i) = Zero
+        ZR0(:,i) = Zero
+        ZL1(:,i) = Zero
+        ZR1(:,i) = Zero
+        ZL2(:,i) = Zero
+        ZR2(:,i) = Zero
+        SL0(:,:,i) = Zero
+        SR0(:,:,i) = Zero
+        SL1(:,:,i) = Zero
+        SR1(:,:,i) = Zero
+        SL2(:,:,i) = Zero
+        SR2(:,:,i) = Zero
+        ML0(:,:,i) = Zero
+        MR0(:,:,i) = Zero
+        ML1(:,:,i) = Zero
+        MR1(:,:,i) = Zero
+        ML2(:,:,i) = Zero
+        MR2(:,:,i) = Zero
       end if ! NSS(i) > NEXCH(i)
     end do ! i=1,nneq
 
@@ -494,31 +510,31 @@ do iM=1,nDirX
       do j=1,NEQ(i)
         isite = isite+1
         ! statistical distributions
-        ZLT0(isite,:) = ZL0(i,:)
-        ZRT0(isite,:) = ZR0(i,:)
-        ZLT1(isite,:) = ZL1(i,:)
-        ZRT1(isite,:) = ZR1(i,:)
-        ZLT2(isite,:) = ZL2(i,:)
-        ZRT2(isite,:) = ZR2(i,:)
+        ZLT0(isite,:) = ZL0(:,i)
+        ZRT0(isite,:) = ZR0(:,i)
+        ZLT1(isite,:) = ZL1(:,i)
+        ZRT1(isite,:) = ZR1(:,i)
+        ZLT2(isite,:) = ZL2(:,i)
+        ZRT2(isite,:) = ZR2(:,i)
         ! magnetizations:
         !    use R_rot matrices, which have determinant +1.
         !  note that  R_lg matrices have arbitrary determinant.
         do iT=1,nTempTotal
           do n=1,3
-            MLT0(isite,:,iT) = MLT0(isite,:,iT)+rrot(i,j,:,n)*ML0(i,n,iT)
-            SLT0(isite,:,iT) = SLT0(isite,:,iT)+rrot(i,j,:,n)*SL0(i,n,iT)
-            MRT0(isite,:,iT) = MRT0(isite,:,iT)+rrot(i,j,:,n)*MR0(i,n,iT)
-            SRT0(isite,:,iT) = SRT0(isite,:,iT)+rrot(i,j,:,n)*SR0(i,n,iT)
+            MLT0(isite,:,iT) = MLT0(isite,:,iT)+rrot(i,j,:,n)*ML0(n,iT,i)
+            SLT0(isite,:,iT) = SLT0(isite,:,iT)+rrot(i,j,:,n)*SL0(n,iT,i)
+            MRT0(isite,:,iT) = MRT0(isite,:,iT)+rrot(i,j,:,n)*MR0(n,iT,i)
+            SRT0(isite,:,iT) = SRT0(isite,:,iT)+rrot(i,j,:,n)*SR0(n,iT,i)
 
-            MLT1(isite,:,iT) = MLT1(isite,:,iT)+rrot(i,j,:,n)*ML1(i,n,iT)
-            SLT1(isite,:,iT) = SLT1(isite,:,iT)+rrot(i,j,:,n)*SL1(i,n,iT)
-            MRT1(isite,:,iT) = MRT1(isite,:,iT)+rrot(i,j,:,n)*MR1(i,n,iT)
-            SRT1(isite,:,iT) = SRT1(isite,:,iT)+rrot(i,j,:,n)*SR1(i,n,iT)
+            MLT1(isite,:,iT) = MLT1(isite,:,iT)+rrot(i,j,:,n)*ML1(n,iT,i)
+            SLT1(isite,:,iT) = SLT1(isite,:,iT)+rrot(i,j,:,n)*SL1(n,iT,i)
+            MRT1(isite,:,iT) = MRT1(isite,:,iT)+rrot(i,j,:,n)*MR1(n,iT,i)
+            SRT1(isite,:,iT) = SRT1(isite,:,iT)+rrot(i,j,:,n)*SR1(n,iT,i)
 
-            MLT2(isite,:,iT) = MLT2(isite,:,iT)+rrot(i,j,:,n)*ML2(i,n,iT)
-            SLT2(isite,:,iT) = SLT2(isite,:,iT)+rrot(i,j,:,n)*SL2(i,n,iT)
-            MRT2(isite,:,iT) = MRT2(isite,:,iT)+rrot(i,j,:,n)*MR2(i,n,iT)
-            SRT2(isite,:,iT) = SRT2(isite,:,iT)+rrot(i,j,:,n)*SR2(i,n,iT)
+            MLT2(isite,:,iT) = MLT2(isite,:,iT)+rrot(i,j,:,n)*ML2(n,iT,i)
+            SLT2(isite,:,iT) = SLT2(isite,:,iT)+rrot(i,j,:,n)*SL2(n,iT,i)
+            MRT2(isite,:,iT) = MRT2(isite,:,iT)+rrot(i,j,:,n)*MR2(n,iT,i)
+            SRT2(isite,:,iT) = SRT2(isite,:,iT)+rrot(i,j,:,n)*SR2(n,iT,i)
           end do
         end do
 

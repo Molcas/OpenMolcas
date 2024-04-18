@@ -33,7 +33,7 @@ real(kind=wp) :: RNRM
 logical(kind=iwp) :: found_edmom !, found_amfi, found_angmom, found_esfs, found_eso, found_hso, found_mult, found_sos_coeff
 integer(kind=iwp), allocatable :: ibas(:,:)
 real(kind=wp), allocatable :: AL(:,:,:), etmp(:), RI(:,:), RR(:,:)
-complex(kind=wp), allocatable :: tmp(:,:)
+complex(kind=wp), allocatable :: tmp(:,:), tmp2(:,:)
 real(kind=wp), parameter :: g_e = -gElectron
 real(kind=wp), external :: dnrm2_, dznrm2_
 complex(kind=wp), external :: spin
@@ -336,24 +336,34 @@ call mma_deallocate(Ibas)
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:
 call mma_allocate(tmp,nss,nss,'tmp')
+call mma_allocate(tmp2,nss,nss,'tmp2')
 do L=1,3
   ! spin moment
-  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MS(L,:,:),nss,cZero,TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MS(L,:,:),nss)
+  tmp2(:,:) = MS(L,:,:)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,tmp2,nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,tmp2,nss)
+  MS(L,:,:) = tmp2(:,:)
   ! orbital moment
-  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,ML(L,:,:),nss,cZero,TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,ML(L,:,:),nss)
+  tmp2(:,:) = ML(L,:,:)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,tmp2,nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,tmp2,nss)
+  ML(L,:,:) = tmp2(:,:)
   ! magnetic moment
-  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MM(L,:,:),nss,cZero,TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MM(L,:,:),nss)
+  tmp2(:,:) = MM(L,:,:)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,tmp2,nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,tmp2,nss)
+  MM(L,:,:) = tmp2(:,:)
 
   if (found_EDMOM) then
     ! electric dipole moment
-    call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,DM(L,:,:),nss,cZero,TMP,nss)
-    call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,DM(L,:,:),nss)
+    tmp2(:,:) = DM(L,:,:)
+    call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,tmp2,nss,cZero,TMP,nss)
+    call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,tmp2,nss)
+    DM(L,:,:) = tmp2(:,:)
   end if
 end do !L
 call mma_deallocate(tmp)
+call mma_deallocate(tmp2)
 
 ! close the file
 call mh5_close_file(fileid)

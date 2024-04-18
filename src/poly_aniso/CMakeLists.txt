@@ -31,7 +31,7 @@ set (sources
      kinetic_exchange.F90
      lines_exchange.F90
      magnetization_pa.F90
-     momloc.F90
+     momloc2.F90
      msum.F90
      pa_diagham.F90
      pa_preigen.F90

@@ -35,13 +35,14 @@ integer(kind=iwp) :: l
 #endif
 complex(kind=wp) :: t
 real(kind=wp), allocatable :: rxi(:), rxr(:)
-complex(kind=wp), allocatable :: phs(:,:,:), r(:), tmp(:,:)
+complex(kind=wp), allocatable :: mm_tmp(:,:), phs(:,:,:), r(:), tmp(:,:)
 
 call mma_allocate(rxr,d,'rxr')
 call mma_allocate(rxi,d,'rxi')
 call mma_allocate(r,d,'r')
-call mma_allocate(phs,3,d,d,'phs')
+call mma_allocate(phs,d,d,3,'phs')
 call mma_allocate(tmp,d,d,'tmp')
+call mma_allocate(mm_tmp,d,d,'mm_tmp')
 !-----------------------------------------------------------------------
 r(:) = cZero
 rxr(:) = Zero
@@ -50,15 +51,16 @@ rxr(1) = One
 r(1) = cOne
 
 ! compute magnetic moment, X
-call zgemm_('C','N',d,d,d,cOne,Zinp,d,mm(1,:,:),d,cZero,TMP,d)
-call zgemm_('N','N',d,d,d,cOne,TMP,d,Zinp,d,cZero,phs(1,:,:),d)
+mm_tmp(:,:) = mm(1,:,:)
+call zgemm_('C','N',d,d,d,cOne,Zinp,d,mm_tmp,d,cZero,TMP,d)
+call zgemm_('N','N',d,d,d,cOne,TMP,d,Zinp,d,cZero,phs(:,:,1),d)
 
 do i=1,d-1
   j = i+1
 
-  if (abs(phs(1,i,j)) > 1.0e-14_wp) then
-    rxr(j) = real(phs(1,i,j))/abs(phs(1,i,j))
-    rxi(j) = aimag(phs(1,i,j))/abs(phs(1,i,j))
+  if (abs(phs(i,j,1)) > 1.0e-14_wp) then
+    rxr(j) = real(phs(i,j,1))/abs(phs(i,j,1))
+    rxi(j) = aimag(phs(i,j,1))/abs(phs(i,j,1))
   else
     rxr(j) = One
     rxi(j) = Zero
@@ -78,21 +80,22 @@ do j=1,d
 end do
 
 ! compute the momentum using the ZOUT functions:
-call zgemm_('C','N',d,d,d,cOne,Zout,d,mm(1,:,:),d,cZero,TMP,d)
-call zgemm_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(1,:,:),d)
+call zgemm_('C','N',d,d,d,cOne,Zout,d,mm_tmp,d,cZero,TMP,d)
+call zgemm_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(:,:,1),d)
 ! convention:
 !    mX(i,i+1) => Real, negative
 !    mY(i,i+1) => imag, positive
 !    mZ(i,i)   => diagonal
 do i=1,d-1,2
   j = i+1
-  if (real(phs(1,i,j)) > Zero) Zout(:,j) = -Zout(:,j)
+  if (real(phs(i,j,1)) > Zero) Zout(:,j) = -Zout(:,j)
 end do
 
 #ifdef _DEBUGPRINT_
 do l=1,3
-  call ZGEMM_('C','N',d,d,d,cOne,Zout,d,mm(l,:,:),d,cZero,TMP,d)
-  call ZGEMM_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(l,:,:),d)
+  mm_tmp(:,:) = mm(l,:,:)
+  call ZGEMM_('C','N',d,d,d,cOne,Zout,d,mm_tmp,d,cZero,TMP,d)
+  call ZGEMM_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(:,:,l),d)
 end do
 
 do i=1,d
@@ -105,7 +108,7 @@ write(u6,'(//)')
 do i=1,d
   do j=1,d
     if ((j == i-1) .or. (j == i+1)) &
-      write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
+      write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(i,j,l),l=1,3)
   end do
 end do
 #endif
@@ -116,6 +119,7 @@ call mma_deallocate(rxi)
 call mma_deallocate(r)
 call mma_deallocate(phs)
 call mma_deallocate(tmp)
+call mma_deallocate(mm_tmp)
 
 return
 
