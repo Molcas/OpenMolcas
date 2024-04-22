@@ -87,7 +87,7 @@ C -- A LINE SEARCH ANALYSIS.
       C1=FPLAST
       C2=3.0D0*(ENOW-ELAST)-2.0D0*FPLAST-FP
       C3=-2.0D0*(ENOW-ELAST)+FPLAST+FP
-C     Write(LF,*)('*',I=1,60)
+C     Write(LF,*) repeat('*',60)
 C     Write(LF,*)' SEARCH FOR MINIMUM:'
 C     Write(LF,*)' POLYNOMIAL COEFFICIENTS:'
 C     Write(LF,'(A,4F16.8)') ' ENOW,ELAST,FP,FPLAST',ENOW,ELAST,FP,FPLAST
@@ -161,7 +161,7 @@ C       Write(LF,*) E0,E1
       END IF
 *      Write(LF,*)'  SELECTED TMIN:',TMIN
 *      Write(LF,*)' PREDICTED EMIN:',EMIN
-*      Write(LF,*)('*',I=1,60)
+*      Write(LF,*) repeat('*',60)
 
 * Predicted energy lowering, depending on step taken.
 * EPRED_LS should be quite exact, if step length is not too long.

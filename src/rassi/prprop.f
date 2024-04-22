@@ -111,12 +111,12 @@
       IF( PRXVE.OR.PRMEE ) THEN
       WRITE(6,*)
       WRITE(6,*)
-      WRITE(6,'(6X,100A1)') ('*',i=1,100)
+      WRITE(6,'(6X,A)') repeat('*',100)
       WRITE(6,'(6X,A,98X,A)') '*','*'
       WRITE(6,'(6X,A,34X,A,34X,A)')
      &     '*',' Spin-free properties section ','*'
       WRITE(6,'(6X,A,98X,A)') '*','*'
-      WRITE(6,'(6X,100A1)') ('*',i=1,100)
+      WRITE(6,'(6X,A)') repeat('*',100)
       WRITE(6,*)
       WRITE(6,*)
       END IF
@@ -362,12 +362,12 @@ c check for inconsistencies
        END IF
        WRITE(6,*)
        WRITE(6,*)
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A,34X,A,34X,A)')
      &     '*','Spin-orbit properties section ','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,*)
        WRITE(6,*)
 
@@ -473,12 +473,12 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
       IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)
-        WRITE(6,'(6X,100A1)') ('*',i=1,100)
+        WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,'(6X,A,98X,A)') '*','*'
         WRITE(6,'(6X,A,34X,A,34X,A)')
      &       '*','  Special properties section  ','*'
         WRITE(6,'(6X,A,98X,A)') '*','*'
-        WRITE(6,'(6X,100A1)') ('*',i=1,100)
+        WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,*)
         WRITE(6,*)
       END IF

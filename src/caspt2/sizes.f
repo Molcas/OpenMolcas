@@ -296,21 +296,21 @@ C In DIADNS alone, NDD words are needed:
       NEED=MAX(NEED0,NPRP)
       IF(NEED.GT.MXLEFT) THEN
        IF(NEED0.LE.MXLEFT) THEN
-        WRITE(6,'(5X,26A)') ('*',i=1,26)
+        WRITE(6,'(5X,A)') repeat('*',26)
         WRITE(6,'(5X,A)')' Memory problem!! The memory is insufficient '
         WRITE(6,'(5X,A)')' for the property section.'
         WRITE(6,'(5X,A,I5,A)')'* Need at least ',2+NEED/119000,' MB *'
         WRITE(6,'(5X,A)')' The property section will be skipped.'
-        WRITE(6,'(5X,26A)') ('*',i=1,26)
+        WRITE(6,'(5X,A)') repeat('*',26)
         NEED=NEED0
         IFPROP=.False.
        ELSE
         IF (.NOT.IFCHOL) THEN
 C not a Cholesky calculation, keep old memory requirements
-         WRITE(6,'(5X,26A)') ('*',i=1,26)
+         WRITE(6,'(5X,A)') repeat('*',26)
          WRITE(6,'(5X,A)')'* Insufficient memory !! *'
          WRITE(6,'(5X,A,I5,A)')'* Need at least ',2+NEED0/119000,' MB *'
-         WRITE(6,'(5X,26A)') ('*',i=1,26)
+         WRITE(6,'(5X,A)') repeat('*',26)
          WRITE(6,*)
          WRITE(6,*)' Program execution stops -- sorry!'
          WRITE(6,*)
@@ -318,10 +318,10 @@ C not a Cholesky calculation, keep old memory requirements
         ELSE
 C This is a Cholesky calculation, only give recommended amount
          IF (MAX(NPOLY,NSIGMA).LE.MXLEFT) THEN
-          WRITE(6,'(5X,40A)') ('*',i=1,40)
+          WRITE(6,'(5X,A)') repeat('*',40)
           WRITE(6,'(5X,A,I5,A)')'* Below comfortable memory of ',
      &                           2+NEED0/119000,' MB *'
-          WRITE(6,'(5X,40A)') ('*',i=1,40)
+          WRITE(6,'(5X,A)') repeat('*',40)
           WRITE(6,*)
           WRITE(6,*)' Program will try to adapt'
           WRITE(6,*)' If it fails, please raise the memory to at least',
@@ -332,9 +332,9 @@ C This is a Cholesky calculation, only give recommended amount
           WRITE(6,*)' informative memory estimates during computation'
           WRITE(6,*)
          ELSE
-          WRITE(6,'(5X,26A)') ('*',i=1,26)
+          WRITE(6,'(5X,A)') repeat('*',26)
           WRITE(6,'(5X,A)')'* Insufficient memory... *'
-          WRITE(6,'(5X,26A)') ('*',i=1,26)
+          WRITE(6,'(5X,A)') repeat('*',26)
           WRITE(6,*)
           WRITE(6,'(A,I6,A)')' If possible, I would like to have   ',
      &                NEED0/119000, ' MB'

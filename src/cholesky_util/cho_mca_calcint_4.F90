@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: LINT, ISHLCD, ISHLAB
 real(kind=wp), intent(inout) :: XINT(LINT)
-integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLD, NAB(8)
+integer(kind=iwp) :: ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLD, NAB(8)
 real(kind=wp) :: C1, C2, W1, W2
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_4'
@@ -51,7 +51,7 @@ if (IPRINT >= INF_IN2) then
   NCOLAB = sum(NAB(1:NSYM))
   write(LUPRI,'(/,A,I5,1X,I5,A,I5,1X,I5,A,I9,A)') 'Calculating shell quadruple (',ISHLC,ISHLD,'|',ISHLA,ISHLB,'):',NCOLAB, &
                                                   ' columns have been qualified'
-  write(LUPRI,'(89A)') ('=',i=1,89)
+  write(LUPRI,'(A)') repeat('=',89)
 end if
 
 ! Set mapping from shell pair CD to reduced set.

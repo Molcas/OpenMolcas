@@ -43,7 +43,7 @@
 
       IF(IPRLEV.ge.USUAL) THEN
       write(LF,*)
-      write(LF,*) ('=',i=1,71)
+      write(LF,*) repeat('=',71)
       write(LF,*)
       write(LF,'(11X,A)')'Do_Rotate.txt is found in scratch directory.'
       IF(IXMSP.eq.1) THEN
@@ -132,7 +132,7 @@ C     updating final energies as those for rotated states
 
       IF(IPRLEV.ge.USUAL) THEN
       write(LF,*)
-      write(LF,*) ('=',i=1,71)
+      write(LF,*) repeat('=',71)
       END IF
 
       Return

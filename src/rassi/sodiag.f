@@ -763,22 +763,22 @@ c
       IF(IPGLOB.GE.4) THEN
       write(6,*)
       write(6,'(4x,A)') 'A_TENS_TERM TENSOR:'
-      write(6,'(65a)') ('-',i=1,56),'|'
+      write(6,'(2a)') repeat('-',56),'|'
       write(6,'(4x,A,4x,A,13x,A,5x,a,3x,a)') 'MAIN VALUES','|',
      & 'MAIN MAGNETIC AXES','|', 'x , y , z  -- initial Cartesian axes'
-      write(6,'(57a,3x,a)') ('-',i=1,19),'|',('-',i=1,36),'|',
+      write(6,'(4a,3x,a)') repeat('-',19),'|',repeat('-',36),'|',
      & 'Xm, Ym, Zm -- main magnetic axes'
       write(6,'(19x,a,4x,a,5x,a,9x,a,9x,a,5x,a)') '|','|','x','y','z',
      & '|'
-      write(6,'(65a)') ('-',i=1,19),'|',('-',i=1,4),'|',('-',i=1,31),
-     & '|'
+      write(6,'(6a)') repeat('-',19),'|',repeat('-',4),'|',
+     &repeat('-',31),'|'
       write(6,'(A,F12.9,A,3F10.6,1x,A)') ' gX = ',w(1),' | Xm |',
      & (z(j,1),j=1,3),'|'
       write(6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',w(2),' | Ym |',
      & (z(j,2),j=1,3),'|'
       write(6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',w(3),' | Zm |',
      & (z(j,3),j=1,3),'|'
-      write(6,'(65a)') ('-',i=1,56),'|'
+      write(6,'(2a)') repeat('-',56),'|'
       END IF
 
       do I=1,3
@@ -880,22 +880,22 @@ c set the main Z axis:
       if(IPGLOB.GT.2) then
       write(6,*)
       write(6,'(4x,A)') 'g TENSOR:'
-      write(6,'(65a)') ('-',i=1,56),'|'
+      write(6,'(2a)') repeat('-',56),'|'
       write(6,'(4x,A,4x,A,13x,A,5x,a,3x,a)') 'MAIN VALUES','|',
      & 'MAIN MAGNETIC AXES','|', 'x , y , z  -- initial Cartesian axes'
-      write(6,'(57a,3x,a)') ('-',i=1,19),'|',('-',i=1,36),'|',
+      write(6,'(4a,3x,a)') repeat('-',19),'|',repeat('-',36),'|',
      & 'Xm, Ym, Zm -- main magnetic axes'
       write(6,'(19x,a,4x,a,5x,a,9x,a,9x,a,5x,a)') '|','|','x','y','z',
      & '|'
-      write(6,'(65a)') ('-',i=1,19),'|',('-',i=1,4),'|',('-',i=1,31),
-     & '|'
+      write(6,'(6a)') repeat('-',19),'|',repeat('-',4),'|',
+     &repeat('-',31),'|'
       write(6,'(A,F12.9,A,3F10.6,1x,A)') ' gX = ',gtens(1),' | Xm |',
      & (maxes(j,1),j=1,3),'|'
       write(6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',gtens(2),' | Ym |',
      & (maxes(j,2),j=1,3),'|'
       write(6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',gtens(3),' | Zm |',
      & (maxes(j,3),j=1,3),'|'
-      write(6,'(65a)') ('-',i=1,56),'|'
+      write(6,'(2a)') repeat('-',56),'|'
 C      Call Add_Info('GTENS_MAIN',gtens,3,5)
       endif
 

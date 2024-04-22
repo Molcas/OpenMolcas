@@ -46,12 +46,12 @@ C
       IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)
-        WRITE(6,'(6X,100A1)') ('*',i=1,100)
+        WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,'(6X,A,98X,A)') '*','*'
         WRITE(6,'(6X,A,36X,A,37X,A)')
      &       '*',' Surface hopping section ','*'
         WRITE(6,'(6X,A,98X,A)') '*','*'
-        WRITE(6,'(6X,100A1)') ('*',i=1,100)
+        WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,*)
         WRITE(6,*)
 

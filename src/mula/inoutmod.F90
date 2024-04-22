@@ -1802,22 +1802,22 @@ end do
 if (nState == 1) then
   write(u6,*)
   write(u6,*)
-  write(u6,'(a27,a)') ' ',' ================================================='
-  write(u6,'(a27,a)') ' ','|                                                 |'
-  write(u6,'(a27,a)') ' ','|           Results for the first state           |'
-  write(u6,'(a27,a)') ' ','|                                                 |'
-  write(u6,'(a27,a)') ' ',' ================================================='
+  write(u6,'(27x,a)') ' ================================================='
+  write(u6,'(27x,a)') '|                                                 |'
+  write(u6,'(27x,a)') '|           Results for the first state           |'
+  write(u6,'(27x,a)') '|                                                 |'
+  write(u6,'(27x,a)') ' ================================================='
   write(u6,*)
 end if
 if (nState == 2) then
   write(u6,*)
   write(u6,*)
   write(u6,*)
-  write(u6,'(a27,a)') ' ',' ================================================='
-  write(u6,'(a27,a)') ' ','|                                                 |'
-  write(u6,'(a27,a)') ' ','|           Results for the second state          |'
-  write(u6,'(a27,a)') ' ','|                                                 |'
-  write(u6,'(a27,a)') ' ',' ================================================='
+  write(u6,'(27x,a)') ' ================================================='
+  write(u6,'(27x,a)') '|                                                 |'
+  write(u6,'(27x,a)') '|           Results for the second state          |'
+  write(u6,'(27x,a)') '|                                                 |'
+  write(u6,'(27x,a)') ' ================================================='
   write(u6,*)
 end if
 
@@ -1849,8 +1849,8 @@ end if
 if (Huge_Print) then
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Force Constant Matrix:'
-  write(u6,*) ' ','======================'
+  write(u6,*) ' Force Constant Matrix:'
+  write(u6,*) ' ======================'
   write(u6,*)
   maxCol = 10
   nRow = NumInt/maxCol+1
@@ -1887,8 +1887,8 @@ if (Huge_Print) then
   ! Write matrix G to log file.
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Inverse Mass Tensor :'
-  write(u6,*) ' ','====================='
+  write(u6,*) ' Inverse Mass Tensor :'
+  write(u6,*) ' ====================='
   write(u6,*)
   maxCol = 10
   nRow = NumInt/maxCol+1
@@ -1926,8 +1926,8 @@ if (Huge_Print) then
   ! Eigenvectors.
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Eigenvectors :'
-  write(u6,*) ' ','=============='
+  write(u6,*) ' Eigenvectors :'
+  write(u6,*) ' =============='
   write(u6,*)
   maxCol = 10
   nRow = NumInt/maxCol+1
@@ -2002,7 +2002,7 @@ if (max_term > 2) then
   write(u6,'(A)') '  Anharmonicity constants:'
   write(u6,'(A)') '  ------------------------'
   do i=1,NumInt
-    write(u6,'(a,20f15.8)') ' ',(auTocm*x_anharm(i,j),j=1,i)
+    write(u6,'(1x,20f15.8)') (auTocm*x_anharm(i,j),j=1,i)
   end do
 end if
 
@@ -2023,12 +2023,12 @@ if (max_term > 2) call WriteFreq(anharmfreq,aNormModes,NumInt,'Anharmonic freque
 if (Huge_Print .and. (NumInt <= 10)) then
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Potential Energy Distribution :'
-  write(u6,*) ' ','==============================='
+  write(u6,*) ' Potential Energy Distribution :'
+  write(u6,*) ' ==============================='
   do imode=1,NumInt
     write(u6,*)
-    write(u6,*) ' ','Mode',imode
-    write(u6,*) ' ','-------'
+    write(u6,*) ' Mode',imode
+    write(u6,*) ' -------'
     do k=1,NumInt
       if (NumInt < 21) then
         write(u6,'(60F6.2)') (PED(k,l,imode),l=1,NumInt)
@@ -2055,14 +2055,14 @@ end do
 if (Huge_Print .and. (NumInt <= 10)) then
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Scaled displacement vectors :'
-  write(u6,*) ' ','============================='
-  write(u6,*) ' ','(length of longest vector set equal to one)'
+  write(u6,*) ' Scaled displacement vectors :'
+  write(u6,*) ' ============================='
+  write(u6,*) ' (length of longest vector set equal to one)'
   write(u6,*)
   maxCol = 10
   do nAtom=1,NumOfAt
-    write(u6,*) ' ',' Atom: ',AtomLbl(nAtom)
-    write(u6,*) ' ',' ---------'
+    write(u6,*) '  Atom: ',AtomLbl(nAtom)
+    write(u6,*) '  ---------'
     nRow = NumInt/maxCol
     nCol = mod(NumInt,maxCol)
     m1 = 1
@@ -2151,14 +2151,14 @@ integer(kind=iwp) :: i
 
 write(u6,*)
 write(u6,*)
-write(u6,'(a2,a)') ' ',Title
-write(u6,'(a2,a)') ' ','=============================================='
-write(u6,'(a2,a)') ' ',' mode          X           Y           Z'
-write(u6,'(a2,a)') ' ','----------------------------------------------'
+write(u6,'(2x,a)') Title
+write(u6,'(2x,a)') '=============================================='
+write(u6,'(2x,a)') ' mode          X           Y           Z'
+write(u6,'(2x,a)') '----------------------------------------------'
 do i=1,nOsc
-  write(u6,'(a3,i2,a1,a3,3f12.5)') ' ',Modes(i),'.',' ',DipGrad(:,i)
+  write(u6,'(3x,i2,a1,3x,3f12.5)') Modes(i),'.',DipGrad(:,i)
 end do
-write(u6,'(a2,a)') ' ','=============================================='
+write(u6,'(2x,a)') '=============================================='
 write(u6,*)
 
 end subroutine WriteDip
@@ -2171,11 +2171,11 @@ implicit none
 
 write(u6,*)
 write(u6,*)
-write(u6,'(a27,a)') ' ',' ================================================='
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ','|             Intensity calculation               |'
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(27x,a)') ' ================================================='
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') '|             Intensity calculation               |'
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') ' ================================================='
 write(u6,*)
 
 end subroutine IntCalcHeader
@@ -2188,11 +2188,11 @@ implicit none
 
 write(u6,*)
 write(u6,*)
-write(u6,'(a27,a)') ' ',' ================================================='
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ','|            Expansion point geometry             |'
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(27x,a)') ' ================================================='
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') '|            Expansion point geometry             |'
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') ' ================================================='
 write(u6,*)
 
 end subroutine ExpPointHeader
@@ -2205,11 +2205,11 @@ implicit none
 
 write(u6,*)
 write(u6,*)
-write(u6,'(a27,a)') ' ',' ================================================='
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ','|      InterSystem Crossing rate calculation      |'
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(27x,a)') ' ================================================='
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') '|      InterSystem Crossing rate calculation      |'
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') ' ================================================='
 write(u6,*)
 
 end subroutine ISCHeader

@@ -18,7 +18,7 @@ integer(kind=iwp), intent(in) :: nq, nQQ, LuIC
 real(kind=wp), intent(in) :: rK(nq,nQQ), rMult(nq)
 character(len=14), intent(in) :: qLbl(nq)
 #include "print.fh"
-integer(kind=iwp) :: i, iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, Lu, LuTmp, mQQ
+integer(kind=iwp) :: iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, Lu, LuTmp, mQQ
 real(kind=wp) :: temp
 logical(kind=iwp) :: Start
 character(len=80) :: Line
@@ -47,9 +47,9 @@ if (iPrint > 5) then
 
   if (iPrint >= 6) then
     write(Lu,*)
-    write(Lu,'(80A)') ('*',i=1,80)
+    write(Lu,'(A)') repeat('*',80)
     write(Lu,*) ' Auto-Defined Internal coordinates'
-    write(Lu,'(80A)') ('-',i=1,80)
+    write(Lu,'(A)') repeat('-',80)
     write(Lu,'(A)') '  Primitive Internal Coordinates:'
   else
     write(Lu,*)
@@ -96,7 +96,7 @@ if (iPrint > 5) then
       end do
       write(Lu,'(A)') Line
     end do
-    write(Lu,'(80A)') ('*',i=1,80)
+    write(Lu,'(A)') repeat('*',80)
     call CollapseOutput(0,'Internal coordinate section')
   end if
 end if

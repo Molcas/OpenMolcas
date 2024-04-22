@@ -510,7 +510,7 @@ c singular values
 
 c Head of the output
       write(6,*)
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,'(6X,A,88X,A)') '*','*'
       write(6,'(6X,A,29X,A31,28X,A)')
      & '*','Natural transition orbitals','*'
@@ -518,10 +518,10 @@ c Head of the output
       write(6,'(6X,A,27X,A25,I2,A12,I2,20X,A)')
      &'*','Between spin-orbit state ',ISTATE,' and state ',JSTATE,'*'
       write(6,'(6X,A,88X,A)') '*','*'
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,*)
 c Start output singular value information for positive spin values
-      write(6,'(6X,90A1)') ('=',i=1,90)
+      write(6,'(6X,A)') repeat('=',90)
       eigen_print_limit=1.0D-8
       write(6,'(5X,A12,A12,A16,A51)')'EXCITATION','EIGENVALUE',
      &'EXCITATION',
@@ -529,7 +529,7 @@ c Start output singular value information for positive spin values
       write(6,'(5X,A12,12X,A16,3A17)')'AMPLITUDE',
      &'CONTRIBUTION(%)',
      &'(1)','(2)','(3)'
-      write(6,'(6X,90A1)') ('-',i=1,90)
+      write(6,'(6X,A)') repeat('-',90)
       do i=0,nb-1
         IF(SVDS(i+1)**2.lt.eigen_print_limit)  EXIT
         write(6,'(4X,3X,F8.5,4X,F8.5,8X,F8.2,2X,
@@ -546,7 +546,7 @@ c Start output singular value information for positive spin values
      &                       SumofYdiag(1),
      &                       SumofYdiag(2),
      &                       SumofYdiag(3)
-      write(6,'(6X,90A1)') ('=',i=1,90)
+      write(6,'(6X,A)') repeat('=',90)
       write(6,*)
       write(6,*)
 c Write NTOs to file in C1 symmetry
@@ -598,7 +598,7 @@ c V imaginary
      &           SVDS ,Dummy,iDummy,Note)
 c End of output
       write(6,*)
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,'(6X,A,88X,A)') '*','*'
       write(6,'(6X,A,28X,A34,25X,A)')
      & '*','End of natural transition orbitals','*'
@@ -606,7 +606,7 @@ c End of output
       write(6,'(6X,A,27X,A25,I2,A12,I2,20X,A)')
      &'*','Between spin-orbit state ',ISTATE,' and state ',JSTATE,'*'
       write(6,'(6X,A,88X,A)') '*','*'
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,*)
 
 c Free up workspace

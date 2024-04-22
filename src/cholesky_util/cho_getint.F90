@@ -26,7 +26,7 @@ real(kind=wp), intent(in) :: Diag(*)
 real(kind=wp), intent(inout) :: DIASH(*)
 integer(kind=iwp), intent(in) :: ISYSH(*), NPOTSH
 integer(kind=iwp), intent(out) :: LSTQSP(NPOTSH), ICOUNT
-integer(kind=iwp) :: i, ISHLA, ISHLAB, ISHLB, ISYM, ISYMAB, LMAX, MCOUNT, MEMQ(1), MXDIM, NSEL
+integer(kind=iwp) :: ISHLA, ISHLAB, ISHLB, ISYM, ISYMAB, LMAX, MCOUNT, MEMQ(1), MXDIM, NSEL
 real(kind=wp) :: SMAX, XMMQ
 logical(kind=iwp) :: DODECO, FULL, SYNC
 logical(kind=iwp), parameter :: LOCDBG = .false.
@@ -124,7 +124,7 @@ do while ((.not. DODECO) .and. (ICOUNT < MCOUNT))
       INTMAP(ISHLAB) = INTMAP(ISHLAB)+1
       if (IPRINT >= INF_IN2) then
         write(LUPRI,'(/,A,I5,1X,I5,A,I9,A)') 'Calculating shell pair (**|',ISHLA,ISHLB,'):',NCOLAB,' columns have been qualified'
-        write(LUPRI,'(80A)') ('=',i=1,77)
+        write(LUPRI,'(A)') repeat('=',77)
         write(LUPRI,'(A,I12)') 'Number of calculations so far for this shell pair: ',INTMAP(ISHLAB)
       end if
 

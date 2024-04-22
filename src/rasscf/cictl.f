@@ -450,23 +450,23 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
          if (DoSplitCAS) then !(GLMJ)
            Call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
            if (iErrSplit.eq.1) then
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
             write(LF,*)'WARNING!!!'
             write(LF,*) 'SplitCAS iterations don''t converge.'
             write(LF,*) 'The program will continue'
             write(LF,*) 'Hopefully your calculation will converge',
      &                 'next iteration!'
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
            end if
            if (iErrSplit.eq.2) then
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
             write(LF,*)'WARNING!!!'
             write(LF,*) 'SplitCAS iterations don''t converge.'
             write(LF,*) 'MxIterSplit', MxIterSplit
             write(LF,*) 'SplitCAS ThreShold', ThrSplit
           write(LF,*)'Try to increase MxIterSplit or SplitCAS threshold'
             write(LF,*) 'The program will STOP'
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
             call xQuit(96)
            end if
          end if

@@ -423,7 +423,7 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A,34X,A,34X,A)')
      &     '*','       Spin-free section      ','*'
@@ -432,7 +432,7 @@ C REPORT ON SECULAR EQUATION RESULT:
      &     '*','Note: index according to input order, order according'
      &     //' to energy.','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)

@@ -82,14 +82,14 @@ rMult(:) = Zero
 if (iPrint == 99) First = .true.
 if (lWrite) then
   write(u6,*)
-  write(u6,'(80A)') ('*',i=1,60)
+  write(u6,'(A)') repeat('*',60)
   write(u6,*) ' User-Defined Internal coordinates'
-  write(u6,'(80A)') ('-',i=1,60)
+  write(u6,'(A)') repeat('-',60)
   do iLines=1,iRow
     read(Lu_UDIC,'(A)') Temp
     write(u6,'(A)') Temp
   end do
-  write(u6,'(80A)') ('*',i=1,60)
+  write(u6,'(A)') repeat('*',60)
   write(u6,*)
   write(u6,*)
   write(u6,*) '*************************************************************'
