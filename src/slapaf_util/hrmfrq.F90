@@ -21,7 +21,7 @@ integer(kind=iwp), intent(out) :: iNeg
 real(kind=wp), intent(inout) :: dDipM(3,nInter+mTR)
 real(kind=wp), intent(in) :: DipM(3)
 real(kind=wp), intent(out) :: IRInt(nInter+mTR)
-integer(kind=iwp) :: iCtl, iEl, iOff, iSym, lModes, Lu_10, mDisp(8), nDisp, nDoF, nIrrep, nModes, nSym, nX
+integer(kind=iwp) :: iCtl, iEl, iOff, iSym, lModes, Lu_10, mDisp(8), nDoF, nIrrep, nModes, nSym, nX
 real(kind=wp), allocatable :: EVal(:), EVec(:), RedMas(:), Temp(:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -87,8 +87,6 @@ if (nIrrep == 1) call IsoLoop(lDoubleIso)
 !***********************************************************************
 !                                                                      *
 ! Save normal modes for later generation of Molden input.
-
-nDisp = nDoF
 
 lModes = 0
 nModes = 0

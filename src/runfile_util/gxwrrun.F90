@@ -24,7 +24,7 @@
 
 subroutine gxWrRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
-use RunFile_data, only: icWr, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr, TypUnk
+use RunFile_data, only: icWr, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr, TypUnk
 use Definitions, only: iwp
 
 implicit none

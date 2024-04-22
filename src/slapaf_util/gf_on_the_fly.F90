@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iDo_dDipM
-integer(kind=iwp) :: iCtl, iEl, iNeg, iOff, jSym, lModes, Lu_10, mDisp(8), mSym, mTR, nAtom, nDisp, nDoF, nInter, nModes, nX
+integer(kind=iwp) :: iCtl, iEl, iNeg, iOff, jSym, lModes, Lu_10, mDisp(8), mSym, mTR, nAtom, nDoF, nInter, nModes, nX
 real(kind=wp) :: DipM(3)
 real(kind=wp), allocatable :: dDipM(:), EVal(:), EVec(:), IRInt(:), RedMas(:), Temp(:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -97,8 +97,6 @@ call Add_Info('Approx. Freq.',EVal,nInter,1)
 !***********************************************************************
 !                                                                      *
 ! Save normal modes for later generation of Molden input.
-
-nDisp = nDoF
 
 lModes = 0
 nModes = 0
