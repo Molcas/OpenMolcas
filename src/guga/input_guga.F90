@@ -285,13 +285,13 @@ if (NACTEL == -1) NACTEL = N-2*NISHT
 
 write(u6,*)
 write(u6,'(6X,A)') repeat('*',120)
-write(u6,'(6X,A,A,A)') '*',repeat(' ',118),'*'
-write(u6,'(6X,A,A,A6,A,A)') '*',repeat(' ',56),'Title:',repeat(' ',56),'*'
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A,56X,A,56X,A)') '*','Title:','*'
 do i=1,nTit
   call Center_Text(Title(i))
-  write(u6,'(6X,A,A,A72,A,A)') '*',repeat(' ',23),Title(i),repeat(' ',23),'*'
+  write(u6,'(6X,A,23X,A,23X,A)') '*',Title(i),'*'
 end do
-write(u6,'(6X,A,A,A)') '*',repeat(' ',118),'*'
+write(u6,'(6X,A,118X,A)') '*','*'
 write(u6,'(6X,A)') repeat('*',120)
 write(u6,*)
 S = (ISPIN-1)*Half

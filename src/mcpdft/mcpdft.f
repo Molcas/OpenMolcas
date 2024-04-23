@@ -317,7 +317,7 @@
       End IF
       IF(Do_Rotate) Then
         IF(IPRLEV.ge.USUAL) THEN
-        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,'(6X,A)') repeat('=',80)
         write(lf,*)
         write(lf,'(6X,A,A)')'keyword "MSPD" is used and ',
      &  'file recording rotated hamiltonian is found. '
@@ -352,7 +352,7 @@
         If(trim(adjustl(MatInfo)).eq.'FMS-PDFT') MSPDFTMethod='FMS-PDFT'
         ENDIF
         write(lf,*)
-        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,'(6X,A)') repeat('=',80)
         write(lf,*)
         END IF
         Close(LUMS)
@@ -373,12 +373,12 @@
 
       IF(doNACMSPD) Then
         IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
      & cmsNACstates(1), cmsNACstates(2)
         write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         END IF
         call Put_lScalar('isCMSNAC        ', doNACMSPD)
         call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
@@ -391,11 +391,11 @@
 
       IF(doMECIMSPD) Then
         IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
         write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         END IF
         call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
       ELSE

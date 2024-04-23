@@ -50,9 +50,7 @@ c VV: dummy initialization
       CGX=-1
       CG0=-1
 c Initialize
-      Do I=1,6
-        CALL DCOPY_(nbsts,[0.0D00],0,DENSOUT(I,:),1)
-      Enddo
+      DENSOUT(:,:) = 0.0D00
 C Get the proper type of the property
       ITYPE=0
       IF(CHARTYPE.EQ.'HERMSING') ITYPE=1

@@ -61,12 +61,12 @@
 *
       WRITE(6,*)
       WRITE(6,*)
-      WRITE(6,'(6X,100A1)') ('*',i=1,100)
+      WRITE(6,'(6X,A)') repeat('*',100)
       WRITE(6,'(6X,A,98X,A)') '*','*'
       WRITE(6,'(6X,A,33X,A,34X,A)')
      &     '*',' The DQV Diabatization Section ','*'
       WRITE(6,'(6X,A,98X,A)') '*','*'
-      WRITE(6,'(6X,100A1)') ('*',i=1,100)
+      WRITE(6,'(6X,A)') repeat('*',100)
       WRITE(6,*)
       WRITE(6,*)
 

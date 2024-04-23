@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(inout) :: Diag(*)
 integer(kind=iwp), intent(in) :: NumSP, LstQSP(NumSP), iPass
-integer(kind=iwp) :: I, iEn, iK, iRed, iSt, iSym, iVec1, Jfi, Jin, jK, jVec, kI, kID, kK1, kK2, kK_1, kK_2, kQD, kV, l_IDKVec, &
-                     l_KVec, l_LQ, l_Wrk1, l_xInt, LenLin, lK, MxQ, nkVec(8), nQual_Old(8), NumCho_Old(8), NumV(8)
+integer(kind=iwp) :: iEn, iK, iRed, iSt, iSym, iVec1, Jfi, Jin, jK, jVec, kI, kID, kK1, kK2, kK_1, kK_2, kQD, kV, l_IDKVec, &
+                     l_KVec, l_LQ, l_Wrk1, l_xInt, lK, MxQ, nkVec(8), nQual_Old(8), NumCho_Old(8), NumV(8)
 real(kind=wp) :: C1, C2, W1, W2
 integer(kind=iwp), allocatable :: IDKVec(:), iQScr(:)
 real(kind=wp), allocatable :: KVec(:), KVScr(:), MQ(:), QDiag(:), Wrk1(:), xInt(:)
@@ -32,7 +32,6 @@ character(len=*), parameter :: SecNam = 'Cho_Decom_A4'
 ! Print header.
 ! -------------
 
-LenLin = 0
 if (iPrint >= Inf_Progress) then
   call Cho_Head(SecNam//': Decomposition of Qualified Diagonals','=',80,LUPRI)
   write(Lupri,'(/,A,I5,A,I4,A)') 'Integral pass number',iPass,' (',NumSP,' shell pair distributions calculated)'
@@ -43,8 +42,7 @@ if (iPrint >= Inf_Progress) then
   write(Lupri,'(A,8I8)') 'Original dim. : ',(nnBstr(iSym,1),iSym=1,nSym)
   write(Lupri,'(/,A,/,A)') '           #Vectors             Treated Diagonal', &
                            'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
-  LenLin = 79
-  write(Lupri,'(80A)') ('-',I=1,LenLin)
+  write(Lupri,'(A)') repeat('-',79)
   call XFlush(Lupri)
   NumCho_Old(1:nSym) = NumCho(1:nSym)
 else if (iPrint >= Inf_Pass) then
@@ -295,7 +293,7 @@ call mma_deallocate(KVec)
 
 if (iPrint >= Inf_Progress) then
   NumCho_Old(1:nSym) = NumCho(1:nSym)-NumCho_Old(1:nSym)
-  write(Lupri,'(80A)') ('-',I=1,LenLin)
+  write(Lupri,'(A)') repeat('-',79)
   write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
 else if (iPrint >= Inf_Pass) then
   NumCho_Old(1:nSym) = NumCho(1:nSym)-NumCho_Old(1:nSym)

@@ -36,7 +36,7 @@ integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, ii, j, jj, k, lu, m, maxnum
 ! Ham: auxiliary matrix
 ! pop_sf: store summed populations over spin manifolds
-real(kind=wp), allocatable :: Ham(:,:), pop_sf(:)
+real(kind=wp), allocatable :: CI_tmp(:,:), Ham(:,:), pop_sf(:)
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 
 ireturn = 20
@@ -145,8 +145,8 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
   call cre_prep()
 
   ! reading wavefunction expansion from rasscf files
-  H_CSF = Zero
-  CI = Zero
+  H_CSF(:,:,:) = Zero
+  CI(:,:,:) = Zero
   ! Determine file names
   ! Expected N rassd files and 1 rassisd file
   call mma_allocate(rassd_list,N)
@@ -170,10 +170,13 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
         end do
         call dashes()
       end if
-      call mma_allocate(Ham,lroots(i),lroots(i))
+      call mma_allocate(Ham,nconf(i),nconf(i))
+      call mma_allocate(CI_tmp,nconf(i),lroots(i))
       Ham(:,:) = H_CSF(1:nconf(i),1:nconf(i),i)
-      call sortci(nconf(i),Ham,E(1:nconf(i),i),CI(1:nconf(i),1:lroots(i),i),ipglob)
+      call sortci(nconf(i),Ham,E(1:nconf(i),i),CI_tmp,ipglob)
+      CI(1:nconf(i),1:lroots(i),i) = CI_tmp(:,:)
       call mma_deallocate(Ham)
+      call mma_deallocate(CI_tmp)
     end do
   else if ((i_rasscf == 2) .or. (i_rasscf == 3)) then
     ! Construct SF Hamiltonians from CIs and Es for each spin manifold
@@ -183,8 +186,11 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
       end do
       ! H_CSF=CI*diag(E)*CI^T
       call mma_allocate(Ham,nconf(i),lroots(i))
-      call mult(CI(1:nconf(i),1:lroots(i),i),H_CSF(1:lroots(i),1:lroots(i),i),Ham)
-      call mult(Ham,CI(1:nconf(i),1:lroots(i),i),H_CSF(1:nconf(i),1:nconf(i),i),.false.,.true.)
+      ! Do not use wrapper, to avoid creating temporary arrays
+      !call mult(CI(1:nconf(i),1:lroots(i),i),H_CSF(1:lroots(i),1:lroots(i),i),Ham)
+      !call mult(Ham,CI(1:nconf(i),1:lroots(i),i),H_CSF(1:nconf(i),1:nconf(i),i),.false.,.true.)
+      call dgemm_('N','N',nconf(i),lroots(i),lroots(i),One,CI(:,:,i),maxnconf,H_CSF(:,:,i),maxnconf,Zero,Ham,nconf(i))
+      call dgemm_('N','T',nconf(i),nconf(i),lroots(i),One,Ham,nconf(i),CI(:,:,i),maxnconf,Zero,H_CSF(:,:,i),maxnconf)
       call mma_deallocate(Ham)
     end do
   end if

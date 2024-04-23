@@ -75,11 +75,11 @@ C Local print level (if any)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
 
-        write(6,*) ('*',i=1,65)
+        write(6,*) repeat('*',65)
         write(6,*) 'Entering FMAT routine called by SXCTL!'
-        write(6,*) ('*',i=1,65)
+        write(6,*) repeat('*',65)
         write(6,*) 'printing input matrices :'
-        write(6,*) ('*',i=1,65)
+        write(6,*) repeat('*',65)
         Write(LF,*)
         Write(LF,*) ' CMOs in FMAT'
         Write(LF,*) ' ---------------------'

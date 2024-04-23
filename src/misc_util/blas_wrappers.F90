@@ -20,6 +20,7 @@
 ! ddot_
 ! dgemm_
 ! dgemv_
+! dger_
 ! dnrm2_
 ! drot_
 ! dscal_
@@ -214,6 +215,26 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   end if
 # endif
 end subroutine dgemv_
+
+subroutine dger_(m_,n_,alpha,x,incx_,y,incy_,a,lda_)
+  use Definitions, only: BLASR8, iwp
+  _BLAS_INT_use_
+  implicit none
+  integer(kind=iwp), intent(in) :: m_, n_, incx_, incy_, lda_
+  real(kind=BLASR8), intent(in) :: alpha, x(*), y(*)
+  real(kind=BLASR8), intent(inout) :: a(lda_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: m, n, incx, incy, lda
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  incx = int(incx_,kind=BLASInt)
+  incy = int(incy_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call dger(m,n,alpha,x,incx,y,incy,a,lda)
+# else
+  call dger(m_,n_,alpha,x,incx_,y,incy_,a,lda_)
+# endif
+end subroutine dger_
 
 function dnrm2_(n_,x,incx_)
   use Definitions, only: BLASR8, iwp

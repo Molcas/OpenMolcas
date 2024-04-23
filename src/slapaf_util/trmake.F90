@@ -47,7 +47,6 @@ if (.not. VarT) then
     if (SymDsp(iCmp)) then
       nTR = nTR+1
       TRVec(nTR,i,:) = One
-
     end if
   end do
 end if

@@ -38,6 +38,6 @@ if (nDet > 1) then
                     detcoeff(i), '     ', detcoeff(i)**2
     end if
   end do
-  write(u6,*)('*',i=1,80)
+  write(u6,*) repeat('*',80)
 end if
 end subroutine prwf_biorth

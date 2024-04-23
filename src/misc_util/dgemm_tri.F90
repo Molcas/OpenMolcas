@@ -135,12 +135,12 @@ if ((TransB == 'N') .or. (TransB == 'n')) then
 else
   if ((TransA == 'N') .or. (TransA == 'n')) then
     do j=1,n
-      call dGeMV_('N',j,k,alpha,A,ldA,B(j,1:k),1,One,C(kOff),1)
+      call dGeMV_('N',j,k,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
       kOff = kOff+j
     end do
   else
     do j=1,n
-      call dGeMV_('T',k,j,alpha,A,ldA,B(j,1:k),1,One,C(kOff),1)
+      call dGeMV_('T',k,j,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
       kOff = kOff+j
     end do
   end if

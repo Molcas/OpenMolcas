@@ -17,13 +17,15 @@
       Real*8 H(*),elec(*),elout(*)
       logical Do_Molden
       Integer nrvec(*),nDeg(*),iel(3),ldisp(nsym)
-      Real*8, Allocatable:: NMod(:), EVec(:), EVal(:), Intens(:),
-     &                      RedMas(:), Tmp3(:), Temp(:)
+      Real*8, Allocatable:: NMod(:), EVec(:), EVec2(:,:), EVal(:),
+     &                      EVal2(:), Intens(:), RedMas(:), Tmp3(:),
+     &                      Temp(:)
 #include "temperatures.fh"
 *
       Call mma_allocate(NMod,nDisp**2,Label='NMod')
-      Call mma_allocate(EVec,2*nDisp**2,Label='EVec')
-      Call mma_allocate(EVal,nDisp*2,Label='EVal')
+      Call mma_allocate(EVec,nDisp**2,Label='EVec')
+      Call mma_allocate(EVec2,2,nDisp**2,Label='EVec2')
+      Call mma_allocate(EVal,nDisp,Label='EVal')
       Call mma_allocate(Intens,nDisp*2,Label='Intens')
       Call mma_allocate(RedMas,nDisp,Label='RedMas')
       ipNx=1
@@ -69,9 +71,13 @@
             Write(6,*)
 *
             If (converged(isym))  Then
+               Call mma_allocate(EVal2,2*nX,Label='EVal2')
                Call mma_allocate(Tmp3,nX**2,Label='Tmp3')
                Call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),
-     &                   Tmp3,EVec,EVal(i1),RedMas,iNeg)
+     &                   Tmp3,EVec2,EVal2,RedMas,iNeg)
+               EVec(:) = EVec2(1,:)
+               EVal(i1:i1+nX-1) = EVal2(1:nX)
+               Call mma_deallocate(EVal2)
                Call mma_deallocate(Tmp3)
 *
                iCtl=0
@@ -86,7 +92,7 @@
                         tmp=0.0d0
                         Do it=0,nx-1
                            Fact=Sqrt( DBLE(nDeg(i1+it)) )
-                           tmp=tmp+EVec(1+2*(k-1)*nx+2*it)*
+                           tmp=tmp+EVec(1+(k-1)*nx+it)*
      &                             elec(ii+it)*Fact
                         End Do
                         elout(j)=tmp
@@ -98,7 +104,7 @@
 *
 *------------- Save normal modes for later generation of Molden input.
 *
-               call dcopy_(nX**2,EVec,2,NMod(ipNx),1)
+               call dcopy_(nX**2,EVec,1,NMod(ipNx),1)
                jpNx=ipNx
 
 * =========================================================================
@@ -126,7 +132,7 @@
                   lModes=lModes+nX
                End Do
                nModes=nModes+nX
-               call dcopy_(nX**2,NMod(jpNx),1,EVec,2)
+               call dcopy_(nX**2,NMod(jpNx),1,EVec,1)
                Call GF_Print(EVal(i1),EVec,elout(kk),
      &                       ll,nX,nX,iCtl,Intens(i1),
      &                       RedMas,Lu_10,i1-1)
@@ -201,6 +207,7 @@
 *
       Call mma_deallocate(NMod)
       Call mma_deallocate(evec)
+      Call mma_deallocate(evec2)
       Call mma_deallocate(eval)
       Call mma_deallocate(intens)
       Call mma_deallocate(redmas)
@@ -228,7 +235,7 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "constants2.fh"
-      Real*8 EVal(nDim), EVec(2,nX,nDim),dDipM(ndim,iel),IRInt(nDim)
+      Real*8 EVal(nDim), EVec(nX,nDim),dDipM(ndim,iel),IRInt(nDim)
       Parameter(Inc=6)
       Character*80 Format
       Character*(LENIN6) ChDisp(3*MxAtom),Label
@@ -248,7 +255,7 @@
       !> omit the eigenvalues which less than 5 cm^-1 (abs) -- yma
       idiscard=0
       imaginary=0
-      Do iHarm = 1, Inc
+      Do iHarm = 1, nDim
 *         write(*,*)"Eval(",iHarm,") = ",Eval(iHarm) ! for checking
          if(abs(Eval(iHarm)).lt.5.0)then
            idiscard=idiscard+1
@@ -319,8 +326,7 @@
      &               ChDisp(iInt+iOff)(1:inum_min-1),
      &               ChDisp(iInt+iOff)(inum_max+1:4+inum_min),
      &               ChDisp(iInt+iOff)(inum_min:inum_max),
-     &               (EVec(1,iInt,i),
-     &               i=iHarm,iHarm+Jnc-1)
+     &               (EVec(iInt,i),i=iHarm,iHarm+Jnc-1)
 
            End Do
            Write (LUt,*)

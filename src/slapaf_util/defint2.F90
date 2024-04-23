@@ -37,8 +37,8 @@ logical(kind=iwp), intent(inout) :: lWrite
 real(kind=wp), intent(inout) :: Value0(nBVct)
 integer(kind=iwp), intent(out) :: iFlip(nBVct)
 #include "print.fh"
-integer(kind=iwp) :: i, i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu, &
-                     Lu_UDC, mCntr, msAtom, n0, nCntr, neq, nGo, nGo2, nMinus, nPlus, nrInt0, nTemp
+integer(kind=iwp) :: i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu, Lu_UDC, &
+                     mCntr, msAtom, n0, nCntr, neq, nGo, nGo2, nMinus, nPlus, nrInt0, nTemp
 real(kind=wp) :: Fact, MaxErr, Sgn, Tmp
 logical(kind=iwp) :: Found, InSlapaf, rInt0_in_memory, rInt0_on_file, Skip, Start
 character(len=120) :: Line, Temp
@@ -84,12 +84,12 @@ if ((iPrint >= 99) .or. lWrite) then
   call CollapseOutput(1,'Constraints section')
   write(Lu,'(34X,A)') 'CONSTRAINTS'
   write(Lu,*)
-  write(Lu,'(80A)') ('*',i=1,80)
+  write(Lu,'(A)') repeat('*',80)
   do iLines=1,nLines
     read(Lu_UDC,'(A)') Line
     write(Lu,'(A)') trim(Line)
   end do
-  write(Lu,'(80A)') ('*',i=1,80)
+  write(Lu,'(A)') repeat('*',80)
   write(Lu,*)
   write(Lu,*)
   write(Lu,*) '*************************************************************'

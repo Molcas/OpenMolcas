@@ -3984,7 +3984,6 @@ subroutine ProcessBasis()
         dbsc(nCnttp)%nCntr = nCnt
         mdc = mdc+nCnt
         ! Now allocate the array for the coordinates and copy them over.
-        ! allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
         call mma_Allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,Label='dbsc:C')
         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
         call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)

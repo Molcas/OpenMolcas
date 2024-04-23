@@ -194,7 +194,7 @@
       If (.Not.Allocated(Sew_Scr)) Then
 !        Write (*,*) 'Eval_ints: Allocate memory'
          Call mma_MaxDBLE(MemMax)
-         If (MemMax.gt.1000) MemMax=MemMax-1000
+         If (MemMax.gt.8000) MemMax=MemMax-8000
          Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
       Else
 !        Write (*,*) 'Eval_ints: Memory already allocated'

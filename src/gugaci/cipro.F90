@@ -327,7 +327,7 @@ do im=1,ngsm
   !write(u6,*) nc,ni
   do i=1,ni
     val = occ(i+nc0)
-    call dger(ni,ni,val,cno(nc1),1,cno(nc1),1,denao(nc),ni)
+    call dger_(ni,ni,val,cno(nc1),1,cno(nc1),1,denao(nc),ni)
     nc1 = nc1+ni
   end do
   nc0 = nc0+ni

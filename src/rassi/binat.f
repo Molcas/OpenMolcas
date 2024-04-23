@@ -323,7 +323,7 @@ C and the singular values will be written as "occupation numbers".
 C End of very long loop over eigenstate pairs.
       END DO
 
-      WRITE(6,*)('*',I=1,80)
+      WRITE(6,*) repeat('*',80)
       CALL GETMEM('ONBAS','FREE','REAL',LONBAS,NBSQ)
       CALL GETMEM('SEV','FREE','REAL',LSEV,NBST)
       CALL GETMEM('SCR','FREE','REAL',LSCR,NBSQ)

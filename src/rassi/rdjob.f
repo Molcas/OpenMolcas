@@ -84,12 +84,12 @@
       IF (IPGLOB.GE.2) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
-          WRITE(6,'(6X,80A1)') ('*',i=1,80)
+          WRITE(6,'(6X,A)') repeat('*',80)
           WRITE(6,'(6X,A1,78X,A1)') '*','*'
           WRITE(6,'(6X,A1,24X,A,24X,A1)')
      &       '*','     General data section     ','*'
           WRITE(6,'(6X,A1,78X,A1)') '*','*'
-          WRITE(6,'(6X,80A1)') ('*',i=1,80)
+          WRITE(6,'(6X,A)') repeat('*',80)
         END IF
         WRITE(6,*)
         WRITE(6,*)'  Specific data for HDF5 file ',trim(JBNAME(JOB))
@@ -403,12 +403,12 @@
       IF (IPGLOB.GE.2) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
-          WRITE(6,'(6X,80A1)') ('*',i=1,80)
+          WRITE(6,'(6X,A)') repeat('*',80)
           WRITE(6,'(6X,A1,78X,A1)') '*','*'
           WRITE(6,'(6X,A1,24X,A,24X,A1)')
      &       '*','     General data section     ','*'
           WRITE(6,'(6X,A1,78X,A1)') '*','*'
-          WRITE(6,'(6X,80A1)') ('*',i=1,80)
+          WRITE(6,'(6X,A)') repeat('*',80)
         END IF
         WRITE(6,*)
         WRITE(6,*)'  Specific data for JOBIPH file ',trim(JBNAME(JOB))

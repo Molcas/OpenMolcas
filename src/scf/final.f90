@@ -86,6 +86,7 @@
       character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
       Integer i
+      Integer IndTypeT(8,7)
 #endif
       Integer nFldP
       Dimension Dummy(1)
@@ -457,7 +458,8 @@
          End If
          Call WrVec_(OrbName,LuOut,What,0,nSym,nBas,nBas,CMOn,Dummy,Etan,Dummy,Epsn,Dummy,IndType, Note,iWFtype)
 #ifdef _HDF5_
-         call orb2tpstr(NSYM,NBAS,NFRO,IndType(2,:),NZERO,IndType(4,:),NZERO,IndType(6,:),NDEL,typestring)
+         IndTypeT = transpose(IndType)
+         call orb2tpstr(NSYM,NBAS,NFRO,IndTypeT(:,2),NZERO,IndTypeT(:,4),NZERO,IndTypeT(:,6),NDEL,typestring)
          call mh5_put_dset(wfn_tpidx, typestring)
          call mma_deallocate(typestring)
          call mh5_put_dset(wfn_mocoef, CMOn)

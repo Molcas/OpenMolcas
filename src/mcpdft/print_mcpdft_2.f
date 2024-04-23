@@ -48,14 +48,14 @@
       ELSE
       Write(Line(left-2:),'(A,1X,I4.4)') 'MC-PDFT RESULTS, STATE',jroot
       ENDIF
-      write(6,'(6X,80A)')
+      write(6,*)
       Call CollapseOutput(1,Line)
-      Write(6,Fmt2//'80A)') ('-',i=1,len_trim(Line)-3)
-      write(6,'(6X,80A)')
+      Write(6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
+      write(6,*)
 
       write(6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',
      &                           Ref_Ener(jroot)
-      write(6,'(6X,80A)')
+      write(6,*)
       write(6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
       write(6,'(6X,A,12X,F10.3)') 'Integrated alpha density '//
      &           'before functional transformation:', Dens_a1
@@ -70,25 +70,25 @@
      &           'intermediate quantities'
       write(6,'(6X,2A)') 'and should not be interpreted as ',
      &           'real spin densities'
-      write(6,'(6X,80A)')
+      write(6,*)
       write(6,'(6X,A,32X,F18.6)') 'Exchange energy scaling factor',
      &          CoefX
       write(6,'(6X,A,29X,F18.6)') 'Correlation energy scaling factor',
      &          CoefR
-      write(6,'(6X,80A)')
+      write(6,*)
       write(6,'(6X,A,30X,F18.6)') 'Integrated alpha exchange energy',
      &          Funcaa
       write(6,'(6X,A,30X,F18.6)') 'Integrated beta  exchange energy',
      &          Funcbb
       write(6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',
      &          Funccc
-      write(6,'(6X,80A)')
+      write(6,*)
 
       write(6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',E_nuc
       write(6,'(6X,A,51X,F18.8)') 'Core energy',E_cor
       write(6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
       write(6,'(6X,A,49X,F18.8)') 'On-top energy',E_ot
-      write(6,'(6X,80A)')
+      write(6,*)
       IF(Do_Hybrid) Then
        write(6,'(6X,A)') 'Information for hybrid PDFT:'
        write(6,'(6X,A,37X,F6.2)')
@@ -97,7 +97,7 @@
      & 'Wave function energy',Ratio_WF*Ref_Ener(jRoot)
        write(6,'(6X,A,51X,F18.8)')
      & 'PDFT energy',(1-Ratio_WF)*E_NoHyb
-       write(6,'(6X,80A)')
+       write(6,*)
       END IF
 
       IF(Do_Rotate) Then
@@ -113,8 +113,8 @@
          Funccc1 = Funccc/CoefR
          E_ot_1 = E_ot-Funcaa-Funcbb-Funccc+Funcaa1+Funcbb1+Funccc1
          CASDFT_E_1 = CASDFT_E-E_ot+E_ot_1
-         write(6,'(6X,80A)')
-         write(6,'(6X,80A)')
+         write(6,*)
+         write(6,*)
          write(6,'(6X,A,19X,F18.6)') 'Integrated alpha exchange '//
      &          'energy (unscaled)',
      &          Funcaa1
@@ -124,16 +124,16 @@
          write(6,'(6X,A,19X,F18.6)') 'Integrated  correlation   '//
      &          'energy (unscaled)',
      &          Funccc1
-!         write(6,'(6X,80A)')
+!         write(6,*)
          write(6,'(6X,A,38X,F18.8)') 'On-top energy (unscaled)',E_ot_1
-!         write(6,'(6X,80A)')
+!         write(6,*)
          write(6,'(6X,A,31X,F18.8)') 'Total MC-PDFT energy '//
      &         '(unscaled)',
      &         CASDFT_E_1
       end if
 
       Call CollapseOutput(0,Line)
-      write(6,'(6X,80A)')
+      write(6,*)
       end if
 
       Call Add_Info('dens_tt',[Dens_I],1,6)
