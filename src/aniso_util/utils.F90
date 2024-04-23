@@ -117,31 +117,31 @@ complex(kind=wp), intent(in) :: M(n,n)
 integer(kind=iwp) :: i, j, jEnd, k
 
 write(u6,'(/)')
-write(u6,'(100A)') ('-',i=1,87)
+write(u6,'(A)') repeat('-',87)
 write(u6,'(A)') a
 do j=1,n,4
   jEnd = min(n,J+3)
   if (mod(n,2) == 0) then
     ! code for odd N
-    write(u6,'(150A)') ('-',i=1,10),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(52A)') repeat('-',10),(repeat('-',24),k=j,jEnd),'|'
     write(u6,'(10x,A,50(8x,A,I3,A,7x,A))') '|',('|',2*i-n-1,'/2 >','|',i=j,jEnd)
-    write(u6,'(150A)') ('-',i=1,10),'|',('---- Real ----- Imag --|',k=j,jEnd)
+    write(u6,'(52A)') repeat('-',10),'|',('---- Real ----- Imag --|',k=j,jEnd)
     ! print the matrix
     do i=1,n
       write(u6,'(1x,A,I3,A,1x,A,50(2F11.5,1x,A))') '<',2*i-n-1,'/2','| |',(M(k,i),'|',k=j,jEnd)
     end do
-    write(u6,'(150A)') ('-',i=1,10),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(52A)') repeat('-',10),(repeat('-',24),k=j,jEnd),'|'
 
   else
     ! code for odd N
 
-    write(u6,'(150A)') ('-',i=1,8),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(52A)') repeat('-',8),(repeat('-',24),k=j,jEnd),'|'
     write(u6,'(8x,A,50(8x,A,I3,A,9x,A))') '|',('|',-(n-1)/2-1+i,' >','|',i=j,jEnd)
-    write(u6,'(150A)') ('-',i=1,8),'|',('---- Real ----- Imag --|',k=j,jEnd)
+    write(u6,'(52A)') repeat('-',8),'|',('---- Real ----- Imag --|',k=j,jEnd)
     do i=1,n
       write(u6,'(1x,A,I3,1x,A,50(2F11.5,1x,A))') '<',-(n-1)/2-1+i,'| |',(M(k,i),'|',k=j,jEnd)
     end do
-    write(u6,'(150A)') ('-',i=1,8),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(52A)') repeat('-',8),(repeat('-',24),k=j,jEnd),'|'
   end if
 end do !j
 
@@ -197,7 +197,7 @@ real(kind=wp) :: Mi(n), Mr(n), Weight(n)
 write(u6,'(/)')
 do j=1,n,2
   jEnd = min(n,j+1) ! '|  > |'
-  if (j == 1) write(u6,'(150A)') '--------|',(('-',k=1,58),'|',i=j,jEnd)
+  if (j == 1) write(u6,'(13A)') '--------|',(repeat('-',58),'|',i=j,jEnd)
   write(u6,'(3A,6(16x,a,i3,24x,a))') ' | ',a,'M > |',('ab initio state',i,'|',i=j,jEnd)
   write(u6,'(A,6A)') '--------|',('-------  Real  -------|------  Imaginary  -------|-Weight-|',i=j,jEnd)
 
@@ -219,7 +219,7 @@ do j=1,n,2
     end if
   end do ! i
 
-  write(u6,'(150A)') '--------|',(('-',k=1,58),'|',i=j,jEnd)
+  write(u6,'(13A)') '--------|',(repeat('-',58),'|',i=j,jEnd)
 end do ! j
 
 return
@@ -235,7 +235,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nlanth, n  ! number of the lanthanide, dimension of the pseudospin
 real(kind=wp), intent(in) :: B(n,0:n), C(n,0:n) ! real and imaginary CF parameters
 !logical(kind=iwp), intent(in), optional :: print_all
-integer(kind=iwp) :: i, k, q
+integer(kind=iwp) :: k, q
 real(kind=wp) :: a(6)
 
 call set_an(nlanth,a)
@@ -243,7 +243,7 @@ call set_an(nlanth,a)
 !O(m1,m2) = Half*(Om+mQ*Op)
 !W(m1,m2) = Half*Onei*(Om-mQ*Op)
 write(u6,'(/)')
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
 write(u6,'(A)') '   Hcf = SUM_{k,q} alpha(k) * [ B(k,q) * O(k,q) +  C(k,q) * W(k,q) ];'
 write(u6,'(A)') 'where:'
@@ -255,7 +255,7 @@ write(u6,'(A)') '   alpha(k) - Stevens coefficients;'
 write(u6,'(A)') 'These operators have been defined in: '
 write(u6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
 
-write(u6,'(100A)') ('-',i=1,76),'|'
+write(u6,'(2A)') repeat('-',76),'|'
 write(u6,'(A)') '  k  |  q  |    1/alpha(k)  |         B(k,q)        |         C(k,q)        |'
 do k=2,6,2
   if (abs(A(k)) > tiny(A)) then
@@ -269,7 +269,7 @@ do k=2,6,2
     end do
   end if
 end do
-write(u6,'(100A)') ('-',i=1,76),'|'
+write(u6,'(2A)') repeat('-',76),'|'
 
 return
 
@@ -283,12 +283,12 @@ implicit none
 integer(kind=iwp), intent(in) :: n ! dimension of the pseudospin
 real(kind=wp), intent(in) :: B(n,0:n), C(n,0:n) ! real and imaginary CF parameters
 logical(kind=iwp), intent(in) :: print_all
-integer(kind=iwp) :: i, k, q
+integer(kind=iwp) :: k, q
 
 !O(m1,m2) = Half*(Om+mQ*Op)
 !W(m1,m2) = Half*Onei*(Om-mQ*Op)
 write(u6,'(/)')
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
 write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) +  C(k,q) * W(k,q) ];'
 write(u6,'(A)') 'where:'
@@ -299,7 +299,7 @@ write(u6,'(A)') '   q - the component of the ITO, = 0, 1, 2, ... k;'
 write(u6,'(A)') 'These operators have been defined in: '
 write(u6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
 
-write(u6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(2A)') repeat('-',59),'|'
 write(u6,'(A)') '  k  |  q  |         B(k,q)        |         C(k,q)        |'
 if (print_all) then
   do k=2,n-1
@@ -316,7 +316,7 @@ else
     end do
   end do
 end if
-write(u6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(2A)') repeat('-',59),'|'
 
 return
 
@@ -330,12 +330,12 @@ implicit none
 integer(kind=iwp), intent(in) :: n ! dimension of the pseudospin
 real(kind=wp), intent(in) :: B(n,-n:n) ! real and imaginary CF parameters
 logical(kind=iwp), intent(in) :: print_all
-integer(kind=iwp) :: i, iq, k, kmax, q
+integer(kind=iwp) :: iq, k, kmax, q
 real(kind=wp) :: f, knm(12,0:12)
 
 call set_knm(knm)
 write(u6,'(/)')
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
 write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
 write(u6,'(A)') 'where:'
@@ -350,7 +350,7 @@ if ((n-1) > 12) then
 end if
 write(u6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
 write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
-write(u6,'(100A)') ('-',i=1,48),'|'
+write(u6,'(2A)') repeat('-',48),'|'
 write(u6,'(A)') '  k |  q  |    (K)^2    |         B(k,q)        |'
 if ((n-1) > 12) then
   kmax = 12
@@ -377,7 +377,7 @@ else
     end do
   end do
 end if
-write(u6,'(90A)') ('-',i=1,48),'|'
+write(u6,'(2A)') repeat('-',48),'|'
 
 return
 
@@ -391,11 +391,11 @@ implicit none
 integer(kind=iwp), intent(in) :: N ! dimension of the pseudospin
 complex(kind=wp), intent(in) :: A(n-1,-(n-1):n-1) ! complex parameters to print
 logical(kind=iwp), intent(in) :: print_all
-integer(kind=iwp) :: i, k, q
+integer(kind=iwp) :: k, q
 real(kind=wp) :: Ai, Ar
 
 write(u6,'(/)')
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
 write(u6,'(A)')
 write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
@@ -416,7 +416,7 @@ write(u6,'(A)')
 write(u6,'(A)') '   k - the rank of the ITO, = 2, 4, 6, 8, 10, 12.'
 write(u6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
 ! thee table:
-write(u6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(2A)') repeat('-',59),'|'
 write(u6,'(A,11x,A,12x,A)') '  k |  q  |','Complex parameter  A(k,q)','|'
 write(u6,'(A)') '----|-----|--------  Real  ------|-----  Imaginary  -------|'
 
@@ -444,7 +444,7 @@ else
   end do
 end if
 
-write(u6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(2A)') repeat('-',59),'|'
 
 return
 
@@ -458,12 +458,12 @@ implicit none
 integer(kind=iwp), intent(in) :: n ! dimension of the pseudospin
 real(kind=wp), intent(in) :: B(3,n,-n:n) ! real and imaginary CF parameters, for x,y,z
 logical(kind=iwp), intent(in) :: print_all
-integer(kind=iwp) :: i, iq, k, kmax, q
+integer(kind=iwp) :: iq, k, kmax, q
 real(kind=wp) :: f, knm(12,0:12)
 
 call set_knm(knm)
 write(u6,'(/)')
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') 'The magnetic moment is decomposed in Stev ITO:'
 write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
 write(u6,'(A)') 'where:'
@@ -478,7 +478,7 @@ if ((n-1) > 12) then
 end if
 write(u6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
 write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
-write(u6,'(100A)') ('-',i=1,96),'|'
+write(u6,'(2A)') repeat('-',96),'|'
 write(u6,'(A)') '  k |  q  |    (K)^2    |        B(k,q) - X     |        B(k,q) - Y     |        B(k,q) - Z     |'
 if ((n-1) > 12) then
   kmax = 12
@@ -509,7 +509,7 @@ else
   end do
 
 end if
-write(u6,'(100A)') ('-',i=1,96),'|'
+write(u6,'(2A)') repeat('-',96),'|'
 
 return
 

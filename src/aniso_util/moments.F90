@@ -87,19 +87,19 @@ do iDir=1,3
 end do !iDir
 
 write(u6,'(A)') '--------------|--- H || Xm --|--- H || Ym --|--- H || Zm --|'
-write(u6,'(65A)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(u6,'(8A)') repeat('-',14),'|',(repeat('-',14),'|',j=1,3)
 write(u6,'(A,3(F13.9,1x,A))') ' <1| mu_X |1> |',(real(Mf(iDir,1)),'|',iDir=1,3)
 write(u6,'(A,3(F13.9,1x,A))') ' <1| mu_Y |1> |',(real(Mf(iDir,2)),'|',iDir=1,3)
 write(u6,'(A,3(F13.9,1x,A))') ' <1| mu_Z |1> |',(real(Mf(iDir,3)),'|',iDir=1,3)
-write(u6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(u6,'(8a)') repeat('-',14),'|',(repeat('-',14),'|',j=1,3)
 write(u6,'(A,3(F13.9,1x,A))') '  <1| L_X |1> |',(real(Lf(iDir,1)),'|',iDir=1,3)
 write(u6,'(A,3(F13.9,1x,A))') '  <1| L_Y |1> |',(real(Lf(iDir,2)),'|',iDir=1,3)
 write(u6,'(A,3(F13.9,1x,A))') '  <1| L_Z |1> |',(real(Lf(iDir,3)),'|',iDir=1,3)
-write(u6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(u6,'(8a)') repeat('-',14),'|',(repeat('-',14),'|',j=1,3)
 write(u6,'(A,3(F13.9,1x,A))') '  <1| S_X |1> |',(real(Sf(iDir,1)),'|',iDir=1,3)
 write(u6,'(A,3(F13.9,1x,A))') '  <1| S_Y |1> |',(real(Sf(iDir,2)),'|',iDir=1,3)
 write(u6,'(A,3(F13.9,1x,A))') '  <1| S_Z |1> |',(real(Sf(iDir,3)),'|',iDir=1,3)
-write(u6,'(65a)') ('-',i=1,59),'|'
+write(u6,'(2a)') repeat('-',59),'|'
 
 !-----------------------------------------------------------------------
 call mma_deallocate(Z)

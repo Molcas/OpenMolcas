@@ -21,7 +21,7 @@ integer(kind=iwp), intent(in) :: nss, nTempMagn, nT, NM, mem
 real(kind=wp), intent(in) :: Tmin, Tmax, XTexp(nT+nTempMagn), eso(nss), T(nT+nTempMagn), zJ, Xfield, XT_no_field(nT+nTempMagn)
 complex(kind=wp), intent(in) :: dM(3,nss,nss), sM(3,nss,nss)
 logical(kind=iwp), intent(in) :: tinput, smagn, doplot
-integer(kind=iwp) :: i, iM, Info, iT, j, jT, mem_local, nDirX, nTempTotal
+integer(kind=iwp) :: iM, Info, iT, j, jT, mem_local, nDirX, nTempTotal
 real(kind=wp) :: dHX(3), dHY(3), dHZ(3), hp, WT(3), Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5, Xfield_6, Xfield_7, ZT(3,3)
 character(len=50) :: label
 real(kind=wp), allocatable :: MT1(:,:), MT2(:,:), MT3(:,:), MT4(:,:), MT5(:,:), MT6(:,:), MT7(:,:), ST1(:,:), ST2(:,:), ST3(:,:), &
@@ -31,7 +31,7 @@ real(kind=wp), allocatable :: MT1(:,:), MT2(:,:), MT3(:,:), MT4(:,:), MT5(:,:), 
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten, & ! in cm3 * mol-1 * T
                             THRS = 1.0e-13_wp
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: l
+integer(kind=iwp) :: i, l
 #  define _DBG_ .true.
 #else
 #  define _DBG_ .false.
@@ -80,10 +80,10 @@ call xFlush(u6)
 #endif
 !ccc-------------------------------------------------------cccc
 write(u6,*)
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT MAGNETIC SUSCEPTIBILITY'
 write(u6,'(18X,A)') 'within true (dM/dH) and "experimentalists" (M/H) models'
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,*)
 write(u6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,' tesla.'
 write(u6,'(2x,A,F10.6,A)') 'dM/dH is computed numerically using 7 point stencil formula, with h=0.00001'
@@ -337,9 +337,9 @@ end if
 
 ! print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
 write(u6,'(/)')
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 write(u6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X=dM/dH  model,  in cm3*K/mol','|'
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
 do iT=1,nT
   jT = iT+nTempMagn
@@ -353,13 +353,13 @@ do iT=1,nT
   write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_dMdH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                   (zt(j,3),j=1,3),'|'
 end do
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 
 write(u6,'(/)')
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 
 write(u6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X = M/H  model,  in cm3*K/mol','|'
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
 do iT=1,nT
   jT = iT+nTempMagn
@@ -373,7 +373,7 @@ do iT=1,nT
   write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_MH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                   (zt(j,3),j=1,3),'|'
 end do
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 
 call mma_deallocate(WM1)
 call mma_deallocate(WM2)

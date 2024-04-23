@@ -88,9 +88,9 @@ unused_var(mem)
 #endif
 
 write(u6,*)
-write(u6,'(100A)') ('%',J=1,96)
+write(u6,'(A)') repeat('%',96)
 write(u6,'(20X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
-write(u6,'(100A)') ('%',J=1,96)
+write(u6,'(A)') repeat('%',96)
 write(u6,*)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 write(u6,'(2X,A,i3,A)') 'Magnetization torque is calculated for the ',NH,' field points, in the field Domain:'

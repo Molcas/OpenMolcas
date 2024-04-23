@@ -97,9 +97,9 @@ write(u6,*) 'doplot:       ',doplot
 #endif
 !-----------------------------------------------------------------------
 write(u6,*)
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(35X,A)') 'CALCULATION OF THE MAGNETIC SUSCEPTIBILITY'
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,*)
 
 if (tinput) then
@@ -484,9 +484,9 @@ call mma_allocate(wt,3,'wt')
 call mma_allocate(zt,3,3,'zt')
 if (zJ == Zero) then
   write(u6,'(/)')
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(31X,A,22x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = 0,  in cm3*K/mol','|'
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
   do iT=1,nT
     jT = iT+nTempMagn
@@ -501,15 +501,15 @@ if (zJ == Zero) then
     write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens_tot(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
 
 else ! zJ /= Zero
 
   write(u6,'(/)')
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
 
   write(u6,'(31X,A,F9.6,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ =',zJ,',  in cm3*K/mol','|'
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
   do iT=1,nT
     jT = iT+nTempMagn
@@ -524,7 +524,7 @@ else ! zJ /= Zero
     write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
 end if
 call mma_deallocate(wt)
 call mma_deallocate(zt)

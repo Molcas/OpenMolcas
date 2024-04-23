@@ -74,8 +74,8 @@ call mma_deallocate(intc)
 
 pop(:,:,:,:) = cZero
 i = 24+13*lmax
-write(fmtline,'(A,i3,A,i2,A)') '(',i,'A)'
-write(u6,fmtline) ('-',j=1,i)
+fmtline = '(A)'
+write(u6,fmtline) repeat('-',i)
 i = (24+13*lmax-19)/2
 write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
 write(u6,fmtline) 'POPULATION ANALYSIS'
@@ -83,8 +83,8 @@ i = (8+13*lmax-19)/2
 write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
 write(u6,fmtline) '(i.e. diagonal value of density matrices of the interacting sites)'
 i = 24+13*lmax
-write(fmtline,'(A,i3,A)') '(',i,'A)'
-write(u6,fmtline) ('-',j=1,i)
+fmtline = '(A)'
+write(u6,fmtline) repeat('-',i)
 write(fmtline,'(A,i3,A)') '(A,',lmax,'A)'
 write(u6,fmtline) '--------|-----|',('------------|',i=1,lmax)
 write(u6,fmtline) 'Exchange|Basis|',('   center   |',i=1,lmax)

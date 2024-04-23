@@ -75,12 +75,12 @@ if (do_structure_abc) then
   rc = 0
   call abc_axes(cryst,coord,maxes,axes_in_abc,1,rc)
 
-  write(u6,'(19x,32a,3x,a)') '|',('-',i=1,4),'|',('-',i=1,5),' a ',('-',i=1,7),' b ',('-',i=1,7),' c ',('-',i=1,3),'|', &
+  write(u6,'(19x,11a,3x,a)') '|',repeat('-',4),'|',repeat('-',5),' a ',repeat('-',7),' b ',repeat('-',7),' c ',repeat('-',3),'|', &
                              'a , b , c  -- crystallographic axes'
   write(u6,'(A,F12.9,A,3F10.6,1x,A,16x,a)') ' gX = ',gtens(1),' | Xm |',(axes_in_abc(j,1),j=1,3),'|','(defined in the input)'
   write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',gtens(2),' | Ym |',(axes_in_abc(j,2),j=1,3),'|'
   write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',gtens(3),' | Zm |',(axes_in_abc(j,3),j=1,3),'|'
-  write(u6,'(83a)') ('-',i=1,56),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
 end if ! do_structure_abc
 ! Compute the matrix elements of the magnetic moment in the coordinate system
 ! of magnetic axes.  ==> I.e. ROTATE the matrix DipSO to the coordinate system of magnetic axes
@@ -182,12 +182,12 @@ do n=1,d-1,2
 end do !n
 
 write(u6,*)
-write(u6,'(100A)') ('-',i=1,80)
+write(u6,'(A)') repeat('-',80)
 write(u6,'(A)') 'DECOMPOSITION OF THE MAGNETIC MOMENT Mu_i IN IRREDUCIBLE TENSOR OPERATORS (ITO):'
-write(u6,'(100A)') ('-',i=1,80)
+write(u6,'(A)') repeat('-',80)
 write(u6,*)
 write(u6,'(A)') 'The quantization axis is the main magnetic axis of this multiplet (Zm).'
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') '   Mu_i = SUM_{n,m}: [ B(i,n,m) * O(n,m) +  C(i,n,m) * W(n,m) ]'
 write(u6,'(A)') 'where:'
 write(u6,'(A)') '   O(n,m) =  0.5 * ( (-1)**m * Y(n,+m) + Y(n,-m) );'
@@ -197,7 +197,7 @@ write(u6,'(A)') '   m - the component of the ITO, = 0, 1, ... n;'
 write(u6,'(A)') '   i - the Cartesian projection of the magnetic moment, i = x,y,z;'
 write(u6,'(A)') 'These operators have been defined in: '
 write(u6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
-write(u6,'(100A)') ('-',i=1,63),'|'
+write(u6,'(2A)') repeat('-',63),'|'
 write(u6,'(A)') '  n  |  m  | i |        B(i,n,m)       |        C(i,n,m)       |'
 do N=1,d-1,2
   write(u6,'(A)') '-----|-----|---|-----------------------|-----------------------|'
@@ -208,13 +208,13 @@ do N=1,d-1,2
     write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))') N,'|',M,'|','Z','|',real(BNMC(3,N,M)),'|',real(BNMS(3,N,M)),'|'
   end do
 end do
-write(u6,'(100A)') ('-',i=1,63),'|'
+write(u6,'(2A)') repeat('-',63),'|'
 ! decomposition of the magnetic moment in Extended Stevens Operators
 
 call Set_knm(knm)
 
 write(u6,'(/)')
-write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') repeat('*',80)
 write(u6,'(A)') '   Mu_i = SUM_{k,q} * [ B(i,k,q) * O(k,q) ];'
 write(u6,'(A)') 'where:'
 write(u6,'(A)') '   O(k,q) =  Extended Stevens Operators (ESO) as defined in:'
@@ -228,7 +228,7 @@ if (d-1 > 11) then
 end if
 write(u6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
 write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
-write(u6,'(100A)') ('-',i=1,51),'|'
+write(u6,'(2A)') repeat('-',51),'|'
 write(u6,'(A)') '  k |  q  | i |   (Knm)^2  |         B(k,q)        |'
 
 if (d-1 > 11) then
@@ -261,7 +261,7 @@ do N=1,nmax,2
     end if !M<0
   end do !M
 end do !N
-write(u6,'(100A)') ('-',i=1,51),'|'
+write(u6,'(2A)') repeat('-',51),'|'
 
 call mma_deallocate(B)
 call mma_deallocate(BNMC)
@@ -295,27 +295,27 @@ if (d > 2) then
   end if
 
   write(u6,*)
-  write(u6,'(100A)') ('-',i=1,87)
+  write(u6,'(A)') repeat('-',87)
   write(u6,'(A)') 'DECOMPOSITION OF THE ZERO-FIELD SPLITTING (ZFS) IN IRREDUCIBLE TENSOR OPERATORS (ITO):'
-  write(u6,'(100A)') ('-',i=1,87)
+  write(u6,'(A)') repeat('-',87)
   write(u6,*)
   write(u6,'(A)') 'Ab Initio Calculated Zero-Field Splitting Matrix written in the basis of Pseudospin Eigenfunctions'
   if (mod(d,2) == 0) then
-    write(u6,'(950A)') ('-',i=1,10),(('-',i=1,24),j=1,d),'|'
+    write(u6,'(52A)') repeat('-',10),(repeat('-',24),j=1,d),'|'
     write(u6,'(10x,A,50(8x,A,I3,A,7x,A))') '|',('|',2*i-d-1,'/2 >','|',i=1,d)
-    write(u6,'(950A)') ('-',i=1,10),'|',(('-',i=1,23),'|',j=1,d)
+    write(u6,'(102A)') repeat('-',10),'|',(repeat('-',23),'|',j=1,d)
     do i=1,d
       write(u6,'(1x,A,I3,A,1x,A,50(2F11.5,1x,A))') '<',2*i-d-1,'/2','| |',(HZFS(j,i),'|',j=1,d)
     end do
-    write(u6,'(950A)') ('-',i=1,10),(('-',i=1,24),j=1,d),'|'
+    write(u6,'(52A)') repeat('-',10),(repeat('-',24),j=1,d),'|'
   else
-    write(u6,'(950A)') ('-',i=1,8),(('-',i=1,24),j=1,d),'|'
+    write(u6,'(52A)') repeat('-',8),(repeat('-',24),j=1,d),'|'
     write(u6,'(8x,A,50(8x,A,I3,A,9x,A))') '|',('|',-(d-1)/2-1+i,' >','|',i=1,d)
-    write(u6,'(950A)') ('-',i=1,8),'|',(('-',i=1,23),'|',j=1,d)
+    write(u6,'(102A)') repeat('-',8),'|',(repeat('-',23),'|',j=1,d)
     do I=1,d
       write(u6,'(1x,A,I3,1x,A,50(2F11.5,1x,A))') '<',-(d-1)/2-1+i,'| |',(HZFS(j,i),'|',j=1,d)
     end do
-    write(u6,'(950A)') ('-',i=1,8),(('-',i=1,24),j=1,d),'|'
+    write(u6,'(52A)') repeat('-',8),(repeat('-',24),j=1,d),'|'
   end if
 
   call mma_allocate(C,[1,d],[-d,d],label='C')
@@ -408,7 +408,7 @@ if (d > 2) then
   write(u6,'(A)') '   n - the rank of the ITO, = 2, 4, 6, ... 2*spin;'
   write(u6,'(A)') '   m - the component of the ITO, = 0, 1, ... n;'
   write(u6,'(A)') 'The quantization axis is the main magnetic axis of this multiplet (Zm).'
-  write(u6,'(100A)') ('-',i=1,59),'|'
+  write(u6,'(2A)') repeat('-',59),'|'
   write(u6,'(A)') '  n  |  m  |         E(n,m)        |         F(n,m)        |'
   do N=2,d-1,2
     write(u6,'(A)') '-----|-----|-----------------------|-----------------------|'
@@ -416,10 +416,10 @@ if (d > 2) then
       write(u6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') N,'|',M,'|',real(CNMC(N,M)),'|',real(CNMS(N,M)),'|'
     end do
   end do
-  write(u6,'(100A)') ('-',i=1,59),'|'
+  write(u6,'(2A)') repeat('-',59),'|'
 
   ! decomposition of the ZFS matrix in Extended Stevens Operators
-  write(u6,'(100A)') ('*',i=1,80)
+  write(u6,'(A)') repeat('*',80)
   write(u6,'(A)') 'The ZFS Hamiltonian:'
   write(u6,'(A)') '   ZFS = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
   write(u6,'(A)') 'where:'
@@ -436,7 +436,7 @@ if (d > 2) then
 
   write(u6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
   write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
-  write(u6,'(100A)') ('-',i=1,48),'|'
+  write(u6,'(2A)') repeat('-',48),'|'
   write(u6,'(A)') '  k |  q  |    (Knm)^2  |         B(k,q)        |'
   if (d-1 > 12) then
     Nmax = 12
@@ -455,7 +455,7 @@ if (d > 2) then
       end if
     end do
   end do
-  write(u6,'(100A)') ('-',i=1,48),'|'
+  write(u6,'(2A)') repeat('-',48),'|'
   !-----------------------------
   ! for the interface related to CF gradient calculation:
   if (GRAD) then

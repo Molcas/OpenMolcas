@@ -25,7 +25,7 @@ real(kind=wp), intent(in) :: eso(nss), T(nT+nTempMagn), tmin, tmax, XTexp(nT+nTe
 complex(kind=wp), intent(in) :: s_so(3,nss,nss), dipso(3,nss,nss)
 logical(kind=iwp), intent(in) :: tinput, doplot
 real(kind=wp), intent(out) :: chit_theta(nT+nTempMagn)
-integer(kind=iwp) :: i, ic, im, info, it, j, jc, jm, jT, mem_local
+integer(kind=iwp) :: ic, im, info, it, j, jc, jm, jT, mem_local
 real(kind=wp) :: a_dir(3,3), a_inv(3,3), det, gtens(3), maxes(3,3), WT(3), XMM(3,3), XSM(3,3), XSS(3,3), xxm, XZJ(3,3), Zst, ZT(3,3)
 character(len=50) :: label
 real(kind=wp), allocatable :: chi_theta_1(:), chit(:), chit_tens(:,:,:), chit_theta_tens(:,:,:), zstat1(:)
@@ -37,9 +37,9 @@ real(kind=wp), external :: dev
 mem_local = 0
 
 write(u6,*)
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(35X,A)') 'CALCULATION OF THE MAGNETIC SUSCEPTIBILITY'
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 
 write(u6,*)
 if (TINPUT) then
@@ -222,9 +222,9 @@ end if
 if (zJ == Zero) then
 
   write(u6,'(/)')
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(31X,A,22x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = 0,  in cm3*K/mol','|'
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(A   )') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |'// &
                      '               Main Axes             |'
   do iT=1,nT
@@ -240,14 +240,14 @@ if (zJ == Zero) then
     write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
 
 else ! zJ /= Zero
 
   write(u6,'(/)')
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(31X,A,F7.4,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = ',zJ,',  in cm3*K/mol','|'
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
   do iT=1,nT
     jT = iT+nTempMagn
@@ -262,7 +262,7 @@ else ! zJ /= Zero
     write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                     (zt(j,3),j=1,3),'|'
   end do
-  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(2A)') repeat('-',110),'|'
   call mma_deallocate(chiT_theta_tens)
 end if ! zJ
 

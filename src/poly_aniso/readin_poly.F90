@@ -707,12 +707,12 @@ do
       !write(u6,'(A,i5)') 'exch = ',exch
       if (exch == 1) then
         write(u6,'(3/)')
-        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(A)') repeat('#',100)
         write(u6,'(3/)')
         write(u6,'(A)') 'The size of the exchange matrix is 1. Is this really what you intended to compute?'
         write(u6,'(A)') 'The program will continue...'
         write(u6,'(3/)')
-        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(A)') repeat('#',100)
         write(u6,'(3/)')
       end if
 
@@ -1232,7 +1232,7 @@ if (npair > 0) then
       i1 = nind(lb1,1) ! indices of non-equivalent sites
       i2 = nind(lb2,1) ! indices of non-equivalent sites
       if (nExch(i1) < (imaxrank(lp,1)+1)) then
-        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(A)') repeat('#',100)
         write(u6,'(A)') 'interacting pair = ',lp
         write(u6,'(A)') 'type of site 1 = ',i1
         write(u6,'(A,i2,A,i2)') 'nExch(',i1,') = ',nExch(i1)
@@ -1240,10 +1240,10 @@ if (npair > 0) then
         write(u6,'(A)') 'nExch < Rank+1 !!!'
         write(u6,'(A)') 'Rank of ITO operators for site 1 is larger than the number of defined exchange states for this site'
         write(u6,'(A)') 'The program will use only parameters which bring non-zero contribution to exchange.'
-        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(A)') repeat('#',100)
       end if
       if (nExch(i2) < (imaxrank(lp,2)+1)) then
-        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(A)') repeat('#',100)
         write(u6,'(A)') 'interacting pair = ',lp
         write(u6,'(A)') 'type of site 2 = ',i2
         write(u6,'(A,i2,A,i2)') 'nExch(',i2,') = ',nExch(i2)
@@ -1251,7 +1251,7 @@ if (npair > 0) then
         write(u6,'(A)') 'nExch < Rank+1 !!!'
         write(u6,'(A)') 'Rank of ITO operators for site 2 is larger than the number of defined exchange states for this site'
         write(u6,'(A)') 'The program will use only parameters which bring non-zero contribution to exchange.'
-        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(A)') repeat('#',100)
       end if
     end do
     call mma_deallocate(nind)

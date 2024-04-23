@@ -30,7 +30,7 @@ if (Iprint > 2) then
 end if
 !-----------------------------------------------------------------------
 write(u6,'(/)')
-write(u6,'(100A)') ('%',i=1,95)
+write(u6,'(A)') repeat('%',95)
 if (mod(d,2) == 0) then
   write(u6,'(5X,A,I2,A,I2,A)') 'CALCULATION OF PSEUDOSPIN HAMILTONIAN TENSORS FOR THE MULTIPLET',iMLTPL, &
                                ' ( effective S = ',d-1,'/2)'
@@ -38,7 +38,7 @@ else
   write(u6,'(5X,A,I2,A,I1,A)') 'CALCULATION OF PSEUDOSPIN HAMILTONIAN TENSORS FOR THE MULTIPLET',iMLTPL, &
                                ' ( effective S = ',(d-1)/2,')'
 end if
-write(u6,'(100A)') ('%',i=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(A)') 'The pseudospin is defined in the basis of the following spin-orbit states:'
 do i=1,d
   if (d > 9) then

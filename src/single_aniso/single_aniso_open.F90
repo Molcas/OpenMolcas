@@ -15,7 +15,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: i, input_to_read, nDir, nDirZee, nH, nMult, NSS, NSTATE, nT, nTempMagn
+integer(kind=iwp) :: input_to_read, nDir, nDirZee, nH, nMult, NSS, NSTATE, nT, nTempMagn
 logical(kind=iwp) :: GRAD, ifrestart
 character(len=180) :: input_file_name
 
@@ -38,7 +38,7 @@ else ! not a restart job -- take all data form RUNFILE
   call fetch_data_RunFile_init(nss,nstate)
 end if !Ifrestart
 
-write(u6,'(120A)') ('@',i=1,95)
+write(u6,'(A)') repeat('@',95)
 write(u6,'(A)') '   SINGLE_ANISO (OPEN)'
 write(u6,'(A)') '(last updated on 12-March-2018)'
 write(u6,'(A)') '   New features: '
@@ -56,7 +56,7 @@ write(u6,'(A)') '     -- from  $Project.RunFile file.'
 write(u6,'(A)') '5.  RASSI was adjusted to provide more accurate tunnelling gaps between near-degenerate states'
 write(u6,'(A)') 'Check the MOLCAS manual for details and input examples.'
 write(u6,*)
-write(u6,'(120A)') ('@',i=1,95)
+write(u6,'(A)') repeat('@',95)
 call xFlush(u6)
 
 call SINGLE_ANISO2(nH,nT,nTempMagn,nDir,nDirZee,nss,nstate,nMult,input_file_name,Ifrestart,IReturn,GRAD)

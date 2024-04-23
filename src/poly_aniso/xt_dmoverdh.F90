@@ -149,10 +149,10 @@ call xFlush(u6)
 #endif
 !ccc-------------------------------------------------------cccc
 write(u6,*)
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT MAGNETIC SUSCEPTIBILITY'
 write(u6,'(18X,A)') 'within true (dM/dH) and "experimentalists" (M/H) models'
-write(u6,'(100A)') ('%',J=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,*)
 write(u6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,' tesla.'
 if (tinput) then
@@ -658,9 +658,9 @@ end if
 
 ! print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
 write(u6,'(/)')
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 write(u6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X=dM/dH  model,  in cm3*K/mol','|'
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
 do iT=1,nT
   jT = iT+nTempMagn
@@ -673,13 +673,13 @@ do iT=1,nT
   write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_dMdH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                   (zt(j,3),j=1,3),'|'
 end do
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 
 write(u6,'(/)')
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 
 write(u6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X = M/H  model,  in cm3*K/mol','|'
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
 do iT=1,nT
   jT = iT+nTempMagn
@@ -692,7 +692,7 @@ do iT=1,nT
   write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_MH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
                                                   (zt(j,3),j=1,3),'|'
 end do
-write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(2A)') repeat('-',110),'|'
 
 !=======================================================================
 call mma_deallocate(WEX0)

@@ -213,9 +213,9 @@ end if
 
 !new print-out code:
 write(u6,*)
-write(u6,'(100A)') ('%',i=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(15X,A)') 'AB INITIO BLOCKING BARRIER'
-write(u6,'(100A)') ('%',i=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,'(A)') 'please, acknowledge the fact that the information printed below provides'
 write(u6,'(A)') 'only a qualitative relaxation path of a single-molecule magnet'
 write(u6,*)

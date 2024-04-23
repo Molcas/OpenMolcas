@@ -26,7 +26,6 @@ integer(kind=iwp) :: i2, ipr, j2, k1, k2, q1, q2
 real(kind=wp) :: knm(12,0:12)
 complex(kind=wp) :: F1, F12, F2, fact
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i
 real(kind=wp) :: F, R
 #endif
 complex(kind=wp), allocatable :: Jcc(:,:,:,:), Jcs(:,:,:,:), Jsc(:,:,:,:), Jss(:,:,:,:), O1(:,:), O1_O2(:,:,:,:), O1_W2(:,:,:,:), &
@@ -219,7 +218,7 @@ end do
 
 #ifdef _DEBUGPRINT_
 write(u6,'(A,ES18.7)') 'Real Exchange parameters with values larger than: ',THRS
-write(u6,'(120A)') ('-',i=1,119),'|'
+write(u6,'(2A)') repeat('-',119),'|'
 write(u6,'(A)') ' k1 |  q1 || k2 |  q2 |-------- O1-O2 --------|-------- O1-W2 --------|-------- W1-O2 --------|'// &
                 '-------- W1-W2 --------|'
 do k1=1,N1-1
@@ -265,7 +264,7 @@ do k1=1,N1-1
     end do
   end do
 end do
-write(u6,'(120A)') ('-',i=1,119),'|'
+write(u6,'(2A)') repeat('-',119),'|'
 #endif
 
 !-----------------------------------------------------------------------

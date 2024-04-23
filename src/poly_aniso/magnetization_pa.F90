@@ -83,9 +83,9 @@ unused_var(mem)
 #endif
 
 write(u6,*)
-write(u6,'(100A)') ('%',J=1,96)
+write(u6,'(A)') repeat('%',96)
 write(u6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
-write(u6,'(100A)') ('%',J=1,96)
+write(u6,'(A)') repeat('%',96)
 write(u6,*)
 !----------------------------------------------------------------------
 mem_local = 0

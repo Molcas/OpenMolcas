@@ -241,7 +241,7 @@ write(u6,'(/)')
 write(u6,'(A)') 'WEIGHT OF INDIVIDUAL CRYSTAL FIELD PARAMETERS ON THE CRYSTAL FIELD SPLITTING: (in descending order):'
 write(u6,'(A)') 'CFP are given in ITO used in J. Chem. Phys. 137, 064112 (2012).'
 
-write(u6,'(100A)') ('-',i=1,55),'|'
+write(u6,'(2A)') repeat('-',55),'|'
 write(u6,'(A)') '  k |  q  |         B(k,q)        |    Weight (in %)   |'
 write(u6,'(A)') '----|-----|-----------------------|--------------------|'
 do ik=1,ikmax

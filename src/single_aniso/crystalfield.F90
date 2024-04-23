@@ -25,13 +25,13 @@ real(kind=wp), allocatable :: wtmp(:)
 complex(kind=wp), allocatable :: DIPJ(:,:,:), SJ(:,:,:), TMP(:,:,:), ztmp(:,:)
 
 write(u6,'(/)')
-write(u6,'(100A)') ('%',i=1,95)
+write(u6,'(A)') repeat('%',95)
 if (mod(nDIMcf,2) == 1) then
   write(u6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD PARAMETERS OF THE GROUND ATOMIC MULTIPLET J = ',(nDIMcf-1)/2,'.'
 else
   write(u6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD PARAMETERS OF THE GROUND ATOMIC MULTIPLET J = ',(nDIMcf-1),'/2.'
 end if
-write(u6,'(100A)') ('%',i=1,95)
+write(u6,'(A)') repeat('%',95)
 write(u6,*)
 
 if (iopt == 1) then
@@ -77,26 +77,26 @@ call rotmom2(S_SO,nDIMCF,ZMAGN,SJ)
 write(u6,'(a)') 'Rotation matrix from the initial coordinate system to the employed coordinate system is:'
 
 if ((iopt == 1) .or. (iopt == 2)) then
-  write(u6,'(70a)') ('-',i=1,67),'|'
+  write(u6,'(2a)') repeat('-',67),'|'
   write(u6,'(A,31x,A)') 'x , y , z  -- initial Cartesian axes','|'
   write(u6,'(A,35x,A)') 'Xm, Ym, Zm -- main magnetic axes','|'
   write(u6,'(4x,3(17x,a),9x,a)') 'x','y','z','|'
   write(u6,'(6x,A,3F18.14,1x,A)') '| Xm |',(ZMAGN(j,1),j=1,3),'|'
   write(u6,'( A,A,3F18.14,1x,A)') ' R =  ','| Ym |',(ZMAGN(j,2),j=1,3),'|'
   write(u6,'(6x,A,3F18.14,1x,A)') '| Zm |',(ZMAGN(j,3),j=1,3),'|'
-  write(u6,'(83a)') ('-',i=1,67),'|'
+  write(u6,'(2a)') repeat('-',67),'|'
   write(u6,'(A,I3)') 'Quantization axis is Zm.'
 
 else if (iopt == 3) then
 
-  write(u6,'(70a)') ('-',i=1,67),'|'
+  write(u6,'(2a)') repeat('-',67),'|'
   write(u6,'(A,31x,A)') 'x , y , z  -- initial Cartesian axes','|'
   write(u6,'(A,11x,A)') 'Xm, Ym, Zm -- the coordinate system defined in the input','|'
   write(u6,'(4x,3(17x,a),9x,a)') 'x','y','z','|'
   write(u6,'(6x,A,3F18.14,1x,A)') '| Xm |',(ZMAGN(j,1),j=1,3),'|'
   write(u6,'( A,A,3F18.14,1x,A)') ' R =  ','| Ym |',(ZMAGN(j,2),j=1,3),'|'
   write(u6,'(6x,A,3F18.14,1x,A)') '| Zm |',(ZMAGN(j,3),j=1,3),'|'
-  write(u6,'(83a)') ('-',i=1,67),'|'
+  write(u6,'(2a)') repeat('-',67),'|'
   write(u6,'(A,I3)') 'Quantization axis is Zm.'
 
 else

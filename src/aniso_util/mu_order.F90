@@ -105,7 +105,7 @@ do n=1,d-1
 end do !n
 
 if (iprint > 2) then
-  write(u6,'(100A)') ('-',i=1,47),'|'
+  write(u6,'(2A)') repeat('-',47),'|'
   write(u6,'(A)') '  n  |  m  |   |       B       |       C       |'
   do N=1,d-1
     write(u6,'(A)') '-----|-----|---|---------------|---------------|'
@@ -116,7 +116,7 @@ if (iprint > 2) then
       write(u6,'(2(2x,I1,2x,A),1x,A,1x,A,2(F14.9,1x,A))') N,'|',M,'|','Z','|',real(BNMC(3,N,M)),'|',real(BNMS(3,N,M)),'|'
     end do
   end do
-  write(u6,'(100A)') ('-',i=1,47),'|'
+  write(u6,'(2A)') repeat('-',47),'|'
 end if
 
 HCF2(:,:,:,:) = cZero

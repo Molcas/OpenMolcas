@@ -194,7 +194,7 @@ end do !lp
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 write(u6,*)
-write(u6,'(100a)') ('%',j=1,100)
+write(u6,'(a)') repeat('%',100)
 if ((.not. AnisoLines1) .and. (.not. AnisoLines3) .and. (.not. AnisoLines9) .and. (.not. Dipol) .and. (.not. DM_exchange) .and. &
     (.not. JITO_exchange)) then
   write(u6,'(20x,A)') 'ITO decomposition of exchange and/or dipolar couplings.'
@@ -224,7 +224,7 @@ else if (.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and.
   write(u6,'(20x,A)') 'ITO decomposition of anisotropic exchange interaction and dipolar couplings.'
 
 end if
-write(u6,'(100a)') ('%',j=1,100)
+write(u6,'(a)') repeat('%',100)
 write(u6,*)
 
 ! decompose the exchange interaction in products of ITO
@@ -242,7 +242,7 @@ do lp=1,npair
   write(u6,'(A)') 'PART 1: Magnetic exchange is written in the coordinate systems of the LOCAL main magnetic axes of the '// &
                   'interacting sites.'
   write(u6,'(A)')
-  write(u6,'(100A)') ('-',i=1,100)
+  write(u6,'(A)') repeat('-',100)
   write(u6,'(A,i2)') 'Interacting pair',lp
 
   call mma_allocate(MM_tmp1,3,n1,n1,label='MM_tmp1')
@@ -639,7 +639,7 @@ do lp=1,npair
 
   !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-  !write(u6,'(100A)') ('-',i=1,100)
+  !write(u6,'(A)') repeat('-',100)
   !write(u6,*)
   !write(u6,'(A)') 'PART 2: Magnetic exchange is written in the GENERAL coordinate systems of the computed system.'
   !write(u6,'(A)') 'The cartesian Z axis of the system is chosen the quantisation axis for the local pseudospins of the two '// &

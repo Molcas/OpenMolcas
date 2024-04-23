@@ -89,7 +89,7 @@ if (INFO /= 0) return
 if ((w(1) < Zero) .and. (w(2) < Zero) .and. (w(3) < Zero)) then
   write(u6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
   write(u6,'(2X,A)') 'THIS IS A VERY UNUSUAL SITUATION. PLEASE CHECK MANUALLY '
-  write(u6,'(2x,A)') 'THE FOLLOWING PART OF THE PSEUDoSPIN SECTION'
+  write(u6,'(2x,A)') 'THE FOLLOWING PART OF THE PSEUDOSPIN SECTION'
   write(u6,'(2x,A)') 'MUST BE DISREGARDED. THE RESULTS ARE NOT TRUSTABLE.'
   return
 end if
@@ -97,15 +97,15 @@ end if
 if (iprint > 2) then
   write(u6,*)
   write(u6,'(4x,A)') 'A_TENS_TERM TENSOR:'
-  write(u6,'(65a)') ('-',i=1,56),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
   write(u6,'(4x,A,4x,A,13x,A,5x,a,3x,a)') 'MAIN VALUES','|','MAIN MAGNETIC AXES','|','x , y , z  -- initial Cartesian axes'
-  write(u6,'(57a,3x,a)') ('-',i=1,19),'|',('-',i=1,36),'|','Xm, Ym, Zm -- main magnetic axes'
+  write(u6,'(4a,3x,a)') repeat('-',19),'|',repeat('-',36),'|','Xm, Ym, Zm -- main magnetic axes'
   write(u6,'(19x,a,4x,a,5x,a,9x,a,9x,a,5x,a)') '|','|','x','y','z','|'
-  write(u6,'(65a)') ('-',i=1,19),'|',('-',i=1,4),'|',('-',i=1,31),'|'
+  write(u6,'(6a)') repeat('-',19),'|',repeat('-',4),'|',repeat('-',31),'|'
   write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gX = ',w(1),' | Xm |',(z(j,1),j=1,3),'|'
   write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',w(2),' | Ym |',(z(j,2),j=1,3),'|'
   write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',w(3),' | Zm |',(z(j,3),j=1,3),'|'
-  write(u6,'(65a)') ('-',i=1,56),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
 end if
 
 do I=1,3
@@ -186,16 +186,16 @@ end if
 if (iprint >= 2) then
   write(u6,*)
   write(u6,'(4x,A)') 'g TENSOR:'
-  write(u6,'(65a)') ('-',i=1,56),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
   write(u6,'(4x,A,4x,A,13x,A,5x,a,3x,a)') 'MAIN VALUES','|','MAIN MAGNETIC AXES','|','x , y , z  -- initial Cartesian axes'
-  write(u6,'(26a,3x,a)') ('-',i=1,19),'|',('-',i=1,4),'|','----- x ------- y ------- z ---|','Xm, Ym, Zm -- main magnetic axes'
+  write(u6,'(4a,3x,a)') repeat('-',19),'|',repeat('-',4),'|','----- x ------- y ------- z ---|','Xm, Ym, Zm -- main magnetic axes'
   !write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gX = ',gtens(1),' | Xm |',(maxes(j,1),j=1,3),'|'
   !write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',gtens(2),' | Ym |',(maxes(j,2),j=1,3),'|'
   !write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',gtens(3),' | Zm |',(maxes(j,3),j=1,3),'|'
   write(u6,'(A,F18.14,A,3F18.14,1x,A)') ' gX = ',gtens(1),' | Xm |',(maxes(j,1),j=1,3),'|'
   write(u6,'(A,F18.14,A,3F18.14,1x,A)') ' gY = ',gtens(2),' | Ym |',(maxes(j,2),j=1,3),'|'
   write(u6,'(A,F18.14,A,3F18.14,1x,A)') ' gZ = ',gtens(3),' | Zm |',(maxes(j,3),j=1,3),'|'
-  write(u6,'(65a)') ('-',i=1,56),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
 end if
 
 return

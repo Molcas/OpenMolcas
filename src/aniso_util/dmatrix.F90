@@ -21,7 +21,7 @@ implicit none
 complex(kind=wp), intent(in) :: E(0:2), F(0:2)
 real(kind=wp), intent(in) :: Z(3,3)
 integer(kind=iwp), intent(in) :: iprint
-integer(kind=iwp) :: I, INFO, J
+integer(kind=iwp) :: INFO, J
 real(kind=wp) :: CF, D_factor, daxes(3,3), diff12, diff23, DMATR(3,3), dtens(3), E_factor, SMAT(3,3), Unity(3,3), WD(3), ZD(3,3), &
                  ZD2(3,3)
 complex(kind=wp) :: DMAT(3,3)
@@ -179,16 +179,16 @@ end if
 if (iprint >= 2) then
   write(u6,*)
   write(u6,'(A)') 'D TENSOR:'
-  write(u6,'(90a)') ('-',i=1,84),'|'
+  write(u6,'(2a)') repeat('-',84),'|'
   write(u6,'(A,4x,A,27x,A,21x,a,3x,a)') 'MAIN VALUES','|','MAIN ANISOTROPY AXES','|','x , y , z  -- initial Cartesian axes'
-  write(u6,'(85a,3x,a)') ('-',i=1,15),'|',('-',i=1,36),'|',('-',i=1,31),'|','Xm, Ym, Zm -- main magnetic axes'
+  write(u6,'(6a,3x,a)') repeat('-',15),'|',repeat('-',36),'|',repeat('-',31),'|','Xm, Ym, Zm -- main magnetic axes'
   write(u6,'(15x,a,4x,a,5x,a,8x,a,8x,a,4x,a,5x,a,9x,a,9x,a,5x,a,3x,a)') '|','|','Xm','Ym','Zm','|','x','y','z','|', &
                                                                         'Xa, Ya, Za -- main anisotropy axes'
-  write(u6,'(90a)') ('-',i=1,15),'|',('-',i=1,4),'|',('-',i=1,31),'|',('-',i=1,31),'|'
+  write(u6,'(8a)') repeat('-',15),'|',repeat('-',4),'|',repeat('-',31),'|',repeat('-',31),'|'
   write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dx =',dtens(1),' | Xa |',(daxes(j,1),j=1,3),'|',(ZD2(j,1),j=1,3),'|'
   write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dy =',dtens(2),' | Ya |',(daxes(j,2),j=1,3),'|',(ZD2(j,2),j=1,3),'|'
   write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dz =',dtens(3),' | Za |',(daxes(j,3),j=1,3),'|',(ZD2(j,3),j=1,3),'|'
-  write(u6,'(90a)') ('-',i=1,84),'|'
+  write(u6,'(2a)') repeat('-',84),'|'
   write(u6,*)
   write(u6,'(A)') '2-nd order ZFS Hamiltonian:'
   write(u6,*)
