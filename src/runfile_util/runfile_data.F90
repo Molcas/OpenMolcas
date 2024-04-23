@@ -84,7 +84,7 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
                                 'BirthCertificate','LastEnergyMethod','MMO Labels      ','MCLR Root       ', & ! 17-20
                                 'Frag_Type       ','ABC             ','Un_cen Names    ','cDmp            ', & ! 21-24
                                 'dc: cDmp        ','SymmetryCInfo   ','SewardXTitle    ','Align_Weights   ', & ! 25-28
-                                'Quad_c          ','                ','                ','                ']   ! 29-32
+                                'Quad_c          ','nProcs          ','                ','                ']   ! 29-32
 
 !> List of known real array labels:
 !>

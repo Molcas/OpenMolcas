@@ -38,6 +38,7 @@ use Symmetry_Info, only: nIrrep, VarR, VarT
 use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use Para_Info, only: nProcs
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
@@ -73,6 +74,7 @@ iReturn = 0
 Run_Mode = G_Mode
 call MkRun(iRC,0)
 call Put_iScalar('Run_Mode',Run_Mode)
+call Put_iScalar('nProcs',nProcs)
 
 ! Determine and save the fingerprint of the runfile in a field with
 ! label 'BirthCertificate' if it is empty.  This allows us to

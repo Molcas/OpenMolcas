@@ -25,7 +25,8 @@
 subroutine OpnRun(iRc,Lu,iOpt)
 
 use RunFile_data, only: Arr2RunHdr, icRd, IDRun, nHdrSz, NulPtr, RunHdr, RunName, VNRun
-use Definitions, only: iwp
+use Definitions, only: iwp, u6
+use Para_Info, only: nProcs
 
 implicit none
 integer(kind=iwp), intent(out) :: iRc, Lu
@@ -34,6 +35,7 @@ integer(kind=iwp) :: Arr(nHdrSz), iDisk
 logical(kind=iwp) :: ok
 character(len=64) :: ErrMsg
 integer(kind=iwp), external :: isFreeUnit
+integer(kind=iwp) :: nProcs_on_Disk
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -69,6 +71,14 @@ if (RunHdr%Ver /= VNrun) then
   call SysFilemsg('gxWrRun','Wrong version of RunFile',Lu,' ')
   call Abend()
 end if
+Call get_iScalar('nProcs',nProcs_on_Disk)
+If (nProcs_on_Disk/=nProcs) Then
+   Write (u6,*) 'Abend: Parallel environment has changed since runfile was created!'
+   Write (u6,*) 'nProcs_on_Disk/=nProcs'
+   Write (u6,*) 'nProcs_on_Disk=',nProcs_on_Disk
+   Write (u6,*) 'nProcs=',nProcs
+   Call Abend()
+End If
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
