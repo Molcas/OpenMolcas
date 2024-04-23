@@ -41,7 +41,7 @@ type IS_cache_item
 end type IS_cache_item
 
 type RunHdr_type
-  integer(kind=iwp) :: ID, Ver, Next, Items, DaLab, DaPtr, DaLen, DaMaxLen, DaTyp
+  integer(kind=iwp) :: ID, Ver, Next, Items, DaLab, DaPtr, DaLen, DaMaxLen, DaTyp, nProcs
 end type RunHdr_type
 
 type Toc_item
@@ -84,7 +84,7 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
                                 'BirthCertificate','LastEnergyMethod','MMO Labels      ','MCLR Root       ', & ! 17-20
                                 'Frag_Type       ','ABC             ','Un_cen Names    ','cDmp            ', & ! 21-24
                                 'dc: cDmp        ','SymmetryCInfo   ','SewardXTitle    ','Align_Weights   ', & ! 25-28
-                                'Quad_c          ','nProcs          ','                ','                ']   ! 29-32
+                                'Quad_c          ','                ','                ','                ']   ! 29-32
 
 !> List of known real array labels:
 !>
@@ -410,7 +410,8 @@ subroutine RunHdr2Arr(Arr)
   Arr(7) = RunHdr%DaLen
   Arr(8) = RunHdr%DaMaxLen
   Arr(9) = RunHdr%DaTyp
-  Arr(10:) = 0
+  Arr(10) = RunHdr%nProcs
+  Arr(11:) = 0
 
 end subroutine RunHdr2Arr
 
@@ -427,6 +428,7 @@ subroutine Arr2RunHdr(Arr)
   RunHdr%DaLen = Arr(7)
   RunHdr%DaMaxLen = Arr(8)
   RunHdr%DaTyp = Arr(9)
+  RunHdr%nProcs = Arr(10)
 
 end subroutine Arr2RunHdr
 
