@@ -57,8 +57,6 @@ call xml_close('module')
 call close_BLAS()
 #endif
 
-Write (6,*) 'Finish, rc=',rc
 call xquit(rc)
-Write (6,*) 'Finish, rc=',rc
 
 end subroutine finish
