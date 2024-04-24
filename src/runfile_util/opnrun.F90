@@ -27,6 +27,9 @@ subroutine OpnRun(iRc,Lu,iOpt)
 use RunFile_data, only: Arr2RunHdr, icRd, IDRun, nHdrSz, NulPtr, RunHdr, RunName, VNRun
 use Definitions, only: iwp, u6
 use Para_Info, only: nProcs
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: mpp_workshare
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: iRc, Lu
@@ -71,7 +74,11 @@ if (RunHdr%Ver /= VNrun) then
   call SysFilemsg('gxWrRun','Wrong version of RunFile',Lu,' ')
   call Abend()
 end if
+#ifdef _MOLCAS_MPP_
+If (mpp_workshare.and.RunHdr%nProcs/=nProcs) Then
+#else
 If (RunHdr%nProcs/=nProcs) Then
+#endif
    Write (u6,*) 'Abend: Parallel environment has changed since runfile was created!'
    Write (u6,*) 'RunHdr%nProcs/=nProcs'
    Write (u6,*) 'RunHrd%nProcs=',RunHdr%nProcs

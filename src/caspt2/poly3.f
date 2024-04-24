@@ -79,6 +79,7 @@ C-SVC20100831: allocate local G3 matrices
       CALL GETMEM('G3','ALLO','REAL',LG3,NG3MAX)
 
       CALL mma_allocate(idxG3,6,NG3MAX,label='idxG3')
+      idxG3(:,:)=0
 
       WORK(LG1)=0.0D0
       WORK(LG2)=0.0D0
