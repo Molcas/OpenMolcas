@@ -4,18 +4,19 @@
 * Symmetry: C1
 * Features tested: GENANO (Rydberg orbitals)
 * Responsible person: I. Fdez. Galván
-* Comments:
+* Comments: X_fake to test ghost atoms very close to real atoms
 *-------------------------------------------------------------------------------
 
 &GATEWAY
-  Coord = 4
+  Coord = 5
     Angstrom
-    O     -0.33840     0.00380     0.23923
-    H     -0.33510    -0.00190    -0.83277
-    H      0.67350    -0.00190     0.59353
-    X      0.25568    -0.00287    -0.18075
+    O      -0.33840     0.00380     0.23923
+    H      -0.33510    -0.00190    -0.83277
+    H       0.67350    -0.00190     0.59353
+    X       0.25568    -0.00287    -0.18075
+    X_fake -0.33840     0.0038001   0.23923
   Group = NoSym
-  Basis = ANO-rcc-MB,X.Rydberg...8s8p8d.
+  Basis = ANO-rcc-MB,X.Rydberg...8s8p8d.,X_fake.ANO-rcc-MB
   RICD
 
 &SEWARD
