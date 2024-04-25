@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iStop
 #include "print.fh"
-integer(kind=iwp) :: i, iErr, iOff, j, kIter, Lu, LuSpool, mInt, mIntEff, nGB, nHQ, nHX, nHX2, nIntCoor, nKtB, nQQ
+integer(kind=iwp) :: i, iErr, iOff, j, kIter, LuSpool, mInt, mIntEff, nGB, nHQ, nHX, nHX2, nIntCoor, nKtB, nQQ
 real(kind=wp) :: rDum(1), ThrGrd
 logical(kind=iwp) :: Do_ESPF, Error, Found, GoOn, Just_Frequencies, NewCarDone
 character :: Step_trunc
@@ -36,7 +36,6 @@ integer(kind=iwp), external :: AixRm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = u6
 Just_Frequencies = .false.
 NewCarDone = .false.
 !                                                                      *
@@ -127,7 +126,7 @@ call Reset_ThrGrd(Iter,mTtAtm,ThrGrd)
 ! Compute the norm of the Cartesian gradient.
 
 call G_Nrm(nQQ,GNrm,iter,dqInt,mIntEff)
-if (nPrint(116) >= 6) call ListU(Lu,Lbl,dqInt,nQQ,iter)
+if (nPrint(116) >= 6) call ListU(u6,Lbl,dqInt,nQQ,iter)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************

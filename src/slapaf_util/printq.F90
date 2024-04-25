@@ -18,7 +18,7 @@ integer(kind=iwp), intent(in) :: nq, nQQ, LuIC
 real(kind=wp), intent(in) :: rK(nq,nQQ), rMult(nq)
 character(len=14), intent(in) :: qLbl(nq)
 #include "print.fh"
-integer(kind=iwp) :: iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, Lu, LuTmp, mQQ
+integer(kind=iwp) :: iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, LuTmp, mQQ
 real(kind=wp) :: temp
 logical(kind=iwp) :: Start
 character(len=80) :: Line
@@ -39,34 +39,32 @@ iPrint = nPrint(iRout)
 iPrint = 99
 #endif
 
-Lu = u6
-
 if (iPrint > 5) then
-  write(Lu,*)
+  write(u6,*)
   call CollapseOutput(1,'Internal coordinate section')
 
   if (iPrint >= 6) then
-    write(Lu,*)
-    write(Lu,'(A)') repeat('*',80)
-    write(Lu,*) ' Auto-Defined Internal coordinates'
-    write(Lu,'(A)') repeat('-',80)
-    write(Lu,'(A)') '  Primitive Internal Coordinates:'
+    write(u6,*)
+    write(u6,'(A)') repeat('*',80)
+    write(u6,*) ' Auto-Defined Internal coordinates'
+    write(u6,'(A)') repeat('-',80)
+    write(u6,'(A)') '  Primitive Internal Coordinates:'
   else
-    write(Lu,*)
-    write(Lu,'(A)') '  Redundant Internal Coordinates:'
-    write(Lu,*)
+    write(u6,*)
+    write(u6,'(A)') '  Redundant Internal Coordinates:'
+    write(u6,*)
   end if
 
   rewind(LuIC)
   do
     read(LuIC,'(A)',iostat=istatus) Line
     if (istatus < 0) exit
-    write(Lu,'(A)') Line
+    write(u6,'(A)') Line
   end do
   rewind(LuIC)
   if (iPrint >= 6) then
 
-    write(Lu,'(A)') '  Internal Coordinates:'
+    write(u6,'(A)') '  Internal Coordinates:'
     do iQQ=1,nQQ
       write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
       i_F = 7
@@ -78,7 +76,7 @@ if (iPrint > 5) then
           jq = jq+1
           if (jq > 4) then
             Line(80:80) = '&'
-            write(Lu,'(A)') Line
+            write(u6,'(A)') Line
             Line = ' '
             i_F = 6
             jq = 1
@@ -94,9 +92,9 @@ if (iPrint > 5) then
           i_F = iE+1
         end if
       end do
-      write(Lu,'(A)') Line
+      write(u6,'(A)') Line
     end do
-    write(Lu,'(A)') repeat('*',80)
+    write(u6,'(A)') repeat('*',80)
     call CollapseOutput(0,'Internal coordinate section')
   end if
 end if
@@ -119,26 +117,26 @@ end do
 close(LuTmp)
 
 if ((iPrint >= 10) .and. (nQQ <= 12)) then
-  write(Lu,*)
-  write(Lu,*) ' Nonredundant internal coordinates'
+  write(u6,*)
+  write(u6,*) ' Nonredundant internal coordinates'
 end if
 if ((iPrint >= 6) .and. (nQQ <= 12)) then
-  write(Lu,*)
-  write(Lu,*) ' Number of redundant coordinates:',nq
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*) ' Number of redundant coordinates:',nq
+  write(u6,*)
 end if
 if ((iPrint >= 10) .and. (nQQ <= 12)) then
-  write(Lu,'(A,ES10.3)') ' Threshold for printout:',Thr
+  write(u6,'(A,ES10.3)') ' Threshold for printout:',Thr
   IncQQ = 8
   do iiQQ=1,nQQ,IncQQ
     mQQ = min(nQQ,iiQQ+IncQQ-1)
-    write(Lu,*)
-    write(Lu,'(14X,8I10)') (iQQ,iQQ=iiQQ,mQQ)
+    write(u6,*)
+    write(u6,'(14X,8I10)') (iQQ,iQQ=iiQQ,mQQ)
     do iq=1,nq
       temp = sqrt(DDot_(nQQ,rK(iq,1),nq,rK(iq,1),nq))
-      if (temp > Thr) write(Lu,'(A,8F10.6)') qLbl(iq),rK(iq,iiQQ:mQQ)
+      if (temp > Thr) write(u6,'(A,8F10.6)') qLbl(iq),rK(iq,iiQQ:mQQ)
     end do
-    write(Lu,*)
+    write(u6,*)
   end do
 end if
 

@@ -18,7 +18,7 @@ implicit none
 real(kind=wp), intent(in) :: Cent(3,3)
 real(kind=wp), intent(out) :: r(3), xyz(3,2)
 #include "print.fh"
-integer(kind=iwp) :: i, iComp(3), iPrint, iRout, j, k, Lu, nComp
+integer(kind=iwp) :: i, iComp(3), iPrint, iRout, j, k, nComp
 real(kind=wp) :: Co, Crap, Fi, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
 logical(kind=iwp) :: Linear, Retry
 real(kind=wp), parameter :: ThrAcos = 1.0e-6_wp
@@ -26,7 +26,6 @@ real(kind=wp), external :: ArCos, ArSin
 
 iRout = 221
 iPrint = nPrint(iRout)
-Lu = u6
 if (iPrint >= 99) call RecPrt('CoSys: Cent',' ',Cent,3,3)
 
 ! Check if linear
@@ -157,7 +156,7 @@ do while (Retry)
 
     else
       call WarningMessage(2,'Error in CoSys')
-      write(Lu,*) ' CoSys: nComp == 3'
+      write(u6,*) ' CoSys: nComp == 3'
       call Abend()
     end if
 

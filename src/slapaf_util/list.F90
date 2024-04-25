@@ -28,14 +28,12 @@ character(len=*), intent(in) :: Line
 integer(kind=iwp), intent(in) :: mInt, nIter
 character(len=8), intent(in) :: Lbl(mInt)
 real(kind=wp), intent(in) :: gq(mInt,nIter)
-integer(kind=iwp) :: i, igq, ii, inc, Lu, MxWdth, nLbl, nRow
+integer(kind=iwp) :: i, igq, ii, inc, MxWdth, nLbl, nRow
 character(len=72) :: Frmt
 
-Lu = u6
-
-write(Lu,*)
-write(Lu,*)
-write(Lu,*) Line
+write(u6,*)
+write(u6,*)
+write(u6,*) Line
 
 MxWdth = 132
 nLbl = 8+1
@@ -43,18 +41,18 @@ nRow = 10
 inc = min((MxWdth-nLbl)/nRow,nIter)
 
 do ii=1,nIter,inc
-  write(Lu,*)
+  write(u6,*)
   write(Frmt,'(A,I2,A)') '(A,1X,',inc,'(I5,5X))'
-  write(Lu,Frmt) 'Iter.   ',(i,i=ii,min(ii+inc-1,nIter))
-  write(Lu,*)
+  write(u6,Frmt) 'Iter.   ',(i,i=ii,min(ii+inc-1,nIter))
+  write(u6,*)
   write(Frmt,'(A,I2,A)') '(A,1X,',inc,'(F9.5,1X))'
   do igq=1,mInt
-    write(Lu,Frmt) Lbl(igq),(gq(igq,i),i=ii,min(ii+inc-1,nIter))
+    write(u6,Frmt) Lbl(igq),(gq(igq,i),i=ii,min(ii+inc-1,nIter))
   end do
-  write(Lu,*)
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*)
 end do
-write(Lu,*)
+write(u6,*)
 
 return
 

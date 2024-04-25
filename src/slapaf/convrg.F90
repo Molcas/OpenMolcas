@@ -26,7 +26,7 @@ logical(kind=iwp), intent(in) :: GoOn, Just_Frequencies
 character, intent(in) :: Step_Trunc
 #include "print.fh"
 #include "warnings.h"
-integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, Lu, &
+integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, &
                      LuInput, nAtom, nBackward, nConst, nForward, nIRC, nSaddle, nSaddle_Max
 real(kind=wp) :: CumLen, E, E0, E1, E2, E_Prod, E_Reac, echng, eDiffMEP, Fabs, Maxed, MaxErr, prevDist, rDum(1,1,1,1), refDist, &
                  ResGrad, RMS, RMSMax, Thr1, Thr2, Thr3, Thr4, Thr5, Val1, Val2, Val3, Val4, Val5
@@ -49,7 +49,6 @@ TSReg = btest(iOptC,13)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = u6
 nSaddle_Max = 100
 iRout = 116
 iPrint = nPrint(iRout)
@@ -272,31 +271,31 @@ if (.not. Just_Frequencies) call SlStatus(kIter-iOff_Iter,E,Fabs,E0,MaxItr-1,eCh
 
 if (Baker) then
   if (iPrint >= 5) then
-    write(Lu,'(A)') '                +----------------------------------+'
-    write(Lu,'(A)') '                +  Value      Threshold Converged? +'
-    write(Lu,'(A)') '+---------------+----------------------------------+'
-    write(Lu,4) '+ Max. gradient +',Val3,' ',Thr3,'    ',ConLbl(3),'  +'
-    write(Lu,'(A)') '+---------------+----------------------------------+'
-    write(Lu,4) '+ Max. disp.    +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
-    write(Lu,'(A)') '+---------------+----------------------------------+'
-    write(Lu,4) '+ Energy diff.  +',Val1,' ',Thr1,'    ',ConLbl(1),'  +'
-    write(Lu,'(A)') '+---------------+----------------------------------+'
+    write(u6,'(A)') '                +----------------------------------+'
+    write(u6,'(A)') '                +  Value      Threshold Converged? +'
+    write(u6,'(A)') '+---------------+----------------------------------+'
+    write(u6,4) '+ Max. gradient +',Val3,' ',Thr3,'    ',ConLbl(3),'  +'
+    write(u6,'(A)') '+---------------+----------------------------------+'
+    write(u6,4) '+ Max. disp.    +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
+    write(u6,'(A)') '+---------------+----------------------------------+'
+    write(u6,4) '+ Energy diff.  +',Val1,' ',Thr1,'    ',ConLbl(1),'  +'
+    write(u6,'(A)') '+---------------+----------------------------------+'
   end if
 else
   if (iPrint >= 5) then
-    write(Lu,'(A)') '       +----------------------------------+----------------------------------+'
-    write(Lu,'(A)') '       +    Cartesian Displacements       +    Gradient in internals         +'
-    write(Lu,'(A)') '       +  Value      Threshold Converged? +  Value      Threshold Converged? +'
-    write(Lu,'(A)') ' +-----+----------------------------------+----------------------------------+'
-    write(Lu,5) ' + RMS +',Val1,' ',Thr1,'    ',ConLbl(1),'  +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
-    write(Lu,'(A)') ' +-----+----------------------------------+----------------------------------+'
-    write(Lu,5) ' + Max +',Val3,' ',Thr3,'    ',ConLbl(3),'  +',Val4,' ',Thr4,'    ',ConLbl(4),'  +'
-    write(Lu,'(A)') ' +-----+----------------------------------+----------------------------------+'
+    write(u6,'(A)') '       +----------------------------------+----------------------------------+'
+    write(u6,'(A)') '       +    Cartesian Displacements       +    Gradient in internals         +'
+    write(u6,'(A)') '       +  Value      Threshold Converged? +  Value      Threshold Converged? +'
+    write(u6,'(A)') ' +-----+----------------------------------+----------------------------------+'
+    write(u6,5) ' + RMS +',Val1,' ',Thr1,'    ',ConLbl(1),'  +',Val2,' ',Thr2,'    ',ConLbl(2),'  +'
+    write(u6,'(A)') ' +-----+----------------------------------+----------------------------------+'
+    write(u6,5) ' + Max +',Val3,' ',Thr3,'    ',ConLbl(3),'  +',Val4,' ',Thr4,'    ',ConLbl(4),'  +'
+    write(u6,'(A)') ' +-----+----------------------------------+----------------------------------+'
     if (ThrEne > Zero) then
-      write(Lu,5) ' + dE  +',Val5,' ',Thr5,'    ',ConLbl(5),'  +'
-      write(Lu,'(A)') ' +-----+----------------------------------+'
+      write(u6,5) ' + dE  +',Val5,' ',Thr5,'    ',ConLbl(5),'  +'
+      write(u6,'(A)') ' +-----+----------------------------------+'
     end if
-    write(Lu,*)
+    write(u6,*)
   end if
 end if
 
@@ -307,8 +306,8 @@ if (SlStop .and. Conv1) then
     iStop = 1
     Conv1 = .false.
     SlStop = .false.
-    write(Lu,'(A,ES11.4)') 'Maximum constraint error: ',MaxErr
-    write(Lu,*)
+    write(u6,'(A,ES11.4)') 'Maximum constraint error: ',MaxErr
+    write(u6,*)
   end if
 end if
 
@@ -333,28 +332,28 @@ if (nLambda > nConst) Point_Desc = 'Constrained '//trim(Point_Desc)
 if (iPrint >= 5) then
   if (SlStop) then
     if (Conv1) then
-      write(Lu,'(A,I3,A)') ' Geometry is converged in ',kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
+      write(u6,'(A,I3,A)') ' Geometry is converged in ',kIter-iOff_iter,' iterations to a '//trim(Point_Desc)
     else
-      write(Lu,'(A)') ' No convergence after max iterations'
-      if (Lu /= u6) write(u6,'(/A)') ' No convergence after max iterations'
+      write(u6,'(A)') ' No convergence after max iterations'
+      if (u6 /= u6) write(u6,'(/A)') ' No convergence after max iterations'
     end if
   else
-    write(Lu,'(A)') ' Convergence not reached yet!'
+    write(u6,'(A)') ' Convergence not reached yet!'
   end if
 end if
 if (FindTS .and. SlStop .and. Conv1) then
   if (.not. TSReg) then
     if (iPrint >= 5) then
-      write(Lu,*)
-      write(Lu,'(A)') ' FindTS was requested, but the TS regime was not reached.'
-      write(Lu,'(A)') ' The converged structure is probably not the desired TS.'
+      write(u6,*)
+      write(u6,'(A)') ' FindTS was requested, but the TS regime was not reached.'
+      write(u6,'(A)') ' The converged structure is probably not the desired TS.'
     end if
     iStop = 16
   end if
 end if
 !if (iPrint == 7) then
-!  write(Lu,*)
-!  write(Lu,'(A)') '********************************* Geometry Statistics for Geometry Optimization '// &
+!  write(u6,*)
+!  write(u6,'(A)') '********************************* Geometry Statistics for Geometry Optimization '// &
 !                  '*********************************'
 !  nPrint(118) = 7
 !  call List(' Internal coordinates ',Lbl,qInt,nInter,iter+1)
@@ -371,10 +370,10 @@ if (abs(E_Delta) > Maxed) then
   SlStop = .true.
 end if
 if (iPrint >= 5) then
-  write(Lu,*)
-  write(Lu,'(A)') '********************************************************'// &
+  write(u6,*)
+  write(u6,'(A)') '********************************************************'// &
                   '*********************************************************'
-  write(Lu,'(A)') '********************************************************'// &
+  write(u6,'(A)') '********************************************************'// &
                   '*********************************************************'
 end if
 !                                                                      *
@@ -389,7 +388,7 @@ IRCRestart = .false.
 
 if (Conv1 .and. NADC .and. EDiffZero) then
   if (iPrint >= 5) then
-    if (.not. ApproxNADC) call CI_Summary(Lu)
+    if (.not. ApproxNADC) call CI_Summary(u6)
   end if
 end if
 !                                                                      *

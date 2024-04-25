@@ -32,7 +32,7 @@ logical(kind=iwp), intent(inout) :: Error
 #include "print.fh"
 #include "warnings.h"
 logical(kind=iwp) :: BSet_Save, Converged, HSet_Save, lOld_Save
-integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, jter, Lu, M, N, nQQ, nWndw
+integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, jter, M, N, nQQ, nWndw
 real(kind=wp) :: denom, dx2, dx_RMS, rMax
 real(kind=wp), allocatable :: DFC(:,:), dss(:), rInt(:)
 integer(kind=iwp), parameter :: NRHS = 1
@@ -63,24 +63,23 @@ rInt(:) = rInt(:)+dss(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = u6
 iRout = 33
 iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
 iPrint = 99
 #endif
 if (iPrint >= 11) then
-  write(Lu,*)
-  write(Lu,*) ' *** Transforming internal coordinates to Cartesian ***'
-  write(Lu,*)
-  write(Lu,*) ' Iter  Internal  Error'
+  write(u6,*)
+  write(u6,*) ' *** Transforming internal coordinates to Cartesian ***'
+  write(u6,*)
+  write(u6,*) ' Iter  Internal  Error'
 end if
 
 if (iPrint >= 99) then
-  write(Lu,*)
-  write(Lu,*) ' In NewCar: Shifts'
-  write(Lu,*)
-  write(Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
+  write(u6,*)
+  write(u6,*) ' In NewCar: Shifts'
+  write(u6,*)
+  write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
   call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,Iter+1)
 end if
 
@@ -98,17 +97,17 @@ do i=1,nQQ
 end do
 if (iPrint >= 11) then
   if (iMax /= 0) then
-    write(Lu,300) jter,Lbl(iMax),rMax
+    write(u6,300) jter,Lbl(iMax),rMax
   else
-    write(Lu,300) jter,'N/A     ',rMax
+    write(u6,300) jter,'N/A     ',rMax
   end if
 end if
 
 if (iPrint >= 19) then
-  write(Lu,*)
-  write(Lu,*) ' Internal coordinates of the next macro iteration'
-  write(Lu,*)
-  write(Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),rInt(iInter),iInter=1,nQQ)
+  write(u6,*)
+  write(u6,*) ' Internal coordinates of the next macro iteration'
+  write(u6,*)
+  write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),rInt(iInter),iInter=1,nQQ)
 end if
 !                                                                      *
 !***********************************************************************
@@ -191,10 +190,10 @@ do jter=1,iterMx
   end if
 
   if (iPrint >= 99) then
-    write(Lu,*)
-    write(Lu,*) ' Displacement of internal coordinates'
-    write(Lu,*)
-    write(Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
+    write(u6,*)
+    write(u6,*) ' Displacement of internal coordinates'
+    write(u6,*)
+    write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
   end if
 
 end do
@@ -210,15 +209,15 @@ if (.not. Converged) then
   if (.not. User_Def) call RecPrt('NewCar: qInt','(10F15.10)',qInt(:,Iter+1),nQQ,1)
   if (.not. Error) then
     call WarningMessage(2,'Error in NewCar')
-    write(Lu,*)
-    write(Lu,*) '***********************************************'
-    write(Lu,*) ' ERROR: No convergence in NewCar !             '
-    write(Lu,*) ' Strong linear dependency among Coordinates.   '
-    write(Lu,*) ' Hint: Try to change the Internal Coordinates. '
-    write(Lu,*) '***********************************************'
+    write(u6,*)
+    write(u6,*) '***********************************************'
+    write(u6,*) ' ERROR: No convergence in NewCar !             '
+    write(u6,*) ' Strong linear dependency among Coordinates.   '
+    write(u6,*) ' Hint: Try to change the Internal Coordinates. '
+    write(u6,*) '***********************************************'
     if (.not. User_Def) call RecPrt('NewCar: rInt  ','(10F15.10)',rInt,nQQ,1)
     if (.not. User_Def) call RecPrt('NewCar: qInt','(10F15.10)',qInt(:,Iter+1),nQQ,1)
-    write(Lu,*)
+    write(u6,*)
     call Quit(_RC_NOT_CONVERGED_)
   end if
 end if
@@ -227,9 +226,9 @@ end if
 !                                                                      *
 
 if (iPrint >= 6) then
-  write(Lu,*)
-  write(Lu,'(A,i2,A)') ' New Cartesian coordinates were found in',jter,' Newton-Raphson iterations.'
-  write(Lu,*)
+  write(u6,*)
+  write(u6,'(A,i2,A)') ' New Cartesian coordinates were found in',jter,' Newton-Raphson iterations.'
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************

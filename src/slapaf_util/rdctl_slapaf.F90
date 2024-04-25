@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 logical(kind=iwp), intent(in) :: Dummy_Call
 #include "print.fh"
-integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, j, jStrt, kPrint, Lu, Lu_UDC, &
+integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, j, jStrt, kPrint, Lu_UDC, &
                      Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy
 real(kind=wp) :: HSR, HSR0, Update, Valu, xWeight
 logical(kind=iwp) :: Expert, Explicit_IRC, External_UDC, FirstNum, Found, Manual_Beta, ThrInp
@@ -44,7 +44,6 @@ character(len=180), external :: Get_Ln
 !                                                                      *
 iRout = 2
 Expert = .false.
-Lu = u6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -85,8 +84,8 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
   do
     Chr = Get_Ln(LuRd)
     call UpCase(Chr)
-    !write(Lu,'(A)') Chr
-    !write(Lu,*) iOptC
+    !write(u6,'(A)') Chr
+    !write(u6,*) iOptC
     if (Chr == '') cycle
     if (Chr(1:1) == '*') cycle
     select case (Chr(1:4))
@@ -226,24 +225,24 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         ! (after fixing and merging, if necessary) by DefInt2/Cllct2.
 
         if (.not. Expert) then
-          write(Lu,*)
-          write(Lu,*) ' ************ ERROR ***************'
-          write(Lu,*) ' Obsolete input standard!'
-          write(Lu,*) ' The CONSTRAINT section should'
-          write(Lu,*) ' be define in the &Gateway input.'
-          write(Lu,*)
-          write(Lu,*) ' To override add the EXPERT keyword'
-          write(Lu,*) ' to the top of the SLAPAF input.'
-          write(Lu,*) ' **********************************'
+          write(u6,*)
+          write(u6,*) ' ************ ERROR ***************'
+          write(u6,*) ' Obsolete input standard!'
+          write(u6,*) ' The CONSTRAINT section should'
+          write(u6,*) ' be define in the &Gateway input.'
+          write(u6,*)
+          write(u6,*) ' To override add the EXPERT keyword'
+          write(u6,*) ' to the top of the SLAPAF input.'
+          write(u6,*) ' **********************************'
           call Quit_OnUserError()
         end if
         if (External_UDC) then
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '****************** ERROR *********************'
-          write(Lu,*) 'Multiple definitions of constraints.'
-          write(Lu,*) 'Check Gateway and Slapaf inputs for conflicts!'
-          write(Lu,*) '**********************************************'
+          write(u6,*)
+          write(u6,*) '****************** ERROR *********************'
+          write(u6,*) 'Multiple definitions of constraints.'
+          write(u6,*) 'Check Gateway and Slapaf inputs for conflicts!'
+          write(u6,*) '**********************************************'
           call Quit_OnUserError()
         end if
         Lu_UDC = 20
@@ -267,11 +266,11 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
 
         if (iRow > 0) then
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '*********** ERROR ***************'
-          write(Lu,*) 'CtoF and User-defined Coordinates'
-          write(Lu,*) 'are mutually exclusive.          '
-          write(Lu,*) '*********************************'
+          write(u6,*)
+          write(u6,*) '*********** ERROR ***************'
+          write(u6,*) 'CtoF and User-defined Coordinates'
+          write(u6,*) 'are mutually exclusive.          '
+          write(u6,*) '*********************************'
           call Quit_OnUserError()
         end if
         iNull = 0
@@ -343,7 +342,7 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         !                                                              *
         ! Put the program name and the time stamp onto the extract file
 
-        write(Lu,*) 'RdCtl_Slapaf: EXTRACT option is redundant and is ignored!'
+        write(u6,*) 'RdCtl_Slapaf: EXTRACT option is redundant and is ignored!'
 
       case ('FALC')
         !                                                              *
@@ -391,10 +390,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         call Read_v(LuRd,GradRef,1,3*nsAtom,1,iErr)
         if (iErr /= 0) then
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '*************** ERROR ******************'
-          write(Lu,*) 'Error reading reference gradient vector.'
-          write(Lu,*) '****************************************'
+          write(u6,*)
+          write(u6,*) '*************** ERROR ******************'
+          write(u6,*) 'Error reading reference gradient vector.'
+          write(u6,*) '****************************************'
           call Quit_OnUserError()
         end if
 
@@ -433,10 +432,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
             iOptH = ibset(0,6)
           case default
             call WarningMessage(2,'Error in RdCtl_Slapaf')
-            write(Lu,*)
-            write(Lu,*) '************ ERROR ****************'
-            write(Lu,*) 'Unsupported Hessian update method: ',trim(Chr)
-            write(Lu,*) '***********************************'
+            write(u6,*)
+            write(u6,*) '************ ERROR ****************'
+            write(u6,*) 'Unsupported Hessian update method: ',trim(Chr)
+            write(u6,*) '***********************************'
             call Quit_OnUserError()
         end select
 
@@ -592,10 +591,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           MEP_Algo = 'MB'
         else
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '************* ERROR ************'
-          write(Lu,*) ' Unrecognized MEP/IRC algorithm.'
-          write(Lu,*) '********************************'
+          write(u6,*)
+          write(u6,*) '************* ERROR ************'
+          write(u6,*) ' Unrecognized MEP/IRC algorithm.'
+          write(u6,*) '********************************'
           call Quit_OnUserError()
         end if
 
@@ -632,10 +631,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           MEP_Type = 'TRANSVERSE'
         else
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '********** ERROR **********'
-          write(Lu,*) ' Unrecognized MEP/IRC type.'
-          write(Lu,*) '***************************'
+          write(u6,*)
+          write(u6,*) '********** ERROR **********'
+          write(u6,*) ' Unrecognized MEP/IRC type.'
+          write(u6,*) '***************************'
           call Quit_OnUserError()
         end if
 
@@ -796,10 +795,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         call Read_v(LuRd,TmpRx,1,3*nsAtom,1,iErr)
         if (IErr /= 0) then
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '********** ERROR ***********************'
-          write(Lu,*) ' Error while reading the Reaction vector'
-          write(Lu,*) '****************************************'
+          write(u6,*)
+          write(u6,*) '********** ERROR ***********************'
+          write(u6,*) ' Error while reading the Reaction vector'
+          write(u6,*) '****************************************'
           call Quit_OnUserError()
         end if
 
@@ -811,10 +810,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         call Read_v(LuRd,RefGeo,1,3*nsAtom,1,iErr)
         if (iErr /= 0) then
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '************ ERROR ***************'
-          write(Lu,*) 'Error reading reference structure.'
-          write(Lu,*) '**********************************'
+          write(u6,*)
+          write(u6,*) '************ ERROR ***************'
+          write(u6,*) 'Error reading reference structure.'
+          write(u6,*) '**********************************'
           call Quit_OnUserError()
         end if
 
@@ -827,10 +826,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
         call Get_F1(1,rHidden)
         if (rHidden < Zero) then
           call WarningMessage(2,'Error in RdCtl_Slapaf')
-          write(Lu,*)
-          write(Lu,*) '************ ERROR *****************'
-          write(Lu,*) 'Error reading rHidden. Should be >0.'
-          write(Lu,*) '************************************'
+          write(u6,*)
+          write(u6,*) '************ ERROR *****************'
+          write(u6,*) 'Error reading rHidden. Should be >0.'
+          write(u6,*) '************************************'
           call Quit_OnUserError()
         end if
         if (index(Key,'ANGSTROM') /= 0) rHidden = rHidden/Angstrom
@@ -877,10 +876,10 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
           read(LuRd,*,iostat=istatus) nSup(i),(Atom(j),j=jStrt,jStrt+nSup(i)-1)
           if (istatus > 0) then
             call WarningMessage(2,'Error in RdCtl_Slapaf')
-            write(Lu,*)
-            write(Lu,*) '************ ERROR ****************'
-            write(Lu,*) 'Error while reading supersymmetry.'
-            write(Lu,*) '***********************************'
+            write(u6,*)
+            write(u6,*) '************ ERROR ****************'
+            write(u6,*) 'Error while reading supersymmetry.'
+            write(u6,*) '***********************************'
             call Quit_OnUserError()
           end if
           jStrt = jStrt+nSup(i)
@@ -1004,15 +1003,15 @@ if ((SuperName == 'slapaf') .and. (.not. Dummy_Call)) then
       case default
         call WarningMessage(2,'Error in RdCtl_Slapaf')
         if (Chr(1:1) == ' ') then
-          write(Lu,*) ' RdCtl_Slapaf: Command line starts with a blank.'
+          write(u6,*) ' RdCtl_Slapaf: Command line starts with a blank.'
         else
-          write(Lu,*)
-          write(Lu,*) ' *********** ERROR ***********'
-          write(Lu,*) ' The program has been supplied'
-          write(Lu,*) ' with an unknown command.     '
-          write(Lu,*) ' *****************************'
+          write(u6,*)
+          write(u6,*) ' *********** ERROR ***********'
+          write(u6,*) ' The program has been supplied'
+          write(u6,*) ' with an unknown command.     '
+          write(u6,*) ' *****************************'
         end if
-        write(Lu,'(A)') Chr
+        write(u6,'(A)') Chr
         call Quit_OnUserError()
 
     end select
@@ -1069,15 +1068,15 @@ if (MEP .or. rMEP .or. (abs(IRC) == 1)) then
   end if
   if (MEPCons .and. (.not. Expert)) then
     call WarningMessage(2,'Error in RdCtl_Slapaf')
-    write(Lu,*)
-    write(Lu,*) '***************** ERROR ********************'
-    write(Lu,*) ' There is a '//trim(Mep_Type)//' constraint that may'
-    write(Lu,*) ' conflict with '//MEPLab//' calculations.'
-    write(Lu,*) ' You should not explictly specify this constraint,'
-    write(Lu,*) ' but just rely on '//MEPLab//'Step/'//MEPLab//'Type keywords.'
-    write(Lu,*) ' If you really know what you are doing, you'
-    write(Lu,*) ' can use the EXPERT keyword.'
-    write(Lu,*) '********************************************'
+    write(u6,*)
+    write(u6,*) '***************** ERROR ********************'
+    write(u6,*) ' There is a '//trim(Mep_Type)//' constraint that may'
+    write(u6,*) ' conflict with '//MEPLab//' calculations.'
+    write(u6,*) ' You should not explictly specify this constraint,'
+    write(u6,*) ' but just rely on '//MEPLab//'Step/'//MEPLab//'Type keywords.'
+    write(u6,*) ' If you really know what you are doing, you'
+    write(u6,*) ' can use the EXPERT keyword.'
+    write(u6,*) '********************************************'
     call Quit_OnUserError()
   end if
   WeightedConstraints = .true.
@@ -1355,19 +1354,19 @@ if (.not. User_Def) nBVec = 1
 !                                                                      *
 if (lNmHss .and. allocated(mRowH)) then
   call WarningMessage(2,'Error in RdCtl_Slapaf')
-  write(Lu,*)
-  write(Lu,*) '**************************************************'
-  write(Lu,*) ' ERROR: NUMErical and ROWH are mutually exclusive '
-  write(Lu,*) '**************************************************'
+  write(u6,*)
+  write(u6,*) '**************************************************'
+  write(u6,*) ' ERROR: NUMErical and ROWH are mutually exclusive '
+  write(u6,*) '**************************************************'
   call Quit_OnUserError()
 end if
 if (lCtoF .and. User_Def) then
   call WarningMessage(2,'Error in RdCtl_Slapaf')
-  write(Lu,*)
-  write(Lu,*) '******************************************'
-  write(Lu,*) ' ERROR: CtoF and User-defined Coordinates '
-  write(Lu,*) '        are mutually exclusive.           '
-  write(Lu,*) '******************************************'
+  write(u6,*)
+  write(u6,*) '******************************************'
+  write(u6,*) ' ERROR: CtoF and User-defined Coordinates '
+  write(u6,*) '        are mutually exclusive.           '
+  write(u6,*) '******************************************'
   call Quit_OnUserError()
 end if
 !                                                                      *

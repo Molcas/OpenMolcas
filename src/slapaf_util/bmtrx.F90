@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, nIter, mTtAtm, nWndw
 real(kind=wp), intent(in) :: Coor(3,nsAtom)
-integer(kind=iwp) :: i, iAtom, ix, ixyz, Lu, mTR, mTtAtm_, nBonds, nHidden, nMax, nQQ
+integer(kind=iwp) :: i, iAtom, ix, ixyz, mTR, mTtAtm_, nBonds, nHidden, nMax, nQQ
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iInter
 #endif
@@ -36,7 +36,6 @@ real(kind=wp), allocatable :: Coor2(:,:), EVal(:), Hss_X(:), Scr2(:), TR(:), TRN
 !                                                                      *
 nQQ = 0
 
-Lu = u6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -274,13 +273,13 @@ write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
 
 if (nLambda > nQQ) then
   call WarningMessage(2,'Error in RlxCtl')
-  write(Lu,*)
-  write(Lu,*) '********************************************'
-  write(Lu,*) ' ERROR: nLambda > nQQ'
-  write(Lu,*) ' nLambda=',nLambda
-  write(Lu,*) ' nQQ=',nQQ
-  write(Lu,*) ' There are more constraints than coordinates'
-  write(Lu,*) '********************************************'
+  write(u6,*)
+  write(u6,*) '********************************************'
+  write(u6,*) ' ERROR: nLambda > nQQ'
+  write(u6,*) ' nLambda=',nLambda
+  write(u6,*) ' nQQ=',nQQ
+  write(u6,*) ' There are more constraints than coordinates'
+  write(u6,*) '********************************************'
   call Quit_OnUserError()
 end if
 !                                                                      *

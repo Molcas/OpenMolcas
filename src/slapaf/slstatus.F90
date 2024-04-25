@@ -32,7 +32,7 @@ character(len=8), intent(in) :: HUpMet
 character, intent(in) :: Step_Trunc
 logical(kind=iwp), intent(in) :: Print_Status
 #include "print.fh"
-integer(kind=iwp) :: i, iPrint, iRout, iter, ivv, Lu, Lu_file, Lu_out, nvv
+integer(kind=iwp) :: i, iPrint, iRout, iter, ivv, Lu_file, Lu_out, nvv
 character(len=8) :: lNeg
 character(len=128), allocatable :: Lines(:)
 integer(kind=iwp), external :: isfreeunit
@@ -40,7 +40,6 @@ integer(kind=iwp), external :: isfreeunit
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Lu = u6
 iRout = 52
 iPrint = nPrint(iRout)
 
@@ -63,7 +62,7 @@ end if
 
 if (iter > nLines) then
   call WarningMessage(2,'Status: iter > nLines')
-  write(Lu,*) 'iter,nLines=',iter,nLines
+  write(u6,*) 'iter,nLines=',iter,nLines
   call abend()
 else if (iter < 1) then
   call WarningMessage(2,'Status: iter < 1')
@@ -92,7 +91,7 @@ nvv = 1
 if (Print_Status) nvv = 2
 do ivv=1,nvv
   if (ivv == 1) then
-    Lu_out = Lu
+    Lu_out = u6
   else
     call Molcas_Open(Lu_File,'STRUCTURE')
     Lu_out = Lu_file

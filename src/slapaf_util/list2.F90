@@ -29,7 +29,7 @@ integer(kind=iwp), intent(in) :: nAtom, nInter
 character(len=*), intent(in) :: Title, Lbl(nAtom)
 real(kind=wp), intent(in) :: gq(3*nAtom,nInter)
 logical(kind=iwp), intent(in) :: Smmtrc(3*nAtom)
-integer(kind=iwp) :: i, iE, i_F, igq, ii, inc, iq, iQQ, jq, Lu, LuTmp, mInt, MxWdth, nLbl, nRow
+integer(kind=iwp) :: i, iE, i_F, igq, ii, inc, iq, iQQ, jq, LuTmp, mInt, MxWdth, nLbl, nRow
 real(kind=wp) :: temp
 logical(kind=iwp) :: Start
 character(len=80) :: Line
@@ -39,37 +39,35 @@ character(len=14) :: qLbl_tmp
 character(len=4), allocatable :: qLbl(:)
 real(kind=wp), parameter :: Thr = 0.001_wp ! Threshold for printout.
 
-Lu = u6
-
 mInt = 3*nAtom
 call mma_allocate(qLbl,mInt,Label='qLbl')
 
-write(Lu,*)
+write(u6,*)
 call CollapseOutput(1,'Internal coordinates')
-write(Lu,*)
-write(Lu,*) ' Specification of the internal coordinates according to the user-defined internal'
-write(Lu,*) ' coordinate format.'
-write(Lu,*)
-write(Lu,'(A)') 'Internal Coordinates'
+write(u6,*)
+write(u6,*) ' Specification of the internal coordinates according to the user-defined internal'
+write(u6,*) ' coordinate format.'
+write(u6,*)
+write(u6,'(A)') 'Internal Coordinates'
 iq = 0
 do igq=1,mInt,3
   if (Smmtrc(igq)) then
     iq = iq+1
     write(qLbl(igq),'(A,I3.3)') 'c',iq
-    write(Lu,'(3A)') qLbl(igq),' = Cartesian x ',Lbl((igq+2)/3)
+    write(u6,'(3A)') qLbl(igq),' = Cartesian x ',Lbl((igq+2)/3)
   end if
   if (Smmtrc(igq+1)) then
     iq = iq+1
     write(qLbl(igq+1),'(A,I3.3)') 'c',iq
-    write(Lu,'(3A)') qLbl(igq+1),' = Cartesian y ',Lbl((igq+2)/3)
+    write(u6,'(3A)') qLbl(igq+1),' = Cartesian y ',Lbl((igq+2)/3)
   end if
   if (Smmtrc(igq+2)) then
     iq = iq+1
     write(qLbl(igq+2),'(A,I3.3)') 'c',iq
-    write(Lu,'(3A)') qLbl(igq+2),' = Cartesian z ',Lbl((igq+2)/3)
+    write(u6,'(3A)') qLbl(igq+2),' = Cartesian z ',Lbl((igq+2)/3)
   end if
 end do
-write(Lu,'(A)') 'Vary'
+write(u6,'(A)') 'Vary'
 do iQQ=1,nInter
   write(Line,'(A,I3.3,A)') 'q',iQQ,' ='
   i_F = 7
@@ -81,7 +79,7 @@ do iQQ=1,nInter
       jq = jq+1
       if (jq > 4) then
         Line(80:80) = '&'
-        write(Lu,'(A)') Line
+        write(u6,'(A)') Line
         Line = ' '
         i_F = 6
         jq = 1
@@ -97,9 +95,9 @@ do iQQ=1,nInter
       i_F = iE+1
     end if
   end do
-  write(Lu,'(A)') Line
+  write(u6,'(A)') Line
 end do
-write(Lu,'(A)') 'End Of Internal Coordinates'
+write(u6,'(A)') 'End Of Internal Coordinates'
 call CollapseOutput(0,'Internal coordinates')
 
 ! Write linear combinations to disc
@@ -119,7 +117,7 @@ call mma_deallocate(qLbl)
 
 close(LuTmp)
 
-write(Lu,*)
+write(u6,*)
 call CollapseOutput(1,Title)
 
 MxWdth = 132
@@ -128,17 +126,17 @@ nRow = 9
 inc = min((MxWdth-nLbl)/nRow,nInter)
 
 do ii=1,nInter,inc
-  write(Lu,*)
+  write(u6,*)
   write(Frmt,'(A,I2,A)') '(A,1X,',inc,'(I5,4X))'
-  write(Lu,Frmt) 'Internal',(i,i=ii,min(ii+inc-1,nInter))
-  write(Lu,*)
+  write(u6,Frmt) 'Internal',(i,i=ii,min(ii+inc-1,nInter))
+  write(u6,*)
   write(Frmt,'(A,I2,A)') '(A4,A4,1X,',inc,'(F8.5,1X))'
   do igq=1,mInt,3
-    write(Lu,Frmt) Lbl((igq+2)/3),' x  ',(gq(igq,i),i=ii,min(ii+inc-1,nInter))
-    write(Lu,Frmt) Lbl((igq+2)/3),' y  ',(gq(igq+1,i),i=ii,min(ii+inc-1,nInter))
-    write(Lu,Frmt) Lbl((igq+2)/3),' z  ',(gq(igq+2,i),i=ii,min(ii+inc-1,nInter))
+    write(u6,Frmt) Lbl((igq+2)/3),' x  ',(gq(igq,i),i=ii,min(ii+inc-1,nInter))
+    write(u6,Frmt) Lbl((igq+2)/3),' y  ',(gq(igq+1,i),i=ii,min(ii+inc-1,nInter))
+    write(u6,Frmt) Lbl((igq+2)/3),' z  ',(gq(igq+2,i),i=ii,min(ii+inc-1,nInter))
   end do
-  write(Lu,*)
+  write(u6,*)
 end do
 call CollapseOutput(0,Title)
 

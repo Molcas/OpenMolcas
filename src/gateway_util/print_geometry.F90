@@ -128,15 +128,11 @@ if (S%mCentr > 2) then
   if (iPrint >= 5) then
     ! Compute valence bond angles
 
-    if ((S%mCentr >= 3) .and. (iOpt /= 1)) then
-      call Angles(lblxxx,Centr,nc,rtrnc,S%Max_Center)
-    end if
+    if ((S%mCentr >= 3) .and. (iOpt /= 1)) call Angles(lblxxx,Centr,nc,rtrnc,S%Max_Center)
 
     ! Compute dihedral angles
 
-    if (S%mCentr >= 4) then
-      call Dihedr(lblxxx,Centr,nc,rtrnc,S%Max_Center)
-    end if
+    if (S%mCentr >= 4) call Dihedr(lblxxx,Centr,nc,rtrnc,S%Max_Center)
   end if
 end if
 !                                                                      *

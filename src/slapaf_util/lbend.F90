@@ -21,7 +21,7 @@ real(kind=wp), intent(out) :: Fir, Bf(3,nCent), dBf(3,nCent,3,nCent)
 logical(kind=iwp), intent(in) :: lWrite, ldB, Force
 character(len=8), intent(in) :: Label
 #include "print.fh"
-integer(kind=iwp) :: i, iPrint, iRout, j, Lu, mCent, Middle
+integer(kind=iwp) :: i, iPrint, iRout, j, mCent, Middle
 real(kind=wp) :: Bfi1, Bfi3, Bfj1, Bfj3, BRij(3,2), BRjk(3,2), Co, Crap, dBRij(3,2,3,2), dBRjk(3,2,3,2), dFir, R1, R2, R3, Rij1, &
                  Rjk1, Scr1(3,3), Scr2(3,3), Si, uMtrx(3,3), uVec(3,3), xxx(3,3)
 logical(kind=iwp) :: Linear
@@ -29,8 +29,6 @@ real(kind=wp), external :: ArCos, ArSin
 
 iRout = 220
 iPrint = nPrint(iRout)
-
-Lu = u6
 
 if (iPrint >= 99) then
   write(u6,*) 'LBend: Force ',Force
@@ -115,14 +113,14 @@ end if
 
 !if (abs(Fir-Pi) > 1.0e-13_wp) then
 if (abs(Si) > 1.0e-13_wp) then
-  if (iPrint >= 99) write(Lu,*) ' LBend: Use nonlinear formulae'
+  if (iPrint >= 99) write(u6,*) ' LBend: Use nonlinear formulae'
   Linear = .false.
 else
-  if (iPrint >= 99) write(Lu,*) ' LBend: Use linear formulae'
+  if (iPrint >= 99) write(u6,*) ' LBend: Use linear formulae'
 end if
 
 dFir = Fir/deg2rad
-if (lWrite) write(Lu,'(1X,A,A,F10.6,A,F12.8,A)') Label,' : Projected Angle=',dFir,'/degree, ',Fir,'/rad'
+if (lWrite) write(u6,'(1X,A,A,F10.6,A,F12.8,A)') Label,' : Projected Angle=',dFir,'/degree, ',Fir,'/rad'
 
 uMtrx(:,:) = Zero
 if (Linear) then

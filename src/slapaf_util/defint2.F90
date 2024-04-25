@@ -37,7 +37,7 @@ logical(kind=iwp), intent(inout) :: lWrite
 real(kind=wp), intent(inout) :: Value0(nBVct)
 integer(kind=iwp), intent(out) :: iFlip(nBVct)
 #include "print.fh"
-integer(kind=iwp) :: i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu, Lu_UDC, &
+integer(kind=iwp) :: i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu_UDC, &
                      mCntr, msAtom, n0, nCntr, neq, nGo, nGo2, nMinus, nPlus, nrInt0, nTemp
 real(kind=wp) :: Fact, MaxErr, Sgn, Tmp
 logical(kind=iwp) :: Found, InSlapaf, rInt0_in_memory, rInt0_on_file, Skip, Start
@@ -51,7 +51,6 @@ character(len=8), allocatable :: Labels(:)
 integer(kind=iwp), parameter :: Flip = 1, NoFlip = 0
 
 call mma_allocate(Labels,nBVct,Label='Labels')
-Lu = u6
 
 ! Initiate some stuff for automatic setting of
 ! the constraints to be those that the structure
@@ -80,21 +79,21 @@ rewind(Lu_UDC)
 rMult(:,:) = Zero
 if (iPrint >= 99) lWrite = .true.
 if ((iPrint >= 99) .or. lWrite) then
-  write(Lu,*)
+  write(u6,*)
   call CollapseOutput(1,'Constraints section')
-  write(Lu,'(34X,A)') 'CONSTRAINTS'
-  write(Lu,*)
-  write(Lu,'(A)') repeat('*',80)
+  write(u6,'(34X,A)') 'CONSTRAINTS'
+  write(u6,*)
+  write(u6,'(A)') repeat('*',80)
   do iLines=1,nLines
     read(Lu_UDC,'(A)') Line
-    write(Lu,'(A)') trim(Line)
+    write(u6,'(A)') trim(Line)
   end do
-  write(Lu,'(A)') repeat('*',80)
-  write(Lu,*)
-  write(Lu,*)
-  write(Lu,*) '*************************************************************'
-  write(Lu,*) '* Values of the primitive constraints                       *'
-  write(Lu,*) '*************************************************************'
+  write(u6,'(A)') repeat('*',80)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '*************************************************************'
+  write(u6,*) '* Values of the primitive constraints                       *'
+  write(u6,*) '*************************************************************'
   rewind(Lu_UDC)
 end if
 !                                                                      *
@@ -124,8 +123,8 @@ do iLines=1,nLines
   neq = index(Line,'=')
   if (neq == 0) then
     call WarningMessage(2,'Error in DefInt2')
-    write(Lu,'(A)') ' Syntax error in line:'
-    write(Lu,'(A)') Line
+    write(u6,'(A)') ' Syntax error in line:'
+    write(u6,'(A)') Line
     call Quit_OnUserError()
   else
     iFrst = 1
@@ -134,7 +133,7 @@ do iLines=1,nLines
     if (Line(iEnd:iEnd) == '=') jEnd = jEnd-1
     if (jEnd-iFrst+1 > 8) then
       call WarningMessage(2,'Error in DefInt2')
-      write(Lu,'(A,A)') Line(iFrst:jEnd),' has more than 8 character, syntax error!'
+      write(u6,'(A,A)') Line(iFrst:jEnd),' has more than 8 character, syntax error!'
       call Quit_OnUserError()
     end if
     call ChkLbl(Line(iFrst:jEnd),Labels,iBVct-1)
@@ -169,8 +168,8 @@ do iLines=1,nLines
     else
       nGo = -1
       call WarningMessage(2,'Error in DefInt2')
-      write(Lu,*) 'DefInt2: wrong cartesian type'
-      write(Lu,'(A,A)') 'Temp=',Temp
+      write(u6,*) 'DefInt2: wrong cartesian type'
+      write(u6,'(A,A)') 'Temp=',Temp
       call Quit_OnUserError()
     end if
   else if (index(Temp,'BOND') /= 0) then
@@ -264,8 +263,8 @@ do iLines=1,nLines
   else
     nGo = -1
     call WarningMessage(2,'Error in DefInt2')
-    write(Lu,*) ' Line contains syntax error!'
-    write(Lu,'(A)') Line
+    write(u6,*) ' Line contains syntax error!'
+    write(u6,'(A)') Line
     call Quit_OnUserError()
   end if
   tpc(iBVct) = iType
@@ -292,7 +291,7 @@ end do
 
 if (.not. Found) then
   call WarningMessage(2,'Error in DefInt2')
-  write(Lu,*) 'DefInt2: No internal coordinates are defined!'
+  write(u6,*) 'DefInt2: No internal coordinates are defined!'
   call Quit_OnUserError()
 end if
 
@@ -304,7 +303,7 @@ if (.not. Start) then
     ! Test if we have a flip in the sign of the value
 
     if ((Val(iBVct)*Value0(iBVct) < Zero) .and. (iFlip(iBVct) == Flip)) then
-      !write(Lu,*) 'Flip Sign for ',Labels(iBVct)
+      !write(u6,*) 'Flip Sign for ',Labels(iBVct)
       Val(iBVct) = -Val(iBVct)
     end if
   end do
@@ -357,9 +356,9 @@ do
 
     if (index(Line,'&') /= 0) then
       call WarningMessage(2,'Error in DefInt2')
-      write(Lu,*) 'Single vector lines should not extend'
-      write(Lu,*) 'over more than one line!'
-      write(Lu,'(A)') Line
+      write(u6,*) 'Single vector lines should not extend'
+      write(u6,*) 'over more than one line!'
+      write(u6,'(A)') Line
       call Quit_OnUserError()
     end if
     iBVct = 0
@@ -368,10 +367,10 @@ do
     end do
     if (iBVct == 0) then
       call WarningMessage(2,'Error in DefInt2')
-      write(Lu,*) ' A single vector'
-      write(Lu,*) ' Undefined internal coordinate'
-      write(Lu,'(A,A)') Line
-      write(Lu,'(A,A)') Line(iFrst:jEnd)
+      write(u6,*) ' A single vector'
+      write(u6,*) ' Undefined internal coordinate'
+      write(u6,'(A,A)') Line
+      write(u6,'(A,A)') Line(iFrst:jEnd)
       call Quit_OnUserError()
     end if
 
@@ -469,10 +468,10 @@ do
         end do
         if (iBVct == 0) then
           call WarningMessage(2,'Error in DefInt2')
-          write(Lu,*) ' Linear combinations of vectors'
-          write(Lu,*) ' Undefined internal coordinate'
-          write(Lu,'(A,A)') Line
-          write(Lu,'(A,A)') Line(iFrst:iEnd)
+          write(u6,*) ' Linear combinations of vectors'
+          write(u6,*) ' Undefined internal coordinate'
+          write(u6,'(A,A)') Line
+          write(u6,'(A,A)') Line(iFrst:iEnd)
           call Quit_OnUserError()
         end if
 
@@ -493,8 +492,8 @@ do
       if ((nEq /= 0) .and. ((nEq < nMinus) .eqv. (nMinus > 0)) .and. ((nEq < nPlus) .eqv. (nPlus > 0))) then
         if (index(Line,'&') /= 0) then
           call WarningMessage(2,'Error in DefInt2')
-          write(Lu,*) 'This line should not be extended'
-          write(Lu,'(A)') Line
+          write(u6,*) 'This line should not be extended'
+          write(u6,'(A)') Line
           call Quit_OnUserError()
         end if
         iFrst = iFrst+nEq+1
@@ -552,7 +551,7 @@ do
       jLines = jLines+1
       if (jLines > nLines) then
         call WarningMessage(2,'Error in DefInt2')
-        write(Lu,*) 'DefInt2: jLines > nLines'
+        write(u6,*) 'DefInt2: jLines > nLines'
         call Quit_OnUserError()
       end if
       read(Lu_UDC,'(A)') Line
@@ -569,9 +568,9 @@ do
         Skip = .true.
       else
         call WarningMessage(2,'Error in DefInt2')
-        write(Lu,*) ' Syntax Error: first character in  extension line is not + or -'
-        write(Lu,'(A)') Line
-        write(Lu,'(3A)') '-->',Line(iFrst:iEnd),'<--'
+        write(u6,*) ' Syntax Error: first character in  extension line is not + or -'
+        write(u6,'(A)') Line
+        write(u6,'(3A)') '-->',Line(iFrst:iEnd),'<--'
         call Quit_OnUserError()
       end if
     end do
@@ -609,16 +608,16 @@ end do
 call Put_dScalar('Max error',MaxErr)
 
 if ((iPrint >= 99) .or. lWrite) then
-  write(Lu,*)
-  write(Lu,*)
-  write(Lu,*) '*******************************************'
-  write(Lu,*) '* Values of the constraints   / au or rad *'
-  write(Lu,*) '*******************************************'
-  write(Lu,*) '  Label        C         C0'
-  write(Lu,'(1X,A,2X,F10.6,F10.6)') (Lbl(iInt),rInt(iInt),rInt0(iInt),iInt=1,mInt)
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '*******************************************'
+  write(u6,*) '* Values of the constraints   / au or rad *'
+  write(u6,*) '*******************************************'
+  write(u6,*) '  Label        C         C0'
+  write(u6,'(1X,A,2X,F10.6,F10.6)') (Lbl(iInt),rInt(iInt),rInt0(iInt),iInt=1,mInt)
+  write(u6,*)
   call CollapseOutput(0,'Constraints section')
-  write(Lu,*)
+  write(u6,*)
 end if
 !                                                                      *
 !***********************************************************************
