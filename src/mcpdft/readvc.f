@@ -266,7 +266,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         IF(IPRLEV.ge.TERSE) THEN
           Write(LF,'(6X,A)')
      &            'The MO-coefficients are taken from the file:'
-          Write(LF,'(6X,A)') StartOrbFile
+          Write(LF,'(6X,A)') trim(StartOrbFile)
         END IF
 
         mh5id = mh5_open_file_r(StartOrbFile)

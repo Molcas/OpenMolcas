@@ -71,19 +71,6 @@ real(kind=wp), parameter :: FactCI = One, FactXI = -One
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI'
 
-interface
-subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nTUVX,nAorb,JSYM,NUMV,DoReord)
-use Data_Structures, only: SBA_Type, twxy_type
-use Definitions, only: wp, iwp
-implicit none
-integer(kind=iwp), intent(inout) :: irc
-type(twxy_type), intent(inout) :: Scr
-type(SBA_Type), intent(in) :: ChoV
-integer(kind=iwp), intent(in) :: nTUVX, nAorb(*), JSYM, NUMV
-real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
-logical(kind=iwp), intent(in) :: DoReord
-end subroutine CHO_rassi_twxy
-end interface
 !*************************************************
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in CASSCF-debug

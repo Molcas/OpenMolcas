@@ -30,10 +30,9 @@
 subroutine MkRun(iRc,iOpt)
 
 use RunFile_data, only: icWr, IDRun, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypUnk, VNRun
+use Para_Info, only: nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-!use Definitions, only: u6
-use Para_Info, only: nProcs
 
 implicit none
 integer(kind=iwp), intent(out) :: iRc
@@ -75,7 +74,7 @@ RunHdr%ID = IDrun
 RunHdr%Ver = VNrun
 RunHdr%Next = 0
 RunHdr%Items = 0
-RunHdr%nProcs=nProcs
+RunHdr%nProcs = nProcs
 call DaName(Lu,RunName)
 iDisk = 0
 call RunHdr2Arr(Hdr)

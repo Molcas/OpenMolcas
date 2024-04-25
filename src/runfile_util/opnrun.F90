@@ -25,11 +25,11 @@
 subroutine OpnRun(iRc,Lu,iOpt)
 
 use RunFile_data, only: Arr2RunHdr, icRd, IDRun, nHdrSz, NulPtr, RunHdr, RunName, VNRun
-use Definitions, only: iwp, u6
 use Para_Info, only: nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_workshare
 #endif
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iRc, Lu
@@ -55,8 +55,7 @@ if (.not. ok) call SysAbendmsg('gxRdRun','RunFile does not exist',' ')
 !----------------------------------------------------------------------*
 ! Open runfile and check that file is ok.                              *
 !----------------------------------------------------------------------*
-Lu = 11
-Lu = isFreeUnit(Lu)
+Lu = isFreeUnit(11)
 
 RunHdr%ID = NulPtr
 RunHdr%Ver = NulPtr
@@ -74,17 +73,17 @@ if (RunHdr%Ver /= VNrun) then
   call SysFilemsg('gxWrRun','Wrong version of RunFile',Lu,' ')
   call Abend()
 end if
+ok = RunHdr%nProcs == nProcs
 #ifdef _MOLCAS_MPP_
-If (mpp_workshare.and.RunHdr%nProcs/=nProcs) Then
-#else
-If (RunHdr%nProcs/=nProcs) Then
+if (.not. mpp_workshare) ok = .true.
 #endif
-   Write (u6,*) 'Abend: Parallel environment has changed since runfile was created!'
-   Write (u6,*) 'RunHdr%nProcs/=nProcs'
-   Write (u6,*) 'RunHrd%nProcs=',RunHdr%nProcs
-   Write (u6,*) 'nProcs=',nProcs
-   Call Abend()
-End If
+if (.not. ok) then
+  write(u6,*) 'Abend: Parallel environment has changed since runfile was created!'
+  write(u6,*) 'RunHdr%nProcs/=nProcs'
+  write(u6,*) 'RunHrd%nProcs=',RunHdr%nProcs
+  write(u6,*) 'nProcs=',nProcs
+  call Abend()
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
