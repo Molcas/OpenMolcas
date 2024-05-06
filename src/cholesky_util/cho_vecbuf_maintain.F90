@@ -46,13 +46,6 @@ integer(kind=iwp) :: iE, iMapC, iOff3, iRedC, iRS2, iS, iSym, iVec, iVec1, iVec2
 real(kind=wp) :: C1, C2, W1, W2
 real(kind=wp), pointer :: V2(:,:), V3(:,:)
 real(kind=wp), allocatable :: VRd(:)
-!#define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Maintain'
 
 ! Set return code.
@@ -64,31 +57,33 @@ irc = 0
 ! -----------------------------------------
 
 if (.not. allocated(CHVBUF)) then
-  if (LocDbg) write(Lupri,*) SecNam,': returning: no buffer to maintain!'
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returning: no buffer to maintain!'
+# endif
   return
 end if
 
+#ifdef _DEBUGPRINT_
 ! Debug print.
 ! ------------
 
-if (LocDbg) then
-  write(Lupri,*)
-  write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
-  write(Lupri,*) 'iRed = ',iRed
-  write(Lupri,*) 'l_ChVBuf  = ',size(CHVBUF),'   ip_ChVBuf = ',1
-  write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
-  write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',(ip_ChVBuf_Sym(iSym),iSym=1,nSym)
-  write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',(nVec_in_Buf(iSym),iSym=1,nSym)
-end if
+write(Lupri,*)
+write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
+write(Lupri,*) 'iRed = ',iRed
+write(Lupri,*) 'l_ChVBuf  = ',size(CHVBUF),'   ip_ChVBuf = ',1
+write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
+write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',(ip_ChVBuf_Sym(iSym),iSym=1,nSym)
+write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',(nVec_in_Buf(iSym),iSym=1,nSym)
+#endif
 
 ! If there are no vectors yet, return.
 ! ------------------------------------
 
 if (NumChT < 1) then
-  if (LocDbg) then
-    write(Lupri,*) SecNam,': returning: no vectors!'
-    write(Lupri,*) SecNam,': NumChT = ',NumChT
-  end if
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returning: no vectors!'
+  write(Lupri,*) SecNam,': NumChT = ',NumChT
+# endif
   return
 end if
 
@@ -313,10 +308,10 @@ end if
 ! Debug print.
 ! ------------
 
-if (LocDbg) then
-  write(Lupri,*) 'After updating: '
-  write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',(nVec_in_Buf(iSym),iSym=1,nSym)
-  write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
-end if
+#ifdef _DEBUGPRINT_
+write(Lupri,*) 'After updating: '
+write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',(nVec_in_Buf(iSym),iSym=1,nSym)
+write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
+#endif
 
 end subroutine Cho_VecBuf_Maintain

@@ -159,7 +159,7 @@ C     Deallocating Memory
        END IF
        VeeSumOld=VeeSumNew
       END DO
-      IF(IPRLEV.ge.USUAL) write(6,*)('=',i=1,71)
+      IF(IPRLEV.ge.USUAL) write(6,*) repeat('=',71)
       CALL Copy2DMat(RotMat,FRot,lRoots,lRoots)
       CALL mma_deallocate(StatePair)
       CALL mma_deallocate(theta)
@@ -605,7 +605,7 @@ C     & IState,' is ',Vee(IState)
 *         Converged=.true.
        VeeSumOld=VeeSumNew
       END DO
-      IF(IPRLEV.ge.USUAL) write(6,*)('=',i=1,71)
+      IF(IPRLEV.ge.USUAL) write(6,*) repeat('=',71)
 
       CALL Copy2DMat(RotMat,FRot,lRoots,lRoots)
       CALL mma_deallocate(StatePair)

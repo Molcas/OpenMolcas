@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,DoReord)
+subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nTUVX,nAorb,JSYM,NUMV,DoReord)
 
 use Cholesky, only: nSym
 use Symmetry_Info, only: Mul
@@ -22,10 +22,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(inout) :: irc
-integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV
 type(twxy_type), intent(inout) :: Scr
 type(SBA_Type), intent(in) :: ChoV
-real(kind=wp), intent(_OUT_) :: TUVX(*)
+integer(kind=iwp), intent(in) :: nTUVX, nAorb(*), JSYM, NUMV
+real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 logical(kind=iwp), intent(in) :: DoReord
 integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
                      nTA, Ntw, Nxy
@@ -134,6 +134,7 @@ if (DoReord) then
 
   end do
 
+!call RecPrt('Twxy',' ',TUVX,1,nTUVX)
 end if
 
 irc = 0

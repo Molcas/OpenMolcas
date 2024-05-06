@@ -30,9 +30,9 @@ character(len=8) :: Label
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: Comp(:), SyLbl(:)
 real(kind=wp), allocatable :: all_ints(:), Scr(:), Tmp(:)
-character(len=16), parameter :: RunFile_dLabel = 'LoProp Integrals', &
-                                RunFile_iLabel = 'LoProp nInts', &
-                                RunFile_iLabel2 = 'LoProp iSyLbl'
+character(len=*), parameter :: RunFile_dLabel = 'LoProp Integrals', &
+                               RunFile_iLabel = 'LoProp nInts', &
+                               RunFile_iLabel2 = 'LoProp iSyLbl'
 
 !                                                                      *
 !***********************************************************************

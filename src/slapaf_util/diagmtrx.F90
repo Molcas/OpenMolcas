@@ -21,13 +21,12 @@ integer(kind=iwp), intent(in) :: nH
 real(kind=wp), intent(in) :: H(nH,nH)
 integer(kind=iwp), intent(out) :: iNeg
 #include "print.fh"
-integer(kind=iwp) :: i, ij, iPrint, iRout, j, Lu, LuTmp, nq, nQQ
+integer(kind=iwp) :: i, ij, iPrint, iRout, j, LuTmp, nq, nQQ
 real(kind=wp) :: SumHii
 logical(kind=iwp) :: Exists
 character(len=16) :: filnam
 real(kind=wp), allocatable :: EVal(:), EVec(:), qEVec(:), rK(:)
 
-Lu = u6
 iRout = 21
 iPrint = nPrint(iRout)
 
@@ -44,7 +43,7 @@ do i=1,nH
   end do
   SumHii = SumHii+H(i,i)
 end do
-!write(Lu,*) ' SumHii=',SumHii
+!write(u6,*) ' SumHii=',SumHii
 
 ! Set up a unit matrix
 
@@ -62,10 +61,10 @@ do i=1,nH
   if (EVal(nTri_Elem(i)) < Zero) iNeg = iNeg+1
 end do
 if (iprint > 5) then
-  write(Lu,*)
-  write(Lu,*) '*****************************************************************'
-  write(Lu,*) '* Eigenvalues and Eigenvectors of the Hessian                   *'
-  write(Lu,*) '*****************************************************************'
+  write(u6,*)
+  write(u6,*) '*****************************************************************'
+  write(u6,*) '* Eigenvalues and Eigenvectors of the Hessian                   *'
+  write(u6,*) '*****************************************************************'
 end if
 
 filnam = 'SPCINX'
@@ -94,15 +93,15 @@ if (Exists .and. (iprint > 5)) then
 
   else
 
-    write(Lu,*)
-    write(Lu,*) 'Eigenvalues of the Hessian'
-    write(Lu,*)
-    write(Lu,'(1X,10F10.5)') (EVal(nTri_Elem(i)),i=1,nH)
-    write(Lu,*)
-    write(Lu,*) 'Eigenvectors of the Hessian'
-    write(Lu,*)
+    write(u6,*)
+    write(u6,*) 'Eigenvalues of the Hessian'
+    write(u6,*)
+    write(u6,'(1X,10F10.5)') (EVal(nTri_Elem(i)),i=1,nH)
+    write(u6,*)
+    write(u6,*) 'Eigenvectors of the Hessian'
+    write(u6,*)
     do i=1,nH
-      write(Lu,'(1X,10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
+      write(u6,'(1X,10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
     end do
   end if
 

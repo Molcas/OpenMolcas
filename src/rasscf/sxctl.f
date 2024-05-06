@@ -65,7 +65,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
-      use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, SXHD, NLX
+      use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -87,6 +87,7 @@
       Save nCall
       Logical TraOnly
       Real*8 P2act(1),CIDUMMY(1)
+      Real*8, Allocatable:: SXHD(:)
       Real*8, Allocatable, Target:: SMAT(:)
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:

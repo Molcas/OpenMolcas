@@ -107,15 +107,14 @@ C
 
       IRETURN = 0
 
-      CALL SETTIM
+      CALL SETTIM()
 
 * Probe the environment to globally set the IPRGLB value
-      Call Set_Print_Level
+      Call Set_Print_Level()
 
 *======================================================================*
 *
-      Call StatusLine('CASPT2:','Initializing')
-      CALL PT2INI
+      CALL PT2INI()
 * Initialize effective Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
       CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
@@ -568,5 +567,4 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       END IF
 
       Call StatusLine('CASPT2:','Finished.')
-      RETURN
-      END
+      END SUBROUTINE CASPT2

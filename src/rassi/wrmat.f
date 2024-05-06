@@ -36,6 +36,6 @@
         ISTA=ISTA+NN
       END DO
       WRITE(6,*)
-      WRITE(6,*)('*',I=1,80)
+      WRITE(6,*) repeat('*',80)
 
       END SUBROUTINE WRMAT

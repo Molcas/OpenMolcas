@@ -35,7 +35,7 @@ integer(kind=iwp) :: a, b, c, i, ihh, ii, imm, iss, jj, k, K_prime, l, q, sa, sb
 real(kind=wp) :: dum(3), time, timer(3), fact3j
 character(len=64) :: sline
 real(kind=wp), allocatable :: dgl_csf(:)
-complex(kind=wp), allocatable :: density_csf(:,:), rho_init(:,:,:), rho_sph_t(:,:,:), tmp_back(:,:)
+complex(kind=wp), allocatable :: density_csf(:,:), rho_init(:,:,:), rho_sph_t(:,:,:), rho_tmp(:,:), tmp_back(:,:)
 !procedure(pulse_func) :: pulse
 
 call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
@@ -48,15 +48,17 @@ write(u6,'(a,i5,i5,i5,i5,a)') 'Dimension of the propagation: (',d,d,k_max+1,2*k_
 call mma_allocate(k_ranks,len_sph)
 call mma_allocate(q_proj,len_sph)
 call mma_allocate(rho_init,len_sph,d,d)
+call mma_allocate(rho_tmp,d,d)
 i = 1
 do k=0,k_max
   do q=-k,k,1
     k_ranks(i) = k
     q_proj(i) = q
     ! initial density matrix decomposition
-    call WERDM(densityt,Nstate,d,k,q,list_so_spin,list_so_proj,list_so_sf,rho_init(i,:,:))
+    call WERDM(densityt,Nstate,d,k,q,list_so_spin,list_so_proj,list_so_sf,rho_tmp)
+    rho_init(i,:,:) = rho_tmp(:,:)
     write(u6,'(a, i3, i3)') 'k, q: ',k,q
-    if (ipglob > 2) call print_c_matrix(rho_init(i,:,:),d,'Density in ITO basis')
+    if (ipglob > 2) call print_c_matrix(rho_tmp,d,'Density in ITO basis')
     i = i+1
   end do
 end do
@@ -191,7 +193,8 @@ do Ntime=1,(Nstep-1)
         do k=0,k_max
           do q=-k,k,1
             write(u6,*) 'time,k,q: ',time*auToFs,k,q
-            call print_c_matrix(rho_sph_t(i,:,:),d,'Density in ITO basis')
+            rho_tmp(:,:) = rho_sph_t(i,:,:)
+            call print_c_matrix(rho_tmp,d,'Density in ITO basis')
             i = i+1
           end do
         end do
@@ -215,6 +218,7 @@ call mma_deallocate(density_csf)
 
 call mma_deallocate(k_ranks)
 call mma_deallocate(q_proj)
+call mma_deallocate(rho_tmp)
 call mma_deallocate(rho_init)
 call mma_deallocate(rho_sph_t)
 call mma_deallocate(V_SO_red)

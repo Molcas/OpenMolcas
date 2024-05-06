@@ -13,7 +13,7 @@ subroutine SOCtl_Seward(Mamn,nMamn)
 
 use Basis_Info, only: dbsc, iCnttp_Dummy, nBas, nBas_Aux, nBas_Frag, nCnttp, MolWgh, Shells
 use Center_Info, only: dc
-use Symmetry_Info, only: iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
+use Symmetry_Info, only: ChOper, iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
 use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init
 use real_spherical, only: iSphCr, LblCBs, LblSBs
 use Gateway_global, only: Primitive_Pass
@@ -48,14 +48,6 @@ integer(kind=iwp), allocatable :: basis_ids(:,:), desym_basis_ids(:,:), fermion_
 real(kind=wp), allocatable :: LPC(:,:), LPQ(:), SM(:,:)
 character(len=LenIn4), allocatable :: LP_Names(:)
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
-character(len=*), parameter :: ChOper(0:7) = ['E  ', &
-                                              'x  ', &
-                                              'y  ', &
-                                              'xy ', &
-                                              'z  ', &
-                                              'xz ', &
-                                              'yz ', &
-                                              'xyz']
 integer(kind=iwp), external :: Index_Center, Index_Nosym, iPrmt, isfreeunit, NrOpr
 logical(kind=iwp), external :: Get_BasisType
 character(len=LenIn8), external :: Clean_BName

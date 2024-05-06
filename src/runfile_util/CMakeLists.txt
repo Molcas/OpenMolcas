@@ -85,10 +85,12 @@ set (sources
      qpg_iarray.F90
      qpg_iscalar.F90
      qpg_zarray.F90
+     rdtoc.F90
      run2h5.F90
      runfile_data.F90
      runfile_procedures.F90
      store_energies.F90
+     wrtoc.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

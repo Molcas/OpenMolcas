@@ -10,16 +10,17 @@
 #***********************************************************************
 
 set (sources
-     alloc.f
-     check_invec.f
+     alloc.F90
+     caspt2_data.F90
+     check_invec.F90
      chksplit.F90
      cidia_ci_util.F90
      ciovlp.F90
      ciselect.F90
+     cisx.F90
      citrans.F90
      citrans_free.F90
      citrans_init.F90
-     cisx.f
      cndet.F90
      cnfstr.F90
      cnhcn.F90
@@ -27,6 +28,7 @@ set (sources
      csdtvc.F90
      csfbas.F90
      cstart_ci_util.F90
+     cxinit.F90
      davctl.F90
      davctl_mod.F90
      david5.F90
@@ -35,24 +37,25 @@ set (sources
      dgmm2_molcas.F90
      diagord.F90
      dihdj_molcas.F90
-     dmatdmat.f
+     dmatdmat.F90
      expcsf.F90
      explh2.F90
      faroald.F90
      faroald_free.F90
      faroald_init.F90
+     fciqmc_interface.F90
      fndmnx.F90
-     fockoc.f
+     fockoc.F90
      gatvcs.F90
      general_data.F90
-     get_cm_.F90
      get_cm.F90
-     get_d1a.f
-     get_d1i.f
+     get_cm_.F90
+     get_d1a_rasscf.F90
+     get_d1i_rasscf.F90
+     get_umn.F90
      getcnf_lucia.F90
      geth2a.F90
      getstepvector.F90
-     get_umn.F90
      gugactl.F90
      gugx.F90
      hcsce.F90
@@ -72,29 +75,30 @@ set (sources
      matml4.F90
      mkclist.F90
      mkcot.F90
-     mkdaw.F90
-     mkdrt.F90
-     mkdrt0.F90
-     mkguga.F90
-     mkmid.F90
-     mknsm.f
-     mkraw.F90
-     mksgnum.f
+     mkcoup.F90
+     mkguga_mod.F90
+     mkguga_free.F90
+     mkmaw.F90
+     mknsm.F90
+     mkseg.F90
+     mksgnum.F90
      motrac.F90
      newgs.F90
+     nrcoup.F90
      ordstr.F90
      page_in.F90
-     pageno.F90
      page_out.F90
+     pageno.F90
      phpcsf.F90
-     pmat_rasscf.f
-     prdrt.F90
-     prttim.f
-     rd1int.f
-     rd2int_rasscf.f
+     pmat_rasscf.F90
+     prttim.F90
+     rasdef.F90
+     rd1int.F90
+     rd2int_rasscf.F90
      recno.F90
-     restr.F90
      reord2.F90
+     restr.F90
+     rmvert.F90
      save_ci_vec.F90
      save_h_diag.F90
      save_sig_vec.F90
@@ -103,12 +107,15 @@ set (sources
      scavcs.F90
      schmidt.F90
      second_quantization.F90
-     setsxci.f
+     segtab.F90
+     setsxci.F90
+     sgprwf.F90
+     sigma1.F90
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90
-     splitctl.F90
      splitcas_data.F90
+     splitctl.F90
      stepvec.F90
      stepvector_next.F90
      sxci.F90
@@ -120,10 +127,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      csfbas.F90
-     general_data.F90
      gugx.F90
-     splitcas_data.F90
-     sxci.F90
      wadr.F90
 )
 

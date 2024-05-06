@@ -127,7 +127,7 @@ do iSym=1,nSym
     end do
   end do
   do iAt=1,nUniqAt
-    Qa(iAt) = Qa(iAt)+ddot_(nOkk,Q(iAt,:),1,Q(iAt,:),1)
+    Qa(iAt) = Qa(iAt)+sum(Q(iAt,1:nOkk)**2)
     if (sqrt(Qa(iAt)) >= ThrS) then
       if (nBas_per_Atom(iAt) > 0) NamAct(iAt) = BName(lBas+nBas_Start(iAt))(1:LenIn)
     end if

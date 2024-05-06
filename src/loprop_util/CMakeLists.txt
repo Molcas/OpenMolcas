@@ -14,7 +14,7 @@ set (sources
      coretopoint.F90
      cutoff_error.F90
      desymmetrize.F90
-     diff_aux1.F90
+     diff_aux.F90
      diff_mothergoose.F90
      diff_numerical.F90
      diff_thrsmul.F90

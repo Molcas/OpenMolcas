@@ -22,14 +22,14 @@ subroutine CSDIAG_CI_UTIL(NCSF,NDET,CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSF
 ! NCSFTP  :
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp,u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NCSF, NDET, NTYP, NCNFTP(NTYP), ICTSDT(NDET), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
+integer(kind=iwp), intent(in) :: NCSF, NDET, NTYP, ICTSDT(NDET), NCNFTP(NTYP), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
 real(kind=wp), intent(out) :: CSFDIA(NCSF)
 real(kind=wp), intent(in) :: DETDIA(NDET)
-real(kind=wp) :: EAVER
 integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET, NCSTOT, NDTTOT
+real(kind=wp) :: EAVER
 
 ICSOFF = 0
 IDTOFF = 0

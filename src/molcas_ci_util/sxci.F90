@@ -10,13 +10,17 @@
 !***********************************************************************
 
 module sxci
-  implicit none
-  private
 
-  ! For the mxAct var
+use Definitions, only: iwp
+
+implicit none
+private
+
+! For the mxAct var
 #include "Molcas.fh"
 
-  integer, dimension(mxAct) :: idxci, idxsx
+integer(kind=iwp) :: idxci(mxAct), idxsx(mxAct)
 
-  public :: idxci, idxsx
+public :: idxci, idxsx
+
 end module sxci

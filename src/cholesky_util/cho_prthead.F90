@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: SKIPH
-integer(kind=iwp) :: I, IADRMODE, IALG, IUSE
+integer(kind=iwp) :: IADRMODE, IALG, IUSE
 real(kind=wp) :: X1, X2, XF, XF2
 integer(kind=iwp), parameter :: NADRMODE = 2, NALG = 6
 character(len=*), parameter :: ADRMODE(0:NADRMODE) = ['      unknown','   word addr.','  direct acc.'], &
@@ -32,11 +32,11 @@ character(len=*), parameter :: ADRMODE(0:NADRMODE) = ['      unknown','   word a
 if (LUPRI < 1) call CHO_QUIT('LUPRI undefined in Cholesky decomposition',101)
 
 if (.not. SKIPH) then
-  write(LUPRI,'(//,80A)') ('*',I=1,80)
-  write(LUPRI,'(A,78X,A)') ('*',I=1,2)
+  write(LUPRI,'(//,A)') repeat('*',80)
+  write(LUPRI,'(A,78X,A)') '*','*'
   write(LUPRI,'(A,10X,A,10X,A)') '*','Cholesky Decomposition of Two-Electron Repulsion Integrals','*'
-  write(LUPRI,'(A,78X,A)') ('*',I=1,2)
-  write(LUPRI,'(80A)') ('*',I=1,80)
+  write(LUPRI,'(A,78X,A)') '*','*'
+  write(LUPRI,'(A)') repeat('*',80)
   write(LUPRI,*)
   write(LUPRI,*)
 

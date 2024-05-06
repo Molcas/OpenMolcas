@@ -134,12 +134,12 @@
 !                                                                      *
       Do ii = iterLw, iter
 !
+         iPosL=MapDns(ii)
          Do iD = 1, nD
 !
 !           Trace the two-electron contribution of the Fock matrix with
 !           the density. Diagonal terms.
 !
-            iPosL=MapDns(ii)
             If (iPosL.gt.0) Then
                TrDP(ii,ii,iD)=DDot_(nBT,Dens(1,iD,iPosL),1,TwoHam(1,iD,iPosL),1)    &
                              +DDot_(nBT,Dens(1,iD,iPosL),1,Vxc   (1,iD,iPosL),1)

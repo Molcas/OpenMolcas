@@ -35,7 +35,7 @@
       use Center_Info, only: DC
       use Sizes_of_Seward, only:S
       use Gateway_Info, only: FNMC
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: ChOper, nIrrep
       use Constants, only: Zero, One
       use rmat, only: RMat_Type_Integrals
       use define_af, only: AngTp
@@ -77,8 +77,6 @@
      &        nOrder, NrOpr, jCnt
       Real*8 Fact, xFactor, xMass
       Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Character(LEN=3) :: ChOper(0:7)= ['E  ','x  ','y  ','xy ','z  ',  &
-     &                                  'xz ','yz ','xyz']
 !
 !     Statement functions
       Integer ixyz, nElem

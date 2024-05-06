@@ -27,7 +27,7 @@ subroutine DETSTR2(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,ISGN,IWORK,IPRINT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NEL, NAEL, NBEL, IDET(NEL), IPRINT
+integer(kind=iwp), intent(in) :: NEL, IDET(NEL), NAEL, NBEL, IPRINT
 integer(kind=iwp), intent(out) :: IASTR(NAEL), IBSTR(NBEL), ISGN, IWORK(NEL)
 integer(kind=iwp) :: IBEL, IEXPO
 
@@ -37,7 +37,7 @@ integer(kind=iwp) :: IBEL, IEXPO
 call ORDSTR(IDET,IWORK,NEL,ISGN,IPRINT)
 
 ! ALPHA STRING IS LAST NAEL ORBITALS
-call ICOPY(NAEL,IWORK(NBEL+1),1,IASTR,1)
+IASTR(1:NAEL) = IWORK(NBEL+1:NBEL+NAEL)
 
 ! BETA STRING MUST BE COMPLETELY TURNED AROUND
 do IBEL=1,NBEL

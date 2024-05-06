@@ -30,6 +30,8 @@
 subroutine MkRun(iRc,iOpt)
 
 use RunFile_data, only: icWr, IDRun, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypUnk, VNRun
+use Para_Info, only: nProcs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
@@ -38,6 +40,8 @@ integer(kind=iwp), intent(in) :: iOpt
 integer(kind=iwp) :: Hdr(nHdrSz), iAllow, iDisk, Lu
 logical(kind=iwp) :: ok
 character(len=64) :: ErrMsg
+integer(kind=iwp), allocatable :: Tmp(:)
+character(len=lw), allocatable :: TmpLab(:)
 integer(kind=iwp), external :: isFreeUnit
 
 !----------------------------------------------------------------------*
@@ -70,6 +74,7 @@ RunHdr%ID = IDrun
 RunHdr%Ver = VNrun
 RunHdr%Next = 0
 RunHdr%Items = 0
+RunHdr%nProcs = nProcs
 call DaName(Lu,RunName)
 iDisk = 0
 call RunHdr2Arr(Hdr)
@@ -80,21 +85,35 @@ call RunHdr2Arr(Hdr)
 call iDaFile(Lu,icWr,Hdr,nHdrSz,iDisk)
 
 iDisk = RunHdr%Next
-Toc(:)%Lab = 'Empty'
-Toc(:)%Ptr = NulPtr
-Toc(:)%Len = 0
-Toc(:)%MaxLen = 0
-Toc(:)%Typ = TypUnk
+call mma_allocate(Tmp,nToc,label='Tmp')
+call mma_allocate(TmpLab,nToc,label='TmpLab')
+
+TmpLab(:) = 'Empty'
 RunHdr%DaLab = iDisk
-call cDaFile(Lu,icWr,Toc(:)%Lab,lw*nToc,iDisk)
+call cDaFile(Lu,icWr,TmpLab,lw*nToc,iDisk)
+Toc(:)%Lab = TmpLab(:)
+
+Tmp(:) = NulPtr
 RunHdr%DaPtr = iDisk
-call iDaFile(Lu,icWr,Toc(:)%Ptr,nToc,iDisk)
+call iDaFile(Lu,icWr,Tmp,nToc,iDisk)
+Toc(:)%Ptr = Tmp(:)
+
+Tmp(:) = 0
 RunHdr%DaLen = iDisk
-call iDaFile(Lu,icWr,Toc(:)%Len,nToc,iDisk)
+call iDaFile(Lu,icWr,Tmp,nToc,iDisk)
+Toc(:)%Len = Tmp(:)
+
 RunHdr%DaMaxLen = iDisk
-call iDaFile(Lu,icWr,Toc(:)%MaxLen,nToc,iDisk)
+call iDaFile(Lu,icWr,Tmp,nToc,iDisk)
+Toc(:)%MaxLen = Tmp(:)
+
+Tmp(:) = TypUnk
 RunHdr%DaTyp = iDisk
-call iDaFile(Lu,icWr,Toc(:)%Typ,nToc,iDisk)
+call iDaFile(Lu,icWr,Tmp,nToc,iDisk)
+Toc(:)%Typ = Tmp(:)
+
+call mma_deallocate(Tmp)
+call mma_deallocate(TmpLab)
 RunHdr%Next = iDisk
 iDisk = 0
 call RunHdr2Arr(Hdr)

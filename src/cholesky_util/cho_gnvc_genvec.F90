@@ -25,8 +25,8 @@ integer(kind=iwp), intent(in) :: lInt, mSym, mPass, nVecRS(mSym,mPass), iVecRS(m
 real(kind=wp), intent(inout) :: Diag(*), xInt(lInt)
 type(Alloc1DiArray_Type) :: RS2RS(8)
 integer(kind=iwp) :: i, iAB, ii, iOff1(8), iOff2(8), iP, ip_Scr, iPass, iPass2, irc, iSym, iV, iVec, iVec1, iVecT, jAB, jj, jPass, &
-                     jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, LenLin, lOff0, lTot, MxSubtr, nAB, &
-                     nBin, nConv, Need, nNeg, nNegT, nPass, NumCho_OLD(8), NumVec
+                     jV, jVec, jVec0, kAB, kOff, kOff0, kOff1, kOff2, l_VecTmp, l_Wrk, lAB, lOff0, lTot, MxSubtr, nAB, nBin, &
+                     nConv, Need, nNeg, nNegT, nPass, NumCho_OLD(8), NumVec
 real(kind=wp) :: Bin1, C1, C2, Fac, olDiag, Step, W1, W2, XC, xM, xMax, xMin
 real(kind=wp), allocatable :: VecTmp(:), Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_GnVc_GenVec'
@@ -105,7 +105,6 @@ do iPass=iPass1,iPass2
   ! Print header.
   ! -------------
 
-  LenLin = 0 ! to avoid compiler warnings
   if (iPrint >= INF_PROGRESS) then
     call Cho_Head(SecNam//': Generation of Vectors from Map','=',80,Lupri)
     write(Lupri,'(/,A,I5)') 'Integral pass number',iPass
@@ -115,8 +114,7 @@ do iPass=iPass1,iPass2
     write(Lupri,'(A,8I8)') 'Original dim. : ',(nnBstR(iSym,1),iSym=1,nSym)
     write(Lupri,'(/,A,/,A)') '           #Vectors             Treated Diagonal', &
                              'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
-    LenLin = 79
-    write(Lupri,'(80A)') ('-',i=1,LenLin)
+    write(Lupri,'(A)') repeat('-',79)
     call XFlush(Lupri)
     NumCho_OLD(1:nSym) = NumCho(1:nSym)
   else if (iPrint >= INF_PASS) then
@@ -286,7 +284,7 @@ do iPass=iPass1,iPass2
 
   if (iPrint >= INF_PROGRESS) then
     NumCho_OLD(1:nSym) = NumCho(1:nSym)-NumCho_OLD(1:nSym)
-    write(Lupri,'(80A)') ('-',I=1,LenLin)
+    write(Lupri,'(A)') repeat('-',79)
     write(Lupri,'(A,8I8)') '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
     call XFlush(Lupri)
   else if (iPrint >= INF_PASS) then

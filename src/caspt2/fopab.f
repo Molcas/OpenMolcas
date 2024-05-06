@@ -9,9 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: NLEV, L2ACT, ISM, NOCSF, IOCSF, NOW1,
-     &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
-     &                         MVR
+      use gugx, only: SGS, L2ACT, EXS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -22,6 +20,8 @@
       DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
       DIMENSION IOFF(8)
+      Integer :: nLev
+      nLev = SGS%nLev
 
 * Procedure for computing one matrix element of the Fock matrix in the
 * basis of the CASSCF states: <BRA|FOP|KET>
@@ -118,12 +118,12 @@
       CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
-        ISU=ISM(LEVU)
+        ISU=SGS%ISM(LEVU)
         IU=IUABS-NAES(ISU)
         NI=NISH(ISU)
         IUTOT=NI+IU
         DO LEVT= 1,LEVU
-          IF(ISM(LEVT).NE.ISU) GOTO 10
+          IF(SGS%ISM(LEVT).NE.ISU) GOTO 10
           ITABS=L2ACT(LEVT)
           IST=ISU
           IT=ITABS-NAES(IST)
@@ -132,10 +132,8 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
-          CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
-     &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM))
   10      CONTINUE
         END DO
       END DO
@@ -171,12 +169,12 @@
       CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
-        ISU=ISM(LEVU)
+        ISU=SGS%ISM(LEVU)
         IU=IUABS-NAES(ISU)
         NI=NISH(ISU)
         IUTOT=NI+IU
         DO LEVT= 1,LEVU-1
-          IF(ISM(LEVT).NE.ISU) GOTO 20
+          IF(SGS%ISM(LEVT).NE.ISU) GOTO 20
           ITABS=L2ACT(LEVT)
           IST=ISU
           IT=ITABS-NAES(IST)
@@ -185,10 +183,8 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
-          CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
-     &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM))
   20      CONTINUE
         END DO
       END DO

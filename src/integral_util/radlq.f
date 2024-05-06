@@ -21,13 +21,14 @@
 !                                                                      *
 ! Author: K.Pfingst 21/5/93                                            *
 !***********************************************************************
+      use fx, only: f_interface
       use rmat, only: ExpSum, l, EpsAbs, EpsRel, RMatR
       Implicit None
       Integer nZeta, lSum, icop
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
 
       Integer, Parameter :: limit=200, lenw=4*limit
-      Real*8, external :: fradf
+      procedure(f_interface) :: fradf
       Integer iScrt(limit)
       Real*8 Scrt(lenw)
       Integer ir, iZeta, ier, nEval, Last

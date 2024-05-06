@@ -155,17 +155,12 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                    dqk41,dqk51,dqk61,dqpsrt
 !***end prologue  dqage
 
+use fx, only: f_interface
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: a, b, epsabs, epsrel
 integer(kind=iwp), intent(in) :: key, limit
 real(kind=wp), intent(out) :: reslt, abserr, alist(limit), blist(limit), rlist(limit), elist(limit)

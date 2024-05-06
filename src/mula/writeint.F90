@@ -58,11 +58,11 @@ write(u6,*)
 write(u6,*)
 write(u6,*)
 write(u6,*)
-write(u6,'(a27,a)') ' ',' ================================================='
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ','|       Results from intensity calculations       |'
-write(u6,'(a27,a)') ' ','|                                                 |'
-write(u6,'(a27,a)') ' ',' ================================================='
+write(u6,'(27x,a)') ' ================================================='
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') '|       Results from intensity calculations       |'
+write(u6,'(27x,a)') '|                                                 |'
+write(u6,'(27x,a)') ' ================================================='
 write(u6,*)
 write(u6,*)
 
@@ -98,25 +98,25 @@ else
   if (iprintLevel == 10) then
     write(u6,*)
     write(u6,*)
-    write(u6,*) ' ','The meaning of n and nprime in FC-table below:'
-    write(u6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
+    write(u6,*) ' The meaning of n and nprime in FC-table below:'
+    write(u6,fmt='(a,40a3,a)') ' =============',('===',i=1,nvar),'='
     !write(u6,fmt='(40a3)',advance='no') ('===',i=1,nvar)
     !write(u6,fmt='(   a)',advance='yes') '='
     write(u6,*)
-    write(u6,*) ' ','     n                                  Oscillator quanta'
-    write(u6,fmt='(a1,a,40a3,a)') ' ','-------------',('---',i=1,nvar),'-'
+    write(u6,*) '      n                                  Oscillator quanta'
+    write(u6,fmt='(a,40a3,a)') '-------------',('---',i=1,nvar),'-'
     !write(u6,fmt='(40a3)',advance='no') ('---',i=1,nvar)
     !write(u6,fmt='(   a)',advance='yes') '-'
     if (max_mOrd > max_nOrd) then
       do i=0,max_mOrd
-        write(u6,'(a4,i4,a5,40i3)') ' ',i,' ',(mMat(i,j),j=1,nvar)
+        write(u6,'(4x,i4,5x,40i3)') i,(mMat(i,j),j=1,nvar)
       end do
     else
       do i=0,max_nOrd
-        write(u6,'(a4,i4,a5,40i3)') ' ',i,' ',(nMat(i,j),j=1,nvar)
+        write(u6,'(4x,i4,5x,40i3)') i,(nMat(i,j),j=1,nvar)
       end do
     end if
-    write(u6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
+    write(u6,fmt='(a,40a3,a)') ' =============',('===',i=1,nvar),'='
     !write(u6,fmt='(40a3)',advance='no') ('===',i=1,nvar)
     !write(u6,fmt='(   a)',advance='yes') '='
   end if
@@ -200,29 +200,29 @@ if (WriteVibLevels) then
 
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Vibrational levels for ground state'
-  write(u6,*) ' ','=============================================='
+  write(u6,*) ' Vibrational levels for ground state'
+  write(u6,*) ' =============================================='
   write(u6,*)
-  write(u6,*) ' ','     Level                     Energy(cm-1)'
-  write(u6,*) ' ','----------------------------------------------'
+  write(u6,*) '      Level                     Energy(cm-1)'
+  write(u6,*) ' ----------------------------------------------'
   do i=0,max_mOrd
     iOrd = VibSort1(2,i)
-    write(u6,'(a4,a15,a15,i7)') ' ',mMatChar(iOrd),' ',VibSort1(1,i)
+    write(u6,'(4x,a15,15x,i7)') mMatChar(iOrd),VibSort1(1,i)
   end do
-  write(u6,*) ' ','=============================================='
+  write(u6,*) ' =============================================='
 
   write(u6,*)
   write(u6,*)
-  write(u6,*) ' ','Vibrational levels for excited state'
-  write(u6,*) ' ','=============================================='
+  write(u6,*) ' Vibrational levels for excited state'
+  write(u6,*) ' =============================================='
   write(u6,*)
-  write(u6,*) ' ','     Level                     Energy(cm-1)'
-  write(u6,*) ' ','----------------------------------------------'
+  write(u6,*) '      Level                     Energy(cm-1)'
+  write(u6,*) ' ----------------------------------------------'
   do i=0,max_nOrd
     iOrd = VibSort2(2,i)
-    write(u6,'(a4,a15,a15,i7)') ' ',nMatChar(iOrd),' ',VibSort2(1,i)
+    write(u6,'(4x,a15,15x,i7)') nMatChar(iOrd),VibSort2(1,i)
   end do
-  write(u6,*) ' ','=============================================='
+  write(u6,*) ' =============================================='
   call mma_deallocate(VibSort1)
   call mma_deallocate(VibSort2)
 
@@ -316,7 +316,7 @@ end do
 ! MatEl,ForceField,m_plot_max,n_plot_max== F T 1 2/5
 
 write(u6,*)
-write(u6,'(A,A)') ' ',repeat('=',89)
+write(u6,'(1X,A)') repeat('=',89)
 if (OscStr) then
   write(u6,'(A)') '  Ground                        Excited                         Energy         Oscillator'
   write(u6,'(A)') '  State                         State                      cm-1 /  eV / nm      Strength'
@@ -324,7 +324,7 @@ else
   write(u6,'(A)') '  Ground                        Excited                         Energy        Intensities'
   write(u6,'(A)') '  State                         State                      cm-1 /  eV / nm'
 end if
-write(u6,'(A,A)') ' ',repeat('-',89)
+write(u6,'(1X,A)') repeat('-',89)
 const = One
 
 do i=0,nval
@@ -341,17 +341,17 @@ do i=0,nval
   Intensity = IntMat(iOrd,jOrd)/const
   if ((MatEl) .and. (.not. ForceField)) then
     if (m_plot_max < n_plot_max) then
-      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,es12.3)') ' ',mMatChar(iOrd),'---> ','(',OccNumMat2(jOrd,1),',', &
-                                                                          OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
-                                                                          ivee_cm,' ',Intensity
+      write(u6,'(1x,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,5x,i7,10x,es12.3)') mMatChar(iOrd),'---> ','(',OccNumMat2(jOrd,1),',', &
+                                                                          OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',ivee_cm, &
+                                                                          Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee_cm],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     else
-      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,es12.3)') ' ',mMatChar(iOrd),'<--- ','(',OccNumMat2(jOrd,1),',', &
-                                                                          OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
-                                                                          ivee_cm,' ',Intensity
+      write(u6,'(1x,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,5x,i7,10x,es12.3)') mMatChar(iOrd),'<--- ','(',OccNumMat2(jOrd,1),',', &
+                                                                          OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',ivee_cm, &
+                                                                          Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee_cm],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
@@ -359,15 +359,15 @@ do i=0,nval
     end if
   else
     if (m_plot_max < n_plot_max) then
-      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,es12.3)') ' ',mMatChar(iOrd),' --->  ',nMatChar(jOrd),' ',ivee_cm,'/', &
-                                                                vee_eV,'/',ivee_nm,'  ',Intensity
+      write(u6,'(1x,a23,a7,a23,4x,i6,a1,f5.2,a1,i4,2x,es12.3)') mMatChar(iOrd),' --->  ',nMatChar(jOrd),ivee_cm,'/',vee_eV,'/', &
+                                                                ivee_nm,Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     else
-      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,es12.3)') ' ',mMatChar(iOrd),' <---  ',nMatChar(jOrd),' ',ivee_cm,'/', &
-                                                                vee_eV,'/',ivee_nm,'  ',Intensity
+      write(u6,'(1x,a23,a7,a23,4x,i6,a1,f5.2,a1,i4,2x,es12.3)') mMatChar(iOrd),' <---  ',nMatChar(jOrd),ivee_cm,'/',vee_eV,'/', &
+                                                                ivee_nm,Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
@@ -375,7 +375,7 @@ do i=0,nval
     end if
   end if
 end do
-write(u6,'(A,A)') ' ',repeat('=',89)
+write(u6,'(1X,A)') repeat('=',89)
 write(u6,*)
 write(u6,*)
 

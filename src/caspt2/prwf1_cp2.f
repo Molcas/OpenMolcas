@@ -16,21 +16,25 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
-      use gugx, only: ICASE, NLEV, NMIDV, MIDLEV, ISM, NIPWLK
+      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
+      use gugx, only: SGS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
+      Integer, Intent(In):: nMidV
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION CI(*)
       CHARACTER(LEN=256) LINE
       CHARACTER(LEN=1) CODE(0:3)
+      DATA CODE /'0','u','d','2'/
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
       DIMENSION ICS(MXLEV)
-      DATA CODE /'0','u','d','2'/
+      Integer :: nLev, nIpWlk
+      nLev  = SGS%nLev
+      nIpWlk= CIS%nIpWlk
 
 C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
@@ -41,8 +45,8 @@ C SVC: set up a CSF string length as LENCSF
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
-        IF(ISY.NE.ISM(LEV)) THEN
-          ISY=ISM(LEV)
+        IF(ISY.NE.SGS%ISM(LEV)) THEN
+          ISY=SGS%ISM(LEV)
           LENCSF=LENCSF+1
         END IF
         LENCSF=LENCSF+1
@@ -92,15 +96,15 @@ C -- SKIP OR PRINT IT OUT?
               IF(ABS(COEF).LT.THR) GOTO  31
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=ICASE(ICDPOS)
+                ICDWN=CIS%ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,MIDLEV
+                DO 10 LEV=1,SGS%MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
-                    ICDWN=ICASE(ICDPOS)
+                    ICDWN=CIS%ICASE(ICDPOS)
                   END IF
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
@@ -109,15 +113,15 @@ C -- UNPACK LOWER WALK.
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=ICASE(ICUPOS)
+              ICUP=CIS%ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
-              DO LEV=MIDLEV+1,NLEV
+              DO LEV=SGS%MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
-                  ICUP=ICASE(ICUPOS)
+                  ICUP=CIS%ICASE(ICUPOS)
                 END IF
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1
@@ -127,8 +131,8 @@ C -- PRINT IT!
               K=0
               ISY=0
               DO LEV=1,NLEV
-                IF(ISY.NE.ISM(LEV)) THEN
-                  ISY=ISM(LEV)
+                IF(ISY.NE.SGS%ISM(LEV)) THEN
+                  ISY=SGS%ISM(LEV)
                   K=K+1
                   LINE(K:K)=' '
                 END IF

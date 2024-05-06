@@ -41,7 +41,7 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: ChOper, nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
 use define_af, only: AngTp
@@ -65,7 +65,6 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
 logical(kind=iwp) :: AeqB, EQ, IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
-character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #include "print.fh"
 

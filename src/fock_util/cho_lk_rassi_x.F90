@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,Ash,nScreen,dmpk)
+subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,nTUVX,Ash,nScreen,dmpk)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -52,8 +52,8 @@ implicit none
 type(DSBA_Type), intent(in) :: DLT(1), Ash(2)
 type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), KSQ
 type(DSBA_Type), intent(_OUT_) :: FSQ
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-integer(kind=iwp), intent(in) :: nScreen
+integer(kind=iwp), intent(in) :: nTUVX, nScreen
+real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
 #include "rassi.fh"
@@ -87,7 +87,7 @@ integer(kind=iwp) :: iErr
 integer(kind=iwp) :: i, myJRED1, NNBSTMX, ntv0
 real(kind=wp), allocatable :: DiagJ(:)
 #endif
-character(LEN=14), parameter :: SECNAM = 'CHO_LK_RASSI_X'
+character(len=*), parameter :: SECNAM = 'CHO_LK_RASSI_X'
 logical(kind=iwp), parameter :: DoRead = .false.
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
@@ -412,6 +412,7 @@ do jSym=1,nSym
       end if
 
       LREAD = nRS*nVec
+      call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
 
       if (JSYM == 1) then
@@ -433,15 +434,14 @@ do jSym=1,nSym
           JNUM = nVec
         end if
 
-        call mma_allocate(Lrs,nRS,JNUM,Label='Lrs')
-        Lrs(:,:) = Zero
+        Lrs(:,1:JNUM) = Zero
 
         JVEC = nVec*(iBatch-1)+iVrs
         IVEC2 = JVEC-1+JNUM
 
         call CWTIME(TCR1,TWR1)
 
-        call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
+        call CHO_VECRD(Lrs,nRS*JNUM,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
         if ((NUMV <= 0) .or. (NUMV /= JNUM)) return
 
@@ -1033,7 +1033,7 @@ do jSym=1,nSym
 
         DoReord = (JRED == myJRED2) .and. (iBatch == nBatch)
 
-        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
         call CWTIME(TCINT2,TWINT2)
         tintg(1) = tintg(1)+(TCINT2-TCINT1)
@@ -1045,9 +1045,10 @@ do jSym=1,nSym
 
         call Deallocate_DT(Laq(2))
         call Deallocate_DT(Laq(1))
-        call mma_deallocate(Lrs)
 
       end do ! end batch loop
+
+      call mma_deallocate(Lrs)
 
       if (JSYM == 1) then
         ! backtransform fock matrix to full storage

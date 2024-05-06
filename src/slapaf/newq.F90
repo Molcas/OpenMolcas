@@ -34,7 +34,7 @@ real(kind=wp), intent(in) :: Beta, Energy(nIter), Thr_RS
 integer(kind=iwp), intent(out) :: iP(nIter)
 character, intent(inout) :: Step_Trunc
 #include "print.fh"
-integer(kind=iwp) :: iPrint, iRout, Lu, MinWdw
+integer(kind=iwp) :: iPrint, iRout, MinWdw
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iSave, ix
@@ -43,11 +43,10 @@ real(kind=wp) :: Beta_New
 real(kind=wp), allocatable :: t_dq(:), t_g(:), t_q(:)
 real(kind=wp), external :: DDot_
 
-Lu = u6
 iRout = 113
 iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
-write(Lu,*) ' Newq: nIter,Beta=',nIter,Beta
+write(u6,*) ' Newq: nIter,Beta=',nIter,Beta
 call RecPrt(' Newq (Enter): q',' ',q,nInter,nIter+1)
 call RecPrt(' Newq (Enter): dq',' ',dq,nInter,nIter)
 call RecPrt(' Newq (Enter): g',' ',g,nInter,nIter)
@@ -64,7 +63,7 @@ E_Delta = Zero
 
 ! The new point will temporarily replace the last point!
 
-if (iPrint >= 6) write(Lu,*)
+if (iPrint >= 6) write(u6,*)
 if (Line_Search) then
   if (nIter >= 2) then
     call mma_allocate(t_q,nInter,Label='t_q')
@@ -77,12 +76,12 @@ if (Line_Search) then
 
     call LnSrch(Energy,q,dq,g,nInter,nIter,E_Delta)
   else
-    if (iPrint >= 6) write(Lu,*) '-- First iteration no line search'
+    if (iPrint >= 6) write(u6,*) '-- First iteration no line search'
   end if
 else
-  if (iPrint >= 6) write(Lu,*) '-- Line search is disabled'
+  if (iPrint >= 6) write(u6,*) '-- Line search is disabled'
 end if
-if (iPrint >= 6) write(Lu,*)
+if (iPrint >= 6) write(u6,*)
 
 ! Invoke the quadratic optimization procedure
 
@@ -230,7 +229,7 @@ end if
 q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
 
 #ifdef _DEBUGPRINT_
-write(Lu,*) ' E_Delta=',E_Delta
+write(u6,*) ' E_Delta=',E_Delta
 call RecPrt('Newq (Exit): q',' ',q,nInter,nIter+1)
 call RecPrt('Newq (Exit): dq',' ',dq,nInter,nIter)
 call RecPrt('Newq (Exit): g',' ',g,nInter,nIter)

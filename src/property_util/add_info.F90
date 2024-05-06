@@ -172,7 +172,7 @@ if (MyRank == 0) then
       STRING = ' '
       STRING = STMP(1:icomma-1)
       if (icomma < len(STMP)) then
-        STMP = STMP(icomma+1:)
+        STMP(1:256-icomma) = STMP(icomma+1:256)
       else
         STMP = ''
       end if

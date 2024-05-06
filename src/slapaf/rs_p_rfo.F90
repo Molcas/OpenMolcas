@@ -53,7 +53,7 @@ character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(inout) :: dqHdq
 character, intent(inout) :: Step_Trunc
 #include "print.fh"
-integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, k, Lu, mInter, nNeg, NumVal, nVStep
+integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, k, mInter, nNeg, NumVal, nVStep
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, dqdq, dqdq_long, dqdq_short, EigVal_r, EigVal_t, gv, Lambda, Thr
 logical(kind=iwp) :: Found, Iterate
 real(kind=wp), allocatable :: GradN(:), GradP(:), Mat(:), MatN(:), MatP(:), StepN(:), StepP(:), Tmp(:,:), TmpN(:), TmpP(:), &
@@ -61,7 +61,6 @@ real(kind=wp), allocatable :: GradN(:), GradP(:), Mat(:), MatN(:), MatP(:), Step
 real(kind=wp), external :: DDot_
 
 iRout = 215
-Lu = u6
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
   call RecPrt(' In RS_P_RFO: H','(10f10.6)',H,nInter,nInter)
@@ -125,16 +124,16 @@ end do
 if (iPrint >= 99) then
   call RecPrt(' In RS_P_RFO: Eigenvalues',' ',Val,1,NumVal)
   call RecPrt(' In RS_P_RFO: Eigenvectors',' ',Vec,nInter,NumVal)
-  write(Lu,*) ' nNeg=',nNeg
+  write(u6,*) ' nNeg=',nNeg
 end if
 
 if (iPrint >= 6) then
-  write(Lu,*)
-  write(Lu,*) 'RS-P-RF Optimization'
-  write(Lu,*) ' Iter   alpha        dqdq  StepMax   EigVal_r  EigVal_t'
+  write(u6,*)
+  write(u6,*) 'RS-P-RF Optimization'
+  write(u6,*) ' Iter   alpha        dqdq  StepMax   EigVal_r  EigVal_t'
 end if
 
-!write(Lu,*) 'Trust radius=',StepMax
+!write(u6,*) 'Trust radius=',StepMax
 A_RFO = One   ! Initial seed of alpha
 IterMx = 25
 Iter = 0
@@ -160,13 +159,13 @@ call mma_allocate(TmpP,mInter,Label='TmpP')
 TmpP(:) = Zero
 do
   Iter = Iter+1
-  !write(Lu,*) 'Iter=',Iter
-  !write(Lu,*) 'A_RFO=',A_RFO
+  !write(u6,*) 'Iter=',Iter
+  !write(u6,*) 'A_RFO=',A_RFO
   dq(:) = Zero
   if (nNeg > 0) then
-    !write(Lu,*)
-    !write(Lu,*) 'Process negative eigenvalues.'
-    !write(Lu,*)
+    !write(u6,*)
+    !write(u6,*) 'Process negative eigenvalues.'
+    !write(u6,*)
     mInter = nNeg+1
     !                                                                  *
     !*******************************************************************
@@ -202,28 +201,28 @@ do
     call dGeMV_('N',nInter,nNeg,One,Vec,nInter,VecN,1,Zero,StepN,1)
     dq(:) = dq(:)+StepN(:)
     !dqdq_max = sqrt(DDot_(nInter,StepN,1,StepN,1))
-    !write(Lu,*) 'dqdq_max=',dqdq_max
+    !write(u6,*) 'dqdq_max=',dqdq_max
     ! Sign
     EigVal_r = -DDot_(nInter,StepN,1,GradN,1)
     if (iPrint >= 99) then
       call RecPrt('dq_r',' ',StepN,1,nInter)
       call RecPrt(' g_r',' ',GradN,1,nInter)
-      write(Lu,*) 'Lambda=',EigVal_r
+      write(u6,*) 'Lambda=',EigVal_r
     end if
     if (EigVal_r < -Thr) then
-      write(Lu,*)
-      write(Lu,*) 'W A R N I N G !'
-      write(Lu,*) 'EigVal_r < Zero',EigVal_r
-      write(Lu,*)
+      write(u6,*)
+      write(u6,*) 'W A R N I N G !'
+      write(u6,*) 'EigVal_r < Zero',EigVal_r
+      write(u6,*)
     end if
   else
     EigVal_r = Zero
     !dqdq_max = Zero
   end if
 
-  !write(Lu,*)
-  !write(Lu,*) 'Process positive eigenvalues.'
-  !write(Lu,*)
+  !write(u6,*)
+  !write(u6,*) 'Process positive eigenvalues.'
+  !write(u6,*)
   mInter = nInter+1
   !                                                                    *
   !*********************************************************************
@@ -262,24 +261,24 @@ do
   StepP(:) = StepP(:)/(sqrt(A_RFO)*VecP(1+nInter))
   dq(:) = dq(:)+StepP(:)
   ! dqdq_min = sqrt(DDot_(nInter,StepP,1,StepP,1))
-  !write(Lu,*) 'dqdq_min=',dqdq_min
+  !write(u6,*) 'dqdq_min=',dqdq_min
   EigVal_t = -DDot_(nInter,StepP,1,GradP,1) ! Sign
   if (iPrint >= 99) then
     call RecPrt('dq_t',' ',StepP,1,nInter)
     call RecPrt(' g_t',' ',GradP,1,nInter)
-    write(Lu,*) 'Lambda=',EigVal_t
+    write(u6,*) 'Lambda=',EigVal_t
   end if
   if (EigVal_t > Thr) then
-    write(Lu,*)
-    write(Lu,*) 'W A R N I N G !'
-    write(Lu,*) 'EigVal_t > Zero',EigVal_t
-    write(Lu,*)
+    write(u6,*)
+    write(u6,*) 'W A R N I N G !'
+    write(u6,*) 'EigVal_t > Zero',EigVal_t
+    write(u6,*)
   end if
 
   Lambda = EigVal_t+EigVal_r
   dqdq = sqrt(DDot_(nInter,dq,1,dq,1))
 
-  if (iPrint >= 6) write(Lu,'(I5,5F10.5)') Iter,A_RFO,dqdq,StepMax,EigVal_r,EigVal_t
+  if (iPrint >= 6) write(u6,'(I5,5F10.5)') Iter,A_RFO,dqdq,StepMax,EigVal_r,EigVal_t
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -304,10 +303,10 @@ do
 
   if ((.not. Iterate) .or. (abs(StepMax-dqdq) <= Thr)) exit
   Step_Trunc = '*'
-  !write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
+  !write(u6,*) 'StepMax-dqdq=',StepMax-dqdq
   call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,dqdq,StepMax)
   if (Iter > IterMx) then
-    write(Lu,*) ' Too many iterations in RF'
+    write(u6,*) ' Too many iterations in RF'
     exit
   end if
 end do
@@ -333,15 +332,15 @@ call mma_deallocate(MatP)
 call mma_deallocate(TmpP)
 
 if (iPrint >= 6) then
-  write(Lu,*)
-  write(Lu,*)
-  write(Lu,*) 'Rational Function Optimization: Lambda=',Lambda
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) 'Rational Function Optimization: Lambda=',Lambda
+  write(u6,*)
 end if
 dqHdq = dqHdq+Lambda*Half
 
 if (iPrint >= 99) then
-  write(Lu,*) 'EigVal,dqHdq=',Lambda,dqHdq
+  write(u6,*) 'EigVal,dqHdq=',Lambda,dqHdq
   call RecPrt(' In RS_P_RFO: g','(10f10.6)',g,nInter,1)
   call RecPrt(' In RS_P_RFO:dq','(10f10.6)',dq,nInter,1)
 end if

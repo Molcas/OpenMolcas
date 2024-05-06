@@ -51,7 +51,7 @@ character(len=72) :: Header(2), Line, Title(mxTit)
 character(len=4) :: Command
 real(kind=wp), allocatable :: Weights(:)
 character(len=LenIn8), allocatable :: CName(:)
-character(len=4), parameter :: Cmd(20) = ['TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF', &
+character(len=*), parameter :: Cmd(20) = ['TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF', &
                                           'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO','ITER']
 
 !---  Initialize -------------------------------------------------------*

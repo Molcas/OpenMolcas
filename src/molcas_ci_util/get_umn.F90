@@ -37,23 +37,22 @@ subroutine get_Umn(PHP,EnIn,DHAM,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONE
 ! ExFac  :
 ! IREOTS : Type => symmetry reordering array
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), IPRODT(*), ICONF(*), IREFSM, NACTOB, NEL, NAEL, NBEL, &
+integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), IPRODT(*), ICONF(*), IREFSM, NACTOB, NEL, NAEL, NBEL, &
                                  NPCSF, NPCNF, iterSplit, ITER, IREOTS(NACTOB)
+real(kind=wp), intent(out) :: PHP(nTri_Elem(NPCSF)), DHAM(nTri_Elem(NPCSF))
 real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
-real(kind=wp), intent(out) :: PHP(NPCSF*(NPCSF+1)/2), DHAM(NPCSF*(NPCSF+1)/2)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, ILAI, &
-                     ILRI, ILRO, ILTYP, IRTYP, ITYP, Mindex, MXCSFC, MXXWS, NCSFA, &
-                     NCSFL, NCSFR, Nindex
-real(kind=wp), allocatable :: AuxC(:,:), AuxD(:), AuxV(:,:), Scr(:)
-integer(kind=iwp), allocatable:: ICNL(:), ICNR(:), ICNQ(:)
-real(kind=wp), allocatable:: CNHCNM(:), PHPS(:)
 #include "spinfo.fh"
+integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, ILAI, ILRI, ILRO, ILTYP, IRTYP, ITYP, &
+                     Mindex, MXCSFC, MXXWS, NCSFA, NCSFL, NCSFR, Nindex
+integer(kind=iwp), allocatable :: ICNL(:), ICNQ(:), ICNR(:)
+real(kind=wp), allocatable :: AuxC(:,:), AuxD(:), AuxV(:,:), CNHCNM(:), PHPS(:), Scr(:)
 
 if (NTEST >= 30) then
   write(u6,*) ' Input in get_Umn'
@@ -79,17 +78,16 @@ call mma_allocate(AuxD,MXCSFC,label='AuxDia')
 call mma_allocate(AuxV,NPCSF,MXCSFC,label='AuxVer')
 call mma_allocate(AuxC,NPCSF,MXCSFC,label='AuxCopy')
 
-Call mma_allocate(ICNL,NEL,Label='ICNL')
-Call mma_allocate(ICNR,NEL,Label='ICNR')
-Call mma_allocate(ICNQ,NEL,Label='ICNQ')
+call mma_allocate(ICNL,NEL,Label='ICNL')
+call mma_allocate(ICNR,NEL,Label='ICNR')
+call mma_allocate(ICNQ,NEL,Label='ICNQ')
 
-Call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
-Call mma_allocate(PHPS,MXCSFC**2,Label='PHPS')
+call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
+call mma_allocate(PHPS,MXCSFC**2,Label='PHPS')
 
 call mma_maxDBLE(MXXWS)
 MXXWS = MXXWS/2
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
-
 
 ! Shape of PHP matrix:
 !
@@ -107,18 +105,17 @@ call mma_allocate(Scr,MXXWS,label='EXHSCR')
 !***********************************************************************
 ! Now a loop over alpha will start to calculate:                       *
 !   1) BB-Block DIAGONAL element 1/(En-H(alpha,alpha))                 *
-!   2) AB-Block array H(m,alpha)
+!   2) AB-Block array H(m,alpha)                                       *
 !***********************************************************************
 if ((ITER /= 1) .or. (iterSplit /= 1)) then
   IIAB = 1
   do iAlpha=NPCNF+1,NCONF ! Loop over alpha
-    CNHCNM(:)=0.0D0
+    CNHCNM(:) = Zero
     !write(u6,*) 'iAlpha = ',iAlpha
     call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
     NCSFA = NCSFTP(IATYP)
     !write(u6,*) 'NCSFA = ',NCSFA
-    call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-               NTEST,ExFac,IREOTS)
+    call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
     do IIA=1,NCSFA
       ILAI = IIA*IIA
       if (NTEST >= 30) write(u6,*) 'ILAI =',ILAI
@@ -127,16 +124,15 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
       AuxD(IIA) = One/(EnIn-CNHCNM(ILAI))
       if (NTEST >= 30) write(u6,*) 'AuxD(IIA)',AuxD(IIA)
     end do
-    !*************** 2) AB-Block Array (alpha Column) ********************
+    !*************** 2) AB-Block Array (alpha Column) ******************
     IILB = 1
     do Mindex=1,NPCNF ! Loop over AB-Block
-      CNHCNM(:)=0.0D0
+      CNHCNM(:) = Zero
       !write(u6,*) 'Mindex',Mindex
       call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
       !write(u6,*) 'NCSFL = ',NCSFL
-      call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB, &
-                 TUVX,NTEST,ExFac,IREOTS)
+      call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
       if (NTEST >= 30) then
         write(u6,*) 'M_Alpha elements'
         call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -162,7 +158,7 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
       write(u6,*) 'AB-Block Vertical Vector times Daa'
       call wrtmat(AuxC,NPCSF,NCSFA,NPCSF,NCSFA)
     end if
-    !*********************************************************************
+    !*******************************************************************
     call dGeMM_Tri('N','T',NPCSF,NPCSF,NCSFA,One,AuxC,NPCSF,AuxV,NPCSF,One,DHAM,NPCSF)
     if (NTEST >= 30) call TRIPRT('correction to the AA block',' ',DHAM,NPCSF)
     IIAB = IIAB+NCSFA
@@ -181,13 +177,12 @@ do Nindex=1,NPCNF ! Loop over the AA-block (vertical index)
 
   IIRB = 1
   do Mindex=1,Nindex ! Loop over the AA-block (horizontal index)
-    call FZero(PHPS,MXCSFC*MXCSFC)
+    PHPS(:) = Zero
     !write(u6,*) 'Nindex,Mindex',Nindex,Mindex
     call GETCNF_LUCIA(ICNQ,IRTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFR = NCSFTP(IRTYP)
     !write(u6,*) 'NCSFR = ',NCSFR
-    call CNHCN(ICNR,ILTYP,ICNQ,IRTYP,PHPS,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-               NTEST,ExFac,IREOTS)
+    call CNHCN(ICNR,ILTYP,ICNQ,IRTYP,PHPS,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
       write(u6,*) 'AA block elements'
       call wrtmat(PHPS,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -205,7 +200,7 @@ do Nindex=1,NPCNF ! Loop over the AA-block (vertical index)
         ILRI = (IIR-1)*NCSFL+IIL
         !^ Forse questo e' quello giusto; la precedente formula
         !  potrebbe essere fonte di BUGS! Vedremo!
-        ILRO = ((IILACT*IILACT-IILACT)/2)+IIRACT
+        ILRO = nTri_Elem(IILACT-1)+IIRACT
         PHP(ILRO) = PHPS(ILRI)
         !write(u6,*) 'ILRI, ILRO = ',ILRI,ILRO
         !write(u6,*) 'PHP(ILRO)',PHP(ILRO)
@@ -222,9 +217,9 @@ DHAM(:) = DHAM(:)+PHP(:)
 !***********************************************************************
 if (NTEST >= 30) then
   write(u6,*) 'AA-Block matrix un-dressed'
-  call wrtmat(PHP,NPCSF*(NPCSF+1)/2,1,NPCSF*(NPCSF+1)/2,1)
+  call wrtmat(PHP,nTri_Elem(NPCSF),1,nTri_Elem(NPCSF),1)
   write(u6,*) 'AA-Block matrix dressed'
-  call wrtmat(DHAM,NPCSF*(NPCSF+1)/2,1,NPCSF*(NPCSF+1)/2,1)
+  call wrtmat(DHAM,nTri_Elem(NPCSF),1,nTri_Elem(NPCSF),1)
 end if
 
 if (NTEST >= 30) then

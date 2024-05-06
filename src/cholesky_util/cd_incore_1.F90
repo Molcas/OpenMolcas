@@ -25,7 +25,7 @@ subroutine CD_InCore_1(X,n,Vec,MxVec,NumCho,Thr,ThrNeg,ThrFail,irc)
 !  102 -- number of vectors needed exceeds max. allowed (MxVec)
 !
 ! Note: the algorithm is designed for incomplete Cholesky
-! decomposition, i.e. for semi-definitive matrices, and thus makes
+! decomposition, i.e. for semi-definite matrices, and thus makes
 ! use of level-1 BLAS only.
 
 use Constants, only: Zero, One
@@ -33,8 +33,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n, MxVec
-real(kind=wp), intent(inout) :: X(n,n)
-real(kind=wp), intent(out) :: Vec(n,MxVec)
+real(kind=wp), intent(inout) :: X(n,n), Vec(n,MxVec)
 integer(kind=iwp), intent(out) :: NumCho, irc
 real(kind=wp), intent(in) :: Thr, ThrNeg, ThrFail
 integer(kind=iwp) :: i, imax, iPass, j

@@ -89,7 +89,7 @@ do
     Indx = Last+1
     dbsc(nCnttp)%Bsl = BSLbl
   else
-    Fname = BSLbl(Indx+2:Last)
+    Fname(1:Last-(Indx+2)+1) = BSLbl(Indx+2:Last)
     if (Fname == ' ') then
       call WarningMessage(2,' No basis set library specified for;BSLbl='//BSLbl//';Fname='//Fname)
       call Quit_OnUserError()

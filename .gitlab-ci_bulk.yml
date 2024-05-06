@@ -174,7 +174,7 @@ test:intel13:
     - build:intel13
   parallel: 2
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 build:nag:
   extends:
@@ -189,7 +189,7 @@ test:nag:
     - build:nag
   parallel: 4
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 build:garble:
   extends:
@@ -257,4 +257,4 @@ test:mpi:
     - build:mpi
   parallel: 8
   tags:
-    - docker
+    - saas-linux-small-amd64

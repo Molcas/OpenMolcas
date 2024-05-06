@@ -22,8 +22,8 @@
       Mem_ = Mem
 ! Avoid using up all available memory
       Call mma_maxDBLE(MemMax)
-      If (MemMax-Mem_.lt.1000) Then
-        If (Mem_.gt.1000) Mem_=Mem_-1000
+      If (MemMax-Mem_.lt.8000) Then
+        If (Mem_.gt.8000) Mem_=Mem_-8000
       End If
 !     Write (6,*) 'xsetmem_ints: External allocate:',Mem_
       Call mma_allocate(Sew_Scr,Mem_,Label='Sew_Scr')

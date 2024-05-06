@@ -14,18 +14,17 @@ subroutine Cho_VecBuf_Init(Frac,lVec)
 ! Purpose: allocate and initialize vector buffer.
 !          RUN_MODE=RUN_INTERNAL: buffer used during decomposition.
 !          RUN_MODE=RUN_EXTERNAL: buffer used after decomposition,
-!                                 i.e. vectors are available on
-!                                 disk.
+!                                 i.e. vectors are available on disk.
 
-use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM, LuPri, nSym, RUN_INTERNAL, RUN_EXTERNAL, RUN_MODE
+use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM, nSym, RUN_INTERNAL, RUN_EXTERNAL, RUN_MODE
+#ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: Frac
 integer(kind=iwp), intent(in) :: lVec(*)
-integer(kind=iwp) :: l_Max, MF
-real(kind=wp) :: xMF
-character(len=2) :: Unt
 #ifdef _CHO_DEBUGPRINT_
 #define _DEBUGPRINT_
 #endif
@@ -36,18 +35,23 @@ character(len=2) :: Unt
 #endif
 logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Init'
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: l_Max, MF
+real(kind=wp) :: xMF
+character(len=2) :: Unt
+#endif
 
-if (LocDbg) then
-  call mma_maxDBLE(l_max)
-  write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
-  write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
-  call Cho_Word2Byte(l_Max,8,xMF,Unt)
-  write(Lupri,*) 'Memory available: ',l_Max,' = ',xMF,Unt
-  MF = int(Frac*dble(l_Max))
-  call Cho_Word2Byte(MF,8,xMF,Unt)
-  write(Lupri,*) 'Memory fraction : ',MF,' = ',xMF,Unt
-  call XFlush(Lupri)
-end if
+#ifdef _DEBUGPRINT_
+call mma_maxDBLE(l_max)
+write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
+write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
+call Cho_Word2Byte(l_Max,8,xMF,Unt)
+write(Lupri,*) 'Memory available: ',l_Max,' = ',xMF,Unt
+MF = int(Frac*dble(l_Max))
+call Cho_Word2Byte(MF,8,xMF,Unt)
+write(Lupri,*) 'Memory fraction : ',MF,' = ',xMF,Unt
+call XFlush(Lupri)
+#endif
 
 l_ChVBfI_Sym(1:nSym) = 0
 ip_ChVBfI_Sym(1:nSym) = 0
@@ -60,9 +64,9 @@ else
   call Cho_Quit('RUN_MODE error in '//SecNam,103)
 end if
 
-if (LocDbg) then
-  write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
-  call XFlush(Lupri)
-end if
+#ifdef _DEBUGPRINT_
+write(Lupri,*) '>>>>> Exit  ',SecNam,' <<<<<'
+call XFlush(Lupri)
+#endif
 
 end subroutine Cho_VecBuf_Init

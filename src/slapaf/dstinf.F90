@@ -63,7 +63,7 @@ if (SlStop .or. do_printcoords) then
   write(LOut,*)
   call CollapseOutput(1,'Geometry section')
   write(LOut,*)
-  write(LOut,'(80A)') ('*',i=1,80)
+  write(LOut,'(A)') repeat('*',80)
   if (SlStop) then
     write(LOut,*) ' Geometrical information of the final structure'
     r_Iter = real(Iter,kind=wp)
@@ -71,7 +71,7 @@ if (SlStop .or. do_printcoords) then
   else if (do_printcoords) then
     write(LOut,*) ' Geometrical information of the new structure'
   end if
-  write(LOut,'(80A)') ('*',i=1,80)
+  write(LOut,'(A)') repeat('*',80)
   write(LOut,*)
 end if
 

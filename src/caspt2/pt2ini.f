@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PT2INI
+      SUBROUTINE PT2INI()
       USE INPUTDATA, ONLY: INPUT, READIN_CASPT2
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
@@ -50,13 +50,13 @@ C     Cholesky
       CALL READIN_CASPT2(LuSpool,nSym)
       Call Close_LuSpool(LuSpool)
 * Initialize scratch files.
-      CALL OPNFLS_CASPT2
+      CALL OPNFLS_CASPT2()
 * Initialize the reference wavefunction file and read basic info
       Call refwfn_init(Input%FILE)
       Call refwfn_info()
 * the input processing needs some data from the reference wavefunction
 * to be set, hence this phase occurs after reading that data.
-      Call ProcInp_Caspt2
+      Call ProcInp_Caspt2()
 *
 * Allocate some arrays that will stay globally allocated:
 *
@@ -72,19 +72,19 @@ C     Cholesky
 * If necessary, make modifications to the inactive/virtual orbitals. The
 * new MOs, if any, will overwrite the originals on LUONEM at IAD1M(1).
       If (Input%modify_correlating_MOs) Then
-        Call correlating_orbitals
+        Call correlating_orbitals()
       End If
 
 * After possible reconfiguration of inactives/virtuals, the computation
 * of total sizes of orbital spaces is done here, before any other code
 * (that might rely on these to be correctly set!)
-      Call wfnsizes
+      Call wfnsizes()
 
 * Create the PT2 wavefunction file (formerly JOBMIX). The reference file
 * should not be active, as it might be the same file (in which case it
 * is overwritten).
-      call pt2wfn_init
-      call pt2wfn_data
+      call pt2wfn_init()
+      call pt2wfn_data()
 *
 * Global allocations active throughout the program (NOTRI was computed
 * during the call to wfnsizes, so this is done here.)
@@ -109,16 +109,16 @@ C     Cholesky
       CALL GETMEM('LDWGT','ALLO','REAL',LDWGT,NSTATE*NSTATE)
 
 * Print input data
-      CALL PRINP_CASPT2
+      CALL PRINP_CASPT2()
 
 C INITIALIZE SPLIT-GRAPH UGA TABLES.
-      CALL POLY0
+      CALL POLY0()
 
 C Initialize superindex tables. Check memory needs.
-      CALL SIZES
+      CALL SIZES()
 
 C Initialize sizes, offsets etc used in equation solver.
-      CALL EQCTL1
+      CALL EQCTL1()
 
       If (IfChol) then
 * initialize Cholesky information
@@ -136,7 +136,7 @@ C Initialize sizes, offsets etc used in equation solver.
           Call Cho_Caspt2_OpenF(0,2,iSym,nAsplit(iSym))
         End Do
 * set up size info for cholesky vector transformation in tracho2
-        call trachosz
+        call trachosz()
       End If
 
 * Allocate global orbital arrays:
@@ -147,15 +147,16 @@ C Initialize sizes, offsets etc used in equation solver.
 
 ! initialize quantities for gradient calculation
       If (do_grad) Then
-        CALL GrdIni
+        CALL GrdIni()
       End If
 
-      END
+      END SUBROUTINE PT2INI
 
-      SUBROUTINE PT2CLS
+      SUBROUTINE PT2CLS()
       USE SUPERINDEX
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
+      use gugx, only: SGS, CIS, EXS
 * NOT TESTED
 #if 0
       use OFembed, only: FMaux
@@ -195,10 +196,10 @@ C     size of idsct array
       End If
 
 * Deallocate SGUGA tables:
-      CALL PCLOSE()
+      CALL mkGUGA_Free(SGS,CIS,EXS)
 
 C     Deallocate MAGEB, etc, superindex tables:
-      CALL SUPFREE
+      CALL SUPFREE()
 * Deallocate global array for Fock matrix, etc:
       CALL GETMEM('LFIFA','FREE','REAL',LFIFA,NFIFA)
       CALL GETMEM('LHONE','FREE','REAL',LHONE,NHONE)
@@ -217,10 +218,10 @@ C     Deallocate MAGEB, etc, superindex tables:
       NIDSCT=MXSCT*8*MXCASE*MXVEC
       CALL GETMEM('IDSCT','FREE','INTE',LIDSCT,NIDSCT)
 
-      call pt2wfn_close
+      call pt2wfn_close()
 C     Close all files:
-      CALL CLSFLS_CASPT2
+      CALL CLSFLS_CASPT2()
 
 C free input struct
       CALL CleanUp_Input()
-      End
+      End SUBROUTINE PT2CLS

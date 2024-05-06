@@ -120,7 +120,7 @@ C handle different active spaces per JobIph, but this is checked elsewhere
 #endif
 
 * set orbital partitioning data
-      CALL WFNSIZES_RASSI
+      CALL WFNSIZES_RASSI()
 
 C Added by Ungur Liviu on 04.11.2009
 C Addition of NJOB,MSJOB and MLTPLT on RunFile.
@@ -137,13 +137,13 @@ CTEST      CALL PRINF()
 C Set up tables of coordinates and differentiated nuclei:
 #if 0
       IF(NONA) THEN
-        CALL MKDISP
+        CALL MKDISP()
       END IF
 #endif
 
 
 C Additional input processing. Start writing report.
-      CALL INPPRC
+      CALL INPPRC()
 *
       Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
       Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)

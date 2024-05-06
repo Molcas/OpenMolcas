@@ -114,7 +114,7 @@ C       End If
 
 
       Subroutine CMSTail()
-      write(6,*)('=',i=1,71)
+      write(6,*) repeat('=',71)
       RETURN
       End Subroutine
 ************************************************************************
@@ -160,7 +160,7 @@ C       End If
      &'MAX CYCLES',ICMSIterMax
       write(6,'(5X,A10,10X,I25)')
      &'MIN CYCLES',ICMSIterMin
-      write(6,*)('=',i=1,71)
+      write(6,*) repeat('=',71)
       IF(iCMSOpt.eq.2) THEN
        If(lRoots.gt.2) Then
        write(6,'(4X,A8,2X,2(A16,11X))')
@@ -175,7 +175,7 @@ C       End If
        write(6,'(43X,A7,4X,A8,3X,A6)')
      & 'Hessian','Gradient','Scaled'
       END IF
-      write(6,*)('-',i=1,71)
+      write(6,*) repeat('-',71)
 
       RETURN
       End Subroutine

@@ -16,35 +16,40 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW)
-      use gugx, only: NMIDV, ICASE
-      IMPLICIT REAL*8 (A-H,O-Z)
+      SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW,nMidV)
+      use gugx, only: CIS
+      IMPLICIT None
 C INPUT ARRAYS:
 
 #include "rasdim.fh"
+! Pick up nSym
 #include "caspt2.fh"
+! Pick up MXCI
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-      DIMENSION DIAG(MXCI),NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
 
+      Integer, Intent(In):: nMidV, ISYCI
+      Integer, Intent(In):: NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
+      Real*8, Intent(Out):: DIAG(MXCI)
+
+      Integer IEMU, MV, ISYUP, NUP, ISYDWN, NDWN, ICS, JCS, NC
 C PURPOSE: FORM AN ARRAY OF DIAGONAL HAMILTONIAN MATRIX ELEMENTS
 C FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
 
-      CALL DCOPY_(MXCI,[0.0D0],0,DIAG,1)
+      DIAG(1:MXCI)=0.0D0
       IEMU=1
       DO MV=1,NMIDV
         DO ISYUP=1,NSYM
           NUP=NOW(1,ISYUP,MV)
-          IF(NUP.EQ.0) GOTO 30
+          IF(NUP.EQ.0) Cycle
           ISYDWN=MUL(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
-          IF(NDWN.EQ.0) GOTO 30
+          IF(NDWN.EQ.0) Cycle
           ICS=1+IOW(1,ISYUP,MV)
           JCS=1+IOW(2,ISYDWN,MV)
           NC=NUP*NDWN
-          CALL DIELMV(ICASE(ICS),ICASE(JCS),NUP,NDWN,DIAG(IEMU))
+          CALL DIELMV(CIS%ICASE(ICS),CIS%ICASE(JCS),NUP,NDWN,DIAG(IEMU))
           IEMU=IEMU+NC
-  30      CONTINUE
         END DO
       END DO
+
       END SUBROUTINE H0DIAG_CASPT2

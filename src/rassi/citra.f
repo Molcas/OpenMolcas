@@ -15,7 +15,7 @@
 *  USE THE COEFFICIENTS FOR A SEQUENCE OF SINGLE-ORBITAL TRANSFOR-
 *  MATION, TRA, TO TRANSFORM THE CI EXPANSION COEFFICIENTS
 *  IN-PLACE TO A NEW NON-ON ORBITAL BASIS.
-*  NEW VERSION 981122, using arrays ISGS,ICIS,IXS.
+*  NEW VERSION 981122, using user define types SGS,CIS,XS.
 ************************************************************************
 *  CITRA
 *
@@ -32,23 +32,25 @@
 *> single-orbital transformation.
 *>
 *> @param[in]     WFTP Wave function Type Name
-*> @param[in]     ISGS Split Graph Structure Array
-*> @param[in]     ICIS CI Structure Array
-*> @param[in]     IXS  Excitation operator Structure Array
+*> @param[in]     SGS Split Graph Structure user defined type
+*> @param[in]     CIS CI Structure user define type
+*> @param[in]     EXS  Excitation operator Structure user defined type
 *> @param[in]     LSM  Wave function Symmetry Label
 *> @param[in]     TRA  Transformation Matrix
 *> @param[in]     NCO  Number of Configuration Functions
 *> @param[in,out] CI   CI Array
 ************************************************************************
-      SUBROUTINE CITRA(WFTP,ISGS,ICIS,IXS,LSM,TRA,NCO,CI)
-      use Struct, only: nSGSize, nCISize, nXSize
+      SUBROUTINE CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION TRA(NTRA),CI(NCO)
 #include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-      CHARACTER*8 WFTP
-      DIMENSION ISGS(NSGSIZE),ICIS(NCISIZE),IXS(NXSIZE)
+      CHARACTER(LEN=8) WFTP
+      Type (SGStruct) SGS
+      Type (CIStruct) CIS
+      Type (EXStruct) EXS
 
 
 #ifdef DEBUG_MPSSI
@@ -102,7 +104,7 @@ C The general case:
           NA=NASH(ISYM)
           NO=NOSH(ISYM)
           IF(NA.NE.0) THEN
-            CALL SSOTRA(ISGS,ICIS,IXS,ISYM,LSM,NA,NO,
+            CALL SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,
      *                TRA(ISTA),NCO,CI,WORK(LTMP))
           END IF
           ISTA=ISTA+NO**2

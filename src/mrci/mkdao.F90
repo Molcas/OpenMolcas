@@ -29,7 +29,7 @@ do ISYM=1,NSYM
   NB = NBAS(ISYM)
   do I=1,NB
     X = OCC(IB)
-    call DGER(NB,NB,X,CNO(ICNO),1,CNO(ICNO),1,DAO(IB1,IB1),NBAST)
+    call DGER_(NB,NB,X,CNO(ICNO),1,CNO(ICNO),1,DAO(IB1,IB1),NBAST)
     IB = IB+1
     ICNO = ICNO+NB
   end do

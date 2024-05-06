@@ -68,7 +68,7 @@
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use gugx, only: IFCAS
+      use gugx, only: SGS,CIS,EXS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -103,6 +103,7 @@
 !
       real*8, allocatable :: PLWO(:), CIV(:)
       integer ivkcnf
+
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
@@ -316,7 +317,7 @@
       End IF
       IF(Do_Rotate) Then
         IF(IPRLEV.ge.USUAL) THEN
-        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,'(6X,A)') repeat('=',80)
         write(lf,*)
         write(lf,'(6X,A,A)')'keyword "MSPD" is used and ',
      &  'file recording rotated hamiltonian is found. '
@@ -351,7 +352,7 @@
         If(trim(adjustl(MatInfo)).eq.'FMS-PDFT') MSPDFTMethod='FMS-PDFT'
         ENDIF
         write(lf,*)
-        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,'(6X,A)') repeat('=',80)
         write(lf,*)
         END IF
         Close(LUMS)
@@ -372,12 +373,12 @@
 
       IF(doNACMSPD) Then
         IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
      & cmsNACstates(1), cmsNACstates(2)
         write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         END IF
         call Put_lScalar('isCMSNAC        ', doNACMSPD)
         call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
@@ -390,11 +391,11 @@
 
       IF(doMECIMSPD) Then
         IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
         write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,'(6X,A)') repeat('=',80)
         END IF
         call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
       ELSE
@@ -475,7 +476,7 @@
           call getmem('kcnf','free','inte',ivkcnf,nactel)
           CALL Lucia_Util('Densi',
      &                    CI_Vector=CIVEC(:))
-          If (IFCAS > 2) Then
+          If (SGS%IFRAS > 2) Then
             Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
           End If
 
@@ -593,7 +594,7 @@
           CALL mma_deallocate(Pscr)
           CALL mma_deallocate(CIV)
           Call Lucia_Util('CLOSE')
-          Call MKGUGA_FREE()
+          Call MKGUGA_FREE(SGS,CIS,EXS)
        end if
 
 *

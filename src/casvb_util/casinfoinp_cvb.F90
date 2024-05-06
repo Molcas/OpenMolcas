@@ -21,7 +21,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), parameter :: ncmp = 4, nstrin = 6
 integer(kind=iwp) :: istr, nactel(3), nread
-character(len=8), parameter :: string(nstrin) = ['RAS2    ','INACTIVE','FROZEN  ','NACTEL  ','SPIN    ','SYMMETRY']
+character(len=*), parameter :: string(nstrin) = ['RAS2    ','INACTIVE','FROZEN  ','NACTEL  ','SPIN    ','SYMMETRY']
 
 do
   call fstring_cvb(string,nstrin,istr,ncmp,2)

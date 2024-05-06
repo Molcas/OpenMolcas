@@ -8,34 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module GUGX
-Private
-Integer, Parameter, Public :: MXLEV=100
-Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
 
-Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)
-Integer,              Public::NNOCSF,   NIOCSF,                     NLTV
+module GUGX
 
-Integer, Allocatable, Public::  NOW1(:), IOW1(:), ICASE(:), ICOUP(:)
-Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
+use Definitions, only: wp, iwp
 
-Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
-Integer,              Public::        NDRT,   NDOWN
+implicit none
+private
 
-Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:), MAW(:)
-Integer,              Public::NDAW,   NUP,   NRAW,   NMAW
+! Split-Graph descriptor, sizes, addresses...
+type SGStruct
+  integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
+  integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN, LV1RAS, LM1RAS, LV3RAS, LM3RAS
+  integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
+                                    DAW(:,:), RAW(:,:), SCR(:,:)
+  integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
+end type SGStruct
 
-Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
-Integer,              Public::NVTAB,   NSGTMP
+! CI Structures, addresses,..
+type CIStruct
+  integer(kind=iwp) :: nMidV, nIpWlk, nWalk
+  integer(kind=iwp), allocatable :: NOW(:,:,:), IOW(:,:,:), NCSF(:), NOCSF(:,:,:), IOCSF(:,:,:), ICase(:), IVR(:,:), ISGM(:,:)
+  real(kind=wp), allocatable :: VSGM(:,:)
+end type CIStruct
 
-Integer, Allocatable, Public:: MVR(:), MVL(:)
-Integer,              Public::NMVR,   NMVL
+! Excitation operators, coupling coefficients,...
+type EXStruct
+  integer(kind=iwp) :: MxEO, nICoup
+  integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:)
+  real(kind=wp), allocatable :: VTab(:), SGTMP(:)
+end type EXStruct
 
-Integer, Allocatable, Public:: NOCP(:), IOCP(:)
-Integer,              Public::NNOCP,   NIOCP
+type(SGStruct), target :: SGS
+type(CIStruct), target :: CIS
+type(EXStruct), target :: EXS
 
-INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,NVERT,                    &
-                  IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-                  MIDLEV,NMIDV,MVSta,MVEnd,        MXUP,MXDWN,      &
-                  NWALK,NIPWLK,NCSF(8),MXEO
-End Module GUGX
+integer(kind=iwp), parameter :: MXLEV = 100
+integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
+
+public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MXLEV, SGS, SGStruct
+
+end module GUGX

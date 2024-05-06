@@ -158,7 +158,7 @@ subroutine sigma_update(h,g,sgm,psi)
 
   if (walltime /= Zero) then
     flops = nflop/walltime
-    write(u6,'(1x,a,2(f10.3,a))') 'sigma update: ',walltime,' s, ',flops*1.0d-9,' Gflops.'
+    write(u6,'(1x,a,2(f10.3,a))') 'sigma update: ',walltime,' s, ',flops*1.0e-9_wp,' Gflops.'
   end if
 # endif
 
@@ -205,7 +205,7 @@ subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
 #       ifdef _PROF_
         nflop = nflop+2*ndeta
 #       endif
-        call daxpy_(ndeta,f(jb),psi(:,jb),1,sgm(:,ib),1)
+        sgm(1:ndeta,ib) = sgm(1:ndeta,ib)+f(jb)*psi(1:ndeta,jb)
       end if
     end do
     if (kb > max_ex2b) stop 'exceeded max double excitations'
@@ -256,7 +256,7 @@ subroutine sigma2(k,g,sgm,psi,iasta,iaend)
 #       ifdef _PROF_
         nflop = nflop+2*ndeta
 #       endif
-        call daxpy_(ndetb,f(ja),psi(:,ja),1,sgm(:,ia),1)
+        sgm(1:ndetb,ia) = sgm(1:ndetb,ia)+f(ja)*psi(:,ja)
       end if
     end do
     if (ka > max_ex2a) stop 'exceeded max double excitations'
@@ -276,7 +276,7 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
   real(kind=wp), intent(in) :: psi(:,:)
   ! determinant indices
   integer(kind=iwp), intent(in) :: ibsta, ibend
-  integer(kind=iwp) :: i, n_couples, ib, jb, kb,  &
+  integer(kind=iwp) :: i, n_couples, ib, jb, kb, &
                        t, u, v, x, & !orbital indices
                        tu, sgn_tu
   integer(kind=iwp), allocatable :: ia(:), ja(:), sgn_vx(:)
@@ -325,7 +325,7 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
 #           ifdef _PROF_
             nflop = nflop+2*n_couples
 #           endif
-            call daxpy_(n_couples,f(jb),Ctmp(1,jb),1,Vtmp,1)
+            Vtmp(1:n_couples) = Vtmp(1:n_couples)+f(jb)*Ctmp(1:n_couples,jb)
           end if
         end do
         ! contribution from the identical excitations
@@ -333,7 +333,7 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
 #         ifdef _PROF_
           nflop = nflop+2*n_couples
 #         endif
-          call daxpy_(n_couples,f(ib),Ctmp(1,ib),1,Vtmp,1)
+          Vtmp(1:n_couples) = Vtmp(1:n_couples)+f(ib)*Ctmp(1:n_couples,ib)
         end if
         if (kb > max_ex1b) stop 'exceeded max single excitations'
         ! s3(R_ia,ib) = s3(R_ia,ib) + V(ia)

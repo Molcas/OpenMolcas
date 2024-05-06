@@ -18,6 +18,7 @@ use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, libxc_f
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
                         xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_GGA_K_TFVW, XC_LDA_K_TF, XC_UNPOLARIZED
 use Functionals, only: Get_Funcs
+use DFT_Functionals, only: DFT_FUNCTIONAL, NDSD_Ts, NucAtt, Overlap
 use KSDFT_Info, only: Do_PDFTPOT
 use OFembed, only: dFMD, Do_Core, KEOnly
 use libxc, only: Only_exc
@@ -40,15 +41,8 @@ character(len=80) :: FLabel
 type(xc_f03_func_t) :: func_
 type(xc_f03_func_info_t) :: info_
 !***********************************************************************
-! Define external functions not defined in LibXC. These are either
-! accessed through the procedure pointer Sub or External_sub.
-abstract interface
-  subroutine DFT_FUNCTIONAL(mGrid,nD)
-    import :: iwp
-    integer(kind=iwp), intent(in) :: mGrid, nD
-  end subroutine DFT_FUNCTIONAL
-end interface
-procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
+! External functions not defined in LibXC are accessed through either
+! the procedure pointer Sub or External_sub.
 procedure(DFT_FUNCTIONAL), pointer :: Sub, External_sub
 !***********************************************************************
 

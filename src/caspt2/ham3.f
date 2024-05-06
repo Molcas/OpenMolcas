@@ -9,19 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use gugx, only: NLEV, NCSF, ISM,
-     &                         NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
-     &                         VTAB,MVL,MVR
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use gugx, only: SGS, CIS, EXS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
       DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
       DIMENSION CI(*),SGM(*)
 C Local arrays:
       DIMENSION IATOG(MXLEV)
+      Real*8, Allocatable:: SGM1(:), SGM2(:)
+      Integer nLev
+      nLev = SGS%nLev
 
 C Purpose: Compute and add a contribution to SGM which is
 C obtained from a sum of zero- one- two- and three-electron
@@ -39,16 +40,14 @@ C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
       IF(NCONF.EQ.0) RETURN
       IF(ABS(OP0).GT.1.0D-15) THEN
         CALL DAXPY_(NCONF,OP0,CI,1,SGM,1)
-CTEST      WRITE(*,*)' op0:',op0
-CTEST      WRITE(*,*)' 0, sgm(1):',sgm(1)
       END IF
       IF(NACTEL.EQ.0) RETURN
 
 C Unless this is a special-case wave function, reserve space
 C for intermediate results of elementary excitations.
       IF(ISCF.EQ.0) THEN
-        CALL GETMEM('HAM3A','ALLO','REAL',LSGM1,MXCI)
-        IF(NACTEL.GE.2) CALL GETMEM('HAM3B','ALLO','REAL',LSGM2,MXCI)
+        CALL mma_allocate(SGM1,MXCI,Label='SGM1')
+        IF(NACTEL.GE.2) CALL mma_allocate(SGM2,MXCI,Label='SGM2')
       END IF
 C Special cases:
       OCCNO=0.0d0
@@ -60,7 +59,7 @@ C ordinal number of each active orbital.
       ITABS=0
       DO ISYM=1,NSYM
         DO I=1,NLEV
-          IF(ISM(I).EQ.ISYM) THEN
+          IF(SGS%ISM(I).EQ.ISYM) THEN
             ITABS=ITABS+1
             IATOG(ITABS)=I
           END IF
@@ -72,23 +71,21 @@ C ordinal number of each active orbital.
         IYZ=IY+(IZ-1)*NASHT
         ISYZ=MUL(IASYM(IY),IASYM(IZ))
         ISYM1=MUL(ISYZ,ISYCI)
-        NSGM1=NCSF(ISYM1)
+        NSGM1=CIS%NCSF(ISYM1)
         IF(NSGM1.EQ.0) GOTO 30
         IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM1:=E(IY,IZ) PSI
-          CALL DCOPY_(NSGM1,[0.0D0],0,WORK(LSGM1),1)
+          CALL DCOPY_(NSGM1,[0.0D0],0,SGM1,1)
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
-          CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,WORK(LSGM1),
-     &            NOCSF,IOCSF,NOW1,IOW1,
-     &            NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
             IF(ABS(X).GT.1.0D-15) THEN
-              CALL DAXPY_(NCONF,X,WORK(LSGM1),1,SGM,1)
+              CALL DAXPY_(NCONF,X,SGM1,1,SGM,1)
 CTEST      WRITE(*,*)' op1:',X
 CTEST      WRITE(*,*)' iyz, sgm(1):',iyz,sgm(1)
             END IF
@@ -109,23 +106,21 @@ C Closed-shell or hi-spin case:
           ISVXYZ=MUL(ISVX,ISYZ)
           IVXYZ=(IVX*(IVX-1))/2+IYZ
           ISYM2=MUL(ISVX,ISYM1)
-          NSGM2=NCSF(ISYM2)
+          NSGM2=CIS%NCSF(ISYM2)
           IF(NSGM2.EQ.0) GOTO 20
           IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM2:=E(IV,IX) SGM1
-            CALL DCOPY_(NSGM2,[0.0D0],0,WORK(LSGM2),1)
+            CALL DCOPY_(NSGM2,[0.0D0],0,SGM2,1)
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
-            CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,WORK(LSGM1),
-     &       WORK(LSGM2),NOCSF,IOCSF,NOW1,
-     &       IOW1,NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR)
+            CALL SIGMA1(SGS,CIS,EXS,
+     &                  LEVV,LEVX,1.0D00,ISYM1,SGM1,SGM2)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
               IF(ABS(X).GT.1.0D-15) THEN
-                CALL DAXPY_(NCONF,X,WORK(LSGM2),1,SGM,1)
+                CALL DAXPY_(NCONF,X,SGM2,1,SGM,1)
 CTEST      WRITE(*,*)' op2:',X
 CTEST      WRITE(*,*)' ivxyz, sgm(1):',ivxyz,sgm(1)
               END IF
@@ -152,10 +147,8 @@ C Add non-zero 3-el contribution to SGM:
             IF(ISCF.EQ.0) THEN
               LEVT=IATOG(IT)
               LEVU=IATOG(IU)
-              CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,WORK(LSGM2),SGM,
-     &            NOCSF,IOCSF,NOW1,IOW1,
-     &            NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR)
+              CALL SIGMA1(SGS,CIS,EXS,
+     &                    LEVT,LEVU,X,ISYM2,SGM2,SGM)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE
@@ -178,9 +171,8 @@ C Closed-shell or hi-spin case:
 
 C Deallocate temporary arrays, if any:
       IF(ISCF.EQ.0) THEN
-        CALL GETMEM('HAM3A','FREE','REAL',LSGM1,MXCI)
-        IF(NACTEL.GE.2) CALL GETMEM('HAM3B','FREE','REAL',LSGM2,MXCI)
+        CALL mma_deallocate(SGM1)
+        IF(NACTEL.GE.2) CALL mma_deallocate(SGM2)
       END IF
 
-      RETURN
       END

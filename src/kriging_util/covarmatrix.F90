@@ -87,7 +87,8 @@ call RecPrt('d',' ',d,nPoints,nPoints)
 !**********************************************************************
 ! 1) Evaluate the covariance function for all the distances.
 
-call matern(d,full_R(1:nPoints,1:nPoints),nPoints,nPoints)
+call matern(d,matFder,nPoints,nPoints)
+full_R(1:nPoints,1:nPoints) = matFder(:,:)
 
 ! Writing the covariant matrix in GEK (eq 2 of doi:10.1007/s00366-015-0397)
 !
@@ -95,7 +96,7 @@ call matern(d,full_R(1:nPoints,1:nPoints),nPoints,nPoints)
 !
 ! 2) Evaluate first derivatives of the covariance function with respect to d at all distances.
 
-call matderiv(1,d,MatFder,nPoints,nPoints)
+call matderiv(1,d,matFder,nPoints,nPoints)
 
 ! Covariant matrix in Gradient Enhanced Kriging (eq 2 of doi:10.1007/s00366-015-0397):
 !
@@ -114,7 +115,7 @@ do i_eff=1,nInter_Eff      ! Loop over component of the coordinate to differenti
 
   ! Writing the 1st row of 1st derivatives with respect the coordinates
 
-  full_R(1:nPoints,i0:i1) = matFDer(1:nPoints,1+nD:nPoints)*diffx_i(1:nPoints,1+nD:nPoints)
+  full_R(1:nPoints,i0:i1) = matFder(1:nPoints,1+nD:nPoints)*diffx_i(1:nPoints,1+nD:nPoints)
 
 end do
 ! Complete by filling in the transpose blocks

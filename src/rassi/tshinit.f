@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nSGSize, nCISize, nXSize
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -21,12 +21,24 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
-      DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
-      DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
-      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
+      Real*8 :: Energy(nState)
+      Type (SGStruct), Target :: SGS(2)
+      Type (CIStruct) :: CIS(2)
+      Type (EXStruct) :: EXS(2)
       INTEGER      I,JOB1,JOB2,iRlxRoot
       CHARACTER*8  WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
+
+      Interface
+      Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
+      use gugx, only: SGStruct, CIStruct
+      IMPLICIT None
+      Integer nSym, nActEl, iSpin
+      Type (SGStruct), Target :: SGS
+      Type (CIStruct) :: CIS
+      End Subroutine SGInit
+      End Interface
+
 *
 C
 C Print a banner
@@ -34,12 +46,12 @@ C
       IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)
-        WRITE(6,'(6X,100A1)') ('*',i=1,100)
+        WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,'(6X,A,98X,A)') '*','*'
         WRITE(6,'(6X,A,36X,A,37X,A)')
      &       '*',' Surface hopping section ','*'
         WRITE(6,'(6X,A,98X,A)') '*','*'
-        WRITE(6,'(6X,100A1)') ('*',i=1,100)
+        WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,*)
         WRITE(6,*)
 
@@ -66,6 +78,8 @@ C
       NHOL11=NHOLE1(JOB1)
       NELE31=NELE3(JOB1)
       WFTYP1=RASTYP(JOB1)
+      SGS(1)%IFRAS=1
+      SGS(2)%IFRAS=1
 C
 C Set the variables for the wave function of the current state
 C
@@ -79,20 +93,14 @@ C
           NRASEL(1)=2*NRS1T-NHOL11
           NRASEL(2)=NACTE1-NELE31
           NRASEL(3)=NACTE1
-          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
+          CALL SGINIT(NSYM,NACTE1,MPLET1,SGS(1),CIS(1))
           IF(IPGLOB.GT.4) THEN
              WRITE(6,*)'Split-graph structure for JOB1=',JOB1
-             CALL SGPRINT(ISGSTR1)
+             CALL SGPRINT(SGS(1))
           END IF
-          CALL SGSVAL(ISGSTR1,NSYM,NASHT,LISM,NVERT,LDRT,
-     &               LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-          CALL CXINIT(ISGSTR1,ICISTR1,IXSTR1)
-          CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &               LNOCSF,LIOCSF,NWALK,LICASE,
-     &               MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &               LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+          CALL CXINIT(SGS(1),CIS(1),EXS(1))
 C CI sizes, as function of symmetry, are now known.
-          NCI1=IWORK(LNCSF-1+LSYM1)
+          NCI1=CIS(1)%NCSF(LSYM1)
       ELSE
 * The only other cases are HISPIN, CLOSED or EMPTY.
 * NOTE: The HISPIN case is suspected to be buggy. Not used now.
@@ -166,21 +174,14 @@ C For the second wave function
             NRASEL(1)=2*NRS1T-NHOL12
             NRASEL(2)=NACTE2-NELE32
             NRASEL(3)=NACTE2
-            CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,
-     &           NRASEL,ISGSTR2)
+            CALL SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
             IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-               CALL SGPRINT(ISGSTR2)
+               CALL SGPRINT(SGS(2))
             END IF
-            CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
-     &           LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-            CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
-            CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
-     &           LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
-     &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
-     &           LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+            CALL CXINIT(SGS(2),CIS(2),EXS(2))
 C     CI sizes, as function of symmetry, are now known.
-            NCI2=IWORK(LNCSF-1+LSYM2)
+            NCI2=CIS(2)%NCSF(LSYM2)
          ELSE
 C     Presently, the only other cases are HISPIN, CLOSED or EMPTY.
             NCI2=1
@@ -207,8 +208,7 @@ C     Check if the Energy gap is smaller than the threshold.
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
-           CALL CXCLOSE(ISGSTR2,ICISTR2,IXSTR2)
-           CALL SGCLOSE(ISGSTR2)
+           CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
          CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
          CALL KILLOBJ(LPART)
@@ -249,21 +249,14 @@ C For the second wave function
             NRASEL(1)=2*NRS1T-NHOL12
             NRASEL(2)=NACTE2-NELE32
             NRASEL(3)=NACTE2
-            CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,
-     &           NRASEL,ISGSTR2)
+            CALL SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
             IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-               CALL SGPRINT(ISGSTR2)
+               CALL SGPRINT(SGS(2))
             END IF
-            CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
-     &           LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-            CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
-            CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
-     &           LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
-     &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
-     &           LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+            CALL CXINIT(SGS(2),CIS(2),EXS(2))
 C     CI sizes, as function of symmetry, are now known.
-            NCI2=IWORK(LNCSF-1+LSYM2)
+            NCI2=CIS(2)%NCSF(LSYM2)
          ELSE
 C     Presently, the only other cases are HISPIN, CLOSED or EMPTY.
             NCI2=1
@@ -290,8 +283,7 @@ C     Check if the Energy gap is smaller than the threshold.
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
-           CALL CXCLOSE(ISGSTR2,ICISTR2,IXSTR2)
-           CALL SGCLOSE(ISGSTR2)
+           CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
          CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
          CALL KILLOBJ(LPART)
@@ -303,8 +295,7 @@ C         NCI2=NCI1
 C         CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCI2)
 C      END IF
       IF(WFTYP1.EQ.'GENERAL ') THEN
-        CALL CXCLOSE(ISGSTR1,ICISTR1,IXSTR1)
-        CALL SGCLOSE(ISGSTR1)
+        CALL MkGUGA_Free(SGS(1),CIS(1),EXS(1))
       END IF
       CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)
 *

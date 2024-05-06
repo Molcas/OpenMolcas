@@ -80,17 +80,12 @@ subroutine dqk15i(f,boun,inf,a,b,reslt,abserr,resabs,resasc)
 !***routines called  d1mach
 !***end prologue  dqk15i
 
+use fx, only: f_interface
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: boun, a, b
 real(kind=wp), intent(out) :: reslt, abserr, resabs, resasc
 integer(kind=iwp), intent(in) :: inf

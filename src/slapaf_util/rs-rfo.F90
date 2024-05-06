@@ -41,7 +41,7 @@ real(kind=wp), intent(out) :: dq(nInter)
 character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(inout) :: dqHdq
 character, intent(out) :: Step_Trunc
-integer(kind=iwp) :: i, ij, iRoot, iStatus, Iter, IterMx, iVal, j, Lu, NumVal
+integer(kind=iwp) :: i, ij, iRoot, iStatus, Iter, IterMx, iVal, j, NumVal
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, Dist, dqdq, dqdq_long, dqdq_short, EigVal, Fact, VV, ZZ
 logical(kind=iwp) :: Iterate, Restart
 real(kind=wp), allocatable :: Matrix(:), Val(:), Vec(:,:), Tmp(:)
@@ -52,17 +52,16 @@ real(kind=wp), parameter :: Thr_Check = 1.0e2_wp
 real(kind=wp), external :: DDot_
 
 UpMeth = 'RS-RFO'
-Lu = u6
 !#define _DEBUGPRINT_
 !#define _DEBUG2_
 #ifdef _DEBUGPRINT_
 call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
 call RecPrt(' In RS_RFO: g',' ',g,nInter,1)
-write(Lu,*) 'Trust radius=',StepMax
+write(u6,*) 'Trust radius=',StepMax
 
-write(Lu,*)
-write(Lu,*) 'RS-RF Optimization'
-write(Lu,*) ' Iter   alpha          dqdq    StepMax     EigVal'
+write(u6,*)
+write(u6,*) 'RS-RF Optimization'
+write(u6,*) ' Iter   alpha          dqdq    StepMax     EigVal'
 #endif
 
 A_RFO = One   ! Initial seed of alpha
@@ -81,8 +80,8 @@ Tmp(:) = Zero
 do
   Iter = Iter+1
 # ifdef _DEBUG2_
-  write(Lu,*) 'Iter=',Iter
-  write(Lu,*) 'A_RFO=',A_RFO
+  write(u6,*) 'Iter=',Iter
+  write(u6,*) 'A_RFO=',A_RFO
 # endif
   !                                                                    *
   !*********************************************************************
@@ -157,7 +156,7 @@ do
   !*********************************************************************
   !                                                                    *
 # ifdef _DEBUG2_
-  write(Lu,*) ' RF eigenvalue=',Val
+  write(u6,*) ' RF eigenvalue=',Val
 # endif
   ZZ = DDot_(nInter+1,Vec(1,iRoot),1,Vec(1,iRoot),1)
   Vec(:,iRoot) = Vec(:,iRoot)/sqrt(ZZ)
@@ -176,7 +175,7 @@ do
 
   Fact = Vec(nInter+1,iRoot)
 # ifdef _DEBUG2_
-  write(Lu,*) 'v^k_{1,i}=',Fact
+  write(u6,*) 'v^k_{1,i}=',Fact
 # endif
 
   ! Normalize according to Eq. (5)
@@ -197,9 +196,9 @@ do
 
   dqdq = sqrt(DDot_(nInter,dq,1,dq,1))
 # ifdef _DEBUGPRINT_
-  write(Lu,'(I5,5(ES12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
-  !write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
-  !write(Lu,*) 'Thr_RS=',Thr_RS
+  write(u6,'(I5,5(ES12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
+  !write(u6,*) 'StepMax-dqdq=',StepMax-dqdq
+  !write(u6,*) 'Thr_RS=',Thr_RS
 # endif
   !                                                                    *
   !*********************************************************************
@@ -229,7 +228,7 @@ do
   if ((.not. Iterate) .or. (abs(StepMax-dqdq) <= Thr_RS)) exit
   Step_Trunc = '*'
 # ifdef _DEBUG2_
-  write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
+  write(u6,*) 'StepMax-dqdq=',StepMax-dqdq
 # endif
 
   ! Converge if small interval
@@ -237,14 +236,14 @@ do
   if ((dqdq < StepMax) .and. (abs(A_RFO_long-A_RFO_short) < Thr_RS)) exit
   call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,dqdq,StepMax)
   if (A_RFO == -One) then
-    !write(Lu,*) 'reset Step_Trunc'
+    !write(u6,*) 'reset Step_Trunc'
     A_RFO = One
     Step_Trunc = ' '
     Restart = .true.
     Iterate = .false.
   end if
   if (Iter > IterMx) then
-    write(Lu,*) ' Too many iterations in RF'
+    write(u6,*) ' Too many iterations in RF'
     exit
   end if
 end do
@@ -252,10 +251,10 @@ end do
 call mma_deallocate(Tmp)
 dqHdq = dqHdq+EigVal*Half
 #ifdef _DEBUGPRINT_
-write(Lu,*)
-write(Lu,*) 'Rational Function Optimization, Lambda=',EigVal
-write(Lu,*)
-write(Lu,*) 'EigVal,dqHdq=',EigVal,dqHdq
+write(u6,*)
+write(u6,*) 'Rational Function Optimization, Lambda=',EigVal
+write(u6,*)
+write(u6,*) 'EigVal,dqHdq=',EigVal,dqHdq
 call RecPrt(' In RS_RFO: g',' ',g,nInter,1)
 call RecPrt(' In RS_RFO:dq',' ',dq,nInter,1)
 #endif
@@ -275,8 +274,8 @@ call mma_deallocate(Val)
 call mma_deallocate(Matrix)
 !write(u6,*) 'dqdq=',dqdq,dqdq**2
 !write(u6,*) 'StepMax=',StepMax,StepMax**2
-!write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
-!write(Lu,*) dqdq < StepMax
+!write(u6,*) 'StepMax-dqdq=',StepMax-dqdq
+!write(u6,*) dqdq < StepMax
 
 return
 

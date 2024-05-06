@@ -28,6 +28,7 @@ subroutine MltInt_GIAO( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
+use Symmetry_Info, only: ChOper
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -40,7 +41,6 @@ integer(kind=iwp) :: ia, ib, iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, 
 real(kind=wp) :: RAB(3), TC(3)
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3)
-character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 

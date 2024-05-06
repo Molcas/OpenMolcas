@@ -28,7 +28,7 @@ integer(kind=iwp) :: i, j, k, ii, jj, iii, jjj, lu, max_i, max_j, n_sf
 real(kind=wp) :: max_k
 real(kind=wp), allocatable :: freq(:), G(:,:), G_SF(:,:), J_w(:,:), n_w(:,:), omega_ab(:,:), r_ab_SO(:,:), temp_gk(:)
 complex(kind=wp), allocatable :: G_SO(:,:,:), gamma_pd(:,:), gamma_pd_basis(:,:), k_ab(:,:)
-character(len=256), parameter :: format1 = '(2(i8),4(g15.8,1x))'
+character(len=*), parameter :: format1 = '(2(i8),4(g15.8,1x))'
 integer(kind=iwp), external :: isFreeUnit
 
 n_sf = sum(nconf)

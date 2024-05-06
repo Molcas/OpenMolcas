@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX)
+subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX,nTUVX)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -44,7 +44,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(DSBA_Type), intent(in) :: DLT(1), MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1), FSQ
-real(kind=wp), intent(_OUT_) :: TUVX(*)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 #include "rassi.fh"
 integer(kind=iwp) :: i, ia, iabt, ib, iBatch, iCase, iLoc, irc, iREDC, iSkip(8), iSwap, iSym, iSyma, iSymb, iSymk, iSymv, IVEC2, &
                      iVrs, jDen, JNUM, JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, &
@@ -352,7 +353,7 @@ do jSym=1,nSym
 
       DoReord = (JRED == JRED2) .and. (iBatch == nBatch)
 
-      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
       call CWTIME(TCINT2,TWINT2)
       tintg(1) = tintg(1)+(TCINT2-TCINT1)

@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
-      use gugx, only: NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
-     &                         VTAB,MVL,MVR,NLEV,NCSF,L2ACT
+      use gugx, only: EXS, SGS,L2ACT, CIS
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -21,6 +20,9 @@
       DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
       DIMENSION TG3(NTG3)
       DIMENSION CI1(MXCI),CI2(MXCI)
+      Integer :: nLev
+      nLev = SGS%nLev
+
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
 
@@ -162,7 +164,7 @@ C excitations within the RAS space.
 C But we also need the 'usual' pair index in order to use the
 C packed addressing.
 
-      NCI1=NCSF(LSYM1)
+      NCI1=CIS%NCSF(LSYM1)
 C Overlap:
       IF(LSYM1.EQ.LSYM2) OVL=DDOT_(NCI1,CI1,1,CI2,1)
 C Allocate as many vectors as possible:
@@ -210,10 +212,8 @@ C Translate to levels in the SGUGA coupling order:
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    NOCSF,IOCSF,NOW1,IOW1,
-     &    NOCP,IOCP,ICOUP,
-     &    VTAB,MVL,MVR)
+        CALL SIGMA1(SGS,CIS,EXS,
+     &              IL,JL,1.0D00,LSYM2,CI2,WORK(LTO))
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
         END IF
@@ -234,10 +234,8 @@ C Translate to levels:
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
-         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    NOCSF,IOCSF,NOW1,IOW1,
-     &    NOCP,IOCP,ICOUP,
-     &    VTAB,MVL,MVR)
+         CALL SIGMA1(SGS,CIS,EXS,
+     &               IL,JL,1.0D00,LSYM1,CI1,WORK(LTO))
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -259,13 +257,11 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IVS=IASYM(IV)
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
-          NTAU=NCSF(ISTAU)
+          NTAU=CIS%NCSF(ISTAU)
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
-          CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     NOCSF,IOCSF,NOW1,IOW1,
-     &     NOCP,IOCP,ICOUP,
-     &     VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU))
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
           END IF

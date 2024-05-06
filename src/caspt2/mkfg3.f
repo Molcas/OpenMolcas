@@ -55,17 +55,14 @@ C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
-      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
+      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_output, only: iPrGlb, verbose, debug
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_gradient, only: do_grad, nbuf1_grad, nStpGrd
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, ICOUP, IOCSF,
-     &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
-     &                         NOCSF, NOW1, VTAB,
-     &                         ISM, L2ACT
+      use gugx, only: CIS, SGS, L2ACT, EXS
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -75,7 +72,7 @@ C>                   to active indices
 
       LOGICAL RSV_TSK
 
-      INTEGER, INTENT(IN) :: IFF
+      INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(IN) :: CI(MXCI)
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
@@ -119,6 +116,8 @@ C>                   to active indices
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
 
+      Integer :: nMidV
+      nMidV = CIS%nMidV
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999
@@ -134,7 +133,7 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) GOTO 999
 
-      NCI=NCSF(STSYM)
+      NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) GOTO 999
 
@@ -227,8 +226,8 @@ C-SVC20100301: calculate maximum number of tasks possible
       DO issg1=1,nsym
         isp1=mul(issg1,stsym)
         if (.not. DoFCIQMC) then
-          nsgm1=ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
+          nsgm1=CIS%ncsf(issg1)
+          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),CIS%NOW,CIS%IOW,NMIDV)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -238,7 +237,7 @@ C-is basically the number of buffers we fill with sigma1 vectors.
       DO ip1=1,nlev2
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
-        istu=mul(ism(itlev),ism(iulev))
+        istu=mul(SGS%ism(itlev),SGS%ism(iulev))
         IF (istu.EQ.isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
@@ -341,7 +340,7 @@ C-sigma vectors in the buffer.
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
-         istu=mul(ism(itlev),ism(iulev))
+         istu=mul(SGS%ism(itlev),SGS%ism(iulev))
          it=L2ACT(itlev)
          iu=L2ACT(iulev)
          if(istu.eq.isp1) then
@@ -350,10 +349,8 @@ C-sigma vectors in the buffer.
           if (.not. DoFCIQMC) then
               lto=lbuf1+mxci*(ibuf1-1)
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-              CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+              CALL SIGMA1(SGS,CIS,EXS,
+     &                    IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO))
           end if
          end if
         end do
@@ -404,20 +401,18 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 * The indices corresponding to pair index p3:
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
-      isyz=mul(ism(iylev),ism(izlev))
+      isyz=mul(SGS%ism(iylev),SGS%ism(izlev))
       issg2=mul(isyz,stsym)
       if (.not. DoFCIQMC) then
-         nsgm2=ncsf(issg2)
+         nsgm2=CIS%ncsf(issg2)
       end if
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       if (.not. DoFCIQMC) then
           lto=lbuf2
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-          CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO))
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -442,7 +437,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       do ip2=ip3,ntri2
         ivlev=idx2ij(1,ip2)
         ixlev=idx2ij(2,ip2)
-        isvx=mul(ism(ivlev),ism(ixlev))
+        isvx=mul(SGS%ism(ivlev),SGS%ism(ixlev))
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
         if(isvx.ne.mul(issg1,issg2)) goto 99
@@ -450,10 +445,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             lfrom=lbuf2
             lto=lbuft
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-            CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
-     &           WORK(LTO),NOCSF,IOCSF,NOW1,
-     &           IOW1,NOCP,IOCP,ICOUP,
-     &           VTAB,MVL,MVR)
+            CALL SIGMA1(SGS,CIS,EXS,
+     &                  IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO))
         end if
 *-----------
 * Max and min values of index p1:
@@ -576,7 +569,7 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F2,NG2)
 
       if (DoFCIQMC) then
-          call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3)
+          call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)
       else
           ! Correction to G2: It is now = <0| E_tu E_yz |0>
           do iu=1,nlev

@@ -12,6 +12,7 @@
 set (sources
      check_fthaw.F90
      cwrap_drvnq.F90
+     dft_functionals.F90
      driver.F90
      drvdft.F90
      drvemb.F90
@@ -21,11 +22,8 @@ set (sources
      get_exfac.F90
      ksdft_info.F90
      libxc_parameters.F90
-     ndsd_ts.F90
-     nucatt.F90
      ofembed.F90
      ofe_print.F90
-     overlap.F90
      vemb_exc_states.F90
      vt_lim.F90
      wrap_drvnq.F90

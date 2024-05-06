@@ -27,7 +27,7 @@ integer(kind=iwp) :: iAddPot, iAtom, iMult, jMlt, kOrd, kPnt, ncmp
 real(kind=wp) :: opnuc(1), SumOfChg, TotElecInt
 real(kind=wp), allocatable :: Charge(:), D2(:), EI(:)
 character(len=LenIn), allocatable :: CName(:)
-character(len=3), parameter :: Axis(3) = [' x ',' y ',' z ']
+character(len=*), parameter :: Axis(3) = [' x ',' y ',' z ']
 
 if (iPL >= 5) then
   write(u6,*) ' In espf_mltp:',MltOrd,nMult,nGrdPt

@@ -15,8 +15,8 @@
 subroutine cvbmn_cvb(icode)
 
 use casvb_global, only: esym, n_iter
+use Lucia_Interface, only: Lucia_Util
 use Definitions, only: iwp
-use lucia_interface, only: lucia_util
 
 implicit none
 integer(kind=iwp), intent(in) :: icode

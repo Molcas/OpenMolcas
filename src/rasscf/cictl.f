@@ -73,7 +73,7 @@
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
-      use gugx, only: IFCAS,  NOCSF,  IOCSF, NOW1, IOW1
+      use gugx, only: SGS, CIS
       use sxci, only: IDXSX
 
       Implicit Real* 8 (A-H,O-Z)
@@ -125,7 +125,6 @@ c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
       Real*8, Allocatable:: CIV(:)
-      Integer, Allocatable:: PrSel(:)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
@@ -146,11 +145,11 @@ C Local print level (if any)
           END IF
 
 
-* set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
-* IFCAS = 0: This is a CAS calculation
-* IFCAS = 1: This is a RAS calculation
+* set up flag 'IFRAS' for GAS option, which is set up in gugatcl originally.
+* IFRAS = 0: This is a CAS calculation
+* IFRAS = 1: This is a RAS calculation
 *
-      if(iDoGas.or.ifcas.gt.2) call setsxci
+      if(iDoGas.or.SGS%IFRAS.gt.2) call setsxci()
       If ( IPRLEV.gt.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' Enter CI section, CICTL routine'
@@ -314,7 +313,7 @@ C Local print level (if any)
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
                  CALL Lucia_Util('Densi',
      &                           CI_Vector=CIVEC(:))
-                 If (IFCAS.GT.2 .OR. iDoGAS) Then
+                 If (SGS%IFRAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
                  Call mma_deallocate(Pscr)
@@ -451,23 +450,23 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
          if (DoSplitCAS) then !(GLMJ)
            Call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
            if (iErrSplit.eq.1) then
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
             write(LF,*)'WARNING!!!'
             write(LF,*) 'SplitCAS iterations don''t converge.'
             write(LF,*) 'The program will continue'
             write(LF,*) 'Hopefully your calculation will converge',
      &                 'next iteration!'
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
            end if
            if (iErrSplit.eq.2) then
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
             write(LF,*)'WARNING!!!'
             write(LF,*) 'SplitCAS iterations don''t converge.'
             write(LF,*) 'MxIterSplit', MxIterSplit
             write(LF,*) 'SplitCAS ThreShold', ThrSplit
           write(LF,*)'Try to increase MxIterSplit or SplitCAS threshold'
             write(LF,*) 'The program will STOP'
-            write(LF,*) ('*',i=1,120)
+            write(LF,*) repeat('*',120)
             call xQuit(96)
            end if
          end if
@@ -603,7 +602,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
          EndIf
-         IF (.not.doDMRG .and. (IFCAS.GT.2 .OR. iDoGAS))
+         IF (.not.doDMRG .and. (SGS%IFRAS.GT.2 .OR. iDoGAS))
      &   CALL CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
 ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
          if(doDMRG)then
@@ -706,7 +705,7 @@ C and for now don't bother with 2-electron active density matrices
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
         EndIf
-        IF (IDoGAS.or.ifcas.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
+        IF (IDoGAS.or.SGS%IFRAS.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
      &              Ptmp,PAtmp,Pscr)
            If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                      Call Mod_P2(Ptmp,NACPR2,
@@ -772,8 +771,6 @@ c
         Write(6,'(6x,A)')
      &     'has been made, which may change the order of the CSFs.'
        END IF
-       Call mma_allocate(PrSel,nConf,Label='PrSel')
-       PrSel(:)=0
        Call mma_allocate(CIV,nConf,Label='CIV')
        iDisk = IADR15(4)
 
@@ -822,7 +819,8 @@ c         end if
                 call Molcas_open(LuVecDet,filename)
                 write(LuVecDet,'(8i4)') nish
               End If
-              CALL SGPRWF(PrSel,NOCSF,IOCSF,NOW1,IOW1,CIV)
+              CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,
+     &                    KeyPRSD,LUVECDET)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
             End If
@@ -844,7 +842,7 @@ C.. printout of the wave function
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
 
-            call gasprwf(PrSel,nac,nactel,stsym,conf,
+            call gasprwf(nac,nactel,stsym,conf,
      c           cftp,CIVEC,iwork(ivkcnf))
           End If
          end if
@@ -890,14 +888,14 @@ C.. printout of the wave function
             LuVecDet=IsFreeUnit(LuVecDet)
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
-            CALL SGPRWF(PrSel,NOCSF,IOCSF,NOW1,IOW1,CIV)
+            CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,
+     &                  KeyPRSD,LUVECDET)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
           END IF
         END IF
         endif
 
-        Call mma_deallocate(PrSel)
         Call mma_deallocate(CIV)
       ENDIF
 

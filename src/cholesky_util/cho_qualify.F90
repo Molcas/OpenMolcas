@@ -19,21 +19,21 @@ subroutine CHO_QUALIFY(DIAG,ISHLAB,ISYMAX,MEM,FULL)
 !          If no more columns can be qualified on exit,
 !          FULL=.true. is returned.
 
-use Cholesky, only: DiaMin, IALQUA, iiBstR, iiBstRSh, IndRed, iOffq, iQuAB, iSP2F, LuPri, MaxQual, nnBstR, nnBstRSh, nQual, nSym
+use Cholesky, only: IALQUA, iOffq, MaxQual, nnBstR, nQual, nSym
+#ifdef _DEBUGPRINT_
+use Cholesky, only: DiaMin, iiBstR, iiBstRSh, IndRed, iQuAB, iSP2F, LuPri, nnBstRSh
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: Diag(*)
 integer(kind=iwp), intent(in) :: ISHLAB, ISYMAX, MEM
 logical(kind=iwp), intent(out) :: FULL
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-integer(kind=iwp) :: I, I1, I2, ISHLA, ISHLB, ISYM, K, K1, K2, LEFT, MEM0, MINM, NEED, NUM
-logical(kind=iwp), parameter :: LOCDBG = _DBG_
+integer(kind=iwp) :: ISYM, LEFT, MEM0, MINM, NEED
 character(len=*), parameter :: SECNAM = 'CHO_QUALIFY'
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, I1, I2, ISHLA, ISHLB, K, K1, K2, NUM
+#endif
 
 ! Copy counter to offset array.
 ! -----------------------------
@@ -104,33 +104,33 @@ else
   end do
 end if
 
+#ifdef _DEBUGPRINT_
 ! Debug: print.
 ! -------------
 
-if (LOCDBG) then
-  call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+call CHO_INVPCK(ISP2F(ISHLAB),ISHLA,ISHLB,.true.)
+write(LUPRI,*)
+write(LUPRI,*)
+write(LUPRI,*) SECNAM,': qualified diagonals from shell-pair ',ISHLA,ISHLB,':'
+write(LUPRI,*) 'Qualification algorithm: ',IALQUA
+write(LUPRI,*) 'Total memory for qualification: ',MEM,'  Memory left: ',LEFT
+do ISYM=1,NSYM
+  NUM = NQUAL(ISYM)-IOFFQ(ISYM)
   write(LUPRI,*)
-  write(LUPRI,*)
-  write(LUPRI,*) SECNAM,': qualified diagonals from shell-pair ',ISHLA,ISHLB,':'
-  write(LUPRI,*) 'Qualification algorithm: ',IALQUA
-  write(LUPRI,*) 'Total memory for qualification: ',MEM,'  Memory left: ',LEFT
-  do ISYM=1,NSYM
-    NUM = NQUAL(ISYM)-IOFFQ(ISYM)
-    write(LUPRI,*)
-    write(LUPRI,*) 'Sym.,dimension,#qualified,threshold: ',ISYM,NNBSTRSH(ISYM,ISHLAB,2),NUM,DIAMIN(ISYM)
-    if (NNBSTRSH(ISYM,ISHLAB,2) > 0) then
-      I1 = IIBSTR(ISYM,2)+IIBSTRSH(ISYM,ISHLAB,2)+1
-      I2 = I1+NNBSTRSH(ISYM,ISHLAB,2)-1
-      write(LUPRI,*) 'Diagonal (current reduced set):'
-      write(LUPRI,'(5F15.8)') (DIAG(INDRED(I,2)),I=I1,I2)
-      K1 = IOFFQ(ISYM)+1
-      K2 = NQUAL(ISYM)
-      write(LUPRI,*) 'Qualified diagonals:'
-      write(LUPRI,'(5F15.8)') (DIAG(INDRED(IQUAB(K,ISYM),2)),K=K1,K2)
-    end if
-  end do
-  write(LUPRI,*)
-  write(LUPRI,*)
-end if
+  write(LUPRI,*) 'Sym.,dimension,#qualified,threshold: ',ISYM,NNBSTRSH(ISYM,ISHLAB,2),NUM,DIAMIN(ISYM)
+  if (NNBSTRSH(ISYM,ISHLAB,2) > 0) then
+    I1 = IIBSTR(ISYM,2)+IIBSTRSH(ISYM,ISHLAB,2)+1
+    I2 = I1+NNBSTRSH(ISYM,ISHLAB,2)-1
+    write(LUPRI,*) 'Diagonal (current reduced set):'
+    write(LUPRI,'(5F15.8)') (DIAG(INDRED(I,2)),I=I1,I2)
+    K1 = IOFFQ(ISYM)+1
+    K2 = NQUAL(ISYM)
+    write(LUPRI,*) 'Qualified diagonals:'
+    write(LUPRI,'(5F15.8)') (DIAG(INDRED(IQUAB(K,ISYM),2)),K=K1,K2)
+  end if
+end do
+write(LUPRI,*)
+write(LUPRI,*)
+#endif
 
 end subroutine CHO_QUALIFY

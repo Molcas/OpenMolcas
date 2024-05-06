@@ -14,6 +14,7 @@
 
       use caspt2_output, only:iPrGlb,verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -29,6 +30,8 @@
      &                      DF1(:), DF2(:), DF3(:)
 
       Integer, External:: ip_of_Work
+      Integer :: nLev
+      nLev=SGS%nLev
 
       !! reduced density matrix and fock-weighted RDM
       CALL mma_allocate(G1 ,NG1, Label='G1')
@@ -104,7 +107,7 @@ C
      *              DG1,DG2,DG3,
      *              DF1,DF2,DF3,
      *              DEPSA,
-     *              G1,G2,G3)
+     *              G1,G2,G3,nLev)
 !     write(6,*) "depsa after cnstclag"
 !     call sqprt(depsa,nasht)
 
@@ -1112,13 +1115,12 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CnstCLag(IFF,CLag,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
-     *                    G1,G2,G3)
+      SUBROUTINE CnstCLag(IFF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
+     *                    G1,G2,G3,nLev)
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_output, only: iPrGlb, verbose
-      use gugx, only: NLEV, L2ACT
+      use gugx, only: L2ACT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1126,6 +1128,7 @@ C
 #include "WrkSpc.fh"
 
 C
+      Integer, Intent(In):: nLev
       DIMENSION CLag(nConf)
       DIMENSION DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*)
       DIMENSION G1(*),G2(*),G3(*)
@@ -1189,7 +1192,7 @@ C
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF.EQ.0) Then
         CALL DERFG3(WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
-     &              idxG3,DEPSA,G1,G2)
+     &              idxG3,DEPSA,G1,G2,nLev)
       Else
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
@@ -1241,9 +1244,8 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
+      SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG,nLev)
 C
-      use gugx, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1251,6 +1253,7 @@ C
 #include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
+      Integer, Intent(In)::nLev
       DIMENSION CLag(nConf,nState),RDMEIG(*)
       Logical   IFSSDMloc
 C
@@ -1269,7 +1272,7 @@ C
           End If
           WGT = 1.0D+00/nState
           Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
-          Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
+          Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG,nLev)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
         Else
           Wgt = Work(LDWgt+iState-1+nState*(jState-1))
@@ -1281,7 +1284,7 @@ C
             End If
             !! how is the numerical precision?
             Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
-            Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
+            Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG,nLev)
             Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
           End If
 
@@ -1412,8 +1415,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG)
-      use gugx, only: NLEV
+      SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG,nLev)
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -1422,7 +1424,7 @@ C
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-
+      INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(NCONF)
 
       INTEGER LSGM1
@@ -1433,7 +1435,7 @@ C
 
       IF(NLEV.GT.0) THEN
         CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
-        CALL DENS1_RPT2_CLag(CI,WORK(LSGM1),CLag,RDMEIG)
+        CALL DENS1_RPT2_CLag(CI,WORK(LSGM1),CLag,RDMEIG,nLev)
       END IF
 C     return !! for test purpose
 
@@ -1459,11 +1461,11 @@ C     return !! for test purpose
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG)
+      SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1472,7 +1474,7 @@ C
 #include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
-
+      INTEGER, INTENT(IN):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI)
       REAL*8 CLag(nConf,nState),RDMEIG(NLEV,NLEV) !! Symmetry?
 
@@ -1544,14 +1546,14 @@ C     ENDDO
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
           CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
@@ -2626,7 +2628,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use gugx, only: NOCSF, IOCSF, NOW1, IOW1
+      use gugx, only: SGS, CIS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2638,6 +2640,9 @@ C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
       Dimension Eact(nState)
+      Integer :: nLev, nMidV
+      nLev = SGS%nLev
+      nMidV= CIS%nMidV
 C
       Thres = ConvInvar !! 1.0d-07
 C
@@ -2722,9 +2727,10 @@ C
 C
       !! Precondition
       Call CnstInt(2,Work(ipINT1),Work(ipINT2))
-      Call CnstPrec(NOCSF,IOCSF,NOW1,
-     *              IOW1,ISYCI,Work(ipPre),work(ipcit),
-     *              Work(ipINT1),Work(ipINT2),Work(ipFancy))
+      Call CnstPrec(CIS%NOCSF,CIS%IOCSF,CIS%NOW,
+     *              CIS%IOW,ISYCI,Work(ipPre),work(ipcit),
+     *              Work(ipINT1),Work(ipINT2),Work(ipFancy),nLev,
+     *              nMidV)
       Call CnstInt(0,Work(ipINT1),Work(ipINT2))
 C
       !! Begin!
@@ -3148,12 +3154,14 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: ISM, L2ACT, NLEV, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
       Real*8    INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
       LOGICAL   RSV_TSK
+      Integer :: nLev
+      nLev=SGS%nLev
       ! logical tras,uras,vras,xras
 C
 C     --- H_{IJ}*P_J
@@ -3187,18 +3195,18 @@ C
         LT=iWork(lTask2T+iTask-1)
         ! tras=.false.
         ! if (lt.le.nras1(1)) tras=.true.
-          IST=ISM(LT)
+          IST=SGS%ISM(LT)
           IT=L2ACT(LT)
           LU=iWork(lTask2U+iTask-1)
           ! uras=.false.
           ! if (lu.gt.nras1(1)+nras2(1)) uras=.true.
 C         if (tras.and.uras) go to 500
             ! LTU=iTask
-            ISU=ISM(LU)
+            ISU=SGS%ISM(LU)
             IU=L2ACT(LU)
             ISTU=MUL(IST,ISU)
             ISSG=MUL(ISTU,STSYM)
-            NSGM=NCSF(ISSG)
+            NSGM=CIS%NCSF(ISSG)
             IF(NSGM.EQ.0) GOTO 500
             !! <CIin|Etu
             CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),Work(LSGM1))
@@ -3210,13 +3218,13 @@ C           CALL GETSGM2(LT,LU,STSYM,CIin(1,iState),Work(LSGM1))
             END IF
             LVX=0
             DO LV=1,NLEV
-              ISV=ISM(LV)
+              ISV=SGS%ISM(LV)
               IV=L2ACT(LV)
               ! vras=.false.
               ! if (lv.le.nras1(1)) vras=.true.
               DO LX=1,NLEV
                 LVX=LVX+1
-                ISX=ISM(LX)
+                ISX=SGS%ISM(LX)
                 ISVX=MUL(ISV,ISX)
                 ! xras=.false.
                 ! if (lx.gt.nras1(1)+nras2(1)) xras=.true.
@@ -3278,7 +3286,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
-      use gugx, only: NLEV
+      use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "caspt2_grad.fh"
@@ -3287,6 +3295,8 @@ C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
      *          G2(nAshT,nAshT,nAshT,nAshT)
       Real*8    INT2(nAshT,nAshT,nAshT,nAshT)
+      Integer :: nLev
+      nLev=SGS%nLev
 C
 C     LOGICAL   RSV_TSK
 C
@@ -3321,7 +3331,7 @@ C
 C
 C  !! This is for CASSCF orbital Lagrangian, but this may not contribute
 C     Call Dens2T_RPT2(CI(1,jState),CI(1,jState),
-C    *                 Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
+C    *                 Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T),nLev)
 C     Call DaXpY_(NG1,-0.5D+00,Work(LG1T),1,G1,1)
 C     Call DaXpY_(NG2,-0.5D+00,Work(LG2T),1,G2,1)
 C
@@ -3331,7 +3341,8 @@ C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
 C
         !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant
         Call Dens2T_RPT2(CI(1,kState),CIT(1,kState),
-     *                   Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
+     *                   Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T),
+     *                   nLev)
         Call DaXpY_(NG1,WGT,Work(LG1T),1,G1,1)
         Call DaXpY_(NG2,WGT,Work(LG2T),1,G2,1)
 C
@@ -3345,7 +3356,7 @@ C         If (ilState.eq.jlState) Cycle
           If (abs(vSLag).le.1.0D-08) Cycle
           Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
      *                     Work(LSGM1),Work(LSGM2),
-     *                     Work(LG1T),Work(LG2T))
+     *                     Work(LG1T),Work(LG2T),nLev)
           Call DaXpY_(NG1,vSLag,Work(LG1T),1,G1,1)
           Call DaXpY_(NG2,vSLag,Work(LG2T),1,G2,1)
         End Do
@@ -3368,7 +3379,7 @@ C     Call GetMem('G1  ','ALLO','REAL',LG1  ,nAshT**2)
 C     Call GetMem('G2  ','ALLO','REAL',LG2  ,nAshT**4)
 C     Do iState = 1, nState
 C       Call Dens2_RPT2(CI(1,iState),Work(LSGM1),Work(LSGM2),
-C    *                  Work(LG1),Work(LG2))
+C    *                  Work(LG1),Work(LG2),nAshT)
 C       WGT=2.0D+00/nState
 C       Call DaXpY_(nAshT**2,WGT,Work(LG1),1,G1,1)
 C       Call DaXpY_(nAshT**4,WGT,Work(LG2),1,G2,1)
@@ -3515,9 +3526,10 @@ C-----------------------------------------------------------------------
 C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
-     *                    INT1,INT2,Fancy)
-      use gugx, only: ICASE, NMIDV, NLEV, NIPWLK, MIDLEV, ISM
+     *                    INT1,INT2,Fancy,nLev,nMidV)
+      use gugx, only: SGS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
+      INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION PRE(*)
@@ -3533,6 +3545,8 @@ C     CHARACTER(LEN=1) CODE(0:3)
 #include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
 C     DATA CODE /'0','u','d','2'/
+      Integer :: nIpWlk
+      nIpWlk = CIS%nIpWlk
 C
 C     Construct (approximate?) preconditioner for the active linear
 C     equation that should be solved for non-invariant CASPT2 methods
@@ -3547,8 +3561,8 @@ C     LINE=' '
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
-        IF(ISY.NE.ISM(LEV)) THEN
-          ISY=ISM(LEV)
+        IF(ISY.NE.SGS%ISM(LEV)) THEN
+          ISY=SGS%ISM(LEV)
           LENCSF=LENCSF+1
         END IF
         LENCSF=LENCSF+1
@@ -3598,15 +3612,15 @@ C -- SKIP OR PRINT IT OUT?
 C             IF(ABS(COEF).LT.THR) GOTO  31
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=ICASE(ICDPOS)
+                ICDWN=CIS%ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,MIDLEV
+                DO 10 LEV=1,SGS%MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
-                    ICDWN=ICASE(ICDPOS)
+                    ICDWN=CIS%ICASE(ICDPOS)
                   END IF
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
@@ -3615,15 +3629,15 @@ C -- UNPACK LOWER WALK.
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=ICASE(ICUPOS)
+              ICUP=CIS%ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
-              DO LEV=MIDLEV+1,NLEV
+              DO LEV=SGS%MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
-                  ICUP=ICASE(ICUPOS)
+                  ICUP=CIS%ICASE(ICUPOS)
                 END IF
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1
@@ -3634,8 +3648,8 @@ C -- PRINT IT!
               ISY=0
               PRE(ICONF) = 0.0D+00
               DO LEV=1,NLEV
-                IF(ISY.NE.ISM(LEV)) THEN
-                  ISY=ISM(LEV)
+                IF(ISY.NE.SGS%ISM(LEV)) THEN
+                  ISY=SGS%ISM(LEV)
                   K=K+1
 C                 LINE(K:K)=' '
                 END IF

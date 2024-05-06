@@ -29,7 +29,8 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: nSGSize, nCISize, nXSize
+      use gugx, only: SGStruct, CIStruct, EXStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
@@ -45,10 +46,9 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "WrkSpc.fh"
 #include "rassiwfn.fh"
 #include "Files.fh"
-#include "stdalloc.fh"
-      DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
-      DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
-      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
+      Type (SGStruct), Target :: SGS(2)
+      Type (CIStruct) :: CIS(2)
+      Type (EXStruct) :: EXS(2)
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       DIMENSION NGASORB(100),NGASLIM(2,10)
       DIMENSION NASHES(8)
@@ -57,9 +57,9 @@ C      use para_info, only: nProcs, is_real_par, king
       DIMENSION IDDET1(NSTATE), IDDET2(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
-      CHARACTER*8 WFTP1,WFTP2
-      CHARACTER*6 STLNE1
-      CHARACTER*48 STLNE2
+      CHARACTER(LEN=8) WFTP1,WFTP2
+      CHARACTER(LEN=6) STLNE1
+      CHARACTER(LEN=48) STLNE2
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,lThetaM,LUCITH
       Real*8 Norm_fac
@@ -103,6 +103,16 @@ CC    NTO section
       real*8 BEi,BEj,BEij
 #include "SysDef.fh"
 
+      Interface
+      Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
+      use gugx, only: SGStruct, CIStruct
+      IMPLICIT None
+      Integer nSym, nActEl, iSpin
+      Type (SGStruct), Target :: SGS
+      Type (CIStruct) :: CIS
+      End Subroutine SGInit
+      End Interface
+
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
       Call CWTime(TCpu1,TWall1)
@@ -127,6 +137,8 @@ C WF parameters for ISTATE and JSTATE
       NHOL12=NHOLE1(JOB2)
       NELE32=NELE3(JOB2)
       WFTP2=RASTYP(JOB2)
+      SGS(1)%IFRAS=1
+      SGS(2)%IFRAS=1
       IF(IPGLOB.GE.4) THEN
         WRITE(6,*)' Entered GTDMCTL.'
         WRITE(6,'(1X,A,I3,A,I3)')'  JOB1:',  JOB1,'        JOB2:',  JOB2
@@ -431,8 +443,8 @@ C Add nr of actives in earlier symmetries:
 
 C---------------    JOB1 wave functions: ---------------------
 C Initialize SGUGA tables for JOB1 functions.
-C These are structures stored in arrays:
-C ISGSTR1,ICISTR1 and IXSTR1.
+C These are structures stored in user defined types:
+C SGS(1),CIS(1) and EXS(1).
 
 C Set variables in /RASDEF/, used by SGUGA codes, which define
 C the SGUGA space of JOB1. General RAS:
@@ -448,20 +460,14 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(3)=NACTE1
 
         if(.not.doDMRG)then
-          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
+          CALL SGINIT(NSYM,NACTE1,MPLET1,SGS(1),CIS(1))
           IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB1=',JOB1
-            CALL SGPRINT(ISGSTR1)
+            CALL SGPRINT(SGS(1))
           END IF
-          CALL SGSVAL(ISGSTR1,NSYM,NASHT,LISM,NVERT,LDRT,
-     &                LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-          CALL CXINIT(ISGSTR1,ICISTR1,IXSTR1)
-          CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &                LNOCSF,LIOCSF,NWALK,LICASE,
-     &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+          CALL CXINIT(SGS(1),CIS(1),EXS(1))
 C CI sizes, as function of symmetry, are now known.
-          NCONF1=IWORK(LNCSF-1+LSYM1)
+          NCONF1=CIS(1)%NCSF(LSYM1)
         else
           NCONF1=1
         end if
@@ -565,7 +571,7 @@ C be removed. This limits the possible MAXOP:
 C---------------    JOB2 wave functions: ---------------------
 C Initialize SGUGA tables for JOB2 functions.
 C These are structures stored in arrays:
-C ISGSTR2,ICISTR2 and IXSTR2.
+C SGS(2),CIS(2) and EXS(2).
 
 C Set variables in /RASDEF/, used by SGUGA codes, which define
 C the SGUGA space of JOB1. General RAS:
@@ -581,20 +587,14 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(3)=NACTE2
 
         IF(.not.doDMRG)then
-          CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,ISGSTR2)
+          CALL SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
           IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-            CALL SGPRINT(ISGSTR2)
+            CALL SGPRINT(SGS(2))
           END IF
-          CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
-     &                LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-          CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
-          CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &                LNOCSF,LIOCSF,NWALK,LICASE,
-     &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+          CALL CXINIT(SGS(2),CIS(2),EXS(2))
 C CI sizes, as function of symmetry, are now known.
-          NCONF2=IWORK(LNCSF-1+LSYM2)
+          NCONF2=CIS(2)%NCSF(LSYM2)
         else
           NCONF2=1
         end if
@@ -705,16 +705,16 @@ C LWDET pointer to write WORK(LDET) to WORK(LDETTOT)
         if(.not.doDMRG)then
 C Read ISTATE wave function
           IF(WFTP1.EQ.'GENERAL ') THEN
-            CALL READCI(ISTATE,ISGSTR1,ICISTR1,NCONF1,WORK(LCI1))
+            CALL READCI(ISTATE,SGS(1),CIS(1),NCONF1,WORK(LCI1))
           ELSE
             WORK(LCI1) = One
           END IF
           CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP1,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
-     &                           TRA1,NCONF1,Work(LCI1))
+          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),EXS(1),
+     &                           LSYM1,TRA1,NCONF1,Work(LCI1))
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
-          CALL PREPSD(WFTP1,ISGSTR1,ICISTR1,LSYM1,
+          CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
      &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
      &                WORK(LDET1),detocc,detcoeff1)
@@ -790,7 +790,7 @@ C Loop over the states of JOBIPH nr JOB2
         if(.not.doDMRG)then
 C Read JSTATE wave function
           IF(WFTP2.EQ.'GENERAL ') THEN
-            CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
+            CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,WORK(LCI2))
           ELSE
             WORK(LCI2) = One
           END IF
@@ -799,10 +799,10 @@ C Read JSTATE wave function
           End If
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &                           TRA2,NCONF2,Work(LCI2))
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
+     &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
-          CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
+          CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2),detocc,detcoeff2)
@@ -1332,12 +1332,12 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
         DO JST=2,NSTAT(JOB2)
           JSTATE=ISTAT(JOB2)-1+JST
-          CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
+          CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
-          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &                           TRA2,NCONF2,Work(LCI2))
-          CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
+     &                           LSYM2,TRA2,NCONF2,Work(LCI2))
+          CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2),detocc,detcoeff2)
@@ -1463,14 +1463,12 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
 
       IF(WFTP1.EQ.'GENERAL ') THEN
         if(.not.doDMRG)then
-          CALL CXCLOSE(ISGSTR1,ICISTR1,IXSTR1)
-          CALL SGCLOSE(ISGSTR1)
+          CALL MkGUGA_Free(SGS(1),CIS(1),EXS(1))
         end if
       END IF
       IF(WFTP2.EQ.'GENERAL ') THEN
         if(.not.doDMRG)then
-          CALL CXCLOSE(ISGSTR2,ICISTR2,IXSTR2)
-          CALL SGCLOSE(ISGSTR2)
+          CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
         end if
       END IF
 

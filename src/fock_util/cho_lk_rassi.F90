@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
+subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,nTUVX,Ash,nScreen,dmpk)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -35,6 +35,7 @@ subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
 !
 !*********************************************************************
 
+!#define _DEBUGPRINT_
 use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRsh, nnBstRT, nnShl, nnShl_tot, nShell, &
                     nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
@@ -55,8 +56,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(DSBA_Type), intent(in) :: DLT(1), Ash(2)
 type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), FSQ
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-integer(kind=iwp), intent(in) :: nScreen
+integer(kind=iwp), intent(in) :: nTUVX, nScreen
+real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
 #include "rassi.fh"
@@ -445,7 +446,7 @@ do jSym=1,nSym
 
         call CWTIME(TCR1,TWR1)
 
-        call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
+        call CHO_VECRD(Lrs,nRS*JNUM,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
         if ((NUMV <= 0) .or. (NUMV /= JNUM)) return
 
@@ -1063,7 +1064,7 @@ do jSym=1,nSym
 
         DoReord = (JRED == myJRED2) .and. (iBatch == nBatch)
 
-        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
         call CWTIME(TCINT2,TWINT2)
         tintg(1) = tintg(1)+(TCINT2-TCINT1)

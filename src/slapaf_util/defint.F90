@@ -68,7 +68,6 @@ lPIC(:) = .true.
 lAtom(:) = .true.
 Labels(:) = ''
 
-!Lu = u6
 nTemp = len(Temp)
 write(Frmt,'(A,I3.3,A)') '(F',nTemp,'.0)'
 
@@ -82,14 +81,14 @@ rMult(:) = Zero
 if (iPrint == 99) First = .true.
 if (lWrite) then
   write(u6,*)
-  write(u6,'(80A)') ('*',i=1,60)
+  write(u6,'(A)') repeat('*',60)
   write(u6,*) ' User-Defined Internal coordinates'
-  write(u6,'(80A)') ('-',i=1,60)
+  write(u6,'(A)') repeat('-',60)
   do iLines=1,iRow
     read(Lu_UDIC,'(A)') Temp
     write(u6,'(A)') Temp
   end do
-  write(u6,'(80A)') ('*',i=1,60)
+  write(u6,'(A)') repeat('*',60)
   write(u6,*)
   write(u6,*)
   write(u6,*) '*************************************************************'
@@ -252,7 +251,7 @@ do iLines=1,iRow
 
   if ((.not. First) .and. (Typ == 'TRSN') .and. (abs(Value_Temp) < Pi*Half)) Flip = .false.
   if (Flip .and. (Val(iBVct)*Value_Temp < Zero)) then
-    !write(Lu,*) 'Flip Sign for ',Labels(iBVct)
+    !write(u6,*) 'Flip Sign for ',Labels(iBVct)
     if (Val(iBVct) < Zero) then
       Val(iBVct) = -Pi-(Pi-Value_Temp)
     else

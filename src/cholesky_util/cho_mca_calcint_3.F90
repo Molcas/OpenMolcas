@@ -27,7 +27,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: LINT, ISHLAB
 real(kind=wp), intent(inout) :: XINT(LINT)
-integer(kind=iwp) :: i, ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
+integer(kind=iwp) :: ILOC, IRC, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, NAB(8)
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS
 logical(kind=iwp), parameter :: LOCDBG = .false.
@@ -60,7 +60,7 @@ end if
 if (IPRINT >= INF_IN2) then
   NCOLAB = sum(NAB(1:NSYM))
   write(LUPRI,'(/,A,I5,1X,I5,A,I9,A)') 'Calculating shell pair (**|',ISHLA,ISHLB,'):',NCOLAB,' columns have been qualified'
-  write(LUPRI,'(80A)') ('=',i=1,77)
+  write(LUPRI,'(A)') repeat('=',77)
 end if
 
 ! Loop over shell quadruples.

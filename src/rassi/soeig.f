@@ -125,12 +125,12 @@ C Complex hamiltonian matrix elements over spin states:
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A,34X,A,34X,A)')
      &      '*','       Spin-orbit section     ','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,*)
       ENDIF
 

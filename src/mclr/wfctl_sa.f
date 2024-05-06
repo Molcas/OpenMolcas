@@ -21,6 +21,7 @@
 ************************************************************************
       use Exp, only: Exp_Close
       use ipPage, only: W
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (a-h,o-z)
 *
 #include "stdalloc.fh"
@@ -56,9 +57,6 @@
           Real*8 Fock(*)
           real*8, optional :: SLag_pt2(*)
         end subroutine
-      end interface
-
-      interface
         subroutine rhs_sa(Fock,SLag_pt2)
           Real*8 Fock(*)
           real*8, optional :: SLag_pt2(*)
@@ -241,7 +239,13 @@
           Do iR = 1, nRoots
             Call DCopy_(nConf1,W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),
      *                  1,wrk,1)
-            Call GugaCtl_MCLR(wrk,1)
+            Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
+     &                   nRs1,nRs2,nRs3,
+     &                   SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
+            NCSF(1:nSym)=CIS%NCSF(1:nSym)
+            NCONF=CIS%NCSF(State_Sym)
+            Call mkGuga_Free(SGS,CIS,EXS)
+
             Call DCopy_(nConf1,wrk,1,
      *                  W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),1)
           End Do

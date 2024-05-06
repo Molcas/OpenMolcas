@@ -170,7 +170,7 @@ C Calculate the scalar product of the CI coefficient vectors.
          END IF
 C Check the conditions for a surface hop
          IF (ABS(prdct(1,2)).GE.0.25.AND.ABS(prdct(2,1)).GE.0.25) THEN
-            WRITE(6,'(6X,80A1)')'+',('-',i=1,78),'+'
+            WRITE(6,'(6X,3A)')'+',repeat('-',78),'+'
             WRITE(6,'(6X,A1,T86,A1)')'|','|'
             WRITE(6,'(6X,A1,T35,A,T86,A1)')'|',
      &           'A HOP event is detected!','|'
@@ -204,7 +204,7 @@ C Check if the number of Hops is limited:
             END IF
 C Bottom of the printed box
             WRITE(6,'(6X,A1,T86,A1)')'|','|'
-            WRITE(6,'(6X,80A1,//)')'+',('-',i=1,78),'+'
+            WRITE(6,'(6X,3A,//)')'+',repeat('-',78),'+'
 C Set the numbers of Hops
             IF (lAllowHop) THEN
                CALL Put_iScalar('Relax CASSCF root',ISTATE2)

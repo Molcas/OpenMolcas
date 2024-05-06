@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine gasprwf(isel,NORB,NEL,IREFSM,
-     &                  ICONF,ISPIN,CICOEF,kcnf)
+      Subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 ************************************************************************
 *                                                                      *
 *     PURPOSE: PRINT THE WAVEFUNCTION FOR GAS                          *
@@ -59,7 +58,6 @@ C
       DIMENSION KCNF(NEL)
 C
       DIMENSION IWALK(mxAct)
-      integer   iSel(*)
       character*120 Line
 C
 C     print headline
@@ -130,7 +128,6 @@ C     SKIP IT OR PRINT IT?
             COEF=CICOEF(ICSFJP)
             IF(ABS(COEF).LT.PRWTHR) GOTO 800
 C     PRINT IT
-              iSel(icsfjp) = 1
               Write(Line(1:),'(I8)') icsfjp
               iOff=10
               iSym=nSm(1)
@@ -156,7 +153,4 @@ C     PRINT IT
 900     CONTINUE
 1000  CONTINUE
 
-      goto 2000
-2000  continue
-      RETURN
       END

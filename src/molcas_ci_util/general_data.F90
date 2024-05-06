@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This is just an encapsulation of the common block in
+! This is just an encapsulation of the common blocks in
 ! src/Include/rasdim.fh
 ! src/Include/general.fh
 ! into a data module
 
-      module general_data
-      implicit none
+module general_data
+
+implicit none
+
 #include "rasdim.fh"
 #include "general.fh"
-      save
-      end module general_data
+
+end module general_data

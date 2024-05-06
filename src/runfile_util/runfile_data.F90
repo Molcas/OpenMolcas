@@ -41,7 +41,7 @@ type IS_cache_item
 end type IS_cache_item
 
 type RunHdr_type
-  integer(kind=iwp) :: ID, Ver, Next, Items, DaLab, DaPtr, DaLen, DaMaxLen, DaTyp
+  integer(kind=iwp) :: ID, Ver, Next, Items, DaLab, DaPtr, DaLen, DaMaxLen, DaTyp, nProcs
 end type RunHdr_type
 
 type Toc_item
@@ -410,7 +410,8 @@ subroutine RunHdr2Arr(Arr)
   Arr(7) = RunHdr%DaLen
   Arr(8) = RunHdr%DaMaxLen
   Arr(9) = RunHdr%DaTyp
-  Arr(10:) = 0
+  Arr(10) = RunHdr%nProcs
+  Arr(11:) = 0
 
 end subroutine RunHdr2Arr
 
@@ -427,6 +428,7 @@ subroutine Arr2RunHdr(Arr)
   RunHdr%DaLen = Arr(7)
   RunHdr%DaMaxLen = Arr(8)
   RunHdr%DaTyp = Arr(9)
+  RunHdr%nProcs = Arr(10)
 
 end subroutine Arr2RunHdr
 

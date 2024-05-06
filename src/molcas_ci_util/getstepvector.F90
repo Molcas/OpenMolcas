@@ -9,74 +9,60 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS)
+subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev,nMidV)
 
+use gugx, only: CIS, SGS
 use Definitions, only: iwp
-use gugx, only: NMIDV, NLEV, ICASE, MIDLEV, NICASE, NIPWLK, NUP, NWALK
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
+integer(kind=iwp), intent(in) :: nMidV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), nLev
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: ICS(NLEV)
-integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN, NUP
 
 ! RECONSTRUCT THE CASE LIST
 
-NICASE = NWALK*NIPWLK
-
 ! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 ! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-!
-!do MV=1,NMIDV
-!  do ISYUP=1,NSYM
+
 NUP = NOW(1,1,MV)
 NDWN = NOW(2,1,MV)
-IUW0 = 1-NIPWLK+IOW(1,1,MV)
-IDW0 = 1-NIPWLK+IOW(2,1,MV)
-!    IDWNSV = 0
-!    do IDWN=1,NDWN
-!      do IUP=1,NUP
+IUW0 = 1-CIS%nIpWlk+IOW(1,1,MV)
+IDW0 = 1-CIS%nIpWlk+IOW(2,1,MV)
 ! determine the stepvector
-!        if (IDWNSV /= IDWN) then
-ICDPOS = IDW0+IDWN*NIPWLK
-ICDWN = ICASE(ICDPOS)
+ICDPOS = IDW0+IDWN*CIS%nIpWlk
+ICDWN = CIS%ICASE(ICDPOS)
 ! unpack lower walk
 NNN = 0
-do LEV=1,MIDLEV
+do LEV=1,SGS%MIDLEV
   NNN = NNN+1
   if (NNN == 16) then
     NNN = 1
     ICDPOS = ICDPOS+1
-    ICDWN = ICASE(ICDPOS)
+    ICDWN = CIS%ICASE(ICDPOS)
   end if
   IC1 = ICDWN/4
   ICS(LEV) = ICDWN-4*IC1
   ICDWN = IC1
 end do
-!          IDWNSV = IDWN
-!        end if
-ICUPOS = IUW0+NIPWLK*IUP
-ICUP = ICASE(ICUPOS)
+ICUPOS = IUW0+CIS%nIpWlk*IUP
+ICUP = CIS%ICASE(ICUPOS)
 ! unpack upper walk
 NNN = 0
-do LEV=MIDLEV+1,NLEV
+do LEV=SGS%MIDLEV+1,NLEV
   NNN = NNN+1
   if (NNN == 16) then
     NNN = 1
     ICUPOS = ICUPOS+1
-    ICUP = ICASE(ICUPOS)
+    ICUP = CIS%ICASE(ICUPOS)
   end if
   IC1 = ICUP/4
   ICS(LEV) = ICUP-4*IC1
   ICUP = IC1
 end do
-!      end do
-!    end do
-!  end do
-!end do
 
 ! compute the next set of indices
 if (IUP == NUP) then
@@ -94,8 +80,5 @@ if (IUP == NUP) then
 else
   IUP = IUP+1
 end if
-
-!call mma_deallocate(ICASE)
-return
 
 end subroutine GETSTEPVECTOR

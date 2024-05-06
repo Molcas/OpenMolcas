@@ -225,7 +225,7 @@ C     Start and initialize spaces
       CALL GETMEM ('TDM' ,'Allo','Real',LTDM,NDge)
       CALL GETMEM ('TDMT','Allo','Real',LTDMT,NDge)
        write(6,*)
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A,34X,A31,33X,A)')
      &     '*','NATURAL TRANSITION ORBITALS','*'
@@ -233,7 +233,7 @@ C     Start and initialize spaces
        WRITE(6,'(6X,A,38X,A14,I2,A12,I2 ,30X,A )')
      &'*','BETWEEN STATE ',JSTATE,' AND STATE ',ISTATE,'*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
-      WRITE(6,'(6X,100A1)') ('*',i=1,100)
+      WRITE(6,'(6X,A)') repeat('*',100)
        write(6,*)
        write(6,*)
       IF (ISpin.eq.1) Then
@@ -405,12 +405,12 @@ C     Putting particle-hole pairs in the output
       write(6,'(10X,a)')
      &'NATURAL TRANSITION ORBTIAL INFORMATION FOR BETA  SPIN'
       END IF
-      WRITE(6,'(6X,100A1)') ('=',i=1,100)
+      WRITE(6,'(6X,A)') repeat('=',100)
       write(6,'(10X,5A18)')'EXCITATION','EIGENVALUE',
      &'EXCITATION','HOLE NTO','PARTICLE NTO'
       write(6,'(10X,A18,18X,3A18)')'AMPLITUDE','CONTRIBUTION(%)',
      &'SYMMETRY INDEX','SYMMETRY INDEX'
-      WRITE(6,'(6X,100A1)') ('-',i=1,100)
+      WRITE(6,'(6X,A)') repeat('-',100)
       Do IOrb=NASHT,1,-1
        IF(WORK(LNTOUeig-1+IOrb).lt.PrintThres)  EXIT
        write(6,'(10X,2(10X,F8.5),10X,F8.2,2(A9,I9))')
@@ -420,9 +420,9 @@ C     Putting particle-hole pairs in the output
      & lIrrep(INT(WORK(LSymto-1+IOrb))),INT(WORK(LIndto-1+IOrb))
       End Do
 
-      WRITE(6,'(6X,100A1)') ('-',i=1,100)
+      WRITE(6,'(6X,A)') repeat('-',100)
        write(6,'(6X,A,F8.5)')'SUM OF EIGENVALUES',SumEigVal
-      WRITE(6,'(6X,100A1)') ('=',i=1,100)
+      WRITE(6,'(6X,A)') repeat('=',100)
 
 
       CALL GETMEM ('PartNTOSyms','Free','Inte',LSymto,NASHT)
@@ -433,12 +433,12 @@ C     Putting particle-hole pairs in the output
 ! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
 
        write(6,*)
-       WRITE(6,'(6X,100A1)') ('*',i=1,100)
+       WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,33X,A34,31X,A)')
      &     '*','END OF NATURAL TRANSITION ORBITALS','*'
        WRITE(6,'(6X,A,33X,A14,I2,A12,I2 ,35X,A )')
      &'*','BETWEEN STATE ',JSTATE,' AND STATE ',ISTATE,'*'
-      WRITE(6,'(6X,100A1)') ('*',i=1,100)
+      WRITE(6,'(6X,A)') repeat('*',100)
 
       CALL GETMEM ('Umat','Free','Real',LNTOUmat,NDge)
       CALL GETMEM ('Vmat','Free','Real',LNTOVmat,NDge)

@@ -8,27 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SGPrint(iSGStruct)
-      use Struct, only: nSGSize
+      Subroutine SGPrint(SGS)
+      use gugx, only: SGStruct
       implicit real*8 (a-h,o-z)
-      Dimension iSGStruct(nSGSize)
+      Type (SGStruct) SGS
 #include "WrkSpc.fh"
 
-C Unpack structure iSGStruct:
-      nLev   =iSGStruct(2)
-      lISm   =iSGStruct(3)
-      nVert  =iSGStruct(4)
-      lDRT   =iSGStruct(5)
-      lDown  =iSGStruct(6)
-      lUp    =iSGStruct(7)
-      MidLev =iSGStruct(8)
-      MVSta  =iSGStruct(9)
-      MVEnd  =iSGStruct(10)
-      lMAW   =iSGStruct(11)
+C Unpack structure SGS:
+      nLev   =SGS%nLev
+      nVert  =SGS%nVert
+      MidLev =SGS%MidLev
+      MVSta  =SGS%MVSta
+      MVEnd  =SGS%MVEnd
+
       Write(6,*)' Split-Graph UGA. Graph description:'
       Write(6,*)' Nr of levels:',nLev
       Write(6,*)' Orbital symmetry labels:'
-      Write(6,'(1x,30i2)')(iWork(lISm+i),i=0,nLev-1)
+      Write(6,'(1x,30i2)')(SGS%ISm(i),i=1,nLev)
       Write(6,*)' Nr of vertices:',nVert
       Write(6,*)
       Write(6,*)' Vertex    L  N    A  B  C      '//
@@ -36,9 +32,9 @@ C Unpack structure iSGStruct:
       Write(6,*)
       Do iv=1,nVert
         Write(6,'(1x,i4,5x,2i3,2x,3i3,5x,4i4,5x,4i4)')iv,
-     &  (IWork(lDRT-1+iv+nVert*(i-1)),i=1,5),
-     &  (IWork(lDown-1+iv+nVert*ic),ic=0,3),
-     &  (IWork(  lUp-1+iv+nVert*ic),ic=0,3)
+     &  (SGS%DRT(iv,i-1),i=1,5),
+     &  (SGS%Down(iv,ic),ic=0,3),
+     &  (SGS%Up  (iv,ic),ic=0,3)
       End Do
       Write(6,*)
       Write(6,*)' Mid Level:',MidLev
@@ -50,6 +46,6 @@ C Unpack structure iSGStruct:
       Write(6,*)
       Do iv=1,nVert
         Write(6,'(1x,i4,5x,4i5)')
-     &             iv,(IWork(lMAW-1+iv+nVert*ic),ic=0,3)
+     &             iv,(SGS%MAW(iv,ic),ic=0,3)
       End Do
-      end
+      end Subroutine SGPrint

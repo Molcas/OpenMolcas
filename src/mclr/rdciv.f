@@ -22,12 +22,14 @@
 *                                                                      *
 ************************************************************************
       use negpre
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
 #include "Files_mclr.fh"
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
+
       Call DaName(LuCIV,'ROOTS')
       iDisk=0
 *----------------------------------------------------------------------*
@@ -40,7 +42,13 @@
       idisk1=0
       Do i=1,lroots
        Call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-       Call Gugactl_MCLR(OCIvec,1)
+       Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
+     &              nRs1,nRs2,nRs3,
+     &              SGS,CIS,EXS,OCIvec,1,State_Sym,State_Sym)
+       NCSF(1:nSym)=CIS%NCSF(1:nSym)
+       NCONF=CIS%NCSF(State_Sym)
+       Call mkGuga_Free(SGS,CIS,EXS)
+
        Call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
       End Do
 

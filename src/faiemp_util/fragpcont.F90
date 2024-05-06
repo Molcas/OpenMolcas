@@ -129,7 +129,7 @@ do ib=1,mb
 
         ! TMP
         !call dgemm_('N',m,n,One,F1(ii,:,ia,:),lda,W(:,:,iL,iD),incx,beta,TMP,incy)
-        !
+
         !call daxpy_(n,a,x,incx,y,incy)
 
         rFinal(ii,ij,ia,ib) = rFinal(ii,ij,ia,ib)+Factor*xt

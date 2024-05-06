@@ -44,7 +44,7 @@ character(len=72) :: line
 #define _END_ '$END'
 #endif
 logical(kind=iwp) :: skip
-character(len=4), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
+character(len=*), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
 
 #ifndef MOLPRO
 call rdnlst(u5,'GUGACI')

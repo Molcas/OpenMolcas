@@ -76,7 +76,7 @@ c      TestPrint=.TRUE.
 c      TestPrint=.FALSE.
       Zero=0.0D0
       Two=2.0D0
-      pi=DACOS(-1.0D0)
+      pi=ACOS(-1.0D0)
 
 c ANTISYMMETRIC matrix needs a little fixing
       do i=0, nb-1
@@ -89,9 +89,9 @@ c ANTISYMMETRIC matrix needs a little fixing
         enddo
       enddo
 c The imaginary part may need a negative sign
-      Call DSCAL_(nb2,-1.0D0,TDMZZ(4,:),1)
-      Call DSCAL_(nb2,-1.0D0,TDMZZ(5,:),1)
-      Call DSCAL_(nb2,-1.0D0,TDMZZ(6,:),1)
+      TDMZZ(4,:) = -TDMZZ(4,:)
+      TDMZZ(5,:) = -TDMZZ(5,:)
+      TDMZZ(6,:) = -TDMZZ(6,:)
 c     'HERMSING' ITYPE=1
 c     'ANTISING' ITYPE=2
 c     'HERMTRIP' ITYPE=3
@@ -183,10 +183,12 @@ c multipole phase factor with tdm as a whole
           WORK(LTMPR+i-1)=TDMZZ(3,i)*cos(phi)-TDMZZ(6,i)*sin(phi)
           WORK(LTMPI+i-1)=TDMZZ(6,i)*cos(phi)+TDMZZ(3,i)*sin(phi)
         enddo
-        do i=1,3
-          Call DCOPY_(nb2,WORK(LTMPR),1,TDMZZ(i,:),1)
-          Call DCOPY_(nb2,WORK(LTMPI),1,TDMZZ(i+3,:),1)
-        enddo
+        TDMZZ(1,:) = WORK(LTMPR:LTMPR+nb2-1)
+        TDMZZ(2,:) = WORK(LTMPR:LTMPR+nb2-1)
+        TDMZZ(3,:) = WORK(LTMPR:LTMPR+nb2-1)
+        TDMZZ(4,:) = WORK(LTMPI:LTMPI+nb2-1)
+        TDMZZ(5,:) = WORK(LTMPI:LTMPI+nb2-1)
+        TDMZZ(6,:) = WORK(LTMPI:LTMPI+nb2-1)
         call GETMEM('TMPI  ','FREE','REAL',LTMPI,nb2)
         call GETMEM('TMPR  ','FREE','REAL',LTMPR,nb2)
       EndIf
@@ -230,9 +232,11 @@ c IOPT=6, origin and nuclear contrib not read
 **************
 * For tests
 **************
+      call GETMEM('TMP   ','ALLO','REAL',LTMP,nb2)
+      WORK(LTMP:LTMP+nb2-1) = TDMZZ(3,:)
       Call GETMEM('BUFF1','ALLO','REAL',LBUFF1,nb2)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSZZs),nb,
-     &              TDMZZ(3,:),nb,0.0D0,WORK(LBUFF1),nb)
+     &              WORK(LTMP),nb,0.0D0,WORK(LBUFF1),nb)
 C Trace the resulting matrix
       NumOfEc = Zero
       do i=0, nb-1
@@ -278,12 +282,10 @@ c Put WORK(LEIG) in sqrt and in diagonal in WORK(LEIGM)
       call GETMEM('RESI  ','FREE','REAL',LRESI,LWORK)
 c Get S^1/2 from S^1/2 = U S_diag^1/2 U^T
       call GETMEM('SsqrtM','ALLO','REAL',LSM,nb2)
-      call GETMEM('TMP   ','ALLO','REAL',LTMP,nb2)
       call DGEMM_('N','T',nb,nb,nb,1.0D0,WORK(LEIGM),nb,
      &             WORK(LSZZs),nb,0.0D0,WORK(LTMP),nb)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSZZs),nb,
      &             WORK(LTMP),nb,0.0D0,WORK(LSM),nb)
-      call GETMEM('TMP   ','FREE','REAL',LTMP,nb2)
       call GETMEM('SZZs  ','FREE','REAL',LSZZs,nb2)
       call GETMEM('EIGM  ','FREE','REAL',LEIGM,nb2)
 c Get inverse of S^1/2 -> S^-1/2
@@ -309,26 +311,33 @@ c free and reallocate memory for LRESI using that length
 
 c Note: The density matrix should transform as S^1/2 D S^1/2
 c Transform TDMZZ and TSDMZZ as S^1/2 T S^1/2
-      Call GETMEM('TMP   ','ALLO','REAL',LTMP,nb2)
       Call MMA_ALLOCATE(TDMZZL,6,nb2,LABEL='LTDMZZL')
       Call MMA_ALLOCATE(TSDMZZL,6,nb2,LABEL='LTSDMZZL')
+      call GETMEM('TMPR  ','ALLO','REAL',LTMPR,nb2)
 c Real part of TDMZZ
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,TDMZZ(3,:),nb,
+      WORK(LTMPR:LTMPR+nb2-1) = TDMZZ(3,:)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LTMPR),nb,
      &               WORK(LSM),nb,0.0D0,WORK(LTMP),nb)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
-     &               WORK(LTMP),nb,0.0D0,TDMZZL(3,:),nb)
+     &               WORK(LTMP),nb,0.0D0,WORK(LTMPR),nb)
+      TDMZZL(3,:) = WORK(LTMPR:LTMPR+nb2-1)
 c Imaginary part of TDMZZ
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,TDMZZ(6,:),nb,
+      WORK(LTMPR:LTMPR+nb2-1) = TDMZZ(6,:)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LTMPR),nb,
      &               WORK(LSM),nb,0.0D0,WORK(LTMP),nb)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
-     &               WORK(LTMP),nb,0.0D0,TDMZZL(6,:),nb)
+     &               WORK(LTMP),nb,0.0D0,WORK(LTMPR),nb)
+      TDMZZL(6,:) = WORK(LTMPR:LTMPR+nb2-1)
 c Do for all components of TSDMZZ
       do i=1, 6
-        call DGEMM_('N','N',nb,nb,nb,1.0D0,TSDMZZ(i,:),nb,
+        WORK(LTMPR:LTMPR+nb2-1) = TSDMZZ(i,:)
+        call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LTMPR),nb,
      &               WORK(LSM),nb,0.0D0,WORK(LTMP),nb)
         call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
-     &               WORK(LTMP),nb,0.0D0,TSDMZZL(i,:),nb)
+     &               WORK(LTMP),nb,0.0D0,WORK(LTMPR),nb)
+        TSDMZZL(i,:) = WORK(LTMPR:LTMPR+nb2-1)
       enddo
+      call GETMEM('TMPR  ','FREE','REAL',LTMPR,nb2)
 C End of the Lowdin Orthogonalization
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -415,7 +424,8 @@ c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),BUFF1(:),nb,
      &              SVDU(:),nb,(0.0D0,0.0D0),BUFF2(:),nb)
         Call ZGEMM_('C','N',nb,nb,nb,(1.0D0,0.0D0),SVDU(:),nb,
-     &              BUFF2(:),nb,(0.0D0,0.0D0),YMAT(di,:),nb)
+     &              BUFF2(:),nb,(0.0D0,0.0D0),BUFF1(:),nb)
+        YMAT(di,:) = BUFF1(:)
         SumofYdiag(di) = cmplx(zero,zero,8)
         do i=1, nb
           SumofYdiag(di)=SumofYdiag(di) + YMAT(di,(i-1)*nb+i)
@@ -500,7 +510,7 @@ c singular values
 
 c Head of the output
       write(6,*)
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,'(6X,A,88X,A)') '*','*'
       write(6,'(6X,A,29X,A31,28X,A)')
      & '*','Natural transition orbitals','*'
@@ -508,10 +518,10 @@ c Head of the output
       write(6,'(6X,A,27X,A25,I2,A12,I2,20X,A)')
      &'*','Between spin-orbit state ',ISTATE,' and state ',JSTATE,'*'
       write(6,'(6X,A,88X,A)') '*','*'
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,*)
 c Start output singular value information for positive spin values
-      write(6,'(6X,90A1)') ('=',i=1,90)
+      write(6,'(6X,A)') repeat('=',90)
       eigen_print_limit=1.0D-8
       write(6,'(5X,A12,A12,A16,A51)')'EXCITATION','EIGENVALUE',
      &'EXCITATION',
@@ -519,7 +529,7 @@ c Start output singular value information for positive spin values
       write(6,'(5X,A12,12X,A16,3A17)')'AMPLITUDE',
      &'CONTRIBUTION(%)',
      &'(1)','(2)','(3)'
-      write(6,'(6X,90A1)') ('-',i=1,90)
+      write(6,'(6X,A)') repeat('-',90)
       do i=0,nb-1
         IF(SVDS(i+1)**2.lt.eigen_print_limit)  EXIT
         write(6,'(4X,3X,F8.5,4X,F8.5,8X,F8.2,2X,
@@ -536,7 +546,7 @@ c Start output singular value information for positive spin values
      &                       SumofYdiag(1),
      &                       SumofYdiag(2),
      &                       SumofYdiag(3)
-      write(6,'(6X,90A1)') ('=',i=1,90)
+      write(6,'(6X,A)') repeat('=',90)
       write(6,*)
       write(6,*)
 c Write NTOs to file in C1 symmetry
@@ -588,7 +598,7 @@ c V imaginary
      &           SVDS ,Dummy,iDummy,Note)
 c End of output
       write(6,*)
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,'(6X,A,88X,A)') '*','*'
       write(6,'(6X,A,28X,A34,25X,A)')
      & '*','End of natural transition orbitals','*'
@@ -596,7 +606,7 @@ c End of output
       write(6,'(6X,A,27X,A25,I2,A12,I2,20X,A)')
      &'*','Between spin-orbit state ',ISTATE,' and state ',JSTATE,'*'
       write(6,'(6X,A,88X,A)') '*','*'
-      write(6,'(6X,90A1)') ('*',i=1,90)
+      write(6,'(6X,A)') repeat('*',90)
       write(6,*)
 
 c Free up workspace

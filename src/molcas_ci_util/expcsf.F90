@@ -104,7 +104,7 @@ do while (.not. LAST)
       write(LINE(1:9),'(2X,A7)') '- sqrt('
     end if
     write(LINE(10:16),'(I6,A1)') ICOEF(1),'/'
-    write(STRING(1:6),'(I6)') ICOEF(2)
+    write(STRING,'(I6)') ICOEF(2)
     J = 17
     do I=1,6
       if (STRING(I:I) /= ' ') then

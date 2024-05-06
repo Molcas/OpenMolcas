@@ -112,7 +112,7 @@ contains
 #ifdef _HDF5_
     use general_data, only : nSym, nActEl, multiplicity => iSpin, stSym, nAsh
     use gas_data, only : iDoGAS
-    use gugx, only : IfCAS
+    use gugx, only : SGS
     use mh5
 #endif
     implicit none
@@ -137,7 +137,7 @@ contains
     ! Set wavefunction type
     if (iDoGAS) then
       call mh5_init_attr(file_id, 'CI_TYPE', 'GAS')
-    else if (IfCAS .eq. 0) then
+    else if (SGS%IFRAS .eq. 0) then
       call mh5_init_attr(file_id, 'CI_TYPE', 'CAS')
     else
       call mh5_init_attr(file_id, 'CI_TYPE', 'RAS')

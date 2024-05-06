@@ -81,7 +81,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
     !  !call PackBlock(DOut,PBlock,mCoor,xLimits,iYDelta)
     !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
     !  call PrintLine(LuVal,line,73,.false.)
-    !  9000 format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
+    !  9000 format ('BHeader=',I2,4E11.4,1X,3(I5,1X)))
     !  if (iBinary /= 0) then
     !    !call IArrToChar(PBlock,cMoBlock,mCoor)
     !    !vv ! NOT CODED YET
@@ -113,12 +113,12 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
       !write(cint,'(i3.3)') i
       if (isDebug) then
         ! extended output -
-        write(LuVal,'(E10.4,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+        write(LuVal,'(E11.4,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
       else !isDebug
         ! normal output - just numbers
         if (isCutOff) then
           do j=1,mCoor
-            if (iCutOff(j) == 1) write(LuVal,'(E10.4)') DOut(j)
+            if (iCutOff(j) == 1) write(LuVal,'(E11.4)') DOut(j)
           end do
         else if (isLUSCUS) then
           ! NOPACKING
@@ -166,7 +166,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           !end if !isMOPack
         else !isCutOff
           ! writing of data
-          write(LuVal,'(E10.4)') (DOut(j),j=1,mCoor)
+          write(LuVal,'(E11.4)') (DOut(j),j=1,mCoor)
         end if !isCutOff, isLuscus
       end if !isDebug
     end if !iBinary
@@ -205,7 +205,7 @@ if (isSphere) then
   call PrintLine(LuVal,line,12,.true.)
   if (iBinary == 0) then
     do j=1,mCoor
-      write(LuVal,'(E18.12)') SphrDist(j)
+      write(LuVal,'(E19.12)') SphrDist(j)
     end do
   else
     write(LuVal) (SphrDist(j),j=1,mCoor)
@@ -218,7 +218,7 @@ if (isColor) then
   call PrintLine(LuVal,line,12,.true.)
   if (iBinary == 0) then
     do j=1,mCoor
-      write(LuVal,'(E18.12)') SphrColor(j)
+      write(LuVal,'(E19.12)') SphrColor(j)
     end do
   else
     write(LuVal) (SphrColor(j),j=1,mCoor)
@@ -317,22 +317,22 @@ if (isDensity) then
     else
       if (isDebug) then
         ! extra output -
-        if (.not. isLuscus) write(LuVal,'(E18.12,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+        if (.not. isLuscus) write(LuVal,'(E19.12,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
       else
         ! normal output - just numbers
         if (isCutOff) then
           do j=1,mCoor
-            if (iCutOff(j) == 1) write(LuVal,'(E18.12)') DOut(j)
+            if (iCutOff(j) == 1) write(LuVal,'(E19.12)') DOut(j)
           end do
         else
 
-          if (.not. isLuscus) write(LuVal,'(E18.12)') (DOut(j),j=1,mCoor)
+          if (.not. isLuscus) write(LuVal,'(E19.12)') (DOut(j),j=1,mCoor)
         end if
       end if
 
     end if
     !GG This is only for testing CASDFT functional. It will be restore.
-    !GG write(LuVal,'(E10.4)') (DOut(j),j=1,mCoor)
+    !GG write(LuVal,'(E11.4)') (DOut(j),j=1,mCoor)
   end if
 end if
 !end if

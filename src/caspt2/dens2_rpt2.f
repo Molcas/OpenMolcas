@@ -16,12 +16,12 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2)
+      SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2,nLev)
       use caspt2_output, only:iPrGlb,debug
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -31,7 +31,7 @@
 #include "SysDef.fh"
 
       LOGICAL RSV_TSK
-
+      Integer, Intent(In):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI),SGM2(MXCI)
       REAL*8 G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
 
@@ -116,17 +116,17 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
 C     LTU=0
 C     DO 140 LT=1,NLEV
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
 C       DO 130 LU=1,LT
         LU=iWork(lTask2U+iTask-1)
 C         LTU=LTU+1
           LTU=iTask
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
           CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
@@ -137,13 +137,13 @@ C         IF(NSGM.EQ.0) GOTO 130
           END IF
           LVX=0
           DO LV=1,LT
-            ISV=ISM(LV)
+            ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             DO LX=1,LV
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 125
               IF(LVX.GT.LTU) GOTO 500
-              ISX=ISM(LX)
+              ISX=SGS%ISM(LX)
               ISVX=MUL(ISV,ISX)
               IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)

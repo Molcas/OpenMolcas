@@ -12,16 +12,15 @@
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
-
 use rasscf_lucia, only: Sigma_on_disk
 use csfbas, only: CONF, CTS
-use glbbas, only: DTOC, CFTP
+use glbbas, only: CFTP, DTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
+use Lucia_Interface, only: Lucia_Util
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use lucia_interface, only: lucia_util
 
 implicit none
 #include "rasdim.fh"
@@ -37,16 +36,15 @@ integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
-integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
-                     kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, &
-                 ThrRes, updsiz, Z
+integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
+                     l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, &
+                 updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
                               sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
-real(kind=wp), allocatable, target:: ctemp(:)
-real(kind=wp), allocatable, target :: Tmp(:)
+real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_, GET_ECORE
 
@@ -189,12 +187,12 @@ do it_ci=1,mxItr
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
 
       ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma',                            &
-                      CI_Vector=ctemp(:),                 &
+      call Lucia_Util('Sigma', &
+                      CI_Vector=ctemp(:), &
                       Sigma_Vector=sigtemp(:))
 
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-      Sigma_on_disk = .TRUE.
+      Sigma_on_disk = .true.
       call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then
@@ -349,7 +347,7 @@ do it_ci=1,mxItr
     write(u6,*)
     write(u6,'(1X,A)') repeat('*',120)
     write(u6,'(1X,A,I2)') 'CI iteration ',it_ci
-    ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
+    ThrRes = max(2.0e-7_wp,sqrt(ThrEne))
     write(u6,'(1X,A,2F18.10)') 'ThrEne,ThrRes=',ThrEne,ThrRes
     do jRoot=1,lRoots
       if (it_ci > 1) then
@@ -363,7 +361,7 @@ do it_ci=1,mxItr
     write(u6,'(1X,A)') repeat('*',120)
     write(u6,*)
   end if
-  ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
+  ThrRes = max(2.0e-7_wp,sqrt(ThrEne))
   iConv = 0
   nconverged = 0
   ! Do not check for convergence of hidden roots

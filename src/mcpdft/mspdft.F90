@@ -68,7 +68,7 @@ module mspdft
 
     real(kind=wp), dimension(nroots) :: e_mspdft
     real(kind=wp), dimension(nroots**2) :: si_pdft
-    integer :: i, info, dim_scratch, iprlev
+    integer :: info, dim_scratch, iprlev
     real(kind=wp), dimension(1) :: wgronk
     real(kind=wp), dimension(:), allocatable :: scratch
     character(len=120) :: Line
@@ -79,7 +79,7 @@ module mspdft
     write(lf,*)
     write(Line,'(6X,2A)') MSPDFTMethod,' FINAL RESULTS'
     call CollapseOutput(1,Line)
-    write(lf,'(6X,80A)') ('-',i=1,len_trim(Line)-3)
+    write(lf,'(6X,A)') repeat('-',len_trim(Line)-3)
     write(lf,*)
 
     if(do_hybrid) then

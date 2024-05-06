@@ -65,7 +65,7 @@ real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, T
                  TIO_Tra, TIOE
 logical(kind=iwp) :: Found
 character(len=6) :: CHName
-character(len=4), parameter :: CHNm = 'CHFV'
+character(len=*), parameter :: CHNm = 'CHFV'
 
 IfTest = .false.
 

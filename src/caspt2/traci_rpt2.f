@@ -9,9 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
-      use gugx, only: LEVEL, NOCSF,IOCSF,NOW1,IOW1,
-     &                         NOCP,IOCP,ICOUP, VTAB,MVL,MVR
-
+      use gugx, only: LEVEL, SGS, CIS, EXS
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
@@ -56,20 +54,16 @@ C where U(I) = T(I)-Kronecker(I,J).
           LI=LEVEL(IORB)
           SCL=0.5D0*WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-0.5D00
-          CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
-     &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                LI,LJ,SCL,STSYM,CI,WORK(LSGM))
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
           LI=LEVEL(IORB)
           SCL=WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-1.0D00
-          CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
-     &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                LI,LJ,SCL,STSYM,WORK(LSGM),CI)
         END DO
 
  100  CONTINUE

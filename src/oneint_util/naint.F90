@@ -29,6 +29,7 @@ use Center_Info, only: dc
 use Gateway_global, only: Primitive_Pass
 use DKH_Info, only: DKroll
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use Symmetry_Info, only: ChOper
 use Constants, only: Zero, One, Two, Three, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
@@ -40,7 +41,6 @@ integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, kC
                      mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q_Nuc, rKappcd, TC(3)
 logical(kind=iwp) :: lECP, No3Cnt, NoSpecial
-character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 ! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D

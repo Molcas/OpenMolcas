@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
-      use gugx, only: NLEV, ISM
+      use gugx, only: SGS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -42,6 +42,9 @@ C Local array:
       INTEGER :: ISYM, ISYMT
       INTEGER :: ITABS, ITLEV, IU, IUABS, IULEV
       REAL*8 :: OP0, OCCNUM, SCP, DDOT_
+
+      Integer :: nLev
+      nLev = SGS%nLev
 
 C Add to the active-active block of transition density matrix,
 C    D(t,u) = Add <IVEC| E(t,u) |JVEC> = <0| W1T E(t,u) W2 |0>
@@ -126,7 +129,7 @@ C ordinal number of each active orbital.
         ITABS=0
         DO ISYM=1,NSYM
           DO I=1,NLEV
-            IF(ISM(I).EQ.ISYM) THEN
+            IF(SGS%ISM(I).EQ.ISYM) THEN
               ITABS=ITABS+1
               IATOG(ITABS)=I
             END IF

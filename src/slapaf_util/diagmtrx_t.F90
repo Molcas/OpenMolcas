@@ -24,12 +24,11 @@ integer(kind=iwp), intent(in) :: nH
 real(kind=wp), intent(in) :: H(nTri_Elem(nH))
 integer(kind=iwp), intent(out) :: iNeg
 #include "print.fh"
-integer(kind=iwp) :: i, iprint, iRout, j, Lu, LuTmp, nq, nQQ
+integer(kind=iwp) :: i, iprint, iRout, j, LuTmp, nq, nQQ
 logical(kind=iwp) :: Exists
 character(len=16) :: filnam
 real(kind=wp), allocatable :: EVal(:), EVec(:), qEVec(:), rK(:)
 
-Lu = u6
 iRout = 22
 iprint = nPrint(iRout)
 
@@ -56,10 +55,10 @@ do i=1,nH
   if (EVal(nTri_Elem(i)) < Zero) iNeg = iNeg+1
 end do
 if (iprint > 5) then
-  write(Lu,*)
-  write(Lu,*) 'Eigenvalues of the Hessian'
-  write(Lu,*)
-  write(Lu,'(5G20.6)') (EVal(nTri_Elem(i)),i=1,nH)
+  write(u6,*)
+  write(u6,*) 'Eigenvalues of the Hessian'
+  write(u6,*)
+  write(u6,'(5G20.6)') (EVal(nTri_Elem(i)),i=1,nH)
 end if
 
 call f_Inquire('SPCINX',Exists)
@@ -88,22 +87,22 @@ if (Exists .and. (iprint > 5)) then
 
   else
 
-    write(Lu,*)
-    write(Lu,*) 'Eigenvectors of the Hessian'
-    write(Lu,*)
+    write(u6,*)
+    write(u6,*) 'Eigenvectors of the Hessian'
+    write(u6,*)
     do i=1,nH
-      write(Lu,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
+      write(u6,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
     end do
   end if
 
   close(LuTmp)
 
 else if (iprint > 5) then
-  write(Lu,*)
-  write(Lu,*) 'Eigenvectors of the Hessian'
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*) 'Eigenvectors of the Hessian'
+  write(u6,*)
   do i=1,nH
-    write(Lu,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
+    write(u6,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
   end do
 
 end if

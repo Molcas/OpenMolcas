@@ -27,6 +27,9 @@
 !***********************************************************************
       use PCM_arrays, only: nTiles, C_Tessera, q_Tessera
       use Index_Functions, only: nTri_Elem1
+#ifdef _DEBUGPRINT_
+      use Symmetry_Info, only: ChOper
+#endif
       use Constants, only: Zero, One
       Implicit None
 #include "int_interface.fh"
@@ -41,8 +44,6 @@
      &        ipIn, LmbdT, nFlop, nMem, NrOpr
       Real*8 qTessera, Fact
 #ifdef _DEBUGPRINT_
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       Integer nElem, ii
 #endif
       Integer jStab_(0:0)

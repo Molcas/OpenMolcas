@@ -44,9 +44,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: n, MxVec
-real(kind=wp), intent(inout) :: X(n,n)
+real(kind=wp), intent(inout) :: X(n,n), Vec(n,MxVec)
 real(kind=wp), intent(in) :: Wg(n), Thr
-real(kind=wp), intent(out) :: Vec(n,MxVec)
 integer(kind=iwp), intent(inout) :: iD(MxVec)
 integer(kind=iwp), intent(out) :: NumCho, irc
 integer(kind=iwp) :: k
@@ -57,17 +56,17 @@ character(len=*), parameter :: SecNam = 'CD_InCore_p_w'
 irc = 0
 NumCho = 0
 if (n >= 1) then
-  Thr_ = Thr
-  if (Thr_ < Zero) Thr_ = DefThr
-
-  do k=1,n
-    if (Wg(k) < Zero) then
-      write(u6,*) SecNam//': negative weights!'
-      call Abend()
-    end if
-  end do
 
   if (MxVec > 0) then
+    do k=1,n
+      if (Wg(k) < Zero) then
+        write(u6,*) SecNam//': negative weights!'
+        call Abend()
+      end if
+    end do
+
+    Thr_ = Thr
+    if (Thr_ < Zero) Thr_ = DefThr
     call CD_InCore_1p_w(X,n,Wg,Vec,MxVec,NumCho,Thr_,ThrNeg,ThrFail,iD,irc)
   else
     irc = -1

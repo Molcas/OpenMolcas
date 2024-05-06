@@ -158,17 +158,12 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !***routines called  d1mach,dqelg,dqk15i,dqpsrt
 !***end prologue  dqagie
 
+use fx, only: f_interface
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: bound, epsabs, epsrel
 integer(kind=iwp), intent(in) :: inf, limit
 real(kind=wp), intent(out) :: reslt, abserr, alist(limit), blist(limit), rlist(limit), elist(limit)

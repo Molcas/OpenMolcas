@@ -28,6 +28,7 @@ subroutine MltInt( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
+use Symmetry_Info, only: ChOper
 use rmat, only: RMat_Type_Integrals
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -42,7 +43,6 @@ real(kind=wp) :: TC(3)
 logical(kind=iwp) :: ABeq(3)
 character(len=80) :: Label
 real(kind=wp), parameter :: Origin(3) = Zero
-character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 

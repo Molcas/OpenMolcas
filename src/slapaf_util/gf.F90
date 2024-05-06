@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nX, nDoF, nInter, mTR, nAtom
-real(kind=wp), intent(out) :: EVec(2,nDoF,nDoF), EVal(2,nDoF), RedM(nDoF)
+real(kind=wp), intent(out) :: EVec(nDoF,nDoF), EVal(nDoF), RedM(nDoF)
 integer(kind=iwp), intent(out) :: iNeg
 real(kind=wp), intent(inout) :: dDipM(3,nInter+mTR)
 real(kind=wp), intent(in) :: DipM(3)
@@ -83,7 +83,7 @@ call Get_dDipM(dDipM,DipM,nDoF,nInter)
 ! Transform from cartesian to normal coordinates
 
 do iNC=1,nDoF
-  Tmp2(1:nDoF) = EVec(1,:,iNC)
+  Tmp2(1:nDoF) = EVec(:,iNC)
   ix = (iNC-1)*3+1
   iy = (iNC-1)*3+2
   iz = (iNC-1)*3+3

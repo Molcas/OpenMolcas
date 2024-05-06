@@ -348,7 +348,7 @@ function cre2(p,q,c) result(d)
   integer(kind=iwp), intent(in) :: p, q, c
   integer(kind=iwp) :: t
 
-  if ((btest(c,q-1) .or. btest(c,p-1))) then
+  if (btest(c,q-1) .or. btest(c,p-1)) then
     d = -1
     return
   end if

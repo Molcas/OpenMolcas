@@ -27,14 +27,13 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nInter, nRowH
 integer(kind=iwp), intent(out) :: mRowH(nRowH)
-integer(kind=iwp) :: iLines, iRowH, j, kLines, Lu, Lu_UDIC
+integer(kind=iwp) :: iLines, iRowH, j, kLines, Lu_UDIC
 character(len=120) :: Temp
 character(len=16) :: filnam
 character(len=8) :: cLbl
 character(len=8), allocatable :: Labels(:)
 integer(kind=iwp), external :: IsFreeUnit
 
-Lu = u6
 Lu_UDIC = IsFreeUnit(91)
 filnam = 'UDIC'
 call molcas_open(Lu_UDIC,filnam)
@@ -80,10 +79,10 @@ outer: do iRowH=1,nRowH
     end if
   end do
   call WarningMessage(2,'Error in rd_udic')
-  write(Lu,*) '**********************************************'
-  write(Lu,*) ' ERROR: Undefined internal ROWH coordinate in '
-  write(Lu,*) ' ',Temp(1:60)
-  write(Lu,*) '**********************************************'
+  write(u6,*) '**********************************************'
+  write(u6,*) ' ERROR: Undefined internal ROWH coordinate in '
+  write(u6,*) ' ',Temp(1:60)
+  write(u6,*) '**********************************************'
   call Quit_OnUserError()
 end do outer
 close(Lu_UDIC)

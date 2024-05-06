@@ -189,7 +189,7 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: ChOper, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -206,7 +206,6 @@ integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCR
                      nDCRT, nOp(2), nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
-character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 iRout = 112

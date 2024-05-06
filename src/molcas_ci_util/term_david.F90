@@ -50,8 +50,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid
-integer(kind=iwp), intent(inout) :: iDisk
 real(kind=wp), intent(out) :: Vector(nConf)
+integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: iRoot
 real(kind=wp), allocatable :: Ovlp1(:,:), Ovlp2(:,:)
 #include "rasdim.fh"

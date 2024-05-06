@@ -26,7 +26,7 @@ integer(kind=iwp) :: i, ifx, io
 character(len=9) :: sbformat
 character(len=3) :: ayn
 integer(kind=iwp), allocatable :: tmp(:)
-character(len=8), parameter :: methkw(12) = ['Fletcher','    TRIM','Trustopt','Davidson','   Steep','  Vb2cas',' AugHess', &
+character(len=*), parameter :: methkw(12) = ['Fletcher','    TRIM','Trustopt','Davidson','   Steep','  Vb2cas',' AugHess', &
                                              'AugHess2','   Check',' dFletch','    None','Super-CI']
 
 if (ifinish == 0) then

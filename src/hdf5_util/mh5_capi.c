@@ -318,9 +318,11 @@ INT mh5c_put_attr_array_real(INT attr_id, void *buffer) {
 }
 INT mh5c_put_attr_array_str(INT attr_id, void *buffer) {
   hid_t h5t_string;
+  herr_t rc;
   h5t_string = H5Aget_type(attr_id);
-  return mh5c_put_attr(attr_id, buffer, h5t_string);
+  rc = mh5c_put_attr(attr_id, buffer, h5t_string);
   H5Tclose(h5t_string);
+  return rc;
 }
 
 INT mh5c_get_attr_scalar_int(INT attr_id, void *value) {
@@ -347,10 +349,12 @@ INT mh5c_get_attr_array_real(INT attr_id, void *buffer) {
   return mh5c_get_attr(attr_id, buffer, H5T_MOLCAS_REAL);
 }
 INT mh5c_get_attr_array_str(INT attr_id, void *buffer) {
+  herr_t rc;
   hid_t h5t_string;
   h5t_string = H5Aget_type(attr_id);
-  return mh5c_get_attr(attr_id, buffer, h5t_string);
+  rc = mh5c_get_attr(attr_id, buffer, h5t_string);
   H5Tclose(h5t_string);
+  return rc;
 }
 
 /*

@@ -158,17 +158,12 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !***routines called  dqage,xerror
 !***end prologue  dqag
 
+use fx, only: f_interface
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: a, b, epsabs, epsrel
 integer(kind=iwp), intent(in) :: key, limit, lenw
 real(kind=wp), intent(out) :: reslt, abserr, work(lenw)

@@ -39,16 +39,13 @@ real(kind=wp), intent(out) :: Vec(lVec)
 integer(kind=iwp), intent(out) :: jNum, mUsed
 integer(kind=iwp), intent(inout) :: iRedC
 logical(kind=iwp) :: Full
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-integer(kind=iwp) :: iLoc, irc, iV2, iVec, jAdr, jRed, jVec, kB, kOffV, lTot, nErr, nTst
-real(kind=wp) :: xNrm
-logical(kind=iwp), parameter :: LocDbg = _DBG_
+integer(kind=iwp) :: iLoc, irc, iV2, iVec, jRed, jVec, kB, lTot, nErr
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Retrieve'
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: jAdr, kOffV, nTst
+real(kind=wp) :: xNrm
 real(kind=wp), external :: ddot_
+#endif
 
 ! Initialize.
 ! -----------
@@ -61,13 +58,16 @@ mUsed = 0
 ! ------------------------------------------------------------------
 
 if (l_ChvBuf_Sym(iSym) < 1) then
-  if (LocDbg) write(Lupri,*) SecNam,': returning immediately. No buffer allocated.'
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returning immediately. No buffer allocated.'
+# endif
   return
 end if
 if (l_ChvBfI_Sym(iSym) > 0) call Cho_VecBuf_Check()
 if (jVec1 > nVec_in_Buf(iSym)) then
-  if (LocDbg) write(Lupri,*) SecNam,': returning immediately. jVec1 = ',jVec1,'  >  nVec_in_Buf = ',nVec_in_Buf(iSym),' (sym. ', &
-                             iSym,')'
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returning immediately. jVec1 = ',jVec1,'  >  nVec_in_Buf = ',nVec_in_Buf(iSym),' (sym. ',iSym,')'
+# endif
   return
 end if
 
@@ -190,28 +190,28 @@ mUsed = lTot
 ! Debug: print.
 ! -------------
 
-if (LocDbg) then
-  write(Lupri,*)
-  write(Lupri,*) SecNam,':'
-  if (jNum < 1) then
-    write(Lupri,*) 'No vectors copied!'
-  else
-    write(Lupri,*) 'Vectors ',jVec1,' to ',jVec1+jNum-1,' of symmetry ',iSym,' copied from buffer.'
-    if (allocated(nDimRS)) then
-      kOffV = 1
-      do iVec=1,jNum
-        jVec = jVec1+iVec-1
-        jRed = InfVec(jVec,2,iSym)
-        jAdr = InfVec(jVec,3,iSym)
-        xNrm = sqrt(dDot_(nDimRS(iSym,jRed),Vec(kOffV),1,Vec(kOffV),1))
-        write(Lupri,*) 'Vector:',jVec,' disk address: ',jAdr,' norm: ',xNrm
-        kOffV = kOffV+nDimRS(iSym,jRed)
-      end do
-      nTst = kOffV-1
-      if (nTst /= mUsed) call Cho_Quit('Vector dimension error in '//SecNam,104)
-    end if
+#ifdef _DEBUGPRINT_
+write(Lupri,*)
+write(Lupri,*) SecNam,':'
+if (jNum < 1) then
+  write(Lupri,*) 'No vectors copied!'
+else
+  write(Lupri,*) 'Vectors ',jVec1,' to ',jVec1+jNum-1,' of symmetry ',iSym,' copied from buffer.'
+  if (allocated(nDimRS)) then
+    kOffV = 1
+    do iVec=1,jNum
+      jVec = jVec1+iVec-1
+      jRed = InfVec(jVec,2,iSym)
+      jAdr = InfVec(jVec,3,iSym)
+      xNrm = sqrt(dDot_(nDimRS(iSym,jRed),Vec(kOffV),1,Vec(kOffV),1))
+      write(Lupri,*) 'Vector:',jVec,' disk address: ',jAdr,' norm: ',xNrm
+      kOffV = kOffV+nDimRS(iSym,jRed)
+    end do
+    nTst = kOffV-1
+    if (nTst /= mUsed) call Cho_Quit('Vector dimension error in '//SecNam,104)
   end if
-  call XFlush(Lupri)
 end if
+call XFlush(Lupri)
+#endif
 
 end subroutine Cho_VecBuf_Retrieve

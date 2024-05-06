@@ -13,6 +13,7 @@ set (sources
      add_vector.F90
      align.F90
      angle_list.F90
+     angles.F90
      arcos.F90
      arsin.F90
      atmlst.F90

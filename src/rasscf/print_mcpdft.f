@@ -38,7 +38,7 @@
       Write(Line(left-2:),'(A)') 'MC-PDFT run print out'
       write(6,'(6X,80A)')
       Call CollapseOutput(1,Line)
-      Write(6,Fmt2//'80A)') ('-',i=1,len_trim(Line)-3)
+      Write(6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
       write(6,'(6X,80A)')
 
       write(6,'(6X,A25,45X,F10.3)') 'Integrated total density:',Dens_I

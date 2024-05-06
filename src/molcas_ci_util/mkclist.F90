@@ -9,29 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK, &
-ISM,IDOWN,NOW,IOW,ICASE,ISCR)
+subroutine MKCLIST(SGS,CIS)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
-use Definitions, only: iwp
 use Symmetry_Info, only: Mul
+use gugx, only: CIStruct, SGStruct
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, MIDLEV, MVSta, MVEnd, &
-                                 NMIDV,NICASE, NIPWLK
-integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
-integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
-
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 logical(kind=iwp) :: Found
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
+if (.not. allocated(CIS%ICase)) call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
+if (.not. allocated(SGS%Scr)) call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
+
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 
-NOW(:,:,:) = 0
+CIS%NOW(:,:,:) = 0
 
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 
@@ -39,12 +40,12 @@ do IHALF=1,2
   if (IHALF == 1) then
     IVTSTA = 1
     IVTEND = 1
-    LEV1 = NLEV
-    LEV2 = MIDLEV
+    LEV1 = SGS%nLev
+    LEV2 = SGS%MidLev
   else
-    IVTSTA = MVSta
-    IVTEND = MVEnd
-    LEV1 = MIDLEV
+    IVTSTA = SGS%MVSta
+    IVTEND = SGS%MVEnd
+    LEV1 = SGS%MidLev
     LEV2 = 0
   end if
 
@@ -53,15 +54,15 @@ do IHALF=1,2
   do IVTOP=IVTSTA,IVTEND
     ! SET CURRENT LEVEL=TOP LEVEL OF SUBGRAPH:
     LEV = LEV1
-    ISCR(IVERT,LEV) = IVTOP
-    ISCR(ISYM,LEV) = 1
-    ISCR(ISTEP,LEV) = -1
+    SGS%Scr(IVERT,LEV) = IVTOP
+    SGS%Scr(ISYM,LEV) = 1
+    SGS%Scr(ISTEP,LEV) = -1
     do while (LEV <= LEV1)
       ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX:
-      IVT = ISCR(IVERT,LEV)
+      IVT = SGS%Scr(IVERT,LEV)
       Found = .false.
-      do ISTP=ISCR(ISTEP,LEV)+1,3
-        IVB = IDOWN(IVT,ISTP)
+      do ISTP=SGS%Scr(ISTEP,LEV)+1,3
+        IVB = SGS%Down(IVT,ISTP)
         if (IVB /= 0) then
           Found = .true.
           exit
@@ -69,46 +70,44 @@ do IHALF=1,2
       end do
       if (Found) then
         ! ALT A -- SUCH AN ARC WAS FOUND. WALK DOWN:
-        ISCR(ISTEP,LEV) = ISTP
+        SGS%Scr(ISTEP,LEV) = ISTP
         ISML = 1
-        if ((ISTP == 1) .or. (ISTP == 2)) ISML = ISM(LEV)
+        if ((ISTP == 1) .or. (ISTP == 2)) ISML = SGS%ISm(LEV)
         LEV = LEV-1
-        ISCR(ISYM,LEV) = MUL(ISML,ISCR(ISYM,LEV+1))
-        ISCR(IVERT,LEV) = IVB
-        ISCR(ISTEP,LEV) = -1
+        SGS%Scr(ISYM,LEV) = MUL(ISML,SGS%Scr(ISYM,LEV+1))
+        SGS%Scr(IVERT,LEV) = IVB
+        SGS%Scr(ISTEP,LEV) = -1
         if (LEV > LEV2) cycle
         ! WE HAVE REACHED THE LOWER LEVEL. THE WALK IS COMPLETE.
         ! MIDVERTEX NUMBER:
-        MV = ISCR(IVERT,MIDLEV)+1-MVSta
+        MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta
         ! SYMMETRY LABEL OF THIS WALK:
-        IWSYM = ISCR(ISYM,LEV2)
+        IWSYM = SGS%Scr(ISYM,LEV2)
         ! ITS ORDERING NUMBER WITHIN THE SAME BATCH OF (IHALF,IWSYM,MV):
-        ILND = 1+NOW(IHALF,IWSYM,MV)
-        NOW(IHALF,IWSYM,MV) = ILND
+        ILND = 1+CIS%NOW(IHALF,IWSYM,MV)
+        CIS%NOW(IHALF,IWSYM,MV) = ILND
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
-        IPOS = IOW(IHALF,IWSYM,MV)+(ILND-1)*NIPWLK
+        IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
         ! PACK THE STEPS IN GROUPS OF 15 LEVELS PER INTEGER:
         do LL=LEV2+1,LEV1,15
           IC = 0
           do L=min(LL+14,LEV1),LL,-1
-            IC = 4*IC+ISCR(ISTEP,L)
+            IC = 4*IC+SGS%Scr(ISTEP,L)
           end do
           IPOS = IPOS+1
-          ICASE(IPOS) = IC
+          CIS%ICase(IPOS) = IC
         end do
         ! FINISHED WITH THIS WALK. BACK UP ONE LEVEL AND TRY AGAIN:
         LEV = LEV+1
       else
         ! ALT B -- NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
-        ISCR(ISTEP,LEV) = -1
+        SGS%Scr(ISTEP,LEV) = -1
         LEV = LEV+1
       end if
     end do
   end do
 end do
 
-! EXIT
-
-return
+call mma_deallocate(SGS%Scr)
 
 end subroutine MKCLIST

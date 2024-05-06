@@ -19,7 +19,7 @@
       SUBROUTINE POLY3(IFF)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb,verbose
-      use gugx, only: NLEV, L2ACT
+      use gugx, only: SGS, L2ACT
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
@@ -58,6 +58,9 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
       INTEGER IPARDIV
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
+      Integer :: nLev
+      nLev = SGS%nLev
+
 
       IF (IFF.EQ.1) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
@@ -76,6 +79,7 @@ C-SVC20100831: allocate local G3 matrices
       CALL GETMEM('G3','ALLO','REAL',LG3,NG3MAX)
 
       CALL mma_allocate(idxG3,6,NG3MAX,label='idxG3')
+      idxG3(:,:)=0
 
       WORK(LG1)=0.0D0
       WORK(LG2)=0.0D0
@@ -132,11 +136,11 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         IF (.NOT. DoCumulant) THEN
 #endif
           CALL MKFG3(IFF,WORK(LCI),WORK(LG1),WORK(LF1),WORK(LG2),
-     &               WORK(LF2),WORK(LG3),WORK(LF3),idxG3)
+     &               WORK(LF2),WORK(LG3),WORK(LF3),idxG3,nLev)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         ELSE
           CALL MKFG3DM(IFF,WORK(LG1),WORK(LF1),WORK(LG2),WORK(LF2),
-     &                       WORK(LG3),WORK(LF3),idxG3)
+     &                       WORK(LG3),WORK(LF3),idxG3,nLev)
         END IF
 #endif
       END IF
@@ -170,6 +174,4 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         END IF
       END IF
 
-
-      RETURN
       END

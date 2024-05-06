@@ -16,13 +16,13 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS1_RPT2 (CI,SGM1,G1)
+      SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
       use caspt2_output, only:iPrGlb,debug
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -33,6 +33,7 @@
 
       LOGICAL RSV_TSK
 
+      Integer, Intent(In):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI)
       REAL*8 G1(NLEV,NLEV)
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -52,7 +53,6 @@
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
 * Purpose: Compute the 1-electron density matrix array G1.
-
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 
@@ -109,14 +109,14 @@
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
           CALL GETSGM2(LU,LT,STSYM,CI,SGM1)

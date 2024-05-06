@@ -72,11 +72,11 @@ C Local print level (if any)
       IPRLEV=IPRLOC(4)
       !iPrLev=DEBUG-1
       If ( iPrLev.ge.DEBUG ) then
-        write(lf,*) ('*',i=1,65)
+        write(lf,*) repeat('*',65)
         write(lf,*) 'Entering FMAT routine called by MSCTL!'
-        write(lf,*) ('*',i=1,65)
+        write(lf,*) repeat('*',65)
         write(lf,*) 'printing input matrices :'
-        write(lf,*) ('*',i=1,65)
+        write(lf,*) repeat('*',65)
         Write(LF,*)
         Write(LF,*) ' CMOs in FMAT'
         Write(LF,*) ' ---------------------'

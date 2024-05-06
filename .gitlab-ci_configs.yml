@@ -24,7 +24,7 @@
     FC: "gfortran"
     tests: ".all exhaustive"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .options:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
@@ -49,7 +49,7 @@
     MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
     MOLCAS_LINALG_INFO: "YES"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .linalg:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
@@ -66,7 +66,7 @@
     CXX: "g++"
     FC: "gfortran"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .pgi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
@@ -80,7 +80,7 @@
     CXX: "pgc++ '-tp=px'"
     FC: "pgfortran '-tp=px'"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .sun:
   image: ${CI_REGISTRY}/molcas/dockerfiles/oracle:latest
@@ -91,7 +91,7 @@
     CXX: "sunCC -I/usr/include/x86_64-linux-gnu"
     FC: "sunf90 -I/usr/include/x86_64-linux-gnu"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .intel:
   image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
@@ -114,7 +114,7 @@
     CXX: "icx"
     FC: "ifort -diag-disable=10448"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .intel_llvm:
   image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
@@ -137,7 +137,7 @@
     CXX: "icx"
     FC: "ifx"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .intel13:
   # "legacy" image with classic Intel compilers
@@ -192,6 +192,8 @@
       sed -E ':a ; $!N ; s/\n\s+/ / ; ta ; P ; D' nag.log > nag2.log ; mv nag2.log nag.log
       # Filter only NAG message lines
       sed -n -E '/^(Info|Warning|Questionable|Note|Extension(\(NAG\))?|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
+      # Ignore warnings from external codes
+      sed -E '/\/External\//d' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove ignored warnings
       sed -E '/(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
       # Preprocessing with fpp introduces long filename paths, so ignore these messages for now
@@ -233,7 +235,7 @@
     CXX: "g++"
     FC: "gfortran"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .bounds:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
@@ -248,7 +250,7 @@
     FC: "gfortran"
     MOLCAS_TIMELIM: "1000"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .debug:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
@@ -264,7 +266,7 @@
     # only interested in compilation, so run no tests
     tests: ".none"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .qcmaquis:
   image: ${CI_REGISTRY}/molcas/dockerfiles/qcmaquis:latest
@@ -277,7 +279,7 @@
     FC: "gfortran"
     tests: ".all qcmaquis"
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 .mpi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
@@ -297,4 +299,4 @@
     MPI_FLAGS: "--allow-run-as-root --oversubscribe"
     MOLCAS_NPROCS: "2"
   tags:
-    - docker
+    - saas-linux-small-amd64

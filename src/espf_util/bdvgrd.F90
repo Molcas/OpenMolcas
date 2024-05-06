@@ -15,6 +15,7 @@ subroutine BdVGrd( &
                  )
 
 use Index_Functions, only: nTri_Elem1
+use Symmetry_Info, only: ChOper
 use Center_Info, only: dc
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
@@ -27,7 +28,6 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7),
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3), ZFdx, ZFdy, ZFdz
 logical(kind=iwp) :: ESPFexist, JfGrad(3,4), NoLoop
 character(len=180) :: Key
-character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: iChAtm, IsFreeUnit, NrOpr
 character(len=180), external :: Get_Ln
 external :: Fake, TNAI1, XCff2D

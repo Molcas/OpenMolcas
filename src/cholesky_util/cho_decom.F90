@@ -23,13 +23,12 @@ implicit none
 integer(kind=iwp), intent(in) :: LWRK, IPASS, NUM
 real(kind=wp), intent(inout) :: Diag(*), WRK(LWRK)
 integer(kind=iwp) :: I, IAB, IABG, IADR, ICHO, IDUMP, II, IOPT, ISYM, IVEC, IVEC1, IVECT, JJ, KAB, KCHO1, KEND0, KEND1, KINT1, &
-                     KOFF, KOFF0, KOFF2, KOFF3, LENLIN, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, NUMCHO_OLD(8)
+                     KOFF, KOFF0, KOFF2, KOFF3, LINT1, LTOT, LWRK0, LWRK1, NCONV, NERR, NNEG, NNEGT, NUMBUF, NUMCHO_OLD(8)
 real(kind=wp) :: C1, C2, FAC, OLDIAG, TOL, W1, W2, XC, XM, XMAX, XMIN, YM
 logical(kind=iwp) :: LAST
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_DECOM'
 
-LENLIN = 0  ! to avoid compiler warnings...
 if (IPRINT >= INF_PROGRESS) then
   call CHO_HEAD(SECNAM//': Decomposition of Qualified Diagonals','=',80,LUPRI)
   write(LUPRI,'(/,A,I5,A,I4,A)') 'Integral pass number',IPASS,' (',NUM,' shell pair distributions calculated)'
@@ -40,8 +39,7 @@ if (IPRINT >= INF_PROGRESS) then
   write(LUPRI,'(A,8I8)') 'Original dim. : ',(NNBSTR(ISYM,1),ISYM=1,NSYM)
   write(LUPRI,'(/,A,/,A)') '           #Vectors             Treated Diagonal', &
                            'Sym.     Sym.     Total     Index     Before      After   Conv. Neg.   New Max'
-  LENLIN = 79
-  write(LUPRI,'(80A)') ('-',I=1,LENLIN)
+  write(LUPRI,'(A)') repeat('-',79)
   call XFLUSH(LUPRI)
   NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)
 else if (IPRINT >= INF_PASS) then
@@ -292,7 +290,7 @@ end do
 
 if (IPRINT >= INF_PROGRESS) then
   NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)-NUMCHO_OLD(1:NSYM)
-  write(LUPRI,'(80A)') ('-',I=1,LENLIN)
+  write(LUPRI,'(A)') repeat('-',79)
   write(LUPRI,'(A,8I8)') '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
 else if (IPRINT >= INF_PASS) then
   NUMCHO_OLD(1:NSYM) = NUMCHO(1:NSYM)-NUMCHO_OLD(1:NSYM)

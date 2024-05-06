@@ -206,7 +206,7 @@ C SSORB.1, SSORB.2, ...
 C End of very long loop over eigenstates KEIG.
       END DO
 
-      WRITE(6,*)('*',I=1,80)
+      WRITE(6,*) repeat('*',80)
       CALL GETMEM('VEC   ','FREE','REAL',LVEC,NVEC)
       CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NVEC2)
       CALL GETMEM('SCR   ','FREE','REAL',LSCR,NSCR)

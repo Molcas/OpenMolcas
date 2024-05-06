@@ -24,7 +24,7 @@ subroutine Drv1_Pot(FD,CCoor,pot,ngrid,ncmp,nordop)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: ChOper, nIrrep
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -49,7 +49,6 @@ logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Kappa(:), Kern(:), PCoor(:,:), rFinal(:), Scrt1(:), Scrt2(:), Zeta(:), &
                               ZInv(:)
 real(kind=wp), parameter :: ThreeI = One/Three
-character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 !                                                                      *

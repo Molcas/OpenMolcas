@@ -95,6 +95,7 @@
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
+      use gugx, only: SGS, CIS, EXS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -442,12 +443,12 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       Call StatusLine('RASSCF:',' Compute wave function.')
       If ( IPRLEV.GE.2 .AND..NOT.lOPTO) then
        Write(LF,*)
-       Write(LF,'(6X,120A1)') ('*',i=1,120)
+       Write(LF,'(6X,A)') repeat('*',120)
        Write(LF,'(6X,A,118X,A)') '*','*'
        Write(LF,'(6X,A,44X,A,45X,A)')
      &      '*','Wave function control section','*'
        Write(LF,'(6X,A,118X,A)') '*','*'
-       Write(LF,'(6X,120A1)') ('*',i=1,120)
+       Write(LF,'(6X,A)') repeat('*',120)
        Write(LF,*)
       End If
 
@@ -961,7 +962,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       End If
 *
       If ( IPRLEV.ge.DEBUG .and. l_casdft) then
-        write(6,*) ('*',i=1,70)
+        write(6,*) repeat('*',70)
         write(6,*) 'we are done withe first standard CAS-CI iteration  '
         write(6,*) 'CI coeffs are known and mantained fix in next stage'
         write(6,*) 'We are now going to remove exchange from FI and FA '
@@ -969,7 +970,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         write(6,*) 'the ExFac is going to be set to 0.0d0 as DT asked! '
         write(6,*) 'FI and FA are going to change... '
         write(6,*) 'Check with previous printout to see differences.\  '
-        write(6,*) ('*',i=1,70)
+        write(6,*) repeat('*',70)
       End if
 
 
@@ -1457,22 +1458,22 @@ cGLM some additional printout for MC-PDFT
         if(DoBKAP) then
          if(iter.eq.1) then
           IF (DIFFE.GT.1.D-10 .AND. NROOTS.EQ.1) THEN
-            Write(LF,'(6X,120A1)') ('=',i=1,120)
+            Write(LF,'(6X,A)') repeat('=',120)
             Call WarningMessage(2,'Rasscf and CI energies will differ.')
             Write(LF,*)'This is the price you pay by the diagonal '
      &   //'approximation over the BB block in the SplitCAS method.'
             Write(LF,*)'The RASSCF energy might also diverge!'
-            Write(LF,'(80A1)') ('#',i=1,80)
+            Write(LF,'(A)') repeat('#',80)
           END IF
          end if
         else if( l_casdft ) then
-          Write(LF,'(6X,80A)') ('=',i=1,80)
+          Write(LF,'(6X,A)') repeat('=',80)
           Write(LF,'(10X,A)') 'This is a POST-SCF correction using a '
      & //'modified  Hamiltonian.'
           write(LF,'(10X,A)') 'The RASSCF energy has been corrected and'
      & //' it will differ from'
           write(LF,'(10X,A)') 'the preceding CI energy.'
-          Write(LF,'(6X,80A)') ('=',i=1,80)
+          Write(LF,'(6X,A)') repeat('=',80)
         else
           IF(doDMRG)then
 
@@ -1484,7 +1485,7 @@ cGLM some additional printout for MC-PDFT
             if(KeyCION)then
             else
               IF (DIFFE.GT.1.D-6 .AND. NROOTS.EQ.1) THEN
-                Write(LF,'(6X,120A1)') ('=',i=1,120)
+                Write(LF,'(6X,A)') repeat('=',120)
               Call WarningMessage(2,'DMRGSCF and DMRG energies differ.')
                 Write(LF,'(6X,A,I11)')    'iteration           ',ITER
                 Write(LF,'(6X,A,F22.10)') 'DMRGSCF energy      ',ECAS
@@ -1494,7 +1495,7 @@ cGLM some additional printout for MC-PDFT
                 Write(LF,*)'1) If possible, consider a larger M value'
                Write(LF,*)'2) Severe convergence problems. Maybe active'
                 Write(LF,*)'   space is unsuitable for this system?'
-                Write(LF,'(6X,120A1)') ('=',i=1,120)
+                Write(LF,'(6X,A)') repeat('=',120)
                 IF (DIFFE.GT.5.D-04 .AND. NROOTS.EQ.1) THEN
                   Write(LF,*)
                   Write(LF,*)"Warning : "
@@ -1510,7 +1511,7 @@ cGLM some additional printout for MC-PDFT
             if (DoBlockDMRG) DIFFETol = 1.D-8
 #endif
             IF (DIFFE.GT.DIFFETol .AND. NROOTS.EQ.1) THEN
-              Write(LF,'(6X,120A1)') ('=',i=1,120)
+              Write(LF,'(6X,A)') repeat('=',120)
               Call WarningMessage(2,'Rasscf and CI energies differ.')
               Write(LF,'(6X,A,I11)')    'iteration           ',ITER
               Write(LF,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
@@ -1518,12 +1519,12 @@ cGLM some additional printout for MC-PDFT
               Write(LF,'(6X,A,F22.10)') 'relative difference ',DIFFE
               Write(LF,*)'Severe convergence problems. Maybe the active'
               Write(LF,*)'   space is unsuitable for this system?'
-              Write(LF,'(6X,120A1)') ('=',i=1,120)
+              Write(LF,'(6X,A)') repeat('=',120)
               IF(DIFFE.GT.1.D-04.AND.NROOTS.EQ.1.AND. .not.l_casdft)THEN
                 Write(LF,*)
                 Write(LF,'(6X,A)') 'The program has to stop !!!'
                 Write(LF,*)
-                Write(LF,'(6X,120A1)') ('=',i=1,120)
+                Write(LF,'(6X,A)') repeat('=',120)
                 Write(LF,*)
                 ITERM=99
                 GOTO 2000
@@ -1534,7 +1535,7 @@ cGLM some additional printout for MC-PDFT
       else
 *          Write(LF,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
         IF (DIFFE.GT.5.0D-03) THEN
-          Write(LF,'(6X,120A1)') ('*',i=1,120)
+          Write(LF,'(6X,A)') repeat('*',120)
           Write(LF,'(6X,A)') 'The Split-RASSCF and Split-CI '//
      &                       'energies differ !!!'
 *          Write(LF,'(6X,A,I11)')    'iteration           ',ITER
@@ -1546,7 +1547,7 @@ cGLM some additional printout for MC-PDFT
           Write(LF,*)'     To make the difference smaller try',
      &               ' to select a bigger AA block or use firstOrder ',
      &               ' keyword.'
-          Write(LF,'(6X,120A1)') ('*',i=1,120)
+          Write(LF,'(6X,A)') repeat('*',120)
         END IF
       end if
 
@@ -1577,16 +1578,16 @@ cGLM some additional printout for MC-PDFT
       IF (DE.GT.1.0D0) THEN
         Call StatusLine('RASSCF:','No convergence.')
         Write(LF,*)
-        Write(LF,'(6X,120A1)') ('=',i=1,120)
+        Write(LF,'(6X,A)') repeat('=',120)
         Call WarningMessage(2,'Rasscf energy diverges.')
         Write(LF,'(6X,A,I11)')    'iteration           ',ITER
         Write(LF,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
         Write(LF,'(6X,A,F22.10)') 'energy difference   ',DE
-        Write(LF,'(6X,120A1)') ('=',i=1,120)
+        Write(LF,'(6X,A)') repeat('=',120)
         Write(LF,*)
         Write(LF,'(6X,A)') '!!! The program was forced to stop !!!'
         Write(LF,*)
-        Write(LF,'(6X,120A1)') ('=',i=1,120)
+        Write(LF,'(6X,A)') repeat('=',120)
         Write(LF,*)
         ITERM=99
         GOTO 2000
@@ -1895,12 +1896,12 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
       Call StatusLine('RASSCF:','Printing results')
       IF (IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
         Write(LF,*)
-        Write(LF,'(6X,120A1)') ('*',i=1,120)
+        Write(LF,'(6X,A)') repeat('*',120)
         Write(LF,'(6X,A,118X,A)') '*','*'
         Write(LF,'(6X,A,52X,A,53X,A)')
      &        '*','Final results','*'
         Write(LF,'(6X,A,118X,A)') '*','*'
-        Write(LF,'(6X,120A1)') ('*',i=1,120)
+        Write(LF,'(6X,A)') repeat('*',120)
         Write(LF,*)
       END IF
 #ifdef _FDE_
@@ -2051,7 +2052,7 @@ c      End If
 
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
-        Call MKGUGA_FREE
+        Call MKGUGA_FREE(SGS,CIS,EXS)
       end if
 
       if (DoFaro) then

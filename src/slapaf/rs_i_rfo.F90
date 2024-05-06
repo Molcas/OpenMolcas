@@ -48,13 +48,12 @@ real(kind=wp), intent(out) :: dq(nInter)
 character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(in) :: StepMax, Thr_RS
 character, intent(inout) :: Step_Trunc
-integer(kind=iwp) :: i, ij, iNeg, iStatus, j, Lu, nNeg, NumVal, nVStep
+integer(kind=iwp) :: i, ij, iNeg, iStatus, j, nNeg, NumVal, nVStep
 real(kind=wp) :: Fact, gi, Thr
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: Mat(:), Tmp(:,:), Val(:), Vec(:,:)
 real(kind=wp), external :: DDot_
 
-Lu = u6
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt(' In RS_I_RFO: H','(10f10.6)',H,nInter,nInter)
@@ -115,14 +114,14 @@ do while ((i >= 0) .and. (nNeg == 0))
   i = i-1
 end do
 if (nNeg == 0) then
-  write(Lu,*) 'Warning RS-I-RFO: Neq == 0'
+  write(u6,*) 'Warning RS-I-RFO: Neq == 0'
   call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
   !call Abend()
 end if
 #ifdef _DEBUGPRINT_
 call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
 call RecPrt(' In RS_I_RFO: Eigenvectors',' ',Vec,nInter,NumVal)
-write(Lu,*) ' nNeg=',nNeg
+write(u6,*) ' nNeg=',nNeg
 #endif
 
 ! Transform the gradient and Hessian to generate the

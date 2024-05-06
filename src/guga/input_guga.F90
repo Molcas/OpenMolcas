@@ -33,7 +33,7 @@ character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:), JREFX(:), JSY(:)
 integer(kind=iwp), parameter :: MLL(64) = [1,2,3,4,5,6,7,8,2,1,4,3,6,5,8,7,3,4,1,2,7,8,5,6,4,3,2,1,8,7,6,5,5,6,7,8,1,2,3,4,6,5,8, &
                                            7,2,1,4,3,7,8,5,6,3,4,1,2,8,7,6,5,4,3,2,1]
-character(len=4), parameter :: Cmd(nCmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE', &
+character(len=*), parameter :: Cmd(nCmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE', &
                                             'NOCO','ONEO','EXTR','NONI','NACT','END ']
 
 !---  Initialize data and variables -----------------------------------*
@@ -285,13 +285,13 @@ if (NACTEL == -1) NACTEL = N-2*NISHT
 
 write(u6,*)
 write(u6,'(6X,A)') repeat('*',120)
-write(u6,'(6X,A,A,A)') '*',repeat(' ',118),'*'
-write(u6,'(6X,A,A,A6,A,A)') '*',repeat(' ',56),'Title:',repeat(' ',56),'*'
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A,56X,A,56X,A)') '*','Title:','*'
 do i=1,nTit
   call Center_Text(Title(i))
-  write(u6,'(6X,A,A,A72,A,A)') '*',repeat(' ',23),Title(i),repeat(' ',23),'*'
+  write(u6,'(6X,A,23X,A,23X,A)') '*',Title(i),'*'
 end do
-write(u6,'(6X,A,A,A)') '*',repeat(' ',118),'*'
+write(u6,'(6X,A,118X,A)') '*','*'
 write(u6,'(6X,A)') repeat('*',120)
 write(u6,*)
 S = (ISPIN-1)*Half

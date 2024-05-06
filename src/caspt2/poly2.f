@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
-      use gugx, only: NLEV
+      use gugx, only: SGS
 #ifdef _ENABLE_CHEMPS2_DMRG_
       use caspt2_output, only:iPrGlb,debug
 #endif
@@ -41,6 +41,8 @@
       REAL*8, EXTERNAL :: DNRM2_
       INTEGER NAC4
 #endif
+      Integer :: nLev
+      nLev = SGS%nLev
 
       IF(NLEV.GT.0) THEN
 * NN.15 in case of DMRG-CASPT2, CI=1 and MXCI=1
@@ -52,7 +54,7 @@
         IF(.Not.DoCumulant) THEN
 #endif
           CALL DENS2_RPT2(CI,WORK(LSGM1),WORK(LSGM2),
-     &                    WORK(LG1TMP),WORK(LG2TMP))
+     &                    WORK(LG1TMP),WORK(LG2TMP),NLEV)
 #ifdef _ENABLE_BLOCK_DMRG_
         ELSE
 * this is provided by BLOCK code

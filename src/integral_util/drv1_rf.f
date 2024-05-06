@@ -43,6 +43,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _DEBUGPRINT_
       use define_af, only: Angtp
+      use Symmetry_Info, only: ChOper
 #endif
       Implicit None
       Integer nOpr, nFD, lMax
@@ -65,8 +66,6 @@
       Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),
      &                      DAO(:), DSOpr(:), DSO(:)
 #ifdef _DEBUGPRINT_
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       Integer i
 #endif
 !

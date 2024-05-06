@@ -20,9 +20,9 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
 use csfbas, only: CTS
+use Lucia_Interface, only: Lucia_Util
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use lucia_interface, only: lucia_util
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID

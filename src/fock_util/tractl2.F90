@@ -22,8 +22,8 @@ use Fock_util_global, only: ALGO, DoCholesky
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use Definitions, only: wp, iwp, u6
 use wadr, only: nPWXY
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 

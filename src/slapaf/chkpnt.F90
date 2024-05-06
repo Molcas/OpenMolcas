@@ -25,7 +25,7 @@ implicit none
 private
 
 # ifdef _HDF5_
-character(len=9), parameter :: basename = 'SLAPAFCHK'
+character(len=*), parameter :: basename = 'SLAPAFCHK'
 
 integer(kind=iwp) :: chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_hess, chkpnt_id, chkpnt_iter, chkpnt_new, Iter_all
 character(len=12) :: filename

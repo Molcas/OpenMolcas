@@ -25,23 +25,22 @@ integer(kind=iwp), intent(in) :: nDim, N1, N2
 character(len=*), intent(in) :: TEXT, Chr(nDim)
 real(kind=wp), intent(in) :: FI(N1,N2)
 logical(kind=iwp), intent(in) :: lAngstroms
-integer(kind=iwp) :: I, Lu
+integer(kind=iwp) :: I
 
-Lu = u6
-write(Lu,*)
-write(Lu,*) '*********************************************************'
-write(Lu,*) Text
-write(Lu,*) '*********************************************************'
-write(Lu,*) ' ATOM              X               Y               Z     '
+write(u6,*)
+write(u6,*) '*********************************************************'
+write(u6,*) Text
+write(u6,*) '*********************************************************'
+write(u6,*) ' ATOM              X               Y               Z     '
 do I=1,NDIM
   if (lAngstroms) then
-    write(Lu,300) Chr(I),FI(1:3,I)*Angstrom
+    write(u6,300) Chr(I),FI(1:3,I)*Angstrom
   else
-    write(Lu,300) Chr(I),FI(1:3,I)
+    write(u6,300) Chr(I),FI(1:3,I)
   end if
 end do
 
-write(Lu,*)
+write(u6,*)
 
 return
 

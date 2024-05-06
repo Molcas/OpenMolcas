@@ -21,25 +21,24 @@ use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, LuPri, nSym, NumCho, Nu
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: irc, iRedC, iSym, iV1, iV2, mUsed(8), nRead
+integer(kind=iwp) :: iRedC, iSym, iV1, iV2, mUsed(8), nRead
 logical(kind=iwp) :: DoRead
 #ifdef _CHO_DEBUGPRINT_
 #define _DEBUGPRINT_
 #endif
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Ini2'
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: irc
+#endif
 
 ! Check if buffer is allocated.
 ! Check if there are any vectors.
 ! -------------------------------
 
 if (.not. allocated(CHVBUF)) then
-  if (LocDbg) write(Lupri,*) SecNam,': returning immediately: No buffer allocated!'
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returning immediately: No buffer allocated!'
+# endif
   return
 end if
 if (NumChT < 1) then
@@ -66,19 +65,19 @@ end do
 ! Print info.
 ! ------------------------
 
-if (LocDbg) then
-  call Cho_VecBuf_EnableIntegrityCheck(irc)
-  if (irc /= 0) then
-    write(LuPri,'(A,I9)') SecNam,': Cho_VecBuf_EnableIntegrityCheck returned code',irc
-    call Cho_Quit(SecNam//': integrity check init failed',104)
-  else
-    write(LuPri,'(A,A)') SecNam,': buffer integrity check enabled'
-  end if
-  write(Lupri,'(A,A,8I10)') SecNam,'(exit): NumCho:',(NumCho(iSym),iSym=1,nSym)
-  write(Lupri,'(A,A,8I10)') SecNam,'(exit): nVec_in_Buf:',(nVec_in_Buf(iSym),iSym=1,nSym)
-  write(Lupri,'(A,A,8I10)') SecNam,'(exit): buffer allocated:',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
-  write(Lupri,'(A,A,8I10)') SecNam,'(exit): memory used:',(mUsed(iSym),iSym=1,nSym)
-  call XFlush(Lupri)
+#ifdef _DEBUGPRINT_
+call Cho_VecBuf_EnableIntegrityCheck(irc)
+if (irc /= 0) then
+  write(LuPri,'(A,I9)') SecNam,': Cho_VecBuf_EnableIntegrityCheck returned code',irc
+  call Cho_Quit(SecNam//': integrity check init failed',104)
+else
+  write(LuPri,'(A,A)') SecNam,': buffer integrity check enabled'
 end if
+write(Lupri,'(A,A,8I10)') SecNam,'(exit): NumCho:',(NumCho(iSym),iSym=1,nSym)
+write(Lupri,'(A,A,8I10)') SecNam,'(exit): nVec_in_Buf:',(nVec_in_Buf(iSym),iSym=1,nSym)
+write(Lupri,'(A,A,8I10)') SecNam,'(exit): buffer allocated:',(l_ChVBuf_Sym(iSym),iSym=1,nSym)
+write(Lupri,'(A,A,8I10)') SecNam,'(exit): memory used:',(mUsed(iSym),iSym=1,nSym)
+call XFlush(Lupri)
+#endif
 
 end subroutine Cho_VecBuf_Ini2

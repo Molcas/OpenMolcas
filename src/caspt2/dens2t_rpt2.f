@@ -16,12 +16,12 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS2T_RPT2 (CI1,CI2,SGM1,SGM2,G1,G2)
+      SUBROUTINE DENS2T_RPT2 (CI1,CI2,SGM1,SGM2,G1,G2,nLev)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -31,7 +31,7 @@
 #include "SysDef.fh"
 
       LOGICAL RSV_TSK
-
+      Integer, Intent(In):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI),SGM2(MXCI)
       REAL*8 G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
 
@@ -118,17 +118,17 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
 C     LTU=0
 C     DO 140 LT=1,NLEV
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
 C       DO 130 LU=1,LT
         LU=iWork(lTask2U+iTask-1)
 C         LTU=LTU+1
           ! LTU=iTask
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
 C         CALL GETSGM2(LT,LU,STSYM,CI1,SGM1)
@@ -144,12 +144,12 @@ C           G1(IU,IT)=GTU
           END IF
           LVX=0
           DO LV=1,NLEV!LT
-            ISV=ISM(LV)
+            ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             DO LX=1,NLEV!LV
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 500
-              ISX=ISM(LX)
+              ISX=SGS%ISM(LX)
               ISVX=MUL(ISV,ISX)
               IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)
@@ -184,12 +184,12 @@ C             G2(IT,IU,IX,IV)=GTUXV
           END IF
           LVX=0
           DO LV=1,NLEV
-            ISV=ISM(LV)
+            ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             DO LX=1,NLEV
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 500
-              ISX=ISM(LX)
+              ISX=SGS%ISM(LX)
               ISVX=MUL(ISV,ISX)
 C             IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)

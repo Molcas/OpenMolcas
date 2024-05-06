@@ -18,7 +18,7 @@ use ccsd_global, only: ccconv, cycext, eps, filerst, firstext, fullprint, iokey,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, nhelp, nhelp1, nhelp2
+integer(kind=iwp) :: nhelp, nhelp1, nhelp2
 
 !1 write header and title
 
@@ -31,9 +31,9 @@ end if
 
 if (title(1:1) /= ' ') then
   write(u6,*)
-  write(u6,'(6X,112A1)') ('*',i=1,112)
-  write(u6,'(6X,A1,19X,A72,19X,A1)') '*',title,'*'
-  write(u6,'(6X,112A1)') ('*',i=1,112)
+  write(u6,'(6X,A)') repeat('*',112)
+  write(u6,'(6X,A,19X,A72,19X,A)') '*',title,'*'
+  write(u6,'(6X,A)') repeat('*',112)
 end if
 
 !2 write occupations and matrix multiplication tablaux

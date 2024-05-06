@@ -9,7 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine NDSD_Ts(mGrid,nDmat)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
+subroutine NDSD_Ts( &
+#                  define _CALLING_
+#                  include "dft_functional.fh"
+                  )
 !***********************************************************************
 !                                                                      *
 ! Object:  compute Func for Thomas-Fermi KE functional                 *
@@ -29,7 +37,7 @@ use Constants, only: Zero, One, Two, Three, Five, Ten, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: mGrid, nDmat
+#include "dft_functional.fh"
 integer(kind=iwp) :: iGrid, k
 real(kind=wp) :: Cf, d_sys, da_sys, db_sys, dfunc_NDSD, dfunc_NDSD_alpha, dfunc_NDSD_beta, DTot, functional, Rho_min, &
                  wGradRho(1:3), wLaplRho
@@ -49,7 +57,7 @@ Rho_min = T_X*1.0e-2_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (nDmat == 1) then
+if (nD == 1) then
   do iGrid=1,mGrid
     d_sys = Two*Rho(1,iGrid)
     if (d_sys < T_X) cycle
@@ -71,7 +79,7 @@ if (nDmat == 1) then
 
   end do
 
-else if (nDmat == 2) then
+else if (nD == 2) then
 
   Cf = Cf*(Two**Two3)
 
@@ -102,7 +110,7 @@ else if (nDmat == 2) then
   end do
 
 else
-  write(u6,*) 'In NDSD_Ts: invalid # of densities. nDmat=  ',nDmat
+  write(u6,*) 'In NDSD_Ts: invalid # of densities. nD=  ',nD
   call Abend()
 end if
 

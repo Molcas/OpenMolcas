@@ -23,8 +23,8 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL
 integer(kind=iwp), intent(out) :: KCNF(NEL), KTYP
-integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF, NOCC, NTEST
 #include "spinfo.fh"
+integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF, NOCC, NTEST
 ! Configuration list is assumed to be in the form used
 ! in LUCIA, i.e. doubly occupied orbitals are flagged by
 ! a minus
@@ -43,7 +43,7 @@ do JTYP=1,NTYP
     KADD = (KREL-1)*JOCC
     KTYP = JTYP
     ! Outdated ...
-    !call ICOPY(JOCC,ICONF(ICNFB2+KADD),1,KCNF,1)
+    !KCNF(1:JOCC) = ICONF(ICNFB2+KADD:ICNFB2+KADD+JOCC-1)
 
     ! Obtain configuration in standard RASSCF form
     IIBOP = 1

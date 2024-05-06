@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY1(CI)
-      use gugx, only: NLEV
+      use gugx, only: SGS
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -33,12 +33,14 @@
       INTEGER LSGM1,LG1TMP
 
       INTEGER I
+      Integer :: nLev
+      nLev = SGS%nLev
 
 
       IF(NLEV.GT.0) THEN
         CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
         CALL GETMEM('LG1TMP','ALLO','REAL',LG1TMP,NG1)
-        CALL DENS1_RPT2(CI,WORK(LSGM1),WORK(LG1TMP))
+        CALL DENS1_RPT2(CI,WORK(LSGM1),WORK(LG1TMP),nLev)
       END IF
 
 * REINITIALIZE USE OF DMAT.
@@ -59,7 +61,5 @@
         CALL GETMEM('LG1TMP','FREE','REAL',LG1TMP,NG1)
       END IF
 
-
-      RETURN
-      END
+      END SUBROUTINE POLY1
 

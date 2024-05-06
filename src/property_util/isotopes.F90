@@ -46,7 +46,7 @@ type Element_t
 end type Element_t
 integer(kind=iwp), parameter :: MaxAtomNum = 118
 type(Element_t), allocatable :: ElementList(:)
-character(len=2), parameter :: PTab(0:MaxAtomNum) = [' X', &
+character(len=*), parameter :: PTab(0:MaxAtomNum) = [' X', &
                                                      ' H','He','Li','Be',' B',' C',' N',' O',' F','Ne', &
                                                      'Na','Mg','Al','Si',' P',' S','Cl','Ar',' K','Ca', &
                                                      'Sc','Ti',' V','Cr','Mn','Fe','Co','Ni','Cu','Zn', &

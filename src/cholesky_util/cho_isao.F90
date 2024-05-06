@@ -24,7 +24,7 @@ integer(kind=iwp) :: CHO_ISAO
 integer(kind=iwp), intent(in) :: IAO
 integer(kind=iwp), external :: CHO_IRANGE
 #ifdef _DEBUGPRINT_
-character(len=8), parameter :: SECNAM = 'CHO_ISAO'
+character(len=*), parameter :: SECNAM = 'CHO_ISAO'
 
 if ((IAO > NBAST) .or. (IAO < 1)) then
   write(LUPRI,'(//,1X,A,A,I10)') SECNAM,': AO index out of bounds: ',IAO
