@@ -45,9 +45,7 @@ real(kind=wp), external :: DDot_
 
 iRout = 134
 iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
-end if
+if (iPrint >= 99) call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
 
 do iZeta=1,nZeta
   Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
@@ -272,9 +270,9 @@ do iEF=1,nComp
         end if
         if (IndGrd(iCar,iCn) < 0) then
           ! Gradient via the translational invariance.
-          Grad(iGrad) = Grad(iGrad)-Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(1,1,1,iEF,i2),1)
+          Grad(iGrad) = Grad(iGrad)-Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(:,:,:,iEF,i2),1)
         else
-          Grad(iGrad) = Grad(iGrad)+Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(1,1,1,iEF,i1),1)
+          Grad(iGrad) = Grad(iGrad)+Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(:,:,:,iEF,i1),1)
         end if
       end if
     end do ! End loop over cartesian components, iCar

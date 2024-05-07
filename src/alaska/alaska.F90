@@ -35,7 +35,7 @@ use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
 use k2_arrays, only: DeDe
-use rctfld_module, only: iCharge_Ref, NonEQ_Ref
+use rctfld_module, only: iCharge_Ref, lLangevin, lMax, lRF, MM, NonEQ_Ref, PCM
 use pso_stuff, only: No_Nuc
 use Disp, only: ChDisp, HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
 use NAC, only: DoCSF, EDiff, isNAC
@@ -48,7 +48,7 @@ integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
 #include "print.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCav, nCnttp_Valence, ndc, nDiff, nsAtom
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found
 character(len=180) :: Label
@@ -76,6 +76,7 @@ call CWTime(TCpu1,TWall1)
 !***********************************************************************
 !                                                                      *
 iRout = 1
+iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -95,6 +96,15 @@ if (RF_On()) then
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
+  if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
+    ! Get the multipole moments
+    nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
+    call Get_dArray('RCTFLD',MM,nCav*2)
+    if (iPrint >= 99) then
+      call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
+      call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
+    end if
+  end if
 end if
 !                                                                      *
 !***********************************************************************
@@ -105,8 +115,6 @@ call Inputg(LuSpool)
 
 !-- Since the input has changed some of the shell information
 !   regenerate the tabulated shell information.
-
-iPrint = nPrint(iRout)
 
 call mma_allocate(Grad,lDisp(0),Label='Grad')
 call mma_allocate(Temp,lDisp(0),Label='Temp')

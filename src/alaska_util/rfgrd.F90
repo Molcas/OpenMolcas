@@ -32,7 +32,7 @@ subroutine RFGrd( &
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use PCM_arrays, only: MM
+use rctfld_module, only: MM
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Half
@@ -121,7 +121,7 @@ do iAlpha=1,nAlpha
   ip = ip+1
 end do
 call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,rFinal,nComp,Array(ipTemp1),Array(ipTemp2),Array(ipAlph),Array(ipBeta), &
-             Grad,nGrad,DAO,IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp,MM(1,2))
+             Grad,nGrad,DAO,IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp,MM(:,2))
 
 return
 

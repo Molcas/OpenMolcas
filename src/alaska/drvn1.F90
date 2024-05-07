@@ -26,9 +26,9 @@ subroutine DrvN1(Grad,Temp,nGrad)
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
-use PCM_arrays, only: PCM_SQ, PCMTess, MM
+use PCM_arrays, only: PCM_SQ, PCMTess
 use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
-use rctfld_module, only: Conductor, lLangevin, lMax, lRF, nTS, PCM
+use rctfld_module, only: Conductor, lLangevin, lMax, lRF, MM, nTS, PCM
 use Disp, only: ChDisp, Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
 use Constants, only: Zero, One, Two, Three, Half
@@ -40,8 +40,7 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: iCar, iChxyz, iCnt, iCnttp, iComp, iDCRR(0:7), iDum, iFd, igu, igv, iIrrep, iM1xp, iM2xp, ip, iPrint, iR, &
-                     iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, nCav, ndc, nDCRR, nDisp, &
-                     nOp, nStb
+                     iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, ndc, nDCRR, nDisp, nOp, nStb
 real(kind=wp) :: A(3), B(3), CCoMx, CCoMxd, CCoMy, CCoMyd, CCoMz, CCoMzd, CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, DA(3), &
                  DARB, df_dr, dfab, dr_dA, dr_dB, fab, fab0, fab1, fab2, Fact, Gam, PreFct, ps, r12, RB(3), Tempd(3), ZA, ZAZB, ZB
 logical(kind=iwp) :: EQ, TstFnc, NoLoop
@@ -331,14 +330,6 @@ end if
 !***********************************************************************
 
 if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
-  nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
-
-  ! Get the multipole moments
-
-  call Get_dArray('RCTFLD',MM,nCav*2)
-  if (iPrint >= 99) call RecPrt('Total Multipole Moments',' ',MM(1,1),1,nCav)
-  if (iPrint >= 99) call RecPrt('Total Electric Field',' ',MM(1,2),1,nCav)
-
   Temp(:) = Zero
 
   ip = 0

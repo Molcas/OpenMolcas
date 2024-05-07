@@ -10,12 +10,12 @@
 !***********************************************************************
       Subroutine Free_RctFld()
       use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph,
-     &                      MM, NewSph, nVert, PCMDm, PCMiSph, PCMTess,
+     &                      NewSph, nVert, PCMDm, PCMiSph, PCMTess,
      &                      PCMSph, PCM_N, PCM_SQ, Vert, SSph
       use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, dField, Dip,
      &                           DipEF, Field, Grid, PolEF
       use stdalloc, only: mma_deallocate
-      use rctfld_module, only: lLangevin, PCM, DoDeriv
+      use rctfld_module, only: lLangevin, PCM, DoDeriv, MM
       use External_Centers, only: iXPolType
       Implicit None
 !

@@ -241,9 +241,9 @@ else
     if (Cholesky) then
       write(LuWr,'(15X,A)') '   Cholesky decomposed two-electron repulsion integrals'
       if (Cho_OneCenter) then
-        write(LuWr,'(17X,A,G10.2)') '  - 1C-CD Threshold: ',Thrshld_CD
+        write(LuWr,'(17X,A,ES10.2)') '  - 1C-CD Threshold: ',Thrshld_CD
       else
-        write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
+        write(LuWr,'(17X,A,ES10.2)') '  - CD Threshold: ',Thrshld_CD
       end if
     else if (Do_RI) then
       write(LuWr,'(15X,A)') '   RI decomposed two-electron repulsion integrals stored Cholesky style'
@@ -261,7 +261,7 @@ else
         else
           write(LuWr,'(17X,A)') '  - aCD auxiliary basis'
         end if
-        write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
+        write(LuWr,'(17X,A,ES10.2)') '  - CD Threshold: ',Thrshld_CD
         if (Do_DCCD) write(LuWr,'(17X,A)') '  - corrected with exact 1-center two-electron integrals'
         l_aCD_Thr = .false.
         do iCnttp=1,nCnttp

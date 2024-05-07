@@ -101,4 +101,6 @@ Module Rctfld_Module
       common /cRct/ cRFStrt,                                            &
      &              Solvent,                                            &
      &              cRFEnd
+
+      real(kind=8), allocatable :: MM(:,:)
 End Module Rctfld_Module
