@@ -1,4 +1,3 @@
-#!/usr/bin/env /usr/bin/python3.10
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -19,7 +18,7 @@ import numpy as np
 from fractions import Fraction
 import h5py
 
-version = '2.0'
+version = '2.1'
 
 ################################################################################
 # FUNCTIONS
@@ -557,9 +556,35 @@ parser.add_argument('-x', '--exchange', help='reorder atoms (comma-separated lis
 parser.add_argument('-d', '--desymmetrize', help='desymmetrize data', action='store_true')
 parser.add_argument('-a', '--all', help='copy all unhandled datasets and attributes to output file (some items may be wrong!)', action='store_true')
 parser.add_argument('-f', '--transfer', help='transfer (project) orbitals from input file onto output file\n'
-                                             'transf_spec: all, occupied, active, or comma-separated list of input orbital indices)\n'
+                                             'transf_spec: "all", "occupied", "active", or comma-separated list of input orbital indices)\n'
                                              'incompatible with other options', metavar='transf_spec')
+parser.add_argument('-s', '--select', help='specify which output orbitals to replace with --transfer ("help" for format)', metavar='select_spec')
 parser.add_argument('--threshold', help=argparse.SUPPRESS or 'overlap threshold for orbital projection (default: 0.5)', type=float, default=0.5, metavar='T')
+
+# Partial parse before specifying required arguments
+args = vars(parser.parse_known_args()[0])
+select_help = '''
+select_spec format:
+===================
+
+t1:n1[,t2:n2[,...]]
+
+t1, t2 ...: Orbital type labels (any combination of F, I, 1, 2, 3, S, D), case-insensitive
+n1, n2 ...: Number of orbitals of the corresponding type
+
+The different specified type labels must not overlap.
+The n best-matching orbitals of each specified t will be selected.
+Any remaining orbitals will be selected from the remaining types.
+
+Examples:
+
+i:10        Select the 10 best-matching inactive orbitals, the rest from frozen, secondary, etc.
+123:4,sd:0  Select the 4 best-matching active orbitals and no virtuals, the rest from frozen and inactive.\
+'''
+if args['select'] == 'help':
+  print(select_help)
+  sys.exit(0)
+
 parser.add_argument('infile', help='input file (HDF5 format)', metavar='input_file')
 parser.add_argument('outfile', help='output file (HDF5 format, will be overwritten)', metavar='output_file')
 if len(sys.argv) < 2 and sys.stdin.isatty():
@@ -624,6 +649,7 @@ if args['transfer']:
     nbas = f.attrs['NBAS']
     ov_B = sblock_to_square(f['AO_OVERLAP_MATRIX'], nbas)
     C_B = sblock_to_square(f['MO_VECTORS'], nbas).T
+    tp_B = f['MO_TYPEINDICES'][:]
     nbas_B = sum(nbas)
     try:
       desym = np.reshape(f['DESYM_MATRIX'], (nbas_B, nbas_B))
@@ -646,6 +672,37 @@ if args['transfer']:
     numorbs = [i-1 for i in numorbs]
   if not numorbs:
     sys.exit(f'Error: No orbitals to transfer')
+
+  # Parse the select_spec
+  group_spec = [['fi123sd', len(numorbs)]]
+  select = args['select'].split(',') if args['select'] else []
+  try:
+    for s in select:
+      t, n = s.split(':')
+      t = t.lower()
+      n = int(n)
+      assert n >= 0
+      new = [t, n]
+      for i in t:
+        if i not in group_spec[-1][0]:
+          raise Exception
+        group_spec[-1][0] = group_spec[-1][0].replace(i, '')
+      group_spec[-1][1] -= n
+      if n > 0:
+        group_spec.insert(-1, new)
+  except:
+    print(f'\nError in select_spec: {args["select"]}')
+    print(select_help)
+    sys.exit(1)
+
+  groups = []
+  for g in group_spec:
+    new = [g[1], [i for i in range(nbas_B) if tp_B[i].decode().lower() in g[0]]]
+    if new[0] > len(new[1]):
+      print(f'\nNot enough orbitals to select: {args["select"]}')
+      print(select_help)
+      sys.exit(1)
+    groups.append(new)
 
   # Sanity check
 
@@ -680,10 +737,15 @@ if args['transfer']:
 
   # Identify the orbitals in the output space that best match the projected orbitals (approx.)
   # We will be replacing these and changing the rest as little as possible
-  M = Cs_B.T @ S_B @ C_B
-  idx = np.argsort(np.sum(M**2, axis=0))[::-1]
-  sel = sorted(idx[:num])
-  rest = sorted(idx[num:])
+  sel = []
+  rest = []
+  for g in groups:
+    M = Cs_B.T @ S_B @ C_B[:,g[1]]
+    idx = [g[1][i] for i in np.argsort(np.sum(M**2, axis=0))[::-1]]
+    sel.extend(idx[:g[0]])
+    rest.extend(idx[g[0]:])
+  sel.sort()
+  rest.sort()
   # project out the selected vectors from the rest
   P = Cs_B.T @ S_B @ C_B[:,rest]
   D = C_B[:,rest] - Cs_B @ P
@@ -714,6 +776,9 @@ if args['transfer']:
 
 # B: Rotation, reordering, etc.
 else:
+
+  if args['select']:
+    sys.exit('Error: The --select option is intended for use with --transfer')
 
   # Read input file
 
