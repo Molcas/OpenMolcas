@@ -292,7 +292,9 @@ do i=1,norb_all
   ngw3(i+3) = ngw3(i+2)+ngw2(i+2)
   ngw4(i+4) = ngw4(i+3)+ngw3(i+3)
 end do
-nabc = norb_ext-2+ngw2(norb_ext-1)+ngw3(norb_ext)
+nabc = norb_ext-2
+if (norb_ext > 1) nabc = nabc+ngw2(norb_ext-1)
+if (norb_ext > 0) nabc = nabc+ngw3(norb_ext)
 
 iorb = 0
 do i=1,ng_sm

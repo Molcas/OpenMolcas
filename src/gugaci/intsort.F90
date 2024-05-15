@@ -25,8 +25,7 @@ real(kind=wp), external :: c_time
 idx = 0
 stime = c_time()
 
-!estimate the largest block of integrals, notice we do not use symmetry
-!here
+! estimate the largest block of integrals, notice we do not use symmetry here
 if (norb_ext > norb_inn) then
   ! (ab|cd)
   numb = norb_ext*(norb_ext+1)/2
@@ -39,6 +38,21 @@ end if
 ! (ia|bc)+(ij|ka)
 lra = norb_inn*norb_ext*(norb_ext+1)*norb_ext/2+norb_inn*(norb_inn+1)*norb_inn*norb_ext/2
 if (lra > numb) numb = lra
+
+! IFG: I believe this is more accurate
+! For int_sort_ext:
+numb = 0
+lra = (norb_ext+1)*norb_ext*(norb_ext-1)+norb_ext*(norb_ext-1)*(norb_ext-2)*(norb_ext-3)/8
+numb = max(numb,lra)
+! For int_sort_inn:
+lra = norb_inn*norb_inn*(norb_inn-1)+norb_inn*(norb_inn-1)*(norb_inn-2)*(norb_inn-3)/8
+numb = max(numb,lra)
+! For int_sort_inn_2:
+lra = norb_inn*(norb_inn-1)/2*(2*norb_ext + 3*norb_ext*(norb_ext-1)/2)+norb_inn*norb_ext*(norb_ext-1)
+numb = max(numb,lra)
+! For int_sort_inn_1 and int_sort_3:
+lra = norb_inn*norb_ext*((norb_ext-1)*(norb_ext-2)/2+2*(norb_inn+norb_ext)+(norb_inn-1)*(norb_inn-2)/2)
+numb = max(numb,lra)
 
 call mma_allocate(vint_ci,numb,label='vint_ci')
 vint_ci(:) = Zero
@@ -73,9 +87,7 @@ idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
 write(u6,903) numb
-if (numb > maxintseg) then
-  maxintseg = numb
-end if
+if (numb > maxintseg) maxintseg = numb
 
 ! sum over iaqq
 viasum_0(1:norb_inn,1:norb_ext) = Zero
@@ -104,9 +116,7 @@ idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
 write(u6,904) numb
-if (numb > maxintseg) then
-  maxintseg = numb
-end if
+if (numb > maxintseg) maxintseg = numb
 
 ! sum over (abkk)
 intspace = intspace_abkk(1)
@@ -130,9 +140,7 @@ idum(1) = numb
 call idafile(luciint,1,idum,1,idisk)
 call ddafile(luciint,1,vint_ci,numb,idisk)
 write(u6,905) numb
-if (numb > maxintseg) then
-  maxintseg = numb
-end if
+if (numb > maxintseg) maxintseg = numb
 
 idisk = 0
 call idafile(luciint,1,idx,4,idisk)

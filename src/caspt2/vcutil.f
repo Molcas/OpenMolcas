@@ -99,6 +99,7 @@ C Read coefficient vector from LUSOLV (C repres).
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
+      USE caspt2_output, ONLY: iPrGlb, usual
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -136,7 +137,7 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
           END IF
         END DO
       END DO
-      IF (FACT.EQ.-1.0D00) THEN ! it is at ITER=0
+      IF ((IPRGLB.GE.USUAL).AND.(FACT.EQ.-1.0D0)) THEN ! it is at ITER=0
          WRITE(6,*)
          WRITE(6,'(1x,a,f18.10)') 'Variance of |WF0>: ',SIGMA2
       END IF

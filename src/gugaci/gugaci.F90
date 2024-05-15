@@ -135,7 +135,7 @@ call deallocate_subdrtl()
 sc1 = c_time()
 call xflush(u6)
 
-write(u6,'(a25,i10,f14.2,a1)') '  end of pl_serach, n_pl=',npl,sc1-sc0,'s'
+write(u6,'(a25,i10,f14.2,a1)') '  end of pl_search, n_pl=',npl,sc1-sc0,'s'
 write(u6,*) '=============================================='
 
 if (maxplcon < max_node) maxplcon = max_node
