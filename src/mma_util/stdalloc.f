@@ -46,9 +46,9 @@
         integer :: bufsize, mma_avail
         write(6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
         write(6,'(1x,a,a)') 'label: ',label
-        write(6,'(1x,a,i12)') ' available (kB): ',
+        write(6,'(1x,a,1x,i12)') ' available (kB):',
      &    nint(mma_avail * 1.0d-3)
-        write(6,'(1x,a,i12)') ' required  (kB):  ',
+        write(6,'(1x,a,1x,i12)') ' required  (kB):',
      &    nint(bufsize  * 1.0d-3)
         call quit(_RC_MEMORY_ERROR_)
       end subroutine

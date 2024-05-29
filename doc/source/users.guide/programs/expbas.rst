@@ -166,12 +166,12 @@ Optional general keywords
 procedure, this is the strategy:
 
 #. Do a calculation (SCF, DFT, CASSCF, etc.) with a small basis set. Save the
-   produced orbital file and the runfile as: name.Inporb and name.Runfil1.
+   produced orbital file and the runfile as: :file:`name.Inporb` and :file:`name.Runfil1`.
 
 #. Run a :program:`GATEWAY` to create the second runfile, which is then saved as
-   name.Runfil2
+   :file:`name.Runfil2`.
 
-#. Run :program:`EXPBAS` as indicated above. The file name.ExpOrb is produced.
+#. Run :program:`EXPBAS` as indicated above. The file :file:`name.ExpOrb` is produced.
    This file can be used as input for large basis set calculations. Note that the
    inactive and active orbitals will have the same place in the list as with the
    smaller basis set, so they can be easily identified.

@@ -54,8 +54,8 @@
         CALL ABEND
       END IF
 
-      Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
-      Call StatusLine('CASPT2:',STLNE2)
+      Write(STLNE2,'(A,I0)')'Initial phase for group ',IGROUP
+      Call StatusLine('CASPT2: ',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')

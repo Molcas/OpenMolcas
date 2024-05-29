@@ -429,7 +429,7 @@ Keywords
               </KEYWORD>
 
 :kword:`SIG1`
-  The same as :kword:`SIG2`, but applies :math:`sigma^1` regularization instead.
+  The same as :kword:`SIG2`, but applies :math:`\sigma^1` regularization instead.
   This option should be carefully used in case the small denominators
   change sign due to conformational changes, see :cite:`Battaglia2022`.
   Mutually exclusive with :kword:`SIG2`, :kword:`IMAG` and :kword:`SHIFT`.

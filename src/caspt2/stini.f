@@ -28,8 +28,8 @@ C     indices
       INTEGER I,J,IFTEST
       ! INTEGER IDCI
 
-      Write(STLNE2,'(A,I4)')
-     &                ' Compute H0 matrices for state ',MSTATE(JSTATE)
+      Write(STLNE2,'(A,I0)')
+     &                'Compute H0 matrices for state ',MSTATE(JSTATE)
       Call StatusLine('CASPT2: ',trim(STLNE2))
       IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('****',I=1,20)

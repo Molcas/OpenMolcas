@@ -109,8 +109,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
          WRITE(u6,'(20A4)')('----',I=1,20)
       END IF
 
-      Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ', MSTATE(JSTATE)
-      Call StatusLine('CASPT2:',TRIM(STLNE2))
+      Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ', MSTATE(JSTATE)
+      Call StatusLine('CASPT2: ',TRIM(STLNE2))
       CALL EQCTL2(ICONV)
 
 ! Save the final caspt2 energy in the global array ENERGY():

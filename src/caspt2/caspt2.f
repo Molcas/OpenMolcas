@@ -103,7 +103,7 @@ C
       REAL*8, ALLOCATABLE :: UeffSav(:,:),U0Sav(:,:),H0Sav(:,:),ESav(:)
       LOGICAL :: IFGRDT0 = .False.
 
-      Call StatusLine('CASPT2:','Just starting')
+      Call StatusLine('CASPT2: ','Just starting')
 
       IRETURN = 0
 
@@ -258,9 +258,9 @@ C       Call EQCTL2(ICONV)
             WRITE(6,'(20A4)')('----',I=1,20)
          END IF
 
-         Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ',
+         Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',
      &                               MSTATE(JSTATE)
-         Call StatusLine('CASPT2:',TRIM(STLNE2))
+         Call StatusLine('CASPT2: ',TRIM(STLNE2))
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -326,7 +326,7 @@ C       Call EQCTL2(ICONV)
                  WRITE(6,*)' CASPT2 GRADIENT SECTION'
               END IF
            END IF
-           Call StatusLine('CASPT2:','Multi-State couplings')
+           Call StatusLine('CASPT2: ','Multi-State couplings')
 * SVC: for now, this part is only performed on the master node
 #ifdef _MOLCAS_MPP_
            IF (Is_Real_Par()) THEN
@@ -351,7 +351,7 @@ C     transition density matrices.
               WRITE(6,'(20A4)')('****',I=1,20)
               WRITE(6,*)' CASPT2 MULTI-STATE COUPLINGS SECTION'
            END IF
-           Call StatusLine('CASPT2:','Multi-State couplings')
+           Call StatusLine('CASPT2: ','Multi-State couplings')
            CALL MCCTL(HEFF)
          END IF
 
@@ -466,7 +466,7 @@ C     transition density matrices.
         if (iStpGrd.ne.2) then
           IF (NLYROOT.NE.0) IFMSCOUP=.FALSE.
           IF (IFMSCOUP) THEN
-            Call StatusLine('CASPT2:','Effective Hamiltonian')
+            Call StatusLine('CASPT2: ','Effective Hamiltonian')
             CALL MLTCTL(HEFF,UEFF,U0)
 
             IF (IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
@@ -566,5 +566,5 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
         CALL FASTIO('STATUS')
       END IF
 
-      Call StatusLine('CASPT2:','Finished.')
+      Call StatusLine('CASPT2: ','Finished.')
       END SUBROUTINE CASPT2

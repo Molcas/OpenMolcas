@@ -76,7 +76,6 @@ call CWTime(TCpu1,TWall1)
 !***********************************************************************
 !                                                                      *
 iRout = 1
-iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -112,6 +111,7 @@ end if
 ! Input specific for the gradient calculation.
 
 call Inputg(LuSpool)
+iPrint = nPrint(iRout)
 
 !-- Since the input has changed some of the shell information
 !   regenerate the tabulated shell information.
