@@ -95,6 +95,17 @@ if (RF_On()) then
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Input specific for the gradient calculation.
+
+call Inputg(LuSpool)
+
+iPrint = nPrint(iRout)
+
+if (RF_On()) then
   if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
     ! Get the multipole moments
     nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
@@ -105,13 +116,6 @@ if (RF_On()) then
     end if
   end if
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Input specific for the gradient calculation.
-
-call Inputg(LuSpool)
-iPrint = nPrint(iRout)
 
 !-- Since the input has changed some of the shell information
 !   regenerate the tabulated shell information.
