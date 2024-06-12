@@ -547,6 +547,13 @@ def run_test(filename, shared):
       process.wait()
       shared['active_pids'].remove(process.pid)
 
+# wrapper for when mp_context didn't exist
+def cfProcessPool(jobs):
+  try:
+    return concurrent.futures.ProcessPoolExecutor(max_workers=jobs, mp_context=multiprocessing.get_context('fork'))
+  except TypeError:
+    return concurrent.futures.ProcessPoolExecutor(max_workers=jobs)
+
 # dummy context manager to replace locks with 1 job (compatible with older Python versions)
 class NullContextManager(object):
   def __init__(self, dummy_resource=None):
@@ -1188,7 +1195,7 @@ if __name__ == '__main__':
     shared['endloop'] = False
     if opt['jobs'] > 1:
       msg_nl(['Running {} simultaneous jobs, output may appear in wrong order'.format(opt['jobs'])])
-      with concurrent.futures.ProcessPoolExecutor(max_workers=opt['jobs'], mp_context=multiprocessing.get_context('fork')) as pool:
+      with cfProcessPool(opt['jobs']) as pool:
         tasks = [pool.submit(run_test, filename, shared) for filename in filelist]
         for task in concurrent.futures.as_completed(tasks):
           # this doesn't work as intended, though
