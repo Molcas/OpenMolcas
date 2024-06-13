@@ -2019,13 +2019,11 @@ C printing threshold
              IF(i_Print.eq.0) THEN
               i_Print=1
               Call CollapseOutput(1,
-     &                  'Total transition strengths ' //
-     &                  'for the second-order expansion of the wave '//
-     &                  'vector (SO states):')
+     &                  'Second-order contribution to the '//
+     &                  'transition strengths (SO states):')
               WRITE(6,'(3X,A)')
-     &                  '---------------------------' //
-     &                  '-------------------------------------------'//
-     &                  '-------------------'
+     &                  '---------------------------------'//
+     &                  '---------------------------------'
 !
               IF(OSTHR2.GT.0.0D0) THEN
                WRITE(6,30)'   for osc. strength at least ',OSTHR2
@@ -2043,9 +2041,8 @@ C printing threshold
          If (i_Print.eq.1) THEN
            WRITE(6,35)
            Call CollapseOutput(0,
-     &                  'Total transition strengths ' //
-     &                  'for the second-order expansion of the wave '//
-     &                  'vector (SO states):')
+     &                  'Second-order contribution to the '//
+     &                  'transition strengths (SO states):')
            WRITE(6,*)
          END IF
        END IF
