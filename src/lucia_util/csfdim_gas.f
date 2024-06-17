@@ -7,7 +7,15 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994, Jeppe Olsen                                      *
+* Copyright (C) 2024, Jeppe Olsen and Giovanni Li Manni                *
+*                                                                      *
+* Adapted for GAS calculations and LUCIA, Dec. 2001                    *
 ************************************************************************
+*
+* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
+*
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
       use stdalloc, only: mma_allocate
       use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
@@ -28,8 +36,6 @@
 *                        CONFIGURATION EXPANSIONS
 * ( Spin signaled by PSSIGN in CIINFO)
 *
-* Adapted for GAS calculations and LUCIA, Dec. 2001
-
 #include "implicit.fh"
 #include "mxpdim.fh"
 #include "orbinp.fh"

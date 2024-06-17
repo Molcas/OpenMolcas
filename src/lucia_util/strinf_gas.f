@@ -7,11 +7,15 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994, Jeppe Olsen                                      *
+* Copyright (C) 2024, Jeppe Olsen and Giovanni Li Manni                *
 ************************************************************************
       SUBROUTINE STRINF_GAS(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas
 * modification Jeppe + Giovanni + Dongxia.
+* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
       use distsym
 *
 * Obtain string information for GAS expansion

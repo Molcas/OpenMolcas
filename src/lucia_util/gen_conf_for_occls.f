@@ -9,7 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2001, Jeppe Olsen                                      *
+* Copyright (C) 2024, Giovanni Li Manni
 ************************************************************************
+* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
       SUBROUTINE GEN_CONF_FOR_OCCLS(     IOCCLS,
      &                              IB_OCCLS,
      &                              INITIALIZE_CONF_COUNTERS,

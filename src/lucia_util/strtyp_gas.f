@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
+* Copyright (C) 2024, Jeppe Olsen and Giovanni Li Manni                *
 ************************************************************************
       SUBROUTINE STRTYP_GAS(IPRNT)
 *
@@ -16,7 +17,8 @@
 *
 * Output : /GASSTR/
 *
-* Jeppe Olsen, Oct 1994
+* Jeppe Olsen,  Oct 1994
+* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *
