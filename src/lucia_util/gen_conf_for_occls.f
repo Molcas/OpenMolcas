@@ -83,17 +83,26 @@ c     INTEGER IREO(*)
        INI = 1
        NCONF = 0
        ISUM = 0
+       CALL ISETVC(JCONF,IZERO,2*MXPORB)
+
  1000  CONTINUE
-         CALL NEXT_CONF_FOR_OCCLS          (JCONF,IOCCLS,NGAS,NOBPT,INI,
-     &                                      NONEW)
+*  Generate an array of integers from 1 to NEL.
+*  It is the only CSF that matter for HS calculations.
+*  Skip any loop below... It is an overwhelmingly long loop.
+         If(NEL.eq.MINOP.and.NEL.eq.NOBPT(2)) then
+          do i = 1, NEL
+            JCONF(i) = i
+          end do
+          NONEW = 0
+         Else
+           CALL NEXT_CONF_FOR_OCCLS (JCONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
+         end if
          ISUM = ISUM + 1
-*
          INI = 0
          IF(NONEW.EQ.0) THEN
 *. Check symmetry and number of open orbitals for this space
            ISYM_CONF = ISYMST(JCONF,NEL)
            NOPEN     = NOP_FOR_CONF(JCONF,NEL)
-C?         WRITE(6,*) ' Number of open shells ', NOPEN
            NOCOB =  NOPEN + (NEL-NOPEN)/2
            IF(NOPEN.GE.MINOP .OR. IONLY_NCONF .NE. 0)
      &           NCONF_ALL_SYM = NCONF_ALL_SYM + 1
@@ -105,32 +114,18 @@ C?         WRITE(6,*) ' Number of open shells ', NOPEN
 *. Lexical number of this configuration
                IB_OCC = IBCONF_OCC(NOPEN+1)
      &                + (NCONF_OP(NOPEN+1)-1)*NOCOB
-C?             WRITE(6,*) ' Offfset for storing conf =', IB_OCC
                CALL REFORM_CONF_OCC(JCONF,ICONF(IB_OCC),NEL,NOCOB,1)
                IF(IDOREO.NE.0) THEN
-C                           ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,
-C                                         IARCW,IDOREO,IREO)
-c                ILEXNUM =  ILEX_FOR_CONF(ICONF(IB_OCC),NOCOB,NTORB,
-c    &                      NEL,IZ_CONF,0,IDUM)
 c.. Giovanni and Dongxia 2011.1.31
                  ilexnum = ilex_for_conf_new(iconf(ib_occ),nocob,
      &                ntorb,nel,iz_conf,0,idum_arr,idum,idum)
-C?               WRITE(6,*) ' Next configuration : '
-C?               CALL IWRTMA(ICONF(IB_OCC),1,NOCOB,1,NOCOB)
                  JREO = IBCONF_REO(NOPEN+1) -1 + NCONF_OP(NOPEN+1)
-c                IREO(IB_OCCLS-1+ILEXNUM) = JREO
 c.. Giovanni and Dongxia 2011
                  ireo(jreo)=ib_occls-1+ilexnum
-C?               WRITE(6,*) ' LEXCONF : JREO, ILEXNUM = ', JREO, ILEXNUM
-C?               WRITE(6,*) ' IB_OCCLS, IB_OCCLS-1+ILEXNUM, JREO= ',
-C?   &                        IB_OCCLS, IB_OCCLS-1+ILEXNUM, JREO
-c                write(6,*)'ireo after first call of :'
-c                call iwrtma(ireo,1,nconf_tot,1,conf_tot)
                END IF
              END IF
            END IF
-C      IF(ISUM.LE.10) GOTO 1000
-           GOTO 1000
+           If(NEL.ne.MINOP.or.NEL.ne.NOBPT(2)) GOTO 1000
          END IF
 *        ^ End if nonew = 0
 *

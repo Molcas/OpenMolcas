@@ -222,6 +222,7 @@ C     END DO
        MXB1 = MIN(MXGSOC(IGAS),NOBPT(IGAS),MXBL)
        MNA1 = MAX(0,MNGSOC(IGAS)-MXA1)
        MNB1 = MAX(0,MNGSOC(IGAS)-MXB1)
+
 *. Additional checks can be made here
        MXA = MXA1
        MXB = MXB1
@@ -241,6 +242,7 @@ C     END DO
 *
        MNAB = MIN(MNA,MNB)
        MXAB = MAX(MXA,MXB)
+
 *. Additional holes only allowed in particle spaces
        IF(IPHGAS(IGAS).EQ.1) THEN
          MNAB = MAX(0,MNAB-MAXSUB)
@@ -249,11 +251,15 @@ C     END DO
        END IF
 C. For coupled cluster- could be refined ...
        MNAB = 0
-*. Additional electrons allowed in hole spaces
        IF(IPHGAS(IGAS).EQ.2)  MXAB = MIN(MXAB + 2,NOBPT(IGAS))
 *
        IF(NTEST.GE.100) WRITE(6,*) ' MNAB,MXAB',MNAB,MXAB
        NGPSTR(IGAS) = MXAB-MNAB+1
+       IF (Nactel.eq.MS2.and.Nactel.gt.2.and.
+     &     Nactel.eq.NOBPT(2).and.IGAS.eq.2) then
+         NGPSTR(IGAS) = 4 ! Either EMPTY, (FULL-2), (FULL -1), FULL
+         MNAB = NAEL - 2
+       END if
        IBGPSTR(IGAS) = IGRP + 1
        MNELFGP(IGAS) = MNAB
        MXELFGP(IGAS) = MXAB
@@ -268,11 +274,16 @@ C. For coupled cluster- could be refined ...
            CALL SYSABENDMSG('lucia_util/gasstr','Internal error',' ')
           END IF
 *
-         IADD = IADD + 1
-         IEL = MNAB-1+IADD
-         NELFGP(JGRP) = IEL
-         IGSFGP(JGRP) = IGAS
-         NSTFGP(JGRP) = IBION_LUCIA(NOBPT(IGAS),IEL)
+         IF (Nactel.eq.MS2.and.Nactel.gt.2.and.
+     &       Nactel.eq.NOBPT(2).and.IGAS.eq.2.and.JGRP.eq.2) then
+           IEL = 0
+         ELSE
+           IADD = IADD + 1
+           IEL = MNAB-1+IADD
+         END IF
+           NELFGP(JGRP) = IEL
+           IGSFGP(JGRP) = IGAS
+           NSTFGP(JGRP) = IBION_LUCIA(NOBPT(IGAS),IEL)
        END DO
        IGRP = IGRP + NGPSTR(IGAS)
       END DO
@@ -304,6 +315,7 @@ C. For coupled cluster- could be refined ...
      &    IITYPE,IGSFGP(IGRP),NELFGP(IGRP),NSTFGP(IGRP)
         END DO
       END IF
+
 *
 *. Creation-annihilation connections between groups
 *

@@ -65,7 +65,7 @@ C
 C.. Number of prototype sd's and csf's per configuration prototype
 C
            ITP = 0
-      DO IOPEN = 0, MAXOP
+      DO IOPEN = MINOP, MAXOP
         ITP = IOPEN + 1
 *. Unpaired electrons :
         IAEL = (IOPEN + MS2 ) / 2
@@ -269,7 +269,7 @@ C
       MXPTBL = 0
       MXDT = 0
       LCONF = 0
-      DO IOPEN = 0, MAXOP
+      DO IOPEN = MINOP, MAXOP
         ITP = IOPEN + 1
         LIDT = LIDT + NPCMCNF(ITP) * IOPEN
         LICS = LICS + NPCSCNF(ITP) * IOPEN
@@ -284,7 +284,7 @@ C. Memory needed to store ICONF array
 C     LDET = NSD
       LLCONF = 0
       ILLCNF = 0
-      DO IOPEN = 0, MAXOP
+      DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
         ICL = ( NELEC-IOPEN)/2
         LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
