@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
-* Copyright (C) 2024, Jeppe Olsen and Giovanni Li Manni                *
+* Copyright (C) 2024, Giovanni Li Manni                                *
 ************************************************************************
       SUBROUTINE STRTYP_GAS(IPRNT)
 *

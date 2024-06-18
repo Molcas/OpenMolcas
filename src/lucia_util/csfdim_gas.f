@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
-* Copyright (C) 2024, Jeppe Olsen and Giovanni Li Manni                *
+* Copyright (C) 2024, Giovanni Li Manni                                *
 *                                                                      *
-* Adapted for GAS calculations and LUCIA, Dec. 2001                    *
 ************************************************************************
 *
+* Adapted for GAS calculations and LUCIA, Dec. 2001
 * G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 *
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
