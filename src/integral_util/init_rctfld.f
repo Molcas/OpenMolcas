@@ -11,13 +11,12 @@
       Subroutine Init_RctFld(NonEq,iCharge)
       use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, DField, Dip,
      &                           DipEF, Field, Grid, PolEF
-      use PCM_arrays, only: MM
       use external_centers, only: nXF, iXPolType
       use stdalloc, only: mma_allocate
       use rctfld_module, only: TK, lMax, nMM, nGrid, lLangevin, MaxA,
      &                         RadLat, Scala, MaxB, Scalb, MaxC,
      &                         Scalc, nABC, lAtAto, PCM, NonEQ_Ref,
-     &                         nCavxyz
+     &                         nCavxyz, MM
       Implicit None
       Logical NonEq
       Integer iCharge
@@ -29,6 +28,7 @@
       mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
       nMM = 2 * mMM
       Call mma_allocate(MM,mMM,2,Label='MM')
+      MM(:,:) = 0.0D0
       If (iXPolType.gt.0) nGrid = nXF
       If (lLangevin .or. (iXPolType.gt.0)) Then
          If(lLangevin) Then

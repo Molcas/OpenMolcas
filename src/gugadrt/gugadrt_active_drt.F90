@@ -175,17 +175,17 @@ ndim = 0
 do i=2,9
   ndim = ndim+iseg_dim(i)
 end do
-write(u6,'(5x,a32,1x,i12)') 'num. of doublet couple singles: ',ndim
+write(u6,'(5x,a,1x,i12)') 'num. of doublet coupled singles:',ndim
 ndim = 0
 do i=10,17
   ndim = ndim+iseg_dim(i)
 end do
-write(u6,'(5x,a32,1x,i12)') 'num. of triplet couple doubles: ',ndim
+write(u6,'(5x,a,1x,i12)') 'num. of triplet coupled doubles:',ndim
 ndim = 0
 do i=18,25
   ndim = ndim+iseg_dim(i)
 end do
-write(u6,'(5x,a32,1x,i12)') 'num. of singlet couple doubles: ',ndim
+write(u6,'(5x,a,1x,i12)') 'num. of singlet coupled doubles:',ndim
 write(u6,*) '-----------------------------------------------'
 
 return

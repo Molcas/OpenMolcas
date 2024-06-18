@@ -78,7 +78,7 @@ if (imethod /= 4) then
   write(u6,'(/,a)') ' -------------------------------------------------------------------------'
 else if (imethod == 4) then
   write(u6,'(/,a,/)') ' -------- Details of parameters used by Davidson optimizer: --------------'
-  call iout_cvb(mxdav,'MXDAV','Maxium dimension of Davidson subspace:')
+  call iout_cvb(mxdav,'MXDAV','Maximum dimension of Davidson subspace:')
   call fout_cvb(resthr,'RESTHR','Convergence criterion on residual norm:')
   call lout_cvb(follow,'FOLLOW','Root following (for excited states):')
   call fout_cvb(orththr,'ORTHTHR','Tolerance for orthogonality between vectors:')

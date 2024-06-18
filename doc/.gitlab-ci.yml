@@ -88,7 +88,7 @@ doc:
     expire_in: 1 day
   rules: !reference [.doc-build, rules]
   tags:
-    - docker
+    - saas-linux-small-amd64
 
 # And the corresponding job to publish the documentation for the master branch
 pages:

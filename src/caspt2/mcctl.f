@@ -41,8 +41,8 @@
 C The ket state is JSTATE.
 C Loop over the bra states
       DO ISTATE=1,NSTATE
-        Write(string,'(A,I4,A,I4,A,I4)')
-     &     'Multistate coupling between state',ISTATE,' and',JSTATE,
+        Write(string,'(A,I0,A,I0,A,I0)')
+     &     'Multistate coupling between state ',ISTATE,' and ',JSTATE,
      &     ' out of ',NSTATE
         Call StatusLine('CASPT2: MCCTL: ',trim(string))
         TOTCPU1=0.0d0; TOTWALL1=0.0d0; TOTCPU2=0.0d0; TOTWALL2=0.0d0;

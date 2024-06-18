@@ -234,6 +234,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    MOLCAS_TIMELIM: "1000"
   tags:
     - saas-linux-small-amd64
 

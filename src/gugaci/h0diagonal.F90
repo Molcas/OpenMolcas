@@ -140,7 +140,7 @@ do
     nroot = mroot-mrsta+1
     if (mrsta > mroot) then
       write(u6,*)
-      write(u6,*) mroot,' roots are convegenced,after',iterat,' iterat'
+      write(u6,*) mroot,' roots are converged, after',iterat,' iterat'
       exit
     end if
 

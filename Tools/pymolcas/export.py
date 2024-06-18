@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2017,2018,2022, Ignacio Fdez. Galván              *
+# Copyright (C) 2015,2017,2018,2022,2024, Ignacio Fdez. Galván         *
 #***********************************************************************
 
 '''
@@ -120,7 +120,7 @@ with open(exe_name, 'w', encoding='utf-8') as f:
         content = wrap(content, 120)
         fmt = "  ['{0}', '''\n{1}\n'''],\n\n"
       else:
-        fmt = "  ['{0}', \n{1}\n],\n\n"
+        fmt = "  ['{0}', r\"\"\"\n{1}\n\"\"\"],\n\n"
       content = bytes(content, 'utf-8')
       if (obfuscate):
         name_i = ''.join('{:02x}'.format(c) for c in bytes(i, 'ascii'))

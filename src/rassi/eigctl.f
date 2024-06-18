@@ -1783,13 +1783,11 @@ C                                                                      C
             If (iPrint.eq.0) Then
          WRITE(6,*)
          Call CollapseOutput(1,
-     &                'Total transition strengths ' //
-     &                'for the second-order expansion of the wave ' //
-     &                'vector (spin-free states):')
+     &                'Second-order contribution to the '//
+     &                'transition strengths (spin-free states):')
          WRITE(6,'(3X,A)')
-     &                '---------------------------'//
-     &                '-------------------------------------------'//
-     &                '--------------------------'
+     &                '---------------------------------'//
+     &                '----------------------------------------'
 !
          IF(OSTHR2.GT.0.0D0) THEN
           WRITE(6,30) 'for osc. strength at least',OSTHR2
@@ -1808,9 +1806,8 @@ C                                                                      C
          If (iPrint.eq.1) Then
          WRITE(6,35)
          Call CollapseOutput(0,
-     &                'Total transition strengths ' //
-     &                'for the second-order expansion of the wave ' //
-     &                'vector (spin-free states):')
+     &                'Second-order contribution to the '//
+     &                'transition strengths (spin-free states):')
          End If
        END IF
 ! release the memory again

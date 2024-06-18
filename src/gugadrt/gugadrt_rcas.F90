@@ -29,7 +29,7 @@ call mma_allocate(itm,[0,max_node],label='itm')
 call mma_allocate(iwy,[1,4],[0,max_node],label='iwy')
 call mma_allocate(jc,max_node,label='jc')
 call mma_allocate(locu,8,max_ref,label='locu')
-call mma_allocate(noh,max_innorb,label='noh')
+call mma_allocate(noh,[0,max_innorb],label='noh')
 write(u6,*) ' '
 write(u6,*) 'now generate distinct row tableau'
 noh = 0
@@ -41,7 +41,7 @@ jc = 0
 
 nel = n_electron
 nm = ns_sm
-no(1:norb_dz-1) = 0
+no(0:norb_dz-1) = 0
 j = 0
 ja0 = ja_sys
 jb0 = jb_sys
@@ -384,7 +384,7 @@ end do
 do i=1,4
   iwy(i,0) = 0
 end do
-do l=norb_inn-1,norb_dz,-1
+do l=norb_inn-1,max(norb_dz,1),-1
   jps = no(l-1)+1
   jpe = no(l)
   do jde=jps,jpe
