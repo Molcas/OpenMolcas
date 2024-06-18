@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
 *               2024, Giovanni Li Manni                                *
-*                                                                      *
 ************************************************************************
 *
 * Adapted for GAS calculations and LUCIA, Dec. 2001
