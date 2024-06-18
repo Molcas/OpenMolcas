@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
-* Copyright (C) 2024, Giovanni Li Manni                                *
+*               2024, Giovanni Li Manni                                *
 ************************************************************************
       SUBROUTINE STRINF_GAS(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
