@@ -37,6 +37,8 @@
 
 >>> Copy $Project.JobIph JOB001
 
+>>> Export MOLCAS_PRINT=SILENT
+
 &RASSI
   Nrof JobIphs
   1 1
