@@ -64,11 +64,11 @@
       lb_zswap=>int_zswap
       lb_ztrmm=>int_ztrmm
       lb_ztrmv=>int_ztrmv
+      lb_ztrsm=>int_ztrsm
       !
       ! LAPACK
       lb_dbdsdc=>int_dbdsdc
       lb_dbdsqr=>int_dbdsqr
-      lb_dcombssq=>int_dcombssq
       lb_dgebak=>int_dgebak
       lb_dgebal=>int_dgebal
       lb_dgebd2=>int_dgebd2
@@ -212,6 +212,7 @@
       lb_dpptrf=>int_dpptrf
       lb_dpstf2=>int_dpstf2
       lb_dpstrf=>int_dpstrf
+      lb_droundup_lwork=>int_droundup_lwork
       lb_drscl=>int_drscl
       lb_dspev=>int_dspev
       lb_dspgst=>int_dspgst
@@ -255,6 +256,7 @@
       lb_zgebrd=>int_zgebrd
       lb_zgelq2=>int_zgelq2
       lb_zgelqf=>int_zgelqf
+      lb_zgels=>int_zgels
       lb_zgeqr2=>int_zgeqr2
       lb_zgeqrf=>int_zgeqrf
       lb_zgesvd=>int_zgesvd
@@ -288,6 +290,7 @@
       lb_zstedc=>int_zstedc
       lb_zstein=>int_zstein
       lb_zsteqr=>int_zsteqr
+      lb_ztrtrs=>int_ztrtrs
       lb_zung2l=>int_zung2l
       lb_zung2r=>int_zung2r
       lb_zungbr=>int_zungbr

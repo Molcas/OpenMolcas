@@ -28,12 +28,6 @@ subroutine dbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, work
   call lb_dbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, work, info )
 end subroutine dbdsqr
 
-subroutine dcombssq( v1, v2 )
-  use link_blas
-  real*8 :: v1( 2 ), v2( 2 )
-  call lb_dcombssq( v1, v2 )
-end subroutine dcombssq
-
 subroutine dgebak( job, side, n, ilo, ihi, scale, m, v, ldv, info )
   use link_blas
   implicit none
@@ -1352,6 +1346,14 @@ subroutine dpstrf( uplo, n, a, lda, piv, rank, tol, work, info )
   call lb_dpstrf( uplo, n, a, lda, piv, rank, tol, work, info )
 end subroutine dpstrf
 
+function droundup_lwork( lwork )
+  use link_blas
+  implicit none
+  real*8 :: droundup_lwork
+  integer :: lwork
+  droundup_lwork = lb_droundup_lwork( lwork )
+end function droundup_lwork
+
 subroutine drscl( n, sa, sx, incx )
   use link_blas
   implicit none
@@ -1981,6 +1983,15 @@ subroutine zgelqf( m, n, a, lda, tau, work, lwork, info )
   call lb_zgelqf( m, n, a, lda, tau, work, lwork, info )
 end subroutine zgelqf
 
+subroutine zgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
+  use link_blas
+  implicit none
+  character :: trans
+  integer :: m, n, nrhs, lda, ldb, lwork, info
+  complex*16 :: a( lda, * ), b( ldb, * ), work( * )
+  call lb_zgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
+end subroutine zgels
+
 subroutine zgeqr2( m, n, a, lda, tau, work, info )
   use link_blas
   implicit none
@@ -2081,6 +2092,15 @@ subroutine zstein( n, d, e, m, w, iblock, isplit, z, ldz, work, iwork, ifail, in
   complex*16 :: z( ldz, * )
   call lb_zstein( n, d, e, m, w, iblock, isplit, z, ldz, work, iwork, ifail, info )
 end subroutine zstein
+
+subroutine ztrtrs( uplo, trans, diag, n, nrhs, a, lda, b, ldb, info )
+  use link_blas
+  implicit none
+  character :: uplo, trans, diag
+  integer :: n, nrhs, lda, ldb, info
+  complex*16 :: a( lda, * ), b( ldb, * )
+  call lb_ztrtrs( uplo, trans, diag, n, nrhs, a, lda, b, ldb, info )
+end subroutine ztrtrs
 
 subroutine zungbr( vect, m, n, k, a, lda, tau, work, lwork, info )
   use link_blas
