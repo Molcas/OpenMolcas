@@ -1288,11 +1288,20 @@ if (GA AND MPI)
     set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
 
     set (GA_REPO https://github.com/GlobalArrays/ga.git)
-    set (GA_HASH da7a53ff)
+    set (GA_HASH f7a31046) # Release v5.8.2
+
+    if (";Debug;Release;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};")
+      set (GA_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+    elseif (";Garble;" MATCHES ";${CMAKE_BUILD_TYPE};")
+      set (GA_BUILD_TYPE "Debug")
+    else ()
+      set (GA_BUILD_TYPE "Release")
+    endif ()
 
     target_files (LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
     string (REPLACE ";" "|" LINALG_LIBRARIES_FILES "${LINALG_LIBRARIES_FILES}")
     list (APPEND GACMakeArgs
+          -D CMAKE_BUILD_TYPE=${GA_BUILD_TYPE}
           -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
           -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
           -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -1320,6 +1329,7 @@ if (GA AND MPI)
             -D LINALG_VENDOR=ReferenceBLAS
             -D LINALG_PREFIX=${PROJECT_BINARY_DIR}
             -D BLAS_LIBRARIES=${LINALG_LIBRARIES_FILES}
+            -D LAPACK_LIBRARIES=${LINALG_LIBRARIES_FILES}
       )
     else ()
       message (FATAL_ERROR
@@ -1359,10 +1369,6 @@ if (GA AND MPI)
                          UPDATE_DISCONNECTED ${GASkipUpdate}
                          LIST_SEPARATOR "|"
     )
-
-    if (NOT GASkipUpdate)
-      ExternalProject_add_patches (${EP_PROJECT} "cmake/custom/ga.patch")
-    endif ()
 
     ExternalProject_Add_Step (${EP_PROJECT} update_hash
                               COMMAND echo ${GA_HASH} > ${hash_file}
