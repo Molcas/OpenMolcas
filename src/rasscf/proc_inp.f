@@ -3467,8 +3467,8 @@ C Test read failed. JOBOLD cannot be used.
       ! Setup part for DMRG calculations
 #ifdef _DMRG_
       if(keyDMRG .or. doDMRG)then
-      call getenv("Project", ProjectName)
-      call getenv("CurrDir", CurrDir)
+      call getenvf("Project", ProjectName)
+      call getenvf("CurrDir", CurrDir)
       ! Initialize the new interface
 
         call qcmaquis_interface_init(

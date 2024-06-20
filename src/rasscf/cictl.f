@@ -1038,7 +1038,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
      &                             ".h5",maquis_name_results)
 
           !> copy current target wave function to local wave function
-          call system(
+          call systemf(
      & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
      & "rm -rf rf.checkpoint_state.h5 && "//
      & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",
