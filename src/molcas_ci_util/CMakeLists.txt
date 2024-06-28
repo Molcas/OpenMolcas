@@ -26,6 +26,7 @@ set (sources
      cnhcn.F90
      csdiag_ci_util.F90
      csdtvc.F90
+     csfcount.F90
      csfbas.F90
      cstart_ci_util.F90
      cxinit.F90

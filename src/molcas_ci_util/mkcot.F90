@@ -28,8 +28,10 @@ use Definitions, only: u6
 implicit none
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp) :: IHALF, ILND, IS, ISML, ISTP, ISYDWN, ISYTOT, ISYUP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, &
-                     MV, N, NUW
+integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV, NUW
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IS
+#endif
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
 CIS%nIpWlk = 1+(SGS%MidLev-1)/15
@@ -109,40 +111,8 @@ do IHALF=1,2
   end do
 end do
 
-! NOW, CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
-! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
+call CSFCOUNT(CIS,SGS%nSym,NUW)
 
-NUW = 0
-do MV=1,CIS%nMidV
-  do IS=1,SGS%nSym
-    CIS%IOW(1,IS,MV) = NUW*CIS%nIpWlk
-    NUW = NUW+CIS%NOW(1,IS,MV)
-  end do
-end do
-CIS%nWalk = NUW
-do MV=1,CIS%nMidV
-  do IS=1,SGS%nSym
-    CIS%IOW(2,IS,MV) = CIS%nWalk*CIS%nIpWlk
-    CIS%nWalk = CIS%nWalk+CIS%NOW(2,IS,MV)
-  end do
-end do
-
-! FINALLY, CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
-! SEPARATED BY MIDVERTICES AND SYMMETRY.
-! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
-
-CIS%NCSF(:) = 0
-do ISYTOT=1,SGS%nSym
-  do MV=1,CIS%nMidV
-    do ISYUP=1,SGS%nSym
-      ISYDWN = MUL(ISYTOT,ISYUP)
-      N = CIS%NOW(1,ISYUP,MV)*CIS%NOW(2,ISYDWN,MV)
-      CIS%NOCSF(ISYUP,MV,ISYTOT) = N
-      CIS%IOCSF(ISYUP,MV,ISYTOT) = CIS%NCSF(ISYTOT)
-      CIS%NCSF(ISYTOT) = CIS%NCSF(ISYTOT)+N
-    end do
-  end do
-end do
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
