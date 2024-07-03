@@ -911,20 +911,20 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`NOTRansform`
-  This keyword specifies that the wave function should not be transformed
-  to use quasi-canonical orbitals, even if :program:`CASPT2` does not know if this
-  was done or not and by default would do such a transformation.
-  Effectively, the Fock matrix is replaced by a diagonal
-  approximation in the input orbital system.
+  .. :kword:`NOTRansform`
+       This keyword specifies that the wave function should not be transformed
+       to use quasi-canonical orbitals, even if :program:`CASPT2` does not know if this
+       was done or not and by default would do such a transformation.
+       Effectively, the Fock matrix is replaced by a diagonal
+       approximation in the input orbital system.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOTRANSFORM" APPEAR="No transform" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: NoTransform <advanced>
-              <HELP>
-              Prevent transformation to pseudo-canonical orbitals, even if CASPT2
-              would assumed this is needed (Default is: transform when assumed necessary.)
-              </HELP>
-              </KEYWORD>
+       .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOTRANSFORM" APPEAR="No transform" KIND="SINGLE" LEVEL="ADVANCED">
+                   %%Keyword: NoTransform <advanced>
+                   <HELP>
+                   Prevent transformation to pseudo-canonical orbitals, even if CASPT2
+                   would assumed this is needed (Default is: transform when assumed necessary.)
+                   </HELP>
+                   </KEYWORD>
 
 :kword:`TRANsform`
   This keyword specifies that the wave function should be transformed
@@ -1017,7 +1017,7 @@ Keywords
               </KEYWORD>
 
 :kword:`NDIAgonal`
-  Activiate FCIQMC-CASPT2 in non-pseudo-canonical orbitals, i.e. using a non-diagonal Fock
+  Activate FCIQMC-CASPT2 in non-pseudo-canonical orbitals, i.e. using a non-diagonal Fock
   operator. As a consequence the entire eight-index 4 RDM needs to be
   computed and contracted with the Fock matrix on the fly. Despite being
   computationally more costly, very often the number of walkers required to

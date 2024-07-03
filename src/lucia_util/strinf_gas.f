@@ -7,11 +7,15 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994, Jeppe Olsen                                      *
+*               2024, Giovanni Li Manni                                *
 ************************************************************************
       SUBROUTINE STRINF_GAS(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas
 * modification Jeppe + Giovanni + Dongxia.
+* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
       use distsym
 *
 * Obtain string information for GAS expansion
@@ -58,11 +62,11 @@ C     DIMENSION IOCTYP(MXPNGAS)
 **.2 : Number of classes per string type and mappings between
 **.    string types (/STINF/)
 *
-      CALL ZSTINF_GAS(IPRNT)
+      If(NActEl.ne.MS2.or.NActEl.ne.NACOB) CALL ZSTINF_GAS(IPRNT)
 *
 **.3 : Static memory for string information
 *
-       CALL MEMSTR_GAS
+      CALL MEMSTR_GAS
 *
 ** 4 : Info about group of strings
 *
@@ -72,14 +76,14 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *       MAXSCR = 2*NACOB+(IEL+1)(NACOB+1)
 *       with IEL = MAX(NELFGP(IGRP=1,NGRP)
 *
-         IEL = 0
-         DO IGRP = 1, NGRP
-            IEL = MAX(IEL, NELFGP(IGRP))
-         ENDDO
-         NACOB_EFFECTIVE = NACOB
-         IF (NACOB .EQ. 0) NACOB_EFFECTIVE = 1
-         MAXSCR = 2*NACOB_EFFECTIVE +(IEL+1)*(NACOB_EFFECTIVE+1) +NSMST
-         Call mma_allocate(FREEL,MAXSCR,Label='FREEL')
+      IEL = 0
+      DO IGRP = 1, NGRP
+         IEL = MAX(IEL, NELFGP(IGRP))
+      ENDDO
+      NACOB_EFFECTIVE = NACOB
+      IF (NACOB .EQ. 0) NACOB_EFFECTIVE = 1
+      MAXSCR = 2*NACOB_EFFECTIVE +(IEL+1)*(NACOB_EFFECTIVE+1) +NSMST
+      Call mma_allocate(FREEL,MAXSCR,Label='FREEL')
       DO IGRP = 1, NGRP
 *. A gas group can be considered as a RAS group with 0 electrons in
 *  RAS1, RAS3 !

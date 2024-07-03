@@ -173,8 +173,8 @@ contains
 #if defined (_WARNING_WORKAROUND_) && ! defined (EMPTY_TYPE_INIT)
         res = res
 #endif
-! Due to possible size of active space arrays of nConf
-! size need to be avoided.  For this reason set nConf to zero.
+! Due to possible size of active space, arrays of nConf size
+! need to be avoided.  For this reason set nConf to zero.
         write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'
         write(6,*) ' Number of Configurations computed by GUGA: ', nConf
         write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
