@@ -23,7 +23,7 @@ module fciqmc_interface
     use linalg_mod, only: verify_
     use fortran_strings, only: str
     use stdalloc, only: mma_allocate, mma_deallocate
-    use caspt2_data, only: nG3, nActel, nLev, mstate, jstate
+    use caspt2_data, only: nG3, nActel, mstate, jstate
 #ifdef _HDF5_
     use mh5, only: mh5_open_file_r, mh5_close_file, &
                    mh5_open_group, mh5_close_group, &
@@ -40,6 +40,8 @@ module fciqmc_interface
     logical :: DoFCIQMC = .false., NonDiagonal = .false., TransformToNormalOrder = .false.
     real(wp), external :: DDOT_
 
+    ! new structure of GUGX module makes it necessary to pass nLev as function parameter every time :(
+
 contains
 
 
@@ -49,13 +51,13 @@ contains
     !>  @param[in]     nLev      number of levels
     !>  @param[inout]  g1        dense redundant 1RDM
     !>  @param[in]     iroot     CASSCF root number
-    subroutine load_fciqmc_g1(g1, iroot)
+    subroutine load_fciqmc_g1(g1, iroot, nLev)
         real(wp), intent(inout) :: g1(nLev, nLev)
-        integer(iwp), intent(in) :: iroot
+        integer(iwp), intent(in) :: iroot, nLev
 
 #ifdef _HDF5_
         call user_barrier()  ! copy required files into WorkDir
-        call load_1RDM(g1, iroot)
+        call load_1RDM(g1)
         if (NonDiagonal) call transform_1rdm(g1)
 
         contains
@@ -66,9 +68,42 @@ contains
                 real(wp), intent(inout) :: g1(nLev, nLev)
                 real(wp) :: fockmat(nLev, nLev), fock_eigvecs(nLev, nLev)
 
-                call load_fockmat(fockmat, fock_eigvecs)
+                call load_fockmat(fockmat, fock_eigvecs, nLev)
                 call transmat(g1, fock_eigvecs, nLev)
             end subroutine transform_1rdm
+
+            subroutine load_1RDM(g1)
+                real(wp), intent(inout) :: g1(nLev, nLev)
+                integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, len2index(2), i, t, u
+                logical :: tExist
+                integer(iwp), allocatable :: indices(:,:)
+                real(wp), allocatable :: values(:)
+
+                call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
+                call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
+                hdf5_file = mh5_open_file_r('fciqmc.caspt2.' // str(iroot) // '.h5')
+                hdf5_group = mh5_open_group(hdf5_file, '/spinfree/1100/')
+                hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
+                len2index(:) = 0
+                call mh5_get_dset_dims(hdf5_dset, len2index)
+                call mma_allocate(indices, 2, len2index(2))
+                call mma_allocate(values, len2index(2))
+                indices(:,:) = 0
+                values(:) = 0.0_wp
+                call mh5_fetch_dset(hdf5_group, 'values', values)
+                call mh5_fetch_dset(hdf5_group, 'indices', indices)
+                call mh5_close_group(hdf5_group)
+                g1(:,:) = 0.0_wp
+                do i = 1, len2index(2)
+                    t = indices(1,i) + 1; u = indices(2,i) + 1
+                    g1(t, u) = values(i)
+                    g1(u, t) = values(i)
+                end do
+                call mma_deallocate(indices)
+                call mma_deallocate(values)
+                call mh5_close_file(hdf5_file)
+            end subroutine load_1RDM
+
 #else
         unused_var(nLev)
         unused_var(g1)
@@ -88,14 +123,15 @@ contains
     !>  @param[out]    f2        dense contraction of Fockian with 3RDM
     !>  @param[out]    f3        sparse contraction of Fockian with 4RDM
     !>  @param[in]     idxG3     Table containing the active space indices
-    subroutine mkfg3fciqmc(g1, g2, g3, f1, f2, f3, idxG3)
+    subroutine mkfg3fciqmc(g1, g2, g3, f1, f2, f3, idxG3, nLev)
         real(wp), intent(inout) :: g1(nLev, nLev), g2(nLev, nLev, nLev, nLev), g3(*), &
                                    f1(nLev, nLev), f2(nLev, nLev, nLev, nLev), f3(*)
         integer(1), intent(in) :: idxG3(6, *)
+        integer(iwp), intent(in) :: nLev
 
 #ifdef _HDF5_
         call load_fciqmc_mats(idxG3, g3, g2, g1, &
-                                f3, f2, f1, mstate(jState))
+                                f3, f2, f1, mstate(jState), nLev)
 #else
         unused_var(idxG3(1,1))
         unused_var(g3(1))
@@ -121,18 +157,18 @@ contains
     !>  @param[in]     f2         contracted Fock matrix with 3RDM
     !>  @param[in]     f1         contracted Fock matrix with 2RDM
     !>  @param[in]     iroot      MCSCF root number.
-    subroutine load_fciqmc_mats(idxG3, g3, g2, g1, f3, f2, f1, iroot)
+    subroutine load_fciqmc_mats(idxG3, g3, g2, g1, f3, f2, f1, iroot, nLev)
         integer(1), intent(in) :: idxG3(6, nG3)
         real(wp), intent(inout) :: g3(*), g2(nLev, nLev, nLev, nLev), g1(nLev, nLev), &
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
-        integer(iwp), intent(in) :: iroot
+        integer(iwp), intent(in) :: iroot, nLev
         real(wp) :: f3_temp(nLev, nLev, nLev, nLev, nLev, nLev), &
                     g3_temp(nLev, nLev, nLev, nLev, nLev, nLev)
         integer(iwp) :: t, u, v, x, y, z, i
 
         write(u6,'(a)') "Initiate transfer of CASPT2 intermediates."
-        call load_six_tensor(g3_temp, '/spinfree/3300/', iroot)
-        call load_six_tensor(f3_temp, '/spinfree/4400f/', iroot)
+        call load_six_tensor(g3_temp, '/spinfree/3300/', iroot, nLev)
+        call load_six_tensor(f3_temp, '/spinfree/4400f/', iroot, nLev)
 
         if (TransformToNormalOrder) then
             ! \sum_{ab} f_{ab} e_{tu,vx,yz} E_{ab} -> \sum_{ab} f_{ab} e_{tu,vx,yz,ab}
@@ -172,7 +208,7 @@ contains
                 real(wp) :: fockmat(nLev, nLev), fock_eigvecs(nLev, nLev)
                 integer(iwp) :: t, u, v, x, y, z
 
-                call load_fockmat(fockmat, fock_eigvecs)
+                call load_fockmat(fockmat, fock_eigvecs, nLev)
                 do z = 1, nLev
                     do y = 1, nLev
                         do x = 1, nLev
@@ -208,7 +244,7 @@ contains
                 integer(iwp) :: iter
                 real(wp) :: fockmat(nLev, nLev), fock_eigvecs(nLev, nLev), buffer(nLev), buffer2(nLev)
 
-                call load_fockmat(fockmat, fock_eigvecs)
+                call load_fockmat(fockmat, fock_eigvecs, nLev)
                 buffer(:) = 0.0_wp
                 buffer2(:) = 0.0_wp
                 do iter = 1, 6
@@ -314,10 +350,10 @@ contains
       if (err == 0) write(u6, *) strerror_(get_errno_())
     end subroutine broadcast_filename
 
-    subroutine load_six_tensor(tensor, dataset, iroot)
+    subroutine load_six_tensor(tensor, dataset, iroot, nLev)
         real(wp), intent(inout) :: tensor(nLev, nLev, nLev, nLev, nLev, nLev)
         character(len=*), intent(in) :: dataset
-        integer(iwp), intent(in) :: iroot
+        integer(iwp), intent(in) :: iroot, nLev
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
@@ -446,48 +482,11 @@ contains
         end if
     end subroutine user_barrier
 
-    subroutine load_1RDM(g1, iroot)
-        real(wp), intent(inout) :: g1(nLev, nLev)
-        integer(iwp), intent(in) :: iroot
-#ifdef _HDF5_
-        integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, len2index(2), i, t, u
-        logical :: tExist
-        integer(iwp), allocatable :: indices(:,:)
-        real(wp), allocatable :: values(:)
-
-        call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
-        call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
-        hdf5_file = mh5_open_file_r('fciqmc.caspt2.' // str(iroot) // '.h5')
-        hdf5_group = mh5_open_group(hdf5_file, '/spinfree/1100/')
-        hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
-        len2index(:) = 0
-        call mh5_get_dset_dims(hdf5_dset, len2index)
-        call mma_allocate(indices, 2, len2index(2))
-        call mma_allocate(values, len2index(2))
-        indices(:,:) = 0
-        values(:) = 0.0_wp
-        call mh5_fetch_dset(hdf5_group, 'values', values)
-        call mh5_fetch_dset(hdf5_group, 'indices', indices)
-        call mh5_close_group(hdf5_group)
-        g1(:,:) = 0.0_wp
-        do i = 1, len2index(2)
-            t = indices(1,i) + 1; u = indices(2,i) + 1
-            g1(t, u) = values(i)
-            g1(u, t) = values(i)
-        end do
-        call mma_deallocate(indices)
-        call mma_deallocate(values)
-        call mh5_close_file(hdf5_file)
-#else
-        unused_var(g1)
-        unused_var(iroot)
-#endif
-    end subroutine load_1RDM
-
-    subroutine load_fockmat(fock_matrix, fock_eigenvectors)
+    subroutine load_fockmat(fock_matrix, fock_eigenvectors, nLev)
         ! sometimes eigenvectors are superfluous, but I/O should stay in one place
         ! and loading them is basically for free.
         real(wp), intent(inout) :: fock_matrix(nLev, nLev), fock_eigenvectors(nLev, nLev)
+        integer(iwp), intent(in) :: nLev
         logical :: tExist
 #ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, len2index(2), i, t, u

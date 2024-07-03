@@ -57,7 +57,7 @@
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 
       if (DoFCIQMC) then
-        call load_fciqmc_g1(g1, mstate(jstate))
+        call load_fciqmc_g1(g1, mstate(jstate),nLev)
         goto 99
       end if
 
