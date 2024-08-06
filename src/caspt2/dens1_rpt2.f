@@ -19,6 +19,9 @@
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
       use caspt2_output, only:iPrGlb,debug
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
+#endif
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
@@ -61,6 +64,14 @@
         goto 99
       end if
 
+#ifdef _DMRG_
+      if (DMRG) then
+        write (6,*) 'DENS1_RPT2> Calculating 1RDM...'
+        call qcmaquis_interface_get_1rdm_full(G1)
+        goto 99
+      end if
+#endif
+
 * For the special cases, there is no actual CI-routines involved:
 * Special code for hi-spin case:
       IF(ISCF.EQ.2) THEN
@@ -76,6 +87,8 @@
         END DO
         GOTO 99
       END IF
+
+! TODO: skip completely this part if using a DMRG reference!
 
 * For the general cases, we use actual CI routine calls, and
 * have to take account of orbital order.
@@ -156,6 +169,14 @@
       End If
       End If
 #endif
+
+
+      ! DEBUG print while developing DMRG-CASPT2
+      ! do i = 1,nLev
+      !   write (6,'(1x,14f10.6)') (G1(i,j),j=1,nLev)
+      ! end do
+      ! write(6,*)
+
 
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",A)')

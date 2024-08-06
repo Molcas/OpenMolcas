@@ -31,7 +31,7 @@ C However, because this introduces instability of CASPT2 calculation
 C (lots of negative denominators appear), relatively large IPEA and imaginary shifts
 C are required to converge CASPT2 iteration.
 C
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_output, only:iPrGlb,verbose,debug
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
@@ -534,8 +534,15 @@ C
       Call GETMEM('G3TMP','FREE','REAL',LG3TMP,NLEV4)
 #endif
 
+! TODO: @kszenes: this should be wrapped in an if statement
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Call mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
+#endif
+
+#ifdef _DMRG_
+      if (DMRG) then
+        call mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+      endif
 #endif
 
       IF(iPrGlb.GE.DEBUG) THEN

@@ -13,7 +13,14 @@
       subroutine rdminit
 
       use caspt2_output, only:iPrGlb,debug
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_set_state
+      use iso_c_binding, only: c_int
+#endif
+
       implicit real(8) (A-H,O-Z)
+
+
 
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -49,6 +56,19 @@
 * Get the CI array
           call loadCI(WORK(LCI),I)
         end if
+
+        ! compute 1-particle active density matrix GAMMA1
+#ifdef _DMRG_
+        if (DMRG) then
+          ! set state number here because in poly1 we have no reference
+          ! to which state we are computing
+          write (6,*) 'rdminit> Setting DMRG state number ', mstate(i)-1
+          ! TODO: still it needs to convert to the root number despite having
+          ! set only the checkpoint file paths for the desired state(s)
+          call qcmaquis_interface_set_state(int(mstate(i)-1,c_int))
+        end if
+#endif
+
 
 * Compute 1-particle active density matrix GAMMA1
         call POLY1(WORK(LCI))

@@ -23,6 +23,12 @@ subroutine procinp_caspt2
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
 #endif
+#ifdef _DMRG_
+  use qcmaquis_info, only:qcm_group_names
+  use qcmaquis_interface_cfg
+  use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
+    qcmaquis_interface_set_param, qcmaquis_interface_remove_param
+#endif
 ! NOT TESTED
 #if 0
   use OFembed, only:Do_OFemb
@@ -184,6 +190,7 @@ subroutine procinp_caspt2
   NLYGROUP = 0
 
   DoCumulant = Input%DoCumulant
+  DMRG = Input%DMRG
 
 !***********************************************************************
 !
@@ -481,6 +488,37 @@ subroutine procinp_caspt2
   if (BTRANS .NE. 'NO      ') SDECOM = 'YES     '
   if (SDECOM .NE. 'NO      ') SMATRIX = 'YES     '
 
+#ifdef _DMRG_
+  if (DMRG) then
+    ! set OpenMolcas environment variables
+    call getenv('Project', qcmaquis_param%project_name)
+    call getenv('CurrDir', qcmaquis_param%currdir)
+    ! save checkpoint paths for all states
+    call mma_allocate(dmrg_file%qcmaquis_checkpoint_file,nstate)
+    write(6,*) 'PROCINP> Setting chekpoint file paths...'
+    do i = 1,nstate
+      dmrg_file%qcmaquis_checkpoint_file(i) = &
+      trim(qcmaquis_param%currdir)//'/'//qcm_group_names(1)%states(mstate(i))
+      write(6,*) 'PROCINP> ', dmrg_file%qcmaquis_checkpoint_file(i)
+    end do
+    ! initialize the interface using a checkpoint file
+    write(6,*) 'PROCINP> Initializing DMRG interface...'
+    call qcmaquis_interface_init_checkpoint(dmrg_file%qcmaquis_checkpoint_file(1))
+    ! removed all measurements just to be sure
+    call qcmaquis_interface_remove_param('MEASURE[1rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[2rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[3rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[4rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[1spdm]')
+    call qcmaquis_interface_remove_param('MEASURE[ChemEntropy]')
+
+    ! only set 1-rdm here and the other rdms later on in grpini
+    call qcmaquis_interface_set_param('MEASURE[1rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
+  end if
+#endif
 !***********************************************************************
 !
 ! Thresholds

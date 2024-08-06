@@ -14,6 +14,9 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb,usual,verbose,debug
       use fciqmc_interface, only: DoFCIQMC
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_set_param
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -119,7 +122,7 @@ c You don't have to be beautiful to turn me on
 * NN.15, TODO:
 * MKFOP and following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant .or. DoFCIQMC) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC .or. DMRG) GoTo 100
 
 * Loop over bra functions
         do I=1,Ngrp
@@ -273,5 +276,13 @@ c You don't have to be beautiful to turn me on
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
+#ifdef _DMRG_
+      if (DMRG) then
+        ! set to compute 2-, 3- and 4-rdm
+        call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
+      end if
+#endif
       return
       end

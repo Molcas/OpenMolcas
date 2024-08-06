@@ -261,8 +261,8 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     # git references for QCMaquis #
     ###############################
 
-    set(reference_git_repo https://github.com/qcscine/qcmaquis.git)
-    set(reference_git_commit release-3.1.1)
+    set(reference_git_repo https://github.com/qcscine/qcmaquis)
+    set(reference_git_commit nag-compiler-fix)
 
     set (last_hash "None")
     set (hash_file ${extprojpath}/${EP_PROJECT}.hash)

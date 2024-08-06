@@ -174,6 +174,8 @@ module InputData
     Logical(kind=iwp) :: RHSD = .false.
     ! CUMU
     Logical(kind=iwp) :: doCumulant = .false.
+    ! DMRG      DMRG-CASPT2 using QCMaquis
+    Logical(kind=iwp) :: DMRG = .false.
     ! SADREF    use state-averaged density even for SS-CASPT2 with
     !           SA-CASSCF reference and MS-CASPT2 (not XMS)
     Logical :: SADREF = .False.
@@ -633,6 +635,9 @@ contains
         !Quan: Using the same variable doCumulant in Block
         Input%doCumulant = .true.
         dochemps2 = .true.
+#elif _DMRG_
+      case ('DMRG')
+        Input%DMRG = .true.
 #endif
       case ('FCIQ')
         DoFciQMC = .true.

@@ -25,10 +25,10 @@
 
       LOGICAL         IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
      &    IFXMS,IFRMS,IFDW,IFSILPRROT,IFSADREF,IFDORTHO,                &
-     &    IFINVAR
+     &    IFINVAR,DMRG
       COMMON/SWITCHES/IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
      &    IFXMS,IFRMS,IFDW,IFSILPRROT,IFSADREF,IFDORTHO,                &
-     &    IFINVAR
+     &    IFINVAR,DMRG
 
       INTEGER     MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
      &    NFRO,NFROT,NISH,NIES,NISHT,NRAS1,NRAS1T,                      &

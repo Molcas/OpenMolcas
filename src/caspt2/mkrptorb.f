@@ -233,7 +233,7 @@ C Finally, loop again over symmetries, transforming the CI:
             write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
           end if
         else
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
           IF(.NOT.DoCumulant) THEN
 #endif
             CALL GETMEM('LCI3','ALLO','REAL',LCI,NCONF)
@@ -299,6 +299,18 @@ C Finally, loop again over symmetries, transforming the CI:
             write(6,*) 'CHEMPS2> MKRPTORB assumes '//
      &    'PSEUDOCANONICAL orbitals!'
           END IF
+#elif _DMRG_
+! for the time being ask outorb = canonical in DMRGSCF, which produces
+! state-specific canonical orbitals (even in a SA-DMRGSCF calculation)
+! and thus here we skip the transformation of the MPS because it is
+! already in the good basis. The 2- and 3-rdms can then be directly
+! computed.
+! For the future, here there should be a call to the API to transform
+! the MPS to the new basis.
+        else
+          write(6,*) 'QCMaquis> MKRPTORB assumes '//
+     & 'PSEUDOCANONICAL orbitals!'
+        end if
 #endif
         end if
       END IF

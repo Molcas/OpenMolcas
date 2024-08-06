@@ -34,7 +34,7 @@
       INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
-     &      .and. (.not. DoFCIQMC)) Then
+     &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then
 !     if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
          call sginit_cp2(nSym,iSpin,nActEl,nHole1,nEle3,
@@ -53,7 +53,7 @@ C first by RAS type, then by symmetry.
         DO IT=1,NASH(ISYM)
           ITABS=ITABS+1
 ! Quan: Bug in LEVEL(ITABS) and L2ACT
-          if (DoCumulant .or. DoFCIQMC) then
+          if (DoCumulant .or. DoFCIQMC .or. DMRG) then
              do iq=1,NLEV
                LEVEL(iq)=iq
                L2ACT(iq)=iq

@@ -145,12 +145,14 @@
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     CI data for each root
+        if (.not. DMRG) then
         pt2wfn_cicoef = mh5_create_dset_real(pt2wfn_id,
      $        'CI_VECTORS', 2, [nConf, NSTATE])
         call mh5_init_attr(pt2wfn_cicoef, 'DESCRIPTION',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering for each STATE, '//
      $        'arranged as matrix of size [NCONF,NSTATES]')
+        end if
 
 *     effective Hamiltonian coefficients
         If (IFMSCOUP) Then
@@ -198,13 +200,15 @@
       integer :: ISTATE, IDISK
 
       If (pt2wfn_is_h5) Then
-        call mma_allocate(BUF,NCONF)
-        IDISK = IDCIEX
-        DO ISTATE=1,NSTATE
-          CALL DDAFILE(LUCIEX,2,BUF,NCONF,IDISK)
-          call mh5_put_dset(pt2wfn_cicoef,BUF,[NCONF,1],[0,ISTATE-1])
-        END DO
-        call mma_deallocate(BUF)
+        if (.not. DMRG) then
+          call mma_allocate(BUF,NCONF)
+          IDISK = IDCIEX
+          DO ISTATE=1,NSTATE
+            CALL DDAFILE(LUCIEX,2,BUF,NCONF,IDISK)
+            call mh5_put_dset(pt2wfn_cicoef,BUF,[NCONF,1],[0,ISTATE-1])
+          END DO
+          call mma_deallocate(BUF)
+        end if
 
         call mma_allocate(BUF,NCMO)
         IDISK = IAD1M(1)
