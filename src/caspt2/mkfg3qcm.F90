@@ -102,5 +102,8 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   call mma_deallocate(G4)
 
 end subroutine mkfg3qcm
-
+#elif defined (NAGFOR)
+! Some compilers do not like empty files
+      subroutine empty_mkfg3qcm()
+      end subroutine empty_mkfg3qcm
 #endif
