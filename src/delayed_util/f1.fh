@@ -62,11 +62,11 @@
       int_zscal=>zscal, &
       int_zswap=>zswap, &
       int_ztrmm=>ztrmm, &
-      int_ztrmv=>ztrmv
+      int_ztrmv=>ztrmv, &
+      int_ztrsm=>ztrsm
   use lapack_mod, &
       int_dbdsdc=>dbdsdc, &
       int_dbdsqr=>dbdsqr, &
-      int_dcombssq=>dcombssq, &
       int_dgebak=>dgebak, &
       int_dgebal=>dgebal, &
       int_dgebd2=>dgebd2, &
@@ -210,6 +210,7 @@
       int_dpptrf=>dpptrf, &
       int_dpstf2=>dpstf2, &
       int_dpstrf=>dpstrf, &
+      int_droundup_lwork=>droundup_lwork, &
       int_drscl=>drscl, &
       int_dspev=>dspev, &
       int_dspgst=>dspgst, &
@@ -253,6 +254,7 @@
       int_zgebrd=>zgebrd, &
       int_zgelq2=>zgelq2, &
       int_zgelqf=>zgelqf, &
+      int_zgels=>zgels, &
       int_zgeqr2=>zgeqr2, &
       int_zgeqrf=>zgeqrf, &
       int_zgesvd=>zgesvd, &
@@ -286,6 +288,7 @@
       int_zstedc=>zstedc, &
       int_zstein=>zstein, &
       int_zsteqr=>zsteqr, &
+      int_ztrtrs=>ztrtrs, &
       int_zung2l=>zung2l, &
       int_zung2r=>zung2r, &
       int_zungbr=>zungbr, &

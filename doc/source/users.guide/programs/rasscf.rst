@@ -1649,11 +1649,11 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`ORTH`
-   Specify the orthonormalization scheme to apply on the read orbitals.
-   The possibilities are ``Gram_Schmidt``, ``Lowdin``, ``Canonical``, or ``no_ON``
-   (no_orthonormalization).
-   For a detailed explanation see :cite:`szabo_ostlund` (p. 143).
-   The default is Gram_Schmidt.
+  Specify the orthonormalization scheme to apply on the read orbitals.
+  The possibilities are ``Gram_Schmidt``, ``Lowdin``, ``Canonical``, or ``no_ON``
+  (no_orthonormalization).
+  For a detailed explanation see :cite:`szabo_ostlund` (p. 143).
+  The default is Gram_Schmidt.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORTHON" APPEAR="Orthonormalization" LEVEL="ADVANCED" KIND="CHOICE" LIST="----,Gram_Schmidt,Lowdin,Canonical,no_ON">
               %%Keyword: ORTH <basic>

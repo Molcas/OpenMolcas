@@ -500,3 +500,11 @@ subroutine ztrmv(uplo,trans,diag,n,a,lda,x,incx)
   call lb_ztrmv(uplo,trans,diag,n,a,lda,x,incx)
 end subroutine ztrmv
 
+subroutine ztrsm(side,uplo,transa,diag,m,n,alpha,a,lda,b,ldb)
+  use link_blas
+  implicit none
+  character :: side, uplo, transa, diag
+  integer :: m, n, lda, ldb
+  complex*16 :: alpha, a(lda,*), b(ldb,*)
+  call lb_ztrsm(side,uplo,transa,diag,m,n,alpha,a,lda,b,ldb)
+end subroutine ztrsm

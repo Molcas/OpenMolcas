@@ -96,7 +96,7 @@ if (BOOST_ROOT)
   )
 endif(BOOST_ROOT)
 
-if (LINALG_LIBRARIES)
+if (LINALG STREQUAL "Manual")
   target_files(LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
   list(APPEND LINALG_LIBRARIES_FILES ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES})
   string(REPLACE ";" '\' LINALG_LIBRARIES_FILES "${LINALG_LIBRARIES_FILES}")
@@ -132,7 +132,9 @@ elseif (LINALG STREQUAL "Internal")
 
   list(APPEND QCMaquisCMakeArgs
     "-DBLAS_LAPACK_SELECTOR=manual"
-    "-DMAQUISLapack_LIBRARIES=$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}\ >$<TARGET_FILE:blas>\ $<TARGET_FILE:lapack>\ -l$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}>")
+    "-DMAQUISLapack_LIBRARIES=$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}\ >$<TARGET_FILE:blas>\ $<TARGET_FILE:lapack>\ $<TARGET_FILE:blas>\ -l$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}>")
+else ()
+  message (FATAL_ERROR "LINALG=${LINALG} is not supported by QCMaquis")
 endif ()
 
 

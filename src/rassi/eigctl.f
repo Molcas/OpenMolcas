@@ -491,12 +491,12 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
        End Do
 *
-       IF(IAMZ.GT.0) THEN
-        CALL GETMEM('M2DIA','FREE','REAL',LM2DIA,NSTATE)
-       END IF
-       IF(IAMXYZ.GT.0) THEN
-        CALL GETMEM('L2DIA','FREE','REAL',LL2DIA,NSTATE)
-       END IF
+      END IF
+      IF(IAMZ.GT.0) THEN
+       CALL GETMEM('M2DIA','FREE','REAL',LM2DIA,NSTATE)
+      END IF
+      IF(IAMXYZ.GT.0) THEN
+       CALL GETMEM('L2DIA','FREE','REAL',LL2DIA,NSTATE)
       END IF
 c LU: save esfs array
        CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
@@ -1783,13 +1783,11 @@ C                                                                      C
             If (iPrint.eq.0) Then
          WRITE(6,*)
          Call CollapseOutput(1,
-     &                'Total transition strengths ' //
-     &                'for the second-order expansion of the wave ' //
-     &                'vector (spin-free states):')
+     &                'Second-order contribution to the '//
+     &                'transition strengths (spin-free states):')
          WRITE(6,'(3X,A)')
-     &                '---------------------------'//
-     &                '-------------------------------------------'//
-     &                '--------------------------'
+     &                '---------------------------------'//
+     &                '----------------------------------------'
 !
          IF(OSTHR2.GT.0.0D0) THEN
           WRITE(6,30) 'for osc. strength at least',OSTHR2
@@ -1808,9 +1806,8 @@ C                                                                      C
          If (iPrint.eq.1) Then
          WRITE(6,35)
          Call CollapseOutput(0,
-     &                'Total transition strengths ' //
-     &                'for the second-order expansion of the wave ' //
-     &                'vector (spin-free states):')
+     &                'Second-order contribution to the '//
+     &                'transition strengths (spin-free states):')
          End If
        END IF
 ! release the memory again

@@ -50,14 +50,15 @@ C 2 = spin dependent property, triplet operator
                END IF
                IF (PNAME(IPRNUM).EQ.'MLTPL  0'.AND.
      &             PTYPE(IPRNUM).EQ.'ANTITRIP') THEN
-                   IFSPIN=2
-                   IPRCMP=ISPINCMP
+                  IFSPIN=2
+                  IPRCMP=ISPINCMP
                END IF
                IF (PNAME(IPRNUM).EQ.'MLTPL  1'.AND.
      &             PTYPE(IPRNUM).EQ.'ANTITRIP') THEN
-                   IFSPIN=2
-                   IPRCMP=ISPINCMP
+                  IFSPIN=2
+                  IPRCMP=ISPINCMP
                END IF
+               EXIT
             END IF
          END DO
       END IF

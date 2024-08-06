@@ -71,11 +71,14 @@ C PICK UP THE ORIGIN COORDINATES:
       PORIG(2,IPROP)=BUFF(NSIZ+2)
       PORIG(3,IPROP)=BUFF(NSIZ+3)
 C PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
-      IF (PNAME(IPROP)(1:3).NE.'ASD'.AND.
-     &    PNAME(IPROP)(1:3).NE.'PSO') THEN
-         PNUC(IPROP)=BUFF(NSIZ+4)
-      ELSE
+      IF (PNAME(IPROP)(1:3).EQ.'ASD'.OR.
+     &    PNAME(IPROP)(1:3).EQ.'PSO') THEN
          Write(6,*) "Removing nuclear contrib from ASD and PSO: "
+         PNUC(IPROP)=0.0d0
+      ELSE IF (ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
+         PNUC(IPROP)=0.0d0
+      ELSE
+         PNUC(IPROP)=BUFF(NSIZ+4)
       END IF
       IINT=1
       PSUM=Zero

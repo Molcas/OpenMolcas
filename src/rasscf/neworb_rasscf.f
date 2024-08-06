@@ -288,16 +288,35 @@ C NN.14 Just copy CMO(Old) to CMO(new)
         End If
 C
 C       Move eigenvalues to OCCN
-C  FA:  no longer setting energies to 0 (though in principle ill-def).
 C
         II=0
         NO1=IB+NFO+NIO+ioff
-        NFI_=(NFO+NIO)*(NFO+NIO+1)/2
         DO NT=1,ngssh(igas,isym)
          II=II+NT
          OCCN(NO1+NT)=FTR(II)
-c        FDIAG(NO1+NT)=0.0D0
-         FDIAG(NO1+NT)=FP(II+NFO+NIO+NFI_+ISTFCK)
+         FDIAG(NO1+NT)=0.0D0
+        END DO
+C
+C  FA:  no longer setting energies to 0 (though in principle ill-def).
+C
+C  IFG: Pick the diagonal elements of the transformed Fock matrix
+        NFI_=(NFO+NIO+ioff)*(NFO+NIO+ioff+1)/2
+        NO1=IB+NFO+NIO+ioff
+        DO NT=1,ngssh(igas,isym)
+         NFI_=NFI_+NFO+NIO+ioff
+         DO NU=1,NT
+          IF (NU.EQ.NT) THEN
+           FACT=FP(NU+NFI_+ISTFCK)
+          ELSE
+           FACT=2.0d0*FP(NU+NFI_+ISTFCK)
+          END IF
+          DO II=1,ngssh(igas,isym)
+           FDIAG(NO1+II)=FDIAG(NO1+II)+FACT
+     &                                *VEC(NT+(II-1)*ngssh(igas,isym))
+     &                                *VEC(NU+(II-1)*ngssh(igas,isym))
+          END DO
+         END DO
+         NFI_=NFI_+NT
         END DO
 
        ENDIF  ! end of if(NGAS(1).ne.0)

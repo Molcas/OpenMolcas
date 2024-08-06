@@ -12,4 +12,4 @@
  (file)  FALSEINP "$WorkDir/$Project."False.Input roi
  (file)  INPUT    "$WorkDir/$Project."false.in    rw
  (file)  OUTPUT   "$WorkDir/$Project."false.out   ro
- (file)  GRADS    "$WorkDir/$Project."Grads       rw
+#include "gradfiles.inc"

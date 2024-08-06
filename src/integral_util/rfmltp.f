@@ -13,7 +13,6 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       SubRoutine RFmltp()
-      use rctfld_module, only: MM
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
       Implicit None

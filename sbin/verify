@@ -13,7 +13,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017-2020,2023, Ignacio Fdez. Galván                   *
+#               2017-2020,2023-2024, Ignacio Fdez. Galván              *
 #***********************************************************************
 #
 # verify
@@ -49,6 +49,9 @@
 #
 # Add --jobs option
 # Ignacio Fdez. Galván, November 2023
+#
+# Rearrange for better multiprocessing compatibility
+# Ignacio Fdez. Galván, June 2024
 
 import sys
 import os
@@ -64,8 +67,6 @@ import time
 import argparse
 import shutil
 from collections import OrderedDict
-
-opt = {'quiet': False}
 
 #---------------
 # output control
@@ -329,18 +330,7 @@ def updatetest(inputfile, checkfile):
     return 2
   return 0
 
-# use proper locale
-locale.setlocale(locale.LC_ALL, 'C')
-
-# disable stdout buffering
-# (note that we should use print_stdout instead of print)
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
-
-# my name
-thisfile = os.path.basename(__file__)
-
 # trap interrupt
-shared = {'active_pids': []}
 def killexit(*args):
   # attempt to cancel parallel processes
   try:
@@ -356,6 +346,238 @@ def killexit(*args):
     except:
       pass
   error('\nSTOP: user has terminated {}'.format(thisfile))
+
+# worker function to allow running simultaneous jobs
+def run_test(filename, shared):
+  endloop = False
+  with shared['lock']:
+    # after the loop is interrupted, new tasks will do nothing
+    if shared['endloop']:
+      return
+    group = filegroup[filename]
+    name = os.path.splitext(os.path.basename(filename))[0]
+    project = '{}__{}'.format(group, name)
+    workdir = os.path.join(tmpdir, project)
+    infile = os.path.join(workdir, project + '.input')
+    outfile = os.path.join(tmpdir, project + '.out')
+    errfile = os.path.join(tmpdir, project + '.err')
+    status = os.path.join(tmpdir, project + '.status')
+    shared['index'] += 1
+    pc = int(shared['index'] / n_tests * 100)
+    if group != shared['prev_group'] and group != 'external':
+      print('----------\ngroup {} from: {}'.format(group, location[group]), file=RESULT)
+      shared['prev_group'] = group
+  mark = '4'
+  if group in official:
+    mark = '3'
+  if group in critical:
+    mark = '2'
+    if group in basic:
+      mark = '1'
+  #----------------------------
+  # set up the work environment
+  #----------------------------
+  os.environ['Project'] = project
+  os.environ['WorkDir'] = workdir
+  if group in nolimit:
+    os.environ.pop('MOLCAS_TIMELIM', None)
+  else:
+    os.environ['MOLCAS_TIMELIM'] = os.environ.get('MOLCAS_TIMELIM', '600')
+  if opt['cover']:
+    with shared['lock']:
+      process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--prep'])
+      shared['active_pids'].append(process.pid)
+      process.wait()
+      shared['active_pids'].remove(process.pid)
+  # start repeated cycles (e.g. when tests fail randomly)
+  cycles = opt['cycles']
+  if opt['parallel']:
+    cycles *= 2
+  while cycles > 0:
+    cycles -= 1
+    sttime = time.time()
+    if opt['parallel']:
+      if cycles % 2 == 1:
+        os.environ['MOLCAS_NPROCS'] = 1
+      else:
+        os.environ['MOLCAS_NPROCS'] = opt['parallel']
+    # if the work directory exists, remove it unless existing mode is used
+    if os.path.isdir(workdir):
+      if opt['existing']:
+        # we only need to delete the check counter, leave the rest
+        check_counter = os.path.join(workdir, 'molcas_check_count')
+        os.remove(check_counter)
+      else:
+        shutil.rmtree(workdir)
+    if not os.path.isdir(workdir):
+      os.mkdir(workdir)
+    shutil.copyfile(filename, infile)
+    with shared['lock']:
+      text = 'Running test {}: {}... ({}%)'.format(group, name, pc)
+      if interactive:
+        time.sleep(0.1)
+        msg_overwrite(text, shared['prompt'])
+        shared['prompt'] = text
+      elif opt['status']:
+        if opt['jobs'] > 1:
+          msg(text+'\n')
+        else:
+          msg(text)
+    # run pymolcas and capture the return code.
+    if opt['debug']:
+      process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=sys.stdout, stderr=sys.stderr)
+    else:
+      with open(outfile, 'w+', encoding='utf-8') as fo, open(errfile, 'w+', encoding='utf-8') as fe:
+        process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=fo, stderr=fe)
+    with shared['lock']:
+      shared['active_pids'].append(process.pid)
+    rc = process.wait()
+    with shared['lock']:
+      shared['active_pids'].remove(process.pid)
+    special = False
+    if not opt['debug']:
+      # check for special cases where the return code might be 0
+      # but we should still cause a failure (segfault, garbage)
+      special = special_failure(outfile)
+      if special:
+        rc = 30
+    with shared['lock']:
+      result = ''
+      if rc:
+        cycles = 0
+        if not opt['debug']:
+          shutil.copyfile(outfile, os.path.join(log_failed, project + '.out'))
+          shutil.copyfile(errfile, os.path.join(log_failed, project + '.err'))
+        # skip the test if a program is not available (RC_NOT_AVAILABLE)
+        if rc == 36:
+          result = ' S'
+          # print results
+          print('{}:{}:{} Skipped!'.format(mark, group, name), file=RESULT)
+          text = '{}:{} Skipped!\n'.format(group, name)
+          if interactive:
+            msg_overwrite(text, shared['prompt'])
+            shared['prompt'] = text
+          elif opt['status']:
+            if opt['jobs'] > 1:
+              msg(text)
+            else:
+              msg(' Skipped!\n')
+          # update counters
+          shared['skipped_tests'] += 1
+          # pretend to be fine for the remainder of this test
+          rc = 0
+        else:
+          result = ' F'
+          # gather extra info
+          mod = ''
+          if not opt['debug']:
+            mod = failed_module(outfile)
+          if special:
+            mod = ', '.join([mod, special])
+          # print results
+          print('{}:{}:{} Failed! ({})'.format(mark, group, name, mod), file=RESULT)
+          text = '{}:{} Failed! ({})\n'.format(group, name, mod)
+          if interactive:
+            msg_overwrite(text, shared['prompt'])
+            shared['prompt'] = text
+          elif opt['status']:
+            if opt['jobs'] > 1:
+              msg(text)
+            else:
+              msg(' Failed! ({})\n'.format(mod))
+          # update counters
+          shared['failed_tests'] += 1
+          if group in critical:
+            shared['failed_critical_tests'] += 1
+          # update list of failed input files
+          print(filename, file=FAILED_LIST)
+      else:
+        print('{}:{}:{} OK'.format(mark, group, name), file=RESULT)
+        if interactive:
+          pass
+        elif opt['status']:
+          if opt['jobs'] > 1:
+            msg('{}:{} OK\n'.format(group, name))
+          else:
+            msg(' OK\n')
+        if opt['generate']:
+          rc = updatetest(filename, os.path.join(workdir, 'checkfile'))
+          if rc:
+            print_stdout('rc={}\n'.format(rc))
+      # save timing info
+      if opt['timest']:
+        runtime = time.time() - sttime
+        print('--- {}:{}{}'.format(group, name, result), file=TIMING)
+        print(int(round(runtime)), file=TIMING)
+      elif not opt['debug']:
+        print('--- Run: {}'.format(project), file=TIMING)
+        try:
+          with open(errfile, 'r', encoding='utf-8') as f:
+            for line in f:
+              print(line, end='', file=TIMING)
+        except:
+          error('could not open {}'.format(errfile))
+      if opt['postproc']:
+        os.environ['project'] = project
+        sp.call(opt['postproc'], shell=True)
+    # clean up
+    if not (rc or opt['keep']):
+      if os.path.exists(infile):
+        os.remove(infile)
+      if os.path.exists(outfile):
+        os.remove(outfile)
+      if os.path.exists(errfile):
+        os.remove(errfile)
+      if os.path.exists(status):
+        os.remove(status)
+      shutil.rmtree(workdir)
+    if rc and opt['trap']:
+      endloop = True
+      break
+  with shared['lock']:
+    if endloop:
+        shared['endloop'] = True
+    elif opt['cover']:
+      if interactive:
+        text = 'Capturing coverage data for test {}: {}... ({}%)'.format(group, name, pc)
+        msg_overwrite('', shared['prompt'])
+        shared['prompt'] = text
+      process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--measure', '--name', project])
+      shared['active_pids'].append(process.pid)
+      process.wait()
+      shared['active_pids'].remove(process.pid)
+
+# wrapper for when mp_context didn't exist
+def cfProcessPool(jobs):
+  try:
+    return concurrent.futures.ProcessPoolExecutor(max_workers=jobs, mp_context=multiprocessing.get_context('fork'))
+  except TypeError:
+    return concurrent.futures.ProcessPoolExecutor(max_workers=jobs)
+
+# dummy context manager to replace locks with 1 job (compatible with older Python versions)
+class NullContextManager(object):
+  def __init__(self, dummy_resource=None):
+    self.dummy_resource = dummy_resource
+  def __enter__(self):
+    return self.dummy_resource
+  def __exit__(self, *args):
+    pass
+
+
+opt = {'quiet': False}
+
+# use proper locale
+locale.setlocale(locale.LC_ALL, 'C')
+
+# disable stdout buffering
+# (note that we should use print_stdout instead of print)
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
+
+# my name
+thisfile = os.path.basename(__file__)
+
+shared = {'active_pids': []}
+
 signal.signal(signal.SIGINT, killexit)
 
 starting_cwd = os.getcwd()
@@ -363,8 +585,7 @@ starting_cwd = os.getcwd()
 MOLCAS_DRIVER = os.environ.get('MOLCAS_DRIVER', 'pymolcas')
 DRIVER_base = os.path.basename(MOLCAS_DRIVER)
 
-def short_help():
-  msg('''
+short_help = '''
 {} {} [--keep|-k] [--debug|-d] [--list|-l] [--generate] [task]
 
 where: task is a group name (standard, additional, benchmark,
@@ -372,9 +593,9 @@ grayzone, failed) followed by colon and then a comma-separated
 list of numbers and/or ranges, e.g.: standard:000,005-121,-014
 
 use the long option --help for a complete description!
-'''.format(DRIVER_base, thisfile))
+'''.format(DRIVER_base, thisfile)
 
-epilog='''
+epilog = '''
 task:
   Tests are divided into different groups: e.g.
   standard, additional, benchmark, grayzone, ...
@@ -477,7 +698,7 @@ try:
   parser.add_argument('--word', '-w', help='filter test files containing keyword WORD', metavar='WORD')
   opt = vars(parser.parse_args(sys.argv[1:]))
 except:
-  short_help()
+  msg(short_help)
   sys.exit(1)
 
 # do we need help?
@@ -485,7 +706,7 @@ if opt['help']:
   print_stdout(parser.format_help())
   sys.exit(0)
 if opt['h']:
-  short_help()
+  msg(short_help)
   sys.exit(0)
 
 tasklist = []
@@ -788,60 +1009,7 @@ if not (filelist or none):
   msg('no tests requested, bye!\n')
   sys.exit(0)
 
-#--------------------------
-# set up the infrastructure
-#--------------------------
-
-if MOLCAS_ID is None:
-  error('Could not find [Open]Molcas version')
-
-# the base directory for running tests
-if not os.path.isdir(testdir):
-  try:
-    os.mkdir(testdir)
-  except:
-    error('could not create {}'.format(testdir))
-if not os.access(testdir, os.W_OK | os.X_OK):
-  error('cannot write to {}'.format(testdir))
-if os.path.isdir(tmpdir):
-  shutil.rmtree(tmpdir)
-if opt['clean'] and os.path.isdir(logroot):
-  shutil.rmtree(logroot)
-if not os.path.isdir(tmpdir):
-  os.mkdir(tmpdir)
-if not os.path.isdir(logroot):
-  os.mkdir(logroot)
-# remove log directories not ending in .bak and older than a day
-try:
-  subdir_names = os.listdir(logroot)
-except:
-  error('cannot open directory {}'.format(logroot))
-for subdir_name in subdir_names:
-  if subdir_name.endswith('.bak'):
-    continue
-  subdir = os.path.join(logroot, subdir_name)
-  if not os.path.isdir(subdir):
-    continue
-  age = date - datetime.datetime.fromtimestamp(os.path.getmtime(subdir))
-  if age.days > 1:
-    shutil.rmtree(subdir)
-# finally, create the new log directory we are about to use
-if os.path.isdir(logdir):
-  error('existing log: {}'.format(logdir))
-else:
-  os.mkdir(logdir)
-
-try:
-  os.chdir(tmpdir)
-except:
-  error('could not switch to {}'.format(tmpdir))
-
-# Re-generate the version information from the build that will
-# actually be used to run the tests
-MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode().strip()
-if opt['generate']:
-  if 'dirty' in MOLCAS_ID:
-    error('''\
+dirty_error = '''\
 ************************************************************
 Dirty [Open]Molcas installation, cannot generate check files
 ************************************************************
@@ -849,359 +1017,25 @@ Dirty [Open]Molcas installation, cannot generate check files
 to a clean source tree (does not match a git commit).
 For reproducibility's sake generation of check files
 is disabled.
-  Please stash your changes and recompile.''')
-  else:
-    os.environ['MOLCAS_INFO'] = '{}!{}!{}!'.format(MOLCAS_ID, MACHINE, DATE)
+  Please stash your changes and recompile.'''
 
-log_result = os.path.join(logdir, 'result')
-log_timing = os.path.join(logdir, 'result.timing')
-log_failed = os.path.join(logdir, 'failed')
-log_failed_list = os.path.join(log_failed, 'list')
-
-try:
-  os.mkdir(log_failed)
-except:
-  error('could not create {}'.format(log_failed))
-
-# set up links to the actual result files
-if os.path.islink(result):
-  os.remove(result)
-if os.path.islink(timing):
-  os.remove(timing)
-if os.path.islink(failed):
-  os.remove(failed)
-os.symlink(os.path.relpath(log_result, testdir), result)
-os.symlink(os.path.relpath(log_timing, testdir), timing)
-os.symlink(os.path.relpath(log_failed, testdir), failed)
-
-# open the information files
-try:
-  RESULT = open(log_result, 'w+', encoding='utf-8', buffering=1)
-except:
-  error('cannot open file {}'.format(log_result))
-try:
-  TIMING = open(log_timing, 'w+', encoding='utf-8', buffering=1)
-except:
-  error('cannot open file {}'.format(log_timing))
-try:
-  FAILED_LIST = open(log_failed_list, 'w+', encoding='utf-8', buffering=1)
-except:
-  error('cannot open file {}'.format(log_failed_list))
-
-# start by printing headers
-print(header, file=RESULT)
-if opt['timest']:
-  print('''\
+autogen = '''\
 # Automatically-generated file. Do not modify!
 #
 # To generate this file run {} {} {}
 #
 # Note that what matters is relative timings, so do not
 # mix runs with different settings or environments.
-'''.format(DRIVER_base, thisfile, ' '.join(sys.argv[1:])), file=TIMING)
-else:
-  print(header, file=TIMING)
+'''
 
-print('''\
+typelist = '''\
 1: Basic tests that must pass
 2: Additional tests that must pass
 3: Other tests that may fail, but should be fixed
 4: Personal development tests that may fail or not
-''', file=RESULT)
+'''
 
-#-------------------------------------
-# loop over tests and run verification
-#-------------------------------------
-
-# worker function to allow running simultaneous jobs
-def run_test(filename, shared):
-  endloop = False
-  with shared['lock']:
-    # after the loop is interrupted, new tasks will do nothing
-    if shared['endloop']:
-      return
-    group = filegroup[filename]
-    name = os.path.splitext(os.path.basename(filename))[0]
-    project = '{}__{}'.format(group, name)
-    workdir = os.path.join(tmpdir, project)
-    infile = os.path.join(workdir, project + '.input')
-    outfile = os.path.join(tmpdir, project + '.out')
-    errfile = os.path.join(tmpdir, project + '.err')
-    status = os.path.join(tmpdir, project + '.status')
-    shared['index'] += 1
-    pc = int(shared['index'] / n_tests * 100)
-    if group != shared['prev_group'] and group != 'external':
-      print('----------\ngroup {} from: {}'.format(group, location[group]), file=RESULT)
-      shared['prev_group'] = group
-  mark = '4'
-  if group in official:
-    mark = '3'
-  if group in critical:
-    mark = '2'
-    if group in basic:
-      mark = '1'
-  #----------------------------
-  # set up the work environment
-  #----------------------------
-  os.environ['Project'] = project
-  os.environ['WorkDir'] = workdir
-  if group in nolimit:
-    os.environ.pop('MOLCAS_TIMELIM', None)
-  else:
-    os.environ['MOLCAS_TIMELIM'] = os.environ.get('MOLCAS_TIMELIM', '600')
-  if opt['cover']:
-    with shared['lock']:
-      process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--prep'])
-      shared['active_pids'].append(process.pid)
-      process.wait()
-      shared['active_pids'].remove(process.pid)
-  # start repeated cycles (e.g. when tests fail randomly)
-  cycles = opt['cycles']
-  if opt['parallel']:
-    cycles *= 2
-  while cycles > 0:
-    cycles -= 1
-    sttime = time.time()
-    if opt['parallel']:
-      if cycles % 2 == 1:
-        os.environ['MOLCAS_NPROCS'] = 1
-      else:
-        os.environ['MOLCAS_NPROCS'] = opt['parallel']
-    # if the work directory exists, remove it unless existing mode is used
-    if os.path.isdir(workdir):
-      if opt['existing']:
-        # we only need to delete the check counter, leave the rest
-        check_counter = os.path.join(workdir, 'molcas_check_count')
-        os.remove(check_counter)
-      else:
-        shutil.rmtree(workdir)
-    if not os.path.isdir(workdir):
-      os.mkdir(workdir)
-    shutil.copyfile(filename, infile)
-    with shared['lock']:
-      text = 'Running test {}: {}... ({}%)'.format(group, name, pc)
-      if interactive:
-        time.sleep(0.1)
-        msg_overwrite(text, shared['prompt'])
-        shared['prompt'] = text
-      elif opt['status']:
-        if opt['jobs'] > 1:
-          msg(text+'\n')
-        else:
-          msg(text)
-    # run pymolcas and capture the return code.
-    if opt['debug']:
-      process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=sys.stdout, stderr=sys.stderr)
-    else:
-      with open(outfile, 'w+', encoding='utf-8') as fo, open(errfile, 'w+', encoding='utf-8') as fe:
-        process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=fo, stderr=fe)
-    with shared['lock']:
-      shared['active_pids'].append(process.pid)
-    rc = process.wait()
-    with shared['lock']:
-      shared['active_pids'].remove(process.pid)
-    special = False
-    if not opt['debug']:
-      # check for special cases where the return code might be 0
-      # but we should still cause a failure (segfault, garbage)
-      special = special_failure(outfile)
-      if special:
-        rc = 30
-    with shared['lock']:
-      result = ''
-      if rc:
-        cycles = 0
-        if not opt['debug']:
-          shutil.copyfile(outfile, os.path.join(log_failed, project + '.out'))
-          shutil.copyfile(errfile, os.path.join(log_failed, project + '.err'))
-        # skip the test if a program is not available (RC_NOT_AVAILABLE)
-        if rc == 36:
-          result = ' S'
-          # print results
-          print('{}:{}:{} Skipped!'.format(mark, group, name), file=RESULT)
-          text = '{}:{} Skipped!\n'.format(group, name)
-          if interactive:
-            msg_overwrite(text, shared['prompt'])
-            shared['prompt'] = text
-          elif opt['status']:
-            if opt['jobs'] > 1:
-              msg(text)
-            else:
-              msg(' Skipped!\n')
-          # update counters
-          shared['skipped_tests'] += 1
-          # pretend to be fine for the remainder of this test
-          rc = 0
-        else:
-          result = ' F'
-          # gather extra info
-          mod = ''
-          if not opt['debug']:
-            mod = failed_module(outfile)
-          if special:
-            mod = ', '.join([mod, special])
-          # print results
-          print('{}:{}:{} Failed! ({})'.format(mark, group, name, mod), file=RESULT)
-          text = '{}:{} Failed! ({})\n'.format(group, name, mod)
-          if interactive:
-            msg_overwrite(text, shared['prompt'])
-            shared['prompt'] = text
-          elif opt['status']:
-            if opt['jobs'] > 1:
-              msg(text)
-            else:
-              msg(' Failed! ({})\n'.format(mod))
-          # update counters
-          shared['failed_tests'] += 1
-          if group in critical:
-            shared['failed_critical_tests'] += 1
-          # update list of failed input files
-          print(filename, file=FAILED_LIST)
-      else:
-        print('{}:{}:{} OK'.format(mark, group, name), file=RESULT)
-        if interactive:
-          pass
-        elif opt['status']:
-          if opt['jobs'] > 1:
-            msg('{}:{} OK\n'.format(group, name))
-          else:
-            msg(' OK\n')
-        if opt['generate']:
-          rc = updatetest(filename, os.path.join(workdir, 'checkfile'))
-          if rc:
-            print_stdout('rc={}\n'.format(rc))
-      # save timing info
-      if opt['timest']:
-        runtime = time.time() - sttime
-        print('--- {}:{}{}'.format(group, name, result), file=TIMING)
-        print(int(round(runtime)), file=TIMING)
-      elif not opt['debug']:
-        print('--- Run: {}'.format(project), file=TIMING)
-        try:
-          with open(errfile, 'r', encoding='utf-8') as f:
-            for line in f:
-              print(line, end='', file=TIMING)
-        except:
-          error('could not open {}'.format(errfile))
-      if opt['postproc']:
-        os.environ['project'] = project
-        sp.call(opt['postproc'], shell=True)
-    # clean up
-    if not (rc or opt['keep']):
-      if os.path.exists(infile):
-        os.remove(infile)
-      if os.path.exists(outfile):
-        os.remove(outfile)
-      if os.path.exists(errfile):
-        os.remove(errfile)
-      if os.path.exists(status):
-        os.remove(status)
-      shutil.rmtree(workdir)
-    if rc and opt['trap']:
-      endloop = True
-      break
-  with shared['lock']:
-    if endloop:
-        shared['endloop'] = True
-    elif opt['cover']:
-      if interactive:
-        text = 'Capturing coverage data for test {}: {}... ({}%)'.format(group, name, pc)
-        msg_overwrite('', shared['prompt'])
-        shared['prompt'] = text
-      process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--measure', '--name', project])
-      shared['active_pids'].append(process.pid)
-      process.wait()
-      shared['active_pids'].remove(process.pid)
-
-# dummy context manager to replace locks with 1 job (compatible with older Python versions)
-class NullContextManager(object):
-  def __init__(self, dummy_resource=None):
-    self.dummy_resource = dummy_resource
-  def __enter__(self):
-    return self.dummy_resource
-  def __exit__(self, *args):
-    pass
-
-# get automatic number of jobs
-if opt['jobs'] < 1:
-  try:
-    n_cpu = len(os.sched_getaffinity(0))
-    n_procs = int(os.environ.get('MOLCAS_NPROCS','1'))
-    n_threads = int(os.environ.get('MOLCAS_THREADS','1'))
-    opt['jobs'] = max(1, n_cpu//(n_procs*n_threads))
-  except:
-    opt['jobs'] = 1
-
-n_tests = len(filelist)
-
-if opt['cover']:
-  msg('WARNING: you are running tests with code coverage,\n'
-      '         this can add up to 1 min of time per test\n')
-  msg('running code coverage startup... ')
-  process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--start'])
-  shared['active_pids'].append(process.pid)
-  process.wait()
-  shared['active_pids'].remove(process.pid)
-  msg('done\n')
-
-with multiprocessing.Manager() as manager:
-  # set up shared data for the simultaneous jobs
-  if opt['jobs'] > 1:
-    shared = manager.dict()
-    shared['lock'] = manager.Lock()
-    shared['active_pids'] = manager.list()
-  else:
-    shared = {}
-    shared['lock'] = NullContextManager()
-    shared['active_pids'] = []
-  shared['index'] = 0
-  shared['prompt'] = ''
-  shared['prev_group'] = '.none'
-  shared['skipped_tests'] = 0
-  shared['failed_tests'] = 0
-  shared['failed_critical_tests'] = 0
-  shared['endloop'] = False
-  if opt['jobs'] > 1:
-    msg_nl(['Running {} simultaneous jobs, output may appear in wrong order'.format(opt['jobs'])])
-    with concurrent.futures.ProcessPoolExecutor(max_workers=opt['jobs']) as pool:
-      tasks = [pool.submit(run_test, filename, shared) for filename in filelist]
-      for task in concurrent.futures.as_completed(tasks):
-        # this doesn't work as intended, though
-        if shared['endloop']:
-          pool.shutdown(wait=True, cancel_futures=True)
-          break
-  else:
-    for filename in filelist:
-      run_test(filename, shared)
-      if shared['endloop']:
-        break
-  if interactive:
-    msg_overwrite('', shared['prompt'])
-  if shared['prev_group'] != '.none':
-    print('----------', file=RESULT)
-  print('\n*Failed critical tests* {}'.format(shared['failed_critical_tests']), file=RESULT)
-  # fetch necessary info before the manager is destroyed
-  active_pids = shared['active_pids'][:]
-  skipped_tests = shared['skipped_tests']
-  failed_tests = shared['failed_tests']
-  failed_critical_tests = shared['failed_critical_tests']
-shared = {'active_pids': active_pids}
-
-if opt['cover']:
-  process = sp.Popen([MOLCAS_DRIVER, 'codecov', '--html'])
-  shared['active_pids'].append(process.pid)
-  process.wait()
-  shared['active_pids'].remove(process.pid)
-
-RESULT.close()
-TIMING.close()
-FAILED_LIST.close()
-
-if failed_tests:
-  # report directory with failed out/err relative to directory where verify was run
-  log_rel = os.path.relpath(failed, starting_cwd)
-  tmp_rel = os.path.relpath(tmpdir, starting_cwd)
-  info = '''\
+summary = '''\
 ************************************************************************
 A total of {} test(s) failed, with {} critical failure(s).
 ************************************************************************
@@ -1211,11 +1045,200 @@ for the .out/.err files of the failed tests,
 and check the submit directory:
   {}
 for the working directories of the last run.
-'''.format(failed_tests, failed_critical_tests, log_rel, tmp_rel)
-  if failed_critical_tests:
-    error(info)
+'''
+
+if __name__ == '__main__':
+
+  #--------------------------
+  # set up the infrastructure
+  #--------------------------
+
+  if MOLCAS_ID is None:
+    error('Could not find [Open]Molcas version')
+
+  # the base directory for running tests
+  if not os.path.isdir(testdir):
+    try:
+      os.mkdir(testdir)
+    except:
+      error('could not create {}'.format(testdir))
+  if not os.access(testdir, os.W_OK | os.X_OK):
+    error('cannot write to {}'.format(testdir))
+  if os.path.isdir(tmpdir):
+    shutil.rmtree(tmpdir)
+  if opt['clean'] and os.path.isdir(logroot):
+    shutil.rmtree(logroot)
+  if not os.path.isdir(tmpdir):
+    os.mkdir(tmpdir)
+  if not os.path.isdir(logroot):
+    os.mkdir(logroot)
+  # remove log directories not ending in .bak and older than a day
+  try:
+    subdir_names = os.listdir(logroot)
+  except:
+    error('cannot open directory {}'.format(logroot))
+  for subdir_name in subdir_names:
+    if subdir_name.endswith('.bak'):
+      continue
+    subdir = os.path.join(logroot, subdir_name)
+    if not os.path.isdir(subdir):
+      continue
+    age = date - datetime.datetime.fromtimestamp(os.path.getmtime(subdir))
+    if age.days > 1:
+      shutil.rmtree(subdir)
+  # finally, create the new log directory we are about to use
+  if os.path.isdir(logdir):
+    error('existing log: {}'.format(logdir))
   else:
-    msg(info)
+    os.mkdir(logdir)
+  
+  try:
+    os.chdir(tmpdir)
+  except:
+    error('could not switch to {}'.format(tmpdir))
+
+  # Re-generate the version information from the build that will
+  # actually be used to run the tests
+  MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode().strip()
+  if opt['generate']:
+    if 'dirty' in MOLCAS_ID:
+      error(dirty_error)
+    else:
+      os.environ['MOLCAS_INFO'] = '{}!{}!{}!'.format(MOLCAS_ID, MACHINE, DATE)
+
+  log_result = os.path.join(logdir, 'result')
+  log_timing = os.path.join(logdir, 'result.timing')
+  log_failed = os.path.join(logdir, 'failed')
+  log_failed_list = os.path.join(log_failed, 'list')
+
+  try:
+    os.mkdir(log_failed)
+  except:
+    error('could not create {}'.format(log_failed))
+
+  # set up links to the actual result files
+  if os.path.islink(result):
+    os.remove(result)
+  if os.path.islink(timing):
+    os.remove(timing)
+  if os.path.islink(failed):
+    os.remove(failed)
+  os.symlink(os.path.relpath(log_result, testdir), result)
+  os.symlink(os.path.relpath(log_timing, testdir), timing)
+  os.symlink(os.path.relpath(log_failed, testdir), failed)
+
+  # open the information files
+  try:
+    RESULT = open(log_result, 'w+', encoding='utf-8', buffering=1)
+  except:
+    error('cannot open file {}'.format(log_result))
+  try:
+    TIMING = open(log_timing, 'w+', encoding='utf-8', buffering=1)
+  except:
+    error('cannot open file {}'.format(log_timing))
+  try:
+    FAILED_LIST = open(log_failed_list, 'w+', encoding='utf-8', buffering=1)
+  except:
+    error('cannot open file {}'.format(log_failed_list))
+
+  # start by printing headers
+  print(header, file=RESULT)
+  if opt['timest']:
+    print(autogen.format(DRIVER_base, thisfile, ' '.join(sys.argv[1:])), file=TIMING)
+  else:
+    print(header, file=TIMING)
+
+  print(typelist, file=RESULT)
+
+  #-------------------------------------
+  # loop over tests and run verification
+  #-------------------------------------
+
+  # get automatic number of jobs
+  if opt['jobs'] < 1:
+    try:
+      n_cpu = len(os.sched_getaffinity(0))
+      n_procs = int(os.environ.get('MOLCAS_NPROCS','1'))
+      n_threads = int(os.environ.get('MOLCAS_THREADS','1'))
+      opt['jobs'] = max(1, n_cpu//(n_procs*n_threads))
+    except:
+      opt['jobs'] = 1
+
+  n_tests = len(filelist)
+
+  if opt['cover']:
+    msg('WARNING: you are running tests with code coverage,\n'
+        '         this can add up to 1 min of time per test\n')
+    msg('running code coverage startup... ')
+    process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--start'])
+    shared['active_pids'].append(process.pid)
+    process.wait()
+    shared['active_pids'].remove(process.pid)
+    msg('done\n')
+
+  with multiprocessing.Manager() as manager:
+    # set up shared data for the simultaneous jobs
+    if opt['jobs'] > 1:
+      shared = manager.dict()
+      shared['lock'] = manager.Lock()
+      shared['active_pids'] = manager.list()
+    else:
+      shared = {}
+      shared['lock'] = NullContextManager()
+      shared['active_pids'] = []
+    shared['index'] = 0
+    shared['prompt'] = ''
+    shared['prev_group'] = '.none'
+    shared['skipped_tests'] = 0
+    shared['failed_tests'] = 0
+    shared['failed_critical_tests'] = 0
+    shared['endloop'] = False
+    if opt['jobs'] > 1:
+      msg_nl(['Running {} simultaneous jobs, output may appear in wrong order'.format(opt['jobs'])])
+      with cfProcessPool(opt['jobs']) as pool:
+        tasks = [pool.submit(run_test, filename, shared) for filename in filelist]
+        for task in concurrent.futures.as_completed(tasks):
+          # this doesn't work as intended, though
+          if shared['endloop']:
+            pool.shutdown(wait=True, cancel_futures=True)
+            break
+    else:
+      for filename in filelist:
+        run_test(filename, shared)
+        if shared['endloop']:
+          break
+    if interactive:
+      msg_overwrite('', shared['prompt'])
+    if shared['prev_group'] != '.none':
+      print('----------', file=RESULT)
+    print('\n*Failed critical tests* {}'.format(shared['failed_critical_tests']), file=RESULT)
+    # fetch necessary info before the manager is destroyed
+    active_pids = shared['active_pids'][:]
+    skipped_tests = shared['skipped_tests']
+    failed_tests = shared['failed_tests']
+    failed_critical_tests = shared['failed_critical_tests']
+
+  shared = {'active_pids': active_pids}
+
+  if opt['cover']:
+    process = sp.Popen([MOLCAS_DRIVER, 'codecov', '--html'])
+    shared['active_pids'].append(process.pid)
+    process.wait()
+    shared['active_pids'].remove(process.pid)
+
+  RESULT.close()
+  TIMING.close()
+  FAILED_LIST.close()
+
+  if failed_tests:
+    # report directory with failed out/err relative to directory where verify was run
+    log_rel = os.path.relpath(failed, starting_cwd)
+    tmp_rel = os.path.relpath(tmpdir, starting_cwd)
+    info = summary.format(failed_tests, failed_critical_tests, log_rel, tmp_rel)
+    if failed_critical_tests:
+      error(info)
+    else:
+      msg(info)
 
 if opt['generate']:
   msg('Generation of check files has been completed\n')
