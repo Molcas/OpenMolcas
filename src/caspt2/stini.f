@@ -14,6 +14,10 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_set_state
+      use iso_c_binding, only: c_int
+#endif
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"
@@ -45,6 +49,16 @@ C     indices
       END DO
       IADR10(1,1)=0
 
+#ifdef _DMRG_
+      if (DMRG) then
+      ! set state number here because in poly1 we have no reference
+      ! to which state we are computing
+        write (6,*) 'stini> Setting DMRG state number ',mstate(jstate)-1
+      ! TODO: still it needs to convert to the root number despite having
+      ! set only the checkpoint file paths for the desired state(s)
+        call qcmaquis_interface_set_state(int(mstate(jstate)-1,c_int))
+      end if
+#endif
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' STINI calling POLY3...'
       END IF

@@ -136,12 +136,12 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         CALL SPECIAL( G1,G2,G3,F1,F2,F3,idxG3)
       ELSE IF (ISCF.EQ.0) THEN
 C-SVC20100903: during mkfg3, NG3 is set to the actual value
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-        IF (.NOT. DoCumulant) THEN
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
+        IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN
 #endif
           If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
           CALL MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         ELSE
           CALL MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
         END IF

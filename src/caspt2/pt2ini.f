@@ -21,6 +21,9 @@
       use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit,NISplit,
      &                     NumCho_PT2
       use spool, only: SpoolInp, Close_LuSpool
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg, only: qcmaquis_param
+#endif
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"
@@ -83,6 +86,14 @@ C     Cholesky
 * (that might rely on these to be correctly set!)
       Call wfnsizes()
 
+#ifdef _DMRG_
+      if (DMRG) then
+        ! set the lattice length (i.e. the active space size)
+        write(6,*) 'PT2INI> nasht = ',nasht
+        qcmaquis_param%L = nasht
+        write(6,*) 'PT2INI> qcmaquis_param%L = ',qcmaquis_param%L
+      end if
+#endif
 * Create the PT2 wavefunction file (formerly JOBMIX). The reference file
 * should not be active, as it might be the same file (in which case it
 * is overwritten).
@@ -158,6 +169,12 @@ C Initialize sizes, offsets etc used in equation solver.
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, TORB, IDSCT
       use stdalloc, only: mma_deallocate
+#ifdef _DMRG_
+      use stdalloc, only: mma_deallocate
+      use qcmaquis_interface, only:qcmaquis_interface_deinit
+      use qcmaquis_interface_cfg, only:dmrg_file
+      use qcmaquis_info, only: qcmaquis_info_deinit
+#endif
 * NOT TESTED
 #if 0
       use OFembed, only: FMaux
@@ -195,6 +212,16 @@ C     size of idsct array
 
 * Deallocate SGUGA tables:
       CALL mkGUGA_Free(SGS,CIS,EXS)
+
+! dealloacte DMRG stuff
+#ifdef _DMRG_
+      if (DMRG) then
+        call mma_deallocate(dmrg_file%qcmaquis_checkpoint_file)
+        call qcmaquis_info_deinit()
+        call qcmaquis_interface_deinit()
+      end if
+#endif
+
 
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE()
