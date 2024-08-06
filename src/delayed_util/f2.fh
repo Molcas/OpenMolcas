@@ -63,10 +63,10 @@
   procedure(int_zswap), pointer :: lb_zswap
   procedure(int_ztrmm), pointer :: lb_ztrmm
   procedure(int_ztrmv), pointer :: lb_ztrmv
+  procedure(int_ztrsm), pointer :: lb_ztrsm
 ! LAPACK procedures
   procedure(int_dbdsdc), pointer :: lb_dbdsdc
   procedure(int_dbdsqr), pointer :: lb_dbdsqr
-  procedure(int_dcombssq), pointer :: lb_dcombssq
   procedure(int_dgebak), pointer :: lb_dgebak
   procedure(int_dgebal), pointer :: lb_dgebal
   procedure(int_dgebd2), pointer :: lb_dgebd2
@@ -210,6 +210,7 @@
   procedure(int_dpptrf), pointer :: lb_dpptrf
   procedure(int_dpstf2), pointer :: lb_dpstf2
   procedure(int_dpstrf), pointer :: lb_dpstrf
+  procedure(int_droundup_lwork), pointer :: lb_droundup_lwork
   procedure(int_drscl), pointer :: lb_drscl
   procedure(int_dspev), pointer :: lb_dspev
   procedure(int_dspgst), pointer :: lb_dspgst
@@ -253,6 +254,7 @@
   procedure(int_zgebrd), pointer :: lb_zgebrd
   procedure(int_zgelq2), pointer :: lb_zgelq2
   procedure(int_zgelqf), pointer :: lb_zgelqf
+  procedure(int_zgels), pointer :: lb_zgels
   procedure(int_zgeqr2), pointer :: lb_zgeqr2
   procedure(int_zgeqrf), pointer :: lb_zgeqrf
   procedure(int_zgesvd), pointer :: lb_zgesvd
@@ -286,6 +288,7 @@
   procedure(int_zstedc), pointer :: lb_zstedc
   procedure(int_zstein), pointer :: lb_zstein
   procedure(int_zsteqr), pointer :: lb_zsteqr
+  procedure(int_ztrtrs), pointer :: lb_ztrtrs
   procedure(int_zung2l), pointer :: lb_zung2l
   procedure(int_zung2r), pointer :: lb_zung2r
   procedure(int_zungbr), pointer :: lb_zungbr

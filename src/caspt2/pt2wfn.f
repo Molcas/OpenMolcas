@@ -33,6 +33,7 @@
      &               mh5_create_dset_str, mh5_create_dset_real,
      &               mh5_put_dset, mh5_close_dset
       use gugx, only: L2ACT, LEVEL
+      use caspt2_gradient, only: do_grad
 #endif
       implicit none
 #include "rasdim.fh"
@@ -162,7 +163,7 @@
         End If
 
 *     density matrices
-        If (IFPROP) Then
+        If (IFPROP.or.do_grad) Then
           ndmat=0
           Do i=1,NSYM
             ndmat=ndmat+(NORB(i)**2+NORB(i))/2

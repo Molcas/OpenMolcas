@@ -73,6 +73,7 @@
 #include "zswap.f"
 #include "ztrmm.f"
 #include "ztrmv.f"
+#include "ztrsm.f"
 #endif
 
 #define _BLAS_FH_

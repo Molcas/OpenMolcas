@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2021,2023, Ignacio Fdez. Galván                   *
+# Copyright (C) 2015-2021,2023-2024, Ignacio Fdez. Galván              *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -97,7 +97,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.28'
+  version = 'py2.29'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -389,7 +389,7 @@ class Molcas_wrapper(object):
     try:
       with utf8_open(join(self.molcas, '.molcasversion'), 'r') as version_file:
         for line in version_file:
-          if (search('\.x\d', line)):
+          if (search(r'\.x\d', line)):
             tag_x = line.rstrip()
           else:
             tag = line.rstrip()
@@ -398,7 +398,7 @@ class Molcas_wrapper(object):
         try:
           command = ["git", "describe", "--always", "--match", "v*", "--dirty"]
           line = check_output(command, stderr=STDOUT).decode('utf-8')
-          if (search('\.x\d', line)):
+          if (search(r'\.x\d', line)):
             tag_x = line.rstrip()
           else:
             tag = line.rstrip()
@@ -409,7 +409,7 @@ class Molcas_wrapper(object):
     if ((tag_x != '') and (tag == '(unknown)')):
       tag = tag_x
       tag_x = ''
-    v_match = re_compile('v(\d+\.\d+)[\.-](.*)')
+    v_match = re_compile(r'v(\d+\.\d+)[\.-](.*)')
     match = v_match.match(tag)
     if (match):
       version = match.group(1)
@@ -704,7 +704,7 @@ class Molcas_wrapper(object):
       self.delete_scratch(remove_it=self._created_scratch)
 
   def _final_rc(self, rc):
-    rc_form = re_compile('rc={0}\s(.*)'.format(rc))
+    rc_form = re_compile(r'rc={0}\s(.*)'.format(rc))
     text = []
     try:
       with utf8_open(join(self.molcas, 'data', 'landing.txt'), 'r') as l:

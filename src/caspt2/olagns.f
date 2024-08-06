@@ -95,6 +95,7 @@ C
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)
 C
+      INTEGER   nAshA,nAshB,nSshA,nSshB
       LOGICAL   PM
       DIMENSION IOFF1(8),IOFF2(8)
       !! just to avoid the unused ... of ERI2

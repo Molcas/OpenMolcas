@@ -32,13 +32,13 @@ implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYDWN, ISYM, ISYTOT, ISYUP, ISYUS1, ITSYM, &
-                     IVLB, IVLT, LEV, LFTSYM, MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, &
-                     NT3TMP, NT4TMP, NT5TMP, NUPS1, NUW, NWALK
+integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
+                     MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
+                     NUPS1, NUW
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp), parameter :: LTAB = 1
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IS, IST, NCP, NLW
+integer(kind=iwp) :: IS, IST, NCP
 #endif
 
 if (.not. allocated(CIS%NOW)) call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
@@ -170,21 +170,6 @@ do MV=1,CIS%nMidV
   end do
 end do
 
-NUW = 0
-do MV=1,CIS%nMidV
-  do ISYM=1,SGS%nSym
-    CIS%IOW(1,ISYM,MV) = NUW*CIS%nIpWlk
-    NUW = NUW+CIS%NOW(1,ISYM,MV)
-  end do
-end do
-NWALK = NUW
-do MV=1,CIS%nMidV
-  do ISYM=1,SGS%nSym
-    CIS%IOW(2,ISYM,MV) = NWALK*CIS%nIpWlk
-    NWALK = NWALK+CIS%NOW(2,ISYM,MV)
-  end do
-end do
-
 EXS%nICOup = 0
 do INDEO=1,EXS%MxEO
   do MV=1,CIS%nMidV
@@ -195,18 +180,7 @@ do INDEO=1,EXS%MxEO
   end do
 end do
 
-do ISYTOT=1,SGS%nSym
-  CIS%NCSF(ISYTOT) = 0
-  do MV=1,CIS%nMidV
-    do ISYUP=1,SGS%nSym
-      ISYDWN = Mul(ISYTOT,ISYUP)
-      N = CIS%NOW(1,ISYUP,MV)*CIS%NOW(2,ISYDWN,MV)
-      CIS%NOCSF(ISYUP,MV,ISYTOT) = N
-      CIS%IOCSF(ISYUP,MV,ISYTOT) = CIS%NCSF(ISYTOT)
-      CIS%NCSF(ISYTOT) = CIS%NCSF(ISYTOT)+N
-    end do
-  end do
-end do
+call CSFCOUNT(CIS,SGS%nSym,NUW)
 
 !AR INSERT FOR US IN SIGMA ROUTINE
 
@@ -264,8 +238,8 @@ write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP
 !AR END OF INSERT
 write(u6,*)
 write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
-write(u6,*) '                    LOWER ',NLW
-write(u6,*) '                     SUM  ',NWALK
+write(u6,*) '                    LOWER ',CIS%nWalk-NUW
+write(u6,*) '                     SUM  ',CIS%nWalk
 write(u6,*) ' TOTAL NR OF COUPL COEFFS ',EXS%nICOup
 INDEO = 2*SGS%nLev+1
 write(u6,*) '         OF TYPE 1&2 ONLY:',EXS%IOCP(INDEO,1,1)
@@ -333,8 +307,5 @@ end do
 #endif
 
 call mma_deallocate(NRL)
-
-! Put sizes in structures CIS, EXSs:
-CIS%nWalk = nWalk
 
 end subroutine NRCOUP

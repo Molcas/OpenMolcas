@@ -273,6 +273,11 @@
         call c_f_procpointer(funptr, lb_ztrmv)
       end if
 !
+      funptr=link_func('ztrsm')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_ztrsm)
+      end if
+!
 !     LAPACK procedures
 !
       funptr=link_func('dbdsdc')
@@ -283,11 +288,6 @@
       funptr=link_func('dbdsqr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dbdsqr)
-      end if
-!
-      funptr=link_func('dcombssq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dcombssq)
       end if
 !
       funptr=link_func('dgebak')
@@ -1005,6 +1005,11 @@
         call c_f_procpointer(funptr, lb_dpstrf)
       end if
 !
+      funptr=link_func('droundup_lwork')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_droundup_lwork)
+      end if
+!
       funptr=link_func('drscl')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_drscl)
@@ -1220,6 +1225,11 @@
         call c_f_procpointer(funptr, lb_zgelqf)
       end if
 !
+      funptr=link_func('zgels')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgels)
+      end if
+!
       funptr=link_func('zgeqr2')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zgeqr2)
@@ -1383,6 +1393,11 @@
       funptr=link_func('zsteqr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zsteqr)
+      end if
+!
+      funptr=link_func('ztrtrs')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_ztrtrs)
       end if
 !
       funptr=link_func('zung2l')

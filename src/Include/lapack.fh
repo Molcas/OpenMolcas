@@ -16,6 +16,7 @@
 
 ! dgesdd, dsyevd, dlamc3 are used by libwfa
 ! dpstrf, dpstf2 are used by GA to detect LAPACK
+! zgels is used by qcmaquis
 
 #ifndef _LAPACK_FH_
 
@@ -27,7 +28,6 @@
 #else
 #include "dbdsdc.f"
 #include "dbdsqr.f"
-#include "dcombssq.f"
 #include "dgebak.f"
 #include "dgebal.f"
 #include "dgebd2.f"
@@ -168,6 +168,7 @@
 #include "dpptrf.f"
 #include "dpstf2.f"
 #include "dpstrf.f"
+#include "droundup_lwork.f"
 #include "drscl.f"
 #include "dspev.f"
 #include "dspgst.f"
@@ -211,6 +212,7 @@
 #include "zgebrd.f"
 #include "zgelq2.f"
 #include "zgelqf.f"
+#include "zgels.f"
 #include "zgeqr2.f"
 #include "zgeqrf.f"
 #include "zgesvd.f"
@@ -243,6 +245,7 @@
 #include "zstedc.f"
 #include "zstein.f"
 #include "zsteqr.f"
+#include "ztrtrs.f"
 #include "zung2l.f"
 #include "zung2r.f"
 #include "zungql.f"

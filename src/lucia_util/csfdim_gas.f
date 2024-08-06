@@ -7,7 +7,14 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994, Jeppe Olsen                                      *
+*               2024, Giovanni Li Manni                                *
 ************************************************************************
+*
+* Adapted for GAS calculations and LUCIA, Dec. 2001
+* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
+*
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
       use stdalloc, only: mma_allocate
       use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
@@ -28,8 +35,6 @@
 *                        CONFIGURATION EXPANSIONS
 * ( Spin signaled by PSSIGN in CIINFO)
 *
-* Adapted for GAS calculations and LUCIA, Dec. 2001
-
 #include "implicit.fh"
 #include "mxpdim.fh"
 #include "orbinp.fh"
@@ -65,7 +70,7 @@ C
 C.. Number of prototype sd's and csf's per configuration prototype
 C
            ITP = 0
-      DO IOPEN = 0, MAXOP
+      DO IOPEN = MINOP, MAXOP
         ITP = IOPEN + 1
 *. Unpaired electrons :
         IAEL = (IOPEN + MS2 ) / 2
@@ -269,7 +274,7 @@ C
       MXPTBL = 0
       MXDT = 0
       LCONF = 0
-      DO IOPEN = 0, MAXOP
+      DO IOPEN = MINOP, MAXOP
         ITP = IOPEN + 1
         LIDT = LIDT + NPCMCNF(ITP) * IOPEN
         LICS = LICS + NPCSCNF(ITP) * IOPEN
@@ -284,7 +289,7 @@ C. Memory needed to store ICONF array
 C     LDET = NSD
       LLCONF = 0
       ILLCNF = 0
-      DO IOPEN = 0, MAXOP
+      DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
         ICL = ( NELEC-IOPEN)/2
         LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
