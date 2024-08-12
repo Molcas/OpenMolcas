@@ -1,0 +1,851 @@
+*-------------------------------------------------------------------------------
+* Molecule: Muonic oxygen.
+* Basis: Mounic basis for ozygen and a nitrogen ANO-L-VTZP
+* Symmetry: Cs
+* Features tested: gateway, seward, rasscf for muonic systems
+* Responsible person: Roland Lindh, 2024-08-12
+* Comments: Contrains detailed remarks on how the calculations are made.
+*-------------------------------------------------------------------------------
+*  This tests the option of doing muonic calculations with the rasscf module.
+*
+*  As the input is structured the muonic basis set comes first in the combined list of 
+*  muonic and electronic basis functions. The intgral codes knows the difference between
+*  the different types of basis functions and knows when matrix elements are zero due
+*  to different particle types.
+*  for example, for one-electron integrals both basis functions must be of the same type,
+*  while for two-electron integrals coulombic integrals are non-zero if the set of bra functions
+*  are of the same type and the ket functions are also of the same type but not necessarily of
+*  the same type as the bra functions. This also leads to the what corresponds to exchange integrals
+*  are zero unless all functions are of the same type.
+*
+*  The RI option keeps automatically track on the particle type of the auxiliary basis sets.
+*
+*  In this example we will compute the 1s-7s progression of muonic states for the oxygen atom (8 electrons).
+*  For this reason the muoinc basis set is only based on function with angular momentum l=0 (s-functions).
+*  The moun will more of less perfectly screen the oxygen nuclei (Z=8) and the effective charge of the
+*  nuclei with the muon is for the 8 electrons more or less that of nitrogen (Z=7). For the reason we
+*  will use the nitrogen all electron basis set rather than the oxygen all electron basis set.
+*
+*  Note that the muon orbitals are very compact and close to the nuclei. For this reason we use the finite
+*  nuclei option (FINIte) for a better description of the nuclei rather than that of a point charge.
+*
+*  Moreover, the muon is 200 times heavier than the electrons. In this respect the Born-Oppenheimer
+*  partitioning is less accurate. To approximately compensate for the we envoke the finte nuclear
+*  mass correction (FNMC) option.
+
+&Gateway
+Title
+Oxygen atom
+expert
+Basis set
+O.UNC... / inline
+     8.0   0
+* s-type functions
+   18   18
+    1.872519206440e9
+    4.318233463940e8
+    1.101529966970e8
+    3.093376892910e7
+    9.518130226250e6
+    3.193660119090e6
+    1.163000649140e6
+    4.574687063230e5
+    1.934501001820e5
+87526.31076490000000
+42170.26657910000000
+21533.17602070000000
+11597.91223330000000
+ 6557.78978567000000
+ 3874.15571029000000
+ 2379.98666171000000
+ 1513.16332584000000
+  990.93891863200000
+MUON
+mO 0.0 0.0 0.0
+Nucl=0.19D10
+End of basis
+*-----------------------------------------------------------------------
+Basis set
+N.ANO-L-VTZP
+N 0.0 0.0 0.0
+Nucl=0.19D10
+Charge=0.0
+End of basis
+*-----------------------------------------------------------------------
+FNMC
+FINIte
+noCD
+End of input
+RICD
+&SEWARD
+
+* Here we start by generating the 1s-7s progression of muonic orbitals of the hydrogen-like model.
+* In this calculation there are no electrons and the lowest energies are aquired by
+* having the 7 orbitals in the active space to be of the type muons. We get automatically that
+* the generated orbitals are either pure electronic or pure muonic orbitals.
+*
+* This calculation generate an orbital file in which the first 8 orbitals are muonic, this is followed by 
+* all of the electronic orbitals and then the remaining muonic orbitals.
+
+&RASSCF 
+nActEl=1 0 0
+Inactive=0
+RAS2=7
+SPIN=2
+ciroot=7 7 1
+
+
+* Now we continue and place 8 electrons in an close-shell configuration with 2 of the 3 2p orbitals
+* doubly occupied. To make sure that the starting orbitals correspond to this we change the order of
+* the orbitals in sure that the starting orbitals in the inactive space are electronic while the
+* orbitals in the active space are fermionic.
+
+>>> EXPORT MOLCAS_TRAP=OFF
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot=7 7 1
+ALTER=5; 1 1 9; 1 2 10; 1 3 11; 1 4 12; 1 8 12
+
+>>> EXPORT MOLCAS_TRAP=ON
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot=7 7 1
+
+* Now follows a sequence of calculations in which we do SS-CASSCF calculations
+* This procedure eventually fails for the 6s state and beyond and is for this reason
+* skipped in the current job 
+
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot
+ 7 7 
+1 2 3 4 5 6 7
+1 0 0 0 0 0 0
+Title = 1s state
+
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot
+ 7 7 
+1 2 3 4 5 6 7
+0 1 0 0 0 0 0
+Title = 2s state
+
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot
+ 7 7 
+1 2 3 4 5 6 7
+0 0 1 0 0 0 0
+Title = 3s state
+
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot
+ 7 7 
+1 2 3 4 5 6 7
+0 0 0 1 0 0 0
+Title = 4s state
+
+ &RASSCF 
+ nActEl=1 0 0
+ Inactive=4
+ RAS2=7
+ SPIN=2
+ ciroot
+ 7 7 
+1 2 3 4 5 6 7
+0 0 0 0 1 0 0
+Title = 5s state
+Home
+
+*>>> EXIT
+* &RASSCF 
+* nActEl=1 0 0
+* Inactive=4
+* RAS2=7
+* SPIN=2
+* ciroot
+* 7 7 
+*1 2 3 4 5 6 7
+*0 0 0 0 0 1 0
+*Home
+*SXDAMP=2.2
+*LEVSHIFT=25.0
+*Title = 6s state
+
+* &RASSCF 
+* nActEl=1 0 0
+* Inactive=4
+* RAS2=7
+* SPIN=2
+* ciroot
+* 7 7 
+*1 2 3 4 5 6 7
+*0 0 0 0 0 0 1
+*Home
+**SXDAMP=0.02
+*Title = 7s state
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 24.06-16-g5873bccb1
+* Linux lucia 6.5.0-1027-oem #28-Ubuntu SMP PREEMPT_DYNAMIC Thu Jul 25 13:32:46 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+* Mon Aug 12 12:03:33 2024
+*
+#>>   1
+#> POTNUC="0.0"/12
+#>>   2
+#> POTNUC="0.0"/12
+#> SEWARD_MLTPL1X="0.0"/5
+#> SEWARD_KINETIC="13680545.507907854393"/5
+#> SEWARD_ATTRACT="-320491.513713109423"/5
+#>>   3
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-6552.816389798624"/8
+#> E_RASSCF[1]="-1640.347019736456"/8
+#> E_RASSCF[2]="-729.360675831539"/8
+#> E_RASSCF[3]="-410.354411617100"/8
+#> E_RASSCF[4]="-262.660496659243"/8
+#> E_RASSCF[5]="-182.418043260419"/8
+#> E_RASSCF[6]="-134.024980173426"/8
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#> MLTPL__0="7"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.0"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.0"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.0"/5
+#>>   4
+#> E_RASSCF[0]="-6607.057668007121"/8
+#> E_RASSCF[1]="-1694.594323848971"/8
+#> E_RASSCF[2]="-783.632359038885"/8
+#> E_RASSCF[3]="-464.687079244256"/8
+#> E_RASSCF[4]="-317.110686751222"/8
+#> E_RASSCF[5]="-237.060082814091"/8
+#> E_RASSCF[6]="-188.944711965610"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.933564722073"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.867128391477"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.933563669404"/5
+#>>   5
+#> RASSCF_ITER="89"/8
+#> E_RASSCF[0]="-6607.057668066150"/8
+#> E_RASSCF[1]="-1694.594323920877"/8
+#> E_RASSCF[2]="-783.632359155434"/8
+#> E_RASSCF[3]="-464.687079476026"/8
+#> E_RASSCF[4]="-317.110687203218"/8
+#> E_RASSCF[5]="-237.060083627654"/8
+#> E_RASSCF[6]="-188.944713296397"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934018309275"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868036289883"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934017980608"/5
+#>>   6
+#> RASSCF_ITER="131"/8
+#> E_RASSCF[0]="-6607.057822514155"/8
+#> E_RASSCF[1]="-1694.594469122947"/8
+#> E_RASSCF[2]="-783.632466953307"/8
+#> E_RASSCF[3]="-464.687093611967"/8
+#> E_RASSCF[4]="-317.110521257253"/8
+#> E_RASSCF[5]="-237.059624209448"/8
+#> E_RASSCF[6]="-188.943830357413"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927619804657"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855239670295"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927619865638"/5
+#>>   7
+#> RASSCF_ITER="71"/8
+#> E_RASSCF[0]="-6607.057822376049"/8
+#> E_RASSCF[1]="-1694.594469261197"/8
+#> E_RASSCF[2]="-783.632468208197"/8
+#> E_RASSCF[3]="-464.687097664104"/8
+#> E_RASSCF[4]="-317.110530685941"/8
+#> E_RASSCF[5]="-237.059642410162"/8
+#> E_RASSCF[6]="-188.943861210925"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.927704397414"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.855408824172"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.927704426758"/5
+#>>   8
+#> RASSCF_ITER="119"/8
+#> E_RASSCF[0]="-6607.057818977803"/8
+#> E_RASSCF[1]="-1694.594466989298"/8
+#> E_RASSCF[2]="-783.632470497456"/8
+#> E_RASSCF[3]="-464.687111313669"/8
+#> E_RASSCF[4]="-317.110566217466"/8
+#> E_RASSCF[5]="-237.059713777973"/8
+#> E_RASSCF[6]="-188.943984185862"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.928493339064"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.856986662940"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.928493323876"/5
+#>>   9
+#> RASSCF_ITER="135"/8
+#> E_RASSCF[0]="-6607.057790693842"/8
+#> E_RASSCF[1]="-1694.594441506794"/8
+#> E_RASSCF[2]="-783.632456346899"/8
+#> E_RASSCF[3]="-464.687125670144"/8
+#> E_RASSCF[4]="-317.110634661823"/8
+#> E_RASSCF[5]="-237.059871233386"/8
+#> E_RASSCF[6]="-188.944269892782"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.930554320980"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.861108645624"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.930554324645"/5
+#>>  10
+#> RASSCF_ITER="141"/8
+#> E_RASSCF[0]="-6607.057657637124"/8
+#> E_RASSCF[1]="-1694.594313798021"/8
+#> E_RASSCF[2]="-783.632350270722"/8
+#> E_RASSCF[3]="-464.687073687285"/8
+#> E_RASSCF[4]="-317.110687377062"/8
+#> E_RASSCF[5]="-237.060092987223"/8
+#> E_RASSCF[6]="-188.944736852691"/8
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+#> MLTPL__0="-1.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="-1.934308850488"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="3.868617700347"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.934308849858"/5
+>>EOF
