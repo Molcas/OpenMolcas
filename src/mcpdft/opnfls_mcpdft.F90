@@ -22,10 +22,6 @@ subroutine open_files_mcpdft(DSCF)
 !     University of Lund, Sweden, 1993                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!                                                                      *
-!***********************************************************************
     use mcpdft_output, only: lf
     use Fock_util_global, only: docholesky
 
@@ -36,9 +32,7 @@ subroutine open_files_mcpdft(DSCF)
 #include "warnings.h"
 
     logical, intent(out) :: DSCF
-
     logical :: file_exists
-
     integer :: iOpt, return_code
 
 !---  define logical unit numbers -------------------------------------*

@@ -81,12 +81,6 @@ C Local print level (if any)
 
 *TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-***********************************************************
-* Load the nuclear repulsion energy
-***********************************************************
-*TRS
-*
-      Call Get_dScalar('PotNuc',potNuc)
 
 ***********************************************************
 * Generate molecular charges

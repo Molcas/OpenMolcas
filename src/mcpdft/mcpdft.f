@@ -106,14 +106,13 @@
       EAV = 0.0d0
       call mcpdft_init()
 
-* Make a copy, upper-cased, left-adjusted, of the input between and including
-* the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
-* with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
-* substring beginning with '!' with blanks.
-* That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
+! Make a copy, upper-cased, left-adjusted, of the input between and including
+! the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
+! with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
+! substring beginning with '!' with blanks.
+! That copy will be in file 'CleanInput', and its unit number is returned
+! as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
       Call cpinp_(LUInput,iRc)
-* If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        Call WarningMessage(2,'Input file is unusable.')
        write(lf,*)' MCPDFT Error: Could not make a clean copy of'
@@ -140,7 +139,6 @@
 ! Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
-* Open files
       Call open_files_mcpdft(DSCF)
 
 * Some preliminary input data:
