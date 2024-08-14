@@ -39,7 +39,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "ciinfo.fh"
 #include "WrkSpc.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
@@ -48,7 +47,6 @@
 
 * Print level:
       IPRLEV=IPRLOC(1)
-      DoDMRG=.False.
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
@@ -191,44 +189,6 @@ C.. for RAS
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
-      If(.Not.DoDMRG) GoTo 113
-
-      Line=' '
-      Write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
-      Call CollapseOutput(1,Line)
-      Write(LF,Fmt1)'--------------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A,T45,I6)')'Number of renormalized basis',
-     &                           MxDMRG
-      Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
-     &                           NROOTS
-* NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
-      Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
-     &                           IRLXROOT
-      Call CollapseOutput(0,'DMRG sweep specifications:')
-
-*     Skip printing CI specifications in DMRG-CASSCF
-      GoTo 114
-
- 113  Continue
-
-      Line=' '
-      Write(Line(left-2:),'(A)') 'CI expansion specifications:'
-      Call CollapseOutput(1,Line)
-      Write(LF,Fmt1)'----------------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
-     &                           NCSASM(STSYM)
-      Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(STSYM)
-        n_Det=2
-        n_unpaired_elec=(iSpin-1)
-        n_paired_elec=nActEl-n_unpaired_elec
-        If(n_unpaired_elec+n_paired_elec/2.eq.nac.or.
-     &     NDTASM(STSYM).eq.1) n_Det = 1
-        If(KSDFT.eq.'DIFF')   n_Det = 1
-        If(KSDFT.eq.'ROKS')   n_Det = 1
-
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                             NROOTS
 *TRS
@@ -246,43 +206,6 @@ C.. for RAS
  114  Continue
 
       END IF
-
-* Check that the user doesn't try to calculate more roots than it's possible
-* NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
-*              since Block DMRG code will check this internally
-*     If (NROOTS .GT. NCSASM(STSYM)) Then
-      If (.false.) Then
-!      If (.NOT.DoDMRG .AND. NROOTS .GT. NCSASM(STSYM)) Then
-         Write(LF,*) '************ ERROR ***********'
-         Write(LF,*) ' You can''t ask for more roots'
-         Write(LF,*) ' than there are configurations '
-         Write(LF,*) '******************************'
-         Write(LF,*)
-!         Call Quit_OnUserError()
-      End If
-* If the calculation will be too big:
-      call GetMem('ChkMx','Max','Real',iDum,MaxRem)
-      WillNeedMB=(8.0D0*1.50D0*6.0D0*NDTASM(STSYM)/1.048D6)
-      AvailMB=(8.0D0*MaxRem/1.048D6)
-      if (WillNeedMB .gt. AvailMB) then
-        write(6,*)
-        write(6,*)' *************************************************'
-        write(6,*)' Sorry, but your calculation will probably be too'
-        write(6,*)' large for the available memory.'
-        write(6,*)' The number of determinants is ',NDTASM(STSYM)
-        write(6,*)' During CI equation solution, there will be'
-        write(6,*)' up to six vectors of this size in memory.'
-        write(6,*)' We estimate an additional 50% for other stuff.'
-        write(6,*)
-        write(6,'(A,F9.1,A)')' This alone will need at least ',
-     &                                            WillNeedMB,' MB.'
-        write(6,'(A,F9.1,A)')' Available at this point is ',
-     &                                               AvailMB,' MB.'
-        write(6,*)' Please increase MOLCAS_MEM, and try again.'
-        write(6,*)' *************************************************'
-        write(6,*)
-        Call Quit_OnUserError()
-      end if
 
       IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
@@ -346,8 +269,6 @@ C.. for RAS
       END IF
       Write(LF,*)
 
-       Call Put_dScalar('EThr',ThrE)
-*
 *---- Print out grid information in case of DFT
 *
        If (KSDFT.ne.'SCF') Then

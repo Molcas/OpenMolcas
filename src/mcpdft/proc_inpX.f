@@ -1,38 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
-
-! module dependencies
       use mspdft_grad, only: dogradmspd
       use mspdft, only: cmsNACstates, doNACMSPD, doMECIMSPD
+      use Fock_util_global, only: DoCholesky
+      use Cholesky, only: ChFracMem
+      use KSDFT_Info, only: CoefR, CoefX
+      use hybridpdft, only: Ratio_WF, Do_Hybrid
+      use UnixInfo, only: SuperName
+      use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
+      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
-      use Fock_util_global, only: DoCholesky
-      use Cholesky, only: ChFracMem
 #ifdef _HDF5_
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-      use KSDFT_Info, only: CoefR, CoefX
-      use hybridpdft, only: Ratio_WF, Do_Hybrid
-      use UnixInfo, only: SuperName
-      use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
-      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
-      use lucia_interface, only: lucia_util
-      use gugx, only: SGS, CIS, EXS
+      implicit none
 
-      Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
@@ -41,31 +38,27 @@
 #include "rasscf.fh"
 #include "input_ras_mcpdft.fh"
 #include "general.fh"
-* Lucia-stuff:
-#include "ciinfo.fh"
-#include "spinfo.fh"
-#include "lucia_ini.fh"
-*
-      Character*180  Line
 
+      Character*180  Line
+      Real*8 potnucdummy, teffnchrg
       logical lExists, RunFile_Exists
 * Some strange extra logical variables...
       logical DSCF
-      logical RF_On
-      logical Langevin_On
-      logical PCM_On
+      logical RF_On, Langevin_On, PCM_On
+      external RF_On, Langevin_On, PCM_On
 
       Logical DBG
 
 #ifdef _HDF5_
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
-      DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
-      DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
+      integer, DIMENSION(8) :: NFRO_L,NISH_L,NRS1_L,NRS2_L
+      integer, DIMENSION(8) :: NRS3_L,NSSH_L,NDEL_L
       character(len=1), allocatable :: typestring(:)
-      DIMENSION NBAS_L(8)
+      integer, DIMENSION(8) :: NBAS_L
+      integer :: mh5id
 #endif
 * TOC on JOBOLD (or JOBIPH)
-      DIMENSION IADR19(15)
+      integer, DIMENSION(15) :: IADR19
 
       Character*180 Get_LN
       External Get_LN
@@ -85,8 +78,14 @@
       Character*8 inGeo
       logical :: keyJOBI
       Intrinsic DBLE
-C...Dongxia note for GAS:
-C   No changing about read in orbital information from INPORB yet.
+
+      integer irc, i, iad19, ipStab, ipENC
+      integer nNuc, igas, iorbdata, isym, itu
+      integer not_sure, nisht, nsym_l, nu, nt, nao, nasht, ndiff
+      integer ngssh_hi, NGSSH_LO
+      integer, external :: isFreeUnit
+      real*8 TotChrg
+      logical :: err
 
       Call StatusLine('MCPDFT:','Processing Input')
 
@@ -95,7 +94,6 @@ C   No changing about read in orbital information from INPORB yet.
       doGradPDFT = .false.
       doGradMSPD = .false.
       doNOGRad = .false.
-      DoGSOR=.false.
 
 ! TODO PUT THIS INITIALITION IN MODULE FILE
 *     CMS NACs variables
@@ -103,9 +101,6 @@ C   No changing about read in orbital information from INPORB yet.
       doMECIMSPD = .false.
       cmsNACstates(1) = 0
       cmsNACstates(2) = 0
-
-*    GAS flag, means the INPUT was GAS
-      iDoGas = .false.
 
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
@@ -367,11 +362,12 @@ C   No changing about read in orbital information from INPORB yet.
           call Quit(_RC_INPUT_ERROR_)
         end if
         call mh5_fetch_attr(mh5id, 'NBAS', NBAS_L)
-        ierr=0
+
+        err = .False.
         do isym=1,nsym
-          if (nbas(isym).ne.nbas_l(isym)) ierr=1
+          if (nbas(isym).ne.nbas_l(isym)) err = .True.
         end do
-        if (ierr.eq.1) then
+        if (err) then
           write (LF,*) 'Number of basis functions on HDF5 file does not'
           write (LF,*) 'match the number of basis functions on the'
           write (LF,*) 'RunFile, calculation will stop now.'
@@ -650,14 +646,6 @@ c      end do
        Call SetPos_m(LUInput,'MECI',Line,iRc)
       End If
 *
-*---  Process GSOR command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if Gram-Schmidt case.'
-      If (KeyGSOR) Then
-       If (DBG) Write(6,*) ' GSOR keyword was used.'
-       DoGSOR=.true.
-       Call SetPos_m(LUInput,'GSOR',Line,iRc)
-      End If
-*
 *---  All keywords have been processed ------------------------------*
 
 ************************************************************************
@@ -771,75 +759,10 @@ CSVC: check if NU<NT are included in the same gas space
       Call ChkInp_m()
 * ===============================================================
 
-      if(.not.DoGSOR) then
-        NCONF=1
-        GoTo 9000
-      end if
-
-      If(hasMPSref) GoTo 9000
-* ===============================================================
-*
-*     Construct the Guga tables
-*
-      call gugactl(nSym,iSpin,nActEl,nHole1,nElec3,
-     &             nRs1,nRs2,nRs3,
-     &            SGS,CIS,EXS,STSYM,DoBlockDMRG)
-      NCONF=CIS%NCSF(STSYM)
-* ===============================================================
-*
-*     Construct the determinant tables
-*
-
-      If (DBG) Write(6,*)' Construct the determinant tables.'
-      MS2 = iSpin - 1
-*
-* Set variables needed in Lucia_Ini
-*
-      Call iCopy(mxGAS*mxSym,ngssh,1,ngssh_Molcas,1)
-      Call iCopy(mxGAS*2,igsoccx,1,igsoccx_Molcas,1)
-      Call iCopy(nSym,norb,1,norb_Molcas,1)
-      Call iCopy(nSym,nbas,1,nbas_Molcas,1)
-      Call iCopy(nSym,nish,1,nish_Molcas,1)
-      potnuc_Molcas    = potnuc
-      thre_Molcas      = thre
-      nsym_Molcas      = nsym
-      nactel_Molcas    = nactel
-      ms2_Molcas       = ms2
-      ispin_Molcas     = ispin
-      lsym_Molcas      = stsym
-      NHOLE1_Molcas    = NHOLE1
-      NELEC3_Molcas    = NELEC3
-      itmax_Molcas     = itmax
-      rtoi_Molcas      = rtoi
-      nroots_Molcas    = Max(nroots,lRoots)
-      ipt2_Molcas      = ipt2
-      iprci_molcas     = iprloc(3)
-      ngas_molcas      = ngas
-      INOCALC_MOLCAS   = INOCALC
-      ISAVE_EXP_MOLCAS = ISAVE_EXP
-      IEXPAND_MOLCAS   = IEXPAND
-
-*
-* And call Lucia_Ini to initialize LUCIA
-      CALL Lucia_Util('Ini')
-* to get number of CSFs for GAS
-      nconf=0
-      do i=1,mxsym
-        nconf=nconf+ncsasm(i)
-      end do
-*
-      ISCF=0
-      IF (ISPIN.EQ.NAC+1.AND.NACTEL.EQ.NAC) ISCF=1
-      IF (ISPIN.EQ.1.AND.NACTEL.EQ.2*NAC)   ISCF=1
-      IF (ISCF.EQ.1) THEN
-         NCONF=1
-      END IF
-
-* ===============================================================
-
+      NCONF=1
       Go to 9000
-*
-*---  Error exits -----------------------------------------------------*
+
+!---  Error exits -----------------------------------------------------*
 9810  CONTINUE
       If (IPRLEV.ge.TERSE) Then
        Call WarningMessage(2,'Error in input preprocessing.')
