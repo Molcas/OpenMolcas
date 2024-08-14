@@ -105,19 +105,6 @@
 ! Default option switches and values, and initial data.
       EAV = 0.0d0
       call mcpdft_init()
-      Call Seward_Init()
-
-! Open the one-olectron integral file:
-      LuOne=77
-      LuOne=isFreeUnit(LuOne)
-      iRC=-1
-      iOpt=0
-      Call OpnOne(iRC,iOpt,'ONEINT',LuOne)
-      If (iRC.ne.0) Then
-        Write (6,*) 'Error when trying to open the one-electron'
-        Write (6,*) 'integral file.'
-        Call Quit(_RC_INTERNAL_ERROR_)
-      End If
 
 * Make a copy, upper-cased, left-adjusted, of the input between and including
 * the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
@@ -154,7 +141,7 @@
       IPRLEV=IPRLOC(1)
 
 * Open files
-      Call OpnFls_RASSCF_m(DSCF)
+      Call open_files_mcpdft(DSCF)
 
 * Some preliminary input data:
       Call Rd1Int()
@@ -523,20 +510,10 @@
        Call PrtTim()
        Call FastIO('STATUS')
       END IF
-      Call ClsFls_RASSCF_m()
 
  9990 Continue
 
-C Close the one-electron integral file:
-      iRC=-1
-      iOpt=0
-      Call ClsOne(iRC,iOpt)
-      If (iRC.ne.0) Then
-         Write (6,*) 'Error when trying to close the one-electron'
-         Write (6,*) 'integral file.'
-         Call Quit(_RC_INTERNAL_ERROR_)
-      End If
-
+      call close_files_mcpdft()
       DO I=10,99
         INQUIRE(UNIT=I,OPENED=IfOpened)
         IF (IfOpened.and.I.ne.19) CLOSE (I)
