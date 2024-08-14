@@ -85,7 +85,7 @@
       Logical IfOpened
       Logical Found
 
-      External RasScf_Init_m
+      external mcpdft_init
       External Scan_Inp_m
       integer iRef_E,IAD19
       integer IADR19(1:15)
@@ -104,7 +104,7 @@
 
 ! Default option switches and values, and initial data.
       EAV = 0.0d0
-      Call RasScf_Init_m()
+      call mcpdft_init()
       Call Seward_Init()
 
 ! Open the one-olectron integral file:
