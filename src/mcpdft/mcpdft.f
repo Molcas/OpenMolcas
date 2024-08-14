@@ -92,8 +92,7 @@
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      real*8, allocatable :: PLWO(:), CIV(:)
-      integer ivkcnf
+      real*8, allocatable :: PLWO(:)
       Logical DSCF
 
       Call StatusLine('MCPDFT:',' Just started.')

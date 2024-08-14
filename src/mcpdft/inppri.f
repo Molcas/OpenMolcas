@@ -203,8 +203,6 @@ C.. for RAS
 
       Call CollapseOutput(0,'CI expansion specifications:')
 
- 114  Continue
-
       END IF
 
       IF(IPRLEV.GE.USUAL) THEN

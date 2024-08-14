@@ -70,7 +70,6 @@
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
       integer isym,iash,jsym
-      integer LUGS
       External IsFreeUnit
 
 ***********************************************************
