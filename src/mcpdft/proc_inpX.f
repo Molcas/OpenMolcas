@@ -16,7 +16,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
-      use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
+      use write_pdft_job, only: iwjob, hasHDF5ref
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
 
 #ifdef module_DMRG
@@ -27,6 +27,7 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
       use stdalloc, only: mma_allocate, mma_deallocate
+      use write_pdft_job, only: hasMPSref
 #endif
       implicit none
 
@@ -56,8 +57,10 @@
       character(len=1), allocatable :: typestring(:)
       integer, DIMENSION(8) :: NBAS_L
       integer :: mh5id
+      integer :: nsym_l
+      logical :: err
 #endif
-* TOC on JOBOLD (or JOBIPH)
+! TOC on JOBOLD (or JOBIPH)
       integer, DIMENSION(15) :: IADR19
 
       Character*180 Get_LN
@@ -81,11 +84,10 @@
 
       integer irc, i, iad19, ipStab, ipENC
       integer nNuc, igas, iorbdata, isym, itu
-      integer not_sure, nisht, nsym_l, nu, nt, nao, nasht, ndiff
+      integer not_sure, nisht, nu, nt, nao, nasht, ndiff
       integer ngssh_hi, NGSSH_LO
       integer, external :: isFreeUnit
       real*8 TotChrg
-      logical :: err
 
       Call StatusLine('MCPDFT:','Processing Input')
 
