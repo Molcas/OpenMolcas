@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
-      use mspdft, only: cmsNACstates, doNACMSPD
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use KSDFT_Info, only: CoefR, CoefX
@@ -89,13 +88,6 @@
       Call StatusLine('MCPDFT:','Processing Input')
 
       IPRLEV = TERSE
-
-
-! TODO PUT THIS INITIALITION IN MODULE FILE
-*     CMS NACs variables
-      doNACMSPD = .false.
-      cmsNACstates(1) = 0
-      cmsNACstates(2) = 0
 
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
@@ -553,9 +545,6 @@ c      end do
       If (DBG) Write(6,*) ' Check if NAC case.'
       If (KeyNAC) Then
        If (DBG) Write(6,*) ' NAC keyword was used.'
-       if(mcpdft_options%mspdft .and. mcpdft_options%grad)  then
-           doNACMSPD=.true.
-       end if
        if(.not. mcpdft_options%mspdft) then
         Call WarningMessage(2,'NACs implemented only for MS-PDFT')
         Write(LF,*) ' ************* ERROR **************'
@@ -571,20 +560,17 @@ c      end do
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
+       mcpdft_options%nac = .true.
        Call SetPos_m(LUInput,'NAC',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Read(LUInput,*,End=9910,Err=9920) cmsNACstates(1),
-     & cmsNACstates(2)
+       Read(LUInput,*,End=9910,Err=9920) mcpdft_options%nac_states(1),
+     &                                   mcpdft_options%nac_states(2)
       End If
 *
 *---  Process MECI command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if MECI case.'
       If (KeyMECI) Then
        If (DBG) Write(6,*) ' MECI keyword was used.'
-       if(mcpdft_options%mspdft .and. mcpdft_options%grad .and.
-     & doNACMSPD)  then
-           mcpdft_options%meci = .true.
-       end if
        if(.not. mcpdft_options%mspdft) then
         Call WarningMessage(2,'NACs implemented only for MS-PDFT')
         Write(LF,*) ' ************* ERROR **************'
@@ -600,13 +586,14 @@ c      end do
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
-       if(.not. DoNACMSPD) then
+       if(.not. mcpdft_options%nac) then
         Call WarningMessage(2,'NACs implemented with GRAD Code')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' MECI requires the NAC Keyword     '
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
+       mcpdft_options%meci = .true.
       End If
 !---  All keywords have been processed ------------------------------*
 

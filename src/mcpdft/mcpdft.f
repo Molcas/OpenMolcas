@@ -55,8 +55,7 @@
       use write_pdft_job, only: writejob
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
-     &                  D1SAOMS, doNACMSPD, cmsNACstates,
-     &                  mspdft_finalize
+     &                  D1SAOMS, mspdft_finalize
       use mcpdft_output, only: terse, debug, insane, usual, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
@@ -348,23 +347,22 @@
         end do
       End IF!End IF for Do_Rotate=.true.
 
-      IF(doNACMSPD) Then
+      IF(mcpdft_options%nac) Then
         IF(IPRLEV.ge.USUAL) THEN
         write(6,'(6X,A)') repeat('=',80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
-     & cmsNACstates(1), cmsNACstates(2)
+     &         mcpdft_options%nac_states(1),
+     &         mcpdft_options%nac_states(2)
         write(6,*)
         write(6,'(6X,A)') repeat('=',80)
         END IF
-        call Put_lScalar('isCMSNAC        ', doNACMSPD)
-        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
       ELSE
-        cmsNACstates(1) = iRlxRoot
-        cmsNACstates(2) = 0
-        call Put_lScalar('isCMSNAC        ', doNACMSPD)
-        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
-      End IF!End IF for doNACMSPD=.true.
+        mcpdft_options%nac_states(1) = iRlxRoot
+        mcpdft_options%nac_states(2) = 0
+      End IF
+      call Put_lScalar('isCMSNAC        ', mcpdft_options%nac)
+      call Put_iArray('cmsNACstates    ', mcpdft_options%nac_states, 2)
 
       IF(mcpdft_options%meci .and. iprlev .ge. usual) Then
         write(lf,'(6X,A)') repeat('=',80)

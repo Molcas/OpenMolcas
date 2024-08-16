@@ -23,6 +23,8 @@ module mcpdft_input
         logical :: mspdft = .false.
         logical :: grad = .false.
         logical :: meci = .false.
+        logical :: nac = .false.
+        integer(kind=iwp), dimension(2) :: nac_states = 0
         real(kind=wp) :: lambda = 0.0d0
         !character, dimension(80) :: ksdft
     contains
@@ -39,7 +41,6 @@ contains
         class(McpdftInputOptions), intent(in) :: self
         res = self%lambda .gt. 0.0d0
     end function
-
 
 
 

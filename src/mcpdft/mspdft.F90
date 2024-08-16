@@ -22,13 +22,12 @@ module mspdft
   integer :: D1AOMS,D1SAOMS
 
   ! CMS-NACS stuff
-  logical :: DoNacMSPD, isCMSNAC
-  integer :: cmsNACStates(2)
+  logical :: isCMSNAC
 
   public :: mspdftmethod, do_rotate, iF1MS, iF2MS
   public :: iFxyMS, iFocMS, iIntS, iDIDA, IP2MOt, D1AOMS, D1SAOMS
 
-  public :: DoNacMSPD, isCMSNAC, cmsNACStates
+  public :: isCMSNAC
 
   public :: mspdft_finalize
 
@@ -130,7 +129,7 @@ module mspdft
     end if
 
     if (mcpdft_options%grad) then
-      if (doNACMSPD) then
+      if (mcpdft_options%nac) then
         call MSPDFTNAC_Misc(si_pdft)
       else
         call mspdftgrad_misc(si_pdft)
