@@ -41,7 +41,7 @@
 #include "general.fh"
 
       Character*180  Line
-      Real*8 potnucdummy, teffnchrg
+      Real*8 potnucdummy
       logical lExists, RunFile_Exists
 * Some strange extra logical variables...
       logical DSCF
@@ -82,11 +82,10 @@
       logical :: keyJOBI
       Intrinsic DBLE
 
-      integer irc, i, iad19, ipStab, ipENC
-      integer nNuc, iorbdata, isym
+      integer irc, i, iad19
+      integer iorbdata, isym
       integer not_sure, nisht, nasht, ndiff
       integer, external :: isFreeUnit
-      real*8 TotChrg
 
       Call StatusLine('MCPDFT:','Processing Input')
 
@@ -550,25 +549,7 @@ c      end do
 * Same, NISHT, NIN:
       NIN=NISHT
       NFR=NFROT
-      If (DBG) Write(6,*)' The iOrbData code is now',iOrbData
-* =======================================================================
-* Compute effective nuclear charge.
-* Identical to nr of protons for conventional basis sets only, not ECP.
-      Call Get_iScalar('Unique atoms',nNuc)
-      Call GetMem('EffNChrg','Allo','Real',ipENC,nNuc)
-      Call Get_dArray('Effective nuclear Charge',Work(ipENC),nNuc)
-      TEffNChrg=0.0D0
-      Call GetMem('nStab','Allo','Inte',ipStab,nNuc)
-      Call Get_iArray('nStab',iWork(ipStab),nNuc)
-      do i=1,nNuc
-       TEffNChrg=TEffNChrg+Work(ipENC-1+i)*DBLE(nSym/iWork(ipStab-1+i))
-      end do
-      Call GetMem('nStab','Free','Inte',ipStab,nNuc)
-      Call GetMem('EffNChrg','Free','Real',ipENC,nNuc)
-      If (DBG) Write(6,*)
-     &             ' Effective nuclear charge is TEffNChrg=',TEffNChrg
-      TotChrg=0.0D0
-      If (DBG) Write(6,*)' Set TotChrg=',TotChrg
+
 *---  Process GRAD command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if GRADient case.'
       If (KeyGRAD) Then
@@ -683,10 +664,6 @@ c      end do
          end if
       End If
 
-      Call Put_iArray('nIsh',nIsh,nSym)
-      Call Put_iArray('nAsh',nAsh,nSym)
-      Call Put_iScalar('Multiplicity',ISPIN)
-*
 *---  Initialize Cholesky information if requested
       if (DoCholesky) then
          Call Cho_X_init(irc,ChFracMem)
