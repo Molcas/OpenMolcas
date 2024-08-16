@@ -12,4 +12,11 @@
 !***********************************************************************
 
 module mcpdft_input
+    use definitions, only: iwp
+
+    implicit none
+    private
+
+contains
+
 end module
