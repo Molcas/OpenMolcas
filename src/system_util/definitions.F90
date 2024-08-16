@@ -24,6 +24,7 @@ implicit none
 private
 
 public :: wp, iwp, byte, DefInt, MPIInt, HDF5Int
+public :: int8, int32, int64, real32, real64
 public :: BLASInt, BLASR4, BLASR8, CUDAInt
 public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
