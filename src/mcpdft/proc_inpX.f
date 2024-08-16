@@ -83,9 +83,8 @@
       Intrinsic DBLE
 
       integer irc, i, iad19, ipStab, ipENC
-      integer nNuc, igas, iorbdata, isym, itu
-      integer not_sure, nisht, nu, nt, nao, nasht, ndiff
-      integer ngssh_hi, NGSSH_LO
+      integer nNuc, iorbdata, isym
+      integer not_sure, nisht, nasht, ndiff
       integer, external :: isFreeUnit
       real*8 TotChrg
 
@@ -683,32 +682,7 @@ c      end do
           dogradpdft=.false.
          end if
       End If
-*                                                                      *
-*---  Compute IZROT. IZROT is a matrix (lower triangular over the -----*
-*     active space), which specifies which t,u rotations should be
-*     avoided, since the orbitals belong to the same RAS space.
-*     This is the only way the RAS concept is explicitly used in the
-*     SX section of the program.
-      ITU=0
-      DO ISYM=1,NSYM
-        NAO=NASH(ISYM)
-          DO NT=2,NAO
-            DO NU=1,NT-1
-              ITU=ITU+1
-              IZROT(ITU)=0
-CSVC: check if NU<NT are included in the same gas space
-              NGSSH_LO=0
-              DO IGAS=1,NGAS
-                NGSSH_HI=NGSSH_LO+NGSSH(IGAS,ISYM)
-                IF (NU.GT.NGSSH_LO.AND.NT.LE.NGSSH_HI) THEN
-                  IZROT(ITU)=1
-                END IF
-                NGSSH_LO=NGSSH_HI
-              END DO
-            END DO
-          END DO
-      END DO
-*
+
       Call Put_iArray('nIsh',nIsh,nSym)
       Call Put_iArray('nAsh',nAsh,nSym)
       Call Put_iScalar('Multiplicity',ISPIN)
