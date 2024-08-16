@@ -32,7 +32,6 @@
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: E_NoHyb
-      use mspdft_grad, only: dogradmspd
       use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
@@ -260,15 +259,17 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 
         Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
 
-        if(DoGradPDFT.and.jroot.eq.irlxroot) then
-          Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
-          Call FZero(Work(ip2dt1),Nacpr2)
-          Call P2_contraction(Work(iD1Act),Work(iP2dt1))
-          Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
-          Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
-        else if(dogradmspd) then
-          Call P2_contraction(Work(iD1Act),
+        if(mcpdft_options%grad) then
+          if(mcpdft_options%mspdft) then
+            Call P2_contraction(Work(iD1Act),
      &                        Work(iP2MOt+(jroot-1)*NACPR2))
+          else if (jroot .eq. irlxroot) then
+            Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
+            Call FZero(Work(ip2dt1),Nacpr2)
+            Call P2_contraction(Work(iD1Act),Work(iP2dt1))
+            Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
+            Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
+          end if
         end if
 
         IF(IPRLEV.ge.DEBUG) THEN
@@ -306,7 +307,8 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
 
 !ANDREW _ RIGHT HERE
-      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
+      if (mcpdft_options%grad .and.
+     &     (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
         Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
         Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
         Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
@@ -317,7 +319,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
 *
-      if(DoGradMSPD) then
+      if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
          Call Dcopy_(nTot1,Work(iTmp4),1,Work(iDIDA+(iIntS-1)*nTot1),1)
          if (iIntS.eq.lRoots)
      &   Call Dcopy_(ntot1,Work(iTmp3),1,Work(iDIDA+lRoots*nTot1),1)
@@ -327,7 +329,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
          Call Put_dArray('D1ao',Work(iTmp3),nTot1)
-         IF(DoGradMSPD)THEN
+         IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
           Call DCopy_(nTot1,Work(iTmp3),1,
      &        Work(D1AOMS+(jRoot-1)*nTot1),1)
          END IF
@@ -352,7 +354,8 @@ cPS         call xflush(6)
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
          Call Put_dArray('D1sao',Work(iTmp7),nTot1)
-         IF(iSpin.ne.1.and.DoGradMSPD) THEN
+         IF(iSpin.ne.1.and. mcpdft_options%grad
+     &      .and.mcpdft_options%mspdft) THEN
          Call DCopy_(nTot1,Work(iTmp7),1,
      &       Work(D1SAOMS+(jRoot-1)*nTot1),1)
          END IF
@@ -408,7 +411,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     End Do
 
       do_pdftPot=.false.
-      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
+      if (mcpdft_options%grad .and.
+     &    (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
 
         do_pdftPot=.true.
 
@@ -447,7 +451,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
         CALL GETMEM('OE_POT','FREE','REAL',LOEOTP,NTOT1)
         CALL GETMEM('TE_POTG','FREE','REAL',LTEOTPG,NFINT)
-      end if !DoGradPdft
+      end if
 
         Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
@@ -821,7 +825,8 @@ c         call xflush(6)
 *            BUILDING OF THE NEW FOCK MATRIX                           *
 *
 ************************************************************************
-        if(DoGradPDFT.and.jroot.eq.irlxroot) then
+      if(mcpdft_options%grad .and. (.not. mcpdft_options%mspdft)
+     &   .and. jroot .eq. irlxroot) then
 
          Write(LF,*) 'Calculating potentials for analytic gradients...'
 !MCLR requires two sets of things:
@@ -1103,9 +1108,9 @@ cPS         call xflush(6)
 
 
 
-      end if !DoGradPDFT
+      end if
 
-      if (dogradmspd) then
+      if (mcpdft_options%grad .and. mcpdft_options%mspdft) then
 *      doing exactly the same thing as done in the previous chunck
 *      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 *      Hopefully this code will be neater.
@@ -1131,7 +1136,7 @@ cPS         call xflush(6)
          END IF
       end do !loop over roots
 
-      if(DoGradPDFT.or.DoGradMSPD) then
+      if(mcpdft_options%grad) then
         dmDisk = IADR19(3)
         do jroot=1,irlxroot-1
           Call DDaFile(JOBOLD,0,Work(iD1Act),NACPAR,dmDisk)

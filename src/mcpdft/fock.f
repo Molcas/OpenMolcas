@@ -310,8 +310,8 @@ c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
       use mspdft, only: iFxyMS, iIntS
-      use mspdft_grad, only: dogradmspd
       use mcpdft_output, only: debug, lf, iPrLoc
+      use mcpdft_input, only: mcpdft_options
 
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
@@ -542,7 +542,7 @@ C
 !      Call Dscal_(ntot4,0.5d0,F,1)
 
 !For MCLR
-      IF(DoGradMSPD) THEN
+      IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
        CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)
       ELSE
        Call put_dArray('Fock_PDFT',F,ntot4)

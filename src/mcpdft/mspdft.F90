@@ -60,7 +60,6 @@ module mspdft
                            print_mspdft_vectors
     use mcpdft_input, only: mcpdft_options
     use write_pdft_job, only: writejob
-    use mspdft_grad, only: DoGradMSPD
 
     integer, intent(in) :: nroots, irlxroot
     real(kind=wp), dimension(nroots**2), intent(in) :: heff
@@ -130,7 +129,7 @@ module mspdft
     write(lf,*)
     end if
 
-    if (dogradmspd) then
+    if (mcpdft_options%grad) then
       if (doNACMSPD) then
         call MSPDFTNAC_Misc(si_pdft)
       else

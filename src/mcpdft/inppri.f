@@ -29,10 +29,10 @@
       use OneDat, only: sNoOri
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
-      use mspdft_grad, only: dogradmspd
       use mcpdft_output, only: silent, usual, lf, iPrLoc
       use Fock_util_global, only: docholesky
       use rctfld_module
+      use mcpdft_input, only: mcpdft_options
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -232,7 +232,7 @@ C.. for RAS
         Write(LF,Fmt2//'A,T45,ES10.3)')'Correlation scaling factor',
      &                                 CoefR
        end if
-       If (dogradPDFT.or.dogradMSPD) then
+       If (mcpdft_options%grad) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        If ( lRF ) then

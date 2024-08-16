@@ -21,9 +21,8 @@ module mcpdft_input
     type :: McpdftInputOptions
         logical :: wjob = .false.
         logical :: mspdft = .false.
-        !logical :: grad = .false.
+        logical :: grad = .false.
         logical :: meci = .false.
-        !logical :: do_hybrid = .false.
         real(kind=wp) :: lambda = 0.0d0
         !character, dimension(80) :: ksdft
     contains

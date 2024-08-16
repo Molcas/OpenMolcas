@@ -53,7 +53,6 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options
       use write_pdft_job, only: writejob
-      use mspdft_grad, only: dogradmspd
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, doNACMSPD, cmsNACstates,
@@ -403,7 +402,7 @@
 
       Call Put_dArray('Last orbitals',CMO,ntot2)
 
-      if(dogradmspd) then
+      if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
         CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
       end if
       Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
@@ -412,7 +411,7 @@
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
-      IF(DoGradMSPD) THEN
+      IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
         Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
         Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
         Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
@@ -448,7 +447,7 @@
 
       if (do_rotate) then
         CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
-        if(DoGradMSPD) then
+        if(mcpdft_options%grad) then
           Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
           Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
           Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)

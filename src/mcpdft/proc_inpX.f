@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
-      use mspdft_grad, only: dogradmspd
       use mspdft, only: cmsNACstates, doNACMSPD
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
@@ -91,9 +90,6 @@
 
       IPRLEV = TERSE
 
-      doGradPDFT = .false.
-      doGradMSPD = .false.
-      doNOGRad = .false.
 
 ! TODO PUT THIS INITIALITION IN MODULE FILE
 *     CMS NACs variables
@@ -316,10 +312,6 @@
           If (KeyMSPD) Then
               If (DBG) Write(6,*) ' MSPD keyword was used.'
               mcpdft_options%mspdft = .true.
-              if(dogradpdft) then
-                  dogradmspd=.true.
-                  dogradpdft=.false.
-              end if
           End If
 *---  Process wjob command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if write JOBIPH case.'
@@ -342,7 +334,7 @@
       Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
      &             mcpdft_options%lambda
       end if
-      If (dogradmspd.or.dogradpdft) Then
+      If (mcpdft_options%grad) Then
         Call WarningMessage(2,'GRAD currently not compatible with HPDF')
         GoTo 9810
        End If
@@ -551,26 +543,17 @@ c      end do
       NFR=NFROT
 
 *---  Process GRAD command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if GRADient case.'
+      If (DBG) Write(lf,*) ' Check if GRADient case.'
       If (KeyGRAD) Then
-       If (DBG) Write(6,*) ' GRADient keyword was used.'
-       DoGradPDFT=.true.
-       if(mcpdft_options%mspdft) then
-        dogradmspd=.true.
-        dogradpdft=.false.
-       end if
-       Call SetPos_m(LUInput,'GRAD',Line,iRc)
-*TRS - Adding else statement to make nograd the default if the grad
-*keyword isn't used
-       Else
-       DoNoGrad=.true.
-*TRS
+       If (DBG) Write(lf,*) ' GRADient keyword was used.'
+       mcpdft_options%grad = .true.
       End If
+
 *---  Process NAC command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if NAC case.'
       If (KeyNAC) Then
        If (DBG) Write(6,*) ' NAC keyword was used.'
-       if(mcpdft_options%mspdft .and. DoGradMSPD)  then
+       if(mcpdft_options%mspdft .and. mcpdft_options%grad)  then
            doNACMSPD=.true.
        end if
        if(.not. mcpdft_options%mspdft) then
@@ -580,8 +563,8 @@ c      end do
         Write(LF,*) ' for Multistate PDFT               '
         Write(LF,*) ' **********************************'
         Call Abend()
-       end if
-       if(.not. DoGradMSPD) then
+      end if
+      if(.not.mcpdft_options%grad) then
         Call WarningMessage(2,'NACs implemented with GRAD Code')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' NACs require the GRAD Keyword     '
@@ -598,7 +581,7 @@ c      end do
       If (DBG) Write(6,*) ' Check if MECI case.'
       If (KeyMECI) Then
        If (DBG) Write(6,*) ' MECI keyword was used.'
-       if(mcpdft_options%mspdft .and. DoGradMSPD .and.
+       if(mcpdft_options%mspdft .and. mcpdft_options%grad .and.
      & doNACMSPD)  then
            mcpdft_options%meci = .true.
        end if
@@ -610,7 +593,7 @@ c      end do
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
-       if(.not .DoGradMSPD) then
+       if(.not. mcpdft_options%grad) then
         Call WarningMessage(2,'NACs implemented with GRAD Code')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' MECI requires the GRAD Keyword    '
@@ -635,7 +618,7 @@ c      end do
          Call Get_iScalar('DNG',iDNG)
          DNG = iDNG.eq.1
       End If
-      DNG=DoNoGrad.or.DNG
+      DNG = (.not. mcpdft_options%grad) .or.DNG
 *
 *     Inside LAST_ENERGY we do not need analytical gradients
       If (SuperName(1:11).eq.'last_energy') DNG=.true.
@@ -645,10 +628,7 @@ c      end do
 *
 *
       If (DNG) Then
-         DoGradPDFT=.false.
-         if(mcpdft_options%mspdft) then
-          dogradmspd=.false.
-         end if
+         mcpdft_options%grad = .false.
       End If
 *
 *     Check to see if we are in a Do While loop
@@ -657,11 +637,7 @@ c      end do
       Call GetEnvF('MOLCAS_IN_GEO',inGeo)
       If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
      &    .and. .not.DNG) Then
-         DoGradPDFT=.true.
-         if(mcpdft_options%mspdft) then
-          dogradmspd=.true.
-          dogradpdft=.false.
-         end if
+        mcpdft_options%grad = .true.
       End If
 
 *---  Initialize Cholesky information if requested
@@ -740,4 +716,4 @@ c      end do
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
       Return
-      End
+      End Subroutine
