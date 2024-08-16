@@ -15,7 +15,7 @@
 !***********************************************************************
 
 module fciqmc_make_inp
-    use definitions, only: real64
+    use definitions, only: wp
     use linalg_mod, only: verify_
     use general_data, only: nActEl, iSpin
     use fortran_strings, only: str
@@ -23,7 +23,6 @@ module fciqmc_make_inp
     implicit none
     private
     public :: make_inp, cleanup
-    integer, parameter :: dp = real64
     ! Sometimes no default value on purpose
     integer, public :: &
         totalwalkers, &
@@ -40,17 +39,17 @@ module fciqmc_make_inp
         startsinglepart = 10, &
         pops_core = 10000
     character(len=:), allocatable, public :: definedet
-    real(dp), public :: &
-        proje_changeref = 1.2_dp, &
-        max_tau = 0.02_dp, &
-        maxwalkerbloom = 2._dp, &
-        memoryfacpart = 5.0_dp, &
-        memoryfacspawn = 10.0_dp, &
+    real(wp), public :: &
+        proje_changeref = 1.2_wp, &
+        max_tau = 0.02_wp, &
+        maxwalkerbloom = 2._wp, &
+        memoryfacpart = 5.0_wp, &
+        memoryfacspawn = 10.0_wp, &
         ! Default value for NECI RealSpawnCutOff
-        realspawncutoff = 0.3_dp, &
+        realspawncutoff = 0.3_wp, &
         ! Default value for NECI diagonal shift value
-        diagshift = 0.00_dp, &
-        shiftdamp = 0.02_dp
+        diagshift = 0.00_wp, &
+        shiftdamp = 0.02_wp
 
     type, public :: t_RDMsampling
         integer :: start, n_samples, step
