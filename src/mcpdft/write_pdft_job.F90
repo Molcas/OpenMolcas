@@ -17,15 +17,13 @@
 module write_pdft_job
   implicit none
   private
-  integer :: iwjob
-
   ! read from / write to HDF5 file
   logical :: hasHDF5ref=.false.
 
   ! reference wave function is of MPS type (aka "DMRG wave function")
   logical :: hasMPSref=.false.
 
-  public :: iwjob, hasHDF5ref, hasMPSref, writejob
+  public :: hasHDF5ref, hasMPSref, writejob
 
   contains
     subroutine writejob(adr19, e_mspdft, si_pdft)

@@ -10,13 +10,13 @@
 !***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
       use mspdft_grad, only: dogradmspd
-      use mspdft, only: cmsNACstates, doNACMSPD, doMECIMSPD
+      use mspdft, only: cmsNACstates, doNACMSPD
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use KSDFT_Info, only: CoefR, CoefX
-      use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
-      use write_pdft_job, only: iwjob, hasHDF5ref
+      use mcpdft_input, only: mcpdft_options
+      use write_pdft_job, only: hasHDF5ref
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
 
 #ifdef module_DMRG
@@ -100,7 +100,6 @@
 ! TODO PUT THIS INITIALITION IN MODULE FILE
 *     CMS NACs variables
       doNACMSPD = .false.
-      doMECIMSPD = .false.
       cmsNACstates(1) = 0
       cmsNACstates(2) = 0
 
@@ -315,37 +314,37 @@
        ReadStatus=' O.K. after reading DFCF keyword.'
       End If
 *---  Process MSPD command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
-      If (KeyMSPD) Then
-       If (DBG) Write(6,*) ' MSPD keyword was used.'
-       iMSPDFT=1
-       Call SetPos_m(LUInput,'MSPD',Line,iRc)
-       if(dogradpdft) then
-        dogradmspd=.true.
-        dogradpdft=.false.
-       end if
-      End If
-*---  Process WJOB command --------------------------------------------*
+          If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
+          If (KeyMSPD) Then
+              If (DBG) Write(6,*) ' MSPD keyword was used.'
+              mcpdft_options%mspdft = .true.
+              if(dogradpdft) then
+                  dogradmspd=.true.
+                  dogradpdft=.false.
+              end if
+          End If
+*---  Process wjob command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if write JOBIPH case.'
       If (KeyWJOB) Then
        If (DBG) Write(6,*) ' WJOB keyword was used.'
-       iWJOB=1
-       Call SetPos_m(LUInput,'WJOB',Line,iRc)
+       mcpdft_options%wjob = .true.
       End If
 *---  Process LAMB command --------------------------------------------*
       If (KeyLAMB) Then
        If (DBG) Write(6,*) 'Check if hybrid PDFT case'
        Call SetPos_m(LUInput,'LAMB',Line,iRc)
        ReadStatus=' Failure reading data following LAMB keyword.'
-       Read(LUInput,*,End=9910,Err=9920) Ratio_WF
+       Read(LUInput,*,End=9910,Err=9920) mcpdft_options%lambda
        ReadStatus=' O.K. reading data following LAMB keyword.'
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       If(Ratio_WF.gt.0.0d0) Then
-        Do_Hybrid=.true.
-        CALL Put_DScalar('R_WF_HMC',Ratio_WF)
+      If(mcpdft_options%do_hybrid()) Then
+        CALL Put_DScalar('R_WF_HMC',mcpdft_options%lambda)
        End If
-       If (DBG) Write(6,*) 'Wave Funtion Ratio in hybrid PDFT',Ratio_WF
-       If (dogradmspd.or.dogradpdft) Then
+      If (DBG) then
+      Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
+     &             mcpdft_options%lambda
+      end if
+      If (dogradmspd.or.dogradpdft) Then
         Call WarningMessage(2,'GRAD currently not compatible with HPDF')
         GoTo 9810
        End If
@@ -576,7 +575,7 @@ c      end do
       If (KeyGRAD) Then
        If (DBG) Write(6,*) ' GRADient keyword was used.'
        DoGradPDFT=.true.
-       if(iMSPDFT==1) then
+       if(mcpdft_options%mspdft) then
         dogradmspd=.true.
         dogradpdft=.false.
        end if
@@ -591,10 +590,10 @@ c      end do
       If (DBG) Write(6,*) ' Check if NAC case.'
       If (KeyNAC) Then
        If (DBG) Write(6,*) ' NAC keyword was used.'
-       if(iMSPDFT==1 .and. DoGradMSPD .eqv. .true.)  then
+       if(mcpdft_options%mspdft .and. DoGradMSPD)  then
            doNACMSPD=.true.
        end if
-       if(iMSPDFT==0) then
+       if(.not. mcpdft_options%mspdft) then
         Call WarningMessage(2,'NACs implemented only for MS-PDFT')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' NACs are only implemented         '
@@ -602,7 +601,7 @@ c      end do
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
-       if(DoGradMSPD .eqv. .false.) then
+       if(.not. DoGradMSPD) then
         Call WarningMessage(2,'NACs implemented with GRAD Code')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' NACs require the GRAD Keyword     '
@@ -619,11 +618,11 @@ c      end do
       If (DBG) Write(6,*) ' Check if MECI case.'
       If (KeyMECI) Then
        If (DBG) Write(6,*) ' MECI keyword was used.'
-       if(iMSPDFT==1 .and. DoGradMSPD .eqv. .true. .and.
-     & doNACMSPD .eqv. .true.)  then
-           doMECIMSPD=.true.
+       if(mcpdft_options%mspdft .and. DoGradMSPD .and.
+     & doNACMSPD)  then
+           mcpdft_options%meci = .true.
        end if
-       if(iMSPDFT==0) then
+       if(.not. mcpdft_options%mspdft) then
         Call WarningMessage(2,'NACs implemented only for MS-PDFT')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' MECI is only implemented          '
@@ -631,40 +630,23 @@ c      end do
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
-       if(DoGradMSPD .eqv. .false.) then
+       if(.not .DoGradMSPD) then
         Call WarningMessage(2,'NACs implemented with GRAD Code')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' MECI requires the GRAD Keyword    '
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
-       if(DoNACMSPD .eqv. .false.) then
+       if(.not. DoNACMSPD) then
         Call WarningMessage(2,'NACs implemented with GRAD Code')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' MECI requires the NAC Keyword     '
         Write(LF,*) ' **********************************'
         Call Abend()
        end if
-       Call SetPos_m(LUInput,'MECI',Line,iRc)
       End If
-*
-*---  All keywords have been processed ------------------------------*
+!---  All keywords have been processed ------------------------------*
 
-************************************************************************
-* Generate artificial splitting or RAS into GAS for parallel blocking  *
-************************************************************************
-* SVC: convert CAS/RAS to general GAS description here, then we only
-* need to copy it for lucia later, which always uses GAS description.
-      NGSSH(1,1:NSYM)=NRS1(1:NSYM)
-      NGSSH(2,1:NSYM)=NRS2(1:NSYM)
-      NGSSH(3,1:NSYM)=NRS3(1:NSYM)
-      IGSOCCX(1,1) = MAX(2*SUM(NRS1(1:NSYM))-NHOLE1,0)
-      IGSOCCX(1,2) = 2*SUM(NRS1(1:NSYM))
-      IGSOCCX(2,1) = NACTEL - NELEC3
-      IGSOCCX(2,2) = NACTEL
-      IGSOCCX(3,1) = NACTEL
-      IGSOCCX(3,2) = NACTEL
-*
 !Considerations for gradients/geometry optimizations
 
 *     Numerical gradients requested in GATEWAY
@@ -684,7 +666,7 @@ c      end do
 *
       If (DNG) Then
          DoGradPDFT=.false.
-         if(iMSPDFT==1) then
+         if(mcpdft_options%mspdft) then
           dogradmspd=.false.
          end if
       End If
@@ -696,7 +678,7 @@ c      end do
       If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
      &    .and. .not.DNG) Then
          DoGradPDFT=.true.
-         if(iMSPDFT==1) then
+         if(mcpdft_options%mspdft) then
           dogradmspd=.true.
           dogradpdft=.false.
          end if

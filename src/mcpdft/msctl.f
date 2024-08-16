@@ -29,8 +29,9 @@
 *     AMS, Minneapolis,   Feb 2016
 *
       use OneDat, only: sNoNuc, sNoOri
+      use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
-      Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
+      Use hybridpdft, only: E_NoHyb
       use mspdft_grad, only: dogradmspd
       use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
@@ -790,20 +791,14 @@ c         call xflush(6)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
-         IF(Do_Hybrid) THEN
-          E_NoHyb=CASDFT_E
-          CASDFT_E=Ratio_WF*Ref_Ener(jRoot)+(1-Ratio_WF)*E_NoHyb
-         END IF
-!         Write(6,*)
-!         '**************************************************'
-!         write(6,*) 'ENERGY REPORT FOR STATE',jroot
-*TRS
-*          write(6,*) 'ECAS', ECAS
+        IF(mcpdft_options%do_hybrid()) THEN
+            E_NoHyb=CASDFT_E
+            CASDFT_E = mcpdft_options%lambda*Ref_Ener(jRoot) +
+     &            (1.0-mcpdft_options%lambda) * E_NoHyb
+        END IF
 
-*TRS
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
      &         jroot,Ref_Ener)
-c         call xflush(6)
 
 
          IF(Do_Rotate) Then

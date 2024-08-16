@@ -41,7 +41,7 @@ module mspdft_util
     !   method: character(len=8)
     !     MS-PDFT method string
 
-    use hybridpdft, only: do_hybrid
+    use mcpdft_input, only: mcpdft_options
 
     integer, intent(in) :: nroots
     real(kind=wp), dimension(nroots), intent(in) :: e_mspdft
@@ -49,7 +49,7 @@ module mspdft_util
 
     integer :: root
 
-    if(.not.do_hybrid) then
+    if(.not. mcpdft_options%do_hybrid()) then
       write(lf,'(6X,2A)') method, ' Energies:'
       do root=1, nroots
         call PrintResult(lf,'(6X,A,1X,I4,3X,A13,F18.8)',method//' Root',root,'Total energy:',e_mspdft(root),1)

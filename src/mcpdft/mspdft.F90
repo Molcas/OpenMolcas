@@ -22,13 +22,13 @@ module mspdft
   integer :: D1AOMS,D1SAOMS
 
   ! CMS-NACS stuff
-  logical :: DoNacMSPD, DoMeciMSPD, isCMSNAC
+  logical :: DoNacMSPD, isCMSNAC
   integer :: cmsNACStates(2)
 
   public :: mspdftmethod, do_rotate, iF1MS, iF2MS
   public :: iFxyMS, iFocMS, iIntS, iDIDA, IP2MOt, D1AOMS, D1SAOMS
 
-  public :: DoNacMSPD, DoMeciMSPD, isCMSNAC, cmsNACStates
+  public :: DoNacMSPD, isCMSNAC, cmsNACStates
 
   public :: mspdft_finalize
 
@@ -58,8 +58,8 @@ module mspdft
     use mcpdft_output, only: lf
     use mspdft_util, only: print_effective_ham, print_final_energies, &
                            print_mspdft_vectors
-    use write_pdft_job, only: iwjob, writejob
-    use hybridpdft, only: do_hybrid
+    use mcpdft_input, only: mcpdft_options
+    use write_pdft_job, only: writejob
     use mspdft_grad, only: DoGradMSPD
 
     integer, intent(in) :: nroots, irlxroot
@@ -82,7 +82,7 @@ module mspdft
     write(lf,'(6X,A)') repeat('-',len_trim(Line)-3)
     write(lf,*)
 
-    if(do_hybrid) then
+    if(mcpdft_options%do_hybrid()) then
       write(lf,'(6X,3A)') 'Hybrid ', MSPDFTMethod, ' Effective Hamiltonian'
     else
       write(lf, '(6X,2A)') mspdftmethod, ' Effective Hamiltonian'
@@ -114,7 +114,7 @@ module mspdft
     call Put_dScalar('Last energy', e_mspdft(iRlxRoot))
 
     if (iprlev >= usual) then
-    if(do_hybrid) then
+    if(mcpdft_options%do_hybrid()) then
       write(lf, '(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
     else
         write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
@@ -123,7 +123,7 @@ module mspdft
     end if
 
     ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
-    if (iwjob==1) call writejob(iadr19, e_mspdft=e_mspdft, si_pdft=si_pdft)
+    if (mcpdft_options%wjob) call writejob(iadr19, e_mspdft=e_mspdft, si_pdft=si_pdft)
 
     if (iprlev >= usual) then
     call CollapseOutput(0,Line)

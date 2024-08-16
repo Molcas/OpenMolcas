@@ -51,11 +51,12 @@
 ************************************************************************
 
       use Fock_util_global, only: DoCholesky
-      use write_pdft_job, only: iwjob, writejob
+      use mcpdft_input, only: mcpdft_options
+      use write_pdft_job, only: writejob
       use mspdft_grad, only: dogradmspd
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
-     &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD,
+     &                  D1SAOMS, doNACMSPD, cmsNACstates,
      &                  mspdft_finalize
       use mcpdft_output, only: terse, debug, insane, usual, lf, iPrLoc
       use mspdft_util, only: replace_diag
@@ -281,7 +282,7 @@
       END DO
   11  CONTINUE
 
-      IF(iMSPDFT==1) Then
+      IF(mcpdft_options%mspdft) Then
        call f_inquire('ROT_HAM',Do_Rotate)
        IF(IPRLEV.ge.USUAL) THEN
        If(.not.Do_Rotate) Then
@@ -366,18 +367,14 @@
         call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
       End IF!End IF for doNACMSPD=.true.
 
-      IF(doMECIMSPD) Then
-        IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,A)') repeat('=',80)
-        write(6,*)
-        write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
-        write(6,*)
-        write(6,'(6X,A)') repeat('=',80)
-        END IF
-        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
-      ELSE
-        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      IF(mcpdft_options%meci .and. iprlev .ge. usual) Then
+        write(lf,'(6X,A)') repeat('=',80)
+        write(lf,*)
+        write(lf,'(6X,A,I3,I3)')'keyword MECI is used for states:'
+        write(lf,*)
+        write(lf,'(6X,A)') repeat('=',80)
       End IF
+      call Put_lScalar('isMECIMSPD      ', mcpdft_options%meci)
 
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
@@ -437,7 +434,9 @@
 
       ! I guess iRef_E now holds the MC-PDFT energy for each state??
 
-        If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
+      If(mcpdft_options%wjob .and.(.not.Do_Rotate)) then
+        Call writejob(iadr19)
+      end if
 
         If (Do_Rotate) Then
           call replace_diag(work(lhrot), work(iref_e), lroots)
