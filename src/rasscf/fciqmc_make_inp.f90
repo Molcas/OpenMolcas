@@ -82,9 +82,9 @@ contains
 
         call verify_(present(GAS_spaces) .eqv. present(GAS_particles), 'present(GAS_spaces) .eqv. present(GAS_particles)')
 
-        call add_info('Default number of total walkers', [dble(totalwalkers)], 1, 6)
-        call add_info('Default number of cycles ', [dble(nmcyc)], 1, 6)
-        call add_info('Default value for Time  ', [dble(Time)], 1, 6)
+        call add_info('Default number of total walkers', [real(totalwalkers, wp)], 1, 6)
+        call add_info('Default number of cycles ', [real(nmcyc, wp)], 1, 6)
+        call add_info('Default value for Time  ', [real(Time, wp)], 1, 6)
 
         file_id = isFreeUnit(39)
         call Molcas_Open(file_id, path)
