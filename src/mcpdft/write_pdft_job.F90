@@ -109,7 +109,7 @@ module write_pdft_job
     integer :: refwfn_id, wfn_energy
 #endif
 
-    if (mcpdft_options%is_ascii_orbital) then
+    if (mcpdft_options%is_hdf5_wfn) then
       disk = adr19(6)
       call DDaFile(jobiph, 1, energy, size(energy), disk)
 #ifdef _HDF5_
@@ -161,7 +161,7 @@ module write_pdft_job
 
     roots = size(U, dim=1)
 
-    if (mcpdft_options%is_ascii_orbital) then
+    if (mcpdft_options%is_hdf5_wfn) then
       disk = 284 ! where does this number come from?
       call iDafile(jobiph, 2, dum, 1, disk)
       ncon = dum(1)
@@ -178,12 +178,12 @@ module write_pdft_job
 
     call mma_allocate(tCI, ncon, label="tCI")
 
-    if (mcpdft_options%is_ascii_orbital) then
+    if (mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
     end if
 
     do i=1, roots
-      if(mcpdft_options%is_ascii_orbital) then
+      if(mcpdft_options%is_hdf5_wfn) then
         call DDafile(jobiph, 2, tCI, ncon, disk)
 #ifdef _HDF5_
       else
@@ -198,7 +198,7 @@ module write_pdft_job
       end do
     end do
 
-    if (mcpdft_options%is_ascii_orbital) then
+    if (mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
       do i=1, roots
         call DDafile(jobiph, 1, ci_rot((i-1)*ncon+1), ncon, disk)

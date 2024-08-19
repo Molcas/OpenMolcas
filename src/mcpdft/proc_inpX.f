@@ -15,11 +15,8 @@
       use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use definitions, only: wp
 
-
-#ifdef module_DMRG
-!     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
-#endif
 #ifdef _HDF5_
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
@@ -28,11 +25,8 @@
 #endif
       implicit none
 
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "WrkSpc.fh"
-#include "gas.fh"
 #include "rasscf.fh"
 #include "input_ras_mcpdft.fh"
 #include "general.fh"
@@ -40,15 +34,17 @@
       Character*180  Line
       Real*8 potnucdummy
       logical lExists, RunFile_Exists
-* Some strange extra logical variables...
-      logical DSCF
-      logical RF_On, Langevin_On, PCM_On
-      external RF_On, Langevin_On, PCM_On
+      Character*180, external :: Get_LN
+      Real(kind=wp), external :: Get_ExFac
+      Logical, External :: Is_First_Iter
+      integer, external :: isFreeUnit
+      logical, external ::  RF_On, Langevin_On, PCM_On
 
+      logical DSCF
       Logical DBG
 
 #ifdef _HDF5_
-* Local NBAS_L, NORB_L .. avoid collision with items in common.
+! Local NBAS_L, NORB_L .. avoid collision with items in common.
       integer, DIMENSION(8) :: NFRO_L,NISH_L,NRS1_L,NRS2_L
       integer, DIMENSION(8) :: NRS3_L,NSSH_L,NDEL_L
       character(len=1), allocatable :: typestring(:)
@@ -57,17 +53,14 @@
       integer :: nsym_l
       logical :: err
 #endif
+
 ! TOC on JOBOLD (or JOBIPH)
       integer, DIMENSION(15) :: IADR19
 
-      Character*180 Get_LN
-      External Get_LN
-      Real*8   Get_ExFac
-      External Get_ExFac
+
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
       Character*256 RealName
-      Logical, External :: Is_First_Iter
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
       CHARACTER*(80) OriginalKS
@@ -81,7 +74,6 @@
       integer irc, i, iad19
       integer iorbdata, isym
       integer not_sure, nisht, nasht, ndiff
-      integer, external :: isFreeUnit
 
       Call StatusLine('MCPDFT:','Processing Input')
 
@@ -166,7 +158,7 @@
        call fileorb(Line,StartOrbFile)
 #ifdef _HDF5_
        if (mh5_is_hdf5(StartOrbFile)) then
-         mcpdft_options%is_ascii_orbital = .false.
+         mcpdft_options%is_hdf5_wfn = .false.
       !> we do not need a JOBIPH file if we have HDF5 - override the default!
          keyJOBI = .false.
        end if
@@ -315,7 +307,7 @@
       End If
 
 *---  Process HDF5 file --------------------------------------------*
-      If (.not. mcpdft_options%is_ascii_orbital) Then
+      If (.not. mcpdft_options%is_hdf5_wfn) Then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
 *     read basic attributes
@@ -362,7 +354,7 @@
           call Quit(_RC_INPUT_ERROR_)
         end if
 
-        if(.not. mcpdft_options%is_ascii_orbital) then
+        if(.not. mcpdft_options%is_hdf5_wfn) then
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
             write (LF,*)' CI vectors will be read from HDF5 ref file.'
           else
@@ -412,7 +404,7 @@
       End If  !> IORBDATA
 
 !> read CI optimiation parameters from HDF5 file
-      if(.not. mcpdft_options%is_ascii_orbital) then
+      if(.not. mcpdft_options%is_hdf5_wfn) then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
         call mh5_fetch_attr (mh5id,'SPINMULT', iSpin)

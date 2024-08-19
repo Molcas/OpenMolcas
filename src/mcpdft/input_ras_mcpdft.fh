@@ -13,19 +13,19 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=12)
+      Parameter (NKeys=11)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
       Logical KeyFlags(0:NKeys+1)
       Logical KeyAAAA,
-     &     KeyEND , KeyFILE, KeyIPHN, KeyKSDF,
+     &     KeyEND , KeyFILE, KeyKSDF,
      &     KeyMSPD, KeyGrad, KeyNOGR,
      &     KeyDFCF, KeyWJOB, KeyLAMB, KeyNAC ,
      &     KeyMECI
 
       Common /InputFlags_M/ KeyAAAA,
-     &     KeyEND , KeyFILE, KeyIPHN, KeyKSDF,
+     &     KeyEND , KeyFILE, KeyKSDF,
      &     KeyMSPD, KeyGrad, KeyNOGR,
      &     KeyDFCF, KeyWJOB, KeyLAMB, KeyNAC ,
      &     KeyMECI
@@ -34,7 +34,7 @@
 *------------------------------------------------------
 * Actual keywords, note: Order matters!
       Character*4 CMD(nKeys)
-      Parameter (CMD = ['END ','FILE','IPHN','KSDF',
+      Parameter (CMD = ['END ','FILE','KSDF',
      &                  'MSPD','GRAD','NOGR',
      &                  'DFCF','WJOB','LAMB','NAC ',
      &                  'MECI'])

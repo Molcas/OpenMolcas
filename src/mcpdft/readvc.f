@@ -65,20 +65,16 @@
 
       Implicit Real*8 (A-H,O-Z)
 
-*     global data declarations
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "warnings.h"
-*     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
 
-*     local data declarations
-
+!     local data declarations
       Character*72 JobTit(mxTit)
       DIMENSION IADR19(30)
       Character*80 VecTit
