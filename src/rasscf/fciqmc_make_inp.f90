@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2015, Giovanni Li Manni                                *
-!               2019, 2024, Oskar Weser                                *
+!               2019,2024, Oskar Weser                                 *
 !               2021, Werner Dobrautz                                  *
 !***********************************************************************
 
