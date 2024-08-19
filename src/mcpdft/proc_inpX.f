@@ -154,12 +154,12 @@
          Write(lf,*) ' Calling fileorb with filename='
          Write(lf,*) Line
        End If
-    ! The fileorb subroutine does some magic to get the actual file path and
+! The fileorb subroutine does some magic to get the actual file path and
        call fileorb(Line,StartOrbFile)
 #ifdef _HDF5_
        if (mh5_is_hdf5(StartOrbFile)) then
          mcpdft_options%is_hdf5_wfn = .false.
-      !> we do not need a JOBIPH file if we have HDF5 - override the default!
+!> we do not need a JOBIPH file if we have HDF5 - override the default!
          keyJOBI = .false.
        end if
 #else
