@@ -17,13 +17,8 @@
 module write_pdft_job
   implicit none
   private
-  ! read from / write to HDF5 file
-  logical :: hasHDF5ref=.false.
 
-  ! reference wave function is of MPS type (aka "DMRG wave function")
-  logical :: hasMPSref=.false.
-
-  public :: hasHDF5ref, hasMPSref, writejob
+  public :: writejob
 
   contains
     subroutine writejob(adr19, e_mspdft, si_pdft)
@@ -99,6 +94,7 @@ module write_pdft_job
 #ifdef _HDF5_
     use mh5, only: mh5_open_file_rw, mh5_open_dset, mh5_put_dset, mh5_close_file
 #endif
+    use mcpdft_input, only: mcpdft_options
     implicit none
 
     !for general.fh (needs mxSym)
@@ -113,16 +109,12 @@ module write_pdft_job
     integer :: refwfn_id, wfn_energy
 #endif
 
-    if (.not.hasHDF5ref) then
+    if (mcpdft_options%is_ascii_orbital) then
       disk = adr19(6)
       call DDaFile(jobiph, 1, energy, size(energy), disk)
 #ifdef _HDF5_
     else
-      if (hasMPSref) then
-        refwfn_id = mh5_open_file_rw(StartOrbFile)
-      else
-        refwfn_id = mh5_open_file_rw('RASWFN')
-      end if
+      refwfn_id = mh5_open_file_rw(StartOrbFile)
       wfn_energy = mh5_open_dset(refwfn_id, 'ROOT_ENERGIES')
       call mh5_put_dset(wfn_energy, energy(1))
       call mh5_close_file(refwfn_id)
@@ -148,6 +140,7 @@ module write_pdft_job
       use mh5, only: mh5_open_file_rw, mh5_open_dset, mh5_put_dset, &
                      mh5_close_file, mh5_fetch_attr,mh5_fetch_dset
 #endif
+    use mcpdft_input, only: mcpdft_options
     implicit none
 
     ! for rasscf.fh ...
@@ -168,18 +161,14 @@ module write_pdft_job
 
     roots = size(U, dim=1)
 
-    if (.not.hasHDF5ref) then
+    if (mcpdft_options%is_ascii_orbital) then
       disk = 284 ! where does this number come from?
       call iDafile(jobiph, 2, dum, 1, disk)
       ncon = dum(1)
 
 #ifdef _HDF5_
     else
-      if (hasMPSref) then
-        refwfn_id = mh5_open_file_rw(StartOrbFile)
-      else
-        refwfn_id = mh5_open_file_rw('RASWFN')
-      end if
+      refwfn_id = mh5_open_file_rw(StartOrbFile)
       call mh5_fetch_attr(refwfn_id, 'NCONF', ncon)
 #endif
     end if
@@ -189,12 +178,12 @@ module write_pdft_job
 
     call mma_allocate(tCI, ncon, label="tCI")
 
-    if (.not.hasHDF5ref) then
+    if (mcpdft_options%is_ascii_orbital) then
       disk = adr19(4)
     end if
 
     do i=1, roots
-      if(.not.hasHDF5ref) then
+      if(mcpdft_options%is_ascii_orbital) then
         call DDafile(jobiph, 2, tCI, ncon, disk)
 #ifdef _HDF5_
       else
@@ -209,7 +198,7 @@ module write_pdft_job
       end do
     end do
 
-    if (.not.hasHDF5ref) then
+    if (mcpdft_options%is_ascii_orbital) then
       disk = adr19(4)
       do i=1, roots
         call DDafile(jobiph, 1, ci_rot((i-1)*ncon+1), ncon, disk)

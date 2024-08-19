@@ -14,8 +14,8 @@
       use KSDFT_Info, only: CoefR, CoefX
       use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
-      use write_pdft_job, only: hasHDF5ref
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+
 
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
@@ -25,7 +25,6 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
       use stdalloc, only: mma_allocate, mma_deallocate
-      use write_pdft_job, only: hasMPSref
 #endif
       implicit none
 
@@ -140,12 +139,13 @@
 * ==== End check if there is any runfile ====
 
       iOrbData=0
-* iOrbData=0: no orbital space data is specified
-*         >0: specifications from some orbital file (JOBOLD, JOBIPH, HDF5)
+! iOrbData=0: no orbital space data is specified
+!         >0: specifications from some orbital file (JOBOLD, JOBIPH, HDF5)
       INVEC=0
-* INVEC=0, no source for orbitals (yet)
-*       3, take from JOBOLD, or JOBIPH file
-*       4, take from an HDF5 file
+! INVEC=0, no source for orbitals (yet)
+!       3, take from JOBOLD, or JOBIPH file
+!       4, take from an HDF5 file
+!       5, take from startorb (instead of jobold or jobiph) NOT IMPLEMENTED
 
 *---  ==== FILE(ORB) keyword =====
       If (DBG) Write(6,*)' Where to read MOs/CI vectors? '
@@ -166,10 +166,12 @@
        call fileorb(Line,StartOrbFile)
 #ifdef _HDF5_
        if (mh5_is_hdf5(StartOrbFile)) then
-         hasHDF5ref = .true.
-!> we do not need a JOBIPH file if we have HDF5 - override the default!
+         mcpdft_options%is_ascii_orbital = .false.
+      !> we do not need a JOBIPH file if we have HDF5 - override the default!
          keyJOBI = .false.
        end if
+#else
+       invec = 5
 #endif
       End If
 
@@ -313,7 +315,7 @@
       End If
 
 *---  Process HDF5 file --------------------------------------------*
-      If (hasHDF5ref) Then
+      If (.not. mcpdft_options%is_ascii_orbital) Then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
 *     read basic attributes
@@ -360,13 +362,7 @@
           call Quit(_RC_INPUT_ERROR_)
         end if
 
-#ifdef _DMRG_
-        !> QCMaquis MPS reference wave function
-        if (mh5_exists_dset(mh5id, 'QCMAQUIS_CHECKPOINT')) then
-           hasMPSref  = .true.
-        end if
-#endif
-        if(.not.hasMPSref)then
+        if(.not. mcpdft_options%is_ascii_orbital) then
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
             write (LF,*)' CI vectors will be read from HDF5 ref file.'
           else
@@ -416,7 +412,7 @@
       End If  !> IORBDATA
 
 !> read CI optimiation parameters from HDF5 file
-      if(hasHDF5ref)then
+      if(.not. mcpdft_options%is_ascii_orbital) then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
         call mh5_fetch_attr (mh5id,'SPINMULT', iSpin)

@@ -99,6 +99,7 @@
       END IF
 
 ! invec can either be 3 or 4 based off of proc_inpx
+! can also be 5 (if FileOrb points to a non hdf5 reference file)
 
 ! read from unit formatted ascii file with starting orbitals
 
@@ -237,6 +238,10 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         write (6,*) 'installation does not support that, abort!'
         call abend
 #endif
+      else if (invec .eq. 5) then
+        write(lf,*) "FileOrb specified, but does not point to hdf5 file"
+        write(lf,*) "This has not been implemented, aborting"
+        call abend
       End If
 *     print start orbitals
       IF(IPRLEV >= DEBUG) THEN

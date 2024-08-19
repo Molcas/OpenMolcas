@@ -29,7 +29,8 @@ module mcpdft_input
         !character, dimension(80) :: ksdft
 
         ! This should replace the StartOrbFile in general.fh
-        !character, dimension(256) :: fileorb
+        logical :: is_ascii_orbital = .true.
+        !character, dimension(256) :: orbital_file
     contains
         procedure :: do_hybrid
     end type
