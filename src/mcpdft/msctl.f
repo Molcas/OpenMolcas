@@ -70,7 +70,6 @@
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
       integer isym,iash,jsym
-      integer LUGS
       External IsFreeUnit
 
 ***********************************************************
@@ -81,12 +80,6 @@ C Local print level (if any)
 
 *TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-***********************************************************
-* Load the nuclear repulsion energy
-***********************************************************
-*TRS
-*
-      Call Get_dScalar('PotNuc',potNuc)
 
 ***********************************************************
 * Generate molecular charges
@@ -878,62 +871,7 @@ cPS         call xflush(6)
           end if
         end do
         end if
-*
-*         do i=1,nacpr2
-*         call dcopy_(nacpr2,0.0d0,1,Work(ltuvx_tmp-1+i),1)
-*         end do
-*
-*         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
-*
-*         do i=1,nfint
-*         Call dcopy_(nfint,0.0D0,1,WORK(lpuvx_tmp-1+i),1)
-*         end do
-*
-*
-*         CALL TRA_CTL2_(WORK(lcmo),
-*     &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao)
-*     &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
-*
-*         write(6,*) 'cmo after before fmat 2'
-*         do i=1,ntot2
-*           write(6,*) work(lcmo-1+i)
-*         end do
-*        write(6,*) 'lpuvx after before fmat 2'
-*         do i=1,nfint
-*           write(6,*) work(lpuvx-1+i)
-*         end do
-*        write(6,*) 'id1act after before fmat 2'
-*         do i=1,nacpar
-*           write(6,*) work(id1act-1+i)
-*         end do
-*        write(6,*) 'id1actao after before fmat 2'
-*         do i=1,ntot2
-*           write(6,*) work(id1actao-1+i)
-*         end do
-*
-*         write(6,*) 'ifocki_save after before fmat 2'
-*         do i=1,ntot1
-*           write(6,*) work(ifocki_save-1+i)
-*         end do
-*        write(6,*) 'ifocka after before fmat 2'
-*         do i=1,ntot1
-*           write(6,*) work(ifocka-1+i)
-*         end do
-*
 
-*        Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
-*     &             Work(iFockI_save),Work(iFockA))
-*       call  dcopy_(ntot1,work(ifocki_save),1,work(ifocki),1)
-*
-*        Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
-*        Call GetMem('lcmo','Free','Real',lcmo,ntot2)
-*
-*        write(6,*) 'FA msctl after fmat 2'
-*        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
-*        write(6,*) 'FI msctl after fmat 2'
-*        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
-
-!
 
 !______________________________________________________
 !Grab the active-active part of the FI+FA matrix (currently held in the
@@ -1090,12 +1028,9 @@ cPS         call xflush(6)
 
 
       !Add one e potential, too.
-!test comment
       Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifocki),1)
       !Add two e potentials
-!test comment
       Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifocki),1)
-!test comment
       Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifocka),1)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "new FI"
@@ -1116,9 +1051,6 @@ cPS         call xflush(6)
 !p = work(iP2d)
          CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
       END IF
-!test comment add
-!      Call FZero(Work(iptmplteotp),nfint)
-!test comment add end
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
          CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
@@ -1266,17 +1198,6 @@ cPS         call xflush(6)
 
 
         Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
-      end if
-
-
-      if(doGSOR) then
-        LUGS=25
-        LUGS=IsFreeUnit(LUGS)
-        IAD19=0
-        Call DaName(LUGS,'JOBGS')
-        Call IDaFile(LUGS,2,IADR19,15,IAD19)
-        Call DDAFile(LUGS,1,Energies,lroots,IADR19(6))
-        Call DaClos(LUGS)
       end if
 
       if (nFint.gt.0) then

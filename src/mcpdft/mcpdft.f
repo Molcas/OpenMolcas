@@ -50,11 +50,8 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use csfbas, only: CONF
-      use glbbas, only: CFTP
       use Fock_util_global, only: DoCholesky
       use write_pdft_job, only: iwjob, writejob
-      use sxci, only: idxsx
       use mspdft_grad, only: dogradmspd
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
@@ -63,12 +60,9 @@
       use mcpdft_output, only: terse, debug, insane, usual, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
-      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
-      use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use gugx, only: SGS,CIS,EXS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -80,62 +74,44 @@
 #include "general.fh"
 #include "gas.fh"
 #include "timers.fh"
-#include "lucia_ini.fh"
 #include "pamint.fh"
-#include "ciinfo.fh"
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
 
       CHARACTER(Len=18)::MatInfo
       INTEGER LUMS,IsFreeUnit
       External IsFreeUnit
 
-      Logical DSCF
       Character*80 Line
       Logical IfOpened
       Logical Found
 
-      External RasScf_Init_m
+      external mcpdft_init
       External Scan_Inp_m
       integer iRef_E,IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      real*8, allocatable :: PLWO(:), CIV(:)
-      integer ivkcnf
+      real*8, allocatable :: PLWO(:)
+      Logical DSCF
 
-* Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
-* Set the return code(s)
       IRETURN=_RC_ALL_IS_WELL_
 
-* Local print level in this routine:
+! Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
-* Default option switches and values, and initial data.
+! Default option switches and values, and initial data.
       EAV = 0.0d0
-      Call RasScf_Init_m()
-      Call Seward_Init()
-* Open the one-olectron integral file:
-      LuOne=77
-      LuOne=isFreeUnit(LuOne)
-      iRC=-1
-      iOpt=0
-      Call OpnOne(iRC,iOpt,'ONEINT',LuOne)
-      If (iRC.ne.0) Then
-        Write (6,*) 'Error when trying to open the one-electron'
-        Write (6,*) 'integral file.'
-        Call Quit(_RC_INTERNAL_ERROR_)
-      End If
+      call mcpdft_init()
 
-* Make a copy, upper-cased, left-adjusted, of the input between and including
-* the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
-* with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
-* substring beginning with '!' with blanks.
-* That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
+! Make a copy, upper-cased, left-adjusted, of the input between and including
+! the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
+! with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
+! substring beginning with '!' with blanks.
+! That copy will be in file 'CleanInput', and its unit number is returned
+! as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
       Call cpinp_(LUInput,iRc)
-* If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        Call WarningMessage(2,'Input file is unusable.')
        write(lf,*)' MCPDFT Error: Could not make a clean copy of'
@@ -162,12 +138,13 @@
 ! Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
-* Open files
-      Call OpnFls_RASSCF_m(DSCF)
+      Call open_files_mcpdft(DSCF)
 
 * Some preliminary input data:
       Call Rd1Int()
-      If ( .not.DSCF ) Call Rd2Int_RASSCF()
+      If ( .not. DSCF ) then
+        Call Rd2Int_RASSCF()
+      end if
 
 * Process the input:
       Call Proc_InpX(DSCF,iRc)
@@ -429,67 +406,6 @@
 
       Call Put_dArray('Last orbitals',CMO,ntot2)
 
-      if (doGSOR) then
-        Call f_Inquire('JOBOLD',Found)
-        if (.not.found) then
-          Call f_Inquire('JOBIPH',Found)
-          if(Found) JOBOLD=JOBIPH
-        end if
-        If (Found) iJOB=1
-        If (iJOB.eq.1) Then
-           if(JOBOLD.le.0) Then
-             JOBOLD=20
-             Call DaName(JOBOLD,'JOBOLD')
-           end if
-        end if
-        IADR19(:)=0
-        IAD19=0
-        LUCT=87
-        LUCT=IsFreeUnit(LUCT)
-        CALL Molcas_Open(LUCT,'CI_THETA')
-
-        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-        CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
-        CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-        CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
-        CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-        CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        CALL mma_allocate(Pscr,NACPR2,Label='Pscr')
-
-        Dtmp(:)=0.0D0
-        DStmp(:)=0.0D0
-        Ptmp(:)=0.0D0
-        CIVEC(:)=0.0D0
-        iDisk = IADR19(4)
-        jDisk = IADR19(3)
-
-        Call mma_allocate(CIV,nConf,Label='CIV')
-        DO jRoot=1,lroots
-          do i=1,nconf
-            read(LUCT,*) CIVEC(i)
-          end do
-          Call DDafile(JOBOLD,1,CIVEC,nConf,iDisk)
-          call getmem('kcnf','allo','inte',ivkcnf,nactel)
-          Call Reord2(NAC,NACTEL,STSYM,1,
-     &                CONF,CFTP,CIVEC,CIV,iWork(ivkcnf))
-          Call dcopy_(nconf,CIV,1,CIVEC,1)
-          call getmem('kcnf','free','inte',ivkcnf,nactel)
-          CALL Lucia_Util('Densi',
-     &                    CI_Vector=CIVEC(:))
-          If (SGS%IFRAS > 2) Then
-            Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
-          End If
-
-          Call DDafile(JOBOLD,1,Dtmp,NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,DStmp,NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,Ptmp,NACPR2,jDisk)
-          Call DDafile(JOBOLD,1,PAtmp,NACPR2,jDisk)
-        end do
-        Close(LUCT)
-        Call fCopy('JOBIPH','JOBGS',ierr)
-
-       end if!DoGSOR
-
       if(dogradmspd) then
         CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
       end if
@@ -583,21 +499,6 @@
       Call mma_deallocate(PA)
       Call mma_deallocate(TUVX)
 
-*
-*
-       if (doGSOR) then
-          CALL mma_deallocate(CIVEC)
-          CALL mma_deallocate(Dtmp)
-          CALL mma_deallocate(DStmp)
-          CALL mma_deallocate(Ptmp)
-          CALL mma_deallocate(PAtmp)
-          CALL mma_deallocate(Pscr)
-          CALL mma_deallocate(CIV)
-          Call Lucia_Util('CLOSE')
-          Call MKGUGA_FREE(SGS,CIS,EXS)
-       end if
-
-*
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
 
@@ -606,20 +507,10 @@
        Call PrtTim()
        Call FastIO('STATUS')
       END IF
-      Call ClsFls_RASSCF_m()
 
  9990 Continue
 
-C Close the one-electron integral file:
-      iRC=-1
-      iOpt=0
-      Call ClsOne(iRC,iOpt)
-      If (iRC.ne.0) Then
-         Write (6,*) 'Error when trying to close the one-electron'
-         Write (6,*) 'integral file.'
-         Call Quit(_RC_INTERNAL_ERROR_)
-      End If
-
+      call close_files_mcpdft()
       DO I=10,99
         INQUIRE(UNIT=I,OPENED=IfOpened)
         IF (IfOpened.and.I.ne.19) CLOSE (I)
