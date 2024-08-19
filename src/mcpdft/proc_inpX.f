@@ -78,7 +78,6 @@
       Character*8 emiloop
       Character*8 inGeo
       logical :: keyJOBI
-      Intrinsic DBLE
 
       integer irc, i, iad19
       integer iorbdata, isym
@@ -111,9 +110,9 @@
 
 * ==== Check if there is any runfile ====
       Call F_Inquire('RUNFILE',RunFile_Exists)
-      If (DBG) Write(6,*)' Inquire about RUNFILE.'
+      If (DBG) Write(lf,*)' Inquire about RUNFILE.'
       IF (RunFile_Exists) Then
-       If (DBG) Write(6,*)' Yes, there is one.'
+       If (DBG) Write(lf,*)' Yes, there is one.'
        NSYM=0
        Call qpg_iScalar('nSym',lExists)
        IF (lExists) Then
@@ -154,50 +153,32 @@
 
       If (KeyFILE) Then
        If (DBG) Then
-         Write(6,*)' Reading file name for start orbitals.'
+         Write(lf,*)' Reading file name for start orbitals.'
        End If
        Call SetPos_m(LUInput,'FILE',Line,iRc)
        Line=Get_Ln(LUInput)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If (DBG) Then
-         Write(6,*) ' Calling fileorb with filename='
-         Write(6,*) Line
+         Write(lf,*) ' Calling fileorb with filename='
+         Write(lf,*) Line
        End If
+    ! The fileorb subroutine does some magic to get the actual file path and
        call fileorb(Line,StartOrbFile)
 #ifdef _HDF5_
        if (mh5_is_hdf5(StartOrbFile)) then
          hasHDF5ref = .true.
+!> we do not need a JOBIPH file if we have HDF5 - override the default!
+         keyJOBI = .false.
        end if
 #endif
-!> we do not need a JOBIPH file if we have HDF5 - override the default!
-       if(hasHDF5ref) keyJOBI = .false.
-
       End If
 
 *---  ==== JOBI(PH) keyword =====
-
-* The JOBIPH file, following decisions from the Torre Normanna labour camp:
-* Default, the file name is 'JOBIPH'.
-* However, if keyword IPHNAME was used, then the name was given in input.
-* Also, if instead the keyword NEWIPH was given, then a new name will be
-* chosen as the first not-already-used name in the sequence
-* 'JOBIPH', 'JOBIPH01', 'JOBIPH02', etc.
-
+! The following is run, EXCEPT if FILE key is provided an points to an
+! HDF5 input file
+! I have a feeling that this should only run IF FILE(ORB) key is not passed
       if(keyJOBI)then
-        IPHNAME='ToBeFoun'
-        If (KeyIPHN) Then
-          If (DBG) Then
-            Write(6,*)' Reading file name for JOBIPH file.'
-          End If
-          Call SetPos_m(LUInput,'IPHN',Line,iRc)
-          If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-          ReadStatus=' Failure reading IPHNAME string.'
-          Read(LUInput,*,End=9910,Err=9920) IPHNAME
-          ReadStatus=' O.K. after reading IPHNAME string.'
-          Call UpCase(IPHNAME)
-        End If
-
-        IF(IPHNAME.EQ.'ToBeFoun') IPHNAME='JOBIPH'
+        IPHNAME='JOBIPH'
 
         !> check first for JOBOLD
         Call f_Inquire('JOBOLD',lExists)
@@ -230,7 +211,6 @@
         CALL DANAME(JOBIPH,IPHNAME)
         INVEC=3
       end if !> JOBI(PH) keyword
-
 *---  ==== JOBI(PH) keyword =====
 
 *---  process KSDF command --------------------------------------------*
@@ -357,13 +337,12 @@
           call Quit(_RC_INPUT_ERROR_)
         end if
 *     orbitals available?
-        if (mh5_exists_dset(mh5id, 'MO_VECTORS')) then
-          inVec=4
-        else
+        if (.not. mh5_exists_dset(mh5id, 'MO_VECTORS')) then
           write (LF,*)'The HDF5 ref file does not contain MO vectors.'
           write (LF,*)'Fatal error, the calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
+        INVEC = 4
 *     typeindex data available?
         if (mh5_exists_dset(mh5id, 'MO_TYPEINDICES')) then
           iOrbData=3

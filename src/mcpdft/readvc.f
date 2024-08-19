@@ -83,69 +83,29 @@
       DIMENSION IADR19(30)
       Character*80 VecTit
       Logical Found
-      Logical Changed
-      Integer nTmp(8)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
 #ifdef _HDF5_
       integer mh5id
 #endif
 
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
-C Local print level (if any)
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
+! Local print level (if any)
       IPRLEV=IPRLOC(1)
       IF(IPRLEV >= DEBUG) THEN
         WRITE(LF,*)' Entering READVC'
       END IF
-*----------------------------------------------------------------------*
-* Do we use default orbitals?                                          *
-*----------------------------------------------------------------------*
-      If(InVec == 0) Then
-        Call qpg_darray('RASSCF orbitals',Found,nData)
-        If(Found) Then
-          InVec=6
-          IF(IPRLEV >= TERSE) THEN
-            Write(6,'(6x,a)') 'Orbitals from runfile: rasscf orbitals'
-          END IF
-        End If
-      End If
-      Call Check_InVec(InVec)
-      If(InVec == 0) Then
-         Call qpg_darray('SCF orbitals',Found,nData)
-         If(Found) Then
-            InVec=7
-            IF(IPRLEV >= TERSE) THEN
-            Write(6,'(6x,a)') 'Orbitals from runfile: scf orbitals'
-            END IF
-         End If
-      End If
-      Call Check_InVec(InVec)
-      If(InVec == 0) Then
-         Call qpg_darray('Guessorb',Found,nData)
-         If(Found) Then
-            InVec=5
-            IF(IPRLEV >= TERSE) THEN
-            Write(6,'(6x,a)') 'Orbitals from runfile: guessorb orbitals'
-            END IF
-         End If
-      End If
-      Call Check_InVec(InVec)
-      If(Invec == 0) Then
-        Write(LF,'(6X,2A)')
-     &  "MC-PDFT shouldn't be guessing orbitals...something wrong",
-     &  'with your calculation or this module..'
-        call abend()
-      End If
-*----------------------------------------------------------------------*
-* read from unit formatted ascii file with starting orbitals
 
-* Note: Inside RDVEC, the file StartOrbFile is opened, but uses blindly
-* the unit number provided here. So that should better be a usable
-* number, or else!
+! invec can either be 3 or 4 based off of proc_inpx
 
-*     read from unit JOBOLD (binary file)
+! read from unit formatted ascii file with starting orbitals
+
+! Note: Inside RDVEC, the file StartOrbFile is opened, but uses blindly
+! the unit number provided here. So that should better be a usable
+! number, or else!
+!     read from unit JOBOLD (binary file)
       If ( InVec == 3 ) then
         IAD19=0
         iJOB=0
@@ -277,103 +237,6 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         write (6,*) 'installation does not support that, abort!'
         call abend
 #endif
-
-*     guess MO-coefficients
-
-      Else If (InVec == 5) then
-         IF(IPRLEV >= VERBOSE) Write(LF,'(6x,a)')
-     &                               'Detected guessorb orbitals'
-         Call Qpg_dArray('Guessorb',Found,nData)
-         Call Get_dArray('Guessorb',CMO,nData)
-         Call Qpg_iArray('nDel_go',Found,nData)
-         If(Found) Then
-            Call Get_iArray('nDel_go',nTmp,nData)
-            Changed=.false.
-            Do iSym=1,nSym
-               If(nTmp(iSym).gt.nDel(iSym)) Changed=.true.
-            End Do
-            If(Changed) Then
-               Write(6,'(5x,a,8i5)')'Number of deleted orbitals '//
-     &                            'changed from',(nDel(i),i=1,nSym)
-               Write(6,'(5x,a,8i5)')'                           '//
-     &                            'changed to  ',(nTmp(i),i=1,nSym)
-            End If
-            Do iSym=1,nSym
-               If(nTmp(iSym).gt.nDel(iSym)) Then
-                  nSsh(iSym)=nSsh(iSym)-nTmp(iSym)+nDel(iSym)
-                  nOrb(iSym)=nOrb(iSym)-nTmp(iSym)+nDel(iSym)
-                  nOrbT=nOrbT-nTmp(iSym)+nDel(iSym)
-                  nDel(iSym)=nTmp(iSym)
-               End If
-            End Do
-            IF(IPRLEV >= TERSE) THEN
-             Write(LF,'(6X,A)')
-     &       'The MO-coefficients are taken from guessorb on runfile'
-            END IF
-         End If
-      Else If (InVec == 6) then
-         IF(IPRLEV >= VERBOSE) Write(LF,'(6x,a)')
-     &                               'Detected old RASSCF orbitals'
-         Call qpg_darray('RASSCF orbitals',Found,nData)
-         Call get_darray('RASSCF orbitals',CMO,nData)
-         Call Qpg_iArray('nDel',Found,nData)
-         If(Found) Then
-            Call Get_iArray('nDel',nTmp,nData)
-            Changed=.false.
-            Do iSym=1,nSym
-               If(nTmp(iSym).gt.nDel(iSym)) Changed=.true.
-            End Do
-            If(Changed) Then
-               Write(6,'(5x,a,8i5)')'Number of deleted orbitals '//
-     &                            'changed from',(nDel(i),i=1,nSym)
-               Write(6,'(5x,a,8i5)')'                           '//
-     &                            'changed to  ',(nTmp(i),i=1,nSym)
-            End If
-            Do iSym=1,nSym
-               If(nTmp(iSym).gt.nDel(iSym)) Then
-                  nSsh(iSym)=nSsh(iSym)-nTmp(iSym)+nDel(iSym)
-                  nOrb(iSym)=nOrb(iSym)-nTmp(iSym)+nDel(iSym)
-                  nOrbT=nOrbT-nTmp(iSym)+nDel(iSym)
-                  nDel(iSym)=nTmp(iSym)
-               End If
-            End Do
-            IF(IPRLEV.ge.TERSE) THEN
-             Write(LF,'(6X,A,A)') 'The MO-coefficients are taken from',
-     &                                    ' rasscf orbitals on runfile'
-            END IF
-         End If
-      Else If (InVec.eq.7) then
-         IF(IPRLEV.ge.VERBOSE) Write(LF,'(6x,a)')
-     &                               'Detected SCF orbitals'
-         Call qpg_darray('SCF orbitals',Found,nData)
-         Call get_darray('SCF orbitals',CMO,nData)
-         Call Qpg_iArray('nDel',Found,nData)
-         If(Found) Then
-            Call Get_iArray('nDel',nTmp,nData)
-            Changed=.false.
-            Do iSym=1,nSym
-               If(nTmp(iSym).gt.nDel(iSym)) Changed=.true.
-            End Do
-            If(Changed) Then
-               Write(6,'(5x,a,8i5)')'Number of deleted orbitals '//
-     &                            'changed from',(nDel(i),i=1,nSym)
-               Write(6,'(5x,a,8i5)')'                           '//
-     &                            'changed to  ',(nTmp(i),i=1,nSym)
-            End If
-            Do iSym=1,nSym
-               If(nTmp(iSym).gt.nDel(iSym)) Then
-                  nSsh(iSym)=nSsh(iSym)-nTmp(iSym)+nDel(iSym)
-                  nOrb(iSym)=nOrb(iSym)-nTmp(iSym)+nDel(iSym)
-                  nOrbT=nOrbT-nTmp(iSym)+nDel(iSym)
-                  nDel(iSym)=nTmp(iSym)
-               End If
-            End Do
-         End If
-         IF(IPRLEV.ge.TERSE) THEN
-           Write(LF,'(6X,A,A)') 'The MO-coefficients are taken from',
-     &                                 ' scf orbitals on runfile'
-         END IF
-
       End If
 *     print start orbitals
       IF(IPRLEV >= DEBUG) THEN

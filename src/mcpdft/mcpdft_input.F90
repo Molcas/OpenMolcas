@@ -13,9 +13,7 @@
 
 module mcpdft_input
     use definitions, only: iwp, wp
-
     implicit none
-
     private
 
     type :: McpdftInputOptions
@@ -26,7 +24,12 @@ module mcpdft_input
         logical :: nac = .false.
         integer(kind=iwp), dimension(2) :: nac_states = 0
         real(kind=wp) :: lambda = 0.0d0
+
+        ! This should replace ksdft in the rasscf.fh
         !character, dimension(80) :: ksdft
+
+        ! This should replace the StartOrbFile in general.fh
+        !character, dimension(256) :: fileorb
     contains
         procedure :: do_hybrid
     end type
