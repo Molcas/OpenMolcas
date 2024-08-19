@@ -33,16 +33,6 @@
 *               averaged two body density matrix                       *
 *     PA      : array of real*8                                        *
 *               averaged antisymmetric twobody density matrix          *
-*     FI      : array of real*8                                        *
-*               inactive Fock matrix                                   *
-*     D1I     : array of real*8                                        *
-*               inactive one body density matrix                       *
-*     D1A     : array of real*8                                        *
-*               active one body density matrix                         *
-*     TUVX    : array of real*8                                        *
-*               two-electron integrals (tu!vx)                         *
-*     IFINAL  : integer                                                *
-*               termination flag                                       *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -60,10 +50,10 @@
 #ifdef _HDF5_
       use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
-      use sxci, only: idxci, idxsx
+      use definitions, only: wp, iwp
       use mcpdft_output, only: terse, verbose, debug, lf, iPrGlb, iPrLoc
 
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -72,15 +62,17 @@
 #include "SysDef.fh"
 #include "warnings.h"
 
-      Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      real(kind=wp), Dimension(*) :: CMO,OCC,D,DS,P,PA
 
 !     local data declarations
-      Character*72 JobTit(mxTit)
-      DIMENSION IADR19(30)
-      Character*80 VecTit
-      Logical Found
-      Character*(LENIN8*mxOrb) lJobH1
-      Character*(2*72) lJobH2
+      integer(kind=iwp), dimension(30) :: IADR19
+      logical :: Found
+      integer(kind=iwp) :: i, iad19, idisk, ijob, iprlev
+      integer(kind=iwp) :: jroot, kroot
+
+      integer(kind=iwp) :: lene, lscr
+      real(kind=wp) :: scal
+
 #ifdef _HDF5_
       integer mh5id
 #endif
@@ -134,26 +126,6 @@
           IF(IPRGLB >= VERBOSE)
      &               Call WarningMessage(1,'Old JOBIP file layout.')
         END IF
-        lll = 10+RtoI
-        lll = MAX(lll,mxSym)
-        lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI*mxRoot)
-        CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
-        ldJobH=ip_of_Work_i(iWork(lJobH+10))
-        iAd19=iAdr19(1)
-        CALL WR_RASSCF_Info(JobOld,2,iAd19,
-     &                      iWork(lJobH),iWork(lJobH+1),iWork(lJobH+2),
-     &                      iWork(lJobH+3),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      mxSym,
-     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH+4),
-     &                      lJobH2,2*72,JobTit,72*mxTit,
-     &                      Work(ldJobH),iWork(lJobH+5),
-     &                      iWork(lJobH+6),iWork(lJobH),mxRoot,
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH+7),iWork(lJobH+8),
-     &                      iWork(lJobH+9),
-     &                      Work(ldJobH))
         IF(IPRLEV >= TERSE) THEN
          If (iJOB == 1) Then
             Write(LF,'(6X,A)')
@@ -164,10 +136,8 @@
      &      'The MO-coefficients are taken from the file:'
             Write(LF,'(6X,A)') trim(IPHNAME)
          End If
-         Write(VecTit(1:72),'(A72)') JobTit(1)
-         Write(LF,'(6X,2A)') 'Title:',VecTit(1:72)
         END IF
-        CALL GETMEM('JOBOLD','FREE','INTEGER',lJobH,lll)
+
         iAd19=iAdr19(2)
         Call DDaFile(JobOld,2,CMO,NTOT2,iAd19)
         Call DDaFile(JobOld,2,OCC,nTot,iAd19)
@@ -186,10 +156,10 @@
         Call GetMem('Scr','Allo','Real',lscr,NACPR2)
         iDisk = IADR19(3)
         Do jRoot = 1,lRoots
-          Scal = 0.0d0
+          scal = 0.0d0
           Do kRoot = 1,nRoots
             If ( iRoot(kRoot).eq.jRoot ) then
-              Scal = Weight(kRoot)
+              scal = Weight(kRoot)
             End If
           End Do
           Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
@@ -203,12 +173,6 @@
         End Do
         Call GetMem('Scr','Free','Real',lscr,NACPR2)
 
-CSVC: read the L2ACT and LEVEL arrays from the jobiph file
-         IAD19=IADR19(18)
-         IF (IAD19.NE.0) THEN
-           CALL IDAFILE(JOBOLD,2,IDXSX,mxAct,IAD19)
-           CALL IDAFILE(JOBOLD,2,IDXCI,mxAct,IAD19)
-         END IF
         If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
           Call DaClos(JOBOLD)
           JOBOLD=-1
@@ -239,20 +203,16 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         write(lf,*) "This has not been implemented, aborting"
         call abend
       End If
-*     print start orbitals
+
+! Should we ever need to do this????
+!     print start orbitals
       IF(IPRLEV >= DEBUG) THEN
-        CALL GETMEM('DumE','Allo','Real',LENE,nTot)
-        CALL DCOPY_(nTot,[0.0D0],0,WORK(LENE),1)
-        CALL PRIMO_RASSCF_m('Input orbitals',WORK(LENE),OCC,CMO)
-        CALL GETMEM('DumE','Free','Real',LENE,nTot)
+        ! This lene can actually be removed since it is not needed..
+        ! Also, it will override the orbital energies in the runfile.
+        CALL GETMEM('DumE','Allo','Real',lene,nTot)
+        CALL DCOPY_(nTot,[0.0D0],0,WORK(lene),1)
+        CALL PRIMO_RASSCF_m('Input orbitals',work(lene),OCC,CMO)
+        CALL GETMEM('DumE','Free','Real',lene,nTot)
       END IF
 
-*     orthogonalize the molecular orbitals
-* New orthonormalization routine, with additional deletion of
-* linear dependence.
-      CALL GETMEM('CMOO','ALLO','REAL',LCMOO,NTOT2)
-      CALL DCOPY_(NTOT2,CMO,1,WORK(LCMOO),1)
-      CALL GETMEM('CMOO','FREE','REAL',LCMOO,NTOT2)
-
-      RETURN
       END
