@@ -207,17 +207,16 @@
         Call Abend()
       End If
       If (DBG) Write(6,*) ' KSDFT command was given.'
-      DFTFOCK='ROKS'
       Call SetPos_m(LUInput,'KSDF',Line,iRc)
       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
       Read(LUInput,*,End=9910,Err=9920) Line
-      KSDFT=Line(1:80)
-      Call UpCase(KSDFT)
-* checking KSDFT input for MC-PDFT
-      IF(KSDFT(1:2) == 'T:') THEN
-       OriginalKS=KSDFT(3:80)
-      ELSE IF(KSDFT(1:3) == 'FT:') THEN
-       OriginalKS=KSDFT(4:80)
+      mcpdft_options%ksdft = Line(1:80)
+      Call UpCase(mcpdft_options%ksdft)
+! checking KSDFT input for MC-PDFT
+      IF(mcpdft_options%ksdft(1:2) == 'T:') THEN
+       OriginalKS=mcpdft_options%ksdft(3:80)
+      ELSE IF(mcpdft_options%ksdft(1:3) == 'FT:') THEN
+       OriginalKS=mcpdft_options%ksdft(4:80)
       ELSE
        Call WarningMessage(2,'Wrong on-top functional for MC-PDFT')
        Write(LF,*) ' ************* ERROR **************'
@@ -248,9 +247,9 @@
        Write(LF,*) ' **********************************'
        Call Abend()
       END IF
-* End of checking KSDFT input for MC-PDFT
+! End of checking KSDFT input for MC-PDFT
 
-      ExFac=Get_ExFac(KSDFT)
+      ExFac=Get_ExFac(mcpdft_options%ksdft)
 
 *---  Process DFCF command (S Dong, 2018)--------------------------*
       If (DBG) Write(6,*) ' Check if DFCF was provided.'
@@ -596,12 +595,7 @@ c      end do
 *
       If (DBG) Write(6,*)' Initialize seward.'
       nDiff = 0
-      If (DSCF           .or.
-     &    RF_On()        .or.
-     &    Langevin_On()  .or.
-     &    PCM_On()       .or.
-     &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+      Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 *
 *     Check the input data

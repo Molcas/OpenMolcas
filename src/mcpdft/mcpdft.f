@@ -226,8 +226,8 @@
       Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
       ! I guess we spoof for the 2-electron part? Im not sure..
-        KSDFT_TEMP=KSDFT
-        KSDFT='SCF'
+        KSDFT_TEMP=mcpdft_options%ksdft
+        mcpdft_options%ksdft='SCF'
         ExFac=1.0D0
 
       Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
@@ -239,7 +239,7 @@
       Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
       ! now we reset..
-        KSDFT=KSDFT_TEMP
+        mcpdft_options%ksdft = KSDFT_TEMP
         ExFac=0.0d0
 
 !AMS start-

@@ -27,7 +27,7 @@ module mcpdft_input
         character(len=256) :: wfn_file = "JOBOLD"
 
         ! This should replace ksdft in the rasscf.fh
-        character(len=80) :: ksdft
+        character(len=80) :: ksdft = "SCF"
 
         integer(kind=iwp), dimension(2) :: nac_states = 0
 

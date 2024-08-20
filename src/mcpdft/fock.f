@@ -25,7 +25,7 @@ c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use mcpdft_output, only: debug, lf, iPrLoc
-
+      use mcpdft_input, only: mcpdft_options
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -231,9 +231,11 @@ c
 c
       If ( iPrLev.ge.DEBUG ) then
         CASDFT_En=0.0d0
-        If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
-     &   Call Get_dScalar('CASDFT energy',CASDFT_En)
-        Write(LF,'(A,2F22.16)') ' RASSCF energy: ',
+      If(mcpdft_options%ksdft(1:3).ne.'SCF'
+     &            .and.mcpdft_options%ksdft(1:3).ne.'PAM') then
+        Call Get_dScalar('CASDFT energy',CASDFT_En)
+      end if
+      Write(LF,'(A,2F22.16)') ' RASSCF energy: ',
      &                  ECAS+CASDFT_En,VIA_DFT
       End If
       If ( iPrLev.ge.DEBUG ) then
