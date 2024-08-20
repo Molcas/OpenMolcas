@@ -455,7 +455,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
         Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             KSDFT_TEMP,ExFac,iCharge,iSpin,
+     &             mcpdft_options%ksdft,ExFac,iCharge,iSpin,
      &             Work(iD1I),Work(iD1ActAO),
      &             nTot1,DFTFOCK,Do_DFT)
 

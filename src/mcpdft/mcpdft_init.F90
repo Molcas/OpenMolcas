@@ -71,7 +71,7 @@ subroutine mcpdft_init()
 
 ! Default value for type of CASSCF (used for DFT)
    DFTFOCK="ROKS"
-   ExFac=1.0D0
+   ExFac=0.0d0
 
 ! Initialize KSDFT coefficients (S Dong, 2018)
    CoefR = 1.0D0
