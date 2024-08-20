@@ -238,14 +238,14 @@
       Call Get_D1A_RASSCF(CMO,Work(ipTmpDMAT),D1A)
       Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
-! 413 Continue
+      ! now we reset..
+        KSDFT=KSDFT_TEMP
+        ExFac=0.0d0
 
 !AMS start-
 ! - Read in the CASSCF Energy from JOBIPH file.  These values are not
 ! used in calculations, but are merely reprinted as the reference energy
 ! for each calculated MC-PDFT energy.
-!
-
       iJOB=0
       Call GetMem('REF_E','ALLO','REAL',iRef_E,lroots)
       Call Fzero(Work(iRef_E),lroots)
@@ -379,9 +379,6 @@
         JOBOLD=-1
       End if
 
-      ! now we reset..
-        KSDFT=KSDFT_TEMP
-        ExFac=0.0d0
 *
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA

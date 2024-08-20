@@ -122,11 +122,6 @@ subroutine mcpdft_init()
       ITRI(I)=ITRI(I-1)+I-1
    end do
 
-! Initial guess for jobiph name to use:
-   IPHNAME='JOBIPH'
-! Initial guess for starting orbital file:
-   StartOrbFile='INPORB'
-
 ! Initialize Timing Variables
    Ebel_3     = 0.0d0
    Eterna_3   = 0.0d0

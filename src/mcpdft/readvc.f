@@ -52,6 +52,7 @@
 #endif
       use definitions, only: wp, iwp
       use mcpdft_output, only: terse, verbose, debug, lf, iPrGlb, iPrLoc
+      use mcpdft_input, only: mcpdft_options
 
       implicit none
 
@@ -91,7 +92,7 @@
 
 ! read from unit formatted ascii file with starting orbitals
 
-! Note: Inside RDVEC, the file StartOrbFile is opened, but uses blindly
+! Note: Inside RDVEC, the file orbital_file is opened, but uses blindly
 ! the unit number provided here. So that should better be a usable
 ! number, or else!
 !     read from unit JOBOLD (binary file)
@@ -112,7 +113,7 @@
            If (JOBIPH > 0) Then
               JOBOLD=JOBIPH
            Else
-              Call DaName(JOBOLD,IPHNAME)
+              Call DaName(JOBOLD, mcpdft_options%orbital_file)
            End If
         End If
         Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
@@ -134,7 +135,7 @@
          Else
             Write(LF,'(6X,A)')
      &      'The MO-coefficients are taken from the file:'
-            Write(LF,'(6X,A)') trim(IPHNAME)
+            Write(LF,'(6X,A)') trim(mcpdft_options%orbital_file)
          End If
         END IF
 
@@ -149,7 +150,7 @@
           Else
              Write(LF,'(6X,A)')
      &       'The active density matrices (D,DS,P,PA) are read from'//
-     &       ' file '//trim(IPHNAME)//
+     &       ' file '//trim(mcpdft_options%orbital_file)//
      &       ' and weighted together.'
           End If
         End If
@@ -187,10 +188,10 @@
         IF(IPRLEV.ge.TERSE) THEN
           Write(LF,'(6X,A)')
      &            'The MO-coefficients are taken from the file:'
-          Write(LF,'(6X,A)') trim(StartOrbFile)
+          Write(LF,'(6X,A)') trim(mcpdft_options%orbital_file)
         END IF
 
-        mh5id = mh5_open_file_r(StartOrbFile)
+        mh5id = mh5_open_file_r(mcpdft_options%orbital_file)
         call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
         call mh5_close_file(mh5id)
 #else

@@ -60,7 +60,6 @@
 
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
-      Character*256 RealName
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
       CHARACTER*(80) OriginalKS
@@ -73,7 +72,7 @@
 
       integer irc, i, iad19
       integer iorbdata, isym
-      integer not_sure, nisht, nasht, ndiff
+      integer nisht, nasht, ndiff
 
       Call StatusLine('MCPDFT:','Processing Input')
 
@@ -141,7 +140,6 @@
 
 *---  ==== FILE(ORB) keyword =====
       If (DBG) Write(6,*)' Where to read MOs/CI vectors? '
-      StartOrbFile=''
 
       If (KeyFILE) Then
        If (DBG) Then
@@ -155,9 +153,9 @@
          Write(lf,*) Line
        End If
 ! The fileorb subroutine does some magic to get the actual file path and
-       call fileorb(Line,StartOrbFile)
+       call fileorb(Line,mcpdft_options%orbital_file)
 #ifdef _HDF5_
-       if (mh5_is_hdf5(StartOrbFile)) then
+       if (mh5_is_hdf5(mcpdft_options%orbital_file)) then
          mcpdft_options%is_hdf5_wfn = .false.
 !> we do not need a JOBIPH file if we have HDF5 - override the default!
          keyJOBI = .false.
@@ -172,37 +170,28 @@
 ! HDF5 input file
 ! I have a feeling that this should only run IF FILE(ORB) key is not passed
       if(keyJOBI)then
-        IPHNAME='JOBIPH'
-
-        !> check first for JOBOLD
-        Call f_Inquire('JOBOLD',lExists)
-        If (lExists) Then
-          INVEC=3
-        else !> check next for JOBIPH
-          Call F_Inquire(trim(IPHNAME),lExists)
-          If(lExists) Then
-            Call PrgmTranslate(IPHNAME,RealName,not_sure)
-            If (DBG) Then
-                Write(6,*)' A JOBIPH file has been found:'
-                write(6,*) RealName
-            End If
-            INVEC=3
-          Else
+        mcpdft_options%orbital_file = "JOBOLD"
+        call f_Inquire("JOBOLD",lExists)
+        if (.not. lexists) then
+          mcpdft_options%orbital_file = "JOBIPH"
+          call f_inquire(mcpdft_options%orbital_file, lexists)
+          if(.not. lexists) then
             Write(LF,*)
             Write(LF,*)'******************************************'
-            Write(LF,*)' JOBIPH does not seem to exist,           '
-            Write(LF,*)' so the calculation cannot continue.      '
+            Write(LF,*)'JOBIPH and JOBOLD does not seem to exist, '
+            Write(LF,*)'so the calculation cannot continue.       '
             Write(LF,*)'******************************************'
             Call Abend()
-          End If
-        end if !> check for JOBOLD
+          end if
+        endif
+        invec = 3
 
         if(JOBIPH.gt.0) Then
           Call DaClos(JOBIPH)
           JOBIPH=-1
         end if
         JOBIPH=IsFreeUnit(15)
-        CALL DANAME(JOBIPH,IPHNAME)
+        CALL DANAME(JOBIPH,mcpdft_options%orbital_file)
         INVEC=3
       end if !> JOBI(PH) keyword
 *---  ==== JOBI(PH) keyword =====
@@ -280,7 +269,7 @@
               mcpdft_options%mspdft = .true.
           End If
 *---  Process wjob command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if write JOBIPH case.'
+      If (DBG) Write(6,*) ' Check if write WJOB case.'
       If (KeyWJOB) Then
        If (DBG) Write(6,*) ' WJOB keyword was used.'
        mcpdft_options%wjob = .true.
@@ -309,7 +298,7 @@
 *---  Process HDF5 file --------------------------------------------*
       If (.not. mcpdft_options%is_hdf5_wfn) Then
 #ifdef _HDF5_
-        mh5id = mh5_open_file_r(StartOrbFile)
+        mh5id = mh5_open_file_r(mcpdft_options%orbital_file)
 *     read basic attributes
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
@@ -406,7 +395,7 @@
 !> read CI optimiation parameters from HDF5 file
       if(.not. mcpdft_options%is_hdf5_wfn) then
 #ifdef _HDF5_
-        mh5id = mh5_open_file_r(StartOrbFile)
+        mh5id = mh5_open_file_r(mcpdft_options%orbital_file)
         call mh5_fetch_attr (mh5id,'SPINMULT', iSpin)
         call mh5_fetch_attr (mh5id,'NSYM', nSym)
         call mh5_fetch_attr (mh5id,'LSYM', stSym)
@@ -446,7 +435,7 @@
       end if
 !Rename JOBIPH file, and open it.
       JOBIPH=IsFreeUnit(15)
-      CALL DANAME(JOBIPH,IPHNAME)
+      CALL DANAME(JOBIPH,mcpdft_options%orbital_file)
 
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym

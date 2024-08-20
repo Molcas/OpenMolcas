@@ -28,9 +28,8 @@ module mcpdft_input
         ! This should replace ksdft in the rasscf.fh
         !character, dimension(80) :: ksdft
 
-        ! This should replace the StartOrbFile in general.fh
         logical :: is_hdf5_wfn = .true.
-        !character, dimension(256) :: orbital_file
+        character(len=256) :: orbital_file = "JOBOLD"
     contains
         procedure :: do_hybrid
     end type

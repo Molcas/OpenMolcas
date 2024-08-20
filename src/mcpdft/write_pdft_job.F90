@@ -114,7 +114,7 @@ module write_pdft_job
       call DDaFile(jobiph, 1, energy, size(energy), disk)
 #ifdef _HDF5_
     else
-      refwfn_id = mh5_open_file_rw(StartOrbFile)
+      refwfn_id = mh5_open_file_rw(mcpdft_options%orbital_file)
       wfn_energy = mh5_open_dset(refwfn_id, 'ROOT_ENERGIES')
       call mh5_put_dset(wfn_energy, energy(1))
       call mh5_close_file(refwfn_id)
@@ -168,13 +168,13 @@ module write_pdft_job
 
 #ifdef _HDF5_
     else
-      refwfn_id = mh5_open_file_rw(StartOrbFile)
+      refwfn_id = mh5_open_file_rw(mcpdft_options%orbital_file)
       call mh5_fetch_attr(refwfn_id, 'NCONF', ncon)
 #endif
     end if
 
     call mma_allocate(ci_rot, ncon*roots, label='CI Rot')
-    call dcopy_(ncon*roots, [0.0d0], 0, ci_rot, 1)
+    ci_rot = 0.0d0
 
     call mma_allocate(tCI, ncon, label="tCI")
 
