@@ -26,25 +26,25 @@ module ontop_functional
     end type
 
     interface OTFNAL
-        procedure :: new
+        module procedure :: new
     end interface
 
     public :: OTFNAL
 
 contains
 
-    type(OTFNAL) function new(otxc, lambda) result(res)
+    type(OTFNAL) function new(otxc, lambda)
         use mcpdft_output, only: lf
         implicit none
 
         real(kind=wp), intent(in) :: lambda
         character(len=80), intent(in) :: otxc
 
-        res%lambda = lambda
-        res%otxc = otxc
-        call upcase(res%otxc)
+        new%lambda = lambda
+        new%otxc = otxc
+        call upcase(new%otxc)
 
-        if(.not. valid_otxc(res%otxc)) then
+        if(.not. valid_otxc(new%otxc)) then
             call warningmessage(2, "Wrong on-top functional for MC-PDFT")
             write(lf,*) ' ************* ERROR **************'
             write(lf,*) ' Current on-top functionals are:   '
@@ -55,9 +55,9 @@ contains
             call abend()
         end if
 
-        res%xc = get_base(res%otxc)
+        new%xc = get_base(new%otxc)
 
-        if(is_hybrid_xc(res%xc)) then
+        if(is_hybrid_xc(new%xc)) then
             call warningmessage(2, "Hybrid functionals not supported")
             write(lf,*) ' ************* ERROR **************'
             write(lf,*) ' MC-PDFT does not translate hybrid '
@@ -77,11 +77,13 @@ contains
     end function
 
     logical function valid_otxc(otxc)
+        implicit none
         character(len=80), intent(in) :: otxc
         valid_otxc = otxc(1:2) == "T:" .or. otxc(1:3) == "FT:"
     end function
 
     logical function is_hybrid_xc(xc_base)
+        implicit none
         character(len=80), intent(in) :: xc_base
         real(kind=wp), external :: get_exfac
         is_hybrid_xc = abs(get_exfac(xc_base)) .gt. 1.0d-8
