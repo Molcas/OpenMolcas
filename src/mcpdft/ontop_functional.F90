@@ -33,18 +33,18 @@ module ontop_functional
 
 contains
 
-    type(OTFNAL) function new(otxc, lambda)
+    type(OTFNAL) function new(otxc, lambda) result(res)
         use mcpdft_output, only: lf
         implicit none
 
         real(kind=wp), intent(in) :: lambda
         character(len=80), intent(in) :: otxc
 
-        new%lambda = lambda
-        new%otxc = otxc
-        call upcase(new%otxc)
+        res%lambda = lambda
+        res%otxc = otxc
+        call upcase(res%otxc)
 
-        if(.not. valid_otxc(new%otxc)) then
+        if(.not. valid_otxc(res%otxc)) then
             call warningmessage(2, "Wrong on-top functional for MC-PDFT")
             write(lf,*) ' ************* ERROR **************'
             write(lf,*) ' Current on-top functionals are:   '
@@ -55,9 +55,9 @@ contains
             call abend()
         end if
 
-        new%xc = get_base(new%otxc)
+        res%xc = get_base(res%otxc)
 
-        if(is_hybrid_xc(new%xc)) then
+        if(is_hybrid_xc(res%xc)) then
             call warningmessage(2, "Hybrid functionals not supported")
             write(lf,*) ' ************* ERROR **************'
             write(lf,*) ' MC-PDFT does not translate hybrid '
