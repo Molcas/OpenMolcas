@@ -153,9 +153,9 @@
          Write(lf,*) Line
        End If
 ! The fileorb subroutine does some magic to get the actual file path and
-       call fileorb(Line,mcpdft_options%orbital_file)
+       call fileorb(Line,mcpdft_options%wfn_file)
 #ifdef _HDF5_
-       if (mh5_is_hdf5(mcpdft_options%orbital_file)) then
+       if (mh5_is_hdf5(mcpdft_options%wfn_file)) then
          mcpdft_options%is_hdf5_wfn = .false.
 !> we do not need a JOBIPH file if we have HDF5 - override the default!
          keyJOBI = .false.
@@ -170,11 +170,11 @@
 ! HDF5 input file
 ! I have a feeling that this should only run IF FILE(ORB) key is not passed
       if(keyJOBI)then
-        mcpdft_options%orbital_file = "JOBOLD"
+        mcpdft_options%wfn_file = "JOBOLD"
         call f_Inquire("JOBOLD",lExists)
         if (.not. lexists) then
-          mcpdft_options%orbital_file = "JOBIPH"
-          call f_inquire(mcpdft_options%orbital_file, lexists)
+          mcpdft_options%wfn_file = "JOBIPH"
+          call f_inquire(mcpdft_options%wfn_file, lexists)
           if(.not. lexists) then
             Write(LF,*)
             Write(LF,*)'******************************************'
@@ -191,7 +191,7 @@
           JOBIPH=-1
         end if
         JOBIPH=IsFreeUnit(15)
-        CALL DANAME(JOBIPH,mcpdft_options%orbital_file)
+        CALL DANAME(JOBIPH,mcpdft_options%wfn_file)
         INVEC=3
       end if !> JOBI(PH) keyword
 *---  ==== JOBI(PH) keyword =====
@@ -298,7 +298,7 @@
 *---  Process HDF5 file --------------------------------------------*
       If (.not. mcpdft_options%is_hdf5_wfn) Then
 #ifdef _HDF5_
-        mh5id = mh5_open_file_r(mcpdft_options%orbital_file)
+        mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
 *     read basic attributes
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
@@ -395,7 +395,7 @@
 !> read CI optimiation parameters from HDF5 file
       if(.not. mcpdft_options%is_hdf5_wfn) then
 #ifdef _HDF5_
-        mh5id = mh5_open_file_r(mcpdft_options%orbital_file)
+        mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
         call mh5_fetch_attr (mh5id,'SPINMULT', iSpin)
         call mh5_fetch_attr (mh5id,'NSYM', nSym)
         call mh5_fetch_attr (mh5id,'LSYM', stSym)
@@ -435,7 +435,7 @@
       end if
 !Rename JOBIPH file, and open it.
       JOBIPH=IsFreeUnit(15)
-      CALL DANAME(JOBIPH,mcpdft_options%orbital_file)
+      CALL DANAME(JOBIPH,mcpdft_options%wfn_file)
 
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym

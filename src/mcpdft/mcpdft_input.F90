@@ -17,19 +17,22 @@ module mcpdft_input
     private
 
     type :: McpdftInputOptions
+        ! Write energy (and CI vectors) to wfnfile
         logical :: wjob = .false.
         logical :: mspdft = .false.
         logical :: grad = .false.
         logical :: meci = .false.
         logical :: nac = .false.
-        integer(kind=iwp), dimension(2) :: nac_states = 0
-        real(kind=wp) :: lambda = 0.0d0
+        logical :: is_hdf5_wfn = .true.
+        character(len=256) :: wfn_file = "JOBOLD"
 
         ! This should replace ksdft in the rasscf.fh
-        !character, dimension(80) :: ksdft
+        character(len=80) :: ksdft
 
-        logical :: is_hdf5_wfn = .true.
-        character(len=256) :: orbital_file = "JOBOLD"
+        integer(kind=iwp), dimension(2) :: nac_states = 0
+
+        ! Hybrid PDFT Variable
+        real(kind=wp) :: lambda = 0.0d0
     contains
         procedure :: do_hybrid
     end type
