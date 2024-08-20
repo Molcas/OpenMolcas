@@ -19,8 +19,6 @@ module mcpdft_input
     private
 
     type :: McpdftInputOptions
-
-        ! Write energy (and CI vectors) to wfnfile
         logical :: wjob = .false.
         logical :: mspdft = .false.
         logical :: grad = .false.
@@ -29,7 +27,6 @@ module mcpdft_input
         logical :: is_hdf5_wfn = .true.
         character(len=256) :: wfn_file = "JOBOLD"
 
-        ! This should replace ksdft in the rasscf.fh
         integer(kind=iwp), dimension(2) :: nac_states = 0
         type(OTFNAL) :: otfnal = OTFNAL()
 
