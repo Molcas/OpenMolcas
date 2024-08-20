@@ -16,6 +16,7 @@
       use mcpdft_input, only: mcpdft_options
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use definitions, only: wp
+      use ontop_functional, only: OTFNAL
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
@@ -35,7 +36,6 @@
       Real*8 potnucdummy
       logical lExists, RunFile_Exists
       Character*180, external :: Get_LN
-      Real(kind=wp), external :: Get_ExFac
       Logical, External :: Is_First_Iter
       integer, external :: isFreeUnit
       logical, external ::  RF_On, Langevin_On, PCM_On
@@ -62,7 +62,6 @@
       Character*72 JobTit(mxTit)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
-      CHARACTER*(80) OriginalKS
 
       INTEGER :: iDNG,IPRLEV
       Logical :: DNG
@@ -73,6 +72,9 @@
       integer irc, i, iad19
       integer iorbdata, isym
       integer nisht, nasht, ndiff
+
+      real(kind=wp) :: lambda = 0.0d0
+      character(len=80) :: otxc
 
       Call StatusLine('MCPDFT:','Processing Input')
 
@@ -210,46 +212,32 @@
       Call SetPos_m(LUInput,'KSDF',Line,iRc)
       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
       Read(LUInput,*,End=9910,Err=9920) Line
-      mcpdft_options%ksdft = Line(1:80)
-      Call UpCase(mcpdft_options%ksdft)
-! checking KSDFT input for MC-PDFT
-      IF(mcpdft_options%ksdft(1:2) == 'T:') THEN
-       OriginalKS=mcpdft_options%ksdft(3:80)
-      ELSE IF(mcpdft_options%ksdft(1:3) == 'FT:') THEN
-       OriginalKS=mcpdft_options%ksdft(4:80)
-      ELSE
-       Call WarningMessage(2,'Wrong on-top functional for MC-PDFT')
-       Write(LF,*) ' ************* ERROR **************'
-       Write(LF,*) ' Current on-top functionals are:   '
-       Write(LF,*) ' T :  translated functionals       '
-       Write(LF,*) ' FT:  fully translated functionals '
-       Write(LF,*) ' e.g. T:PBE for tPBE functional    '
-       Write(LF,*) ' **********************************'
-       Call Abend()
-      END IF
-      If (DBG) write(LF,*) 'The original KS functional is', OriginalKS
-      ExFac=Get_ExFac(OriginalKS)
-* Assuming hybrid KS functionals contain more than 10E-6 percent
-* Hartree-Fock exchagne.
-      IF(Abs(ExFac).gt.1.0d-8) THEN
-       Call WarningMessage(2,'Hybrid functionals not supported')
-       Write(LF,*) ' ************* ERROR **************'
-       Write(LF,*) ' MC-PDFT does not translate hybrid '
-       Write(LF,*) ' functionals. If you want to run   '
-       Write(LF,*) ' hybrid MC-PDFT, use the LAMBda    '
-       Write(LF,*) ' keyword instead.                  '
-       Write(LF,*) '                                   '
-       Write(LF,*) ' EXAMPLE:                          '
-       Write(LF,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
-       Write(LF,*) ' Usage:                            '
-       Write(LF,*) '  KSDFT=T:PBE                      '
-       Write(LF,*) '  LAMB =0.25                       '
-       Write(LF,*) ' **********************************'
-       Call Abend()
-      END IF
-! End of checking KSDFT input for MC-PDFT
+      otxc = line(1:80)
 
-      ExFac=Get_ExFac(mcpdft_options%ksdft)
+*---  Process LAMB command --------------------------------------------*
+      If (KeyLAMB) Then
+       If (DBG) Write(6,*) 'Check if hybrid PDFT case'
+       Call SetPos_m(LUInput,'LAMB',Line,iRc)
+       ReadStatus=' Failure reading data following LAMB keyword.'
+       Read(LUInput,*,End=9910,Err=9920) lambda
+       ReadStatus=' O.K. reading data following LAMB keyword.'
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+      End If
+
+      mcpdft_options%otfnal = OTFNAL(otxc, lambda)
+
+!--- Finish process..some cleanup
+      If(mcpdft_options%otfnal%is_hybrid()) Then
+        CALL Put_DScalar('R_WF_HMC',mcpdft_options%otfnal%lambda)
+        If (DBG) then
+        Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
+     &             mcpdft_options%otfnal%lambda
+        end if
+       If (mcpdft_options%grad) Then
+        Call WarningMessage(2,'GRAD currently not compatible with HPDF')
+        GoTo 9810
+       End If
+      End If
 
 *---  Process DFCF command (S Dong, 2018)--------------------------*
       If (DBG) Write(6,*) ' Check if DFCF was provided.'
@@ -272,26 +260,6 @@
       If (KeyWJOB) Then
        If (DBG) Write(6,*) ' WJOB keyword was used.'
        mcpdft_options%wjob = .true.
-      End If
-*---  Process LAMB command --------------------------------------------*
-      If (KeyLAMB) Then
-       If (DBG) Write(6,*) 'Check if hybrid PDFT case'
-       Call SetPos_m(LUInput,'LAMB',Line,iRc)
-       ReadStatus=' Failure reading data following LAMB keyword.'
-       Read(LUInput,*,End=9910,Err=9920) mcpdft_options%lambda
-       ReadStatus=' O.K. reading data following LAMB keyword.'
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-      If(mcpdft_options%do_hybrid()) Then
-        CALL Put_DScalar('R_WF_HMC',mcpdft_options%lambda)
-       End If
-      If (DBG) then
-      Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
-     &             mcpdft_options%lambda
-      end if
-      If (mcpdft_options%grad) Then
-        Call WarningMessage(2,'GRAD currently not compatible with HPDF')
-        GoTo 9810
-       End If
       End If
 
 *---  Process HDF5 file --------------------------------------------*

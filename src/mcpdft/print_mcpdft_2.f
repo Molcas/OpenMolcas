@@ -90,15 +90,16 @@
       write(6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
       write(6,'(6X,A,49X,F18.8)') 'On-top energy',E_ot
       write(6,*)
-      IF(mcpdft_options%do_hybrid()) Then
+      IF(mcpdft_options%otfnal%is_hybrid()) Then
        write(6,'(6X,A)') 'Information for hybrid PDFT:'
        write(6,'(6X,A,37X,F6.2)')
      & 'Wave function percentage (Lambda*100)',
-     &  mcpdft_options%lambda*1.0d2
+     &  mcpdft_options%otfnal%lambda*1.0d2
        write(6,'(6X,A,42X,F18.8)')
-     & 'Wave function energy',mcpdft_options%lambda*Ref_Ener(jRoot)
+     & 'Wave function energy',
+     &  mcpdft_options%otfnal%lambda*Ref_Ener(jRoot)
        write(6,'(6X,A,51X,F18.8)')
-     & 'PDFT energy',(1-mcpdft_options%lambda)*E_NoHyb
+     & 'PDFT energy',(1-mcpdft_options%otfnal%lambda)*E_NoHyb
        write(6,*)
       END IF
 

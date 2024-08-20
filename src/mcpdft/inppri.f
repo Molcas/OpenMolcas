@@ -44,7 +44,6 @@
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
 
-      character(len=80) original_xc
 * Print level:
       IPRLEV=IPRLOC(1)
 *----------------------------------------------------------------------*
@@ -224,7 +223,7 @@ C.. for RAS
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
        EndIf
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
-     &   'with functional: '//mcpdft_options%ksdft
+     &   'with functional: '//mcpdft_options%otfnal%otxc
         Write(LF,Fmt2//'A,T45,ES10.3)')'Exchange scaling factor',CoefX
         Write(LF,Fmt2//'A,T45,ES10.3)')'Correlation scaling factor',
      &                                 CoefR
@@ -264,8 +263,6 @@ C.. for RAS
       Write(LF,*)
 
 *---- Print out grid information
-      original_xc =
-     &   mcpdft_options%ksdft(index(mcpdft_options%ksdft,'T:')+2:)
        Call Put_dScalar('DFT exch coeff',CoefX)
        Call Put_dScalar('DFT corr coeff',CoefR)
        Call Funi_Print()
@@ -274,8 +271,7 @@ C.. for RAS
           Write(6,'(6X,A)') 'DFT functional specifications'
           Write(6,'(6X,A)') '-----------------------------'
           Call libxc_version()
-
-          Call Init_Funcs(original_xc)
+          Call Init_Funcs(mcpdft_options%otfnal%xc)
           Call Print_Info()
           Write(6,*)
        END IF

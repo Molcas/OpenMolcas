@@ -12,11 +12,14 @@
 !***********************************************************************
 
 module mcpdft_input
-    use definitions, only: iwp, wp
+    use definitions, only: iwp
+    use ontop_functional, only: OTFNAL
+
     implicit none
     private
 
     type :: McpdftInputOptions
+
         ! Write energy (and CI vectors) to wfnfile
         logical :: wjob = .false.
         logical :: mspdft = .false.
@@ -27,27 +30,14 @@ module mcpdft_input
         character(len=256) :: wfn_file = "JOBOLD"
 
         ! This should replace ksdft in the rasscf.fh
-        character(len=80) :: ksdft = "SCF"
-
         integer(kind=iwp), dimension(2) :: nac_states = 0
+        type(OTFNAL) :: otfnal = OTFNAL()
 
-        ! Hybrid PDFT Variable
-        real(kind=wp) :: lambda = 0.0d0
-    contains
-        procedure :: do_hybrid
     end type
 
     type(McpdftInputOptions) :: mcpdft_options = McpdftInputOptions()
 
     public :: mcpdft_options
-
-contains
-
-    logical function do_hybrid(self) result(res)
-        class(McpdftInputOptions), intent(in) :: self
-        res = self%lambda .gt. 0.0d0
-    end function
-
 
 
 end module

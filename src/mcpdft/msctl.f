@@ -455,7 +455,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
         Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             mcpdft_options%ksdft,ExFac,iCharge,iSpin,
+     &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
      &             Work(iD1I),Work(iD1ActAO),
      &             nTot1,DFTFOCK,Do_DFT)
 
@@ -795,10 +795,10 @@ c         call xflush(6)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
-        IF(mcpdft_options%do_hybrid()) THEN
+        IF(mcpdft_options%otfnal%is_hybrid()) THEN
             E_NoHyb=CASDFT_E
-            CASDFT_E = mcpdft_options%lambda*Ref_Ener(jRoot) +
-     &            (1.0-mcpdft_options%lambda) * E_NoHyb
+            CASDFT_E = mcpdft_options%otfnal%lambda*Ref_Ener(jRoot) +
+     &            (1.0-mcpdft_options%otfnal%lambda) * E_NoHyb
         END IF
 
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,

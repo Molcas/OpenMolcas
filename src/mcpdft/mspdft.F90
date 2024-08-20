@@ -80,7 +80,7 @@ module mspdft
     write(lf,'(6X,A)') repeat('-',len_trim(Line)-3)
     write(lf,*)
 
-    if(mcpdft_options%do_hybrid()) then
+    if(mcpdft_options%otfnal%is_hybrid()) then
       write(lf,'(6X,3A)') 'Hybrid ', MSPDFTMethod, ' Effective Hamiltonian'
     else
       write(lf, '(6X,2A)') mspdftmethod, ' Effective Hamiltonian'
@@ -112,7 +112,7 @@ module mspdft
     call Put_dScalar('Last energy', e_mspdft(iRlxRoot))
 
     if (iprlev >= usual) then
-    if(mcpdft_options%do_hybrid()) then
+    if(mcpdft_options%otfnal%is_hybrid()) then
       write(lf, '(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
     else
         write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
