@@ -56,6 +56,12 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 !              Rev. Mod. Phys. vol. 93(2) 025010 (2021).               *
 !              doi:10.1103/RevModPhys.93.025010                        *
 !                                                                      *
+! CODATA 2022: Eite Tiesinga, Peter J. Mohr, David B. Newell,          *
+!              Barry N. Taylor,                                        *
+!              The 2022 CODATA Recommended Values of the Fundamental   *
+!              Physical Constants                                      *
+!              (Web Version 9.0)                                       *
+!                                                                      *
 !----------------------------------------------------------------------*
 
 ! Constants
@@ -94,21 +100,35 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 
 !***********************************************************************
 ! Select a set of physical constants, valid values are:
-! 2010, 2014, 2018
+! 2010, 2014, 2018, 2022
 
 #ifndef CODATA_SET
-#define CODATA_SET 2018
+#define CODATA_SET 2022
 #endif
 
 ! Constants
 
-#if CODATA_SET == 2018
+#if CODATA_SET == 2022
+#  define CONST_AMU_IN_SI_                1.66053906892e-27_wp
+#  define CONST_AU_TIME_IN_SI_            2.4188843265864e-17_wp
+#  define CONST_AU_VELOCITY_IN_SI_        2.18769126216e6_wp
+#  define CONST_AVOGADRO_                 6.02214076e23_wp
+#  define CONST_BOHR_RADIUS_IN_SI_        5.29177210544e-11_wp
+#  define CONST_ELECTRON_MASS_IN_SI_      9.1093837139e-31_wp
+#  define CONST_MUON_MASS_IN_SI_          1.883531627e-28_wp
+#  define CONST_BOLTZMANN_                1.380649e-23_wp
+#  define CONST_ELEMENTARY_CHARGE_IN_SI_  1.602176634e-19_wp
+#  define CONST_PLANCK_                   6.62607015e-34_wp
+#  define CONST_DIELECTRIC_IN_SI_         8.8541878188e-12_wp
+#  define CONST_ELECTRON_G_FACTOR_       -2.00231930436092_wp
+#  define CONST_BOHR_MAGNETON_IN_SI_      9.2740100657e-24_wp
+#elif CODATA_SET == 2018
 ! CONST_AVOGADRO_, CONST_BOLTZMANN_, CONST_ELEMENTARY_CHARGE_IN_SI_, CONST_PLANCK_ are now exact
 #  define CONST_AMU_IN_SI_                1.66053906660e-27_wp
 #  define CONST_AU_TIME_IN_SI_            2.4188843265857e-17_wp
 #  define CONST_AU_VELOCITY_IN_SI_        2.18769126364e6_wp
 #  define CONST_AVOGADRO_                 6.02214076e23_wp
-#  define CONST_BOHR_RADIUS_IN_SI_        0.529177210903e-10_wp
+#  define CONST_BOHR_RADIUS_IN_SI_        5.29177210903e-11_wp
 #  define CONST_ELECTRON_MASS_IN_SI_      9.1093837015e-31_wp
 #  define CONST_MUON_MASS_IN_SI_          1.883531627e-28_wp
 #  define CONST_BOLTZMANN_                1.380649e-23_wp
@@ -122,7 +142,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 #  define CONST_AU_TIME_IN_SI_            2.418884326509e-17_wp
 #  define CONST_AU_VELOCITY_IN_SI_        2.18769126277e6_wp
 #  define CONST_AVOGADRO_                 6.022140857e23_wp
-#  define CONST_BOHR_RADIUS_IN_SI_        0.52917721067e-10_wp
+#  define CONST_BOHR_RADIUS_IN_SI_        5.2917721067e-11_wp
 #  define CONST_ELECTRON_MASS_IN_SI_      9.10938356e-31_wp
 #  define CONST_MUON_MASS_IN_SI_          1.883531594e-28_wp
 #  define CONST_MOLAR_GAS_                8.3144598_wp
@@ -136,7 +156,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 #  define CONST_AU_TIME_IN_SI_            2.418884326502e-17_wp
 #  define CONST_AU_VELOCITY_IN_SI_        2.18769126379e6_wp
 #  define CONST_AVOGADRO_                 6.02214129e23_wp
-#  define CONST_BOHR_RADIUS_IN_SI_        0.52917721092e-10_wp
+#  define CONST_BOHR_RADIUS_IN_SI_        5.2917721092e-11_wp
 #  define CONST_ELECTRON_MASS_IN_SI_      9.10938291e-31_wp
 #  define CONST_MUON_MASS_IN_SI_          1.883531475e-28_wp
 #  define CONST_MOLAR_GAS_                8.3144621_wp
@@ -161,7 +181,13 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 
 ! Conversion factors
 
-#if CODATA_SET == 2018
+#if CODATA_SET == 2022
+#  define CONV_AU_TO_EV_                  27.211386245981_wp
+#  define CONV_AU_TO_CM1_                 2.1947463136314e5_wp
+#  define CONV_AU_TO_KJ_                  4.3597447222060e-21_wp
+#  define CONV_AU_TO_HZ_                  6.5796839204999e15_wp
+#  define CONV_AU_TO_T_                   2.35051757077e5_wp
+#elif CODATA_SET == 2018
 #  define CONV_AU_TO_EV_                  27.211386245988_wp
 #  define CONV_AU_TO_CM1_                 2.1947463136320e5_wp
 #  define CONV_AU_TO_KJ_                  4.3597447222071e-21_wp
