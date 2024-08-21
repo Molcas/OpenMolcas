@@ -52,7 +52,6 @@
 *                                                                      *
 ************************************************************************
 
-      Use RunFile_procedures, Only: Get_dExcdRa
       use mcpdft_output, only: debug, lf, iPrLoc
 
       Implicit Real*8 (A-H,O-Z)

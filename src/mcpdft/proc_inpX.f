@@ -38,7 +38,7 @@
       Character*180, external :: Get_LN
       Logical, External :: Is_First_Iter
       integer, external :: isFreeUnit
-      logical, external ::  RF_On, Langevin_On, PCM_On
+      logical, external :: Langevin_On, PCM_On
 
       logical DSCF
       Logical DBG
