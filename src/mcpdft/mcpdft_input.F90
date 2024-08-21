@@ -13,12 +13,12 @@
 
 module mcpdft_input
     use definitions, only: iwp
-    use ontop_functional, only: OTFNAL
+    use ontop_functional, only: OTFNAL_t
 
     implicit none
     private
 
-    type :: McpdftInputOptions
+    type :: McpdftInputOptions_t
         logical :: wjob = .false.
         logical :: mspdft = .false.
         logical :: grad = .false.
@@ -28,11 +28,11 @@ module mcpdft_input
         character(len=256) :: wfn_file = "JOBOLD"
 
         integer(kind=iwp), dimension(2) :: nac_states = 0
-        type(OTFNAL) :: otfnal = OTFNAL()
+        type(OTFNAL_t) :: otfnal = OTFNAL_t()
 
     end type
 
-    type(McpdftInputOptions) :: mcpdft_options = McpdftInputOptions()
+    type(McpdftInputOptions_t) :: mcpdft_options = McpdftInputOptions_t()
 
     public :: mcpdft_options
 

@@ -17,7 +17,7 @@ module ontop_functional
     implicit none
     private
 
-    type :: OTFNAL
+    type :: OTFNAL_t
         real(kind=wp) :: lambda = 0.0d0
         character(len=80) :: otxc = ""
         character(len=80) :: xc = ""
@@ -25,15 +25,15 @@ module ontop_functional
         procedure :: is_hybrid
     end type
 
-    interface OTFNAL
+    interface OTFNAL_t
         module procedure :: new
     end interface
 
-    public :: OTFNAL
+    public :: OTFNAL_t
 
 contains
 
-    type(OTFNAL) function new(otxc, lambda)
+    type(OTFNAL_t) function new(otxc, lambda)
         use mcpdft_output, only: lf
         implicit none
 
@@ -91,7 +91,7 @@ contains
 
     logical function is_hybrid(self)
         implicit none
-        class(OTFNAL), intent(in) :: self
+        class(OTFNAL_t), intent(in) :: self
         is_hybrid =  self%lambda .gt. 0.0d0
     end function
 

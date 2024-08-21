@@ -16,7 +16,7 @@
       use mcpdft_input, only: mcpdft_options
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use definitions, only: wp
-      use ontop_functional, only: OTFNAL
+      use ontop_functional, only: OTFNAL_t
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
@@ -224,7 +224,7 @@
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
       End If
 
-      mcpdft_options%otfnal = OTFNAL(otxc, lambda)
+      mcpdft_options%otfnal = OTFNAL_t(otxc, lambda)
 
 !--- Finish process..some cleanup
       If(mcpdft_options%otfnal%is_hybrid()) Then
