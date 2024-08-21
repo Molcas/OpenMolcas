@@ -11,7 +11,6 @@
       Subroutine Proc_InpX(DSCF,iRc)
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
-      use KSDFT_Info, only: CoefR, CoefX
       use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
@@ -32,7 +31,6 @@
 #include "input_ras_mcpdft.fh"
 #include "general.fh"
 
-      Character*180  Line
       Real*8 potnucdummy
       logical lExists, RunFile_Exists
       Character*180, external :: Get_LN
@@ -73,9 +71,6 @@
       integer iorbdata, isym
       integer nisht, nasht, ndiff
 
-      real(kind=wp) :: lambda = 0.0d0
-      character(len=80) :: otxc
-
       Call StatusLine('MCPDFT:','Processing Input')
 
       IPRLEV = TERSE
@@ -86,13 +81,15 @@
       iRc=_RC_ALL_IS_WELL_
 
 
+! I am not sure exactly what we should do here, but lets try and mimic
+! the behavior from before..
+! For geometry optimizations use the old CI coefficients.
       If (SuperName(1:6).eq.'mcpdft') Then
-* For geometry optimizations use the old CI coefficients.
         If (.Not.Is_First_Iter()) Then
-          KeyFILE=.false.
+          mcpdft_options%wfn_file = "JOBOLD"
         End If
       Else If (SuperName(1:18).eq.'numerical_gradient') Then
-        KeyFILE=.false.
+        mcpdft_options%wfn_file = "JOBOLD"
       End If
 
       !> Local print level in this routine:
@@ -141,32 +138,13 @@
 !       5, take from startorb (instead of jobold or jobiph) NOT IMPLEMENTED
 
 *---  ==== FILE(ORB) keyword =====
-      If (DBG) Write(6,*)' Where to read MOs/CI vectors? '
-
-      If (KeyFILE) Then
-       If (DBG) Then
-         Write(lf,*)' Reading file name for start orbitals.'
-       End If
-       Call SetPos_m(LUInput,'FILE',Line,iRc)
-       Line=Get_Ln(LUInput)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       If (DBG) Then
-         Write(lf,*) ' Calling fileorb with filename='
-         Write(lf,*) Line
-       End If
-! The fileorb subroutine does some magic to get the actual file path and
-       call fileorb(Line,mcpdft_options%wfn_file)
-#ifdef _HDF5_
-       if (mh5_is_hdf5(mcpdft_options%wfn_file)) then
-         mcpdft_options%is_hdf5_wfn = .false.
-!> we do not need a JOBIPH file if we have HDF5 - override the default!
+      If (mcpdft_options%wfn_file .ne. "JOBOLD") Then
+       if (mcpdft_options%is_hdf5_wfn) then
          keyJOBI = .false.
-       end if
-#else
-       invec = 5
-#endif
-      End If
-
+       else
+        invec = 5
+       End If
+      endif
 *---  ==== JOBI(PH) keyword =====
 ! The following is run, EXCEPT if FILE key is provided an points to an
 ! HDF5 input file
@@ -196,35 +174,7 @@
         CALL DANAME(JOBIPH,mcpdft_options%wfn_file)
         INVEC=3
       end if !> JOBI(PH) keyword
-*---  ==== JOBI(PH) keyword =====
-
-*---  process KSDF command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if KSDFT was requested.'
-      If (.not.KeyKSDF) Then
-        Call WarningMessage(2,'No KSDFT functional specified')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' KSDFT functional type must be     '
-        Write(LF,*) ' specified for MCPDFT calculations '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-      End If
-      If (DBG) Write(6,*) ' KSDFT command was given.'
-      Call SetPos_m(LUInput,'KSDF',Line,iRc)
-      If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-      Read(LUInput,*,End=9910,Err=9920) Line
-      otxc = line(1:80)
-
-*---  Process LAMB command --------------------------------------------*
-      If (KeyLAMB) Then
-       If (DBG) Write(6,*) 'Check if hybrid PDFT case'
-       Call SetPos_m(LUInput,'LAMB',Line,iRc)
-       ReadStatus=' Failure reading data following LAMB keyword.'
-       Read(LUInput,*,End=9910,Err=9920) lambda
-       ReadStatus=' O.K. reading data following LAMB keyword.'
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-      End If
-
-      mcpdft_options%otfnal = OTFNAL_t(otxc, lambda)
+!---  ==== JOBI(PH) keyword =====
 
 !--- Finish process..some cleanup
       If(mcpdft_options%otfnal%is_hybrid()) Then
@@ -233,33 +183,6 @@
         Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
      &             mcpdft_options%otfnal%lambda
         end if
-       If (mcpdft_options%grad) Then
-        Call WarningMessage(2,'GRAD currently not compatible with HPDF')
-        GoTo 9810
-       End If
-      End If
-
-*---  Process DFCF command (S Dong, 2018)--------------------------*
-      If (DBG) Write(6,*) ' Check if DFCF was provided.'
-      If (KeyDFCF) Then
-       If (DBG) Write(6,*) ' DFCF command has been used.'
-       Call SetPos_m(LUInput,'DFCF',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure after reading DFCF keyword.'
-       Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
-       ReadStatus=' O.K. after reading DFCF keyword.'
-      End If
-*---  Process MSPD command --------------------------------------------*
-          If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
-          If (KeyMSPD) Then
-              If (DBG) Write(6,*) ' MSPD keyword was used.'
-              mcpdft_options%mspdft = .true.
-          End If
-*---  Process wjob command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if write WJOB case.'
-      If (KeyWJOB) Then
-       If (DBG) Write(6,*) ' WJOB keyword was used.'
-       mcpdft_options%wjob = .true.
       End If
 
 *---  Process HDF5 file --------------------------------------------*
@@ -457,68 +380,6 @@ c      end do
       NIN=NISHT
       NFR=NFROT
 
-*---  Process GRAD command --------------------------------------------*
-      If (DBG) Write(lf,*) ' Check if GRADient case.'
-      If (KeyGRAD) Then
-       If (DBG) Write(lf,*) ' GRADient keyword was used.'
-       mcpdft_options%grad = .true.
-      End If
-
-*---  Process NAC command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if NAC case.'
-      If (KeyNAC) Then
-       If (DBG) Write(6,*) ' NAC keyword was used.'
-       if(.not. mcpdft_options%mspdft) then
-        Call WarningMessage(2,'NACs implemented only for MS-PDFT')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' NACs are only implemented         '
-        Write(LF,*) ' for Multistate PDFT               '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-      end if
-      if(.not.mcpdft_options%grad) then
-        Call WarningMessage(2,'NACs implemented with GRAD Code')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' NACs require the GRAD Keyword     '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       mcpdft_options%nac = .true.
-       Call SetPos_m(LUInput,'NAC',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Read(LUInput,*,End=9910,Err=9920) mcpdft_options%nac_states(1),
-     &                                   mcpdft_options%nac_states(2)
-      End If
-*
-*---  Process MECI command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if MECI case.'
-      If (KeyMECI) Then
-       If (DBG) Write(6,*) ' MECI keyword was used.'
-       if(.not. mcpdft_options%mspdft) then
-        Call WarningMessage(2,'NACs implemented only for MS-PDFT')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' MECI is only implemented          '
-        Write(LF,*) ' for Multistate PDFT               '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       if(.not. mcpdft_options%grad) then
-        Call WarningMessage(2,'NACs implemented with GRAD Code')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' MECI requires the GRAD Keyword    '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       if(.not. mcpdft_options%nac) then
-        Call WarningMessage(2,'NACs implemented with GRAD Code')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' MECI requires the NAC Keyword     '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       mcpdft_options%meci = .true.
-      End If
-!---  All keywords have been processed ------------------------------*
 
 !Considerations for gradients/geometry optimizations
 
@@ -579,31 +440,6 @@ c      end do
       Go to 9000
 
 !---  Error exits -----------------------------------------------------*
-9810  CONTINUE
-      If (IPRLEV.ge.TERSE) Then
-       Call WarningMessage(2,'Error in input preprocessing.')
-       Write(6,*)' PROC_INP: A keyword was found during prescanning'
-       Write(6,*)' the input file, but when later trying to locate'
-       Write(6,*)' this input, it could not be found. Something has'
-       Write(6,*)' happened to the input file, or else there is some'
-       Write(6,*)' strange program error.'
-       iRc=_RC_INPUT_ERROR_
-      End If
-      Go to 9900
-
-9910  CONTINUE
-      Call WarningMessage(2,'End of input file during preprocessing.')
-      Call WarningMessage(2,ReadStatus)
-      If (IPRLEV.ge.TERSE) Write(6,*)' Error exit 9910 from PROC_INP.'
-      iRc=_RC_INPUT_ERROR_
-      Go to 9900
-*
-9920  CONTINUE
-      Call WarningMessage(2,'Read error during input preprocessing.')
-      Call WarningMessage(2,ReadStatus)
-      If (IPRLEV.ge.TERSE) Write(6,*)' Error exit 9920 from PROC_INP.'
-      iRc=_RC_INPUT_ERROR_
-      Go to 9900
 *
 9930  CONTINUE
       Call WarningMessage(2,'Error during input preprocessing.')

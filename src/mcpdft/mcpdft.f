@@ -51,7 +51,7 @@
 ************************************************************************
 
       use Fock_util_global, only: DoCholesky
-      use mcpdft_input, only: mcpdft_options
+      use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
@@ -104,35 +104,37 @@
       EAV = 0.0d0
       call mcpdft_init()
 
+      call parse_input()
+
 ! Make a copy, upper-cased, left-adjusted, of the input between and including
 ! the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
 ! with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 ! substring beginning with '!' with blanks.
 ! That copy will be in file 'CleanInput', and its unit number is returned
 ! as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
-      Call cpinp_(LUInput,iRc)
-      If (iRc.ne._RC_ALL_IS_WELL_) Then
-       Call WarningMessage(2,'Input file is unusable.')
-       write(lf,*)' MCPDFT Error: Could not make a clean copy of'
-       write(lf,*)' the input file. This is an unexpected bug.'
-       IRETURN=_RC_INTERNAL_ERROR_
-       GOTO 9990
-      End If
+      !Call cpinp_(LUInput,iRc)
+      !If (iRc.ne._RC_ALL_IS_WELL_) Then
+       !Call WarningMessage(2,'Input file is unusable.')
+       !write(lf,*)' MCPDFT Error: Could not make a clean copy of'
+       !write(lf,*)' the input file. This is an unexpected bug.'
+       !IRETURN=_RC_INTERNAL_ERROR_
+       !GOTO 9990
+      !End If
 
 
 ! Scan the input file for keywords:
-      Call Scan_Inp_m(iRc)
-! If something wrong with input file:
-      If (iRc.ne._RC_ALL_IS_WELL_) Then
-       If (IPRLOC(1).GE.TERSE) Then
-        Call WarningMessage(2,'Scanning input file failed.')
-! Calling again, now with iRc indicating an error,
-! will echo the keywords:
-        Call Scan_Inp_m(iRc)
-       End If
-       IRETURN=_RC_INPUT_ERROR_
-       GOTO 9990
-      End If
+      !Call Scan_Inp_m(iRc)
+ !If something wrong with input file:
+      !If (iRc.ne._RC_ALL_IS_WELL_) Then
+       !If (IPRLOC(1).GE.TERSE) Then
+        !Call WarningMessage(2,'Scanning input file failed.')
+ !Calling again, now with iRc indicating an error,
+ !will echo the keywords:
+        !Call Scan_Inp_m(iRc)
+       !End If
+       !IRETURN=_RC_INPUT_ERROR_
+       !GOTO 9990
+      !End If
 
 ! Local print level in this routine:
       IPRLEV=IPRLOC(1)
@@ -272,6 +274,7 @@
   11  CONTINUE
 
       IF(mcpdft_options%mspdft) Then
+       ! TODO: this should be checked immediately!!
        call f_inquire('ROT_HAM',Do_Rotate)
        IF(IPRLEV.ge.USUAL) THEN
        If(.not.Do_Rotate) Then
@@ -279,6 +282,7 @@
      &  'the file of rotated Hamiltonian is not found.'
         write(lf,'(6X,2a)')'Performing regular (state-',
      &   'specific) MC-PDFT calculation'
+        mcpdft_options%mspdft = .false.
        End If
        END IF
       End IF
