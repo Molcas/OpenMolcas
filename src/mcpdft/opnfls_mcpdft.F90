@@ -9,19 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
+!               2024, Matthew R Hennefarth                             *
 !***********************************************************************
 subroutine open_files_mcpdft(DSCF)
-!***********************************************************************
-!                                                                      *
-!     Open files.                                                      *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     written by:                                                      *
-!     M.P. Fuelscher                                                   *
-!     University of Lund, Sweden, 1993                                 *
-!                                                                      *
-!----------------------------------------------------------------------*
     use mcpdft_output, only: lf
     use Fock_util_global, only: docholesky
 
@@ -46,9 +36,6 @@ subroutine open_files_mcpdft(DSCF)
     LUINTA=40
 !...  MO two-electron integrals
     LUINTM=13
-!...  general purpose communication file COMFILE
-!     Note: subr. GetInf uses unit 33 as logical unit
-    LUCOM=30
 ! Opening the JOBIPH file is delayed till after input processing at end
 ! of READIN_RASSCF. Only then is file name known.
 

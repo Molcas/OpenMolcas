@@ -107,9 +107,9 @@
          Write(LF,Fmt1) 'OrdInt status: non-squared'
        End If
        Write(LF,*)
-*----------------------------------------------------------------------*
-*     Print cartesian coordinates of the system                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print cartesian coordinates of the system                        *
+!----------------------------------------------------------------------*
        Call PrCoor
       END IF
 *----------------------------------------------------------------------*
@@ -262,7 +262,7 @@ C.. for RAS
       END IF
       Write(LF,*)
 
-*---- Print out grid information
+!---- Print out grid information
        Call Put_dScalar('DFT exch coeff',CoefX)
        Call Put_dScalar('DFT corr coeff',CoefR)
        Call Funi_Print()
@@ -277,8 +277,6 @@ C.. for RAS
        END IF
   900 CONTINUE
       Call XFlush(LF)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+
       Return
       End
