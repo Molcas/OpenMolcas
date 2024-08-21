@@ -28,11 +28,11 @@ module mcpdft_input
         character(len=256) :: wfn_file = "JOBOLD"
 
         integer(kind=iwp), dimension(2) :: nac_states = 0
-        type(OTFNAL_t) :: otfnal = OTFNAL_t()
+        type(OTFNAL_t) :: otfnal
 
     end type
 
-    type(McpdftInputOptions_t) :: mcpdft_options = McpdftInputOptions_t()
+    type(McpdftInputOptions_t) :: mcpdft_options
 
     public :: mcpdft_options
 
