@@ -14,11 +14,9 @@
       use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
-      use definitions, only: wp
-      use ontop_functional, only: OTFNAL_t
 
 #ifdef _HDF5_
-      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+      Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -32,7 +30,6 @@
 
       Real*8 potnucdummy
       logical lExists, RunFile_Exists
-      Character*180, external :: Get_LN
       Logical, External :: Is_First_Iter
       integer, external :: isFreeUnit
       logical, external :: Langevin_On, PCM_On

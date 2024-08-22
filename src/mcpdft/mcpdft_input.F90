@@ -55,6 +55,8 @@ contains
         character(len=:), allocatable :: buffer
         character(len=4) :: command
 
+        call StatusLine("MCPDFT:", "Reading in input")
+
         call spoolinp(lu_input)
         rewind(lu_input)
         call rdnlst(lu_input, "MCPDFT")
