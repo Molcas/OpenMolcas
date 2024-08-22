@@ -39,8 +39,8 @@ get_filename_component (sourcedir "${CMAKE_SOURCE_DIR}" REALPATH)
 get_filename_component (binarydir "${CMAKE_BINARY_DIR}" REALPATH)
 if ("${sourcedir}" STREQUAL "${binarydir}")
   message (FATAL_ERROR "In-source builds in ${CMAKE_BINARY_DIR} are not "
-          "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
-          "separate build directory and run cmake from there.")
+           "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
+           "separate build directory and run cmake from there.")
 endif ()
 
 # discover some necessary tools
