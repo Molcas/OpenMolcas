@@ -182,7 +182,7 @@
       End If
 
 *---  Process HDF5 file --------------------------------------------*
-      If (.not. mcpdft_options%is_hdf5_wfn) Then
+      If (mcpdft_options%is_hdf5_wfn) Then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
 *     read basic attributes
@@ -229,7 +229,7 @@
           call Quit(_RC_INPUT_ERROR_)
         end if
 
-        if(.not. mcpdft_options%is_hdf5_wfn) then
+        if(mcpdft_options%is_hdf5_wfn) then
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
             write (LF,*)' CI vectors will be read from HDF5 ref file.'
           else
@@ -279,7 +279,7 @@
       End If  !> IORBDATA
 
 !> read CI optimiation parameters from HDF5 file
-      if(.not. mcpdft_options%is_hdf5_wfn) then
+      if(mcpdft_options%is_hdf5_wfn) then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
         call mh5_fetch_attr (mh5id,'SPINMULT', iSpin)

@@ -24,7 +24,7 @@ module mcpdft_input
         logical :: grad = .false.
         logical :: meci = .false.
         logical :: nac = .false.
-        logical :: is_hdf5_wfn = .true.
+        logical :: is_hdf5_wfn = .false.
         character(len=256) :: wfn_file = "JOBOLD"
 
         integer(kind=iwp), dimension(2) :: nac_states = 0
