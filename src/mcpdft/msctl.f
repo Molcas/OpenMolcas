@@ -45,7 +45,6 @@
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "pamint.fh"

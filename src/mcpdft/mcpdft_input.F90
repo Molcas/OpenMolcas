@@ -134,6 +134,7 @@ contains
             end select
 
         end do
+        call close_luspool(lu_input)
         call mma_deallocate(buffer)
         mcpdft_options%otfnal = OTFNAL_t(otxc, lambda)
 

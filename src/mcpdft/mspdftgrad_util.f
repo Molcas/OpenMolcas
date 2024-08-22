@@ -24,7 +24,6 @@
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
 

@@ -28,7 +28,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
-#include "input_ras_mcpdft.fh"
 #include "general.fh"
 
       Real*8 potnucdummy

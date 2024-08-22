@@ -68,7 +68,6 @@
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
@@ -80,12 +79,10 @@
       INTEGER LUMS,IsFreeUnit
       External IsFreeUnit
 
-      Character*80 Line
       Logical IfOpened
       Logical Found
 
       external mcpdft_init
-      External Scan_Inp_m
       integer iRef_E,IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
@@ -106,62 +103,26 @@
 
       call parse_input()
 
-! Make a copy, upper-cased, left-adjusted, of the input between and including
-! the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
-! with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
-! substring beginning with '!' with blanks.
-! That copy will be in file 'CleanInput', and its unit number is returned
-! as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
-      !Call cpinp_(LUInput,iRc)
-      !If (iRc.ne._RC_ALL_IS_WELL_) Then
-       !Call WarningMessage(2,'Input file is unusable.')
-       !write(lf,*)' MCPDFT Error: Could not make a clean copy of'
-       !write(lf,*)' the input file. This is an unexpected bug.'
-       !IRETURN=_RC_INTERNAL_ERROR_
-       !GOTO 9990
-      !End If
-
-
-! Scan the input file for keywords:
-      !Call Scan_Inp_m(iRc)
- !If something wrong with input file:
-      !If (iRc.ne._RC_ALL_IS_WELL_) Then
-       !If (IPRLOC(1).GE.TERSE) Then
-        !Call WarningMessage(2,'Scanning input file failed.')
- !Calling again, now with iRc indicating an error,
- !will echo the keywords:
-        !Call Scan_Inp_m(iRc)
-       !End If
-       !IRETURN=_RC_INPUT_ERROR_
-       !GOTO 9990
-      !End If
 
 ! Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
       Call open_files_mcpdft(DSCF)
 
-* Some preliminary input data:
+! Some preliminary input data:
       Call Rd1Int()
       If ( .not. DSCF ) then
         Call Rd2Int_RASSCF()
       end if
 
-* Process the input:
+! Process the input:
       Call Proc_InpX(DSCF,iRc)
-* If something goes wrong in proc_inp:
+
+! If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
         If (IPRLEV.ge.TERSE) Then
           Call WarningMessage(2,'Input processing failed.')
           write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
-          write(lf,*)' Here is a printing of the input file that'
-          write(lf,*)' was processed:'
-          Rewind(LUInput)
-  15      Continue
-          Read(LuInput,'(A80)',End=16,Err=16) Line
-          write(lf,*) Line
-          Go To 15
-  16      Continue
         End If
         IRETURN=iRc
         GOTO 9990
@@ -503,7 +464,6 @@
         INQUIRE(UNIT=I,OPENED=IfOpened)
         IF (IfOpened.and.I.ne.19) CLOSE (I)
       END DO
-      Close(LUInput)
 
       End
 
