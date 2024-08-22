@@ -9,66 +9,52 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
+!               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 subroutine close_files_mcpdft()
-!***********************************************************************
-!                                                                      *
-!     Close files.                                                     *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     written by:                                                      *
-!     M.P. Fuelscher                                                   *
-!     University of Lund, Sweden, 1993                                 *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!                                                                      *
-!***********************************************************************
-    use Fock_util_global, only: docholesky
-    use mcpdft_output, only: lf
+  use Fock_util_global,only:docholesky
+  use mcpdft_output,only:lf
 
-    implicit none
+  implicit none
 
-    integer :: return_code, iOpt
+  integer :: return_code,iOpt
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
 
-    !---  close the JOBOLD file -------------------------------------------*
-    If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
-        Call DaClos(JOBOLD)
-        JOBOLD=-1
-    Else If (JOBOLD.gt.0) Then
-        JOBOLD=-1
-    End If
-    !---  close the JOBIPH file -------------------------------------------*
-    If(JOBIPH.gt.0) Then
-        Call DaClos(JOBIPH)
-        JOBIPH=-1
-    End If
-    !---  close the ORDINT file -------------------------------------------*
-    If (.not.DoCholesky) then
-        return_code = -1
-        Call ClsOrd(return_code)
-        If ( return_code.ne._RC_ALL_IS_WELL_) Then
-            Call WarningMessage(1,'Failed to close the ORDINT file.')
-        End If
-    End If
-    !---  close the file carrying the transformed two-electron integrals --*
-    Call DaClos(LUINTM)
-
-    !--- close the one-electorn integral file
+  !---  close the JOBOLD file -------------------------------------------*
+  If(JOBOLD > 0 .and. JOBOLD /= JOBIPH) Then
+    Call DaClos(JOBOLD)
+    JOBOLD = -1
+  Else If(JOBOLD > 0) Then
+    JOBOLD = -1
+  EndIf
+  !---  close the JOBIPH file -------------------------------------------*
+  If(JOBIPH > 0) Then
+    Call DaClos(JOBIPH)
+    JOBIPH = -1
+  EndIf
+  !---  close the ORDINT file -------------------------------------------*
+  If(.not. DoCholesky) then
     return_code = -1
-    iOpt = 0
-    call clsone(return_code, iOpt)
-    if (return_code .ne. _RC_ALL_IS_WELL_) then
-        write(lf, *) "Error when trying to close the one-electron"
-        write(lf, *) "integral file."
-        call abend()
-    end if
-    Return
+    Call ClsOrd(return_code)
+    If(return_code /= _RC_ALL_IS_WELL_) Then
+      Call WarningMessage(1,'Failed to close the ORDINT file.')
+    EndIf
+  EndIf
+  !---  close the file carrying the transformed two-electron integrals --*
+  Call DaClos(LUINTM)
+
+  !--- close the one-electorn integral file
+  return_code = -1
+  iOpt = 0
+  call clsone(return_code,iOpt)
+  if(return_code /= _RC_ALL_IS_WELL_) then
+    write(lf,*) "Error when trying to close the one-electron"
+    write(lf,*) "integral file."
+    call abend()
+  endif
+  Return
 End

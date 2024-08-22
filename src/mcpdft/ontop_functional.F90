@@ -12,93 +12,97 @@
 !***********************************************************************
 
 module ontop_functional
-    use definitions, only: wp
+  use definitions,only:wp
 
-    implicit none
-    private
+  implicit none
+  private
 
-    type :: OTFNAL_t
-        real(kind=wp) :: lambda = 0.0d0
-        character(len=80) :: otxc = ""
-        character(len=80) :: xc = ""
-    contains
-        procedure :: is_hybrid
-    end type
+  type :: OTFNAL_t
+    real(kind=wp) :: lambda = 0.0d0
+    character(len=80) :: otxc = ""
+    character(len=80) :: xc = ""
+  contains
+    procedure :: is_hybrid
+  endtype
 
-    interface OTFNAL_t
-        module procedure :: new
-    end interface
+  interface OTFNAL_t
+    module procedure :: new
+  endinterface
 
-    public :: OTFNAL_t
+  public :: OTFNAL_t
 
 contains
 
-    type(OTFNAL_t) function new(otxc, lambda)
-        use mcpdft_output, only: lf
-        implicit none
+  type(OTFNAL_t) function new(otxc,lambda)
+    use mcpdft_output,only:lf
+    implicit none
 
-        real(kind=wp), intent(in) :: lambda
-        character(len=80), intent(in) :: otxc
+    real(kind=wp),intent(in) :: lambda
+    character(len=80),intent(in) :: otxc
 
-        new%lambda = lambda
-        new%otxc = otxc
-        call upcase(new%otxc)
+    new%lambda = lambda
+    new%otxc = otxc
+    call upcase(new%otxc)
 
-        if(.not. valid_otxc(new%otxc)) then
-            call warningmessage(2, "Wrong on-top functional for MC-PDFT")
-            write(lf,*) ' ************* ERROR **************'
-            write(lf,*) ' Current on-top functionals are:   '
-            write(lf,*) ' T :  translated functionals       '
-            write(lf,*) ' FT:  fully translated functionals '
-            write(lf,*) ' e.g. T:PBE for tPBE functional    '
-            write(lf,*) ' **********************************'
-            call abend()
-        end if
+    if(.not. valid_otxc(new%otxc)) then
+      call warningmessage(2,"Wrong on-top functional for MC-PDFT")
+      write(lf,*) ' ************* ERROR **************'
+      write(lf,*) ' Current on-top functionals are:   '
+      write(lf,*) ' T :  translated functionals       '
+      write(lf,*) ' FT:  fully translated functionals '
+      write(lf,*) ' e.g. T:PBE for tPBE functional    '
+      write(lf,*) ' **********************************'
+      call abend()
+    endif
 
-        new%xc = get_base(new%otxc)
+    new%xc = get_base(new%otxc)
 
-        if(is_hybrid_xc(new%xc)) then
-            call warningmessage(2, "Hybrid functionals not supported")
-            write(lf,*) ' ************* ERROR **************'
-            write(lf,*) ' MC-PDFT does not translate hybrid '
-            write(lf,*) ' functionals. If you want to run   '
-            write(lf,*) ' hybrid MC-PDFT, use the LAMBda    '
-            write(lf,*) ' keyword instead.                  '
-            write(lf,*) '                                   '
-            write(lf,*) ' EXAMPLE:                          '
-            write(lf,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
-            write(lf,*) ' Usage:                            '
-            write(lf,*) '  KSDFT=T:PBE                      '
-            write(lf,*) '  LAMB =0.25                       '
-            write(lf,*) ' **********************************'
-            call abend()
-        end if
+    if(is_hybrid_xc(new%xc)) then
+      call warningmessage(2,"Hybrid functionals not supported")
+      write(lf,*) ' ************* ERROR **************'
+      write(lf,*) ' MC-PDFT does not translate hybrid '
+      write(lf,*) ' functionals. If you want to run   '
+      write(lf,*) ' hybrid MC-PDFT, use the LAMBda    '
+      write(lf,*) ' keyword instead.                  '
+      write(lf,*) '                                   '
+      write(lf,*) ' EXAMPLE:                          '
+      write(lf,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
+      write(lf,*) ' Usage:                            '
+      write(lf,*) '  KSDFT=T:PBE                      '
+      write(lf,*) '  LAMB =0.25                       '
+      write(lf,*) ' **********************************'
+      call abend()
+    endif
 
-    end function
+  endfunction
 
-    logical function valid_otxc(otxc)
-        implicit none
-        character(len=80), intent(in) :: otxc
-        valid_otxc = otxc(1:2) == "T:" .or. otxc(1:3) == "FT:"
-    end function
+  function valid_otxc(otxc)
+    implicit none
+    logical :: valid_otxc
+    character(len=80),intent(in) :: otxc
+    valid_otxc = otxc(1:2) == "T:" .or. otxc(1:3) == "FT:"
+  endfunction
 
-    logical function is_hybrid_xc(xc_base)
-        implicit none
-        character(len=80), intent(in) :: xc_base
-        real(kind=wp), external :: get_exfac
-        is_hybrid_xc = abs(get_exfac(xc_base)) .gt. 1.0d-8
-    end function
+  function is_hybrid_xc(xc_base)
+    implicit none
+    logical :: is_hybrid_xc
+    character(len=80),intent(in) :: xc_base
+    real(kind=wp),external :: get_exfac
+    is_hybrid_xc = abs(get_exfac(xc_base)) > 1.0d-8
+  endfunction
 
-    logical function is_hybrid(self)
-        implicit none
-        class(OTFNAL_t), intent(in) :: self
-        is_hybrid =  self%lambda .gt. 0.0d0
-    end function
+  function is_hybrid(self)
+    implicit none
+    logical :: is_hybrid
+    class(OTFNAL_t),intent(in) :: self
+    is_hybrid = self%lambda > 0.0d0
+  endfunction
 
-    character(len=80) function get_base(otxc) result(xc)
-        implicit none
-        character(len=80), intent(in) :: otxc
-        xc = otxc(index(otxc, "T:")+2:)
-    end function
+  function get_base(otxc)
+    implicit none
+    character(len=80) :: get_base
+    character(len=80),intent(in) :: otxc
+    get_base = otxc(index(otxc,"T:")+2:)
+  endfunction
 
-end module
+endmodule

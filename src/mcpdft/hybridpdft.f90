@@ -16,7 +16,7 @@
 ! ****************************************************************
 
 module hybridpdft
-  use definitions, only: wp
+  use definitions,only:wp
 
   implicit none
   private
@@ -24,5 +24,5 @@ module hybridpdft
   Real(kind=wp) :: E_nohyb ! PDFT energy if it is not hybrid
 
   public :: e_nohyb
-end module hybridpdft
+endmodule hybridpdft
 
