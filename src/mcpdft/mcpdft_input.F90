@@ -39,6 +39,8 @@ module mcpdft_input
 contains
 
     subroutine parse_input()
+        ! Reads in the input from the user and sets the appropriate flags in mcpdft_options.
+
         use stdalloc, only: mma_deallocate
         use text_file, only: next_non_comment
         use KSDFT_Info, only: CoefR, CoefX
@@ -145,6 +147,8 @@ contains
     end subroutine
 
     subroutine verify_input()
+        ! Validates mcpdft_options object. Ensures that the options provided from the user are valid.
+
         use mcpdft_output, only: lf
         implicit none
 
