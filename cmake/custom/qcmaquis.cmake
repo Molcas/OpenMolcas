@@ -208,7 +208,7 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
   list (APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
   #list (APPEND CMAKE_MODULE_PATH ${extprojpath}/scripts/common/cmake)
 
-  set (EP_PROJECT  "qcmaquis")
+  set (EP_PROJECT "qcmaquis")
 
   if (ADDRMODE EQUAL 64)
     set (EP_CMAKE_ARGS "${QCMaquisCMakeArgs}" "-DLAPACK_64_BIT:BOOL=ON")
@@ -346,6 +346,12 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
                                                                           ${install_dir}/${QCM_MOD_SUBDIR}/hdf5_utils.mod
                                                                           ${mod_dir}
   )
+
+  # Fix shebang line
+  add_custom_command (TARGET qcmaquis POST_BUILD
+                      COMMAND sed -i '1 s@ python$$@ ${Python_EXECUTABLE}@' ${OPENMOLCAS_TOOLS_DIR}/qcm_checkpoint_rename.py
+  )
+
   # set MAQUIS_DMRG_DIR so that future find_package calls can find QCMaquis
   #if (NOT MAQUIS_DMRG_DIR)
   #  set (MAQUIS_DMRG_DIR ${install_dir}/share/cmake)
