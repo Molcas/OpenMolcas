@@ -321,7 +321,7 @@
       end if
 !Rename JOBIPH file, and open it.
       JOBIPH=IsFreeUnit(15)
-      CALL DANAME(JOBIPH,mcpdft_options%wfn_file)
+      CALL DANAME(JOBIPH,"JOBIPH")
 
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym
