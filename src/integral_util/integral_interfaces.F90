@@ -58,12 +58,12 @@
       Contains
 
 #define _IN_MODULE_
-#include "oneel_ij.f90"
-#include "oneel_inner.f90"
-#include "oneel_integrals.f90"
-#include "dede_scf.f90"
-#include "integral_wrout2.f90"
-#include "no_routine.f90"
+#include "oneel_ij.F90"
+#include "oneel_inner.F90"
+#include "oneel_integrals.F90"
+#include "dede_scf.F90"
+#include "integral_wrout2.F90"
+#include "no_routine.F90"
 #include "../ri_util/integral_ri_3.F90"
 #include "../ri_util/integral_ri_2.F90"
 #include "../ri_util/integral_ricd.F90"

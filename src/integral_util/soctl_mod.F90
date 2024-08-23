@@ -8,16 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SOOUT(label,cnt_ico,phase_ico)
-      Implicit None
-#include "Molcas.fh"
-      Integer cnt_ico(0:7,*),phase_ico(0:7,*)
-      Character(LEN=LENIN8) Label(MaxBfn+MaxBfn_Aux)
-!
-      Call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
-!
-      End Subroutine SOOUT
-!
       Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
       use Center_Info

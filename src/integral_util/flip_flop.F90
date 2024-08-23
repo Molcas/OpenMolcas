@@ -55,20 +55,3 @@
 !
       Return
       End Subroutine Flip_Flop
-!#define _USE_CHECK_CFF_
-#ifdef  _USE_CHECK_CFF_
-      Subroutine Check_cff(Label)
-      Use Basis_Info
-      Character*(*) Label
-      Write(6,*) Label
-      Do i = 1, 30
-         Write (6,*) i,                                                 &
-     &               Shells(i)%nExp, Shells(i)%nBasis,                  &
-     &               Allocated(Shells(i)%pCff),                         &
-     &               Allocated(Shells(i)%Cff_c),                        &
-     &               Allocated(Shells(i)%Cff_p)
-      End Do
-      Return
-      End Subroutine Check_cff
-#endif
-
