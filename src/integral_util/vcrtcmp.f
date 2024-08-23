@@ -24,7 +24,7 @@
       use Constants
       Implicit None
       Integer nZeta, na, nHer
-      Real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer),
+      Real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer),               &
      &       Axyz(nZeta,3,nHer,0:na)
       Logical ABeq(3)
 
@@ -47,20 +47,20 @@
 !
             If (ABeq(iCar)) Then
                Do 31 iZeta = 1, nZeta
-                  Axyz(iZeta,iCar,iHer,1) =
+                  Axyz(iZeta,iCar,iHer,1) =                             &
      &                   HerR(iHer)*Zeta12(iZeta)
  31            Continue
             Else
                Do 30 iZeta = 1, nZeta
-                  Axyz(iZeta,iCar,iHer,1) =
-     &                   HerR(iHer)*Zeta12(iZeta) +
+                  Axyz(iZeta,iCar,iHer,1) =                             &
+     &                   HerR(iHer)*Zeta12(iZeta) +                     &
      &                   P(iZeta,iCar) - A(iCar)
  30            Continue
             End If
 !
             Do 40 ia = 2, na
                Do 50 iZeta = 1, nZeta
-                  Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1) *
+                  Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1) *  &
      &                                       Axyz(iZeta,iCar,iHer,ia-1)
  50            Continue
  40         Continue
@@ -72,7 +72,7 @@
 #ifdef _DEBUGPRINT_
       Do 100 ia = 0, na
          Do 110 iHer = 1, nHer
-            Write (Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',
+            Write (Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',   &
      &            iHer,',ia=',ia,')'
             Call RecPrt(Label,' ',Axyz(1,1,iHer,ia),nZeta,3)
 110      Continue

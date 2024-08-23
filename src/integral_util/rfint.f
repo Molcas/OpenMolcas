@@ -11,8 +11,8 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine RFInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nComp,la,lb,A,B,nHer,
+      SubRoutine RFInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,     &
+     &                  Final,nZeta,nComp,la,lb,A,B,nHer,               &
      &                  Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
@@ -30,13 +30,13 @@
       use Her_RW, only: HerR, HerW, iHerR, iHerw
       Implicit None
       Integer nAlpha,nBeta,nZeta,nComp,la,lb,nHer,nArr,nOrdOp
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
+     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),                     &
      &       Array(nZeta*nArr), Ccoor(3)
 
       Logical ABeq(3)
-      Integer nip, ipAxyz, ipBxyz, ipRnxyz, ipTemp1, ipTemp2, ipTemp3,
+      Integer nip, ipAxyz, ipBxyz, ipRnxyz, ipTemp1, ipTemp2, ipTemp3,  &
      &        iZeta, ipRxyz
 !
       ABeq(:) = A(:).eq.B(:)
@@ -78,30 +78,30 @@
          Array(ipTemp1-1+iZeta) = 1/Sqrt(Zeta(iZeta))
 !        Array(ipTemp1-1+iZeta) = Zeta(iZeta)**(-Half)
  10   Continue
-      Call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),
+      Call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),              &
      &               la,HerR(iHerR(nHer)),nHer,ABeq)
-      Call vCrtCmp(Array(ipTemp1),P,nZeta,B,Array(ipBxyz),
+      Call vCrtCmp(Array(ipTemp1),P,nZeta,B,Array(ipBxyz),              &
      &               lb,HerR(iHerR(nHer)),nHer,ABeq)
 !
 !     Compute the contribution from the multipole moment operator
 !
       ABeq(:) = .False.
-      Call vCrtCmp(Array(ipTemp1),P,nZeta,Ccoor,Array(ipRxyz),
+      Call vCrtCmp(Array(ipTemp1),P,nZeta,Ccoor,Array(ipRxyz),          &
      &            nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 !
 !     Compute the cartesian components for the multipole moment
 !     integrals. The integrals are factorized into components.
 !
-       Call vAssmbl(Array(ipRnxyz),
-     &              Array(ipAxyz),la,
-     &              Array(ipRxyz),nOrdOp,
-     &              Array(ipBxyz),lb,
+       Call vAssmbl(Array(ipRnxyz),                                     &
+     &              Array(ipAxyz),la,                                   &
+     &              Array(ipRxyz),nOrdOp,                               &
+     &              Array(ipBxyz),lb,                                   &
      &              nZeta,HerW(iHerW(nHer)),nHer,Array(ipTemp3))
 !
 !     Combine the cartesian components to the full one electron
 !     integral.
 !
-      Call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
+      Call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,  &
      &          nComp,Array(ipTemp1),Array(ipTemp2))
 !
 #ifdef _WARNING_WORKAROUND_

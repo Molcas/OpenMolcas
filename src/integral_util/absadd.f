@@ -28,7 +28,7 @@
       Integer  iVec
 !
       Do iVec = 1, nVec
-         Vec2(1+(iVec-1)*Inc2) = Vec2(1+(iVec-1)*Inc2) +
+         Vec2(1+(iVec-1)*Inc2) = Vec2(1+(iVec-1)*Inc2) +                &
      &                  Sqrt(Abs(Vec1(1+(iVec-1)*Inc1)))
       End Do
 !

@@ -31,7 +31,7 @@
       Else If (Lbl.eq.'ALL    ') Then
          Basis_Mode = All_Mode
       Else
-         Call WarningMessage(2,'Set_Basis_Mode: illegal mode,'//
+         Call WarningMessage(2,'Set_Basis_Mode: illegal mode,'//        &
      &               'Label='//Lbl)
          Call Abend()
       End If

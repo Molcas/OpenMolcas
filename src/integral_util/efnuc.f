@@ -89,7 +89,7 @@
       Call mma_deallocate(C_ESIT)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' The Electrostatic Interaction'
+      Call RecPrt(' The Electrostatic Interaction'                      &
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
 #endif
       Return
@@ -228,7 +228,7 @@
             c=n-a-b
             ip = ip + 1
 !           Write (*,*) ip, I(a,b,c,ix,iy,iz)
-            If (I(a,b,c,ix,iy,iz).ne.0)
+            If (I(a,b,c,ix,iy,iz).ne.0)                                 &
      &      ESIT(ip)=ESIT(ip)+DBLE(I(a,b,c,ix,iy,iz))*temp
          End Do
       End Do

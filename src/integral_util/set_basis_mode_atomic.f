@@ -24,7 +24,7 @@
 !
       Do k = i+1, j
          If (dbsc(i)%Aux.neqv.dbsc(k)%Aux) Then
-            Call WarningMessage(2,
+            Call WarningMessage(2,                                      &
      &              'dbsc(i)%Aux.ne.dbsc(k)%Aux')
             Call Abend()
          End If

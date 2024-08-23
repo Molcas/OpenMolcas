@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine DesymP(iAng, iCmp, jCmp, kCmp, lCmp, Shijij, iShll,
+      Subroutine DesymP(iAng, iCmp, jCmp, kCmp, lCmp, Shijij, iShll,    &
      &                  iShell, iAO, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
 !***********************************************************************
 !                                                                      *
@@ -51,8 +51,8 @@
 !     Local Array
       Logical Shij, Shkl
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer MemSO2, ii, jj, kk, ll, i1, i2, i3, i4, iChBs, jChBs,
-     &        kChBs, lChBs, niSym, njSym, nkSym, nlSym, iAux, j,
+      Integer MemSO2, ii, jj, kk, ll, i1, i2, i3, i4, iChBs, jChBs,     &
+     &        kChBs, lChBs, niSym, njSym, nkSym, nlSym, iAux, j,        &
      &        is, js, ks, ls, j1, j2, j3, j12, j123, j4
       Real*8 Fact, pa, pb, pc, FactNs, Xa, Xb, Xg
 #ifdef _DEBUGPRINT_
@@ -67,7 +67,7 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In DesymP: PSO ',' ',PSO,ijkl,nPSO)
       Call WrCheck(' In DesymP: PSO ',PSO,ijkl*nPSO)
-      Write (6,*) 'iCmp,jCmp,kCmp,lCmp,nPSO=',
+      Write (6,*) 'iCmp,jCmp,kCmp,lCmp,nPSO=',                          &
      &             iCmp,jCmp,kCmp,lCmp,nPSO
       Write (6,*) Shij, Shkl, Shijij
       Write (6,*) 'kOp=',kOp
@@ -115,7 +115,7 @@
 201         Continue
             Do 300 i3 = 1, kCmp
                kChBs = iChBas(kk+i3)
-               If (Shells(iShll(3))%Transf)
+               If (Shells(iShll(3))%Transf)                             &
      &            kChBs = iChBas(iSphCr(kk+i3))
                pc = Prmt(iOper(kOp(3)),kChBs)
                nkSym=0
@@ -127,7 +127,7 @@
 301            Continue
                Do 400 i4 = 1, lCmp
                   lChBs = iChBas(ll+i4)
-                  If (Shells(iShll(4))%Transf)
+                  If (Shells(iShll(4))%Transf)                          &
      &               lChBs = iChBas(iSphCr(ll+i4))
 !-----------------Parity factor due to symmetry operations applied to the
 !                 angular part of the basis functions.
@@ -169,7 +169,7 @@
                   If (j123.ne.j4) Go To 320
 !
                   iAux = iAux + 1
-                  Aux(iAux) = DBLE(iChTbl(j4,kOp(4))) * Xg *
+                  Aux(iAux) = DBLE(iChTbl(j4,kOp(4))) * Xg *            &
      &                        Fact
                   Go To 310
 !
@@ -183,10 +183,10 @@
          Call RecPrt(' Aux',' ',Aux,iAux,1)
 #endif
          If (iAux.ne.1) Then
-            Call DNaXpY(iAux,ijkl,Aux,1,PSO(1,MemSO2),1,ijkl,
+            Call DNaXpY(iAux,ijkl,Aux,1,PSO(1,MemSO2),1,ijkl,           &
      &                  PAO(1,i1,i2,i3,i4),1,0)
          Else
-            Call DaXpY_(ijkl,Aux(1),PSO(1,MemSO2),1,
+            Call DaXpY_(ijkl,Aux(1),PSO(1,MemSO2),1,                    &
      &                 PAO(1,i1,i2,i3,i4),1)
          End If
          MemSO2 = MemSO2 + iAux
@@ -198,11 +198,11 @@
  100  Continue
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' On exit from DesymP: PAO ',' ', PAO,
+      Call RecPrt(' On exit from DesymP: PAO ',' ', PAO,                &
      &         ijkl,iCmp*jCmp*kCmp*lCmp)
       Do 3333 i = 1, ijkl
-         Write (6,*) DDot_(iCmp*jCmp*kCmp*lCmp,
-     &               PAO(i,1,1,1,1),ijkl,
+         Write (6,*) DDot_(iCmp*jCmp*kCmp*lCmp,                         &
+     &               PAO(i,1,1,1,1),ijkl,                               &
      &               PAO(i,1,1,1,1),ijkl)
  3333 Continue
       Call WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)

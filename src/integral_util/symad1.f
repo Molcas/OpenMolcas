@@ -11,9 +11,9 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine SymAd1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,iAO,jAO,
-     &                  AOInt,iBas,jBas,nIC,iIC,
+      Subroutine SymAd1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,        &
+     &                  iShll,jShll,iAO,jAO,                            &
+     &                  AOInt,iBas,jBas,nIC,iIC,                        &
      &                  SOInt,nSOInt,nOp)
 !***********************************************************************
 !                                                                      *
@@ -29,14 +29,14 @@
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit None
-      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
+      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,                  &
      &        iShll,jShll,iAO,jAO,iBas,jBas,nIC,iIC,nSOInt
       Integer nOp(2)
       Real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)
 
       Integer jIC(0:7)
       Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Integer iIrrep, ii, jj, lSO, j1, i1, iChBs, j2, j12, kIC, jMx,
+      Integer iIrrep, ii, jj, lSO, j1, i1, iChBs, j2, j12, kIC, jMx,    &
      &        i2, jChBs
       Real*8 xa, pae, xb, pbr
 !
@@ -79,11 +79,11 @@
                   If (iAOtSO(jAO+i2,j2)<0) Cycle
                   lSO = lSO + 1
                   jChBs = iChBas(jj+i2)
-                  If (Shells(jShll)%Transf)
+                  If (Shells(jShll)%Transf)                             &
      &               jChBs = iChBas(iSphCr(jj+i2))
                   pbr = Prmt(iOper(nOp(2)),jChBs)
-                  Call DaXpY_(iBas*jBas,xa*pae*xb*pbr,
-     &                       AOInt(1,i1,i2,kIC),1,
+                  Call DaXpY_(iBas*jBas,xa*pae*xb*pbr,                  &
+     &                       AOInt(1,i1,i2,kIC),1,                      &
      &                       SOInt(1,lSO),1)
  400           Continue
 !

@@ -15,7 +15,7 @@
       integer mem, mem_, MemMax
 !
       If (XMem) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &               'External handling of scratch already active!')
          Call Abend()
       End If

@@ -8,19 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
-     &                 jBasj,jBsInc,jPrimj,jBasAO,jBasn,
-     &                 iCmpi,jCmpj,iShell,jShell,
+      Subroutine Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,               &
+     &                 jBasj,jBsInc,jPrimj,jBasAO,jBasn,                &
+     &                 iCmpi,jCmpj,iShell,jShell,                       &
      &                 mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
       use Symmetry_Info, only: nIrrep
       Implicit None
-      Integer iBasi,iBsInc,iPrimi,iBasAO,iBasn,
-     &        jBasj,jBsInc,jPrimj,jBasAO,jBasn,
-     &        iCmpi,jCmpj,iShell,jShell,
+      Integer iBasi,iBsInc,iPrimi,iBasAO,iBasn,                         &
+     &        jBasj,jBsInc,jPrimj,jBasAO,jBasn,                         &
+     &        iCmpi,jCmpj,iShell,jShell,                                &
      &        mDCRij,ipDij,ipDDij,mDij,nDeDe
       Real*8 DeDe(nDeDe)
 
-      Integer ii1, ii2, ii3,  jj1, jj2, jj3,
+      Integer ii1, ii2, ii3,  jj1, jj2, jj3,                            &
      &        i1, i2, i3, j1, j2, j3
 !
       If (nIrrep.eq.1) Then
@@ -57,8 +57,8 @@
          If (iBasi.eq.iBsInc.and.jBasj.eq.jBsInc) Then
             ipDDij=ipDij
          Else
-            Call Picky(DeDe(ipDij),i1,j1,iPrimi*jPrimj,
-     &                 iCmpi*jCmpj,mDCRij,
+            Call Picky(DeDe(ipDij),i1,j1,iPrimi*jPrimj,                 &
+     &                 iCmpi*jCmpj,mDCRij,                              &
      &                 i2,i2+i3-1,j2,j2+j3-1,DeDe(ipDDij))
          End If
       End If

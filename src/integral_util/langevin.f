@@ -12,19 +12,19 @@
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
       Use Basis_Info, only: ncnttp, DBSC
       use Center_Info, only: DC
-      Use Langevin_arrays, only: PolEF, Field, DIP, DAVxyz, CAVxyz,
+      Use Langevin_arrays, only: PolEF, Field, DIP, DAVxyz, CAVxyz,     &
      &                           DField, DipEF, Grid, RAVxyz
-      use External_Centers, only: iXPOLType, nXF, nOrd_XF, XEle, XF,
+      use External_Centers, only: iXPOLType, nXF, nOrd_XF, XEle, XF,    &
      &                            nXMolNr, XMolNr
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module, only: lGridAverage, nGridAverage, nGridSeed,
-     &                         RotAlpha, RotBeta, RotGamma,
-     &                         Done_Lattice, lFirstIter, nGrid_Eff,
-     &                         lLangevin, PolSI, DIPSI, Scala, TK,
-     &                         RadLat, nSparse, DistSparse, lDamping,
-     &                         DipCutOff, nGrid, CordSI, lDipRestart,
+      use rctfld_module, only: lGridAverage, nGridAverage, nGridSeed,   &
+     &                         RotAlpha, RotBeta, RotGamma,             &
+     &                         Done_Lattice, lFirstIter, nGrid_Eff,     &
+     &                         lLangevin, PolSI, DIPSI, Scala, TK,      &
+     &                         RadLat, nSparse, DistSparse, lDamping,   &
+     &                         DipCutOff, nGrid, CordSI, lDipRestart,   &
      &                         nCavxyz
       Implicit None
       Integer nh1
@@ -34,11 +34,11 @@
       Logical Exist
       Save nAnisopol,nPolComp
       Real*8, Allocatable:: D1ao(:)
-      Real*8, Allocatable:: Cord(:,:), Chrg(:), Atom_R(:),
+      Real*8, Allocatable:: Cord(:,:), Chrg(:), Atom_R(:),              &
      &                      pField(:,:), tmpField(:,:)
       Integer ixyz, nElem
-      Integer mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC,
-     &        mCnt, i, nAV, iSeed, iAV, nAnisopol, nPolComp, Lu, j, Inc,
+      Integer mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC,         &
+     &        mCnt, i, nAV, iSeed, iAV, nAnisopol, nPolComp, Lu, j, Inc,&
      &        iOrdOp, iXF, nCnt, iEle, k
       Real*8 Z, ATOD, SUMREPNUC, REPNUC, XA, YA, ZA, SumRepNuc2, ATRad
       Real*8, External:: CovRadT, Random_molcas
@@ -84,7 +84,7 @@
             ndc = ndc + 1
             Do i = 0, nIrrep/dc(ndc)%nStab - 1
                nc = nc + 1
-               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt), &
      &                 Cord(:,nc))
                Atom_R(nc) = Atod
                Chrg(nc) = Z
@@ -118,7 +118,7 @@
             rotAlpha=Random_Molcas(iSeed)*180.0D0
             rotBeta=Random_Molcas(iSeed)*180.0D0
             rotGamma=Random_Molcas(iSeed)*180.0D0
-            write(6,'(a,i4,a,6f10.4)')'GRID NR',iAv,': ',cordsi(1,1),
+            write(6,'(a,i4,a,6f10.4)')'GRID NR',iAv,': ',cordsi(1,1),   &
      &           cordsi(2,1),cordsi(3,1),rotAlpha,rotBeta,rotGamma
             Done_Lattice=.False.
             RepNuc = Zero
@@ -147,13 +147,13 @@
          nGrid_Eff=0
 !        Both these subroutines can increase nGrid_Eff
          If(iXPolType.gt.0) Then
-            Call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,XF,
+            Call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,XF,          &
      &                    nXF,nOrd_XF,nPolComp)
          EndIf
          If(lLangevin) Then
 !            Note: Gen_Grid is now a part of the lattcr subroutine
-            Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,
-     &                  Cord,maxato,Atom_R,nPolComp,
+            Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,               &
+     &                  Cord,maxato,Atom_R,nPolComp,                    &
      &                  XF,nXF,nOrd_XF,XEle,iXPolType)
          EndIf
 !        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
@@ -182,7 +182,7 @@
 
       pField(:,:)=Zero
 
-      Call eperm(D1ao,nh1,Ravxyz,Cavxyz,nCavxyz,
+      Call eperm(D1ao,nh1,Ravxyz,Cavxyz,nCavxyz,                        &
      &           dField,Grid,nGrid_Eff,Cord,MaxAto,Chrg,pField)
 
 !                                                                      *
@@ -219,9 +219,9 @@
       EndDo
       Write(Lu,*)nGrid_eff,nAnisopol
       do i=0,nGrid_eff-1
-         Write(Lu,12)(Grid(j,i+1),j=1,3),
-     &        PolEf(:,i+1),
-     &        DipEf(i+1),
+         Write(Lu,12)(Grid(j,i+1),j=1,3),                               &
+     &        PolEf(:,i+1),                                             &
+     &        DipEf(i+1),                                               &
      &        (dField(j,i+1),j=1,3),(pField(j,i),j=1,3)
  12      format(11f20.10)
       enddo
@@ -263,9 +263,9 @@
 !     Field : total EF of the Langevin grid
 !     Dip   : dipole momement on the Langevin grid
 !
-      Call edip(Field,Dip,dField,
-     &          PolEf,DipEf,
-     &          Grid,nGrid_Eff,nPolComp,nAnisopol,
+      Call edip(Field,Dip,dField,                                       &
+     &          PolEf,DipEf,                                            &
+     &          Grid,nGrid_Eff,nPolComp,nAnisopol,                      &
      &          nXF,iXPolType,nXMolnr,XMolnr)
 
 !                                                                      *
@@ -273,8 +273,8 @@
 !                                                                      *
 !---- Compute contributions to RepNuc, h1, and TwoHam
 !
-      Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D1ao,Grid,
-     &          nGrid_Eff,Dip, Field,DipEf,PolEf,Cord,MaxAto,
+      Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D1ao,Grid,             &
+     &          nGrid_Eff,Dip, Field,DipEf,PolEf,Cord,MaxAto,           &
      &          Chrg,nPolComp,nAnisopol,pField,tmpField)
 
 
@@ -290,16 +290,16 @@
       Call mma_deallocate(pField)
       Call mma_deallocate(tmpField)
       If(LGridAverage) Then
-         Write(6,'(a,i4,a,f18.10)')'Solvation energy (Grid nr. ',iAv,
+         Write(6,'(a,i4,a,f18.10)')'Solvation energy (Grid nr. ',iAv,   &
      &        '):',RepNuc
          sumRepNuc = sumRepNuc + RepNuc
          sumRepNuc2 = sumRepNuc2 + RepNuc**2
       EndIf
       EndDo
       If(LGridAverage) Then
-         Write(6,'(a,f18.10,f18.10)')
-     &        'Average solvation energy and stdev: ',
-     &        sumRepNuc/DBLE(nAv),
+         Write(6,'(a,f18.10,f18.10)')                                   &
+     &        'Average solvation energy and stdev: ',                   &
+     &        sumRepNuc/DBLE(nAv),                                      &
      &        sqrt(sumRepNuc2/DBLE(nAv)-(sumRepNuc/DBLE(nAv))**2)
       End If
       Call mma_deallocate(Atom_R)

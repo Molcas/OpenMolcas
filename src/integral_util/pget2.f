@@ -11,8 +11,8 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PGet2(iCmp,iBas,jBas,kBas,lBas,
-     &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
+      SubRoutine PGet2(iCmp,iBas,jBas,kBas,lBas,                        &
+     &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,             &
      &                  DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 !***********************************************************************
 !                                                                      *
@@ -44,11 +44,11 @@
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
       Integer, external:: iPntSO
-      Integer lOper, MemSO2, i1, i2, i3, i4, j, niSym, njSym, nkSym,
-     &        nlSym, iS, jS, kS, lS, j1, j2, j3, j123, j4, iSO, jSO,
-     &        kSO, lSO, iSOi, jSOj, kSOk, lSOl, IndI, IndJ, IndK, IndL,
-     &        j12, mijkl, iAOi, jAOj, kAOk, lAOl, ipntIJ, ipntKL,
-     &        ipntIK, ipntIL, ipntJK, ipntJL, IndIJ, IndKL, IndIK,
+      Integer lOper, MemSO2, i1, i2, i3, i4, j, niSym, njSym, nkSym,    &
+     &        nlSym, iS, jS, kS, lS, j1, j2, j3, j123, j4, iSO, jSO,    &
+     &        kSO, lSO, iSOi, jSOj, kSOk, lSOl, IndI, IndJ, IndK, IndL, &
+     &        j12, mijkl, iAOi, jAOj, kAOk, lAOl, ipntIJ, ipntKL,       &
+     &        ipntIK, ipntIL, ipntJK, ipntJL, IndIJ, IndKL, IndIK,      &
      &        IndIL, IndJK, IndJL
       Real*8 t14, Temp
 #ifdef _DEBUGPRINT_
@@ -174,9 +174,9 @@
                                iPntjl=iPntSO(j2,j4,lOper,nbas)
                                Indik=iPntik+(Indi-1)*Indi/2+Indk
                                Indjl=iPntjl+(Indj-1)*Indj/2+Indl
-                               temp=temp-t14*(
-     &                              DSO(Indik)*DSO(Indjl)
-     &                             +DSSO(Indik)*DSSO(Indjl)
+                               temp=temp-t14*(                          &
+     &                              DSO(Indik)*DSO(Indjl)               &
+     &                             +DSSO(Indik)*DSSO(Indjl)             &
      &                                       )
                             End If
 !
@@ -191,9 +191,9 @@
                                iPntjk=iPntSO(j2,j3,lOper,nbas)
                                Indil=iPntil+(Indi-1)*Indi/2+Indl
                                Indjk=iPntjk+(Indj-1)*Indj/2+Indk
-                               temp=temp-t14*(
-     &                              DSO(Indil)*DSO(Indjk)
-     &                             +DSSO(Indil)*DSSO(Indjk)
+                               temp=temp-t14*(                          &
+     &                              DSO(Indil)*DSO(Indjk)               &
+     &                             +DSSO(Indil)*DSSO(Indjk)             &
      &                                       )
                             End If
 !

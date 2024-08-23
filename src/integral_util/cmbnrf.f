@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,1992, Roland Lindh                                *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
+      SubRoutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,   &
      &                  Fact,Temp)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -21,14 +21,14 @@
       use Constants, only: Two, Three
       Implicit None
       Integer nZeta, la, lb, nComp, lr
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),      &
      &       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
 #ifdef _DEBUGPRINT_
       Integer :: nFinal
 #endif
 
-      Integer ixa, ixb, iya, iyb, iza, izb, ipa, ipb, iyaMax, iybMax,
+      Integer ixa, ixb, iya, iyb, iza, izb, ipa, ipb, iyaMax, iybMax,   &
      &        iZeta, iy, ir, iComp
       Integer ixyz, ix, iz, Ind, iOff
 !
@@ -60,15 +60,15 @@
             Do 40 ix = 0, lr
                Do 41 iy = 0, lr-ix
                   Do 42 iZeta = 1, nZeta
-                     Temp(iZeta) = Fact(iZeta) *
-     &                             Rnxyz(iZeta,1,ixa,ixb,ix)*
+                     Temp(iZeta) = Fact(iZeta) *                        &
+     &                             Rnxyz(iZeta,1,ixa,ixb,ix)*           &
      &                             Rnxyz(iZeta,2,iya,iyb,iy)
  42               Continue
                   Do 43 ir = ix+iy, lr
                      iz = ir-ix-iy
                      iComp=Ind(ir,ix,iz)+iOff(ir)
                      Do 30 iZeta = 1, nZeta
-                        Final(iZeta,ipa,ipb,iComp) = Temp(iZeta)*
+                        Final(iZeta,ipa,ipb,iComp) = Temp(iZeta)*       &
      &                          Rnxyz(iZeta,3,iza,izb,iz)
  30                  Continue
  43               Continue

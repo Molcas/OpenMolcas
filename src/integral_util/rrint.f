@@ -18,8 +18,8 @@
 
       Real*8 rri(0:kmax+2)
       Integer M, i, mMax, n, Ind, kk, l, ll, mm
-      Real*8 ExpA, AExp, bExp1, bExp2, Test, Al, FiIntM, Bi, ggg,
-     &       Exp1, bExp, AA, AA2, AA3, AA4, AA5, Tmp1, Tmp2, Tmp3,
+      Real*8 ExpA, AExp, bExp1, bExp2, Test, Al, FiIntM, Bi, ggg,       &
+     &       Exp1, bExp, AA, AA2, AA3, AA4, AA5, Tmp1, Tmp2, Tmp3,      &
      &       Tmp4, Pi4, Tmp
       Real*8, External:: QRint
 !
@@ -44,7 +44,7 @@
 !     Write (*,*) ' Large A'
 !.....K=0 ONE CONTRIBUTION SS-INTEGRAL
       Do 40 i=0,k
-         rri(i)=qrint(i+1,aexp,bexp1,expa)*DBLE((-1)**i)
+         rri(i)=qrint(i+1,aexp,bexp1,expa)*DBLE((-1)**i)                &
      &          -qrint(i+1,aexp,bexp2,expa)
  40   Continue
 !     Call RecPrt(' In RRInt: rri',' ',rri,k+1,1)
@@ -86,8 +86,8 @@
       AA3 = Four*(A*Alfa)**3
       AA4 = Two *(A*Alfa)**4
       AA5 = Four*(A*Alfa)**5
-      GRINT(0,1) = pi4*(               rri(0)
-     &           +      AA2/Three    * rri(1)
+      GRINT(0,1) = pi4*(               rri(0)                           &
+     &           +      AA2/Three    * rri(1)                           &
      &           +      AA4/15.0D+00 * rri(2)  )
       IF(K.EQ.0)  Return
       Do 20 ll=1,l
@@ -99,9 +99,9 @@
             Do mm = 0, kk-1
                tmp3 = tmp1*binom(kk-1,mm)*(-One)**mm
                tmp4 = tmp2 + DBLE(mm)*Two + One
-               tmp = tmp + tmp3 * (
-     &              + One /(      DBLE(2*ll  )+tmp4)      * rri(ll)
-     &              + AA2/(       DBLE(2*ll+2)+tmp4)      * rri(ll+1)
+               tmp = tmp + tmp3 * (                                     &
+     &              + One /(      DBLE(2*ll  )+tmp4)      * rri(ll)     &
+     &              + AA2/(       DBLE(2*ll+2)+tmp4)      * rri(ll+1)   &
      &              + AA4/(Three*(DBLE(2*ll+4)+tmp4))     * rri(ll+2))
             End Do
             Grint(ll*2,  kk) = pi4 * tmp
@@ -112,9 +112,9 @@
             Do mm = 1, kk-1
                tmp3 = tmp1*binom(kk-2,mm-1)*(-One)**(mm+1)
                tmp4 = tmp2 + DBLE(mm)*Two + One
-               tmp = tmp - tmp3 * (
-     &              + AA /       (DBLE(2*ll)  +tmp4)      * rri(ll)
-     &              + AA3/(Three*(DBLE(2*ll+2)+tmp4))     * rri(ll+1)
+               tmp = tmp - tmp3 * (                                     &
+     &              + AA /       (DBLE(2*ll)  +tmp4)      * rri(ll)     &
+     &              + AA3/(Three*(DBLE(2*ll+2)+tmp4))     * rri(ll+1)   &
      &              + AA5/(15.0D0*(DBLE(2*ll+4)+tmp4))    * rri(ll+2))
             End Do
             Grint(ll*2-1,kk-1) = pi4 * tmp

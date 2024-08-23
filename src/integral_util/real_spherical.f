@@ -15,8 +15,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Private
-      Public :: ipSph, RSph, Sphere, Sphere_Free,
-     &          Condon_Shortley_phase_factor, lmax_internal,
+      Public :: ipSph, RSph, Sphere, Sphere_Free,                       &
+     &          Condon_Shortley_phase_factor, lmax_internal,            &
      &          iSphCr, LblCBs, LblSBs
       Integer, Allocatable:: iSphCr(:)
       Integer, Dimension(:), Allocatable :: ipSph
@@ -72,7 +72,7 @@
       Integer lMax
 
       Logical CSPF
-      Integer nSphCr, nSphr, MxFnc, iAng, iii, jjj, n, nElem, ii,
+      Integer nSphCr, nSphr, MxFnc, iAng, iii, jjj, n, nElem, ii,       &
      &        m, l, iElem
 !     check if required ang mom is greater than hard-coded limit
       If (lMax.gt.iTabMx) Then
@@ -156,12 +156,12 @@
          nElem = (n+1)*(n+2)/2
          ii  = 0
          Write (6,*)
-         Write (6,'(8X,31(2X,I1,I1,I1))') ((i,j,n-i-j,
+         Write (6,'(8X,31(2X,I1,I1,I1))') ((i,j,n-i-j,                  &
      &         j=n-i,0,-1),i=n,0,-1)
          Write (6,*)
          Do m = n, 0, -2
             Do l = -m, m
-               Write (6,'(1X,A6,1X,31F5.2)')
+               Write (6,'(1X,A6,1X,31F5.2)')                            &
      &            LblSbs(iLbl),(RSph(i+ii+ipSph(n)),i=0,nElem-1)
                ii = ii + nElem
                iLbl = iLbl + 1
@@ -256,7 +256,7 @@
          Do ix = n1, 0, -1
            Do iy = n1-ix, 0, -1
              iz = n1-ix-iy
-             P2(iad(ix,iy,iz+1)) = P2(iad(ix,iy,iz+1))
+             P2(iad(ix,iy,iz+1)) = P2(iad(ix,iy,iz+1))                  &
      &            + Fact_1*P1(iad(ix,iy,iz))
            End Do
          End Do
@@ -268,11 +268,11 @@
          Do ix = n0, 0, -1
             Do iy = n0-ix, 0, -1
                iz = n0-ix-iy
-               P2(iad(ix+2,iy,iz)) = P2(iad(ix+2,iy,iz))
+               P2(iad(ix+2,iy,iz)) = P2(iad(ix+2,iy,iz))                &
      &                             - Fact_2*P0(iad(ix,iy,iz))
-               P2(iad(ix,iy+2,iz)) = P2(iad(ix,iy+2,iz))
+               P2(iad(ix,iy+2,iz)) = P2(iad(ix,iy+2,iz))                &
      &                             - Fact_2*P0(iad(ix,iy,iz))
-               P2(iad(ix,iy,iz+2)) = P2(iad(ix,iy,iz+2))
+               P2(iad(ix,iy,iz+2)) = P2(iad(ix,iy,iz+2))                &
      &                             - Fact_2*P0(iad(ix,iy,iz))
             End Do
          End Do
@@ -328,35 +328,35 @@
 !
 !............. Generating the real part
 !
-               If (iz.ge.1)
-     &         P0(iad(ix+1,iy,iz-1),m_p)= P0(iad(ix+1,iy,iz-1),m_p)
+               If (iz.ge.1)                                             &
+     &         P0(iad(ix+1,iy,iz-1),m_p)= P0(iad(ix+1,iy,iz-1),m_p)     &
      &                            + Fact*DBLE(iz)*P0(iad(ix,iy,iz),m)
-               If (ix.ge.1)
-     &         P0(iad(ix-1,iy,iz+1),m_p)= P0(iad(ix-1,iy,iz+1),m_p)
+               If (ix.ge.1)                                             &
+     &         P0(iad(ix-1,iy,iz+1),m_p)= P0(iad(ix-1,iy,iz+1),m_p)     &
      &                            - Fact*DBLE(ix)*P0(iad(ix,iy,iz),m)
                If (m.ne.0) Then
-                  If (iz.ge.1)
-     &            P0(iad(ix,iy+1,iz-1),m_p)= P0(iad(ix,iy+1,iz-1),m_p)
+                  If (iz.ge.1)                                          &
+     &            P0(iad(ix,iy+1,iz-1),m_p)= P0(iad(ix,iy+1,iz-1),m_p)  &
      &                            - Fact*DBLE(iz)*P0(iad(ix,iy,iz),-m)
-                  If (iy.ge.1)
-     &            P0(iad(ix,iy-1,iz+1),m_p)= P0(iad(ix,iy-1,iz+1),m_p)
+                  If (iy.ge.1)                                          &
+     &            P0(iad(ix,iy-1,iz+1),m_p)= P0(iad(ix,iy-1,iz+1),m_p)  &
      &                            + Fact*DBLE(iy)*P0(iad(ix,iy,iz),-m)
                End If
 !
 !............. Generating the imaginary part
 !
-               If (iz.ge.1)
-     &         P0(iad(ix,iy+1,iz-1),m_m)= P0(iad(ix,iy+1,iz-1),m_m)
+               If (iz.ge.1)                                             &
+     &         P0(iad(ix,iy+1,iz-1),m_m)= P0(iad(ix,iy+1,iz-1),m_m)     &
      &                            + Fact*DBLE(iz)*P0(iad(ix,iy,iz),m)
-               If (iy.ge.1)
-     &         P0(iad(ix,iy-1,iz+1),m_m)= P0(iad(ix,iy-1,iz+1),m_m)
+               If (iy.ge.1)                                             &
+     &         P0(iad(ix,iy-1,iz+1),m_m)= P0(iad(ix,iy-1,iz+1),m_m)     &
      &                            - Fact*DBLE(iy)*P0(iad(ix,iy,iz),m)
                If (m.ne.0) Then
-                  If (iz.ge.1)
-     &            P0(iad(ix+1,iy,iz-1),m_m)= P0(iad(ix+1,iy,iz-1),m_m)
+                  If (iz.ge.1)                                          &
+     &            P0(iad(ix+1,iy,iz-1),m_m)= P0(iad(ix+1,iy,iz-1),m_m)  &
      &                            + Fact*DBLE(iz)*P0(iad(ix,iy,iz),-m)
-                  If (ix.ge.1)
-     &            P0(iad(ix-1,iy,iz+1),m_m)= P0(iad(ix-1,iy,iz+1),m_m)
+                  If (ix.ge.1)                                          &
+     &            P0(iad(ix-1,iy,iz+1),m_m)= P0(iad(ix-1,iy,iz+1),m_m)  &
      &                            - Fact*DBLE(ix)*P0(iad(ix,iy,iz),-m)
                End If
 !
@@ -367,7 +367,7 @@
 !        associated Legendre polynomials. Let us now put in the
 !        Condon-Shortley phase factor
 !
-         If (Condon_Shortley_phase_factor .and.
+         If (Condon_Shortley_phase_factor .and.                         &
      &       MOD(m+1,2).ne.0) Then
 !           Write (6,*) 'C&S phase factor included.'
             P0(:,m_p)=-P0(:,m_p)
@@ -398,11 +398,11 @@
          Do ix = j, 0, -1
             Do iy = j-ix, 0, -1
                iz = j-ix-iy
-               P0(iad(ix+2,iy,iz),m)=P0(iad(ix+2,iy,iz),m)
+               P0(iad(ix+2,iy,iz),m)=P0(iad(ix+2,iy,iz),m)              &
      &                              +Px(iad(ix,iy,iz),m)
-               P0(iad(ix,iy+2,iz),m)=P0(iad(ix,iy+2,iz),m)
+               P0(iad(ix,iy+2,iz),m)=P0(iad(ix,iy+2,iz),m)              &
      &                              +Px(iad(ix,iy,iz),m)
-               P0(iad(ix,iy,iz+2),m)=P0(iad(ix,iy,iz+2),m)
+               P0(iad(ix,iy,iz+2),m)=P0(iad(ix,iy,iz+2),m)              &
      &                              +Px(iad(ix,iy,iz),m)
             End Do
          End Do

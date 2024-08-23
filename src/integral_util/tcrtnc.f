@@ -12,9 +12,9 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,
-     &                  Coef3,n3,m3,Coef4,n4,m4,
-     &                  ACInt,mabcd,Scrtch,nScr,ACOut,
+      SubRoutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,                        &
+     &                  Coef3,n3,m3,Coef4,n4,m4,                        &
+     &                  ACInt,mabcd,Scrtch,nScr,ACOut,                  &
      &                  IndZet,lZeta,IndEta,lEta)
 !***********************************************************************
 !                                                                      *
@@ -37,8 +37,8 @@
 !
 #include "Molcas.fh"
       Integer n1,m1,n2,m2,n3,m3,n4,m4,mabcd,nScr,lZeta,lEta
-      Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),
-     &       ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr),
+      Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),    &
+     &       ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr),                    &
      &       ACOut(lZeta*lEta,mabcd)
       Integer IndZet(lZeta), IndEta(lEta)
 
@@ -75,7 +75,7 @@
       End If
 #endif
 
-      Call TncHlf(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,
+      Call TncHlf(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,                    &
      &            IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndEta)
 !
       nCache = (3*lCache)/4 - n1*m1 - n2*m2
@@ -95,7 +95,7 @@
       End If
 #endif
 !
-      Call TncHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,
+      Call TncHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,                   &
      &            IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndZet)
 !
 #ifdef _DEBUGPRINT_
@@ -104,7 +104,7 @@
 #endif
 !
       End SubRoutine Tcrtnc
-      Subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
+      Subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,        &
      &                  lZeta,nVec,IncVec,A1,A2,A3,Indij)
 !***********************************************************************
 !                                                                      *
@@ -121,8 +121,8 @@
       use Constants, only: Zero
       Implicit None
       Integer nCntr1,nPrm1,nCntr2,nPrm2,lZeta,nVec,IncVec
-      Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),
-     &       A1(nVec,nCntr1,nCntr2), A2(nPrm2,IncVec,nCntr1),
+      Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),                &
+     &       A1(nVec,nCntr1,nCntr2), A2(nPrm2,IncVec,nCntr1),           &
      &       A3(lZeta,nVec)
       Integer Indij(lZeta)
 
@@ -174,8 +174,8 @@
             If (Abs(Coeff2(iPrm2,iCntr2)).gt.Zero) Then
                Do iCntr1 = 1, nCntr1
                   Do iVec = 1, mVec
-                     A2(iPrm2,iVec,iCntr1) = A2(iPrm2,iVec,iCntr1) +
-     &                 Coeff2(iPrm2,iCntr2)
+                     A2(iPrm2,iVec,iCntr1) = A2(iPrm2,iVec,iCntr1) +    &
+     &                 Coeff2(iPrm2,iCntr2)                             &
      &                 *A1(iVec+iiVec-1,iCntr1,iCntr2)
                   End Do
                End Do
@@ -189,8 +189,8 @@
          Do iCntr2 = 1, nCntr2
             Do iCntr1 = 1, nCntr1
                Do iVec = 1, mVec
-                  A2(iPrm2,iVec,iCntr1) = A2(iPrm2,iVec,iCntr1) +
-     &              Coeff2(iPrm2,iCntr2)
+                  A2(iPrm2,iVec,iCntr1) = A2(iPrm2,iVec,iCntr1) +       &
+     &              Coeff2(iPrm2,iCntr2)                                &
      &              *A1(iVec+iiVec-1,iCntr1,iCntr2)
                End Do
             End Do
@@ -210,8 +210,8 @@
 !--------------Check for zero due to segmented basis
                If (Abs(Coeff1(iPrm1,iCntr1)).gt.Zero) Then
                   Do iVec = iiVec, iiVec+mVec-1
-                     A3(iZeta,iVec) = A3(iZeta,iVec) +
-     &                 Coeff1(iPrm1,iCntr1)*
+                     A3(iZeta,iVec) = A3(iZeta,iVec) +                  &
+     &                 Coeff1(iPrm1,iCntr1)*                            &
      &                 A2(iPrm2,iVec-iiVec+1,iCntr1)
                   End Do ! iVec
                End If
@@ -227,8 +227,8 @@
                iPrm2=(Indij(iZeta)-1)/nPrm1 + 1
                iPrm1=Indij(iZeta)-(iPrm2-1)*nPrm1
                Do iVec = iiVec, iiVec+mVec-1
-                  A3(iZeta,iVec) = A3(iZeta,iVec) +
-     &              Coeff1(iPrm1,iCntr1)*
+                  A3(iZeta,iVec) = A3(iZeta,iVec) +                     &
+     &              Coeff1(iPrm1,iCntr1)*                               &
      &              A2(iPrm2,iVec-iiVec+1,iCntr1)
                End Do ! iVec
             End Do    ! iZeta

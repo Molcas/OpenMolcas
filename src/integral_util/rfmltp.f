@@ -65,8 +65,8 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Write (6,*)
-     &   '     Multipole analysis of the contributions to the '//
+         Write (6,*)                                                    &
+     &   '     Multipole analysis of the contributions to the '//       &
      &          'dielectric solvation energy'
          Write (6,*)
          Write (6,*) '     --------------------------------------'

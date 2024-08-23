@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,
+      SubRoutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,                   &
      &           na,nb,na1,nb1,nPrim,la,lb)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -21,13 +21,13 @@
       use Constants, only: Zero
       Implicit None
       Integer nab1, na1b, nab, na, nb, na1, nb1, nPrim, la, lb
-      Real*8 ab1(nPrim,nab1), a1b(nPrim,na1b), cffAB(3),
+      Real*8 ab1(nPrim,nab1), a1b(nPrim,na1b), cffAB(3),                &
      &       ab(nPrim,nab)
 
 #ifdef _DEBUGPRINT_
       Character(LEN=72) Label
 #endif
-      Integer ixa, iya, iza, ixb, iyb, izb, ixyzb1, ixyza, ipxyz,
+      Integer ixa, iya, iza, ixb, iyb, izb, ixyzb1, ixyza, ipxyz,       &
      &        ixyza1, ixyzb, ipAB1, ipA1B, ipAB, i
 !
       Integer iy, iz, ixyz, Ind, nElem
@@ -80,8 +80,8 @@
                      ipab  = ixyzb  + nElem(nb )*(ixyza -1)
                   End If
                   If (cffAB(ipxyz).ne.Zero) Then
-                     Call DZaXpY(nPrim,cffAB(ipxyz),ab(1,ipab),1,
-     &                                             a1b(1,ipa1b),1,
+                     Call DZaXpY(nPrim,cffAB(ipxyz),ab(1,ipab),1,       &
+     &                                             a1b(1,ipa1b),1,      &
      &                                             ab1(1,ipab1),1)
                   Else
 !                    call dcopy_(nPrim,a1b(1,ipa1b),1,ab1(1,ipab1),1)

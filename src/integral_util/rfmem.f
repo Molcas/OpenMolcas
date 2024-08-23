@@ -14,9 +14,9 @@
       Integer, Intent(In):: la, lb, lr
 !
       nHer=(la+lb+lr+2)/2
-      MemRF = 3*nHer*(la+1) +
-     &         3*nHer*(lb+1) +
-     &         3*nHer*(lr+1) +
+      MemRF = 3*nHer*(la+1) +                                           &
+     &         3*nHer*(lb+1) +                                          &
+     &         3*nHer*(lr+1) +                                          &
      &         3*(la+1)*(lb+1)*(lr+1) + 2 + 3*nHer
 !
       Return

@@ -8,8 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,
-     &                       iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,
+      Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,       &
+     &                       iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,       &
      &                       iSO2cI,CutInt)
       use SOAO_Info, only: iOffSO
       use Constants, only: Zero, One
@@ -17,22 +17,22 @@
       Implicit None
 #include "SysDef.fh"
       Integer nBlocks, nIrrep, nSOs, nBuf, nBin, nQuad
-      Integer iTable(6,nBlocks), nBas(0:nIrrep-1),
+      Integer iTable(6,nBlocks), nBas(0:nIrrep-1),                      &
      &        iSO2Shell(nSOs), iSO2cI(2,nSOs)
       Real*8 Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)
       Logical Triangular
 
       Integer i, j, itri
-      Integer iQuad, iDisk, iWrite, iBlockAdr, iBlock, iType,
-     &        iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,
-     &        nA, nB, nC, nD, nAB, nCD, nAB_Dist,
-     &        iSO_A_R, iSO_B_R, iSO_C_R, iSO_D_R,
-     &        iSO_A_A, iSO_B_A, iSO_C_A, iSO_D_A, iiAB,
-     &        iAB_S, iAB_E, iSize, iAdr, iBuf, iAB,
-     &        iShell_A, iShell_B, iShell_C, iShell_D,
-     &        iShell_Ab, iShell_CD, iShell_ABCD,
-     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
-     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,
+      Integer iQuad, iDisk, iWrite, iBlockAdr, iBlock, iType,           &
+     &        iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,                   &
+     &        nA, nB, nC, nD, nAB, nCD, nAB_Dist,                       &
+     &        iSO_A_R, iSO_B_R, iSO_C_R, iSO_D_R,                       &
+     &        iSO_A_A, iSO_B_A, iSO_C_A, iSO_D_A, iiAB,                 &
+     &        iAB_S, iAB_E, iSize, iAdr, iBuf, iAB,                     &
+     &        iShell_A, iShell_B, iShell_C, iShell_D,                   &
+     &        iShell_Ab, iShell_CD, iShell_ABCD,                        &
+     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,         &
+     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,   &
      &        Index_ABCD, iCD, kBin
       Real*8  ABCD, CutInt, BackChain
 !                                                                      *
@@ -204,7 +204,7 @@
 !
                   If (kBin.eq.nBin-1) Then
                      BackChain=DBLE(iDisk)
-                     Call dDaFile(LuGamma,iWrite,Bin(1,1,iShell_ABCD),
+                     Call dDaFile(LuGamma,iWrite,Bin(1,1,iShell_ABCD),  &
      &                            2*nBin,iDisk)
                      Bin(1,nBin,iShell_ABCD)=Zero
                      Bin(2,nBin,iShell_ABCD)=BackChain

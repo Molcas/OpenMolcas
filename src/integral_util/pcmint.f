@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,2001, Roland Lindh                                *
 !***********************************************************************
 #define _FIXED_FORMAT_
-      SubRoutine PCMInt(
+      SubRoutine PCMInt(                                                &
 #                       define _CALLING_
 #                       include "int_interface.fh"
      &                 )
@@ -40,7 +40,7 @@
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4), iDCRT(0:7)
-      Integer mabMin, mabMax, nStab_, iTile, lDCRT, nDCRT, nT, nOp,
+      Integer mabMin, mabMax, nStab_, iTile, lDCRT, nDCRT, nT, nOp,     &
      &        ipIn, LmbdT, nFlop, nMem, NrOpr
       Real*8 qTessera, Fact
 #ifdef _DEBUGPRINT_
@@ -103,13 +103,13 @@
 !
 #ifdef _DEBUGPRINT_
          Write (6,*) ' m      =',nStabM
-         Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
+         Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),                   &
      &         ii = 0, nStabM-1)
          Write (6,*) ' s      =',nStab_
          Write (6,'(9A)') '(S)=',ChOper(jStab_)
          Write (6,*) ' LambdaT=',LmbdT
          Write (6,*) ' t      =',nDCRT
-         Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
+         Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),                    &
      &         ii = 0, nDCRT-1)
 #endif
 
@@ -126,10 +126,10 @@
 !
             nT = nZeta
             NoSpecial=.True.
-            Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &               [One],[One],1,P,nZeta,
-     &               TC,1,rKappa,[One],Coori,Coora,CoorAC,
-     &               mabmin,mabmax,0,0,Array,nArr*nZeta,
+            Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                          &
+     &               [One],[One],1,P,nZeta,                             &
+     &               TC,1,rKappa,[One],Coori,Coora,CoorAC,              &
+     &               mabmin,mabmax,0,0,Array,nArr*nZeta,                &
      &               TNAI,Fake,XCff2D,XRys2D,NoSpecial)
 !
 !-----------Use the HRR to compute the required primitive integrals.
@@ -139,13 +139,13 @@
 !-----------Accumulate contributions to the symmetry adapted operator
 !
             nOp = NrOpr(iDCRT(lDCRT))
-            Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,
+            Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,       &
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
 #ifdef _DEBUGPRINT_
             Write (6,*) Fact*QTessera
-            Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
+            Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),          &
      &              nZeta,nElem(la)*nElem(lb)*nComp)
-            Call RecPrt('PCMInt: rFinal',' ',rFinal,
+            Call RecPrt('PCMInt: rFinal',' ',rFinal,                    &
      &              nZeta,nElem(la)*nElem(lb)*nIC)
 #endif
 !

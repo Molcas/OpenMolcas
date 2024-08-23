@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,
-     &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,
+      SubRoutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,     &
+     &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,           &
      &                          D_tot,nDens,Property,Sig)
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
-      use Integral_Interfaces, only: int_kernel, int_mem,
+      use Integral_Interfaces, only: int_kernel, int_mem,               &
      &                               OneEl_Integrals
       use Constants, only: One
       use stdalloc, only: mma_deallocate
@@ -43,7 +43,7 @@
 !                                                                      *
 !---- Compute the one-electron integrals
 !
-      Call OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
+      Call OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,          &
      &                     CCoor,nOrdOp,rHrmt,iChO,Integrals)
 !                                                                      *
 !***********************************************************************
@@ -78,8 +78,8 @@
                Write (6,*) 'nDens',nDens
                Call Abend()
             End If
-            Property(iComp)=rNuc(iComp)
-     &                     -Sig*DDot_(nDens,D_Tot,1,
+            Property(iComp)=rNuc(iComp)                                 &
+     &                     -Sig*DDot_(nDens,D_Tot,1,                    &
      &                                      Integrals(ip(iComp)),1)
          Else
             Property(iComp)=rNuc(iComp)

@@ -28,7 +28,7 @@
 !     icntr  - field holding center number for each shell
 !
       Integer nShIrp(0:7),nShBFMx
-      Integer, Allocatable:: nShBF(:,:), iShOff(:,:), iSh2Sh(:,:),
+      Integer, Allocatable:: nShBF(:,:), iShOff(:,:), iSh2Sh(:,:),      &
      &                       iSO2Sh(:), iCntr(:)
 
       End Module iSD_data

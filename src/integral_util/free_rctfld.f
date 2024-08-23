@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Free_RctFld()
-      use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph,
-     &                      NewSph, nVert, PCMDm, PCMiSph, PCMTess,
+      use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph,     &
+     &                      NewSph, nVert, PCMDm, PCMiSph, PCMTess,     &
      &                      PCMSph, PCM_N, PCM_SQ, Vert, SSph
-      use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, dField, Dip,
+      use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, dField, Dip,   &
      &                           DipEF, Field, Grid, PolEF
       use stdalloc, only: mma_deallocate
       use rctfld_module, only: lLangevin, PCM, DoDeriv, MM

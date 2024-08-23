@@ -11,7 +11,7 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
 #ifdef _EFP_
-      Function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,
+      Function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,         &
      &                                          user_field)
       use EFP
       use iso_c_binding, only: c_int, c_size_t, c_double, c_ptr

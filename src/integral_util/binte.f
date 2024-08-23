@@ -14,7 +14,7 @@
       use welcom
       Implicit None
       Integer k, nz
-      Real*8 grint(0:kmax,kmax), ggrin(nz,0:k,k/2+1,k/4+1),
+      Real*8 grint(0:kmax,kmax), ggrin(nz,0:k,k/2+1,k/4+1),             &
      &       alfa(nz), a(nz)
       Real*8 beta, r0
 
@@ -35,10 +35,10 @@
                ggrin(iz,i,j2,1)=Zero
                Do 12 l=j,i
                   If (i-l.eq.0) Then
-                     ggrin(iz,i,j2,1)=ggrin(iz,i,j2,1)+
+                     ggrin(iz,i,j2,1)=ggrin(iz,i,j2,1)+                 &
      &                    grint(l,j2)*binom(i-j,l-j)
                   Else
-                     ggrin(iz,i,j2,1)=ggrin(iz,i,j2,1)+
+                     ggrin(iz,i,j2,1)=ggrin(iz,i,j2,1)+                 &
      &                    grint(l,j2)*a(iz)**(i-l)*binom(i-j,l-j)
                   End If
 12             Continue
@@ -53,7 +53,7 @@
 110   Continue
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In Binte: Ggrin',' ',
+      Call RecPrt(' In Binte: Ggrin',' ',                               &
      &            Ggrin,nz,(k+1)*(k/2+1)*(k/4+1))
 #endif
       Return

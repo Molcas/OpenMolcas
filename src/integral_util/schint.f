@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine SchInt(CoorM,iAnga,iCmp,mZeta,Zeta,ZInv,
-     &                  rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2,
+      SubRoutine SchInt(CoorM,iAnga,iCmp,mZeta,Zeta,ZInv,               &
+     &                  rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2,             &
      &                  HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
 !***********************************************************************
 !                                                                      *
@@ -35,8 +35,8 @@
       use Constants
       Implicit None
       Integer mZeta, nZeta, nWork2, nHrrMtrx, i_Int
-      Real*8  CoorM(3,4), HMtrx(nHrrMtrx,2),
-     &       Zeta(mZeta), ZInv(mZeta), rKapab(mZeta), P(nZeta,3),
+      Real*8  CoorM(3,4), HMtrx(nHrrMtrx,2),                            &
+     &       Zeta(mZeta), ZInv(mZeta), rKapab(mZeta), P(nZeta,3),       &
      &       Q(nZeta,3), rKapcd(mZeta), Wrk(nWork2)
       Integer iAnga(4), iCmp(4)
 
@@ -44,7 +44,7 @@
       Logical EQ
       Logical  :: NoSpecial=.True.
       External TERISq, ModU2, Cff2Dq, xRys2D
-      Integer ixyz, i, nabSz, nElem, la, lb, mabMin, mabMax, mcdMin,
+      Integer ixyz, i, nabSz, nElem, la, lb, mabMin, mabMax, mcdMin,    &
      &        mcdMax, nT, ne, iW3, iShllA, jShllB, mabcd
 !
 !     Statement function to compute canonical index
@@ -93,11 +93,11 @@
 !-----Compute [a0|c0], ijkl,a,c
 !
       nT = mZeta*1
-      Call Rys(iAnga,nT,
-     &         Zeta,ZInv,mZeta,Zeta,ZInv,mZeta,P,nZeta,Q,nZeta,
-     &         rKapab,rKapcd,CoorM,CoorM,CoorAC,
-     &         mabMin,mabMax,mcdMin,mcdMax,
-     &         Wrk,nWork2,TERISq,ModU2,Cff2Dq,
+      Call Rys(iAnga,nT,                                                &
+     &         Zeta,ZInv,mZeta,Zeta,ZInv,mZeta,P,nZeta,Q,nZeta,         &
+     &         rKapab,rKapcd,CoorM,CoorM,CoorAC,                        &
+     &         mabMin,mabMax,mcdMin,mcdMax,                             &
+     &         Wrk,nWork2,TERISq,ModU2,Cff2Dq,                          &
      &         xRys2D,NoSpecial)
 !
 #ifdef _DEBUGPRINT_
@@ -113,11 +113,11 @@
 !        cartesians!
 !
          ne=(mabMax-mabMin+1)
-         Call HrrMtrx(HMtrx(1,1),ne,la,lb,CoorM(1,1),CoorM(1,2),
-     &                .False.,RSph(ipSph(la)),nElem(la),
+         Call HrrMtrx(HMtrx(1,1),ne,la,lb,CoorM(1,1),CoorM(1,2),        &
+     &                .False.,RSph(ipSph(la)),nElem(la),                &
      &                .False.,RSph(ipSph(lb)),nElem(lb))
-         Call HrrMtrx(HMtrx(1,2),ne,la,lb,CoorM(1,3),CoorM(1,4),
-     &                .False.,RSph(ipSph(la)),nElem(la),
+         Call HrrMtrx(HMtrx(1,2),ne,la,lb,CoorM(1,3),CoorM(1,4),        &
+     &                .False.,RSph(ipSph(la)),nElem(la),                &
      &                .False.,RSph(ipSph(lb)),nElem(lb))
 !                                                                      *
 !***********************************************************************
@@ -127,16 +127,16 @@
          iW3=1+mZeta*mabcd
          Call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
          call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
-         Call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,
-     &               HMtrx(1,1),HMtrx(1,2),
-     &               la,lb,la,lb,
-     &               nElem(la),nElem(lb),nElem(la),nElem(lb),
+         Call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,      &
+     &               HMtrx(1,1),HMtrx(1,2),                             &
+     &               la,lb,la,lb,                                       &
+     &               nElem(la),nElem(lb),nElem(la),nElem(lb),           &
      &               iShlla,jShllb,iShlla,jShllb,i_Int)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In SchInt',' ',Wrk(i_Int),
+      Call RecPrt(' In SchInt',' ',Wrk(i_Int),                          &
      &      mZeta,(nElem(la)*nElem(lb))**2)
 #endif
 ! Avoid unused argument warnings

@@ -12,18 +12,18 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine k2Loop(Coor,
-     &                  iAnga,iCmpa,iShll,
-     &                  iDCRR,nDCRR,
-     &                  k2data,
-     &                  Alpha,nAlpha,Beta, nBeta,
-     &                  Alpha_,Beta_,
-     &                  Coeff1,iBasn,Coeff2,jBasn,
-     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
-     &                  Wrk,nWork2,
-     &                  Cmpct,nScree,mScree,iStb,jStb,
-     &                  Dij,nDij,nDCR,ijCmp,DoFock,
-     &                  Scr,nScr,
+      SubRoutine k2Loop(Coor,                                           &
+     &                  iAnga,iCmpa,iShll,                              &
+     &                  iDCRR,nDCRR,                                    &
+     &                  k2data,                                         &
+     &                  Alpha,nAlpha,Beta, nBeta,                       &
+     &                  Alpha_,Beta_,                                   &
+     &                  Coeff1,iBasn,Coeff2,jBasn,                      &
+     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,        &
+     &                  Wrk,nWork2,                                     &
+     &                  Cmpct,nScree,mScree,iStb,jStb,                  &
+     &                  Dij,nDij,nDCR,ijCmp,DoFock,                     &
+     &                  Scr,nScr,                                       &
      &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 !***********************************************************************
 !                                                                      *
@@ -48,31 +48,31 @@
       use k2_structure, only: k2_type
       Implicit None
       External Cmpct
-      Integer nZeta, ijCmp,  nDCRR,
-     &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
+      Integer nZeta, ijCmp,  nDCRR,                                     &
+     &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,      &
      &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
       type(k2_type), intent(inout) :: k2data(nDCRR)
-      Real*8 Coor(3,4),
-     &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
-     &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
-     &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
-     &       Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3),
-     &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),
+      Real*8 Coor(3,4),                                                 &
+     &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),   &
+     &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),                 &
+     &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),       &
+     &       Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3),      &
+     &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),        &
      &       HMtrx(nHrrMtrx,2)
       Logical DoFock, DoGrad
       Integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
 
       External TERIS, ModU2, Cff2DS, Rys2D
-      Real*8 CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
+      Real*8 CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),           &
      &       Q(3), TA(3), TB(3)
       Logical AeqB, NoSpecial
       Logical, External:: EQ, TF
-      Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,
-     &         iCmpa_, jCmpb_, iShlla, jShllb,
-     &         mcdMin, mcdMax, mabcd, mZeta, nT,
-     &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, nDisp,
+      Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,             &
+     &         iCmpa_, jCmpb_, iShlla, jShllb,                          &
+     &         mcdMin, mcdMax, mabcd, mZeta, nT,                        &
+     &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, nDisp,               &
      &         iCmp, ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
-      Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
+      Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,   &
      &       TEMP
       Real*8, External :: EstI
 !                                                                      *
@@ -117,14 +117,14 @@
 !        Compute zeta, P and kappa.
 !
 !        No triangulatization applied at this level
-         Call DoZeta(Alpha,nAlpha,Beta,nBeta,
-     &               CoorM(1,1),CoorM(1,2),
-     &               P,
-     &               Zeta,
-     &               Kappab,
-     &               ZInv,
-     &               Alpha_,
-     &               Beta_,
+         Call DoZeta(Alpha,nAlpha,Beta,nBeta,                           &
+     &               CoorM(1,1),CoorM(1,2),                             &
+     &               P,                                                 &
+     &               Zeta,                                              &
+     &               Kappab,                                            &
+     &               ZInv,                                              &
+     &               Alpha_,                                            &
+     &               Beta_,                                             &
      &               IndP)
 !                                                                      *
 !***********************************************************************
@@ -139,9 +139,9 @@
          Do iIrrep = 0, nIrrep-1
             Call OA(iOper(iIrrep),CoorM(1:3,1),TA)
             Call OA(iOper(iIrrep),CoorM(1:3,2),TB)
-            Call HrrMtrx(k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1),
-     &                   ne,la,lb,TA,TB,
-     &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,
+            Call HrrMtrx(k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1),           &
+     &                   ne,la,lb,TA,TB,                                &
+     &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,  &
      &                   Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
          End Do
 !                                                                      *
@@ -181,15 +181,15 @@
 !
             nT = mZeta*1
             NoSpecial=.True.
-            Call Rys(iAnga,nT,
-     &               Zeta(iZeta),ZInv(iZeta),mZeta,[One],[One],1,
-     &               P(iZeta,1),nZeta,Q,1,Kappab(iZeta),[One],
-     &               Coori,Coora,CoorAC,
-     &               mabMin,mabMax,mcdMin,mcdMax,
-     &               Wrk,nWork2,TERIS,ModU2,Cff2DS,
+            Call Rys(iAnga,nT,                                          &
+     &               Zeta(iZeta),ZInv(iZeta),mZeta,[One],[One],1,       &
+     &               P(iZeta,1),nZeta,Q,1,Kappab(iZeta),[One],          &
+     &               Coori,Coora,CoorAC,                                &
+     &               mabMin,mabMax,mcdMin,mcdMax,                       &
+     &               Wrk,nWork2,TERIS,ModU2,Cff2DS,                     &
      &               Rys2D,NoSpecial)
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' In k2Loop: ijkl,[a0|c0]',' ',Wrk,
+            Call RecPrt(' In k2Loop: ijkl,[a0|c0]',' ',Wrk,             &
      &                            mZeta,mabcd)
 #endif
 !
@@ -199,11 +199,11 @@
             iW3=1+mZeta*mabcd
             Call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
             call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
-            Call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,
-     &                  k2data(lDCRR+1)%HrrMtrx(:,1),
-     &                  k2data(lDCRR+1)%HrrMtrx(:,1),
-     &                  la,lb,la,lb,
-     &                  iCmpa_,jCmpb_,iCmpa_,jCmpb_,
+            Call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,   &
+     &                  k2data(lDCRR+1)%HrrMtrx(:,1),                   &
+     &                  k2data(lDCRR+1)%HrrMtrx(:,1),                   &
+     &                  la,lb,la,lb,                                    &
+     &                  iCmpa_,jCmpb_,iCmpa_,jCmpb_,                    &
      &                  iShlla,jShllb,iShlla,jShllb,i_Int)
             If (i_Int.eq.1) Then
                iW2=1
@@ -217,20 +217,20 @@
 !                                                                      *
 !-----------Store data in core
 !
-            Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,
-     &                 Zeta(iZeta),Kappab(iZeta),
-     &                 P(iZeta,1),IndP(iZeta),Con,
-     &                 k2Data(lDCRR+1)%Zeta(:),
-     &                 k2Data(lDCRR+1)%Kappa(:),
-     &                 k2Data(lDCRR+1)%PCoor(:,:),
-     &                 k2Data(lDCRR+1)%IndZ(:),iZeta-1,Jnd,
-     &                 k2Data(lDCRR+1)%ZInv(:),
-     &                 AeqB,
-     &                 k2Data(lDCRR+1)%ab(:),
-     &                 k2Data(lDCRR+1)%abCon(:),
-     &                 Alpha_(iZeta),
-     &                 k2Data(lDCRR+1)%Alpha(:),
-     &                 Beta_(iZeta),
+            Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,              &
+     &                 Zeta(iZeta),Kappab(iZeta),                       &
+     &                 P(iZeta,1),IndP(iZeta),Con,                      &
+     &                 k2Data(lDCRR+1)%Zeta(:),                         &
+     &                 k2Data(lDCRR+1)%Kappa(:),                        &
+     &                 k2Data(lDCRR+1)%PCoor(:,:),                      &
+     &                 k2Data(lDCRR+1)%IndZ(:),iZeta-1,Jnd,             &
+     &                 k2Data(lDCRR+1)%ZInv(:),                         &
+     &                 AeqB,                                            &
+     &                 k2Data(lDCRR+1)%ab(:),                           &
+     &                 k2Data(lDCRR+1)%abCon(:),                        &
+     &                 Alpha_(iZeta),                                   &
+     &                 k2Data(lDCRR+1)%Alpha(:),                        &
+     &                 Beta_(iZeta),                                    &
      &                 k2Data(lDCRR+1)%Beta(:))
 !
          End Do ! iZeta
@@ -240,14 +240,14 @@
 !                                                                      *
 !        Estimate the largest contracted integral.
 !
-         k2Data(lDCRR+1)%EstI=
-     &                      EstI(k2Data(lDCRR+1)%Zeta(:),
-     &                           k2Data(lDCRR+1)%Kappa(:),
-     &                           nAlpha,nBeta,
-     &                           Coeff1,iBasn,Coeff2,jBasn,
-     &                           k2Data(lDCRR+1)%ab(:),
-     &                           iCmpa_*jCmpb_,
-     &                           Wrk,nWork2,
+         k2Data(lDCRR+1)%EstI=                                          &
+     &                      EstI(k2Data(lDCRR+1)%Zeta(:),               &
+     &                           k2Data(lDCRR+1)%Kappa(:),              &
+     &                           nAlpha,nBeta,                          &
+     &                           Coeff1,iBasn,Coeff2,jBasn,             &
+     &                           k2Data(lDCRR+1)%ab(:),                 &
+     &                           iCmpa_*jCmpb_,                         &
+     &                           Wrk,nWork2,                            &
      &                           k2Data(lDCRR+1)%IndZ(:))
 !                                                                      *
 !***********************************************************************
@@ -272,7 +272,7 @@
                ZtMax = k2Data(lDCRR+1)%Zeta(iZeta+1)
             End If
             If (DoFock) Then
-               tmp = k2Data(lDCRR+1)%ab(iZeta+1)
+               tmp = k2Data(lDCRR+1)%ab(iZeta+1)                        &
      &             * Dij(iOffZ+iZeta,lDCRR+1)
                If (abMaxD.lt.tmp) Then
                  abMaxD = tmp
@@ -300,19 +300,19 @@
 !
             Do iZeta = 1, mZeta, IncZZ
                lZeta = Min(mZeta-iZeta+1,IncZZ)
-               Call SchInt(CoorM,iAnga,iCmpa,lZeta,
-     &                     k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                     k2Data(lDCRR+1)%ZInv(iZeta:),
-     &                     k2Data(lDCRR+1)%Kappa(iZeta:),
-     &                     k2Data(lDCRR+1)%PCoor(iZeta:,:),
-     &                     k2Data(lDCRR+1)%Kappa(iZeta:),
-     &                     k2Data(lDCRR+1)%PCoor(iZeta:,:),
-     &                     nZeta,Wrk,nWork2,HMtrx,
+               Call SchInt(CoorM,iAnga,iCmpa,lZeta,                     &
+     &                     k2Data(lDCRR+1)%Zeta(iZeta:),                &
+     &                     k2Data(lDCRR+1)%ZInv(iZeta:),                &
+     &                     k2Data(lDCRR+1)%Kappa(iZeta:),               &
+     &                     k2Data(lDCRR+1)%PCoor(iZeta:,:),             &
+     &                     k2Data(lDCRR+1)%Kappa(iZeta:),               &
+     &                     k2Data(lDCRR+1)%PCoor(iZeta:,:),             &
+     &                     nZeta,Wrk,nWork2,HMtrx,                      &
      &                     nHrrMtrx,iShlla,jShllb,i_Int)
-               Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                     k2Data(lDCRR+1)%abG(iZeta:,1),
-     &                     k2Data(lDCRR+1)%Kappa(iZeta:),.True.,
-     &                     k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,
+               Call PckInt(Wrk(i_Int),lZeta,ijCmp,                      &
+     &                     k2Data(lDCRR+1)%abG(iZeta:,1),               &
+     &                     k2Data(lDCRR+1)%Kappa(iZeta:),.True.,        &
+     &                     k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,          &
      &                     Dummy)
             End Do
 !
@@ -333,125 +333,125 @@
                nDisp=IndDsp(mStb(iCnt),iIrrep)
                Do iComp = 1, 3
                   iCmp=2**(iComp-1)
-                  If (TF(mStb(iCnt),iIrrep,iCmp) .and.
+                  If (TF(mStb(iCnt),iIrrep,iCmp) .and.                  &
      &                Dirct(nDisp+1)) Then
                      nDisp = nDisp + 1
                      temp = CoorM(iComp,iCnt)
 !
                      CoorM(iComp,iCnt  ) = temp + Delta
                      CoorM(iComp,iCnt+2) = temp + Delta
-                     Call NewPK(CoorM(1,1),CoorM(1,2),
-     &                          Pnew,mZeta,nZeta,
-     &                          Knew,
-     &                          k2Data(lDCRR+1)%Alpha(:),
+                     Call NewPK(CoorM(1,1),CoorM(1,2),                  &
+     &                          Pnew,mZeta,nZeta,                       &
+     &                          Knew,                                   &
+     &                          k2Data(lDCRR+1)%Alpha(:),               &
      &                          k2Data(lDCRR+1)%Beta(:))
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
-                        Call SchInt(CoorM,
-     &                              iAnga,iCmpa,lZeta,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
-     &                              Knew(iZeta),
-     &                              Pnew(iZeta),
-     &                              Knew(iZeta),
-     &                              Pnew(iZeta),
-     &                              nZeta,Wrk,nWork2,
+                        Call SchInt(CoorM,                              &
+     &                              iAnga,iCmpa,lZeta,                  &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),       &
+     &                              Knew(iZeta),                        &
+     &                              Pnew(iZeta),                        &
+     &                              Knew(iZeta),                        &
+     &                              Pnew(iZeta),                        &
+     &                              nZeta,Wrk,nWork2,                   &
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
-                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Scr(iZeta,1),
-     &                              Knew(iZeta),
-     &                              .False.,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              nZeta,
+                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,             &
+     &                              Scr(iZeta,1),                       &
+     &                              Knew(iZeta),                        &
+     &                              .False.,                            &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              nZeta,                              &
      &                              Knew(iZeta))
                      End Do
 !
                      CoorM(iComp,iCnt  ) = temp - Delta
                      CoorM(iComp,iCnt+2) = temp - Delta
-                     Call NewPK(CoorM(1,1),CoorM(1,2),
-     &                          Qnew,mZeta,nZeta,
-     &                          Lnew,
-     &                          k2Data(lDCRR+1)%Alpha(:),
+                     Call NewPK(CoorM(1,1),CoorM(1,2),                  &
+     &                          Qnew,mZeta,nZeta,                       &
+     &                          Lnew,                                   &
+     &                          k2Data(lDCRR+1)%Alpha(:),               &
      &                          k2Data(lDCRR+1)%Beta(:))
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
-                        Call SchInt(CoorM,
-     &                              iAnga,iCmpa,lZeta,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
-     &                              Lnew(iZeta),
-     &                              Qnew(iZeta),
-     &                              Lnew(iZeta),
-     &                              Qnew(iZeta),
-     &                              nZeta,Wrk,nWork2,
+                        Call SchInt(CoorM,                              &
+     &                              iAnga,iCmpa,lZeta,                  &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),       &
+     &                              Lnew(iZeta),                        &
+     &                              Qnew(iZeta),                        &
+     &                              Lnew(iZeta),                        &
+     &                              Qnew(iZeta),                        &
+     &                              nZeta,Wrk,nWork2,                   &
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
-                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Scr(iZeta,2),
-     &                              Lnew(iZeta),
-     &                              .False.,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              nZeta,
+                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,             &
+     &                              Scr(iZeta,2),                       &
+     &                              Lnew(iZeta),                        &
+     &                              .False.,                            &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              nZeta,                              &
      &                              Lnew(iZeta))
                      End Do
 !
-                     Call DaXpY_(nZeta*ijCmp, One,Scr(1,2),1,
+                     Call DaXpY_(nZeta*ijCmp, One,Scr(1,2),1,           &
      &                                           Scr(1,1),1)
 !
                      CoorM(iComp,iCnt  ) = temp + Delta
                      CoorM(iComp,iCnt+2) = temp - Delta
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
-                        Call SchInt(CoorM,
-     &                              iAnga,iCmpa,lZeta,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
-     &                              Knew(iZeta),
-     &                              Pnew(iZeta),
-     &                              Lnew(iZeta),
-     &                              Qnew(iZeta),
-     &                              nZeta,Wrk,nWork2,
+                        Call SchInt(CoorM,                              &
+     &                              iAnga,iCmpa,lZeta,                  &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),       &
+     &                              Knew(iZeta),                        &
+     &                              Pnew(iZeta),                        &
+     &                              Lnew(iZeta),                        &
+     &                              Qnew(iZeta),                        &
+     &                              nZeta,Wrk,nWork2,                   &
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
-                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Scr(iZeta,3),
-     &                              Knew(iZeta),
-     &                              .False.,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              nZeta,
+                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,             &
+     &                              Scr(iZeta,3),                       &
+     &                              Knew(iZeta),                        &
+     &                              .False.,                            &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              nZeta,                              &
      &                              Lnew(iZeta))
                      End Do
 !
-                     Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,
+                     Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,           &
      &                                           Scr(1,1),1)
 !
                      CoorM(iComp,iCnt  ) = temp - Delta
                      CoorM(iComp,iCnt+2) = temp + Delta
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
-                        Call SchInt(CoorM,
-     &                              iAnga,iCmpa,lZeta,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
-     &                              Lnew(iZeta),
-     &                              Qnew(iZeta),
-     &                              Knew(iZeta),
-     &                              Pnew(iZeta),
-     &                              nZeta,Wrk,nWork2,
+                        Call SchInt(CoorM,                              &
+     &                              iAnga,iCmpa,lZeta,                  &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),       &
+     &                              Lnew(iZeta),                        &
+     &                              Qnew(iZeta),                        &
+     &                              Knew(iZeta),                        &
+     &                              Pnew(iZeta),                        &
+     &                              nZeta,Wrk,nWork2,                   &
      &                              HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
-                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                              Scr(iZeta,3),
-     &                              Lnew(iZeta),
-     &                              .False.,
-     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              nZeta,
+                        Call PckInt(Wrk(i_Int),lZeta,ijCmp,             &
+     &                              Scr(iZeta,3),                       &
+     &                              Lnew(iZeta),                        &
+     &                              .False.,                            &
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),       &
+     &                              nZeta,                              &
      &                              Knew(iZeta))
                      End Do
 !
-                     Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,
+                     Call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,           &
      &                                           Scr(1,1),1)
 !
-                     Call DScal_(nZeta*ijCmp,One/(Four*Delta**2),
+                     Call DScal_(nZeta*ijCmp,One/(Four*Delta**2),       &
      &                                           Scr(1,1),1)
-                     Call AbsAdd(nZeta*ijCmp,    Scr(:,1),1,
+                     Call AbsAdd(nZeta*ijCmp,    Scr(:,1),1,            &
      &                                k2data(lDCRR+1)%abG(:,2),1)
 !
                      CoorM(iComp,iCnt  ) = temp
@@ -474,9 +474,9 @@
          Call WrCheck('xB   ',k2Data(lDCRR+1)%Beta(:),nZeta)
          Call WrCheck('ZInv ',k2Data(lDCRR+1)%ZInv(:),nZeta)
          If (DoGrad) Then
-            Call WrCheck('ab   ',
+            Call WrCheck('ab   ',                                       &
      &        k2data(lDCRR+1)%abG(:,1),nZeta*ijCmp)
-            Call WrCheck('abG  ',
+            Call WrCheck('abG  ',                                       &
      &        k2data(lDCRR+1)%abG(:,2),nZeta*ijCmp)
          End If
          Write (6,*)
@@ -485,8 +485,8 @@
          Write (6,*) ' abMax   =',k2Data(lDCRR+1)%abMax
          Write (6,*) ' ZtMaxD  =',k2Data(lDCRR+1)%ZtMaxD
          Write (6,*) ' abMaxD  =',k2Data(lDCRR+1)%abMaxD
-         Call WrCheck(' HrrMtrx',
-     &        k2Data(lDCRR+1)%HrrMtrx(:,:),
+         Call WrCheck(' HrrMtrx',                                       &
+     &        k2Data(lDCRR+1)%HrrMtrx(:,:),                             &
      &        ne*iCmpa_*jCmpb_)
 #endif
  100  Continue ! lDCRR

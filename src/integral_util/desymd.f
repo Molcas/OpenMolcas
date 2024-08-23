@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine DesymD(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,iAO,jAO,DAO,
+      Subroutine DesymD(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,        &
+     &                  iShll,jShll,iAO,jAO,DAO,                        &
      &                  iBas,jBas,DSO,nDSO,nOp,FactNd)
 !***********************************************************************
 !                                                                      *
@@ -28,7 +28,7 @@
       use Real_Spherical, only: iSphCr
       use Constants, only: Zero, One, Two
       Implicit None
-      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
+      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,                  &
      &        iShll,jShll,iAO,jAO,iBas,jBas,nDSO
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO)
       Integer nOp(2)
@@ -63,18 +63,18 @@
                Do 400 i2 = 1, jMx
                   If (iAOtSO(jAO+i2,j2)<0) Cycle
                   jChBs = iChBas(jj+i2)
-                  If (Shells(jShll)%Transf)
+                  If (Shells(jShll)%Transf)                             &
      &                jChBs = iChBas(iSphCr(jj+i2))
 !
                   Deg=Two
-                  If (j1.eq.j2 .and. iShell.eq.jShell .and.
+                  If (j1.eq.j2 .and. iShell.eq.jShell .and.             &
      &                i1.eq.i2) Deg=One
 !
 !-----------------Parity factor due to symmetry operations applied to
 !                 angular part of the basis function.
                   FactNs = pa * Prmt(iOper(nOp(2)),jChBs)
-                  Call DaXpY_(iBas*jBas,Deg*Xa*Xb*FactNs,
-     &                       DSO(1,lSO),1,
+                  Call DaXpY_(iBas*jBas,Deg*Xa*Xb*FactNs,               &
+     &                       DSO(1,lSO),1,                              &
      &                       DAO(1,i1,i2),1)
                   lSO = lSO + 1
  400           Continue

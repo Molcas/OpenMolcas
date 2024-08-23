@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine SymAdp(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, iAO, kOp, ijkl,
+      Subroutine SymAdp(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,           &
+     &                  iShll, iShell, iAO, kOp, ijkl,                  &
      &                  Aux,nAux,AOInt,SOInt,nSOInt,Done)
 !***********************************************************************
 !                                                                      *
@@ -45,15 +45,15 @@
       Real*8, Intent(In) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Real*8, Intent(InOut) :: SOInt(ijkl,nSOInt), Aux(nAux)
       Logical, Intent(In) :: Shijij
-      Integer, Intent(In) :: iAng(4), iShell(4), iShll(4), kOp(4),
+      Integer, Intent(In) :: iAng(4), iShell(4), iShll(4), kOp(4),      &
      &                       iAO(4)
       Logical, Intent(Out) :: Done
 
 !     Local Array
       Logical Shij, Shkl, Qij, Qkl, Qijij
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer k12, k34, ii, jj, kk, ll, i1, j, ix, jCmpMx,
-     &        i2, jChBs, iChBs, MemSO2, i12, i3, lCmpMx, kChBs, i4,
+      Integer k12, k34, ii, jj, kk, ll, i1, j, ix, jCmpMx,              &
+     &        i2, jChBs, iChBs, MemSO2, i12, i3, lCmpMx, kChBs, i4,     &
      &        iAux, j1, j2Max, j2, j12, j3, j4, lChBs, i34
       Real*8 pEa, pRb, pTc, pTSd, Xb, Xg, Xa
 !
@@ -71,7 +71,7 @@
       ll = iOff(iAng(4))
       MemSO2 = 1
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In SymAdp: AOInt ',' ',
+      Call RecPrt(' In SymAdp: AOInt ',' ',                             &
      &             AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 !
@@ -117,7 +117,7 @@
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Shells(iShll(3))%Transf)
+               If (Shells(iShll(3))%Transf)                             &
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = Prmt(iOper(kOp(3)),kChBs) * pRb
                Do 400 i4 = 1, lCmpMx
@@ -128,7 +128,7 @@
 401               Continue
                   Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)
-                  If (Shells(iShll(4))%Transf)
+                  If (Shells(iShll(4))%Transf)                          &
      &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= Prmt(iOper(kOp(4)),lChBs) * pTc
                   If (iShell(4).gt.iShell(3)) Then
@@ -194,10 +194,10 @@
 #endif
        If (iAux.ne.0) Then
           If (iAux.ne.1) Then
-             Call DNaXpY(iAux,ijkl,Aux,1,AOInt(1,i1,i2,i3,i4),1,0,
+             Call DNaXpY(iAux,ijkl,Aux,1,AOInt(1,i1,i2,i3,i4),1,0,      &
      &                   SOInt(1,MemSO2),1,ijkl)
           Else
-             Call DaXpY_(ijkl,Aux(1),AOInt(1,i1,i2,i3,i4),1,
+             Call DaXpY_(ijkl,Aux(1),AOInt(1,i1,i2,i3,i4),1,            &
      &                  SOInt(1,MemSO2),1)
           End If
           MemSO2 = MemSO2 + iAux

@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
-      Subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,
-     &                  ikop1,ikop2,Irrep,
+      Subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,           &
+     &                  ikop1,ikop2,Irrep,                              &
      &                  Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
       use SOAO_Info, only: iAOtSO, nSOInf
@@ -19,7 +19,7 @@
       use Constants, only: Two
       Implicit None
 !
-      Integer nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Irrep,
+      Integer nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Irrep,       &
      &        iAO1, iAO2, iAOst1, iAOst2
       Real*8 Fij(0:iBas-1,0:jBas-1,iCmp,jCmp),TwoHam(nDens)
       Real*8 Fact
@@ -28,8 +28,8 @@
       integer i, j, iTri
       integer jirr(0:7)
       Integer iPnt(0:7)
-      Integer iChO, iIrrep, ipntij, i1, i2, iSOj, jSOi,
-     &        iSO, jSO, iAO, jAO, iAOi, iSOi, jAOj, jSOj,
+      Integer iChO, iIrrep, ipntij, i1, i2, iSOj, jSOi,                 &
+     &        iSO, jSO, iAO, jAO, iAOi, iSOi, jAOj, jSOj,               &
      &        ipFij, l1, l2, ipF, NrOpr, iIR, jIrrep
       Real*8  Fac, x1, x2, x3, x4, xr
 !
@@ -65,12 +65,12 @@
             Do jAOj = 0, jBas-1
               Do iAOi = 0, iBas-1
                   Fac = XR
-                  If (Shij .and. i1.eq.i2 .and.
+                  If (Shij .and. i1.eq.i2 .and.                         &
      &                iAOi+iAOst1.eq.jAOj+iAOst2) Fac = Two*XR
                   jSOj = jSO + jAOj
                   iSOi = iSO + iAOi
                   ipFij = ipntij + iTri(iSOi,jSOj)
-                  TwoHam(ipFij) = TwoHam(ipFij)
+                  TwoHam(ipFij) = TwoHam(ipFij)                         &
      &                          + Fact*Fac*Fij(iAOi,jAOj,i1,i2)
               End Do
             End Do
@@ -82,7 +82,7 @@
       Else
 !
          Do iIrrep=0,nIrrep-1
-            jIrr(iIrrep)=
+            jIrr(iIrrep)=                                               &
      &      NrOpr(iEOr(iOper(iIrrep),iChO))
          End Do
 !
@@ -123,10 +123,10 @@
                   Do jAO = 0, jBas-1
                      Do iAO = 0, iBas-1
                         Fac = X1*X2
-                        ipF = iPntij
-     &                      + (jSOj+jAO-1)*nBas(iIrrep)
+                        ipF = iPntij                                    &
+     &                      + (jSOj+jAO-1)*nBas(iIrrep)                 &
      &                      + iSOi + iAO
-                        TwoHam(ipF) = TwoHam(ipF)
+                        TwoHam(ipF) = TwoHam(ipF)                       &
      &                              + Fact*Fac*Fij(iAO,jAO,i1,i2)
                      End Do
                   End Do
@@ -136,10 +136,10 @@
                   Do jAO = 0, jBas-1
                      Do iAO = 0, iBas-1
                         Fac = X3*X4
-                        ipF = ipntij
-     &                      + nBas(iIrrep)*(iSOj+iAO-1)
+                        ipF = ipntij                                    &
+     &                      + nBas(iIrrep)*(iSOj+iAO-1)                 &
      &                      + jSOi + jAO
-                        TwoHam(ipF) = TwoHam(ipF)
+                        TwoHam(ipF) = TwoHam(ipF)                       &
      &                              + Fact*Fac*Fij(iAO,jAO,i1,i2)
                      End Do
                   End Do

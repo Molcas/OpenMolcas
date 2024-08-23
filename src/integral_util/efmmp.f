@@ -14,7 +14,7 @@
       Implicit None
       Integer nRys, MmEFP,la,lb,lr
 
-      Integer ixyz, nElem, nabSz, labMin, labMax, lcdMin, lcdMax, lab,
+      Integer ixyz, nElem, nabSz, labMin, labMax, lcdMin, lcdMax, lab,  &
      &        kab, lcd, labcd, Mem1, Mem2, lc, ld, nMem, nFlop
 !
       Integer iAngV(4)

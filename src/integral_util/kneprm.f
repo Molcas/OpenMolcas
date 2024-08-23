@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine KnEPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nComp,la,lb,A,RB,nHer,
+      SubRoutine KnEPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,    &
+     &                  Final,nZeta,nComp,la,lb,A,RB,nHer,              &
      &                  Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
@@ -28,13 +28,13 @@
       use Constants
       Implicit None
       Integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
+     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),                    &
      &       Array(nZeta*nArr), Ccoor(3)
 
       Logical ABeq(3)
-      Integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB,
+      Integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB,    &
      &        ipAOff, iAlpha, ipBOff, iBeta
 !
       ABeq(:) = A(:).eq.RB(:)
@@ -77,9 +77,9 @@
 !
 !     Compute the cartesian values of the basis functions angular part
 !
-      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
+      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),                         &
      &               la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),                        &
      &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 !
 !     Compute the contribution from the multipole moment operator
@@ -87,16 +87,16 @@
       ABeq(1) = .False.
       ABeq(2) = .False.
       ABeq(3) = .False.
-      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),
+      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),                     &
      &            nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
 !
 !     Compute the cartesian components for the multipole moment
 !     integrals. The integrals are factorized into components.
 !
-       Call Assmbl(Array(ipQxyz),
-     &             Array(ipAxyz),la+1,
-     &             Array(ipRxyz),nOrdOp-2,
-     &             Array(ipBxyz),lb+1,
+       Call Assmbl(Array(ipQxyz),                                       &
+     &             Array(ipAxyz),la+1,                                  &
+     &             Array(ipRxyz),nOrdOp-2,                              &
+     &             Array(ipBxyz),lb+1,                                  &
      &             nZeta,HerW(iHerW(nHer)),nHer)
 !
 !     Compute the cartesian components for the kinetic energy integrals.
@@ -115,13 +115,13 @@
          ipBOff = ipBOff + 1
  210  Continue
 !
-      Call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,
+      Call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,                      &
      &          Array(ipA),Array(ipB),nZeta)
 !
 !     Combine the cartesian components to the full one electron
 !     integral.
 !
-      Call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,Final,
+      Call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,Final, &
      &            nComp,Array(ipTxyz))
 !
 !

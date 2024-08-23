@@ -8,8 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
-     &                 lRF,KSDFT,ExFac,iCharge,iSpin,
+      Subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,          &
+     &                 lRF,KSDFT,ExFac,iCharge,iSpin,                   &
      &                 D1I,D1A,nD1,DFTFOCK,Do_DFT)
       use OFembed, only: Do_OFemb, OFE_KSDFT
       use Constants, only: Zero
@@ -80,7 +80,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (lRF) Call DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
+      If (lRF) Call DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,       &
      &                    iCharge)
 !
 !***********************************************************************
@@ -92,8 +92,8 @@
       Do_Grad=.False.
       Grad=Zero
       nGrad=1
-      If (KSDFT.ne.'SCF'.and.Do_DFT)
-     &   Call DrvDFT(h1,nh1,KSDFT,ExFac,
+      If (KSDFT.ne.'SCF'.and.Do_DFT)                                    &
+     &   Call DrvDFT(h1,nh1,KSDFT,ExFac,                                &
      &               Do_Grad,Grad,nGrad,iSpin,DFTFOCK)
 !
 !***********************************************************************
@@ -102,13 +102,13 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Do_OFemb)
+      If (Do_OFemb)                                                     &
      &   Call DrvEMB(nh1,OFE_KSDFT,Do_Grad,Grad,nGrad,DFTFOCK)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _EFP_
-      If (EFP_On())
+      If (EFP_On())                                                     &
      &   Call DrvEFP(First)
 #endif
 !                                                                      *

@@ -12,7 +12,7 @@
       use Constants, only: Zero
       Implicit None
       Integer nRowA, nColA, nRowB
-      Real*8 A(nRowA,nColA), B(nRowB,nRowA),
+      Real*8 A(nRowA,nColA), B(nRowB,nRowA),                            &
      &       C(nColA,nRowB)
 !
       Integer nCache_, mCache, Incj, jj, njVec, i, j, k

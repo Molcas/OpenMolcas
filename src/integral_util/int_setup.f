@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,
+      Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,           &
      &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
       Use Basis_Info
       use Gateway_Info, only: DoFMM, RPQMin
@@ -22,7 +22,7 @@
       Logical Shijij
       Integer iAngV(4),iCmpV(4),iShelV(4),iShllV(4),iAOV(4),iStabs(4)
 !
-      Integer iCnttp, iCnt, jCnttp, jCnt, kCnttp, kCnt, lCnttp, lCnt,
+      Integer iCnttp, iCnt, jCnttp, jCnt, kCnttp, kCnt, lCnttp, lCnt,   &
      &        jQuad(4), iQuad, iSkal, i
       Real*8 P, Q, D
 
@@ -49,8 +49,8 @@
       End If
       Coor(1:3,4)=dbsc(lCnttp)%Coor(1:3,lCnt)
 !
-      Shijij=(iSD(0,iS).eq.iSD(0,kS).and.iSD(10,iS).eq.iSD(10,kS))
-     &       .and.
+      Shijij=(iSD(0,iS).eq.iSD(0,kS).and.iSD(10,iS).eq.iSD(10,kS))      &
+     &       .and.                                                      &
      &       (iSD(0,jS).eq.iSD(0,lS).and.iSD(10,jS).eq.iSD(10,lS))
 !
       jQuad(1)=iS

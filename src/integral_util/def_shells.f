@@ -20,8 +20,8 @@
       Integer iSD(0:nSD,mSkal)
 !
       Logical, External :: TF
-      Integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest,
-     &        mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp,
+      Integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest,&
+     &        mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp,&
      &        kSh, iTemp, nDIsp, iTmp, iCar, nFunctions, iComp, iCase
 #ifdef _DEBUGPRINT_
       Integer i, j
@@ -29,11 +29,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Basis_Mode.ne.Valence_Mode .and.
-     &    Basis_Mode.ne.Auxiliary_Mode .and.
-     &    Basis_Mode.ne.Fragment_Mode .and.
-     &    Basis_Mode.ne.With_Auxiliary_Mode .and.
-     &    Basis_Mode.ne.With_Fragment_Mode .and.
+      If (Basis_Mode.ne.Valence_Mode .and.                              &
+     &    Basis_Mode.ne.Auxiliary_Mode .and.                            &
+     &    Basis_Mode.ne.Fragment_Mode .and.                             &
+     &    Basis_Mode.ne.With_Auxiliary_Mode .and.                       &
+     &    Basis_Mode.ne.With_Fragment_Mode .and.                        &
      &    Basis_Mode.ne.All_Mode) Then
          Call WarningMessage(2,'Def_Shells: Basis_Mode is not defined')
          Call Abend()
@@ -90,16 +90,16 @@
                End If
                If (nExpi.eq.0)   Go To 200
                If (nBasisi.eq.0) Go To 200
-               If (Basis_Mode.eq.Valence_Mode .and.
-     &             (Shells(iShll)%Aux.or.
+               If (Basis_Mode.eq.Valence_Mode .and.                     &
+     &             (Shells(iShll)%Aux.or.                               &
      &              Shells(iShll)%Frag)) Go To 200
-               If (Basis_Mode.eq.Auxiliary_Mode .and.
+               If (Basis_Mode.eq.Auxiliary_Mode .and.                   &
      &             .Not.Shells(iShll)%Aux) Go To 200
-               If (Basis_Mode.eq.Fragment_Mode .and.
+               If (Basis_Mode.eq.Fragment_Mode .and.                    &
      &             .Not.Shells(iShll)%Frag) Go To 200
-               If (Basis_Mode.eq.With_Auxiliary_Mode .and.
+               If (Basis_Mode.eq.With_Auxiliary_Mode .and.              &
      &             Shells(iShll)%Frag) Go To 200
-               If (Basis_Mode.eq.With_Fragment_Mode .and.
+               If (Basis_Mode.eq.With_Fragment_Mode .and.               &
      &             Shells(iShll)%Aux) Go To 200
 
                kSh=dbsc(iCnttp)%iVal+iAng
@@ -115,8 +115,8 @@
                iSD(4,nSkal)= -1                      ! Not used
                iSD(5,nSkal)=  nExpi                  ! # of prim.
                iSD(6,nSkal)= -1                      ! Not used
-               iSD(7,nSkal)= iAOttp                  !
-     &                     + (iCnt-1)*dbsc(iCnttp)%lOffAO
+               iSD(7,nSkal)= iAOttp                                     & !
+     &                     + (iCnt-1)*dbsc(iCnttp)%lOffAO               &
      &                     + Shells(kSh)%kOffAO      !
                iSD(8,nSkal)= -1
                itemp=0                               !
@@ -137,7 +137,7 @@
                iTmp=0
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If (TF(mdci,iIrrep,iComp).and.
+                  If (TF(mdci,iIrrep,iComp).and.                        &
      &                .Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = nDisp + 1
                      If (Dirct(nDisp)) Then
@@ -215,7 +215,7 @@
          iSD(4,nSkal)= -1                      ! Not used
          iSD(5,nSkal)=  nExpi                  ! # of prim.
          iSD(6,nSkal)= -1                      ! Not used
-         iSD(7,nSkal)= iAOttp                  !
+         iSD(7,nSkal)= iAOttp                                           & !
      &               + Shells(kSh)%kOffAO      !
          iSD(8,nSkal)= -1                      ! Not used
          itemp=0                               !

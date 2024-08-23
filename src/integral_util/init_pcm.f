@@ -19,17 +19,17 @@
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
       Use Iso_C_Binding
-      use PCM_arrays, only: MxVert, Centr, DCntr, dPnt, dRad, dTes,
-     &                      IntSph, NewSph, nVert, PCMDm, PCMiSph,
+      use PCM_arrays, only: MxVert, Centr, DCntr, dPnt, dRad, dTes,     &
+     &                      IntSph, NewSph, nVert, PCMDm, PCMiSph,      &
      &                      PCMSph, PCMTess, PCM_n, PCM_SQ, SSPh, Vert
       use Isotopes, only: MaxAtomNum, PTab
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module, only: PCM, DoDeriv, nTs, nPCM_Info, nS,
-     &                         iCharge_Ref, NoNEQ_Ref, iSlPar,
-     &                          cRFStrt, cRFEnd,
-     &                          iRFStrt, iRFEnd,
-     &                          rRFStrt, rRFEnd,
+      use rctfld_module, only: PCM, DoDeriv, nTs, nPCM_Info, nS,        &
+     &                         iCharge_Ref, NoNEQ_Ref, iSlPar,          &
+     &                          cRFStrt, cRFEnd,                        &
+     &                          iRFStrt, iRFEnd,                        &
+     &                          rRFStrt, rRFEnd,                        &
      &                          lRFStrt, lRFEnd
       Implicit None
       Logical NonEq
@@ -51,9 +51,9 @@
       DoDeriv=.False.
 !pcm_solvent
 ! added mckinley for pcm in second derivatives
-      If (      ProgName.eq.'alaska'
-     &     .or. ProgName.eq.'mckinley'
-     &     .or. ProgName.eq.'mclr'    )
+      If (      ProgName.eq.'alaska'                                    &
+     &     .or. ProgName.eq.'mckinley'                                  &
+     &     .or. ProgName.eq.'mclr'    )                                 &
      &    DoDeriv=.True.
       !pcm_solvent end
       If (DoDeriv) Then
@@ -157,7 +157,7 @@
 #else
       iPrint=5
 #endif
-      Call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,
+      Call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,               &
      &              LcANr,NonEq)
 #ifdef _DEBUGPRINT_
       Write (6,*)

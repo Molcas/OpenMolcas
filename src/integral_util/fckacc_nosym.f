@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine FckAcc_NoSym(iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                        iShell, nijkl, AOInt,FMat,DMat,nDens,
+      Subroutine FckAcc_NoSym(iCmp, jCmp, kCmp, lCmp, Shijij,           &
+     &                        iShell, nijkl, AOInt,FMat,DMat,nDens,     &
      &                        iAO,iAOst,iBas,jBas,kBas,lBas,ExFac)
 !***********************************************************************
 !                                                                      *
@@ -42,7 +42,7 @@
       use Constants, only: Zero, One, Four, Half
       Implicit None
       Integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
-      Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
+      Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),             &
      &       DMat(nDens)
       Logical Shij, Shkl, Shijij
       Integer iShell(4), iAO(4), iAOst(4)

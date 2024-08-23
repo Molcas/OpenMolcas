@@ -10,13 +10,13 @@
 !***********************************************************************
       Subroutine DrvEFP(First)
 #ifdef _EFP_
-      use EFP_Module, only: EFP_Instance, nEFP_FRAGMENTS, Coor_Type,
+      use EFP_Module, only: EFP_Instance, nEFP_FRAGMENTS, Coor_Type,    &
      &                      FRAG_Type, EFP_Coors
-      use EFP, only: EFP_Add_Fragment, EFP_Add_Potential,
-     &               EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare,
-     &               EFP_Set_Electron_Density_Field_FN,
+      use EFP, only: EFP_Add_Fragment, EFP_Add_Potential,               &
+     &               EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare,  &
+     &               EFP_Set_Electron_Density_Field_FN,                 &
      &               EFP_Set_Frag_Coordinates
-      use iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc,
+      use iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc,   &
      &                         c_funloc
       Implicit None
       Logical First
@@ -118,7 +118,7 @@
                   Call Abend()
                End If
                cptr1=c_Loc(EFP_COORS(1,j))
-               irc  = efp_set_frag_Coordinates(EFP_Instance,iFrag,
+               irc  = efp_set_frag_Coordinates(EFP_Instance,iFrag,      &
      &                                         Coor_type,cptr1)
                If (irc.ne.0) Then
                   Write (6,*) 'EFP_SET_FRAG_COORDINATES error.'
@@ -152,7 +152,7 @@
          Write (6,*) Energy%Total
 #endif
 !
-         irc=EFP_SET_ELECTRON_DENSITY_FIELD_FN(EFP_Instance,
+         irc=EFP_SET_ELECTRON_DENSITY_FIELD_FN(EFP_Instance,            &
      &        c_funloc(Molcas_ELECTRON_DENSITY_FIELD_FN))
 !
       End If
@@ -163,7 +163,7 @@
 !
 !        Pick up the number of atoms in the fragment
 !
-         irc=EFP_GET_FRAG_ATOM_COUNT(EFP_Instance,frag_idx,
+         irc=EFP_GET_FRAG_ATOM_COUNT(EFP_Instance,frag_idx,             &
      &                               c_loc(n_atoms))
 !
 !        Pick up the fragment coordinates and charges

@@ -11,9 +11,9 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine SphCr2(Win,ijkl,ncd,
-     &                  Scrt,nScrt,
-     &                  Coeff1,iCar,iSph,Tr1,Pr1,
+      SubRoutine SphCr2(Win,ijkl,ncd,                                   &
+     &                  Scrt,nScrt,                                     &
+     &                  Coeff1,iCar,iSph,Tr1,Pr1,                       &
      &                  Coeff2,jCar,jSph,Tr2,Pr2,Wout,mab)
 !***********************************************************************
 !                                                                      *
@@ -32,8 +32,8 @@
 !***********************************************************************
       Implicit None
       Integer ijkl,ncd,nScrt,iCar,iSph,jCar,jSph,mab
-      Real*8 Win(ijkl*ncd*iSph*jSph), Scrt(nScrt),
-     &       Coeff1(iCar,iCar), Coeff2(jCar,jCar),
+      Real*8 Win(ijkl*ncd*iSph*jSph), Scrt(nScrt),                      &
+     &       Coeff1(iCar,iCar), Coeff2(jCar,jCar),                      &
      &       Wout(ijkl*ncd*mab)
       Logical Tr1, Pr1, Tr2, Pr2
 !
@@ -85,7 +85,7 @@
 !---------Transpose cd,IJKL,ab to IJKL,ab,cd
           If (ncd.ne.1) Then
              call dcopy_(ncd*ijkl*iCar*jCar,Win,1,Scrt,1)
-             Call DGeTMO(Scrt,ncd,ncd,ijkl*iCar*jCar,Wout,
+             Call DGeTMO(Scrt,ncd,ncd,ijkl*iCar*jCar,Wout,              &
      &                                ijkl*iCar*jCar)
           Else
              call dcopy_(ncd*ijkl*iCar*jCar,Win,1,Scrt,1)

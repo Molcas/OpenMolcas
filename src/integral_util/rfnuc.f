@@ -71,7 +71,7 @@
                If (ZA.eq.Zero) Go To 101
 #ifdef _DEBUGPRINT_
                Write (6,*) ' Charge=',ZA
-               Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,
+               Call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,          &
      &                     dbsc(iCnttp)%nCntr)
 #endif
                Do iCnt = 1, dbsc(iCnttp)%nCntr
@@ -167,7 +167,7 @@
                   Qyz= XF(12,iFd)
                   Qzz= XF(13,iFd)
                Else
-                  Call WarningMessage(2,
+                  Call WarningMessage(2,                                &
      &                      'RFNuc: Option not implemented yet!')
                   Call Abend()
                End If
@@ -194,11 +194,11 @@
                   QRAxx = QAxx
                   QRAyy = QAyy
                   QRAzz = QAzz
-                  QRAxy=DBLE(iPhase(1,jCoSet(i,0))
+                  QRAxy=DBLE(iPhase(1,jCoSet(i,0))                      &
      &                      *iPhase(2,jCoSet(i,0)))*QAxy
-                  QRAxz=DBLE(iPhase(1,jCoSet(i,0))
+                  QRAxz=DBLE(iPhase(1,jCoSet(i,0))                      &
      &                      *iPhase(3,jCoSet(i,0)))*QAxz
-                  QRAyz=DBLE(iPhase(2,jCoSet(i,0))
+                  QRAyz=DBLE(iPhase(2,jCoSet(i,0))                      &
      &                      *iPhase(3,jCoSet(i,0)))*QAyz
 
                   If (ix.eq.0) Then
@@ -226,15 +226,15 @@
 !---------------- Dipole contributions
 !
                   If (ix.ge.1) Then
-                     temp = temp + DBLE(ix)*rRmy(1)*CCoMy*CCoMz*
+                     temp = temp + DBLE(ix)*rRmy(1)*CCoMy*CCoMz*        &
      &                      (RA(1)-CoOp(1))**(ix-1)
                   End If
                   If (iy.ge.1) Then
-                     temp = temp + DBLE(iy)*rRmy(2)*CCoMx*CCoMz*
+                     temp = temp + DBLE(iy)*rRmy(2)*CCoMx*CCoMz*        &
      &                      (RA(2)-CoOp(2))**(iy-1)
                   End If
                   If (iz.ge.1) Then
-                     temp = temp + DBLE(iz)*rRmy(3)*CCoMx*CCoMy*
+                     temp = temp + DBLE(iz)*rRmy(3)*CCoMx*CCoMy*        &
      &                      (RA(3)-CoOp(3))**(iz-1)
                   End If
 

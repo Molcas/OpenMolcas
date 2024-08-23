@@ -35,8 +35,8 @@
       Integer, External:: iPrmt
       Character(LEN=8) ChTemp
       Logical, External:: TstFnc
-      Integer iSO, iIrrep, mdc, mc, iCnttp, kComp, iSh, iAng, nExpi,
-     &        nBasisi, jComp, iCnt, iComp, iChBs, iCntrc, NrOpr, lComp,
+      Integer iSO, iIrrep, mdc, mc, iCnttp, kComp, iSh, iAng, nExpi,    &
+     &        nBasisi, jComp, iCnt, iComp, iChBs, iCntrc, NrOpr, lComp, &
      &        iCo
 !
 !     Generate list of symmetry adapted or petite list basis functions
@@ -85,7 +85,7 @@
 !
 !                    Skip if function not a basis of irreps.
 !
-                     If (.Not.TstFnc(dc(mdc)%iCoSet,
+                     If (.Not.TstFnc(dc(mdc)%iCoSet,                    &
      &                          iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
 !
                      Do 205 iCntrc = 1, nBasisi
@@ -98,9 +98,9 @@
                         If (Shells(iSh)%Transf) ChTemp=LblSbs(lComp)
                         Do ico=0,nIrrep/dc(mdc)%nStab-1
                         Cnt_ico(ico,iso)=mc+ico
-                        Phase_ico(ico,iso)=
-     &                        iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*
-     &                        iChTbl(iIrrep,
+                        Phase_ico(ico,iso)=                             &
+     &                        iPrmt(NrOpr(dc(mdc)%iCoSet(iCo,0)),iChbs)*&
+     &                        iChTbl(iIrrep,                            &
      &                              NrOpr(dc(mdc)%iCoSet(iCo,0)))
                         End Do
                         Mamn(iSO)=dc(mdc)%LblCnt(1:LENIN)//ChTemp(1:8)

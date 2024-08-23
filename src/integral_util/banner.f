@@ -23,7 +23,7 @@
       Character(LEN=MxWdth-2) Line
       Character(LEN=72) Format
 
-      Integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit,
+      Integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit,      &
      &        jFrst, jEnd
 !
       mWidth = nWidth

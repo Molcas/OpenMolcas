@@ -21,10 +21,10 @@
 !             January '92                                              *
 !***********************************************************************
       use setup, only: mSkal, nSOs
-      use pso_stuff, only: lSA, Gamma_On, Gamma_MRCISD, lPSO, Case_2C,
-     &                     Case_3C, Case_MP2, nDens, mCMO, LuGam,
-     &                     FnGam, lBin, LuGamma, mDens, D0, DS, iD0Lbl,
-     &                     DSVar, KCMO, nG1, mG1, G1, nG2, mG2, G2,
+      use pso_stuff, only: lSA, Gamma_On, Gamma_MRCISD, lPSO, Case_2C,  &
+     &                     Case_3C, Case_MP2, nDens, mCMO, LuGam,       &
+     &                     FnGam, lBin, LuGamma, mDens, D0, DS, iD0Lbl, &
+     &                     DSVar, KCMO, nG1, mG1, G1, nG2, mG2, G2,     &
      &                     CMO, DVar, SO2CI, G_ToC, Bin
       use iSD_data, only: iSO2Sh
       use Basis_Info, only: nBas
@@ -32,7 +32,7 @@
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, Half, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh,
+      use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh,  &
      &                 nIsh
       use NAC, only: IsNAC
       use mspdft_grad, only: DoGradMSPD
@@ -57,8 +57,8 @@
       Character(LEN=60) Fmt
       Integer :: iComp=1, ipTmp1
 #endif
-      Integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk,
-     &        n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0,
+      Integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk, &
+     &        n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0, &
      &        nDim2
       Real*8, External:: Get_ExFac
       Integer, External:: IsFreeUnit
@@ -92,9 +92,9 @@
       Call Get_iScalar('Columbus',columbus)
       nCMo = S%n2Tot
       mCMo = S%n2Tot
-      If (Method.eq. 'KS-DFT  ' .or.
-     &    Method.eq. 'MCPDFT  ' .or.
-     &    Method.eq. 'MSPDFT  ' .or.
+      If (Method.eq. 'KS-DFT  ' .or.                                    &
+     &    Method.eq. 'MCPDFT  ' .or.                                    &
+     &    Method.eq. 'MSPDFT  ' .or.                                    &
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
          Call Get_cArray('DFT functional',KSDFT,80)
@@ -113,11 +113,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If ( Method.eq.'RHF-SCF ' .or.
-     &     Method.eq.'UHF-SCF ' .or.
-     &     Method.eq.'IVO-SCF ' .or.
-     &     Method.eq.'MBPT2   ' .or.
-     &     Method.eq.'KS-DFT  ' .or.
+      If ( Method.eq.'RHF-SCF ' .or.                                    &
+     &     Method.eq.'UHF-SCF ' .or.                                    &
+     &     Method.eq.'IVO-SCF ' .or.                                    &
+     &     Method.eq.'MBPT2   ' .or.                                    &
+     &     Method.eq.'KS-DFT  ' .or.                                    &
      &     Method.eq.'ROHF    ' ) then
 #ifdef _DEBUGPRINT_
          Write (6,*)
@@ -148,7 +148,7 @@
       Else if ( Method.eq.'Corr. WF' ) then
 #ifdef _DEBUGPRINT_
          Write (6,*)
-         Write (6,*)
+         Write (6,*)                                                    &
      &      ' Wavefunction type: an Aces 2 correlated wavefunction'
          Write (6,*)
 #endif
@@ -199,12 +199,12 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Else if ( Method.eq.'RASSCF  ' .or.
-     &          Method.eq.'CASSCF  ' .or.
-     &          Method.eq.'GASSCF  ' .or.
-     &          Method.eq.'MCPDFT  ' .or.
-     &          Method.eq.'MSPDFT  ' .or.
-     &          Method.eq.'DMRGSCF ' .or.
+      Else if ( Method.eq.'RASSCF  ' .or.                               &
+     &          Method.eq.'CASSCF  ' .or.                               &
+     &          Method.eq.'GASSCF  ' .or.                               &
+     &          Method.eq.'MCPDFT  ' .or.                               &
+     &          Method.eq.'MSPDFT  ' .or.                               &
+     &          Method.eq.'DMRGSCF ' .or.                               &
      &          Method.eq.'CASDFT  ') then
 !
          Call Get_iArray('nAsh',nAsh,nIrrep)
@@ -220,9 +220,9 @@
 #ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,'(2A)') ' Wavefunction type: ', Method
-         If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')
+         If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')            &
      &      Write (6,'(2A)') ' Functional type:   ',KSDFT
-         If (Method.eq.'MSPDFT  ')
+         If (Method.eq.'MSPDFT  ')                                      &
      &      Write (6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
          Write (6,*)
 #endif
@@ -234,10 +234,10 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Else if ( Method.eq.'CASSCFSA' .or.
-     &          Method.eq.'DMRGSCFS' .or.
-     &          Method.eq.'GASSCFSA' .or.
-     &          Method.eq.'RASSCFSA' .or.
+      Else if ( Method.eq.'CASSCFSA' .or.                               &
+     &          Method.eq.'DMRGSCFS' .or.                               &
+     &          Method.eq.'GASSCFSA' .or.                               &
+     &          Method.eq.'RASSCFSA' .or.                               &
      &          Method.eq.'CASPT2  ') then
          Call Get_iArray('nAsh',nAsh,nIrrep)
          nAct = 0
@@ -253,7 +253,7 @@
 #ifdef _DEBUGPRINT_
          Write (6,*)
          If (lSA) Then
-            Write (6,'(2A)') ' Wavefunction type: State average ',
+            Write (6,'(2A)') ' Wavefunction type: State average ',      &
      &                         Method(1:6)
          Else
             Write (6,'(2A)') ' Wavefunction type: ', Method
@@ -298,7 +298,7 @@
          Call mma_allocate(D0,nDens,mDens,Label='D0')
          D0(:,:)=Zero
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
-         if (.not.gamma_mrcisd)
+         if (.not.gamma_mrcisd)                                         &
      &      Call Get_dArray_chk('D1ao',D0(1,1),nDens)
 !
 
@@ -306,9 +306,9 @@
 !
          Call mma_Allocate(DS,nDens,Label='DS')
          Call mma_Allocate(DSVar,nDens,Label='DSVar')
-         If (Method.eq.'UHF-SCF ' .or.
-     &       Method.eq.'ROHF    ' .or.
-     &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
+         If (Method.eq.'UHF-SCF ' .or.                                  &
+     &       Method.eq.'ROHF    ' .or.                                  &
+     &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.                    &
      &       Method.eq.'Corr. WF' ) Then
             Call Get_dArray_chk('D1sao',DS,nDens)
             Call Get_D1sao_Var(DSVar,nDens)
@@ -357,9 +357,9 @@
 !     not that the columbus mcscf MO coefficients have been written
 !     to the RUNFILE !
 
-         If (Method.eq.'UHF-SCF ' .or.
-     &       Method.eq.'ROHF    ' .or.
-     &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
+         If (Method.eq.'UHF-SCF ' .or.                                  &
+     &       Method.eq.'ROHF    ' .or.                                  &
+     &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.                    &
      &       Method.eq.'Corr. WF'      ) Then
             nsa=2
          Else
@@ -372,8 +372,8 @@
 #ifdef _DEBUGPRINT_
          ipTmp1 = 1
          Do iIrrep = 0, nIrrep-1
-            Call RecPrt(' CMO''s',' ',
-     &                  CMO(ipTmp1,1),nBas(iIrrep),
+            Call RecPrt(' CMO''s',' ',                                  &
+     &                  CMO(ipTmp1,1),nBas(iIrrep),                     &
      &                  nBas(iIrrep))
             ipTmp1 = ipTmp1 + nBas(iIrrep)**2
          End Do
@@ -402,8 +402,8 @@
             nTst = nTst + nFro(iIrrep)
          End Do
          If (nTst.ne.0) Then
-            Call WarningMessage(2,
-     &                  '; No frozen orbitals are allowed!'//
+            Call WarningMessage(2,                                      &
+     &                  '; No frozen orbitals are allowed!'//           &
      &                  '; ALASKA cannot continue;')
             Call Quit_OnUserError()
          End If
@@ -447,8 +447,8 @@
 #ifdef _DEBUGPRINT_
            ipTmp1 = 1
            Do iIrrep = 0, nIrrep-1
-              Call RecPrt('LCMO''s',' ',
-     &                    CMO(ipTmp1,2),nBas(iIrrep),
+              Call RecPrt('LCMO''s',' ',                                &
+     &                    CMO(ipTmp1,2),nBas(iIrrep),                   &
      &                    nBas(iIrrep))
               ipTmp1 = ipTmp1 + nBas(iIrrep)**2
            End Do
@@ -521,7 +521,7 @@
            nG1 = nAct*(nAct+1)/2
            Call mma_allocate(D1AV,nG1,Label='D1AV')
            Call Get_dArray_chk('D1av',D1AV,nG1)
-           Call Get_D1A(CMO(1,1),D1AV,D0(1,3),
+           Call Get_D1A(CMO(1,1),D1AV,D0(1,3),                          &
      &                 nIrrep,nbas,nish,nash,ndens)
            Call mma_deallocate(D1AV)
 !************************
@@ -632,7 +632,7 @@
             Do j = 1,iBas
               Sum = Zero
               Do k = 0,iOrb-1
-                Sum = Sum + Two * CMO(iOff1+k*iBas+i)
+                Sum = Sum + Two * CMO(iOff1+k*iBas+i)                   &
      &                          * CMO(iOff1+k*iBas+j)
               End Do
               D1I(iOff2 + j) = Sum
@@ -646,7 +646,7 @@
       Return
       End Subroutine Get_D1I
 
-      Subroutine Get_D1A(CMO,D1A_MO,D1A_AO,
+      Subroutine Get_D1A(CMO,D1A_MO,D1A_AO,                             &
      &                    nsym,nbas,nish,nash,ndens)
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -680,15 +680,15 @@
            End do
           End do
           ii=ii+iash
-          Call DGEMM_('N','T',
-     &                iBas,iAsh,iAsh,
-     &                One,CMO(iOff2+iIsh*iBas),iBas,
-     &                    Tmp1,iAsh,
+          Call DGEMM_('N','T',                                          &
+     &                iBas,iAsh,iAsh,                                   &
+     &                One,CMO(iOff2+iIsh*iBas),iBas,                    &
+     &                    Tmp1,iAsh,                                    &
      &               Zero,Tmp2,iBas)
-          Call DGEMM_('N','T',
-     &                iBas,iBas,iAsh,
-     &                One,Tmp2,iBas,
-     &                    CMO(iOff2+iIsh*iBas),iBas,
+          Call DGEMM_('N','T',                                          &
+     &                iBas,iBas,iAsh,                                   &
+     &                One,Tmp2,iBas,                                    &
+     &                    CMO(iOff2+iIsh*iBas),iBas,                    &
      &               Zero,Scr1(iOff3),iBas)
           Call mma_deallocate(Tmp2)
           Call mma_deallocate(Tmp1)

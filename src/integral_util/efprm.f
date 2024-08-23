@@ -11,8 +11,8 @@
 ! Copyright (C) 1991,1995, Roland Lindh                                *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine EFPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nComp,la,lb,A,RB,nRys,
+      SubRoutine EFPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,     &
+     &                 Final,nZeta,nComp,la,lb,A,RB,nRys,               &
      &                 Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
@@ -28,9 +28,9 @@
       Implicit None
       External TNAI, Fake, XCff2D, XRys2D
       Integer nZeta, la, lb, nComp, nAlpha, nBeta, nRys, nArr, nOrdOp
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
+     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),                    &
      &       Array(nZeta*nArr), Ccoor(3)
 
 !---- Local Arrays
@@ -38,7 +38,7 @@
       Logical EQ, NoSpecial
       Integer iAnga(4)
       Integer ixyz, nElem, nabSz
-      Integer mabMin, mabMax, mcdMin, mcdMax, lab, kab, lcd, labcd,
+      Integer mabMin, mabMax, mcdMin, mcdMax, lab, kab, lcd, labcd,     &
      &        ip1, ip2, nMem, mArr, nT, ip3, ipIn, nFlop
 #ifdef _DEBUGPRINT_
       Integer iElem, jElem
@@ -102,10 +102,10 @@
 !
       nT=nZeta
       NoSpecial=.True.
-      Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &         [One],[One],1,P,nZeta,
-     &         CCoor,1,rKappa,[One],Coori,Coori,CoorAC,
-     &         mabMin,mabMax,mcdMin,mcdMax,Array(ip1),mArr*nZeta,
+      Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                                &
+     &         [One],[One],1,P,nZeta,                                   &
+     &         CCoor,1,rKappa,[One],Coori,Coori,CoorAC,                 &
+     &         mabMin,mabMax,mcdMin,mcdMax,Array(ip1),mArr*nZeta,       &
      &         TNAI,Fake,XCff2D,XRys2D,NoSpecial)
 !
 !---- The integrals are now ordered as ijkl,e,f
@@ -133,17 +133,17 @@
       Do 400 iElem = 1, nElem(la)
          Do 410 jElem = 1, nElem(lb)
             If (lcd.eq.1) Then
-               Write (Label,'(A,I2,A,I2,A)')
+               Write (Label,'(A,I2,A,I2,A)')                            &
      &               ' EFPrm: Final (',iElem,',',jElem,') '
                Call RecPrt(Label,' ',Final(1,iElem,jElem,1),nZeta,1)
             Else If (lcd.eq.3) tHEN
-               Write (Label,'(A,I2,A,I2,A)')
+               Write (Label,'(A,I2,A,I2,A)')                            &
      &               ' EFPrm: Final (',iElem,',',jElem,',x) '
                Call RecPrt(Label,' ',Final(1,iElem,jElem,1),nZeta,1)
-               Write (Label,'(A,I2,A,I2,A)')
+               Write (Label,'(A,I2,A,I2,A)')                            &
      &               ' EFPrm: Final (',iElem,',',jElem,',y) '
                Call RecPrt(Label,' ',Final(1,iElem,jElem,2),nZeta,1)
-               Write (Label,'(A,I2,A,I2,A)')
+               Write (Label,'(A,I2,A,I2,A)')                            &
      &               ' EFPrm: Final (',iElem,',',jElem,',z) '
                Call RecPrt(Label,' ',Final(1,iElem,jElem,3),nZeta,1)
             End If

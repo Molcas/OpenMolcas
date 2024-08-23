@@ -25,7 +25,7 @@
       Real*8, Intent(InOut):: Target(nPrim,nTrgt)
 
       Integer i, ixyz, ix, iz, nElem, Ind
-      Integer iout, ixb, iyb, izb, ixyzb, iybMax, ixa, iyaMax, ixab,
+      Integer iout, ixb, iyb, izb, ixyzb, iybMax, ixa, iyaMax, ixab,    &
      &        iya, iza, izab, ixyza, iTo, iFrom, iab
 !
 !     Statment functions

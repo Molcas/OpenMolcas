@@ -11,9 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CrSph2(Win,ijkl,ncd,
-     &                  Scrt,nScrt,
-     &                  Coeff1,iCar,iSph,Tr1,
+      SubRoutine CrSph2(Win,ijkl,ncd,                                   &
+     &                  Scrt,nScrt,                                     &
+     &                  Coeff1,iCar,iSph,Tr1,                           &
      &                  Coeff2,jCar,jSph,Tr2,Wout,mab)
 !***********************************************************************
 !                                                                      *
@@ -26,9 +26,9 @@
 !             March '90                                                *
 !***********************************************************************
       Implicit None
-      Integer, Intent(in):: ijkl, ncd, iCar, jCar, iSph, jSph, mab,
+      Integer, Intent(in):: ijkl, ncd, iCar, jCar, iSph, jSph, mab,     &
      &                      nScrt
-      Real*8, Intent(in)::  Win(ijkl*ncd*iCar*jCar),
+      Real*8, Intent(in)::  Win(ijkl*ncd*iCar*jCar),                    &
      &                      Coeff1(iCar,iCar), Coeff2(jCar,jCar)
       Real*8, Intent(inout):: Scrt(nScrt)
       Real*8, Intent(inout):: Wout(ijkl*ncd*mab)
@@ -81,7 +81,7 @@
 !         Transpose CD,IJKL,a,b to IJKL,ab,CD
           If (ncd.ne.1) Then
              call dcopy_(ncd*ijkl*iCar*jCar,Win,1,Scrt,1)
-             Call DGeTMO(Scrt,ncd,ncd,ijkl*iCar*jCar,Wout,
+             Call DGeTMO(Scrt,ncd,ncd,ijkl*iCar*jCar,Wout,              &
      &                                ijkl*iCar*jCar)
           Else
              call dcopy_(ncd*ijkl*iCar*jCar,Win,1,Scrt,1)

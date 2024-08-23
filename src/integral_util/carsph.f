@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CarSph(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,
+      SubRoutine CarSph(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,      &
      &                  Coeff2,n2,Tr2,Pr2,Wout,mab)
 !***********************************************************************
 !                                                                      *
@@ -29,9 +29,9 @@
 !***********************************************************************
       Implicit None
       Integer nab, nijx, nScrt, n1, n2, mab
-      Real*8 Win(nab*nijx), Scrt(nScrt),
-     &       Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2),
-     &       Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2),
+      Real*8 Win(nab*nijx), Scrt(nScrt),                                &
+     &       Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2),                   &
+     &       Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2),                   &
      &       Wout(mab*nijx)
       Logical Tr1, Pr1, Tr2, Pr2
 
@@ -48,18 +48,18 @@
 !
 !        Starting with a,bIJx transforming to bIJx,A
 !
-         Call DGEMM_('T','N',
-     &               l2*nijx,k1,l1,
-     &               1.0d0,Win,l1,
-     &               Coeff1,l1,
+         Call DGEMM_('T','N',                                           &
+     &               l2*nijx,k1,l1,                                     &
+     &               1.0d0,Win,l1,                                      &
+     &               Coeff1,l1,                                         &
      &               0.0d0,Scrt,l2*nijx)
 !
 !        Transform b,IJxA to IJxAB
 !
-         Call DGEMM_('T','N',
-     &               nijx*k1,k2,l2,
-     &               1.0d0,Scrt,l2,
-     &               Coeff2,l2,
+         Call DGEMM_('T','N',                                           &
+     &               nijx*k1,k2,l2,                                     &
+     &               1.0d0,Scrt,l2,                                     &
+     &               Coeff2,l2,                                         &
      &               0.0d0,Wout,nijx*k1)
 !
       Else If(Tr2) Then
@@ -70,19 +70,19 @@
 !
 !        Start transforming b,IJ,x,a to IJ,x,aB
 !
-         Call DGEMM_('T','N',
-     &               nijx*l1,k2,l2,
-     &               1.0d0,Scrt,l2,
-     &               Coeff2,l2,
+         Call DGEMM_('T','N',                                           &
+     &               nijx*l1,k2,l2,                                     &
+     &               1.0d0,Scrt,l2,                                     &
+     &               Coeff2,l2,                                         &
      &               0.0d0,Wout,nijx*l1)
       Else
 !
 !        Starting with a,bIJx transforming to AbIJx
 !
-         Call DGEMM_('T','N',
-     &               k1,l2*nijx,l1,
-     &               1.0d0,Coeff1,l1,
-     &               Win,l1,
+         Call DGEMM_('T','N',                                           &
+     &               k1,l2*nijx,l1,                                     &
+     &               1.0d0,Coeff1,l1,                                   &
+     &               Win,l1,                                            &
      &               0.0d0,Scrt,k1)
 !
 !        Transpose to IJxAb

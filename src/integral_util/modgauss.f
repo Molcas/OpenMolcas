@@ -14,22 +14,22 @@
       Real*8 Z, Xi, w
       Integer A
 
-      Real*8 Facts(2,0:12), Errors(0:12), g(2), H(2,2), HInv(2,2),
+      Real*8 Facts(2,0:12), Errors(0:12), g(2), H(2,2), HInv(2,2),      &
      &       Step(2)
-      Data Facts/ 0.0D0, 0.0D0,
-     &            1.0D0, 0.0D0,
-     &           -1.0D0, 0.0D0,
-     &            2.0D0, 0.0D0,
-     &           -2.0D0, 0.0D0,
-     &            0.0D0, 1.0D0,
-     &            0.0D0,-1.0D0,
-     &            0.0D0, 2.0D0,
-     &            0.0D0,-2.0D0,
-     &            1.0D0, 1.0D0,
-     &           -1.0D0, 1.0D0,
-     &            1.0D0,-1.0D0,
+      Data Facts/ 0.0D0, 0.0D0,                                         &
+     &            1.0D0, 0.0D0,                                         &
+     &           -1.0D0, 0.0D0,                                         &
+     &            2.0D0, 0.0D0,                                         &
+     &           -2.0D0, 0.0D0,                                         &
+     &            0.0D0, 1.0D0,                                         &
+     &            0.0D0,-1.0D0,                                         &
+     &            0.0D0, 2.0D0,                                         &
+     &            0.0D0,-2.0D0,                                         &
+     &            1.0D0, 1.0D0,                                         &
+     &           -1.0D0, 1.0D0,                                         &
+     &            1.0D0,-1.0D0,                                         &
      &           -1.0D0,-1.0D0/
-      Real*8 A3, RMS, T, r_90, Thr, X, Delta_W, Delta_R, W0, R0, Det,
+      Real*8 A3, RMS, T, r_90, Thr, X, Delta_W, Delta_R, W0, R0, Det,   &
      &       e, f, r, x1, x2
       Integer MaxIter, Iter, i, iNeg
 !                                                                      *
@@ -111,7 +111,7 @@
       H(1,1)=(Errors(3)+Errors(4)-2.0D0*Errors(0))/(2.0D0*Delta_w)**2
       g(2)=(Errors(5)-Errors(6))/(2.0D0*Delta_r)
       H(2,2)=(Errors(7)+Errors(8)-2.0D0*Errors(0))/(2.0D0*Delta_r)**2
-      H(1,2)=(Errors(9)+Errors(12)-Errors(10)-Errors(11))
+      H(1,2)=(Errors(9)+Errors(12)-Errors(10)-Errors(11))               &
      &      / ((2.0D0*Delta_w)*(2.0D0*Delta_r))
       H(2,1)=H(1,2)
 !     Call RecPrt('gradient',' ',g,1,2)
@@ -213,15 +213,15 @@
          Diag(i,i)=Max(Abs(temp),1.0D-15)
       End Do
 !
-      Call DGEMM_('N','N',
-     &            nH,nH,nH,
-     &            1.0d0,EVec,nH,
-     &                  Diag,nH,
+      Call DGEMM_('N','N',                                              &
+     &            nH,nH,nH,                                             &
+     &            1.0d0,EVec,nH,                                        &
+     &                  Diag,nH,                                        &
      &            0.0d0,HU,nH)
-      Call DGEMM_('N','T',
-     &            nH,nH,nH,
-     &            1.0d0,HU,nH,
-     &                  EVec,nH,
+      Call DGEMM_('N','T',                                              &
+     &            nH,nH,nH,                                             &
+     &            1.0d0,HU,nH,                                          &
+     &                  EVec,nH,                                        &
      &            0.0d0,H,nH)
 !
       Call mma_deallocate(HU)

@@ -87,7 +87,7 @@
 
       Character(LEN=8) Label2
       Real*8 FactOp(1), E_0_NN
-      Integer lOper(1), ixyz, iOff, nOrdOp, iMax, ip, ix, iy, iz,
+      Integer lOper(1), ixyz, iOff, nOrdOp, iMax, ip, ix, iy, iz,       &
      &                  iSymX, iSymY, iSymZ, iTemp, nOpr, iMltpl
       Integer, External:: IrrFnc, MltLbl
       Real*8, External:: DDot_
@@ -136,7 +136,7 @@
          EndIf
 
 #ifdef _DEBUGPRINT_
-         Call RecPrt('Nuclear Multipole Moments',
+         Call RecPrt('Nuclear Multipole Moments',                       &
      &                                 ' ',Q_solute(1,1),1,nComp)
 #endif
 !
@@ -147,13 +147,13 @@
          Call AppFld(Vs(1,1),rds,Eps,lMax,EpsInf,NonEq)
 !
 #ifdef _DEBUGPRINT_
-         Call RecPrt('Nuclear Electric Field',
+         Call RecPrt('Nuclear Electric Field',                          &
      &                                 ' ',Vs(1,1),1,nComp)
 #endif
 !
 !--------Vnn = Vnn - 1/2 Sum(nl) E(nuc,nl)*M(nuc,nl)
 !
-         RepNuc = PotNuc -
+         RepNuc = PotNuc -                                              &
      &            Half * DDot_(nComp,Q_solute(1,1),1,Vs(1,1),1)
 !
 !------- Add contributions due to slow counter charges
@@ -174,7 +174,7 @@
          Do iIrrep = 0, nIrrep-1
             n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
             If (n.gt.0) Then
-               Write (Label,'(A,I1)')
+               Write (Label,'(A,I1)')                                   &
      &          'Diagonal Symmetry Block ',iIrrep+1
                Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
                lOff = lOff + n
@@ -198,7 +198,7 @@
          Do iIrrep = 0, nIrrep-1
             n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
             If (n.gt.0) Then
-               Write (Label,'(A,I1)')
+               Write (Label,'(A,I1)')                                   &
      &          'Diagonal Symmetry Block ',iIrrep+1
                Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
                lOff = lOff + n
@@ -262,7 +262,7 @@
       lOff = 1
       Do iIrrep = 0, nIrrep-1
          n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         Write (Label,'(A,I1)')
+         Write (Label,'(A,I1)')                                         &
      &    'Diagonal Symmetry Block ',iIrrep+1
          Call Triprt(Label,' ',D(lOff),nBas(iIrrep))
          lOff = lOff + n
@@ -272,7 +272,7 @@
       Call Drv1_RF(FactOp,nOpr,D,nh1,Origin,lOper,Q_solute(1,2),lMax)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electronic Multipole Moments',
+      Call RecPrt('Electronic Multipole Moments',                       &
      &                              ' ',Q_solute(1,2),1,nComp)
 #endif
 !
@@ -282,7 +282,7 @@
       call dcopy_(nComp,Q_solute(1,2),1,Vs(1,2),1)
       Call AppFld(Vs(1,2),rds,Eps,lMax,EpsInf,NonEq)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electronic Electric Field',
+      Call RecPrt('Electronic Electric Field',                          &
      &                              ' ',Vs(1,2),1,nComp)
 #endif
 !4)
@@ -299,7 +299,7 @@
       Do iIrrep = 0, nIrrep-1
          n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
          If (n.gt.0) Then
-            Write (Label,'(A,I1)')
+            Write (Label,'(A,I1)')                                      &
      &       'Diagonal Symmetry Block ',iIrrep+1
             Call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
             lOff = lOff + n
@@ -309,7 +309,7 @@
       lOff = 1
       Do iIrrep = 0, nIrrep-1
          n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         Write (Label,'(A,I1)')
+         Write (Label,'(A,I1)')                                         &
      &    'Diagonal Symmetry Block ',iIrrep+1
          Call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
          lOff = lOff + n

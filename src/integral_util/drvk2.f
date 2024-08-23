@@ -29,8 +29,8 @@
 !***********************************************************************
       use setup, only: mSkal
       use iSD_data, only: iSD
-      use k2_arrays, only: DoGrad_, DoHess_, DeDe,
-     &                     ipOffD, Sew_Scr,
+      use k2_arrays, only: DoGrad_, DoHess_, DeDe,                      &
+     &                     ipOffD, Sew_Scr,                             &
      &                      Create_BraKet, Destroy_BraKet, BraKet
       use Basis_Info, only: Shells, DBSC
       use Symmetry_Info, only: nIrrep, iOper
@@ -54,46 +54,46 @@
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
       Integer ik2
-      Integer i, j, ixyz, nElem, nabSz, iTri,
-     &        iS, jS, iShll, jShll, iBas, jBas,
-     &        iPrim, jPrim, la_, mabMin_, mabMax_, ne_, nHrrMtrx,
-     &        nScree, mScree, mk2,
-     &        MemTmp, iAng, jAng, MemMax, ipMem1, iCmp, jCmp,
-     &        iShell, jShell, mdci, mdcj, iCnttp, jCnttp, iCnt, jCnt,
-     &        iPrimi, jPrimj, kPrimk, lPriml, nBasi, nBasj,
-     &        iBasi, jBasj, kBask, lBasl, nZeta, ijS, nDCR, nDij, nSO,
-     &        ipDij, iPrimS, jPrimS, nDCRR, nHm, ijCmp, ipMem2,
-     &        iBsInc, jBsInc, kBsInc, lBsInc, ijInc,
+      Integer i, j, ixyz, nElem, nabSz, iTri,                           &
+     &        iS, jS, iShll, jShll, iBas, jBas,                         &
+     &        iPrim, jPrim, la_, mabMin_, mabMax_, ne_, nHrrMtrx,       &
+     &        nScree, mScree, mk2,                                      &
+     &        MemTmp, iAng, jAng, MemMax, ipMem1, iCmp, jCmp,           &
+     &        iShell, jShell, mdci, mdcj, iCnttp, jCnttp, iCnt, jCnt,   &
+     &        iPrimi, jPrimj, kPrimk, lPriml, nBasi, nBasj,             &
+     &        iBasi, jBasj, kBask, lBasl, nZeta, ijS, nDCR, nDij, nSO,  &
+     &        ipDij, iPrimS, jPrimS, nDCRR, nHm, ijCmp, ipMem2,         &
+     &        iBsInc, jBsInc, kBsInc, lBsInc, ijInc,                    &
      &        iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, MemPrm
       Real*8 TCPU1, TCPU2, TWALL1, TWALL2
 
       Interface
-      SubRoutine k2Loop(Coor,
-     &                  iAnga,iCmpa,iShll,
-     &                  iDCRR,nDCRR,
-     &                  k2data,
-     &                  Alpha,nAlpha,Beta, nBeta,
-     &                  Alpha_,Beta_,
-     &                  Coeff1,iBasn,Coeff2,jBasn,
-     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
-     &                  Wrk,nWork2,
-     &                  Cmpct,nScree,mScree,iStb,jStb,
-     &                  Dij,nDij,nDCR,ijCmp,DoFock,
-     &                  Scr,nScr,
+      SubRoutine k2Loop(Coor,                                           &
+     &                  iAnga,iCmpa,iShll,                              &
+     &                  iDCRR,nDCRR,                                    &
+     &                  k2data,                                         &
+     &                  Alpha,nAlpha,Beta, nBeta,                       &
+     &                  Alpha_,Beta_,                                   &
+     &                  Coeff1,iBasn,Coeff2,jBasn,                      &
+     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,        &
+     &                  Wrk,nWork2,                                     &
+     &                  Cmpct,nScree,mScree,iStb,jStb,                  &
+     &                  Dij,nDij,nDCR,ijCmp,DoFock,                     &
+     &                  Scr,nScr,                                       &
      &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
       use k2_structure, only: k2_type
       Implicit None
       External Cmpct
-      Integer nZeta, ijCmp,  nDCRR,
-     &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
+      Integer nZeta, ijCmp,  nDCRR,                                     &
+     &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,      &
      &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
       type(k2_type), intent(inout) :: k2data(nDCRR)
-      Real*8 Coor(3,4),
-     &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
-     &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
-     &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
-     &       Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3),
-     &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),
+      Real*8 Coor(3,4),                                                 &
+     &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),   &
+     &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),                 &
+     &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),       &
+     &       Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3),      &
+     &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),        &
      &       HMtrx(nHrrMtrx,2)
       Logical DoFock, DoGrad
       Integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
@@ -194,7 +194,7 @@
          iCnt   = iSD(14,iS)
          Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 !
-         If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+         If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,      &
      &                                     Shells(iShll)%pCff)
 !
          iAngV(1) = iAng
@@ -238,13 +238,13 @@
 !
             nZeta = iPrimi * jPrimj
 !
-            Call ConMax(BraKet%Eta(:),iPrimi,jPrimj,
-     &                  Shells(iShll)%pCff,nBasi,
+            Call ConMax(BraKet%Eta(:),iPrimi,jPrimj,                    &
+     &                  Shells(iShll)%pCff,nBasi,                       &
      &                  Shells(jShll)%pCff,nBasj)
 !
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' Sym. Dist. Centers',' ',
+            Call RecPrt(' Sym. Dist. Centers',' ',                      &
      &                                    Coor,3,4)
 #endif
 !
@@ -280,26 +280,26 @@
             jPrimj = nZeta
             force_part_save=force_part_c
             force_part_c=.False.
-            Call PSOAO0(nSO,MemPrm, MemMax,
-     &                  iAngV, iCmpV,
-     &                  iBasi,iBsInc, jBasj,jBsInc,
-     &                  kBask,kBsInc, lBasl,lBsInc,
-     &                  iPrimi,iPrInc,jPrimj,jPrInc,
-     &                  kPrimk,kPrInc,lPriml,lPrInc,
-     &                  ipMem1,ipMem2,
+            Call PSOAO0(nSO,MemPrm, MemMax,                             &
+     &                  iAngV, iCmpV,                                   &
+     &                  iBasi,iBsInc, jBasj,jBsInc,                     &
+     &                  kBask,kBsInc, lBasl,lBsInc,                     &
+     &                  iPrimi,iPrInc,jPrimj,jPrInc,                    &
+     &                  kPrimk,kPrInc,lPriml,lPrInc,                    &
+     &                  ipMem1,ipMem2,                                  &
      &                  Mem1,  Mem2,.FALSE.)
             force_part_c=force_part_save
             ijInc = Min(jBsInc,jPrInc)
             iPrimi = iPrims
             jPrimj = jPrims
 #ifdef _DEBUGPRINT_
-            Write (6,*) ' ************** Memory',
+            Write (6,*) ' ************** Memory',                       &
      &                  ' partioning **************'
             Write (6,*) ' ipMem1=',ipMem1
             Write (6,*) ' ipMem2=',ipMem2
             Write (6,*) ' Mem1=',Mem1
             Write (6,*) ' Mem2=',Mem2
-            Write (6,*) ' *********************',
+            Write (6,*) ' *********************',                       &
      &                  '**************************'
 #endif
 !
@@ -317,24 +317,24 @@
             ijCmp=nElem(iAng)*nElem(jAng)
             If (.Not.DoGrad_) ijCmp=0
             ik2=Indk2(3,ijS)
-            Call k2Loop(Coor,
-     &                  iAngV,iCmpV,iShllV,
-     &                  iDCRR,nDCRR,
-     &                  k2data(:,ik2),
-     &                  Shells(iShll)%Exp,iPrimi,
-     &                  Shells(jShll)%Exp,jPrimj,
-     &                  BraKet%xA(:),BraKet%xB(:),
-     &                  Shells(iShll)%pCff,nBasi,
-     &                  Shells(jShll)%pCff,nBasj,
-     &                  BraKet%Zeta(:),BraKet%ZInv(:),
-     &                  BraKet%KappaAB(:),BraKet%P(:,:),
-     &                  BraKet%IndZet(:),
-     &                  nZeta,ijInc,BraKet%Eta(:),
-     &                  Sew_Scr(ipMem2),Mem2,Cmpct,
-     &                  nScree,mScree,mdci,mdcj,
-     &                  DeDe(ipDij),nDij,nDCR  ,ijCmp,DoFock,
-     &                  Scr, MemTmp,
-     &                  Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,
+            Call k2Loop(Coor,                                           &
+     &                  iAngV,iCmpV,iShllV,                             &
+     &                  iDCRR,nDCRR,                                    &
+     &                  k2data(:,ik2),                                  &
+     &                  Shells(iShll)%Exp,iPrimi,                       &
+     &                  Shells(jShll)%Exp,jPrimj,                       &
+     &                  BraKet%xA(:),BraKet%xB(:),                      &
+     &                  Shells(iShll)%pCff,nBasi,                       &
+     &                  Shells(jShll)%pCff,nBasj,                       &
+     &                  BraKet%Zeta(:),BraKet%ZInv(:),                  &
+     &                  BraKet%KappaAB(:),BraKet%P(:,:),                &
+     &                  BraKet%IndZet(:),                               &
+     &                  nZeta,ijInc,BraKet%Eta(:),                      &
+     &                  Sew_Scr(ipMem2),Mem2,Cmpct,                     &
+     &                  nScree,mScree,mdci,mdcj,                        &
+     &                  DeDe(ipDij),nDij,nDCR  ,ijCmp,DoFock,           &
+     &                  Scr, MemTmp,                                    &
+     &                  Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,             &
      &                  HrrMtrx,nHrrMtrx)
 !
             Indk2(2,ijS) = nDCRR

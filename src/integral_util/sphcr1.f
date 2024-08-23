@@ -11,9 +11,9 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine SphCr1(Win,ijkla,
-     &                  Scrt,nScrt,
-     &                  Coeff3,kCar,kSph,Tr3,Pr3,
+      SubRoutine SphCr1(Win,ijkla,                                      &
+     &                  Scrt,nScrt,                                     &
+     &                  Coeff3,kCar,kSph,Tr3,Pr3,                       &
      &                  Coeff4,lCar,lSph,Tr4,Pr4,Wout,mcd)
 !***********************************************************************
 !                                                                      *
@@ -32,8 +32,8 @@
 !***********************************************************************
       Implicit None
       Integer ijkla, nScrt, kCar,kSph,lCar,lSph,mcd
-      Real*8 Win(ijkla*kSph*lSph), Scrt(nScrt),
-     &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),
+      Real*8 Win(ijkla*kSph*lSph), Scrt(nScrt),                         &
+     &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),                      &
      &       Wout(mcd*ijkla)
       Logical Tr3, Pr3, Tr4, Pr4
 !
@@ -100,7 +100,7 @@
       use Constants, only: Zero
       Implicit None
       Integer nRowA,nColA,nRowB
-      Real*8 A(nRowA,nColA), B(nRowB,nColA),
+      Real*8 A(nRowA,nColA), B(nRowB,nColA),                            &
      &       C(nRowA,nRowB)
 !
       Integer nCache, mCache, Indj, jj, njVec, i, j, k
@@ -142,7 +142,7 @@
       Integer, parameter :: mxind=2000
       Integer ind(mxind)
       Integer i, nnot, k, j, nr1
-      Real*8 S1, S2, S3, S4, S5, S6, S7, S8,
+      Real*8 S1, S2, S3, S4, S5, S6, S7, S8,                            &
      &       T1, T2, T3, T4, T5, T6, T7, T8
 !
       do 100 i=1,ncol

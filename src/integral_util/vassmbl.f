@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine vAssmbl(Rnxyz,Axyz,la,Rxyz,lr,Bxyz,lb,nZeta,HerW,nHer,
+      SubRoutine vAssmbl(Rnxyz,Axyz,la,Rxyz,lr,Bxyz,lb,nZeta,HerW,nHer, &
      &                  Temp)
 !***********************************************************************
 !                                                                      *
@@ -25,9 +25,9 @@
       use Constants
       Implicit None
       Integer la,lr,lb,nZeta,nHer
-      Real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer),
-     &       Axyz(nZeta*3,nHer,0:la),
-     &       Rxyz(nZeta*3,nHer,0:lr),
+      Real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer),                 &
+     &       Axyz(nZeta*3,nHer,0:la),                                   &
+     &       Rxyz(nZeta*3,nHer,0:lr),                                   &
      &       Bxyz(nZeta*3,nHer,0:lb), Temp(nZeta*3,nHer)
 #ifdef _DEBUGPRINT_
       Character(LEN=80) Label
@@ -47,7 +47,7 @@
          Do 110 ib = 0, lb
             Do 111 iHer = 1, nHer
                Do 112 iZCar = 1, 3*nZeta
-                  Temp(iZCar,iHer) =  Axyz(iZCar,iHer,ia)*
+                  Temp(iZCar,iHer) =  Axyz(iZCar,iHer,ia)*              &
      &                                Bxyz(iZCar,iHer,ib)*HerW(iHer)
  112           Continue
  111        Continue
@@ -59,14 +59,14 @@
 !
                Do 30 iHer = 1, nHer
                   Do 10 iZCar = 1, 3*nZeta
-                     Rnxyz(iZCar,ia,ib,ir) = Rnxyz(iZCar,ia,ib,ir) +
-     &                             Temp(iZCar,iHer)*
+                     Rnxyz(iZCar,ia,ib,ir) = Rnxyz(iZCar,ia,ib,ir) +    &
+     &                             Temp(iZCar,iHer)*                    &
      &                             Rxyz(iZCar,iHer,ir)
  10               Continue
  30            Continue
 !
 #ifdef _DEBUGPRINT_
-               Write (Label,'(A,I2,A,I2,A,I2,A)')
+               Write (Label,'(A,I2,A,I2,A,I2,A)')                       &
      &         ' In vAssmbl: Rnxyz(',ia,',',ib,',',ir,')'
                Call RecPrt(Label,' ',Rnxyz(1,ia,ib,ir),nZeta,3)
 #endif

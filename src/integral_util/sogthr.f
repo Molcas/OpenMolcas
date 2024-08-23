@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
+      SubRoutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,       &
      &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 !***********************************************************************
 !                                                                      *
@@ -33,13 +33,13 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit None
-      Integer iBas,jBas,nSOInt,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO,
+      Integer iBas,jBas,nSOInt,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO,   &
      &         nPrp
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
 
       Integer, External:: iPntSO
-      Integer i, j, iTri, lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2,
+      Integer i, j, iTri, lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2,   &
      &        indAO1, indAO2, ipij, Indi, Indj, iPnt, nRow
       Real*8 Fact
 !                                                                      *

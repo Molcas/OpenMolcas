@@ -17,7 +17,7 @@
 
       Real*8 F(kmax+1)
       Integer NN, nT, I, J, K
-      Real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2,
+      Real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2,   &
      &       GAL, HINT
 !
       qRINT=Zero

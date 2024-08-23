@@ -11,13 +11,13 @@
 ! Copyright (C) 1992,1993, Roland Lindh                                *
 !***********************************************************************
 !define _DEBUGPRINT_
-      SubRoutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                  k2Data1,k2Data2,
-     &                  Zeta,ZInv,P,KappAB,IndZet,
-     &                  Eta,EInv,Q,KappCD,IndEta,
-     &                  Dij,Dkl,
-     &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutDInt,
-     &                  CutInt,vij,vkl,vik,vil,vjk,vjl,
+      SubRoutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,   &
+     &                  k2Data1,k2Data2,                                &
+     &                  Zeta,ZInv,P,KappAB,IndZet,                      &
+     &                  Eta,EInv,Q,KappCD,IndEta,                       &
+     &                  Dij,Dkl,                                        &
+     &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutDInt,    &
+     &                  CutInt,vij,vkl,vik,vil,vjk,vjl,                 &
      &                  Prescreen_On_Int_Only)
 !***********************************************************************
 !                                                                      *
@@ -44,9 +44,9 @@
       use k2_structure, only: k2_type
       Implicit None
       Integer :: iOffZ, iOffE, mZeta, nZeta, mEta, nEta
-      Real*8, Intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta),
-     &                       P(nZeta,3),
-     &                       Eta(mEta),EInv(mEta), KappCD(mEta),
+      Real*8, Intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta),   &
+     &                       P(nZeta,3),                                &
+     &                       Eta(mEta),EInv(mEta), KappCD(mEta),        &
      &                       Q(nEta,3)
       Type(k2_type), intent(in):: k2Data1, k2Data2
       Real*8 Dij(nZeta), Dkl(nEta)

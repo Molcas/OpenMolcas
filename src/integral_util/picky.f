@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Picky(Din,n,m,nijPrm,nijCmp,nDCR,nSt,nEnd,mSt,mEnd,
+      SubRoutine Picky(Din,n,m,nijPrm,nijCmp,nDCR,nSt,nEnd,mSt,mEnd,    &
      &                 Dout)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -19,19 +19,19 @@
       use Constants, only:
       Implicit None
       Integer n,m,nijPrm,nijCmp,nDCR,nSt,nEnd,mSt,mEnd
-      Real*8 Din(((n*m+1)*nijCmp)+nijPrm+1,nDCR),
+      Real*8 Din(((n*m+1)*nijCmp)+nijPrm+1,nDCR),                       &
      &       Dout((((nEnd-nSt+1)*(mEnd-mSt+1)+1)*nijCmp)+nijPrm+1, nDCR)
 
-      Integer i, j, k, ij1, ij2, iIn, iOut, iDCR, ijCmp, jm, im, jn,
+      Integer i, j, k, ij1, ij2, iIn, iOut, iDCR, ijCmp, jm, im, jn,    &
      &        in, jIn, jOut
 !
 !-----Statement function
 !
       ij1(i,j,k) = (k-1)*(n*m+1) + (j-1)*n + i
-      ij2(i,j,k) = (k-1)*((nEnd-nSt+1)*(mEnd-mSt+1)+1) +
+      ij2(i,j,k) = (k-1)*((nEnd-nSt+1)*(mEnd-mSt+1)+1) +                &
      &             (j-1)*(nEnd-nSt+1) + i
 !
-      If (nSt.eq.1.and.nEnd.eq.n .and.
+      If (nSt.eq.1.and.nEnd.eq.n .and.                                  &
      &    mSt.eq.1.and.mEnd.eq.m) Then
 !--------Copy the whole block
          call dcopy_((((n*m+1)*nijCmp)+nijPrm+1)*nDCR,Din,1,Dout,1)
@@ -50,7 +50,7 @@
 !-----------------Loop over subset of contracted basis
                   Do 30 in = nSt, nEnd
                      jn = jn + 1
-                     Dout(ij2(jn,jm,ijCmp),iDCR) =
+                     Dout(ij2(jn,jm,ijCmp),iDCR) =                      &
      &                   Din(ij1(in,im,ijCmp),iDCR)
  30               Continue
  20            Continue
@@ -62,7 +62,7 @@
  10         Continue
 !-----------Move the largest density matrix element for
 !           each pair plus the overall largest element
-            call dcopy_(nijPrm+1,Din(iIn+1,iDCR),1,
+            call dcopy_(nijPrm+1,Din(iIn+1,iDCR),1,                     &
      &                         Dout(iOut+1,iDCR),1)
  1       Continue
       End If

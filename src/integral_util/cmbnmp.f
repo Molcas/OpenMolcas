@@ -17,11 +17,11 @@
 !***********************************************************************
       Implicit None
       Integer nZeta, la, lb, nComp, lr
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), rKappa(nZeta),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), rKappa(nZeta),                                &
      &       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
 
-      Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,
+      Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,   &
      &        ix, iy, iz
       Integer ixyz, iComp, iZeta, Ind
       Real*8 Fact
@@ -56,9 +56,9 @@
                   Do 30 iZeta = 1, nZeta
                      Fact = rKappa(iZeta) * 1/Sqrt(Zeta(iZeta)**3)
 !                    Fact = rKappa(iZeta) * Zeta(iZeta)**(-Three/Two)
-                     Final(iZeta,ipa,ipb,iComp) = Fact *
-     &                       Rnxyz(iZeta,1,ixa,ixb,ix)*
-     &                       Rnxyz(iZeta,2,iya,iyb,iy)*
+                     Final(iZeta,ipa,ipb,iComp) = Fact *                &
+     &                       Rnxyz(iZeta,1,ixa,ixb,ix)*                 &
+     &                       Rnxyz(iZeta,2,iya,iyb,iy)*                 &
      &                       Rnxyz(iZeta,3,iza,izb,iz)
  30               Continue
  42            Continue

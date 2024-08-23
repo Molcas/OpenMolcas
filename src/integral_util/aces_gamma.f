@@ -20,8 +20,8 @@
 
       Integer, Allocatable:: iTable(:,:)
       Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
-      Integer :: nShell, nPair, nQUad, nBlocks, nReq, iBlock, iType,
-     &           iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,
+      Integer :: nShell, nPair, nQUad, nBlocks, nReq, iBlock, iType,    &
+     &           iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,                &
      &           nA, nB, nC, nD, nAB, nCD, MaxMem
       Integer, External:: IsFreeUnit
 !                                                                      *
@@ -106,7 +106,7 @@
 !---- Read the blocks off the Aces 2 file and put into half sorted bin
 !     file. The second half sort is done on the fly as needed.
 !
-      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nReq,
+      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nReq,             &
      &                 iSO2Sh,nSOs,Bin3,lBin,nQuad,G_Toc,SO2cI,CutInt)
 !                                                                      *
 !***********************************************************************

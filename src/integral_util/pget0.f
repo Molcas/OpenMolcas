@@ -11,9 +11,9 @@
 ! Copyright (C) 1992,2007, Roland Lindh                                *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PGet0(iCmp,iBas,jBas,kBas,lBas,
-     &                 Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                 n1,n2,n3,n4,MemPSO,Mem2,nMem2,
+      SubRoutine PGet0(iCmp,iBas,jBas,kBas,lBas,                        &
+     &                 Shijij, iAO, iAOst, ijkl, PSO, nPSO,             &
+     &                 n1,n2,n3,n4,MemPSO,Mem2,nMem2,                   &
      &                 iShell_A,iShell_B,iShell_C,iShell_D,nQuad,PMax)
 !***********************************************************************
 !                                                                      *
@@ -27,9 +27,9 @@
 !             Modified for RI Feb. 2007                                *
 !***********************************************************************
       use setup
-      use pso_stuff, only: lPSO, lSA, Case_2C, Case_3C, Gamma_On,
-     &                     nGamma, Gamma_MRCISD, Bin, D0, DS, DVar,
-     &                     G_Toc, lBin, LuGamma, nDens, nNP, nV_k,
+      use pso_stuff, only: lPSO, lSA, Case_2C, Case_3C, Gamma_On,       &
+     &                     nGamma, Gamma_MRCISD, Bin, D0, DS, DVar,     &
+     &                     G_Toc, lBin, LuGamma, nDens, nNP, nV_k,      &
      &                     nZ_p_k, SO2CI, U_K, V_K, Z_P_K, DSVar
       use iSD_data, only: iSO2Sh
       use Sizes_of_Seward, only: S
@@ -40,8 +40,8 @@
       use mspdft_grad, only: DoGradMSPD
       Implicit None
 
-      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,
-     &        MemPSO, nMem2, iShell_A, iShell_B, iShell_C, iShell_D,
+      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,       &
+     &        MemPSO, nMem2, iShell_A, iShell_B, iShell_C, iShell_D,    &
      &        nQuad
       Real*8 PMax
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
@@ -88,11 +88,11 @@
             kOp(4) = 0
             If (Case_2C) Then
                If (Do_RI) Then
-                  Call PGet1_RI2(PSO,ijkl,nPSO,iCmp,
-     &                           iAO,iAOst,
-     &                           jBas,lBas,kOp,
-     &                           ExFac,CoulFac,PMax,
-     &                           V_K,U_K,nV_K,
+                  Call PGet1_RI2(PSO,ijkl,nPSO,iCmp,                    &
+     &                           iAO,iAOst,                             &
+     &                           jBas,lBas,kOp,                         &
+     &                           ExFac,CoulFac,PMax,                    &
+     &                           V_K,U_K,nV_K,                          &
      &                           Z_p_k,nSA)
 !                  write(*,*)"PGet1_RI2 ===========" yma
                Else
@@ -101,35 +101,35 @@
                End If
             Else If (Case_3C) Then
                If (Do_RI) Then
-                  Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
-     &                           iAO,iAOst,
-     &                           jBas,kBas,lBas,kOp,D0,
-     &                           DVar,nDens,
-     &                           ExFac,CoulFac,PMax,
-     &                           V_K,U_K,nV_K,
+                  Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,                    &
+     &                           iAO,iAOst,                             &
+     &                           jBas,kBas,lBas,kOp,D0,                 &
+     &                           DVar,nDens,                            &
+     &                           ExFac,CoulFac,PMax,                    &
+     &                           V_K,U_K,nV_K,                          &
      &                           Z_p_k,nnP(0),nSA,nAsh)
                Else
 !Not modified yet
                   Call Abend()
                End If
             Else
-               Call PGet3(PSO,ijkl,nPSO,iCmp,
-     &                    iAO,iAOst,Shijij,
-     &                    iBas,jBas,kBas,lBas,kOp,
-     &                    Mem2(ipPam),n1,n2,n3,n4,
-     &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
-     &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
+               Call PGet3(PSO,ijkl,nPSO,iCmp,                           &
+     &                    iAO,iAOst,Shijij,                             &
+     &                    iBas,jBas,kBas,lBas,kOp,                      &
+     &                    Mem2(ipPam),n1,n2,n3,n4,                      &
+     &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,              &
+     &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,             &
      &                    Mem2(ipS2),nScr2,PMax)
 !yma                  write(*,*)"PGet3 ==========="
             End If
          Else
             If (Case_2C) Then
                If (Do_RI) Then
-                  Call PGet2_RI2(iCmp,
-     &                           jBas,lBas,
-     &                           iAO, iAOst, ijkl, PSO, nPSO,
-     &                           ExFac,CoulFac,
-     &                           PMax,V_K,nV_K,
+                  Call PGet2_RI2(iCmp,                                  &
+     &                           jBas,lBas,                             &
+     &                           iAO, iAOst, ijkl, PSO, nPSO,           &
+     &                           ExFac,CoulFac,                         &
+     &                           PMax,V_K,nV_K,                         &
      &                           Z_p_k,nSA,nZ_p_k)
 !yma                  write(*,*)"PGet2_RI2 ==========="
                Else
@@ -138,11 +138,11 @@
                EndIf
             Else If (Case_3C) Then
                If (Do_RI) Then
-                  Call PGet2_RI3(iCmp,
-     &                           jBas,kBas,lBas,
-     &                           iAO, iAOst, ijkl, PSO, nPSO,
-     &                           D0,nDens,ExFac,
-     &                           CoulFac,PMax,V_K,nV_K,
+                  Call PGet2_RI3(iCmp,                                  &
+     &                           jBas,kBas,lBas,                        &
+     &                           iAO, iAOst, ijkl, PSO, nPSO,           &
+     &                           D0,nDens,ExFac,                        &
+     &                           CoulFac,PMax,V_K,nV_K,                 &
      &                           Z_p_k,nSA,nAsh)
 
                Else
@@ -161,11 +161,11 @@
 !      write(*,*)"Print out in integral_util/pget0 before"
 !      Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
-               Call PGet4(iCmp,iBas,jBas,kBas,lBas,
-     &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                    Mem2(ipPam),n1,n2,n3,n4,
-     &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
-     &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
+               Call PGet4(iCmp,iBas,jBas,kBas,lBas,                     &
+     &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,          &
+     &                    Mem2(ipPam),n1,n2,n3,n4,                      &
+     &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,              &
+     &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,             &
      &                    Mem2(ipS2),nScr2,PMax)
 !yma                  write(*,*)"PGet4 ============"
             End If
@@ -192,61 +192,61 @@
             If (Gamma_On) Then
                If (Do_RI) Call Abend()
                If (gamma_mrcisd) Then
-               Call Read_Bin_Columbus
-     &                (iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       G_Toc,nQuad,
-     &                       Mem2,nGamma,
+               Call Read_Bin_Columbus                                   &
+     &                (iShell_A,iShell_B,iShell_C,iShell_D,             &
+     &                       G_Toc,nQuad,                               &
+     &                       Mem2,nGamma,                               &
      &                       LuGamma,Bin,lBin)
                Else
-               Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       G_Toc,nQuad,
-     &                       Mem2,nGamma,
+               Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,       &
+     &                       G_Toc,nQuad,                               &
+     &                       Mem2,nGamma,                               &
      &                       LuGamma,Bin,lBin)
                Endif
-               Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,
-     &                         iAO,iAOst,Shijij,
-     &                         iBas,jBas,kBas,lBas,kOp,D0,
-     &                         DVar,DS,DSVar,
-     &                         nDens,Mem2,nGamma,
+               Call PGet1_Aces(PSO,ijkl,nPSO,iCmp,                      &
+     &                         iAO,iAOst,Shijij,                        &
+     &                         iBas,jBas,kBas,lBas,kOp,D0,              &
+     &                         DVar,DS,DSVar,                           &
+     &                         nDens,Mem2,nGamma,                       &
      &                         SO2cI,nSOs,iSO2Sh,PMax)
             Else
                If (Case_2C) Then
                   If (Do_RI) Then
-                     Call PGet1_RI2(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,
-     &                              jBas,lBas,kOp,
-     &                              ExFac,CoulFac,PMax,
-     &                              V_K,U_K,nV_K,
+                     Call PGet1_RI2(PSO,ijkl,nPSO,iCmp,                 &
+     &                              iAO,iAOst,                          &
+     &                              jBas,lBas,kOp,                      &
+     &                              ExFac,CoulFac,PMax,                 &
+     &                              V_K,U_K,nV_K,                       &
      &                              Z_p_k, nSA)
                   Else
-                     Call PGet1_CD2(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,
-     &                              iBas,jBas,kBas,lBas,kOp,
-     &                              ExFac,CoulFac,PMax,
-     &                              V_K,U_K,nV_K,
+                     Call PGet1_CD2(PSO,ijkl,nPSO,iCmp,                 &
+     &                              iAO,iAOst,                          &
+     &                              iBas,jBas,kBas,lBas,kOp,            &
+     &                              ExFac,CoulFac,PMax,                 &
+     &                              V_K,U_K,nV_K,                       &
      &                              Z_p_k,nnP(0))
                   End If
                Else If (Case_3C) Then
                   If (Do_RI) Then
-                     Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,
-     &                              jBas,kBas,lBas,kOp,D0,
-     &                              DVar,nDens,
-     &                              ExFac,CoulFac,PMax,
-     &                              V_K,U_K,nV_K,
+                     Call PGet1_RI3(PSO,ijkl,nPSO,iCmp,                 &
+     &                              iAO,iAOst,                          &
+     &                              jBas,kBas,lBas,kOp,D0,              &
+     &                              DVar,nDens,                         &
+     &                              ExFac,CoulFac,PMax,                 &
+     &                              V_K,U_K,nV_K,                       &
      &                              Z_p_k,nnP(0),nSA,nAsh)
                   Else
-                     Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,
-     &                              iAO,iAOst,
-     &                              iBas,jBas,kBas,lBas,kOp,D0,
-     &                              DVar,nDens,
-     &                              ExFac,CoulFac,PMax,
+                     Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,                 &
+     &                              iAO,iAOst,                          &
+     &                              iBas,jBas,kBas,lBas,kOp,D0,         &
+     &                              DVar,nDens,                         &
+     &                              ExFac,CoulFac,PMax,                 &
      &                              V_K,U_K,nV_K)
                   End If
                Else
-                  Call PGet1(PSO,ijkl,nPSO,iCmp,
-     &                       iAO,iAOst,Shijij,
-     &                       iBas,jBas,kBas,lBas,kOp,D0,
+                  Call PGet1(PSO,ijkl,nPSO,iCmp,                        &
+     &                       iAO,iAOst,Shijij,                          &
+     &                       iBas,jBas,kBas,lBas,kOp,D0,                &
      &                       DS,nDens,ExFac,CoulFac,PMax)
                End If
             End If
@@ -254,61 +254,61 @@
             If (Gamma_On) Then
                If (Do_RI) Call Abend()
                If (gamma_mrcisd) Then
-               Call Read_Bin_Columbus
-     &                (iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       G_Toc,nQuad,
-     &                       Mem2,nGamma,
+               Call Read_Bin_Columbus                                   &
+     &                (iShell_A,iShell_B,iShell_C,iShell_D,             &
+     &                       G_Toc,nQuad,                               &
+     &                       Mem2,nGamma,                               &
      &                       LuGamma,Bin,lBin)
                else
-               Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,
-     &                       G_Toc,nQuad,
-     &                       Mem2,nGamma,
+               Call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,       &
+     &                       G_Toc,nQuad,                               &
+     &                       Mem2,nGamma,                               &
      &                       LuGamma,Bin,lBin)
                endif
-               Call PGet2_Aces(iCmp,
-     &                         iBas,jBas,kBas,lBas,
-     &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                         D0,DVar,DS,
-     &                         DSVar,nDens,Mem2,nGamma,
+               Call PGet2_Aces(iCmp,                                    &
+     &                         iBas,jBas,kBas,lBas,                     &
+     &                         Shijij, iAO, iAOst, ijkl, PSO, nPSO,     &
+     &                         D0,DVar,DS,                              &
+     &                         DSVar,nDens,Mem2,nGamma,                 &
      &                         SO2cI,nSOs,iSO2Sh,PMax)
             Else
                If (Case_2C) Then
                   If (Do_RI) Then
 
-                     Call PGet2_RI2(iCmp,
-     &                              jBas,lBas,
-     &                              iAO, iAOst, ijkl, PSO, nPSO,
-     &                              ExFac,CoulFac,
-     &                              PMax,V_K,nV_K,
+                     Call PGet2_RI2(iCmp,                               &
+     &                              jBas,lBas,                          &
+     &                              iAO, iAOst, ijkl, PSO, nPSO,        &
+     &                              ExFac,CoulFac,                      &
+     &                              PMax,V_K,nV_K,                      &
      &                              Z_p_k, nSA,nZ_p_k)
                   Else
-                     Call PGet2_CD2(iCmp,
-     &                              iBas,jBas,kBas,lBas,
-     &                              iAO, iAOst, ijkl, PSO, nPSO,
-     &                              CoulFac,
+                     Call PGet2_CD2(iCmp,                               &
+     &                              iBas,jBas,kBas,lBas,                &
+     &                              iAO, iAOst, ijkl, PSO, nPSO,        &
+     &                              CoulFac,                            &
      &                              PMax,V_K,nV_K)
                   End If
                Else If (Case_3C) Then
                   If (Do_RI) Then
-                     Call PGet2_RI3(iCmp,
-     &                              jBas,kBas,lBas,
-     &                              iAO, iAOst, ijkl, PSO, nPSO,
-     &                              D0,nDens,ExFac,
-     &                              CoulFac,PMax,V_K,nV_K,
+                     Call PGet2_RI3(iCmp,                               &
+     &                              jBas,kBas,lBas,                     &
+     &                              iAO, iAOst, ijkl, PSO, nPSO,        &
+     &                              D0,nDens,ExFac,                     &
+     &                              CoulFac,PMax,V_K,nV_K,              &
      &                              Z_p_k,nSA,nAsh)
                   Else
-                     Call PGet2_CD3(iCmp,
-     &                              iBas,jBas,kBas,lBas,
-     &                              iAO, iAOst, ijkl, PSO, nPSO,
-     &                              D0,nDens,
+                     Call PGet2_CD3(iCmp,                               &
+     &                              iBas,jBas,kBas,lBas,                &
+     &                              iAO, iAOst, ijkl, PSO, nPSO,        &
+     &                              D0,nDens,                           &
      &                              CoulFac,PMax,V_K,nV_K)
                   End If
 !
                Else
-                  Call PGet2(iCmp,
-     &                       iBas,jBas,kBas,lBas,
-     &                       Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                       D0,DS,nDens,ExFac,CoulFac,
+                  Call PGet2(iCmp,                                      &
+     &                       iBas,jBas,kBas,lBas,                       &
+     &                       Shijij, iAO, iAOst, ijkl, PSO, nPSO,       &
+     &                       D0,DS,nDens,ExFac,CoulFac,                 &
      &                       PMax)
                End If
             End If

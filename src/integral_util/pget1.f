@@ -11,8 +11,8 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PGet1(PAO,ijkl,nPAO,iCmp,
-     &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
+      SubRoutine PGet1(PAO,ijkl,nPAO,iCmp,                              &
+     &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,        &
      &                 DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 !***********************************************************************
 !                                                                      *
@@ -39,9 +39,9 @@
       Logical Shijij
       Real*8 ExFac, CoulFac, PMax
 
-      Integer iPAO, i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl,
-     &        iSOi, jSOj, kSOk, lSOl, iAOi, jAOj, kAOk, lAOl,
-     &        IndI, IndJ, IndK, IndL, IndIJ, IndKL, IndIK, IndIL,
+      Integer iPAO, i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl,          &
+     &        iSOi, jSOj, kSOk, lSOl, iAOi, jAOj, kAOk, lAOl,           &
+     &        IndI, IndJ, IndK, IndL, IndIJ, IndKL, IndIK, IndIL,       &
      &        IndJL, IndJK
       Real*8 t14, Temp
 #ifdef _DEBUGPRINT_
@@ -105,8 +105,8 @@
                             Indl=jSOj+lSOl-Indj
                             Indik=(Indi-1)*Indi/2+Indk
                             Indjl=(Indj-1)*Indj/2+Indl
-                            temp=temp - t14* (
-     &                           DSO(Indik) *DSO(Indjl)
+                            temp=temp - t14* (                          &
+     &                           DSO(Indik) *DSO(Indjl)                 &
      &                          +DSSO(Indik)*DSSO(Indjl) )
 !
 !--------------------------- -0.25*D(il)*D(jk)
@@ -117,8 +117,8 @@
                             Indk=jSOj+kSOk-Indj
                             Indil=(Indi-1)*Indi/2+Indl
                             Indjk=(Indj-1)*Indj/2+Indk
-                            temp=temp - t14*(
-     &                           DSO(Indil) *DSO(Indjk)
+                            temp=temp - t14*(                           &
+     &                           DSO(Indil) *DSO(Indjk)                 &
      &                          +DSSO(Indil)*DSSO(Indjk) )
 !
                             PMax=Max(PMax,Abs(Temp))

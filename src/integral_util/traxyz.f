@@ -25,7 +25,7 @@
       use Constants
       Implicit None
       Integer nZeta, la
-      Real*8 WInt(nZeta*3**(la-1),3), Scr(nZeta*3**la),
+      Real*8 WInt(nZeta*3**(la-1),3), Scr(nZeta*3**la),                 &
      &       A(nZeta,3,3)
 
       Integer nLen, mLen, kLen, i, iVec, iLen, iOff, jVec, iZeta
@@ -50,16 +50,16 @@
                iVec = iVec + 1
 !
                jVec = iOff*nZeta + iZeta
-               Scr(jVec) = A(iZeta,1,1) * WInt(iVec,1) +
-     &                     A(iZeta,1,2) * WInt(iVec,2) +
+               Scr(jVec) = A(iZeta,1,1) * WInt(iVec,1) +                &
+     &                     A(iZeta,1,2) * WInt(iVec,2) +                &
      &                     A(iZeta,1,3) * WInt(iVec,3)
                jVec = (iOff+1)*nZeta + iZeta
-               Scr(jVec) = A(iZeta,2,1) * WInt(iVec,1) +
-     &                     A(iZeta,2,2) * WInt(iVec,2) +
+               Scr(jVec) = A(iZeta,2,1) * WInt(iVec,1) +                &
+     &                     A(iZeta,2,2) * WInt(iVec,2) +                &
      &                     A(iZeta,2,3) * WInt(iVec,3)
                jVec = (iOff+2)*nZeta + iZeta
-               Scr(jVec) = A(iZeta,3,1) * WInt(iVec,1) +
-     &                     A(iZeta,3,2) * WInt(iVec,2) +
+               Scr(jVec) = A(iZeta,3,1) * WInt(iVec,1) +                &
+     &                     A(iZeta,3,2) * WInt(iVec,2) +                &
      &                     A(iZeta,3,3) * WInt(iVec,3)
 !
  220        Continue
@@ -69,7 +69,7 @@
  210  Continue
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Exit Traxyz :Global well integrals',' ',
+      Call RecPrt('Exit Traxyz :Global well integrals',' ',             &
      &                WInt,nZeta,kLen)
 #endif
       End SubRoutine Traxyz

@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Trnsps_Seward(ijCmp, iCmp, jCmp, iAng, jAng, iShll,
+      Subroutine Trnsps_Seward(ijCmp, iCmp, jCmp, iAng, jAng, iShll,    &
      &                         jShll, kOp, ijkl, ij, AOInt, Scrtch)
 !***********************************************************************
 !                                                                      *
@@ -38,13 +38,13 @@
       use Symmetry_Info, only: iChBas
       use Constants, only: One
       Implicit None
-      Integer ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl,
+      Integer ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl,   &
      &        ij
       Real*8 AOInt(ijkl,ijCmp,ijCmp), Scrtch(ijkl,ijCmp,ijCmp)
 
       Integer, External:: iPrmt
       Integer ixyz, iOff
-      Integer ii, jj, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs,
+      Integer ii, jj, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs,       &
      &        ij2, i12, i34, ij1
       Real*8 pa1T, pb1T, pa2T, pb2T, Factor
 !
@@ -93,7 +93,7 @@
       Else
          Do 100 i12 = 1, ijCmp
             Do 200 i34 = 1, ijCmp
-               Call DGeTMO(AOInt(1,i12,i34),ij,ij,
+               Call DGeTMO(AOInt(1,i12,i34),ij,ij,                      &
      &                     ij,Scrtch(1,i34,i12),ij)
 !
  200        Continue

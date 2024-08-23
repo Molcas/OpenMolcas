@@ -46,8 +46,8 @@
          y1=cordsi(2,i)
          z1=cordsi(3,i)
          Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2
-     &         + (y1-cordsi(2,j))**2
+            r2 = (x1-cordsi(1,j))**2                                    &
+     &         + (y1-cordsi(2,j))**2                                    &
      &         + (z1-cordsi(3,j))**2
             If (r2.lt.0.01D0) faktor=faktor+One
          End Do
@@ -56,8 +56,8 @@
          y1=cordsi(2,i)
          z1=cordsi(3,i)
          Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2
-     &         + (y1-cordsi(2,j))**2
+            r2 = (x1-cordsi(1,j))**2                                    &
+     &         + (y1-cordsi(2,j))**2                                    &
      &         + (z1-cordsi(3,j))**2
             If (r2.lt.0.01D0) faktor=faktor+One
          End Do
@@ -66,8 +66,8 @@
          y1=cordsi(2,i)+One
          z1=cordsi(3,i)
          Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2
-     &         + (y1-cordsi(2,j))**2
+            r2 = (x1-cordsi(1,j))**2                                    &
+     &         + (y1-cordsi(2,j))**2                                    &
      &         + (z1-cordsi(3,j))**2
             If (r2.lt.0.01D0) faktor=faktor+One
          End Do
@@ -76,8 +76,8 @@
          y1=cordsi(2,i)-One
          z1=cordsi(3,i)
          Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2
-     &         + (y1-cordsi(2,j))**2
+            r2 = (x1-cordsi(1,j))**2                                    &
+     &         + (y1-cordsi(2,j))**2                                    &
      &         + (z1-cordsi(3,j))**2
             If (r2.lt.0.01D0) faktor=faktor+One
          End Do
@@ -86,8 +86,8 @@
          y1=cordsi(2,i)
          z1=cordsi(3,i)+One
          Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2
-     &         + (y1-cordsi(2,j))**2
+            r2 = (x1-cordsi(1,j))**2                                    &
+     &         + (y1-cordsi(2,j))**2                                    &
      &         + (z1-cordsi(3,j))**2
             If (r2.lt.0.01D0) faktor=faktor+One
          End Do
@@ -96,8 +96,8 @@
          y1=cordsi(2,i)
          z1=cordsi(3,i)-One
          Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2
-     &         + (y1-cordsi(2,j))**2
+            r2 = (x1-cordsi(1,j))**2                                    &
+     &         + (y1-cordsi(2,j))**2                                    &
      &         + (z1-cordsi(3,j))**2
             If (r2.lt.0.01D0) faktor=faktor+One
          End Do

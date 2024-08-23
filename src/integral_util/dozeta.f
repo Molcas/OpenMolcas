@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,
+      SubRoutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,      &
      &                  ZInv,Alpha_,Beta_,Ind_Pair)
 !***********************************************************************
 !                                                                      *
@@ -30,9 +30,9 @@
       use Constants, only: One, TwoP54
       Implicit None
       Integer nAlpha, nBeta
-      Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
-     &       Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta),
-     &       ZInv(nAlpha*nBeta), A(3), B(3),
+      Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),            &
+     &       Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta),                 &
+     &       ZInv(nAlpha*nBeta), A(3), B(3),                            &
      &       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
       Integer Ind_Pair(nAlpha*nBeta+1)
 !

@@ -18,7 +18,7 @@
       Integer nPam(4,0:7)
 
       intrinsic max
-      Integer mxact,mxS1,mxS2,mxS3,mxS4, isym, mxS, mxa2, mxa3, mxa4,
+      Integer mxact,mxS1,mxS2,mxS3,mxS4, isym, mxS, mxa2, mxa3, mxa4,   &
      &        mxS34, mxS234, nscr3, nscr4, nscr5, na
 !
 !     iQ = 1

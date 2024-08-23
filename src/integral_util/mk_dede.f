@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,
-     &                   mDeDe,mIndij,Special_NoSym,DFT_Storage,
+      SubRoutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,    &
+     &                   mDeDe,mIndij,Special_NoSym,DFT_Storage,        &
      &                   DeDe,nDeDe)
 !***********************************************************************
 !                                                                      *
@@ -63,12 +63,12 @@
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Integer, External:: n2Tri, MemSO1
       Integer i, j, iTri
-      Integer mIndij, jOffD, Inc, ipD00, MaxDe, iS, jS, nSkal, iAng,
-     &        jAng, iShll, jShll, iCmp, jCMp, iBas, jBas, iPrim, jPrim,
-     &        iShell, jShell, mdci, mdcj, iAOi, jAOj, ijShll, iSmLbl,
-     &        nSO, nDCRR, LmbdR, iuv, iSh, jSh, iAO, jAO, iBasi, jBasj,
-     &        iPrimi, jPrimj, iAngi, jAngj, iCmpi, jCmpj, iFD, ipDeDe,
-     &        lDCRR, ipStart, jpDAO, ijCmp, iShlli, jShllj, iHigh, ij,
+      Integer mIndij, jOffD, Inc, ipD00, MaxDe, iS, jS, nSkal, iAng,    &
+     &        jAng, iShll, jShll, iCmp, jCMp, iBas, jBas, iPrim, jPrim, &
+     &        iShell, jShell, mdci, mdcj, iAOi, jAOj, ijShll, iSmLbl,   &
+     &        nSO, nDCRR, LmbdR, iuv, iSh, jSh, iAO, jAO, iBasi, jBasj, &
+     &        iPrimi, jPrimj, iAngi, jAngj, iCmpi, jCmpj, iFD, ipDeDe,  &
+     &        lDCRR, ipStart, jpDAO, ijCmp, iShlli, jShllj, iHigh, ij,  &
      &        mDeDe
       Integer, external :: iDAMax_, NrOpr
       Real*8 FactND, Temp
@@ -94,7 +94,7 @@
          Do jFD = 1, mFD
             Write (6,*) 'jFD=',jFD
             Write (6,*)
-            Call TriPrt(' Diagonal block',' ',
+            Call TriPrt(' Diagonal block',' ',                          &
      &                  FD(iFD,jFD),nBas(iIrrep))
          End Do
          iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -148,11 +148,11 @@
 !                                                                      *
 #ifdef _DEBUGPRINT_
             Write (6,*) 'iS,jS=',iS,jS
-            Write (6,'(A,A,A,A,A)')
+            Write (6,'(A,A,A,A,A)')                                     &
      &         ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 #endif
 !
-            Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,
+            Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp, &
      &                        label='DAO')
 !
             AeqB = iS .eq. jS
@@ -163,7 +163,7 @@
             nDCRR=nIrrep
             LmbdR=1
 #ifdef _DEBUGPRINT_
-            Write (6,'(10A)')
+            Write (6,'(10A)')                                           &
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 #endif
 !
@@ -185,7 +185,7 @@
             Call mma_allocate(DSOp,nSO*iPrim*jPrim,label='DSOp')
             Call mma_allocate(DSOc,nSO*iBas *jBas,label='DSOc')
             Call mma_allocate(DSO,nSO*iPrim*jPrim,label='DSO')
-            Call mma_allocate(Scrt,Max(iBas*jBas,iPrim*jPrim),
+            Call mma_allocate(Scrt,Max(iBas*jBas,iPrim*jPrim),          &
      &                        label='Scrt')
 !
 !-----------Introduce canonical order for the contracted basis
@@ -239,9 +239,9 @@
 !                                                                      *
 !-----------Gather the elements from 1st order density / Fock matrix.
 !
-            Call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),
-     &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmpi,jCmpj,iSh,jSh,
+            Call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),                 &
+     &                  n2Tri(iSmLbl),iSmLbl,                           &
+     &                  iCmpi,jCmpj,iSh,jSh,                            &
      &                  AeqB,iAOi,jAOj)
 !                                                                      *
 !***********************************************************************
@@ -250,30 +250,30 @@
 !           basis on to the primitive basis.
 !
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' Left side contraction',' ',
+            Call RecPrt(' Left side contraction',' ',                   &
      &                  Shells(iShll)%pCff,iPrimi,iBasi)
-            Call RecPrt(' Right side contraction',' ',
+            Call RecPrt(' Right side contraction',' ',                  &
      &                  Shells(jShll)%pCff,jPrimj,jBasj)
 #endif
 !
 !-----------Transform IJ,AB to J,ABi
-            Call DGEMM_('T','T',
-     &                  jBasj*nSO,iPrimi,iBasi,
-     &                  1.0d0,DSOc,iBasi,
-     &                        Shells(iShll)%pCff,iPrimi,
+            Call DGEMM_('T','T',                                        &
+     &                  jBasj*nSO,iPrimi,iBasi,                         &
+     &                  1.0d0,DSOc,iBasi,                               &
+     &                        Shells(iShll)%pCff,iPrimi,                &
      &                  0.0d0,DSOp,jBasj*nSO)
 !-----------Transform J,ABi to AB,ij
-            Call DGEMM_('T','T',
-     &                  nSO*iPrimi,jPrimj,jBasj,
-     &                  1.0d0,DSOp,jBasj,
-     &                        Shells(jShll)%pCff,jPrimj,
+            Call DGEMM_('T','T',                                        &
+     &                  nSO*iPrimi,jPrimj,jBasj,                        &
+     &                  1.0d0,DSOp,jBasj,                               &
+     &                        Shells(jShll)%pCff,jPrimj,                &
      &                  0.0d0,DSO,nSO*iPrimi)
 !-----------Transpose to ij,AB
-            Call DGeTmO(DSO,nSO,nSO,iPrimi*jPrimj,DSOp,
+            Call DGeTmO(DSO,nSO,nSO,iPrimi*jPrimj,DSOp,                 &
      &                  iPrimi*jPrimj)
 !
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' Decontracted 1st order density/Fock matrix',
+            Call RecPrt(' Decontracted 1st order density/Fock matrix',  &
      &                  ' ',DSOp,iPrimi*jPrimj,nSO)
 #endif
 !                                                                      *
@@ -289,10 +289,10 @@
                ipOffD(1,ijShll) = jOffD + ipDeDe
                ipOffD(2,ijShll) = nDCRR
                If (nIrrep.eq.1.and.Special_NoSym) Then
-                  ipOffD(3,ijShll) = iCmp*jCmp
+                  ipOffD(3,ijShll) = iCmp*jCmp                          &
      &                             + iPrim*jPrim + 1
                Else
-                  ipOffD(3,ijShll) = iCmp*jCmp*(iBas*jBas+1)
+                  ipOffD(3,ijShll) = iCmp*jCmp*(iBas*jBas+1)            &
      &                             + iPrim*jPrim + 1
                End If
             Else
@@ -301,10 +301,10 @@
 !
                ipOffD(4,ijShll) = jOffD + ipDeDe
             End If
-            mIndij = mIndij + (nIrrep/dc(mdci)%nStab)*
+            mIndij = mIndij + (nIrrep/dc(mdci)%nStab)*                  &
      &                        (nIrrep/dc(mdcj)%nStab)
 #ifdef _DEBUGPRINT_
-            Write (6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',
+            Write (6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',     &
      &                    ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
 #endif
             Do lDCRR = 0, nDCRR-1
@@ -314,9 +314,9 @@
 !                                                                      *
 !--------------Desymmetrize the 1st order density matrix(contracted).
 !
-               Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,
-     &                     iSh,jSh,iShlli,jShllj,iAOi,jAOj,
-     &                     DAO,iBasi,jBasj,
+               Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,              &
+     &                     iSh,jSh,iShlli,jShllj,iAOi,jAOj,             &
+     &                     DAO,iBasi,jBasj,                             &
      &                     DSOc,nSO,nOp,FactNd,Scrt)
 !
 !--------------Store away result
@@ -329,7 +329,7 @@
 !
 !                 D(iBas*iCmp,jBas*jCmp)
 !
-                  Call ResortD(DAO,DeDe(ipStart),
+                  Call ResortD(DAO,DeDe(ipStart),                       &
      &                         iBas,iCmp,jBas,jCmp)
                   jOffD = jOffD + iBas*iCmp*jBas*jCmp
 !
@@ -342,7 +342,7 @@
                   jpDAO = 1
                   Do ijCmp = 1, iCmp*jCmp
                      If (nIrrep.ne.1.or..Not.Special_NoSym) Then
-                        call dcopy_(iBas*jBas,DAO(jpDAO),1,
+                        call dcopy_(iBas*jBas,DAO(jpDAO),1,             &
      &                                       DeDe(ipDeDe+jOffD),1)
                         jOffD = jOffD + iBas*jBas
                      End If
@@ -357,8 +357,8 @@
                      jpDAO = jpDAO + iBas*jBas
                   End Do
 #ifdef _DEBUGPRINT_
-                  If ( (nIrrep.ne.1.or..Not.Special_NoSym))
-     &               Call RecPrt(' DAO(+AMax)',' ',
+                  If ( (nIrrep.ne.1.or..Not.Special_NoSym))             &
+     &               Call RecPrt(' DAO(+AMax)',' ',                     &
      &               DeDe(ipStart),iBas*jBas+1,iCmp*jCmp)
 #endif
                End If
@@ -369,9 +369,9 @@
 !                                                                      *
 !--------------Desymmetrize the 1st order density matrix(primitive).
 !
-               Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,
-     &                     iSh,jSh,iShlli,jShllj,iAOi,jAOj,
-     &                     DAO,iPrimi,jPrimj,
+               Call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,              &
+     &                     iSh,jSh,iShlli,jShllj,iAOi,jAOj,             &
+     &                     DAO,iPrimi,jPrimj,                           &
      &                     DSOp,nSO,nOp,FactNd,Scrt)
 !
 !--------------Change order so it follows what is used in TwoEl
@@ -380,9 +380,9 @@
                Do j = 1, jPrimj
                   Do i = 1, iPrimi
                      ij = (j-1)*iPrimi + i
-                     iHigh = IDAMax_(iCmpi*jCmpj,DAO(ij),
+                     iHigh = IDAMax_(iCmpi*jCmpj,DAO(ij),               &
      &                       iPrimi*jPrimj)-1
-                     DeDe(ipDeDe+jOffD) =
+                     DeDe(ipDeDe+jOffD) =                               &
      &                       Abs(DAO(ij+iHigh*iPrimi*jPrimj))
                      jOffD = jOffD + 1
                   End Do
@@ -391,7 +391,7 @@
                DeDe(ipDeDe+jOffD) = Temp
                jOffD = jOffD + 1
 #ifdef _DEBUGPRINT_
-               Call RecPrt(' D,prim',' ',
+               Call RecPrt(' D,prim',' ',                               &
      &            DeDe(ipStart),iPrimi,jPrimj)
                Write (6,*) ' Max(DAO)=',Temp
 #endif

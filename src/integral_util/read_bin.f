@@ -8,12 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,
+      Subroutine Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,    &
      &                    nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
       use Constants, only: Zero
       Implicit None
 #include "SysDef.fh"
-      Integer iShell_A,iShell_B,iShell_C,iShell_D,
+      Integer iShell_A,iShell_B,iShell_C,iShell_D,                      &
      &        nQuad,nGamma,LuGamma,lBin
       Real*8 G_Toc(nQuad), Bin(2,lBin), Gamma(nGamma)
 !
@@ -51,13 +51,13 @@
 !
       End Subroutine Read_Bin
 
-      Subroutine Read_Bin_Columbus
-     &              (iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,
+      Subroutine Read_Bin_Columbus                                      &
+     &              (iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,         &
      &                    nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
       use Constants, only: Zero
       Implicit None
 #include "SysDef.fh"
-      Integer iShell_A,iShell_B,iShell_C,iShell_D,
+      Integer iShell_A,iShell_B,iShell_C,iShell_D,                      &
      &        nQuad,nGamma,LuGamma,lBin
       Real*8 G_Toc(nQuad), Bin(2,lBin), Gamma(nGamma)
 
@@ -82,7 +82,7 @@
          Call dDaFile(LuGamma,iRead,Bin,2,iDisk)
          lGamma=Int(Bin(1,1))
          If (lGamma.gt.lBin) Then
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &                        'Read_Bin_Columbus: lGamma.gt.lbin')
                Call Abend()
          End If
@@ -93,7 +93,7 @@
          Do iGamma = 2, lGamma
             jGamma=Int(Bin(2,iGamma))
             If (jGamma.gt.nGamma) Then
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &                     'Read_Bin_Columbus: jGamma.gt.nGamma')
                Call Abend()
             End If

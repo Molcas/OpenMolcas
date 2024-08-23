@@ -23,7 +23,7 @@
       use welcom, only: Fac, ipot3
       Implicit None
       Integer nZeta, jSum, k
-      Real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta),
+      Real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta),                   &
      &       grin((k+1)*(k/2+1)*(k/4+1)*nZeta), P(nZeta,3)
       Real*8 r0, Beta
 
@@ -39,8 +39,8 @@
       Call ylmnor(k+1)
 !
       Do 200 iZeta = 1, nZeta
-         a(iZeta) = Sqrt(P(iZeta,1)**2 +
-     &                   P(iZeta,2)**2 +
+         a(iZeta) = Sqrt(P(iZeta,1)**2 +                                &
+     &                   P(iZeta,2)**2 +                                &
      &                   P(iZeta,3)**2 )
  200  Continue
 !     Call RecPrt(' In Rowel: Distances',' ',a,nZeta,1)

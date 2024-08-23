@@ -12,9 +12,9 @@
 !               2004, Takashi Tsuchiya                                 *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,
-     &                  Angular,nTerm,nForm,Thr_Rad,nRad,mExp,nExp,
-     &                  Alpha,Radial,nBas,CffCnt,AOValue,mAO,
+      Subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,&
+     &                  Angular,nTerm,nForm,Thr_Rad,nRad,mExp,nExp,     &
+     &                  Alpha,Radial,nBas,CffCnt,AOValue,mAO,           &
      &                  px,py,pz,ipx,ipy,ipz)
 !***********************************************************************
 ! Object: to compute the values of the AOs on a grid. The calculation  *
@@ -28,10 +28,10 @@
 !***********************************************************************
       use Constants, only: Zero, One, Two
       Implicit None
-      Integer nCoor, iAng, nRad, nElem, nCmp, nExp, nBas, mExp, nTerm,
+      Integer nCoor, iAng, nRad, nElem, nCmp, nExp, nBas, mExp, nTerm,  &
      &        mAO, ipx, ipy, ipz, nForm
-      Real*8 xyz(nCoor,3,0:iAng+nRad-1), Coor(3,nCoor), RA(3),
-     &       CffSph(nElem,nCmp), Alpha(nExp), Radial(nCoor,nRad,nBas),
+      Real*8 xyz(nCoor,3,0:iAng+nRad-1), Coor(3,nCoor), RA(3),          &
+     &       CffSph(nElem,nCmp), Alpha(nExp), Radial(nCoor,nRad,nBas),  &
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
       Real*8 px, py, pz
       Integer Angular(nTerm,5,nForm)
@@ -40,10 +40,10 @@
       Character(LEN=80) Label
 #endif
 
-      Integer iX, iY, iZ, nDrv, iExp, iCoor, iBas, iDrv, i, ip, iF,
-     &        jDrv, jX, jY, jZ, jF, kDrv, iCmp, kForm, mForm, mTerm,
+      Integer iX, iY, iZ, nDrv, iExp, iCoor, iBas, iDrv, i, ip, iF,     &
+     &        jDrv, jX, jY, jZ, jF, kDrv, iCmp, kForm, mForm, mTerm,    &
      &        iTerm, iCoef, iRad, Ind, iForm
-      Real*8  ThrE, Thr_Rad, Exp_Min, R2, Tmp, XCff, Tmp2, Tmp3, Tmp4,
+      Real*8  ThrE, Thr_Rad, Exp_Min, R2, Tmp, XCff, Tmp2, Tmp3, Tmp4,  &
      &        Cff, Coef
 !                                                                      *
 !***********************************************************************
@@ -120,8 +120,8 @@
       End Do
       Radial(:,:,:)=Zero
       Do iCoor = 1, nCoor
-         R2=(Coor(1,iCoor)-RA(1))**2
-     &     +(Coor(2,iCoor)-RA(2))**2
+         R2=(Coor(1,iCoor)-RA(1))**2                                    &
+     &     +(Coor(2,iCoor)-RA(2))**2                                    &
      &     +(Coor(3,iCoor)-RA(3))**2
          Do iExp = 1, nExp
             If (-Alpha(iExp)*R2.lt.Thre) Go To 9898
@@ -167,7 +167,7 @@
                   Tmp=-Two*Alpha(iExp)*Tmp
                   Do iBas = 1, nBas
                      XCff=CffCnt(iExp,iBas)
-                     Radial(iCoor,iDrv+1,iBas)=Radial(iCoor,iDrv+1,iBas)
+                     Radial(iCoor,iDrv+1,iBas)=Radial(iCoor,iDrv+1,iBas)&
      &                                        +  XCff*Tmp
                   End Do
                End Do
@@ -301,13 +301,13 @@
                           iRad =Angular(iTerm,4,iForm)+1
                           Do iBas = 1, nBas
                             Do iCoor = 1, nCoor
-                              AOValue(iForm,iCoor,iBas,iCmp)
-     &                         = AOValue(iForm,iCoor,iBas,iCmp)
-     &                         + xyz(iCoor,1,Angular(iTerm,1,iForm))
-     &                         * xyz(iCoor,2,Angular(iTerm,2,iForm))
-     &                         * xyz(iCoor,3,Angular(iTerm,3,iForm))
-     &                         * Coef
-     &                         * Cff
+                              AOValue(iForm,iCoor,iBas,iCmp)            &
+     &                         = AOValue(iForm,iCoor,iBas,iCmp)         &
+     &                         + xyz(iCoor,1,Angular(iTerm,1,iForm))    &
+     &                         * xyz(iCoor,2,Angular(iTerm,2,iForm))    &
+     &                         * xyz(iCoor,3,Angular(iTerm,3,iForm))    &
+     &                         * Coef                                   &
+     &                         * Cff                                    &
      &                         * Radial(iCoor,iRad,iBas)
                             End Do
                           End Do
@@ -331,12 +331,12 @@
                       iRad =Angular(iTerm,4,iForm)+1
                       Do iBas = 1, nBas
                         Do iCoor = 1, nCoor
-                          AOValue(iForm,iCoor,iBas,ip)
-     &                     = AOValue(iForm,iCoor,iBas,ip)
-     &                     + xyz(iCoor,1,Angular(iTerm,1,iForm))
-     &                     * xyz(iCoor,2,Angular(iTerm,2,iForm))
-     &                     * xyz(iCoor,3,Angular(iTerm,3,iForm))
-     &                     * Coef
+                          AOValue(iForm,iCoor,iBas,ip)                  &
+     &                     = AOValue(iForm,iCoor,iBas,ip)               &
+     &                     + xyz(iCoor,1,Angular(iTerm,1,iForm))        &
+     &                     * xyz(iCoor,2,Angular(iTerm,2,iForm))        &
+     &                     * xyz(iCoor,3,Angular(iTerm,3,iForm))        &
+     &                     * Coef                                       &
      &                     * Radial(iCoor,iRad,iBas)
                         End Do
                       End Do

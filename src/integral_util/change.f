@@ -11,9 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
-     &                  jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
-     &                  jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
+      SubRoutine Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,         &
+     &                  jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,         &
+     &                  jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,        &
      &                  Fail)
 !***********************************************************************
 !                                                                      *
@@ -29,8 +29,8 @@
 !             March '90                                                *
 !***********************************************************************
       Implicit None
-      Integer iBas, iBsInc, kBas, kBsInc,
-     &        jBas, jBsInc, lBas, lBsInc,
+      Integer iBas, iBsInc, kBas, kBsInc,                               &
+     &        jBas, jBsInc, lBas, lBsInc,                               &
      &        jPrim,jPrInc, lPrim,lPrInc
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 !

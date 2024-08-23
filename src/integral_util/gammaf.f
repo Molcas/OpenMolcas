@@ -35,8 +35,8 @@
        arg1=(DBLE(lcosf)+One)/Two
        arg2=(DBLE(lsinf)+One)/Two
        arg3=(DBLE(lsinf)+DBLE(lcosf)+Two)/Two
-       gammaf=Two*dgamma_molcas(arg1)*dgamma_molcas(arg2)/
-     >                                  dgamma_molcas(arg3)
+       gammaf=Two*dgamma_molcas(arg1)*dgamma_molcas(arg2)/              &
+     &                                  dgamma_molcas(arg3)
       Endif
 !
       Return

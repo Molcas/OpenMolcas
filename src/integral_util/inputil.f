@@ -107,7 +107,7 @@
 ! number of data.                                                      *
 !                                                                      *
 !***********************************************************************
-      use getline_mod, only: Line, iGetLine, nCol, iStrt, iEnd,
+      use getline_mod, only: Line, iGetLine, nCol, iStrt, iEnd,         &
      &                       MyUnit, Quit_On_Error
       implicit None
       Integer lUnit, iCritical
@@ -334,8 +334,8 @@
       endif
       goto 2
  3    igetline=0
-      write(6,'(a,a,a)') ' >>>>> Input file for module ',
-     *  line(1:index(line,' ')),' <<<<<'
+      write(6,'(a,a,a)') ' >>>>> Input file for module ',               &
+     &  line(1:index(line,' ')),' <<<<<'
  1    read(lunit,'(A)',err=100,end=200) line
        igetline=igetline+1
        if(igetline.eq.isave) then
@@ -356,8 +356,8 @@
 100   continue
 200   continue
 300   continue
-      Call WarningMessage(1,'FindErrorLine:'//
-     & ' Error in input was not located;'//
+      Call WarningMessage(1,'FindErrorLine:'//                          &
+     & ' Error in input was not located;'//                             &
      & '  Please, check it manually!')
       return
       end subroutine FindErrorLine

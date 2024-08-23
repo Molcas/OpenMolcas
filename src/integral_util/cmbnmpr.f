@@ -18,9 +18,9 @@
       use rmat, only: lCosT, lSinT, lSinF, lCosF, GammaPh, GammaTh
       Implicit None
       Integer nZeta, nComp, la, lb, lr
-      Real*8 Final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),
+      Real*8 Final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),        &
      &       Rnr(nZeta,0:(la+lb+lr))
-      Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,
+      Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,   &
      &        iComp, lrs, iZeta, iz
       Real*8 Fact
 
@@ -59,8 +59,8 @@
                   lcosf=ixa+ixb+ix
                   Fact=gammath(lsint,lcost)*gammaph(lsinf,lcosf)
                   Do 30 iZeta = 1, nZeta
-                     Final(iZeta,iComp,ipa,ipb) = Fact *
-     *                       Rnr(iZeta,lrs)
+                     Final(iZeta,iComp,ipa,ipb) = Fact *                &
+     &                       Rnr(iZeta,lrs)
 30                Continue
 42             Continue
 41          Continue

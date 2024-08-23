@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
-     &                  lZeta,nVec,First,IncVec,A1,A2,A3,
+      Subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,        &
+     &                  lZeta,nVec,First,IncVec,A1,A2,A3,               &
      &                  Indij)
 !***********************************************************************
 !                                                                      *
@@ -25,7 +25,7 @@
 !***********************************************************************
       use Constants, only: Zero
       Implicit None
-      Integer, Intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec,
+      Integer, Intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec, &
      &                       IncVec
       Real*8, Intent(In) ::  Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2)
       Real*8, intent(inout) :: A1(lZeta,nVec)
@@ -37,11 +37,11 @@
       Integer, Parameter :: mxnprm=1000
       Integer idone(mxnprm),nnz2(mxnprm),ifirst(mxnprm),last(mxnprm)
 
-      Integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1,
+      Integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1,    &
      &        ic1, mPrm2, iZeta
       Real*8 C1, C2
 !
-      If (nPrm1.gt.mxnprm .or.
+      If (nPrm1.gt.mxnprm .or.                                          &
      &    nPrm2.gt.mxnprm) Then
           Call WarningMessage(2,'CntHlf: nPrm.gt.mxnprm')
           Call Abend()
@@ -85,10 +85,10 @@
                C1=Coeff1(iPrm1,iCntr1)
                If (Abs(C1).gt.Zero) Then
                   If (idone(iprm2).gt.0) Then
-                     Call DaXpY_(mVec,C1,A1(iZeta,iiVec),lZeta,
+                     Call DaXpY_(mVec,C1,A1(iZeta,iiVec),lZeta,         &
      &                                  A2(1,iPrm2),1)
                   Else
-                     Call DYaX(mVec,C1,A1(iZeta,iiVec),lZeta,
+                     Call DYaX(mVec,C1,A1(iZeta,iiVec),lZeta,           &
      &                                 A2(1,iPrm2),1)
                      idone(iprm2)=1
                   End If
@@ -106,12 +106,12 @@
             ic1=1
             If (nz2.gt.1) Then
                If (first) Then
-                  Call DGEMM_('n','n',mVec,nz2,nprm2,
-     &                       1.0d0,A2,IncVec,Coeff2,nprm2,
+                  Call DGEMM_('n','n',mVec,nz2,nprm2,                   &
+     &                       1.0d0,A2,IncVec,Coeff2,nprm2,              &
      &                       0.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
                Else
-                  Call DGEMM_('N','N',mVec,nz2,nPrm2,
-     &                         1.0d0,A2,IncVec,Coeff2,nprm2,
+                  Call DGEMM_('N','N',mVec,nz2,nPrm2,                   &
+     &                         1.0d0,A2,IncVec,Coeff2,nprm2,            &
      &                         1.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
                End If
                ic1=nz2+1
@@ -120,33 +120,33 @@
             Do iCntr2=ic1,nCntr2
                If (first) Then
                   If (nnz2(icntr2).ge.minva) Then
-                      Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,
-     &                            Coeff2(1,icntr2),1,0.d0,
+                      Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,        &
+     &                            Coeff2(1,icntr2),1,0.d0,              &
      &                            A3(iivec,iCntr1,icntr2),1)
                   Else
                      iprm2=ifirst(icntr2)
                      c2=coeff2(iprm2,icntr2)
-                     Call DYaX(mVec,C2,A2(1,iPrm2),1,
+                     Call DYaX(mVec,C2,A2(1,iPrm2),1,                   &
      &                                 A3(iiVec,iCntr1,iCntr2),1)
 !
                      iPrm2=ifirst(icntr2)+1
                      mPrm2=last(iCntr2)-iPrm2+1
-                     If (mPrm2.gt.0)
-     &                  Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,
-     &                              A2(1,iPrm2),1,IncVec,
+                     If (mPrm2.gt.0)                                    &
+     &                  Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,  &
+     &                              A2(1,iPrm2),1,IncVec,               &
      &                              A3(iiVec,iCntr1,iCntr2),1,0)
 !
                   End If
                Else
                   If (nnz2(icntr2).ge.minva) Then
-                      Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,
-     &                            Coeff2(1,icntr2),1,1.d0,
+                      Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,        &
+     &                            Coeff2(1,icntr2),1,1.d0,              &
      &                            A3(iivec,iCntr1,icntr2),1)
                   Else
                      iPrm2=ifirst(icntr2)
                      mPrm2=last(icntr2)-iPrm2+1
-                     Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,
-     &                           A2(1,iPrm2),1,IncVec,
+                     Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,     &
+     &                           A2(1,iPrm2),1,IncVec,                  &
      &                           A3(iiVec,iCntr1,iCntr2),1,0)
                   End If
                End If

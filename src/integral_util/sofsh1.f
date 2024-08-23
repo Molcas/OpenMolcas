@@ -31,7 +31,7 @@
 !***********************************************************************
 !#define _CHECK_
       use SOAO_Info, only: iAOtSO
-      use iSD_data, only: iSD, nShBf, iShOff, nShBfMx, iCntr, iSh2Sh,
+      use iSD_data, only: iSD, nShBf, iShOff, nShBfMx, iCntr, iSh2Sh,   &
      &                    nShIrp, iSO2Sh
       use Basis_Info, only: nBas, nBas_Aux
       use stdalloc, only: mma_allocate
@@ -39,7 +39,7 @@
       Implicit None
       Integer nSkal, nSym, nSOs
 
-      Integer nShOff(0:7), iTmp(1), iSkal, iAO, iCmp, iSO, iPtr,
+      Integer nShOff(0:7), iTmp(1), iSkal, iAO, iCmp, iSO, iPtr,        &
      &        i, iRP, nShBfi, iSOB
 !
 !     Allocate all memory
@@ -69,10 +69,10 @@
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
 #ifdef _CHECK_
                   If (Basis_Mode.eq.Auxiliary_Mode) Then
-                     iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),
+                     iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),           &
      &                                     iAOtSO(iAO+i,irp)-nBas(irp))
                   Else
-                     iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),
+                     iShOff(irp,iSkal)=Min(iShOff(irp,iSkal),           &
      &                                     iAOtSO(iAO+i,irp))
                   End If
 #endif
@@ -81,15 +81,15 @@
          End Do
          Do irp=0,nSym-1
 #ifdef _CHECK_
-            If(nShBF(irp,iskal).ne.0   .and.
-     >         nShOff(irp).ne.iShOff(irp,iSkal)) Then
+            If(nShBF(irp,iskal).ne.0   .and.                            &
+     &         nShOff(irp).ne.iShOff(irp,iSkal)) Then
                Call WarningMessage(2,'PROGRAMMING ERROR IN SHELL_SIZES')
                Write (6,*) nShBF(irp,iskal)
                Write (6,*) nShOff(irp)
                Write (6,*) iShOff(irp,iSkal)
-               write(6,*) 'PROGRAMMING ERROR IN SHELL_SIZES: ',
-     >                    'SHELLS NOT CONTIGUOUS. IRP=',irp,
-     >                    '  ISKAL=',iskal
+               write(6,*) 'PROGRAMMING ERROR IN SHELL_SIZES: ',         &
+     &                    'SHELLS NOT CONTIGUOUS. IRP=',irp,            &
+     &                    '  ISKAL=',iskal
                Call Abend()
             End if
 #endif
@@ -148,7 +148,7 @@
       Write(6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)
       Write(6,'(A)') '# shell-psudoshell map vector:'
       Do irp=0, nSym-1
-        Write(6,'(A4,2X,I4,2X,A4,2X,8I4)') 'irp=',irp,'map:',
+        Write(6,'(A4,2X,I4,2X,A4,2X,8I4)') 'irp=',irp,'map:',           &
      &             (iSh2Sh(irp,iSkal),iSkal=1,nSkal)
       End Do
       Write(6,'(A)') 'SO-index to shell map vector:'

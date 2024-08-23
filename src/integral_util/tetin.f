@@ -22,7 +22,7 @@
             tetint(k,l)=Zero
             m=k-l*2
             Do 120 i=0,l
-               tetint(k,l)=tetint(k,l)+binom(l,i)*(-One)**i
+               tetint(k,l)=tetint(k,l)+binom(l,i)*(-One)**i             &
      &                    / DBLE(m+i*2+1)
 120         Continue
 110      Continue

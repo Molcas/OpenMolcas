@@ -11,7 +11,7 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,
+      SubRoutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,       &
      &                  qKappa)
 !***********************************************************************
 !                                                                      *
@@ -28,7 +28,7 @@
       use Constants, only: Two
       Implicit None
       Integer nab, mZeta, nZeta
-      Real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta),
+      Real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta),         &
      &       Zeta(mZeta), qKappa(mZeta)
       Logical Mode
 
@@ -38,8 +38,8 @@
 !--------Integrals
          Do iab = 1, nab
             Do iZeta = 1, mZeta
-               ab(iZeta,iab) =
-     &             Sqrt(Sqrt(Two*Zeta(iZeta))*Abs(abab(iZeta,iab,iab)))
+               ab(iZeta,iab) =                                          &
+     &             Sqrt(Sqrt(Two*Zeta(iZeta))*Abs(abab(iZeta,iab,iab))) &
      &                       / rKappa(iZeta)
             End Do
          End Do
@@ -47,8 +47,8 @@
 !--------Integrals for numerical estimation of the gradient.
          Do iab = 1, nab
             Do iZeta = 1, mZeta
-               ab(iZeta,iab) = Sqrt(Two*Zeta(iZeta))*
-     &                       abab(iZeta,iab,iab)
+               ab(iZeta,iab) = Sqrt(Two*Zeta(iZeta))*                   &
+     &                       abab(iZeta,iab,iab)                        &
      &                       / (rKappa(iZeta)*qKappa(iZeta))
             End Do
          End Do

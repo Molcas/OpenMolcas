@@ -24,10 +24,10 @@
 !         elements.
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
-      subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,
+      subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,                 &
      &                  Cred,nC,Scr1,nS1,Scr2,nS2)
       use Constants, only: Zero, Quart
-      use etwas, only: npSOp, CoulFac, mBas, nAsh, nIsh,
+      use etwas, only: npSOp, CoulFac, mBas, nAsh, nIsh,                &
      &                 mIrrep
       use pso_stuff, only: DSO=>D0, CMO, G1, G2
       Implicit None
@@ -38,17 +38,17 @@
 
       Integer i, j, i3adr
       Real*8 t14
-      Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,
-     &        ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd,
-     &        ni, nj, nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips,
-     &        irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl,
-     &        nu, nxvu, nt, nxvut, ix, iv, iu, itu, ituvx,
-     &        itx, ivu, itv, iScr, ixEnd, iOCMOL, iods, lSta, ixSta,
-     &        iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta,
-     &        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd,
-     &        iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx,
-     &        ixu, nCopy, nSkip1, iOff2, nSkip2, nTUV, l, nLTU,
-     &        k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1,
+      Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,   &
+     &        ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd,   &
+     &        ni, nj, nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips,   &
+     &        irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl,     &
+     &        nu, nxvu, nt, nxvut, ix, iv, iu, itu, ituvx,              &
+     &        itx, ivu, itv, iScr, ixEnd, iOCMOL, iods, lSta, ixSta,    &
+     &        iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta,          &
+     &        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd,  &
+     &        iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx,             &
+     &        ixu, nCopy, nSkip1, iOff2, nSkip2, nTUV, l, nLTU,         &
+     &        k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1,        &
      &        itSta, iOff1, ipSO
       Real*8 Fact
 ! Triangular addressing without symmetry:
@@ -179,7 +179,7 @@
  130   continue
  140  continue
 #ifdef _DEBUGPRINT_
-      Call RecPrt('G2-G1G1(MO)',' ',Scr1,
+      Call RecPrt('G2-G1G1(MO)',' ',Scr1,                               &
      &            nash(iSym)*nash(jSym),nash(kSym)*nash(lsym))
 #endif
 !
@@ -195,10 +195,10 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  210  continue
-      call DGEMM_('N','T',
-     &            nskip2,ntuv,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr1,ntuv,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,ntuv,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr1,ntuv,                                            &
      &            0.0d0,Scr2,nskip2)
 ! Transform:
 !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
@@ -212,10 +212,10 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  220  continue
-      call DGEMM_('N','T',
-     &            nskip2,nltu,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr2,nltu,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,nltu,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr2,nltu,                                            &
      &            0.0d0,Scr1,nskip2)
 ! Transform:
 !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
@@ -229,10 +229,10 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  230  continue
-      call DGEMM_('N','T',
-     &            nskip2,nklt,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr1,nklt,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,nklt,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr1,nklt,                                            &
      &            0.0d0,Scr2,nskip2)
 ! Transform:
 !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
@@ -246,13 +246,13 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  240  continue
-      call DGEMM_('N','T',
-     &            nskip2,njkl,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr2,njkl,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,njkl,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr2,njkl,                                            &
      &            0.0d0,Scr1,nskip2)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('G2-G1G1(SO)',' ',Scr1,
+      Call RecPrt('G2-G1G1(SO)',' ',Scr1,                               &
      &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
 #endif
 !
@@ -301,7 +301,7 @@
            PSOPam(ipso)=PSOPam(ipso)-t14*DSO(ioDr+ipr,1)*DSO(ioDs+isq,1)
           end if
           if(isym.eq.jsym) then
-           PSOPam(ipso)=PSOPam(ipso)
+           PSOPam(ipso)=PSOPam(ipso)                                    &
      &                 +DSO(ioDq+ipq,1)*DSO(ioDs+irs,1)*coulfac
           end if
  310     continue

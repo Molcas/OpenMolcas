@@ -40,7 +40,7 @@
 !***********************************************************************
       use setup, only: mSkal, nAux, nSOs
       use k2_structure, only: IndK2
-      use k2_arrays, only: ipDijS, Sew_Scr,Aux, DeDe, FT, iSOSym,
+      use k2_arrays, only: ipDijS, Sew_Scr,Aux, DeDe, FT, iSOSym,       &
      &                     nDeDe, nFT, Create_BraKet, Destroy_Braket
       use iSD_data, only: iSD
       use Basis_Info, only: Shells
@@ -63,29 +63,29 @@
       Real*8  TInt(nTInt)
 !
 #include "ibas_ricd.fh"
-      Integer::
-     &        ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
-     &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,
+      Integer::                                                         &
+     &        ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,                &
+     &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,  &
      &        ipMem1, ipMem2, Mem1,Mem2
 
 !     other local variables
       Integer iS_,jS_,kS_,lS_
       Real*8  Coor(3,4), Tmax
       Integer n
-      Integer iTmp, Nr_of_D, nIJKL,
+      Integer iTmp, Nr_of_D, nIJKL,                                     &
      &        ipDum , MemPrm
       Integer, External:: MemSO2
-      Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
-     &        iBasi,jBasj,kBask,lBasl,
-     &        iBasn,jBasn,kBasn,lBasn,
-     &        nDCRR,nDCRS, ipTmp,
-     &        mDij,mDik,mDjk,mDkl,mDil,mDjl,
-     &        mDCRij,mDCRik,mDCRjk,mDCRkl,mDCRil,mDCRjl,
+      Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,                    &
+     &        iBasi,jBasj,kBask,lBasl,                                  &
+     &        iBasn,jBasn,kBasn,lBasn,                                  &
+     &        nDCRR,nDCRS, ipTmp,                                       &
+     &        mDij,mDik,mDjk,mDkl,mDil,mDjl,                            &
+     &        mDCRij,mDCRik,mDCRjk,mDCRkl,mDCRil,mDCRjl,                &
      &        ipDij,ipDik,ipDjk,ipDkl,ipDil,ipDjl, nZeta, nEta
-      Integer nSO,iBasAO,jBasAO,kBasAO,lBasAO,
+      Integer nSO,iBasAO,jBasAO,kBasAO,lBasAO,                          &
      &        iS,jS,kS,lS,ijS,klS,ikS,ilS,jkS,jlS
       Logical IJeqKL
-      Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4),
+      Integer iAngV(4),iCmpV(4), iShelV(4),iShllV(4),iAOV(4),iStabs(4), &
      &        MemMax, kOp(4)
       Logical Shijij, NoInts
       Real*8, pointer:: SOInt(:), AOInt(:)
@@ -96,20 +96,20 @@
 !                                                                      *
       Abstract Interface
 
-      SubRoutine TwoEl(iS_,jS_,kS_,lS_,
-     &           Coor,
-     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
-     &           NoInts, iStabs,
-     &           nAlpha,iPrInc, nBeta,jPrInc,
-     &           nGamma,kPrInc,nDelta,lPrInc,
-     &           nData1,nData2,
-     &           k2data1, k2data2,
-     &           IJeqKL,kOp,
-     &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
-     &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
-     &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
-     &           FckTmp,nFT,nZeta,nEta,
-     &           SOInt,nSOInt,Wrk,nWork2,
+      SubRoutine TwoEl(iS_,jS_,kS_,lS_,                                 &
+     &           Coor,                                                  &
+     &           iAnga,iCmp,iShell,iShll,iAO,iAOst,                     &
+     &           NoInts, iStabs,                                        &
+     &           nAlpha,iPrInc, nBeta,jPrInc,                           &
+     &           nGamma,kPrInc,nDelta,lPrInc,                           &
+     &           nData1,nData2,                                         &
+     &           k2data1, k2data2,                                      &
+     &           IJeqKL,kOp,                                            &
+     &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,       &
+     &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,       &
+     &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,   &
+     &           FckTmp,nFT,nZeta,nEta,                                 &
+     &           SOInt,nSOInt,Wrk,nWork2,                               &
      &           Shijij,Aux,nAux)
       use k2_Structure, only: k2_type
       Implicit None
@@ -123,13 +123,13 @@
       Type(k2_type) k2data1(nData1), k2data2(nData2)
       Logical IJeqKL
       Integer kOp(4)
-      Integer mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,
+      Integer mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,                      &
      &        mDil,mDCRil,mDjk,mDCRjk,mDjl,mDCRjl
-      Real*8  Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
+      Real*8  Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),       &
      &        Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Integer nAlpha, nBeta, nGamma, nDelta
       Integer iBasi, jBasj, kBask, lBasl
-      Real*8 Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
+      Real*8 Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),                 &
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
       Integer nFT
       Real*8  FckTmp(nFT)
@@ -161,8 +161,8 @@
 #ifdef _DEBUGBREIT_
 !     use the Breit option computing 1/r^3 integralas but convert to
 !     conventional 1/r integrals
-      If (.NOT.DoFock .and.
-     &    SuperName/= 'gateway' .and.
+      If (.NOT.DoFock .and.                                             &
+     &    SuperName/= 'gateway' .and.                                   &
      &    nIrrep==1) Call Set_Breit(1)
 #endif
       mDCRij=1
@@ -177,7 +177,7 @@
 !***********************************************************************
 !                                                                      *
       If (.Not.Allocated(iSOSym)) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &               'Eval_Ints_: Integral environment is not set up!')
          Call Abend()
       End If
@@ -225,7 +225,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,
+      Call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,             &
      &               iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
 !                                                                      *
 !***********************************************************************
@@ -253,8 +253,8 @@
 !                                                                      *
 !
 !     No SO block in direct construction of the Fock matrix.
-      nSO = MemSO2(iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),
-     &             iShelV(1),iShelV(2),iShelV(3),iShelV(4),
+      nSO = MemSO2(iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),                 &
+     &             iShelV(1),iShelV(2),iShelV(3),iShelV(4),             &
      &             iAOV(1),iAOV(2),iAOV(3),iAOV(4))
       If (nSO.eq.0) Then
         Return
@@ -321,13 +321,13 @@
 !                                                                      *
 !     Decide on the partioning of the shells based on the
 !     available memory and the requested memory.
-      Call PSOAO0(nSO,MemPrm,MemMax,
-     &            iAngV,iCmpV,
-     &            iBasi,iBsInc,jBasj,jBsInc,
-     &            kBask,kBsInc,lBasl,lBsInc,
-     &            iPrimi,iPrInc,jPrimj,jPrInc,
-     &            kPrimk,kPrInc,lPriml,lPrInc,
-     &            ipMem1,ipMem2,
+      Call PSOAO0(nSO,MemPrm,MemMax,                                    &
+     &            iAngV,iCmpV,                                          &
+     &            iBasi,iBsInc,jBasj,jBsInc,                            &
+     &            kBask,kBsInc,lBasl,lBsInc,                            &
+     &            iPrimi,iPrInc,jPrimj,jPrInc,                          &
+     &            kPrimk,kPrInc,lPriml,lPrInc,                          &
+     &            ipMem1,ipMem2,                                        &
      &            Mem1,Mem2,DoFock)
 #ifdef _DEBUGPRINT_
 !     Write (6,*) ' ************** Memory partioning **************'
@@ -371,9 +371,9 @@
 !           order density matrix.
 !
             If (DoFock) Then
-               Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
-     &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,
-     &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),
+               Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,            &
+     &                     jBasj,jBsInc,jPrimj,jBasAO,jBasn,            &
+     &                     iCmpV(1),iCmpV(2),iShelV(1),iShelV(2),       &
      &                     mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
             End If
 !
@@ -382,16 +382,16 @@
                iAOst(3) = kBasAO-1
 !
                If (DoFock) Then
-                  Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
-     &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
-     &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),
+                  Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,         &
+     &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,         &
+     &                        iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),    &
      &                        mDCRik,ipDik,ipDDik,mDik,DeDe,nDeDe)
                End If
 !
                If (DoFock) Then
-                  Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
-     &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,
-     &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),
+                  Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,         &
+     &                        kBask,kBsInc,kPrimk,kBasAO,kBasn,         &
+     &                        iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),    &
      &                        mDCRjk,ipDjk,ipDDjk,mDjk,DeDe,nDeDe)
                End If
 !
@@ -400,23 +400,23 @@
                    iAOst(4) = lBasAO-1
 !
                    If (DoFock) Then
-                      Call Picky_(kBask,kBsInc,kPrimk,kBasAO,kBasn,
-     &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
-     &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),
+                      Call Picky_(kBask,kBsInc,kPrimk,kBasAO,kBasn,     &
+     &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,     &
+     &                            iCmpV(3),iCmpV(4),iShelV(3),iShelV(4),&
      &                            mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe)
                    End If
 !
                    If (DoFock) Then
-                      Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
-     &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
-     &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),
+                      Call Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,     &
+     &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,     &
+     &                            iCmpV(1),iCmpV(4),iShelV(1),iShelV(4),&
      &                            mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe)
                    End If
 !
                    If (DoFock) Then
-                      Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,
-     &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,
-     &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),
+                      Call Picky_(jBasj,jBsInc,jPrimj,jBasAO,jBasn,     &
+     &                            lBasl,lBsInc,lPriml,lBasAO,lBasn,     &
+     &                            iCmpV(2),iCmpV(4),iShelV(2),iShelV(4),&
      &                            mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe)
                    End If
 !                                                                      *
@@ -424,27 +424,27 @@
 !                                                                      *
 !                 Compute SO/AO-integrals
 !
-                  Call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,
-     &                          iAngV,iCmpV,iShelV,iShllV,
-     &                          iAOV,iAOst,NoInts,iStabs,
-     &                          iPrimi,iPrInc,jPrimj,jPrInc,
-     &                          kPrimk,kPrInc,lPriml,lPrInc,
-     &                          nDCRR,
-     &                          nDCRS,
-     &                          k2Data(:,ik2),k2Data(:,jk2),
-     &                          IJeqKL,kOp,
-     &                          DeDe(ipDDij),mDij,mDCRij,
-     &                          DeDe(ipDDkl),mDkl,mDCRkl,
-     &                          DeDe(ipDDik),mDik,mDCRik,
-     &                          DeDe(ipDDil),mDil,mDCRil,
-     &                          DeDe(ipDDjk),mDjk,mDCRjk,
-     &                          DeDe(ipDDjl),mDjl,mDCRjl,
-     &                          Shells(iShllV(1))%pCff(1,iBasAO),iBasn,
-     &                          Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
-     &                          Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
-     &                          Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
-     &                          FT,nFT,nZeta,nEta,
-     &                          SOInt,nSO,AOInt,Mem2,
+                  Call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,                   &
+     &                          iAngV,iCmpV,iShelV,iShllV,              &
+     &                          iAOV,iAOst,NoInts,iStabs,               &
+     &                          iPrimi,iPrInc,jPrimj,jPrInc,            &
+     &                          kPrimk,kPrInc,lPriml,lPrInc,            &
+     &                          nDCRR,                                  &
+     &                          nDCRS,                                  &
+     &                          k2Data(:,ik2),k2Data(:,jk2),            &
+     &                          IJeqKL,kOp,                             &
+     &                          DeDe(ipDDij),mDij,mDCRij,               &
+     &                          DeDe(ipDDkl),mDkl,mDCRkl,               &
+     &                          DeDe(ipDDik),mDik,mDCRik,               &
+     &                          DeDe(ipDDil),mDil,mDCRil,               &
+     &                          DeDe(ipDDjk),mDjk,mDCRjk,               &
+     &                          DeDe(ipDDjl),mDjl,mDCRjl,               &
+     &                          Shells(iShllV(1))%pCff(1,iBasAO),iBasn, &
+     &                          Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
+     &                          Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
+     &                          Shells(iShllV(4))%pCff(1,lBasAO),lBasn, &
+     &                          FT,nFT,nZeta,nEta,                      &
+     &                          SOInt,nSO,AOInt,Mem2,                   &
      &                          Shijij,Aux,nAux)
 !                                                                      *
 !***********************************************************************
@@ -478,20 +478,20 @@
 !                    Get max AO/SO integrals
                      If (nIrrep.eq.1) Then
                         n=nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-                        Tmax=max(Tmax,
+                        Tmax=max(Tmax,                                  &
      &                       abs(AOInt(iDAMax_(n,AOInt,1))))
                      Else
                         n=nijkl*nSO
-                        Tmax=max(Tmax,
+                        Tmax=max(Tmax,                                  &
      &                        abs(SOInt(iDAMax_(n,SOInt,1))))
                      End If
                      If (Tmax.gt.CutInt) Then
-                        Call Int_PostProcess(iCmpV,iShelV,
-     &                                       iBasn,jBasn,kBasn,lBasn,
-     &                                       kOp,
-     &                                       Shijij,iAOV,iAOst,nijkl,
-     &                                       AOInt,SOInt,nSO,
-     &                                       iSOSym,nSOs,
+                        Call Int_PostProcess(iCmpV,iShelV,              &
+     &                                       iBasn,jBasn,kBasn,lBasn,   &
+     &                                       kOp,                       &
+     &                                       Shijij,iAOV,iAOst,nijkl,   &
+     &                                       AOInt,SOInt,nSO,           &
+     &                                       iSOSym,nSOs,               &
      &                                       TInt,nTInt,nIrrep)
                      Else
                         Tmax=Zero
@@ -529,8 +529,8 @@
 
       Do iA = 1, nA
          Do i_ijkl = 1, nijkl
-            IntOut(i_ijkl,1,iA) = IntIn(i_ijkl,1,iA)
-     &                          + IntIn(i_ijkl,4,iA)
+            IntOut(i_ijkl,1,iA) = IntIn(i_ijkl,1,iA)                    &
+     &                          + IntIn(i_ijkl,4,iA)                    &
      &                          + IntIn(i_ijkl,6,iA)
          End Do
       End Do

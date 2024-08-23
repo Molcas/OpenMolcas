@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
-     &                  iCmp,jCmp,iShell,jShell,
+      SubRoutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,       &
+     &                  iCmp,jCmp,iShell,jShell,                        &
      &                  iAO,jAO,nComp,Label,kOper,rHrmt)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -24,7 +24,7 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit None
-      Integer iBas,jBas,nSOInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,
+      Integer iBas,jBas,nSOInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,      &
      &                  iAO,jAO,nComp
       Real*8 rHrmt
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
@@ -32,7 +32,7 @@
       Character(LEN=8) Label
 
       Integer, external:: iPntSO
-      Integer lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2, iPnt,
+      Integer lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2, iPnt,         &
      &        indAO1, indAO2, jBsMax, ip, Indi, Indj, nRow
 !
 #ifdef _DEBUGPRINT_

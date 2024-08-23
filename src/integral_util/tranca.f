@@ -13,7 +13,7 @@
       use Constants, only: Zero, One
       Implicit None
       Integer lMax
-      Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
+      Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6),                      &
      &          Cavsph( (lMax+1)**2 )
       Logical CarSph
 
@@ -27,17 +27,17 @@
          If (CarSph) Then
             call dcopy_(2*m+1,[Zero],0,Cavsph(iOff2),1)
 !           Call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
-            Call dGeMV_('T',nElem,2*m+1,
-     &                 One,RSph(ipSph(m)),nElem,
-     &                     Cavxyz(iOff1),1,
+            Call dGeMV_('T',nElem,2*m+1,                                &
+     &                 One,RSph(ipSph(m)),nElem,                        &
+     &                     Cavxyz(iOff1),1,                             &
      &                 Zero,CavSph(iOff2),1)
 !           Call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
          Else
             call dcopy_(nElem,[Zero],0,Cavxyz(iOff1),1)
 !           Call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
-            Call dGeMV_('N',nElem,2*m+1,
-     &                 One,RSph(ipSph(m)),nElem,
-     &                     Cavsph(iOff2),1,
+            Call dGeMV_('N',nElem,2*m+1,                                &
+     &                 One,RSph(ipSph(m)),nElem,                        &
+     &                     Cavsph(iOff2),1,                             &
      &                 Zero,Cavxyz(iOff1),1)
 !           Call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
          End If

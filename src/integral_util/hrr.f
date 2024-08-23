@@ -33,14 +33,14 @@
       Integer la, lb, nPrim, nTrgt, ipIn
       Real*8 Target(nPrim,nTrgt), A(3), B(3)
 
-      Integer ixyz, ix, iz, ib, ia, ib1, ia1, iab1, ia1b, iaMax,
+      Integer ixyz, ix, iz, ib, ia, ib1, ia1, iab1, ia1b, iaMax,        &
      &        ib1Max, iaMin, nElem, Ind1, ipRslt, iab
       Real*8 AB(3), ABSqrt
 !
 !     Statement function for canonical indices
 !
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      Ind1(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6
+      Ind1(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6                       &
      &                 + (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 !
 !     Fast exit if HRR will not be applied.
@@ -68,13 +68,13 @@
 !                 Low loading of target integrals.
                   iab1 = nElem(ib1)*(Ind1(ia,ia,0)-Ind1(iaMin,iaMin,0))
 !                 High access of source integrals.
-                  iab  =  nTrgt - nElem(ib)*(Ind1(iaMax+1,0,iaMax+1) -
+                  iab  =  nTrgt - nElem(ib)*(Ind1(iaMax+1,0,iaMax+1) -  &
      &                    Ind1(ia,ia,0)+1)
-                  ia1b =  nTrgt - nElem(ib)*(Ind1(iaMax+1,0,iaMax+1) -
+                  ia1b =  nTrgt - nElem(ib)*(Ind1(iaMax+1,0,iaMax+1) -  &
      &                    Ind1(ia1,ia1,0)+1)
                Else
 !                 High loading of target integrals.
-                  iab1 = nTrgt - nElem(ib1)*(Ind1(iaMax,0,iaMax) -
+                  iab1 = nTrgt - nElem(ib1)*(Ind1(iaMax,0,iaMax) -      &
      &                   Ind1(ia,ia,0)+1)
 !                 Low access of source integrals.
                   iab  = nElem(ib)*(Ind1(ia,ia,0)-Ind1(iaMin,iaMin,0))
@@ -84,9 +84,9 @@
 !
 !              Generate this block of integrals with the HRR
 !
-               Call HRR1(Target(1,iab1+1),nElem(ia)*nElem(ib1),
-     &                   Target(1,ia1b+1),nElem(ia1)*nElem(ib),AB,
-     &                   Target(1,iab+1),nElem(ia)*nElem(ib),
+               Call HRR1(Target(1,iab1+1),nElem(ia)*nElem(ib1),         &
+     &                   Target(1,ia1b+1),nElem(ia1)*nElem(ib),AB,      &
+     &                   Target(1,iab+1),nElem(ia)*nElem(ib),           &
      &                   ia,ib,ia1,ib1,nPrim,la,lb)
 !
  15         Continue

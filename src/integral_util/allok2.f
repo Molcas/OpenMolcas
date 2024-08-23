@@ -28,14 +28,14 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       use stdalloc, only: mma_allocate
-      use k2_structure, only: k2data, Allocate_k2data, ZZZ_r, ZZZ_i,
+      use k2_structure, only: k2data, Allocate_k2data, ZZZ_r, ZZZ_i,    &
      &                        k2_Processed, nIndK2, IndK2
       Implicit None
 
-      Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
-     &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
-     &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
-     &        nZeta, ijCmp, nHm, iIrrep, ik2, j, iTri,
+      Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll, &
+     &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,    &
+     &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,      &
+     &        nZeta, ijCmp, nHm, iIrrep, ik2, j, iTri,                  &
      &        ijS, nk2_real, nData, nk2_integer
       Integer, external:: MemSO1
 !

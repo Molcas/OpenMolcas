@@ -24,7 +24,7 @@
       use Constants, only: Zero, One
       Implicit None
       Integer nPrim, mPrim
-      Real*8, Intent(In):: ExpA(nPrim), ExpB(mPrim), ZInv(nPrim,mPrim),
+      Real*8, Intent(In):: ExpA(nPrim), ExpB(mPrim), ZInv(nPrim,mPrim), &
      &                     A(3), B(3)
       Real*8, Intent(Out):: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
 
@@ -43,13 +43,13 @@
       If (ab.ne.Zero) Then
       Do jPrim = 1, mPrim
          Do iPrim = 1, nPrim
-            rKappa(iPrim,jPrim) = Exp(- ExpA(iPrim) * ExpB(jPrim) * ab *
+            rKappa(iPrim,jPrim) = Exp(- ExpA(iPrim) * ExpB(jPrim) * ab *&
      &                            ZInv(iPrim,jPrim))
-            Pcoor(iPrim,jPrim,1)=(ExpA(iPrim)*A(1)+ExpB(jPrim)*B(1)) *
+            Pcoor(iPrim,jPrim,1)=(ExpA(iPrim)*A(1)+ExpB(jPrim)*B(1)) *  &
      &                            ZInv(iPrim,jPrim)
-            Pcoor(iPrim,jPrim,2)=(ExpA(iPrim)*A(2)+ExpB(jPrim)*B(2)) *
+            Pcoor(iPrim,jPrim,2)=(ExpA(iPrim)*A(2)+ExpB(jPrim)*B(2)) *  &
      &                            ZInv(iPrim,jPrim)
-            Pcoor(iPrim,jPrim,3)=(ExpA(iPrim)*A(3)+ExpB(jPrim)*B(3)) *
+            Pcoor(iPrim,jPrim,3)=(ExpA(iPrim)*A(3)+ExpB(jPrim)*B(3)) *  &
      &                            ZInv(iPrim,jPrim)
          End Do
       End Do

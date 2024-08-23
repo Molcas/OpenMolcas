@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,
-     &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,
+      SubRoutine IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,               &
+     &                   Shijij, iAO, iAOst, ijkl,SOint,nSOint,         &
      &                   iSOSym,nSOs)
 !***********************************************************************
 !  object: to sift and index the SO integrals.                         *
@@ -30,7 +30,7 @@
       use lw_Info, only: lwInt, lwSqn, lwSyb
       use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
-      use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,
+      use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,  &
      &                     TriSyB
 #ifdef _DEBUGPRINT_
       use Constants, only: Zero, One
@@ -45,12 +45,12 @@
 !     local array
       Logical Shij, Shkl, qijij, qij, qkl
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer k12, k34, MemSO2, nUt, i1, i2, i3, i4, j1, j2, j3, j4,
-     &        jCmpMx, lCmpMx, iSymi, jSymj, kSymk, lSyml,
-     &        iSO, jSO, kSO, lSO, i12, i34, iSq1, iSq2, iSq3, iSq4,
-     &        iqq1, iqq2, iqq3, iqq4, iSym12, iSym34, iSyBlk, jSyBlk,
-     &        nij, nkl, ipP1, ipP2, ipP3, ipP4, iSOi, jSOj, kSOk, lSOl,
-     &        ij, kl, iSqNum, jSqNum, j, ix, j2max, j12, nijkl, ipD,
+      Integer k12, k34, MemSO2, nUt, i1, i2, i3, i4, j1, j2, j3, j4,    &
+     &        jCmpMx, lCmpMx, iSymi, jSymj, kSymk, lSyml,               &
+     &        iSO, jSO, kSO, lSO, i12, i34, iSq1, iSq2, iSq3, iSq4,     &
+     &        iqq1, iqq2, iqq3, iqq4, iSym12, iSym34, iSyBlk, jSyBlk,   &
+     &        nij, nkl, ipP1, ipP2, ipP3, ipP4, iSOi, jSOj, kSOk, lSOl, &
+     &        ij, kl, iSqNum, jSqNum, j, ix, j2max, j12, nijkl, ipD,    &
      &        iBin, jBin
       Real*8 AInt
       Logical dupli
@@ -177,7 +177,7 @@
 !               Write (6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
 !
                 memSO2 = memSO2 + 1
-                If ( (nSkip(j1+1)+nSkip(j2+1)+
+                If ( (nSkip(j1+1)+nSkip(j2+1)+                          &
      &                nSkip(j3+1)+nSkip(j4+1) ).ne.0 ) GoTo 310
 !
 !               Compute absolute starting SO index
@@ -263,8 +263,8 @@
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=AInt
                             iBin=(kl-1)/iQQ1 +(ij-1)/iQQ2
-                            iSqNum = (kl-iBin*iPP1)*iSq1
-     &                             + (ij-iBin*iPP2)*iSq2
+                            iSqNum = (kl-iBin*iPP1)*iSq1                &
+     &                             + (ij-iBin*iPP2)*iSq2                &
      &                             - nkl
                             Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
                             Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
@@ -298,8 +298,8 @@
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=AInt
                             iBin=(kl-1)/iQQ1 +(ij-1)/iQQ2
-                            iSqNum = (kl-iBin*iPP1)*iSq1
-     &                             + (ij-iBin*iPP2)*iSq2
+                            iSqNum = (kl-iBin*iPP1)*iSq1                &
+     &                             + (ij-iBin*iPP2)*iSq2                &
      &                             - nkl
                             Sew_Scr(lwSqN+nUt)=DBLE(iSqNum)
                             Sew_Scr(lwSyB+nUt)=DBLE(iBin+iStBin(iSyBlk))
@@ -309,8 +309,8 @@
                             nUt=nUt+1
                             Sew_Scr(lwInt+nUt)=AInt
                             jBin=(kl-1)/iQQ3 +(ij-1)/iQQ4
-                            jSqNum = (kl-jBin*iPP3)*iSq3
-     &                             + (ij-jBin*iPP4)*iSq4
+                            jSqNum = (kl-jBin*iPP3)*iSq3                &
+     &                             + (ij-jBin*iPP4)*iSq4                &
      &                             - nij
                             Sew_Scr(lwSqN+nUt)=DBLE(jSqNum)
                             Sew_Scr(lwSyB+nUt)=DBLE(jBin+iStBin(jSyBlk))

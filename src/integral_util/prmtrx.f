@@ -44,22 +44,22 @@
                   Type = .False.
                   Write (6,*)
                   Write (6,*)
-                  Write (6,'(A,A,A,I2)')
-     &                  ' SO Integrals of type ', Label,' Component ',
+                  Write (6,'(A,A,A,I2)')                                &
+     &                  ' SO Integrals of type ', Label,' Component ',  &
      &                     iComp
                End If
                Line=''
                If (iIrrep.eq.jIrrep) Then
-                  Write (Line,'(1X,A,I1)')
+                  Write (Line,'(1X,A,I1)')                              &
      &            ' Diagonal Symmetry Block ', iIrrep+1
-                  Call TriPrt(Line,' ',
+                  Call TriPrt(Line,' ',                                 &
      &                 Matrix(ip1),nBas(iIrrep))
                   ip1 = ip1 + nBas(iIrrep)*(nBas(iIrrep)+1)/2
                Else
-                  Write (Line,'(1X,A,I1,A,I1)')
-     &            ' Off-diagonal Symmetry Block ',
+                  Write (Line,'(1X,A,I1,A,I1)')                         &
+     &            ' Off-diagonal Symmetry Block ',                      &
      &            iIrrep+1, ',' , jIrrep+1
-                  Call RecPrt(Line,' ',
+                  Call RecPrt(Line,' ',                                 &
      &                        Matrix(ip1),nBas(iIrrep),nBas(jIrrep))
                   ip1 = ip1 + nBas(iIrrep)*nBas(jIrrep)
                End If

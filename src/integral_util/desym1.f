@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,iAO,jAO,DAO,iBas,jBas,
+      Subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,        &
+     &                  iShll,jShll,iAO,jAO,DAO,iBas,jBas,              &
      &                  DSO,nDSO,nOp,FactNd,Scrt)
 !***********************************************************************
 !                                                                      *
@@ -26,9 +26,9 @@
       use SOAO_Info, only: iAOtSO
       use Constants, only: Zero, Two, One
       Implicit None
-      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,
+      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,      &
      &        iAO,jAO,iBas,jBas,nDSO
-      Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO),
+      Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO),             &
      &       Scrt(iBas*jBas)
       Integer nOp(2)
       Real*8 FactNd
@@ -69,15 +69,15 @@
 !-----------------Parity factor due to symmetry operations applied to
 !                 angular part of the basis function.
 !
-                  Call DaXpY_(iBas*jBas,Deg*Xa*Xb,
-     &                       DSO(1,lSO),1,
+                  Call DaXpY_(iBas*jBas,Deg*Xa*Xb,                      &
+     &                       DSO(1,lSO),1,                              &
      &                       DAO(1,i1,i2),1)
 !
-                  If (iShell.eq.jShell .and. j1.eq.j2 .and.
+                  If (iShell.eq.jShell .and. j1.eq.j2 .and.             &
      &                i1.ne.i2) Then
                      Call DGeTMO(DSO(1,lSO),iBas,iBas,jBas,Scrt,jBas)
-                     Call DaXpY_(iBas*jBas,Deg*Xa*Xb,
-     &                          Scrt,1,
+                     Call DaXpY_(iBas*jBas,Deg*Xa*Xb,                   &
+     &                          Scrt,1,                                 &
      &                          DAO(1,i2,i1),1)
                   End If
  400           Continue

@@ -46,13 +46,13 @@
             expsum=Zeta(iZeta)
             ier=0
             l=ir-icop
-            Call dqagi(fradf,Rmatr,1,Epsabs,Epsrel,result,abser,neval,
-     &                 ier,
+            Call dqagi(fradf,Rmatr,1,Epsabs,Epsrel,result,abser,neval,  &
+     &                 ier,                                             &
      &                 limit,lenw,last,iScrt,Scrt)
             If (ier.gt.0) Then
-               Call WarningMessage(1,
+               Call WarningMessage(1,                                   &
      &         ' WARNING in Radlq; Consult output for details!')
-               write(6,*) ' ier=',ier,
+               write(6,*) ' ier=',ier,                                  &
      &                    ' Error in Dqagi called from Radlq.'
                write(6,*) ' result=',result
                write(6,*) ' abser =',abser

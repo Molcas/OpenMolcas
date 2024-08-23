@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
+      SubRoutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,        &
      &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -23,13 +23,13 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       Implicit None
-      Integer iBas, jBas, nSOInt, nPrp, lOper,
+      Integer iBas, jBas, nSOInt, nPrp, lOper,                          &
      &                  iCmp,jCmp,iShell,jShell,iAO,jAO
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
 
       Integer, external:: iPntSO
-      Integer i, j, iTri, lSO, j1, i1, j2, j12, i2, iSO1, iSO2, iPnt,
+      Integer i, j, iTri, lSO, j1, i1, j2, j12, i2, iSO1, iSO2, iPnt,   &
      &        iSO, jSO, Indij, nRow, IndAO1, IndAO2, ip
 !                                                                      *
 !***********************************************************************
@@ -59,7 +59,7 @@
 
          Do 400 i2 = 1, jCmp
           If (iAOtSO(jAO+i2,j2)<0) Cycle
-          If (iShell.eq.jShell .and. j1.eq.j2 .and.
+          If (iShell.eq.jShell .and. j1.eq.j2 .and.                     &
      &        i1<i2) Cycle
 
           lSO = lSO + 1
@@ -77,7 +77,7 @@
             jSO=iSO2+IndAO2-1
 
 !           Diagonal block. Store only unique elements
-            If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.
+            If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.                       &
      &          iSO<jSO) Cycle
 
             If (j1.eq.j2) Then

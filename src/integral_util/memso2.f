@@ -11,8 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Integer Function MemSO2(iCmp,jCmp,kCmp,lCmp,
-     &                        iShell,jShell,kShell,lShell,
+      Integer Function MemSO2(iCmp,jCmp,kCmp,lCmp,                      &
+     &                        iShell,jShell,kShell,lShell,              &
      &                        iAO,jAO,kAO,lAO)
 !***********************************************************************
 !  Object: to compile the number of SO block which will be generated   *
@@ -31,10 +31,10 @@
       use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep
       Implicit None
-      Integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell,
+      Integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell,   &
      &        iAO, jAO, kAO, lAO
 
-      Integer i1, i2, i3, i4, j1, j2, j3, j4, j12, jCmpMx, kCmpMx,
+      Integer i1, i2, i3, i4, j1, j2, j3, j4, j12, jCmpMx, kCmpMx,      &
      &        lCmpMx, j2Max, j3Max
       Logical Shij, Shkl, Shik, Shjl
 !
@@ -93,14 +93,14 @@
                 If (iAOtSO(jAO+i2,j2)<0) Cycle
                 j12 = iEor(j1,j2)
                 j3Max = nIrrep-1
-                If (Shik .and. i1.eq.i3 .and.
+                If (Shik .and. i1.eq.i3 .and.                           &
      &              Shjl .and. i2.eq.i4) j3Max = j1
                 Do 310 j3 = 0, j3Max
                    If (iAOtSO(kAO+i3,j3)<0) Cycle
                    j4 = iEor(j12,j3)
                    If (iAOtSO(lAO+i4,j4)<0) Cycle
                    If (Shkl .and. i3.eq.i4 .and. j4.gt.j3) Go To 310
-                   If (Shik .and. i1.eq.i3 .and. Shjl .and. i2.eq.i4
+                   If (Shik .and. i1.eq.i3 .and. Shjl .and. i2.eq.i4    &
      &                      .and. j1.eq.j3 .and. j4.gt.j2) Go To 310
                    MemSO2 = MemSO2 + 1
 !

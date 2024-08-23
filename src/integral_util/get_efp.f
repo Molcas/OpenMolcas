@@ -11,7 +11,7 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
       Subroutine GET_EFP()
-      use EFP_Module, only: lEFP, Coor_Type, nEFP_Fragments, Frag_Type,
+      use EFP_Module, only: lEFP, Coor_Type, nEFP_Fragments, Frag_Type, &
      &                      ABC, C_Int, EFP_Coors, nEFP_Coor
       Implicit None
 

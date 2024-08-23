@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
+      Subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,            &
      &                iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
@@ -38,9 +38,9 @@
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
 
-      Integer i, j, iTri, nUt, iAOSti, iAOStj, iAOStk, iAOStl,
-     &        iAOi, iAOj, iAOk, iAOl, i1, i2, i3, i4, nij, mij,
-     &        iSO, jSO, kSO, lSO, iSOi, jSOj, kSOk, lSOl, nijkl,
+      Integer i, j, iTri, nUt, iAOSti, iAOStj, iAOStk, iAOStl,          &
+     &        iAOi, iAOj, iAOk, iAOl, i1, i2, i3, i4, nij, mij,         &
+     &        iSO, jSO, kSO, lSO, iSOi, jSOj, kSOk, lSOl, nijkl,        &
      &        iSOij, iSOkl, ijklCmp, iBin
       Real*8 AInt
 #ifdef _DEBUGPRINT_
@@ -55,7 +55,7 @@
       r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
       Write (6,*) ' Sum=',r1
       Write (6,*) ' Dot=',r2
-      Call RecPrt(' In Plf2: AOInt',' ',
+      Call RecPrt(' In Plf2: AOInt',' ',                                &
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 !
@@ -118,7 +118,7 @@
                             iBin=(iSOkl-1)/mij
 !                           Write (*,*) 'iBin=',iBin+1
                             Sew_Scr(lwSyB+nUt)=DBLE(iBin+1)
-                            Sew_Scr(lwSqN+nUt)=DBLE((iSOkl-1-iBin*mij)
+                            Sew_Scr(lwSqN+nUt)=DBLE((iSOkl-1-iBin*mij)  &
      &                                      *nij+iSOij)
 !                           Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 !
@@ -128,7 +128,7 @@
                                iBin=(iSOij-1)/mij
 !                              Write (*,*) 'iBin=',iBin+1
                                Sew_Scr(lwSyB+nUt)=DBLE(iBin+1)
-                               Sew_Scr(lwSqN+nUt)=
+                               Sew_Scr(lwSqN+nUt)=                      &
      &                               DBLE((iSOij-1-iBin*mij)*nij+iSOkl)
 !                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
                             End If

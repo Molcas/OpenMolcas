@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Phase(iCmp, jCmp, kCmp, lCmp, iAng,
+      Subroutine Phase(iCmp, jCmp, kCmp, lCmp, iAng,                    &
      &                 iShll, kOp, ijkl, AOInt)
 !***********************************************************************
 !                                                                      *
@@ -30,7 +30,7 @@
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iAng(4), iShll(4)
 
-      Integer ixyz, iOff, ii, jj, kk, ll, i1, i2, i3, i4,
+      Integer ixyz, iOff, ii, jj, kk, ll, i1, i2, i3, i4,               &
      &        iChBs, jChBs, kChBs, lChBs
       Real*8 pa1T, pb1T, pa2T, pb2T, Factor
       Integer, External:: iPrmt
@@ -66,7 +66,7 @@
           If (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
           pb2T = DBLE(iPrmt(kOp,lChBs))
           Factor=pa1T*pb1T*pa2T*pb2T
-          If (Factor.ne.One) Call DScal_(ijkl,Factor,
+          If (Factor.ne.One) Call DScal_(ijkl,Factor,                   &
      &                                  AOInt(1,i1,i2,i3,i4),1)
  13      Continue
  12     Continue

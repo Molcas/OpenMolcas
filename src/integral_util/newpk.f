@@ -29,7 +29,7 @@
       use Constants, only: Zero, One, TwoP54
       Implicit None
       Integer mZeta, nZeta
-      Real*8 Alpha(nZeta), Beta(nZeta), A(3), B(3), P(nZeta,3),
+      Real*8 Alpha(nZeta), Beta(nZeta), A(3), B(3), P(nZeta,3),         &
      &       rKappa(nZeta)
 !
       Real*8 AB2, Tmp0, Tmp1

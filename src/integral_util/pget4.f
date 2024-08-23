@@ -11,9 +11,9 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PGet4(iCmp,iBas,jBas,kBas,lBas,
-     &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,
-     &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
+      SubRoutine PGet4(iCmp,iBas,jBas,kBas,lBas,                        &
+     &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,               &
+     &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,             &
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 !***********************************************************************
 !                                                                      *
@@ -34,9 +34,9 @@
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero
       Implicit None
-      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,
+      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,       &
      &        mDim, nCred, nScr1, nScr2
-      Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4),
+      Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4),                       &
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer nPam(4,0:7), iCmp(4), iAO(4), iAOst(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
@@ -45,9 +45,9 @@
 
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7), iiBas(4)
-      Integer nPSOPam, in1, in2, jPam, j, i1, iSO, iSOi, MemSO2,
-     &        i2, i3, i4, iS, jS, kS, lS, j1, j2, j12, j3, j123, j4,
-     &        niSym, njSym, nkSym, nlSym, jSO, kSO, lSO, iAOi, jAOj,
+      Integer nPSOPam, in1, in2, jPam, j, i1, iSO, iSOi, MemSO2,        &
+     &        i2, i3, i4, iS, jS, kS, lS, j1, j2, j12, j3, j123, j4,    &
+     &        niSym, njSym, nkSym, nlSym, jSO, kSO, lSO, iAOi, jAOj,    &
      &        kAOk, lAOl, jSOj, kSOk, lSOl, k1, k2, k3, k4, nijkl
 !
 !     Prepare some data for Pam
@@ -69,7 +69,7 @@
          Do 10 j = 0, nIrrep-1
             Do 11 i1 = 1, iCmp(jPam)
                If (iAOtSO(iAO(jPam)+i1,j)>0) Then
-                   iSO = iAOtSO(iAO(jPam)+i1,j)
+                   iSO = iAOtSO(iAO(jPam)+i1,j)                         &
      &                 + iAOst(jPam)
                    nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
                    Do 12 iAOi = 0, iiBas(jPam)-1
@@ -88,11 +88,11 @@
 !
       If (LSA) Then
 
-      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,
-     &            Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),
+      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,              &
+     &            Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),    &
      &            nScr1)
       Else
-      Call PTrans(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,
+      Call PTrans(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,                 &
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
 !

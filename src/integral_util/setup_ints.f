@@ -24,14 +24,14 @@
 !             Sweden. January '98.                                     *
 !***********************************************************************
       use setup, only: nSOs, nAux, MxPrm
-      use k2_arrays, only: nFT, MxFT, iSOSym, Aux, FT,
+      use k2_arrays, only: nFT, MxFT, iSOSym, Aux, FT,                  &
      &                     create_braket_base
       use Basis_Info, only: nBas, nBas_Aux
       use Gateway_Info, only: CutInt, lSchw
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero
       use stdalloc, only: mma_allocate
-      use BasisMode, only: Basis_Mode, Valence_Mode, Auxiliary_Mode,
+      use BasisMode, only: Basis_Mode, Valence_Mode, Auxiliary_Mode,    &
      &                     With_Auxiliary_Mode
       Implicit None
       Logical DoFock, DoGrad, Indexation

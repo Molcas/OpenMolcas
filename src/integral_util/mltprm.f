@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine MltPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nComp,la,lb,A,RB,nHer,
+      SubRoutine MltPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,    &
+     &                  Final,nZeta,nComp,la,lb,A,RB,nHer,              &
      &                  Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
@@ -28,9 +28,9 @@
       use Constants
       Implicit None
       Integer nZeta, la, lb, nComp, nAlpha, nBeta, nArr, nHer, nOrdOp
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
+     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),                    &
      &       Array(nZeta*nArr), Ccoor(3)
 
       Logical ABeq(3)
@@ -73,30 +73,30 @@
 !
 !     Compute the cartesian values of the basis functions angular part
 !
-      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
+      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),                         &
      &               la,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),                        &
      &               lb,HerR(iHerR(nHer)),nHer,ABeq)
 !
 !     Compute the contribution from the multipole moment operator
 !
       ABeq(:) = .False.
-      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),
+      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),                     &
      &            nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 !
 !     Compute the cartesian components for the multipole moment
 !     integrals. The integrals are factorized into components.
 !
-       Call Assmbl(Array(ipQxyz),
-     &             Array(ipAxyz),la,
-     &             Array(ipRxyz),nOrdOp,
-     &             Array(ipBxyz),lb,
+       Call Assmbl(Array(ipQxyz),                                       &
+     &             Array(ipAxyz),la,                                    &
+     &             Array(ipRxyz),nOrdOp,                                &
+     &             Array(ipBxyz),lb,                                    &
      &             nZeta,HerW(iHerW(nHer)),nHer)
 !
 !     Combine the cartesian components to the full one electron
 !     integral.
 !
-      Call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,
+      Call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,         &
      &            Final,nComp)
 !
       Return

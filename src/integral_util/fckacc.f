@@ -1,4 +1,4 @@
-**********************************************************************
+!*********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -10,16 +10,16 @@
 !                                                                      *
 ! Copyright (C) 1993,1998, Roland Lindh                                *
 !***********************************************************************
-      Subroutine FckAcc(iAng,iCmp_, Shijij,
-     &                  iShll, iShell, kOp, nijkl,
-     &                  AOInt,TwoHam,nDens,Scrt,nScrt,
-     &                  iAO,iAOst,iBas,jBas,kBas,lBas,
-     &                  Dij,ij1,ij2,ij3,ij4,
-     &                  Dkl,kl1,kl2,kl3,kl4,
-     &                  Dik,ik1,ik2,ik3,ik4,
-     &                  Dil,il1,il2,il3,il4,
-     &                  Djk,jk1,jk2,jk3,jk4,
-     &                  Djl,jl1,jl2,jl3,jl4,
+      Subroutine FckAcc(iAng,iCmp_, Shijij,                             &
+     &                  iShll, iShell, kOp, nijkl,                      &
+     &                  AOInt,TwoHam,nDens,Scrt,nScrt,                  &
+     &                  iAO,iAOst,iBas,jBas,kBas,lBas,                  &
+     &                  Dij,ij1,ij2,ij3,ij4,                            &
+     &                  Dkl,kl1,kl2,kl3,kl4,                            &
+     &                  Dik,ik1,ik2,ik3,ik4,                            &
+     &                  Dil,il1,il2,il3,il4,                            &
+     &                  Djk,jk1,jk2,jk3,jk4,                            &
+     &                  Djl,jl1,jl2,jl3,jl4,                            &
      &                  FT,nFT,DoCoul,DoExch,ExFac)
 !***********************************************************************
 !                                                                      *
@@ -58,31 +58,31 @@
 !     Since I sometimes use Scrt as an anchor to reach into the
 !     density matrix a check if I'm out of bounds does not work!
 !
-      Integer nijkl, nDens, nScrt, nFT,
-     &       ij1,ij2,ij3,ij4,
-     &       kl1,kl2,kl3,kl4,
-     &       ik1,ik2,ik3,ik4,
-     &       il1,il2,il3,il4,
-     &       jk1,jk2,jk3,jk4,
+      Integer nijkl, nDens, nScrt, nFT,                                 &
+     &       ij1,ij2,ij3,ij4,                                           &
+     &       kl1,kl2,kl3,kl4,                                           &
+     &       ik1,ik2,ik3,ik4,                                           &
+     &       il1,il2,il3,il4,                                           &
+     &       jk1,jk2,jk3,jk4,                                           &
      &       jl1,jl2,jl3,jl4
       Integer iBas, jBas, kBas, lBas
       Real*8, target:: Scrt(nScrt)
       Integer iCmp_(4)
-      Real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)),
+      Real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)),          &
      &       TwoHam(nDens)
-      Real*8, target::
-     &       Dij(ij1*ij2+1,ij3,ij4),
-     &       Dkl(kl1*kl2+1,kl3,kl4),
-     &       Dik(ik1*ik2+1,ik3,ik4),
-     &       Dil(il1*il2+1,il3,il4),
-     &       Djk(jk1*jk2+1,jk3,jk4),
+      Real*8, target::                                                  &
+     &       Dij(ij1*ij2+1,ij3,ij4),                                    &
+     &       Dkl(kl1*kl2+1,kl3,kl4),                                    &
+     &       Dik(ik1*ik2+1,ik3,ik4),                                    &
+     &       Dil(il1*il2+1,il3,il4),                                    &
+     &       Djk(jk1*jk2+1,jk3,jk4),                                    &
      &       Djl(jl1*jl2+1,jl3,jl4)
       Real*8, Target:: FT(nFT)
-      Logical Shijij, Qijij, DoCoul, DoExch,
-     &        iShij, iShkl, iQij, iQkl,
-     &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
+      Logical Shijij, Qijij, DoCoul, DoExch,                            &
+     &        iShij, iShkl, iQij, iQkl,                                 &
+     &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,       &
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
-      Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
+      Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),            &
      &        iAO(4), iAOst(4), iCmpa(4)
       Real*8 ExFac
 
@@ -99,9 +99,9 @@
       Real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
       Real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
       Real*8 Fact, pFctr
-      Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
+      Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),             &
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
-      Real*8, pointer:: pDij(:), pDkl(:), pDik(:),
+      Real*8, pointer:: pDij(:), pDkl(:), pDik(:),                      &
      &                  pDil(:), pDjk(:), pDjl(:)
       Integer nF, ipF
 #ifdef _DEBUGPRINT_
@@ -231,7 +231,7 @@
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Shells(iShll(3))%Transf)
+               If (Shells(iShll(3))%Transf)                             &
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = Prmt(iOper(kOp(3)),kChBs)
                Do i4 = 1, lCmpMx
@@ -241,7 +241,7 @@
                   End Do
                   iSym(4)=ix
                   lChBs = iChBas(ll+i4)
-                  If (Shells(iShll(4))%Transf)
+                  If (Shells(iShll(4))%Transf)                          &
      &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= Prmt(iOper(kOp(4)),lChBs)
                   If (iShell(4).gt.iShell(3)) Then
@@ -318,8 +318,8 @@
 !
                   iOpt=0
                   ip = 1
-                  If (DoCoul .and.
-     &                iAnd(iSym(1),iSym(2)).ne.0 .and.
+                  If (DoCoul .and.                                      &
+     &                iAnd(iSym(1),iSym(2)).ne.0 .and.                  &
      &                iAnd(iSym(3),iSym(4)).ne.0) Then
                      iOpt = iOpt + 1
 !
@@ -341,7 +341,7 @@
                         vij = Dij(ij1*ij2+1,i1,i2)
                         pDij(1:ij1*ij2) => Dij(1:ij1*ij2,i1,i2)
                      End  If
-                     If (vkl*vijkl*Abs(Fac_ij).lt.ThrInt .and.
+                     If (vkl*vijkl*Abs(Fac_ij).lt.ThrInt .and.          &
      &                   vij*vijkl*Abs(Fac_kl).lt.ThrInt) Then
                         iOpt = iOpt -1
                      Else
@@ -349,8 +349,8 @@
                         lFkl=.True.
                      End If
                   End If
-                  If (DoExch .and.
-     &                iAnd(iSym(1),iSym(3)).ne.0 .and.
+                  If (DoExch .and.                                      &
+     &                iAnd(iSym(1),iSym(3)).ne.0 .and.                  &
      &                iAnd(iSym(2),iSym(4)).ne.0) Then
                      iOpt = iOpt + 2
 !
@@ -372,7 +372,7 @@
                         vik=Dik(ik1*ik2+1,i1,i3)
                         pDik(1:ik1*ik2) => Dik(1:ik1*ik2,i1,i3)
                      End If
-                     If (vik*vijkl*Abs(Fac_jl) .lt. ThrInt .and.
+                     If (vik*vijkl*Abs(Fac_jl) .lt. ThrInt .and.        &
      &                   vjl*vijkl*Abs(Fac_ik) .lt. ThrInt) Then
                         iOpt = iOpt - 2
                      Else
@@ -380,8 +380,8 @@
                         lFjl = .True.
                      End If
                   End If
-                  If (DoExch .and.
-     &                iAnd(iSym(1),iSym(4)).ne.0 .and.
+                  If (DoExch .and.                                      &
+     &                iAnd(iSym(1),iSym(4)).ne.0 .and.                  &
      &                iAnd(iSym(2),iSym(3)).ne.0) Then
                      iOpt = iOpt + 4
 !
@@ -403,7 +403,7 @@
                         vil = Dil(il1*il2+1,i1,i4)
                         pDil(1:il1*il2) => Dil(1:il1*il2,i1,i4)
                      End If
-                     If (vil*vijkl*Abs(Fac_jk) .lt. ThrInt .and.
+                     If (vil*vijkl*Abs(Fac_jk) .lt. ThrInt .and.        &
      &                   vjk*vijkl*Abs(Fac_il) .lt. ThrInt) Then
                         iOpt = iOpt -4
                      Else
@@ -419,42 +419,42 @@
 !
 !***********************************************************************
                   Case (1)
-                  Call Fck1(AOInt(:,i1,i2,i3,i4),
-     &                      pDij,Fij(:,i1,i2),Fac_ij,
+                  Call Fck1(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDij,Fij(:,i1,i2),Fac_ij,                   &
      &                      pDkl,Fkl(:,i3,i4),Fac_kl)
                   Case (2)
-                  Call Fck2(AOInt(:,i1,i2,i3,i4),
-     &                      pDik,Fik(:,i1,i3),Fac_ik,
+                  Call Fck2(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDik,Fik(:,i1,i3),Fac_ik,                   &
      &                      pDjl,Fjl(:,i2,i4),Fac_jl)
                   Case (3)
-                  Call Fck3(AOInt(:,i1,i2,i3,i4),
-     &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      pDkl,Fkl(:,i3,i4),Fac_kl,
-     &                      pDik,Fik(:,i1,i3),Fac_ik,
+                  Call Fck3(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDij,Fij(:,i1,i2),Fac_ij,                   &
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl,                   &
+     &                      pDik,Fik(:,i1,i3),Fac_ik,                   &
      &                      pDjl,Fjl(:,i2,i4),Fac_jl)
                   Case (4)
-                  Call Fck4(AOInt(:,i1,i2,i3,i4),
-     &                      pDil,Fil(:,i1,i4),Fac_il,
+                  Call Fck4(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDil,Fil(:,i1,i4),Fac_il,                   &
      &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (5)
-                  Call Fck5(AOInt(:,i1,i2,i3,i4),
-     &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      pDkl,Fkl(:,i3,i4),Fac_kl,
-     &                      pDil,Fil(:,i1,i4),Fac_il,
+                  Call Fck5(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDij,Fij(:,i1,i2),Fac_ij,                   &
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl,                   &
+     &                      pDil,Fil(:,i1,i4),Fac_il,                   &
      &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (6)
-                  Call Fck6(AOInt(:,i1,i2,i3,i4),
-     &                      pDik,Fik(:,i1,i3),Fac_ik,
-     &                      pDjl,Fjl(:,i2,i4),Fac_jl,
-     &                      pDil,Fil(:,i1,i4),Fac_il,
+                  Call Fck6(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDik,Fik(:,i1,i3),Fac_ik,                   &
+     &                      pDjl,Fjl(:,i2,i4),Fac_jl,                   &
+     &                      pDil,Fil(:,i1,i4),Fac_il,                   &
      &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (7)
-                  Call Fck7(AOInt(:,i1,i2,i3,i4),
-     &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      pDkl,Fkl(:,i3,i4),Fac_kl,
-     &                      pDik,Fik(:,i1,i3),Fac_ik,
-     &                      pDjl,Fjl(:,i2,i4),Fac_jl,
-     &                      pDil,Fil(:,i1,i4),Fac_il,
+                  Call Fck7(AOInt(:,i1,i2,i3,i4),                       &
+     &                      pDij,Fij(:,i1,i2),Fac_ij,                   &
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl,                   &
+     &                      pDik,Fik(:,i1,i3),Fac_ik,                   &
+     &                      pDjl,Fjl(:,i2,i4),Fac_jl,                   &
+     &                      pDil,Fil(:,i1,i4),Fac_il,                   &
      &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case Default
                   End Select
@@ -468,52 +468,52 @@
 !
       iIrrep=0
       Fact=One
-      If (lFij)
-     &Call FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmpa(1),iCmpa(2),
-     &            kOp2(1),kOp2(2),iIrrep,
-     &            iShij,
-     &            iAO(1),iAO(2),iAOst(1),iAOst(2),
+      If (lFij)                                                         &
+     &Call FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmpa(1),iCmpa(2),         &
+     &            kOp2(1),kOp2(2),iIrrep,                               &
+     &            iShij,                                                &
+     &            iAO(1),iAO(2),iAOst(1),iAOst(2),                      &
      &            Fact)
 !
-      If (lFkl)
-     &Call FckDst(TwoHam,nDens,Fkl,kBas,lBas,iCmpa(3),iCmpa(4),
-     &            kOp2(3),kOp2(4),iIrrep,
-     &            iShkl,
-     &            iAO(3),iAO(4),iAOst(3),iAOst(4),
+      If (lFkl)                                                         &
+     &Call FckDst(TwoHam,nDens,Fkl,kBas,lBas,iCmpa(3),iCmpa(4),         &
+     &            kOp2(3),kOp2(4),iIrrep,                               &
+     &            iShkl,                                                &
+     &            iAO(3),iAO(4),iAOst(3),iAOst(4),                      &
      &            Fact)
 !
-      If (lFik)
-     &Call FckDst(TwoHam,nDens,Fik,iBas,kBas,iCmpa(1),iCmpa(3),
-     &            kOp2(1),kOp2(3),iIrrep,
-     &            iShik,
-     &            iAO(1),iAO(3),iAOst(1),iAOst(3),
+      If (lFik)                                                         &
+     &Call FckDst(TwoHam,nDens,Fik,iBas,kBas,iCmpa(1),iCmpa(3),         &
+     &            kOp2(1),kOp2(3),iIrrep,                               &
+     &            iShik,                                                &
+     &            iAO(1),iAO(3),iAOst(1),iAOst(3),                      &
      &            Fact)
 !
-      If (lFjl)
-     &Call FckDst(TwoHam,nDens,Fjl,jBas,lBas,iCmpa(2),iCmpa(4),
-     &            kOp2(2),kOp2(4),iIrrep,
-     &            iShjl,
-     &            iAO(2),iAO(4),iAOst(2),iAOst(4),
+      If (lFjl)                                                         &
+     &Call FckDst(TwoHam,nDens,Fjl,jBas,lBas,iCmpa(2),iCmpa(4),         &
+     &            kOp2(2),kOp2(4),iIrrep,                               &
+     &            iShjl,                                                &
+     &            iAO(2),iAO(4),iAOst(2),iAOst(4),                      &
      &            Fact)
-      If (lFil)
-     &Call FckDst(TwoHam,nDens,Fil,iBas,lBas,iCmpa(1),iCmpa(4),
-     &            kOp2(1),kOp2(4),iIrrep,
-     &            iShil,
-     &            iAO(1),iAO(4),iAOst(1),iAOst(4),
+      If (lFil)                                                         &
+     &Call FckDst(TwoHam,nDens,Fil,iBas,lBas,iCmpa(1),iCmpa(4),         &
+     &            kOp2(1),kOp2(4),iIrrep,                               &
+     &            iShil,                                                &
+     &            iAO(1),iAO(4),iAOst(1),iAOst(4),                      &
      &            Fact)
-      If (lFjk)
-     &Call FckDst(TwoHam,nDens,Fjk,jBas,kBas,iCmpa(2),iCmpa(3),
-     &            kOp2(2),kOp2(3),iIrrep,
-     &            iShjk,
-     &            iAO(2),iAO(3),iAOst(2),iAOst(3),
+      If (lFjk)                                                         &
+     &Call FckDst(TwoHam,nDens,Fjk,jBas,kBas,iCmpa(2),iCmpa(3),         &
+     &            kOp2(2),kOp2(3),iIrrep,                               &
+     &            iShjk,                                                &
+     &            iAO(2),iAO(3),iAOst(2),iAOst(3),                      &
      &            Fact)
 
       Nullify(Fij,Fkl,Fik,Fil,Fjk,Fjl)
       Contains
 
       Subroutine Fck1(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dij(iBas,jBas), Fij(iBas,jBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dij(iBas,jBas), Fij(iBas,jBas),                            &
      &       Dkl(kBas,lBas), Fkl(kBas,lBas)
       Real*8 Cij, Ckl
       Integer i, j, k, l
@@ -540,8 +540,8 @@
       End Subroutine Fck1
 
       Subroutine Fck2(AOInt,Dik,Fik,Cik,Djl,Fjl,Cjl)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dik(iBas,kBas), Fik(iBas,kBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dik(iBas,kBas), Fik(iBas,kBas),                            &
      &       Djl(jBas,lBas), Fjl(jBas,lBas)
       Real*8 Cik, Cjl
       Integer i, j, k, l
@@ -567,13 +567,13 @@
       Return
       End Subroutine Fck2
 
-      Subroutine Fck3(AOInt,
-     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
+      Subroutine Fck3(AOInt,                                            &
+     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,                          &
      &                Dik,Fik,Cik,Djl,Fjl,Cjl)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dij(iBas,jBas), Fij(iBas,jBas),
-     &       Dkl(kBas,lBas), Fkl(kBas,lBas),
-     &       Dik(iBas,kBas), Fik(iBas,kBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dij(iBas,jBas), Fij(iBas,jBas),                            &
+     &       Dkl(kBas,lBas), Fkl(kBas,lBas),                            &
+     &       Dik(iBas,kBas), Fik(iBas,kBas),                            &
      &       Djl(jBas,lBas), Fjl(jBas,lBas)
       Real*8 Cij, Ckl, Cik, Cjl
       Integer i, j, k, l
@@ -606,8 +606,8 @@
       End Subroutine Fck3
 
       Subroutine Fck4(AOInt,Dil,Fil,Cil,Djk,Fjk,Cjk)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dil(iBas,lBas), Fil(iBas,lBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dil(iBas,lBas), Fil(iBas,lBas),                            &
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
       Real*8 Cil, Cjk
       Integer i, j, k, l
@@ -634,13 +634,13 @@
       Return
       End Subroutine Fck4
 
-      Subroutine Fck5(AOInt,
-     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
+      Subroutine Fck5(AOInt,                                            &
+     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,                          &
      &                Dil,Fil,Cil,Djk,Fjk,Cjk)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dij(iBas,jBas), Fij(iBas,jBas),
-     &       Dkl(kBas,lBas), Fkl(kBas,lBas),
-     &       Dil(iBas,lBas), Fil(iBas,lBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dij(iBas,jBas), Fij(iBas,jBas),                            &
+     &       Dkl(kBas,lBas), Fkl(kBas,lBas),                            &
+     &       Dil(iBas,lBas), Fil(iBas,lBas),                            &
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
       Real*8 Cij, Ckl, Cil, Cjk
       Integer i, j, k, l
@@ -672,13 +672,13 @@
       Return
       End Subroutine Fck5
 
-      Subroutine Fck6(AOInt,
-     &                Dik,Fik,Cik,Djl,Fjl,Cjl,
+      Subroutine Fck6(AOInt,                                            &
+     &                Dik,Fik,Cik,Djl,Fjl,Cjl,                          &
      &                Dil,Fil,Cil,Djk,Fjk,Cjk)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dik(iBas,kBas), Fik(iBas,kBas),
-     &       Djl(jBas,lBas), Fjl(jBas,lBas),
-     &       Dil(iBas,lBas), Fil(iBas,lBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dik(iBas,kBas), Fik(iBas,kBas),                            &
+     &       Djl(jBas,lBas), Fjl(jBas,lBas),                            &
+     &       Dil(iBas,lBas), Fil(iBas,lBas),                            &
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
       Real*8 Cik, Cjl, Cil, Cjk
       Real*8 F_jl, D_jl, F_jk, D_jk, Vijkl
@@ -710,16 +710,16 @@
       Return
       End Subroutine Fck6
 
-      Subroutine Fck7(AOInt,
-     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
-     &                Dik,Fik,Cik,Djl,Fjl,Cjl,
+      Subroutine Fck7(AOInt,                                            &
+     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,                          &
+     &                Dik,Fik,Cik,Djl,Fjl,Cjl,                          &
      &                Dil,Fil,Cil,Djk,Fjk,Cjk)
-      Real*8 AOInt(iBas,jBas,kBas,lBas),
-     &       Dij(iBas,jBas), Fij(iBas,jBas),
-     &       Dkl(kBas,lBas), Fkl(kBas,lBas),
-     &       Dik(iBas,kBas), Fik(iBas,kBas),
-     &       Djl(jBas,lBas), Fjl(jBas,lBas),
-     &       Dil(iBas,lBas), Fil(iBas,lBas),
+      Real*8 AOInt(iBas,jBas,kBas,lBas),                                &
+     &       Dij(iBas,jBas), Fij(iBas,jBas),                            &
+     &       Dkl(kBas,lBas), Fkl(kBas,lBas),                            &
+     &       Dik(iBas,kBas), Fik(iBas,kBas),                            &
+     &       Djl(jBas,lBas), Fjl(jBas,lBas),                            &
+     &       Dil(iBas,lBas), Fil(iBas,lBas),                            &
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
       Real*8 Cij, Ckl, Cik, Cjl, Cil, Cjk
       Integer i, j, k, l

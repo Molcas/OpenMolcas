@@ -11,9 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CrSph1(Win,ijkla,
-     &                  Scrt,nScrt,
-     &                  Coeff3,kCar,kSph,Tr3,
+      SubRoutine CrSph1(Win,ijkla,                                      &
+     &                  Scrt,nScrt,                                     &
+     &                  Coeff3,kCar,kSph,Tr3,                           &
      &                  Coeff4,lCar,lSph,Tr4,Wout,mcd)
 !***********************************************************************
 !                                                                      *
@@ -27,7 +27,7 @@
 !***********************************************************************
       Implicit None
       Integer, Intent(in):: ijkla, kCar, lCar, kSph, lSph, nScrt, mcd
-      Real*8, Intent(In):: Win(ijkla*kCar*lCar),
+      Real*8, Intent(In):: Win(ijkla*kCar*lCar),                        &
      &                     Coeff3(kCar,kCar), Coeff4(lCar,lCar)
       Real*8, Intent(inout):: Scrt(nScrt)
       Real*8, Intent(inout):: Wout(mcd*ijkla)

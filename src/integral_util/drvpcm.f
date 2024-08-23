@@ -12,7 +12,7 @@
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
       use Basis_Info, only: nCnttp, DBSC, nBas
       use Center_Info, only: DC
-      use PCM_arrays, only: PCMTess, PCMDM, DiagScale, nTiles,
+      use PCM_arrays, only: PCMTess, PCMDM, DiagScale, nTiles,          &
      &                      C_Tessera, Q_Tessera
       use Symmetry_Info, only: nIrrep, iChBas
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,8 +22,8 @@
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
       Logical First, Dff, NonEq
 
-      Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),
-     &                      V_Slow(:), Q_Slow(:), V_Save(:,:),
+      Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),        &
+     &                      V_Slow(:), Q_Slow(:), V_Save(:,:),          &
      &                      V_Tile(:,:)
       Integer nDC, nC, jCnttp, mCnt, jCnt, i, MaxAto
       Real*8 Z, RepNuc
@@ -48,7 +48,7 @@
          Do jCnt = 1, mCnt
             ndc = ndc + 1
             Do i = 0, nIrrep/dc(ndc)%nStab - 1
-               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),
+               Call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt), &
      &                 Cord(1:3,nc))
                Chrg(nc)    = Z
                nc = nc + 1
@@ -67,8 +67,8 @@
       Call mma_allocate(Q_Slow,nTs,Label='Q_Slow')
       Call mma_allocate(V_Slow,nTs,Label='V_Slow')
 !
-      Call DrvPCM_Internal(
-     &             Chrg,Cord,MaxAto,PCMTess,PCMDM,V_Tile,
+      Call DrvPCM_Internal(                                             &
+     &             Chrg,Cord,MaxAto,PCMTess,PCMDM,V_Tile,               &
      &             V_Save,PCM_Charge,Q_Slow,V_Slow,nTs,Eps,EpsInf)
 !
       Call mma_deallocate(V_Slow)
@@ -96,19 +96,19 @@
 
       contains
 
-      SubRoutine DrvPCM_Internal(
-     &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,
-     &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,
+      SubRoutine DrvPCM_Internal(                                       &
+     &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,       &
+     &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,    &
      &                   EpsInf)
       use Gateway_global, only: PrPrt
-      use Integral_Interfaces, only: int_kernel, int_mem,
+      use Integral_Interfaces, only: int_kernel, int_mem,               &
      &                               OneEl_Integrals
       use Constants, only: Zero, One, Two, Half, Pi
       Implicit None
       Integer MaxAto, nTs
-      Real*8 Z_Nuc(MaxAto),
-     &       Cord(3,MaxAto), Tessera(4,nTs), DMat(nTs,nTs),
-     &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),
+      Real*8 Z_Nuc(MaxAto),                                             &
+     &       Cord(3,MaxAto), Tessera(4,nTs), DMat(nTs,nTs),             &
+     &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),            &
      &       QTessera_Slow(nTs),VSlow(nTs)
       Real*8 Eps, EpsInf
 
@@ -123,7 +123,7 @@
       Integer nOrdOp, nComp, lOper, kOper, iTile, jTile, nInt
       Integer, External:: n2Tri
       Real*8 Origin(3), rHrmt, Xi, Yi, Zi, Dij, Xj, Yj, Zj, Rij, Fact
-      Real*8 W_or_El, W_or_Nuc, W_or_Inf, W_or_InfNuc,
+      Real*8 W_or_El, W_or_Nuc, W_or_Inf, W_or_InfNuc,                  &
      &       W_0_or_El, W_0_or_Inf, QInf, ENN, ENE, EEN, EEE, Alpha
 !                                                                      *
 !***********************************************************************
@@ -185,7 +185,7 @@
 !---- Do the nuclear contribution
 !
       Do iTile = 1, nTs
-         Call EFNuc(Tessera(1,iTile),Z_Nuc,Cord,MaxAto,
+         Call EFNuc(Tessera(1,iTile),Z_Nuc,Cord,MaxAto,                 &
      &             VTessera(1,iTile),nOrdOp)
          VTessera(2,iTile)=Zero
       End Do
@@ -305,11 +305,11 @@
       End Do
       If (First) then
          RepNuc = RepNuc + Half * ENN
-         If(NonEq)
-     &     RepNuc = RepNuc
-     &            + Half * W_or_nuc
-     &            + Half * W_or_InfNuc
-     &            - Half * W_0_or_el
+         If(NonEq)                                                      &
+     &     RepNuc = RepNuc                                              &
+     &            + Half * W_or_nuc                                     &
+     &            + Half * W_or_InfNuc                                  &
+     &            - Half * W_0_or_el                                    &
      &            - Half * W_0_or_Inf
          Label='PotNuc00'
          Call Put_Temp(Label,[RepNuc],1)
@@ -334,7 +334,7 @@
 !
          Q_Tessera(:)=QTessera(1,:)
          If (NonEq) Call DaXpY_(nTs,One,QTessera_Slow,1,Q_Tessera,1)
-         Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,
+         Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,      &
      &                        Origin,nOrdOp,rHrmt,[kOper],Integrals)
          nInt=n2Tri(lOper)
          Call CmpInt(Integrals(ip(1)),nInt,nBas,nIrrep,lOper)
@@ -354,7 +354,7 @@
 !     TwoHam + correction
 !
       Q_Tessera(:)=QTessera(2,:)
-      Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,
+      Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,  &
      &                     nOrdOp,rHrmt,[kOper],Integrals)
       nInt=n2Tri(lOper)
       Call CmpInt(Integrals(ip(1)),nInt,nBas,nIrrep,lOper)

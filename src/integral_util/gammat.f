@@ -33,8 +33,8 @@
        arg1=(DBLE(lcost)+1.0d0)/2.0d0
        arg2=(DBLE(lsint)+2.0d0)/2.0d0
        arg3=(DBLE(lsint)+DBLE(lcost)+3.0d0)/2.0d0
-       gammat=dgamma_molcas(arg1)*dgamma_molcas(arg2)/
-     >                            dgamma_molcas(arg3)
+       gammat=dgamma_molcas(arg1)*dgamma_molcas(arg2)/                  &
+     &                            dgamma_molcas(arg3)
       Endif
 !
       Return

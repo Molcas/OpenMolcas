@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine NAPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nComp,la,lb,A,RB,nRys,
+      SubRoutine NAPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,     &
+     &                 Final,nZeta,nComp,la,lb,A,RB,nRys,               &
      &                 Array,nArr,CCoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
@@ -22,7 +22,7 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden, January 1991                            *
 !***********************************************************************
-      use Basis_Info, only: Nuclear_Model, Gaussian_Type,
+      use Basis_Info, only: Nuclear_Model, Gaussian_Type,               &
      &                      mGaussian_Type, DBSC, Point_Charge
       use Constants, only: Zero, One, Two, Three, Pi, TwoP54
       Implicit None
@@ -32,17 +32,17 @@
       External TERI, ModU2, vCff2D, vRys2D
 #include "oneswi.fh"
       Integer nZeta, la, lb, nComp, nAlpha, nBeta, nArr, nRys, nOrdOp
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,2),
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
+     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
+     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,2),        &
      &       Array(nZeta*nArr)
 
 !-----Local arrys
       Real*8 C(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4)
-      Integer ixyz, nElem, nabSz, lc, ld, mabMin, mabMax, iZeta,
-     &        iCnttp, nT, mcdMin, mcdMax, ipOff, mArr, ipIn, nFlop,
+      Integer ixyz, nElem, nabSz, lc, ld, mabMin, mabMax, iZeta,        &
+     &        iCnttp, nT, mcdMin, mcdMax, ipOff, mArr, ipIn, nFlop,     &
      &        nMem
       Real*8 Q_Nuc, Eta, EInv, rKappCD
 !
@@ -80,7 +80,7 @@
 !
 !     Modify Zeta if the two-electron code will be used!
 !
-      If (Nuclear_Model.eq.Gaussian_Type .or.
+      If (Nuclear_Model.eq.Gaussian_Type .or.                           &
      &    Nuclear_Model.eq.mGaussian_Type) Then
          Do iZeta = 1, nZeta
             rKappa(iZeta)=rKappa(iZeta)*(TwoP54/Zeta(iZeta))
@@ -125,11 +125,11 @@
 !        s-type function
          mcdMin=0
          mcdMax=0
-         Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &            [Eta],[EInv],1,P,nZeta,
-     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
-     &            mabmin,mabmax,mcdMin,mcdMax,
-     &            Array,nArr*nZeta,
+         Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                             &
+     &            [Eta],[EInv],1,P,nZeta,                               &
+     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,              &
+     &            mabmin,mabmax,mcdMin,mcdMax,                          &
+     &            Array,nArr*nZeta,                                     &
      &            TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 !                                                                      *
 !***********************************************************************
@@ -143,16 +143,16 @@
          EInv=One/Eta
          rKappcd=TwoP54/Eta
 !        Tag on the normalization
-         rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
+         rKappcd=rKappcd*(Eta/Pi)**(Three/Two)                          &
      &          /(One+Three*dbsc(iCnttp)%w_mGauss/(Two*Eta))
 !        s type function
          mcdMin=0
          mcdMax=0
-         Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &            [Eta],[EInv],1,P,nZeta,
-     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
-     &            mabmin,mabmax,mcdMin,mcdMax,
-     &            Array,nArr*nZeta,
+         Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                             &
+     &            [Eta],[EInv],1,P,nZeta,                               &
+     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,              &
+     &            mabmin,mabmax,mcdMin,mcdMax,                          &
+     &            Array,nArr*nZeta,                                     &
      &            TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 !
 !        d type function w*(x**2+y**2+z**2)
@@ -162,20 +162,20 @@
             mcdMin=nabSz(2+ld-1)+1
             mcdMax = nabSz(2+ld)
 !           tweak the pointers
-            ipOff = 1 + nZeta * (la+1)*(la+2)/2
+            ipOff = 1 + nZeta * (la+1)*(la+2)/2                         &
      &            * (lb+1)*(lb+2)/2
             mArr = nArr - (la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-            Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &               [Eta],[EInv],1,P,nZeta,
-     &               C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
-     &               mabMin,mabMax,mcdMin,mcdMax,
-     &               Array(ipOff),mArr*nZeta,
+            Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                          &
+     &               [Eta],[EInv],1,P,nZeta,                            &
+     &               C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,           &
+     &               mabMin,mabMax,mcdMin,mcdMax,                       &
+     &               Array(ipOff),mArr*nZeta,                           &
      &               TERI,ModU2,vCff2D,vRys2D,NoSpecial)
             iAnga(3)=0
 !
 !           Add the s and d contributions together!
 !
-            Call Assemble_mGauss(Array,Array(ipOff),
+            Call Assemble_mGauss(Array,Array(ipOff),                    &
      &                           nZeta*(mabMax-mabMin+1))
          End If
 !                                                                      *
@@ -191,11 +191,11 @@
          rKappcd=One
          mcdMin=0
          mcdMax=0
-         Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &            [Eta],[EInv],1,P,nZeta,
-     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
-     &            mabMin,mabMax,mcdMin,mcdMax,
-     &            Array,nArr*nZeta,
+         Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                             &
+     &            [Eta],[EInv],1,P,nZeta,                               &
+     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,              &
+     &            mabMin,mabMax,mcdMin,mcdMax,                          &
+     &            Array,nArr*nZeta,                                     &
      &            TNAI,Fake,XCff2D,XRys2D,NoSpecial)
       End If
 !                                                                      *
@@ -211,7 +211,7 @@
 !
  111  Continue
 !
-      If (Nuclear_Model.eq.Gaussian_Type .or.
+      If (Nuclear_Model.eq.Gaussian_Type .or.                           &
      &    Nuclear_Model.eq.mGaussian_Type) Then
          Do iZeta = 1, nZeta
             rKappa(iZeta)=rKappa(iZeta)/(TwoP54/Zeta(iZeta))

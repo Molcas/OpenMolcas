@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991,1993,1998, Roland Lindh                           *
 !***********************************************************************
-      SubRoutine CmpctS(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,
-     &                  Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,
+      SubRoutine CmpctS(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,           &
+     &                  Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,      &
      &                  xZInv,AeqB,xab,xabCon,Alpha,xAlpha,Beta,xBeta)
 !***********************************************************************
 !                                                                      *
@@ -30,9 +30,9 @@
       use Gateway_Info, only: CutInt, cdMax
       Implicit None
       Integer mijkl, na, nb, nijkl
-      Real*8 abcd(mijkl,na,nb,na,nb), Zeta(mijkl), xab(nijkl),
-     &       KappAB(mijkl), P(nijkl,3), xZeta(nijkl), xKapp(nijkl),
-     &       xP(nijkl,3), xZInv(nijkl), Con(mijkl), xabCon(nijkl),
+      Real*8 abcd(mijkl,na,nb,na,nb), Zeta(mijkl), xab(nijkl),          &
+     &       KappAB(mijkl), P(nijkl,3), xZeta(nijkl), xKapp(nijkl),     &
+     &       xP(nijkl,3), xZInv(nijkl), Con(mijkl), xabCon(nijkl),      &
      &       Alpha(mijkl), xAlpha(nijkl), Beta(mijkl), xBeta(nijkl)
       Integer IndZ(nijkl+1), Ind_Pair(mijkl)
       Logical AeqB

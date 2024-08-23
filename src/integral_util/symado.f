@@ -8,13 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,
+      SubRoutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,       &
      &                  lOper,iChO,Factor)
       use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
       use Constants
       Implicit None
       Integer nZeta,la,lb,nComp,nIC,iDCRT
-      Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
+      Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),       &
      &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
       Integer lOper(nComp), iChO(nComp)
       Real*8 Factor
@@ -41,7 +41,7 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).eq.0) Go To 104
             iIC = iIC + 1
             Xg = DBLE(iChTbl(iIrrep,iDCRT))
-            Call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,
+            Call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,         &
      &                 ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
  104     Continue
  103  Continue

@@ -26,8 +26,8 @@
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
 
-      Integer ixyz, nabSz, ik2, iS, iShll, iShell, iCmp, iAng, iCnttp,
-     &                          jS, jShll, jShell, jCmp, jAng, jCnttp,
+      Integer ixyz, nabSz, ik2, iS, iShll, iShell, iCmp, iAng, iCnttp,  &
+     &                          jS, jShll, jShell, jCmp, jAng, jCnttp,  &
      &        ijS, nDCRR, nHm, lDCRR
       Real*8 Schwz_Tmp
 !

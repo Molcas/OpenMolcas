@@ -30,11 +30,11 @@
 !     Determine the number of shells
 !
       nSkal=0
-      If (Basis_Mode.ne.Valence_Mode .and.
-     &    Basis_Mode.ne.Auxiliary_Mode .and.
-     &    Basis_Mode.ne.Fragment_Mode .and.
-     &    Basis_Mode.ne.With_Auxiliary_Mode .and.
-     &    Basis_Mode.ne.With_Fragment_Mode .and.
+      If (Basis_Mode.ne.Valence_Mode .and.                              &
+     &    Basis_Mode.ne.Auxiliary_Mode .and.                            &
+     &    Basis_Mode.ne.Fragment_Mode .and.                             &
+     &    Basis_Mode.ne.With_Auxiliary_Mode .and.                       &
+     &    Basis_Mode.ne.With_Fragment_Mode .and.                        &
      &    Basis_Mode.ne.All_Mode) Then
          Call WarningMessage(2,'Nr_Shells: illegal Basis_Mode')
          Call Abend()
@@ -62,15 +62,15 @@
                nBasisi=Shells(iShll)%nBasis
                If (nBasisi.eq.0) Cycle
 !
-               If (Basis_Mode.eq.Valence_Mode .and.
+               If (Basis_Mode.eq.Valence_Mode .and.                     &
      &             (Shells(iShll)%Aux.or.Shells(iShll)%Frag)) Cycle
-               If (Basis_Mode.eq.Auxiliary_Mode .and.
+               If (Basis_Mode.eq.Auxiliary_Mode .and.                   &
      &             .Not.Shells(iShll)%Aux) Cycle
-               If (Basis_Mode.eq.Fragment_Mode .and.
+               If (Basis_Mode.eq.Fragment_Mode .and.                    &
      &             .Not.Shells(iShll)%Frag) Cycle
-               If (Basis_Mode.eq.With_Auxiliary_Mode .and.
+               If (Basis_Mode.eq.With_Auxiliary_Mode .and.              &
      &             Shells(iShll)%Frag) Cycle
-               If (Basis_Mode.eq.With_Fragment_Mode .and.
+               If (Basis_Mode.eq.With_Fragment_Mode .and.               &
      &             Shells(iShll)%Aux) Cycle
                nSkal = nSkal + 1
               End Do                     ! iAng

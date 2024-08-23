@@ -11,9 +11,9 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine FckAcc_NoSymq(iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                         iShell, nijkl,AOInt,FMat,DMat,nDens,
-     &                         iAO,iAOst,iBas,jBas,kBas,lBas,
+      Subroutine FckAcc_NoSymq(iCmp, jCmp, kCmp, lCmp, Shijij,          &
+     &                         iShell, nijkl,AOInt,FMat,DMat,nDens,     &
+     &                         iAO,iAOst,iBas,jBas,kBas,lBas,           &
      &                  DoCoul,DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
 !***********************************************************************
 !                                                                      *
@@ -49,7 +49,7 @@
       Implicit None
       Integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
       Integer iBas, jBas, kBas, lBas
-      Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
+      Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),             &
      &       DMat(nDens)
       Logical Shij, Shkl, Shijij, DoCoul, DoExch
       Integer iShell(4), iAO(4), iAOst(4)
@@ -59,8 +59,8 @@
       Integer, Parameter:: nCBMax=200
       Integer Indx(3,nCBMax,4)
       Integer nCmpx(4), nBasx(4)
-      Integer ntg, ii, jj, kk, ll, i1, i2, i3, i4, i, j, k, l,
-     &        ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic,
+      Integer ntg, ii, jj, kk, ll, i1, i2, i3, i4, i, j, k, l,          &
+     &        ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic,      &
      &        iSO, jSO, kSO, lSO, icb, jcb, kcb, lcb, nij
       Real*8 DMax, Thr, Fac, Fac_C, Fac_E, AOijkl
 #ifdef _DEBUGPRINT_
@@ -79,10 +79,10 @@
       Write (6,*) 'iAOst=',iAOst
       Write (6,*) 'iShell=',iShell
       Write (6,*) DoCoul,DoExch,Shijij
-      Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),
+      Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),             &
      &                         DDot_(nDens,DMat,1,[One],0)
-      Write (6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-     &            AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
+      Write (6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,       &
+     &            AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,    &
      &            AOInt,1,[One],0)
 #endif
 !

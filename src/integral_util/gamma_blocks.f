@@ -13,7 +13,7 @@
       Integer nBlocks, nIrrep
       Integer iTable(6,nBlocks)
 
-      Integer idid(8), iBlock, IND, IRREP, IRREP1, IRREP2, IRREP3,
+      Integer idid(8), iBlock, IND, IRREP, IRREP1, IRREP2, IRREP3,      &
      &        IRREP4, IBOT, ITMP
 !
       iBlock=0

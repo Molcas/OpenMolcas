@@ -11,10 +11,10 @@
 ! Copyright (C) 1992,2000, Roland Lindh                                *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,
-     &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,
-     &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
-     &                      Gamma,nGamma,iSO2cI,nSOs,
+      SubRoutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,                   &
+     &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,         &
+     &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,             &
+     &                      Gamma,nGamma,iSO2cI,nSOs,                   &
      &                      iSO2Sh,PMax)
 !***********************************************************************
 !                                                                      *
@@ -45,7 +45,7 @@
       Implicit None
       Real*8, parameter :: exfac=One
       Integer nijkl, nPSO, nDSO, nGamma, nSOs
-      Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
+      Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),                &
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
       Integer iCmp(4), iAO(4), iAOst(4)
@@ -55,18 +55,18 @@
 
       Integer i, j, iTri
       Real*8 PMax, T14, Temp
-      Integer i1, i2, i3, i4, MemSO2, niSym, njSym, nkSym, nlSym, lOper,
-     &        iS, jS, kS, lS, j1, j2, j3, j4, j12, j123,
-     &        iSO_R, jSO_R, kSO_R, lSO_R, iSO_A, jSO_A, kSO_A, lSO_A,
-     &        iSOi, jSOj, kSOk, lSOl, iSOi_A, jSOj_A, kSOk_A, lSOl_A,
-     &        iAOi, jAOj, kAOk, lAOl, iBas, jBas, kBas, lBas, mijkl,
-     &        iShell_A, iShell_B, iShell_C, iShell_D, iShell_AB,
-     &        iShell_CD,
-     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,
-     &        Index_ABCD,
-     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
-     &        Indi, Indj, Indk, Indl, Indij, Indkl, Indik, Indjl,
-     &        Indil, Indjk,
+      Integer i1, i2, i3, i4, MemSO2, niSym, njSym, nkSym, nlSym, lOper,&
+     &        iS, jS, kS, lS, j1, j2, j3, j4, j12, j123,                &
+     &        iSO_R, jSO_R, kSO_R, lSO_R, iSO_A, jSO_A, kSO_A, lSO_A,   &
+     &        iSOi, jSOj, kSOk, lSOl, iSOi_A, jSOj_A, kSOk_A, lSOl_A,   &
+     &        iAOi, jAOj, kAOk, lAOl, iBas, jBas, kBas, lBas, mijkl,    &
+     &        iShell_A, iShell_B, iShell_C, iShell_D, iShell_AB,        &
+     &        iShell_CD,                                                &
+     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,   &
+     &        Index_ABCD,                                               &
+     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,         &
+     &        Indi, Indj, Indk, Indl, Indij, Indkl, Indik, Indjl,       &
+     &        Indil, Indjk,                                             &
      &        iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
       Integer, external:: iPntSO
 #ifdef _DEBUGPRINT_
@@ -228,8 +228,8 @@
                                iPntkl=iPntSO(j3,j4,lOper,nbas)
                                Indij=iPntij+(Indi-1)*Indi/2+Indj
                                Indkl=iPntkl+(Indk-1)*Indk/2+Indl
-                               temp=DSO(Indij)*DSO(Indkl)
-     &                           +(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)
+                               temp=DSO(Indij)*DSO(Indkl)               &
+     &                           +(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)&
      &                           +DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
                             Else
                                temp = Zero
@@ -246,13 +246,13 @@
                                iPntjl=iPntSO(j2,j4,lOper,nbas)
                                Indik=iPntik+(Indi-1)*Indi/2+Indk
                                Indjl=iPntjl+(Indj-1)*Indj/2+Indl
-                               temp=temp-t14*(
-     &                              DSO(Indik)*DSO(Indjl)
-     &                        +(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)
-     &                        +DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))
-     &                        +DSSO(Indik)*DSSO(Indjl)
-     &                        +(DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)
-     &                        +DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl))
+                               temp=temp-t14*(                          &
+     &                              DSO(Indik)*DSO(Indjl)               &
+     &                        +(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)   &
+     &                        +DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))   &
+     &                        +DSSO(Indik)*DSSO(Indjl)                  &
+     &                        +(DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)&
+     &                        +DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl))&
      &                                       )
                             End If
 !
@@ -267,13 +267,13 @@
                                iPntjk=iPntSO(j2,j3,lOper,nbas)
                                Indil=iPntil+(Indi-1)*Indi/2+Indl
                                Indjk=iPntjk+(Indj-1)*Indj/2+Indk
-                               temp=temp-t14*(
-     &                              DSO(Indil)*DSO(Indjk)
-     &                        +(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)
-     &                        +DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))
-     &                        +DSSO(Indil)*DSSO(Indjk)
-     &                        +(DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)
-     &                        +DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk))
+                               temp=temp-t14*(                          &
+     &                              DSO(Indil)*DSO(Indjk)               &
+     &                        +(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)   &
+     &                        +DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))   &
+     &                        +DSSO(Indil)*DSSO(Indjk)                  &
+     &                        +(DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)&
+     &                        +DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk))&
      &                                       )
                             End If
 !

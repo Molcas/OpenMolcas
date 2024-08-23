@@ -40,8 +40,8 @@
          z=r(3)*Coor(3)
          New=.True.
          Do j = 1, iDeg
-            If(New .and. x.eq.Cx(1,j)
-     &             .and. y.eq.Cx(2,j)
+            If(New .and. x.eq.Cx(1,j)                                   &
+     &             .and. y.eq.Cx(2,j)                                   &
      &             .and. z.eq.Cx(3,j)) New=.False.
          End Do
          If (New) Then

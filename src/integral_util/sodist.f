@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,
+      Subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,       &
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
@@ -17,7 +17,7 @@
       use Constants
       Implicit None
       Integer mAO, nCoor, mBas, nCmp, nDeg, nCMO, nMOs
-      Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
+      Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),                         &
      &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
       Integer DoIt(nMOs)
 
@@ -64,10 +64,10 @@
 !
             iMO=iOff_MO(iIrrep)
             iCMO=iOff_CMO(iIrrep)+iSO
-            Call MyDGeMM(DoIt(iMO),
-     &                 mAO*nCoor,nBas(iIrrep),mBas,
-     &                 SOValue(1,1,iOff),mAO*nCoor,
-     &                 CMOs(iCMO),nBas(iIrrep),
+            Call MyDGeMM(DoIt(iMO),                                     &
+     &                 mAO*nCoor,nBas(iIrrep),mBas,                     &
+     &                 SOValue(1,1,iOff),mAO*nCoor,                     &
+     &                 CMOs(iCMO),nBas(iIrrep),                         &
      &                 MOValue(1,iMO),mAO*nCoor)
           End Do
       End Do
@@ -79,9 +79,9 @@
 !
       End Subroutine SODist
 
-      SUBROUTINE MYDGEMM ( DoIt, M, N, K,
-     $                     A, LDA, B, LDB,
-     $                     C, LDC )
+      SUBROUTINE MYDGEMM ( DoIt, M, N, K,                               &
+     &                     A, LDA, B, LDB,                              &
+     &                     C, LDC )
       Use Constants, only: Zero
       Implicit None
 !     .. Scalar Arguments ..

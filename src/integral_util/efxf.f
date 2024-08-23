@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2004, Par Soderhjelm                                   *
 !***********************************************************************
-      SubRoutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,
+      SubRoutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,               &
      &                XMolnr,nXMolnr,iGrid,scal14)
 
 !***********************************************************************
@@ -34,7 +34,7 @@
       Logical LExcl
       Integer ixyz, nElem
       Integer Inc, iOrdOp, iFD, i
-      Real*8 Scal, ZA, Dax, Day, Daz, Qaxx, Qaxy, Qaxz, Qayy, Qayz,
+      Real*8 Scal, ZA, Dax, Day, Daz, Qaxx, Qaxy, Qaxz, Qayy, Qayz,     &
      &       Qazz, x, y, z, R12, QaSum
 
 !
@@ -59,9 +59,9 @@
             LExcl=.False.
             If(iFd.eq.iGrid) LExcl=.True.
             Do i=1,nXMolnr
-               If (XMolnr(1,iGrid).eq.XMolnr(i,iFd))
+               If (XMolnr(1,iGrid).eq.XMolnr(i,iFd))                    &
      &            LExcl=.True.
-               If (XMolnr(1,iGrid).eq.-XMolnr(i,iFd))
+               If (XMolnr(1,iGrid).eq.-XMolnr(i,iFd))                   &
      &            scal=scal14
             EndDo
             If(LExcl) Then
@@ -125,31 +125,31 @@
          If(nOrd_XF.lt.2) Goto 1
 
 !     Q field
-         QAsum=(QAxx*x*x+QAyy*y*y+QAzz*z*z+2.0D0*
+         QAsum=(QAxx*x*x+QAyy*y*y+QAzz*z*z+2.0D0*                       &
      &        (QAxy*x*y+QAxz*x*z+QAyz*y*z))
 
-         dEF(1)=dEF(1)+0.5D0*(-15.0D0/r12**7*x*QAsum
-     &        +3.0D0/r12**5*
-     &   (3.0D0*QAxx*x
-     &   +2.0D0*QAxy*y
-     &   +2.0D0*QAxz*z
-     &   +1.0D0*QAyy*x
+         dEF(1)=dEF(1)+0.5D0*(-15.0D0/r12**7*x*QAsum                    &
+     &        +3.0D0/r12**5*                                            &
+     &   (3.0D0*QAxx*x                                                  &
+     &   +2.0D0*QAxy*y                                                  &
+     &   +2.0D0*QAxz*z                                                  &
+     &   +1.0D0*QAyy*x                                                  &
      &   +1.0D0*QAzz*x))
 
-         dEF(2)=dEF(2)+0.5D0*(-15.0D0/r12**7*y*QAsum
-     &        +3.0D0/r12**5*
-     &   (1.0D0*QAxx*y
-     &   +2.0D0*QAxy*x
-     &   +3.0D0*QAyy*y
-     &   +2.0D0*QAyz*z
+         dEF(2)=dEF(2)+0.5D0*(-15.0D0/r12**7*y*QAsum                    &
+     &        +3.0D0/r12**5*                                            &
+     &   (1.0D0*QAxx*y                                                  &
+     &   +2.0D0*QAxy*x                                                  &
+     &   +3.0D0*QAyy*y                                                  &
+     &   +2.0D0*QAyz*z                                                  &
      &   +1.0D0*QAzz*y))
 
-         dEF(3)=dEF(3)+0.5D0*(-15.0D0/r12**7*z*QAsum
-     &        +3.0D0/r12**5*
-     &   (1.0D0*QAxx*z
-     &   +2.0D0*QAxz*x
-     &   +1.0D0*QAyy*z
-     &   +2.0D0*QAyz*y
+         dEF(3)=dEF(3)+0.5D0*(-15.0D0/r12**7*z*QAsum                    &
+     &        +3.0D0/r12**5*                                            &
+     &   (1.0D0*QAxx*z                                                  &
+     &   +2.0D0*QAxz*x                                                  &
+     &   +1.0D0*QAyy*z                                                  &
+     &   +2.0D0*QAyz*y                                                  &
      &   +3.0D0*QAzz*z))
 
 !     These formulas gives the corresponding energy terms in drvn0

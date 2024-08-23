@@ -19,7 +19,7 @@
 !
       Do iList = 1, nList
          If (Lbl.Eq.dc(iList)%LblCnt) then
-            Write (Warning,'(A,A)') 'ChkLbl: Duplicate label;'//
+            Write (Warning,'(A,A)') 'ChkLbl: Duplicate label;'//        &
      &                 ' Lbl=',Lbl
             Call WarningMessage(2,Warning)
             Call Quit_OnUserError()

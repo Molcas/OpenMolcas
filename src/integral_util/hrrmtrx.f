@@ -11,7 +11,7 @@
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine HrrMtrx(HMtrx,np,la,lb,A,B,
+      Subroutine HrrMtrx(HMtrx,np,la,lb,A,B,                            &
      &                   Sph_a,CS_a,nSph_a,Sph_b,Cs_b,nSph_b)
 !***********************************************************************
 !                                                                      *
@@ -27,13 +27,13 @@
       use define_af, only: iTabMx, Binom, iCan
       Implicit None
       Integer np, la, lb, nSph_a, nSph_b
-      Real*8 A(3), B(3), HMtrx(np,nSph_a,nSph_b), AB(3,0:iTabMx),
+      Real*8 A(3), B(3), HMtrx(np,nSph_a,nSph_b), AB(3,0:iTabMx),       &
      &       CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)
       Logical Sph_a, Sph_b
 
       Logical EQ
-      Integer ix, iy, iz, ixyz, iOff, jCan, i, jx, jy, jz, jOff,
-     &        ipa, ipb, ipe, iSph_a, iSph_b, ixLow, iyLow, izLow,
+      Integer ix, iy, iz, ixyz, iOff, jCan, i, jx, jy, jz, jOff,        &
+     &        ipa, ipb, ipe, iSph_a, iSph_b, ixLow, iyLow, izLow,       &
      &        kx, ky, kz, jxLow, jyLow, jzLow
       Real*8 C_A, C_B, ABx, ABy, ABz
 #ifdef _DEBUGPRINT_
@@ -101,8 +101,8 @@
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
                      ABy = AB(2,iy+jy-ky) * Binom(jy,ky-iy)
                      ABz = AB(3,iz+jz-kz) * Binom(jz,kz-iz)
-                     HMtrx(ipe,iSph_a,iSph_b) =
-     &                  HMtrx(ipe,iSph_a,iSph_b) + ABx * ABy * ABz
+                     HMtrx(ipe,iSph_a,iSph_b) =                         &
+     &                  HMtrx(ipe,iSph_a,iSph_b) + ABx * ABy * ABz      &
      &                    * C_a * C_b
                End Do
                End Do
@@ -148,8 +148,8 @@
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
                      ABy = AB(2,iy+jy-ky) * Binom(jy,ky-iy)
                      ABz = AB(3,iz+jz-kz) * Binom(jz,kz-iz)
-                     HMtrx(ipe,iSph_a,ipb) =
-     &                  HMtrx(ipe,iSph_a,ipb) + ABx * ABy * ABz
+                     HMtrx(ipe,iSph_a,ipb) =                            &
+     &                  HMtrx(ipe,iSph_a,ipb) + ABx * ABy * ABz         &
      &                    * C_a
                End Do
                End Do
@@ -193,8 +193,8 @@
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
                      ABy = AB(2,iy+jy-ky) * Binom(jy,ky-iy)
                      ABz = AB(3,iz+jz-kz) * Binom(jz,kz-iz)
-                     HMtrx(ipe,ipa,iSph_b) =
-     &                  HMtrx(ipe,ipa,iSph_b) + ABx * ABy * ABz
+                     HMtrx(ipe,ipa,iSph_b) =                            &
+     &                  HMtrx(ipe,ipa,iSph_b) + ABx * ABy * ABz         &
      &                    * C_b
                End Do
                End Do
@@ -235,7 +235,7 @@
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
                      ABy = AB(2,iy+jy-ky) * Binom(jy,ky-iy)
                      ABz = AB(3,iz+jz-kz) * Binom(jz,kz-iz)
-                     HMtrx(ipe,ipa,ipb) =
+                     HMtrx(ipe,ipa,ipb) =                               &
      &                  HMtrx(ipe,ipa,ipb) + ABx * ABy * ABz
                End Do
                End Do
@@ -283,8 +283,8 @@
                   ABx = AB(1,ix+jx-kx) * Binom(ix,kx-jx)
                   ABy = AB(2,iy+jy-ky) * Binom(iy,ky-jy)
                   ABz = AB(3,iz+jz-kz) * Binom(iz,kz-jz)
-                  HMtrx(ipe,iSph_a,iSph_b) =
-     &               HMtrx(ipe,iSph_a,iSph_b) + ABx * ABy * ABz
+                  HMtrx(ipe,iSph_a,iSph_b) =                            &
+     &               HMtrx(ipe,iSph_a,iSph_b) + ABx * ABy * ABz         &
      &                 * C_a * C_b
                End Do
                End Do
@@ -330,8 +330,8 @@
                   ABx = AB(1,ix+jx-kx) * Binom(ix,kx-jx)
                   ABy = AB(2,iy+jy-ky) * Binom(iy,ky-jy)
                   ABz = AB(3,iz+jz-kz) * Binom(iz,kz-jz)
-                  HMtrx(ipe,iSph_a,ipb) =
-     &               HMtrx(ipe,iSph_a,ipb) + ABx * ABy * ABz
+                  HMtrx(ipe,iSph_a,ipb) =                               &
+     &               HMtrx(ipe,iSph_a,ipb) + ABx * ABy * ABz            &
      &                 * C_a
                End Do
                End Do
@@ -375,8 +375,8 @@
                   ABx = AB(1,ix+jx-kx) * Binom(ix,kx-jx)
                   ABy = AB(2,iy+jy-ky) * Binom(iy,ky-jy)
                   ABz = AB(3,iz+jz-kz) * Binom(iz,kz-jz)
-                  HMtrx(ipe,ipa,iSph_b) =
-     &               HMtrx(ipe,ipa,iSph_b) + ABx * ABy * ABz
+                  HMtrx(ipe,ipa,iSph_b) =                               &
+     &               HMtrx(ipe,ipa,iSph_b) + ABx * ABy * ABz            &
      &                 * C_b
                End Do
                End Do
@@ -417,7 +417,7 @@
                   ABx = AB(1,ix+jx-kx) * Binom(ix,kx-jx)
                   ABy = AB(2,iy+jy-ky) * Binom(iy,ky-jy)
                   ABz = AB(3,iz+jz-kz) * Binom(iz,kz-jz)
-                  HMtrx(ipe,ipa,ipb) =
+                  HMtrx(ipe,ipa,ipb) =                                  &
      &               HMtrx(ipe,ipa,ipb) + ABx * ABy * ABz
                End Do
                End Do
@@ -429,7 +429,7 @@
          End If
       End If
 #ifdef _DEBUGPRINT_
-      Call RecPrt('HMat ( np x (nSph_a*nSph_b) )','(30F4.1)',HMtrx,
+      Call RecPrt('HMat ( np x (nSph_a*nSph_b) )','(30F4.1)',HMtrx,     &
      &             np,nSph_a*nSph_b)
       Write (6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
 #endif

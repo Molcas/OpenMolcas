@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1993,1999, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,
-     &                  HMtrxAB,HMtrxCD,la,lb,lc,ld,
-     &                  iCmpa,jCmpb,kCmpc,lCmpd,
+      Subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,     &
+     &                  HMtrxAB,HMtrxCD,la,lb,lc,ld,                    &
+     &                  iCmpa,jCmpb,kCmpc,lCmpd,                        &
      &                  iShlla,jShllb,kShllc,lShlld,i_out)
 !***********************************************************************
 !                                                                      *
@@ -31,7 +31,7 @@
       use Constants
       use define_af, only: iTabMx
       Implicit None
-      Integer nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,la,lb,lc,ld,
+      Integer nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,la,lb,lc,ld,       &
      &        iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb,kShllc,lShlld
       Integer, Parameter :: lab=iTabMx*2+1, npMax=lab*(lab+1)*(lab+2)/6
       Real*8 HMtrxAB(*),HMtrxCD(*)
@@ -39,7 +39,7 @@
       Integer, Intent(out) :: i_out
       ![all others are intent(in)]
 
-      Integer :: nDim, ne, nf, nab, ncd, iW2, iW3, i_In, nfijkl,
+      Integer :: nDim, ne, nf, nab, ncd, iW2, iW3, i_In, nfijkl,        &
      &           nijklab
 !
 !     If nComp==1
@@ -60,8 +60,8 @@
 
       If (nComp/=1) Then
          Wrk(iW3:iW3+ne*nf*nijkl-1)=Wrk(iW2:iW2+ne*nf*nijkl-1)
-         Call DGetMO(Wrk(iW3),nComp,
-     &               nComp,ne*nf*(nijkl/nComp),
+         Call DGetMO(Wrk(iW3),nComp,                                    &
+     &               nComp,ne*nf*(nijkl/nComp),                         &
      &               Wrk(iW2),ne*nf*(nijkl/nComp))
       End If
 
@@ -74,10 +74,10 @@
 !
 !---- Transpose if no transformation is needed.
 !
-      If ((la*lb.eq.0).and.(lc*ld.eq.0).and.
-     &    .Not.Shells(iShlla)%Transf .and.
-     &    .Not.Shells(jShllb)%Transf .and.
-     &    .Not.Shells(kShllc)%Transf .and.
+      If ((la*lb.eq.0).and.(lc*ld.eq.0).and.                            &
+     &    .Not.Shells(iShlla)%Transf .and.                              &
+     &    .Not.Shells(jShllb)%Transf .and.                              &
+     &    .Not.Shells(kShllc)%Transf .and.                              &
      &    .Not.Shells(lShlld)%Transf ) Then
          Call DGeTMO(Wrk(iW2),ne*nf,ne*nf,nijkl,Wrk(iW3),nijkl)
          i_out=iW3
@@ -91,8 +91,8 @@
       If (la+lb.eq.0) Then
          i_in=iW2
          i_out=iW3
-      Else If ((la*lb.eq.0).and.
-     &    .Not.Shells(iShlla)%Transf .and.
+      Else If ((la*lb.eq.0).and.                                        &
+     &    .Not.Shells(iShlla)%Transf .and.                              &
      &    .Not.Shells(jShllb)%Transf) Then
          Call DGeTMO(Wrk(iW2),ne,ne,nf*nijkl,Wrk(iW3),nf*nijkl)
          i_in=iW3
@@ -103,7 +103,7 @@
 !        Int(lf*IJKL,lA*lB)=Int(le,lf*IJKL)*HMtrx(le,lA*lB)
 !
          nfijkl = nf*nijkl
-         Call Sp_Mlt(Wrk(iW2),ne,Wrk(iW3),nfijkl,HMtrxAB,
+         Call Sp_Mlt(Wrk(iW2),ne,Wrk(iW3),nfijkl,HMtrxAB,               &
      &               iCmpa*jCmpb)
          i_in=iW3
          i_out=iW2
@@ -114,10 +114,10 @@
 !
       If (lc+ld.eq.0) Then
          i_out=i_in
-      Else If ((lc*ld.eq.0).and.
-     &    .Not.Shells(kShllc)%Transf .and.
+      Else If ((lc*ld.eq.0).and.                                        &
+     &    .Not.Shells(kShllc)%Transf .and.                              &
      &    .Not.Shells(lShlld)%Transf) Then
-         Call DGeTMO(Wrk(i_in),nf,nf,nijkl*iCmpa*jCmpb,Wrk(i_out),
+         Call DGeTMO(Wrk(i_in),nf,nf,nijkl*iCmpa*jCmpb,Wrk(i_out),      &
      &               nijkl*iCmpa*jCmpb)
       Else
 !
@@ -125,7 +125,7 @@
 !        Int(IJKL*lA*lB,lC*lD)=Int(lf,IJKL*lA*lB)*HMtrx(lf,lC*lD)
 !
          nijklAB = nijkl*iCmpa*jCmpb
-         Call Sp_Mlt(Wrk(i_in),nf,Wrk(i_out),nijklAB,HMtrxCD,
+         Call Sp_Mlt(Wrk(i_in),nf,Wrk(i_out),nijklAB,HMtrxCD,           &
      &               kCmpc*lCmpd)
       End If
 !

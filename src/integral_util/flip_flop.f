@@ -22,7 +22,7 @@
 !
       Do iCnttp = 1, nCnttp
          nTest = dbsc(iCnttp)%nVal-1
-         If (DBSC(iCnttp)%Aux .and.
+         If (DBSC(iCnttp)%Aux .and.                                     &
      &       iCnttp.eq.iCnttp_Dummy) nTest=-1
 !
          Do iAng=0, S%iAngMx
@@ -35,15 +35,15 @@
 !           Decontract only the ordinary basis sets!
 !
             Call mma_deallocate(Shells(iShll)%pCff)
-            If (Primitive.and..Not.Shells(iShll)%Aux
+            If (Primitive.and..Not.Shells(iShll)%Aux                    &
      &                   .and..Not.Shells(iShll)%Frag) Then
                Shells(iShll)%nBasis=nExpi
-               Call mma_allocate(Shells(iShll)%pCff,nExpi,
+               Call mma_allocate(Shells(iShll)%pCff,nExpi,              &
      &                           Shells(iShll)%nBasis,Label='pCff')
                Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_p(:,:,1)
             Else
                Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
-               Call mma_allocate(Shells(iShll)%pCff,nExpi,
+               Call mma_allocate(Shells(iShll)%pCff,nExpi,              &
      &                           Shells(iShll)%nBasis,Label='pCff')
                Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
             End If
@@ -62,10 +62,10 @@
       Character*(*) Label
       Write(6,*) Label
       Do i = 1, 30
-         Write (6,*) i,
-     &               Shells(i)%nExp, Shells(i)%nBasis,
-     &               Allocated(Shells(i)%pCff),
-     &               Allocated(Shells(i)%Cff_c),
+         Write (6,*) i,                                                 &
+     &               Shells(i)%nExp, Shells(i)%nBasis,                  &
+     &               Allocated(Shells(i)%pCff),                         &
+     &               Allocated(Shells(i)%Cff_c),                        &
      &               Allocated(Shells(i)%Cff_p)
       End Do
       Return

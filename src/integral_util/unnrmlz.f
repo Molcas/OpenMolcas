@@ -18,7 +18,7 @@
 !
       Do  i = 1, nCntrc
          Do  j = 1, nPrim
-            Coeff(j,i) = Coeff(j,i) /( TwoP34 *
+            Coeff(j,i) = Coeff(j,i) /( TwoP34 *                         &
      &                (Four*Exp(j))**((Two*DBLE(iAng)+Three)/Four))
          End Do
       End Do

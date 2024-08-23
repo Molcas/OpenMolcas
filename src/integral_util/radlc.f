@@ -23,7 +23,7 @@
 !***********************************************************************
       use fx, only: f_interface
       use Constants, only: Zero
-      use rmat, only: l, ExpSum, QuadPack, TestInt, NagInt, EpsAbs,
+      use rmat, only: l, ExpSum, QuadPack, TestInt, NagInt, EpsAbs,     &
      &                EpsRel, KeyR, RMatR
       Implicit None
       Integer nZeta, lSum
@@ -54,16 +54,16 @@
 !        If (quadpack) then
          If (quadpack.and..not.testint) then
             ier2=-1
-            call dqag(fradf,0.0d0,Rmatr,Epsabs,Epsrel,Keyr,result2,
-     &                abser,neval,ier2,
+            call dqag(fradf,0.0d0,Rmatr,Epsabs,Epsrel,Keyr,result2,     &
+     &                abser,neval,ier2,                                 &
      &                limit,lenw,last,iScrt,Scrt)
             if (ier2.ne.0) then
-               Call WarningMessage(1,
+               Call WarningMessage(1,                                   &
      &             ' WARNING in Radlc; Consult the output for details!')
                write(6,*)
                write(6,*) ' WARNING in Radlc'
                write(6,*)
-               write(6,*)
+               write(6,*)                                               &
      &                  ' ier=',ier2,' Error in Dqag called from Radlc.'
                write(6,*) ' result=',result2
                write(6,*) ' abser=',abser
@@ -73,7 +73,7 @@
             result=result2
 !        Else If(Nagint) then
          Else If(Nagint.and..not.testint) then
-            Call WarningMessage(2,
+            Call WarningMessage(2,                                      &
      &                          'Radlc: Nagint option not implemented!')
             Call Abend()
 !           ier1=-1
@@ -93,7 +93,7 @@
 !           result=result1
          EndIf
          If (testint) then
-            Call WarningMessage(2,
+            Call WarningMessage(2,                                      &
      &                  'Radlc: testint option not implemented!')
             Call Abend()
 !           ier2=-1

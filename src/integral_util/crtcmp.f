@@ -52,16 +52,16 @@
             Do iCar = 1, 3
 !
                If (ABeq(iCar)) Then
-                  Axyz(:,iCar,iHer,1) =
+                  Axyz(:,iCar,iHer,1) =                                 &
      &                   HerR(iHer)*1/Sqrt(Zeta(:))
                Else
-                  Axyz(:,iCar,iHer,1) =
-     &                      HerR(iHer)*1/Sqrt(Zeta(:)) +
+                  Axyz(:,iCar,iHer,1) =                                 &
+     &                      HerR(iHer)*1/Sqrt(Zeta(:)) +                &
      &                      P(:,iCar) - A(iCar)
                End If
 !
                Do ia = 2, na
-                  Axyz(:,iCar,iHer,ia) = Axyz(:,iCar,iHer,1) *
+                  Axyz(:,iCar,iHer,ia) = Axyz(:,iCar,iHer,1) *          &
      &                                      Axyz(:,iCar,iHer,ia-1)
                End Do
 !

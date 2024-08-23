@@ -24,7 +24,7 @@
 !         elements.
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
-      subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,
+      subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,              &
      &                     Cred,nC,Scr1,nS1,Scr2,nS2,ScrP,nsp)
       use pso_stuff, only: nSSDM,SSDM, DSO=>D0, CMO, G2
       use Constants, only: Zero, Quart
@@ -36,17 +36,17 @@
       Real*8 PSOPam(nPSOPam), Cred(*), Scr1(nS1), Scr2(nS2), ScrP(nsP)
 
       Integer i, j, i3adr
-      Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,
-     &        ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd,
-     &        ni, nj, nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips,
-     &        irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl,
-     &        nu, nxvu, nt, nxvut, ix, iv, iu, itu, ituvx,
-     &        iScr, ixEnd, iOCMOL, iods, lSta, ixSta,
-     &        iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta,
-     &        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd,
-     &        iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx,
-     &        nCopy, nSkip1, iOff2, nSkip2, nTUV, l, nLTU,
-     &        k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1,
+      Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,   &
+     &        ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd,   &
+     &        ni, nj, nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips,   &
+     &        irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl,     &
+     &        nu, nxvu, nt, nxvut, ix, iv, iu, itu, ituvx,              &
+     &        iScr, ixEnd, iOCMOL, iods, lSta, ixSta,                   &
+     &        iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta,          &
+     &        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd,  &
+     &        iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx,             &
+     &        nCopy, nSkip1, iOff2, nSkip2, nTUV, l, nLTU,              &
+     &        k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1,        &
      &        itSta, iOff1, ipSO, ioIT, isSDM
       Real*8 Fact
 ! Triangular addressing without symmetry:
@@ -170,13 +170,13 @@
       do  l=lsta,lend
         ioff1=iocmox+INT(ipam(iopam4+l))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1,indi(1)),
+        call dcopy_(ncopy,CMO(ioff1,indi(1)),                           &
      &            nskip1,Cred(ioff2),nskip2)
        End Do
-      call DGEMM_('N','T',
-     &            nskip2,ntuv,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            ScrP,ntuv,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,ntuv,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            ScrP,ntuv,                                            &
      &            0.0d0,Scr2,nskip2)
 ! Transform:
 !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
@@ -188,13 +188,13 @@
       do  k=ksta,kend
         ioff1=iocmov+INT(ipam(iopam3+k))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1,indi(2)),
+        call dcopy_(ncopy,CMO(ioff1,indi(2)),                           &
      &             nskip1,Cred(ioff2),nskip2)
        End do
-      call DGEMM_('N','T',
-     &            nskip2,nltu,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr2,nltu,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,nltu,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr2,nltu,                                            &
      &            0.0d0,Scr1,nskip2)
 ! Transform:
 !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
@@ -206,14 +206,14 @@
       do  j=jsta,jend
         ioff1=iocmou+INT(ipam(iopam2+j))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1,indi(3)),
+        call dcopy_(ncopy,CMO(ioff1,indi(3)),                           &
      &             nskip1,Cred(ioff2),nskip2)
       End Do
 
-      call DGEMM_('N','T',
-     &            nskip2,nklt,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr1,nklt,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,nklt,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr1,nklt,                                            &
      &            0.0d0,Scr2,nskip2)
 ! Transform:
 !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
@@ -225,16 +225,16 @@
       do i=ista,iend
         ioff1=iocmot+INT(ipam(iopam1+i))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1,indi(4)),
+        call dcopy_(ncopy,CMO(ioff1,indi(4)),                           &
      &             nskip1,Cred(ioff2),nskip2)
       end do
-      call DGEMM_('N','T',
-     &            nskip2,njkl,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr2,njkl,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,njkl,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr2,njkl,                                            &
      &            0.0d0,Scr1,nskip2)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('G2(SO1)',' ',Scr1,
+      Call RecPrt('G2(SO1)',' ',Scr1,                                   &
      &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
 #endif
 
@@ -284,7 +284,7 @@
        End do
       End do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('G2(MO)',' ',Scr1,
+      Call RecPrt('G2(MO)',' ',Scr1,                                    &
      &            nash(iSym)*nash(jSym),nash(kSym)*nash(lsym))
 #endif
 
@@ -301,10 +301,10 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
        End Do
-      call DGEMM_('N','T',
-     &            nskip2,ntuv,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr1,ntuv,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,ntuv,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr1,ntuv,                                            &
      &            0.0d0,Scr2,nskip2)
 ! Transform:
 !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
@@ -318,10 +318,10 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
        End do
-      call DGEMM_('N','T',
-     &            nskip2,nltu,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr2,nltu,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,nltu,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr2,nltu,                                            &
      &            0.0d0,Scr1,nskip2)
 ! Transform:
 !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
@@ -336,10 +336,10 @@
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
       End Do
 
-      call DGEMM_('N','T',
-     &            nskip2,nklt,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr1,nklt,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,nklt,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr1,nklt,                                            &
      &            0.0d0,Scr2,nskip2)
 ! Transform:
 !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
@@ -353,13 +353,13 @@
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
       end do
-      call DGEMM_('N','T',
-     &            nskip2,njkl,ncopy,
-     &            1.0d0,Cred,nskip2,
-     &            Scr2,njkl,
+      call DGEMM_('N','T',                                              &
+     &            nskip2,njkl,ncopy,                                    &
+     &            1.0d0,Cred,nskip2,                                    &
+     &            Scr2,njkl,                                            &
      &            0.0d0,Scr1,nskip2)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('G2(SO2)',' ',Scr1,
+      Call RecPrt('G2(SO2)',' ',Scr1,                                   &
      &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
       Call RecPrt('PSOPam 0',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
 #endif
@@ -386,7 +386,7 @@
        End Do
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('PSOPam no 1-el',' ',PSOPam,
+      Call RecPrt('PSOPam no 1-el',' ',PSOPam,                          &
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
 #endif
 !
@@ -434,12 +434,12 @@
           if(isym.eq.lsym) then
            ips=i3adr(ip,is)
            irq=i3adr(ir,iq)
-           PSOPam(ipso)=PSOPam(ipso)
-     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,2)
-     &        -Quart*DSO(ioDs+ips,2)*DSO(ioDr+irq,1)
-     &        -Quart*DSO(ioDs+ips,3)*DSO(ioDr+irq,4)
-     &        -Quart*DSO(ioDs+ips,4)*DSO(ioDr+irq,3)
-     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,6)
+           PSOPam(ipso)=PSOPam(ipso)                                    &
+     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,2)                    &
+     &        -Quart*DSO(ioDs+ips,2)*DSO(ioDr+irq,1)                    &
+     &        -Quart*DSO(ioDs+ips,3)*DSO(ioDr+irq,4)                    &
+     &        -Quart*DSO(ioDs+ips,4)*DSO(ioDr+irq,3)                    &
+     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,6)                    &
      &        -Quart*DSO(ioDs+ips,6)*DSO(ioDr+irq,1)
 !ANDREW - uncomment
 !     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,5)
@@ -448,21 +448,21 @@
            If (nSSDM.ne.0) Then
              !! The last four lines subtract unnecessary contributions
              Do iSSDM = 1, nSSDM
-               PSOPam(ipso)=PSOPam(ipso)
-     *            -Quart*SSDM(ioDs+ips,1,iSSDM)*SSDM(ioDr+irq,2,iSSDM)
-     *            -Quart*SSDM(ioDs+ips,2,iSSDM)*SSDM(ioDr+irq,1,iSSDM)
+               PSOPam(ipso)=PSOPam(ipso)                                &
+     &            -Quart*SSDM(ioDs+ips,1,iSSDM)*SSDM(ioDr+irq,2,iSSDM)  &
+     &            -Quart*SSDM(ioDs+ips,2,iSSDM)*SSDM(ioDr+irq,1,iSSDM)
              End Do
            End If
           end if
           if(isym.eq.ksym) then
            ipr=i3adr(ip,ir)
            isq=i3adr(is,iq)
-           PSOPam(ipso)=PSOPam(ipso)
-     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,2)
-     &        -Quart*DSO(ioDr+ipr,2)*DSO(ioDs+isq,1)
-     &        -Quart*DSO(ioDr+ipr,3)*DSO(ioDs+isq,4)
-     &        -Quart*DSO(ioDr+ipr,4)*DSO(ioDs+isq,3)
-     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,6)
+           PSOPam(ipso)=PSOPam(ipso)                                    &
+     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,2)                    &
+     &        -Quart*DSO(ioDr+ipr,2)*DSO(ioDs+isq,1)                    &
+     &        -Quart*DSO(ioDr+ipr,3)*DSO(ioDs+isq,4)                    &
+     &        -Quart*DSO(ioDr+ipr,4)*DSO(ioDs+isq,3)                    &
+     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,6)                    &
      &        -Quart*DSO(ioDr+ipr,6)*DSO(ioDs+isq,1)
 !ANDREW - uncomment
 !     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,5)
@@ -470,26 +470,26 @@
 !END ANDREW
            If (nSSDM.ne.0) Then
              Do iSSDM = 1, nSSDM
-               PSOPam(ipso)=PSOPam(ipso)
-     *            -Quart*SSDM(ioDr+ipr,1,iSSDM)*SSDM(ioDs+isq,2,iSSDM)
-     *            -Quart*SSDM(ioDr+ipr,2,iSSDM)*SSDM(ioDs+isq,1,iSSDM)
+               PSOPam(ipso)=PSOPam(ipso)                                &
+     &            -Quart*SSDM(ioDr+ipr,1,iSSDM)*SSDM(ioDs+isq,2,iSSDM)  &
+     &            -Quart*SSDM(ioDr+ipr,2,iSSDM)*SSDM(ioDs+isq,1,iSSDM)
              End Do
            End If
           end if
           if(isym.eq.jsym) then
-           PSOPam(ipso)=PSOPam(ipso)
-     &        +DSO(ioDq+ipq,1)*DSO(ioDs+irs,2)
-     &        +DSO(ioDq+ipq,2)*DSO(ioDs+irs,1)
-     &        +DSO(ioDq+ipq,3)*DSO(ioDs+irs,4)
-     &        +DSO(ioDq+ipq,4)*DSO(ioDs+irs,3)
-     &        +DSO(ioDq+ipq,1)*DSO(ioDs+irs,5)
+           PSOPam(ipso)=PSOPam(ipso)                                    &
+     &        +DSO(ioDq+ipq,1)*DSO(ioDs+irs,2)                          &
+     &        +DSO(ioDq+ipq,2)*DSO(ioDs+irs,1)                          &
+     &        +DSO(ioDq+ipq,3)*DSO(ioDs+irs,4)                          &
+     &        +DSO(ioDq+ipq,4)*DSO(ioDs+irs,3)                          &
+     &        +DSO(ioDq+ipq,1)*DSO(ioDs+irs,5)                          &
      &        +DSO(ioDq+ipq,5)*DSO(ioDs+irs,1)
            if(nSSDM.ne.0) then
            issdm=1
              do iSSDM = 1, nSSDM
-               PSOPam(ipso)=PSOPam(ipso)
-     *            +SSDM(ioDq+ipq,1,iSSDM)*SSDM(ioDs+irs,2,iSSDM)
-     *            +SSDM(ioDq+ipq,2,iSSDM)*SSDM(ioDs+irs,1,iSSDM)
+               PSOPam(ipso)=PSOPam(ipso)                                &
+     &            +SSDM(ioDq+ipq,1,iSSDM)*SSDM(ioDs+irs,2,iSSDM)        &
+     &            +SSDM(ioDq+ipq,2,iSSDM)*SSDM(ioDs+irs,1,iSSDM)
              End Do
            End If
           end if

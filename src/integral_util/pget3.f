@@ -11,9 +11,9 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,
-     &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
-     &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
+      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,                              &
+     &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,        &
+     &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,             &
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 !***********************************************************************
 !                                                                      *
@@ -33,18 +33,18 @@
       use pso_stuff, only: lSA, Gamma_On, G_ToC
       use Constants, only: Zero
       Implicit None
-      Integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim,
+      Integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim, &
      &        nCred, nScr1, nScr2
-      Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4),
+      Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4),                       &
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer iAO(4), kOp(4), iAOst(4), nPam(4), iCmp(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
       Real*8 PMax
 !
-      Integer iiBas(4), in1, jPAM, in2, i1, iSO, iAOi, iSOi,
-     &        nPSOPam, i2, i3, i4, jSO, kSO, lSO, nijkl,
-     &        jAOj, kAOk, lAOl, k1, k2, k3, k4, loc, ipAO,
+      Integer iiBas(4), in1, jPAM, in2, i1, iSO, iAOi, iSOi,            &
+     &        nPSOPam, i2, i3, i4, jSO, kSO, lSO, nijkl,                &
+     &        jAOj, kAOk, lAOl, k1, k2, k3, k4, loc, ipAO,              &
      &        jSOj, kSOk, lSOl
       Real*8 Val
 #ifdef _DEBUGPRINT_
@@ -67,7 +67,7 @@
       Do 9 jPam = 1, 4
          in2 = 0
          Do 11 i1 = 1, iCmp(jPam)
-            iSO = iAOtSO(iAO(jPam)+i1,0)
+            iSO = iAOtSO(iAO(jPam)+i1,0)                                &
      &          + iAOst(jPam)
             nPam(jPam) = nPam(jPam) + iiBas(jPam)
             Do 12 iAOi = 0, iiBas(jPam)-1
@@ -83,11 +83,11 @@
 !     Get the scrambled 2nd order density matrix
 !
       If (LSA) Then
-      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,
-     &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
+      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,              &
+     &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),    &
      &            nScr1)
       Else
-       Call PTrans(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,
+       Call PTrans(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,                &
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
 !
@@ -128,10 +128,10 @@
                             PMax=Max(PMax,Abs(PAOPam(k1,k2,k3,k4)))
                             PAO(nijkl,iPAO) = PAOPam(k1,k2,k3,k4)
                             If (Gamma_On) Then
-                              Loc =     k2-1
-     *                            + n2*(k4-1
-     *                            + n4*(k1-1
-     *                            + n1*(k3-1)))
+                              Loc =     k2-1                            &
+     &                            + n2*(k4-1                            &
+     &                            + n4*(k1-1                            &
+     &                            + n1*(k3-1)))
                               Val = G_Toc(Loc+1)
                               PAO(nijkl,iPAO) = PAO(nijkl,iPAO)*1 + Val
                             End If

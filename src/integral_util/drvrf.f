@@ -70,7 +70,7 @@
 !
 !
       Else
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &              'I do not know what reaction field type to use.')
          Call Abend()
       End If

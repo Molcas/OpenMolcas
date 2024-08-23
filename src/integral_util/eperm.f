@@ -12,7 +12,7 @@
 !               2000, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine eperm(D_Tot,nDens,Ravxyz,Cavxyz,nCavxyz_,dEF,
+      Subroutine eperm(D_Tot,nDens,Ravxyz,Cavxyz,nCavxyz_,dEF,          &
      &                 Grid,nGrid_,Cord,MaxAto,Z_Nuc,xfEF)
 !***********************************************************************
 !                                                                      *
@@ -28,7 +28,7 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use external_centers, only: iXPolType, nOrd_XF, nXF, nXMolnr, XF,
+      use external_centers, only: iXPolType, nOrd_XF, nXF, nXMolnr, XF, &
      &                            XMolnr
       use Symmetry_Info, only: iChBas
 #ifdef _DEBUGPRINT_
@@ -42,8 +42,8 @@
       use rctfld_module, only: lRFCav, lMax, nGrid, fMax, Scal14
       Implicit None
       Integer nDens, nCavxyz_, nGrid_, MaxAto
-      Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
-     &       dEF(4,nGrid_), Grid(3,nGrid_),
+      Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),          &
+     &       dEF(4,nGrid_), Grid(3,nGrid_),                             &
      &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
 
       Real*8 Origin(3), CCoor(3)
@@ -56,8 +56,8 @@
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:), Nuc(:)
       Integer ixyz, iOff
-      Integer iMax, ip, iMltpl, ix, iy, iz, iSymX, iSymY, iSymZ, iTemp,
-     &        nComp, iSymXY, iSymXZ, iSymYZ, iSyXYZ, iComp, iSym, nh1,
+      Integer iMax, ip, iMltpl, ix, iy, iz, iSymX, iSymY, iSymZ, iTemp, &
+     &        nComp, iSymXY, iSymXZ, iSymYZ, iSyXYZ, iComp, iSym, nh1,  &
      &        MltLbl, nOpr, nOrdOp, iGrid, iSymC
       Integer, external::  IrrFnc
       Real*8 rHrmt, Sig, fTest
@@ -94,7 +94,7 @@
       End Do
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Nuclear Multipole Moments',
+      Call RecPrt('Nuclear Multipole Moments',                          &
      &                              ' ',Ravxyz,1,nCavxyz_)
 #endif
 !
@@ -142,7 +142,7 @@
       lOff = 1
       Do iIrrep = 0, nIrrep-1
          n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         Write (Label,'(A,I1)')
+         Write (Label,'(A,I1)')                                         &
      &    'Diagonal Symmetry Block ',iIrrep+1
          Call Triprt(Label,' ',D_Tot(lOff),nBas(iIrrep))
          lOff = lOff + n
@@ -153,7 +153,7 @@
       Call Drv1_RF(FactOp,nOpr,D_tot,nh1,Origin,l_Oper,Cavxyz,lMax)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electronic Multipole Moments',
+      Call RecPrt('Electronic Multipole Moments',                       &
      &                              ' ',Cavxyz,1,nCavxyz_)
 #endif
 !
@@ -162,7 +162,7 @@
       Call DaXpY_(nCavxyz_,One,Ravxyz,1,Cavxyz,1)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electronic+Nuclear Moments',
+      Call RecPrt('Electronic+Nuclear Moments',                         &
      &                              ' ',Cavxyz,1,nCavxyz_)
 #endif
 
@@ -172,7 +172,7 @@
       EndIf
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Total Multipole Moments ',
+      Call RecPrt('Total Multipole Moments ',                           &
      &                              ' ',Cavxyz,1,nCavxyz_)
 #endif
 !                                                                      *
@@ -221,13 +221,13 @@
          If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
          If (Ccoor(2).ne.Zero) iSymC = iOr(iSymC,iSymY)
          If (Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSymZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)
+         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)                   &
      &      iSymC = iOr(iSymC,iSymXY)
-         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)
+         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)                   &
      &      iSymC = iOr(iSymC,iSymXZ)
-         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)
+         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)                   &
      &      iSymC = iOr(iSymC,iSymYZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.
+         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.              &
      &       Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSyXYZ)
 !
          iComp=0
@@ -249,13 +249,13 @@
 !
 
          Call EFNuc(C_Coor,Z_Nuc,Cord,MaxAto,Nuc,nOrdOp)
-         Call OneEl_Property(EFInt,EFMem,Label,
-     &                       ips,lOper,nComp,C_Coor,
-     &                       nOrdOp,Nuc,rHrmt,kOper,
+         Call OneEl_Property(EFInt,EFMem,Label,                         &
+     &                       ips,lOper,nComp,C_Coor,                    &
+     &                       nOrdOp,Nuc,rHrmt,kOper,                    &
      &                       D_Tot,nDens,dEF(1,iGrid),Sig)
 
 !        Field contribution from XF
-         Call EFXF(C_Coor,XF,nXF,nOrd_XF,iXPolType,
+         Call EFXF(C_Coor,XF,nXF,nOrd_XF,iXPolType,                     &
      &        xfEF(1,iGrid),XMolnr,nXMolnr,iGrid,scal14)
 !
       End Do
@@ -278,8 +278,8 @@
 !
       fmax=Zero
       Do iGrid = 1, nGrid_
-         ftest=dEF(1,iGrid)**2
-     &        +dEF(2,iGrid)**2
+         ftest=dEF(1,iGrid)**2                                          &
+     &        +dEF(2,iGrid)**2                                          &
      &        +dEF(3,iGrid)**2
          dEF(4,iGrid)=ftest
          fmax=Max(fmax,ftest)

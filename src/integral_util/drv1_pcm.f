@@ -47,29 +47,29 @@
 #endif
       Implicit None
       Integer nTs, nFD, nOrdOp
-      Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs),
-     &       RB(3), TRB(3), TA(3),
+      Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs),      &
+     &       RB(3), TRB(3), TA(3),                                      &
      &       VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)
-      Integer   lOper(nTs), iStabO(0:7),
+      Integer   lOper(nTs), iStabO(0:7),                                &
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
 
       Logical AeqB
-      Integer ixyz, nElem, nSkal,
-     &        iS, jS, iShll, jShll,
-     &        iCmp, jCmp, iAng, jAng,
-     &        iBas, jBas, iAO, jAO,
-     &        iPrim, jPrim, iCnt, jCnt,
-     &        iShell, jShell,
-     &        iCnttp, jCnttp, mdci, mdcj,
-     &        iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal, nScr1, nScr2,
-     &        nDAO, lDCRR, nDCRR, iTile, iuv, nStabO, LmbdT, LmbdR,
-     &        lDCRT, nDCRT, kk, ipFnlC, iComp, nOrder,
+      Integer ixyz, nElem, nSkal,                                       &
+     &        iS, jS, iShll, jShll,                                     &
+     &        iCmp, jCmp, iAng, jAng,                                   &
+     &        iBas, jBas, iAO, jAO,                                     &
+     &        iPrim, jPrim, iCnt, jCnt,                                 &
+     &        iShell, jShell,                                           &
+     &        iCnttp, jCnttp, mdci, mdcj,                               &
+     &        iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal, nScr1, nScr2, &
+     &        nDAO, lDCRR, nDCRR, iTile, iuv, nStabO, LmbdT, LmbdR,     &
+     &        lDCRT, nDCRT, kk, ipFnlC, iComp, nOrder,                  &
      &        NrOpr, nStabM
       Integer, External :: n2Tri, MemSO1
       Real*8  FactND
       Real*8, External:: DDot_
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
-      Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),
+      Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),          &
      &                      DAO(:), DSOpr(:), DSO(:)
 #ifdef _DEBUGPRINT_
       Integer i
@@ -125,7 +125,7 @@
             nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
 #ifdef _DEBUGPRINT_
-            Write (6,'(A,A,A,A,A)')
+            Write (6,'(A,A,A,A,A)')                                     &
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 #endif
 !
@@ -140,14 +140,14 @@
 !           primitive basis.
 !
             nComp = (nOrdOp+1)*(nOrdOp+2)/2
-            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng)
-     &             * nElem(iAng)*nElem(jAng)
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng)                    &
+     &             * nElem(iAng)*nElem(jAng)                            &
      &             * nComp
             Call mma_allocate(Fnl,lFinal,Label='Fnl')
 !
 !           Scratch area for contraction step
 !
-            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *                    &
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 !
@@ -161,24 +161,24 @@
 !
 !           At this point we can compute Zeta.
 !
-            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,            &
      &                                    Shells(jShll)%Exp)
 !
             AeqB = iS.eq.jS
 !
 !           Find the DCR for A and B
 !
-            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,               &
      &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 #ifdef _DEBUGPRINT_
-            Write (6,'(10A)')
+            Write (6,'(10A)')                                           &
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 #endif
 !
 !-----------Find the stabilizer for A and B
 !
-            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
-     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,                   &
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,                   &
      &                 iStabM,nStabM)
 !
 !           Allocate memory for the elements of the Fock or 1st order
@@ -190,40 +190,40 @@
 !
 !           Gather the elements from 1st order density / Fock matrix.
 !
-            Call SOGthr(DSO,iBas,jBas,nSO,FD,
-     &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,
+            Call SOGthr(DSO,iBas,jBas,nSO,FD,                           &
+     &                  n2Tri(iSmLbl),iSmLbl,                           &
+     &                  iCmp,jCmp,iShell,jShell,                        &
      &                  AeqB,iAO,jAO)
 !
 !           Project the Fock/1st order density matrix in AO
 !           basis on to the primitive basis.
 !
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' Left side contraction',' ',
+            Call RecPrt(' Left side contraction',' ',                   &
      &                  Shells(iShll)%pCff,iPrim,iBas)
-            Call RecPrt(' Right side contraction',' ',
+            Call RecPrt(' Right side contraction',' ',                  &
      &                  Shells(jShll)%pCff,jPrim,jBas)
 #endif
 !
 !           Transform IJ,AB to J,ABi
-            Call DGEMM_('T','T',
-     &                  jBas*nSO,iPrim,iBas,
-     &                  1.0d0,DSO,iBas,
-     &                        Shells(iShll)%pCff,iPrim,
+            Call DGEMM_('T','T',                                        &
+     &                  jBas*nSO,iPrim,iBas,                            &
+     &                  1.0d0,DSO,iBas,                                 &
+     &                        Shells(iShll)%pCff,iPrim,                 &
      &                  0.0d0,DSOpr,jBas*nSO)
 !           Transform J,ABi to AB,ij
-            Call DGEMM_('T','T',
-     &                  nSO*iPrim,jPrim,jBas,
-     &                  1.0d0,DSOpr,jBas,
-     &                        Shells(jShll)%pCff,jPrim,
+            Call DGEMM_('T','T',                                        &
+     &                  nSO*iPrim,jPrim,jBas,                           &
+     &                  1.0d0,DSOpr,jBas,                               &
+     &                        Shells(jShll)%pCff,jPrim,                 &
      &                  0.0d0,DSO,nSO*iPrim)
 !           Transpose to ij,AB
-            Call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,
+            Call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,                  &
      &                  iPrim*jPrim)
             Call mma_deallocate(DSO)
 !
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' Decontracted 1st order density/Fock matrix',
+            Call RecPrt(' Decontracted 1st order density/Fock matrix',  &
      &                ' ',DSOpr,iPrim*jPrim,nSO)
 #endif
 !
@@ -244,14 +244,14 @@
 !
 !-----------------Find the DCR for M and S
 !
-                  Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,
+                  Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,           &
      &                     iDCRT,nDCRT)
 #ifdef _DEBUGPRINT_
-                  Write (6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),
+                  Write (6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),        &
      &                  i=0,nStabM-1),')'
-                  Write (6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),
+                  Write (6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),        &
      &                  i=0,nStabO-1),')'
-                  Write (6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),
+                  Write (6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),         &
      &                  i=0,nDCRT-1),')'
 #endif
 !
@@ -263,7 +263,7 @@
                   If (MolWgh.eq.1) Then
                      FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)
                   Else If (MolWgh.eq.2) Then
-                     FactNd = Sqrt(DBLE(iuv))*DBLE(nStabO) /
+                     FactNd = Sqrt(DBLE(iuv))*DBLE(nStabO) /            &
      &                        DBLE(nIrrep*LmbdT)
                   End If
                   FactNd = FactNd * FactOp(iTile)
@@ -276,10 +276,10 @@
                      Call OA(iDCRT(lDCRT),A,TA)
                      Call OA(iDCRT(lDCRT),RB,TRB)
 #ifdef _DEBUGPRINT_
-                     Write (6,'(A,/,3(3F6.2,2X))')
-     &               ' *** Centers A, B, C ***',
-     &               ( TA(i),i=1,3),
-     &               (TRB(i),i=1,3),
+                     Write (6,'(A,/,3(3F6.2,2X))')                      &
+     &               ' *** Centers A, B, C ***',                        &
+     &               ( TA(i),i=1,3),                                    &
+     &               (TRB(i),i=1,3),                                    &
      &               (C(i),i=1,3)
                      Write (6,*) ' nOp=',nOp
 #endif
@@ -287,55 +287,55 @@
 !--------------------Desymmetrize the matrix with which we will
 !                    contracte the trace.
 !
-                     Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                           iShell,jShell,iShll,jShll,
-     &                           iAO,jAO,DAO,iPrim,jPrim,
+                     Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,            &
+     &                           iShell,jShell,iShll,jShll,             &
+     &                           iAO,jAO,DAO,iPrim,jPrim,               &
      &                           DSOpr,nSO,nOp,FactNd)
 !
 !--------------------Project the spherical harmonic space onto the
 !                    cartesian space.
 !
                      kk = nElem(iAng)*nElem(jAng)
-                     If (Shells(iShll)%Transf.or.
+                     If (Shells(iShll)%Transf.or.                       &
      &                   Shells(jShll)%Transf) Then
 !
 !-----------------------ij,AB --> AB,ij
-                        Call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,
+                        Call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,        &
      &                              iCmp*jCmp,Scr1,iCmp*jCmp)
 !-----------------------AB,ij --> ij,ab
-                        Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,
-     &                              Scr2,nScr2,
-     &                              RSph(ipSph(iAng)),
-     &                              iAng,Shells(iShll)%Transf,
-     &                                   Shells(iShll)%Prjct,
-     &                              RSph(ipSph(jAng)),
-     &                              jAng,Shells(jShll)%Transf,
-     &                                   Shells(jShll)%Prjct,
+                        Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,         &
+     &                              Scr2,nScr2,                         &
+     &                              RSph(ipSph(iAng)),                  &
+     &                              iAng,Shells(iShll)%Transf,          &
+     &                                   Shells(iShll)%Prjct,           &
+     &                              RSph(ipSph(jAng)),                  &
+     &                              jAng,Shells(jShll)%Transf,          &
+     &                                   Shells(jShll)%Prjct,           &
      &                              DAO,kk)
                      End If
 #ifdef _DEBUGPRINT_
-                     Call RecPrt(
-     &                     ' Decontracted FD in the cartesian space',
+                     Call RecPrt(                                       &
+     &                     ' Decontracted FD in the cartesian space',   &
      &                     ' ',DAO,iPrim*jPrim,kk)
 #endif
 !
 !--------------------Compute kappa and P.
 !
-                     Call Setup1(Shells(iShll)%Exp,iPrim,
-     &                           Shells(jShll)%Exp,jPrim,
+                     Call Setup1(Shells(iShll)%Exp,iPrim,               &
+     &                           Shells(jShll)%Exp,jPrim,               &
      &                           TA,TRB,Kappa,PCoor,ZI)
 !
 !
 !--------------------Compute the potential at a tessera.
 !
-                     Call EFPrm(Shells(iShll)%Exp,iPrim,
-     &                          Shells(jShll)%Exp,jPrim,
-     &                          Zeta,ZI,Kappa,Pcoor,
-     &                          Fnl,iPrim*jPrim,nComp,
-     &                          iAng,jAng,TA,TRB,nOrder,Kern,
+                     Call EFPrm(Shells(iShll)%Exp,iPrim,                &
+     &                          Shells(jShll)%Exp,jPrim,                &
+     &                          Zeta,ZI,Kappa,Pcoor,                    &
+     &                          Fnl,iPrim*jPrim,nComp,                  &
+     &                          iAng,jAng,TA,TRB,nOrder,Kern,           &
      &                          MemKer,C,nOrdOp)
 #ifdef _DEBUGPRINT_
-                     Call RecPrt(' Final Integrals',
+                     Call RecPrt(' Final Integrals',                    &
      &                                 ' ',Fnl,nDAO,nComp)
 #endif
 !
@@ -343,22 +343,22 @@
 !                    to the potenital at tessera iTile
 !
 #ifdef _DEBUGPRINT_
-                     Call RecPrt(
-     &                        ' Decontracted FD in the cartesian space',
+                     Call RecPrt(                                       &
+     &                        ' Decontracted FD in the cartesian space',&
      &                        ' ',DAO,nDAO,1)
 #endif
                      ipFnlc=1
                      Do iComp = 1, nComp
 #ifdef _DEBUGPRINT_
-                        Call RecPrt('VTessera(iComp,2,iTile)',' ',
+                        Call RecPrt('VTessera(iComp,2,iTile)',' ',      &
      &                                  VTessera(iComp,2,iTile),1,1)
 #endif
 
-                        VTessera(iComp,2,iTile)=
-     &                      VTessera(iComp,2,iTile) +
+                        VTessera(iComp,2,iTile)=                        &
+     &                      VTessera(iComp,2,iTile) +                   &
      &                      DDot_(nDAO,DAO,1,Fnl(ipFnlc),1)
 #ifdef _DEBUGPRINT_
-                        Call RecPrt('VTessera(iComp,2,iTile)',' ',
+                        Call RecPrt('VTessera(iComp,2,iTile)',' ',      &
      &                               VTessera(iComp,2,iTile),1,1)
 #endif
                         ipFnlc=ipFnlc+nDAO

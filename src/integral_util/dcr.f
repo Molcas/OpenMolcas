@@ -17,7 +17,7 @@
       Implicit None
       Integer nStab1, nStab2
       Integer   iStab1(0:nStab1-1),iStab2(0:nStab2-1), iDCR(0:7)
-      Integer, Save ::   Index(50), Lambda_all(1275), mDCR_all(1275),
+      Integer, Save ::   Index(50), Lambda_all(1275), mDCR_all(1275),   &
      &                   iDCR_all(0:7,1275)
       Integer mDCR
 
@@ -68,7 +68,7 @@
       ij = Max(Ind1,Ind2)*(Max(Ind1,Ind2)-1)/2 + Min(Ind1,Ind2)
 !
       If (.Not.Done(ij)) Then
-         Call DCR_Internal(Lambda_all(ij),iStab1,nStab1,iStab2,nStab2,
+         Call DCR_Internal(Lambda_all(ij),iStab1,nStab1,iStab2,nStab2,  &
      &             iDCR_all(0,ij),mDCR_all(ij))
          Done(ij)=.True.
       End If
@@ -77,7 +77,7 @@
       Call ICopy(mDCR,iDCR_all(0,ij),1,iDCR,1)
 !
       Contains
-      SubRoutine DCR_Internal(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,
+      SubRoutine DCR_Internal(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,  &
      &                        mDCR)
 !***********************************************************************
 ! Oject: to compute the double coset representatives (DCR) and Lambda. *

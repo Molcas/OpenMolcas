@@ -15,7 +15,7 @@
       Integer nz, iSum, k
       Real*8 gri(nz,isum), grin(nz,0:k,k/2+1,k/4+1), alfa(nz), a(nz)
 
-      Integer indst, i, j, l, ix, iy, iz, iPot3i, jj, iDiv, ixyz, ix2,
+      Integer indst, i, j, l, ix, iy, iz, iPot3i, jj, iDiv, ixyz, ix2,  &
      &        iy2, ixS, iyS, ixyS, mZ
       Integer iv(kmax)
       Real*8 Beta, r0

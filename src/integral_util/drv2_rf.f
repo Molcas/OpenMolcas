@@ -57,19 +57,19 @@
       Real*8 Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
 
       Real*8 A(3), B(3), Ccoor(3)
-      Integer   nOp(2), iStabO(0:7),
+      Integer   nOp(2), iStabO(0:7),                                    &
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Logical AeqB
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
-      Real*8, Allocatable:: Kern(:), Fnl(:,:), Scr1(:), Scr2(:),
+      Real*8, Allocatable:: Kern(:), Fnl(:,:), Scr1(:), Scr2(:),        &
      &                      SO_Int(:)
       Integer ixyz, nElem
-      Integer is, js, iShll, jShll, iBas, jBas, iPrim, jPrim,
-     &        iCnt, jCnt, iAO, jAO, iShell, jShell, iCmp, jCmp,
-     &        iAng, jAng, iCnttp, jCnttp, mdci, mdcj,
-     &        nSkal, iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal,
-     &        nScr1, nScr2, iuv, nStabO, LmbdT, lDCRR, nDCRR,
-     &        lDCRT, nDCRT, nFnc, kk, mSO, nIC, iIC, LmbdR,
+      Integer is, js, iShll, jShll, iBas, jBas, iPrim, jPrim,           &
+     &        iCnt, jCnt, iAO, jAO, iShell, jShell, iCmp, jCmp,         &
+     &        iAng, jAng, iCnttp, jCnttp, mdci, mdcj,                   &
+     &        nSkal, iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal,        &
+     &        nScr1, nScr2, iuv, nStabO, LmbdT, lDCRR, nDCRR,           &
+     &        lDCRT, nDCRT, nFnc, kk, mSO, nIC, iIC, LmbdR,             &
      &        nOrder, NrOpr, nStabM, iDCRRT
       Integer, External:: n2Tri, MemSO1
       Real*8 Fact
@@ -137,7 +137,7 @@
             If (nSO.eq.0) Go To 131
 !
 #ifdef _DEBUGPRINT_
-            Write (6,'(A,A,A,A,A)')
+            Write (6,'(A,A,A,A,A)')                                     &
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 #endif
 !
@@ -153,27 +153,27 @@
 !           Allocate memory for the final integrals all in the
 !           primitive basis.
             nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *                  &
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal,nComp+1,Label='Fnl')
 !
 !           Scratch area for contraction step
 !
-            nScr1 =  Max(S%MaxPrm(iAng),S%MaxPrm(jAng)) *
-     &               Max(S%MaxBas(iAng),S%MaxBas(jAng)) *
+            nScr1 =  Max(S%MaxPrm(iAng),S%MaxPrm(jAng)) *               &
+     &               Max(S%MaxBas(iAng),S%MaxBas(jAng)) *               &
      &               nComp*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 !
 !           Scratch area for the transformation to spherical gaussians
 !
-            nScr2=nComp*S%MaxBas(iAng)*S%MaxBas(jAng)
+            nScr2=nComp*S%MaxBas(iAng)*S%MaxBas(jAng)                   &
      &           *nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 !
 !           At this point we can compute Zeta.
 !           This is now computed in the ij or ji order.
 !
-            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,            &
      &                                    Shells(jShll)%Exp)
 !
             AeqB = iS.eq.jS
@@ -186,13 +186,13 @@
 !
 !           Find the DCR for A and B
 !
-            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,               &
      &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 !
 !           Find the stabilizer for A and B
 !
-            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
-     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,                   &
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,                   &
      &                 iStabM,nStabM)
 !
 !           Find the DCR for M and S
@@ -203,24 +203,24 @@
             Write (6,*)
             Write (6,*) ' g      =',nIrrep
             Write (6,*) ' u      =',dc(mdci)%nStab
-            Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
+            Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),        &
      &            ii = 0, dc(mdci)%nStab-1)
             Write (6,*) ' v      =',dc(mdcj)%nStab
-            Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
+            Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),        &
      &            ii = 0, dc(mdcj)%nStab-1)
             Write (6,*) ' LambdaR=',LmbdR
             Write (6,*) ' r      =',nDCRR
-            Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
+            Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),                 &
      &            ii = 0, nDCRR-1)
             Write (6,*) ' m      =',nStabM
-            Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
+            Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),                &
      &            ii = 0, nStabM-1)
             Write (6,*) ' s      =',nStabO
-            Write (6,'(9A)') '(S)=',(ChOper(iStabO(ii)),
+            Write (6,'(9A)') '(S)=',(ChOper(iStabO(ii)),                &
      &            ii = 0, nStabO-1)
             Write (6,*) ' LambdaT=',LmbdT
             Write (6,*) ' t      =',nDCRT
-            Write (6,'(9A)') '(R)=',(ChOper(iDCRT(ii)),
+            Write (6,'(9A)') '(R)=',(ChOper(iDCRT(ii)),                 &
      &            ii = 0, nDCRT-1)
 #endif
 !
@@ -245,29 +245,29 @@
              Call OA(iDCRRT,dbsc(jCnttp)%Coor(1:3,jCnt),B)
              nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)))
 #ifdef _DEBUGPRINT_
-             Write (6,'(A,3(3F6.2,2X))')
-     &             '***** Centers A, B, & C. *****',
+             Write (6,'(A,3(3F6.2,2X))')                                &
+     &             '***** Centers A, B, & C. *****',                    &
      &             (A(i),i=1,3),(B(i),i=1,3),(Ccoor(i),i=1,3)
 #endif
 !
 !            Compute kappa and P.
 !
-             Call Setup1(Shells(iShll)%Exp,iPrim,
-     &                   Shells(jShll)%Exp,jPrim,
+             Call Setup1(Shells(iShll)%Exp,iPrim,                       &
+     &                   Shells(jShll)%Exp,jPrim,                       &
      &                   A,B,Kappa,PCoor,ZI)
 !
 !            Compute primitive integrals. Result is ordered ij,ab.
 !
-             Call RFInt(Shells(iShll)%Exp,iPrim,
-     &                  Shells(jShll)%Exp,jPrim,
-     &                   Zeta,ZI,
-     &                   Kappa,Pcoor,
-     &                   Fnl,iPrim*jPrim,nComp,
-     &                   iAng,jAng,A,B,nOrder,Kern,
+             Call RFInt(Shells(iShll)%Exp,iPrim,                        &
+     &                  Shells(jShll)%Exp,jPrim,                        &
+     &                   Zeta,ZI,                                       &
+     &                   Kappa,Pcoor,                                   &
+     &                   Fnl,iPrim*jPrim,nComp,                         &
+     &                   iAng,jAng,A,B,nOrder,Kern,                     &
      &                   MemKer,Ccoor,lMax)
 #ifdef _DEBUGPRINT_
-             Call RecPrt(' Primitive Integrals',' ',
-     &                      Fnl,iPrim*jPrim*
+             Call RecPrt(' Primitive Integrals',' ',                    &
+     &                      Fnl,iPrim*jPrim*                            &
      &                      nElem(iAng)*nElem(jAng),nComp)
 #endif
 !
@@ -276,12 +276,12 @@
 !
             nFnc=iPrim*jPrim*nElem(iAng)*nElem(jAng)
             call dcopy_(nFnc,[Zero],0,Fnl(1,nComp+1),1)
-            Call DNaXpY(nComp,nFnc,Fldxyz,1,
-     &                  Fnl,1,nFnc,
+            Call DNaXpY(nComp,nFnc,Fldxyz,1,                            &
+     &                  Fnl,1,nFnc,                                     &
      &                  Fnl(1,nComp+1),1,0)
 #ifdef _DEBUGPRINT_
-            Call RecPrt(' Solvation integrals',' ',
-     &                        Fnl(1,nComp+1),iPrim*jPrim,
+            Call RecPrt(' Solvation integrals',' ',                     &
+     &                        Fnl(1,nComp+1),iPrim*jPrim,               &
      &                        nElem(iAng)*nElem(jAng))
 #endif
 !
@@ -292,29 +292,29 @@
 !            that is up to 20% faster than the ab,ij index order.
 !
 #ifdef _DEBUGPRINT_
-             Call RecPrt(' Left side contraction',' ',
+             Call RecPrt(' Left side contraction',' ',                  &
      &                   Shells(iShll)%pCff,iPrim,iBas)
-             Call RecPrt(' Right side contraction',' ',
+             Call RecPrt(' Right side contraction',' ',                 &
      &                   Shells(jShll)%pCff,jPrim,jBas)
 #endif
 !
 !            Transform ij,x,ab to j,xabI
              kk=nElem(iAng)*nElem(jAng)
-             Call DGEMM_('T','N',
-     &                   jPrim*kk,iBas,iPrim,
-     &                   1.0d0,Fnl(1,nComp+1),iPrim,
-     &                         Shells(iShll)%pCff,iPrim,
+             Call DGEMM_('T','N',                                       &
+     &                   jPrim*kk,iBas,iPrim,                           &
+     &                   1.0d0,Fnl(1,nComp+1),iPrim,                    &
+     &                         Shells(iShll)%pCff,iPrim,                &
      &                   0.0d0,Scr1,jPrim*kk)
 !            Transform j,xabI to xab,IJ
-             Call DGEMM_('T','N',
-     &                   kk*iBas,jBas,jPrim,
-     &                   1.0d0,Scr1,jPrim,
-     &                         Shells(jShll)%pCff,jPrim,
+             Call DGEMM_('T','N',                                       &
+     &                   kk*iBas,jBas,jPrim,                            &
+     &                   1.0d0,Scr1,jPrim,                              &
+     &                         Shells(jShll)%pCff,jPrim,                &
      &                   0.0d0,Fnl(1,nComp+1),kk*iBas)
 !
 #ifdef _DEBUGPRINT_
-             Call
-     &          RecPrt(' Contracted integrals in cartesians',' ',
+             Call                                                       &
+     &          RecPrt(' Contracted integrals in cartesians',' ',       &
      &                     Fnl(1,nComp+1),kk,iBas*jBas)
 #endif
 !
@@ -323,30 +323,30 @@
              If (Shells(iShll)%Transf.or.Shells(jShll)%Transf) Then
 !
 !             Result comes back as IJxAB or IJxAb
-              call dcopy_(kk*iBas*jBas,Fnl(1,nComp+1),1,
+              call dcopy_(kk*iBas*jBas,Fnl(1,nComp+1),1,                &
      &                                Scr2,1)
-              Call CarSph(Scr2,kk,iBas*jBas,
-     &                    Fnl(1,nComp+1),nScr2,
-     &                    RSph(ipSph(iAng)),
-     &                    iAng,Shells(iShll)%Transf,
-     &                         Shells(iShll)%Prjct,
-     &                    RSph(ipSph(jAng)),
-     &                    jAng,Shells(jShll)%Transf,
-     &                         Shells(jShll)%Prjct,
+              Call CarSph(Scr2,kk,iBas*jBas,                            &
+     &                    Fnl(1,nComp+1),nScr2,                         &
+     &                    RSph(ipSph(iAng)),                            &
+     &                    iAng,Shells(iShll)%Transf,                    &
+     &                         Shells(iShll)%Prjct,                     &
+     &                    RSph(ipSph(jAng)),                            &
+     &                    jAng,Shells(jShll)%Transf,                    &
+     &                         Shells(jShll)%Prjct,                     &
      &                    Scr1,iCmp*jCmp)
              Else
 !             Transpose back to IJ,x,ab
-              Call DGeTmO(Fnl(1,nComp+1),kk,kk,iBas*jBas,
+              Call DGeTmO(Fnl(1,nComp+1),kk,kk,iBas*jBas,               &
      &                   Scr1,iBas*jBas)
              End If
 #ifdef _DEBUGPRINT_
-             Call RecPrt(' Contracted Integrals in Sphericals',
+             Call RecPrt(' Contracted Integrals in Sphericals',         &
      &                   ' ',Scr1,iBas*jBas,iCmp*jCmp)
 !
 !            At this point accumulate the batch of integrals onto the
 !            final symmetry adapted integrals.
 !
-             Call RecPrt (' Accumulated SO integrals, so far...',
+             Call RecPrt (' Accumulated SO integrals, so far...',       &
      &                               ' ',SO_Int,iBas*jBas,nSO)
 #endif
 !
@@ -355,10 +355,10 @@
             mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             nIC=1
             iIC=1
-            If (mSO.ne.0)
-     &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                     iShell,jShell,iShll,jShll,
-     &                     iAO,jAO,Scr1,
+            If (mSO.ne.0)                                               &
+     &         Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,                  &
+     &                     iShell,jShell,iShll,jShll,                   &
+     &                     iAO,jAO,Scr1,                                &
      &                     iBas,jBas,nIC,iIC,SO_Int,mSO,nOp)
 !
  140        Continue
@@ -369,7 +369,7 @@
            If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,SO_Int,1)
 #ifdef _DEBUGPRINT_
             Write (6,*) ' Scaling SO''s', Fact
-            Call RecPrt(' Final SO integrals',' ',
+            Call RecPrt(' Final SO integrals',' ',                      &
      &                  SO_Int,iBas*jBas,mSO)
 #endif
 !
@@ -377,8 +377,8 @@
 !
             iSmLbl=llOper
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
-            Call SOAdd(SO_Int,iBas,jBas,mSO,h0,
-     &                 n2Tri(iSmLbl),iSmLbl,
+            Call SOAdd(SO_Int,iBas,jBas,mSO,h0,                         &
+     &                 n2Tri(iSmLbl),iSmLbl,                            &
      &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 !
             Call mma_deallocate(SO_Int)

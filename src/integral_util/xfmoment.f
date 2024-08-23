@@ -62,11 +62,11 @@
                Tmom(3)=Tmom(3)*DBLE(iPhase(2,jCoSet(j,0)))   !Dy
                Tmom(4)=Tmom(4)*DBLE(iPhase(3,jCoSet(j,0)))   !Dz
                If(nOrd_XF.gt.1) Then
-                  Tmom(6)=Tmom(6)*DBLE(
+                  Tmom(6)=Tmom(6)*DBLE(                                 &
      &                 iPhase(1,jCoSet(j,0))*iPhase(2,jCoSet(j,0))) !Qxy
-                  Tmom(7)=Tmom(7)*DBLE(
+                  Tmom(7)=Tmom(7)*DBLE(                                 &
      &                 iPhase(1,jCoSet(j,0))*iPhase(3,jCoSet(j,0))) !Qxz
-                  Tmom(9)=Tmom(9)*DBLE(
+                  Tmom(9)=Tmom(9)*DBLE(                                 &
      &                 iPhase(2,jCoSet(j,0))*iPhase(3,jCoSet(j,0))) !Qyz
                EndIf
             EndIf

@@ -67,16 +67,16 @@
 !
 !------------- Charge term
 !
-               Cavxyz(Index(ix,iy,iz)) = xyzeff*qa
+               Cavxyz(Index(ix,iy,iz)) = xyzeff*qa                      &
      &                                 + Cavxyz(Index(ix,iy,iz))
 !
 !------------- Dipole terms
 !
-               Cavxyz(Index(ix+1,iy,iz)) = xyzeff*dax*ax
+               Cavxyz(Index(ix+1,iy,iz)) = xyzeff*dax*ax                &
      &                                   + Cavxyz(Index(ix+1,iy,iz))
-               Cavxyz(Index(ix,iy+1,iz)) = xyzeff*day*ay
+               Cavxyz(Index(ix,iy+1,iz)) = xyzeff*day*ay                &
      &                                   + Cavxyz(Index(ix,iy+1,iz))
-               Cavxyz(Index(ix,iy,iz+1)) = xyzeff*daz*az
+               Cavxyz(Index(ix,iy,iz+1)) = xyzeff*daz*az                &
      &                                   + Cavxyz(Index(ix,iy,iz+1))
 !
             End Do

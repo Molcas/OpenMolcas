@@ -45,7 +45,7 @@
       use Gateway_Info, only: ThrInt, CutInt
       use RICD_Info, only: Do_DCCD
       use iSD_data, only: iSD
-      use Integral_Interfaces, only: DeDe_SCF, No_routine,
+      use Integral_Interfaces, only: DeDe_SCF, No_routine,              &
      &                               Int_PostProcess
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Exfac, Thize, W2Disc
@@ -60,14 +60,14 @@
       External Rsv_GTList
       Integer, Parameter :: nTInt=1
       Real*8 TInt(nTInt)
-      Logical Semi_Direct,Rsv_GTList, Indexation,
+      Logical Semi_Direct,Rsv_GTList, Indexation,                       &
      &        DoGrad, Triangular
       Character(LEN=72) SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
       Integer iS, jS, ijS, klS, nSkal, iOpt, nIJ, kS, lS, mDens
-      Real*8 ThrAO, TskHi, TskLw, P_Eff, PP_Eff, PP_Eff_Delta,
-     &       PP_Count, TMax_All, S_Eff, T_Eff, ST_Eff, AInt, Dtst,
+      Real*8 ThrAO, TskHi, TskLw, P_Eff, PP_Eff, PP_Eff_Delta,          &
+     &       PP_Count, TMax_All, S_Eff, T_Eff, ST_Eff, AInt, Dtst,      &
      &       TCPU1, TCPU2, TWALL1, TWALL2
 !                                                                      *
 !***********************************************************************
@@ -225,7 +225,7 @@
 
 
       If (ST_Eff.ge.PP_Count) Then
-         Write (SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',
+         Write (SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',  &
      &        ST_Eff/PP_Eff,'% done so far.'
          Call StatusLine(' Seward:',SLine)
          PP_Count = PP_Count + PP_Eff_delta
@@ -249,13 +249,13 @@
          Else
 
            If(FckNoClmb) then
-              Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
+              Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,               &
      &                 DMax(js,ls)/Four,DMax(js,ks)/Four)
            Else If(FckNoExch) then
               Dtst=Max(DMax(is,js),DMax(ks,ls))
            Else
-              Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
-     &                 DMax(js,ls)/Four,DMax(js,ks)/Four,
+              Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,               &
+     &                 DMax(js,ls)/Four,DMax(js,ks)/Four,               &
      &                 DMax(is,js),DMax(ks,ls))
            End If
 
@@ -335,8 +335,8 @@
 
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
       use dEAF
-      use IOBUF, only: IODone, Disk, iBuf, ipos, iStatIO, Mode_Write,
-     &                 OnDisk, Mode_Read, Disk_1, Disk_2, lBuf, nBuf,
+      use IOBUF, only: IODone, Disk, iBuf, ipos, iStatIO, Mode_Write,   &
+     &                 OnDisk, Mode_Read, Disk_1, Disk_2, lBuf, nBuf,   &
      &                 Buffer, ID, LuTmp
       implicit None
 #include "SysDef.fh"
@@ -384,16 +384,16 @@
             thizeold=control(3)
             cutintold=control(4)
             if (lbufold.lt.lbuf) then
-              write(6,*) 'Reducing the buffer size from ',lbuf,
+              write(6,*) 'Reducing the buffer size from ',lbuf,         &
      &                  ' to',lbufold
               lbuf=lbufold
             else if(lbufold.gt.lbuf) then
-              write(6,*) 'Inconsistent buffer lengths. Old:',lbufold,
+              write(6,*) 'Inconsistent buffer lengths. Old:',lbufold,   &
      &                   '  current:',lbuf
               call Abend()
             end if
             if(nbuf.ne.nbufold) then
-              write(6,*) 'Inconsistent buffer number. Old:',nbufold,
+              write(6,*) 'Inconsistent buffer number. Old:',nbufold,    &
      &                   '  current:',nbuf
               call Abend()
             end if
@@ -402,7 +402,7 @@
               thize=thizeold
             end if
             if(cutintold.gt.cutint) then
-              write(6,*) 'Inconsistent Cutint. Old:',cutintold,
+              write(6,*) 'Inconsistent Cutint. Old:',cutintold,         &
      &                   '  current:',cutint
               call Abend()
             end if

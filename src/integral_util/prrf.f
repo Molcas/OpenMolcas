@@ -18,9 +18,9 @@
 !             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 !***********************************************************************
       use External_Centers, only: nXF, iXPolType
-      use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax,
-     &    lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI,
-     &    DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent,
+      use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax,&
+     &    lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI, &
+     &    DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent, &
      &    Conductor, CordSI, RslPar
       Implicit None
       Logical DSCF, NonEq
@@ -33,17 +33,17 @@
       IF (jPrint.GE.2) THEN
       If (lRF.and..Not.PCM.and.lRFCav) Then
          Write (6,*)
-         Write (6,'(5X,A)')
+         Write (6,'(5X,A)')                                             &
      &       'Reaction Field calculation: the Kirkwood model'
          Write (6,'(5X,A,ES10.3)') ' Dielectric Constant :',Eps
          Write (6,'(5X,A,ES10.3)') ' Eps_opt             :',EpsInf
          Write (6,'(5X,A,ES10.3)') ' Radius of Cavity(au):',rds
          Write (6,'(5X,A,I2)')    ' l_Max               :',lMax
          If (NonEq) Then
-            Write (6,'(5X,A)')
+            Write (6,'(5X,A)')                                          &
      &               ' Calculation type    : non-equilibrium'
          Else
-            Write (6,'(5X,A)')
+            Write (6,'(5X,A)')                                          &
      &               ' Calculation type    : equilibrium'
          End If
          Write (6,*)
@@ -54,10 +54,10 @@
          Write (6,'(5X,A)') ' -----------------------------------'
          Write (6,'(5X,A,I2)')     ' Number of points    :',nXF
          If (iXPolType.eq.1) Then
-            Write (6,'(5X,A)')
+            Write (6,'(5X,A)')                                          &
      &           ' Polarisabilities are isotropic'
          ElseIf (iXPolType.eq.2) Then
-            Write (6,'(5X,A)')
+            Write (6,'(5X,A)')                                          &
      &           ' Polarisabilities are anisotropic'
          EndIf
          Write (6,*)
@@ -89,28 +89,28 @@
          aArea = RSlPar(7)
          r_min_Sphere = RSlPar(3)
          Write (6,*)
-         Write (6,'(5X,A)')
+         Write (6,'(5X,A)')                                             &
      &         ' Polarizable Continuum Model (PCM) activated'
          nSolvent=StrnLn(Solvent)
-         Write (6,'(5X,A,A)')
+         Write (6,'(5X,A,A)')                                           &
      &         ' Solvent: ',Solvent(1:nSolvent)
          If (.Not.Conductor) Then
             Write (6,'(5X,A)') ' Version: Dielectric'
          Else
             Write (6,'(5X,A)') ' Version: Conductor'
          End If
-         Write (6,'(5X,A,F6.4,A)')
-     &               ' Average area for surface element on the '
+         Write (6,'(5X,A,F6.4,A)')                                      &
+     &               ' Average area for surface element on the '        &
      &             //'cavity boundary: ', aArea, ' angstrom^2'
-         Write (6,'(5X,A,F6.4,A)')
-     &               ' Minimum radius for added spheres: ',
+         Write (6,'(5X,A,F6.4,A)')                                      &
+     &               ' Minimum radius for added spheres: ',             &
      &               r_min_Sphere, ' angstrom'
          If (NonEq) Then
-            Write (6,'(5X,A)')
-     &               ' Calculation type: non-equilibrium'
+            Write (6,'(5X,A)')                                          &
+     &               ' Calculation type: non-equilibrium'               &
      &             //' (slow component from JobOld)'
          Else
-            Write (6,'(5X,A)')
+            Write (6,'(5X,A)')                                          &
      &               ' Calculation type: equilibrium'
          End If
          Write (6,*)

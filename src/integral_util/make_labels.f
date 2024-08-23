@@ -53,7 +53,7 @@
                   Sgn='   '
                End If
                i=i+1
-               Write (LblSbs(i),'(I2.2,A,I2.2,A)')
+               Write (LblSbs(i),'(I2.2,A,I2.2,A)')                      &
      &            n+1,AngTp(l),Abs(m),Sgn
             End Do
          End Do

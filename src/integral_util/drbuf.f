@@ -10,7 +10,7 @@
 !***********************************************************************
       Subroutine dRBuf(Array,nArray,Copy)
       Use dEAF, Only: dEAFARead
-      use IOBUF, Only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte,
+      use IOBUF, Only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte,   &
      &                 Disk_1, Disk_2, Disk, Buffer, iD, LuTmp
       Implicit None
       Logical Copy
@@ -23,7 +23,7 @@
 !
 !     Write (6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
       If (InCore.and.iBuf.eq.2) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &                    'Error in in-core semi-direct implementation')
          Call Abend()
       End If
@@ -61,7 +61,7 @@
          End If
          Left = lBuf-iPos+1
          If (mArray.gt.Left) Then
-            If (Copy) Call dCopy_(Left,Buffer(iPos,iBuf),1,
+            If (Copy) Call dCopy_(Left,Buffer(iPos,iBuf),1,             &
      &                            Array(iArray),1)
             iArray=iArray+Left
             mArray=mArray-Left
@@ -75,7 +75,7 @@
             End If
          Else
 !           Write (6,*) ' Copy ',mArray,'elements from buffer',iPos
-            If (Copy) Call dCopy_(mArray,Buffer(iPos,iBuf),1,
+            If (Copy) Call dCopy_(mArray,Buffer(iPos,iBuf),1,           &
      &                            Array(iArray),1)
             iPos=iPos+mArray
             mArray=0

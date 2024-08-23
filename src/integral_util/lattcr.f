@@ -11,8 +11,8 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine lattcr(Grid,nGrid_,nGrid_Eff_,PolEff,DipEff,
-     &                  cord,maxato,atorad,nPolComp,
+      Subroutine lattcr(Grid,nGrid_,nGrid_Eff_,PolEff,DipEff,           &
+     &                  cord,maxato,atorad,nPolComp,                    &
      &                  XF,nXF,nOrd_XF,XEle,iXPolType)
 
 !***********************************************************************
@@ -31,14 +31,14 @@
 !              March 2000                                              *
 !***********************************************************************
       use Constants, only: Zero, Half
-      use rctfld_module, only: MaxA, nSparse, MaxB, lSparse, Scala,
-     &                         Scalc, nGrid_Eff, LatAto, RadLat,
-     &                         lRFCav, rds, DieDel, rSca, DistSparse,
-     &                         nExpO, PreFac, Polsi, Dipsi, Cordsi,
+      use rctfld_module, only: MaxA, nSparse, MaxB, lSparse, Scala,     &
+     &                         Scalc, nGrid_Eff, LatAto, RadLat,        &
+     &                         lRFCav, rds, DieDel, rSca, DistSparse,   &
+     &                         nExpO, PreFac, Polsi, Dipsi, Cordsi,     &
      &                         MaxC, RotAlpha, RotBeta, RotGamma
       Implicit None
 !
-      Integer nGrid_, MaxAto, nPolComp, nXF, nOrd_XF,
+      Integer nGrid_, MaxAto, nPolComp, nXF, nOrd_XF,                   &
      &        iXPolType
       Real*8 Grid(3,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Real*8 cord(3,maxato), atorad(maxato),XF(*)
@@ -47,9 +47,9 @@
       Integer ixyz, nElem
       Integer Inc, iOrdOp
       Real*8 tr(3,3),co(3)
-      Integer ii, jj, kk, ni, nj, nk, nGridOld, l, m, ixf, i, j, k,
+      Integer ii, jj, kk, ni, nj, nk, nGridOld, l, m, ixf, i, j, k,     &
      &        nGrid_Eff_
-      Real*8 xs, ys, zs, xp, yp, zp, rp2, rp, Ener1, Ener, xa, ya, za,
+      Real*8 xs, ys, zs, xp, yp, zp, rp2, rp, Ener1, Ener, xa, ya, za,  &
      &       drp, rrr, dGGX, dGGY, dGGZ, rpa2, atrad, fac
       Real*8, External:: CovRadT
 !
@@ -68,14 +68,14 @@
 
 !
 !     Rotation matrix for the grid
-      tr(1,1)=cos(rotGamma)*cos(rotBeta)*cos(rotAlpha)-sin(rotGamma)
+      tr(1,1)=cos(rotGamma)*cos(rotBeta)*cos(rotAlpha)-sin(rotGamma)    &
      &     *sin(rotAlpha)
-      tr(1,2)=cos(rotGamma)*cos(rotBeta)*sin(rotAlpha)+sin(rotGamma)
+      tr(1,2)=cos(rotGamma)*cos(rotBeta)*sin(rotAlpha)+sin(rotGamma)    &
      &     *cos(rotAlpha)
       tr(1,3)=-cos(rotGamma)*sin(rotBeta)
-      tr(2,1)=-sin(rotGamma)*cos(rotBeta)*cos(rotAlpha)-cos(rotGamma)
+      tr(2,1)=-sin(rotGamma)*cos(rotBeta)*cos(rotAlpha)-cos(rotGamma)   &
      &     *sin(rotAlpha)
-      tr(2,2)=-sin(rotGamma)*cos(rotBeta)*sin(rotAlpha)+cos(rotGamma)
+      tr(2,2)=-sin(rotGamma)*cos(rotBeta)*sin(rotAlpha)+cos(rotGamma)   &
      &     *cos(rotAlpha)
       tr(2,3)= sin(rotGamma)*sin(rotBeta)
       tr(3,1)=sin(rotBeta)*cos(rotAlpha)
@@ -88,7 +88,7 @@
          ni=min(nSparse,maxa-ii+1)
          nj=min(nSparse,maxb-jj+1)
          nk=min(nSparse,maxc-kk+1)
-         If(LSparse.and.(ni.eq.nSparse).and.(nj.eq.nSparse).and.
+         If(LSparse.and.(ni.eq.nSparse).and.(nj.eq.nSparse).and.        &
      &        (nk.eq.nSparse)) Then
             xs=(DBLE(ii)+(DBLE(nSparse-1)*half))*scala
             ys=(DBLE(jj)+(DBLE(nSparse-1)*half))*scala

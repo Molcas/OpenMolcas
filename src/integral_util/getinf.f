@@ -26,7 +26,7 @@
       use Gateway_global, only: Test
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
-      use rctfld_module, only: lMax, cRFStrt,iRFStrt,lRFStrt,rRFStrt,
+      use rctfld_module, only: lMax, cRFStrt,iRFStrt,lRFStrt,rRFStrt,   &
      &                               cRFEnd ,iRFEnd ,lRFEnd ,rRFEnd
       Implicit None
       Integer nDiff

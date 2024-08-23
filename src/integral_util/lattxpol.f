@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,
+      Subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,           &
      &                    XF,nXF,nOrd_XF,nPolComp)
 !
       use Constants

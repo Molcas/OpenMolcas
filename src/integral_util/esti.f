@@ -11,7 +11,7 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,
+      Function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas, &
      &              xab,nab,Scrt,nScrt,IndZ)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -21,12 +21,12 @@
       Implicit None
       Real*8 EstI
       Integer nAlpha,nBeta,niBas,njBas,nab,nScrt
-      Real*8 Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta),
-     &       Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas),
+      Real*8 Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta),                  &
+     &       Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas),                 &
      &       xab(nAlpha*nBeta), Scrt(nScrt)
       Integer IndZ(nAlpha*nBeta+1)
 
-      Integer mZeta, iZeta, iAlpha, iBeta, iEta, iDelta, iGamma, iBas,
+      Integer mZeta, iZeta, iAlpha, iBeta, iEta, iDelta, iGamma, iBas,  &
      &        jBas, ijBas, iHigh
       Integer, External:: iDAMax_
       Real*8 rab, rcd, AInt
@@ -52,9 +52,9 @@
             Do iBas = 1, niBas
                Do jBas = 1, njBas
                   ijBas = (jBas-1)*niBas + iBas
-                  Scrt(ijBas) = Scrt(ijBas) +
-     &             Abs(Coeff1(iAlpha,iBas) * Coeff2(iBeta, jBas))*
-     &             Abs(Coeff1(iGamma,iBas) * Coeff2(iDelta,jBas))
+                  Scrt(ijBas) = Scrt(ijBas) +                           &
+     &             Abs(Coeff1(iAlpha,iBas) * Coeff2(iBeta, jBas))*      &
+     &             Abs(Coeff1(iGamma,iBas) * Coeff2(iDelta,jBas))       &
      &             * AInt
                End Do
             End Do

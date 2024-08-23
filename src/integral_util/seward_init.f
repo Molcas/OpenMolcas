@@ -1,4 +1,4 @@
-***********************************************************************
+!**********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -24,8 +24,8 @@
       use k2_structure, only: k2_processed
       use Basis_Info, only: Seward_Activated
       use RICD_Info, only: iRI_Type, Do_RI
-      use rmat, only: RmatR, Epsabs, Epsrel, qCoul, Epsq, bParm, dipol,
-     &                Dipol1, keyr, Quadpack, nagint, testint,
+      use rmat, only: RmatR, Epsabs, Epsrel, qCoul, Epsq, bParm, dipol, &
+     &                Dipol1, keyr, Quadpack, nagint, testint,          &
      &                RMat_On, lgamma
       use DCR_mod, only: DCR_Init
       use NAC, only: isNAC, isCSF

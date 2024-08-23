@@ -10,7 +10,7 @@
 !***********************************************************************
       Subroutine dWBuf(Array,nArray)
       Use dEAF, only: dEAFAWrite
-      Use IOBUF, only: InCore, iBuf, IODone, lBuf, iPos, Disk, OnDisk,
+      Use IOBUF, only: InCore, iBuf, IODone, lBuf, iPos, Disk, OnDisk,  &
      &                 DiskMx_Byte, Disk_1, Disk_2, Buffer, iD, LuTmp
       Implicit None
 #include "SysDef.fh"
@@ -22,7 +22,7 @@
 !
 !     Write (6,*) 'Enter WBuf: iPos @',iPos,' iBuf,lBuf=',iBuf,lBuf
       If (InCore.and.iBuf.eq.2) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &               'Error in in-core semi-direct implementation')
          Call Abend()
       End If
@@ -54,7 +54,7 @@
 !              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
                If (OnDisk) Then
 !                 Write (6,*) 'In dwbuf'
-                  Call dEAFAWrite(LuTmp,Buffer(1,iBuf),
+                  Call dEAFAWrite(LuTmp,Buffer(1,iBuf),                 &
      &                            lBuf*RtoI,Disk,id)
                End If
                If (iBuf.eq.1) Then

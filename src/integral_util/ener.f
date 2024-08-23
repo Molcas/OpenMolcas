@@ -11,8 +11,8 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D_Tot,Grid,
-     &                nGrid_,DipMom,EField,DipEff,PolEff,
+      Subroutine ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D_Tot,Grid,      &
+     &                nGrid_,DipMom,EField,DipEff,PolEff,               &
      &                Cord,MaxAto,Z_Nuc,nPolComp,nAnisopol,pField,tmpF)
 !***********************************************************************
 !                                                                      *
@@ -35,17 +35,17 @@
       use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
       use Gateway_global, only: PrPrt
-      use Integral_Interfaces, only: int_kernel, int_mem,
+      use Integral_Interfaces, only: int_kernel, int_mem,               &
      &                               OneEl_Integrals
       use Constants
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRFCav, TK
       Implicit None
       Integer nh1, nGrid_, MaxAto, nPolComp, nAnisopol
-      Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1),
-     &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
-     &       DipEff(nGrid_), PolEff(nPolComp,nGrid_),
-     &       Cord(3,MaxAto), Z_Nuc(MaxAto),pField(4,nGrid_),
+      Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1),                  &
+     &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),        &
+     &       DipEff(nGrid_), PolEff(nPolComp,nGrid_),                   &
+     &       Cord(3,MaxAto), Z_Nuc(MaxAto),pField(4,nGrid_),            &
      &       tmpF(4,nGrid_)
       Real*8 RepNuc
       Logical First, Dff
@@ -59,12 +59,12 @@
       Real*8, Allocatable:: Integrals(:)
       Integer, External:: n2Tri
       Real*8 EF_Grid(3), CCoor(3)
-      Real*8 EDip2, EInt, ESelf, ENucDip, ESimple, AGSum, dX, dY, dZ,
-     &       fX, fY, fZ, PFx, PFy, PFz, FDD, FTot, FTot2,
+      Real*8 EDip2, EInt, ESelf, ENucDip, ESimple, AGSum, dX, dY, dZ,   &
+     &       fX, fY, fZ, PFx, PFy, PFz, FDD, FTot, FTot2,               &
      &       x, ag, Ex, Emx, RHrmt, Sig, RepHlp, EElDip, Alfa
       Real*8, external:: DDOt_
-      Integer iGrid, nOrdOp, nComp, ixyz, iSymX, iSymY, iSymZ, iSymXY,
-     &        iSymXZ, iSymYZ, iSyXYZ, iSymC, iComp, ix, iy, iz, ip,
+      Integer iGrid, nOrdOp, nComp, ixyz, iSymX, iSymY, iSymZ, iSymXY,  &
+     &        iSymXZ, iSymYZ, iSyXYZ, iSymC, iComp, ix, iy, iz, ip,     &
      &        iSmLbl, MltLbl, nInt, iSym
       Integer, External:: IrrFnc
 #ifdef _DEBUGPRINT_
@@ -132,7 +132,7 @@
 !        Do NOT halve the contribution from permanent multipoles
          Eint=Eint-Half*(fDd + pfx*dx+pfy*dy+pfz*dz)
 
-         Esimple=Esimple-Half*(tmpF(1,iGrid)*dx+tmpF(2,iGrid)*dy+
+         Esimple=Esimple-Half*(tmpF(1,iGrid)*dx+tmpF(2,iGrid)*dy+       &
      &        tmpF(3,iGrid)*dz)
 
 !
@@ -164,11 +164,11 @@
 !------- Compute the EF at the grid point due to the nucleus
 !
          nOrdOp=1
-         Call EFNuc(Grid(1,iGrid),Z_Nuc,Cord,MaxAto,
+         Call EFNuc(Grid(1,iGrid),Z_Nuc,Cord,MaxAto,                    &
      &              EF_Grid,nOrdOp)
 !
-         Enucdip=Enucdip-EF_Grid(1)*dx
-     &                  -EF_Grid(2)*dy
+         Enucdip=Enucdip-EF_Grid(1)*dx                                  &
+     &                  -EF_Grid(2)*dy                                  &
      &                  -EF_Grid(3)*dz
 !
       End Do          ! iGrid
@@ -242,13 +242,13 @@
          If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
          If (Ccoor(2).ne.Zero) iSymC = iOr(iSymC,iSymY)
          If (Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSymZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)
+         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)                   &
      &      iSymC = iOr(iSymC,iSymXY)
-         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)
+         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)                   &
      &      iSymC = iOr(iSymC,iSymXZ)
-         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)
+         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)                   &
      &      iSymC = iOr(iSymC,iSymYZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.
+         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.              &
      &       Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSyXYZ)
 !
          iComp=0
@@ -268,8 +268,8 @@
             End Do
          End Do
 !
-         Call OneEl_Integrals(EFInt,EFMem,Label,
-     &                        ips,lOper,nComp,C_Coor,
+         Call OneEl_Integrals(EFInt,EFMem,Label,                        &
+     &                        ips,lOper,nComp,C_Coor,                   &
      &                        nOrdOp,rHrmt,kOper,Integrals)
 !
          Eeldip=Zero

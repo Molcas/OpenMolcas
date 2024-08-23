@@ -11,9 +11,9 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
-     &                 nOrdOp,rNuc,rHrmt,iChO,
-     &                 opmol,ipad,opnuc,iopadr,idirect,isyop,
+      SubRoutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,        &
+     &                 nOrdOp,rNuc,rHrmt,iChO,                          &
+     &                 opmol,ipad,opnuc,iopadr,idirect,isyop,           &
      &                 PtChrg,nGrid,iAddPot)
       use Basis_Info, only: nBas
       use PrpPnt, only: nOcc, nDen, nVec, Occ, Vec
@@ -43,9 +43,9 @@
       Integer iStabO(0:7)
       Integer, External:: n2Tri
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim,
-     &        ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl,
-     &        jComp, iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount,
+      Integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim,    &
+     &        ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl, &
+     &        jComp, iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount,     &
      &        iComp_, iInd1, LuTmp, nStabO
       Real*8 Sum
 
@@ -118,11 +118,11 @@
 !                                                                      *
 !---- Compute all SO integrals for all components of the operator.
 !
-      Call OneEl_Inner
-     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
-     &            nOrdOp,rHrmt,iChO,
-     &            opmol,opnuc,ipad,iopadr,idirect,isyop,
-     &            iStabO,nStabO,nIC,
+      Call OneEl_Inner                                                  &
+     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,             &
+     &            nOrdOp,rHrmt,iChO,                                    &
+     &            opmol,opnuc,ipad,iopadr,idirect,isyop,                &
+     &            iStabO,nStabO,nIC,                                    &
      &            PtChrg,nGrid,iAddPot,Array,LenTot)
 !                                                                      *
 !***********************************************************************
@@ -168,20 +168,20 @@
                call dcopy_(nComp,[Zero],0,Nuc,1)
             End If
             nInt=n2Tri(iSmLbl)
-            If (nInt.ne.0)
+            If (nInt.ne.0)                                              &
      &      Call CmpInt(Array(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
             Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+nInt+3)
-            If (nInt.ne.0)
-     &      Call XProp(Short,ifallorb,
-     &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,
-     &                 nDen,Array(ip(iComp)),
+            If (nInt.ne.0)                                              &
+     &      Call XProp(Short,ifallorb,                                  &
+     &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,                   &
+     &                 nDen,Array(ip(iComp)),                           &
      &                 Out(ipOut+(iComp-1)*mDim))
 !
             If (Label(1:3).eq.'PAM') Then
 !               Open(unit=28,file='R_vect',access='append')
                EndFile(28)
                If(Short) Then
-                  write(28,'(a8,2x,f20.14)')
+                  write(28,'(a8,2x,f20.14)')                            &
      &                 Label, Out(ipOut+(iComp-1)*mDim)
                Else
                   Sum = 0.00d0
@@ -217,14 +217,14 @@
                Else
                   ipC2 = 2 ! Used only for diamagnetic shielding.
                End If
-               Call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),
-     &                   nIrrep,nBas,mDim,Occ,Thrs,
+               Call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),          &
+     &                   nIrrep,nBas,mDim,Occ,Thrs,                     &
      &                   Out,Nuc,lpole,ifallorb)
 !
 ! For a properties calculation, save the values of EF or CNT operators,
 ! they will be used to write the sum through Add_Info in Drv1El
 !
-               If (PrPrt.and.
+               If (PrPrt.and.                                           &
      &             (LBL(1:2).eq.'EF'.or.LBL(1:3).eq.'CNT')) Then
                  Call mma_allocate(El,nComp,label='El')
                  ipEl=1
@@ -315,19 +315,19 @@
             Call WrOne(iRC,iOpt,L_Temp,iComp_,Array(ip(iComp)),iSmLbl)
 
             If (iRC.ne.0) then
-               Call WarningMessage(2,
-     &               ' *** Error in subroutine ONEEL ***,'//
+               Call WarningMessage(2,                                   &
+     &               ' *** Error in subroutine ONEEL ***,'//            &
      &               '     Abend in subroutine WrOne')
                Call Abend()
             End If
          End If
       End Do  ! iComp
 !
-      if (Label.eq.'Attract ')
+      if (Label.eq.'Attract ')                                          &
      &   Call Add_info('SEWARD_ATTRACT',Array(ip(1)),1,5)
-      if (Label.eq.'Kinetic ')
+      if (Label.eq.'Kinetic ')                                          &
      &   Call Add_info('SEWARD_KINETIC',Array(ip(1)),1,5)
-      if (Label.eq.'Mltpl  1')
+      if (Label.eq.'Mltpl  1')                                          &
      &   Call Add_info('SEWARD_MLTPL1X',Array(ip(1)),1,5)
 !                                                                      *
 !***********************************************************************

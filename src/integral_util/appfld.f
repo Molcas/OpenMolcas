@@ -41,7 +41,7 @@
       f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Multipole Moments',' ',Cavxyz,
+      Call RecPrt('Multipole Moments',' ',Cavxyz,                       &
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 !
@@ -81,7 +81,7 @@
       Call Tranca(Cavxyz,Cavsph,lmax,.False.)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electric Field',' ',Cavxyz,
+      Call RecPrt('Electric Field',' ',Cavxyz,                          &
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 !
@@ -120,7 +120,7 @@
       f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Multipole Moments',' ',Cavxyz,
+      Call RecPrt('Multipole Moments',' ',Cavxyz,                       &
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 !
@@ -150,7 +150,7 @@
       Call Tranca(Cavxyz,Cavsph,lmax,.False.)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electric Field',' ',Cavxyz,
+      Call RecPrt('Electric Field',' ',Cavxyz,                          &
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 !
@@ -191,7 +191,7 @@
       f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Multipole Moments',' ',Cavxyz,
+      Call RecPrt('Multipole Moments',' ',Cavxyz,                       &
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 !
@@ -199,7 +199,7 @@
 !
       Call Tranca(Cavxyz,Cavsph,lmax,.True.)
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' CavSph',' ',
+      Call RecPrt(' CavSph',' ',                                        &
      &                              Cavsph,(lMax+1)**2,1)
 #endif
 !
@@ -210,7 +210,7 @@
       ip = 1
       Do l=0,lmax
          rinv=One/radius**(2*l+1)
-         fact = F(Eps,l) - F(EpsInf,l)
+         fact = F(Eps,l) - F(EpsInf,l)                                  &
      &        - (F(EpsInf,l)-F(EpsInf,l)**2/F(Eps,l))
          rpoti=rinv*fact*DblFac(2*l-1)
          Call DScal_(2*l+1,rpoti,Cavsph(ip),1)
@@ -223,7 +223,7 @@
       Call Tranca(Cavxyz,Cavsph,lmax,.False.)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electric Field',' ',Cavxyz,
+      Call RecPrt('Electric Field',' ',Cavxyz,                          &
      &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 !

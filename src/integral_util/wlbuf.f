@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine WLBuf()
       Use dEAF, only: dEAFWrite
-      Use IOBUF, only: iStatIO, Mode_Read, OnDisk, InCore, iBuf, iPos,
-     &                 Disk, lBuf, DiskMx_Byte, Disk_1, Disk_2, Buffer,
+      Use IOBUF, only: iStatIO, Mode_Read, OnDisk, InCore, iBuf, iPos,  &
+     &                 Disk, lBuf, DiskMx_Byte, Disk_1, Disk_2, Buffer, &
      &                 ID, LuTmp
       use Constants, only: Zero
       Implicit None
@@ -26,7 +26,7 @@
 !     Disk_Save=Disk
 !     Write (6,*) 'Enter WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
       If (InCore.and.iBuf.eq.2) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &               'Error in in-core semi-direct implementation')
          Call Abend()
       End If
@@ -45,7 +45,7 @@
             Disk_1 = Disk
 !           If (OnDisk) Write (*,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
 !           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-            If (OnDisk) Call dEAFWrite(LuTmp,Buffer(1,iBuf),
+            If (OnDisk) Call dEAFWrite(LuTmp,Buffer(1,iBuf),            &
      &                                lBuf*RtoI,Disk)
 !---------- Put a dummy record at the end
             temp=Disk+DBLE(lBuf*RtoB)

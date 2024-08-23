@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_Eff,
+      Subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_Eff,       &
      &                nPolComp,nAnisopol,nXF,iXPolType,nXMolnr,XMolnr)
 
 !***********************************************************************
@@ -46,8 +46,8 @@
 !              March 2000                                              *
 !***********************************************************************
       use Constants, only: Zero, One, Three
-      use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14,
-     &                         lAmberPol, DipCutOff, lRFCav, FMax,
+      use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14,    &
+     &                         lAmberPol, DipCutOff, lRFCav, FMax,      &
      &                         cLim, EPS, EPSInF, rDS
 #ifdef _DEBUGPRINT_
       use rctfld_module, only: ScalA, ScalB, ScalC, AFac
@@ -55,18 +55,18 @@
       use Langevin_arrays, only: Ravxyz, Cavxyz
       Implicit None
 !
-      Integer nGrid_Eff, nPolComp, nAnisoPol, nXF, iXPolType,
+      Integer nGrid_Eff, nPolComp, nAnisoPol, nXF, iXPolType,           &
      &        nXMolNr
-      Real*8 Grid(3,nGrid_Eff), EF(4,nGrid_Eff), DipMom(3,nGrid_Eff),
-     &       dEF(4,nGrid_Eff), PolEff(nPolComp,nGrid_Eff),
+      Real*8 Grid(3,nGrid_Eff), EF(4,nGrid_Eff), DipMom(3,nGrid_Eff),   &
+     &       dEF(4,nGrid_Eff), PolEff(nPolComp,nGrid_Eff),              &
      &       DipEff(nGrid_Eff)
       Integer XMolnr(nXMolnr,nXF)
 
       Logical NonEq,lExcl
-      Real*8 ghx, ghy, ghz, dx, dy, dz, Dip_Eff, ffTots, FTots, x,
-     &       ex, emx, aLang, QQO, fx, fy, fz, ftot, uInd, Tr1, Scal,
-     &       ghx1, ghy1, ghz1, rx, ry, rz, r2, r2I, ska, DistI,
-     &       Dist3, Temp, TR2, S, V, D1, D2, Fax, Fay, Faz, FTest,
+      Real*8 ghx, ghy, ghz, dx, dy, dz, Dip_Eff, ffTots, FTots, x,      &
+     &       ex, emx, aLang, QQO, fx, fy, fz, ftot, uInd, Tr1, Scal,    &
+     &       ghx1, ghy1, ghz1, rx, ry, rz, r2, r2I, ska, DistI,         &
+     &       Dist3, Temp, TR2, S, V, D1, D2, Fax, Fay, Faz, FTest,      &
      &       v_Dummy
       Integer Iter, iGrid, jGrid, i
 #ifdef _DEBUGPRINT_
@@ -78,13 +78,13 @@
       Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_Eff)
       Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_Eff)
       Call RecPrt('edip: Grid ',' ',Grid,3,nGrid_Eff)
-      write(6,*)
-     &'nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,'//
-     &'clim,lDamping',
-     & nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,
+      write(6,*)                                                        &
+     &'nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,'//           &
+     &'clim,lDamping',                                                  &
+     & nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,              &
      & clim,lDamping
       do i=1,nGrid_Eff
-         write(6,*) 'EDOTr ', i,Grid(1,i)*dEF(1,i)+
+         write(6,*) 'EDOTr ', i,Grid(1,i)*dEF(1,i)+                     &
      &        Grid(2,i)*dEF(2,i)+Grid(3,i)*dEF(3,i)
       EndDo
 #endif
@@ -164,11 +164,11 @@
                DipMom(2,iGrid)=fy*PolEff(1,iGrid)
                DipMom(3,iGrid)=fz*PolEff(1,iGrid)
             Else  ! anisotropic
-               DipMom(1,iGrid)=fx*PolEff(1,iGrid)+
+               DipMom(1,iGrid)=fx*PolEff(1,iGrid)+                      &
      &              fy*PolEff(2,iGrid)+fz*PolEff(3,iGrid)
-               DipMom(2,iGrid)=fx*PolEff(2,iGrid)+
+               DipMom(2,iGrid)=fx*PolEff(2,iGrid)+                      &
      &              fy*PolEff(4,iGrid)+fz*PolEff(5,iGrid)
-               DipMom(3,iGrid)=fx*PolEff(3,iGrid)+
+               DipMom(3,iGrid)=fx*PolEff(3,iGrid)+                      &
      &              fy*PolEff(5,iGrid)+fz*PolEff(6,iGrid)
             EndIf
          Else   ! NB!! Only isotropic implemented for dip>0
@@ -218,14 +218,14 @@
             If(iGrid.gt.nAnisopol) Then
                Tr1=PolEff(1,iGrid)
             Else
-               Tr1=(PolEff(1,iGrid)+PolEff(4,iGrid)+PolEff(6,iGrid))
+               Tr1=(PolEff(1,iGrid)+PolEff(4,iGrid)+PolEff(6,iGrid))    &
      &              /Three
             EndIf
          EndIf
          Do jGrid = 1, nGrid_Eff
             If (iGrid.eq.jGrid) Go To 777
             scal=One
-            If(lAmberpol.and.(iXPolType.gt.0).and.(iGrid.le.nXF)
+            If(lAmberpol.and.(iXPolType.gt.0).and.(iGrid.le.nXF)        &
      &           .and.(jGrid.le.nXF)) Then
                lExcl=.False.
                Do i=1,nXMolnr
@@ -260,7 +260,7 @@
                If(jGrid.gt.nAnisopol) Then
                   Tr2=PolEff(1,jGrid)
                Else
-                  Tr2=(PolEff(1,jGrid)+PolEff(4,jGrid)+PolEff(6,jGrid))
+                  Tr2=(PolEff(1,jGrid)+PolEff(4,jGrid)+PolEff(6,jGrid)) &
      &                 /Three
                EndIf
                s = 2.3268D0*(Tr1*Tr2)**(1.0/6.0)
@@ -322,8 +322,8 @@
 
       fmax=Zero
       Do iGrid = 1, nGrid_Eff
-         ftest=dEF(1,iGrid)**2
-     &        +dEF(2,iGrid)**2
+         ftest=dEF(1,iGrid)**2                                          &
+     &        +dEF(2,iGrid)**2                                          &
      &        +dEF(3,iGrid)**2
          dEF(4,iGrid)=ftest
          fmax=Max(ftest,fmax)
@@ -353,22 +353,22 @@
       do i=1,nGrid_Eff
          dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)
          del=0.01
-         Write(6,*)Grid(1,i)+DipMom(1,i)/dipabs*del,
-     &             Grid(2,i)+DipMom(2,i)/dipabs*del,
+         Write(6,*)Grid(1,i)+DipMom(1,i)/dipabs*del,                    &
+     &             Grid(2,i)+DipMom(2,i)/dipabs*del,                    &
      &             Grid(3,i)+DipMom(3,i)/dipabs*del, dipabs/del/2.0
-         Write(6,*)Grid(1,i)-DipMom(1,i)/dipabs*del,
-     &             Grid(2,i)-DipMom(2,i)/dipabs*del,
+         Write(6,*)Grid(1,i)-DipMom(1,i)/dipabs*del,                    &
+     &             Grid(2,i)-DipMom(2,i)/dipabs*del,                    &
      &             Grid(3,i)-DipMom(3,i)/dipabs*del, -dipabs/del/2.0
       EndDo
 
       do i=1,nGrid_Eff
-         ddotr=Grid(1,i)*DipMom(1,i)+
+         ddotr=Grid(1,i)*DipMom(1,i)+                                   &
      &        Grid(2,i)*DipMom(2,i)+Grid(3,i)*DipMom(3,i)
-         dipabs=sqrt(DipMom(1,i)*DipMom(1,i)+DipMom(2,i)*DipMom(2,i)
+         dipabs=sqrt(DipMom(1,i)*DipMom(1,i)+DipMom(2,i)*DipMom(2,i)    &
      &        +DipMom(3,i)*DipMom(3,i))
-         radabs=sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)
+         radabs=sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)            &
      &        +Grid(3,i)*Grid(3,i))
-         write(6,*)'RADPOL',radabs,dipabs/(scala*scalb*scalc),
+         write(6,*)'RADPOL',radabs,dipabs/(scala*scalb*scalc),          &
      &        ddotr/(dipabs*radabs)
       EndDo
 #endif

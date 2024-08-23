@@ -12,12 +12,12 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine PSOAO0(nSO,MemPrm,MemMax,iAnga, iCmpa,
-     &                  iBas,  iBsInc, jBas,  jBsInc,
-     &                  kBas,  kBsInc, lBas,  lBsInc,
-     &                  iPrim, iPrInc, jPrim, jPrInc,
-     &                  kPrim, kPrInc, lPrim, lPrInc,
-     &                  ipMem1,ipMem2,
+      SubRoutine PSOAO0(nSO,MemPrm,MemMax,iAnga, iCmpa,                 &
+     &                  iBas,  iBsInc, jBas,  jBsInc,                   &
+     &                  kBas,  kBsInc, lBas,  lBsInc,                   &
+     &                  iPrim, iPrInc, jPrim, jPrInc,                   &
+     &                  kPrim, kPrInc, lPrim, lPrInc,                   &
+     &                  ipMem1,ipMem2,                                  &
      &                  Mem1,  Mem2,  DoFock)
 !***********************************************************************
 !                                                                      *
@@ -49,21 +49,21 @@
       use Breit, only: nComp
       Implicit None
 #include "Molcas.fh"
-      Integer nSO,MemPrm,MemMax,
-     &        iBas,  iBsInc, jBas,  jBsInc,
-     &        kBas,  kBsInc, lBas,  lBsInc,
-     &        iPrim, iPrInc, jPrim, jPrInc,
-     &        kPrim, kPrInc, lPrim, lPrInc,
+      Integer nSO,MemPrm,MemMax,                                        &
+     &        iBas,  iBsInc, jBas,  jBsInc,                             &
+     &        kBas,  kBsInc, lBas,  lBsInc,                             &
+     &        iPrim, iPrInc, jPrim, jPrInc,                             &
+     &        kPrim, kPrInc, lPrim, lPrInc,                             &
      &        ipMem1,ipMem2, Mem1,  Mem2
       Logical DoFock
 
       Integer iAnga(4), iCmpa(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-      Integer la, lb, lc, ld, iCmp, jCmp, nab, kCmp, lCmp, ncd,
-     &        mabMin, mabMax, mcdMin, mcdMax, nf, mabcd, nabcd,
-     &        ne, Mem0, mijkl, nijkl, kSOInt, MemPr, MemAux, nCache_,
-     &        lSize, IncVec, na1a, na2a, na3a, nVec1, na1b,
-     &        na2b, na3b, MemCon, MemSp1, MemFck, MemPck, lPack,
+      Integer la, lb, lc, ld, iCmp, jCmp, nab, kCmp, lCmp, ncd,         &
+     &        mabMin, mabMax, mcdMin, mcdMax, nf, mabcd, nabcd,         &
+     &        ne, Mem0, mijkl, nijkl, kSOInt, MemPr, MemAux, nCache_,   &
+     &        lSize, IncVec, na1a, na2a, na3a, nVec1, na1b,             &
+     &        na2b, na3b, MemCon, MemSp1, MemFck, MemPck, lPack,        &
      &        iFact, nVec2
 #include "SysDef.fh"
 !
@@ -154,14 +154,14 @@
          QjBas  = .False.
          QkBas  = .False.
          QlBas  = .True.
-         Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
-     &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
-     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
+         Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,            &
+     &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,            &
+     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,           &
      &               Fail)
          If (Fail) Then
             Call WarningMessage(2,' Allocation failed for Work1')
             Write (6,*) Mem0,Mem1
-            Write (6,*) iPrInc,iBsInc,kPrInc,kBsInc,
+            Write (6,*) iPrInc,iBsInc,kPrInc,kBsInc,                    &
      &                  jPrInc,jBsInc,lPrInc,lBsInc
             Call Abend()
          End If
@@ -291,8 +291,8 @@
 !     Memory to manupulate the 1-particle densities in FckAcc.
 !
       If (DoFock) Then
-         MemFck= 6*Max(iBsInc*lBsInc,iBsInc*kBsInc,jBsInc*lBsInc,
-     &          jBsInc*kBsInc,iBsInc*jBsInc,kBsInc*lBsInc)
+         MemFck= 6*Max(iBsInc*lBsInc,iBsInc*kBsInc,jBsInc*lBsInc,       &
+     &          jBsInc*kBsInc,iBsInc*jBsInc,kBsInc*lBsInc)              &
      &         + nijkl*nabcd
       Else
          MemFck=0
@@ -307,20 +307,20 @@
       Else
          MemPck = 0
       End If
-      Mem2 = Max((MemPr+MemAux),
-     &           (MemCon+MemAux),
-     &           (MemSp1+MemAux),
-     &           MemFck,
+      Mem2 = Max((MemPr+MemAux),                                        &
+     &           (MemCon+MemAux),                                       &
+     &           (MemSp1+MemAux),                                       &
+     &           MemFck,                                                &
      &           MemPck)
       If (Mem2+1.gt.Mem0) Then
-         Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
-     &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
-     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
+         Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,            &
+     &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,            &
+     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,           &
      &               Fail)
          If (Fail) Then
             Call WarningMessage(2,' Allocation failed for Work2')
             Write (6,*) Mem0
-            Write (6,*) iPrInc,iBsInc,kPrInc,kBsInc,
+            Write (6,*) iPrInc,iBsInc,kPrInc,kBsInc,                    &
      &                  jPrInc,jBsInc,lPrInc,lBsInc
             Call Abend()
          End If

@@ -36,7 +36,7 @@
 
       Real*8, Parameter :: tol=1d-8
       Logical, External :: TF
-      Integer mdc, iIrrep, iCnttp, iCnt, iCo, kOp, nDisps, iCar,
+      Integer mdc, iIrrep, iCnttp, iCnt, iCo, kOp, nDisps, iCar,        &
      &        iComp
       Integer, External :: iPrmt, NrOpr
       Real*8 Xr
@@ -54,8 +54,8 @@
 !999  Continue
 !
       Do iCnttp=1,nCnttp
-         If (.Not.(dbsc(iCnttp)%pChrg.or.
-     &             dbsc(iCnttp)%Frag.or.
+         If (.Not.(dbsc(iCnttp)%pChrg.or.                               &
+     &             dbsc(iCnttp)%Frag.or.                                &
      &             dbsc(iCnttp)%Aux)) Then
             Do iCnt=1,dbsc(iCnttp)%nCntr
                mdc=mdc+1

@@ -11,11 +11,11 @@
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine Cntrct(First,
-     &                  Coef1,n1,m1,Coef2,n2,m2,
-     &                  Coef3,n3,m3,Coef4,n4,m4,
-     &                  ACInt,mabMin,mabMax,mcdMin,mcdMax,
-     &                  Scrtch,nScrtch,ACOut,
+      SubRoutine Cntrct(First,                                          &
+     &                  Coef1,n1,m1,Coef2,n2,m2,                        &
+     &                  Coef3,n3,m3,Coef4,n4,m4,                        &
+     &                  ACInt,mabMin,mabMax,mcdMin,mcdMax,              &
+     &                  Scrtch,nScrtch,ACOut,                           &
      &                  IndZet,lZeta,IndEta,lEta,nComp)
 !***********************************************************************
 !                                                                      *
@@ -31,15 +31,15 @@
 !-----Cache size
 !
 #include "Molcas.fh"
-      Integer, Intent(in):: n1, m1, n2, m2, n3, m3, n4, m4,
-     &                     mabMax, mabMin, mcdMax, mcdMin, nScrtch,
+      Integer, Intent(in):: n1, m1, n2, m2, n3, m3, n4, m4,             &
+     &                     mabMax, mabMin, mcdMax, mcdMin, nScrtch,     &
      &                     lZeta, lEta, nComp
-      Real*8, Intent(in):: Coef1(n1,m1), Coef2(n2,m2),
+      Real*8, Intent(in):: Coef1(n1,m1), Coef2(n2,m2),                  &
      &                     Coef3(n3,m3), Coef4(n4,m4)
-      Real*8,  Intent(inout)::
+      Real*8,  Intent(inout)::                                          &
      &     ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
       Real*8, Intent(out) :: Scrtch(nScrtch)
-      Real*8, Intent(inout) ::
+      Real*8, Intent(inout) ::                                          &
      &      ACOut(nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),m1*m2*m3*m4)
       Logical, Intent(inout) :: First
       Integer, Intent(in) :: IndZet(lZeta), IndEta(lEta)
@@ -55,8 +55,8 @@
          Call RecPrt('Cntrct: [a0|c0]',' ',ACInt,lZeta,lEta*mabcd)
          Write (6,*) 'IndZet=',IndZet
          Write (6,*) 'IndEta=',IndEta
-      If (.not.First)
-     &   Call RecPrt(' In Cntrct: Partial (a0|c0)',' ',
+      If (.not.First)                                                   &
+     &   Call RecPrt(' In Cntrct: Partial (a0|c0)',' ',                 &
      &               ACOut,mabcd,m1*m2*m3*m4)
 #endif
 !     The idea here is to make the transformation in subblocks
@@ -94,12 +94,12 @@
       End If
 #endif
 !
-      Call CntHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,
-     &            .True.,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),
+      Call CntHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,                   &
+     &            .True.,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),        &
      &            IndZet)
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Halftransformed',' ',
+      Call RecPrt('Halftransformed',' ',                                &
      &             Scrtch(ipA3),nVec,m1*m2)
 #endif
 !
@@ -114,13 +114,13 @@
       End If
 #endif
 !
-      Call CntHlf(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,
-     &            First,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,
+      Call CntHlf(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,                    &
+     &            First,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,         &
      &            IndEta)
       First = .False.
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In Cntrct: (a0|c0) ',' ',
+      Call RecPrt(' In Cntrct: (a0|c0) ',' ',                           &
      &            ACOut,mabcd,m1*m2*m3*m4)
 #endif
 !
