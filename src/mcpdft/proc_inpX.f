@@ -235,7 +235,10 @@
           call Quit(_RC_INPUT_ERROR_)
         end if
 
-        if(mcpdft_options%is_hdf5_wfn) then
+
+#ifdef _DMRG_
+        if(.not. mh5_exists_dset(mh5id, 'QCMAQUIS_CHECKPOINT')) then
+#endif
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
             write (LF,*)' CI vectors will be read from HDF5 ref file.'
           else
@@ -243,7 +246,10 @@
             write (LF,*)'Fatal error, the calculation will stop now.'
             call Quit(_RC_INPUT_ERROR_)
           end if
-        end if
+#ifdef _DMRG_
+        endif
+#endif
+
         call mh5_close_file(mh5id)
 #else
         write (6,*) 'The format of the start orbital file was'
