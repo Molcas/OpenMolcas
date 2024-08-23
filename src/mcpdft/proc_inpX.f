@@ -82,10 +82,10 @@
 ! For geometry optimizations use the old CI coefficients.
       If (SuperName(1:6).eq.'mcpdft') Then
         If (.Not.Is_First_Iter()) Then
-          mcpdft_options%wfn_file = "JOBOLD"
+          mcpdft_options%wfn_file = ""
         End If
       Else If (SuperName(1:18).eq.'numerical_gradient') Then
-        mcpdft_options%wfn_file = "JOBOLD"
+        mcpdft_options%wfn_file = ""
       End If
 
       !> Local print level in this routine:
@@ -124,6 +124,9 @@
       END IF
 * ==== End check if there is any runfile ====
 
+! Make these enumerations??
+! Also, allow FILE to specify either a binary (JobIph or HDF5 reference for
+! example). No reason why we cannot do this.
       iOrbData=0
 ! iOrbData=0: no orbital space data is specified
 !         >0: specifications from some orbital file (JOBOLD, JOBIPH, HDF5)
@@ -134,11 +137,15 @@
 !       5, take from startorb (instead of jobold or jobiph) NOT IMPLEMENTED
 
 *---  ==== FILE(ORB) keyword =====
-      If (mcpdft_options%wfn_file .ne. "JOBOLD") Then
+      If (len_trim(mcpdft_options%wfn_file) .ne. 0) Then
+       keyJOBI = .false.
        if (mcpdft_options%is_hdf5_wfn) then
-         keyJOBI = .false.
+         invec = 4
        else
         invec = 5
+        write(lf,*) 'WARNING: cannot specify non-hdf5'
+        write(lf,*) 'file with FILE keyword.'
+        call abend()
        End If
       endif
 *---  ==== JOBI(PH) keyword =====
@@ -211,7 +218,6 @@
           write (LF,*)'Fatal error, the calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
-        INVEC = 4
 *     typeindex data available?
         if (mh5_exists_dset(mh5id, 'MO_TYPEINDICES')) then
           iOrbData=3

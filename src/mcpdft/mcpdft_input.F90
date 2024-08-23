@@ -25,7 +25,7 @@ module mcpdft_input
     logical :: meci = .false.
     logical :: nac = .false.
     logical :: is_hdf5_wfn = .false.
-    character(len=256) :: wfn_file = "JOBOLD"
+    character(len=256) :: wfn_file = ""
 
     integer(kind=iwp),dimension(2) :: nac_states = 0
     type(OTFNAL_t) :: otfnal
@@ -77,6 +77,7 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
+        ! This will abort if the file does not exist.
         call fileorb(buffer,mcpdft_options%wfn_file)
 #ifdef _HDF5_
         mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
@@ -194,6 +195,16 @@ contains
       endif
     endif
 
+    if(len_trim(mcpdft_options%wfn_file) /= 0) then
+      if(.not. mcpdft_options%is_hdf5_wfn) then
+        call WarningMessage(2,"FILE requires hdf5 file")
+        write(lf,*) ' ************* ERROR **************'
+        write(lf,*) ' FILE keyword only works with hdf5 '
+        write(lf,*) ' **********************************'
+        call Quit_OnUserError()
+      endif
+    endif
+
   endsubroutine
 
   subroutine EOFError(buffer)
@@ -201,7 +212,7 @@ contains
     implicit none
     character(len=*),intent(in) :: buffer
 
-    call warningmessage(2,"I/) error when reading line.")
+    call warningmessage(2,"EOF error when reading line.")
     write(lf,*) "Last line read from input: ",buffer
     call Quit_OnUserError()
   endsubroutine
