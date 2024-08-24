@@ -235,7 +235,7 @@ The :kword:`KSDFT` is the only required keyword.
 
 :kword:`FILEORB`
   This keyword allows one to set a reference wave function file to be used instead of the default,
-  which is the :file: `JOBIPH` file; in particular, one can use an :file: `HDF5` file.
+  which is the :file:`JOBIPH` file; in particular, one can use an :file:`HDF5` file.
   If a MC-PDFT calculation is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the keyword :kword:`WJOB`.
   Example: ``FileOrb = wavefunction.h5``
 
