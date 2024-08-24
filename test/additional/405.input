@@ -1,4 +1,10 @@
->> COPY MCPDFT.InpOrb .
+* Molecule: H2
+* Basis: STO-3G
+* Symmetry: C1 (none)
+* Features tested: MCPDFT
+* Responsible person: Matthew R. Hennefarth, 2024
+* Comments: State-specific MC-PDFT with no core orbitals.
+*-------------------------------------------------------------------------------
 &GATEWAY
 coord
 2
@@ -12,28 +18,32 @@ nosym
 
 &SEWARD
 grid input
-grid=ultrafine
+grid=fine
 end of grid input
 
->>foreach DFT in (T:LSDA, T:PBE, T:BLYP)
+>> COPY MCPDFT.InpOrb .
 
 &RASSCF
-FileOrb=MCPDFT.InpOrb
+FileOrb = MCPDFT.InpOrb
 CIONLY
-KSDFT
-ROKS; $DFT
-spin
-1
-symmetry
-1
-nactel
-2 0 0
-inactive
-0
-ras2
-2
+spin = 1
+symmetry = 1
+nactel = 2 0 0
+inactive = 0
+ras2 = 2
+
+>>foreach trans in (T, FT)
+>>foreach DFT in (LSDA, PBE, BLYP)
+
+&MCPDFT
+KSDFT = $trans:$DFT
 
 >>enddo
+>>enddo
+
+&MCPDFT
+KSDFT = T:BLYP
+LAMB = 0.15
 
 >file MCPDFT.InpOrb
 #INPORB 2.2
