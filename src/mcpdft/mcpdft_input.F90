@@ -149,48 +149,54 @@ contains
 
   subroutine verify_input()
     ! Validates mcpdft_options object. Ensures that the options provided from the user are valid.
-
-    use mcpdft_output,only:lf
+    use definitions,only:u6
     implicit none
 
+    if(mcpdft_options%mspdft .and. mcpdft_options%grad .and. mcpdft_options%otfnal.is_hybrid()) then
+      call WarningMessage(2,"Hybrid MS-PDFT gradients not implemented")
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' MS-PDFT gradients are not         '
+      write(u6,*) ' implemented LAMBDA keyword        '
+      write(u6,*) ' **********************************'
+    endif
     if(mcpdft_options%nac) then
       if(.not. mcpdft_options%mspdft) then
         call WarningMessage(2,"NACs implemented only for MS-PDFT")
-        write(lf,*) ' ************* ERROR **************'
-        write(lf,*) ' NACs are only implemented         '
-        write(lf,*) ' for Multistate PDFT               '
-        write(lf,*) ' **********************************'
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' NACs are only implemented         '
+        write(u6,*) ' for Multistate PDFT               '
+        write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif
       if(.not. mcpdft_options%grad) then
         call WarningMessage(2,"NACs implemented with GRAD keyword")
-        write(lf,*) ' ************* ERROR **************'
-        write(lf,*) ' NACs require the GRAD Keywords    '
-        write(lf,*) ' **********************************'
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' NACs require the GRAD Keywords    '
+        write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif
     endif
     if(mcpdft_options%meci) then
       if(.not. mcpdft_options%mspdft) then
         call WarningMessage(2,"NACs implemented only for MS-PDFT")
-        write(lf,*) ' ************* ERROR **************'
-        write(lf,*) ' MECI are only implemented         '
-        write(lf,*) ' for Multistate PDFT               '
-        write(lf,*) ' **********************************'
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MECI are only implemented         '
+        write(u6,*) ' for Multistate PDFT               '
+        write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif
       if(.not. mcpdft_options%grad) then
         call WarningMessage(2,"NACs implemented with GRAD keyword")
-        write(lf,*) ' ************* ERROR **************'
-        write(lf,*) ' MECI require the GRAD Keywords    '
-        write(lf,*) ' **********************************'
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MECI require the GRAD Keywords    '
+        write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif
       if(.not. mcpdft_options%nac) then
         call WarningMessage(2,"MECI requires NAC keyword")
-        write(lf,*) ' ************* ERROR **************'
-        write(lf,*) ' MECI require the NAC Keywords     '
-        write(lf,*) ' **********************************'
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MECI require the NAC Keywords     '
+        write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif
     endif
@@ -198,9 +204,9 @@ contains
     if(len_trim(mcpdft_options%wfn_file) /= 0) then
       if(.not. mcpdft_options%is_hdf5_wfn) then
         call WarningMessage(2,"FILE requires hdf5 file")
-        write(lf,*) ' ************* ERROR **************'
-        write(lf,*) ' FILE keyword only works with hdf5 '
-        write(lf,*) ' **********************************'
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' FILE keyword only works with hdf5 '
+        write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif
     endif
@@ -208,22 +214,22 @@ contains
   endsubroutine
 
   subroutine EOFError(buffer)
-    use mcpdft_output,only:lf
+    use definitions,only:u6
     implicit none
     character(len=*),intent(in) :: buffer
 
     call warningmessage(2,"EOF error when reading line.")
-    write(lf,*) "Last line read from input: ",buffer
+    write(u6,*) "Last line read from input: ",buffer
     call Quit_OnUserError()
   endsubroutine
 
   subroutine IOError(buffer)
-    use mcpdft_output,only:lf
+    use definitions,only:u6
     implicit none
     character(len=*),intent(in) :: buffer
 
     call WarningMessage(2,"I/O error when reading line.")
-    write(lf,*) "Last line read from input: ",buffer
+    write(u6,*) "Last line read from input: ",buffer
     call Quit_OnUserError()
   endsubroutine
 
