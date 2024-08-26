@@ -24,7 +24,8 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -307,8 +308,9 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
+      use printlevel, only: debug
       use mspdft, only: iFxyMS, iIntS
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use mcpdft_output, only: lf, iPrLoc
       use mcpdft_input, only: mcpdft_options
 
       IMPLICIT REAL*8 (A-H,O-Z)

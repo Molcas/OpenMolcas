@@ -29,7 +29,8 @@
       use OneDat, only: sNoOri
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
-      use mcpdft_output, only: silent, usual, lf, iPrLoc
+      use printlevel, only: silent, usual
+      use mcpdft_output, only: lf, iPrLoc
       use Fock_util_global, only: docholesky
       use rctfld_module
       use mcpdft_input, only: mcpdft_options

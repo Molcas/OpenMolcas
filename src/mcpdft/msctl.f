@@ -34,7 +34,8 @@
       Use hybridpdft, only: E_NoHyb
       use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: BM, FockOcc, TUVX

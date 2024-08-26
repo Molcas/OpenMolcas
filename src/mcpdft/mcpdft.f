@@ -56,7 +56,8 @@
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
-      use mcpdft_output, only: terse, debug, insane, usual, lf, iPrLoc
+      use printlevel, only: terse, debug, insane, usual
+      use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate

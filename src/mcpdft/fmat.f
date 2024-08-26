@@ -52,7 +52,8 @@
 *                                                                      *
 ************************************************************************
 
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
 
       Implicit Real*8 (A-H,O-Z)
 

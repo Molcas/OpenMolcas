@@ -26,7 +26,8 @@
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
       Use hybridpdft, only: E_NoHyb
       use mspdft, only: mspdftmethod, do_rotate
-      use mcpdft_output, only: iPrGlb, usual
+      use printlevel, only: usual
+      use mcpdft_output, only: iPrGlb
       use mcpdft_input, only: mcpdft_options
 
       Implicit Real*8 (A-H,O-Z)

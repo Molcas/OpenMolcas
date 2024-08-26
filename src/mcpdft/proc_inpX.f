@@ -13,7 +13,8 @@
       use Cholesky, only: ChFracMem
       use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
-      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use printlevel, only: terse, debug, insane
+      use mcpdft_output, only: lf, iPrLoc
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_exists_attr,

@@ -12,7 +12,8 @@
 !***********************************************************************
 
 module mspdft
-  use mcpdft_output,only:iPrLoc,usual
+  use printlevel,only:usual
+  use mcpdft_output,only:iPrLoc
   implicit none
   private
 

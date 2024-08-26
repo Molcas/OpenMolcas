@@ -16,18 +16,10 @@ module mcpdft_output
   implicit none
   private
 
-  ! amount of output written
-  integer(kind=iwp) :: silent = 0
-  integer(kind=iwp) :: terse = 1
-  integer(kind=iwp) :: usual = 2
-  integer(kind=iwp) :: verbose = 3
-  integer(kind=iwp) :: debug = 4
-  Integer(kind=iwp) :: insane = 5
-
   integer(kind=iwp),dimension(7) :: iPrLoc
   integer(kind=iwp) :: lf = u6,iPrGlb = 0
 
-  public :: silent,terse,usual,verbose,debug,insane,lf,iPrGlb,iPrLoc
+  public :: lf,iPrGlb,iPrLoc
   public :: set_print_level
 
 contains
@@ -36,6 +28,7 @@ contains
     ! Note, that it is impossible for iPrLoc to ever differ from
     ! iPrGlb, and therefore iPrLoc should just be removed from
     ! this module all together
+    use printlevel,only:debug,usual,silent
     implicit none
 
     logical,external :: reduce_prt
