@@ -150,15 +150,26 @@ contains
   subroutine verify_input()
     ! Validates mcpdft_options object. Ensures that the options provided from the user are valid.
     use definitions,only:u6
+    use Fock_util_global,only:DoCholesky
     implicit none
 
-    if(mcpdft_options%mspdft .and. mcpdft_options%grad .and. mcpdft_options%otfnal.is_hybrid()) then
-      call WarningMessage(2,"Hybrid MS-PDFT gradients not implemented")
-      write(u6,*) ' ************* ERROR **************'
-      write(u6,*) ' MS-PDFT gradients are not         '
-      write(u6,*) ' implemented LAMBDA keyword        '
-      write(u6,*) ' **********************************'
+    if(mcpdft_options%mspdft .and. mcpdft_options%grad) then
+      if(mcpdft_options%otfnal.is_hybrid()) then
+        call WarningMessage(2,"Hybrid MS-PDFT gradients not implemented")
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MS-PDFT gradients are not         '
+        write(u6,*) ' implemented LAMBDA keyword        '
+        write(u6,*) ' **********************************'
+      endif
+      if(DoCholesky) then
+        call WarningMessage(2,"MS-PDFT gradients with density fitting not implemented")
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MS-PDFT gradients are not         '
+        write(u6,*) ' implemented density fitting       '
+        write(u6,*) ' **********************************'
+      endif
     endif
+
     if(mcpdft_options%nac) then
       if(.not. mcpdft_options%mspdft) then
         call WarningMessage(2,"NACs implemented only for MS-PDFT")
