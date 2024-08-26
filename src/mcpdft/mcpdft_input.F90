@@ -154,7 +154,7 @@ contains
     implicit none
 
     if(mcpdft_options%mspdft .and. mcpdft_options%grad) then
-      if(mcpdft_options%otfnal.is_hybrid()) then
+      if(mcpdft_options%otfnal%is_hybrid()) then
         call WarningMessage(2,"Hybrid MS-PDFT gradients not implemented")
         write(u6,*) ' ************* ERROR **************'
         write(u6,*) ' MS-PDFT gradients are not         '
