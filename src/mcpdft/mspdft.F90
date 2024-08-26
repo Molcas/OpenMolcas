@@ -14,13 +14,14 @@
 module mspdft
   use printlevel,only:usual
   use mcpdft_output,only:iPrLoc
+  use definitions,only: iwp
   implicit none
   private
 
   character(len=8) :: mspdftmethod
   logical :: do_rotate = .False.
-  integer :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
-  integer :: D1AOMS,D1SAOMS
+  integer(kind=iwp) :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
+  integer(kind=iwp) :: D1AOMS,D1SAOMS
 
   ! CMS-NACS stuff
   logical :: isCMSNAC
@@ -111,6 +112,9 @@ contains
     ! Update information on the runfile for possible gradient calculations.
     call put_dArray('Last energies',e_mspdft,nroots)
     call Put_dScalar('Last energy',e_mspdft(iRlxRoot))
+    
+    ! Add info the checkfile for testing!
+    call Add_Info("MSPDFTE",e_mspdft,nroots,8)
 
     if(iprlev >= usual) then
       if(mcpdft_options%otfnal%is_hybrid()) then
