@@ -91,7 +91,7 @@ C Local print level (if any)
       left=6
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 
-      IF (IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF (IPRLEV.GE.DEBUG .AND..NOT.lOPTO) THEN
 * Start of long if-block A over IPRLEV
 *----------------------------------------------------------------------*
 *     Print orbital and wavefunction specifications                    *
