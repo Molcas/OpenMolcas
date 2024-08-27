@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine AppFld_(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
+subroutine AppFld_inner(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
 
 use Constants, only: One, Two
 
@@ -70,4 +70,4 @@ call RecPrt('Electric Field',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
 
 return
 
-end subroutine AppFld_
+end subroutine AppFld_inner

@@ -30,8 +30,8 @@ implicit none
 logical TstFnc
 integer iIrrep, iBsFnc, nStab
 integer iCoSet(0:7,0:7), iAcc(0:7)
-integer nCoSet, i, j, k, n, iCom
-integer, external :: iPrmt_
+integer nCoSet, i, j, k, n
+integer, external :: iPrmt
 
 TstFnc = .true.
 nCoSet = nIrrep/nStab
@@ -75,8 +75,7 @@ do i=0,nIrrep-1
     call Abend()
   end if
 
-  iCom = iand(iOper(i),iBsFnc)
-  iAcc(n) = iAcc(n)+iChTbl(iIrrep,i)*iPrmt_(iCom)
+  iAcc(n) = iAcc(n)+iChTbl(iIrrep,i)*iPrmt(i,iBsFnc)
 
 end do
 do i=0,nCoSet-1

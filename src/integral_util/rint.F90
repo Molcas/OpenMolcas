@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-function RinT_(iOpT,nOpT,iOpR)
+function RinT(iOpT,nOpT,iOpR)
 !***********************************************************************
 !                                                                      *
 ! Object: to return .true. if R is in {T}.                             *
@@ -26,17 +26,17 @@ function RinT_(iOpT,nOpT,iOpR)
 !***********************************************************************
 
 implicit none
-logical RinT_
+logical RinT
 integer nOpT, iOpR
 integer iOpT(nOpT)
 integer i
 
-RinT_ = .false.
+RinT = .false.
 do i=1,nOpT
   if (iOpT(i) == iOpR) then
-    RinT_ = .true.
+    RinT = .true.
     return
   end if
 end do
 
-end function RinT_
+end function RinT

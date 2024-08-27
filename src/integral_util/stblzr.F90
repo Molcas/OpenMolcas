@@ -26,17 +26,18 @@ subroutine Stblzr(iU,nU,iV,nV,iR,iM,nM)
 implicit none
 integer nU, nV, iR, nM
 integer iU(nU), iV(nV), iM(8)
-logical UeqV, RinT_
+logical UeqV
 integer i, iRU
+logical, external :: RinT
 
 ! See if U and V are the same
 
 UeqV = .true.
 do i=1,nV
-  if (.not. RinT_(iU,nU,iV(i))) UeqV = .false.
+  if (.not. RinT(iU,nU,iV(i))) UeqV = .false.
 end do
 do i=1,nU
-  if (.not. RinT_(iV,nV,iU(i))) UeqV = .false.
+  if (.not. RinT(iV,nV,iU(i))) UeqV = .false.
 end do
 
 if (UeqV) then
@@ -47,7 +48,7 @@ if (UeqV) then
   nM = nU
   do i=1,nU
     iRU = ieor(iR,iU(i))
-    if (.not. RinT_(iM,nM,iRU)) then
+    if (.not. RinT(iM,nM,iRU)) then
       nM = nM+1
       iM(nM) = iRU
     end if

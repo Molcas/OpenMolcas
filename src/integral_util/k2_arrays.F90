@@ -24,7 +24,7 @@ module k2_arrays
 !  and this pointer is to this part of DeDe.
 ! ipDijS: points to an auxiliary pice of memory which is used in
 !  case that used a subset of the elements of a matrix is used. In
-!  this case picky_ will extract those elements and put them into
+!  this case picky will extract those elements and put them into
 !  this part of DeDe on the fly.
 
 implicit none

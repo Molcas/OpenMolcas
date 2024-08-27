@@ -21,7 +21,7 @@ real*8 Radius, Eps, EpsInf
 logical NonEq
 
 call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
-call AppFld_(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
+call AppFld_inner(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
 call mma_deallocate(CavSph)
 
 return
