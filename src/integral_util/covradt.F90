@@ -8,17 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 Function CovRadT(i)
-      use CovRad_Data, only: CovRadT_
-      Implicit None
-      Integer i
-!
-      If (i.gt.92) Then
-!        Write (*,*) 'CovRadT: i.gt.92'
-         CovRadT=1.50d0
-      Else
-         CovRadT=CovRadT_(i)
-      End If
-!
-      Return
-      End Function CovRadT
+
+function CovRadT(i)
+
+use CovRad_Data, only: CovRadT_
+
+implicit none
+real*8 CovRadT
+integer i
+
+if (i > 92) then
+  !write(6,*) 'CovRadT: i > 92'
+  CovRadT = 1.50d0
+else
+  CovRadT = CovRadT_(i)
+end if
+
+return
+
+end function CovRadT

@@ -10,41 +10,46 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine ClsSew()
+
+subroutine ClsSew()
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Real_Spherical, only: Sphere_Free
-      use EFP_module, only: lEFP, FRAG_TYPE, ABC, EFP_COORS
-      use External_Centers, only: external_centers_free
-      use Basis_Info, only: Seward_Activated, Basis_Info_Free
-      use Center_Info, only: Center_Info_Free
-      use Symmetry_Info, only: Symmetry_Info_Free
-      use SOAO_Info, only: SOAO_Info_Free
-      Implicit None
-!
-      If (.NOT.Seward_Activated) Return
-!
-      Call Term_Ints()
-      Call Free_RctFld()
-      Call Free_HerRW()
-      Call Sphere_Free()
-      Call SOAO_Info_Free()
-      Call Basis_Info_Free()
-      Call SYmmetry_Info_Free()
-      Call Center_Info_Free()
-      Call External_Centers_Free()
-      Call Free_iSD()
-      Call CloseR()
-!
-      If (lEFP) Then
-         Deallocate(FRAG_TYPE)
-         Deallocate(ABC)
-         Deallocate(EFP_COORS)
-         lEFP=.FALSE.
-      End If
-!
-      Seward_Activated=.False.
-      Return
-      End SubRoutine ClsSew
+
+use Real_Spherical, only: Sphere_Free
+use EFP_module, only: lEFP, FRAG_TYPE, ABC, EFP_COORS
+use External_Centers, only: external_centers_free
+use Basis_Info, only: Seward_Activated, Basis_Info_Free
+use Center_Info, only: Center_Info_Free
+use Symmetry_Info, only: Symmetry_Info_Free
+use SOAO_Info, only: SOAO_Info_Free
+
+implicit none
+
+if (.not. Seward_Activated) return
+
+call Term_Ints()
+call Free_RctFld()
+call Free_HerRW()
+call Sphere_Free()
+call SOAO_Info_Free()
+call Basis_Info_Free()
+call SYmmetry_Info_Free()
+call Center_Info_Free()
+call External_Centers_Free()
+call Free_iSD()
+call CloseR()
+
+if (lEFP) then
+  deallocate(FRAG_TYPE)
+  deallocate(ABC)
+  deallocate(EFP_COORS)
+  lEFP = .false.
+end if
+
+Seward_Activated = .false.
+
+return
+
+end subroutine ClsSew

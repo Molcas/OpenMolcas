@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine CloseP()
+
+subroutine CloseP()
 !***********************************************************************
 !                                                                      *
 ! Object: to close the handling of the 2nd order density matrix.       *
@@ -18,36 +19,35 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use pso_stuff, only: Case_MP2, LuGam, lPSO, G1, G2, CMO, DSVar,   &
-     &                     DS, DVar, D0, Gamma_On, LuGamma, Bin, G_Toc, &
-     &                     SO2cI
-      use stdalloc, only: mma_deallocate
-      Implicit None
-      Logical DoCholesky
-!
-      If(case_mp2) then
-         Call DecideOnCholesky(DoCholesky)
-         If(.not. DoCholesky) Then
-            Call DaClos(LuGam)
-         End If
-      End If
-      If (Gamma_On) Then
+
+use pso_stuff, only: Case_MP2, LuGam, lPSO, G1, G2, CMO, DSVar, DS, DVar, D0, Gamma_On, LuGamma, Bin, G_Toc, SO2cI
+use stdalloc, only: mma_deallocate
+
+implicit none
+logical DoCholesky
+
+if (case_mp2) then
+  call DecideOnCholesky(DoCholesky)
+  if (.not. DoCholesky) call DaClos(LuGam)
+end if
 !*********** columbus interface ****************************************
-         Call DaClos(LuGamma)
-         Call mma_deallocate(Bin)
-         Call mma_deallocate(G_Toc)
-         Call mma_deallocate(SO2cI)
-      End If
-!
-      If (lPSO) Then
-         Call mma_deallocate(G2)
-         Call mma_deallocate(G1)
-      End If
-      call mma_deallocate(CMO)
-      call mma_deallocate(DSVar)
-      call mma_deallocate(DS)
-      call mma_deallocate(DVar)
-      call mma_deallocate(D0)
-!
-      Return
-      End SubRoutine CloseP
+if (Gamma_On) then
+  call DaClos(LuGamma)
+  call mma_deallocate(Bin)
+  call mma_deallocate(G_Toc)
+  call mma_deallocate(SO2cI)
+end if
+
+if (lPSO) then
+  call mma_deallocate(G2)
+  call mma_deallocate(G1)
+end if
+call mma_deallocate(CMO)
+call mma_deallocate(DSVar)
+call mma_deallocate(DS)
+call mma_deallocate(DVar)
+call mma_deallocate(D0)
+
+return
+
+end subroutine CloseP

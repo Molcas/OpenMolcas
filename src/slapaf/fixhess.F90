@@ -509,4 +509,4 @@ call mma_deallocate(LowVec)
 !                                                                      *
 return
 
-end
+end subroutine FixHess

@@ -8,15 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine EEMax(n,A,B)
-      Implicit None
-      Integer n
-      Real*8 A(n), B(n)
 
-      Integer i
+subroutine EEMax(n,A,B)
 
-      Do i = 1, n
-         If (B(i).gt.A(i)) A(i)=B(i)
-      End Do
+implicit none
+integer n
+real*8 A(n), B(n)
+integer i
 
-      End Subroutine EEMax
+do i=1,n
+  if (B(i) > A(i)) A(i) = B(i)
+end do
+
+end subroutine EEMax

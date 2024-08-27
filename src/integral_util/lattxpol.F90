@@ -8,40 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,           &
-     &                    XF,nXF,nOrd_XF,nPolComp)
-!
-      use Constants
-      Implicit None
-!
-      Integer nGrid, nGrid_Eff, nXF, nOrd_XF, nPolComp
-      Real*8 Grid(3,nGrid), PolEff(nPolComp,nGrid), DipEff(nGrid)
-      Real*8 XF(nXF)
 
-      Integer ixyz, nElem, Inc, iOrdOp, iXF, j
-!
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,XF,nXF,nOrd_XF,nPolComp)
 
-!     Calculate number of entries per XFIELD point
-      Inc = 3
-      Do iOrdOp = 0, nOrd_XF
-         Inc = Inc + nElem(iOrdOp)
-      End Do
-      Inc = Inc + 6  !iXpolType always .gt.0
+use Constants
 
-!     Insert XFIELD polarisabilities into Grid
-      Do iXF=1,nXF
-         nGrid_Eff=nGrid_Eff+1
-         Do j=1,nPolComp
-            PolEff(j,nGrid_Eff)=XF(iXF*Inc-6+j)
-         EndDo
-         DipEff(nGrid_Eff)=Zero
-         Do j=1,3
-            Grid(j,nGrid_Eff)=XF((iXF-1)*Inc+j)
-         EndDo
-      EndDo
+implicit none
+integer nGrid, nGrid_Eff, nXF, nOrd_XF, nPolComp
+real*8 Grid(3,nGrid), PolEff(nPolComp,nGrid), DipEff(nGrid)
+real*8 XF(nXF)
+integer ixyz, nElem, Inc, iOrdOp, iXF, j
+! Statement function for Cartesian index
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
-      Return
-      End Subroutine lattXPol
+! Calculate number of entries per XFIELD point
+Inc = 3
+do iOrdOp=0,nOrd_XF
+  Inc = Inc+nElem(iOrdOp)
+end do
+Inc = Inc+6  !iXpolType always > 0
+
+! Insert XFIELD polarisabilities into Grid
+do iXF=1,nXF
+  nGrid_Eff = nGrid_Eff+1
+  do j=1,nPolComp
+    PolEff(j,nGrid_Eff) = XF(iXF*Inc-6+j)
+  end do
+  DipEff(nGrid_Eff) = Zero
+  do j=1,3
+    Grid(j,nGrid_Eff) = XF((iXF-1)*Inc+j)
+  end do
+end do
+
+return
+
+end subroutine lattXPol

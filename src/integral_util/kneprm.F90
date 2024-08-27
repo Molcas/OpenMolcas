@@ -11,10 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine KnEPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,    &
-     &                  Final,nZeta,nComp,la,lb,A,RB,nHer,              &
-     &                  Array,nArr,Ccoor,nOrdOp)
+subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the kinetic energy integrals with the Gauss-      *
@@ -24,110 +23,96 @@
 !             November '90                                             *
 !             Modified to multipole moments November '90               *
 !***********************************************************************
-      use Her_RW, only: HerR, HerW, iHerR, iHerW
-      use Constants
-      Implicit None
-      Integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),        &
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),      &
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),                    &
-     &       Array(nZeta*nArr), Ccoor(3)
 
-      Logical ABeq(3)
-      Integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB,    &
-     &        ipAOff, iAlpha, ipBOff, iBeta
-!
-      ABeq(:) = A(:).eq.RB(:)
-!
-      nip = 1
-      ipAxyz = nip
-      nip = nip + nZeta*3*nHer*(la+2)
-      ipBxyz = nip
-      nip = nip + nZeta*3*nHer*(lb+2)
-      ipRxyz = nip
-      nip = nip + nZeta*3*nHer*(nOrdOp-1)
-      ipQxyz = nip
-      nip = nip + nZeta*3*(la+2)*(lb+2)*(nOrdOp-1)
-      ipTxyz = nip
-      nip = nip + nZeta*3*(la+1)*(lb+1)
-      ipA = nip
-      nip = nip + nZeta
-      ipB = nip
-      nip = nip + nZeta
+use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Constants
+
+implicit none
+integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
+real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
+       P(nZeta,3), A(3), RB(3), Array(nZeta*nArr), Ccoor(3)
+logical ABeq(3)
+integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB, ipAOff, iAlpha, ipBOff, iBeta
+
+ABeq(:) = A(:) == RB(:)
+
+nip = 1
+ipAxyz = nip
+nip = nip+nZeta*3*nHer*(la+2)
+ipBxyz = nip
+nip = nip+nZeta*3*nHer*(lb+2)
+ipRxyz = nip
+nip = nip+nZeta*3*nHer*(nOrdOp-1)
+ipQxyz = nip
+nip = nip+nZeta*3*(la+2)*(lb+2)*(nOrdOp-1)
+ipTxyz = nip
+nip = nip+nZeta*3*(la+1)*(lb+1)
+ipA = nip
+nip = nip+nZeta
+ipB = nip
+nip = nip+nZeta
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (nip-1.gt.nArr*nZeta) Then
-         Call WarningMessage(2,'KnEPrm: nip-1.gt.nArr*nZeta')
-         Write (6,*) 'nip=',nip
-         Write (6,*) 'nArr,nZeta=',nArr,nZeta
-         Call  Abend()
-      End If
-!
+if (nip-1 > nArr*nZeta) then
+  call WarningMessage(2,'KnEPrm: nip-1 > nArr*nZeta')
+  write(6,*) 'nip=',nip
+  write(6,*) 'nArr,nZeta=',nArr,nZeta
+  call Abend()
+end if
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In KnEPrm: A',' ',A,1,3)
-      Call RecPrt(' In KnEPrm: RB',' ',RB,1,3)
-      Call RecPrt(' In KnEPrm: Ccoor',' ',Ccoor,1,3)
-      Call RecPrt(' In KnEPrm: P',' ',P,nZeta,3)
-      Write (6,*) ' In KnEPrm: la,lb=',la,lb
+call RecPrt(' In KnEPrm: A',' ',A,1,3)
+call RecPrt(' In KnEPrm: RB',' ',RB,1,3)
+call RecPrt(' In KnEPrm: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In KnEPrm: P',' ',P,nZeta,3)
+write(6,*) ' In KnEPrm: la,lb=',la,lb
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-!     Compute the cartesian values of the basis functions angular part
-!
-      Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),                         &
-     &               la+1,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),                        &
-     &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
-!
-!     Compute the contribution from the multipole moment operator
-!
-      ABeq(1) = .False.
-      ABeq(2) = .False.
-      ABeq(3) = .False.
-      Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),                     &
-     &            nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
-!
-!     Compute the cartesian components for the multipole moment
-!     integrals. The integrals are factorized into components.
-!
-       Call Assmbl(Array(ipQxyz),                                       &
-     &             Array(ipAxyz),la+1,                                  &
-     &             Array(ipRxyz),nOrdOp-2,                              &
-     &             Array(ipBxyz),lb+1,                                  &
-     &             nZeta,HerW(iHerW(nHer)),nHer)
-!
-!     Compute the cartesian components for the kinetic energy integrals.
-!     The kinetic energy components are linear combinations of overlap
-!     components.
-!
-      ipAOff = ipA
-      Do 200 iBeta = 1, nBeta
-         call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
-         ipAOff = ipAOff + nAlpha
- 200  Continue
-!
-      ipBOff = ipB
-      Do 210 iAlpha = 1, nAlpha
-         call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-         ipBOff = ipBOff + 1
- 210  Continue
-!
-      Call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,                      &
-     &          Array(ipA),Array(ipB),nZeta)
-!
-!     Combine the cartesian components to the full one electron
-!     integral.
-!
-      Call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,Final, &
-     &            nComp,Array(ipTxyz))
-!
-!
-      Return
+! Compute the cartesian values of the basis functions angular part
+
+call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
+call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
+
+! Compute the contribution from the multipole moment operator
+
+ABeq(1) = .false.
+ABeq(2) = .false.
+ABeq(3) = .false.
+call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
+
+! Compute the cartesian components for the multipole moment
+! integrals. The integrals are factorized into components.
+
+call Assmbl(Array(ipQxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp-2,Array(ipBxyz),lb+1,nZeta,HerW(iHerW(nHer)),nHer)
+
+! Compute the cartesian components for the kinetic energy integrals.
+! The kinetic energy components are linear combinations of overlap
+! components.
+
+ipAOff = ipA
+do iBeta=1,nBeta
+  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
+  ipAOff = ipAOff+nAlpha
+end do
+
+ipBOff = ipB
+do iAlpha=1,nAlpha
+  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
+  ipBOff = ipBOff+1
+end do
+
+call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZeta)
+
+! Combine the cartesian components to the full one electron
+! integral.
+
+call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,final,nComp,Array(ipTxyz))
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(ZInv)
-      End If
-      End
+if (.false.) call Unused_real_array(ZInv)
+
+end subroutine KnEPrm

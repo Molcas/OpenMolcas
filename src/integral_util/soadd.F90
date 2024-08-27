@@ -10,99 +10,91 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,        &
-     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+subroutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January '91                                              *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit None
-      Integer iBas, jBas, nSOInt, nPrp, lOper,                          &
-     &                  iCmp,jCmp,iShell,jShell,iAO,jAO
-      Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
-      Logical AeqB
 
-      Integer, external:: iPntSO
-      Integer i, j, iTri, lSO, j1, i1, j2, j12, i2, iSO1, iSO2, iPnt,   &
-     &        iSO, jSO, Indij, nRow, IndAO1, IndAO2, ip
+use SOAO_Info, only: iAOtSO
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+use Constants
+
+implicit none
+integer iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
+real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
+logical AeqB
+integer, external :: iPntSO
+integer i, j, iTri, lSO, j1, i1, j2, j12, i2, iSO1, iSO2, iPnt, iSO, jSO, Indij, nRow, IndAO1, IndAO2, ip
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Statement functions
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-
-!
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
+call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
 #endif
-!
-      lSO = 0
-      Do 100 j1 = 0, nIrrep-1
-       Do 200 i1 = 1, iCmp
-        If (iAOtSO(iAO+i1,j1)<0) Cycle
-!
-!       Scatter the SO's onto lower rectangular blocks and triangular
-!       diagonal blocks.
-!
-        Do 300 j2 = 0, j1
-         j12 = iEor(j1,j2)
-         If (iAnd(lOper,2**j12).eq.0) Cycle
 
-         Do 400 i2 = 1, jCmp
-          If (iAOtSO(jAO+i2,j2)<0) Cycle
-          If (iShell.eq.jShell .and. j1.eq.j2 .and.                     &
-     &        i1<i2) Cycle
+lSO = 0
+do j1=0,nIrrep-1
+  do i1=1,iCmp
+    if (iAOtSO(iAO+i1,j1) < 0) cycle
 
-          lSO = lSO + 1
-          iSO1=iAOtSO(iAO+i1,j1)
-          iSO2=iAOtSO(jAO+i2,j2)
-!
-          iPnt = iPntSO(j1,j2,lOper,nbas)
-          Do 500 indAO1 = 1, iBas
-           Do 600 indAO2 = 1, jBas
-            ip = (indAO2-1)*iBas + indAO1
-!
-!           Move one electron integral.
-!
-            iSO=iSO1+IndAO1-1
-            jSO=iSO2+IndAO2-1
+    ! Scatter the SO's onto lower rectangular blocks and triangular
+    ! diagonal blocks.
 
-!           Diagonal block. Store only unique elements
-            If (j1.eq.j2 .and. iSO1.eq.iSO2 .and.                       &
-     &          iSO<jSO) Cycle
+    do j2=0,j1
+      j12 = ieor(j1,j2)
+      if (iand(lOper,2**j12) == 0) cycle
 
-            If (j1.eq.j2) Then
-!------------Diagonal symmetry block
-             Indij=iPnt + iTri(iSO,jSO)
-            Else
-!------------Off-diagonal symmetry block j1>j2
-             nRow = nBas(j1)
-             Indij=iPnt + nRow*(jSO-1)*nRow + iSO
-            End If
+      do i2=1,jCmp
+        if (iAOtSO(jAO+i2,j2) < 0) cycle
+        if ((iShell == jShell) .and. (j1 == j2) .and. (i1 < i2)) cycle
 
-            PrpInt(Indij) = PrpInt(Indij) + SOInt(ip,lSO)
-!
- 600       Continue
- 500      Continue
-!
- 400     Continue
- 300    Continue
-!
- 200   Continue
- 100  Continue
-!
-      Return
+        lSO = lSO+1
+        iSO1 = iAOtSO(iAO+i1,j1)
+        iSO2 = iAOtSO(jAO+i2,j2)
+
+        iPnt = iPntSO(j1,j2,lOper,nbas)
+        do indAO1=1,iBas
+          do indAO2=1,jBas
+            ip = (indAO2-1)*iBas+indAO1
+
+            ! Move one electron integral.
+
+            iSO = iSO1+IndAO1-1
+            jSO = iSO2+IndAO2-1
+
+            ! Diagonal block. Store only unique elements
+            if ((j1 == j2) .and. (iSO1 == iSO2) .and. (iSO < jSO)) cycle
+
+            if (j1 == j2) then
+              ! Diagonal symmetry block
+              Indij = iPnt+iTri(iSO,jSO)
+            else
+              ! Off-diagonal symmetry block j1>j2
+              nRow = nBas(j1)
+              Indij = iPnt+nRow*(jSO-1)*nRow+iSO
+            end if
+
+            PrpInt(Indij) = PrpInt(Indij)+SOInt(ip,lSO)
+
+          end do
+        end do
+
+      end do
+    end do
+
+  end do
+end do
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-        Call Unused_logical(AeqB)
-      End If
-      End
+if (.false.) call Unused_logical(AeqB)
+
+end subroutine SOAdd

@@ -10,41 +10,41 @@
 !                                                                      *
 ! Copyright (C) 2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine SetMltplCenters()
+
+subroutine SetMltplCenters()
+! Thomas Bondo Pedersen, July 2012.
 !
-!     Thomas Bondo Pedersen, July 2012.
-!
-!     Set multipole centers.
-!
-      use MpmC
-      use Sizes_of_Seward, only: S
-      use Gateway_Info, only: CoM
-      use stdalloc, only: mma_allocate
-      use Constants, only: Zero
-      Implicit None
+! Set multipole centers.
 
-      Integer i
+use MpmC
+use Sizes_of_Seward, only: S
+use Gateway_Info, only: CoM
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
 
-      ! Check
-      If (S%nMltpl.lt.0) Then
-         Call WarningMessage(2,'SetMltplCenters: illegal input')
-         Write(6,'(A,I10)') 'S%nMltpl=',S%nMltpl
-         Call Abend()
-      End If
+implicit none
+integer i
 
-      ! Allocate center array
-      Call mma_allocate(Coor_MPM,3,S%nMltpl+1,label='Coor_MPM')
+! Check
+if (S%nMltpl < 0) then
+  call WarningMessage(2,'SetMltplCenters: illegal input')
+  write(6,'(A,I10)') 'S%nMltpl=',S%nMltpl
+  call Abend()
+end if
 
-      ! Set origin as center for overlap (0th order)
-      Coor_MPM(:,1)=Zero
+! Allocate center array
+call mma_allocate(Coor_MPM,3,S%nMltpl+1,label='Coor_MPM')
 
-      ! Set origin as center for dipole (1st order) and
-      ! center of mass as center for higher-order multipoles
-      If (S%nMltpl.gt.0) Then
-         Coor_MPM(:,2)=Zero
-         Do i=2,S%nMltpl
-            Coor_MPM(:,i+1)=CoM(:)
-         End Do
-      End If
+! Set origin as center for overlap (0th order)
+Coor_MPM(:,1) = Zero
 
-      End Subroutine SetMltplCenters
+! Set origin as center for dipole (1st order) and
+! center of mass as center for higher-order multipoles
+if (S%nMltpl > 0) then
+  Coor_MPM(:,2) = Zero
+  do i=2,S%nMltpl
+    Coor_MPM(:,i+1) = CoM(:)
+  end do
+end if
+
+end subroutine SetMltplCenters

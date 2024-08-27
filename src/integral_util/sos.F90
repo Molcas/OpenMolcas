@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine SOS(iStabO,nStabO,lOper)
+
+subroutine SOS(iStabO,nStabO,lOper)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the stabilizer S for the operator O.             *
@@ -19,33 +20,35 @@
 !             University of Lund, SWEDEN                               *
 !             February '91                                             *
 !***********************************************************************
-      use Symmetry_Info, only: nIrrep, iChTbl, iOper
-      use Constants
-      Implicit None
-      Integer nStabO, lOper
-      Integer iStabO(8)
-!
-      Integer iS, iIrrep
+
+use Symmetry_Info, only: nIrrep, iChTbl, iOper
+use Constants
+
+implicit none
+integer nStabO, lOper
+integer iStabO(8)
+integer iS, iIrrep
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' In SOS'
-      Write (6,*) ' lOper=',lOper
-      Do 1 iS = 0, nIrrep-1
-         Write(6,'(8I5)') (iChTbl(iIrrep,iS),iIrrep=0,nIrrep-1)
- 1    Continue
+write(6,*) ' In SOS'
+write(6,*) ' lOper=',lOper
+do iS=0,nIrrep-1
+  write(6,'(8I5)') (iChTbl(iIrrep,iS),iIrrep=0,nIrrep-1)
+end do
 #endif
-      If (lOper.lt.0.or.lOper.gt.255) Then
-         Call WarningMessage(2,'SOS: Symmetry label is corrupted.')
-         Write (6,*) 'lOper=',lOper
-         Call Abend()
-      End If
-      nStabO = 0
-      outer: Do iS = 0, nIrrep-1
-         inner: Do iIrrep = 0, nIrrep-1
-            If (iAnd(lOper,2**iIrrep)==0) Cycle inner
-            If (iChTbl(iIrrep,iS)/=1) Cycle outer
-         End Do inner
-         nStabO = nStabO + 1
-         iStabO(nStabO) = iOper(iS)
-      End Do outer
-!
-      End SubRoutine SOS
+if ((lOper < 0) .or. (lOper > 255)) then
+  call WarningMessage(2,'SOS: Symmetry label is corrupted.')
+  write(6,*) 'lOper=',lOper
+  call Abend()
+end if
+nStabO = 0
+outer: do iS=0,nIrrep-1
+  inner: do iIrrep=0,nIrrep-1
+    if (iand(lOper,2**iIrrep) == 0) cycle inner
+    if (iChTbl(iIrrep,iS) /= 1) cycle outer
+  end do inner
+  nStabO = nStabO+1
+  iStabO(nStabO) = iOper(iS)
+end do outer
+
+end subroutine SOS

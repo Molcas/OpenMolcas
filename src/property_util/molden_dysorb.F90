@@ -517,7 +517,7 @@ end do
 kk_Max = kk
 if (nB > kk_max) then
   if (jPL >= 2) then
-    write(u6,*) 'Molden_Interface: nB.gt.kk_max'
+    write(u6,*) 'Molden_Interface: nB > kk_max'
     write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
   call End2()

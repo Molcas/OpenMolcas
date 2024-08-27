@@ -273,8 +273,7 @@ do ijS=1,nTasks
         write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
       end if
 
-      ! Desymmetrize the matrix with which we will
-      ! contracte the trace.
+      ! Desymmetrize the matrix with which we will contract the trace.
 
       call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DAO,iPrim,jPrim,DSOpr,nSO,nOp,FactNd)
 

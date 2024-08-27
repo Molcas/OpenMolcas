@@ -10,23 +10,28 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      Real*8 Function Gamma2(m,T)
+
+function Gamma2(m,T)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the auxiliary function in the high argument       *
 !         approximation.                                               *
 !                                                                      *
 !***********************************************************************
-      use Constants, only: Zero, One, Two
-      Implicit None
-      Integer m
-      Real*8 T
 
-      Integer i
-!
-      Gamma2= Sqrt(Two*ACos(Zero)/T)/Two
-      Do i = 1, m
-         Gamma2 = ((Two*DBLE(i)-One)/(Two*T))*Gamma2
-      End Do
-      Return
-      End Function Gamma2
+use Constants, only: Zero, One, Two
+
+implicit none
+real*8 Gamma2
+integer m
+real*8 T
+integer i
+
+Gamma2 = sqrt(Two*acos(Zero)/T)/Two
+do i=1,m
+  Gamma2 = ((Two*dble(i)-One)/(Two*T))*Gamma2
+end do
+
+return
+
+end function Gamma2

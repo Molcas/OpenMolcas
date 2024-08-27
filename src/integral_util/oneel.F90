@@ -11,119 +11,113 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,        &
-     &                 nOrdOp,rNuc,rHrmt,iChO,                          &
-     &                 opmol,ipad,opnuc,iopadr,idirect,isyop,           &
-     &                 PtChrg,nGrid,iAddPot)
-      use Basis_Info, only: nBas
-      use PrpPnt, only: nOcc, nDen, nVec, Occ, Vec
-      use Gateway_global, only: PrPrt, Short, IfAllOrb
-      use Sizes_of_Seward, only: S
-      use Gateway_Info, only: Thrs
-      use Symmetry_Info, only: nIrrep
-      use Integral_interfaces, only: int_kernel, int_mem, OneEl_inner
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only:  Zero
-      Implicit None
-      Procedure(int_kernel) :: Kernel
-      Procedure(int_mem) :: KrnlMm
-      Character(LEN=8) Label
-      Integer nComp, nOrdOp, nGrid
-      Real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
-      Real*8 rHrmt
-      Integer ip(nComp), lOper(nComp), iChO(nComp)
-      Real*8 opmol(*),opnuc(*)
-      Integer iopadr(ncomp,*)
-      Integer idirect, isyop, iAddPot
 
-      Real*8, Dimension(:), Allocatable :: Out, Nuc, El
-      Real*8, Dimension(:), Allocatable :: Array
-      Character(LEN=8) L_Temp
-      Character(LEN=4) LBL
-      Integer iStabO(0:7)
-      Integer, External:: n2Tri
-      Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim,    &
-     &        ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl, &
-     &        jComp, iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount,     &
-     &        iComp_, iInd1, LuTmp, nStabO
-      Real*8 Sum
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 !#define _DEBUGPRINT_
+subroutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rNuc,rHrmt,iChO,opmol,ipad,opnuc,iopadr,idirect,isyop,PtChrg, &
+                 nGrid,iAddPot)
+
+use Basis_Info, only: nBas
+use PrpPnt, only: nOcc, nDen, nVec, Occ, Vec
+use Gateway_global, only: PrPrt, Short, IfAllOrb
+use Sizes_of_Seward, only: S
+use Gateway_Info, only: Thrs
+use Symmetry_Info, only: nIrrep
+use Integral_interfaces, only: int_kernel, int_mem, OneEl_inner
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+
+implicit none
+procedure(int_kernel) :: Kernel
+procedure(int_mem) :: KrnlMm
+character(len=8) Label
+integer nComp, nOrdOp, nGrid
+real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
+real*8 rHrmt
+integer ip(nComp), lOper(nComp), iChO(nComp)
+real*8 opmol(*), opnuc(*)
+integer iopadr(ncomp,*)
+integer idirect, isyop, iAddPot
+real*8, dimension(:), allocatable :: Out, Nuc, El
+real*8, dimension(:), allocatable :: Array
+character(len=8) L_Temp
+character(len=4) LBL
+integer iStabO(0:7)
+integer, external :: n2Tri
+integer, parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim, ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl, jComp, &
+        iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount, iComp_, iInd1, LuTmp, nStabO
+real*8 Sum
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' In OneEl: Label', Label
-      Write (6,*) ' In OneEl: nComp'
-      Write (6,'(1X,8I5)') nComp
-      Write (6,*) ' In OneEl: lOper'
-      Write (6,'(1X,8I5)') lOper
-      Write (6,*) ' In OneEl: n2Tri'
-      Do iComp = 1, nComp
-         ip(iComp) = n2Tri(lOper(iComp))
-      End Do
-      Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-      Call RecPrt(' CoorO',' ',CoorO,3,nComp)
+write(6,*) ' In OneEl: Label',Label
+write(6,*) ' In OneEl: nComp'
+write(6,'(1X,8I5)') nComp
+write(6,*) ' In OneEl: lOper'
+write(6,'(1X,8I5)') lOper
+write(6,*) ' In OneEl: n2Tri'
+do iComp=1,nComp
+  ip(iComp) = n2Tri(lOper(iComp))
+end do
+write(6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
+call RecPrt(' CoorO',' ',CoorO,3,nComp)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Compute the number of blocks from each component of the operator
-!     and the irreps it will span.
-!
-      nIC = 0
-      llOper = 0
-      Do iComp = 1, nComp
-         llOper = iOr(llOper,lOper(iComp))
-         Do iIrrep = 0, nIrrep-1
-            If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
-         End Do
-      End Do
+! Compute the number of blocks from each component of the operator
+! and the irreps it will span.
+
+nIC = 0
+llOper = 0
+do iComp=1,nComp
+  llOper = ior(llOper,lOper(iComp))
+  do iIrrep=0,nIrrep-1
+    if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) nIC = nIC+1
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' nIC =',nIC
+write(6,*) ' nIC =',nIC
 #endif
-!
-      If (nIC.eq.0) Return
-!
-      Call SOS(iStabO,nStabO,llOper)
+
+if (nIC == 0) return
+
+call SOS(iStabO,nStabO,llOper)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Allocate memory for symmetry adapted one electron integrals.
-!     Will just store the unique elements, i.e. low triangular blocks
-!     and lower triangular elements in the diagonal blocks.
-!
-      Call ICopy(nComp,[-1],0,ip,1)
-      LenTot=0
-      Do iComp = 1, nComp
-         LenInt=n2Tri(lOper(iComp))
-         LenTot=LenTot+LenInt+4
-      End Do
-      Call mma_allocate(Array,LenTot,label='Array')
-      ip(1)=1
-      call dcopy_(LenTot,[Zero],0,Array(ip(1)),1)
-      iadr=ip(1)
-      do iComp = 1, nComp
-         LenInt=n2Tri(lOper(iComp))
-         ip(icomp)=iadr
-         iadr=iadr+LenInt+4
-!        Copy center of operator to work area.
-         call dcopy_(3,CoorO(1,iComp),1,Array(ip(iComp)+LenInt),1)
-!        Copy nuclear contribution to work area.
-         Array(ip(iComp)+LenInt+3) = rNuc(iComp)
-      End Do
+! Allocate memory for symmetry adapted one electron integrals.
+! Will just store the unique elements, i.e. low triangular blocks
+! and lower triangular elements in the diagonal blocks.
+
+call ICopy(nComp,[-1],0,ip,1)
+LenTot = 0
+do iComp=1,nComp
+  LenInt = n2Tri(lOper(iComp))
+  LenTot = LenTot+LenInt+4
+end do
+call mma_allocate(Array,LenTot,label='Array')
+ip(1) = 1
+call dcopy_(LenTot,[Zero],0,Array(ip(1)),1)
+iadr = ip(1)
+do iComp=1,nComp
+  LenInt = n2Tri(lOper(iComp))
+  ip(icomp) = iadr
+  iadr = iadr+LenInt+4
+  ! Copy center of operator to work area.
+  call dcopy_(3,CoorO(1,iComp),1,Array(ip(iComp)+LenInt),1)
+  ! Copy nuclear contribution to work area.
+  Array(ip(iComp)+LenInt+3) = rNuc(iComp)
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute all SO integrals for all components of the operator.
-!
-      Call OneEl_Inner                                                  &
-     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,             &
-     &            nOrdOp,rHrmt,iChO,                                    &
-     &            opmol,opnuc,ipad,iopadr,idirect,isyop,                &
-     &            iStabO,nStabO,nIC,                                    &
-     &            PtChrg,nGrid,iAddPot,Array,LenTot)
+! Compute all SO integrals for all components of the operator.
+
+call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iChO,opmol,opnuc,ipad,iopadr,idirect,isyop,iStabO,nStabO, &
+                 nIC,PtChrg,nGrid,iAddPot,Array,LenTot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -132,211 +126,198 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call PrMtrx(Label,lOper,nComp,ip,Array)
+call PrMtrx(Label,lOper,nComp,ip,Array)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Make a square sum on all the integrals for verification
-      Call VrfMtrx(Label,lOper,nComp,ip,Array)
+! Make a square sum on all the integrals for verification
+call VrfMtrx(Label,lOper,nComp,ip,Array)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute properties or write integrals to disc.
-!
-      Do iComp = 1, nComp
-         iSmLbl = lOper(iComp)
-         If (Prprt) Then
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---------- Compute properties directly from integrals
-!
-!---------- Allocate some memory
-!
-            If (iComp.eq.1) Then
-               If (short) Then
-                  mDim = 1
-               Else
-                  mDim = S%nDim
-               End If
-               call mma_allocate(Out,mDim*nComp,label='Out')
-               ipOut=1
-               call dcopy_(mDim*nComp,[Zero],0,Out,1)
-               call mma_allocate(Nuc,nComp,label='Nuc')
-               ipNuc=1
-               call dcopy_(nComp,[Zero],0,Nuc,1)
-            End If
-            nInt=n2Tri(iSmLbl)
-            If (nInt.ne.0)                                              &
-     &      Call CmpInt(Array(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
-            Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+nInt+3)
-            If (nInt.ne.0)                                              &
-     &      Call XProp(Short,ifallorb,                                  &
-     &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,                   &
-     &                 nDen,Array(ip(iComp)),                           &
-     &                 Out(ipOut+(iComp-1)*mDim))
-!
-            If (Label(1:3).eq.'PAM') Then
-!               Open(unit=28,file='R_vect',access='append')
-               EndFile(28)
-               If(Short) Then
-                  write(28,'(a8,2x,f20.14)')                            &
-     &                 Label, Out(ipOut+(iComp-1)*mDim)
-               Else
-                  Sum = 0.00d0
-                  Do ii= 1 , nOcc
-                    Sum = Sum + Out(ipOut+ii-1+(iComp-1)*mDim)
-                  End Do
-                  write(28,'(a8,2x,f20.14)') Label,-Sum
-               End If
-!               Close(28)
-             End If
-!
-!---------- Once all components have been computed print them.
-!
-            If (iComp.eq.nComp) Then
-               LBL=Label(1:4)
-               Call UpCase(LBL)
-               lpole = 0
-               If (LBL.eq.'MLTP') Then
-                   Read(Label,'(5X,I3)') lpole
-               Else If (LBL.eq.'PAM ') Then
-                   Read(Label,'(5X,I1)') lpole
-               Else If (LBL.eq.'L_MP') Then
-                   Read(Label,'(5X,I1)') lpole
-               Else If (LBL(1:2).eq.'EF') Then
-                   Read(Label,'(2X,I1)') lpole
-               Else If (LBL.eq.'DMS ') Then
-                   lpole = 3
-               Else If (LBL.eq.'VELO') Then
-                   lpole = 1
-               End If
-               If (nComp.eq.1) Then
-                  ipC2 = 1 ! dummy
-               Else
-                  ipC2 = 2 ! Used only for diamagnetic shielding.
-               End If
-               Call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),          &
-     &                   nIrrep,nBas,mDim,Occ,Thrs,                     &
-     &                   Out,Nuc,lpole,ifallorb)
-!
-! For a properties calculation, save the values of EF or CNT operators,
-! they will be used to write the sum through Add_Info in Drv1El
-!
-               If (PrPrt.and.                                           &
-     &             (LBL(1:2).eq.'EF'.or.LBL(1:3).eq.'CNT')) Then
-                 Call mma_allocate(El,nComp,label='El')
-                 ipEl=1
-                 Call FZero(El,nComp)
-!                Compute the sum of all orbital components
-                 Do jComp=0,nComp-1
-                   iInd1=ipEl+jComp
-                   iInd2=ipOut+jComp*mDim
-                   Do iOcc=0,mDim-1
-                     El(iInd1)=El(iInd1)+Out(iInd2+iOcc)
-                   End Do
-                 End Do
-!                Write electronic and nuclear components in temp file
-                 LuTmp=10
-                 Call DaName(LuTmp,'TMPPRP')
-                 Read(Label(4:8),*) iEF
-                 iDisk=(iEF-1)*2
-                 Call dDaFile(LuTmp,1,El,nComp,iDisk)
-                 Call dDaFile(LuTmp,1,Nuc,nComp,iDisk)
-                 Call DaClos(LuTmp)
-                 Call mma_deallocate(El)
-               End If
-!
-               Call mma_deallocate(Nuc)
-               Call mma_deallocate(Out)
-            End If
-         Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---------- Write integrals to disc
-!
-            iOpt = 0
-            iRC = -1
-            If (Label(1:3).eq.'PAM') Then
-               Write(L_Temp,'(A5,I3.3)') 'PAM  ',iPAMcount
-               iPAMcount=iPAMcount+1
-               iComp_=1
-            Else If (Label(1:5).eq.'EMFR0') Then
-               iComp_=1
-               If (iComp.eq.1) Then
-                  L_Temp='EMFR0  R'
-               Else
-                  L_Temp='EMFR0  I'
-               End If
-            Else If (Label(1:5).eq.'EMFR ') Then
-               iComp_=MOD(iComp+2,3)+1
-               If ((iComp+2)/3.eq.1) Then
-                  L_Temp='EMFR  RS'
-               Else If ((iComp+2)/3.eq.2) Then
-                  L_Temp='EMFR  RA'
-               Else If ((iComp+2)/3.eq.3) Then
-                  L_Temp='EMFR  IS'
-               Else If ((iComp+2)/3.eq.4) Then
-                  L_Temp='EMFR  IA'
-               End If
-             Else If (Label(1:5).eq.'TMOM0') Then
-               If (iComp.eq.1) Then
-                  L_Temp='TMOM0  R'
-                  iComp_=1
-               Else
-                  L_Temp='TMOM0  I'
-                  iComp_=1
-               End If
-             Else If (Label(1:5).eq.'TMOM2') Then
-               If (iComp.eq.1) Then
-                  L_Temp='TMOM2  R'
-                  iComp_=1
-               Else
-                  L_Temp='TMOM2  I'
-                  iComp_=1
-               End If
-            Else If (Label(1:5).eq.'TMOM ') Then
-               iComp_=MOD(iComp+2,3)+1
-               If ((iComp+2)/3.eq.1) Then
-                  L_Temp='TMOM  RS'
-               Else If ((iComp+2)/3.eq.2) Then
-                  L_Temp='TMOM  RA'
-               Else If ((iComp+2)/3.eq.3) Then
-                  L_Temp='TMOM  IS'
-               Else If ((iComp+2)/3.eq.4) Then
-                  L_Temp='TMOM  IA'
-               End If
-            Else
-               L_Temp=Label
-               iComp_=iComp
-            End If
-            Call WrOne(iRC,iOpt,L_Temp,iComp_,Array(ip(iComp)),iSmLbl)
+! Compute properties or write integrals to disc.
 
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &               ' *** Error in subroutine ONEEL ***,'//            &
-     &               '     Abend in subroutine WrOne')
-               Call Abend()
-            End If
-         End If
-      End Do  ! iComp
-!
-      if (Label.eq.'Attract ')                                          &
-     &   Call Add_info('SEWARD_ATTRACT',Array(ip(1)),1,5)
-      if (Label.eq.'Kinetic ')                                          &
-     &   Call Add_info('SEWARD_KINETIC',Array(ip(1)),1,5)
-      if (Label.eq.'Mltpl  1')                                          &
-     &   Call Add_info('SEWARD_MLTPL1X',Array(ip(1)),1,5)
+do iComp=1,nComp
+  iSmLbl = lOper(iComp)
+  if (Prprt) then
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Compute properties directly from integrals
+
+    ! Allocate some memory
+
+    if (iComp == 1) then
+      if (short) then
+        mDim = 1
+      else
+        mDim = S%nDim
+      end if
+      call mma_allocate(Out,mDim*nComp,label='Out')
+      ipOut = 1
+      call dcopy_(mDim*nComp,[Zero],0,Out,1)
+      call mma_allocate(Nuc,nComp,label='Nuc')
+      ipNuc = 1
+      call dcopy_(nComp,[Zero],0,Nuc,1)
+    end if
+    nInt = n2Tri(iSmLbl)
+    if (nInt /= 0) call CmpInt(Array(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
+    Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+nInt+3)
+    if (nInt /= 0) call XProp(Short,ifallorb,nIrrep,nBas,nVec,Vec,nOcc,Occ,nDen,Array(ip(iComp)),Out(ipOut+(iComp-1)*mDim))
+
+    if (Label(1:3) == 'PAM') then
+      !open(unit=28,file='R_vect',access='append')
+      endfile(28)
+      if (Short) then
+        write(28,'(a8,2x,f20.14)') Label,Out(ipOut+(iComp-1)*mDim)
+      else
+        Sum = 0.00d0
+        do ii=1,nOcc
+          Sum = Sum+Out(ipOut+ii-1+(iComp-1)*mDim)
+        end do
+        write(28,'(a8,2x,f20.14)') Label,-Sum
+      end if
+      !close(28)
+    end if
+
+    ! Once all components have been computed print them.
+
+    if (iComp == nComp) then
+      LBL = Label(1:4)
+      call UpCase(LBL)
+      lpole = 0
+      if (LBL == 'MLTP') then
+        read(Label,'(5X,I3)') lpole
+      else if (LBL == 'PAM ') then
+        read(Label,'(5X,I1)') lpole
+      else if (LBL == 'L_MP') then
+        read(Label,'(5X,I1)') lpole
+      else if (LBL(1:2) == 'EF') then
+        read(Label,'(2X,I1)') lpole
+      else if (LBL == 'DMS ') then
+        lpole = 3
+      else if (LBL == 'VELO') then
+        lpole = 1
+      end if
+      if (nComp == 1) then
+        ipC2 = 1 ! dummy
+      else
+        ipC2 = 2 ! Used only for diamagnetic shielding.
+      end if
+      call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),nIrrep,nBas,mDim,Occ,Thrs,Out,Nuc,lpole,ifallorb)
+
+      ! For a properties calculation, save the values of EF or CNT operators,
+      ! they will be used to write the sum through Add_Info in Drv1El
+
+      if (PrPrt .and. ((LBL(1:2) == 'EF') .or. (LBL(1:3) == 'CNT'))) then
+        call mma_allocate(El,nComp,label='El')
+        ipEl = 1
+        call FZero(El,nComp)
+        ! Compute the sum of all orbital components
+        do jComp=0,nComp-1
+          iInd1 = ipEl+jComp
+          iInd2 = ipOut+jComp*mDim
+          do iOcc=0,mDim-1
+            El(iInd1) = El(iInd1)+Out(iInd2+iOcc)
+          end do
+        end do
+        ! Write electronic and nuclear components in temp file
+        LuTmp = 10
+        call DaName(LuTmp,'TMPPRP')
+        read(Label(4:8),*) iEF
+        iDisk = (iEF-1)*2
+        call dDaFile(LuTmp,1,El,nComp,iDisk)
+        call dDaFile(LuTmp,1,Nuc,nComp,iDisk)
+        call DaClos(LuTmp)
+        call mma_deallocate(El)
+      end if
+
+      call mma_deallocate(Nuc)
+      call mma_deallocate(Out)
+    end if
+  else
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Write integrals to disc
+
+    iOpt = 0
+    iRC = -1
+    if (Label(1:3) == 'PAM') then
+      write(L_Temp,'(A5,I3.3)') 'PAM  ',iPAMcount
+      iPAMcount = iPAMcount+1
+      iComp_ = 1
+    else if (Label(1:5) == 'EMFR0') then
+      iComp_ = 1
+      if (iComp == 1) then
+        L_Temp = 'EMFR0  R'
+      else
+        L_Temp = 'EMFR0  I'
+      end if
+    else if (Label(1:5) == 'EMFR ') then
+      iComp_ = mod(iComp+2,3)+1
+      if ((iComp+2)/3 == 1) then
+        L_Temp = 'EMFR  RS'
+      else if ((iComp+2)/3 == 2) then
+        L_Temp = 'EMFR  RA'
+      else if ((iComp+2)/3 == 3) then
+        L_Temp = 'EMFR  IS'
+      else if ((iComp+2)/3 == 4) then
+        L_Temp = 'EMFR  IA'
+      end if
+    else if (Label(1:5) == 'TMOM0') then
+      if (iComp == 1) then
+        L_Temp = 'TMOM0  R'
+        iComp_ = 1
+      else
+        L_Temp = 'TMOM0  I'
+        iComp_ = 1
+      end if
+    else if (Label(1:5) == 'TMOM2') then
+      if (iComp == 1) then
+        L_Temp = 'TMOM2  R'
+        iComp_ = 1
+      else
+        L_Temp = 'TMOM2  I'
+        iComp_ = 1
+      end if
+    else if (Label(1:5) == 'TMOM ') then
+      iComp_ = mod(iComp+2,3)+1
+      if ((iComp+2)/3 == 1) then
+        L_Temp = 'TMOM  RS'
+      else if ((iComp+2)/3 == 2) then
+        L_Temp = 'TMOM  RA'
+      else if ((iComp+2)/3 == 3) then
+        L_Temp = 'TMOM  IS'
+      else if ((iComp+2)/3 == 4) then
+        L_Temp = 'TMOM  IA'
+      end if
+    else
+      L_Temp = Label
+      iComp_ = iComp
+    end if
+    call WrOne(iRC,iOpt,L_Temp,iComp_,Array(ip(iComp)),iSmLbl)
+
+    if (iRC /= 0) then
+      call WarningMessage(2,' *** Error in subroutine ONEEL ***,     Abend in subroutine WrOne')
+      call Abend()
+    end if
+  end if
+end do  ! iComp
+
+if (Label == 'Attract ') call Add_info('SEWARD_ATTRACT',Array(ip(1)),1,5)
+if (Label == 'Kinetic ') call Add_info('SEWARD_KINETIC',Array(ip(1)),1,5)
+if (Label == 'Mltpl  1') call Add_info('SEWARD_MLTPL1X',Array(ip(1)),1,5)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Deallocate memory for integral
-!
-      Call mma_deallocate(Array)
+! Deallocate memory for integral
+
+call mma_deallocate(Array)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End SubRoutine OneEl
+return
+
+end subroutine OneEl

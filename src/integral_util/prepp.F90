@@ -10,8 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine PrepP()
+subroutine PrepP()
 !***********************************************************************
 !                                                                      *
 ! Object: to set up the handling of the 2nd order density matrix.      *
@@ -20,594 +21,548 @@
 !             University of Lund, SWEDEN                               *
 !             January '92                                              *
 !***********************************************************************
-      use setup, only: mSkal, nSOs
-      use pso_stuff, only: lSA, Gamma_On, Gamma_MRCISD, lPSO, Case_2C,  &
-     &                     Case_3C, Case_MP2, nDens, mCMO, LuGam,       &
-     &                     FnGam, lBin, LuGamma, mDens, D0, DS, iD0Lbl, &
-     &                     DSVar, KCMO, nG1, mG1, G1, nG2, mG2, G2,     &
-     &                     CMO, DVar, SO2CI, G_ToC, Bin
-      use iSD_data, only: iSO2Sh
-      use Basis_Info, only: nBas
-      use Sizes_of_Seward, only: S
-      use Symmetry_Info, only: nIrrep
-      use Constants, only: Zero, Half, One
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh,  &
-     &                 nIsh
-      use NAC, only: IsNAC
-      use mspdft_grad, only: DoGradMSPD
-      Implicit None
+
+use setup, only: mSkal, nSOs
+use pso_stuff, only: lSA, Gamma_On, Gamma_MRCISD, lPSO, Case_2C, Case_3C, Case_MP2, nDens, mCMO, LuGam, FnGam, lBin, LuGamma, &
+                     mDens, D0, DS, iD0Lbl, DSVar, KCMO, nG1, mG1, G1, nG2, mG2, G2, CMO, DVar, SO2CI, G_ToC, Bin
+use iSD_data, only: iSO2Sh
+use Basis_Info, only: nBas
+use Sizes_of_Seward, only: S
+use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, Half, One
+use stdalloc, only: mma_allocate, mma_deallocate
+use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh, nIsh
+use NAC, only: IsNAC
+use mspdft_grad, only: DoGradMSPD
+
+implicit none
 #include "dmrginfo_mclr.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-      Integer nFro(0:7)
-      Integer Columbus
-      Character(Len=8) Method
-      Character(Len=80) KSDFT
-      Logical DoCholesky
-      Real*8 CoefX,CoefR
-      Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
-!     hybrid MC-PDFT things
-      Logical Do_Hybrid
-      Real*8  WF_Ratio,PDFT_Ratio
+integer nFro(0:7)
+integer Columbus
+character(len=8) Method
+character(len=80) KSDFT
+logical DoCholesky
+real*8 CoefX, CoefR
+real*8, allocatable :: D1ao(:), D1AV(:), Tmp(:,:)
+logical Do_Hybrid
+real*8 WF_Ratio, PDFT_Ratio
 #ifdef _DEBUGPRINT_
-      Character(Len=8) RlxLbl
-      Character(LEN=60) Fmt
-      Integer :: iComp=1, ipTmp1
+character(len=8) RlxLbl
+character(len=60) Fmt
+integer :: iComp = 1, ipTmp1
 #endif
-      Integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk, &
-     &        n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0, &
-     &        nDim2
-      Real*8, External:: Get_ExFac
-      Integer, External:: IsFreeUnit
-!
-!...  Prologue
+integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk, n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0, nDim2
+real*8, external :: Get_ExFac
+integer, external :: IsFreeUnit
+
+! Prologue
 
 #ifdef _CD_TIMING_
-      Call CWTIME(PreppCPU1,PreppWall1)
+call CWTIME(PreppCPU1,PreppWall1)
 #endif
-!
-      Call StatusLine(' Alaska:',' Prepare the 2-particle matrix')
-!
-      iD0Lbl=1
-!
-      lsa=.False.
-      Gamma_On=.False.
-      Gamma_mrcisd=.FALSE.
-      lPSO=.false.
-      Case_2C=.False.
-      Case_3C=.False.
-      Case_mp2=.False.
 
-      nDens = 0
-      Do 1 iIrrep = 0, nIrrep - 1
-         nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
- 1    Continue
-!
-!
-!...  Get the method label
-      Call Get_cArray('Relax Method',Method,8)
-      Call Get_iScalar('Columbus',columbus)
-      nCMo = S%n2Tot
-      mCMo = S%n2Tot
-      If (Method.eq. 'KS-DFT  ' .or.                                    &
-     &    Method.eq. 'MCPDFT  ' .or.                                    &
-     &    Method.eq. 'MSPDFT  ' .or.                                    &
-     &    Method.eq. 'CASDFT  ' ) Then
-         Call Get_iScalar('Multiplicity',iSpin)
-         Call Get_cArray('DFT functional',KSDFT,80)
-         Call Get_dScalar('DFT exch coeff',CoefX)
-         Call Get_dScalar('DFT corr coeff',CoefR)
-         ExFac=Get_ExFac(KSDFT)
-         CoulFac=One
-      Else
-         iSpin=0
-         ExFac=One
-         CoulFac=One
-      End If
-!
-!...  Check the wave function type
-!
+call StatusLine(' Alaska:',' Prepare the 2-particle matrix')
+
+iD0Lbl = 1
+
+lsa = .false.
+Gamma_On = .false.
+Gamma_mrcisd = .false.
+lPSO = .false.
+Case_2C = .false.
+Case_3C = .false.
+Case_mp2 = .false.
+
+nDens = 0
+do iIrrep=0,nIrrep-1
+  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
+
+! Get the method label
+call Get_cArray('Relax Method',Method,8)
+call Get_iScalar('Columbus',columbus)
+nCMo = S%n2Tot
+mCMo = S%n2Tot
+if ((Method == 'KS-DFT') .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT') .or. (Method == 'CASDFT')) then
+  call Get_iScalar('Multiplicity',iSpin)
+  call Get_cArray('DFT functional',KSDFT,80)
+  call Get_dScalar('DFT exch coeff',CoefX)
+  call Get_dScalar('DFT corr coeff',CoefR)
+  ExFac = Get_ExFac(KSDFT)
+  CoulFac = One
+else
+  iSpin = 0
+  ExFac = One
+  CoulFac = One
+end if
+
+! Check the wave function type
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If ( Method.eq.'RHF-SCF ' .or.                                    &
-     &     Method.eq.'UHF-SCF ' .or.                                    &
-     &     Method.eq.'IVO-SCF ' .or.                                    &
-     &     Method.eq.'MBPT2   ' .or.                                    &
-     &     Method.eq.'KS-DFT  ' .or.                                    &
-     &     Method.eq.'ROHF    ' ) then
-#ifdef _DEBUGPRINT_
-         Write (6,*)
-         Write (6,'(2A)') ' Wavefunction type: ',Method
-         If (Method.eq.'KS-DFT  ') Then
-            Write (6,'(2A)') ' Functional type:   ',KSDFT
-            Fmt = '(1X,A26,20X,F18.6)'
-            Write(6,Fmt)'Exchange scaling factor',CoefX
-            Write(6,Fmt)'Correlation scaling factor',CoefR
-         End If
-         Write (6,*)
-#endif
-         If(Method.eq.'MBPT2   ') Then
-            Case_mp2=.true.
-            Call DecideOnCholesky(DoCholesky)
-            If(.not.DoCholesky) Then
-               iSeed = 10
-               LuGam = IsFreeUnit(iSeed)
-               Write(FnGam,'(A6)') 'LuGam'
-               Call DaName_MF_WA(LuGam,FnGam)
-               Gamma_on=.True.
-               Call Aces_Gamma()
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else if ( Method.eq.'Corr. WF' ) then
-#ifdef _DEBUGPRINT_
-         Write (6,*)
-         Write (6,*)                                                    &
-     &      ' Wavefunction type: an Aces 2 correlated wavefunction'
-         Write (6,*)
-#endif
-         Gamma_On=.True.
-         Call Aces_Gamma()
-       Else if (Method(1:7).eq.'MR-CISD' .and. Columbus.eq.1) then
-!*********** columbus interface ****************************************
-!do not reconstruct the two-particle density from the one-particle
-!density or partial two-particle densities but simply read them from
-!file
+if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') .or. (Method == 'MBPT2') .or. &
+    (Method == 'KS-DFT') .or. (Method == 'ROHF')) then
+# ifdef _DEBUGPRINT_
+  write(6,*)
+  write(6,'(2A)') ' Wavefunction type: ',Method
+  if (Method == 'KS-DFT  ') then
+    write(6,'(2A)') ' Functional type:   ',KSDFT
+    Fmt = '(1X,A26,20X,F18.6)'
+    write(6,Fmt) 'Exchange scaling factor',CoefX
+    write(6,Fmt) 'Correlation scaling factor',CoefR
+  end if
+  write(6,*)
+# endif
+  if (Method == 'MBPT2   ') then
+    Case_mp2 = .true.
+    call DecideOnCholesky(DoCholesky)
+    if (.not. DoCholesky) then
+      iSeed = 10
+      LuGam = IsFreeUnit(iSeed)
+      write(FnGam,'(A6)') 'LuGam'
+      call DaName_MF_WA(LuGam,FnGam)
+      Gamma_on = .true.
+      call Aces_Gamma()
+    end if
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else if (Method == 'Corr. WF') then
+# ifdef _DEBUGPRINT_
+  write(6,*)
+  write(6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
+  write(6,*)
+# endif
+  Gamma_On = .true.
+  call Aces_Gamma()
+else if ((Method(1:7) == 'MR-CISD') .and. (Columbus == 1)) then
+  !*********** columbus interface ****************************************
+  !do not reconstruct the two-particle density from the one-particle
+  !density or partial two-particle densities but simply read them from
+  !file
 
-        nShell=mSkal
-        nPair=nShell*(nShell+1)/2
-        nQuad=nPair*(nPair+1)/2
+  nShell = mSkal
+  nPair = nShell*(nShell+1)/2
+  nQuad = nPair*(nPair+1)/2
 
-!---- Allocate Table Of Content for half sorted gammas.
-!
-      Call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
+  ! Allocate Table Of Content for half sorted gammas.
 
-!  find free unit number
-        lgtoc=61
-        lgtoc=isFreeUnit(lgtoc)
-        idisk=0
-!  read table of contents of half-sorted gamma file
-         Call DaName(lgtoc,'gtoc')
-         Call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
-         Call Daclos(lgtoc)
-         n=int(G_Toc(nQuad+1))
-         lbin=int(G_Toc(nQuad+2))
-         if (n.ne.nQuad) then
-           Call WarningMessage(2,'n.ne.nQuad')
-           Write (6,*) 'n,nQuad=',n,nQuad
-           Call Abend()
-         endif
+  call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
 
-        Gamma_On=.True.
-        Gamma_mrcisd=.TRUE.
-!       open gamma file
-         LuGamma=60
-         LuGamma=isfreeunit(LuGamma)
-!        closed in closep
-         Call DaName_MF(LuGamma,'GAMMA')
-!  allocate space for bins
-         Call mma_Allocate(Bin,2,lBin,Label='Bin')
-!  compute SO2cI array
-         Call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
-         call Mk_SO2cI(SO2cI,iSO2Sh,nsos)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else if ( Method.eq.'RASSCF  ' .or.                               &
-     &          Method.eq.'CASSCF  ' .or.                               &
-     &          Method.eq.'GASSCF  ' .or.                               &
-     &          Method.eq.'MCPDFT  ' .or.                               &
-     &          Method.eq.'MSPDFT  ' .or.                               &
-     &          Method.eq.'DMRGSCF ' .or.                               &
-     &          Method.eq.'CASDFT  ') then
-!
-         Call Get_iArray('nAsh',nAsh,nIrrep)
-         nAct = 0
-         Do iIrrep = 0, nIrrep-1
-            nAct = nAct + nAsh(iIrrep)
-         End Do
-         If (nAct.gt.0) lPSO=.true.
-!
-         nDSO = nDens
-         mIrrep=nIrrep
-         Call ICopy(nIrrep,nBas,1,mBas,1)
-#ifdef _DEBUGPRINT_
-         Write (6,*)
-         Write (6,'(2A)') ' Wavefunction type: ', Method
-         If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')            &
-     &      Write (6,'(2A)') ' Functional type:   ',KSDFT
-         If (Method.eq.'MSPDFT  ')                                      &
-     &      Write (6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
-         Write (6,*)
-#endif
-         If (method.eq.'MCPDFT  ') lSA=.true.
-         If (method.eq.'MSPDFT  ') then
-          lSA=.true.
-          dogradmspd=.true.
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else if ( Method.eq.'CASSCFSA' .or.                               &
-     &          Method.eq.'DMRGSCFS' .or.                               &
-     &          Method.eq.'GASSCFSA' .or.                               &
-     &          Method.eq.'RASSCFSA' .or.                               &
-     &          Method.eq.'CASPT2  ') then
-         Call Get_iArray('nAsh',nAsh,nIrrep)
-         nAct = 0
-         Do iIrrep = 0, nIrrep-1
-            nAct = nAct + nAsh(iIrrep)
-         End Do
-         If (nAct.gt.0) lPSO=.true.
-         nDSO = nDens
-         Call Get_iScalar('SA ready',iGo)
-         If (iGO.eq.1) lSA=.true.
-         mIrrep=nIrrep
-         Call ICopy(nIrrep,nBas,1,mBas,1)
-#ifdef _DEBUGPRINT_
-         Write (6,*)
-         If (lSA) Then
-            Write (6,'(2A)') ' Wavefunction type: State average ',      &
-     &                         Method(1:6)
-         Else
-            Write (6,'(2A)') ' Wavefunction type: ', Method
-         End If
-         Write (6,*)
-#endif
-         If (Method.eq.'CASPT2  ') Then
-            Call DecideOnCholesky(DoCholesky)
-!           If(.not.DoCholesky) Then
-               Gamma_On=.True.
-               !! It is opened, but not used actually. I just want to
-               !! use the Gamma_On flag.
-               !! Just to avoid error termination.
-               !! Actual working arrys are allocated in drvg1.f
-               LuGamma=65
-               Call DaName_MF_WA(LuGamma,'GAMMA')
-               If (DoCholesky) Call mma_allocate(G_Toc,1,Label='G_Toc')
-               Call mma_allocate(SO2cI,1,1,Label='SO2cI')
-               Call mma_allocate(Bin,1,1,Label='Bin')
-!           End If
-         End If
-         Method='RASSCF  '
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else
-         Call WarningMessage(2,'Alaska: Unknown wavefuntion type')
-         Write (6,*) 'Wavefunction type:',Method
-         Write (6,*) 'Illegal type of wave function!'
-         Write (6,*) 'ALASKA cannot continue.'
-         Call Quit_OnUserError()
-      End If
-!
-!...  Read the (non) variational 1st order density matrix
-!...  density matrix in AO/SO basis
-         nsa=1
-         If (lsa) nsa=5
-         If ( Method.eq.'MCPDFT  ') nsa=5
-         If ( Method.eq.'MSPDFT  ') nsa=5
+  ! find free unit number
+  lgtoc = 61
+  lgtoc = isFreeUnit(lgtoc)
+  idisk = 0
+  ! read table of contents of half-sorted gamma file
+  call DaName(lgtoc,'gtoc')
+  call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
+  call Daclos(lgtoc)
+  n = int(G_Toc(nQuad+1))
+  lbin = int(G_Toc(nQuad+2))
+  if (n /= nQuad) then
+    call WarningMessage(2,'n /= nQuad')
+    write(6,*) 'n,nQuad=',n,nQuad
+    call Abend()
+  end if
+
+  Gamma_On = .true.
+  Gamma_mrcisd = .true.
+  ! open gamma file
+  LuGamma = 60
+  LuGamma = isfreeunit(LuGamma)
+  ! closed in closep
+  call DaName_MF(LuGamma,'GAMMA')
+  ! allocate space for bins
+  call mma_Allocate(Bin,2,lBin,Label='Bin')
+  ! compute SO2cI array
+  call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
+  call Mk_SO2cI(SO2cI,iSO2Sh,nsos)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF') .or. (Method == 'MCPDFT') .or. &
+         (Method == 'MSPDFT') .or. (Method == 'DMRGSCF') .or. (Method == 'CASDFT')) then
+
+  call Get_iArray('nAsh',nAsh,nIrrep)
+  nAct = 0
+  do iIrrep=0,nIrrep-1
+    nAct = nAct+nAsh(iIrrep)
+  end do
+  if (nAct > 0) lPSO = .true.
+
+  nDSO = nDens
+  mIrrep = nIrrep
+  call ICopy(nIrrep,nBas,1,mBas,1)
+# ifdef _DEBUGPRINT_
+  write(6,*)
+  write(6,'(2A)') ' Wavefunction type: ',Method
+  if ((Method == 'CASDFT') .or. (Method == 'MCPDFT')) write(6,'(2A)') ' Functional type:   ',KSDFT
+  if (Method == 'MSPDFT') write(6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
+  write(6,*)
+# endif
+  if (Method == 'MCPDFT') lSA = .true.
+  if (Method == 'MSPDFT') then
+    lSA = .true.
+    dogradmspd = .true.
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GASSCFSA') .or. (Method == 'RASSCFSA') .or. &
+         (Method == 'CASPT2')) then
+  call Get_iArray('nAsh',nAsh,nIrrep)
+  nAct = 0
+  do iIrrep=0,nIrrep-1
+    nAct = nAct+nAsh(iIrrep)
+  end do
+  if (nAct > 0) lPSO = .true.
+  nDSO = nDens
+  call Get_iScalar('SA ready',iGo)
+  if (iGO == 1) lSA = .true.
+  mIrrep = nIrrep
+  call ICopy(nIrrep,nBas,1,mBas,1)
+# ifdef _DEBUGPRINT_
+  write(6,*)
+  if (lSA) then
+    write(6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
+  else
+    write(6,'(2A)') ' Wavefunction type: ',Method
+  end if
+  write(6,*)
+# endif
+  if (Method == 'CASPT2  ') then
+    call DecideOnCholesky(DoCholesky)
+    !if (.not. DoCholesky) then
+    Gamma_On = .true.
+    ! It is opened, but not used actually. I just want to
+    ! use the Gamma_On flag.
+    ! Just to avoid error termination.
+    ! Actual working arrys are allocated in drvg1.f
+    LuGamma = 65
+    call DaName_MF_WA(LuGamma,'GAMMA')
+    if (DoCholesky) call mma_allocate(G_Toc,1,Label='G_Toc')
+    call mma_allocate(SO2cI,1,1,Label='SO2cI')
+    call mma_allocate(Bin,1,1,Label='Bin')
+    !end if
+  end if
+  Method = 'RASSCF  '
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  call WarningMessage(2,'Alaska: Unknown wavefuntion type')
+  write(6,*) 'Wavefunction type:',Method
+  write(6,*) 'Illegal type of wave function!'
+  write(6,*) 'ALASKA cannot continue.'
+  call Quit_OnUserError()
+end if
+
+! Read the (non) variational 1st order density matrix
+! density matrix in AO/SO basis
+nsa = 1
+if (lsa) nsa = 5
+if (Method == 'MCPDFT  ') nsa = 5
+if (Method == 'MSPDFT  ') nsa = 5
 !AMS modification: add a fifth density slot
-         mDens=nsa+1
-         Call mma_allocate(D0,nDens,mDens,Label='D0')
-         D0(:,:)=Zero
-         Call mma_allocate(DVar,nDens,nsa,Label='DVar')
-         if (.not.gamma_mrcisd)                                         &
-     &      Call Get_dArray_chk('D1ao',D0(1,1),nDens)
-!
+mDens = nsa+1
+call mma_allocate(D0,nDens,mDens,Label='D0')
+D0(:,:) = Zero
+call mma_allocate(DVar,nDens,nsa,Label='DVar')
+if (.not. gamma_mrcisd) call Get_dArray_chk('D1ao',D0(1,1),nDens)
 
-         Call Get_D1ao_Var(DVar,nDens)
-!
-         Call mma_Allocate(DS,nDens,Label='DS')
-         Call mma_Allocate(DSVar,nDens,Label='DSVar')
-         If (Method.eq.'UHF-SCF ' .or.                                  &
-     &       Method.eq.'ROHF    ' .or.                                  &
-     &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.                    &
-     &       Method.eq.'Corr. WF' ) Then
-            Call Get_dArray_chk('D1sao',DS,nDens)
-            Call Get_D1sao_Var(DSVar,nDens)
-         Else
-            DS   (:)=Zero
-            DSVar(:)=Zero
-         End If
-!
-!   This is necessary for the ci-lag
-!
-!
-!     Unfold density matrix
-!
+call Get_D1ao_Var(DVar,nDens)
+
+call mma_Allocate(DS,nDens,Label='DS')
+call mma_Allocate(DSVar,nDens,Label='DSVar')
+if ((Method == 'UHF-SCF') .or. (Method == 'ROHF') .or. ((Method == 'KS-DFT') .and. (iSpin /= 1)) .or. (Method == 'Corr. WF')) then
+  call Get_dArray_chk('D1sao',DS,nDens)
+  call Get_D1sao_Var(DSVar,nDens)
+else
+  DS(:) = Zero
+  DSVar(:) = Zero
+end if
+
+! This is necessary for the ci-lag
+
+! Unfold density matrix
+
 !*********** columbus interface ****************************************
 !do not modify the effective density matrices and fock matrices
-      if (.not.gamma_mrcisd) then
-      ij = -1
-      Do 10 iIrrep = 0, nIrrep-1
-         Do 11 iBas = 1, nBas(iIrrep)
-            Do 12 jBas = 1, iBas-1
-               ij = ij + 1
-               D0   (1+ij,1) = Half*D0   (1+ij,1)
-               DVar (1+ij,1) = Half*DVar (1+ij,1)
-               DS   (1+ij) = Half*DS   (1+ij)
-               DSVar(1+ij) = Half*DSVar(1+ij)
- 12         Continue
-            ij = ij + 1
- 11      Continue
- 10   Continue
-      endif
+if (.not. gamma_mrcisd) then
+  ij = -1
+  do iIrrep=0,nIrrep-1
+    do iBas=1,nBas(iIrrep)
+      do jBas=1,iBas-1
+        ij = ij+1
+        D0(1+ij,1) = Half*D0(1+ij,1)
+        DVar(1+ij,1) = Half*DVar(1+ij,1)
+        DS(1+ij) = Half*DS(1+ij)
+        DSVar(1+ij) = Half*DSVar(1+ij)
+      end do
+      ij = ij+1
+    end do
+  end do
+end if
 
 #ifdef _DEBUGPRINT_
-      RlxLbl='D1AO    '
-      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
-      RlxLbl='D1AO-Var'
-      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
-      RlxLbl='DSAO    '
-      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
-      RlxLbl='DSAO-Var'
-      Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
+RlxLbl = 'D1AO    '
+call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
+RlxLbl = 'D1AO-Var'
+call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
+RlxLbl = 'DSAO    '
+call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
+RlxLbl = 'DSAO-Var'
+call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
 #endif
 
-!
-!...  Get the MO-coefficients
+! Get the MO-coefficients
 !*********** columbus interface ****************************************
-!     not that the columbus mcscf MO coefficients have been written
-!     to the RUNFILE !
+! not that the columbus mcscf MO coefficients have been written
+! to the RUNFILE !
 
-         If (Method.eq.'UHF-SCF ' .or.                                  &
-     &       Method.eq.'ROHF    ' .or.                                  &
-     &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.                    &
-     &       Method.eq.'Corr. WF'      ) Then
-            nsa=2
-         Else
-            nsa=1
-            If (lsa) nsa=2
-         End If
-         kCMO=nsa
-         Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
-         Call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
+if ((Method == 'UHF-SCF') .or. (Method == 'ROHF') .or. ((Method == 'KS-DFT') .and. (iSpin /= 1)) .or. (Method == 'Corr. WF')) then
+  nsa = 2
+else
+  nsa = 1
+  if (lsa) nsa = 2
+end if
+kCMO = nsa
+call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
+call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
 #ifdef _DEBUGPRINT_
-         ipTmp1 = 1
-         Do iIrrep = 0, nIrrep-1
-            Call RecPrt(' CMO''s',' ',                                  &
-     &                  CMO(ipTmp1,1),nBas(iIrrep),                     &
-     &                  nBas(iIrrep))
-            ipTmp1 = ipTmp1 + nBas(iIrrep)**2
-         End Do
+ipTmp1 = 1
+do iIrrep=0,nIrrep-1
+  call RecPrt(' CMO''s',' ',CMO(ipTmp1,1),nBas(iIrrep),nBas(iIrrep))
+  ipTmp1 = ipTmp1+nBas(iIrrep)**2
+end do
 #endif
-!
-!
-!...  Get additional information in the case of a RASSCF wave function
-!...  Get the number of inactive, active and frozen orbitals
+
+! Get additional information in the case of a RASSCF wave function
+! Get the number of inactive, active and frozen orbitals
 !*********** columbus interface ****************************************
-!  no need for MRCI gradient
-         If (.not.lpso .or. gamma_mrcisd ) Goto 1000
-         Call Get_iScalar('nSym',i)
-         Call Get_iArray('nIsh',nIsh,i)
-         Call Get_iArray('nAsh',nAsh,i)
-         Call Get_iArray('nFro',nFro,i)
+! no need for MRCI gradient
+if ((.not. lpso) .or. gamma_mrcisd) goto 1000
+call Get_iScalar('nSym',i)
+call Get_iArray('nIsh',nIsh,i)
+call Get_iArray('nAsh',nAsh,i)
+call Get_iArray('nFro',nFro,i)
 #ifdef _DEBUGPRINT_
-         Write (6,*) ' nISh=',nISh
-         Write (6,*) ' nASh=',nASh
-         Write (6,*) ' nFro=',nFro
+write(6,*) ' nISh=',nISh
+write(6,*) ' nASh=',nASh
+write(6,*) ' nFro=',nFro
 #endif
-         nAct = 0
-         nTst = 0
-         Do iIrrep = 0, nIrrep-1
-!            write(*,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
-            nAct = nAct + nAsh(iIrrep)
-            nTst = nTst + nFro(iIrrep)
-         End Do
-         If (nTst.ne.0) Then
-            Call WarningMessage(2,                                      &
-     &                  '; No frozen orbitals are allowed!'//           &
-     &                  '; ALASKA cannot continue;')
-            Call Quit_OnUserError()
-         End If
-!
-!...  Get the one body density for the active orbitals
-!     (not needed for SA-CASSCF)
-         nG1 = nAct*(nAct+1)/2
-         nsa=1
-         If (lsa) nsa=0
-         mG1=nsa
-         Call mma_allocate(G1,nG1,mG1,Label='G1')
-         If (nsa.gt.0) Then
-            Call Get_dArray_chk('D1mo',G1(:,1),nG1)
+nAct = 0
+nTst = 0
+do iIrrep=0,nIrrep-1
+  !write(6,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
+  nAct = nAct+nAsh(iIrrep)
+  nTst = nTst+nFro(iIrrep)
+end do
+if (nTst /= 0) then
+  call WarningMessage(2,'; No frozen orbitals are allowed!; ALASKA cannot continue;')
+  call Quit_OnUserError()
+end if
+
+! Get the one body density for the active orbitals
+! (not needed for SA-CASSCF)
+nG1 = nAct*(nAct+1)/2
+nsa = 1
+if (lsa) nsa = 0
+mG1 = nsa
+call mma_allocate(G1,nG1,mG1,Label='G1')
+if (nsa > 0) then
+  call Get_dArray_chk('D1mo',G1(:,1),nG1)
 #ifdef _DEBUGPRINT_
-            Call TriPrt(' G1',' ',G1(:,1),nAct)
+  call TriPrt(' G1',' ',G1(:,1),nAct)
 #endif
-         End If
-!
-!...  Get the two body density for the active orbitals
-         nG2 = nG1*(nG1+1)/2
-         nsa=1
-         if (lsa) nsa=2
-         mG2=nsa
-         Call mma_allocate(G2,nG2,mG2,Label='G2')
-!       write(*,*) 'got the 2rdm, Ithink.'
-         if(Method.eq.'MCPDFT  '.or.Method.eq.'MSPDFT  ') then
-           Call Get_dArray_chk('P2MOt',G2,nG2)!PDFT-modified 2-RDM
-         else
-           Call Get_dArray_chk('P2mo',G2,nG2)
-         end if
+end if
+
+! Get the two body density for the active orbitals
+nG2 = nG1*(nG1+1)/2
+nsa = 1
+if (lsa) nsa = 2
+mG2 = nsa
+call mma_allocate(G2,nG2,mG2,Label='G2')
+!write(6,*) 'got the 2rdm, Ithink.'
+if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
+  call Get_dArray_chk('P2MOt',G2,nG2)!PDFT-modified 2-RDM
+else
+  call Get_dArray_chk('P2mo',G2,nG2)
+end if
 #ifdef _DEBUGPRINT_
-         Call TriPrt(' G2',' ',G2(1,1),nG1)
+call TriPrt(' G2',' ',G2(1,1),nG1)
 #endif
-         If (lsa) Then
+if (lsa) then
 
-!  CMO1 Ordinary CMOs
-!
-!  CMO2 CMO*Kappa
-!
-           Call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
+  ! CMO1 Ordinary CMOs
+
+  ! CMO2 CMO*Kappa
+
+  call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
+# ifdef _DEBUGPRINT_
+  ipTmp1 = 1
+  do iIrrep=0,nIrrep-1
+    call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas(iIrrep),nBas(iIrrep))
+    ipTmp1 = ipTmp1+nBas(iIrrep)**2
+  end do
+# endif
+
+  ! P are stored as
+  !                            _                     _
+  !   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
+  !   P2=sum_i <i|e_pqrs|i>
+
+  call Get_dArray_chk('PLMO',G2(:,2),nG2)
+  ndim1 = 0
+  if (doDMRG) then
+    ndim0 = 0  !yma
+    do i=1,8
+      ndim0 = ndim0+LRras2(i)
+    end do
+    ndim1 = (ndim0+1)*ndim0/2
+    ndim2 = (ndim1+1)*ndim1/2
+    do i=1,ng2
+      if (i > ndim2) G2(i,2) = 0.0d0
+    end do
+  end if
+  call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
+# ifdef _DEBUGPRINT_
+  call TriPrt(' G2L',' ',G2(:,2),nG1)
+  call TriPrt(' G2T',' ',G2(:,1),nG1)
+# endif
+
+  call Get_dArray_chk('D2av',G2(:,2),nG2)
+# ifdef _DEBUGPRINT_
+  call TriPrt('G2A',' ',G2(:,2),nG1)
+# endif
+
+  ! Densities are stored as:
+  !
+  !  ipd0 AO:
+  !
+  !  D1 = inactive diagonal density matrix
+  !                                _                 _
+  !  D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D2
+  !
+  !  D3 = sum_i <i|E_pq|i> (active)
+  !
+  !  D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
+  !
+  !  G1 = <i|e_ab|i>
+  !  G2 = sum i <i|e_ab|i>
+  !
+  !************************
+  !RlxLbl = 'D1AO    '
+  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
+
+  call mma_allocate(Tmp,nDens,2,Label='Tmp')
+  call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
+  call mma_deallocate(Tmp)
+
+  !************************
+  !RlxLbl = 'D1AO    '
+  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
+
+  call dcopy_(ndens,DVar,1,D0(1,2),1)
+  if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+  !RlxLbl = 'D1COMBO  '
+  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
+
+  ! This is necessary for the kap-lag
+
+  nG1 = nAct*(nAct+1)/2
+  call mma_allocate(D1AV,nG1,Label='D1AV')
+  call Get_dArray_chk('D1av',D1AV,nG1)
+  call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nbas,nish,nash,ndens)
+  call mma_deallocate(D1AV)
+  !************************
+  !RlxLbl = 'D1AOA   '
+  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
+
+  call Get_dArray_chk('DLAO',D0(:,4),nDens)
+
+  ! Getting conditions for hybrid MC-PDFT
+  Do_Hybrid = .false.
+  call qpg_DScalar('R_WF_HMC',Do_Hybrid)
+  if (Do_Hybrid) then
+    call Get_DScalar('R_WF_HMC',WF_Ratio)
+    PDFT_Ratio = 1.0d0-WF_Ratio
+  end if
+  !ANDREW - modify D2: should contain only the correction pieces
+  if (Method == 'MCPDFT  ') then
+    ! Get the D_theta piece
+    call mma_allocate(D1ao,nDens)
+    call Get_dArray_chk('D1ao',D1ao,ndens)
+    ij = 0
+    do iIrrep=0,nIrrep-1
+      do iBas=1,nBas(iIrrep)
+        do jBas=1,iBas-1
+          ij = ij+1
+          D1ao(ij) = Half*D1ao(ij)
+        end do
+        ij = ij+1
+      end do
+    end do
+    call daxpy_(ndens,-1d0,D0(1,1),1,D1ao,1)
+    !write(6,*) 'do they match?'
+    !do i=1,ndens
+    !  write(6,*) d1ao(i),DO(i,3)
+    !end do
+
+    call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+    call daxpy_(ndens,-1.0d0,D1ao,1,D0(1,2),1)
+    !ANDREW -   Generate new D5 piece:
+    D0(:,5) = Zero
+    call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
+    call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
+
+    if (do_hybrid) then
+      ! add back the wave function parts that are subtracted
+      ! this might be inefficient, but should have a clear logic
+      call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
+      call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
+      ! scale the pdft part
+      call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
+    end if
+    call mma_deallocate(D1ao)
+  else if (Method == 'MSPDFT  ') then
+    call Get_DArray('MSPDFTD5        ',D0(1,5),nDens)
+    call Get_DArray('MSPDFTD6        ',D0(1,6),nDens)
+    call daxpy_(ndens,-1.0d0,D0(1,5),1,D0(1,2),1)
+  end if
+
+  !call dcopy_(ndens*5,0.0d0,0,D0,1)
+  !call dcopy_(nG2,0.0d0,0,G2,1)
+
+  !************************
+  !call dscal_(Length,0.5d0,D0(1,4),1)
+  !call dscal_(Length,0.0d0,D0(1,4),1)
+
+  !RlxLbl = 'DLAO    '
+  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
+  ! DMRG with the reduced AS
+  !if (doDMRG) length = ndim1  !yma
+end if
 #ifdef _DEBUGPRINT_
-           ipTmp1 = 1
-           Do iIrrep = 0, nIrrep-1
-              Call RecPrt('LCMO''s',' ',                                &
-     &                    CMO(ipTmp1,2),nBas(iIrrep),                   &
-     &                    nBas(iIrrep))
-              ipTmp1 = ipTmp1 + nBas(iIrrep)**2
-           End Do
+call TriPrt(' G2',' ',G2(1,1),nG1)
 #endif
-!
-! P are stored as
-!                            _                     _
-!   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
-!   P2=sum_i <i|e_pqrs|i>
-!
-           Call Get_dArray_chk('PLMO',G2(:,2),nG2)
-           ndim1=0
-           if(doDMRG)then
-             ndim0=0  !yma
-             do i=1,8
-               ndim0=ndim0+LRras2(i)
-             end do
-             ndim1=(ndim0+1)*ndim0/2
-             ndim2=(ndim1+1)*ndim1/2
-             do i=1,ng2
-               if(i.gt.ndim2) G2(i,2)=0.0D0
-             end do
-           end if
-           Call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
-#ifdef _DEBUGPRINT_
-           Call TriPrt(' G2L',' ',G2(:,2),nG1)
-           Call TriPrt(' G2T',' ',G2(:,1),nG1)
-#endif
-!
-           Call Get_dArray_chk('D2av',G2(:,2),nG2)
-#ifdef _DEBUGPRINT_
-           Call TriPrt('G2A',' ',G2(:,2),nG1)
-#endif
-!
-!
-!  Densities are stored as:
-!
-!       ipd0 AO:
-!
-!       D1 = inactive diagonal density matrix
-!                                _                 _
-!       D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D2
-!
-!       D3 = sum_i <i|E_pq|i> (active)
-!
-!       D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
-!
-!       G1 = <i|e_ab|i>
-!       G2 = sum i <i|e_ab|i>
-!
-!************************
-!         RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
-           Call mma_allocate(Tmp,nDens,2,Label='Tmp')
-           Call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
-           Call mma_deallocate(Tmp)
+! Close 'RELAX' file
+1000 continue
 
-!************************
-!         RlxLbl='D1AO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
-!
-           Call dcopy_(ndens,DVar,1,D0(1,2),1)
-           If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-!          RlxLbl='D1COMBO  '
-!          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
-!
-!   This is necessary for the kap-lag
-!
-           nG1 = nAct*(nAct+1)/2
-           Call mma_allocate(D1AV,nG1,Label='D1AV')
-           Call Get_dArray_chk('D1av',D1AV,nG1)
-           Call Get_D1A(CMO(1,1),D1AV,D0(1,3),                          &
-     &                 nIrrep,nbas,nish,nash,ndens)
-           Call mma_deallocate(D1AV)
-!************************
-!          RlxLbl='D1AOA   '
-!          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
-!
-           Call Get_dArray_chk('DLAO',D0(:,4),nDens)
-
-!        Getting conditions for hybrid MC-PDFT
-         Do_Hybrid=.false.
-         CALL qpg_DScalar('R_WF_HMC',Do_Hybrid)
-         If(Do_Hybrid) Then
-          CALL Get_DScalar('R_WF_HMC',WF_Ratio)
-          PDFT_Ratio=1.0d0-WF_Ratio
-         End If
-!ANDREW - modify D2: should contain only the correction pieces
-         If ( Method.eq.'MCPDFT  ') then
-!Get the D_theta piece
-            Call mma_allocate(D1ao,nDens)
-            Call Get_dArray_chk('D1ao',D1ao,ndens)
-            ij = 0
-            Do  iIrrep = 0, nIrrep-1
-               Do iBas = 1, nBas(iIrrep)
-                  Do jBas = 1, iBas-1
-                     ij = ij + 1
-                     D1ao(ij) = Half*D1ao(ij)
-                  end do
-                  ij = ij + 1
-                end do
-            end do
-            call daxpy_(ndens,-1d0,D0(1,1),1,D1ao,1)
-!           write(*,*) 'do they match?'
-!           do i=1,ndens
-!             write(*,*) d1ao(i),DO(i,3)
-!           end do
-
-            call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-            call daxpy_(ndens,-1.0d0,D1ao,1,D0(1,2),1)
-!ANDREW -   Generate new D5 piece:
-            D0(:,5)=Zero
-            call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
-            call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
-
-          if(do_hybrid) then
-!           add back the wave function parts that are subtracted
-!           this might be inefficient, but should have a clear logic
-            call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
-            call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
-!           scale the pdft part
-            call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
-          end if
-            Call mma_deallocate(D1ao)
-          else If (Method.eq.'MSPDFT  ') Then
-            Call Get_DArray('MSPDFTD5        ',D0(1,5),nDens)
-            Call Get_DArray('MSPDFTD6        ',D0(1,6),nDens)
-            call daxpy_(ndens,-1.0d0,D0(1,5),1,D0(1,2),1)
-          end if
-
-!          call dcopy_(ndens*5,0.0d0,0,D0,1)
-!          call dcopy_(nG2,0.0d0,0,G2,1)
-
-
-!************************
-           !Call dscal_(Length,0.5d0,D0(1,4),1)
-           !Call dscal_(Length,0.0d0,D0(1,4),1)
-
-!         RlxLbl='DLAO    '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
-! DMRG with the reduced AS
-           !if(doDMRG)then
-           !  length=ndim1  !yma
-           !end if
-         End If
-#ifdef _DEBUGPRINT_
-         Call TriPrt(' G2',' ',G2(1,1),nG1)
-#endif
-!
-!...  Close 'RELAX' file
-1000     Continue
-!
-!...  Epilogue, end
+! Epilogue, end
 #ifdef _CD_TIMING_
-      Call CWTIME(PreppCPU2,PreppWall2)
-      Prepp_CPU  = PreppCPU2 - PreppCPU1
-      Prepp_Wall = PreppWall2 - PreppWall1
+call CWTIME(PreppCPU2,PreppWall2)
+Prepp_CPU = PreppCPU2-PreppCPU1
+Prepp_Wall = PreppWall2-PreppWall1
 #endif
 
-      Return
-      End SubRoutine PrepP
+return
+
+end subroutine PrepP

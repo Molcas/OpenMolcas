@@ -10,27 +10,31 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Integer Function MltLbl(Lbl1,Lbl2)
+
+function MltLbl(Lbl1,Lbl2)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             February '91                                             *
 !***********************************************************************
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer Lbl1, Lbl2
-!
-      Integer iIrrep, jIrrep, ijSym
-!
-      MltLbl = 0
-      Do iIrrep = 0, nIrrep - 1
-         If (iAnd(Lbl1,2**iIrrep).eq.0) Cycle
-         Do jIrrep = 0, nIrrep - 1
-            If (iAnd(Lbl2,2**jIrrep).eq.0) Cycle
-            ijSym = iEor(iIrrep,jIrrep)
-            If (iAnd(MltLbl,2**ijSym).eq.0) MltLbl = MltLbl + 2**ijSym
-         End Do
-      End Do
-!
-      Return
-      End Function MltLbl
+
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer MltLbl
+integer Lbl1, Lbl2
+integer iIrrep, jIrrep, ijSym
+
+MltLbl = 0
+do iIrrep=0,nIrrep-1
+  if (iand(Lbl1,2**iIrrep) == 0) cycle
+  do jIrrep=0,nIrrep-1
+    if (iand(Lbl2,2**jIrrep) == 0) cycle
+    ijSym = ieor(iIrrep,jIrrep)
+    if (iand(MltLbl,2**ijSym) == 0) MltLbl = MltLbl+2**ijSym
+  end do
+end do
+
+return
+
+end function MltLbl

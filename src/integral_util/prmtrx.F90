@@ -10,62 +10,56 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine PrMtrx(Label,lOper,nComp,ip,Matrix)
+
+subroutine PrMtrx(Label,lOper,nComp,ip,Matrix)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, Sweden, January '91                  *
 !***********************************************************************
-      Use Basis_Info, only: nBas
-      use Gateway_global, only: PrPrt
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer nComp
-      Character(LEN=*) Label
-      Real*8 Matrix(*)
-      Integer ip(nComp), lOper(nComp)
 
-!     Local variables
-      Character(LEN=80) Line
-      Logical Type
-      Integer iComp, ip1, iSmLbl, iIrrep, jIrrep
-!
-!
-      Do iComp = 1, nComp
-         ip1 = ip(iComp)
-         iSmLbl = lOper(iComp)
-         If (Prprt) iSmLbl = iAnd(1,iSmLbl)
-         Type = .True.
-         Do iIrrep = 0, nIrrep - 1
-            If (nBas(iIrrep).le.0) Cycle
-            Do jIrrep = 0, iIrrep
-               If (nBas(jIrrep).le.0) Cycle
-               If (iAnd(iSmLbl,2**iEor(iIrrep,jIrrep)).eq.0) Cycle
-               If (Type) Then
-                  Type = .False.
-                  Write (6,*)
-                  Write (6,*)
-                  Write (6,'(A,A,A,I2)')                                &
-     &                  ' SO Integrals of type ', Label,' Component ',  &
-     &                     iComp
-               End If
-               Line=''
-               If (iIrrep.eq.jIrrep) Then
-                  Write (Line,'(1X,A,I1)')                              &
-     &            ' Diagonal Symmetry Block ', iIrrep+1
-                  Call TriPrt(Line,' ',                                 &
-     &                 Matrix(ip1),nBas(iIrrep))
-                  ip1 = ip1 + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-               Else
-                  Write (Line,'(1X,A,I1,A,I1)')                         &
-     &            ' Off-diagonal Symmetry Block ',                      &
-     &            iIrrep+1, ',' , jIrrep+1
-                  Call RecPrt(Line,' ',                                 &
-     &                        Matrix(ip1),nBas(iIrrep),nBas(jIrrep))
-                  ip1 = ip1 + nBas(iIrrep)*nBas(jIrrep)
-               End If
-            End Do
-         End Do
-      End Do
-!
-      Return
-      End SubRoutine PrMtrx
+use Basis_Info, only: nBas
+use Gateway_global, only: PrPrt
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer nComp
+character(len=*) Label
+real*8 Matrix(*)
+integer ip(nComp), lOper(nComp)
+character(len=80) Line
+logical type
+integer iComp, ip1, iSmLbl, iIrrep, jIrrep
+
+do iComp=1,nComp
+  ip1 = ip(iComp)
+  iSmLbl = lOper(iComp)
+  if (Prprt) iSmLbl = iand(1,iSmLbl)
+  type = .true.
+  do iIrrep=0,nIrrep-1
+    if (nBas(iIrrep) <= 0) cycle
+    do jIrrep=0,iIrrep
+      if (nBas(jIrrep) <= 0) cycle
+      if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) cycle
+      if (type) then
+        type = .false.
+        write(6,*)
+        write(6,*)
+        write(6,'(A,A,A,I2)') ' SO Integrals of type ',Label,' Component ',iComp
+      end if
+      Line = ''
+      if (iIrrep == jIrrep) then
+        write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
+        call TriPrt(Line,' ',Matrix(ip1),nBas(iIrrep))
+        ip1 = ip1+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      else
+        write(Line,'(1X,A,I1,A,I1)') ' Off-diagonal Symmetry Block ',iIrrep+1,',',jIrrep+1
+        call RecPrt(Line,' ',Matrix(ip1),nBas(iIrrep),nBas(jIrrep))
+        ip1 = ip1+nBas(iIrrep)*nBas(jIrrep)
+      end if
+    end do
+  end do
+end do
+
+return
+
+end subroutine PrMtrx

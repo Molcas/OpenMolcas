@@ -12,7 +12,8 @@
 !               1990, IBM                                              *
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
-      SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
+
+subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
@@ -40,265 +41,248 @@
 !             Modified by R. Lindh  @teokem.lu.se :                    *
 !             total repacking of code September '96                    *
 !***********************************************************************
-      use IOBUF, only: lBuf
-      use Gateway_Info, only: ThrInt, CutInt
-      use RICD_Info, only: Do_DCCD
-      use iSD_data, only: iSD
-      use Integral_Interfaces, only: DeDe_SCF, No_routine,              &
-     &                               Int_PostProcess
-      use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-      use Int_Options, only: Exfac, Thize, W2Disc
-      use Int_Options, only: Disc_Mx, Disc, Count=>Quad_ijkl
-      use Constants, only: Zero, One, Two, Three, Four, Eight
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer nDens, nDisc
-      Real*8, Target:: Dens(nDens), TwoHam(nDens)
-      Logical FstItr
-!
-      External Rsv_GTList
-      Integer, Parameter :: nTInt=1
-      Real*8 TInt(nTInt)
-      Logical Semi_Direct,Rsv_GTList, Indexation,                       &
-     &        DoGrad, Triangular
-      Character(LEN=72) SLine
-      Real*8, Allocatable:: TMax(:,:), DMax(:,:)
-      Integer, Allocatable:: ip_ij(:,:)
-      Integer iS, jS, ijS, klS, nSkal, iOpt, nIJ, kS, lS, mDens
-      Real*8 ThrAO, TskHi, TskLw, P_Eff, PP_Eff, PP_Eff_Delta,          &
-     &       PP_Count, TMax_All, S_Eff, T_Eff, ST_Eff, AInt, Dtst,      &
-     &       TCPU1, TCPU2, TWALL1, TWALL2
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      SLine='Computing 2-electron integrals'
-      Call StatusLine(' SCF:',SLine)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call Set_Basis_Mode('Valence')
-      Call Setup_iSD()
-      Int_PostProcess => No_Routine
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Set variables in module Int_Options
-      DoIntegrals=.False.
-      DoFock=.True.
-      FckNoExch=ExFac.eq.Zero
-      W2Disc=.False.     ! Default value
-!     Disc_Mx = file size in Real*8 128=1024/8
-      Disc_Mx= DBLE(nDisc)*128.D00
-!     Subtract for the last buffer
-      Disc_Mx= Disc_Mx - lBuf
-      Disc = Zero        ! Default value
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Set up for partial SO/AO integral storage.
-!
-!---- nDisc = file size in kbyte from input
-      Semi_Direct = nDisc.ne.0
-      If (Semi_Direct) Then
-         Call Init_SemiDSCF(FstItr,Thize,Cutint)
-      Endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Desymmetrize differential densities.
-!     Observe that the desymmetrized 1st order density matrices are
-!     canonical, i.e. the relative order of the indices are canonically
-!     ordered.
-!
-      Call DeDe_SCF(Dens,TwoHam,nDens,mDens)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Indexation=.False.
-      ThrAO=Zero           ! Do not modify CutInt
-      DoGrad=.False.
-!
-      Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      TskHi=Zero
-      TskLw=Zero
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---  Compute entities for prescreening at shell level
-!
-      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
-      Call Shell_MxSchwz(nSkal,TMax)
-      TMax_all=Zero
-      Do iS = 1, nSkal
-         Do jS = 1, iS
-            If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Cycle
-            TMax_all=Max(TMax_all,TMax(iS,jS))
-         End Do
-      End Do
-      Call mma_allocate(DMax,nSkal,nSkal,Label='DMax')
-      Call Shell_MxDens(Dens,DMax,nSkal)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Create list of non-vanishing pairs
-!
-      Call mma_allocate(ip_ij,2,nSkal*(nSkal+1),Label='ip_ij')
-      nij=0
-      Do iS = 1, nSkal
-         Do jS = 1, iS
-         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Cycle
-            If (TMax_All*TMax(iS,jS).ge.CutInt) Then
-               nij = nij + 1
-               ip_ij(1,nij)=iS
-               ip_ij(2,nij)=jS
-            End If
-         End Do
-      End Do
-      P_Eff=Dble(nij)
-!
-      PP_Eff=P_Eff**2
-      PP_Eff_delta=0.10D0*PP_Eff
-      PP_Count=Zero
+
+use IOBUF, only: lBuf
+use Gateway_Info, only: ThrInt, CutInt
+use RICD_Info, only: Do_DCCD
+use iSD_data, only: iSD
+use Integral_Interfaces, only: DeDe_SCF, No_routine, Int_PostProcess
+use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
+use Int_Options, only: Exfac, Thize, W2Disc
+use Int_Options, only: Disc_Mx, Disc, Count => Quad_ijkl
+use Constants, only: Zero, One, Two, Three, Four, Eight
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer nDens, nDisc
+real*8, target :: Dens(nDens), TwoHam(nDens)
+logical FstItr
+external Rsv_GTList
+integer, parameter :: nTInt = 1
+real*8 TInt(nTInt)
+logical Semi_Direct, Rsv_GTList, Indexation, DoGrad, Triangular
+character(len=72) SLine
+real*8, allocatable :: TMax(:,:), DMax(:,:)
+integer, allocatable :: ip_ij(:,:)
+integer iS, jS, ijS, klS, nSkal, iOpt, nIJ, kS, lS, mDens
+real*8 ThrAO, TskHi, TskLw, P_Eff, PP_Eff, PP_Eff_Delta, PP_Count, TMax_All, S_Eff, T_Eff, ST_Eff, AInt, Dtst, TCPU1, TCPU2, &
+       TWALL1, TWALL2
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!.... For distributed parallel SCF initiate (sequential code is special
-!     case when the number of nodes in the mpp is 1).
-!
-!     1: Task list (tlist)
-!     2: Private priority list (pplist)
-!     3: Global task list (gtlist)
-!
-      If (FstItr) Then
-         Triangular=.True.
-         Call Init_TList(Triangular,P_Eff)
-         Call Init_PPList
-         Call Init_GTList
-      Else
-         Call ReInit_PPList(Semi_Direct)
-         Call ReInit_GTList
-      End If
-      iOpt=0
-      If (.Not.FstItr.and.Semi_direct) Then
-         iOpt=2
-      Endif
-!
-      Call CWTime(TCpu1,TWall1)
-!
-!     big loop over individual tasks, distributed over individual nodes
+SLine = 'Computing 2-electron integrals'
+call StatusLine(' SCF:',SLine)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call Set_Basis_Mode('Valence')
+call Setup_iSD()
+Int_PostProcess => No_Routine
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Set variables in module Int_Options
+DoIntegrals = .false.
+DoFock = .true.
+FckNoExch = ExFac == Zero
+W2Disc = .false.     ! Default value
+! Disc_Mx = file size in Real*8 128=1024/8
+Disc_Mx = dble(nDisc)*128.d00
+! Subtract for the last buffer
+Disc_Mx = Disc_Mx-lBuf
+Disc = Zero        ! Default value
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Set up for partial SO/AO integral storage.
 
-   10 Continue
-!     make reservation of a task on global task list and get task range
-!     in return. Function will be false if no more tasks to execute.
+! nDisc = file size in kbyte from input
+Semi_Direct = nDisc /= 0
+if (Semi_Direct) call Init_SemiDSCF(FstItr,Thize,Cutint)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Desymmetrize differential densities.
+! Observe that the desymmetrized 1st order density matrices are
+! canonical, i.e. the relative order of the indices are canonically
+! ordered.
 
-      If (.Not.Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Then
-         Go To 11
-      Endif
+call DeDe_SCF(Dens,TwoHam,nDens,mDens)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Indexation = .false.
+ThrAO = Zero           ! Do not modify CutInt
+DoGrad = .false.
 
+call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+TskHi = Zero
+TskLw = Zero
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute entities for prescreening at shell level
 
-      Call Mode_SemiDSCF(W2Disc)
-!     Write (6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
+call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+call Shell_MxSchwz(nSkal,TMax)
+TMax_all = Zero
+do iS=1,nSkal
+  do jS=1,iS
+    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,jS))) cycle
+    TMax_all = max(TMax_all,TMax(iS,jS))
+  end do
+end do
+call mma_allocate(DMax,nSkal,nSkal,Label='DMax')
+call Shell_MxDens(Dens,DMax,nSkal)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Create list of non-vanishing pairs
+
+call mma_allocate(ip_ij,2,nSkal*(nSkal+1),Label='ip_ij')
+nij = 0
+do iS=1,nSkal
+  do jS=1,iS
+    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,jS))) cycle
+    if (TMax_All*TMax(iS,jS) >= CutInt) then
+      nij = nij+1
+      ip_ij(1,nij) = iS
+      ip_ij(2,nij) = jS
+    end if
+  end do
+end do
+P_Eff = dble(nij)
+
+PP_Eff = P_Eff**2
+PP_Eff_delta = 0.10d0*PP_Eff
+PP_Count = Zero
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! For distributed parallel SCF initiate (sequential code is special
+! case when the number of nodes in the mpp is 1).
 !
-!     Now do a quadruple loop over shells
-!
-      ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
-      iS = ip_ij(1,ijS)
-      jS = ip_ij(2,ijS)
-      klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
-      kS = ip_ij(1,klS)
-      lS = ip_ij(2,klS)
-      Count=TskLw
+! 1: Task list (tlist)
+! 2: Private priority list (pplist)
+! 3: Global task list (gtlist)
 
+if (FstItr) then
+  Triangular = .true.
+  call Init_TList(Triangular,P_Eff)
+  call Init_PPList()
+  call Init_GTList()
+else
+  call ReInit_PPList(Semi_Direct)
+  call ReInit_GTList()
+end if
+iOpt = 0
+if ((.not. FstItr) .and. Semi_direct) iOpt = 2
 
-      If (Count-TskHi.gt.1.0D-10) Go To 12 ! Cut off check
+call CWTime(TCpu1,TWall1)
+
+! big loop over individual tasks, distributed over individual nodes
+
+10 continue
+! make reservation of a task on global task list and get task range
+! in return. Function will be false if no more tasks to execute.
+
+if (.not. Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Go To 11
+
+call Mode_SemiDSCF(W2Disc)
+!write(6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
+
+! Now do a quadruple loop over shells
+
+ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
+iS = ip_ij(1,ijS)
+jS = ip_ij(2,ijS)
+klS = int(TskLw-dble(ijS)*(dble(ijS)-One)/Two)
+kS = ip_ij(1,klS)
+lS = ip_ij(2,klS)
+Count = TskLw
+
+if (Count-TskHi > 1.0D-10) Go To 12 ! Cut off check
+13 continue
+
 ! What are these variables
-  13  Continue
-!
-      S_Eff=DBLE(ijS)
-      T_Eff=DBLE(klS)
-      ST_Eff=S_Eff*(S_Eff-One)/2D0 + T_Eff
+S_Eff = dble(ijS)
+T_Eff = dble(klS)
+ST_Eff = S_Eff*(S_Eff-One)/2d0+T_Eff
 
-
-      If (ST_Eff.ge.PP_Count) Then
-         Write (SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',  &
-     &        ST_Eff/PP_Eff,'% done so far.'
-         Call StatusLine(' Seward:',SLine)
-         PP_Count = PP_Count + PP_Eff_delta
-      End If
+if (ST_Eff >= PP_Count) then
+  write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff,'% done so far.'
+  call StatusLine(' Seward:',SLine)
+  PP_Count = PP_Count+PP_Eff_delta
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Aint=TMax(iS,jS)*TMax(kS,lS)
-         If (Semi_Direct) Then
+Aint = TMax(iS,jS)*TMax(kS,lS)
+if (Semi_Direct) then
 
-!
-!           No density screening in semi-direct case!
-!           Cutint: Threshold for Integrals. In semi-direct case, this
-!                   must be the final threshold used in the last scf
-!                   iteration
-!           Thrint: Threshold for Density screening. This the actual
-!                   threshold
-!                   for the current iteration
-!
-           If (AInt.lt.CutInt) Go To 14
-         Else
+  ! No density screening in semi-direct case!
+  ! Cutint: Threshold for Integrals. In semi-direct case, this
+  !         must be the final threshold used in the last scf
+  !         iteration
+  ! Thrint: Threshold for Density screening. This the actual
+  !         threshold
+  !         for the current iteration
 
-           If(FckNoClmb) then
-              Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,               &
-     &                 DMax(js,ls)/Four,DMax(js,ks)/Four)
-           Else If(FckNoExch) then
-              Dtst=Max(DMax(is,js),DMax(ks,ls))
-           Else
-              Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,               &
-     &                 DMax(js,ls)/Four,DMax(js,ks)/Four,               &
-     &                 DMax(is,js),DMax(ks,ls))
-           End If
+  if (AInt < CutInt) Go To 14
+else
 
-           If (Aint*Dtst.lt.ThrInt) Then
-              goto 14
-           Endif
+  if (FckNoClmb) then
+    Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four)
+  else if (FckNoExch) then
+    Dtst = max(DMax(is,js),DMax(ks,ls))
+  else
+    Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
+  end if
 
-         End if
-         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,kS)) Go To 14
+  if (Aint*Dtst < ThrInt) goto 14
+
+end if
+if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Go To 14
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
- 14      Continue
-         Count=Count+One
-         If (Count-TskHi.gt.1.0D-10) Go To 12
-         klS = klS + 1
-         If (klS.gt.ijS) Then
-            ijS = ijS + 1
-            klS = 1
-         End If
-         iS = ip_ij(1,ijS)
-         jS = ip_ij(2,ijS)
-         kS = ip_ij(1,klS)
-         lS = ip_ij(2,klS)
-         Go To 13
-!
-!     Task endpoint
-!
- 12   Continue
-!
-      If (Semi_Direct) Then
-         If (W2Disc) Then
-            Call Put_QLast
-         Else
-            Call Pos_QLast(Disc)
-         End If
-      End If
-!
-      Go To 10
- 11   Continue
-!     End of big task loop
-      Call CWTime(TCpu2,TWall2)
+14 continue
+Count = Count+One
+if (Count-TskHi > 1.0D-10) Go To 12
+klS = klS+1
+if (klS > ijS) then
+  ijS = ijS+1
+  klS = 1
+end if
+iS = ip_ij(1,ijS)
+jS = ip_ij(2,ijS)
+kS = ip_ij(1,klS)
+lS = ip_ij(2,klS)
+Go To 13
+
+! Task endpoint
+
+12 continue
+
+if (Semi_Direct) then
+  if (W2Disc) then
+    call Put_QLast()
+  else
+    call Pos_QLast(Disc)
+  end if
+end if
+
+Go To 10
+11 continue
+! End of big task loop
+call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -306,28 +290,28 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Semi_Direct) Call Close_SemiDSCF
-      FstItr=.False.
-!
-      Call mma_deallocate(ip_ij)
-      Call mma_deallocate(DMax)
-      Call mma_deallocate(TMax)
-!
-      Call Term_Ints()
-!
-      Call Free_DeDe(Dens,TwoHam,nDens)
-      Int_PostProcess => Null()
-!
-!
-!     Broadcast contributions to the Fock matrix
-!
-      Call Sync_TH(TwoHam,nDens)
+if (Semi_Direct) call Close_SemiDSCF()
+FstItr = .false.
+
+call mma_deallocate(ip_ij)
+call mma_deallocate(DMax)
+call mma_deallocate(TMax)
+
+call Term_Ints()
+
+call Free_DeDe(Dens,TwoHam,nDens)
+Int_PostProcess => null()
+
+! Broadcast contributions to the Fock matrix
+
+call Sync_TH(TwoHam,nDens)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !MAW start
-!     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
+!call fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
 !MAW end
-      Call Free_iSD()
-!     Call Init_Int_Options()    ?
-      End
+call Free_iSD()
+!call Init_Int_Options()    ?
+
+end subroutine Drv2El_dscf

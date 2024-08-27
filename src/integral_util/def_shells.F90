@@ -8,266 +8,255 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      Subroutine Def_Shells(iSD,nSD,mSkal)
-      use Basis_Info
-      use Center_Info
-      use Sizes_of_Seward, only: S
-      use BasisMode
-      use disp
-      Implicit None
-      Integer nSD, mSkal
-      Integer iSD(0:nSD,mSkal)
-!
-      Logical, External :: TF
-      Integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest,&
-     &        mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp,&
-     &        kSh, iTemp, nDIsp, iTmp, iCar, nFunctions, iComp, iCase
+subroutine Def_Shells(iSD,nSD,mSkal)
+
+use Basis_Info
+use Center_Info
+use Sizes_of_Seward, only: S
+use BasisMode
+use disp
+
+implicit none
+integer nSD, mSkal
+integer iSD(0:nSD,mSkal)
+logical, external :: TF
+integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest, mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp, kSh, &
+        iTemp, nDIsp, iTmp, iCar, nFunctions, iComp, iCase
 #ifdef _DEBUGPRINT_
-      Integer i, j
+integer i, j
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (Basis_Mode.ne.Valence_Mode .and.                              &
-     &    Basis_Mode.ne.Auxiliary_Mode .and.                            &
-     &    Basis_Mode.ne.Fragment_Mode .and.                             &
-     &    Basis_Mode.ne.With_Auxiliary_Mode .and.                       &
-     &    Basis_Mode.ne.With_Fragment_Mode .and.                        &
-     &    Basis_Mode.ne.All_Mode) Then
-         Call WarningMessage(2,'Def_Shells: Basis_Mode is not defined')
-         Call Abend()
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      iIrrep=0
-      nSkal=0
-      iAOttp=0 ! Number of AO functions proceeding a particular shell
-      S%m2Max=0
-!
-      If (Atomic) Go To 300
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!     Molecular setup                                                  *
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      iCnttp = 0
-      mdc=0
-      iShell = 0
-      Do jCnttp = 1, nCnttp
-!
-!        Make sure that we process the dummy shell last
-!
-         If (jCnttp.eq.iCnttp_Dummy .and. jCnttp.ne.nCnttp) Then
-            iCnttp = iCnttp + 2
-         Else If (jCnttp.eq.nCnttp .and. iCnttp.eq.jCnttp) Then
-            iCnttp = iCnttp_Dummy
-         Else
-            iCnttp = iCnttp + 1
-         End If
-!
-         nTest = dbsc(iCnttp)%nVal-1
-         mdci = dbsc(iCnttp)%mdci
-         Do iCnt = 1, dbsc(iCnttp)%nCntr
-            mdci = mdci + 1
-            mdc  = mdc  + 1
-            iShell_Set = iShell
-!
-            Do iAng=0, nTest
-               iShell = iShell + 1
-               iShll = dbsc(iCnttp)%iVal + iAng
-               nExpi=Shells(iShll)%nExp
-               nBasisi=Shells(iShll)%nBasis
-               If (Shells(iShll)%Prjct) Then
-                  iCmp = 2*iAng+1
-               Else
-                  iCmp  = (iAng+1)*(iAng+2)/2
-               End If
-               If (nExpi.eq.0)   Go To 200
-               If (nBasisi.eq.0) Go To 200
-               If (Basis_Mode.eq.Valence_Mode .and.                     &
-     &             (Shells(iShll)%Aux.or.                               &
-     &              Shells(iShll)%Frag)) Go To 200
-               If (Basis_Mode.eq.Auxiliary_Mode .and.                   &
-     &             .Not.Shells(iShll)%Aux) Go To 200
-               If (Basis_Mode.eq.Fragment_Mode .and.                    &
-     &             .Not.Shells(iShll)%Frag) Go To 200
-               If (Basis_Mode.eq.With_Auxiliary_Mode .and.              &
-     &             Shells(iShll)%Frag) Go To 200
-               If (Basis_Mode.eq.With_Fragment_Mode .and.               &
-     &             Shells(iShll)%Aux) Go To 200
 
-               kSh=dbsc(iCnttp)%iVal+iAng
-!
-               nSkal = nSkal + 1
-!
-!***********************************************************************
-!
-               iSD(0,nSkal)=iShll                    ! Unique shell ind.
-               iSD(1,nSkal)=iAng                     ! l value
-               iSD(2,nSkal)=iCmp                     ! # of ang. comp.
-               iSD(3,nSkal)=nBasisi                  ! # of cont. func.
-               iSD(4,nSkal)= -1                      ! Not used
-               iSD(5,nSkal)=  nExpi                  ! # of prim.
-               iSD(6,nSkal)= -1                      ! Not used
-               iSD(7,nSkal)= iAOttp                                     & !
-     &                     + (iCnt-1)*dbsc(iCnttp)%lOffAO               &
-     &                     + Shells(kSh)%kOffAO      !
-               iSD(8,nSkal)= -1
-               itemp=0                               !
-               If (Shells(iShll)%Prjct ) itemp=itemp+1      !
-               If (Shells(iShll)%Transf) itemp=itemp+2      !
-               iSD(9,nSkal)=itemp                    ! sph., car., cont.
-               iSD(10,nSkal)=mdci                    ! Center index
-               iSD(11,nSkal)=iShell_Set + iAng + 1
-               If (dbsc(iCnttp)%pChrg) Then
-                  iSD(12,nSkal)= 1                   ! pseudo charge
-               Else
-                  iSD(12,nSkal)= 0                   ! pseudo charge
-               End If
-               iSD(13,nSkal)= iCnttp
-               iSD(14,nSkal)= iCnt
-!
-               nDisp = IndDsp(mdci,iIrrep)
-               iTmp=0
-               Do iCar = 0, 2
-                  iComp = 2**iCar
-                  If (TF(mdci,iIrrep,iComp).and.                        &
-     &                .Not.dbsc(iCnttp)%pChrg) Then
-                     nDisp = nDisp + 1
-                     If (Dirct(nDisp)) Then
-                        iSD(iCar+16,nSkal) = nDisp
-                        iTmp=iOr(iTmp,2**iCar)
-                     Else
-                        iSD(iCar+16,nSkal) = 0
-                     End If
-                  Else
-                     iSD(iCar+16,nSkal) = 0
-                  End If
-               End Do
-               iSD(15,nSkal) = iTmp
-!
-               S%m2Max=Max(S%m2Max,nExpi**2)
- 200           Continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-            End Do                       ! iAng
-         End Do                          ! iCnt
-         iAOttp = iAOttp + dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
-      End Do                             ! iCnttp
-!
-      Return
+if ((Basis_Mode /= Valence_Mode) .and. (Basis_Mode /= Auxiliary_Mode) .and. (Basis_Mode /= Fragment_Mode) .and. &
+    (Basis_Mode /= With_Auxiliary_Mode) .and. (Basis_Mode /= With_Fragment_Mode) .and. (Basis_Mode /= All_Mode)) then
+  call WarningMessage(2,'Def_Shells: Basis_Mode is not defined')
+  call Abend()
+end if
 !                                                                      *
 !***********************************************************************
-!***********************************************************************
 !                                                                      *
-!     Atomic setup                                                     *
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
- 300  Continue
-!
-      iCase=1
-      mdci = 1
-      iCnt = 1
-      nFunctions=0
+iIrrep = 0
+nSkal = 0
+iAOttp = 0 ! Number of AO functions proceeding a particular shell
+S%m2Max = 0
 
- 301  Continue
-      If (iCase.eq.1) Then
-!
-!        Add the auxiliary basis
-!
-         iCnttp = kCnttp
-      Else
-!
-!        Add the dummy basis
-!
-         iCnttp = iCnttp_Dummy
-      End If
-      nTest = dbsc(iCnttp)%nVal-1
-!
-      Do 400 iAng=0, nTest
-         iShll = dbsc(iCnttp)%iVal + iAng
-         nExpi=Shells(iShll)%nExp
-         If (nExpi.eq.0)   Cycle
-         nBasisi=Shells(iShll)%nBasis
-         If (nBasisi.eq.0) Go To 400
-         If (Shells(iShll)%Frag) Go To 400
-         iCmp  = (iAng+1)*(iAng+2)/2
-         If (Shells(iShll)%Prjct ) iCmp = 2*iAng+1
-         kSh=dbsc(iCnttp)%iVal+iAng
-!
-         nSkal = nSkal + 1
-!
-!***********************************************************************
-!
-         iSD(0,nSkal)=iShll                    ! Unique shell ind.
-         iSD(1,nSkal)=iAng                     ! l value
-         iSD(2,nSkal)=iCmp                     ! # of ang. comp.
-         iSD(3,nSkal)=nBasisi                  ! # of cont. func.
-         iSD(4,nSkal)= -1                      ! Not used
-         iSD(5,nSkal)=  nExpi                  ! # of prim.
-         iSD(6,nSkal)= -1                      ! Not used
-         iSD(7,nSkal)= iAOttp                                           & !
-     &               + Shells(kSh)%kOffAO      !
-         iSD(8,nSkal)= -1                      ! Not used
-         itemp=0                               !
-         If (Shells(iShll)%Prjct ) itemp=itemp+1      !
-         If (Shells(iShll)%Transf) itemp=itemp+2      !
-         iSD(9,nSkal)=itemp                    ! sph., car., cont.
-         iSD(10,nSkal)=mdci                    ! Center index
-         iSD(11,nSkal)= iAng + 1               ! Not used
-         If (dbsc(iCnttp)%pChrg) Then
-            iSD(12,nSkal)= 1                   ! pseudo charge
-         Else
-            iSD(12,nSkal)= 0                   ! pseudo charge
-         End If
-         iSD(13,nSkal)= iCnttp
-         iSD(14,nSkal)= 1
-!
-         iSD(15,nSkal) = 0
-         iSD(16,nSkal) = 0
-         iSD(17,nSkal) = 0
-         iSD(18,nSkal) = 0
-!
-         S%m2Max=Max(S%m2Max,nExpi**2)
-!
-         If (Shells(iShll)%Prjct ) Then
-            nFunctions = nFunctions + nBasisi*(2*iAng+1)
-         Else
-            nFunctions = nFunctions + nBasisi*(iAng+1)*(iAng+2)/2
-         End If
+if (Atomic) Go To 300
 !                                                                      *
 !***********************************************************************
+!***********************************************************************
 !                                                                      *
- 400  Continue                     ! iAng
-!
-      iCase=iCase+1
-      If (iCase.le.2.and.dbsc(iCnttp)%Aux) Go To 301
-!
-      If (dbsc(iCnttp)%Aux) Then
-         nBas(0)=0
-      Else
-         nBas(0)=nFunctions
-      End If
-!define _DEBUGPRINT_
+! Molecular setup                                                      *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+iCnttp = 0
+mdc = 0
+iShell = 0
+do jCnttp=1,nCnttp
+
+  ! Make sure that we process the dummy shell last
+
+  if ((jCnttp == iCnttp_Dummy) .and. (jCnttp /= nCnttp)) then
+    iCnttp = iCnttp+2
+  else if ((jCnttp == nCnttp) .and. (iCnttp == jCnttp)) then
+    iCnttp = iCnttp_Dummy
+  else
+    iCnttp = iCnttp+1
+  end if
+
+  nTest = dbsc(iCnttp)%nVal-1
+  mdci = dbsc(iCnttp)%mdci
+  do iCnt=1,dbsc(iCnttp)%nCntr
+    mdci = mdci+1
+    mdc = mdc+1
+    iShell_Set = iShell
+
+    do iAng=0,nTest
+      iShell = iShell+1
+      iShll = dbsc(iCnttp)%iVal+iAng
+      nExpi = Shells(iShll)%nExp
+      nBasisi = Shells(iShll)%nBasis
+      if (Shells(iShll)%Prjct) then
+        iCmp = 2*iAng+1
+      else
+        iCmp = (iAng+1)*(iAng+2)/2
+      end if
+      if (nExpi == 0) Go To 200
+      if (nBasisi == 0) Go To 200
+      if ((Basis_Mode == Valence_Mode) .and. (Shells(iShll)%Aux .or. Shells(iShll)%Frag)) Go To 200
+      if ((Basis_Mode == Auxiliary_Mode) .and. (.not. Shells(iShll)%Aux)) Go To 200
+      if ((Basis_Mode == Fragment_Mode) .and. (.not. Shells(iShll)%Frag)) Go To 200
+      if ((Basis_Mode == With_Auxiliary_Mode) .and. Shells(iShll)%Frag) Go To 200
+      if ((Basis_Mode == With_Fragment_Mode) .and. Shells(iShll)%Aux) Go To 200
+
+      kSh = dbsc(iCnttp)%iVal+iAng
+
+      nSkal = nSkal+1
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      iSD(0,nSkal) = iShll                  ! Unique shell ind.
+      iSD(1,nSkal) = iAng                   ! l value
+      iSD(2,nSkal) = iCmp                   ! # of ang. comp.
+      iSD(3,nSkal) = nBasisi                ! # of cont. func.
+      iSD(4,nSkal) = -1                     ! Not used
+      iSD(5,nSkal) = nExpi                  ! # of prim.
+      iSD(6,nSkal) = -1                     ! Not used
+      iSD(7,nSkal) = iAOttp+(iCnt-1)*dbsc(iCnttp)%lOffAO+Shells(kSh)%kOffAO
+      iSD(8,nSkal) = -1
+      itemp = 0
+      if (Shells(iShll)%Prjct) itemp = itemp+1
+      if (Shells(iShll)%Transf) itemp = itemp+2
+      iSD(9,nSkal) = itemp                  ! sph., car., cont.
+      iSD(10,nSkal) = mdci                  ! Center index
+      iSD(11,nSkal) = iShell_Set+iAng+1
+      if (dbsc(iCnttp)%pChrg) then
+        iSD(12,nSkal) = 1                   ! pseudo charge
+      else
+        iSD(12,nSkal) = 0                   ! pseudo charge
+      end if
+      iSD(13,nSkal) = iCnttp
+      iSD(14,nSkal) = iCnt
+
+      nDisp = IndDsp(mdci,iIrrep)
+      iTmp = 0
+      do iCar=0,2
+        iComp = 2**iCar
+        if (TF(mdci,iIrrep,iComp) .and. (.not. dbsc(iCnttp)%pChrg)) then
+          nDisp = nDisp+1
+          if (Dirct(nDisp)) then
+            iSD(iCar+16,nSkal) = nDisp
+            iTmp = ior(iTmp,2**iCar)
+          else
+            iSD(iCar+16,nSkal) = 0
+          end if
+        else
+          iSD(iCar+16,nSkal) = 0
+        end if
+      end do
+      iSD(15,nSkal) = iTmp
+
+      S%m2Max = max(S%m2Max,nExpi**2)
+200   continue
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    end do  ! iAng
+  end do    ! iCnt
+  iAOttp = iAOttp+dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
+end do      ! iCnttp
+
+return
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! Atomic setup                                                         *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+300 continue
+
+iCase = 1
+mdci = 1
+iCnt = 1
+nFunctions = 0
+
+301 continue
+if (iCase == 1) then
+
+  ! Add the auxiliary basis
+
+  iCnttp = kCnttp
+else
+
+  ! Add the dummy basis
+
+  iCnttp = iCnttp_Dummy
+end if
+nTest = dbsc(iCnttp)%nVal-1
+
+do iAng=0,nTest
+  iShll = dbsc(iCnttp)%iVal+iAng
+  nExpi = Shells(iShll)%nExp
+  if (nExpi == 0) cycle
+  nBasisi = Shells(iShll)%nBasis
+  if (nBasisi == 0) Go To 400
+  if (Shells(iShll)%Frag) Go To 400
+  iCmp = (iAng+1)*(iAng+2)/2
+  if (Shells(iShll)%Prjct) iCmp = 2*iAng+1
+  kSh = dbsc(iCnttp)%iVal+iAng
+
+  nSkal = nSkal+1
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  iSD(0,nSkal) = iShll                  ! Unique shell ind.
+  iSD(1,nSkal) = iAng                   ! l value
+  iSD(2,nSkal) = iCmp                   ! # of ang. comp.
+  iSD(3,nSkal) = nBasisi                ! # of cont. func.
+  iSD(4,nSkal) = -1                     ! Not used
+  iSD(5,nSkal) = nExpi                  ! # of prim.
+  iSD(6,nSkal) = -1                     ! Not used
+  iSD(7,nSkal) = iAOttp+Shells(kSh)%kOffAO
+  iSD(8,nSkal) = -1                     ! Not used
+  itemp = 0
+  if (Shells(iShll)%Prjct) itemp = itemp+1
+  if (Shells(iShll)%Transf) itemp = itemp+2
+  iSD(9,nSkal) = itemp                  ! sph., car., cont.
+  iSD(10,nSkal) = mdci                  ! Center index
+  iSD(11,nSkal) = iAng+1                ! Not used
+  if (dbsc(iCnttp)%pChrg) then
+    iSD(12,nSkal) = 1                   ! pseudo charge
+  else
+    iSD(12,nSkal) = 0                   ! pseudo charge
+  end if
+  iSD(13,nSkal) = iCnttp
+  iSD(14,nSkal) = 1
+
+  iSD(15,nSkal) = 0
+  iSD(16,nSkal) = 0
+  iSD(17,nSkal) = 0
+  iSD(18,nSkal) = 0
+
+  S%m2Max = max(S%m2Max,nExpi**2)
+
+  if (Shells(iShll)%Prjct) then
+    nFunctions = nFunctions+nBasisi*(2*iAng+1)
+  else
+    nFunctions = nFunctions+nBasisi*(iAng+1)*(iAng+2)/2
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+400 continue
+end do      !iAng
+
+iCase = iCase+1
+if ((iCase <= 2) .and. dbsc(iCnttp)%Aux) Go To 301
+
+if (dbsc(iCnttp)%Aux) then
+  nBas(0) = 0
+else
+  nBas(0) = nFunctions
+end if
 #ifdef _DEBUGPRINT_
-      Write(6,*) 'in Define_Shells...'
-      Do i = 1, mSkal
-         Write (6,*) 'i=',i
-         Write (6,'(10I8,/,8I8)') (iSD(j,i),j=0,nSD)
-      End Do
+write(6,*) 'in Define_Shells...'
+do i=1,mSkal
+  write(6,*) 'i=',i
+  write(6,'(10I8,/,8I8)') (iSD(j,i),j=0,nSD)
+end do
 #endif
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Def_Shells

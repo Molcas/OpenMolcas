@@ -10,65 +10,65 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Banner(Lines,nLines,nWidth)
+
+subroutine Banner(Lines,nLines,nWidth)
 !***********************************************************************
 !     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 !             University of Lund, SWEDEN                               *
 !             May '91                                                  *
 !***********************************************************************
-      Implicit None
-      Integer nLines, nWidth
-      Integer, Parameter:: MxWdth=132
-      Character(LEN=*)   Lines(nLines)
-      Character(LEN=MxWdth-2) Line
-      Character(LEN=72) Format
+implicit none
+integer nLines, nWidth
+integer, parameter :: MxWdth = 132
+character(len=*) Lines(nLines)
+character(len=MxWdth-2) Line
+character(len=72) format
+integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit, jFrst, jEnd
 
-      Integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit,      &
-     &        jFrst, jEnd
-!
-      mWidth = nWidth
-      nChar = Len(Lines(1))
-      If (nChar+2.gt.mWidth) mWidth = nChar + 2
-      mWidth = Min(MxWdth-2,mWidth)
-      Write (Format,'(A,i3,A)') '(1X,A',mWidth,')'
-      Do 100 i = 1, mWidth
-         Line(i:i) = '*'
- 100  Continue
-      Write (6,Format) Line
-      Do 110 i = 2, mWidth-1
-         Line(i:i) = ' '
- 110  Continue
-      Write (6,Format) Line
-      Do 10 i = 1, nLines
-         Do 20 j = 1, nChar
-            If (Lines(i)(j:j).ne.' ') Go To 21
- 20      Continue
- 21      Continue
-         iFrst = j
-         Do 30 j = nChar, iFrst, -1
-            If (Lines(i)(j:j).ne.' ') Go To 31
- 30      Continue
- 31      Continue
-         iEnd = j
-         Do 120 k = 2, mWidth-1
-            Line(k:k) = ' '
- 120     Continue
-         Length = iEnd-iFrst+1
-         nSplit = (mWidth-2-Length)/2
-         jFrst = 1+nSplit+1
-         jEnd = jFrst+Length-1
-         Line(jFrst:jEnd) = Lines(i)(iFrst:iEnd)
-         Write (6,Format) Line
- 10   Continue
-!
-      Do 130 k = 2, mWidth-1
-         Line(k:k) = ' '
- 130  Continue
-      Write (6,Format) Line
-      Do 140 k = 2, mWidth-1
-         Line(k:k) = '*'
- 140  Continue
-      Write (6,Format) Line
-!
-      Return
-      End SubRoutine Banner
+mWidth = nWidth
+nChar = len(Lines(1))
+if (nChar+2 > mWidth) mWidth = nChar+2
+mWidth = min(MxWdth-2,mWidth)
+write(format,'(A,i3,A)') '(1X,A',mWidth,')'
+do i=1,mWidth
+  Line(i:i) = '*'
+end do
+write(6,format) Line
+do i=2,mWidth-1
+  Line(i:i) = ' '
+end do
+write(6,format) Line
+do i=1,nLines
+  do j=1,nChar
+    if (Lines(i)(j:j) /= ' ') Go To 21
+  end do
+21 continue
+  iFrst = j
+  do j=nChar,iFrst,-1
+    if (Lines(i)(j:j) /= ' ') Go To 31
+  end do
+31 continue
+  iEnd = j
+  do k=2,mWidth-1
+    Line(k:k) = ' '
+  end do
+  Length = iEnd-iFrst+1
+  nSplit = (mWidth-2-Length)/2
+  jFrst = 1+nSplit+1
+  jEnd = jFrst+Length-1
+  Line(jFrst:jEnd) = Lines(i)(iFrst:iEnd)
+  write(6,format) Line
+end do
+
+do k=2,mWidth-1
+  Line(k:k) = ' '
+end do
+write(6,format) Line
+do k=2,mWidth-1
+  Line(k:k) = '*'
+end do
+write(6,format) Line
+
+return
+
+end subroutine Banner

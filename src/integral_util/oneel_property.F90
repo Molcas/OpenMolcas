@@ -8,43 +8,42 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SubRoutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,     &
-     &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,           &
-     &                          D_tot,nDens,Property,Sig)
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      use Integral_Interfaces, only: int_kernel, int_mem,               &
-     &                               OneEl_Integrals
-      use Constants, only: One
-      use stdalloc, only: mma_deallocate
-      Implicit None
-      Procedure(int_kernel) :: Kernel
-      Procedure(int_mem) :: KrnlMm
-      Character(LEN=8) Label
-      Integer nComp, nDens, nOrdOp
-      Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
-      Integer ip(nComp), lOper(nComp), iChO(nComp)
-      Real*8 rHrmt, Sig
 
-      Real*8, Allocatable:: Integrals(:)
-      Integer, External:: n2Tri
-      Integer LenTot, iComp, iSmLbl, nInt
-      Real*8, external:: DDot_
+!#define _DEBUGPRINT_
+subroutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rNuc,rHrmt,iChO,D_tot,nDens,Property,Sig)
+
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+use Integral_Interfaces, only: int_kernel, int_mem, OneEl_Integrals
+use Constants, only: One
+use stdalloc, only: mma_deallocate
+
+implicit none
+procedure(int_kernel) :: Kernel
+procedure(int_mem) :: KrnlMm
+character(len=8) Label
+integer nComp, nDens, nOrdOp
+real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
+integer ip(nComp), lOper(nComp), iChO(nComp)
+real*8 rHrmt, Sig
+real*8, allocatable :: Integrals(:)
+integer, external :: n2Tri
+integer LenTot, iComp, iSmLbl, nInt
+real*8, external :: DDot_
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (rHrmt.ne.One) Then
-         Call WarningMessage(2,'OneEl_Property: rHrmt.ne.One')
-         Call Abend()
-      End If
+if (rHrmt /= One) then
+  call WarningMessage(2,'OneEl_Property: rHrmt /= One')
+  call Abend()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute the one-electron integrals
-!
-      Call OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,          &
-     &                     CCoor,nOrdOp,rHrmt,iChO,Integrals)
+! Compute the one-electron integrals
+
+call OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,Integrals)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -53,48 +52,46 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Call PrMtrx(Label,lOper,nComp,ip,Integrals)
+call PrMtrx(Label,lOper,nComp,ip,Integrals)
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Compute properties
-!
-      LenTot=0
-      Do iComp = 1, nComp
-         iSmLbl = lOper(iComp)
+! Compute properties
+
+LenTot = 0
+do iComp=1,nComp
+  iSmLbl = lOper(iComp)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Compute properties directly from integrals
+
+  nInt = n2Tri(iSmLbl)
+  LenTot = LenTot+nInt+4
+  if (nInt /= 0) then
+    call CmpInt(Integrals(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
+    if (nInt /= nDens) then
+      call WarningMessage(2,'OneEl_Property: nInt /= nDens')
+      write(6,*) 'nInt=',nInt
+      write(6,*) 'nDens',nDens
+      call Abend()
+    end if
+    Property(iComp) = rNuc(iComp)-Sig*DDot_(nDens,D_Tot,1,Integrals(ip(iComp)),1)
+  else
+    Property(iComp) = rNuc(iComp)
+  end if
+
+end do  ! iComp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!--------Compute properties directly from integrals
-!
-         nInt=n2Tri(iSmLbl)
-         LenTot = LenTot + nInt + 4
-         If (nInt.ne.0) Then
-            Call CmpInt(Integrals(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
-            If (nInt.ne.nDens) Then
-               Call WarningMessage(2,'OneEl_Property: nInt.ne.nDens')
-               Write (6,*) 'nInt=',nInt
-               Write (6,*) 'nDens',nDens
-               Call Abend()
-            End If
-            Property(iComp)=rNuc(iComp)                                 &
-     &                     -Sig*DDot_(nDens,D_Tot,1,                    &
-     &                                      Integrals(ip(iComp)),1)
-         Else
-            Property(iComp)=rNuc(iComp)
-         End If
-!
-      End Do  ! iComp
+! Deallocate memory for integral
+
+call mma_deallocate(Integrals)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Deallocate memory for integral
-!
-      Call mma_deallocate(Integrals)
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Return
-      End SubRoutine OneEl_Property
+return
+
+end subroutine OneEl_Property

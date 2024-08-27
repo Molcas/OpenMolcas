@@ -8,23 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Chk_LblCnt(Lbl,nList)
-      use Center_Info
-      Implicit None
-      Integer nList
-      Character(LEN=*) Lbl
-      Character(Len=72) Warning
 
-      Integer iList
-!
-      Do iList = 1, nList
-         If (Lbl.Eq.dc(iList)%LblCnt) then
-            Write (Warning,'(A,A)') 'ChkLbl: Duplicate label;'//        &
-     &                 ' Lbl=',Lbl
-            Call WarningMessage(2,Warning)
-            Call Quit_OnUserError()
-         End If
-      End Do
-!
-      Return
-      End Subroutine Chk_LblCnt
+subroutine Chk_LblCnt(Lbl,nList)
+
+use Center_Info
+
+implicit none
+integer nList
+character(len=*) Lbl
+character(len=72) Warning
+integer iList
+
+do iList=1,nList
+  if (Lbl == dc(iList)%LblCnt) then
+    write(Warning,'(A,A)') 'ChkLbl: Duplicate label; Lbl=',Lbl
+    call WarningMessage(2,Warning)
+    call Quit_OnUserError()
+  end if
+end do
+
+return
+
+end subroutine Chk_LblCnt

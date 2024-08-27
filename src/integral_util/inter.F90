@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Inter(iSet1,nSet1,iSet2,nSet2,iInter,nInter)
+
+subroutine Inter(iSet1,nSet1,iSet2,nSet2,iInter,nInter)
 !***********************************************************************
 !                                                                      *
 ! Object : to form the intersection of two sets.                       *
@@ -24,21 +25,24 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             February '90                                             *
 !***********************************************************************
-      Implicit None
-      Integer nSet1, nSet2, nInter
-      Integer iSet1(0:nSet1-1),iSet2(0:nSet2-1), iInter(0:7)
-!
-      Integer i1, i2
-      nInter = 0
-      Do 10 i1 = 0, nSet1-1
-         Do 20 i2 = 0, nSet2-1
-            If (iSet1(i1).eq.iSet2(i2)) Then
-               nInter = nInter + 1
-               iInter(nInter-1) = iSet1(i1)
-               Go To 10
-            End If
- 20      Continue
- 10   Continue
-!
-      Return
-      End SubRoutine Inter
+
+implicit none
+integer nSet1, nSet2, nInter
+integer iSet1(0:nSet1-1), iSet2(0:nSet2-1), iInter(0:7)
+integer i1, i2
+
+nInter = 0
+do i1=0,nSet1-1
+  do i2=0,nSet2-1
+    if (iSet1(i1) == iSet2(i2)) then
+      nInter = nInter+1
+      iInter(nInter-1) = iSet1(i1)
+      Go To 10
+    end if
+  end do
+10 continue
+end do
+
+return
+
+end subroutine Inter

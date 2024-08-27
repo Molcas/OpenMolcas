@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,        &
-     &                  lZeta,nVec,First,IncVec,A1,A2,A3,               &
-     &                  Indij)
+
+subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,lZeta,nVec,First,IncVec,A1,A2,A3,Indij)
 !***********************************************************************
 !                                                                      *
 ! Object: to do a half transformation. The loop over the two matrix-   *
@@ -23,139 +22,121 @@
 ! Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
-      use Constants, only: Zero
-      Implicit None
-      Integer, Intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec, &
-     &                       IncVec
-      Real*8, Intent(In) ::  Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2)
-      Real*8, intent(inout) :: A1(lZeta,nVec)
-      Real*8, Intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)
-      Integer, Intent(in) :: Indij(lZeta)
-      Logical, Intent(in) :: First
 
-      ! be aware of aCD(fat) basis sets.
-      Integer, Parameter :: mxnprm=1000
-      Integer idone(mxnprm),nnz2(mxnprm),ifirst(mxnprm),last(mxnprm)
+use Constants, only: Zero
 
-      Integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1,    &
-     &        ic1, mPrm2, iZeta
-      Real*8 C1, C2
-!
-      If (nPrm1.gt.mxnprm .or.                                          &
-     &    nPrm2.gt.mxnprm) Then
-          Call WarningMessage(2,'CntHlf: nPrm.gt.mxnprm')
-          Call Abend()
-      End If
-!
-!     Sparsity check
-!
-      nz2=0
-      minva=max(4,(nPrm2+1)/2)
-      Do iCntr2 = 1,nCntr2
-         nnz2(icntr2)=0
-         ifirst(icntr2)=nPrm2+1
-         last(icntr2)=0
-         Do iPrm2 = 1,nPrm2
-            If (Coeff2(iPrm2,iCntr2).ne.Zero) Then
-               ifirst(icntr2)=min(ifirst(icntr2),iprm2)
-               last(icntr2)=max(last(icntr2),iprm2)
-               nnz2(icntr2)=nnz2(icntr2)+1
-             End If
-         End Do
-         If (nnz2(icntr2).ge.minva.and.nz2.eq.iCntr2-1) nz2=iCntr2
-      End Do
-!
-!-----Loop sectioning
-!
-      Do iiVec = 1, nVec, IncVec
-         mVec = Min(IncVec,nVec-iiVec+1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!--------First quarter transformation
-!
-         Do iCntr1 = 1, nCntr1
-            Do iprm2=1,nprm2
-               idone(iprm2)=0
-            End Do
-!
-            Do iZeta = 1, lZeta
-               iPrm2 = (Indij(iZeta)-1)/nPrm1 + 1
-               iPrm1 = Indij(iZeta) - (iPrm2-1)*nPrm1
-               C1=Coeff1(iPrm1,iCntr1)
-               If (Abs(C1).gt.Zero) Then
-                  If (idone(iprm2).gt.0) Then
-                     Call DaXpY_(mVec,C1,A1(iZeta,iiVec),lZeta,         &
-     &                                  A2(1,iPrm2),1)
-                  Else
-                     Call DYaX(mVec,C1,A1(iZeta,iiVec),lZeta,           &
-     &                                 A2(1,iPrm2),1)
-                     idone(iprm2)=1
-                  End If
-               End If
-            End Do ! iZeta
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----------Second quarter transformation
-!
-            Do iprm2=1,nprm2
-               If (idone(iprm2).eq.0) Call FZero(a2(1,iprm2),mvec)
-            End Do
-!
-            ic1=1
-            If (nz2.gt.1) Then
-               If (first) Then
-                  Call DGEMM_('n','n',mVec,nz2,nprm2,                   &
-     &                       1.0d0,A2,IncVec,Coeff2,nprm2,              &
-     &                       0.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
-               Else
-                  Call DGEMM_('N','N',mVec,nz2,nPrm2,                   &
-     &                         1.0d0,A2,IncVec,Coeff2,nprm2,            &
-     &                         1.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
-               End If
-               ic1=nz2+1
-            End If
-!
-            Do iCntr2=ic1,nCntr2
-               If (first) Then
-                  If (nnz2(icntr2).ge.minva) Then
-                      Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,        &
-     &                            Coeff2(1,icntr2),1,0.d0,              &
-     &                            A3(iivec,iCntr1,icntr2),1)
-                  Else
-                     iprm2=ifirst(icntr2)
-                     c2=coeff2(iprm2,icntr2)
-                     Call DYaX(mVec,C2,A2(1,iPrm2),1,                   &
-     &                                 A3(iiVec,iCntr1,iCntr2),1)
-!
-                     iPrm2=ifirst(icntr2)+1
-                     mPrm2=last(iCntr2)-iPrm2+1
-                     If (mPrm2.gt.0)                                    &
-     &                  Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,  &
-     &                              A2(1,iPrm2),1,IncVec,               &
-     &                              A3(iiVec,iCntr1,iCntr2),1,0)
-!
-                  End If
-               Else
-                  If (nnz2(icntr2).ge.minva) Then
-                      Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,        &
-     &                            Coeff2(1,icntr2),1,1.d0,              &
-     &                            A3(iivec,iCntr1,icntr2),1)
-                  Else
-                     iPrm2=ifirst(icntr2)
-                     mPrm2=last(icntr2)-iPrm2+1
-                     Call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,     &
-     &                           A2(1,iPrm2),1,IncVec,                  &
-     &                           A3(iiVec,iCntr1,iCntr2),1,0)
-                  End If
-               End If
-            End Do ! iCntr2
-         End Do    ! iCntr1
-!
-!-----End of loop sectioning
-!
-      End Do    ! iiVec
-!
-      Return
-      End Subroutine Cnthlf
+implicit none
+integer, intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec, IncVec
+real*8, intent(In) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2)
+real*8, intent(inout) :: A1(lZeta,nVec)
+real*8, intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)
+integer, intent(in) :: Indij(lZeta)
+logical, intent(in) :: First
+! be aware of aCD(fat) basis sets.
+integer, parameter :: mxnprm = 1000
+integer idone(mxnprm), nnz2(mxnprm), ifirst(mxnprm), last(mxnprm)
+integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1, ic1, mPrm2, iZeta
+real*8 C1, C2
+
+if ((nPrm1 > mxnprm) .or. (nPrm2 > mxnprm)) then
+  call WarningMessage(2,'CntHlf: nPrm > mxnprm')
+  call Abend()
+end if
+
+! Sparsity check
+
+nz2 = 0
+minva = max(4,(nPrm2+1)/2)
+do iCntr2=1,nCntr2
+  nnz2(icntr2) = 0
+  ifirst(icntr2) = nPrm2+1
+  last(icntr2) = 0
+  do iPrm2=1,nPrm2
+    if (Coeff2(iPrm2,iCntr2) /= Zero) then
+      ifirst(icntr2) = min(ifirst(icntr2),iprm2)
+      last(icntr2) = max(last(icntr2),iprm2)
+      nnz2(icntr2) = nnz2(icntr2)+1
+    end if
+  end do
+  if ((nnz2(icntr2) >= minva) .and. (nz2 == iCntr2-1)) nz2 = iCntr2
+end do
+
+! Loop sectioning
+
+do iiVec=1,nVec,IncVec
+  mVec = min(IncVec,nVec-iiVec+1)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! First quarter transformation
+
+  do iCntr1=1,nCntr1
+    do iprm2=1,nprm2
+      idone(iprm2) = 0
+    end do
+
+    do iZeta=1,lZeta
+      iPrm2 = (Indij(iZeta)-1)/nPrm1+1
+      iPrm1 = Indij(iZeta)-(iPrm2-1)*nPrm1
+      C1 = Coeff1(iPrm1,iCntr1)
+      if (abs(C1) > Zero) then
+        if (idone(iprm2) > 0) then
+          call DaXpY_(mVec,C1,A1(iZeta,iiVec),lZeta,A2(1,iPrm2),1)
+        else
+          call DYaX(mVec,C1,A1(iZeta,iiVec),lZeta,A2(1,iPrm2),1)
+          idone(iprm2) = 1
+        end if
+      end if
+    end do ! iZeta
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Second quarter transformation
+
+    do iprm2=1,nprm2
+      if (idone(iprm2) == 0) call FZero(a2(1,iprm2),mvec)
+    end do
+
+    ic1 = 1
+    if (nz2 > 1) then
+      if (first) then
+        call DGEMM_('n','n',mVec,nz2,nprm2,1.0d0,A2,IncVec,Coeff2,nprm2,0.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
+      else
+        call DGEMM_('N','N',mVec,nz2,nPrm2,1.0d0,A2,IncVec,Coeff2,nprm2,1.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
+      end if
+      ic1 = nz2+1
+    end if
+
+    do iCntr2=ic1,nCntr2
+      if (first) then
+        if (nnz2(icntr2) >= minva) then
+          call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,Coeff2(1,icntr2),1,0.d0,A3(iivec,iCntr1,icntr2),1)
+        else
+          iprm2 = ifirst(icntr2)
+          c2 = coeff2(iprm2,icntr2)
+          call DYaX(mVec,C2,A2(1,iPrm2),1,A3(iiVec,iCntr1,iCntr2),1)
+
+          iPrm2 = ifirst(icntr2)+1
+          mPrm2 = last(iCntr2)-iPrm2+1
+          if (mPrm2 > 0) call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,A2(1,iPrm2),1,IncVec,A3(iiVec,iCntr1,iCntr2),1,0)
+
+        end if
+      else
+        if (nnz2(icntr2) >= minva) then
+          call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,Coeff2(1,icntr2),1,1.d0,A3(iivec,iCntr1,icntr2),1)
+        else
+          iPrm2 = ifirst(icntr2)
+          mPrm2 = last(icntr2)-iPrm2+1
+          call DNaXpY(mPrm2,mVec,Coeff2(iPrm2,iCntr2),1,A2(1,iPrm2),1,IncVec,A3(iiVec,iCntr1,iCntr2),1,0)
+        end if
+      end if
+    end do ! iCntr2
+  end do   ! iCntr1
+
+  ! End of loop sectioning
+
+end do     ! iiVec
+
+return
+
+end subroutine Cnthlf

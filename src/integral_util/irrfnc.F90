@@ -10,26 +10,32 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      Integer Function IrrFnc(iFnc)
-      use Symmetry_Info, only: nIrrep, iOper
-      Implicit None
-      Integer iFnc
 
-      Integer iTest(8), i, ix, iy, iz, jx, jy, jz, iCh
-      Integer, external:: iNew
-      ix = iAnd(iFnc,1)
-      iy = iAnd(iFnc,2)/2
-      iz = iAnd(iFnc,4)/4
-      Do i = 1, nIrrep
-         jx = iAnd(iOper(i-1),1)
-         jy = iAnd(iOper(i-1),2)/2
-         jz = iAnd(iOper(i-1),4)/4
-         iCh = 1
-         If (ix.ne.0 .and. jx.ne.0) iCh = -iCh
-         If (iy.ne.0 .and. jy.ne.0) iCh = -iCh
-         If (iz.ne.0 .and. jz.ne.0) iCh = -iCh
-         iTest(i)=iCh
-      End Do
-      IrrFnc=iNew(iTest,nIrrep)-1
-      Return
-      End Function IrrFnc
+function IrrFnc(iFnc)
+
+use Symmetry_Info, only: nIrrep, iOper
+
+implicit none
+integer IrrFnc
+integer iFnc
+integer iTest(8), i, ix, iy, iz, jx, jy, jz, iCh
+integer, external :: iNew
+
+ix = iand(iFnc,1)
+iy = iand(iFnc,2)/2
+iz = iand(iFnc,4)/4
+do i=1,nIrrep
+  jx = iand(iOper(i-1),1)
+  jy = iand(iOper(i-1),2)/2
+  jz = iand(iOper(i-1),4)/4
+  iCh = 1
+  if ((ix /= 0) .and. (jx /= 0)) iCh = -iCh
+  if ((iy /= 0) .and. (jy /= 0)) iCh = -iCh
+  if ((iz /= 0) .and. (jz /= 0)) iCh = -iCh
+  iTest(i) = iCh
+end do
+IrrFnc = iNew(iTest,nIrrep)-1
+
+return
+
+end function IrrFnc

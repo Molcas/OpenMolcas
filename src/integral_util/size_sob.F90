@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Size_SOb(iSD4,nSD,nSO,No_batch)
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer, Intent(out):: nSO
-      Integer, Intent(in):: nSD
-      Integer, Intent(In):: iSD4(0:nSD,4)
-      Logical, Intent(Out):: No_batch
 
-      Integer, external:: MemSO2
-!
-      No_batch=.False.
-      If (nIrrep>1) Then
-         nSO = MemSO2(iSD4( 2,1),iSD4( 2,2),iSD4( 2,3),iSD4( 2,4),      &
-     &                iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),      &
-     &                iSD4( 7,1),iSD4( 7,2),iSD4( 7,3),iSD4( 7,4))
-         No_batch = nSO==0
-      Else
-         nSO = 0
-      End If
-!
-      End Subroutine Size_SOb
+subroutine Size_SOb(iSD4,nSD,nSO,No_batch)
+
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer, intent(out) :: nSO
+integer, intent(in) :: nSD
+integer, intent(In) :: iSD4(0:nSD,4)
+logical, intent(Out) :: No_batch
+integer, external :: MemSO2
+
+No_batch = .false.
+if (nIrrep > 1) then
+  nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
+               iSD4(7,4))
+  No_batch = (nSO == 0)
+else
+  nSO = 0
+end if
+
+end subroutine Size_SOb

@@ -8,16 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine Read_iv(lunit,iwork,istrt,iend,inc,ierr)
-      implicit None
-      Integer lUnit, iStrt, iEnd, Inc, iErr
-      integer iwork(iend)
 
-      Integer i
-      ierr=0
-      read(lunit,*,err=100) (iwork(istrt+i),i=0,iend-istrt,inc)
-      goto 110
-100   ierr=1
-110   continue
-      return
-      end subroutine Read_iv
+subroutine Read_iv(lunit,iwork,istrt,iend,inc,ierr)
+
+implicit none
+integer lUnit, iStrt, iEnd, Inc, iErr
+integer iwork(iend)
+integer i
+
+ierr = 0
+read(lunit,*,err=100) (iwork(istrt+i),i=0,iend-istrt,inc)
+goto 110
+100 continue
+ierr = 1
+110 continue
+
+return
+
+end subroutine Read_iv

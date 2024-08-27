@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine rKappa_Zeta(rKappa,Zeta,nZeta)
+
+subroutine rKappa_Zeta(rKappa,Zeta,nZeta)
 !***********************************************************************
 !                                                                      *
 ! Object: modify rkappa                                                *
@@ -23,13 +24,14 @@
 !             University of Lund, SWEDEN                               *
 !             September '00.                                           *
 !***********************************************************************
-      use Constants, only: Two, Three
-      Implicit None
-      Integer nZeta
-      Real*8 Zeta(nZeta), rKappa(nZeta)
 
-      Real*8, Parameter:: exp32 = -Three/Two
-!
-      rKappa(:) = rKappa(:) * Zeta(:)**exp32
-!
-      End SubRoutine rKappa_Zeta
+use Constants, only: Two, Three
+
+implicit none
+integer nZeta
+real*8 Zeta(nZeta), rKappa(nZeta)
+real*8, parameter :: exp32 = -Three/Two
+
+rKappa(:) = rKappa(:)*Zeta(:)**exp32
+
+end subroutine rKappa_Zeta

@@ -8,14 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module dcr_mod
-      Integer nIndex
-      Logical   Done(1275)
-contains
-Subroutine DCR_Init()
-Implicit none
-nIndex=0
-Done(:)=.False.
-End Subroutine DCR_Init
 
-End Module dcr_mod
+module dcr_mod
+
+integer nIndex
+logical Done(1275)
+
+contains
+
+subroutine DCR_Init()
+
+  implicit none
+
+  nIndex = 0
+  Done(:) = .false.
+
+end subroutine DCR_Init
+
+end module dcr_mod

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1998, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Term_Ints()
+
+subroutine Term_Ints()
 !***********************************************************************
 !                                                                      *
 !     Object: to deallocate memory in association with two-electron    *
@@ -19,43 +20,47 @@
 !     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 !             Sweden. January '98.                                     *
 !***********************************************************************
-      use k2_arrays, only: FT, Aux, iSOSym, Destroy_BraKet_Base
-      use iSD_Data, only: iCntr, iSh2Sh, iSO2Sh, iCntr, nShBf, iShOff
-      use stdalloc, only: mma_deallocate
-      Implicit None
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     In case of semi-direct mode the memory is released externally.
-!
-      Call RlsMem_Ints()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (Allocated(FT)) Call mma_deallocate(FT)
-!
-      Call  Destroy_Braket_base()
 
-      If (Allocated(Aux)) Call mma_deallocate(Aux)
-!
-      If (Allocated(iSOSym)) Call mma_deallocate(iSOSym)
+use k2_arrays, only: FT, Aux, iSOSym, Destroy_BraKet_Base
+use iSD_Data, only: iCntr, iSh2Sh, iSO2Sh, iCntr, nShBf, iShOff
+use stdalloc, only: mma_deallocate
+
+implicit none
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Allocated(nShBf)) Then
-         Call mma_deallocate(nShBF)
-         Call mma_deallocate(iShOff)
-         Call mma_deallocate(iSh2Sh)
-         Call mma_deallocate(iSO2Sh)
-         Call mma_deallocate(iCntr)
-      End If
+! In case of semi-direct mode the memory is released externally.
+
+call RlsMem_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Free memory for K2 data
-!
-      Call FreeK2()
+if (allocated(FT)) call mma_deallocate(FT)
+
+call Destroy_Braket_base()
+
+if (allocated(Aux)) call mma_deallocate(Aux)
+
+if (allocated(iSOSym)) call mma_deallocate(iSOSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End Subroutine Term_Ints
+if (allocated(nShBf)) then
+  call mma_deallocate(nShBF)
+  call mma_deallocate(iShOff)
+  call mma_deallocate(iSh2Sh)
+  call mma_deallocate(iSO2Sh)
+  call mma_deallocate(iCntr)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Free memory for K2 data
+
+call FreeK2()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+end subroutine Term_Ints

@@ -8,16 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module getline_mod
-Private
-Integer igetline,myunit
 
-integer, parameter:: Len_Line=180
-character(Len=Len_Line) Line
-integer, parameter:: mxn=Len_Line/2+1
+module getline_mod
+
+private
+
+integer igetline, myunit
+integer, parameter :: Len_Line = 180
+character(len=Len_Line) Line
+integer, parameter :: mxn = Len_Line/2+1
 integer iend(mxn), istrt(mxn), ncol
+logical Quit_On_Error
 
-Logical Quit_On_Error
+public :: igetline, myunit, Line, mxn, iend, istrt, ncol, Quit_On_Error
 
-Public :: igetline, myunit, Line, mxn, iend, istrt, ncol, Quit_On_Error
-End Module getline_mod
+end module getline_mod

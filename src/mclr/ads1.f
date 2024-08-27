@@ -64,7 +64,7 @@ C     INTEGER IMAPO(NORB,*),IMAPS(NORB,*)
       INTEGER I1(*)
       DIMENSION XI1S(*)
 *
-      LDIM = 0 ! dummy initilize
+      LDIM = 0 ! dummy initialize
       NTEST = 000
       IF(NTEST.NE.0) THEN
        WRITE(6,*) ' ============== '

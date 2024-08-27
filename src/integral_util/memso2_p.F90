@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Integer Function MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAO,jAO,kAO,lAO)
+
+function MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAO,jAO,kAO,lAO)
 !***********************************************************************
 !  Object: to compile the number of SO block which will be generated   *
 !          by the current shell quadruplet.                            *
@@ -26,55 +27,59 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             February '90                                             *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer iCmp,jCmp,kCmp,lCmp,iAO,jAO,kAO,lAO
-      Integer i1,i2,i3,i4,j1,j2,j3,j4,j12
 
-      MemSO2_P = 0
-!
-!     Quadruple loop over elements of the basis functions angular
-!     description. Loops are reduced to just produce unique SO integrals
-!     Observe that we will walk through the memory in AOInt in a
-!     sequential way.
-!
-      If (nIrrep.eq.1) Then
-!
-         MemSO2_P=iCmp*jCmp*kCmp*lCmp
-!
-      Else
-!
-         Do i1 = 1, iCmp
-            Do i2 = 1, jCmp
-               Do i3 = 1, kCmp
-                  Do i4 = 1, lCmp
-!
-!         Loop over irreps which are spanned by the basis function.
-!         Again, the loop structure is restricted to ensure unique
-!         integrals.
-!
-          Do 110 j1 = 0, nIrrep-1
-             If (iAOtSO(iAO+i1,j1)<0) Cycle
-             Do 210 j2 = 0, nIrrep-1
-                If (iAOtSO(jAO+i2,j2)<0) Cycle
-                j12 = iEor(j1,j2)
-                Do 310 j3 = 0, nIrrep-1
-                   If (iAOtSO(kAO+i3,j3)<0) Cycle
-                   j4 = iEor(j12,j3)
-                   If (iAOtSO(lAO+i4,j4)<0) Cycle
-                   MemSO2_P = MemSO2_P + 1
-!
- 310            Continue
- 210         Continue
- 110      Continue
-!
-                  End Do
-               End Do
-            End Do
-         End Do
-!
-      End If
-!
-      Return
-      End Function MemSO2_P
+use SOAO_Info, only: iAOtSO
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer MemSO2_P
+integer iCmp, jCmp, kCmp, lCmp, iAO, jAO, kAO, lAO
+integer i1, i2, i3, i4, j1, j2, j3, j4, j12
+
+MemSO2_P = 0
+
+! Quadruple loop over elements of the basis functions angular
+! description. Loops are reduced to just produce unique SO integrals
+! Observe that we will walk through the memory in AOInt in a
+! sequential way.
+
+if (nIrrep == 1) then
+
+  MemSO2_P = iCmp*jCmp*kCmp*lCmp
+
+else
+
+  do i1=1,iCmp
+    do i2=1,jCmp
+      do i3=1,kCmp
+        do i4=1,lCmp
+
+          ! Loop over irreps which are spanned by the basis function.
+          ! Again, the loop structure is restricted to ensure unique
+          ! integrals.
+
+          do j1=0,nIrrep-1
+            if (iAOtSO(iAO+i1,j1) < 0) cycle
+            do j2=0,nIrrep-1
+              if (iAOtSO(jAO+i2,j2) < 0) cycle
+              j12 = ieor(j1,j2)
+              do j3=0,nIrrep-1
+                if (iAOtSO(kAO+i3,j3) < 0) cycle
+                j4 = ieor(j12,j3)
+                if (iAOtSO(lAO+i4,j4) < 0) cycle
+                MemSO2_P = MemSO2_P+1
+
+              end do
+            end do
+          end do
+
+        end do
+      end do
+    end do
+  end do
+
+end if
+
+return
+
+end function MemSO2_P

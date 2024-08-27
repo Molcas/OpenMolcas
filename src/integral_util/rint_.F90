@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Logical Function RinT_(iOpT,nOpT,iOpR)
+
+function RinT_(iOpT,nOpT,iOpR)
 !***********************************************************************
 !                                                                      *
 ! Object: to return .true. if R is in {T}.                             *
@@ -23,16 +24,19 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit None
-      Integer nOpT, iOpR
-      Integer iOpT(nOpT)
 
-      Integer i
-      RinT_ = .False.
-      Do 10 i = 1, nOpT
-         If (iOpT(i).eq.iOpR) Then
-            RinT_ = .True.
-            Return
-         End If
- 10   Continue
-      End Function RinT_
+implicit none
+logical RinT_
+integer nOpT, iOpR
+integer iOpT(nOpT)
+integer i
+
+RinT_ = .false.
+do i=1,nOpT
+  if (iOpT(i) == iOpR) then
+    RinT_ = .true.
+    return
+  end if
+end do
+
+end function RinT_

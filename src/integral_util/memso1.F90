@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      Integer Function MemSO1(lOper,iCmp,jCmp,iShell,jShell,iAO,jAO)
+
+function MemSO1(lOper,iCmp,jCmp,iShell,jShell,iAO,jAO)
 !***********************************************************************
 !  Object: to compile the number of SO block which will be generated   *
 !          by the current shell doublet.                               *
@@ -28,29 +29,32 @@
 !             of Lund, Sweden.                                         *
 !             Modified to general non-symmetric operators January '91  *
 !***********************************************************************
-      Use SOAO_Info, only: iAOtSO
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
 
-      Integer j1, i1, j2, j12, jCmpMx, i2
-!
-      MemSO1 = 0
-      Do j1 = 0, nIrrep-1
-         Do i1 = 1, iCmp
-            If (iAOtSO(iAO+i1,j1)<0) Cycle
-            Do j2 = 0, nIrrep-1
-               j12=iEor(j1,j2)
-               If (iAnd(lOper,2**j12).eq.0) Cycle
-               jCmpMx = jCmp
-               If (iShell.eq.jShell .and. j1.eq.j2) jCmpMx = i1
-               Do i2 = 1, jCmpMx
-                  If (iAOtSO(jAO+i2,j2)<0) Cycle
-                  MemSO1 = MemSO1 + 1
-               End Do
-            End Do
-         End Do
-      End Do
-!
-      Return
-      End Function MemSO1
+use SOAO_Info, only: iAOtSO
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer MemSO1
+integer lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
+integer j1, i1, j2, j12, jCmpMx, i2
+
+MemSO1 = 0
+do j1=0,nIrrep-1
+  do i1=1,iCmp
+    if (iAOtSO(iAO+i1,j1) < 0) cycle
+    do j2=0,nIrrep-1
+      j12 = ieor(j1,j2)
+      if (iand(lOper,2**j12) == 0) cycle
+      jCmpMx = jCmp
+      if ((iShell == jShell) .and. (j1 == j2)) jCmpMx = i1
+      do i2=1,jCmpMx
+        if (iAOtSO(jAO+i2,j2) < 0) cycle
+        MemSO1 = MemSO1+1
+      end do
+    end do
+  end do
+end do
+
+return
+
+end function MemSO1

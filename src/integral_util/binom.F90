@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Binom(n,i,iBin)
+
+subroutine Binom(n,i,iBin)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the binomial factor                               *
@@ -24,16 +25,19 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit None
-      Integer n, i, iBin
 
-      Integer Num, iDen, j
-      Num = 1
-      iDen = 1
-      Do 10 j = 1, i
-         Num  = Num * (n-j+1)
-         iDen = iDen * j
- 10   Continue
-      iBin = Num/iDen
-      Return
-      End Subroutine Binom
+implicit none
+integer n, i, iBin
+integer Num, iDen, j
+
+Num = 1
+iDen = 1
+do j=1,i
+  Num = Num*(n-j+1)
+  iDen = iDen*j
+end do
+iBin = Num/iDen
+
+return
+
+end subroutine Binom

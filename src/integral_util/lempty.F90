@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Logical Function lEmpty(Coeff,n2,ld2,m2)
+
+function lEmpty(Coeff,n2,ld2,m2)
 !***********************************************************************
 !                                                                      *
 ! Object: to set if partial or whole contraction matrix is empty.      *
@@ -23,23 +24,26 @@
 !             University of Lund, SWEDEN                               *
 !             June '91                                                 *
 !***********************************************************************
-      use Constants, only: Zero
-      Implicit None
-      Integer, Intent(In):: n2, ld2, m2
-      Real*8, Intent(In):: Coeff(ld2,m2)
-!
-      Real*8 Temp
-      Integer i, j
 
-      lEmpty = .True.
-      Temp = Zero
-      Do i = 1, n2
-         Do j = 1, m2
-            Temp = Temp + Abs(Coeff(i,j))
-         End Do
-      End Do
-!
-      lEmpty = Temp.eq.Zero
-!
-      Return
-      End Function lEmpty
+use Constants, only: Zero
+
+implicit none
+logical lEmpty
+integer, intent(In) :: n2, ld2, m2
+real*8, intent(In) :: Coeff(ld2,m2)
+real*8 Temp
+integer i, j
+
+lEmpty = .true.
+Temp = Zero
+do i=1,n2
+  do j=1,m2
+    Temp = Temp+abs(Coeff(i,j))
+  end do
+end do
+
+lEmpty = Temp == Zero
+
+return
+
+end function lEmpty

@@ -8,50 +8,49 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Flip_Flop(Primitive)
-      use Basis_Info, only: nCnttp, DBSC, Shells, iCnttp_Dummy
-      use Sizes_of_Seward, only:S
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Logical Primitive
 
-      Integer iCnttp, nTest, iAng, iShll, nExpi
-!
-      S%MaxBas(:)=0
-      S%MaxPrm(:)=0
-!
-      Do iCnttp = 1, nCnttp
-         nTest = dbsc(iCnttp)%nVal-1
-         If (DBSC(iCnttp)%Aux .and.                                     &
-     &       iCnttp.eq.iCnttp_Dummy) nTest=-1
-!
-         Do iAng=0, S%iAngMx
-            If (iAng.gt.nTest)  Cycle
-            iShll = dbsc(iCnttp)%iVal + iAng
-            nExpi=Shells(iShll)%nExp
-            If (nExpi.eq.0)   Cycle
-            If (Shells(iShll)%nBasis_C.eq.0) Cycle
-!
-!           Decontract only the ordinary basis sets!
-!
-            Call mma_deallocate(Shells(iShll)%pCff)
-            If (Primitive.and..Not.Shells(iShll)%Aux                    &
-     &                   .and..Not.Shells(iShll)%Frag) Then
-               Shells(iShll)%nBasis=nExpi
-               Call mma_allocate(Shells(iShll)%pCff,nExpi,              &
-     &                           Shells(iShll)%nBasis,Label='pCff')
-               Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_p(:,:,1)
-            Else
-               Shells(iShll)%nBasis=Shells(iShll)%nBasis_C
-               Call mma_allocate(Shells(iShll)%pCff,nExpi,              &
-     &                           Shells(iShll)%nBasis,Label='pCff')
-               Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
-            End If
-            S%MaxPrm(iAng) = Max(S%MaxPrm(iAng),nExpi)
-            S%MaxBas(iAng) = Max(S%MaxBas(iAng),Shells(iShll)%nBasis)
-!
-         End Do ! iAng
-      End Do       ! iCnttp
-!
-      Return
-      End Subroutine Flip_Flop
+subroutine Flip_Flop(Primitive)
+
+use Basis_Info, only: nCnttp, DBSC, Shells, iCnttp_Dummy
+use Sizes_of_Seward, only: S
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+logical Primitive
+integer iCnttp, nTest, iAng, iShll, nExpi
+
+S%MaxBas(:) = 0
+S%MaxPrm(:) = 0
+
+do iCnttp=1,nCnttp
+  nTest = dbsc(iCnttp)%nVal-1
+  if (DBSC(iCnttp)%Aux .and. (iCnttp == iCnttp_Dummy)) nTest = -1
+
+  do iAng=0,S%iAngMx
+    if (iAng > nTest) cycle
+    iShll = dbsc(iCnttp)%iVal+iAng
+    nExpi = Shells(iShll)%nExp
+    if (nExpi == 0) cycle
+    if (Shells(iShll)%nBasis_C == 0) cycle
+
+    ! Decontract only the ordinary basis sets!
+
+    call mma_deallocate(Shells(iShll)%pCff)
+    if (Primitive .and. (.not. Shells(iShll)%Aux) .and. (.not. Shells(iShll)%Frag)) then
+      Shells(iShll)%nBasis = nExpi
+      call mma_allocate(Shells(iShll)%pCff,nExpi,Shells(iShll)%nBasis,Label='pCff')
+      Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_p(:,:,1)
+    else
+      Shells(iShll)%nBasis = Shells(iShll)%nBasis_C
+      call mma_allocate(Shells(iShll)%pCff,nExpi,Shells(iShll)%nBasis,Label='pCff')
+      Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+    end if
+    S%MaxPrm(iAng) = max(S%MaxPrm(iAng),nExpi)
+    S%MaxBas(iAng) = max(S%MaxBas(iAng),Shells(iShll)%nBasis)
+
+  end do ! iAng
+end do   ! iCnttp
+
+return
+
+end subroutine Flip_Flop

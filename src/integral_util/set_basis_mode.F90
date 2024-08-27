@@ -8,32 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Set_Basis_Mode(Label)
-      use BasisMode
-      Implicit none
-      Character(LEN=*) Label
-      Character(LEN=7) Lbl
-!
-      Atomic=.False.
-      kCnttp=0
-      Lbl=Label(1:7)
-      Call UpCase(Lbl)
-      If (Lbl.eq.'VALENCE') Then
-         Basis_Mode = Valence_Mode
-      Else If (Lbl.eq.'AUXILIA') Then
-         Basis_Mode = Auxiliary_Mode
-      Else If (Lbl.eq.'FRAGMEN') Then
-         Basis_Mode = Fragment_Mode
-      Else If (Lbl.eq.'WITHAUX') Then
-         Basis_Mode = With_Auxiliary_Mode
-      Else If (Lbl.eq.'WITHFRA') Then
-         Basis_Mode = With_Fragment_Mode
-      Else If (Lbl.eq.'ALL    ') Then
-         Basis_Mode = All_Mode
-      Else
-         Call WarningMessage(2,'Set_Basis_Mode: illegal mode,'//        &
-     &               'Label='//Lbl)
-         Call Abend()
-      End If
-!
-      End Subroutine Set_Basis_Mode
+
+subroutine Set_Basis_Mode(Label)
+
+use BasisMode
+
+implicit none
+character(len=*) Label
+character(len=7) Lbl
+
+Atomic = .false.
+kCnttp = 0
+Lbl = Label(1:7)
+call UpCase(Lbl)
+select case (Lbl)
+  case ('VALENCE')
+    Basis_Mode = Valence_Mode
+  case ('AUXILIA')
+    Basis_Mode = Auxiliary_Mode
+  case ('FRAGMEN')
+    Basis_Mode = Fragment_Mode
+  case ('WITHAUX')
+    Basis_Mode = With_Auxiliary_Mode
+  case ('WITHFRA')
+    Basis_Mode = With_Fragment_Mode
+  case ('ALL')
+    Basis_Mode = All_Mode
+  case default
+    call WarningMessage(2,'Set_Basis_Mode: illegal mode, Label='//Lbl)
+    call Abend()
+end select
+
+end subroutine Set_Basis_Mode

@@ -8,66 +8,64 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine WLBuf()
-      Use dEAF, only: dEAFWrite
-      Use IOBUF, only: iStatIO, Mode_Read, OnDisk, InCore, iBuf, iPos,  &
-     &                 Disk, lBuf, DiskMx_Byte, Disk_1, Disk_2, Buffer, &
-     &                 ID, LuTmp
-      use Constants, only: Zero
-      Implicit None
+
+subroutine WLBuf()
+
+use dEAF, only: dEAFWrite
+use IOBUF, only: iStatIO, Mode_Read, OnDisk, InCore, iBuf, iPos, Disk, lBuf, DiskMx_Byte, Disk_1, Disk_2, Buffer, ID, LuTmp
+use Constants, only: Zero
+
+implicit none
 #include "SysDef.fh"
-      Real*8 Temp
-!
-      If (iStatIO.eq.Mode_Read) Then
-!        Write (6,*) 'In WLbuf'
-         If (OnDisk) Call EAFWait(LuTmp,id)
-         Return
-      End If
-!     Disk_Save=Disk
-!     Write (6,*) 'Enter WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
-      If (InCore.and.iBuf.eq.2) Then
-         Call WarningMessage(2,                                         &
-     &               'Error in in-core semi-direct implementation')
-         Call Abend()
-      End If
-!
-!---- If any data in buffer write buffer to disk.
-!
-      If (OnDisk) Then
-!        Write (6,*) 'In WLbuf'
-         Call EAFWait(LuTmp,id)
-      End If
-      If (iPos.ne.1) Then
-         temp=Disk+DBLE(lBuf*RtoB)
-!        Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
-         If (temp.le.DiskMx_Byte) Then
-            Disk_2 = Disk_1
-            Disk_1 = Disk
-!           If (OnDisk) Write (*,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
-!           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-            If (OnDisk) Call dEAFWrite(LuTmp,Buffer(1,iBuf),            &
-     &                                lBuf*RtoI,Disk)
-!---------- Put a dummy record at the end
-            temp=Disk+DBLE(lBuf*RtoB)
-!           Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
-            If (temp.le.DiskMx_Byte.and.OnDisk) Then
-!              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-               Call dCopy_(lBuf,[Zero],0,Buffer(1,iBuf),1)
-               Call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
-            End If
-         Else
-            Call WarningMessage(2,'WLBuf: Disc is full!')
-            Write (6,*) 'temp           =',temp
-            Write (6,*) 'DiskMx_Byte    =',DiskMx_Byte
-            Call FastIO('STATUS')
-            Call Abend()
-         End If
-      End If
-      iPos = 1
-!
-!     If (Disk_save.ne.Disk) Then
-!        Write (6,*) 'Enter WLBuf: Disk @:',Disk_Save
-!        Write (6,*) 'Exit  WLBuf: Disk @:',Disk
-!     End If
-!     Write (*,*) 'Exit WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
-      End Subroutine WLBuf
+real*8 Temp
+
+if (iStatIO == Mode_Read) then
+  !write(6,*) 'In WLbuf'
+  if (OnDisk) call EAFWait(LuTmp,id)
+  return
+end if
+!Disk_Save = Disk
+!write(6,*) 'Enter WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
+if (InCore .and. (iBuf == 2)) then
+  call WarningMessage(2,'Error in in-core semi-direct implementation')
+  call Abend()
+end if
+
+! If any data in buffer write buffer to disk.
+
+!write(6,*) 'In WLbuf'
+if (OnDisk) call EAFWait(LuTmp,id)
+if (iPos /= 1) then
+  temp = Disk+dble(lBuf*RtoB)
+  !write(6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
+  if (temp <= DiskMx_Byte) then
+    Disk_2 = Disk_1
+    Disk_1 = Disk
+    !if (OnDisk) write(6,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
+    !write(6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
+    if (OnDisk) call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
+    ! Put a dummy record at the end
+    temp = Disk+dble(lBuf*RtoB)
+    !write(6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
+    if ((temp <= DiskMx_Byte) .and. OnDisk) then
+      !write(6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
+      call dCopy_(lBuf,[Zero],0,Buffer(1,iBuf),1)
+      call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
+    end if
+  else
+    call WarningMessage(2,'WLBuf: Disc is full!')
+    write(6,*) 'temp           =',temp
+    write(6,*) 'DiskMx_Byte    =',DiskMx_Byte
+    call FastIO('STATUS')
+    call Abend()
+  end if
+end if
+iPos = 1
+
+!if (Disk_save /= Disk) then
+!  write(6,*) 'Enter WLBuf: Disk @:',Disk_Save
+!  write(6,*) 'Exit  WLBuf: Disk @:',Disk
+!end if
+!write(6,*) 'Exit WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
+
+end subroutine WLBuf

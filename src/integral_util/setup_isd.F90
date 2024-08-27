@@ -8,48 +8,51 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine SetUp_iSD()
-      use setup, only: mSkal, MxPrm
-      use iSD_data, only: iSD, nSD, nSkal_iSD
-      use k2_arrays, only: MxDij, MxFT
-      use Symmetry_Info, only: nIrrep
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
 
-      Integer nSkal, iS, iCmp, iBas, iPrim
-!
+subroutine SetUp_iSD()
+
+use setup, only: mSkal, MxPrm
+use iSD_data, only: iSD, nSD, nSkal_iSD
+use k2_arrays, only: MxDij, MxFT
+use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer nSkal, iS, iCmp, iBas, iPrim
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Allocated(iSD)) Call mma_deallocate(iSD)
-      Call Nr_Shells(nSkal)
-      mSkal=nSkal
-      nSkal_iSD=nSkal+4  ! Add four slots for future use.
-      call mma_allocate(iSD,[0,nSD],[1,nSkal_iSD],label='iSD')
-      Call Def_Shells(iSD,nSD,nSkal)
+if (allocated(iSD)) call mma_deallocate(iSD)
+call Nr_Shells(nSkal)
+mSkal = nSkal
+nSkal_iSD = nSkal+4  ! Add four slots for future use.
+call mma_allocate(iSD,[0,nSD],[1,nSkal_iSD],label='iSD')
+call Def_Shells(iSD,nSD,nSkal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!.... Compute the size of and allocate auxiliary memory
-!
-      MxPrm = 0
-      MxFT = 0
-      MxDij = 0
-      Do iS = 1, nSkal
-         iCmp =iSD(2,iS)
-         iBas =iSD(3,iS)
-         iPrim=iSD(5,iS)
-         MxPrm=Max(MxPrm,iPrim)
-         If (nIrrep.eq.1) Then
-            MxFT=1 ! Dummay assignment
-            MxDij= Max(MxDij,iCmp**2+iPrim**2+1)
-         Else
-            MxFT = Max(MxFT,6*(iBas*iCmp)**2)
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
-         End If
-      End Do
-      MxDij = 6 * nIrrep * MxDij
+! Compute the size of and allocate auxiliary memory
+
+MxPrm = 0
+MxFT = 0
+MxDij = 0
+do iS=1,nSkal
+  iCmp = iSD(2,iS)
+  iBas = iSD(3,iS)
+  iPrim = iSD(5,iS)
+  MxPrm = max(MxPrm,iPrim)
+  if (nIrrep == 1) then
+    MxFT = 1 ! Dummy assignment
+    MxDij = max(MxDij,iCmp**2+iPrim**2+1)
+  else
+    MxFT = max(MxFT,6*(iBas*iCmp)**2)
+    MxDij = max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
+  end if
+end do
+MxDij = 6*nIrrep*MxDij
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End SubRoutine SetUp_iSD
+
+end subroutine SetUp_iSD

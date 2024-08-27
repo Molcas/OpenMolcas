@@ -10,116 +10,101 @@
 !                                                                      *
 ! Copyright (C) 1992,2000, Roland Lindh                                *
 !***********************************************************************
-      SubRoutine PrRF(DSCF,NonEq,iCharge,jPrint)
+
+subroutine PrRF(DSCF,NonEq,iCharge,jPrint)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !                                                                      *
 !             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 !***********************************************************************
-      use External_Centers, only: nXF, iXPolType
-      use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax,&
-     &    lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI, &
-     &    DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent, &
-     &    Conductor, CordSI, RslPar
-      Implicit None
-      Logical DSCF, NonEq
-      Integer iCharge, jPrint
 
-      Integer StrnLn, i, j, nSolvent
-      Real*8 AArea, R_Min_Sphere
-!
-!
-      IF (jPrint.GE.2) THEN
-      If (lRF.and..Not.PCM.and.lRFCav) Then
-         Write (6,*)
-         Write (6,'(5X,A)')                                             &
-     &       'Reaction Field calculation: the Kirkwood model'
-         Write (6,'(5X,A,ES10.3)') ' Dielectric Constant :',Eps
-         Write (6,'(5X,A,ES10.3)') ' Eps_opt             :',EpsInf
-         Write (6,'(5X,A,ES10.3)') ' Radius of Cavity(au):',rds
-         Write (6,'(5X,A,I2)')    ' l_Max               :',lMax
-         If (NonEq) Then
-            Write (6,'(5X,A)')                                          &
-     &               ' Calculation type    : non-equilibrium'
-         Else
-            Write (6,'(5X,A)')                                          &
-     &               ' Calculation type    : equilibrium'
-         End If
-         Write (6,*)
-      End If
-      If (iXPolType.gt.0) Then
-         Write (6,*)
-         Write (6,'(5X,A)') ' Explicit polarisabilities activated'
-         Write (6,'(5X,A)') ' -----------------------------------'
-         Write (6,'(5X,A,I2)')     ' Number of points    :',nXF
-         If (iXPolType.eq.1) Then
-            Write (6,'(5X,A)')                                          &
-     &           ' Polarisabilities are isotropic'
-         ElseIf (iXPolType.eq.2) Then
-            Write (6,'(5X,A)')                                          &
-     &           ' Polarisabilities are anisotropic'
-         EndIf
-         Write (6,*)
-      EndIf
-      If (lLangevin) Then
-         Write (6,'(5X,A)') 'Langevin dipole moments activated'
-         Write (6,'(5X,A,I2)')     ' Gitter type         :',latato
-         Write (6,'(5X,A)')        ' Gitter centers'
-         Do i = 1, latato
-            Write (6,'(3(5x,F10.4))') (Cordsi(j,i),j=1,3)
-         End Do
-         Write (6,'(5X,A,ES10.3)')  ' Max. Latt. Extn(au) :',radlat
-         Write (6,'(5X,A,F10.4)')  ' Cell dimensions     :',scala
-         Write (6,'(5X,A,F10.4)')  '                      ',scalb
-         Write (6,'(5X,A,F10.4)')  '                      ',scalc
-         Write (6,'(5X,A,F10.4)')  ' Overal scaling      :',scaaa
-         Write (6,'(5X,A,F10.4)')  ' Site polarizability :',polsi
-         Write (6,'(5X,A,F10.4)')  ' Site dipole moment  :',dipsi
-         Write (6,'(5X,A,F10.4)')  ' Atoms in the latt.  :',gAtom
-         Write (6,'(5X,A,F10.4)')  ' Diel. delete param. :',diedel
-         Write (6,'(5X,A,F10.4)')  ' Inverse Boltzman f. :',tK
-         Write (6,'(5X,A,ES10.1)')  ' clim                :',clim
-         Write (6,'(5X,A,F10.4)')  ' afac                :',afac
-         Write (6,'(5X,A,I10  )')  ' nexp                :',nexpo
-         Write (6,'(5X,A,F10.4)')  ' prefac              :',prefac
-         Write (6,*)
-      End If
-      If (PCM) Then
-         aArea = RSlPar(7)
-         r_min_Sphere = RSlPar(3)
-         Write (6,*)
-         Write (6,'(5X,A)')                                             &
-     &         ' Polarizable Continuum Model (PCM) activated'
-         nSolvent=StrnLn(Solvent)
-         Write (6,'(5X,A,A)')                                           &
-     &         ' Solvent: ',Solvent(1:nSolvent)
-         If (.Not.Conductor) Then
-            Write (6,'(5X,A)') ' Version: Dielectric'
-         Else
-            Write (6,'(5X,A)') ' Version: Conductor'
-         End If
-         Write (6,'(5X,A,F6.4,A)')                                      &
-     &               ' Average area for surface element on the '        &
-     &             //'cavity boundary: ', aArea, ' angstrom^2'
-         Write (6,'(5X,A,F6.4,A)')                                      &
-     &               ' Minimum radius for added spheres: ',             &
-     &               r_min_Sphere, ' angstrom'
-         If (NonEq) Then
-            Write (6,'(5X,A)')                                          &
-     &               ' Calculation type: non-equilibrium'               &
-     &             //' (slow component from JobOld)'
-         Else
-            Write (6,'(5X,A)')                                          &
-     &               ' Calculation type: equilibrium'
-         End If
-         Write (6,*)
-      End If
-      ENDIF
+use External_Centers, only: nXF, iXPolType
+use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax, lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI, &
+                         DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent, Conductor, CordSI, RslPar
 
-      If (lRF) Call Init_RctFld(NonEq,iCharge)
-      If (DSCF) Call Allok2()
-!
-      Return
-!
-      End SubRoutine PrRF
+implicit none
+logical DSCF, NonEq
+integer iCharge, jPrint
+integer StrnLn, i, j, nSolvent
+real*8 AArea, R_Min_Sphere
+
+if (jPrint >= 2) then
+  if (lRF .and. (.not. PCM) .and. lRFCav) then
+    write(6,*)
+    write(6,'(5X,A)') 'Reaction Field calculation: the Kirkwood model'
+    write(6,'(5X,A,ES10.3)') ' Dielectric Constant :',Eps
+    write(6,'(5X,A,ES10.3)') ' Eps_opt             :',EpsInf
+    write(6,'(5X,A,ES10.3)') ' Radius of Cavity(au):',rds
+    write(6,'(5X,A,I2)') ' l_Max               :',lMax
+    if (NonEq) then
+      write(6,'(5X,A)') ' Calculation type    : non-equilibrium'
+    else
+      write(6,'(5X,A)') ' Calculation type    : equilibrium'
+    end if
+    write(6,*)
+  end if
+  if (iXPolType > 0) then
+    write(6,*)
+    write(6,'(5X,A)') ' Explicit polarisabilities activated'
+    write(6,'(5X,A)') ' -----------------------------------'
+    write(6,'(5X,A,I2)') ' Number of points    :',nXF
+    if (iXPolType == 1) then
+      write(6,'(5X,A)') ' Polarisabilities are isotropic'
+    else if (iXPolType == 2) then
+      write(6,'(5X,A)') ' Polarisabilities are anisotropic'
+    end if
+    write(6,*)
+  end if
+  if (lLangevin) then
+    write(6,'(5X,A)') 'Langevin dipole moments activated'
+    write(6,'(5X,A,I2)') ' Gitter type         :',latato
+    write(6,'(5X,A)') ' Gitter centers'
+    do i=1,latato
+      write(6,'(3(5x,F10.4))') (Cordsi(j,i),j=1,3)
+    end do
+    write(6,'(5X,A,ES10.3)') ' Max. Latt. Extn(au) :',radlat
+    write(6,'(5X,A,F10.4)') ' Cell dimensions     :',scala
+    write(6,'(5X,A,F10.4)') '                      ',scalb
+    write(6,'(5X,A,F10.4)') '                      ',scalc
+    write(6,'(5X,A,F10.4)') ' Overal scaling      :',scaaa
+    write(6,'(5X,A,F10.4)') ' Site polarizability :',polsi
+    write(6,'(5X,A,F10.4)') ' Site dipole moment  :',dipsi
+    write(6,'(5X,A,F10.4)') ' Atoms in the latt.  :',gAtom
+    write(6,'(5X,A,F10.4)') ' Diel. delete param. :',diedel
+    write(6,'(5X,A,F10.4)') ' Inverse Boltzman f. :',tK
+    write(6,'(5X,A,ES10.1)') ' clim                :',clim
+    write(6,'(5X,A,F10.4)') ' afac                :',afac
+    write(6,'(5X,A,I10  )') ' nexp                :',nexpo
+    write(6,'(5X,A,F10.4)') ' prefac              :',prefac
+    write(6,*)
+  end if
+  if (PCM) then
+    aArea = RSlPar(7)
+    r_min_Sphere = RSlPar(3)
+    write(6,*)
+    write(6,'(5X,A)') ' Polarizable Continuum Model (PCM) activated'
+    nSolvent = StrnLn(Solvent)
+    write(6,'(5X,A,A)') ' Solvent: ',Solvent(1:nSolvent)
+    if (.not. Conductor) then
+      write(6,'(5X,A)') ' Version: Dielectric'
+    else
+      write(6,'(5X,A)') ' Version: Conductor'
+    end if
+    write(6,'(5X,A,F6.4,A)') ' Average area for surface element on the cavity boundary: ',aArea,' angstrom^2'
+    write(6,'(5X,A,F6.4,A)') ' Minimum radius for added spheres: ',r_min_Sphere,' angstrom'
+    if (NonEq) then
+      write(6,'(5X,A)') ' Calculation type: non-equilibrium (slow component from JobOld)'
+    else
+      write(6,'(5X,A)') ' Calculation type: equilibrium'
+    end if
+    write(6,*)
+  end if
+end if
+
+if (lRF) call Init_RctFld(NonEq,iCharge)
+if (DSCF) call Allok2()
+
+return
+
+end subroutine PrRF

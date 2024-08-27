@@ -10,20 +10,24 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Integer Function n2Tri(lOper)
+
+function n2Tri(lOper)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             February '91                                             *
 !***********************************************************************
-      use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer lOper
-      Integer, external:: iPntSO
-!
-!
-      n2Tri = iPntSO(nIrrep-1,nIrrep,lOper,nBas)
-!
-      Return
-      End Function n2Tri
+
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer n2Tri
+integer lOper
+integer, external :: iPntSO
+
+n2Tri = iPntSO(nIrrep-1,nIrrep,lOper,nBas)
+
+return
+
+end function n2Tri

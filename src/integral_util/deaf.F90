@@ -13,50 +13,64 @@
 ! real buffers instead of integers, note that nBuf is still the length
 ! of the integer buffer.
 
-      Module dEAF
-      Use Iso_C_Binding
-      Implicit None
+module dEAF
 
-      Contains
+use iso_c_binding
 
-      Subroutine dEAFARead(Lu,Buf,nBuf,Disk,id)
-      Integer :: Lu, nBuf, id
-      Real*8, Target :: Buf(nBuf)
-      Real*8 :: Disk
-      Integer, Pointer :: iBuf(:)
-      Call C_F_Pointer(C_Loc(Buf),iBuf,[nBuf])
-      Call EAFARead(Lu,iBuf,nBuf,Disk,id)
-      Nullify(iBuf)
-      End Subroutine dEAFARead
+implicit none
 
-      Subroutine dEAFAWrite(Lu,Buf,nBuf,Disk,id)
-      Integer :: Lu, nBuf, id
-      Real*8, Target :: Buf(nBuf)
-      Real*8 :: Disk
-      Integer, Pointer :: iBuf(:)
-      Call C_F_Pointer(C_Loc(Buf),iBuf,[nBuf])
-      Call EAFAWrite(Lu,iBuf,nBuf,Disk,id)
-      Nullify(iBuf)
-      End Subroutine dEAFAWrite
+contains
 
-      Subroutine dEAFRead(Lu,Buf,nBuf,Disk)
-      Integer :: Lu, nBuf
-      Real*8, Target :: Buf(nBuf)
-      Real*8 :: Disk
-      Integer, Pointer :: iBuf(:)
-      Call C_F_Pointer(C_Loc(Buf),iBuf,[nBuf])
-      Call EAFRead(Lu,iBuf,nBuf,Disk)
-      Nullify(iBuf)
-      End Subroutine dEAFRead
+subroutine dEAFARead(Lu,Buf,nBuf,Disk,id)
 
-      Subroutine dEAFWrite(Lu,Buf,nBuf,Disk)
-      Integer :: Lu, nBuf
-      Real*8, Target :: Buf(nBuf)
-      Real*8 :: Disk
-      Integer, Pointer :: iBuf(:)
-      Call C_F_Pointer(C_Loc(Buf),iBuf,[nBuf])
-      Call EAFWrite(Lu,iBuf,nBuf,Disk)
-      Nullify(iBuf)
-      End Subroutine dEAFWrite
+  integer :: Lu, nBuf, id
+  real*8, target :: Buf(nBuf)
+  real*8 :: Disk
+  integer, pointer :: iBuf(:)
 
-      End Module dEAF
+  call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
+  call EAFARead(Lu,iBuf,nBuf,Disk,id)
+  nullify(iBuf)
+
+end subroutine dEAFARead
+
+subroutine dEAFAWrite(Lu,Buf,nBuf,Disk,id)
+
+  integer :: Lu, nBuf, id
+  real*8, target :: Buf(nBuf)
+  real*8 :: Disk
+  integer, pointer :: iBuf(:)
+
+  call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
+  call EAFAWrite(Lu,iBuf,nBuf,Disk,id)
+  nullify(iBuf)
+
+end subroutine dEAFAWrite
+
+subroutine dEAFRead(Lu,Buf,nBuf,Disk)
+
+  integer :: Lu, nBuf
+  real*8, target :: Buf(nBuf)
+  real*8 :: Disk
+  integer, pointer :: iBuf(:)
+
+  call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
+  call EAFRead(Lu,iBuf,nBuf,Disk)
+  nullify(iBuf)
+
+end subroutine dEAFRead
+
+subroutine dEAFWrite(Lu,Buf,nBuf,Disk)
+
+  integer :: Lu, nBuf
+  real*8, target :: Buf(nBuf)
+  real*8 :: Disk
+  integer, pointer :: iBuf(:)
+
+  call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
+  call EAFWrite(Lu,iBuf,nBuf,Disk)
+  nullify(iBuf)
+
+end subroutine dEAFWrite
+
+end module dEAF

@@ -11,32 +11,36 @@
 ! Copyright (C) 1990,2020, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine ZXia(Zeta,ZInv,N,M,Alpha,Beta)
+
+!#define _DEBUGPRINT_
+subroutine ZXia(Zeta,ZInv,N,M,Alpha,Beta)
 !***********************************************************************
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             January 1990                                             *
 !***********************************************************************
-      use Constants, only: One
-      Implicit None
-      Integer, Intent(In):: N,M
-      Real*8, Intent(In):: Alpha(N), Beta(M)
-      Real*8, Intent(InOut):: Zeta(N,M), ZInv(N,M)
-      Integer j
-!
-!#define _DEBUGPRINT_
+
+use Constants, only: One
+
+implicit none
+integer, intent(In) :: N, M
+real*8, intent(In) :: Alpha(N), Beta(M)
+real*8, intent(InOut) :: Zeta(N,M), ZInv(N,M)
+integer j
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In ZXia: Alpha',' ',Alpha,N,1)
-      Call RecPrt(' In ZXia: Beta ',' ',Beta ,M,1)
+call RecPrt(' In ZXia: Alpha',' ',Alpha,N,1)
+call RecPrt(' In ZXia: Beta ',' ',Beta,M,1)
 #endif
-!
-      Do j = 1, M
-         Zeta(:,j) = (Alpha(:)+Beta(j))
-         ZInv(:,j) = One/Zeta(:,j)
-      End Do
+
+do j=1,M
+  Zeta(:,j) = (Alpha(:)+Beta(j))
+  ZInv(:,j) = One/Zeta(:,j)
+end do
 #ifdef _DEBUGPRINT_
-      Call RecPrt( ' In ZXia: Zeta',' ',Zeta,N,M)
+call RecPrt(' In ZXia: Zeta',' ',Zeta,N,M)
 #endif
-!
-      Return
-      End SubRoutine ZXia
+
+return
+
+end subroutine ZXia

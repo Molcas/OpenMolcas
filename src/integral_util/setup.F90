@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Setup
-Integer  :: ipMem_Int
-Integer  :: MemMax_Int
-Integer  :: mSkal
-Integer  :: MxPrm
-Integer  :: nAux
-Integer  :: nSOs
-End Module Setup
+
+module Setup
+
+integer :: ipMem_Int
+integer :: MemMax_Int
+integer :: mSkal
+integer :: MxPrm
+integer :: nAux
+integer :: nSOs
+
+end module Setup

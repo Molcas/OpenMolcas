@@ -8,121 +8,114 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
-      use Constants, only: Zero, One, Two, Three, Pi, Four
-      use welcom
-      Implicit None
-      Integer K, lMax
-      Real*8 Alfa, A, Beta, R0
-      Real*8 grint(0:lmax,lmax)
 
-      Real*8 rri(0:kmax+2)
-      Integer M, i, mMax, n, Ind, kk, l, ll, mm
-      Real*8 ExpA, AExp, bExp1, bExp2, Test, Al, FiIntM, Bi, ggg,       &
-     &       Exp1, bExp, AA, AA2, AA3, AA4, AA5, Tmp1, Tmp2, Tmp3,      &
-     &       Tmp4, Pi4, Tmp
-      Real*8, External:: QRint
-!
-      M=K+1
-      EXPA=-A*A*ALFA-BETA*R0*R0
-      AEXP=(ALFA+BETA)
-      BEXP1 = -Two*(BETA*R0+A*ALFA)/AEXP
-      BEXP2 = -Two*(BETA*R0-A*ALFA)/AEXP
-      If (A.eq.Zero) Then
-         Test =Zero
-      Else
-         If (R0.eq.Zero) Then
-            Test=One
-         Else
-            TEST=A*ALFA
-         End If
-      End If
-      Select Case (TEST.LT..005D+00)
+subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
 
-      Case (.False.)
+use Constants, only: Zero, One, Two, Three, Pi, Four
+use welcom
 
-!     Write (*,*) ' Large A'
-!.....K=0 ONE CONTRIBUTION SS-INTEGRAL
-      Do 40 i=0,k
-         rri(i)=qrint(i+1,aexp,bexp1,expa)*DBLE((-1)**i)                &
-     &          -qrint(i+1,aexp,bexp2,expa)
- 40   Continue
-!     Call RecPrt(' In RRInt: rri',' ',rri,k+1,1)
-      AL=One/(Two*ALFA*A)
-      Do 41 i=0,k
-         mmax=i/2
-         Do 42 m=1,mmax+1
-!.....calculate integral ri(i,m)
-            fiintm=fiint(m-1,0)
-            grint(i,m)=Zero
-            Do 43 n=1,m
-               Bi=binom(m-1,n-1)*DBLE((-1)**(n+1))
-               ind=i-(m-n)*2
-               Do 44 kk=0,ind
-                  ggg=fac(ind)/fac(ind-kk)*al**(kk+1)
-                  grint(i,m)=grint(i,m)+bi*ggg*rri(i-kk)*fiintm
- 44            Continue
-43          Continue
-42       Continue
-41    Continue
+implicit none
+integer K, lMax
+real*8 Alfa, A, Beta, R0
+real*8 grint(0:lmax,lmax)
+real*8 rri(0:kmax+2)
+integer M, i, mMax, n, Ind, kk, l, ll, mm
+real*8 ExpA, AExp, bExp1, bExp2, Test, Al, FiIntM, Bi, ggg, Exp1, bExp, AA, AA2, AA3, AA4, AA5, Tmp1, Tmp2, Tmp3, Tmp4, Pi4, Tmp
+real*8, external :: QRint
 
-      Case (.True.)
+M = K+1
+EXPA = -A*A*ALFA-BETA*R0*R0
+AEXP = (ALFA+BETA)
+BEXP1 = -Two*(BETA*R0+A*ALFA)/AEXP
+BEXP2 = -Two*(BETA*R0-A*ALFA)/AEXP
+if (A == Zero) then
+  Test = Zero
+else
+  if (R0 == Zero) then
+    Test = One
+  else
+    TEST = A*ALFA
+  end if
+end if
+select case (TEST < .005D+00)
 
-!     Write (*,*) ' SERIES EXPANSION FOR SMALL A'
-!
-!.....SERIES EXPANSION FOR SMALL A
-!
-!.... K=0 FIRST
-      l = (k+1)/2
-      EXP1=-(ALFA*A*A+BETA*R0*R0)
-      BEXP=-Two*BETA*R0/(ALFA+BETA)
-      Do 45 i=0,l+2
-         rri(i)=qrint(2*(i+1),AExp,BExp,Exp1)
- 45   Continue
-!     Call RecPrt(' rri',' ',rri,l+3,1)
-      pi4=pi*Four
-      AA  = Two *(A*Alfa)
-      AA2 = Two *(A*Alfa)**2
-      AA3 = Four*(A*Alfa)**3
-      AA4 = Two *(A*Alfa)**4
-      AA5 = Four*(A*Alfa)**5
-      GRINT(0,1) = pi4*(               rri(0)                           &
-     &           +      AA2/Three    * rri(1)                           &
-     &           +      AA4/15.0D+00 * rri(2)  )
-      IF(K.EQ.0)  Return
-      Do 20 ll=1,l
-         Do kk = 1, ll+1
-!
-            tmp1= fiint(kk-1,0)/fiint(0,0)
-            tmp2= -Two*DBLE(kk-1)
-            tmp = Zero
-            Do mm = 0, kk-1
-               tmp3 = tmp1*binom(kk-1,mm)*(-One)**mm
-               tmp4 = tmp2 + DBLE(mm)*Two + One
-               tmp = tmp + tmp3 * (                                     &
-     &              + One /(      DBLE(2*ll  )+tmp4)      * rri(ll)     &
-     &              + AA2/(       DBLE(2*ll+2)+tmp4)      * rri(ll+1)   &
-     &              + AA4/(Three*(DBLE(2*ll+4)+tmp4))     * rri(ll+2))
-            End Do
-            Grint(ll*2,  kk) = pi4 * tmp
-!
-            if (kk.eq.1) cycle
-            tmp1= fiint(kk-2,0)/fiint(0,0)
-            tmp=Zero
-            Do mm = 1, kk-1
-               tmp3 = tmp1*binom(kk-2,mm-1)*(-One)**(mm+1)
-               tmp4 = tmp2 + DBLE(mm)*Two + One
-               tmp = tmp - tmp3 * (                                     &
-     &              + AA /       (DBLE(2*ll)  +tmp4)      * rri(ll)     &
-     &              + AA3/(Three*(DBLE(2*ll+2)+tmp4))     * rri(ll+1)   &
-     &              + AA5/(15.0D0*(DBLE(2*ll+4)+tmp4))    * rri(ll+2))
-            End Do
-            Grint(ll*2-1,kk-1) = pi4 * tmp
-            Grint(ll*2-1,kk) = Zero
-!
-         End Do
- 20   Continue
-      End Select
-!
-!     Call RecPrt(' In RRint:grint',' ',grint,1+lmax,lmax)
-      End Subroutine RRINT
+  case (.false.)
+
+    !write(6,*) ' Large A'
+    ! K=0 ONE CONTRIBUTION SS-INTEGRAL
+    do i=0,k
+      rri(i) = qrint(i+1,aexp,bexp1,expa)*dble((-1)**i)-qrint(i+1,aexp,bexp2,expa)
+    end do
+    !call RecPrt(' In RRInt: rri',' ',rri,k+1,1)
+    AL = One/(Two*ALFA*A)
+    do i=0,k
+      mmax = i/2
+      do m=1,mmax+1
+        ! calculate integral ri(i,m)
+        fiintm = fiint(m-1,0)
+        grint(i,m) = Zero
+        do n=1,m
+          Bi = binom(m-1,n-1)*dble((-1)**(n+1))
+          ind = i-(m-n)*2
+          do kk=0,ind
+            ggg = fac(ind)/fac(ind-kk)*al**(kk+1)
+            grint(i,m) = grint(i,m)+bi*ggg*rri(i-kk)*fiintm
+          end do
+        end do
+      end do
+    end do
+
+  case (.true.)
+
+    !write(6,*) ' SERIES EXPANSION FOR SMALL A'
+
+    ! SERIES EXPANSION FOR SMALL A
+
+    ! K=0 FIRST
+    l = (k+1)/2
+    EXP1 = -(ALFA*A*A+BETA*R0*R0)
+    BEXP = -Two*BETA*R0/(ALFA+BETA)
+    do i=0,l+2
+      rri(i) = qrint(2*(i+1),AExp,BExp,Exp1)
+    end do
+    !call RecPrt(' rri',' ',rri,l+3,1)
+    pi4 = pi*Four
+    AA = Two*(A*Alfa)
+    AA2 = Two*(A*Alfa)**2
+    AA3 = Four*(A*Alfa)**3
+    AA4 = Two*(A*Alfa)**4
+    AA5 = Four*(A*Alfa)**5
+    GRINT(0,1) = pi4*(rri(0)+AA2/Three*rri(1)+AA4/15.0D+00*rri(2))
+    if (K == 0) return
+    do ll=1,l
+      do kk=1,ll+1
+
+        tmp1 = fiint(kk-1,0)/fiint(0,0)
+        tmp2 = -Two*dble(kk-1)
+        tmp = Zero
+        do mm=0,kk-1
+          tmp3 = tmp1*binom(kk-1,mm)*(-One)**mm
+          tmp4 = tmp2+dble(mm)*Two+One
+          tmp = tmp+tmp3*(One/(dble(2*ll)+tmp4)*rri(ll)+AA2/(dble(2*ll+2)+tmp4)*rri(ll+1)+AA4/(Three*(dble(2*ll+4)+tmp4))*rri(ll+2))
+        end do
+        Grint(ll*2,kk) = pi4*tmp
+
+        if (kk == 1) cycle
+        tmp1 = fiint(kk-2,0)/fiint(0,0)
+        tmp = Zero
+        do mm=1,kk-1
+          tmp3 = tmp1*binom(kk-2,mm-1)*(-One)**(mm+1)
+          tmp4 = tmp2+dble(mm)*Two+One
+          tmp = tmp-tmp3*(AA/(dble(2*ll)+tmp4)*rri(ll)+AA3/(Three*(dble(2*ll+2)+tmp4))*rri(ll+1)+ &
+                          AA5/(15.0d0*(dble(2*ll+4)+tmp4))*rri(ll+2))
+        end do
+        Grint(ll*2-1,kk-1) = pi4*tmp
+        Grint(ll*2-1,kk) = Zero
+
+      end do
+    end do
+end select
+
+!call RecPrt(' In RRint:grint',' ',grint,1+lmax,lmax)
+
+end subroutine RRINT

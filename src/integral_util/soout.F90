@@ -8,12 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SOOUT(label,cnt_ico,phase_ico)
-      Implicit None
+
+subroutine SOOUT(label,cnt_ico,phase_ico)
+
+implicit none
 #include "Molcas.fh"
-      Integer cnt_ico(0:7,*),phase_ico(0:7,*)
-      Character(LEN=LENIN8) Label(MaxBfn+MaxBfn_Aux)
-!
-      Call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
-!
-      End Subroutine SOOUT
+integer cnt_ico(0:7,*), phase_ico(0:7,*)
+character(len=LENIN8) Label(MaxBfn+MaxBfn_Aux)
+
+call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
+
+end subroutine SOOUT

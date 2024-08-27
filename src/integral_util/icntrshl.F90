@@ -8,22 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+function IcntrShl(iskal)
 !***********************************************************************
 !                                                                      *
 !  Integer Function IcntrShl  returns center number of given shell     *
 !                                                                      *
 !***********************************************************************
-      Integer Function IcntrShl(iskal)
-      use iSD_data, only: iSD
-      Implicit None
-      Integer iSkal
+
+use iSD_data, only: iSD
+
+implicit none
+integer IcntrShl
+integer iSkal
+
 !***********************************************************************
 !                                                                      *
 ! returns center number for given shell                                *
 !                                                                      *
 !***********************************************************************
-!
-!
-      icntrshl=iSD(10,iSkal)
-      return
-      end Function IcntrShl
+
+icntrshl = iSD(10,iSkal)
+
+return
+
+end function IcntrShl

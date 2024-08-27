@@ -11,7 +11,9 @@
 ! Copyright (C) 1990, IBM                                              *
 !               1991, Roland Lindh                                     *
 !***********************************************************************
-      Logical Function TstFnc(iCoSet,iIrrep,iBsFnc,nStab)
+
+!#define _DEBUGPRINT_
+function TstFnc(iCoSet,iIrrep,iBsFnc,nStab)
 !***********************************************************************
 !                                                                      *
 ! Object: to establish if a function is a basis function of a          *
@@ -21,89 +23,66 @@
 !             University of Lund, SWEDEN                               *
 !             September 1991                                           *
 !***********************************************************************
-      use Symmetry_Info, only: nIrrep, iOper, iChTbl
-      Implicit None
-      Integer iIrrep, iBsFnc, nStab
-      Integer iCoSet(0:7,0:7), iAcc(0:7)
 
-      Integer nCoSet, i, j, k, n, iCom
-      Integer, External :: iPrmt_
-!
-      TstFnc = .True.
-      nCoSet=nIrrep/nStab
-      iAcc(0:nCoSet-1)=0
-!
-!#define _DEBUGPRINT_
+use Symmetry_Info, only: nIrrep, iOper, iChTbl
+
+implicit none
+logical TstFnc
+integer iIrrep, iBsFnc, nStab
+integer iCoSet(0:7,0:7), iAcc(0:7)
+integer nCoSet, i, j, k, n, iCom
+integer, external :: iPrmt_
+
+TstFnc = .true.
+nCoSet = nIrrep/nStab
+iAcc(0:nCoSet-1) = 0
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'TstFnc'
-      Write (6,*)
-      Write (6,*) 'Coset:'
-      Do i = 0, nCoSet-1
-         Write (6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
-      End Do
+write(6,*) 'TstFnc'
+write(6,*)
+write(6,*) 'Coset:'
+do i=0,nCoSet-1
+  write(6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
+end do
 
-      Write (6,*)
-      Write (6,*) 'iOper:'
-      Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
-      Write (6,*)
-      Write (6,*) 'iBsFnc=',iBsFnc
-      Write (6,*)
-      Write (6,*) 'iChTbl:'
-      Write (6,'(8I4)') (iChTbl(iIrrep,i),i=0,nIrrep-1)
+write(6,*)
+write(6,*) 'iOper:'
+write(6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+write(6,*)
+write(6,*) 'iBsFnc=',iBsFnc
+write(6,*)
+write(6,*) 'iChTbl:'
+write(6,'(8I4)') (iChTbl(iIrrep,i),i=0,nIrrep-1)
 #endif
-!
-!     Loop over operators
-!
-      Do i = 0, nIrrep-1
-!
-!        Find index of the generated center
-!
-         n = -1
-         Do j = 0, nCoSet-1
-            If (n.ge.0) Cycle
-            Do k = 0, nStab-1
-               If (iOper(i).eq.iCoSet(j,k)) n = j
-            End Do
-         End Do
-!
-         If (n.lt.0 .or. n.gt.nCoSet-1) Then
-            Call WarningMessage(2,'TstFnc: n.lt.0 .or. n.gt.nCoSet-1')
-            Write (6,*) ' Coset index',n,' is wrong!'
-            Call Abend()
-         End If
-!
-         iCom=iAnd(iOper(i),iBsFnc)
-         iAcc(n) = iAcc(n) + iChTbl(iIrrep,i)*iPrmt_(iCom)
-!
-      End Do
-      Do i = 0, nCoSet-1
-         If (iAcc(i).eq.0) TstFnc = .False.
-      End Do
-!
-      Return
-      End Function TstFnc
-!
-      Logical Function TF(mdc,iIrrep,iComp)
-      Use Center_Info, Only : dc
-      Implicit None
-      Integer mdc,iIrrep,iComp
-      Logical, External :: TstFnc
-      TF = TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)
-      End Function TF
-!
-      Integer Function iPrmt_(iCom)
-!***********************************************************************
-!     Returns the phase factor of a basis function under a symmetry    *
-!     operation, jOper. iChct contains the information about the       *
-!     character of the basis function.                                 *
-!***********************************************************************
-      Implicit None
-      Integer iCom
 
-      Integer i
-      iPrmt_= 1
-      Do i = 1, 3
-         If (iAnd(iCom,2**(i-1)).ne.0) iPrmt_= iPrmt_*(-1)
-      End Do
-      Return
-      End Function iPrmt_
+! Loop over operators
+
+do i=0,nIrrep-1
+
+  ! Find index of the generated center
+
+  n = -1
+  do j=0,nCoSet-1
+    if (n >= 0) cycle
+    do k=0,nStab-1
+      if (iOper(i) == iCoSet(j,k)) n = j
+    end do
+  end do
+
+  if ((n < 0) .or. (n > nCoSet-1)) then
+    call WarningMessage(2,'TstFnc: n < 0 .or. n > nCoSet-1')
+    write(6,*) ' Coset index',n,' is wrong!'
+    call Abend()
+  end if
+
+  iCom = iand(iOper(i),iBsFnc)
+  iAcc(n) = iAcc(n)+iChTbl(iIrrep,i)*iPrmt_(iCom)
+
+end do
+do i=0,nCoSet-1
+  if (iAcc(i) == 0) TstFnc = .false.
+end do
+
+return
+
+end function TstFnc

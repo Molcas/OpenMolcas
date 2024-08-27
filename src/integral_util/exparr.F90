@@ -10,32 +10,36 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine ExpArr(Array,Ind,nArray,lArray)
+
+subroutine ExpArr(Array,Ind,nArray,lArray)
 !***********************************************************************
 !                                                                      *
 ! Object: to expand arrays according to an index array.                *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
-!             Augusti '91                                              *
+!             August '91                                               *
 !***********************************************************************
-      use Constants, only: Zero
-      Implicit None
-      Integer lArray, nArray
-      Real*8 Array(lArray,nArray)
-      Integer Ind(nArray)
 
-      Integer iArray, jArray
-!
-      Do 100 iArray = nArray, 1, -1
-         jArray = Ind(iArray)
-         If (jArray.le.0) Then
-!           Set column iArray to zero
-            Array(:,iArray)=Zero
-         Else If (jArray.lt.iArray) Then
-!           Copy row jArray to position iArray
-            Array(:,iArray)=Array(:,jArray)
-         End If
- 100  Continue
-      Return
-      End SubRoutine ExpArr
+use Constants, only: Zero
+
+implicit none
+integer lArray, nArray
+real*8 Array(lArray,nArray)
+integer Ind(nArray)
+integer iArray, jArray
+
+do iArray=nArray,1,-1
+  jArray = Ind(iArray)
+  if (jArray <= 0) then
+    ! Set column iArray to zero
+    Array(:,iArray) = Zero
+  else if (jArray < iArray) then
+    ! Copy row jArray to position iArray
+    Array(:,iArray) = Array(:,jArray)
+  end if
+end do
+
+return
+
+end subroutine ExpArr

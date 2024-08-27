@@ -8,38 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine inisewm(prgnam,ndiff)
-      Implicit None
-      character(LEN=*) prgnam
-      Integer nDiff
 
-      character(LEN=16) pgnm_local
-      Logical DoRys
+subroutine inisewm(prgnam,ndiff)
 
-      pgnm_local=prgnam
-      call locase(pgnm_local)
-!
-      If(pgnm_local.eq.'seward') then
-      else if(pgnm_local.eq.'scf') then
-        DoRys=.true.
-        call inisew(DoRys,ndiff)
-      else if(pgnm_local.eq.'mltpl') then
-        DoRys=.true.  ! for Schwarz prescreening
-        call inisew(DoRys,ndiff)
-      else if(pgnm_local.eq.'alaska') then
-        DoRys=.true.
-        call inisew(DoRys,ndiff)
-      else if(pgnm_local.eq.'mckinley') then
-        DoRys=.true.
-        call inisew(DoRys,ndiff)
-      else if(pgnm_local.eq.'slapaf') then
-      else if(pgnm_local.eq.'espf') Then
-        DoRys=.true.
-        call inisew(DoRys,ndiff)
-      else
-        DoRys=.false.
-        call inisew(DoRys,ndiff)
-      EndIf
-!
-      Return
-      End Subroutine inisewm
+implicit none
+character(len=*) prgnam
+integer nDiff
+character(len=16) pgnm_local
+logical DoRys
+
+pgnm_local = prgnam
+call locase(pgnm_local)
+
+select case (pgnm_local)
+  case ('seward','slapaf')
+  case ('scf','mltpl','alaska','mckinley','espf')
+    DoRys = .true.  ! for Schwarz prescreening
+    call inisew(DoRys,ndiff)
+  case default
+    DoRys = .false.
+    call inisew(DoRys,ndiff)
+end select
+
+return
+
+end subroutine inisewm

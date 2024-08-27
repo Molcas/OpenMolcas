@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine WrCheck(Label,Arr,n)
-      use Constants, only: One
-      Implicit None
-      Integer n
-      Real*8 Arr(n)
-      Character(LEN=*) Label
 
-      Real*8, external:: DDot_
+subroutine WrCheck(Label,Arr,n)
 
-      Write (6,*) Label, DDot_(n,Arr,1,Arr,1),DDot_(n,Arr,1,[One],0),n
+use Constants, only: One
 
-      End Subroutine WrCheck
+implicit none
+integer n
+real*8 Arr(n)
+character(len=*) Label
+real*8, external :: DDot_
+
+write(6,*) Label,DDot_(n,Arr,1,Arr,1),DDot_(n,Arr,1,[One],0),n
+
+end subroutine WrCheck

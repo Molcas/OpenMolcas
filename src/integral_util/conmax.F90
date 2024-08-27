@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine ConMax(A,nPrim,mPrim,B,nCont,C,mCont)
+
+subroutine ConMax(A,nPrim,mPrim,B,nCont,C,mCont)
 !***********************************************************************
 !                                                                      *
 ! Object: to find the largest element in the contraction matrix  for   *
@@ -20,27 +21,29 @@
 !             University of Lund, SWEDEN                               *
 !             July '91                                                 *
 !***********************************************************************
-      Implicit None
-      Integer, Intent(In):: nPrim,nCont,mPrim,mCont
-      Real*8, Intent(In):: B(nPrim,nCont), C(mPrim,mCont)
-      Real*8, Intent(Out):: A(nPrim,mPrim)
-!
-      Integer iPrim, jPrim
-      Real*8, External:: DDot_
-      Real*8 Temp
-      Do iPrim = 1, nPrim
-         Temp=DDot_(nCont,B(iPrim,1),nPrim,B(iPrim,1),nPrim)
-         Do jPrim = 1, mPrim
-            A(iPrim,jPrim) = Temp
-         End Do
-      End Do
-!
-      Do jPrim = 1, mPrim
-         Temp=DDot_(mCont,C(jPrim,1),mPrim,C(jPrim,1),mPrim)
-         Do iPrim = 1, nPrim
-            A(iPrim,jPrim) = Sqrt(A(iPrim,jPrim)*Temp)
-         End Do
-      End Do
-!
-      Return
-      End SubRoutine ConMax
+
+implicit none
+integer, intent(In) :: nPrim, nCont, mPrim, mCont
+real*8, intent(In) :: B(nPrim,nCont), C(mPrim,mCont)
+real*8, intent(Out) :: A(nPrim,mPrim)
+integer iPrim, jPrim
+real*8, external :: DDot_
+real*8 Temp
+
+do iPrim=1,nPrim
+  Temp = DDot_(nCont,B(iPrim,1),nPrim,B(iPrim,1),nPrim)
+  do jPrim=1,mPrim
+    A(iPrim,jPrim) = Temp
+  end do
+end do
+
+do jPrim=1,mPrim
+  Temp = DDot_(mCont,C(jPrim,1),mPrim,C(jPrim,1),mPrim)
+  do iPrim=1,nPrim
+    A(iPrim,jPrim) = sqrt(A(iPrim,jPrim)*Temp)
+  end do
+end do
+
+return
+
+end subroutine ConMax

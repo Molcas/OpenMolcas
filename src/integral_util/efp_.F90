@@ -21,8 +21,11 @@
 #include "macros.fh"
 
 module EFP
+
 contains
+
 dummy_empty_procedure(efp_mod)
+
 end module EFP
 
 #endif

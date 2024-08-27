@@ -12,23 +12,26 @@
 !               1990, IBM                                              *
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
-      Subroutine Mode_SemiDSCF(Wr_Mode)
-      use IOBUF, only: iStatIO, Mode_Read, Disk, Disk_2, Mode_Write
-      Implicit None
-      Logical Wr_Mode
-!
-!     Write (6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
-      If (Wr_Mode) Then
-         If (iStatIO.eq.Mode_Read) Then
-            Disk = Disk_2
-            iStatIO = Mode_Write
-!           Write (6,*) 'Changing to Write mode @',Disk
-         End If
-      Else
-         If (iStatIO.eq.Mode_Write) Then
-            Write (6,*) 'Change from Write to Read mode not implemented'
-            Call Abend()
-         End If
-      End If
-!
-      End Subroutine Mode_SemiDSCF
+
+subroutine Mode_SemiDSCF(Wr_Mode)
+
+use IOBUF, only: iStatIO, Mode_Read, Disk, Disk_2, Mode_Write
+
+implicit none
+logical Wr_Mode
+
+!write(6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
+if (Wr_Mode) then
+  if (iStatIO == Mode_Read) then
+    Disk = Disk_2
+    iStatIO = Mode_Write
+    !write(6,*) 'Changing to Write mode @',Disk
+  end if
+else
+  if (iStatIO == Mode_Write) then
+    write(6,*) 'Change from Write to Read mode not implemented'
+    call Abend()
+  end if
+end if
+
+end subroutine Mode_SemiDSCF

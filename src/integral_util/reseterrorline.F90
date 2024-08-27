@@ -8,8 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine ResetErrorLine
-      use getline_mod, only: igetline
-      Implicit None
-      igetline=0
-      end subroutine ResetErrorLine
+
+subroutine ResetErrorLine
+
+use getline_mod, only: igetline
+
+implicit none
+
+igetline = 0
+
+end subroutine ResetErrorLine

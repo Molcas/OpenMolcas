@@ -10,14 +10,20 @@
 !                                                                      *
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
-      Logical Function EQ(A,B)
+
+function EQ(A,B)
 !***********************************************************************
 !                                                                      *
 ! Object: to return the value .true. if A and B are the same centers.  *
 !                                                                      *
 !***********************************************************************
-      Implicit None
-      Real*8, Intent(In):: A(3),B(3)
-      EQ = A(1).eq.B(1) .and. A(2).eq.B(2) .and. A(3).eq.B(3)
-      Return
-      End Function EQ
+
+implicit none
+logical EQ
+real*8, intent(In) :: A(3), B(3)
+
+EQ = (A(1) == B(1)) .and. (A(2) == B(2)) .and. (A(3) == B(3))
+
+return
+
+end function EQ

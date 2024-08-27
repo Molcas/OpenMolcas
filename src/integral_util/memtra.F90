@@ -8,51 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+function memtra(npam)
 ! -------------------------------------------------------------------
 ! The following function returns the size needed by ptrans for
 ! temporaries. It also puts into common some offsets and stuff.
 ! -------------------------------------------------------------------
-      integer function memtra(npam)
-      use etwas, only: mIrrep, nCred, nScr1, nScr2, nAsh
-      Implicit None
-      Integer nPam(4,0:7)
 
-      intrinsic max
-      Integer mxact,mxS1,mxS2,mxS3,mxS4, isym, mxS, mxa2, mxa3, mxa4,   &
-     &        mxS34, mxS234, nscr3, nscr4, nscr5, na
-!
-!     iQ = 1
-      mxact=0
-      mxS1=0
-      mxS2=0
-      mxS3=0
-      mxS4=0
-      do 10 isym=0,mirrep-1
-        na=nash(isym)
-        if(na.eq.0) goto 10
-        mxact=max(mxact,na)
-        mxS1=max(mxS1,npam(1,isym))
-        mxS2=max(mxS2,npam(2,isym))
-        mxS3=max(mxS3,npam(3,isym))
-        mxS4=max(mxS4,npam(4,isym))
-  10  continue
-      mxS=max(mxS1,mxS2,mxS3,mxS4)
-      mxa2=mxact*mxact
-      mxa3=mxa2*mxact
-      mxa4=mxa3*mxact
-      mxS34=mxS3*mxS4
-      mxS234=mxS2*mxS34
+use etwas, only: mIrrep, nCred, nScr1, nScr2, nAsh
+
+implicit none
+integer memtra
+integer nPam(4,0:7)
+intrinsic max
+integer mxact, mxS1, mxS2, mxS3, mxS4, isym, mxS, mxa2, mxa3, mxa4, mxS34, mxS234, nscr3, nscr4, nscr5, na
+
+!iQ = 1
+mxact = 0
+mxS1 = 0
+mxS2 = 0
+mxS3 = 0
+mxS4 = 0
+do isym=0,mirrep-1
+  na = nash(isym)
+  if (na == 0) goto 10
+  mxact = max(mxact,na)
+  mxS1 = max(mxS1,npam(1,isym))
+  mxS2 = max(mxS2,npam(2,isym))
+  mxS3 = max(mxS3,npam(3,isym))
+  mxS4 = max(mxS4,npam(4,isym))
+10 continue
+end do
+mxS = max(mxS1,mxS2,mxS3,mxS4)
+mxa2 = mxact*mxact
+mxa3 = mxa2*mxact
+mxa4 = mxa3*mxact
+mxS34 = mxS3*mxS4
+mxS234 = mxS2*mxS34
 ! Max sizes, in common, needed for certain temporaries:
-      ncred=Max(1,mxS*mxact)
+ncred = max(1,mxS*mxact)
 
-      nscr1=mxa4
-      nscr2=mxa3*mxS4
-      nscr3=mxa2*mxS34
-      nscr4=mxact*mxS234
-      nscr5=mxS1*mxS234
-      nScr1=max(1,nscr1,nscr3,nscr5)
-      nScr2=max(1,nscr2,nscr4)
-      memtra=nCred+2*nScr1+nScr2+3
-!
-      Return
-      End function memtra
+nscr1 = mxa4
+nscr2 = mxa3*mxS4
+nscr3 = mxa2*mxS34
+nscr4 = mxact*mxS234
+nscr5 = mxS1*mxS234
+nScr1 = max(1,nscr1,nscr3,nscr5)
+nScr2 = max(1,nscr2,nscr4)
+memtra = nCred+2*nScr1+nScr2+3
+
+return
+
+end function memtra

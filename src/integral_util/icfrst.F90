@@ -10,16 +10,19 @@
 !                                                                      *
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
-      Integer Function iCFrst(KWord,iChrct)
-      Implicit None
-      Character(LEN=*) KWord
-      Integer iChrct
 
-      Integer i
-      iCFrst = 0
-      Do i = 1,iChrct
-         If (KWord(i:i).ne.' ') Exit
-      End Do
-      iCFrst = i
+function iCFrst(KWord,iChrct)
 
-      End Function iCFrst
+implicit none
+integer iCFrst
+character(len=*) KWord
+integer iChrct
+integer i
+
+iCFrst = 0
+do i=1,iChrct
+  if (KWord(i:i) /= ' ') exit
+end do
+iCFrst = i
+
+end function iCFrst

@@ -8,33 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine fiin(lmax)
-      use Constants, only: Zero, One, Two, Pi
-      use welcom, only: fiInt, binom
-      Implicit None
-      Integer lmax
 
-      Integer i, j, k, l, iexp
-      Real*8 a, tal, al
-!
-      fiint(0,0)=Pi*Two
-      Do 10 i=0,lmax
-         Do 11 j=0,lmax-i
-            fiint(i,j)=Zero
-            Do 12 k=0,j
-               a=binom(j,k)
-               iexp=i+k
-               tal=pi*Two*a*(-One)**k
-               if(iexp.ne.0)then
-                  Do 13 l=1,iexp
-                     al=Two*DBLE(l)
-                     tal=tal*(al-One)/al
- 13               Continue
-                Endif
-                fiint(i,j)=fiint(i,j)+tal
- 12         Continue
- 11      Continue
- 10   Continue
-!
-      Return
-      End Subroutine fiin
+subroutine fiin(lmax)
+
+use Constants, only: Zero, One, Two, Pi
+use welcom, only: fiInt, binom
+
+implicit none
+integer lmax
+integer i, j, k, l, iexp
+real*8 a, tal, al
+
+fiint(0,0) = Pi*Two
+do i=0,lmax
+  do j=0,lmax-i
+    fiint(i,j) = Zero
+    do k=0,j
+      a = binom(j,k)
+      iexp = i+k
+      tal = pi*Two*a*(-One)**k
+      if (iexp /= 0) then
+        do l=1,iexp
+          al = Two*dble(l)
+          tal = tal*(al-One)/al
+        end do
+      end if
+      fiint(i,j) = fiint(i,j)+tal
+    end do
+  end do
+end do
+
+return
+
+end subroutine fiin

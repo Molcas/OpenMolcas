@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      real*8 function  fradf(x)
+
+function fradf(x)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the angular contribution to the multipole integral*
@@ -16,10 +17,13 @@
 !         (theta integration)                                          *
 !                                                                      *
 !***********************************************************************
-      use rmat, only: l, expsum
-      Implicit None
-      Real*8 x
-!
-      fradf=x**(l+2)*exp(-expsum*x*x)
-!
-      End function  fradf
+
+use rmat, only: l, expsum
+
+implicit none
+real*8 fradf
+real*8 x
+
+fradf = x**(l+2)*exp(-expsum*x*x)
+
+end function fradf

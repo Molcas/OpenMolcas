@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Gunnar Karlstrom                                 *
 !***********************************************************************
-      Subroutine Rowel(nZeta,r0,Beta,K,alpha,P,a,gri,grin,jsum)
+
+subroutine Rowel(nZeta,r0,Beta,K,alpha,P,a,gri,grin,jsum)
 !***********************************************************************
 ! 1992                                                                 *
 ! Gunnar Karlstrom                                                     *
@@ -19,37 +20,36 @@
 ! Lund                                                                 *
 ! Sweden                                                               *
 !***********************************************************************
-      use Constants, Only: One
-      use welcom, only: Fac, ipot3
-      Implicit None
-      Integer nZeta, jSum, k
-      Real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta),                   &
-     &       grin((k+1)*(k/2+1)*(k/4+1)*nZeta), P(nZeta,3)
-      Real*8 r0, Beta
 
-      Integer iZeta, i, iSum
-!
-!
-      Call poti(k,ipot3)
-!     Call IecPrt(' ipot3(0:k+1)',ipot3,k+2,1)
-      isum=ipot3(k+1)
-      Call bino(k+6)
-      Call fiin(k+1)
-      Call tetin(k+1)
-      Call ylmnor(k+1)
-!
-      Do 200 iZeta = 1, nZeta
-         a(iZeta) = Sqrt(P(iZeta,1)**2 +                                &
-     &                   P(iZeta,2)**2 +                                &
-     &                   P(iZeta,3)**2 )
- 200  Continue
-!     Call RecPrt(' In Rowel: Distances',' ',a,nZeta,1)
-!
-      fac(0)=One
-      Do 99 i=1,k+2
-         fac(i)=fac(i-1)*DBLE(i)
- 99   Continue
-      Call priwel(k,alpha,beta,r0,a,gri,nZeta,isum,grin)
-!     Call RecPrt('Internal well integrals',' ',gri,nZeta,isum)
-      Return
-      End Subroutine Rowel
+use Constants, only: One
+use welcom, only: Fac, ipot3
+
+implicit none
+integer nZeta, jSum, k
+real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta), grin((k+1)*(k/2+1)*(k/4+1)*nZeta), P(nZeta,3)
+real*8 r0, Beta
+integer iZeta, i, iSum
+
+call poti(k,ipot3)
+!call IecPrt(' ipot3(0:k+1)',ipot3,k+2,1)
+isum = ipot3(k+1)
+call bino(k+6)
+call fiin(k+1)
+call tetin(k+1)
+call ylmnor(k+1)
+
+do iZeta=1,nZeta
+  a(iZeta) = sqrt(P(iZeta,1)**2+P(iZeta,2)**2+P(iZeta,3)**2)
+end do
+!call RecPrt(' In Rowel: Distances',' ',a,nZeta,1)
+
+fac(0) = One
+do i=1,k+2
+  fac(i) = fac(i-1)*dble(i)
+end do
+call priwel(k,alpha,beta,r0,a,gri,nZeta,isum,grin)
+!call RecPrt('Internal well integrals',' ',gri,nZeta,isum)
+
+return
+
+end subroutine Rowel

@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine Gauss(n,lDim,A,X,C)
+
+subroutine Gauss(n,lDim,A,X,C)
 !***********************************************************************
 !                                                                      *
 !     purpose: Solve a set of linear equations using Gauss method      *
@@ -39,59 +40,56 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit None
-!
-      Integer n, lDim
-      Real*8 A(lDim,lDim),X(lDim),C(lDim)
 
-      Integer i, j, k
-      Real*8 Swap, Fact
-!
+implicit none
+integer n, lDim
+real*8 A(lDim,lDim), X(lDim), C(lDim)
+integer i, j, k
+real*8 Swap, Fact
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-      Do 10 i = 1, N
-         X(I) = C(I)
-   10 Continue
-      Do 100 i = 1, n - 1
-         k = i
-         Do 110 j = i + 1, n
-            If (Abs(A(k,i)) .lt. Abs(A(j,i))) k = j
-  110    Continue
-         If (k .ne. i) Then
-!           Write(*,'(A,2I3)') ' Swapping:',i,k
-            Do 120 j = i, n
-               Swap   = A(i,j)
-               A(i,j) = A(k,j)
-               A(k,j) = Swap
-  120       Continue
-            Swap = X(i)
-            X(i) = X(k)
-            X(k) = Swap
-         End If
-         Do 130 k = i + 1, n
-            Fact = A(k,i)/A(i,i)
-            Do 131 j = i + 1, n
-               A(k,j) = A(k,j) - Fact*A(i,j)
-  131       Continue
-            X(k) = X(k) - Fact*X(i)
-  130    Continue
-  100 Continue
-      X(n) = X(n)/A(n,n)
-      Do 200 i = n - 1, 1, -1
-         Do 210 k = i + 1, n
-            X(i) = X(i) - A(i,k)*X(k)
-  210    Continue
-         X(i) = X(i)/A(i,i)
-  200 Continue
-!
-!
+
+do i=1,N
+  X(I) = C(I)
+end do
+do i=1,n-1
+  k = i
+  do j=i+1,n
+    if (abs(A(k,i)) < abs(A(j,i))) k = j
+  end do
+  if (k /= i) then
+    !write(6,'(A,2I3)') ' Swapping:',i,k
+    do j=i,n
+      Swap = A(i,j)
+      A(i,j) = A(k,j)
+      A(k,j) = Swap
+    end do
+    Swap = X(i)
+    X(i) = X(k)
+    X(k) = Swap
+  end if
+  do k=i+1,n
+    Fact = A(k,i)/A(i,i)
+    do j=i+1,n
+      A(k,j) = A(k,j)-Fact*A(i,j)
+    end do
+    X(k) = X(k)-Fact*X(i)
+  end do
+end do
+X(n) = X(n)/A(n,n)
+do i=n-1,1,-1
+  do k=i+1,n
+    X(i) = X(i)-A(i,k)*X(k)
+  end do
+  X(i) = X(i)/A(i,i)
+end do
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine Gauss
+
+return
+
+end subroutine Gauss

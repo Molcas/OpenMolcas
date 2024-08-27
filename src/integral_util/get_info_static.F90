@@ -10,29 +10,33 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Get_Info_Static()
+
+subroutine Get_Info_Static()
 !***********************************************************************
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             January 1992                                             *
 !***********************************************************************
-      use Symmetry_Info, only: Symmetry_Info_Get
-      use Sizes_of_Seward, only: Size_Get
-      use DKH_Info, only: DKH_Info_Get
-      use Gateway_Info, only: Gateway_Info_Get
-      use RICD_Info, only: RICD_Info_Get
-      use NQ_Info, only: NQ_Info_Get
-      use External_Centers, only: External_Centers_Get
-      Implicit None
 
-      Call Symmetry_Info_Get()
-      Call Size_Get()
-      Call DKH_Info_Get()
-      Call Gateway_Info_Get()
-      Call RICD_Info_Get()
-      Call NQ_Info_Get()
-      Call External_Centers_Get()
+use Symmetry_Info, only: Symmetry_Info_Get
+use Sizes_of_Seward, only: Size_Get
+use DKH_Info, only: DKH_Info_Get
+use Gateway_Info, only: Gateway_Info_Get
+use RICD_Info, only: RICD_Info_Get
+use NQ_Info, only: NQ_Info_Get
+use External_Centers, only: External_Centers_Get
 
-      Return
-      End SubRoutine Get_Info_Static
+implicit none
+
+call Symmetry_Info_Get()
+call Size_Get()
+call DKH_Info_Get()
+call Gateway_Info_Get()
+call RICD_Info_Get()
+call NQ_Info_Get()
+call External_Centers_Get()
+
+return
+
+end subroutine Get_Info_Static

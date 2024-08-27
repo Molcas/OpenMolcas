@@ -8,54 +8,52 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module Integral_Interfaces
 
-      ! Dummy modules to get correct order of compilation
-      Use setup, only:
-      Use Real_Spherical, only:
-      Use iSD_data, only:
-      Use k2_arrays, only:
-      Use rmat, only:
-      Use define_af, only:
-      use Property_Label, only:
-      use ri_glob, only:
+module Integral_Interfaces
 
-      Private
+! Dummy modules to get correct order of compilation
+use setup,only:
+use Real_Spherical,only:
+use iSD_data,only:
+use k2_arrays,only:
+use rmat,only:
+use define_af,only:
+use Property_Label,only:
+use ri_glob,only:
 
-      Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,     &
-     &          OneEl_Inner, OneEl_Integrals,                           &
-     &          Integral_WrOut2, Integral_RI_3, Integral_RICD,          &
-     &          Integral_RI_2, Integral_WrOut_Cho, No_Routine,          &
-     &          Integral_WrOut_Cho_Diag
+private
+
+public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Inner, OneEl_Integrals, Integral_WrOut2, Integral_RI_3, &
+          Integral_RICD, Integral_RI_2, Integral_WrOut_Cho, No_Routine, Integral_WrOut_Cho_Diag
 
 #define _FIXED_FORMAT_
-      Abstract interface
-        Subroutine int_kernel(                                          &
-#                             define _CALLING_
-#                             include "int_interface.fh"
-     &                       )
-        Use Index_Functions, only: nTri_Elem1
-#       include "int_interface.fh"
-        End Subroutine int_kernel
+abstract interface
+  subroutine int_kernel( &
+#                       define _CALLING_
+#                       include "int_interface.fh"
+                       )
+    use Index_Functions, only: nTri_Elem1
+#   include "int_interface.fh"
+  end subroutine int_kernel
 
-        Subroutine int_mem(                                             &
-#                          define _CALLING_
-#                          include "mem_interface.fh"
-     &                    )
-#       include "mem_interface.fh"
-        End Subroutine int_mem
+  subroutine int_mem( &
+#                    define _CALLING_
+#                    include "mem_interface.fh"
+                    )
+#   include "mem_interface.fh"
+  end subroutine int_mem
 
-        Subroutine int_wrout(                                           &
-#                            define _CALLING_
-#                            include "int_wrout_interface.fh"
-     &                      )
-#       include "int_wrout_interface.fh"
-        End Subroutine int_wrout
-      End interface
+  subroutine int_wrout( &
+#                      define _CALLING_
+#                      include "int_wrout_interface.fh"
+                      )
+#   include "int_wrout_interface.fh"
+  end subroutine int_wrout
+end interface
 
-      Procedure(int_wrout), Pointer, Public :: Int_postprocess=>Null()
+procedure(int_wrout), pointer, public :: Int_postprocess => null()
 
-      Contains
+contains
 
 #define _IN_MODULE_
 #include "oneel_ij.F90"
@@ -70,4 +68,4 @@
 #include "../cholesky_util/integral_wrout_cho.F90"
 #include "../cholesky_util/integral_wrout_cho_diag.F90"
 
-      End Module Integral_Interfaces
+end module Integral_Interfaces

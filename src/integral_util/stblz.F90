@@ -8,84 +8,89 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
-      use Symmetry_Info, only: iOper, nIrrep
-      Implicit None
-      Integer iChxyz, nStab, MaxDCR
-      Integer jStab(0:7), iCoSet(0:7,0:7)
 
-      Integer iStab, i, j, nMax, iTest, ielem, iTmp, iOpMn, ip
+subroutine Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
+
+use Symmetry_Info, only: iOper, nIrrep
+
+implicit none
+integer iChxyz, nStab, MaxDCR
+integer jStab(0:7), iCoSet(0:7,0:7)
+integer iStab, i, j, nMax, iTest, ielem, iTmp, iOpMn, ip
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Find the Stabilizers of this center
+! Find the Stabilizers of this center
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iStab = 0
-      Do i = 0, nIrrep-1
-         If (iAnd(iChxyz,iOper(i)).eq.0) Then
-            iStab = iStab + 1
-            jStab(iStab-1) = iOper(i)
-         End If
-      End Do
-      nStab = iStab
-      MaxDCR = Max(MaxDCR,iStab)
+iStab = 0
+do i=0,nIrrep-1
+  if (iand(iChxyz,iOper(i)) == 0) then
+    iStab = iStab+1
+    jStab(iStab-1) = iOper(i)
+  end if
+end do
+nStab = iStab
+MaxDCR = max(MaxDCR,iStab)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Generate all possible (left) CoSet
+! Generate all possible (left) CoSet
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Do i = 0, nIrrep-1
-         Do j = 0, iStab-1
-            iCoSet(i,j) = iEor(iOper(i),jStab(j))
-         End Do
-      End Do
-      If (iStab.eq.1) Go To 39 ! skip if all are unique
-!
-!     Order the Coset so we will have the unique ones first
-!
-      nMax = 1
-      If (nMax.eq.nIrrep/iStab) Go To 39 ! skip if there is only one
-      iTest=iStab-1 ! Test on the last element
-      Do 35 j = 1, nIrrep-1 !
-!        Check uniqueness
-         Do i = 0, nMax-1
-            Do ielem = 0, iStab-1
-               If (iCoSet(i,iTest).eq.iCoSet(j,ielem)) Go To 35
-            End Do
-         End Do
-!        Move unique CoSet to nMax+1
-         nMax = nMax + 1
-         Do ielem = 0, iStab-1
-            iTmp = iCoSet(nMax-1,ielem)
-            iCoSet(nMax-1,ielem) = iCoSet(j,ielem)
-            iCoSet(j,ielem) = iTmp
-         End Do
-         If (nMax.eq.nIrrep/iStab) Go To 39
- 35   Continue
- 39   Continue
+do i=0,nIrrep-1
+  do j=0,iStab-1
+    iCoSet(i,j) = ieor(iOper(i),jStab(j))
+  end do
+end do
+if (iStab == 1) Go To 39 ! skip if all are unique
+
+! Order the Coset so we will have the unique ones first
+
+nMax = 1
+if (nMax == nIrrep/iStab) Go To 39 ! skip if there is only one
+iTest = iStab-1 ! Test on the last element
+do j=1,nIrrep-1 !
+  ! Check uniqueness
+  do i=0,nMax-1
+    do ielem=0,iStab-1
+      if (iCoSet(i,iTest) == iCoSet(j,ielem)) Go To 35
+    end do
+  end do
+  ! Move unique CoSet to nMax+1
+  nMax = nMax+1
+  do ielem=0,iStab-1
+    iTmp = iCoSet(nMax-1,ielem)
+    iCoSet(nMax-1,ielem) = iCoSet(j,ielem)
+    iCoSet(j,ielem) = iTmp
+  end do
+  if (nMax == nIrrep/iStab) Go To 39
+35 continue
+end do
+39 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Do i = 0, nIrrep/iStab-1
-         iOpMn=iCoSet(i,0)
-         Do j = 1, iStab-1
-            iOpMn=iAnd(iOpMn,iCoset(i,j))
-         End Do
-         ip=0
-         Do j = 0, iStab-1
-            If (iOpMn.eq.iCoSet(i,j)) ip = j
-         End Do
-         iTmp=iCoSet(i,0)
-         iCoSet(i,0)=iCoSet(i,ip)
-         iCoSet(i,ip)=iTmp
-!
-      End Do
+do i=0,nIrrep/iStab-1
+  iOpMn = iCoSet(i,0)
+  do j=1,iStab-1
+    iOpMn = iand(iOpMn,iCoset(i,j))
+  end do
+  ip = 0
+  do j=0,iStab-1
+    if (iOpMn == iCoSet(i,j)) ip = j
+  end do
+  iTmp = iCoSet(i,0)
+  iCoSet(i,0) = iCoSet(i,ip)
+  iCoSet(i,ip) = iTmp
+
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End Subroutine Stblz
+return
+
+end subroutine Stblz

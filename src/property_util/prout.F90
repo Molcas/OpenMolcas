@@ -31,7 +31,7 @@ subroutine PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTo
 !     Occ(1:nTot)     Occupation numbers for all eigenvectors,         *
 !                     a dummy for Short outputs                        *
 !     ThrSV           threshold for Occupation numbers; if             *
-!                     Occ(i).le.ThrSV the contribution will not        *
+!                     Occ(i) <= ThrSV the contribution will not        *
 !                     be printed                                       *
 !     PrEl(1:nTot,    matrix elements for all components 1,2,...,      *
 !          1:maxlab)  maxlab, nTot entries for each component          *

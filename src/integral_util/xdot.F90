@@ -10,21 +10,23 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Real*8 Function XDot(A,n,m,k,l)
-      use Constants, only: Zero, One
-      Implicit None
-      Integer n, m, k, l
-      Real*8 A(n*m+1,k,l)
 
-      Integer ik, il
-      Real*8, external :: DDot_
-!
-      XDot=Zero
-      Do ik= 1, k
-         Do il = 1, l
-            XDot=XDot+DDot_(n*m,[One],0,A(1:n*m,ik,il),1)
-         End Do
-      End Do
-!
-      End Function XDot
+function XDot(A,n,m,k,l)
 
+use Constants, only: Zero, One
+
+implicit none
+real*8 XDot
+integer n, m, k, l
+real*8 A(n*m+1,k,l)
+integer ik, il
+real*8, external :: DDot_
+
+XDot = Zero
+do ik=1,k
+  do il=1,l
+    XDot = XDot+DDot_(n*m,[One],0,A(1:n*m,ik,il),1)
+  end do
+end do
+
+end function XDot

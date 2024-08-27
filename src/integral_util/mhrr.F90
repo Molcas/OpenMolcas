@@ -10,31 +10,31 @@
 !                                                                      *
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
-      Subroutine  mHrr(la,lb,nSize,nMem)
-      Implicit None
-      Integer la, lb, nSize, nMem
 
-      Integer ixyz, nElem, nMem2, ib, nMem1, ia
-!
-!     Statement function for canonical indices
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-!     First find the size of the working array.
-!
-      nMem  = 0
-      nMem2 = 0
-      nSize = 0
-      Do 100 ib = 0, Min(la,lb)
-         nMem1 = 0
-         Do 150 ia = Max(la,lb), la+lb-ib
-            nSize = nSize + nElem(ib)*nElem(ia)
-            nMem1 = nMem1 + nElem(ib)*nElem(ia)
- 150     Continue
-         nMem=Max(nMem,nMem1+nMem2)
-         nMem2 = nMem1
-         If (ib.eq.0) nSize = 0
- 100  Continue
-!
-      Return
-      End Subroutine  mHrr
+subroutine mHrr(la,lb,nSize,nMem)
+
+implicit none
+integer la, lb, nSize, nMem
+integer ixyz, nElem, nMem2, ib, nMem1, ia
+! Statement function for canonical indices
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+! First find the size of the working array.
+
+nMem = 0
+nMem2 = 0
+nSize = 0
+do ib=0,min(la,lb)
+  nMem1 = 0
+  do ia=max(la,lb),la+lb-ib
+    nSize = nSize+nElem(ib)*nElem(ia)
+    nMem1 = nMem1+nElem(ib)*nElem(ia)
+  end do
+  nMem = max(nMem,nMem1+nMem2)
+  nMem2 = nMem1
+  if (ib == 0) nSize = 0
+end do
+
+return
+
+end subroutine mHrr

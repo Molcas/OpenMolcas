@@ -10,13 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1995, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine InitIA(I,mDeg)
-      implicit None
-      Integer mDeg
-      Integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
 
-      Integer n, a, b, c, p, q, r, new
-!
+subroutine InitIA(I,mDeg)
 ! Purpose: Express the interaction tensor, defined by the
 ! quantities T(a,b,c) as functions of the vector R=(x,y,z),
 ! where a,b, and c are nonnegative integers and
@@ -28,65 +23,68 @@
 ! The polynomial coefficients are integers, and are 0 unless
 ! p+q+r=n.
 ! Author: PAM
-!
-!----- Statement function
-!
-!      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-!
+
+implicit none
+integer mDeg
+integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
+integer n, a, b, c, p, q, r, new
+! Statement function
+!Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
+
 ! initialize:
-      I(:,:,:,:,:,:)=0
-      I(0,0,0,0,0,0)=1
-      If (mDeg.gt.0) Then
-         I(1,0,0,1,0,0)=-1
-         I(0,1,0,0,1,0)=-1
-         I(0,0,1,0,0,1)=-1
-      End If
-      do 100 n=2,mDeg
-      do 101 a=0,n
-      do 102 b=0,n-a
-      c=n-a-b
-      do 103 p=0,n
-      do 104 q=0,n-p
-      r=n-p-q
-      new=0
-      if(a.gt.0) then
-        if(p.gt.0) new=(p-(2*n))*I(a-1,b,c,p-1,q,r)
-        if(q.gt.1) new=new+(p+1)*I(a-1,b,c,p+1,q-2,r)
-        if(r.gt.1) new=new+(p+1)*I(a-1,b,c,p+1,q,r-2)
-      else if(b.gt.0) then
-        if(q.gt.0) new=(q-(2*n))*I(a,b-1,c,p,q-1,r)
-        if(r.gt.1) new=new+(q+1)*I(a,b-1,c,p,q+1,r-2)
-        if(p.gt.1) new=new+(q+1)*I(a,b-1,c,p-2,q+1,r)
-      else
-        if(r.gt.0) new=(r-(2*n))*I(a,b,c-1,p,q,r-1)
-        if(p.gt.1) new=new+(r+1)*I(a,b,c-1,p-2,q,r+1)
-        if(q.gt.1) new=new+(r+1)*I(a,b,c-1,p,q-2,r+1)
-      end if
-      I(a,b,c,p,q,r)=new
- 104  continue
- 103  continue
- 102  continue
- 101  continue
- 100  continue
-!
+I(:,:,:,:,:,:) = 0
+I(0,0,0,0,0,0) = 1
+if (mDeg > 0) then
+  I(1,0,0,1,0,0) = -1
+  I(0,1,0,0,1,0) = -1
+  I(0,0,1,0,0,1) = -1
+end if
+do n=2,mDeg
+  do a=0,n
+    do b=0,n-a
+      c = n-a-b
+      do p=0,n
+        do q=0,n-p
+          r = n-p-q
+          new = 0
+          if (a > 0) then
+            if (p > 0) new = (p-(2*n))*I(a-1,b,c,p-1,q,r)
+            if (q > 1) new = new+(p+1)*I(a-1,b,c,p+1,q-2,r)
+            if (r > 1) new = new+(p+1)*I(a-1,b,c,p+1,q,r-2)
+          else if (b > 0) then
+            if (q > 0) new = (q-(2*n))*I(a,b-1,c,p,q-1,r)
+            if (r > 1) new = new+(q+1)*I(a,b-1,c,p,q+1,r-2)
+            if (p > 1) new = new+(q+1)*I(a,b-1,c,p-2,q+1,r)
+          else
+            if (r > 0) new = (r-(2*n))*I(a,b,c-1,p,q,r-1)
+            if (p > 1) new = new+(r+1)*I(a,b,c-1,p-2,q,r+1)
+            if (q > 1) new = new+(r+1)*I(a,b,c-1,p,q-2,r+1)
+          end if
+          I(a,b,c,p,q,r) = new
+        end do
+      end do
+    end do
+  end do
+end do
+
 ! write out only elements with a>=b>=c. The others are obtained
 ! by index permutation.
 ! This restriction has been removed! (Roland Lindh)
-!     n=mDeg
-!     do 200 a=n,0,-1
-!     do 200 b=n-a,0,-1
-!     c=n-a-b
-!     write(*,'(5x,''T('',i1,'','',i1,'','',i1,'')='',i5)')a,b,c,
-!    &     Ind(n,a,c)
-!     do 150 p=n,0,-1
-!     do 150 q=n-p,0,-1
-!     r=n-p-q
-!     coef=I(a,b,c,p,q,r)
-!     if(coef.eq.0) goto 150
-!     write(*,'(10x,i8,''*x**'',i1,'' *y**'',i1,'' *z**'',i1,i5)')
-!    &  coef,p,q,r,Ind(n,p,r)
-!150  continue
-!200  continue
-!
-      Return
-      End Subroutine InitIA
+!n = mDeg
+!do a=n,0,-1
+!  do b=n-a,0,-1
+!    c = n-a-b
+!    write(6,'(5x,''T('',i1,'','',i1,'','',i1,'')='',i5)')a,b,c,Ind(n,a,c)
+!    do p=n,0,-1
+!      do q=n-p,0,-1
+!        r = n-p-q
+!        coef = I(a,b,c,p,q,r)
+!        if (coef /= 0) write(6,'(10x,i8,''*x**'',i1,'' *y**'',i1,'' *z**'',i1,i5)') coef,p,q,r,Ind(n,p,r)
+!      end do
+!    end do
+!  end do
+!end do
+
+return
+
+end subroutine InitIA

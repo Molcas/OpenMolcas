@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Trns1(Win,Wout,na,nb,nvec,nc)
+
+subroutine Trns1(Win,Wout,na,nb,nvec,nc)
 !***********************************************************************
 !                                                                      *
 ! Object: utility routine to transform a AO batch in case of redun-    *
@@ -27,25 +28,28 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit None
-      Integer na, nb, nVec,nc
-      Real*8 Win(na,nb), Wout(nb,na)
-!
-!     Write (*,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
-!     Call RecPrt(' Win',' ',Win,na,nb)
-      If (nc.eq.1) Then
-         call dcopy_(nvec,Win,1,Wout,1)
-         Return
-      End If
-      If (na.eq.1 .or. nb.eq.1) Then
-         Call Trns2(Win,Wout,nvec,nc)
-      Else
-         Call DGeTMO(Win,na,na,nb,Wout,nb)
-!        Call RecPrt(' After first DGeTMO',' ',Wout,nb,na)
-         Call Trns2(Wout,Win,nvec,nc)
-!        Call RecPrt(' After Trns2',' ',Win,nb,na)
-         Call DGeTMO(Win,nb,nb,na,Wout,na)
-!        Call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
-      End If
-      Return
-      End SubRoutine Trns1
+
+implicit none
+integer na, nb, nVec, nc
+real*8 Win(na,nb), Wout(nb,na)
+
+!write(6,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
+!call RecPrt(' Win',' ',Win,na,nb)
+if (nc == 1) then
+  call dcopy_(nvec,Win,1,Wout,1)
+  return
+end if
+if ((na == 1) .or. (nb == 1)) then
+  call Trns2(Win,Wout,nvec,nc)
+else
+  call DGeTMO(Win,na,na,nb,Wout,nb)
+  !call RecPrt(' After first DGeTMO',' ',Wout,nb,na)
+  call Trns2(Wout,Win,nvec,nc)
+  !call RecPrt(' After Trns2',' ',Win,nb,na)
+  call DGeTMO(Win,nb,nb,na,Wout,na)
+  !call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
+end if
+
+return
+
+end subroutine Trns1

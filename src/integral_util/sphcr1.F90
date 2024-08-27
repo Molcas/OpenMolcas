@@ -11,10 +11,8 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine SphCr1(Win,ijkla,                                      &
-     &                  Scrt,nScrt,                                     &
-     &                  Coeff3,kCar,kSph,Tr3,Pr3,                       &
-     &                  Coeff4,lCar,lSph,Tr4,Pr4,Wout,mcd)
+
+subroutine SphCr1(Win,ijkla,Scrt,nScrt,Coeff3,kCar,kSph,Tr3,Pr3,Coeff4,lCar,lSph,Tr4,Pr4,Wout,mcd)
 !***********************************************************************
 !                                                                      *
 ! Object : to transform the two-electron integrals from cartesian      *
@@ -30,68 +28,57 @@
 !             Modified to back projection to cartesian gaussians,      *
 !             January '92.                                             *
 !***********************************************************************
-      Implicit None
-      Integer ijkla, nScrt, kCar,kSph,lCar,lSph,mcd
-      Real*8 Win(ijkla*kSph*lSph), Scrt(nScrt),                         &
-     &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),                      &
-     &       Wout(mcd*ijkla)
-      Logical Tr3, Pr3, Tr4, Pr4
-!
-!     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
-      If (Tr3.and.Tr4) Then
-!        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
-!--------Starting with IJKL,AB,CD transforming to d,IJKL,AB,C
-!        Call xxDGeMul(Coeff4,lCar,'N',
-!    &               Win,ijkla*kSph,'T',
-!    &               Scrt,lCar,
-!    &               lCar,lSph,ijkla*kSph)
-         Call NTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kSph)
-!
-!        Call RecPrt(' In SphCr: P(AB|Cd) ',' ',Scrt,lCar*ijkla,kSph)
-!        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
-!--------Transform d,IJKL,AB,C to cd,IJKL,AB
-!        Call xxDGeMul(Coeff3,kCar,'N',
-!    &               Scrt,lCar*ijkla,'T',
-!    &               Wout,kCar,
-!    &               kCar,kSph,lCar*ijkla)
-         Call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
-      Else If (Tr4) Then
-!        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
-!--------Starting with IJKL,AB,cD transforming to d,IJKL,AB,c
-!        Call xxDGeMul(Coeff4,lCar,'N',
-!    &               Win,ijkla*kCar,'T',
-!    &               Scrt,lCar,
-!    &               lCar,lSph,ijkla*kCar)
-         Call NTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
-!--------Transpose d,IJKL,AB,c to cd,IJKL,AB
-         Call DGeTMO(Scrt,lCar*ijkla,lCar*ijkla,kCar,Wout,kCar)
-      Else If (Tr3) Then
-!--------Transpose IJKL,AB,C,d to d,IJKL,AB,C
-         Call DGeTMO(Win,ijkla*kSph,ijkla*kSph,lCar,Scrt,lCar)
-!
-!        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
-!        Transform d,IJKL,AB,c to cd,IJKL,AB
-!        Call xxDGeMul(Coeff3,kCar,'N',
-!    &               Scrt,lCar*ijkla,'T',
-!    &               Wout,kCar,
-!    &               kCar,kSph,lCar*ijkla)
-         Call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
-      Else
-!---------Transpose IJKL,AB,cd to cd,IJKL,AB
-          If (kCar*lCar.ne.1) Then
-             call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
-             Call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
-          Else
-             call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
-             call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
-          End If
-      End If
-!
-!     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
-      Return
+
+implicit none
+integer ijkla, nScrt, kCar, kSph, lCar, lSph, mcd
+real*8 Win(ijkla*kSph*lSph), Scrt(nScrt), Coeff3(kCar,kCar), Coeff4(lCar,lCar), Wout(mcd*ijkla)
+logical Tr3, Pr3, Tr4, Pr4
+
+!call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
+if (Tr3 .and. Tr4) then
+  !call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
+  ! Starting with IJKL,AB,CD transforming to d,IJKL,AB,C
+  !call xxDGeMul(Coeff4,lCar,'N',Win,ijkla*kSph,'T',Scrt,lCar,lCar,lSph,ijkla*kSph)
+  call NTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kSph)
+
+  !call RecPrt(' In SphCr: P(AB|Cd) ',' ',Scrt,lCar*ijkla,kSph)
+  !call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
+  ! Transform d,IJKL,AB,C to cd,IJKL,AB
+  !call xxDGeMul(Coeff3,kCar,'N',Scrt,lCar*ijkla,'T',Wout,kCar,kCar,kSph,lCar*ijkla)
+  call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
+else if (Tr4) then
+  !call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
+  ! Starting with IJKL,AB,cD transforming to d,IJKL,AB,c
+  !call xxDGeMul(Coeff4,lCar,'N',Win,ijkla*kCar,'T',Scrt,lCar,lCar,lSph,ijkla*kCar)
+  call NTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
+  ! Transpose d,IJKL,AB,c to cd,IJKL,AB
+  call DGeTMO(Scrt,lCar*ijkla,lCar*ijkla,kCar,Wout,kCar)
+else if (Tr3) then
+  ! Transpose IJKL,AB,C,d to d,IJKL,AB,C
+  call DGeTMO(Win,ijkla*kSph,ijkla*kSph,lCar,Scrt,lCar)
+
+  !call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
+  ! Transform d,IJKL,AB,c to cd,IJKL,AB
+  !call xxDGeMul(Coeff3,kCar,'N',Scrt,lCar*ijkla,'T',Wout,kCar,kCar,kSph,lCar*ijkla)
+  call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
+else
+  ! Transpose IJKL,AB,cd to cd,IJKL,AB
+  if (kCar*lCar /= 1) then
+    call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
+    call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
+  else
+    call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
+    call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
+  end if
+end if
+
+!call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical(Pr3)
-         Call Unused_logical(Pr4)
-      End If
-      End SubRoutine SphCr1
+if (.false.) then
+  call Unused_logical(Pr3)
+  call Unused_logical(Pr4)
+end if
+
+end subroutine SphCr1

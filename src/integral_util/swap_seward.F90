@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Swap_Seward(i,j)
+
+subroutine Swap_Seward(i,j)
 !***********************************************************************
 !                                                                      *
 ! Object: to swap the value of i and j.                                *
@@ -19,14 +20,15 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             April '90                                                *
 !***********************************************************************
-      Implicit None
-      Integer, Intent(InOut):: i, j
 
-      Integer iTemp
-!
-      iTemp = i
-      i = j
-      j = iTemp
-!
-      Return
-      End Subroutine Swap_Seward
+implicit none
+integer, intent(InOut) :: i, j
+integer iTemp
+
+iTemp = i
+i = j
+j = iTemp
+
+return
+
+end subroutine Swap_Seward

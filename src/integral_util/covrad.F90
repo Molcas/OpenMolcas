@@ -8,19 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 Function CovRad(i)
-      use CovRad_Data, only: CovRad_
-      Implicit None
-      Integer i
-!
-      If (i.gt.86) Then
-!        Write (Warning,'(2A)') 'CovRad: Warning i.gt.86!,;'//
-!    &               'Guestimate of 2.70 au is used!'
-!        Call WarningMessage(1,Warning)
-         CovRad=2.70D0
-      Else
-         CovRad=CovRad_(i)
-      End If
-!
-      Return
-      End Function CovRad
+
+function CovRad(i)
+
+use CovRad_Data, only: CovRad_
+
+implicit none
+real*8 CovRad
+integer i
+
+if (i > 86) then
+  !write(Warning,'(2A)') 'CovRad: Warning i > 86!,;Guesstimate of 2.70 au is used!'
+  !call WarningMessage(1,Warning)
+  CovRad = 2.70d0
+else
+  CovRad = CovRad_(i)
+end if
+
+return
+
+end function CovRad

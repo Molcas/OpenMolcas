@@ -8,14 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module welcom
+
+module welcom
+
 use Constants, only: Two, Four
 use define_af, only: iTabMx
-Implicit none
-Private
-      Integer, Parameter :: kMax=iTabMx+6
-      Integer ipot3(0:kmax+1)
-      Real*8 binom(-1:kmax,-1:kmax), fiint(0:kmax,0:kmax),tetint(0:kmax,0:int(kmax/Two)+1),      &
-             anorm(0:kmax,0:int(kmax/Two)+1,0:int(kmax/Four)+1), fac(0:kmax)
-Public kMax, ipot3, binom, fiint, tetint, anorm, fac
-End Module welcom
+
+implicit none
+private
+integer, parameter :: kMax = iTabMx+6
+integer ipot3(0:kmax+1)
+real*8 binom(-1:kmax,-1:kmax), fiint(0:kmax,0:kmax), tetint(0:kmax,0:int(kmax/Two)+1), &
+       anorm(0:kmax,0:int(kmax/Two)+1,0:int(kmax/Four)+1), fac(0:kmax)
+
+public kMax, ipot3, binom, fiint, tetint, anorm, fac
+
+end module welcom

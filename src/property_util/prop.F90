@@ -33,7 +33,7 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 !     Occ(1:nTot)     occupation numbers for all eigenvectors,         *
 !                     a dummy for Short outputs                        *
 !     ThrSV           threshold for occupation numbers; If             *
-!                     Occ(i).le.ThrSV the contribution will not        *
+!                     Occ(i) <= ThrSV the contribution will not        *
 !                     be printed                                       *
 !     PrEl(1:nTot,    matrix elements for all components 1,2,...,      *
 !          1:maxlab)  maxlab, nTot entries for each component          *
@@ -123,7 +123,7 @@ if (lab4 == 'MLTP') then
   ! Multipole moment section ... generate labels for printing
 
   if (lPole > lMax) then
-    write(u6,*) 'Prop: lPole.gt.lMax'
+    write(u6,*) 'Prop: lPole > lMax'
     write(u6,*) 'lPole=',lPole
     write(u6,*) 'Increase lMax and recompile!'
     call Abend()

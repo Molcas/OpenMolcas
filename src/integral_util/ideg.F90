@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Integer Function iDeg(Coor)
+
+function iDeg(Coor)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the degeneracy of a coordinate.                   *
@@ -19,38 +20,39 @@
 !             University of Lund, SWEDEN                               *
 !             March '91                                                *
 !***********************************************************************
-      use Symmetry_Info, only: nIrrep, iOper
-      use Constants, only: One
-      Implicit None
-      Real*8 Coor(3), Cx(3,8), r(3)
 
-      Logical New
-      Integer i, j
-      Real*8 x, y, z
-!
-      iDeg = 1
-      Cx(:,1) = Coor(:)
-      Do i = 1, nIrrep-1
-         r(:)=One
-         If (iAnd(iOper(i),1).ne.0) r(1)=-One
-         If (iAnd(iOper(i),2).ne.0) r(2)=-One
-         If (iAnd(iOper(i),4).ne.0) r(3)=-One
-         x=r(1)*Coor(1)
-         y=r(2)*Coor(2)
-         z=r(3)*Coor(3)
-         New=.True.
-         Do j = 1, iDeg
-            If(New .and. x.eq.Cx(1,j)                                   &
-     &             .and. y.eq.Cx(2,j)                                   &
-     &             .and. z.eq.Cx(3,j)) New=.False.
-         End Do
-         If (New) Then
-            iDeg=iDeg+1
-            Cx(1,iDeg)=x
-            Cx(2,iDeg)=y
-            Cx(3,iDeg)=z
-         End If
-      End Do
-!
-      Return
-      End Function iDeg
+use Symmetry_Info, only: nIrrep, iOper
+use Constants, only: One
+
+implicit none
+integer iDeg
+real*8 Coor(3), Cx(3,8), r(3)
+logical New
+integer i, j
+real*8 x, y, z
+
+iDeg = 1
+Cx(:,1) = Coor(:)
+do i=1,nIrrep-1
+  r(:) = One
+  if (iand(iOper(i),1) /= 0) r(1) = -One
+  if (iand(iOper(i),2) /= 0) r(2) = -One
+  if (iand(iOper(i),4) /= 0) r(3) = -One
+  x = r(1)*Coor(1)
+  y = r(2)*Coor(2)
+  z = r(3)*Coor(3)
+  New = .true.
+  do j=1,iDeg
+    if (New .and. (x == Cx(1,j)) .and. (y == Cx(2,j)) .and. (z == Cx(3,j))) New = .false.
+  end do
+  if (New) then
+    iDeg = iDeg+1
+    Cx(1,iDeg) = x
+    Cx(2,iDeg) = y
+    Cx(3,iDeg) = z
+  end if
+end do
+
+return
+
+end function iDeg

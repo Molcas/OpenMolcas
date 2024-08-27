@@ -12,20 +12,24 @@
 !               1990, IBM                                              *
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
-      Subroutine Close_SemiDSCF()
-      use IOBUF, only: iPos, OnDisk, iStatIO, iBuf, lStRec, Mode_None
-      Implicit None
-!     Write (6,*) 'Enter: Close_SemiDSCF'
-!
-!---- If data was transfered to the I/O buffer write buffer on disc.
-!
-!  If buffer empty force the write :
-      If (iPos.EQ.1) iPos=2
-      If (OnDisk) Call WLBuf
-!
-      iPos = lStRec+1
-      iStatIO = Mode_None
-      iBuf = -99
-!     Write (6,*) 'Exit: Close_SemiDSCF'
-!
-      End Subroutine Close_SemiDSCF
+
+subroutine Close_SemiDSCF()
+
+use IOBUF, only: iPos, OnDisk, iStatIO, iBuf, lStRec, Mode_None
+
+implicit none
+
+!write(6,*) 'Enter: Close_SemiDSCF'
+
+! If data was transfered to the I/O buffer write buffer on disc.
+
+! If buffer empty force the write :
+if (iPos == 1) iPos = 2
+if (OnDisk) call WLBuf()
+
+iPos = lStRec+1
+iStatIO = Mode_None
+iBuf = -99
+!write(6,*) 'Exit: Close_SemiDSCF'
+
+end subroutine Close_SemiDSCF

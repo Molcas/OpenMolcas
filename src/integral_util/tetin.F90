@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine tetin(lmax)
-      use Constants, only: Zero, One
-      use welcom, only: tetint, binom
-      Implicit None
-      Integer lmax
 
-      Integer k, lm2, l, m, i
-!
-      Do 100 k=0,lmax
-         lm2=k/2
-         Do 110 l=0,lm2
-            tetint(k,l)=Zero
-            m=k-l*2
-            Do 120 i=0,l
-               tetint(k,l)=tetint(k,l)+binom(l,i)*(-One)**i             &
-     &                    / DBLE(m+i*2+1)
-120         Continue
-110      Continue
-100   Continue
-!
-      End Subroutine tetin
+subroutine tetin(lmax)
+
+use Constants, only: Zero, One
+use welcom, only: tetint, binom
+
+implicit none
+integer lmax
+integer k, lm2, l, m, i
+
+do k=0,lmax
+  lm2 = k/2
+  do l=0,lm2
+    tetint(k,l) = Zero
+    m = k-l*2
+    do i=0,l
+      tetint(k,l) = tetint(k,l)+binom(l,i)*(-One)**i/dble(m+i*2+1)
+    end do
+  end do
+end do
+
+end subroutine tetin

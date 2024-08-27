@@ -9,35 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1990, IBM                                              *
+!               1991, Roland Lindh                                     *
 !***********************************************************************
 
-function iPrmt(jOper,iChct)
+function iPrmt_(iCom)
 !***********************************************************************
 !     Returns the phase factor of a basis function under a symmetry    *
 !     operation, jOper. iChct contains the information about the       *
 !     character of the basis function.                                 *
 !***********************************************************************
 
-use Symmetry_Info, only: iOper
-
 implicit none
-integer iPrmt
-integer jOper, iChct
-integer iCom, i
+integer iPrmt_
+integer iCom
+integer i
 
-#define _CHECK_
-#ifdef _CHECK_
-if (size(iOper) < 1) then
-  write(6,*) 'iPrmt; iOper not defined.'
-  call Abend()
-end if
-#endif
-iPrmt = 1
-iCom = iand(iOper(jOper),iChct)
+iPrmt_ = 1
 do i=1,3
-  if (iand(iCom,2**(i-1)) /= 0) iPrmt = iPrmt*(-1)
+  if (iand(iCom,2**(i-1)) /= 0) iPrmt_ = iPrmt_*(-1)
 end do
 
 return
 
-end function iPrmt
+end function iPrmt_

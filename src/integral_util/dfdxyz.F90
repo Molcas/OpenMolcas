@@ -11,55 +11,48 @@
 ! Copyright (C) 1995, Roland Lindh                                     *
 !               2004, Takashi Tsuchiya                                 *
 !***********************************************************************
-      Subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
-!
-      Implicit None
-      Integer mTerm, mForm, jp, ip, ixyz, ipf, jdrv
-      Integer N(mterm,5,mform)
 
-      Integer nTerm, iTerm, jTerm, i
-!
-!
-!     ipf: Phase factor in integer
-!
-!
-!
-!
-      nterm=2**jdrv
-      iterm=0
-!
-      Do jterm=1,nterm
-!
-!
-!        downward operation
-!        (derivation of angular part)
-!
-!
-         iterm=iterm+1
-         Do i=1,5
-            If (i .EQ. ixyz) then
-               N(iterm,ixyz,ip)=N(jterm,ixyz,jp)-1
-            Else
-               N(iterm,i,ip)=N(jterm,i,jp)
-            End if
-         End do
-         N(iterm,5,ip)=N(iterm,5,ip)*N(jterm,ixyz,jp)
-         N(iterm,5,ip)=N(iterm,5,ip)*ipf
-!
-!
-!        upward operation
-!        (derivation of radial  part)
-!
-!
-         iterm=iterm+1
-         Do i=1,5
-            If (i .EQ. ixyz) then
-               N(iterm,ixyz,ip)=N(jterm,ixyz,jp)+1
-            Else
-               N(iterm,i,ip)=N(jterm,i,jp)
-            End if
-         End do
-         N(iterm,4,ip)=N(iterm,4,ip)+1
-         N(iterm,5,ip)=N(iterm,5,ip)*ipf
-      End do
-      End Subroutine dFdxyz
+subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
+
+implicit none
+integer mTerm, mForm, jp, ip, ixyz, ipf, jdrv
+integer N(mterm,5,mform)
+integer nTerm, iTerm, jTerm, i
+
+! ipf: Phase factor in integer
+
+nterm = 2**jdrv
+iterm = 0
+
+do jterm=1,nterm
+
+  ! downward operation
+  ! (derivation of angular part)
+
+  iterm = iterm+1
+  do i=1,5
+    if (i == ixyz) then
+      N(iterm,ixyz,ip) = N(jterm,ixyz,jp)-1
+    else
+      N(iterm,i,ip) = N(jterm,i,jp)
+    end if
+  end do
+  N(iterm,5,ip) = N(iterm,5,ip)*N(jterm,ixyz,jp)
+  N(iterm,5,ip) = N(iterm,5,ip)*ipf
+
+  ! upward operation
+  ! (derivation of radial  part)
+
+  iterm = iterm+1
+  do i=1,5
+    if (i == ixyz) then
+      N(iterm,ixyz,ip) = N(jterm,ixyz,jp)+1
+    else
+      N(iterm,i,ip) = N(jterm,i,jp)
+    end if
+  end do
+  N(iterm,4,ip) = N(iterm,4,ip)+1
+  N(iterm,5,ip) = N(iterm,5,ip)*ipf
+end do
+
+end subroutine dFdxyz

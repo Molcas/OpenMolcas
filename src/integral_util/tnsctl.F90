@@ -10,10 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1993,1999, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,     &
-     &                  HMtrxAB,HMtrxCD,la,lb,lc,ld,                    &
-     &                  iCmpa,jCmpb,kCmpc,lCmpd,                        &
-     &                  iShlla,jShllb,kShllc,lShlld,i_out)
+
+subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb, &
+                  kShllc,lShlld,i_out)
 !***********************************************************************
 !                                                                      *
 ! Object: to transform the intermediate integral set directly to       *
@@ -25,108 +24,94 @@
 !             University of Lund, SWEDEN                               *
 !             Modified by R.L Februrary, 1999.                         *
 !***********************************************************************
-      use Real_Spherical
-      use Basis_Info
-      use Breit, only: nComp
-      use Constants
-      use define_af, only: iTabMx
-      Implicit None
-      Integer nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,la,lb,lc,ld,       &
-     &        iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb,kShllc,lShlld
-      Integer, Parameter :: lab=iTabMx*2+1, npMax=lab*(lab+1)*(lab+2)/6
-      Real*8 HMtrxAB(*),HMtrxCD(*)
-      Real*8, Intent(inout) :: Wrk(nWrk)
-      Integer, Intent(out) :: i_out
-      ![all others are intent(in)]
 
-      Integer :: nDim, ne, nf, nab, ncd, iW2, iW3, i_In, nfijkl,        &
-     &           nijklab
-!
-!     If nComp==1
-!---- Integral are stored as e,f,IJKL in Wrk
-!     If nComp/=1
-!---- Integral are stored as ncomp,e,f,IJKL in Wrk
-!
-!---- Observe that Transf is false for s and p functions.
+use Real_Spherical
+use Basis_Info
+use Breit, only: nComp
+use Constants
+use define_af, only: iTabMx
 
-      ne=(mabMax-mabMin+1)
-      nf=(mcdMax-mcdMin+1)
-      nab=iCmpa*jCmpb
-      ncd=kCmpc*lCmpd
-      nDim=Max(ne*nf,nab*nf,nab*ncd)
+implicit none
+integer nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, jShllb, kShllc, lShlld
+integer, parameter :: lab = iTabMx*2+1, npMax = lab*(lab+1)*(lab+2)/6
+real*8 HMtrxAB(*), HMtrxCD(*)
+real*8, intent(inout) :: Wrk(nWrk)
+integer, intent(out) :: i_out
+![all others are intent(in)]
+integer :: nDim, ne, nf, nab, ncd, iW2, iW3, i_In, nfijkl, nijklab
 
-      iW2=1
-      iW3=1+nijkl*nDim
+! If nComp==1
+!   Integral are stored as e,f,IJKL in Wrk
+! If nComp/=1
+!   Integral are stored as ncomp,e,f,IJKL in Wrk
 
-      If (nComp/=1) Then
-         Wrk(iW3:iW3+ne*nf*nijkl-1)=Wrk(iW2:iW2+ne*nf*nijkl-1)
-         Call DGetMO(Wrk(iW3),nComp,                                    &
-     &               nComp,ne*nf*(nijkl/nComp),                         &
-     &               Wrk(iW2),ne*nf*(nijkl/nComp))
-      End If
+! Observe that Transf is false for s and p functions.
 
-!---- If (ss|ss) integral exit.
+ne = (mabMax-mabMin+1)
+nf = (mcdMax-mcdMin+1)
+nab = iCmpa*jCmpb
+ncd = kCmpc*lCmpd
+nDim = max(ne*nf,nab*nf,nab*ncd)
 
-      If (la+lb+lc+ld==0) Then
-         i_out=1
-         Return
-      End If
-!
-!---- Transpose if no transformation is needed.
-!
-      If ((la*lb.eq.0).and.(lc*ld.eq.0).and.                            &
-     &    .Not.Shells(iShlla)%Transf .and.                              &
-     &    .Not.Shells(jShllb)%Transf .and.                              &
-     &    .Not.Shells(kShllc)%Transf .and.                              &
-     &    .Not.Shells(lShlld)%Transf ) Then
-         Call DGeTMO(Wrk(iW2),ne*nf,ne*nf,nijkl,Wrk(iW3),nijkl)
-         i_out=iW3
-         Return
-      End If
-!
-!---- Form matrix corresponding to the transfer equation, le,la,lb.
-!     The matrix transforms directly from e0 cartesians to real
-!     spherical harmonics.
-!
-      If (la+lb.eq.0) Then
-         i_in=iW2
-         i_out=iW3
-      Else If ((la*lb.eq.0).and.                                        &
-     &    .Not.Shells(iShlla)%Transf .and.                              &
-     &    .Not.Shells(jShllb)%Transf) Then
-         Call DGeTMO(Wrk(iW2),ne,ne,nf*nijkl,Wrk(iW3),nf*nijkl)
-         i_in=iW3
-         i_out=iW2
-      Else
-!
-!------- Now transform directly (e,[f,IJKL]) to ([f,IJKL],AB)
-!        Int(lf*IJKL,lA*lB)=Int(le,lf*IJKL)*HMtrx(le,lA*lB)
-!
-         nfijkl = nf*nijkl
-         Call Sp_Mlt(Wrk(iW2),ne,Wrk(iW3),nfijkl,HMtrxAB,               &
-     &               iCmpa*jCmpb)
-         i_in=iW3
-         i_out=iW2
-      End If
-!
-!
-!---- Form matrix corresponding to the transfer equation, lf,lC,lD
-!
-      If (lc+ld.eq.0) Then
-         i_out=i_in
-      Else If ((lc*ld.eq.0).and.                                        &
-     &    .Not.Shells(kShllc)%Transf .and.                              &
-     &    .Not.Shells(lShlld)%Transf) Then
-         Call DGeTMO(Wrk(i_in),nf,nf,nijkl*iCmpa*jCmpb,Wrk(i_out),      &
-     &               nijkl*iCmpa*jCmpb)
-      Else
-!
-!------- Now transform directly (f,[IJKL,AB]) to ([IJKL,AB],CD)
-!        Int(IJKL*lA*lB,lC*lD)=Int(lf,IJKL*lA*lB)*HMtrx(lf,lC*lD)
-!
-         nijklAB = nijkl*iCmpa*jCmpb
-         Call Sp_Mlt(Wrk(i_in),nf,Wrk(i_out),nijklAB,HMtrxCD,           &
-     &               kCmpc*lCmpd)
-      End If
-!
-      End Subroutine TnsCtl
+iW2 = 1
+iW3 = 1+nijkl*nDim
+
+if (nComp /= 1) then
+  Wrk(iW3:iW3+ne*nf*nijkl-1) = Wrk(iW2:iW2+ne*nf*nijkl-1)
+  call DGetMO(Wrk(iW3),nComp,nComp,ne*nf*(nijkl/nComp),Wrk(iW2),ne*nf*(nijkl/nComp))
+end if
+
+! If (ss|ss) integral exit.
+
+if (la+lb+lc+ld == 0) then
+  i_out = 1
+  return
+end if
+
+! Transpose if no transformation is needed.
+
+if ((la*lb == 0) .and. (lc*ld == 0) .and. (.not. Shells(iShlla)%Transf) .and. (.not. Shells(jShllb)%Transf) .and. &
+    (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
+  call DGeTMO(Wrk(iW2),ne*nf,ne*nf,nijkl,Wrk(iW3),nijkl)
+  i_out = iW3
+  return
+end if
+
+! Form matrix corresponding to the transfer equation, le,la,lb.
+! The matrix transforms directly from e0 cartesians to real
+! spherical harmonics.
+
+if (la+lb == 0) then
+  i_in = iW2
+  i_out = iW3
+else if ((la*lb == 0) .and. (.not. Shells(iShlla)%Transf) .and. (.not. Shells(jShllb)%Transf)) then
+  call DGeTMO(Wrk(iW2),ne,ne,nf*nijkl,Wrk(iW3),nf*nijkl)
+  i_in = iW3
+  i_out = iW2
+else
+
+  ! Now transform directly (e,[f,IJKL]) to ([f,IJKL],AB)
+  ! Int(lf*IJKL,lA*lB)=Int(le,lf*IJKL)*HMtrx(le,lA*lB)
+
+  nfijkl = nf*nijkl
+  call Sp_Mlt(Wrk(iW2),ne,Wrk(iW3),nfijkl,HMtrxAB,iCmpa*jCmpb)
+  i_in = iW3
+  i_out = iW2
+end if
+
+! Form matrix corresponding to the transfer equation, lf,lC,lD
+
+if (lc+ld == 0) then
+  i_out = i_in
+else if ((lc*ld == 0) .and. (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
+  call DGeTMO(Wrk(i_in),nf,nf,nijkl*iCmpa*jCmpb,Wrk(i_out),nijkl*iCmpa*jCmpb)
+else
+
+  ! Now transform directly (f,[IJKL,AB]) to ([IJKL,AB],CD)
+  ! Int(IJKL*lA*lB,lC*lD)=Int(lf,IJKL*lA*lB)*HMtrx(lf,lC*lD)
+
+  nijklAB = nijkl*iCmpa*jCmpb
+  call Sp_Mlt(Wrk(i_in),nf,Wrk(i_out),nijklAB,HMtrxCD,kCmpc*lCmpd)
+end if
+
+end subroutine TnsCtl

@@ -8,22 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ChCar(iChCar,iGen,nGen)
-      Implicit None
-      Integer nGen
-      Integer iChCar(3), iGen(nGen)
 
-      Integer iCar, iComp, i
-!
-!     Generate characteristics for x, y, and z.
-!
-      Do iCar = 1, 3
-         iChCar(iCar) = 0
-         iComp = 2**(iCar-1)
-         Do i = 1, nGen
-            If (iAnd(iGen(i),iComp).eq.iComp) iChCar(iCar) = iComp
-         End Do
-      End Do
-!
-      Return
-      End Subroutine ChCar
+subroutine ChCar(iChCar,iGen,nGen)
+
+implicit none
+integer nGen
+integer iChCar(3), iGen(nGen)
+integer iCar, iComp, i
+
+! Generate characteristics for x, y, and z.
+
+do iCar=1,3
+  iChCar(iCar) = 0
+  iComp = 2**(iCar-1)
+  do i=1,nGen
+    if (iand(iGen(i),iComp) == iComp) iChCar(iCar) = iComp
+  end do
+end do
+
+return
+
+end subroutine ChCar

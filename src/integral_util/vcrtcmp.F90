@@ -11,8 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine vCrtCmp(Zeta12,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
+subroutine vCrtCmp(Zeta12,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
 !***********************************************************************
 !                                                                      *
 ! Object: to compile the value of the angular part of a basis function *
@@ -21,61 +22,57 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      use Constants
-      Implicit None
-      Integer nZeta, na, nHer
-      Real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer),               &
-     &       Axyz(nZeta,3,nHer,0:na)
-      Logical ABeq(3)
 
-      Integer iHer, iCar, iZeta, ia
+use Constants
+
+implicit none
+integer nZeta, na, nHer
+real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer), Axyz(nZeta,3,nHer,0:na)
+logical ABeq(3)
+integer iHer, iCar, iZeta, ia
 #ifdef _DEBUGPRINT_
-      Character(LEN=80) Label
+character(len=80) Label
 #endif
-!
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
-      Call RecPrt(' In vCrtCmp: Zeta',' ',Zeta12,nZeta,1)
-      Call RecPrt(' In vCrtCmp: A   ',' ',A   ,1    ,3)
-      Call RecPrt(' In vCrtCmp: P   ',' ',P   ,nZeta,3)
+call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
+call RecPrt(' In vCrtCmp: Zeta',' ',Zeta12,nZeta,1)
+call RecPrt(' In vCrtCmp: A   ',' ',A,1,3)
+call RecPrt(' In vCrtCmp: P   ',' ',P,nZeta,3)
 #endif
-      call dcopy_(nZeta*3*nHer,[One],0,Axyz(1,1,1,0),1)
-      If (na.eq.0) Go To 999
-!
-      Do 10 iHer = 1, nHer
-         Do 20 iCar = 1, 3
-!
-            If (ABeq(iCar)) Then
-               Do 31 iZeta = 1, nZeta
-                  Axyz(iZeta,iCar,iHer,1) =                             &
-     &                   HerR(iHer)*Zeta12(iZeta)
- 31            Continue
-            Else
-               Do 30 iZeta = 1, nZeta
-                  Axyz(iZeta,iCar,iHer,1) =                             &
-     &                   HerR(iHer)*Zeta12(iZeta) +                     &
-     &                   P(iZeta,iCar) - A(iCar)
- 30            Continue
-            End If
-!
-            Do 40 ia = 2, na
-               Do 50 iZeta = 1, nZeta
-                  Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1) *  &
-     &                                       Axyz(iZeta,iCar,iHer,ia-1)
- 50            Continue
- 40         Continue
-!
- 20      Continue
- 10   Continue
-!
- 999  Continue
+call dcopy_(nZeta*3*nHer,[One],0,Axyz(1,1,1,0),1)
+if (na == 0) Go To 999
+
+do iHer=1,nHer
+  do iCar=1,3
+
+    if (ABeq(iCar)) then
+      do iZeta=1,nZeta
+        Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)
+      end do
+    else
+      do iZeta=1,nZeta
+        Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)+P(iZeta,iCar)-A(iCar)
+      end do
+    end if
+
+    do ia=2,na
+      do iZeta=1,nZeta
+        Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
+      end do
+    end do
+
+  end do
+end do
+
+999 continue
 #ifdef _DEBUGPRINT_
-      Do 100 ia = 0, na
-         Do 110 iHer = 1, nHer
-            Write (Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',   &
-     &            iHer,',ia=',ia,')'
-            Call RecPrt(Label,' ',Axyz(1,1,iHer,ia),nZeta,3)
-110      Continue
-100   Continue
+do ia=0,na
+  do iHer=1,nHer
+    write(Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',iHer,',ia=',ia,')'
+    call RecPrt(Label,' ',Axyz(1,1,iHer,ia),nZeta,3)
+  end do
+end do
 #endif
-      End SubRoutine vCrtCmp
+
+end subroutine vCrtCmp

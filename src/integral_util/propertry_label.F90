@@ -8,8 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Property_Label
-Character(LEN=6) PLabel
-End Module Property_Label
 
+module Property_Label
+
+character(len=6) PLabel
+
+end module Property_Label
 

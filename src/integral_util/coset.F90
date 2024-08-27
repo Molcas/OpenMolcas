@@ -8,32 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine CoSet(iCoSet,nCoSet,iChAtom)
-      use Symmetry_Info, only: nIrrep, iOper
-      Implicit None
-      Integer, Intent(out):: nCoSet
-      Integer, Intent(In)::  iChAtom
-      Integer, Intent(Out)::  iCoSet(0:7)
 
-      Logical Same
-      Integer iIrrep, itest, jCoSet, jtest
-!
-!     Find the coset representatives
-!
-      iCoSet(0) = 0      ! Put in the unit operator
-      nCoSet = 1
-      Do iIrrep = 1, nIrrep-1
-         itest=iAnd(iChAtom,iOper(iIrrep))
-         Same = .False.
-         Do jCoSet = 0, nCoSet-1
-            jTest = iAnd(iChAtom,iCoSet(jCoSet))
-            Same = Same .or. jTest.eq.iTest
-         End Do
-         If (.Not.Same) Then
-            nCoSet = nCoSet + 1
-            iCoSet(nCoSet-1) = iOper(iIrrep)
-         End If
-      End Do
-!
-      Return
-      End Subroutine CoSet
+subroutine CoSet(iCoSet,nCoSet,iChAtom)
+
+use Symmetry_Info, only: nIrrep, iOper
+
+implicit none
+integer, intent(out) :: nCoSet
+integer, intent(In) :: iChAtom
+integer, intent(Out) :: iCoSet(0:7)
+logical Same
+integer iIrrep, itest, jCoSet, jtest
+
+! Find the coset representatives
+
+iCoSet(0) = 0 ! Put in the unit operator
+nCoSet = 1
+do iIrrep=1,nIrrep-1
+  itest = iand(iChAtom,iOper(iIrrep))
+  Same = .false.
+  do jCoSet=0,nCoSet-1
+    jTest = iand(iChAtom,iCoSet(jCoSet))
+    Same = Same .or. (jTest == iTest)
+  end do
+  if (.not. Same) then
+    nCoSet = nCoSet+1
+    iCoSet(nCoSet-1) = iOper(iIrrep)
+  end if
+end do
+
+return
+
+end subroutine CoSet

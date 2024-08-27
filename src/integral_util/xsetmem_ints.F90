@@ -8,27 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine xsetmem_ints(mem)
-      use k2_arrays, only: Sew_Scr, XMem
-      use stdalloc, only: mma_allocate
-      implicit none
-      integer mem, mem_, MemMax
-!
-      If (XMem) Then
-         Call WarningMessage(2,                                         &
-     &               'External handling of scratch already active!')
-         Call Abend()
-      End If
-      Mem_ = Mem
+
+subroutine xsetmem_ints(mem)
+
+use k2_arrays, only: Sew_Scr, XMem
+use stdalloc, only: mma_allocate
+
+implicit none
+integer mem, mem_, MemMax
+
+if (XMem) then
+  call WarningMessage(2,'External handling of scratch already active!')
+  call Abend()
+end if
+Mem_ = Mem
 ! Avoid using up all available memory
-      Call mma_maxDBLE(MemMax)
-      If (MemMax-Mem_.lt.8000) Then
-        If (Mem_.gt.8000) Mem_=Mem_-8000
-      End If
-!     Write (6,*) 'xsetmem_ints: External allocate:',Mem_
-      Call mma_allocate(Sew_Scr,Mem_,Label='Sew_Scr')
-      XMem=.True.
-!     Call mma_MaxDBLE(nu)
-!     Write (6,*) 'xsetmem_ints: External allocate left to allocate:',nu
-!
-      End subroutine xsetmem_ints
+call mma_maxDBLE(MemMax)
+if ((MemMax-Mem_ < 8000) .and. (Mem_ > 8000)) Mem_ = Mem_-8000
+!write(6,*) 'xsetmem_ints: External allocate:',Mem_
+call mma_allocate(Sew_Scr,Mem_,Label='Sew_Scr')
+XMem = .true.
+!call mma_MaxDBLE(nu)
+!write(6,*) 'xsetmem_ints: External allocate left to allocate:',nu
+
+end subroutine xsetmem_ints

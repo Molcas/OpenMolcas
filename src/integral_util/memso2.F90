@@ -11,9 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Integer Function MemSO2(iCmp,jCmp,kCmp,lCmp,                      &
-     &                        iShell,jShell,kShell,lShell,              &
-     &                        iAO,jAO,kAO,lAO)
+
+function MemSO2(iCmp,jCmp,kCmp,lCmp,iShell,jShell,kShell,lShell,iAO,jAO,kAO,lAO)
 !***********************************************************************
 !  Object: to compile the number of SO block which will be generated   *
 !          by the current shell quadruplet.                            *
@@ -28,92 +27,92 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             February '90                                             *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell,   &
-     &        iAO, jAO, kAO, lAO
 
-      Integer i1, i2, i3, i4, j1, j2, j3, j4, j12, jCmpMx, kCmpMx,      &
-     &        lCmpMx, j2Max, j3Max
-      Logical Shij, Shkl, Shik, Shjl
-!
-      MemSO2 = 0
-!
-!     Quadruple loop over elements of the basis functions angular
-!     description. Loops are reduced to just produce unique SO integrals
-!     Observe that we will walk through the memory in AOInt in a
-!     sequential way.
-!
-      Shij = iShell.eq.jShell
-      Shkl = kShell.eq.lShell
-      Shik = iShell.eq.kShell
-      Shjl = jShell.eq.lShell
-!
-      If (nIrrep.eq.1) Then
-!
-         Do i1 = 1, iCmp
-            jCmpMx = jCmp
-            If (Shij) jCmpMx = i1
-            Do i2 = 1, jCmpMx
-               kCmpMx = kCmp
-               If (Shik .and. Shjl) kCmpMx = i1
-               Do i3 = 1, kCmpMx
-                  lCmpMx = lCmp
-                  If (Shkl) lCmpMx = i3
-                  If (Shik .and. i1.eq.i3 .and. Shjl) lCmpMx = i2
-                  MemSO2 = MemSO2 + lCmpMx
-               End Do
-            End Do
-         End Do
-!
-      Else
-!
-         Do i1 = 1, iCmp
-            jCmpMx = jCmp
-            If (Shij) jCmpMx = i1
-            Do i2 = 1, jCmpMx
-               kCmpMx = kCmp
-               If (Shik .and. Shjl) kCmpMx = i1
-               Do i3 = 1, kCmpMx
-                  lCmpMx = lCmp
-                  If (Shkl) lCmpMx = i3
-                  If (Shik .and. i1.eq.i3 .and. Shjl) lCmpMx = i2
-                  Do i4 = 1, lCmpMx
-!
-!         Loop over irreps which are spanned by the basis function.
-!         Again, the loop structure is restricted to ensure unique
-!         integrals.
-!
-          Do 110 j1 = 0, nIrrep-1
-             If (iAOtSO(iAO+i1,j1)<0) Cycle
-             j2Max = nIrrep-1
-             If (Shij .and. i1.eq.i2) j2Max = j1
-             Do 210 j2 = 0, j2Max
-                If (iAOtSO(jAO+i2,j2)<0) Cycle
-                j12 = iEor(j1,j2)
-                j3Max = nIrrep-1
-                If (Shik .and. i1.eq.i3 .and.                           &
-     &              Shjl .and. i2.eq.i4) j3Max = j1
-                Do 310 j3 = 0, j3Max
-                   If (iAOtSO(kAO+i3,j3)<0) Cycle
-                   j4 = iEor(j12,j3)
-                   If (iAOtSO(lAO+i4,j4)<0) Cycle
-                   If (Shkl .and. i3.eq.i4 .and. j4.gt.j3) Go To 310
-                   If (Shik .and. i1.eq.i3 .and. Shjl .and. i2.eq.i4    &
-     &                      .and. j1.eq.j3 .and. j4.gt.j2) Go To 310
-                   MemSO2 = MemSO2 + 1
-!
- 310            Continue
- 210         Continue
- 110      Continue
-!
-                  End Do
-               End Do
-            End Do
-         End Do
-!
-      End If
-!
-      Return
-      End Function MemSO2
+use SOAO_Info, only: iAOtSO
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer MemSO2
+integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell, iAO, jAO, kAO, lAO
+integer i1, i2, i3, i4, j1, j2, j3, j4, j12, jCmpMx, kCmpMx, lCmpMx, j2Max, j3Max
+logical Shij, Shkl, Shik, Shjl
+
+MemSO2 = 0
+
+! Quadruple loop over elements of the basis functions angular
+! description. Loops are reduced to just produce unique SO integrals
+! Observe that we will walk through the memory in AOInt in a
+! sequential way.
+
+Shij = iShell == jShell
+Shkl = kShell == lShell
+Shik = iShell == kShell
+Shjl = jShell == lShell
+
+if (nIrrep == 1) then
+
+  do i1=1,iCmp
+    jCmpMx = jCmp
+    if (Shij) jCmpMx = i1
+    do i2=1,jCmpMx
+      kCmpMx = kCmp
+      if (Shik .and. Shjl) kCmpMx = i1
+      do i3=1,kCmpMx
+        lCmpMx = lCmp
+        if (Shkl) lCmpMx = i3
+        if (Shik .and. (i1 == i3) .and. Shjl) lCmpMx = i2
+        MemSO2 = MemSO2+lCmpMx
+      end do
+    end do
+  end do
+
+else
+
+  do i1=1,iCmp
+    jCmpMx = jCmp
+    if (Shij) jCmpMx = i1
+    do i2=1,jCmpMx
+      kCmpMx = kCmp
+      if (Shik .and. Shjl) kCmpMx = i1
+      do i3=1,kCmpMx
+        lCmpMx = lCmp
+        if (Shkl) lCmpMx = i3
+        if (Shik .and. (i1 == i3) .and. Shjl) lCmpMx = i2
+        do i4=1,lCmpMx
+
+          ! Loop over irreps which are spanned by the basis function.
+          ! Again, the loop structure is restricted to ensure unique
+          ! integrals.
+
+          do j1=0,nIrrep-1
+            if (iAOtSO(iAO+i1,j1) < 0) cycle
+            j2Max = nIrrep-1
+            if (Shij .and. (i1 == i2)) j2Max = j1
+            do j2=0,j2Max
+              if (iAOtSO(jAO+i2,j2) < 0) cycle
+              j12 = ieor(j1,j2)
+              j3Max = nIrrep-1
+              if (Shik .and. (i1 == i3) .and. Shjl .and. (i2 == i4)) j3Max = j1
+              do j3=0,j3Max
+                if (iAOtSO(kAO+i3,j3) < 0) cycle
+                j4 = ieor(j12,j3)
+                if (iAOtSO(lAO+i4,j4) < 0) cycle
+                if (Shkl .and. (i3 == i4) .and. (j4 > j3)) Go To 310
+                if (Shik .and. (i1 == i3) .and. Shjl .and. (i2 == i4) .and. (j1 == j3) .and. (j4 > j2)) Go To 310
+                MemSO2 = MemSO2+1
+
+310             continue
+              end do
+            end do
+          end do
+
+        end do
+      end do
+    end do
+  end do
+
+end if
+
+return
+
+end function MemSO2

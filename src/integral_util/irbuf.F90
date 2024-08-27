@@ -8,28 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine iRBuf(Array,nArray,Copy)
-      Implicit None
+
+subroutine iRBuf(Array,nArray,Copy)
+
+implicit none
 #include "SysDef.fh"
-      Integer nArray
-      Logical Copy
-      Integer Array(nArray)
-!
-      Call idRBuf(Array,nArray/RtoI,Copy)
-!
-      Return
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine idRBuf(Array,nArray,Copy)
-      Use Iso_C_Binding
-      Integer :: nArray
-      Logical :: Copy
-      Integer, Target :: Array(nArray)
-      Real*8, Pointer :: dArray(:)
-      Call C_F_Pointer(C_Loc(Array(1)),dArray,[nArray])
-      Call dRBuf(dArray,nArray,Copy)
-      Nullify(dArray)
-      End Subroutine idRBuf
-!
-      End Subroutine iRBuf
+integer nArray
+logical Copy
+integer Array(nArray)
+
+call idRBuf(Array,nArray/RtoI,Copy)
+
+return
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine idRBuf(Array,nArray,Copy)
+
+  use iso_c_binding
+
+  integer :: nArray
+  logical :: Copy
+  integer, target :: Array(nArray)
+  real*8, pointer :: dArray(:)
+
+  call c_f_pointer(c_loc(Array(1)),dArray,[nArray])
+  call dRBuf(dArray,nArray,Copy)
+  nullify(dArray)
+
+end subroutine idRBuf
+
+end subroutine iRBuf

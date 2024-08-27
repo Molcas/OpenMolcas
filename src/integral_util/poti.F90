@@ -8,20 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine poti(k,ipot3)
-      Implicit None
-      Integer ipot3(0:15)
-      Integer k
 
-      Integer iSum, i
-!
-      isum=1
-      ipot3(0)=1
-      Do 10 i=1,k
-         ipot3(i)=3**i
-         isum=isum+ipot3(i)
-10    Continue
-      ipot3(k+1)=isum
-!
-      Return
-      End Subroutine poti
+subroutine poti(k,ipot3)
+
+implicit none
+integer ipot3(0:15)
+integer k
+integer iSum, i
+
+isum = 1
+ipot3(0) = 1
+do i=1,k
+  ipot3(i) = 3**i
+  isum = isum+ipot3(i)
+end do
+ipot3(k+1) = isum
+
+return
+
+end subroutine poti

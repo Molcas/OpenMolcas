@@ -10,28 +10,28 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Fold2(nSym,nBas,A,B)
 
-      Implicit None
+subroutine Fold2(nSym,nBas,A,B)
 
-      Integer nSym,nBas(*)
-      Real*8 A(*) , B(*)
+implicit none
+integer nSym, nBas(*)
+real*8 A(*), B(*)
+integer iOff1, iOff2, iSym, mBas, iBas, jBas
 
-      Integer iOff1, iOff2, iSym, mBas, iBas, jBas
+iOff1 = 0
+iOff2 = 0
+do iSym=1,nSym
+  mBas = nBas(iSym)
+  do iBas=1,mBas
+    do jBas=1,iBas-1
+      B(iOff2+jBas) = A(iOff1+jBas)
+    end do
+    B(iOff2+iBas) = A(iOff1+iBas)
+    iOff1 = iOff1+mBas
+    iOff2 = iOff2+iBas
+  end do
+end do
 
-      iOff1 = 0
-      iOff2 = 0
-      Do iSym = 1, nSym
-        mBas = nBas(iSym)
-        Do iBas= 1, mBas
-          Do jBas = 1 , iBas-1
-            B(iOff2+jBas) =   A(iOff1+jBas)
-          End Do
-          B(iOff2+iBas) =  A(iOff1+iBas)
-          iOff1 = iOff1 + mBas
-          iOff2 = iOff2 + iBas
-        End Do
-      End Do
+return
 
-      Return
-      end Subroutine Fold2
+end subroutine Fold2

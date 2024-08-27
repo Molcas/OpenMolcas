@@ -11,10 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CrSph1(Win,ijkla,                                      &
-     &                  Scrt,nScrt,                                     &
-     &                  Coeff3,kCar,kSph,Tr3,                           &
-     &                  Coeff4,lCar,lSph,Tr4,Wout,mcd)
+
+subroutine CrSph1(Win,ijkla,Scrt,nScrt,Coeff3,kCar,kSph,Tr3,Coeff4,lCar,lSph,Tr4,Wout,mcd)
 !***********************************************************************
 !                                                                      *
 ! Object : to transform the two-electron integrals from cartesian      *
@@ -25,63 +23,53 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit None
-      Integer, Intent(in):: ijkla, kCar, lCar, kSph, lSph, nScrt, mcd
-      Real*8, Intent(In):: Win(ijkla*kCar*lCar),                        &
-     &                     Coeff3(kCar,kCar), Coeff4(lCar,lCar)
-      Real*8, Intent(inout):: Scrt(nScrt)
-      Real*8, Intent(inout):: Wout(mcd*ijkla)
-      Logical Tr3, Tr4
-!
-      If (Tr3.and.Tr4) Then
-!        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
-!        Starting with IJKL,a,cd transforming to D,IJKL,a,c
-!        Call xxDGeMul(Coeff4,lCar,'T',
-!    &               Win,ijkla*kCar,'T',
-!    &               Scrt,lSph,
-!    &               lSph,lCar,ijkla*kCar)
-         Call TTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
-!
-!        Call RecPrt(' In CrSph: (a0|cD) ',' ',Scrt,lSph*ijkla,kCar)
-!        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
-!        Transform D,IJKL,a,c to CD,IJKL,a
-!        Call xxDGeMul(Coeff3,kCar,'T',
-!    &               Scrt,lSph*ijkla,'T',
-!    &               Wout,kSph,
-!    &               kSph,kCar,lSph*ijkla)
-         Call TTMul(Coeff3,Scrt,Wout,kCar,kSph,lSph*ijkla)
-      Else If (Tr4) Then
-!        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
-!        Starting with IJKL,a,cd transforming to D,IJKL,a,c
-!        Call xxDGeMul(Coeff4,lCar,'T',
-!    &               Win,ijkla*kCar,'T',
-!    &               Scrt,lSph,
-!    &               lSph,lCar,ijkla*kCar)
-         Call TTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
-!        Transpose D,IJKL,a,c to cD,IJKL,a
-         Call DGeTMO(Scrt,lSph*ijkla,lSph*ijkla,kCar,Wout,kCar)
-      Else If (Tr3) Then
-!        Transpose IJKL,a,c,d to d,IJKL,a,c
-         Call DGeTMO(Win,ijkla*kCar,ijkla*kCar,lCar,Scrt,lCar)
-!
-!        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
-!        Transform D,IJKL,a,c to CD,IJKL,a
-!        Call xxDGeMul(Coeff3,kCar,'T',
-!    &               Scrt,lSph*ijkla,'T',
-!    &               Wout,kSph,
-!    &               kSph,kCar,lSph*ijkla)
-         Call TTMul(Coeff3,Scrt,Wout,kCar,kSph,lSph*ijkla)
-      Else
-!         Transpose IJKL,a,c,d to c,d,IJKL,a
-          If (kCar*lCar.ne.1) Then
-             call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
-             Call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
-          Else
-             call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
-             call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
-          End If
-      End If
-!
-!     Call RecPrt(' In CrSph1: (a0|CD)  ',' ',Wout,mcd,ijkla)
-      Return
-      End SubRoutine CrSph1
+
+implicit none
+integer, intent(in) :: ijkla, kCar, lCar, kSph, lSph, nScrt, mcd
+real*8, intent(In) :: Win(ijkla*kCar*lCar), Coeff3(kCar,kCar), Coeff4(lCar,lCar)
+real*8, intent(inout) :: Scrt(nScrt)
+real*8, intent(inout) :: Wout(mcd*ijkla)
+logical Tr3, Tr4
+
+if (Tr3 .and. Tr4) then
+  !call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
+  ! Starting with IJKL,a,cd transforming to D,IJKL,a,c
+  !call xxDGeMul(Coeff4,lCar,'T',Win,ijkla*kCar,'T',Scrt,lSph,lSph,lCar,ijkla*kCar)
+  call TTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
+
+  !call RecPrt(' In CrSph: (a0|cD) ',' ',Scrt,lSph*ijkla,kCar)
+  !call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
+  ! Transform D,IJKL,a,c to CD,IJKL,a
+  !call xxDGeMul(Coeff3,kCar,'T',Scrt,lSph*ijkla,'T',Wout,kSph,kSph,kCar,lSph*ijkla)
+  call TTMul(Coeff3,Scrt,Wout,kCar,kSph,lSph*ijkla)
+else if (Tr4) then
+  !call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
+  ! Starting with IJKL,a,cd transforming to D,IJKL,a,c
+  !call xxDGeMul(Coeff4,lCar,'T',Win,ijkla*kCar,'T',Scrt,lSph,lSph,lCar,ijkla*kCar)
+  call TTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
+  ! Transpose D,IJKL,a,c to cD,IJKL,a
+  call DGeTMO(Scrt,lSph*ijkla,lSph*ijkla,kCar,Wout,kCar)
+else if (Tr3) then
+  ! Transpose IJKL,a,c,d to d,IJKL,a,c
+  call DGeTMO(Win,ijkla*kCar,ijkla*kCar,lCar,Scrt,lCar)
+
+  !call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
+  ! Transform D,IJKL,a,c to CD,IJKL,a
+  !call xxDGeMul(Coeff3,kCar,'T',Scrt,lSph*ijkla,'T',Wout,kSph,kSph,kCar,lSph*ijkla)
+  call TTMul(Coeff3,Scrt,Wout,kCar,kSph,lSph*ijkla)
+else
+  ! Transpose IJKL,a,c,d to c,d,IJKL,a
+  if (kCar*lCar /= 1) then
+    call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
+    call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
+  else
+    call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
+    call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
+  end if
+end if
+
+!call RecPrt(' In CrSph1: (a0|CD)  ',' ',Wout,mcd,ijkla)
+
+return
+
+end subroutine CrSph1

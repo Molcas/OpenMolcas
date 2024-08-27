@@ -19,21 +19,22 @@
 !     iDiskMx : Max disk space -1 in units of Byte                    *
 !                                                                     *
 !---------------------------------------------------------------------*
-      Module IOBUF
-!
-      Real*8 DiskMx_MByte, DiskMx_Byte
-      Parameter ( lDaRec  = 2**10        ) ! 1024
-      Parameter ( nSect   = 2**5         ) ! 32
-      Parameter ( lStRec  = nSect*lDaRec )
-      Parameter ( Mode_Read = 987654321  )
-      Parameter ( Mode_Write= 198765432  )
-      Parameter ( Mode_None = 111111111  )
-!     Parameter ( DiskMx_MByte=2.0D00**11)
-!     Parameter ( DiskMx_Byte =2.0D00**31)
-!     Real*8 Buf_IO(lStRec,2)
-      Integer iPos, LuTmp, iStatIO, id, iBuf, ipBuf, nBuf, lBuf
-      Real*8 Disk, Disk_1, Disk_2
-      Logical IODone,InCore,OnDisk
-      Real*8, Allocatable:: Buffer(:,:)
-!
-      End Module IOBUF
+
+module IOBUF
+
+real*8 DiskMx_MByte, DiskMx_Byte
+parameter(lDaRec=2**10) ! 1024
+parameter(nSect=2**5) ! 32
+parameter(lStRec=nSect*lDaRec)
+parameter(Mode_Read=987654321)
+parameter(Mode_Write=198765432)
+parameter(Mode_None=111111111)
+!parameter (DiskMx_MByte=2.0D00**11)
+!parameter (DiskMx_Byte =2.0D00**31)
+!real*8 Buf_IO(lStRec,2)
+integer iPos, LuTmp, iStatIO, id, iBuf, ipBuf, nBuf, lBuf
+real*8 Disk, Disk_1, Disk_2
+logical IODone, InCore, OnDisk
+real*8, allocatable :: Buffer(:,:)
+
+end module IOBUF

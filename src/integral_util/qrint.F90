@@ -8,53 +8,56 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION qRINT (N,A,C,EXPA)
-      use Constants
-      use welcom
-      Implicit None
-      Integer N
-      Real*8 A, C, EXPA
 
-      Real*8 F(kmax+1)
-      Integer NN, nT, I, J, K
-      Real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2,   &
-     &       GAL, HINT
-!
-      qRINT=Zero
-      NN=N/2+1
-!     Write (*,*) ' N,NN=',n,nn
-      BP=Half*C
-      START=Sqrt(Pi)
-      PRSUM=EXP(BP*BP*A+EXPA)
-      ALF=sqrt(A)
-      ARG=(BP*ALF)**2
-      nT = 1
-      call dcopy_(kMax+1,[Zero],0,F,1)
-      Call Auxil([Arg],nT,F,nn-1)
-!     Call RecPrt(' In qRint:Fm',' ',F,nt,nn)
-      GINT=Zero
-      Dac = -One
-      Do 10 I=0,N
-         TAL=(-BP)**(N-I)*Binom(n,i)
-         J=(I/2)
-!
-         IF(J*2.EQ.I) THEN
-            Dac = Dac * (Two*DBLE(J)-One)/Two
-            FACT=ALF**(-I-1)*START*DAC
-            FACT2=BP**(I+1)*F(J+1)
-            GINT=(FACT-FACT2)*TAL+GINT
-         ELSE
-            GAL=One
-            HINT=Zero
-            Do 101 K=I-1,0,-2
-               HINT=HINT+Half/A*BP**K*EXP(-ARG)*GAL
-               GAL=Half*DBLE(K)/A*GAL
-101         Continue
-            GINT=GINT+TAL*HINT
-         EndIF
-!
-         qRINT=GINT*PRSUM
- 10   Continue
-!
-      Return
-      End FUNCTION qRINT
+function qRINT(N,A,C,EXPA)
+
+use Constants
+use welcom
+
+implicit none
+real*8 qRINT
+integer N
+real*8 A, C, EXPA
+real*8 F(kmax+1)
+integer NN, nT, I, J, K
+real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2, GAL, HINT
+
+qRINT = Zero
+NN = N/2+1
+!write(6,*) ' N,NN=',n,nn
+BP = Half*C
+START = sqrt(Pi)
+PRSUM = exp(BP*BP*A+EXPA)
+ALF = sqrt(A)
+ARG = (BP*ALF)**2
+nT = 1
+call dcopy_(kMax+1,[Zero],0,F,1)
+call Auxil([Arg],nT,F,nn-1)
+!call RecPrt(' In qRint:Fm',' ',F,nt,nn)
+GINT = Zero
+Dac = -One
+do I=0,N
+  TAL = (-BP)**(N-I)*Binom(n,i)
+  J = (I/2)
+
+  if (J*2 == I) then
+    Dac = Dac*(Two*dble(J)-One)/Two
+    FACT = ALF**(-I-1)*START*DAC
+    FACT2 = BP**(I+1)*F(J+1)
+    GINT = (FACT-FACT2)*TAL+GINT
+  else
+    GAL = One
+    HINT = Zero
+    do K=I-1,0,-2
+      HINT = HINT+Half/A*BP**K*exp(-ARG)*GAL
+      GAL = Half*dble(K)/A*GAL
+    end do
+    GINT = GINT+TAL*HINT
+  end if
+
+  qRINT = GINT*PRSUM
+end do
+
+return
+
+end function qRINT

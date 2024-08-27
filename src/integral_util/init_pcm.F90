@@ -10,224 +10,217 @@
 !                                                                      *
 ! Copyright (C) 1992,2000, Roland Lindh                                *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine Init_PCM(NonEq,iCharg)
+subroutine Init_PCM(NonEq,iCharg)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !                                                                      *
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
-      Use Iso_C_Binding
-      use PCM_arrays, only: MxVert, Centr, DCntr, dPnt, dRad, dTes,     &
-     &                      IntSph, NewSph, nVert, PCMDm, PCMiSph,      &
-     &                      PCMSph, PCMTess, PCM_n, PCM_SQ, SSPh, Vert
-      use Isotopes, only: MaxAtomNum, PTab
-      use UnixInfo, only: ProgName
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module, only: PCM, DoDeriv, nTs, nPCM_Info, nS,        &
-     &                         iCharge_Ref, NoNEQ_Ref, iSlPar,          &
-     &                          cRFStrt, cRFEnd,                        &
-     &                          iRFStrt, iRFEnd,                        &
-     &                          rRFStrt, rRFEnd,                        &
-     &                          lRFStrt, lRFEnd
-      Implicit None
-      Logical NonEq
-      Integer iCharg
 
+use iso_c_binding
+use PCM_arrays, only: MxVert, Centr, DCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCMDm, PCMiSph, PCMSph, PCMTess, PCM_n, &
+                      PCM_SQ, SSPh, Vert
+use Isotopes, only: MaxAtomNum, PTab
+use UnixInfo, only: ProgName
+use stdalloc, only: mma_allocate, mma_deallocate
+use rctfld_module, only: PCM, DoDeriv, nTs, nPCM_Info, nS, iCharge_Ref, NoNEQ_Ref, iSlPar, cRFStrt, cRFEnd, iRFStrt, iRFEnd, &
+                         rRFStrt, rRFEnd, lRFStrt, lRFEnd
+
+implicit none
+logical NonEq
+integer iCharg
 #include "Molcas.fh"
-      Character(LEN=2) Elements(MxAtom*8)
-      Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)
-      Integer, Allocatable:: ANr(:), LcANr(:)
-      Integer i, j, lCnAtm, nAtoms, iPrint, Len
-      Integer, external:: ip_of_work, ip_of_iwork
-      !
-      If (.Not.PCM) Return
-!
+character(len=2) Elements(MxAtom*8)
+real*8, allocatable :: Coor(:,:), LcCoor(:,:)
+integer, allocatable :: ANr(:), LcANr(:)
+integer i, j, lCnAtm, nAtoms, iPrint, Len
+integer, external :: ip_of_work, ip_of_iwork
+
+if (.not. PCM) return
+!                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Reinitialize always for gradient calculations
-      !
-      DoDeriv=.False.
+! Reinitialize always for gradient calculations
+
+DoDeriv = .false.
 !pcm_solvent
 ! added mckinley for pcm in second derivatives
-      If (      ProgName.eq.'alaska'                                    &
-     &     .or. ProgName.eq.'mckinley'                                  &
-     &     .or. ProgName.eq.'mclr'    )                                 &
-     &    DoDeriv=.True.
-      !pcm_solvent end
-      If (DoDeriv) Then
-        LcNAtm = ISlPar(42)
-        Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
-        Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
-        Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
-        Call mma_allocate(dCntr,nS ,lcNAtm,3,3,Label='dCntr')
-        Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
-        Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
-        Go To 888
-      End If
+if ((ProgName == 'alaska') .or. (ProgName == 'mckinley') .or. (ProgName == 'mclr')) DoDeriv = .true.
+!pcm_solvent end
+if (DoDeriv) then
+  LcNAtm = ISlPar(42)
+  call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
+  call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
+  call mma_allocate(dRad,nS,lcNAtm,3,Label='dRad')
+  call mma_allocate(dCntr,nS,lcNAtm,3,3,Label='dCntr')
+  call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
+  call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
+  Go To 888
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Check if we have retrievable PCM data
-!
-      Call Get_iScalar('PCM info length',nPCM_info)
-      If (nPCM_info.ne.0) Then
-!
-!------- nonequilibrium model for the case of ionization:
-!        redo PCM initiation but with the fake charge corresponding to
-!        the one of the ground (reference) state
-         If (iCharge_ref.lt.iCharg.and.NonEq) Then
-           iCharg = iCharge_ref
-           Go To 888
-         End If
-!------- If charge or NonEq/Eq status in retrieved data not the same as
-!        for request redo the PCM initiation.
-!
-         If (iCharge_ref.ne.  iCharg) Go To 888
-         If (NonEq_ref  .neqv.NonEq ) Go To 888
-!
-!        Evolving the new code
-!
-         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
-         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
-         Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
-         Call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
-         Call mma_allocate(SSph,NS,Label='SSph')
-         Call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
-         Call mma_allocate(PCM_N,NS,Label='PCM_N')
-         Call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
-         Call mma_allocate(NVert,nTs,Label='NVert')
-         Call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
-         Call mma_allocate(NewSph,2,NS,Label='NewSph')
-!
-         Call Get_dArray('PCMSph',PCMSph,4*NS)
-         Call Get_dArray('PCMTess',PCMTess,4*nTs)
-         Call Get_dArray('Vert',Vert,3*MxVert*nTs)
-         Call Get_dArray('Centr',Centr,3*MxVert*nTs)
-         Call Get_dArray('SSph',SSph,NS)
-         Call Get_dArray('PCMDM',PCMDM,nTs**2)
-         Call Get_iArray('PCM_N',PCM_N,NS)
-         Call Get_iArray('PCMiSph',PCMiSph,nTs)
-         Call Get_iArray('NVert',NVert,nTs)
-         Call Get_iArray('IntSph',IntSph,MxVert*nTs)
-         Call Get_iArray('NewSph',NewSph,2*NS)
+! Check if we have retrievable PCM data
 
-         Go To 999
-      End If
+call Get_iScalar('PCM info length',nPCM_info)
+if (nPCM_info /= 0) then
+
+  ! nonequilibrium model for the case of ionization:
+  ! redo PCM initiation but with the fake charge corresponding to
+  ! the one of the ground (reference) state
+  if ((iCharge_ref < iCharg) .and. NonEq) then
+    iCharg = iCharge_ref
+    Go To 888
+  end if
+  ! If charge or NonEq/Eq status in retrieved data not the same as
+  ! for request redo the PCM initiation.
+
+  if (iCharge_ref /= iCharg) Go To 888
+  if (NonEq_ref .neqv. NonEq) Go To 888
+
+  ! Evolving the new code
+
+  call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+  call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+  call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
+  call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
+  call mma_allocate(SSph,NS,Label='SSph')
+  call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
+  call mma_allocate(PCM_N,NS,Label='PCM_N')
+  call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
+  call mma_allocate(NVert,nTs,Label='NVert')
+  call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
+  call mma_allocate(NewSph,2,NS,Label='NewSph')
+
+  call Get_dArray('PCMSph',PCMSph,4*NS)
+  call Get_dArray('PCMTess',PCMTess,4*nTs)
+  call Get_dArray('Vert',Vert,3*MxVert*nTs)
+  call Get_dArray('Centr',Centr,3*MxVert*nTs)
+  call Get_dArray('SSph',SSph,NS)
+  call Get_dArray('PCMDM',PCMDM,nTs**2)
+  call Get_iArray('PCM_N',PCM_N,NS)
+  call Get_iArray('PCMiSph',PCMiSph,nTs)
+  call Get_iArray('NVert',NVert,nTs)
+  call Get_iArray('IntSph',IntSph,MxVert*nTs)
+  call Get_iArray('NewSph',NewSph,2*NS)
+
+  Go To 999
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Initial processing for PCM
-!
- 888  Call Get_nAtoms_All(nAtoms)
-      Call mma_allocate(Coor,3,nAtoms,Label='Coor')
-      Call Get_Coord_All(Coor,nAtoms)
-      Call Get_Name_All(Elements)
-      Call mma_Allocate(ANr,nAtoms,Label='ANr')
-      Do i = 1, nAtoms
-         Do j = 0, MaxAtomNum
-            If (PTab(j).eq.Elements(i)) Then
-               ANr(i)=j
-               Exit
-            End If
-         End Do
-      End Do
-      Call mma_allocate(LcCoor,3,nAtoms,Label='LcCoor')
-      Call mma_allocate(LcANr,nAtoms,Label='LcANr')
-!
-!---- Initialize PCM model
-!
-!     iPrint: Print level
-!     ICharg: Molecular charge
-!     nAtoms: total number of atoms
-!     Coor: Coordinates of atoms
-!     MxVert*nTs ANr: atomic numbers
-!     LcCoor: local array for atomic coordinates
-!     LcANr: local array for atomic numbers
-!     Solvent: string with explicit solvent name
-!     Conductor: logical flag to activate conductor approximation
-!     aArea: average area of a tessera
-!     r_min_sphere: minimum radius of smoothing sphere
-!     ip_Ts: pointer to tesserae
-!     nTs  : number of tesserae
-!
+! Initial processing for PCM
+
+888 continue
+call Get_nAtoms_All(nAtoms)
+call mma_allocate(Coor,3,nAtoms,Label='Coor')
+call Get_Coord_All(Coor,nAtoms)
+call Get_Name_All(Elements)
+call mma_Allocate(ANr,nAtoms,Label='ANr')
+do i=1,nAtoms
+  do j=0,MaxAtomNum
+    if (PTab(j) == Elements(i)) then
+      ANr(i) = j
+      exit
+    end if
+  end do
+end do
+call mma_allocate(LcCoor,3,nAtoms,Label='LcCoor')
+call mma_allocate(LcANr,nAtoms,Label='LcANr')
+
+! Initialize PCM model
+
+! iPrint: Print level
+! ICharg: Molecular charge
+! nAtoms: total number of atoms
+! Coor: Coordinates of atoms
+! MxVert*nTs ANr: atomic numbers
+! LcCoor: local array for atomic coordinates
+! LcANr: local array for atomic numbers
+! Solvent: string with explicit solvent name
+! Conductor: logical flag to activate conductor approximation
+! aArea: average area of a tessera
+! r_min_sphere: minimum radius of smoothing sphere
+! ip_Ts: pointer to tesserae
+! nTs  : number of tesserae
+
 #ifdef _DEBUGPRINT_
-      iPrint=99
+iPrint = 99
 #else
-      iPrint=5
+iPrint = 5
 #endif
-      Call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,               &
-     &              LcANr,NonEq)
+call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,LcANr,NonEq)
 #ifdef _DEBUGPRINT_
-      Write (6,*)
-      Write (6,*)
+write(6,*)
+write(6,*)
 #endif
-!
-      Call mma_deallocate(LcANr)
-      Call mma_deallocate(LcCoor)
-      Call mma_deallocate(ANr)
-      Call mma_deallocate(Coor)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---- Put the dynamic arrays on COMFILE
-!
-      Call Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
- 999    Continue
-      Return
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      SubRoutine Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
-      Integer, Target :: cRFStrt,iRFStrt,lRFStrt
-      Real*8, Target :: rRFStrt
-      Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:)
-      Real*8, Pointer :: p_rRF(:)
-!
-      Call Put_iScalar('PCM info length',nPCM_info)
 
-      Call Put_dArray('PCMSph',PCMSph,4*NS)
-      Call Put_dArray('PCMTess',PCMTess,4*nTs)
-      Call Put_dArray('Vert',Vert,3*MxVert*nTs)
-      Call Put_dArray('Centr',Centr,3*MxVert*nTs)
-      Call Put_dArray('SSph',SSph,NS)
-      Call Put_dArray('PCMDM',PCMDM,nTs**2)
-      Call Put_iArray('PCM_N',PCM_N,NS)
-      Call Put_iArray('PCMiSph',PCMiSph,nTs)
-      Call Put_iArray('NVert',NVert,nTs)
-      Call Put_iArray('IntSph',IntSph,MxVert*nTs)
-      Call Put_iArray('NewSph',NewSph,2*NS)
-!
-      iCharge_ref=iCharg
-      NonEq_ref=NonEq
-!
-!---- Put the reaction field common blocks on disk again!
-!
-      Len = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
-      Call C_F_Pointer(C_Loc(lRFStrt),p_lRF,[Len])
-      Call Put_iArray('RFlInfo',p_lRF,Len)
-!
-      Len = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
-      Call C_F_Pointer(C_Loc(rRFStrt),p_rRF,[Len])
-      Call Put_dArray('RFrInfo',p_rRF,Len)
-!
-      Len = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
-      Call C_F_Pointer(C_Loc(iRFStrt),p_iRF,[Len])
-      Call Put_iArray('RFiInfo',p_iRF,Len)
-!
-      Len = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
-      Call C_F_Pointer(C_Loc(cRFStrt),p_cRF,[Len])
-      Call Put_iArray('RFcInfo',p_cRF,Len)
-!
-      Nullify(p_lRF,p_rRF,p_iRF,p_cRF)
-!
-      End SubRoutine Save_PCM_Info
-!
-      End SubRoutine Init_PCM
+call mma_deallocate(LcANr)
+call mma_deallocate(LcCoor)
+call mma_deallocate(ANr)
+call mma_deallocate(Coor)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Put the dynamic arrays on COMFILE
+
+call Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+999 continue
+
+return
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
+  integer, target :: cRFStrt, iRFStrt, lRFStrt
+  real*8, target :: rRFStrt
+  integer, pointer :: p_cRF(:), p_iRF(:), p_lRF(:)
+  real*8, pointer :: p_rRF(:)
+
+  call Put_iScalar('PCM info length',nPCM_info)
+
+  call Put_dArray('PCMSph',PCMSph,4*NS)
+  call Put_dArray('PCMTess',PCMTess,4*nTs)
+  call Put_dArray('Vert',Vert,3*MxVert*nTs)
+  call Put_dArray('Centr',Centr,3*MxVert*nTs)
+  call Put_dArray('SSph',SSph,NS)
+  call Put_dArray('PCMDM',PCMDM,nTs**2)
+  call Put_iArray('PCM_N',PCM_N,NS)
+  call Put_iArray('PCMiSph',PCMiSph,nTs)
+  call Put_iArray('NVert',NVert,nTs)
+  call Put_iArray('IntSph',IntSph,MxVert*nTs)
+  call Put_iArray('NewSph',NewSph,2*NS)
+
+  iCharge_ref = iCharg
+  NonEq_ref = NonEq
+
+  ! Put the reaction field common blocks on disk again!
+
+  Len = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
+  call c_f_pointer(c_loc(lRFStrt),p_lRF,[Len])
+  call Put_iArray('RFlInfo',p_lRF,Len)
+
+  Len = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
+  call c_f_pointer(c_loc(rRFStrt),p_rRF,[Len])
+  call Put_dArray('RFrInfo',p_rRF,Len)
+
+  Len = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
+  call c_f_pointer(c_loc(iRFStrt),p_iRF,[Len])
+  call Put_iArray('RFiInfo',p_iRF,Len)
+
+  Len = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
+  call c_f_pointer(c_loc(cRFStrt),p_cRF,[Len])
+  call Put_iArray('RFcInfo',p_cRF,Len)
+
+  nullify(p_lRF,p_rRF,p_iRF,p_cRF)
+
+end subroutine Save_PCM_Info
+
+end subroutine Init_PCM

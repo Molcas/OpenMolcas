@@ -8,80 +8,74 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine dRBuf(Array,nArray,Copy)
-      Use dEAF, Only: dEAFARead
-      use IOBUF, Only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte,   &
-     &                 Disk_1, Disk_2, Disk, Buffer, iD, LuTmp
-      Implicit None
-      Logical Copy
-      Integer nArray
-      Real*8 Array(nArray)
-#include "SysDef.fh"
 
-      Integer iArray, mArray, jBuf, Left
-      Real*8 Temp
-!
-!     Write (6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
-      If (InCore.and.iBuf.eq.2) Then
-         Call WarningMessage(2,                                         &
-     &                    'Error in in-core semi-direct implementation')
-         Call Abend()
-      End If
-      iArray = 1
-      mArray=nArray
-      Do While (mArray.ge.1)
-         If (iPos.eq.1) Then
-!
-!---------- Wait for pending buffer.
-!
-            If (OnDisk) Then
-!              Write (6,*) 'In drbuf.'
-               Call EAFWait(LuTmp,id)
-            End If
-!
-!---------- Get the next buffer, make sure that request is not beyond
-!           the disc limitation.
-!
-            temp=Disk+DBLE(lBuf*RtoB)
-!           Write (6,*) 'temp=',temp
-            If (temp.le.DiskMx_Byte) Then
-               If (iBuf.eq.1) Then
-                  jBuf=2
-               Else
-                  jBuf=1
-               End If
-               Disk_2 = Disk_1
-               Disk_1 = Disk
-!              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
-               If (OnDisk) Then
-!                 Write (6,*) 'In drbuf.'
-                  Call dEAFARead(LuTmp,Buffer(1,jBuf),lBuf*RtoI,Disk,id)
-               End If
-            End If
-         End If
-         Left = lBuf-iPos+1
-         If (mArray.gt.Left) Then
-            If (Copy) Call dCopy_(Left,Buffer(iPos,iBuf),1,             &
-     &                            Array(iArray),1)
-            iArray=iArray+Left
-            mArray=mArray-Left
-            iPos=1
-!           Write (6,*) 'LuTmp,Disk=',LuTmp,Disk
-!---------- Swap buffer
-            If (iBuf.eq.1) Then
-               iBuf=2
-            Else
-               iBuf=1
-            End If
-         Else
-!           Write (6,*) ' Copy ',mArray,'elements from buffer',iPos
-            If (Copy) Call dCopy_(mArray,Buffer(iPos,iBuf),1,           &
-     &                            Array(iArray),1)
-            iPos=iPos+mArray
-            mArray=0
-         End If
-      End Do
-!
-!     Write (6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
-      Return
-      End Subroutine dRBuf
+subroutine dRBuf(Array,nArray,Copy)
+
+use dEAF, only: dEAFARead
+use IOBUF, only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte, Disk_1, Disk_2, Disk, Buffer, iD, LuTmp
+
+implicit none
+logical Copy
+integer nArray
+real*8 Array(nArray)
+#include "SysDef.fh"
+integer iArray, mArray, jBuf, Left
+real*8 Temp
+
+!write(6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
+if (InCore .and. (iBuf == 2)) then
+  call WarningMessage(2,'Error in in-core semi-direct implementation')
+  call Abend()
+end if
+iArray = 1
+mArray = nArray
+do while (mArray >= 1)
+  if (iPos == 1) then
+
+    ! Wait for pending buffer.
+
+    !write(6,*) 'In drbuf.'
+    if (OnDisk) call EAFWait(LuTmp,id)
+
+    ! Get the next buffer, make sure that request is not beyond
+    ! the disc limitation.
+
+    temp = Disk+dble(lBuf*RtoB)
+    !write(6,*) 'temp=',temp
+    if (temp <= DiskMx_Byte) then
+      if (iBuf == 1) then
+        jBuf = 2
+      else
+        jBuf = 1
+      end if
+      Disk_2 = Disk_1
+      Disk_1 = Disk
+      !write(6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
+      if (OnDisk) call dEAFARead(LuTmp,Buffer(1,jBuf),lBuf*RtoI,Disk,id)
+    end if
+  end if
+  Left = lBuf-iPos+1
+  if (mArray > Left) then
+    if (Copy) call dCopy_(Left,Buffer(iPos,iBuf),1,Array(iArray),1)
+    iArray = iArray+Left
+    mArray = mArray-Left
+    iPos = 1
+    !write(6,*) 'LuTmp,Disk=',LuTmp,Disk
+    ! Swap buffer
+    if (iBuf == 1) then
+      iBuf = 2
+    else
+      iBuf = 1
+    end if
+  else
+    !write(6,*) ' Copy ',mArray,'elements from buffer',iPos
+    if (Copy) call dCopy_(mArray,Buffer(iPos,iBuf),1,Array(iArray),1)
+    iPos = iPos+mArray
+    mArray = 0
+  end if
+end do
+
+!write(6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
+return
+
+end subroutine dRBuf

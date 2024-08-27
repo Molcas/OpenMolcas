@@ -8,18 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!     LHR function: convert full Hessian indices in lower triangular index
-!
-      Integer Function LHR(i,iAtom,j,jAtom)
-      Implicit None
-      Integer i, iAtom, j, jAtom
 
-      Integer ivv1, ivv2, ivv
+function LHR(i,iAtom,j,jAtom)
+! LHR function: convert full Hessian indices in lower triangular index
 
-      ivv1 = (iAtom-1)*3 + i
-      ivv2 = (jAtom-1)*3 + j
-      ivv  = Max(ivv1,ivv2)
-      LHR  = ivv*(ivv-3)/2 + ivv1 + ivv2
-      Return
-      End Function LHR
+implicit none
+integer LHR
+integer i, iAtom, j, jAtom
+integer ivv1, ivv2, ivv
+
+ivv1 = (iAtom-1)*3+i
+ivv2 = (jAtom-1)*3+j
+ivv = max(ivv1,ivv2)
+LHR = ivv*(ivv-3)/2+ivv1+ivv2
+
+return
+
+end function LHR

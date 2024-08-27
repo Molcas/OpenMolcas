@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SUBROUTINE Auxil(T,nT,Fm,mHigh)
+
+subroutine Auxil(T,nT,Fm,mHigh)
 !***********************************************************************
 !                                                                      *
 !     Object: to compute the auxiliary functions in quadruple precision*
@@ -20,25 +21,27 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      use Constants, only: Two
-      IMPLICIT NONE
-      integer nT, mHigh
-      REAL*8 Fm(nT,0:mHigh), T(nT)
 
-      Integer i, m
-      Real*8 Ti
-!
-      Call HighFm(Fm(1,mHigh),T,mHigh,nT)
-!
-!     Now use recursion formula for Fm, 0<=m<mHigh
-!
-      Do 30  i = 1, nT
-         Ti=T(i)
-         Do 31 m = mHigh-1, 0, -1
-            Fm(i,m) = (Two*Ti*Fm(i,m+1)+Exp(-Ti))/DBLE(2*m+1)
- 31      Continue
- 30   Continue
-!     Call RecPrt(' Fm',' ',Fm,nT,mHigh+1)
-!
-      Return
-      End SUBROUTINE Auxil
+use Constants, only: Two
+
+implicit none
+integer nT, mHigh
+real*8 Fm(nT,0:mHigh), T(nT)
+integer i, m
+real*8 Ti
+
+call HighFm(Fm(1,mHigh),T,mHigh,nT)
+
+! Now use recursion formula for Fm, 0<=m<mHigh
+
+do i=1,nT
+  Ti = T(i)
+  do m=mHigh-1,0,-1
+    Fm(i,m) = (Two*Ti*Fm(i,m+1)+exp(-Ti))/dble(2*m+1)
+  end do
+end do
+!call RecPrt(' Fm',' ',Fm,nT,mHigh+1)
+
+return
+
+end subroutine Auxil

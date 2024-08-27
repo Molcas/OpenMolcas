@@ -10,11 +10,12 @@
 !                                                                      *
 ! Copyright (C) 1991,2001, Roland Lindh                                *
 !***********************************************************************
-#define _FIXED_FORMAT_
-      SubRoutine PCMInt(                                                &
-#                       define _CALLING_
-#                       include "int_interface.fh"
-     &                 )
+
+subroutine PCMInt( &
+#                 define _FIXED_FORMAT_
+#                 define _CALLING_
+#                 include "int_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of nuclear attraction     *
@@ -25,142 +26,130 @@
 !                                                                      *
 !             Modified to PCM-integrals, by RL June '01, Napoli, Italy.*
 !***********************************************************************
-      use PCM_arrays, only: nTiles, C_Tessera, q_Tessera
-      use Index_Functions, only: nTri_Elem1
+use PCM_arrays, only: nTiles, C_Tessera, q_Tessera
+use Index_Functions, only: nTri_Elem1
 #ifdef _DEBUGPRINT_
-      use Symmetry_Info, only: ChOper
+use Symmetry_Info, only: ChOper
 #endif
-      use Constants, only: Zero, One
-      Implicit None
+use Constants, only: Zero, One
+
+implicit none
 #include "int_interface.fh"
+! Used for normal nuclear attraction integrals
+external TNAI, Fake, XCff2D, XRys2D
+real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
+logical EQ, NoSpecial
+integer iAnga(4), iDCRT(0:7)
+integer mabMin, mabMax, nStab_, iTile, lDCRT, nDCRT, nT, nOp, ipIn, LmbdT, nFlop, nMem, NrOpr
+real*8 qTessera, Fact
+#ifdef _DEBUGPRINT_
+integer nElem, ii
+#endif
+integer jStab_(0:0)
+integer ixyz, nabSz
+! Statement function for Cartesian index
+#ifdef _DEBUGPRINT_
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+#endif
+nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
-!     Used for normal nuclear attraction integrals
-      External TNAI, Fake, XCff2D, XRys2D
-!-----Local arrys
-      Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-      Logical EQ, NoSpecial
-      Integer iAnga(4), iDCRT(0:7)
-      Integer mabMin, mabMax, nStab_, iTile, lDCRT, nDCRT, nT, nOp,     &
-     &        ipIn, LmbdT, nFlop, nMem, NrOpr
-      Real*8 qTessera, Fact
-#ifdef _DEBUGPRINT_
-      Integer nElem, ii
-#endif
-      Integer jStab_(0:0)
-      Integer ixyz, nabSz
-!
-!     Statement function for Cartesian index
-!
-#ifdef _DEBUGPRINT_
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-#endif
-      nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-!
-      rFinal(:,:,:,:)=Zero
-!
-      iAnga(1) = la
-      iAnga(2) = lb
-      iAnga(3) = 0
-      iAnga(4) = 0
-      call dcopy_(3,A,1,Coora(1,1),1)
-      call dcopy_(3,RB,1,Coora(1,2),1)
-      call dcopy_(2*3,Coora,1,Coori,1)
-      mabMin = nabSz(Max(la,lb)-1)+1
-      If (EQ(A,RB)) mabMin=nabSz(la+lb-1)+1
-      mabMax = nabSz(la+lb)
-!
-!     Compute FLOP's and size of work array which Hrr will use.
-!
-      Call mHrr(la,lb,nFLOP,nMem)
-!
-!     Find center to accumulate angular momentum on. (HRR)
-!
-      If (la.ge.lb) Then
-       call dcopy_(3,A,1,CoorAC(1,1),1)
-      Else
-       call dcopy_(3,RB,1,CoorAC(1,1),1)
-      End If
-!
-!---- The coordinates of the individual tiles are not stabilized by any
-!     operator but the unit operator.
-!
-      nStab_=1
-      jStab_=0
-!
-!     Loop over tiles.
-!
-      Do iTile = 1, nTiles
-         QTessera = Q_Tessera(iTile)
-         C(:)=C_Tessera(:,iTile)
-#ifdef _DEBUGPRINT_
-         Call RecPrt('C',' ',C,1,3)
-#endif
-!
-!--------Find the DCR for M and S
-!
-         Call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
-         Fact = One / DBLE(LmbdT)
-!
-#ifdef _DEBUGPRINT_
-         Write (6,*) ' m      =',nStabM
-         Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),                   &
-     &         ii = 0, nStabM-1)
-         Write (6,*) ' s      =',nStab_
-         Write (6,'(9A)') '(S)=',ChOper(jStab_)
-         Write (6,*) ' LambdaT=',LmbdT
-         Write (6,*) ' t      =',nDCRT
-         Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),                    &
-     &         ii = 0, nDCRT-1)
-#endif
+rFinal(:,:,:,:) = Zero
 
-!
-         Do lDCRT = 0, nDCRT-1
-            Call OA(iDCRT(lDCRT),C,TC)
-            call dcopy_(3,TC,1,CoorAC(1,2),1)
-            call dcopy_(3,TC,1,Coori(1,3),1)
-            call dcopy_(3,TC,1,Coori(1,4),1)
-            call dcopy_(3,TC,1,Coora(1,3),1)
-            call dcopy_(3,TC,1,Coora(1,4),1)
-!
-!           Compute integrals with the Rys quadrature.
-!
-            nT = nZeta
-            NoSpecial=.True.
-            Call Rys(iAnga,nT,Zeta,ZInv,nZeta,                          &
-     &               [One],[One],1,P,nZeta,                             &
-     &               TC,1,rKappa,[One],Coori,Coora,CoorAC,              &
-     &               mabmin,mabmax,0,0,Array,nArr*nZeta,                &
-     &               TNAI,Fake,XCff2D,XRys2D,NoSpecial)
-!
-!-----------Use the HRR to compute the required primitive integrals.
-!
-            Call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
-!
-!-----------Accumulate contributions to the symmetry adapted operator
-!
-            nOp = NrOpr(iDCRT(lDCRT))
-            Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,       &
-     &                  nOp         ,lOper,iChO,-Fact*QTessera)
-#ifdef _DEBUGPRINT_
-            Write (6,*) Fact*QTessera
-            Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),          &
-     &              nZeta,nElem(la)*nElem(lb)*nComp)
-            Call RecPrt('PCMInt: rFinal',' ',rFinal,                    &
-     &              nZeta,nElem(la)*nElem(lb)*nIC)
-#endif
-!
-         End Do
-      End Do
+iAnga(1) = la
+iAnga(2) = lb
+iAnga(3) = 0
+iAnga(4) = 0
+call dcopy_(3,A,1,Coora(1,1),1)
+call dcopy_(3,RB,1,Coora(1,2),1)
+call dcopy_(2*3,Coora,1,Coori,1)
+mabMin = nabSz(max(la,lb)-1)+1
+if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
+mabMax = nabSz(la+lb)
+
+! Compute FLOP's and size of work array which Hrr will use.
+
+call mHrr(la,lb,nFLOP,nMem)
+
+! Find center to accumulate angular momentum on. (HRR)
+
+if (la >= lb) then
+  call dcopy_(3,A,1,CoorAC(1,1),1)
+else
+  call dcopy_(3,RB,1,CoorAC(1,1),1)
+end if
+
+! The coordinates of the individual tiles are not stabilized by any
+! operator but the unit operator.
+
+nStab_ = 1
+jStab_ = 0
+
+! Loop over tiles.
+
+do iTile=1,nTiles
+  QTessera = Q_Tessera(iTile)
+  C(:) = C_Tessera(:,iTile)
+# ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,1,3)
+# endif
+
+  ! Find the DCR for M and S
+
+  call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
+  Fact = One/dble(LmbdT)
+
+# ifdef _DEBUGPRINT_
+  write(6,*) ' m      =',nStabM
+  write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+  write(6,*) ' s      =',nStab_
+  write(6,'(9A)') '(S)=',ChOper(jStab_)
+  write(6,*) ' LambdaT=',LmbdT
+  write(6,*) ' t      =',nDCRT
+  write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+# endif
+
+  do lDCRT=0,nDCRT-1
+    call OA(iDCRT(lDCRT),C,TC)
+    call dcopy_(3,TC,1,CoorAC(1,2),1)
+    call dcopy_(3,TC,1,Coori(1,3),1)
+    call dcopy_(3,TC,1,Coori(1,4),1)
+    call dcopy_(3,TC,1,Coora(1,3),1)
+    call dcopy_(3,TC,1,Coora(1,4),1)
+
+    ! Compute integrals with the Rys quadrature.
+
+    nT = nZeta
+    NoSpecial = .true.
+    call Rys(iAnga,nT,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,rKappa,[One],Coori,Coora,CoorAC,mabmin,mabmax,0,0,Array, &
+             nArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
+
+    ! Use the HRR to compute the required primitive integrals.
+
+    call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
+
+    ! Accumulate contributions to the symmetry adapted operator
+
+    nOp = NrOpr(iDCRT(lDCRT))
+    call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*QTessera)
+#   ifdef _DEBUGPRINT_
+    write(6,*) Fact*QTessera
+    call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),nZeta,nElem(la)*nElem(lb)*nComp)
+    call RecPrt('PCMInt: rFinal',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nIC)
+#   endif
+
+  end do
+end do
 
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-         Call Unused_real_array(Alpha)
-         Call Unused_real_array(Beta)
-         Call Unused_integer(nHer)
-         Call Unused_real_array(CoorO)
-         Call Unused_integer(nOrdOp)
-         Call Unused_real_array(PtChrg)
-         Call Unused_integer(iAddPot)
-      End If
+if (.false.) then
+  call Unused_real_array(Alpha)
+  call Unused_real_array(Beta)
+  call Unused_integer(nHer)
+  call Unused_real_array(CoorO)
+  call Unused_integer(nOrdOp)
+  call Unused_real_array(PtChrg)
+  call Unused_integer(iAddPot)
+end if
 #endif
-      End SubRoutine PCMInt
+
+end subroutine PCMInt

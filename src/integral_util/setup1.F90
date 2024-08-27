@@ -11,8 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine Setup1(ExpA,nPrim,ExpB,mPrim,A,B,rKappa,Pcoor,ZInv)
+subroutine Setup1(ExpA,nPrim,ExpB,mPrim,A,B,rKappa,Pcoor,ZInv)
 !***********************************************************************
 !                                                                      *
 !     Object : to compute some data which is needed for the one-       *
@@ -21,49 +22,45 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             January '90                                              *
 !***********************************************************************
-      use Constants, only: Zero, One
-      Implicit None
-      Integer nPrim, mPrim
-      Real*8, Intent(In):: ExpA(nPrim), ExpB(mPrim), ZInv(nPrim,mPrim), &
-     &                     A(3), B(3)
-      Real*8, Intent(Out):: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
 
-      Real*8 ab
-      Integer iPrim, jPrim
-!
-#ifdef _DEBUGPRINT_
-      Call RecPrt(' *** ExpA ***',' ',ExpA,1,nPrim)
-      Call RecPrt(' *** ExpB ***',' ',ExpB,1,mPrim)
-      Call RecPrt(' *** ZInv ***',' ',ZInv,nPrim,mPrim)
-      Write (6,*) 'A(:)=',A(:)
-      Write (6,*) 'B(:)=',B(:)
-#endif
-      ab  = (A(1)-B(1))**2 + (A(2)-B(2))**2 + (A(3)-B(3))**2
+use Constants, only: Zero, One
 
-      If (ab.ne.Zero) Then
-      Do jPrim = 1, mPrim
-         Do iPrim = 1, nPrim
-            rKappa(iPrim,jPrim) = Exp(- ExpA(iPrim) * ExpB(jPrim) * ab *&
-     &                            ZInv(iPrim,jPrim))
-            Pcoor(iPrim,jPrim,1)=(ExpA(iPrim)*A(1)+ExpB(jPrim)*B(1)) *  &
-     &                            ZInv(iPrim,jPrim)
-            Pcoor(iPrim,jPrim,2)=(ExpA(iPrim)*A(2)+ExpB(jPrim)*B(2)) *  &
-     &                            ZInv(iPrim,jPrim)
-            Pcoor(iPrim,jPrim,3)=(ExpA(iPrim)*A(3)+ExpB(jPrim)*B(3)) *  &
-     &                            ZInv(iPrim,jPrim)
-         End Do
-      End Do
-      Else
-        rKappa(:,:)=One
-        PCoor(:,:,1)=A(1)
-        PCoor(:,:,2)=A(2)
-        PCoor(:,:,3)=A(3)
-      End If
+implicit none
+integer nPrim, mPrim
+real*8, intent(In) :: ExpA(nPrim), ExpB(mPrim), ZInv(nPrim,mPrim), A(3), B(3)
+real*8, intent(Out) :: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
+real*8 ab
+integer iPrim, jPrim
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' *** Kappa ***',' ',rKappa, nPrim, mPrim)
-      Call RecPrt(' ***   Px  ***',' ',Pcoor(1,1,1),nPrim,mPrim)
-      Call RecPrt(' ***   Py  ***',' ',Pcoor(1,1,2),nPrim,mPrim)
-      Call RecPrt(' ***   Pz  ***',' ',Pcoor(1,1,3),nPrim,mPrim)
+call RecPrt(' *** ExpA ***',' ',ExpA,1,nPrim)
+call RecPrt(' *** ExpB ***',' ',ExpB,1,mPrim)
+call RecPrt(' *** ZInv ***',' ',ZInv,nPrim,mPrim)
+write(6,*) 'A(:)=',A(:)
+write(6,*) 'B(:)=',B(:)
 #endif
-!
-      End SubRoutine Setup1
+ab = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
+
+if (ab /= Zero) then
+  do jPrim=1,mPrim
+    do iPrim=1,nPrim
+      rKappa(iPrim,jPrim) = exp(-ExpA(iPrim)*ExpB(jPrim)*ab*ZInv(iPrim,jPrim))
+      Pcoor(iPrim,jPrim,1) = (ExpA(iPrim)*A(1)+ExpB(jPrim)*B(1))*ZInv(iPrim,jPrim)
+      Pcoor(iPrim,jPrim,2) = (ExpA(iPrim)*A(2)+ExpB(jPrim)*B(2))*ZInv(iPrim,jPrim)
+      Pcoor(iPrim,jPrim,3) = (ExpA(iPrim)*A(3)+ExpB(jPrim)*B(3))*ZInv(iPrim,jPrim)
+    end do
+  end do
+else
+  rKappa(:,:) = One
+  PCoor(:,:,1) = A(1)
+  PCoor(:,:,2) = A(2)
+  PCoor(:,:,3) = A(3)
+end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' *** Kappa ***',' ',rKappa,nPrim,mPrim)
+call RecPrt(' ***   Px  ***',' ',Pcoor(1,1,1),nPrim,mPrim)
+call RecPrt(' ***   Py  ***',' ',Pcoor(1,1,2),nPrim,mPrim)
+call RecPrt(' ***   Pz  ***',' ',Pcoor(1,1,3),nPrim,mPrim)
+#endif
+
+end subroutine Setup1

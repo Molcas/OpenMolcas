@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Set_CanInd()
+
+subroutine Set_CanInd()
 !***********************************************************************
 !                                                                      *
 !     Object: to set up a table which resolves the canonical           *
@@ -21,22 +22,23 @@
 !             Univ. of Lund, Sweden                                    *
 !             February 1999                                            *
 !***********************************************************************
-      use define_af, only: lab, iCan
-      Implicit None
 
-      Integer ip, la, ix, iy, iz
-!
-      ip=0
-      Do la = 0, lab-1
-         Do ix = la , 0, -1
-            Do iy = la-ix, 0, -1
-               iz = la-ix-iy
-               ip = ip + 1
-               iCan(1,ip)=ix
-               iCan(2,ip)=iy
-               iCan(3,ip)=iz
-            End Do
-         End Do
-      End Do
-!
-      End Subroutine Set_CanInd
+use define_af, only: lab, iCan
+
+implicit none
+integer ip, la, ix, iy, iz
+
+ip = 0
+do la=0,lab-1
+  do ix=la,0,-1
+    do iy=la-ix,0,-1
+      iz = la-ix-iy
+      ip = ip+1
+      iCan(1,ip) = ix
+      iCan(2,ip) = iy
+      iCan(3,ip) = iz
+    end do
+  end do
+end do
+
+end subroutine Set_CanInd

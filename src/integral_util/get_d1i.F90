@@ -10,36 +10,39 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Get_D1I(CMO,D1It,D1I,nish,nbas,nsym)
-      use Constants, only: Zero, Two
-      Implicit None
-      Integer nSym
-      Real*8 CMO(*), D1I(*),D1It(*)
-      Integer nbas(nsym),nish(nsym)
 
-      Integer iOff1, iSym, iBas, iOrb, iOff2, i, j, k
-      Real*8 Sum
+subroutine Get_D1I(CMO,D1It,D1I,nish,nbas,nsym)
 
-      iOff1 = 0
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        iOrb = nIsh(iSym)
-        If ( iBas.ne.0 ) then
-          iOff2 = iOff1
-          Do i = 1,iBas
-            Do j = 1,iBas
-              Sum = Zero
-              Do k = 0,iOrb-1
-                Sum = Sum + Two * CMO(iOff1+k*iBas+i)                   &
-     &                          * CMO(iOff1+k*iBas+j)
-              End Do
-              D1I(iOff2 + j) = Sum
-            End Do
-            iOff2 = iOff2 + iBas
-          End Do
-          iOff1 = iOff1 + iBas*iBas
-        End If
-      End Do
-      Call Fold2(nsym,nBas,D1I,D1It)
-      Return
-      End Subroutine Get_D1I
+use Constants, only: Zero, Two
+
+implicit none
+integer nSym
+real*8 CMO(*), D1I(*), D1It(*)
+integer nbas(nsym), nish(nsym)
+integer iOff1, iSym, iBas, iOrb, iOff2, i, j, k
+real*8 Sum
+
+iOff1 = 0
+do iSym=1,nSym
+  iBas = nBas(iSym)
+  iOrb = nIsh(iSym)
+  if (iBas /= 0) then
+    iOff2 = iOff1
+    do i=1,iBas
+      do j=1,iBas
+        Sum = Zero
+        do k=0,iOrb-1
+          Sum = Sum+Two*CMO(iOff1+k*iBas+i)*CMO(iOff1+k*iBas+j)
+        end do
+        D1I(iOff2+j) = Sum
+      end do
+      iOff2 = iOff2+iBas
+    end do
+    iOff1 = iOff1+iBas*iBas
+  end if
+end do
+call Fold2(nsym,nBas,D1I,D1It)
+
+return
+
+end subroutine Get_D1I

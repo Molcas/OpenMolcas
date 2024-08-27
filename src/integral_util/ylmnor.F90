@@ -8,32 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ylmnor(lmax)
-      use Constants, only: One
-      use welcom, only: aNorm, FiInt, TetInt
-      Implicit None
-      Integer, Intent(In):: lmax
 
-      Integer i, lm2, j, k
-      Real*8 Tal
-!
-      Do 10 i=0,lmax
-         lm2=i/2
-         Do 11 j=0,lm2
-            Do 12 k=0,j
-               anorm(i,j,k)=fiint(j-k,k)*tetint(i,j)
- 12         Continue
- 11      Continue
- 10   Continue
-      Do 20 i=0,lmax
-         tal=One/anorm(i,0,0)
-         lm2=i/2
-         Do 21 j=0,lm2
-            Do 22 k=0,j
-               anorm(i,j,k)=anorm(i,j,k)*tal
- 22         Continue
- 21      Continue
- 20   Continue
-!
-      Return
-      End Subroutine ylmnor
+subroutine ylmnor(lmax)
+
+use Constants, only: One
+use welcom, only: aNorm, FiInt, TetInt
+
+implicit none
+integer, intent(In) :: lmax
+integer i, lm2, j, k
+real*8 Tal
+
+do i=0,lmax
+  lm2 = i/2
+  do j=0,lm2
+    do k=0,j
+      anorm(i,j,k) = fiint(j-k,k)*tetint(i,j)
+    end do
+  end do
+end do
+do i=0,lmax
+  tal = One/anorm(i,0,0)
+  lm2 = i/2
+  do j=0,lm2
+    do k=0,j
+      anorm(i,j,k) = anorm(i,j,k)*tal
+    end do
+  end do
+end do
+
+return
+
+end subroutine ylmnor

@@ -8,41 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Tranca(Cavxyz,Cavsph,lMax,CarSph)
-      use Real_Spherical
-      use Constants, only: Zero, One
-      Implicit None
-      Integer lMax
-      Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6),                      &
-     &          Cavsph( (lMax+1)**2 )
-      Logical CarSph
 
-      Integer iOff1, iOff2, m, nElem
-!
-      iOff1 = 1
-      iOff2 = 1
-      Do 100 m = 0, lMax
-         nElem = (m+1)*(m+2)/2
-!        Call RecPrt('Car-->Sph',' ',RSph(ipSph(m)),nElem,nElem)
-         If (CarSph) Then
-            call dcopy_(2*m+1,[Zero],0,Cavsph(iOff2),1)
-!           Call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
-            Call dGeMV_('T',nElem,2*m+1,                                &
-     &                 One,RSph(ipSph(m)),nElem,                        &
-     &                     Cavxyz(iOff1),1,                             &
-     &                 Zero,CavSph(iOff2),1)
-!           Call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
-         Else
-            call dcopy_(nElem,[Zero],0,Cavxyz(iOff1),1)
-!           Call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
-            Call dGeMV_('N',nElem,2*m+1,                                &
-     &                 One,RSph(ipSph(m)),nElem,                        &
-     &                     Cavsph(iOff2),1,                             &
-     &                 Zero,Cavxyz(iOff1),1)
-!           Call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
-         End If
-         iOff1 = iOff1 + nElem
-         iOff2 = iOff2 + 2*m+1
- 100  Continue
-!
-      End Subroutine Tranca
+subroutine Tranca(Cavxyz,Cavsph,lMax,CarSph)
+
+use Real_Spherical
+use Constants, only: Zero, One
+
+implicit none
+integer lMax
+real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+logical CarSph
+integer iOff1, iOff2, m, nElem
+
+iOff1 = 1
+iOff2 = 1
+do m=0,lMax
+  nElem = (m+1)*(m+2)/2
+  !call RecPrt('Car-->Sph',' ',RSph(ipSph(m)),nElem,nElem)
+  if (CarSph) then
+    call dcopy_(2*m+1,[Zero],0,Cavsph(iOff2),1)
+    !call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
+    call dGeMV_('T',nElem,2*m+1,One,RSph(ipSph(m)),nElem,Cavxyz(iOff1),1,Zero,CavSph(iOff2),1)
+    !call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
+  else
+    call dcopy_(nElem,[Zero],0,Cavxyz(iOff1),1)
+    !call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
+    call dGeMV_('N',nElem,2*m+1,One,RSph(ipSph(m)),nElem,Cavsph(iOff2),1,Zero,Cavxyz(iOff1),1)
+    !call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
+  end if
+  iOff1 = iOff1+nElem
+  iOff2 = iOff2+2*m+1
+end do
+
+end subroutine Tranca

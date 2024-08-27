@@ -8,12 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine Get_F1(icol,val)
-      implicit None
-      Integer icol
-      Real*8 val
 
-      Real*8 dum(1)
-      call Get_F(icol,dum,1)
-      val=dum(1)
-      end subroutine Get_F1
+subroutine Get_F1(icol,val)
+
+implicit none
+integer icol
+real*8 val
+real*8 dum(1)
+
+call Get_F(icol,dum,1)
+val = dum(1)
+
+end subroutine Get_F1

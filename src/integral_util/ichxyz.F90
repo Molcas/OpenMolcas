@@ -8,20 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function iChxyz(Coord,iGen,nGen)
-      use Constants
-      Implicit None
-      Integer nGen
-      Real*8 Coord(3)
-      Integer iGen(nGen), iChCar(3)
 
-      Integer iCar
-!
-      Call ChCar(iChCar,iGen,nGen)
-      iChxyz=0
-      Do iCar = 1, 3
-         If (Coord(iCar).ne.Zero) iChxyz = iChxyz + iChCar(iCar)
-      End Do
-!
-      Return
-      End Function iChxyz
+function iChxyz(Coord,iGen,nGen)
+
+use Constants
+
+implicit none
+integer iChxyz
+integer nGen
+real*8 Coord(3)
+integer iGen(nGen), iChCar(3)
+integer iCar
+
+call ChCar(iChCar,iGen,nGen)
+
+iChxyz = 0
+do iCar=1,3
+  if (Coord(iCar) /= Zero) iChxyz = iChxyz+iChCar(iCar)
+end do
+
+return
+
+end function iChxyz

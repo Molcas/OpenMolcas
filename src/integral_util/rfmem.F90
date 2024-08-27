@@ -8,16 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RFMem(nHer,MemRF,la,lb,lr)
-      Implicit None
-      Integer, Intent(Out):: nHer, MemRF
-      Integer, Intent(In):: la, lb, lr
-!
-      nHer=(la+lb+lr+2)/2
-      MemRF = 3*nHer*(la+1) +                                           &
-     &         3*nHer*(lb+1) +                                          &
-     &         3*nHer*(lr+1) +                                          &
-     &         3*(la+1)*(lb+1)*(lr+1) + 2 + 3*nHer
-!
-      Return
-      End Subroutine RFMem
+
+subroutine RFMem(nHer,MemRF,la,lb,lr)
+
+implicit none
+integer, intent(Out) :: nHer, MemRF
+integer, intent(In) :: la, lb, lr
+
+nHer = (la+lb+lr+2)/2
+MemRF = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer*(lr+1)+3*(la+1)*(lb+1)*(lr+1)+2+3*nHer
+
+return
+
+end subroutine RFMem

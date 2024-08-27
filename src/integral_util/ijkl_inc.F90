@@ -8,19 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ijkl_inc(i,j,k,l)
-      Implicit none
-      Integer i,j,k,l
-      l = l + 1
-      If ( i.eq.k.and.l.le.j) Return
-      If ( i.ne.k.and.l.le.k) Return
-      l = 1
-      k = k +1
-      If (k.le.i) Return
-      k = 1
-      j = j + 1
-      If (j.le.i) Return
-      j=1
-      i=i+1
-      Return
-      End Subroutine ijkl_inc
+
+subroutine ijkl_inc(i,j,k,l)
+
+implicit none
+integer i, j, k, l
+
+l = l+1
+if ((i == k) .and. (l <= j)) return
+if ((i /= k) .and. (l <= k)) return
+l = 1
+k = k+1
+if (k <= i) return
+k = 1
+j = j+1
+if (j <= i) return
+j = 1
+i = i+1
+
+return
+
+end subroutine ijkl_inc

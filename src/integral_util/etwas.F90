@@ -8,8 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module EtWas
-      Integer mIrrep, nISh(0:7), nASh(0:7), mBas(0:7),         &
-     &        nCMo,nDSO,nPSOP,MxPam,nCred,nScr1,nScr2
-      Real*8 ExFac,CoulFac
-End Module EtWas
+
+module EtWas
+
+integer mIrrep, nISh(0:7), nASh(0:7), mBas(0:7), nCMo, nDSO, nPSOP, MxPam, nCred, nScr1, nScr2
+real*8 ExFac, CoulFac
+
+end module EtWas

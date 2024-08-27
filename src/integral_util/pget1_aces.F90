@@ -10,12 +10,10 @@
 !                                                                      *
 ! Copyright (C) 1992,2000, Roland Lindh                                *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,                         &
-     &                      iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,   &
-     &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,             &
-     &                      Gamma,nGamma,iSO2cI,nSOs,                   &
-     &                      iSO2Sh,PMax)
+subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gamma,nGamma, &
+                      iSO2cI,nSOs,iSO2Sh,PMax)
 !***********************************************************************
 !                                                                      *
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
@@ -34,206 +32,186 @@
 !                                                                      *
 !     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use pso_stuff, only: Gamma_MRCISD
-      use Constants, only: Zero, One, Quart, Four
-#ifdef _DEBUGPRINT_
-      use pso_stuff, only: iD0Lbl, DVar, D0
-#endif
-      Implicit None
-      Integer, Intent(In):: ijkl, nPAO, nDSO, nGamma, nSOs
-      Real*8, parameter :: exfac=One
-      Real*8 PAO(ijkl,nPAO), DSO(nDSO),  DSO_Var(nDSO),                 &
-     &       Gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
-      Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-      Logical Shijij
 
-      Integer i, j, iTri
-      Integer i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl, iPAO, lSOl,    &
-     &        lBas, lAOl, kSOk, kBas, kAOk, jSOj, jBas, jAOj, iSOi,     &
-     &        iBas, iAOi, iShell_A, iShell_B, iShell_C, iShell_D,       &
-     &        Index_A, Index_B, Index_C, Index_D,                       &
-     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,         &
-     &        iShell_AB, iShell_CD, Index_AB, Index_CD,                 &
-     &        Indi, Indj, Indk, Indl, Indij, Indkl,                     &
-     &        Indil, Indjk, Indik, Indjl, Index_ABCD
-      Real*8 PMax, t14, Temp
+use SOAO_Info, only: iAOtSO
+use pso_stuff, only: Gamma_MRCISD
+use Constants, only: Zero, One, Quart, Four
 #ifdef _DEBUGPRINT_
-      Integer iComp
-      Real*8, External:: DDOt_
+use pso_stuff, only: iD0Lbl, DVar, D0
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Statement Function
-!
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+
+implicit none
+integer, intent(In) :: ijkl, nPAO, nDSO, nGamma, nSOs
+real*8, parameter :: exfac = One
+real*8 PAO(ijkl,nPAO), DSO(nDSO), DSO_Var(nDSO), gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
+integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
+integer iAO(4), kOp(4), iAOst(4), iCmp(4)
+logical Shijij
+integer i, j, iTri
+integer i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl, iPAO, lSOl, lBas, lAOl, kSOk, kBas, kAOk, jSOj, jBas, jAOj, iSOi, iBas, iAOi, &
+        iShell_A, iShell_B, iShell_C, iShell_D, Index_A, Index_B, Index_C, Index_D, nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, &
+        nDim_CD, iShell_AB, iShell_CD, Index_AB, Index_CD, Indi, Indj, Indk, Indl, Indij, Indkl, Indil, Indjk, Indik, Indjl, &
+        Index_ABCD
+real*8 PMax, t14, Temp
+#ifdef _DEBUGPRINT_
+integer iComp
+real*8, external :: DDOt_
+#endif
+! Statement Function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      iComp = 1
-      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-      Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
-      Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
-      Write (6,*) 'iSO2Sh=',iSO2Sh
-      Write (6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
-      Write (6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
-      Call RecPrt('PGet1: Gamma',' ',Gamma,1,nGamma)
+iComp = 1
+call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
+write(6,*) ' nBases..=',iBas,jBas,kBas,lBas
+write(6,*) 'iSO2Sh=',iSO2Sh
+write(6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
+write(6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
+call RecPrt('PGet1: Gamma',' ',Gamma,1,nGamma)
 #endif
-!
-!     Quadruple loop over elements of the basis functions angular
-!     description.
-!     Observe that we will walk through the memory in PAO in a
-!     sequential way.
-!
-      PMax=Zero
-      iPAO=0
-      t14 = Quart * exfac
-      Do 100 i1 = 1, iCmp(1)
-         Do 200 i2 = 1, iCmp(2)
-            Do 300 i3 = 1, iCmp(3)
-               Do 400 i4 = 1, iCmp(4)
-!
-!               Unfold the way the eight indices have been reordered.
-                iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
-                jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
-                kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
-                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
-!
-                iPAO = iPAO + 1
-                nijkl = 0
-                Do 120 lAOl = 0, lBas-1
-                   lSOl = lSO + lAOl
-                   iShell_D=iSO2Sh(lSOl)
-                   Index_D =iSO2cI(1,lSOl)
-                   nDim_D  =iSO2cI(2,lSOl)
-                   Do 220 kAOk = 0, kBas-1
-                      kSOk = kSO + kAOk
-                      iShell_C=iSO2Sh(kSOk)
-                      Index_C =iSO2cI(1,kSOk)
-                      nDim_C  =iSO2cI(2,kSOk)
-                      nDim_CD=nDim_C*nDim_D
-                      iShell_CD=iTri(iShell_C,iShell_D)
-                      If (iShell_C.gt.iShell_D) Then
-                         Index_CD=(Index_D-1)*nDim_C + Index_C
-                      Else If (iShell_C.eq.iShell_D) Then
-                         Index_CD=iTri(Index_C,Index_D)
-                      Else
-                         Index_CD=(Index_C-1)*nDim_D + Index_D
-                      End If
-                      Do 320 jAOj = 0, jBas-1
-                         jSOj = jSO + jAOj
-                         iShell_B=iSO2Sh(jSOj)
-                         Index_B =iSO2cI(1,jSOj)
-                         nDim_B  =iSO2cI(2,jSOj)
-                         Do 420 iAOi = 0, iBas-1
-                            iSOi = iSO + iAOi
-                            iShell_A=iSO2Sh(iSOi)
-                            Index_A =iSO2cI(1,iSOi)
-                            nDim_A  =iSO2cI(2,iSOi)
-                            nDim_AB=nDim_A*nDim_B
-                            iShell_AB=iTri(iShell_A,iShell_B)
-                            If (iShell_A.gt.iShell_B) Then
-                               Index_AB=(Index_B-1)*nDim_A + Index_A
-                            Else If (iShell_A.eq.iShell_B) Then
-                               Index_AB=iTri(Index_A,Index_B)
-                            Else
-                               Index_AB=(Index_A-1)*nDim_B + Index_B
-                            End If
-                            If (iShell_AB.gt.iShell_CD) Then
-                               Index_ABCD=(Index_CD-1)*nDim_AB+Index_AB
-                            Else If (iShell_AB.eq.iShell_CD) Then
-                               Index_ABCD=iTri(Index_AB,Index_CD)
-                            Else
-                               Index_ABCD=(Index_AB-1)*nDim_CD+Index_CD
-                            End If
-                            nijkl = nijkl + 1
 
-!*********** columbus interface ****************************************
-!do not reconstruct the two-particle density from the one-particle
-!density or partial two-particle densities but simply read them from
-!file
-                            if (gamma_mrcisd) goto 95
-!
-!---------------------------D(ij)*D(kl)
-!
-                            Indi=Max(iSOi,jSOj)
-                            Indj=iSOi+jSOj-Indi
-                            Indk=Max(kSOk,lSOl)
-                            Indl=kSOk+lSOl-Indk
-                            Indij=(Indi-1)*Indi/2+Indj
-                            Indkl=(Indk-1)*Indk/2+Indl
-                            temp= DSO(Indij)*DSO(Indkl)                 &
-     &                          +(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl) &
-     &                          +DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
-!
-!--------------------------- -0.25*D(ik)*D(jl)
-!
-                            Indi=Max(iSOi,kSOk)
-                            Indk=iSOi+kSOk-Indi
-                            Indj=Max(jSOj,lSOl)
-                            Indl=jSOj+lSOl-Indj
-                            Indik=(Indi-1)*Indi/2+Indk
-                            Indjl=(Indj-1)*Indj/2+Indl
-                            temp=temp - t14*(                           &
-     &                           DSO(Indik)*DSO(Indjl)                  &
-     &                        +(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)   &
-     &                        +DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))   &
-     &                        +DSSO(Indik)*DSSO(Indjl)                  &
-     &                        +(DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)&
-     &                        +DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl))&
-     &                                      )
-!
-!--------------------------- -0.25*D(il)*D(jk)
-!
-                            Indi=Max(iSOi,lSOl)
-                            Indl=iSOi+lSOl-Indi
-                            Indj=Max(jSOj,kSOk)
-                            Indk=jSOj+kSOk-Indj
-                            Indil=(Indi-1)*Indi/2+Indl
-                            Indjk=(Indj-1)*Indj/2+Indk
-                            temp=temp - t14*(                           &
-     &                           DSO(Indil)*DSO(Indjk)                  &
-     &                        +(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)   &
-     &                        +DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))   &
-     &                        +DSSO(Indil)*DSSO(Indjk)                  &
-     &                        +(DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)&
-     &                        +DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk))&
-     &                                      )
-!
-                            temp = temp + Four*Gamma(Index_ABCD)
- 95                         If(gamma_mrcisd) Then
-                               temp = Gamma(Index_ABCD)
-                            End If
-!
-                            PMax=Max(PMax,Abs(temp))
-                            PAO(nijkl,iPAO) = temp
-!
- 420                     Continue
- 320                  Continue
- 220               Continue
- 120            Continue
-!
- 400           Continue
- 300        Continue
- 200     Continue
- 100  Continue
-      If (iPAO.ne.nPAO) Then
-         Call WarningMessage(2,' Error in PGet1_Aces!')
-         Call Abend()
-      End If
-!
+! Quadruple loop over elements of the basis functions angular
+! description.
+! Observe that we will walk through the memory in PAO in a
+! sequential way.
+
+PMax = Zero
+iPAO = 0
+t14 = Quart*exfac
+do i1=1,iCmp(1)
+  do i2=1,iCmp(2)
+    do i3=1,iCmp(3)
+      do i4=1,iCmp(4)
+
+        ! Unfold the way the eight indices have been reordered.
+        iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
+        jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
+        kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
+        lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
+
+        iPAO = iPAO+1
+        nijkl = 0
+        do lAOl=0,lBas-1
+          lSOl = lSO+lAOl
+          iShell_D = iSO2Sh(lSOl)
+          Index_D = iSO2cI(1,lSOl)
+          nDim_D = iSO2cI(2,lSOl)
+          do kAOk=0,kBas-1
+            kSOk = kSO+kAOk
+            iShell_C = iSO2Sh(kSOk)
+            Index_C = iSO2cI(1,kSOk)
+            nDim_C = iSO2cI(2,kSOk)
+            nDim_CD = nDim_C*nDim_D
+            iShell_CD = iTri(iShell_C,iShell_D)
+            if (iShell_C > iShell_D) then
+              Index_CD = (Index_D-1)*nDim_C+Index_C
+            else if (iShell_C == iShell_D) then
+              Index_CD = iTri(Index_C,Index_D)
+            else
+              Index_CD = (Index_C-1)*nDim_D+Index_D
+            end if
+            do jAOj=0,jBas-1
+              jSOj = jSO+jAOj
+              iShell_B = iSO2Sh(jSOj)
+              Index_B = iSO2cI(1,jSOj)
+              nDim_B = iSO2cI(2,jSOj)
+              do iAOi=0,iBas-1
+                iSOi = iSO+iAOi
+                iShell_A = iSO2Sh(iSOi)
+                Index_A = iSO2cI(1,iSOi)
+                nDim_A = iSO2cI(2,iSOi)
+                nDim_AB = nDim_A*nDim_B
+                iShell_AB = iTri(iShell_A,iShell_B)
+                if (iShell_A > iShell_B) then
+                  Index_AB = (Index_B-1)*nDim_A+Index_A
+                else if (iShell_A == iShell_B) then
+                  Index_AB = iTri(Index_A,Index_B)
+                else
+                  Index_AB = (Index_A-1)*nDim_B+Index_B
+                end if
+                if (iShell_AB > iShell_CD) then
+                  Index_ABCD = (Index_CD-1)*nDim_AB+Index_AB
+                else if (iShell_AB == iShell_CD) then
+                  Index_ABCD = iTri(Index_AB,Index_CD)
+                else
+                  Index_ABCD = (Index_AB-1)*nDim_CD+Index_CD
+                end if
+                nijkl = nijkl+1
+
+                !*********** columbus interface ****************************************
+                !do not reconstruct the two-particle density from the one-particle
+                !density or partial two-particle densities but simply read them from
+                !file
+                if (gamma_mrcisd) goto 95
+
+                ! D(ij)*D(kl)
+
+                Indi = max(iSOi,jSOj)
+                Indj = iSOi+jSOj-Indi
+                Indk = max(kSOk,lSOl)
+                Indl = kSOk+lSOl-Indk
+                Indij = (Indi-1)*Indi/2+Indj
+                Indkl = (Indk-1)*Indk/2+Indl
+                temp = DSO(Indij)*DSO(Indkl)+(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)+DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
+
+                ! -0.25*D(ik)*D(jl)
+
+                Indi = max(iSOi,kSOk)
+                Indk = iSOi+kSOk-Indi
+                Indj = max(jSOj,lSOl)
+                Indl = jSOj+lSOl-Indj
+                Indik = (Indi-1)*Indi/2+Indk
+                Indjl = (Indj-1)*Indj/2+Indl
+                temp = temp-t14*(DSO(Indik)*DSO(Indjl)+(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)+ &
+                                 DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))+DSSO(Indik)*DSSO(Indjl)+ &
+                                 (DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)+DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl)))
+
+                ! -0.25*D(il)*D(jk)
+
+                Indi = max(iSOi,lSOl)
+                Indl = iSOi+lSOl-Indi
+                Indj = max(jSOj,kSOk)
+                Indk = jSOj+kSOk-Indj
+                Indil = (Indi-1)*Indi/2+Indl
+                Indjk = (Indj-1)*Indj/2+Indk
+                temp = temp-t14*(DSO(Indil)*DSO(Indjk)+(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)+ &
+                                 DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
+                                 (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
+
+                temp = temp+Four*gamma(Index_ABCD)
+95              continue
+                if (gamma_mrcisd) temp = gamma(Index_ABCD)
+
+                PMax = max(PMax,abs(temp))
+                PAO(nijkl,iPAO) = temp
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+end do
+if (iPAO /= nPAO) then
+  call WarningMessage(2,' Error in PGet1_Aces!')
+  call Abend()
+end if
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
-      Do 3333 i = 1, ijkl
-         Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
- 3333 Continue
+call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
+do i=1,ijkl
+  write(6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+end do
 #endif
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical(Shijij)
-      End If
-      End
+if (.false.) call Unused_logical(Shijij)
+
+end subroutine PGet1_Aces

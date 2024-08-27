@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module lw_Info
-Integer :: lwInt, lwSyB, lwSqN
-End Module lw_Info
+
+module lw_Info
+
+integer :: lwInt, lwSyB, lwSqN
+
+end module lw_Info

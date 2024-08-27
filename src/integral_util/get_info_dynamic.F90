@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992,2020, Roland Lindh                                *
 !***********************************************************************
-      SubRoutine Get_Info_Dynamic()
+
+subroutine Get_Info_Dynamic()
 !***********************************************************************
 !                                                                      *
 ! Object: to read all input information on the file INFO.              *
@@ -19,19 +20,22 @@
 !             University of Lund, SWEDEN                               *
 !             January 1992                                             *
 !***********************************************************************
-!                                                                      *
-      Use Basis_Info, only: Basis_Info_Get
-      Use Center_Info, only: Center_Info_Get
-      Use SOAO_Info, only: SOAO_Info_Get
-      Implicit None
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call Basis_Info_Get()
-      Call Center_Info_Get()
-      Call SOAO_Info_Get()
+
+use Basis_Info, only: Basis_Info_Get
+use Center_Info, only: Center_Info_Get
+use SOAO_Info, only: SOAO_Info_Get
+
+implicit none
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End SubRoutine Get_Info_Dynamic
+call Basis_Info_Get()
+call Center_Info_Get()
+call SOAO_Info_Get()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Get_Info_Dynamic

@@ -8,8 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module MSPDFT_Grad
-!     Gradient Part
-Logical DoGradMSPD
-End Module MSPDFT_Grad
+
+module MSPDFT_Grad
+! Gradient Part
+
+logical DoGradMSPD
+
+end module MSPDFT_Grad
 

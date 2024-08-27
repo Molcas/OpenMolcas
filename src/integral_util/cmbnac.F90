@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,Final,Alpha,           &
-     &                  IfGrad,ld,nVecAC)
+subroutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,final,Alpha,IfGrad,ld,nVecAC)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the gradient of the overlap matrix.                  *
@@ -21,114 +21,94 @@
 !             University of Lund, SWEDEN                               *
 !             October '91.                                             *
 !***********************************************************************
-      use Constants, only: Two
-      Implicit None
-      Integer nZeta, la, lb, ld, nVecAC
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4),            &
-     &       rKappa(nZeta),                                             &
-     &       Rnxyz(nZeta,3,0:la+ld,0:lb), Alpha(nZeta)
-      Logical IfGrad(3)
 
-      Integer ixa, ixb, iya, iyb, iza, izb, iZeta, iyaMax, iybMax,      &
-     &        ipa, ipb
-      Integer ixyz, ix, iz, Ind
-      Real*8 tTwo, XA, YA, ZA
-!
-!     Statement function for Cartesian index
-!
-      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-!
-!
+use Constants, only: Two
+
+implicit none
+integer nZeta, la, lb, ld, nVecAC
+real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4), rKappa(nZeta), Rnxyz(nZeta,3,0:la+ld,0:lb), Alpha(nZeta)
+logical IfGrad(3)
+integer ixa, ixb, iya, iyb, iza, izb, iZeta, iyaMax, iybMax, ipa, ipb
+integer ixyz, ix, iz, Ind
+real*8 tTwo, XA, YA, ZA
+! Statement function for Cartesian index
+Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In CmbnAC: rKappa',' ',rKappa,1,nZeta)
-      Call RecPrt(' In CmbnAC: Alpha ',' ',Alpha ,1,nZeta)
+call RecPrt(' In CmbnAC: rKappa',' ',rKappa,1,nZeta)
+call RecPrt(' In CmbnAC: Alpha ',' ',Alpha,1,nZeta)
 #endif
-      Do 10 ixa = 0, la
-         iyaMax=la-ixa
-      Do 11 ixb = 0, lb
-         iybMax=lb-ixb
-         Do 20 iya = 0, iyaMax
-            iza = la-ixa-iya
-            ipa= Ind(la,ixa,iza)
-         Do 21 iyb = 0, iybMax
-            izb = lb-ixb-iyb
-            ipb= Ind(lb,ixb,izb)
-!
-!           Combine overlap integral gradients
-!
-            nVecAC = 1
-            Do 35 iZeta = 1, nZeta
-               Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*             &
-     &                 Rnxyz(iZeta,1,ixa,ixb)*                          &
-     &                 Rnxyz(iZeta,2,iya,iyb)*                          &
-     &                 Rnxyz(iZeta,3,iza,izb)
- 35         Continue
-            tTwo = Two
-            If (IfGrad(1)) Then
-               nVecAC = nVecAC + 1
-               If (ixa.gt.0) Then
-                  xa = DBLE(-ixa)
-                  Do 30 iZeta = 1, nZeta
-                     Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*       &
-     &    (tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb) +                 &
-     &                    xa*Rnxyz(iZeta,1,ixa-1,ixb))*                 &
-     &                       Rnxyz(iZeta,2,iya,iyb)*                    &
-     &                       Rnxyz(iZeta,3,iza,izb)
- 30               Continue
-               Else
-                  Do 31 iZeta = 1, nZeta
-                     Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*       &
-     &     tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)*                  &
-     &                       Rnxyz(iZeta,2,iya,iyb)*                    &
-     &                       Rnxyz(iZeta,3,iza,izb)
- 31               Continue
-               End If
-            End If
-            If (IfGrad(2)) Then
-               nVecAC = nVecAC + 1
-               If (iya.gt.0) Then
-                  ya = DBLE(-iya)
-                  Do 40 iZeta = 1, nZeta
-                     Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*       &
-     &                       Rnxyz(iZeta,1,ixa,ixb)*                    &
-     &    (tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb) +                 &
-     &                    ya*Rnxyz(iZeta,2,iya-1,iyb))*                 &
-     &                       Rnxyz(iZeta,3,iza,izb)
- 40               Continue
-               Else
-                  Do 41 iZeta = 1, nZeta
-                     Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*       &
-     &                       Rnxyz(iZeta,1,ixa,ixb)*                    &
-     &     tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)*                  &
-     &                       Rnxyz(iZeta,3,iza,izb)
- 41               Continue
-               End If
-            End If
-            If (IfGrad(3)) Then
-               nVecAC = nVecAC + 1
-               If (iza.gt.0) Then
-                  za = DBLE(-iza)
-                  Do 50 iZeta = 1, nZeta
-                     Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*       &
-     &                       Rnxyz(iZeta,1,ixa,ixb)*                    &
-     &                       Rnxyz(iZeta,2,iya,iyb)*                    &
-     &    (tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb) +                 &
-     &                    za*Rnxyz(iZeta,3,iza-1,izb))
- 50               Continue
-               Else
-                  Do 51 iZeta = 1, nZeta
-                     Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*       &
-     &                       Rnxyz(iZeta,1,ixa,ixb)*                    &
-     &                       Rnxyz(iZeta,2,iya,iyb)*                    &
-     &     tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)
- 51               Continue
-               End If
-            End If
-!
- 21      Continue
- 20      Continue
- 11   Continue
- 10   Continue
-!
-      Return
-      End SubRoutine CmbnAC
+do ixa=0,la
+  iyaMax = la-ixa
+  do ixb=0,lb
+    iybMax = lb-ixb
+    do iya=0,iyaMax
+      iza = la-ixa-iya
+      ipa = Ind(la,ixa,iza)
+      do iyb=0,iybMax
+        izb = lb-ixb-iyb
+        ipb = Ind(lb,ixb,izb)
+
+        ! Combine overlap integral gradients
+
+        nVecAC = 1
+        do iZeta=1,nZeta
+          final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
+        end do
+        tTwo = Two
+        if (IfGrad(1)) then
+          nVecAC = nVecAC+1
+          if (ixa > 0) then
+            xa = dble(-ixa)
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)* &
+                                            (tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
+                                            Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
+            end do
+          else
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
+                                            Rnxyz(iZeta,3,iza,izb)
+            end do
+          end if
+        end if
+        if (IfGrad(2)) then
+          nVecAC = nVecAC+1
+          if (iya > 0) then
+            ya = dble(-iya)
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)* &
+                                            (tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ya*Rnxyz(iZeta,2,iya-1,iyb))* &
+                                            Rnxyz(iZeta,3,iza,izb)
+            end do
+          else
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)* &
+                                            Rnxyz(iZeta,3,iza,izb)
+            end do
+          end if
+        end if
+        if (IfGrad(3)) then
+          nVecAC = nVecAC+1
+          if (iza > 0) then
+            za = dble(-iza)
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
+                                            (tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)+za*Rnxyz(iZeta,3,iza-1,izb))
+            end do
+          else
+            do iZeta=1,nZeta
+              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Two*Alpha(iZeta)* &
+                                            Rnxyz(iZeta,3,iza+1,izb)
+            end do
+          end if
+        end if
+
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine CmbnAC

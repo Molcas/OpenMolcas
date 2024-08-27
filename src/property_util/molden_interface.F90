@@ -295,12 +295,12 @@ if (Found) then
   end do
   call mma_deallocate(Mull)
   if (iData /= nData) then
-    write(u6,*) 'Molden_Interface: iData.ne.nData'
+    write(u6,*) 'Molden_Interface: iData /= nData'
     write(u6,*) 'iData,nData=',iData,nData
     call Abend()
   end if
   if (jData /= nAtom) then
-    write(u6,*) 'Molden_Interface: jData.ne.nAtom'
+    write(u6,*) 'Molden_Interface: jData /= nAtom'
     write(u6,*) 'jData,nAtom=',jData,nAtom
     call Abend()
   end if
@@ -624,7 +624,7 @@ end do
 kk_Max = kk
 if (nB > kk_max) then
   if (jPL >= 2) then
-    write(u6,*) 'Molden_Interface: nB.gt.kk_max'
+    write(u6,*) 'Molden_Interface: nB > kk_max'
     write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
   call End2()

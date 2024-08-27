@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1998, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Nr_Shells(nSkal)
+
+subroutine Nr_Shells(nSkal)
 !***********************************************************************
 !                                                                      *
 !     Object: to compute the number of unique shells in the input.     *
@@ -18,94 +19,89 @@
 !     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 !             Sweden. January '98.                                     *
 !***********************************************************************
-      use Basis_Info
-      use BasisMode
-      Implicit None
-      Integer, Intent(Out):: nSkal
 
-      Integer iCnttp, nTest, iCnt, iAng, iShll, nExpi, nBasisi
+use Basis_Info
+use BasisMode
+
+implicit none
+integer, intent(Out) :: nSkal
+integer iCnttp, nTest, iCnt, iAng, iShll, nExpi, nBasisi
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Determine the number of shells
-!
-      nSkal=0
-      If (Basis_Mode.ne.Valence_Mode .and.                              &
-     &    Basis_Mode.ne.Auxiliary_Mode .and.                            &
-     &    Basis_Mode.ne.Fragment_Mode .and.                             &
-     &    Basis_Mode.ne.With_Auxiliary_Mode .and.                       &
-     &    Basis_Mode.ne.With_Fragment_Mode .and.                        &
-     &    Basis_Mode.ne.All_Mode) Then
-         Call WarningMessage(2,'Nr_Shells: illegal Basis_Mode')
-         Call Abend()
-      End If
-!
-      Select Case (Atomic)
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!     Molecular set up                                                 *
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      Case (.False.)
-      Do iCnttp = 1, nCnttp
-         nTest = dbsc(iCnttp)%nVal-1
-         Do iCnt = 1, dbsc(iCnttp)%nCntr
-!
-            Do iAng=0, nTest
-               iShll = dbsc(iCnttp)%iVal + iAng
-               nExpi=Shells(iShll)%nExp
-               If (nExpi.eq.0) Cycle
-               nBasisi=Shells(iShll)%nBasis
-               If (nBasisi.eq.0) Cycle
-!
-               If (Basis_Mode.eq.Valence_Mode .and.                     &
-     &             (Shells(iShll)%Aux.or.Shells(iShll)%Frag)) Cycle
-               If (Basis_Mode.eq.Auxiliary_Mode .and.                   &
-     &             .Not.Shells(iShll)%Aux) Cycle
-               If (Basis_Mode.eq.Fragment_Mode .and.                    &
-     &             .Not.Shells(iShll)%Frag) Cycle
-               If (Basis_Mode.eq.With_Auxiliary_Mode .and.              &
-     &             Shells(iShll)%Frag) Cycle
-               If (Basis_Mode.eq.With_Fragment_Mode .and.               &
-     &             Shells(iShll)%Aux) Cycle
-               nSkal = nSkal + 1
-              End Do                     ! iAng
-         End Do                          ! iCnt
-      End Do                             ! iCnttp
-!
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!     Atomic set up                                                    *
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-      Case (.True.)
-!
-      Do iCnttp = kCnttp, lCnttp
+! Determine the number of shells
+
+nSkal = 0
+if ((Basis_Mode /= Valence_Mode) .and. (Basis_Mode /= Auxiliary_Mode) .and. (Basis_Mode /= Fragment_Mode) .and. &
+    (Basis_Mode /= With_Auxiliary_Mode) .and. (Basis_Mode /= With_Fragment_Mode) .and. (Basis_Mode /= All_Mode)) then
+  call WarningMessage(2,'Nr_Shells: illegal Basis_Mode')
+  call Abend()
+end if
+
+select case (Atomic)
+  case (.false.)
+    !                                                                  *
+    !*******************************************************************
+    !*******************************************************************
+    !                                                                  *
+    ! Molecular set up                                                 *
+    !                                                                  *
+    !*******************************************************************
+    !*******************************************************************
+    !                                                                  *
+
+    do iCnttp=1,nCnttp
       nTest = dbsc(iCnttp)%nVal-1
-      Do iAng=0, nTest
-         iShll = dbsc(iCnttp)%iVal + iAng
-         nExpi=Shells(iShll)%nExp
-         If (nExpi.eq.0) Cycle
-         nBasisi=Shells(iShll)%nBasis
-         If (nBasisi.eq.0) Cycle
-!
-         If (Shells(iShll)%Frag) Cycle
-         nSkal = nSkal + 1
-!
-      End Do                     ! iAng
-      End Do
-      If (dbsc(kCnttp)%Aux) nSkal=nSkal+1 ! Add dummy shell
-      End Select
+      do iCnt=1,dbsc(iCnttp)%nCntr
+
+        do iAng=0,nTest
+          iShll = dbsc(iCnttp)%iVal+iAng
+          nExpi = Shells(iShll)%nExp
+          if (nExpi == 0) cycle
+          nBasisi = Shells(iShll)%nBasis
+          if (nBasisi == 0) cycle
+
+          if ((Basis_Mode == Valence_Mode) .and. (Shells(iShll)%Aux .or. Shells(iShll)%Frag)) cycle
+          if ((Basis_Mode == Auxiliary_Mode) .and. (.not. Shells(iShll)%Aux)) cycle
+          if ((Basis_Mode == Fragment_Mode) .and. (.not. Shells(iShll)%Frag)) cycle
+          if ((Basis_Mode == With_Auxiliary_Mode) .and. Shells(iShll)%Frag) cycle
+          if ((Basis_Mode == With_Fragment_Mode) .and. Shells(iShll)%Aux) cycle
+          nSkal = nSkal+1
+        end do  ! iAng
+      end do    ! iCnt
+    end do      ! iCnttp
+
+  case (.true.)
+    !                                                                  *
+    !*******************************************************************
+    !*******************************************************************
+    !                                                                  *
+    ! Atomic set up                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !*******************************************************************
+    !                                                                  *
+
+    do iCnttp=kCnttp,lCnttp
+      nTest = dbsc(iCnttp)%nVal-1
+      do iAng=0,nTest
+        iShll = dbsc(iCnttp)%iVal+iAng
+        nExpi = Shells(iShll)%nExp
+        if (nExpi == 0) cycle
+        nBasisi = Shells(iShll)%nBasis
+        if (nBasisi == 0) cycle
+
+        if (Shells(iShll)%Frag) cycle
+        nSkal = nSkal+1
+
+      end do  ! iAng
+    end do
+    if (dbsc(kCnttp)%Aux) nSkal = nSkal+1 ! Add dummy shell
+end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End Subroutine Nr_Shells
+return
+
+end subroutine Nr_Shells

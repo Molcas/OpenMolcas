@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Expnd_i(Array,n,m)
+
+subroutine Expnd_i(Array,n,m)
 !***********************************************************************
 !                                                                      *
 ! Object: to do an in place expansion of a triagularized matrix.       *
@@ -23,25 +24,26 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
 !***********************************************************************
-      Implicit None
-      Integer m, n
-      Real*8 Array(m,n*n)
 
-      Integer nij, i, j, ij, ji, ii
-!
-      nij = n*(n+1)/2
-      Do 10 i = n, 1, -1
-         Do 20 j = n, i+1, -1
-            ji = n*(i-1) + j
-            ij = n*(j-1) + i
-            If (nij.ne.ij) Array(:,ij)=Array(:,nij)
-            If (nij.ne.ji) Array(:,ji)=Array(:,nij)
-            nij = nij - 1
- 20      Continue
-         ii = n*(i-1) + i
-         If (nij.ne.ii) Array(:,ii)=Array(:,nij)
-         nij = nij - 1
- 10   Continue
-!
-      Return
-      End SubRoutine Expnd_i
+implicit none
+integer m, n
+real*8 Array(m,n*n)
+integer nij, i, j, ij, ji, ii
+
+nij = n*(n+1)/2
+do i=n,1,-1
+  do j=n,i+1,-1
+    ji = n*(i-1)+j
+    ij = n*(j-1)+i
+    if (nij /= ij) Array(:,ij) = Array(:,nij)
+    if (nij /= ji) Array(:,ji) = Array(:,nij)
+    nij = nij-1
+  end do
+  ii = n*(i-1)+i
+  if (nij /= ii) Array(:,ii) = Array(:,nij)
+  nij = nij-1
+end do
+
+return
+
+end subroutine Expnd_i

@@ -8,36 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1990, IBM                                              *
+! Copyright (C) 1998, Roland Lindh                                     *
 !***********************************************************************
 
-function iPrmt(jOper,iChct)
-!***********************************************************************
-!     Returns the phase factor of a basis function under a symmetry    *
-!     operation, jOper. iChct contains the information about the       *
-!     character of the basis function.                                 *
-!***********************************************************************
+function iPD(iSO_,jSO_,iSOSym,nSOs)
 
-use Symmetry_Info, only: iOper
+use Basis_Info, only: nBas
 
 implicit none
-integer iPrmt
-integer jOper, iChct
-integer iCom, i
+integer iPD
+integer iSO_, jSO_, nSOs
+integer iSOSym(2,nSOs)
+integer iSO, jSO, iSym, iSOr, jSym, jSOr, ij
 
-#define _CHECK_
-#ifdef _CHECK_
-if (size(iOper) < 1) then
-  write(6,*) 'iPrmt; iOper not defined.'
-  call Abend()
+iPD = -999999
+
+iSO = max(iSO_,jSO_)
+jSO = min(iSO_,jSO_)
+iSym = iSOSym(1,iSO)
+iSOr = iSOSym(2,iSO)
+jSym = iSOSym(1,jSO)
+jSOr = iSOSym(2,jSO)
+if (iSym == jSym) then
+  ij = iSOr*(iSOr-1)/2+jSOr
+else
+  ij = (iSOr-1)*nBas(jSym)+jSOr
 end if
-#endif
-iPrmt = 1
-iCom = iand(iOper(jOper),iChct)
-do i=1,3
-  if (iand(iCom,2**(i-1)) /= 0) iPrmt = iPrmt*(-1)
-end do
+
+iPD = ij
 
 return
 
-end function iPrmt
+end function iPD

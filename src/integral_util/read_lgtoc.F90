@@ -10,13 +10,17 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
+subroutine read_lgtoc(lgtoc,gtoc,n)
 !*********** columbus interface ****************************************
 !read table of contents for gamma file
 
-      subroutine read_lgtoc(lgtoc,gtoc,n)
-      Implicit None
-      integer n,lgtoc
-      real*8 gtoc(n)
-      read(lgtoc) gtoc
-      return
-      end subroutine read_lgtoc
+implicit none
+integer n, lgtoc
+real*8 gtoc(n)
+
+read(lgtoc) gtoc
+
+return
+
+end subroutine read_lgtoc

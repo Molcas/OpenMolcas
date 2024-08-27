@@ -8,122 +8,125 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Aces_Gamma()
-      use setup, only: mSkal, nSOS
-      use Basis_Info, only: nBas
-      use PSO_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
-      use iSD_data, only: iSO2Sh
-      use Gateway_Info, only: CutInt
-      use Symmetry_Info, only: nIrrep
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
 
-      Integer, Allocatable:: iTable(:,:)
-      Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
-      Integer :: nShell, nPair, nQUad, nBlocks, nReq, iBlock, iType,    &
-     &           iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,                &
-     &           nA, nB, nC, nD, nAB, nCD, MaxMem
-      Integer, External:: IsFreeUnit
+subroutine Aces_Gamma()
+
+use setup, only: mSkal, nSOS
+use Basis_Info, only: nBas
+use PSO_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
+use iSD_data, only: iSO2Sh
+use Gateway_Info, only: CutInt
+use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer, allocatable :: iTable(:,:)
+real*8, allocatable :: Buf(:), Bin3(:,:,:)
+integer :: nShell, nPair, nQUad, nBlocks, nReq, iBlock, iType, iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D, nA, nB, nC, nD, nAB, nCD, &
+           MaxMem
+integer, external :: IsFreeUnit
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nShell=mSkal
-      nPair=nShell*(nShell+1)/2
-      nQuad=nPair*(nPair+1)/2
+nShell = mSkal
+nPair = nShell*(nShell+1)/2
+nQuad = nPair*(nPair+1)/2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Allocate Table Of Content for half sorted gammas.
-!
-      Call mma_allocate(G_Toc,nQuad,Label='G_Toc')
-!
-!---- Tabel SO to contigeous index
-!
-      Call mma_allocate(SO2cI,2,nSOs,Label='SO2cI')
-!
-!     Both should be deallocated in CloseP!
+! Allocate Table Of Content for half sorted gammas.
+
+call mma_allocate(G_Toc,nQuad,Label='G_Toc')
+
+! Table SO to contiguous index
+
+call mma_allocate(SO2cI,2,nSOs,Label='SO2cI')
+
+! Both should be deallocated in CloseP!
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Generate table with information regarding the symmetry blocks
-!     of the gammas as stored in Aces 2 format
-!
-      If (nIrrep.eq.8) nBlocks=106
-      If (nIrrep.eq.4) nBlocks= 19
-      If (nIrrep.eq.2) nBlocks=  4
-      If (nIrrep.eq.1) nBlocks=  1
-      Call mma_Allocate(iTable,6,nBlocks,Label='iTable')
-      Call Gamma_Blocks(iTable,nBlocks,nIrrep)
-!                                                                      *
-!***********************************************************************
-!                                     aces_gamma.f                                 *
-!---- Allocate memory for read buffer
-!
-      Call mma_MaxDBLE(MaxMem)
-      nReq=0
-      Do iBlock = 1, nBlocks
-         iType=iTable(1,iBlock)
-         iIrrep_A=iTable(2,iBlock)
-         iIrrep_B=iTable(3,iBlock)
-         iIrrep_C=iTable(4,iBlock)
-         iIrrep_D=iTable(5,iBlock)
-!
-         nA=nBas(iIrrep_A)
-         nB=nBas(iIrrep_B)
-         nC=nBas(iIrrep_C)
-         nD=nBas(iIrrep_D)
-         If (iType.eq.1 .or. iType.eq.2) Then
-            nAB = nA*(nA+1)/2
-            nCD = nC*(nC+1)/2
-         Else
-            nAB=nA*nB
-            nCD=nC*nD
-         End If
-!
-         nReq=Max(nReq,nAB*nCD)
-      End Do
-      nReq=Min(MaxMem/4,nReq)
-      Call mma_allocate(Buf,nReq,Label='Buf')
+! Generate table with information regarding the symmetry blocks
+! of the gammas as stored in Aces 2 format
+
+if (nIrrep == 8) nBlocks = 106
+if (nIrrep == 4) nBlocks = 19
+if (nIrrep == 2) nBlocks = 4
+if (nIrrep == 1) nBlocks = 1
+call mma_Allocate(iTable,6,nBlocks,Label='iTable')
+call Gamma_Blocks(iTable,nBlocks,nIrrep)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Allocate bins for shell quadruplets
-!
-      Call mma_MaxDBLE(MaxMem)
-      lBin=Min(MaxMem/(2*nQuad),1024)
-      Call mma_allocate(Bin3,2,lBin,nQuad,Label='Bin3')
+! Allocate memory for read buffer
+
+call mma_MaxDBLE(MaxMem)
+nReq = 0
+do iBlock=1,nBlocks
+  iType = iTable(1,iBlock)
+  iIrrep_A = iTable(2,iBlock)
+  iIrrep_B = iTable(3,iBlock)
+  iIrrep_C = iTable(4,iBlock)
+  iIrrep_D = iTable(5,iBlock)
+
+  nA = nBas(iIrrep_A)
+  nB = nBas(iIrrep_B)
+  nC = nBas(iIrrep_C)
+  nD = nBas(iIrrep_D)
+  if ((iType == 1) .or. (iType == 2)) then
+    nAB = nA*(nA+1)/2
+    nCD = nC*(nC+1)/2
+  else
+    nAB = nA*nB
+    nCD = nC*nD
+  end if
+
+  nReq = max(nReq,nAB*nCD)
+end do
+nReq = min(MaxMem/4,nReq)
+call mma_allocate(Buf,nReq,Label='Buf')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Open the bin file with half sorted gammas.
-!
-      LuGamma=60
-      LuGamma=isfreeunit(LuGamma)
-      Call DaName_MF(LuGamma,'GAMMA')
+! Allocate bins for shell quadruplets
+
+call mma_MaxDBLE(MaxMem)
+lBin = min(MaxMem/(2*nQuad),1024)
+call mma_allocate(Bin3,2,lBin,nQuad,Label='Bin3')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Read the blocks off the Aces 2 file and put into half sorted bin
-!     file. The second half sort is done on the fly as needed.
-!
-      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nReq,             &
-     &                 iSO2Sh,nSOs,Bin3,lBin,nQuad,G_Toc,SO2cI,CutInt)
+! Open the bin file with half sorted gammas.
+
+LuGamma = 60
+LuGamma = isfreeunit(LuGamma)
+call DaName_MF(LuGamma,'GAMMA')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Deallocate memory
-!
-      Call mma_deallocate(Bin3)
-      Call mma_deallocate(Buf)
-      Call mma_deallocate(iTable)
+! Read the blocks off the Aces 2 file and put into half sorted bin
+! file. The second half sort is done on the fly as needed.
+
+call Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nReq,iSO2Sh,nSOs,Bin3,lBin,nQuad,G_Toc,SO2cI,CutInt)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---- Allocate buffer for reading the bins
-!
-      Call mma_allocate(Bin,2,lBin,Label='Bin')
+! Deallocate memory
+
+call mma_deallocate(Bin3)
+call mma_deallocate(Buf)
+call mma_deallocate(iTable)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! Allocate buffer for reading the bins
+
+call mma_allocate(Bin,2,lBin,Label='Bin')
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+return
+
+end subroutine Aces_Gamma

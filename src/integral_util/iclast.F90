@@ -10,19 +10,21 @@
 !                                                                      *
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
-      Integer Function iCLast(KWord,iChrct)
-      Implicit None
-      Character(LEN=*) KWord
-      Integer iChrct
 
-      Integer i
+function iCLast(KWord,iChrct)
 
-      iCLast = 0
-      Do i = iChrct, 1, -1
-         If (KWord(i:i).ne.' ') Then
-            iCLast = i
-            Return
-         End If
-      End Do
+implicit none
+integer iCLast
+character(len=*) KWord
+integer iChrct
+integer i
 
-      End Function iCLast
+iCLast = 0
+do i=iChrct,1,-1
+  if (KWord(i:i) /= ' ') then
+    iCLast = i
+    return
+  end if
+end do
+
+end function iCLast

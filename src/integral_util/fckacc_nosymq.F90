@@ -10,11 +10,10 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      Subroutine FckAcc_NoSymq(iCmp, jCmp, kCmp, lCmp, Shijij,          &
-     &                         iShell, nijkl,AOInt,FMat,DMat,nDens,     &
-     &                         iAO,iAOst,iBas,jBas,kBas,lBas,           &
-     &                  DoCoul,DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
+subroutine FckAcc_NoSymq(iCmp,jCmp,kCmp,lCmp,Shijij,iShell,nijkl,AOInt,FMat,DMat,nDens,iAO,iAOst,iBas,jBas,kBas,lBas,DoCoul, &
+                         DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
@@ -42,238 +41,230 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden. February '93                            *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use Basis_Info, only: nBas
-      use Gateway_Info, only: ThrInt
-      use Constants, only: Zero, One, Four, Half
-      Implicit None
-      Integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
-      Integer iBas, jBas, kBas, lBas
-      Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),             &
-     &       DMat(nDens)
-      Logical Shij, Shkl, Shijij, DoCoul, DoExch
-      Integer iShell(4), iAO(4), iAOst(4)
-      Real*8 Dij, Dkl, Dik, Dil, Djk, Djl, ExFac
-!
-      Intrinsic Max
-      Integer, Parameter:: nCBMax=200
-      Integer Indx(3,nCBMax,4)
-      Integer nCmpx(4), nBasx(4)
-      Integer ntg, ii, jj, kk, ll, i1, i2, i3, i4, i, j, k, l,          &
-     &        ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic,      &
-     &        iSO, jSO, kSO, lSO, icb, jcb, kcb, lcb, nij
-      Real*8 DMax, Thr, Fac, Fac_C, Fac_E, AOijkl
+
+use SOAO_Info, only: iAOtSO
+use Basis_Info, only: nBas
+use Gateway_Info, only: ThrInt
+use Constants, only: Zero, One, Four, Half
+
+implicit none
+integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
+integer iBas, jBas, kBas, lBas
+real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens), DMat(nDens)
+logical Shij, Shkl, Shijij, DoCoul, DoExch
+integer iShell(4), iAO(4), iAOst(4)
+real*8 Dij, Dkl, Dik, Dil, Djk, Djl, ExFac
+intrinsic Max
+integer, parameter :: nCBMax = 200
+integer Indx(3,nCBMax,4)
+integer nCmpx(4), nBasx(4)
+integer ntg, ii, jj, kk, ll, i1, i2, i3, i4, i, j, k, l, ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic, iSO, jSO, kSO, lSO, &
+        icb, jcb, kcb, lcb, nij
+real*8 DMax, Thr, Fac, Fac_C, Fac_E, AOijkl
 #ifdef _DEBUGPRINT_
-      Real*8, External :: DDot_
+real*8, external :: DDot_
 #endif
-!
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (.Not.DoExch.and..Not.DoCoul) Return
+if ((.not. DoExch) .and. (.not. DoCoul)) return
 #ifdef _DEBUGPRINT_
-!     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
-!    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
-      Write (6,*) iCmp,jCmp,kCmp,lCmp
-      Write (6,*) 'iAO=',iAO
-      Write (6,*) 'iAOst=',iAOst
-      Write (6,*) 'iShell=',iShell
-      Write (6,*) DoCoul,DoExch,Shijij
-      Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),             &
-     &                         DDot_(nDens,DMat,1,[One],0)
-      Write (6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,       &
-     &            AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,    &
-     &            AOInt,1,[One],0)
+!write(6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+write(6,*) iCmp,jCmp,kCmp,lCmp
+write(6,*) 'iAO=',iAO
+write(6,*) 'iAOst=',iAOst
+write(6,*) 'iShell=',iShell
+write(6,*) DoCoul,DoExch,Shijij
+write(6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),DDot_(nDens,DMat,1,[One],0)
+write(6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
 #endif
-!
-      DMax=Max(Dij,Dkl,Dik,Dil,Djk,Djl)
-      If (dmax.gt.Zero) Then
-        thr=ThrInt/DMax
-      Else
-        Return
-      End If
-!
-      Shij = iShell(1).eq.iShell(2)
-      Shkl = iShell(3).eq.iShell(4)
-      ntg=nbas(0)
-      Fac=One
-      If (Shij) Fac=Fac*Half
-      If (Shkl) Fac=Fac*Half
-      If (Shijij) Fac=Fac*Half
-      Fac_C=Four*Fac
-      Fac_E=-Fac*Exfac
-!     If (nijkl.ne.ibas*jbas*kbas*lbas) Call SysHalt( 'fckacc_nosym' )
-!
-      nCmpx(1)=iCmp
-      nCmpx(2)=jCmp
-      nCmpx(3)=kCmp
-      nCmpx(4)=lCmp
-      nBasx(1)=iBas
-      nBasx(2)=jBas
-      nBasx(3)=kBas
-      nBasx(4)=lBas
-      nCB_Max=Max(iCmp*iBas,jCmp*jBas,kCmp*kBas,lCmp*lBas)
-      If (nCB_Max.gt.nCBMax) Then
-         Call WarningMessage(2,'FckAcc_NoSym: nCB_Max.gt.nCBMax')
-         Write (6,*) 'nCB_Max=',nCB_Max
-         Call Abend()
-      End If
-      Do ii = 1, 4
-         iCB = 0
-         Do iC = 1, nCmpx(ii)
-            iSO=iAOtSO(iAO(ii)+iC,0)+iAOSt(ii)
-            Do i = 1, nBasx(ii)
-               iCB = iCB + 1
-               Indx(1,iCB,ii)=iC
-               Indx(2,iCB,ii)=i
-               Indx(3,iCB,ii)=iSO
-               iSO = iSO + 1
-            End Do
-         End Do
-      End Do
-!
-      nij=iBas*jBas
-!
-      If (.Not.DoExch) Then
-         Do lCB = 1, lCmp*lBas
-            i4 =Indx(1,lCB,4)
-            l  =Indx(2,lCB,4)
-            lSO=Indx(3,lCB,4)
-            ll=(lSO-1)*ntg
-!
-            Do kCB = 1, kCmp*kBas
-               i3 =Indx(1,kCB,3)
-               k  =Indx(2,kCB,3)
-               kSO=Indx(3,kCB,3)
-               kk=(kSO-1)*ntg
-               kl=ll+kSO
-!
-               kl_=(l-1)*kBas+k
-!
-               Do jCB = 1, jCmp*jBas
-                  i2 =Indx(1,jCB,2)
-                  j  =Indx(2,jCB,2)
-                  jSO=Indx(3,jCB,2)
-                  jj=(jSO-1)*ntg
-!
-                  Do iCB = 1, iCmp*iBas
-                     i1 =Indx(1,iCB,1)
-                     i  =Indx(2,iCB,1)
-                     iSO=Indx(3,iCB,1)
-                     ij=jj+iSO
-!
-                     ij_=(j-1)*iBas+i
-                     ijkl=(kl_-1)*nij+ij_
-                     AOijkl = Fac_C*AOInt(ijkl,i1,i2,i3,i4)
-!
-                     If (Abs(AOijkl).gt.Thr) Then
-!
-                        FMat(ij) = FMat(ij)+AOijkl*DMat(kl)
-                        FMat(kl) = FMat(kl)+AOijkl*DMat(ij)
-!
-                     End If
-                  End Do
-               End Do
-            End Do
-         End Do
-      Else If (.Not.DoCoul) Then
-         Do lCB = 1, lCmp*lBas
-            i4 =Indx(1,lCB,4)
-            l  =Indx(2,lCB,4)
-            lSO=Indx(3,lCB,4)
-            ll=(lSO-1)*ntg
-!
-            Do kCB = 1, kCmp*kBas
-               i3 =Indx(1,kCB,3)
-               k  =Indx(2,kCB,3)
-               kSO=Indx(3,kCB,3)
-               kk=(kSO-1)*ntg
-!
-               kl_=(l-1)*kBas+k
-!
-               Do jCB = 1, jCmp*jBas
-                  i2 =Indx(1,jCB,2)
-                  j  =Indx(2,jCB,2)
-                  jSO=Indx(3,jCB,2)
-                  jk=kk+jSO
-                  jl=ll+jSO
-!
-                  Do iCB = 1, iCmp*iBas
-                     i1 =Indx(1,iCB,1)
-                     i  =Indx(2,iCB,1)
-                     iSO=Indx(3,iCB,1)
-                     ik=kk+iSO
-                     il=ll+iSO
-!
-                     ij_=(j-1)*iBas+i
-                     ijkl=(kl_-1)*nij+ij_
-                     AOijkl = Fac_E*AOInt(ijkl,i1,i2,i3,i4)
-!
-                     If (Abs(AOijkl).gt.Thr) Then
-!
-                        FMat(ik) = FMat(ik)+AOijkl*DMat(jl)
-                        FMat(il) = FMat(il)+AOijkl*DMat(jk)
-                        FMat(jl) = FMat(jl)+AOijkl*DMat(ik)
-                        FMat(jk) = FMat(jk)+AOijkl*DMat(il)
-!
-                     End If
-                  End Do
-               End Do
-            End Do
-         End Do
-      Else
-         Do lCB = 1, lCmp*lBas
-            i4 =Indx(1,lCB,4)
-            l  =Indx(2,lCB,4)
-            lSO=Indx(3,lCB,4)
-            ll=(lSO-1)*ntg
-!
-            Do kCB = 1, kCmp*kBas
-               i3 =Indx(1,kCB,3)
-               k  =Indx(2,kCB,3)
-               kSO=Indx(3,kCB,3)
-               kk=(kSO-1)*ntg
-               kl=ll+kSO
-!
-               kl_=(l-1)*kBas+k
-!
-               Do jCB = 1, jCmp*jBas
-                  i2 =Indx(1,jCB,2)
-                  j  =Indx(2,jCB,2)
-                  jSO=Indx(3,jCB,2)
-                  jj=(jSO-1)*ntg
-                  jk=kk+jSO
-                  jl=ll+jSO
-!
-                  Do iCB = 1, iCmp*iBas
-                     i1 =Indx(1,iCB,1)
-                     i  =Indx(2,iCB,1)
-                     iSO=Indx(3,iCB,1)
-                     ik=kk+iSO
-                     il=ll+iSO
-                     ij=jj+iSO
-!
-                     ij_=(j-1)*iBas+i
-                     ijkl=(kl_-1)*nij+ij_
-                     AOijkl = AOInt(ijkl,i1,i2,i3,i4)
-                     If (Abs(AOijkl).gt.Thr) Then
-!
-                        FMat(ij) = FMat(ij)+Fac_C*AOijkl*DMat(kl)
-                        FMat(kl) = FMat(kl)+Fac_C*AOijkl*DMat(ij)
-                        FMat(ik) = FMat(ik)+Fac_E*AOijkl*DMat(jl)
-                        FMat(il) = FMat(il)+Fac_E*AOijkl*DMat(jk)
-                        FMat(jl) = FMat(jl)+Fac_E*AOijkl*DMat(ik)
-                        FMat(jk) = FMat(jk)+Fac_E*AOijkl*DMat(il)
-!
-                     End If
-                  End Do
-               End Do
-            End Do
-         End Do
-      End If
-!
-!     Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
-!    &                         DDot_(nDens,DMat,1,One,0)
-!
-      Return
-      End Subroutine FckAcc_NoSymq
+
+DMax = max(Dij,Dkl,Dik,Dil,Djk,Djl)
+if (DMax <= Zero) return
+thr = ThrInt/DMax
+
+Shij = iShell(1) == iShell(2)
+Shkl = iShell(3) == iShell(4)
+ntg = nbas(0)
+Fac = One
+if (Shij) Fac = Fac*Half
+if (Shkl) Fac = Fac*Half
+if (Shijij) Fac = Fac*Half
+Fac_C = Four*Fac
+Fac_E = -Fac*Exfac
+!if (nijkl /= ibas*jbas*kbas*lbas) call SysHalt('fckacc_nosym')
+
+nCmpx(1) = iCmp
+nCmpx(2) = jCmp
+nCmpx(3) = kCmp
+nCmpx(4) = lCmp
+nBasx(1) = iBas
+nBasx(2) = jBas
+nBasx(3) = kBas
+nBasx(4) = lBas
+nCB_Max = max(iCmp*iBas,jCmp*jBas,kCmp*kBas,lCmp*lBas)
+if (nCB_Max > nCBMax) then
+  call WarningMessage(2,'FckAcc_NoSym: nCB_Max > nCBMax')
+  write(6,*) 'nCB_Max=',nCB_Max
+  call Abend()
+end if
+do ii=1,4
+  iCB = 0
+  do iC=1,nCmpx(ii)
+    iSO = iAOtSO(iAO(ii)+iC,0)+iAOSt(ii)
+    do i=1,nBasx(ii)
+      iCB = iCB+1
+      Indx(1,iCB,ii) = iC
+      Indx(2,iCB,ii) = i
+      Indx(3,iCB,ii) = iSO
+      iSO = iSO+1
+    end do
+  end do
+end do
+
+nij = iBas*jBas
+
+if (.not. DoExch) then
+  do lCB=1,lCmp*lBas
+    i4 = Indx(1,lCB,4)
+    l = Indx(2,lCB,4)
+    lSO = Indx(3,lCB,4)
+    ll = (lSO-1)*ntg
+
+    do kCB=1,kCmp*kBas
+      i3 = Indx(1,kCB,3)
+      k = Indx(2,kCB,3)
+      kSO = Indx(3,kCB,3)
+      kk = (kSO-1)*ntg
+      kl = ll+kSO
+
+      kl_ = (l-1)*kBas+k
+
+      do jCB=1,jCmp*jBas
+        i2 = Indx(1,jCB,2)
+        j = Indx(2,jCB,2)
+        jSO = Indx(3,jCB,2)
+        jj = (jSO-1)*ntg
+
+        do iCB=1,iCmp*iBas
+          i1 = Indx(1,iCB,1)
+          i = Indx(2,iCB,1)
+          iSO = Indx(3,iCB,1)
+          ij = jj+iSO
+
+          ij_ = (j-1)*iBas+i
+          ijkl = (kl_-1)*nij+ij_
+          AOijkl = Fac_C*AOInt(ijkl,i1,i2,i3,i4)
+
+          if (abs(AOijkl) > Thr) then
+
+            FMat(ij) = FMat(ij)+AOijkl*DMat(kl)
+            FMat(kl) = FMat(kl)+AOijkl*DMat(ij)
+
+          end if
+        end do
+      end do
+    end do
+  end do
+else if (.not. DoCoul) then
+  do lCB=1,lCmp*lBas
+    i4 = Indx(1,lCB,4)
+    l = Indx(2,lCB,4)
+    lSO = Indx(3,lCB,4)
+    ll = (lSO-1)*ntg
+
+    do kCB=1,kCmp*kBas
+      i3 = Indx(1,kCB,3)
+      k = Indx(2,kCB,3)
+      kSO = Indx(3,kCB,3)
+      kk = (kSO-1)*ntg
+
+      kl_ = (l-1)*kBas+k
+
+      do jCB=1,jCmp*jBas
+        i2 = Indx(1,jCB,2)
+        j = Indx(2,jCB,2)
+        jSO = Indx(3,jCB,2)
+        jk = kk+jSO
+        jl = ll+jSO
+
+        do iCB=1,iCmp*iBas
+          i1 = Indx(1,iCB,1)
+          i = Indx(2,iCB,1)
+          iSO = Indx(3,iCB,1)
+          ik = kk+iSO
+          il = ll+iSO
+
+          ij_ = (j-1)*iBas+i
+          ijkl = (kl_-1)*nij+ij_
+          AOijkl = Fac_E*AOInt(ijkl,i1,i2,i3,i4)
+
+          if (abs(AOijkl) > Thr) then
+
+            FMat(ik) = FMat(ik)+AOijkl*DMat(jl)
+            FMat(il) = FMat(il)+AOijkl*DMat(jk)
+            FMat(jl) = FMat(jl)+AOijkl*DMat(ik)
+            FMat(jk) = FMat(jk)+AOijkl*DMat(il)
+
+          end if
+        end do
+      end do
+    end do
+  end do
+else
+  do lCB=1,lCmp*lBas
+    i4 = Indx(1,lCB,4)
+    l = Indx(2,lCB,4)
+    lSO = Indx(3,lCB,4)
+    ll = (lSO-1)*ntg
+
+    do kCB=1,kCmp*kBas
+      i3 = Indx(1,kCB,3)
+      k = Indx(2,kCB,3)
+      kSO = Indx(3,kCB,3)
+      kk = (kSO-1)*ntg
+      kl = ll+kSO
+
+      kl_ = (l-1)*kBas+k
+
+      do jCB=1,jCmp*jBas
+        i2 = Indx(1,jCB,2)
+        j = Indx(2,jCB,2)
+        jSO = Indx(3,jCB,2)
+        jj = (jSO-1)*ntg
+        jk = kk+jSO
+        jl = ll+jSO
+
+        do iCB=1,iCmp*iBas
+          i1 = Indx(1,iCB,1)
+          i = Indx(2,iCB,1)
+          iSO = Indx(3,iCB,1)
+          ik = kk+iSO
+          il = ll+iSO
+          ij = jj+iSO
+
+          ij_ = (j-1)*iBas+i
+          ijkl = (kl_-1)*nij+ij_
+          AOijkl = AOInt(ijkl,i1,i2,i3,i4)
+          if (abs(AOijkl) > Thr) then
+
+            FMat(ij) = FMat(ij)+Fac_C*AOijkl*DMat(kl)
+            FMat(kl) = FMat(kl)+Fac_C*AOijkl*DMat(ij)
+            FMat(ik) = FMat(ik)+Fac_E*AOijkl*DMat(jl)
+            FMat(il) = FMat(il)+Fac_E*AOijkl*DMat(jk)
+            FMat(jl) = FMat(jl)+Fac_E*AOijkl*DMat(ik)
+            FMat(jk) = FMat(jk)+Fac_E*AOijkl*DMat(il)
+
+          end if
+        end do
+      end do
+    end do
+  end do
+end if
+
+!write(6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),DDot_(nDens,DMat,1,One,0)
+
+return
+
+end subroutine FckAcc_NoSymq

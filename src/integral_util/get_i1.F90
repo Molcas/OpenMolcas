@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine Get_I1(icol,ival)
-      implicit None
-      integer iCol, ival
 
-      integer idum(1)
-      call Get_I(icol,idum,1)
-      ival=idum(1)
-      end subroutine Get_I1
+subroutine Get_I1(icol,ival)
+
+implicit none
+integer iCol, ival
+integer idum(1)
+
+call Get_I(icol,idum,1)
+ival = idum(1)
+
+end subroutine Get_I1

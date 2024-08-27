@@ -10,11 +10,10 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine PGet4(iCmp,iBas,jBas,kBas,lBas,                        &
-     &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,               &
-     &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,             &
-     &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
+subroutine PGet4(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,Cred,nCred,Scr1, &
+                 nScr1,Scr2,nScr2,PMax)
 !***********************************************************************
 !                                                                      *
 !  Object: to assemble the index list of the batch of the 2nd order    *
@@ -29,180 +28,172 @@
 !             January '92.                                             *
 !             Modified from PGet2, October '92.                        *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff, only: lSA
-      use Symmetry_Info, only: nIrrep
-      use Constants, only: Zero
-      Implicit None
-      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,       &
-     &        mDim, nCred, nScr1, nScr2
-      Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4),                       &
-     &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer nPam(4,0:7), iCmp(4), iAO(4), iAOst(4)
-      Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
-      Logical Shijij
-      Real*8 PMax
 
-!     Local Array
-      Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7), iiBas(4)
-      Integer nPSOPam, in1, in2, jPam, j, i1, iSO, iSOi, MemSO2,        &
-     &        i2, i3, i4, iS, jS, kS, lS, j1, j2, j12, j3, j123, j4,    &
-     &        niSym, njSym, nkSym, nlSym, jSO, kSO, lSO, iAOi, jAOj,    &
-     &        kAOk, lAOl, jSOj, kSOk, lSOl, k1, k2, k3, k4, nijkl
-!
-!     Prepare some data for Pam
-!
-      iiBas(1) = iBas
-      iiBas(2) = jBas
-      iiBas(3) = kBas
-      iiBas(4) = lBas
-      nPSOPam=n1*n2*n3*n4
-!
-!-----Set up table with SO indices in iPam and a table
-!     with number of basis functions in each irrep in nPam.
-!     Observe that the SO index is only within a given irrep.
-!
-      Call ICopy(4*8,[0],0,nPam,1)
-      in1 = 0
-      Do 9 jPam = 1, 4
-         in2 = 0
-         Do 10 j = 0, nIrrep-1
-            Do 11 i1 = 1, iCmp(jPam)
-               If (iAOtSO(iAO(jPam)+i1,j)>0) Then
-                   iSO = iAOtSO(iAO(jPam)+i1,j)                         &
-     &                 + iAOst(jPam)
-                   nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
-                   Do 12 iAOi = 0, iiBas(jPam)-1
-                      iSOi = iSO + iAOi
-                      in2 = in2 + 1
-                      iPam(in1+in2) = DBLE(iSOi)
-                      MapPam(jPam,iSOi+iOffSO(j)) = DBLE(in2)
- 12                Continue
-               End If
- 11         Continue
- 10      Continue
-         in1 = in1 + in2
- 9    Continue
-!
-!     Get the scrambled 2nd order density matrix
-!
-      If (LSA) Then
+use SOAO_Info, only: iAOtSO, iOffSO
+use pso_stuff, only: lSA
+use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
 
-      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,              &
-     &            Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),    &
-     &            nScr1)
-      Else
-      Call PTrans(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,                 &
-     &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
-      End If
-!
-!-----Quadruple loop over elements of the basis functions angular
-!     description.
-!     Observe that we will walk through the memory in AOInt in a
-!     sequential way.
-!
-      PMax=Zero
-      MemSO2 = 0
-      Do 100 i1 = 1, iCmp(1)
-         niSym = 0
-         Do 101 j = 0, nIrrep-1
-            If (iAOtSO(iAO(1)+i1,j)>0) Then
-               iSym(niSym) = j
-               niSym = niSym + 1
-            End if
-101      Continue
-         Do 200 i2 = 1, iCmp(2)
-            njSym = 0
-            Do 201 j = 0, nIrrep-1
-               If (iAOtSO(iAO(2)+i2,j)>0) Then
-                  jSym(njSym) = j
-                  njSym = njSym + 1
-               End If
-201         Continue
-            Do 300 i3 = 1, iCmp(3)
-               nkSym = 0
-               Do 301 j = 0, nIrrep-1
-                  If (iAOtSO(iAO(3)+i3,j)>0) Then
-                     kSym(nkSym) = j
-                     nkSym = nkSym + 1
-                  End If
-301            Continue
-               Do 400 i4 = 1, iCmp(4)
-                  nlSym = 0
-                  Do 401 j = 0, nIrrep-1
-                     If (iAOtSO(iAO(4)+i4,j)>0) Then
-                        lSym(nlSym) = j
-                        nlSym = nlSym + 1
-                     End If
-401               Continue
-!
-!------Loop over irreps which are spanned by the basis function.
-!      Again, the loop structure is restricted to ensure unique
-!      integrals.
-!
-       Do 110 is = 0, niSym-1
+implicit none
+integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4, mDim, nCred, nScr1, nScr2
+real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
+integer nPam(4,0:7), iCmp(4), iAO(4), iAOst(4)
+real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
+logical Shijij
+real*8 PMax
+integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7), iiBas(4)
+integer nPSOPam, in1, in2, jPam, j, i1, iSO, iSOi, MemSO2, i2, i3, i4, iS, jS, kS, lS, j1, j2, j12, j3, j123, j4, niSym, njSym, &
+        nkSym, nlSym, jSO, kSO, lSO, iAOi, jAOj, kAOk, lAOl, jSOj, kSOk, lSOl, k1, k2, k3, k4, nijkl
+
+! Prepare some data for Pam
+
+iiBas(1) = iBas
+iiBas(2) = jBas
+iiBas(3) = kBas
+iiBas(4) = lBas
+nPSOPam = n1*n2*n3*n4
+
+! Set up table with SO indices in iPam and a table
+! with number of basis functions in each irrep in nPam.
+! Observe that the SO index is only within a given irrep.
+
+call ICopy(4*8,[0],0,nPam,1)
+in1 = 0
+do jPam=1,4
+  in2 = 0
+  do j=0,nIrrep-1
+    do i1=1,iCmp(jPam)
+      if (iAOtSO(iAO(jPam)+i1,j) > 0) then
+        iSO = iAOtSO(iAO(jPam)+i1,j)+iAOst(jPam)
+        nPam(jPam,j) = nPam(jPam,j)+iiBas(jPam)
+        do iAOi=0,iiBas(jPam)-1
+          iSOi = iSO+iAOi
+          in2 = in2+1
+          iPam(in1+in2) = dble(iSOi)
+          MapPam(jPam,iSOi+iOffSO(j)) = dble(in2)
+        end do
+      end if
+    end do
+  end do
+  in1 = in1+in2
+end do
+
+! Get the scrambled 2nd order density matrix
+
+if (LSA) then
+  call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),nScr1)
+else
+  call PTrans(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,Cred,nCred,Scr1,nScr1,Scr2,nScr2)
+end if
+
+! Quadruple loop over elements of the basis functions angular
+! description.
+! Observe that we will walk through the memory in AOInt in a
+! sequential way.
+
+PMax = Zero
+MemSO2 = 0
+do i1=1,iCmp(1)
+  niSym = 0
+  do j=0,nIrrep-1
+    if (iAOtSO(iAO(1)+i1,j) > 0) then
+      iSym(niSym) = j
+      niSym = niSym+1
+    end if
+  end do
+  do i2=1,iCmp(2)
+    njSym = 0
+    do j=0,nIrrep-1
+      if (iAOtSO(iAO(2)+i2,j) > 0) then
+        jSym(njSym) = j
+        njSym = njSym+1
+      end if
+    end do
+    do i3=1,iCmp(3)
+      nkSym = 0
+      do j=0,nIrrep-1
+        if (iAOtSO(iAO(3)+i3,j) > 0) then
+          kSym(nkSym) = j
+          nkSym = nkSym+1
+        end if
+      end do
+      do i4=1,iCmp(4)
+        nlSym = 0
+        do j=0,nIrrep-1
+          if (iAOtSO(iAO(4)+i4,j) > 0) then
+            lSym(nlSym) = j
+            nlSym = nlSym+1
+          end if
+        end do
+
+        ! Loop over irreps which are spanned by the basis function.
+        ! Again, the loop structure is restricted to ensure unique
+        ! integrals.
+
+        do is=0,niSym-1
           j1 = iSym(is)
-!
-          Do 210 js = 0, njSym-1
-             j2 = jSym(js)
-             j12 = iEor(j1,j2)
-!
-             Do 310 ks = 0, nkSym-1
-                j3 = kSym(ks)
-                j123 = iEor(j12,j3)
-                Do 410 ls = 0, nlSym-1
-                   j4 = lSym(ls)
-                   If (j123.ne.j4) Go To 411
-!
-                MemSO2 = MemSO2 + 1
-!
-!               Unfold the way the eight indices have been reordered.
+
+          do js=0,njSym-1
+            j2 = jSym(js)
+            j12 = ieor(j1,j2)
+
+            do ks=0,nkSym-1
+              j3 = kSym(ks)
+              j123 = ieor(j12,j3)
+              do ls=0,nlSym-1
+                j4 = lSym(ls)
+                if (j123 /= j4) Go To 411
+
+                MemSO2 = MemSO2+1
+
+                ! Unfold the way the eight indices have been reordered.
                 iSO = iAOtSO(iAO(1)+i1,j1)+iAOst(1)+iOffSO(j1)
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
                 lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-!
+
                 nijkl = 0
-                Do 120 lAOl = 0, lBas-1
-                   lSOl = lSO + lAOl
-                   k4 = INT(MapPam(4,lSOl))
-                   Do 220 kAOk = 0, kBas-1
-                      kSOk = kSO + kAOk
-                      k3 = INT(MapPam(3,kSOk))
-                      Do 320 jAOj = 0, jBas-1
-                         jSOj = jSO + jAOj
-                         k2 = INT(MapPam(2,jSOj))
-                         Do 420 iAOi = 0, iBas-1
-                            iSOi = iSO + iAOi
-                            nijkl = nijkl + 1
-                            k1 = INT(MapPam(1,iSOi))
-!
-!---------------------------Pick up the contribution.
-!
-                            PMax=Max(PMax,Abs(PSOPam(k1,k2,k3,k4)))
-                            PSO(nijkl,MemSO2) = PSOPam(k1,k2,k3,k4)
-!
- 420                     Continue
- 320                  Continue
- 220               Continue
- 120            Continue
-!
- 411               Continue
- 410            Continue
- 310         Continue
- 210      Continue
- 110   Continue
-!
- 400           Continue
- 300        Continue
- 200     Continue
- 100  Continue
-      If (nPSO.ne.MemSO2) Then
-         Call WarningMessage(2,'PGet4: nPSO.ne.MemSO2')
-         Call Abend()
-      End If
-!
-      Return
+                do lAOl=0,lBas-1
+                  lSOl = lSO+lAOl
+                  k4 = int(MapPam(4,lSOl))
+                  do kAOk=0,kBas-1
+                    kSOk = kSO+kAOk
+                    k3 = int(MapPam(3,kSOk))
+                    do jAOj=0,jBas-1
+                      jSOj = jSO+jAOj
+                      k2 = int(MapPam(2,jSOj))
+                      do iAOi=0,iBas-1
+                        iSOi = iSO+iAOi
+                        nijkl = nijkl+1
+                        k1 = int(MapPam(1,iSOi))
+
+                        ! Pick up the contribution.
+
+                        PMax = max(PMax,abs(PSOPam(k1,k2,k3,k4)))
+                        PSO(nijkl,MemSO2) = PSOPam(k1,k2,k3,k4)
+
+                      end do
+                    end do
+                  end do
+                end do
+
+411             continue
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+end do
+if (nPSO /= MemSO2) then
+  call WarningMessage(2,'PGet4: nPSO /= MemSO2')
+  call Abend()
+end if
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_logical(Shijij)
-      End SubRoutine PGet4
+if (.false.) call Unused_logical(Shijij)
+
+end subroutine PGet4

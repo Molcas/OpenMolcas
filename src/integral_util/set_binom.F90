@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Set_binom()
+
+subroutine Set_binom()
 !***********************************************************************
 !                                                                      *
 !     Object: to set up a table of binomial coefficients.              *
@@ -20,21 +21,22 @@
 !             Univ. of Lund, Sweden                                    *
 !             February 1999                                            *
 !***********************************************************************
-      use Constants, only: Zero, One
-      use define_af, only: iTabMx, Binom
-      Implicit None
 
-      Integer n, i
-!
-      binom(:,:)=Zero
-      binom(0,0)=One
-!
-!---- Do recurrence according to Pascal's triangle!
-!
-      Do n = 1, 2*iTabMx
-         Do i = 0, n
-            binom(n,i)=binom(n-1,i-1)+binom(n-1,i)
-         End Do
-      End Do
-!
-      End Subroutine Set_binom
+use Constants, only: Zero, One
+use define_af, only: iTabMx, Binom
+
+implicit none
+integer n, i
+
+binom(:,:) = Zero
+binom(0,0) = One
+
+! Do recurrence according to Pascal's triangle!
+
+do n=1,2*iTabMx
+  do i=0,n
+    binom(n,i) = binom(n-1,i-1)+binom(n-1,i)
+  end do
+end do
+
+end subroutine Set_binom

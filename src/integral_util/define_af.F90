@@ -8,25 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!     This defines the highest angular momentum quantum number which
-!     Seward will be able to treat.
-Module Define_af
-Private
+! This defines the highest angular momentum quantum number which
+! Seward will be able to treat.
+
+module Define_af
+
+private
+
 #ifndef _DEMO_
-      Integer, parameter:: iTabMx=15
-      Character(LEN=1), Parameter:: AngTp(0:iTabMx) = ['s','p','d','f','g',                          &
-     &                                                 'h','i','k','l','m',                          &
-     &                                                 'n','o','q','r','t',                          &
-     &                                                 'u']
+integer, parameter :: iTabMx = 15
+character(len=1), parameter :: AngTp(0:iTabMx) = ['s','p','d','f','g','h','i','k','l','m','n','o','q','r','t','u']
 #else
-      Integer, parameter:: iTabMx=3
-      Character(LEN=1), Parameter:: AngTp(0:iTabMx) = ['s','p','d']
+integer, parameter :: iTabMx = 3
+character(len=1), parameter :: AngTp(0:iTabMx) = ['s','p','d']
 #endif
-Real*8 Binom(0:2*iTabMx,-1:2*iTabMx)
 
-Integer, Parameter :: lab=2*iTabMx+1, ipMax=lab*(lab+1)*(lab+2)/6
-Integer iCan(3,ipMax)
+real*8 Binom(0:2*iTabMx,-1:2*iTabMx)
+integer, parameter :: lab = 2*iTabMx+1, ipMax = lab*(lab+1)*(lab+2)/6
+integer iCan(3,ipMax)
 
+public :: iTabMx, AngTp, Binom, lab, ipMax, iCan
 
-Public :: iTabMx, AngTp, Binom, lab, ipMax, iCan
-End Module Define_af
+end module Define_af

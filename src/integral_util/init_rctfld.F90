@@ -8,55 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Init_RctFld(NonEq,iCharge)
-      use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, DField, Dip,   &
-     &                           DipEF, Field, Grid, PolEF
-      use external_centers, only: nXF, iXPolType
-      use stdalloc, only: mma_allocate
-      use rctfld_module, only: TK, lMax, nMM, nGrid, lLangevin, MaxA,   &
-     &                         RadLat, Scala, MaxB, Scalb, MaxC,        &
-     &                         Scalc, nABC, lAtAto, PCM, NonEQ_Ref,     &
-     &                         nCavxyz, MM
-      Implicit None
-      Logical NonEq
-      Integer iCharge
 
-      Integer MMM, nPolComp
-!
-      tK=1.0D-99 ! Boltzman factor, initial set to 0 K
-      If (Allocated(MM)) Return
-      mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
-      nMM = 2 * mMM
-      Call mma_allocate(MM,mMM,2,Label='MM')
-      MM(:,:) = 0.0D0
-      If (iXPolType.gt.0) nGrid = nXF
-      If (lLangevin .or. (iXPolType.gt.0)) Then
-         If(lLangevin) Then
-            maxa = INT(radlat/scala)
-            maxb = INT(radlat/scalb)
-            maxc = INT(radlat/scalc)
-            nabc=(2*maxa+2)*(2*maxb+2)*(2*maxc+2)
-            nGrid=nGrid+nabc*latato
-         EndIf
-         If(iXPolType.eq.2) Then
-            nPolComp = 6
-         Else
-            nPolComp = 1
-         EndIf
-         Call mma_allocate(Field,4,nGrid,Label='Field')
-         Call mma_allocate(dField,4,nGrid,Label='dField')
-         Call mma_allocate(Dip,3,nGrid,Label='Dip')
-         Call mma_allocate(PolEf,nPolComp,nGrid,Label='PolEf')
-         Call mma_allocate(DipEf,nGrid,Label='DipEf')
-         Call mma_allocate(Grid,3,nGrid,Label='Grid')
+subroutine Init_RctFld(NonEq,iCharge)
 
-         nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
-         Call mma_allocate(davxyz,nCavxyz,Label='davxyz')
-         Call mma_allocate(cavxyz,nCavxyz,Label='cavxyz')
-         Call mma_allocate(ravxyz,nCavxyz,Label='ravxyz')
-      End If
-      If (.Not.PCM) NonEq_Ref=NonEq
-      Call Init_PCM(NonEq,iCharge)
-!
-      Return
-      End Subroutine Init_RctFld
+use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, DField, Dip, DipEF, Field, Grid, PolEF
+use external_centers, only: nXF, iXPolType
+use stdalloc, only: mma_allocate
+use rctfld_module, only: TK, lMax, nMM, nGrid, lLangevin, MaxA, RadLat, Scala, MaxB, Scalb, MaxC, Scalc, nABC, lAtAto, PCM, &
+                         NonEQ_Ref, nCavxyz, MM
+
+implicit none
+logical NonEq
+integer iCharge
+integer MMM, nPolComp
+
+tK = 1.0D-99 ! Boltzman factor, initial set to 0 K
+if (allocated(MM)) return
+mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
+nMM = 2*mMM
+call mma_allocate(MM,mMM,2,Label='MM')
+MM(:,:) = 0.0d0
+if (iXPolType > 0) nGrid = nXF
+if (lLangevin .or. (iXPolType > 0)) then
+  if (lLangevin) then
+    maxa = int(radlat/scala)
+    maxb = int(radlat/scalb)
+    maxc = int(radlat/scalc)
+    nabc = (2*maxa+2)*(2*maxb+2)*(2*maxc+2)
+    nGrid = nGrid+nabc*latato
+  end if
+  if (iXPolType == 2) then
+    nPolComp = 6
+  else
+    nPolComp = 1
+  end if
+  call mma_allocate(Field,4,nGrid,Label='Field')
+  call mma_allocate(dField,4,nGrid,Label='dField')
+  call mma_allocate(Dip,3,nGrid,Label='Dip')
+  call mma_allocate(PolEf,nPolComp,nGrid,Label='PolEf')
+  call mma_allocate(DipEf,nGrid,Label='DipEf')
+  call mma_allocate(Grid,3,nGrid,Label='Grid')
+
+  nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
+  call mma_allocate(davxyz,nCavxyz,Label='davxyz')
+  call mma_allocate(cavxyz,nCavxyz,Label='cavxyz')
+  call mma_allocate(ravxyz,nCavxyz,Label='ravxyz')
+end if
+if (.not. PCM) NonEq_Ref = NonEq
+call Init_PCM(NonEq,iCharge)
+
+return
+
+end subroutine Init_RctFld

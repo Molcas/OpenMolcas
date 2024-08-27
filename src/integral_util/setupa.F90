@@ -10,8 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine SetUpA(nZeta,A,Pxyz)
+subroutine SetUpA(nZeta,A,Pxyz)
 !***********************************************************************
 !                                                                      *
 ! Object: to set up the transformation matrix from the local coordinate*
@@ -22,55 +23,58 @@
 !             University of Lund, SWEDEN                               *
 !              October '92.                                            *
 !***********************************************************************
-      use Constants, only: Zero, One
-      Implicit None
-      Integer nZeta
-      Real*8  A(nZeta,3,3), Pxyz(nZeta,3)
-!
-      Integer iZeta
-      Real*8 x, y, z, r, sgn
+
+use Constants, only: Zero, One
+
+implicit none
+integer nZeta
+real*8 A(nZeta,3,3), Pxyz(nZeta,3)
+integer iZeta
+real*8 x, y, z, r, sgn
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)
+call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)
 #endif
-!
-!-----Set up the transformation matrix
-!
-      Do iZeta = 1, nZeta
-         x=Pxyz(iZeta,1)
-         y=Pxyz(iZeta,2)
-         z=Pxyz(iZeta,3)
-         r = Sqrt(x**2+y**2+z**2)
-         sgn=One
-         if(z.lt.Zero) then
-           x=-x
-           y=-y
-           z=-z
-           sgn=-sgn
-         end if
-         If (r.eq.Zero) Then
-            A(iZeta,1,1) = One
-            A(iZeta,2,1) = Zero
-            A(iZeta,1,2) = A(iZeta,2,1)
-            A(iZeta,3,1) = Zero
-            A(iZeta,1,3) = A(iZeta,3,1)
-            A(iZeta,2,2) = One
-            A(iZeta,2,3) = Zero
-            A(iZeta,3,2) = A(iZeta,2,3)
-            A(iZeta,3,3) = One
-         Else
-            A(iZeta,1,1) = sgn*(One - x**2/(r*(r+z)))
-            A(iZeta,2,1) = sgn*(- x*y/(r*(r+z)))
-            A(iZeta,1,2) = A(iZeta,2,1)
-            A(iZeta,3,1) = sgn*(- x/r)
-            A(iZeta,1,3) = A(iZeta,3,1)
-            A(iZeta,2,2) = sgn*(One - y**2/(r*(r+z)))
-            A(iZeta,2,3) = sgn*(- y/r)
-            A(iZeta,3,2) = A(iZeta,2,3)
-            A(iZeta,3,3) = sgn*(- z/r)
-         End If
-      End Do
-!
+
+! Set up the transformation matrix
+
+do iZeta=1,nZeta
+  x = Pxyz(iZeta,1)
+  y = Pxyz(iZeta,2)
+  z = Pxyz(iZeta,3)
+  r = sqrt(x**2+y**2+z**2)
+  sgn = One
+  if (z < Zero) then
+    x = -x
+    y = -y
+    z = -z
+    sgn = -sgn
+  end if
+  if (r == Zero) then
+    A(iZeta,1,1) = One
+    A(iZeta,2,1) = Zero
+    A(iZeta,1,2) = A(iZeta,2,1)
+    A(iZeta,3,1) = Zero
+    A(iZeta,1,3) = A(iZeta,3,1)
+    A(iZeta,2,2) = One
+    A(iZeta,2,3) = Zero
+    A(iZeta,3,2) = A(iZeta,2,3)
+    A(iZeta,3,3) = One
+  else
+    A(iZeta,1,1) = sgn*(One-x**2/(r*(r+z)))
+    A(iZeta,2,1) = sgn*(-x*y/(r*(r+z)))
+    A(iZeta,1,2) = A(iZeta,2,1)
+    A(iZeta,3,1) = sgn*(-x/r)
+    A(iZeta,1,3) = A(iZeta,3,1)
+    A(iZeta,2,2) = sgn*(One-y**2/(r*(r+z)))
+    A(iZeta,2,3) = sgn*(-y/r)
+    A(iZeta,3,2) = A(iZeta,2,3)
+    A(iZeta,3,3) = sgn*(-z/r)
+  end if
+end do
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
+call RecPrt(' The transformation matrix',' ',A,nZeta,9)
 #endif
-      End SubRoutine SetUpA
+
+end subroutine SetUpA

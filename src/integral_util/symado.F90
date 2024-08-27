@@ -8,48 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,       &
-     &                  lOper,iChO,Factor)
-      use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
-      use Constants
-      Implicit None
-      Integer nZeta,la,lb,nComp,nIC,iDCRT
-      Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),       &
-     &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
-      Integer lOper(nComp), iChO(nComp)
-      Real*8 Factor
 
-      Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Integer ixyz, nElem
-      Integer iIC, iComp, iIrrep
-      Real*8 pO, Xg
-!
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-!
-!     nA = (la+1)*(la+2)/2
-!     nB = (lb+1)*(lb+2)/2
-!     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
-!
-!--------Accumulate contributions
-!
-      iIC = 0
-      Do 103 iComp = 1, nComp
-         pO = Prmt(iOper(iDCRT),iChO(iComp))
-         Do 104 iIrrep = 0, nIrrep-1
-            If (iAnd(lOper(iComp),iTwoj(iIrrep)).eq.0) Go To 104
-            iIC = iIC + 1
-            Xg = DBLE(iChTbl(iIrrep,iDCRT))
-            Call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,         &
-     &                 ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
- 104     Continue
- 103  Continue
-      If (iIC.ne.nIC) Then
-         Call WarningMessage(2,' Abend in SymAdO: iIC.ne.nIC')
-         Write (6,*) 'iIC,nIC=',iIC,nIC
-         Call Abend()
-      End If
-!     Call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
-!
-      End SubRoutine SymAdO
+subroutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,lOper,iChO,Factor)
+
+use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
+use Constants
+
+implicit none
+integer nZeta, la, lb, nComp, nIC, iDCRT
+real*8 ArrIn(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
+integer lOper(nComp), iChO(nComp)
+real*8 Factor
+integer :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer ixyz, nElem
+integer iIC, iComp, iIrrep
+real*8 pO, Xg
+! Statement function for Cartesian index
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+!nA = (la+1)*(la+2)/2
+!nB = (lb+1)*(lb+2)/2
+!call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
+
+! Accumulate contributions
+
+iIC = 0
+do iComp=1,nComp
+  pO = Prmt(iOper(iDCRT),iChO(iComp))
+  do iIrrep=0,nIrrep-1
+    if (iand(lOper(iComp),iTwoj(iIrrep)) == 0) Go To 104
+    iIC = iIC+1
+    Xg = dble(iChTbl(iIrrep,iDCRT))
+    call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
+104 continue
+  end do
+end do
+if (iIC /= nIC) then
+  call WarningMessage(2,' Abend in SymAdO: iIC /= nIC')
+  write(6,*) 'iIC,nIC=',iIC,nIC
+  call Abend()
+end if
+!call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
+
+end subroutine SymAdO

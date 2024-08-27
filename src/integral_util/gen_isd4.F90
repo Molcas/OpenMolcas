@@ -8,23 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-      Implicit None
-      Integer iS, jS, kS, lS, nSD
-      Integer iSD(0:nSD,1024), iSD4(0:nSD,4)
 
-      Integer jQuad(4), i, j, iSkal
-!
-      jQuad(1)=iS
-      jQuad(2)=jS
-      jQuad(3)=kS
-      jQuad(4)=lS
-      Do i = 1, 4
-         iSkal=jQuad(i)
-         Do j = 0, nSD
-            iSD4(j,i)=iSD(j,iSkal)
-         End Do
-      End Do
-!
-      Return
-      End Subroutine Gen_iSD4
+subroutine Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
+
+implicit none
+integer iS, jS, kS, lS, nSD
+integer iSD(0:nSD,1024), iSD4(0:nSD,4)
+integer jQuad(4), i, j, iSkal
+
+jQuad(1) = iS
+jQuad(2) = jS
+jQuad(3) = kS
+jQuad(4) = lS
+do i=1,4
+  iSkal = jQuad(i)
+  do j=0,nSD
+    iSD4(j,i) = iSD(j,iSkal)
+  end do
+end do
+
+return
+
+end subroutine Gen_iSD4

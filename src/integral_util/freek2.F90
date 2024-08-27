@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Freek2()
+
+subroutine Freek2()
 !***********************************************************************
 !                                                                      *
 !  Object: deallocate memory for pair entities                         *
@@ -20,18 +21,21 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden. November '92                            *
 !***********************************************************************
-      use stdalloc, only: mma_deallocate
-      use k2_structure, only: free_k2data, Indk2, k2_Processed
-      Implicit None
-!
-      If (.Not.Allocated(Indk2)) Return
 
-!     Deallocate k2 entities
-!
-      Call Free_k2data()
+use stdalloc, only: mma_deallocate
+use k2_structure, only: free_k2data, Indk2, k2_Processed
 
-      Call mma_deallocate(Indk2)
-      k2_processed=.False.
-!
-      Return
-      End SubRoutine Freek2
+implicit none
+
+if (.not. allocated(Indk2)) return
+
+! Deallocate k2 entities
+
+call Free_k2data()
+
+call mma_deallocate(Indk2)
+k2_processed = .false.
+
+return
+
+end subroutine Freek2

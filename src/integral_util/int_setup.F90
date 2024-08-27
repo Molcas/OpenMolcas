@@ -8,85 +8,83 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,           &
-     &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
-      Use Basis_Info
-      use Gateway_Info, only: DoFMM, RPQMin
-      use Gateway_global, only: FMM_shortrange
-      use iSD_data, only: nSD
-      Implicit None
-!
-      Integer nSkal, iS, jS, kS, lS
-      Integer iSD(0:nSD,nSkal)
-      Real*8  Coor(3,4)
-      Logical Shijij
-      Integer iAngV(4),iCmpV(4),iShelV(4),iShllV(4),iAOV(4),iStabs(4)
-!
-      Integer iCnttp, iCnt, jCnttp, jCnt, kCnttp, kCnt, lCnttp, lCnt,   &
-     &        jQuad(4), iQuad, iSkal, i
-      Real*8 P, Q, D
 
-      iCnttp=iSD(13,iS)
-      iCnt  =iSD(14,iS)
-      jCnttp=iSD(13,jS)
-      jCnt  =iSD(14,jS)
-      kCnttp=iSD(13,kS)
-      kCnt  =iSD(14,kS)
-      lCnttp=iSD(13,lS)
-      lCnt  =iSD(14,lS)
-!
-      If (dbsc(iCnttp)%Aux) Then
-         Coor(1:3,1)=dbsc(jCnttp)%Coor(1:3,jCnt)
-      Else
-         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
-      End If
-      Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
-!
-      If (dbsc(kCnttp)%Aux) Then
-         Coor(1:3,3)=dbsc(lCnttp)%Coor(1:3,lCnt)
-      Else
-         Coor(1:3,3)=dbsc(kCnttp)%Coor(1:3,kCnt)
-      End If
-      Coor(1:3,4)=dbsc(lCnttp)%Coor(1:3,lCnt)
-!
-      Shijij=(iSD(0,iS).eq.iSD(0,kS).and.iSD(10,iS).eq.iSD(10,kS))      &
-     &       .and.                                                      &
-     &       (iSD(0,jS).eq.iSD(0,lS).and.iSD(10,jS).eq.iSD(10,lS))
-!
-      jQuad(1)=iS
-      jQuad(2)=jS
-      jQuad(3)=kS
-      jQuad(4)=lS
-      Do iQuad = 1, 4
-         iSkal=jQuad(iQuad)
-         iAngV(iQuad)  = iSD( 1,iSkal)
-         iCmpV(iQuad)  = iSD( 2,iSkal)
-         iAOV(iQuad)   = iSD( 7,iSkal)
-         iStabs(iQuad) = iSD(10,iSkal)
-         iShelV(iQuad) = iSD(11,iSkal)
-         iShllV(iQuad) = iSD( 0,iSkal)
-      End Do
+subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
+
+use Basis_Info
+use Gateway_Info, only: DoFMM, RPQMin
+use Gateway_global, only: FMM_shortrange
+use iSD_data, only: nSD
+
+implicit none
+integer nSkal, iS, jS, kS, lS
+integer iSD(0:nSD,nSkal)
+real*8 Coor(3,4)
+logical Shijij
+integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iStabs(4)
+integer iCnttp, iCnt, jCnttp, jCnt, kCnttp, kCnt, lCnttp, lCnt, jQuad(4), iQuad, iSkal, i
+real*8 P, Q, D
+
+iCnttp = iSD(13,iS)
+iCnt = iSD(14,iS)
+jCnttp = iSD(13,jS)
+jCnt = iSD(14,jS)
+kCnttp = iSD(13,kS)
+kCnt = iSD(14,kS)
+lCnttp = iSD(13,lS)
+lCnt = iSD(14,lS)
+
+if (dbsc(iCnttp)%Aux) then
+  Coor(1:3,1) = dbsc(jCnttp)%Coor(1:3,jCnt)
+else
+  Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
+end if
+Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
+
+if (dbsc(kCnttp)%Aux) then
+  Coor(1:3,3) = dbsc(lCnttp)%Coor(1:3,lCnt)
+else
+  Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+end if
+Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
+
+Shijij = (iSD(0,iS) == iSD(0,kS)) .and. (iSD(10,iS) == iSD(10,kS)) .and. (iSD(0,jS) == iSD(0,lS)) .and. (iSD(10,jS) == iSD(10,lS))
+
+jQuad(1) = iS
+jQuad(2) = jS
+jQuad(3) = kS
+jQuad(4) = lS
+do iQuad=1,4
+  iSkal = jQuad(iQuad)
+  iAngV(iQuad) = iSD(1,iSkal)
+  iCmpV(iQuad) = iSD(2,iSkal)
+  iAOV(iQuad) = iSD(7,iSkal)
+  iStabs(iQuad) = iSD(10,iSkal)
+  iShelV(iQuad) = iSD(11,iSkal)
+  iShllV(iQuad) = iSD(0,iSkal)
+end do
 !MAW start
-!
-!  For the FMM coulomb integrals <AB(r1)|1/r12|CD(r2)>
-!  Here we flag the integral routines that we only want to compute
-!  the short-range non-multipole component of integrals over this
-!  shell quartet if midpoint(A,B) is sufficiently far from
-!  midpoint(C,D) for numerical stability.
-!  Note that midpoint(X,Y) corresponds to the multipole expansion
-!  centre of an XY AO-pair, regardless of exponents.
-!
-      FMM_shortrange = .False.
-      If (DoFMM) Then
-         D = 0.0d0
-         DO i = 1, 3
-            P = (Coor(i,1) + Coor(i,2))/2.0d0    ! AB shell-pair
-            Q = (Coor(i,3) + Coor(i,4))/2.0d0    ! CD shell-pair
-            D = D + (P-Q)*(P-Q)
-         End Do
-         IF (D .gt. RPQMIN*RPQMIN) FMM_shortrange = .True.
-      End If
+
+! For the FMM coulomb integrals <AB(r1)|1/r12|CD(r2)>
+! Here we flag the integral routines that we only want to compute
+! the short-range non-multipole component of integrals over this
+! shell quartet if midpoint(A,B) is sufficiently far from
+! midpoint(C,D) for numerical stability.
+! Note that midpoint(X,Y) corresponds to the multipole expansion
+! centre of an XY AO-pair, regardless of exponents.
+
+FMM_shortrange = .false.
+if (DoFMM) then
+  D = 0.0d0
+  do i=1,3
+    P = (Coor(i,1)+Coor(i,2))/2.0d0    ! AB shell-pair
+    Q = (Coor(i,3)+Coor(i,4))/2.0d0    ! CD shell-pair
+    D = D+(P-Q)*(P-Q)
+  end do
+  if (D > RPQMIN*RPQMIN) FMM_shortrange = .true.
+end if
 !MAW end
-!
-      Return
-      End Subroutine Int_Setup
+
+return
+
+end subroutine Int_Setup

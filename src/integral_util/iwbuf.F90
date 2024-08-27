@@ -8,26 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine iWBuf(Array,nArray)
-      Implicit None
+
+subroutine iWBuf(Array,nArray)
+
+implicit none
 #include "SysDef.fh"
-      Integer nArray
-      Integer Array(nArray)
-!
-      Call idWBuf(Array,nArray/RtoI)
-!
-      Return
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine idWBuf(Array,nArray)
-      Use Iso_C_Binding
-      Integer :: nArray
-      Integer, Target :: Array(nArray)
-      Real*8, Pointer :: dArray(:)
-      Call C_F_Pointer(C_Loc(Array(1)),dArray,[nArray])
-      Call dWBuf(dArray,nArray)
-      Nullify(dArray)
-      End Subroutine idWBuf
-!
-      End Subroutine iWBuf
+integer nArray
+integer Array(nArray)
+
+call idWBuf(Array,nArray/RtoI)
+
+return
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine idWBuf(Array,nArray)
+
+  use iso_c_binding
+
+  integer :: nArray
+  integer, target :: Array(nArray)
+  real*8, pointer :: dArray(:)
+
+  call c_f_pointer(c_loc(Array(1)),dArray,[nArray])
+  call dWBuf(dArray,nArray)
+  nullify(dArray)
+
+end subroutine idWBuf
+
+end subroutine iWBuf

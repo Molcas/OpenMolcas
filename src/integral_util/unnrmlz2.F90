@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine UnNrmlz2(Exp,nPrim,Coeff,nCntrc,iang)
-      use Constants, only: Two, Three, Four, TwoP34
-      Implicit None
-      Integer nPrim, nCntrc, iAng
-      Real*8 Exp(nPrim), Coeff(nPrim,nCntrc)
 
-      Integer i, j
-!
-      Do  i = 1, nCntrc
-         Do  j = 1, nPrim
-            Coeff(j,i) = Coeff(j,i) *( TwoP34 *                         &
-     &                (Four*Exp(j))**((Two*iAng+Three)/Four))
-         End Do
-      End Do
+subroutine UnNrmlz2(Exp,nPrim,Coeff,nCntrc,iang)
 
-      End SubRoutine UnNrmlz2
+use Constants, only: Two, Three, Four, TwoP34
+
+implicit none
+integer nPrim, nCntrc, iAng
+real*8 exp(nPrim), Coeff(nPrim,nCntrc)
+integer i, j
+
+do i=1,nCntrc
+  do j=1,nPrim
+    Coeff(j,i) = Coeff(j,i)*(TwoP34*(Four*exp(j))**((Two*iAng+Three)/Four))
+  end do
+end do
+
+end subroutine UnNrmlz2

@@ -13,13 +13,11 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!                                                                      *
 !      These functions should eventually be used globally for any      *
 !      seward utility, be it integrals, gradients, direct Fock,        *
 !      direct integrals, and second order derivatives.                 *
 !                                                                      *
 !                          W A R N I N G !                             *
-!                                                                      *
 !                                                                      *
 !      Observe that the index array (IndZ) should always be placed     *
 !      after all arrays with real!                                     *
@@ -60,48 +58,48 @@
 !      Converted from statement functions by A. May June 2012          *
 !      Converted to a user defined type bt R.L. October 2023           *
 !***********************************************************************
-!                                                                      *
-Module k2_structure
+
+module k2_structure
 
 use Constants, only: Zero
 
+implicit none
 private
 
 type k2_type
-Integer :: nZeta=0
-Integer :: ijCmp=0
-Integer :: nHm=0
-real*8,  Pointer:: Zeta(:)
-real*8,  Pointer:: Kappa(:)
-real*8,  Pointer:: PCoor(:,:)
-real*8,  Pointer:: ZInv(:)
-real*8,  Pointer:: ab(:)
-real*8,  Pointer:: abG(:,:)
-real*8,  Pointer:: abCon(:)
-real*8,  Pointer:: Alpha(:)
-real*8,  Pointer:: Beta(:)
-real*8,  Pointer:: HrrMtrx(:,:)
+  integer :: nZeta = 0
+  integer :: ijCmp = 0
+  integer :: nHm = 0
+  real*8, pointer :: Zeta(:)
+  real*8, pointer :: Kappa(:)
+  real*8, pointer :: PCoor(:,:)
+  real*8, pointer :: ZInv(:)
+  real*8, pointer :: ab(:)
+  real*8, pointer :: abG(:,:)
+  real*8, pointer :: abCon(:)
+  real*8, pointer :: Alpha(:)
+  real*8, pointer :: Beta(:)
+  real*8, pointer :: HrrMtrx(:,:)
+  integer, pointer :: IndZ(:)
+  real*8 :: EstI = Zero
+  real*8 :: ZtMax = Zero
+  real*8 :: ZtMaxD = Zero
+  real*8 :: ZetaM = Zero
+  real*8 :: abMax = Zero
+  real*8 :: abMaxD = Zero
+end type k2_type
 
-integer, Pointer:: IndZ(:)
-real*8          :: EstI=Zero
-real*8          :: ZtMax=Zero
-real*8          :: ZtMaxD=Zero
-real*8          :: ZetaM=Zero
-real*8          :: abMax=Zero
-real*8          :: abMaxD=Zero
-End type k2_type
+type(k2_type), allocatable, target :: k2data(:,:)
 
-type (k2_type), Allocatable, Target :: k2data(:,:)
+integer, parameter :: nDArray = 11, nDScalar = 9
 
-Integer, Parameter:: nDArray=11,nDScalar=9
+real*8, allocatable, target :: ZZZ_r(:)
+integer, allocatable, target :: ZZZ_i(:)
+integer :: iZZZ_r = 0, iZZZ_i = 0
 
-real*8, Allocatable,Target  :: ZZZ_r(:)
-integer, Allocatable,Target :: ZZZ_i(:)
-Integer :: iZZZ_r=0, iZZZ_i=0
-
-Logical :: k2_processed=.False.
-Integer, Allocatable :: IndK2(:,:)
-Integer nIndk2
+logical :: k2_processed = .false.
+integer, allocatable :: IndK2(:,:)
+integer nIndk2
 
 public :: k2_type, k2data, Allocate_k2data, Free_k2data
 public :: nDArray, nDScalar, k2_processed, IndK2, nIndk2
@@ -109,108 +107,108 @@ public :: ZZZ_i, ZZZ_r
 
 contains
 
-Subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
-use Symmetry_Info, only: nIrrep
-Implicit None
-Integer nZeta, ijCmp,nHm
-type (k2_type), target:: k2data
+subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
 
-Integer iS, iE
+  use Symmetry_Info, only: nIrrep
 
-k2Data%nZeta=nZeta
-k2Data%nHm  =nHm
-k2Data%ijCmp=ijCmp
+  integer nZeta, ijCmp, nHm
+  type(k2_type), target :: k2data
+  integer iS, iE
 
-iE=iZZZ_r
+  k2Data%nZeta = nZeta
+  k2Data%nHm = nHm
+  k2Data%ijCmp = ijCmp
 
-iS=iE+1
-iE=iE + nZeta
-k2Data%Zeta(1:nZeta) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta
-k2Data%Kappa(1:nZeta) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta * 3
-k2Data%PCoor(1:nZeta,1:3) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta
-k2Data%ZInv(1:nZeta) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta
-k2Data%ab(1:nZeta) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta
-k2Data%abCon(1:nZeta) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta
-k2Data%Alpha(1:nZeta) => ZZZ_r(iS:iE)
-iS=1+iE
-iE=iE + nZeta
-k2Data%Beta(1:nZeta) => ZZZ_r(iS:iE)
-If (nHm/=0) Then
-   iS=1+iE
-   iE=iE + nHm*nIrrep
-   k2Data%HrrMtrx(1:nHm,1:nIrrep) => ZZZ_r(iS:iE)
-End If
-If (ijCmp/=0) Then
-   iS=1+iE
-   iE=iE + nZeta*ijCmp*2
-   k2Data%abG(1:nZeta*ijCmp,1:2) => ZZZ_r(iS:iE)
-End If
-iZZZ_r = iE
-If (iZZZ_r>Size(ZZZ_r)) Then
-   Write (6,*) 'iZZZ_r out for range'
-   Call Abend()
-End If
+  iE = iZZZ_r
 
-iE = iZZZ_i
+  iS = iE+1
+  iE = iE+nZeta
+  k2Data%Zeta(1:nZeta) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta
+  k2Data%Kappa(1:nZeta) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta*3
+  k2Data%PCoor(1:nZeta,1:3) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta
+  k2Data%ZInv(1:nZeta) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta
+  k2Data%ab(1:nZeta) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta
+  k2Data%abCon(1:nZeta) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta
+  k2Data%Alpha(1:nZeta) => ZZZ_r(iS:iE)
+  iS = 1+iE
+  iE = iE+nZeta
+  k2Data%Beta(1:nZeta) => ZZZ_r(iS:iE)
+  if (nHm /= 0) then
+    iS = 1+iE
+    iE = iE+nHm*nIrrep
+    k2Data%HrrMtrx(1:nHm,1:nIrrep) => ZZZ_r(iS:iE)
+  end if
+  if (ijCmp /= 0) then
+    iS = 1+iE
+    iE = iE+nZeta*ijCmp*2
+    k2Data%abG(1:nZeta*ijCmp,1:2) => ZZZ_r(iS:iE)
+  end if
+  iZZZ_r = iE
+  if (iZZZ_r > size(ZZZ_r)) then
+    write(6,*) 'iZZZ_r out for range'
+    call Abend()
+  end if
 
-iS=iE+1
-iE=iE+nZeta+1
-k2Data%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
-iZZZ_i = iE
-If (iZZZ_i>Size(ZZZ_i)) Then
-   Write (6,*) 'iZZZ_i out for range'
-   Call Abend()
-End If
+  iE = iZZZ_i
 
-End Subroutine Allocate_k2data
+  iS = iE+1
+  iE = iE+nZeta+1
+  k2Data%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
+  iZZZ_i = iE
+  if (iZZZ_i > size(ZZZ_i)) then
+    write(6,*) 'iZZZ_i out for range'
+    call Abend()
+  end if
 
-Subroutine Free_k2data()
-use stdalloc, only: mma_deallocate
-Implicit None
-Integer nIrrep, ik2, iIrrep, i
+end subroutine Allocate_k2data
 
-nIrrep=Size(k2data,1)
-ik2   =Size(k2data,2)
+subroutine Free_k2data()
 
-Do i = 1, ik2
-   Do iIrrep = 1, nIrrep
-      Call Free_k2data_Internal(k2data(iIrrep,i))
-   End Do
-End Do
+  use stdalloc, only: mma_deallocate
 
-Call mma_deallocate(ZZZ_r)
-iZZZ_r=0
-Call mma_deallocate(ZZZ_i)
-iZZZ_i=0
+  integer nIrrep, ik2, iIrrep, i
 
-Deallocate(k2data)
+  nIrrep = size(k2data,1)
+  ik2 = size(k2data,2)
 
-End Subroutine Free_k2data
+  do i=1,ik2
+    do iIrrep=1,nIrrep
+      call Free_k2data_Internal(k2data(iIrrep,i))
+    end do
+  end do
 
-Subroutine Free_k2data_Internal(k2data_1D)
-Implicit None
-type (k2_type):: k2data_1D
+  call mma_deallocate(ZZZ_r)
+  iZZZ_r = 0
+  call mma_deallocate(ZZZ_i)
+  iZZZ_i = 0
 
-k2Data%nZeta=0
-k2Data%nHm  =0
-k2Data%ijCmp=0
+  deallocate(k2data)
 
-Nullify(k2Data_1D%Zeta,k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abCon, &
-        k2Data_1D%Alpha,k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%abG,k2Data_1D%IndZ)
+end subroutine Free_k2data
 
-End Subroutine Free_k2data_Internal
+subroutine Free_k2data_Internal(k2data_1D)
 
+  type(k2_type) :: k2data_1D
 
-End Module k2_structure
+  k2Data%nZeta = 0
+  k2Data%nHm = 0
+  k2Data%ijCmp = 0
+
+  nullify(k2Data_1D%Zeta,k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abCon,k2Data_1D%Alpha, &
+          k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%abG,k2Data_1D%IndZ)
+
+end subroutine Free_k2data_Internal
+
+end module k2_structure

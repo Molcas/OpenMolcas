@@ -8,19 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Disp
-Private
+
+module Disp
+
+private
+
 #include "Molcas.fh"
-Logical TRSymm, lEq, Dirct(MxAtom*3), l2DI, HF_Force
+logical TRSymm, lEq, Dirct(MxAtom*3), l2DI, HF_Force
+character(len=LENIN6) ChDisp(MxAtom*3)
+integer IndDsp(MxAtom,0:7), iSkal(MxBas), InxDsp(MxAtom,3), lDisp(0:7), IndxEq(MxAtom*3), ipAM, nTR, mult_Disp(MxAtom*3)
+real*8 CutGrd, Disp_Fac(3,0:7,MxAtom)
 
-Character(LEN=LENIN6) ChDisp(MxAtom*3)
+public :: TRSymm, lEq, Dirct, l2DI, HF_Force, ChDisp, IndDsp, iSkal, InxDsp, lDisp, IndxEq, ipAM, nTR, mult_Disp, CutGrd, Disp_Fac
 
-Integer IndDsp(MxAtom,0:7), iSkal(MxBas), InxDsp(MxAtom,3),&
-        lDisp(0:7), IndxEq(MxAtom*3), ipAM, nTR,           &
-        mult_Disp(MxAtom*3)
-
-Real*8    CutGrd, Disp_Fac(3,0:7,MxAtom)
-
-Public :: TRSymm, lEq, Dirct, l2DI, HF_Force, ChDisp, IndDsp, iSkal, InxDsp,&
-          lDisp, IndxEq, ipAM, nTR, mult_Disp,  CutGrd, Disp_Fac
-End Module Disp
+end module Disp

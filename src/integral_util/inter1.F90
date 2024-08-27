@@ -8,51 +8,52 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
-      Use Basis_Info, only: nCnttp, DBSC
-      Use Center_Info, only: DC
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-#include "Molcas.fh"
-      Character(LEN=LENIN) Label(*)
-      integer Ibas_Lab(*)
-      Real*8 Coor(3,*),ZNUC(*)
-      Integer n_Cent
-!
-      Real*8 A(3)
-      Character(LEN=LENIN) Lbl
-      Logical DSCF
-      Integer nDiff, mdc, ndc, iCnttp, iCnt, iCo, kOp
 
-      DSCF=.False.
-      nDiff=0
-      Call IniSew(DSCF,nDiff)
-!
-      mdc=0
-      ndc=0
-      Do iCnttp=1,nCnttp
-         If(dbsc(iCnttp)%Aux.or.                                        &
-     &      dbsc(iCnttp)%Frag.or.                                       &
-     &      dbsc(iCnttp)%pChrg) Then
-           mdc = mdc + dbsc(iCnttp)%nCntr
-           Go To 99
-         End If
-         Do iCnt=1,dbsc(iCnttp)%nCntr
-            mdc=mdc+1
-            Lbl=dc(mdc)%LblCnt(1:LENIN)
-            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-            Do iCo=0,nIrrep/dc(mdc)%nStab-1
-               ndc=ndc+1
-               kop=dc(mdc)%iCoSet(iCo,0)
-               Call OA(kOp,A,Coor(1:3,ndc))
-               Label(ndc)=Lbl(1:LENIN)
-               iBas_Lab(ndc)=iCnttp
-               ZNUC(ndc)=DBLE(dbsc(iCnttp)%AtmNr)
-            End Do
-         End Do
- 99      Continue
-      End Do
-      n_cent=ndc
-!
-      Return
-      End Subroutine inter1
+subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
+
+use Basis_Info, only: nCnttp, DBSC
+use Center_Info, only: DC
+use Symmetry_Info, only: nIrrep
+
+implicit none
+#include "Molcas.fh"
+character(len=LENIN) Label(*)
+integer Ibas_Lab(*)
+real*8 Coor(3,*), ZNUC(*)
+integer n_Cent
+real*8 A(3)
+character(len=LENIN) Lbl
+logical DSCF
+integer nDiff, mdc, ndc, iCnttp, iCnt, iCo, kOp
+
+DSCF = .false.
+nDiff = 0
+call IniSew(DSCF,nDiff)
+
+mdc = 0
+ndc = 0
+do iCnttp=1,nCnttp
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%pChrg) then
+    mdc = mdc+dbsc(iCnttp)%nCntr
+    Go To 99
+  end if
+  do iCnt=1,dbsc(iCnttp)%nCntr
+    mdc = mdc+1
+    Lbl = dc(mdc)%LblCnt(1:LENIN)
+    A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+    do iCo=0,nIrrep/dc(mdc)%nStab-1
+      ndc = ndc+1
+      kop = dc(mdc)%iCoSet(iCo,0)
+      call OA(kOp,A,Coor(1:3,ndc))
+      Label(ndc) = Lbl(1:LENIN)
+      iBas_Lab(ndc) = iCnttp
+      ZNUC(ndc) = dble(dbsc(iCnttp)%AtmNr)
+    end do
+  end do
+99 continue
+end do
+n_cent = ndc
+
+return
+
+end subroutine inter1

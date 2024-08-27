@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,       &
-     &                  qKappa)
+subroutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,qKappa)
 !***********************************************************************
 !                                                                      *
 ! Object: to keep the diagonal angular indices of a integral batch.    *
@@ -25,43 +25,40 @@
 !             University of Lund, SWEDEN                               *
 !             April '92                                                *
 !***********************************************************************
-      use Constants, only: Two
-      Implicit None
-      Integer nab, mZeta, nZeta
-      Real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta),         &
-     &       Zeta(mZeta), qKappa(mZeta)
-      Logical Mode
 
-      Integer iab, iZeta
-!
-      If (Mode) Then
-!--------Integrals
-         Do iab = 1, nab
-            Do iZeta = 1, mZeta
-               ab(iZeta,iab) =                                          &
-     &             Sqrt(Sqrt(Two*Zeta(iZeta))*Abs(abab(iZeta,iab,iab))) &
-     &                       / rKappa(iZeta)
-            End Do
-         End Do
-      Else
-!--------Integrals for numerical estimation of the gradient.
-         Do iab = 1, nab
-            Do iZeta = 1, mZeta
-               ab(iZeta,iab) = Sqrt(Two*Zeta(iZeta))*                   &
-     &                       abab(iZeta,iab,iab)                        &
-     &                       / (rKappa(iZeta)*qKappa(iZeta))
-            End Do
-         End Do
-      End If
+use Constants, only: Two
+
+implicit none
+integer nab, mZeta, nZeta
+real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta), Zeta(mZeta), qKappa(mZeta)
+logical Mode
+integer iab, iZeta
+
+if (Mode) then
+  ! Integrals
+  do iab=1,nab
+    do iZeta=1,mZeta
+      ab(iZeta,iab) = sqrt(sqrt(Two*Zeta(iZeta))*abs(abab(iZeta,iab,iab)))/rKappa(iZeta)
+    end do
+  end do
+else
+  ! Integrals for numerical estimation of the gradient.
+  do iab=1,nab
+    do iZeta=1,mZeta
+      ab(iZeta,iab) = sqrt(Two*Zeta(iZeta))*abab(iZeta,iab,iab)/(rKappa(iZeta)*qKappa(iZeta))
+    end do
+  end do
+end if
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'nZeta,mZeta=',nZeta,mZeta
-      Call RecPrt(' abab','(5G20.10)',abab,mZeta,nab**2)
-      Call RecPrt(' rKappa','(5G20.10)',rKappa,mZeta,1)
-      Call RecPrt(' Zeta  ','(5G20.10)',Zeta  ,mZeta,1)
-      Do iab = 1, nab
-         Call RecPrt(' ab ','(5G20.10)',ab(1,iab),mZeta,1)
-      End Do
+write(6,*) 'nZeta,mZeta=',nZeta,mZeta
+call RecPrt(' abab','(5G20.10)',abab,mZeta,nab**2)
+call RecPrt(' rKappa','(5G20.10)',rKappa,mZeta,1)
+call RecPrt(' Zeta  ','(5G20.10)',Zeta,mZeta,1)
+do iab=1,nab
+  call RecPrt(' ab ','(5G20.10)',ab(1,iab),mZeta,1)
+end do
 #endif
-!
-      Return
-      End SubRoutine PckInt
+
+return
+
+end subroutine PckInt

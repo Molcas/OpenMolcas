@@ -8,30 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Set_Basis_Mode_Atomic(i,j)
-      use Basis_Info, only: dbsc
-      use BasisMode
-      Implicit none
-      Integer i, j
 
-      Integer k
-!
-      If (dbsc(i)%Aux) Then
-         Basis_Mode = Auxiliary_Mode
-      Else
-         Basis_Mode = Valence_Mode
-      End If
-!
-      Do k = i+1, j
-         If (dbsc(i)%Aux.neqv.dbsc(k)%Aux) Then
-            Call WarningMessage(2,                                      &
-     &              'dbsc(i)%Aux.ne.dbsc(k)%Aux')
-            Call Abend()
-         End If
-      End Do
-!
-      Atomic=.True.
-      kCnttp = i
-      lCnttp = j
-!
-      End Subroutine Set_Basis_Mode_Atomic
+subroutine Set_Basis_Mode_Atomic(i,j)
+
+use Basis_Info, only: dbsc
+use BasisMode
+
+implicit none
+integer i, j
+integer k
+
+if (dbsc(i)%Aux) then
+  Basis_Mode = Auxiliary_Mode
+else
+  Basis_Mode = Valence_Mode
+end if
+
+do k=i+1,j
+  if (dbsc(i)%Aux .neqv. dbsc(k)%Aux) then
+    call WarningMessage(2,'dbsc(i)%Aux /= dbsc(k)%Aux')
+    call Abend()
+  end if
+end do
+
+Atomic = .true.
+kCnttp = i
+lCnttp = j
+
+end subroutine Set_Basis_Mode_Atomic

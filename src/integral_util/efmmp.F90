@@ -10,44 +10,39 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine EFMmP(nRys,MmEFP,la,lb,lr)
-      Implicit None
-      Integer nRys, MmEFP,la,lb,lr
 
-      Integer ixyz, nElem, nabSz, labMin, labMax, lcdMin, lcdMax, lab,  &
-     &        kab, lcd, labcd, Mem1, Mem2, lc, ld, nMem, nFlop
-!
-      Integer iAngV(4)
-!
-!     Statement function for Cartesian index
-!
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-!
-      lc = lr
-      ld = 0
-      nRys = (la+lb+lc+ld+2)/2
-      labMin=nabSz(Max(la,lb)-1)+1
-      labMax=nabSz(la+lb)
-      lcdMin=nabSz(lr-1)+1
-      lcdMax=nabSz(lr)
-      lab = (labMax-labMin+1)
-      kab = nElem(la)*nElem(lb)
-      lcd = (lcdMax-lcdMin+1)
-      labcd = lab*lcd
-!
-      Call mHRR(la,lb,nFlop,nMem)
-      Mem1=Max(lcd*nMem,labcd)
-!
-      iAngV(1) = la
-      iAngV(2) = lb
-      iAngV(3) = lc
-      iAngV(4) = ld
-      Call MemRys(iAngV,Mem2)
-      Mem2 = Max(Mem2,kab*lcd)
-!
-      MmEFP=Mem1 + Mem2
+subroutine EFMmP(nRys,MmEFP,la,lb,lr)
 
-      End Subroutine EFMmP
+implicit none
+integer nRys, MmEFP, la, lb, lr
+integer ixyz, nElem, nabSz, labMin, labMax, lcdMin, lcdMax, lab, kab, lcd, labcd, Mem1, Mem2, lc, ld, nMem, nFlop
+integer iAngV(4)
+! Statement function for Cartesian index
+nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+lc = lr
+ld = 0
+nRys = (la+lb+lc+ld+2)/2
+labMin = nabSz(max(la,lb)-1)+1
+labMax = nabSz(la+lb)
+lcdMin = nabSz(lr-1)+1
+lcdMax = nabSz(lr)
+lab = (labMax-labMin+1)
+kab = nElem(la)*nElem(lb)
+lcd = (lcdMax-lcdMin+1)
+labcd = lab*lcd
 
+call mHRR(la,lb,nFlop,nMem)
+Mem1 = max(lcd*nMem,labcd)
+
+iAngV(1) = la
+iAngV(2) = lb
+iAngV(3) = lc
+iAngV(4) = ld
+call MemRys(iAngV,Mem2)
+Mem2 = max(Mem2,kab*lcd)
+
+MmEFP = Mem1+Mem2
+
+end subroutine EFMmP

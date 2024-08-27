@@ -10,54 +10,58 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine VrfMtrx(Label,lOper,nComp,ip,Matrix)
+
+subroutine VrfMtrx(Label,lOper,nComp,ip,Matrix)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, Sweden, January '91                  *
 !***********************************************************************
-      use Basis_Info, only: nBas
-      use Gateway_global, only: PrPrt
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer nComp
-      Real*8 Matrix(*)
-      Character(LEN=*) Label
-      Integer ip(nComp), lOper(nComp)
-!     Local arrays
-      Character(LEN=80)  Line
-      Character(LEN=1)  Status
-      Integer iComp, ip1, iSmLbl, iIrrep, n2, jIrrep
-      Real*8 VrfSum
-      Real*8, External :: DDot_
-!
-      Call GetEnvf('MOLCAS_TEST_not_yet_here',Status)
-      If (Status.eq.' ') Return
-      Do 10 iComp = 1, nComp
-         VrfSum=0.0D0
-         ip1 = ip(iComp)
-         iSmLbl = lOper(iComp)
-         If (Prprt) iSmLbl = iAnd(1,iSmLbl)
-         Do 30 iIrrep = 0, nIrrep - 1
-            If (nBas(iIrrep).le.0) Go To 30
-            Do 40 jIrrep = 0, iIrrep
-               If (nBas(jIrrep).le.0) Go To 40
-               If (iAnd(iSmLbl,2**iEor(iIrrep,jIrrep)).eq.0) Go To 40
-               If (iIrrep.eq.jIrrep) Then
-                  n2=nBas(iIrrep)*(nBas(iIrrep)+1)/2
-                  VrfSum=VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
-                  ip1 = ip1 + n2
-               Else
-                  n2 =  nBas(iIrrep)*nBas(jIrrep)
-                  VrfSum=VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
-                  ip1 = ip1 + n2
-               End If
- 40         Continue
- 30      Continue
-!        Add the nuclear contribution and the operator position.
-         n2=4
-         VrfSum=VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
-         Write (Line,'(A,I5)') Label,iComp
-         Call Add_info(Line,[VrfSum],1,8)
- 10   Continue
-!
-      End SubRoutine VrfMtrx
+
+use Basis_Info, only: nBas
+use Gateway_global, only: PrPrt
+use Symmetry_Info, only: nIrrep
+
+implicit none
+integer nComp
+real*8 Matrix(*)
+character(len=*) Label
+integer ip(nComp), lOper(nComp)
+character(len=80) Line
+character(len=1) Status
+integer iComp, ip1, iSmLbl, iIrrep, n2, jIrrep
+real*8 VrfSum
+real*8, external :: DDot_
+
+call GetEnvf('MOLCAS_TEST_not_yet_here',Status)
+if (Status == ' ') return
+do iComp=1,nComp
+  VrfSum = 0.0d0
+  ip1 = ip(iComp)
+  iSmLbl = lOper(iComp)
+  if (Prprt) iSmLbl = iand(1,iSmLbl)
+  do iIrrep=0,nIrrep-1
+    if (nBas(iIrrep) <= 0) Go To 30
+    do jIrrep=0,iIrrep
+      if (nBas(jIrrep) <= 0) Go To 40
+      if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) Go To 40
+      if (iIrrep == jIrrep) then
+        n2 = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+        VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
+        ip1 = ip1+n2
+      else
+        n2 = nBas(iIrrep)*nBas(jIrrep)
+        VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
+        ip1 = ip1+n2
+      end if
+40    continue
+    end do
+30  continue
+  end do
+  ! Add the nuclear contribution and the operator position.
+  n2 = 4
+  VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
+  write(Line,'(A,I5)') Label,iComp
+  call Add_info(Line,[VrfSum],1,8)
+end do
+
+end subroutine VrfMtrx

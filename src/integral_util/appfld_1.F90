@@ -8,58 +8,57 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      Subroutine AppFld_1(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
-      use Constants, only: One
-      Implicit None
-      Integer lMax
-      Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
-      Real*8 Radius, Eps, EpsInf
-      Logical NonEq
 
-      Integer l, ip
-      Real*8 f, rInv, rPoti, Fact, DblFac
-!
-!     Statement function
-!
-      f(Eps,l)=(DBLE(1+l)*(Eps-One))/(DBLE(1+l)*Eps+DBLE(l))
-!
+!#define _DEBUGPRINT_
+subroutine AppFld_1(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
+
+use Constants, only: One
+
+implicit none
+integer lMax
+real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+real*8 Radius, Eps, EpsInf
+logical NonEq
+integer l, ip
+real*8 f, rInv, rPoti, Fact, DblFac
+! Statement function
+f(Eps,l) = (dble(1+l)*(Eps-One))/(dble(1+l)*Eps+dble(l))
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Multipole Moments',' ',Cavxyz,                       &
-     &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+call RecPrt('Multipole Moments',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
-!
-!-----Backtransform from cartesian to spherical harmonics
-!
-      Call Tranca(Cavxyz,Cavsph,lmax,.True.)
+
+! Backtransform from cartesian to spherical harmonics
+
+call Tranca(Cavxyz,Cavsph,lmax,.true.)
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' CavSph',' ',Cavsph,(lMax+1)**2,1)
+call RecPrt(' CavSph',' ',Cavsph,(lMax+1)**2,1)
 #endif
-!
-!-----Evaluate the electric field components at the origin.
-!     This is identical to the charge distribution on the
-!     boundary of the cavity!
-!
-      ip = 1
-      Do l=0,lmax
-         rinv=One/radius**(2*l+1)
-         fact=F(Eps,l)*(One-F(EpsInf,l)/F(Eps,l))**2
-         rpoti=rinv*fact*DblFac(2*l-1)
-         Call DScal_(2*l+1,rpoti,Cavsph(ip),1)
-         ip = ip + 2*l+1
-      End Do
-!
-!-----Transform electric field components from spherical harmonics
-!     to cartesians.
-!
-      Call Tranca(Cavxyz,Cavsph,lmax,.False.)
-!
+
+! Evaluate the electric field components at the origin.
+! This is identical to the charge distribution on the
+! boundary of the cavity!
+
+ip = 1
+do l=0,lmax
+  rinv = One/radius**(2*l+1)
+  fact = F(Eps,l)*(One-F(EpsInf,l)/F(Eps,l))**2
+  rpoti = rinv*fact*DblFac(2*l-1)
+  call DScal_(2*l+1,rpoti,Cavsph(ip),1)
+  ip = ip+2*l+1
+end do
+
+! Transform electric field components from spherical harmonics
+! to cartesians.
+
+call Tranca(Cavxyz,Cavsph,lmax,.false.)
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Electric Field',' ',Cavxyz,                          &
-     &                              (lMax+1)*(lMax+2)*(lMax+3)/6,1)
+call RecPrt('Electric Field',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
-!
-      Return
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_logical(NonEq)
-      End Subroutine AppFld_1
+if (.false.) call Unused_logical(NonEq)
+
+end subroutine AppFld_1

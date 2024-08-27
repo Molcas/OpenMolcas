@@ -11,8 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Phase(iCmp, jCmp, kCmp, lCmp, iAng,                    &
-     &                 iShll, kOp, ijkl, AOInt)
+
+subroutine Phase(iCmp,jCmp,kCmp,lCmp,iAng,iShll,kOp,ijkl,AOInt)
 !***********************************************************************
 !                                                                      *
 !  Object: To change the phase of the integrals in accordance with the *
@@ -21,59 +21,57 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      use Basis_Info
-      use Real_Spherical, only: iSphCr
-      use Symmetry_Info, only: iChBas
-      use Constants
-      Implicit None
-      Integer iCmp, jCmp, kCmp, lCmp, kOp, ijkl
-      Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
-      Integer iAng(4), iShll(4)
 
-      Integer ixyz, iOff, ii, jj, kk, ll, i1, i2, i3, i4,               &
-     &        iChBs, jChBs, kChBs, lChBs
-      Real*8 pa1T, pb1T, pa2T, pb2T, Factor
-      Integer, External:: iPrmt
-!
-!     Statement Function
-!
-      iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-!
-!     Call RecPrt(' In Phase: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
-!
-!     Change phase factor. This is only necessary if T=/=E.
-!
-      If (kOp.eq.0 .or. iCmp*jCmp*kCmp*lCmp.eq.0) Return
-      ii = iOff(iAng(1))
-      jj = iOff(iAng(2))
-      kk = iOff(iAng(3))
-      ll = iOff(iAng(4))
-      Do 10 i1 = 1, iCmp
-       iChBs = iChBas(ii+i1)
-       If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
-       pa1T = DBLE(iPrmt(kOp,iChBs))
-       Do 11 i2 = 1, jCmp
-        jChBs = iChBas(jj+i2)
-        If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
-        pb1T = DBLE(iPrmt(kOp,jChBs))
-!
-        Do 12 i3 = 1, kCmp
-         kChBs = iChBas(kk+i3)
-         If (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+i3))
-         pa2T = DBLE(iPrmt(kOp,kChBs))
-         Do 13 i4 = 1, lCmp
-          lChBs = iChBas(ll+i4)
-          If (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
-          pb2T = DBLE(iPrmt(kOp,lChBs))
-          Factor=pa1T*pb1T*pa2T*pb2T
-          If (Factor.ne.One) Call DScal_(ijkl,Factor,                   &
-     &                                  AOInt(1,i1,i2,i3,i4),1)
- 13      Continue
- 12     Continue
- 11    Continue
- 10   Continue
-!
-!     Call RecPrt(' Exit Phase: AOInt ',' ',AOInt,ijkl,
-!    &            iCmp*jCmp*kCmp*lCmp)
-      Return
-      End Subroutine Phase
+use Basis_Info
+use Real_Spherical, only: iSphCr
+use Symmetry_Info, only: iChBas
+use Constants
+
+implicit none
+integer iCmp, jCmp, kCmp, lCmp, kOp, ijkl
+real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
+integer iAng(4), iShll(4)
+integer ixyz, iOff, ii, jj, kk, ll, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs
+real*8 pa1T, pb1T, pa2T, pb2T, Factor
+integer, external :: iPrmt
+! Statement Function
+iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
+
+!call RecPrt(' In Phase: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
+
+! Change phase factor. This is only necessary if T=/=E.
+
+if ((kOp == 0) .or. (iCmp*jCmp*kCmp*lCmp == 0)) return
+ii = iOff(iAng(1))
+jj = iOff(iAng(2))
+kk = iOff(iAng(3))
+ll = iOff(iAng(4))
+do i1=1,iCmp
+  iChBs = iChBas(ii+i1)
+  if (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
+  pa1T = dble(iPrmt(kOp,iChBs))
+  do i2=1,jCmp
+    jChBs = iChBas(jj+i2)
+    if (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
+    pb1T = dble(iPrmt(kOp,jChBs))
+
+    do i3=1,kCmp
+      kChBs = iChBas(kk+i3)
+      if (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+i3))
+      pa2T = dble(iPrmt(kOp,kChBs))
+      do i4=1,lCmp
+        lChBs = iChBas(ll+i4)
+        if (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
+        pb2T = dble(iPrmt(kOp,lChBs))
+        Factor = pa1T*pb1T*pa2T*pb2T
+        if (Factor /= One) call DScal_(ijkl,Factor,AOInt(1,i1,i2,i3,i4),1)
+      end do
+    end do
+  end do
+end do
+
+!call RecPrt(' Exit Phase: AOInt ',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+
+return
+
+end subroutine Phase

@@ -11,11 +11,10 @@
 ! Copyright (C) 1990,1992,1994,1996, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,                        &
-     &                  Coef3,n3,m3,Coef4,n4,m4,                        &
-     &                  ACInt,mabcd,Scrtch,nScr,ACOut,                  &
-     &                  IndZet,lZeta,IndEta,lEta)
+!#define _CHECK_
+subroutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Scrtch,nScr,ACOut,IndZet,lZeta,IndEta,lEta)
 !***********************************************************************
 !                                                                      *
 ! Object: to transform the integrals from primitives to contracted     *
@@ -31,76 +30,68 @@
 !             of Lund, SWEDEN.                                         *
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
-      Implicit None
-!
-!---- Cache size
-!
+
+implicit none
 #include "Molcas.fh"
-      Integer n1,m1,n2,m2,n3,m3,n4,m4,mabcd,nScr,lZeta,lEta
-      Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),    &
-     &       ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr),                    &
-     &       ACOut(lZeta*lEta,mabcd)
-      Integer IndZet(lZeta), IndEta(lEta)
+integer n1, m1, n2, m2, n3, m3, n4, m4, mabcd, nScr, lZeta, lEta
+real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr), ACOut(lZeta*lEta,mabcd)
+integer IndZet(lZeta), IndEta(lEta)
+integer nCache, lsize, nVec, IncVec, ipA2, ipA3
 
-      Integer nCache, lsize, nVec, IncVec, ipA2, ipA3
-!
 #ifdef _DEBUGPRINT_
-      Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
-      Call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,mabcd,m1*m2*m3*m4)
-      Call RecPrt(' Coef1',' ',Coef1,n1,m1)
-      Call RecPrt(' Coef2',' ',Coef2,n2,m2)
-      Call RecPrt(' Coef3',' ',Coef3,n3,m3)
-      Call RecPrt(' Coef4',' ',Coef4,n4,m4)
-      Write (6,*) n1, n2, n3, n4
-#endif
-!
-!---- Reduce for contraction matrix
-      nCache = (3*lCache)/4 - n3*m3 - n4*m4
-      lsize= m3*m4 + m3*n4
-      nVec = m1*m2*mabcd
-      IncVec = Min(Max(1,nCache/lsize),nVec)
-      ipA3=1
-      ipA2=ipA3 + nVec*lEta
-!
-!define _CHECK_
-#ifdef _CHECK_
-      If (nVec*lEta+n4*m3*IncVec.gt.nScr) Then
-         Write (6,*) 'Tcrtnc: Memory failure 1'
-         Write (6,*) 'n4*IncVec*m3(A2)=',n4*IncVec*m3
-         Write (6,*) 'nVec*lEta(A3)=',nVec*lEta
-         Write (6,*) 'n4,IndVec,m3=',n4,IndVec,m3
-         Write (6,*) 'nVec,lEta=',nVec,lEta
-         Write (6,*) 'nScr=',nScr
-         Call Abend()
-      End If
+call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
+call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,mabcd,m1*m2*m3*m4)
+call RecPrt(' Coef1',' ',Coef1,n1,m1)
+call RecPrt(' Coef2',' ',Coef2,n2,m2)
+call RecPrt(' Coef3',' ',Coef3,n3,m3)
+call RecPrt(' Coef4',' ',Coef4,n4,m4)
+write(6,*) n1,n2,n3,n4
 #endif
 
-      Call TncHlf(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,                    &
-     &            IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndEta)
-!
-      nCache = (3*lCache)/4 - n1*m1 - n2*m2
-      lsize = m1*m2 + m1*n2
-      nVec = mabcd*lEta
-      IncVec = Min(Max(1,nCache/lsize),nVec)
-!
+! Reduce for contraction matrix
+nCache = (3*lCache)/4-n3*m3-n4*m4
+lsize = m3*m4+m3*n4
+nVec = m1*m2*mabcd
+IncVec = min(max(1,nCache/lsize),nVec)
+ipA3 = 1
+ipA2 = ipA3+nVec*lEta
+
 #ifdef _CHECK_
-      If (nVec*m1*m2+n2*IncVec*m1.gt.nScr) Then
-         Write (6,*) 'Tcrtnc: Memory failure 2'
-         Write (6,*) 'nVec*m1*m2(A1)=',nVec*m1*m2
-         Write (6,*) 'n2*IncVec*m1(A2)=',n2*IncVec*m1
-         Write (6,*) 'nVec,m1,m2=',nVec,m1,m2
-         Write (6,*) 'n2,IncVec,m1=',n2,IncVec,m1
-         Write (6,*) 'nScr=',nScr
-         Call Abend()
-      End If
+if (nVec*lEta+n4*m3*IncVec > nScr) then
+  write(6,*) 'Tcrtnc: Memory failure 1'
+  write(6,*) 'n4*IncVec*m3(A2)=',n4*IncVec*m3
+  write(6,*) 'nVec*lEta(A3)=',nVec*lEta
+  write(6,*) 'n4,IndVec,m3=',n4,IndVec,m3
+  write(6,*) 'nVec,lEta=',nVec,lEta
+  write(6,*) 'nScr=',nScr
+  call Abend()
+end if
 #endif
-!
-      Call TncHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,                   &
-     &            IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndZet)
-!
+
+call TncHlf(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndEta)
+
+nCache = (3*lCache)/4-n1*m1-n2*m2
+lsize = m1*m2+m1*n2
+nVec = mabcd*lEta
+IncVec = min(max(1,nCache/lsize),nVec)
+
+#ifdef _CHECK_
+if (nVec*m1*m2+n2*IncVec*m1 > nScr) then
+  write(6,*) 'Tcrtnc: Memory failure 2'
+  write(6,*) 'nVec*m1*m2(A1)=',nVec*m1*m2
+  write(6,*) 'n2*IncVec*m1(A2)=',n2*IncVec*m1
+  write(6,*) 'nVec,m1,m2=',nVec,m1,m2
+  write(6,*) 'n2,IncVec,m1=',n2,IncVec,m1
+  write(6,*) 'nScr=',nScr
+  call Abend()
+end if
+#endif
+
+call TncHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndZet)
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZeta*lEta)
-      Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZeta*lEta*mabcd)
+call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZeta*lEta)
+call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZeta*lEta*mabcd)
 #endif
-!
-      End SubRoutine Tcrtnc
+
+end subroutine Tcrtnc

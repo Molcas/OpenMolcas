@@ -8,21 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine rlsmem_ints()
-      use k2_arrays, only: Sew_Scr, XMem
-      use stdalloc, only: mma_deallocate
-      implicit None
-!
-      If (XMem) Then
-!        Write (6,*) 'RlsMem_Ints: External scratch handling active!'
-      Else If (.NOT.XMem) Then
-         If (Allocated(Sew_Scr)) Then
-!           Write (6,*) 'RlsMem_Ints: Memory released!'
-            Call mma_deallocate(Sew_Scr)
-!        Else
-!           Write (6,*) 'RlsMem_Ints: No memory to release!'
-         End If
-      End If
-!
-      return
-      end subroutine rlsmem_ints
+
+subroutine rlsmem_ints()
+
+use k2_arrays, only: Sew_Scr, XMem
+use stdalloc, only: mma_deallocate
+
+implicit none
+
+if (.not. XMem) then
+  if (allocated(Sew_Scr)) then
+    !write(6,*) 'RlsMem_Ints: Memory released!'
+    call mma_deallocate(Sew_Scr)
+  !else
+  !  write(6,*) 'RlsMem_Ints: No memory to release!'
+  end if
+!else
+!  write(6,*) 'RlsMem_Ints: External scratch handling active!'
+end if
+
+return
+
+end subroutine rlsmem_ints

@@ -8,13 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Free_HerRW()
-      use Her_RW, only: HerR, HerW, iHerR, iHerw
-      use stdalloc, only: mma_deallocate
-      Implicit None
-      If (Allocated(iHerR)) Call mma_deallocate(iHerR)
-      If (Allocated(iHerW)) Call mma_deallocate(iHerW)
-      If (Allocated( HerR)) Call mma_deallocate( HerR)
-      If (Allocated( HerW)) Call mma_deallocate( HerW)
-      Return
-      End SubRoutine Free_HerRW
+
+subroutine Free_HerRW()
+
+use Her_RW, only: HerR, HerW, iHerR, iHerw
+use stdalloc, only: mma_deallocate
+
+implicit none
+
+if (allocated(iHerR)) call mma_deallocate(iHerR)
+if (allocated(iHerW)) call mma_deallocate(iHerW)
+if (allocated(HerR)) call mma_deallocate(HerR)
+if (allocated(HerW)) call mma_deallocate(HerW)
+
+return
+
+end subroutine Free_HerRW

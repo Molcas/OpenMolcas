@@ -11,7 +11,9 @@
 ! Copyright (C) 1990,2020, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine CrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
+
+!#define _DEBUGPRINT_
+subroutine CrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
 !***********************************************************************
 !                                                                      *
 ! Object: to compile the value of the angular part of a basis function *
@@ -20,59 +22,57 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      use Constants, only: One
-      Implicit None
-      Integer, Intent(In):: nZeta, nHer, na
-      Integer iHer, iCar, ia
-      Real*8, Intent(In)::  Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer)
-      Real*8, Intent(Out):: Axyz(nZeta,3,nHer,0:na)
-!#define _DEBUGPRINT_
+
+use Constants, only: One
+
+implicit none
+integer, intent(In) :: nZeta, nHer, na
+integer iHer, iCar, ia
+real*8, intent(In) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer)
+real*8, intent(Out) :: Axyz(nZeta,3,nHer,0:na)
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+character*80 Label
 #endif
-      Logical ABeq(3)
-!
-!
-      If (na.lt.0) Then
-         Call WarningMessage(2,'CrtCmp: na.lt.0')
-         Call Abend()
-      End If
+logical ABeq(3)
+
+if (na < 0) then
+  call WarningMessage(2,'CrtCmp: na < 0')
+  call Abend()
+end if
 #ifdef _DEBUGPRINT_
-      Write (Label,'(A)') ' In CrtCmp: Axyz(in)'
-      Call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
-      Call RecPrt(' In CrtCmp: HerR',' ',HerR,1,nHer)
-      Call RecPrt(' In CrtCmp: Zeta',' ',Zeta,nZeta,1)
-      Call RecPrt(' In CrtCmp: A   ',' ',A   ,1    ,3)
-      Call RecPrt(' In CrtCmp: P   ',' ',P   ,nZeta,3)
+write(Label,'(A)') ' In CrtCmp: Axyz(in)'
+call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
+call RecPrt(' In CrtCmp: HerR',' ',HerR,1,nHer)
+call RecPrt(' In CrtCmp: Zeta',' ',Zeta,nZeta,1)
+call RecPrt(' In CrtCmp: A   ',' ',A,1,3)
+call RecPrt(' In CrtCmp: P   ',' ',P,nZeta,3)
 #endif
-      Axyz(:,:,:,0)=One
-      If (na.ne.0) then
-!
-         Do iHer = 1, nHer
-            Do iCar = 1, 3
-!
-               If (ABeq(iCar)) Then
-                  Axyz(:,iCar,iHer,1) =                                 &
-     &                   HerR(iHer)*1/Sqrt(Zeta(:))
-               Else
-                  Axyz(:,iCar,iHer,1) =                                 &
-     &                      HerR(iHer)*1/Sqrt(Zeta(:)) +                &
-     &                      P(:,iCar) - A(iCar)
-               End If
-!
-               Do ia = 2, na
-                  Axyz(:,iCar,iHer,ia) = Axyz(:,iCar,iHer,1) *          &
-     &                                      Axyz(:,iCar,iHer,ia-1)
-               End Do
-!
-            End Do
-         End Do
-!
-      End If
-!
+Axyz(:,:,:,0) = One
+if (na /= 0) then
+
+  do iHer=1,nHer
+    do iCar=1,3
+
+      if (ABeq(iCar)) then
+        Axyz(:,iCar,iHer,1) = HerR(iHer)*1/sqrt(Zeta(:))
+      else
+        Axyz(:,iCar,iHer,1) = HerR(iHer)*1/sqrt(Zeta(:))+P(:,iCar)-A(iCar)
+      end if
+
+      do ia=2,na
+        Axyz(:,iCar,iHer,ia) = Axyz(:,iCar,iHer,1)*Axyz(:,iCar,iHer,ia-1)
+      end do
+
+    end do
+  end do
+
+end if
+
 #ifdef _DEBUGPRINT_
-      Write (Label,'(A)') ' In CrtCmp: Axyz(out) '
-      Call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
+write(Label,'(A)') ' In CrtCmp: Axyz(out) '
+call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
 #endif
-      Return
-      End SubRoutine CrtCmp
+
+return
+
+end subroutine CrtCmp

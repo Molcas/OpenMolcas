@@ -8,45 +8,47 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+subroutine Shell_MxDens(Dens,DMax,nSkal)
 !***********************************************************************
 !                                                                      *
 !  Subroutine Shell_MxDens:   returns max density values for each      *
 !                             shell pair...                            *
 !                                                                      *
 !***********************************************************************
-      subroutine Shell_MxDens(Dens,DMax,nSkal)
-!----------------------------------------------------------------------
-      use Symmetry_Info, only: nIrrep
-      Implicit None
-      Integer nSkal
-      Real*8 dmax(nskal,nskal),dens(*)
 
-      Integer, external:: nbfshl
-      Integer ijOff, irp, ie, iSh, n, ia, je, jSh, m, ja, i, ij, j
+use Symmetry_Info, only: nIrrep
 
-      ijoff=0
-      call fzero(dmax,nskal*nskal)
-      Do irp=0,nirrep-1
-        ie=0
-        Do iSh = 1, nSkal
-          n=nbfshl(ish,irp)
-          ia=ie+1
-          ie=ie+n
-          je=0
-          Do jSh=1,iSh
-            m=nbfshl(jsh,irp)
-            ja=je+1
-            je=je+m
-            Do i=ia,ie
-              ij=i*(i-1)/2+ja+ijoff
-              Do j=ja,min(i,je)
-                dmax(jsh,ish)=max(dmax(jsh,ish),abs(dens(ij)))
-                ij=ij+1
-              End Do
-            End Do
-          dmax(ish,jsh)=dmax(jsh,ish)
-          End Do
-        End Do
-        ijoff=ijoff+ie*(ie+1)/2
-      End Do
-      end subroutine Shell_MxDens
+implicit none
+integer nSkal
+real*8 dmax(nskal,nskal), dens(*)
+integer, external :: nbfshl
+integer ijOff, irp, ie, iSh, n, ia, je, jSh, m, ja, i, ij, j
+
+ijoff = 0
+call fzero(dmax,nskal*nskal)
+do irp=0,nirrep-1
+  ie = 0
+  do iSh=1,nSkal
+    n = nbfshl(ish,irp)
+    ia = ie+1
+    ie = ie+n
+    je = 0
+    do jSh=1,iSh
+      m = nbfshl(jsh,irp)
+      ja = je+1
+      je = je+m
+      do i=ia,ie
+        ij = i*(i-1)/2+ja+ijoff
+        do j=ja,min(i,je)
+          dmax(jsh,ish) = max(dmax(jsh,ish),abs(dens(ij)))
+          ij = ij+1
+        end do
+      end do
+      dmax(ish,jsh) = dmax(jsh,ish)
+    end do
+  end do
+  ijoff = ijoff+ie*(ie+1)/2
+end do
+
+end subroutine Shell_MxDens

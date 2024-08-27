@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      real*8 function  gammaf(x)
+
+function gammaf(x)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the angular contribution to the multipole integral*
@@ -16,30 +17,32 @@
 !         (phi integration)                                            *
 !                                                                      *
 !***********************************************************************
-      use rmat, only: lcosf, lsinf, n_gam, m_gam
-      use Constants, only: Zero, One, Two
-      Implicit None
-      Real*8 x
 
-      Integer k1, k2
-      Real*8, external:: dgamma_molcas
-      Real*8 arg1, arg2, arg3
-!
-      lcosf=n_gam
-      lsinf=m_gam
-      k1=(-1)**lsinf
-      k2=(-1)**lcosf
-      if(k1.eq.(-1).or.k2.eq.(-1)) then
-       gammaf=Zero
-      else
-       arg1=(DBLE(lcosf)+One)/Two
-       arg2=(DBLE(lsinf)+One)/Two
-       arg3=(DBLE(lsinf)+DBLE(lcosf)+Two)/Two
-       gammaf=Two*dgamma_molcas(arg1)*dgamma_molcas(arg2)/              &
-     &                                  dgamma_molcas(arg3)
-      Endif
-!
-      Return
+use rmat, only: lcosf, lsinf, n_gam, m_gam
+use Constants, only: Zero, One, Two
+
+implicit none
+real*8 gammaf
+real*8 x
+integer k1, k2
+real*8, external :: dgamma_molcas
+real*8 arg1, arg2, arg3
+
+lcosf = n_gam
+lsinf = m_gam
+k1 = (-1)**lsinf
+k2 = (-1)**lcosf
+if ((k1 == -1) .or. (k2 == -1)) then
+  gammaf = Zero
+else
+  arg1 = (dble(lcosf)+One)/Two
+  arg2 = (dble(lsinf)+One)/Two
+  arg3 = (dble(lsinf)+dble(lcosf)+Two)/Two
+  gammaf = Two*dgamma_molcas(arg1)*dgamma_molcas(arg2)/dgamma_molcas(arg3)
+end if
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real(x)
-      End
+if (.false.) call Unused_real(x)
+
+end function gammaf

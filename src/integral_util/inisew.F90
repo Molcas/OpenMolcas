@@ -10,25 +10,29 @@
 !                                                                      *
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine IniSew(DSCF,nDiff)
+
+subroutine IniSew(DSCF,nDiff)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Basis_Info, only: Seward_Activated
-      Implicit None
+
+use Basis_Info, only: Seward_Activated
+
+implicit none
 #include "SysDef.fh"
-      Logical DSCF
-      Integer nDiff
-!
-      If (Seward_Activated) Then
-         Call ClsSew()
-         Call xRlsMem_Ints()
-      End If
-!
-      Call Seward_Init()
-!
-      Call GetInf(DSCF,nDiff)
-!
-      Return
-      End SubRoutine IniSew
+logical DSCF
+integer nDiff
+
+if (Seward_Activated) then
+  call ClsSew()
+  call xRlsMem_Ints()
+end if
+
+call Seward_Init()
+
+call GetInf(DSCF,nDiff)
+
+return
+
+end subroutine IniSew

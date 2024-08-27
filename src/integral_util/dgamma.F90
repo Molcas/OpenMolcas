@@ -8,12 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 Function DGamma_Molcas(arg)
-      Implicit None
-      Real*8 arg
-      Real*8, external:: gammln
-!
-      DGamma_Molcas=Exp(gammln(arg))
-!
-      Return
-      End Function DGamma_Molcas
+
+function DGamma_Molcas(arg)
+
+implicit none
+real*8 DGamma_Molcas
+real*8 arg
+real*8, external :: gammln
+
+DGamma_Molcas = exp(gammln(arg))
+
+return
+
+end function DGamma_Molcas

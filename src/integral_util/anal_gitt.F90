@@ -11,7 +11,8 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Real*8 Function Anal_Gitt(cordsi,latato)
+
+function Anal_Gitt(cordsi,latato)
 !***********************************************************************
 !                                                                      *
 !     Object:                                                          *
@@ -26,84 +27,75 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use Constants, only: Zero, One
-      Implicit None
-      Integer latato
-      Real*8 cordsi(3,latato)
 
-      Real*8 gAtom
-      Integer i, j
-      Real*8 faktor, x1, y1, z1, r2
-!
-      Anal_Gitt=Zero
-!
-!.....analyze the lattice
-!
-      gatom=Zero
-      Do i=1,latato
-         faktor=One
-         x1=cordsi(1,i)+One
-         y1=cordsi(2,i)
-         z1=cordsi(3,i)
-         Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2                                    &
-     &         + (y1-cordsi(2,j))**2                                    &
-     &         + (z1-cordsi(3,j))**2
-            If (r2.lt.0.01D0) faktor=faktor+One
-         End Do
+use Constants, only: Zero, One
 
-         x1=cordsi(1,i)-One
-         y1=cordsi(2,i)
-         z1=cordsi(3,i)
-         Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2                                    &
-     &         + (y1-cordsi(2,j))**2                                    &
-     &         + (z1-cordsi(3,j))**2
-            If (r2.lt.0.01D0) faktor=faktor+One
-         End Do
+implicit none
+real*8 Anal_Gitt
+integer latato
+real*8 cordsi(3,latato)
+real*8 gAtom
+integer i, j
+real*8 faktor, x1, y1, z1, r2
 
-         x1=cordsi(1,i)
-         y1=cordsi(2,i)+One
-         z1=cordsi(3,i)
-         Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2                                    &
-     &         + (y1-cordsi(2,j))**2                                    &
-     &         + (z1-cordsi(3,j))**2
-            If (r2.lt.0.01D0) faktor=faktor+One
-         End Do
+Anal_Gitt = Zero
 
-         x1=cordsi(1,i)
-         y1=cordsi(2,i)-One
-         z1=cordsi(3,i)
-         Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2                                    &
-     &         + (y1-cordsi(2,j))**2                                    &
-     &         + (z1-cordsi(3,j))**2
-            If (r2.lt.0.01D0) faktor=faktor+One
-         End Do
+! analyze the lattice
 
-         x1=cordsi(1,i)
-         y1=cordsi(2,i)
-         z1=cordsi(3,i)+One
-         Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2                                    &
-     &         + (y1-cordsi(2,j))**2                                    &
-     &         + (z1-cordsi(3,j))**2
-            If (r2.lt.0.01D0) faktor=faktor+One
-         End Do
+gatom = Zero
+do i=1,latato
+  faktor = One
+  x1 = cordsi(1,i)+One
+  y1 = cordsi(2,i)
+  z1 = cordsi(3,i)
+  do j=1,latato
+    r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
+    if (r2 < 0.01d0) faktor = faktor+One
+  end do
 
-         x1=cordsi(1,i)
-         y1=cordsi(2,i)
-         z1=cordsi(3,i)-One
-         Do j=1,latato
-            r2 = (x1-cordsi(1,j))**2                                    &
-     &         + (y1-cordsi(2,j))**2                                    &
-     &         + (z1-cordsi(3,j))**2
-            If (r2.lt.0.01D0) faktor=faktor+One
-         End Do
-         gatom=gatom+One/faktor
-      End Do
-      Anal_Gitt=gatom
-!
-      Return
-      End
+  x1 = cordsi(1,i)-One
+  y1 = cordsi(2,i)
+  z1 = cordsi(3,i)
+  do j=1,latato
+    r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
+    if (r2 < 0.01d0) faktor = faktor+One
+  end do
+
+  x1 = cordsi(1,i)
+  y1 = cordsi(2,i)+One
+  z1 = cordsi(3,i)
+  do j=1,latato
+    r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
+    if (r2 < 0.01d0) faktor = faktor+One
+  end do
+
+  x1 = cordsi(1,i)
+  y1 = cordsi(2,i)-One
+  z1 = cordsi(3,i)
+  do j=1,latato
+    r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
+    if (r2 < 0.01d0) faktor = faktor+One
+  end do
+
+  x1 = cordsi(1,i)
+  y1 = cordsi(2,i)
+  z1 = cordsi(3,i)+One
+  do j=1,latato
+    r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
+    if (r2 < 0.01d0) faktor = faktor+One
+  end do
+
+  x1 = cordsi(1,i)
+  y1 = cordsi(2,i)
+  z1 = cordsi(3,i)-One
+  do j=1,latato
+    r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
+    if (r2 < 0.01d0) faktor = faktor+One
+  end do
+  gatom = gatom+One/faktor
+end do
+Anal_Gitt = gatom
+
+return
+
+end function Anal_Gitt

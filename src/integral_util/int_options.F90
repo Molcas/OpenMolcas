@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Int_Options
+
+module Int_Options
+
 use Definitions, only: wp, iwp
 use Constants, only: Zero
-Implicit None
-Private
-Logical(kind=iwp) :: DoIntegrals=.True.
-Logical(kind=iwp) :: DoFock=.False.
-Logical(kind=iwp) :: FckNoClmb=.False.
-Logical(kind=iwp) :: FckNoExch=.False.
-Real(kind=wp) :: ExFac=Zero
-Real(kind=wp) :: Thize=Zero
-Real(kind=wp) :: Disc_Mx=Zero
-Real(kind=wp) :: Disc=Zero
-Logical(kind=iwp) :: W2Disc=.False.
-Logical(kind=iwp) :: PreSch=.True.
-Integer(kind=iwp) :: iTOffs(8**3)
-Real(kind=wp) :: Quad_ijkl=Zero
-Integer(kind=iwp) :: Map4(4)
 
-Public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize, W2Disc, &
-          PreSch, Disc_Mx, Disc, iTOffs, Quad_ijkl, Map4
+implicit none
+private
 
-End Module Int_Options
+logical(kind=iwp) :: DoIntegrals = .true.
+logical(kind=iwp) :: DoFock = .false.
+logical(kind=iwp) :: FckNoClmb = .false.
+logical(kind=iwp) :: FckNoExch = .false.
+real(kind=wp) :: ExFac = Zero
+real(kind=wp) :: Thize = Zero
+real(kind=wp) :: Disc_Mx = Zero
+real(kind=wp) :: Disc = Zero
+logical(kind=iwp) :: W2Disc = .false.
+logical(kind=iwp) :: PreSch = .true.
+integer(kind=iwp) :: iTOffs(8**3)
+real(kind=wp) :: Quad_ijkl = Zero
+integer(kind=iwp) :: Map4(4)
+
+public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc, iTOffs, Quad_ijkl, Map4
+
+end module Int_Options

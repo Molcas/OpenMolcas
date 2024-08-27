@@ -8,45 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,    &
-     &                    nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
-      use Constants, only: Zero
-      Implicit None
+
+subroutine Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
+
+use Constants, only: Zero
+
+implicit none
 #include "SysDef.fh"
-      Integer iShell_A,iShell_B,iShell_C,iShell_D,                      &
-     &        nQuad,nGamma,LuGamma,lBin
-      Real*8 G_Toc(nQuad), Bin(2,lBin), Gamma(nGamma)
-!
-      Integer iDisk, lGamma, iGamma, jGamma
-      Integer iShell_AB, iShell_CD, iShell_ABCD
-      Integer, Parameter:: iRead=2
-      Integer i, j, iTri
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!
-      Gamma(:)=Zero
-!
-      iShell_AB=iTri(iShell_A,iShell_B)
-      iShell_CD=iTri(iShell_C,iShell_D)
-      iShell_ABCD=iTri(iShell_AB,iShell_CD)
-!
-!     Write (*,*) 'Reading Gammas for shell quadruplet ', iShell_ABCD
-!
-      iDisk=Int(G_Toc(iShell_ABCD))
-      Do While (iDisk>=0)
-         Call dDaFile(LuGamma,iRead,Bin,2*lBin,iDisk)
-         lGamma=Int(Bin(1,lBin))
-         iDisk =Int(Bin(2,lBin))
-!
-         Do iGamma = 1, lGamma
-            jGamma=Int(Bin(2,iGamma))
-            If (jGamma.gt.nGamma) Then
-               Call WarningMessage(2,'Read_Bin: jGamma.gt.nGamma')
-               Call Abend()
-            End If
-            Gamma(jGamma)=Bin(1,iGamma)
-!           Write (*,*) Gamma(jGamma), jGamma
-         End Do
-!
-      End Do
-!
-      End Subroutine Read_Bin
+integer iShell_A, iShell_B, iShell_C, iShell_D, nQuad, nGamma, LuGamma, lBin
+real*8 G_Toc(nQuad), Bin(2,lBin), gamma(nGamma)
+integer iDisk, lGamma, iGamma, jGamma
+integer iShell_AB, iShell_CD, iShell_ABCD
+integer, parameter :: iRead = 2
+integer i, j, iTri
+! Statement function
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+gamma(:) = Zero
+
+iShell_AB = iTri(iShell_A,iShell_B)
+iShell_CD = iTri(iShell_C,iShell_D)
+iShell_ABCD = iTri(iShell_AB,iShell_CD)
+
+!write(6,*) 'Reading Gammas for shell quadruplet ',iShell_ABCD
+
+iDisk = int(G_Toc(iShell_ABCD))
+do while (iDisk >= 0)
+  call dDaFile(LuGamma,iRead,Bin,2*lBin,iDisk)
+  lGamma = int(Bin(1,lBin))
+  iDisk = int(Bin(2,lBin))
+
+  do iGamma=1,lGamma
+    jGamma = int(Bin(2,iGamma))
+    if (jGamma > nGamma) then
+      call WarningMessage(2,'Read_Bin: jGamma > nGamma')
+      call Abend()
+    end if
+    gamma(jGamma) = Bin(1,iGamma)
+    !write(6,*) Gamma(jGamma),jGamma
+  end do
+
+end do
+
+end subroutine Read_Bin

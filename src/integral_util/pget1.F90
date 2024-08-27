@@ -10,10 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine PGet1(PAO,ijkl,nPAO,iCmp,                              &
-     &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,        &
-     &                 DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
+subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 !***********************************************************************
 !                                                                      *
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
@@ -27,126 +26,120 @@
 !             of Lund, SWEDEN.                                         *
 !             January '92.                                             *
 !***********************************************************************
-      use SOAO_Info, only: iAOtSO
-      use Constants, Only: Zero, Quart
-#ifdef _DEBUGPRINT_
-      use pso_stuff, only: D0, iD0Lbl
-#endif
-      Implicit None
-      Integer ijkl, nPAO, iBas, jBas, kBas, lBas, nDSO
-      Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
-      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-      Logical Shijij
-      Real*8 ExFac, CoulFac, PMax
 
-      Integer iPAO, i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl,          &
-     &        iSOi, jSOj, kSOk, lSOl, iAOi, jAOj, kAOk, lAOl,           &
-     &        IndI, IndJ, IndK, IndL, IndIJ, IndKL, IndIK, IndIL,       &
-     &        IndJL, IndJK
-      Real*8 t14, Temp
+use SOAO_Info, only: iAOtSO
+use Constants, only: Zero, Quart
 #ifdef _DEBUGPRINT_
-      Integer iComp, i
-      Real*8, External:: DDot_
+use pso_stuff, only: D0, iD0Lbl
 #endif
-!
-#ifdef _DEBUGPRINT_
-      iComp = 1
-      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-      Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
-#endif
-!
-!     Quadruple loop over elements of the basis functions angular
-!     description.
-!     Observe that we will walk through the memory in PAO in a
-!     sequential way.
-!
-      PMax=Zero
-      iPAO=0
-      t14 = Quart * ExFac
-      Do 100 i1 = 1, iCmp(1)
-         Do 200 i2 = 1, iCmp(2)
-            Do 300 i3 = 1, iCmp(3)
-               Do 400 i4 = 1, iCmp(4)
-!
-!               Unfold the way the eight indices have been reordered.
-                iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
-                jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
-                kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
-                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
-!
-                iPAO = iPAO + 1
-                nijkl = 0
-                Do 120 lAOl = 0, lBas-1
-                   lSOl = lSO + lAOl
-                   Do 220 kAOk = 0, kBas-1
-                      kSOk = kSO + kAOk
-                      Do 320 jAOj = 0, jBas-1
-                         jSOj = jSO + jAOj
-                         Do 420 iAOi = 0, iBas-1
-                            iSOi = iSO + iAOi
-                            nijkl = nijkl + 1
 
-!
-!---------------------------D(ij)*D(kl)
-!
-                            Indi=Max(iSOi,jSOj)
-                            Indj=iSOi+jSOj-Indi
-                            Indk=Max(kSOk,lSOl)
-                            Indl=kSOk+lSOl-Indk
-                            Indij=(Indi-1)*Indi/2+Indj
-                            Indkl=(Indk-1)*Indk/2+Indl
-                            temp=DSO(Indij)*DSO(Indkl)*coulfac
-!
-!--------------------------- -0.25*D(ik)*D(jl)
-!
-                            Indi=Max(iSOi,kSOk)
-                            Indk=iSOi+kSOk-Indi
-                            Indj=Max(jSOj,lSOl)
-                            Indl=jSOj+lSOl-Indj
-                            Indik=(Indi-1)*Indi/2+Indk
-                            Indjl=(Indj-1)*Indj/2+Indl
-                            temp=temp - t14* (                          &
-     &                           DSO(Indik) *DSO(Indjl)                 &
-     &                          +DSSO(Indik)*DSSO(Indjl) )
-!
-!--------------------------- -0.25*D(il)*D(jk)
-!
-                            Indi=Max(iSOi,lSOl)
-                            Indl=iSOi+lSOl-Indi
-                            Indj=Max(jSOj,kSOk)
-                            Indk=jSOj+kSOk-Indj
-                            Indil=(Indi-1)*Indi/2+Indl
-                            Indjk=(Indj-1)*Indj/2+Indk
-                            temp=temp - t14*(                           &
-     &                           DSO(Indil) *DSO(Indjk)                 &
-     &                          +DSSO(Indil)*DSSO(Indjk) )
-!
-                            PMax=Max(PMax,Abs(Temp))
-                            PAO(nijkl,iPAO) = temp
-!
- 420                     Continue
- 320                  Continue
- 220               Continue
- 120            Continue
-!
- 400           Continue
- 300        Continue
- 200     Continue
- 100  Continue
-      If (iPAO.ne.nPAO) Then
-         Call WarningMessage(2,' Error in PGet1!')
-         Call Abend()
-      End If
-!
+implicit none
+integer ijkl, nPAO, iBas, jBas, kBas, lBas, nDSO
+real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
+integer iAO(4), kOp(4), iAOst(4), iCmp(4)
+logical Shijij
+real*8 ExFac, CoulFac, PMax
+integer iPAO, i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl, iSOi, jSOj, kSOk, lSOl, iAOi, jAOj, kAOk, lAOl, IndI, IndJ, IndK, IndL, &
+        IndIJ, IndKL, IndIK, IndIL, IndJL, IndJK
+real*8 t14, Temp
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
-      Do 3333 i = 1, ijkl
-         Write (6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
- 3333 Continue
+integer iComp, i
+real*8, external :: DDot_
 #endif
-      Return
+
+#ifdef _DEBUGPRINT_
+iComp = 1
+call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+write(6,*) ' nBases..=',iBas,jBas,kBas,lBas
+#endif
+
+! Quadruple loop over elements of the basis functions angular
+! description.
+! Observe that we will walk through the memory in PAO in a
+! sequential way.
+
+PMax = Zero
+iPAO = 0
+t14 = Quart*ExFac
+do i1=1,iCmp(1)
+  do i2=1,iCmp(2)
+    do i3=1,iCmp(3)
+      do i4=1,iCmp(4)
+
+        ! Unfold the way the eight indices have been reordered.
+        iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
+        jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
+        kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
+        lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
+
+        iPAO = iPAO+1
+        nijkl = 0
+        do lAOl=0,lBas-1
+          lSOl = lSO+lAOl
+          do kAOk=0,kBas-1
+            kSOk = kSO+kAOk
+            do jAOj=0,jBas-1
+              jSOj = jSO+jAOj
+              do iAOi=0,iBas-1
+                iSOi = iSO+iAOi
+                nijkl = nijkl+1
+
+                ! D(ij)*D(kl)
+
+                Indi = max(iSOi,jSOj)
+                Indj = iSOi+jSOj-Indi
+                Indk = max(kSOk,lSOl)
+                Indl = kSOk+lSOl-Indk
+                Indij = (Indi-1)*Indi/2+Indj
+                Indkl = (Indk-1)*Indk/2+Indl
+                temp = DSO(Indij)*DSO(Indkl)*coulfac
+
+                ! -0.25*D(ik)*D(jl)
+
+                Indi = max(iSOi,kSOk)
+                Indk = iSOi+kSOk-Indi
+                Indj = max(jSOj,lSOl)
+                Indl = jSOj+lSOl-Indj
+                Indik = (Indi-1)*Indi/2+Indk
+                Indjl = (Indj-1)*Indj/2+Indl
+                temp = temp-t14*(DSO(Indik)*DSO(Indjl)+DSSO(Indik)*DSSO(Indjl))
+
+                ! -0.25*D(il)*D(jk)
+
+                Indi = max(iSOi,lSOl)
+                Indl = iSOi+lSOl-Indi
+                Indj = max(jSOj,kSOk)
+                Indk = jSOj+kSOk-Indj
+                Indil = (Indi-1)*Indi/2+Indl
+                Indjk = (Indj-1)*Indj/2+Indk
+                temp = temp-t14*(DSO(Indil)*DSO(Indjk)+DSSO(Indil)*DSSO(Indjk))
+
+                PMax = max(PMax,abs(Temp))
+                PAO(nijkl,iPAO) = temp
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+end do
+if (iPAO /= nPAO) then
+  call WarningMessage(2,' Error in PGet1!')
+  call Abend()
+end if
+
+#ifdef _DEBUGPRINT_
+call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
+do i=1,ijkl
+  write(6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+end do
+#endif
+
+return
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical(Shijij)
-      End If
-      End SubRoutine PGet1
+if (.false.) call Unused_logical(Shijij)
+
+end subroutine PGet1

@@ -8,8 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module BasisMode
-Integer, Parameter :: Valence_Mode=0, Auxiliary_Mode=1, Fragment_Mode=2, With_Auxiliary_Mode=3, With_Fragment_Mode=4, All_Mode=5
-Integer Basis_Mode, kCnttp, lCnttp
-Logical Atomic
-End Module BasisMode
+
+module BasisMode
+
+integer, parameter :: Valence_Mode = 0, Auxiliary_Mode = 1, Fragment_Mode = 2, With_Auxiliary_Mode = 3, With_Fragment_Mode = 4, &
+                      All_Mode = 5
+integer :: Basis_Mode, kCnttp, lCnttp
+logical :: Atomic
+
+end module BasisMode

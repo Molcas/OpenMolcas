@@ -11,8 +11,9 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir,nComp)
+subroutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir,nComp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments for the nuclei.             *
@@ -20,55 +21,58 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      use Constants, only: Zero, One
-      Implicit None
-      Integer nAtm, ir, nComp
-      Real*8 Chrg(nAtm), Coor(3,nAtm), rNucMm((ir+1)*(ir+2)/2), CoOp(3)
 
-      Integer ip, ix, iy, iz, iAtom
-      Real*8 Temp, CCoMx, CCoMy, CCoMz
-!
+use Constants, only: Zero, One
+
+implicit none
+integer nAtm, ir, nComp
+real*8 Chrg(nAtm), Coor(3,nAtm), rNucMm((ir+1)*(ir+2)/2), CoOp(3)
+integer ip, ix, iy, iz, iAtom
+real*8 Temp, CCoMx, CCoMy, CCoMz
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' In MltNuc:Coor',' ',Coor,3,nAtm)
-      Call RecPrt(' In MltNuc:Chrg',' ',Chrg,nAtm,1)
-      Call RecPrt(' In MltNuc:CoOp',' ',CoOp,1,3)
+call RecPrt(' In MltNuc:Coor',' ',Coor,3,nAtm)
+call RecPrt(' In MltNuc:Chrg',' ',Chrg,nAtm,1)
+call RecPrt(' In MltNuc:CoOp',' ',CoOp,1,3)
 #endif
-!
-!     Compute the nuclear contribution to the multipole moments
-!
-      ip = 0
-      Do 71 ix = ir, 0, -1
-         Do 72 iy = ir-ix, 0, -1
-            ip = ip + 1
-            iz = ir-ix-iy
-            temp = Zero
-!           Write (*,*) ' ix,iy,iz=',ix,iy,iz
-            Do 73 iAtom = 1, nAtm
-               If (ix.eq.0) Then
-                  CCoMx=One
-               Else
-                  CCoMx=(Coor(1,iAtom)-CoOp(1))**ix
-               End If
-               If (iy.eq.0) Then
-                  CCoMy=One
-               Else
-                  CCoMy=(Coor(2,iAtom)-CoOp(2))**iy
-               End If
-               If (iz.eq.0) Then
-                  CCoMz=One
-               Else
-                  CCoMz=(Coor(3,iAtom)-CoOp(3))**iz
-               End If
-!              Write (*,*) CCoMx, CCoMy, CCoMz, temp
-               temp = temp + Chrg(iAtom) * CCoMx * CCoMy * CCoMz
- 73         Continue
-            rNucMm(ip) = temp
- 72      Continue
- 71   Continue
-!
+
+! Compute the nuclear contribution to the multipole moments
+
+ip = 0
+do ix=ir,0,-1
+  do iy=ir-ix,0,-1
+    ip = ip+1
+    iz = ir-ix-iy
+    temp = Zero
+    !write(6,*) ' ix,iy,iz=',ix,iy,iz
+    do iAtom=1,nAtm
+      if (ix == 0) then
+        CCoMx = One
+      else
+        CCoMx = (Coor(1,iAtom)-CoOp(1))**ix
+      end if
+      if (iy == 0) then
+        CCoMy = One
+      else
+        CCoMy = (Coor(2,iAtom)-CoOp(2))**iy
+      end if
+      if (iz == 0) then
+        CCoMz = One
+      else
+        CCoMz = (Coor(3,iAtom)-CoOp(3))**iz
+      end if
+      !write(6,*) CCoMx,CCoMy,CCoMz,temp
+      temp = temp+Chrg(iAtom)*CCoMx*CCoMy*CCoMz
+    end do
+    rNucMm(ip) = temp
+  end do
+end do
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' Nuclear Multipole Moments',' ',rNucMm,ip,1)
+call RecPrt(' Nuclear Multipole Moments',' ',rNucMm,ip,1)
 #endif
-      Return
-      If (.False.) Call Unused_integer(nComp)
-      End SubRoutine MltNuc
+
+return
+if (.false.) call Unused_integer(nComp)
+
+end subroutine MltNuc

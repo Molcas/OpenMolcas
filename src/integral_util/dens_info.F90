@@ -8,30 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,        &
-     &                     nr_of_Densities)
-      use k2_arrays
-      Implicit None
-      Integer ijS, ipDij, ipDSij, mDCRij, ipDDij, ipTmp,                &
-     &        nr_of_Densities
 
-      Integer nDij
-!
-      ipDij = ipOffD(1,ijS)
-      mDCRij= ipOffD(2,ijS)
-      nDij  = ipOffD(3,ijS)
-      If (nr_of_Densities.eq.2) Then
-         ipDSij=ipOffD(4,ijS)
-      Else
-         ipDSij= 1
-      End If
-!
-      If (mDCRij*nDij.ne.0) Then
-         ipDDij = ipTmp
-         ipTmp = ipTmp + nDij*mDCRij
-      Else
-         ipDDij = 1
-      End If
-!
-      Return
-      End Subroutine Dens_Info
+subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities)
+
+use k2_arrays
+
+implicit none
+integer ijS, ipDij, ipDSij, mDCRij, ipDDij, ipTmp, nr_of_Densities
+integer nDij
+
+ipDij = ipOffD(1,ijS)
+mDCRij = ipOffD(2,ijS)
+nDij = ipOffD(3,ijS)
+if (nr_of_Densities == 2) then
+  ipDSij = ipOffD(4,ijS)
+else
+  ipDSij = 1
+end if
+
+if (mDCRij*nDij /= 0) then
+  ipDDij = ipTmp
+  ipTmp = ipTmp+nDij*mDCRij
+else
+  ipDDij = 1
+end if
+
+return
+
+end subroutine Dens_Info

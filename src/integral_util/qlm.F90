@@ -11,7 +11,8 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine qlm(gx,gy,gz,qa,dax,day,daz,lmax_,Cavxyz)
+
+subroutine qlm(gx,gy,gz,qa,dax,day,daz,lmax_,Cavxyz)
 !***********************************************************************
 !                                                                      *
 !     Object: to reexpand the charge and the dipole moment at a given  *
@@ -27,61 +28,57 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use Constants, only: One
-      Implicit None
-      Integer lmax_
-      Real*8 Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
-      Real*8 gx,gy,gz,qa,dax,day,daz
 
-      Integer ix, iy, iz, iOff, Index, lMax
-      Real*8 xeff, xyeff, xyzeff, ax, ay, az
-!
-!---- Statement function
-!
-      iOff(ix,iy,iz)=(ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
-      Index(ix,iy,iz) = iOff(ix,iy,iz) + (iy+iz)*(iy+iz+1)/2 + iz + 1
-!
-      lmax = lmax_ - 1
-!
-      Do ix=0,lmax
-         If (ix.eq.0) Then
-            xeff = One
-         Else
-            xeff = gx**ix
-         End If
-         ax=DBLE(ix)+One
-         Do iy=0,lmax-ix
-            If (iy.eq.0) Then
-               xyeff = xeff
-            Else
-               xyeff = xeff* gy**iy
-            End If
-            ay=DBLE(iy)+One
-            Do iz=0,lmax-ix-iy
-               If (iz.eq.0) Then
-                  xyzeff = xyeff * gz**iz
-               Else
-                  xyzeff = xyeff * gz**iz
-               End If
-               az=DBLE(iz)+One
-!
-!------------- Charge term
-!
-               Cavxyz(Index(ix,iy,iz)) = xyzeff*qa                      &
-     &                                 + Cavxyz(Index(ix,iy,iz))
-!
-!------------- Dipole terms
-!
-               Cavxyz(Index(ix+1,iy,iz)) = xyzeff*dax*ax                &
-     &                                   + Cavxyz(Index(ix+1,iy,iz))
-               Cavxyz(Index(ix,iy+1,iz)) = xyzeff*day*ay                &
-     &                                   + Cavxyz(Index(ix,iy+1,iz))
-               Cavxyz(Index(ix,iy,iz+1)) = xyzeff*daz*az                &
-     &                                   + Cavxyz(Index(ix,iy,iz+1))
-!
-            End Do
-         End Do
-      End Do
-!
-      Return
-      End Subroutine qlm
+use Constants, only: One
+
+implicit none
+integer lmax_
+real*8 Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
+real*8 gx, gy, gz, qa, dax, day, daz
+integer ix, iy, iz, iOff, Index, lMax
+real*8 xeff, xyeff, xyzeff, ax, ay, az
+! Statement functions
+iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
+index(ix,iy,iz) = iOff(ix,iy,iz)+(iy+iz)*(iy+iz+1)/2+iz+1
+
+lmax = lmax_-1
+
+do ix=0,lmax
+  if (ix == 0) then
+    xeff = One
+  else
+    xeff = gx**ix
+  end if
+  ax = dble(ix)+One
+  do iy=0,lmax-ix
+    if (iy == 0) then
+      xyeff = xeff
+    else
+      xyeff = xeff*gy**iy
+    end if
+    ay = dble(iy)+One
+    do iz=0,lmax-ix-iy
+      if (iz == 0) then
+        xyzeff = xyeff*gz**iz
+      else
+        xyzeff = xyeff*gz**iz
+      end if
+      az = dble(iz)+One
+
+      ! Charge term
+
+      Cavxyz(index(ix,iy,iz)) = xyzeff*qa+Cavxyz(index(ix,iy,iz))
+
+      ! Dipole terms
+
+      Cavxyz(index(ix+1,iy,iz)) = xyzeff*dax*ax+Cavxyz(index(ix+1,iy,iz))
+      Cavxyz(index(ix,iy+1,iz)) = xyzeff*day*ay+Cavxyz(index(ix,iy+1,iz))
+      Cavxyz(index(ix,iy,iz+1)) = xyzeff*daz*az+Cavxyz(index(ix,iy,iz+1))
+
+    end do
+  end do
+end do
+
+return
+
+end subroutine qlm
