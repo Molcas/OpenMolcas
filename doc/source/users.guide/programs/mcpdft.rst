@@ -201,7 +201,18 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`MSPDft`
-  This keyword allows one to run Multi-State Pair-Density Functional Theory (MS-PDFT). This keyword is only effective when a file named :file:`H0_Rotate.txt` is present in the scratch directory, otherwise only state-specific MC-PDFT calculations will be performed. With the :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT energies of the intermediate states (presumably obtained from a previous :program:`RASSCF` module in which the keyword :kword:`ROST`, :kword:`XMSI` or :kword:`CMSI` is used), and diagonalizes the Hamiltonian matrix in the intermediate basis (called the effective Hamiltonian matrix) to obtain the MS-PDFT states and energies. An input example is shown below. More details regarding the theory, the input, and the output can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+  This keyword allows one to run Multi-State Pair-Density Functional Theory
+  (MS-PDFT). This keyword is only effective when a file named
+  :file:`H0_Rotate.txt` is present in the scratch directory. With the
+  :kword:`MSPD` keyword, the program reads the Hamiltonian matrix from
+  :file:`H0_Rotate.txt`, replaces the diagonal elements with the MC-PDFT
+  energies of the intermediate states (presumably obtained from a previous
+  :program:`RASSCF` module in which the keyword :kword:`ROST`, :kword:`XMSI` or
+  :kword:`CMSI` is used), and diagonalizes the Hamiltonian matrix in the
+  intermediate basis (called the effective Hamiltonian matrix) to obtain the
+  MS-PDFT states and energies. An input example is shown below. More details
+  regarding the theory, the input, and the output can be found on the Minnesota
+  OpenMolcas page\ [#fn1]_.
 
   XMS-PDFT and CMS-PDFT are two MS-PDFT options in the code.
 
