@@ -19,18 +19,13 @@ module mspdft
   private
 
   character(len=8) :: mspdftmethod
-  logical :: do_rotate = .False.
   integer(kind=iwp) :: iIntS
   real(kind=wp), allocatable :: FxyMS(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:), DIDA(:,:)
   real(kind=wp), allocatable :: P2MOt(:,:), D1AOMS(:,:), D1SAOMS(:,:)
 
-  ! CMS-NACS stuff
-  logical :: isCMSNAC
 
-  public :: mspdftmethod,do_rotate,F1MS,F2MS
+  public :: mspdftmethod,F1MS,F2MS
   public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
-
-  public :: isCMSNAC
 
   public :: mspdft_finalize
 

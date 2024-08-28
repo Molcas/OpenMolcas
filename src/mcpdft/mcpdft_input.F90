@@ -183,6 +183,20 @@ contains
     use Fock_util_global,only:DoCholesky
     implicit none
 
+    logical :: file_exists
+
+    if(mcpdft_options%mspdft) then
+      call f_inquire('ROT_HAM',file_exists)
+      if(.not. file_exists) then
+        call WarningMessage(2,"No H0_Rotate.txt found")
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MSPDFT specified but rotated      '
+        write(u6,*) ' Hamiltonian file not found!       '
+        write(u6,*) ' **********************************'
+        call Quit_OnUserError
+      endif
+    endif
+
     if(mcpdft_options%grad .and. .not. mcpdft_options%nac .and. mcpdft_options%rlxroot < 1) then
       call WarningMessage(2,"Invalid RLXRoot specified")
       write(u6,*) ' ************* ERROR **************'

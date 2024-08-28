@@ -32,7 +32,7 @@
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot
       Use hybridpdft, only: E_NoHyb
-      use mspdft, only: do_rotate, iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
+      use mspdft, only: iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module, only: lRF
@@ -794,7 +794,7 @@ c         call xflush(6)
      &         jroot,Ref_Ener)
 
 
-         IF(Do_Rotate) Then
+         IF(mcpdft_options%mspdft) Then
             Energies(jroot)=CASDFT_E
 *JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
             Ref_Ener(jroot)=CASDFT_E

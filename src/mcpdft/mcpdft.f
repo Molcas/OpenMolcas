@@ -38,7 +38,7 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
-      use mspdft, only: mspdftmethod, do_rotate, F1MS,
+      use mspdft, only: mspdftmethod, F1MS,
      &                  F2MS, FxyMS, FocMS, DIDA, P2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
       use printlevel, only: terse, debug, insane, usual
@@ -117,24 +117,19 @@
       End If
 
 
-* Local print level may have changed:
+! Local print level may have changed:
       IPRLEV=IPRLOC(1)
 
 
       Call InpPri_m()
 
-*--------------------------------------------------------
-*
-* Allocate various matrices
-*
+! Allocate various matrices
       Call mma_allocate(FI,NTOT1,Label='FI')
       Call mma_allocate(FA,NTOT1,Label='FA')
       Call mma_allocate(D1I,NTOT2,Label='D1I')
       Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-!
-*
       Call mma_allocate(TUVX,NACPR2,Label='TUVX')
       TUVX(:)=0.0D0
       Call mma_allocate(DSPN,NACPAR,Label='DSPN')
@@ -221,19 +216,6 @@
   11  CONTINUE
 
       IF(mcpdft_options%mspdft) Then
-       ! TODO: this should be checked immediately!!
-       call f_inquire('ROT_HAM',Do_Rotate)
-       IF(IPRLEV.ge.USUAL) THEN
-       If(.not.Do_Rotate) Then
-        write(lf,'(6X,A,A)')'keyword "MSPD" is used but ',
-     &  'the file of rotated Hamiltonian is not found.'
-        write(lf,'(6X,2a)')'Performing regular (state-',
-     &   'specific) MC-PDFT calculation'
-        mcpdft_options%mspdft = .false.
-       End If
-       END IF
-      End IF
-      IF(Do_Rotate) Then
         IF(IPRLEV.ge.USUAL) THEN
         write(lf,'(6X,A)') repeat('=',80)
         write(lf,*)
@@ -283,7 +265,7 @@
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
            Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
-      End IF!End IF for Do_Rotate=.true.
+      End IF
 
       IF(mcpdft_options%nac) Then
         IF(IPRLEV.ge.USUAL) THEN
@@ -364,18 +346,18 @@
 
       ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
-      If(mcpdft_options%wjob .and.(.not.Do_Rotate)) then
+      If(mcpdft_options%wjob .and.(.not.mcpdft_options%mspdft)) then
         Call writejob(iadr19)
       end if
 
-        If (Do_Rotate) Then
+        If (mcpdft_options%mspdft) Then
           call replace_diag(hrot, ref_e, lroots)
           call mspdft_finalize(hrot, lroots, iadr19)
         End If
 
       ! Free up some space
 
-      if (do_rotate) then
+      if (mcpdft_options%mspdft) then
         CALL mma_deallocate(HRot)
         if(mcpdft_options%grad) then
           Call mma_deallocate(F1MS)

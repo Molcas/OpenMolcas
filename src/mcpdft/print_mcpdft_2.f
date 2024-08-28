@@ -26,7 +26,7 @@
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I,
      &                   Tau_a1, Tau_b1, Tau_a2, Tau_b2
       Use hybridpdft, only: E_NoHyb
-      use mspdft, only: mspdftmethod, do_rotate
+      use mspdft, only: mspdftmethod
       use printlevel, only: usual
       use mcpdft_output, only: iPrGlb
       use mcpdft_input, only: mcpdft_options
@@ -44,7 +44,7 @@
       left=6
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
       Line=''
-      IF(Do_Rotate) Then
+      IF(mcpdft_options%mspdft) Then
       Write(Line(left-2:),'(2A,1X,I4.4)') MSpdftMethod,
      & ' INTERMEDIATE STATE',jroot
       ELSE
@@ -112,7 +112,7 @@
        write(6,*)
       END IF
 
-      IF(Do_Rotate) Then
+      IF(mcpdft_options%mspdft) Then
       write(6,'(6X,A,2X,I4,13X,F18.8)')
      &'Total MC-PDFT energy for intermediate state', jroot,CASDFT_E
       ELSE
