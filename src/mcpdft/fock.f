@@ -24,8 +24,8 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
-      use mcpdft_output, only: debug, lf, iPrLoc
-
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -231,8 +231,7 @@ c
 c
       If ( iPrLev.ge.DEBUG ) then
         CASDFT_En=0.0d0
-        If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
-     &   Call Get_dScalar('CASDFT energy',CASDFT_En)
+        Call Get_dScalar('CASDFT energy',CASDFT_En)
         Write(LF,'(A,2F22.16)') ' RASSCF energy: ',
      &                  ECAS+CASDFT_En,VIA_DFT
       End If
@@ -309,9 +308,10 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
+      use printlevel, only: debug
       use mspdft, only: iFxyMS, iIntS
-      use mspdft_grad, only: dogradmspd
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use mcpdft_output, only: lf, iPrLoc
+      use mcpdft_input, only: mcpdft_options
 
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
@@ -342,58 +342,12 @@ C
          ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
          ISTAV(iSym) = ISTAV(iSym-1) + nBas(iSym-1)*nAsh(iSym-1)
       End Do
-C *****************************************
-
-!      Call GetMem('ONTOPT','ALLO','Real',iTEOTP,NFINT)
-!      Call GetMem('ONTOPO','ALLO','Real',iOEOTP,NTOT1)
-      !Read in the one- and two- electron potentials.
-!      Call Get_dArray('ONTOPT',work(iTEOTP),NFINT)
-!      Call Get_dArray('ONTOPO',work(iOEOTP),NTOT1)
+! *****************************************
 
 
-!I think the best way forward is to construct FI, FA (MO basis) using
-!the potentials (v_pqrs and V_pq) instead of the integrals.  I think we
-!want to use the full 2-body density matrix and ExFac = 1.  If we have
-!FI, FA, and Q, then we can use the prescription from fock.f to
-!construct the Focc term (the part of the fock matrix that we want).
-
-
-
-!******************************************************************
-!
-! Build the FA terms using the potentials v.
-!
-!******************************************************************
-
-!      ExFac_tmp = 1.0d0
-!      Call Upd_FA_m(Work(iTEOTP),FP,D,ExFac_tmp)
-!Check - does this regenerate FA if the regular integrals are passed?
-!FP should contain the Fock matrix contribution that we want.
-
-
-!******************************************************************
-!
-! Build the FI terms using the potentials v and V.
-!
-!******************************************************************
-
-
-!      iOff1 = 0
-!      Do ISYM=1,NSYM
-!        Do iOrb=1,norb(iSym)
-!          do jOrb=1,iOrb
-!should we follow the guide of ftwo.f?
-!for starters, I don't seem to have all the necessary 2-body potentials,
-!right?
-
-!          end do
-!        end do
-!      end do
-
-
-c     add FI to FA to obtain FP
+!     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
-C     LOOP OVER ALL SYMMETRY BLOCKS
+!     LOOP OVER ALL SYMMETRY BLOCKS
 
       ISTFCK=0
       ISTFP=0
@@ -402,8 +356,8 @@ C     LOOP OVER ALL SYMMETRY BLOCKS
       IX1=0
       ISTZ=0
       E2act=0.0d0
-C
-* A long loop over symmetry
+
+! A long loop over symmetry
       DO ISYM=1,NSYM
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
@@ -542,7 +496,7 @@ C
 !      Call Dscal_(ntot4,0.5d0,F,1)
 
 !For MCLR
-      IF(DoGradMSPD) THEN
+      IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
        CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)
       ELSE
        Call put_dArray('Fock_PDFT',F,ntot4)

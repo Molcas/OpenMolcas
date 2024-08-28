@@ -89,12 +89,11 @@
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT
 !
-      INTEGER         IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
-     &                ICMSIterMin
+      INTEGER         IRotPsi,IXMSP,ICMSP,ICMSIterMax,ICMSIterMin
       Real*8          CMSThreshold
       CHARACTER(256)  CMSStartMat
-      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
-     &                ICMSIterMin,CMSThreshold,CMSStartMat
+      COMMON/ROTST/   IRotPsi,IXMSP,ICMSP,ICMSIterMax,ICMSIterMin,      &
+     &                CMSThreshold,CMSStartMat
 !
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S

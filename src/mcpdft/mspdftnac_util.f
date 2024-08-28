@@ -16,30 +16,30 @@
 ********in MS-PDFT NAC calculation.
       use definitions, only: wp
       use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
-     &                  D1AOMS, D1SAOMS, cmsnacstates
+     &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
+      use mcpdft_input, only: mcpdft_options
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
       real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
-      INTEGER ij,iS,jRoot,iBas,jBas
+      INTEGER ij,iS,jRoot,iBas,jBas, bra_state, ket_state
       Real*8 RJKRIK
 
 ******* Functions added by Paul Calio for MECI Opt *****
 ******* Original calls are in slapaf_util/start_alasaks.f
       Logical :: CalcNAC_Opt = .False.
       Logical :: MECI_via_SLAPAF = .False.
-      INTEGER NACstatesOpt(2)
 
-      NACstatesOpt(1)=cmsNACstates(1)
-      NACstatesOpt(2)=cmsNACstates(2)
+      bra_state = mcpdft_options%nac_states(1)
+      ket_state = mcpdft_options%nac_states(2)
+
 
       call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
-      Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
+      Call put_iArray('NACstatesOpt    ', mcpdft_options%nac_states,2)
       Call Put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
 ****** End of stuff added by Paul
 
@@ -55,10 +55,8 @@
       FockOcc(:)=0.0D0
       DO JRoot=1,lRoots
 
-        RJKRIK = si_pdft((cmsnacstates(2)-1)*lroots+jroot) *
-     &     si_pdft((cmsnacstates(1)-1)*lroots+jroot)
-!       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
-!    &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
+        RJKRIK = si_pdft((ket_state-1)*lroots+jroot) *
+     &     si_pdft((bra_state-1)*lroots+jroot)
 
         CALL daXpY_(ntot1,RJKRIK,
      &           Work(iFocMS+(JRoot-1)*nTot1),1,FockOcc,1)
@@ -83,10 +81,8 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-      RJKRIK=si_pdft(1+(cmsnacstates(2)-1)*lRoots)*
-     &    si_pdft(1+(cmsnacstates(1)-1)*lroots)
-!     RJKRIK=Work(LHRot+(cmsNACstates(2)-1)*lRoots)*
-!    &    Work(LHRot+(cmsNACstates(1)-1)*lRoots)
+      RJKRIK=si_pdft(1+(ket_state-1)*lRoots)*
+     &    si_pdft(1+(bra_state-1)*lroots)
       CALL DScal_(nTot1,-RJKRIK,Work(iDIDA),1)
       CALL DScal_(nTot4,RJKRIK,Work(iFxyMS),1)
       CALL DScal_(NACPR2,RJKRIK,Work(iP2MOt),1)
@@ -95,10 +91,8 @@
       jRoot=1
       Do jRoot=2,lRoots
         ij=0
-        RJKRIK = si_pdft((cmsnacstates(2)-1)*lroots+jroot) *
-     &     si_pdft((cmsnacstates(1)-1)*lroots+jroot)
-!       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
-!    &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
+        RJKRIK = si_pdft((ket_state-1)*lroots+jroot) *
+     &     si_pdft((bra_state-1)*lroots+jroot)
 *******DIDA for prepp
        CALL DaXpY_(nTot1,-RJKRIK,
      &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)

@@ -29,10 +29,11 @@
       use OneDat, only: sNoOri
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
-      use mspdft_grad, only: dogradmspd
-      use mcpdft_output, only: silent, usual, lf, iPrLoc
+      use printlevel, only: silent, usual
+      use mcpdft_output, only: lf, iPrLoc
       use Fock_util_global, only: docholesky
       use rctfld_module
+      use mcpdft_input, only: mcpdft_options
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -43,7 +44,6 @@
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
-      Character*80 KSDFT2
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -108,9 +108,9 @@
          Write(LF,Fmt1) 'OrdInt status: non-squared'
        End If
        Write(LF,*)
-*----------------------------------------------------------------------*
-*     Print cartesian coordinates of the system                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print cartesian coordinates of the system                        *
+!----------------------------------------------------------------------*
        Call PrCoor
       END IF
 *----------------------------------------------------------------------*
@@ -223,16 +223,12 @@ C.. for RAS
        Else
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
        EndIf
-       KSDFT2 = KSDFT
-       IF(KSDFT(1:2).eq.'T:'.or.KSDFT(1:3).eq.'FT:') Then
-        KSDFT2 = KSDFT(index(KSDFT,'T:')+2:)
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
-     &   'with functional: '//KSDFT
+     &   'with functional: '//mcpdft_options%otfnal%otxc
         Write(LF,Fmt2//'A,T45,ES10.3)')'Exchange scaling factor',CoefX
         Write(LF,Fmt2//'A,T45,ES10.3)')'Correlation scaling factor',
      &                                 CoefR
-       end if
-       If (dogradPDFT.or.dogradMSPD) then
+       If (mcpdft_options%grad) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        If ( lRF ) then
@@ -267,26 +263,21 @@ C.. for RAS
       END IF
       Write(LF,*)
 
-*---- Print out grid information in case of DFT
-*
-       If (KSDFT.ne.'SCF') Then
-         Call Put_dScalar('DFT exch coeff',CoefX)
-         Call Put_dScalar('DFT corr coeff',CoefR)
-         Call Funi_Print()
-         IF(IPRLEV.GE.USUAL) THEN
-            Write(6,*)
-            Write(6,'(6X,A)') 'DFT functional specifications'
-            Write(6,'(6X,A)') '-----------------------------'
-            Call libxc_version()
-            Call Init_Funcs(KSDFT2)
-            Call Print_Info()
-            Write(6,*)
-         END IF
-       End If
+!---- Print out grid information
+       Call Put_dScalar('DFT exch coeff',CoefX)
+       Call Put_dScalar('DFT corr coeff',CoefR)
+       Call Funi_Print()
+       IF(IPRLEV.GE.USUAL) THEN
+          Write(6,*)
+          Write(6,'(6X,A)') 'DFT functional specifications'
+          Write(6,'(6X,A)') '-----------------------------'
+          Call libxc_version()
+          Call Init_Funcs(mcpdft_options%otfnal%xc)
+          Call Print_Info()
+          Write(6,*)
+       END IF
   900 CONTINUE
       Call XFlush(LF)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+
       Return
       End

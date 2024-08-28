@@ -24,9 +24,11 @@
 ******************************************************************
       use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
-      Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
+      Use hybridpdft, only: E_NoHyb
       use mspdft, only: mspdftmethod, do_rotate
-      use mcpdft_output, only: iPrGlb, usual
+      use printlevel, only: usual
+      use mcpdft_output, only: iPrGlb
+      use mcpdft_input, only: mcpdft_options
 
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
@@ -89,14 +91,16 @@
       write(6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
       write(6,'(6X,A,49X,F18.8)') 'On-top energy',E_ot
       write(6,*)
-      IF(Do_Hybrid) Then
+      IF(mcpdft_options%otfnal%is_hybrid()) Then
        write(6,'(6X,A)') 'Information for hybrid PDFT:'
        write(6,'(6X,A,37X,F6.2)')
-     & 'Wave function percentage (Lambda*100)',Ratio_WF*1.0d2
+     & 'Wave function percentage (Lambda*100)',
+     &  mcpdft_options%otfnal%lambda*1.0d2
        write(6,'(6X,A,42X,F18.8)')
-     & 'Wave function energy',Ratio_WF*Ref_Ener(jRoot)
+     & 'Wave function energy',
+     &  mcpdft_options%otfnal%lambda*Ref_Ener(jRoot)
        write(6,'(6X,A,51X,F18.8)')
-     & 'PDFT energy',(1-Ratio_WF)*E_NoHyb
+     & 'PDFT energy',(1-mcpdft_options%otfnal%lambda)*E_NoHyb
        write(6,*)
       END IF
 

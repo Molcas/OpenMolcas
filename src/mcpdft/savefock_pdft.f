@@ -21,7 +21,8 @@
 
       Use KSDFT_Info, Only: ifav, ifiv
       use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: BM, FockOcc
@@ -33,13 +34,11 @@
       Real*8 CMO(*)
 #include "rasdim.fh"
 #include "general.fh"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-!      Logical TraOnly
 
 
 

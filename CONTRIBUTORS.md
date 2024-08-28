@@ -109,6 +109,7 @@ Gene H. Golub
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
+Matthew R. Hennefarth  
 Matthew R. Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
