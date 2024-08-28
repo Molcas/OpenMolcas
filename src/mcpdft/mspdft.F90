@@ -14,7 +14,7 @@
 module mspdft
   use printlevel,only:usual
   use mcpdft_output,only:iPrLoc
-  use definitions,only: iwp
+  use definitions,only:iwp
   implicit none
   private
 
@@ -112,7 +112,7 @@ contains
     ! Update information on the runfile for possible gradient calculations.
     call put_dArray('Last energies',e_mspdft,nroots)
     call Put_dScalar('Last energy',e_mspdft(iRlxRoot))
-    
+
     ! Add info the checkfile for testing!
     call Add_Info("MSPDFTE",e_mspdft,nroots,8)
 
