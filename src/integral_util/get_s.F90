@@ -12,6 +12,7 @@
 subroutine Get_S(icol,str,n)
 
 use getline_mod
+use Definitions, only: u6
 
 implicit none
 integer iCol, n
@@ -28,7 +29,7 @@ do i=1,n
     end if
     ic = ic+1
   else
-    write(6,210) icol+n-1,line
+    write(u6,210) icol+n-1,line
     call FindErrorLine()
     call WarningMessage(2,'Error in Get_S')
     call Quit_OnUserError()

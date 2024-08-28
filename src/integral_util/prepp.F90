@@ -34,6 +34,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh, nIsh
 use NAC, only: IsNAC
 use mspdft_grad, only: DoGradMSPD
+use Definitions, only: u6
 
 implicit none
 #include "dmrginfo_mclr.fh"
@@ -108,13 +109,13 @@ end if
 if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') .or. (Method == 'MBPT2') .or. &
     (Method == 'KS-DFT') .or. (Method == 'ROHF')) then
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,'(2A)') ' Wavefunction type: ',Method
+  write(u6,*)
+  write(u6,'(2A)') ' Wavefunction type: ',Method
   if (Method == 'KS-DFT  ') then
-    write(6,'(2A)') ' Functional type:   ',KSDFT
+    write(u6,'(2A)') ' Functional type:   ',KSDFT
     Fmt = '(1X,A26,20X,F18.6)'
-    write(6,Fmt) 'Exchange scaling factor',CoefX
-    write(6,Fmt) 'Correlation scaling factor',CoefR
+    write(u6,Fmt) 'Exchange scaling factor',CoefX
+    write(u6,Fmt) 'Correlation scaling factor',CoefR
   end if
   write(6,*)
 # endif
@@ -135,9 +136,9 @@ if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') 
   !                                                                    *
 else if (Method == 'Corr. WF') then
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
+  write(u6,*)
 # endif
   Gamma_On = .true.
   call Aces_Gamma()
@@ -167,7 +168,7 @@ else if ((Method(1:7) == 'MR-CISD') .and. (Columbus == 1)) then
   lbin = int(G_Toc(nQuad+2))
   if (n /= nQuad) then
     call WarningMessage(2,'n /= nQuad')
-    write(6,*) 'n,nQuad=',n,nQuad
+    write(u6,*) 'n,nQuad=',n,nQuad
     call Abend()
   end if
 
@@ -200,11 +201,11 @@ else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF'
   mIrrep = nIrrep
   call ICopy(nIrrep,nBas,1,mBas,1)
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,'(2A)') ' Wavefunction type: ',Method
-  if ((Method == 'CASDFT') .or. (Method == 'MCPDFT')) write(6,'(2A)') ' Functional type:   ',KSDFT
-  if (Method == 'MSPDFT') write(6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
-  write(6,*)
+  write(u6,*)
+  write(u6,'(2A)') ' Wavefunction type: ',Method
+  if ((Method == 'CASDFT') .or. (Method == 'MCPDFT')) write(u6,'(2A)') ' Functional type:   ',KSDFT
+  if (Method == 'MSPDFT') write(u6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
+  write(u6,*)
 # endif
   if (Method == 'MCPDFT') lSA = .true.
   if (Method == 'MSPDFT') then
@@ -228,13 +229,13 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
   mIrrep = nIrrep
   call ICopy(nIrrep,nBas,1,mBas,1)
 # ifdef _DEBUGPRINT_
-  write(6,*)
+  write(u6,*)
   if (lSA) then
-    write(6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
+    write(u6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
   else
-    write(6,'(2A)') ' Wavefunction type: ',Method
+    write(u6,'(2A)') ' Wavefunction type: ',Method
   end if
-  write(6,*)
+  write(u6,*)
 # endif
   if (Method == 'CASPT2  ') then
     call DecideOnCholesky(DoCholesky)
@@ -257,18 +258,16 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
   !                                                                    *
 else
   call WarningMessage(2,'Alaska: Unknown wavefuntion type')
-  write(6,*) 'Wavefunction type:',Method
-  write(6,*) 'Illegal type of wave function!'
-  write(6,*) 'ALASKA cannot continue.'
+  write(u6,*) 'Wavefunction type:',Method
+  write(u6,*) 'Illegal type of wave function!'
+  write(u6,*) 'ALASKA cannot continue.'
   call Quit_OnUserError()
 end if
 
 ! Read the (non) variational 1st order density matrix
 ! density matrix in AO/SO basis
 nsa = 1
-if (lsa) nsa = 5
-if (Method == 'MCPDFT  ') nsa = 5
-if (Method == 'MSPDFT  ') nsa = 5
+if (lsa .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT')) nsa = 5
 !AMS modification: add a fifth density slot
 mDens = nsa+1
 call mma_allocate(D0,nDens,mDens,Label='D0')
@@ -353,14 +352,14 @@ call Get_iArray('nIsh',nIsh,i)
 call Get_iArray('nAsh',nAsh,i)
 call Get_iArray('nFro',nFro,i)
 #ifdef _DEBUGPRINT_
-write(6,*) ' nISh=',nISh
-write(6,*) ' nASh=',nASh
-write(6,*) ' nFro=',nFro
+write(u6,*) ' nISh=',nISh
+write(u6,*) ' nASh=',nASh
+write(u6,*) ' nFro=',nFro
 #endif
 nAct = 0
 nTst = 0
 do iIrrep=0,nIrrep-1
-  !write(6,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
+  !write(u6,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
   nAct = nAct+nAsh(iIrrep)
   nTst = nTst+nFro(iIrrep)
 end do
@@ -389,7 +388,7 @@ nsa = 1
 if (lsa) nsa = 2
 mG2 = nsa
 call mma_allocate(G2,nG2,mG2,Label='G2')
-!write(6,*) 'got the 2rdm, Ithink.'
+!write(u6,*) 'got the 2rdm, Ithink.'
 if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   call Get_dArray_chk('P2MOt',G2,nG2)!PDFT-modified 2-RDM
 else
@@ -428,7 +427,7 @@ if (lsa) then
     ndim1 = (ndim0+1)*ndim0/2
     ndim2 = (ndim1+1)*ndim1/2
     do i=1,ng2
-      if (i > ndim2) G2(i,2) = 0.0d0
+      if (i > ndim2) G2(i,2) = Zero
     end do
   end if
   call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
@@ -492,7 +491,7 @@ if (lsa) then
   call qpg_DScalar('R_WF_HMC',Do_Hybrid)
   if (Do_Hybrid) then
     call Get_DScalar('R_WF_HMC',WF_Ratio)
-    PDFT_Ratio = 1.0d0-WF_Ratio
+    PDFT_Ratio = One-WF_Ratio
   end if
   !ANDREW - modify D2: should contain only the correction pieces
   if (Method == 'MCPDFT  ') then
@@ -509,18 +508,18 @@ if (lsa) then
         ij = ij+1
       end do
     end do
-    call daxpy_(ndens,-1d0,D0(1,1),1,D1ao,1)
-    !write(6,*) 'do they match?'
+    call daxpy_(ndens,-One,D0(1,1),1,D1ao,1)
+    !write(u6,*) 'do they match?'
     !do i=1,ndens
-    !  write(6,*) d1ao(i),DO(i,3)
+    !  write(u6,*) d1ao(i),DO(i,3)
     !end do
 
     call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-    call daxpy_(ndens,-1.0d0,D1ao,1,D0(1,2),1)
+    call daxpy_(ndens,-One,D1ao,1,D0(1,2),1)
     !ANDREW -   Generate new D5 piece:
     D0(:,5) = Zero
-    call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
-    call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
+    call daxpy_(ndens,Half,D0(1,1),1,D0(1,5),1)
+    call daxpy_(ndens,One,D1ao,1,D0(1,5),1)
 
     if (do_hybrid) then
       ! add back the wave function parts that are subtracted
@@ -531,18 +530,18 @@ if (lsa) then
       call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
     end if
     call mma_deallocate(D1ao)
-  else if (Method == 'MSPDFT  ') then
-    call Get_DArray('MSPDFTD5        ',D0(1,5),nDens)
-    call Get_DArray('MSPDFTD6        ',D0(1,6),nDens)
-    call daxpy_(ndens,-1.0d0,D0(1,5),1,D0(1,2),1)
+  else if (Method == 'MSPDFT') then
+    call Get_DArray('MSPDFTD5',D0(1,5),nDens)
+    call Get_DArray('MSPDFTD6',D0(1,6),nDens)
+    call daxpy_(ndens,-One,D0(1,5),1,D0(1,2),1)
   end if
 
-  !call dcopy_(ndens*5,0.0d0,0,D0,1)
-  !call dcopy_(nG2,0.0d0,0,G2,1)
+  !call dcopy_(ndens*5,Zero,0,D0,1)
+  !call dcopy_(nG2,Zero,0,G2,1)
 
   !************************
-  !call dscal_(Length,0.5d0,D0(1,4),1)
-  !call dscal_(Length,0.0d0,D0(1,4),1)
+  !call dscal_(Length,Half,D0(1,4),1)
+  !call dscal_(Length,Zero,D0(1,4),1)
 
   !RlxLbl = 'DLAO    '
   !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))

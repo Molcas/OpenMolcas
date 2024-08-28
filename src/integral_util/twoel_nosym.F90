@@ -42,8 +42,7 @@ use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
 use k2_arrays, only: TwoHam => pFq, Dens => pDq
 use Breit, only: nComp
 use Constants
-#ifdef _DEBUGPRINT_
-#endif
+use Definitions, only: wp, u6
 use k2_structure, only: k2_type
 
 implicit none
@@ -131,7 +130,7 @@ iW4 = 1
 
 vijkl = k2Data1(1)%abMax*k2Data2(1)%abMax
 
-Batch_On_Disk = (vijkl > Thize) .and. (Disc+dble(nInts+2+2/RtoI) <= Disc_Mx)
+Batch_On_Disk = (vijkl > Thize) .and. (Disc+real(nInts+2+2/RtoI,kind=wp) <= Disc_Mx)
 
 Prescreen_On_Int_Only = IntOnly
 if (DoIntegrals) Prescreen_On_Int_Only = .true.
@@ -177,20 +176,20 @@ if (.not. DoAOBatch) then
     if (QInd(1) == Quad_ijkl) then
       if (kInts /= nInts) then
         call WarningMessage(2,'Twoel: kInts /= nInts!')
-        write(6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
-        write(6,*) 'Index,1:',QInd(1),Quad_ijkl
+        write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+        write(u6,*) 'Index,1:',QInd(1),Quad_ijkl
         call Abend()
       end if
       if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-      Disc = Disc+dble(2/RtoI+2+mInts)
+      Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
       Go To 99
     else if (QInd(1) < Quad_ijkl) then
       if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-      Disc = Disc+dble(2/RtoI+2+mInts)
+      Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
       Go To 1111
     else
       call WarningMessage(2,'Twoel: batch is lost!')
-      write(6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+      write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
       call Abend()
     end if
   end if
@@ -252,8 +251,8 @@ end if
 nZeta_Tot = k2Data1(1)%IndZ(nZeta+1)
 nEta_Tot = k2Data2(1)%IndZ(nEta+1)
 #ifdef _DEBUGPRINT_
-write(6,*) 'nZeta_Tot, IncZet=',nZeta_Tot,IncZet
-write(6,*) 'nEta_Tot,  IncEta=',nEta_Tot,IncEta
+write(u6,*) 'nZeta_Tot, IncZet=',nZeta_Tot,IncZet
+write(u6,*) 'nEta_Tot,  IncEta=',nEta_Tot,IncEta
 #endif
 
 kabcd = 0
@@ -293,7 +292,7 @@ if (NoPInts) then
       call dWBuf(QInd,2)
       call Store_QLast(QInd)
 
-      Disc = Disc+dble(2/RtoI+2+mInts)
+      Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
     end if
   end if
   Go To 99
@@ -335,14 +334,14 @@ if (Batch_On_Disk .and. W2Disc) then
 
   iWR(1) = nInts
   iWR(2) = mInts
-  !write(6,*) 'nInts,mInts=',nInts,mInts
+  !write(u6,*) 'nInts,mInts=',nInts,mInts
   call iWBuf(iWR,2)
   QInd(1) = Quad_ijkl
   call dWBuf(QInd,2)
   call Store_QLast(QInd)
   call dWBuf(Wrk(iW3),mInts)
 
-  Disc = Disc+dble(2/RtoI+2+mInts)
+  Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
 
 end if
 
@@ -357,20 +356,20 @@ if (Batch_On_Disk .and. (.not. W2Disc)) then
   if (QInd(1) == Quad_ijkl) then
     if (kInts /= nInts) then
       call WarningMessage(2,'Twoel: kInts /= nInts!')
-      write(6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
-      write(6,*) 'Index,1:',QInd(1),Quad_ijkl
+      write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+      write(u6,*) 'Index,1:',QInd(1),Quad_ijkl
       call Abend()
     end if
     if (mInts > 0) call dRBuf(Wrk(iW3),mInts,Copy)
-    Disc = Disc+dble(2/RtoI+2+mInts)
+    Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
     if (mInts == 0) Go To 99
   else if (QInd(1) < Quad_ijkl) then
     if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-    Disc = Disc+dble(2/RtoI+2+mInts)
+    Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
     Go To 1112
   else
     call WarningMessage(2,'Twoel: batch is lost!')
-    write(6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+    write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
     call Abend()
   end if
 
@@ -397,7 +396,7 @@ if (DoIntegrals) then
   if (Pij) iPer = iPer*2
   if (Pkl) iPer = iPer*2
   if (Pijkl) iPer = iPer*2
-  q4 = dble(8)/dble(iPer)
+  q4 = Eight/real(iPer,kind=wp)
   if (nIrrep == 1) q4 = One
   if (q4 /= One) call DScal_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),q4,Wrk(ipAOInt),1)
 end if

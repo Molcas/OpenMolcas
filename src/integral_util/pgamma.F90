@@ -19,6 +19,7 @@ subroutine pgamma()
 
 use Constants, only: Pi, Two, Zero
 use rmat, only: gammath, gammaph, lgamma
+use Definitions, only: wp
 
 implicit none
 integer m, n
@@ -34,34 +35,34 @@ gammath(1,0) = Pi/two
 m = 0
 !m_gam = m
 do n=0,2*lgamma+2,2
-  gammath(0,n+2) = dble(n+1)/dble(m+n+3)*gammath(0,n)
+  gammath(0,n+2) = real(n+1,kind=wp)/real(m+n+3,kind=wp)*gammath(0,n)
   !n_gam = n
   !hgt = gammat(x)
-  !write(6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
+  !write(u6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
 end do
 do n=1,2*lgamma+2,2
-  gammath(0,n) = 0.0d0
+  gammath(0,n) = Zero
   !n_gam = n
   !hgt = gammat(x)
-  !write(6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
+  !write(u6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
 end do
 
 ! m > 0
 do m=1,2*lgamma+2
   !m_gam = m
   do n=0,2*lgamma+2,2
-    gammath(m,n+2) = dble(n+1)/dble(m+n+3)*gammath(m,n)
+    gammath(m,n+2) = real(n+1,kind=wp)/real(m+n+3,kind=wp)*gammath(m,n)
     !n_gam = n
     !hgt = gammat(x)
-    !write(6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
+    !write(u6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
   end do
   do n=1,2*lgamma+2,2
-    gammath(m,n) = 0.0d0
+    gammath(m,n) = Zero
     !n_gam = n
     !hgt = gammat(x)
-    !write(6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
+    !write(u6,*) ' m,n,gammath,hgt',m,n,gammath(m,n),hgt
   end do
-  gammath(m+1,0) = dble(m+1)/dble(m+2)*gammath(m-1,0)
+  gammath(m+1,0) = real(m+1,kind=wp)/real(m+2,kind=wp)*gammath(m-1,0)
 end do
 
 ! Set intitial values for recursion of gammaph
@@ -72,22 +73,22 @@ gammaph(0,1) = Zero
 m = 0
 !m_gam = m
 do n=0,2*lgamma+2
-  gammaph(0,n+2) = dble(n+1)/dble(m+n+2)*gammaph(0,n)
+  gammaph(0,n+2) = real(n+1,kind=wp)/real(m+n+2,kind=wp)*gammaph(0,n)
   !n_gam = n
   !hgp = gammaf(x)
-  !write(6,*) ' m,n,gammaph,hgp',m,n,gammaph(m,n),hgp
+  !write(u6,*) ' m,n,gammaph,hgp',m,n,gammaph(m,n),hgp
 end do
 
 ! m > 0
 do m=1,2*lgamma+2
   !m_gam = m
   do n=0,2*lgamma+2
-    gammaph(m,n+2) = dble(n+1)/dble(m+n+2)*gammaph(m,n)
+    gammaph(m,n+2) = real(n+1,kind=wp)/real(m+n+2,kind=wp)*gammaph(m,n)
     !n_gam = n
     !hgp = gammaf(x)
-    !write(6,*) ' m,n,gammaph,hgp',m,n,gammaph(m,n),hgp
+    !write(u6,*) ' m,n,gammaph,hgp',m,n,gammaph(m,n),hgp
   end do
-  gammaph(m+1,0) = dble(m)/dble(m+1)*gammaph(m-1,0)
+  gammaph(m+1,0) = real(m,kind=wp)/real(m+1,kind=wp)*gammaph(m-1,0)
 end do
 !                                                                      *
 !***********************************************************************

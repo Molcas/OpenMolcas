@@ -33,6 +33,10 @@ use lw_Info, only: lwSyB, lwInt, lwSqn
 use Gateway_Info, only: ThrInt
 use sort_data, only: DimSyB, lSll
 use Constants, only: One
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer ijkl, iCmp, jCmp, kCmp, lCmp, iBas, jBas, kBas, lBas
@@ -51,8 +55,8 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 #ifdef _DEBUGPRINT_
 r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
 r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-write(6,*) ' Sum=',r1
-write(6,*) ' Dot=',r2
+write(u6,*) ' Sum=',r1
+write(u6,*) ' Dot=',r2
 call RecPrt(' In Plf2: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 
@@ -64,7 +68,7 @@ call RecPrt(' In Plf2: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 nUt = -1
 nij = DimSyB(1,1)
 mij = lSll(1)/nij
-!write(6,*) 'nij,mij=',nij,mij
+!write(u6,*) 'nij,mij=',nij,mij
 
 ! quadruple loop over elements of the basis functions angular
 ! description. loops are reduced to just produce unique SO integrals
@@ -108,24 +112,24 @@ do i1=1,iCmp
                 if (abs(AInt) < ThrInt) Go To 420
                 iSOij = iTri(iSOi,jSOj)
 
-                !write(6,*) 'iSOij,iSOkl=',iSOij,iSOkl
+                !write(u6,*) 'iSOij,iSOkl=',iSOij,iSOkl
 
                 nUt = nUt+1
                 Sew_Scr(lwInt+nUt) = Aint
                 iBin = (iSOkl-1)/mij
-                !write(6,*) 'iBin=',iBin+1
-                Sew_Scr(lwSyB+nUt) = dble(iBin+1)
-                Sew_Scr(lwSqN+nUt) = dble((iSOkl-1-iBin*mij)*nij+iSOij)
-                !write(6,*) 'iSq=',Sew_Scr(lwSqN+nUt)
+                !write(u6,*) 'iBin=',iBin+1
+                Sew_Scr(lwSyB+nUt) = real(iBin+1,kind=wp)
+                Sew_Scr(lwSqN+nUt) = real((iSOkl-1-iBin*mij)*nij+iSOij,kind=wp)
+                !write(u6,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 
                 if (iSOij /= iSOkl) then
                   nUt = nUt+1
                   Sew_Scr(lwInt+nUt) = Aint
                   iBin = (iSOij-1)/mij
-                  !write(6,*) 'iBin=',iBin+1
-                  Sew_Scr(lwSyB+nUt) = dble(iBin+1)
-                  Sew_Scr(lwSqN+nUt) = dble((iSOij-1-iBin*mij)*nij+iSOkl)
-                  !write(6,*) 'iSq=',Sew_Scr(lwSqN+nUt)
+                  !write(u6,*) 'iBin=',iBin+1
+                  Sew_Scr(lwSyB+nUt) = real(iBin+1,kind=wp)
+                  Sew_Scr(lwSqN+nUt) = real((iSOij-1-iBin*mij)*nij+iSOkl,kind=wp)
+                  !write(u6,*) 'iSq=',Sew_Scr(lwSqN+nUt)
                 end if
 
 420             continue

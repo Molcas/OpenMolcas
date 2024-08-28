@@ -26,6 +26,7 @@ use External_Centers, only: nOrd_XF, nXF, XF
 use Phase_Info, only: iPhase
 use Symmetry_Info, only: nIrrep
 use Constants, only: One
+use Definitions, only: wp
 
 implicit none
 integer lmax, nCavxyz_
@@ -54,17 +55,17 @@ do i=1,nXF
     call FZero(Tmom,nCavxyz_)
     call dcopy_(nInp,XF(4,i),1,Tmom,1)
     TCo(1:3) = XF(1:3,i)
-    Tco(1) = Tco(1)*dble(iPhase(1,jCoSet(j,0)))
-    Tco(2) = Tco(2)*dble(iPhase(2,jCoSet(j,0)))
-    Tco(3) = Tco(3)*dble(iPhase(3,jCoSet(j,0)))
+    Tco(1) = Tco(1)*real(iPhase(1,jCoSet(j,0)),kind=wp)
+    Tco(2) = Tco(2)*real(iPhase(2,jCoSet(j,0)),kind=wp)
+    Tco(3) = Tco(3)*real(iPhase(3,jCoSet(j,0)),kind=wp)
     if (nOrd_XF > 0) then
-      Tmom(2) = Tmom(2)*dble(iPhase(1,jCoSet(j,0)))   !Dx
-      Tmom(3) = Tmom(3)*dble(iPhase(2,jCoSet(j,0)))   !Dy
-      Tmom(4) = Tmom(4)*dble(iPhase(3,jCoSet(j,0)))   !Dz
+      Tmom(2) = Tmom(2)*real(iPhase(1,jCoSet(j,0)),kind=wp)   !Dx
+      Tmom(3) = Tmom(3)*real(iPhase(2,jCoSet(j,0)),kind=wp)   !Dy
+      Tmom(4) = Tmom(4)*real(iPhase(3,jCoSet(j,0)),kind=wp)   !Dz
       if (nOrd_XF > 1) then
-        Tmom(6) = Tmom(6)*dble(iPhase(1,jCoSet(j,0))*iPhase(2,jCoSet(j,0))) !Qxy
-        Tmom(7) = Tmom(7)*dble(iPhase(1,jCoSet(j,0))*iPhase(3,jCoSet(j,0))) !Qxz
-        Tmom(9) = Tmom(9)*dble(iPhase(2,jCoSet(j,0))*iPhase(3,jCoSet(j,0))) !Qyz
+        Tmom(6) = Tmom(6)*real(iPhase(1,jCoSet(j,0))*iPhase(2,jCoSet(j,0)),kind=wp) !Qxy
+        Tmom(7) = Tmom(7)*real(iPhase(1,jCoSet(j,0))*iPhase(3,jCoSet(j,0)),kind=wp) !Qxz
+        Tmom(9) = Tmom(9)*real(iPhase(2,jCoSet(j,0))*iPhase(3,jCoSet(j,0)),kind=wp) !Qyz
       end if
     end if
     call ReExpand(Tmom,1,nCavxyz_,Tco,Org,1,lMax)

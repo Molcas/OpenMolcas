@@ -18,6 +18,7 @@ subroutine hmod(gx,gy,gz,V,EFx,EFy,EFz,Cavxyz,lmax_)
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp
 
 implicit none
 integer lmax_
@@ -41,22 +42,22 @@ do ix=0,lmax
   else
     xeff = gx**ix
   end if
-  ax = dble(ix)+One
+  ax = real(ix+1,kind=wp)
   do iy=0,lmax-ix
     if (iy == 0) then
       xyeff = xeff
     else
       xyeff = xeff*gy**iy
     end if
-    ay = dble(iy)+One
+    ay = real(iy+1,kind=wp)
     do iz=0,lmax-ix-iy
       if (iz == 0) then
         xyzeff = xyeff
       else
         xyzeff = xyeff*gz**iz
       end if
-      az = dble(iz)+One
-      !write(6,*) ix,iy,iz,Index(ix,iy,iz),Index(ix+1,iy,iz),Index(ix,iy+1,iz),Index(ix,iy,iz+1)
+      az = real(iz+1,kind=wp)
+      !write(u6,*) ix,iy,iz,Index(ix,iy,iz),Index(ix+1,iy,iz),Index(ix,iy+1,iz),Index(ix,iy,iz+1)
 
       ! Charge term
 

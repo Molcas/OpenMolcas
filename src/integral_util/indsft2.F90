@@ -33,7 +33,9 @@ use Symmetry_Info, only: nIrrep
 use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square, TriSyB
 #ifdef _DEBUGPRINT_
 use Constants, only: Zero, One
+use Definitions, only: u6
 #endif
+use Definitions, only: wp
 
 implicit none
 integer ijkl, nSOInt, ibas, jBas, kBas, lBas, nSOs
@@ -60,8 +62,8 @@ r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
 r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
 tr1 = tr1+r1
 tr2 = tr2+r2
-write(6,*) ' Sum=',r1,tr1
-write(6,*) ' Dot=',r2,tr2
+write(u6,*) ' Sum=',r1,tr1
+write(u6,*) ' Dot=',r2,tr2
 call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 #endif
 memSO2 = 0
@@ -122,7 +124,7 @@ do i1=1,iCmp(1)
         end if
         if (Shijij .and. (i34 > i12)) go to 400
         qijij = Shijij .and. (i12 == i34)
-        !write(6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
+        !write(u6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 
         ! loop over Irreps which are spanned by the basis function.
         ! again, the loop structure is restricted to ensure unique
@@ -167,7 +169,7 @@ do i1=1,iCmp(1)
                 end if
                 if (k34 > k12) go to 310
               end if
-              !write(6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
+              !write(u6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
 
               memSO2 = memSO2+1
               if ((nSkip(j1+1)+nSkip(j2+1)+nSkip(j3+1)+nSkip(j4+1)) /= 0) goto 310
@@ -177,7 +179,7 @@ do i1=1,iCmp(1)
               jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
               kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
               lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-              !write(6,*) 'iSO,jSO,kSO,lSO=',iSO,jSO,kSO,lSO
+              !write(u6,*) 'iSO,jSO,kSO,lSO=',iSO,jSO,kSO,lSO
 
               kSymk = max(j3,j4)+1
               lSyml = min(j3,j4)+1
@@ -221,11 +223,11 @@ do i1=1,iCmp(1)
                 iPP3 = iQQ3
                 iPP4 = 0
               end if
-              !write(6,*) '<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-              !write(6,*) 'iSyBlk,jSyBlk=',iSyBlk,jSyBlk
-              !write(6,*) 'iSq1,iSq2,iSq3,iSq4=',iSq1,iSq2,iSq3,iSq4
-              !write(6,*) 'iQQ1,iQQ2,iQQ3,iQQ4=',iQQ1,iQQ2,iQQ3,iQQ4
-              !write(6,*) 'nkl,nij=',nkl,nij
+              !write(u6,*) '<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+              !write(u6,*) 'iSyBlk,jSyBlk=',iSyBlk,jSyBlk
+              !write(u6,*) 'iSq1,iSq2,iSq3,iSq4=',iSq1,iSq2,iSq3,iSq4
+              !write(u6,*) 'iQQ1,iQQ2,iQQ3,iQQ4=',iQQ1,iQQ2,iQQ3,iQQ4
+              !write(u6,*) 'nkl,nij=',nkl,nij
 
               ! Duplicate integral if permuted integral is
               ! in the same irrep or if all blocks should
@@ -244,17 +246,17 @@ do i1=1,iCmp(1)
                         AInt = SOint(nijkl,memSO2)
                         if (abs(AInt) < ThrInt) Go To 199
                         ij = iPD(iSOi,jSOj,iSOSym,nSOs)
-                        !write(6,*)
-                        !write(6,*) 'iSOi,jSOj,kSOk,lSOl=',iSOi,jSOj,kSOk,lSO
-                        !write(6,*) 'ij,kl=',ij,kl
+                        !write(u6,*)
+                        !write(u6,*) 'iSOi,jSOj,kSOk,lSOl=',iSOi,jSOj,kSOk,lSO
+                        !write(u6,*) 'ij,kl=',ij,kl
 
                         nUt = nUt+1
                         Sew_Scr(lwInt+nUt) = AInt
                         iBin = (kl-1)/iQQ1+(ij-1)/iQQ2
                         iSqNum = (kl-iBin*iPP1)*iSq1+(ij-iBin*iPP2)*iSq2-nkl
-                        Sew_Scr(lwSqN+nUt) = dble(iSqNum)
-                        Sew_Scr(lwSyB+nUt) = dble(iBin+iStBin(iSyBlk))
-                        !write(6,*) 'iSqNum,iBin=',iSqNum,iBin+iStBin(iSyBlk)
+                        Sew_Scr(lwSqN+nUt) = real(iSqNum,kind=wp)
+                        Sew_Scr(lwSyB+nUt) = real(iBin+iStBin(iSyBlk),kind=wp)
+                        !write(u6,*) 'iSqNum,iBin=',iSqNum,iBin+iStBin(iSyBlk)
 
 199                     continue
                       end do
@@ -275,25 +277,25 @@ do i1=1,iCmp(1)
                         if (abs(AInt) < ThrInt) Go To 299
                         ij = iPD(iSOi,jSOj,iSOSym,nSOs)
 
-                        !write(6,*)
-                        !write(6,*) 'iSOi,jSOj,kSOk,lSOl=',iSOi,jSOj,kSOk,lSO
-                        !write(6,*) 'ij,kl=',ij,kl
+                        !write(u6,*)
+                        !write(u6,*) 'iSOi,jSOj,kSOk,lSOl=',iSOi,jSOj,kSOk,lSO
+                        !write(u6,*) 'ij,kl=',ij,kl
 
                         nUt = nUt+1
                         Sew_Scr(lwInt+nUt) = AInt
                         iBin = (kl-1)/iQQ1+(ij-1)/iQQ2
                         iSqNum = (kl-iBin*iPP1)*iSq1+(ij-iBin*iPP2)*iSq2-nkl
-                        Sew_Scr(lwSqN+nUt) = dble(iSqNum)
-                        Sew_Scr(lwSyB+nUt) = dble(iBin+iStBin(iSyBlk))
-                        !write(6,*) 'iSqNum,iBin=',iSqNum,iBin+iStBin(iSyBlk)
+                        Sew_Scr(lwSqN+nUt) = real(iSqNum,kind=wp)
+                        Sew_Scr(lwSyB+nUt) = real(iBin+iStBin(iSyBlk),kind=wp)
+                        !write(u6,*) 'iSqNum,iBin=',iSqNum,iBin+iStBin(iSyBlk)
 
                         nUt = nUt+1
                         Sew_Scr(lwInt+nUt) = AInt
                         jBin = (kl-1)/iQQ3+(ij-1)/iQQ4
                         jSqNum = (kl-jBin*iPP3)*iSq3+(ij-jBin*iPP4)*iSq4-nij
-                        Sew_Scr(lwSqN+nUt) = dble(jSqNum)
-                        Sew_Scr(lwSyB+nUt) = dble(jBin+iStBin(jSyBlk))
-                        !write(6,*) 'jSqNum,jBin=',jSqNum,jBin+iStBin(jSyBlk)
+                        Sew_Scr(lwSqN+nUt) = real(jSqNum,kind=wp)
+                        Sew_Scr(lwSyB+nUt) = real(jBin+iStBin(jSyBlk),kind=wp)
+                        !write(u6,*) 'jSqNum,jBin=',jSqNum,jBin+iStBin(jSyBlk)
 
 299                     continue
                       end do

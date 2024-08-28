@@ -13,6 +13,7 @@ subroutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,lOper,iChO,Factor)
 
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Constants
+use Definitions, only: wp, u6
 
 implicit none
 integer nZeta, la, lb, nComp, nIC, iDCRT
@@ -38,14 +39,14 @@ do iComp=1,nComp
   do iIrrep=0,nIrrep-1
     if (iand(lOper(iComp),iTwoj(iIrrep)) == 0) Go To 104
     iIC = iIC+1
-    Xg = dble(iChTbl(iIrrep,iDCRT))
+    Xg = real(iChTbl(iIrrep,iDCRT),kind=wp)
     call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
 104 continue
   end do
 end do
 if (iIC /= nIC) then
   call WarningMessage(2,' Abend in SymAdO: iIC /= nIC')
-  write(6,*) 'iIC,nIC=',iIC,nIC
+  write(u6,*) 'iIC,nIC=',iIC,nIC
   call Abend()
 end if
 !call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)

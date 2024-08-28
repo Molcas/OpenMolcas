@@ -21,6 +21,7 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: CoM
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer i
@@ -28,7 +29,7 @@ integer i
 ! Check
 if (S%nMltpl < 0) then
   call WarningMessage(2,'SetMltplCenters: illegal input')
-  write(6,'(A,I10)') 'S%nMltpl=',S%nMltpl
+  write(u6,'(A,I10)') 'S%nMltpl=',S%nMltpl
   call Abend()
 end if
 

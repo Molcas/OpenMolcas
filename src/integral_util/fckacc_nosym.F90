@@ -57,9 +57,9 @@ real*8 D_kl, F_kl, D_jl, F_jl, D_jk, F_jk, AOijkl
 ! Statement Function
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-!write(6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+!write(u6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
 !if (iPrint >= 49) &
-!  write(6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+!  write(u6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
 
 ! Quadruple loop over elements of the basis functions angular
 ! description. Loops are reduced to just produce unique SO integrals

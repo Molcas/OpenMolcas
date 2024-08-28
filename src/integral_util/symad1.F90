@@ -27,6 +27,10 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nIC, iIC, nSOInt
@@ -38,11 +42,11 @@ integer iIrrep, ii, jj, lSO, j1, i1, iChBs, j2, j12, kIC, jMx, i2, jChBs
 real*8 xa, pae, xb, pbr
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' lOper=',lOper
-write(6,*) ' nSOInt=',nSOInt
+write(u6,*) ' lOper=',lOper
+write(u6,*) ' nSOInt=',nSOInt
 call RecPrt(' In SymAd1: AOInt',' ',AOInt,iBas*jBas,iCmp*jCmp*nIC)
 call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
-write(6,*) ' iIC=',iIC
+write(u6,*) ' iIC=',iIC
 #endif
 do iIrrep=0,nIrrep-1
   jIC(iIrrep) = -999999999
@@ -56,7 +60,7 @@ jj = jAng*(jAng+1)*(jAng+2)/6
 
 lSO = 0
 do j1=0,nIrrep-1
-  xa = dble(iChTbl(j1,nOp(1)))
+  xa = real(iChTbl(j1,nOp(1)),kind=wp)
   do i1=1,iCmp
     if (iAOtSO(iAO+i1,j1) < 0) cycle
     iChBs = iChBas(ii+i1)
@@ -68,7 +72,7 @@ do j1=0,nIrrep-1
 
       if (iand(lOper,iTwoj(j12)) == 0) cycle
       kIC = jIC(j12)
-      xb = dble(iChTbl(j2,nOp(2)))
+      xb = real(iChTbl(j2,nOp(2)),kind=wp)
       jMx = jCmp
       if ((iShell == jShell) .and. (j1 == j2)) jMx = i1
 

@@ -39,6 +39,7 @@ use Sizes_of_Seward, only: S
 use k2_structure, only: k2_Processed, k2Data, Indk2
 #ifdef _DEBUGPRINT_
 use Gateway_Info, only: lSchw
+use Definitions, only: u6
 #endif
 use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -141,13 +142,13 @@ call mma_allocate(Qnew,S%m2Max*3,Label='Qnew')
 if (allocated(Sew_Scr)) then
   Rls = .false.
   MemMax = size(Sew_Scr)
-  !write(6,*) 'Drvk2: Memory already allocated:',MemMax
+  !write(u6,*) 'Drvk2: Memory already allocated:',MemMax
 else
   Rls = .true.
   call mma_maxDBLE(MemMax)
   if (MemMax > 8000) MemMax = MemMax-8000
   call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
-  !write(6,*) 'Drvk2: Memory allocated:',MemMax
+  !write(u6,*) 'Drvk2: Memory allocated:',MemMax
 end if
 ipMem1 = 1
 !                                                                      *
@@ -257,12 +258,12 @@ do iS=1,mSkal
     iPrimi = iPrims
     jPrimj = jPrims
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' ************** Memory partioning **************'
-    write(6,*) ' ipMem1=',ipMem1
-    write(6,*) ' ipMem2=',ipMem2
-    write(6,*) ' Mem1=',Mem1
-    write(6,*) ' Mem2=',Mem2
-    write(6,*) ' ***********************************************'
+    write(u6,*) ' ************** Memory partioning **************'
+    write(u6,*) ' ipMem1=',ipMem1
+    write(u6,*) ' ipMem2=',ipMem2
+    write(u6,*) ' Mem1=',Mem1
+    write(u6,*) ' Mem2=',Mem2
+    write(u6,*) ' ***********************************************'
 #   endif
 
     ! Find the Double Coset Representatives for center A and B.
@@ -308,16 +309,16 @@ call mma_deallocate(HRRMtrx)
 !                                                                      *
 !rScree = One-(One*mScree)/(One*nScree)
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' *** The k2 entities has been precomputed ***'
-write(6,'(I7,A)') mk2,' blocks of k2 data were computed.'
+write(u6,*)
+write(u6,*) ' *** The k2 entities has been precomputed ***'
+write(u6,'(I7,A)') mk2,' blocks of k2 data were computed.'
 if (lSchw) then
-  write(6,*) ' Prescreening based on primitive integrals.'
+  write(u6,*) ' Prescreening based on primitive integrals.'
 else
-  write(6,*) ' Prescreening based on radial overlap.'
+  write(u6,*) ' Prescreening based on radial overlap.'
 end if
-!write(6,'(1X,A,F7.5)') 'Pair screening ratio:',rScree
-write(6,*)
+!write(u6,'(1X,A,F7.5)') 'Pair screening ratio:',rScree
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************

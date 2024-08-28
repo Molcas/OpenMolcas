@@ -25,6 +25,9 @@ subroutine EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la
 !***********************************************************************
 
 use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: wp, u6
+#endif
 
 implicit none
 external TNAI, Fake, XCff2D, XRys2D
@@ -120,7 +123,7 @@ call DGetMO(Array(ip3),lcd,lcd,nZeta*kab,final,nZeta*kab)
 call DScal_(nZeta*kab*lcd,-One,final,1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In EFPrm la,lb=',la,lb
+write(u6,*) ' In EFPrm la,lb=',la,lb
 do iElem=1,nElem(la)
   do jElem=1,nElem(lb)
     if (lcd == 1) then

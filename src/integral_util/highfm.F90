@@ -26,6 +26,7 @@ subroutine HighFm(F,T,m,n)
 !***********************************************************************
 
 use Constants, only: Zero, One, Two
+use Definitions, only: wp
 
 implicit none
 integer m, n
@@ -35,7 +36,7 @@ real*8 TMax, gTmp, Sum0, Sum1, TNew, FValue, Term, Gamma2
 
 ! Find T for which the asympotic formula can be used
 
-Tmax = 50.0d0
+Tmax = 50.0_wp
 88 continue
 gTmp = Gamma2(m,Tmax)
 i = 1
@@ -43,13 +44,13 @@ ii = 2*m-1
 sum1 = One
 sum0 = One
 77 continue
-Sum1 = Sum1*dble(ii)/(Two*Tmax)
+Sum1 = Sum1*real(ii,kind=wp)/(Two*Tmax)
 Sum0 = Sum0+Sum1
 ii = ii-2
 i = i+1
-if ((i >= m) .and. (Sum1/sum0 > 1.0d-11)) Go to 77
-Tnew = log(sum0/(2.0D-16*Tmax*gTmp))
-if (abs(Tnew-Tmax) < 1.0d-9) Go To 97
+if ((i >= m) .and. (Sum1/sum0 > 1.0e-11_wp)) Go to 77
+Tnew = log(sum0/(2.0e-16_wp*Tmax*gTmp))
+if (abs(Tnew-Tmax) < 1.0e-9_wp) Go To 97
 Tmax = Tnew
 Go To 88
 
@@ -63,11 +64,11 @@ do k=1,n
     i = 0
     Term = One
 99  continue
-    Term = Term/dble(2*(m+i)+1)
+    Term = Term/real(2*(m+i)+1,kind=wp)
     Fvalue = Fvalue+Term
     i = i+1
     Term = Term*(Two*T(k))
-    if (abs(Term/Fvalue) > 1.0d-18) Go To 99
+    if (abs(Term/Fvalue) > 1.0e-18_wp) Go To 99
     F(k) = exp(-T(k))*Fvalue
   else
     F(k) = Gamma2(m,T(k))

@@ -12,6 +12,7 @@
 subroutine WrCheck(Label,Arr,n)
 
 use Constants, only: One
+use Definitions, only: u6
 
 implicit none
 integer n
@@ -19,6 +20,6 @@ real*8 Arr(n)
 character(len=*) Label
 real*8, external :: DDot_
 
-write(6,*) Label,DDot_(n,Arr,1,Arr,1),DDot_(n,Arr,1,[One],0),n
+write(u6,*) Label,DDot_(n,Arr,1,Arr,1),DDot_(n,Arr,1,[One],0),n
 
 end subroutine WrCheck

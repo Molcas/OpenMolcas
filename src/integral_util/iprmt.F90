@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
 
+#define _CHECK_
 function iPrmt(jOper,iChct)
 !***********************************************************************
 !     Returns the phase factor of a basis function under a symmetry    *
@@ -19,16 +20,18 @@ function iPrmt(jOper,iChct)
 !***********************************************************************
 
 use Symmetry_Info, only: iOper
+#ifdef _CHECK_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer iPrmt
 integer jOper, iChct
 integer iCom, i
 
-#define _CHECK_
 #ifdef _CHECK_
 if (size(iOper) < 1) then
-  write(6,*) 'iPrmt; iOper not defined.'
+  write(u6,*) 'iPrmt; iOper not defined.'
   call Abend()
 end if
 #endif

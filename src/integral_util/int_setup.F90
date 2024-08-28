@@ -15,6 +15,7 @@ use Basis_Info
 use Gateway_Info, only: DoFMM, RPQMin
 use Gateway_global, only: FMM_shortrange
 use iSD_data, only: nSD
+use Constants, only: Zero, Half
 
 implicit none
 integer nSkal, iS, jS, kS, lS
@@ -75,10 +76,10 @@ end do
 
 FMM_shortrange = .false.
 if (DoFMM) then
-  D = 0.0d0
+  D = Zero
   do i=1,3
-    P = (Coor(i,1)+Coor(i,2))/2.0d0    ! AB shell-pair
-    Q = (Coor(i,3)+Coor(i,4))/2.0d0    ! CD shell-pair
+    P = Half*(Coor(i,1)+Coor(i,2))    ! AB shell-pair
+    Q = Half*(Coor(i,3)+Coor(i,4))    ! CD shell-pair
     D = D+(P-Q)*(P-Q)
   end do
   if (D > RPQMIN*RPQMIN) FMM_shortrange = .true.

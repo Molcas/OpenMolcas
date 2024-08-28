@@ -23,7 +23,7 @@ subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,lZeta,nVec,First,IncVe
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
 
-use Constants, only: Zero
+use Constants, only: Zero, One
 
 implicit none
 integer, intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec, IncVec
@@ -100,9 +100,9 @@ do iiVec=1,nVec,IncVec
     ic1 = 1
     if (nz2 > 1) then
       if (first) then
-        call DGEMM_('n','n',mVec,nz2,nprm2,1.0d0,A2,IncVec,Coeff2,nprm2,0.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
+        call DGEMM_('n','n',mVec,nz2,nprm2,One,A2,IncVec,Coeff2,nprm2,Zero,A3(iivec,iCntr1,1),nvec*ncntr1)
       else
-        call DGEMM_('N','N',mVec,nz2,nPrm2,1.0d0,A2,IncVec,Coeff2,nprm2,1.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
+        call DGEMM_('N','N',mVec,nz2,nPrm2,One,A2,IncVec,Coeff2,nprm2,One,A3(iivec,iCntr1,1),nvec*ncntr1)
       end if
       ic1 = nz2+1
     end if
@@ -110,7 +110,7 @@ do iiVec=1,nVec,IncVec
     do iCntr2=ic1,nCntr2
       if (first) then
         if (nnz2(icntr2) >= minva) then
-          call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,Coeff2(1,icntr2),1,0.d0,A3(iivec,iCntr1,icntr2),1)
+          call dGeMV_('N',mVec,nPrm2,One,A2,IncVec,Coeff2(1,icntr2),1,Zero,A3(iivec,iCntr1,icntr2),1)
         else
           iprm2 = ifirst(icntr2)
           c2 = coeff2(iprm2,icntr2)
@@ -123,7 +123,7 @@ do iiVec=1,nVec,IncVec
         end if
       else
         if (nnz2(icntr2) >= minva) then
-          call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,Coeff2(1,icntr2),1,1.d0,A3(iivec,iCntr1,icntr2),1)
+          call dGeMV_('N',mVec,nPrm2,One,A2,IncVec,Coeff2(1,icntr2),1,One,A3(iivec,iCntr1,icntr2),1)
         else
           iPrm2 = ifirst(icntr2)
           mPrm2 = last(icntr2)-iPrm2+1

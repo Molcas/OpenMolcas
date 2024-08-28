@@ -38,6 +38,7 @@ use pso_stuff, only: Gamma_MRCISD
 use Constants, only: Zero, One, Quart, Four
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: iD0Lbl, DVar, D0
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -67,10 +68,10 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 iComp = 1
 call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
 call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
-write(6,*) ' nBases..=',iBas,jBas,kBas,lBas
-write(6,*) 'iSO2Sh=',iSO2Sh
-write(6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
-write(6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
+write(u6,*) ' nBases..=',iBas,jBas,kBas,lBas
+write(u6,*) 'iSO2Sh=',iSO2Sh
+write(u6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
+write(u6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
 call RecPrt('PGet1: Gamma',' ',Gamma,1,nGamma)
 #endif
 
@@ -206,7 +207,7 @@ end if
 #ifdef _DEBUGPRINT_
 call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
 do i=1,ijkl
-  write(6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+  write(u6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
 end do
 #endif
 

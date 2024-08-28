@@ -27,6 +27,7 @@ use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
 use Disp, only: IndDsp
+use Definitions, only: wp
 
 implicit none
 #include "Molcas.fh"
@@ -36,7 +37,7 @@ real*8 CGrad(3,MxAtom)
 real*8 GradIn(nGrad)
 character(len=LENIN5) CNames(MxAtom)
 integer iCen
-real*8, parameter :: tol = 1d-8
+real*8, parameter :: tol = 1.0e-8_wp
 logical, external :: TF
 integer mdc, iIrrep, iCnttp, iCnt, iCo, kOp, nDisps, iCar, iComp
 integer, external :: iPrmt, NrOpr
@@ -66,7 +67,7 @@ do iCnttp=1,nCnttp
           iComp = 2**iCar
           if (TF(mdc,iIrrep,iComp)) then
             nDispS = nDispS+1
-            XR = dble(iPrmt(NrOpr(kop),icomp))
+            XR = real(iPrmt(NrOpr(kop),icomp),kind=wp)
             CGrad(iCar+1,iCen) = XR*GradIn(nDispS)
           end if
         end do

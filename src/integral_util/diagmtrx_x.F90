@@ -13,6 +13,7 @@ subroutine DiagMtrx_x(H,nH,iNeg)
 
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 integer nH, iNeg
@@ -21,7 +22,7 @@ real*8, allocatable :: EVal(:), EVec(:,:), Diag(:,:), HU(:,:)
 real*8 SumHii, Temp
 integer i, j, ij, ii
 
-!Lu = 6
+!Lu = u6
 
 call mma_allocate(EVal,nH*(nH+1)/2,label='EVal')
 call mma_allocate(EVec,nH,nH,label='EVec')
@@ -64,11 +65,11 @@ do i=1,nH
   ii = i*(i+1)/2
   temp = EVal(ii)
   !write(Lu,'(A,G10.4)') 'Hii=',temp
-  Diag(i,i) = max(abs(temp),1.0D-15)
+  Diag(i,i) = max(abs(temp),1.0e-15_wp)
 end do
 
-call DGEMM_('N','N',nH,nH,nH,1.0d0,EVec,nH,Diag,nH,0.0d0,HU,nH)
-call DGEMM_('N','T',nH,nH,nH,1.0d0,HU,nH,EVec,nH,0.0d0,H,nH)
+call DGEMM_('N','N',nH,nH,nH,One,EVec,nH,Diag,nH,Zero,HU,nH)
+call DGEMM_('N','T',nH,nH,nH,One,HU,nH,EVec,nH,Zero,H,nH)
 
 call mma_deallocate(HU)
 call mma_deallocate(Diag)

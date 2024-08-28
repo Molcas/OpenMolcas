@@ -24,6 +24,7 @@ function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,&user_field)
 use EFP
 use iso_c_binding, only: c_int, c_size_t, c_double, c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 
 implicit none
 integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
@@ -46,7 +47,7 @@ if (Found .and. (nDens /= 0)) then
   call mma_allocate(D1ao,nDens)
   call Get_dArray_chk('D1ao',D1ao,nDens)
 else
-  write(6,*) 'D1ao not found!'
+  write(u6,*) 'D1ao not found!'
   call abend()
 end if
 

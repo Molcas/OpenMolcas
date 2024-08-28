@@ -25,10 +25,10 @@ Mem_ = Mem
 ! Avoid using up all available memory
 call mma_maxDBLE(MemMax)
 if ((MemMax-Mem_ < 8000) .and. (Mem_ > 8000)) Mem_ = Mem_-8000
-!write(6,*) 'xsetmem_ints: External allocate:',Mem_
+!write(u6,*) 'xsetmem_ints: External allocate:',Mem_
 call mma_allocate(Sew_Scr,Mem_,Label='Sew_Scr')
 XMem = .true.
 !call mma_MaxDBLE(nu)
-!write(6,*) 'xsetmem_ints: External allocate left to allocate:',nu
+!write(u6,*) 'xsetmem_ints: External allocate left to allocate:',nu
 
 end subroutine xsetmem_ints

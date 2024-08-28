@@ -154,15 +154,15 @@ Tmax = Zero
 ! If memory not allocated already at this point allocate!
 
 if (.not. allocated(Sew_Scr)) then
-  !write(6,*) 'Eval_ints: Allocate memory'
+  !write(u6,*) 'Eval_ints: Allocate memory'
   call mma_MaxDBLE(MemMax)
   if (MemMax > 8000) MemMax = MemMax-8000
   call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 else
-  !write(6,*) 'Eval_ints: Memory already allocated'
+  !write(u6,*) 'Eval_ints: Memory already allocated'
   MemMax = size(Sew_Scr)
 end if
-!write(6,*) 'Eval_ints: MemMax=',MemMax
+!write(u6,*) 'Eval_ints: MemMax=',MemMax
 ipMem1 = 1
 
 Map4(1) = 1
@@ -183,7 +183,7 @@ if (kkS /= kS_) then
   Map4(3) = Map4(4)
   Map4(4) = iTmp
 end if
-!write(6,*) ' -->',iS_,jS_,kS_,lS_,'<--'
+!write(u6,*) ' -->',iS_,jS_,kS_,lS_,'<--'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -252,16 +252,16 @@ if (DoFock) then
   call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
   call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
 
-  !write(6,*) ' Pointers to D=',ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
+  !write(u6,*) ' Pointers to D=',ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' *** Centers ***'
-!write(6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
-!write(6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
+!write(u6,*) ' *** Centers ***'
+!write(u6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
+!write(u6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
 !#endif
 !                                                                      *
 !***********************************************************************
@@ -277,20 +277,20 @@ call MemRys(iAngV,MemPrm)
 call PSOAO0(nSO,MemPrm,MemMax,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
             kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock)
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' ************** Memory partioning **************'
-!write(6,*) ' ipMem1=',ipMem1
-!write(6,*) ' ipMem2=',ipMem2
-!write(6,*) ' Mem1=',Mem1
-!write(6,*) ' Mem2=',Mem2
-!write(6,*) ' iBasi,iBsInc=',iBasi,iBsInc
-!write(6,*) ' jBasj,jBsInc=',jBasj,jBsInc
-!write(6,*) ' kBasi,kBsInc=',kBask,kBsInc
-!write(6,*) ' lBasl,lBsInc=',lBasl,lBsInc
-!write(6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
-!write(6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
-!write(6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
-!write(6,*) ' lPriml,lPrInc=',lPriml,lPrInc
-!write(6,*) ' ***********************************************'
+!write(u6,*) ' ************** Memory partioning **************'
+!write(u6,*) ' ipMem1=',ipMem1
+!write(u6,*) ' ipMem2=',ipMem2
+!write(u6,*) ' Mem1=',Mem1
+!write(u6,*) ' Mem2=',Mem2
+!write(u6,*) ' iBasi,iBsInc=',iBasi,iBsInc
+!write(u6,*) ' jBasj,jBsInc=',jBasj,jBsInc
+!write(u6,*) ' kBasi,kBsInc=',kBask,kBsInc
+!write(u6,*) ' lBasl,lBsInc=',lBasl,lBsInc
+!write(u6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
+!write(u6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
+!write(u6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
+!write(u6,*) ' lPriml,lPrInc=',lPriml,lPrInc
+!write(u6,*) ' ***********************************************'
 !#endif
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
@@ -419,6 +419,10 @@ contains
 
 subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
 
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
+
   integer, intent(In) :: nijkl, nComp, nA
   real*8, target :: IntRaw(nijkl*nComp*nA)
   real*8, pointer :: IntIn(:,:,:), IntOut(:,:,:)
@@ -427,7 +431,7 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
   IntIn(1:nijkl,1:nComp,1:nA) => IntRaw(:)
   IntOut(1:nijkl,1:1,1:nA) => IntRaw(1:nijkl*nA)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'nijkl,nComp,nA=',nijkl,nComp,nA
+  write(u6,*) 'nijkl,nComp,nA=',nijkl,nComp,nA
   call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
 # endif
 

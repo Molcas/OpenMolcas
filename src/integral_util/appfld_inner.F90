@@ -13,6 +13,7 @@
 subroutine AppFld_inner(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
 
 use Constants, only: One, Two
+use Definitions, only: wp
 
 implicit none
 integer lMax
@@ -22,8 +23,7 @@ logical NonEq
 integer l, ip
 real*8 RInv, Fact, rPoti, DblFac, F
 ! Statement function
-
-f(Eps,l) = (dble(1+l)*(Eps-One))/(dble(1+l)*Eps+dble(l))
+f(Eps,l) = (real(1+l,kind=wp)*(Eps-One))/(real(1+l,kind=wp)*Eps+real(l,kind=wp))
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Multipole Moments',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)

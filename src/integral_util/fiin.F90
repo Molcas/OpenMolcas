@@ -13,6 +13,7 @@ subroutine fiin(lmax)
 
 use Constants, only: Zero, One, Two, Pi
 use welcom, only: fiInt, binom
+use Definitions, only: wp
 
 implicit none
 integer lmax
@@ -29,7 +30,7 @@ do i=0,lmax
       tal = pi*Two*a*(-One)**k
       if (iexp /= 0) then
         do l=1,iexp
-          al = Two*dble(l)
+          al = Two*real(l,kind=wp)
           tal = tal*(al-One)/al
         end do
       end if

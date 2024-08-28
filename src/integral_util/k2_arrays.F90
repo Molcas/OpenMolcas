@@ -91,11 +91,13 @@ end subroutine Destroy_BraKet_Base
 
 subroutine Create_BraKet(nZeta,nEta)
 
+  use Definitions, only: u6
+
   integer nZeta, nEta
   integer iS, iE
 
   if ((.not. allocated(BraKet_base_R)) .or. (.not. allocated(BraKet_base_I))) then
-    write(6,*) 'Braket_Base not allocated!'
+    write(u6,*) 'Braket_Base not allocated!'
     call Abend()
   end if
 

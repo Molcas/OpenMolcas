@@ -13,6 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
+!#define _OBSOLETE_
 subroutine RFNuc(CoOP,rNucMm,ir)
 !***********************************************************************
 !                                                                      *
@@ -26,10 +27,14 @@ use Basis_Info
 use Center_Info
 #ifdef _OBSOLETE_
 use External_Centers, only: nOrd_XF, XF
+use Definitions, only: wp
 #endif
 use Phase_Info
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer ir
@@ -66,14 +71,14 @@ do ix=ir,0,-1
     iq = iq+1
     iz = ir-ix-iy
     temp = Zero
-    !write(6,*) ' ix,iy,iz=',ix,iy,iz
+    !write(u6,*) ' ix,iy,iz=',ix,iy,iz
 
     ndc = 0
     do iCnttp=1,nCnttp
       ZA = dbsc(iCnttp)%Charge
       if (ZA == Zero) Go To 101
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' Charge=',ZA
+      write(u6,*) ' Charge=',ZA
       call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
 #     endif
       do iCnt=1,dbsc(iCnttp)%nCntr
@@ -83,9 +88,6 @@ do ix=ir,0,-1
           call OA(dc(mdc)%iCoSet(i,0),A,RA)
           !call RecPrt(' RA',' ',RA,1,3)
           !call RecPrt(' CoOp',' ',CoOp,1,3)
-#         ifdef NAGFOR
-          if (iCnt < -2) write(6,*) 'Nag problem'
-#         endif
 
           if (ix == 0) then
             CCoMx = One
@@ -102,7 +104,7 @@ do ix=ir,0,-1
           else
             CCoMz = (RA(3)-CoOp(3))**iz
           end if
-          !write(6,*) CCoMx, CCoMy, CCoMz, temp
+          !write(u6,*) CCoMx, CCoMy, CCoMz, temp
           temp = temp+ZA*CCoMx*CCoMy*CCoMz
         end do
       end do
@@ -126,7 +128,7 @@ if ((.not. allocated(XF)) .or. (nOrd_XF < 0)) Go To 99
 ! Contributions due to the charges and dipoles of the
 ! static external electric field.
 
-!write(6,*) ' Adding contributions from esef!'
+!write(u6,*) ' Adding contributions from esef!'
 
 iq = 0
 do ix=ir,0,-1
@@ -134,7 +136,7 @@ do ix=ir,0,-1
     iq = iq+1
     iz = ir-ix-iy
     temp = Zero
-    !write(6,*) ' ix,iy,iz=',ix,iy,iz
+    !write(u6,*) ' ix,iy,iz=',ix,iy,iz
 
     do iFd=1,nXF
       DAx = Zero
@@ -169,8 +171,8 @@ do ix=ir,0,-1
         call Abend()
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' Charge=',ZA
-      write(6,*) ' ixyz=',ixyz
+      write(u6,*) ' Charge=',ZA
+      write(u6,*) ' ixyz=',ixyz
       call RecPrt(' Centers',' ',XF(1,iXF),3,1)
 #     endif
 
@@ -182,18 +184,18 @@ do ix=ir,0,-1
       iDum = 0
       call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 
-      !write(6,*) ' nStb=',nStb
+      !write(u6,*) ' nStb=',nStb
       do i=0,nIrrep/nStb-1
         call OA(jCoSet(i,0),A,RA)
-        rRMy(1) = DAx*dble(iPhase(1,jCoSet(i,0)))
-        rRMy(2) = DAy*dble(iPhase(2,jCoSet(i,0)))
-        rRMy(3) = DAz*dble(iPhase(3,jCoSet(i,0)))
+        rRMy(1) = DAx*real(iPhase(1,jCoSet(i,0)),kind=wp)
+        rRMy(2) = DAy*real(iPhase(2,jCoSet(i,0)),kind=wp)
+        rRMy(3) = DAz*real(iPhase(3,jCoSet(i,0)),kind=wp)
         QRAxx = QAxx
         QRAyy = QAyy
         QRAzz = QAzz
-        QRAxy = dble(iPhase(1,jCoSet(i,0))*iPhase(2,jCoSet(i,0)))*QAxy
-        QRAxz = dble(iPhase(1,jCoSet(i,0))*iPhase(3,jCoSet(i,0)))*QAxz
-        QRAyz = dble(iPhase(2,jCoSet(i,0))*iPhase(3,jCoSet(i,0)))*QAyz
+        QRAxy = real(iPhase(1,jCoSet(i,0))*iPhase(2,jCoSet(i,0)),kind=wp)*QAxy
+        QRAxz = real(iPhase(1,jCoSet(i,0))*iPhase(3,jCoSet(i,0)),kind=wp)*QAxz
+        QRAyz = real(iPhase(2,jCoSet(i,0))*iPhase(3,jCoSet(i,0)),kind=wp)*QAyz
 
         if (ix == 0) then
           CCoMx = One
@@ -211,7 +213,7 @@ do ix=ir,0,-1
           CCoMz = (RA(3)-CoOp(3))**iz
         end if
 
-        !write(6,*) CCoMx, CCoMy, CCoMz, temp
+        !write(u6,*) CCoMx, CCoMy, CCoMz, temp
 
         ! The charge contribution
 
@@ -219,13 +221,13 @@ do ix=ir,0,-1
 
         ! Dipole contributions
 
-        if (ix >= 1) temp = temp+dble(ix)*rRmy(1)*CCoMy*CCoMz*(RA(1)-CoOp(1))**(ix-1)
-        if (iy >= 1) temp = temp+dble(iy)*rRmy(2)*CCoMx*CCoMz*(RA(2)-CoOp(2))**(iy-1)
-        if (iz >= 1) temp = temp+dble(iz)*rRmy(3)*CCoMx*CCoMy*(RA(3)-CoOp(3))**(iz-1)
+        if (ix >= 1) temp = temp+real(ix,kind=wp)*rRmy(1)*CCoMy*CCoMz*(RA(1)-CoOp(1))**(ix-1)
+        if (iy >= 1) temp = temp+real(iy,kind=wp)*rRmy(2)*CCoMx*CCoMz*(RA(2)-CoOp(2))**(iy-1)
+        if (iz >= 1) temp = temp+real(iz,kind=wp)*rRmy(3)*CCoMx*CCoMy*(RA(3)-CoOp(3))**(iz-1)
 
       end do
     end do
-    !write(6,*) ' Temp=',temp
+    !write(u6,*) ' Temp=',temp
     rNucMm(iq) = rNucMm(iq)+temp
 
   end do

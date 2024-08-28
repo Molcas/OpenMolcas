@@ -38,6 +38,10 @@ use Symmetry_Info, only: nIrrep, iOper
 use Constants, only: Zero, One, Four
 use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 external Cmpct
@@ -252,7 +256,7 @@ do lDCRR=0,nDCRR-1
     ! the numerical procedure.
 
     iIrrep = 0
-    Delta = 1.0D-03
+    Delta = 1.0e-3_wp
     k2Data(lDCRR+1)%abG(:,2) = Zero
     Scr(1:nZeta*ijCmp,:) = Zero
 
@@ -325,8 +329,8 @@ do lDCRR=0,nDCRR-1
   !*********************************************************************
   !                                                                    *
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'lDCRR=',lDCRR
+  write(u6,*)
+  write(u6,*) 'lDCRR=',lDCRR
   call WrCheck('Zeta ',k2Data(lDCRR+1)%Zeta(:),nZeta)
   call WrCheck('Kappa',k2Data(lDCRR+1)%Kappa(:),nZeta)
   call WrCheck('P    ',K2Data(lDCRR+1)%PCoor(:,:),nZeta*3)
@@ -337,12 +341,12 @@ do lDCRR=0,nDCRR-1
     call WrCheck('ab   ',k2data(lDCRR+1)%abG(:,1),nZeta*ijCmp)
     call WrCheck('abG  ',k2data(lDCRR+1)%abG(:,2),nZeta*ijCmp)
   end if
-  write(6,*)
-  write(6,*) ' ERI(Max)=',k2Data(lDCRR+1)%EstI
-  write(6,*) ' ZtMax   =',k2Data(lDCRR+1)%ZtMax
-  write(6,*) ' abMax   =',k2Data(lDCRR+1)%abMax
-  write(6,*) ' ZtMaxD  =',k2Data(lDCRR+1)%ZtMaxD
-  write(6,*) ' abMaxD  =',k2Data(lDCRR+1)%abMaxD
+  write(u6,*)
+  write(u6,*) ' ERI(Max)=',k2Data(lDCRR+1)%EstI
+  write(u6,*) ' ZtMax   =',k2Data(lDCRR+1)%ZtMax
+  write(u6,*) ' abMax   =',k2Data(lDCRR+1)%abMax
+  write(u6,*) ' ZtMaxD  =',k2Data(lDCRR+1)%ZtMaxD
+  write(u6,*) ' abMaxD  =',k2Data(lDCRR+1)%abMaxD
   call WrCheck(' HrrMtrx',k2Data(lDCRR+1)%HrrMtrx(:,:),ne*iCmpa_*jCmpb_)
 # endif
 100 continue ! lDCRR

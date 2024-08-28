@@ -33,9 +33,10 @@ use iSD_data, only: iSO2Sh
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
-use Constants, only: One
+use Constants, only: Zero, One
 use EtWas, only: nCRED, nScr1, nScr2, CoulFac, ExFac, nAsh
 use mspdft_grad, only: DoGradMSPD
+use Definitions, only: u6
 
 implicit none
 integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, iShell_A, iShell_B, iShell_C, iShell_D, nQuad
@@ -49,7 +50,7 @@ integer nSA, ipPAM, ipiPam, ipC, ipS1, ipS2, i, j, ipMAP
 !***********************************************************************
 !                                                                      *
 
-!write(6,*) 'Print out in integral_util/pget0 starting'
+!write(u6,*) 'Print out in integral_util/pget0 starting'
 !call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
 PMax = One
@@ -82,7 +83,7 @@ if (lPSO) then
     if (Case_2C) then
       if (Do_RI) then
         call PGet1_RI2(PSO,ijkl,nPSO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PMax,V_K,U_K,nV_K,Z_p_k,nSA)
-        !write(6,*) 'PGet1_RI2 ===========' ! yma
+        !write(u6,*) 'PGet1_RI2 ===========' ! yma
       else
         ! Not modified yet
         call Abend()
@@ -98,13 +99,13 @@ if (lPSO) then
     else
       call PGet3(PSO,ijkl,nPSO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap), &
                  S%nDim,Mem2(ipC),nCred,Mem2(ipS1),nScr1,Mem2(ipS2),nScr2,PMax)
-      !yma write(6,*) 'PGet3 ==========='
+      !yma write(u6,*) 'PGet3 ==========='
     end if
   else
     if (Case_2C) then
       if (Do_RI) then
         call PGet2_RI2(iCmp,jBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,ExFac,CoulFac,PMax,V_K,nV_K,Z_p_k,nSA,nZ_p_k)
-        !yma write(6,*) 'PGet2_RI2 ==========='
+        !yma write(u6,*) 'PGet2_RI2 ==========='
       else
         ! Not modified yet
         call Abend()
@@ -119,16 +120,16 @@ if (lPSO) then
     else
       do i=1,ijkl  !yma for testing
         do j=1,nPSO
-          PSO(i,j) = 0.0d0
+          PSO(i,j) = Zero
         end do
       end do
 
-      !write(6,*) 'Print out in integral_util/pget0 before'
+      !write(u6,*) 'Print out in integral_util/pget0 before'
       !call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
       call PGet4(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap),S%nDim, &
                  Mem2(ipC),nCred,Mem2(ipS1),nScr1,Mem2(ipS2),nScr2,PMax)
-      !yma write(6,*) 'PGet4 ============'
+      !yma write(u6,*) 'PGet4 ============'
     end if
   end if
   !                                                                    *
@@ -141,7 +142,7 @@ else
   ! SCF and DFT wavefunction
 
   if (Gamma_On .and. (nGamma > nMem2)) then
-    write(6,*) 'pGet0: nGamma < nMem2'
+    write(u6,*) 'pGet0: nGamma < nMem2'
     call abend()
   end if
 

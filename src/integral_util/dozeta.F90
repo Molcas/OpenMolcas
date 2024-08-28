@@ -29,6 +29,7 @@ subroutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,ZInv,Alpha_,Beta_,In
 !***********************************************************************
 
 use Constants, only: One, TwoP54
+use Definitions, only: wp
 
 implicit none
 integer nAlpha, nBeta
@@ -37,7 +38,7 @@ real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta), Alpha_(nAlpha*nBeta), Bet
 integer Ind_Pair(nAlpha*nBeta+1)
 integer iBeta, iAlpha, iZeta
 real*8 AB2, Tmp0, Tmp1
-#if defined(_New_Code_) || defined(_DEBUGPRINT_)
+#if defined (_New_Code_) || defined (_DEBUGPRINT_)
 integer nZeta
 #endif
 
@@ -56,7 +57,7 @@ do iBeta=1,nBeta
     ZInv(iZeta) = One/Zeta(iZeta)
     Tmp0 = ZInv(iZeta)
     Tmp1 = TwoP54*exp(-Alpha(iAlpha)*Beta(iBeta)*AB2*Tmp0)*Tmp0
-    if (Tmp1 < 1.0D-99) Tmp1 = 1.0D-99
+    if (Tmp1 < 1.0e-99_wp) Tmp1 = 1.0e-99_wp
     rKappa(iZeta) = Tmp1
     P(iZeta,1) = (Alpha(iAlpha)*A(1)+Beta(iBeta)*B(1))*Tmp0
     P(iZeta,2) = (Alpha(iAlpha)*A(2)+Beta(iBeta)*B(2))*Tmp0
@@ -69,7 +70,7 @@ Ind_Pair(nAlpha*nBeta+1) = nAlpha*nBeta
 ! Sort from Large to Small
 
 !#define _New_Code_
-#if defined(_New_Code_) || defined(_DEBUGPRINT_)
+#if defined (_New_Code_) || defined (_DEBUGPRINT_)
 nZeta = nAlpha*nBeta
 #endif
 #ifdef _New_Code_

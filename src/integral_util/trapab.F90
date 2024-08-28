@@ -19,6 +19,7 @@ subroutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,Fac3,Fac4,Fac5,A,B,P
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
 integer nZeta, la, lb, jSum
@@ -75,7 +76,7 @@ do i=2,la+lb
       if (jx == 1) lOff = lOff+1
 
       iTrgt = iOff(ix,iy,iz)+iAd(ix,iy,iz)
-      !write(6,*) ' ix,iy,iz,kOff,lOff,iTrgt=',ix,iy,iz,kOff,lOff,iTrgt
+      !write(u6,*) ' ix,iy,iz,kOff,lOff,iTrgt=',ix,iy,iz,kOff,lOff,iTrgt
       call dcopy_(nZeta,GInt(1,kOff+lOff),1,GInt(1,iTrgt),1)
 
     end do
@@ -94,20 +95,20 @@ do ixa=la,0,-1
   do iya=iyaMax,0,-1
     iza = la-ixa-iya
     ipa = iad(ixa,iya,iza)
-    !write(6,*) ' ipa,ixa,iya,iza=',ipa,ixa,iya,iza
+    !write(u6,*) ' ipa,ixa,iya,iza=',ipa,ixa,iya,iza
 
     do ixb=lb,0,-1
       iybMax = lb-ixb
       do iyb=iybMax,0,-1
         izb = lb-ixb-iyb
         ipb = iad(ixb,iyb,izb)
-        !write(6,*) ' ipb,ixb,iyb,izb=',ipb,ixb,iyb,izb
+        !write(u6,*) ' ipb,ixb,iyb,izb=',ipb,ixb,iyb,izb
 
         ! Loop over the elements of functions at P
 
         do ixas=0,ixa
           call Binom(ixa,ixas,iAx)
-          Ax = dble(iAx)
+          Ax = real(iAx,kind=wp)
           do iZeta=1,nZeta
             if ((ixa-ixas) == 0) then
               Fac1(iZeta) = rKappa(iZeta)*Ax
@@ -117,7 +118,7 @@ do ixa=la,0,-1
           end do
           do iyas=0,iya
             call Binom(iya,iyas,iAy)
-            Ay = dble(iAy)
+            Ay = real(iAy,kind=wp)
             do iZeta=1,nZeta
               if ((iya-iyas) == 0) then
                 Fac2(iZeta) = Fac1(iZeta)*Ay
@@ -127,7 +128,7 @@ do ixa=la,0,-1
             end do
             do izas=0,iza
               call Binom(iza,izas,iAz)
-              Az = dble(iAz)
+              Az = real(iAz,kind=wp)
               do iZeta=1,nZeta
                 if ((iza-izas) == 0) then
                   Fac3(iZeta) = Fac2(iZeta)*Az
@@ -138,7 +139,7 @@ do ixa=la,0,-1
 
               do ixbs=0,ixb
                 call Binom(ixb,ixbs,iBx)
-                Bx = dble(iBx)
+                Bx = real(iBx,kind=wp)
                 do iZeta=1,nZeta
                   if ((ixb-ixbs) == 0) then
                     Fac4(iZeta) = Fac3(iZeta)*Bx
@@ -149,7 +150,7 @@ do ixa=la,0,-1
                 igx = ixas+ixbs
                 do iybs=0,iyb
                   call Binom(iyb,iybs,iBy)
-                  By = dble(iBy)
+                  By = real(iBy,kind=wp)
                   do iZeta=1,nZeta
                     if ((iyb-iybs) == 0) then
                       Fac5(iZeta) = Fac4(iZeta)*By
@@ -160,10 +161,10 @@ do ixa=la,0,-1
                   igy = iyas+iybs
                   do izbs=0,izb
                     call Binom(izb,izbs,iBz)
-                    Bz = dble(iBz)
+                    Bz = real(iBz,kind=wp)
                     igz = izas+izbs
                     ipg = iOff(igx,igy,igz)+iAd(igx,igy,igz)
-                    !write(6,*) ' ipg,igx,igy,igz=', ipg,igx,igy,igz
+                    !write(u6,*) ' ipg,igx,igy,igz=', ipg,igx,igy,igz
 
                     do iZeta=1,nZeta
                       if ((izb-izbs) == 0) then

@@ -38,6 +38,7 @@ use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas
 use Constants, only: One
+use Definitions, only: wp
 
 implicit none
 integer ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl, ij
@@ -59,21 +60,21 @@ jj = iOff(jAng)
 do i1=1,iCmp
   iChBs = iChBas(ii+i1)
   if (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
-  pa1T = dble(iPrmt(kOp,iChBs))
+  pa1T = real(iPrmt(kOp,iChBs),kind=wp)
   do i2=1,jCmp
     jChBs = iChBas(jj+i2)
     if (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
-    pb1T = dble(iPrmt(kOp,jChBs))
+    pb1T = real(iPrmt(kOp,jChBs),kind=wp)
     ij1 = iCmp*(i2-1)+i1
 
     do i3=1,iCmp
       kChBs = iChBas(ii+i3)
       if (Shells(iShll)%Transf) kChBs = iChBas(iSphCr(ii+i3))
-      pa2T = dble(iPrmt(kOp,kChBs))
+      pa2T = real(iPrmt(kOp,kChBs),kind=wp)
       do i4=1,jCmp
         lChBs = iChBas(jj+i4)
         if (Shells(jShll)%Transf) lChBs = iChBas(iSphCr(jj+i4))
-        pb2T = dble(iPrmt(kOp,lChBs))
+        pb2T = real(iPrmt(kOp,lChBs),kind=wp)
         ij2 = iCmp*(i4-1)+i3
         Factor = pa1T*pb1T*pa2T*pb2T
         if (Factor /= One) call DScal_(ijkl,Factor,AOInt(1,ij1,ij2),1)

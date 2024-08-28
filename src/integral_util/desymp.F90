@@ -44,6 +44,10 @@ use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Constants
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer iCmp, jCmp, kCmp, lCmp, ijkl, nAux, nPSO
@@ -67,9 +71,9 @@ MemSO2 = 1
 #ifdef _DEBUGPRINT_
 call RecPrt(' In DesymP: PSO ',' ',PSO,ijkl,nPSO)
 call WrCheck(' In DesymP: PSO ',PSO,ijkl*nPSO)
-write(6,*) 'iCmp,jCmp,kCmp,lCmp,nPSO=',iCmp,jCmp,kCmp,lCmp,nPSO
-write(6,*) Shij,Shkl,Shijij
-write(6,*) 'kOp=',kOp
+write(u6,*) 'iCmp,jCmp,kCmp,lCmp,nPSO=',iCmp,jCmp,kCmp,lCmp,nPSO
+write(u6,*) Shij,Shkl,Shijij
+write(u6,*) 'kOp=',kOp
 #endif
 Fact = Eight
 if (Shij) Fact = Fact*Half
@@ -150,21 +154,21 @@ do i1=1,iCmp
         iAux = 0
         do is=0,niSym-1
           j1 = iSym(is)
-          Xa = dble(iChTbl(j1,kOp(1)))*FactNs
+          Xa = real(iChTbl(j1,kOp(1)),kind=wp)*FactNs
           do js=0,njSym-1
             j2 = jSym(js)
-            Xb = dble(iChTbl(j2,kOp(2)))*Xa
+            Xb = real(iChTbl(j2,kOp(2)),kind=wp)*Xa
             j12 = ieor(j1,j2)
             do ks=0,nkSym-1
               j3 = kSym(ks)
-              Xg = dble(iChTbl(j3,kOp(3)))*Xb
+              Xg = real(iChTbl(j3,kOp(3)),kind=wp)*Xb
               j123 = ieor(j12,j3)
               do ls=0,nlSym-1
                 j4 = lSym(ls)
                 if (j123 /= j4) Go To 320
 
                 iAux = iAux+1
-                Aux(iAux) = dble(iChTbl(j4,kOp(4)))*Xg*Fact
+                Aux(iAux) = real(iChTbl(j4,kOp(4)),kind=wp)*Xg*Fact
                 Go To 310
 
 320             continue
@@ -195,11 +199,11 @@ end do
 #ifdef _DEBUGPRINT_
 call RecPrt(' On exit from DesymP: PAO ',' ',PAO,ijkl,iCmp*jCmp*kCmp*lCmp)
 do i=1,ijkl
-  write(6,*) DDot_(iCmp*jCmp*kCmp*lCmp,PAO(i,1,1,1,1),ijkl,PAO(i,1,1,1,1),ijkl)
+  write(u6,*) DDot_(iCmp*jCmp*kCmp*lCmp,PAO(i,1,1,1,1),ijkl,PAO(i,1,1,1,1),ijkl)
 end do
 call WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
-write(6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
-write(6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
+write(u6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
+write(u6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
 #endif
 
 end subroutine DesymP

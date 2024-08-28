@@ -43,7 +43,8 @@ function NucExp(A)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: rBohr
+use Constants, only: One, Three, OneHalf, rBohr
+use Definitions, only: wp
 
 implicit none
 real*8 NucExp
@@ -53,13 +54,13 @@ real*8 A3, R, Xi
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-A3 = dble(A)**(1.0d0/3.0d0)
+A3 = real(A,kind=wp)**(One/Three)
 
-R = 0.836d0*A3+0.570d0 ! fm
-R = R*1.0D-15          ! m
-R = R/rBohr            ! bohr
+R = 0.836_wp*A3+0.570_wp ! fm
+R = R*1.0e-15_wp         ! m
+R = R/rBohr              ! bohr
 
-Xi = 1.5d0/R**2
+Xi = OneHalf/R**2
 
 NucExp = Xi
 !----------------------------------------------------------------------*

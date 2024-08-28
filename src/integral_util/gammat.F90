@@ -19,6 +19,8 @@ function gammat(x)
 !***********************************************************************
 
 use rmat, only: m_Gam, n_Gam
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp
 
 implicit none
 real*8 gammat
@@ -31,11 +33,11 @@ lsint = m_gam
 lcost = n_gam
 k = (-1)**lcost
 if (k == (-1)) then
-  gammat = 0.0d0
+  gammat = Zero
 else
-  arg1 = (dble(lcost)+1.0d0)/2.0d0
-  arg2 = (dble(lsint)+2.0d0)/2.0d0
-  arg3 = (dble(lsint)+dble(lcost)+3.0d0)/2.0d0
+  arg1 = Half*(real(lcost,kind=wp)+One)
+  arg2 = Half*(real(lsint,kind=wp)+Two)
+  arg3 = Half*(real(lsint,kind=wp)+real(lcost,kind=wp)+Three)
   gammat = dgamma_molcas(arg1)*dgamma_molcas(arg2)/dgamma_molcas(arg3)
 end if
 

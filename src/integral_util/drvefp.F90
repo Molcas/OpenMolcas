@@ -17,6 +17,7 @@ use EFP_Module, only: EFP_Instance, nEFP_FRAGMENTS, Coor_Type, FRAG_Type, EFP_Co
 use EFP, only: EFP_Add_Fragment, EFP_Add_Potential, EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare, &
                EFP_Set_Electron_Density_Field_FN, EFP_Set_Frag_Coordinates
 use iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc, c_funloc
+use Definitions, only: wp
 
 implicit none
 logical First
@@ -45,8 +46,8 @@ if (First) then
   ! Now add the potentials
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Initiation of EFP'
-  write(6,*) 'nEFP_fragments=',nEFP_fragments
+  write(u6,*) 'Initiation of EFP'
+  write(u6,*) 'nEFP_fragments=',nEFP_fragments
 # endif
   iFrag = 0
   do i=1,nEFP_fragments
@@ -93,9 +94,9 @@ if (First) then
 
     irc = EFP_ADD_POTENTIAL(EFP_Instance,Path)
     if (irc /= 0) then
-      write(6,*) 'EFP potential file error.'
-      write(6,*) Path
-      write(6,*) 'Return code:',irc
+      write(u6,*) 'EFP potential file error.'
+      write(u6,*) Path
+      write(u6,*) 'Return code:',irc
       call Abend()
     end if
 
@@ -110,15 +111,15 @@ if (First) then
       if (FRAG_TYPE(j) /= FRAG_TYPE(i)) cycle
       irc = efp_add_fragment(EFP_Instance,Name)
       if (irc /= 0) then
-        write(6,*) 'EFP_ADD_FRAGMET error.'
-        write(6,*) 'Return code:',irc
+        write(u6,*) 'EFP_ADD_FRAGMET error.'
+        write(u6,*) 'Return code:',irc
         call Abend()
       end if
       cptr1 = c_loc(EFP_COORS(1,j))
       irc = efp_set_frag_Coordinates(EFP_Instance,iFrag,Coor_type,cptr1)
       if (irc /= 0) then
-        write(6,*) 'EFP_SET_FRAG_COORDINATES error.'
-        write(6,*) 'Return code:',irc
+        write(u6,*) 'EFP_SET_FRAG_COORDINATES error.'
+        write(u6,*) 'Return code:',irc
         call Abend()
       end if
       iFrag = iFrag+1
@@ -129,8 +130,8 @@ if (First) then
 
   irc = EFP_PREPARE(EFP_Instance)
   if (irc /= 0) then
-    write(6,*) 'EFP_PREPARE error.'
-    write(6,*) 'Return code:',irc
+    write(u6,*) 'EFP_PREPARE error.'
+    write(u6,*) 'Return code:',irc
     call Abend()
   end if
 
@@ -138,13 +139,13 @@ if (First) then
   do_gradient = 0
   irc = EFP_COMPUTE(EFP_Instance,do_gradient)
   if (irc /= 0) then
-    write(6,*) 'EFP_COMPUTE error.'
-    write(6,*) 'Return code:',irc
+    write(u6,*) 'EFP_COMPUTE error.'
+    write(u6,*) 'Return code:',irc
     call Abend()
   end if
 
   irc = EFP_GET_ENERGY(EFP_Instance,c_loc(Energy))
-  write(6,*) Energy%Total
+  write(u6,*) Energy%Total
 # endif
 
   irc = EFP_SET_ELECTRON_DENSITY_FIELD_FN(EFP_Instance,c_funloc(Molcas_ELECTRON_DENSITY_FIELD_FN))

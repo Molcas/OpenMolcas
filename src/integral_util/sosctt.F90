@@ -56,7 +56,7 @@ do j1=0,nIrrep-1
         lSO = lSO+1
         iSO1 = iAOtSO(iAO+i1,j1)
         iSO2 = iAOtSO(jAO+i2,j2)
-        !write(6,*) iSO1,iAO,i1,j1,iSO2,jAO,i2,j2
+        !write(u6,*) iSO1,iAO,i1,j1,iSO2,jAO,i2,j2
 
         iPnt = iPntSO(max(j1,j2),min(j1,j2),lOper,nbas)
         do indAO1=0,iBas-1

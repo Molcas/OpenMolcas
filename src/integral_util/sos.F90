@@ -23,6 +23,7 @@ subroutine SOS(iStabO,nStabO,lOper)
 
 use Symmetry_Info, only: nIrrep, iChTbl, iOper
 use Constants
+use Definitions, only: u6
 
 implicit none
 integer nStabO, lOper
@@ -30,15 +31,15 @@ integer iStabO(8)
 integer iS, iIrrep
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In SOS'
-write(6,*) ' lOper=',lOper
+write(u6,*) ' In SOS'
+write(u6,*) ' lOper=',lOper
 do iS=0,nIrrep-1
-  write(6,'(8I5)') (iChTbl(iIrrep,iS),iIrrep=0,nIrrep-1)
+  write(u6,'(8I5)') (iChTbl(iIrrep,iS),iIrrep=0,nIrrep-1)
 end do
 #endif
 if ((lOper < 0) .or. (lOper > 255)) then
   call WarningMessage(2,'SOS: Symmetry label is corrupted.')
-  write(6,*) 'lOper=',lOper
+  write(u6,*) 'lOper=',lOper
   call Abend()
 end if
 nStabO = 0

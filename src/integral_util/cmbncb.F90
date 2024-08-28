@@ -23,6 +23,7 @@ subroutine CmbnCB(Rnxyz,nZeta,la,lb,rKappa,final,Beta,IfGrad,ld,nVecCB)
 !***********************************************************************
 
 use Constants, only: Two
+use Definitions, only: wp
 
 implicit none
 integer nZeta, la, lb, ld, nVecCB
@@ -59,7 +60,7 @@ do ixa=0,la
         if (IfGrad(1)) then
           nVecCB = nVecCB+1
           if (ixb > 0) then
-            xb = dble(-ixb)
+            xb = real(-ixb,kind=wp)
             do iZeta=1,nZeta
               final(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*(tTwo*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)+xb*Rnxyz(iZeta,1,ixa,ixb-1))* &
                                             Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
@@ -74,7 +75,7 @@ do ixa=0,la
         if (IfGrad(2)) then
           nVecCB = nVecCB+1
           if (iyb > 0) then
-            yb = dble(-iyb)
+            yb = real(-iyb,kind=wp)
             do iZeta=1,nZeta
               final(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)* &
                                             (tTwo*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)+yb*Rnxyz(iZeta,2,iya,iyb-1))* &
@@ -90,7 +91,7 @@ do ixa=0,la
         if (IfGrad(3)) then
           nVecCB = nVecCB+1
           if (izb > 0) then
-            zb = dble(-izb)
+            zb = real(-izb,kind=wp)
             do iZeta=1,nZeta
               final(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*(tTwo*Beta(iZeta)* &
                                             Rnxyz(iZeta,3,iza,izb+1)+zb*Rnxyz(iZeta,3,iza,izb-1))

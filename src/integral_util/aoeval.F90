@@ -26,6 +26,10 @@ subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,Angular,nTerm,
 !***********************************************************************
 
 use Constants, only: Zero, One, Two
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nCoor, iAng, nRad, nElem, nCmp, nExp, nBas, mExp, nTerm, mAO, ipx, ipy, ipz, nForm
@@ -77,12 +81,12 @@ Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) '********** AOEval ***********'
-write(6,*) 'In AOEval'
+write(u6,*) '********** AOEval ***********'
+write(u6,*) 'In AOEval'
 call RecPrt('Coor',' ',Coor,3,nCoor)
 call RecPrt('CffCnt',' ',CffCnt,mExp,nBas)
 call RecPrt('CffSph',' ',CffSph,nElem,nCmp)
-write(6,*) 'RA=',RA
+write(u6,*) 'RA=',RA
 #endif
 !                                                                      *
 !***********************************************************************
@@ -94,7 +98,7 @@ AOValue(:,:,:,:) = Zero
 !--- Set the order of derivation
 
 nDrv = nRad-1
-!write(6,*) '----- nDrv = ', nDrv
+!write(u6,*) '----- nDrv = ', nDrv
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -104,14 +108,14 @@ nDrv = nRad-1
 
 #ifdef _DEBUGPRINT_
 if ((nRad <= 0) .and. (nRad >= 5)) then
-  write(6,*) 'AOEval: illegal value of nRad!'
+  write(u6,*) 'AOEval: illegal value of nRad!'
   call Abend()
 end if
 #endif
 
-Thre = -99d0
-if (Thr_Rad > 0.0d0) Thre = log(Thr_Rad)
-Exp_Min = 1.0d10
+Thre = -99.0_wp
+if (Thr_Rad > Zero) Thre = log(Thr_Rad)
+Exp_Min = 1.0e10_wp
 do iExp=1,nExp
   Exp_Min = min(Exp_Min,Alpha(iExp))
 end do
@@ -171,7 +175,7 @@ do iCoor=1,nCoor
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) mExp,nExp
+write(u6,*) mExp,nExp
 write(Label,'(A)') 'Radial(nCoor*nRad,nBas)'
 call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
 #endif
@@ -244,7 +248,7 @@ do ix=iAng,0,-1
           end do
 
 #         ifdef _DEBUGPRINT_
-          write(6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
+          write(u6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
 #         endif
 
           if ((jy == 0) .and. (jz == 0)) then
@@ -289,7 +293,7 @@ do ix=iAng,0,-1
               do iTerm=1,mTerm
                 iCoef = Angular(iTerm,5,iForm)
                 if (iCoef /= 0) then
-                  Coef = dble(iCoef)
+                  Coef = real(iCoef,kind=wp)
                   iRad = Angular(iTerm,4,iForm)+1
                   do iBas=1,nBas
                     do iCoor=1,nCoor
@@ -314,7 +318,7 @@ do ix=iAng,0,-1
           do iTerm=1,mTerm
             iCoef = Angular(iTerm,5,iForm)
             if (iCoef /= 0) then
-              Coef = dble(iCoef)
+              Coef = real(iCoef,kind=wp)
               iRad = Angular(iTerm,4,iForm)+1
               do iBas=1,nBas
                 do iCoor=1,nCoor
@@ -337,7 +341,7 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
+write(u6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
 call RecPrt('AOValue','(10G20.10)',AOValue,mAO,nCoor*nBas*nCmp)
 #endif
 

@@ -17,6 +17,7 @@ use Symmetry_Info, only: nIrrep
 use Integral_Interfaces, only: int_kernel, int_mem, OneEl_Integrals
 use Constants, only: One
 use stdalloc, only: mma_deallocate
+use Definitions, only: u6
 
 implicit none
 procedure(int_kernel) :: Kernel
@@ -73,8 +74,8 @@ do iComp=1,nComp
     call CmpInt(Integrals(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
     if (nInt /= nDens) then
       call WarningMessage(2,'OneEl_Property: nInt /= nDens')
-      write(6,*) 'nInt=',nInt
-      write(6,*) 'nDens',nDens
+      write(u6,*) 'nInt=',nInt
+      write(u6,*) 'nDens',nDens
       call Abend()
     end if
     Property(iComp) = rNuc(iComp)-Sig*DDot_(nDens,D_Tot,1,Integrals(ip(iComp)),1)

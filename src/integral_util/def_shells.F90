@@ -17,6 +17,9 @@ use Center_Info
 use Sizes_of_Seward, only: S
 use BasisMode
 use disp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nSD, mSkal
@@ -247,10 +250,10 @@ else
   nBas(0) = nFunctions
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) 'in Define_Shells...'
+write(u6,*) 'in Define_Shells...'
 do i=1,mSkal
-  write(6,*) 'i=',i
-  write(6,'(10I8,/,8I8)') (iSD(j,i),j=0,nSD)
+  write(u6,*) 'i=',i
+  write(u6,'(10I8,/,8I8)') (iSD(j,i),j=0,nSD)
 end do
 #endif
 !                                                                      *

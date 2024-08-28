@@ -12,6 +12,8 @@
 subroutine Get_F(icol,val,n)
 
 use getline_mod, only: Line, nCol, iStrt, iEnd
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer iCol, n
@@ -29,11 +31,11 @@ do i=1,n
       string(len(string)+i1-i2:) = line(i1:i2)
       read(string,'(F80.0)',err=600,end=600) val(i)
     else
-      val(i) = 0.0d0
+      val(i) = Zero
     end if
     ic = ic+1
   else
-    write(6,110) icol+n-1,line
+    write(u6,110) icol+n-1,line
     call FindErrorLine()
     call WarningMessage(2,'Error in Get_F')
     call Quit_OnUserError()

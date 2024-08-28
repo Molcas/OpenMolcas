@@ -28,6 +28,9 @@ use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module, only: PCM, DoDeriv, nTs, nPCM_Info, nS, iCharge_Ref, NoNEQ_Ref, iSlPar, cRFStrt, cRFEnd, iRFStrt, iRFEnd, &
                          rRFStrt, rRFEnd, lRFStrt, lRFEnd
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 logical NonEq
@@ -154,8 +157,8 @@ iPrint = 5
 #endif
 call PCM_Init(iPrint,ICharg,nAtoms,Coor,ANr,LcCoor,LcANr,NonEq)
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*)
+write(u6,*)
+write(u6,*)
 #endif
 
 call mma_deallocate(LcANr)

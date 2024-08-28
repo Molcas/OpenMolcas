@@ -43,9 +43,11 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 #ifdef _DEBUGPRINT_
 use define_af, only: Angtp
 use Symmetry_Info, only: ChOper
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -112,14 +114,14 @@ do iS=1,nSkal
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     if (nSO == 0) Go To 131
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 #   endif
 
     ! Call kernel routine to get memory requirement.
 
     nOrdOp = lMax
     call RFMem(nOrder,MemKer,iAng,jAng,nOrdOp)
-    !write(6,*) nOrder,MemKer,iAng,jAng,nOrdOp
+    !write(u6,*) nOrder,MemKer,iAng,jAng,nOrdOp
     MemKrn = MemKer*S%m2Max
     call mma_allocate(Kern,MemKrn,Label='Kern')
 
@@ -153,7 +155,7 @@ do iS=1,nSkal
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 #   ifdef _DEBUGPRINT_
-    write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+    write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 #   endif
 
 !-----------Find the stabilizer for A and B
@@ -179,9 +181,9 @@ do iS=1,nSkal
 #   endif
 
     ! Transform IJ,AB to J,ABi
-    call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,DSO,iBas,Shells(iShll)%pCff,iPrim,0.0d0,DSOpr,jBas*nSO)
+    call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOpr,jBas*nSO)
     ! Transform J,ABi to AB,ij
-    call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,DSOpr,jBas,Shells(jShll)%pCff,jPrim,0.0d0,DSO,nSO*iPrim)
+    call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,DSOpr,jBas,Shells(jShll)%pCff,jPrim,Zero,DSO,nSO*iPrim)
     ! Transpose to ij,AB
     call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,iPrim*jPrim)
     call mma_deallocate(DSO)
@@ -209,20 +211,20 @@ do iS=1,nSkal
 
         call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 #       ifdef _DEBUGPRINT_
-        write(6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
-        write(6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
-        write(6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
+        write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+        write(u6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
+        write(u6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
 #       endif
 
         ! Compute normalization factor due the DCR symmetrization
         ! of the two basis functions and the operator.
 
         iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-        FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+        FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
         if (MolWgh == 1) then
-          FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+          FactNd = FactNd*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
         else if (MolWgh == 2) then
-          FactNd = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+          FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
         end if
         FactNd = FactNd*FactOp(iOpr)
 
@@ -234,8 +236,8 @@ do iS=1,nSkal
           call OA(iDCRT(lDCRT),A,TA)
           call OA(iDCRT(lDCRT),RB,TRB)
 #         ifdef _DEBUGPRINT_
-          write(6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3),(C(i),i=1,3)
-          write(6,*) ' nOp=',nOp
+          write(u6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3),(C(i),i=1,3)
+          write(u6,*) ' nOp=',nOp
 #         endif
 
           ! Desymmetrize the matrix with which we will contract the trace.

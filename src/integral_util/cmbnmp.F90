@@ -37,8 +37,8 @@ do ixa=0,la
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
         !if (iPrint >= 99) then
-        !  write(6,*) ixa,iya,iza,ixb,iyb,izb
-        !  write(6,*) ipa,ipb
+        !  write(u6,*) ixa,iya,iza,ixb,iyb,izb
+        !  write(u6,*) ipa,ipb
         !end if
 
         ! Combine multipole moment integrals
@@ -48,7 +48,7 @@ do ixa=0,la
           do iy=lr-ix,0,-1
             iz = lr-ix-iy
             iComp = iComp+1
-            !write(6,*) ix,iy,iz,iComp
+            !write(u6,*) ix,iy,iz,iComp
             do iZeta=1,nZeta
               Fact = rKappa(iZeta)*1/sqrt(Zeta(iZeta)**3)
               !Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)

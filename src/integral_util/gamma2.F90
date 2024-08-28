@@ -20,6 +20,7 @@ function Gamma2(m,T)
 !***********************************************************************
 
 use Constants, only: Zero, One, Two
+use Definitions, only: wp
 
 implicit none
 real*8 Gamma2
@@ -29,7 +30,7 @@ integer i
 
 Gamma2 = sqrt(Two*acos(Zero)/T)/Two
 do i=1,m
-  Gamma2 = ((Two*dble(i)-One)/(Two*T))*Gamma2
+  Gamma2 = ((Two*real(i,kind=wp)-One)/(Two*T))*Gamma2
 end do
 
 return

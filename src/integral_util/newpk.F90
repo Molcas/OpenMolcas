@@ -29,6 +29,7 @@ subroutine NewPK(A,B,P,mZeta,nZeta,rKappa,Alpha,Beta)
 !***********************************************************************
 
 use Constants, only: Zero, One, TwoP54
+use Definitions, only: wp
 
 implicit none
 integer mZeta, nZeta
@@ -44,7 +45,7 @@ AB2 = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
 do iZeta=1,mZeta
   Tmp0 = One/(Alpha(iZeta)+Beta(iZeta))
   Tmp1 = TwoP54*exp(-Alpha(iZeta)*Beta(iZeta)*AB2*Tmp0)*Tmp0
-  if (Tmp1 < 1.0D-99) Tmp1 = 1.0D-99
+  if (Tmp1 < 1.0e-99_wp) Tmp1 = 1.0e-99_wp
   rKappa(iZeta) = Tmp1
   P(iZeta,1) = (Alpha(iZeta)*A(1)+Beta(iZeta)*B(1))*Tmp0
   P(iZeta,2) = (Alpha(iZeta)*A(2)+Beta(iZeta)*B(2))*Tmp0

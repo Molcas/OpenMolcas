@@ -26,6 +26,9 @@ subroutine HrrMtrx(HMtrx,np,la,lb,A,B,Sph_a,CS_a,nSph_a,Sph_b,Cs_b,nSph_b)
 
 use Constants, only: Zero, One
 use define_af, only: iTabMx, Binom, iCan
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer np, la, lb, nSph_a, nSph_b
@@ -47,7 +50,7 @@ call RecPrt('A',' ',A,1,3)
 call RecPrt('B',' ',B,1,3)
 call RecPrt('CS_a',' ',CS_a,(la+1)*(la+2)/2,nSph_a)
 call RecPrt('CS_b',' ',CS_b,(lb+1)*(lb+2)/2,nSph_b)
-write(6,*) 'np=',np
+write(u6,*) 'np=',np
 #endif
 HMtrx(:,:,:) = Zero
 
@@ -414,7 +417,7 @@ else
 end if
 #ifdef _DEBUGPRINT_
 call RecPrt('HMat ( np x (nSph_a*nSph_b) )','(30F4.1)',HMtrx,np,nSph_a*nSph_b)
-write(6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
+write(u6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
 #endif
 
 return

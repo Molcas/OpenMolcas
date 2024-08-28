@@ -110,6 +110,7 @@ contains
 subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
 
   use Symmetry_Info, only: nIrrep
+  use Definitions, only: u6
 
   integer nZeta, ijCmp, nHm
   type(k2_type), target :: k2data
@@ -157,7 +158,7 @@ subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
   end if
   iZZZ_r = iE
   if (iZZZ_r > size(ZZZ_r)) then
-    write(6,*) 'iZZZ_r out for range'
+    write(u6,*) 'iZZZ_r out for range'
     call Abend()
   end if
 
@@ -168,7 +169,7 @@ subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
   k2Data%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
   iZZZ_i = iE
   if (iZZZ_i > size(ZZZ_i)) then
-    write(6,*) 'iZZZ_i out for range'
+    write(u6,*) 'iZZZ_i out for range'
     call Abend()
   end if
 

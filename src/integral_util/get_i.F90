@@ -12,6 +12,7 @@
 subroutine Get_I(icol,ival,n)
 
 use getline_mod, only: Line, nCol, iStrt, iEnd
+use Definitions, only: u6
 
 implicit none
 integer iCol, n
@@ -33,7 +34,7 @@ do i=1,n
     end if
     ic = ic+1
   else
-    write(6,210) icol+n-1,line
+    write(u6,210) icol+n-1,line
     call FindErrorLine()
     call WarningMessage(2,'Error in Get_I')
     call Quit_OnUserError()

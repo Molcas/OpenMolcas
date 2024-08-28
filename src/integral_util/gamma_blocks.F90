@@ -23,7 +23,7 @@ iBlock = 0
 
 ! AAAA
 
-!write(6,*) 'AAAA'
+!write(u6,*) 'AAAA'
 IND = 0
 do IRREP=1,NIRREP
   IND = IND+1
@@ -34,12 +34,12 @@ do IRREP=1,NIRREP
   iTable(4,iBlock) = IRREP-1
   iTable(5,iBlock) = IRREP-1
   iTable(6,iBlock) = IND
-  !write(6,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
+  !write(u6,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
 end do
 
 ! AABB
 
-!write(6,*) 'AABB'
+!write(u6,*) 'AABB'
 IND = 0
 do IRREP1=2,NIRREP
   do IRREP2=1,IRREP1-1
@@ -51,13 +51,13 @@ do IRREP1=2,NIRREP
     iTable(4,iBlock) = IRREP1-1
     iTable(5,iBlock) = IRREP1-1
     iTable(6,iBlock) = IND
-    !write(6,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
+    !write(u6,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
   end do
 end do
 
 ! ABAB
 
-!write(6,*) 'ABAB'
+!write(u6,*) 'ABAB'
 IND = 0
 do IRREP=2,NIRREP
   do IRREP1=1,NIRREP
@@ -71,14 +71,14 @@ do IRREP=2,NIRREP
       iTable(4,iBlock) = IRREP1-1
       iTable(5,iBlock) = IRREP2-1
       iTable(6,iBlock) = IND
-      !write(6,*) IND,IRREP1-1,IRREP2-1,IRREP1-1,IRREP2-1
+      !write(u6,*) IND,IRREP1-1,IRREP2-1,IRREP1-1,IRREP2-1
     end if
   end do
 end do
 
 ! ABCD
 
-!write(6,*) 'ABCD'
+!write(u6,*) 'ABCD'
 IND = 0
 do IRREP=2,NIRREP
   do IRREP1=1,NIRREP
@@ -101,7 +101,7 @@ do IRREP=2,NIRREP
       iTable(4,iBlock) = IRREP1-1
       iTable(5,iBlock) = IRREP2-1
       iTable(6,iBlock) = IND
-      !write(6,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
+      !write(u6,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
 315   continue
     end do
 314 continue

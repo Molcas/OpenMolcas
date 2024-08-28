@@ -33,6 +33,9 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Constants
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer iBas, jBas, nSOInt, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, nPrp
@@ -49,8 +52,8 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !                                                                      *
 #ifdef _DEBUGPRINT_
 call RecPrt(' In SOGthr: PrpInt',' ',PrpInt,1,nPrp)
-write(6,*) ' iAO, jAO=',iAO,jAO
-write(6,*) ' iShell, jShell=',iShell,jShell
+write(u6,*) ' iAO, jAO=',iAO,jAO
+write(u6,*) ' iShell, jShell=',iShell,jShell
 #endif
 lSO = 0
 do j1=0,nIrrep-1
@@ -72,7 +75,7 @@ do j1=0,nIrrep-1
         iSO2 = iAOtSO(jAO+i2,j2)
 
         iPnt = iPntSO(j1,j2,lOper,nbas)
-        !write(6,*) iSO1,iSO2,iPnt,i1,j1,i2,j2
+        !write(u6,*) iSO1,iSO2,iPnt,i1,j1,i2,j2
         do indAO1=0,iBas-1
           ! Diagonal block (only unique elements).
           do indAO2=0,jBas-1

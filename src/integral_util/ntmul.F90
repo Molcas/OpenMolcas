@@ -54,6 +54,9 @@ end subroutine NTMul
 #else
 subroutine ntmul(a,b,r,ncol,nlink,nrow)
 
+use Constants, only: Zero
+use Definitions, only: u6
+
 implicit none
 integer nCol, nRow, nLink
 real*8 r(ncol,*), a(ncol,*), b(nrow,*)
@@ -66,29 +69,29 @@ do i=1,ncol
 
   nnot = 0
   do k=1,min(nlink,mxind)
-    if (a(i,k) /= 0.0d0) then
+    if (a(i,k) /= Zero) then
       nnot = nnot+1
       ind(nnot) = k
     end if
   end do
 
   do j=1,nrow-15,16
-    s1 = 0.0d0
-    s2 = 0.0d0
-    s3 = 0.0d0
-    s4 = 0.0d0
-    s5 = 0.0d0
-    s6 = 0.0d0
-    s7 = 0.0d0
-    s8 = 0.0d0
-    t1 = 0.0d0
-    t2 = 0.0d0
-    t3 = 0.0d0
-    t4 = 0.0d0
-    t5 = 0.0d0
-    t6 = 0.0d0
-    t7 = 0.0d0
-    t8 = 0.0d0
+    s1 = Zero
+    s2 = Zero
+    s3 = Zero
+    s4 = Zero
+    s5 = Zero
+    s6 = Zero
+    s7 = Zero
+    s8 = Zero
+    t1 = Zero
+    t2 = Zero
+    t3 = Zero
+    t4 = Zero
+    t5 = Zero
+    t6 = Zero
+    t7 = Zero
+    t8 = Zero
     do k=1,nnot
       s1 = s1+a(i,ind(k))*b(j,ind(k))
       s2 = s2+a(i,ind(k))*b(j+1,ind(k))
@@ -130,14 +133,14 @@ do i=1,ncol
   j = nrow-nr1+1
 
   if (nr1 >= 8) then
-    s1 = 0.0d0
-    s2 = 0.0d0
-    s3 = 0.0d0
-    s4 = 0.0d0
-    s5 = 0.0d0
-    s6 = 0.0d0
-    s7 = 0.0d0
-    s8 = 0.0d0
+    s1 = Zero
+    s2 = Zero
+    s3 = Zero
+    s4 = Zero
+    s5 = Zero
+    s6 = Zero
+    s7 = Zero
+    s8 = Zero
     do k=1,nnot
       s1 = s1+a(i,ind(k))*b(j,ind(k))
       s2 = s2+a(i,ind(k))*b(j+1,ind(k))
@@ -161,10 +164,10 @@ do i=1,ncol
   end if
 
   if (nr1 >= 4) then
-    s1 = 0.0d0
-    s2 = 0.0d0
-    s3 = 0.0d0
-    s4 = 0.0d0
+    s1 = Zero
+    s2 = Zero
+    s3 = Zero
+    s4 = Zero
     do k=1,nnot
       s1 = s1+a(i,ind(k))*b(j,ind(k))
       s2 = s2+a(i,ind(k))*b(j+1,ind(k))
@@ -180,14 +183,14 @@ do i=1,ncol
   end if
 
   if (nr1 == 1) then
-    s1 = 0.0d0
+    s1 = Zero
     do k=1,nnot
       s1 = s1+a(i,ind(k))*b(j,ind(k))
     end do
     r(i,j) = s1
   else if (nr1 == 2) then
-    s1 = 0.0d0
-    s2 = 0.0d0
+    s1 = Zero
+    s2 = Zero
     do k=1,nnot
       s1 = s1+a(i,ind(k))*b(j,ind(k))
       s2 = s2+a(i,ind(k))*b(j+1,ind(k))
@@ -195,9 +198,9 @@ do i=1,ncol
     r(i,j) = s1
     r(i,j+1) = s2
   else if (nr1 == 3) then
-    s1 = 0.0d0
-    s2 = 0.0d0
-    s3 = 0.0d0
+    s1 = Zero
+    s2 = Zero
+    s3 = Zero
     do k=1,nnot
       s1 = s1+a(i,ind(k))*b(j,ind(k))
       s2 = s2+a(i,ind(k))*b(j+1,ind(k))
@@ -215,7 +218,7 @@ end do
 
 if (mxind >= nlink) return
 call WarningMessage(2,'MxInd < nLink')
-write(6,*) 'mxind,nlink=',mxind,nlink
+write(u6,*) 'mxind,nlink=',mxind,nlink
 call Abend()
 
 return

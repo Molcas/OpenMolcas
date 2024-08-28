@@ -13,6 +13,7 @@ subroutine tetin(lmax)
 
 use Constants, only: Zero, One
 use welcom, only: tetint, binom
+use Definitions, only: wp
 
 implicit none
 integer lmax
@@ -24,7 +25,7 @@ do k=0,lmax
     tetint(k,l) = Zero
     m = k-l*2
     do i=0,l
-      tetint(k,l) = tetint(k,l)+binom(l,i)*(-One)**i/dble(m+i*2+1)
+      tetint(k,l) = tetint(k,l)+binom(l,i)*(-One)**i/real(m+i*2+1,kind=wp)
     end do
   end do
 end do

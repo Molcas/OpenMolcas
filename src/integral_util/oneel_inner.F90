@@ -54,6 +54,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use rmat, only: RMat_Type_Integrals
 use property_label, only: PLabel
 use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 procedure(int_kernel) :: Kernel
@@ -213,7 +216,7 @@ do iComp=1,nComp
   nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' nSO=',nSO
+write(u6,*) ' nSO=',nSO
 #endif
 
 ! Do not compute matrix elements in which electronic and
@@ -247,7 +250,7 @@ if ((nSO > 0) .and. (dbsc(iCnttp)%fMass == dbsc(jCnttp)%fMass)) then
         rHrmt = -One
       end if
     end if
-    !write(6,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
+    !write(u6,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
     if (mSO /= 0) then
       call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label, &
                   lOper,rHrmt)

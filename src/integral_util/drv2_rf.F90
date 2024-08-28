@@ -50,9 +50,11 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 #ifdef _DEBUGPRINT_
 use define_af, only: Angtp
 use Symmetry_Info, only: ChOper
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -76,10 +78,10 @@ integer i, ii
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In Drv2_RF: llOper'
-write(6,'(1X,8I5)') llOper
-write(6,*) ' In Drv2_RF: n2Tri'
-write(6,'(1X,8I5)') n2Tri(llOper)
+write(u6,*) ' In Drv2_RF: llOper'
+write(u6,'(1X,8I5)') llOper
+write(u6,*) ' In Drv2_RF: n2Tri'
+write(u6,'(1X,8I5)') n2Tri(llOper)
 #endif
 
 call SOS(iStabO,nStabO,llOper)
@@ -127,12 +129,12 @@ do iS=1,nSkal
     if (Prprt) iSmLbl = iand(1,iSmLbl)
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' nSO=',nSO
+    write(u6,*) ' nSO=',nSO
 #   endif
     if (nSO == 0) Go To 131
 
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 #   endif
 
     ! Call kernel routine to get memory requirement. Observe, however
@@ -140,7 +142,7 @@ do iS=1,nSkal
     ! memory internally.
 
     call RFMem(nOrder,MemKer,iAng,jAng,nOrdOp)
-    !write(6,*) nOrder,MemKer,iAng,jAng,nOrdOp
+    !write(u6,*) nOrder,MemKer,iAng,jAng,nOrdOp
     MemKrn = MemKer*S%m2Max
     call mma_allocate(Kern,MemKrn,Label='Kern')
 
@@ -186,32 +188,32 @@ do iS=1,nSkal
     call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*)
-    write(6,*) ' g      =',nIrrep
-    write(6,*) ' u      =',dc(mdci)%nStab
-    write(6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
-    write(6,*) ' v      =',dc(mdcj)%nStab
-    write(6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
-    write(6,*) ' LambdaR=',LmbdR
-    write(6,*) ' r      =',nDCRR
-    write(6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStabO
-    write(6,'(9A)') '(S)=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '(R)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*)
+    write(u6,*) ' g      =',nIrrep
+    write(u6,*) ' u      =',dc(mdci)%nStab
+    write(u6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
+    write(u6,*) ' v      =',dc(mdcj)%nStab
+    write(u6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
+    write(u6,*) ' LambdaR=',LmbdR
+    write(u6,*) ' r      =',nDCRR
+    write(u6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStabO
+    write(u6,'(9A)') '(S)=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(R)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 #   endif
 
     ! Compute normalization factor
 
     iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-    Fact = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+    Fact = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
     if (MolWgh == 1) then
-      Fact = Fact*dble(nIrrep)**2/dble(iuv)
+      Fact = Fact*real(nIrrep,kind=wp)**2/real(iuv,kind=wp)
     else if (MolWgh == 2) then
-      Fact = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+      Fact = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
     end if
 
     ! Loops over symmetry operations.
@@ -219,13 +221,15 @@ do iS=1,nSkal
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),dbsc(iCnttp)%Coor(1:3,iCnt),A)
       nOp(1) = NrOpr(iDCRT(lDCRT))
-      if (jbas < -99999) write(6,*) 'nDCRR=',nDCRR
+#     ifdef _DEBUGPRINT_
+      if (jbas < -99999) write(u6,*) 'nDCRR=',nDCRR
+#     endif
       do lDCRR=0,nDCRR-1
         iDCRRT = ieor(iDCRR(lDCRR),iDCRT(lDCRT))
         call OA(iDCRRT,dbsc(jCnttp)%Coor(1:3,jCnt),B)
         nOp(2) = NrOpr(ieor(iDCRT(lDCRT),iDCRR(lDCRR)))
 #       ifdef _DEBUGPRINT_
-        write(6,'(A,3(3F6.2,2X))') '***** Centers A, B, & C. *****',(A(i),i=1,3),(B(i),i=1,3),(Ccoor(i),i=1,3)
+        write(u6,'(A,3(3F6.2,2X))') '***** Centers A, B, & C. *****',(A(i),i=1,3),(B(i),i=1,3),(Ccoor(i),i=1,3)
 #       endif
 
         ! Compute kappa and P.
@@ -262,9 +266,9 @@ do iS=1,nSkal
 
         ! Transform ij,x,ab to j,xabI
         kk = nElem(iAng)*nElem(jAng)
-        call DGEMM_('T','N',jPrim*kk,iBas,iPrim,1.0d0,Fnl(1,nComp+1),iPrim,Shells(iShll)%pCff,iPrim,0.0d0,Scr1,jPrim*kk)
+        call DGEMM_('T','N',jPrim*kk,iBas,iPrim,One,Fnl(1,nComp+1),iPrim,Shells(iShll)%pCff,iPrim,Zero,Scr1,jPrim*kk)
         ! Transform j,xabI to xab,IJ
-        call DGEMM_('T','N',kk*iBas,jBas,jPrim,1.0d0,Scr1,jPrim,Shells(jShll)%pCff,jPrim,0.0d0,Fnl(1,nComp+1),kk*iBas)
+        call DGEMM_('T','N',kk*iBas,jBas,jPrim,One,Scr1,jPrim,Shells(jShll)%pCff,jPrim,Zero,Fnl(1,nComp+1),kk*iBas)
 
 #       ifdef _DEBUGPRINT_
         call RecPrt(' Contracted integrals in cartesians',' ',Fnl(1,nComp+1),kk,iBas*jBas)
@@ -306,7 +310,7 @@ do iS=1,nSkal
 
     if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO_Int,1)
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' Scaling SO''s',Fact
+    write(u6,*) ' Scaling SO''s',Fact
     call RecPrt(' Final SO integrals',' ',SO_Int,iBas*jBas,mSO)
 #   endif
 

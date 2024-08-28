@@ -19,6 +19,9 @@ function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,xab,nab,Scrt,nS
 !***********************************************************************
 
 use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 real*8 EstI
@@ -30,7 +33,7 @@ integer, external :: iDAMax_
 real*8 rab, rcd, AInt
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
+write(u6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
 call RecPrt('Esti:xab',' ',xab,1,nAlpha*nBeta)
 call RecPrt('Esti:Coeff1',' ',Coeff1,nAlpha,niBas)
 call RecPrt('Esti:Coeff2',' ',Coeff2,nBeta,njBas)

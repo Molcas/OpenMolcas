@@ -17,6 +17,7 @@ use Symmetry_Info, only: nIrrep, iChTbl, iOper
 use SOAO_Info, only: iAOtSO, nSOInf
 use Basis_Info, only: nBas
 use Constants, only: Two
+use Definitions, only: wp, u6
 
 implicit none
 integer nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Irrep, iAO1, iAO2, iAOst1, iAOst2
@@ -48,12 +49,12 @@ if (iChO == 0) then
     do i2=1,jCmp
       do iIrrep=0,nIrrep-1
         if (max(iAO1+i1,iAO2+i2) > nSOInf) then
-          write(6,*) 'Fckdst: Max(iSO.jSO)>nSOInf (1)'
+          write(u6,*) 'Fckdst: Max(iSO.jSO)>nSOInf (1)'
           call Abend()
         end if
         iSO = iAOtSO(iAO1+i1,iIrrep)+iAOst1
         jSO = iAOtSO(iAO2+i2,iIrrep)+iAOst2
-        XR = dble(iChTbl(iIrrep,iiR))
+        XR = real(iChTbl(iIrrep,iiR),kind=wp)
 
         if ((iSO < 0) .or. (jSO < 0)) cycle
 
@@ -99,12 +100,12 @@ else
       do iIrrep=0,nIrrep-1
         jIrrep = jIrr(iIrrep)
         if (iIrrep < jIrrep) cycle
-        X1 = dble(iChTbl(iIrrep,l1))
-        X2 = dble(iChTbl(jIrrep,l2))
-        X3 = dble(iChTbl(jIrrep,l1))
-        X4 = dble(iChTbl(iIrrep,l2))
+        X1 = real(iChTbl(iIrrep,l1),kind=wp)
+        X2 = real(iChTbl(jIrrep,l2),kind=wp)
+        X3 = real(iChTbl(jIrrep,l1),kind=wp)
+        X4 = real(iChTbl(iIrrep,l2),kind=wp)
         if (max(iAO1+i1,iAO2+i2) > nSOInf) then
-          write(6,*) 'Fckdst: Max(iSO.jSO)>nSOInf (2)'
+          write(u6,*) 'Fckdst: Max(iSO.jSO)>nSOInf (2)'
           call Abend()
         end if
         iSOi = iAOtSO(iAO1+i1,iIrrep)+iAOst1

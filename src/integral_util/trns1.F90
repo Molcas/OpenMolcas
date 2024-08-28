@@ -33,7 +33,7 @@ implicit none
 integer na, nb, nVec, nc
 real*8 Win(na,nb), Wout(nb,na)
 
-!write(6,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
+!write(u6,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
 !call RecPrt(' Win',' ',Win,na,nb)
 if (nc == 1) then
   call dcopy_(nvec,Win,1,Wout,1)

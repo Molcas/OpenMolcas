@@ -12,14 +12,15 @@
 function CovRadT(i)
 
 use CovRad_Data, only: CovRadT_
+use Definitions, only: wp
 
 implicit none
 real*8 CovRadT
 integer i
 
 if (i > 92) then
-  !write(6,*) 'CovRadT: i > 92'
-  CovRadT = 1.50d0
+  !write(u6,*) 'CovRadT: i > 92'
+  CovRadT = 1.50_wp
 else
   CovRadT = CovRadT_(i)
 end if

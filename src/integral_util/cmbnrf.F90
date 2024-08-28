@@ -20,6 +20,9 @@ subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,Fact,Temp)
 !***********************************************************************
 
 use Constants, only: Two, Three
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nZeta, la, lb, nComp, lr
@@ -48,8 +51,8 @@ do ixa=0,la
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
 #       ifdef _DEBUGPRINT_
-        write(6,*) ixa,iya,iza,ixb,iyb,izb
-        write(6,*) ipa,ipb
+        write(u6,*) ixa,iya,iza,ixb,iyb,izb
+        write(u6,*) ipa,ipb
 #       endif
 
         ! Combine multipole moment integrals

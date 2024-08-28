@@ -19,7 +19,8 @@ function gammaf(x)
 !***********************************************************************
 
 use rmat, only: lcosf, lsinf, n_gam, m_gam
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp
 
 implicit none
 real*8 gammaf
@@ -35,9 +36,9 @@ k2 = (-1)**lcosf
 if ((k1 == -1) .or. (k2 == -1)) then
   gammaf = Zero
 else
-  arg1 = (dble(lcosf)+One)/Two
-  arg2 = (dble(lsinf)+One)/Two
-  arg3 = (dble(lsinf)+dble(lcosf)+Two)/Two
+  arg1 = Half*(real(lcosf,kind=wp)+One)
+  arg2 = Half*(real(lsinf,kind=wp)+One)
+  arg3 = Half*(real(lsinf,kind=wp)+real(lcosf,kind=wp)+Two)
   gammaf = Two*dgamma_molcas(arg1)*dgamma_molcas(arg2)/dgamma_molcas(arg3)
 end if
 

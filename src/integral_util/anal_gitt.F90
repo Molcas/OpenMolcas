@@ -29,6 +29,7 @@ function Anal_Gitt(cordsi,latato)
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp
 
 implicit none
 real*8 Anal_Gitt
@@ -50,7 +51,7 @@ do i=1,latato
   z1 = cordsi(3,i)
   do j=1,latato
     r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
-    if (r2 < 0.01d0) faktor = faktor+One
+    if (r2 < 0.01_wp) faktor = faktor+One
   end do
 
   x1 = cordsi(1,i)-One
@@ -58,7 +59,7 @@ do i=1,latato
   z1 = cordsi(3,i)
   do j=1,latato
     r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
-    if (r2 < 0.01d0) faktor = faktor+One
+    if (r2 < 0.01_wp) faktor = faktor+One
   end do
 
   x1 = cordsi(1,i)
@@ -66,7 +67,7 @@ do i=1,latato
   z1 = cordsi(3,i)
   do j=1,latato
     r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
-    if (r2 < 0.01d0) faktor = faktor+One
+    if (r2 < 0.01_wp) faktor = faktor+One
   end do
 
   x1 = cordsi(1,i)
@@ -74,7 +75,7 @@ do i=1,latato
   z1 = cordsi(3,i)
   do j=1,latato
     r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
-    if (r2 < 0.01d0) faktor = faktor+One
+    if (r2 < 0.01_wp) faktor = faktor+One
   end do
 
   x1 = cordsi(1,i)
@@ -82,7 +83,7 @@ do i=1,latato
   z1 = cordsi(3,i)+One
   do j=1,latato
     r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
-    if (r2 < 0.01d0) faktor = faktor+One
+    if (r2 < 0.01_wp) faktor = faktor+One
   end do
 
   x1 = cordsi(1,i)
@@ -90,7 +91,7 @@ do i=1,latato
   z1 = cordsi(3,i)-One
   do j=1,latato
     r2 = (x1-cordsi(1,j))**2+(y1-cordsi(2,j))**2+(z1-cordsi(3,j))**2
-    if (r2 < 0.01d0) faktor = faktor+One
+    if (r2 < 0.01_wp) faktor = faktor+One
   end do
   gatom = gatom+One/faktor
 end do

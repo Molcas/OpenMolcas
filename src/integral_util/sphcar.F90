@@ -36,6 +36,8 @@ subroutine SphCar(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,Coeff2,n2,Tr2,Pr2,Wo
 !             Modified spherical harmonics to cartesians October '91.  *
 !***********************************************************************
 
+use Constants, only: Zero, One
+
 implicit none
 integer nab, nijx, nScrt, n1, n2, mab
 real*8 Win(nab*nijx), Scrt(nScrt), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2), Wout(mab*nijx)
@@ -58,11 +60,11 @@ if (Tr1 .and. Tr2) then
 
   ! Starting with A,Bij transforming to Bij,a
 
-  call DGEMM_('T','T',k2*nijx,l1,k1,1.0d0,Win,k1,Coeff1,l1,0.0d0,Scrt,k2*nijx)
+  call DGEMM_('T','T',k2*nijx,l1,k1,One,Win,k1,Coeff1,l1,Zero,Scrt,k2*nijx)
 
   ! Transform B,ija to ij,ab
 
-  call DGEMM_('T','T',nijx*l1,l2,k2,1.0d0,Scrt,k2,Coeff2,l2,0.0d0,Wout,nijx*l1)
+  call DGEMM_('T','T',nijx*l1,l2,k2,One,Scrt,k2,Coeff2,l2,Zero,Wout,nijx*l1)
 
 else if (Tr2) then
 
@@ -72,12 +74,12 @@ else if (Tr2) then
 
   ! Start transforming B,ija to ij,ab
 
-  call DGEMM_('T','T',nijx*l1,l2,k2,1.0d0,Scrt,k2,Coeff2,l2,0.0d0,Wout,nijx*l1)
+  call DGEMM_('T','T',nijx*l1,l2,k2,One,Scrt,k2,Coeff2,l2,Zero,Wout,nijx*l1)
 else
 
   ! Starting with A,bij transforming to a,bij
 
-  call DGEMM_('N','N',l1,l2*nijx,k1,1.0d0,Coeff1,l1,Win,k1,0.0d0,Scrt,l1)
+  call DGEMM_('N','N',l1,l2*nijx,k1,One,Coeff1,l1,Win,k1,Zero,Scrt,l1)
 
   ! Transpose to ij,ab
 

@@ -34,6 +34,7 @@ use Constants, only: Zero, Quart
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: iD0Lbl, D0
 #endif
+use Definitions, only: u6
 
 implicit none
 integer iBas, jBas, kBas, lBas, nijkl, nPSO, nDSO
@@ -209,7 +210,7 @@ do i1=1,iCmp(1)
 end do
 if (nPSO /= MemSO2) then
   call WarningMessage(2,' PGet2: nPSO /= MemSO2')
-  write(6,*) nPSO,MemSO2
+  write(u6,*) nPSO,MemSO2
   call Abend()
 end if
 

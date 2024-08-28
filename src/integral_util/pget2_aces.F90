@@ -41,6 +41,7 @@ use Constants, only: Zero, Quart, One, Four
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: iD0Lbl, D0, DVar
 #endif
+use Definitions, only: u6
 
 implicit none
 real*8, parameter :: exfac = One
@@ -68,8 +69,8 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) 'nSOs=',nSOs
-write(6,*) 'iSO2Sh=',iSO2Sh
+write(u6,*) 'nSOs=',nSOs
+write(u6,*) 'iSO2Sh=',iSO2Sh
 iComp = 1
 call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
 call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
@@ -251,10 +252,10 @@ do i1=1,iCmp(1)
                                            (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
                         end if
 
-                        !write(6,*) 'iSO:',iSOi_a,jSOj_a,kSOk_a,lSOl_a
-                        !write(6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
-                        !write(6,*) 'nDim:',nDim_A,nDim_B,nDim_C,nDim_D
-                        !write(6,*)  temp , Gamma(Index_ABCD),Index_ABCD
+                        !write(u6,*) 'iSO:',iSOi_a,jSOj_a,kSOk_a,lSOl_a
+                        !write(u6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
+                        !write(u6,*) 'nDim:',nDim_A,nDim_B,nDim_C,nDim_D
+                        !write(u6,*)  temp , Gamma(Index_ABCD),Index_ABCD
                         temp = temp+Four*gamma(Index_ABCD)
 95                      continue
                         if (gamma_mrcisd) temp = gamma(Index_ABCD)
@@ -279,7 +280,7 @@ do i1=1,iCmp(1)
 end do
 if (nPSO /= MemSO2) then
   call WarningMessage(2,'PGet2_Aces: nPSO /= MemSO2')
-  write(6,*) nPSO,MemSO2
+  write(u6,*) nPSO,MemSO2
   call Abend()
 end if
 

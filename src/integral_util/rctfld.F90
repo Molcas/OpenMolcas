@@ -70,15 +70,18 @@ subroutine RctFld_Internal(Q_solute,nComp)
 !                                                                      *
 !             Modified for nonequilibrum calculations January 2002 (RL)*
 !***********************************************************************
+
 # ifdef _DEBUGPRINT_
   use Basis_Info, only: nBas
   use Symmetry_Info, only: nIrrep
+  use Definitions, only: wp, u6
 # endif
   use External_Centers, only: XF
   use Gateway_global, only: PrPrt
   use Gateway_Info, only: PotNuc
   use Constants, only: Half, One, Zero
   use rctfld_module, only: EPS, EPSINF, rds
+
   implicit none
   real*8 Origin(3)
 # ifdef _DEBUGPRINT_
@@ -87,7 +90,6 @@ subroutine RctFld_Internal(Q_solute,nComp)
 # endif
   integer nComp
   real*8 Q_solute(nComp,2)
-
   character(len=8) Label2
   real*8 FactOp(1), E_0_NN
   integer lOper(1), ixyz, iOff, nOrdOp, iMax, ip, ix, iy, iz, iSymX, iSymY, iSymZ, iTemp, nOpr, iMltpl
@@ -150,7 +152,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
 
     if (NonEq) RepNuc = RepNuc+E_0_NN
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' RepNuc=',RepNuc
+    write(u6,*) ' RepNuc=',RepNuc
 #   endif
     !2)
     ! Compute contribution to the one-electron hamiltonian
@@ -158,7 +160,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
     ! hpq = hpq + Sum(nl) E(nuc,nl)*<p|M(nl)|q>
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'h1'
+    write(u6,*) 'h1'
     lOff = 1
     do iIrrep=0,nIrrep-1
       n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -181,7 +183,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
     call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(1,1),lMax,h1,nh1)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'h1(mod)'
+    write(u6,*) 'h1(mod)'
     lOff = 1
     do iIrrep=0,nIrrep-1
       n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -245,7 +247,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
     end do
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) '1st order density'
+  write(u6,*) '1st order density'
   lOff = 1
   do iIrrep=0,nIrrep-1
     n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -277,7 +279,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
   call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(1,2),lMax,TwoHam,nh1)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'h1(mod)'
+  write(u6,*) 'h1(mod)'
   lOff = 1
   do iIrrep=0,nIrrep-1
     n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -287,7 +289,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
       lOff = lOff+n
     end if
   end do
-  write(6,*) 'TwoHam(mod)'
+  write(u6,*) 'TwoHam(mod)'
   lOff = 1
   do iIrrep=0,nIrrep-1
     n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -295,7 +297,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
     call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
     lOff = lOff+n
   end do
-  write(6,*) ' RepNuc=',RepNuc
+  write(u6,*) ' RepNuc=',RepNuc
 # endif
   !                                                                    *
   !*********************************************************************

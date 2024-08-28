@@ -14,6 +14,7 @@ subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
 use Basis_Info, only: nCnttp, DBSC
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp
 
 implicit none
 #include "Molcas.fh"
@@ -47,7 +48,7 @@ do iCnttp=1,nCnttp
       call OA(kOp,A,Coor(1:3,ndc))
       Label(ndc) = Lbl(1:LENIN)
       iBas_Lab(ndc) = iCnttp
-      ZNUC(ndc) = dble(dbsc(iCnttp)%AtmNr)
+      ZNUC(ndc) = real(dbsc(iCnttp)%AtmNr,kind=wp)
     end do
   end do
 99 continue

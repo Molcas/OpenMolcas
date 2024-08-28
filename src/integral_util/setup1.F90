@@ -24,6 +24,9 @@ subroutine Setup1(ExpA,nPrim,ExpB,mPrim,A,B,rKappa,Pcoor,ZInv)
 !***********************************************************************
 
 use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nPrim, mPrim
@@ -36,8 +39,8 @@ integer iPrim, jPrim
 call RecPrt(' *** ExpA ***',' ',ExpA,1,nPrim)
 call RecPrt(' *** ExpB ***',' ',ExpB,1,mPrim)
 call RecPrt(' *** ZInv ***',' ',ZInv,nPrim,mPrim)
-write(6,*) 'A(:)=',A(:)
-write(6,*) 'B(:)=',B(:)
+write(u6,*) 'A(:)=',A(:)
+write(u6,*) 'B(:)=',B(:)
 #endif
 ab = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
 

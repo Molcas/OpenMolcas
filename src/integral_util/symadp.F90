@@ -40,6 +40,7 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
+use Definitions, only: wp
 
 implicit none
 integer, intent(In) :: ijkl, iCmp, jCmp, kCmp, lCmp, nSOInt, nAux
@@ -138,12 +139,12 @@ do i1=1,iCmp
         iAux = 0
         do j1=0,nIrrep-1
           if (iSym(j1) == 0) Go To 110
-          Xa = dble(iChTbl(j1,kOp(1)))*pTSd
+          Xa = real(iChTbl(j1,kOp(1)),kind=wp)*pTSd
           j2Max = nIrrep-1
           if (Shij .and. Qij) j2Max = j1
           do j2=0,j2Max
             if (jSym(j2) == 0) Go To 210
-            Xb = dble(iChTbl(j2,kOp(2)))*Xa
+            Xb = real(iChTbl(j2,kOp(2)),kind=wp)*Xa
             j12 = ieor(j1,j2)
             if (Qijij) then
               if (Shij .and. Qij) then
@@ -173,9 +174,9 @@ do i1=1,iCmp
                 end if
                 if (Qijij .and. (k34 > k12)) Go To 310
               end if
-              Xg = dble(iChTbl(j3,kOp(3)))*Xb
+              Xg = real(iChTbl(j3,kOp(3)),kind=wp)*Xb
               iAux = iAux+1
-              Aux(iAux) = dble(iChTbl(j4,kOp(4)))*Xg
+              Aux(iAux) = real(iChTbl(j4,kOp(4)),kind=wp)*Xg
 
 310           continue
             end do

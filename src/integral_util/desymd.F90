@@ -27,6 +27,10 @@ use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Constants, only: Zero, One, Two
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO
@@ -37,7 +41,7 @@ integer lSO, ii, jj, j1, i1, j2, j12, i2, iChBs, jMx, jChBs
 real*8 Xa, pa, Xb, FactNs, Deg
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' lOper=',lOper
+write(u6,*) ' lOper=',lOper
 call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
 #endif
 
@@ -46,7 +50,7 @@ lSO = 1
 ii = iAng*(iAng+1)*(iAng+2)/6
 jj = jAng*(jAng+1)*(jAng+2)/6
 do j1=0,nIrrep-1
-  Xa = dble(iChTbl(j1,nOp(1)))
+  Xa = real(iChTbl(j1,nOp(1)),kind=wp)
   do i1=1,iCmp
     if (iAOtSO(iAO+i1,j1) < 0) cycle
     iChBs = iChBas(ii+i1)
@@ -56,7 +60,7 @@ do j1=0,nIrrep-1
     do j2=0,j1
       j12 = ieor(j1,j2)
       if (iand(lOper,2**j12) == 0) Go To 300
-      Xb = dble(iChTbl(j2,nOp(2)))
+      Xb = real(iChTbl(j2,nOp(2)),kind=wp)
       jMx = jCmp
       if ((iShell == jShell) .and. (j1 == j2)) jMx = i1
       do i2=1,jMx

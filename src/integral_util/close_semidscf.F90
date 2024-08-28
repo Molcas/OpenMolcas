@@ -19,7 +19,7 @@ use IOBUF, only: iPos, OnDisk, iStatIO, iBuf, lStRec, Mode_None
 
 implicit none
 
-!write(6,*) 'Enter: Close_SemiDSCF'
+!write(u6,*) 'Enter: Close_SemiDSCF'
 
 ! If data was transfered to the I/O buffer write buffer on disc.
 
@@ -30,6 +30,6 @@ if (OnDisk) call WLBuf()
 iPos = lStRec+1
 iStatIO = Mode_None
 iBuf = -99
-!write(6,*) 'Exit: Close_SemiDSCF'
+!write(u6,*) 'Exit: Close_SemiDSCF'
 
 end subroutine Close_SemiDSCF

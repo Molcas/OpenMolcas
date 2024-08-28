@@ -13,6 +13,9 @@
 subroutine Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
 
 use define_af, only: AngTp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer MxFnc, lMax
@@ -60,18 +63,18 @@ do n=0,lMax
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'lMax,MxFnc=',lMax,MxFnc
-write(6,*)
-write(6,*) 'LblCBs:'
+write(u6,*)
+write(u6,*) 'lMax,MxFnc=',lMax,MxFnc
+write(u6,*)
+write(u6,*) 'LblCBs:'
 do ixyz=1,lxyz
-  write(6,'(A)') LblCBs(ixyz)
+  write(u6,'(A)') LblCBs(ixyz)
 end do
-write(6,*) 'LblSBs:'
+write(u6,*) 'LblSBs:'
 do ixyz=1,i
-  write(6,'(A)') LblCBs(ixyz)
+  write(u6,'(A)') LblCBs(ixyz)
 end do
-write(6,*)
+write(u6,*)
 #endif
 
 return

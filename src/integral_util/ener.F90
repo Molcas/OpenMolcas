@@ -40,6 +40,7 @@ use Integral_Interfaces, only: int_kernel, int_mem, OneEl_Integrals
 use Constants
 use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module, only: lRFCav, TK
+use Definitions, only: wp, u6
 
 implicit none
 integer nh1, nGrid_, MaxAto, nPolComp, nAnisopol
@@ -132,7 +133,7 @@ do iGrid=1,nGrid_
   ftot2 = fx*fx+fy*fy+fz*fz
   ftot = sqrt(ftot2)
   x = ftot*DipEff(iGrid)*tk
-  if (x <= 0.0000001d0) then
+  if (x <= 1.0e-7_wp) then
     ag = Zero
     !alang = Zero
   else
@@ -161,12 +162,12 @@ do iGrid=1,nGrid_
 end do  ! iGrid
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Esimple             =',Esimple
-write(6,*) 'EnucRctfld          =',RepNuc-tmp_RepNuc
-write(6,*) 'Eself               =',Eself
-write(6,*) 'Ag term             =',agsum
-write(6,*) 'Electrostatic energy=',Eint
-write(6,*) 'EnucDip (half)      =',Half*Enucdip
+write(u6,*) 'Esimple             =',Esimple
+write(u6,*) 'EnucRctfld          =',RepNuc-tmp_RepNuc
+write(u6,*) 'Eself               =',Eself
+write(u6,*) 'Ag term             =',agsum
+write(u6,*) 'Electrostatic energy=',Eint
+write(u6,*) 'EnucDip (half)      =',Half*Enucdip
 #endif
 
 RepNuc = RepNuc+Eself+agsum+Eint+Half*Enucdip
@@ -260,12 +261,12 @@ do iGrid=1,nGrid_
     ! Compute properties directly from integrals
 
     nInt = n2Tri(iSmLbl)
-    if ((nInt /= 0) .and. (abs(DipMom(iComp,iGrid)) > 1.0D-20)) then
+    if ((nInt /= 0) .and. (abs(DipMom(iComp,iGrid)) > 1.0e-20_wp)) then
       call CmpInt(Integrals(ip),nInt,nBas,nIrrep,iSmLbl)
       if (nInt /= nh1) then
         call WarningMessage(2,'Ener: nInt /= nh1')
-        write(6,*) 'nInt=',nInt
-        write(6,*) 'nh1=',nh1
+        write(u6,*) 'nInt=',nInt
+        write(u6,*) 'nh1=',nh1
         call Abend()
       end if
 
@@ -288,12 +289,12 @@ do iGrid=1,nGrid_
   call mma_deallocate(Integrals)
 
   RepHlp = RepHlp+EelDip*half
-  !write(6,*) 'Eeldip=',Eeldip,RepHlp
+  !write(u6,*) 'Eeldip=',Eeldip,RepHlp
 
 end do    ! iGrid
 RepNuc = RepNuc+RepHlp
 #ifdef _DEBUGPRINT_
-write(6,*) 'RepHlp              =',RepHlp
+write(u6,*) 'RepHlp              =',RepHlp
 #endif
 
 PrPrt = Save_tmp

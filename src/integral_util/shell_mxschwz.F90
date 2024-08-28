@@ -45,7 +45,7 @@ do iS=1,nSkal
     jShll = iSD(0,jS)
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) Go To 200
     if (Shells(jShll)%Aux .and. (jS == nSkal)) Go To 200
-    !write(6,*) 'Shell_..:iS,jS=',iS,jS
+    !write(u6,*) 'Shell_..:iS,jS=',iS,jS
     jShell = iSD(11,jS)
     jCmp = iSD(2,jS)
     jAng = iSD(1,jS)

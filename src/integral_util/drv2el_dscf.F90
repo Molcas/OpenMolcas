@@ -50,8 +50,9 @@ use Integral_Interfaces, only: DeDe_SCF, No_routine, Int_PostProcess
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
 use Int_Options, only: Exfac, Thize, W2Disc
 use Int_Options, only: Disc_Mx, Disc, Count => Quad_ijkl
-use Constants, only: Zero, One, Two, Three, Four, Eight
+use Constants, only: Zero, One, Two, Three, Four, Eight, Half
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 integer nDens, nDisc
@@ -88,7 +89,7 @@ DoFock = .true.
 FckNoExch = ExFac == Zero
 W2Disc = .false.     ! Default value
 ! Disc_Mx = file size in Real*8 128=1024/8
-Disc_Mx = dble(nDisc)*128.d00
+Disc_Mx = real(nDisc,kind=wp)*128.0_wp
 ! Subtract for the last buffer
 Disc_Mx = Disc_Mx-lBuf
 Disc = Zero        ! Default value
@@ -155,10 +156,10 @@ do iS=1,nSkal
     end if
   end do
 end do
-P_Eff = dble(nij)
+P_Eff = real(nij,kind=wp)
 
 PP_Eff = P_Eff**2
-PP_Eff_delta = 0.10d0*PP_Eff
+PP_Eff_delta = 0.1_wp*PP_Eff
 PP_Count = Zero
 
 !                                                                      *
@@ -194,25 +195,25 @@ call CWTime(TCpu1,TWall1)
 if (.not. Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Go To 11
 
 call Mode_SemiDSCF(W2Disc)
-!write(6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
+!write(u6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
 
 ! Now do a quadruple loop over shells
 
 ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 iS = ip_ij(1,ijS)
 jS = ip_ij(2,ijS)
-klS = int(TskLw-dble(ijS)*(dble(ijS)-One)/Two)
+klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 kS = ip_ij(1,klS)
 lS = ip_ij(2,klS)
 Count = TskLw
 
-if (Count-TskHi > 1.0D-10) Go To 12 ! Cut off check
+if (Count-TskHi > 1.0e-10_wp) Go To 12 ! Cut off check
 13 continue
 
 ! What are these variables
-S_Eff = dble(ijS)
-T_Eff = dble(klS)
-ST_Eff = S_Eff*(S_Eff-One)/2d0+T_Eff
+S_Eff = real(ijS,kind=wp)
+T_Eff = real(klS,kind=wp)
+ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
 
 if (ST_Eff >= PP_Count) then
   write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff,'% done so far.'
@@ -255,7 +256,7 @@ call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
 14 continue
 Count = Count+One
-if (Count-TskHi > 1.0D-10) Go To 12
+if (Count-TskHi > 1.0e-10_wp) Go To 12
 klS = klS+1
 if (klS > ijS) then
   ijS = ijS+1

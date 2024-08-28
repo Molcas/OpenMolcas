@@ -44,6 +44,7 @@ use Gateway_global, only: force_part_c, force_part_p
 use RICD_Info, only: Do_RI, Cholesky
 use Symmetry_Info, only: nIrrep
 use Breit, only: nComp
+use Definitions, only: u6
 
 implicit none
 #include "Molcas.fh"
@@ -145,8 +146,8 @@ if (Mem1+1 > Mem0) then
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,Fail)
   if (Fail) then
     call WarningMessage(2,' Allocation failed for Work1')
-    write(6,*) Mem0,Mem1
-    write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+    write(u6,*) Mem0,Mem1
+    write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
     call Abend()
   end if
   Go To 999
@@ -174,7 +175,7 @@ if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
 else
   MemAux = 0
 end if
-!write(6,*) 'MemAux:',MemAux
+!write(u6,*) 'MemAux:',MemAux
 
 ! MemCon : Scratch for the contraction step
 
@@ -207,10 +208,10 @@ nA1a = max(nabcd,mabcd)*mijkl
 nA2a = max(iPrim,jPrim)*IncVec
 ! Size of the half transformed integrals
 nA3a = iBsInc*jBsInc*nVec1
-!write(6,*)
-!write(6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-!write(6,*) 'nVec1,lSize=',nVec1,lSize
-!write(6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
+!write(u6,*)
+!write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
+!write(u6,*) 'nVec1,lSize=',nVec1,lSize
+!write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
 ! Contraction of the two last indicies: kPrim->kBas & lPrim->lBas
 ! while the first and second indicies are contrcated.
@@ -223,10 +224,10 @@ nA2b = max(kPrim,lPrim)*IncVec
 nA3b = kBsInc*lBsInc*nVec2
 if (MemAux /= 0) nA3b = 0
 MemCon = max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b)
-!write(6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-!write(6,*) 'nVec2,lSize=',nVec1,lSize
-!write(6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-!write(6,*) 'MemCon     :',MemCon
+!write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
+!write(u6,*) 'nVec2,lSize=',nVec1,lSize
+!write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
+!write(u6,*) 'MemCon     :',MemCon
 
 ! Contraction of the two last indicies: kPrim->kBas & lPrim->lBas
 ! while the first and second indicies are uncontrcated.
@@ -237,9 +238,9 @@ IncVec = min(max(1,nCache_/lSize),nVec1)
 nA1a = max(nabcd,mabcd)*mijkl
 nA2a = IncVec*max(kPrim,lPrim)
 nA3a = kBsInc*lBsInc*nVec1
-!write(6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-!write(6,*) 'nVec1,lSize=',nVec1,lSize
-!write(6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
+!write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
+!write(u6,*) 'nVec1,lSize=',nVec1,lSize
+!write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
 ! Contraction of the two first indicies: iPrim->iBas & jPrim->jBas
 ! while the third and fourth indicies are contrcated.
@@ -252,10 +253,10 @@ nA2b = IncVec*max(iPrim,jPrim)
 nA3b = iBsInc*jBsInc*nVec2
 if (MemAux /= 0) nA3b = 0
 MemCon = max(MemCon,max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b))
-!write(6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-!write(6,*) 'nVec2,lSize=',nVec1,lSize
-!write(6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-!write(6,*) 'MemCon     :',MemCon
+!write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
+!write(u6,*) 'nVec2,lSize=',nVec1,lSize
+!write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
+!write(u6,*) 'MemCon     :',MemCon
 
 ! MemSp1 : Scratch for the transformation from cartesian to
 !          spherical harmonics. This is executed inside the
@@ -294,8 +295,8 @@ if (Mem2+1 > Mem0) then
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,Fail)
   if (Fail) then
     call WarningMessage(2,' Allocation failed for Work2')
-    write(6,*) Mem0
-    write(6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+    write(u6,*) Mem0
+    write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
     call Abend()
   end if
   Go To 999

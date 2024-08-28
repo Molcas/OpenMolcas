@@ -31,6 +31,7 @@ function get_ln_quit(lunit,icritical)
 !***********************************************************************
 
 use getline_mod, only: Line, iGetLine, nCol, iStrt, iEnd, MyUnit, Quit_On_Error
+use Definitions, only: u6
 
 implicit none
 character(len=180) get_ln_quit
@@ -78,11 +79,11 @@ goto 10
 filename = ' '
 inquire(unit=lunit,name=filename)
 if (filename /= ' ') then
-  write(6,'(a,a)') 'Error reading file=',filename
+  write(u6,'(a,a)') 'Error reading file=',filename
 else
-  write(6,'(a,i8)') 'Error reading unit=',lunit
+  write(u6,'(a,i8)') 'Error reading unit=',lunit
 end if
-write(6,'(a)') 'Line: ',line(1:80)
+write(u6,'(a)') 'Line: ',line(1:80)
 Quit_On_Error = .true.
 200 continue
 if (icritical == 0) then
@@ -93,9 +94,9 @@ end if
 filename = ' '
 inquire(unit=lunit,name=filename)
 if (filename /= ' ') then
-  write(6,'(a,a)') 'EOF reached for file=',filename
+  write(u6,'(a,a)') 'EOF reached for file=',filename
 else
-  write(6,'(a,i8)') 'EOF reached for unit=',lunit
+  write(u6,'(a,i8)') 'EOF reached for unit=',lunit
 end if
 
 Quit_On_Error = .true.

@@ -30,6 +30,7 @@ subroutine qlm(gx,gy,gz,qa,dax,day,daz,lmax_,Cavxyz)
 !***********************************************************************
 
 use Constants, only: One
+use Definitions, only: wp
 
 implicit none
 integer lmax_
@@ -49,21 +50,21 @@ do ix=0,lmax
   else
     xeff = gx**ix
   end if
-  ax = dble(ix)+One
+  ax = real(ix+1,kind=wp)
   do iy=0,lmax-ix
     if (iy == 0) then
       xyeff = xeff
     else
       xyeff = xeff*gy**iy
     end if
-    ay = dble(iy)+One
+    ay = real(iy+1,kind=wp)
     do iz=0,lmax-ix-iy
       if (iz == 0) then
         xyzeff = xyeff*gz**iz
       else
         xyzeff = xyeff*gz**iz
       end if
-      az = dble(iz)+One
+      az = real(iz+1,kind=wp)
 
       ! Charge term
 

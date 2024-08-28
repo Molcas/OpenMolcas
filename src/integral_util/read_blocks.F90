@@ -14,6 +14,7 @@ subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,iSO2Shell,nSOs,Bin,nB
 use SOAO_Info, only: iOffSO
 use Constants, only: Zero, One
 use PSO_Stuff, only: Case_MP2, LuGam, LuGamma
+use Definitions, only: wp
 
 implicit none
 #include "SysDef.fh"
@@ -35,7 +36,7 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !                                                                      *
 ! Generate table SO to contigous index
 
-!write(6,*) 'nQuad=',nQuad
+!write(u6,*) 'nQuad=',nQuad
 call Mk_SO2cI(iSO2cI,iSO2Shell,nSOs)
 !                                                                      *
 !***********************************************************************
@@ -53,9 +54,9 @@ iWrite = 1
 !                                                                      *
 ! Loop over symmetry blocks of gammas
 
-!write(6,*) 'iSO2Shell',iSO2Shell
-!write(6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
-!write(6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
+!write(u6,*) 'iSO2Shell',iSO2Shell
+!write(u6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
+!write(u6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
 iBlockAdr = 1
 do iBlock=1,nBlocks
   iType = iTable(1,iBlock)
@@ -64,13 +65,13 @@ do iBlock=1,nBlocks
   iIrrep_C = iTable(4,iBlock)
   iIrrep_D = iTable(5,iBlock)
   !IND = iTable(6,iBlock)
-  !write(6,*) 'Irreps:',iIrrep_A,iIrrep_B,iIrrep_C,iIrrep_D
+  !write(u6,*) 'Irreps:',iIrrep_A,iIrrep_B,iIrrep_C,iIrrep_D
 
   nA = nBas(iIrrep_A)
   nB = nBas(iIrrep_B)
   nC = nBas(iIrrep_C)
   nD = nBas(iIrrep_D)
-  !write(6,*) 'nA,nB,nC,nD=',nA,nB,nC,nD
+  !write(u6,*) 'nA,nB,nC,nD=',nA,nB,nC,nD
   if ((iType == 1) .or. (iType == 2)) then
     nAB = nA*(nA+1)/2
     nCD = nC*(nC+1)/2
@@ -170,25 +171,25 @@ do iBlock=1,nBlocks
         !                                                              *
         ! Store information in the appropriate bin
 
-        !write(6,*) 'ABCD, Index_ABCD=',ABCD, Index_ABCD
-        !write(6,*) 'iSO:',iSO_A_a,iSO_B_a,iSO_C_a,iSO_D_a
-        !write(6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
-        !write(6,*) 'cind:',Index_A,Index_B,Index_C,Index_D
-        !write(6,*) 'ndims:',nDim_A,nDim_B,nDim_C,nDim_D
-        !write(6,*) 'iShell_AB,iShell_CD=',iShell_AB,iShell_CD
-        !write(6,*) 'nDim_AB,nDim_CD=',nDim_AB,nDim_CD
-        !write(6,*) 'iShell_ABCD=',iShell_ABCD
+        !write(u6,*) 'ABCD, Index_ABCD=',ABCD, Index_ABCD
+        !write(u6,*) 'iSO:',iSO_A_a,iSO_B_a,iSO_C_a,iSO_D_a
+        !write(u6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
+        !write(u6,*) 'cind:',Index_A,Index_B,Index_C,Index_D
+        !write(u6,*) 'ndims:',nDim_A,nDim_B,nDim_C,nDim_D
+        !write(u6,*) 'iShell_AB,iShell_CD=',iShell_AB,iShell_CD
+        !write(u6,*) 'nDim_AB,nDim_CD=',nDim_AB,nDim_CD
+        !write(u6,*) 'iShell_ABCD=',iShell_ABCD
         kBin = int(Bin(1,nBin,iShell_ABCD))+1
         Bin(1,kBin,iShell_ABCD) = ABCD
-        Bin(2,kBin,iShell_ABCD) = dble(Index_ABCD)
-        Bin(1,nBin,iShell_ABCD) = dble(kBin)  ! Update counter
+        Bin(2,kBin,iShell_ABCD) = real(Index_ABCD,kind=wp)
+        Bin(1,nBin,iShell_ABCD) = real(kBin,kind=wp)  ! Update counter
         !                                                              *
         !***************************************************************
         !                                                              *
         ! Write bin to disk if full.
 
         if (kBin == nBin-1) then
-          BackChain = dble(iDisk)
+          BackChain = real(iDisk,kind=wp)
           call dDaFile(LuGamma,iWrite,Bin(1,1,iShell_ABCD),2*nBin,iDisk)
           Bin(1,nBin,iShell_ABCD) = Zero
           Bin(2,nBin,iShell_ABCD) = BackChain
@@ -269,12 +270,12 @@ end do         ! iBlock
 !                                                                      *
 ! Flush the bins to disk and save disk addresses
 
-!write(6,*) 'Flush bins!'
+!write(u6,*) 'Flush bins!'
 do iQuad=1,nQuad
-  BackChain = dble(iDisk)
+  BackChain = real(iDisk,kind=wp)
   call dDaFile(LuGamma,iWrite,Bin(1,1,iQuad),2*nBin,iDisk)
   !lxx = Int(Bin(1,nBin,iQuad))
-  !write(6,*) 'lxx=',lxx
+  !write(u6,*) 'lxx=',lxx
   !call RecPrt('Bins',' ',Bin(1,1,iQuad),2,lxx)
   G_Toc(iQuad) = BackChain
 end do

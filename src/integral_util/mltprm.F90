@@ -26,6 +26,7 @@ subroutine MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,l
 
 use Her_RW, only: HerR, HerW, iHerR, iHerw
 use Constants
+use Definitions, only: u6
 
 implicit none
 integer nZeta, la, lb, nComp, nAlpha, nBeta, nArr, nHer, nOrdOp
@@ -47,8 +48,8 @@ ipQxyz = nip
 nip = nip+nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'MltPrm: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in MltPrm'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in MltPrm'
   call Abend()
 end if
 
@@ -59,7 +60,7 @@ call RecPrt(' In MltPrm: Ccoor',' ',Ccoor,1,3)
 call RecPrt(' In MltPrm: Kappa',' ',rKappa,nAlpha,nBeta)
 call RecPrt(' In MltPrm: Zeta',' ',Zeta,nAlpha,nBeta)
 call RecPrt(' In MltPrm: P',' ',P,nZeta,3)
-write(6,*) ' In MltPrm: la,lb=',la,lb
+write(u6,*) ' In MltPrm: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part

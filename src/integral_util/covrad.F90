@@ -12,6 +12,7 @@
 function CovRad(i)
 
 use CovRad_Data, only: CovRad_
+use Definitions, only: wp
 
 implicit none
 real*8 CovRad
@@ -20,7 +21,7 @@ integer i
 if (i > 86) then
   !write(Warning,'(2A)') 'CovRad: Warning i > 86!,;Guesstimate of 2.70 au is used!'
   !call WarningMessage(1,Warning)
-  CovRad = 2.70d0
+  CovRad = 2.70_wp
 else
   CovRad = CovRad_(i)
 end if

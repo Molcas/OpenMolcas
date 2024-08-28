@@ -12,6 +12,7 @@
 function iChAtm(Coor)
 
 use Symmetry_Info, only: nIrrep, iOper, iChCar
+use Definitions, only: wp
 
 implicit none
 integer iChAtm
@@ -43,7 +44,7 @@ do iCar=1,3
 
   ! Test if component is not zero. If zero no operator will change
   ! the sign of the component.
-  if (abs(Coor(iCar)) < 1.D-12) cycle
+  if (abs(Coor(iCar)) < 1.0e-12_wp) cycle
 
   ! Here if the Component is none zero.
 

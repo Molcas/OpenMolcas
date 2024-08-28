@@ -32,6 +32,10 @@ subroutine PGet3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,PAO
 use SOAO_Info, only: iAOtSO, iOffSO
 use pso_stuff, only: lSA, Gamma_On, G_ToC
 use Constants, only: Zero
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim, nCred, nScr1, nScr2
@@ -45,7 +49,7 @@ integer iiBas(4), in1, jPAM, in2, i1, iSO, iAOi, iSOi, nPSOPam, i2, i3, i4, jSO,
 real*8 Val
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' nBases..=',iBas,jBas,kBas,lBas
+write(u6,*) ' nBases..=',iBas,jBas,kBas,lBas
 #endif
 
 ! Prepare some data for Pam
@@ -69,8 +73,8 @@ do jPam=1,4
     do iAOi=0,iiBas(jPam)-1
       iSOi = iSO+iAOi
       in2 = in2+1
-      iPam(in1+in2) = dble(iSOi)
-      MapPam(jPam,iSOi) = dble(in2)
+      iPam(in1+in2) = real(iSOi,kind=wp)
+      MapPam(jPam,iSOi) = real(in2,kind=wp)
     end do
   end do
   in1 = in1+in2

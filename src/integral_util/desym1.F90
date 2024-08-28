@@ -24,7 +24,11 @@ subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DA
 
 use Symmetry_Info, only: nIrrep, iChTbl
 use SOAO_Info, only: iAOtSO
-use Constants, only: Zero, Two, One
+use Constants, only: Zero, One, Two
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO
@@ -35,7 +39,7 @@ integer lSO, j1, j2, j12, jMx, i1, i2
 real*8 Xa, Xb, Deg
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' lOper=',lOper
+write(u6,*) ' lOper=',lOper
 call RecPrt(' In Desym1: DSO',' ',DSO,iBas*jBas,nDSO)
 #endif
 
@@ -47,14 +51,14 @@ DAO(:,:,:) = Zero
 
 lSO = 0
 do j1=0,nIrrep-1
-  Xa = dble(iChTbl(j1,nOp(1)))
+  Xa = real(iChTbl(j1,nOp(1)),kind=wp)
   do i1=1,iCmp
     if (iAOtSO(iAO+i1,j1) < 0) cycle
 
     do j2=0,j1
       j12 = ieor(j1,j2)
       if (iand(lOper,2**j12) == 0) Go To 300
-      Xb = dble(iChTbl(j2,nOp(2)))
+      Xb = real(iChTbl(j2,nOp(2)),kind=wp)
       jMx = jCmp
       if ((iShell == jShell) .and. (j1 == j2)) jMx = i1
       do i2=1,jMx

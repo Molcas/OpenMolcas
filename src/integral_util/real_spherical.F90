@@ -16,6 +16,7 @@
 module Real_Spherical
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 
 implicit none
 private
@@ -87,7 +88,7 @@ subroutine Sphere(lMax)
   end if
 
   if (lmax < 0) then
-    write(6,*) 'Sphere: lmax<0'
+    write(u6,*) 'Sphere: lmax<0'
     call Abend()
   end if
   if (lmax > lmax_internal) then
@@ -103,7 +104,7 @@ subroutine Sphere(lMax)
   call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
   iSphCr(:) = 0
 
-  !write(6,*) 'C&S',Condon_Shortley_phase_factor
+  !write(u6,*) 'C&S',Condon_Shortley_phase_factor
 
   ! Make the labels
   ! Gives info on basis function angular momenta
@@ -153,25 +154,25 @@ subroutine Sphere(lMax)
   end do
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) ' Spherical Harmonic expansions '
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Spherical Harmonic expansions '
+  write(u6,*)
   iLbl = 1
   do n=0,lMax
     nElem = (n+1)*(n+2)/2
     ii = 0
-    write(6,*)
-    write(6,'(8X,31(2X,I1,I1,I1))') ((i,j,n-i-j,j=n-i,0,-1),i=n,0,-1)
-    write(6,*)
+    write(u6,*)
+    write(u6,'(8X,31(2X,I1,I1,I1))') ((i,j,n-i-j,j=n-i,0,-1),i=n,0,-1)
+    write(u6,*)
     do m=n,0,-2
       do l=-m,m
-        write(6,'(1X,A6,1X,31F5.2)') LblSbs(iLbl),(RSph(i+ii+ipSph(n)),i=0,nElem-1)
+        write(u6,'(1X,A6,1X,31F5.2)') LblSbs(iLbl),(RSph(i+ii+ipSph(n)),i=0,nElem-1)
         ii = ii+nElem
         iLbl = iLbl+1
       end do
-      write(6,*)
+      write(u6,*)
     end do
-    write(6,*)
+    write(u6,*)
   end do
 # endif
 
@@ -255,7 +256,7 @@ subroutine Recurse(P0,P1,P2,n2)
 
     ! P_{n+1} = (2n+1)/(n+1) z P_n
 
-    Fact_1 = dble(2*n2-1)/dble(n2)
+    Fact_1 = real(2*n2-1,kind=wp)/real(n2,kind=wp)
     n1 = n2-1
     do ix=n1,0,-1
       do iy=n1-ix,0,-1
@@ -266,7 +267,7 @@ subroutine Recurse(P0,P1,P2,n2)
 
     ! P_{n+1} = - n/(n+1) (x^2+y^2+z^2) P_{n-1}
 
-    Fact_2 = dble(n2-1)/dble(n2)
+    Fact_2 = real(n2-1,kind=wp)/real(n2,kind=wp)
     n0 = n1-1
     do ix=n0,0,-1
       do iy=n0-ix,0,-1
@@ -301,7 +302,7 @@ subroutine Ladder(P0,n)
     m_m = -(m+1)
     P0(:,m_p) = Zero
     P0(:,m_m) = Zero
-    Fact = One/(Two*sqrt(dble(n*(n+1)-m*(m-1))))
+    Fact = One/(Two*sqrt(real(n*(n+1)-m*(m-1),kind=wp)))
 
     ! The spherical harmonic is a two component (real,imaginary)
     ! function.
@@ -329,20 +330,20 @@ subroutine Ladder(P0,n)
 
         ! Generating the real part
 
-        if (iz >= 1) P0(iad(ix+1,iy,iz-1),m_p) = P0(iad(ix+1,iy,iz-1),m_p)+Fact*dble(iz)*P0(iad(ix,iy,iz),m)
-        if (ix >= 1) P0(iad(ix-1,iy,iz+1),m_p) = P0(iad(ix-1,iy,iz+1),m_p)-Fact*dble(ix)*P0(iad(ix,iy,iz),m)
+        if (iz >= 1) P0(iad(ix+1,iy,iz-1),m_p) = P0(iad(ix+1,iy,iz-1),m_p)+Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),m)
+        if (ix >= 1) P0(iad(ix-1,iy,iz+1),m_p) = P0(iad(ix-1,iy,iz+1),m_p)-Fact*real(ix,kind=wp)*P0(iad(ix,iy,iz),m)
         if (m /= 0) then
-          if (iz >= 1) P0(iad(ix,iy+1,iz-1),m_p) = P0(iad(ix,iy+1,iz-1),m_p)-Fact*dble(iz)*P0(iad(ix,iy,iz),-m)
-          if (iy >= 1) P0(iad(ix,iy-1,iz+1),m_p) = P0(iad(ix,iy-1,iz+1),m_p)+Fact*dble(iy)*P0(iad(ix,iy,iz),-m)
+          if (iz >= 1) P0(iad(ix,iy+1,iz-1),m_p) = P0(iad(ix,iy+1,iz-1),m_p)-Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),-m)
+          if (iy >= 1) P0(iad(ix,iy-1,iz+1),m_p) = P0(iad(ix,iy-1,iz+1),m_p)+Fact*real(iy,kind=wp)*P0(iad(ix,iy,iz),-m)
         end if
 
         ! Generating the imaginary part
 
-        if (iz >= 1) P0(iad(ix,iy+1,iz-1),m_m) = P0(iad(ix,iy+1,iz-1),m_m)+Fact*dble(iz)*P0(iad(ix,iy,iz),m)
-        if (iy >= 1) P0(iad(ix,iy-1,iz+1),m_m) = P0(iad(ix,iy-1,iz+1),m_m)-Fact*dble(iy)*P0(iad(ix,iy,iz),m)
+        if (iz >= 1) P0(iad(ix,iy+1,iz-1),m_m) = P0(iad(ix,iy+1,iz-1),m_m)+Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),m)
+        if (iy >= 1) P0(iad(ix,iy-1,iz+1),m_m) = P0(iad(ix,iy-1,iz+1),m_m)-Fact*real(iy,kind=wp)*P0(iad(ix,iy,iz),m)
         if (m /= 0) then
-          if (iz >= 1) P0(iad(ix+1,iy,iz-1),m_m) = P0(iad(ix+1,iy,iz-1),m_m)+Fact*dble(iz)*P0(iad(ix,iy,iz),-m)
-          if (ix >= 1) P0(iad(ix-1,iy,iz+1),m_m) = P0(iad(ix-1,iy,iz+1),m_m)-Fact*dble(ix)*P0(iad(ix,iy,iz),-m)
+          if (iz >= 1) P0(iad(ix+1,iy,iz-1),m_m) = P0(iad(ix+1,iy,iz-1),m_m)+Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),-m)
+          if (ix >= 1) P0(iad(ix-1,iy,iz+1),m_m) = P0(iad(ix-1,iy,iz+1),m_m)-Fact*real(ix,kind=wp)*P0(iad(ix,iy,iz),-m)
         end if
 
       end do
@@ -353,7 +354,7 @@ subroutine Ladder(P0,n)
     ! Condon-Shortley phase factor
 
     if (Condon_Shortley_phase_factor .and. (mod(m+1,2) /= 0)) then
-      !write(6,*) 'C&S phase factor included.'
+      !write(u6,*) 'C&S phase factor included.'
       P0(:,m_p) = -P0(:,m_p)
       P0(:,m_m) = -P0(:,m_m)
     end if
@@ -412,7 +413,7 @@ subroutine NrmSph(P,n)
       if (abs(P(k,m)) > rMax) rMax = abs(P(k,m))
     end do
     do k=1,(n+1)*(n+2)/2
-      if (abs(P(k,m)) < 1.0D-12*rMax) P(k,m) = Zero
+      if (abs(P(k,m)) < 1.0e-12_wp*rMax) P(k,m) = Zero
     end do
     tmp = Zero
     do ijx=2*n,0,-2

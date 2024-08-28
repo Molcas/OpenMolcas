@@ -12,6 +12,7 @@
 subroutine FindErrorLine()
 
 use getline_mod, only: MyUnit, iGetLine
+use Definitions, only: u6
 
 implicit none
 character(len=180) line
@@ -31,20 +32,20 @@ end if
 goto 2
 3 continue
 igetline = 0
-write(6,'(a,a,a)') ' >>>>> Input file for module ',line(1:index(line,' ')),' <<<<<'
+write(u6,'(a,a,a)') ' >>>>> Input file for module ',line(1:index(line,' ')),' <<<<<'
 1 continue
 read(lunit,'(A)',err=100,end=200) line
 igetline = igetline+1
 if (igetline == isave) then
-  write(6,*) '******   Error  *******'
-  write(6,'(a)') line
-  write(6,'(a)')
+  write(u6,*) '******   Error  *******'
+  write(u6,'(a)') line
+  write(u6,'(a)')
   call WarningMessage(2,'Error in FindErrorLine')
   call Quit_OnUserError()
 end if
-if (isave-igetline <= 50) write(6,'(a)') line
+if (isave-igetline <= 50) write(u6,'(a)') line
 goto 1
-!write(6,'(a)') ' >>>>> Input error <<<<<'
+!write(u6,'(a)') ' >>>>> Input error <<<<<'
 !rewind(lunit)
 !igetline = 0
 !goto 1

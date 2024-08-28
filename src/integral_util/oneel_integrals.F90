@@ -18,6 +18,9 @@ subroutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 procedure(int_kernel) :: Kernel
@@ -39,16 +42,16 @@ integer iComp, iIrrep, LenInt, LenTot, llOper, nIC, nStabO
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) ' In OneEl: Label',Label
-write(6,*) ' In OneEl: nComp'
-write(6,'(1X,8I5)') nComp
-write(6,*) ' In OneEl: lOper'
-write(6,'(1X,8I5)') lOper
-write(6,*) ' In OneEl: n2Tri'
+write(u6,*) ' In OneEl: Label',Label
+write(u6,*) ' In OneEl: nComp'
+write(u6,'(1X,8I5)') nComp
+write(u6,*) ' In OneEl: lOper'
+write(u6,'(1X,8I5)') lOper
+write(u6,*) ' In OneEl: n2Tri'
 do iComp=1,nComp
   ip(iComp) = n2Tri(lOper(iComp))
 end do
-write(6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
+write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
 call RecPrt(' CCoor',' ',CCoor,3,nComp)
 #endif
 !                                                                      *
@@ -66,7 +69,7 @@ do iComp=1,nComp
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' nIC =',nIC
+write(u6,*) ' nIC =',nIC
 #endif
 if (nIC == 0) then
   call WarningMessage(2,'OneEl_Integrals: nIC == 0')

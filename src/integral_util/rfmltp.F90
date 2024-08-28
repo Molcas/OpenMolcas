@@ -17,6 +17,7 @@ subroutine RFmltp()
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module
+use Definitions, only: u6
 
 implicit none
 real*8, allocatable :: VTot(:), QTot(:)
@@ -67,54 +68,54 @@ subroutine RFmltp_Internal(Qs,nComp)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    write(6,*) '     Multipole analysis of the contributions to the dielectric solvation energy'
-    write(6,*)
-    write(6,*) '     --------------------------------------'
-    write(6,*) '        l             dE '
-    write(6,*) '     --------------------------------------'
+    write(u6,*) '     Multipole analysis of the contributions to the dielectric solvation energy'
+    write(u6,*)
+    write(u6,*) '     --------------------------------------'
+    write(u6,*) '        l             dE '
+    write(u6,*) '     --------------------------------------'
     Esolv = Zero
     iOff = 1
     do l=0,lMax
       nElem = (l+1)*(l+2)/2
       dEsolv = -Half*DDot_(nElem,QTot(iOff),1,VTot(iOff),1)
-      write(6,'(8X,I2,10X,F13.10)') l,dEsolv
+      write(u6,'(8X,I2,10X,F13.10)') l,dEsolv
       iOff = iOff+nElem
       Esolv = Esolv+dEsolv
     end do
-    write(6,*) '     --------------------------------------'
-    write(6,*)
-    write(6,*)
-    write(6,*) '     Total Multipole Moments (cartesian)'
-    write(6,*) '     -----------------------------------'
+    write(u6,*) '     --------------------------------------'
+    write(u6,*)
+    write(u6,*)
+    write(u6,*) '     Total Multipole Moments (cartesian)'
+    write(u6,*) '     -----------------------------------'
     iM = 1
     do l=0,lMax
       nElem = (l+1)*(l+2)/2
       jM = iM
       do iElem=1,nElem,7
         nM = min(7,nElem-iElem+1)
-        write(6,'(8X,7ES14.5)') (QTot(i),i=jM,jM+nM-1)
+        write(u6,'(8X,7ES14.5)') (QTot(i),i=jM,jM+nM-1)
         jM = jM+nM
       end do
       iM = iM+nElem
     end do
-    write(6,*) '     -----------------------------------'
-    write(6,*)
-    write(6,*)
-    write(6,*) '     Total Electric Field (cartesian)'
-    write(6,*) '     --------------------------------'
+    write(u6,*) '     -----------------------------------'
+    write(u6,*)
+    write(u6,*)
+    write(u6,*) '     Total Electric Field (cartesian)'
+    write(u6,*) '     --------------------------------'
     iM = 1
     do l=0,lMax
       nElem = (l+1)*(l+2)/2
       jM = iM
       do iElem=1,nElem,7
         nM = min(7,nElem-iElem+1)
-        write(6,'(8X,7ES14.5)') (VTot(i),i=jM,jM+nM-1)
+        write(u6,'(8X,7ES14.5)') (VTot(i),i=jM,jM+nM-1)
         jM = jM+nM
       end do
       iM = iM+nElem
     end do
-    write(6,*) '     -----------------------------------'
-    write(6,*)
+    write(u6,*) '     -----------------------------------'
+    write(u6,*)
   end if
 
 end subroutine RFmltp_Internal

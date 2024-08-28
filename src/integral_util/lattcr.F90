@@ -29,9 +29,10 @@ subroutine lattcr(Grid,nGrid_,nGrid_Eff_,PolEff,DipEff,cord,maxato,atorad,nPolCo
 !              March 2000                                              *
 !***********************************************************************
 
-use Constants, only: Zero, Half
+use Constants, only: Zero, Three, Twelve, Half, OneHalf
 use rctfld_module, only: MaxA, nSparse, MaxB, lSparse, Scala, Scalc, nGrid_Eff, LatAto, RadLat, lRFCav, rds, DieDel, rSca, &
                          DistSparse, nExpO, PreFac, Polsi, Dipsi, Cordsi, MaxC, RotAlpha, RotBeta, RotGamma
+use Definitions, only: wp, u6
 
 implicit none
 integer nGrid_, MaxAto, nPolComp, nXF, nOrd_XF, iXPolType
@@ -54,7 +55,7 @@ do iOrdOp=0,nOrd_XF
 end do
 if (iXPolType > 0) Inc = Inc+6
 
-!write(6,*) 'lattcr: polsi,dipsi=',polsi,dipsi
+!write(u6,*) 'lattcr: polsi,dipsi=',polsi,dipsi
 
 ! Rotation matrix for the grid
 tr(1,1) = cos(rotGamma)*cos(rotBeta)*cos(rotAlpha)-sin(rotGamma)*sin(rotAlpha)
@@ -74,9 +75,9 @@ do ii=-(maxa+1),maxa,nSparse
       nj = min(nSparse,maxb-jj+1)
       nk = min(nSparse,maxc-kk+1)
       if (LSparse .and. (ni == nSparse) .and. (nj == nSparse) .and. (nk == nSparse)) then
-        xs = (dble(ii)+(dble(nSparse-1)*half))*scala
-        ys = (dble(jj)+(dble(nSparse-1)*half))*scala
-        zs = (dble(kk)+(dble(nSparse-1)*half))*scalc
+        xs = (real(ii,kind=wp)+(real(nSparse-1,kind=wp)*Half))*scala
+        ys = (real(jj,kind=wp)+(real(nSparse-1,kind=wp)*Half))*scala
+        zs = (real(kk,kind=wp)+(real(nSparse-1,kind=wp)*Half))*scalc
         nGridOld = nGrid_Eff
         do l=1,latato
           co(1) = xs+cordsi(1,l)
@@ -124,7 +125,7 @@ do ii=-(maxa+1),maxa,nSparse
             ya = XF((iXF-1)*Inc+2)
             za = XF((iXF-1)*Inc+3)
             if (XEle(iXF) <= 0) then
-              atrad = -dble(XEle(iXF))/1000.0d0
+              atrad = -real(XEle(iXF),kind=wp)/1000.0_wp
             else
               atrad = CovRadT(XEle(iXF))
             end if
@@ -135,19 +136,19 @@ do ii=-(maxa+1),maxa,nSparse
             rpa2 = dggx**2+dggy**2+dggz**2
             if (rpa2 < distSparse**2) goto 13
             ener = ener+(rrr/rpa2)**nexpo
-            !if (rpa2 < 6.0D0) write(6,*) 'DIST',iGrid,iXF,sqrt(rpa2),atrad
+            !if (rpa2 < Six) write(u6,*) 'DIST',iGrid,iXF,sqrt(rpa2),atrad
           end do
 
-          ener = prefac*ener*500.0d0+ener1
-          if (ener > 12.d0) goto 13
+          ener = prefac*ener*500.0_wp+ener1
+          if (ener > Twelve) goto 13
           fac = exp(-ener)
           nGrid_Eff_ = nGrid_Eff_+1
           Grid(1,nGrid_Eff_) = xp
           Grid(2,nGrid_Eff_) = yp
           Grid(3,nGrid_Eff_) = zp
-          PolEff(1,nGrid_Eff_) = polsi*dble(nSparse)**3.0d0*fac*fac
-          DipEff(nGrid_Eff_) = dipsi*dble(nSparse)**1.5d0*fac
-          write(6,*) 'DGRID',xp,yp,zp,fac
+          PolEff(1,nGrid_Eff_) = polsi*real(nSparse,kind=wp)**Three*fac*fac
+          DipEff(nGrid_Eff_) = dipsi*real(nSparse,kind=wp)**OneHalf*fac
+          write(u6,*) 'DGRID',xp,yp,zp,fac
         end do
         ! Every sparse lattice point in this cell is ok, so skip dense grid
 
@@ -161,9 +162,9 @@ do ii=-(maxa+1),maxa,nSparse
       do i=0,ni-1
         do j=0,nj-1
           do k=0,nk-1
-            xs = dble(ii+i)*scala
-            ys = dble(jj+j)*scala
-            zs = dble(kk+k)*scalc
+            xs = real(ii+i,kind=wp)*scala
+            ys = real(jj+j,kind=wp)*scala
+            zs = real(kk+k,kind=wp)*scalc
             do l=1,latato
               co(1) = xs+cordsi(1,l)
               co(2) = ys+cordsi(2,l)
@@ -200,7 +201,7 @@ do ii=-(maxa+1),maxa,nSparse
                 dggz = za-zp
                 rpa2 = dggx**2+dggy**2+dggz**2
                 ener = ener+(rrr/rpa2)**nexpo
-                !if (rpa2 < 6.0D0) write(6,*) 'DIST0',iGrid,sqrt(rpa2),atorad(m)
+                !if (rpa2 < Six) write(u6,*) 'DIST0',iGrid,sqrt(rpa2),atorad(m)
               end do
 
               ! Check if the XFIELD multipoles annhilates the grid point
@@ -210,7 +211,7 @@ do ii=-(maxa+1),maxa,nSparse
                 ya = XF((iXF-1)*Inc+2)
                 za = XF((iXF-1)*Inc+3)
                 if (XEle(iXF) <= 0) then
-                  atrad = -dble(XEle(iXF))/1000.0d0
+                  atrad = -real(XEle(iXF),kind=wp)/1000.0_wp
                 else
                   atrad = CovRadT(XEle(iXF))
                 end if
@@ -220,14 +221,14 @@ do ii=-(maxa+1),maxa,nSparse
                 dggz = za-zp
                 rpa2 = dggx**2+dggy**2+dggz**2
                 ener = ener+(rrr/rpa2)**nexpo
-                !if (rpa2 < 6.0D0) write(6,*) 'DIST',iGrid,iXF,sqrt(rpa2),atrad
+                !if (rpa2 < Six) write(u6,*) 'DIST',iGrid,iXF,sqrt(rpa2),atrad
               end do
 
               !ener = prefac*ener*tk5+ener1
-              ener = prefac*ener*500.0d0+ener1
-              !ener = prefac*ener*1000.0D0+ener1
-              if (ener > 12.d0) then
-                write(6,*) 'REMOVED',xp,yp,zp
+              ener = prefac*ener*500.0_wp+ener1
+              !ener = prefac*ener*1000.0_wp+ener1
+              if (ener > Twelve) then
+                write(u6,*) 'REMOVED',xp,yp,zp
                 Go To 11
               end if
 
@@ -239,7 +240,7 @@ do ii=-(maxa+1),maxa,nSparse
               Grid(3,nGrid_Eff_) = zp
               PolEff(1,nGrid_Eff_) = polsi*fac*fac
               DipEff(nGrid_Eff_) = dipsi*fac
-              write(6,*) 'GRID',xp,yp,zp,fac
+              write(u6,*) 'GRID',xp,yp,zp,fac
 11            continue
             end do  ! l
           end do  ! k
@@ -250,10 +251,10 @@ do ii=-(maxa+1),maxa,nSparse
   end do  ! jj
 end do  ! ii
 
-!write(6,*) 'Grid...',Grid(1,1),Grid(2,1),Grid(3,1)
-!write(6,*) 'DipEff...',DipEff(1),DipEff(101)
-!write(6,*) 'PolEff...',PolEff(1),PolEff(101)
-!write(6,*) 'Lattcr: nGrid_Eff=',nGrid_Eff
+!write(u6,*) 'Grid...',Grid(1,1),Grid(2,1),Grid(3,1)
+!write(u6,*) 'DipEff...',DipEff(1),DipEff(101)
+!write(u6,*) 'PolEff...',PolEff(1),PolEff(101)
+!write(u6,*) 'Lattcr: nGrid_Eff=',nGrid_Eff
 
 return
 

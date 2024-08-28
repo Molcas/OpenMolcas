@@ -12,6 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
+!#define _CHECK_
 subroutine Cntrct(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabMin,mabMax,mcdMin,mcdMax,Scrtch,nScrtch,ACOut, &
                   IndZet,lZeta,IndEta,lEta,nComp)
 !***********************************************************************
@@ -23,6 +24,10 @@ subroutine Cntrct(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,ma
 ! Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
+
+#if defined (_DEBUGPRINT_) || defined (_CHECK_)
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "Molcas.fh"
@@ -42,8 +47,8 @@ call RecPrt('Cntrct: Coef2',' ',Coef2,n2,m2)
 call RecPrt('Cntrct: Coef3',' ',Coef3,n3,m3)
 call RecPrt('Cntrct: Coef4',' ',Coef4,n4,m4)
 call RecPrt('Cntrct: [a0|c0]',' ',ACInt,lZeta,lEta*mabcd)
-write(6,*) 'IndZet=',IndZet
-write(6,*) 'IndEta=',IndEta
+write(u6,*) 'IndZet=',IndZet
+write(u6,*) 'IndEta=',IndEta
 if (.not. First) call RecPrt(' In Cntrct: Partial (a0|c0)',' ',ACOut,mabcd,m1*m2*m3*m4)
 #endif
 ! The idea here is to make the transformation in subblocks
@@ -70,13 +75,13 @@ ipA2 = ipA3+nVec*m1*m2
 !#define _CHECK_
 #ifdef _CHECK_
 if (nVec*m1*m2+n2*IncVec > nScrtch) then
-  write(6,*) 'Cntrct: Memory failure 1'
-  write(6,*) 'nVec*m1*m2(A3)=',nVec*m1*m2
-  write(6,*) 'n2*IncVec(A2)=',n2*IncVec
-  write(6,*) 'n2,IncVec=',n2,IncVec
-  write(6,*) 'nVec,lsize=',nVec,lSize
-  write(6,*) 'n1,n2,m1  =',n1,n2,m1
-  write(6,*) 'nScrtch=',nScrtch
+  write(u6,*) 'Cntrct: Memory failure 1'
+  write(u6,*) 'nVec*m1*m2(A3)=',nVec*m1*m2
+  write(u6,*) 'n2*IncVec(A2)=',n2*IncVec
+  write(u6,*) 'n2,IncVec=',n2,IncVec
+  write(u6,*) 'nVec,lsize=',nVec,lSize
+  write(u6,*) 'n1,n2,m1  =',n1,n2,m1
+  write(u6,*) 'nScrtch=',nScrtch
   call Abend()
 end if
 #endif
@@ -93,7 +98,7 @@ nVec = mabcd*m1*m2
 IncVec = min(max(1,nCache_/lsize),nVec)
 #ifdef _CHECK_
 if (nVec*m3*m4+n4*IncVec > nScrtch) then
-  write(6,*) 'Cntrct: Memory failure 2'
+  write(u6,*) 'Cntrct: Memory failure 2'
   call Abend()
 end if
 #endif

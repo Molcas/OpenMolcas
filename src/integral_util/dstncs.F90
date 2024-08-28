@@ -21,8 +21,9 @@ subroutine Dstncs(Lbls,xyz,mCentr,Angstr,Max_Center,iCols)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use Constants, only: One
+use Constants, only: One, Three
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -31,56 +32,55 @@ real*8 xyz(3,mCentr), Angstr
 character(len=LENIN) Lbls(mCentr)
 real*8, allocatable :: BST(:)
 integer, allocatable :: iBST(:,:)
-integer Lu, i, iCC, jCC, iC, jC, ii, IsFirst, MoreToGo, iiBst
+integer i, iCC, jCC, iC, jC, ii, IsFirst, MoreToGo, iiBst
 real*8 Fact, x1, y1, z1, Thr_R, Thr_D, x2, y2, z2, r, rr
 
-lu = 6
 if (mCentr <= Max_Center) then
 
   do i=1,2
-    write(Lu,*)
+    write(u6,*)
     if (i == 1) then
       Fact = One
-      write(Lu,'(19X,A)') ' *************************************** '
-      write(Lu,'(19X,A)') ' *    InterNuclear Distances / bohr    * '
-      write(Lu,'(19X,A)') ' *************************************** '
+      write(u6,'(19X,A)') ' *************************************** '
+      write(u6,'(19X,A)') ' *    InterNuclear Distances / bohr    * '
+      write(u6,'(19X,A)') ' *************************************** '
     else
       Fact = Angstr
-      write(Lu,'(19X,A)') ' ******************************************* '
-      write(Lu,'(19X,A)') ' *    InterNuclear Distances / angstrom    * '
-      write(Lu,'(19X,A)') ' ******************************************* '
+      write(u6,'(19X,A)') ' ******************************************* '
+      write(u6,'(19X,A)') ' *    InterNuclear Distances / angstrom    * '
+      write(u6,'(19X,A)') ' ******************************************* '
     end if
     do icc=1,mCentr,iCols
-      write(Lu,*)
-      if (iCols == 6) write(Lu,'( 9X,6(5X,I2,1X,A,2X))') (ic,Lbls(ic),ic=icc,min(icc+5,mCentr))
-      if (iCols == 5) write(Lu,'( 9X,5(5X,I2,1X,A,2X))') (ic,Lbls(ic),ic=icc,min(icc+4,mCentr))
+      write(u6,*)
+      if (iCols == 6) write(u6,'( 9X,6(5X,I2,1X,A,2X))') (ic,Lbls(ic),ic=icc,min(icc+5,mCentr))
+      if (iCols == 5) write(u6,'( 9X,5(5X,I2,1X,A,2X))') (ic,Lbls(ic),ic=icc,min(icc+4,mCentr))
 
       do jc=icc,mCentr
         x1 = xyz(1,jc)
         y1 = xyz(2,jc)
         z1 = xyz(3,jc)
         if (iCols == 6) &
-          write(Lu,101) jc,Lbls(jc),(Fact*sqrt((xyz(1,ic)-x1)**2+(xyz(2,ic)-y1)**2+(xyz(3,ic)-z1)**2),ic=icc,min(jc,icc+5,mCentr))
+          write(u6,101) jc,Lbls(jc),(Fact*sqrt((xyz(1,ic)-x1)**2+(xyz(2,ic)-y1)**2+(xyz(3,ic)-z1)**2),ic=icc,min(jc,icc+5,mCentr))
         if (iCols == 5) &
-          write(Lu,102) jc,Lbls(jc),(Fact*sqrt((xyz(1,ic)-x1)**2+(xyz(2,ic)-y1)**2+(xyz(3,ic)-z1)**2),ic=icc,min(jc,icc+4,mCentr))
+          write(u6,102) jc,Lbls(jc),(Fact*sqrt((xyz(1,ic)-x1)**2+(xyz(2,ic)-y1)**2+(xyz(3,ic)-z1)**2),ic=icc,min(jc,icc+4,mCentr))
       end do
     end do
   end do
   return
 else
 
-  write(Lu,*)
-  write(Lu,'(19X,A)') ' ************************************************* '
-  write(Lu,'(19X,A)') ' **** InterNuclear Distances / bohr, angstrom **** '
-  write(Lu,'(19X,A)') ' ************************************************* '
-  write(Lu,*)
-  write(Lu,'(A)') '     Atom centers         bohr        angstrom'
+  write(u6,*)
+  write(u6,'(19X,A)') ' ************************************************* '
+  write(u6,'(19X,A)') ' **** InterNuclear Distances / bohr, angstrom **** '
+  write(u6,'(19X,A)') ' ************************************************* '
+  write(u6,*)
+  write(u6,'(A)') '     Atom centers         bohr        angstrom'
 
   !VV Set .false. to get faster printing without sorting.
 
   if (.true.) then
-    Thr_R = (3.0d0/Angstr)**2
-    Thr_D = 1D-4
+    Thr_R = (Three/Angstr)**2
+    Thr_D = 1.0e-4_wp
     call mma_allocate(BST,mCentr**2,Label='BST')
     call mma_allocate(iBST,2,mCentr**2,Label='iBST')
     iiBST = 0
@@ -104,7 +104,7 @@ else
 #   ifdef _DEBUGPRINT_
     do ii=1,iiBST
       R = sqrt(BST(ii))
-      write(Lu,'(2(I5,1X,A4),2(F10.6,6X))') iBST(1,ii),Lbls(iBST(1,ii)),iBST(2,ii),Lbls(iBST(2,ii)),R,R*Angstr
+      write(u6,'(2(I5,1X,A4),2(F10.6,6X))') iBST(1,ii),Lbls(iBST(1,ii)),iBST(2,ii),Lbls(iBST(2,ii)),R,R*Angstr
     end do
 #   endif
     MoreToGo = 1
@@ -112,12 +112,12 @@ else
 
       ! Find the shortest distance between any atoms
 
-      R = 100d0
+      R = 100.0_wp
       do ii=1,iiBST
         R = min(R,BST(ii))
       end do
 
-      if (R > 90d0) exit
+      if (R > 90.0_wp) exit
 
       moretogo = 0
       isfirst = 1
@@ -126,12 +126,12 @@ else
         if (abs(R-BST(ii)) < Thr_D) then
           if (isfirst == 1) then
             RR = sqrt(R)
-            write(Lu,'(2(I5,1X,A),2(F10.6,6X))') iBST(1,ii),Lbls(iBST(1,ii)),iBST(2,ii),Lbls(iBST(2,ii)),RR,RR*Angstr
+            write(u6,'(2(I5,1X,A),2(F10.6,6X))') iBST(1,ii),Lbls(iBST(1,ii)),iBST(2,ii),Lbls(iBST(2,ii)),RR,RR*Angstr
             isfirst = 0
           else
-            write(Lu,'(2(I5,1X,A),2(F10.6,6X))') iBST(1,ii),Lbls(iBST(1,ii)),iBST(2,ii),Lbls(iBST(2,ii))
+            write(u6,'(2(I5,1X,A),2(F10.6,6X))') iBST(1,ii),Lbls(iBST(1,ii)),iBST(2,ii),Lbls(iBST(2,ii))
           end if
-          BST(ii) = 100d0 ! Effectively remove from the list
+          BST(ii) = 100.0_wp ! Effectively remove from the list
           moretogo = 1
         end if
       end do
@@ -141,7 +141,7 @@ else
 
   else
 
-    Thr_R = 3.0d0
+    Thr_R = Three
     do icc=1,mCentr
       x1 = xyz(1,icc)
       y1 = xyz(2,icc)
@@ -151,7 +151,7 @@ else
         y2 = xyz(2,jcc)
         z2 = xyz(3,jcc)
         R = sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
-        if (R*Angstr <= Thr_R) write(Lu,'(2(I5,1X,A),2(F10.6,6X))') icc,Lbls(icc),jcc,Lbls(jcc),R,R*Angstr
+        if (R*Angstr <= Thr_R) write(u6,'(2(I5,1X,A),2(F10.6,6X))') icc,Lbls(icc),jcc,Lbls(jcc),R,R*Angstr
       end do
     end do
   end if

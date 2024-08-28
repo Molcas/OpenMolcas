@@ -44,8 +44,9 @@ use iSD_data, only: iSD
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep, iOper
-use Constants, only: Zero
+use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 #ifdef _DEBUGPRINT_
 use define_af, only: AngTp
 use Basis_Info, only: nBas
@@ -78,15 +79,15 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' Differential 1st order density matrix'
+write(u6,*)
+write(u6,*) ' Differential 1st order density matrix'
 iFD = 1
 do iIrrep=0,nIrrep-1
-  write(6,*)
-  write(6,*) 'iIrrep=',iIrrep
+  write(u6,*)
+  write(u6,*) 'iIrrep=',iIrrep
   do jFD=1,mFD
-    write(6,*) 'jFD=',jFD
-    write(6,*)
+    write(u6,*) 'jFD=',jFD
+    write(u6,*)
     call TriPrt(' Diagonal block',' ',FD(iFD,jFD),nBas(iIrrep))
   end do
   iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -139,8 +140,8 @@ do iS=1,nSkal
     !*******************************************************************
     !                                                                  *
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iS,jS=',iS,jS
-    write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    write(u6,*) 'iS,jS=',iS,jS
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 #   endif
 
     call mma_allocate(DAO,max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,label='DAO')
@@ -153,18 +154,18 @@ do iS=1,nSkal
     nDCRR = nIrrep
     LmbdR = 1
 #   ifdef _DEBUGPRINT_
-    write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+    write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 #   endif
 
     ! Compute normalization factor due the DCR symmetrization
     ! of the two basis functions and the operator.
 
     iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-    FactNd = dble(iuv)/dble(nIrrep*LmbdR)
+    FactNd = real(iuv,kind=wp)/real(nIrrep*LmbdR,kind=wp)
     if (MolWgh == 1) then
-      FactNd = FactNd*dble(nIrrep)/dble(iuv)
+      FactNd = FactNd*real(nIrrep,kind=wp)/real(iuv,kind=wp)
     else if (MolWgh == 2) then
-      FactNd = sqrt(dble(iuv))*dble(nIrrep)/dble(LmbdR)
+      FactNd = sqrt(real(iuv,kind=wp))*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
     end if
 
     ! Allocate memory for the elements of the Fock or 1st order
@@ -217,9 +218,9 @@ do iS=1,nSkal
     do iFD=1,mFD
 #     ifdef _DEBUGPRINT_
       if (iFD == 1) then
-        write(6,*) 'Processing the density'
+        write(u6,*) 'Processing the density'
       else
-        write(6,*) 'Processing the spin-density'
+        write(u6,*) 'Processing the spin-density'
       end if
 #     endif
       !                                                                *
@@ -240,9 +241,9 @@ do iS=1,nSkal
 #     endif
 
       ! Transform IJ,AB to J,ABi
-      call DGEMM_('T','T',jBasj*nSO,iPrimi,iBasi,1.0d0,DSOc,iBasi,Shells(iShll)%pCff,iPrimi,0.0d0,DSOp,jBasj*nSO)
+      call DGEMM_('T','T',jBasj*nSO,iPrimi,iBasi,One,DSOc,iBasi,Shells(iShll)%pCff,iPrimi,Zero,DSOp,jBasj*nSO)
       ! Transform J,ABi to AB,ij
-      call DGEMM_('T','T',nSO*iPrimi,jPrimj,jBasj,1.0d0,DSOp,jBasj,Shells(jShll)%pCff,jPrimj,0.0d0,DSO,nSO*iPrimi)
+      call DGEMM_('T','T',nSO*iPrimi,jPrimj,jBasj,One,DSOp,jBasj,Shells(jShll)%pCff,jPrimj,Zero,DSO,nSO*iPrimi)
       ! Transpose to ij,AB
       call DGeTmO(DSO,nSO,nSO,iPrimi*jPrimj,DSOp,iPrimi*jPrimj)
 
@@ -274,7 +275,7 @@ do iS=1,nSkal
       end if
       mIndij = mIndij+(nIrrep/dc(mdci)%nStab)*(nIrrep/dc(mdcj)%nStab)
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
+      write(u6,*) ' ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas=',ipDeDe+jOffD,nDCRR,iCmp*jCmp*iBas*jBas
 #     endif
       do lDCRR=0,nDCRR-1
         nOp(2) = NrOpr(iDCRR(lDCRR))
@@ -346,7 +347,7 @@ do iS=1,nSkal
         jOffD = jOffD+1
 #       ifdef _DEBUGPRINT_
         call RecPrt(' D,prim',' ',DeDe(ipStart),iPrimi,jPrimj)
-        write(6,*) ' Max(DAO)=',Temp
+        write(u6,*) ' Max(DAO)=',Temp
 #       endif
 
 99      continue
@@ -372,7 +373,7 @@ end do
 mDeDe = jOffD
 
 if (mDeDe /= nDeDe) then
-  write(6,*) 'DeDe:  mDeDe =',mDeDe,' nDeDe =',nDeDe
+  write(u6,*) 'DeDe:  mDeDe =',mDeDe,' nDeDe =',nDeDe
   call Abend()
 end if
 

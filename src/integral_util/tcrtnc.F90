@@ -31,6 +31,10 @@ subroutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Sc
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
 
+#if defined (_DEBUGPRINT_) || defined (_CHECK_)
+use Definitions, only: u6
+#endif
+
 implicit none
 #include "Molcas.fh"
 integer n1, m1, n2, m2, n3, m3, n4, m4, mabcd, nScr, lZeta, lEta
@@ -45,7 +49,7 @@ call RecPrt(' Coef1',' ',Coef1,n1,m1)
 call RecPrt(' Coef2',' ',Coef2,n2,m2)
 call RecPrt(' Coef3',' ',Coef3,n3,m3)
 call RecPrt(' Coef4',' ',Coef4,n4,m4)
-write(6,*) n1,n2,n3,n4
+write(u6,*) n1,n2,n3,n4
 #endif
 
 ! Reduce for contraction matrix
@@ -58,12 +62,12 @@ ipA2 = ipA3+nVec*lEta
 
 #ifdef _CHECK_
 if (nVec*lEta+n4*m3*IncVec > nScr) then
-  write(6,*) 'Tcrtnc: Memory failure 1'
-  write(6,*) 'n4*IncVec*m3(A2)=',n4*IncVec*m3
-  write(6,*) 'nVec*lEta(A3)=',nVec*lEta
-  write(6,*) 'n4,IndVec,m3=',n4,IndVec,m3
-  write(6,*) 'nVec,lEta=',nVec,lEta
-  write(6,*) 'nScr=',nScr
+  write(u6,*) 'Tcrtnc: Memory failure 1'
+  write(u6,*) 'n4*IncVec*m3(A2)=',n4*IncVec*m3
+  write(u6,*) 'nVec*lEta(A3)=',nVec*lEta
+  write(u6,*) 'n4,IndVec,m3=',n4,IndVec,m3
+  write(u6,*) 'nVec,lEta=',nVec,lEta
+  write(u6,*) 'nScr=',nScr
   call Abend()
 end if
 #endif
@@ -77,12 +81,12 @@ IncVec = min(max(1,nCache/lsize),nVec)
 
 #ifdef _CHECK_
 if (nVec*m1*m2+n2*IncVec*m1 > nScr) then
-  write(6,*) 'Tcrtnc: Memory failure 2'
-  write(6,*) 'nVec*m1*m2(A1)=',nVec*m1*m2
-  write(6,*) 'n2*IncVec*m1(A2)=',n2*IncVec*m1
-  write(6,*) 'nVec,m1,m2=',nVec,m1,m2
-  write(6,*) 'n2,IncVec,m1=',n2,IncVec,m1
-  write(6,*) 'nScr=',nScr
+  write(u6,*) 'Tcrtnc: Memory failure 2'
+  write(u6,*) 'nVec*m1*m2(A1)=',nVec*m1*m2
+  write(u6,*) 'n2*IncVec*m1(A2)=',n2*IncVec*m1
+  write(u6,*) 'nVec,m1,m2=',nVec,m1,m2
+  write(u6,*) 'n2,IncVec,m1=',n2,IncVec,m1
+  write(u6,*) 'nScr=',nScr
   call Abend()
 end if
 #endif

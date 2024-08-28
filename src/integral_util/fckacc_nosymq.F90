@@ -46,6 +46,7 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Gateway_Info, only: ThrInt
 use Constants, only: Zero, One, Four, Half
+use Definitions, only: u6
 
 implicit none
 integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
@@ -70,14 +71,14 @@ real*8, external :: DDot_
 !                                                                      *
 if ((.not. DoExch) .and. (.not. DoCoul)) return
 #ifdef _DEBUGPRINT_
-!write(6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
-write(6,*) iCmp,jCmp,kCmp,lCmp
-write(6,*) 'iAO=',iAO
-write(6,*) 'iAOst=',iAOst
-write(6,*) 'iShell=',iShell
-write(6,*) DoCoul,DoExch,Shijij
-write(6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),DDot_(nDens,DMat,1,[One],0)
-write(6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
+!write(u6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+write(u6,*) iCmp,jCmp,kCmp,lCmp
+write(u6,*) 'iAO=',iAO
+write(u6,*) 'iAOst=',iAOst
+write(u6,*) 'iShell=',iShell
+write(u6,*) DoCoul,DoExch,Shijij
+write(u6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),DDot_(nDens,DMat,1,[One],0)
+write(u6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
 #endif
 
 DMax = max(Dij,Dkl,Dik,Dil,Djk,Djl)
@@ -106,7 +107,7 @@ nBasx(4) = lBas
 nCB_Max = max(iCmp*iBas,jCmp*jBas,kCmp*kBas,lCmp*lBas)
 if (nCB_Max > nCBMax) then
   call WarningMessage(2,'FckAcc_NoSym: nCB_Max > nCBMax')
-  write(6,*) 'nCB_Max=',nCB_Max
+  write(u6,*) 'nCB_Max=',nCB_Max
   call Abend()
 end if
 do ii=1,4
@@ -263,7 +264,7 @@ else
   end do
 end if
 
-!write(6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),DDot_(nDens,DMat,1,One,0)
+!write(u6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),DDot_(nDens,DMat,1,One,0)
 
 return
 

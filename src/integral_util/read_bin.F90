@@ -30,7 +30,7 @@ iShell_AB = iTri(iShell_A,iShell_B)
 iShell_CD = iTri(iShell_C,iShell_D)
 iShell_ABCD = iTri(iShell_AB,iShell_CD)
 
-!write(6,*) 'Reading Gammas for shell quadruplet ',iShell_ABCD
+!write(u6,*) 'Reading Gammas for shell quadruplet ',iShell_ABCD
 
 iDisk = int(G_Toc(iShell_ABCD))
 do while (iDisk >= 0)
@@ -45,7 +45,7 @@ do while (iDisk >= 0)
       call Abend()
     end if
     gamma(jGamma) = Bin(1,iGamma)
-    !write(6,*) Gamma(jGamma),jGamma
+    !write(u6,*) Gamma(jGamma),jGamma
   end do
 
 end do

@@ -23,6 +23,7 @@ subroutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,final,Alpha,IfGrad,ld,nVecAC)
 !***********************************************************************
 
 use Constants, only: Two
+use Definitions, only: wp
 
 implicit none
 integer nZeta, la, lb, ld, nVecAC
@@ -59,7 +60,7 @@ do ixa=0,la
         if (IfGrad(1)) then
           nVecAC = nVecAC+1
           if (ixa > 0) then
-            xa = dble(-ixa)
+            xa = real(-ixa,kind=wp)
             do iZeta=1,nZeta
               final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)* &
                                             (tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
@@ -75,7 +76,7 @@ do ixa=0,la
         if (IfGrad(2)) then
           nVecAC = nVecAC+1
           if (iya > 0) then
-            ya = dble(-iya)
+            ya = real(-iya,kind=wp)
             do iZeta=1,nZeta
               final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)* &
                                             (tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ya*Rnxyz(iZeta,2,iya-1,iyb))* &
@@ -91,7 +92,7 @@ do ixa=0,la
         if (IfGrad(3)) then
           nVecAC = nVecAC+1
           if (iza > 0) then
-            za = dble(-iza)
+            za = real(-iza,kind=wp)
             do iZeta=1,nZeta
               final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
                                             (tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)+za*Rnxyz(iZeta,3,iza-1,izb))

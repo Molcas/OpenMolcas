@@ -26,6 +26,7 @@ subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,l
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Constants
+use Definitions, only: u6
 
 implicit none
 integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
@@ -56,8 +57,8 @@ nip = nip+nZeta
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'KnEPrm: nip-1 > nArr*nZeta')
-  write(6,*) 'nip=',nip
-  write(6,*) 'nArr,nZeta=',nArr,nZeta
+  write(u6,*) 'nip=',nip
+  write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
@@ -66,7 +67,7 @@ call RecPrt(' In KnEPrm: A',' ',A,1,3)
 call RecPrt(' In KnEPrm: RB',' ',RB,1,3)
 call RecPrt(' In KnEPrm: Ccoor',' ',Ccoor,1,3)
 call RecPrt(' In KnEPrm: P',' ',P,nZeta,3)
-write(6,*) ' In KnEPrm: la,lb=',la,lb
+write(u6,*) ' In KnEPrm: la,lb=',la,lb
 #endif
 !                                                                      *
 !***********************************************************************

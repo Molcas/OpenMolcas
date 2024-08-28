@@ -25,6 +25,7 @@ subroutine EFNuc(CoOP,Chrg,Coor,nAtm,ESIT,nOrdOp)
 
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 integer nAtm, nOrdOp
@@ -32,7 +33,8 @@ real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2)
 integer, allocatable :: C_ESIT(:)
 real*8 CoOp(3)
 integer nTot, iPowr, iAtom, ix, iy, iz
-real*8 Fact, x, y, z, r2, Thr, r, eix, eiy, eiz, temp
+real*8 Fact, x, y, z, r2, r, eix, eiy, eiz, temp
+real*8, parameter :: Thr = 1.0e-12_wp
 #ifdef _DEBUGPRINT_
 integer n, nElem
 ! Statement function
@@ -56,7 +58,6 @@ do iAtom=1,nAtm
   y = CoOp(2)-Coor(2,iAtom)
   z = CoOp(3)-Coor(3,iAtom)
   r2 = x**2+y**2+z**2
-  Thr = 1.0D-12
   if (r2 > Thr) then
     r = Chrg(iAtom)/sqrt(r2)**iPowR
     do ix=nOrdOp,0,-1

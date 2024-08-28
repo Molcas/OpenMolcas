@@ -18,6 +18,9 @@ subroutine CmbnMPr(Rnr,nZeta,la,lb,lr,final,nComp)
 !***********************************************************************
 
 use rmat, only: lCosT, lSinT, lSinF, lCosF, GammaPh, GammaTh
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nZeta, nComp, la, lb, lr
@@ -39,8 +42,8 @@ do ixa=0,la
         izb = lb-ixb-iyb
         ipb = Ind(lb,ixb,izb)
 #       ifdef _DEBUGPRINT_
-        write(6,*) ixa,iya,iza,ixb,iyb,izb
-        write(6,*) ipa,ipb
+        write(u6,*) ixa,iya,iza,ixb,iyb,izb
+        write(u6,*) ipa,ipb
 #       endif
 
         ! Combine multipole moment integrals

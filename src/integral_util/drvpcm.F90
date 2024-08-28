@@ -140,7 +140,7 @@ subroutine DrvPCM_Internal(Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,VSave,QTesser
 
     ! Read slow components originating from the initial state
 
-    !write(6,*) 'Rd:',QTessera_Slow(1)
+    !write(u6,*) 'Rd:',QTessera_Slow(1)
     call Get_dArray('RCTFLD',QTessera_Slow,nTs)
     call Get_dScalar('W_or_el',W_0_or_el)
     call Get_dScalar('W_or_Inf',W_0_or_Inf)
@@ -268,7 +268,7 @@ subroutine DrvPCM_Internal(Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,VSave,QTesser
   ! equilibrium calculations.
 
   if ((EpsInf > Zero) .and. (.not. NonEq)) then
-    !write(6,*) 'Wr:',QTessera_Slow(1)
+    !write(u6,*) 'Wr:',QTessera_Slow(1)
     call Put_dArray('RCTFLD',QTessera_Slow,nTs)
     call Put_dScalar('W_or_el',W_or_el)
     call Put_dScalar('W_or_Inf',W_or_Inf)

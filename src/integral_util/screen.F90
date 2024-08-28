@@ -38,6 +38,9 @@ subroutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,k2Data1,k2Data2,Z
 
 use Constants
 use k2_structure, only: k2_type
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer :: iOffZ, iOffE, mZeta, nZeta, mEta, nEta
@@ -170,7 +173,7 @@ if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
 999 continue
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-write(6,*) ' In Screen'
+write(u6,*) ' In Screen'
 call RecPrt(' Zeta  ',' ',Zeta,lZeta,1)
 call RecPrt(' Eta   ',' ',Eta,lEta,1)
 call RecPrt(' ZInv  ',' ',ZInv,lZeta,1)

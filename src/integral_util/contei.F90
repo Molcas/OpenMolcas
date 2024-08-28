@@ -13,6 +13,8 @@
 
 subroutine ContEI(I,mDeg,ESIT,ix,iy,iz,temp)
 
+use Definitions, only: wp
+
 implicit none
 integer mDeg, ix, iy, iz
 integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
@@ -48,15 +50,15 @@ integer n, ip, a, b, c
 !  end do
 !end do
 
-!write(6,*) ' Temp,ix,iy,iz=',temp,ix,iy,iz
+!write(u6,*) ' Temp,ix,iy,iz=',temp,ix,iy,iz
 n = mDeg
 ip = 0
 do a=n,0,-1
   do b=n-a,0,-1
     c = n-a-b
     ip = ip+1
-    !write(6,*) ip, I(a,b,c,ix,iy,iz)
-    if (I(a,b,c,ix,iy,iz) /= 0) ESIT(ip) = ESIT(ip)+dble(I(a,b,c,ix,iy,iz))*temp
+    !write(u6,*) ip, I(a,b,c,ix,iy,iz)
+    if (I(a,b,c,ix,iy,iz) /= 0) ESIT(ip) = ESIT(ip)+real(I(a,b,c,ix,iy,iz),kind=wp)*temp
   end do
 end do
 

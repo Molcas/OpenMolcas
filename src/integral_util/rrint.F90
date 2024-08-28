@@ -13,6 +13,7 @@ subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
 
 use Constants, only: Zero, One, Two, Three, Pi, Four
 use welcom
+use Definitions, only: wp
 
 implicit none
 integer K, lMax
@@ -37,14 +38,14 @@ else
     TEST = A*ALFA
   end if
 end if
-select case (TEST < .005D+00)
+select case (TEST < 0.005_wp)
 
   case (.false.)
 
-    !write(6,*) ' Large A'
+    !write(u6,*) ' Large A'
     ! K=0 ONE CONTRIBUTION SS-INTEGRAL
     do i=0,k
-      rri(i) = qrint(i+1,aexp,bexp1,expa)*dble((-1)**i)-qrint(i+1,aexp,bexp2,expa)
+      rri(i) = qrint(i+1,aexp,bexp1,expa)*real((-1)**i,kind=wp)-qrint(i+1,aexp,bexp2,expa)
     end do
     !call RecPrt(' In RRInt: rri',' ',rri,k+1,1)
     AL = One/(Two*ALFA*A)
@@ -55,7 +56,7 @@ select case (TEST < .005D+00)
         fiintm = fiint(m-1,0)
         grint(i,m) = Zero
         do n=1,m
-          Bi = binom(m-1,n-1)*dble((-1)**(n+1))
+          Bi = binom(m-1,n-1)*real((-1)**(n+1),kind=wp)
           ind = i-(m-n)*2
           do kk=0,ind
             ggg = fac(ind)/fac(ind-kk)*al**(kk+1)
@@ -67,7 +68,7 @@ select case (TEST < .005D+00)
 
   case (.true.)
 
-    !write(6,*) ' SERIES EXPANSION FOR SMALL A'
+    !write(u6,*) ' SERIES EXPANSION FOR SMALL A'
 
     ! SERIES EXPANSION FOR SMALL A
 
@@ -85,18 +86,19 @@ select case (TEST < .005D+00)
     AA3 = Four*(A*Alfa)**3
     AA4 = Two*(A*Alfa)**4
     AA5 = Four*(A*Alfa)**5
-    GRINT(0,1) = pi4*(rri(0)+AA2/Three*rri(1)+AA4/15.0D+00*rri(2))
+    GRINT(0,1) = pi4*(rri(0)+AA2/Three*rri(1)+AA4/15.0_wp*rri(2))
     if (K == 0) return
     do ll=1,l
       do kk=1,ll+1
 
         tmp1 = fiint(kk-1,0)/fiint(0,0)
-        tmp2 = -Two*dble(kk-1)
+        tmp2 = real(2-2*kk,kind=wp)
         tmp = Zero
         do mm=0,kk-1
           tmp3 = tmp1*binom(kk-1,mm)*(-One)**mm
-          tmp4 = tmp2+dble(mm)*Two+One
-          tmp = tmp+tmp3*(One/(dble(2*ll)+tmp4)*rri(ll)+AA2/(dble(2*ll+2)+tmp4)*rri(ll+1)+AA4/(Three*(dble(2*ll+4)+tmp4))*rri(ll+2))
+          tmp4 = tmp2+real(2*mm+1,kind=wp)
+          tmp = tmp+tmp3*(One/(real(2*ll,kind=wp)+tmp4)*rri(ll)+AA2/(real(2*ll+2,kind=wp)+tmp4)*rri(ll+1)+ &
+                          AA4/(Three*(real(2*ll+4,kind=wp)+tmp4))*rri(ll+2))
         end do
         Grint(ll*2,kk) = pi4*tmp
 
@@ -105,9 +107,9 @@ select case (TEST < .005D+00)
         tmp = Zero
         do mm=1,kk-1
           tmp3 = tmp1*binom(kk-2,mm-1)*(-One)**(mm+1)
-          tmp4 = tmp2+dble(mm)*Two+One
-          tmp = tmp-tmp3*(AA/(dble(2*ll)+tmp4)*rri(ll)+AA3/(Three*(dble(2*ll+2)+tmp4))*rri(ll+1)+ &
-                          AA5/(15.0d0*(dble(2*ll+4)+tmp4))*rri(ll+2))
+          tmp4 = tmp2+real(2*mm+1)
+          tmp = tmp-tmp3*(AA/(real(2*ll,kind=wp)+tmp4)*rri(ll)+AA3/(Three*(real(2*ll+2,kind=wp)+tmp4))*rri(ll+1)+ &
+                          AA5/(15.0_wp*(real(2*ll+4,kind=wp)+tmp4))*rri(ll+2))
         end do
         Grint(ll*2-1,kk-1) = pi4*tmp
         Grint(ll*2-1,kk) = Zero

@@ -13,6 +13,7 @@ subroutine dRBuf(Array,nArray,Copy)
 
 use dEAF, only: dEAFARead
 use IOBUF, only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte, Disk_1, Disk_2, Disk, Buffer, iD, LuTmp
+use Definitions, only: wp
 
 implicit none
 logical Copy
@@ -22,7 +23,7 @@ real*8 Array(nArray)
 integer iArray, mArray, jBuf, Left
 real*8 Temp
 
-!write(6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
+!write(u6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
 if (InCore .and. (iBuf == 2)) then
   call WarningMessage(2,'Error in in-core semi-direct implementation')
   call Abend()
@@ -34,14 +35,14 @@ do while (mArray >= 1)
 
     ! Wait for pending buffer.
 
-    !write(6,*) 'In drbuf.'
+    !write(u6,*) 'In drbuf.'
     if (OnDisk) call EAFWait(LuTmp,id)
 
     ! Get the next buffer, make sure that request is not beyond
     ! the disc limitation.
 
-    temp = Disk+dble(lBuf*RtoB)
-    !write(6,*) 'temp=',temp
+    temp = Disk+real(lBuf*RtoB,kind=wp)
+    !write(u6,*) 'temp=',temp
     if (temp <= DiskMx_Byte) then
       if (iBuf == 1) then
         jBuf = 2
@@ -50,7 +51,7 @@ do while (mArray >= 1)
       end if
       Disk_2 = Disk_1
       Disk_1 = Disk
-      !write(6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
+      !write(u6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
       if (OnDisk) call dEAFARead(LuTmp,Buffer(1,jBuf),lBuf*RtoI,Disk,id)
     end if
   end if
@@ -60,7 +61,7 @@ do while (mArray >= 1)
     iArray = iArray+Left
     mArray = mArray-Left
     iPos = 1
-    !write(6,*) 'LuTmp,Disk=',LuTmp,Disk
+    !write(u6,*) 'LuTmp,Disk=',LuTmp,Disk
     ! Swap buffer
     if (iBuf == 1) then
       iBuf = 2
@@ -68,14 +69,14 @@ do while (mArray >= 1)
       iBuf = 1
     end if
   else
-    !write(6,*) ' Copy ',mArray,'elements from buffer',iPos
+    !write(u6,*) ' Copy ',mArray,'elements from buffer',iPos
     if (Copy) call dCopy_(mArray,Buffer(iPos,iBuf),1,Array(iArray),1)
     iPos = iPos+mArray
     mArray = 0
   end if
 end do
 
-!write(6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
+!write(u6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
 return
 
 end subroutine dRBuf

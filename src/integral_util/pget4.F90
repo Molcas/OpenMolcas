@@ -33,6 +33,7 @@ use SOAO_Info, only: iAOtSO, iOffSO
 use pso_stuff, only: lSA
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
 integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4, mDim, nCred, nScr1, nScr2
@@ -69,8 +70,8 @@ do jPam=1,4
         do iAOi=0,iiBas(jPam)-1
           iSOi = iSO+iAOi
           in2 = in2+1
-          iPam(in1+in2) = dble(iSOi)
-          MapPam(jPam,iSOi+iOffSO(j)) = dble(in2)
+          iPam(in1+in2) = real(iSOi,kind=wp)
+          MapPam(jPam,iSOi+iOffSO(j)) = real(in2,kind=wp)
         end do
       end if
     end do

@@ -27,9 +27,12 @@ subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,Cred,nC,Scr1,nS1,Scr2,nS2)
 !         elements.
 ! -------------------------------------------------------------------
 
-use Constants, only: Zero, Quart
+use Constants, only: Zero, One, Two, Quart
 use etwas, only: npSOp, CoulFac, mBas, nAsh, nIsh, mIrrep
 use pso_stuff, only: DSO => D0, CMO, G1, G2
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nxpam, nPSOPam, nC, nS1, nS2
@@ -48,11 +51,11 @@ real*8 Fact
 i3adr(i,j) = ((max(i,j))*((max(i,j))-1))/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' iPam',iPam
-write(6,*) ' nPam',(nPam(1,i),i=0,mIrrep-1)
-write(6,*) ' nPam',(nPam(2,i),i=0,mIrrep-1)
-write(6,*) ' nPam',(nPam(3,i),i=0,mIrrep-1)
-write(6,*) ' nPam',(nPam(4,i),i=0,mIrrep-1)
+write(u6,*) ' iPam',iPam
+write(u6,*) ' nPam',(nPam(1,i),i=0,mIrrep-1)
+write(u6,*) ' nPam',(nPam(2,i),i=0,mIrrep-1)
+write(u6,*) ' nPam',(nPam(3,i),i=0,mIrrep-1)
+write(u6,*) ' nPam',(nPam(4,i),i=0,mIrrep-1)
 #endif
 t14 = Quart
 ! Offsets into the ipam array:
@@ -133,7 +136,7 @@ do lsym=0,mirrep-1
         ! Break loop if no such symmetry block:
         if (nijkl == 0) goto 1005
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
+        write(u6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
 #       endif
         ! Bypass transformation if no active orbitals:
         if (nxvut == 0) goto 300
@@ -149,9 +152,9 @@ do lsym=0,mirrep-1
                 ind = ind+1
                 scr1(ind) = G2(ituvx,1)
                 if (isym == jsym) then
-                  fact = 1.0d00
-                  if ((itu >= ivx) .and. (iv == ix)) fact = 2.0d00
-                  if ((itu < ivx) .and. (it == iu)) fact = 2.0d00
+                  fact = One
+                  if ((itu >= ivx) .and. (iv == ix)) fact = Two
+                  if ((itu < ivx) .and. (it == iu)) fact = Two
                   scr1(ind) = fact*scr1(ind)
                   !hjw multiplying the G1 product with coulfac gives wrong result
                   scr1(ind) = scr1(ind)-G1(itu,1)*G1(ivx,1)
@@ -187,7 +190,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,ntuv,ncopy,1.0d0,Cred,nskip2,Scr1,ntuv,0.0d0,Scr2,nskip2)
+        call DGEMM_('N','T',nskip2,ntuv,ncopy,One,Cred,nskip2,Scr1,ntuv,Zero,Scr2,nskip2)
         ! Transform:
         !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
         ncopy = nash(ksym)
@@ -200,7 +203,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,nltu,ncopy,1.0d0,Cred,nskip2,Scr2,nltu,0.0d0,Scr1,nskip2)
+        call DGEMM_('N','T',nskip2,nltu,ncopy,One,Cred,nskip2,Scr2,nltu,Zero,Scr1,nskip2)
         ! Transform:
         !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
         ncopy = nash(jsym)
@@ -213,7 +216,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,nklt,ncopy,1.0d0,Cred,nskip2,Scr1,nklt,0.0d0,Scr2,nskip2)
+        call DGEMM_('N','T',nskip2,nklt,ncopy,One,Cred,nskip2,Scr1,nklt,Zero,Scr2,nskip2)
         ! Transform:
         !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
         ncopy = nash(isym)
@@ -226,7 +229,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,njkl,ncopy,1.0d0,Cred,nskip2,Scr2,njkl,0.0d0,Scr1,nskip2)
+        call DGEMM_('N','T',nskip2,njkl,ncopy,One,Cred,nskip2,Scr2,njkl,Zero,Scr1,nskip2)
 #       ifdef _DEBUGPRINT_
         call RecPrt('G2-G1G1(SO)',' ',Scr1,nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
 #       endif

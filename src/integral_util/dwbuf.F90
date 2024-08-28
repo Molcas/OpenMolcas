@@ -13,6 +13,7 @@ subroutine dWBuf(Array,nArray)
 
 use dEAF, only: dEAFAWrite
 use IOBUF, only: InCore, iBuf, IODone, lBuf, iPos, Disk, OnDisk, DiskMx_Byte, Disk_1, Disk_2, Buffer, iD, LuTmp
+use Definitions, only: wp
 
 implicit none
 #include "SysDef.fh"
@@ -21,7 +22,7 @@ real*8 Array(nArray)
 integer iArray, mArray, Left
 real*8 Temp
 
-!write(6,*) 'Enter WBuf: iPos @',iPos,' iBuf,lBuf=',iBuf,lBuf
+!write(u6,*) 'Enter WBuf: iPos @',iPos,' iBuf,lBuf=',iBuf,lBuf
 if (InCore .and. (iBuf == 2)) then
   call WarningMessage(2,'Error in in-core semi-direct implementation')
   call Abend()
@@ -40,17 +41,17 @@ if (mArray > Left) then
   ! Wait for previous buffer to complete I/O.
   ! Disk=32 after writing the control!
 
-  !write(6,*) 'In dwbuf'
-  if ((Disk /= 32.0d0) .and. OnDisk) call EAFWait(LuTmp,id)
+  !write(u6,*) 'In dwbuf'
+  if ((Disk /= 32.0_wp) .and. OnDisk) call EAFWait(LuTmp,id)
 
   ! Put current buffer on disk and change buffer.
 
-  temp = Disk+dble(lBuf*RtoB)
-  !write(6,*) 'temp=',temp
+  temp = Disk+real(lBuf*RtoB,kind=wp)
+  !write(u6,*) 'temp=',temp
   if (temp <= DiskMx_Byte) then
     Disk_2 = Disk_1
     Disk_1 = Disk
-    !write(6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
+    !write(u6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
     if (OnDisk) call dEAFAWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
     if (iBuf == 1) then
       iBuf = 2
@@ -62,14 +63,14 @@ if (mArray > Left) then
     call Abend()
   end if
 else
-  !write(6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
+  !write(u6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
   call dCopy_(mArray,Array(iArray),1,Buffer(iPos,iBuf),1)
   iPos = iPos+mArray
   mArray = 0
 end if
 if (mArray > 0) goto 10
 
-!write(6,*) 'Exit WBuf: iPos @',iPos,'iBuf=',iBuf
+!write(u6,*) 'Exit WBuf: iPos @',iPos,'iBuf=',iBuf
 
 return
 

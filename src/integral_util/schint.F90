@@ -33,6 +33,9 @@ subroutine SchInt(CoorM,iAnga,iCmp,mZeta,Zeta,ZInv,rKapab,P,rKapcd,Q,nZeta,Wrk,n
 
 use Real_Spherical
 use Constants
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer mZeta, nZeta, nWork2, nHrrMtrx, i_Int
@@ -53,7 +56,7 @@ lb = iAnga(2)
 call RecPrt(' In SchInt: CoorM',' ',CoorM,3,4)
 call RecPrt(' In SchInt: P',' ',P,nZeta,3)
 call RecPrt(' In SchInt: Q',' ',Q,nZeta,3)
-write(6,*) 'iAnga=',iAnga
+write(u6,*) 'iAnga=',iAnga
 #endif
 
 ! Compute primitive integrals to be used in the prescreening

@@ -42,6 +42,7 @@ use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
 use k2_arrays, only: TwoHam => pFq, Dens => pDq
 use Breit, only: nOrdOp, nComp
 use Constants
+use Definitions, only: wp, u6
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 #endif
@@ -111,9 +112,9 @@ jStb = iStabs(2)
 kStb = iStabs(3)
 lStb = iStabs(4)
 if (nOrdOp /= 0) then
-  write(6,*) 'Breit two-electron integrals not implemented yet'
-  write(6,*) 'Symmetry adaptation different since the operator'
-  write(6,*) 'is not symmetric.'
+  write(u6,*) 'Breit two-electron integrals not implemented yet'
+  write(u6,*) 'Symmetry adaptation different since the operator'
+  write(u6,*) 'is not symmetric.'
 end if
 
 All_Spherical = Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct
@@ -152,10 +153,10 @@ iW4 = 1
 ! Find the Double Coset Representatives for center A and B
 
 call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
-u = dble(dc(iStb)%nStab)
-v = dble(dc(jStb)%nStab)
+u = real(dc(iStb)%nStab,kind=wp)
+v = real(dc(jStb)%nStab,kind=wp)
 #ifdef _DEBUGPRINT_
-write(6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
+write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
 
 ! Find stabilizer for center A and B
@@ -168,10 +169,10 @@ call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lS
 ! Find the Double Coset Representatives for center C and D.
 
 call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
-w = dble(dc(kStb)%nStab)
-x = dble(dc(lStb)%nStab)
+w = real(dc(kStb)%nStab,kind=wp)
+x = real(dc(lStb)%nStab,kind=wp)
 #ifdef _DEBUGPRINT_
-write(6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
+write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
 
 ! Find stabilizer for center C and D
@@ -203,7 +204,7 @@ do lDCRR=0,nDCRR-1
   ! switch
   MxDCRS = nDCRS-1
   do lDCRS=0,MxDCRS
-    RS_doublet = dble(lDCRS*nDCRR+lDCRR+1)
+    RS_doublet = real(lDCRS*nDCRR+lDCRR+1,kind=wp)
     call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
     call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
     CeqD = EQ(Coor(1,3),CoorM(1,4))
@@ -219,10 +220,10 @@ do lDCRR=0,nDCRR-1
     do lDCRT=0,nDCRT-1
       ipAOInt = 1
       iW3 = 1+nInts
-      RS_doublet = dble(lDCRS*nDCRR+lDCRR+1)
-      RST_triplet = dble(lDCRT*nDCRR*nDCRS)+RS_doublet
+      RS_doublet = real(lDCRS*nDCRR+lDCRR+1,kind=wp)
+      RST_triplet = real(lDCRT*nDCRR*nDCRS,kind=wp)+RS_doublet
       QInd(2) = RST_triplet
-      !write(6,*) QInd(1), QInd(2)
+      !write(u6,*) QInd(1), QInd(2)
       iDCRTS = ieor(iDCRT(lDCRT),iDCRS(lDCRS))
       call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
       call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
@@ -236,7 +237,7 @@ do lDCRR=0,nDCRR-1
       !lwj
 
 #     ifdef _DEBUGPRINT_
-      write(6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
+      write(u6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
 #     endif
 
       kOp(3) = NrOpr(iDCRT(lDCRT))
@@ -286,7 +287,7 @@ do lDCRR=0,nDCRR-1
       ! Select if batch should be written on the disc at the
       ! first iteration and then later on read.
 
-      Batch_On_Disk = (vijkl > Thize) .and. (Disc+dble(nInts+2+2/RtoI) <= Disc_Mx)
+      Batch_On_Disk = (vijkl > Thize) .and. (Disc+real(nInts+2+2/RtoI,kind=wp) <= Disc_Mx)
 
       ! Set prescreening level
       !
@@ -358,20 +359,20 @@ do lDCRR=0,nDCRR-1
           if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
             if (kInts /= nInts) then
               call WarningMessage(2,'Twoel: kInts /= nInts!')
-              write(6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
-              write(6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+              write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+              write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
               call Abend()
             end if
             if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-            Disc = Disc+dble(2/RtoI+2+mInts)
+            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
             Go To 300
           else if (QInd(1) <= Quad_ijkl) then
             if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-            Disc = Disc+dble(2/RtoI+2+mInts)
+            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
             Go To 1111
           else
             call WarningMessage(2,'Twoel: batch is lost!')
-            write(6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+            write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
             call Abend()
           end if
         end if
@@ -546,7 +547,7 @@ do lDCRR=0,nDCRR-1
             call dWBuf(QInd,2)
             call Store_QLast(QInd)
 
-            Disc = Disc+dble(2/RtoI+2+mInts)
+            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
           end if
         end if
         Go To 300
@@ -555,11 +556,11 @@ do lDCRR=0,nDCRR-1
       ! Multiply with factors due to summation over DCR
 
       if (MolWgh == 1) then
-        FactNd = dble(nIrrep)/dble(LmbdT)
+        FactNd = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
       else if (MolWgh == 0) then
-        FactNd = u*v*w*x/dble(nIrrep**3*LmbdT)
+        FactNd = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
       else
-        FactNd = sqrt(u*v*w*x)/dble(nirrep*lmbdt)
+        FactNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
       end if
       if (FactNd /= One) call DScal_(kabcd*nijkl,FactNd,Wrk(iW4),1)
 
@@ -601,7 +602,7 @@ do lDCRR=0,nDCRR-1
         call dWBuf(QInd,2)
         call Store_QLast(Qind)
         call dWBuf(Wrk(iW3),mInts)
-        Disc = Disc+dble(2/RtoI+2+mInts)
+        Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
 
       end if
 
@@ -616,20 +617,20 @@ do lDCRR=0,nDCRR-1
         if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
           if (kInts /= nInts) then
             call WarningMessage(2,'Twoel: kInts /= nInts!')
-            write(6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
-            write(6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+            write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+            write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
             call Abend()
           end if
           if (mInts > 0) call dRBuf(Wrk(iW3),mInts,Copy)
-          Disc = Disc+dble(2/RtoI+2+mInts)
+          Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
           if (mInts == 0) Go To 300
         else if (QInd(1) < Quad_ijkl) then
           if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-          Disc = Disc+dble(2/RtoI+2+mInts)
+          Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
           Go To 1112
         else
           call WarningMessage(2,'Twoel: batch is lost!')
-          write(6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+          write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
           call Abend()
         end if
 

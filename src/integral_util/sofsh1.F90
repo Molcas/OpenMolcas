@@ -37,6 +37,9 @@ use iSD_data, only: iSD, nShBf, iShOff, nShBfMx, iCntr, iSh2Sh, nShIrp, iSO2Sh
 use Basis_Info, only: nBas, nBas_Aux
 use stdalloc, only: mma_allocate
 use BasisMode, only: Basis_Mode, Auxiliary_Mode
+#if defined (_DEBUGPRINT_) || defined (_CHECK_)
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nSkal, nSym, nSOs
@@ -81,10 +84,10 @@ do iSkal=1,nSkal
 #   ifdef _CHECK_
     if ((nShBF(irp,iskal) /= 0) .and. (nShOff(irp) /= iShOff(irp,iSkal))) then
       call WarningMessage(2,'PROGRAMMING ERROR IN SHELL_SIZES')
-      write(6,*) nShBF(irp,iskal)
-      write(6,*) nShOff(irp)
-      write(6,*) iShOff(irp,iSkal)
-      write(6,*) 'PROGRAMMING ERROR IN SHELL_SIZES: SHELLS NOT CONTIGUOUS. IRP=',irp,'  ISKAL=',iskal
+      write(u6,*) nShBF(irp,iskal)
+      write(u6,*) nShOff(irp)
+      write(u6,*) iShOff(irp,iSkal)
+      write(u6,*) 'PROGRAMMING ERROR IN SHELL_SIZES: SHELLS NOT CONTIGUOUS. IRP=',irp,'  ISKAL=',iskal
       call Abend()
     end if
 #   endif
@@ -92,10 +95,10 @@ do iSkal=1,nSkal
     nShOff(irp) = nShOff(irp)+nShBF(irp,iSkal)
   end do
 # ifdef _DEBUGPRINT_
-  write(6,'(A)') 'nShBF'
-  write(6,'(8I4)') iSkal,(nShBF(irp,iSkal),irp=0,nSym-1)
-  write(6,'(A)') 'iShOff'
-  write(6,'(8I4)') iSkal,(iShOff(irp,iSkal),irp=0,nSym-1)
+  write(u6,'(A)') 'nShBF'
+  write(u6,'(8I4)') iSkal,(nShBF(irp,iSkal),irp=0,nSym-1)
+  write(u6,'(A)') 'iShOff'
+  write(u6,'(8I4)') iSkal,(iShOff(irp,iSkal),irp=0,nSym-1)
 # endif
 end do
 
@@ -138,15 +141,15 @@ do irp=0,nSym-1
   end if
 end do
 #ifdef _DEBUGPRINT_
-write(6,'(A,I4)') 'max shell size:',nShBFMx
-write(6,'(A)') '# of shells contributing to each irrep:'
-write(6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)
-write(6,'(A)') '# shell-psudoshell map vector:'
+write(u6,'(A,I4)') 'max shell size:',nShBFMx
+write(u6,'(A)') '# of shells contributing to each irrep:'
+write(u6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)
+write(u6,'(A)') '# shell-psudoshell map vector:'
 do irp=0,nSym-1
-  write(6,'(A4,2X,I4,2X,A4,2X,8I4)') 'irp=',irp,'map:',(iSh2Sh(irp,iSkal),iSkal=1,nSkal)
+  write(u6,'(A4,2X,I4,2X,A4,2X,8I4)') 'irp=',irp,'map:',(iSh2Sh(irp,iSkal),iSkal=1,nSkal)
 end do
-write(6,'(A)') 'SO-index to shell map vector:'
-write(6,'(50I4)') (iSO2Sh(iSO),iSO=1,nSOs)
+write(u6,'(A)') 'SO-index to shell map vector:'
+write(u6,'(50I4)') (iSO2Sh(iSO),iSO=1,nSOs)
 #endif
 return
 

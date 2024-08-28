@@ -44,7 +44,7 @@ do ix=ir,0,-1
     ip = ip+1
     iz = ir-ix-iy
     temp = Zero
-    !write(6,*) ' ix,iy,iz=',ix,iy,iz
+    !write(u6,*) ' ix,iy,iz=',ix,iy,iz
     do iAtom=1,nAtm
       if (ix == 0) then
         CCoMx = One
@@ -61,7 +61,7 @@ do ix=ir,0,-1
       else
         CCoMz = (Coor(3,iAtom)-CoOp(3))**iz
       end if
-      !write(6,*) CCoMx,CCoMy,CCoMz,temp
+      !write(u6,*) CCoMx,CCoMy,CCoMz,temp
       temp = temp+Chrg(iAtom)*CCoMx*CCoMy*CCoMz
     end do
     rNucMm(ip) = temp

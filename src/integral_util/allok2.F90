@@ -31,6 +31,9 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate
 use k2_structure, only: k2data, Allocate_k2data, ZZZ_r, ZZZ_i, k2_Processed, nIndK2, IndK2
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer :: i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll, iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng, jCmp, &
@@ -43,11 +46,11 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
 if (allocated(k2Data) .and. k2_processed) then
-  write(6,*) 'Enter Allok2, k2_Status=Processed'
+  write(u6,*) 'Enter Allok2, k2_Status=Processed'
 else if (allocated(k2Data)) then
-  write(6,*) 'Enter Allok2, k2_Status=Active'
+  write(u6,*) 'Enter Allok2, k2_Status=Active'
 else
-  write(6,*) 'Enter Allok2, k2_Status=InActive'
+  write(u6,*) 'Enter Allok2, k2_Status=InActive'
 end if
 #endif
 if (allocated(k2Data) .or. k2_processed) return

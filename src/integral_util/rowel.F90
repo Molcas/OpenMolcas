@@ -23,6 +23,7 @@ subroutine Rowel(nZeta,r0,Beta,K,alpha,P,a,gri,grin,jsum)
 
 use Constants, only: One
 use welcom, only: Fac, ipot3
+use Definitions, only: wp
 
 implicit none
 integer nZeta, jSum, k
@@ -45,7 +46,7 @@ end do
 
 fac(0) = One
 do i=1,k+2
-  fac(i) = fac(i-1)*dble(i)
+  fac(i) = fac(i-1)*real(i,kind=wp)
 end do
 call priwel(k,alpha,beta,r0,a,gri,nZeta,isum,grin)
 !call RecPrt('Internal well integrals',' ',gri,nZeta,isum)

@@ -41,7 +41,7 @@ call RecPrt(' The transformation matrix',' ',A,nZeta,9)
 nLen = 3
 mLen = 3**(la-1)
 kLen = 3**la
-!write(6,*) ' nLen, mLen=',nLen, mLen
+!write(u6,*) ' nLen, mLen=',nLen, mLen
 ! Loop over all angular indices to be transformed.
 do i=1,la
   iVec = 0

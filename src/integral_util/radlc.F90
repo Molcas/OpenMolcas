@@ -26,6 +26,7 @@ subroutine Radlc(Zeta,nZeta,lsum,Rnr)
 use fx, only: f_interface
 use Constants, only: Zero
 use rmat, only: l, ExpSum, QuadPack, TestInt, NagInt, EpsAbs, EpsRel, KeyR, RMatR
+use Definitions, only: u6
 
 implicit none
 integer nZeta, lSum
@@ -52,17 +53,17 @@ do ir=0,lsum
     !if (quadpack) then
     if (quadpack .and. (.not. testint)) then
       ier2 = -1
-      call dqag(fradf,0.0d0,Rmatr,Epsabs,Epsrel,Keyr,result2,abser,neval,ier2,limit,lenw,last,iScrt,Scrt)
+      call dqag(fradf,Zero,Rmatr,Epsabs,Epsrel,Keyr,result2,abser,neval,ier2,limit,lenw,last,iScrt,Scrt)
       if (ier2 /= 0) then
         call WarningMessage(1,' WARNING in Radlc; Consult the output for details!')
-        write(6,*)
-        write(6,*) ' WARNING in Radlc'
-        write(6,*)
-        write(6,*) ' ier=',ier2,' Error in Dqag called from Radlc.'
-        write(6,*) ' result=',result2
-        write(6,*) ' abser=',abser
-        write(6,*) ' neval=',neval
-        write(6,*)
+        write(u6,*)
+        write(u6,*) ' WARNING in Radlc'
+        write(u6,*)
+        write(u6,*) ' ier=',ier2,' Error in Dqag called from Radlc.'
+        write(u6,*) ' result=',result2
+        write(u6,*) ' abser=',abser
+        write(u6,*) ' neval=',neval
+        write(u6,*)
       end if
       result = result2
     !else if (Nagint) then
@@ -70,16 +71,16 @@ do ir=0,lsum
       call WarningMessage(2,'Radlc: Nagint option not implemented!')
       call Abend()
       !ier1 = -1
-      !call d01ajf(fradf,0.0d0,Rmatr,Epsabs,Epsrel,result1,abser,wrk1,4*INtparm,iwrk1,INtparm,ier1)
+      !call d01ajf(fradf,Zero,Rmatr,Epsabs,Epsrel,result1,abser,wrk1,4*INtparm,iwrk1,INtparm,ier1)
       !if (ier1 /= 0) then
-      !   write(6,*)
-      !   write(6,*) ' WARNING in Radlc'
-      !   write(6,*)
-      !   write(6,*) ' ier=',ier1,' Error in D01ajf called from Radlc.'
-      !   write(6,*) ' result=',result1
-      !   write(6,*) ' abser=',abser
-      !   write(6,*) ' intparm=',intparm
-      !   write(6,*)
+      !   write(u6,*)
+      !   write(u6,*) ' WARNING in Radlc'
+      !   write(u6,*)
+      !   write(u6,*) ' ier=',ier1,' Error in D01ajf called from Radlc.'
+      !   write(u6,*) ' result=',result1
+      !   write(u6,*) ' abser=',abser
+      !   write(u6,*) ' intparm=',intparm
+      !   write(u6,*)
       !end if
       !result = result1
     end if
@@ -87,50 +88,50 @@ do ir=0,lsum
       call WarningMessage(2,'Radlc: testint option not implemented!')
       call Abend()
       !ier2 = -1
-      !call dqag(fradf,0.0d0,Rmatr,Epsabs,Epsrel,Keyr,result2,abser,neval,ier2,limit,lenw,last,iScrt,Scrt)
+      !call dqag(fradf,Zero,Rmatr,Epsabs,Epsrel,Keyr,result2,abser,neval,ier2,limit,lenw,last,iScrt,Scrt)
       !if (ier2 /= 0) then
-      !   write(6,*)
-      !   write(6,*) ' WARNING in Radlc'
-      !   write(6,*)
-      !   write(6,*) ' ier=',ier2,' Error in Dqag called from Radlc.'
-      !   write(6,*) ' result=',result2
-      !   write(6,*) ' abser=',abser
-      !   write(6,*) ' neval=',neval
-      !   write(6,*)
+      !   write(u6,*)
+      !   write(u6,*) ' WARNING in Radlc'
+      !   write(u6,*)
+      !   write(u6,*) ' ier=',ier2,' Error in Dqag called from Radlc.'
+      !   write(u6,*) ' result=',result2
+      !   write(u6,*) ' abser=',abser
+      !   write(u6,*) ' neval=',neval
+      !   write(u6,*)
       !end if
 
       !ier1 = -1
-      !call d01ajf(fradf,0.0d0,Rmatr,Epsabs,Epsrel,result1,abser,wrk1,4*INtparm,iwrk1,INtparm,ier1)
+      !call d01ajf(fradf,Zero,Rmatr,Epsabs,Epsrel,result1,abser,wrk1,4*INtparm,iwrk1,INtparm,ier1)
       !if ((ier1 /= 0) .or. (ier2 /= 0)) then
-      !   write(6,*)
-      !   write(6,*) ' WARNING in Radlc'
-      !   write(6,*)
-      !   write(6,*) ' ier=',ier1,' Error in D01ajf called from Radlc.'
-      !   write(6,*) ' result=',result1
-      !   write(6,*) ' abser=',abser
-      !   write(6,*) ' intparm=',intparm
-      !   write(6,*)
+      !   write(u6,*)
+      !   write(u6,*) ' WARNING in Radlc'
+      !   write(u6,*)
+      !   write(u6,*) ' ier=',ier1,' Error in D01ajf called from Radlc.'
+      !   write(u6,*) ' result=',result1
+      !   write(u6,*) ' abser=',abser
+      !   write(u6,*) ' intparm=',intparm
+      !   write(u6,*)
       !end if
       !result = result1
 
       !diff = abs(result2-result1)
       !diff1 = abs((result2-result1)/result2)
       !if ((diff > epsabs) .or. (diff1 > epsrel)) then
-      !   write(6,*)
-      !   write(6,*) ' WARNING in Radlc'
-      !   write(6,*)
-      !   write(6,*) ' DIFFabs =',diff
-      !   write(6,*)
-      !   write(6,*) ' DIFFrel =',diff1
-      !   write(6,*)
-      !   write(6,*) ' NAG result=',result1
-      !   write(6,*)
-      !   write(6,*) ' NAG error =',ier1
-      !   write(6,*)
-      !   write(6,*) ' QUAD result=',result2
-      !   write(6,*)
-      !   write(6,*) ' QUAD error =',ier2
-      !   write(6,*)
+      !   write(u6,*)
+      !   write(u6,*) ' WARNING in Radlc'
+      !   write(u6,*)
+      !   write(u6,*) ' DIFFabs =',diff
+      !   write(u6,*)
+      !   write(u6,*) ' DIFFrel =',diff1
+      !   write(u6,*)
+      !   write(u6,*) ' NAG result=',result1
+      !   write(u6,*)
+      !   write(u6,*) ' NAG error =',ier1
+      !   write(u6,*)
+      !   write(u6,*) ' QUAD result=',result2
+      !   write(u6,*)
+      !   write(u6,*) ' QUAD error =',ier2
+      !   write(u6,*)
       !end if
     end if
     Rnr(iZeta,ir) = result
@@ -140,7 +141,7 @@ end do
 !***********************************************************************
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Result in Radlc'
+write(u6,*) ' Result in Radlc'
 write(Label,'(A)') ' Rnr'
 call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
 #endif

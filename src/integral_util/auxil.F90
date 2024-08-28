@@ -23,6 +23,7 @@ subroutine Auxil(T,nT,Fm,mHigh)
 !***********************************************************************
 
 use Constants, only: Two
+use Definitions, only: wp
 
 implicit none
 integer nT, mHigh
@@ -37,7 +38,7 @@ call HighFm(Fm(1,mHigh),T,mHigh,nT)
 do i=1,nT
   Ti = T(i)
   do m=mHigh-1,0,-1
-    Fm(i,m) = (Two*Ti*Fm(i,m+1)+exp(-Ti))/dble(2*m+1)
+    Fm(i,m) = (Two*Ti*Fm(i,m+1)+exp(-Ti))/real(2*m+1,kind=wp)
   end do
 end do
 !call RecPrt(' Fm',' ',Fm,nT,mHigh+1)

@@ -27,6 +27,7 @@ subroutine Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBs
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
+
 implicit none
 integer iBas, iBsInc, kBas, kBsInc, jBas, jBsInc, lBas, lBsInc, jPrim, jPrInc, lPrim, lPrInc
 logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail

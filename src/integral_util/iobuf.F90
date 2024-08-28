@@ -29,8 +29,8 @@ parameter(lStRec=nSect*lDaRec)
 parameter(Mode_Read=987654321)
 parameter(Mode_Write=198765432)
 parameter(Mode_None=111111111)
-!parameter (DiskMx_MByte=2.0D00**11)
-!parameter (DiskMx_Byte =2.0D00**31)
+!parameter (DiskMx_MByte = Two**11)
+!parameter (DiskMx_Byte = TWo**31)
 !real*8 Buf_IO(lStRec,2)
 integer iPos, LuTmp, iStatIO, id, iBuf, ipBuf, nBuf, lBuf
 real*8 Disk, Disk_1, Disk_2

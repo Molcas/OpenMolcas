@@ -47,6 +47,9 @@ use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
 use Gateway_Info, only: ThrInt, CutInt
 use Constants, only: Zero, One, Two, Half, Quart
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nijkl, nDens, nScrt, nFT, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, jk3, &
@@ -97,12 +100,12 @@ kCmp = iCmp_(3)
 lCmp = iCmp_(4)
 #ifdef _DEBUGPRINT_
 call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-write(6,*) 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-write(6,*) 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-write(6,*) 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-write(6,*) 'Dil=',XDot(Dil,il1,il2,il3,il4)
-write(6,*) 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-write(6,*) 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+write(u6,*) 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
+write(u6,*) 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
+write(u6,*) 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
+write(u6,*) 'Dil=',XDot(Dil,il1,il2,il3,il4)
+write(u6,*) 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
+write(u6,*) 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
 call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 

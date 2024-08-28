@@ -17,6 +17,9 @@ subroutine Banner(Lines,nLines,nWidth)
 !             University of Lund, SWEDEN                               *
 !             May '91                                                  *
 !***********************************************************************
+
+use Definitions, only: u6
+
 implicit none
 integer nLines, nWidth
 integer, parameter :: MxWdth = 132
@@ -33,11 +36,11 @@ write(format,'(A,i3,A)') '(1X,A',mWidth,')'
 do i=1,mWidth
   Line(i:i) = '*'
 end do
-write(6,format) Line
+write(u6,format) Line
 do i=2,mWidth-1
   Line(i:i) = ' '
 end do
-write(6,format) Line
+write(u6,format) Line
 do i=1,nLines
   do j=1,nChar
     if (Lines(i)(j:j) /= ' ') Go To 21
@@ -57,17 +60,17 @@ do i=1,nLines
   jFrst = 1+nSplit+1
   jEnd = jFrst+Length-1
   Line(jFrst:jEnd) = Lines(i)(iFrst:iEnd)
-  write(6,format) Line
+  write(u6,format) Line
 end do
 
 do k=2,mWidth-1
   Line(k:k) = ' '
 end do
-write(6,format) Line
+write(u6,format) Line
 do k=2,mWidth-1
   Line(k:k) = '*'
 end do
-write(6,format) Line
+write(u6,format) Line
 
 return
 

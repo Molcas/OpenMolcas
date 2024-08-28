@@ -60,7 +60,7 @@ do i=1,n-1
     if (abs(A(k,i)) < abs(A(j,i))) k = j
   end do
   if (k /= i) then
-    !write(6,'(A,2I3)') ' Swapping:',i,k
+    !write(u6,'(A,2I3)') ' Swapping:',i,k
     do j=i,n
       Swap = A(i,j)
       A(i,j) = A(k,j)

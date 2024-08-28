@@ -30,8 +30,10 @@ use PCM_arrays, only: nTiles, C_Tessera, q_Tessera
 use Index_Functions, only: nTri_Elem1
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
+use Definitions, only: u6
 #endif
 use Constants, only: Zero, One
+use Definitions, only: wp
 
 implicit none
 #include "int_interface.fh"
@@ -96,16 +98,16 @@ do iTile=1,nTiles
   ! Find the DCR for M and S
 
   call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
-  Fact = One/dble(LmbdT)
+  Fact = One/real(LmbdT,kind=wp)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) ' m      =',nStabM
-  write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-  write(6,*) ' s      =',nStab_
-  write(6,'(9A)') '(S)=',ChOper(jStab_)
-  write(6,*) ' LambdaT=',LmbdT
-  write(6,*) ' t      =',nDCRT
-  write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+  write(u6,*) ' m      =',nStabM
+  write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+  write(u6,*) ' s      =',nStab_
+  write(u6,'(9A)') '(S)=',ChOper(jStab_)
+  write(u6,*) ' LambdaT=',LmbdT
+  write(u6,*) ' t      =',nDCRT
+  write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 # endif
 
   do lDCRT=0,nDCRT-1
@@ -132,7 +134,7 @@ do iTile=1,nTiles
     nOp = NrOpr(iDCRT(lDCRT))
     call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*QTessera)
 #   ifdef _DEBUGPRINT_
-    write(6,*) Fact*QTessera
+    write(u6,*) Fact*QTessera
     call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),nZeta,nElem(la)*nElem(lb)*nComp)
     call RecPrt('PCMInt: rFinal',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nIC)
 #   endif

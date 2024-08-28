@@ -16,18 +16,20 @@ use external_centers, only: nXF, iXPolType
 use stdalloc, only: mma_allocate
 use rctfld_module, only: TK, lMax, nMM, nGrid, lLangevin, MaxA, RadLat, Scala, MaxB, Scalb, MaxC, Scalc, nABC, lAtAto, PCM, &
                          NonEQ_Ref, nCavxyz, MM
+use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
 logical NonEq
 integer iCharge
 integer MMM, nPolComp
 
-tK = 1.0D-99 ! Boltzman factor, initial set to 0 K
+tK = 1.0e-99_wp ! Boltzman factor, initial set to 0 K
 if (allocated(MM)) return
 mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
 nMM = 2*mMM
 call mma_allocate(MM,mMM,2,Label='MM')
-MM(:,:) = 0.0d0
+MM(:,:) = Zero
 if (iXPolType > 0) nGrid = nXF
 if (lLangevin .or. (iXPolType > 0)) then
   if (lLangevin) then

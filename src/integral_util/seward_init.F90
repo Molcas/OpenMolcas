@@ -29,6 +29,8 @@ use RICD_Info, only: iRI_Type, Do_RI
 use rmat, only: RmatR, Epsabs, Epsrel, qCoul, Epsq, bParm, dipol, Dipol1, keyr, Quadpack, nagint, testint, RMat_On, lgamma
 use DCR_mod, only: DCR_Init
 use NAC, only: isNAC, isCSF
+use Constants, only: Zero, Ten
+use Definitions, only: wp
 
 implicit none
 logical, external :: Reduce_Prt
@@ -84,16 +86,16 @@ call Set_CanInd()
 
 ! rmat.fh
 
-RmatR = 10.0d0
-Epsabs = 10.D-10
-Epsrel = 1.D-14
-qCoul = 0.0d0
-Epsq = 1.D-8
-bParm = 0.0d0
-dipol(1) = 0.0d0
-dipol(2) = 0.0d0
-dipol(3) = 0.0d0
-Dipol1 = 0.0d0
+RmatR = Ten
+Epsabs = 1.0e-9_wp
+Epsrel = 1.0e-14_wp
+qCoul = Zero
+Epsq = 1.0e-8_wp
+bParm = Zero
+dipol(1) = Zero
+dipol(2) = Zero
+dipol(3) = Zero
+Dipol1 = Zero
 keyr = 6
 Quadpack = .true.
 nagint = .false.

@@ -31,6 +31,7 @@ use SOAO_Info, only: iAOtSO
 use Constants, only: Zero, Quart
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: D0, iD0Lbl
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -50,7 +51,7 @@ real*8, external :: DDot_
 #ifdef _DEBUGPRINT_
 iComp = 1
 call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-write(6,*) ' nBases..=',iBas,jBas,kBas,lBas
+write(u6,*) ' nBases..=',iBas,jBas,kBas,lBas
 #endif
 
 ! Quadruple loop over elements of the basis functions angular
@@ -134,7 +135,7 @@ end if
 #ifdef _DEBUGPRINT_
 call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
 do i=1,ijkl
-  write(6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
+  write(u6,*) DDot_(nPAO,PAO(i,1),ijkl,PAO(i,1),ijkl)
 end do
 #endif
 

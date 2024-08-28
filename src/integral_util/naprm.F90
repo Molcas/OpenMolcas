@@ -24,6 +24,7 @@ subroutine NAPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la
 
 use Basis_Info, only: Nuclear_Model, Gaussian_Type, mGaussian_Type, DBSC, Point_Charge
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+
 implicit none
 ! Used for normal nuclear attraction integrals
 external TNAI, Fake, XCff2D, XRys2D
@@ -137,7 +138,7 @@ else if (Nuclear_Model == mGaussian_Type) then
            Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 
   ! d type function w*(x**2+y**2+z**2)
-  if (dbsc(iCnttp)%w_mGauss > 0.0d0) then
+  if (dbsc(iCnttp)%w_mGauss > Zero) then
     rKappcd = rKappcd*dbsc(iCnttp)%w_mGauss
     iAnga(3) = 2
     mcdMin = nabSz(2+ld-1)+1

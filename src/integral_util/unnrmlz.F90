@@ -11,7 +11,8 @@
 
 subroutine UnNrmlz(Exp,nPrim,Coeff,nCntrc,iAng)
 
-use Constants, only: TwoP34, Two, Three, Four
+use Constants, only: TwoP34, Four, Quart
+use Definitions, only: wp
 
 implicit none
 integer nPrim, nCntrc, iAng
@@ -20,7 +21,7 @@ integer i, j
 
 do i=1,nCntrc
   do j=1,nPrim
-    Coeff(j,i) = Coeff(j,i)/(TwoP34*(Four*exp(j))**((Two*dble(iAng)+Three)/Four))
+    Coeff(j,i) = Coeff(j,i)/(TwoP34*(Four*exp(j))**(real(2*iAng+3,kind=wp)*Quart))
   end do
 end do
 

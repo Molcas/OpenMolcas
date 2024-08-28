@@ -21,7 +21,7 @@ integer nShell, iShell, Index, iSO
 !                                                                      *
 ! Set up table SO to contigues index over the shell
 
-!write(6,*) 'Enter SO2cI'
+!write(u6,*) 'Enter SO2cI'
 call ICopy(2*nSOs,[0],0,SO2cI,1)
 call Nr_Shells(nShell)
 do iShell=1,nShell

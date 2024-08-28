@@ -27,6 +27,9 @@ subroutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,qKappa)
 !***********************************************************************
 
 use Constants, only: Two
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nab, mZeta, nZeta
@@ -50,7 +53,7 @@ else
   end do
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) 'nZeta,mZeta=',nZeta,mZeta
+write(u6,*) 'nZeta,mZeta=',nZeta,mZeta
 call RecPrt(' abab','(5G20.10)',abab,mZeta,nab**2)
 call RecPrt(' rKappa','(5G20.10)',rKappa,mZeta,1)
 call RecPrt(' Zeta  ','(5G20.10)',Zeta,mZeta,1)

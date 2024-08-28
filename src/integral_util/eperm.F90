@@ -34,6 +34,7 @@ use Symmetry_Info, only: iChBas
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: nBas
+use Definitions, only: u6
 #endif
 use Integral_interfaces, only: int_kernel, int_mem
 use Gateway_global, only: PrPrt
@@ -132,7 +133,7 @@ do iMltpl=1,lMax
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) '1st order total density'
+write(u6,*) '1st order total density'
 lOff = 1
 do iIrrep=0,nIrrep-1
   n = nBas(iIrrep)*(nBas(iIrrep)+1)/2

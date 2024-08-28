@@ -24,7 +24,8 @@ subroutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,XMolnr,nXMolnr,iGrid,scal14)
 !              November 2004                                           *
 !***********************************************************************
 
-use Constants, only: Zero, One, Three
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp
 
 implicit none
 integer nXF, nOrd_XF, iXPolType, nXMolnr, iGrid
@@ -58,10 +59,10 @@ do iFd=1,nXF
     end do
     if (LExcl) goto 1
     !if (LExcl) then
-    !  write(6,*) 'EXCLUDE ',iFd,' from field at ',iGrid
+    !  write(u6,*) 'EXCLUDE ',iFd,' from field at ',iGrid
     !  goto 1
     !else if (scal < One) then
-    !  write(6,*) 'SCALE ',iFd,' from field at ',iGrid,' with',scal
+    !  write(u6,*) 'SCALE ',iFd,' from field at ',iGrid,' with',scal
     !end if
   end if
   ZA = Zero
@@ -116,21 +117,21 @@ do iFd=1,nXF
   if (nOrd_XF < 2) goto 1
 
   ! Q field
-  QAsum = (QAxx*x*x+QAyy*y*y+QAzz*z*z+2.0d0*(QAxy*x*y+QAxz*x*z+QAyz*y*z))
+  QAsum = (QAxx*x*x+QAyy*y*y+QAzz*z*z+Two*(QAxy*x*y+QAxz*x*z+QAyz*y*z))
 
-  dEF(1) = dEF(1)+0.5d0*(-15.0d0/r12**7*x*QAsum+3.0d0/r12**5*(3.0d0*QAxx*x+2.0d0*QAxy*y+2.0d0*QAxz*z+QAyy*x+QAzz*x))
+  dEF(1) = dEF(1)+Half*(-15.0_wp/r12**7*x*QAsum+Three/r12**5*(Three*QAxx*x+Two*QAxy*y+Two*QAxz*z+QAyy*x+QAzz*x))
 
-  dEF(2) = dEF(2)+0.5d0*(-15.0d0/r12**7*y*QAsum+3.0d0/r12**5*(QAxx*y+2.0d0*QAxy*x+3.0d0*QAyy*y+2.0d0*QAyz*z+QAzz*y))
+  dEF(2) = dEF(2)+Half*(-15.0_wp/r12**7*y*QAsum+Three/r12**5*(QAxx*y+Two*QAxy*x+Three*QAyy*y+Two*QAyz*z+QAzz*y))
 
-  dEF(3) = dEF(3)+0.5d0*(-15.0d0/r12**7*z*QAsum+3.0d0/r12**5*(QAxx*z+2.0d0*QAxz*x+QAyy*z+2.0d0*QAyz*y+3.0d0*QAzz*z))
+  dEF(3) = dEF(3)+Half*(-15.0_wp/r12**7*z*QAsum+Three/r12**5*(QAxx*z+Two*QAxz*x+QAyy*z+Two*QAyz*y+Three*QAzz*z))
 
   ! These formulas gives the corresponding energy terms in drvn0
   !eZD = ZA*(DRBx*x+DRBy*y+DRBz*z)/r12**3
   !eDD = (DAx*DRBx+DAy*DRBy+DAz*DRBz)/r12**3-Three*(DAx* x+DAy* y+DAz *z)*(DRBx*x+DRBy*y+DRBz*z)/r12**5c
-  !eQD = -0.5D0*(-15.0D0/r12**7*(DRBx*x+DRBy*y+DRBz*z)*QAsum+3.0D0/r12**5* &
-  !              (3.0D0*DRBx*QAxx*x+DRBy*QAxx*y+DRBz*QAxx*z+2.0D0*DRBx*QAxy*y+2.0D0*DRBy*QAxy*x+2.0D0*DRBx*QAxz*z+ &
-  !               2.0D0*DRBz*QAxz*x+DRBx*QAyy*x+3.0D0*DRBy*QAyy*y+DRBz*QAyy*z+2.0D0*DRBy*QAyz*z+2.0D0*DRBz*QAyz*y+DRBx*QAzz*x+ &
-  !               DRBy*QAzz*y+3.0D0*DRBz*QAzz*z))
+  !eQD = -Half*(-15.0_wp/r12**7*(DRBx*x+DRBy*y+DRBz*z)*QAsum+Three/r12**5* &
+  !             (Three*DRBx*QAxx*x+DRBy*QAxx*y+DRBz*QAxx*z+Two*DRBx*QAxy*y+Two*DRBy*QAxy*x+Two*DRBx*QAxz*z+ &
+  !              Two*DRBz*QAxz*x+DRBx*QAyy*x+Three*DRBy*QAyy*y+DRBz*QAyy*z+Two*DRBy*QAyz*z+Two*DRBz*QAyz*y+DRBx*QAzz*x+ &
+  !              DRBy*QAzz*y+Three*DRBz*QAzz*z))
 
 1 continue
 end do   !iFd

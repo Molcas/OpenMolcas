@@ -17,11 +17,12 @@ use Center_Info, only: DC
 use Langevin_arrays, only: PolEF, Field, DIP, DAVxyz, CAVxyz, DField, DipEF, Grid, RAVxyz
 use External_Centers, only: iXPOLType, nXF, nOrd_XF, XEle, XF, nXMolNr, XMolNr
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One
+use Constants, only: Zero, One, auTokJ, kBoltzmann
 use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module, only: lGridAverage, nGridAverage, nGridSeed, RotAlpha, RotBeta, RotGamma, Done_Lattice, lFirstIter, nGrid_Eff, &
                          lLangevin, PolSI, DIPSI, Scala, TK, RadLat, nSparse, DistSparse, lDamping, DipCutOff, nGrid, CordSI, &
                          lDipRestart, nCavxyz
+use Definitions, only: wp, u6
 
 implicit none
 integer nh1
@@ -36,6 +37,7 @@ integer mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC, mCnt, i, nAV, iSeed, i
         nCnt, iEle, k
 real*8 Z, ATOD, SUMREPNUC, REPNUC, XA, YA, ZA, SumRepNuc2, ATRad
 real*8, external :: CovRadT, Random_molcas
+real*8, parameter :: auToK = auTokJ/kBoltzmann*1.0e3_wp
 ! Statement function
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
@@ -81,7 +83,7 @@ do jCnttp=1,nCnttp
       call OA(dc(ndc)%iCoSet(i,0),dbsc(jCnttp)%Coor(1:3,jCnt),Cord(:,nc))
       Atom_R(nc) = Atod
       Chrg(nc) = Z
-      !write(6,*) 'Z=',Z
+      !write(u6,*) 'Z=',Z
     end do
   end do
 end do
@@ -108,10 +110,10 @@ do iAv=1,nAv
     cordsi(1,1) = Random_Molcas(iSeed)
     cordsi(2,1) = Random_Molcas(iSeed)
     cordsi(3,1) = Random_Molcas(iSeed)
-    rotAlpha = Random_Molcas(iSeed)*180.0d0
-    rotBeta = Random_Molcas(iSeed)*180.0d0
-    rotGamma = Random_Molcas(iSeed)*180.0d0
-    write(6,'(a,i4,a,6f10.4)') 'GRID NR',iAv,': ',cordsi(1,1),cordsi(2,1),cordsi(3,1),rotAlpha,rotBeta,rotGamma
+    rotAlpha = Random_Molcas(iSeed)*180.0_wp
+    rotBeta = Random_Molcas(iSeed)*180.0_wp
+    rotGamma = Random_Molcas(iSeed)*180.0_wp
+    write(u6,'(a,i4,a,6f10.4)') 'GRID NR',iAv,': ',cordsi(1,1),cordsi(2,1),cordsi(3,1),rotAlpha,rotBeta,rotGamma
     Done_Lattice = .false.
     RepNuc = Zero
   end if
@@ -140,7 +142,7 @@ do iAv=1,nAv
     if (iXPolType > 0) call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,XF,nXF,nOrd_XF,nPolComp)
     ! Note: Gen_Grid is now a part of the lattcr subroutine
     if (lLangevin) call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,Cord,maxato,Atom_R,nPolComp,XF,nXF,nOrd_XF,XEle,iXPolType)
-    !write(6,*) 'nGrid,  nGrid_Eff',nGrid,nGrid_Eff
+    !write(u6,*) 'nGrid,  nGrid_Eff',nGrid,nGrid_Eff
 
   end if
 
@@ -190,7 +192,7 @@ do iAv=1,nAv
       ya = XF(2,iXF)
       za = XF(3,iXF)
       if (XEle(iXF) <= 0) then
-        atrad = -dble(XEle(iXF))/1000.0d0
+        atrad = -real(XEle(iXF),kind=wp)/1000.0_wp
         iele = 0
       else
         iele = XEle(iXF)
@@ -202,7 +204,7 @@ do iAv=1,nAv
     do i=0,nGrid_eff-1
       write(Lu,12) (Grid(j,i+1),j=1,3),PolEf(:,i+1),DipEf(i+1),(dField(j,i+1),j=1,3),(pField(j,i),j=1,3)
     end do
-    write(Lu,*) polsi,dipsi,scala,One/tK/3.1668D-6
+    write(Lu,*) polsi,dipsi,scala,auToK/tK
     write(Lu,*) (cordsi(k,1),k=1,3)
     write(Lu,*) rotAlpha,rotBeta,rotGamma
     write(Lu,*) radlat,nSparse,distSparse
@@ -261,13 +263,13 @@ do iAv=1,nAv
   call mma_deallocate(pField)
   call mma_deallocate(tmpField)
   if (LGridAverage) then
-    write(6,'(a,i4,a,f18.10)') 'Solvation energy (Grid nr. ',iAv,'):',RepNuc
+    write(u6,'(a,i4,a,f18.10)') 'Solvation energy (Grid nr. ',iAv,'):',RepNuc
     sumRepNuc = sumRepNuc+RepNuc
     sumRepNuc2 = sumRepNuc2+RepNuc**2
   end if
 end do
-if (LGridAverage) write(6,'(a,f18.10,f18.10)') 'Average solvation energy and stdev: ',sumRepNuc/dble(nAv), &
-                                               sqrt(sumRepNuc2/dble(nAv)-(sumRepNuc/dble(nAv))**2)
+if (LGridAverage) write(u6,'(a,f18.10,f18.10)') 'Average solvation energy and stdev: ',sumRepNuc/real(nAv,kind=wp), &
+                                                sqrt(sumRepNuc2/real(nAv,kind=wp)-(sumRepNuc/real(nAv,kind=wp))**2)
 call mma_deallocate(Atom_R)
 call mma_deallocate(D1ao)
 call mma_deallocate(Chrg)

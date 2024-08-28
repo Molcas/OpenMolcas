@@ -13,6 +13,7 @@ function qRINT(N,A,C,EXPA)
 
 use Constants
 use welcom
+use Definitions, only: wp
 
 implicit none
 real*8 qRINT
@@ -24,7 +25,7 @@ real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2, GAL, HINT
 
 qRINT = Zero
 NN = N/2+1
-!write(6,*) ' N,NN=',n,nn
+!write(u6,*) ' N,NN=',n,nn
 BP = Half*C
 START = sqrt(Pi)
 PRSUM = exp(BP*BP*A+EXPA)
@@ -41,7 +42,7 @@ do I=0,N
   J = (I/2)
 
   if (J*2 == I) then
-    Dac = Dac*(Two*dble(J)-One)/Two
+    Dac = Dac*Half*(real(2*J-1,kind=wp))
     FACT = ALF**(-I-1)*START*DAC
     FACT2 = BP**(I+1)*F(J+1)
     GINT = (FACT-FACT2)*TAL+GINT
@@ -50,7 +51,7 @@ do I=0,N
     HINT = Zero
     do K=I-1,0,-2
       HINT = HINT+Half/A*BP**K*exp(-ARG)*GAL
-      GAL = Half*dble(K)/A*GAL
+      GAL = Half*real(K,kind=wp)/A*GAL
     end do
     GINT = GINT+TAL*HINT
   end if

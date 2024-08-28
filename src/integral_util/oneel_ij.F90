@@ -29,10 +29,11 @@ use Center_Info, only: DC
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: FNMC
 use Symmetry_Info, only: ChOper, nIrrep
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Half
 use rmat, only: RMat_Type_Integrals
 use define_af, only: AngTp
 use property_label, only: PLabel
+use Definitions, only: wp, u6
 
 implicit none
 procedure(int_kernel) :: Kernel
@@ -86,7 +87,7 @@ if (Label(1:3) == 'MAG') then
     iSmLbl = lOper(iComp)
     nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
   end do
-  if (iPrint >= 29) write(6,*) ' nSO=',nSO
+  if (iPrint >= 29) write(u6,*) ' nSO=',nSO
   if (nSO < 1) return
   if (l_SOInt < nSO*iBas*jBas) then
     call WarningMessage(2,'OneEl_IJ: insufficient SOInt dimension!')
@@ -110,8 +111,8 @@ if (Label(1:3) == 'MAG') then
   jCnt = iSD(14,jS)
   B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
   if (iPrint >= 19) then
-    write(6,*) 'interacted Ato.Fun '
-    write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    write(u6,*) 'interacted Ato.Fun '
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
   end if
   lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
   if (lFinal > nFinal) then
@@ -123,24 +124,24 @@ if (Label(1:3) == 'MAG') then
   call Inter(dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iStabM,nStabM)
   call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
   if (iPrint >= 19) then
-    write(6,*)
-    write(6,*) ' g      =',nIrrep
-    write(6,*) ' u      =',dc(mdci)%nStab
-    write(6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
-    write(6,*) ' v      =',dc(mdcj)%nStab
-    write(6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
-    write(6,*) ' LambdaR=**',LmbdR
-    write(6,*) ' r      =',nDCRR
-    write(6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*)
+    write(u6,*) ' g      =',nIrrep
+    write(u6,*) ' u      =',dc(mdci)%nStab
+    write(u6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
+    write(u6,*) ' v      =',dc(mdcj)%nStab
+    write(u6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
+    write(u6,*) ' LambdaR=**',LmbdR
+    write(u6,*) ' r      =',nDCRR
+    write(u6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
   end if
   nOp(1) = NrOpr(0)
   if (nDCRR >= 1) then
     do lDCRR=0,nDCRR-1
       call OA(iDCRR(lDCRR),B,RB)
       nOp(2) = NrOpr(iDCRR(lDCRR))
-      if (iPrint >= 49) write(6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
+      if (iPrint >= 49) write(u6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
 
       call Get_nAtoms_All(nAtoms)
       l_Coord = 3*nAtoms
@@ -172,7 +173,7 @@ if (Label(1:3) == 'MAG') then
             if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) iIC = iIC+1
           end do
         else
-          !write(6,*) "Symmetry adapt component"
+          !write(u6,*) "Symmetry adapt component"
           call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,final,iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
           iSOBlk = iSOBlk+mSO*iBas*jBas
         end if
@@ -201,7 +202,7 @@ else  !  MAG Integrals
     iSmLbl = lOper(iComp)
     nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
   end do
-  if (iPrint >= 29) write(6,*) ' nSO=',nSO
+  if (iPrint >= 29) write(u6,*) ' nSO=',nSO
   if (nSO < 1) return
   if (l_SOInt < nSO*iBas*jBas) then
     call WarningMessage(2,'OneEl_IJ: insufficient SOInt dimension!')
@@ -245,8 +246,8 @@ else  !  MAG Integrals
   !*********************************************************************
   !                                                                    *
   if (iPrint >= 19) then
-    write(6,*) 'interacted Ato.Fun '
-    write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    write(u6,*) 'interacted Ato.Fun '
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
   end if
   !                                                                    *
   !*********************************************************************
@@ -280,9 +281,9 @@ else  !  MAG Integrals
   MemKrn = MemKer*iPrim*jPrim
   if (MemKrn > nKern) then
     call WarningMessage(2,'MemKrn > nKern')
-    write(6,*) 'nOrdOp,iAng,jAng=',nOrdOp,iAng,jAng
-    write(6,*) 'MemKrn=',MemKrn
-    write(6,*) 'nKern=',nKern
+    write(u6,*) 'nOrdOp,iAng,jAng=',nOrdOp,iAng,jAng
+    write(u6,*) 'MemKrn=',MemKrn
+    write(u6,*) 'nKern=',nKern
     call Abend()
   end if
   call dCopy_(MemKrn,[Zero],0,Kern,1)
@@ -340,17 +341,17 @@ else  !  MAG Integrals
 
 # ifdef _DEBUGPRINT_
   if (iPrint >= 19) then
-    write(6,*)
-    write(6,*) ' g      =',nIrrep
-    write(6,*) ' u      =',dc(mdci)%nStab
-    write(6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
-    write(6,*) ' v      =',dc(mdcj)%nStab
-    write(6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
-    write(6,*) ' LambdaR=**',Lmbd
-    write(6,*) ' r      =',nDCRR
-    write(6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*)
+    write(u6,*) ' g      =',nIrrep
+    write(u6,*) ' u      =',dc(mdci)%nStab
+    write(u6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
+    write(u6,*) ' v      =',dc(mdcj)%nStab
+    write(u6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
+    write(u6,*) ' LambdaR=**',Lmbd
+    write(u6,*) ' r      =',nDCRR
+    write(u6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
   end if
 # endif
   !                                                                    *
@@ -360,11 +361,11 @@ else  !  MAG Integrals
 
   iuv = dc(mdci)%nStab*dc(mdcj)%nStab
   if (MolWgh == 1) then
-    Fact = dble(nStabO)/dble(LambdT)
+    Fact = real(nStabO,kind=wp)/real(LambdT,kind=wp)
   else if (MolWgh == 0) then
-    Fact = dble(iuv*nStabO)/dble(nIrrep**2*LambdT)
+    Fact = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LambdT,kind=wp)
   else
-    Fact = sqrt(dble(iuv))*dble(nStabO)/dble(nirrep*LambdT)
+    Fact = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nirrep*LambdT,kind=wp)
   end if
   !                                                                    *
   !*********************************************************************
@@ -376,7 +377,7 @@ else  !  MAG Integrals
     do lDCRR=0,nDCRR-1
       call OA(iDCRR(lDCRR),B,RB)
       nOp(2) = NrOpr(iDCRR(lDCRR))
-      if (iPrint >= 49) write(6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
+      if (iPrint >= 49) write(u6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
 
       ! Compute kappa and P.
 
@@ -397,9 +398,9 @@ else  !  MAG Integrals
 
       ! Transform i,jabx to jabx,I
       kk = nElem(iAng)*nElem(jAng)
-      call DGEMM_('T','N',jPrim*kk*nIC,iBas,iPrim,1.0d0,final,iPrim,Shells(iShll)%pCff,iPrim,0.0d0,Scrtch,jPrim*kk*nIC)
+      call DGEMM_('T','N',jPrim*kk*nIC,iBas,iPrim,One,final,iPrim,Shells(iShll)%pCff,iPrim,Zero,Scrtch,jPrim*kk*nIC)
       ! Transform j,abxI to abxI,J
-      call DGEMM_('T','N',kk*nIC*iBas,jBas,jPrim,1.0d0,Scrtch,jPrim,Shells(jShll)%pCff,jPrim,0.0d0,ScrSph,kk*nIC*iBas)
+      call DGEMM_('T','N',kk*nIC*iBas,jBas,jPrim,One,Scrtch,jPrim,Shells(jShll)%pCff,jPrim,Zero,ScrSph,kk*nIC*iBas)
 
       if (iPrint >= 99) call RecPrt(' Contracted integrals in cartesians',' ',ScrSph,kk*nIC,iBas*jBas)
 
@@ -432,15 +433,15 @@ else  !  MAG Integrals
         end do
       else if (Label == 'FMMCnX') then
         do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          final(ipFnl+jj-1) = (A(1)+RB(1))/2.0d0
+          final(ipFnl+jj-1) = Half*(A(1)+RB(1))
         end do
       else if (Label == 'FMMCnY') then
         do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          final(ipFnl+jj-1) = (A(2)+RB(2))/2.0d0
+          final(ipFnl+jj-1) = Half*(A(2)+RB(2))
         end do
       else if (Label == 'FMMCnZ') then
         do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          final(ipFnl+jj-1) = (A(3)+RB(3))/2.0d0
+          final(ipFnl+jj-1) = Half*(A(3)+RB(3))
         end do
       else if (Label == 'Kinetic') then
 
@@ -455,11 +456,11 @@ else  !  MAG Integrals
           ! Get the atom mass in au (me=1)
           xMass = dbsc(iCnttp)%CntMass
           ! Substract the electron mass to get the nuclear mass.
-          xMass = xMass-dble(iAtom)
-          !write(6,*) 'xMass=',xMass
+          xMass = xMass-real(iAtom,kind=wp)
+          !write(u6,*) 'xMass=',xMass
           xfactor = xfactor+One/xMass
         end if
-        !write(6,*) 'xfactor=',xfactor
+        !write(u6,*) 'xfactor=',xfactor
         call DScal_(iBas*jBas*iCmp*jCmp,xfactor,final,1)
       end if
 
@@ -493,7 +494,7 @@ else  !  MAG Integrals
 
   if (Fact /= One) call dScal_(nSO*iBas*jBas,Fact,SOInt,1)
   if (iPrint >= 99) then
-    write(6,*) ' Scaling SO''s',Fact
+    write(u6,*) ' Scaling SO''s',Fact
     call RecPrt(' Accumulated SO integrals',' ',SOInt,iBas*jBas,nSO)
   end if
   !                                                                    *

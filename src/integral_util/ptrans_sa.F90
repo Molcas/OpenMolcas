@@ -28,8 +28,11 @@ subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,Cred,nC,Scr1,nS1,Scr2,nS2,Sc
 ! -------------------------------------------------------------------
 
 use pso_stuff, only: nSSDM, SSDM, DSO => D0, CMO, G2
-use Constants, only: Zero, Quart
+use Constants, only: Zero, One, Two, Quart
 use etwas, only: mIrrep, npSOp, mBas, nAsh, nIsh
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer nxpam, nPSOPam, nC, nS1, nS2, nSP
@@ -124,7 +127,7 @@ do lsym=0,mirrep-1
         ! Break loop if no such symmetry block:
         if (nijkl == 0) goto 1005
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
+        write(u6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
 #       endif
         ! Bypass transformation if no active orbitals:
         if (nxvut == 0) goto 300
@@ -141,9 +144,9 @@ do lsym=0,mirrep-1
                 ind = ind+1
                 scrP(ind) = G2(ituvx,2)
                 if (isym == jsym) then
-                  fact = 1.0d00
-                  if ((itu >= ivx) .and. (iv == ix)) fact = 2.0d00
-                  if ((itu < ivx) .and. (it == iu)) fact = 2.0d00
+                  fact = One
+                  if ((itu >= ivx) .and. (iv == ix)) fact = Two
+                  if ((itu < ivx) .and. (it == iu)) fact = Two
                   scrP(ind) = fact*scrP(ind)
                 end if
               end do
@@ -166,7 +169,7 @@ do lsym=0,mirrep-1
             ioff2 = ioff2+1
             call dcopy_(ncopy,CMO(ioff1,indi(1)),nskip1,Cred(ioff2),nskip2)
           end do
-          call DGEMM_('N','T',nskip2,ntuv,ncopy,1.0d0,Cred,nskip2,ScrP,ntuv,0.0d0,Scr2,nskip2)
+          call DGEMM_('N','T',nskip2,ntuv,ncopy,One,Cred,nskip2,ScrP,ntuv,Zero,Scr2,nskip2)
           ! Transform:
           !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
           ncopy = nash(ksym)
@@ -179,7 +182,7 @@ do lsym=0,mirrep-1
             ioff2 = ioff2+1
             call dcopy_(ncopy,CMO(ioff1,indi(2)),nskip1,Cred(ioff2),nskip2)
           end do
-          call DGEMM_('N','T',nskip2,nltu,ncopy,1.0d0,Cred,nskip2,Scr2,nltu,0.0d0,Scr1,nskip2)
+          call DGEMM_('N','T',nskip2,nltu,ncopy,One,Cred,nskip2,Scr2,nltu,Zero,Scr1,nskip2)
           ! Transform:
           !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
           ncopy = nash(jsym)
@@ -193,7 +196,7 @@ do lsym=0,mirrep-1
             call dcopy_(ncopy,CMO(ioff1,indi(3)),nskip1,Cred(ioff2),nskip2)
           end do
 
-          call DGEMM_('N','T',nskip2,nklt,ncopy,1.0d0,Cred,nskip2,Scr1,nklt,0.0d0,Scr2,nskip2)
+          call DGEMM_('N','T',nskip2,nklt,ncopy,One,Cred,nskip2,Scr1,nklt,Zero,Scr2,nskip2)
           ! Transform:
           !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
           ncopy = nash(isym)
@@ -206,7 +209,7 @@ do lsym=0,mirrep-1
             ioff2 = ioff2+1
             call dcopy_(ncopy,CMO(ioff1,indi(4)),nskip1,Cred(ioff2),nskip2)
           end do
-          call DGEMM_('N','T',nskip2,njkl,ncopy,1.0d0,Cred,nskip2,Scr2,njkl,0.0d0,Scr1,nskip2)
+          call DGEMM_('N','T',nskip2,njkl,ncopy,One,Cred,nskip2,Scr2,njkl,Zero,Scr1,nskip2)
 #         ifdef _DEBUGPRINT_
           call RecPrt('G2(SO1)',' ',Scr1,nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
 #         endif
@@ -245,9 +248,9 @@ do lsym=0,mirrep-1
                 ind = ind+1
                 scr1(ind) = G2(ituvx,1)
                 if (isym == jsym) then
-                  fact = 1.0d00
-                  if ((itu >= ivx) .and. (iv == ix)) fact = 2.0d00
-                  if ((itu < ivx) .and. (it == iu)) fact = 2.0d00
+                  fact = One
+                  if ((itu >= ivx) .and. (iv == ix)) fact = Two
+                  if ((itu < ivx) .and. (it == iu)) fact = Two
                   scr1(ind) = fact*scr1(ind)
                 end if
               end do
@@ -270,7 +273,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,ntuv,ncopy,1.0d0,Cred,nskip2,Scr1,ntuv,0.0d0,Scr2,nskip2)
+        call DGEMM_('N','T',nskip2,ntuv,ncopy,One,Cred,nskip2,Scr1,ntuv,Zero,Scr2,nskip2)
         ! Transform:
         !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
         ncopy = nash(ksym)
@@ -283,7 +286,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,nltu,ncopy,1.0d0,Cred,nskip2,Scr2,nltu,0.0d0,Scr1,nskip2)
+        call DGEMM_('N','T',nskip2,nltu,ncopy,One,Cred,nskip2,Scr2,nltu,Zero,Scr1,nskip2)
         ! Transform:
         !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
         ncopy = nash(jsym)
@@ -297,7 +300,7 @@ do lsym=0,mirrep-1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
 
-        call DGEMM_('N','T',nskip2,nklt,ncopy,1.0d0,Cred,nskip2,Scr1,nklt,0.0d0,Scr2,nskip2)
+        call DGEMM_('N','T',nskip2,nklt,ncopy,One,Cred,nskip2,Scr1,nklt,Zero,Scr2,nskip2)
         ! Transform:
         !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
         ncopy = nash(isym)
@@ -310,7 +313,7 @@ do lsym=0,mirrep-1
           ioff2 = ioff2+1
           call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
         end do
-        call DGEMM_('N','T',nskip2,njkl,ncopy,1.0d0,Cred,nskip2,Scr2,njkl,0.0d0,Scr1,nskip2)
+        call DGEMM_('N','T',nskip2,njkl,ncopy,One,Cred,nskip2,Scr2,njkl,Zero,Scr1,nskip2)
 #       ifdef _DEBUGPRINT_
         call RecPrt('G2(SO2)',' ',Scr1,nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
         call RecPrt('PSOPam 0',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
@@ -343,18 +346,18 @@ do lsym=0,mirrep-1
 
         ! Add contributions from 1-el density matrix:
 
-        !write(6,*) 'information before introducing 1-el density matrix' ! yma
-        !write(6,*) 'lsta,lend',lsta,lend
-        !write(6,*) 'ksta,kend',ksta,kend
-        !write(6,*) 'jsta,jend',jsta,jend
-        !write(6,*) 'ista,iend',ista,iend
+        !write(u6,*) 'information before introducing 1-el density matrix' ! yma
+        !write(u6,*) 'lsta,lend',lsta,lend
+        !write(u6,*) 'ksta,kend',ksta,kend
+        !write(u6,*) 'jsta,jend',jsta,jend
+        !write(u6,*) 'ista,iend',ista,iend
 
         !do i=1,nDSO
-        !  write(6,*) i,'DSO-1',DSO(i,1)
-        !  write(6,*) i,'DSO-2',DSO(i,2)
-        !  write(6,*) i,'DSO-3',DSO(i,3)
-        !  write(6,*) i,'DSO-4',DSO(i,4)
-        !  write(6,*) i,'DSO-5',DSO(i,5)
+        !  write(u6,*) i,'DSO-1',DSO(i,1)
+        !  write(u6,*) i,'DSO-2',DSO(i,2)
+        !  write(u6,*) i,'DSO-3',DSO(i,3)
+        !  write(u6,*) i,'DSO-4',DSO(i,4)
+        !  write(u6,*) i,'DSO-5',DSO(i,5)
         !end do
 
 300     continue

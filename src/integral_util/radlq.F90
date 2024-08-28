@@ -25,6 +25,7 @@ subroutine Radlq(Zeta,nZeta,lsum,Rnr,icop)
 
 use fx, only: f_interface
 use rmat, only: ExpSum, l, EpsAbs, EpsRel, RMatR
+use Definitions, only: u6
 
 implicit none
 integer nZeta, lSum, icop
@@ -52,11 +53,11 @@ do ir=0,lsum
     call dqagi(fradf,Rmatr,1,Epsabs,Epsrel,result,abser,neval,ier,limit,lenw,last,iScrt,Scrt)
     if (ier > 0) then
       call WarningMessage(1,' WARNING in Radlq; Consult output for details!')
-      write(6,*) ' ier=',ier,' Error in Dqagi called from Radlq.'
-      write(6,*) ' result=',result
-      write(6,*) ' abser =',abser
-      write(6,*) ' neval =',neval
-      write(6,*) ' WARNING in Radlq'
+      write(u6,*) ' ier=',ier,' Error in Dqagi called from Radlq.'
+      write(u6,*) ' result=',result
+      write(u6,*) ' abser =',abser
+      write(u6,*) ' neval =',neval
+      write(u6,*) ' WARNING in Radlq'
     end if
     Rnr(iZeta,ir) = result
   end do
@@ -65,7 +66,7 @@ end do
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*) ' Result in Radlq'
+write(u6,*) ' Result in Radlq'
 write(Label,'(A)') ' Rnr'
 call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
 #endif

@@ -20,6 +20,7 @@ subroutine VrfMtrx(Label,lOper,nComp,ip,Matrix)
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
 
 implicit none
 integer nComp
@@ -35,7 +36,7 @@ real*8, external :: DDot_
 call GetEnvf('MOLCAS_TEST_not_yet_here',Status)
 if (Status == ' ') return
 do iComp=1,nComp
-  VrfSum = 0.0d0
+  VrfSum = Zero
   ip1 = ip(iComp)
   iSmLbl = lOper(iComp)
   if (Prprt) iSmLbl = iand(1,iSmLbl)

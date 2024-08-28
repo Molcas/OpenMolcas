@@ -28,6 +28,7 @@ subroutine RFInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerw
+use Definitions, only: u6
 
 implicit none
 integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
@@ -55,8 +56,8 @@ ipTemp3 = nip
 nip = nip+3*nZeta*nHer
 if (nip-1 > nArr*nZeta) then
   call WarningMessage(2,'RFInt: nip-1 > nArr*nZeta')
-  write(6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  write(6,*) ' Abend in RFInt'
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+  write(u6,*) ' Abend in RFInt'
   call Abend()
 end if
 
@@ -65,8 +66,8 @@ call RecPrt(' In RFInt: A',' ',A,1,3)
 call RecPrt(' In RFInt: B',' ',B,1,3)
 call RecPrt(' In RFInt: CCoor',' ',CCoor,1,3)
 call RecPrt(' In RFInt: P',' ',P,nZeta,3)
-write(6,*) ' In RFInt: la,lb=',la,lb
-write(6,*) ' In RFInt: nHer=',nHer
+write(u6,*) ' In RFInt: la,lb=',la,lb
+write(u6,*) ' In RFInt: nHer=',nHer
 #endif
 
 ! Compute the cartesian values of the basis functions angular part

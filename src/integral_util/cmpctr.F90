@@ -30,6 +30,9 @@ subroutine CmpctR(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,Ind_Pair,Con,xZeta,xKapp,
 
 use Constants, only: One, Zero
 use Gateway_Info, only: CutInt, RadMax
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer mijkl, na, nb, nijkl
@@ -41,8 +44,8 @@ integer iOff, ijkl, ijkl_, ia, ib, jnd
 real*8 Temp, Temp1, Temp2
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' In CmpctS'
-write(6,*) AeqB,iOff,Jnd
+write(u6,*) ' In CmpctS'
+write(u6,*) AeqB,iOff,Jnd
 call RecPrt('Zeta',' ',Zeta,mijkl,1)
 call RecPrt('abcd',' ',abcd,mijkl,(na*nb)**2)
 #endif
@@ -103,8 +106,8 @@ end if
 IndZ(nijkl+1) = Jnd
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'AeqB=',AeqB
-write(6,*) 'IndZ=',IndZ
+write(u6,*) 'AeqB=',AeqB
+write(u6,*) 'IndZ=',IndZ
 call RecPrt('xZeta ',' ',xZeta,1,nijkl)
 call RecPrt('xKapp ',' ',xKapp,1,nijkl)
 call RecPrt('xP(x) ',' ',xP(1,1),1,nijkl)

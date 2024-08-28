@@ -25,6 +25,7 @@ function TstFnc(iCoSet,iIrrep,iBsFnc,nStab)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iOper, iChTbl
+use Definitions, only: u6
 
 implicit none
 logical TstFnc
@@ -38,21 +39,21 @@ nCoSet = nIrrep/nStab
 iAcc(0:nCoSet-1) = 0
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'TstFnc'
-write(6,*)
-write(6,*) 'Coset:'
+write(u6,*) 'TstFnc'
+write(u6,*)
+write(u6,*) 'Coset:'
 do i=0,nCoSet-1
-  write(6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
+  write(u6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
 end do
 
-write(6,*)
-write(6,*) 'iOper:'
-write(6,'(8I4)') (iOper(i),i=0,nIrrep-1)
-write(6,*)
-write(6,*) 'iBsFnc=',iBsFnc
-write(6,*)
-write(6,*) 'iChTbl:'
-write(6,'(8I4)') (iChTbl(iIrrep,i),i=0,nIrrep-1)
+write(u6,*)
+write(u6,*) 'iOper:'
+write(u6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+write(u6,*)
+write(u6,*) 'iBsFnc=',iBsFnc
+write(u6,*)
+write(u6,*) 'iChTbl:'
+write(u6,'(8I4)') (iChTbl(iIrrep,i),i=0,nIrrep-1)
 #endif
 
 ! Loop over operators
@@ -71,7 +72,7 @@ do i=0,nIrrep-1
 
   if ((n < 0) .or. (n > nCoSet-1)) then
     call WarningMessage(2,'TstFnc: n < 0 .or. n > nCoSet-1')
-    write(6,*) ' Coset index',n,' is wrong!'
+    write(u6,*) ' Coset index',n,' is wrong!'
     call Abend()
   end if
 

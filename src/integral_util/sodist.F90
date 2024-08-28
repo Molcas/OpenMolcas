@@ -16,6 +16,9 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Constants
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer mAO, nCoor, mBas, nCmp, nDeg, nCMO, nMOs
@@ -32,7 +35,7 @@ write(6,*) 'SODist: MO-Coefficients'
 iOff = 1
 do iIrrep=0,nIrrep-1
   if (nBas(iIrrep) > 0) then
-    write(6,*) ' Symmetry Block',iIrrep
+    write(u6,*) ' Symmetry Block',iIrrep
     call RecPrt(' ',' ',CMOs(iOff),nBas(iIrrep),nBas(iIrrep))
   end if
   iOff = iOff+nBas(iIrrep)**2

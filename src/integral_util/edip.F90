@@ -45,12 +45,15 @@ subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_Eff,nPolComp,nAnisopol,nX
 !              March 2000                                              *
 !***********************************************************************
 
-use Constants, only: Zero, One, Three
+use Constants, only: Zero, One, Three, Four, Six
 use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14, lAmberPol, DipCutOff, lRFCav, FMax, cLim, EPS, EPSInF, rDS
 #ifdef _DEBUGPRINT_
 use rctfld_module, only: ScalA, ScalB, ScalC, AFac
+use Constants, only: Half
+use Definitions, only: u6
 #endif
 use Langevin_arrays, only: Ravxyz, Cavxyz
+use Definitions, only: wp
 
 implicit none
 integer nGrid_Eff, nPolComp, nAnisoPol, nXF, iXPolType, nXMolNr
@@ -69,10 +72,10 @@ call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_Eff)
 call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_Eff)
 call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_Eff)
 call RecPrt('edip: Grid ',' ',Grid,3,nGrid_Eff)
-write(6,*) 'nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping',nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff, &
-           clim,lDamping
+write(u6,*) 'nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping',nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff, &
+            clim,lDamping
 do i=1,nGrid_Eff
-  write(6,*) 'EDOTr ',i,Grid(1,i)*dEF(1,i)+Grid(2,i)*dEF(2,i)+Grid(3,i)*dEF(3,i)
+  write(u6,*) 'EDOTr ',i,Grid(1,i)*dEF(1,i)+Grid(2,i)*dEF(2,i)+Grid(3,i)*dEF(3,i)
 end do
 #endif
 
@@ -81,8 +84,8 @@ qqo = Zero
 NonEq = .false.
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Iter fmax             testa'
+write(u6,*)
+write(u6,*) 'Iter fmax             testa'
 #endif
 Iter = 0
 555 continue
@@ -134,13 +137,13 @@ do iGrid=1,nGrid_Eff
   dy = DipMom(2,iGrid)
   dz = DipMom(3,iGrid)
 
-  !Dip_Eff = DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
+  !Dip_Eff = DipEff(iGrid)*real(Min(Iter,100),kind=wp)/100.0_wp
   Dip_Eff = DipEff(iGrid)
 
   ! Compute new dipole moment as a function of the EF, effective dipole
   ! moment and effective polarizability.
 
-  if (Dip_Eff < 1.0D-10) then
+  if (Dip_Eff < 1.0e-10_wp) then
     if (iGrid > nAnisoPol) then   ! isotropic
       DipMom(1,iGrid) = fx*PolEff(1,iGrid)
       DipMom(2,iGrid) = fy*PolEff(1,iGrid)
@@ -211,10 +214,10 @@ do iGrid=1,nGrid_Eff
       ! exclude field from iGrid when calculating the field at jGrid
       if (lExcl) goto 777
       !if (lExcl) then
-      !  write(6,*) 'EXCLUDE dip',iGrid,' at ',jGrid
+      !  write(u6,*) 'EXCLUDE dip',iGrid,' at ',jGrid
       !  goto 777
       !else if (scal < One) then
-      !  write(6,*) 'SCALE dip',iGrid,' at ',jGrid,' with ',scal
+      !  write(u6,*) 'SCALE dip',iGrid,' at ',jGrid,' with ',scal
       !end if
     end if
     ghx1 = Grid(1,jGrid)
@@ -237,11 +240,12 @@ do iGrid=1,nGrid_Eff
       else
         Tr2 = (PolEff(1,jGrid)+PolEff(4,jGrid)+PolEff(6,jGrid))/Three
       end if
-      s = 2.3268d0*(Tr1*Tr2)**(1.0/6.0)
-      v = min(1.0d0,sqrt(r2)/s)
-      d1 = 4.0*v**3-3.0*v**4
+      !FIXME: what is this number?
+      s = 2.3268_wp*(Tr1*Tr2)**(One/Six)
+      v = min(One,sqrt(r2)/s)
+      d1 = Four*v**3-Three*v**4
       d2 = v**4
-      !write(6,*) 'DAMP',d1,d2,Tr1,Tr2,sqrt(r2)
+      !write(u6,*) 'DAMP',d1,d2,Tr1,Tr2,sqrt(r2)
       dEF(1,jGrid) = dEF(1,jGrid)-(dx*d1-temp*rx*d2)*dist3*scal
       dEF(2,jGrid) = dEF(2,jGrid)-(dy*d1-temp*ry*d2)*dist3*scal
       dEF(3,jGrid) = dEF(3,jGrid)-(dz*d1-temp*rz*d2)*dist3*scal
@@ -304,7 +308,7 @@ Cavxyz(:) = Zero
 !call RecPrt('DipMom ',' ',DipMom,3,nGrid_Eff)
 
 #ifdef _DEBUGPRINT_
-write(6,*) Iter,fmax,testa
+write(u6,*) Iter,fmax,testa
 #endif
 if (fmax > clim) Go To 555
 
@@ -316,19 +320,19 @@ if (fmax > clim) Go To 555
 call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_Eff)
 
 ! Write out dipoles and a pointcharge representation of the dipoles
-write(6,*) 'QREP'
+write(u6,*) 'QREP'
 do i=1,nGrid_Eff
   dipabs = sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)
-  del = 0.01
-  write(6,*) Grid(1,i)+DipMom(1,i)/dipabs*del,Grid(2,i)+DipMom(2,i)/dipabs*del,Grid(3,i)+DipMom(3,i)/dipabs*del,dipabs/del/2.0
-  write(6,*) Grid(1,i)-DipMom(1,i)/dipabs*del,Grid(2,i)-DipMom(2,i)/dipabs*del,Grid(3,i)-DipMom(3,i)/dipabs*del,-dipabs/del/2.0
+  del = 0.01_wp
+  write(u6,*) Grid(1,i)+DipMom(1,i)/dipabs*del,Grid(2,i)+DipMom(2,i)/dipabs*del,Grid(3,i)+DipMom(3,i)/dipabs*del,dipabs/del*Half
+  write(u6,*) Grid(1,i)-DipMom(1,i)/dipabs*del,Grid(2,i)-DipMom(2,i)/dipabs*del,Grid(3,i)-DipMom(3,i)/dipabs*del,-dipabs/del*Half
 end do
 
 do i=1,nGrid_Eff
   ddotr = Grid(1,i)*DipMom(1,i)+Grid(2,i)*DipMom(2,i)+Grid(3,i)*DipMom(3,i)
   dipabs = sqrt(DipMom(1,i)*DipMom(1,i)+DipMom(2,i)*DipMom(2,i)+DipMom(3,i)*DipMom(3,i))
   radabs = sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)+Grid(3,i)*Grid(3,i))
-  write(6,*) 'RADPOL',radabs,dipabs/(scala*scalb*scalc),ddotr/(dipabs*radabs)
+  write(u6,*) 'RADPOL',radabs,dipabs/(scala*scalb*scalc),ddotr/(dipabs*radabs)
 end do
 #endif
 

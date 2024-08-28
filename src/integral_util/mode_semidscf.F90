@@ -16,20 +16,21 @@
 subroutine Mode_SemiDSCF(Wr_Mode)
 
 use IOBUF, only: iStatIO, Mode_Read, Disk, Disk_2, Mode_Write
+use Definitions, only: u6
 
 implicit none
 logical Wr_Mode
 
-!write(6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
+!write(u6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
 if (Wr_Mode) then
   if (iStatIO == Mode_Read) then
     Disk = Disk_2
     iStatIO = Mode_Write
-    !write(6,*) 'Changing to Write mode @',Disk
+    !write(u6,*) 'Changing to Write mode @',Disk
   end if
 else
   if (iStatIO == Mode_Write) then
-    write(6,*) 'Change from Write to Read mode not implemented'
+    write(u6,*) 'Change from Write to Read mode not implemented'
     call Abend()
   end if
 end if

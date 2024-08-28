@@ -20,6 +20,7 @@ subroutine PrMtrx(Label,lOper,nComp,ip,Matrix)
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
+use Definitions, only: u6
 
 implicit none
 integer nComp
@@ -42,9 +43,9 @@ do iComp=1,nComp
       if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) cycle
       if (type) then
         type = .false.
-        write(6,*)
-        write(6,*)
-        write(6,'(A,A,A,I2)') ' SO Integrals of type ',Label,' Component ',iComp
+        write(u6,*)
+        write(u6,*)
+        write(u6,'(A,A,A,I2)') ' SO Integrals of type ',Label,' Component ',iComp
       end if
       Line = ''
       if (iIrrep == jIrrep) then
