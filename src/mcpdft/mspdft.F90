@@ -35,7 +35,7 @@ module mspdft
   public :: mspdft_finalize
 
 contains
-  subroutine mspdft_finalize(heff,nroots,irlxroot,iadr19)
+  subroutine mspdft_finalize(heff,nroots,iadr19)
     ! Performs the final parts of MS-PDFT, namely:
     !   1. diagonalize heff
     !   2. print out the final results
@@ -49,9 +49,6 @@ contains
     !   nroots: integer
     !     number of roots, or dimension of heff
     !
-    !   irlxroot: integer
-    !     root to relax for some reason it is needed
-    !
     !   iadr19: integer list of length 15
     !     Holds some information when writing out
 
@@ -63,7 +60,7 @@ contains
     use mcpdft_input,only:mcpdft_options
     use write_pdft_job,only:writejob
 
-    integer,intent(in) :: nroots,irlxroot
+    integer,intent(in) :: nroots
     real(kind=wp),dimension(nroots**2),intent(in) :: heff
     integer,dimension(15),intent(in) :: IADR19
 
@@ -112,7 +109,9 @@ contains
 
     ! Update information on the runfile for possible gradient calculations.
     call put_dArray('Last energies',e_mspdft,nroots)
-    call Put_dScalar('Last energy',e_mspdft(iRlxRoot))
+    if(mcpdft_options%grad) then
+      call Put_dScalar('Last energy',e_mspdft(mcpdft_options%rlxroot))
+    endif
 
     ! Add info the checkfile for testing!
     call Add_Info("MSPDFTE",e_mspdft,nroots,8)

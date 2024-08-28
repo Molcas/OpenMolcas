@@ -43,7 +43,7 @@
       use libxc_parameters, only: FuncExtParams
       use Constants, only: Zero, One
       use rasscf_global, only: DFTFOCK, ECAS, EMY, nRoots, ExFac,
-     &                         IADR15, IPR, iRLXRoot, lRoots, lSquare,
+     &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq, NSXS,
      &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
      &                         Tot_Nuc_Charge, ISTORP, ENER
@@ -94,9 +94,6 @@ C Local print level (if any)
 ***********************************************************
       IPRLEV=IPRLOC(3)
 
-
-*TRS
-      Call Get_iScalar('Relax CASSCF root',iRlxRoot)
 
 ***********************************************************
 * Generate molecular charges
@@ -287,7 +284,7 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
         if(mcpdft_options%grad) then
           if(mcpdft_options%mspdft) then
             Call P2_contraction(D1Act,P2MOt(:,jroot))
-          else if (jroot .eq. irlxroot) then
+          else if (jroot .eq. mcpdft_options%rlxroot) then
             Call mma_allocate(P2t,NACPR2,Label='P2t')
             P2t(:)=0.0D0
             Call P2_contraction(D1Act,P2t)
@@ -332,7 +329,8 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
 
 !ANDREW _ RIGHT HERE
       if (mcpdft_options%grad .and.
-     &     (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
+     &     (mcpdft_options%mspdft .or.
+     &      (jroot .eq. mcpdft_options%rlxroot))) then
         Call mma_allocate(DtmpA_g,nTot1,Label='DtmpA_g')
         Call Fold_pdft(nSym,nBas,D1ActAO,DtmpA_g)
         Call put_darray('D1Activeao',DtmpA_g,ntot1)
@@ -433,7 +431,8 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
 
       do_pdftPot=.false.
       if (mcpdft_options%grad .and.
-     &    (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
+     &    (mcpdft_options%mspdft .or.
+     &     (jroot .eq. mcpdft_options%rlxroot))) then
 
         do_pdftPot=.true.
 
@@ -562,7 +561,7 @@ c         call xflush(6)
         Call mma_allocate(D1ActAO_FA,ntot2,Label='D1ActAO_FA')
 *
         itsDisk = IADR19(3)
-        do i=1,irlxroot-1
+        do i=1,mcpdft_options%rlxroot-1
           Call DDaFile(JOBOLD,0,D1Act_FA,NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,D1Spin,NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
@@ -717,15 +716,10 @@ c         call xflush(6)
                write(6,*) FockA(i)
              end do
         end  if
-*
-*       if (jroot.ne.irlxroot) then
-*          Call dcopy_(ntot1,FI,1,FockI,1)
-*          Call dcopy_(ntot1,FA,1,FockA,1)
-*       end if
-*
+
+
         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
         call  dcopy_(ntot1,focki_save,1,FockI,1)
-*       call  dcopy_(nacpar,D1Act_FA,1,D1Act,1)
         Call mma_deallocate(FockI_Save)
         Call mma_deallocate(CMO_X)
         Call mma_deallocate(D1Act_FA)
@@ -821,7 +815,7 @@ c         call xflush(6)
 *
 ************************************************************************
       if(mcpdft_options%grad .and. (.not. mcpdft_options%mspdft)
-     &   .and. jroot .eq. irlxroot) then
+     &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
          Write(LF,*) 'Calculating potentials for analytic gradients...'
 !MCLR requires two sets of things:
@@ -1066,7 +1060,7 @@ cPS         call xflush(6)
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',Energies,nroots)
       Call Put_cArray('Relax Method','MCPDFT  ',8)
-      Call Put_dScalar('Last energy',Energies(iRlxRoot))
+      Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
       iSA = 1
 
 !      Call mma_allocate(P2dt1,NACPR2,Label='P2dt1')
@@ -1084,14 +1078,13 @@ cPS         call xflush(6)
 !      Call mma_deallocate(D1Act1)
 
 !Put information needed for geometry optimizations.
-      !if (jroot.eq.iRlxRoot) then
           iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to
 *skip)
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
       Call Put_cArray('MCLR Root','****************',16)
-      Call Put_iScalar('Relax CASSCF root',irlxroot)
+      Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
       !end if
 
 
@@ -1108,12 +1101,10 @@ cPS         call xflush(6)
 
 
 
-      !if (jroot.eq.iRlxRoot) then
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',Energies,nroots)
       Call Put_cArray('Relax Method','MCPDFT  ',8)
-      Call Put_dScalar('Last energy',Energies(iRlxRoot))
-      !end if
+      Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
 
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(Tmpa)
@@ -1124,7 +1115,7 @@ cPS         call xflush(6)
 
       if(mcpdft_options%grad) then
         dmDisk = IADR19(3)
-        do jroot=1,irlxroot-1
+        do jroot=1,mcpdft_options%rlxroot-1
           Call DDaFile(JOBOLD,0,D1Act,NACPAR,dmDisk)
           Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)

@@ -47,7 +47,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use rasscf_global, only: ECAS, ExFac, IPR, iRLXRoot, ITER,
+      use rasscf_global, only: ECAS, ExFac, IPR, ITER,
      &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
      &                         nFint, nRoots, nTot4, iRoot, Weight,
      &                         Ener
@@ -296,7 +296,7 @@
         write(6,'(6X,A)') repeat('=',80)
         END IF
       ELSE
-        mcpdft_options%nac_states(1) = iRlxRoot
+        mcpdft_options%nac_states(1) = mcpdft_options%rlxroot
         mcpdft_options%nac_states(2) = 0
       End IF
       call Put_lScalar('isCMSNAC        ', mcpdft_options%nac)
@@ -370,7 +370,7 @@
 
         If (Do_Rotate) Then
           call replace_diag(hrot, ref_e, lroots)
-          call mspdft_finalize(hrot, lroots, irlxroot, iadr19)
+          call mspdft_finalize(hrot, lroots, iadr19)
         End If
 
       ! Free up some space

@@ -30,7 +30,7 @@ module mcpdft_input
     character(len=256) :: wfn_file = ""
     character(len=256) :: extparamfile = ""
 
-    integer(kind=iwp) :: rlxroot = 1
+    integer(kind=iwp) :: rlxroot = 0
     integer(kind=iwp),dimension(2) :: nac_states = 0
     type(OTFNAL_t) :: otfnal
 
@@ -177,7 +177,7 @@ contains
     use Fock_util_global,only:DoCholesky
     implicit none
 
-    if(mcpdft_options%rlxroot < 1) then
+    if(mcpdft_options%grad .and. .not. mcpdft_options%nac .and. mcpdft_options%rlxroot < 1) then
       call WarningMessage(2,"Invalid RLXRoot specified")
       write(u6,*) ' ************* ERROR **************'
       write(u6,*) ' RLXRoot keyword must specify a    '

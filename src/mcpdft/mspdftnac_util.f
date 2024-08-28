@@ -19,7 +19,7 @@
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
-      use rasscf_global, only: lRoots, iRLXRoot, NACPR2, nRoots,
+      use rasscf_global, only: lRoots, NACPR2, nRoots,
      &                         nTot4
       Implicit None
 
@@ -109,7 +109,7 @@
       ! Some other things that were initially in mcpdft.f
       Call Put_cArray('Relax Method','MSPDFT  ',8)
       Call Put_cArray('MCLR Root','****************',16)
-      Call Put_iScalar('Relax CASSCF root',irlxroot)
-
+      Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
+      RETURN
       End Subroutine
 

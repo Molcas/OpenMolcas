@@ -21,8 +21,9 @@
       use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
-      use rasscf_global, only: lroots, iRLXRoot, NACPR2, nRoots,
+      use rasscf_global, only: lroots, NACPR2, nRoots,
      &                         nTot4
+      use mcpdft_input, only: mcpdft_options
       Implicit None
 
 #include "rasdim.fh"
@@ -39,7 +40,7 @@
       Logical :: MECI_via_SLAPAF = .False.
       INTEGER NACstatesOpt(2)
 
-      NACstatesOpt(1)=irlxroot
+      NACstatesOpt(1)=mcpdft_options%rlxroot
       NACstatesOpt(2)=0
 
       Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
@@ -59,7 +60,8 @@
 **********Fock_Occ Part
       FockOcc(:)=0.0D0
       DO JRoot=1,lRoots
-      call daXpY_(ntot1,si_pdft(jroot,irlxroot)**2,
+      call daXpY_(ntot1,
+     &           si_pdft(jroot,mcpdft_options%rlxroot)**2,
      &           FocMS(:,JRoot),1,FockOcc,1)
       END DO
       Call Put_dArray('FockOcc',FockOcc,ntot1)
@@ -81,17 +83,17 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-      RIK2=si_pdft(1,irlxroot)**2
+      RIK2=si_pdft(1,mcpdft_options%rlxroot)**2
       CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
       CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
       CALL DScal_(NACPR2,RIK2,P2MOt(:,1),1)
       ij=0
       jRoot=1
       ! for the comment below, lhrot -> si_pdft
-********LHRot(1,iRlxRoot) should give me R_I1
+********LHRot(1,RlxRoot) should give me R_I1
       Do jRoot=2,lRoots
       ij=0
-       RIK2=si_pdft(jroot,irlxroot)**2
+       RIK2=si_pdft(jroot,mcpdft_options%rlxroot)**2
 *******DIDA for prepp
        CALL DaXpY_(nTot1,-RIK2,DIDA(:,jRoot),1,DIDA(:,1),1)
 *******FT99 for bk
@@ -109,7 +111,7 @@
       ! Some other things that were initially in mcpdft.f
       Call Put_cArray('Relax Method','MSPDFT  ',8)
       Call Put_cArray('MCLR Root','****************',16)
-      Call Put_iScalar('Relax CASSCF root',irlxroot)
+      Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
       RETURN
       End Subroutine
 
