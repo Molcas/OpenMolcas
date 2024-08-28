@@ -147,6 +147,9 @@ contains
           call EOFError(buffer)
         endif
         read(buffer,*,IOStat=iError) mcpdft_options%rlxroot
+        if(iError /= 0) then
+          call IOError(buffer)
+        endif
 
         ! Done with reading input
       case("END ")
@@ -164,6 +167,9 @@ contains
 
     if(mcpdft_options%grad .and. mcpdft_options%rlxroot == 0 .and. .not. mcpdft_options%nac) then
       call get_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
+    endif
+    if(mcpdft_options%rlxroot > 0) then
+      call put_iScalar('NumGradRoot',mcpdft_options%rlxroot)
     endif
 
     call verify_input()

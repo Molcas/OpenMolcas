@@ -1125,18 +1125,8 @@ cPS         call xflush(6)
 *        Andrew added this line to fix heh2plus
         Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
         Call Put_dArray('D1mo',D1Act,NACPAR)
-*        write(6,*) 'd1Spin'
-*        do i=1,NACPAR
-*          write(6,*) D1spin(i)
-*        end do
-*TRS commenting out because we already read over this
-*        Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
         Call Put_dArray('P2mo',P2d,NACPR2)
-*        write(6,*) 'D2'
-*        do i=1,NACPR2
-*          write(6,*) p2d(i)
-*        end do
 
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)

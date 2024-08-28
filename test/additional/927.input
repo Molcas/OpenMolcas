@@ -21,9 +21,6 @@ end
 
 >> COPY InitOrb $Project.ScfOrb
 
->>foreach hybrid in (0.0, 0.25)
->>foreach state in (1, 2)
-
 &RASSCF
 CIONly
 LUMORB
@@ -32,12 +29,15 @@ NACTEL=2 0 0
 INACTIVE=1
 RAS2=2
 CIROOT=2 2 1
-RLXROOT=$state
+
+>>foreach hybrid in (0.0, 0.25)
+>>foreach state in (1, 2)
 
 &MCPDFT
 KSDFT=T:PBE
 GRAD
 LAMB = $hybrid
+RLXROOT=$state
 
 &ALASKA
 
