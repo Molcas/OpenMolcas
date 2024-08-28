@@ -105,10 +105,6 @@ subroutine mcpdft_init()
     NBAS(I) = 0
   ENDDO
 
-! initialize occupation numbers for GAS
-  NGAS = 3
-  NGSSH = 0
-  IGSOCCX = 0
   do I = 1,mxOrb
     IXSYM(I) = 0
   enddo
