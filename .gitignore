@@ -5,6 +5,7 @@
 *~
 *.swp
 # leftovers
+build
 CMakeCache.txt
 CMakeFiles
 # tags files
@@ -17,6 +18,9 @@ GTAGS
 #IDEs
 .vscode
 .idea
+
+# MacOS
+.DS_Store
 
 ## SPECIFIC
 # data
