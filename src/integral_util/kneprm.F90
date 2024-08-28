@@ -25,7 +25,6 @@ subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,l
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Constants
 use Definitions, only: u6
 
 implicit none

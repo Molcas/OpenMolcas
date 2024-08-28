@@ -22,7 +22,6 @@ subroutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShe
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
-use Constants
 
 implicit none
 integer iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, nComp

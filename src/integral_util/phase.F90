@@ -22,10 +22,10 @@ subroutine Phase(iCmp,jCmp,kCmp,lCmp,iAng,iShll,kOp,ijkl,AOInt)
 !             June '90                                                 *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas
-use Constants
+use Constants, only: One
 use Definitions, only: wp
 
 implicit none

@@ -24,8 +24,6 @@ subroutine Traxyz(nZeta,la,WInt,Scr,A)
 !              October '92.                                            *
 !***********************************************************************
 
-use Constants
-
 implicit none
 integer nZeta, la
 real*8 WInt(nZeta*3**(la-1),3), Scr(nZeta*3**la), A(nZeta,3,3)

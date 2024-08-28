@@ -12,7 +12,7 @@
 !***********************************************************************
 
 #ifdef _EFP_
-function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,&user_field)
+function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,user_field)
 !***********************************************************************
 !                                                                      *
 !     This is a callback routine for the computation of the electric   *
@@ -21,8 +21,8 @@ function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,&user_field)
 !                                                                      *
 !***********************************************************************
 
-use EFP
-use iso_c_binding, only: c_int, c_size_t, c_double, c_ptr
+use EFP, only: EFP_RESULT_SUCCESS
+use, intrinsic :: iso_c_binding, only: c_int, c_size_t, c_double, c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: u6
 

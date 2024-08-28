@@ -11,7 +11,7 @@
 
 module EFP_Module
 
-use iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_int, c_ptr
 
 integer(c_int) XYZABC_Type, Points_Type, RotMat_Type
 parameter(XYZABC_Type=0,Points_Type=1,RotMat_Type=2)

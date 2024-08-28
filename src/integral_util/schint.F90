@@ -31,8 +31,7 @@ subroutine SchInt(CoorM,iAnga,iCmp,mZeta,Zeta,ZInv,rKapab,P,rKapcd,Q,nZeta,Wrk,n
 !              for estimates of the gradient.                          *
 !***********************************************************************
 
-use Real_Spherical
-use Constants
+use Real_Spherical, only: ipSph, RSph
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

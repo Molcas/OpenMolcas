@@ -23,7 +23,7 @@ subroutine vCrtCmp(Zeta12,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
 !             November '90                                             *
 !***********************************************************************
 
-use Constants
+use Constants, only: One
 
 implicit none
 integer nZeta, na, nHer

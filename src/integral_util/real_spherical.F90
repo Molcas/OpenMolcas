@@ -73,7 +73,7 @@ subroutine Sphere(lMax)
 !                     N. F. Chilton at OpenMolcas2020                  *
 !***********************************************************************
 
-  use Constants
+  use Constants, only: Zero
   use define_af, only: iTabMx
 
   implicit none

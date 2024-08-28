@@ -12,14 +12,23 @@
 module Integral_Interfaces
 
 ! Dummy modules to get correct order of compilation
-use setup,only:
-use Real_Spherical,only:
-use iSD_data,only:
-use k2_arrays,only:
-use rmat,only:
-use define_af,only:
-use Property_Label,only:
-use ri_glob,only:
+use Real_Spherical, only:
+use iSD_data, only:
+use k2_arrays, only:
+use rmat, only:
+use define_af, only:
+use Property_Label, only:
+use RI_glob, only:
+use Basis_Info, only:
+use Center_Info, only:
+use Cholesky, only:
+use Gateway_Info, only:
+use Int_Options, only:
+use Sizes_of_Seward, only:
+use Symmetry_Info, only:
+use stdalloc, only:
+use Constants, only:
+use Definitions, only:
 
 private
 

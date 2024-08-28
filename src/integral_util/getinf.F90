@@ -21,7 +21,7 @@ subroutine GetInf(DoRys,nDiff)
 !             January 1992                                             *
 !***********************************************************************
 
-use iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Real_Spherical, only: lMax_Internal, Sphere
 use Her_RW, only: nPrp
 use External_Centers, only: nOrdEF

@@ -13,7 +13,7 @@
 subroutine binte(k,alfa,beta,r0,a,ggrin,nz)
 
 use Constants, only: Zero
-use welcom
+use welcom, only: binom, fiint, kmax
 
 implicit none
 integer k, nz

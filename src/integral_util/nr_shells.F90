@@ -20,8 +20,9 @@ subroutine Nr_Shells(nSkal)
 !             Sweden. January '98.                                     *
 !***********************************************************************
 
-use Basis_Info
-use BasisMode
+use Basis_Info, only: dbsc, nCnttp, Shells
+use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, lCnttp, Valence_Mode, &
+                     With_Auxiliary_Mode, With_Fragment_Mode
 
 implicit none
 integer, intent(Out) :: nSkal

@@ -25,10 +25,8 @@ subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,
 !             Modified by R.L Februrary, 1999.                         *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
+use Basis_Info, only: Shells
 use Breit, only: nComp
-use Constants
 use define_af, only: iTabMx
 
 implicit none

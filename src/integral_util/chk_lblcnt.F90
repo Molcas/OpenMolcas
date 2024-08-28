@@ -11,7 +11,7 @@
 
 subroutine Chk_LblCnt(Lbl,nList)
 
-use Center_Info
+use Center_Info, only: dc
 
 implicit none
 integer nList

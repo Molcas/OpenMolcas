@@ -11,6 +11,8 @@
 
 subroutine iRBuf(Array,nArray,Copy)
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+
 implicit none
 #include "SysDef.fh"
 integer nArray
@@ -25,8 +27,6 @@ return
 contains
 
 subroutine idRBuf(Array,nArray,Copy)
-
-  use iso_c_binding
 
   integer :: nArray
   logical :: Copy

@@ -16,7 +16,7 @@ subroutine SetMltplCenters()
 !
 ! Set multipole centers.
 
-use MpmC
+use MpmC, only: Coor_MPM
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CoM
 use stdalloc, only: mma_allocate

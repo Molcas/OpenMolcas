@@ -32,7 +32,7 @@ subroutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShe
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
-use Constants
+use Constants, only: One, Half
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

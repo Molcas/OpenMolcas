@@ -39,13 +39,14 @@ subroutine DesymP(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,iAO,kOp,ijkl,Aux,
 !             matrix, January '92.                                     *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
-use Constants
+use Constants, only: Zero, Eight, Half
 use Definitions, only: wp
 #ifdef _DEBUGPRINT_
+use Constants, only: One
 use Definitions, only: u6
 #endif
 

@@ -13,7 +13,7 @@
 
 function iNew(iTest,iIrrep)
 
-use Symmetry_Info
+use Symmetry_Info, only: iChTbl, nIrrep
 
 implicit none
 integer iNew

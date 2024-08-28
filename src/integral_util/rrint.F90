@@ -12,7 +12,7 @@
 subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
 
 use Constants, only: Zero, One, Two, Three, Pi, Four
-use welcom
+use welcom, only: binom, kmax, fac, fiint
 use Definitions, only: wp
 
 implicit none

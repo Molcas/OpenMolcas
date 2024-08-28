@@ -11,7 +11,8 @@
 
 subroutine Set_Basis_Mode(Label)
 
-use BasisMode
+use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, Valence_Mode, With_Auxiliary_Mode, &
+                     With_Fragment_Mode
 
 implicit none
 character(len=*) Label

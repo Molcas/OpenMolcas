@@ -15,7 +15,7 @@
 
 module dEAF
 
-use iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 
 implicit none
 

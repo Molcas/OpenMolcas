@@ -11,7 +11,7 @@
 
 subroutine Tranca(Cavxyz,Cavsph,lMax,CarSph)
 
-use Real_Spherical
+use Real_Spherical, only: ipSph, RSph
 use Constants, only: Zero, One
 
 implicit none

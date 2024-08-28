@@ -11,8 +11,6 @@
 
 subroutine OrdExpD2C(nExp,Exp,nCntrc,Cff)
 
-use Constants
-
 implicit none
 integer nExp, nCntrc
 real*8 exp(nExp), Cff(nExp,nCntrc)
@@ -41,8 +39,8 @@ do iExp=1,nExp-1
     call DSwap_(nCntrc,Cff(iExp,1),nExp,Cff(kExp,1),nExp)
   end if
 end do
-#ifdef _ORDER_BAS_
 
+#ifdef _ORDER_BAS_
 ! Now order the contracted basis functions diffuse to compact
 
 do iCntrc=1,nCntrc-1

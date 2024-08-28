@@ -26,7 +26,7 @@ subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n
 !             Modified for RI Feb. 2007                                *
 !***********************************************************************
 
-use setup
+use setup, only: nSOs
 use pso_stuff, only: lPSO, lSA, Case_2C, Case_3C, Gamma_On, nGamma, Gamma_MRCISD, Bin, D0, DS, DVar, G_Toc, lBin, LuGamma, nDens, &
                      nNP, nV_k, nZ_p_k, SO2CI, U_K, V_K, Z_P_K, DSVar
 use iSD_data, only: iSO2Sh

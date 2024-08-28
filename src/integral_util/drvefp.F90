@@ -16,7 +16,7 @@ subroutine DrvEFP(First)
 use EFP_Module, only: EFP_Instance, nEFP_FRAGMENTS, Coor_Type, FRAG_Type, EFP_Coors
 use EFP, only: EFP_Add_Fragment, EFP_Add_Potential, EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare, &
                EFP_Set_Electron_Density_Field_FN, EFP_Set_Frag_Coordinates
-use iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc, c_funloc
+use, intrinsic :: iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc, c_funloc
 use Definitions, only: wp
 
 implicit none

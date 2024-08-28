@@ -11,7 +11,7 @@
 
 subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,XF,nXF,nOrd_XF,nPolComp)
 
-use Constants
+use Constants, only: Zero
 
 implicit none
 integer nGrid, nGrid_Eff, nXF, nOrd_XF, nPolComp

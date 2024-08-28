@@ -11,6 +11,8 @@
 
 subroutine iWBuf(Array,nArray)
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+
 implicit none
 #include "SysDef.fh"
 integer nArray
@@ -24,8 +26,6 @@ return
 contains
 
 subroutine idWBuf(Array,nArray)
-
-  use iso_c_binding
 
   integer :: nArray
   integer, target :: Array(nArray)

@@ -15,8 +15,8 @@
 !#define _DEBUGPRINT_
 subroutine RFmltp()
 
+use rctfld_module, only: Eps, EpsInf, lMax, lRF, lRFCav, MM, NonEq_ref, PCM, rds
 use stdalloc, only: mma_allocate, mma_deallocate
-use rctfld_module
 use Definitions, only: u6
 
 implicit none
@@ -44,7 +44,6 @@ subroutine RFmltp_Internal(Qs,nComp)
 !***********************************************************************
 
   use Constants, only: Zero, One, Half
-  use rctfld_module
 
   implicit none
   integer nComp

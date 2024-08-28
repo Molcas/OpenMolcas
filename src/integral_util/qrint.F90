@@ -11,8 +11,8 @@
 
 function qRINT(N,A,C,EXPA)
 
-use Constants
-use welcom
+use Constants, only: Zero, One, Half, Pi
+use welcom, only: binom, kmax
 use Definitions, only: wp
 
 implicit none

@@ -37,7 +37,7 @@ use Symmetry_Info, only: nIrrep, iChBas
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Integral_Interfaces, only: int_kernel, int_mem, OneEl_Integrals
-use Constants
+use Constants, only: Zero, One, Two, Half
 use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module, only: lRFCav, TK
 use Definitions, only: wp, u6

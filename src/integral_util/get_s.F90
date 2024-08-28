@@ -11,7 +11,7 @@
 
 subroutine Get_S(icol,str,n)
 
-use getline_mod
+use getline_mod, only: iend, istrt, line, ncol
 use Definitions, only: u6
 
 implicit none

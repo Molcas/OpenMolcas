@@ -15,7 +15,7 @@
 
 subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
 
-use dEAF
+use dEAF, only: dEAFARead, dEAFAWrite, dEAFRead
 use IOBUF, only: IODone, Disk, iBuf, ipos, iStatIO, Mode_Write, OnDisk, Mode_Read, Disk_1, Disk_2, lBuf, nBuf, Buffer, ID, LuTmp
 use Constants, only: Zero
 use Definitions, only: wp, u6

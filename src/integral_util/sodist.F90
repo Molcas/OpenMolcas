@@ -15,7 +15,6 @@ subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,Do
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
-use Constants
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

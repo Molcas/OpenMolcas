@@ -11,7 +11,7 @@
 
 function iChxyz(Coord,iGen,nGen)
 
-use Constants
+use Constants, only: Zero
 
 implicit none
 integer iChxyz

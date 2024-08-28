@@ -20,7 +20,7 @@ subroutine Init_PCM(NonEq,iCharg)
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
 
-use iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use PCM_arrays, only: MxVert, Centr, DCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCMDm, PCMiSph, PCMSph, PCMTess, PCM_n, &
                       PCM_SQ, SSPh, Vert
 use Isotopes, only: MaxAtomNum, PTab

@@ -23,13 +23,13 @@ subroutine RFNuc(CoOP,rNucMm,ir)
 !             November '90                                             *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 #ifdef _OBSOLETE_
+use Phase_Info, only: iPhase
 use External_Centers, only: nOrd_XF, XF
 use Definitions, only: wp
 #endif
-use Phase_Info
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, One
 #ifdef _DEBUGPRINT_

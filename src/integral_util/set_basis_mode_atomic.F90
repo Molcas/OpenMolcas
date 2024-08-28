@@ -12,7 +12,7 @@
 subroutine Set_Basis_Mode_Atomic(i,j)
 
 use Basis_Info, only: dbsc
-use BasisMode
+use BasisMode, only: Atomic, Auxiliary_Mode, Basis_Mode, kCnttp, lCnttp, Valence_Mode
 
 implicit none
 integer i, j

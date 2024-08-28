@@ -11,7 +11,7 @@
 
 subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities)
 
-use k2_arrays
+use k2_arrays, only: ipOffD
 
 implicit none
 integer ijS, ipDij, ipDSij, mDCRij, ipDDij, ipTmp, nr_of_Densities

@@ -11,11 +11,10 @@
 
 subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl, iChBas
 use Real_Spherical, only: iSphCr, LblCBs, LblSBs
-use Constants
 
 implicit none
 #include "Molcas.fh"

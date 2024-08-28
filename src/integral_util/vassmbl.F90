@@ -23,7 +23,8 @@ subroutine vAssmbl(Rnxyz,Axyz,la,Rxyz,lr,Bxyz,lb,nZeta,HerW,nHer,Temp)
 !             November '90                                             *
 !***********************************************************************
 
-use Constants
+use Constants, only: Zero
+
 implicit none
 integer la, lr, lb, nZeta, nHer
 real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer), Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), &

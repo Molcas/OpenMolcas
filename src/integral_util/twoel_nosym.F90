@@ -31,9 +31,7 @@ subroutine TwoEl_NoSym(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,No
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
-use Center_Info
+use Basis_Info, only: Shells
 use Gateway_Info, only: ThrInt, CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
@@ -41,7 +39,7 @@ use Int_Options, only: ExFac, Thize, W2Disc, IntOnly => PreSch
 use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
 use k2_arrays, only: TwoHam => pFq, Dens => pDq
 use Breit, only: nComp
-use Constants
+use Constants, only: One, Four, Eight
 use Definitions, only: wp, u6
 use k2_structure, only: k2_type
 

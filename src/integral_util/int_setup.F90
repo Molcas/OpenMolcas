@@ -11,7 +11,7 @@
 
 subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
 
-use Basis_Info
+use Basis_Info, only: dbsc
 use Gateway_Info, only: DoFMM, RPQMin
 use Gateway_global, only: FMM_shortrange
 use iSD_data, only: nSD

@@ -36,7 +36,7 @@ subroutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,k2Data1,k2Data2,Z
 !             January '93 modified to Direct SCF                       *
 !***********************************************************************
 
-use Constants
+use Constants, only: Zero, One, Four
 use k2_structure, only: k2_type
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

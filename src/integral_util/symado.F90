@@ -12,7 +12,6 @@
 subroutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,lOper,iChO,Factor)
 
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
-use Constants
 use Definitions, only: wp, u6
 
 implicit none

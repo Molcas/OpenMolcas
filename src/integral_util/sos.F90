@@ -22,7 +22,6 @@ subroutine SOS(iStabO,nStabO,lOper)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChTbl, iOper
-use Constants
 use Definitions, only: u6
 
 implicit none

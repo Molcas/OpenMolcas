@@ -45,8 +45,6 @@ subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iCh
 !             Modified loop structure April 99                         *
 !***********************************************************************
 
-use setup
-use Real_Spherical
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Sizes_of_Seward, only: S

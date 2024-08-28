@@ -12,11 +12,11 @@
 !#define _DEBUGPRINT_
 subroutine Def_Shells(iSD,nSD,mSkal)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, iCnttp_dummy, nBas, nCnttp, Shells
 use Sizes_of_Seward, only: S
-use BasisMode
-use disp
+use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, Valence_Mode, With_Auxiliary_Mode, &
+                     With_Fragment_Mode
+use disp, only: Dirct, IndDsp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
