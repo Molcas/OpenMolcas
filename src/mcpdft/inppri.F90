@@ -23,7 +23,7 @@ subroutine InpPri_m()
   use rctfld_module, only: lRF
   use mcpdft_input,only:mcpdft_options
   use definitions,only:iwp,wp,u6
-  use rasscf_global,only:iRlxRoot,NAC,NFR,NIN,NONEQ,NROOTS,NSEC,Tot_Charge,tot_el_charge, &
+  use rasscf_global,only:NAC,NFR,NIN,NONEQ,NROOTS,NSEC,Tot_Charge,tot_el_charge, &
                         tot_nuc_charge,header
   implicit none
 
@@ -187,9 +187,7 @@ subroutine InpPri_m()
       if(mcpdft_options%nac) then
         write(u6,fmt2//'A,T45,I6,1X,"/",1X,I6)') 'MSPDFT states for NAC',mcpdft_options%nac_states(1),mcpdft_options%nac_states(2)
       else
-        ! This shouldn't be here, but oh well
-        Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-        write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
+        write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',mcpdft_options%rlxroot
       endif
     endif
     Call CollapseOutput(0,'MCPDFT specifications:')

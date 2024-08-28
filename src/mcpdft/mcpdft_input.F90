@@ -30,6 +30,7 @@ module mcpdft_input
     character(len=256) :: wfn_file = ""
     character(len=256) :: extparamfile = ""
 
+    integer(kind=iwp) :: rlxroot = 1
     integer(kind=iwp),dimension(2) :: nac_states = 0
     type(OTFNAL_t) :: otfnal
 
@@ -141,6 +142,11 @@ contains
           call FileLocatingError(buffer, mcpdft_options%extparamfile)
         endif
 
+      case("RLXR")
+        if(.not. next_non_comment(lu_input,buffer)) then
+          call EOFError(buffer)
+        endif
+        read(buffer,*,IOStat=iError) mcpdft_options%rlxroot
 
         ! Done with reading input
       case("END ")
@@ -156,6 +162,10 @@ contains
     call mma_deallocate(buffer)
     mcpdft_options%otfnal = OTFNAL_t(otxc,lambda)
 
+    if(mcpdft_options%grad .and. mcpdft_options%rlxroot == 0 .and. .not. mcpdft_options%nac) then
+      call get_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
+    endif
+
     call verify_input()
 
   endsubroutine
@@ -166,6 +176,15 @@ contains
     use definitions,only:u6
     use Fock_util_global,only:DoCholesky
     implicit none
+
+    if(mcpdft_options%rlxroot < 1) then
+      call WarningMessage(2,"Invalid RLXRoot specified")
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' RLXRoot keyword must specify a    '
+      write(u6,*) ' valid RASSCF root                 '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    endif
 
     if(mcpdft_options%mspdft .and. mcpdft_options%grad) then
       if(mcpdft_options%otfnal%is_hybrid()) then
