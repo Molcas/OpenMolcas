@@ -102,11 +102,6 @@ subroutine InpPri_m()
     write(u6,Fmt2//'A,T45,I6)') 'State symmetry',STSYM
     write(u6,fmt2//'A,T40,I11)') 'Number of CSFs',NCONF
     write(u6,Fmt2//'A,T45,I6)') 'Number of RASSCF root(s) available',nroots
-    ! This shouldn't be here, but oh well
-    Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-    If(irlxroot /= 0) then
-      write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
-    endif
     Call CollapseOutput(0,'Wave function specifications:')
 
     Call Get_cArray('Irreps',lIrrep,24)
@@ -188,7 +183,14 @@ subroutine InpPri_m()
       write(u6,Fmt1) 'Final energies (and CI vectors) will be written to wave function file'
     endif
     If(mcpdft_options%grad) then
-      write(u6,Fmt1) 'On-top potentials are computed for gradients'
+      write(u6,Fmt1) 'On-top potentials are computed'
+      if(mcpdft_options%nac) then
+        write(u6,fmt2//'A,T45,I6,1X,"/",1X,I6)') 'MSPDFT states for NAC',mcpdft_options%nac_states(1),mcpdft_options%nac_states(2)
+      else
+        ! This shouldn't be here, but oh well
+        Call Get_iScalar('Relax CASSCF root',iRlxRoot)
+        write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
+      endif
     endif
     Call CollapseOutput(0,'MCPDFT specifications:')
 
