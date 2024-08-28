@@ -18,21 +18,6 @@
       SUBROUTINE MCPDFT(IRETURN)
 ************************************************************************
 *                                                                      *
-*           ######     #     #####   #####   #####  #######            *
-*           #     #   # #   #     # #     # #     # #                  *
-*           #     #  #   #  #       #       #       #                  *
-*           ######  #     #  #####   #####  #       #####              *
-*           #   #   #######       #       # #       #                  *
-*           #    #  #     # #     # #     # #     # #                  *
-*           #     # #     #  #####   #####   #####  #                  *
-*                                                                      *
-*                                                                      *
-*                 A program for MC-PDFT calculations                   *
-*                 Called after RASSCF is called.                       *
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
 *     written by:                                                      *
 *     M.P. Fuelscher and J. Olsen, P.Aa. Malmqvist and B.O. Roos       *
 *     University of Lund, Sweden                                       *

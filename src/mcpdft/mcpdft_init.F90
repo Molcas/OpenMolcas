@@ -20,14 +20,14 @@
 !***********************************************************************
 
 subroutine mcpdft_init()
+  use constants,only:zero,one
+  use definitions,only:iwp
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
-  Use KSDFT_Info,Only:CoefR,CoefX
   use mcpdft_output,only:set_print_level
   use gas_data, only: NGAS, NGSSH, IGSOCCX
-  use rasscf_global, only: iRoot, DFTFOCK, ENER, ExFac, IPT2, iTriM, lRoots, NonEq, nRoots, &
-                           PreThr, Weight, Title, ixSym, iTri
-
+  use rasscf_global,only:iroot,weight,DFTFOCK,ENER,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,PreThr,TITLE, &
+                        iXSym,iTRI
 
   implicit none
 
@@ -35,7 +35,7 @@ subroutine mcpdft_init()
 #include "general.fh"
 #include "timers.fh"
 
-  integer i
+  integer(kind=iwp) :: i
 !----------------------------------------------------------------------*
 
 ! Set print levels, and adjust them if needed:
@@ -47,7 +47,7 @@ subroutine mcpdft_init()
 #ifdef _MOLCAS_MPP_
   ChFracMem = 0.3d0
 #else
-  ChFracMem = 0.0d0
+  ChFracMem = zero
 #endif
 
 ! Default title line:
@@ -61,20 +61,16 @@ subroutine mcpdft_init()
   iRoot = 0
   IROOT(1) = 1
 ! weights used for average energy calculations
-  WEIGHT = 0.0d0
-  WEIGHT(1) = 1.0D0
+  WEIGHT = zero
+  WEIGHT(1) = one
 ! iteration energies
-  ENER = 0.0D0
+  ENER = zero
 ! prethr: energy threshold for printout of orbitals
   prethr = 0.15d0
 
 ! Default value for type of CASSCF (used for DFT)
   DFTFOCK = "ROKS"
-  ExFac = 0.0d0
-
-! Initialize KSDFT coefficients (S Dong, 2018)
-  CoefR = 1.0D0
-  CoefX = 1.0D0
+  ExFac = zero
 
 ! default spin value (singlet)
   ISPIN = 1
@@ -123,21 +119,21 @@ subroutine mcpdft_init()
   enddo
 
 ! Initialize Timing Variables
-  Ebel_3 = 0.0d0
-  Eterna_3 = 0.0d0
-  Rado_3 = 0.0d0
-  Rolex_3 = 0.0d0
-  Omega_3 = 0.0d0
-  Tissot_3 = 0.0d0
-  Piaget_3 = 0.0d0
-  Candino_3 = 0.0d0
-  Fortis_3 = 0.0d0
-  Zenith_3 = 0.0d0
-  Gucci_3 = 0.0d0
-  Alfex_3 = 0.0d0
-  WTC_3 = 0.0d0
-  Longines_3 = 0.0d0
-  Oris_2 = 0.0d0
-  Movado_2 = 0.0d0
+  Ebel_3 = zero
+  Eterna_3 = zero
+  Rado_3 = zero
+  Rolex_3 = zero
+  Omega_3 = zero
+  Tissot_3 = zero
+  Piaget_3 = zero
+  Candino_3 = zero
+  Fortis_3 = Zero
+  Zenith_3 = zero
+  Gucci_3 = zero
+  Alfex_3 = zero
+  WTC_3 = zero
+  Longines_3 = zero
+  Oris_2 = zero
+  Movado_2 = Zero
 
 END
