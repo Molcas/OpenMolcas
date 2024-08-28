@@ -25,7 +25,6 @@ subroutine mcpdft_init()
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
   use mcpdft_output,only:set_print_level
-  use gas_data, only: NGAS, NGSSH, IGSOCCX
   use rasscf_global,only:iroot,weight,DFTFOCK,ENER,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,PreThr,TITLE, &
                         iXSym,iTRI
 

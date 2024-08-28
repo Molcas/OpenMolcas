@@ -1,32 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Markus P. Fuelscher                              *
-************************************************************************
-      Subroutine InpPri_m()
-************************************************************************
-*                                                                      *
-*     Echo input                                                       *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Markus P. Fuelscher                              *
+!               2024, Matthew R. Hennefarth                            *
+!***********************************************************************
+      subroutine InpPri_m()
+      use stdalloc,only: mma_allocate, mma_deallocate
       use OneDat, only: sNoOri
+      use constants, only: zero, two
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
       use printlevel, only: silent, usual
@@ -34,67 +22,42 @@
       use Fock_util_global, only: docholesky
       use rctfld_module, only: lRF
       use mcpdft_input, only: mcpdft_options
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
       use rasscf_global, only: iRLXRoot, lRoots, lSquare, NAC, NFR,
-     &                         NIN, NONEQ, nRoots, NSEC, nTIT,
+     &                         NIN, NONEQ, nRoots, NSEC,
      &                         Tot_Charge, Tot_El_Charge,
-     &                         Tot_Nuc_Charge, Title, Header
+     &                         Tot_Nuc_Charge, Header
+      use definitions, only: iwp, wp
 
-      Implicit None
+      implicit none
+
 #include "rasdim.fh"
 #include "general.fh"
       Character(LEN=8)   Fmt1,Fmt2, Label
-      Character(LEN=120)  Line,BlLine,StLine
-      Character(LEN=3) lIrrep(8)
+      Character(LEN=120)  Line
+      Character(LEN=3), dimension(8) :: lIrrep
 
-      Real*8, Allocatable:: Tmp0(:)
-      Integer iPrLev, lPaper, lLine, left, i, iCharge, iComp, iDoRI,
-     &        iRC, iSyLbl, iSym, nLine, iOpt
+      integer(kind=iwp) :: i, icharge, icomp, idoRI, iOpt, iPrLev
+      integer(kind=iwp) :: iRc, iSyLbl, iSym, left
+      integer(kind=iwp) :: lPaper
 
-* Print level:
+      real(kind=wp), allocatable :: Tmp0(:)
+
       IPRLEV=IPRLOC(1)
-*----------------------------------------------------------------------*
-*     Start and define the paper width                                 *
-*----------------------------------------------------------------------*
+      IF (IPRLEV .eq. SILENT) then
+        return
+      end if
+
+!----------------------------------------------------------------------*
+!     Start and define the paper width                                 *
+!----------------------------------------------------------------------*
       lPaper=132
-*----------------------------------------------------------------------*
-*     Initialize blank and header lines                                *
-*----------------------------------------------------------------------*
-      lLine=Len(Line)
-      Do i=1,lLine
-        BlLine(i:i)=' '
-        StLine(i:i)='*'
-      End Do
-      lPaper=132
-      left=(lPaper-lLine)/2
+      left=(lPaper-len(line))/2
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-      IF (IPRLEV.EQ.SILENT) GOTO 900
-*----------------------------------------------------------------------*
-*     Print the project title                                          *
-*----------------------------------------------------------------------*
-      IF(IPRLEV >= USUAL) THEN
-       If ( nTit > 0 ) then
-         Write(LF,*)
-         nLine=nTit+5
-         Do i=1,nLine
-           Line=BlLine
-           If ( i.eq.1 .or. i.eq.nLine )
-     &     Line=StLine
-           If ( i.eq.3 )
-     &     Line='Project:'
-           If ( i.ge.4 .and. i.le.nLine-2 )
-     &     Write(Line,'(A72)')Title(i-3)
-           Call Center_Text(Line)
-           Write(LF,Fmt1) '*'//Line//'*'
-         End Do
-       Write(LF,*)
-       End If
-      END IF
-*----------------------------------------------------------------------*
-*     Print the ONEINT file identifier                                 *
-*----------------------------------------------------------------------*
+
+!----------------------------------------------------------------------*
+!     Print the ONEINT file identifier                                 *
+!----------------------------------------------------------------------*
       IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
        Write(LF,Fmt1) 'Header of the ONEINT file:'
@@ -104,9 +67,9 @@
        Write(Line,'(36A2)') (Header(i),i=37,72)
        Write(LF,Fmt1)  trim(adjustl(Line))
        Write(LF,*)
-*----------------------------------------------------------------------*
-*     Print the status of ORDINT                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print the status of ORDINT                                       *
+!----------------------------------------------------------------------*
        Write(LF,*)
        If (lSquare) Then
          Write(LF,Fmt1) 'OrdInt status: squared'
@@ -119,9 +82,9 @@
 !----------------------------------------------------------------------*
        Call PrCoor
       END IF
-*----------------------------------------------------------------------*
-*     Print orbital and wavefunction specifications                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print orbital and wavefunction specifications                    *
+!----------------------------------------------------------------------*
       IF(IPRLEV.GE.USUAL) THEN
       Write(LF,*)
       Line=' '
@@ -136,7 +99,6 @@
      &                           2*NIN
       Write(LF,Fmt2//'A,T45,I6)')'Number of electrons in active shells',
      &                           NACTEL
-C.. for RAS
       Write(LF,Fmt2//'A,T45,I6)')'Max number of holes in RAS1 space',
      &                           NHOLE1
       Write(LF,Fmt2//'A,T45,I6)')'Max nr of electrons in RAS3 space',
@@ -153,16 +115,16 @@ C.. for RAS
       Write(LF,Fmt2//'A,T45,I6)')'Number of secondary orbitals',
      &                           NSEC
       Write(LF,Fmt2//'A,T45,F6.1)')'Spin quantum number',
-     &                           (DBLE(ISPIN-1))/2.0d0
+     &                           (DBLE(ISPIN-1))/two
       Write(LF,Fmt2//'A,T45,I6)')'State symmetry',
      &                           STSYM
       Call CollapseOutput(0,'Wave function specifications:')
-*
+
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
          lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
-*
+
       Write(LF,*)
       Line=' '
       Write(Line(left-2:),'(A)') 'Orbital specifications:'
@@ -195,11 +157,10 @@ C.. for RAS
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
+
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                             NROOTS
-*TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-*TRS
       If (irlxroot.ne.0)
      &       Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
      &                             IRLXROOT
@@ -238,25 +199,26 @@ C.. for RAS
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        If ( lRF ) then
-         Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
          iRc=-1
          iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'
+
+         call mma_allocate(Tmp0,nTot1+4,Label="Ovrlp")
          Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
-         Tot_Nuc_Charge=Tmp0(nTot1+4)
          If ( iRc.ne.0 ) then
             Write(LF,*) 'InpPri: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
             Call Abend
          Endif
-         Call mma_deallocate(Tmp0)
+         tot_nuc_charge = Tmp0(nTot1+4)
+         call mma_deallocate(Tmp0)
          Tot_El_Charge=Zero
          Do iSym=1,nSym
             Tot_El_Charge=Tot_El_Charge
-     &                   -2.0D0*DBLE(nFro(iSym)+nIsh(iSym))
+     &                   -two*DBLE(nFro(iSym)+nIsh(iSym))
          End Do
          Tot_El_Charge=Tot_El_Charge-DBLE(nActEl)
          Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
@@ -264,8 +226,6 @@ C.. for RAS
          Call PrRF(.False.,NonEq,iCharge,2)
        End If
        Call CollapseOutput(0,'Optimization specifications:')
-       Write(LF,Fmt1)
-     &  'Starting CI array(s) will be read from file'
       END IF
       Write(LF,*)
 
@@ -286,8 +246,5 @@ C.. for RAS
        if(mcpdft_options%extparam) then
         call CheckFuncParam(mcpdft_options%extparamfile)
        endif
-
-  900 CONTINUE
-      Call XFlush(LF)
 
       End Subroutine InpPri_m
