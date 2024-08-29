@@ -20,7 +20,7 @@ module mspdft
   integer(kind=iwp) :: iIntS
   real(kind=wp),allocatable :: FxyMS(:,:),F1MS(:,:),F2MS(:,:),FocMS(:,:),DIDA(:,:)
   real(kind=wp),allocatable :: P2MOt(:,:),D1AOMS(:,:),D1SAOMS(:,:)
-  real(kind=wp),allocatable,dimension(:) :: heff
+  real(kind=wp),allocatable,dimension(:,:) :: heff
 
   public :: mspdftmethod,F1MS,F2MS,heff
   public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
@@ -39,12 +39,12 @@ contains
     integer(kind=iwp) :: lu_rot_ham = 12
     integer(kind=iwp) :: jroot,kroot
 
-    call mma_allocate(heff,lroots**2,label="heff")
+    call mma_allocate(heff,lroots,lroots,label="heff")
 
     lu_rot_ham = isFreeUnit(lu_rot_ham)
     call molcas_open(lu_rot_ham,'ROT_HAM')
     do jroot = 1,lroots
-      read(lu_rot_ham,*)(heff(jroot+(kroot-1)*lroots),kroot=1,lroots)
+      read(lu_rot_ham,*)(heff(jroot,kroot),kroot=1,lroots)
     enddo
 
     read(lu_rot_ham,'(A18)') matrix_info
@@ -111,7 +111,7 @@ contains
     integer(kind=iwp),dimension(15),intent(in) :: IADR19
 
     real(kind=wp),dimension(nroots) :: e_mspdft
-    real(kind=wp),dimension(nroots**2) :: si_pdft
+    real(kind=wp),dimension(nroots,nroots) :: si_pdft
     integer(kind=iwp) :: info,dim_scratch,iprlev
     real(kind=wp),dimension(1) :: wgronk
     real(kind=wp),dimension(:),allocatable :: scratch

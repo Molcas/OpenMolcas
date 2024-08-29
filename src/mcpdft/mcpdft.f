@@ -215,7 +215,7 @@
       IF(mcpdft_options%mspdft) Then
         call load_rotham()
         do KROOT=1,lROOTS
-           ener(iroot(kroot),1)=heff((kroot-1)*lroots+kroot)
+           ener(iroot(kroot),1)=heff(kroot,kroot)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
            Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do

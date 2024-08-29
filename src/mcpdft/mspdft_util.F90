@@ -76,7 +76,7 @@ contains
     !
 
     integer,intent(in) :: nroots
-    real(kind=wp),dimension(nroots**2),intent(in) :: si_pdft
+    real(kind=wp),dimension(nroots,nroots),intent(in) :: si_pdft
 
     logical :: refbas = .false.
     character(len=9),dimension(nroots) :: VecStat
@@ -85,7 +85,7 @@ contains
     character(Len=18) :: MatInfo
 
     integer :: root
-    real(kind=wp),dimension(nroots**2) :: reference_vectors,eig_vecs_in_ref
+    real(kind=wp),dimension(nroots,nroots) :: reference_vectors,eig_vecs_in_ref
 
     do root = 1,nroots
       write(statvec,'(A5,I4)') 'Root ',root
@@ -128,9 +128,9 @@ contains
     !     Threshold value to shift diagonal elements by when printed
 
     integer,intent(in) :: nroots,digit
-    real(kind=wp),dimension(nroots**2),intent(in) :: heff
+    real(kind=wp),dimension(nroots,nroots),intent(in) :: heff
 
-    real(kind=wp),dimension(nroots**2) :: shifted_heff
+    real(kind=wp),dimension(nroots,nroots) :: shifted_heff
     real(kind=wp) :: shift
     integer :: root
 
@@ -141,7 +141,7 @@ contains
     if(shift /= zero) then
       write(lf,'(6X,A,F9.2,A)') '(diagonal values increased by',-shift,' hartree)'
       do root = 1,nroots
-        shifted_heff((root-1)*nroots+root) = shifted_heff((root-1)*nroots+root)-shift
+        shifted_heff(root,root) = shifted_heff(root,root) - shift
       enddo
     endif
 
@@ -168,7 +168,7 @@ contains
     !     Amount to shift diagonal elements by
 
     integer,intent(in) :: nroots,digit
-    real(kind=wp),dimension(nroots**2),intent(in) :: heff
+    real(kind=wp),dimension(nroots,nroots),intent(in) :: heff
 
     real(kind=wp),intent(out) :: shift
 
@@ -179,7 +179,7 @@ contains
     shift = zero
 
     do i = 1,nroots
-      rdiag(i) = heff((i-1)*nroots+i)
+      rdiag(i) = heff(i,i)
     enddo
 
     maxelem = maxval(rdiag)
@@ -196,12 +196,12 @@ contains
   subroutine replace_diag(mat,diag,ndim)
     integer,intent(in) :: ndim
     real(kind=wp),dimension(ndim),intent(in) :: diag
-    real(kind=wp),dimension(ndim**2),intent(inout) :: mat
+    real(kind=wp),dimension(ndim,ndim),intent(inout) :: mat
 
     integer :: i
 
     do i = 1,ndim
-      mat(ndim*(i-1)+i) = diag(i)
+      mat(i,i) = diag(i)
     enddo
 
   endsubroutine replace_diag
