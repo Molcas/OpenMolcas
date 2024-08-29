@@ -20,19 +20,18 @@ module mspdft
   integer(kind=iwp) :: iIntS
   real(kind=wp),allocatable :: FxyMS(:,:),F1MS(:,:),F2MS(:,:),FocMS(:,:),DIDA(:,:)
   real(kind=wp),allocatable :: P2MOt(:,:),D1AOMS(:,:),D1SAOMS(:,:)
+  real(kind=wp),allocatable,dimension(:) :: heff
 
-  public :: mspdftmethod,F1MS,F2MS
+  public :: mspdftmethod,F1MS,F2MS,heff
   public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
 
   public :: mspdft_finalize,load_rotham
 
 contains
-  subroutine load_rotham(rot_ham,nroots)
-    use definitions,only:wp
+  subroutine load_rotham()
+    use rasscf_data,only:lroots
+    use stdalloc,only:mma_allocate
     implicit none
-
-    integer(kind=iwp),intent(in) :: nroots
-    real(kind=wp),dimension(nroots**2),intent(out) :: rot_ham
 
     integer(kind=iwp),external :: isFreeUnit
 
@@ -40,10 +39,12 @@ contains
     integer(kind=iwp) :: lu_rot_ham = 12
     integer(kind=iwp) :: jroot,kroot
 
+    call mma_allocate(heff,lroots**2,label="heff")
+
     lu_rot_ham = isFreeUnit(lu_rot_ham)
     call molcas_open(lu_rot_ham,'ROT_HAM')
-    do jroot = 1,nroots
-      read(lu_rot_ham,*)(rot_ham(jroot+(kroot-1)*nroots),kroot=1,nroots)
+    do jroot = 1,lroots
+      read(lu_rot_ham,*)(heff(jroot+(kroot-1)*lroots),kroot=1,lroots)
     enddo
 
     read(lu_rot_ham,'(A18)') matrix_info
@@ -79,7 +80,7 @@ contains
 
   endsubroutine
 
-  subroutine mspdft_finalize(heff,nroots,iadr19)
+  subroutine mspdft_finalize(nroots,iadr19)
     ! Performs the final parts of MS-PDFT, namely:
     !   1. diagonalize heff
     !   2. print out the final results
@@ -107,7 +108,6 @@ contains
     implicit none
 
     integer(kind=iwp),intent(in) :: nroots
-    real(kind=wp),dimension(nroots**2),intent(in) :: heff
     integer(kind=iwp),dimension(15),intent(in) :: IADR19
 
     real(kind=wp),dimension(nroots) :: e_mspdft
@@ -186,5 +186,7 @@ contains
         call mspdftgrad_misc(si_pdft)
       endif
     endif
+
+    call mma_deallocate(heff)
   endsubroutine mspdft_finalize
 endmodule mspdft

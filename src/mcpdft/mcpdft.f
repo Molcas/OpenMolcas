@@ -34,13 +34,13 @@
 *                                                                      *
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
-
+      use definitions,only:wp
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
       use mspdft, only: F1MS, load_rotham,
      &                  F2MS, FxyMS, FocMS, DIDA, P2MOt, D1AOMS,
-     &                  D1SAOMS, mspdft_finalize
+     &                  D1SAOMS, mspdft_finalize, heff
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
@@ -70,7 +70,7 @@
       real*8 EAV
 !
       Real*8, allocatable :: TmpDMat(:), Ref_E(:), EList(:,:),
-     &                       HRot(:,:), PUVX(:)
+     &                       PUVX(:)
       Logical DSCF
       Real*8 AEMAX, dum1, dum2, dum3, E
       Integer I, iJOB, iPrLev, iRC, IT, jDisk, jRoot
@@ -213,11 +213,9 @@
   11  CONTINUE
 
       IF(mcpdft_options%mspdft) Then
-        CALL mma_allocate(HRot,lroots,lroots,Label='HRot')
-        call load_rotham(HRot, lroots)
-        
+        call load_rotham()
         do KROOT=1,lROOTS
-           ENER(IROOT(KROOT),1)=HRot(Kroot,Kroot)
+           ener(iroot(kroot),1)=heff((kroot-1)*lroots+kroot)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
            Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
@@ -313,14 +311,13 @@
       end if
 
         If (mcpdft_options%mspdft) Then
-          call replace_diag(hrot, ref_e, lroots)
-          call mspdft_finalize(hrot, lroots, iadr19)
+          call replace_diag(heff, ref_e, lroots)
+          call mspdft_finalize(lroots, iadr19)
         End If
 
       ! Free up some space
 
       if (mcpdft_options%mspdft) then
-        CALL mma_deallocate(HRot)
         if(mcpdft_options%grad) then
           Call mma_deallocate(F1MS)
           Call mma_deallocate(F2MS)
