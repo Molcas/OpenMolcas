@@ -15,13 +15,13 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT NAC calculation.
       use definitions, only: wp
-      use mspdft, only: FxyMS, FocMS, DIDA, P2MOt,
+      use mspdft, only: FxyMS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
       use rasscf_global, only: lRoots, NACPR2, nRoots,
      &                         nTot4
-      use mspdftgrad,only:F1MS,F2MS
+      use mspdftgrad,only:F1MS,F2MS,FocMS
       
       Implicit None
 

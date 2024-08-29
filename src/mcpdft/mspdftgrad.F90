@@ -16,9 +16,9 @@ module mspdftgrad
   implicit none
   private
 
-  real(kind=wp),allocatable :: F1MS(:,:),F2MS(:,:)
+  real(kind=wp),allocatable :: F1MS(:,:),F2MS(:,:),FocMS(:,:)
 
-  public :: F1MS,F2MS
+  public :: F1MS,F2MS,FocMS
 
   public :: mspdftgrad_init,mspdftgrad_free
 
@@ -26,13 +26,15 @@ contains
 
   subroutine mspdftgrad_init()
     use stdalloc,only:mma_allocate
-    use rasscf_data,only:nroots,mxsym,nacpr2
+    use rasscf_global,only:nroots,nacpr2
     implicit none
 
+#include "rasdim.fh"
 #include "general.fh"
 
     call mma_allocate(F1MS,nTot1,nRoots,label="F1MS")
     call mma_allocate(F2MS,NacPR2,nRoots,label="F2MS")
+    call mma_allocate(FocMS,nTot1,nroots,label="FocMS")
 
   endsubroutine
 
@@ -43,7 +45,7 @@ contains
     ! Should in theory check before deallocating!
     call mma_deallocate(F1MS)
     call mma_deallocate(F2MS)
-
+    call mma_deallocate(FocMS)
   endsubroutine
 
 endmodule

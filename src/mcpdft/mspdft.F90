@@ -18,18 +18,18 @@ module mspdft
 
   character(len=8) :: mspdftmethod = " Unknown"
   integer(kind=iwp) :: iIntS
-  real(kind=wp),allocatable :: FxyMS(:,:),FocMS(:,:),DIDA(:,:)
+  real(kind=wp),allocatable :: FxyMS(:,:),DIDA(:,:)
   real(kind=wp),allocatable :: P2MOt(:,:),D1AOMS(:,:),D1SAOMS(:,:)
   real(kind=wp),allocatable,dimension(:,:) :: heff
 
   public :: mspdftmethod,heff
-  public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
+  public :: FxyMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
 
   public :: mspdft_finalize,mspdft_init
 
 contains
   subroutine mspdft_init()
-    use rasscf_data,only:lroots
+    use rasscf_global,only:lroots
     use stdalloc,only:mma_allocate
     use mcpdft_input,only:mcpdft_options
     use mspdftgrad,only:mspdftgrad_init
