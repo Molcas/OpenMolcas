@@ -15,7 +15,7 @@ subroutine InpPri_m()
   use stdalloc,only:mma_allocate,mma_deallocate
   use OneDat,only:sNoOri
   use constants,only:zero,two
-  Use Functionals,only:Init_Funcs,Print_Info
+  Use Functionals,only:Print_Info
   Use KSDFT_Info,only:CoefR,CoefX
   use printlevel,only:silent,terse,usual,verbose
   use mcpdft_output,only:iPrLoc
