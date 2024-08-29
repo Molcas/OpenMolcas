@@ -18,12 +18,11 @@ module mspdft
 
   character(len=8) :: mspdftmethod = " Unknown"
   integer(kind=iwp) :: iIntS
-  real(kind=wp),allocatable :: DIDA(:,:)
-  real(kind=wp),allocatable :: D1SAOMS(:,:)
-  real(kind=wp),allocatable,dimension(:,:) :: heff
+
+  real(kind=wp),allocatable :: heff(:,:), D1SAOMS(:,:)
 
   public :: mspdftmethod,heff
-  public :: iIntS,DIDA,D1SAOMS
+  public :: iIntS,D1SAOMS
 
   public :: mspdft_finalize,mspdft_init
 

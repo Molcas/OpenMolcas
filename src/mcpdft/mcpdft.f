@@ -37,8 +37,7 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
-      use mspdft, only: DIDA,
-     &                  D1SAOMS, mspdft_finalize, heff, mspdft_init
+      use mspdft, only:D1SAOMS, mspdft_finalize, heff, mspdft_init
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
@@ -286,7 +285,6 @@
       Fortis_3 = Fortis_3 + Fortis_2
 
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
-        Call mma_allocate(DIDA ,nTot1,(nRoots+1),Label='DIDA')
         if (ispin.ne.1) then
           Call mma_allocate(D1SAOMS,nTot1,nRoots,Label='D1SAOMS')
         end if
@@ -310,7 +308,6 @@
 
       if (mcpdft_options%mspdft) then
         if(mcpdft_options%grad) then
-          Call mma_deallocate(DIDA)
           if (Allocated(D1SAOMS)) Call mma_deallocate(D1SAOMS)
         end if
       end if
