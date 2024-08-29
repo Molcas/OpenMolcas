@@ -30,7 +30,7 @@
 
       real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
       INTEGER ij,iS,jRoot,iBas,jBas, bra_state, ket_state
-      Real*8 RJKRIK
+      Real(kind=wp) RJKRIK
 
 ******* Functions added by Paul Calio for MECI Opt *****
 ******* Original calls are in slapaf_util/start_alasaks.f
