@@ -32,7 +32,8 @@
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot
       Use hybridpdft, only: E_NoHyb
-      use mspdft, only: iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
+      use mspdft, only: iIntS, DIDA, D1AOMS, D1SAOMS
+      use mspdftgrad,only:P2MOT
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module, only: lRF
