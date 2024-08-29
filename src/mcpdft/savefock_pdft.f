@@ -19,12 +19,13 @@
 * Jie J. Bao, on Jan. 04, 2021, created this file.               *
 * ****************************************************************
 
-      use mspdft, only: F1MS, F2MS, FocMS, iIntS
+      use mspdft, only: FocMS, iIntS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc
       use rasscf_global, only: NACPR2, nFint, NSXS, ISTORP
+      use mspdftgrad,only:F1MS,F2MS
 
 
 * Notes: Two references will be referred to in the comments.

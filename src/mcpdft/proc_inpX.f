@@ -79,14 +79,11 @@
       iRc=_RC_ALL_IS_WELL_
 
 
-! I am not sure exactly what we should do here, but lets try and mimic
-! the behavior from before..
-! For geometry optimizations use the old CI coefficients.
-      If (SuperName(1:6).eq.'mcpdft') Then
-        If (.Not.Is_First_Iter()) Then
-          mcpdft_options%wfn_file = ""
-        End If
-      Else If (SuperName(1:18).eq.'numerical_gradient') Then
+      ! If we are called from numerical gradients, then the
+      ! wave function file that we should read from cannot
+      ! have been set by the user, we need to read explicitly
+      ! from the &RASSCF module
+      If (SuperName(1:18).eq.'numerical_gradient') Then
         mcpdft_options%wfn_file = ""
       End If
 

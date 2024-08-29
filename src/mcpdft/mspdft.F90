@@ -18,11 +18,11 @@ module mspdft
 
   character(len=8) :: mspdftmethod = " Unknown"
   integer(kind=iwp) :: iIntS
-  real(kind=wp),allocatable :: FxyMS(:,:),F1MS(:,:),F2MS(:,:),FocMS(:,:),DIDA(:,:)
+  real(kind=wp),allocatable :: FxyMS(:,:),FocMS(:,:),DIDA(:,:)
   real(kind=wp),allocatable :: P2MOt(:,:),D1AOMS(:,:),D1SAOMS(:,:)
   real(kind=wp),allocatable,dimension(:,:) :: heff
 
-  public :: mspdftmethod,F1MS,F2MS,heff
+  public :: mspdftmethod,heff
   public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
 
   public :: mspdft_finalize,mspdft_init
@@ -31,30 +31,24 @@ contains
   subroutine mspdft_init()
     use rasscf_data,only:lroots
     use stdalloc,only:mma_allocate
+    use mcpdft_input,only:mcpdft_options
+    use mspdftgrad,only:mspdftgrad_init
     implicit none
 
     call mma_allocate(heff,lroots,lroots,label="heff")
     call load_rotham()
 
+    if(mcpdft_options%grad) then
+      call mspdftgrad_init()
+    endif
+
   endsubroutine
   subroutine load_rotham()
-    use rasscf_data,only:lroots
     implicit none
 
-    integer(kind=iwp),external :: isFreeUnit
-
     character(len=18) :: matrix_info
-    integer(kind=iwp) :: lu_rot_ham = 12
-    integer(kind=iwp) :: jroot,kroot
 
-    lu_rot_ham = isFreeUnit(lu_rot_ham)
-    call molcas_open(lu_rot_ham,'ROT_HAM')
-    do jroot = 1,lroots
-      read(lu_rot_ham,*)(heff(jroot,kroot),kroot=1,lroots)
-    enddo
-
-    read(lu_rot_ham,'(A18)') matrix_info
-    close(lu_rot_ham)
+    call readmat2('ROT_HAM',matrix_info,heff,size(heff,1),size(heff,2),7,len(matrix_info),'T')
     call determine_method(matrix_info)
 
   endsubroutine
@@ -65,8 +59,8 @@ contains
     use mcpdft_output,only:iprloc
     implicit none
 
-    character(len=18),intent(IN) :: matrix_info
-    character(len=8) :: buffer
+    character(len=*),intent(IN) :: matrix_info
+    character(len=len(mspdftmethod)) :: buffer
     integer(kind=iwp) :: print_level
 
     print_level = iPrLoc(1)
@@ -111,6 +105,7 @@ contains
     use mcpdft_input,only:mcpdft_options
     use write_pdft_job,only:writejob
     use printlevel,only:usual
+    use mspdftgrad,only:mspdftgrad_free
     implicit none
 
     integer(kind=iwp),intent(in) :: nroots
@@ -195,6 +190,9 @@ contains
 
     ! Deallocate here!
     call mma_deallocate(heff)
+    if(mcpdft_options%grad) then
+      call mspdftgrad_free()
+    endif
   endsubroutine mspdft_finalize
 
 endmodule mspdft
