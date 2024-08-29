@@ -283,8 +283,9 @@ c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
       use printlevel, only: debug
-      use mspdft, only: FxyMS, iIntS
+      use mspdft, only: iIntS
       use mcpdft_output, only: lf, iPrLoc
+      use mspdftgrad,only:FxyMS
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: E2act, nTot3, nTot4, ISTORP, ISTORD,
