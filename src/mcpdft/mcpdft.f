@@ -34,7 +34,6 @@
 *                                                                      *
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
-      use definitions,only:wp
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
@@ -63,7 +62,6 @@
       Logical IfOpened
       Logical Found
 
-      external :: mcpdft_init
       integer IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
