@@ -37,7 +37,7 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
-      use mspdft, only: DIDA, D1AOMS,
+      use mspdft, only: DIDA,
      &                  D1SAOMS, mspdft_finalize, heff, mspdft_init
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
@@ -287,7 +287,6 @@
 
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
         Call mma_allocate(DIDA ,nTot1,(nRoots+1),Label='DIDA')
-        Call mma_allocate(D1AOMS,nTot1,nRoots,Label='D1AOMS')
         if (ispin.ne.1) then
           Call mma_allocate(D1SAOMS,nTot1,nRoots,Label='D1SAOMS')
         end if
@@ -312,8 +311,7 @@
       if (mcpdft_options%mspdft) then
         if(mcpdft_options%grad) then
           Call mma_deallocate(DIDA)
-          Call mma_deallocate(D1AOMS)
-          Call mma_deallocate(D1SAOMS,safe='*')
+          if (Allocated(D1SAOMS)) Call mma_deallocate(D1SAOMS)
         end if
       end if
 

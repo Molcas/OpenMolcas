@@ -18,9 +18,9 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
       use definitions, only: wp
-      use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2Mot
+      use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2Mot,D1AOMS
       use mspdft, only: DIDA,
-     &                  D1AOMS, D1SAOMS
+     &                  D1SAOMS
       use wadr, only: FockOcc
       use rasscf_global, only: lroots, NACPR2, nRoots,
      &                         nTot4

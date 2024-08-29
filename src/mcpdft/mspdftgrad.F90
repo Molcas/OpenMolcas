@@ -16,9 +16,9 @@ module mspdftgrad
   implicit none
   private
 
-  real(kind=wp),allocatable :: F1MS(:,:),F2MS(:,:),FocMS(:,:),FxyMS(:,:),P2Mot(:,:)
+  real(kind=wp),allocatable :: F1MS(:,:),F2MS(:,:),FocMS(:,:),FxyMS(:,:),P2Mot(:,:),D1AOMS(:,:)
 
-  public :: F1MS,F2MS,FocMS,FxyMS,P2Mot
+  public :: F1MS,F2MS,FocMS,FxyMS,P2Mot,D1AOMS
 
   public :: mspdftgrad_init,mspdftgrad_free
 
@@ -38,6 +38,7 @@ contains
     call mma_allocate(FocMS,nTot1,nroots,label="FocMS")
     call mma_allocate(FxyMS,nTot4,nRoots,label="FxyMS")
     call mma_allocate(P2MOT,nacpr2,nroots,label="P2MO")
+    call mma_allocate(D1AOMS,ntot1,nroots,label="D1AOMS")
 
     P2MOT = zero
 
@@ -53,6 +54,7 @@ contains
     call mma_deallocate(FocMS)
     call mma_deallocate(FxyMS)
     call mma_deallocate(P2MOT)
+    call mma_deallocate(D1aoMS)
   endsubroutine
 
 endmodule
