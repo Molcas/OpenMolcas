@@ -38,9 +38,9 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
-      use mspdft, only: F1MS, load_rotham,
+      use mspdft, only: F1MS,
      &                  F2MS, FxyMS, FocMS, DIDA, P2MOt, D1AOMS,
-     &                  D1SAOMS, mspdft_finalize, heff
+     &                  D1SAOMS, mspdft_finalize, heff, mspdft_init
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
@@ -117,6 +117,9 @@
 ! Local print level may have changed:
       IPRLEV=IPRLOC(1)
 
+      if(mcpdft_options%mspdft) then
+        call mspdft_init()
+      endif
 
       Call InpPri_m()
 
@@ -213,7 +216,6 @@
   11  CONTINUE
 
       IF(mcpdft_options%mspdft) Then
-        call load_rotham()
         do KROOT=1,lROOTS
            ener(iroot(kroot),1)=heff(kroot,kroot)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
@@ -226,6 +228,12 @@
            Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
       End IF
+
+      call mma_deallocate(elist)
+      If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
+        Call DaClos(JOBOLD)
+        JOBOLD=-1
+      End if
 
       IF(mcpdft_options%nac) Then
         IF(IPRLEV.ge.USUAL) THEN
@@ -253,11 +261,6 @@
       End IF
       call Put_lScalar('isMECIMSPD      ', mcpdft_options%meci)
 
-      Call mma_deallocate(EList)
-      If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
-        Call DaClos(JOBOLD)
-        JOBOLD=-1
-      End if
 
 *
 * Transform two-electron integrals and compute at the same time
@@ -314,8 +317,6 @@
           call replace_diag(heff, ref_e, lroots)
           call mspdft_finalize(lroots, iadr19)
         End If
-
-      ! Free up some space
 
       if (mcpdft_options%mspdft) then
         if(mcpdft_options%grad) then

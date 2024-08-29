@@ -25,12 +25,20 @@ module mspdft
   public :: mspdftmethod,F1MS,F2MS,heff
   public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
 
-  public :: mspdft_finalize,load_rotham
+  public :: mspdft_finalize,mspdft_init
 
 contains
-  subroutine load_rotham()
+  subroutine mspdft_init()
     use rasscf_data,only:lroots
     use stdalloc,only:mma_allocate
+    implicit none
+
+    call mma_allocate(heff,lroots,lroots,label="heff")
+    call load_rotham()
+
+  endsubroutine
+  subroutine load_rotham()
+    use rasscf_data,only:lroots
     implicit none
 
     integer(kind=iwp),external :: isFreeUnit
@@ -38,8 +46,6 @@ contains
     character(len=18) :: matrix_info
     integer(kind=iwp) :: lu_rot_ham = 12
     integer(kind=iwp) :: jroot,kroot
-
-    call mma_allocate(heff,lroots,lroots,label="heff")
 
     lu_rot_ham = isFreeUnit(lu_rot_ham)
     call molcas_open(lu_rot_ham,'ROT_HAM')
@@ -187,6 +193,8 @@ contains
       endif
     endif
 
+    ! Deallocate here!
     call mma_deallocate(heff)
   endsubroutine mspdft_finalize
+
 endmodule mspdft

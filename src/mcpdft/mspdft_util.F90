@@ -141,7 +141,7 @@ contains
     if(shift /= zero) then
       write(lf,'(6X,A,F9.2,A)') '(diagonal values increased by',-shift,' hartree)'
       do root = 1,nroots
-        shifted_heff(root,root) = shifted_heff(root,root) - shift
+        shifted_heff(root,root) = shifted_heff(root,root)-shift
       enddo
     endif
 
