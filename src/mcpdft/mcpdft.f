@@ -38,7 +38,7 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
-      use mspdft, only: mspdftmethod, F1MS,
+      use mspdft, only: F1MS, load_rotham,
      &                  F2MS, FxyMS, FocMS, DIDA, P2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
       use printlevel, only: terse, debug, insane, usual
@@ -59,9 +59,6 @@
 #include "warnings.h"
 #include "general.fh"
 #include "timers.fh"
-      CHARACTER(Len=18)::MatInfo
-      INTEGER LUMS
-      Integer, External:: IsFreeUnit
 
       Logical IfOpened
       Logical Found
@@ -216,44 +213,9 @@
   11  CONTINUE
 
       IF(mcpdft_options%mspdft) Then
-        IF(IPRLEV.ge.USUAL) THEN
-        write(lf,'(6X,A)') repeat('=',80)
-        write(lf,*)
-        write(lf,'(6X,A,A)')'keyword "MSPD" is used and ',
-     &  'file recording rotated hamiltonian is found. '
-        write(lf,*)
-        write(lf,'(6X,A,A)')
-     &  'Switching calculation to Multi-State Pair-Density ',
-     &  'Functional Theory (MS-PDFT) '
-        write(lf,'(6X,A)')'calculation.'
-        write(lf,*)
-        END IF
         CALL mma_allocate(HRot,lroots,lroots,Label='HRot')
-        LUMS=12
-        LUMS=IsFreeUnit(LUMS)
-        CALL Molcas_Open(LUMS,'ROT_HAM')
-        Do Jroot=1,lroots
-          read(LUMS,*) (HRot(Jroot,kroot), kroot=1,lroots)
-        End Do
-        Read(LUMS,'(A18)') MatInfo
-        MSPDFTMethod=' MS-PDFT'
-        IF(IPRLEV.ge.USUAL) THEN
-        IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
-         write(lf,'(6X,A,A)')'The MS-PDFT calculation is ',
-     & 'based on a user-supplied rotation matrix.'
-        ELSE
-         write(lf,'(6X,A,A,A)')'The MS-PDFT method is ',
-     &   trim(adjustl(MatInfo)),'.'
-        If(trim(adjustl(MatInfo)).eq.'XMS-PDFT') MSPDFTMethod='XMS-PDFT'
-        If(trim(adjustl(MatInfo)).eq.'CMS-PDFT') MSPDFTMethod='CMS-PDFT'
-        If(trim(adjustl(MatInfo)).eq.'VMS-PDFT') MSPDFTMethod='VMS-PDFT'
-        If(trim(adjustl(MatInfo)).eq.'FMS-PDFT') MSPDFTMethod='FMS-PDFT'
-        ENDIF
-        write(lf,*)
-        write(lf,'(6X,A)') repeat('=',80)
-        write(lf,*)
-        END IF
-        Close(LUMS)
+        call load_rotham(HRot, lroots)
+        
         do KROOT=1,lROOTS
            ENER(IROOT(KROOT),1)=HRot(Kroot,Kroot)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)

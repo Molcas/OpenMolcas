@@ -12,24 +12,73 @@
 !***********************************************************************
 
 module mspdft
-  use printlevel,only:usual
-  use mcpdft_output,only:iPrLoc
-  use definitions,only:iwp, wp
+  use definitions,only:iwp,wp
   implicit none
   private
 
-  character(len=8) :: mspdftmethod
+  character(len=8) :: mspdftmethod = " Unknown"
   integer(kind=iwp) :: iIntS
-  real(kind=wp), allocatable :: FxyMS(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:), DIDA(:,:)
-  real(kind=wp), allocatable :: P2MOt(:,:), D1AOMS(:,:), D1SAOMS(:,:)
-
+  real(kind=wp),allocatable :: FxyMS(:,:),F1MS(:,:),F2MS(:,:),FocMS(:,:),DIDA(:,:)
+  real(kind=wp),allocatable :: P2MOt(:,:),D1AOMS(:,:),D1SAOMS(:,:)
 
   public :: mspdftmethod,F1MS,F2MS
   public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
 
-  public :: mspdft_finalize
+  public :: mspdft_finalize,load_rotham
 
 contains
+  subroutine load_rotham(rot_ham,nroots)
+    use definitions,only:wp
+    implicit none
+
+    integer(kind=iwp),intent(in) :: nroots
+    real(kind=wp),dimension(nroots**2),intent(out) :: rot_ham
+
+    integer(kind=iwp),external :: isFreeUnit
+
+    character(len=18) :: matrix_info
+    integer(kind=iwp) :: lu_rot_ham = 12
+    integer(kind=iwp) :: jroot,kroot
+
+    lu_rot_ham = isFreeUnit(lu_rot_ham)
+    call molcas_open(lu_rot_ham,'ROT_HAM')
+    do jroot = 1,nroots
+      read(lu_rot_ham,*)(rot_ham(jroot+(kroot-1)*nroots),kroot=1,nroots)
+    enddo
+
+    read(lu_rot_ham,'(A18)') matrix_info
+    close(lu_rot_ham)
+    call determine_method(matrix_info)
+
+  endsubroutine
+
+  subroutine determine_method(matrix_info)
+    use definitions,only:u6
+    use PrintLevel,only:verbose
+    use mcpdft_output,only:iprloc
+    implicit none
+
+    character(len=18),intent(IN) :: matrix_info
+    character(len=8) :: buffer
+    integer(kind=iwp) :: print_level
+
+    print_level = iPrLoc(1)
+    buffer = trim(adjustl(matrix_info))
+
+    select case(buffer)
+    case("XMS-PDFT","CMS-PDFT","FMS-PDFT","VMS-PDFT")
+      mspdftmethod = buffer
+      if(print_level > verbose) then
+        write(u6,'(6X,A,A)') 'The MS-PDFT method is ',mspdftmethod
+      endif
+    case default
+      if(print_level > verbose) then
+        write(u6,'(6X,A)') 'The MS-PDFT calculation is based on a user-supplied rotation matrix'
+      endif
+    endselect
+
+  endsubroutine
+
   subroutine mspdft_finalize(heff,nroots,iadr19)
     ! Performs the final parts of MS-PDFT, namely:
     !   1. diagonalize heff
@@ -47,21 +96,23 @@ contains
     !   iadr19: integer list of length 15
     !     Holds some information when writing out
 
-    use definitions,only:wp
+    use definitions,only:iwp,wp,u6
     use stdalloc,only:mma_allocate,mma_deallocate
-    use mcpdft_output,only:lf
+    use mcpdft_output,only:iprloc
     use mspdft_util,only:print_effective_ham,print_final_energies, &
                           print_mspdft_vectors
     use mcpdft_input,only:mcpdft_options
     use write_pdft_job,only:writejob
+    use printlevel,only:usual
+    implicit none
 
-    integer,intent(in) :: nroots
+    integer(kind=iwp),intent(in) :: nroots
     real(kind=wp),dimension(nroots**2),intent(in) :: heff
-    integer,dimension(15),intent(in) :: IADR19
+    integer(kind=iwp),dimension(15),intent(in) :: IADR19
 
     real(kind=wp),dimension(nroots) :: e_mspdft
     real(kind=wp),dimension(nroots**2) :: si_pdft
-    integer :: info,dim_scratch,iprlev
+    integer(kind=iwp) :: info,dim_scratch,iprlev
     real(kind=wp),dimension(1) :: wgronk
     real(kind=wp),dimension(:),allocatable :: scratch
     character(len=120) :: Line
@@ -69,16 +120,16 @@ contains
     iprlev = iprloc(1)
 
     if(iprlev >= usual) then
-      write(lf,*)
+      write(u6,*)
       write(Line,'(6X,2A)') MSPDFTMethod,' FINAL RESULTS'
       call CollapseOutput(1,Line)
-      write(lf,'(6X,A)') repeat('-',len_trim(Line)-3)
-      write(lf,*)
+      write(u6,'(6X,A)') repeat('-',len_trim(Line)-3)
+      write(u6,*)
 
       if(mcpdft_options%otfnal%is_hybrid()) then
-        write(lf,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
+        write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
       else
-        write(lf,'(6X,2A)') mspdftmethod,' Effective Hamiltonian'
+        write(u6,'(6X,2A)') mspdftmethod,' Effective Hamiltonian'
       endif
       call print_effective_ham(heff,nroots,10)
     endif
@@ -113,9 +164,9 @@ contains
 
     if(iprlev >= usual) then
       if(mcpdft_options%otfnal%is_hybrid()) then
-        write(lf,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
+        write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
       else
-        write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
+        write(u6,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
       endif
       call print_mspdft_vectors(si_pdft,nroots)
     endif
@@ -125,7 +176,7 @@ contains
 
     if(iprlev >= usual) then
       call CollapseOutput(0,Line)
-      write(lf,*)
+      write(u6,*)
     endif
 
     if(mcpdft_options%grad) then
@@ -135,6 +186,5 @@ contains
         call mspdftgrad_misc(si_pdft)
       endif
     endif
-
   endsubroutine mspdft_finalize
 endmodule mspdft
