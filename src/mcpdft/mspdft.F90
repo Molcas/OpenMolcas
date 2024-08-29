@@ -19,10 +19,10 @@ module mspdft
   character(len=8) :: mspdftmethod = " Unknown"
   integer(kind=iwp) :: iIntS
 
-  real(kind=wp),allocatable :: heff(:,:), D1SAOMS(:,:)
+  real(kind=wp),allocatable :: heff(:,:)
 
   public :: mspdftmethod,heff
-  public :: iIntS,D1SAOMS
+  public :: iIntS
 
   public :: mspdft_finalize,mspdft_init
 

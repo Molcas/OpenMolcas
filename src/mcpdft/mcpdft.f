@@ -37,7 +37,7 @@
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
-      use mspdft, only:D1SAOMS, mspdft_finalize, heff, mspdft_init
+      use mspdft, only: mspdft_finalize, heff, mspdft_init
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
@@ -46,7 +46,7 @@
      &                D1I, D1A, OccN, CMO
       use rasscf_global, only: ECAS, ExFac, IPR, ITER,
      &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
-     &                         nFint, nRoots, iRoot, Weight,
+     &                         nFint, iRoot, Weight,
      &                         Ener
 
       Implicit None
@@ -284,12 +284,6 @@
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
-      IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
-        if (ispin.ne.1) then
-          Call mma_allocate(D1SAOMS,nTot1,nRoots,Label='D1SAOMS')
-        end if
-      END IF
-
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
@@ -305,12 +299,6 @@
           call replace_diag(heff, ref_e, lroots)
           call mspdft_finalize(lroots, iadr19)
         End If
-
-      if (mcpdft_options%mspdft) then
-        if(mcpdft_options%grad) then
-          if (Allocated(D1SAOMS)) Call mma_deallocate(D1SAOMS)
-        end if
-      end if
 
 *****************************************************************************************
 ***************************           Closing up MC-PDFT      ***************************
