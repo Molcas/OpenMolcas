@@ -51,31 +51,38 @@
 
 module Rctfld_Module
 
-integer, parameter :: MxPar = 100, MxA = 1000
-integer lRFStrt, lRFEnd
+use Definitions, only: wp, iwp
 
-logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref, DoDeriv, lRFCav, LSparse, LGridAverage, lDamping, lAmberPol, &
-        Done_Lattice, lFirstIter, lDiprestart
-common/lRct/lRFStrt,lRF,lLangevin,RF_Basis,PCM,Conductor,NonEq_ref,DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol, &
-            Done_Lattice,lFirstIter,lDiprestart,lRFEnd
+implicit none
+private
 
-integer :: lMax, nMM, latato, nexpo, maxa, maxb, maxc, iRFStrt, nabc, nCavxyz, nGrid, nGrid_Eff, nSparse, ISlPar(MxPar), NSinit, &
-           NS, nTs, NTT(MxA), NOrdInp(MxA), nPCM_Info, iCharge_ref, nGridAverage, nGridSeed, iRFEnd
-common/iRct/iRFStrt,lMax,nMM,latato,nexpo,maxa,maxb,maxc,nabc,nCavxyz,nGrid,nGrid_Eff,nSparse,ISlPar,NSinit,NS,nTs,NTT,NOrdInp, &
-            nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,iRFEnd
-
-real(kind=8) :: Cordsi(3,4), rRfStrt, EpsInf_User, Eps_User, rds, polsi, dipsi, radlat, scala, scalb, scalc, scaaa, gatom, diedel, &
-                tK, rotAlpha, rotBeta, rotGamma, distSparse, clim, afac, prefac, tk5, fmax, rsca, Eps, EpsInf, DerEps, RSolv, &
-                VMol, TCE, GCav, GDis, GRep, RDiff(MxA), KT(MxA), RWT(MxA), RadInp(MxA), RSlPar(MxPar), dampIter, dipCutoff, &
-                scal14, rRFEnd
-common/rRct/rRFStrt,EpsInf_User,Eps_User,rds,Cordsi,polsi,dipsi,radlat,scala,scalb,scalc,scaaa,gatom,diedel,tK,rotAlpha,rotBeta, &
-            rotGamma,distSparse,clim,afac,prefac,tk5,fmax,rsca,Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,RDiff,KT,RWT, &
-            RadInp,RSlPar,dampIter,dipCutoff,scal14,rRFEnd
-
+integer, parameter :: MxA = 1000, MxPar = 100
+integer(kind=iwp) :: iCharge_ref, ISlPar(MxPar), latato, lMax, maxa, maxb, maxc, nCavxyz, nexpo, nGrid, nGrid_Eff, nGridAverage, &
+                     nGridSeed, NOrdInp(MxA), nPCM_Info, NS, NSinit, nSparse, nTs
+real(kind=wp) :: afac, clim, Cordsi(3,4), dampIter, diedel, dipCutoff, dipsi, distSparse, Eps, Eps_User, EpsInf, EpsInf_User, &
+                 fmax, gatom, polsi, prefac, RadInp(MxA), radlat, rds, rotAlpha, rotBeta, rotGamma, rsca, RSlPar(MxPar), RSolv, &
+                 scaaa, scal14, scala, scalb, scalc, tK, VMol
+logical(kind=iwp) :: Conductor, DoDeriv, Done_Lattice, lAmberPol, lDamping, lDiprestart, lFirstIter, LGridAverage, lLangevin, lRF, &
+                     lRFCav, LSparse, NonEq_ref, PCM
 character(len=32) :: Solvent
-integer :: cRFStrt, cRFEnd
+real(kind=wp), allocatable :: MM(:,:)
+
+integer(kind=iwp) :: cRFEnd, cRFStrt, iRFEnd, iRFStrt, lRFEnd, lRFStrt
+real(kind=wp) :: rRFEnd, rRFStrt
+
+common/iRct/iRFStrt,lMax,latato,nexpo,maxa,maxb,maxc,nCavxyz,nGrid,nGrid_Eff,nSparse,ISlPar,NSinit,NS,nTs,NOrdInp,nPCM_Info, &
+            iCharge_ref,nGridAverage,nGridSeed,iRFEnd
+common/rRct/rRFStrt,EpsInf_User,Eps_User,rds,Cordsi,polsi,dipsi,radlat,scala,scalb,scalc,scaaa,gatom,diedel,tK,rotAlpha,rotBeta, &
+            rotGamma,distSparse,clim,afac,prefac,fmax,rsca,Eps,EpsInf,RSolv,VMol,RadInp,RSlPar,dampIter,dipCutoff,scal14,rRFEnd
+common/lRct/lRFStrt,lRF,lLangevin,PCM,Conductor,NonEq_ref,DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol,Done_Lattice, &
+            lFirstIter,lDiprestart,lRFEnd
 common/cRct/cRFStrt,Solvent,cRFEnd
 
-real(kind=8), allocatable :: MM(:,:)
+public :: aFac, cLim, Conductor, Cordsi, CRFEnd, CRFStrt, DampIter, DieDel, DipCutOff, Dipsi, DistSparse, DoDeriv, Done_Lattice, &
+          Eps, Eps_USER, EpsInf, EpsInf_USER, fMax, gAtom, iCharge_Ref, iRFEnd, iRFStrt, ISlPar, lAmberPol, LatAto, lDamping, &
+          lDipRestart, lFirstIter, lGridAverage, lLangevin, lMax, lRF, lRFCav, lRFEnd, lRFStrt, lSparse, MaxA, MaxB, MaxC, MM, &
+          MXA, nCavxyz, nExpO, nGrid, nGrid_Eff, nGridAverage, nGridSeed, NonEQ_Ref, nOrdInp, nPCM_Info, nS, nSInit, nSparse, nTS, &
+          PCM, Polsi, PreFac, RadInp, RadLat, RDS, RotAlpha, RotBeta, RotGamma, rRFEnd, rRFStrt, rSca, RSlPar, RSolv, ScaAA, &
+          Scal14, Scala, ScalB, Scalc, Solvent, TK, vMol
 
 end module Rctfld_Module

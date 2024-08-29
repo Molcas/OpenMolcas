@@ -26,13 +26,14 @@ subroutine HighFm(F,T,m,n)
 !***********************************************************************
 
 use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer m, n
-real*8 F(n), T(n)
-integer i, ii, k
-real*8 TMax, gTmp, Sum0, Sum1, TNew, FValue, Term, Gamma2
+integer(kind=iwp), intent(in) :: m, n
+real(kind=wp), intent(out) :: F(n)
+real(kind=wp), intent(in) :: T(n)
+integer(kind=iwp) :: i, ii, k
+real(kind=wp) :: FValue, Gamma2, gTmp, Sum0, Sum1, Term, TMax, TNew
 
 ! Find T for which the asympotic formula can be used
 

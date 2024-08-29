@@ -11,9 +11,11 @@
 
 subroutine RFMem(nHer,MemRF,la,lb,lr)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(Out) :: nHer, MemRF
-integer, intent(In) :: la, lb, lr
+integer(kind=iwp), intent(out) :: nHer, MemRF
+integer(kind=iwp), intent(in) :: la, lb, lr
 
 nHer = (la+lb+lr+2)/2
 MemRF = 3*nHer*(la+1)+3*nHer*(lb+1)+3*nHer*(lr+1)+3*(la+1)*(lb+1)*(lr+1)+2+3*nHer

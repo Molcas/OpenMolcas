@@ -24,22 +24,24 @@ subroutine AlloK2()
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
 
-use k2_arrays, only: nDeDe, MaxDe, DoGrad_, DoHess_
+use k2_arrays, only: DoGrad_, DoHess_, MaxDe, nDeDe
 use iSD_data, only: iSD
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use k2_structure, only: Allocate_k2data, IndK2, k2_Processed, k2data, ZZZ_i, ZZZ_r
 use stdalloc, only: mma_allocate
-use k2_structure, only: k2data, Allocate_k2data, ZZZ_r, ZZZ_i, k2_Processed, nIndK2, IndK2
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer :: i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll, iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng, jCmp, &
-           jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO, nZeta, ijCmp, nHm, iIrrep, ik2, j, iTri, ijS, nk2_real, nData, nk2_integer
-integer, external :: MemSO1
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iDeSiz, iIrrep, ijCmp, ijS, ik2, iPrim, iS, iShell, iShll, iSMLbl, jAng, jAO, jBas, &
+                     jCmp, jPrim, jS, jShell, jShll, nData, nHm, nIndK2, nk2_integer, nk2_real, Nr_of_Densities, nSkal, nSO, nZeta
+integer(kind=iwp), external :: MemSO1
 ! Statement functions
+integer(kind=iwp) :: nElem, nabSz, iTri, i, ixyz, j
 nElem(i) = (i+1)*(i+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)

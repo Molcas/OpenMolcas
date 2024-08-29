@@ -32,11 +32,12 @@ function MemSO1(lOper,iCmp,jCmp,iShell,jShell,iAO,jAO)
 
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer MemSO1
-integer lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
-integer j1, i1, j2, j12, jCmpMx, i2
+integer(kind=iwp) :: MemSO1
+integer(kind=iwp), intent(in) :: lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
+integer(kind=iwp) :: j1, i1, j2, j12, jCmpMx, i2
 
 MemSO1 = 0
 do j1=0,nIrrep-1

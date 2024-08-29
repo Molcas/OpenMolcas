@@ -28,7 +28,7 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !          onical order.                                               *
 !                                                                      *
 !          In addition to this complication we have that the order of  *
-!          indicies in the integrals are not ordered canonically but   *
+!          indices in the integrals are not ordered canonically but    *
 !          rather in an order such that the contraction step will be   *
 !          optimal. Hence, special care has to be taken when tracing   *
 !          the density with the integrals so that both entities have   *
@@ -541,7 +541,7 @@ return
 !          onical order.                                               *
 !                                                                      *
 !          In addition to this complication we have that the order of  *
-!          indicies in the integrals are not ordered canonically but   *
+!          indices in the integrals are not ordered canonically but    *
 !          rather in an order such that the contraction step will be   *
 !          optimal. Hence, special care has to be taken when tracing   *
 !          the density with the integrals so that both entities have   *

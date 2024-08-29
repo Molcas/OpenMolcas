@@ -11,9 +11,17 @@
 
 module BasisMode
 
-integer, parameter :: Valence_Mode = 0, Auxiliary_Mode = 1, Fragment_Mode = 2, With_Auxiliary_Mode = 3, With_Fragment_Mode = 4, &
-                      All_Mode = 5
-integer :: Basis_Mode, kCnttp, lCnttp
-logical :: Atomic
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: Valence_Mode = 0, Auxiliary_Mode = 1, Fragment_Mode = 2, With_Auxiliary_Mode = 3, &
+                                With_Fragment_Mode = 4, All_Mode = 5
+integer(kind=iwp) :: Basis_Mode, kCnttp, lCnttp
+logical(kind=iwp) :: Atomic
+
+public :: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, lCnttp, Valence_Mode, With_Auxiliary_Mode, &
+          With_Fragment_Mode
 
 end module BasisMode

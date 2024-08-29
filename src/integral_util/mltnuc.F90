@@ -23,12 +23,14 @@ subroutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir,nComp)
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nAtm, ir, nComp
-real*8 Chrg(nAtm), Coor(3,nAtm), rNucMm((ir+1)*(ir+2)/2), CoOp(3)
-integer ip, ix, iy, iz, iAtom
-real*8 Temp, CCoMx, CCoMy, CCoMz
+integer(kind=iwp), intent(in) :: nAtm, ir, nComp
+real(kind=wp), intent(in) :: CoOp(3), Chrg(nAtm), Coor(3,nAtm)
+real(kind=wp), intent(out) :: rNucMm((ir+1)*(ir+2)/2)
+integer(kind=iwp) :: iAtom, ip, ix, iy, iz
+real(kind=wp) :: CCoMx, CCoMy, CCoMz, Temp
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In MltNuc:Coor',' ',Coor,3,nAtm)

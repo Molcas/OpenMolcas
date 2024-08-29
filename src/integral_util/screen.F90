@@ -36,24 +36,22 @@ subroutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,k2Data1,k2Data2,Z
 !             January '93 modified to Direct SCF                       *
 !***********************************************************************
 
-use Constants, only: Zero, One, Four
 use k2_structure, only: k2_type
+use Constants, only: Zero, One, Four
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer :: iOffZ, iOffE, mZeta, nZeta, mEta, nEta
-real*8, intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta), P(nZeta,3), Eta(mEta), EInv(mEta), KappCD(mEta), Q(nEta,3)
-type(k2_type), intent(in) :: k2Data1, k2Data2
-real*8 Dij(nZeta), Dkl(nEta)
+integer(kind=iwp), intent(in) :: iOffZ, iOffE, nZeta, nEta, mZeta, mEta, iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
 integer, intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
-integer iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
-real*8 CutDInt, CutInt, vij, vkl, vik, vil, vjk, vjl
-logical Prescreen_On_Int_Only
-![all the others are intent(in)]
-integer iZeta, jZeta, iEta, jEta
-real*8 abMax, cdMax, DMax, Cut, vMax, ppaa, aaaa, test
+type(k2_type), intent(in) :: k2Data1, k2Data2
+real(kind=wp), intent(out) :: Zeta(mZeta), ZInv(mZeta), P(nZeta,3), KappAB(mZeta), Eta(mEta), EInv(mEta), Q(nEta,3), KappCD(mEta)
+real(kind=wp), intent(in) :: Dij(nZeta), Dkl(nEta), CutDInt, CutInt, vij, vkl, vik, vil, vjk, vjl
+logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
+integer(kind=iwp) :: iEta, iZeta, jEta, jZeta
+real(kind=wp) :: aaaa, abMax, cdMax, Cut, DMax, ppaa, test, vMax
 
 abMax = k2Data1%abMax
 cdMax = k2Data2%abMax
@@ -90,7 +88,6 @@ lEta = 0
 
 ! prescreen zeta pairs
 if (.not. Prescreen_On_Int_Only) then
-  lZeta = 0
   do iZeta=1,mZeta
     ppaa = k2Data1%ab(iOffZ+iZeta)*cdMax
     aaaa = k2Data1%abCon(iOffZ+iZeta)*cdMax
@@ -108,7 +105,6 @@ if (.not. Prescreen_On_Int_Only) then
     end if
   end do
 else
-  lZeta = 0
   do iZeta=1,mZeta
     aaaa = k2Data1%abCon(iOffZ+iZeta)*cdMax
     if (aaaa >= CutInt) then
@@ -131,7 +127,6 @@ if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
 
 ! prescreen eta pairs
 if (.not. Prescreen_On_Int_Only) then
-  lEta = 0
   do iEta=1,mEta
     ppaa = k2Data2%ab(iOffE+iEta)*abMax
     aaaa = k2Data2%abCon(iOffE+iEta)*abMax
@@ -149,7 +144,6 @@ if (.not. Prescreen_On_Int_Only) then
     end if
   end do
 else
-  lEta = 0
   do iEta=1,mEta
     aaaa = k2Data2%abCon(iOffE+iEta)*abMax
     if (aaaa >= CutInt) then

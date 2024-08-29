@@ -24,14 +24,16 @@ subroutine vCrtCmp(Zeta12,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
 !***********************************************************************
 
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nZeta, na, nHer
-real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer), Axyz(nZeta,3,nHer,0:na)
-logical ABeq(3)
-integer iHer, iCar, iZeta, ia
+integer(kind=iwp), intent(in) :: nZeta, na, nHer
+real(kind=wp), intent(in) :: Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer)
+real(kind=wp), intent(out) :: Axyz(nZeta,3,nHer,0:na)
+logical(kind=iwp), intent(in) :: ABeq(3)
+integer(kind=iwp) :: ia, iCar, iHer, iZeta
 #ifdef _DEBUGPRINT_
-character(len=80) Label
+character(len=80) :: Label
 #endif
 
 #ifdef _DEBUGPRINT_
@@ -40,7 +42,7 @@ call RecPrt(' In vCrtCmp: Zeta',' ',Zeta12,nZeta,1)
 call RecPrt(' In vCrtCmp: A   ',' ',A,1,3)
 call RecPrt(' In vCrtCmp: P   ',' ',P,nZeta,3)
 #endif
-call dcopy_(nZeta*3*nHer,[One],0,Axyz(1,1,1,0),1)
+call dcopy_(nZeta*3*nHer,[One],0,Axyz(:,:,:,0),1)
 if (na == 0) Go To 999
 
 do iHer=1,nHer
@@ -70,7 +72,7 @@ end do
 do ia=0,na
   do iHer=1,nHer
     write(Label,'(A,I2,A,I2,A)') ' In vCrtCmp: Axyz (iHer=',iHer,',ia=',ia,')'
-    call RecPrt(Label,' ',Axyz(1,1,iHer,ia),nZeta,3)
+    call RecPrt(Label,' ',Axyz(:,:,iHer,ia),nZeta,3)
   end do
 end do
 #endif

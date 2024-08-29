@@ -21,15 +21,16 @@ function iDeg(Coor)
 !             March '91                                                *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper
+use Symmetry_Info, only: iOper, nIrrep
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer iDeg
-real*8 Coor(3), Cx(3,8), r(3)
-logical New
-integer i, j
-real*8 x, y, z
+integer(kind=iwp) :: iDeg
+real(kind=wp), intent(in) :: Coor(3)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: Cx(3,8), r(3), x, y, z
+logical(kind=iwp) :: New
 
 iDeg = 1
 Cx(:,1) = Coor(:)

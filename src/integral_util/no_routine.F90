@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
-
 subroutine No_Routine( &
 #                     define _CALLING_
 #                     include "int_wrout_interface.fh"
                      )
+
+use Definitions, only: wp, iwp
+
 implicit none
 #include "int_wrout_interface.fh"
 
@@ -40,11 +40,3 @@ if (.false.) then
   call Unused_integer(mSym)
 end if
 end subroutine No_Routine
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(No_Routine)
-
-#endif

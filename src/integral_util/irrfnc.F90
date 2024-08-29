@@ -13,13 +13,14 @@
 
 function IrrFnc(iFnc)
 
-use Symmetry_Info, only: nIrrep, iOper
+use Symmetry_Info, only: iOper, nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer IrrFnc
-integer iFnc
-integer iTest(8), i, ix, iy, iz, jx, jy, jz, iCh
-integer, external :: iNew
+integer(kind=iwp) :: IrrFnc
+integer(kind=iwp), intent(in) :: iFnc
+integer(kind=iwp) :: i, iCh, iTest(8), ix, iy, iz, jx, jy, jz
+integer(kind=iwp), external :: iNew
 
 ix = iand(iFnc,1)
 iy = iand(iFnc,2)/2

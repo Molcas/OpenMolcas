@@ -31,34 +31,31 @@ use lw_Info, only: lwInt, lwSqn, lwSyb
 use Gateway_Info, only: ThrInt
 use Symmetry_Info, only: nIrrep
 use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square, TriSyB
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: u6
 #endif
-use Definitions, only: wp
 
 implicit none
-integer ijkl, nSOInt, ibas, jBas, kBas, lBas, nSOs
-real*8 SOint(ijkl,nSOint)
-integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
-logical Shijij
-logical Shij, Shkl, qijij, qij, qkl
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-integer k12, k34, MemSO2, nUt, i1, i2, i3, i4, j1, j2, j3, j4, jCmpMx, lCmpMx, iSymi, jSymj, kSymk, lSyml, iSO, jSO, kSO, lSO, &
-        i12, i34, iSq1, iSq2, iSq3, iSq4, iqq1, iqq2, iqq3, iqq4, iSym12, iSym34, iSyBlk, jSyBlk, nij, nkl, ipP1, ipP2, ipP3, &
-        ipP4, iSOi, jSOj, kSOk, lSOl, ij, kl, iSqNum, jSqNum, j, ix, j2max, j12, nijkl, ipD, iBin, jBin
-real*8 AInt
-logical dupli
+integer(kind=iwp), intent(in) :: iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOInt, nSOs, iSOSym(2,nSOs)
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iBin, ij, ipD, ipP1, ipP2, ipP3, ipP4, iqq1, iqq2, iqq3, iqq4, iSO, iSOi, iSq1, &
+                     iSq2, iSq3, iSq4, iSqNum, iSyBlk, iSym(0:7), iSym12, iSym34, iSymi, ix, j, j1, j12, j2, j2max, j3, j4, jBin, &
+                     jCmpMx, jSO, jSOj, jSqNum, jSyBlk, jSym(0:7), jSymj, k12, k34, kl, kSO, kSOk, kSym(0:7), kSymk, lCmpMx, lSO, &
+                     lSOl, lSym(0:7), lSyml, MemSO2, nij, nijkl, nkl, nUt
+real(kind=wp) :: A_Int
+logical(kind=iwp) :: dupli, qij, qijij, qkl, Shij, Shkl
 #ifdef _DEBUGPRINT_
-real*8, save :: Tr1 = Zero, Tr2 = Zero
-real*8, external :: DDot_
-real*8 r1, r2
+real(kind=wp) :: r1, r2, Tr1 = Zero, Tr2 = Zero
+real(kind=wp), external :: DDot_
 #endif
 
 k12 = 0
 k34 = 0
 #ifdef _DEBUGPRINT_
-r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
+r1 = sum(SOint(:,:))
 r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
 tr1 = tr1+r1
 tr2 = tr2+r2
@@ -80,8 +77,8 @@ nUt = -1
 ! observe that we will walk through the memory in AOint in a
 ! sequential way.
 
-Shij = iShell(1) == iShell(2)
-Shkl = iShell(3) == iShell(4)
+Shij = (iShell(1) == iShell(2))
+Shkl = (iShell(3) == iShell(4))
 do i1=1,iCmp(1)
   do j=0,nIrrep-1
     ix = 0
@@ -123,7 +120,7 @@ do i1=1,iCmp(1)
           i34 = iCmp(3)*(i4-1)+i3
         end if
         if (Shijij .and. (i34 > i12)) go to 400
-        qijij = Shijij .and. (i12 == i34)
+        qijij = (Shijij .and. (i12 == i34))
         !write(u6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 
         ! loop over Irreps which are spanned by the basis function.
@@ -243,15 +240,15 @@ do i1=1,iCmp(1)
                     do jSOj=jSO,jSO+jBas-1
                       do iSOi=iSO,iSO+iBas-1
                         nijkl = nijkl+1
-                        AInt = SOint(nijkl,memSO2)
-                        if (abs(AInt) < ThrInt) Go To 199
+                        A_Int = SOint(nijkl,memSO2)
+                        if (abs(A_Int) < ThrInt) Go To 199
                         ij = iPD(iSOi,jSOj,iSOSym,nSOs)
                         !write(u6,*)
                         !write(u6,*) 'iSOi,jSOj,kSOk,lSOl=',iSOi,jSOj,kSOk,lSO
                         !write(u6,*) 'ij,kl=',ij,kl
 
                         nUt = nUt+1
-                        Sew_Scr(lwInt+nUt) = AInt
+                        Sew_Scr(lwInt+nUt) = A_Int
                         iBin = (kl-1)/iQQ1+(ij-1)/iQQ2
                         iSqNum = (kl-iBin*iPP1)*iSq1+(ij-iBin*iPP2)*iSq2-nkl
                         Sew_Scr(lwSqN+nUt) = real(iSqNum,kind=wp)
@@ -273,8 +270,8 @@ do i1=1,iCmp(1)
                     do jSOj=jSO,jSO+jBas-1
                       do iSOi=iSO,iSO+iBas-1
                         nijkl = nijkl+1
-                        AInt = SOint(nijkl,memSO2)
-                        if (abs(AInt) < ThrInt) Go To 299
+                        A_Int = SOint(nijkl,memSO2)
+                        if (abs(A_Int) < ThrInt) Go To 299
                         ij = iPD(iSOi,jSOj,iSOSym,nSOs)
 
                         !write(u6,*)
@@ -282,7 +279,7 @@ do i1=1,iCmp(1)
                         !write(u6,*) 'ij,kl=',ij,kl
 
                         nUt = nUt+1
-                        Sew_Scr(lwInt+nUt) = AInt
+                        Sew_Scr(lwInt+nUt) = A_Int
                         iBin = (kl-1)/iQQ1+(ij-1)/iQQ2
                         iSqNum = (kl-iBin*iPP1)*iSq1+(ij-iBin*iPP2)*iSq2-nkl
                         Sew_Scr(lwSqN+nUt) = real(iSqNum,kind=wp)
@@ -290,7 +287,7 @@ do i1=1,iCmp(1)
                         !write(u6,*) 'iSqNum,iBin=',iSqNum,iBin+iStBin(iSyBlk)
 
                         nUt = nUt+1
-                        Sew_Scr(lwInt+nUt) = AInt
+                        Sew_Scr(lwInt+nUt) = A_Int
                         jBin = (kl-1)/iQQ3+(ij-1)/iQQ4
                         jSqNum = (kl-jBin*iPP3)*iSq3+(ij-jBin*iPP4)*iSq4-nij
                         Sew_Scr(lwSqN+nUt) = real(jSqNum,kind=wp)

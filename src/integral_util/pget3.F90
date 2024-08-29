@@ -30,23 +30,22 @@ subroutine PGet3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,PAO
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO, iOffSO
-use pso_stuff, only: lSA, Gamma_On, G_ToC
+use pso_stuff, only: G_ToC, Gamma_On, lSA
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim, nCred, nScr1, nScr2
-real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-integer iAO(4), kOp(4), iAOst(4), nPam(4), iCmp(4)
-real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
-logical Shijij
-real*8 PMax
-integer iiBas(4), in1, jPAM, in2, i1, iSO, iAOi, iSOi, nPSOPam, i2, i3, i4, jSO, kSO, lSO, nijkl, jAOj, kAOk, lAOl, k1, k2, k3, &
-        k4, loc, ipAO, jSOj, kSOk, lSOl
-real*8 Val
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), n1, n2, n3, n4, mDim, &
+                                 nCred, nScr1, nScr2
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), iPam(n1+n2+n3+n4), MapPam(4,mDim), Cred(nCred), Scr1(nScr1,2), &
+                              Scr2(nScr2), PMax
+logical(kind=iwp), intent(in) :: Shijij
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iiBas(4), in1, in2, ipAO, iSO, iSOi, jAOj, jPAM, jSO, jSOj, k1, k2, k3, k4, kAOk, kSO, &
+                     kSOk, lAOl, loc, lSO, lSOl, nijkl, nPam(4), nPSOPam
+real(kind=wp) :: Val
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' nBases..=',iBas,jBas,kBas,lBas
@@ -83,7 +82,7 @@ end do
 ! Get the scrambled 2nd order density matrix
 
 if (LSA) then
-  call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),nScr1)
+  call PTrans_sa(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),nScr1)
 else
   call PTrans(nPam,iPam,n1+n2+n3+n4,PAOPam,nPSOPam,Cred,nCred,Scr1,nScr1,Scr2,nScr2)
 end if

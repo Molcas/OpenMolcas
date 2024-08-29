@@ -40,21 +40,18 @@ subroutine FckAcc_NoSym(iCmp,jCmp,kCmp,lCmp,Shijij,iShell,nijkl,AOInt,FMat,DMat,
 use SOAO_Info, only: iAOtSO
 use Gateway_Info, only: CutInt
 use Constants, only: Zero, One, Four, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
-real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens), DMat(nDens)
-logical Shij, Shkl, Shijij
-integer iShell(4), iAO(4), iAOst(4)
-integer iBas, jBas, kBas, lBas
-real*8 ExFac
-integer i, j, iTri
-real*8 Fac, Fac_C, Fac_E
-integer in(4)
-integer i1, i2, i3, i4, iSO, jSO, kSO, lSO
-integer k, l, kl, jk, jl, ij, ik, il
-real*8 D_kl, F_kl, D_jl, F_jl, D_jk, F_jk, AOijkl
+integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iShell(4), nijkl, nDens, iAO(4), iAOst(4), iBas, jBas, kBas, lBas
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), DMat(nDens), ExFac
+real(kind=wp), intent(inout) :: FMat(nDens)
+integer(kind=iwp) :: i1, i2, i3, i4, ij, ik, il, iSO, jk, jl, jSO, k, kl, kSO, l, lSO, nijkl_
+real(kind=wp) :: AOijkl, D_jk, D_jl, D_kl, F_jk, F_jl, F_kl, Fac, Fac_C, Fac_E
+logical(kind=iwp) :: Shij, Shkl
 ! Statement Function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !write(u6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
@@ -66,8 +63,8 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 ! Observe that we will walk through the memory in AOInt in a
 ! sequential way.
 
-Shij = iShell(1) == iShell(2)
-Shkl = iShell(3) == iShell(4)
+Shij = (iShell(1) == iShell(2))
+Shkl = (iShell(3) == iShell(4))
 
 Fac = One
 if (Shij) Fac = Fac*Half
@@ -77,22 +74,15 @@ Fac_C = Four*Fac
 Fac_E = -Fac*ExFac
 
 do i1=1,iCmp
-  in(1) = iAOtSO(iAO(1)+i1,0)+iAOst(1)
+  iSO = iAOtSO(iAO(1)+i1,0)+iAOst(1)
   do i2=1,jCmp
-    in(2) = iAOtSO(iAO(2)+i2,0)+iAOst(2)
+    jSO = iAOtSO(iAO(2)+i2,0)+iAOst(2)
     do i3=1,kCmp
-      in(3) = iAOtSO(iAO(3)+i3,0)+iAOst(3)
+      kSO = iAOtSO(iAO(3)+i3,0)+iAOst(3)
       do i4=1,lCmp
-        in(4) = iAOtSO(iAO(4)+i4,0)+iAOst(4)
+        lSO = iAOtSO(iAO(4)+i4,0)+iAOst(4)
 
-        ! Get the starting SO indices.
-
-        iSO = in(1)
-        jSO = in(2)
-        kSO = in(3)
-        lSO = in(4)
-
-        nijkl = 0
+        nijkl_ = 0
         do l=lSO,lSO+lBas-1
           do k=kSO,kSO+kBas-1
             kl = iTri(k,l)
@@ -107,8 +97,8 @@ do i1=1,iCmp
               F_jl = Zero
               F_jk = Zero
               do i=iSO,iSO+iBas-1
-                nijkl = nijkl+1
-                AOijkl = AOInt(nijkl,i1,i2,i3,i4)
+                nijkl_ = nijkl_+1
+                AOijkl = AOInt(nijkl_,i1,i2,i3,i4)
                 if (abs(AOijkl) < CutInt) Go To 10
                 ij = iTri(i,j)
                 ik = iTri(i,k)

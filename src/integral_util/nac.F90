@@ -11,8 +11,15 @@
 
 module NAC
 
-logical isNAC, DoCSF, isCSF
-real*8 Ediff
-integer NACstates(2)
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: NACstates(2)
+real(kind=wp) :: Ediff
+logical(kind=iwp) :: DoCSF, isCSF, isNAC
+
+public :: DoCSF, Ediff, isCSF, isNAC, NACstates
 
 end module NAC

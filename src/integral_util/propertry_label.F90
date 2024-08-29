@@ -11,7 +11,12 @@
 
 module Property_Label
 
-character(len=6) PLabel
+implicit none
+private
+
+character(len=6) :: PLabel
+
+public :: PLabel
 
 end module Property_Label
 

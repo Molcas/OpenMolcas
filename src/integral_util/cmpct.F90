@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CmpctR(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,xZInv,AeqB,xab,xabCon,Alpha, &
-                  xAlpha,Beta,xBeta)
+subroutine Cmpct(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,xZInv,AeqB,xab,xabCon,Alpha, &
+                 xAlpha,Beta,xBeta)
 !***********************************************************************
 !                                                                      *
 ! Object: to find the largest value of the integrals which will be     *
@@ -28,26 +28,31 @@ subroutine CmpctR(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,Ind_Pair,Con,xZeta,xKapp,
 !             Modified for k2 prescreening, June '98                   *
 !***********************************************************************
 
-use Constants, only: One, Zero
-use Gateway_Info, only: CutInt, RadMax
+use Gateway_Info, only: cdMax, CutInt, lSchw, RadMax
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer mijkl, na, nb, nijkl
-real*8 abcd(mijkl,na,nb,na,nb), Zeta(mijkl), xab(nijkl), KappAB(mijkl), P(nijkl,3), xZeta(nijkl), xKapp(nijkl), xP(nijkl,3), &
-       xZInv(nijkl), Con(mijkl), xabCon(nijkl), Alpha(mijkl), xAlpha(nijkl), Beta(mijkl), xBeta(nijkl)
-integer IndZ(nijkl+1), Ind_Pair(mijkl)
-logical AeqB
-integer iOff, ijkl, ijkl_, ia, ib, jnd
-real*8 Temp, Temp1, Temp2
+integer(kind=iwp), intent(in) :: na, nb, nijkl, mijkl, Ind_Pair(mijkl), iOff
+real(kind=wp), intent(in) :: abcd(mijkl,na,nb,na,nb), Zeta(mijkl), KappAB(mijkl), P(nijkl,3), Con(mijkl), Alpha(mijkl), Beta(mijkl)
+real(kind=wp), intent(inout) :: xZeta(nijkl), xKapp(nijkl), xP(nijkl,3), xZInv(nijkl), xab(nijkl), xabCon(nijkl), xAlpha(nijkl), &
+                                xBeta(nijkl)
+integer(kind=iwp), intent(inout) :: IndZ(nijkl+1), Jnd
+logical(kind=iwp), intent(in) :: AeqB
+integer(kind=iwp) :: ia, ib, ijkl, ijkl_
+real(kind=wp) :: Check, Temp, Temp1, Temp2
+
+#include "compiler_features.h"
 
 #ifdef _DEBUGPRINT_
-write(u6,*) ' In CmpctS'
+write(u6,*) ' In Cmpct'
 write(u6,*) AeqB,iOff,Jnd
-call RecPrt('Zeta',' ',Zeta,mijkl,1)
-call RecPrt('abcd',' ',abcd,mijkl,(na*nb)**2)
+call RecPrt('Cmpct:Zeta',' ',Zeta,mijkl,1)
+call RecPrt('Cmpct:KappAB',' ',KappAB,mijkl,1)
+call RecPrt('Cmpct:abcd',' ',abcd,mijkl,(na*nb)**2)
 #endif
 
 ! Move data
@@ -64,6 +69,7 @@ if (AeqB) then
   do ijkl=1,mijkl
     ijkl_ = Ind_Pair(ijkl)
     xZInv(iOff+ijkl) = One/Zeta(ijkl)
+
     Temp = Zero
     do ia=1,na
       do ib=1,nb
@@ -82,12 +88,20 @@ else
     Temp = Zero
     do ia=1,na
       do ib=1,nb
+#       ifdef _BUGGY_INTEL_OPTIM_
+        if (Jnd < -1) call Abend()
+#       endif
         Temp = max(Temp,abs(abcd(ijkl,ia,ib,ia,ib)))
       end do
     end do
     Temp1 = sqrt(Temp)
-    Temp2 = sqrt(Temp)*Con(ijkl_)
-    if (KappAB(ijkl)*Con(ijkl)*RadMax >= CutInt) then
+    Temp2 = Temp1*Con(ijkl_)
+    if (lSchw) then
+      Check = Temp2*cdMax
+    else
+      Check = KappAB(ijkl)*Con(ijkl)*RadMax
+    end if
+    if (Check >= CutInt) then
       Jnd = Jnd+1
       xZeta(Jnd) = Zeta(ijkl)
       xKapp(Jnd) = KappAB(ijkl)
@@ -116,10 +130,10 @@ call RecPrt('xP(z) ',' ',xP(1,3),1,nijkl)
 call RecPrt('xZInv ',' ',xZInv,1,nijkl)
 call RecPrt('xab   ',' ',xab,1,nijkl)
 call RecPrt('xabCon',' ',xabCon,1,nijkl)
-call RecPrt('xAlpha',' ',Alpha,1,nijkl)
-call RecPrt('xBeta ',' ',Beta,1,nijkl)
+call RecPrt('xAlpha',' ',xAlpha,1,nijkl)
+call RecPrt('xBeta ',' ',xBeta,1,nijkl)
 #endif
 
 return
 
-end subroutine CmpctR
+end subroutine Cmpct

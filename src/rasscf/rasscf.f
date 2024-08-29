@@ -84,7 +84,7 @@
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lRF
       use Lucia_Interface, only: Lucia_Util
 #ifdef _HDF5_
       use rasscf_lucia, only: DStmp, Dtmp

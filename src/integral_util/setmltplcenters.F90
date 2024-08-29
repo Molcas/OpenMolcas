@@ -21,10 +21,10 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: CoM
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer i
+integer(kind=iwp) :: i
 
 ! Check
 if (S%nMltpl < 0) then

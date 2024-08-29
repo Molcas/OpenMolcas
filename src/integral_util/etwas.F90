@@ -11,7 +11,14 @@
 
 module EtWas
 
-integer mIrrep, nISh(0:7), nASh(0:7), mBas(0:7), nCMo, nDSO, nPSOP, MxPam, nCred, nScr1, nScr2
-real*8 ExFac, CoulFac
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: mBas(0:7), mIrrep, nASh(0:7), nCMo, nCred, nDSO, nISh(0:7), nPSOP, nScr1, nScr2
+real(kind=wp) :: CoulFac, ExFac
+
+public :: CoulFac, ExFac, mBas, mIrrep, nASh, nCMo,nCred, nDSO, nISh, nPSOP, nScr1, nScr2
 
 end module EtWas

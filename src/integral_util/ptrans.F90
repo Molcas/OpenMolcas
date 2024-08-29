@@ -27,27 +27,27 @@ subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,Cred,nC,Scr1,nS1,Scr2,nS2)
 !         elements.
 ! -------------------------------------------------------------------
 
+use etwas, only: CoulFac, mBas, mIrrep, nAsh, nIsh, npSOp
+use pso_stuff, only: CMO, D0, G1, G2
 use Constants, only: Zero, One, Two, Quart
-use etwas, only: npSOp, CoulFac, mBas, nAsh, nIsh, mIrrep
-use pso_stuff, only: DSO => D0, CMO, G1, G2
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nxpam, nPSOPam, nC, nS1, nS2
-integer npam(4,0:*)
-real*8 ipam(nxpam)
-real*8 PSOPam(nPSOPam), Cred(nC), Scr1(nS1), Scr2(nS2)
-integer i, j, i3adr
-real*8 t14
-integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym, ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd, ni, nj, &
-        nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips, irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl, nu, nxvu, nt, nxvut, &
-        ix, iv, iu, itu, ituvx, itx, ivu, itv, iScr, ixEnd, iOCMOL, iods, lSta, ixSta, iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, &
-        ivSta, iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd, iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx, ixu, nCopy, &
-        nSkip1, iOff2, nSkip2, nTUV, l, nLTU, k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1, itSta, iOff1, ipSO
-real*8 Fact
+integer(kind=iwp), intent(in) :: npam(4,0:*), nxpam, nPSOPam, nC, nS1, nS2
+real(kind=wp), intent(in) :: ipam(nxpam)
+real(kind=wp), intent(out) :: PSOPam(nPSOPam), Cred(nC), Scr1(nS1), Scr2(nS2)
+integer(kind=iwp) :: iEnd, ijSym, Ind, iOCMOI, iOCMOJ, iOCMOK, iOCMOL, iOCMOT, iOCMOU, iOCMOV, iOCMOX, ioDQ, ioDR, iods, iOff1, &
+                     iOff2, ioPam1, ioPam2, ioPam3, ioPam4, ip, ipq, ipr, ips, ipSO, iq, ir, irq, irs, is, iScr, isq, iSta, iSym, &
+                     it, itEnd, itSta, itu, ituvx, itv, itx, iu, iuEnd, iuSta, iv, iVEnd, ivSta, ivu, ivx, ix, ixEnd, ixSta, ixu, &
+                     jEnd, jklOf1, jklOff, jSta, jSym, k, kEnd, klOf1, klOff, klSym, kSta, kSym, l, lEnd, lOf1, lOff, lSta, lSym, &
+                     nbi, nbj, nbk, nbl, nCopy, ni, nijkl, nj, njkl, nk, nkl, nKLT, nl, nLTU, nnPam1, nnPam2, nnPam3, nnPam4, &
+                     nSkip1, nSkip2, nt, nTUV, nu, nv, nx, nxv, nxvu, nxvut
+real(kind=wp) :: Fact, t14
 ! Triangular addressing without symmetry:
+integer(kind=iwp) :: i, j, i3adr
 i3adr(i,j) = ((max(i,j))*((max(i,j))-1))/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
@@ -271,15 +271,15 @@ do lsym=0,mirrep-1
                 if (isym == lsym) then
                   ips = i3adr(ip,is)
                   irq = i3adr(ir,iq)
-                  PSOPam(ipso) = PSOPam(ipso)-t14*DSO(ioDs+ips,1)*DSO(ioDr+irq,1)
+                  PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDs+ips,1)*D0(ioDr+irq,1)
                 end if
                 if (isym == ksym) then
                   ipr = i3adr(ip,ir)
                   isq = i3adr(is,iq)
-                  PSOPam(ipso) = PSOPam(ipso)-t14*DSO(ioDr+ipr,1)*DSO(ioDs+isq,1)
+                  PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDr+ipr,1)*D0(ioDs+isq,1)
                 end if
                 if (isym == jsym) then
-                  PSOPam(ipso) = PSOPam(ipso)+DSO(ioDq+ipq,1)*DSO(ioDs+irs,1)*coulfac
+                  PSOPam(ipso) = PSOPam(ipso)+D0(ioDq+ipq,1)*D0(ioDs+irs,1)*coulfac
                 end if
               end do
             end do

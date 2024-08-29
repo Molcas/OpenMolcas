@@ -37,7 +37,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: OFE_KSDFT, dfmd, Do_OFemb, KEonly, ThrFThaw, XSigma
       use Functionals, only: Custom_File, Custom_Func
-      use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
+      use IOBuf, only: lDaRec,nSect
       use InfSO, only: DltnTh, QNRTh
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
@@ -1343,7 +1343,6 @@
 !---- Adjust disk size to multiple of I/O buffer
       If (nDisc.ne.0) nDisc=(nDisc*1024+nCore-1)/1024
 !
-!     nDisc=Min(Int(DiskMx_MByte),nDisc)
       nDisc=Min(10*Allocdisk(),nDisc)
 !
 !---- Set up parameters that follow from others

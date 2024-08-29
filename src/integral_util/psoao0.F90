@@ -23,7 +23,7 @@ subroutine PSOAO0(nSO,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBs
 !          the AO block this will affect the vectorization. Hence, at  *
 !          some point it will actually be better to recompute the      *
 !          primitives.                                                 *
-!          Current stratergy:                                          *
+!          Current strategy:                                           *
 !          1. Start reducing the length of the primitives in the order *
 !             lPrim,jPrim.                                             *
 !          2. Reduce the size of the SO block by reducing the number of*
@@ -39,26 +39,24 @@ subroutine PSOAO0(nSO,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBs
 !             Modified for unified Work2 and Work3 block. Febr. 2015   *
 !***********************************************************************
 
-use lw_Info, only: lwInt, lwSyb, lwSqn
+use lw_Info, only: lwInt, lwSqn, lwSyb
 use Gateway_global, only: force_part_c, force_part_p
-use RICD_Info, only: Do_RI, Cholesky
+use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
 use Breit, only: nComp
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
+logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
-integer nSO, MemPrm, MemMax, iBas, iBsInc, jBas, jBsInc, kBas, kBsInc, lBas, lBsInc, iPrim, iPrInc, jPrim, jPrInc, kPrim, kPrInc, &
-        lPrim, lPrInc, ipMem1, ipMem2, Mem1, Mem2
-logical DoFock
-integer iAnga(4), iCmpa(4)
-logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-integer la, lb, lc, ld, iCmp, jCmp, nab, kCmp, lCmp, ncd, mabMin, mabMax, mcdMin, mcdMax, nf, mabcd, nabcd, ne, Mem0, mijkl, &
-        nijkl, kSOInt, MemPr, MemAux, nCache_, lSize, IncVec, na1a, na2a, na3a, nVec1, na1b, na2b, na3b, MemCon, MemSp1, MemFck, &
-        MemPck, lPack, iFact, nVec2
-#include "SysDef.fh"
+integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lPack, lSize, mabcd, mabMax, mabMin, mcdMax, &
+                     mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
+                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
+logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 ! Statement function to compute canonical index
-integer ixyz, nabSz
+integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 la = iAnga(1)
@@ -111,8 +109,8 @@ if (.not. (Cholesky .or. Do_RI)) iFact = 4+3
 
 999 continue
 
-! We can partion the blocks on all contrcated indicies
-! and on the second and fourth primitive indicies.
+! We can partion the blocks on all contracted indices
+! and on the second and fourth primitive indices.
 ! We put priority in keeping an as large fraction of the contracted
 ! block as much preserved to limit the recompution of primitive
 ! integrals.
@@ -191,8 +189,8 @@ end if
 ! Since we do not know the order of contraction at this time we will
 ! have to compute for the worst case scenario.
 !
-! Contraction of the two first indicies: iPrim->iBas & jPrim->jBas
-! while the third and fourth indicies are uncontrcated.
+! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
+! while the third and fourth indices are uncontracted.
 nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
 ! Note that we do not know here the order of the contraction, hence
 ! we assume worst case scenario. The worst case is when lSize is
@@ -213,8 +211,8 @@ nA3a = iBsInc*jBsInc*nVec1
 !write(u6,*) 'nVec1,lSize=',nVec1,lSize
 !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
-! Contraction of the two last indicies: kPrim->kBas & lPrim->lBas
-! while the first and second indicies are contrcated.
+! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
+! while the first and second indices are contracted.
 nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
 lSize = kPrInc*lPrInc+min(lPrInc*kBsInc,kPrInc*lBsInc)
 nVec2 = iBsInc*jBsInc*max(nabcd,mabcd)
@@ -229,8 +227,8 @@ MemCon = max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b)
 !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
 !write(u6,*) 'MemCon     :',MemCon
 
-! Contraction of the two last indicies: kPrim->kBas & lPrim->lBas
-! while the first and second indicies are uncontrcated.
+! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
+! while the first and second indices are uncontracted.
 nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
 lSize = kPrInc*lPrInc+min(lPrInc*kBsInc,kPrInc*lBsInc)
 nVec1 = iPrInc*jPrInc*max(nabcd,mabcd)
@@ -242,8 +240,8 @@ nA3a = kBsInc*lBsInc*nVec1
 !write(u6,*) 'nVec1,lSize=',nVec1,lSize
 !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
-! Contraction of the two first indicies: iPrim->iBas & jPrim->jBas
-! while the third and fourth indicies are contrcated.
+! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
+! while the third and fourth indices are contracted.
 nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
 lSize = iPrInc*jPrInc+min(jPrInc*iBsInc,iPrInc*jBsInc)
 nVec2 = kBsInc*lBsInc*max(nabcd,mabcd)

@@ -15,13 +15,13 @@ function memtra(npam)
 ! temporaries. It also puts into common some offsets and stuff.
 ! -------------------------------------------------------------------
 
-use etwas, only: mIrrep, nCred, nScr1, nScr2, nAsh
+use etwas, only: mIrrep, nAsh, nCred, nScr1, nScr2
+use Definitions, only: iwp
 
 implicit none
-integer memtra
-integer nPam(4,0:7)
-intrinsic max
-integer mxact, mxS1, mxS2, mxS3, mxS4, isym, mxS, mxa2, mxa3, mxa4, mxS34, mxS234, nscr3, nscr4, nscr5, na
+integer(kind=iwp) :: memtra
+integer(kind=iwp), intent(in) :: nPam(4,0:7)
+integer(kind=iwp) :: isym, mxa2, mxa3, mxa4, mxact, mxS, mxS1, mxS2, mxS234, mxS3, mxS34, mxS4, na, nscr3, nscr4, nscr5
 
 !iQ = 1
 mxact = 0

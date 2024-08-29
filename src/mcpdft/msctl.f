@@ -35,7 +35,7 @@
       use mspdft, only: do_rotate, iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rctfld_module
+      use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc, TUVX
 

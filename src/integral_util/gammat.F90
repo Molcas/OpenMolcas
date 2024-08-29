@@ -20,14 +20,14 @@ function gammat(x)
 
 use rmat, only: m_Gam, n_Gam
 use Constants, only: Zero, One, Two, Three, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 gammat
-real*8 x
-integer lSinT, lCosT, k
-real*8 arg1, arg2, arg3
-real*8, external :: dGamma_Molcas
+real(kind=wp) :: gammat
+real(kind=wp), intent(in) :: x
+integer(kind=iwp) :: lSinT, lCosT, k
+real(kind=wp) :: arg1, arg2, arg3
+real(kind=wp), external :: dGamma_Molcas
 
 lsint = m_gam
 lcost = n_gam

@@ -12,23 +12,25 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CmbnMPr(Rnr,nZeta,la,lb,lr,final,nComp)
+subroutine CmbnMPr(Rnr,nZeta,la,lb,lr,rFinal,nComp)
 !***********************************************************************
 !     Author: K.Pfingst                                                *
 !***********************************************************************
 
-use rmat, only: lCosT, lSinT, lSinF, lCosF, GammaPh, GammaTh
+use rmat, only: GammaPh, GammaTh, lCosF, lCosT, lSinF, lSinT
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nZeta, nComp, la, lb, lr
-real*8 final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Rnr(nZeta,0:(la+lb+lr))
-integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb, iComp, lrs, iZeta, iz
-real*8 Fact
-integer ixyz, ix, iy, Ind
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
+real(kind=wp), intent(in) :: Rnr(nZeta,0:la+lb+lr)
+real(kind=wp), intent(out) :: rFinal(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta, lrs
+real(kind=wp) :: Fact
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, ix, iy, Ind
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 do ixa=0,la
@@ -60,7 +62,7 @@ do ixa=0,la
             lcosf = ixa+ixb+ix
             Fact = gammath(lsint,lcost)*gammaph(lsinf,lcosf)
             do iZeta=1,nZeta
-              final(iZeta,iComp,ipa,ipb) = Fact*Rnr(iZeta,lrs)
+              rFinal(iZeta,iComp,ipa,ipb) = Fact*Rnr(iZeta,lrs)
             end do
           end do
         end do

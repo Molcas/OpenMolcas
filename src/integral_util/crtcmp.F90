@@ -24,24 +24,21 @@ subroutine CrtCmp(Zeta,P,nZeta,A,Axyz,na,HerR,nHer,ABeq)
 !***********************************************************************
 
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(In) :: nZeta, nHer, na
-integer iHer, iCar, ia
-real*8, intent(In) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer)
-real*8, intent(Out) :: Axyz(nZeta,3,nHer,0:na)
-#ifdef _DEBUGPRINT_
-character*80 Label
-#endif
-logical ABeq(3)
+integer(kind=iwp), intent(in) :: nZeta, na, nHer
+real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer)
+real(kind=wp), intent(out) :: Axyz(nZeta,3,nHer,0:na)
+logical(kind=iwp), intent(in) :: ABeq(3)
+integer(kind=iwp) :: iHer, iCar, ia
 
 if (na < 0) then
   call WarningMessage(2,'CrtCmp: na < 0')
   call Abend()
 end if
 #ifdef _DEBUGPRINT_
-write(Label,'(A)') ' In CrtCmp: Axyz(in)'
-call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
+call RecPrt(' In CrtCmp: Axyz(in)',' ',Axyz,nZeta*3,nHer*(na+1))
 call RecPrt(' In CrtCmp: HerR',' ',HerR,1,nHer)
 call RecPrt(' In CrtCmp: Zeta',' ',Zeta,nZeta,1)
 call RecPrt(' In CrtCmp: A   ',' ',A,1,3)
@@ -54,9 +51,9 @@ if (na /= 0) then
     do iCar=1,3
 
       if (ABeq(iCar)) then
-        Axyz(:,iCar,iHer,1) = HerR(iHer)*1/sqrt(Zeta(:))
+        Axyz(:,iCar,iHer,1) = HerR(iHer)/sqrt(Zeta(:))
       else
-        Axyz(:,iCar,iHer,1) = HerR(iHer)*1/sqrt(Zeta(:))+P(:,iCar)-A(iCar)
+        Axyz(:,iCar,iHer,1) = HerR(iHer)/sqrt(Zeta(:))+P(:,iCar)-A(iCar)
       end if
 
       do ia=2,na
@@ -69,8 +66,7 @@ if (na /= 0) then
 end if
 
 #ifdef _DEBUGPRINT_
-write(Label,'(A)') ' In CrtCmp: Axyz(out) '
-call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
+call RecPrt(' In CrtCmp: Axyz(out) ',' ',Axyz,nZeta*3,nHer*(na+1))
 #endif
 
 return

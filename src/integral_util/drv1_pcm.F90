@@ -37,13 +37,13 @@ subroutine Drv1_PCM(FactOp,nTs,FD,nFD,CCoor,lOper,VTessera,nOrdOp)
 
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
-use Basis_Info, only: Shells, DBSC, MolWgh
+use Basis_Info, only: DBSC, MolWgh, Shells
 use Center_Info, only: DC
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use define_af, only: Angtp
 use Symmetry_Info, only: ChOper
@@ -51,22 +51,23 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer nTs, nFD, nOrdOp
-real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs), RB(3), TRB(3), TA(3), VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)
-integer lOper(nTs), iStabO(0:7), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
-logical AeqB
-integer ixyz, nElem, nSkal, iS, jS, iShll, jShll, iCmp, jCmp, iAng, jAng, iBas, jBas, iAO, jAO, iPrim, jPrim, iCnt, jCnt, iShell, &
-        jShell, iCnttp, jCnttp, mdci, mdcj, iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal, nScr1, nScr2, nDAO, lDCRR, nDCRR, iTile, &
-        iuv, nStabO, LmbdT, LmbdR, lDCRT, nDCRT, kk, ipFnlC, iComp, nOrder, NrOpr, nStabM
-integer, external :: n2Tri, MemSO1
-real*8 FactND
-real*8, external :: DDot_
-real*8, allocatable :: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
-real*8, allocatable :: Kern(:), Fnl(:), Scr1(:), Scr2(:), DAO(:), DSOpr(:), DSO(:)
+integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
+real(kind=wp), intent(in) :: FactOp(nTs), FD(nFD), CCoor(4,nTs)
+real(kind=wp), intent(inout) :: VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlC, iPrim, iS, iShell, iShll, iSmLbl, &
+                     iStabM(0:7), iStabO(0:7), iTile, iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, &
+                     lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, &
+                     NrOpr, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
+real(kind=wp) :: A(3), B(3), C(3), FactND, RB(3), TA(3), TRB(3)
+logical(kind=iwp) :: AeqB
+real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:), PCoor(:,:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
 #ifdef _DEBUGPRINT_
-integer i
+integer(kind=iwp) :: i
 #endif
+integer(kind=iwp), external :: MemSO1, n2Tri
+real(kind=wp), external :: DDot_
 ! Statement function
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! Auxiliary memory allocation.

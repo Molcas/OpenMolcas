@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine RFInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp)
+subroutine RFInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments integrals with the          *
@@ -28,16 +28,17 @@ subroutine RFInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerw
-use Definitions, only: u6
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), B(3), Array(nZeta*nArr), Ccoor(3)
-logical ABeq(3)
-integer nip, ipAxyz, ipBxyz, ipRnxyz, ipTemp1, ipTemp2, ipTemp3, iZeta, ipRxyz
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Array(nZeta*nArr)
+integer(kind=iwp) :: ipAxyz, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iZeta, nip
+logical(kind=iwp) :: ABeq(3)
 
-ABeq(:) = A(:) == B(:)
+ABeq(:) = (A(:) == B(:))
 
 nip = 1
 ipAxyz = nip
@@ -73,7 +74,7 @@ write(u6,*) ' In RFInt: nHer=',nHer
 ! Compute the cartesian values of the basis functions angular part
 
 do iZeta=1,nZeta
-  Array(ipTemp1-1+iZeta) = 1/sqrt(Zeta(iZeta))
+  Array(ipTemp1-1+iZeta) = One/sqrt(Zeta(iZeta))
   !Array(ipTemp1-1+iZeta) = Zeta(iZeta)**(-Half)
 end do
 call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),la,HerR(iHerR(nHer)),nHer,ABeq)
@@ -91,7 +92,7 @@ call vAssmbl(Array(ipRnxyz),Array(ipAxyz),la,Array(ipRxyz),nOrdOp,Array(ipBxyz),
 
 ! Combine the cartesian components to the full one electron integral.
 
-call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,final,nComp,Array(ipTemp1),Array(ipTemp2))
+call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,rFinal,nComp,Array(ipTemp1),Array(ipTemp2))
 
 #ifdef _WARNING_WORKAROUND_
 if (.false.) then

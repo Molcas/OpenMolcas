@@ -12,21 +12,25 @@
 !#define _DEBUGPRINT_
 subroutine binte(k,alfa,beta,r0,a,ggrin,nz)
 
-use Constants, only: Zero
 use welcom, only: binom, fiint, kmax
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer k, nz
-real*8 grint(0:kmax,kmax), ggrin(nz,0:k,k/2+1,k/4+1), alfa(nz), a(nz)
-real*8 beta, r0
-integer iz, i, j, l, ind, k2, j2
-real*8 tal
+integer(kind=iwp), intent(in) :: k, nz
+real(kind=wp), intent(in) :: alfa(nz), beta, r0, a(nz)
+real(kind=wp), intent(out) :: ggrin(nz,0:k,k/2+1,k/4+1)
+integer(kind=iwp) :: i, ind, iz, j, j2, k2, l
+real(kind=wp) :: tal
+real(kind=wp), allocatable :: grint(:,:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In Binte: Alfa',' ',alfa,nz,1)
 call RecPrt(' In Binte: A   ',' ',a,nz,1)
 #endif
 call dcopy_(nz*(k+1)*(k/2+1)*(k/4+1),[Zero],0,ggrin,1)
+call mma_allocate(grint,[0,kmax],[1,kmax],label='grint')
 do iz=1,nz
   call dcopy_((kMax+1)*kMax,[Zero],0,grint,1)
   call rrint(k,alfa(iz),a(iz),beta,r0,grint,kmax)
@@ -50,6 +54,7 @@ do iz=1,nz
     end do
   end do
 end do
+call mma_deallocate(grint)
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In Binte: Ggrin',' ',Ggrin,nz,(k+1)*(k/2+1)*(k/4+1))

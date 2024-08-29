@@ -12,12 +12,12 @@
 subroutine Get_S(icol,str,n)
 
 use getline_mod, only: iend, istrt, line, ncol
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer iCol, n
-character(len=*) str(n)
-integer ic, i
+integer(kind=iwp), intent(in) :: iCol, n
+character(len=*), intent(out) :: str(n)
+integer(kind=iwp) :: i, ic
 
 ic = icol
 do i=1,n

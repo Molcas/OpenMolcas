@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gamma,nGamma,iSO2cI, &
+subroutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,nijkl,PSO,nPSO,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gmma,nGamma,iSO2cI, &
                       nSOs,iSO2Sh,PMax)
 !***********************************************************************
 !                                                                      *
@@ -37,32 +37,32 @@ use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO, iOffSO
 use pso_stuff, only: Gamma_MRCISD
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, Quart, One, Four
+use Constants, only: Zero, One, Four, Quart
+use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
-use pso_stuff, only: iD0Lbl, D0, DVar
+use pso_stuff, only: D0, DVar, iD0Lbl
 #endif
-use Definitions, only: u6
 
 implicit none
-real*8, parameter :: exfac = One
-integer nijkl, nPSO, nDSO, nGamma, nSOs
-real*8 PSO(nijkl,nPSO), DSO(nDSO), DSO_Var(nDSO), gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
-integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-integer iCmp(4), iAO(4), iAOst(4)
-logical Shijij
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-integer i, j, iTri
-real*8 PMax, T14, Temp
-integer i1, i2, i3, i4, MemSO2, niSym, njSym, nkSym, nlSym, lOper, iS, jS, kS, lS, j1, j2, j3, j4, j12, j123, iSO_R, jSO_R, kSO_R, &
-        lSO_R, iSO_A, jSO_A, kSO_A, lSO_A, iSOi, jSOj, kSOk, lSOl, iSOi_A, jSOj_A, kSOk_A, lSOl_A, iAOi, jAOj, kAOk, lAOl, iBas, &
-        jBas, kBas, lBas, mijkl, iShell_A, iShell_B, iShell_C, iShell_D, iShell_AB, iShell_CD, Index_A, Index_B, Index_C, Index_D, &
-        Index_AB, Index_CD, Index_ABCD, nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD, Indi, Indj, Indk, Indl, Indij, Indkl, &
-        Indik, Indjl, Indil, Indjk, iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
-integer, external :: iPntSO
+integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, nGamma, nSOs, &
+                                 iSO2cI(2,nSOs), iSO2Sh(nSOs)
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
+real(kind=wp), intent(in) :: DSO(nDSO), DSO_Var(nDSO), DSSO(nDSO), DSSO_Var(nDSO), Gmma(nGamma)
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, Indi, Indij, Indik, &
+                     Indil, Indj, Indjk, Indjl, Indk, Indkl, Indl, iPntij, iPntik, iPntil, iPntjk, iPntjl, iPntkl, iS, iShell_A, &
+                     iShell_AB, iShell_B, iShell_C, iShell_CD, iShell_D, iSO_A, iSO_R, iSOi, iSOi_A, iSym(0:7), j1, j12, j123, j2, &
+                     j3, j4, jAOj, jS, jSO_A, jSO_R, jSOj, jSOj_A, jSym(0:7), kAOk, kS, kSO_A, kSO_R, kSOk, kSOk_A, kSym(0:7), &
+                     lAOl, lOper, lS, lSO_A, lSO_R, lSOl, lSOl_A, lSym(0:7), MemSO2, mijkl, nDim_A, nDim_AB, nDim_B, nDim_C, &
+                     nDim_CD, nDim_D, niSym, njSym, nkSym, nlSym
+real(kind=wp) :: T14, Temp
+real(kind=wp), parameter :: exfac = One
+integer(kind=iwp), external :: iPntSO
 #ifdef _DEBUGPRINT_
-integer iComp
+integer(kind=iwp) :: iComp
 #endif
 ! Statement Function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -255,10 +255,10 @@ do i1=1,iCmp(1)
                         !write(u6,*) 'iSO:',iSOi_a,jSOj_a,kSOk_a,lSOl_a
                         !write(u6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
                         !write(u6,*) 'nDim:',nDim_A,nDim_B,nDim_C,nDim_D
-                        !write(u6,*)  temp , Gamma(Index_ABCD),Index_ABCD
-                        temp = temp+Four*gamma(Index_ABCD)
+                        !write(u6,*)  temp , Gmma(Index_ABCD),Index_ABCD
+                        temp = temp+Four*Gmma(Index_ABCD)
 95                      continue
-                        if (gamma_mrcisd) temp = gamma(Index_ABCD)
+                        if (gamma_mrcisd) temp = Gmma(Index_ABCD)
 
                         PMax = max(PMax,abs(Temp))
                         PSO(mijkl,MemSO2) = temp

@@ -30,15 +30,16 @@ subroutine qlm(gx,gy,gz,qa,dax,day,daz,lmax_,Cavxyz)
 !***********************************************************************
 
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer lmax_
-real*8 Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
-real*8 gx, gy, gz, qa, dax, day, daz
-integer ix, iy, iz, iOff, Index, lMax
-real*8 xeff, xyeff, xyzeff, ax, ay, az
+real(kind=wp), intent(in) :: gx, gy, gz, qa, dax, day, daz
+integer(kind=iwp), intent(in) :: lmax_
+real(kind=wp), intent(inout) :: Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
+integer(kind=iwp) :: lMax
+real(kind=wp) :: ax, ay, az, xeff, xyeff, xyzeff
 ! Statement functions
+integer(kind=iwp) :: ix, iy, iz, iOff, Index
 iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
 index(ix,iy,iz) = iOff(ix,iy,iz)+(iy+iz)*(iy+iz+1)/2+iz+1
 
@@ -68,13 +69,13 @@ do ix=0,lmax
 
       ! Charge term
 
-      Cavxyz(index(ix,iy,iz)) = xyzeff*qa+Cavxyz(index(ix,iy,iz))
+      Cavxyz(index(ix,iy,iz)) = Cavxyz(index(ix,iy,iz))+xyzeff*qa
 
       ! Dipole terms
 
-      Cavxyz(index(ix+1,iy,iz)) = xyzeff*dax*ax+Cavxyz(index(ix+1,iy,iz))
-      Cavxyz(index(ix,iy+1,iz)) = xyzeff*day*ay+Cavxyz(index(ix,iy+1,iz))
-      Cavxyz(index(ix,iy,iz+1)) = xyzeff*daz*az+Cavxyz(index(ix,iy,iz+1))
+      Cavxyz(index(ix+1,iy,iz)) = Cavxyz(index(ix+1,iy,iz))+xyzeff*dax*ax
+      Cavxyz(index(ix,iy+1,iz)) = Cavxyz(index(ix,iy+1,iz))+xyzeff*day*ay
+      Cavxyz(index(ix,iy,iz+1)) = Cavxyz(index(ix,iy,iz+1))+xyzeff*daz*az
 
     end do
   end do

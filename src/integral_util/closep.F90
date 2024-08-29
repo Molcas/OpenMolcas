@@ -20,11 +20,12 @@ subroutine CloseP()
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use pso_stuff, only: Case_MP2, LuGam, lPSO, G1, G2, CMO, DSVar, DS, DVar, D0, Gamma_On, LuGamma, Bin, G_Toc, SO2cI
+use pso_stuff, only: Bin, Case_MP2, CMO, D0, DS, DSVar, DVar, G1, G2, G_Toc, Gamma_On, lPSO, LuGam, LuGamma, SO2cI
 use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-logical DoCholesky
+logical(kind=iwp) :: DoCholesky
 
 if (case_mp2) then
   call DecideOnCholesky(DoCholesky)

@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine PCMInt( &
-#                 define _FIXED_FORMAT_
 #                 define _CALLING_
 #                 include "int_interface.fh"
                  )
@@ -26,33 +25,30 @@ subroutine PCMInt( &
 !                                                                      *
 !             Modified to PCM-integrals, by RL June '01, Napoli, Italy.*
 !***********************************************************************
-use PCM_arrays, only: nTiles, C_Tessera, q_Tessera
+
+use PCM_arrays, only: C_Tessera, nTiles, q_Tessera
 use Index_Functions, only: nTri_Elem1
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 use Definitions, only: u6
 #endif
-use Constants, only: Zero, One
-use Definitions, only: wp
 
 implicit none
 #include "int_interface.fh"
-! Used for normal nuclear attraction integrals
-external TNAI, Fake, XCff2D, XRys2D
-real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
-integer iAnga(4), iDCRT(0:7)
-integer mabMin, mabMax, nStab_, iTile, lDCRT, nDCRT, nT, nOp, ipIn, LmbdT, nFlop, nMem, NrOpr
-real*8 qTessera, Fact
-#ifdef _DEBUGPRINT_
-integer nElem, ii
-#endif
-integer jStab_(0:0)
-integer ixyz, nabSz
+integer(kind=iwp) :: iAnga(4), iDCRT(0:7), ipIn, iTile, jStab_(0:0), lDCRT, LmbdT, mabMax, mabMin, nDCRT, nFlop, nMem, nOp, NrOpr, &
+                     nStab_, nT
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, qTessera, TC(3)
+logical(kind=iwp) :: NoSpecial
+logical(kind=iwp), external :: EQ
+external :: Fake, TNAI, XCff2D, XRys2D
 ! Statement function for Cartesian index
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nElem, ii
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 #endif
+integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 rFinal(:,:,:,:) = Zero

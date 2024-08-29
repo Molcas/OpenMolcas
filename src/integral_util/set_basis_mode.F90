@@ -15,8 +15,8 @@ use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode
                      With_Fragment_Mode
 
 implicit none
-character(len=*) Label
-character(len=7) Lbl
+character(len=*), intent(in) :: Label
+character(len=7) :: Lbl
 
 Atomic = .false.
 kCnttp = 0

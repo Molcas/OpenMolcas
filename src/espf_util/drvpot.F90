@@ -42,7 +42,7 @@ integer(kind=iwp), intent(in) :: ncmp, ngrid, iaddpot
 real(kind=wp), intent(in) :: CCoor(3,ngrid)
 real(kind=wp), intent(_OUT_) :: opnuc(*)
 real(kind=wp), intent(inout) :: ptchrg(*)
-integer(kind=iwp) :: i, iIrrep, iopadr(1), jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nOrdOp, nSym, ntdg
+integer(kind=iwp) :: i, iIrrep, iopadr(1), jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nDiff, nOrdOp, nSym, ntdg
 real(kind=wp) :: dummy(1), rHrmt
 logical(kind=iwp) :: Do_ESPF
 character(len=8) :: Label
@@ -54,7 +54,8 @@ procedure(int_mem) :: NAMem
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call IniSewM('mltpl',0)
+nDiff = 0
+call IniSewM('mltpl',nDiff)
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()

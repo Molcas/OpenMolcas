@@ -22,6 +22,7 @@ subroutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Sc
 !         incomplete transformations.                                  *
 !                                                                      *
 !         Observe that ACInt and ACOut may overlap!!!!                 *
+!         (which is against Fortran standard, so this should be fixed) *
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
@@ -31,16 +32,21 @@ subroutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Sc
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
 #if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
+integer(kind=iwp), intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, mabcd, nScr, lZeta, IndZet(lZeta), lEta, IndEta(lEta)
+real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd)
+real(kind=wp), intent(out) :: Scrtch(nScr)
+! FIXME: This should be intent(out), but the aliasing/overlap (see above) prevents it
+real(kind=wp), intent(_OUT_) :: ACOut(lZeta*lEta,mabcd)
 #include "Molcas.fh"
-integer n1, m1, n2, m2, n3, m3, n4, m4, mabcd, nScr, lZeta, lEta
-real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr), ACOut(lZeta*lEta,mabcd)
-integer IndZet(lZeta), IndEta(lEta)
-integer nCache, lsize, nVec, IncVec, ipA2, ipA3
+integer(kind=iwp) :: nCache, lsize, nVec, IncVec, ipA2, ipA3
 
 #ifdef _DEBUGPRINT_
 call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)

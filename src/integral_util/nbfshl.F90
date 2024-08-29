@@ -18,13 +18,14 @@ function nbfshl(iSkal,irp)
 
 use iSD_data, only: iSD
 use SOAO_Info, only: iAOtSO
+use Definitions, only: iwp
 
 implicit none
-integer nbfshl
-integer iSkal, irp
-integer iAO, iCmp, i
+integer(kind=iwp) :: nbfshl
+integer(kind=iwp), intent(in) :: iSkal, irp
+integer(kind=iwp) :: i, iAO, iCmp
 
-!  returns number of basis functions for given shell and symmetry
+! returns number of basis functions for given shell and symmetry
 
 nbfshl = 0
 iAO = iSD(7,iSkal)

@@ -12,9 +12,6 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
-
 !#define _DEBUGPRINT_
 subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iChO,opmol,opnuc,ipad,iopadr,idirect,isyop,iStabO, &
                        nStabO,nIC,PtChrg,nGrid,iAddPot,Array,LenTot)
@@ -48,10 +45,12 @@ subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iCh
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Sizes_of_Seward, only: S
-use stdalloc, only: mma_allocate, mma_deallocate
 use rmat, only: RMat_Type_Integrals
 use property_label, only: PLabel
+use Integral_interfaces, only: int_kernel, int_mem, OneEl_IJ
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -59,26 +58,23 @@ use Definitions, only: u6
 implicit none
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
-character(len=8) Label
-integer nComp, nOrdOp, ipad, idirect, isyop, nIC, iAddPot, LenTot
-integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7), nGrid
-real*8 CoorO(3,nComp), PtChrg(nGrid)
-real*8 opmol(*), opnuc(*)
-real*8 rHrmt
-integer iopadr(nComp,*)
-real*8 Array(LenTot)
-logical, external :: Rsv_Tsk
-real*8, allocatable, target :: Kern(:)
-integer, allocatable :: Ind_ij(:,:)
-logical Do_PGamma
-real*8, dimension(:), allocatable :: Zeta, ZI, Kappa, PCoor, SOInt, Scrtch, ScrSph
-real*8, allocatable, target :: FArray(:)
-integer, external :: n2Tri, MemSO1
-integer ixyz, nElem, iPrint, nSkal, nIJS, iS, jS, i, lFinal, lScrt1, lScrt2, MemKrn, ijS, iPrim, jPrim, iBas, jBas, iAng, jAng, &
-        mFinal, mScrt1, mScrt2, lA0, lB0, MemBux, MemCux, MemKer, ijSh, iCmp, iAO, iShell, iCnttp, jCmp, jAO, jShell, jCnttp, nSO, &
-        iComp, iSmLbl, ipSO, nStabO, iSOBlk, mSO, MemAux, lA1, lB1, l_SOInt, id_Tsk, nOrder
-real*8 rHrmt_Save
+character(len=8), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, ip(nComp), lOper(nComp), nOrdOp, iChO(nComp), ipad, iopadr(nComp,*), idirect, isyop, &
+                                 iStabO(0:7), nStabO, nIC, nGrid, iAddPot, LenTot
+real(kind=wp), intent(in) :: CoorO(3,nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
+real(kind=wp), intent(inout) :: Array(LenTot)
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnttp, iComp, id_Tsk, ijS, ijSh, iPrim, iPrint, ipSO, iS, iShell, iSmLbl, iSOBlk, &
+                     jAng, jAO, jBas, jCmp, jCnttp, jPrim, jS, jShell, l_SOInt, lA0, lA1, lB0, lB1, lFinal, lScrt1, lScrt2, &
+                     MemAux, MemBux, MemCux, MemKer, MemKrn, mFinal, mScrt1, mScrt2, mSO, nIJS, nOrder, nSkal, nSO
+real(kind=wp) :: rHrmt_in
+logical(kind=iwp) :: Do_PGamma
+integer(kind=iwp), allocatable :: Ind_ij(:,:)
+real(kind=wp), allocatable :: Kappa(:), PCoor(:), ScrSph(:), Scrtch(:), SOInt(:), Zeta(:), ZI(:)
+real(kind=wp), allocatable, target :: FArray(:), Kern(:)
+integer(kind=iwp), external :: MemSO1, n2Tri
+logical(kind=iwp), external :: Rsv_Tsk
 ! Statement function
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -239,22 +235,21 @@ if ((nSO > 0) .and. (dbsc(iCnttp)%fMass == dbsc(jCnttp)%fMass)) then
     ! Special trick for integrals over electromagnetic field
     ! radiation integrals.
 
-    rHrmt_Save = rHrmt
+    rHrmt_in = rHrmt
 
     if ((Label(1:5) == 'EMFR ') .or. (Label(1:5) == 'TMOM ')) then
       if (mod((iComp+5),6) < 3) then
-        rHrmt = One
+        rHrmt_in = One
       else
-        rHrmt = -One
+        rHrmt_in = -One
       end if
     end if
-    !write(u6,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
+    !write(u6,*) 'Label,iComp,rHrmt_in=',Label,iComp,rHrmt_in
     if (mSO /= 0) then
       call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label, &
-                  lOper,rHrmt)
+                  lOper,rHrmt_in)
       iSOBlk = iSOBlk+mSO*iBas*jBas
     end if
-    rHrmt = rHrmt_Save
   end do
   call mma_deallocate(SOInt)
 end if
@@ -288,11 +283,3 @@ if (.false.) then
 end if
 
 end subroutine OneEl_Inner
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(OneEl_inner)
-
-#endif

@@ -26,7 +26,7 @@ subroutine TwoEl_Sym(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoIn
 !             March '90                                                *
 !                                                                      *
 !          Roland Lindh, Dept. of Theoretical Chemistry, University of *
-!          Lund, SWEDEN. Modified to use Schwartz inequality for pre-  *
+!          Lund, SWEDEN. Modified to use Schwarz inequality for pre-   *
 !          screening, July 1991.                                       *
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
@@ -34,77 +34,66 @@ subroutine TwoEl_Sym(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoIn
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
-use Gateway_Info, only: ThrInt, CutInt
+use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
-use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize, W2Disc, IntOnly => PreSch
-use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
-use k2_arrays, only: TwoHam => pFq, Dens => pDq
-use Breit, only: nOrdOp, nComp
+use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
+use k2_arrays, only: pFq
+use k2_structure, only: k2_type
+use Breit, only: nComp, nOrdOp
 use Constants, only: Zero, One, Four
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6, RtoB, RtoI
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 #endif
-use k2_structure, only: k2_type
 
 implicit none
+integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, &
+                                 iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, mDij, mDCRij, mDkl, &
+                                 mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, &
+                                 nZeta, nEta, nSOInt, nWork2, nAux
+real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
+                             Djl(mDjl,mDCRjl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
+logical(kind=iwp), intent(out) :: NoInts, IJeqKL
+type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
+integer(kind=iwp), intent(out) :: kOp(4)
+real(kind=wp), intent(out) :: FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Wrk(nWork2), Aux(nAux)
+logical(kind=iwp), intent(in) :: Shijij
 #include "twoswi.fh"
-integer iS_, jS_, kS_, lS_, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, mDij, mDCRij, mDkl, &
-        mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, nZeta, nEta, nSOInt, &
-        nWork2, nAux
-real*8 Coor(3,4)
-integer iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4)
-logical NoInts
-integer iStabs(4)
-type(k2_type) k2data1(nData1), k2Data2(nData2)
-logical IJeqKL
-integer kOp(4)
-real*8 Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), Djl(mDjl,mDCRjl), &
-       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), FckTmp(nFT)
-real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Wrk(nWork2)
-logical Shijij
-real*8 Aux(nAux)
-real*8 CoorM(3,4), CoorAC(3,2), QInd(2)
-integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7), iStabM(0:7), iWR(2)
-logical NoPInts, AeqB, CeqD, AeqC, ABeqCD, Do_TnsCtl, IeqK, JeqL, Prescreen_On_Int_Only, DoCoul, DoExch, Scrij, Scrkl, Scrik, &
-        Scril, Scrjk, Scrjl, Batch_On_Disk, DoAOBatch, All_Spherical
-integer iStb, jStb, kStb, lStb
-logical :: Copy = .true., NoCopy = .false.
-integer :: jOp(6) = [0,0,0,0,0,0]
-#include "SysDef.fh"
-logical, external :: EQ, lEmpty
-integer la, lb, lc, ld, ISMAng, nab, ncd, nijkl, nInts, ipAOInt, iW3, iW4, kInts, mInts, mabMin, mabMax, mcdMin, mcdMax, mabcd, &
-        IncZet, IncEta, mWork2, nZeta_Tot, nEta_Tot, kabcd, ipAOInt_, mZeta, mEta, iOpt, i_Int, nByte, nabcd, iW4_
-real*8 RST_Triplet, vijkl, vij, vkl, vik, vil, vjk, vjl
-integer ix1, iy1, iz1, ix2, iy2, iz2, iR, iS, iT, iTS, iRT, iRTS, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, &
-        il2, il3, il4, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nDCRR, lDCR1, MxDCRS, nDCRS, lDCR2, nDCRT, lDCRE_, lDCRT_, mWork3, &
-        LmbdR, LmbdS, LmbdT, iDCRTS, lStabM, lStabN, iZeta, iEta, lDCRR, lDCRS, lDCRT
-integer, external :: NrOpr
-real*8 u, v, w, x, vijij, RS_doublet, FactNd
+integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, ij4, ik1, ik2, ik3, ik4, il1, il2, &
+                     il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, ISMAng, iStabM(0:7), iStabN(0:7), iStb, &
+                     iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, iz2, iZeta, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, &
+                     jOp(6), jStb, kabcd, kInts, kl1, kl2, kl3, kl4, kStb, la, lb, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, &
+                     lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
+                     mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nijkl, nInts, nZeta_Tot
+real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
+                 vkl, w, x
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
+                     NoPInts, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
 #ifdef _DEBUGPRINT_
-integer i
+integer(kind=iwp) :: i
 #endif
+logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ, lEmpty
 interface
   subroutine FckAcc(iAng,iCmp_,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas,kBas,lBas,Dij,ij1, &
                     ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3,jk4,Djl,jl1,jl2,jl3, &
                     jl4,FT,nFT,DoCoul,DoExch,ExFac)
-    integer nijkl, nDens, nScrt, nFT, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, &
-            jk3, jk4, jl1, jl2, jl3, jl4
-    integer iBas, jBas, kBas, lBas
-    real*8, target :: Scrt(nScrt)
-    integer iCmp_(4)
-    real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)), TwoHam(nDens)
-    real*8, target :: Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), &
-                      Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
-    real*8, target :: FT(nFT)
-    logical Shijij, DoCoul, DoExch
-    integer iAng(4), iShell(4), iShll(4), kOp(4), iAO(4), iAOst(4)
-    real*8 ExFac
+    import :: wp, iwp
+    integer(kind=iwp), intent(in) :: iAng(4), iCmp_(4), iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
+                                     jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, &
+                                     il4, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nFT
+    logical(kind=iwp), intent(in) :: Shijij, DoCoul, DoExch
+    real(kind=wp), intent(in) :: AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)), ExFac
+    real(kind=wp), intent(inout) :: TwoHam(nDens)
+    real(kind=wp), target, intent(inout) :: Scrt(nScrt)
+    real(kind=wp), target, intent(in) :: Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), Dik(ik1*ik2+1,ik3,ik4), &
+                                         Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
+    real(kind=wp), target, intent(out) :: FT(nFT)
   end subroutine FckAcc
 end interface
 ! Statement function
-integer :: ixyz, nabSz
+integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 iStb = iStabs(1)
@@ -147,6 +136,7 @@ SOInt(:,:) = Zero
 ipAOInt = 1
 iW3 = 1+nInts
 iW4 = 1
+jOp(:) = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -192,7 +182,7 @@ kOp(1) = NrOpr(0)
 call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
 do lDCRR=0,nDCRR-1
   kOp(2) = NrOpr(iDCRR(lDCRR))
-  call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
+  call OA(iDCRR(lDCRR),Coor(:,2),CoorM(:,2))
   AeqB = EQ(CoorM(1,1),CoorM(1,2))
 
   lDCR1 = NrOpr(iDCRR(lDCRR))+1
@@ -206,8 +196,8 @@ do lDCRR=0,nDCRR-1
   do lDCRS=0,MxDCRS
     RS_doublet = real(lDCRS*nDCRR+lDCRR+1,kind=wp)
     call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-    call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
-    CeqD = EQ(Coor(1,3),CoorM(1,4))
+    call OA(iDCRS(lDCRS),Coor(:,4),CoorM(:,4))
+    CeqD = EQ(Coor(:,3),CoorM(:,4))
 
     ! switch (to generate better start orbitals...)
     if (NDDO .and. (.not. CeqD)) Go To 200
@@ -225,8 +215,8 @@ do lDCRR=0,nDCRR-1
       QInd(2) = RST_triplet
       !write(u6,*) QInd(1), QInd(2)
       iDCRTS = ieor(iDCRT(lDCRT),iDCRS(lDCRS))
-      call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
-      call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
+      call OA(iDCRTS,Coor(:,4),CoorM(:,4))
+      call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
       AeqC = EQ(CoorM(1,1),CoorM(1,3))
       ABeqCD = AeqB .and. CeqD .and. AeqC
       if (ABeqCD .and. (mod(iSmAng,2) == 1)) Go To 300
@@ -291,13 +281,13 @@ do lDCRR=0,nDCRR-1
 
       ! Set prescreening level
       !
-      ! IntOnly = T  prescreening on integral value only
-      ! IntOnly = F  prescreening on integral & density matrix
+      ! PreSch = T  prescreening on integral value only
+      ! PreSch = F  prescreening on integral & density matrix
       !
       ! If integral batch is written to disc, no prescreening
       ! since prescreening on integrals only was done in k2 loop.
 
-      Prescreen_On_Int_Only = IntOnly
+      Prescreen_On_Int_Only = PreSch
       if (DoIntegrals) Prescreen_On_Int_Only = .true.
       if (Batch_On_Disk) Prescreen_On_Int_Only = .true.
 
@@ -486,7 +476,7 @@ do lDCRR=0,nDCRR-1
 
       IeqK = EQ(CoorM(1,1),CoorM(1,3))
       JeqL = EQ(CoorM(1,2),CoorM(1,4))
-      IJeqKL = IeqK .and. JeqL
+      IJeqKL = (IeqK .and. JeqL)
 
       ! Loops to partition the primitives
 
@@ -525,7 +515,7 @@ do lDCRR=0,nDCRR-1
                       nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga, &
                       CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &
                       k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp,iShll, &
-                      NoPInts,Dij(1,jOp(1)),mDij,Dkl(1,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
+                      NoPInts,Dij(:,jOp(1)),mDij,Dkl(:,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
                       lBasl)
 
         end do
@@ -642,10 +632,10 @@ do lDCRR=0,nDCRR-1
       ! adapted Fock matrix.
 
       mWork3 = nWork2-iW3+1
-      if (DoFock) call FckAcc(iAnga,iCmp,Shijij,iShll,iShell,kOp,nijkl/nComp,Wrk(ipAOInt),TwoHam,size(TwoHam),Wrk(iW3),mWork3,iAO, &
-                              iAOst,iBasi,jBasj,kBask,lBasl,Dij(1,jOp(1)),ij1,ij2,ij3,ij4,Dkl(1,jOp(2)),kl1,kl2,kl3,kl4, &
-                              Dik(1,jOp(3)),ik1,ik2,ik3,ik4,Dil(1,jOp(4)),il1,il2,il3,il4,Djk(1,jOp(5)),jk1,jk2,jk3,jk4, &
-                              Djl(1,jOp(6)),jl1,jl2,jl3,jl4,FckTmp,nFT,DoCoul,DoExch,ExFac)
+      if (DoFock) call FckAcc(iAnga,iCmp,Shijij,iShll,iShell,kOp,nijkl/nComp,Wrk(ipAOInt),pFq,size(pFq),Wrk(iW3),mWork3,iAO,iAOst, &
+                              iBasi,jBasj,kBask,lBasl,Dij(:,jOp(1)),ij1,ij2,ij3,ij4,Dkl(:,jOp(2)),kl1,kl2,kl3,kl4,Dik(:,jOp(3)), &
+                              ik1,ik2,ik3,ik4,Dil(:,jOp(4)),il1,il2,il3,il4,Djk(:,jOp(5)),jk1,jk2,jk3,jk4,Djl(:,jOp(6)),jl1,jl2, &
+                              jl3,jl4,FckTmp,nFT,DoCoul,DoExch,ExFac)
 
       ! Transform from AO basis to SO basis
 
@@ -668,7 +658,6 @@ if (.false.) then
   call Unused_integer(lS_)
   call Unused_integer(iPrInc)
   call Unused_integer(kPrInc)
-  call Unused_real_array(Dens)
 end if
 
 end subroutine TwoEl_Sym

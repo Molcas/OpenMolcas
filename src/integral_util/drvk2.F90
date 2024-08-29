@@ -13,12 +13,12 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine Drvk2(Cmpct,DoFock,DoGrad)
+subroutine Drvk2(DoFock,DoGrad)
 !***********************************************************************
 !                                                                      *
 !  Object: to precompute all pair entites as zeta, kappa, P and the    *
-!          integral prescreening vector to be used with the Schwartz   *
-!          inequlity.                                                  *
+!          integral prescreening vector to be used with the Schwarz    *
+!          inequality.                                                 *
 !                                                                      *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
@@ -31,53 +31,33 @@ subroutine Drvk2(Cmpct,DoFock,DoGrad)
 
 use setup, only: mSkal
 use iSD_data, only: iSD
-use k2_arrays, only: DoGrad_, DoHess_, DeDe, ipOffD, Sew_Scr, Create_BraKet, Destroy_BraKet, BraKet
-use Basis_Info, only: Shells, DBSC
-use Symmetry_Info, only: nIrrep, iOper
+use k2_structure, only: Indk2, k2_Processed, k2Data
+use k2_arrays, only: BraKet, Create_BraKet, DeDe, Destroy_BraKet, DoGrad_, DoHess_, ipOffD, Sew_Scr
+use Basis_Info, only: DBSC, Shells
+use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
 use Sizes_of_Seward, only: S
-use k2_structure, only: k2_Processed, k2Data, Indk2
+use UnixInfo, only: ProgName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Gateway_Info, only: lSchw
 use Definitions, only: u6
 #endif
-use UnixInfo, only: ProgName
-use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-external Cmpct
-logical DoFock, DoGrad
-real*8 Coor(3,4)
-integer iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
-logical force_part_save, ReOrder, Rls
-character(len=8) Method
-real*8, allocatable :: HRRMtrx(:,:), Scr(:,:)
-real*8, allocatable :: Knew(:), Lnew(:), Pnew(:), Qnew(:)
-integer ik2
-integer i, j, ixyz, nElem, nabSz, iTri, iS, jS, iShll, jShll, iBas, jBas, iPrim, jPrim, la_, mabMin_, mabMax_, ne_, nHrrMtrx, &
-        nScree, mScree, mk2, MemTmp, iAng, jAng, MemMax, ipMem1, iCmp, jCmp, iShell, jShell, mdci, mdcj, iCnttp, jCnttp, iCnt, &
-        jCnt, iPrimi, jPrimj, kPrimk, lPriml, nBasi, nBasj, iBasi, jBasj, kBask, lBasl, nZeta, ijS, nDCR, nDij, nSO, ipDij, &
-        iPrimS, jPrimS, nDCRR, nHm, ijCmp, ipMem2, iBsInc, jBsInc, kBsInc, lBsInc, ijInc, iPrInc, jPrInc, kPrInc, lPrInc, Mem1, &
-        Mem2, MemPrm
-real*8 TCPU1, TCPU2, TWALL1, TWALL2
-interface
-  subroutine k2Loop(Coor,iAnga,iCmpa,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
-                    ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,Cmpct,nScree,mScree,iStb,jStb,Dij,nDij,nDCR,ijCmp,DoFock,Scr, &
-                    nScr,Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
-    use k2_structure, only: k2_type
-    implicit none
-    external Cmpct
-    integer nZeta, ijCmp, nDCRR, nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree, iStb, jStb, nDij, nDCR, nScr, nNew, &
-            nHRRMtrx, IncZZ
-    type(k2_type), intent(inout) :: k2data(nDCRR)
-    real*8 Coor(3,4), Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), &
-           Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3), Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3), Knew(nNew), &
-           Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3), HMtrx(nHrrMtrx,2)
-    logical DoFock, DoGrad
-    integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
-  end subroutine k2Loop
-end interface
+logical(kind=iwp), intent(in) :: DoFock, DoGrad
+integer(kind=iwp) :: iAng, iAngV(4), iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
+                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBasj, jBsInc, jCmp, &
+                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, kPrInc, la_, lBasl, &
+                     lBsInc, lPriml, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
+                     nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
+real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
+logical(kind=iwp) :: force_part_save, ReOrder, Rls
+character(len=8) :: Method
+real(kind=wp), allocatable :: HRRMtrx(:,:), Knew(:), Lnew(:), Pnew(:), Qnew(:), Scr(:,:)
 ! Statement functions
+integer(kind=iwp) :: iTri, nabSz, nElem, i, ixyz, j
 nElem(i) = (i+1)*(i+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
@@ -282,8 +262,8 @@ do iS=1,mSkal
     ik2 = Indk2(3,ijS)
     call k2Loop(Coor,iAngV,iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:), &
                 BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:),BraKet%KappaAB(:), &
-                BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,Cmpct,nScree,mScree,mdci,mdcj, &
-                DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
+                BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree,mdci,mdcj,DeDe(ipDij), &
+                nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
 
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR

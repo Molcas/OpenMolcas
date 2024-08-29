@@ -39,14 +39,15 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 !             Total rehack May '99                                     *
 !             Total rehack Aug '23                                     *
 !***********************************************************************
+
 use setup, only: mSkal, nAux, nSOs
-use k2_structure, only: IndK2
-use k2_arrays, only: ipDijS, Sew_Scr, Aux, DeDe, FT, iSOSym, nDeDe, nFT, Create_BraKet, Destroy_Braket
+use k2_structure, only: IndK2, k2data
+use k2_arrays, only: Aux, Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
 use iSD_data, only: iSD
 use Basis_Info, only: Shells
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
-use Int_Options, only: DoIntegrals, DoFock, Map4
+use Int_Options, only: DoFock, DoIntegrals, Map4
 use Integral_interfaces, only: Int_PostProcess
 #ifdef _DEBUGBREIT_
 use Breit, only: nOrdOp
@@ -54,70 +55,45 @@ use UnixInfo, only: SuperName
 #endif
 use Constants, only: Zero
 use stdalloc, only: mma_allocate
-use k2_structure, only: k2data
+use Definitions, only: wp, iwp
 
 implicit none
-integer iiS, jjS, kkS, llS
-integer nTInt
-real*8 TInt(nTInt)
+integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
+real(kind=wp), intent(inout) :: TInt(nTInt)
 #include "ibas_ricd.fh"
-integer :: ipDDij, ipDDkl, ipDDik, ipDDil, ipDDjk, ipDDjl, iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem1, &
-           ipMem2, Mem1, Mem2
-integer iS_, jS_, kS_, lS_
-real*8 Coor(3,4), Tmax
-integer n
-integer iTmp, Nr_of_D, nIJKL, ipDum, MemPrm
-integer, external :: MemSO2
-integer iAOst(4), iPrimi, jPrimj, kPrimk, lPriml, iBasi, jBasj, kBask, lBasl, iBasn, jBasn, kBasn, lBasn, nDCRR, nDCRS, ipTmp, &
-        mDij, mDik, mDjk, mDkl, mDil, mDjl, mDCRij, mDCRik, mDCRjk, mDCRkl, mDCRil, mDCRjl, ipDij, ipDik, ipDjk, ipDkl, ipDil, &
-        ipDjl, nZeta, nEta
-integer nSO, iBasAO, jBasAO, kBasAO, lBasAO, iS, jS, kS, lS, ijS, klS, ikS, ilS, jkS, jlS
-logical IJeqKL
-integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iStabs(4), MemMax, kOp(4)
-logical Shijij, NoInts
-real*8, pointer :: SOInt(:), AOInt(:)
-integer, external :: iDAMax_
-integer ik2, jk2
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+integer(kind=iwp) :: iAngV(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCmpV(4), ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
+                     ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, iPrimi, &
+                     iPrInc, ipTmp, iS, iS_, iShelV(4), iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
+                     jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrimk, kPrInc, kS, kS_, lBasAO, lBasl, &
+                     lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
+                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta
+real(kind=wp) :: Coor(3,4), Tmax
+logical(kind=iwp) :: IJeqKL, NoInts, Shijij
+real(kind=wp), pointer :: SOInt(:), AOInt(:)
+integer(kind=iwp), external :: iDAMax_, MemSO2
 abstract interface
   subroutine TwoEl(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoInts,iStabs,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc, &
                    nDelta,lPrInc,nData1,nData2,k2data1,k2data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,Dil, &
                    mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,FckTmp,nFT, &
                    nZeta,nEta,SOInt,nSOInt,Wrk,nWork2,Shijij,Aux,nAux)
     use k2_Structure, only: k2_type
+    import :: wp, iwp
     implicit none
-    integer iS_, jS_, kS_, lS_
-    real*8 Coor(3,4)
-    integer iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4)
-    logical NoInts
-    integer iStabs(4)
-    integer iPrInc, jPrInc, kPrInc, lPrInc
-    integer nData1, nData2
-    type(k2_type) k2data1(nData1), k2data2(nData2)
-    logical IJeqKL
-    integer kOp(4)
-    integer mDij, mDCRij, mDkl, mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl
-    real*8 Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), Djl(mDjl,mDCRjl)
-    integer nAlpha, nBeta, nGamma, nDelta
-    integer iBasi, jBasj, kBask, lBasl
-    real*8 Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
-    integer nFT
-    real*8 FckTmp(nFT)
-    integer nZeta, nEta
-    integer nSOInt, nWork2
-    real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
-    real*8 Wrk(nWork2)
-    logical Shijij
-    integer nAux
-    real*8 Aux(nAux)
+    integer(kind=iwp) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, iPrInc, &
+                         nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, kOp(4), mDij, mDCRij, mDkl, mDCRkl, mDik, &
+                         mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, nZeta, nEta, nSOInt, &
+                         nWork2, nAux
+    real(kind=wp) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
+                     Djl(mDjl,mDCRjl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
+                     FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Wrk(nWork2), Aux(nAux)
+    logical(kind=iwp) :: NoInts, IJeqKL, Shijij
+    type(k2_type) ::k2data1(nData1), k2data2(nData2)
   end subroutine TwoEl
 end interface
 procedure(Twoel) :: TwoEl_NoSym, TwoEl_Sym
-procedure(Twoel), pointer :: Do_TwoEl => null()
+procedure(Twoel), pointer :: Do_TwoEl
 ! Statement function
-integer i, j, iTri
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -135,7 +111,7 @@ if (nIrrep == 1) then
 else
   Do_TwoEl => TwoEl_Sym
 end if
-!if (.not. Associated(Int_PostProcess)) stop 124
+!if (.not. associated(Int_PostProcess)) stop 124
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -423,10 +399,10 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
   use Definitions, only: u6
 # endif
 
-  integer, intent(In) :: nijkl, nComp, nA
-  real*8, target :: IntRaw(nijkl*nComp*nA)
-  real*8, pointer :: IntIn(:,:,:), IntOut(:,:,:)
-  integer iA, i_ijkl
+  integer(kind=iwp), intent(in) :: nijkl, nComp, nA
+  real(kind=wp), target, intent(inout) :: IntRaw(nijkl*nComp*nA)
+  real(kind=wp), pointer :: IntIn(:,:,:), IntOut(:,:,:)
+  integer(kind=iwp) :: i_ijkl, iA
 
   IntIn(1:nijkl,1:nComp,1:nA) => IntRaw(:)
   IntOut(1:nijkl,1:1,1:nA) => IntRaw(1:nijkl*nA)

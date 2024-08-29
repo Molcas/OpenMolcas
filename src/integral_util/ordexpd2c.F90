@@ -9,33 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine OrdExpD2C(nExp,Exp,nCntrc,Cff)
+subroutine OrdExpD2C(nExp,Expn,nCntrc,Cff)
+
+use Definitions, only: wp, iwp
 
 implicit none
-integer nExp, nCntrc
-real*8 exp(nExp), Cff(nExp,nCntrc)
-integer iExp, kExp, jExp
-real*8 Exp1, Exp2
+integer(kind=iwp), intent(in) :: nExp, nCntrc
+real(kind=wp), intent(inout) :: Expn(nExp), Cff(nExp,nCntrc)
+integer(kind=iwp) :: iExp, jExp, kExp
+real(kind=wp) :: Exp1, Exp2
 #ifdef _ORDER_BAS_
-integer iCntrc, kCntrc, jCntrc
-real*8 Bas1, Bas2
+integer(kind=iwp) :: iCntrc, jCntrc, kCntrc
+real(kind=wp) :: Bas1, Bas2
 #endif
 
 ! Order exponents diffuse to compact
 ! Make the subsequent change in the contraction matrix
 
 do iExp=1,nExp-1
-  Exp1 = exp(iExp)
+  Exp1 = Expn(iExp)
   kExp = iExp
   do jExp=iExp+1,nExp
-    Exp2 = exp(jExp)
+    Exp2 = Expn(jExp)
     if (Exp2 < Exp1) then
       Exp1 = Exp2
       kExp = jExp
     end if
   end do
   if (kExp /= iExp) then
-    call DSwap_(1,exp(iExp),1,exp(kExp),1)
+    call DSwap_(1,Expn(iExp),1,Expn(kExp),1)
     call DSwap_(nCntrc,Cff(iExp,1),nExp,Cff(kExp,1),nExp)
   end if
 end do

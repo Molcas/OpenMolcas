@@ -137,7 +137,7 @@ function c_pread_wrapper(FileDescriptor,Buffer,nBytes,Offset)
 
   integer(kind=iwp) :: c_pread_wrapper
   integer(kind=iwp), intent(in) :: FileDescriptor, nBytes, Offset
-  integer(kind=iwp), intent(_OUT_), target :: Buffer(*)
+  integer(kind=iwp), target, intent(_OUT_) :: Buffer(*)
   interface
     function c_pread(FileDescriptor,Buffer,nBytes,Offset) bind(C,name='c_pread_')
       use, intrinsic :: iso_c_binding, only: c_ptr

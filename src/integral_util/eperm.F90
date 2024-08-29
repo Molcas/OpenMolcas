@@ -31,39 +31,38 @@ subroutine eperm(D_Tot,nDens,Ravxyz,Cavxyz,nCavxyz_,dEF,Grid,nGrid_,Cord,MaxAto,
 
 use external_centers, only: iXPolType, nOrd_XF, nXF, nXMolnr, XF, XMolnr
 use Symmetry_Info, only: iChBas
+use Integral_interfaces, only: int_kernel, int_mem
+use Gateway_global, only: PrPrt
+use rctfld_module, only: fMax, lMax, lRFCav, nGrid, Scal14
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: nBas
 use Definitions, only: u6
 #endif
-use Integral_interfaces, only: int_kernel, int_mem
-use Gateway_global, only: PrPrt
-use Constants, only: Zero, One
-use stdalloc, only: mma_allocate, mma_deallocate
-use rctfld_module, only: lRFCav, lMax, nGrid, fMax, Scal14
 
 implicit none
-integer nDens, nCavxyz_, nGrid_, MaxAto
-real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_), dEF(4,nGrid_), Grid(3,nGrid_), Cord(3,MaxAto), Z_Nuc(MaxAto), &
-       xfEF(4,nGrid_)
-real*8 Origin(3), CCoor(3)
+integer(kind=iwp), intent(in) :: nDens, nCavxyz_, nGrid_, MaxAto
+real(kind=wp), intent(in) :: D_Tot(nDens), Grid(3,nGrid_), Cord(3,MaxAto), Z_Nuc(MaxAto)
+real(kind=wp), intent(out) :: Ravxyz(nCavxyz_)
+real(kind=wp), intent(inout) :: Cavxyz(nCavxyz_), dEF(4,nGrid_), xfEF(4,nGrid_)
+integer(kind=iwp) :: iComp, iGrid, iMax, iMltpl, ip, iSym, iSymC, iSymX, iSymXY, iSymXZ, iSymY, iSymYZ, iSymZ, iSyXYZ, iTemp, ix, &
+                     ixyz, iy, iz, l_Oper(1), MltLbl, nComp, nh1, nOpr, nOrdOp
+real(kind=wp) :: CCoor(3), FactOp(1), fTest, Origin(3), rHrmt, Sig
+logical(kind=iwp) :: Save_tmp
+character(len=8) :: Label
+integer(kind=iwp), allocatable :: ips(:), kOper(:), lOper(:)
+real(kind=wp), allocatable :: C_Coor(:,:), Nuc(:)
 procedure(int_kernel) :: EFInt
 procedure(int_mem) :: EFMem
-logical Save_tmp
-character*8 Label
-real*8 FactOp(1)
-integer l_Oper(1)
-integer, allocatable :: ips(:), lOper(:), kOper(:)
-real*8, allocatable :: C_Coor(:,:), Nuc(:)
-integer ixyz, iOff
-integer iMax, ip, iMltpl, ix, iy, iz, iSymX, iSymY, iSymZ, iTemp, nComp, iSymXY, iSymXZ, iSymYZ, iSyXYZ, iComp, iSym, nh1, MltLbl, &
-        nOpr, nOrdOp, iGrid, iSymC
-integer, external :: IrrFnc
-real*8 rHrmt, Sig, fTest
+integer(kind=iwp), external :: IrrFnc
 #ifdef _DEBUGPRINT_
-integer lOff, iIrrep, n
+integer(kind=iwp) :: lOff, iIrrep, n
 #endif
 ! Statement Function
+integer(kind=iwp) :: iOff
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !                                                                      *
@@ -231,10 +230,10 @@ do iGrid=1,nGrid_
   end do
 
   call EFNuc(C_Coor,Z_Nuc,Cord,MaxAto,Nuc,nOrdOp)
-  call OneEl_Property(EFInt,EFMem,Label,ips,lOper,nComp,C_Coor,nOrdOp,Nuc,rHrmt,kOper,D_Tot,nDens,dEF(1,iGrid),Sig)
+  call OneEl_Property(EFInt,EFMem,Label,ips,lOper,nComp,C_Coor,nOrdOp,Nuc,rHrmt,kOper,D_Tot,nDens,dEF(:,iGrid),Sig)
 
   ! Field contribution from XF
-  call EFXF(C_Coor,XF,nXF,nOrd_XF,iXPolType,xfEF(1,iGrid),XMolnr,nXMolnr,iGrid,scal14)
+  call EFXF(C_Coor,XF,nXF,nOrd_XF,iXPolType,xfEF(:,iGrid),XMolnr,nXMolnr,iGrid,scal14)
 
 end do
 

@@ -25,11 +25,12 @@ function RinT(iOpT,nOpT,iOpR)
 !             June '90                                                 *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-logical RinT
-integer nOpT, iOpR
-integer iOpT(nOpT)
-integer i
+logical(kind=iwp) :: RinT
+integer(kind=iwp), intent(in) :: nOpT, iOpT(nOpT), iOpR
+integer(kind=iwp) :: i
 
 RinT = .false.
 do i=1,nOpT

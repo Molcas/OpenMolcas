@@ -24,12 +24,14 @@ subroutine CrSph2(Win,ijkl,ncd,Scrt,nScrt,Coeff1,iCar,iSph,Tr1,Coeff2,jCar,jSph,
 !             March '90                                                *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(in) :: ijkl, ncd, iCar, jCar, iSph, jSph, mab, nScrt
-real*8, intent(in) :: Win(ijkl*ncd*iCar*jCar), Coeff1(iCar,iCar), Coeff2(jCar,jCar)
-real*8, intent(inout) :: Scrt(nScrt)
-real*8, intent(inout) :: Wout(ijkl*ncd*mab)
-logical, intent(In) :: Tr1, Tr2
+integer(kind=iwp), intent(in) :: ijkl, ncd, nScrt, iCar, iSph, jCar, jSph, mab
+real(kind=wp), intent(in) :: Win(ijkl*ncd*iCar*jCar), Coeff1(iCar,iCar), Coeff2(jCar,jCar)
+real(kind=wp), intent(out) :: Scrt(nScrt)
+real(kind=wp), intent(inout) :: Wout(ijkl*ncd*mab)
+logical(kind=iwp), intent(in) :: Tr1, Tr2
 
 if (Tr1 .and. Tr2) then
   !call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)

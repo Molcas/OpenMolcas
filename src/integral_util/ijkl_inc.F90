@@ -11,20 +11,24 @@
 
 subroutine ijkl_inc(i,j,k,l)
 
+use Definitions, only: iwp
+
 implicit none
-integer i, j, k, l
+integer(kind=iwp), intent(inout) :: i, j, k, l
 
 l = l+1
-if ((i == k) .and. (l <= j)) return
-if ((i /= k) .and. (l <= k)) return
-l = 1
-k = k+1
-if (k <= i) return
-k = 1
-j = j+1
-if (j <= i) return
-j = 1
-i = i+1
+if (((i == k) .and. (l > j)) .or. ((i /= k) .and. (l > k))) then
+  l = 1
+  k = k+1
+  if (k > i) then
+    k = 1
+    j = j+1
+    if (j > i) then
+      j = 1
+      i = i+1
+    end if
+  end if
+end if
 
 return
 

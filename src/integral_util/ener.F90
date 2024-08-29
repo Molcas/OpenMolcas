@@ -33,39 +33,36 @@ subroutine ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D_Tot,Grid,nGrid_,DipMom,EField
 !              March 2000                                              *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iChBas
+use Symmetry_Info, only: iChBas, nIrrep
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Integral_Interfaces, only: int_kernel, int_mem, OneEl_Integrals
-use Constants, only: Zero, One, Two, Half
-use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module, only: lRFCav, TK
-use Definitions, only: wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nh1, nGrid_, MaxAto, nPolComp, nAnisopol
-real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1), Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_), DipEff(nGrid_), &
-       PolEff(nPolComp,nGrid_), Cord(3,MaxAto), Z_Nuc(MaxAto), pField(4,nGrid_), tmpF(4,nGrid_)
-real*8 RepNuc
-logical First, Dff
+integer(kind=iwp), intent(in) :: nh1, nGrid_, MaxAto, nPolComp, nAnisopol
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
+real(kind=wp), intent(in) :: D(nh1), D_tot(nh1), Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_), DipEff(nGrid_), &
+                             PolEff(nPolComp,nGrid_), Cord(3,MaxAto), Z_Nuc(MaxAto), pField(4,nGrid_), tmpF(4,nGrid_)
+logical(kind=iwp), intent(in) :: First, Dff
+integer(kind=iwp) :: iComp, iGrid, ip, iSmLbl, iSym, iSymC, iSymX, iSymXY, iSymXZ, iSymY, iSymYZ, iSymZ, iSyXYZ, ix, ixyz, iy, iz, &
+                     MltLbl, n_Int, nComp, nOrdOp
+real(kind=wp) :: ag, AGSum, Alfa, CCoor(3), dX, dY, dZ, EDip2, EElDip, EF_Grid(3), EInt, Emx, ENucDip, ESelf, ESimple, Ex, FDD, &
+                 FTot, FTot2, fX, fY, fZ, PFx, PFy, PFz, RepHlp, RHrmt, Sig, x
+logical(kind=iwp) :: NonEq, Save_tmp
+character(len=8) :: Label
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: tmp_RepNuc
+#endif
+integer(kind=iwp), allocatable :: ips(:), kOper(:), lOper(:)
+real(kind=wp), allocatable :: C_Coor(:,:), Integrals(:)
 procedure(int_kernel) :: EFInt
 procedure(int_mem) :: EFMem
-logical Save_tmp, NonEq
-character(len=8) Label
-integer, allocatable :: ips(:), lOper(:), kOper(:)
-real*8, allocatable :: C_Coor(:,:)
-real*8, allocatable :: Integrals(:)
-integer, external :: n2Tri
-real*8 EF_Grid(3), CCoor(3)
-real*8 EDip2, EInt, ESelf, ENucDip, ESimple, AGSum, dX, dY, dZ, fX, fY, fZ, PFx, PFy, PFz, FDD, FTot, FTot2, x, ag, Ex, Emx, &
-       RHrmt, Sig, RepHlp, EElDip, Alfa
-real*8, external :: DDOt_
-integer iGrid, nOrdOp, nComp, ixyz, iSymX, iSymY, iSymZ, iSymXY, iSymXZ, iSymYZ, iSyXYZ, iSymC, iComp, ix, iy, iz, ip, iSmLbl, &
-        MltLbl, nInt, iSym
-integer, external :: IrrFnc
-#ifdef _DEBUGPRINT_
-real*8 tmp_RepNuc
-#endif
+integer(kind=iwp), external :: IrrFnc, n2Tri
+real(kind=wp), external :: DDOt_
 
 !                                                                      *
 !***********************************************************************
@@ -260,12 +257,12 @@ do iGrid=1,nGrid_
     !                                                                  *
     ! Compute properties directly from integrals
 
-    nInt = n2Tri(iSmLbl)
-    if ((nInt /= 0) .and. (abs(DipMom(iComp,iGrid)) > 1.0e-20_wp)) then
-      call CmpInt(Integrals(ip),nInt,nBas,nIrrep,iSmLbl)
-      if (nInt /= nh1) then
-        call WarningMessage(2,'Ener: nInt /= nh1')
-        write(u6,*) 'nInt=',nInt
+    n_Int = n2Tri(iSmLbl)
+    if ((n_Int /= 0) .and. (abs(DipMom(iComp,iGrid)) > 1.0e-20_wp)) then
+      call CmpInt(Integrals(ip),n_Int,nBas,nIrrep,iSmLbl)
+      if (n_Int /= nh1) then
+        call WarningMessage(2,'Ener: n_Int /= nh1')
+        write(u6,*) 'n_Int=',n_Int
         write(u6,*) 'nh1=',nh1
         call Abend()
       end if
@@ -273,7 +270,7 @@ do iGrid=1,nGrid_
       ! Accumulate contribution to h1
 
       alfa = Sig*DipMom(iComp,iGrid)
-      call DaXpY_(nInt,alfa,Integrals(ip),1,h1,1)
+      call DaXpY_(n_Int,alfa,Integrals(ip),1,h1,1)
       EelDip = EelDip-alfa*DDot_(nh1,D_tot,1,Integrals(ip),1)
 
     end if

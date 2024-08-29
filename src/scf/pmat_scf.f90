@@ -66,9 +66,9 @@
 !
       Interface
         SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
-        Integer nDens, nDisc
-        Real*8, Target:: Dens(nDens), TwoHam(nDens)
-        Logical FstItr
+        Integer, Intent(in) :: nDens, nDisc
+        Real*8, Target, Intent(inout) :: Dens(nDens), TwoHam(nDens)
+        Logical, Intent(inout) :: FstItr
         End Subroutine Drv2El_dscf
       End Interface
 

@@ -22,53 +22,48 @@ subroutine TrGrd_Alaska(CGrad,CNames,GradIn,nGrad,iCen)
 !       University of Torino, July 2006                                *
 !***********************************************************************
 
-use Basis_Info, only: nCnttp, DBSC
+use Basis_Info, only: DBSC, nCnttp
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero
 use Disp, only: IndDsp
-use Definitions, only: wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-#include "SysDef.fh"
-integer nGrad
-real*8 CGrad(3,MxAtom)
-real*8 GradIn(nGrad)
-character(len=LENIN5) CNames(MxAtom)
-integer iCen
-real*8, parameter :: tol = 1.0e-8_wp
-logical, external :: TF
-integer mdc, iIrrep, iCnttp, iCnt, iCo, kOp, nDisps, iCar, iComp
-integer, external :: iPrmt, NrOpr
-real*8 Xr
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(out) :: CGrad(3,MxAtom)
+character(len=LenIn5), intent(out) :: CNames(MxAtom)
+real(kind=wp), intent(in) :: GradIn(nGrad)
+integer(kind=iwp), intent(out) :: iCen
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iCo, iComp, kOp, mdc, nDisps
+integer(kind=iwp), parameter :: iIrrep = 0
+real(kind=wp), parameter :: tol = 1.0e-8_wp
+integer(kind=iwp), external :: iPrmt, NrOpr
+logical(kind=iwp), external :: TF
 
-mdc = 0
-iIrrep = 0
-
-call dcopy_(3*MxAtom,[Zero],0,CGrad,1)
+CGrad(:,:) = Zero
 iCen = 0
 !nCnttp_Valence = 0
 !do iCnttp=1,nCnttp
-!  if (dbsc(iCnttp)%Aux) Go To 999
+!  if (dbsc(iCnttp)%Aux) exit
 !  nCnttp_Valence = nCnttp_Valence+1
 !end do
-!999 continue
 
+mdc = 0
 do iCnttp=1,nCnttp
   if (.not. (dbsc(iCnttp)%pChrg .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%Aux)) then
     do iCnt=1,dbsc(iCnttp)%nCntr
       mdc = mdc+1
       do iCo=0,nIrrep/dc(mdc)%nStab-1
-        kop = dc(mdc)%iCoSet(iCo,0)
+        kOp = dc(mdc)%iCoSet(iCo,0)
         nDispS = IndDsp(mdc,iIrrep)
         iCen = iCen+1
         do iCar=0,2
           iComp = 2**iCar
           if (TF(mdc,iIrrep,iComp)) then
             nDispS = nDispS+1
-            XR = real(iPrmt(NrOpr(kop),icomp),kind=wp)
-            CGrad(iCar+1,iCen) = XR*GradIn(nDispS)
+            CGrad(iCar+1,iCen) = real(iPrmt(NrOpr(kOp),iComp),kind=wp)*GradIn(nDispS)
           end if
         end do
         CNames(iCen) = dc(mdc)%LblCnt

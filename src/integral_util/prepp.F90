@@ -23,18 +23,18 @@ subroutine PrepP()
 !***********************************************************************
 
 use setup, only: mSkal, nSOs
-use pso_stuff, only: lSA, Gamma_On, Gamma_MRCISD, lPSO, Case_2C, Case_3C, Case_MP2, nDens, mCMO, LuGam, FnGam, lBin, LuGamma, &
-                     mDens, D0, DS, iD0Lbl, DSVar, KCMO, nG1, mG1, G1, nG2, mG2, G2, CMO, DVar, SO2CI, G_ToC, Bin
+use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
+                     iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
 use iSD_data, only: iSO2Sh
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, Half, One
-use stdalloc, only: mma_allocate, mma_deallocate
-use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh, nIsh
+use etwas, only: CoulFac, ExFac, mBas, mIrrep, nAsh, nCMO, nDSO, nIsh
 use NAC, only: IsNAC
 use mspdft_grad, only: DoGradMSPD
-use Definitions, only: u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "dmrginfo_mclr.fh"
@@ -42,23 +42,22 @@ implicit none
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-integer nFro(0:7)
-integer Columbus
-character(len=8) Method
-character(len=80) KSDFT
-logical DoCholesky
-real*8 CoefX, CoefR
-real*8, allocatable :: D1ao(:), D1AV(:), Tmp(:,:)
-logical Do_Hybrid
-real*8 WF_Ratio, PDFT_Ratio
+integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
+                     nFro(0:7), nPair, nQUad, nSA, nShell, nTsT
+real(kind=wp) :: CoefR, CoefX
+logical(kind=iwp) :: Do_Hybrid, DoCholesky
+real(kind=wp) :: PDFT_Ratio, WF_Ratio
+character(len=80) :: KSDFT
+character(len=8) :: Method
+real(kind=wp), allocatable :: D1ao(:), D1AV(:), Tmp(:,:)
 #ifdef _DEBUGPRINT_
-character(len=8) RlxLbl
-character(len=60) Fmt
-integer :: iComp = 1, ipTmp1
+integer(kind=iwp) :: ipTmp1
+character(len=60) :: Frmt
+character(len=8) :: RlxLbl
+integer(kind=iwp), parameter :: iComp = 1
 #endif
-integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk, n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0, nDim2
-real*8, external :: Get_ExFac
-integer, external :: IsFreeUnit
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: Get_ExFac
 
 ! Prologue
 
@@ -113,9 +112,9 @@ if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') 
   write(u6,'(2A)') ' Wavefunction type: ',Method
   if (Method == 'KS-DFT  ') then
     write(u6,'(2A)') ' Functional type:   ',KSDFT
-    Fmt = '(1X,A26,20X,F18.6)'
-    write(u6,Fmt) 'Exchange scaling factor',CoefX
-    write(u6,Fmt) 'Correlation scaling factor',CoefR
+    Frmt = '(1X,A26,20X,F18.6)'
+    write(u6,Frmt) 'Exchange scaling factor',CoefX
+    write(u6,Frmt) 'Correlation scaling factor',CoefR
   end if
   write(6,*)
 # endif

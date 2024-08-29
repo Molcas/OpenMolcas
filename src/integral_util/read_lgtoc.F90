@@ -15,9 +15,11 @@ subroutine read_lgtoc(lgtoc,gtoc,n)
 !*********** columbus interface ****************************************
 !read table of contents for gamma file
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, lgtoc
-real*8 gtoc(n)
+integer(kind=iwp), intent(in) :: n, lgtoc
+real(kind=wp), intent(out) :: gtoc(n)
 
 read(lgtoc) gtoc
 

@@ -278,11 +278,11 @@ end subroutine mult_2D_1D
 !>  @param[in] transpB Optional argument to specify that B
 !>      should be transposed.
 subroutine mult_2D_raw(A,shapeA,B,shapeB,C,transpA,transpB)
-  real(kind=wp), intent(in), target :: A(*)
+  real(kind=wp), target, intent(in) :: A(*)
   integer(kind=iwp), intent(in) :: shapeA(2)
-  real(kind=wp), intent(in), target :: B(*)
+  real(kind=wp), target, intent(in) :: B(*)
   integer(kind=iwp), intent(in) :: shapeB(2)
-  real(kind=wp), intent(_OUT_), target :: C(*)
+  real(kind=wp), target, intent(_OUT_) :: C(*)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
   logical(kind=iwp) :: transpA_, transpB_
   integer(kind=iwp) :: shapeC(2)
@@ -530,7 +530,7 @@ end subroutine canonicalize_canonical_basis
 
 subroutine canonicalize_general(V,lambda,ref)
   real(kind=wp), intent(inout) :: V(:,:), lambda(:)
-  real(kind=wp), intent(in), target :: ref(:,:)
+  real(kind=wp), target, intent(in) :: ref(:,:)
   type(GeneralBasisCanonicalize_t) :: canonicalizer
 
   canonicalizer%ref => ref

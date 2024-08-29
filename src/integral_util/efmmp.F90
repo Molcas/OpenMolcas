@@ -13,11 +13,14 @@
 
 subroutine EFMmP(nRys,MmEFP,la,lb,lr)
 
+use Definitions, only: iwp
+
 implicit none
-integer nRys, MmEFP, la, lb, lr
-integer ixyz, nElem, nabSz, labMin, labMax, lcdMin, lcdMax, lab, kab, lcd, labcd, Mem1, Mem2, lc, ld, nMem, nFlop
-integer iAngV(4)
+integer(kind=iwp), intent(out) :: nRys, MmEFP
+integer(kind=iwp), intent(in) :: la, lb, lr
+integer(kind=iwp) :: iAngV(4), kab, lab, labcd, labMax, labMin, lc, lcd, lcdMax, lcdMin, ld, Mem1, Mem2, nFlop, nMem
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem, nabSz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 

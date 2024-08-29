@@ -23,10 +23,11 @@ subroutine Nr_Shells(nSkal)
 use Basis_Info, only: dbsc, nCnttp, Shells
 use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, lCnttp, Valence_Mode, &
                      With_Auxiliary_Mode, With_Fragment_Mode
+use Definitions, only: iwp
 
 implicit none
-integer, intent(Out) :: nSkal
-integer iCnttp, nTest, iCnt, iAng, iShll, nExpi, nBasisi
+integer(kind=iwp), intent(out) :: nSkal
+integer(kind=iwp) :: iCnttp, nTest, iCnt, iAng, iShll, nExpi, nBasisi
 
 !                                                                      *
 !***********************************************************************

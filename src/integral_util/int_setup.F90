@@ -16,15 +16,15 @@ use Gateway_Info, only: DoFMM, RPQMin
 use Gateway_global, only: FMM_shortrange
 use iSD_data, only: nSD
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer nSkal, iS, jS, kS, lS
-integer iSD(0:nSD,nSkal)
-real*8 Coor(3,4)
-logical Shijij
-integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iStabs(4)
-integer iCnttp, iCnt, jCnttp, jCnt, kCnttp, kCnt, lCnttp, lCnt, jQuad(4), iQuad, iSkal, i
-real*8 P, Q, D
+integer(kind=iwp), intent(in) :: nSkal, iSD(0:nSD,nSkal), iS, jS, kS, lS
+real(kind=wp), intent(out) :: Coor(3,4)
+logical(kind=iwp), intent(out) :: Shijij
+integer(kind=iwp), intent(out) :: iAngV(4), iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iStabs(4)
+integer(kind=iwp) :: i, iCnt, iCnttp, iQuad, iSkal, jCnt, jCnttp, jQuad(4), kCnt, kCnttp, lCnt, lCnttp
+real(kind=wp) :: D, P, Q
 
 iCnttp = iSD(13,iS)
 iCnt = iSD(14,iS)
@@ -36,20 +36,20 @@ lCnttp = iSD(13,lS)
 lCnt = iSD(14,lS)
 
 if (dbsc(iCnttp)%Aux) then
-  Coor(1:3,1) = dbsc(jCnttp)%Coor(1:3,jCnt)
+  Coor(:,1) = dbsc(jCnttp)%Coor(:,jCnt)
 else
-  Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
+  Coor(:,1) = dbsc(iCnttp)%Coor(:,iCnt)
 end if
-Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
+Coor(:,2) = dbsc(jCnttp)%Coor(:,jCnt)
 
 if (dbsc(kCnttp)%Aux) then
-  Coor(1:3,3) = dbsc(lCnttp)%Coor(1:3,lCnt)
+  Coor(:,3) = dbsc(lCnttp)%Coor(:,lCnt)
 else
-  Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+  Coor(:,3) = dbsc(kCnttp)%Coor(:,kCnt)
 end if
-Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
+Coor(:,4) = dbsc(lCnttp)%Coor(:,lCnt)
 
-Shijij = (iSD(0,iS) == iSD(0,kS)) .and. (iSD(10,iS) == iSD(10,kS)) .and. (iSD(0,jS) == iSD(0,lS)) .and. (iSD(10,jS) == iSD(10,lS))
+Shijij = ((iSD(0,iS) == iSD(0,kS)) .and. (iSD(10,iS) == iSD(10,kS)) .and. (iSD(0,jS) == iSD(0,lS)) .and. (iSD(10,jS) == iSD(10,lS)))
 
 jQuad(1) = iS
 jQuad(2) = jS

@@ -12,33 +12,33 @@
 !#define _DEBUGPRINT_
 subroutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
 
-use Basis_Info, only: ncnttp, DBSC
+use Basis_Info, only: DBSC, ncnttp
 use Center_Info, only: DC
-use Langevin_arrays, only: PolEF, Field, DIP, DAVxyz, CAVxyz, DField, DipEF, Grid, RAVxyz
-use External_Centers, only: iXPOLType, nXF, nOrd_XF, XEle, XF, nXMolNr, XMolNr
+use Langevin_arrays, only: CAVxyz, DAVxyz, DField, DIP, DipEF, Field, Grid, PolEF, RAVxyz
+use External_Centers, only: iXPOLType, nOrd_XF, nXF, nXMolNr, XEle, XF, XMolNr
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One, auTokJ, kBoltzmann
+use rctfld_module, only: CordSI, DipCutOff, DIPSI, DistSparse, Done_Lattice, lDamping, lDipRestart, lFirstIter, lGridAverage, &
+                         lLangevin, nCavxyz, nGrid, nGrid_Eff, nGridAverage, nGridSeed, nSparse, PolSI, RadLat, RotAlpha, RotBeta, &
+                         RotGamma, Scala, TK
 use stdalloc, only: mma_allocate, mma_deallocate
-use rctfld_module, only: lGridAverage, nGridAverage, nGridSeed, RotAlpha, RotBeta, RotGamma, Done_Lattice, lFirstIter, nGrid_Eff, &
-                         lLangevin, PolSI, DIPSI, Scala, TK, RadLat, nSparse, DistSparse, lDamping, DipCutOff, nGrid, CordSI, &
-                         lDipRestart, nCavxyz
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, auTokJ, kBoltzmann
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nh1
-real*8 h1(nh1), TwoHam(nh1), D(nh1)
-logical First, Dff
-logical Exist
-save nAnisopol, nPolComp
-real*8, allocatable :: D1ao(:)
-real*8, allocatable :: Cord(:,:), Chrg(:), Atom_R(:), pField(:,:), tmpField(:,:)
-integer ixyz, nElem
-integer mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC, mCnt, i, nAV, iSeed, iAV, nAnisopol, nPolComp, Lu, j, Inc, iOrdOp, iXF, &
-        nCnt, iEle, k
-real*8 Z, ATOD, SUMREPNUC, REPNUC, XA, YA, ZA, SumRepNuc2, ATRad
-real*8, external :: CovRadT, Random_molcas
-real*8, parameter :: auToK = auTokJ/kBoltzmann*1.0e3_wp
+integer(kind=iwp), intent(in) :: nh1
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), REPNUC
+real(kind=wp), intent(in) :: D(nh1)
+logical(kind=iwp), intent(in) :: First, Dff
+integer(kind=iwp) :: mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC, mCnt, i, nAV, iSeed, iAV, Lu, j, Inc, iOrdOp, iXF, nCnt, &
+                     iEle, k
+integer(kind=iwp), save :: nAnisopol, nPolComp
+logical(kind=iwp) :: Exists
+real(kind=wp) :: ATOD, ATRad, SUMREPNUC, SumRepNuc2, XA, YA, Z, ZA
+real(kind=wp), allocatable :: Atom_R(:), Chrg(:), Cord(:,:), D1ao(:), pField(:,:), tmpField(:,:)
+real(kind=wp), parameter :: auToK = auTokJ/kBoltzmann*1.0e3_wp
+real(kind=wp), external :: CovRadT, Random_molcas
 ! Statement function
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -175,8 +175,8 @@ do iAv=1,nAv
   ! Save system info, to be used by visualisation program
 
   Lu = 21
-  call OpnFl('LANGINFO',Lu,Exist)
-  if (.not. Exist) then
+  call OpnFl('LANGINFO',Lu,Exists)
+  if (.not. Exists) then
     write(Lu,*) nc
     do i=1,nc
       write(Lu,11) int(Chrg(i)),Atom_R(i),(Cord(j,i),j=1,3)

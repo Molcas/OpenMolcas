@@ -38,16 +38,17 @@ use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl, ij
-real*8 AOInt(ijkl,ijCmp,ijCmp), Scrtch(ijkl,ijCmp,ijCmp)
-integer, external :: iPrmt
-integer ixyz, iOff
-integer ii, jj, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs, ij2, i12, i34, ij1
-real*8 pa1T, pb1T, pa2T, pb2T, Factor
+integer(kind=iwp), intent(in) :: ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl, ij
+real(kind=wp), intent(inout) :: AOInt(ijkl,ijCmp,ijCmp)
+real(kind=wp), intent(out) :: Scrtch(ijkl,ijCmp,ijCmp)
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, ii, ij1, ij2, jChBs, jj, kChBs, lChBs
+real(kind=wp) :: Factor, pa1T, pa2T, pb1T, pb2T
+integer(kind=iwp), external :: iPrmt
 ! Statement Function
+integer(kind=iwp) :: ixyz, iOff
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
@@ -91,8 +92,7 @@ if ((ijCmp == 1) .or. (ij == 1)) then
 else
   do i12=1,ijCmp
     do i34=1,ijCmp
-      call DGeTMO(AOInt(1,i12,i34),ij,ij,ij,Scrtch(1,i34,i12),ij)
-
+      call DGeTMO(AOInt(:,i12,i34),ij,ij,ij,Scrtch(:,i34,i12),ij)
     end do
   end do
   call dcopy_(ijkl*ijCmp*ijCmp,Scrtch,1,AOInt,1)

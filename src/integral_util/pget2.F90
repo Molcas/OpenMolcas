@@ -31,25 +31,24 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero, Quart
+use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
-use pso_stuff, only: iD0Lbl, D0
+use pso_stuff, only: D0, iD0Lbl
 #endif
-use Definitions, only: u6
 
 implicit none
-integer iBas, jBas, kBas, lBas, nijkl, nPSO, nDSO
-real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)
-integer iCmp(4), iAO(4), iAOst(4)
-logical Shijij
-real*8 ExFac, CoulFac, PMax
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-integer, external :: iPntSO
-integer lOper, MemSO2, i1, i2, i3, i4, j, niSym, njSym, nkSym, nlSym, iS, jS, kS, lS, j1, j2, j3, j123, j4, iSO, jSO, kSO, lSO, &
-        iSOi, jSOj, kSOk, lSOl, IndI, IndJ, IndK, IndL, j12, mijkl, iAOi, jAOj, kAOk, lAOl, ipntIJ, ipntKL, ipntIK, ipntIL, &
-        ipntJK, ipntJL, IndIJ, IndKL, IndIK, IndIL, IndJK, IndJL
-real*8 t14, Temp
+integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
+real(kind=wp), intent(in) :: DSO(nDSO), DSSO(nDSO), ExFac, CoulFac
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndI, IndIJ, IndIK, IndIL, IndJ, IndJK, IndJL, IndK, IndKL, IndL, ipntIJ, ipntIK, &
+                     ipntIL, ipntJK, ipntJL, ipntKL, iS, iSO, iSOi, iSym(0:7), j, j1, j12, j123, j2, j3, j4, jAOj, jS, jSO, jSOj, &
+                     jSym(0:7), kAOk, kS, kSO, kSOk, kSym(0:7), lAOl, lOper, lS, lSO, lSOl, lSym(0:7), MemSO2, mijkl, niSym, &
+                     njSym, nkSym, nlSym
+real(kind=wp) :: t14, Temp
+integer(kind=iwp), external :: iPntSO
 #ifdef _DEBUGPRINT_
-integer iComp
+integer(kind=iwp) :: iComp
 #endif
 
 !                                                                      *
@@ -156,7 +155,7 @@ do i1=1,iCmp(1)
                           iPntkl = iPntSO(j3,j4,lOper,nbas)
                           Indij = iPntij+(Indi-1)*Indi/2+Indj
                           Indkl = iPntkl+(Indk-1)*Indk/2+Indl
-                          temp = DSO(Indij)*DSO(Indkl)*Coulfac
+                          temp = DSO(Indij)*DSO(Indkl)*CoulFac
                         else
                           temp = Zero
                         end if

@@ -33,18 +33,21 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Constants, only: One, Half
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer iBas, jBas, nSOInt, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, nPrp
-real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
-logical AeqB
-integer, external :: iPntSO
-integer i, j, iTri, lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2, indAO1, indAO2, ipij, Indi, Indj, iPnt, nRow
-real*8 Fact
+integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
+real(kind=wp), intent(out) :: SOInt(iBas*jBas,nSOInt)
+real(kind=wp), intent(in) :: PrpInt(nPrp)
+logical(kind=iwp), intent(in) :: AeqB
+integer(kind=iwp) :: i1, i2, indAO1, indAO2, Indi, Indj, ipij, iPnt, iSO1, iSO2, j1, j12, j2, jjMx, lSO, nRow
+real(kind=wp) :: Fact
+integer(kind=iwp), external :: iPntSO
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *

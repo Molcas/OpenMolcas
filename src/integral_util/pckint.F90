@@ -27,15 +27,17 @@ subroutine PckInt(abab,mZeta,nab,ab,rKappa,Mode,Zeta,nZeta,qKappa)
 !***********************************************************************
 
 use Constants, only: Two
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nab, mZeta, nZeta
-real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta), Zeta(mZeta), qKappa(mZeta)
-logical Mode
-integer iab, iZeta
+integer(kind=iwp), intent(in) :: mZeta, nab, nZeta
+real(kind=wp), intent(in) :: abab(mZeta,nab,nab), rKappa(mZeta), Zeta(mZeta), qKappa(mZeta)
+real(kind=wp), intent(inout) :: ab(nZeta,nab)
+logical(kind=iwp), intent(in) :: Mode
+integer(kind=iwp) :: iab, iZeta
 
 if (Mode) then
   ! Integrals

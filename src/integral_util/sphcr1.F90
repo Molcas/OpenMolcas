@@ -29,10 +29,14 @@ subroutine SphCr1(Win,ijkla,Scrt,nScrt,Coeff3,kCar,kSph,Tr3,Pr3,Coeff4,lCar,lSph
 !             January '92.                                             *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer ijkla, nScrt, kCar, kSph, lCar, lSph, mcd
-real*8 Win(ijkla*kSph*lSph), Scrt(nScrt), Coeff3(kCar,kCar), Coeff4(lCar,lCar), Wout(mcd*ijkla)
-logical Tr3, Pr3, Tr4, Pr4
+integer(kind=iwp), intent(in) :: ijkla, nScrt, kCar, kSph, lCar, lSph, mcd
+real(kind=wp), intent(in) :: Win(ijkla*kSph*lSph), Coeff3(kCar,kCar), Coeff4(lCar,lCar)
+real(kind=wp), intent(out) :: Scrt(nScrt)
+real(kind=wp), intent(inout) :: Wout(mcd*ijkla)
+logical(kind=iwp), intent(in) :: Tr3, Pr3, Tr4, Pr4
 
 !call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
 if (Tr3 .and. Tr4) then
@@ -63,11 +67,10 @@ else if (Tr3) then
   call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
 else
   ! Transpose IJKL,AB,cd to cd,IJKL,AB
+  call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
   if (kCar*lCar /= 1) then
-    call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
     call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
   else
-    call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
     call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
   end if
 end if

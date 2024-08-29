@@ -52,7 +52,7 @@ unused_var(iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
+rFinal(:,:,:,:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -143,7 +143,7 @@ do iCnttp=1,nCnttp
       do iBeta=1,nBeta
         do iAlpha=1,nAlpha
           iZeta = iZeta+1
-          call FZero(Array(ipScr),intmax)
+          Array(ipScr:ipScr+intmax-1) = Zero
           call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(ipScr),intmax,max(la+1,lb+1),ccr, &
                       zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 

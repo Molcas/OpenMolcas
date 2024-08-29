@@ -11,7 +11,9 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
 
+#include "compiler_features.h"
 #ifdef _EFP_
+
 function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,user_field)
 !***********************************************************************
 !                                                                      *
@@ -21,24 +23,24 @@ function Molcas_ELECTRON_DENSITY_FIELD_FN(n_pt,xyz,field,user_field)
 !                                                                      *
 !***********************************************************************
 
-use EFP, only: EFP_RESULT_SUCCESS
 use, intrinsic :: iso_c_binding, only: c_int, c_size_t, c_double, c_ptr
+use EFP, only: EFP_RESULT_SUCCESS
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
 integer(c_size_t), intent(in) :: n_pt
 real(c_double), intent(in) :: xyz(3,n_pt)
 real(c_double), intent(out) :: field(3,n_pt)
-type(c_ptr) :: user_field
-type(c_ptr) :: Dummy
-real*8, allocatable :: D1ao(:)
-logical Found
+type(c_ptr), intent(in) :: user_field
+integer(kind=iwp) :: nDens
 integer(c_size_t) :: nCmp, nOrdOp
-integer :: nDens
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: D1ao(:)
 
-Dummy = user_field
+#include "macros.fh"
+unused_var(user_field)
 
 ! Pick up the one-particle density matrix.
 
@@ -60,15 +62,11 @@ call Drv1_Pot(D1ao,xyz,field,n_pt,ncmp,nordop)
 call mma_deallocate(D1ao)
 
 Molcas_ELECTRON_DENSITY_FIELD_FN = EFP_RESULT_SUCCESS
-#else
-function Molcas_ELECTRON_DENSITY_FIELD_FN()
 
-implicit none
-integer Molcas_ELECTRON_DENSITY_FIELD_FN
+#elif ! defined (EMPTY_FILES)
 
-Molcas_ELECTRON_DENSITY_FIELD_FN = 1
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(Molcas_ELECTRON_DENSITY_FIELD_FN)
+
 #endif
-
-return
-
-end function Molcas_ELECTRON_DENSITY_FIELD_FN

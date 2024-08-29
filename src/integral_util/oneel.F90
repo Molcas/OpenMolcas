@@ -17,14 +17,15 @@ subroutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rNuc,rHrmt,iChO
                  nGrid,iAddPot)
 
 use Basis_Info, only: nBas
-use PrpPnt, only: nOcc, nDen, nVec, Occ, Vec
-use Gateway_global, only: PrPrt, Short, IfAllOrb
+use PrpPnt, only: nDen, nOcc, nVec, Occ, Vec
+use Gateway_global, only: IfAllOrb, PrPrt, Short
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: Thrs
 use Symmetry_Info, only: nIrrep
-use Integral_interfaces, only: int_kernel, int_mem, OneEl_inner
+use Integral_interfaces, only: int_kernel, int_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -32,24 +33,18 @@ use Definitions, only: u6
 implicit none
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
-character(len=8) Label
-integer nComp, nOrdOp, nGrid
-real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
-real*8 rHrmt
-integer ip(nComp), lOper(nComp), iChO(nComp)
-real*8 opmol(*), opnuc(*)
-integer iopadr(ncomp,*)
-integer idirect, isyop, iAddPot
-real*8, dimension(:), allocatable :: Out, Nuc, El
-real*8, dimension(:), allocatable :: Array
-character(len=8) L_Temp
-character(len=4) LBL
-integer iStabO(0:7)
-integer, external :: n2Tri
-integer, parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim, ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl, jComp, &
-        iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount, iComp_, iInd1, LuTmp, nStabO
-real*8 Sum
+character(len=8), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), ipAd, iopadr(nComp,*), idirect, isyop, nGrid, iAddPot
+integer(kind=iwp), intent(out) :: ip(nComp)
+real(kind=wp), intent(in) :: CoorO(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
+integer(kind=iwp) :: iAdr, iComp, iComp_, iDIsk, iEF, ii, iInd1, iInd2, iIrrep, iOcc, iOpt, iPAMCount, ipC2, ipEl, ipNuc, ipOut, &
+                     iRC, iSmLbl, iStabO(0:7), jComp, LenInt, LenTot, llOper, lPole, LuTmp, mDim, n_Int, nIC, nStabO
+real(kind=wp) :: rSum
+character(len=8) :: L_Temp
+character(len=4) :: LBL
+real(kind=wp), allocatable :: Array(:), El(:), Nuc(:), Out_(:)
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer(kind=iwp), external :: n2Tri
 
 !                                                                      *
 !***********************************************************************
@@ -135,7 +130,7 @@ call PrMtrx(Label,lOper,nComp,ip,Array)
 !***********************************************************************
 !                                                                      *
 ! Make a square sum on all the integrals for verification
-call VrfMtrx(Label,lOper,nComp,ip,Array)
+!call VrfMtrx(Label,lOper,nComp,ip,Array)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -157,29 +152,29 @@ do iComp=1,nComp
       else
         mDim = S%nDim
       end if
-      call mma_allocate(Out,mDim*nComp,label='Out')
+      call mma_allocate(Out_,mDim*nComp,label='Out_')
       ipOut = 1
-      call dcopy_(mDim*nComp,[Zero],0,Out,1)
+      call dcopy_(mDim*nComp,[Zero],0,Out_,1)
       call mma_allocate(Nuc,nComp,label='Nuc')
       ipNuc = 1
       call dcopy_(nComp,[Zero],0,Nuc,1)
     end if
-    nInt = n2Tri(iSmLbl)
-    if (nInt /= 0) call CmpInt(Array(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
-    Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+nInt+3)
-    if (nInt /= 0) call XProp(Short,ifallorb,nIrrep,nBas,nVec,Vec,nOcc,Occ,nDen,Array(ip(iComp)),Out(ipOut+(iComp-1)*mDim))
+    n_Int = n2Tri(iSmLbl)
+    if (n_Int /= 0) call CmpInt(Array(ip(iComp)),n_Int,nBas,nIrrep,iSmLbl)
+    Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+n_Int+3)
+    if (n_Int /= 0) call XProp(Short,ifallorb,nIrrep,nBas,nVec,Vec,nOcc,Occ,nDen,Array(ip(iComp)),Out_(ipOut+(iComp-1)*mDim))
 
     if (Label(1:3) == 'PAM') then
       !open(unit=28,file='R_vect',access='append')
       endfile(28)
       if (Short) then
-        write(28,'(a8,2x,f20.14)') Label,Out(ipOut+(iComp-1)*mDim)
+        write(28,'(a8,2x,f20.14)') Label,Out_(ipOut+(iComp-1)*mDim)
       else
-        Sum = Zero
+        rSum = Zero
         do ii=1,nOcc
-          Sum = Sum+Out(ipOut+ii-1+(iComp-1)*mDim)
+          rSum = rSum+Out_(ipOut+ii-1+(iComp-1)*mDim)
         end do
-        write(28,'(a8,2x,f20.14)') Label,-Sum
+        write(28,'(a8,2x,f20.14)') Label,-rSum
       end if
       !close(28)
     end if
@@ -208,7 +203,7 @@ do iComp=1,nComp
       else
         ipC2 = 2 ! Used only for diamagnetic shielding.
       end if
-      call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),nIrrep,nBas,mDim,Occ,Thrs,Out,Nuc,lpole,ifallorb)
+      call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),nIrrep,nBas,mDim,Occ,Thrs,Out_,Nuc,lpole,ifallorb)
 
       ! For a properties calculation, save the values of EF or CNT operators,
       ! they will be used to write the sum through Add_Info in Drv1El
@@ -222,7 +217,7 @@ do iComp=1,nComp
           iInd1 = ipEl+jComp
           iInd2 = ipOut+jComp*mDim
           do iOcc=0,mDim-1
-            El(iInd1) = El(iInd1)+Out(iInd2+iOcc)
+            El(iInd1) = El(iInd1)+Out_(iInd2+iOcc)
           end do
         end do
         ! Write electronic and nuclear components in temp file
@@ -237,7 +232,7 @@ do iComp=1,nComp
       end if
 
       call mma_deallocate(Nuc)
-      call mma_deallocate(Out)
+      call mma_deallocate(Out_)
     end if
   else
     !                                                                  *

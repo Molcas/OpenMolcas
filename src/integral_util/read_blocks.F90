@@ -12,29 +12,30 @@
 subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,iSO2cI,CutInt)
 
 use SOAO_Info, only: iOffSO
-use Constants, only: Zero, One
 use PSO_Stuff, only: Case_MP2, LuGam, LuGamma
-use Definitions, only: wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-#include "SysDef.fh"
-integer nBlocks, nIrrep, nSOs, nBuf, nBin, nQuad
-integer iTable(6,nBlocks), nBas(0:nIrrep-1), iSO2Shell(nSOs), iSO2cI(2,nSOs)
-real*8 Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)
-logical Triangular
-integer i, j, itri
-integer iQuad, iDisk, iWrite, iBlockAdr, iBlock, iType, iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D, nA, nB, nC, nD, nAB, nCD, &
-        nAB_Dist, iSO_A_R, iSO_B_R, iSO_C_R, iSO_D_R, iSO_A_A, iSO_B_A, iSO_C_A, iSO_D_A, iiAB, iAB_S, iAB_E, iSize, iAdr, iBuf, &
-        iAB, iShell_A, iShell_B, iShell_C, iShell_D, iShell_Ab, iShell_CD, iShell_ABCD, nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, &
-        nDim_CD, Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD, Index_ABCD, iCD, kBin
-real*8 ABCD, CutInt, BackChain
+integer(kind=iwp), intent(in) :: nBlocks, iTable(6,nBlocks), nIrrep, nBas(0:nIrrep-1), nBuf, nSOs, iSO2Shell(nSOs), nBin, nQuad
+real(kind=wp), intent(out) :: Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)
+integer(kind=iwp), intent(out) :: iSO2cI(2,nSOs)
+real(kind=wp), intent(in) :: CutInt
+integer(kind=iwp) :: iAB, iAB_E, iAB_S, iAdr, iBlock, iBlockAdr, iBuf, iCD, iDisk, iiAB, iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D, &
+                     Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, iQuad, iShell_A, iShell_Ab, iShell_ABCD, &
+                     iShell_B, iShell_C, iShell_CD, iShell_D, iSize, iSO_A_A, iSO_A_R, iSO_B_A, iSO_B_R, iSO_C_A, iSO_C_R, &
+                     iSO_D_A, iSO_D_R, iType, iWrite, kBin, nA, nAB, nAB_Dist, nB, nC, nCD, nD, nDim_A, nDim_AB, nDim_B, nDim_C, &
+                     nDim_CD, nDim_D
+real(kind=wp) :: ABCD, BackChain
+logical(kind=iwp) :: Triangular
 ! Statement function for triangular indexation
+integer(kind=iwp) :: i, j, itri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Generate table SO to contigous index
+! Generate table SO to contiguous index
 
 !write(u6,*) 'nQuad=',nQuad
 call Mk_SO2cI(iSO2cI,iSO2Shell,nSOs)
@@ -190,7 +191,7 @@ do iBlock=1,nBlocks
 
         if (kBin == nBin-1) then
           BackChain = real(iDisk,kind=wp)
-          call dDaFile(LuGamma,iWrite,Bin(1,1,iShell_ABCD),2*nBin,iDisk)
+          call dDaFile(LuGamma,iWrite,Bin(:,:,iShell_ABCD),2*nBin,iDisk)
           Bin(1,nBin,iShell_ABCD) = Zero
           Bin(2,nBin,iShell_ABCD) = BackChain
         end if
@@ -273,7 +274,7 @@ end do         ! iBlock
 !write(u6,*) 'Flush bins!'
 do iQuad=1,nQuad
   BackChain = real(iDisk,kind=wp)
-  call dDaFile(LuGamma,iWrite,Bin(1,1,iQuad),2*nBin,iDisk)
+  call dDaFile(LuGamma,iWrite,Bin(:,:,iQuad),2*nBin,iDisk)
   !lxx = Int(Bin(1,nBin,iQuad))
   !write(u6,*) 'lxx=',lxx
   !call RecPrt('Bins',' ',Bin(1,1,iQuad),2,lxx)

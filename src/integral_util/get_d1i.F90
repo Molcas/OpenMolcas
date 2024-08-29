@@ -14,13 +14,16 @@
 subroutine Get_D1I(CMO,D1It,D1I,nish,nbas,nsym)
 
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
 
 implicit none
-integer nSym
-real*8 CMO(*), D1I(*), D1It(*)
-integer nbas(nsym), nish(nsym)
-integer iOff1, iSym, iBas, iOrb, iOff2, i, j, k
-real*8 Sum
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: D1It(*), D1I(*)
+integer(kind=iwp), intent(in) :: nSym, nish(nsym), nbas(nsym)
+integer(kind=iwp) :: i, iBas, iOff1, iOff2, iOrb, iSym, j, k
+real(kind=wp) :: rSum
 
 iOff1 = 0
 do iSym=1,nSym
@@ -30,11 +33,11 @@ do iSym=1,nSym
     iOff2 = iOff1
     do i=1,iBas
       do j=1,iBas
-        Sum = Zero
+        rSum = Zero
         do k=0,iOrb-1
-          Sum = Sum+Two*CMO(iOff1+k*iBas+i)*CMO(iOff1+k*iBas+j)
+          rSum = rSum+Two*CMO(iOff1+k*iBas+i)*CMO(iOff1+k*iBas+j)
         end do
-        D1I(iOff2+j) = Sum
+        D1I(iOff2+j) = rSum
       end do
       iOff2 = iOff2+iBas
     end do

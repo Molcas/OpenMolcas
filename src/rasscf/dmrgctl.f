@@ -40,7 +40,7 @@
 
       use wadr, only: FMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
 !     use sxci, only: IDXSX
@@ -98,7 +98,7 @@ C Local print level (if any)
 *
       CALL mma_allocate(FMO,NACPAR,Label='FMO')
       Call DecideOnESPF(Do_ESPF)
-      If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
+      If ( lRF .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
 *
 * In case of a reaction field in combination with an average CAS
 * select the potential of the appropriate state.

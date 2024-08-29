@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ResetErrorLine
+subroutine ResetErrorLine()
 
 use getline_mod, only: igetline
 

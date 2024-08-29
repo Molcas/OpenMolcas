@@ -43,10 +43,10 @@ subroutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,mDeDe,mIndij,Speci
 use iSD_data, only: iSD
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: DC
-use Symmetry_Info, only: nIrrep, iOper
-use Constants, only: Zero, One
+use Symmetry_Info, only: iOper, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use define_af, only: AngTp
 use Basis_Info, only: nBas
@@ -54,25 +54,24 @@ use Symmetry_Info, only: ChOper
 #endif
 
 implicit none
-integer nDeDe, nFD, mFD, nOffD
-real*8 DeDe(nDeDe)
-real*8 FD(nFD,mFD)
-integer ipOffD(2+mFD,nOffD)
-logical Special_NoSym, DFT_Storage
-integer iDCRR(0:7), nOp(2)
-logical AeqB
-real*8, dimension(:), allocatable :: Scrt, DAO, DSOp, DSOc, DSO
-integer, external :: n2Tri, MemSO1
-integer i, j, iTri
-integer mIndij, jOffD, Inc, ipD00, MaxDe, iS, jS, nSkal, iAng, jAng, iShll, jShll, iCmp, jCMp, iBas, jBas, iPrim, jPrim, iShell, &
-        jShell, mdci, mdcj, iAOi, jAOj, ijShll, iSmLbl, nSO, nDCRR, LmbdR, iuv, iSh, jSh, iAO, jAO, iBasi, jBasj, iPrimi, jPrimj, &
-        iAngi, jAngj, iCmpi, jCmpj, iFD, ipDeDe, lDCRR, ipStart, jpDAO, ijCmp, iShlli, jShllj, iHigh, ij, mDeDe
-integer, external :: iDAMax_, NrOpr
-real*8 FactND, Temp
+integer(kind=iwp), intent(in) :: nFD, mFD, nOffD, ipDeDe, MaxDe, nDeDe
+real(kind=wp), intent(in) :: FD(nFD,mFD)
+integer(kind=iwp), intent(out) :: ipOffD(2+mFD,nOffD), mDeDe, mIndij
+logical(kind=iwp), intent(in) :: Special_NoSym, DFT_Storage
+real(kind=wp), intent(inout) :: DeDe(nDeDe)
+integer(kind=iwp) :: iAng, iAngi, iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, Inc, ipD00, &
+                     iPrim, iPrimi, ipStart, iS, iSh, iShell, iShll, iShlli, iSmLbl, iuv, jAng, jAngj, jAO, jAOj, jBas, jBasj, &
+                     jCMp, jCmpj, jOffD, jpDAO, jPrim, jPrimj, jS, jSh, jShell, jShll, jShllj, lDCRR, LmbdR, mdci, mdcj, nDCRR, &
+                     nOp(2), nSkal, nSO
+real(kind=wp) :: FactND, Temp
+logical(kind=iwp) :: AeqB
+real(kind=wp), allocatable :: DAO(:), DSO(:), DSOc(:), DSOp(:), Scrt(:)
+integer(kind=iwp), external :: iDAMax_, MemSO1, n2Tri, NrOpr
 #ifdef _DEBUGPRINT_
-integer iIrrep, jFD
+integer(kind=iwp) :: iIrrep, jFD
 #endif
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *

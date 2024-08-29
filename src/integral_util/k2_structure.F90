@@ -62,48 +62,27 @@
 module k2_structure
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
 type k2_type
-  integer :: nZeta = 0
-  integer :: ijCmp = 0
-  integer :: nHm = 0
-  real*8, pointer :: Zeta(:)
-  real*8, pointer :: Kappa(:)
-  real*8, pointer :: PCoor(:,:)
-  real*8, pointer :: ZInv(:)
-  real*8, pointer :: ab(:)
-  real*8, pointer :: abG(:,:)
-  real*8, pointer :: abCon(:)
-  real*8, pointer :: Alpha(:)
-  real*8, pointer :: Beta(:)
-  real*8, pointer :: HrrMtrx(:,:)
-  integer, pointer :: IndZ(:)
-  real*8 :: EstI = Zero
-  real*8 :: ZtMax = Zero
-  real*8 :: ZtMaxD = Zero
-  real*8 :: ZetaM = Zero
-  real*8 :: abMax = Zero
-  real*8 :: abMaxD = Zero
+  integer(kind=iwp) :: nZeta = 0, ijCmp = 0, nHm = 0
+  integer(kind=iwp), pointer :: IndZ(:) => null()
+  real(kind=wp) :: EstI = Zero, ZtMax = Zero, ZtMaxD = Zero, ZetaM = Zero, abMax = Zero, abMaxD = Zero
+  real(kind=wp), pointer :: Zeta(:) => null(), Kappa(:) => null(), PCoor(:,:) => null(), ZInv(:) => null(), ab(:) => null(), &
+                            abG(:,:) => null(), abCon(:) => null(), Alpha(:) => null(), Beta(:) => null(), HrrMtrx(:,:) => null()
 end type k2_type
 
+integer(kind=iwp) :: iZZZ_i = 0, iZZZ_r = 0
+logical(kind=iwp) :: k2_processed = .false.
+integer(kind=iwp), allocatable :: IndK2(:,:)
+integer(kind=iwp), allocatable, target :: ZZZ_i(:)
+real(kind=wp), allocatable, target :: ZZZ_r(:)
 type(k2_type), allocatable, target :: k2data(:,:)
 
-integer, parameter :: nDArray = 11, nDScalar = 9
-
-real*8, allocatable, target :: ZZZ_r(:)
-integer, allocatable, target :: ZZZ_i(:)
-integer :: iZZZ_r = 0, iZZZ_i = 0
-
-logical :: k2_processed = .false.
-integer, allocatable :: IndK2(:,:)
-integer nIndk2
-
-public :: k2_type, k2data, Allocate_k2data, Free_k2data
-public :: nDArray, nDScalar, k2_processed, IndK2, nIndk2
-public :: ZZZ_i, ZZZ_r
+public :: Allocate_k2data, Free_k2data, IndK2, k2_processed, k2_type, k2data, ZZZ_i, ZZZ_r
 
 contains
 
@@ -112,9 +91,9 @@ subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
   use Symmetry_Info, only: nIrrep
   use Definitions, only: u6
 
-  integer nZeta, ijCmp, nHm
-  type(k2_type), target :: k2data
-  integer iS, iE
+  type(k2_type), target, intent(inout) :: k2data
+  integer(kind=iwp), intent(in) :: nZeta, ijCmp, nHm
+  integer(kind=iwp) :: iS, iE
 
   k2Data%nZeta = nZeta
   k2Data%nHm = nHm
@@ -179,13 +158,10 @@ subroutine Free_k2data()
 
   use stdalloc, only: mma_deallocate
 
-  integer nIrrep, ik2, iIrrep, i
+  integer(kind=iwp) :: i, iIrrep
 
-  nIrrep = size(k2data,1)
-  ik2 = size(k2data,2)
-
-  do i=1,ik2
-    do iIrrep=1,nIrrep
+  do i=1,size(k2data,2)
+    do iIrrep=1,size(k2data,1)
       call Free_k2data_Internal(k2data(iIrrep,i))
     end do
   end do
@@ -201,14 +177,21 @@ end subroutine Free_k2data
 
 subroutine Free_k2data_Internal(k2data_1D)
 
-  type(k2_type) :: k2data_1D
+  type(k2_type), intent(inout) :: k2data_1D
 
   k2Data%nZeta = 0
   k2Data%nHm = 0
   k2Data%ijCmp = 0
 
-  nullify(k2Data_1D%Zeta,k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abCon,k2Data_1D%Alpha, &
-          k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%abG,k2Data_1D%IndZ)
+  k2Data%EstI = Zero
+  k2Data%ZtMax = Zero
+  k2Data%ZtMaxD = Zero
+  k2Data%ZetaM = Zero
+  k2Data%abMax = Zero
+  k2Data%abMaxD = Zero
+
+  nullify(k2Data_1D%Zeta,k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abG,k2Data_1D%abCon, &
+          k2Data_1D%Alpha,k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%IndZ)
 
 end subroutine Free_k2data_Internal
 

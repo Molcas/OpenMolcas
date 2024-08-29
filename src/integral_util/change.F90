@@ -28,10 +28,14 @@ subroutine Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBs
 !             March '90                                                *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer iBas, iBsInc, kBas, kBsInc, jBas, jBsInc, lBas, lBsInc, jPrim, jPrInc, lPrim, lPrInc
-logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-integer i
+integer(kind=iwp), intent(in) :: iBas, kBas, jBas, lBas, jPrim, lPrim
+integer(kind=iwp), intent(inout) :: iBsInc, kBsInc, jBsInc, lBsInc, jPrInc, lPrInc
+logical(kind=iwp), intent(inout) :: QiBas, QkBas, QjBas, QlBas, QjPrim, QlPrim
+logical(kind=iwp), intent(out) :: Fail
+integer(kind=iwp) :: i
 
 Fail = .false.
 if (QlPrim) then

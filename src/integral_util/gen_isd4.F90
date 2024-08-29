@@ -11,10 +11,12 @@
 
 subroutine Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
+use Definitions, only: iwp
+
 implicit none
-integer iS, jS, kS, lS, nSD
-integer iSD(0:nSD,1024), iSD4(0:nSD,4)
-integer jQuad(4), i, j, iSkal
+integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nSD, iSD(0:nSD,1024)
+integer(kind=iwp), intent(out) :: iSD4(0:nSD,4)
+integer(kind=iwp) :: i, iSkal, j, jQuad(4)
 
 jQuad(1) = iS
 jQuad(2) = jS

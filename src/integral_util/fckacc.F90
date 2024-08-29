@@ -45,45 +45,37 @@ use Basis_Info, only: Shells
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
-use Gateway_Info, only: ThrInt, CutInt
+use Gateway_Info, only: CutInt, ThrInt
 use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nijkl, nDens, nScrt, nFT, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, jk1, jk2, jk3, &
-        jk4, jl1, jl2, jl3, jl4
-integer iBas, jBas, kBas, lBas
-real*8, target :: Scrt(nScrt)
-integer iCmp_(4)
-real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)), TwoHam(nDens)
-real*8, target :: Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), Dik(ik1*ik2+1,ik3,ik4), Dil(il1*il2+1,il3,il4), &
-                  Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
-real*8, target :: FT(nFT)
-logical Shijij, Qijij, DoCoul, DoExch, iShij, iShkl, iQij, iQkl, iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl, lFij, lFkl, &
-        lFik, lFjl, lFil, lFjk
-integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4), iAO(4), iAOst(4), iCmpa(4)
-real*8 ExFac
-integer mijkl, jCmpMx, lCmpMx, j, ix, ijkl, ip, iOpt, iIrrep
-integer iChBs, jChBs, kChBs, lChBs
-integer ixyz, iOff
-integer iSym(4)
-integer iCmp, jCmp, kCmp, lCmp
-integer ii, jj, kk, ll
-integer i1, i2, i3, i4, i12, i34
-real*8 pEa, pRb, pTc, pTSd
-real*8 Fac_ij, Fac_kl, Fac_ik, Fac_jl, Fac_il, Fac_jk
-real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
-real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
-real*8 Fact, pFctr
-real*8, pointer :: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:), Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
-real*8, pointer :: pDij(:), pDkl(:), pDik(:), pDil(:), pDjk(:), pDjl(:)
-integer nF, ipF
+integer(kind=iwp), intent(in) :: iAng(4), iCmp_(4), iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
+                                 jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, &
+                                 jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nFT
+logical(kind=iwp), intent(in) :: Shijij, DoCoul, DoExch
+real(kind=wp), intent(in) :: AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)), ExFac
+real(kind=wp), intent(inout) :: TwoHam(nDens)
+real(kind=wp), target, intent(inout) :: Scrt(nScrt)
+real(kind=wp), target, intent(in) :: Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), Dik(ik1*ik2+1,ik3,ik4), &
+                                     Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
+real(kind=wp), target, intent(out) :: FT(nFT)
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmp, iCmpa(4), ii, iIrrep, ijkl, iOpt, ip, ipF, iSym(4), ix, j, jChBs, &
+                     jCmp, jCmpMx, jj, kChBs, kCmp, kk, kOp2(4), lChBs, lCmp, lCmpMx, ll, mijkl, nF
+real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac_ij, Fac_ik, Fac_il, Fac_jk, Fac_jl, Fac_kl, Fact, pEa, pFctr, pRb, pTc, &
+                 pTSd, Vij, Vijkl, Vik, Vil, Vjk, Vjl, Vkl
+logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
+                     lFkl, Qijij
+real(kind=wp), pointer :: Fij(:,:,:), Fik(:,:,:), Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:), Fkl(:,:,:), pDij(:), pDik(:), pDil(:), &
+                          pDjk(:), pDjl(:), pDkl(:)
 #ifdef _DEBUGPRINT_
-real*8, external :: XDot
+real(kind=wp), external :: XDot
 #endif
 ! Statement Function
+integer(kind=iwp) :: ixyz, iOff
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !                                                                      *
@@ -165,12 +157,12 @@ FT(1:ipF-1) = Zero
 ! Observe that we will walk through the memory in AOInt in a
 ! sequential way.
 
-iShij = iShell(1) == iShell(2)
-iShkl = iShell(3) == iShell(4)
-iShik = iShell(1) == iShell(3)
-iShil = iShell(1) == iShell(4)
-iShjk = iShell(2) == iShell(3)
-iShjl = iShell(2) == iShell(4)
+iShij = (iShell(1) == iShell(2))
+iShkl = (iShell(3) == iShell(4))
+iShik = (iShell(1) == iShell(3))
+iShil = (iShell(1) == iShell(4))
+iShjk = (iShell(2) == iShell(3))
+iShjl = (iShell(2) == iShell(4))
 mijkl = iBas*jBas*kBas*lBas
 do i1=1,iCmp
   ix = 0
@@ -230,13 +222,13 @@ do i1=1,iCmp
         !vijkl = DNrm2_(iBas*jBas*kBas*lBas,AOInt(1,i1,i2,i3,i4),1)
         if (vijkl < CutInt) cycle
 
-        Qijij = Shijij .and. (i12 == i34)
-        iQij = iShij .and. (i1 == i2)
-        iQkl = iShkl .and. (i3 == i4)
-        iQik = iShik .and. (i1 == i3)
-        iQil = iShil .and. (i1 == i4)
-        iQjk = iShjk .and. (i2 == i3)
-        iQjl = iShjl .and. (i2 == i4)
+        Qijij = (Shijij .and. (i12 == i34))
+        iQij = (iShij .and. (i1 == i2))
+        iQkl = (iShkl .and. (i3 == i4))
+        iQik = (iShik .and. (i1 == i3))
+        iQil = (iShil .and. (i1 == i4))
+        iQjk = (iShjk .and. (i2 == i3))
+        iQjl = (iShjl .and. (i2 == i4))
         pFctr = pEa*pRb*pTc*pTSd
         !***************************************************************
 
@@ -430,10 +422,10 @@ contains
 
 subroutine Fck1(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Fij(iBas,jBas), Dkl(kBas,lBas), Fkl(kBas,lBas)
-  real*8 Cij, Ckl
-  integer i, j, k, l
-  real*8 F_kl, D_kl, Vijkl
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Cij, Dkl(kBas,lBas), Ckl
+  real(kind=wp), intent(inout) :: Fij(iBas,jBas), Fkl(kBas,lBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_kl, F_kl, Vijkl
 
   do l=1,lBas
     do k=1,kBas
@@ -458,10 +450,10 @@ end subroutine Fck1
 
 subroutine Fck2(AOInt,Dik,Fik,Cik,Djl,Fjl,Cjl)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dik(iBas,kBas), Fik(iBas,kBas), Djl(jBas,lBas), Fjl(jBas,lBas)
-  real*8 Cik, Cjl
-  integer i, j, k, l
-  real*8 F_jl, D_jl, Vijkl
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dik(iBas,kBas), Cik, Djl(jBas,lBas), Cjl
+  real(kind=wp), intent(inout) :: Fik(iBas,kBas), Fjl(jBas,lBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_jl, F_jl, Vijkl
 
   do l=1,lBas
     do k=1,kBas
@@ -486,11 +478,11 @@ end subroutine Fck2
 
 subroutine Fck3(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl,Dik,Fik,Cik,Djl,Fjl,Cjl)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Fij(iBas,jBas), Dkl(kBas,lBas), Fkl(kBas,lBas), Dik(iBas,kBas), &
-         Fik(iBas,kBas), Djl(jBas,lBas), Fjl(jBas,lBas)
-  real*8 Cij, Ckl, Cik, Cjl
-  integer i, j, k, l
-  real*8 F_kl, D_kl, F_jl, D_jl, Vijkl
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Cij, Dkl(kBas,lBas), Ckl, Dik(iBas,kBas), Cik, &
+                               Djl(jBas,lBas), Cjl
+  real(kind=wp), intent(inout) :: Fij(iBas,jBas), Fkl(kBas,lBas), Fik(iBas,kBas), Fjl(jBas,lBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_jl, D_kl, F_jl, F_kl, Vijkl
 
   do l=1,lBas
     do k=1,kBas
@@ -521,10 +513,10 @@ end subroutine Fck3
 
 subroutine Fck4(AOInt,Dil,Fil,Cil,Djk,Fjk,Cjk)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dil(iBas,lBas), Fil(iBas,lBas), Djk(jBas,kBas), Fjk(jBas,kBas)
-  real*8 Cil, Cjk
-  integer i, j, k, l
-  real*8 F_jk, D_jk, Vijkl
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dil(iBas,lBas), Cil, Djk(jBas,kBas), Cjk
+  real(kind=wp), intent(inout) :: Fil(iBas,lBas), Fjk(jBas,kBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_jk, F_jk, Vijkl
 
   do l=1,lBas
     do k=1,kBas
@@ -549,11 +541,11 @@ end subroutine Fck4
 
 subroutine Fck5(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl,Dil,Fil,Cil,Djk,Fjk,Cjk)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Fij(iBas,jBas), Dkl(kBas,lBas), Fkl(kBas,lBas), Dil(iBas,lBas), &
-         Fil(iBas,lBas), Djk(jBas,kBas), Fjk(jBas,kBas)
-  real*8 Cij, Ckl, Cil, Cjk
-  integer i, j, k, l
-  real*8 F_kl, D_kl, F_jk, D_jk, Vijkl
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Cij, Dkl(kBas,lBas), Ckl, Dil(iBas,lBas), Cil, &
+                               Djk(jBas,kBas), Cjk
+  real(kind=wp), intent(inout) :: Fij(iBas,jBas), Fkl(kBas,lBas), Fil(iBas,lBas), Fjk(jBas,kBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_jk, D_kl, F_jk, F_kl, Vijkl
 
   do l=1,lBas
     do k=1,kBas
@@ -584,11 +576,11 @@ end subroutine Fck5
 
 subroutine Fck6(AOInt,Dik,Fik,Cik,Djl,Fjl,Cjl,Dil,Fil,Cil,Djk,Fjk,Cjk)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dik(iBas,kBas), Fik(iBas,kBas), Djl(jBas,lBas), Fjl(jBas,lBas), Dil(iBas,lBas), &
-         Fil(iBas,lBas), Djk(jBas,kBas), Fjk(jBas,kBas)
-  real*8 Cik, Cjl, Cil, Cjk
-  real*8 F_jl, D_jl, F_jk, D_jk, Vijkl
-  integer i, j, k, l
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dik(iBas,kBas), Cik, Djl(jBas,lBas), Cjl, Dil(iBas,lBas), Cil, &
+                               Djk(jBas,kBas), Cjk
+  real(kind=wp), intent(inout) :: Fik(iBas,kBas), Fjl(jBas,lBas), Fil(iBas,lBas), Fjk(jBas,kBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_jk, D_jl, F_jk, F_jl, Vijkl
 
   do l=1,lBas
     do k=1,kBas
@@ -619,11 +611,11 @@ end subroutine Fck6
 
 subroutine Fck7(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl,Dik,Fik,Cik,Djl,Fjl,Cjl,Dil,Fil,Cil,Djk,Fjk,Cjk)
 
-  real*8 AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Fij(iBas,jBas), Dkl(kBas,lBas), Fkl(kBas,lBas), Dik(iBas,kBas), &
-         Fik(iBas,kBas), Djl(jBas,lBas), Fjl(jBas,lBas), Dil(iBas,lBas), Fil(iBas,lBas), Djk(jBas,kBas), Fjk(jBas,kBas)
-  real*8 Cij, Ckl, Cik, Cjl, Cil, Cjk
-  integer i, j, k, l
-  real*8 F_kl, D_kl, F_jl, D_jl, F_jk, D_jk, Vijkl
+  real(kind=wp), intent(in) :: AOInt(iBas,jBas,kBas,lBas), Dij(iBas,jBas), Cij, Dkl(kBas,lBas), Ckl, Dik(iBas,kBas), Cik, &
+                               Djl(jBas,lBas), Cjl, Dil(iBas,lBas), Cil, Djk(jBas,kBas), Cjk
+  real(kind=wp), intent(inout) :: Fij(iBas,jBas), Fkl(kBas,lBas), Fik(iBas,kBas), Fjl(jBas,lBas), Fil(iBas,lBas), Fjk(jBas,kBas)
+  integer(kind=iwp) :: i, j, k, l
+  real(kind=wp) :: D_jk, D_jl, D_kl, F_jk, F_jl, F_kl, Vijkl
 
   do l=1,lBas
     do k=1,kBas

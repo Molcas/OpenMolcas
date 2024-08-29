@@ -26,14 +26,14 @@ use External_Centers, only: nOrd_XF, nXF, XF
 use Phase_Info, only: iPhase
 use Symmetry_Info, only: nIrrep
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer lmax, nCavxyz_
-real*8 Cavxyz(nCavxyz_), Tmom(nCavxyz_), Org(3)
-real*8 Tco(3), A(3)
-integer iStb(0:7), jCoSet(0:7,0:7)
-integer nInp, i, iChxyz, iDum, j, nStb, iChAtm
+integer(kind=iwp), intent(in) :: lmax, nCavxyz_
+real(kind=wp), intent(inout) :: Cavxyz(nCavxyz_)
+real(kind=wp), intent(out) :: Tmom(nCavxyz_), Org(3)
+integer(kind=iwp) :: i, iChAtm, iChxyz, iDum, iStb(0:7), j, jCoSet(0:7,0:7), nInp, nStb
+real(kind=wp) :: A(3), Tco(3)
 
 if (nOrd_XF < 0) return
 if (nOrd_XF > lMax) then

@@ -13,22 +13,23 @@ subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,
 
 use OFembed, only: Do_OFemb, OFE_KSDFT
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nh1, nD1, iCharge, iSpin
-real*8 h1(nh1), TwoHam(nh1), D(nh1,2)
-real*8 D1I(nD1), D1A(nD1)
-real*8 RepNuc, ExFac
-logical First, Dff, lRF, NonEq, Do_Grad, Do_DFT
-character(len=*) KSDFT
-character(len=4) DFTFOCK
-real*8 Grad(1), RN(1)
-integer nGrad
-logical Do_ESPF
+integer(kind=iwp), intent(in) :: nh1, iSpin, nD1
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc, ExFac
+real(kind=wp), intent(in) :: D(nh1,2), D1I(nD1), D1A(nD1)
+integer(kind=iwp), intent(inout) :: iCharge
+logical(kind=iwp), intent(in) :: First, Dff, NonEq, lRF, Do_DFT
+character(len=*), intent(in) :: KSDFT
+character(len=4) :: DFTFOCK
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(1), RN(1)
+logical(kind=iwp) :: Do_ESPF, Do_Grad
+character(len=8) :: Label
 #ifdef _EFP_
-logical EFP_On
+logical(kind=iwp) :: EFP_On
 #endif
-character(len=8) Label
 
 !                                                                      *
 !***********************************************************************

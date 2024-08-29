@@ -21,11 +21,12 @@ function iPntSO(j1,j2,lOper,nbas)
 !             February '91                                             *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer iPntSO
-integer j1, j2, lOper
-integer nbas(0:7)
-integer iSmLbl, iIrrep, jMax, jIrrep, ij
+integer(kind=iwp) :: iPntSO
+integer(kind=iwp), intent(in) :: j1, j2, lOper, nbas(0:7)
+integer(kind=iwp) :: iIrrep, ij, iSmLbl, jIrrep, jMax
 
 iPntSO = 0
 iSmLbl = lOper

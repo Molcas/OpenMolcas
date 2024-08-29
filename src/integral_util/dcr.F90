@@ -26,15 +26,14 @@ subroutine DCR(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
 !             January '90                                              *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper
-use dcr_mod, only: nIndex, Done
+use Symmetry_Info, only: iOper, nIrrep
+use dcr_mod, only: Done, iDCR_all, Indx, Lambda_all, mDCR_all, nIndx
+use Definitions, only: iwp
 
 implicit none
-integer nStab1, nStab2
-integer iStab1(0:nStab1-1), iStab2(0:nStab2-1), iDCR(0:7)
-integer, save :: index(50), Lambda_all(1275), mDCR_all(1275), iDCR_all(0:7,1275)
-integer mDCR
-integer Ind1, i, iIrrep, k, Ind2, ij, Lambda
+integer(kind=iwp), intent(out) :: Lambda, iDCR(0:7), mDCR
+integer(kind=iwp), intent(in) :: nStab1, iStab1(0:nStab1-1), nStab2, iStab2(0:nStab2-1)
+integer(kind=iwp) :: i, iIrrep, ij, Ind1, Ind2, k
 
 Ind1 = 0
 do i=1,nStab1-1
@@ -46,15 +45,15 @@ do i=1,nStab1-1
   end do
 11 continue
 end do
-do k=1,nIndex
-  if (Ind1 == index(k)) then
+do k=1,nIndx
+  if (Ind1 == Indx(k)) then
     Ind1 = k
     Go To 10
   end if
 end do
-nIndex = nIndex+1
-index(nIndex) = Ind1
-Ind1 = nIndex
+nIndx = nIndx+1
+Indx(nIndx) = Ind1
+Ind1 = nIndx
 10 continue
 
 Ind2 = 0
@@ -67,21 +66,21 @@ do i=1,nStab2-1
   end do
 21 continue
 end do
-do k=1,nIndex
-  if (Ind2 == index(k)) then
+do k=1,nIndx
+  if (Ind2 == Indx(k)) then
     Ind2 = k
     Go To 20
   end if
 end do
-nIndex = nIndex+1
-index(nIndex) = Ind2
-Ind2 = nIndex
+nIndx = nIndx+1
+Indx(nIndx) = Ind2
+Ind2 = nIndx
 20 continue
 
 ij = max(Ind1,Ind2)*(max(Ind1,Ind2)-1)/2+min(Ind1,Ind2)
 
 if (.not. Done(ij)) then
-  call DCR_Internal(Lambda_all(ij),iStab1,nStab1,iStab2,nStab2,iDCR_all(0,ij),mDCR_all(ij))
+  call DCR_Internal(Lambda_all(ij),iDCR_all(0,ij),mDCR_all(ij))
   Done(ij) = .true.
 end if
 Lambda = Lambda_all(ij)
@@ -90,16 +89,11 @@ call ICopy(mDCR,iDCR_all(0,ij),1,iDCR,1)
 
 contains
 
-subroutine DCR_Internal(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
+subroutine DCR_Internal(Lambda,iDCR,mDCR)
 
-  use Symmetry_Info, only: nIrrep, iOper
-
-  implicit none
-  integer Lambda, nStab1, nStab2, mDCR
-  integer iStab1(0:nStab1-1), iStab2(0:nStab2-1), iDCR(0:7)
-  integer iScrt(0:7,0:7)
-
-  integer i, j, k, jik
+  integer(kind=iwp), intent(inout) :: Lambda, iDCR(0:7)
+  integer(kind=iwp), intent(out) :: mDCR
+  integer(kind=iwp) :: i, iScrt(0:7,0:7), j, jik, k
 
   iScrt(:,:) = 0
 

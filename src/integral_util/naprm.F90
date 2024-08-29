@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine NAPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la,lb,A,RB,nRys,Array,nArr,CCoor,nOrdOp)
+subroutine NAPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nRys,Array,nArr,CCoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of nuclear attraction     *
@@ -22,28 +22,29 @@ subroutine NAPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la
 !             of Lund, Sweden, January 1991                            *
 !***********************************************************************
 
-use Basis_Info, only: Nuclear_Model, Gaussian_Type, mGaussian_Type, DBSC, Point_Charge
+use Basis_Info, only: DBSC, Gaussian_Type, mGaussian_Type, Nuclear_Model, Point_Charge
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+use Definitions, only: wp, iwp
 
 implicit none
-! Used for normal nuclear attraction integrals
-external TNAI, Fake, XCff2D, XRys2D
-! Used for finite nuclei
-external TERI, ModU2, vCff2D, vRys2D
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nRys, nArr, nOrdOp
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,2)
+real(kind=wp), intent(inout) :: rKappa(nZeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Array(nZeta*nArr)
 #include "oneswi.fh"
-integer nZeta, la, lb, nComp, nAlpha, nBeta, nArr, nRys, nOrdOp
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), CCoor(3,2), Array(nZeta*nArr)
-real*8 C(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
-integer iAnga(4)
-integer ixyz, nElem, nabSz, lc, ld, mabMin, mabMax, iZeta, iCnttp, nT, mcdMin, mcdMax, ipOff, mArr, ipIn, nFlop, nMem
-real*8 Q_Nuc, Eta, EInv, rKappCD
+integer(kind=iwp) :: iAnga(4), iCnttp, ipIn, ipOff, iZeta, lc, ld, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
+real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Q_Nuc, rKappCD
+logical(kind=iwp) :: NoSpecial
+logical(kind=iwp), external :: EQ
+! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D
+! Used for finite nuclei: TERI, ModU2, vCff2D, vRys2D
+external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem, nabSz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
-call FZero(final,nZeta*nElem(la)*nElem(lb)*nComp)
+call FZero(rFinal,nZeta*nElem(la)*nElem(lb)*nComp)
 
 lc = 0
 ld = 0
@@ -177,8 +178,8 @@ end if
 
 call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
 
-call DCopy_(nZeta*nElem(la)*nElem(lb)*nComp,Array(ipIn),1,final,1)
-call DScal_(nZeta*nElem(la)*nElem(lb)*nComp,-Q_Nuc,final,1)
+call DCopy_(nZeta*nElem(la)*nElem(lb)*nComp,Array(ipIn),1,rFinal,1)
+call DScal_(nZeta*nElem(la)*nElem(lb)*nComp,-Q_Nuc,rFinal,1)
 
 111 continue
 

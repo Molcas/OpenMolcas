@@ -29,18 +29,16 @@ subroutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,ZInv,Alpha_,Beta_,In
 !***********************************************************************
 
 use Constants, only: One, TwoP54
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nAlpha, nBeta
-real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta), Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta), ZInv(nAlpha*nBeta), A(3), B(3), &
-       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
-integer Ind_Pair(nAlpha*nBeta+1)
-integer iBeta, iAlpha, iZeta
-real*8 AB2, Tmp0, Tmp1
-#if defined (_New_Code_) || defined (_DEBUGPRINT_)
-integer nZeta
-#endif
+integer(kind=iwp), intent(in) :: nAlpha, nBeta
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), A(3), B(3)
+real(kind=wp), intent(out) :: P(nAlpha*nBeta,3), Zeta(nAlpha*nBeta), rKappa(nAlpha*nBeta), ZInv(nAlpha*nBeta), &
+                              Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta)
+integer(kind=iwp), intent(out) :: Ind_Pair(nAlpha*nBeta+1)
+integer(kind=iwp) :: iAlpha, iBeta, iZeta
+real(kind=wp) :: AB2, Tmp0, Tmp1
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
@@ -70,13 +68,10 @@ Ind_Pair(nAlpha*nBeta+1) = nAlpha*nBeta
 ! Sort from Large to Small
 
 !#define _New_Code_
-#if defined (_New_Code_) || defined (_DEBUGPRINT_)
-nZeta = nAlpha*nBeta
-#endif
 #ifdef _New_Code_
-do iZeta=1,nZeta-1
+do iZeta=1,nAlpha*nBeta-1
   Tmp1 = rKappa(iZeta)
-  do jZeta=iZeta+1,nZeta
+  do jZeta=iZeta+1,nAlpha*nBeta
     if (Tmp1 < rKappa(jZeta)) then
       Tmp1 = rKappa(jZeta)
       Tmp2 = Zeta(iZeta)
@@ -112,8 +107,8 @@ end do
 #endif
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In DoZeta: Kappa',' ',rKappa,nZeta,1)
-call RecPrt(' In DoZeta: P',' ',P,nZeta,3)
+call RecPrt(' In DoZeta: Kappa',' ',rKappa,nAlpha*nBeta,1)
+call RecPrt(' In DoZeta: P',' ',P,nAlpha*nBeta,3)
 #endif
 
 return

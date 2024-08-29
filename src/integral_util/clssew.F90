@@ -18,37 +18,39 @@ subroutine ClsSew()
 !***********************************************************************
 
 use Real_Spherical, only: Sphere_Free
-use EFP_module, only: lEFP, FRAG_TYPE, ABC, EFP_COORS
+use EFP_module, only: ABC, EFP_COORS, FRAG_TYPE, lEFP
 use External_Centers, only: external_centers_free
-use Basis_Info, only: Seward_Activated, Basis_Info_Free
+use Basis_Info, only: Basis_Info_Free, Seward_Activated
 use Center_Info, only: Center_Info_Free
 use Symmetry_Info, only: Symmetry_Info_Free
 use SOAO_Info, only: SOAO_Info_Free
 
 implicit none
 
-if (.not. Seward_Activated) return
+if (Seward_Activated) then
 
-call Term_Ints()
-call Free_RctFld()
-call Free_HerRW()
-call Sphere_Free()
-call SOAO_Info_Free()
-call Basis_Info_Free()
-call SYmmetry_Info_Free()
-call Center_Info_Free()
-call External_Centers_Free()
-call Free_iSD()
-call CloseR()
+  call Term_Ints()
+  call Free_RctFld()
+  call Free_HerRW()
+  call Sphere_Free()
+  call SOAO_Info_Free()
+  call Basis_Info_Free()
+  call SYmmetry_Info_Free()
+  call Center_Info_Free()
+  call External_Centers_Free()
+  call Free_iSD()
+  call CloseR()
 
-if (lEFP) then
-  deallocate(FRAG_TYPE)
-  deallocate(ABC)
-  deallocate(EFP_COORS)
-  lEFP = .false.
+  if (lEFP) then
+    deallocate(FRAG_TYPE)
+    deallocate(ABC)
+    deallocate(EFP_COORS)
+    lEFP = .false.
+  end if
+
+  Seward_Activated = .false.
+
 end if
-
-Seward_Activated = .false.
 
 return
 

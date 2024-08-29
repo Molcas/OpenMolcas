@@ -108,3 +108,6 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #if (__INTEL_LLVM_COMPILER)
 #define _BUGGY_INTEL_LLVM_
 #endif
+#if (( __INTEL_COMPILER ) && ( __INTEL_COMPILER_BUILD_DATE < 20150000 ))
+#define _BUGGY_INTEL_OPTIM_
+#endif

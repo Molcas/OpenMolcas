@@ -13,11 +13,13 @@
 
 function iCFrst(KWord,iChrct)
 
+use Definitions, only: iwp
+
 implicit none
-integer iCFrst
-character(len=*) KWord
-integer iChrct
-integer i
+integer(kind=iwp) :: iCFrst
+character(len=*), intent(in) :: KWord
+integer(kind=iwp), intent(in) :: iChrct
+integer(kind=iwp) :: i
 
 iCFrst = 0
 do i=1,iChrct

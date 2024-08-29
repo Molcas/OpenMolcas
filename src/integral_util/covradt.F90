@@ -12,11 +12,11 @@
 function CovRadT(i)
 
 use CovRad_Data, only: CovRadT_
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CovRadT
-integer i
+real(kind=wp) :: CovRadT
+integer(kind=iwp), intent(in) :: i
 
 if (i > 92) then
   !write(u6,*) 'CovRadT: i > 92'

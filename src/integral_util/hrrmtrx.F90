@@ -24,24 +24,27 @@ subroutine HrrMtrx(HMtrx,np,la,lb,A,B,Sph_a,CS_a,nSph_a,Sph_b,Cs_b,nSph_b)
 !             February 1999                                            *
 !***********************************************************************
 
+use define_af, only: Binom, iCan, iTabMx
 use Constants, only: Zero, One
-use define_af, only: iTabMx, Binom, iCan
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer np, la, lb, nSph_a, nSph_b
-real*8 A(3), B(3), HMtrx(np,nSph_a,nSph_b), AB(3,0:iTabMx), CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)
-logical Sph_a, Sph_b
-logical EQ
-integer ix, iy, iz, ixyz, iOff, jCan, i, jx, jy, jz, jOff, ipa, ipb, ipe, iSph_a, iSph_b, ixLow, iyLow, izLow, kx, ky, kz, jxLow, &
-        jyLow, jzLow
-real*8 C_A, C_B, ABx, ABy, ABz
+integer(kind=iwp), intent(in) :: np, la, lb, nSph_a, nSph_b
+real(kind=wp), intent(out) :: HMtrx(np,nSph_a,nSph_b)
+real(kind=wp), intent(in) :: A(3), B(3), CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)
+logical(kind=iwp), intent(in) :: Sph_a, Sph_b
+integer(kind=iwp) :: i, ipa, ipb, ipe, iSph_a, iSph_b, ix, ixLow, iy, iyLow, iz, izLow, jOff, jx, jxLow, jy, jyLow, jz, jzLow, kx, &
+                     ky, kz
+real(kind=wp) :: AB(3,0:iTabMx), ABx, ABy, ABz, C_A, C_B
+logical(kind=iwp), external :: EQ
 #ifdef _DEBUGPRINT_
-real*8, external :: DDot_
+real(kind=wp), external :: DDot_
 #endif
 ! Statement functions
+integer(kind=iwp) :: ixyz, iOff, jCan
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 jCan(ix,iy,iz) = iOff(ix+iy+iz)+(iy+iz)*(iy+iz+1)/2+iz+1
 
@@ -239,6 +242,7 @@ if (la >= lb) then
     end do
 
   end if
+
 else
 
   if (Sph_a .and. Sph_b) then
@@ -414,6 +418,7 @@ else
     end do
 
   end if
+
 end if
 #ifdef _DEBUGPRINT_
 call RecPrt('HMat ( np x (nSph_a*nSph_b) )','(30F4.1)',HMtrx,np,nSph_a*nSph_b)

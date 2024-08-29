@@ -11,10 +11,12 @@
 
 subroutine Gamma_Blocks(iTable,nBlocks,nIrrep)
 
+use Definitions, only: iwp
+
 implicit none
-integer nBlocks, nIrrep
-integer iTable(6,nBlocks)
-integer idid(8), iBlock, IND, IRREP, IRREP1, IRREP2, IRREP3, IRREP4, IBOT, ITMP
+integer(kind=iwp), intent(in) :: nBlocks, nIrrep
+integer(kind=iwp), intent(out) :: iTable(6,nBlocks)
+integer(kind=iwp) :: iBlock, IBOT, idid(8), IND, IRREP, IRREP1, IRREP2, IRREP3, IRREP4, ITMP
 
 iBlock = 0
 

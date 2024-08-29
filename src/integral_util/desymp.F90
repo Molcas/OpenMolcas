@@ -44,29 +44,27 @@ use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Constants, only: Zero, Eight, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use Constants, only: One
 use Definitions, only: u6
 #endif
 
 implicit none
-integer iCmp, jCmp, kCmp, lCmp, ijkl, nAux, nPSO
-real*8 PAO(ijkl,iCmp,jCmp,kCmp,lCmp), PSO(ijkl,nPSO), Aux(nAux)
-logical Shijij
-integer iAng(4), iShell(4), kOp(4), iShll(4), iAO(4)
-logical Shij, Shkl
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-integer MemSO2, ii, jj, kk, ll, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs, niSym, njSym, nkSym, nlSym, iAux, j, is, js, ks, ls, &
-        j1, j2, j3, j12, j123, j4
-real*8 Fact, pa, pb, pc, FactNs, Xa, Xb, Xg
+integer(kind=iwp), intent(in) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), iAO(4), kOp(4), ijkl, nAux, nPSO
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(out) :: Aux(nAux), PAO(ijkl,iCmp,jCmp,kCmp,lCmp)
+real(kind=wp), intent(in) :: PSO(ijkl,nPSO)
+integer(kind=iwp) :: i1, i2, i3, i4, iAux, iChBs, ii, is, iSym(0:7), j, j1, j12, j123, j2, j3, j4, jChBs, jj, js, jSym(0:7), &
+                     kChBs, kk, ks, kSym(0:7), lChBs, ll, ls, lSym(0:7), MemSO2, niSym, njSym, nkSym, nlSym
+real(kind=wp) :: Fact, FactNs, pa, pb, pc, Xa, Xb, Xg
+logical(kind=iwp) :: Shij, Shkl
 #ifdef _DEBUGPRINT_
-integer i
-real*8, external :: DDot_
+integer(kind=iwp) :: i
+real(kind=wp), external :: DDot_
 #endif
 
-Shij = iShell(1) == iShell(2)
-Shkl = iShell(3) == iShell(4)
+Shij = (iShell(1) == iShell(2))
+Shkl = (iShell(3) == iShell(4))
 MemSO2 = 1
 
 #ifdef _DEBUGPRINT_
@@ -203,8 +201,6 @@ do i=1,ijkl
   write(u6,*) DDot_(iCmp*jCmp*kCmp*lCmp,PAO(i,1,1,1,1),ijkl,PAO(i,1,1,1,1),ijkl)
 end do
 call WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
-write(u6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
-write(u6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
 #endif
 
 end subroutine DesymP

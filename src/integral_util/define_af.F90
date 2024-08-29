@@ -13,20 +13,23 @@
 
 module Define_af
 
+use Definitions, only: wp, iwp
+
+implicit none
 private
 
 #ifndef _DEMO_
-integer, parameter :: iTabMx = 15
-character(len=1), parameter :: AngTp(0:iTabMx) = ['s','p','d','f','g','h','i','k','l','m','n','o','q','r','t','u']
+integer(kind=iwp), parameter :: iTabMx = 15
+character, parameter :: AngTp(0:iTabMx) = ['s','p','d','f','g','h','i','k','l','m','n','o','q','r','t','u']
 #else
-integer, parameter :: iTabMx = 3
-character(len=1), parameter :: AngTp(0:iTabMx) = ['s','p','d']
+integer(kind=iwp), parameter :: iTabMx = 3
+character, parameter :: AngTp(0:iTabMx) = ['s','p','d']
 #endif
 
-real*8 Binom(0:2*iTabMx,-1:2*iTabMx)
-integer, parameter :: lab = 2*iTabMx+1, ipMax = lab*(lab+1)*(lab+2)/6
-integer iCan(3,ipMax)
+integer(kind=iwp), parameter :: lab = 2*iTabMx+1, ipMax = lab*(lab+1)*(lab+2)/6
+real(kind=wp) :: Binom(0:2*iTabMx,-1:2*iTabMx)
+integer(kind=iwp) :: iCan(3,ipMax)
 
-public :: iTabMx, AngTp, Binom, lab, ipMax, iCan
+public :: AngTp, Binom, iCan, ipMax, iTabMx, lab
 
 end module Define_af

@@ -25,18 +25,17 @@ subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DA
 use Symmetry_Info, only: nIrrep, iChTbl
 use SOAO_Info, only: iAOtSO
 use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO
-real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO), Scrt(iBas*jBas)
-integer nOp(2)
-real*8 FactNd
-integer lSO, j1, j2, j12, jMx, i1, i2
-real*8 Xa, Xb, Deg
+integer(kind=iwp), intent(in) :: lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO, nOp(2)
+real(kind=wp), intent(out) :: DAO(iBas*jBas,iCmp,jCmp), Scrt(iBas*jBas)
+real(kind=wp), intent(in) :: DSO(iBas*jBas,nDSO), FactNd
+integer(kind=iwp) :: i1, i2, j1, j12, j2, jMx, lSO
+real(kind=wp) :: Deg, Xa, Xb
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' lOper=',lOper

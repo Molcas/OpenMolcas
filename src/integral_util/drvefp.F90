@@ -9,30 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _EFP_
+
 !#define _DEBUGPRINT_
 subroutine DrvEFP(First)
 
-#ifdef _EFP_
-use EFP_Module, only: EFP_Instance, nEFP_FRAGMENTS, Coor_Type, FRAG_Type, EFP_Coors
+use, intrinsic :: iso_c_binding, only: c_char, c_funloc, c_int, c_loc, c_ptr, c_size_t
+use EFP_Module, only: Coor_Type, EFP_Coors, EFP_Instance, FRAG_Type, nEFP_FRAGMENTS
 use EFP, only: EFP_Add_Fragment, EFP_Add_Potential, EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare, &
                EFP_Set_Electron_Density_Field_FN, EFP_Set_Frag_Coordinates
-use, intrinsic :: iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc, c_funloc
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-logical First
-external Molcas_ELECTRON_DENSITY_FIELD_FN
-character(len=180) :: CurrDir, MolDir
-type(c_ptr) :: cptr1
+logical(kind=iwp), intent(in) :: First
+integer(kind=iwp) :: i, iFrag, iLast, j
 integer(c_int) :: irc
-character(kind=c_char) :: Name*180, PATH*180
-integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
 integer(c_size_t) :: frag_idx
 integer(c_size_t), target :: n_atoms
-integer :: iFrag, i, j, iLast
+character(len=180) :: CurrDir, MolDir
+character(kind=c_char,len=180) :: FragName, PATH
+type(c_ptr) :: cptr1
+integer(c_int), external :: Molcas_ELECTRON_DENSITY_FIELD_FN
 #ifdef _DEBUGPRINT_
-type(efp_energy), target :: Energy
 integer(c_int) :: do_gradient
+type(efp_energy), target :: Energy
 #endif
 
 ! Initate the EFP object,
@@ -68,7 +69,7 @@ if (First) then
       ! .efg file found in the library directory
 
       iLast = index(FRAG_TYPE(i),'_l')
-      Name = FRAG_TYPE(i)(1:iLast-1)
+      FragName = FRAG_TYPE(i)(1:iLast-1)
       call GetEnvf('MOLCAS',MolDir)
       iLast = index(MolDir,' ')
       if (MolDir(iLast-1:iLast-1) /= '/') then
@@ -81,14 +82,14 @@ if (First) then
       ! .efg file found in the $CurrDir directory
 
       iLast = index(FRAG_TYPE(i),' ')
-      Name = FRAG_TYPE(i)(1:iLast-1)
+      FragName = FRAG_TYPE(i)(1:iLast-1)
       call GetEnvf('CurrDir',CurrDir)
       iLast = index(CurrDir,' ')
       Path = CurrDir(1:iLast-1)//'/'
     end if
 
     iLast = index(Path,' ')
-    Path = Path(1:iLast-1)//Name
+    Path = Path(1:iLast-1)//FragName
     iLast = index(Path,' ')
     Path = Path(1:iLast-1)//'.efp'//char(0)
 
@@ -104,12 +105,12 @@ if (First) then
     ! current type
 
     iLast = index(FRAG_TYPE(i),' ')
-    Name = FRAG_TYPE(i)(1:iLast-1)
-    iLast = index(NAME,' ')
-    NAME = NAME(1:iLast-1)//char(0)
+    FragName = FRAG_TYPE(i)(1:iLast-1)
+    iLast = index(FragNAME,' ')
+    FragName = FragName(1:iLast-1)//char(0)
     do j=1,i
       if (FRAG_TYPE(j) /= FRAG_TYPE(i)) cycle
-      irc = efp_add_fragment(EFP_Instance,Name)
+      irc = efp_add_fragment(EFP_Instance,FragName)
       if (irc /= 0) then
         write(u6,*) 'EFP_ADD_FRAGMET error.'
         write(u6,*) 'Return code:',irc
@@ -165,12 +166,15 @@ do frag_idx=1,nEFP_fragments
   !irc = EFP_GET_FRAG_ATOMS(EFP_Instance,...
 
 end do
-#else
-! Dummy routine
-logical First
-if (First .or. (.not. First)) return
-#endif
 
 return
 
 end subroutine DrvEFP
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(DrvEFP)
+
+#endif

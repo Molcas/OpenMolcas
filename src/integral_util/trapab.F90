@@ -19,20 +19,22 @@ subroutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,Fac3,Fac4,Fac5,A,B,P
 !***********************************************************************
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nZeta, la, lb, jSum
-real*8 AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), GInt(nZeta,jSum), rKappa(nZeta), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta), &
-       Fac4(nZeta), Fac5(nZeta), A(3), B(3), P(nZeta,3)
-integer ix, iy, iz, iad, iOff
-integer kOff, i, jx, jy, jz, lOff, ia, iTrgt, ixa, iya, iza, ipa, ixb, iyb, izb, ipb, iyaMax, iybMax, ixas, iyas, izas, igx, igy, &
-        igz, ipg, iax, iay, iaz, ibx, iby, ibz, iZeta, ixbs, iybs, izbs
-real*8 Ax, Ay, Az, Bx, By, Bz
+integer(kind=iwp), intent(in) :: nZeta, la, lb, jSum
+real(kind=wp), intent(out) :: AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta), Fac4(nZeta), &
+                              Fac5(nZeta)
+real(kind=wp), intent(inout) :: GInt(nZeta,jSum)
+real(kind=wp), intent(in) :: rKappa(nZeta), A(3), B(3), P(nZeta,3)
+integer(kind=iwp) :: i, ia, iax, iay, iaz, ibx, iby, ibz, igx, igy, igz, ipa, ipb, ipg, iTrgt, ixa, ixas, ixb, ixbs, iya, iyaMax, &
+                     iyas, iyb, iybMax, iybs, iza, izas, izb, izbs, iZeta, jx, jy, jz, kOff, lOff
+real(kind=wp) :: Ax, Ay, Az, Bx, By, Bz
 #ifdef _DEBUGPRINT_
-integer nElem
+integer(kind=iwp) :: nElem
 #endif
 ! Statement functions
+integer(kind=iwp) :: ix, iy, iz, iad, iOff
 iad(ix,iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
 #ifdef _DEBUGPRINT_

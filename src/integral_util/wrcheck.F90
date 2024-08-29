@@ -12,13 +12,13 @@
 subroutine WrCheck(Label,Arr,n)
 
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer n
-real*8 Arr(n)
-character(len=*) Label
-real*8, external :: DDot_
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: Arr(n)
+real(kind=wp), external :: DDot_
 
 write(u6,*) Label,DDot_(n,Arr,1,Arr,1),DDot_(n,Arr,1,[One],0),n
 

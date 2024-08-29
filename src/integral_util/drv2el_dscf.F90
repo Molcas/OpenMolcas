@@ -43,31 +43,29 @@ subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 !***********************************************************************
 
 use IOBUF, only: lBuf
-use Gateway_Info, only: ThrInt, CutInt
+use Gateway_Info, only: CutInt, ThrInt
 use RICD_Info, only: Do_DCCD
 use iSD_data, only: iSD
-use Integral_Interfaces, only: DeDe_SCF, No_routine, Int_PostProcess
-use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: Exfac, Thize, W2Disc
-use Int_Options, only: Disc_Mx, Disc, Count => Quad_ijkl
-use Constants, only: Zero, One, Two, Three, Four, Eight, Half
+use Integral_Interfaces, only: DeDe_SCF, Int_PostProcess, int_wrout
+use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, Exfac, FckNoClmb, FckNoExch, Quad_ijkl, Thize, W2Disc
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Constants, only: Zero, One, Two, Three, Four, Eight, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDens, nDisc
-real*8, target :: Dens(nDens), TwoHam(nDens)
-logical FstItr
-external Rsv_GTList
-integer, parameter :: nTInt = 1
-real*8 TInt(nTInt)
-logical Semi_Direct, Rsv_GTList, Indexation, DoGrad, Triangular
-character(len=72) SLine
-real*8, allocatable :: TMax(:,:), DMax(:,:)
-integer, allocatable :: ip_ij(:,:)
-integer iS, jS, ijS, klS, nSkal, iOpt, nIJ, kS, lS, mDens
-real*8 ThrAO, TskHi, TskLw, P_Eff, PP_Eff, PP_Eff_Delta, PP_Count, TMax_All, S_Eff, T_Eff, ST_Eff, AInt, Dtst, TCPU1, TCPU2, &
-       TWALL1, TWALL2
+integer(kind=iwp), intent(in) :: nDens, nDisc
+real(kind=wp), target, intent(inout) :: Dens(nDens), TwoHam(nDens)
+logical(kind=iwp), intent(inout) :: FstItr
+integer(kind=iwp), parameter :: nTInt = 1
+integer(kind=iwp) :: ijS, iOpt, iS, jS, klS, kS, lS, mDens, nIJ, nSkal
+real(kind=wp) :: A_Int, Dtst, P_Eff, PP_Count, PP_Eff, PP_Eff_Delta, S_Eff, ST_Eff, T_Eff, TCPU1, TCPU2, ThrAO, TInt(nTInt), &
+                 TMax_All, TskHi, TskLw, TWALL1, TWALL2
+logical(kind=iwp) :: DoGrad, Indexation, Semi_Direct, Triangular
+character(len=72) :: SLine
+integer(kind=iwp), allocatable :: ip_ij(:,:)
+real(kind=wp), allocatable :: DMax(:,:), TMax(:,:)
+procedure(int_wrout) :: No_Routine
+logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************
@@ -99,7 +97,7 @@ Disc = Zero        ! Default value
 ! Set up for partial SO/AO integral storage.
 
 ! nDisc = file size in kbyte from input
-Semi_Direct = nDisc /= 0
+Semi_Direct = (nDisc /= 0)
 if (Semi_Direct) call Init_SemiDSCF(FstItr,Thize,Cutint)
 !                                                                      *
 !***********************************************************************
@@ -205,9 +203,9 @@ jS = ip_ij(2,ijS)
 klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 kS = ip_ij(1,klS)
 lS = ip_ij(2,klS)
-Count = TskLw
+Quad_ijkl = TskLw
 
-if (Count-TskHi > 1.0e-10_wp) Go To 12 ! Cut off check
+if (Quad_ijkl-TskHi > 1.0e-10_wp) Go To 12 ! Cut off check
 13 continue
 
 ! What are these variables
@@ -223,7 +221,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Aint = TMax(iS,jS)*TMax(kS,lS)
+A_int = TMax(iS,jS)*TMax(kS,lS)
 if (Semi_Direct) then
 
   ! No density screening in semi-direct case!
@@ -234,7 +232,7 @@ if (Semi_Direct) then
   !         threshold
   !         for the current iteration
 
-  if (AInt < CutInt) Go To 14
+  if (A_Int < CutInt) Go To 14
 else
 
   if (FckNoClmb) then
@@ -245,7 +243,7 @@ else
     Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
   end if
 
-  if (Aint*Dtst < ThrInt) goto 14
+  if (A_int*Dtst < ThrInt) goto 14
 
 end if
 if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Go To 14
@@ -255,8 +253,8 @@ if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Go To 14
 call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
 14 continue
-Count = Count+One
-if (Count-TskHi > 1.0e-10_wp) Go To 12
+Quad_ijkl = Quad_ijkl+One
+if (Quad_ijkl-TskHi > 1.0e-10_wp) Go To 12
 klS = klS+1
 if (klS > ijS) then
   ijS = ijS+1

@@ -45,26 +45,26 @@ subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_Eff,nPolComp,nAnisopol,nX
 !              March 2000                                              *
 !***********************************************************************
 
+use rctfld_module, only: cLim, DampIter, DipCutOff, EPS, EPSInF, FMax, lAmberPol, lDamping, lMax, lRFCav, rDS, Scal14, TK
+use Langevin_arrays, only: Cavxyz, Ravxyz
 use Constants, only: Zero, One, Three, Four, Six
-use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14, lAmberPol, DipCutOff, lRFCav, FMax, cLim, EPS, EPSInF, rDS
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use rctfld_module, only: ScalA, ScalB, ScalC, AFac
+use rctfld_module, only: AFac, ScalA, ScalB, ScalC
 use Constants, only: Half
 use Definitions, only: u6
 #endif
-use Langevin_arrays, only: Ravxyz, Cavxyz
-use Definitions, only: wp
 
 implicit none
-integer nGrid_Eff, nPolComp, nAnisoPol, nXF, iXPolType, nXMolNr
-real*8 Grid(3,nGrid_Eff), EF(4,nGrid_Eff), DipMom(3,nGrid_Eff), dEF(4,nGrid_Eff), PolEff(nPolComp,nGrid_Eff), DipEff(nGrid_Eff)
-integer XMolnr(nXMolnr,nXF)
-logical NonEq, lExcl
-real*8 ghx, ghy, ghz, dx, dy, dz, Dip_Eff, ffTots, FTots, x, ex, emx, aLang, QQO, fx, fy, fz, ftot, uInd, Tr1, Scal, ghx1, ghy1, &
-       ghz1, rx, ry, rz, r2, r2I, ska, DistI, Dist3, Temp, TR2, S, V, D1, D2, Fax, Fay, Faz, FTest, v_Dummy
-integer Iter, iGrid, jGrid, i
+integer(kind=iwp), intent(in) :: nGrid_Eff, nPolComp, nAnisoPol, nXF, iXPolType, nXMolNr, XMolnr(nXMolnr,nXF)
+real(kind=wp), intent(inout) :: EF(4,nGrid_Eff), DipMom(3,nGrid_Eff), dEF(4,nGrid_Eff)
+real(kind=wp), intent(in) :: PolEff(nPolComp,nGrid_Eff), DipEff(nGrid_Eff), Grid(3,nGrid_Eff)
+integer(kind=iwp) :: i, iGrid, Iter, jGrid
+real(kind=wp) :: aLang, D1, D2, Dip_Eff, Dist3, DistI, dx, dy, dz, emx, ex, Fax, Fay, Faz, ffTots, FTest, ftot, FTots, fx, fy, fz, &
+                 ghx, ghx1, ghy, ghy1, ghz, ghz1, QQO, r2, r2I, rx, ry, rz, S, Scal, ska, Temp, Tr1, TR2, uInd, V, v_Dummy, x
+logical(kind=iwp) :: lExcl, NonEq
 #ifdef _DEBUGPRINT_
-real*8 TestA, DipAbs, Del, DDotR, RadAbs
+real(kind=wp) :: DDotR, Del, DipAbs, RadAbs, TestA
 #endif
 
 #ifdef _DEBUGPRINT_

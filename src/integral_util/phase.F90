@@ -26,16 +26,16 @@ use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer iCmp, jCmp, kCmp, lCmp, kOp, ijkl
-real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
-integer iAng(4), iShll(4)
-integer ixyz, iOff, ii, jj, kk, ll, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs
-real*8 pa1T, pb1T, pa2T, pb2T, Factor
-integer, external :: iPrmt
+integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iAng(4), iShll(4), kOp, ijkl
+real(kind=wp), intent(inout) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
+integer(kind=iwp) :: i1, i2, i3, i4, iChBs, ii, jChBs, jj, kChBs, kk, lChBs, ll
+real(kind=wp) :: Factor, pa1T, pa2T, pb1T, pb2T
+integer(kind=iwp), external :: iPrmt
 ! Statement Function
+integer(kind=iwp) :: ixyz, iOff
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !call RecPrt(' In Phase: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)

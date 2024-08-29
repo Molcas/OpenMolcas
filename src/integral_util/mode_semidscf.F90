@@ -15,11 +15,11 @@
 
 subroutine Mode_SemiDSCF(Wr_Mode)
 
-use IOBUF, only: iStatIO, Mode_Read, Disk, Disk_2, Mode_Write
-use Definitions, only: u6
+use IOBUF, only: Disk, Disk_2, iStatIO, Mode_Read, Mode_Write
+use Definitions, only: iwp, u6
 
 implicit none
-logical Wr_Mode
+logical(kind=iwp), intent(in) :: Wr_Mode
 
 !write(u6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
 if (Wr_Mode) then

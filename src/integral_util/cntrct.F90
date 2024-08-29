@@ -25,20 +25,21 @@ subroutine Cntrct(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,ma
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
 #if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
 
 implicit none
+logical(kind=iwp), intent(inout) :: First
+integer(kind=iwp), intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, mabMin, mabMax, mcdMin, mcdMax, nScrtch, lZeta, lEta, nComp, &
+                                 IndZet(lZeta), IndEta(lEta)
+real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), &
+                             ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
+real(kind=wp), intent(inout) :: ACOut(nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),m1*m2*m3*m4)
+real(kind=wp), intent(out) :: Scrtch(nScrtch)
 #include "Molcas.fh"
-integer, intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, mabMax, mabMin, mcdMax, mcdMin, nScrtch, lZeta, lEta, nComp
-real*8, intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4)
-real*8, intent(inout) :: ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
-real*8, intent(out) :: Scrtch(nScrtch)
-real*8, intent(inout) :: ACOut(nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),m1*m2*m3*m4)
-logical, intent(inout) :: First
-integer, intent(in) :: IndZet(lZeta), IndEta(lEta)
-integer :: mabcd, ncache_, lSize, nVec, IncVec, ipA3, ipA2
+integer(kind=iwp) :: IncVec, ipA2, ipA3, lSize, mabcd, ncache_, nVec
 
 mabcd = nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 #ifdef _DEBUGPRINT_

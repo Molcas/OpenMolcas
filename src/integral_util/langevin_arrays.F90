@@ -11,6 +11,13 @@
 
 module Langevin_arrays
 
-real*8, allocatable :: Field(:,:), dField(:,:), Dip(:,:), PolEf(:,:), DipEf(:), Grid(:,:), davxyz(:), cavxyz(:), ravxyz(:)
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: cavxyz(:), davxyz(:), dField(:,:), Dip(:,:), DipEf(:), Field(:,:), Grid(:,:), PolEf(:,:), ravxyz(:)
+
+public :: cavxyz, davxyz, dField, Dip, DipEf, Field, Grid, PolEf, ravxyz
 
 end module Langevin_arrays

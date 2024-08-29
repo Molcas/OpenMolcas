@@ -11,23 +11,22 @@
 
 subroutine Init_RctFld(NonEq,iCharge)
 
-use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, DField, Dip, DipEF, Field, Grid, PolEF
-use external_centers, only: nXF, iXPolType
+use Langevin_arrays, only: Cavxyz, Davxyz, DField, Dip, DipEF, Field, Grid, PolEF, Ravxyz
+use external_centers, only: iXPolType, nXF
+use rctfld_module, only: lAtAto, lLangevin, lMax, MaxA, MaxB, MaxC, MM, nCavxyz, nGrid, NonEQ_Ref, PCM, RadLat, Scala, Scalb, &
+                         Scalc, TK
 use stdalloc, only: mma_allocate
-use rctfld_module, only: TK, lMax, nMM, nGrid, lLangevin, MaxA, RadLat, Scala, MaxB, Scalb, MaxC, Scalc, nABC, lAtAto, PCM, &
-                         NonEQ_Ref, nCavxyz, MM
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-logical NonEq
-integer iCharge
-integer MMM, nPolComp
+logical(kind=iwp), intent(in) :: NonEq
+integer(kind=iwp), intent(inout) :: iCharge
+integer(kind=iwp) :: MMM, nABC, nPolComp
 
 tK = 1.0e-99_wp ! Boltzman factor, initial set to 0 K
 if (allocated(MM)) return
 mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
-nMM = 2*mMM
 call mma_allocate(MM,mMM,2,Label='MM')
 MM(:,:) = Zero
 if (iXPolType > 0) nGrid = nXF

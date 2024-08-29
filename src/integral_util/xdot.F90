@@ -14,13 +14,14 @@
 function XDot(A,n,m,k,l)
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 XDot
-integer n, m, k, l
-real*8 A(n*m+1,k,l)
-integer ik, il
-real*8, external :: DDot_
+real(kind=wp) :: XDot
+integer(kind=iwp), intent(in) :: n, m, k, l
+real(kind=wp), intent(in) :: A(n*m+1,k,l)
+integer(kind=iwp) :: ik, il
+real(kind=wp), external :: DDot_
 
 XDot = Zero
 do ik=1,k

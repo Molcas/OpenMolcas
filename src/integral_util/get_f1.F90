@@ -11,10 +11,12 @@
 
 subroutine Get_F1(icol,val)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer icol
-real*8 val
-real*8 dum(1)
+integer(kind=iwp), intent(in) :: icol
+real(kind=wp), intent(out) :: val
+real(kind=wp) :: dum(1)
 
 call Get_F(icol,dum,1)
 val = dum(1)

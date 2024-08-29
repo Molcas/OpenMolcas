@@ -21,19 +21,19 @@ subroutine Dstncs(Lbls,xyz,mCentr,Angstr,Max_Center,iCols)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use Constants, only: One, Three
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
+use Constants, only: One, Three
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer mCentr, Max_Center, iCols
-real*8 xyz(3,mCentr), Angstr
-character(len=LENIN) Lbls(mCentr)
-real*8, allocatable :: BST(:)
-integer, allocatable :: iBST(:,:)
-integer i, iCC, jCC, iC, jC, ii, IsFirst, MoreToGo, iiBst
-real*8 Fact, x1, y1, z1, Thr_R, Thr_D, x2, y2, z2, r, rr
+integer(kind=iwp), intent(in) :: mCentr, Max_Center, iCols
+character(len=LenIn), intent(in) :: Lbls(mCentr)
+real(kind=wp), intent(in) :: xyz(3,mCentr), Angstr
+integer(kind=iwp) :: i, iC, iCC, ii, iiBst, IsFirst, jC, jCC, MoreToGo
+real(kind=wp) :: Fact, r, rr, Thr_D, Thr_R, x1, x2, y1, y2, z1, z2
+integer(kind=iwp), allocatable :: iBST(:,:)
+real(kind=wp), allocatable :: BST(:)
 
 if (mCentr <= Max_Center) then
 

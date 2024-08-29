@@ -11,10 +11,13 @@
 
 subroutine EEMax(n,A,B)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 A(n), B(n)
-integer i
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: A(n)
+real(kind=wp), intent(in) :: B(n)
+integer(kind=iwp) :: i
 
 do i=1,n
   if (B(i) > A(i)) A(i) = B(i)

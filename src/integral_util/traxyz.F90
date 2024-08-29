@@ -24,10 +24,14 @@ subroutine Traxyz(nZeta,la,WInt,Scr,A)
 !              October '92.                                            *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nZeta, la
-real*8 WInt(nZeta*3**(la-1),3), Scr(nZeta*3**la), A(nZeta,3,3)
-integer nLen, mLen, kLen, i, iVec, iLen, iOff, jVec, iZeta
+integer(kind=iwp), intent(in) :: nZeta, la
+real(kind=wp), intent(inout) :: WInt(nZeta*3**(la-1),3)
+real(kind=wp), intent(out) :: Scr(nZeta*3**la)
+real(kind=wp), intent(in) :: A(nZeta,3,3)
+integer(kind=iwp) :: i, iLen, iOff, iVec, iZeta, jVec, kLen, mLen, nLen
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' Enter Traxyz: WInt',' ',Wint,nZeta,3**la)

@@ -33,17 +33,18 @@ subroutine SOFSh1(nSkal,nSym,nSOs)
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use iSD_data, only: iSD, nShBf, iShOff, nShBfMx, iCntr, iSh2Sh, nShIrp, iSO2Sh
+use iSD_data, only: iCntr, iSD, iSh2Sh, iShOff, iSO2Sh, nShBf, nShBfMx, nShIrp
 use Basis_Info, only: nBas, nBas_Aux
+use BasisMode, only: Auxiliary_Mode, Basis_Mode
 use stdalloc, only: mma_allocate
-use BasisMode, only: Basis_Mode, Auxiliary_Mode
+use Definitions, only: iwp
 #if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nSkal, nSym, nSOs
-integer nShOff(0:7), iTmp(1), iSkal, iAO, iCmp, iSO, iPtr, i, iRP, nShBfi, iSOB
+integer(kind=iwp), intent(in) :: nSkal, nSym, nSOs
+integer(kind=iwp) :: i, iAO, iCmp, iPtr, iRP, iSkal, iSO, iSOB, iTmp(1), nShBfi, nShOff(0:7)
 
 ! Allocate all memory
 

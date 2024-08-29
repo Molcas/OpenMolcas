@@ -27,18 +27,17 @@ use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO
-real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO)
-integer nOp(2)
-real*8 FactNd
-integer lSO, ii, jj, j1, i1, j2, j12, i2, iChBs, jMx, jChBs
-real*8 Xa, pa, Xb, FactNs, Deg
+integer(kind=iwp), intent(in) :: lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO, nOp(2)
+real(kind=wp), intent(out) :: DAO(iBas*jBas,iCmp,jCmp)
+real(kind=wp), intent(in) :: DSO(iBas*jBas,nDSO), FactNd
+integer(kind=iwp) :: i1, i2, iChBs, ii, j1, j12, j2, jChBs, jj, jMx, lSO
+real(kind=wp) :: Deg, FactNs, pa, Xa, Xb
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' lOper=',lOper

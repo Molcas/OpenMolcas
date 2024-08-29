@@ -16,9 +16,10 @@ use iSD_data, only: iSD, nSD, nSkal_iSD
 use k2_arrays, only: MxDij, MxFT
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer nSkal, iS, iCmp, iBas, iPrim
+integer(kind=iwp) :: iBas, iCmp, iPrim, iS, nSkal
 
 !                                                                      *
 !***********************************************************************

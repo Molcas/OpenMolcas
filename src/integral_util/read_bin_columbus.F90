@@ -9,23 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Read_Bin_Columbus(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
+subroutine Read_Bin_Columbus(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,nQuad,Gmma,nGamma,LuGamma,Bin,lBin)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-#include "SysDef.fh"
-integer iShell_A, iShell_B, iShell_C, iShell_D, nQuad, nGamma, LuGamma, lBin
-real*8 G_Toc(nQuad), Bin(2,lBin), gamma(nGamma)
-integer iShell_AB, iShell_CD, iShell_ABCD
-integer, parameter :: iRead = 2
-integer idisk_save
-integer iDisk, lGamma, iGamma, jGamma
-integer i, j, iTri
+integer(kind=iwp), intent(in) :: iShell_A, iShell_B, iShell_C, iShell_D, nQuad, nGamma, LuGamma, lBin
+real(kind=wp), intent(in) :: G_Toc(nQuad)
+real(kind=wp), intent(out) :: Gmma(nGamma), Bin(2,lBin)
+integer(kind=iwp) :: iDisk, idisk_save, iGamma, iShell_AB, iShell_ABCD, iShell_CD, jGamma, lGamma
+integer(kind=iwp), parameter :: iRead = 2
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-gamma(:) = Zero
+Gmma(:) = Zero
 
 iShell_AB = iTri(iShell_A,iShell_B)
 iShell_CD = iTri(iShell_C,iShell_D)
@@ -52,8 +51,8 @@ do while (iDisk >= 0)
       call WarningMessage(2,'Read_Bin_Columbus: jGamma > nGamma')
       call Abend()
     end if
-    gamma(jGamma) = Bin(1,iGamma)
-    !write(u6,*) Gamma(jGamma),jGamma
+    Gmma(jGamma) = Bin(1,iGamma)
+    !write(u6,*) Gmma(jGamma),jGamma
   end do
 
 end do

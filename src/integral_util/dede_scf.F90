@@ -14,19 +14,21 @@
 
 subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
 
-use k2_arrays, only: nDeDe, MaxDe, MxDij, ipDeDe, ipD00, ipDijS, DeDe, pDq, Dq, Fq, pFq, ipOffD
+use k2_arrays, only: DeDe, Dq, Fq, ipD00, ipDeDe, ipDijS, ipOffD, MaxDe, MxDij, nDeDe, pDq, pFq
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, Half, Two
 use stdalloc, only: mma_allocate
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDens, mDens
-real*8, target :: Dens(nDens), TwoHam(nDens)
-logical Special_NoSym, DFT_Storage
-integer nr_of_Densities, nIndij, nField, nDeDe_Tot, ij, i
-integer mDeDe, mIndij
+integer(kind=iwp), intent(in) :: nDens
+real(kind=wp), target, intent(inout) :: Dens(nDens)
+real(kind=wp), target, intent(in) :: TwoHam(nDens)
+integer(kind=iwp), intent(out) :: mDens
+integer(kind=iwp) :: i, ij, mDeDe, mIndij, nDeDe_Tot, nField, nIndij, nr_of_Densities
+logical(kind=iwp) :: DFT_Storage, Special_NoSym
 
 nr_of_Densities = 1  ! Hardwired option
 

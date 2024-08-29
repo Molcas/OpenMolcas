@@ -16,17 +16,16 @@
 subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
 
 use dEAF, only: dEAFARead, dEAFAWrite, dEAFRead
-use IOBUF, only: IODone, Disk, iBuf, ipos, iStatIO, Mode_Write, OnDisk, Mode_Read, Disk_1, Disk_2, lBuf, nBuf, Buffer, ID, LuTmp
+use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, iBuf, ID, IODone, ipos, iStatIO, lBuf, LuTmp, Mode_Read, Mode_Write, nBuf, OnDisk
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-#include "SysDef.fh"
-logical FstItr
-real*8 Thize, CutInt
-integer lBufOld, nBufOld
-real*8 ThizeOld, CutIntOld
-real*8 control(4)
+logical(kind=iwp), intent(in) :: FstItr
+real(kind=wp), intent(inout) :: Thize
+real(kind=wp), intent(in) :: CutInt
+integer(kind=iwp) :: lBufOld, nBufOld
+real(kind=wp) :: control(4), CutIntOld, ThizeOld
 
 !write(u6,*) 'Enter: Init_SemiDSCF'
 !write(u6,*) 'Ondisk=',Ondisk

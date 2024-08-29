@@ -13,23 +13,22 @@
 
 subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,ikop1,ikop2,Irrep,Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
 
-use Symmetry_Info, only: nIrrep, iChTbl, iOper
+use Symmetry_Info, only: iChTbl, iOper, nIrrep
 use SOAO_Info, only: iAOtSO, nSOInf
 use Basis_Info, only: nBas
 use Constants, only: Two
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Irrep, iAO1, iAO2, iAOst1, iAOst2
-real*8 Fij(0:iBas-1,0:jBas-1,iCmp,jCmp), TwoHam(nDens)
-real*8 Fact
-logical Shij
-integer i, j, iTri
-integer jirr(0:7)
-integer iPnt(0:7)
-integer iChO, iIrrep, ipntij, i1, i2, iSOj, jSOi, iSO, jSO, iAO, jAO, iAOi, iSOi, jAOj, jSOj, ipFij, l1, l2, ipF, NrOpr, iIR, jIrrep
-real*8 Fac, x1, x2, x3, x4, xr
+integer(kind=iwp), intent(in) :: nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Irrep, iAO1, iAO2, iAOst1, iAOst2
+real(kind=wp), intent(inout) :: TwoHam(nDens)
+real(kind=wp), intent(in) :: Fij(0:iBas-1,0:jBas-1,iCmp,jCmp), Fact
+logical(kind=iwp), intent(in) :: Shij
+integer(kind=iwp) :: i1, i2, iAO, iAOi, iChO, iIR, iIrrep, ipF, ipFij, iPnt(0:7), ipntij, iSO, iSOi, iSOj, jAO, jAOj, jirr(0:7), &
+                     jIrrep, jSO, jSOi, jSOj, l1, l2, NrOpr
+real(kind=wp) :: Fac, x1, x2, x3, x4, xr
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iChO = iOper(Irrep)

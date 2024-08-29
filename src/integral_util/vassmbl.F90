@@ -24,15 +24,16 @@ subroutine vAssmbl(Rnxyz,Axyz,la,Rxyz,lr,Bxyz,lb,nZeta,HerW,nHer,Temp)
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer la, lr, lb, nZeta, nHer
-real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer), Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), &
-       Temp(nZeta*3,nHer)
+integer(kind=iwp), intent(in) :: la, lr, lb, nZeta, nHer
+real(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr), Temp(nZeta*3,nHer)
+real(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), HerW(nHer)
+integer(kind=iwp) :: ia, ib, iHer, ir, iZCar
 #ifdef _DEBUGPRINT_
-character(len=80) Label
+character(len=80) :: Label
 #endif
-integer ia, ib, iHer, iZCar, ir
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In vAssmbl:HerW',' ',HerW,1,nHer)

@@ -11,10 +11,12 @@
 
 function DGamma_Molcas(arg)
 
+use Definitions, only: wp
+
 implicit none
-real*8 DGamma_Molcas
-real*8 arg
-real*8, external :: gammln
+real(kind=wp) :: DGamma_Molcas
+real(kind=wp), intent(in) :: arg
+real(kind=wp), external :: gammln
 
 DGamma_Molcas = exp(gammln(arg))
 

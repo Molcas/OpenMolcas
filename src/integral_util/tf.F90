@@ -15,11 +15,12 @@
 function TF(mdc,iIrrep,iComp)
 
 use Center_Info, only: dc
+use Definitions, only: iwp
 
 implicit none
-logical TF
-integer mdc, iIrrep, iComp
-logical, external :: TstFnc
+logical(kind=iwp) :: TF
+integer(kind=iwp), intent(in) :: mdc, iIrrep, iComp
+logical(kind=iwp), external :: TstFnc
 
 TF = TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)
 

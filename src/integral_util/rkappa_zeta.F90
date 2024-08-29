@@ -25,13 +25,14 @@ subroutine rKappa_Zeta(rKappa,Zeta,nZeta)
 !             September '00.                                           *
 !***********************************************************************
 
-use Constants, only: Two, Three
+use Constants, only: OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
-integer nZeta
-real*8 Zeta(nZeta), rKappa(nZeta)
-real*8, parameter :: exp32 = -Three/Two
+integer(kind=iwp), intent(in) :: nZeta
+real(kind=wp), intent(inout) :: rKappa(nZeta)
+real(kind=wp), intent(in) :: Zeta(nZeta)
 
-rKappa(:) = rKappa(:)*Zeta(:)**exp32
+rKappa(:) = rKappa(:)*Zeta(:)**(-OneHalf)
 
 end subroutine rKappa_Zeta

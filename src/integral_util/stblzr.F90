@@ -23,12 +23,14 @@ subroutine Stblzr(iU,nU,iV,nV,iR,iM,nM)
 !             June '90                                                 *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer nU, nV, iR, nM
-integer iU(nU), iV(nV), iM(8)
-logical UeqV
-integer i, iRU
-logical, external :: RinT
+integer(kind=iwp), intent(in) :: nU, iU(nU), nV, iV(nV), iR
+integer(kind=iwp), intent(out) :: iM(8), nM
+integer(kind=iwp) :: i, iRU
+logical(kind=iwp) :: UeqV
+logical(kind=iwp), external :: RinT
 
 ! See if U and V are the same
 

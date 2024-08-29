@@ -27,13 +27,14 @@ subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,lZeta,nVec,IncVec,A1,A
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nCntr1, nPrm1, nCntr2, nPrm2, lZeta, nVec, IncVec
-real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(nVec,nCntr1,nCntr2), A2(nPrm2,IncVec,nCntr1), A3(lZeta,nVec)
-integer Indij(lZeta)
-logical Seg1, Seg2
-integer iPrm1, iCntr1, iPrm2, iCntr2, iiVec, mVec, iVec, iZeta
+integer(kind=iwp), intent(in) :: nCntr1, nPrm1, nCntr2, nPrm2, lZeta, nVec, IncVec, Indij(lZeta)
+real(kind=wp), intent(in) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(nVec,nCntr1,nCntr2)
+real(kind=wp), intent(out) :: A2(nPrm2,IncVec,nCntr1), A3(lZeta,nVec)
+integer(kind=iwp) :: iCntr1, iCntr2, iiVec, iPrm1, iPrm2, iVec, iZeta, mVec
+logical(kind=iwp) :: Seg1, Seg2
 
 ! Check if the basis set is segmented
 

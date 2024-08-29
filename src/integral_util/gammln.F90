@@ -44,18 +44,18 @@ function gammln(x)
 !=======================================================================
 
 use Constants, only: One, Two, Half, Pi
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 gammln
-real*8 x
-integer j
-real*8 ser, tmp, y
-integer, parameter :: g = 5, n = 7
-real*8, parameter :: stp = sqrt(Two*Pi)
-real*8, parameter :: cof(0:n-1) = [1.000000000190014824_wp,76.180091729471463483_wp,-86.505320329416767652_wp, &
-                                   24.01409824083091049_wp,-1.2317395724501553875_wp,1.2086509738661785061e-3_wp, &
-                                   -5.3952393849531283785e-6_wp]
+real(kind=wp) :: gammln
+real(kind=wp), intent(in) :: x
+integer(kind=iwp) :: j
+real(kind=wp) :: ser, tmp, y
+integer(kind=iwp), parameter :: g = 5, n = 7
+real(kind=wp), parameter :: cof(0:n-1) = [1.000000000190014824_wp,76.180091729471463483_wp,-86.505320329416767652_wp, &
+                                          24.01409824083091049_wp,-1.2317395724501553875_wp,1.2086509738661785061e-3_wp, &
+                                          -5.3952393849531283785e-6_wp], &
+                            stp = sqrt(Two*Pi)
 
 y = x
 tmp = x+real(g,kind=wp)+Half

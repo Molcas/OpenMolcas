@@ -11,9 +11,12 @@
 
 subroutine Get_I1(icol,ival)
 
+use Definitions, only: iwp
+
 implicit none
-integer iCol, ival
-integer idum(1)
+integer(kind=iwp), intent(in) :: iCol
+integer(kind=iwp), intent(out) :: ival
+integer(kind=iwp) :: idum(1)
 
 call Get_I(icol,idum,1)
 ival = idum(1)

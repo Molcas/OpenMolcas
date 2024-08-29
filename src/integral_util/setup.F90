@@ -11,11 +11,13 @@
 
 module Setup
 
-integer :: ipMem_Int
-integer :: MemMax_Int
-integer :: mSkal
-integer :: MxPrm
-integer :: nAux
-integer :: nSOs
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: mSkal, MxPrm, nAux, nSOs
+
+public :: mSkal, MxPrm, nAux, nSOs
 
 end module Setup

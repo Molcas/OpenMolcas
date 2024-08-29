@@ -40,22 +40,20 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(In) :: ijkl, iCmp, jCmp, kCmp, lCmp, nSOInt, nAux
-real*8, intent(In) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
-real*8, intent(InOut) :: SOInt(ijkl,nSOInt), Aux(nAux)
-logical, intent(In) :: Shijij
-integer, intent(In) :: iAng(4), iShell(4), iShll(4), kOp(4), iAO(4)
-logical, intent(Out) :: Done
-logical Shij, Shkl, Qij, Qkl, Qijij
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-integer k12, k34, ii, jj, kk, ll, i1, j, ix, jCmpMx, i2, jChBs, iChBs, MemSO2, i12, i3, lCmpMx, kChBs, i4, iAux, j1, j2Max, j2, &
-        j12, j3, j4, lChBs, i34
-real*8 pEa, pRb, pTc, pTSd, Xb, Xg, Xa
+integer(kind=iwp), intent(in) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), iAO(4), kOp(4), ijkl, nAux, nSOInt
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
+real(kind=wp), intent(inout) :: SOInt(ijkl,nSOInt), Aux(nAux)
+logical(kind=iwp), intent(out) :: Done
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iAux, iChBs, ii, iSym(0:7), ix, j, j1, j12, j2, j2Max, j3, j4, jChBs, jCmpMx, jj, &
+                     jSym(0:7), k12, k34, kChBs, kk, kSym(0:7), lChBs, lCmpMx, ll, lSym(0:7), MemSO2
+real(kind=wp) :: pEa, pRb, pTc, pTSd, Xa, Xb, Xg
+logical(kind=iwp) :: Qij, Qijij, Qkl, Shij, Shkl
 ! Statement Function
-integer ixyz, iOff
+integer(kind=iwp) :: ixyz, iOff
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 Done = .false.

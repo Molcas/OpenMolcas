@@ -10,16 +10,12 @@
 !***********************************************************************
 
 module RMat
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! The following section should be activated if a NAG library is
-! present. At that point I suggest that it gets its own include
-! file. -RL-
-!
-!parameter(INTparm=200)
-!real*8 wrk1(4*INTparm)
-!integer Iwrk1(INTparm)
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -31,34 +27,40 @@ module RMat
 ! dipol1   : abs sum of dipol(i)
 ! epsq     : minimal value of qCoul and/or dipol1 to be considered
 ! bParm    : Bloch term parameter
-
-real*8 RmatR, Epsabs, Epsrel, qCoul, Epsq, bParm, dipol(3), Dipol1
-
+!
 ! keyr: option to the dqag quadpack routine
-
-integer keyr
-
+!
 ! Quadpack: logical flag to indicate use of QUADPACK routines
 ! NagInt  : logical flag to indicate use of NAG routines
 ! testint : logical flag to indicate use of both QUADPACK and NAG routines
 ! RMat_On : Logical flag to signal that R-matrix type integrals are to be computed.
-
-logical Quadpack, nagint, testint, RMat_On
-logical RMat_Type_Integrals
-
+!
 ! K.P.
 ! Dieses File enthaelt Feld fuer die theta/phi  Integration der
 ! Ein-Elektronen-Integrale fuer die R-Matrix.
-
-integer lgamma, n_gam, m_gam
-integer, parameter :: lgammax = 15
-real*8 gammath(-2:2*lgammax+3,-2:2*lgammax+4), gammaph(-2:2*lgammax+3,-2:2*lgammax+4)
-
-! K.P.
+! lgamma, n_gam, m_gam, lgammax, gammath, gammaph
+!
 ! Dieses File enthaelt Inputdaten fuer die Modifikation der
 ! Ein-Elektronen-Integrale fuer die R-Matrix.
+! expsum, l, lcost, lsint, lcosf, lsinf
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! The following section should be activated if a NAG library is
+! present. At that point I suggest that it gets its own include
+! file. -RL-
+!
+!integer(kind=iwp), parameter :: INTparm = 200
+!integer(kind=iwp) :: Iwrk1(INTparm)
+!real(kind=wp) :: wrk1(4*INTparm)
 
-real*8 expsum
-integer l, lcost, lsint, lcosf, lsinf
+integer(kind=iwp), parameter :: lgammax = 15
+integer(kind=iwp) :: keyr, l, lcosf, lcost, lgamma, lsinf, lsint, m_gam, n_gam
+real(kind=wp) :: bParm, dipol(3), Dipol1, Epsabs, Epsq, Epsrel, expsum, gammaph(-2:2*lgammax+3,-2:2*lgammax+4), &
+                 gammath(-2:2*lgammax+3,-2:2*lgammax+4), qCoul, RmatR
+logical(kind=iwp) :: nagint, Quadpack, RMat_On, RMat_Type_Integrals, testint
+
+public :: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, expsum, gammaph, gammath, keyr, l, lcosf, lcost, lgamma, lsinf, lsint, &
+          m_gam, n_gam, nagint, qCoul, Quadpack, RMat_On, RMat_Type_Integrals, RmatR, testint
 
 end module RMat

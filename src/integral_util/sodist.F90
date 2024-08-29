@@ -15,19 +15,16 @@ subroutine SODist(SOValue,mAO,nCoor,mBas,nCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,Do
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer mAO, nCoor, mBas, nCmp, nDeg, nCMO, nMOs
-real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg), MOValue(mAO*nCoor,nMOs), CMOs(nCMO)
-integer DoIt(nMOs)
-integer iOff_MO(0:7), iOff_CMO(0:7)
-integer iIrrep, itmp1, itmp2, i1, iDeg, iSO, iOff, iMO, iCMO, iAO
-#ifdef _DEBUGPRINT_
-character(len=80) Label
-#endif
+integer(kind=iwp), intent(in) :: mAO, nCoor, mBas, nCmp, nDeg, nMOs, iAO, nCMO, DoIt(nMOs)
+real(kind=wp), intent(in) :: SOValue(mAO*nCoor,mBas,nCmp*nDeg), CMOs(nCMO)
+real(kind=wp), intent(inout) :: MOValue(mAO*nCoor,nMOs)
+integer(kind=iwp) :: i1, iCMO, iDeg, iIrrep, iMO, iOff, iOff_CMO(0:7), iOff_MO(0:7), iSO, itmp1, itmp2
 
 #ifdef _DEBUGPRINT_
 write(6,*) 'SODist: MO-Coefficients'
@@ -64,13 +61,13 @@ do i1=1,nCmp
 
     iMO = iOff_MO(iIrrep)
     iCMO = iOff_CMO(iIrrep)+iSO
-    call MyDGeMM(DoIt(iMO),mAO*nCoor,nBas(iIrrep),mBas,SOValue(1,1,iOff),mAO*nCoor,CMOs(iCMO),nBas(iIrrep),MOValue(1,iMO),mAO*nCoor)
+    call MyDGeMM(DoIt(iMO),mAO*nCoor,nBas(iIrrep),mBas,SOValue(:,:,iOff),mAO*nCoor,CMOs(iCMO),nBas(iIrrep),MOValue(:,iMO:), &
+                 mAO*nCoor)
   end do
 end do
 
 #ifdef _DEBUGPRINT_
-write(Label,'(A)') 'SODist: MOValue(mAO*nCoor,nMOs)'
-call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
+call RecPrt('SODist: MOValue(mAO*nCoor,nMOs)',' ',MOValue(1,1),mAO*nCoor,nMOs)
 #endif
 
 end subroutine SODist

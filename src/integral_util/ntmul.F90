@@ -13,14 +13,17 @@
 !***********************************************************************
 
 #ifdef _OLD_CODE_
+
 subroutine NTMul(A,B,C,nRowA,nColA,nRowB)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nRowA, nColA, nRowB
-real*8 A(nRowA,nColA), B(nRowB,nColA), C(nRowA,nRowB)
-integer nCache, mCache, Indj, jj, njVec, i, j, k
+integer(kind=iwp), intent(in) :: nRowA, nColA, nRowB
+real(kind=wp), intent(in) :: A(nRowA,nColA), B(nRowB,nColA)
+real(kind=wp), intent(out) :: C(nRowA,nRowB)
+integer(kind=iwp) :: i, Indj, j, jj, k, mCache, nCache, njVec
 
 nCache = (64/8)*1024
 mCache = (nCache*3)/4-nRowA*nColA
@@ -52,18 +55,19 @@ return
 end subroutine NTMul
 
 #else
+
 subroutine ntmul(a,b,r,ncol,nlink,nrow)
 
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nCol, nRow, nLink
-real*8 r(ncol,*), a(ncol,*), b(nrow,*)
-integer, parameter :: mxind = 2000
-integer ind(mxind)
-integer i, nnot, k, j, nr1
-real*8 S1, S2, S3, S4, S5, S6, S7, S8, T1, T2, T3, T4, T5, T6, T7, T8
+integer(kind=iwp), intent(in) :: nCol, nLink, nRow
+real(kind=wp), intent(in) :: a(ncol,*), b(nrow,*)
+real(kind=wp), intent(out) :: r(ncol,nrow)
+integer(kind=iwp), parameter :: mxind = 2000
+integer(kind=iwp) :: i, ind(mxind), j, k, nnot, nr1
+real(kind=wp) :: S(16)
 
 do i=1,ncol
 
@@ -76,56 +80,26 @@ do i=1,ncol
   end do
 
   do j=1,nrow-15,16
-    s1 = Zero
-    s2 = Zero
-    s3 = Zero
-    s4 = Zero
-    s5 = Zero
-    s6 = Zero
-    s7 = Zero
-    s8 = Zero
-    t1 = Zero
-    t2 = Zero
-    t3 = Zero
-    t4 = Zero
-    t5 = Zero
-    t6 = Zero
-    t7 = Zero
-    t8 = Zero
+    s(:) = Zero
     do k=1,nnot
-      s1 = s1+a(i,ind(k))*b(j,ind(k))
-      s2 = s2+a(i,ind(k))*b(j+1,ind(k))
-      s3 = s3+a(i,ind(k))*b(j+2,ind(k))
-      s4 = s4+a(i,ind(k))*b(j+3,ind(k))
-      s5 = s5+a(i,ind(k))*b(j+4,ind(k))
-      s6 = s6+a(i,ind(k))*b(j+5,ind(k))
-      s7 = s7+a(i,ind(k))*b(j+6,ind(k))
-      s8 = s8+a(i,ind(k))*b(j+7,ind(k))
-      t1 = t1+a(i,ind(k))*b(j+8,ind(k))
-      t2 = t2+a(i,ind(k))*b(j+9,ind(k))
-      t3 = t3+a(i,ind(k))*b(j+10,ind(k))
-      t4 = t4+a(i,ind(k))*b(j+11,ind(k))
-      t5 = t5+a(i,ind(k))*b(j+12,ind(k))
-      t6 = t6+a(i,ind(k))*b(j+13,ind(k))
-      t7 = t7+a(i,ind(k))*b(j+14,ind(k))
-      t8 = t8+a(i,ind(k))*b(j+15,ind(k))
+      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
+      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
+      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
+      s(4) = s(4)+a(i,ind(k))*b(j+3,ind(k))
+      s(5) = s(5)+a(i,ind(k))*b(j+4,ind(k))
+      s(6) = s(6)+a(i,ind(k))*b(j+5,ind(k))
+      s(7) = s(7)+a(i,ind(k))*b(j+6,ind(k))
+      s(8) = s(8)+a(i,ind(k))*b(j+7,ind(k))
+      s(9) = s(9)+a(i,ind(k))*b(j+8,ind(k))
+      s(10) = s(10)+a(i,ind(k))*b(j+9,ind(k))
+      s(11) = s(11)+a(i,ind(k))*b(j+10,ind(k))
+      s(12) = s(12)+a(i,ind(k))*b(j+11,ind(k))
+      s(13) = s(13)+a(i,ind(k))*b(j+12,ind(k))
+      s(14) = s(14)+a(i,ind(k))*b(j+13,ind(k))
+      s(15) = s(15)+a(i,ind(k))*b(j+14,ind(k))
+      s(16) = s(16)+a(i,ind(k))*b(j+15,ind(k))
     end do
-    r(i,j) = s1
-    r(i,j+1) = s2
-    r(i,j+2) = s3
-    r(i,j+3) = s4
-    r(i,j+4) = s5
-    r(i,j+5) = s6
-    r(i,j+6) = s7
-    r(i,j+7) = s8
-    r(i,j+8) = t1
-    r(i,j+9) = t2
-    r(i,j+10) = t3
-    r(i,j+11) = t4
-    r(i,j+12) = t5
-    r(i,j+13) = t6
-    r(i,j+14) = t7
-    r(i,j+15) = t8
+    r(i,j:j+15) = s(:)
   end do
 
   nr1 = mod(nrow,16)
@@ -133,82 +107,56 @@ do i=1,ncol
   j = nrow-nr1+1
 
   if (nr1 >= 8) then
-    s1 = Zero
-    s2 = Zero
-    s3 = Zero
-    s4 = Zero
-    s5 = Zero
-    s6 = Zero
-    s7 = Zero
-    s8 = Zero
+    s(1:8) = Zero
     do k=1,nnot
-      s1 = s1+a(i,ind(k))*b(j,ind(k))
-      s2 = s2+a(i,ind(k))*b(j+1,ind(k))
-      s3 = s3+a(i,ind(k))*b(j+2,ind(k))
-      s4 = s4+a(i,ind(k))*b(j+3,ind(k))
-      s5 = s5+a(i,ind(k))*b(j+4,ind(k))
-      s6 = s6+a(i,ind(k))*b(j+5,ind(k))
-      s7 = s7+a(i,ind(k))*b(j+6,ind(k))
-      s8 = s8+a(i,ind(k))*b(j+7,ind(k))
+      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
+      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
+      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
+      s(4) = s(4)+a(i,ind(k))*b(j+3,ind(k))
+      s(5) = s(5)+a(i,ind(k))*b(j+4,ind(k))
+      s(6) = s(6)+a(i,ind(k))*b(j+5,ind(k))
+      s(7) = s(7)+a(i,ind(k))*b(j+6,ind(k))
+      s(8) = s(8)+a(i,ind(k))*b(j+7,ind(k))
     end do
-    r(i,j) = s1
-    r(i,j+1) = s2
-    r(i,j+2) = s3
-    r(i,j+3) = s4
-    r(i,j+4) = s5
-    r(i,j+5) = s6
-    r(i,j+6) = s7
-    r(i,j+7) = s8
+    r(i,j:j+7) = s(1:8)
     nr1 = nr1-8
     j = j+8
   end if
 
   if (nr1 >= 4) then
-    s1 = Zero
-    s2 = Zero
-    s3 = Zero
-    s4 = Zero
+    s(1:4) = Zero
     do k=1,nnot
-      s1 = s1+a(i,ind(k))*b(j,ind(k))
-      s2 = s2+a(i,ind(k))*b(j+1,ind(k))
-      s3 = s3+a(i,ind(k))*b(j+2,ind(k))
-      s4 = s4+a(i,ind(k))*b(j+3,ind(k))
+      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
+      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
+      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
+      s(4) = s(4)+a(i,ind(k))*b(j+3,ind(k))
     end do
-    r(i,j) = s1
-    r(i,j+1) = s2
-    r(i,j+2) = s3
-    r(i,j+3) = s4
+    r(i,j:j+3) = s(1:4)
     nr1 = nr1-4
     j = j+4
   end if
 
   if (nr1 == 1) then
-    s1 = Zero
+    s(1) = Zero
     do k=1,nnot
-      s1 = s1+a(i,ind(k))*b(j,ind(k))
+      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
     end do
-    r(i,j) = s1
+    r(i,j) = s(1)
   else if (nr1 == 2) then
-    s1 = Zero
-    s2 = Zero
+    s(1:2) = Zero
     do k=1,nnot
-      s1 = s1+a(i,ind(k))*b(j,ind(k))
-      s2 = s2+a(i,ind(k))*b(j+1,ind(k))
+      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
+      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
     end do
-    r(i,j) = s1
-    r(i,j+1) = s2
+    r(i,j:j+1) = s(1:2)
   else if (nr1 == 3) then
-    s1 = Zero
-    s2 = Zero
-    s3 = Zero
+    s(1:3) = Zero
     do k=1,nnot
-      s1 = s1+a(i,ind(k))*b(j,ind(k))
-      s2 = s2+a(i,ind(k))*b(j+1,ind(k))
-      s3 = s3+a(i,ind(k))*b(j+2,ind(k))
+      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
+      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
+      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
     end do
-    r(i,j) = s1
-    r(i,j+1) = s2
-    r(i,j+2) = s3
+    r(i,j:j+2) = s(1:3)
   else if (nr1 > 3) then
     call WarningMessage(2,'nr1 > 3')
     call Abend()
@@ -224,4 +172,5 @@ call Abend()
 return
 
 end subroutine ntmul
+
 #endif

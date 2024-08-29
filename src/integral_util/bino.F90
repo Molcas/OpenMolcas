@@ -11,16 +11,16 @@
 
 subroutine bino(lmax)
 
-use Constants, only: Zero, One
 use welcom, only: binom
+use Constants, only: Zero, One
+use Definitions, only: iwp
 
 implicit none
-integer lMax
-integer i, j
+integer(kind=iwp), intent(in) :: lMax
+integer(kind=iwp) :: i, j
 
 binom(:,:) = Zero
 binom(0,0) = One
-if (lmax == 0) return
 do i=1,lmax
   do j=0,i
     binom(i,j) = binom(i-1,j-1)+binom(i-1,j)

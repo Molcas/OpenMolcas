@@ -13,9 +13,11 @@ subroutine xsetmem_ints(mem)
 
 use k2_arrays, only: Sew_Scr, XMem
 use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer mem, mem_, MemMax
+integer(kind=iwp), intent(in) :: mem
+integer(kind=iwp) :: mem_, MemMax
 
 if (XMem) then
   call WarningMessage(2,'External handling of scratch already active!')

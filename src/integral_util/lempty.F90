@@ -26,13 +26,14 @@ function lEmpty(Coeff,n2,ld2,m2)
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-logical lEmpty
-integer, intent(In) :: n2, ld2, m2
-real*8, intent(In) :: Coeff(ld2,m2)
-real*8 Temp
-integer i, j
+logical(kind=iwp) :: lEmpty
+integer(kind=iwp), intent(in) :: n2, ld2, m2
+real(kind=wp), intent(in) :: Coeff(ld2,m2)
+real(kind=wp) :: Temp
+integer(kind=iwp) :: i, j
 
 lEmpty = .true.
 Temp = Zero

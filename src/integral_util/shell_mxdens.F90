@@ -18,12 +18,14 @@ subroutine Shell_MxDens(Dens,DMax,nSkal)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
 implicit none
-integer nSkal
-real*8 dmax(nskal,nskal), dens(*)
-integer, external :: nbfshl
-integer ijOff, irp, ie, iSh, n, ia, je, jSh, m, ja, i, ij, j
+integer(kind=iwp), intent(in) :: nSkal
+real(kind=wp), intent(in) :: dens(*)
+real(kind=wp), intent(out) :: dmax(nskal,nskal)
+integer(kind=iwp) :: i, ia, ie, ij, ijOff, irp, iSh, j, ja, je, jSh, m, n
+integer(kind=iwp), external :: nbfshl
 
 ijoff = 0
 call fzero(dmax,nskal*nskal)

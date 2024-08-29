@@ -21,12 +21,13 @@ subroutine ZXia(Zeta,ZInv,N,M,Alpha,Beta)
 !***********************************************************************
 
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(In) :: N, M
-real*8, intent(In) :: Alpha(N), Beta(M)
-real*8, intent(InOut) :: Zeta(N,M), ZInv(N,M)
-integer j
+integer(kind=iwp), intent(in) :: N, M
+real(kind=wp), intent(inout) :: Zeta(N,M), ZInv(N,M)
+real(kind=wp), intent(in) :: Alpha(N), Beta(M)
+integer(kind=iwp) :: j
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In ZXia: Alpha',' ',Alpha,N,1)

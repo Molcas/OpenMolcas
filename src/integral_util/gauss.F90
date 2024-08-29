@@ -22,7 +22,7 @@ subroutine Gauss(n,lDim,A,X,C)
 !     input:                                                           *
 !       A,C     : input matrices                                       *
 !       n       : size of the set of equations                         *
-!       lDim    : leadin dimension of A                                *
+!       lDim    : leading dimension of A                               *
 !                                                                      *
 !     output:                                                          *
 !       X       : solutions                                            *
@@ -41,11 +41,15 @@ subroutine Gauss(n,lDim,A,X,C)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, lDim
-real*8 A(lDim,lDim), X(lDim), C(lDim)
-integer i, j, k
-real*8 Swap, Fact
+integer(kind=iwp), intent(in) :: n, lDim
+real(kind=wp), intent(inout) :: A(lDim,n)
+real(kind=wp), intent(out) :: X(n)
+real(kind=wp), intent(in) :: C(n)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: Fact, Swap
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

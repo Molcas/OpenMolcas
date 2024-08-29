@@ -22,14 +22,17 @@ subroutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShel
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
 implicit none
-integer iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
-real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
-logical AeqB
-integer, external :: iPntSO
-integer i, j, iTri, lSO, j1, i1, j2, j12, i2, iSO1, iSO2, iPnt, iSO, jSO, Indij, nRow, IndAO1, IndAO2, ip
+integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
+real(kind=wp), intent(in) :: SOInt(iBas*jBas,nSOInt)
+real(kind=wp), intent(inout) :: PrpInt(nPrp)
+logical(kind=iwp), intent(in) :: AeqB
+integer(kind=iwp) :: i1, i2, IndAO1, IndAO2, Indij, ip, iPnt, iSO, iSO1, iSO2, j1, j12, j2, jSO, lSO, nRow
+integer(kind=iwp), external :: iPntSO
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *

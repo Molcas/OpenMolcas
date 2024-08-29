@@ -12,13 +12,13 @@
 subroutine CoSet(iCoSet,nCoSet,iChAtom)
 
 use Symmetry_Info, only: nIrrep, iOper
+use Definitions, only: iwp
 
 implicit none
-integer, intent(out) :: nCoSet
-integer, intent(In) :: iChAtom
-integer, intent(Out) :: iCoSet(0:7)
-logical Same
-integer iIrrep, itest, jCoSet, jtest
+integer(kind=iwp), intent(out) :: iCoSet(0:7), nCoSet
+integer(kind=iwp), intent(in) :: iChAtom
+integer(kind=iwp) :: iIrrep, itest, jCoSet, jtest
+logical(kind=iwp) :: Same
 
 ! Find the coset representatives
 

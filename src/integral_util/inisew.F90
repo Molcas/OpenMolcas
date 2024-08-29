@@ -18,11 +18,11 @@ subroutine IniSew(DSCF,nDiff)
 !***********************************************************************
 
 use Basis_Info, only: Seward_Activated
+use Definitions, only: iwp
 
 implicit none
-#include "SysDef.fh"
-logical DSCF
-integer nDiff
+logical(kind=iwp), intent(in) :: DSCF
+integer(kind=iwp), intent(inout) :: nDiff
 
 if (Seward_Activated) then
   call ClsSew()

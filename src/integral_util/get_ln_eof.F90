@@ -12,10 +12,11 @@
 function get_ln_EOF(lunit)
 
 use getline_mod, only: Quit_On_Error
+use Definitions, only: iwp
 
 implicit none
-character(len=180) get_ln_EOF
-integer lunit
+character(len=180) :: get_ln_EOF
+integer(kind=iwp), intent(in) :: lunit
 character(len=180), external :: get_ln_quit
 
 get_ln_EOF = get_ln_quit(lunit,0)

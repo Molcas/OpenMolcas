@@ -9,18 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine UnNrmlz2(Exp,nPrim,Coeff,nCntrc,iang)
+subroutine UnNrmlz2(Expn,nPrim,Coeff,nCntrc,iAng)
 
-use Constants, only: Two, Three, Four, TwoP34
+use Constants, only: Four, Quart, TwoP34
+use Definitions, only: wp, iwp
 
 implicit none
-integer nPrim, nCntrc, iAng
-real*8 exp(nPrim), Coeff(nPrim,nCntrc)
-integer i, j
+integer(kind=iwp), intent(in) :: nPrim, nCntrc, iAng
+real(kind=wp), intent(in) :: Expn(nPrim)
+real(kind=wp), intent(inout) :: Coeff(nPrim,nCntrc)
+integer(kind=iwp) :: i, j
 
 do i=1,nCntrc
   do j=1,nPrim
-    Coeff(j,i) = Coeff(j,i)*(TwoP34*(Four*exp(j))**((Two*iAng+Three)/Four))
+    Coeff(j,i) = Coeff(j,i)*(TwoP34*(Four*Expn(j))**(real(2*iAng+3,kind=wp)*Quart))
   end do
 end do
 

@@ -13,10 +13,12 @@
 
 subroutine GET_EFP()
 
-use EFP_Module, only: lEFP, Coor_Type, nEFP_Fragments, Frag_Type, ABC, c_int, EFP_Coors, nEFP_Coor
+use, intrinsic :: iso_c_binding, only: c_int
+use EFP_Module, only: ABC, Coor_Type, EFP_Coors, Frag_Type, lEFP, nEFP_Coor, nEFP_Fragments
+use Definitions, only: iwp
 
 implicit none
-integer CoorType
+integer(kind=iwp) :: CoorType
 
 call Get_lScalar('EFP',lEFP)
 if (lEFP) then

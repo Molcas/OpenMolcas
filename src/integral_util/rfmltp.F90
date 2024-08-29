@@ -17,11 +17,11 @@ subroutine RFmltp()
 
 use rctfld_module, only: Eps, EpsInf, lMax, lRF, lRFCav, MM, NonEq_ref, PCM, rds
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8, allocatable :: VTot(:), QTot(:)
-integer nComp
+integer(kind=iwp) :: nComp
+real(kind=wp), allocatable :: QTot(:), VTot(:)
 
 if (.not. lRF) return
 nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
@@ -46,11 +46,11 @@ subroutine RFmltp_Internal(Qs,nComp)
   use Constants, only: Zero, One, Half
 
   implicit none
-  integer nComp
-  real*8 Qs(nComp,2)
-  integer l, nElem, iM, jM, iElem, iOff, i, nM
-  real*8 ESolv, dESolv
-  real*8, external :: DDot_
+  integer(kind=iwp), intent(in) :: nComp
+  real(kind=wp), intent(in) :: Qs(nComp,2)
+  integer(kind=iwp) :: i, iElem, iM, iOff, jM, l, nElem, nM
+  real(kind=wp) :: dESolv, ESolv
+  real(kind=wp), external :: DDot_
 
   if (lRF .and. (.not. PCM) .and. lRFCav) then
     call dcopy_(nComp,Qs(1,1),1,QTot,1)

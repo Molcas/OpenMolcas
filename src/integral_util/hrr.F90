@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine HRR(la,lb,A,B,target,nPrim,nTrgt,ipIn)
+subroutine HRR(la,lb,A,B,tgt,nPrim,nTrgt,ipIn)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the contracted integrals (one or two-electron)   *
@@ -31,13 +31,17 @@ subroutine HRR(la,lb,A,B,target,nPrim,nTrgt,ipIn)
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer la, lb, nPrim, nTrgt, ipIn
-real*8 target(nPrim,nTrgt), A(3), B(3)
-integer ixyz, ix, iz, ib, ia, ib1, ia1, iab1, ia1b, iaMax, ib1Max, iaMin, nElem, Ind1, ipRslt, iab
-real*8 AB(3), ABSqrt
+integer(kind=iwp), intent(in) :: la, lb, nPrim, nTrgt
+real(kind=wp), intent(in) :: A(3), B(3)
+real(kind=wp), intent(inout) :: tgt(nPrim,nTrgt)
+integer(kind=iwp), intent(out) :: ipIn
+integer(kind=iwp) :: ia, ia1, ia1b, iab, iab1, iaMax, iaMin, ib, ib1, ib1Max, Ind1, ipRslt
+real(kind=wp) :: AB(3), ABSqrt
 ! Statement function for canonical indices
+integer(kind=iwp) :: ix, ixyz, iz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 Ind1(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6+(ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
@@ -51,7 +55,7 @@ AB(:) = A(:)-B(:)
 if (lb > la) AB(:) = -AB(:)
 ABSqrt = sqrt(AB(1)**2+AB(2)**2+AB(3)**2)
 if (ABSqrt == Zero) then
-  call OCHRR(target,nPrim,nTrgt,la,lb,ipIn)
+  call OCHRR(tgt,nPrim,nTrgt,la,lb,ipIn)
 else
 
   ib1Max = min(la,lb)
@@ -79,8 +83,8 @@ else
 
       ! Generate this block of integrals with the HRR
 
-      call HRR1(target(1,iab1+1),nElem(ia)*nElem(ib1),target(1,ia1b+1),nElem(ia1)*nElem(ib),AB,target(1,iab+1), &
-                nElem(ia)*nElem(ib),ia,ib,ia1,ib1,nPrim,la,lb)
+      call HRR1(tgt(1,iab1+1),nElem(ia)*nElem(ib1),tgt(1,ia1b+1),nElem(ia1)*nElem(ib),AB,tgt(1,iab+1),nElem(ia)*nElem(ib),ia,ib, &
+                ia1,ib1,nPrim,la,lb)
 
     end do
   end do

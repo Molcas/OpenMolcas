@@ -11,15 +11,15 @@
 
 subroutine Get_F(icol,val,n)
 
-use getline_mod, only: Line, nCol, iStrt, iEnd
+use getline_mod, only: iEnd, iStrt, Line, nCol
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iCol, n
-real*8 val(n)
-integer ic, i, i1, i2
-character(len=80) string
+integer(kind=iwp), intent(in) :: iCol, n
+real(kind=wp), intent(out) :: val(n)
+integer(kind=iwp) :: i, i1, i2, ic
+character(len=80) :: string
 
 ic = icol
 do i=1,n

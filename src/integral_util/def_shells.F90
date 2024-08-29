@@ -17,19 +17,20 @@ use Sizes_of_Seward, only: S
 use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, Valence_Mode, With_Auxiliary_Mode, &
                      With_Fragment_Mode
 use disp, only: Dirct, IndDsp
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nSD, mSkal
-integer iSD(0:nSD,mSkal)
-logical, external :: TF
-integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest, mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp, kSh, &
-        iTemp, nDIsp, iTmp, iCar, nFunctions, iComp, iCase
+integer(kind=iwp), intent(in) :: nSD, mSkal
+integer(kind=iwp), intent(out) :: iSD(0:nSD,mSkal)
+integer(kind=iwp) :: iAng, iAOttp, iCar, iCase, iCmp, iCnt, iCnttp, iComp, iIrrep, iShell, iShell_Set, iShll, iTemp, iTmp, jCnttp, &
+                     kSh, mdc, mdci, nBasisi, nDIsp, nExpi, nFunctions, nSkal, ntest
 #ifdef _DEBUGPRINT_
-integer i, j
+integer(kind=iwp) :: i, j
 #endif
+logical(kind=iwp), external :: TF
 
 !                                                                      *
 !***********************************************************************

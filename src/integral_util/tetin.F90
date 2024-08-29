@@ -12,12 +12,12 @@
 subroutine tetin(lmax)
 
 use Constants, only: Zero, One
-use welcom, only: tetint, binom
-use Definitions, only: wp
+use welcom, only: binom, tetint
+use Definitions, only: wp, iwp
 
 implicit none
-integer lmax
-integer k, lm2, l, m, i
+integer(kind=iwp), intent(in) :: lmax
+integer(kind=iwp) :: i, k, l, lm2, m
 
 do k=0,lmax
   lm2 = k/2

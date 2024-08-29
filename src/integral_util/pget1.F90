@@ -29,23 +29,23 @@ subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO
 
 use SOAO_Info, only: iAOtSO
 use Constants, only: Zero, Quart
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: D0, iD0Lbl
 use Definitions, only: u6
 #endif
 
 implicit none
-integer ijkl, nPAO, iBas, jBas, kBas, lBas, nDSO
-real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
-integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-logical Shijij
-real*8 ExFac, CoulFac, PMax
-integer iPAO, i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl, iSOi, jSOj, kSOk, lSOl, iAOi, jAOj, kAOk, lAOl, IndI, IndJ, IndK, IndL, &
-        IndIJ, IndKL, IndIK, IndIL, IndJL, IndJK
-real*8 t14, Temp
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: DSO(nDSO), DSSO(nDSO), ExFac, CoulFac
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndI, IndIJ, IndIK, IndIL, IndJ, IndJK, IndJL, IndK, IndKL, IndL, iPAO, iSO, iSOi, &
+                     jAOj, jSO, jSOj, kAOk, kSO, kSOk, lAOl, lSO, lSOl, nijkl
+real(kind=wp) :: t14, Temp
 #ifdef _DEBUGPRINT_
-integer iComp, i
-real*8, external :: DDot_
+integer(kind=iwp) :: i, iComp
+real(kind=wp), external :: DDot_
 #endif
 
 #ifdef _DEBUGPRINT_
@@ -93,7 +93,7 @@ do i1=1,iCmp(1)
                 Indl = kSOk+lSOl-Indk
                 Indij = (Indi-1)*Indi/2+Indj
                 Indkl = (Indk-1)*Indk/2+Indl
-                temp = DSO(Indij)*DSO(Indkl)*coulfac
+                temp = DSO(Indij)*DSO(Indkl)*CoulFac
 
                 ! -0.25*D(ik)*D(jl)
 

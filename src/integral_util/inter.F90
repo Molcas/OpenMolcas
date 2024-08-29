@@ -26,17 +26,20 @@ subroutine Inter(iSet1,nSet1,iSet2,nSet2,iInter,nInter)
 !             February '90                                             *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer nSet1, nSet2, nInter
-integer iSet1(0:nSet1-1), iSet2(0:nSet2-1), iInter(0:7)
-integer i1, i2
+integer(kind=iwp), intent(in) :: nSet1, iSet1(0:nSet1-1), nSet2, iSet2(0:nSet2-1)
+integer(kind=iwp), intent(inout) :: iInter(0:7)
+integer(kind=iwp), intent(out) :: nInter
+integer(kind=iwp) :: i1, i2
 
 nInter = 0
 do i1=0,nSet1-1
   do i2=0,nSet2-1
     if (iSet1(i1) == iSet2(i2)) then
+      iInter(nInter) = iSet1(i1)
       nInter = nInter+1
-      iInter(nInter-1) = iSet1(i1)
       Go To 10
     end if
   end do

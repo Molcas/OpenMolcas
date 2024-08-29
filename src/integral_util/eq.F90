@@ -18,11 +18,13 @@ function EQ(A,B)
 !                                                                      *
 !***********************************************************************
 
-implicit none
-logical EQ
-real*8, intent(In) :: A(3), B(3)
+use Definitions, only: wp, iwp
 
-EQ = (A(1) == B(1)) .and. (A(2) == B(2)) .and. (A(3) == B(3))
+implicit none
+logical(kind=iwp) :: EQ
+real(kind=wp), intent(in) :: A(3), B(3)
+
+EQ = all(A(:) == B(:))
 
 return
 

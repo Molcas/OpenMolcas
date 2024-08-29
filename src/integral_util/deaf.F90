@@ -16,17 +16,22 @@
 module dEAF
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
 
 implicit none
+private
+
+public :: dEAFARead, dEAFAWrite, dEAFRead, dEAFWrite
 
 contains
 
 subroutine dEAFARead(Lu,Buf,nBuf,Disk,id)
 
-  integer :: Lu, nBuf, id
-  real*8, target :: Buf(nBuf)
-  real*8 :: Disk
-  integer, pointer :: iBuf(:)
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  real(kind=wp), target, intent(out) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
+  integer(kind=iwp), intent(out) :: id
+  integer(kind=iwp), pointer :: iBuf(:)
 
   call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
   call EAFARead(Lu,iBuf,nBuf,Disk,id)
@@ -36,10 +41,11 @@ end subroutine dEAFARead
 
 subroutine dEAFAWrite(Lu,Buf,nBuf,Disk,id)
 
-  integer :: Lu, nBuf, id
-  real*8, target :: Buf(nBuf)
-  real*8 :: Disk
-  integer, pointer :: iBuf(:)
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  real(kind=wp), target, intent(in) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
+  integer(kind=iwp), intent(out) :: id
+  integer(kind=iwp), pointer :: iBuf(:)
 
   call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
   call EAFAWrite(Lu,iBuf,nBuf,Disk,id)
@@ -49,10 +55,10 @@ end subroutine dEAFAWrite
 
 subroutine dEAFRead(Lu,Buf,nBuf,Disk)
 
-  integer :: Lu, nBuf
-  real*8, target :: Buf(nBuf)
-  real*8 :: Disk
-  integer, pointer :: iBuf(:)
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  real(kind=wp), target, intent(out) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
+  integer(kind=iwp), pointer :: iBuf(:)
 
   call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
   call EAFRead(Lu,iBuf,nBuf,Disk)
@@ -62,10 +68,10 @@ end subroutine dEAFRead
 
 subroutine dEAFWrite(Lu,Buf,nBuf,Disk)
 
-  integer :: Lu, nBuf
-  real*8, target :: Buf(nBuf)
-  real*8 :: Disk
-  integer, pointer :: iBuf(:)
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  real(kind=wp), target, intent(in) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
+  integer(kind=iwp), pointer :: iBuf(:)
 
   call c_f_pointer(c_loc(Buf),iBuf,[nBuf])
   call EAFWrite(Lu,iBuf,nBuf,Disk)

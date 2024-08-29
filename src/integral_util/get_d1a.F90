@@ -15,15 +15,18 @@ subroutine Get_D1A(CMO,D1A_MO,D1A_AO,nsym,nbas,nish,nash,ndens)
 
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
 
 implicit none
-integer nSym, nDens
-real*8 CMO(*), D1A_MO(*), D1A_AO(*)
-integer nbas(nsym), nish(nsym), nash(nsym)
-integer i, j, iTri
-real*8, allocatable :: Scr1(:), Tmp1(:,:), Tmp2(:,:)
-integer iOff2, iOff3, ii, iSym, iBas, iAsh, iIsh
+real(kind=wp), intent(in) :: CMO(*), D1A_MO(*)
+real(kind=wp), intent(_OUT_) :: D1A_AO(*)
+integer(kind=iwp), intent(in) :: nSym, nbas(nsym), nish(nsym), nash(nsym), nDens
+integer(kind=iwp) :: iAsh, iBas, ii, iIsh, iOff2, iOff3, iSym
+real(kind=wp), allocatable :: Scr1(:), Tmp1(:,:), Tmp2(:,:)
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iOff2 = 1

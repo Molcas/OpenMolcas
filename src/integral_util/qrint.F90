@@ -11,17 +11,16 @@
 
 function qRINT(N,A,C,EXPA)
 
-use Constants, only: Zero, One, Half, Pi
 use welcom, only: binom, kmax
-use Definitions, only: wp
+use Constants, only: Zero, One, Half, Pi
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 qRINT
-integer N
-real*8 A, C, EXPA
-real*8 F(kmax+1)
-integer NN, nT, I, J, K
-real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2, GAL, HINT
+real(kind=wp) :: qRINT
+integer(kind=iwp), intent(in) :: N
+real(kind=wp) :: A, C, EXPA
+integer(kind=iwp) :: I, J, K, NN, nT
+real(kind=wp) :: ALF, ARG, BP, Dac, F(kmax+1), FACT, FACT2, GAL, GINT, HINT, PRSUM, START, TAL
 
 qRINT = Zero
 NN = N/2+1

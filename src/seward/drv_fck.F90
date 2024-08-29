@@ -92,8 +92,8 @@ do iComp=1,nComp
   LenTot = LenTot+LenInt+4
 end do
 call mma_allocate(Int1El,LenTot)
+Int1El(:) = Zero
 ip(1) = 1
-call DCopy_(LenTot,[Zero],0,Int1El(ip(1)),1)
 iadr = ip(1)
 do iComp=1,nComp
   LenInt = n2Tri(lOper(iComp))
@@ -198,7 +198,8 @@ use define_af, only: AngTp
 implicit none
 character(len=8), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
-real(kind=wp), intent(in) :: Int1El(LenTot), rHrmt
+real(kind=wp), intent(inout) :: Int1El(LenTot)
+real(kind=wp), intent(in) :: rHrmt
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iElem, ii, iIC, iIrrep, ijB, &
                      ijC, iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, &

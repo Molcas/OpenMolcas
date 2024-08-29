@@ -25,18 +25,17 @@ subroutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,XMolnr,nXMolnr,iGrid,scal14)
 !***********************************************************************
 
 use Constants, only: Zero, One, Two, Three, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nXF, nOrd_XF, iXPolType, nXMolnr, iGrid
-real*8 coord(3), XF(*), dEF(3)
-integer XMolnr(nXMolnr,nXF)
-real*8 Scal14
-logical LExcl
-integer ixyz, nElem
-integer Inc, iOrdOp, iFD, i
-real*8 Scal, ZA, Dax, Day, Daz, Qaxx, Qaxy, Qaxz, Qayy, Qayz, Qazz, x, y, z, R12, QaSum
+real(kind=wp), intent(in) :: coord(3), XF(*), Scal14
+integer(kind=iwp), intent(in) :: nXF, nOrd_XF, iXPolType, nXMolnr, XMolnr(nXMolnr,nXF), iGrid
+real(kind=wp), intent(inout) :: dEF(3)
+integer(kind=iwp) :: i, iFD, Inc, iOrdOp
+real(kind=wp) :: Dax, Day, Daz, QaSum, Qaxx, Qaxy, Qaxz, Qayy, Qayz, Qazz, R12, Scal, x, y, z, ZA
+logical(kind=iwp) :: LExcl
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 if (nOrd_XF < 0) return

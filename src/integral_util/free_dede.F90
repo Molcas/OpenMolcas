@@ -11,16 +11,17 @@
 
 subroutine Free_DeDe(Dens,TwoHam,nDens)
 
-use k2_arrays, only: pDq, pFq, DeDe, Dq, Fq, ipOffD
+use k2_arrays, only: DeDe, Dq, Fq, ipOffD, pDq, pFq
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Constants, only: Two, Half
 use stdalloc, only: mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDens
-real*8 :: Dens(nDens), TwoHam(nDens)
-integer nC, ijQ, jiQ, ij, i, j
+integer(kind=iwp), intent(in) :: nDens
+real(kind=wp), intent(inout) :: Dens(nDens), TwoHam(nDens)
+integer(kind=iwp) :: i, ij, ijQ, j, jiQ, nC
 
 nullify(pDq)
 nullify(pFq)

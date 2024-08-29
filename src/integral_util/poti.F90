@@ -11,10 +11,12 @@
 
 subroutine poti(k,ipot3)
 
+use Definitions, only: iwp
+
 implicit none
-integer ipot3(0:15)
-integer k
-integer iSum, i
+integer(kind=iwp), intent(in) :: k
+integer(kind=iwp), intent(out) :: ipot3(0:k+1)
+integer(kind=iwp) :: i, iSum
 
 isum = 1
 ipot3(0) = 1

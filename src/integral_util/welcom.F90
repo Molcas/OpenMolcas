@@ -11,16 +11,17 @@
 
 module welcom
 
-use Constants, only: Two, Four
 use define_af, only: iTabMx
+use Constants, only: Half, Quart
+use Definitions, only: wp, iwp
 
 implicit none
 private
-integer, parameter :: kMax = iTabMx+6
-integer ipot3(0:kmax+1)
-real*8 binom(-1:kmax,-1:kmax), fiint(0:kmax,0:kmax), tetint(0:kmax,0:int(kmax/Two)+1), &
-       anorm(0:kmax,0:int(kmax/Two)+1,0:int(kmax/Four)+1), fac(0:kmax)
 
-public kMax, ipot3, binom, fiint, tetint, anorm, fac
+integer(kind=iwp), parameter :: kMax = iTabMx+6, k2 = int(kmax*Half)+1, k4 = int(kmax*Quart)+1
+integer(kind=iwp) :: ipot3(0:kmax+1)
+real(kind=wp) :: anorm(0:kmax,0:k2,0:k4), binom(-1:kmax,-1:kmax), fac(0:kmax), fiint(0:kmax,0:kmax), tetint(0:kmax,0:k2)
+
+public :: anorm, binom, fac, fiint, ipot3, kMax, tetint
 
 end module welcom

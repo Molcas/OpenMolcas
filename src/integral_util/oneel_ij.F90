@@ -16,7 +16,7 @@
 #ifdef _IN_MODULE_
 
 subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,xZeta,xZI,xKappa,xPCoor,Kernel,KrnlMm,Label,lOper,nComp,CoorO,nOrdOp,iChO,iStabO, &
-                    nStabO,nIC,PtChrg,nGrid,iAddPot,SOInt,l_SOInt,final,nFinal,Scrtch,nScrtch,ScrSph,nScrSph,Kern,nKern)
+                    nStabO,nIC,PtChrg,nGrid,iAddPot,SOInt,l_SOInt,rFinal,nFinal,Scrtch,nScrtch,ScrSph,nScrSph,Kern,nKern)
 ! Thomas Bondo Pedersen and Roland Lindh, February 2011.
 !
 ! Purpose: compute symmetry adapted one-electron integrals for
@@ -24,49 +24,47 @@ subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,xZeta,xZI,xKappa,xPCoor,Kernel,KrnlMm
 
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
-use Basis_Info, only: DBSC, Shells, MolWgh
+use Basis_Info, only: DBSC, MolWgh, Shells
 use Center_Info, only: DC
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: FNMC
 use Symmetry_Info, only: ChOper, nIrrep
-use Constants, only: Zero, One, Half
 use rmat, only: RMat_Type_Integrals
 use define_af, only: AngTp
 use property_label, only: PLabel
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
 
 implicit none
+integer(kind=iwp), intent(in) :: iS, jS, iPrint, nComp, lOper(nComp), nOrdOp, iChO(nComp), iStabO(0:7), nStabO, nIC, nGrid, &
+                                 iAddPot, l_SOInt, nFinal, nScrtch, nScrSph, nKern
+logical(kind=iwp), intent(inout) :: Do_PGamma
+real(kind=wp), intent(inout) :: xZeta(*), xZI(*)
+real(kind=wp), intent(_OUT_) :: xKappa(*), xPCoor(*)
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
+character(len=8), intent(in) :: Label
+real(kind=wp), intent(in) :: CoorO(3,nComp), PtChrg(nGrid)
+real(kind=wp), intent(out) :: SOInt(l_SOInt), Scrtch(nScrtch), ScrSph(nScrSph)
+real(kind=wp), target, intent(out) :: rFinal(nFinal), Kern(nKern)
 #include "Molcas.fh"
-integer iS, jS, iPrint, nComp, nOrdOp, nStabO, nIC, nGrid, iAddPot, l_SOInt
-logical Do_PGamma
-integer nFinal, nScrtch, nScrSph
-real*8, target :: final(nFinal)
-real*8 Scrtch(nScrtch), ScrSph(nScrSph), SOInt(l_SOInt)
-real*8 xZeta(*), xZI(*), xKappa(*), xPCoor(*)
-real*8 CoorO(3,nComp), PtChrg(nGrid)
-integer lOper(nComp), iChO(nComp), iStabO(0:7)
-real*8 A(3), B(3), RB(3)
-character(len=8) Label
-character(len=LENIN) dbas
-integer nOp(2), iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
-integer nKern
-real*8, target :: Kern(nKern)
-integer, external :: MemSO1
-logical, external :: EQ
-real*8 Coord(3*MxAtom)
+integer(kind=iwp) :: i, iab, iAng, iAO, iAtom, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ii, iiC, iIrrep, ipFnl, &
+                     iPrim, ipX, ipY, ipZ, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, &
+                     jj, jPrim, jShell, jShll, kk, l_Coord, lA0, lA1, LambdT, lB0, lB1, lDCRR, lFinal, Lmbdr, lScrSph, lScrtch, &
+                     mdci, mdcj, MemAux, MemBux, MemCux, MemKer, MemKrn, mSO, nAtoms, nDCRR, nDCRT, nij, nijab, nOp(2), nOrder, &
+                     NrOpr, nSO, nStabM
+real(kind=wp) :: A(3), B(3), Coord(3*MxAtom), Fact, RB(3), xFactor, xMass
+character(len=LenIn) :: dbas
 #ifdef _GEN1INT_
-logical NATEST, DO_TRAN
+logical(kind=iwp) :: DO_TRAN, NATEST
 #endif
-integer i, iCmp, iBas, iAO, iShell, jCmp, jBas, jAO, jShell, nSO, iComp, iSmLbl, iShll, iAng, iPrim, mdci, iCnttp, iCnt, jShll, &
-        jAng, jPrim, mdcj, jCnttp, lFinal, ii, Lmbdr, nDCRR, nStabM, lDCRR, l_Coord, nAtoms, iSOBlk, iiC, mSO, iIrrep, lA0, lA1, &
-        lB0, lB1, MemAux, MemBux, MemCux, MemKer, MemKrn, lScrtch, lScrSph, iuv, LambdT, kk, ipFnl, nij, nijab, iab, ipX, ipY, &
-        ipZ, jj, iAtom, nDCRT, nOrder, NrOpr, jCnt
-real*8 Fact, xFactor, xMass
-integer :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer(kind=iwp), external :: MemSO1
+logical(kind=iwp), external :: EQ
 ! Statement function
-integer ixyz, nElem
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
@@ -101,7 +99,7 @@ if (Label(1:3) == 'MAG') then
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-  dbas = dc(mdci)%LblCnt(1:LENIN)
+  dbas = dc(mdci)%LblCnt(1:LenIn)
   call UpCase(dbas)
   jShll = iSD(0,jS)
   jAng = iSD(1,jS)
@@ -119,7 +117,7 @@ if (Label(1:3) == 'MAG') then
     call WarningMessage(2,'lFinal > nFinal')
     call Abend()
   end if
-  call dCopy_(lFinal,[Zero],0,final,1)
+  call dCopy_(lFinal,[Zero],0,rFinal,1)
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
   call Inter(dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iStabM,nStabM)
   call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
@@ -156,7 +154,7 @@ if (Label(1:3) == 'MAG') then
       end if
       read(Label(6:),'(I3)') iatom
       call test_f90mod_sgto_mag(iShell,jShell,iCmp,jCmp,iPrim,jPrim,iAng,jAng,iPrim,jPrim,mdci,mdcj,Shells(iShll)%Exp, &
-                                Shells(jShll)%Exp,Shells(iShll)%Cff_p(1,1,2),Shells(jShll)%Cff_p(1,1,2),nAtoms,Coord,nComp,final, &
+                                Shells(jShll)%Exp,Shells(iShll)%Cff_p(1,1,2),Shells(jShll)%Cff_p(1,1,2),nAtoms,Coord,nComp,rFinal, &
                                 .true.,iatom,Do_Tran)
 #     else
       call WarningMessage(2,'OneEl_IJ: NO Gen1int interface available!')
@@ -174,7 +172,7 @@ if (Label(1:3) == 'MAG') then
           end do
         else
           !write(u6,*) "Symmetry adapt component"
-          call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,final,iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
+          call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,rFinal,iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
           iSOBlk = iSOBlk+mSO*iBas*jBas
         end if
       end do
@@ -219,7 +217,7 @@ else  !  MAG Integrals
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
-  dbas = dc(mdci)%LblCnt(1:LENIN)
+  dbas = dc(mdci)%LblCnt(1:LenIn)
   call UpCase(dbas)
 
   jShll = iSD(0,jS)
@@ -298,7 +296,7 @@ else  !  MAG Integrals
     call WarningMessage(2,'lFinal > nFinal')
     call Abend()
   end if
-  call dCopy_(lFinal,[Zero],0,final,1)
+  call dCopy_(lFinal,[Zero],0,rFinal,1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -385,9 +383,9 @@ else  !  MAG Integrals
 
       ! Compute primitive integrals. Result is ordered ij,ab.
 
-      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,xZeta,xZI,xKappa,xPCoor,final,iPrim*jPrim,nIC,nComp,iAng,jAng,A, &
-                  RB,nOrder,Kern,MemKer,CoorO,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
-      if (iPrint >= 49) call RecPrt(' Primitive Integrals',' ',final,iPrim*jPrim,nElem(iAng)*nElem(jAng)*nIC)
+      call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,xZeta,xZI,xKappa,xPCoor,rFinal,iPrim*jPrim,nIC,nComp,iAng,jAng, &
+                  A,RB,nOrder,Kern,MemKer,CoorO,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
+      if (iPrint >= 49) call RecPrt(' Primitive Integrals',' ',rFinal,iPrim*jPrim,nElem(iAng)*nElem(jAng)*nIC)
 
       ! Transform from primitive to contracted basis functions.
 
@@ -398,7 +396,7 @@ else  !  MAG Integrals
 
       ! Transform i,jabx to jabx,I
       kk = nElem(iAng)*nElem(jAng)
-      call DGEMM_('T','N',jPrim*kk*nIC,iBas,iPrim,One,final,iPrim,Shells(iShll)%pCff,iPrim,Zero,Scrtch,jPrim*kk*nIC)
+      call DGEMM_('T','N',jPrim*kk*nIC,iBas,iPrim,One,rFinal,iPrim,Shells(iShll)%pCff,iPrim,Zero,Scrtch,jPrim*kk*nIC)
       ! Transform j,abxI to abxI,J
       call DGEMM_('T','N',kk*nIC*iBas,jBas,jPrim,One,Scrtch,jPrim,Shells(jShll)%pCff,jPrim,Zero,ScrSph,kk*nIC*iBas)
 
@@ -408,14 +406,14 @@ else  !  MAG Integrals
 
       if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
         ! Result comes back as xIJAB or xIJAb
-        call CarSph(ScrSph,kk,iBas*jBas*nIC,final,lScrSph,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
+        call CarSph(ScrSph,kk,iBas*jBas*nIC,rFinal,lScrSph,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                     RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,Scrtch,iCmp*jCmp)
-        call DGeTmO(Scrtch,nIC,nIC,iBas*jBas*iCmp*jCmp,final,iBas*jBas*iCmp*jCmp)
+        call DGeTmO(Scrtch,nIC,nIC,iBas*jBas*iCmp*jCmp,rFinal,iBas*jBas*iCmp*jCmp)
       else
         ! Transpose abx,IJ back to IJ,abx
-        call DGeTmO(ScrSph,kk*nIC,kk*nIC,iBas*jBas,final,iBas*jBas)
+        call DGeTmO(ScrSph,kk*nIC,kk*nIC,iBas*jBas,rFinal,iBas*jBas)
       end if
-      if (iPrint >= 99) call RecPrt(' Contracted integrals in Sphericals',' ',final,iBas*jBas,iCmp*jCmp*nIC)
+      if (iPrint >= 99) call RecPrt(' Contracted integrals in Sphericals',' ',rFinal,iBas*jBas,iCmp*jCmp*nIC)
 
       ! Tweak here for special cases
 
@@ -427,21 +425,21 @@ else  !  MAG Integrals
           ipx = ipFnl+(iab-1)*nij
           ipy = ipx+nijab
           ipz = ipy+nijab
-          call dcopy_(nij,xPCoor(1),1,final(ipx),1)
-          call dcopy_(nij,xPCoor(1+nij),1,final(ipy),1)
-          call dcopy_(nij,xPCoor(1+2*nij),1,final(ipz),1)
+          call dcopy_(nij,xPCoor(1),1,rFinal(ipx),1)
+          call dcopy_(nij,xPCoor(1+nij),1,rFinal(ipy),1)
+          call dcopy_(nij,xPCoor(1+2*nij),1,rFinal(ipz),1)
         end do
       else if (Label == 'FMMCnX') then
         do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          final(ipFnl+jj-1) = Half*(A(1)+RB(1))
+          rFinal(ipFnl+jj-1) = Half*(A(1)+RB(1))
         end do
       else if (Label == 'FMMCnY') then
         do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          final(ipFnl+jj-1) = Half*(A(2)+RB(2))
+          rFinal(ipFnl+jj-1) = Half*(A(2)+RB(2))
         end do
       else if (Label == 'FMMCnZ') then
         do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          final(ipFnl+jj-1) = Half*(A(3)+RB(3))
+          rFinal(ipFnl+jj-1) = Half*(A(3)+RB(3))
         end do
       else if (Label == 'Kinetic') then
 
@@ -461,7 +459,7 @@ else  !  MAG Integrals
           xfactor = xfactor+One/xMass
         end if
         !write(u6,*) 'xfactor=',xfactor
-        call DScal_(iBas*jBas*iCmp*jCmp,xfactor,final,1)
+        call DScal_(iBas*jBas*iCmp*jCmp,xfactor,rFinal,1)
       end if
 
       ! At this point accumulate the batch of integrals onto the
@@ -481,7 +479,7 @@ else  !  MAG Integrals
             if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) iIC = iIC+1
           end do
         else
-          call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,final,iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
+          call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,rFinal,iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)
           iSOBlk = iSOBlk+mSO*iBas*jBas
         end if
       end do

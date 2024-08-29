@@ -25,12 +25,14 @@ subroutine SetUpA(nZeta,A,Pxyz)
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nZeta
-real*8 A(nZeta,3,3), Pxyz(nZeta,3)
-integer iZeta
-real*8 x, y, z, r, sgn
+integer(kind=iwp), intent(in) :: nZeta
+real(kind=wp), intent(out) :: A(nZeta,3,3)
+real(kind=wp), intent(in) :: Pxyz(nZeta,3)
+integer(kind=iwp) :: iZeta
+real(kind=wp) :: r, sgn, x, y, z
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)

@@ -12,16 +12,15 @@
 subroutine dRBuf(Array,nArray,Copy)
 
 use dEAF, only: dEAFARead
-use IOBUF, only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte, Disk_1, Disk_2, Disk, Buffer, iD, LuTmp
-use Definitions, only: wp
+use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, DiskMX_Byte, iBuf, iD, InCore, iPos, lBuf, LuTmp, OnDisk
+use Definitions, only: wp, iwp, RtoB, RtoI
 
 implicit none
-logical Copy
-integer nArray
-real*8 Array(nArray)
-#include "SysDef.fh"
-integer iArray, mArray, jBuf, Left
-real*8 Temp
+integer(kind=iwp), intent(in) :: nArray
+real(kind=wp), intent(inout) :: Array(nArray)
+logical(kind=iwp), intent(in) :: Copy
+integer(kind=iwp) :: iArray, jBuf, Left, mArray
+real(kind=wp) :: Temp
 
 !write(u6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
 if (InCore .and. (iBuf == 2)) then

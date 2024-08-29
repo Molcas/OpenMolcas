@@ -16,17 +16,19 @@
 module Real_Spherical
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
-public :: ipSph, RSph, Sphere, Sphere_Free, Condon_Shortley_phase_factor, lmax_internal, iSphCr, LblCBs, LblSBs
-integer, allocatable :: iSphCr(:)
-integer, dimension(:), allocatable :: ipSph
-integer :: lmax_internal = -1
-real*8, dimension(:), allocatable :: RSph
-logical :: Condon_Shortley_phase_factor = .false.
+
+integer(kind=iwp) :: lmax_internal = -1
+logical(kind=iwp) :: Condon_Shortley_phase_factor = .false.
+integer(kind=iwp), allocatable :: ipSph(:), iSphCr(:)
+real(kind=wp), allocatable :: RSph(:)
 character(len=8), allocatable :: LblCBs(:), LblSBs(:)
+
+public :: ipSph, iSphCr, LblCBs, LblSBs, lmax_internal, RSph, Sphere, Sphere_Free
 
 !                                                                      *
 !***********************************************************************
@@ -73,13 +75,14 @@ subroutine Sphere(lMax)
 !                     N. F. Chilton at OpenMolcas2020                  *
 !***********************************************************************
 
-  use Constants, only: Zero
   use define_af, only: iTabMx
 
   implicit none
-  integer lMax
-  logical CSPF
-  integer nSphCr, nSphr, MxFnc, iAng, iii, jjj, n, nElem, ii, m, l, iElem
+  integer(kind=iwp), intent(in) :: lMax
+  integer(kind=iwp) :: iAng, iElem, ii, iii, jjj, l, m, MxFnc, n, nElem, nSphCr, nSphr
+# ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: i, iLbl, j
+# endif
 
   ! check if required ang mom is greater than hard-coded limit
   if (lMax > iTabMx) then
@@ -97,8 +100,7 @@ subroutine Sphere(lMax)
   else
     return
   end if
-  call Get_lScalar('CSPF',CSPF)
-  Condon_Shortley_phase_factor = CSPF
+  call Get_lScalar('CSPF',Condon_Shortley_phase_factor)
 
   nSphCr = (lmax+1)*(lmax+2)*(lmax+3)/6
   call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
@@ -181,10 +183,9 @@ end subroutine Sphere
 subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
 
   implicit none
-  integer lMax, nSphr
-  real*8 RSph(nSphr)
-  integer ipSph(0:lMax)
-  integer i00, i10, i, i2, nElem, i20, j, iCont, iOff, mElem, l
+  integer(kind=iwp), intent(in) :: lMax, ipSph(0:lMax), nSphr
+  real(kind=wp), intent(out) :: RSph(nSphr)
+  integer(kind=iwp) :: i, i00, i10, i2, i20, iCont, iOff, j, l, mElem, nElem
 
   i00 = ipSph(0)
   i10 = ipSph(0)
@@ -232,14 +233,14 @@ subroutine Recurse(P0,P1,P2,n2)
 !                                                                      *
 !***********************************************************************
 
-  use Constants, only: Zero, One
-
   implicit none
-  integer n2
-  real*8 P0((n2-1)*n2/2), P1(n2*(n2+1)/2), P2((n2+1)*(n2+2)/2)
-  integer ix, iy, iz, iad, n1, n0
-  real*8 Fact_1, Fact_2
+  integer(kind=iwp), intent(in) :: n2
+  real(kind=wp), intent(in) :: P0((n2-1)*n2/2), P1(n2*(n2+1)/2)
+  real(kind=wp), intent(out) :: P2((n2+1)*(n2+2)/2)
+  integer(kind=iwp) :: n0, n1
+  real(kind=wp) :: Fact_1, Fact_2
   ! Statement function
+  integer(kind=iwp) :: ix, iy, iz, iad
   iad(ix,iy,iz) = (iz+iy)*(iz+iy+1)/2+iz+1
 
   P2(:) = Zero
@@ -284,15 +285,13 @@ end subroutine Recurse
 
 subroutine Ladder(P0,n)
 
-  use Constants, only: Zero, One, Two
-
   implicit none
-  integer n
-  real*8 P0((n+1)*(n+2)/2,-n:n)
-  integer ix, iy, iz, iad
-  integer m, m_p, m_m
-  real*8 Fact
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp), intent(inout) :: P0((n+1)*(n+2)/2,-n:n)
+  integer(kind=iwp) :: m, m_m, m_p
+  real(kind=wp) :: Fact
   ! Statement function
+  integer(kind=iwp) :: ix, iy, iz, iad
   iad(ix,iy,iz) = (iz+iy)*(iz+iy+1)/2+iz+1
 
   ! Generate Y(l,m) from Y(l,m-1), starting the process from Y(l,0)
@@ -367,14 +366,13 @@ subroutine Contaminant(P0,i,Px,j,l)
 ! This subroutine generates the lower ang mom contaminants for the
 ! given ang mom
 
-  use Constants, only: Zero
-
   implicit none
-  integer i, j, l
-  real*8 P0((i+1)*(i+2)/2,-l:l), Px((j+1)*(j+2)/2,-l:l)
-  integer ix, iy, iz, iad
-  integer m
+  integer(kind=iwp), intent(in) :: i, j, l
+  real(kind=wp), intent(inout) :: P0((i+1)*(i+2)/2,-l:l)
+  real(kind=wp), intent(in) :: Px((j+1)*(j+2)/2,-l:l)
+  integer(kind=iwp) :: m
   ! Statement function
+  integer(kind=iwp) :: ix, iy, iz, iad
   iad(ix,iy,iz) = (iz+iy)*(iz+iy+1)/2+iz+1
 
   ! Px = (x^2+y^2+z^2) x P0
@@ -395,16 +393,14 @@ end subroutine Contaminant
 
 subroutine NrmSph(P,n)
 
-  use Constants, only: Zero, One
-
   implicit none
-  integer n
-  real*8 P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
-  integer m, k, ijx, ijy, ijz, jx, jy, jz
-  real*8 tmp, rMax, DF, temp
-  real*8, external :: DblFac
-  integer ix, iy, iz, iad
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp), intent(inout) :: P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
+  integer(kind=iwp) :: ijx, ijy, ijz, jx, jy, jz, k, m
+  real(kind=wp) :: DF, rMax, temp, tmp
+  real(kind=wp), external :: DblFac
   ! Statement function
+  integer(kind=iwp) :: ix, iy, iz, iad
   iad(ix,iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 
   do m=1,(n+1)*(n+2)/2

@@ -36,7 +36,7 @@ integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDCRR(0:7), igu, igv, iIrrep, iR
                      nDisp, nOp
 real(kind=wp) :: A(3), B(3), Fact, PreFct, ps, r12, RB(3), ZA, ZAZB
 integer(kind=iwp), external :: iPrmt, NrOpr
-logical(kind=iwp), external :: EQ, TstFnc
+logical(kind=iwp), external :: EQ, TF
 
 iIrrep = 0
 mdc = 0
@@ -82,7 +82,7 @@ do iCnttp=1,nCnttp
           igu = nIrrep/dc(mdc+iCnt)%nStab
           do iCar=0,2
             iComp = 2**iCar
-            if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
+            if (TF(mdc+iCnt,iIrrep,iComp)) then
               nDisp = nDisp+1
               Grad(nDisp) = Grad(nDisp)-One/real(igu,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)
             end if
@@ -92,7 +92,7 @@ do iCnttp=1,nCnttp
           igv = nIrrep/dc(ndc+jCnt)%nStab
           do iCar=0,2
             iComp = 2**iCar
-            if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
+            if (TF(ndc+jCnt,iIrrep,iComp)) then
               nDisp = nDisp+1
               ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
               Grad(nDisp) = Grad(nDisp)+ps*One/real(igv,kind=wp)*PreFct*(A(iCar+1)-RB(iCar+1))/(r12**3)

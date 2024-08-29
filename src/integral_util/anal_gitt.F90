@@ -29,15 +29,14 @@ function Anal_Gitt(cordsi,latato)
 !***********************************************************************
 
 use Constants, only: Zero, One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Anal_Gitt
-integer latato
-real*8 cordsi(3,latato)
-real*8 gAtom
-integer i, j
-real*8 faktor, x1, y1, z1, r2
+real(kind=wp) :: Anal_Gitt
+integer(kind=iwp), intent(in) :: latato
+real(kind=wp), intent(in) :: cordsi(3,latato)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: faktor, gAtom, r2, x1, y1, z1
 
 Anal_Gitt = Zero
 

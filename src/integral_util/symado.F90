@@ -12,18 +12,17 @@
 subroutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,lOper,iChO,Factor)
 
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nZeta, la, lb, nComp, nIC, iDCRT
-real*8 ArrIn(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
-integer lOper(nComp), iChO(nComp)
-real*8 Factor
-integer :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-integer ixyz, nElem
-integer iIC, iComp, iIrrep
-real*8 pO, Xg
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, nIC, iDCRT, lOper(nComp), iChO(nComp)
+real(kind=wp), intent(in) :: ArrIn(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Factor
+real(kind=wp), intent(inout) :: ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
+integer(kind=iwp) :: iComp, iIC, iIrrep
+real(kind=wp) :: pO, Xg
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !nA = (la+1)*(la+2)/2
@@ -48,6 +47,6 @@ if (iIC /= nIC) then
   write(u6,*) 'iIC,nIC=',iIC,nIC
   call Abend()
 end if
-!call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
+!call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB,nIC)
 
 end subroutine SymAdO

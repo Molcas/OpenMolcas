@@ -15,7 +15,7 @@
 
 subroutine Close_SemiDSCF()
 
-use IOBUF, only: iPos, OnDisk, iStatIO, iBuf, lStRec, Mode_None
+use IOBUF, only: iBuf, iPos, iStatIO, lStRec, Mode_None, OnDisk
 
 implicit none
 

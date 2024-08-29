@@ -37,12 +37,14 @@ subroutine SphCar(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,Coeff2,n2,Tr2,Pr2,Wo
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nab, nijx, nScrt, n1, n2, mab
-real*8 Win(nab*nijx), Scrt(nScrt), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2), Wout(mab*nijx)
-logical Tr1, Pr1, Tr2, Pr2
-integer l1, k1, l2, k2
+integer(kind=iwp), intent(in) :: nab, nijx, nScrt, n1, n2, mab
+real(kind=wp), intent(in) :: Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2)
+real(kind=wp), intent(out) :: Scrt(nScrt), Wout(mab*nijx)
+logical(kind=iwp), intent(in) :: Tr1, Pr1, Tr2, Pr2
+integer(kind=iwp) :: k1, k2, l1, l2
 
 l1 = (n1+1)*(n1+2)/2
 k1 = l1

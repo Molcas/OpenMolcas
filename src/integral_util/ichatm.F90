@@ -10,14 +10,19 @@
 !***********************************************************************
 
 function iChAtm(Coor)
+! iChAtm is an integer function which will return an integer such
+! that the three first bits will represent the characteristics of
+! the Cartesian components. If the bit is set then the Cartesian
+! component will change sign if the symmetry operator contains a
+! part which operates on that particular Cartesian direction.
 
-use Symmetry_Info, only: nIrrep, iOper, iChCar
-use Definitions, only: wp
+use Symmetry_Info, only: iChCar, iOper, nIrrep
+use Definitions, only: wp, iwp
 
 implicit none
-integer iChAtm
-real*8 Coor(3)
-integer iCar, i, j, nOper
+integer(kind=iwp) :: iChAtm
+real(kind=wp), intent(in) :: Coor(3)
+integer(kind=iwp) :: i, iCar, j, nOper
 
 if (nIrrep == 8) then
   nOper = 3
@@ -28,12 +33,6 @@ else if (nIrrep == 2) then
 else
   nOper = 0
 end if
-
-! iChAtm is an integer function which will return an integer such
-! that the three first bits will represent the characteristics of
-! the Cartesian components. If the bit is set then the Cartesian
-! component will change sign if the symmetry operator contains a
-! part which operates on that particular Cartesian direction.
 
 ! Default that none of the Cartesians will change sign.
 iChAtm = 0

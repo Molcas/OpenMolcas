@@ -11,15 +11,16 @@
 
 subroutine priwel(k,alfa,beta,r0,a,gri,nz,isum,grin)
 
+use welcom, only: iPot3, kMax
 use Constants, only: Zero
-use welcom, only: kMax, iPot3
+use Definitions, only: wp, iwp
 
 implicit none
-integer nz, iSum, k
-real*8 gri(nz,isum), grin(nz,0:k,k/2+1,k/4+1), alfa(nz), a(nz)
-integer indst, i, j, l, ix, iy, iz, iPot3i, jj, iDiv, ixyz, ix2, iy2, ixS, iyS, ixyS, mZ
-integer iv(kmax)
-real*8 Beta, r0
+integer(kind=iwp), intent(in) :: k, nz, iSum
+real(kind=wp), intent(in) :: alfa(nz), Beta, r0, a(nz)
+real(kind=wp), intent(inout) :: gri(nz,isum)
+real(kind=wp), intent(out) :: grin(nz,0:k,k/2+1,k/4+1)
+integer(kind=iwp) :: i, iDiv, indst, iPot3i, iv(kmax), ix, ix2, ixS, ixyS, ixyz, iy, iy2, iyS, iz, j, jj, l, mZ
 
 call binte(k,alfa,beta,r0,a,grin,nz)
 !call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
@@ -27,7 +28,6 @@ call binte(k,alfa,beta,r0,a,grin,nz)
 ! distribute the integrals into gri
 
 indst = 1
-isum = ipot3(k+1)
 do iz=1,nz
   gri(iz,1) = grin(iz,0,1,1)
 end do

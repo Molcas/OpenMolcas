@@ -27,19 +27,20 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nIC, iIC, nSOInt
-integer nOp(2)
-real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)
-integer jIC(0:7)
-integer :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-integer iIrrep, ii, jj, lSO, j1, i1, iChBs, j2, j12, kIC, jMx, i2, jChBs
-real*8 xa, pae, xb, pbr
+integer(kind=iwp), intent(in) :: lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nIC, nSOInt, &
+                                 nOp(2)
+real(kind=wp), intent(in) :: AOInt(iBas*jBas,iCmp,jCmp,nIC)
+integer(kind=iwp), intent(inout) :: iIC
+real(kind=wp), intent(inout) :: SOInt(iBas*jBas,nSOInt)
+integer(kind=iwp) :: i1, i2, iChBs, ii, iIrrep, j1, j12, j2, jChBs, jIC(0:7), jj, jMx, kIC, lSO
+real(kind=wp) :: pae, pbr, xa, xb
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' lOper=',lOper

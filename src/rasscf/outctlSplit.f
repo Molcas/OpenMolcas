@@ -28,7 +28,7 @@
 ************************************************************************
 ************* GLMJ ************
       use OneDat, only: sNoOri, sOpSiz
-      use rctfld_module
+      use rctfld_module, only: lRF
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)

@@ -11,10 +11,12 @@
 
 subroutine Mk_SO2cI(SO2cI,iSO2Shell,nSOs)
 
+use Definitions, only: iwp
+
 implicit none
-integer nSOs
-integer SO2cI(2,nSOs), iSO2Shell(nSOs)
-integer nShell, iShell, Index, iSO
+integer(kind=iwp), intent(in) :: nSOs, iSO2Shell(nSOs)
+integer(kind=iwp), intent(out) :: SO2cI(2,nSOs)
+integer(kind=iwp) :: Indx, iShell, iSO, nShell
 
 !                                                                      *
 !***********************************************************************
@@ -28,18 +30,18 @@ do iShell=1,nShell
 
   ! Generate contigues index for this shell
 
-  Index = 0
+  Indx = 0
   do iSO=1,nSOs
     if (iSO2Shell(iSO) == iShell) then
-      Index = Index+1
-      SO2cI(1,iSO) = Index
+      Indx = Indx+1
+      SO2cI(1,iSO) = Indx
     end if
   end do
 
   ! Store dimension for this shell
 
   do iSO=1,nSOs
-    if (iSO2Shell(iSO) == iShell) SO2cI(2,iSO) = Index
+    if (iSO2Shell(iSO) == iShell) SO2cI(2,iSO) = Indx
   end do
 
 end do ! iShell

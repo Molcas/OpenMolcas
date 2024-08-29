@@ -22,13 +22,15 @@ subroutine ConMax(A,nPrim,mPrim,B,nCont,C,mCont)
 !             July '91                                                 *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(In) :: nPrim, nCont, mPrim, mCont
-real*8, intent(In) :: B(nPrim,nCont), C(mPrim,mCont)
-real*8, intent(Out) :: A(nPrim,mPrim)
-integer iPrim, jPrim
-real*8, external :: DDot_
-real*8 Temp
+integer(kind=iwp), intent(in) :: nPrim, mPrim, nCont, mCont
+real(kind=wp), intent(out) :: A(nPrim,mPrim)
+real(kind=wp), intent(in) :: B(nPrim,nCont), C(mPrim,mCont)
+integer(kind=iwp) :: iPrim, jPrim
+real(kind=wp) :: Temp
+real(kind=wp), external :: DDot_
 
 do iPrim=1,nPrim
   Temp = DDot_(nCont,B(iPrim,1),nPrim,B(iPrim,1),nPrim)

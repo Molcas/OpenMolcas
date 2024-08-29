@@ -24,15 +24,14 @@ function TstFnc(iCoSet,iIrrep,iBsFnc,nStab)
 !             September 1991                                           *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper, iChTbl
-use Definitions, only: u6
+use Symmetry_Info, only: iChTbl, iOper, nIrrep
+use Definitions, only: iwp, u6
 
 implicit none
-logical TstFnc
-integer iIrrep, iBsFnc, nStab
-integer iCoSet(0:7,0:7), iAcc(0:7)
-integer nCoSet, i, j, k, n
-integer, external :: iPrmt
+logical(kind=iwp) :: TstFnc
+integer(kind=iwp), intent(in) :: iCoSet(0:7,0:7), iIrrep, iBsFnc, nStab
+integer(kind=iwp) :: i, iAcc(0:7), j, k, n, nCoSet
+integer(kind=iwp), external :: iPrmt
 
 TstFnc = .true.
 nCoSet = nIrrep/nStab

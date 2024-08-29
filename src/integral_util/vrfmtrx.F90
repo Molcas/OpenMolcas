@@ -21,20 +21,18 @@ use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nComp
-real*8 Matrix(*)
-character(len=*) Label
-integer ip(nComp), lOper(nComp)
-character(len=80) Line
-character(len=1) Status
-integer iComp, ip1, iSmLbl, iIrrep, n2, jIrrep
-real*8 VrfSum
-real*8, external :: DDot_
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), ip(nComp)
+real(kind=wp), intent(in) :: Matrix(*)
+integer(kind=iwp) :: iComp, iIrrep, ip1, iSmLbl, jIrrep, n2
+real(kind=wp) :: VrfSum
+character(len=80) :: Line
+real(kind=wp), external :: DDot_
 
-call GetEnvf('MOLCAS_TEST_not_yet_here',Status)
-if (Status == ' ') return
+call Untested('VrfMtrx')
 do iComp=1,nComp
   VrfSum = Zero
   ip1 = ip(iComp)

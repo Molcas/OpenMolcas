@@ -22,15 +22,15 @@ subroutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShe
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
 implicit none
-integer iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, nComp
-real*8 rHrmt
-real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
-integer kOper(nComp)
-character(len=8) Label
-integer, external :: iPntSO
-integer lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2, iPnt, indAO1, indAO2, jBsMax, ip, Indi, Indj, nRow
+integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, nComp, kOper(nComp)
+real(kind=wp) , intent(in):: SOInt(iBas*jBas,nSOInt), rHrmt
+real(kind=wp) , intent(inout):: PrpInt(nPrp)
+character(len=8) , intent(in):: Label
+integer(kind=iwp) :: i1, i2, indAO1, indAO2, Indi, Indj, ip, iPnt, iSO1, iSO2, j1, j12, j2, jBsMax, jjMx, lSO, nRow
+integer(kind=iwp), external :: iPntSO
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)

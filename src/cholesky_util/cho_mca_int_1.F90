@@ -19,7 +19,7 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 !            output format differs depending on IFCSEW.
 
 use Index_Functions, only: iTri, nTri_Elem
-use Integral_Interfaces, only: Int_PostProcess, Integral_WrOut_Cho
+use Integral_Interfaces, only: Int_PostProcess, int_wrout
 use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
 
@@ -28,6 +28,7 @@ integer(kind=iwp), intent(in) :: IJ, KL, LINT
 real(kind=wp), intent(inout) :: XINT(LINT)
 logical(kind=iwp), intent(in) :: LOCPRT
 integer(kind=iwp) :: I, II, IIJJ, J, JJ, K, KK, KKLL, KOFF, L, LL, NUMI, NUMIJ, NUMJ, NUMK, NUML
+procedure(int_wrout) :: Integral_WrOut_Cho
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1'
 
 ! Initializations.

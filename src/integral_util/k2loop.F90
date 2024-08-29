@@ -14,8 +14,8 @@
 
 !#define _DEBUGPRINT_
 subroutine k2Loop(Coor,iAnga,iCmpa,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
-                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,Cmpct,nScree,mScree,iStb,jStb,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr, &
-                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
+                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,iStb,jStb,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr,Knew, &
+                  Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
@@ -28,40 +28,43 @@ subroutine k2Loop(Coor,iAnga,iCmpa,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nB
 !             Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN.                              *
 !             June '91, modified to compute zeta, P, kappa and inte-   *
-!             grals for Schwartz inequality in a k2 loop.              *
+!             grals for Schwarz inequality in a k2 loop.               *
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
 
 use Real_Spherical, only: ipSph, rSph
 use Basis_Info, only: Shells
-use Symmetry_Info, only: nIrrep, iOper
-use Constants, only: Zero, One, Four
+use Symmetry_Info, only: iOper, nIrrep
 use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
-use Definitions, only: wp
+use Constants, only: Zero, One, Four
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-external Cmpct
-integer nZeta, ijCmp, nDCRR, nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree, iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, &
-        IncZZ
+integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
+                                 nWork2, iStb, jStb, nDij, nDCR, ijCmp, nScr, nNew, nHRRMtrx
+real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta), &
+                             Dij(nDij,nDCR)
 type(k2_type), intent(inout) :: k2data(nDCRR)
-real*8 Coor(3,4), Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Zeta(nZeta), &
-       ZInv(nZeta), Kappab(nZeta), P(nZeta,3), Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3), Knew(nNew), Lnew(nNew), &
-       Pnew(nNew*3), Qnew(nNew*3), HMtrx(nHrrMtrx,2)
-logical DoFock, DoGrad
-integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
-external TERIS, ModU2, Cff2DS, Rys2D
-real*8 CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2), Q(3), TA(3), TB(3)
-logical AeqB, NoSpecial
-logical, external :: EQ, TF
-integer mStb(2), la, lb, iSmAng, mabMin, mabMax, ne, iCmpa_, jCmpb_, iShlla, jShllb, mcdMin, mcdMax, mabcd, mZeta, nT, iw3, i_Int, &
-        iw2, Jnd, iOffZ, lZeta, nDisp, iCmp, ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
-real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta, TEMP
-real*8, external :: EstI
+real(kind=wp), intent(out) :: Alpha_(nZeta), Beta_(nZeta), Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3), Scr(nScr,3), &
+                              Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3), HMtrx(nHrrMtrx,2)
+integer(kind=iwp), intent(out) :: IndP(nZeta)
+integer(kind=iwp), intent(inout) :: nScree, mScree
+real(kind=wp), intent(inout) :: Wrk(nWork2)
+logical(kind=iwp), intent(in) :: DoFock, DoGrad
+integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iSmAng, iw2, iw3, iZeta, jCmpb_, Jnd, jShllb, la, &
+                     lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT
+real(kind=wp) :: abMax, abMaxD, Coora(3,4), CoorAC(3,2), Coori(3,4), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, &
+                 Tst, ZtMax, ZtMaxD
+logical(kind=iwp) :: AeqB, NoSpecial
+logical(kind=iwp), external :: EQ, TF
+real(kind=wp), external :: EstI
+external :: Cff2DS, ModU2, Rys2D, TERIS
 ! Statement function to compute canonical index
+integer(kind=iwp) :: nabSz, ixyz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 !                                                                      *
@@ -121,7 +124,7 @@ do lDCRR=0,nDCRR-1
   !*********************************************************************
   !                                                                    *
   ! Compute primitive integrals to be used in the prescreening
-  ! by the Schwartz inequality.
+  ! by the Schwarz inequality.
 
   call dcopy_(12,CoorM(1,1),1,Coora(1,1),1)
   call dcopy_(12,CoorM(1,1),1,Coori(1,1),1)

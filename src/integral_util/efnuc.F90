@@ -23,21 +23,21 @@ subroutine EFNuc(CoOP,Chrg,Coor,nAtm,ESIT,nOrdOp)
 !             of Lund, April '95.                                      *
 !***********************************************************************
 
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nAtm, nOrdOp
-real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2)
-integer, allocatable :: C_ESIT(:)
-real*8 CoOp(3)
-integer nTot, iPowr, iAtom, ix, iy, iz
-real*8 Fact, x, y, z, r2, r, eix, eiy, eiz, temp
-real*8, parameter :: Thr = 1.0e-12_wp
+integer(kind=iwp), intent(in) :: nAtm, nOrdOp
+real(kind=wp), intent(in) :: CoOp(3), Chrg(nAtm), Coor(3,nAtm)
+real(kind=wp), intent(out) :: ESIT((nOrdOp+1)*(nOrdOp+2)/2)
+integer(kind=iwp) :: iAtom, iPowr, ix, iy, iz, nTot
+real(kind=wp) :: eix, eiy, eiz, Fact, r, r2, temp, x, y, z
+integer(kind=iwp), allocatable :: C_ESIT(:)
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
 #ifdef _DEBUGPRINT_
-integer n, nElem
 ! Statement function
+integer(kind=iwp) :: n, nElem
 nElem(n) = (n+1)*(n+2)/2
 #endif
 

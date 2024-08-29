@@ -25,10 +25,12 @@ subroutine Expnd_i(Array,n,m)
 !             May '90                                                  *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer m, n
-real*8 Array(m,n*n)
-integer nij, i, j, ij, ji, ii
+integer(kind=iwp), intent(in) :: n, m
+real(kind=wp), intent(inout) :: Array(m,n*n)
+integer(kind=iwp) :: i, ii, ij, j, ji, nij
 
 nij = n*(n+1)/2
 do i=n,1,-1

@@ -37,7 +37,7 @@ integer(kind=iwp), intent(out) :: iP(nIter)
 #include "print.fh"
 integer(kind=iwp) :: i, ii, ij, iOff, iPrint, iRc, iRout, iSave, j, jIter, MaxWdw, mIter
 real(kind=wp) :: Err1, Err2
-real(kind=wp), allocatable :: A(:,:)
+real(kind=wp), allocatable :: A(:,:), C(:)
 real(kind=wp), external :: DDot_
 
 iRout = 114
@@ -143,8 +143,11 @@ end if
 
 ! Solve linear equation system
 
-call Gauss(mIter+1,mIter+1,B,RHS,RHS)
+call mma_allocate(C,mIter+1,label='C')
+C(:) = RHS(1:mIter+1)
+call Gauss(mIter+1,mIter+1,B,RHS,C)
 if (iPrint >= 99) call RecPrt(' The solution vector',' ',RHS,1,mIter+1)
+call mma_deallocate(C)
 
 ! Compute the interpolated parameter vector and
 ! the interpolated gradient vector.

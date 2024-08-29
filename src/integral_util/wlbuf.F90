@@ -12,13 +12,12 @@
 subroutine WLBuf()
 
 use dEAF, only: dEAFWrite
-use IOBUF, only: iStatIO, Mode_Read, OnDisk, InCore, iBuf, iPos, Disk, lBuf, DiskMx_Byte, Disk_1, Disk_2, Buffer, ID, LuTmp
+use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, DiskMx_Byte, iBuf, ID, InCore, iPos, iStatIO, lBuf, LuTmp, Mode_Read, OnDisk
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, u6, RtoB, RtoI
 
 implicit none
-#include "SysDef.fh"
-real*8 Temp
+real(kind=wp) :: Temp
 
 if (iStatIO == Mode_Read) then
   !write(u6,*) 'In WLbuf'

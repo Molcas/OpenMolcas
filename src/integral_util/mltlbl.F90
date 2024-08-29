@@ -19,11 +19,12 @@ function MltLbl(Lbl1,Lbl2)
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer MltLbl
-integer Lbl1, Lbl2
-integer iIrrep, jIrrep, ijSym
+integer(kind=iwp) :: MltLbl
+integer(kind=iwp), intent(in) :: Lbl1, Lbl2
+integer(kind=iwp) :: iIrrep, ijSym, jIrrep
 
 MltLbl = 0
 do iIrrep=0,nIrrep-1

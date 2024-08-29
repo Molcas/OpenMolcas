@@ -33,18 +33,17 @@ use SOAO_Info, only: iAOtSO, iOffSO
 use pso_stuff, only: lSA
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4, mDim, nCred, nScr1, nScr2
-real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-integer nPam(4,0:7), iCmp(4), iAO(4), iAOst(4)
-real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
-logical Shijij
-real*8 PMax
-integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7), iiBas(4)
-integer nPSOPam, in1, in2, jPam, j, i1, iSO, iSOi, MemSO2, i2, i3, i4, iS, jS, kS, lS, j1, j2, j12, j3, j123, j4, niSym, njSym, &
-        nkSym, nlSym, jSO, kSO, lSO, iAOi, jAOj, kAOk, lAOl, jSOj, kSOk, lSOl, k1, k2, k3, k4, nijkl
+integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, mDim, nCred, &
+                                 nScr1, nScr2
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(out) :: PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), iPam(n1+n2+n3+n4), MapPam(4,mDim), Cred(nCred), Scr1(nScr1,2), &
+                              Scr2(nScr2), PMax
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iiBas(4), in1, in2, iS, iSO, iSOi, iSym(0:7), j, j1, j12, j123, j2, j3, j4, jAOj, jPam, &
+                     jS, jSO, jSOj, jSym(0:7), k1, k2, k3, k4, kAOk, kS, kSO, kSOk, kSym(0:7), lAOl, lS, lSO, lSOl, lSym(0:7), &
+                     MemSO2, nijkl, niSym, njSym, nkSym, nlSym, nPam(4,0:7), nPSOPam
 
 ! Prepare some data for Pam
 

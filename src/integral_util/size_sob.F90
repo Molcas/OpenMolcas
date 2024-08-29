@@ -12,13 +12,13 @@
 subroutine Size_SOb(iSD4,nSD,nSO,No_batch)
 
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer, intent(out) :: nSO
-integer, intent(in) :: nSD
-integer, intent(In) :: iSD4(0:nSD,4)
-logical, intent(Out) :: No_batch
-integer, external :: MemSO2
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(out) :: nSO
+logical(kind=iwp), intent(out) :: No_batch
+integer(kind=iwp), external :: MemSO2
 
 No_batch = .false.
 if (nIrrep > 1) then

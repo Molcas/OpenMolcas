@@ -19,18 +19,19 @@ function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,xab,nab,Scrt,nS
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-real*8 EstI
-integer nAlpha, nBeta, niBas, njBas, nab, nScrt
-real*8 Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta), Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas), xab(nAlpha*nBeta), Scrt(nScrt)
-integer IndZ(nAlpha*nBeta+1)
-integer mZeta, iZeta, iAlpha, iBeta, iEta, iDelta, iGamma, iBas, jBas, ijBas, iHigh
-integer, external :: iDAMax_
-real*8 rab, rcd, AInt
+real(kind=wp) :: EstI
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, niBas, njBas, nab, nScrt, IndZ(nAlpha*nBeta+1)
+real(kind=wp), intent(in) :: Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta), Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas), xab(nAlpha*nBeta)
+real(kind=wp), intent(out) :: Scrt(nScrt)
+integer(kind=iwp) :: iAlpha, iBas, iBeta, iDelta, iEta, iGamma, iHigh, ijBas, iZeta, jBas, mZeta
+real(kind=wp) :: A_Int, rab, rcd
+integer(kind=iwp), external :: iDAMax_
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
@@ -49,11 +50,11 @@ do iZeta=1,mZeta
     iDelta = (IndZ(iEta)-1)/nAlpha+1
     iGamma = IndZ(iEta)-(iDelta-1)*nAlpha
     rcd = xab(iEta)
-    AInt = rab*rcd
+    A_Int = rab*rcd
     do iBas=1,niBas
       do jBas=1,njBas
         ijBas = (jBas-1)*niBas+iBas
-        Scrt(ijBas) = Scrt(ijBas)+abs(Coeff1(iAlpha,iBas)*Coeff2(iBeta,jBas))*abs(Coeff1(iGamma,iBas)*Coeff2(iDelta,jBas))*AInt
+        Scrt(ijBas) = Scrt(ijBas)+abs(Coeff1(iAlpha,iBas)*Coeff2(iBeta,jBas))*abs(Coeff1(iGamma,iBas)*Coeff2(iDelta,jBas))*A_Int
       end do
     end do
   end do

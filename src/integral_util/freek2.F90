@@ -22,19 +22,21 @@ subroutine Freek2()
 !             of Lund, Sweden. November '92                            *
 !***********************************************************************
 
-use stdalloc, only: mma_deallocate
 use k2_structure, only: free_k2data, Indk2, k2_Processed
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (.not. allocated(Indk2)) return
+if (allocated(Indk2)) then
 
-! Deallocate k2 entities
+  ! Deallocate k2 entities
 
-call Free_k2data()
+  call Free_k2data()
 
-call mma_deallocate(Indk2)
-k2_processed = .false.
+  call mma_deallocate(Indk2)
+  k2_processed = .false.
+
+end if
 
 return
 

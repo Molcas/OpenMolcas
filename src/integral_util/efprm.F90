@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp)
+subroutine EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of electric field         *
@@ -25,25 +25,27 @@ subroutine EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use Definitions, only: wp, u6
+use Definitions, only: u6
 #endif
 
 implicit none
-external TNAI, Fake, XCff2D, XRys2D
-integer nZeta, la, lb, nComp, nAlpha, nBeta, nRys, nArr, nOrdOp
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), Array(nZeta*nArr), Ccoor(3)
-real*8 Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
-integer iAnga(4)
-integer ixyz, nElem, nabSz
-integer mabMin, mabMax, mcdMin, mcdMax, lab, kab, lcd, labcd, ip1, ip2, nMem, mArr, nT, ip3, ipIn, nFlop
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nRys, nArr, nOrdOp
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
+real(kind=wp), intent(inout) :: Array(nZeta*nArr)
+integer(kind=iwp) :: iAnga(4), ip1, ip2, ip3, ipIn, kab, lab, labcd, lcd, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
+real(kind=wp) :: CoorAC(3,2), Coori(3,4)
+logical(kind=iwp) :: NoSpecial
+logical(kind=iwp), external :: EQ
+external :: TNAI, Fake, XCff2D, XRys2D
 #ifdef _DEBUGPRINT_
-integer iElem, jElem
-character*80 Label
+integer(kind=iwp) :: iElem, jElem
+character(len=80) :: Label
 #endif
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem, nabSz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
@@ -55,7 +57,7 @@ if (.false.) call Unused_Real_Array(Alpha)
 if (.false.) call Unused_Real_Array(Beta)
 #endif
 
-final(:,:,:,:) = Zero
+rFinal(:,:,:,:) = Zero
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -119,23 +121,23 @@ ip3 = ip2-1+ipIn
 
 !c)--
 
-call DGetMO(Array(ip3),lcd,lcd,nZeta*kab,final,nZeta*kab)
-call DScal_(nZeta*kab*lcd,-One,final,1)
+call DGetMO(Array(ip3),lcd,lcd,nZeta*kab,rFinal,nZeta*kab)
+call DScal_(nZeta*kab*lcd,-One,rFinal,1)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In EFPrm la,lb=',la,lb
 do iElem=1,nElem(la)
   do jElem=1,nElem(lb)
     if (lcd == 1) then
-      write(Label,'(A,I2,A,I2,A)') ' EFPrm: Final (',iElem,',',jElem,') '
-      call RecPrt(Label,' ',final(1,iElem,jElem,1),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' EFPrm: rFinal (',iElem,',',jElem,') '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,1),nZeta,1)
     else if (lcd == 3) then
-      write(Label,'(A,I2,A,I2,A)') ' EFPrm: Final (',iElem,',',jElem,',x) '
-      call RecPrt(Label,' ',final(1,iElem,jElem,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' EFPrm: Final (',iElem,',',jElem,',y) '
-      call RecPrt(Label,' ',final(1,iElem,jElem,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' EFPrm: Final (',iElem,',',jElem,',z) '
-      call RecPrt(Label,' ',final(1,iElem,jElem,3),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' EFPrm: rFinal (',iElem,',',jElem,',x) '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,1),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' EFPrm: rFinal (',iElem,',',jElem,',y) '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,2),nZeta,1)
+      write(Label,'(A,I2,A,I2,A)') ' EFPrm: rFinal (',iElem,',',jElem,',z) '
+      call RecPrt(Label,' ',rFinal(1,iElem,jElem,3),nZeta,1)
     end if
   end do
 end do

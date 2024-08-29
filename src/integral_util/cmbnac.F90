@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,final,Alpha,IfGrad,ld,nVecAC)
+subroutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,rFinal,Alpha,IfGrad,ld,nVecAC)
 !***********************************************************************
 !                                                                      *
 ! Object: compute the gradient of the overlap matrix.                  *
@@ -23,16 +23,18 @@ subroutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,final,Alpha,IfGrad,ld,nVecAC)
 !***********************************************************************
 
 use Constants, only: Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nZeta, la, lb, ld, nVecAC
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4), rKappa(nZeta), Rnxyz(nZeta,3,0:la+ld,0:lb), Alpha(nZeta)
-logical IfGrad(3)
-integer ixa, ixb, iya, iyb, iza, izb, iZeta, iyaMax, iybMax, ipa, ipb
-integer ixyz, ix, iz, Ind
-real*8 tTwo, XA, YA, ZA
+integer(kind=iwp), intent(in) :: nZeta, la, lb, ld
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+ld,0:lb), rKappa(nZeta), Alpha(nZeta)
+real(kind=wp), intent(inout) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4)
+logical(kind=iwp), intent(in) :: IfGrad(3)
+integer(kind=iwp), intent(out) :: nVecAC
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+real(kind=wp) :: xA, yA, zA
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, ix, iz, Ind
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 #ifdef _DEBUGPRINT_
@@ -54,22 +56,21 @@ do ixa=0,la
 
         nVecAC = 1
         do iZeta=1,nZeta
-          final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
+          rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
         end do
-        tTwo = Two
         if (IfGrad(1)) then
           nVecAC = nVecAC+1
           if (ixa > 0) then
             xa = real(-ixa,kind=wp)
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)* &
-                                            (tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
-                                            Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
+              rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)* &
+                                             (Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)+xa*Rnxyz(iZeta,1,ixa-1,ixb))* &
+                                             Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
             end do
           else
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*tTwo*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
-                                            Rnxyz(iZeta,3,iza,izb)
+              rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Two*Alpha(iZeta)*Rnxyz(iZeta,1,ixa+1,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
+                                             Rnxyz(iZeta,3,iza,izb)
             end do
           end if
         end if
@@ -78,14 +79,14 @@ do ixa=0,la
           if (iya > 0) then
             ya = real(-iya,kind=wp)
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)* &
-                                            (tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ya*Rnxyz(iZeta,2,iya-1,iyb))* &
-                                            Rnxyz(iZeta,3,iza,izb)
+              rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)* &
+                                             (Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)+ya*Rnxyz(iZeta,2,iya-1,iyb))* &
+                                             Rnxyz(iZeta,3,iza,izb)
             end do
           else
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*tTwo*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)* &
-                                            Rnxyz(iZeta,3,iza,izb)
+              rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Two*Alpha(iZeta)*Rnxyz(iZeta,2,iya+1,iyb)* &
+                                             Rnxyz(iZeta,3,iza,izb)
             end do
           end if
         end if
@@ -94,13 +95,13 @@ do ixa=0,la
           if (iza > 0) then
             za = real(-iza,kind=wp)
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
-                                            (tTwo*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)+za*Rnxyz(iZeta,3,iza-1,izb))
+              rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)* &
+                                             (Two*Alpha(iZeta)*Rnxyz(iZeta,3,iza+1,izb)+za*Rnxyz(iZeta,3,iza-1,izb))
             end do
           else
             do iZeta=1,nZeta
-              final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Two*Alpha(iZeta)* &
-                                            Rnxyz(iZeta,3,iza+1,izb)
+              rFinal(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Two*Alpha(iZeta)* &
+                                             Rnxyz(iZeta,3,iza+1,izb)
             end do
           end if
         end if

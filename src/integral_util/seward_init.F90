@@ -25,20 +25,20 @@ use EFP_Module, only: lEFP, nEFP_fragments
 use k2_arrays, only: XMem
 use k2_structure, only: k2_processed
 use Basis_Info, only: Seward_Activated
-use RICD_Info, only: iRI_Type, Do_RI
-use rmat, only: RmatR, Epsabs, Epsrel, qCoul, Epsq, bParm, dipol, Dipol1, keyr, Quadpack, nagint, testint, RMat_On, lgamma
+use RICD_Info, only: Do_RI, iRI_Type
+use rmat, only: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, keyr, lgamma, nagint, qCoul, Quadpack, RMat_On, RmatR, testint
 use DCR_mod, only: DCR_Init
-use NAC, only: isNAC, isCSF
+use NAC, only: isCSF, isNAC
 use Constants, only: Zero, Ten
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-logical, external :: Reduce_Prt
-integer, external :: iPrintLevel
-integer iPL
 #include "twoswi.fh"
 #include "print.fh"
-character(len=180) Env
+integer(kind=iwp) :: iPL
+character(len=180) :: Env
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************

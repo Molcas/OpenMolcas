@@ -12,13 +12,12 @@
 function iChxyz(Coord,iGen,nGen)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer iChxyz
-integer nGen
-real*8 Coord(3)
-integer iGen(nGen), iChCar(3)
-integer iCar
+real(kind=wp), intent(in) :: Coord(3)
+integer(kind=iwp), intent(in) :: nGen, iGen(nGen)
+integer(kind=iwp) :: iCar, iChCar(3), iChxyz
 
 call ChCar(iChCar,iGen,nGen)
 

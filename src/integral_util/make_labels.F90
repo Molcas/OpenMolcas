@@ -13,15 +13,16 @@
 subroutine Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
 
 use define_af, only: AngTp
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer MxFnc, lMax
-character(len=8) LblCBs(MxFnc), LblSBs(MxFnc)
-integer lxyz, ixyz, ix, iyMax, iy, iz, i, n, l, m
-character Sgn*3
+integer(kind=iwp), intent(in) :: MxFnc, lMax
+character(len=8), intent(inout) :: LblCBs(MxFnc), LblSBs(MxFnc)
+integer(kind=iwp) :: i, ix, ixyz, iy, iyMax, iz, l, lxyz, m, n
+character(len=3) :: Sgn
 
 ! Generate cartesian labels
 

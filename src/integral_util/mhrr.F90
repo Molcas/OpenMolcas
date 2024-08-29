@@ -13,10 +13,14 @@
 
 subroutine mHrr(la,lb,nSize,nMem)
 
+use Definitions, only: iwp
+
 implicit none
-integer la, lb, nSize, nMem
-integer ixyz, nElem, nMem2, ib, nMem1, ia
+integer(kind=iwp), intent(in) :: la, lb
+integer(kind=iwp), intent(out) :: nSize, nMem
+integer(kind=iwp) :: ia, ib, nMem1, nMem2
 ! Statement function for canonical indices
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! First find the size of the working array.

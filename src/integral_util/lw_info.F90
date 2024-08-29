@@ -11,6 +11,13 @@
 
 module lw_Info
 
-integer :: lwInt, lwSyB, lwSqN
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: lwInt, lwSqN, lwSyB
+
+public :: lwInt, lwSqN, lwSyB
 
 end module lw_Info

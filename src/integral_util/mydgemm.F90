@@ -16,20 +16,20 @@ subroutine MYDGEMM(DoIt,M,N,K,A,LDA,B,LDB,C,LDC)
 !  DGEMM for a special case.
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer M, N, K, LDA, LDB, LDC
-integer DoIt(*)
-real*8 A(LDA,*), B(LDB,*), C(LDC,*)
-integer J, L
+integer(kind=iwp), intent(in) :: N, DoIt(N), M, K, LDA, LDB, LDC
+real(kind=wp), intent(in) :: A(LDA,K), B(LDB,N)
+real(kind=wp), intent(inout) :: C(LDC,N)
+integer(kind=iwp) :: J, L
 
 ! Form  C := A*B + C.
 
 do J=1,N
   if (DoIt(J) /= 1) cycle
   do L=1,K
-    if (B(L,J) == ZERO) cycle
-    call DAxPy_(M,B(L,J),A(:,L),1,C(:,J),1)
+    if (B(L,J) /= Zero) call DAxPy_(M,B(L,J),A(:,L),1,C(:,J),1)
   end do
 end do
 

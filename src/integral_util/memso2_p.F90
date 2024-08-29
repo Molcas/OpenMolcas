@@ -30,13 +30,12 @@ function MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAO,jAO,kAO,lAO)
 
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer MemSO2_P
-integer iCmp, jCmp, kCmp, lCmp, iAO, jAO, kAO, lAO
-integer i1, i2, i3, i4, j1, j2, j3, j4, j12
-
-MemSO2_P = 0
+integer(kind=iwp) :: MemSO2_P
+integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iAO, jAO, kAO, lAO
+integer(kind=iwp) :: i1, i2, i3, i4, j1, j12, j2, j3, j4
 
 ! Quadruple loop over elements of the basis functions angular
 ! description. Loops are reduced to just produce unique SO integrals
@@ -48,6 +47,8 @@ if (nIrrep == 1) then
   MemSO2_P = iCmp*jCmp*kCmp*lCmp
 
 else
+
+  MemSO2_P = 0
 
   do i1=1,iCmp
     do i2=1,jCmp

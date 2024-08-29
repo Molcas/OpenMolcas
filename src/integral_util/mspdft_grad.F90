@@ -12,7 +12,13 @@
 module MSPDFT_Grad
 ! Gradient Part
 
-logical DoGradMSPD
+use Definitions, only: iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: DoGradMSPD
+
+public :: DoGradMSPD
 
 end module MSPDFT_Grad
-

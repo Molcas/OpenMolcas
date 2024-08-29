@@ -27,41 +27,29 @@ module k2_arrays
 !  this case picky will extract those elements and put them into
 !  this part of DeDe on the fly.
 
-implicit none
+use Definitions, only: wp, iwp
 
-integer, allocatable :: ipOffD(:,:)
-real*8, allocatable :: FT(:), DeDe(:)
-integer ipDeDe, ipD00, ipDijS
-integer nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT, nFT
-logical :: DoGrad_ = .false., DoHess_ = .false.
-real*8, target, allocatable :: Fq(:), Dq(:)
-real*8, pointer :: pFq(:) => null(), pDq(:) => null()
-real*8, allocatable :: Aux(:)
-integer, allocatable :: iSOSym(:,:)
-logical :: XMem = .false.
-real*8, allocatable, target :: Sew_Scr(:)
+implicit none
+private
 
 type BraKet_Type
-  real*8, pointer :: Zeta(:)
-  real*8, pointer :: ZInv(:)
-  real*8, pointer :: KappaAB(:)
-  real*8, pointer :: P(:,:)
-  real*8, pointer :: xA(:)
-  real*8, pointer :: xB(:)
-  real*8, pointer :: Eta(:)
-  real*8, pointer :: EInv(:)
-  real*8, pointer :: KappaCD(:)
-  real*8, pointer :: Q(:,:)
-  real*8, pointer :: xG(:)
-  real*8, pointer :: xD(:)
-  real*8, pointer :: xPre(:)
-  integer, pointer :: IndZet(:)
-  integer, pointer :: IndEta(:)
+  real(kind=wp), pointer :: Zeta(:) => null(), ZInv(:) => null(), KappaAB(:) => null(), P(:,:) => null(), xA(:) => null(), &
+                            xB(:) => null(), Eta(:) => null(), EInv(:) => null(), KappaCD(:) => null(), Q(:,:) => null(), &
+                            xG(:) => null(), xD(:) => null(), xPre(:) => null()
+  integer(kind=iwp), pointer :: IndZet(:) => null(), IndEta(:) => null()
 end type BraKet_Type
 
-type(BraKet_Type) BraKet
-real*8, allocatable, target :: BraKet_Base_R(:)
-integer, allocatable, target :: BraKet_Base_I(:)
+integer(kind=iwp) :: ipD00, ipDeDe, ipDijS, MaxDe, MxDij, MxFT, nDeDe, nDeDe_DFT, nFT
+real(kind=wp), pointer :: pDq(:) => null(), pFq(:) => null()
+logical(kind=iwp) :: DoGrad_ = .false., DoHess_ = .false., XMem = .false.
+type(BraKet_Type) :: BraKet
+integer(kind=iwp), allocatable :: ipOffD(:,:), iSOSym(:,:)
+integer(kind=iwp), allocatable, target :: BraKet_Base_I(:)
+real(kind=wp), allocatable :: Aux(:), DeDe(:), FT(:)
+real(kind=wp), allocatable, target :: BraKet_Base_R(:), Dq(:), Fq(:), Sew_Scr(:)
+
+public :: Aux, BraKet, Create_BraKet, Create_BraKet_Base, DeDe, Destroy_BraKet, Destroy_BraKet_Base, DoGrad_, DoHess_, Dq, Fq, FT, &
+          ipD00, ipDeDe, ipDijS, ipOffD, iSOSym, MaxDe, MxDij, MxFT, nDeDe, nDeDe_DFT, nFT, pDq, pFq, Sew_Scr, XMem
 
 contains
 
@@ -69,8 +57,8 @@ subroutine Create_BraKet_Base(nZeta)
 
   use stdalloc, only: mma_allocate
 
-  integer nZeta
-  integer Mem
+  integer(kind=iwp), intent(in) :: nZeta
+  integer(kind=iwp) :: Mem
 
   Mem = nZeta*16
   if (DoHess_) Mem = Mem+nZeta**2
@@ -93,8 +81,8 @@ subroutine Create_BraKet(nZeta,nEta)
 
   use Definitions, only: u6
 
-  integer nZeta, nEta
-  integer iS, iE
+  integer(kind=iwp), intent(in) :: nZeta, nEta
+  integer(kind=iwp) :: iE, iS
 
   if ((.not. allocated(BraKet_base_R)) .or. (.not. allocated(BraKet_base_I))) then
     write(u6,*) 'Braket_Base not allocated!'

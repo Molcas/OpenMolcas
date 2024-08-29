@@ -18,12 +18,13 @@ function NrOpr(iOp)
 !                                                                      *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iOper
+use Symmetry_Info, only: iOper, nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer NrOpr
-integer iOp
-integer iIrrep
+integer(kind=iwp) :: NrOpr
+integer(kind=iwp), intent(in) :: iOp
+integer(kind=iwp) :: iIrrep
 
 NrOpr = -1
 do iIrrep=0,nIrrep-1

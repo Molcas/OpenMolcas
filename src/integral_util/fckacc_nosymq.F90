@@ -46,24 +46,20 @@ use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Gateway_Info, only: ThrInt
 use Constants, only: Zero, One, Four, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
-integer iBas, jBas, kBas, lBas
-real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens), DMat(nDens)
-logical Shij, Shkl, Shijij, DoCoul, DoExch
-integer iShell(4), iAO(4), iAOst(4)
-real*8 Dij, Dkl, Dik, Dil, Djk, Djl, ExFac
-intrinsic Max
-integer, parameter :: nCBMax = 200
-integer Indx(3,nCBMax,4)
-integer nCmpx(4), nBasx(4)
-integer ntg, ii, jj, kk, ll, i1, i2, i3, i4, i, j, k, l, ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic, iSO, jSO, kSO, lSO, &
-        icb, jcb, kcb, lcb, nij
-real*8 DMax, Thr, Fac, Fac_C, Fac_E, AOijkl
+integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iShell(4), nijkl, nDens, iAO(4), iAOst(4), iBas, jBas, kBas, lBas
+logical(kind=iwp), intent(in) :: Shijij, DoCoul, DoExch
+real(kind=wp), intent(in) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), DMat(nDens), Dij, Dkl, Dik, Dil, Djk, Djl, ExFac
+real(kind=wp), intent(inout) :: FMat(nDens)
+integer(kind=iwp), parameter :: nCBMax = 200
+integer(kind=iwp) :: i, i1, i2, i3, i4, ic, icb, ii, ij, ij_, ijkl, ik, il, Indx(3,nCBMax,4), iSO, j, jcb, jj, jk, jl, jSO, k, &
+                     kcb, kk, kl, kl_, kSO, l, lcb, ll, lSO, nBasx(4), ncb_Max, nCmpx(4), nij, ntg
+real(kind=wp) :: AOijkl, DMax, Fac, Fac_C, Fac_E, Thr
+logical(kind=iwp) :: Shij, Shkl
 #ifdef _DEBUGPRINT_
-real*8, external :: DDot_
+real(kind=wp), external :: DDot_
 #endif
 
 !                                                                      *
@@ -85,8 +81,8 @@ DMax = max(Dij,Dkl,Dik,Dil,Djk,Djl)
 if (DMax <= Zero) return
 thr = ThrInt/DMax
 
-Shij = iShell(1) == iShell(2)
-Shkl = iShell(3) == iShell(4)
+Shij = (iShell(1) == iShell(2))
+Shkl = (iShell(3) == iShell(4))
 ntg = nbas(0)
 Fac = One
 if (Shij) Fac = Fac*Half
@@ -94,7 +90,7 @@ if (Shkl) Fac = Fac*Half
 if (Shijij) Fac = Fac*Half
 Fac_C = Four*Fac
 Fac_E = -Fac*Exfac
-!if (nijkl /= ibas*jbas*kbas*lbas) call SysHalt('fckacc_nosym')
+!if (nijkl /= ibas*jbas*kbas*lbas) call SysHalt('fckacc_nosymq')
 
 nCmpx(1) = iCmp
 nCmpx(2) = jCmp
@@ -106,7 +102,7 @@ nBasx(3) = kBas
 nBasx(4) = lBas
 nCB_Max = max(iCmp*iBas,jCmp*jBas,kCmp*kBas,lCmp*lBas)
 if (nCB_Max > nCBMax) then
-  call WarningMessage(2,'FckAcc_NoSym: nCB_Max > nCBMax')
+  call WarningMessage(2,'FckAcc_NoSymq: nCB_Max > nCBMax')
   write(u6,*) 'nCB_Max=',nCB_Max
   call Abend()
 end if

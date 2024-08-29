@@ -12,25 +12,25 @@
 subroutine fiin(lmax)
 
 use Constants, only: Zero, One, Two, Pi
-use welcom, only: fiInt, binom
-use Definitions, only: wp
+use welcom, only: binom, fiInt
+use Definitions, only: wp, iwp
 
 implicit none
-integer lmax
-integer i, j, k, l, iexp
-real*8 a, tal, al
+integer(kind=iwp), intent(in) :: lmax
+integer(kind=iwp) :: i, iexp, j, k, l
+real(kind=wp) :: a, al, tal
 
-fiint(0,0) = Pi*Two
+fiint(0,0) = Two*Pi
 do i=0,lmax
   do j=0,lmax-i
     fiint(i,j) = Zero
     do k=0,j
       a = binom(j,k)
       iexp = i+k
-      tal = pi*Two*a*(-One)**k
+      tal = Two*Pi*a*(-One)**k
       if (iexp /= 0) then
         do l=1,iexp
-          al = Two*real(l,kind=wp)
+          al = real(2*l,kind=wp)
           tal = tal*(al-One)/al
         end do
       end if

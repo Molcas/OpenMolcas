@@ -12,20 +12,22 @@
 !#define _DEBUGPRINT_
 subroutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 
-use Basis_Info, only: nCnttp, DBSC, nBas
+use Basis_Info, only: DBSC, nBas, nCnttp
 use Center_Info, only: DC
-use PCM_arrays, only: PCMTess, PCMDM, DiagScale, nTiles, C_Tessera, Q_Tessera
-use Symmetry_Info, only: nIrrep, iChBas
+use PCM_arrays, only: C_Tessera, DiagScale, nTiles, PCMDM, PCMTess, Q_Tessera
+use Symmetry_Info, only: iChBas, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use rctfld_module, only: nTs, Eps, EpsInf
+use rctfld_module, only: Eps, EpsInf, nTs
+use Definitions, only: wp, iwp
 
 implicit none
-integer nh1
-real*8 h1(nh1), TwoHam(nh1), D(nh1)
-logical First, Dff, NonEq
-real*8, allocatable :: Cord(:,:), Chrg(:), PCM_charge(:,:), V_Slow(:), Q_Slow(:), V_Save(:,:), V_Tile(:,:)
-integer nDC, nC, jCnttp, mCnt, jCnt, i, MaxAto
-real*8 Z, RepNuc
+integer(kind=iwp), intent(in) :: nh1
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
+real(kind=wp), intent(in) :: D(nh1)
+logical(kind=iwp), intent(in) :: First, Dff, NonEq
+integer(kind=iwp) :: i, jCnt, jCnttp, MaxAto, mCnt, nC, nDC
+real(kind=wp) :: Z
+real(kind=wp), allocatable :: Chrg(:), Cord(:,:), PCM_charge(:,:), Q_Slow(:), V_Save(:,:), V_Slow(:), V_Tile(:,:)
 
 !                                                                      *
 !***********************************************************************
@@ -100,22 +102,20 @@ subroutine DrvPCM_Internal(Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,VSave,QTesser
   use Constants, only: Zero, One, Two, Half, Pi
 
   implicit none
-  integer MaxAto, nTs
-  real*8 Z_Nuc(MaxAto), Cord(3,MaxAto), Tessera(4,nTs), DMat(nTs,nTs), VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs), &
-         QTessera_Slow(nTs), VSlow(nTs)
-  real*8 Eps, EpsInf
+  integer(kind=iwp), intent(in) :: MaxAto, nTs
+  real(kind=wp), intent(in) :: Z_Nuc(MaxAto), Cord(3,MaxAto), Tessera(4,nTs), Eps, EpsInf
+  real(kind=wp), intent(inout) :: DMat(nTs,nTs)
+  real(kind=wp), intent(out) :: VTessera(2,nTs), VSave(2,nTs), QTessera(2,nTs), QTessera_Slow(nTs), VSlow(nTs)
+  integer(kind=iwp) :: ip(1), iTile, jTile, kOper, lOper, n_Int, nComp, nOrdOp
+  real(kind=wp) :: Alpha, Dij, EEE, EEN, ENE, ENN, Fact, Origin(3), QInf, rHrmt, Rij, W_0_or_El, W_0_or_Inf, W_or_El, W_or_Inf, &
+                   W_or_InfNuc, W_or_Nuc, Xi, Xj, Yi, Yj, Zi, Zj
+  logical(kind=iwp) :: Save_tmp
+  character(len=8) :: Label
+  integer(kind=iwp), allocatable :: lOper2(:)
+  real(kind=wp), allocatable :: FactOp(:), Integrals(:)
   procedure(int_kernel) :: PCMInt
   procedure(int_mem) :: NaMem
-# include "SysDef.fh"
-  real*8, allocatable :: FactOp(:), Integrals(:)
-  integer, allocatable :: lOper2(:)
-  character(len=8) Label
-  logical Save_tmp
-  integer ip(1)
-  integer nOrdOp, nComp, lOper, kOper, iTile, jTile, nInt
-  integer, external :: n2Tri
-  real*8 Origin(3), rHrmt, Xi, Yi, Zi, Dij, Xj, Yj, Zj, Rij, Fact
-  real*8 W_or_El, W_or_Nuc, W_or_Inf, W_or_InfNuc, W_0_or_El, W_0_or_Inf, QInf, ENN, ENE, EEN, EEE, Alpha
+  integer(kind=iwp), external :: n2Tri
 
   !                                                                    *
   !*********************************************************************
@@ -147,7 +147,7 @@ subroutine DrvPCM_Internal(Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,VSave,QTesser
 
     ! Compute the electrostatic potential due to slow charges
 
-    VSlow(1:nTs) = Zero
+    VSlow(:) = Zero
     do iTile=1,nTs
       XI = Tessera(1,iTile)
       YI = Tessera(2,iTile)
@@ -320,10 +320,10 @@ subroutine DrvPCM_Internal(Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,VSave,QTesser
     Q_Tessera(:) = QTessera(1,:)
     if (NonEq) call DaXpY_(nTs,One,QTessera_Slow,1,Q_Tessera,1)
     call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,nOrdOp,rHrmt,[kOper],Integrals)
-    nInt = n2Tri(lOper)
-    call CmpInt(Integrals(ip(1)),nInt,nBas,nIrrep,lOper)
+    n_Int = n2Tri(lOper)
+    call CmpInt(Integrals(ip(1)),n_Int,nBas,nIrrep,lOper)
     Alpha = One
-    call DaXpY_(nInt,Alpha,Integrals(ip(1)),1,h1,1)
+    call DaXpY_(n_Int,Alpha,Integrals(ip(1)),1,h1,1)
     call mma_deallocate(Integrals)
 
     ! Save the modified h1 matrix
@@ -339,10 +339,10 @@ subroutine DrvPCM_Internal(Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,VSave,QTesser
 
   Q_Tessera(:) = QTessera(2,:)
   call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,nOrdOp,rHrmt,[kOper],Integrals)
-  nInt = n2Tri(lOper)
-  call CmpInt(Integrals(ip(1)),nInt,nBas,nIrrep,lOper)
+  n_Int = n2Tri(lOper)
+  call CmpInt(Integrals(ip(1)),n_Int,nBas,nIrrep,lOper)
   Alpha = One
-  call DaXpY_(nInt,Alpha,Integrals(ip(1)),1,TwoHam,1)
+  call DaXpY_(n_Int,Alpha,Integrals(ip(1)),1,TwoHam,1)
   call mma_deallocate(Integrals)
   !                                                                    *
   !*********************************************************************

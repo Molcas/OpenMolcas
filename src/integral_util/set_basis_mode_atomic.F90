@@ -13,10 +13,11 @@ subroutine Set_Basis_Mode_Atomic(i,j)
 
 use Basis_Info, only: dbsc
 use BasisMode, only: Atomic, Auxiliary_Mode, Basis_Mode, kCnttp, lCnttp, Valence_Mode
+use Definitions, only: iwp
 
 implicit none
-integer i, j
-integer k
+integer(kind=iwp), intent(in) :: i, j
+integer(kind=iwp) :: k
 
 if (dbsc(i)%Aux) then
   Basis_Mode = Auxiliary_Mode

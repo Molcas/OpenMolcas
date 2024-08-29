@@ -18,6 +18,7 @@ subroutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -25,18 +26,15 @@ use Definitions, only: u6
 implicit none
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
-character(len=8) Label
-integer nComp, nOrdOp
-real*8 CCoor(3,nComp)
-integer ip(nComp), lOper(nComp), iChO(nComp)
-real*8 rHrmt
-integer iStabO(0:7)
-integer, parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
-real*8 dum(1)
-integer idum(1)
-real*8, allocatable :: Integrals(:)
-integer, external :: n2Tri
-integer iComp, iIrrep, LenInt, LenTot, llOper, nIC, nStabO
+character(len=8), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp)
+integer(kind=iwp), intent(out) :: ip(nComp)
+real(kind=wp), intent(in) :: CCoor(3,nComp), rHrmt
+real(kind=wp), allocatable, intent(out) :: Integrals(:)
+integer(kind=iwp) :: iComp, idum(1), iIrrep, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
+real(kind=wp) :: dum(1)
+integer(kind=iwp), external :: n2Tri
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 
 !                                                                      *
 !***********************************************************************

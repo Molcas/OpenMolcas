@@ -17,11 +17,15 @@ subroutine Picky_inner(Din,n,m,nijPrm,nijCmp,nDCR,nSt,nEnd,mSt,mEnd,Dout)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, m, nijPrm, nijCmp, nDCR, nSt, nEnd, mSt, mEnd
-real*8 Din(((n*m+1)*nijCmp)+nijPrm+1,nDCR), Dout((((nEnd-nSt+1)*(mEnd-mSt+1)+1)*nijCmp)+nijPrm+1,nDCR)
-integer i, j, k, ij1, ij2, iIn, iOut, iDCR, ijCmp, jm, im, jn, in, jIn, jOut
+integer(kind=iwp), intent(in) :: n, m, nijPrm, nijCmp, nDCR, nSt, nEnd, mSt, mEnd
+real(kind=wp), intent(in) :: Din(((n*m+1)*nijCmp)+nijPrm+1,nDCR)
+real(kind=wp), intent(out) :: Dout((((nEnd-nSt+1)*(mEnd-mSt+1)+1)*nijCmp)+nijPrm+1,nDCR)
+integer(kind=iwp) :: i_n, iDCR, iIn, ijCmp, im, iOut, jIn, jm, jn, jOut
 ! Statement functions
+integer(kind=iwp) :: i, j, k, ij1, ij2
 ij1(i,j,k) = (k-1)*(n*m+1)+(j-1)*n+i
 ij2(i,j,k) = (k-1)*((nEnd-nSt+1)*(mEnd-mSt+1)+1)+(j-1)*(nEnd-nSt+1)+i
 
@@ -41,9 +45,9 @@ else
         jm = jm+1
         jn = 0
         ! Loop over subset of contracted basis
-        do in=nSt,nEnd
+        do i_n=nSt,nEnd
           jn = jn+1
-          Dout(ij2(jn,jm,ijCmp),iDCR) = Din(ij1(in,im,ijCmp),iDCR)
+          Dout(ij2(jn,jm,ijCmp),iDCR) = Din(ij1(i_n,im,ijCmp),iDCR)
         end do
       end do
       ! Move the largest density matrix element for

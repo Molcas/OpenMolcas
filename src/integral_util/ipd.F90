@@ -14,12 +14,12 @@
 function iPD(iSO_,jSO_,iSOSym,nSOs)
 
 use Basis_Info, only: nBas
+use Definitions, only: iwp
 
 implicit none
-integer iPD
-integer iSO_, jSO_, nSOs
-integer iSOSym(2,nSOs)
-integer iSO, jSO, iSym, iSOr, jSym, jSOr, ij
+integer(kind=iwp) :: iPD
+integer(kind=iwp), intent(in) :: iSO_, jSO_, nSOs, iSOSym(2,nSOs)
+integer(kind=iwp) :: ij, iSO, iSOr, iSym, jSO, jSOr, jSym
 
 iPD = -999999
 

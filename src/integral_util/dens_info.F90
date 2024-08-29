@@ -12,10 +12,13 @@
 subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities)
 
 use k2_arrays, only: ipOffD
+use Definitions, only: iwp
 
 implicit none
-integer ijS, ipDij, ipDSij, mDCRij, ipDDij, ipTmp, nr_of_Densities
-integer nDij
+integer(kind=iwp), intent(in) :: ijS, nr_of_Densities
+integer(kind=iwp), intent(out) :: ipDij, ipDSij, mDCRij, ipDDij
+integer(kind=iwp), intent(inout) :: ipTmp
+integer(kind=iwp) :: nDij
 
 ipDij = ipOffD(1,ijS)
 mDCRij = ipOffD(2,ijS)

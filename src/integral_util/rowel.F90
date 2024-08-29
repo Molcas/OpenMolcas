@@ -21,15 +21,16 @@ subroutine Rowel(nZeta,r0,Beta,K,alpha,P,a,gri,grin,jsum)
 ! Sweden                                                               *
 !***********************************************************************
 
-use Constants, only: One
 use welcom, only: Fac, ipot3
-use Definitions, only: wp
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nZeta, jSum, k
-real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta), grin((k+1)*(k/2+1)*(k/4+1)*nZeta), P(nZeta,3)
-real*8 r0, Beta
-integer iZeta, i, iSum
+integer(kind=iwp), intent(in) :: nZeta, k, jSum
+real(kind=wp), intent(in) :: r0, Beta, alpha(nZeta), P(nZeta,3)
+real(kind=wp), intent(out) :: a(nZeta), grin((k+1)*(k/2+1)*(k/4+1)*nZeta)
+real(kind=wp), intent(inout) :: gri(nZeta*jsum)
+integer(kind=iwp) :: i, iSum, iZeta
 
 call poti(k,ipot3)
 !call IecPrt(' ipot3(0:k+1)',ipot3,k+2,1)

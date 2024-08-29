@@ -30,11 +30,12 @@ subroutine Put_ln(In_Line)
 !                                                                      *
 !***********************************************************************
 
-use getline_mod, only: Line, nCol, iStrt, iEnd
+use getline_mod, only: iEnd, iStrt, Line, nCol
+use Definitions, only: iwp
 
 implicit none
-character(len=*) In_line
-integer i, j, l, icom
+character(len=*), intent(in) :: In_line
+integer(kind=iwp) :: i, icom, j, l
 
 Line = In_Line
 l = len(line)

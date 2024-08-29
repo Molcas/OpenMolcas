@@ -47,7 +47,7 @@ iii = 0
 
 ! PAM 2012: NewOrd update
 ! If NNWORD is > 0, this indicates the caller wish to get back
-! a reindicing array. Then this must be large enough:
+! a reindexing array. Then this must be large enough:
 if (NNWORD > 0) then
   nw = 0
   do ISYM=1,NSYM

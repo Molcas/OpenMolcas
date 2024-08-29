@@ -27,7 +27,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
-      use rctfld_module
+      use rctfld_module, only: lRF
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg

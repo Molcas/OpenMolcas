@@ -20,14 +20,15 @@ function iPrmt(jOper,iChct)
 !***********************************************************************
 
 use Symmetry_Info, only: iOper
+use Definitions, only: iwp
 #ifdef _CHECK_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer iPrmt
-integer jOper, iChct
-integer iCom, i
+integer(kind=iwp) :: iPrmt
+integer(kind=iwp), intent(in) :: jOper, iChct
+integer(kind=iwp) :: i, iCom
 
 #ifdef _CHECK_
 if (size(iOper) < 1) then

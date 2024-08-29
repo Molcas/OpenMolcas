@@ -11,26 +11,37 @@
 
 module Int_Options
 
-use Definitions, only: wp, iwp
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-logical(kind=iwp) :: DoIntegrals = .true.
-logical(kind=iwp) :: DoFock = .false.
-logical(kind=iwp) :: FckNoClmb = .false.
-logical(kind=iwp) :: FckNoExch = .false.
-real(kind=wp) :: ExFac = Zero
-real(kind=wp) :: Thize = Zero
-real(kind=wp) :: Disc_Mx = Zero
-real(kind=wp) :: Disc = Zero
-logical(kind=iwp) :: W2Disc = .false.
-logical(kind=iwp) :: PreSch = .true.
-integer(kind=iwp) :: iTOffs(8**3)
-real(kind=wp) :: Quad_ijkl = Zero
-integer(kind=iwp) :: Map4(4)
+integer(kind=iwp) :: iTOffs(8**3), Map4(4)
+real(kind=wp) :: Disc = Zero, Disc_Mx = Zero, ExFac = Zero, Quad_ijkl = Zero, Thize = Zero
+logical(kind=iwp) :: DoFock = .false., DoIntegrals = .true., FckNoClmb = .false., FckNoExch = .false., PreSch = .true., &
+                     W2Disc = .false.
 
-public :: DoIntegrals, DoFock, FckNoClmb, FckNoExch, ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc, iTOffs, Quad_ijkl, Map4
+public :: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, iTOffs, Map4, PreSch, Quad_ijkl, &
+          Thize, W2Disc
+
+contains
+
+subroutine Init_Int_Options()
+
+  ! Default values
+  DoFock = .false.
+  DoIntegrals = .true.
+  FckNoClmb = .false.
+  FckNoExch = .false.
+  PreSch = .true.
+  W2Disc = .false.
+  Disc = Zero
+  Disc_Mx = Zero
+  ExFac = Zero
+  Quad_ijkl = Zero
+  Thize = Zero
+
+end subroutine Init_Int_Options
 
 end module Int_Options

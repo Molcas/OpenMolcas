@@ -23,7 +23,7 @@ subroutine SchInt_mck(CoorM,iAnga,nAlpha,nBeta,nMemab,Zeta,ZInv,rKapab,P,nZeta,W
 !             March '90                                                *
 !                                                                      *
 !             June '91, modified to compute zeta, P, kappa and inte-   *
-!             grals for Schwartz inequality in a k2 loop.              *
+!             grals for Schwarz inequality in a k2 loop.               *
 !             April '92 modified from k2Loop to a separate subroutine  *
 !              for estimates of the gradient.                          *
 !***********************************************************************
@@ -49,7 +49,7 @@ la = iAnga(1)
 lb = iAnga(2)
 
 ! Compute primitive integrals to be used in the prescreening
-! by the Schwartz inequality.
+! by the Schwarz inequality.
 
 ! Compute actual size of [a0|c0] block
 

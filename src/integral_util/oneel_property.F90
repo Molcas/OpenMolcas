@@ -15,22 +15,22 @@ subroutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rNuc,r
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Integral_Interfaces, only: int_kernel, int_mem, OneEl_Integrals
-use Constants, only: One
 use stdalloc, only: mma_deallocate
-use Definitions, only: u6
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
-character(len=8) Label
-integer nComp, nDens, nOrdOp
-real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
-integer ip(nComp), lOper(nComp), iChO(nComp)
-real*8 rHrmt, Sig
-real*8, allocatable :: Integrals(:)
-integer, external :: n2Tri
-integer LenTot, iComp, iSmLbl, nInt
-real*8, external :: DDot_
+character(len=8), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), nDens
+integer(kind=iwp), intent(out) :: ip(nComp)
+real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, D_tot(nDens), Sig
+real(kind=wp), intent(out) :: Property(nComp)
+integer(kind=iwp) :: iComp, iSmLbl, LenTot, n_Int
+real(kind=wp), allocatable :: Integrals(:)
+integer(kind=iwp), external :: n2Tri
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -68,13 +68,13 @@ do iComp=1,nComp
   !                                                                    *
   ! Compute properties directly from integrals
 
-  nInt = n2Tri(iSmLbl)
-  LenTot = LenTot+nInt+4
-  if (nInt /= 0) then
-    call CmpInt(Integrals(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
-    if (nInt /= nDens) then
-      call WarningMessage(2,'OneEl_Property: nInt /= nDens')
-      write(u6,*) 'nInt=',nInt
+  n_Int = n2Tri(iSmLbl)
+  LenTot = LenTot+n_Int+4
+  if (n_Int /= 0) then
+    call CmpInt(Integrals(ip(iComp)),n_Int,nBas,nIrrep,iSmLbl)
+    if (n_Int /= nDens) then
+      call WarningMessage(2,'OneEl_Property: n_Int /= nDens')
+      write(u6,*) 'n_Int=',n_Int
       write(u6,*) 'nDens',nDens
       call Abend()
     end if

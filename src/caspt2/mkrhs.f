@@ -204,19 +204,19 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                       VALUE=0.5D0*ERI(IBUF)
                       IF(IIABS.GE.IJABS) THEN
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
-                        IWP=ITUP+NASP*(IIJP-1)
+                        JWP=ITUP+NASP*(IIJP-1)
                         IF(IIABS.GT.IJABS) THEN
-                          WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+VALUE
+                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
                           IIJM=KIGTJ(IIABS,IJABS)-NIGTJES(ISYM)
                           IWM=ITUM+NASM*(IIJM-1)
                           WORK(LWM-1+IWM)=WORK(LWM-1+IWM)+VALUE
                         ELSE
-                          WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+SQ2*VALUE
+                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+SQ2*VALUE
                         END IF
                       ELSE
                         IIJP=KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
-                        IWP=ITUP+NASP*(IIJP-1)
-                        WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+VALUE
+                        JWP=ITUP+NASP*(IIJP-1)
+                        WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
                         IIJM=KIGTJ(IJABS,IIABS)-NIGTJES(ISYM)
                         IWM=ITUM+NASM*(IIJM-1)
                         WORK(LWM-1+IWM)=WORK(LWM-1+IWM)-VALUE
@@ -232,16 +232,16 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                       VALUE=0.25D0*ERI(IBUF)
                       IF(IIABS.GE.IJABS) THEN
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
-                        IWP=ITUP+NASP*(IIJP-1)
+                        JWP=ITUP+NASP*(IIJP-1)
                         IF(IIABS.GT.IJABS) THEN
-                          WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+VALUE
+                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
                         ELSE
-                          WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+SQ2*VALUE
+                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+SQ2*VALUE
                         END IF
                       ELSE
                         IIJP=KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
-                        IWP=ITUP+NASP*(IIJP-1)
-                        WORK(LWP-1+IWP)=WORK(LWP-1+IWP)+VALUE
+                        JWP=ITUP+NASP*(IIJP-1)
+                        WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
                       END IF
  216                CONTINUE
  215               CONTINUE
@@ -514,15 +514,15 @@ C With new normalisation, divide by /SQRT(6)
                       A=ERI1(IBUF)+ERI2(IBUF)
                       IWA=IT
                       IWIP=IA+NSSH(ISYMA)*(IGEJ-1)+IOFF1(ISYMA)
-                      IWP=IWA+NAS*(IWIP-1)
+                      JWP=IWA+NAS*(IWIP-1)
                       IF(IIABS.GT.IJABS) THEN
-                        WORK(LWP-1+IWP)=SQI2*A
+                        WORK(LWP-1+JWP)=SQI2*A
                         B=ERI1(IBUF)-ERI2(IBUF)
                         IWIM=IA+NSSH(ISYMA)*(IGTJ-1)+IOFF2(ISYMA)
                         IWM=IWA+NAS*(IWIM-1)
                         WORK(LWM-1+IWM)=SQ32*B
                       ELSE
-                        WORK(LWP-1+IWP)=0.5D0*A
+                        WORK(LWP-1+JWP)=0.5D0*A
                       END IF
  512                CONTINUE
  511              CONTINUE
@@ -607,9 +607,9 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                       IF(ITABS.EQ.IUABS) A=0.5D0*A
                       IWAP=KTGEU(ITABS,IUABS)-NTGEUES(ISYM)
                       IWIP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
-                      IWP=IWAP+NASP*(IWIP-1)
+                      JWP=IWAP+NASP*(IWIP-1)
                       IF(IAABS.NE.IBABS) THEN
-                        WORK(LWP-1+IWP)=A
+                        WORK(LWP-1+JWP)=A
                         IF(ITABS.NE.IUABS) THEN
                           B=0.5D0*(ERI1(IBUF)-ERI2(IBUF))
                           IWAM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
@@ -618,7 +618,7 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                           WORK(LWM-1+IWM)=B
                         END IF
                       ELSE
-                        WORK(LWP-1+IWP)=SQI2*A
+                        WORK(LWP-1+JWP)=SQI2*A
                       END IF
  600                CONTINUE
  611              CONTINUE
@@ -712,17 +712,17 @@ C With new normalisation, divide by /SQRT(6)
                       IWA=IT
                       IAGEB=KAGEB(IAABS,IBABS)-NAGEBES(ISYMAB)
                       IWIP=II+NISH(ISYMI)*(IAGEB-1)+IOFF1(ISYMI)
-                      IWP=IWA+NAS*(IWIP-1)
+                      JWP=IWA+NAS*(IWIP-1)
                       A=ERI1(IBUF)+ERI2(IBUF)
                       IF(IAABS.NE.IBABS) THEN
-                        WORK(LWP-1+IWP)=SQI2*A
+                        WORK(LWP-1+JWP)=SQI2*A
                         IAGTB=KAGTB(IAABS,IBABS)-NAGTBES(ISYMAB)
                         IWIM=II+NISH(ISYMI)*(IAGTB-1)+IOFF2(ISYMI)
                         IWM=IWA+NAS*(IWIM-1)
                         B=ERI1(IBUF)-ERI2(IBUF)
                         WORK(LWM-1+IWM)=SQ32*B
                       ELSE
-                        WORK(LWP-1+IWP)=0.5D0*A
+                        WORK(LWP-1+JWP)=0.5D0*A
                       END IF
  710                CONTINUE
  720              CONTINUE

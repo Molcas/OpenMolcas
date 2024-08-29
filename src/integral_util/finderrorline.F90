@@ -11,12 +11,12 @@
 
 subroutine FindErrorLine()
 
-use getline_mod, only: MyUnit, iGetLine
-use Definitions, only: u6
+use getline_mod, only: iGetLine, MyUnit
+use Definitions, only: iwp, u6
 
 implicit none
-character(len=180) line
-integer lunit, isave
+character(len=180) :: line
+integer(kind=iwp) :: isave, lunit
 
 lunit = myunit
 isave = igetline

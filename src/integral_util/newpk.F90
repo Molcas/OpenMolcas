@@ -29,13 +29,14 @@ subroutine NewPK(A,B,P,mZeta,nZeta,rKappa,Alpha,Beta)
 !***********************************************************************
 
 use Constants, only: Zero, One, TwoP54
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer mZeta, nZeta
-real*8 Alpha(nZeta), Beta(nZeta), A(3), B(3), P(nZeta,3), rKappa(nZeta)
-real*8 AB2, Tmp0, Tmp1
-integer iZeta
+integer(kind=iwp), intent(in) :: mZeta, nZeta
+real(kind=wp), intent(in) :: A(3), B(3), Alpha(nZeta), Beta(nZeta)
+real(kind=wp), intent(out) :: P(nZeta,3), rKappa(nZeta)
+integer(kind=iwp) :: iZeta
+real(kind=wp) :: AB2, Tmp0, Tmp1
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)

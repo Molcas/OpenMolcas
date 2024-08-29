@@ -15,18 +15,20 @@ subroutine AbsAdd(nVec,Vec1,inc1,Vec2,inc2)
 !***********************************************************************
 !                                                                      *
 ! Object: to add the absolute values of a vector to another vector.    *
-!         The square root due to the Cauchy-Schwatz equation.          *
+!         The square root due to the Cauchy-Schwarz equation.          *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !             May '92.                                                 *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(In) :: nVec, inc1, inc2
-real*8, intent(InOut) :: Vec1(1+(nVec-1)*Inc1)
-real*8, intent(InOut) :: Vec2(1+(nVec-1)*Inc2)
-integer iVec
+integer(kind=iwp), intent(in) :: nVec, inc1, inc2
+real(kind=wp), intent(in) :: Vec1(1+(nVec-1)*Inc1)
+real(kind=wp), intent(inout) :: Vec2(1+(nVec-1)*Inc2)
+integer(kind=iwp) :: iVec
 
 do iVec=1,nVec
   Vec2(1+(iVec-1)*Inc2) = Vec2(1+(iVec-1)*Inc2)+sqrt(abs(Vec1(1+(iVec-1)*Inc1)))

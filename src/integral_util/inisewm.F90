@@ -11,11 +11,13 @@
 
 subroutine inisewm(prgnam,ndiff)
 
+use Definitions, only: iwp
+
 implicit none
-character(len=*) prgnam
-integer nDiff
-character(len=16) pgnm_local
-logical DoRys
+character(len=*), intent(in) :: prgnam
+integer(kind=iwp), intent(inout) :: nDiff
+character(len=16) :: pgnm_local
+logical(kind=iwp) :: DoRys
 
 pgnm_local = prgnam
 call locase(pgnm_local)

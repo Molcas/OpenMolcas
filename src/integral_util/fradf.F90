@@ -18,11 +18,12 @@ function fradf(x)
 !                                                                      *
 !***********************************************************************
 
-use rmat, only: l, expsum
+use rmat, only: expsum, l
+use Definitions, only: wp
 
 implicit none
-real*8 fradf
-real*8 x
+real(kind=wp) :: fradf
+real(kind=wp), intent(in) :: x
 
 fradf = x**(l+2)*exp(-expsum*x*x)
 

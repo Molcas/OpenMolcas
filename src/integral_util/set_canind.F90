@@ -24,9 +24,10 @@ subroutine Set_CanInd()
 !***********************************************************************
 
 use define_af, only: lab, iCan
+use Definitions, only: iwp
 
 implicit none
-integer ip, la, ix, iy, iz
+integer(kind=iwp) :: ip, ix, iy, iz, la
 
 ip = 0
 do la=0,lab-1

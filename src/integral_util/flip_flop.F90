@@ -11,13 +11,14 @@
 
 subroutine Flip_Flop(Primitive)
 
-use Basis_Info, only: nCnttp, DBSC, Shells, iCnttp_Dummy
+use Basis_Info, only: DBSC, iCnttp_Dummy, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-logical Primitive
-integer iCnttp, nTest, iAng, iShll, nExpi
+logical(kind=iwp), intent(in) :: Primitive
+integer(kind=iwp) :: iAng, iCnttp, iShll, nExpi, nTest
 
 S%MaxBas(:) = 0
 S%MaxPrm(:) = 0

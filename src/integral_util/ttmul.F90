@@ -12,11 +12,13 @@
 subroutine TTMul(A,B,C,nRowA,nColA,nRowB)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nRowA, nColA, nRowB
-real*8 A(nRowA,nColA), B(nRowB,nRowA), C(nColA,nRowB)
-integer nCache_, mCache, Incj, jj, njVec, i, j, k
+integer(kind=iwp), intent(in) :: nRowA, nColA, nRowB
+real(kind=wp), intent(in) :: A(nRowA,nColA), B(nRowB,nRowA)
+real(kind=wp), intent(out) :: C(nColA,nRowB)
+integer(kind=iwp) :: i, Incj, j, jj, k, mCache, nCache_, njVec
 
 nCache_ = (64/8)*1024
 mCache = (nCache_*3)/4-nRowA*nColA

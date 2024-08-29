@@ -28,7 +28,7 @@ use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Extend_Shells, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
-use Integral_interfaces, only: Int_PostProcess, Integral_RICD
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -58,6 +58,7 @@ real(kind=wp), allocatable :: A(:), ADiag(:), C(:), Q(:), QTmp(:), Scr(:), Temp(
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: H(:), tVtInv(:), U(:)
 #endif
+procedure(int_wrout) :: Integral_RICD
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -241,7 +242,7 @@ else
   !*********************************************************************
   !                                                                    *
   ! Let us now decompose and retrieve the most important
-  ! contracted products, indicies stored in iD_c
+  ! contracted products, indices stored in iD_c
 
   call mma_allocate(iD_c,nTInt_c,label='iD_c')
 
@@ -612,7 +613,7 @@ do iBS=0,nBS-1
           call iVcPrt('List_TP',' ',LTP,2*nPrim_Max)
 #         endif
           ! Let us now decompose and retrieve the most
-          ! important primitive products, indicies stored in iD_p
+          ! important primitive products, indices stored in iD_p
 
           call mma_allocate(iD_p,nPrim_Max,label='iD_p')
           call mma_allocate(Vec,nPrim_Max**2,label='Vec')

@@ -12,12 +12,12 @@
       Use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep
-      use Disp
+      use Disp, only: IndDsp, InxDsp, lDisp
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "diff.fh"
 #include "WrkSpc.fh"
-      Logical TstFnc
+      Logical, External :: TF
 C Purpose: Pick out the following data from INFO:
 C nUqCnt=Nr of unique centers
 C nAlCnt  =Nr of centers (total)
@@ -160,8 +160,7 @@ C-------------------------------------------
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(dc(mdc)%iCoSet,
-     &                        iIrrep,iComp,dc(mdc)%nStab) ) Then
+                  If ( TF(mdc,iIrrep,iComp) ) Then
                      nDisp = nDisp + 1
                      If (nDisp.gt.mDisp) Then
                         Write (6,*) 'nDisp.gt.mDisp'

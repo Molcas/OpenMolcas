@@ -11,13 +11,14 @@
 
 subroutine ylmnor(lmax)
 
-use Constants, only: One
 use welcom, only: aNorm, FiInt, TetInt
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(In) :: lmax
-integer i, lm2, j, k
-real*8 Tal
+integer(kind=iwp), intent(in) :: lmax
+integer(kind=iwp) :: i, lm2, j, k
+real(kind=wp) :: Tal
 
 do i=0,lmax
   lm2 = i/2

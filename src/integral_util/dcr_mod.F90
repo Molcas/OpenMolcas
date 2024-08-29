@@ -11,16 +11,22 @@
 
 module dcr_mod
 
-integer nIndex
-logical Done(1275)
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: MxIndx = 50, Mx = MxIndx*(MxIndx+1)/2
+integer(kind=iwp) :: iDCR_all(0:7,Mx), Indx(MxIndx), Lambda_all(Mx), mDCR_all(Mx), nIndx
+logical(kind=iwp) :: Done(Mx)
+
+public :: DCR_Init, Done, iDCR_all, Indx, Lambda_all, mDCR_all, nIndx
 
 contains
 
 subroutine DCR_Init()
 
-  implicit none
-
-  nIndex = 0
+  nIndx = 0
   Done(:) = .false.
 
 end subroutine DCR_Init

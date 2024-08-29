@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp)
+subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the kinetic energy integrals with the Gauss-      *
@@ -25,16 +25,16 @@ subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,nComp,l
 !***********************************************************************
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), Array(nZeta*nArr), Ccoor(3)
-logical ABeq(3)
-integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB, ipAOff, iAlpha, ipBOff, iBeta
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Array(nZeta*nArr)
+integer(kind=iwp) :: nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB, ipAOff, iAlpha, ipBOff, iBeta
+logical(kind=iwp) :: ABeq(3)
 
-ABeq(:) = A(:) == RB(:)
+ABeq(:) = (A(:) == RB(:))
 
 nip = 1
 ipAxyz = nip
@@ -109,7 +109,7 @@ call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZeta)
 ! Combine the cartesian components to the full one electron
 ! integral.
 
-call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,final,nComp,Array(ipTxyz))
+call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,rFinal,nComp,Array(ipTxyz))
 
 return
 ! Avoid unused argument warnings

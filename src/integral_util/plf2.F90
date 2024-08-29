@@ -29,27 +29,27 @@ subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,iBas,jBas,kBas,l
 
 use SOAO_Info, only: iAOtSO
 use k2_arrays, only: Sew_Scr
-use lw_Info, only: lwSyB, lwInt, lwSqn
+use lw_Info, only: lwInt, lwSqn, lwSyB
 use Gateway_Info, only: ThrInt
 use sort_data, only: DimSyB, lSll
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer ijkl, iCmp, jCmp, kCmp, lCmp, iBas, jBas, kBas, lBas
-real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
-integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
-integer i, j, iTri, nUt, iAOSti, iAOStj, iAOStk, iAOStl, iAOi, iAOj, iAOk, iAOl, i1, i2, i3, i4, nij, mij, iSO, jSO, kSO, lSO, &
-        iSOi, jSOj, kSOk, lSOl, nijkl, iSOij, iSOkl, ijklCmp, iBin
-real*8 AInt
+integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
+real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iBin, ijklCmp, iSO, iSOi, iSOij, &
+                     iSOkl, iSOs(4), jSO, jSOj, kSO, kSOk, lSO, lSOl, mij, nij, nijkl, nUt
+real(kind=wp) :: A_Int
 #ifdef _DEBUGPRINT_
-real*8 r1, r2
-real*8, external :: DDot_
+real(kind=wp) :: r1, r2
+real(kind=wp), external :: DDot_
 #endif
 ! Statement function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
@@ -108,14 +108,14 @@ do i1=1,iCmp
             do jSOj=jSO,jSO+jBas-1
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
-                AInt = AOint(nijkl,i1,i2,i3,i4)
-                if (abs(AInt) < ThrInt) Go To 420
+                A_Int = AOint(nijkl,i1,i2,i3,i4)
+                if (abs(A_Int) < ThrInt) Go To 420
                 iSOij = iTri(iSOi,jSOj)
 
                 !write(u6,*) 'iSOij,iSOkl=',iSOij,iSOkl
 
                 nUt = nUt+1
-                Sew_Scr(lwInt+nUt) = Aint
+                Sew_Scr(lwInt+nUt) = A_int
                 iBin = (iSOkl-1)/mij
                 !write(u6,*) 'iBin=',iBin+1
                 Sew_Scr(lwSyB+nUt) = real(iBin+1,kind=wp)
@@ -124,7 +124,7 @@ do i1=1,iCmp
 
                 if (iSOij /= iSOkl) then
                   nUt = nUt+1
-                  Sew_Scr(lwInt+nUt) = Aint
+                  Sew_Scr(lwInt+nUt) = A_int
                   iBin = (iSOij-1)/mij
                   !write(u6,*) 'iBin=',iBin+1
                   Sew_Scr(lwSyB+nUt) = real(iBin+1,kind=wp)

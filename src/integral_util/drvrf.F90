@@ -13,22 +13,23 @@
 subroutine DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,iCharge)
 
 use External_Centers, only: iXPolType
-use Constants, only: Zero, Half, One
+use rctfld_module, only: lLangevin, lRF, lRFCav, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
-use rctfld_module, only: lRF, lLangevin, PCM, lRFCav
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-#include "SysDef.fh"
-integer nh1, iCharge
-real*8 h1(nh1), TwoHam(nh1), D(nh1)
-logical First, Dff, NonEq
-character(len=8) Label
-real*8, save :: RepNuc_Temp
-real*8 RepNucXX(1)
-real*8, allocatable :: RFld(:,:), h1_RF(:), h1_XX(:)
-real*8 RepNuc, ERfSelf, EEE, RepNuc_RF
-real*8, external :: DDot_
-integer iSyLbl, iOpt, iComp, iRC
+integer(kind=iwp), intent(in) :: nh1
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
+real(kind=wp), intent(in) :: D(nh1)
+logical(kind=iwp), intent(in) :: First, Dff, NonEq
+integer(kind=iwp), intent(inout) :: iCharge
+integer(kind=iwp) :: iComp, iOpt, iRC, iSyLbl
+real(kind=wp) :: EEE, ERfSelf, RepNuc_RF, RepNucXX(1)
+real(kind=wp), save :: RepNuc_Temp
+character(len=8) :: Label
+real(kind=wp), allocatable :: h1_RF(:), h1_XX(:), RFld(:,:)
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -53,19 +54,19 @@ if (lLangevin .or. (iXPolType > 0)) then
   ! Reaction field a la polarizabilities and Langevin dipole
   ! moments on a grid in a cavity in a dielectric medium.
 
-  call Langevin(h1,RFld(1,2),D,RepNuc,nh1,First,Dff)
+  call Langevin(h1,RFld(:,2),D,RepNuc,nh1,First,Dff)
 
 else if (PCM) then
 
   ! Reaction field a la PCM
 
-  call DrvPCM(h1,RFld(1,2),D,RepNuc,nh1,First,Dff,NonEq)
+  call DrvPCM(h1,RFld(:,2),D,RepNuc,nh1,First,Dff,NonEq)
 
 else if (lRFCav) then
 
   ! Reaction field a la cavity in dielectric medium.
 
-  call RctFld(h1,RFld(1,2),D,RepNuc,nh1,First,Dff,NonEq)
+  call RctFld(h1,RFld(:,2),D,RepNuc,nh1,First,Dff,NonEq)
 
 else
   call WarningMessage(2,'I do not know what reaction field type to use.')

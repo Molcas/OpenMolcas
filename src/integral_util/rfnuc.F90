@@ -25,31 +25,29 @@ subroutine RFNuc(CoOP,rNucMm,ir)
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
+use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _OBSOLETE_
 use Phase_Info, only: iPhase
 use External_Centers, only: nOrd_XF, XF
-use Definitions, only: wp
 #endif
-use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer ir
-real*8 rNucMm((ir+1)*(ir+2)/2), CoOp(3)
-real*8 A(3), RA(3)
-integer iq, ix, iy, iz, ndc, iCnttp, iCnt, i, mdc
-real*8 temp, ZA, CCoMx, CCoMy, CComZ
+integer(kind=iwp), intent(in) :: ir
+real(kind=wp), intent(in) :: CoOp(3)
+real(kind=wp), intent(out) :: rNucMm((ir+1)*(ir+2)/2)
+integer(kind=iwp) :: i, iCnt, iCnttp, iq, ix, iy, iz, mdc, ndc
+real(kind=wp) :: A(3), CCoMx, CCoMy, CComZ, RA(3), temp, ZA
 #ifdef _OBSOLETE_
-real*8 rRMy(3)
-integer iStb(0:7), jCoSet(0:7,0:7)
-real*8 DAx, DAy, DAz, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz
-real*8 QRAxx, QRAyy, QRAzz, QRAxy, QRAxz, QRAyz
+integer(kind=iwp) :: iStb(0:7), jCoSet(0:7,0:7)
+real(kind=wp) :: DAx, DAy, DAz, QRAxx, QRAxy, QRAxz, QRAyy, QRAyz, QRAzz, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz, rRMy(3)
 #endif
 #ifdef _DEBUGPRINT_
-integer ip
+integer(kind=iwp) :: ip
 #endif
 
 !                                                                      *

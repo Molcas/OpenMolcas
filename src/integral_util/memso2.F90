@@ -30,12 +30,13 @@ function MemSO2(iCmp,jCmp,kCmp,lCmp,iShell,jShell,kShell,lShell,iAO,jAO,kAO,lAO)
 
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer MemSO2
-integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell, iAO, jAO, kAO, lAO
-integer i1, i2, i3, i4, j1, j2, j3, j4, j12, jCmpMx, kCmpMx, lCmpMx, j2Max, j3Max
-logical Shij, Shkl, Shik, Shjl
+integer(kind=iwp) :: MemSO2
+integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell, iAO, jAO, kAO, lAO
+integer(kind=iwp) :: i1, i2, i3, i4, j1, j12, j2, j2Max, j3, j3Max, j4, jCmpMx, kCmpMx, lCmpMx
+logical(kind=iwp) :: Shij, Shik, Shjl, Shkl
 
 MemSO2 = 0
 
@@ -44,10 +45,10 @@ MemSO2 = 0
 ! Observe that we will walk through the memory in AOInt in a
 ! sequential way.
 
-Shij = iShell == jShell
-Shkl = kShell == lShell
-Shik = iShell == kShell
-Shjl = jShell == lShell
+Shij = (iShell == jShell)
+Shkl = (kShell == lShell)
+Shik = (iShell == kShell)
+Shjl = (jShell == lShell)
 
 if (nIrrep == 1) then
 

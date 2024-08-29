@@ -13,18 +13,19 @@ subroutine Aces_Gamma()
 
 use setup, only: mSkal, nSOS
 use Basis_Info, only: nBas
-use PSO_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
+use PSO_Stuff, only: Bin, G_ToC, lBin, LuGamma, SO2CI
 use iSD_data, only: iSO2Sh
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer, allocatable :: iTable(:,:)
-real*8, allocatable :: Buf(:), Bin3(:,:,:)
-integer :: nShell, nPair, nQUad, nBlocks, nReq, iBlock, iType, iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D, nA, nB, nC, nD, nAB, nCD, &
-           MaxMem
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: iBlock, iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D, iType, MaxMem, nA, nAB, nB, nBlocks, nC, nCD, nD, nPair, &
+                     nQUad, nReq, nShell
+integer(kind=iwp), allocatable :: iTable(:,:)
+real(kind=wp), allocatable :: Buf(:), Bin3(:,:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************

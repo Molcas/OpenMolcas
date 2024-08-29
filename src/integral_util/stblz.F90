@@ -12,11 +12,13 @@
 subroutine Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 
 use Symmetry_Info, only: iOper, nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer iChxyz, nStab, MaxDCR
-integer jStab(0:7), iCoSet(0:7,0:7)
-integer iStab, i, j, nMax, iTest, ielem, iTmp, iOpMn, ip
+integer(kind=iwp), intent(in) :: iChxyz
+integer(kind=iwp), intent(out) :: nStab, jStab(0:7), iCoSet(0:7,0:7)
+integer(kind=iwp), intent(inout) :: MaxDCR
+integer(kind=iwp) :: i, ielem, iOpMn, ip, iStab, iTest, iTmp, j, nMax
 
 !                                                                      *
 !***********************************************************************

@@ -12,15 +12,14 @@
 subroutine dWBuf(Array,nArray)
 
 use dEAF, only: dEAFAWrite
-use IOBUF, only: InCore, iBuf, IODone, lBuf, iPos, Disk, OnDisk, DiskMx_Byte, Disk_1, Disk_2, Buffer, iD, LuTmp
-use Definitions, only: wp
+use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, DiskMx_Byte, iBuf, iD, InCore, IODone, iPos, lBuf, LuTmp, OnDisk
+use Definitions, only: wp, iwp, RtoB, RtoI
 
 implicit none
-#include "SysDef.fh"
-integer nArray
-real*8 Array(nArray)
-integer iArray, mArray, Left
-real*8 Temp
+integer(kind=iwp), intent(in) :: nArray
+real(kind=wp), intent(in) :: Array(nArray)
+integer(kind=iwp) :: iArray, Left, mArray
+real(kind=wp) :: Temp
 
 !write(u6,*) 'Enter WBuf: iPos @',iPos,' iBuf,lBuf=',iBuf,lBuf
 if (InCore .and. (iBuf == 2)) then

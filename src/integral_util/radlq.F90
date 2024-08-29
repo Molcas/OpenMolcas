@@ -24,21 +24,20 @@ subroutine Radlq(Zeta,nZeta,lsum,Rnr,icop)
 !***********************************************************************
 
 use fx, only: f_interface
-use rmat, only: ExpSum, l, EpsAbs, EpsRel, RMatR
-use Definitions, only: u6
+use rmat, only: EpsAbs, EpsRel, ExpSum, l, RMatR
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nZeta, lSum, icop
-real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
-integer, parameter :: limit = 200, lenw = 4*limit
-procedure(f_interface) :: fradf
-integer iScrt(limit)
-real*8 Scrt(lenw)
-integer ir, iZeta, ier, nEval, Last
-real*8 result, AbsEr
+integer(kind=iwp), intent(in) :: nZeta, lSum, icop
+real(kind=wp), intent(in) :: Zeta(nZeta)
+real(kind=wp), intent(out) :: Rnr(nZeta,0:lsum)
+integer(kind=iwp), parameter :: limit = 200, lenw = 4*limit
+integer(kind=iwp) :: ier, ir, iScrt(limit), iZeta, Last, nEval
+real(kind=wp) :: AbsEr, reslt, Scrt(lenw)
 #ifdef _DEBUGPRINT_
-character(len=80) Label
+character(len=80) :: Label
 #endif
+procedure(f_interface) :: fradf
 
 call Untested('Radlq')
 
@@ -50,16 +49,16 @@ do ir=0,lsum
     expsum = Zeta(iZeta)
     ier = 0
     l = ir-icop
-    call dqagi(fradf,Rmatr,1,Epsabs,Epsrel,result,abser,neval,ier,limit,lenw,last,iScrt,Scrt)
+    call dqagi(fradf,Rmatr,1,Epsabs,Epsrel,reslt,abser,neval,ier,limit,lenw,last,iScrt,Scrt)
     if (ier > 0) then
       call WarningMessage(1,' WARNING in Radlq; Consult output for details!')
       write(u6,*) ' ier=',ier,' Error in Dqagi called from Radlq.'
-      write(u6,*) ' result=',result
+      write(u6,*) ' result=',reslt
       write(u6,*) ' abser =',abser
       write(u6,*) ' neval =',neval
       write(u6,*) ' WARNING in Radlq'
     end if
-    Rnr(iZeta,ir) = result
+    Rnr(iZeta,ir) = reslt
   end do
 end do
 !                                                                      *

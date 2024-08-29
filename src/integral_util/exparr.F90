@@ -22,12 +22,12 @@ subroutine ExpArr(Array,Ind,nArray,lArray)
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer lArray, nArray
-real*8 Array(lArray,nArray)
-integer Ind(nArray)
-integer iArray, jArray
+integer(kind=iwp), intent(in) :: nArray, Ind(nArray), lArray
+real(kind=wp), intent(inout) :: Array(lArray,nArray)
+integer(kind=iwp) :: iArray, jArray
 
 do iArray=nArray,1,-1
   jArray = Ind(iArray)

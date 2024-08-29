@@ -22,11 +22,12 @@ subroutine Set_binom()
 !             February 1999                                            *
 !***********************************************************************
 
+use define_af, only: Binom, iTabMx
 use Constants, only: Zero, One
-use define_af, only: iTabMx, Binom
+use Definitions, only: iwp
 
 implicit none
-integer n, i
+integer(kind=iwp) :: i, n
 
 binom(:,:) = Zero
 binom(0,0) = One

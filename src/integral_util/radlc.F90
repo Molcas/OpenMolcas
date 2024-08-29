@@ -24,24 +24,23 @@ subroutine Radlc(Zeta,nZeta,lsum,Rnr)
 !***********************************************************************
 
 use fx, only: f_interface
+use rmat, only: EpsAbs, EpsRel, ExpSum, KeyR, l, NagInt, QuadPack, RMatR, TestInt
 use Constants, only: Zero
-use rmat, only: l, ExpSum, QuadPack, TestInt, NagInt, EpsAbs, EpsRel, KeyR, RMatR
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nZeta, lSum
-real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
-procedure(f_interface) :: fradf
-integer, parameter :: limit = 200, lenw = 4*limit
+integer(kind=iwp), intent(in) :: nZeta, lSum
+real(kind=wp), intent(in) :: Zeta(nZeta)
+real(kind=wp), intent(out) :: Rnr(nZeta,0:lsum)
+integer(kind=iwp), parameter :: limit = 200, lenw = 4*limit
+integer(kind=iwp) :: ier2, ir, iScrt(limit), iZeta, Last, nEval
+real(kind=wp) :: AbsEr, reslt, Result2, Scrt(lenw)
 #ifdef _DEBUGPRINT_
-character(len=80) Label
+character(len=80) ::Label
 #endif
-integer iScrt(limit)
-real*8 Scrt(lenw)
-real*8 result, Result2, AbsEr
-integer ir, iZeta, ier2, nEval, Last
+procedure(f_interface) :: fradf
 
-result = Zero
+reslt = Zero
 call Untested('Radlc')
 
 !***********************************************************************
@@ -65,7 +64,7 @@ do ir=0,lsum
         write(u6,*) ' neval=',neval
         write(u6,*)
       end if
-      result = result2
+      reslt = result2
     !else if (Nagint) then
     else if (Nagint .and. (.not. testint)) then
       call WarningMessage(2,'Radlc: Nagint option not implemented!')
@@ -82,7 +81,7 @@ do ir=0,lsum
       !   write(u6,*) ' intparm=',intparm
       !   write(u6,*)
       !end if
-      !result = result1
+      !reslt = result1
     end if
     if (testint) then
       call WarningMessage(2,'Radlc: testint option not implemented!')
@@ -112,7 +111,7 @@ do ir=0,lsum
       !   write(u6,*) ' intparm=',intparm
       !   write(u6,*)
       !end if
-      !result = result1
+      !reslt = result1
 
       !diff = abs(result2-result1)
       !diff1 = abs((result2-result1)/result2)
@@ -134,7 +133,7 @@ do ir=0,lsum
       !   write(u6,*)
       !end if
     end if
-    Rnr(iZeta,ir) = result
+    Rnr(iZeta,ir) = reslt
   end do
 end do
 

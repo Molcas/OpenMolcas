@@ -24,19 +24,17 @@ subroutine Cnthlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,lZeta,nVec,First,IncVe
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec, IncVec
-real*8, intent(In) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2)
-real*8, intent(inout) :: A1(lZeta,nVec)
-real*8, intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)
-integer, intent(in) :: Indij(lZeta)
-logical, intent(in) :: First
-! be aware of aCD(fat) basis sets.
-integer, parameter :: mxnprm = 1000
-integer idone(mxnprm), nnz2(mxnprm), ifirst(mxnprm), last(mxnprm)
-integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1, ic1, mPrm2, iZeta
-real*8 C1, C2
+integer(kind=iwp), intent(in) :: nCntr1, nPrm1, nCntr2, nPrm2, lZeta, nVec, IncVec, Indij(lZeta)
+real(kind=wp), intent(in) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(lZeta,nVec)
+logical(kind=iwp), intent(in) :: First
+real(kind=wp), intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)
+integer(kind=iwp), parameter :: mxnprm = 1000 ! be aware of aCD(fat) basis sets.
+integer(kind=iwp) :: ic1, iCntr1, iCntr2, idone(mxnprm), ifirst(mxnprm), iiVec, iPrm1, iPrm2, iZeta, last(mxnprm), minva, mPrm2, &
+                     mVec, nnz2(mxnprm), nz2
+real(kind=wp) :: C1, C2
 
 if ((nPrm1 > mxnprm) .or. (nPrm2 > mxnprm)) then
   call WarningMessage(2,'CntHlf: nPrm > mxnprm')

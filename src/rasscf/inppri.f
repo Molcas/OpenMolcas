@@ -39,7 +39,7 @@
       use Functionals, only: Init_Funcs, Print_Info
       use KSDFT_Info, only: CoefR, CoefX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lRF
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"

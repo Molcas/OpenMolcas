@@ -11,9 +11,10 @@
 
 module iSD_data
 
-integer nSkal_iSD
-integer, parameter :: nSD = 18
-integer, allocatable :: iSD(:,:)
+use Definitions, only: iwp
+
+implicit none
+private
 
 ! nSh2BF   - field with dim. nIrrep,nShlls
 !            # SO functions in irrep for shell iShell
@@ -29,7 +30,10 @@ integer, allocatable :: iSD(:,:)
 !            shell the SO index iSO in irp belongs to
 ! icntr  - field holding center number for each shell
 
-integer nShIrp(0:7), nShBFMx
-integer, allocatable :: nShBF(:,:), iShOff(:,:), iSh2Sh(:,:), iSO2Sh(:), iCntr(:)
+integer(kind=iwp), parameter :: nSD = 18
+integer(kind=iwp) :: nShBFMx, nShIrp(0:7), nSkal_iSD
+integer(kind=iwp), allocatable :: iCntr(:), iSD(:,:), iSh2Sh(:,:), iShOff(:,:), iSO2Sh(:), nShBF(:,:)
+
+public :: iCntr, iSD, iSh2Sh, iShOff, iSO2Sh, nSD, nShBF, nShBFMx, nShIrp, nSkal_iSD
 
 end module iSD_data

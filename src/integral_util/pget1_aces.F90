@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gamma,nGamma, &
+subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gmma,nGamma, &
                       iSO2cI,nSOs,iSO2Sh,PMax)
 !***********************************************************************
 !                                                                      *
@@ -36,29 +36,30 @@ subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kO
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: Gamma_MRCISD
 use Constants, only: Zero, One, Quart, Four
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: iD0Lbl, DVar, D0
 use Definitions, only: u6
 #endif
 
 implicit none
-integer, intent(In) :: ijkl, nPAO, nDSO, nGamma, nSOs
-real*8, parameter :: exfac = One
-real*8 PAO(ijkl,nPAO), DSO(nDSO), DSO_Var(nDSO), gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
-integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-logical Shijij
-integer i, j, iTri
-integer i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl, iPAO, lSOl, lBas, lAOl, kSOk, kBas, kAOk, jSOj, jBas, jAOj, iSOi, iBas, iAOi, &
-        iShell_A, iShell_B, iShell_C, iShell_D, Index_A, Index_B, Index_C, Index_D, nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, &
-        nDim_CD, iShell_AB, iShell_CD, Index_AB, Index_CD, Indi, Indj, Indk, Indl, Indij, Indkl, Indil, Indjk, Indik, Indjl, &
-        Index_ABCD
-real*8 PMax, t14, Temp
+integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, nGamma, nSOs, &
+                                 iSO2cI(2,nSOs), iSO2Sh(nSOs)
+real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(in) :: DSO(nDSO), DSO_Var(nDSO), DSSO(nDSO), DSSO_Var(nDSO), Gmma(nGamma)
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, Indi, Indij, Indik, &
+                     Indil, Indj, Indjk, Indjl, Indk, Indkl, Indl, iPAO, iShell_A, iShell_AB, iShell_B, iShell_C, iShell_CD, &
+                     iShell_D, iSO, iSOi, jAOj, jSO, jSOj, kAOk, kSO, kSOk, lAOl, lSO, lSOl, nDim_A, nDim_AB, nDim_B, nDim_C, &
+                     nDim_CD, nDim_D, nijkl
+real(kind=wp) :: t14, Temp
+real(kind=wp), parameter :: exfac = One
 #ifdef _DEBUGPRINT_
-integer iComp
-real*8, external :: DDOt_
+integer(kind=iwp) :: iComp
+real(kind=wp), external :: DDOt_
 #endif
 ! Statement Function
+integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
@@ -72,7 +73,7 @@ write(u6,*) ' nBases..=',iBas,jBas,kBas,lBas
 write(u6,*) 'iSO2Sh=',iSO2Sh
 write(u6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
 write(u6,*) 'iSO2cI(2)',(iSO2cI(2,i),i=1,nSOs)
-call RecPrt('PGet1: Gamma',' ',Gamma,1,nGamma)
+call RecPrt('PGet1: Gmma',' ',Gmma,1,nGamma)
 #endif
 
 ! Quadruple loop over elements of the basis functions angular
@@ -183,9 +184,9 @@ do i1=1,iCmp(1)
                                  DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
                                  (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
 
-                temp = temp+Four*gamma(Index_ABCD)
+                temp = temp+Four*Gmma(Index_ABCD)
 95              continue
-                if (gamma_mrcisd) temp = gamma(Index_ABCD)
+                if (gamma_mrcisd) temp = Gmma(Index_ABCD)
 
                 PMax = max(PMax,abs(temp))
                 PAO(nijkl,iPAO) = temp

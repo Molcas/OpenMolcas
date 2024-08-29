@@ -12,10 +12,12 @@
 function LHR(i,iAtom,j,jAtom)
 ! LHR function: convert full Hessian indices in lower triangular index
 
+use Definitions, only: iwp
+
 implicit none
-integer LHR
-integer i, iAtom, j, jAtom
-integer ivv1, ivv2, ivv
+integer(kind=iwp) :: LHR
+integer(kind=iwp), intent(in) :: i, iAtom, j, jAtom
+integer(kind=iwp) :: ivv, ivv1, ivv2
 
 ivv1 = (iAtom-1)*3+i
 ivv2 = (jAtom-1)*3+j

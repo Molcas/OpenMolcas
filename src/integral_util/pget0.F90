@@ -27,24 +27,23 @@ subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n
 !***********************************************************************
 
 use setup, only: nSOs
-use pso_stuff, only: lPSO, lSA, Case_2C, Case_3C, Gamma_On, nGamma, Gamma_MRCISD, Bin, D0, DS, DVar, G_Toc, lBin, LuGamma, nDens, &
-                     nNP, nV_k, nZ_p_k, SO2CI, U_K, V_K, Z_P_K, DSVar
+use pso_stuff, only: Bin, Case_2C, Case_3C, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, lBin, lPSO, lSA, LuGamma, nDens, &
+                     nGamma, nNP, nV_k, nZ_p_k, SO2CI, U_K, V_K, Z_P_K
 use iSD_data, only: iSO2Sh
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One
-use EtWas, only: nCRED, nScr1, nScr2, CoulFac, ExFac, nAsh
+use EtWas, only: CoulFac, ExFac, nAsh, nCRED, nScr1, nScr2
 use mspdft_grad, only: DoGradMSPD
-use Definitions, only: u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, iShell_A, iShell_B, iShell_C, iShell_D, nQuad
-real*8 PMax
-real*8 PSO(ijkl,nPSO), Mem2(nMem2)
-integer iAO(4), iCmp(4), kOp(4), iAOst(4)
-logical Shijij
-integer nSA, ipPAM, ipiPam, ipC, ipS1, ipS2, i, j, ipMAP
+integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
+                                 iShell_A, iShell_B, iShell_C, iShell_D, nQuad
+logical(kind=iwp), intent(in) :: Shijij
+real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
+integer(kind=iwp) :: i, ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, j, kOp(4), nSA
 
 !                                                                      *
 !***********************************************************************

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,Fact,Temp)
+subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
@@ -20,20 +20,18 @@ subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp,Fact,Temp)
 !***********************************************************************
 
 use Constants, only: Two, Three
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nZeta, la, lb, nComp, lr
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta), &
-       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
-#ifdef _DEBUGPRINT_
-integer :: nFinal
-#endif
-integer ixa, ixb, iya, iyb, iza, izb, ipa, ipb, iyaMax, iybMax, iZeta, iy, ir, iComp
-integer ixyz, ix, iz, Ind, iOff
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Fact(nZeta), Temp(nZeta)
+integer(kind=iwp) :: iComp, ipa, ipb, ir, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, ix, iz, Ind, iOff
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
@@ -66,7 +64,7 @@ do ixa=0,la
               iz = ir-ix-iy
               iComp = Ind(ir,ix,iz)+iOff(ir)
               do iZeta=1,nZeta
-                final(iZeta,ipa,ipb,iComp) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
+                rFinal(iZeta,ipa,ipb,iComp) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
               end do
             end do
           end do
@@ -78,8 +76,7 @@ do ixa=0,la
 end do
 
 #ifdef _DEBUGPRINT_
-nFinal = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-call RecPrt('Final',' ',final,nFinal,nComp)
+call RecPrt('Final',' ',rFinal,nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2,nComp)
 #endif
 
 return

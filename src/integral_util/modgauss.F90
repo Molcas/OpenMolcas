@@ -12,17 +12,18 @@
 subroutine ModGauss(Z,A,Xi,w)
 
 use Constants, only: Zero, One, Two, Three, Five, Half, rBohr
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Z, Xi, w
-integer A
-real*8 Errors(0:12), g(2), H(2,2), HInv(2,2), Step(2)
-real*8 A3, RMS, T, r_90, Thr, X, Delta_W, Delta_R, W0, R0, Det, e, f, r, x1, x2
-integer MaxIter, Iter, i, iNeg
-real*8, parameter :: Facts(2,0:12) = reshape([Zero,Zero,One,Zero,-One,Zero,Two,Zero,-Two,Zero,Zero,One,Zero,-One,Zero,Two,Zero, &
-                                              -Two,One,One,-One,One,One,-One,-One,-One],[2,13])
+real(kind=wp), intent(in) :: Z
+integer(kind=iwp), intent(in) :: A
+real(kind=wp), intent(out) :: Xi, w
+integer(kind=iwp) :: i, iNeg, Iter, MaxIter
+real(kind=wp) :: A3, Delta_R, Delta_W, Det, Errors(0:12), g(2), H(2,2), HInv(2,2), R0, r_90, RMS, Step(2), T, Thr, W0
+real(kind=wp), parameter :: Facts(2,0:12) = reshape([Zero,Zero,One,Zero,-One,Zero,Two,Zero,-Two,Zero,Zero,One,Zero,-One,Zero,Two, &
+                                                     Zero,-Two,One,One,-One,One,One,-One,-One,-One],[2,13])
 ! Statement functions
+real(kind=wp) :: e, f, r, x, x1, x2
 f(x,w) = (One+w*x**2)*exp(-x**2)
 R(w) = sqrt(Two*RMS**2*(Three*w+Two)/(Three*(Two+Five*w)))
 E(x1,x2,w) = (f(x1,w)-0.9_wp)**2+(f(x2,w)-0.1_wp)**2

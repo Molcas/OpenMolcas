@@ -9,9 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
-
 subroutine Integral_WrOut2( &
 #                          define _CALLING_
 #                          include "int_wrout_interface.fh"
@@ -19,8 +16,10 @@ subroutine Integral_WrOut2( &
 ! calls the proper routines IndSft/PLF
 ! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                  else  integral order within symblk: ijkl
-implicit none
 
+use Definitions, only: wp, iwp
+
+implicit none
 #include "int_wrout_interface.fh"
 
 if (mSym == 1) then
@@ -36,11 +35,3 @@ if (.false.) then
 end if
 
 end subroutine Integral_WrOut2
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(Integral_WrOut2)
-
-#endif

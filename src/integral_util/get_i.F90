@@ -11,14 +11,14 @@
 
 subroutine Get_I(icol,ival,n)
 
-use getline_mod, only: Line, nCol, iStrt, iEnd
-use Definitions, only: u6
+use getline_mod, only: iEnd, iStrt, Line, nCol
+use Definitions, only: iwp, u6
 
 implicit none
-integer iCol, n
-integer ival(n)
-integer ic, i, i1, i2
-character(len=80) string
+integer(kind=iwp), intent(in) :: iCol, n
+integer(kind=iwp), intent(out) :: ival(n)
+integer(kind=iwp) :: i, i1, i2, ic
+character(len=80) :: string
 
 ic = icol
 do i=1,n

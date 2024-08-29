@@ -14,11 +14,12 @@
 function iNew(iTest,iIrrep)
 
 use Symmetry_Info, only: iChTbl, nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer iNew
-integer iIrrep, iTest(8)
-integer i, iGo, j
+integer(kind=iwp) :: iNew
+integer(kind=iwp), intent(in) :: iIrrep, iTest(8)
+integer(kind=iwp) :: i, iGo, j
 
 iNew = 0
 ! Test iTest against all rows thus far.

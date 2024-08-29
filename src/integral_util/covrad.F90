@@ -12,11 +12,11 @@
 function CovRad(i)
 
 use CovRad_Data, only: CovRad_
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CovRad
-integer i
+real(kind=wp) :: CovRad
+integer(kind=iwp), intent(in) :: i
 
 if (i > 86) then
   !write(Warning,'(2A)') 'CovRad: Warning i > 86!,;Guesstimate of 2.70 au is used!'

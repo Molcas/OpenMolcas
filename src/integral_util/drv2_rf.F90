@@ -43,14 +43,14 @@ subroutine Drv2_RF(llOper,Ccoor,nOrdOp,Fldxyz,lMax,h0,nh0)
 
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
-use Basis_Info, only: Shells, DBSC, MolWgh
+use Basis_Info, only: DBSC, MolWgh, Shells
 use Center_Info, only: DC
 use Gateway_global, only: PrPrt
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use define_af, only: Angtp
 use Symmetry_Info, only: ChOper
@@ -58,23 +58,22 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer llOper, nOrdOp, lMax, nh0
-real*8 Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
-real*8 A(3), B(3), Ccoor(3)
-integer nOp(2), iStabO(0:7), iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
-logical AeqB
-real*8, allocatable :: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
-real*8, allocatable :: Kern(:), Fnl(:,:), Scr1(:), Scr2(:), SO_Int(:)
-integer ixyz, nElem
-integer is, js, iShll, jShll, iBas, jBas, iPrim, jPrim, iCnt, jCnt, iAO, jAO, iShell, jShell, iCmp, jCmp, iAng, jAng, iCnttp, &
-        jCnttp, mdci, mdcj, nSkal, iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal, nScr1, nScr2, iuv, nStabO, LmbdT, lDCRR, nDCRR, &
-        lDCRT, nDCRT, nFnc, kk, mSO, nIC, iIC, LmbdR, nOrder, NrOpr, nStabM, iDCRRT
-integer, external :: n2Tri, MemSO1
-real*8 Fact
+integer(kind=iwp), intent(in) :: llOper, nOrdOp, lMax, nh0
+real(kind=wp), intent(in) :: Ccoor(3), Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+real(kind=wp), intent(inout) :: h0(nh0)
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRRT, iDCRT(0:7), iIC, iPrim, is, iShell, iShll, iSmLbl, &
+                     iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, js, jShell, jShll, kk, lDCRR, &
+                     lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, mSO, nComp, nDCRR, nDCRT, nFnc, nIC, nOp(2), nOrder, &
+                     NrOpr, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
+real(kind=wp) :: A(3), B(3), Fact
+logical(kind=iwp) :: AeqB
 #ifdef _DEBUGPRINT_
-integer i, ii
+integer(kind=iwp) :: i, ii
 #endif
+real(kind=wp), allocatable :: Fnl(:,:), Kappa(:), Kern(:), PCoor(:,:), Scr1(:), Scr2(:), SO_Int(:), Zeta(:), ZI(:)
+integer(kind=iwp), external :: MemSO1, n2Tri
 ! Statement function
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #ifdef _DEBUGPRINT_

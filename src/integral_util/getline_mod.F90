@@ -11,15 +11,16 @@
 
 module getline_mod
 
+use Definitions, only: iwp
+
+implicit none
 private
 
-integer igetline, myunit
-integer, parameter :: Len_Line = 180
-character(len=Len_Line) Line
-integer, parameter :: mxn = Len_Line/2+1
-integer iend(mxn), istrt(mxn), ncol
-logical Quit_On_Error
+integer(kind=iwp), parameter :: Len_Line = 180, mxn = Len_Line/2+1
+integer(kind=iwp) :: iend(mxn), igetline, istrt(mxn), myunit, ncol
+character(len=Len_Line) :: Line
+logical(kind=iwp) :: Quit_On_Error
 
-public :: igetline, myunit, Line, mxn, iend, istrt, ncol, Quit_On_Error
+public :: iend, igetline, istrt, Line, myunit, ncol, Quit_On_Error
 
 end module getline_mod

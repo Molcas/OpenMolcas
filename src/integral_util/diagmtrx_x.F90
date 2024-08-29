@@ -11,18 +11,17 @@
 
 subroutine DiagMtrx_x(H,nH,iNeg)
 
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nH, iNeg
-real*8 H(nH,nH)
-real*8, allocatable :: EVal(:), EVec(:,:), Diag(:,:), HU(:,:)
-real*8 SumHii, Temp
-integer i, j, ij, ii
-
-!Lu = u6
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(inout) :: H(nH,nH)
+integer(kind=iwp), intent(out) :: iNeg
+integer(kind=iwp) :: i, ii, ij, j
+real(kind=wp) :: SumHii, Temp
+real(kind=wp), allocatable :: Diag(:,:), EVal(:), EVec(:,:), HU(:,:)
 
 call mma_allocate(EVal,nH*(nH+1)/2,label='EVal')
 call mma_allocate(EVec,nH,nH,label='EVec')
@@ -37,7 +36,7 @@ do i=1,nH
   end do
   SumHii = SumHii+H(i,i)
 end do
-!write(Lu,*) ' SumHii=',SumHii
+!write(u6,*) ' SumHii=',SumHii
 
 ! Set up a unit matrix
 
@@ -64,7 +63,7 @@ call dcopy_(nH*nH,[Zero],0,Diag,1)
 do i=1,nH
   ii = i*(i+1)/2
   temp = EVal(ii)
-  !write(Lu,'(A,G10.4)') 'Hii=',temp
+  !write(u6,'(A,G10.4)') 'Hii=',temp
   Diag(i,i) = max(abs(temp),1.0e-15_wp)
 end do
 

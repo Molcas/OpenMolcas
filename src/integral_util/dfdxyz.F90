@@ -14,10 +14,12 @@
 
 subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
 
+use Definitions, only: iwp
+
 implicit none
-integer mTerm, mForm, jp, ip, ixyz, ipf, jdrv
-integer N(mterm,5,mform)
-integer nTerm, iTerm, jTerm, i
+integer(kind=iwp), intent(in) :: mTerm, mForm, jp, ip, ixyz, ipf, jdrv
+integer(kind=iwp), intent(inout) :: N(mterm,5,mform)
+integer(kind=iwp) :: i, iTerm, jTerm, nTerm
 
 ! ipf: Phase factor in integer
 

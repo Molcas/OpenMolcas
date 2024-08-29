@@ -24,16 +24,17 @@ subroutine Setup1(ExpA,nPrim,ExpB,mPrim,A,B,rKappa,Pcoor,ZInv)
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nPrim, mPrim
-real*8, intent(In) :: ExpA(nPrim), ExpB(mPrim), ZInv(nPrim,mPrim), A(3), B(3)
-real*8, intent(Out) :: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
-real*8 ab
-integer iPrim, jPrim
+integer(kind=iwp), intent(in) :: nPrim, mPrim
+real(kind=wp), intent(in) :: ExpA(nPrim), ExpB(mPrim), A(3), B(3), ZInv(nPrim,mPrim)
+real(kind=wp), intent(out) :: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
+integer(kind=iwp) :: iPrim, jPrim
+real(kind=wp) :: ab
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' *** ExpA ***',' ',ExpA,1,nPrim)

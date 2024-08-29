@@ -20,16 +20,18 @@ subroutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,na,nb,na1,nb1,nPrim,la,lb)
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nab1, na1b, nab, na, nb, na1, nb1, nPrim, la, lb
-real*8 ab1(nPrim,nab1), a1b(nPrim,na1b), cffAB(3), ab(nPrim,nab)
+integer(kind=iwp), intent(in) :: nab1, na1b, nab, na, nb, na1, nb1, nPrim, la, lb
+real(kind=wp), intent(out) :: ab1(nPrim,nab1)
+real(kind=wp), intent(in) :: a1b(nPrim,na1b), cffAB(3), ab(nPrim,nab)
+integer(kind=iwp) :: i, ipA1B, ipAB, ipAB1, ipxyz, ixa, ixb, ixyza, ixyza1, ixyzb, ixyzb1, iya, iyb, iza, izb
 #ifdef _DEBUGPRINT_
-character(len=72) Label
+character(len=72) :: Label
 #endif
-integer ixa, iya, iza, ixb, iyb, izb, ixyzb1, ixyza, ipxyz, ixyza1, ixyzb, ipAB1, ipA1B, ipAB, i
 ! Statement functions
-integer iy, iz, ixyz, Ind, nElem
+integer(kind=iwp) :: iy, iz, ixyz, Ind, nElem
 Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 

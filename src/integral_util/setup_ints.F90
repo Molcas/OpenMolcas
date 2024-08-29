@@ -25,21 +25,21 @@ subroutine SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !             Sweden. January '98.                                     *
 !***********************************************************************
 
-use setup, only: nSOs, nAux, MxPrm
-use k2_arrays, only: nFT, MxFT, iSOSym, Aux, FT, create_braket_base
+use setup, only: MxPrm, nAux, nSOs
+use k2_arrays, only: Aux, create_braket_base, FT, iSOSym, MxFT, nFT
 use Basis_Info, only: nBas, nBas_Aux
-use Gateway_Info, only: CutInt, lSchw
+use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero
+use BasisMode, only: Auxiliary_Mode, Basis_Mode, Valence_Mode, With_Auxiliary_Mode
 use stdalloc, only: mma_allocate
-use BasisMode, only: Basis_Mode, Valence_Mode, Auxiliary_Mode, With_Auxiliary_Mode
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-logical DoFock, DoGrad, Indexation
-integer nSkal
-real*8 ThrAO
-external CmpctR, CmpctS
-integer iIrrep, iSOs, nBas_iIrrep, i
+integer(kind=iwp), intent(out) :: nSkal
+logical(kind=iwp), intent(in) :: Indexation, DoFock, DoGrad
+real(kind=wp), intent(in) :: ThrAO
+integer(kind=iwp) :: i, iIrrep, iSOs, nBas_iIrrep
 
 if (allocated(iSOSym)) then
   call Nr_Shells(nSkal)
@@ -129,11 +129,7 @@ call mma_allocate(FT,MxFT,Label='FT')
 !                                                                      *
 ! Precompute k2 entities
 
-if (lSchw) then
-  call Drvk2(CmpctS,DoFock,DoGrad)
-else
-  call Drvk2(CmpctR,DoFock,DoGrad)
-end if
+call Drvk2(DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

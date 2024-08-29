@@ -13,13 +13,13 @@
 
 subroutine ContEI(I,mDeg,ESIT,ix,iy,iz,temp)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer mDeg, ix, iy, iz
-integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
-real*8 ESIT((mDeg+1)*(mDeg+2)/2), Temp
-integer n, ip, a, b, c
+integer(kind=iwp), intent(in) :: mDeg, I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg), ix, iy, iz
+real(kind=wp), intent(inout) :: ESIT((mDeg+1)*(mDeg+2)/2)
+real(kind=wp), intent(in) :: Temp
+integer(kind=iwp) :: a, b, c, ip, n
 
 ! Purpose: Express the interaction tensor, defined by the
 ! quantities T(a,b,c) as functions of the vector R=(x,y,z),

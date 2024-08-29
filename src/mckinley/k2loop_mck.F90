@@ -25,7 +25,7 @@ subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,k2data, &
 !             March '90                                                *
 !                                                                      *
 !             June '91, modified to compute zeta, P, kappa and inte-   *
-!             grals for Schwartz inequality in a k2 loop.              *
+!             grals for Schwarz inequality in a k2 loop.               *
 !             January '92 modified to gradient calculations.           *
 !             April '92, modified to use the Cauchy-Schwarz inequality *
 !              to estimate the integral derivatives.                   *

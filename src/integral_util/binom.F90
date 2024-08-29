@@ -17,8 +17,7 @@ subroutine Binom(n,i,iBin)
 !                                                                      *
 ! Object: to compute the binomial factor                               *
 !                                                                      *
-! Called from: Azmthl                                                  *
-!              R2N                                                     *
+! Called from: TraPAB                                                  *
 !                                                                      *
 ! Calling    : None                                                    *
 !                                                                      *
@@ -26,9 +25,12 @@ subroutine Binom(n,i,iBin)
 !             March '90                                                *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 implicit none
-integer n, i, iBin
-integer Num, iDen, j
+integer(kind=iwp), intent(in) :: n, i
+integer(kind=iwp), intent(out) :: iBin
+integer(kind=iwp) :: iDen, j, Num
 
 Num = 1
 iDen = 1

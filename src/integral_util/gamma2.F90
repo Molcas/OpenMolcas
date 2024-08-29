@@ -19,18 +19,18 @@ function Gamma2(m,T)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Constants, only: Two, Half, Pi
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Gamma2
-integer m
-real*8 T
-integer i
+real(kind=wp) :: Gamma2
+integer(kind=iwp), intent(in) :: m
+real(kind=wp) :: T
+integer(kind=iwp) :: i
 
-Gamma2 = sqrt(Two*acos(Zero)/T)/Two
+Gamma2 = Half*sqrt(Pi/T)
 do i=1,m
-  Gamma2 = ((Two*real(i,kind=wp)-One)/(Two*T))*Gamma2
+  Gamma2 = (real(2*i-1,kind=wp)/(Two*T))*Gamma2
 end do
 
 return

@@ -11,10 +11,12 @@
 
 subroutine ChCar(iChCar,iGen,nGen)
 
+use Definitions, only: iwp
+
 implicit none
-integer nGen
-integer iChCar(3), iGen(nGen)
-integer iCar, iComp, i
+integer(kind=iwp), intent(out) :: iChCar(3)
+integer(kind=iwp), intent(in) :: nGen, iGen(nGen)
+integer(kind=iwp) :: i, iCar, iComp
 
 ! Generate characteristics for x, y, and z.
 

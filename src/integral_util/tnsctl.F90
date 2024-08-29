@@ -28,15 +28,16 @@ subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,
 use Basis_Info, only: Shells
 use Breit, only: nComp
 use define_af, only: iTabMx
+use Definitions, only: wp, iwp
 
 implicit none
-integer nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, jShllb, kShllc, lShlld
-integer, parameter :: lab = iTabMx*2+1, npMax = lab*(lab+1)*(lab+2)/6
-real*8 HMtrxAB(*), HMtrxCD(*)
-real*8, intent(inout) :: Wrk(nWrk)
-integer, intent(out) :: i_out
-![all others are intent(in)]
-integer :: nDim, ne, nf, nab, ncd, iW2, iW3, i_In, nfijkl, nijklab
+integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, &
+                                 jShllb, kShllc, lShlld
+real(kind=wp), intent(inout) :: Wrk(nWrk)
+real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
+integer(kind=iwp), intent(out) :: i_out
+integer(kind=iwp) :: i_In, iW2, iW3, nab, ncd, nDim, ne, nf, nfijkl, nijklab
+integer(kind=iwp), parameter :: lab = iTabMx*2+1, npMax = lab*(lab+1)*(lab+2)/6
 
 ! If nComp==1
 !   Integral are stored as e,f,IJKL in Wrk

@@ -20,11 +20,12 @@ function n2Tri(lOper)
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer n2Tri
-integer lOper
-integer, external :: iPntSO
+integer(kind=iwp) :: n2Tri
+integer(kind=iwp), intent(in) :: lOper
+integer(kind=iwp), external :: iPntSO
 
 n2Tri = iPntSO(nIrrep-1,nIrrep,lOper,nBas)
 

@@ -12,13 +12,14 @@
 subroutine Sp_Mlt(W_In,ne,W_out,nVec,C,nab)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer ne, nVec, nab
-real*8 W_In(ne,nVec), W_Out(nVec,nab), C(ne,nab)
-integer, parameter :: meMax = 10
-integer iAux(meMax+1)
-integer iab, me, iVec, ie
+integer(kind=iwp), intent(in) :: ne, nVec, nab
+real(kind=wp), intent(in) :: W_In(ne,nVec), C(ne,nab)
+real(kind=wp), intent(out) :: W_Out(nVec,nab)
+integer(kind=iwp), parameter :: meMax = 10
+integer(kind=iwp) :: iab, iAux(meMax+1), ie, iVec, me
 
 do iab=1,nab
   me = 0

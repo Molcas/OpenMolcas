@@ -28,14 +28,14 @@ use External_Centers, only: nOrdEF
 use Gateway_global, only: Test
 use DKH_Info, only: DKroll
 use Sizes_of_Seward, only: S
-use rctfld_module, only: lMax, cRFStrt, iRFStrt, lRFStrt, rRFStrt, cRFEnd, iRFEnd, lRFEnd, rRFEnd
+use rctfld_module, only: cRFEnd, cRFStrt, iRFEnd, iRFStrt, lMax, lRFEnd, lRFStrt, rRFEnd, rRFStrt
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDiff
-logical DoRys
-#include "SysDef.fh"
-integer Len
-integer, external :: ip_of_work, ip_of_iWork
+logical(kind=iwp), intent(in) :: DoRys
+integer(kind=iwp), intent(inout) :: nDiff
+integer(kind=iwp) :: Length
+integer(kind=iwp), external :: ip_of_iWork, ip_of_Work
 
 call GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 
@@ -44,10 +44,10 @@ contains
 
 subroutine GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 
-  integer, target :: cRFStrt, iRFStrt, lRFStrt
-  real*8, target :: rRFStrt
-  integer, pointer :: p_cRF(:), p_iRF(:), p_lRF(:)
-  real*8, pointer :: p_rRF(:)
+  integer(kind=iwp), target, intent(out) :: cRFStrt, iRFStrt, lRFStrt
+  real(kind=wp), target, intent(out) :: rRFStrt
+  integer(kind=iwp), pointer :: p_cRF(:), p_iRF(:), p_lRF(:)
+  real(kind=wp), pointer :: p_rRF(:)
 
   ! Load the dynamic input area.
 
@@ -61,21 +61,21 @@ subroutine GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
   !                                                                    *
   ! Reaction field parameters
 
-  Len = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
-  call c_f_pointer(c_loc(lRFStrt),p_lRF,[Len])
-  call Get_iArray('RFlInfo',p_lRF,Len)
+  Length = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
+  call c_f_pointer(c_loc(lRFStrt),p_lRF,[Length])
+  call Get_iArray('RFlInfo',p_lRF,Length)
 
-  Len = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
-  call c_f_pointer(c_loc(rRFStrt),p_rRF,[Len])
-  call Get_dArray('RFrInfo',p_rRF,Len)
+  Length = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
+  call c_f_pointer(c_loc(rRFStrt),p_rRF,[Length])
+  call Get_dArray('RFrInfo',p_rRF,Length)
 
-  Len = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
-  call c_f_pointer(c_loc(iRFStrt),p_iRF,[Len])
-  call Get_iArray('RFiInfo',p_iRF,Len)
+  Length = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
+  call c_f_pointer(c_loc(iRFStrt),p_iRF,[Length])
+  call Get_iArray('RFiInfo',p_iRF,Length)
 
-  Len = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
-  call c_f_pointer(c_loc(cRFStrt),p_cRF,[Len])
-  call Get_iArray('RFcInfo',p_cRF,Len)
+  Length = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
+  call c_f_pointer(c_loc(cRFStrt),p_cRF,[Length])
+  call Get_iArray('RFcInfo',p_cRF,Length)
 
   nullify(p_lRF,p_rRF,p_iRF,p_cRF)
   !                                                                    *

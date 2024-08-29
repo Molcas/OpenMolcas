@@ -29,12 +29,15 @@ subroutine CarSph(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,Coeff2,n2,Tr2,Pr2,Wo
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nab, nijx, nScrt, n1, n2, mab
-real*8 Win(nab*nijx), Scrt(nScrt), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2), Wout(mab*nijx)
-logical Tr1, Pr1, Tr2, Pr2
-integer l1, k1, l2, k2
+integer(kind=iwp), intent(in) :: nab, nijx, nScrt, n1, n2, mab
+real(kind=wp), intent(in) :: Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2)
+real(kind=wp), intent(inout) :: Scrt(nScrt)
+real(kind=wp), intent(out) :: Wout(mab*nijx)
+logical(kind=iwp) :: Tr1, Pr1, Tr2, Pr2
+integer(kind=iwp) :: l1, l2, k1, k2
 
 l1 = (n1+1)*(n1+2)/2
 k1 = l1
@@ -62,6 +65,7 @@ else if (Tr2) then
   ! Start transforming b,IJ,x,a to IJ,x,aB
 
   call DGEMM_('T','N',nijx*l1,k2,l2,One,Scrt,l2,Coeff2,l2,Zero,Wout,nijx*l1)
+
 else
 
   ! Starting with a,bIJx transforming to AbIJx
@@ -71,6 +75,7 @@ else
   ! Transpose to IJxAb
 
   call DGeTmO(Scrt,k1*l2,k1*l2,nijx,Wout,nijx)
+
 end if
 
 return

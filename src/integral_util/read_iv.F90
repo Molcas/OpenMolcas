@@ -11,10 +11,13 @@
 
 subroutine Read_iv(lunit,iwork,istrt,iend,inc,ierr)
 
+use Definitions, only: iwp
+
 implicit none
-integer lUnit, iStrt, iEnd, Inc, iErr
-integer iwork(iend)
-integer i
+integer(kind=iwp), intent(in) :: lUnit, iStrt, iEnd, Inc
+integer(kind=iwp), intent(inout) :: iwork(iend)
+integer(kind=iwp), intent(out) :: iErr
+integer(kind=iwp) :: i
 
 ierr = 0
 read(lunit,*,err=100) (iwork(istrt+i),i=0,iend-istrt,inc)

@@ -24,10 +24,12 @@ subroutine InitIA(I,mDeg)
 ! p+q+r=n.
 ! Author: PAM
 
+use Definitions, only: iwp
+
 implicit none
-integer mDeg
-integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
-integer n, a, b, c, p, q, r, new
+integer(kind=iwp), intent(in) :: mDeg
+integer(kind=iwp), intent(out) :: I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
+integer(kind=iwp) :: a, b, c, n, new, p, q, r
 ! Statement function
 !Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 

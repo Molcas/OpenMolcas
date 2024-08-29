@@ -19,16 +19,17 @@ subroutine PrRF(DSCF,NonEq,iCharge,jPrint)
 !             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 !***********************************************************************
 
-use External_Centers, only: nXF, iXPolType
-use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax, lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI, &
-                         DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent, Conductor, CordSI, RslPar
-use Definitions, only: u6
+use External_Centers, only: iXPolType, nXF
+use rctfld_module, only: aFac, cLim, Conductor, CordSI, DieDel, DipSI, Eps, EpsInf, gAtom, latato, lLangevin, lMax, lRF, lRFCav, &
+                         nExpo, PCM, PolSI, PreFac, RadLat, rds, RslPar, ScaAA, ScalA, ScalB, ScalC, Solvent, TK
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical DSCF, NonEq
-integer iCharge, jPrint
-integer StrnLn, i, j, nSolvent
-real*8 AArea, R_Min_Sphere
+logical(kind=iwp), intent(in) :: DSCF, NonEq
+integer(kind=iwp), intent(inout) :: iCharge
+integer(kind=iwp), intent(in) :: jPrint
+integer(kind=iwp) :: StrnLn, i, j, nSolvent
+real(kind=wp) :: AArea, R_Min_Sphere
 
 if (jPrint >= 2) then
   if (lRF .and. (.not. PCM) .and. lRFCav) then

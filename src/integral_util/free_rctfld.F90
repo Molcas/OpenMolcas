@@ -11,52 +11,54 @@
 
 subroutine Free_RctFld()
 
-use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCMDm, PCMiSph, PCMTess, PCMSph, PCM_N, PCM_SQ, Vert, &
-                      SSph
-use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, dField, Dip, DipEF, Field, Grid, PolEF
-use stdalloc, only: mma_deallocate
-use rctfld_module, only: lLangevin, PCM, DoDeriv, MM
+use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, NewSph, nVert, PCM_N, PCM_SQ, PCMDm, PCMiSph, PCMSph, PCMTess, SSph, &
+                      Vert
+use Langevin_arrays, only: Cavxyz, Davxyz, dField, Dip, DipEF, Field, Grid, PolEF, Ravxyz
+use rctfld_module, only: DoDeriv, lLangevin, MM, PCM
 use External_Centers, only: iXPolType
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (.not. allocated(MM)) return
+if (allocated(MM)) then
 
-call mma_deallocate(MM)
+  call mma_deallocate(MM)
 
-if (lLangevin .or. (iXPolType > 0)) then
-  call mma_deallocate(Field)
-  call mma_deallocate(dField)
-  call mma_deallocate(Dip)
-  call mma_deallocate(PolEf)
-  call mma_deallocate(DipEf)
-  call mma_deallocate(Grid)
-  call mma_deallocate(davxyz)
-  call mma_deallocate(cavxyz)
-  call mma_deallocate(ravxyz)
-end if
+  if (lLangevin .or. (iXPolType > 0)) then
+    call mma_deallocate(Field)
+    call mma_deallocate(dField)
+    call mma_deallocate(Dip)
+    call mma_deallocate(PolEf)
+    call mma_deallocate(DipEf)
+    call mma_deallocate(Grid)
+    call mma_deallocate(davxyz)
+    call mma_deallocate(cavxyz)
+    call mma_deallocate(ravxyz)
+  end if
 
-if (PCM) then
-  call mma_deallocate(NewSph)
-  call mma_deallocate(IntSph)
-  call mma_deallocate(NVert)
-  call mma_deallocate(PCMiSph)
-  call mma_deallocate(PCM_N)
-  call mma_deallocate(PCMDM)
-  call mma_deallocate(SSph)
-  call mma_deallocate(Centr)
-  call mma_deallocate(Vert)
-  call mma_deallocate(PCMTess)
-  call mma_deallocate(PCMSph)
+  if (PCM) then
+    call mma_deallocate(NewSph)
+    call mma_deallocate(IntSph)
+    call mma_deallocate(NVert)
+    call mma_deallocate(PCMiSph)
+    call mma_deallocate(PCM_N)
+    call mma_deallocate(PCMDM)
+    call mma_deallocate(SSph)
+    call mma_deallocate(Centr)
+    call mma_deallocate(Vert)
+    call mma_deallocate(PCMTess)
+    call mma_deallocate(PCMSph)
 
-  ! Free the space for geometric derivatives
+    ! Free the space for geometric derivatives
 
-  if (DoDeriv) then
-    call mma_deallocate(dTes)
-    call mma_deallocate(dPnt)
-    call mma_deallocate(dRad)
-    call mma_deallocate(dCntr)
-    call mma_deallocate(PCM_SQ)
+    if (DoDeriv) then
+      call mma_deallocate(dTes)
+      call mma_deallocate(dPnt)
+      call mma_deallocate(dRad)
+      call mma_deallocate(dCntr)
+      call mma_deallocate(PCM_SQ)
+    end if
+
   end if
 
 end if

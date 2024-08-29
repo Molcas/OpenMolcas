@@ -12,12 +12,12 @@
 subroutine iRBuf(Array,nArray,Copy)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
-#include "SysDef.fh"
-integer nArray
-logical Copy
-integer Array(nArray)
+integer(kind=iwp), intent(in) :: nArray
+integer(kind=iwp), intent(inout) :: Array(nArray)
+logical(kind=iwp), intent(in) :: Copy
 
 call idRBuf(Array,nArray/RtoI,Copy)
 
@@ -28,10 +28,10 @@ contains
 
 subroutine idRBuf(Array,nArray,Copy)
 
-  integer :: nArray
-  logical :: Copy
-  integer, target :: Array(nArray)
-  real*8, pointer :: dArray(:)
+  integer(kind=iwp), intent(in) :: nArray
+  logical(kind=iwp), intent(in) :: Copy
+  integer(kind=iwp), target, intent(inout) :: Array(nArray)
+  real(kind=wp), pointer :: dArray(:)
 
   call c_f_pointer(c_loc(Array(1)),dArray,[nArray])
   call dRBuf(dArray,nArray,Copy)

@@ -23,15 +23,16 @@ subroutine Auxil(T,nT,Fm,mHigh)
 !***********************************************************************
 
 use Constants, only: Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nT, mHigh
-real*8 Fm(nT,0:mHigh), T(nT)
-integer i, m
-real*8 Ti
+integer(kind=iwp), intent(in) :: nT, mHigh
+real(kind=wp), intent(in) :: T(nT)
+real(kind=wp), intent(out) :: Fm(nT,0:mHigh)
+integer(kind=iwp) :: i, m
+real(kind=wp) :: Ti
 
-call HighFm(Fm(1,mHigh),T,mHigh,nT)
+call HighFm(Fm(:,mHigh),T,mHigh,nT)
 
 ! Now use recursion formula for Fm, 0<=m<mHigh
 

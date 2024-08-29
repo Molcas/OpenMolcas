@@ -13,12 +13,15 @@ subroutine Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,jBasj,jBsInc,jPrimj,jBasAO,jBa
                  mDij,DeDe,nDeDe)
 
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
 implicit none
-integer iBasi, iBsInc, iPrimi, iBasAO, iBasn, jBasj, jBsInc, jPrimj, jBasAO, jBasn, iCmpi, jCmpj, iShell, jShell, mDCRij, ipDij, &
-        ipDDij, mDij, nDeDe
-real*8 DeDe(nDeDe)
-integer ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
+integer(kind=iwp), intent(in) :: iBasi, iBsInc, iPrimi, iBasAO, iBasn, jBasj, jBsInc, jPrimj, jBasAO, jBasn, iCmpi, jCmpj, iShell, &
+                                 jShell, mDCRij, ipDij, nDeDe
+integer(kind=iwp), intent(inout) :: ipDDij
+integer(kind=iwp), intent(out) :: mDij
+real(kind=wp), intent(inout) :: DeDe(nDeDe)
+integer(kind=iwp) :: ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
 
 if (nIrrep == 1) then
   ii1 = 0

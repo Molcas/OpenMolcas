@@ -29,23 +29,22 @@ subroutine lattcr(Grid,nGrid_,nGrid_Eff_,PolEff,DipEff,cord,maxato,atorad,nPolCo
 !              March 2000                                              *
 !***********************************************************************
 
+use rctfld_module, only: Cordsi, DieDel, Dipsi, DistSparse, LatAto, lRFCav, lSparse, MaxA, MaxB, MaxC, nExpO, nGrid_Eff, nSparse, &
+                         Polsi, PreFac, RadLat, rds, RotAlpha, RotBeta, RotGamma, rSca, Scala, Scalc
 use Constants, only: Zero, Three, Twelve, Half, OneHalf
-use rctfld_module, only: MaxA, nSparse, MaxB, lSparse, Scala, Scalc, nGrid_Eff, LatAto, RadLat, lRFCav, rds, DieDel, rSca, &
-                         DistSparse, nExpO, PreFac, Polsi, Dipsi, Cordsi, MaxC, RotAlpha, RotBeta, RotGamma
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nGrid_, MaxAto, nPolComp, nXF, nOrd_XF, iXPolType
-real*8 Grid(3,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
-real*8 cord(3,maxato), atorad(maxato), XF(*)
-integer XEle(nXF)
-integer ixyz, nElem
-integer Inc, iOrdOp
-real*8 tr(3,3), co(3)
-integer ii, jj, kk, ni, nj, nk, nGridOld, l, m, ixf, i, j, k, nGrid_Eff_
-real*8 xs, ys, zs, xp, yp, zp, rp2, rp, Ener1, Ener, xa, ya, za, drp, rrr, dGGX, dGGY, dGGZ, rpa2, atrad, fac
-real*8, external :: CovRadT
+integer(kind=iwp), intent(in) :: nGrid_, MaxAto, nPolComp, nXF, nOrd_XF, XEle(nXF), iXPolType
+real(kind=wp), intent(inout) :: Grid(3,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
+integer(kind=iwp), intent(inout) :: nGrid_Eff_
+real(kind=wp), intent(in) :: cord(3,maxato), atorad(maxato), XF(*)
+integer(kind=iwp) :: i, ii, Inc, iOrdOp, ixf, j, jj, k, kk, l, m, nGridOld, ni, nj, nk
+real(kind=wp) :: atrad, co(3), dGGX, dGGY, dGGZ, drp, Ener, Ener1, fac, rp, rp2, rpa2, rrr, tr(3,3), xa, xp, xs, ya, yp, ys, za, &
+                 zp, zs
+real(kind=wp), external :: CovRadT
 ! Statement function for Cartesian index
+integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! Calculate number of entries per XFIELD point

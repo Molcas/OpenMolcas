@@ -18,29 +18,29 @@ subroutine Banner(Lines,nLines,nWidth)
 !             May '91                                                  *
 !***********************************************************************
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer nLines, nWidth
-integer, parameter :: MxWdth = 132
-character(len=*) Lines(nLines)
-character(len=MxWdth-2) Line
-character(len=72) format
-integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit, jFrst, jEnd
+integer(kind=iwp), intent(in) :: nLines, nWidth
+character(len=*), intent(in) :: Lines(nLines)
+integer(kind=iwp), parameter :: MxWdth = 132
+character(len=MxWdth-2) :: Line
+character(len=72) :: frmt
+integer(kind=iwp) :: i, iEnd, iFrst, j, jEnd, jFrst, k, Length, mWidth, nChar, nSplit
 
 mWidth = nWidth
 nChar = len(Lines(1))
 if (nChar+2 > mWidth) mWidth = nChar+2
 mWidth = min(MxWdth-2,mWidth)
-write(format,'(A,i3,A)') '(1X,A',mWidth,')'
+write(frmt,'(A,i3,A)') '(1X,A',mWidth,')'
 do i=1,mWidth
   Line(i:i) = '*'
 end do
-write(u6,format) Line
+write(u6,frmt) Line
 do i=2,mWidth-1
   Line(i:i) = ' '
 end do
-write(u6,format) Line
+write(u6,frmt) Line
 do i=1,nLines
   do j=1,nChar
     if (Lines(i)(j:j) /= ' ') Go To 21
@@ -60,17 +60,17 @@ do i=1,nLines
   jFrst = 1+nSplit+1
   jEnd = jFrst+Length-1
   Line(jFrst:jEnd) = Lines(i)(iFrst:iEnd)
-  write(u6,format) Line
+  write(u6,frmt) Line
 end do
 
 do k=2,mWidth-1
   Line(k:k) = ' '
 end do
-write(u6,format) Line
+write(u6,frmt) Line
 do k=2,mWidth-1
   Line(k:k) = '*'
 end do
-write(u6,format) Line
+write(u6,frmt) Line
 
 return
 

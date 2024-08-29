@@ -12,11 +12,10 @@
 subroutine iWBuf(Array,nArray)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
-#include "SysDef.fh"
-integer nArray
-integer Array(nArray)
+integer(kind=iwp), intent(in) :: nArray, Array(nArray)
 
 call idWBuf(Array,nArray/RtoI)
 
@@ -27,9 +26,9 @@ contains
 
 subroutine idWBuf(Array,nArray)
 
-  integer :: nArray
-  integer, target :: Array(nArray)
-  real*8, pointer :: dArray(:)
+  integer(kind=iwp), intent(in) :: nArray
+  integer(kind=iwp), target, intent(in) :: Array(nArray)
+  real(kind=wp), pointer :: dArray(:)
 
   call c_f_pointer(c_loc(Array(1)),dArray,[nArray])
   call dWBuf(dArray,nArray)

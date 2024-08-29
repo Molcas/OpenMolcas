@@ -15,7 +15,14 @@ module MpmC
 ! individual origin stored in this arrary.
 ! Note that the array (0:n) is mapped onto (1,n+1)
 
-real*8, dimension(:,:), allocatable :: Coor_MPM
+use definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: Coor_MPM(:,:)
+
+public :: Coor_MPM
 
 end module MpmC
 

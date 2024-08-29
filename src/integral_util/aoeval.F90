@@ -26,24 +26,23 @@ subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,Angular,nTerm,
 !***********************************************************************
 
 use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nCoor, iAng, nRad, nElem, nCmp, nExp, nBas, mExp, nTerm, mAO, ipx, ipy, ipz, nForm
-real*8 xyz(nCoor,3,0:iAng+nRad-1), Coor(3,nCoor), RA(3), CffSph(nElem,nCmp), Alpha(nExp), Radial(nCoor,nRad,nBas), &
-       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
-real*8 px, py, pz
-integer Angular(nTerm,5,nForm)
-logical Transf
+integer(kind=iwp), intent(in) :: iAng, nCoor, nElem, nCmp, nTerm, nForm, nRad, mExp, nExp, nBas, mAO, ipx, ipy, ipz
+real(kind=wp), intent(in) :: Coor(3,nCoor), RA(3), CffSph(nElem,nCmp), Thr_Rad, Alpha(nExp), CffCnt(mExp,nBas), px, py, pz
+real(kind=wp), intent(out) :: xyz(nCoor,3,0:iAng+nRad-1), Radial(nCoor,nRad,nBas), AOValue(mAO,nCoor,nBas,nCmp)
+logical(kind=iwp), intent(in) :: Transf
+integer(kind=iwp), intent(out) :: Angular(nTerm,5,nForm)
+integer(kind=iwp) :: iX, iY, iZ, nDrv, iExp, iCoor, iBas, iDrv, i, i_f, ip, jDrv, jX, jY, jZ, jF, kDrv, iCmp, kForm, mForm, mTerm, &
+                     iTerm, iCoef, iRad, iForm
+real(kind=wp) :: Cff, Coef, Exp_Min, R2, ThrE, Tmp, Tmp2, Tmp3, Tmp4, XCff
 #ifdef _DEBUGPRINT_
-character(len=80) Label
+character(len=80) :: Label
 #endif
-integer iX, iY, iZ, nDrv, iExp, iCoor, iBas, iDrv, i, ip, if, jDrv, jX, jY, jZ, jF, kDrv, iCmp, kForm, mForm, mTerm, iTerm, iCoef, &
-        iRad, Ind, iForm
-real*8 ThrE, Thr_Rad, Exp_Min, R2, Tmp, XCff, Tmp2, Tmp3, Tmp4, Cff, Coef
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -75,6 +74,7 @@ real*8 ThrE, Thr_Rad, Exp_Min, R2, Tmp, XCff, Tmp2, Tmp3, Tmp4, Cff, Coef
 !***********************************************************************
 !                                                                      *
 ! Statement function
+integer(kind=iwp) :: Ind
 Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 
 !                                                                      *
@@ -233,10 +233,10 @@ do ix=iAng,0,-1
     ! Calculate derivatives of the angular components
 
     ! jf: Formula to be derivated
-    ! if: New formula by way of derivation
+    ! i_f: New formula by way of derivation
 
-    if = 1
-    !call PrntA(nterm,nform,Angular,if,0)
+    i_f = 1
+    !call PrntA(nterm,nform,Angular,i_f,0)
     do jDrv=0,nDrv-1
       do jx=jDrv,0,-1
         do jy=jDrv-jx,0,-1
@@ -252,26 +252,26 @@ do ix=iAng,0,-1
 #         endif
 
           if ((jy == 0) .and. (jz == 0)) then
-            if = if+1
-            call dFdxyz(nTerm,nForm,Angular,jf,if,1,ipx,jDrv)
-            !call PrntA(nterm,nform,Angular,if,jdrv+1)
-            if = if+1
-            call dFdxyz(nTerm,nForm,Angular,jf,if,2,ipy,jDrv)
-            !call PrntA(nterm,nform,Angular,if,jdrv+1)
-            if = if+1
-            call dFdxyz(nTerm,nForm,Angular,jf,if,3,ipz,jDrv)
-            !call PrntA(nterm,nform,Angular,if,jdrv+1)
+            i_f = i_f+1
+            call dFdxyz(nTerm,nForm,Angular,jf,i_f,1,ipx,jDrv)
+            !call PrntA(nterm,nform,Angular,i_f,jdrv+1)
+            i_f = i_f+1
+            call dFdxyz(nTerm,nForm,Angular,jf,i_f,2,ipy,jDrv)
+            !call PrntA(nterm,nform,Angular,i_f,jdrv+1)
+            i_f = i_f+1
+            call dFdxyz(nTerm,nForm,Angular,jf,i_f,3,ipz,jDrv)
+            !call PrntA(nterm,nform,Angular,i_f,jdrv+1)
           else if (jz == 0) then
-            if = if+1
-            call dFdxyz(nTerm,nForm,Angular,jf,if,2,ipy,jDrv)
-            !call PrntA(nterm,nform,Angular,if,jdrv+1)
-            if = if+1
-            call dFdxyz(nTerm,nForm,Angular,jf,if,3,ipz,jDrv)
-            !call PrntA(nterm,nform,Angular,if,jdrv+1)
+            i_f = i_f+1
+            call dFdxyz(nTerm,nForm,Angular,jf,i_f,2,ipy,jDrv)
+            !call PrntA(nterm,nform,Angular,i_f,jdrv+1)
+            i_f = i_f+1
+            call dFdxyz(nTerm,nForm,Angular,jf,i_f,3,ipz,jDrv)
+            !call PrntA(nterm,nform,Angular,i_f,jdrv+1)
           else
-            if = if+1
-            call dFdxyz(nTerm,nForm,Angular,jf,if,3,ipz,jDrv)
-            !call PrntA(nterm,nform,Angular,if,jdrv+1)
+            i_f = i_f+1
+            call dFdxyz(nTerm,nForm,Angular,jf,i_f,3,ipz,jDrv)
+            !call PrntA(nterm,nform,Angular,i_f,jdrv+1)
           end if
         end do
       end do

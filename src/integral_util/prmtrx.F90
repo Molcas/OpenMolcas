@@ -20,29 +20,28 @@ subroutine PrMtrx(Label,lOper,nComp,ip,Matrix)
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nComp
-character(len=*) Label
-real*8 Matrix(*)
-integer ip(nComp), lOper(nComp)
-character(len=80) Line
-logical type
-integer iComp, ip1, iSmLbl, iIrrep, jIrrep
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), ip(nComp)
+real(kind=wp), intent(in) :: Matrix(*)
+integer(kind=iwp) :: iComp, iIrrep, ip1, iSmLbl, jIrrep
+logical(kind=iwp) :: typ
+character(len=80) :: Line
 
 do iComp=1,nComp
   ip1 = ip(iComp)
   iSmLbl = lOper(iComp)
   if (Prprt) iSmLbl = iand(1,iSmLbl)
-  type = .true.
+  typ = .true.
   do iIrrep=0,nIrrep-1
     if (nBas(iIrrep) <= 0) cycle
     do jIrrep=0,iIrrep
       if (nBas(jIrrep) <= 0) cycle
       if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) cycle
-      if (type) then
-        type = .false.
+      if (typ) then
+        typ = .false.
         write(u6,*)
         write(u6,*)
         write(u6,'(A,A,A,I2)') ' SO Integrals of type ',Label,' Component ',iComp

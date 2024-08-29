@@ -53,7 +53,6 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
-      use rctfld_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

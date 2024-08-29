@@ -13,12 +13,13 @@ subroutine Tranca(Cavxyz,Cavsph,lMax,CarSph)
 
 use Real_Spherical, only: ipSph, RSph
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer lMax
-real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
-logical CarSph
-integer iOff1, iOff2, m, nElem
+integer(kind=iwp), intent(in) :: lMax
+real(kind=wp), intent(inout) :: Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+logical(kind=iwp), intent(in) :: CarSph
+integer(kind=iwp) :: iOff1, iOff2, m, nElem
 
 iOff1 = 1
 iOff2 = 1

@@ -44,12 +44,12 @@ function NucExp(A)
 !***********************************************************************
 
 use Constants, only: One, Three, OneHalf, rBohr
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 NucExp
-integer A
-real*8 A3, R, Xi
+real(kind=wp) :: NucExp
+integer(kind=iwp), intent(in) :: A
+real(kind=wp) :: A3, R, Xi
 
 !----------------------------------------------------------------------*
 !                                                                      *

@@ -21,8 +21,8 @@ subroutine Term_Ints()
 !             Sweden. January '98.                                     *
 !***********************************************************************
 
-use k2_arrays, only: FT, Aux, iSOSym, Destroy_BraKet_Base
-use iSD_Data, only: iCntr, iSh2Sh, iSO2Sh, iCntr, nShBf, iShOff
+use k2_arrays, only: Aux, Destroy_BraKet_Base, FT, iSOSym
+use iSD_Data, only: iCntr, iCntr, iSh2Sh, iShOff, iSO2Sh, nShBf
 use stdalloc, only: mma_deallocate
 
 implicit none

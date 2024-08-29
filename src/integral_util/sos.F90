@@ -21,13 +21,13 @@ subroutine SOS(iStabO,nStabO,lOper)
 !             February '91                                             *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep, iChTbl, iOper
-use Definitions, only: u6
+use Symmetry_Info, only: iChTbl, iOper, nIrrep
+use Definitions, only: iwp, u6
 
 implicit none
-integer nStabO, lOper
-integer iStabO(8)
-integer iS, iIrrep
+integer(kind=iwp), intent(out) :: iStabO(8), nStabO
+integer(kind=iwp), intent(in) :: lOper
+integer(kind=iwp) :: iIrrep, iS
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In SOS'

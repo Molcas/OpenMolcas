@@ -13,11 +13,13 @@
 
 function iCLast(KWord,iChrct)
 
+use Definitions, only: iwp
+
 implicit none
-integer iCLast
-character(len=*) KWord
-integer iChrct
-integer i
+integer(kind=iwp) :: iCLast
+character(len=*), intent(in) :: KWord
+integer(kind=iwp), intent(in) :: iChrct
+integer(kind=iwp) :: i
 
 iCLast = 0
 do i=iChrct,1,-1

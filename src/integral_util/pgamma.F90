@@ -17,12 +17,12 @@ subroutine pgamma()
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Pi, Two, Zero
-use rmat, only: gammath, gammaph, lgamma
-use Definitions, only: wp
+use Constants, only: Zero, Two, Pi
+use rmat, only: gammaph, gammath, lgamma
+use Definitions, only: wp, iwp
 
 implicit none
-integer m, n
+integer(kind=iwp) :: m, n
 
 ! initialize arrays
 gammath(:,:) = Zero

@@ -18,18 +18,20 @@ subroutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !***********************************************************************
 
 use iSD_data, only: iSD
-use Basis_Info, only: Shells, DBSC
+use Basis_Info, only: DBSC, Shells
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero
-use k2_structure, only: k2Data, IndK2
+use k2_structure, only: IndK2, k2Data
 use k2_arrays, only: DoHess_
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nSkal
-real*8 Schwz_Shl(nSkal,nSkal)
-integer ixyz, nabSz, ik2, iS, iShll, iShell, iCmp, iAng, iCnttp, jS, jShll, jShell, jCmp, jAng, jCnttp, ijS, nDCRR, nHm, lDCRR
-real*8 Schwz_Tmp
+integer(kind=iwp), intent(in) :: nSkal
+real(kind=wp), intent(out) :: Schwz_Shl(nSkal,nSkal)
+integer(kind=iwp) :: iAng, iCmp, iCnttp, ijS, ik2, iS, iShell, iShll, jAng, jCmp, jCnttp, jS, jShell, jShll, lDCRR, nDCRR, nHm
+real(kind=wp) :: Schwz_Tmp
 ! Statement function
+integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 ! loop over shell pair...

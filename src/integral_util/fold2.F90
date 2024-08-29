@@ -13,10 +13,15 @@
 
 subroutine Fold2(nSym,nBas,A,B)
 
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
 implicit none
-integer nSym, nBas(*)
-real*8 A(*), B(*)
-integer iOff1, iOff2, iSym, mBas, iBas, jBas
+integer(kind=iwp), intent(in) :: nSym, nBas(*)
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp) :: iBas, iOff1, iOff2, iSym, jBas, mBas
 
 iOff1 = 0
 iOff2 = 0

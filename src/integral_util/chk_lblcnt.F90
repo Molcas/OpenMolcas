@@ -12,12 +12,13 @@
 subroutine Chk_LblCnt(Lbl,nList)
 
 use Center_Info, only: dc
+use Definitions, only: iwp
 
 implicit none
-integer nList
-character(len=*) Lbl
-character(len=72) Warning
-integer iList
+character(len=*), intent(in) :: Lbl
+integer(kind=iwp), intent(in) :: nList
+integer(kind=iwp) :: iList
+character(len=72) :: Warning
 
 do iList=1,nList
   if (Lbl == dc(iList)%LblCnt) then

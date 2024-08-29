@@ -11,19 +11,22 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,final,nComp)
+subroutine CmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nZeta, la, lb, nComp, lr
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Zeta(nZeta), rKappa(nZeta), Rnxyz(nZeta,3,0:la,0:lb,0:lr)
-integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb, ix, iy, iz
-integer ixyz, iComp, iZeta, Ind
-real*8 Fact
+integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
+real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
+real(kind=wp), intent(inout) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
+integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
+real(kind=wp) :: Fact
 ! Statement function for Cartesian index
+integer(kind=iwp) :: Ind, ixyz
 Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 do ixa=0,la
@@ -50,9 +53,9 @@ do ixa=0,la
             iComp = iComp+1
             !write(u6,*) ix,iy,iz,iComp
             do iZeta=1,nZeta
-              Fact = rKappa(iZeta)*1/sqrt(Zeta(iZeta)**3)
+              Fact = rKappa(iZeta)/sqrt(Zeta(iZeta)**3)
               !Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
-              final(iZeta,ipa,ipb,iComp) = Fact*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)
+              rFinal(iZeta,ipa,ipb,iComp) = Fact*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)
             end do
           end do
         end do

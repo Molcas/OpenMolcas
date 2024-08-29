@@ -18,16 +18,16 @@ function gammaf(x)
 !                                                                      *
 !***********************************************************************
 
-use rmat, only: lcosf, lsinf, n_gam, m_gam
+use rmat, only: lcosf, lsinf, m_gam, n_gam
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 gammaf
-real*8 x
-integer k1, k2
-real*8, external :: dgamma_molcas
-real*8 arg1, arg2, arg3
+real(kind=wp) :: gammaf
+real(kind=wp), intent(in) :: x
+integer(kind=iwp) :: k1, k2
+real(kind=wp) :: arg1, arg2, arg3
+real(kind=wp), external :: dgamma_molcas
 
 lcosf = n_gam
 lsinf = m_gam

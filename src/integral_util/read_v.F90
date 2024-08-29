@@ -11,10 +11,13 @@
 
 subroutine Read_v(lunit,work,istrt,iend,inc,ierr)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer lUnit, iStrt, iEnd, Inc, iErr
-real*8 work(iend)
-integer i
+integer(kind=iwp), intent(in) :: lUnit, iStrt, iEnd, Inc
+real(kind=wp), intent(inout) :: work(iend)
+integer(kind=iwp), intent(out) :: iErr
+integer(kind=iwp) :: i
 
 ierr = 0
 read(lunit,*,err=100) (work(istrt+i),i=0,iend-istrt,inc)

@@ -30,14 +30,14 @@ function get_ln_quit(lunit,icritical)
 !                                                                      *
 !***********************************************************************
 
-use getline_mod, only: Line, iGetLine, nCol, iStrt, iEnd, MyUnit, Quit_On_Error
-use Definitions, only: u6
+use getline_mod, only: iEnd, iGetLine, iStrt, Line, MyUnit, nCol, Quit_On_Error
+use Definitions, only: iwp, u6
 
 implicit none
-character(len=180) get_ln_quit
-integer lUnit, iCritical
-integer i, j, l, icom
-character(len=256) filename
+character(len=180) :: get_ln_quit
+integer(kind=iwp), intent(in) :: lUnit, iCritical
+integer(kind=iwp) :: i, icom, j, l
+character(len=256) :: filename
 
 Quit_On_Error = .false.
 myunit = lunit

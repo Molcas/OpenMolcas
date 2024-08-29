@@ -27,26 +27,27 @@ subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,Cred,nC,Scr1,nS1,Scr2,nS2,Sc
 !         elements.
 ! -------------------------------------------------------------------
 
-use pso_stuff, only: nSSDM, SSDM, DSO => D0, CMO, G2
+use pso_stuff, only: CMO, D0, G2, nSSDM, SSDM
+use etwas, only: mBas, mIrrep, nAsh, nIsh, npSOp
 use Constants, only: Zero, One, Two, Quart
-use etwas, only: mIrrep, npSOp, mBas, nAsh, nIsh
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer nxpam, nPSOPam, nC, nS1, nS2, nSP
-integer npam(4,0:*), indi(4)
-real*8 ipam(nxpam)
-real*8 PSOPam(nPSOPam), Cred(*), Scr1(nS1), Scr2(nS2), ScrP(nsP)
-integer i, j, i3adr
-integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym, ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd, ni, nj, &
-        nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips, irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl, nu, nxvu, nt, &
-        nxvut, ix, iv, iu, itu, ituvx, iScr, ixEnd, iOCMOL, iods, lSta, ixSta, iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta, &
-        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd, iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx, nCopy, nSkip1, &
-        iOff2, nSkip2, nTUV, l, nLTU, k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1, itSta, iOff1, ipSO, ioIT, isSDM
-real*8 Fact
+integer(kind=iwp), intent(in) :: npam(4,0:*), nxpam, nPSOPam, nC, nS1, nS2, nSP
+real(kind=wp), intent(in) :: ipam(nxpam)
+real(kind=wp), intent(out) :: PSOPam(nPSOPam), Cred(nC), Scr1(nS1), Scr2(nS2), ScrP(nsP)
+integer(kind=iwp) :: iEnd, ijSym, Ind, indi(4), iOCMOI, iOCMOJ, iOCMOK, iOCMOL, iOCMOT, iOCMOU, iOCMOV, iOCMOX, ioDQ, ioDR, iods, &
+                     iOff1, iOff2, ioIT, ioPam1, ioPam2, ioPam3, ioPam4, ip, ipq, ipr, ips, ipSO, iq, ir, irq, irs, is, iScr, isq, &
+                     isSDM, iSta, iSym, it, itEnd, itSta, itu, ituvx, iu, iuEnd, iuSta, iv, iVEnd, ivSta, ivx, ix, ixEnd, ixSta, &
+                     jEnd, jklOf1, jklOff, jSta, jSym, k, kEnd, klOf1, klOff, klSym, kSta, kSym, l, lEnd, lOf1, lOff, lSta, lSym, &
+                     nbi, nbj, nbk, nbl, nCopy, ni, nijkl, nj, njkl, nk, nkl, nKLT, nl, nLTU, nnPam1, nnPam2, nnPam3, nnPam4, &
+                     nSkip1, nSkip2, nt, nTUV, nu, nv, nx, nxv, nxvu, nxvut
+real(kind=wp) :: Fact
 ! Triangular addressing without symmetry:
+integer(kind=iwp) :: i, j, i3adr
 i3adr(i,j) = ((max(i,j))*((max(i,j))-1))/2+min(i,j)
 
 ! Offsets into the ipam array:
@@ -228,7 +229,7 @@ do lsym=0,mirrep-1
                 do i=ista,iend
                   ipso = i+jkloff
                   iscr = 1+i-ista+jklof1
-                  PSOPam(ipso) = Scr1(iscr)+PSOPAM(ipSO)
+                  PSOPam(ipso) = PSOPam(ipso)+Scr1(iscr)
                 end do
               end do
             end do
@@ -333,7 +334,7 @@ do lsym=0,mirrep-1
               do i=ista,iend
                 ipso = i+jkloff
                 iscr = 1+i-ista+jklof1
-                PSOPam(ipso) = Scr1(iscr)+PSOPAM(ipSO)
+                PSOPam(ipso) = PSOPam(ipso)+Scr1(iscr)
               end do
             end do
           end do
@@ -353,11 +354,11 @@ do lsym=0,mirrep-1
         !write(u6,*) 'ista,iend',ista,iend
 
         !do i=1,nDSO
-        !  write(u6,*) i,'DSO-1',DSO(i,1)
-        !  write(u6,*) i,'DSO-2',DSO(i,2)
-        !  write(u6,*) i,'DSO-3',DSO(i,3)
-        !  write(u6,*) i,'DSO-4',DSO(i,4)
-        !  write(u6,*) i,'DSO-5',DSO(i,5)
+        !  write(u6,*) i,'D0-1',D0(i,1)
+        !  write(u6,*) i,'D0-2',D0(i,2)
+        !  write(u6,*) i,'D0-3',D0(i,3)
+        !  write(u6,*) i,'D0-4',D0(i,4)
+        !  write(u6,*) i,'D0-5',D0(i,5)
         !end do
 
 300     continue
@@ -384,11 +385,11 @@ do lsym=0,mirrep-1
                 if (isym == lsym) then
                   ips = i3adr(ip,is)
                   irq = i3adr(ir,iq)
-                  PSOPam(ipso) = PSOPam(ipso)-Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,2)-Quart*DSO(ioDs+ips,2)*DSO(ioDr+irq,1)- &
-                                 Quart*DSO(ioDs+ips,3)*DSO(ioDr+irq,4)-Quart*DSO(ioDs+ips,4)*DSO(ioDr+irq,3)- &
-                                 Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,6)-Quart*DSO(ioDs+ips,6)*DSO(ioDr+irq,1)
+                  PSOPam(ipso) = PSOPam(ipso)-Quart*D0(ioDs+ips,1)*D0(ioDr+irq,2)-Quart*D0(ioDs+ips,2)*D0(ioDr+irq,1)- &
+                                 Quart*D0(ioDs+ips,3)*D0(ioDr+irq,4)-Quart*D0(ioDs+ips,4)*D0(ioDr+irq,3)- &
+                                 Quart*D0(ioDs+ips,1)*D0(ioDr+irq,6)-Quart*D0(ioDs+ips,6)*D0(ioDr+irq,1)
                   !ANDREW - uncomment
-                  !-Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,5)-Quart*DSO(ioDs+ips,5)*DSO(ioDr+irq,1)
+                  !-Quart*D0(ioDs+ips,1)*D0(ioDr+irq,5)-Quart*D0(ioDs+ips,5)*D0(ioDr+irq,1)
                   !END ANDREW
                   if (nSSDM /= 0) then
                     ! The last four lines subtract unnecessary contributions
@@ -401,11 +402,11 @@ do lsym=0,mirrep-1
                 if (isym == ksym) then
                   ipr = i3adr(ip,ir)
                   isq = i3adr(is,iq)
-                  PSOPam(ipso) = PSOPam(ipso)-Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,2)-Quart*DSO(ioDr+ipr,2)*DSO(ioDs+isq,1)- &
-                                 Quart*DSO(ioDr+ipr,3)*DSO(ioDs+isq,4)-Quart*DSO(ioDr+ipr,4)*DSO(ioDs+isq,3)- &
-                                 Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,6)-Quart*DSO(ioDr+ipr,6)*DSO(ioDs+isq,1)
+                  PSOPam(ipso) = PSOPam(ipso)-Quart*D0(ioDr+ipr,1)*D0(ioDs+isq,2)-Quart*D0(ioDr+ipr,2)*D0(ioDs+isq,1)- &
+                                 Quart*D0(ioDr+ipr,3)*D0(ioDs+isq,4)-Quart*D0(ioDr+ipr,4)*D0(ioDs+isq,3)- &
+                                 Quart*D0(ioDr+ipr,1)*D0(ioDs+isq,6)-Quart*D0(ioDr+ipr,6)*D0(ioDs+isq,1)
                   !ANDREW - uncomment
-                  !-Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,5)-Quart*DSO(ioDr+ipr,5)*DSO(ioDs+isq,1)
+                  !-Quart*D0(ioDr+ipr,1)*D0(ioDs+isq,5)-Quart*D0(ioDr+ipr,5)*D0(ioDs+isq,1)
                   !END ANDREW
                   if (nSSDM /= 0) then
                     do iSSDM=1,nSSDM
@@ -415,9 +416,9 @@ do lsym=0,mirrep-1
                   end if
                 end if
                 if (isym == jsym) then
-                  PSOPam(ipso) = PSOPam(ipso)+DSO(ioDq+ipq,1)*DSO(ioDs+irs,2)+DSO(ioDq+ipq,2)*DSO(ioDs+irs,1)+ &
-                                 DSO(ioDq+ipq,3)*DSO(ioDs+irs,4)+DSO(ioDq+ipq,4)*DSO(ioDs+irs,3)+DSO(ioDq+ipq,1)*DSO(ioDs+irs,5)+ &
-                                 DSO(ioDq+ipq,5)*DSO(ioDs+irs,1)
+                  PSOPam(ipso) = PSOPam(ipso)+D0(ioDq+ipq,1)*D0(ioDs+irs,2)+D0(ioDq+ipq,2)*D0(ioDs+irs,1)+ &
+                                 D0(ioDq+ipq,3)*D0(ioDs+irs,4)+D0(ioDq+ipq,4)*D0(ioDs+irs,3)+D0(ioDq+ipq,1)*D0(ioDs+irs,5)+ &
+                                 D0(ioDq+ipq,5)*D0(ioDs+irs,1)
                   if (nSSDM /= 0) then
                     issdm = 1
                     do iSSDM=1,nSSDM
@@ -453,7 +454,5 @@ call RecPrt('PSOPam',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nC)
 
 end subroutine ptrans_sa

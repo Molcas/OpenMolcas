@@ -118,7 +118,7 @@ do i1=1,iCmp(1)
 
                 MemSO2 = MemSO2+1
 
-                ! Unfold the way the eight indicies have been reordered.
+                ! Unfold the way the eight indices have been reordered.
                 iSO = iAOtSO(iAO(1)+i1,j1)+iAOst(1)
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)
