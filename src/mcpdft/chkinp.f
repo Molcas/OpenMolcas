@@ -29,14 +29,16 @@
       use mcpdft_output, only: lf
       use rasscf_global, only: lRoots, NAC, NIN, nRoots, OutFmt1,
      &                         OutFmt2, iRoot
+      use definitions,only:iwp
+      implicit none
 
-      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
 #include "warnings.h"
-      Integer i, IA0, IB0, IC0, IERR, IERR1, IERR2, iSym
-*----------------------------------------------------------------------*
-C Local print level (if any)
+
+      integer(kind=iwp) :: ierr, i, ia0, ib0, ic0, ierr1
+      integer(kind=iwp) :: ierr2, iSym
+
       IERR=0
       If ( NTOT.gt.mxOrb ) Then
         Write(LF,*)
@@ -45,7 +47,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Too many orbitals NTOT=',NTOT
         Write(LF,'(1X,A,I8)')'Limit is MXORB=',MXORB
         Write(LF,*)          '*************************************'
-        IERR=1
+        call Quit_OnUserError()
       End If
       If ( NAC.gt.mxAct ) then
         Write(LF,*)
@@ -54,7 +56,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Too many active orbitals NAC=',NAC
         Write(LF,'(1X,A,I8)')'Limit is MXACT=',MXACT
         Write(LF,*)          '*************************************'
-        IERR=1
+        call Quit_OnUserError()
       Endif
       If ( NIN.gt.mxIna ) then
         Write(LF,*)
@@ -63,7 +65,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Too many inactive orbitals NIN=',NIN
         Write(LF,'(1X,A,I8)')'Limit is MXINA=',MXINA
         Write(LF,*)          '*************************************'
-        IERR=1
+        call Quit_OnUserError()
       Endif
       If(NACTEL.gt.2*NAC) then
         Write(LF,*)
@@ -73,20 +75,18 @@ C Local print level (if any)
         Write(LF,'(1X,A,I6)')
      &             'Cannot be more than 2*Nr of active orbitals=',2*NAC
         Write(LF,*)'**************************************************'
-        IERR=1
+        call Quit_OnUserError()
       Endif
       If(NHOLE1.gt.2*NRS1T) then
         Write(LF,*)
         Write(LF,*)'******************** WARNING *********************'
-        Call WarningMessage(1,'Too many holes in Ras1.')
+        Call WarningMessage(2,'Too many holes in Ras1.')
         Write(LF,'(1X,A,I6)')
      &             'You allow too many holes in Ras1 NHOLE1=',NHOLE1
         Write(LF,'(1X,A,I6)')
      &             'Cannot be more than 2*Nr of Ras1 orbitals=',2*NRS1T
-        NHOLE1=2*NRS1T
-        Write(LF,'(1X,A,I6)')
-     &             'NHOLE1 has been reset to ',NHOLE1
         Write(LF,*)'**************************************************'
+        call Quit_OnUserError()
       Endif
       If(NELEC3.gt.2*NRS3T) then
         Write(LF,*)
@@ -110,7 +110,7 @@ C Local print level (if any)
          Write(LF,'(1X,A,I8)')
      &              '(Incompatible with RAS restrictions).'
          Write(LF,*)'**************************************************'
-         IERR=1
+          call Quit_OnUserError()
         End If
         If(NACTEL.lt.2*NRS1T-NHOLE1) then
          Write(LF,*)
@@ -121,7 +121,7 @@ C Local print level (if any)
          Write(LF,'(1X,A,I8)')
      &              '(Incompatible with RAS restrictions).'
          Write(LF,*)'**************************************************'
-         IERR=1
+          call Quit_OnUserError()
         End If
 
       If (NSYM.ne.1 .and. NSYM.ne.2 .and.
@@ -132,9 +132,8 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Nr of symmetries NSYM=',NSYM
         Write(LF,*)          ' Only possible values are 1,2,4 or 8.'
         Write(LF,*)          '*************************************'
-        IERR=1
+        call Quit_OnUserError()
       End If
-      If (IERR.eq.1) Call Quit(_RC_INPUT_ERROR_)
 
       IERR1=0
       Do iSym=1,nSym
@@ -194,7 +193,7 @@ C Local print level (if any)
          Write(LF,*)' Have you used a too small basis set?'
         End If
         Write(LF,*)'********************************************'
-        Call Quit(_RC_INPUT_ERROR_)
+        Call Quit_OnUserError()
       End If
 
       IERR=0
@@ -215,7 +214,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,8I4)')'Spin degeneracy         ISPIN=',ISPIN
         Write(LF,*)'There can be no such wave function.'
         Write(LF,*)'************************************************'
-        Call Quit(_RC_INPUT_ERROR_)
+        Call Quit_OnUserError()
       End If
 
       IERR=0
@@ -230,7 +229,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,I4)')'Nr of CI roots        LROOTS=',LROOTS
         Write(LF,'(1X,A,I4)')'Nr of optimized roots NROOTS=',NROOTS
         Write(LF,*)'************************************************'
-        Call Quit(_RC_INPUT_ERROR_)
+        Call Quit_OnUserError()
       End If
       Do i=1,NROOTS
          If ( IROOT(i).lt.0 .or. IROOT(i).gt.LROOTS ) IERR=1
@@ -243,7 +242,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,I4)')'Nr of CI roots        LROOTS=',LROOTS
         Write(LF,'(1X,A,I4)')'Nr of optimized roots NROOTS=',NROOTS
         Write(LF,*)'************************************************'
-        Call Quit(_RC_INPUT_ERROR_)
+        call Quit_OnUserError()
       End If
 
       If (STSYM.GT.NSYM) then
@@ -254,7 +253,7 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'State symmetry   STSYM=',STSYM
         Write(LF,'(1X,A,I8)')'Point group order NSYM=',NSYM
         Write(LF,*)'************************************************'
-        Call Quit(_RC_INPUT_ERROR_)
+        call Quit_OnUserError()
       End If
 
       IERR=0
@@ -270,27 +269,16 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Max electrons in Ras3, NELEC3=',NELEC3
         Write(LF,'(1X,A,I8)')'Nr of active electrons NACTEL=',NACTEL
         Write(LF,*)          '*****************************************'
-        Call Quit(_RC_INPUT_ERROR_)
+        call Quit_OnUserError()
       End If
 
-CBOR  Check INVEC
-      If (INVEC.lt.0.or.INVEC.gt.6) then
-        Write(LF,*)
-        Write(LF,*)'************* ERROR ***************'
-* This should be impossible:...
-        Call WarningMessage(2,'Keyword for start orbitals is missing.')
-        Write(LF,*)'Keyword for start orbitals missing.'
-        Write(LF,*)'Use either CORE, LUMORB, or JOBIPH.'
-        Write(LF,*)'***********************************'
-        Call Quit(_RC_INPUT_ERROR_)
-      Endif
 
-* PAM Krapperup Nov 05: Orbital print format.
-* First question: Which orbital spaces are eligible for printing?
+! PAM Krapperup Nov 05: Orbital print format.
+! First question: Which orbital spaces are eligible for printing?
       ! orbital spaces are eligible for printing?
       OutFmt1='FEW     '
-* Second question: How should they be printed?
-* No user selection, so fall back on default choice.
+! Second question: How should they be printed?
+! No user selection, so fall back on default choice.
       IF(NTOT.LT.256) THEN
          OutFmt2='FULL    '
       ELSE

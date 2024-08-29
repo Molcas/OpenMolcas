@@ -152,7 +152,7 @@ contains
 
     integer :: disk,ncon = 0,i,j,k
     integer,dimension(1) :: dum
-    real(kind=wp),allocatable :: ci_rot(:),tCI(:)
+    real(kind=wp),allocatable :: ci_rot(:,:),tCI(:,:)
     integer :: roots
 
 #ifdef _HDF5_
@@ -173,10 +173,9 @@ contains
 #endif
     endif
 
-    call mma_allocate(ci_rot,ncon*roots,label='CI Rot')
+    call mma_allocate(tCI,roots,ncon,label="tCI")
+    call mma_allocate(ci_rot,roots,ncon,label='CI Rot')
     ci_rot = 0.0d0
-
-    call mma_allocate(tCI,ncon,label="tCI")
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
@@ -184,16 +183,18 @@ contains
 
     do i = 1,roots
       if(.not. mcpdft_options%is_hdf5_wfn) then
-        call DDafile(jobiph,2,tCI,ncon,disk)
+        call DDafile(jobiph,2,tCI(i,:),ncon,disk)
 #ifdef _HDF5_
       else
-        call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI,[ncon,1],[0,i-1])
+        call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI(i,:),[ncon,1],[0,i-1])
 #endif
       endif
+    enddo
 
+    do i = 1,roots
       do j = 1,roots
         do k = 1,ncon
-          ci_rot((j-1)*ncon+k) = ci_rot((j-1)*ncon+k)+tCI(k)*U(i,j)
+          ci_rot(j,k) = ci_rot(j,k)+tCI(i,k)*U(i,j)
         enddo
       enddo
     enddo
@@ -201,13 +202,13 @@ contains
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
       do i = 1,roots
-        call DDafile(jobiph,1,ci_rot((i-1)*ncon+1),ncon,disk)
+        call DDafile(jobiph,1,ci_rot(i,:),ncon,disk)
       enddo
 #ifdef _HDF5_
     else
       wfn_cicoef = mh5_open_dset(refwfn_id,'CI_VECTORS')
       do i = 1,roots
-        call mh5_put_dset(wfn_cicoef,ci_rot(ncon*(i-1)+1:ncon*i),[ncon,1],[0,i-1])
+        call mh5_put_dset(wfn_cicoef,ci_rot(i,:),[ncon,1],[0,i-1])
       enddo
       call mh5_close_file(refwfn_id)
 #endif
