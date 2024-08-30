@@ -13,7 +13,7 @@
 !               2016, Andrew M. Sand                                   *
 !***********************************************************************
       Subroutine MSCtl(CMO,FI,FA,Ref_Ener)
-      use definitions,only:iwp,wp
+      use definitions,only:iwp,wp,u6
       use constants,only:zero,one
       use OneDat, only: sNoNuc, sNoOri
       use mcpdft_input, only: mcpdft_options
@@ -48,8 +48,8 @@
 
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
      &                      Tmp2(:), Tmp3(:), Tmp4(:),
-     &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
-     &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
+     &                      Tmp5(:), Tmp6(:), Tmp7(:),
+     &                      Tmpa(:), inactive_dm(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
@@ -74,11 +74,11 @@
       real(kind=wp), external :: ddot_
 
       real(kind=wp) :: casdft_e, casdft_funct
-      real(kind=wp) :: EactK, EactN, Ekin, Enuc, Eone, Etwo
+      real(kind=wp) :: Eone, Etwo
       real(kind=wp) :: PotNuc_ref
 
       real(kind=wp) :: Energies(nroots)
-      real(kind=wp),allocatable :: overlap(:), fcore(:)
+      real(kind=wp),allocatable :: int1e_ovlp(:), hcore(:)
 
       IPRLEV=IPRLOC(3)
 
@@ -86,22 +86,22 @@
 !**********************************************************
 ! Generate molecular charges
 !**********************************************************
-      call mma_allocate(overlap,nTot1+4,label="Overlap")
+      call mma_allocate(int1e_ovlp,nTot1+4,label="int1e_ovlp")
       iRc=-1
       iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,overlap,iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,int1e_ovlp,iSyLbl)
       If ( iRc.ne.0 ) then
-        Write(LF,*) 'msctl: iRc from Call RdOne not 0'
-        Write(LF,*) 'Label = ',Label
-        Write(LF,*) 'iRc = ',iRc
+        Write(u6,*) 'msctl: iRc from Call RdOne not 0'
+        Write(u6,*) 'Label = ',Label
+        Write(u6,*) 'iRc = ',iRc
         Call Abend
       Endif
       ! nuclear charge stored in last element
-      Tot_Nuc_Charge=overlap(size(overlap))
-      call mma_deallocate(overlap)
+      Tot_Nuc_Charge=int1e_ovlp(size(int1e_ovlp))
+      call mma_deallocate(int1e_ovlp)
       Tot_El_Charge=-2*sum(nFro+nIsh)-nActEl
       Tot_Charge=Tot_Nuc_Charge+dble(Tot_El_Charge)
 
@@ -110,72 +110,35 @@
 ! Load bare nuclei Hamiltonian
 ! This is h_pq but in the AO basis (so h_{mu, nu})
 !**********************************************************
-      call mma_allocate(fcore,nTot1,label='Fcore')
+      call mma_allocate(hcore,nTot1,label='hcore')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,fcore,iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,hcore,iSyLbl)
       If ( iRc.ne.0 ) then
-        Write(LF,*) 'msctl: iRc from Call RdOne not 0'
-        Write(LF,*) 'Label = ',Label
-        Write(LF,*) 'iRc = ',iRc
+        Write(u6,*) 'msctl: iRc from Call RdOne not 0'
+        Write(u6,*) 'Label = ',Label
+        Write(u6,*) 'iRc = ',iRc
         Call Abend()
       Endif
       If ( IPRLEV.ge.DEBUG ) then
-        Write(LF,*)
-        Write(LF,*) ' OneHam in AO basis in CASDFT_Terms'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
+        Write(u6,*)
+        Write(u6,*) ' OneHam in AO basis in CASDFT_Terms'
+        Write(u6,*) ' ---------------------'
+        Write(u6,*)
         iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',fcore(iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',hcore(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
 
-!--reads kinetic energy integrals
-      Call mma_allocate(Tmpk,nTot1,Label='Tmpk')
-      iComp  =  1
-      iSyLbl =  1
-      iRc    = -1
-      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
-      Label  = 'Kinetic '
-      Call RdOne(iRc,iOpt,Label,iComp,Tmpk,iSyLbl)
-      If ( iRc.ne.0 ) then
-        Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
-        Write(LF,*) 'Label = ',Label
-        Write(LF,*) 'iRc = ',iRc
-        Call Abend
-      Endif
-!-- read nuclear-electron integrals
-      Call mma_allocate(Tmpn,nTot1,Label='Tmpn')
-      iComp  =  1
-      iSyLbl =  1
-      iRc    = -1
-      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
-      Label  = 'Attract '
-      Call RdOne(iRc,iOpt,Label,iComp,Tmpn,iSyLbl)
-      If ( iRc.ne.0 ) then
-        Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
-        Write(LF,*) 'Label = ',Label
-        Write(LF,*) 'iRc = ',iRc
-        Call Abend
-      Endif
-
-
 !Here we calculate the D1 Inactive matrix (AO).
-      Call mma_allocate(D1I,NTOT2,Label='D1I')
-      Call Get_D1I_RASSCF(CMO,D1I)
-
-      IF(IPRLEV.ge.DEBUG) THEN
-        write(6,*) 'iD1inact'
-        do i=1,ntot2
-        write(6,*) D1i(i)
-        end do
-      END IF
+      call mma_allocate(inactive_dm,ntot2,label="D1Inact")
+      Call Get_D1I_RASSCF(CMO,inactive_dm)
 
       iJOB=0
       IAD19=0
@@ -311,7 +274,7 @@
       end if
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
-         Call Fold(nSym,nBas,D1I,Tmp3)
+         Call Fold(nSym,nBas,inactive_dm,Tmp3)
          Call Fold(nSym,nBas,D1ActAO,Tmp4)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
@@ -407,18 +370,6 @@ cPS         call xflush(6)
 
         do_pdftPot=.true.
 
-        CALL mma_allocate(OnTopT,NFINT,Label='OnTopT')
-        OnTopT(:)=0.0D0
-        CALL mma_allocate(OnTopO,NTOT1,Label='OnTopO')
-        OnTopO(:)=0.0D0
-
-        Call Put_dArray('ONTOPO',OnTopO,NTOT1)
-        Call Put_dArray('ONTOPT',OnTopT,NFINT)
-        Call Put_dArray('FI_V',OnTopO,NTOT1)
-        Call Put_dArray('FA_V',OnTopO,NTOT1)
-
-        CALL mma_deallocate(OnTopO)
-        CALL mma_deallocate(OnTopT)
       end if
 
         Call DrvXV(Tmp5,Tmp6,Tmp3,
@@ -426,20 +377,16 @@ cPS         call xflush(6)
      &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
      &             DFTFOCK,Do_DFT)
 
-
-        Call Daxpy_(nTot1,1.0d0,Tmp5,1,fcore,1)
-        Call Daxpy_(nTot1,1.0d0,Tmp6,1,FockI,1)
-
         Call mma_deallocate(Tmp6)
         Call mma_deallocate(Tmp5)
 
-!
+
 ***********************************************************
 *     Compute energy contributions
 ***********************************************************
       Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
-      Call Fold(nSym,nBas,D1I,Tmp2)
+      Call Fold(nSym,nBas,inactive_dm,Tmp2)
 c         call xflush(6)
 
       Call mma_allocate(Tmpa,nTot1,Label='Tmpa')
@@ -447,22 +394,12 @@ c         call xflush(6)
       Call Fold(nSym,nBas,D1ActAO,Tmpa)
 c         call xflush(6)
 *
-      Eone = dDot_(nTot1,Tmp2,1,fcore,1)
+      Eone = dDot_(nTot1,Tmp2,1,hcore,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
       Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
 
-!**************Kinetic energy of inactive electrons********
-      Ekin = dDot_(nTot1,Tmp2,1,Tmpk,1)
 
-!*****Nuclear electron attraction for inactive electrons******
-      Enuc = dDot_(nTot1,Tmp2,1,Tmpn,1)
-
-c**************Kinetic energy of active electrons*********
-      EactK = dDot_(nTot1,Tmpk,1,Tmpa,1)
-
-      EactN = dDot_(nTot1,Tmpn,1,Tmpa,1)
-c         call xflush(6)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
       CASDFT_Funct = 0.0D0
@@ -471,16 +408,9 @@ c         call xflush(6)
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,'(4X,A35,F18.8)')
      &  'Nuclear repulsion energy :',PotNuc
-       Write(LF,'(4X,A35,F18.8)')
-     &  'One-electron kinetic core energy:',Ekin
-       Write(LF,'(4X,A35,F18.8)')
-     &   'Nuc-elec attraction core energy:',Enuc
        Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
        Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
        Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
-       Write(LF,'(4X,A35,F18.8)') 'Active Kinetic energy:',EactK
-       Write(LF,'(4X,A35,F18.8)')
-     &  'Active nuc-elec attraction energy:',EactN
 c       Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
       End If
 c         call xflush(6)
@@ -500,7 +430,7 @@ c         call xflush(6)
         End Do
       End If
 
-      Call DaXpY_(nTot1,One,fcore,1,FockI,1)
+      Call DaXpY_(nTot1,One,hcore,1,FockI,1)
 
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -573,9 +503,9 @@ c         call xflush(6)
             do i=1,ntot2
               write(6,*) D1Actao(i)
             end do
-            write(6,*) 'd1i before tractl'
+            write(6,*) 'inactive_dm before tractl'
             do i=1,ntot2
-              write(6,*) d1i(i)
+              write(6,*) inactive_dm(i)
             end do
         end if
 *
@@ -621,7 +551,8 @@ c         call xflush(6)
       end if
 *
 *
-         CALL TRACTL2(CMO_X,PUVX_tmp,TUVX_tmp,D1I,FockI,D1ActAO,FockA,
+         CALL TRACTL2(CMO_X,PUVX_tmp,TUVX_tmp,inactive_dm,
+     &                FockI,D1ActAO,FockA,
      &                IPR,lSquare,ExFac)
 *        Call dcopy_(ntot1,FA,1,FockA,1)
         if (iprlev.ge.debug) then
@@ -663,9 +594,9 @@ c         call xflush(6)
             do i=1,ntot2
               write(6,*) D1Actao(i)
             end do
-            write(6,*) 'd1i before tractl'
+            write(6,*) 'inactive_dm before tractl'
             do i=1,ntot2
-              write(6,*) d1i(i)
+              write(6,*) inactive_dm(i)
             end do
         end if
 
@@ -1097,7 +1028,7 @@ cPS         call xflush(6)
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
-         Call Fold(nSym,nBas,D1I,Tmp3)
+         Call Fold(nSym,nBas,inactive_dm,Tmp3)
          Call Fold(nSym,nBas,D1ActAO,Tmp4)
          Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
          Call Put_dArray('D1ao',Tmp3,nTot1)
@@ -1142,13 +1073,11 @@ cPS         call xflush(6)
       Call mma_deallocate(D1ActAO)
       Call mma_deallocate(D1Spin)
       Call mma_deallocate(D1SpinAO)
-      call mma_deallocate(fcore)
+      call mma_deallocate(hcore)
       Call mma_deallocate(FockI)
       Call mma_deallocate(FockA)
       Call mma_deallocate(P2D)
-      Call mma_deallocate(D1I)
-      Call mma_deallocate(Tmpk)
-      Call mma_deallocate(Tmpn)
+      Call mma_deallocate(inactive_dm)
 
       If (Allocated(FuncExtParams)) Call mma_deallocate(FuncExtParams)
 
