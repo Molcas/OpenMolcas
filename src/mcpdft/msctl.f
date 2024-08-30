@@ -1,33 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Markus P. Fuelscher                              *
-*               2013, Giovanni Li Manni                                *
-*               2016, Andrew M. Sand                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Markus P. Fuelscher                              *
+!               2013, Giovanni Li Manni                                *
+!               2016, Andrew M. Sand                                   *
+!***********************************************************************
       Subroutine MSCtl(CMO,FI,FA,Ref_Ener)
-!CMO,F,FI
-*
-*     This routine is a modification of SGFCIN, adapted to a CASDFT
-*     implementation in which the CI step of a CASDFT calculation is
-*         not corrected by DFT. DFT will play a role only in the Orbital
-*         optimization step.
-*     Purpose:
-*     Generate the Fock-matrix for the frozen and inactive orbitals.
-*     Compute also the core energy. Finally, transform the Fock-matrix
-*     into the basis of the active orbitals.
-*
-*     M.P. Fuelscher, Lund, July 1990
-*     GLM, Minneapolis,   May 2013
-*     AMS, Minneapolis,   Feb 2016
-*
+      use definitions,only:iwp,wp
+      use constants,only:zero,one
       use OneDat, only: sNoNuc, sNoOri
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot
@@ -48,98 +35,93 @@
      &                         NAC, NACPAR, NACPR2, nFint, NonEq, NSXS,
      &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
      &                         Tot_Nuc_Charge, ISTORP, ENER
+      implicit none
 
-      Implicit None
+      real(kind=wp) :: FI(*), FA(*), Ref_Ener(*)
+      real(kind=wp) :: CMO(*)
 
-      Real*8 CMO(*), FI(*), FA(*), Ref_Ener(*)
-*
 #include "rasdim.fh"
 #include "general.fh"
-#include "timers.fh"
-#include "SysDef.fh"
-!      Logical TraOnly
 
-*
-      Character(LEN=8) Label
+      character(len=8) Label
       Logical First, Dff, Do_DFT,Found
-      integer IAD19
-      integer iJOB,dmDisk
-      integer IADR19(1:30)
-      integer NQ
-      integer jroot
-      real*8,dimension(1:nroots) :: Energies
-      integer  i_off1,i_off2
-      integer isym,iash
-      integer, External:: IsFreeUnit
 
-      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:), Tmp0(:),
-     &                      Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:),
+      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
+     &                      Tmp2(:), Tmp3(:), Tmp4(:),
      &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
      &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
-     &                      DtmpA_g(:), OnTopT(:), OnTopO(:),
+     &                      OnTopT(:), OnTopO(:),
      &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
      &                      FOne(:), FA_t(:)
-      Real*8 CASDFT_E, CASDFT_Funct, EactK, EactN, Ekin, ENuc, EOne,
-     &       ETwo, PotNuc_Ref
-      Integer i, IADD, iBas, iCharge, iComp, iDisk, iFinal, iOff, iOpt,
-     &        iPrLev, iRC, iSA, iSyLbl, itsDisk, ITU, j, LUTMP, NIAIA,
-     &        NT, NTU, NU
-      Real*8, External:: DDot_
+      integer(kind=iwp) :: IAD19
+      integer(kind=iwp) :: iJOB,dmDisk
+      integer(kind=iwp) :: IADR19(1:30)
+      integer(kind=iwp) :: jroot,NQ
+      integer(kind=iwp) :: i_off1,i_off2
+      integer(kind=iwp) :: isym,iash
+      integer(kind=iwp) :: i, iAdd, iBas, iCharge, iComp
+      integer(kind=iwp) :: idisk
+      integer(kind=iwp) :: ifinal
+      integer(kind=iwp) :: iOff, iOpt,  iPrLev
+      integer(kind=iwp) :: irc, iSA, iSyLbl, itsdisk, itu
+      integer(kind=iwp) :: j, lutmp, niaia, nt, ntu, nu
 
-***********************************************************
-C Local print level (if any)
-***********************************************************
+      integer(kind=iwp), External:: IsFreeUnit
+      real(kind=wp), external :: ddot_
+
+      real(kind=wp) :: casdft_e, casdft_funct
+      real(kind=wp) :: EactK, EactN, Ekin, Enuc, Eone, Etwo
+      real(kind=wp) :: PotNuc_ref
+
+      real(kind=wp) :: Energies(nroots)
+      real(kind=wp),allocatable :: overlap(:), fcore(:)
+
       IPRLEV=IPRLOC(3)
 
 
-***********************************************************
-* Generate molecular charges
-***********************************************************
-      Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
+!**********************************************************
+! Generate molecular charges
+!**********************************************************
+      call mma_allocate(overlap,nTot1+4,label="Overlap")
       iRc=-1
       iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
-      Tot_Nuc_Charge=Tmp0(nTot1+4)
+      Call RdOne(iRc,iOpt,Label,iComp,overlap,iSyLbl)
       If ( iRc.ne.0 ) then
-        Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
+        Write(LF,*) 'msctl: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
         Write(LF,*) 'iRc = ',iRc
         Call Abend
       Endif
-      Call mma_deallocate(Tmp0)
-
-      Tot_El_Charge=Zero
-      Do iSym=1,nSym
-        Tot_El_Charge=Tot_El_Charge
-     &                -2.0D0*DBLE(nFro(iSym)+nIsh(iSym))
-      End Do
-      Tot_El_Charge=Tot_El_Charge-DBLE(nActEl)
-      Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
+      ! nuclear charge stored in last element
+      Tot_Nuc_Charge=overlap(size(overlap))
+      call mma_deallocate(overlap)
+      Tot_El_Charge=-2*sum(nFro+nIsh)-nActEl
+      Tot_Charge=Tot_Nuc_Charge+dble(Tot_El_Charge)
 
 
-***********************************************************
-* Load bare nuclei Hamiltonian
+!**********************************************************
+! Load bare nuclei Hamiltonian
 ! This is h_pq but in the AO basis (so h_{mu, nu})
-***********************************************************
-      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
+!**********************************************************
+      call mma_allocate(fcore,nTot1,label='Fcore')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,fcore,iSyLbl)
       If ( iRc.ne.0 ) then
-        Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
+        Write(LF,*) 'msctl: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
         Write(LF,*) 'iRc = ',iRc
-        Call Abend
+        Call Abend()
       Endif
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -149,7 +131,7 @@ C Local print level (if any)
         iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',fcore(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
@@ -328,20 +310,9 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
       end if
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
-!ANDREW _ RIGHT HERE
-      if (mcpdft_options%grad .and.
-     &     (mcpdft_options%mspdft .or.
-     &      (jroot .eq. mcpdft_options%rlxroot))) then
-        Call mma_allocate(DtmpA_g,nTot1,Label='DtmpA_g')
-        Call Fold_pdft(nSym,nBas,D1ActAO,DtmpA_g)
-        Call put_darray('D1Activeao',DtmpA_g,ntot1)
-        Call mma_deallocate(DtmpA_g)
-      end if
-!END _RIGHT HERE
-*
          Call Fold(nSym,nBas,D1I,Tmp3)
          Call Fold(nSym,nBas,D1ActAO,Tmp4)
-*
+
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
          Call Dcopy_(nTot1,Tmp4,1,DIDA(:,iIntS),1)
          if (iIntS.eq.lRoots)
@@ -457,7 +428,7 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
      &             DFTFOCK,Do_DFT)
 
 
-        Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
+        Call Daxpy_(nTot1,1.0d0,Tmp5,1,fcore,1)
         Call Daxpy_(nTot1,1.0d0,Tmp6,1,FockI,1)
 
         Call mma_deallocate(Tmp6)
@@ -477,7 +448,7 @@ c         call xflush(6)
       Call Fold(nSym,nBas,D1ActAO,Tmpa)
 c         call xflush(6)
 *
-      Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
+      Eone = dDot_(nTot1,Tmp2,1,fcore,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
       Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
@@ -530,7 +501,7 @@ c         call xflush(6)
         End Do
       End If
 
-      Call DaXpY_(nTot1,One,Tmp1,1,FockI,1)
+      Call DaXpY_(nTot1,One,fcore,1,FockI,1)
 
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -1177,22 +1148,20 @@ cPS         call xflush(6)
       Call mma_deallocate(D1ActAO)
       Call mma_deallocate(D1Spin)
       Call mma_deallocate(D1SpinAO)
-      Call mma_deallocate(Tmp1)
+      call mma_deallocate(fcore)
       Call mma_deallocate(FockI)
       Call mma_deallocate(FockA)
-*      Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
       Call mma_deallocate(P2D)
       Call mma_deallocate(D1I)
       Call mma_deallocate(Tmpk)
       Call mma_deallocate(Tmpn)
-c      call xflush(6)
 
       If (Allocated(FuncExtParams)) Call mma_deallocate(FuncExtParams)
 
       END Subroutine MSCtl
 
       Subroutine P2_contraction(D1MO,P2MO)
-      use definitions, only: wp
+      use definitions, only: iwp,wp
       use rasscf_global, only: NAC
 
       implicit none
@@ -1202,7 +1171,7 @@ c      call xflush(6)
 
 #include "rasdim.fh"
 #include "general.fh"
-      integer :: i, j, k, l, ij, kl, ijkl, lmax
+      integer(kind=iwp) :: i, j, k, l, ij, kl, ijkl, lmax
       real(kind=wp) :: fact
 
       ijkl=0
@@ -1231,27 +1200,3 @@ c      call xflush(6)
           itrii = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
         end function
       end Subroutine P2_contraction
-
-
-      Subroutine Fold_pdft(nSym,nBas,A,B)
-
-      Implicit Real*8 (A-H,O-Z)
-
-      Dimension nBas(*) , A(*) , B(*)
-
-      iOff1 = 0
-      iOff2 = 0
-      Do iSym = 1, nSym
-        mBas = nBas(iSym)
-        Do iBas= 1, mBas
-          Do jBas = 1 , iBas-1
-            B(iOff2+jBas) =   A(iOff1+jBas)
-          End Do
-          B(iOff2+iBas) =  A(iOff1+iBas)
-          iOff1 = iOff1 + mBas
-          iOff2 = iOff2 + iBas
-        End Do
-      End Do
-
-      Return
-      end Subroutine Fold_pdft
