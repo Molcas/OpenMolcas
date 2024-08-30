@@ -78,9 +78,7 @@
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='SXCTL   ')
-#include "WrkSpc.fh"
 #include "raswfn.fh"
-      Character*4 Word
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec
       Integer IndType(56)
       Character*80 VecTyp
@@ -92,7 +90,11 @@
       Real*8, Allocatable:: PUVX(:), DA(:), STRP(:), P2reo(:), P2Raw(:),
      &                      Fck(:), QMat(:), EDum(:), CMON(:), FTR(:),
      &                      Vec(:), WO(:), SQ(:), CMOX(:), SXDF(:),
-     &                      SXDD(:), CSX(:)
+     &                      SXDD(:), CSX(:), Sigma(:), HH(:), CC(:),
+     &                      ENER_X(:), SC(:), QQ(:), OVL(:), VT(:),
+     &                      VL(:), XQN(:), SCR(:), V1(:), V2(:),
+     &                      XMAT(:), X2(:)
+      Real*8 :: Dummy(1)
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
@@ -122,8 +124,6 @@ c      write(6,*) 'Entering SXCTL!'
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-3333  FORMAT(1X,'WORK SPACE VARIABLES IN SUBR. SXCTL: ',/,
-     &       1X,'SUBSECTION: ',A6,/,(1X,12I10,/))
 
 C --- Check for Cholesky ---------------
 
@@ -171,6 +171,8 @@ C --------------------------------------
           iDisk = 0
           Call mma_allocate(PUVX,nFint,Label='PUVX')
           Call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
+        Else
+          Call mma_allocate(PUVX,1,Label='PUVX')
         EndIf
       End If
       IF(IPRLEV.ge.DEBUG) THEN
@@ -181,7 +183,6 @@ C --------------------------------------
 * update and transform the Fock matrices FI and FA in MO basis ----> Fmat routine
 *********************************************************************************
       If (.not.DoCholesky .or. ALGO.eq.1) Then
-         WORD='FMAT'
          Call Fmat(CMO,PUVX,D,D1A,FI,FA)
 
       ElseIf (ALGO.eq.2) Then
@@ -200,7 +201,7 @@ C --------------------------------------
          Call mma_deallocate(DA)
 
          TraOnly=.true.
-         Call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Work(ip_Dummy),TraOnly)
+         Call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Dummy,TraOnly)
 
          if (irc.ne.0) then
          Write(LF,*)'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
@@ -221,7 +222,6 @@ C --------------------------------------
 * the size is computed as NAP*NAQ*NRS (sum over all symmetries). If Sym_R = Sym_S then triangular
 * form over NRS... with R.ge.S, rectanguar otherwise.
        IF(ISTORP(NSYM+1).GT.0) THEN
-         WORD='FMAT'
          CALL mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
 
          CALL PMAT_RASSCF(P,STRP)
@@ -255,7 +255,6 @@ c         Write(LF,*) ' ---------------------'
 ************************************************************************
 * Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
 ************************************************************************
-      WORD='FOCK'
       Call mma_allocate(FCK,NTOT4,Label='FCK')
       CALL mma_allocate(BM,NSXS,Label='BM')
       CALL mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
@@ -280,7 +279,7 @@ cGLM      If(KSDFT(1:3).ne.'GLM') then
 cGLM      end if
 
       If (.not.DoCholesky .or. ALGO.eq.1) Then
-         If ( nFint.gt.0 ) Call mma_deallocate(PUVX)
+         If (Allocated(PUVX)) Call mma_deallocate(PUVX)
       EndIf
 
 * PAM 2008: Orbital files should be updated each iteration
@@ -343,7 +342,6 @@ C FTR:  Temporary area for part of the Fock matrix FP (NTOT1)
 C VEC:  EIGENVECTORS OF FTR (NO2M)
 C SQ and WO: scratch areas
 
-        WORD='FPT2'
         CALL mma_allocate(CMON,NTOT2,Label='CMON')
         CALL mma_allocate(FTR,NTOT1,Label='FTR')
         CALL mma_allocate(VEC,NTOT2,Label='VEC')
@@ -436,7 +434,6 @@ C SXHD: The diagonal of the super-CI Hamiltonian
 C LDF: The matrix D*FP
 C LDDIA: Diagonal of the density matrix (all elements one symmetry)
 
-      WORD='SXHA'
       CALL mma_allocate(SXN,NSXS,Label='SXN')
       CALL mma_allocate(F1,NIAIA,Label='F1')
       CALL mma_allocate(F2,NAEAE,Label='F2')
@@ -471,51 +468,45 @@ C Use this criterion to set some BLB elements exactly =0:
 C MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
 
 C CSX: The super-CI vectors
-C LSIGMA: The sigma vectors
-C LHH:  The Davidson H matrix
-C LCC:   "     "     egenvectors
-C LENER: "     "     energies
-C LSC:   Scratch area
+C SIGMA: The sigma vectors
+C HH:  The Davidson H matrix
+C CC:   "     "     egenvectors
+C ENER: "     "     energies
+C SC:   Scratch area
 C QMat:    Davidson update vectors
-C LQQ:   Norm of update vectors
-C LOVL:  Overlap matrix
+C QQ:   Norm of update vectors
+C OVL:  Overlap matrix
 
-      WORD='SXDA'
       NCR=NDIMSX*NROOT*ITMAX
       KMAX=ITMAX*NROOT
       NCR1=NDIMSX*NROOT*(ITMAX+1)
       CALL mma_allocate(CSX,NCR1,Label='CSX')
-      CALL GETMEM('XSIG','ALLO','REAL',LSIGMA,NCR)
+      CALL mma_allocate(SIGMA,NCR,Label='SIGMA')
       NLHH=KMAX**2+KMAX
       NLCC=KMAX**2
       NLQ=NDIMSX*(NROOT+1)
       NLOVL=ITMAX*NROOT**2
-      CALL GETMEM('SXHH','ALLO','REAL',LHH,NLHH)
-      CALL GETMEM('SXCC','ALLO','REAL',LCC,NLCC)
-      CALL GETMEM('ENER','ALLO','REAL',LENER,KMAX)
-      CALL GETMEM('SXSC','ALLO','REAL',LSC,NDIMSX)
+      CALL mma_allocate(HH,NLHH,Label='HH')
+      CALL mma_allocate(CC,NLCC,Label='CC')
+      CALL mma_allocate(ENER_X,KMAX,Label='ENER_X')
+      CALL mma_allocate(SC,NDIMSX,Label='SC')
       Call mma_allocate(QMat,NLQ,Label='QMat')
-      CALL GETMEM('SXQQ','ALLO','REAL',LQQ,NROOT)
-      CALL GETMEM('XOVL','ALLO','REAL',LOVL,NLOVL)
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LSIGMA,LHH,LCC,LENER,
-     &         LSC,LQQ,LOVL
-      END IF
+      CALL mma_allocate(QQ,NROOT,Label='QQ')
+      CALL mma_allocate(OVL,NLOVL,Label='OVL')
 
-      CALL DAVCRE(CSX,WORK(LSIGMA),WORK(LHH),WORK(LCC),
-     &            WORK(LENER),SXHD,WORK(LSC),
-     &            QMat,WORK(LQQ),WORK(LOVL),SXSEL,
+      CALL DAVCRE(CSX,SIGMA,HH,CC,ENER_X,SXHD,SC,
+     &            QMat,QQ,OVL,SXSEL,
      &            NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
-      ESX=WORK(LENER)
-      CALL GETMEM('XSIG','FREE','REAL',LSIGMA,NCR)
-      CALL GETMEM('SXHH','FREE','REAL',LHH,NLHH)
-      CALL GETMEM('SXCC','FREE','REAL',LCC,NLCC)
-      CALL GETMEM('ENER','FREE','REAL',LENER,KMAX)
-      CALL GETMEM('SXSC','FREE','REAL',LSC,NDIMSX)
+      ESX=ENER_X(1)
+      Call mma_deallocate(SIGMA)
+      Call mma_deallocate(HH)
+      Call mma_deallocate(CC)
+      Call mma_deallocate(ENER_X)
+      Call mma_deallocate(SC)
       Call mma_deallocate(QMat)
-      CALL GETMEM('SXQQ','FREE','REAL',LQQ,NROOT)
-      CALL GETMEM('XOVL','FREE','REAL',LOVL,NLOVL)
+      Call mma_deallocate(QQ)
+      Call mma_deallocate(OVL)
       Call mma_deallocate(F1)
       Call mma_deallocate(F2)
       Call mma_deallocate(SXG)
@@ -546,7 +537,6 @@ C Renormalize the SX-coefficients
 
 C Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
 
-      WORD='QUNE'
 *      IF(ITER.EQ.1) NCALL=0
       IF(ITER.LE.4) NCALL=0
       IF(KeyHEUR.AND.ITER.GT.10.AND.MOD(ITER,10).LT.4) NCALL=0
@@ -555,30 +545,27 @@ C Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
       end if
       IF(XSXMAX.GT.0.5D0) NCALL=0
       IF(NQUNE.NE.0.AND.XSXMAX.LT.0.5D0) THEN
-        CALL GETMEM('SXVT','ALLO','REAL',LVT,NSXS)
-        CALL GETMEM('SXVL','ALLO','REAL',LVL,NSXS)
-        CALL GETMEM('SXQN','ALLO','REAL',LXQN,NSXS)
-        CALL GETMEM('SXSC','ALLO','REAL',LSCR,NSXS)
-        CALL GETMEM('XV11','ALLO','REAL',LV1,NSXS)
-        CALL GETMEM('XV22','ALLO','REAL',LV2,NSXS)
-        IF(IPRLEV.GE.DEBUG) THEN
-          Write(LF,3333)WORD,LVL,LVT,LXQN,LSCR,LV1,LV2
-        END IF
+        CALL mma_allocate(VT,NSXS,Label='VT')
+        CALL mma_allocate(VL,NSXS,Label='VL')
+        CALL mma_allocate(XQN,NSXS,Label='XQN')
+        CALL mma_allocate(SCR,NSXS,Label='SCR')
+        CALL mma_allocate(V1,NSXS,Label='V1')
+        CALL mma_allocate(V2,NSXS,Label='V2')
         CASDFT_En=0.0d0
         If(KSDFT.ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
      &      Call Get_dScalar('CASDFT energy',CASDFT_En)
         CASDFT_En=ECAS+CASDFT_En
         CALL QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),
-     &            WORK(LVL),WORK(LVT),WORK(LXQN),WORK(LSCR),
-     &            WORK(LV1),WORK(LV2),NSXS,LUQUNE,
+     &            VL,VT,XQN,SCR,
+     &            V1,V2,NSXS,LUQUNE,
      &            TMIN,QNSTEP,QNUPDT,KSDFT)
 
-        CALL GETMEM('XXXX','FREE','REAL',LVT,NSXS)
-        CALL GETMEM('XXXX','FREE','REAL',LVL,NSXS)
-        CALL GETMEM('XXXX','FREE','REAL',LXQN,NSXS)
-        CALL GETMEM('XXXX','FREE','REAL',LSCR,NSXS)
-        CALL GETMEM('XXXX','FREE','REAL',LV1,NSXS)
-        CALL GETMEM('XXXX','FREE','REAL',LV2,NSXS)
+        Call mma_deallocate(VT)
+        Call mma_deallocate(VL)
+        Call mma_deallocate(XQN)
+        Call mma_deallocate(SCR)
+        Call mma_deallocate(V1)
+        Call mma_deallocate(V2)
       ENDIF
 
 C Rotation of orbitals with exp(x) where x is obtained from
@@ -587,21 +574,15 @@ C the super-CI coefficients, with a Quasi Newton update (NQUNE=1)
 
 C CMO:  before - old MO's           after - new MO's
 C CMON: intermediate storage for new MO's (moved to CMO in ORTHO)
-C LX2:  work area, also in ORTHO (AO overlap matrix)
-C LWSQ:  "     "     "    "   "
-C LY: WORK AREA
+C X2:  work area, also in ORTHO (AO overlap matrix)
+C Scr: WORK AREA
 
-      WORD='ROTO'
       CALL mma_allocate(CMON,NTOT2,Label='CMON')
-      CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NO2M)
-      CALL GETMEM('SXX2','ALLO','REAL',LX2,NTOT1)
-      CALL GETMEM('SXY2','ALLO','REAL',LY,NO2M)
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LXMAT,LX2,LY
-      END IF
+      CALL mma_allocate(XMAT,NO2M,Label='XMAT')
+      CALL mma_allocate(X2,NTOT1,Label='X2')
+      CALL mma_allocate(Scr,NO2M,Label='SCR')
 
-      CALL ROTORB(CMO,CMON,CSX(LCSXI),WORK(LXMAT),
-     &       WORK(LX2),WORK(LY),THMAX,FA)
+      CALL ROTORB(CMO,CMON,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
 
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,*)
@@ -616,9 +597,9 @@ C LY: WORK AREA
         End Do
       END IF
       Call mma_deallocate(CMON)
-      CALL GETMEM('XMAT','FREE','REAL',LXMAT,NO2M)
-      CALL GETMEM('SXX2','FREE','REAL',LX2,NTOT1)
-      CALL GETMEM('SXY2','FREE','REAL',LY,NO2M)
+      Call mma_deallocate(XMAT)
+      Call mma_deallocate(X2)
+      Call mma_deallocate(SCR)
       Call mma_deallocate(SXN)
       Call mma_deallocate(DIA)
       Call mma_deallocate(CSX)
