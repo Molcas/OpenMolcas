@@ -397,7 +397,6 @@ cPS         call xflush(6)
                 write(6,*) D1Act(i)
               end do
         end if
-
         if(iprlev.ge.debug) then
             write(6,*) 'd1act before tractl'
             do i=1,nacpar
@@ -412,7 +411,6 @@ cPS         call xflush(6)
               write(6,*) inactive_dm(i)
             end do
         end if
-
         if(iprlev.ge.debug) then
             write(6,*) 'focki before tractl'
             do i=1,ntot1
