@@ -89,6 +89,10 @@
       Real*8 P2act(1),CIDUMMY(1)
       Real*8, Allocatable:: SXHD(:)
       Real*8, Allocatable, Target:: SMAT(:)
+      Real*8, Allocatable:: PUVX(:), DA(:), STRP(:), P2reo(:), P2Raw(:),
+     &                      Fck(:), QMat(:), EDum(:), CMON(:), FTR(:),
+     &                      Vec(:), WO(:), SQ(:), CMOX(:), SXDF(:),
+     &                      SXDD(:), CSX(:)
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
@@ -162,34 +166,30 @@ C --------------------------------------
 ************************************************************************
 * load back two-electron integrals (pu|vx)
 ************************************************************************
-      lPUVX = 1
       If (.not.DoCholesky .or. ALGO.eq.1) Then
         If ( nFint.gt.0) then
           iDisk = 0
-          Call GetMem('PUVX','Allo','Real',lPUVX,nFint)
-          Call DDaFile(LUINTM,2,Work(lPUVX),nFint,iDisk)
+          Call mma_allocate(PUVX,nFint,Label='PUVX')
+          Call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
         EndIf
       End If
       IF(IPRLEV.ge.DEBUG) THEN
        write(6,*) 'PUVX integrals in SXCTL'
-       call wrtmat(Work(lPUVX),1,nFInt,1,nFInt)
+       call wrtmat(PUVX,1,nFInt,1,nFInt)
       END IF
 *********************************************************************************
 * update and transform the Fock matrices FI and FA in MO basis ----> Fmat routine
 *********************************************************************************
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          WORD='FMAT'
-         IF(IPRLEV.GE.DEBUG) THEN
-           Write(LF,3333)WORD,lPUVX
-         END IF
-         Call Fmat(CMO,Work(lPUVX),D,D1A,FI,FA)
+         Call Fmat(CMO,PUVX,D,D1A,FI,FA)
 
       ElseIf (ALGO.eq.2) Then
 
 *     Inactive-active contribution to ECAS
-         Call GetMem('DALT','Allo','Real',iDA,nTot1)
-         Call Fold(nSym,nBas,D1A,Work(iDA)) !get the packed DA
-         VIA=dDot_(nTot1,FI,1,Work(iDA),1)
+         Call mma_allocate(DA,nTot1,Label='DA')
+         Call Fold(nSym,nBas,D1A,DA) !get the packed DA
+         VIA=dDot_(nTot1,FI,1,DA,1)
          ECAS=EMY+VIA
          If ( IPRLEV.ge.DEBUG ) then
            Write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
@@ -197,7 +197,7 @@ C --------------------------------------
            Write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',
      &                             ECAS
          End If
-         Call GetMem('DALT','Free','Real',iDA,nTot1)
+         Call mma_deallocate(DA)
 
          TraOnly=.true.
          Call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Work(ip_Dummy),TraOnly)
@@ -216,34 +216,28 @@ C --------------------------------------
 ************************************************************************
 * reorder the two-body density matrix P
 ************************************************************************
-      LP=1
       IF(.not.l_casdft) then
 * ISTORP(NSYM+1) represents the size of the 2-body density matrix,d(vwxy), with vwxy all active.
 * the size is computed as NAP*NAQ*NRS (sum over all symmetries). If Sym_R = Sym_S then triangular
 * form over NRS... with R.ge.S, rectanguar otherwise.
        IF(ISTORP(NSYM+1).GT.0) THEN
          WORD='FMAT'
-         CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
-         IF(IPRLEV.GE.DEBUG) THEN
-           Write(LF,3333)WORD,LP
-         END IF
+         CALL mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
 
-         CALL PMAT_RASSCF(P,WORK(LP))
+         CALL PMAT_RASSCF(P,STRP)
 
          If (ExFac.ne.1.0D0 .and.KSDFT(1:3).ne.'SCF') Then
-            CALL GETMEM('P2_reo','ALLO','REAL',
-     &                               ipP2reo,ISTORP(NSYM+1))
+            CALL mma_allocate(P2reo,ISTORP(NSYM+1),Label='P2reo')
             Call Get_Temp('nP2Act  ',P2Act,1)
             nP2Act=Int(P2Act(1))
-            CALL GETMEM('P2RAW','ALLO','REAL',ipP2_RAW,nP2Act)
-            Call Get_Temp('P2_RAW  ',Work(ipP2_RAW),nP2Act)
-            CALL PMAT_RASSCF(Work(ipP2_RAW),WORK(ipP2reo))
-            CALL GETMEM('P2RAW','FREE','REAL',ipP2_RAW,nP2Act)
-            P2reo=DBLE(ISTORP(NSYM+1))
-            Call Put_Temp('nP2reo  ',[P2reo],1)
-            Call Put_Temp('P2_reo  ',Work(ipP2reo),ISTORP(NSYM+1))
-            CALL GETMEM('P2_reo','FREE','REAL',
-     &                               ipP2reo,ISTORP(NSYM+1))
+            CALL mma_allocate(P2RAW,nP2Act,Label='P2Raw')
+            Call Get_Temp('P2_RAW  ',P2RAW,nP2Act)
+            CALL PMAT_RASSCF(P2RAW,P2reo)
+            Call mma_deallocate(P2Raw)
+            P2reo_size=DBLE(ISTORP(NSYM+1))
+            Call Put_Temp('nP2reo  ',[P2reo_size],1)
+            Call Put_Temp('P2_reo  ',P2reo,ISTORP(NSYM+1))
+            Call mma_deallocate(P2reo)
          End If
        END IF
       ELSE ! GLM-CASDFT
@@ -254,22 +248,18 @@ C --------------------------------------
        IF(ISTORP(NSYM+1).GT.0) THEN
 c         Write(LF,*)
 c         Write(LF,*) ' ---------------------'
-         CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
-         CALL DmatDmat(D,WORK(LP))
+         CALL mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
+         CALL DmatDmat(D,STRP)
        END IF
       end if
 ************************************************************************
 * Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
 ************************************************************************
       WORD='FOCK'
-      CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
+      Call mma_allocate(FCK,NTOT4,Label='FCK')
       CALL mma_allocate(BM,NSXS,Label='BM')
-      CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LFOCK,LP,LQ
-      END IF
-      CALL FOCK(WORK(LFOCK),BM,FI,FA,
-     &          D,WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
+      CALL mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
+      CALL FOCK(FCK,BM,FI,FA,D,STRP,QMat,PUVX,IFINAL,CMO)
 c Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,*)
@@ -283,18 +273,14 @@ c Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
           iOff = iOff + (iOrb*iOrb+iOrb)/2
         End Do
       END IF
-      CALL GETMEM('FOCK','FREE','REAL',LFOCK,NTOT4)
-      CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
+      Call mma_deallocate(FCK)
+      Call mma_deallocate(QMat)
 cGLM      If(KSDFT(1:3).ne.'GLM') then
-       IF(ISTORP(NSYM+1).GT.0) THEN
-         CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
-       END IF
+       IF(ISTORP(NSYM+1).GT.0) call mma_deallocate(STRP)
 cGLM      end if
 
       If (.not.DoCholesky .or. ALGO.eq.1) Then
-         If ( nFint.gt.0 ) Then
-            Call GetMem('PUVX','Free','Real',lPUVX,nFint)
-         EndIf
+         If ( nFint.gt.0 ) Call mma_deallocate(PUVX)
       EndIf
 
 * PAM 2008: Orbital files should be updated each iteration
@@ -322,18 +308,18 @@ cGLM      end if
 * active occupation numbers may be meaningless.
 * There is an array with occupation numbers, so use it, even if
 * possibly irrelevant. But put zeroes as orbital energies:
-        Call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
-        call dcopy_(NTOT,[0.0D0],0,WORK(LEDUM),1)
+        Call mma_allocate(EDUM,NTOT,Label='EDUM')
+        EDUM(:)=0.0D0
 
         Write(VecTyp,'(A)')
         VecTyp='* RASSCF average (pseudo-natural) orbitals (Not final)'
         LuvvVec=50
         LuvvVec=isfreeunit(LuvvVec)
         Call WrVec('RASORB',LuvvVec,'COE',NSYM,NBAS,NBAS,
-     &           CMO, OCC, WORK(LEDUM), INDTYPE,VECTYP)
+     &           CMO, OCC, EDUM, INDTYPE,VECTYP)
         Call WrVec('RASORB',LuvvVec,'AI',NSYM,NBAS,NBAS,
-     &           CMO, OCC, WORK(LEDUM), INDTYPE,VECTYP)
-        Call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
+     &           CMO, OCC, EDUM, INDTYPE,VECTYP)
+        Call mma_deallocate(EDUM)
 
 #ifdef _HDF5_
         call mh5_put_dset(wfn_mocoef,CMO)
@@ -352,21 +338,18 @@ C Finally generate orbitals and Fock matrices for CAS-PT2 runs.
 C in FCKPT2
 
 C Memory allocation and call to NEWORB and FCKPT2
-C LCMON: New molecular orbitals (NTOT2)
-C LFTR:  Temporary area for part of the Fock matrix FP (NTOT1)
-C LVEC:  EIGENVECTORS OF FTR (NO2M)
-C LSQ and LWO: scratch areas
+C CMON: New molecular orbitals (NTOT2)
+C FTR:  Temporary area for part of the Fock matrix FP (NTOT1)
+C VEC:  EIGENVECTORS OF FTR (NO2M)
+C SQ and WO: scratch areas
 
         WORD='FPT2'
-        CALL GETMEM('XCMO','ALLO','REAL',LCMON,NTOT2)
-        CALL GETMEM('XFTR','ALLO','REAL',LFTR,NTOT1)
-        CALL GETMEM('XVEC','ALLO','REAL',LVEC,NTOT2)
-        CALL GETMEM('SXWO','ALLO','REAL',LWO,NTOT2)
-        CALL GETMEM('SXSQ','ALLO','REAL',LSQ,NTOT2)
-        CALL GETMEM('SXMX','ALLO','REAL',LCMOX,NTOT2)
-        IF(IPRLEV.GE.DEBUG) THEN
-          Write(LF,3333) WORD,LCMON,LFTR,LVEC,LWO,LSQ,LCMOX
-        END IF
+        CALL mma_allocate(CMON,NTOT2,Label='CMON')
+        CALL mma_allocate(FTR,NTOT1,Label='FTR')
+        CALL mma_allocate(VEC,NTOT2,Label='VEC')
+        CALL mma_allocate(WO,NTOT2,Label='WO')
+        CALL mma_allocate(SQ,NTOT2,Label='SQ')
+        CALL mma_allocate(CMOX,NTOT2,Label='CMOX')
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
          Write(LF,*) ' CMO in SXCTL for IFINAL=1'
@@ -395,8 +378,7 @@ C LSQ and LWO: scratch areas
 #endif
         Else
 !          this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
-           CALL NEWORB_RASSCF(CMO,WORK(LCMON),FA,WORK(LFTR),WORK(LVEC),
-     &                        WORK(LWO),WORK(LSQ),WORK(LCMOX),D,OCC)
+           CALL NEWORB_RASSCF(CMO,CMON,FA,FTR,VEC,WO,SQ,CMOX,D,OCC)
 * compute orbital overlap matrix
 c           IF (NACTEL.GT.0) THEN
 * NN.14 Skip this when DMRG-CASSCF due to CI-vector dependency
@@ -404,7 +386,7 @@ c           IF (NACTEL.GT.0) THEN
            IF(NACTEL.GT.0)THEN
              CALL mma_allocate(SMAT,NAC*NAC,Label='SMAT')
              IWAY = 1
-             CALL OVLP(IWAY,CMO,WORK(LCMON),SMAT)
+             CALL OVLP(IWAY,CMO,CMON,SMAT)
 
              if(dodmrg)then
 #ifdef _DMRG_
@@ -430,16 +412,14 @@ c           IF (NACTEL.GT.0) THEN
 
         ! IPT2 = 1 for OUTO, CANOnical option...
         IF(IPT2.NE.0)
-     &  CALL FCKPT2(CMO,WORK(LCMON),FI,FA,
-     &              WORK(LFTR),WORK(LVEC),
-     &              WORK(LWO),WORK(LSQ),WORK(LCMOX))
+     &  CALL FCKPT2(CMO,CMON,FI,FA,FTR,VEC,WO,SQ,CMOX)
 
-        CALL GETMEM('SXMX','FREE','REAL',LCMOX,NTOT2)
-        CALL GETMEM('SXSQ','FREE','REAL',LSQ,NTOT2)
-        CALL GETMEM('SXWO','FREE','REAL',LWO,NTOT2)
-        CALL GETMEM('XVEC','FREE','REAL',LVEC,NTOT2)
-        CALL GETMEM('XFTR','FREE','REAL',LFTR,NTOT1)
-        CALL GETMEM('XCMO','FREE','REAL',LCMON,NTOT2)
+        Call mma_deallocate(CMOX)
+        Call mma_deallocate(SQ)
+        Call mma_deallocate(WO)
+        Call mma_deallocate(VEC)
+        Call mma_deallocate(FTR)
+        Call mma_deallocate(CMON)
 
         CALL TIMING(CPTS,CPES,TIOS,TIOES)
 
@@ -464,22 +444,18 @@ C LDDIA: Diagonal of the density matrix (all elements one symmetry)
       CALL mma_allocate(SXG,NIAIA,Label='SXG')
       CALL mma_allocate(SXH,NAOAE,Label='SXH')
       CALL mma_allocate(SXHD,NDIMSX,Label='SXHD')
-      CALL GETMEM('SXDF','ALLO','REAL',LDF,NQ)
-      CALL GETMEM('SXDD','ALLO','REAL',LDDIA,MNO)
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LDF,LDDIA
-      END IF
+      CALL mma_allocate(SXDF,NQ,Label='SXDF')
+      CALL mma_allocate(SXDD,MNO,Label='SXDD')
 
 c         CALL TRIPRT(' Dmat in MO in SXCTL bf call to SXHAM ',' ',D,NAC)
 c         CALL TRIPRT(' Pmat in MO in SXCTL bf call to SXHAM ',
 c     &              ' ',P,NACPAR)
 c         CALL TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',
 c     &              ' ',PA,NACPAR)
-      CALL SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,
-     &           SXH,SXHD,WORK(LDF),WORK(LDDIA))
+      CALL SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,SXH,SXHD,SXDF,SXDD)
 
-      CALL GETMEM('SXDD','FREE','REAL',LDDIA,MNO)
-      CALL GETMEM('SXDF','FREE','REAL',LDF,NQ)
+      Call mma_deallocate(SXDD)
+      Call mma_deallocate(SXDF)
 
 C PAM01 Removal of certain rotations from the BLB elements.
 C Some additional rotations (besides those listed in IZROT) may
@@ -494,13 +470,13 @@ C Use this criterion to set some BLB elements exactly =0:
 
 C MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
 
-C LCSX: The super-CI vectors
+C CSX: The super-CI vectors
 C LSIGMA: The sigma vectors
 C LHH:  The Davidson H matrix
 C LCC:   "     "     egenvectors
 C LENER: "     "     energies
 C LSC:   Scratch area
-C LQ:    Davidson update vectors
+C QMat:    Davidson update vectors
 C LQQ:   Norm of update vectors
 C LOVL:  Overlap matrix
 
@@ -508,7 +484,7 @@ C LOVL:  Overlap matrix
       NCR=NDIMSX*NROOT*ITMAX
       KMAX=ITMAX*NROOT
       NCR1=NDIMSX*NROOT*(ITMAX+1)
-      CALL GETMEM('XCSX','ALLO','REAL',LCSX,NCR1)
+      CALL mma_allocate(CSX,NCR1,Label='CSX')
       CALL GETMEM('XSIG','ALLO','REAL',LSIGMA,NCR)
       NLHH=KMAX**2+KMAX
       NLCC=KMAX**2
@@ -518,17 +494,17 @@ C LOVL:  Overlap matrix
       CALL GETMEM('SXCC','ALLO','REAL',LCC,NLCC)
       CALL GETMEM('ENER','ALLO','REAL',LENER,KMAX)
       CALL GETMEM('SXSC','ALLO','REAL',LSC,NDIMSX)
-      CALL GETMEM('SXLQ','ALLO','REAL',LQ,NLQ)
+      Call mma_allocate(QMat,NLQ,Label='QMat')
       CALL GETMEM('SXQQ','ALLO','REAL',LQQ,NROOT)
       CALL GETMEM('XOVL','ALLO','REAL',LOVL,NLOVL)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LCSX,LSIGMA,LHH,LCC,LENER,
-     &         LSC,LQ,LQQ,LOVL
+        Write(LF,3333)WORD,LSIGMA,LHH,LCC,LENER,
+     &         LSC,LQQ,LOVL
       END IF
 
-      CALL DAVCRE(WORK(LCSX),WORK(LSIGMA),WORK(LHH),WORK(LCC),
+      CALL DAVCRE(CSX,WORK(LSIGMA),WORK(LHH),WORK(LCC),
      &            WORK(LENER),SXHD,WORK(LSC),
-     &            WORK(LQ),WORK(LQQ),WORK(LOVL),SXSEL,
+     &            QMat,WORK(LQQ),WORK(LOVL),SXSEL,
      &            NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
       ESX=WORK(LENER)
@@ -537,7 +513,7 @@ C LOVL:  Overlap matrix
       CALL GETMEM('SXCC','FREE','REAL',LCC,NLCC)
       CALL GETMEM('ENER','FREE','REAL',LENER,KMAX)
       CALL GETMEM('SXSC','FREE','REAL',LSC,NDIMSX)
-      CALL GETMEM('SXLQ','FREE','REAL',LQ,NLQ)
+      Call mma_deallocate(QMat)
       CALL GETMEM('SXQQ','FREE','REAL',LQQ,NROOT)
       CALL GETMEM('XOVL','FREE','REAL',LOVL,NLOVL)
       Call mma_deallocate(F1)
@@ -549,23 +525,23 @@ C LOVL:  Overlap matrix
 C Renormalize the SX-coefficients
 
       IREF=1
-      LCSXI=LCSX+NDIMSX*(IREF-1)
+      LCSXI=1+NDIMSX*(IREF-1)
       IC=NROOT+LCSXI-1
       XSXMAX=0.0D0
       DO 54 I=1,NSXS
-       WORK(IC+I)=SXN(I)*WORK(IC+I)/WORK(LCSXI)
-       XSXMAX=MAX(XSXMAX,abs(WORK(IC+I)))
+       CSX(IC+I)=SXN(I)*CSX(IC+I)/CSX(LCSXI)
+       XSXMAX=MAX(XSXMAX,abs(CSX(IC+I)))
 54    CONTINUE
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
-        Write(LF,'(1X,8F14.6)')(WORK(IC+I),I=1,NSXS)
+        Write(LF,'(1X,8F14.6)')(CSX(IC+I),I=1,NSXS)
       END IF
 
 * Step size control has been built into qune now.
 *C Step length control, just for safety.
 *      DO I=1,NSXS
-*        VAL=WORK(IC+I)
-*        WORK(IC+I)=VAL/(1.0D0+1.7D0*ABS(VAL))
+*        VAL=CSX(IC+I)
+*        CSX(IC+I)=VAL/(1.0D0+1.7D0*ABS(VAL))
 *      END DO
 
 C Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
@@ -586,14 +562,13 @@ C Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
         CALL GETMEM('XV11','ALLO','REAL',LV1,NSXS)
         CALL GETMEM('XV22','ALLO','REAL',LV2,NSXS)
         IF(IPRLEV.GE.DEBUG) THEN
-          Write(LF,3333)WORD,(NROOT+LCSXI),LVL,LVT,
-     &                               LXQN,LSCR,LV1,LV2
+          Write(LF,3333)WORD,LVL,LVT,LXQN,LSCR,LV1,LV2
         END IF
         CASDFT_En=0.0d0
         If(KSDFT.ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
      &      Call Get_dScalar('CASDFT energy',CASDFT_En)
         CASDFT_En=ECAS+CASDFT_En
-        CALL QUNE(NCALL,CASDFT_En,BM,WORK(NROOT+LCSXI),
+        CALL QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),
      &            WORK(LVL),WORK(LVT),WORK(LXQN),WORK(LSCR),
      &            WORK(LV1),WORK(LV2),NSXS,LUQUNE,
      &            TMIN,QNSTEP,QNUPDT,KSDFT)
@@ -611,21 +586,21 @@ C the super-CI coefficients, with a Quasi Newton update (NQUNE=1)
 
 
 C CMO:  before - old MO's           after - new MO's
-C LCMON: intermediate storage for new MO's (moved to CMO in ORTHO)
+C CMON: intermediate storage for new MO's (moved to CMO in ORTHO)
 C LX2:  work area, also in ORTHO (AO overlap matrix)
 C LWSQ:  "     "     "    "   "
 C LY: WORK AREA
 
       WORD='ROTO'
-      CALL GETMEM('CMO1','ALLO','REAL',LCMON,NTOT2)
+      CALL mma_allocate(CMON,NTOT2,Label='CMON')
       CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NO2M)
       CALL GETMEM('SXX2','ALLO','REAL',LX2,NTOT1)
       CALL GETMEM('SXY2','ALLO','REAL',LY,NO2M)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LCMON,LCSXI,LXMAT,LX2,LY
+        Write(LF,3333)WORD,LXMAT,LX2,LY
       END IF
 
-      CALL ROTORB(CMO,WORK(LCMON),WORK(LCSXI),WORK(LXMAT),
+      CALL ROTORB(CMO,CMON,CSX(LCSXI),WORK(LXMAT),
      &       WORK(LX2),WORK(LY),THMAX,FA)
 
       IF(IPRLEV.GE.DEBUG) THEN
@@ -640,13 +615,13 @@ C LY: WORK AREA
           iOff = iOff + (iOrb*iOrb+iOrb)/2
         End Do
       END IF
-      CALL GETMEM('CMO1','FREE','REAL',LCMON,NTOT2)
+      Call mma_deallocate(CMON)
       CALL GETMEM('XMAT','FREE','REAL',LXMAT,NO2M)
       CALL GETMEM('SXX2','FREE','REAL',LX2,NTOT1)
       CALL GETMEM('SXY2','FREE','REAL',LY,NO2M)
       Call mma_deallocate(SXN)
       Call mma_deallocate(DIA)
-      CALL GETMEM('XCSX','FREE','REAL',LCSX,NCR1)
+      Call mma_deallocate(CSX)
 
       IDISK=IADR15(2)
       CALL DDAFILE(JOBIPH,1,CMO,NTOT2,IDISK)
@@ -660,4 +635,4 @@ C LY: WORK AREA
 9990  CONTINUE
       Call mma_deallocate(BM)
 
-      END
+      END Subroutine SXCtl

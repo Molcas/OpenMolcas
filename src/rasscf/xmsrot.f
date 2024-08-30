@@ -111,7 +111,7 @@ C        CALL RecPrt(' ',' ',CMO(IOff2+NI*NB),NB,NA)
 C        write(6,*)'FIA mat for sym',ISym
 C        CALL RecPrt(' ',' ',FIAAO,NB,NB)
         CALL DGEMM_('n','n',NB,NA,NB,1.0D0,FIAAO,
-     &       NB,CMO(IOff2+NI*NB),NB,0.0D0,LScr,NB)
+     &       NB,CMO(IOff2+NI*NB),NB,0.0D0,Scr,NB)
         CALL DGEMM_('t','n',NA,NA,NB,1.0D0,CMO(IOff2+NI*NB),
      &       NB,Scr,NB,0.0D0,FckOt,NA)
 C        write(6,*)'FckO mat for sym',ISym
