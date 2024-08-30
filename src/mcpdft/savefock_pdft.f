@@ -42,7 +42,7 @@
 
 
 ******Auxiliary Variables
-      INTEGER i_off1,isym, I, IBAS, IFINAL, ISA, J
+      INTEGER i_off1,isym, I, IBAS, ISA, J
       INTEGER iPrLev
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
@@ -181,7 +181,7 @@
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
       CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,Q,OnTopT,IFINAL,CMO)
+      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,Q,OnTopT,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN

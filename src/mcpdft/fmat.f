@@ -136,18 +136,17 @@ C Local print level (if any)
          End Do
        End If
 
-*************************************************************
-* Here we should start the real work!
-*************************************************************
-C Local print level (if any)
+!************************************************************
+! Here we should start the real work!
+!************************************************************
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-*     create FA in AO basis
+!     create FA in AO basis
       Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
       Call Fold(nSym,nBas,D1A,Tmp1)
 
-*     Inactive-active contribution to ECAS
+!     Inactive-active contribution to ECAS
       VIA=dDot_(nTot1,FI,1,Tmp1,1)
       ECAS=EMY+VIA
       If ( iPrLev.ge.DEBUG ) then
@@ -157,7 +156,7 @@ C Local print level (if any)
       End If
       Call mma_deallocate(Tmp1)
 
-*     print FI and FA
+!     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' FI in AO-basis in fmat'
@@ -181,7 +180,7 @@ C Local print level (if any)
         End Do
       End If
 
-*     transform FI from AO to MO basis
+!     transform FI from AO to MO basis
       iOff1 = 1
       iOff2 = 1
       iOff3 = 1
@@ -209,7 +208,7 @@ C Local print level (if any)
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
-*     transform FA from AO to MO basis
+!     transform FA from AO to MO basis
       iOff1 = 1
       iOff2 = 1
       iOff3 = 1

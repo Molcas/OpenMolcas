@@ -62,13 +62,12 @@
       integer(kind=iwp) :: IADR19(1:30)
       integer(kind=iwp) :: jroot,NQ
       integer(kind=iwp) :: i_off1,i_off2
-      integer(kind=iwp) :: isym,iash
-      integer(kind=iwp) :: i, iAdd, iBas, iCharge, iComp
+      integer(kind=iwp) :: isym
+      integer(kind=iwp) :: i, iBas, iCharge, iComp
       integer(kind=iwp) :: idisk
-      integer(kind=iwp) :: ifinal
       integer(kind=iwp) :: iOff, iOpt,  iPrLev
-      integer(kind=iwp) :: irc, iSA, iSyLbl, itsdisk, itu
-      integer(kind=iwp) :: j, lutmp, niaia, nt, ntu, nu
+      integer(kind=iwp) :: irc, iSA, iSyLbl, itsdisk
+      integer(kind=iwp) :: j, lutmp, niaia
 
       integer(kind=iwp), External:: IsFreeUnit
       real(kind=wp), external :: ddot_
@@ -123,18 +122,6 @@
         Write(u6,*) 'iRc = ',iRc
         Call Abend()
       Endif
-      If ( IPRLEV.ge.DEBUG ) then
-        Write(u6,*)
-        Write(u6,*) ' OneHam in AO basis in CASDFT_Terms'
-        Write(u6,*) ' ---------------------'
-        Write(u6,*)
-        iOff=1
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',hcore(iOff),iBas)
-          iOff = iOff + (iBas*iBas+iBas)/2
-        End Do
-      End If
 
 !Here we calculate the D1 Inactive matrix (AO).
       call mma_allocate(inactive_dm,ntot2,label="D1Inact")
@@ -184,12 +171,6 @@
         Call mma_allocate(PUVX,1,Label='PUVX')
       End If
 
-      IF(IPRLEV.ge.DEBUG) THEN
-        write(6,*) 'PUVX integrals in msctl'
-        call wrtmat(PUVX,1,nFInt,1,nFInt)
-      END IF
-
-
 !This iSA is used to control gradient calculations.  Analytic gradients
 !(in ALASKA) will only run if iSA=1, and iSA will only be set to one if
 !the on-top potentials are computed as part of this calculation.
@@ -210,9 +191,9 @@
         Lapl_a2 = Zero
         Lapl_b2 = Zero
        !Load a fresh FockI and FockA
-        Call dcopy_(ntot1,FI,1,FockI,1)
-        Call dcopy_(ntot1,FA,1,FockA,1)
-*
+        Call dcopy_(ntot1,FI,1,focki,1)
+        Call dcopy_(ntot1,FA,1,focka,1)
+
 !Read in the density matrices for <jroot>.
         D1Act(:)=0.0D0
         D1ActAO(:)=0.0D0
@@ -240,13 +221,6 @@
           end if
         end if
 
-        IF(IPRLEV.ge.DEBUG) THEN
-          write(6,*) 'D1Act'
-          do i=1,NACPAR
-            write(6,*) D1Act(i)
-          end do
-        end if
-
         Call Put_dArray('D1mo',D1Act,NACPAR)
         Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
@@ -254,16 +228,9 @@
 
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
 
-        IF(IPRLEV.ge.DEBUG) THEN
-          write(6,*) 'D2'
-          do i=1,NACPR2
-            write(6,*) p2d(i)
-          end do
-        END IF
-
-***********************************************************
-* Generate total density
-***********************************************************
+!**********************************************************
+! Generate total density
+!**********************************************************
 
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -330,6 +297,7 @@ cPS         call xflush(6)
 !the AO to MO transformation on the grid.  It seems like perhaps we are
 !doing redundant transformations by retransforming AOs (which may have
 !been included in a previous batch) into MOs.
+! iTmp5 and iTmp6 are not updated in DrvXV...
         Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
         Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
         Tmp5(:)=0.0D0
@@ -343,25 +311,6 @@ cPS         call xflush(6)
         Call Put_iArray('nIsh',nIsh,nSym)
 
         iCharge=Int(Tot_Charge)
-
-! Tmp5 and Tmp6 are not updated in DrvXV...
-                   NTU=0
-                   ITU=0
-                   IADD=0
-
-                    Do iSym = 1,nSym
-                    iAsh = nAsh(iSym)
-                    IF(iAsh.NE.0) THEN
-                    DO NT=1,iAsh
-                    NTU=NTU+IADD
-                    DO NU=1,NT
-                    NTU=NTU+1
-                     ITU=ITU+1
-                    ENDDO
-                    ENDDO
-                    IADD=IADD+iAsh
-                    End If
-                    End Do
 
       do_pdftPot=.false.
       if (mcpdft_options%grad .and.
@@ -380,20 +329,18 @@ cPS         call xflush(6)
         Call mma_deallocate(Tmp6)
         Call mma_deallocate(Tmp5)
 
+        CASDFT_Funct = 0.0D0
+        Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
-***********************************************************
-*     Compute energy contributions
-***********************************************************
+!**********************************************************
+!     Compute energy contributions
+!**********************************************************
       Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
       Call Fold(nSym,nBas,inactive_dm,Tmp2)
-c         call xflush(6)
 
       Call mma_allocate(Tmpa,nTot1,Label='Tmpa')
-c         call xflush(6)
       Call Fold(nSym,nBas,D1ActAO,Tmpa)
-c         call xflush(6)
-*
       Eone = dDot_(nTot1,Tmp2,1,hcore,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
@@ -402,8 +349,6 @@ c         call xflush(6)
 
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
-      CASDFT_Funct = 0.0D0
-      Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 *TRS
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,'(4X,A35,F18.8)')
@@ -411,9 +356,7 @@ c         call xflush(6)
        Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
        Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
        Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
-c       Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
       End If
-c         call xflush(6)
 ***********************************************************
 * Printing matrices
 ***********************************************************
@@ -511,7 +454,7 @@ c         call xflush(6)
 *
         Call mma_allocate(FockI_Save,ntot1,Label='FockI_Save')
         if(iprlev.ge.debug) then
-            write(6,*) 'ifocki before tractl'
+            write(6,*) 'focki before tractl'
             do i=1,ntot1
               write(6,*) FockI(i)
             end do
@@ -549,22 +492,21 @@ c         call xflush(6)
               write(6,*) puvx_tmp(i)
             end do
       end if
-*
-*
+
+      call fzero(focka,ntot1)
          CALL TRACTL2(CMO_X,PUVX_tmp,TUVX_tmp,inactive_dm,
      &                FockI,D1ActAO,FockA,
      &                IPR,lSquare,ExFac)
-*        Call dcopy_(ntot1,FA,1,FockA,1)
         if (iprlev.ge.debug) then
              write(6,*) 'FA tractl msctl'
              call wrtmat(FockA,1,ntot1,1,ntot1)
              write(6,*) 'FI tractl msctl'
              call wrtmat(FockI,1,ntot1,1,ntot1)
         end if
-*
+
       Call mma_deallocate(tuvx_tmp)
       Call mma_deallocate(puvx_tmp)
-*
+
         if(iprlev.ge.debug) then
             write(6,*) 'cmo after tractl'
             do i=1,ntot2
@@ -598,51 +540,25 @@ c         call xflush(6)
             do i=1,ntot2
               write(6,*) inactive_dm(i)
             end do
-        end if
-
-        if(iprlev.ge.debug) then
-            write(6,*) 'ifocki after tractl'
+            write(6,*) 'focki after tractl'
             do i=1,ntot1
               write(6,*) FockI(i)
             end do
-        end if
-
-        if (iprlev.ge.debug) then
              write(6,*) 'focki_save after tractl'
              do i=1,ntot1
                write(6,*) focki_save(i)
              end do
-*
              write(6,*) 'focka after tractl'
              do i=1,ntot1
                write(6,*) FockA(i)
              end do
-        end  if
+          endif
         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
         call  dcopy_(ntot1,focki_save,1,FockI,1)
         Call mma_deallocate(FockI_Save)
         Call mma_deallocate(CMO_X)
         Call mma_deallocate(D1Act_FA)
         Call mma_deallocate(D1ActAO_FA)
-!
-!
-        if (iprlev.ge.debug) then
-             write(6,*) 'FA after fmat 1'
-             call wrtmat(FockA,1,ntot1,1,ntot1)
-             write(6,*) 'FI after fmat 1'
-             call wrtmat(FockI,1,ntot1,1,ntot1)
-        end if
-*      end if
-*TRS
-******
-*
-      if (iprlev.ge.debug) then
-           write(6,*) 'D1Act after copy in tractl'
-            do i=1,nacpar
-              write(6,*) D1Act(i)
-            end do
-      end if
-*
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
            CALL DmatDmat(D1Act,P)
@@ -653,12 +569,6 @@ c         call xflush(6)
            CALL mma_allocate(P1,1,Label='P1')
          END IF
 
-       if(iprlev.ge.debug) then
-         write(6,*) 'dmatdmat'
-         do i=1,istorp(nsym+1)
-           write(6,*) P(i)
-         end do
-       end if
          NQ=0
          NSXS=0
          NIAIA=0
@@ -670,14 +580,11 @@ c         call xflush(6)
          if(NQ.lt.NIAIA) NQ=NIAIA
 
          CALL mma_allocate(FOCK,NTOT4,Label='FOCK')
-         CALL mma_allocate(BM,NSXS,Label='BM')
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-         IFINAL = 1
-         CALL FOCK_m(FOCK,BM,FockI,FockA,D1Act,P,Q,PUVX,IFINAL,CMO)
 
+         CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
+         Call mma_deallocate(Q)
 
-         CASDFT_Funct = 0
-         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
@@ -700,9 +607,6 @@ c         call xflush(6)
             ener(jroot,1)=CASDFT_E
          END IF
 
-
-         Call mma_deallocate(BM)
-         Call mma_deallocate(Q)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
 
@@ -936,7 +840,7 @@ cPS         call xflush(6)
          CALL mma_allocate(BM,NSXS,Label='BM')
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
          CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
-     &                    Q,OnTopT,IFINAL,CMO)
+     &                    Q,OnTopT,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
         If ( IPRLEV.ge.DEBUG ) then

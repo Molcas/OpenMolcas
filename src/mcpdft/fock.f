@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOCK_m(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
+      SUBROUTINE FOCK_m(F,FI,FP,D,P,Q,FINT)
 C
 C     RASSCF program version IBM-3090: SX section
 c
@@ -26,14 +26,13 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rasscf_global, only: CBLBM, E2act, ECAS, HALFQ1, IBLBM,
-     &                         ISYMBB, JBLBM, NTOT3, VIA_DFT, ISTORP,
-     &                         ISTORD, ITRI, IZROT, ixSYM, CBLB, iBLB,
+      use rasscf_global, only: E2act, ECAS, HALFQ1,
+     &                         NTOT3, VIA_DFT, ISTORP,
+     &                         ISTORD, ITRI, CBLB, iBLB,
      &                         jBLB
       IMPLICIT None
 
-      INTEGER IFINAL
-      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      REAL*8 F(*),FP(*),D(*),P(*),Q(*),FINT(*),FI(*)
       integer ISTSQ(8),ISTAV(8)
       real*8 ECAS0
 
@@ -42,10 +41,10 @@ C
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
       Integer iPrLev
       REAL*8 CASDFT_En, CSX, QNTM
-      Integer ipBM, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
-     &        ISYM, IX, IX1, JSTF, N1, N2, NAO, NAS, NEO, NI, NIA, NIO,
-     &        NIS, NM, NO, NO2, NOR, NP, NPQ, NQ, NSS, NT, NTM, NTT,
-     &        NTU, NTV, NU, NUVX, NV, NVI, NVM
+      Integer ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
+     &        ISYM, IX, IX1, JSTF, N1, N2, NAO, NEO, NI, NIA, NIO,
+     &        NM, NO, NO2, NOR, NP, NT, NTM, NTT,
+     &        NTV, NUVX, NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
@@ -158,44 +157,8 @@ c
          END DO
         END DO
        ENDIF
-c
-c       The Brillouin matrix BM(pq)=F(qp)-F(pq)
-c
-       NPQ=ISTBM
-       DO NP=NIO+1,NO
-        DO NQ=1,NIA
-         NPQ=NPQ+1
-         BM(NPQ)=F(ISTFCK+NO*(NP-1)+NQ)-F(ISTFCK+NO*(NQ-1)+NP)
-c
-c        Set zeroes to BM elements corresponding to rotations not allowed
-c        as controlled by the array IZROT.
-c
-         IF(NP.LE.NIA.AND.NQ.GT.NIO) THEN
-          NT=NP-NIO
-          NU=NQ-NIO
-          IF(NT.LE.NU) THEN
-           BM(NPQ)=0.0D0
-          ELSE
-           NTU=ISTZ+ITRI(NT-1)+NU
-           IF(IZROT(NTU).NE.0) THEN
-            BM(NPQ)=0.0D0
-           END IF
-           IF(IXSYM(IX+NP).NE.IXSYM(IX+NQ)) THEN
-            BM(NPQ)=0.0D0
-           END IF
-          ENDIF
-         ENDIF
-c
-c        check for largest Brillouin matrix element
-c
-         IF(ABS(BM(NPQ)).LT.ABS(CSX)) GO TO 20
-         IF(IXSYM(IX+NP).NE.IXSYM(IX+NQ)) GO TO 20
-         CSX=BM(NPQ)
-         N1=NQ+NFRO(ISYM)
-         N2=NP+NFRO(ISYM)
- 20      CONTINUE
-        END DO
-       END DO
+
+! Unknown below
 c
 90     CONTINUE
        ISTFCK=ISTFCK+NO**2
@@ -225,44 +188,17 @@ c
            Call RecPrt(' ',' ',F(ipFMCSCF),nOr,nOr)
            ipFMCSCF=ipFMCSCF+nOr*nOr
         End Do
-        Write(LF,'(A)')' Brillouin matrix'
-        ipBM=1
-        Do iSym=1,nSym
-           nIs=nIsh(iSym)
-           nAs=nAsh(iSym)
-           nSs=nSsh(iSym)
-           Call RecPrt(' ',' ',BM(ipBM),(nAs+nIs),(nAs+nSs))
-           ipBM=ipBM+(nAs+nIs)*(nAs+nSs)
-        End Do
       End If
-C
-C     Maximum BLB matrix element all symmetries
-C
-      CBLBM=0.0D0
-      ISYMBB=0
-      DO ISYM=1,NSYM
-       IF(ABS(CBLB(ISYM)).LT.ABS(CBLBM)) GO TO 150
-       CBLBM=CBLB(ISYM)
-       IBLBM=IBLB(ISYM)
-       JBLBM=JBLB(ISYM)
-       ISYMBB=ISYM
- 150   CONTINUE
-      END DO
-C
-c     Calculate Fock matrix for occupied orbitals.
-C
-      If (iFinal.eq.1) CALL FOCKOC(Q,F,CMO)
-C
 
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
          Write(LF,*) ' >>> Exit Fock <<< '
          Write(LF,*)
       End If
-C
+
       END SUBROUTINE FOCK_m
 
-      SUBROUTINE FOCK_update(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
+      SUBROUTINE FOCK_update(F,BM,FI,FP,D,P,Q,FINT,CMO)
 !This subroutine is supposed to add the dft portions of the mcpdft fock
 !matrix to the Fock matrix pieces that have already been built for the
 !CASSCF portion.
@@ -292,7 +228,6 @@ C
      &                         iTri, CBLB, IBLB, JBLB
 
       IMPLICIT None
-      INTEGER IFINAL
       REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
 
@@ -314,7 +249,6 @@ C
       END IF
 
       Call Unused_real_array(BM)
-      Call Unused_integer(ifinal)
       Call mma_allocate(TF,NTOT4,Label='TF')
       TF(:)=0.0D0
 
@@ -401,7 +335,6 @@ c                            and reordered
         DO NT=1,NAO
          NTT=(NT-1)*NO+NIO+NT
          E2eP=E2eP+0.5D0*Q(NTT)
-         !ECAS=ECAS+Q(NTT)
         END DO
 c
 c       Fock matrix
@@ -485,7 +418,6 @@ C
        Call put_dArray('Fock_PDFT',F,ntot4)
       END IF
 
-      call xflush(6)
       CALL FOCKOC(Q,F,CMO)
 C
       Call mma_deallocate(TF)
