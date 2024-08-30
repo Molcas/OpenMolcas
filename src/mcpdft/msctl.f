@@ -12,7 +12,7 @@
 !               2013, Giovanni Li Manni                                *
 !               2016, Andrew M. Sand                                   *
 !***********************************************************************
-      Subroutine MSCtl(CMO,FI,FA,Ref_Ener)
+      Subroutine MSCtl(CMO,FI,Ref_Ener)
       use definitions,only:iwp,wp,u6
       use constants,only:zero,one
       use OneDat, only: sNoNuc, sNoOri
@@ -25,11 +25,10 @@
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: FockOcc, TUVX
       use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
-      use Constants, only: Zero, One
+      use wadr, only: FockOcc
       use rasscf_global, only: DFTFOCK, ECAS, EMY, nRoots, ExFac,
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq, NSXS,
@@ -37,7 +36,7 @@
      &                         Tot_Nuc_Charge, ISTORP, ENER
       implicit none
 
-      real(kind=wp) :: FI(*), FA(*), Ref_Ener(*)
+      real(kind=wp) :: FI(*), Ref_Ener(*)
       real(kind=wp) :: CMO(*)
 
 #include "rasdim.fh"
@@ -53,7 +52,6 @@
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
-     &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
      &                      FOne(:), FA_t(:)
@@ -66,7 +64,7 @@
       integer(kind=iwp) :: i, iBas, iCharge, iComp
       integer(kind=iwp) :: idisk
       integer(kind=iwp) :: iOff, iOpt,  iPrLev
-      integer(kind=iwp) :: irc, iSA, iSyLbl, itsdisk
+      integer(kind=iwp) :: irc, iSA, iSyLbl
       integer(kind=iwp) :: j, lutmp, niaia
 
       integer(kind=iwp), External:: IsFreeUnit
@@ -192,7 +190,6 @@
         Lapl_b2 = Zero
        !Load a fresh FockI and FockA
         Call dcopy_(ntot1,FI,1,focki,1)
-        Call dcopy_(ntot1,FA,1,focka,1)
 
 !Read in the density matrices for <jroot>.
         D1Act(:)=0.0D0
@@ -400,45 +397,9 @@ cPS         call xflush(6)
                 write(6,*) D1Act(i)
               end do
         end if
-*
-        Call mma_allocate(D1Act_FA,nacpar,Label='D1Act_FA')
-        Call mma_allocate(D1ActAO_FA,ntot2,Label='D1ActAO_FA')
-*
-        itsDisk = IADR19(3)
-        do i=1,mcpdft_options%rlxroot-1
-          Call DDaFile(JOBOLD,0,D1Act_FA,NACPAR,itsDisk)
-          Call DDaFile(JOBOLD,0,D1Spin,NACPAR,itsDisk)
-          Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
-          Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
-        end do
-        Call DDaFile(JOBOLD,2,D1Act_FA,NACPAR,itsDisk)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Act_FA)
-        Call Get_D1A_RASSCF(CMO,D1Act_FA,D1ActAO_FA)
-*****
-        Call mma_allocate(CMO_X,ntot2,Label='CMO_X')
-        CALL DCOPY_(NTOT2,CMO,1,CMO_X,1)
+
         if(iprlev.ge.debug) then
-            write(6,*) 'cmo before tractl'
-            do i=1,ntot2
-              write(6,*) CMO_X(i)
-            end do
-            write(6,*) 'puvx before tractl'
-            do i=1,nfint
-              write(6,*) puvx(i)
-            end do
-            write(6,*) 'tuvx after tractl'
-            do i=1,nacpr2
-              write(6,*) tuvx(i)
-            end do
-            write(6,*) 'D1Act_FA before tractl'
-            do i=1,nacpar
-              write(6,*) D1Act_FA(i)
-            end do
-            write(6,*) 'D1ActAO_FA before tractl'
-            do i=1,ntot2
-              write(6,*) D1ActAO_FA(i)
-            end do
-            write(6,*) 'D1Act before tractl'
+            write(6,*) 'd1act before tractl'
             do i=1,nacpar
               write(6,*) D1Act(i)
             end do
@@ -451,50 +412,31 @@ cPS         call xflush(6)
               write(6,*) inactive_dm(i)
             end do
         end if
-*
-        Call mma_allocate(FockI_Save,ntot1,Label='FockI_Save')
+
         if(iprlev.ge.debug) then
             write(6,*) 'focki before tractl'
             do i=1,ntot1
               write(6,*) FockI(i)
             end do
         end if
-*
-        call  dcopy_(ntot1,FockI,1,FockI_Save,1)
-*
-        if (iprlev.ge.debug) then
-             write(6,*) 'focki_save before tractl'
-             do i=1,ntot1
-               write(6,*) focki_save(i)
-             end do
 
-             write(6,*) 'FockA before tractl'
+        call mma_allocate(focki_save, ntot1)
+        call dcopy_(ntot1,focki,1,focki_save,1)
+
+        if (iprlev.ge.debug) then
+             write(6,*) 'focka before tractl'
              do i=1,ntot1
                write(6,*) FockA(i)
              end do
          end if
-*
+
       Call mma_allocate(tuvx_tmp,nacpr2,Label='TUVX_tmp')
       Call mma_allocate(puvx_tmp,nfint,Label='PUVX_tmp')
       TUVX_tmp(:)=0.0D0
       PUVX_tmp(:)=0.0D0
-*
-      if (iprlev.ge.debug) then
-            write(6,*) 'tuvx_tmp before !!! tractl'
-            do i=1, nacpr2
-              write(6,*) tuvx_tmp(i)
-            end do
-      end if
-*
-      if (iprlev.ge.debug) then
-            write(6,*) 'puvx before tractl'
-            do i=1,nfint
-              write(6,*) puvx_tmp(i)
-            end do
-      end if
+      focka(:)=0.0D0 
 
-      call fzero(focka,ntot1)
-         CALL TRACTL2(CMO_X,PUVX_tmp,TUVX_tmp,inactive_dm,
+         CALL TRACTL2(CMO,PUVX_tmp,TUVX_tmp,inactive_dm,
      &                FockI,D1ActAO,FockA,
      &                IPR,lSquare,ExFac)
         if (iprlev.ge.debug) then
@@ -508,27 +450,7 @@ cPS         call xflush(6)
       Call mma_deallocate(puvx_tmp)
 
         if(iprlev.ge.debug) then
-            write(6,*) 'cmo after tractl'
-            do i=1,ntot2
-              write(6,*) CMO_X(i)
-            end do
-            write(6,*) 'puvx after tractl'
-            do i=1,nfint
-              write(6,*) puvx(i)
-            end do
-            write(6,*) 'tuvx after tractl'
-            do i=1,nacpr2
-              write(6,*) tuvx(i)
-            end do
-           write(6,*) 'D1Act_FA after tractl'
-            do i=1,nacpar
-              write(6,*) D1Act_FA(i)
-            end do
-            write(6,*) 'D1ActAO_FA after tractl'
-            do i=1,ntot2
-              write(6,*) D1ActAO_FA(i)
-            end do
-            write(6,*) 'D1Act after tractl'
+            write(6,*) 'd1act after tractl'
             do i=1,nacpar
               write(6,*) D1Act(i)
             end do
@@ -536,29 +458,21 @@ cPS         call xflush(6)
             do i=1,ntot2
               write(6,*) D1Actao(i)
             end do
-            write(6,*) 'inactive_dm before tractl'
+            write(6,*) 'inactive_dm after tractl'
             do i=1,ntot2
               write(6,*) inactive_dm(i)
-            end do
-            write(6,*) 'focki after tractl'
-            do i=1,ntot1
-              write(6,*) FockI(i)
             end do
              write(6,*) 'focki_save after tractl'
              do i=1,ntot1
                write(6,*) focki_save(i)
              end do
-             write(6,*) 'focka after tractl'
-             do i=1,ntot1
-               write(6,*) FockA(i)
-             end do
-          endif
-        Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
-        call  dcopy_(ntot1,focki_save,1,FockI,1)
-        Call mma_deallocate(FockI_Save)
-        Call mma_deallocate(CMO_X)
-        Call mma_deallocate(D1Act_FA)
-        Call mma_deallocate(D1ActAO_FA)
+         end  if
+
+        !Mainly just sets ECAS to core +inactive
+         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
+        call  dcopy_(ntot1,focki_save,1,focki,1)
+        call mma_deallocate(focki_save)
+
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
            CALL DmatDmat(D1Act,P)
@@ -585,7 +499,6 @@ cPS         call xflush(6)
          CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
          Call mma_deallocate(Q)
 
-
          CASDFT_E = ECAS+CASDFT_Funct
 
         IF(mcpdft_options%otfnal%is_hybrid()) THEN
@@ -599,8 +512,8 @@ cPS         call xflush(6)
 
 
          IF(mcpdft_options%mspdft) Then
+!JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
             Energies(jroot)=CASDFT_E
-*JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
             Ref_Ener(jroot)=CASDFT_E
          ELSE
             Energies(jroot)=CASDFT_E
@@ -611,10 +524,10 @@ cPS         call xflush(6)
 !fock matrix if this root corresponds to the relaxation root.
 
 !***********************************************************************
-*
-*            BUILDING OF THE NEW FOCK MATRIX                           *
-*
-************************************************************************
+!
+!            BUILDING OF THE NEW FOCK MATRIX                           *
+!
+!***********************************************************************
       if(mcpdft_options%grad .and. (.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
@@ -632,12 +545,6 @@ cPS         call xflush(6)
 !given by
 ! F_{xy} = \sum_{p} V_{py} D_{px} + \sum_{pqr} 2v_{pqry}d_{pqrx}.
 
-!
-!      write(6,*) 'NACPAR (input fock)',nacpar
-!      write(6,*) 'ntot1 (# of V, fock_occ)',ntot1
-!      write(6,*) 'nfint (# of v)',nfint
-cPS         call xflush(6)
-
 !I will read in the one- and two-electron potentials here
 
       Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
@@ -648,31 +555,10 @@ cPS         call xflush(6)
 
       Call Get_dArray('ONTOPT',OnTopT,NFINT)
       Call Get_dArray('ONTOPO',OnTopO,NTOT1)
-!
-        If ( IPRLEV.ge.DEBUG ) then
-        write(6,*) 'One-electron potentials'
-        do i=1,ntot1
-          write(6,*) OnTopO(i)
-        end do
-        write(6,*) 'Two-electron potentials'
-        do i=1,nfint
-          if (abs(puvx(i)).ge.1d-10)then
-            write(6,*) OnTopT(i),puvx(i)
-          end if
-        end do
-        end if
 
-
-!______________________________________________________
 !Grab the active-active part of the FI+FA matrix (currently held in the
 !FA matrix) and place it in an array of size NACPAR.  Add the oeotp to
 !it.  Write to file.
-        If ( IPRLEV.ge.DEBUG ) then
-      write(6,*) "FA+FI to send to MCLR"
-      do i=1,Ntot1
-        write(6,*) FockA(i)
-      end do
-        end if
 
       Call mma_allocate(Fone,NTOT1,Label='FOne')
       FOne(:)=0.0D0
@@ -684,21 +570,12 @@ cPS         call xflush(6)
 
       CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
       Call Get_dArray('FI_V',FI_V,NTOT1)
-!         Call Dscal_(nTOT1,4.0d0,FI_V,1)
-*         write(6,*) 'fiv after tractl'
-*         do i=1,ntot1
-*           write(6,*) FI_V(i)
-*         end do
 
-      !Call daxpy_(ntot1,0.5d0,FI_V,1,FockA,1)
       Call daxpy_(ntot1,1.0d0,FI_V,1,FockA,1)
       Call daxpy_(ntot1,1.0d0,OnTopO,1,FockA,1)
 
-
       i_off1=1
       i_off2=1
-
-
       Do iSym = 1,nSym
         iBas = nBas(iSym)
 !        iAct = nAsh(iSym)
@@ -737,21 +614,9 @@ cPS         call xflush(6)
         write(LUTMP,*) Fone(i)
       end do
 
-!Write the TUVX teotp to file.q
-
-!      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
-!      Call Get_TUVX(PUVX,TUVX_tmp)
-!      write(6,*) 'TUVX'
-!      do i=1,nacpr2
-!      write(6,*) TUVX_tmp(i)
-!      end do
-!      Call mma_deallocate(TUVX_tmp,NACPR2)
-
-
       Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
       TUVX_tmp(:)=0.0D0
       Call Get_TUVX(OnTopT,TUVX_tmp)
-      !Call Get_TUVX(puvx,TUVX_tmp)
 
       !Unpack TUVX to size
       do i=1,nacpr2
@@ -763,14 +628,6 @@ cPS         call xflush(6)
 
 !____________________________________________________________
 !This next part is to generate the MC-PDFT generalized fock operator.
-
-
-!      CALL DCOPY_(nFint,[0.0D0],0,OnTopT,1)
-!      CALL DCOPY_(ntot1,[0.0D0],0,OnTopO,1)
-!        write(6,*) 'ONTOPT'
-!        call wrtmat(OnTopT,1,nFInt,1,nFInt)
-!        write(6,*) 'ONTOPO'
-!        call wrtmat(OnTopO,1,ntot1,1,ntot1)
 
 !Zero out the matrices.  We will be adding the potential-containing
 !terms as a correction to the Focc component already on the runfile.
@@ -829,10 +686,10 @@ cPS         call xflush(6)
 
       CALL mma_deallocate(FI_V)
       CALL mma_deallocate(FA_V)
+!Reordering of the two-body density matrix.
 
        IF(ISTORP(NSYM+1).GT.0) THEN
          P(:)=0.0D0
-!p = P2d
          CALL PMAT_RASSCF(P2d,P)
       END IF
 

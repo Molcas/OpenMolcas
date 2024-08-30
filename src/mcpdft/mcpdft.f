@@ -287,7 +287,7 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(CMO,FI,FA,Ref_E)
+      Call MSCtl(CMO,FI,Ref_E)
 
       ! I guess Ref_E now holds the MC-PDFT energy for each state??
 

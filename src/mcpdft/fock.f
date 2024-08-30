@@ -27,7 +27,7 @@ C
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use rasscf_global, only: E2act, ECAS, HALFQ1,
-     &                         NTOT3, VIA_DFT, ISTORP,
+     &                         NTOT3, ISTORP,
      &                         ISTORD, ITRI, CBLB, iBLB,
      &                         jBLB
       IMPLICIT None
@@ -40,7 +40,7 @@ C
 #include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
       Integer iPrLev
-      REAL*8 CASDFT_En, CSX, QNTM
+      REAL*8  CSX, QNTM
       Integer ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
      &        ISYM, IX, IX1, JSTF, N1, N2, NAO, NEO, NI, NIA, NIO,
      &        NM, NO, NO2, NOR, NP, NT, NTM, NTT,
@@ -60,7 +60,6 @@ C
          ISTAV(iSym) = ISTAV(iSym-1) + nBas(iSym-1)*nAsh(iSym-1)
       End Do
 C *****************************************
-
 
 c     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
@@ -173,13 +172,7 @@ c
 c
 * End of long loop over symmetry
       END DO
-c
-      If ( iPrLev.ge.DEBUG ) then
-        CASDFT_En=0.0d0
-        Call Get_dScalar('CASDFT energy',CASDFT_En)
-        Write(LF,'(A,2F22.16)') ' RASSCF energy: ',
-     &                  ECAS+CASDFT_En,VIA_DFT
-      End If
+
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,'(A)')' MCSCF Fock-matrix in MO-basis'
         ipFMCSCF=1
