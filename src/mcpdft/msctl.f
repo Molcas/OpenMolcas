@@ -136,8 +136,8 @@
         End Do
       End If
 
+!--reads kinetic energy integrals
       Call mma_allocate(Tmpk,nTot1,Label='Tmpk')
-c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
@@ -150,6 +150,7 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
         Write(LF,*) 'iRc = ',iRc
         Call Abend
       Endif
+!-- read nuclear-electron integrals
       Call mma_allocate(Tmpn,nTot1,Label='Tmpn')
       iComp  =  1
       iSyLbl =  1
@@ -366,12 +367,10 @@ cPS         call xflush(6)
 !the AO to MO transformation on the grid.  It seems like perhaps we are
 !doing redundant transformations by retransforming AOs (which may have
 !been included in a previous batch) into MOs.
-*
         Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
         Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
         Tmp5(:)=0.0D0
         Tmp6(:)=0.0D0
-*
         First=.True.
         Dff=.False.
         Do_DFT=.True.
@@ -382,7 +381,7 @@ cPS         call xflush(6)
 
         iCharge=Int(Tot_Charge)
 
-c Tmp5 and Tmp6 are not updated in DrvXV...
+! Tmp5 and Tmp6 are not updated in DrvXV...
                    NTU=0
                    ITU=0
                    IADD=0
@@ -688,8 +687,6 @@ c         call xflush(6)
                write(6,*) FockA(i)
              end do
         end  if
-
-
         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
         call  dcopy_(ntot1,focki_save,1,FockI,1)
         Call mma_deallocate(FockI_Save)
@@ -746,9 +743,6 @@ c         call xflush(6)
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
          IFINAL = 1
          CALL FOCK_m(FOCK,BM,FockI,FockA,D1Act,P,Q,PUVX,IFINAL,CMO)
-!TMP TEST
-!         Call Put_Darray('fock_tempo',FockOcc,ntot1)
-!END TMP TEST
 
 
          CASDFT_Funct = 0
