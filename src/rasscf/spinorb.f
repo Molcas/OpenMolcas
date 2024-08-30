@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SPINORB(D,CMO,OCC,kroot)
+      use stdalloc, only: mma_allocate, mma_deallocate
 C
 C     Purpose: diagonalize the spin density matrix (D) to
 C     obtain the eigenvectors (EVEC) and the eigenvalues (EVAL).
@@ -20,10 +21,9 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SPINORB ')
-      DIMENSION D(*),CMO(*),OCC(*)
+      Character(LEN=16):: ROUTINE='SPINORB '
+      Real*8 D(*),CMO(*),OCC(*)
+      Real*8, Allocatable:: W1(:,:), W2(:,:)
 C
 C
 C Local print level (if any)
@@ -42,11 +42,11 @@ C Local print level (if any)
         IF ( NB.NE.0 ) THEN
           NA=NASH(ISYM)
           IF ( NA.NE.0 ) THEN
-            CALL GETMEM('SPORB1','ALLO','REAL',LW1,NA*NA)
-            CALL GETMEM('SPORB2','ALLO','REAL',LW2,NA*NB)
-            CALL DCOPY_(NA*NA,[0.0D0],0,WORK(LW1),1)
-            CALL DCOPY_(NA,[1.0D0],0,WORK(LW1),NA+1)
-            CALL Jacob(D(IPDEN),WORK(LW1),NA,NA)
+            CALL mma_allocate(W1,NA,NA,Label='W1')
+            CALL mma_allocate(W2,NB,NA,Label='W2')
+            W1(:,:)=0.0D0
+            CALL DCOPY_(NA,[1.0D0],0,W1,NA+1)
+            CALL Jacob(D(IPDEN),W1,NA,NA)
             IDIAG=0
             DO I=1,NA
               IDIAG=IDIAG+I
@@ -55,11 +55,11 @@ C Local print level (if any)
             CALL DGEMM_('N','N',
      &                  NB,NA,NA,
      &                  1.0d0,CMO(IPCMO+(NF+NI)*NB),NB,
-     &                  WORK(LW1),NA,
-     &                  0.0d0,WORK(LW2),NB)
-            CALL DCOPY_(NA*NB,WORK(LW2),1,CMO(IPCMO+(NF+NI)*NB),1)
-            CALL GETMEM('SPORB2','FREE','REAL',LW2,NA*NB)
-            CALL GETMEM('SPORB1','FREE','REAL',LW1,NA*NA)
+     &                        W1,NA,
+     &                  0.0d0,W2,NB)
+            CALL DCOPY_(NA*NB,W2,1,CMO(IPCMO+(NF+NI)*NB),1)
+            Call mma_deallocate(W2)
+            Call mma_deallocate(W1)
             IPDEN=IPDEN+NA*(NA+1)/2
           END IF
           IPCMO=IPCMO+NB*NB
@@ -68,9 +68,8 @@ C Local print level (if any)
       END DO
 C
 C
-      RETURN
 c Avoid unused argument warnings
 #ifdef _WARNING_WORKAROUND_
       IF (.FALSE.) CALL Unused_integer(kroot)
 #endif
-      END
+      END SUBROUTINE SPINORB
