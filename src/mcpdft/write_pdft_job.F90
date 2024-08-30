@@ -135,7 +135,8 @@ contains
     !     Rotation matrix from intermediate state basis to final
     !     MS-PDFT eigenstate basis
 
-    use definitions,only:wp
+    use constants,only:zero,one
+    use definitions,only:iwp,wp
     use stdalloc,only:mma_allocate,mma_deallocate
 #ifdef _HDF5_
     use mh5,only:mh5_open_file_rw,mh5_open_dset,mh5_put_dset, &
@@ -147,16 +148,16 @@ contains
 #include "rasdim.fh"
     ! for jobiph
 #include "general.fh"
-    integer,dimension(15),intent(in) :: adr19
+    integer(kind=iwp),dimension(15),intent(in) :: adr19
     real(kind=wp),dimension(:,:),intent(in) :: U
 
-    integer :: disk,ncon = 0,i,j,k
-    integer,dimension(1) :: dum
+    integer(kind=iwp) :: disk,ncon = 0,i
+    integer(kind=iwp),dimension(1) :: dum
     real(kind=wp),allocatable :: ci_rot(:,:),tCI(:,:)
-    integer :: roots
+    integer(kind=iwp) :: roots
 
 #ifdef _HDF5_
-    integer :: refwfn_id,wfn_cicoef
+    integer(kind=iwp) :: refwfn_id,wfn_cicoef
 #endif
 
     roots = size(U,dim=1)
@@ -175,7 +176,6 @@ contains
 
     call mma_allocate(tCI,roots,ncon,label="tCI")
     call mma_allocate(ci_rot,roots,ncon,label='CI Rot')
-    ci_rot = 0.0d0
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
@@ -191,13 +191,7 @@ contains
       endif
     enddo
 
-    do i = 1,roots
-      do j = 1,roots
-        do k = 1,ncon
-          ci_rot(j,k) = ci_rot(j,k)+tCI(i,k)*U(i,j)
-        enddo
-      enddo
-    enddo
+    call dgemm_('n','n',roots,ncon,roots,one,U,roots,tCI,ncon,zero,ci_rot,roots)
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
