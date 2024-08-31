@@ -34,6 +34,7 @@
 *                                                                      *
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
+      use definitions,only:wp
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
@@ -64,9 +65,9 @@
       integer IADR19(1:15)
       integer NMAYBE,KROOT
       real*8 EAV
-!
-      Real*8, allocatable :: TmpDMat(:), Ref_E(:), EList(:,:),
-     &                       PUVX(:)
+      
+      real(kind=wp), allocatable :: Ref_E(:), EList(:,:), PUVX(:)
+
       Logical DSCF
       Real*8 AEMAX, dum1, dum2, dum3, E
       Integer I, iJOB, iPrLev, iRC, IT, jDisk
@@ -120,14 +121,8 @@
       Call InpPri_m()
 
 ! Allocate various matrices
-      Call mma_allocate(FI,NTOT1,Label='FI')
-      Call mma_allocate(FA,NTOT1,Label='FA')
-      Call mma_allocate(D1I,NTOT2,Label='D1I')
-      Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-      Call mma_allocate(TUVX,NACPR2,Label='TUVX')
-      TUVX(:)=0.0D0
       Call mma_allocate(DSPN,NACPAR,Label='DSPN')
       Call mma_allocate(DMAT,NACPAR,Label='DMAT')
       DMAT(:)=0.0D0
@@ -155,9 +150,9 @@
         CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
      &              ' ',PA,NACPAR)
       END IF
-*
-* Allocate core space for dynamic storage of data
-*
+
+! Allocate core space for dynamic storage of data
+! Really just determine size of 2-e integrals
       CALL ALLOC()
 
       Call Timing(dum1,dum2,Ebel_1,dum3)
@@ -165,13 +160,6 @@
       ECAS   = 0.0d0
       Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
-      Call mma_allocate(TmpDMAT,NACPAR,Label='TmpDMat')
-      call dcopy_(NACPAR,DMAT,1,TmpDMAT,1)
-      If (NASH(1).ne.NAC) then
-        Call DBLOCK(TmpDMAT)
-      end if
-      Call Get_D1A_RASSCF(CMO,TmpDMAT,D1A)
-      Call mma_deallocate(TmpDMAT)
 
 !AMS start-
 ! - Read in the CASSCF Energy from JOBIPH file.  These values are not
@@ -263,29 +251,42 @@
 * the Fock matrices FI and FA
 *
       Call Timing(dum1,dum2,Fortis_1,dum3)
-      Call mma_allocate(PUVX,NFINT,Label='PUVX')
-      PUVX(:)=0.0D0
-      Call Get_D1I_RASSCF(CMO,D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      ! it should be noted that FI is really just the 2e
-      ! part of the inactive fock matrix.
-      CALL TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
-      ! The above TRACTL2 is only used to get the 2-e integrals
-      ! to then put on the runfile to then load in
-      ! for mspdft gradients
+      Call mma_allocate(D1I,NTOT2,Label='D1I')
+      Call Get_D1I_RASSCF(CMO,D1I)
 
+      If (NASH(1).ne.NAC) then
+        Call DBLOCK(DMAT)
+      end if
+      Call mma_allocate(D1A,NTOT2,Label='D1A')
+      Call Get_D1A_RASSCF(CMO,DMAT,D1A)
+
+      Call mma_allocate(FI,NTOT1,Label='FI')
+      Call mma_allocate(FA,NTOT1,Label='FA')
+      call mma_allocate(puvx,nfint,label='PUVX')
+      Call mma_allocate(TUVX,NACPR2,Label='TUVX')
+
+      ! so this does 2 things, first it puts the integrals
+      ! into the file LUINTM, the second is that we write
+      ! the integrals to the runfile anyways for mspdft grad
+      CALL TRACTL2(CMO,PUVX,TUVX,D1I,
+     &             FI,D1A,FA,IPR,lSquare,ExFac)
+
+      if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
+      ! This TRACTL2 call has some side affects that I
+      ! don't know of..
+        CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
+      end if
+      call mma_deallocate(PUVX)
       Call mma_deallocate(FI)
       Call mma_deallocate(FA)
       Call mma_deallocate(TUVX)
-
-      if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
-        CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
-      end if
-      Call mma_deallocate(PUVX)
+      Call mma_deallocate(D1I)
+      Call mma_deallocate(D1A)
 
       Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
@@ -295,6 +296,7 @@
       ! each state
       ! only after 500 lines of nothing above...
       Call MSCtl(CMO,Ref_E)
+      Call mma_deallocate(CMO)
 
       ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
@@ -330,11 +332,8 @@
 
 *  Release  some memory allocations
       Call mma_deallocate(FockOcc)
-      Call mma_deallocate(D1I)
-      Call mma_deallocate(D1A)
       Call mma_deallocate(OccN)
-      Call mma_deallocate(CMO)
-      Call mma_deallocate(REF_E)
+      call mma_deallocate(Ref_E)
 
       Call mma_deallocate(DMAT)
       Call mma_deallocate(DSPN)

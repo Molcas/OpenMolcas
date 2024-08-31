@@ -48,11 +48,11 @@
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
      &                      Tmp2(:), Tmp3(:), Tmp4(:),
      &                      Tmp5(:), Tmp6(:), Tmp7(:),
-     &                      Tmpa(:), inactive_dm(:), D1Act(:),
+     &                      inactive_dm(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
-     &                      TUVX_tmp(:), PUVX_tmp(:),
+     &                      TUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
      &                      FOne(:), FA_t(:)
       integer(kind=iwp) :: IAD19
@@ -62,7 +62,6 @@
       integer(kind=iwp) :: i_off1,i_off2
       integer(kind=iwp) :: isym
       integer(kind=iwp) :: i, iBas, iCharge, iComp
-      integer(kind=iwp) :: idisk
       integer(kind=iwp) :: iOff, iOpt,  iPrLev
       integer(kind=iwp) :: irc, iSA, iSyLbl
       integer(kind=iwp) :: j, lutmp, niaia
@@ -72,7 +71,6 @@
 
       real(kind=wp) :: casdft_e, casdft_funct
       real(kind=wp) :: Eone, Etwo
-      real(kind=wp) :: PotNuc_ref
 
       real(kind=wp) :: Energies(nroots)
       real(kind=wp),allocatable :: int1e_ovlp(:), hcore(:)
@@ -156,18 +154,6 @@
 
       Call mma_allocate(FockI,ntot1,Label='FockI')
       Call mma_allocate(FockA,ntot1,Label='FockA')
-
-!***********************************************************************
-! load back two-electron integrals (pu!vx)
-!***********************************************************************
-
-      If ( nFint.gt.0) then
-        Call mma_allocate(PUVX,nFint,Label='PUVX')
-        iDisk = 0
-        Call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
-      Else
-        Call mma_allocate(PUVX,1,Label='PUVX')
-      End If
 
 !This iSA is used to control gradient calculations.  Analytic gradients
 !(in ALASKA) will only run if iSA=1, and iSA will only be set to one if
@@ -317,22 +303,21 @@
 !***********************************************************************
 
       call mma_allocate(tuvx_tmp,nacpr2,Label='tuvx_tmp')
-      call mma_allocate(puvx_tmp,nfint,Label='puvx_tmp')
+      call mma_allocate(puvx,nfint,Label='puvx')
       tuvx_tmp(:) = zero
-      puvx_tmp(:) = zero
+      puvx(:) = zero
       focka(:) = zero
       focki(:) = zero
 
     ! This constructs focki and focka for us. Technically,
     ! focki is a constant but, if we have to recalculate it,
     ! why store it in memory.
-         CALL TRACTL2(cmo,PUVX_tmp,TUVX_tmp,
+         CALL TRACTL2(cmo,PUVX,TUVX_tmp,
      &                inactive_dm,focki,
      &                D1ActAO,focka,
      &                IPR,lSquare,ExFac)
 
       call mma_deallocate(tuvx_tmp)
-      call mma_deallocate(puvx_tmp)
 
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -353,14 +338,11 @@
       call mma_allocate(tmp2,ntot1,Label="Tmp2")
       Call Fold(nSym,nBas,inactive_dm,Tmp2)
 
-      call mma_allocate(TmpA,nTot1,Label='TmpA')
-      Call Fold(nSym,nBas,D1ActAO,Tmpa)
       Eone = dDot_(nTot1,Tmp2,1,hcore,1)
-      Call Get_dScalar('PotNuc',PotNuc_Ref)
-      Eone = Eone + (PotNuc-PotNuc_Ref)
+      Eone = Eone + PotNuc
       Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
 
-      EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
+      EMY  = Eone+0.5d0*Etwo
 
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,'(4X,A35,F18.8)')
@@ -640,8 +622,8 @@
 
 
 !Put information needed for geometry optimizations.
-          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to
-*skip)
+!need to do MCLR for gradient runs. (1 to run, 2 to skip)
+          iSA = 1
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
@@ -654,14 +636,15 @@
       end if
 
       if (mcpdft_options%grad .and. mcpdft_options%mspdft) then
-*      doing exactly the same thing as done in the previous chunck
-*      starting from 'BUILDING OF THE NEW FOCK MATRIX'
-*      Hopefully this code will be neater.
+!      doing exactly the same thing as done in the previous chunck
+!      starting from 'BUILDING OF THE NEW FOCK MATRIX'
+!      Hopefully this code will be neater.
        call savefock_pdft(CMO,FockI,FockA,D1Act,Fock,
      &                    P,NQ,PUVX,p2d,jroot)
       end if
 
-
+    ! this allocation/deallocation could be done outside the root loop
+      call mma_deallocate(puvx)
 
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',Energies,nroots)
@@ -669,7 +652,6 @@
       Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
 
       Call mma_deallocate(Tmp2)
-      Call mma_deallocate(Tmpa)
       Call mma_deallocate(FOCK)
       CALL mma_deallocate(P)
       CALL mma_deallocate(P1)
@@ -715,8 +697,6 @@
 
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
       end if
-
-      Call mma_deallocate(PUVX)
 
 !Free up all the memory we can here, eh?
       Call mma_deallocate(Tmp4)
