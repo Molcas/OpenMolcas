@@ -12,7 +12,7 @@
 !               2013, Giovanni Li Manni                                *
 !               2016, Andrew M. Sand                                   *
 !***********************************************************************
-      Subroutine MSCtl(CMO,FI,Ref_Ener)
+      Subroutine MSCtl(CMO,Ref_Ener)
       use definitions,only:iwp,wp,u6
       use constants,only:zero,one
       use OneDat, only: sNoNuc, sNoOri
@@ -36,7 +36,7 @@
      &                         Tot_Nuc_Charge, ISTORP, ENER
       implicit none
 
-      real(kind=wp) :: FI(*), Ref_Ener(*)
+      real(kind=wp) :: Ref_Ener(*)
       real(kind=wp) :: CMO(*)
 
 #include "rasdim.fh"
@@ -52,7 +52,7 @@
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
-     &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
+     &                      TUVX_tmp(:), PUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
      &                      FOne(:), FA_t(:)
       integer(kind=iwp) :: IAD19
@@ -157,9 +157,9 @@
       Call mma_allocate(FockI,ntot1,Label='FockI')
       Call mma_allocate(FockA,ntot1,Label='FockA')
 
-************************************************************************
-* load back two-electron integrals (pu!vx)
-************************************************************************
+!***********************************************************************
+! load back two-electron integrals (pu!vx)
+!***********************************************************************
 
       If ( nFint.gt.0) then
         Call mma_allocate(PUVX,nFint,Label='PUVX')
@@ -188,8 +188,6 @@
         Lapl_b1 = Zero
         Lapl_a2 = Zero
         Lapl_b2 = Zero
-       !Load a fresh FockI and FockA
-        Call dcopy_(ntot1,FI,1,focki,1)
 
 !Read in the density matrices for <jroot>.
         D1Act(:)=0.0D0
@@ -223,6 +221,9 @@
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
         Call Put_dArray('P2mo',P2d,NACPR2)
 
+        ! This dummy read is to cycle the dmDisk so next
+        ! time we encounter this block, we load the next
+        ! states densities
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
 
 !**********************************************************
@@ -230,12 +231,6 @@
 !**********************************************************
 
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
-      IF(IPRLEV.ge.DEBUG) THEN
-        write(6,*) 'D1Act'
-        do i=1,NACPAR
-          write(6,*) D1Act(i)
-        end do
-      end if
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
          Call Fold(nSym,nBas,inactive_dm,Tmp3)
@@ -254,18 +249,11 @@
          IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
           Call DCopy_(nTot1,Tmp3,1,D1AOMS(:,jRoot),1)
          END IF
-      IF(IPRLEV.ge.DEBUG) THEN
-         write(6,*) 'd1ao'
-         do i=1,ntot1
-           write(6,*) tmp3(i)
-         end do
-cPS         call xflush(6)
-      end if
 
 !Get the spin density matrix for open shell cases
-***********************************************************
-* Generate spin-density
-***********************************************************
+!**********************************************************
+! Generate spin-density
+!**********************************************************
          if(iSpin.eq.1) then
            Call dcopy_(NACPAR,[0.0d0],0,D1SpinAO,1)
          end if
@@ -278,18 +266,12 @@ cPS         call xflush(6)
      &      .and.mcpdft_options%mspdft) THEN
          Call DCopy_(nTot1,Tmp7,1,D1SAOMS(:,jRoot),1)
          END IF
-      IF(IPRLEV.ge.DEBUG) THEN
-         write(6,*) 'd1so'
-         do i=1,ntot1
-           write(6,*) tmp7(i)
-         end do
-      end if
          Call mma_deallocate(Tmp7)
 
 
-***********************************************************
-* Calculation of the CASDFT_energy
-***********************************************************
+!**********************************************************
+! Calculation of the CASDFT_energy
+!**********************************************************
 !Perhaps ideally, we should rework how DrvXV (and its children) handles
 !the AO to MO transformation on the grid.  It seems like perhaps we are
 !doing redundant transformations by retransforming AOs (which may have
@@ -329,34 +311,29 @@ cPS         call xflush(6)
         CASDFT_Funct = 0.0D0
         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
-!**********************************************************
-!     Compute energy contributions
-!**********************************************************
-      Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
-      Call Fold(nSym,nBas,inactive_dm,Tmp2)
+!***********************************************************************
+! update and transform the Fock matrices FI and FA ----> FMAT routine
+!***********************************************************************
 
-      Call mma_allocate(Tmpa,nTot1,Label='Tmpa')
-      Call Fold(nSym,nBas,D1ActAO,Tmpa)
-      Eone = dDot_(nTot1,Tmp2,1,hcore,1)
-      Call Get_dScalar('PotNuc',PotNuc_Ref)
-      Eone = Eone + (PotNuc-PotNuc_Ref)
-      Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
+      call mma_allocate(tuvx_tmp,nacpr2,Label='tuvx_tmp')
+      call mma_allocate(puvx_tmp,nfint,Label='puvx_tmp')
+      tuvx_tmp(:) = zero
+      puvx_tmp(:) = zero
+      focka(:) = zero
+      focki(:) = zero
 
+    ! This constructs focki and focka for us. Technically,
+    ! focki is a constant but, if we have to recalculate it,
+    ! why store it in memory.
+         CALL TRACTL2(cmo,PUVX_tmp,TUVX_tmp,
+     &                inactive_dm,focki,
+     &                D1ActAO,focka,
+     &                IPR,lSquare,ExFac)
 
-      EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
+      call mma_deallocate(tuvx_tmp)
+      call mma_deallocate(puvx_tmp)
 
-*TRS
-      If ( IPRLEV.ge.DEBUG ) then
-       Write(LF,'(4X,A35,F18.8)')
-     &  'Nuclear repulsion energy :',PotNuc
-       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
-       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
-       Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
-      End If
-***********************************************************
-* Printing matrices
-***********************************************************
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' FI matrix in CASDFT_Terms only 2-electron terms'
@@ -368,6 +345,29 @@ cPS         call xflush(6)
           Call TriPrt(' ','(5G17.11)',FockI(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
+      End If
+
+!**********************************************************
+!     Compute energy contributions
+!**********************************************************
+      call mma_allocate(tmp2,ntot1,Label="Tmp2")
+      Call Fold(nSym,nBas,inactive_dm,Tmp2)
+
+      call mma_allocate(TmpA,nTot1,Label='TmpA')
+      Call Fold(nSym,nBas,D1ActAO,Tmpa)
+      Eone = dDot_(nTot1,Tmp2,1,hcore,1)
+      Call Get_dScalar('PotNuc',PotNuc_Ref)
+      Eone = Eone + (PotNuc-PotNuc_Ref)
+      Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
+
+      EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
+
+      If ( IPRLEV.ge.DEBUG ) then
+       Write(LF,'(4X,A35,F18.8)')
+     &  'Nuclear repulsion energy :',PotNuc
+       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
+       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
+       Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
       End If
 
       Call DaXpY_(nTot1,One,hcore,1,FockI,1)
@@ -386,90 +386,9 @@ cPS         call xflush(6)
         End Do
       End If
 
-
-************************************************************************
-* update and transform the Fock matrices FI and FA ----> FMAT routine
-************************************************************************
-
-        if (iprlev.ge.debug) then
-              write(6,*) 'D1Act before reading in'
-              do i=1,nacpar
-                write(6,*) D1Act(i)
-              end do
-        end if
-        if(iprlev.ge.debug) then
-            write(6,*) 'd1act before tractl'
-            do i=1,nacpar
-              write(6,*) D1Act(i)
-            end do
-            write(6,*) 'D1Actao before tractl'
-            do i=1,ntot2
-              write(6,*) D1Actao(i)
-            end do
-            write(6,*) 'inactive_dm before tractl'
-            do i=1,ntot2
-              write(6,*) inactive_dm(i)
-            end do
-        end if
-        if(iprlev.ge.debug) then
-            write(6,*) 'focki before tractl'
-            do i=1,ntot1
-              write(6,*) FockI(i)
-            end do
-        end if
-
-        call mma_allocate(focki_save, ntot1)
-        call dcopy_(ntot1,focki,1,focki_save,1)
-
-        if (iprlev.ge.debug) then
-             write(6,*) 'focka before tractl'
-             do i=1,ntot1
-               write(6,*) FockA(i)
-             end do
-         end if
-
-      Call mma_allocate(tuvx_tmp,nacpr2,Label='TUVX_tmp')
-      Call mma_allocate(puvx_tmp,nfint,Label='PUVX_tmp')
-      TUVX_tmp(:)=0.0D0
-      PUVX_tmp(:)=0.0D0
-      focka(:)=0.0D0 
-
-         CALL TRACTL2(CMO,PUVX_tmp,TUVX_tmp,inactive_dm,
-     &                FockI,D1ActAO,FockA,
-     &                IPR,lSquare,ExFac)
-        if (iprlev.ge.debug) then
-             write(6,*) 'FA tractl msctl'
-             call wrtmat(FockA,1,ntot1,1,ntot1)
-             write(6,*) 'FI tractl msctl'
-             call wrtmat(FockI,1,ntot1,1,ntot1)
-        end if
-
-      Call mma_deallocate(tuvx_tmp)
-      Call mma_deallocate(puvx_tmp)
-
-        if(iprlev.ge.debug) then
-            write(6,*) 'd1act after tractl'
-            do i=1,nacpar
-              write(6,*) D1Act(i)
-            end do
-            write(6,*) 'D1Actao after tractl'
-            do i=1,ntot2
-              write(6,*) D1Actao(i)
-            end do
-            write(6,*) 'inactive_dm after tractl'
-            do i=1,ntot2
-              write(6,*) inactive_dm(i)
-            end do
-             write(6,*) 'focki_save after tractl'
-             do i=1,ntot1
-               write(6,*) focki_save(i)
-             end do
-         end  if
-
         !Mainly just sets ECAS to core +inactive
-         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
-        call  dcopy_(ntot1,focki_save,1,focki,1)
-        call mma_deallocate(focki_save)
+         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,
+     &             Focki,FockA)
 
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
@@ -719,19 +638,6 @@ cPS         call xflush(6)
       Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
       iSA = 1
 
-!      Call mma_allocate(P2dt1,NACPR2,Label='P2dt1')
-!      P2dt1(:)=0.0D0
-!      !I need the non-symmetry blocked D1Act, hence the read.
-!      Call mma_allocate(D1Act1,NACPAR,Label='D1Act1')
-!      Call Get_dArray_chk('D1mo',D1Act1,NACPAR)
-!        write(6,*) 'D1Act'
-!        do i=1,NACPAR
-!          write(6,*) D1Act1(i)
-!        end do
-!      Call P2_contraction(D1Act1,P2dt1)
-!      Call Put_dArray('P2MOt',P2dt1,NACPR2)
-!      Call mma_deallocate(P2dt1)
-!      Call mma_deallocate(D1Act1)
 
 !Put information needed for geometry optimizations.
           iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to
@@ -778,7 +684,7 @@ cPS         call xflush(6)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
         end do
         Call DDaFile(JOBOLD,2,D1Act,NACPAR,dmDisk)
-*        Andrew added this line to fix heh2plus
+!        Andrew added this line to fix heh2plus
         Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
         Call Put_dArray('D1mo',D1Act,NACPAR)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
@@ -791,29 +697,17 @@ cPS         call xflush(6)
          Call Fold(nSym,nBas,D1ActAO,Tmp4)
          Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
          Call Put_dArray('D1ao',Tmp3,nTot1)
-!         write(6,*) 'd1ao'
-!         do i=1,ntot1
-!           write(6,*) tmp3(i)
-!         end do
 
 !Get the spin density matrix for open shell cases
-***********************************************************
-* Generate spin-density
-***********************************************************
-*TRS ams also commented out this if and endif part of this
-* statement
-         !if(iSpin.eq.1) then
+!**********************************************************
+! Generate spin-density
+!**********************************************************
            Call dcopy_(NACPAR,[Zero],0,D1SpinAO,1)
-         !end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
          Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
          Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
          Call Fold(nSym,nBas,D1SpinAO,Tmp7)
          Call Put_dArray('D1Sao',Tmp7,nTot1)
-!         write(6,*) 'd1so'
-!         do i=1,ntot1
-!           write(6,*) tmp7(i)
-!         end do
          Call mma_deallocate(Tmp7)
 
 

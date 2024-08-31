@@ -271,9 +271,16 @@
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
+      ! it should be noted that FI is really just the 2e
+      ! part of the inactive fock matrix.
       CALL TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
+      ! The above TRACTL2 is only used to get the 2-e integrals
+      ! to then put on the runfile to then load in
+      ! for mspdft gradients
 
-      Call Put_dArray('Last orbitals',CMO,ntot2)
+      Call mma_deallocate(FI)
+      Call mma_deallocate(FA)
+      Call mma_deallocate(TUVX)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
@@ -287,7 +294,7 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(CMO,FI,Ref_E)
+      Call MSCtl(CMO,Ref_E)
 
       ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
@@ -323,8 +330,6 @@
 
 *  Release  some memory allocations
       Call mma_deallocate(FockOcc)
-      Call mma_deallocate(FI)
-      Call mma_deallocate(FA)
       Call mma_deallocate(D1I)
       Call mma_deallocate(D1A)
       Call mma_deallocate(OccN)
@@ -335,7 +340,6 @@
       Call mma_deallocate(DSPN)
       Call mma_deallocate(PMAT)
       Call mma_deallocate(PA)
-      Call mma_deallocate(TUVX)
 
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
