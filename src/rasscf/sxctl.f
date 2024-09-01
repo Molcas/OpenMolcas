@@ -239,6 +239,8 @@ C --------------------------------------
             Call Put_Temp('P2_reo  ',P2reo,ISTORP(NSYM+1))
             Call mma_deallocate(P2reo)
          End If
+       ELSE
+         CALL mma_allocate(STRP,1,Label='STRP')
        END IF
       ELSE ! GLM-CASDFT
 * ISTORP(NSYM+1) here represents the size of the Dvw*Dxy array (product of one-body
@@ -250,6 +252,8 @@ c         Write(LF,*)
 c         Write(LF,*) ' ---------------------'
          CALL mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
          CALL DmatDmat(D,STRP)
+       ELSE
+         CALL mma_allocate(STRP,1,Label='STRP')
        END IF
       end if
 ************************************************************************
@@ -274,13 +278,8 @@ c Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
       END IF
       Call mma_deallocate(FCK)
       Call mma_deallocate(QMat)
-cGLM      If(KSDFT(1:3).ne.'GLM') then
-       IF(ISTORP(NSYM+1).GT.0) call mma_deallocate(STRP)
-cGLM      end if
-
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-         If (Allocated(PUVX)) Call mma_deallocate(PUVX)
-      EndIf
+      IF (Allocated(STRP)) call mma_deallocate(STRP)
+      If (Allocated(PUVX)) Call mma_deallocate(PUVX)
 
 * PAM 2008: Orbital files should be updated each iteration
 * for easy access in case of catastrophic failure.
