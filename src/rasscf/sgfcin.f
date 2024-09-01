@@ -62,14 +62,13 @@
       use OFEmbed, only: Do_OFemb, OFE_first, FMaux
       use OFEmbed, only: Rep_EN
       use rctfld_module, only:  lRF
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       implicit none
 #include "rasdim.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='SGFCIN  ')
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
@@ -85,14 +84,14 @@
       real*8 :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone,
      &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
-     &  ioff, iopt,
-     &  ipam, iprlev, iptmpfcki, ntmpfck,
-     &  irc, iSyLbl,
-     &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
-     &  iTmp8, iTmpx, iTmpz, iTu, j, lx0, lx1, lx2, lx3,
+     &  ioff, iopt, ipam, iprlev, ntmpfck,
+     &  irc, iSyLbl, iSym, iTu, j,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
       real*8, allocatable :: TmpFckI(:), Tmpx(:)
-      integer, external :: ip_of_Work
+      real*8, allocatable:: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:),
+     &                      Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:),
+     &                      Tmp8(:), Tmpz(:), X0(:), X1(:), X2(:),
+     &                      X3(:)
 
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
@@ -103,21 +102,21 @@ C Local print level (if any)
 
 *
 *     Generate molecular charges
-      Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+      Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
       iRc=-1
       iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-      Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+      Tot_Nuc_Charge=Tmp0(nTot1+4)
       If ( iRc.ne.0 ) then
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
          Call Abend
       Endif
-      Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+      Call mma_deallocate(Tmp0)
       Tot_El_Charge=Zero
       Do iSym=1,nSym
          Tot_El_Charge=Tot_El_Charge
@@ -127,13 +126,13 @@ C Local print level (if any)
       Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
 *
 *     Load bare nuclei Hamiltonian
-      Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
+      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
       If ( iRc.ne.0 ) then
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
@@ -184,10 +183,10 @@ C Local print level (if any)
         Write(LF,*) ' OneHam in AO basis in SGFCIN'
         Write(LF,*) ' ---------------------'
         Write(LF,*)
-        iOff=0
+        iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
@@ -202,33 +201,33 @@ C Local print level (if any)
       ERFX = Zero
       iCharge=Int(Tot_Charge)
 
-      Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)
-      Call GetMem('DtmpA','Allo','Real',iTmp4,nTot1)
-      Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
+      Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
+      Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
+      Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
 
       Call DecideOnESPF(Do_ESPF)
 *
 *---- Generate total density
 *
-      Call Fold(nSym,nBas,D1I,Work(iTmp3))
-      Call Fold(nSym,nBas,D1A,Work(iTmp4))
-      Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-      Call Put_dArray('D1ao',Work(iTmp3),nTot1)
+      Call Fold(nSym,nBas,D1I,Tmp3)
+      Call Fold(nSym,nBas,D1A,Tmp4)
+      Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
+      Call Put_dArray('D1ao',Tmp3,nTot1)
 *     Write(LF,*)
 *     Write(LF,*) ' D1ao in AO basis in SGFCIN'
 *     Write(LF,*) ' ---------------------'
 *     Write(LF,*)
-*     iOff=0
+*     iOff=1
 *     Do iSym = 1,nSym
 *       iBas = nBas(iSym)
-*       Call TriPrt(' ','(5G17.11)',Work(iTmp3+iOff),iBas)
+*       Call TriPrt(' ','(5G17.11)',Tmp3(iOff),iBas)
 *       iOff = iOff + (iBas*iBas+iBas)/2
 *     End Do
 *
 *---- Generate spin-density
 *
-      Call Fold(nSym,nBas,D1S,Work(iTmp7))
-      Call Put_dArray('D1sao',Work(iTmp7),nTot1)
+      Call Fold(nSym,nBas,D1S,Tmp7)
+      Call Put_dArray('D1sao',Tmp7,nTot1)
 
       If(KSDFT(1:3).ne.'SCF' .or. Do_OFemb) Then
         Call Put_iArray('nFro',nFro,nSym)
@@ -241,10 +240,10 @@ C Local print level (if any)
 *
 *------ Scratch for one- and two-electron type contributions
 *
-        Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
-        Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-        Call dCopy_(nTot1,[Zero],0,Work(iTmp5),1)
-        Call dCopy_(nTot1,[Zero],0,Work(iTmp6),1)
+        Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
+        Tmp5(:)=0.0D0
+        Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
+        Tmp6(:)=0.0D0
 *
         First=.True.
         Dff=.False.
@@ -252,19 +251,19 @@ C Local print level (if any)
 
         Call Timing(Rado_1,dum1,dum2,dum3)
 
-        Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
+        Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             KSDFT,ExFac,iCharge,iSpin,D1I,D1A,
      &             nTot1,DFTFOCK,Do_DFT)
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
-          Write(LF,*) ' Work(iTmp5), h1 (DFT), in AO basis in SGFCIN'
+          Write(LF,*) ' Tmp5, h1 (DFT), in AO basis in SGFCIN'
           Write(LF,*) ' ---------------------'
           Write(LF,*)
-          iOff=0
+          iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            Call TriPrt(' ','(5G17.11)',Work(iTmp5+iOff),iBas)
+            Call TriPrt(' ','(5G17.11)',Tmp5(iOff),iBas)
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
@@ -274,32 +273,32 @@ C Local print level (if any)
 
 
         ERF1=Zero
-        ERF2=dDot_(nTot1,Work(iTmp6),1,Work(iTmp4),1)
+        ERF2=dDot_(nTot1,Tmp6,1,Tmp4,1)
         ERFX= ERF1-0.5d0*ERF2
-        Call Daxpy_(nTot1,1.0d0,Work(iTmp5),1,Work(iTmp1),1)
+        Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
 
-        Call Daxpy_(nTot1,1.0d0,Work(iTmp6),1,FI,1)
+        Call Daxpy_(nTot1,1.0d0,Tmp6,1,FI,1)
 *
 *       Insert PAM integrals to one electron Hamiltonian
 *
         If(KSDFT(1:3).eq.'PAM') Then
-          Call GetMem('gtmp1','Allo','Real',iTmp8,nTot1)
+          Call mma_allocate(Tmp8,nTot1,Label='Tmp8')
           Do iPAM=1,nPAM
              Write(PAMlbl,'(A,I3.3)') 'PAM  ',ipPam(iPAM)
-             Call dCopy_(nTot1,[Zero],0,Work(iTmp8),1)
+             Call dCopy_(nTot1,[Zero],0,Tmp8,1)
              iComp=1
-             Call RdOne(iRc,iOpt,PAMlbl,iComp,Work(iTmp8),iSyLbl)
-             Call Daxpy_(nTot1,CPAM(iPAM),Work(iTmp8),1,Work(iTmp1),1)
+             Call RdOne(iRc,iOpt,PAMlbl,iComp,Tmp8,iSyLbl)
+             Call Daxpy_(nTot1,CPAM(iPAM),Tmp8,1,Tmp1,1)
           End Do
-          Call GetMem('gtmp1','Free','Real',iTmp8,nTot1)
+          Call mma_deallocate(Tmp8)
         End If
-        Call GetMem('gtmp','Free','Real',iTmp6,nTot1)
-        Call GetMem('htmp','Free','Real',iTmp5,nTot1)
+        Call mma_deallocate(Tmp6)
+        Call mma_deallocate(Tmp5)
       End If
 
-      Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
-      Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)
-      If(.not.Do_OFemb) Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
+      Call mma_deallocate(Tmp7)
+      Call mma_deallocate(Tmp4)
+      If(.not.Do_OFemb) Call mma_deallocate(Tmp3)
 *
       If ( RFpert ) then
 *
@@ -307,14 +306,14 @@ C Local print level (if any)
 *
         Call f_Inquire('RUNOLD',Found)
         If (Found) Call NameRun('RUNOLD')
-        Call GetMem('RCTFLD','Allo','Real',iTmpZ,nTot1)
+        Call mma_allocate(TmpZ,nTot1,Label='TmpZ')
         Call Get_dScalar('RF Self Energy',ERFX)
-        Call Get_dArray('Reaction field',Work(iTmpZ),nTot1)
-        Call Daxpy_(nTot1,1.0D0,Work(iTmpZ),1,Work(iTmp1),1)
-        Call GetMem('RCTFLD','Free','Real',iTmpZ,nTot1)
+        Call Get_dArray('Reaction field',TmpZ,nTot1)
+        Call Daxpy_(nTot1,1.0D0,TmpZ,1,Tmp1,1)
+        Call mma_deallocate(TmpZ)
         If (Found) Call NameRun('#Pop')
       End If
-      Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
+      Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
           Write(LF,*) ' D1I in AO basis in SGFCIN'
@@ -327,41 +326,39 @@ C Local print level (if any)
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
-      Call Fold(nSym,nBas,D1I,Work(iTmp2))
+      Call Fold(nSym,nBas,D1I,Tmp2)
 
 *
       If (Do_OFemb) Then
          If (OFE_first) Then
           Call mma_allocate(FMaux,nTot1,Label='FMAux')
-          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
+          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Tmp3,Dumm,nTot1)
           OFE_first=.false.
          Else
-          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
+          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Tmp3,Dumm,nTot1)
          EndIf
-         Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,FMaux,1,Tmp1,1)
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
          Call Get_dExcdRa(Tmpx,nVxc)
-         iTmpx = ip_of_Work(Tmpx(1))
-         Call DaXpY_(nTot1,One,Work(iTmpx),1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,Tmpx,1,Tmp1,1)
          If (nVxc.eq.2*nTot1) Then ! Nuc Attr added twice
-            Call DaXpY_(nTot1,One,Work(iTmpx+nTot1),1,
-     &                           Work(iTmp1),1)
-            Call Get_dArray('Nuc Potential',Work(iTmpx),nTot1)
-            Call DaXpY_(nTot1,-One,Work(iTmpx),1,Work(iTmp1),1)
+            Call DaXpY_(nTot1,One,Tmpx(1+nTot1),1,Tmp1,1)
+            Call Get_dArray('Nuc Potential',Tmpx,nTot1)
+            Call DaXpY_(nTot1,-One,Tmpx,1,Tmp1,1)
          EndIf
          Call mma_deallocate(Tmpx)
-         Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
+         Call mma_deallocate(Tmp3)
          Call NameRun('#Pop')    ! switch back to old RUNFILE
       End If
 *
 *     Compute energy contributions
-      Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
+      Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
 *     Call Get_PotNuc(PotNuc_Ref)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
-      Etwo = dDot_(nTot1,Work(iTmp2),1,FI,1)
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+      Etwo = dDot_(nTot1,Tmp2,1,FI,1)
+      Call mma_deallocate(Tmp2)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo+ERFX
       CASDFT_Funct = Zero
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
@@ -390,20 +387,20 @@ C Local print level (if any)
       End If
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
-        Write(LF,*) ' Work(iTmp1) matrix in SGFCIN, one-electron term'
+        Write(LF,*) ' Tmp1 matrix in SGFCIN, one-electron term'
         Write(LF,*) ' ---------------------'
         Write(LF,*)
-        iOff=iTmp1
+        iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
 *
-*     Assemble the one-electron (iTmp1) and two-electron contribution to AO Fock matrix
-      Call DaXpY_(nTot1,One,Work(iTmp1),1,FI,1)
-      Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
+*     Assemble the one-electron Tmp1 and two-electron contribution to AO Fock matrix
+      Call DaXpY_(nTot1,One,Tmp1,1,FI,1)
+      Call mma_deallocate(Tmp1)
 *
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -427,15 +424,14 @@ C Local print level (if any)
         MXNB=MAX(MXNB,NBAS(ISYM))
         MXNA=MAX(MXNA,NASH(ISYM))
       END DO
-      CALL GETMEM('XXX0','ALLO','REAL',LX0,NTOT1)
-      CALL GETMEM('XXX1','ALLO','REAL',LX1,NTOT1)
-      CALL GETMEM('XXX2','ALLO','REAL',LX2,MXNB*MXNB)
-      CALL GETMEM('XXX3','ALLO','REAL',LX3,MXNB*MXNA)
-      CALL DCOPY_(NTOT1,FI,1,WORK(LX1),1)
+      CALL mma_allocate(X0,NTOT1,Label='X0')
+      CALL mma_allocate(X1,NTOT1,Label='X1')
+      CALL mma_allocate(X2,MXNB*MXNB,Label='X2')
+      CALL mma_allocate(X3,MXNB*MXNA,Label='X3')
+      CALL DCOPY_(NTOT1,FI,1,X1,1)
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM') Then
          Call Get_dExcdRa(TmpFckI,nTmpFck)
-         ipTmpFckI = ip_of_Work(TmpFckI(1))
-         CALL DaXpY_(NTOT1,1.0D0,Work(ipTmpFckI),1,WORK(LX1),1)
+         CALL DaXpY_(NTOT1,1.0D0,TmpFckI,1,X1,1)
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
           Write(LF,*) ' Exchange correlation in AO basis in SGFCIN'
@@ -444,7 +440,7 @@ C Local print level (if any)
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            Call TriPrt(' ','(5G17.11)',Work(ipTmpFckI+ioff-1),iBas)
+            Call TriPrt(' ','(5G17.11)',TmpFckI(ioff),iBas)
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
@@ -458,13 +454,13 @@ C Local print level (if any)
        iOff=1
        Do iSym = 1,nSym
          iBas = nBas(iSym)
-         Call TriPrt(' ','(5G17.11)',Work(LX1+ioff-1),iBas)
+         Call TriPrt(' ','(5G17.11)',X1(ioff),iBas)
          iOff = iOff + (iBas*iBas+iBas)/2
        End Do
       End If
-      CALL MOTRAC(CMO,WORK(LX1),WORK(LX2),WORK(LX3))
-      CALL GETMEM('XXX3','FREE','REAL',LX3,MXNB*MXNA)
-      CALL GETMEM('XXX2','FREE','REAL',LX2,MXNB*MXNB)
+      CALL MOTRAC(CMO,X1,X2,X3)
+      Call mma_deallocate(X3)
+      Call mma_deallocate(X2)
       CALL DCOPY_(NACPAR,[ZERO],0,F,1)
       NTU=0
       ITU=0
@@ -483,9 +479,9 @@ Cbjp
             DO NU=1,NT
               NTU=NTU+1
               ITU=ITU+1
-              F(NTU)=WORK(LX1-1+ITU)
+              F(NTU)=X1(ITU)
               IF(NT.EQ.NU) F(NTU)=F(NTU)+EMYN
-              WORK(LX0-1+ITU) = F(NTU)
+              X0(ITU) = F(NTU)
             END DO
           END DO
           IADD=IADD+NAT
@@ -496,11 +492,11 @@ Cbjp
 ! and other external CI solvers.
       if (.not. any([DoNECI, Do_CC_CI, DumpOnly,
      &              doDMRG, doBlockDMRG])) then
-        CALL CP_ONE_INT(WORK(LX0),ITU)
+        CALL CP_ONE_INT(X0,ITU)
       endif
 
-      CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)
-      CALL GETMEM('XXX0','FREE','REAL',LX0,NTOT1)
+      Call mma_deallocate(X1)
+      Call mma_deallocate(X0)
 
 *     print h0
       If ( IPRLEV.ge.DEBUG ) then
