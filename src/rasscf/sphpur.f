@@ -10,19 +10,19 @@
 ************************************************************************
       SUBROUTINE SPHPUR(CMO)
       use define_af, only: iTabMx, AngTp
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CMO(*)
-      CHARACTER*1 LCHAR
-      DIMENSION WGTLQN(0:9)
+      Real*8 CMO(*)
+      CHARACTER(LEN=1) LCHAR
+      Real*8 WGTLQN(0:9)
       LOGICAL IFTEST
+      Integer, Allocatable:: LQN(:)
 * Define mxsym etc.
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:
 #include "general.fh"
 * rasscf.fh defines NAME:
 #include "rasscf.fh"
-
-#include "WrkSpc.fh"
 
 * Set IFTEST=.true. to get supsym input generated in the output
 * for further use, or for testing.
@@ -34,14 +34,14 @@
       DO ISYM=1,NSYM
        NBTOT=NBTOT+NBAS(ISYM)
       END DO
-      CALL GETMEM('LQN','ALLO','INTE',LLQN,NBTOT)
+      CALL mma_allocate(LQN,NBTOT,Label='LQN')
       DO IBAS=1,NBTOT
        LCHAR=NAME(IBAS)(LENIN3:LENIN3)
        L=-999999
        DO ITP=0,ITABMX
          IF(LCHAR.EQ.ANGTP(ITP)) L=ITP
        END DO
-       IWORK(LLQN-1+IBAS)=L
+       LQN(IBAS)=L
       END DO
       ICMOES=0
       IBASES=0
@@ -57,7 +57,7 @@
         END DO
         DO IB=1,NB
          IBAS=IBASES+IB
-         L=IWORK(LLQN-1+IBAS)
+         L=LQN(IBAS)
          WGT=CMO(ICMOES+IB+NB*(IO-1))**2
          WGTLQN(L)=WGTLQN(L)+WGT
         END DO
@@ -101,7 +101,7 @@
          IORB=IORBES+IO
          IF(L.EQ.IXSYM(IORB))THEN
           LCOUNT=LCOUNT+1
-          IWORK(LLQN-1+LCOUNT)=IO
+          LQN(LCOUNT)=IO
          END IF
         END DO
         IF(LCOUNT.GT.0) THEN
@@ -113,7 +113,7 @@
 * Lowest L = label zero = do not specify in input:
           IF (IFTEST.and.(ISSLAB.GT.0)) THEN
            WRITE(6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,
-     &         (IWORK(LLQN+i),i=0,LCOUNT-1)
+     &         (LQN(i),i=1,LCOUNT)
           END IF
           ISSLAB=ISSLAB+1
         END IF
@@ -124,6 +124,5 @@
  100   CONTINUE
        IBASES=IBASES+NB
       END DO
-      CALL GETMEM('LQN','FREE','INTE',LLQN,NBTOT)
-      RETURN
-      END
+      CALL mma_deallocate(LQN)
+      END SUBROUTINE SPHPUR
