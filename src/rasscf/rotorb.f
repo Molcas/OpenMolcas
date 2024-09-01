@@ -21,6 +21,7 @@ c              Called from SXCTL
 c
 c          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 c
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (a-h,o-z)
 
@@ -31,14 +32,14 @@ c
       Character*16 ROUTINE
       Parameter (ROUTINE='ROTORB  ')
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 
-      DIMENSION cmoo(*), cmon(*), c(*), x(*), x2(*)
-      DIMENSION y(*), FA(*)
-      DIMENSION DAMPGAS(10),COREGAS(10)
+      Real*8 cmoo(*), cmon(*), c(*), x(*), x2(*)
+      Real*8 y(*), FA(*)
+      Real*8 DAMPGAS(10),COREGAS(10)
       INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
       LOGICAL iFrzAct
       PARAMETER (Thrs=1.0D-14)
+      Real*8, Allocatable:: Unit(:), SqFA(:)
 c
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -351,33 +352,32 @@ c used for choosing the reference determinant.
         END IF
 
 
-        Call GetMem('Unit','Allo','Real',LUNIT,no*no)
-        Call GetMem('SqFA','Allo','Real',iSqFA,no*no)
-        call fzero(Work(Lunit),no*no)
-        call fzero(Work(iSqFA),no*no)
-        Call Square(FA(iOff),Work(iSqFA),1,no,no)
+        Call mma_allocate(UNIT,no*no,Label='UNIT')
+        Call mma_allocate(SqFA,no*no,Label='SqFA')
+        Unit(:)=0.0D0
+        SqFA(:)=0.0D0
+        Call Square(FA(iOff),SqFA,1,no,no)
         IF (iprlev.ge.debug) THEN
-          CALL recprt ('Square FA in RotOrb', ' ', Work(iSqFA), no, no)
+          CALL recprt ('Square FA in RotOrb', ' ', SqFA, no, no)
         END IF
         CALL DGEMM_('N','N',
      &              no,no,no,
      &              1.0d0,x,no,
-     &              Work(iSqFA),no,
-     &              0.0d0,Work(LUNIT),no)
+     &                    SqFA,no,
+     &              0.0d0,UNIT,no)
 
         CALL DGEMM_('N','T',
      &              no,no,no,
-     &              1.0d0,Work(LUNIT),no,
-     &              x,no,
-     &              0.0d0,Work(iSqFA),no)
+     &              1.0d0,UNIT,no,
+     &                    x,no,
+     &              0.0d0,SqFA,no)
 
-        call Fold_Mat(1,[no],Work(iSqFA),FA(iOff))
+        call Fold_Mat(1,[no],SqFA,FA(iOff))
 
         iOff = iOff + (no*no+no)/2
 
-        Call GetMem('Unit','Free','Real',LUNIT,no*no)
-        Call GetMem('SqFA','Free','Real',iSqFA,no*no)
-
+        Call mma_deallocate(Unit)
+        Call mma_deallocate(SqFA)
 c
 c     Print output in MO-basis
 c
@@ -437,5 +437,4 @@ c
         Write(LF,*)
       END IF
 c
-      RETURN
-      END
+      END SUBROUTINE rotorb
