@@ -12,14 +12,15 @@
 ************************************************************************
       SUBROUTINE MKCRVEC(CMO_0,CRVEC)
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
-#include "WrkSpc.fh"
-      DIMENSION CRVEC(NTOT), CMO_0(NTOT2)
-      CHARACTER*8 LABEL
+      Real*8 CRVEC(NTOT), CMO_0(NTOT2)
+      CHARACTER(LEN=8) LABEL
+      Real*8, Allocatable:: STRI(:), SAO(:,:)
 *
 * Note: Nbas,etc are in included common. So is ITCORE.
 * CMO_0 is the starting CMO vectors. Active orbital nr ITCORE in
@@ -30,13 +31,13 @@
 * projector to be invariant to the orbital basis in each interation.
 * Note: NTOT1, NTOT2 etc, general.fh
 
-      Call GetMem('STRI','Allo','Real',LSTRI,NTOT1+4)
+      Call mma_allocate(STRI,NTOT1+4,Label='STRI')
       IRC=0
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       LABEL='Mltpl  0'
       ICOMP=1
       ISYMLBL=1
-      Call RdOne(IRC,IOPT,LABEL,ICOMP,Work(LSTRI),ISYMLBL)
+      Call RdOne(IRC,IOPT,LABEL,ICOMP,STRI,ISYMLBL)
       If ( iRc.ne.0 ) Then
         Write(6,*)' MKCRVEC could not read overlaps from ONEINT.'
         Write(6,*)' Something is wrong with that file, or possibly'
@@ -45,12 +46,12 @@
       End If
       NB=NBAS(1)
       NFI=NFRO(1)+NISH(1)
-      Call GetMem('SAO','Allo','Real',LSAO,NB**2)
-      Call Square(Work(LSTRI),Work(LSAO),1,NB,NB)
-      Call GetMem('STRI','Free','Real',LSTRI,NTOT1+4)
-      CALL DGEMV_('N',NB,NB,1.0D0, WORK(LSAO),NB,
+      Call mma_allocate(SAO,NB,NB,Label='SAO')
+      Call Square(STRI,SAO,1,NB,NB)
+      Call mma_deallocate(STRI)
+      CALL DGEMV_('N',NB,NB,1.0D0, SAO,NB,
      &             CMO_0(NB*(NFI+ITCORE-1)+1),1,0.0D0,CRVEC,1)
-      Call GetMem('SAO','Free','Real',LSAO,NB**2)
+      Call mma_deallocate(SAO)
 
 ** Test:
 *      write(6,*) 'MKCRVEC test: Overlaps all orbs/core :'
@@ -59,5 +60,4 @@
 *     &              ddot_(NB,CMO_0(NB*(IT-1)+1),1,CRVEC,1)
 *      end do
 
-      RETURN
-      END
+      END SUBROUTINE MKCRVEC
