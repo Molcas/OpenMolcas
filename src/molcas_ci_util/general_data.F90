@@ -20,5 +20,6 @@ implicit none
 
 #include "rasdim.fh"
 #include "general.fh"
+Real*8, Allocatable:: CRVEC(:)
 
 end module general_data
