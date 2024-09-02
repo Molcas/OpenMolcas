@@ -40,7 +40,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 
       Real*8 CMO(*)
 
