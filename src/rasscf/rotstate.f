@@ -31,7 +31,6 @@
 
 
       Integer NHrot                ! storing info in H0_Rotate.txt
-      Integer NRCIVec ! storing CIVec
       Integer NRState            ! storing info in Do_Rotate.txt
       Integer rcidisk
       INTEGER JRoot,IPRLEV
@@ -62,7 +61,6 @@
 
       NRState=lRoots**2
       NHRot=NRState
-      NRCIVec=lRoots*NConf
 
       CALL mma_allocate(CIVec,nConf,lRoots,Label='CIVec')
       CALL mma_allocate(CIScr,nConf,lRoots,Label='CIScr')
