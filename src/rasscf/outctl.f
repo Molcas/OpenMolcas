@@ -33,6 +33,7 @@
 #endif
       use OneDat, only: sNoOri, sOpSiz
       use rctfld_module
+      use general_data, only: CleanMask
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -454,7 +455,7 @@ C Local print level (if any)
 
       End If
 
-      If ( ICLEAN.ne.0 ) then
+      If (Allocated(CleanMask)) then
          Write(LF,Fmt2//'A)')
      &   'The cleanup option has been used to set MO-coefficients'//
      &   ' explicitly to zero'
