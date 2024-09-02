@@ -38,7 +38,6 @@
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "orthonormalize.fh"
-#include "WrkSpc.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
