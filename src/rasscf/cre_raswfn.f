@@ -25,7 +25,6 @@
 
 #  include "rasdim.fh"
 #  include "rasscf.fh"
-#  include "WrkSpc.fh"
 #  include "general.fh"
 #  include "ciinfo.fh"
 #  include "stdalloc.fh"

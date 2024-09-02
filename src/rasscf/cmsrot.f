@@ -20,7 +20,6 @@
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"

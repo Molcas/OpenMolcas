@@ -22,7 +22,6 @@
 * ------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
-#include "WrkSpc.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
 *
