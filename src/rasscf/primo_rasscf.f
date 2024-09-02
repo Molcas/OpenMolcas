@@ -14,28 +14,27 @@
 * Print MO-coefficients
 *
 ************************************************************************
-
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
       Character*(*) VecTit
-      Dimension     CMO(*),Occ(*),Ene(*)
+      Real*8 CMO(*),Occ(*),Ene(*)
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 
-      DIMENSION NSLCT(8)
+      Integer NSLCT(8)
       Logical   PrOcc,PrEne
       Character*3 lIrrep(8)
 
       Character*8 Fmt1,Fmt2
       Character*132 Line,Blank
-      Character*(LENIN8) Clean_BName
-      External Clean_BName
+      Character(LEN=LENIN8), External:: Clean_BName
 * PAM Nov 05: Non-valence orbitals
-      Dimension NVSH(8)
+      Integer NVSH(8)
+      Integer, Allocatable:: MrkIt(:), Slct(:)
 
       Call Get_cArray('Irreps',lIrrep,24)
 
@@ -95,15 +94,8 @@
       Call Put_darray('RASSCF OrbE',ENE,NBTOT)
 *
 * Initialize MARKIT.
-      CALL GETMEM('MARKIT','ALLO','INTE',LMRKIT,NBTOT)
-      IORB=0
-      DO ISYM=1,NSYM
-       NB=NBAS(ISYM)
-       DO I=1,NB
-        IORB=IORB+1
-        IWORK(LMRKIT-1+IORB)=0
-       END DO
-      END DO
+      CALL mma_allocate(MRKIT,NBTOT,Label='MrkIt')
+      MrkIt(:)=0
       IF (OutFmt2.ne.'NOCORE  ') THEN
 * Mark MARKIT as selected for occupied orbitals.
        IORB=0
@@ -111,7 +103,7 @@
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
         DO I=1,NFIA
          IORB=IORB+1
-         IWORK(LMRKIT-1+IORB)=1
+         MRKIT(IORB)=1
         END DO
         IORB=IORB+NBAS(ISYM)-NFIA
        END DO
@@ -125,7 +117,7 @@
         IORB=IORB+NSKIP
         DO I=NSKIP+1,NFIA
          IORB=IORB+1
-         IWORK(LMRKIT-1+IORB)=1
+         MRKIT(IORB)=1
         END DO
         IORB=IORB+NBAS(ISYM)-NFIA
        END DO
@@ -138,7 +130,7 @@
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
         DO I=1,NFIA
          IORB=IORB+1
-         IF(OCC(IORB).lt.PROTHR) IWORK(LMRKIT-1+IORB)=0
+         IF(OCC(IORB).lt.PROTHR) MRKIT(IORB)=0
         END DO
         IORB=IORB+NBAS(ISYM)-NFIA
        END DO
@@ -153,7 +145,7 @@
         ND=NDEL(ISYM)
         DO I=NFIA+1,NBAS(ISYM)-ND
          IORB=IORB+1
-         IF(ENE(IORB).le.PRETHR) IWORK(LMRKIT-1+IORB)=1
+         IF(ENE(IORB).le.PRETHR) MRKIT(IORB)=1
         END DO
         IORB=IORB+ND
        END DO
@@ -166,27 +158,27 @@
        NS=0
        NB=NBAS(ISYM)
        DO IO=NO+1,NO+NB
-         IF(IWORK(LMRKIT-1+IO).EQ.1) NS=NS+1
+         IF(MRKIT(IO).EQ.1) NS=NS+1
        END DO
        NO=NO+NB
        NSLCT(ISYM)=NS
        NSLCTT=NSLCTT+NS
       END DO
-      CALL GETMEM('SELECT','ALLO','INTE',LSLCT,NSLCTT)
+      CALL mma_allocate(SLCT,NSLCTT,Label='SLCT')
       IS=0
       NO=0
       DO ISYM=1,NSYM
        NB=NBAS(ISYM)
        DO IO=NO+1,NO+NB
-        IF(IWORK(LMRKIT-1+IO).EQ.1) THEN
+        IF(MRKIT(IO).EQ.1) THEN
           IS=IS+1
-          IWORK(LSLCT-1+IS)=IO
+          SLCT(IS)=IO
         END IF
        END DO
        NO=NO+NB
       END DO
 * Get rid of MARKIT.
-      CALL GETMEM('MARKIT','FREE','INTE',LMRKIT,NBTOT)
+      CALL mma_deallocate(MRKIT)
 
 * finally, print, the MOs
       If ( OutFmt2.eq.'FULL    ' ) then
@@ -210,20 +202,20 @@
            Write(LF,*)
            Write(LF,*)
            Write(LF,Fmt2//'A,7X,10I10)')'Orbital ',
-     &               (IWORK(LSLCT-1+ISOFF+I)-IBOFF,I=ISSTART,ISEND)
+     &               (SLCT(ISOFF+I)-IBOFF,I=ISSTART,ISEND)
            IF (PRENE) THEN
              Write(LF,Fmt2//'A,7X,10F10.4)')'Energy  ',
-     &               (ENE(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
+     &               (ENE(SLCT(ISOFF+I)),I=ISSTART,ISEND)
            END IF
            IF (PROCC) THEN
              Write(LF,Fmt2//'A,7X,10F10.4)')'Occ. No.',
-     &               (OCC(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
+     &               (OCC(SLCT(ISOFF+I)),I=ISSTART,ISEND)
            END IF
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I4,1X,A,10F10.4)') IB,
      &        Clean_BName(NAME(IBOFF+IB),LENIN),
-     &        (CMO(ICOFF+(IWORK(LSLCT-1+ISOFF+I)-1-IBOFF)*NB+IB),
+     &        (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
            END DO
           END DO
@@ -262,7 +254,7 @@
      &          'INDEX  COEFFICIENTS ...'
             END IF
             DO IS = 1,NSLCT(ISYM)
-              IORB=IWORK(LSLCT-1+ISOFF+IS)
+              IORB=SLCT(ISOFF+IS)
               ICOL=IORB-IBOFF
               LINE = BLANK
               IST = 1
@@ -305,10 +297,9 @@
 
       End If
 
-      CALL GETMEM('SELECT','FREE','INTE',LSLCT,NSLCTT)
+      CALL mma_deallocate(SLCT)
 * PAM 09: Reset to non-collapsible output before return.
       Call CollapseOutput(0,'   Molecular orbitals:')
       Write(6,*)
 *
-      Return
-      End
+      End Subroutine Primo_RasScf
