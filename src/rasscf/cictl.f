@@ -75,10 +75,12 @@
       use wadr, only: FMO
       use gugx, only: SGS, CIS
       use sxci, only: IDXSX
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use general_data, only: CRVec
 
       Implicit Real* 8 (A-H,O-Z)
 
-      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
+      Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
       Logical Exist,Do_ESPF
 *JB   variables for state rotation on final states
@@ -99,12 +101,10 @@
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='CICTL   ')
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
 #include "pamint.fh"
 #include "input_ras.fh"
-#include "stdalloc.fh"
 #ifdef _HDF5_
 #include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
@@ -124,7 +124,10 @@
 c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
-      Real*8, Allocatable:: CIV(:)
+      Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
+     &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
+     &                      RF(:), Temp(:)
+      Integer, Allocatable:: kCnf(:)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
@@ -139,7 +142,7 @@ C Local print level (if any)
           IF(IfCRPR) Then
 *      write(6,*)' CICTL calling MKPROJ.'
 *      call xflush(6)
-            CALL MKPROJ(Work(LCRVEC),CMO,TUVX)
+            CALL MKPROJ(CRVEC,CMO,TUVX)
 *      write(6,*)' CICTL back from MKPROJ.'
 *      call xflush(6)
           END IF
@@ -213,45 +216,45 @@ C Local print level (if any)
           Call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
         End Do
 *
-        CALL GETMEM('D1A_FULL','ALLO','REAL',LRCT_F,NTOT2)
-        CALL GETMEM('D1S_FULL','ALLO','REAL',LRCT_FS,NTOT2)
+        CALL mma_allocate(RCT_F,NTOT2,Label='RCT_F')
+        CALL mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
         If (IFinal.eq.0) Then
 *
 * Use normal MOs
 *
-           CALL GETMEM('D1A_RCT','ALLO','REAL',LRCT,NACPAR)
-           CALL GETMEM('P2MO','ALLO','REAL',ipP2MO,NACPR2)
+           CALL mma_allocate(RCT,NACPAR,Label='RCT')
+           CALL mma_allocate(P2MO,NACPR2,Label='P2MO')
 *
 * Get the total density in MOs
 *
-           Call DDafile(JOBIPH,2,Work(LRCT),NACPAR,jDisk)
-           Call Put_dArray('D1mo',Work(LRCT),NACPAR)  ! Put on RUNFILE
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT))
+           Call DDafile(JOBIPH,2,RCT,NACPAR,jDisk)
+           Call Put_dArray('D1mo',RCT,NACPAR)  ! Put on RUNFILE
+           IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT)
 * Transform to AOs
-           Call Get_D1A_RASSCF(CMO,WORK(LRCT),WORK(LRCT_F))
+           Call Get_D1A_RASSCF(CMO,RCT,RCT_F)
 *
 * Get the spin density in MOs
 *
            IF (NACTEL.EQ.0) THEN
-             CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LRCT_FS),1)
+             CALL DCOPY_(NTOT2,[0.0D0],0,RCT_FS,1)
            ELSE
-             CALL GETMEM('D1S_RCT','ALLO','REAL',LRCT_S,NACPAR)
-             Call DDafile(JOBIPH,2,Work(LRCT_S),NACPAR,jDisk)
-             IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT_S))
+             CALL mma_allocate(RCT_S,NACPAR,Label='RCT_S')
+             Call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
+             IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT_S)
 * Transform to AOs
-             Call Get_D1A_RASSCF(CMO,WORK(LRCT_S),WORK(LRCT_FS))
-             CALL GETMEM('D1S_RCT','FREE','REAL',LRCT_S,NACPAR)
+             Call Get_D1A_RASSCF(CMO,RCT_S,RCT_FS)
+             CALL mma_deallocate(RCT_S)
            END IF
 *
 * Get the 2-particle density in MO
 *
-           Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
-           Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put on RUNFILE
+           Call DDafile(JOBIPH,2,P2MO,NACPR2,jDisk)
+           Call Put_dArray('P2mo',P2MO,NACPR2) ! Put on RUNFILE
 *
-           CALL SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           CALL SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
 *
-           CALL GETMEM('P2MO','FREE','REAL',ipP2MO,NACPR2)
-           CALL GETMEM('D1A_RCT','FREE','REAL',LRCT,NACPAR)
+           CALL mma_deallocate(P2MO)
+           CALL mma_deallocate(RCT)
 *
         Else
 *
@@ -344,10 +347,10 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *
            Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Dtmp)
-           Call Get_D1A_RASSCF(CMO,Dtmp,Work(LRCT_F))
+           Call Get_D1A_RASSCF(CMO,Dtmp,RCT_F)
 *
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(DStmp)
-           Call Get_D1A_RASSCF(CMO,DStmp,Work(LRCT_FS))
+           Call Get_D1A_RASSCF(CMO,DStmp,RCT_FS)
 *
 !           do i=1,NACPAR  !yma
 !              write(*,*)"i-rdms1 1",i,Dtmp(i)
@@ -357,11 +360,11 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            Call mma_deallocate(Dtmp)
            Call mma_deallocate(CIVEC)
 *
-           Call SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           Call SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
 *
         End If
-        CALL GETMEM('D1S_FULL','FREE','REAL',LRCT_FS,NTOT2)
-        CALL GETMEM('D1A_RCT','FREE','REAL',LRCT_F,NTOT1)
+        CALL mma_deallocate(RCT_FS)
+        CALL mma_deallocate(RCT_F)
 *
       ELSE
 *********************************************************************************************
@@ -371,16 +374,16 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            CALL TRIPRT('DS input  ',' ',DS,NAC)
            CALL TRIPRT('D input  ',' ',D,NAC)
          END IF
-        CALL GETMEM('TmpDS' ,'Allo','REAL',ipTmpDS ,NACPAR)
-        CALL GETMEM('TmpD1S','Allo','REAL',ipTmpD1S,NTOT2 )
-        call dcopy_(NACPAR,DS,1,Work(ipTmpDS),1)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(ipTmpDS))
-        Call Get_D1A_RASSCF(CMO,Work(ipTmpDS),Work(ipTmpD1S))
+        CALL mma_allocate(TmpDS ,NACPAR,Label='TmpDS')
+        CALL mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
+        call dcopy_(NACPAR,DS,1,TmpDS,1)
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(TmpDS)
+        Call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
 
-        CALL GETMEM('TmpDS' ,'Free','REAL',ipTmpDS ,NACPAR)
+        CALL mma_deallocate(TmpDS)
 *
-        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,Work(ipTmpD1S))
-        CALL GETMEM('TmpD1S','Free','REAL',ipTmpD1S,NTOT2 )
+        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,TmpD1S)
+        CALL mma_deallocate(TmpD1S)
 *
       END IF
 
@@ -583,7 +586,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *JB    End If for ifinal=2
        Do jRoot = 1,lRoots
 * load back one CI vector at the time
-*JB      If do_rotate=.true., then we read CI vectors from Work(LRCIVec)
+*JB      If do_rotate=.true., then we read CI vectors from CIVec
 *JB      Otherwise we read if from JOBIPH
          Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
          IF (IPRLEV.GE.DEBUG) THEN
@@ -784,13 +787,13 @@ c
            call DVcPrt('CI-Vec in CICTL last cycle',' ',
      &        CIVEC,nConf)
           END IF
-          call getmem('kcnf','allo','inte',ivkcnf,nactel)
+          call mma_allocate(kcnf,nactel,Label='kCnf')
          if(.not.iDoGas)then
           Call Reord2(NAC,NACTEL,STSYM,0,
      &                CONF,CFTP,
-     &                CIVEC,CIV,iWork(ivkcnf))
+     &                CIVEC,CIV,kcnf)
 c        end if
-c         call getmem('kcnf','free','inte',ivkcnf,nactel)
+c         call mma_deallocate(kcnf)
 
 * save reorder CI vector on disk
 c         if(.not.iDoGas)then
@@ -842,11 +845,10 @@ C.. printout of the wave function
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
 
-            call gasprwf(nac,nactel,stsym,conf,
-     c           cftp,CIVEC,iwork(ivkcnf))
+            call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
           End If
          end if
-          call getmem('kcnf','free','inte',ivkcnf,nactel)
+          call mma_deallocate(kcnf)
 *          END IF
         End Do
 
@@ -860,11 +862,10 @@ C.. printout of the wave function
      &        CIVEC,nConf)
           END IF
 * reorder it according to the split graph GUGA conventions
-          call getmem('kcnf','allo','inte',ivkcnf,nactel)
+          call mma_allocate(kcnf,nactel,Label='kcnf')
           Call Reord2(NAC,NACTEL,STSYM,0,
-     &                CONF,CFTP,
-     &                CIVEC,CIV,iWork(ivkcnf))
-          call getmem('kcnf','free','inte',ivkcnf,nactel)
+     &                CONF,CFTP,CIVEC,CIV,kcnf)
+          call mma_deallocate(kcnf)
 * save reorder CI vector on disk
           Call DDafile(JOBIPH,1,CIV,nConf,jDisk)
 #ifdef _HDF5_
@@ -951,7 +952,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         End If
 *
         mconf = 0
-        Call Allocate_Work(ipRF,nConf)
+        Call mma_allocate(RF,nConf,Label='RF')
         Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
 
         !> check whether the rf target h5 file exists (needed at this
@@ -989,13 +990,13 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
            ! But just to make sure we calculate it anyway
            ! in case of non-DMRG calculation
            if (.not.doDMRG) then
-             Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)
-             rNorm=Sqrt(DDot_(nConf,Work(ipRF),1,Work(ipRF),1))
+             Call Get_dArray("RF CASSCF Vector",RF,nConf)
+             rNorm=Sqrt(DDot_(nConf,RF,1,RF,1))
            end if
 *          Write (6,*) 'rNorm=',rNorm
            JPCMROOT=IPCMROOT
            If (rNorm.gt.1.0D-10) Then
-              Call Allocate_Work(ipTemp,nConf)
+              Call mma_allocate(Temp,nConf,Label='Temp')
               rMax=0.0D0
               qMax=0.0d0
               jDisk = IADR15(4)
@@ -1005,8 +1006,8 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
                    qmax = abs(qcmaquis_interface_get_overlap(i))
 #endif
                  else
-                   Call DDafile(JOBIPH,2,Work(ipTemp),nConf,jDisk)
-                   qMax=Abs(DDot_(nConf,Work(ipTemp),1,Work(ipRF),1))
+                   Call DDafile(JOBIPH,2,Temp,nConf,jDisk)
+                   qMax=Abs(DDot_(nConf,Temp,1,RF,1))
                  end if
 *                Write (6,*) 'qMax=',qMax
                  If (qMax.gt.rMax .and.
@@ -1015,7 +1016,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
                     JPCMROOT=i
                  End If
               End Do
-              Call Free_Work(ipTemp)
+              Call mma_deallocate(Temp)
            End If
         Else
            JPCMROOT=IPCMROOT
@@ -1049,11 +1050,11 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
           Do i=1,IPCMROOT-1
             Call DDafile(JOBIPH,0,rdum,nConf,jDisk)
           End Do
-          Call DDafile(JOBIPH,2,Work(ipRF),nConf,jDisk)
+          Call DDafile(JOBIPH,2,RF,nConf,jDisk)
         end if
 
-        Call Put_dArray("RF CASSCF Vector",Work(ipRF),nConf)
-        Call Free_Work(ipRF)
+        Call Put_dArray("RF CASSCF Vector",RF,nConf)
+        Call mma_deallocate(RF)
       End If
 
       Return

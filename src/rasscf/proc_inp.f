@@ -56,6 +56,7 @@
       use UnixInfo, only: SuperName
       use Lucia_Interface, only: Lucia_Util
       use gugx, only: SGS, CIS, EXS
+      use general_data, only: CRVec
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -3295,7 +3296,7 @@ c       write(6,*)          '  --------------------------------------'
       IF (IfCRPR) Then
 * Core shift using a fixed projection operator.
         NCRVEC=NBAS(1)
-        Call GetMem('CRVEC','Allo','Real',LCRVEC,NCRVEC)
+        Call mma_allocate(CRVEC,NCRVEC,Label='CRVec')
         N=NBAS(1)
         NCRPROJ=(N*(N+1)*(N**2+N+2))/8
         Call GetMem('CRPROJ','Allo','Real',LCRPROJ,NCRPROJ)

@@ -96,6 +96,7 @@
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
       use gugx, only: SGS, CIS, EXS
+      use general_data, only: CRVec
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -708,7 +709,7 @@ c         Write(6,*) ' TUVX after TRACTL2'
 c         write(6,*) (UVX(ind),ind=1,NACPR2)
         IF (ITER.eq.1 .and. IfCRPR) Then
 * Core shift applied to projection of WF with doubly occupied core
-          Call MkCRVEC(CMO,Work(LCRVEC))
+          Call MkCRVEC(CMO,CRVEC)
         END IF
 
         If ( IPRLEV.ge.DEBUG ) then
@@ -1770,7 +1771,7 @@ c Clean-close as much as you can the CASDFT stuff...
       IF(NAC.EQ.0) EAV=ECAS
       IF(NCRVEC.gt.0) then
 * Core shift has been used
-        Call GetMem('CRVEC','Free','Real',LCRVEC,NCRVEC)
+        Call mma_deallocate(CRVEC)
         Call GetMem('CRPROJ','Free','Real',LCRPROJ,NCRPROJ)
       END IF
       Call Timing(dum1,dum2,Zenith_2,dum3)
