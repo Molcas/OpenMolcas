@@ -25,6 +25,7 @@
 *     M.P. Fuelscher, Lund, July 1990
 *     GLM, Minneapolis,   May 2013
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
       use rctfld_module
 #ifdef _DMRG_
@@ -37,15 +38,17 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *
-      Dimension CMO(*) ,F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
+      Real*8 CMO(*) ,F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
       Character*8 Label
       Logical First, Dff, Do_DFT
       Parameter ( Zero=0.0d0 , One=1.0d0 )
+      Real*8, Allocatable:: X0(:), X1(:), X2(:), X3(:)
+      Real*8, Allocatable:: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:),
+     &                      Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:)
 
 
 ***********************************************************
@@ -112,21 +115,21 @@ c      IPRLEV=100
 ***********************************************************
 * Generate molecular charges
 ***********************************************************
-      Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+      Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
       iRc=-1
       iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-      Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+      Tot_Nuc_Charge=Tmp0(nTot1+4)
       If ( iRc.ne.0 ) then
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
          Call Abend
       Endif
-      Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+      Call mma_deallocate(Tmp0)
 
       Tot_El_Charge=Zero
       Do iSym=1,nSym
@@ -143,13 +146,13 @@ c      IPRLEV=100
 ***********************************************************
 * Load bare nuclei Hamiltonian
 ***********************************************************
-      Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
+      Call mma_Allocate(Tmp1,nTot1,Label='Tmp1')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
       If ( iRc.ne.0 ) then
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
@@ -161,10 +164,10 @@ c      IPRLEV=100
         Write(LF,*) ' OneHam in AO basis in CASDFT_Terms'
         Write(LF,*) ' ---------------------'
         Write(LF,*)
-        iOff=0
+        iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End IF
@@ -182,41 +185,41 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
 ***********************************************************
 *
 *      If ( IPRLEV.ge.DEBUG ) then
-*       Call GetMem('D_MAT','Allo','Real',iTmp31,nBas*nBas)
-*          call FZERO(Work(iTmp31),nBas*nBas)
-*          Call Daxpy_(nBas*nBas,1.0D0,D1I,1,Work(iTmp31),1)
-*          Call Daxpy_(nBas*nBas,1.0D0,D1A,1,Work(iTmp31),1)
+*       Call mma_allocate(Tmp31,nBas*nBas,Label='Tmp31')
+*          Tmp31(:)=0.0D0
+*          Call Daxpy_(nBas*nBas,1.0D0,D1I,1,Tmp31,1)
+*          Call Daxpy_(nBas*nBas,1.0D0,D1A,1,Tmp31,1)
 *      Write(LF,*)
 *       Write(LF,*) ' DMAT not folded in AO basis in CASDFT_Terms'
 *       Write(LF,*) ' ---------------------'
 *       Write(LF,*)
-*          call wrtmat(Work(iTmp31),nBas,nBas, nBas, nBas)
-*       Call GetMem('D_MAT','Free','Real',iTmp31,nBas*nBas)
+*          call wrtmat(Tmp31,nBas,nBas, nBas, nBas)
+*       Call mma_deallocate(Tmp3)
 *      End IF
 
-      Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)
-      Call GetMem('DtmpA','Allo','Real',iTmp4,nTot1)
-      Call Fold(nSym,nBas,D1I,Work(iTmp3))
-      Call Fold(nSym,nBas,D1A,Work(iTmp4))
-      Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-      Call Put_dArray('D1ao',Work(iTmp3),nTot1)
+      Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
+      Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
+      Call Fold(nSym,nBas,D1I,Tmp3)
+      Call Fold(nSym,nBas,D1A,Tmp4)
+      Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
+      Call Put_dArray('D1ao',Tmp3,nTot1)
       call xflush(6)
 ***********************************************************
 * Generate spin-density
 ***********************************************************
-        Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
-        Call Fold(nSym,nBas,D1S,Work(iTmp7))
-        Call Put_dArray('D1sao',Work(iTmp7),nTot1)
-        Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
+        Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
+        Call Fold(nSym,nBas,D1S,Tmp7)
+        Call Put_dArray('D1sao',Tmp7,nTot1)
+        Call mma_deallocate(Tmp7)
 *
 ***********************************************************
 * One- and two-electron type contributions
 ***********************************************************
 *
-      Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
-      Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-      Call dcopy_(nTot1,[0.0d0],0,Work(iTmp5),1)
-      Call dcopy_(nTot1,[0.0d0],0,Work(iTmp6),1)
+      Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
+      Tmp5(:)=0.0D0
+      Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
+      Tmp6(:)=0.0D0
 *
       First=.True.
       Dff=.False.
@@ -227,32 +230,32 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
       Call Put_iArray('nIsh',nIsh,nSym)
 
       iCharge=Int(Tot_Charge)
-c iTmp5 and iTmp6 are not updated in DrvXV...
-      Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
+c Tmp5 and Tmp6 are not updated in DrvXV...
+      Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             KSDFT_TEMP,ExFac,iCharge,iSpin,D1I,D1A,
      &             nTot1,DFTFOCK,Do_DFT)
 
-      Call Daxpy_(nTot1,1.0d0,Work(iTmp5),1,Work(iTmp1),1)
-      Call Daxpy_(nTot1,1.0d0,Work(iTmp6),1,FI,1)
+      Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
+      Call Daxpy_(nTot1,1.0d0,Tmp6,1,FI,1)
 
-      Call GetMem('gtmp','Free','Real',iTmp6,nTot1)
-      Call GetMem('htmp','Free','Real',iTmp5,nTot1)
-      Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)
-      Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
+      Call mma_deallocate(Tmp6)
+      Call mma_deallocate(Tmp5)
+      Call mma_deallocate(Tmp4)
+      Call mma_deallocate(Tmp3)
 
 ***********************************************************
 *     Compute energy contributions
 ***********************************************************
-      Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
+      Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
-      Call Fold(nSym,nBas,D1I,Work(iTmp2))
+      Call Fold(nSym,nBas,D1I,Tmp2)
 *
-      Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
+      Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
-      Etwo = dDot_(nTot1,Work(iTmp2),1,FI,1)
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+      Etwo = dDot_(nTot1,Tmp2,1,FI,1)
+      Call mma_deallocate(Tmp2)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
       CASDFT_Funct = 0.0D0
@@ -282,7 +285,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         End Do
       End If
 
-      Call DaXpY_(nTot1,One,Work(iTmp1),1,FI,1)
+      Call DaXpY_(nTot1,One,Tmp1,1,FI,1)
 
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -298,7 +301,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         End Do
       End If
 
-      Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
+      Call mma_deallocate(Tmp1)
 
 ***********************************************************
 *     Transform FI to active orbital basis and move it over to F.
@@ -314,14 +317,13 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         MXNB=MAX(MXNB,NBAS(ISYM))
         MXNA=MAX(MXNA,NASH(ISYM))
       END DO
-      CALL GETMEM('XXX0','ALLO','REAL',LX0,NTOT1)
-      CALL GETMEM('XXX1','ALLO','REAL',LX1,NTOT1)
-      CALL GETMEM('XXX2','ALLO','REAL',LX2,MXNB*MXNB)
-      CALL GETMEM('XXX3','ALLO','REAL',LX3,MXNB*MXNA)
-      CALL dcopy_(NTOT1,FI,1,WORK(LX1),1)
+      CALL mma_allocate(X0,NTOT1,Label='X0')
+      CALL mma_allocate(X1,NTOT1,Label='X1')
+      CALL mma_allocate(X2,MXNB*MXNB,Label='X2')
+      CALL mma_allocate(X3,MXNB*MXNA,Label='X3')
+      CALL dcopy_(NTOT1,FI,1,X1,1)
 *      Call Get_dExcdRa(TmpFckI,nTmpFck)
-*      ipTmpFckI = ip_of_Work(TmpFckI(1))
-*      CALL DaXpY_(NTOT1,1.0D0,Work(ipTmpFckI),1,WORK(LX1),1)
+*      CALL DaXpY_(NTOT1,1.0D0,TmpFckI,1,X1,1)
 *     If ( IPRLEV.ge.DEBUG ) then
 *         Write(LF,*)
 *         Write(LF,*) ' Exchange Corr. in AO basis in CASDFT_Terms'
@@ -330,7 +332,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *         iOff=1
 *         Do iSym = 1,nSym
 *           iBas = nBas(iSym)
-*           Call TriPrt(' ','(5G17.11)',Work(ipTmpFckI+ioff-1),iBas)
+*           Call TriPrt(' ','(5G17.11)',TmpFckI(ioff),iBas)
 *           iOff = iOff + (iBas*iBas+iBas)/2
 *         End Do
 *     End If
@@ -343,14 +345,14 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *        iOff=1
 *        Do iSym = 1,nSym
 *          iBas = nBas(iSym)
-*          Call TriPrt(' ','(5G17.11)',Work(LX1+ioff-1),iBas)
+*          Call TriPrt(' ','(5G17.11)',X1(ioff),iBas)
 *          iOff = iOff + (iBas*iBas+iBas)/2
 *        End Do
 *      End If
 *
-      CALL MOTRAC(CMO,WORK(LX1),WORK(LX2),WORK(LX3))
-      CALL GETMEM('XXX3','FREE','REAL',LX3,MXNB*MXNA)
-      CALL GETMEM('XXX2','FREE','REAL',LX2,MXNB*MXNB)
+      CALL MOTRAC(CMO,X1,X2,X3)
+      CALL mma_deallocate(X3)
+      CALL mma_deallocate(X2)
       CALL dcopy_(NACPAR,[ZERO],0,F,1)
       NTU=0
       ITU=0
@@ -369,9 +371,9 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
             DO NU=1,NT
               NTU=NTU+1
               ITU=ITU+1
-              F(NTU)=WORK(LX1-1+ITU)
+              F(NTU)=X1(ITU)
               IF(NT.EQ.NU) F(NTU)=F(NTU)+EMYN
-              WORK(LX0-1+ITU) = F(NTU)
+              X0(ITU) = F(NTU)
             END DO
           END DO
           IADD=IADD+NAT
@@ -379,11 +381,11 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       END DO
 #ifdef _DMRG_
       if(.not.doDMRG)then
-        CALL CP_ONE_INT(WORK(LX0),ITU)
+        CALL CP_ONE_INT(X0,ITU)
       end if
 #endif
-      CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)
-      CALL GETMEM('XXX0','FREE','REAL',LX0,NTOT1)
+      CALL mma_deallocate(X1)
+      CALL mma_deallocate(X0)
 
 *     print h0
       If ( IPRLEV.ge.DEBUG ) then
@@ -396,6 +398,4 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         Call TriPrt(' ',' ',F,NAC)
       End If
 
-
-      Return
-      End
+      End Subroutine CASDFT_terms
