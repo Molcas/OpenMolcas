@@ -96,7 +96,7 @@
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
       use gugx, only: SGS, CIS, EXS
-      use general_data, only: CRVec
+      use general_data, only: CRVec, CleanMask
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -2002,7 +2002,7 @@ c deallocating TUVX memory...
 !      do i=1,NTOT2
 !        write(*,*) "A,I",D1A(i),D1I(i)
 !      end do
-      If (iClean.eq.1) Call Free_iWork(ipCleanMask)
+      If (Allocated(CleanMask)) Call mma_deallocate(CleanMask)
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on

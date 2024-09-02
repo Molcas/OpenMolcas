@@ -51,9 +51,6 @@ subroutine mcpdft_init()
 ! Default title line:
   TITLE(1) = '(No title given)'
 
-! assign ipCleanMask to dummy pointer
-  ipCleanMask = ip_Dummy
-
 ! number of roots required in CI
   NROOTS = 1
 ! number of roots actually used in CI-DAVIDSON

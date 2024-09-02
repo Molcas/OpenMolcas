@@ -56,7 +56,7 @@
       use UnixInfo, only: SuperName
       use Lucia_Interface, only: Lucia_Util
       use gugx, only: SGS, CIS, EXS
-      use general_data, only: CRVec
+      use general_data, only: CRVec, CleanMask
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -2445,20 +2445,19 @@ C orbitals accordingly
        Call GetMem('Temp1','Allo','Inte',ipTemp1,mxOrb)
        Call GetMem('Temp2','Allo','Inte',ipTemp2,mxOrb)
        Call GetMem('Temp3','Allo','Inte',ipTemp3,mxOrb)
-       ICLEAN=1
        nClean=0
        Do iSym = 1, nSym
           nClean=nClean+nBas(iSym)**2
        End Do
-       Call GetMem('CleanMask','Allo','INTE',ipCleanmask,nClean)
-       iOffset = ipCleanMask-1
+       Call mma_allocate(Cleanmask,nClean,Label='CleanMask')
+       iOffset = 0
        Do iSym=1,nSym
          mBas = nBas(iSym)
          Do i = 1,mBas
            ii = (i-1)*mBas
            Do j = 1,mBas
              ij = j+ii+iOffset
-             iWork(ij) = 0
+             CleanMask(ij) = 0
            End Do
          End Do
          ReadStatus=' Failure reading data following CLEAN keyword.'
@@ -2477,12 +2476,12 @@ C orbitals accordingly
             If ( is_in_Group.eq.1 ) then
               Do k = 1,nCof
                 ij = iWork(ipTemp2+k-1)+ii+iOffset
-                iWork(ij) = 1
+                CleanMask(ij) = 1
               End Do
             Else
               Do k = 1,mCof
                 ij = iWork(ipTemp3+k-1)+ii+iOffset
-                iWork(ij) = 1
+                CleanMask(ij) = 1
               End Do
             End If
           End Do

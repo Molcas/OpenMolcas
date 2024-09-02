@@ -62,7 +62,7 @@
       use rasscf_data, only : lRoots, nRoots,
      &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
      &  nAcPar, iXsym, iAlphaBeta,
-     &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT, iClean,
+     &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT,
      &  purify, iAdr15
       use general_data, only : nSym, mXSym,
      &  nDel, nBas, nOrb,
@@ -79,6 +79,7 @@
 #endif
 !     See comment below why this is commented out.
 !     use sxci, only: IDXCI, IDXSX
+      use general_data, only: CleanMask
 
       implicit none
 
@@ -518,7 +519,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
 *     cleaning orbitals for high symmetry cases
 
-      If(iClean.ne.0) Call ClnMO(CMO)
+      If(Allocated(CleanMask)) Call ClnMO(CMO)
       If(PURIFY(1:6).eq.'LINEAR') CALL LINPUR(CMO)
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 

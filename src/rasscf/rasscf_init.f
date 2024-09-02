@@ -118,9 +118,6 @@ C        ICIRST=1 ! to be activated!
 * Default title line:
       TITLE(1)='(No title given)'
 *
-* assign ipCleanMask to dummy pointer
-      ipCleanMask=ip_Dummy
-*
 * iteration control
 *
 * maximum number of RASSCF iterations
@@ -307,7 +304,6 @@ C
       DO I=1,mxOrb
         IXSYM(I)=0
       END DO
-      ICLEAN=0
       PURIFY='NO'
 *
 *     Auxiliary vector ITRI(I)=I*(I-1)/2

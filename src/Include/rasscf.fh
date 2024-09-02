@@ -106,9 +106,6 @@
       REAL*8          CBLB(8),LVSHFT,ESX,SXSHFT
       COMMON/RELSX/   CBLB,LVSHFT,ESX,SXSHFT
 !
-      INTEGER         iClean,ipCleanMask
-      Common/CLEANMO/ iClean,ipCleanMask
-!
       INTEGER         iOrbTyp,iOrbOnly,iOrbRoot
       Common/RASCOMM/ iOrbTyp,iOrbOnly,iOrbRoot
 !
