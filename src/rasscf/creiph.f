@@ -73,13 +73,13 @@ C     IADR15(19)--IADR15(30): Presently unused.
 C     ********** IBM 3090 MOLCAS Release 90 02 22 **********
 C
       use sxci, only: IDXCI, IDXSX
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "general.fh"
-      Dimension Dum(1)
-
+      Real*8 Dum(1)
+      Real*8, Allocatable:: HEFF(:,:)
 
       DO I=1,15
        IADR15(I)=0
@@ -145,16 +145,14 @@ C
       End Do
 C New layout scheme:
       IADR15(15)=-1
-      CALL GETMEM('HEFF','ALLO','REAL',LHEFF,LROOTS**2)
+      CALL mma_allocate(HEFF,LROOTS,LROOTS,Label='HEFF')
+      HEFF(:,:)=0.0D0
       DO J=1,LROOTS
-       DO I=1,LROOTS
-        WORK(LHEFF-1+I+LROOTS*(J-1))=0.0D0
-       END DO
-       WORK(LHEFF-1+J+LROOTS*(J-1))=1.0D12
+         HEFF(J,J)=1.0D12
       END DO
       IADR15(17)=IAD15
-      CALL DDAFILE(JOBIPH,1,WORK(LHEFF),LROOTS**2,IAD15)
-      CALL GETMEM('HEFF','FREE','REAL',LHEFF,LROOTS**2)
+      CALL DDAFILE(JOBIPH,1,HEFF,LROOTS**2,IAD15)
+      CALL mma_deallocate(HEFF)
       IADR15(18)=IAD15
 CSVC: translates levels to orbital index (L2ACT in caspt2)
       CALL IDAFILE(JOBIPH,1,IDXSX,mxAct,IAD15)
@@ -171,5 +169,4 @@ C
       IAD15=0
       CALL IDAFILE(JOBIPH,1,IADR15,30,IAD15)
 C
-      RETURN
-      END
+      END SUBROUTINE CREIPH
