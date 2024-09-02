@@ -276,12 +276,12 @@ C Local print level (if any)
      &                      mxSym,
      &                      lJobH1,LENIN8*mxOrb,JobH(5),
      &                      lJobH2,2*72,JobTit,72*mxTit,
-     &                      JobR,JobH(6),
+     &                      JobR(1),JobH(6),
      &                      JobH(7),JobH,mxRoot,
      &                      JobH,JobH,JobH,
      &                      JobH(8),JobH(9),
      &                      JobH(10),
-     &                      JobR)
+     &                      JobR(:))
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then
             Write(LF,'(6X,A)')
@@ -296,6 +296,7 @@ C Local print level (if any)
          Write(LF,'(6X,2A)') 'Title:',VecTit(1:72)
         END IF
         CALL mma_deallocate(JobH)
+        CALL mma_deallocate(JobR)
         iAd19=iAdr19(2)
         Call DDaFile(JobOld,2,CMO,NTOT2,iAd19)
         Call DDaFile(JobOld,2,OCC,nTot,iAd19)
