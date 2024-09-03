@@ -746,7 +746,7 @@ C Local print level (if any)
 *       keyword.
         IF(KROOT.LE.MAXORBOUT) THEN
 
-        CALL mma_allocate(X6,NACPARi,Label='X6')
+        CALL mma_allocate(X6,NACPAR,Label='X6')
         CALL DDAFILE(JOBIPH,0,X6,NACPAR,IAD03)
         CALL DDAFILE(JOBIPH,2,X6,NACPAR,IAD03)
         CALL DDAFILE(JOBIPH,0,X6,NACPR2,IAD03)
