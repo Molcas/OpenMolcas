@@ -34,6 +34,7 @@
       use OneDat, only: sNoOri, sOpSiz
       use rctfld_module
       use general_data, only: CleanMask
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -45,8 +46,6 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='OUTCTL  ')
 #include "ciinfo.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
 
@@ -59,9 +58,11 @@
 #endif
       Logical FullMlk, get_BasisType
       Logical Do_ESPF,lSave, lOPTO, Do_DM
-      DIMENSION CMO(*),OCCN(*),SMAT(*)
-      Dimension Temp(2,mxRoot)
-      Real*8, Allocatable:: DSave(:)
+      Real*8 CMO(*),OCCN(*),SMAT(*)
+      Real*8 Temp(2,mxRoot)
+      Real*8, Allocatable:: DSave(:), Tmp0(:), X1(:), X2(:), X3(:),
+     &                      X4(:), HEFF(:,:), CMON(:), DM(:), DMs(:,:),
+     &                      DState(:), X6(:), CMOSO(:), EneTmp(:)
 
 ** (SVC) added for new supsym vector input
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
@@ -71,7 +72,8 @@
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
-      Dimension Dum(1),iDum(56)
+      Real*8 Dum(1)
+      Integer iDum(56)
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
@@ -321,21 +323,21 @@ C Local print level (if any)
      &Write(LF,Fmt2//'A,T45,I6)')'Root passed to geometry opt.',
      &                           iRlxRoot
       If ( lRF ) then
-         Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+         Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
          iRc=-1
          iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'
-         Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-         Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+         Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+         Tot_Nuc_Charge=Tmp0(nTot1+4)
          If ( iRc.ne.0 ) then
             Write(LF,*) 'OutCtl: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
             Call Abend
          Endif
-         Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+         Call mma_deallocate(Tmp0)
          Tot_El_Charge=0.0D0
          Do iSym=1,nSym
             Tot_El_Charge=Tot_El_Charge
@@ -481,33 +483,33 @@ C Local print level (if any)
       If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)
-        CALL GETMEM('OPER','ALLO','REAL',LX1,NTOT1)
-        CALL GETMEM('DEN1','ALLO','REAL',LX2,NTOT1)
-        CALL GETMEM('OCCN','ALLO','REAL',LX3,NTOT )
-        CALL GETMEM('CMON','ALLO','REAL',LX4,NTOT2)
+        CALL mma_allocate(X1,NTOT1,Label='X1')
+        CALL mma_allocate(X2,NTOT1,Label='X2')
+        CALL mma_allocate(X3,NTOT ,Label='X3')
+        CALL mma_allocate(X4,NTOT2,Label='X4')
         Do kRoot = 1,lRoots
-          CALL DDAFILE(JOBIPH,2,work(LX4),NTOT2,IAD12)
-          CALL DDAFILE(JOBIPH,2,work(LX3),NTOT,IAD12)
+          CALL DDAFILE(JOBIPH,2,X4,NTOT2,IAD12)
+          CALL DDAFILE(JOBIPH,2,X3,NTOT,IAD12)
           Call RelEne(Temp(1,kRoot),Temp(2,kRoot),nSym,nBas,
-     &                work(LX4),work(LX3),work(LX2),work(LX1))
+     &                X4,X3,X2,X1)
         End Do
-        CALL GETMEM('CMON','FREE','REAL',LX4,NTOT2)
-        CALL GETMEM('OCCN','FREE','REAL',LX3,NTOT )
-        CALL GETMEM('DEN1','FREE','REAL',LX2,NTOT1)
-        CALL GETMEM('OPER','FREE','REAL',LX1,NTOT1)
+        CALL mma_deallocate(X4)
+        CALL mma_deallocate(X3)
+        CALL mma_deallocate(X2)
+        CALL mma_deallocate(X1)
       End If
 
-      Call Allocate_Work(ipEneTmp,lRoots)
+      Call mma_allocate(EneTmp,lRoots,Label='EneTmp')
       If ( (nMVInt+nDCInt).ne.0) then
          Do i=1,lRoots
             Emv=Temp(1,i)
             Edc=Temp(2,i)
             Erel=ENER(I,ITER)+Emv+Edc
-            Work(ipEneTmp+i-1) = eRel
+            EneTmp(i) = eRel
          End Do
       Else
          Do i=1,lRoots
-            Work(ipEneTmp+i-1) = ENER(I,ITER)+CASDFT_Funct-VIA_DFT-HALFQ
+            EneTmp(i) = ENER(I,ITER)+CASDFT_Funct-VIA_DFT-HALFQ
          End Do
       End If
 
@@ -538,21 +540,21 @@ C Local print level (if any)
        Else
          Do i=1,lRoots
            Call PrintResult(LF,Fmt2//'A,I3,A,F16.8)',
-     & 'RASSCF root number',I,' Total energy:',Work(ipEneTmp+i-1),1)
+     & 'RASSCF root number',I,' Total energy:',EneTmp(i),1)
          End Do
        End If
       ELSE IF(IPRLEV.GE.TERSE .AND..NOT.lOPTO) THEN
         Do i=1,lRoots
            Call PrintResult(LF,Fmt2//'A,I3,A,F16.8)',
-     & 'RASSCF root number',I,' Total energy:',Work(ipEneTmp+i-1),1)
+     & 'RASSCF root number',I,' Total energy:',EneTmp(i),1)
         End Do
 * End of long if-block C over IPRLEV
       END IF
 
-      Call Store_Energies(lRoots,Work(ipEneTmp),irlxroot)
+      Call Store_Energies(lRoots,EneTmp,irlxroot)
       Call Put_iScalar('NumGradRoot',irlxroot)
       Call Put_dScalar('Average energy',EAV)
-      Call Free_Work(ipEneTmp)
+      Call mma_deallocate(EneTmp)
 
       iTol = Cho_X_GetTol(8)
       if(doDMRG) iTol = 6
@@ -582,16 +584,14 @@ C Local print level (if any)
 *---------------------------------------------------------------
 * New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
 *---------------------------------------------------------------
-      CALL GETMEM('HEFF','ALLO','REAL',LHEFF,LROOTS**2)
+      CALL mma_allocate(HEFF,LROOTS,LROOTS,Label='HEFF')
+      HEFF(:,:)=0.0D0
       DO J=1,LROOTS
-       DO I=1,LROOTS
-        WORK(LHEFF-1+I+LROOTS*(J-1))=0.0D0
-       END DO
-       WORK(LHEFF-1+J+LROOTS*(J-1))=ENER(J,ITER)
+       HEFF(J,J)=ENER(J,ITER)
       END DO
       IAD15=IADR15(17)
-      CALL DDAFILE(JOBIPH,1,WORK(LHEFF),LROOTS**2,IAD15)
-      CALL GETMEM('HEFF','FREE','REAL',LHEFF,LROOTS**2)
+      CALL DDAFILE(JOBIPH,1,HEFF,LROOTS**2,IAD15)
+      Call mma_deallocate(HEFF)
 *----------------------------------------------------------------------*
 *     Print the multipole analysis of the solvation energy             *
 *----------------------------------------------------------------------*
@@ -638,8 +638,8 @@ C Local print level (if any)
       IAD14=IADR15(14)
 *BOR0511
 *     Save original orbitals for the spin density matrices
-      Call GetMem('cmon','ALLO','REAL',icmon,nTot2)
-      call dcopy_(ntot2,cmo,1,work(icmon),1)
+      Call mma_allocate(cmon,nTot2,Label='CMON')
+      call dcopy_(ntot2,cmo,1,cmon,1)
 *BOR0511
       FullMlk=(OutFmt1.NE.'NOTHING ')
 
@@ -655,9 +655,9 @@ C Local print level (if any)
 *
 *     The dipole moments will also be stored over all kroot states.
 *
-      Call GetMem('DIPM', 'Allo','Real',ipDM,3)
-      Call GetMem('DIPMs','Allo','Real',ipDMs,3*LROOTS)
-      CALL FZERO(Work(ipDMs),3*LROOTS)
+      Call mma_allocate(DM,3,Label='DM')
+      Call mma_allocate(DMs,3,LROOTS,Label='DMs')
+      DMs(:,:)=0.0D0
       Do_DM=.False.
 *
       DO KROOT=1,LROOTS
@@ -670,11 +670,11 @@ C Local print level (if any)
 *
 * Put the density matrix of this state on the runfile for
 *  LoProp utility
-        Call GetMem('DState','ALLO','REAL',ipD,nTot1)
-        call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
-        Call DONE_RASSCF(CMO,OCCN,Work(ipD))
-        Call Put_dArray('D1ao',Work(ipD),NTOT1)
-        Call Free_Work(ipD)
+        Call mma_allocate(DState,nTot1,Label='DState')
+        DState(:)=0.0D0
+        Call DONE_RASSCF(CMO,OCCN,DState)
+        Call Put_dArray('D1ao',DState,NTOT1)
+        Call mma_deallocate(DState)
 
         IF (IPRLEV.GE.USUAL) THEN
 *
@@ -730,9 +730,9 @@ C Local print level (if any)
         Call Qpg_dArray('Dipole Moment',Do_DM,iDum(1))
         If (Do_DM) Then
 *          Write (6,*) 'iRoot=',kRoot
-           Call Get_dArray('Dipole Moment',Work(ipDM),3)
-*          Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
-           Call DCopy_(3,Work(ipDM),1,Work(ipDMs+(KROOT-1)*3),1)
+           Call Get_dArray('Dipole Moment',DM,3)
+*          Call RecPrt('Dipole Moment',' ',DM,1,3)
+           Call DCopy_(3,DM,1,DMs(:,KROOT),1)
         End If
 *                                                                      *
 ************************************************************************
@@ -746,12 +746,12 @@ C Local print level (if any)
 *       keyword.
         IF(KROOT.LE.MAXORBOUT) THEN
 
-        CALL GETMEM('RHO1S','ALLO','REAL',LX6,NACPAR)
-        CALL DDAFILE(JOBIPH,0,WORK(LX6),NACPAR,IAD03)
-        CALL DDAFILE(JOBIPH,2,WORK(LX6),NACPAR,IAD03)
-        CALL DDAFILE(JOBIPH,0,WORK(LX6),NACPR2,IAD03)
-        CALL DDAFILE(JOBIPH,0,WORK(LX6),NACPR2,IAD03)
-        CALL DBLOCK(WORK(LX6))
+        CALL mma_allocate(X6,NACPARi,Label='X6')
+        CALL DDAFILE(JOBIPH,0,X6,NACPAR,IAD03)
+        CALL DDAFILE(JOBIPH,2,X6,NACPAR,IAD03)
+        CALL DDAFILE(JOBIPH,0,X6,NACPR2,IAD03)
+        CALL DDAFILE(JOBIPH,0,X6,NACPR2,IAD03)
+        CALL DBLOCK(X6)
 
         IF (IPRLEV.GE.VERBOSE) THEN
 * Start of long if-block F over IPRLEV
@@ -762,7 +762,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '--------------------------------------'
           Write(LF,*)
-          IND=0
+          IND=1
           IDIMV=0
           IDIMO=0
           IDIMN=0
@@ -775,7 +775,7 @@ C Local print level (if any)
             IDIMN=IDIMN+NO*NAO
             Write(LF,'(/6X,A,I2)') 'symmetry species',ISYM
             Write(LF,*)
-            CALL TRIPRT(' ',' ',WORK(LX6+IND),NASH(ISYM))
+            CALL TRIPRT(' ',' ',X6(IND),NASH(ISYM))
             IND=IND+NASH(ISYM)*(NASH(ISYM)+1)/2
   50        CONTINUE
           END DO
@@ -786,14 +786,14 @@ C Local print level (if any)
 *       Compute spin orbitals and spin population
         CALL DCOPY_(NTOT,[0.0D0],0,OCCN,1)
 *SVC-11-01-2007 store original cmon in cmoso, which gets changed
-        CALL GETMEM('CMOSO','ALLO','REAL',ICMOSO,NTOT2)
-        CALL DCOPY_(NTOT2,WORK(ICMON),1,WORK(ICMOSO),1)
+        CALL mma_allocate(CMOSO,NTOT2,Label='CMOSO')
+        CALL DCOPY_(NTOT2,CMON,1,CMOSO,1)
 
         if(.not.doDMRG)then
-          CALL SPINORB(WORK(LX6),WORK(ICMOSO),OCCN,kroot)
+          CALL SPINORB(X6,CMOSO,OCCN,kroot)
         end if
-        CALL GETMEM('RHO1S','FREE','REAL',LX6,NTOTSP)
-        CALL DDAFILE(JOBIPH,1,WORK(ICMOSO),NTOT2,IAD14)
+        CALL mma_deallocate(X6)
+        CALL DDAFILE(JOBIPH,1,CMOSO,NTOT2,IAD14)
         CALL DDAFILE(JOBIPH,1,OCCN,NTOT,IAD14)
 
         IF (IPRLEV.GE.USUAL) THEN
@@ -804,7 +804,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
-          CALL CHARGE(nsym,nbas,name,Work(icmoso),OCCN,SMAT,3,FullMlk,
+          CALL CHARGE(nsym,nbas,name,cmoso,OCCN,SMAT,3,FullMlk,
      &                .False.)
           Write(LF,*)
          ENDIF
@@ -840,7 +840,7 @@ C Local print level (if any)
          End If
 * End of long if-block G over IPRLEV
          END IF
-         CALL GETMEM('CMOSO','FREE','REAL',ICMOSO,NTOT2)
+         CALL mma_deallocate(CMOSO)
 cnf
 *
 *------- ESPF analysis
@@ -861,15 +861,14 @@ cnf
 *     Save the list of dipole moments on the run file.
 *
       If (Do_DM)
-     &   Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*LROOTS)
-*     Call RecPrt('Last Dipole Moments',' ',Work(ipDMs),3,LROOTS)
-      Call GetMem('DipM', 'Free','Real',ipDM, 3)
-      Call GetMem('DipMs','Free','Real',ipDMs,3*LROOTS)
+     &   Call Put_dArray('Last Dipole Moments',DMs,3*LROOTS)
+*     Call RecPrt('Last Dipole Moments',' ',DM),3,LROOTS)
+      Call mma_deallocate(DM)
+      Call mma_deallocate(DMs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL GETMEM('CMON','FREE','REAL',icmon,NTOT2)
+      CALL mma_deallocate(CMON)
 *----------------------------------------------------------------------*
 
-      Return
-      End
+      End Subroutine OutCtl
