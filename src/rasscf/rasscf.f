@@ -96,7 +96,7 @@
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
       use gugx, only: SGS, CIS, EXS
-      use general_data, only: CRVec, CleanMask
+      use general_data, only: CRVec, CleanMask, CRPROJ
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -1772,7 +1772,7 @@ c Clean-close as much as you can the CASDFT stuff...
       IF(NCRVEC.gt.0) then
 * Core shift has been used
         Call mma_deallocate(CRVEC)
-        Call GetMem('CRPROJ','Free','Real',LCRPROJ,NCRPROJ)
+        Call mma_deallocate(CRPROJ)
       END IF
       Call Timing(dum1,dum2,Zenith_2,dum3)
       Zenith_2 = Zenith_2 - Zenith_1
