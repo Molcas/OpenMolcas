@@ -20,7 +20,7 @@ implicit none
 
 #include "rasdim.fh"
 #include "general.fh"
-Real*8, Allocatable:: CRVEC(:)
+Real*8, Allocatable:: CRVEC(:), CRPROJ(:)
 Integer, Allocatable:: CleanMask(:)
 
 end module general_data
