@@ -54,13 +54,13 @@
       use printlevel, only: terse, verbose, debug
       use mcpdft_output, only: lf, iPrGlb, iPrLoc
       use mcpdft_input, only: mcpdft_options
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       implicit none
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
@@ -72,8 +72,8 @@
       integer(kind=iwp) :: i, iad19, idisk, ijob, iprlev
       integer(kind=iwp) :: jroot, kroot
 
-      integer(kind=iwp) :: lene, lscr
       real(kind=wp) :: scal
+      real(kind=wp), Allocatable :: Scr(:), Ene(:)
 
 #ifdef _HDF5_
       integer mh5id
@@ -155,7 +155,7 @@
      &       ' and weighted together.'
           End If
         End If
-        Call GetMem('Scr','Allo','Real',lscr,NACPR2)
+        Call mma_allocate(scr,NACPR2,Label='Scr')
         iDisk = IADR19(3)
         Do jRoot = 1,lRoots
           scal = 0.0d0
@@ -164,16 +164,16 @@
               scal = Weight(kRoot)
             End If
           End Do
-          Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
-          call daxpy_(NACPAR,Scal,Work(lscr),1,D,1)
-          Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
-          call daxpy_(NACPAR,Scal,Work(lscr),1,DS,1)
-          Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
-          call daxpy_(NACPR2,Scal,Work(lscr),1,P,1)
-          Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
-          call daxpy_(NACPR2,Scal,Work(lscr),1,PA,1)
+          Call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
+          call daxpy_(NACPAR,Scal,scr,1,D,1)
+          Call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
+          call daxpy_(NACPAR,Scal,scr,1,DS,1)
+          Call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
+          call daxpy_(NACPR2,Scal,scr,1,P,1)
+          Call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
+          call daxpy_(NACPR2,Scal,scr,1,PA,1)
         End Do
-        Call GetMem('Scr','Free','Real',lscr,NACPR2)
+        Call mma_deallocate(Scr)
 
         If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
           Call DaClos(JOBOLD)
@@ -211,10 +211,10 @@
       IF(IPRLEV >= DEBUG) THEN
         ! This lene can actually be removed since it is not needed..
         ! Also, it will override the orbital energies in the runfile.
-        CALL GETMEM('DumE','Allo','Real',lene,nTot)
-        CALL DCOPY_(nTot,[0.0D0],0,WORK(lene),1)
-        CALL PRIMO_RASSCF_m('Input orbitals',work(lene),OCC,CMO)
-        CALL GETMEM('DumE','Free','Real',lene,nTot)
+        CALL mma_allocate(ene,nTot,Label='Ene')
+        CALL DCOPY_(nTot,[0.0D0],0,ene,1)
+        CALL PRIMO_RASSCF_m('Input orbitals',ene,OCC,CMO)
+        CALL mma_deallocate(ene)
       END IF
 
-      END
+      END Subroutine ReadVC_m
