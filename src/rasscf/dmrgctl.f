@@ -429,7 +429,7 @@ c          Call Put_iScalar("RF CASSCF root",IPCMROOT)
 c          Call Put_iScalar("RF0CASSCF root",IPCMROOT)
 c       End If
 *
-c       Call Allocate_Work(ipRF,nConf)
+c       Call mma_allocate(RF,nConf)
 c       Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
 *       Write (6,*) 'Exist=',Exist
 c       If (Exist
@@ -437,17 +437,17 @@ c    &      .and. mConf .eq. nConf
 c    &      .and. iFinal.ne.2
 c    &      .and. (ABS(RotMax).lt.1.0D-3 .or. KeyCISE)
 c    &     ) Then
-c          Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)
-c          rNorm=Sqrt(DDot_(nConf,Work(ipRF),1,Work(ipRF),1))
+c          Call Get_dArray("RF CASSCF Vector",RF,nConf)
+c          rNorm=Sqrt(DDot_(nConf,RF,1,RF,1))
 *          Write (6,*) 'rNorm=',rNorm
 c          JPCMROOT=IPCMROOT
 c          If (rNorm.gt.1.0D-10) Then
-c             Call Allocate_Work(ipTemp,nConf)
+c             Call mma_allocate(Temp,nConf,Label='Temp')
 c             rMax=0.0D0
 c             jDisk = IADR15(4)
 c             Do i = 1, lRoots
-c                Call DDafile(JOBIPH,2,Work(ipTemp),nConf,jDisk)
-c                qMax=Abs(DDot_(nConf,Work(ipTemp),1,Work(ipRF),1))
+c                Call DDafile(JOBIPH,2,Temp,nConf,jDisk)
+c                qMax=Abs(DDot_(nConf,Temp,1,RF,1))
 *                Write (6,*) 'qMax=',qMax
 c                If (qMax.gt.rMax .and.
 c    &               qMax.gt.0.5D0) Then
@@ -455,7 +455,7 @@ c                   rMax = qMax
 c                   JPCMROOT=i
 c                End If
 c             End Do
-c             Call Free_Work(ipTemp)
+c             Call mma_deallocate(Temp)
 c          End If
 c       Else
 c          JPCMROOT=IPCMROOT
@@ -472,9 +472,9 @@ c       jDisk = IADR15(4)
 c       Do i=1,IPCMROOT-1
 c         Call DDafile(JOBIPH,0,rdum,nConf,jDisk)
 c       End Do
-c       Call DDafile(JOBIPH,2,Work(ipRF),nConf,jDisk)
-c       Call Put_dArray("RF CASSCF Vector",Work(ipRF),nConf)
-c       Call Free_Work(ipRF)
+c       Call DDafile(JOBIPH,2,RF,nConf,jDisk)
+c       Call Put_dArray("RF CASSCF Vector",RF,nConf)
+c       Call mma_deallocate(RF)
 c     End If
 *
       Return

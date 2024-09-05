@@ -11,6 +11,7 @@
       SUBROUTINE MECTL(PROP,OVLP,HAM,ESHFT)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HDIAG
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -21,6 +22,8 @@
 #include "SysDef.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
+
+      Real*8, Allocatable:: DerCpl(:), NucChg(:)
 *
 
 C Print results:
@@ -225,14 +228,13 @@ CPAM00 End of updated HDIA/SHIFT section.
 cnf
       If (IfDCpl) Then
          Call Get_iScalar('Unique atoms',natom)
-         Call Allocate_Work(iNucChg,natom)
-         Call Get_dArray('Effective nuclear Charge',Work(iNucChg),nAtom)
+         Call mma_allocate(NucChg,natom,Label='NucChg')
+         Call Get_dArray('Effective nuclear Charge',NucChg,nAtom)
          nST = nState*(nState+1)/2
-         Call Allocate_Work(iDerCpl,3*natom*nST)
-         Call AppDerCpl(natom,nST,Work(iNucChg),Prop,
-     &                  Work(iDerCpl),HAM)
-         Call Free_Work(iDerCpl)
-         Call Free_Work(iNucChg)
+         Call mma_allocate(DerCpl,3*natom*nST,Label='DerCpl')
+         Call AppDerCpl(natom,nST,NucChg,Prop,DerCpl,HAM)
+         Call mma_deallocate(DerCpl)
+         Call mma_deallocate(NucChg)
       End If
 cnf
       CALL Put_dArray('SFS_HAM' ,HAM,NSTATE**2)
@@ -240,4 +242,4 @@ cnf
 
       WRITE(6,*)
 
-      END
+      END SUBROUTINE MECTL
