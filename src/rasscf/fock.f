@@ -49,8 +49,6 @@ C
 #include "qmat.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
-#include "WrkSpc.fh"
-
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
