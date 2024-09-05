@@ -157,13 +157,13 @@
       Character(len=80) ::  VecTyp
 
 #ifdef _HDF5_
-      Real*8, Allocatable:: VecL(:), VecR(:)
+      Real*8, Allocatable:: VecL(:), VecR(:), Tmp(:)
+      Integer, Allocatable:: kcnf(:)
 #endif
       Real*8, Allocatable:: Dens(:), PUVX(:), TmpDMat(:), CMON(:),
      &                      OCCX(:), Scr1(:), Scr2(:), SMat(:),
      &                      QMat(:), EDUM(:), Tmp1(:), Fock(:),
-     &                      TmpDS(:), TmpD1S(:), Tmp(:)
-      Integer, Allocatable:: kcnf(:)
+     &                      TmpDS(:), TmpD1S(:)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
