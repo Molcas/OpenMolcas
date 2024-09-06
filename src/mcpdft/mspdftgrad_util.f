@@ -18,7 +18,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
       use definitions, only: wp
-      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, IP2MOt,
+      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
 #include "WrkSpc.fh"
@@ -82,7 +82,7 @@
       RIK2=si_pdft((irlxroot-1)*lroots+1)**2
       CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
       CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
-      CALL DScal_(NACPR2,RIK2,Work(iP2MOt),1)
+      CALL DScal_(NACPR2,RIK2,P2MOt(:,1),1)
       ij=0
       jRoot=1
       ! for the comment below, lhrot -> si_pdft
@@ -95,15 +95,14 @@
 *******FT99 for bk
        CALL DaXpY_(nTot4,RIK2,FxyMS(:,jRoot),1,FxyMS(:,1),1)
 *******P2MOt for active 2RDM
-       CALL DaXpY_(NACPR2,RIK2,
-     &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
+       CALL DaXpY_(NACPR2,RIK2,P2MOt(:,jRoot),1,P2MOt(:,1),1)
       End Do
 ********DIDA is currently DA over intermediate states
       CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
 ********DIDA(:,lRoots+1) is currently DI
       CALL Put_DArray('MSPDFTD5        ',DIDA(:,lRoots+1),nTot1)
       CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
-      Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
+      Call Put_dArray('P2MOt',P2MOt(:,1),NACPR2)
 
       ! Some other things that were initially in mcpdft.f
       Call Put_cArray('Relax Method','MSPDFT  ',8)

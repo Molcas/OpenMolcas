@@ -15,7 +15,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT NAC calculation.
       use definitions, only: wp
-      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, IP2MOt,
+      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
@@ -83,7 +83,7 @@
      &    si_pdft(1+(bra_state-1)*lroots)
       CALL DScal_(nTot1,-RJKRIK,DIDA(:,1),1)
       CALL DScal_(nTot4,RJKRIK,FxyMS(:,1),1)
-      CALL DScal_(NACPR2,RJKRIK,Work(iP2MOt),1)
+      CALL DScal_(NACPR2,RJKRIK,P2MOt(:,1),1)
 
       ij=0
       jRoot=1
@@ -96,14 +96,13 @@
 *******FT99 for bk
        CALL DaXpY_(nTot4,RJKRIK,FxyMS(:,jRoot),1,FxyMS(:,1),1)
 *******P2MOt for active 2RDM
-       CALL DaXpY_(NACPR2,RJKRIK,
-     &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
+       CALL DaXpY_(NACPR2,RJKRIK,P2MOt(:,jRoot),1,P2MOt(:,1),1)
       End Do
 
       CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
 ********DIDA(:,lRoots+1) is currently DI
       CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
-      Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
+      Call Put_dArray('P2MOt',P2MOt(:,1),NACPR2)
 
       ! Some other things that were initially in mcpdft.f
       Call Put_cArray('Relax Method','MSPDFT  ',8)

@@ -54,7 +54,7 @@
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
       use mspdft, only: mspdftmethod, do_rotate, F1MS,
-     &                  F2MS, FxyMS, FocMS, DIDA, IP2MOt, D1AOMS,
+     &                  F2MS, FxyMS, FocMS, DIDA, P2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
@@ -368,13 +368,13 @@
         Call mma_allocate(FocMS,nTot1,nRoots,Label='FocMS')
         Call mma_allocate(FxyMS,nTot4,nRoots,Label='FxyMS')
         Call mma_allocate(F2MS ,nACPR2,nRoots,Label='F2MS')
-        Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
+        Call mma_allocate(P2MOt,nACPR2,nRoots,Label='P2MOt')
         Call mma_allocate(DIDA ,nTot1,(nRoots+1),Label='DIDA')
         Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
         if (ispin.ne.1) then
           Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
         end if
-        Call FZero(Work(iP2MOt),lRoots*NACPR2)
+        P2MOt(:,:)=0.0D0
       END IF
       CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
@@ -403,7 +403,7 @@
           Call mma_deallocate(F1MS)
           Call mma_deallocate(F2MS)
           Call mma_deallocate(FxyMS)
-          Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
+          Call mma_deallocate(P2MOt)
           Call mma_deallocate(FocMS)
           Call mma_deallocate(DIDA)
           Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)

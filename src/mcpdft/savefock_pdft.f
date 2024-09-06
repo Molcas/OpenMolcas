@@ -190,7 +190,7 @@
      &     Work(iFockA),Work(iD1Act),WORK(LP),
      &     WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-      CALL DCopy_(nTot1,FockOcc,1,FocMS(:,IntS),1)
+      CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) 'FOCC_OCC'
        call wrtmat(FockOcc,1,ntot1,1,ntot1)

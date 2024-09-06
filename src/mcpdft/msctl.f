@@ -32,7 +32,7 @@
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: E_NoHyb
-      use mspdft, only: do_rotate, iIntS, DIDA, IP2MOt,
+      use mspdft, only: do_rotate, iIntS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
@@ -261,8 +261,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 
         if(mcpdft_options%grad) then
           if(mcpdft_options%mspdft) then
-            Call P2_contraction(Work(iD1Act),
-     &                        Work(iP2MOt+(jroot-1)*NACPR2))
+            Call P2_contraction(Work(iD1Act),P2MOt(:,jroot))
           else if (jroot .eq. irlxroot) then
             Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
             Call FZero(Work(ip2dt1),Nacpr2)
