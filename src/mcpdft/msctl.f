@@ -353,8 +353,7 @@ cPS         call xflush(6)
          Call Put_dArray('D1sao',Work(iTmp7),nTot1)
          IF(iSpin.ne.1.and. mcpdft_options%grad
      &      .and.mcpdft_options%mspdft) THEN
-         Call DCopy_(nTot1,Work(iTmp7),1,
-     &       Work(D1SAOMS+(jRoot-1)*nTot1),1)
+         Call DCopy_(nTot1,Work(iTmp7),1,D1SAOMS(:,jRoot),1)
          END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1so'
