@@ -15,7 +15,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT NAC calculation.
       use definitions, only: wp
-      use mspdft, only: F1MS, F2MS, FxyMS, iFocMS, iDIDA, IP2MOt,
+      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
@@ -58,8 +58,7 @@
         RJKRIK = si_pdft((ket_state-1)*lroots+jroot) *
      &     si_pdft((bra_state-1)*lroots+jroot)
 
-        CALL daXpY_(ntot1,RJKRIK,
-     &           Work(iFocMS+(JRoot-1)*nTot1),1,FockOcc,1)
+        CALL daXpY_(ntot1,RJKRIK,FocMS(:,JRoot),1,FockOcc,1)
       END DO
       Call Put_dArray('FockOcc',FockOcc,ntot1)
 **********Now storing the density matrix needed for computing 1RDM

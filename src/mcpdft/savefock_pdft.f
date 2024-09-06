@@ -20,7 +20,7 @@
 * ****************************************************************
 
       Use KSDFT_Info, Only: ifav, ifiv
-      use mspdft, only: F1MS, F2MS, iFocMS, iIntS
+      use mspdft, only: F1MS, F2MS, FocMS, iIntS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
@@ -190,7 +190,7 @@
      &     Work(iFockA),Work(iD1Act),WORK(LP),
      &     WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-      CALL DCopy_(nTot1,FockOcc,1,WORK(iFocMS+(iIntS-1)*nTot1),1)
+      CALL DCopy_(nTot1,FockOcc,1,FocMS(:,IntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) 'FOCC_OCC'
        call wrtmat(FockOcc,1,ntot1,1,ntot1)

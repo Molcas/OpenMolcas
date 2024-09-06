@@ -54,7 +54,7 @@
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
       use mspdft, only: mspdftmethod, do_rotate, F1MS,
-     &                  F2MS, FxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
+     &                  F2MS, FxyMS, FocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
@@ -365,7 +365,7 @@
 
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
         Call mma_allocate(F1MS ,nTot1,nRoots,Label='F1MS')
-        Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
+        Call mma_allocate(FocMS,nTot1,nRoots,Label='FocMS')
         Call mma_allocate(FxyMS,nTot4,nRoots,Label='FxyMS')
         Call mma_allocate(F2MS ,nACPR2,nRoots,Label='F2MS')
         Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
@@ -404,7 +404,7 @@
           Call mma_deallocate(F2MS)
           Call mma_deallocate(FxyMS)
           Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
-          Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
+          Call mma_deallocate(FocMS)
           Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
           Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
           if (ispin.ne.1)
