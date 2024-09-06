@@ -32,7 +32,7 @@
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: E_NoHyb
-      use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
+      use mspdft, only: do_rotate, iIntS, DIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
@@ -320,9 +320,9 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
 *
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
-         Call Dcopy_(nTot1,Work(iTmp4),1,Work(iDIDA+(iIntS-1)*nTot1),1)
+         Call Dcopy_(nTot1,Work(iTmp4),1,DIDA(:,iIntS),1)
          if (iIntS.eq.lRoots)
-     &   Call Dcopy_(ntot1,Work(iTmp3),1,Work(iDIDA+lRoots*nTot1),1)
+     &   Call Dcopy_(ntot1,Work(iTmp3),1,DIDA(:,lRoots+1),1)
       end if
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
 !Maybe I can write all of these matrices to file, then modify stuff in

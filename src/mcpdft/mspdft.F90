@@ -20,15 +20,15 @@ module mspdft
 
   character(len=8) :: mspdftmethod
   logical :: do_rotate = .False.
-  integer(kind=iwp) :: iIntS,iDIDA,IP2MOt
+  integer(kind=iwp) :: iIntS,IP2MOt
   integer(kind=iwp) :: D1AOMS,D1SAOMS
-  real(kind=wp), allocatable :: FxyMS(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:)
+  real(kind=wp), allocatable :: FxyMS(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:), DIDA(:,:)
 
   ! CMS-NACS stuff
   logical :: isCMSNAC
 
   public :: mspdftmethod,do_rotate,F1MS,F2MS
-  public :: FxyMS,FocMS,iIntS,iDIDA,IP2MOt,D1AOMS,D1SAOMS
+  public :: FxyMS,FocMS,iIntS,DIDA,IP2MOt,D1AOMS,D1SAOMS
 
   public :: isCMSNAC
 

@@ -15,7 +15,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT NAC calculation.
       use definitions, only: wp
-      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, iDIDA, IP2MOt,
+      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
@@ -64,14 +64,13 @@
 **********Now storing the density matrix needed for computing 1RDM
 **********First rescale the off-diagonal elements as done in
 **********integral_util/prep.f
-      ij=-1
+      ij=0
       Do iS=1,nSym
        do iBas=1,nBas(iS)
        do jBas=1,iBas-1
         ij=ij+1
         do jRoot=1,nRoots+1
-         Work(iDIDA+ij+(jRoot-1)*nTot1)=0.5D0*
-     &   Work(iDIDA+ij+(jRoot-1)*nTot1)
+         DIDA(ij,jRoot)=0.5D0*DIDA(ij,jRoot)
         end do
        end do
        ij=ij+1
@@ -82,7 +81,7 @@
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
       RJKRIK=si_pdft(1+(ket_state-1)*lRoots)*
      &    si_pdft(1+(bra_state-1)*lroots)
-      CALL DScal_(nTot1,-RJKRIK,Work(iDIDA),1)
+      CALL DScal_(nTot1,-RJKRIK,DIDA(:,1),1)
       CALL DScal_(nTot4,RJKRIK,FxyMS(:,1),1)
       CALL DScal_(NACPR2,RJKRIK,Work(iP2MOt),1)
 
@@ -93,8 +92,7 @@
         RJKRIK = si_pdft((ket_state-1)*lroots+jroot) *
      &     si_pdft((bra_state-1)*lroots+jroot)
 *******DIDA for prepp
-       CALL DaXpY_(nTot1,-RJKRIK,
-     &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
+       CALL DaXpY_(nTot1,-RJKRIK,DIDA(:,jRoot),1,DIDA(:,1),1)
 *******FT99 for bk
        CALL DaXpY_(nTot4,RJKRIK,FxyMS(:,jRoot),1,FxyMS(:,1),1)
 *******P2MOt for active 2RDM
@@ -102,8 +100,8 @@
      &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
       End Do
 
-      CALL Put_DArray('MSPDFTD6        ',Work(iDIDA),nTot1)
-********Work(iDIDA+lRoots*nTot1) is currently DI
+      CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
+********DIDA(:,lRoots+1) is currently DI
       CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
 

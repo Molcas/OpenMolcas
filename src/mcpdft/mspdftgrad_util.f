@@ -18,7 +18,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
       use definitions, only: wp
-      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, iDIDA, IP2MOt,
+      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
 #include "WrkSpc.fh"
@@ -64,14 +64,13 @@
 **********Now storing the density matrix needed for computing 1RDM
 **********First rescale the off-diagonal elements as done in
 **********integral_util/prep.f
-      ij=-1
+      ij=0
       Do iS=1,nSym
        do iBas=1,nBas(iS)
        do jBas=1,iBas-1
         ij=ij+1
         do jRoot=1,nRoots+1
-         Work(iDIDA+ij+(jRoot-1)*nTot1)=0.5D0*
-     &   Work(iDIDA+ij+(jRoot-1)*nTot1)
+         DIDA(ij,jRoot)=0.5D0*DIDA(ij,jRoot)
         end do
        end do
        ij=ij+1
@@ -81,7 +80,7 @@
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
       RIK2=si_pdft((irlxroot-1)*lroots+1)**2
-      CALL DScal_(nTot1,-RIK2,Work(iDIDA),1)
+      CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
       CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
       CALL DScal_(NACPR2,RIK2,Work(iP2MOt),1)
       ij=0
@@ -92,19 +91,17 @@
       ij=0
        RIK2=si_pdft((irlxroot-1)*lroots+jroot)**2
 *******DIDA for prepp
-       CALL DaXpY_(nTot1,-RIK2,
-     &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
+       CALL DaXpY_(nTot1,-RIK2,DIDA(:,jRoot),1,DIDA(:,1),1)
 *******FT99 for bk
        CALL DaXpY_(nTot4,RIK2,FxyMS(:,jRoot),1,FxyMS(:,1),1)
 *******P2MOt for active 2RDM
        CALL DaXpY_(NACPR2,RIK2,
      &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
       End Do
-********Work(iDIDA) is currently DA over intermediate states
-      CALL Put_DArray('MSPDFTD6        ',Work(iDIDA),nTot1)
-********Work(iDIDA+lRoots*nTot1) is currently DI
-      CALL Put_DArray('MSPDFTD5        ',
-     &                 Work(iDIDA+lRoots*nTot1),nTot1)
+********DIDA is currently DA over intermediate states
+      CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
+********DIDA(:,lRoots+1) is currently DI
+      CALL Put_DArray('MSPDFTD5        ',DIDA(:,lRoots+1),nTot1)
       CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
 
