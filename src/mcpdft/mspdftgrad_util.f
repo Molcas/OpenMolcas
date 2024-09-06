@@ -49,7 +49,7 @@
       Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:),   lRoots**2)
       CALL Put_DArray('F1MS            ',F1MS(:,:),  nTot1*nRoots)
       CALL Put_DArray('F2MS            ',F2MS(:,:), NACPR2*nRoots)
-      CALL Put_DArray('D1AO_MS         ',Work(D1AOMS), nTot1*nRoots)
+      CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:), nTot1*nRoots)
       if (ispin.ne.1)
      &CALL Put_DArray('D1SAO_MS        ',Work(D1SAOMS),nTot1*nRoots)
 

@@ -21,9 +21,9 @@ module mspdft
   character(len=8) :: mspdftmethod
   logical :: do_rotate = .False.
   integer(kind=iwp) :: iIntS
-  integer(kind=iwp) :: D1AOMS,D1SAOMS
+  integer(kind=iwp) :: D1SAOMS
   real(kind=wp), allocatable :: FxyMS(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:), DIDA(:,:)
-  real(kind=wp), allocatable :: P2MOt(:,:)
+  real(kind=wp), allocatable :: P2MOt(:,:), D1AOMS(:,:)
 
   ! CMS-NACS stuff
   logical :: isCMSNAC

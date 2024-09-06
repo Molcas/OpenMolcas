@@ -32,8 +32,7 @@
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: E_NoHyb
-      use mspdft, only: do_rotate, iIntS, DIDA, P2MOt,
-     &                  D1AOMS, D1SAOMS
+      use mspdft, only: do_rotate, iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
@@ -329,8 +328,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 !replace the next call with something that supports multistates.
          Call Put_dArray('D1ao',Work(iTmp3),nTot1)
          IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
-          Call DCopy_(nTot1,Work(iTmp3),1,
-     &        Work(D1AOMS+(jRoot-1)*nTot1),1)
+          Call DCopy_(nTot1,Work(iTmp3),1,D1AOMS(:,jRoot),1)
          END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1ao'

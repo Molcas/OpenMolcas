@@ -370,7 +370,7 @@
         Call mma_allocate(F2MS ,nACPR2,nRoots,Label='F2MS')
         Call mma_allocate(P2MOt,nACPR2,nRoots,Label='P2MOt')
         Call mma_allocate(DIDA ,nTot1,(nRoots+1),Label='DIDA')
-        Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
+        Call mma_allocate(D1AOMS,nTot1,nRoots,Label='D1AOMS')
         if (ispin.ne.1) then
           Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
         end if
@@ -406,7 +406,7 @@
           Call mma_deallocate(P2MOt)
           Call mma_deallocate(FocMS)
           Call mma_deallocate(DIDA)
-          Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
+          Call mma_deallocate(D1AOMS)
           if (ispin.ne.1)
      &       Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
         end if
