@@ -20,7 +20,7 @@
 * ****************************************************************
 
       Use KSDFT_Info, Only: ifav, ifiv
-      use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
+      use mspdft, only: F1MS, F2MS, iFocMS, iIntS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
@@ -124,12 +124,12 @@
        END DO
       END IF
 
-      CALL DCopy_(nTot1,Work(iFone),1,WORK(iF1MS+(iIntS-1)*nTot1),1)
+      CALL DCopy_(nTot1,Work(iFone),1,F1MS(:,iIntS),1)
       Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
       CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
       Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
 
-      CALL DCopy_(NACPR2,Work(ittTUVX),1,WORK(iF2MS+(iIntS-1)*NACPR2),1)
+      CALL DCopy_(NACPR2,Work(ittTUVX),1,F2MS(:,iIntS),1)
       Call GetMem('F_ONE','Free','Real',iFone,NTOT1)
       Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
 

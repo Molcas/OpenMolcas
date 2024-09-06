@@ -18,7 +18,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
       use definitions, only: wp
-      use mspdft, only: iF1MS, iF2MS, FxyMS, iFocMS, iDIDA, IP2MOt,
+      use mspdft, only: F1MS, F2MS, FxyMS, iFocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
 #include "WrkSpc.fh"
@@ -46,9 +46,9 @@
 ****** End of stuff added by Paul
 
 
-      Call Put_DArray('MS_FINAL_ROT    ',si_pdft,         lRoots**2)
-      CALL Put_DArray('F1MS            ',Work(iF1MS),  nTot1*nRoots)
-      CALL Put_DArray('F2MS            ',Work(iF2MS), NACPR2*nRoots)
+      Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:),   lRoots**2)
+      CALL Put_DArray('F1MS            ',F1MS(:,:),  nTot1*nRoots)
+      CALL Put_DArray('F2MS            ',F2MS(:,:), NACPR2*nRoots)
       CALL Put_DArray('D1AO_MS         ',Work(D1AOMS), nTot1*nRoots)
       if (ispin.ne.1)
      &CALL Put_DArray('D1SAO_MS        ',Work(D1SAOMS),nTot1*nRoots)
