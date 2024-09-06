@@ -460,7 +460,7 @@ C
 
 !For MCLR
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
-       CALL DCopy_(nTot4,F,1,FxyMS(1+(iIntS-1)*nTot4),1)
+       CALL DCopy_(nTot4,F,1,FxyMS(:,iIntS),1)
       ELSE
        Call put_dArray('Fock_PDFT',F,ntot4)
       END IF

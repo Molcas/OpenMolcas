@@ -22,7 +22,7 @@ module mspdft
   logical :: do_rotate = .False.
   integer(kind=iwp) :: iF1MS,iF2MS,iFocMS,iIntS,iDIDA,IP2MOt
   integer(kind=iwp) :: D1AOMS,D1SAOMS
-  real(kind=wp), allocatable :: FxyMS(:)
+  real(kind=wp), allocatable :: FxyMS(:,:)
 
   ! CMS-NACS stuff
   logical :: isCMSNAC

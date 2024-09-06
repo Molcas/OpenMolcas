@@ -84,7 +84,7 @@
       RJKRIK=si_pdft(1+(ket_state-1)*lRoots)*
      &    si_pdft(1+(bra_state-1)*lroots)
       CALL DScal_(nTot1,-RJKRIK,Work(iDIDA),1)
-      CALL DScal_(nTot4,RJKRIK,FxyMS,1)
+      CALL DScal_(nTot4,RJKRIK,FxyMS(:,1),1)
       CALL DScal_(NACPR2,RJKRIK,Work(iP2MOt),1)
 
       ij=0
@@ -97,8 +97,7 @@
        CALL DaXpY_(nTot1,-RJKRIK,
      &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
 *******FT99 for bk
-       CALL DaXpY_(nTot4,RJKRIK,
-     &            FxyMS(1+(jRoot-1)*nTot4),1,FxyMS,1)
+       CALL DaXpY_(nTot4,RJKRIK,FxyMS(:,jRoot),1,FxyMS(:,1),1)
 *******P2MOt for active 2RDM
        CALL DaXpY_(NACPR2,RJKRIK,
      &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
@@ -106,7 +105,7 @@
 
       CALL Put_DArray('MSPDFTD6        ',Work(iDIDA),nTot1)
 ********Work(iDIDA+lRoots*nTot1) is currently DI
-      CALL Put_DArray('FxyMS           ',FxyMS, nTot4)
+      CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
 
       ! Some other things that were initially in mcpdft.f

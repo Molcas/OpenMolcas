@@ -366,7 +366,7 @@
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
         Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
         Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
-        Call mma_allocate(FxyMS,nTot4*nRoots,Label='FxyMS')
+        Call mma_allocate(FxyMS,nTot4,nRoots,Label='FxyMS')
         Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
         Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
         Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
