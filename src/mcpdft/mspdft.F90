@@ -14,20 +14,21 @@
 module mspdft
   use printlevel,only:usual
   use mcpdft_output,only:iPrLoc
-  use definitions,only:iwp
+  use definitions,only:iwp, wp
   implicit none
   private
 
   character(len=8) :: mspdftmethod
   logical :: do_rotate = .False.
-  integer(kind=iwp) :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
+  integer(kind=iwp) :: iF1MS,iF2MS,iFocMS,iIntS,iDIDA,IP2MOt
   integer(kind=iwp) :: D1AOMS,D1SAOMS
+  real(kind=wp), allocatable :: FxyMS(:)
 
   ! CMS-NACS stuff
   logical :: isCMSNAC
 
   public :: mspdftmethod,do_rotate,iF1MS,iF2MS
-  public :: iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt,D1AOMS,D1SAOMS
+  public :: FxyMS,iFocMS,iIntS,iDIDA,IP2MOt,D1AOMS,D1SAOMS
 
   public :: isCMSNAC
 

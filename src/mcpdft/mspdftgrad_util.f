@@ -18,7 +18,7 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
       use definitions, only: wp
-      use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
+      use mspdft, only: iF1MS, iF2MS, FxyMS, iFocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
 #include "WrkSpc.fh"
@@ -82,7 +82,7 @@
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
       RIK2=si_pdft((irlxroot-1)*lroots+1)**2
       CALL DScal_(nTot1,-RIK2,Work(iDIDA),1)
-      CALL DScal_(nTot4,RIK2,Work(iFxyMS),1)
+      CALL DScal_(nTot4,RIK2,FxyMS,1)
       CALL DScal_(NACPR2,RIK2,Work(iP2MOt),1)
       ij=0
       jRoot=1
@@ -96,7 +96,7 @@
      &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
 *******FT99 for bk
        CALL DaXpY_(nTot4,RIK2,
-     &            Work(iFxyMS+(jRoot-1)*nTot4),1,Work(iFxyMS),1)
+     &            FxyMS(1+(jRoot-1)*nTot4),1,FxyMS,1)
 *******P2MOt for active 2RDM
        CALL DaXpY_(NACPR2,RIK2,
      &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
@@ -106,7 +106,7 @@
 ********Work(iDIDA+lRoots*nTot1) is currently DI
       CALL Put_DArray('MSPDFTD5        ',
      &                 Work(iDIDA+lRoots*nTot1),nTot1)
-      CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
+      CALL Put_DArray('FxyMS           ',FxyMS, nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
 
       ! Some other things that were initially in mcpdft.f

@@ -34,9 +34,7 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FOCK    ')
-#include "WrkSpc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FOCK    '
 
 C
       IPRLEV=IPRLOC(4)
@@ -54,9 +52,6 @@ C
 C *****************************************
 
 
-      ipFint = ip_Dummy
-      ipP2reo= ip_Dummy
-c
 c     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
 C     LOOP OVER ALL SYMMETRY BLOCKS
@@ -134,31 +129,6 @@ c
         write(6,*) 'Two-electron contribution (Q term):', ECAS-ECAS0
       END IF
 *
-        If(ipFint.ne.ip_Dummy) Then
-          Call GetMem('TmpQ','Allo','Real',ipQ,NAO*NO)
-          If (ipP2reo.ne.ip_Dummy) Then
-             CALL DGEMM_('N','N',
-     &                   NO,NAO,NUVX,
-     &                   1.0d0,Work(ipFint+JSTF-1),NO,
-     &                   Work(ipP2reo+ISTP-1),NUVX,
-     &                   0.0d0,Work(ipQ),NO)
-          Else
-             CALL DGEMM_('N','N',
-     &                   NO,NAO,NUVX,
-     &                   1.0d0,Work(ipFint+JSTF-1),NO,
-     &                   P(ISTP),NUVX,
-     &                   0.0d0,Work(ipQ),NO)
-          End If
-          Call DaXpY_(NAO*NO,1.0d0,Work(ipQ),1,Q,1)
-*
-          DO NT=1,NAO
-            NTT=(NT-1)*NO+NIO+NT
-            HALFQ=HALFQ+0.5D0*Work(ipQ+NTT-1)
-          END DO
-          Call GetMem('TmpQ','Free','Real',ipQ,NAO*NO)
-        End If
-
-c
 c       Fock matrix
 c
         NTM=0
@@ -271,13 +241,6 @@ c     Calculate Fock matrix for occupied orbitals.
 C
       If (iFinal.eq.1) CALL FOCKOC(Q,F,CMO)
 C
-      If(ipFint.ne.ip_Dummy) Then
-        Call GetMem('TmpPUVX','Free','Real',ipFint,nFint)
-      End If
-
-      If(ipP2reo.ne.ip_Dummy) Then
-        CALL GETMEM('P2_reo','FREE','REAL',ipP2reo,nP2reo)
-      End If
 
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -285,8 +248,7 @@ C
          Write(LF,*)
       End If
 C
-      RETURN
-      END
+      END SUBROUTINE FOCK_m
 
       SUBROUTINE FOCK_update(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
 !This subroutine is supposed to add the dft portions of the mcpdft fock
@@ -309,20 +271,21 @@ c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
       use printlevel, only: debug
-      use mspdft, only: iFxyMS, iIntS
+      use mspdft, only: FxyMS, iIntS
       use mcpdft_output, only: lf, iPrLoc
       use mcpdft_input, only: mcpdft_options
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
-      integer ISTSQ(8),ISTAV(8),iTF
+      integer ISTSQ(8),ISTAV(8)
+
+      Real*8, Allocatable:: TF(:)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FOCK    ')
-#include "WrkSpc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FOCK    '
 
 C
       IPRLEV=IPRLOC(4)
@@ -332,8 +295,8 @@ C
 
       Call Unused_real_array(BM)
       Call Unused_integer(ifinal)
-      Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
-      Call dcopy_(ntot4,[0d0],0,Work(iTF),1)
+      Call mma_allocate(TF,NTOT4,Label='TF')
+      TF(:)=0.0D0
 
 
       ISTSQ(1)=0
@@ -368,7 +331,7 @@ C
        N1=0
        N2=0
        IF(NO.EQ.0) GO TO 90
-       CALL FZERO(Work(iTF-1+ISTFCK+1),NO**2)
+       CALL FZERO(TF(ISTFCK+1),NO**2)
 
 !    First index in F is inactive
 
@@ -377,7 +340,7 @@ C
          DO NI=1,NIO
           N1=MAX(NP,NI)
           N2=MIN(NP,NI)
-          Work(iTF-1+ISTFCK+NO*(NP-1)+NI)=2*FP(ISTFP+(N1**2-N1)/2+N2)
+          TF(ISTFCK+NO*(NP-1)+NI)=2*FP(ISTFP+(N1**2-N1)/2+N2)
          END DO
         END DO
        ENDIF
@@ -434,7 +397,7 @@ c
            NVM=ITRI(MAX(NVI,NM))+MIN(NVI,NM)+ISTFP
            QNTM=QNTM+D(NTV)*FI(NVM)
           END DO
-          Work(iTF-1+ISTFCK+NO*(NM-1)+NT+NIO)=QNTM
+          TF(ISTFCK+NO*(NM-1)+NT+NIO)=QNTM
          END DO
         END DO
        ENDIF
@@ -474,11 +437,11 @@ C
       end do
       write(6,*) 'new fock terms to add:'
       do i=1,Ntot4
-        write(6,*) Work(itF-1+i)
+        write(6,*) TF(i)
       end do
       call xflush(6)
       end if
-      Call DAXPY_(NTOT4,1.0d0,Work(iTF),1,F,1)
+      Call DAXPY_(NTOT4,1.0d0,TF,1,F,1)
 !      write(*,*) 'added new fock terms to old fock matrix'
 !I am going to add the Fock matrix temporarily to the Runfile.  I don't
 !want to construct it again in MCLR in the case of gradients.
@@ -497,7 +460,7 @@ C
 
 !For MCLR
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
-       CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)
+       CALL DCopy_(nTot4,F,1,FxyMS(1+(iIntS-1)*nTot4),1)
       ELSE
        Call put_dArray('Fock_PDFT',F,ntot4)
       END IF
@@ -505,7 +468,6 @@ C
       call xflush(6)
       CALL FOCKOC(Q,F,CMO)
 C
-      Call GetMem('fockt','Free','REAL',iTF,NTOT4)
+      Call mma_deallocate(TF)
 C
-      RETURN
-      END
+      END SUBROUTINE FOCK_update
