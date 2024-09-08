@@ -35,23 +35,23 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-
+#include "WrkSpc.fh"
 
 
       INTEGER IFockI,IFockA,iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock
 
 
 ******Auxiliary Variables
-      INTEGER i_off1,ifone,isym,ipTmpLTEOTP,ipTmpLOEOTP
+      INTEGER i_off1,isym
       INTEGER ittTUVX,ifat
       INTEGER iPrLev
       External isfreeunit
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
+      Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:)
 
 
       write(lf,'(2X,A)')
@@ -68,41 +68,41 @@
 ******Used as F1 and F2 in equations 58 and 59 in Ref1.
 
 
-      Call GetMem('ONTOPT','ALLO','Real',ipTmpLTEOTP,nfint)
-      Call GetMem('ONTOPO','ALLO','Real',ipTmpLOEOTP,ntot1)
-      Call FZero(Work(iptmplteotp),Nfint)
-      Call FZero(Work(iptmploeotp),ntot1)
+      Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
+      Call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
+      OnTopT(:)=0.0D0
+      OnTopO(:)=0.0D0
 
-      Call Get_dArray('ONTOPT',work(ipTmpLTEOTP),NFINT)
-      Call Get_dArray('ONTOPO',work(ipTmpLOEOTP),NTOT1)
+      Call Get_dArray('ONTOPT',OnTopT,NFINT)
+      Call Get_dArray('ONTOPO',OnTopO,NTOT1)
 
 
       If (IPRLEV.ge.DEBUG ) THEN
         write(lf,*) 'One-electron potentials'
         do i=1,ntot1
-          write(lf,*) Work(iptmploeotp-1+i)
+          write(lf,*) OnTopO(i)
         end do
         write(lf,*) 'Two-electron potentials'
         DO i=1,nfint
          if (abs(work(lpuvx-1+i)).ge.1d-10)then
-           write(lf,*) Work(iptmplteotp-1+i),work(lpuvx-1+i)
+           write(lf,*) OnTopT(i),work(lpuvx-1+i)
          else
-           write(lf,*)Work(iptmplteotp-1+i),0.0d0
+           write(lf,*) OnTopT(i),0.0d0
          end if
         END DO
        END IF
 
-      Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
-      CALL DCOPY_(NTOT1,[0.0D0],0,WORK(iFone),1)
+      Call mma_allocate(Fone,NTOT1,Label='FOne')
+      FOne(:)=0.0D0
 
       CALL GETMEM('FI_V','ALLO','REAL',ifiv,Ntot1)
       Call Get_dArray('FI_V',work(ifiv),NTOT1)
 
 *     Focka=fiv+tmploeotp
       Call daxpy_(ntot1,1.0d0,Work(ifiv),1,Work(iFocka),1)
-      Call daxpy_(ntot1,1.0d0,Work(iptmploeotp),1,Work(iFocka),1)
+      Call daxpy_(ntot1,1.0d0,OnTopO,1,Work(iFocka),1)
 
-      i_off1=0
+      i_off1=1
 
 *     F1=fiv+tmploeotp
       DO iSym = 1,nSym
@@ -110,8 +110,7 @@
        !FI + FA + V_oe
        Do i=1,iBas
         do j=1,i
-         Work(iFone+i_off1) = Work(ifone+i_off1) +
-     &   Work(ifocka+i_off1)
+         Fone(i_off1) = Fone(i_off1) + Work(ifocka-1+i_off1)
          i_off1 = i_off1 + 1
         end do
        End Do
@@ -120,17 +119,17 @@
       IF ( IPRLEV.ge.DEBUG ) then
        write(lf,*) 'F1 to send'
        DO i=1,NTOT1
-         write(lf,*) work(iFone-1+i)
+         write(lf,*) Fone(i)
        END DO
       END IF
 
-      CALL DCopy_(nTot1,Work(iFone),1,F1MS(:,iIntS),1)
+      CALL DCopy_(nTot1,Fone,1,F1MS(:,iIntS),1)
       Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
       CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
-      Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
+      Call Get_TUVX(OnTopT,Work(ittTUVX))
 
       CALL DCopy_(NACPR2,Work(ittTUVX),1,F2MS(:,iIntS),1)
-      Call GetMem('F_ONE','Free','Real',iFone,NTOT1)
+      Call mma_deallocate(FOne)
       Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
 
 !____________________________________________________________
@@ -156,7 +155,7 @@
        END DO
        CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
        Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
-       Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
+       Call DaXpY_(NTOT1,1.0D0,OnTopO,1,Work(ifat),1)
        Call Daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
        Call Daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
        write(lf,*) "Total F additions:"
@@ -164,7 +163,7 @@
        CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
       END IF
 
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifocki),1)
+      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,Work(ifocki),1)
       Call Daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifocki),1)
       Call Daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifocka),1)
 
@@ -188,7 +187,7 @@
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
       CALL FOCK_update(WORK(LFOCK),BM,Work(iFockI),
      &     Work(iFockA),Work(iD1Act),WORK(LP),
-     &     WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
+     &     WORK(LQ),OnTopT,IFINAL,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
@@ -199,11 +198,10 @@
 
       Call mma_deallocate(BM)
       CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
-      Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
+      Call mma_deallocate(OnTopO)
+      Call mma_deallocate(OnTopT)
 
       iSA = 1
       Call Put_iScalar('SA ready',iSA)
 
-      RETURN
-      End Subroutine
+      End Subroutine SaveFock_PDFT
