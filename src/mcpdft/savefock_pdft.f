@@ -13,7 +13,7 @@
 *               2021, Jie J. Bao                                       *
 ************************************************************************
       Subroutine SaveFock_PDFT(CMO,FockI,FockA,D1Act,Fock,
-     &                         P,NQ,LPUVX,ip2d,istate)
+     &                         P,NQ,PUVX,p2d,istate)
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Jan. 04, 2021, created this file.               *
@@ -30,8 +30,9 @@
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
-      Real*8 CMO(*), FockI(*), FockA(*), D1Act(*), Fock(*), P(*)
-      INTEGER NQ,LPUVX,ip2d,istate
+      Real*8 CMO(*), FockI(*), FockA(*), D1Act(*), Fock(*), P(*),
+     &       PUVX(*), P2D(*)
+      INTEGER NQ,istate
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -83,8 +84,8 @@
         end do
         write(lf,*) 'Two-electron potentials'
         DO i=1,nfint
-         if (abs(work(lpuvx-1+i)).ge.1d-10)then
-           write(lf,*) OnTopT(i),work(lpuvx-1+i)
+         if (abs(puvx(i)).ge.1d-10)then
+           write(lf,*) OnTopT(i),puvx(i)
          else
            write(lf,*) OnTopT(i),0.0d0
          end if
@@ -179,7 +180,7 @@
 !Reordering of the two-body density matrix.
       IF(ISTORP(NSYM+1).GT.0) THEN
        CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,P,1)
-       CALL PMAT_RASSCF(Work(iP2d),P)
+       CALL PMAT_RASSCF(P2d,P)
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
