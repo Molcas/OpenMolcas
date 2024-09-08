@@ -54,18 +54,19 @@
 
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FMAT    ')
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FMAT    '
 
-      Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
+      Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
+
+      Real*8, allocatable:: Tmp1(:), Tmp2(:)
+
 
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -140,18 +141,18 @@ C Local print level (if any)
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 *     create FA in AO basis
-      Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
-      Call Fold(nSym,nBas,D1A,Work(iTmp1))
+      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
+      Call Fold(nSym,nBas,D1A,Tmp1)
 
 *     Inactive-active contribution to ECAS
-      VIA=dDot_(nTot1,FI,1,Work(iTmp1),1)
+      VIA=dDot_(nTot1,FI,1,Tmp1,1)
       ECAS=EMY+VIA
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
         Write(LF,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
         Write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
       End If
-      Call GetMem('Scr1','Free','Real',iTmp1,nTot1)
+      Call mma_deallocate(Tmp1)
 
 *     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
@@ -187,19 +188,19 @@ C Local print level (if any)
         iOrb = nOrb(iSym)
         If (iOrb==0) Cycle
         iFro = nFro(iSym)
-        Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-        Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-        Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
+        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
+        Call Square(FI(iOff1),Tmp1,1,iBas,iBas)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Work(iTmp1),iBas,
+     &               1.0d0,Tmp1,iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Work(iTmp2),iBas)
+     &               0.0d0,Tmp2,iBas)
         Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                 1.0D0,Work(iTmp2),iBas,
+     &                 1.0D0,Tmp2,iBas,
      &                       CMO(iOff2+(iFro*iBas)),iBas,
      &                 0.0D0,FI(iOff3),iOrb)
-        Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-        Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
+        Call mma_deallocate(Tmp2)
+        Call mma_deallocate(Tmp1)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
@@ -215,19 +216,19 @@ C Local print level (if any)
         iOrb = nOrb(iSym)
         If (iOrb==0) Cycle
         iFro = nFro(iSym)
-        Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-        Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-        Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
+        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
+        Call Square(FA(iOff1),Tmp1,1,iBas,iBas)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Work(iTmp1),iBas,
+     &               1.0d0,Tmp1,iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Work(iTmp2),iBas)
+     &               0.0d0,Tmp2,iBas)
         Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                 1.0D0,Work(iTmp2),iBas,
+     &                 1.0D0,Tmp2,iBas,
      &                       CMO(iOff2+(iFro*iBas)),iBas,
      &                 0.0D0,FA(iOff3),iOrb)
-        Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-        Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
+        Call mma_deallocate(Tmp2)
+        Call mma_deallocate(Tmp1)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
@@ -261,6 +262,4 @@ C Local print level (if any)
         End Do
       End If
 
-
-      Return
-      End
+      End Subroutine Fmat_m
