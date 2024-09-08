@@ -39,19 +39,16 @@
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
-
 
 
 ******Auxiliary Variables
       INTEGER i_off1,isym
-      INTEGER ittTUVX,ifat, LQ
       INTEGER iPrLev
-      External isfreeunit
+      Integer, External:: isfreeunit
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
       Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:)
-      Real*8, Allocatable:: FA_V(:), FI_V(:)
+      Real*8, Allocatable:: FA_V(:), FI_V(:), TUVX(:), FA_T(:), Q(:)
 
 
       write(lf,'(2X,A)')
@@ -124,13 +121,13 @@
       END IF
 
       CALL DCopy_(nTot1,Fone,1,F1MS(:,iIntS),1)
-      Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
-      CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
-      Call Get_TUVX(OnTopT,Work(ittTUVX))
+      Call mma_allocate(TUVX,NACPR2,Label='TUVX')
+      TUVX(:)=0.0D0
+      Call Get_TUVX(OnTopT,TUVX)
 
-      CALL DCopy_(NACPR2,Work(ittTUVX),1,F2MS(:,iIntS),1)
+      CALL DCopy_(NACPR2,TUVX,1,F2MS(:,iIntS),1)
       Call mma_deallocate(FOne)
-      Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
+      Call mma_deallocate(TUVX)
 
 !____________________________________________________________
 !This next part is to generate the MC-PDFT generalized fock operator.
@@ -153,14 +150,14 @@
        DO i=1,ntot1
         write(lf,*) FA_V(i)
        END DO
-       CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
-       Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
-       Call DaXpY_(NTOT1,1.0D0,OnTopO,1,Work(ifat),1)
-       Call Daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifat),1)
-       Call Daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifat),1)
+       CALL mma_allocate(FA_t,Ntot1,Label='FA_t')
+       Call dcopy_(ntot1,[0.0d0],0,FA_t,1)
+       Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FA_t,1)
+       Call Daxpy_(NTOT1,1.0D0,FI_V,1,FA_t,1)
+       Call Daxpy_(NTOT1,1.0D0,FA_V,1,FA_t,1)
        write(lf,*) "Total F additions:"
-       Call TriPrt(' ','(5G18.10)',Work(ifat),norb(1))
-       CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
+       Call TriPrt(' ','(5G18.10)',FA_T,norb(1))
+       CALL mma_deallocate(FA_t)
       END IF
 
       Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FockI,1)
@@ -184,9 +181,8 @@
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
-      CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
-     &                 WORK(LQ),OnTopT,IFINAL,CMO)
+      CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
+      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,Q,OnTopT,IFINAL,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
@@ -196,7 +192,7 @@
       END IF
 
       Call mma_deallocate(BM)
-      CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
+      Call mma_deallocate(Q)
       Call mma_deallocate(OnTopO)
       Call mma_deallocate(OnTopT)
 
