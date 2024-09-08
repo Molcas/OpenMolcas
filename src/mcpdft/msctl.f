@@ -30,7 +30,7 @@
 *
       use OneDat, only: sNoNuc, sNoOri
       use mcpdft_input, only: mcpdft_options
-      Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
+      Use KSDFT_Info, only: do_pdftpot
       Use hybridpdft, only: E_NoHyb
       use mspdft, only: do_rotate, iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
       use printlevel, only: debug
@@ -53,7 +53,7 @@
 !      Logical TraOnly
 
 *
-      Character*8 Label
+      Character(LEN=8) Label
       Logical First, Dff, Do_DFT,Found
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
@@ -69,7 +69,9 @@
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
       integer isym,iash,jsym
-      External IsFreeUnit
+      integer, External:: IsFreeUnit
+
+      real*8, allocatable:: FI_V(:), FA_V(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -888,16 +890,16 @@ cPS         call xflush(6)
 
 
 
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,Ntot1)
-      Call Get_dArray('FI_V',work(ifiv),NTOT1)
-!         Call Dscal_(nTOT1,4.0d0,Work(ifiv),1)
+      CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
+      Call Get_dArray('FI_V',FI_V,NTOT1)
+!         Call Dscal_(nTOT1,4.0d0,FI_V,1)
 *         write(6,*) 'fiv after tractl'
 *         do i=1,ntot1
-*           write(6,*) work(ifiv-1+i)
+*           write(6,*) FI_V(i)
 *         end do
 
-      !Call daxpy_(ntot1,0.5d0,Work(ifiv),1,Work(iFocka),1)
-      Call daxpy_(ntot1,1.0d0,Work(ifiv),1,Work(iFocka),1)
+      !Call daxpy_(ntot1,0.5d0,FI_V,1,Work(iFocka),1)
+      Call daxpy_(ntot1,1.0d0,FI_V,1,Work(iFocka),1)
       Call daxpy_(ntot1,1.0d0,Work(iptmploeotp),1,Work(iFocka),1)
 
 
@@ -988,34 +990,34 @@ cPS         call xflush(6)
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
 !debugged.
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,Ntot1)
-      Call Get_dArray('FA_V',work(ifav),NTOT1)
-!         Call Dscal_(nTOT1,4.0d0,Work(ifav),1)
-      !work(ifav-1+2) = 0d0
+      CALL mma_allocate(FA_V,Ntot1,Label='FA_V')
+      Call Get_dArray('FA_V',FA_V,NTOT1)
+!         Call Dscal_(nTOT1,4.0d0,FA_V),1)
+      !FA_V(2) = 0d0
 
 
-!         Call Dscal_(ntot1,0.5d0,Work(ifiv),1)
-!         Call Dscal_(ntot1,0.5d0,Work(ifav),1)
+!         Call Dscal_(ntot1,0.5d0,FI_V,1)
+!         Call Dscal_(ntot1,0.5d0,FA_V,1)
       !Call Dscal_(nfint,-0.5d0,Work(ipTmpLTEOTP),1)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "extra terms to update FI"
       do i=1,ntot1
-      write(6,*) Work(ifiv-1+i)
+      write(6,*) FI_V(i)
       end do
-      !Call TriPrt(' ','(5G18.10)',Work(ifiv),norb(1))
+      !Call TriPrt(' ','(5G18.10)',FI_V,norb(1))
       write(6,*) "extra terms to update FA"
       do i=1,ntot1
-      write(6,*) Work(ifav-1+i)
+      write(6,*) FA_V(i)
       end do
-      !Call TriPrt(' ','(5G18.10)',Work(ifav),norb(1))
+      !Call TriPrt(' ','(5G18.10)',FA_V,norb(1))
         end if
 
         If ( IPRLEV.ge.DEBUG ) then
       CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
       Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
       Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
-      Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
-      Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
+      Call daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifat),1)
+      Call daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifat),1)
       write(6,*) "Total F additions:"
       Call TriPrt(' ','(5G18.10)',Work(ifat),norb(1))
       CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
@@ -1026,8 +1028,8 @@ cPS         call xflush(6)
       !Add one e potential, too.
       Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifocki),1)
       !Add two e potentials
-      Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifocki),1)
-      Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifocka),1)
+      Call daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifocki),1)
+      Call daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifocka),1)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "new FI"
       Call TriPrt(' ','(5G18.10)',Work(ifocki),norb(1))
@@ -1035,8 +1037,8 @@ cPS         call xflush(6)
       Call TriPrt(' ','(5G18.10)',Work(ifocka),norb(1))
         end if
 
-      CALL GETMEM('FI_V','Free','REAL',ifiv,Ntot1)
-      CALL GETMEM('FA_V','Free','REAL',ifav,Ntot1)
+      CALL mma_deallocate(FI_V)
+      CALL mma_deallocate(FA_V)
 
 !Reordering of the two-body density matrix.
 !      Call Getmem('test_p2','allo','real',ip2test,ISTORP(NSYM+1))
@@ -1217,8 +1219,8 @@ cPS         call xflush(6)
       Call GetMem('Kincore','free','Real',iTmpk,nTot1)
       Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
 c      call xflush(6)
-      Return
-      END
+
+      END Subroutine MSCtl
 
       Subroutine P2_contraction(D1MO,P2MO)
       use definitions, only: wp
@@ -1258,7 +1260,7 @@ c      call xflush(6)
           integer, intent(in) :: i, j
           itrii = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
         end function
-      end subroutine
+      end Subroutine P2_contraction
 
 
       Subroutine Fold_pdft(nSym,nBas,A,B)
@@ -1282,5 +1284,4 @@ c      call xflush(6)
       End Do
 
       Return
-      end
-************ columbus interface ****************************************
+      end Subroutine Fold_pdft
