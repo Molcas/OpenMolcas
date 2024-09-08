@@ -12,7 +12,7 @@
 *               2019, Thais R. Scott                                   *
 *               2021, Jie J. Bao                                       *
 ************************************************************************
-      Subroutine SaveFock_PDFT(CMO,IFockI,IFockA,iD1Act,LFock,
+      Subroutine SaveFock_PDFT(CMO,FockI,IFockA,iD1Act,LFock,
      &                         LP,NQ,LQ,LPUVX,ip2d,istate)
 * ****************************************************************
 * history:                                                       *
@@ -31,6 +31,7 @@
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
       Real*8 CMO(*)
+      Real*8 FockI(*)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -39,8 +40,7 @@
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 
-
-      INTEGER IFockI,IFockA,iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock
+      INTEGER IFockA,iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock
 
 
 ******Auxiliary Variables
@@ -136,7 +136,7 @@
 !This next part is to generate the MC-PDFT generalized fock operator.
 
       CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocka),1)
-      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocki),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,Focki,1)
 
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
@@ -163,13 +163,13 @@
        CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
       END IF
 
-      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,Work(ifocki),1)
-      Call Daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifocki),1)
+      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FockI,1)
+      Call Daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
       Call Daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifocka),1)
 
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) "new FI"
-       Call TriPrt(' ','(5G18.10)',Work(ifocki),norb(1))
+       Call TriPrt(' ','(5G18.10)',FockI,norb(1))
        write(lf,*) "new FA"
        Call TriPrt(' ','(5G18.10)',Work(ifocka),norb(1))
       END IF
@@ -185,7 +185,7 @@
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      CALL FOCK_update(WORK(LFOCK),BM,Work(iFockI),
+      CALL FOCK_update(WORK(LFOCK),BM,FockI,
      &     Work(iFockA),Work(iD1Act),WORK(LP),
      &     WORK(LQ),OnTopT,IFINAL,CMO)
 
