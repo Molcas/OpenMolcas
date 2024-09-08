@@ -1114,7 +1114,7 @@ cPS         call xflush(6)
 *      Hopefully this code will be neater.
        call savefock_pdft(CMO,FockI,Work(IFockA),Work(iD1Act),
      &                    Work(LFock),
-     &                    LP,NQ,LQ,LPUVX,ip2d,jroot)
+     &                    Work(LP),NQ,LPUVX,ip2d,jroot)
       end if
 
 

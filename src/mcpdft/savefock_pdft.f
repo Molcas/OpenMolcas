@@ -13,7 +13,7 @@
 *               2021, Jie J. Bao                                       *
 ************************************************************************
       Subroutine SaveFock_PDFT(CMO,FockI,FockA,D1Act,Fock,
-     &                         LP,NQ,LQ,LPUVX,ip2d,istate)
+     &                         P,NQ,LPUVX,ip2d,istate)
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Jan. 04, 2021, created this file.               *
@@ -30,7 +30,8 @@
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
-      Real*8 CMO(*), FockI(*), FockA(*), D1Act(*), Fock(*)
+      Real*8 CMO(*), FockI(*), FockA(*), D1Act(*), Fock(*), P(*)
+      INTEGER NQ,LPUVX,ip2d,istate
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -39,12 +40,11 @@
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 
-      INTEGER LP,NQ,LQ,LPUVX,ip2d,istate
 
 
 ******Auxiliary Variables
       INTEGER i_off1,isym
-      INTEGER ittTUVX,ifat
+      INTEGER ittTUVX,ifat, LQ
       INTEGER iPrLev
       External isfreeunit
       CHARACTER(len=64) FILENAME
@@ -178,13 +178,13 @@
 
 !Reordering of the two-body density matrix.
       IF(ISTORP(NSYM+1).GT.0) THEN
-       CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
-       CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
+       CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,P,1)
+       CALL PMAT_RASSCF(Work(iP2d),P)
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,WORK(LP),
+      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
      &                 WORK(LQ),OnTopT,IFINAL,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
