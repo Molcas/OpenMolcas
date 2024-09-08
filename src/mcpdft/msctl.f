@@ -1112,7 +1112,8 @@ cPS         call xflush(6)
 *      doing exactly the same thing as done in the previous chunck
 *      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 *      Hopefully this code will be neater.
-       call savefock_pdft(CMO,FockI,Work(IFockA),iD1Act,LFock,
+       call savefock_pdft(CMO,FockI,Work(IFockA),Work(iD1Act),
+     &                    LFock,
      &                    LP,NQ,LQ,LPUVX,ip2d,jroot)
       end if
 
