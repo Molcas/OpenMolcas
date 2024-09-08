@@ -19,7 +19,6 @@
 * Jie J. Bao, on Jan. 04, 2021, created this file.               *
 * ****************************************************************
 
-      Use KSDFT_Info, Only: ifav, ifiv
       use mspdft, only: F1MS, F2MS, FocMS, iIntS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
@@ -52,6 +51,7 @@
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
       Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:)
+      Real*8, Allocatable:: FA_V(:), FI_V(:)
 
 
       write(lf,'(2X,A)')
@@ -95,11 +95,11 @@
       Call mma_allocate(Fone,NTOT1,Label='FOne')
       FOne(:)=0.0D0
 
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,Ntot1)
-      Call Get_dArray('FI_V',work(ifiv),NTOT1)
+      CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
+      Call Get_dArray('FI_V',FI_V,NTOT1)
 
-*     Focka=fiv+tmploeotp
-      Call daxpy_(ntot1,1.0d0,Work(ifiv),1,Work(iFocka),1)
+*     Focka=fi_v+OnTopO
+      Call daxpy_(ntot1,1.0d0,FI_V,1,Work(iFocka),1)
       Call daxpy_(ntot1,1.0d0,OnTopO,1,Work(iFocka),1)
 
       i_off1=1
@@ -141,31 +141,31 @@
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
 !debugged.
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,Ntot1)
-      Call Get_dArray('FA_V',work(ifav),NTOT1)
+      CALL mma_allocate(FA_V,Ntot1,Label='FA_V')
+      Call Get_dArray('FA_V',FA_V,NTOT1)
 
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) "extra terms to update FI"
        DO i=1,ntot1
-        write(lf,*) Work(ifiv-1+i)
+        write(lf,*) FI_V(i)
        END DO
        write(lf,*) "extra terms to update FA"
        DO i=1,ntot1
-        write(lf,*) Work(ifav-1+i)
+        write(lf,*) FA_V(i)
        END DO
        CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
        Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
        Call DaXpY_(NTOT1,1.0D0,OnTopO,1,Work(ifat),1)
-       Call Daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
-       Call Daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
+       Call Daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifat),1)
+       Call Daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifat),1)
        write(lf,*) "Total F additions:"
        Call TriPrt(' ','(5G18.10)',Work(ifat),norb(1))
        CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
       END IF
 
       Call DaXpY_(NTOT1,1.0D0,OnTopO,1,Work(ifocki),1)
-      Call Daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifocki),1)
-      Call Daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifocka),1)
+      Call Daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifocki),1)
+      Call Daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifocka),1)
 
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) "new FI"
@@ -174,8 +174,8 @@
        Call TriPrt(' ','(5G18.10)',Work(ifocka),norb(1))
       END IF
 
-      CALL GETMEM('FI_V','Free','REAL',ifiv,Ntot1)
-      CALL GETMEM('FA_V','Free','REAL',ifav,Ntot1)
+      CALL mma_deallocate(FI_V)
+      CALL mma_deallocate(FA_V)
 
 !Reordering of the two-body density matrix.
       IF(ISTORP(NSYM+1).GT.0) THEN
