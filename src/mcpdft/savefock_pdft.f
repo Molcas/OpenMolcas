@@ -12,7 +12,7 @@
 *               2019, Thais R. Scott                                   *
 *               2021, Jie J. Bao                                       *
 ************************************************************************
-      Subroutine SaveFock_PDFT(CMO,FockI,FockA,D1Act,LFock,
+      Subroutine SaveFock_PDFT(CMO,FockI,FockA,D1Act,Fock,
      &                         LP,NQ,LQ,LPUVX,ip2d,istate)
 * ****************************************************************
 * history:                                                       *
@@ -30,7 +30,7 @@
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
-      Real*8 CMO(*), FockI(*), FockA(*), D1Act(*)
+      Real*8 CMO(*), FockI(*), FockA(*), D1Act(*), Fock(*)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -39,7 +39,7 @@
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 
-      INTEGER LP,NQ,LQ,LPUVX,ip2d,istate,LFock
+      INTEGER LP,NQ,LQ,LPUVX,ip2d,istate
 
 
 ******Auxiliary Variables
@@ -184,8 +184,8 @@
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      CALL FOCK_update(WORK(LFOCK),BM,FockI,FockA,D1Act,WORK(LP),
-     &     WORK(LQ),OnTopT,IFINAL,CMO)
+      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,WORK(LP),
+     &                 WORK(LQ),OnTopT,IFINAL,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
