@@ -12,7 +12,7 @@
 *               2019, Thais R. Scott                                   *
 *               2021, Jie J. Bao                                       *
 ************************************************************************
-      Subroutine SaveFock_PDFT(CMO,FockI,IFockA,iD1Act,LFock,
+      Subroutine SaveFock_PDFT(CMO,FockI,FockA,iD1Act,LFock,
      &                         LP,NQ,LQ,LPUVX,ip2d,istate)
 * ****************************************************************
 * history:                                                       *
@@ -30,8 +30,7 @@
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
-      Real*8 CMO(*)
-      Real*8 FockI(*)
+      Real*8 CMO(*), FockI(*), FockA(*)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -40,7 +39,7 @@
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 
-      INTEGER IFockA,iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock
+      INTEGER iD1Act,LP,NQ,LQ,LPUVX,ip2d,istate,LFock
 
 
 ******Auxiliary Variables
@@ -99,8 +98,8 @@
       Call Get_dArray('FI_V',FI_V,NTOT1)
 
 *     Focka=fi_v+OnTopO
-      Call daxpy_(ntot1,1.0d0,FI_V,1,Work(iFocka),1)
-      Call daxpy_(ntot1,1.0d0,OnTopO,1,Work(iFocka),1)
+      Call daxpy_(ntot1,1.0d0,FI_V,1,Focka,1)
+      Call daxpy_(ntot1,1.0d0,OnTopO,1,Focka,1)
 
       i_off1=1
 
@@ -110,7 +109,7 @@
        !FI + FA + V_oe
        Do i=1,iBas
         do j=1,i
-         Fone(i_off1) = Fone(i_off1) + Work(ifocka-1+i_off1)
+         Fone(i_off1) = Fone(i_off1) + FockA(i_off1)
          i_off1 = i_off1 + 1
         end do
        End Do
@@ -135,7 +134,7 @@
 !____________________________________________________________
 !This next part is to generate the MC-PDFT generalized fock operator.
 
-      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocka),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,FockA,1)
       CALL DCOPY_(ntot1,[0.0D0],0,Focki,1)
 
 !The corrections (from the potentials) to FI and FA are built in the NQ
@@ -165,13 +164,13 @@
 
       Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FockI,1)
       Call Daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
-      Call Daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifocka),1)
+      Call Daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
 
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) "new FI"
        Call TriPrt(' ','(5G18.10)',FockI,norb(1))
        write(lf,*) "new FA"
-       Call TriPrt(' ','(5G18.10)',Work(ifocka),norb(1))
+       Call TriPrt(' ','(5G18.10)',FockA,norb(1))
       END IF
 
       CALL mma_deallocate(FI_V)
@@ -186,7 +185,7 @@
       CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
       CALL FOCK_update(WORK(LFOCK),BM,FockI,
-     &     Work(iFockA),Work(iD1Act),WORK(LP),
+     &     FockA,Work(iD1Act),WORK(LP),
      &     WORK(LQ),OnTopT,IFINAL,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
