@@ -29,12 +29,11 @@ contains
     ! iPrGlb, and therefore iPrLoc should just be removed from
     ! this module all together
     use printlevel,only:debug,usual,silent
-    implicit none
 
     logical,external :: reduce_prt
     integer(kind=iwp),external :: iPrintLevel
 
-    integer :: i ! dummy loop variable
+    integer(kind=iwp) :: i ! dummy loop variable
 
     iPrGlb = iPrintLevel(-1)
     if(reduce_prt()) then

@@ -44,22 +44,25 @@ contains
 
   subroutine parse_input()
     ! Reads in the input from the user and sets the appropriate flags in mcpdft_options.
-
+    use constants,only:zero
     use stdalloc,only:mma_deallocate
     use text_file,only:next_non_comment
     use KSDFT_Info,only:CoefR,CoefX
 #ifdef _HDF5_
     use mh5,only:mh5_is_hdf5
 #endif
-    implicit none
 
-    real(kind=wp) :: lambda = 0.0d0
-    character(len=80) :: otxc = ""
+    real(kind=wp) :: lambda
+    character(len=80) :: otxc
 
     ! Logical unit of an ASCII file with a copy of the presently used input.
-    integer(kind=iwp) :: lu_input,ierror = 0
+    integer(kind=iwp) :: lu_input,ierror
     character(len=:),allocatable :: buffer
     character(len=4) :: command
+
+    ierror = 0
+    lambda = zero
+    otxc = ""
 
     call StatusLine("MCPDFT:","Reading in input")
 
@@ -97,8 +100,8 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) lambda
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) lambda
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
 
@@ -106,8 +109,8 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) coefx,coefr
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) coefx,coefr
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
 
@@ -125,8 +128,8 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) mcpdft_options%nac_states(1),mcpdft_options%nac_states(2)
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) mcpdft_options%nac_states(1),mcpdft_options%nac_states(2)
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
       case("MECI")
@@ -146,8 +149,8 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) mcpdft_options%rlxroot
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) mcpdft_options%rlxroot
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
 
@@ -292,7 +295,6 @@ contains
 
   subroutine EOFError(buffer)
     use definitions,only:u6
-    implicit none
     character(len=*),intent(in) :: buffer
 
     call warningmessage(2,"EOF error when reading line.")
@@ -302,7 +304,6 @@ contains
 
   subroutine IOError(buffer)
     use definitions,only:u6
-    implicit none
     character(len=*),intent(in) :: buffer
 
     call WarningMessage(2,"I/O error when reading line.")

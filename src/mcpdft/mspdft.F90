@@ -32,7 +32,6 @@ contains
     use stdalloc,only:mma_allocate
     use mcpdft_input,only:mcpdft_options
     use mspdftgrad,only:mspdftgrad_init
-    implicit none
 
     call mma_allocate(heff,lroots,lroots,label="heff")
     call load_rotham()
@@ -43,7 +42,6 @@ contains
 
   endsubroutine
   subroutine load_rotham()
-    implicit none
 
     character(len=18) :: matrix_info
 

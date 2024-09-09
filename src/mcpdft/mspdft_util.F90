@@ -79,7 +79,7 @@ contains
     integer(kind=iwp),intent(in) :: nroots
     real(kind=wp),dimension(nroots,nroots),intent(in) :: si_pdft
 
-    logical :: refbas = .false.
+    logical :: refbas
     character(len=9),dimension(nroots) :: VecStat
     character(len=9) :: StatVec
     character(len=30) :: mspdftfmt
@@ -87,6 +87,8 @@ contains
 
     integer(kind=iwp) :: root
     real(kind=wp),dimension(nroots,nroots) :: reference_vectors,eig_vecs_in_ref
+
+    refbas = .false.
 
     do root = 1,nroots
       write(statvec,'(A5,I4)') 'Root ',root
