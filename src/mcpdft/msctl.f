@@ -59,7 +59,7 @@
       integer IAD19
       integer iJOB,dmDisk
       integer IADR19(1:30)
-      integer LP,NQ,LQ
+      integer NQ,LQ
       integer jroot
       real*8,dimension(1:nroots) :: Energies
       integer  i_off1,i_off2,ifone
@@ -74,7 +74,8 @@
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      DtmpA_g(:), TE_POTG(:), OE_POT(:),
      &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
-     &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:)
+     &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
+     &                      P(:), P1(:), FOCK(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -730,16 +731,19 @@ c         call xflush(6)
       end if
 *
          IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
-           CALL DmatDmat(D1Act,WORK(LP))
-           CALL GETMEM('ISTRP','ALLO','REAL',LP1,ISTORP(NSYM+1))
-           CALL PMAT_RASSCF(P2d,WORK(LP1))
+           CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
+           CALL DmatDmat(D1Act,P)
+           CALL mma_allocate(P1,ISTORP(NSYM+1),Label='P1')
+           CALL PMAT_RASSCF(P2d,P1)
+         Else
+           CALL mma_allocate(P,1,Label='P')
+           CALL mma_allocate(P1,1,Label='P1')
          END IF
 
        if(iprlev.ge.debug) then
          write(6,*) 'dmatdmat'
          do i=1,istorp(nsym+1)
-           write(6,*) Work(LP-1+i)
+           write(6,*) P(i)
          end do
        end if
          NQ=0
@@ -752,12 +756,12 @@ c         call xflush(6)
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
 
-         CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
+         CALL mma_allocate(FOCK,NTOT4,Label='FOCK')
          CALL mma_allocate(BM,NSXS,Label='BM')
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
-         CALL FOCK_m(WORK(LFOCK),BM,FockI,FockA,
-     &               D1Act,WORK(LP),WORK(LQ),PUVX,IFINAL,CMO)
+         CALL FOCK_m(FOCK,BM,FockI,FockA,
+     &               D1Act,P,WORK(LQ),PUVX,IFINAL,CMO)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',FockOcc,ntot1)
 !END TMP TEST
@@ -1016,19 +1020,19 @@ cPS         call xflush(6)
 
 !Reordering of the two-body density matrix.
 !      Call Getmem('test_p2','allo','real',ip2test,ISTORP(NSYM+1))
-!      Call dcopy_(ISTORP(NSYM+1),Work(LP),1,Work(ip2test),1)
+!      Call dcopy_(ISTORP(NSYM+1),P,1,Work(ip2test),1)
 
        IF(ISTORP(NSYM+1).GT.0) THEN
-      CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
+         P(:)=0.0D0
 !p = P2d
-         CALL PMAT_RASSCF(P2d,WORK(LP))
+         CALL PMAT_RASSCF(P2d,P)
       END IF
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
          CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-         CALL FOCK_update(WORK(LFOCK),WORK(LBM),FockI,
-     &                    FockA,D1Act,WORK(LP),
+         CALL FOCK_update(FOCK,WORK(LBM),FockI,
+     &                    FockA,D1Act,P,
      &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
@@ -1086,9 +1090,8 @@ cPS         call xflush(6)
 *      doing exactly the same thing as done in the previous chunck
 *      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 *      Hopefully this code will be neater.
-       call savefock_pdft(CMO,FockI,FockA,D1Act,
-     &                    Work(LFock),
-     &                    Work(LP),NQ,PUVX,p2d,jroot)
+       call savefock_pdft(CMO,FockI,FockA,D1Act,Fock,
+     &                    P,NQ,PUVX,p2d,jroot)
       end if
 
 
@@ -1102,11 +1105,9 @@ cPS         call xflush(6)
 
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(Tmpa)
-      CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
-         IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
-           CALL GETMEM('ISTRP','FREE','REAL',LP1,ISTORP(NSYM+1))
-         END IF
+      Call mma_deallocate(FOCK)
+      CALL mma_deallocate(P)
+      CALL mma_deallocate(P1)
       end do !loop over roots
 
       if(mcpdft_options%grad) then
