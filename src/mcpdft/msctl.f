@@ -62,9 +62,8 @@
       integer LP,NQ,LQ
       integer jroot
       real*8,dimension(1:nroots) :: Energies
-      integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
-      integer isym,iash,jsym
+      integer isym,iash
       integer, External:: IsFreeUnit
 
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:), Tmp0(:),
@@ -74,7 +73,7 @@
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      DtmpA_g(:), TE_POTG(:), OE_POT(:),
-     &                      Junk(:)
+     &                      D1Act_FA(:), D1ActAO_FA(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -422,31 +421,8 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
         CALL mma_allocate(OE_POT,NTOT1,Label='OE_POT')
         OE_POT(:)=0.0D0
 
-      !preallocate the runfile stuff for inact-containing potentials.
-        count_tmp1 = 0
-        count_tmp2 = 0
-        do isym=1,nsym
-          do jsym=1,nsym
-         count_tmp2 = count_tmp2 + nIsh(isym)*(nIsh(jsym)+nAsh(jsym))**2
-          end do
-          count_tmp1 = count_tmp1 + nIsh(isym)*(nish(isym)+nAsh(isym))
-        end do
-        CALL mma_allocate(junk,count_tmp2,Label='Junk')
-        JUNK(:)=0.0D0
-!       Call Put_dArray('TEP_I',junk,count_tmp2)
-        CALL mma_deallocate(JUNK)
-
-        CALL mma_allocate(junk,count_tmp1,Label='Junk')
-        Junk(:)=0.0D0
-!       Call Put_dArray('OEP_I',junk,count_tmp1)
-        CALL mma_deallocate(JUNK)
-
         Call Put_dArray('ONTOPO',OE_POT,NTOT1)
         Call Put_dArray('ONTOPT',TE_POTG,NFINT)
-
-        OE_POT(:)=0.0D0
-        TE_POTG(:)=0.0D0
-
         Call Put_dArray('FI_V',OE_POT,NTOT1)
         Call Put_dArray('FA_V',OE_POT,NTOT1)
 
@@ -561,19 +537,19 @@ c         call xflush(6)
               end do
         end if
 *
-        Call GetMem('id1act_FA','ALLO','Real',id1act_FA,nacpar)
-        Call GetMem('id1actao_FA','ALLO','Real',id1actao_FA,ntot2)
+        Call mma_allocate(d1act_FA,nacpar,Label='D1Act_FA')
+        Call mma_allocate(d1actao_FA,ntot2,Label='D1ActAO_FA')
 *
         itsDisk = IADR19(3)
         do i=1,irlxroot-1
-          Call DDaFile(JOBOLD,0,Work(iD1Act_FA),NACPAR,itsDisk)
+          Call DDaFile(JOBOLD,0,D1Act_FA,NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,D1Spin,NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
         end do
-        Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Act_FA))
-        Call Get_D1A_RASSCF(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
+        Call DDaFile(JOBOLD,2,D1Act_FA,NACPAR,itsDisk)
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Act_FA)
+        Call Get_D1A_RASSCF(CMO,D1Act_FA,D1ActAO_FA)
 *****
         Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
@@ -590,13 +566,13 @@ c         call xflush(6)
             do i=1,nacpr2
               write(6,*) tuvx(i)
             end do
-            write(6,*) 'id1act_fa before tractl'
+            write(6,*) 'd1act_fa before tractl'
             do i=1,nacpar
-              write(6,*) work(id1act_FA-1+i)
+              write(6,*) d1act_FA(i)
             end do
-            write(6,*) 'id1actao_fa before tractl'
+            write(6,*) 'd1actao_fa before tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao_FA-1+i)
+              write(6,*) d1actao_FA(i)
             end do
             write(6,*) 'd1act before tractl'
             do i=1,nacpar
@@ -681,13 +657,13 @@ c         call xflush(6)
             do i=1,nacpr2
               write(6,*) tuvx(i)
             end do
-           write(6,*) 'id1act_FA after tractl'
+           write(6,*) 'd1act_FA after tractl'
             do i=1,nacpar
-              write(6,*) work(id1act_FA-1+i)
+              write(6,*) d1act_FA(i)
             end do
-            write(6,*) 'id1actao_FA after tractl'
+            write(6,*) 'd1actao_FA after tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao_FA-1+i)
+              write(6,*) d1actao_FA(i)
             end do
             write(6,*) 'd1act after tractl'
             do i=1,nacpar
@@ -730,11 +706,11 @@ c         call xflush(6)
          Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,
      &             Work(iFockI_save),FockA)
         call  dcopy_(ntot1,work(ifocki_save),1,FockI,1)
-*        call  dcopy_(nacpar,work(id1act_FA),1,d1act,1)
+*        call  dcopy_(nacpar,d1act_FA,1,d1act,1)
         Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
         Call GetMem('lcmo','Free','Real',lcmo,ntot2)
-        Call GetMem('id1act_FA','Free','Real',id1act_FA,nacpar)
-        Call GetMem('id1actao_FA','Free','Real',id1actao_FA,ntot2)
+        Call mma_deallocate(d1act_FA)
+        Call mma_deallocate(d1actao_FA)
 !
 !
         if (iprlev.ge.debug) then
