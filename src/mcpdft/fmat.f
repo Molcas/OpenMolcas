@@ -12,7 +12,7 @@
 *               1989, Per Ake Malmqvist                                *
 *               1991,1993,1996, Markus P. Fuelscher                    *
 ************************************************************************
-      Subroutine Fmat_m(CMO,PUVX,D1A,FI,FA)
+      Subroutine Fmat_m(CMO,D1A,FI,FA)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -23,8 +23,6 @@
 *     calling arguments:                                               *
 *     CMO     : array of real*8                                        *
 *               MO-coefficients                                        *
-*     PUVX    : array of real*8                                        *
-*               two-electron integrals (pu!vx)                         *
 *     D1A     : array of real*8                                        *
 *               active one body density matrix in AO-basis             *
 *     FI      : array of real*8                                        *
@@ -57,7 +55,7 @@
 
       Implicit None
 
-      Real*8 CMO(*) , PUVX(*) , D1A(*) , FI(*) , FA(*)
+      Real*8 CMO(*) , D1A(*) , FI(*) , FA(*)
 
 #include "rasdim.fh"
 #include "general.fh"
@@ -68,66 +66,8 @@
       Integer iBas, iFro, iOff, iOff1, iOff2, iOff3, iOrb, iPrLev, iSym
       Real*8, External:: DDot_
 
-
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
-      !iPrLev=DEBUG-1
-      If ( iPrLev.ge.DEBUG ) then
-        write(lf,*) repeat('*',65)
-        write(lf,*) 'Entering FMAT routine called by MSCTL!'
-        write(lf,*) repeat('*',65)
-        write(lf,*) 'printing input matrices :'
-        write(lf,*) repeat('*',65)
-        Write(LF,*)
-        Write(LF,*) ' CMOs in FMAT'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
-         iOff=1
-         Do iSym = 1,nSym
-           iBas = nBas(iSym)
-           call wrtmat(CMO(ioff),iBas,iBas, iBas, iBas)
-           iOff = iOff + iBas*iBas
-         End Do
-
-         Write(LF,*)
-         Write(LF,*) ' PUVX in FMAT'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         call wrtmat(PUVX,1,nFint, 1, nFint)
-
-         Write(LF,*)
-         Write(LF,*) ' D1A in AO basis in FMAT'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         iOff = 1
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          call wrtmat(D1A(iOff),iBas,iBas, iBas, iBas)
-          iOff = iOff + iBas*iBas
-         End DO
-
-         Write(LF,*)
-         Write(LF,*) ' FI in AO-basis in FMAT'
-         Write(LF,*) ' --------------'
-         Write(LF,*)
-         iOff = 1
-         Do iSym = 1,nSym
-           iOrb = nOrb(iSym)
-           Call TriPrt(' ',' ',FI(iOff),iOrb)
-           iOff = iOff + (iOrb*iOrb+iOrb)/2
-         End Do
-
-         Write(LF,*)
-         Write(LF,*) ' FA in AO-basis in FMAT'
-         Write(LF,*) ' --------------'
-         Write(LF,*)
-         iOff = 1
-         Do iSym = 1,nSym
-           iOrb = nOrb(iSym)
-           Call TriPrt(' ',' ',FA(iOff),iOrb)
-           iOff = iOff + (iOrb*iOrb+iOrb)/2
-         End Do
-       End If
 
 !************************************************************
 ! Here we should start the real work!
@@ -139,39 +79,19 @@ C Local print level (if any)
       Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
       Call Fold(nSym,nBas,D1A,Tmp1)
 
+      ! Active-Active contribution to ECAS
+      VAA = 0.5D0*ddot_(nTot1,FA,1,Tmp1,1)
+
 !     Inactive-active contribution to ECAS
       VIA=dDot_(nTot1,FI,1,Tmp1,1)
-      ECAS=EMY+VIA
+      ECAS = EMY + VIA + VAA
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
         Write(LF,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
+        Write(LF,'(A,ES20.10)') ' active-active interaction:  ',VAA
         Write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
       End If
       Call mma_deallocate(Tmp1)
-
-!     print FI and FA
-      If ( iPrLev.ge.DEBUG ) then
-        Write(LF,*)
-        Write(LF,*) ' FI in AO-basis in fmat'
-        Write(LF,*) ' --------------'
-        Write(LF,*)
-        iOff = 1
-        Do iSym = 1,nSym
-          iOrb = nOrb(iSym)
-          Call TriPrt(' ',' ',FI(iOff),iOrb)
-          iOff = iOff + (iOrb*iOrb+iOrb)/2
-        End Do
-        Write(LF,*)
-        Write(LF,*) ' FA in AO-basis in fmat'
-        Write(LF,*) ' --------------'
-        Write(LF,*)
-        iOff = 1
-        Do iSym = 1,nSym
-          iOrb = nOrb(iSym)
-          Call TriPrt(' ',' ',FA(iOff),iOrb)
-          iOff = iOff + (iOrb*iOrb+iOrb)/2
-        End Do
-      End If
 
 !     transform FI from AO to MO basis
       iOff1 = 1

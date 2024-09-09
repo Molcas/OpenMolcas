@@ -366,7 +366,7 @@
       End If
 
         !Mainly just sets ECAS to core +inactive
-         Call Fmat_m(CMO,PUVX,D1ActAO,Focki,FockA)
+         Call Fmat_m(CMO,D1ActAO,Focki,FockA)
 
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
@@ -389,6 +389,8 @@
          CALL mma_allocate(FOCK,NTOT4,Label='FOCK')
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
 
+        ! This computes the 2-body interaction term (and updates)
+        ! ECAS will have the correct value..
          CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
          Call mma_deallocate(Q)
 

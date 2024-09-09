@@ -131,16 +131,13 @@ c
         ECAS0=ECAS
         DO NT=1,NAO
          NTT=(NT-1)*NO+NIO+NT
-         ECAS=ECAS+0.5D0*Q(NTT)
+!          ECAS=ECAS+0.5D0*Q(NTT)
          HALFQ1=HALFQ1+0.5D0*Q(NTT)
          E2act=E2act+0.5D0*Q(NTT)
         END DO
-      IF(IPRLEV.ge.DEBUG) THEN
-        write(6,*) 'Two-electron contribution (Q term):', ECAS-ECAS0
-      END IF
-*
-c       Fock matrix
-c
+
+
+!       Fock matrix
         NTM=0
         DO NT=1,NAO
          DO NM=1,NO
@@ -158,7 +155,7 @@ c
        ENDIF
 
 ! Unknown below
-c
+
 90     CONTINUE
        ISTFCK=ISTFCK+NO**2
        ISTFP=ISTFP+NO2
@@ -169,8 +166,8 @@ c
        CBLB(ISYM)=CSX
        IBLB(ISYM)=N1
        JBLB(ISYM)=N2
-c
-* End of long loop over symmetry
+
+! End of long loop over symmetry
       END DO
 
       If ( iPrLev.ge.DEBUG ) then
@@ -181,12 +178,6 @@ c
            Call RecPrt(' ',' ',F(ipFMCSCF),nOr,nOr)
            ipFMCSCF=ipFMCSCF+nOr*nOr
         End Do
-      End If
-
-      If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*)
-         Write(LF,*) ' >>> Exit Fock <<< '
-         Write(LF,*)
       End If
 
       END SUBROUTINE FOCK_m
