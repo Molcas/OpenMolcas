@@ -58,8 +58,6 @@
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
       integer iJOB,dmDisk,iP2d
-      integer itmp1,itmp2,itmp3,itmp4
-      integer itmp5,itmp6,itmp7,itmpn,itmpk,itmpa
       integer ifocka
       integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
@@ -71,7 +69,10 @@
       integer isym,iash,jsym
       integer, External:: IsFreeUnit
 
-      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:), Tmp0(:)
+      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:), Tmp0(:),
+     &                      Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:),
+     &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
+     &                      Tmpk(:), Tmpa(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -114,13 +115,13 @@ C Local print level (if any)
 * Load bare nuclei Hamiltonian
 ! This is h_pq but in the AO basis (so h_{mu, nu})
 ***********************************************************
-      Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
+      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
@@ -132,35 +133,35 @@ C Local print level (if any)
         Write(LF,*) ' OneHam in AO basis in CASDFT_Terms'
         Write(LF,*) ' ---------------------'
         Write(LF,*)
-        iOff=0
+        iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
 
-      Call GetMem('Kincore','Allo','Real',iTmpk,nTot1)
-c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
+      Call mma_allocate(Tmpk,nTot1,Label='Tmpk')
+c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Kinetic '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpk),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmpk,iSyLbl)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
         Write(LF,*) 'iRc = ',iRc
         Call Abend
       Endif
-      Call GetMem('NucElcore','Allo','Real',iTmpn,nTot1)
+      Call mma_allocate(Tmpn,nTot1,Label='Tmpn')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Attract '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpn),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmpn,iSyLbl)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
@@ -204,8 +205,8 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       Call GetMem('D1Spin','Allo','Real',iD1Spin,NACPAR)
       Call GetMem('D1SpinAO','Allo','Real',iD1SpinAO,NTOT2)
 
-      Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)
-      Call GetMem('DtmpA','Allo','Real',iTmp4,nTot1)
+      Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
+      Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
       Call GetMem('P2','Allo','Real',iP2d,NACPR2)
 
 
@@ -250,8 +251,8 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
         Call Fzero(Work(iD1ActAO),NTOT2)
         Call Fzero(Work(iD1Spin),NACPAR)
         Call Fzero(Work(iD1SpinAO),NTOT2)
-        Call Fzero(Work(iTmp3),nTot1)
-        Call Fzero(Work(iTmp4),nTot1)
+        Tmp3(:)=0.0D0
+        Tmp4(:)=0.0D0
         Call Fzero(Work(iP2d),NACPR2)
 
 !Get the D1 Active matrix for this state.  These should probably be
@@ -316,26 +317,26 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       end if
 !END _RIGHT HERE
 *
-         Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
-         Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
+         Call Fold(nSym,nBas,Work(iD1I),Tmp3)
+         Call Fold(nSym,nBas,Work(iD1ActAO),Tmp4)
 *
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
-         Call Dcopy_(nTot1,Work(iTmp4),1,DIDA(:,iIntS),1)
+         Call Dcopy_(nTot1,Tmp4,1,DIDA(:,iIntS),1)
          if (iIntS.eq.lRoots)
-     &   Call Dcopy_(ntot1,Work(iTmp3),1,DIDA(:,lRoots+1),1)
+     &   Call Dcopy_(ntot1,Tmp3,1,DIDA(:,lRoots+1),1)
       end if
-         Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
+         Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
-         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
+         Call Put_dArray('D1ao',Tmp3,nTot1)
          IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
-          Call DCopy_(nTot1,Work(iTmp3),1,D1AOMS(:,jRoot),1)
+          Call DCopy_(nTot1,Tmp3,1,D1AOMS(:,jRoot),1)
          END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1ao'
          do i=1,ntot1
-           write(6,*) work(itmp3-1+i)
+           write(6,*) tmp3(i)
          end do
 cPS         call xflush(6)
       end if
@@ -350,20 +351,20 @@ cPS         call xflush(6)
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
          Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
-         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
-         Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_dArray('D1sao',Work(iTmp7),nTot1)
+         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
+         Call Fold(nSym,nBas,Work(iD1SpinAO),Tmp7)
+         Call Put_dArray('D1sao',Tmp7,nTot1)
          IF(iSpin.ne.1.and. mcpdft_options%grad
      &      .and.mcpdft_options%mspdft) THEN
-         Call DCopy_(nTot1,Work(iTmp7),1,D1SAOMS(:,jRoot),1)
+         Call DCopy_(nTot1,Tmp7,1,D1SAOMS(:,jRoot),1)
          END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1so'
          do i=1,ntot1
-           write(6,*) work(itmp7-1+i)
+           write(6,*) tmp7(i)
          end do
       end if
-         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
+         Call mma_deallocate(Tmp7)
 
 
 ***********************************************************
@@ -374,10 +375,10 @@ cPS         call xflush(6)
 !doing redundant transformations by retransforming AOs (which may have
 !been included in a previous batch) into MOs.
 *
-        Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
-        Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp5),1)
-        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp6),1)
+        Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
+        Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
+        Tmp5(:)=0.0D0
+        Tmp6(:)=0.0D0
 *
         First=.True.
         Dff=.False.
@@ -389,7 +390,7 @@ cPS         call xflush(6)
 
         iCharge=Int(Tot_Charge)
 
-c iTmp5 and iTmp6 are not updated in DrvXV...
+c Tmp5 and Tmp6 are not updated in DrvXV...
                    NTU=0
                    ITU=0
                    IADD=0
@@ -451,49 +452,48 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         CALL GETMEM('TE_POTG','FREE','REAL',LTEOTPG,NFINT)
       end if
 
-        Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
+        Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
      &             Work(iD1I),Work(iD1ActAO),
      &             nTot1,DFTFOCK,Do_DFT)
 
 
-        Call Daxpy_(nTot1,1.0d0,Work(iTmp5),1,Work(iTmp1),1)
-        Call Daxpy_(nTot1,1.0d0,Work(iTmp6),1,FockI,1)
+        Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
+        Call Daxpy_(nTot1,1.0d0,Tmp6,1,FockI,1)
 
-        Call GetMem('gtmp','Free','Real',iTmp6,nTot1)
-        Call GetMem('htmp','Free','Real',iTmp5,nTot1)
+        Call mma_deallocate(Tmp6)
+        Call mma_deallocate(Tmp5)
 
 !
 ***********************************************************
 *     Compute energy contributions
 ***********************************************************
-      iTmp2=0
-      Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
+      Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
-      Call Fold(nSym,nBas,Work(iD1I),Work(iTmp2))
+      Call Fold(nSym,nBas,Work(iD1I),Tmp2)
 c         call xflush(6)
 
-      Call GetMem('DoneA','Allo','Real',iTmpa,nTot1)
+      Call mma_allocate(Tmpa,nTot1,Label='Tmpa')
 c         call xflush(6)
-      Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmpa))
+      Call Fold(nSym,nBas,Work(iD1ActAO),Tmpa)
 c         call xflush(6)
 *
-      Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
+      Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
-      Etwo = dDot_(nTot1,Work(iTmp2),1,FockI,1)
+      Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
 
 !**************Kinetic energy of inactive electrons********
-      Ekin = dDot_(nTot1,Work(iTmp2),1,Work(iTmpk),1)
+      Ekin = dDot_(nTot1,Tmp2,1,Tmpk,1)
 
 !*****Nuclear electron attraction for inactive electrons******
-      Enuc = dDot_(nTot1,Work(iTmp2),1,Work(iTmpn),1)
+      Enuc = dDot_(nTot1,Tmp2,1,Tmpn,1)
 
 c**************Kinetic energy of active electrons*********
-      EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
+      EactK = dDot_(nTot1,Tmpk,1,Tmpa,1)
 
-      EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
+      EactN = dDot_(nTot1,Tmpn,1,Tmpa,1)
 c         call xflush(6)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
@@ -532,7 +532,7 @@ c         call xflush(6)
         End Do
       End If
 
-      Call DaXpY_(nTot1,One,Work(iTmp1),1,FockI,1)
+      Call DaXpY_(nTot1,One,Tmp1,1,FockI,1)
 
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -1126,8 +1126,8 @@ cPS         call xflush(6)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
       !end if
 
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
-      Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmpa)
       CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
@@ -1163,13 +1163,13 @@ cPS         call xflush(6)
          If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
          Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
 
-         Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
-         Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
-         Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
+         Call Fold(nSym,nBas,Work(iD1I),Tmp3)
+         Call Fold(nSym,nBas,Work(iD1ActAO),Tmp4)
+         Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
+         Call Put_dArray('D1ao',Tmp3,nTot1)
 !         write(6,*) 'd1ao'
 !         do i=1,ntot1
-!           write(6,*) work(itmp3-1+i)
+!           write(6,*) tmp3(i)
 !         end do
 
 !Get the spin density matrix for open shell cases
@@ -1184,14 +1184,14 @@ cPS         call xflush(6)
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
          Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
-         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
-         Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_dArray('D1Sao',Work(iTmp7),nTot1)
+         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
+         Call Fold(nSym,nBas,Work(iD1SpinAO),Tmp7)
+         Call Put_dArray('D1Sao',Tmp7,nTot1)
 !         write(6,*) 'd1so'
 !         do i=1,ntot1
-!           write(6,*) work(itmp7-1+i)
+!           write(6,*) tmp7(i)
 !         end do
-         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
+         Call mma_deallocate(Tmp7)
 
 
 
@@ -1204,21 +1204,21 @@ cPS         call xflush(6)
       end if
 
 !Free up all the memory we can here, eh?
-      Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)
-      Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
+      Call mma_deallocate(Tmp4)
+      Call mma_deallocate(Tmp3)
 
       Call GetMem('D1Active','free','Real',iD1Act,NACPAR)
       Call GetMem('D1ActiveAO','free','Real',iD1ActAO,NTOT2)
       Call GetMem('D1Spin','free','Real',iD1Spin,NACPAR)
       Call GetMem('D1SpinAO','free','Real',iD1SpinAO,NTOT2)
-      Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
+      Call mma_deallocate(Tmp1)
       Call mma_deallocate(FockI)
       Call GetMem('FockA','FREE','Real',ifocka,ntot1)
 *      Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       Call GetMem('P2','Free','Real',iP2d,NACPR2)
       Call GetMem('D1Inact','Free','Real',iD1i,NTOT2)
-      Call GetMem('Kincore','free','Real',iTmpk,nTot1)
-      Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
+      Call mma_deallocate(Tmpk)
+      Call mma_deallocate(Tmpn)
 c      call xflush(6)
 
       END Subroutine MSCtl
