@@ -28,7 +28,7 @@
 
       INTEGER ij,iS,jRoot,iBas,jBas
       Real*8 RIK2
-      real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
+      real(kind=wp), dimension(lroots,lroots), intent(in) :: si_pdft
 
 ******* Functions added by Paul Calio for MECI Opt *****
 ******* Original calls are in slapaf_util/start_alasaks.f
@@ -45,7 +45,7 @@
 ****** End of stuff added by Paul
 
 
-      Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:),   lRoots**2)
+      Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:,:),   lRoots**2)
       CALL Put_DArray('F1MS            ',F1MS(:,:),  nTot1*nRoots)
       CALL Put_DArray('F2MS            ',F2MS(:,:), NACPR2*nRoots)
       CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:), nTot1*nRoots)
@@ -56,7 +56,7 @@
 **********Fock_Occ Part
       FockOcc(:)=0.0D0
       DO JRoot=1,lRoots
-      call daXpY_(ntot1,si_pdft((irlxroot-1)*lroots+jroot)**2,
+      call daXpY_(ntot1,si_pdft(jroot,irlxroot)**2,
      &           FocMS(:,JRoot),1,FockOcc,1)
       END DO
       Call Put_dArray('FockOcc',FockOcc,ntot1)
@@ -78,17 +78,17 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-      RIK2=si_pdft((irlxroot-1)*lroots+1)**2
+      RIK2=si_pdft(1,irlxroot)**2
       CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
       CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
       CALL DScal_(NACPR2,RIK2,P2MOt(:,1),1)
       ij=0
       jRoot=1
       ! for the comment below, lhrot -> si_pdft
-********Work(LHRot+(iRlxRoot-1)*lRoots) should give me R_I1
+********LHRot(1,iRlxRoot) should give me R_I1
       Do jRoot=2,lRoots
       ij=0
-       RIK2=si_pdft((irlxroot-1)*lroots+jroot)**2
+       RIK2=si_pdft(jroot,irlxroot)**2
 *******DIDA for prepp
        CALL DaXpY_(nTot1,-RIK2,DIDA(:,jRoot),1,DIDA(:,1),1)
 *******FT99 for bk
