@@ -59,7 +59,7 @@
       integer IAD19
       integer iJOB,dmDisk
       integer IADR19(1:30)
-      integer LP,NQ,LQ,LPUVX
+      integer LP,NQ,LQ
       integer  LOEOTP
       integer jroot
       real*8,dimension(1:nroots) :: Energies
@@ -73,7 +73,7 @@
      &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
      &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
-     &                      D1Spin(:), P2D(:)
+     &                      D1Spin(:), P2D(:), PUVX(:), P2t(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -217,17 +217,18 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
 ************************************************************************
 * load back two-electron integrals (pu!vx)
 ************************************************************************
-      lPUVX = 1
 
       If ( nFint.gt.0) then
+        Call mma_allocate(PUVX,nFint,Label='PUVX')
         iDisk = 0
-        Call GetMem('PUVX','Allo','Real',lPUVX,nFint)
-        Call DDaFile(LUINTM,2,Work(lPUVX),nFint,iDisk)
+        Call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
+      Else
+        Call mma_allocate(PUVX,1,Label='PUVX')
       End If
 
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'PUVX integrals in msctl'
-        call wrtmat(Work(lPUVX),1,nFInt,1,nFInt)
+        call wrtmat(PUVX,1,nFInt,1,nFInt)
       END IF
 
 
@@ -266,11 +267,11 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
           if(mcpdft_options%mspdft) then
             Call P2_contraction(D1Act,P2MOt(:,jroot))
           else if (jroot .eq. irlxroot) then
-            Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
-            Call FZero(Work(ip2dt1),Nacpr2)
-            Call P2_contraction(D1Act,Work(iP2dt1))
-            Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
-            Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
+            Call mma_allocate(P2t,NACPR2,Label='P2t')
+            P2t(:)=0.0D0
+            Call P2_contraction(D1Act,P2t)
+            Call Put_dArray('P2MOt',P2t,NACPR2)
+            Call mma_deallocate(P2t)
           end if
         end if
 
@@ -580,9 +581,9 @@ c         call xflush(6)
             do i=1,ntot2
               write(6,*) work(lcmo-1+i)
             end do
-            write(6,*) 'lpuvx before tractl'
+            write(6,*) 'puvx before tractl'
             do i=1,nfint
-              write(6,*) work(lpuvx-1+i)
+              write(6,*) puvx(i)
             end do
             write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
@@ -671,9 +672,9 @@ c         call xflush(6)
             do i=1,ntot2
               write(6,*) work(lcmo-1+i)
             end do
-            write(6,*) 'lpuvx after tractl'
+            write(6,*) 'puvx after tractl'
             do i=1,nfint
-              write(6,*) work(lpuvx-1+i)
+              write(6,*) puvx(i)
             end do
             write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
@@ -725,7 +726,7 @@ c         call xflush(6)
 *        Call dcopy_(ntot1,FA,1,FockA,1)
 *        end if
 *
-         Call Fmat_m(CMO,Work(lPUVX),D1Act,D1ActAO,
+         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,
      &             Work(iFockI_save),FockA)
         call  dcopy_(ntot1,work(ifocki_save),1,FockI,1)
 *        call  dcopy_(nacpar,work(id1act_FA),1,d1act,1)
@@ -780,7 +781,7 @@ c         call xflush(6)
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
          CALL FOCK_m(WORK(LFOCK),BM,FockI,FockA,
-     &               D1Act,WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
+     &               D1Act,WORK(LP),WORK(LQ),PUVX,IFINAL,CMO)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',FockOcc,ntot1)
 !END TMP TEST
@@ -862,8 +863,8 @@ cPS         call xflush(6)
         end do
         write(6,*) 'Two-electron potentials'
         do i=1,nfint
-          if (abs(work(lpuvx-1+i)).ge.1d-10)then
-            write(6,*) Work(iptmplteotp-1+i),work(lpuvx-1+i)
+          if (abs(puvx(i)).ge.1d-10)then
+            write(6,*) Work(iptmplteotp-1+i),puvx(i)
           end if
         end do
         end if
@@ -946,7 +947,7 @@ cPS         call xflush(6)
 !Write the TUVX teotp to file.q
 
 !      Call GetMem('ttTUVX2','Allo','Real',ittTUVX2,NACPR2)
-!      Call Get_TUVX(Work(lPUVX),Work(ittTUVX2))
+!      Call Get_TUVX(PUVX,Work(ittTUVX2))
 !      write(6,*) 'TUVX'
 !      do i=1,nacpr2
 !      write(6,*) work(ittTUVX2-1+i)
@@ -957,7 +958,7 @@ cPS         call xflush(6)
       Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
       CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
       Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
-      !Call Get_TUVX(Work(lpuvx),Work(ittTUVX))
+      !Call Get_TUVX(puvx,Work(ittTUVX))
 
       !Unpack TUVX to size
       do i=1,nacpr2
@@ -1111,7 +1112,7 @@ cPS         call xflush(6)
 *      Hopefully this code will be neater.
        call savefock_pdft(CMO,FockI,FockA,D1Act,
      &                    Work(LFock),
-     &                    Work(LP),NQ,Work(lPUVX),p2d,jroot)
+     &                    Work(LP),NQ,PUVX,p2d,jroot)
       end if
 
 
@@ -1195,9 +1196,7 @@ cPS         call xflush(6)
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
       end if
 
-      if (nFint.gt.0) then
-        Call GetMem('PUVX','FREE','Real',lPUVX,nFint)
-      end if
+      Call mma_deallocate(PUVX)
 
 !Free up all the memory we can here, eh?
       Call mma_deallocate(Tmp4)
