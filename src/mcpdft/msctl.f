@@ -827,13 +827,13 @@ cPS         call xflush(6)
 
 !I will read in the one- and two-electron potentials here
 
-      Call GetMem('ONTOPT','ALLO','Real',ipTmpLTEOTP,nfint)
+      Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
+      OnTopT(:)=0.0D0
       Call GetMem('ONTOPO','ALLO','Real',ipTmpOE_POT,ntot1)
-      Call FZero(Work(iptmplteotp),Nfint)
       Call FZero(Work(iptmpOE_POT),ntot1)
 
 
-      Call Get_dArray('ONTOPT',work(ipTmpLTEOTP),NFINT)
+      Call Get_dArray('ONTOPT',OnTopT,NFINT)
       Call Get_dArray('ONTOPO',work(ipTmpOE_POT),NTOT1)
 !
         If ( IPRLEV.ge.DEBUG ) then
@@ -844,7 +844,7 @@ cPS         call xflush(6)
         write(6,*) 'Two-electron potentials'
         do i=1,nfint
           if (abs(puvx(i)).ge.1d-10)then
-            write(6,*) Work(iptmplteotp-1+i),puvx(i)
+            write(6,*) OnTopT(i),puvx(i)
           end if
         end do
         end if
@@ -937,7 +937,7 @@ cPS         call xflush(6)
 
       Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
       CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
-      Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
+      Call Get_TUVX(OnTopT,Work(ittTUVX))
       !Call Get_TUVX(puvx,Work(ittTUVX))
 
       !Unpack TUVX to size
@@ -953,10 +953,10 @@ cPS         call xflush(6)
 !This next part is to generate the MC-PDFT generalized fock operator.
 
 
-!      CALL DCOPY_(nFint,[0.0D0],0,WORK(ipTmpLTEOTP),1)
+!      CALL DCOPY_(nFint,[0.0D0],0,OnTopT,1)
 !      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpOE_POT),1)
 !        write(6,*) 'ONTOPT'
-!        call wrtmat(Work(ipTmpLTEOTP),1,nFInt,1,nFInt)
+!        call wrtmat(OnTopT,1,nFInt,1,nFInt)
 !        write(6,*) 'ONTOPO'
 !        call wrtmat(Work(ipTmpOE_POT),1,ntot1,1,ntot1)
 
@@ -976,7 +976,7 @@ cPS         call xflush(6)
 
 !         Call Dscal_(ntot1,0.5d0,FI_V,1)
 !         Call Dscal_(ntot1,0.5d0,FA_V,1)
-      !Call Dscal_(nfint,-0.5d0,Work(ipTmpLTEOTP),1)
+      !Call Dscal_(nfint,-0.5d0,OnTopT,1)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "extra terms to update FI"
       do i=1,ntot1
@@ -1032,7 +1032,7 @@ cPS         call xflush(6)
          CALL mma_allocate(BM,NSXS,Label='BM')
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
          CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
-     &                    Q,WORK(ipTmpLTEOTP),IFINAL,CMO)
+     &                    Q,OnTopT,IFINAL,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
         If ( IPRLEV.ge.DEBUG ) then
@@ -1046,7 +1046,7 @@ cPS         call xflush(6)
          Call mma_deallocate(BM)
          Call mma_deallocate(Q)
       Call GetMem('ONTOPO','FREE','Real',ipTmpOE_POT,ntot1)
-      Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
+      Call mma_deallocate(ONTOPT)
 
 
 !Put some information on the runfile for possible gradient calculations.
