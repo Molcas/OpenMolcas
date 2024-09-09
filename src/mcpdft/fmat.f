@@ -236,10 +236,6 @@ C Local print level (if any)
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
-!***********************************************************************
-!     update Fock matrix
-      Call Upd_FA_m(PUVX,FA,D,ExFac)
-
 !     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,*)
