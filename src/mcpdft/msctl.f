@@ -76,7 +76,7 @@
      &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
-     &                      FOne(:)
+     &                      FOne(:), FA_t(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -829,17 +829,17 @@ cPS         call xflush(6)
 
       Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
       OnTopT(:)=0.0D0
-      Call GetMem('ONTOPO','ALLO','Real',ipTmpOE_POT,ntot1)
-      Call FZero(Work(iptmpOE_POT),ntot1)
+      Call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
+      OnTopO(:)=0.0D0
 
 
       Call Get_dArray('ONTOPT',OnTopT,NFINT)
-      Call Get_dArray('ONTOPO',work(ipTmpOE_POT),NTOT1)
+      Call Get_dArray('ONTOPO',OnTopO,NTOT1)
 !
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'One-electron potentials'
         do i=1,ntot1
-          write(6,*) Work(iptmpOE_POT-1+i)
+          write(6,*) OnTopO(i)
         end do
         write(6,*) 'Two-electron potentials'
         do i=1,nfint
@@ -879,7 +879,7 @@ cPS         call xflush(6)
 
       !Call daxpy_(ntot1,0.5d0,FI_V,1,FockA,1)
       Call daxpy_(ntot1,1.0d0,FI_V,1,FockA,1)
-      Call daxpy_(ntot1,1.0d0,Work(iptmpOE_POT),1,FockA,1)
+      Call daxpy_(ntot1,1.0d0,OnTopO,1,FockA,1)
 
 
       i_off1=1
@@ -954,11 +954,11 @@ cPS         call xflush(6)
 
 
 !      CALL DCOPY_(nFint,[0.0D0],0,OnTopT,1)
-!      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpOE_POT),1)
+!      CALL DCOPY_(ntot1,[0.0D0],0,OnTopO,1)
 !        write(6,*) 'ONTOPT'
 !        call wrtmat(OnTopT,1,nFInt,1,nFInt)
 !        write(6,*) 'ONTOPO'
-!        call wrtmat(Work(ipTmpOE_POT),1,ntot1,1,ntot1)
+!        call wrtmat(OnTopO,1,ntot1,1,ntot1)
 
 !Zero out the matrices.  We will be adding the potential-containing
 !terms as a correction to the Focc component already on the runfile.
@@ -991,20 +991,20 @@ cPS         call xflush(6)
         end if
 
         If ( IPRLEV.ge.DEBUG ) then
-      CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
-      Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpOE_POT),1,Work(ifat),1)
-      Call daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifat),1)
-      Call daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifat),1)
+      CALL mma_allocate(FA_t,Ntot1,Label='FA_t')
+      FA_t(:)=0.0D0
+      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FA_t,1)
+      Call daxpy_(NTOT1,1.0D0,FI_V,1,FA_t,1)
+      Call daxpy_(NTOT1,1.0D0,FA_V,1,FA_t,1)
       write(6,*) "Total F additions:"
-      Call TriPrt(' ','(5G18.10)',Work(ifat),norb(1))
-      CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
+      Call TriPrt(' ','(5G18.10)',FA_t,norb(1))
+      CALL mma_deallocate(FA_t)
         end if
 
 
 
       !Add one e potential, too.
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpOE_POT),1,FockI,1)
+      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FockI,1)
       !Add two e potentials
       Call daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
       Call daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
@@ -1045,7 +1045,7 @@ cPS         call xflush(6)
 
          Call mma_deallocate(BM)
          Call mma_deallocate(Q)
-      Call GetMem('ONTOPO','FREE','Real',ipTmpOE_POT,ntot1)
+      Call mma_deallocate(ONTOPO)
       Call mma_deallocate(ONTOPT)
 
 
