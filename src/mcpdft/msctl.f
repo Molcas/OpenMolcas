@@ -477,29 +477,14 @@
       i_off2=1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
-!        iAct = nAsh(iSym)
-!        iIsh = nIsh(iSym)
-
-      !FI + FA + V_oe
-
         do i=1,iBas
           do j=1,i
-!            if (i.gt.iIsh.and.j.gt.iIsh) then
-!              if(i.le.iAct+iIsh.and.j.le.iAct+iIsh) then
-                Fone(i_off1) = fone(i_off1) + FockA(i_off2)
-                i_off1 = i_off1 + 1
-!              end if
-!            end if
+            Fone(i_off1) = fone(i_off1) + FockA(i_off2)
+            i_off1 = i_off1 + 1
             i_off2 = i_off2 + 1
           end do
         end do
       end do
-        If ( IPRLEV.ge.DEBUG ) then
-      write(6,*) 'F1 to send'
-      do i=1,NTOT1
-        write(6,*) Fone(i)
-      end do
-        end if
 
       !Add the V_kktu contribution to Fone_tu?
 !STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -538,24 +523,16 @@
 !debugged.
       CALL mma_allocate(FA_V,Ntot1,Label='FA_V')
       Call Get_dArray('FA_V',FA_V,NTOT1)
-!         Call Dscal_(nTOT1,4.0d0,FA_V),1)
-      !FA_V(2) = 0d0
 
-
-!         Call Dscal_(ntot1,0.5d0,FI_V,1)
-!         Call Dscal_(ntot1,0.5d0,FA_V,1)
-      !Call Dscal_(nfint,-0.5d0,OnTopT,1)
-        If ( IPRLEV.ge.DEBUG ) then
+      If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "extra terms to update FI"
       do i=1,ntot1
-      write(6,*) FI_V(i)
+        write(6,*) FI_V(i)
       end do
-      !Call TriPrt(' ','(5G18.10)',FI_V,norb(1))
       write(6,*) "extra terms to update FA"
       do i=1,ntot1
-      write(6,*) FA_V(i)
+        write(6,*) FA_V(i)
       end do
-      !Call TriPrt(' ','(5G18.10)',FA_V,norb(1))
         end if
 
         If ( IPRLEV.ge.DEBUG ) then
@@ -576,12 +553,6 @@
       !Add two e potentials
       Call daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
       Call daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
-        If ( IPRLEV.ge.DEBUG ) then
-      write(6,*) "new FI"
-      Call TriPrt(' ','(5G18.10)',FockI,norb(1))
-      write(6,*) "new FA"
-      Call TriPrt(' ','(5G18.10)',FockA,norb(1))
-        end if
 
       CALL mma_deallocate(FI_V)
       CALL mma_deallocate(FA_V)
@@ -599,13 +570,6 @@
      &                    Q,OnTopT,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
-        If ( IPRLEV.ge.DEBUG ) then
-        write(6,*) 'FOCC_OCC'
-        call wrtmat(FockOcc,1,ntot1,1,ntot1)
-
-
-      write(6,*) 'DONE WITH NEW FOCK OPERATOR'
-        end if
 
          Call mma_deallocate(BM)
          Call mma_deallocate(Q)
@@ -618,20 +582,14 @@
       Call Put_dArray('Last energies',Energies,nroots)
       Call Put_cArray('Relax Method','MCPDFT  ',8)
       Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
-      iSA = 1
 
 
 !Put information needed for geometry optimizations.
 !need to do MCLR for gradient runs. (1 to run, 2 to skip)
-          iSA = 1
-       !MUST MODIFY THIS.  I need to check that the calculation is not
-       !SA, and if it is, set iSA to -1.
+      iSA = 1
       Call Put_iScalar('SA ready',iSA)
       Call Put_cArray('MCLR Root','****************',16)
       Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
-      !end if
-
-
 
       end if
 
@@ -645,11 +603,6 @@
 
     ! this allocation/deallocation could be done outside the root loop
       call mma_deallocate(puvx)
-
-      Call Put_iScalar('Number of roots',nroots)
-      Call Put_dArray('Last energies',Energies,nroots)
-      Call Put_cArray('Relax Method','MCPDFT  ',8)
-      Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
 
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(FOCK)
