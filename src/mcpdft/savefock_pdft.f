@@ -44,7 +44,6 @@
 ******Auxiliary Variables
       INTEGER i_off1,isym
       INTEGER iPrLev
-      Integer, External:: isfreeunit
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
       Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:)

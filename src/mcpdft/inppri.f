@@ -34,16 +34,18 @@
       use Fock_util_global, only: docholesky
       use rctfld_module
       use mcpdft_input, only: mcpdft_options
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "WrkSpc.fh"
-      Character*8   Fmt1,Fmt2, Label
-      Character*120  Line,BlLine,StLine
-      Character*3 lIrrep(8)
+      Character(LEN=8)   Fmt1,Fmt2, Label
+      Character(LEN=120)  Line,BlLine,StLine
+      Character(LEN=3) lIrrep(8)
+
+      Real*8, Allocatable:: Tmp0(:)
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -232,21 +234,21 @@ C.. for RAS
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        If ( lRF ) then
-         Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+         Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
          iRc=-1
          iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'
-         Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-         Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+         Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+         Tot_Nuc_Charge=Tmp0(nTot1+4)
          If ( iRc.ne.0 ) then
             Write(LF,*) 'InpPri: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
             Call Abend
          Endif
-         Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+         Call mma_deallocate(Tmp0)
          Tot_El_Charge=Zero
          Do iSym=1,nSym
             Tot_El_Charge=Tot_El_Charge
