@@ -453,6 +453,7 @@
 
       Contains
       subroutine close_files()
+      Integer I
       call close_files_mcpdft()
       DO I=10,99
         INQUIRE(UNIT=I,OPENED=IfOpened)
