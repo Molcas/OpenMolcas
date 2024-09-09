@@ -238,7 +238,7 @@ C Local print level (if any)
 
 !***********************************************************************
 !     update Fock matrix
-      ! Call Upd_FA_m(PUVX,FA,D,ExFac)
+      Call Upd_FA_m(PUVX,FA,D,ExFac)
 
 !     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
