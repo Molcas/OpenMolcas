@@ -62,7 +62,7 @@
       integer NQ
       integer jroot
       real*8,dimension(1:nroots) :: Energies
-      integer  i_off1,i_off2,ifone
+      integer  i_off1,i_off2
       integer isym,iash
       integer, External:: IsFreeUnit
 
@@ -72,10 +72,11 @@
      &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
-     &                      DtmpA_g(:), TE_POTG(:), OE_POT(:),
+     &                      DtmpA_g(:), OnTopT(:), OnTopO(:),
      &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
-     &                      P(:), P1(:), FOCK(:), Q(:), BM(:)
+     &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
+     &                      FOne(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -418,18 +419,18 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
 
         do_pdftPot=.true.
 
-        CALL mma_allocate(TE_POTG,NFINT,Label='TE_POTG')
-        TE_POTG(:)=0.0D0
-        CALL mma_allocate(OE_POT,NTOT1,Label='OE_POT')
-        OE_POT(:)=0.0D0
+        CALL mma_allocate(OnTopT,NFINT,Label='OnTopT')
+        OnTopT(:)=0.0D0
+        CALL mma_allocate(OnTopO,NTOT1,Label='OnTopO')
+        OnTopO(:)=0.0D0
 
-        Call Put_dArray('ONTOPO',OE_POT,NTOT1)
-        Call Put_dArray('ONTOPT',TE_POTG,NFINT)
-        Call Put_dArray('FI_V',OE_POT,NTOT1)
-        Call Put_dArray('FA_V',OE_POT,NTOT1)
+        Call Put_dArray('ONTOPO',OnTopO,NTOT1)
+        Call Put_dArray('ONTOPT',OnTopT,NFINT)
+        Call Put_dArray('FI_V',OnTopO,NTOT1)
+        Call Put_dArray('FA_V',OnTopO,NTOT1)
 
-        CALL mma_deallocate(OE_POT)
-        CALL mma_deallocate(TE_POTG)
+        CALL mma_deallocate(OnTopO)
+        CALL mma_deallocate(OnTopT)
       end if
 
         Call DrvXV(Tmp5,Tmp6,Tmp3,
@@ -860,8 +861,8 @@ cPS         call xflush(6)
       end do
         end if
 
-      Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
-      CALL DCOPY_(NTOT1,[0.0D0],0,WORK(iFone),1)
+      Call mma_allocate(Fone,NTOT1,Label='FOne')
+      FOne(:)=0.0D0
 
 !I think I need to generate FI, which will contain both the one-electron
 !potential contribution and the V_kkpu contribution.
@@ -881,7 +882,7 @@ cPS         call xflush(6)
       Call daxpy_(ntot1,1.0d0,Work(iptmpOE_POT),1,FockA,1)
 
 
-      i_off1=0
+      i_off1=1
       i_off2=1
 
 
@@ -896,7 +897,7 @@ cPS         call xflush(6)
           do j=1,i
 !            if (i.gt.iIsh.and.j.gt.iIsh) then
 !              if(i.le.iAct+iIsh.and.j.le.iAct+iIsh) then
-                Work(iFone+i_off1) = Work(ifone+i_off1) + FockA(i_off2)
+                Fone(i_off1) = fone(i_off1) + FockA(i_off2)
                 i_off1 = i_off1 + 1
 !              end if
 !            end if
@@ -907,7 +908,7 @@ cPS         call xflush(6)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) 'F1 to send'
       do i=1,NTOT1
-        write(6,*) work(iFone-1+i)
+        write(6,*) Fone(i)
       end do
         end if
 
@@ -920,7 +921,7 @@ cPS         call xflush(6)
       LUTMP=IsFreeUnit(LUTMP)
       Call Molcas_Open(LUTMP,'TmpFock')
       do i=1,ntot1
-        write(LUTMP,*) Work(iFone+i-1)
+        write(LUTMP,*) Fone(i)
       end do
 
 !Write the TUVX teotp to file.q
@@ -944,7 +945,7 @@ cPS         call xflush(6)
         write(LUTMP,*) Work(ittTUVX+i-1)
       end do
       Close(LUTMP)
-      Call GetMem('F_ONE','Free','Real',iFone,NTOT1)
+      Call mma_deallocate(FOne)
       Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
 
 
