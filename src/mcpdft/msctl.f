@@ -52,7 +52,7 @@
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
-     &                      P(:), P1(:), FOCK(:), Q(:)
+     &                      P(:), FOCK(:), Q(:)
       integer(kind=iwp) :: IAD19
       integer(kind=iwp) :: iJOB,dmDisk
       integer(kind=iwp) :: IADR19(1:30)
@@ -365,19 +365,9 @@
         End Do
       End If
 
-        !Mainly just sets ECAS to core +inactive
+! Sets ECAS to VIA + VAA + EMY
+! Also transforms FockI and FockA to MO basis
          Call Fmat_m(CMO,D1ActAO,Focki,FockA)
-
-         IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
-           CALL DmatDmat(D1Act,P)
-           CALL mma_allocate(P1,ISTORP(NSYM+1),Label='P1')
-           CALL PMAT_RASSCF(P2d,P1)
-         Else
-           CALL mma_allocate(P,1,Label='P')
-           CALL mma_allocate(P1,1,Label='P1')
-         END IF
-
 
          CASDFT_E = ECAS+CASDFT_Funct
 
@@ -409,7 +399,14 @@
 !
 !***********************************************************************
       if(mcpdft_options%grad) then
-! This computes the initial (MC-SCF) fock matrix (FOCK)
+        IF(ISTORP(NSYM+1).GT.0) THEN
+           call mma_allocate(P,ISTORP(NSYM+1),Label='P')
+           call DmatDmat(D1Act,P)
+        else 
+          call mma_allocate(P,1,Label='P')
+         END IF
+
+      ! This computes the initial (MC-SCF) fock matrix (FOCK)
          NQ=0
          NIAIA=0
          do ISYM=1,NSYM
@@ -572,6 +569,7 @@
       end if
 
       call mma_deallocate(fock)
+      call mma_deallocate(P)
 
       endif
 
@@ -579,8 +577,6 @@
       call mma_deallocate(puvx)
 
       Call mma_deallocate(Tmp2)
-      CALL mma_deallocate(P)
-      CALL mma_deallocate(P1)
       end do !loop over roots
 
       if(mcpdft_options%grad) then
