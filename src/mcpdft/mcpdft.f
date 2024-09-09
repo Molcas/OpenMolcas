@@ -66,7 +66,6 @@
 
       Implicit Real*8 (A-H,O-Z)
 
-#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
@@ -74,22 +73,21 @@
 #include "gas.fh"
 #include "timers.fh"
 #include "pamint.fh"
-      Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
-
       CHARACTER(Len=18)::MatInfo
-      INTEGER LUMS,IsFreeUnit
-      External IsFreeUnit
+      INTEGER LUMS
+      Integer, External:: IsFreeUnit
 
       Logical IfOpened
       Logical Found
 
-      external mcpdft_init
-      integer iRef_E,IAD19
+      external :: mcpdft_init
+      integer IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      real*8, allocatable :: PLWO(:)
+      Real*8, allocatable :: PLWO(:), TmpDMat(:), Ref_E(:), EList(:,:),
+     &                       HRot(:,:), PUVX(:)
       Logical DSCF
 
       Call StatusLine('MCPDFT:',' Just started.')
@@ -126,7 +124,8 @@
           write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
         End If
         IRETURN=iRc
-        GOTO 9990
+        call close_files()
+        Return
       End If
 
 
@@ -189,21 +188,21 @@
       ECAS   = 0.0d0
       Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
-      Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
-      call dcopy_(NACPAR,DMAT,1,Work(ipTmpDMAT),1)
+      Call mma_allocate(TmpDMAT,NACPAR,Label='TmpDMat')
+      call dcopy_(NACPAR,DMAT,1,TmpDMAT,1)
       If (NASH(1).ne.NAC) then
-        Call DBLOCK(Work(ipTmpDMAT))
+        Call DBLOCK(TmpDMAT)
       end if
-      Call Get_D1A_RASSCF(CMO,Work(ipTmpDMAT),D1A)
-      Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
+      Call Get_D1A_RASSCF(CMO,TmpDMAT,D1A)
+      Call mma_deallocate(TmpDMAT)
 
 !AMS start-
 ! - Read in the CASSCF Energy from JOBIPH file.  These values are not
 ! used in calculations, but are merely reprinted as the reference energy
 ! for each calculated MC-PDFT energy.
       iJOB=0
-      Call GetMem('REF_E','ALLO','REAL',iRef_E,lroots)
-      Call Fzero(Work(iRef_E),lroots)
+      Call mma_allocate(Ref_E,lroots,Label='Ref_E')
+      Ref_E(:)=0.0D0
         Call f_Inquire('JOBOLD',Found)
         if (.not.found) then
           Call f_Inquire('JOBIPH',Found)
@@ -221,13 +220,13 @@
       Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
       jdisk = IADR19(6)
 !I must read from the 'old' JOBIPH file.
-      Call GetMem('ELIST','ALLO','REAL',iEList,MXROOT*MXITER)
-      Call DDaFile(JOBOLD,2,Work(iEList),MXROOT*MXITER,jdisk)
+      Call mma_allocate(EList,MXROOT,MXITER,Label='EList')
+      Call DDaFile(JOBOLD,2,EList,MXROOT*MXITER,jdisk)
       NMAYBE=0
       DO IT=1,MXITER
         AEMAX=0.0D0
         DO I=1,MXROOT
-          E=WORK(iEList+MXROOT*(IT-1)+(I-1))
+          E=EList(I,IT)
           AEMAX=MAX(AEMAX,ABS(E))
         END DO
         IF(ABS(AEMAX).LE.1.0D-12) GOTO 11
@@ -261,14 +260,12 @@
         write(lf,'(6X,A)')'calculation.'
         write(lf,*)
         END IF
-        NHRot=lroots**2
-        CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
+        CALL mma_allocate(HRot,lroots,lroots,Label='HRot')
         LUMS=12
         LUMS=IsFreeUnit(LUMS)
         CALL Molcas_Open(LUMS,'ROT_HAM')
         Do Jroot=1,lroots
-          read(LUMS,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-     &                 ,kroot=1,lroots)
+          read(LUMS,*) (HRot(Jroot,kroot), kroot=1,lroots)
         End Do
         Read(LUMS,'(A18)') MatInfo
         MSPDFTMethod=' MS-PDFT'
@@ -290,17 +287,15 @@
         END IF
         Close(LUMS)
         do KROOT=1,lROOTS
-          ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+
-     &                                     (KROOT-1)))
+           ENER(IROOT(KROOT),1)=HRot(Kroot,Kroot)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
-           Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
+           Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
       Else
         do KROOT=1,lROOTS
-          ENER(IROOT(KROOT),1)=Work(iEList+MXROOT*(NMAYBE-1) +
-     &                                     (KROOT-1))
+          ENER(IROOT(KROOT),1)=EList(KRoot,NMAYBE)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
-           Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
+           Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
       End IF!End IF for Do_Rotate=.true.
 
@@ -330,7 +325,7 @@
       End IF
       call Put_lScalar('isMECIMSPD      ', mcpdft_options%meci)
 
-      Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
+      Call mma_deallocate(EList)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
         JOBOLD=-1
@@ -341,23 +336,22 @@
 * the Fock matrices FI and FA
 *
       Call Timing(dum1,dum2,Fortis_1,dum3)
-      Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-      Call FZero(Work(LPUVX),NFINT)
+      Call mma_allocate(PUVX,NFINT,Label='PUVX')
+      PUVX(:)=0.0D0
       Call Get_D1I_RASSCF(CMO,D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      CALL TRACTL2(CMO,WORK(LPUVX),TUVX,D1I,
-     &             FI,D1A,FA,IPR,lSquare,ExFac)
+      CALL TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 
       Call Put_dArray('Last orbitals',CMO,ntot2)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
-        CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
+        CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
       end if
-      Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
+      Call mma_deallocate(PUVX)
 
       Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
@@ -376,29 +370,27 @@
         end if
         P2MOt(:,:)=0.0D0
       END IF
-      CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(CMO,FI,FA,Work(iRef_E))
+      Call MSCtl(CMO,FI,FA,Ref_E)
 
-      ! I guess iRef_E now holds the MC-PDFT energy for each state??
+      ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
       If(mcpdft_options%wjob .and.(.not.Do_Rotate)) then
         Call writejob(iadr19)
       end if
 
         If (Do_Rotate) Then
-          call replace_diag(work(lhrot), work(iref_e), lroots)
-          call mspdft_finalize(work(lhrot), lroots, irlxroot, iadr19)
+          call replace_diag(hrot, ref_e, lroots)
+          call mspdft_finalize(hrot, lroots, irlxroot, iadr19)
         End If
 
       ! Free up some space
-      CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
 
       if (do_rotate) then
-        CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
+        CALL mma_deallocate(HRot)
         if(mcpdft_options%grad) then
           Call mma_deallocate(F1MS)
           Call mma_deallocate(F2MS)
@@ -440,7 +432,7 @@
       Call mma_deallocate(D1A)
       Call mma_deallocate(OccN)
       Call mma_deallocate(CMO)
-      Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
+      Call mma_deallocate(REF_E)
 
       Call mma_deallocate(DMAT)
       Call mma_deallocate(DSPN)
@@ -457,13 +449,16 @@
        Call FastIO('STATUS')
       END IF
 
- 9990 Continue
+      Call close_files()
 
+      Contains
+      subroutine close_files()
       call close_files_mcpdft()
       DO I=10,99
         INQUIRE(UNIT=I,OPENED=IfOpened)
         IF (IfOpened.and.I.ne.19) CLOSE (I)
       END DO
+      End subroutine close_files
 
-      End
+      End SUBROUTINE MCPDFT
 
