@@ -54,17 +54,16 @@
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
-     &                      FOne(:), FA_t(:)
+     &                      FA_t(:)
       integer(kind=iwp) :: IAD19
       integer(kind=iwp) :: iJOB,dmDisk
       integer(kind=iwp) :: IADR19(1:30)
       integer(kind=iwp) :: jroot,NQ
-      integer(kind=iwp) :: i_off1,i_off2
       integer(kind=iwp) :: isym
       integer(kind=iwp) :: i, iBas, iCharge, iComp
       integer(kind=iwp) :: iOff, iOpt,  iPrLev
       integer(kind=iwp) :: irc, iSA, iSyLbl
-      integer(kind=iwp) :: j, lutmp, niaia
+      integer(kind=iwp) :: lutmp, niaia
 
       integer(kind=iwp), External:: IsFreeUnit
       real(kind=wp), external :: ddot_
@@ -459,9 +458,6 @@
 !FA matrix) and place it in an array of size NACPAR.  Add the oeotp to
 !it.  Write to file.
 
-      Call mma_allocate(Fone,NTOT1,Label='FOne')
-      FOne(:)=0.0D0
-
 !I think I need to generate FI, which will contain both the one-electron
 !potential contribution and the V_kkpu contribution.
 
@@ -470,21 +466,9 @@
       CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
       Call Get_dArray('FI_V',FI_V,NTOT1)
 
+      !FI + FA + V_oe
       Call daxpy_(ntot1,1.0d0,FI_V,1,FockA,1)
       Call daxpy_(ntot1,1.0d0,OnTopO,1,FockA,1)
-
-      i_off1=1
-      i_off2=1
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        do i=1,iBas
-          do j=1,i
-            Fone(i_off1) = fone(i_off1) + FockA(i_off2)
-            i_off1 = i_off1 + 1
-            i_off2 = i_off2 + 1
-          end do
-        end do
-      end do
 
       !Add the V_kktu contribution to Fone_tu?
 !STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -495,7 +479,7 @@
       LUTMP=IsFreeUnit(LUTMP)
       Call Molcas_Open(LUTMP,'TmpFock')
       do i=1,ntot1
-        write(LUTMP,*) Fone(i)
+        write(LUTMP,*) FockA(i)
       end do
 
       Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
@@ -507,7 +491,6 @@
         write(LUTMP,*) TUVX_tmp(i)
       end do
       Close(LUTMP)
-      Call mma_deallocate(FOne)
       Call mma_deallocate(TUVX_tmp)
 
 !____________________________________________________________
