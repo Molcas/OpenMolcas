@@ -46,7 +46,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
@@ -926,28 +925,27 @@ cPS         call xflush(6)
 
 !Write the TUVX teotp to file.q
 
-!      Call GetMem('ttTUVX2','Allo','Real',ittTUVX2,NACPR2)
-!      Call Get_TUVX(PUVX,Work(ittTUVX2))
+!      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
+!      Call Get_TUVX(PUVX,TUVX_tmp)
 !      write(6,*) 'TUVX'
 !      do i=1,nacpr2
-!      write(6,*) work(ittTUVX2-1+i)
+!      write(6,*) TUVX_tmp(i)
 !      end do
-!      Call GetMem('ttTUVX2','Free','Real',ittTUVX2,NACPR2)
+!      Call mma_deallocate(TUVX_tmp,NACPR2)
 
 
-      Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
-      CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
-      Call Get_TUVX(OnTopT,Work(ittTUVX))
-      !Call Get_TUVX(puvx,Work(ittTUVX))
+      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
+      TUVX_tmp(:)=0.0D0
+      Call Get_TUVX(OnTopT,TUVX_tmp)
+      !Call Get_TUVX(puvx,TUVX_tmp)
 
       !Unpack TUVX to size
       do i=1,nacpr2
-        write(LUTMP,*) Work(ittTUVX+i-1)
+        write(LUTMP,*) TUVX_tmp(i)
       end do
       Close(LUTMP)
       Call mma_deallocate(FOne)
-      Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
-
+      Call mma_deallocate(TUVX_tmp)
 
 !____________________________________________________________
 !This next part is to generate the MC-PDFT generalized fock operator.
@@ -1018,10 +1016,6 @@ cPS         call xflush(6)
       CALL mma_deallocate(FI_V)
       CALL mma_deallocate(FA_V)
 
-!Reordering of the two-body density matrix.
-!      Call Getmem('test_p2','allo','real',ip2test,ISTORP(NSYM+1))
-!      Call dcopy_(ISTORP(NSYM+1),P,1,Work(ip2test),1)
-
        IF(ISTORP(NSYM+1).GT.0) THEN
          P(:)=0.0D0
 !p = P2d
@@ -1056,19 +1050,19 @@ cPS         call xflush(6)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
       iSA = 1
 
-!      Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
-!      Call FZero(Work(ip2dt1),Nacpr2)
+!      Call mma_allocate(P2dt1,NACPR2,Label='P2dt1')
+!      P2dt1(:)=0.0D0
 !      !I need the non-symmetry blocked D1Act, hence the read.
-!      Call GetMem('D1Act1','Allo','Real',iD1Act1,NACPAR)
-!      Call Get_dArray_chk('D1mo',Work(iD1Act1),NACPAR)
+!      Call mma_allocate(D1Act1,NACPAR,Label='D1Act1')
+!      Call Get_dArray_chk('D1mo',D1Act1,NACPAR)
 !        write(6,*) 'D1Act'
 !        do i=1,NACPAR
-!          write(6,*) work(iD1Act1-1+i)
+!          write(6,*) D1Act1(i)
 !        end do
-!      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
-!      Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
-!      Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
-!      Call GetMem('Dens','free','Real',iD1Act1,NACPAR)
+!      Call P2_contraction(D1Act1,P2dt1)
+!      Call Put_dArray('P2MOt',P2dt1,NACPR2)
+!      Call mma_deallocate(P2dt1)
+!      Call mma_deallocate(D1Act1)
 
 !Put information needed for geometry optimizations.
       !if (jroot.eq.iRlxRoot) then
