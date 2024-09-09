@@ -13,8 +13,10 @@
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb
+      use caspt2_data, only: CMO
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -32,7 +34,6 @@
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "warnings.h"
-#include "stdalloc.fh"
       LOGICAL IF_TRNSF
       CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
@@ -67,11 +68,11 @@
 * ---------------------------------------------------------------------
 
 * Load CASSCF MO coefficients
-      call getmem('LCMO','ALLO','REAL',LCMO,NCMO)
+      call mma_allocate(CMO,NCMO,Label='CMO')
       IDISK=IAD1M(1)
-      call ddafile(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+      call ddafile(LUONEM,2,CMO,NCMO,IDISK)
       IAD1M(2)=IDISK
-      call ddafile(LUONEM,1,WORK(LCMO),NCMO,IDISK)
+      call ddafile(LUONEM,1,CMO,NCMO,IDISK)
       IEOF1M=IDISK
 
 * Loop over states, selecting those belonging to this group.
@@ -109,13 +110,13 @@
           call INTCTL2(IF_TRNSF)
         else
 * INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-          call INTCTL1(WORK(LCMO))
-          call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+          call INTCTL1(CMO)
+          call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
         end If
 
 c Modify the Fock matrix if needed
 c You don't have to be beautiful to turn me on
-        CALL NEWFOCK(WORK(LFIFA),WORK(LCMO))
+        CALL NEWFOCK(WORK(LFIFA),CMO)
 
 * NN.15, TODO:
 * MKFOP and following transformation are skipped in DMRG-CASPT2 run
@@ -248,7 +249,7 @@ c You don't have to be beautiful to turn me on
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(WORK(LCMO))
+      CALL ORBCTL(CMO)
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
@@ -261,7 +262,7 @@ c You don't have to be beautiful to turn me on
           if (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
-              call TRACHO3(WORK(LCMO))
+              call TRACHO3(CMO)
           else
 * TRACTL(0) computes transformed 2-body MO integrals
               call TRACTL(0)
@@ -270,9 +271,10 @@ c You don't have to be beautiful to turn me on
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0
-      call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+      call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
 
-      call getmem('LCMO','FREE','REAL',LCMO,NCMO)
+      call mma_deallocate(CMO)
+
 
       return
       end

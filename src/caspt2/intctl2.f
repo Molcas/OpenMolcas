@@ -11,6 +11,7 @@
       SUBROUTINE INTCTL2(IF_TRNSF)
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad, nStpGrd
+      use caspt2_data, only: CMO
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -34,7 +35,7 @@
         WRITE(6,*)' INTCTL2 calling TRACHO2...'
         CALL XFLUSH(6)
       END IF
-      Call TraCho2(Work(LCMO),Work(LDREF),
+      Call TraCho2(CMO,Work(LDREF),
      &             Work(LFFAO),Work(LFIAO),Work(LFAAO),IF_TRNSF)
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
@@ -55,7 +56,7 @@
       CALL DCOPY_(notri,[0.0D0],0,WORK(LFIMO),1)
       CALL DCOPY_(notri,[0.0D0],0,WORK(LFAMO),1)
 c Compute FIMO, FAMO, ...  to workspace:
-      Call FMat_Cho(Work(LCMO),Work(LFFAO),Work(LFIAO),Work(LFAAO),
+      Call FMat_Cho(CMO,Work(LFFAO),Work(LFIAO),Work(LFAAO),
      &              Work(LHONE),Work(LFIMO),Work(LFAMO))
       Call GetMem('FFAO','FREE','REAL',LFFAO,NBTRI)
       Call GetMem('FIAO','FREE','REAL',LFIAO,NBTRI)

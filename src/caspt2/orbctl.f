@@ -20,6 +20,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
+      use caspt2_data, only: CMO_X => CMO
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -91,7 +92,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
       if (.not. DoFCIQMC) then
 C Save new MO coeffs, and the transformation matrices:
       IDISK=IAD1M(2)
-      CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)
+      CALL DDAFILE(LUONEM,1,CMO_X,NCMO,IDISK)
       IAD1M(4)=IEOF1M
       IDISK=IAD1M(4)
       CALL DDAFILE(LUONEM,1,WORK(LTORB),NTORB,IDISK)

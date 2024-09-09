@@ -50,6 +50,7 @@
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
 use Definitions, only: iwp
+use caspt2_data, only: CMO
 
 implicit none
 integer(kind=iwp), intent(in) :: iType, iPart
@@ -66,17 +67,17 @@ if (DoCholesky) then
 
   if (iType == 1) then
 
-    call ChoMP2_TraCtl(LUINTM,Work(LCMO),NCMO)
+    call ChoMP2_TraCtl(LUINTM,CMO,NCMO)
 
   ! caspt2 with cholesky does no longer use call to tractl_drv/cho_caspt2_drv
   !else if (iALGO == 0) then
   else
 
-    call Cho_TraCtl(iType,LUINTM,Work(LCMO),NCMO,DoExch2)
+    call Cho_TraCtl(iType,LUINTM,CMO,NCMO,DoExch2)
 
   !else if (iALGO == 1) then
   !
-  !  call Cho_caspt2_drv(Work(LCMO))
+  !  call Cho_caspt2_drv(CMO)
   !
   !else
   !

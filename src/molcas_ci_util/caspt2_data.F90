@@ -18,6 +18,8 @@ private
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
-public :: jState, mState, nActEl, nG3
+real*8, Pointer:: CMO(:)
+
+public :: jState, mState, nActEl, nG3, CMO
 
 end module caspt2_data

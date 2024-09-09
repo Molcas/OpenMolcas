@@ -39,6 +39,7 @@ subroutine TRACTL(iPart)
 !
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
 
+use caspt2_data, only: CMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
@@ -56,7 +57,6 @@ real(kind=wp), allocatable :: W1(:)
 #include "caspt2.fh"
 #include "intgrl.fh"
 #include "trafo.fh"
-#include "WrkSpc.fh"
 #include "warnings.h"
 
 IFTEST = .false.
@@ -76,7 +76,7 @@ end do
 ! They are closed at end of TRACTL.
 
 ! The MO coefficients were allocated and read in STINI. They are
-! available at WORK(LCMO).
+! available at CMO.
 
 ! RETRIEVE BASE DATA FROM UNIT LUINTA
 
@@ -352,7 +352,7 @@ do NSP=1,NSYM
         end if
         if (iSquar) then
           ! TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
-          call tr2Sq(Work(LCMO),W1(LW1),W1(LW2),W1(LW3),W1(LW4),W1(LW5),W1(LW6),lBuf)
+          call tr2Sq(CMO,W1(LW1),W1(LW2),W1(LW3),W1(LW4),W1(LW5),W1(LW6),lBuf)
         else
           ! tr2NsA(CMO,X1,X2,X3,pqUs,pqrU,pqTU,lBuf)
           !LW2 = LW1+Mxx1
@@ -374,13 +374,13 @@ do NSP=1,NSYM
           end if
 
           LTUPQ = LTUPQX
-          call tr2NsA1(Work(LCMO),W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6), &
+          call tr2NsA1(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6), &
                        MEMX-(LW6-LW1),lBuf)
-          call tr2NsA2(Work(LCMO),W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1))
-          call tr2NsA3(Work(LCMO),W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW4),LW5-LW4,W1(LW5),MEMX-(LW5-LW1))
+          call tr2NsA2(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1))
+          call tr2NsA3(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW4),LW5-LW4,W1(LW5),MEMX-(LW5-LW1))
           LTUPQ = LTURS
           ! tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
-          call tr2NsB(Work(LCMO),W1(LW1),W1(LW2B),W1(LW3B),W1(LW4B),lBuf,MaxRS)
+          call tr2NsB(CMO,W1(LW1),W1(LW2B),W1(LW3B),W1(LW4B),lBuf,MaxRS)
         end if
       end do
     end do
@@ -397,7 +397,7 @@ IAD13 = 0
 call iDAFILE(LUINTM,1,IAD2M,LIADUT,IAD13)
 
 !PAM01 Also transform 1-electron integrals, and put CMOs on LUONEM.
-!PAM01 call TRAONE(WORK(LCMO),KEEP)
+!PAM01 call TRAONE(CMO,KEEP)
 
 return
 

@@ -129,6 +129,7 @@ set (sources
 set (modfile_list
      csfbas.F90
      general_data.F90
+     caspt2_data.F90
      gugx.F90
      wadr.F90
 )
