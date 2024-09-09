@@ -34,7 +34,6 @@ C
 
       REAL*8 F(*),FP(*),D(*),P(*),Q(*),FINT(*),FI(*)
       integer ISTSQ(8),ISTAV(8)
-      real*8 ECAS0
 
 #include "rasdim.fh"
 #include "general.fh"
@@ -63,6 +62,7 @@ C *****************************************
 
 c     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
+
 C     LOOP OVER ALL SYMMETRY BLOCKS
 C
       ISTFCK=0
@@ -123,19 +123,6 @@ c
      &              1.0d0,FINT(JSTF),NO,
      &              P(ISTP),NUVX,
      &              0.0d0,Q,NO)
-
-
-c
-c       active-active interaction term in the RASSCF energy
-c
-        ECAS0=ECAS
-        DO NT=1,NAO
-         NTT=(NT-1)*NO+NIO+NT
-!          ECAS=ECAS+0.5D0*Q(NTT)
-         HALFQ1=HALFQ1+0.5D0*Q(NTT)
-         E2act=E2act+0.5D0*Q(NTT)
-        END DO
-
 
 !       Fock matrix
         NTM=0

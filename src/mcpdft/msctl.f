@@ -378,21 +378,6 @@
            CALL mma_allocate(P1,1,Label='P1')
          END IF
 
-         NQ=0
-         NIAIA=0
-         do ISYM=1,NSYM
-           NQ = MAX(NQ,NASH(ISYM)*NORB(ISYM))
-           NIAIA = NIAIA+(NASH(ISYM)+NISH(ISYM))**2
-         end do
-         if(NQ.lt.NIAIA) NQ=NIAIA
-
-         CALL mma_allocate(FOCK,NTOT4,Label='FOCK')
-         CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-
-        ! This computes the 2-body interaction term (and updates)
-        ! ECAS will have the correct value..
-         CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
-         Call mma_deallocate(Q)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
@@ -423,7 +408,26 @@
 !            BUILDING OF THE NEW FOCK MATRIX                           *
 !
 !***********************************************************************
-      if(mcpdft_options%grad .and. (.not. mcpdft_options%mspdft)
+      if(mcpdft_options%grad) then
+! This computes the initial (MC-SCF) fock matrix (FOCK)
+         NQ=0
+         NIAIA=0
+         do ISYM=1,NSYM
+           NQ = MAX(NQ,NASH(ISYM)*NORB(ISYM))
+           NIAIA = NIAIA+(NASH(ISYM)+NISH(ISYM))**2
+         end do
+         if(NQ.lt.NIAIA) NQ=NIAIA
+
+         call mma_allocate(fock,ntot4,label='Fock')
+         call mma_allocate(Q,nq,label='Q')
+
+        ! This computes the 2-body interaction term (and updates)
+        ! ECAS will have the correct value...
+         CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
+          
+         call mma_deallocate(Q)
+
+       if((.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
          Write(LF,*) 'Calculating potentials for analytic gradients...'
@@ -439,6 +443,7 @@
 !which come from the one- and two-electron potentials.  These pieces are
 !given by
 ! F_{xy} = \sum_{p} V_{py} D_{px} + \sum_{pqr} 2v_{pqry}d_{pqrx}.
+
 
 !I will read in the one- and two-electron potentials here
 
@@ -558,7 +563,7 @@
 
       end if
 
-      if (mcpdft_options%grad .and. mcpdft_options%mspdft) then
+      if (mcpdft_options%mspdft) then
 !      doing exactly the same thing as done in the previous chunck
 !      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 !      Hopefully this code will be neater.
@@ -566,11 +571,14 @@
      &                    P,NQ,PUVX,p2d,jroot)
       end if
 
+      call mma_deallocate(fock)
+
+      endif
+
     ! this allocation/deallocation could be done outside the root loop
       call mma_deallocate(puvx)
 
       Call mma_deallocate(Tmp2)
-      Call mma_deallocate(FOCK)
       CALL mma_deallocate(P)
       CALL mma_deallocate(P1)
       end do !loop over roots
