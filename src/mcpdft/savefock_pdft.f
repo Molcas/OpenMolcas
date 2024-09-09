@@ -24,7 +24,7 @@
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc
-      use rasscf_global, only: NACPR2, nFint, NSXS, ISTORP
+      use rasscf_global, only: NACPR2, nFint, ISTORP
       use mspdftgrad,only:F1MS,F2MS,FocMS
 
 
@@ -46,7 +46,7 @@
       INTEGER iPrLev
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
-      Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:), BM(:)
+      Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:)
       Real*8, Allocatable:: FA_V(:), FI_V(:), TUVX(:), FA_T(:), Q(:)
 
 
@@ -179,9 +179,8 @@
        CALL PMAT_RASSCF(P2d,P)
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
-      CALL mma_allocate(BM,NSXS,Label='BM')
       CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-      CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,Q,OnTopT,CMO)
+      CALL FOCK_update(FOCK,FockI,FockA,D1Act,P,Q,OnTopT,CMO)
 
       CALL DCopy_(nTot1,FockOcc,1,FocMS(:,iIntS),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
@@ -190,7 +189,6 @@
        write(lf,*) 'DONE WITH NEW FOCK OPERATOR'
       END IF
 
-      Call mma_deallocate(BM)
       Call mma_deallocate(Q)
       Call mma_deallocate(OnTopO)
       Call mma_deallocate(OnTopT)

@@ -3,7 +3,6 @@
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
 ! it under the terms of the GNU Lesser General Public License, v. 2.1. *
-! OpenMolcas is distributed in the hope that it will be useful, but it *
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
@@ -53,8 +52,7 @@
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
-     &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
-     &                      FA_t(:)
+     &                      P(:), P1(:), FOCK(:), Q(:)
       integer(kind=iwp) :: IAD19
       integer(kind=iwp) :: iJOB,dmDisk
       integer(kind=iwp) :: IADR19(1:30)
@@ -518,21 +516,8 @@
       end do
         end if
 
-        If ( IPRLEV.ge.DEBUG ) then
-      CALL mma_allocate(FA_t,Ntot1,Label='FA_t')
-      FA_t(:)=0.0D0
-      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FA_t,1)
-      Call daxpy_(NTOT1,1.0D0,FI_V,1,FA_t,1)
-      Call daxpy_(NTOT1,1.0D0,FA_V,1,FA_t,1)
-      write(6,*) "Total F additions:"
-      Call TriPrt(' ','(5G18.10)',FA_t,norb(1))
-      CALL mma_deallocate(FA_t)
-        end if
-
-
-
       !Add one e potential, too.
-      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FockI,1)
+      call dcopy_(ntot1,OnTopO,1,FockI,1)
       !Add two e potentials
       Call daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
       Call daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
@@ -547,14 +532,12 @@
       END IF
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
-         CALL mma_allocate(BM,NSXS,Label='BM')
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-         CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
+         CALL FOCK_update(FOCK,FockI,FockA,D1Act,P,
      &                    Q,OnTopT,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
 
-         Call mma_deallocate(BM)
          Call mma_deallocate(Q)
       Call mma_deallocate(ONTOPO)
       Call mma_deallocate(ONTOPT)

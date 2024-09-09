@@ -191,7 +191,7 @@ c
 
       END SUBROUTINE FOCK_m
 
-      SUBROUTINE FOCK_update(F,BM,FI,FP,D,P,Q,FINT,CMO)
+      SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
 !This subroutine is supposed to add the dft portions of the mcpdft fock
 !matrix to the Fock matrix pieces that have already been built for the
 !CASSCF portion.
@@ -221,7 +221,7 @@ C
      &                         iTri, CBLB, IBLB, JBLB
 
       IMPLICIT None
-      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
 
       Real*8, Allocatable:: TF(:)
@@ -241,7 +241,6 @@ C
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 
-      Call Unused_real_array(BM)
       Call mma_allocate(TF,NTOT4,Label='TF')
       TF(:)=0.0D0
 
