@@ -366,8 +366,7 @@
       End If
 
         !Mainly just sets ECAS to core +inactive
-         Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,
-     &             Focki,FockA)
+         Call Fmat_m(CMO,PUVX,D1ActAO,Focki,FockA)
 
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')

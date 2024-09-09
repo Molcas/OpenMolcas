@@ -12,7 +12,7 @@
 *               1989, Per Ake Malmqvist                                *
 *               1991,1993,1996, Markus P. Fuelscher                    *
 ************************************************************************
-      Subroutine Fmat_m(CMO,PUVX,D,D1A,FI,FA)
+      Subroutine Fmat_m(CMO,PUVX,D1A,FI,FA)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -25,8 +25,6 @@
 *               MO-coefficients                                        *
 *     PUVX    : array of real*8                                        *
 *               two-electron integrals (pu!vx)                         *
-*     D       : array of real*8                                        *
-*               averaged one-body density matrix                       *
 *     D1A     : array of real*8                                        *
 *               active one body density matrix in AO-basis             *
 *     FI      : array of real*8                                        *
@@ -59,7 +57,7 @@
 
       Implicit None
 
-      Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
+      Real*8 CMO(*) , PUVX(*) , D1A(*) , FI(*) , FA(*)
 
 #include "rasdim.fh"
 #include "general.fh"
@@ -96,11 +94,6 @@ C Local print level (if any)
          Write(LF,*) ' ---------------------'
          Write(LF,*)
          call wrtmat(PUVX,1,nFint, 1, nFint)
-
-         Write(LF,*)
-         Write(LF,*) ' ---------------------'
-        CALL TRIPRT('Averaged one-body density matrix D, in MO in FMAT',
-     &              ' ',D,NAC)
 
          Write(LF,*)
          Write(LF,*) ' D1A in AO basis in FMAT'
