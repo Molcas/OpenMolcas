@@ -56,8 +56,8 @@
       Character(LEN=8) Label
       Logical First, Dff, Do_DFT,Found
       Parameter ( Zero=0.0d0 , One=1.0d0 )
-      integer iD1ActAO,iD1Spin,iD1SpinAO,IAD19
-      integer iJOB,dmDisk,iP2d
+      integer IAD19
+      integer iJOB,dmDisk
       integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
       integer  LOEOTP
@@ -72,7 +72,8 @@
      &                      Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:),
      &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
      &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
-     &                      FockA(:)
+     &                      FockA(:), D1ActAO(:), D1SpinAO(:),
+     &                      D1Spin(:), P2D(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -201,13 +202,13 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
       dmDisk = IADR19(3)
 
       Call mma_allocate(D1Act,NACPAR,Label='D1Act')
-      Call GetMem('D1ActiveAO','Allo','Real',iD1ActAO,NTOT2)
-      Call GetMem('D1Spin','Allo','Real',iD1Spin,NACPAR)
-      Call GetMem('D1SpinAO','Allo','Real',iD1SpinAO,NTOT2)
+      Call mma_allocate(D1ActAO,NTOT2,Label='D1ActAO')
+      Call mma_allocate(D1Spin,NACPAR,Label='D1Spin')
+      Call mma_allocate(D1SpinAO,NTOT2,Label='D1SpinAO')
 
       Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
       Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
-      Call GetMem('P2','Allo','Real',iP2d,NACPR2)
+      Call mma_allocate(P2d,NACPR2,Label='P2D')
 
 
       Call mma_allocate(FockI,ntot1,Label='FockI')
@@ -248,12 +249,12 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
 *
 !Read in the density matrices for <jroot>.
         D1Act(:)=0.0D0
-        Call Fzero(Work(iD1ActAO),NTOT2)
-        Call Fzero(Work(iD1Spin),NACPAR)
-        Call Fzero(Work(iD1SpinAO),NTOT2)
+        D1ActAO(:)=0.0D0
+        D1Spin(:)=0.0D0
+        D1SpinAO(:)=0.0D0
         Tmp3(:)=0.0D0
         Tmp4(:)=0.0D0
-        Call Fzero(Work(iP2d),NACPR2)
+        P2D(:)=0.0D0
 
 !Get the D1 Active matrix for this state.  These should probably be
 !most easily read from the previous JOBIPH file.  Then, convert D1A from
@@ -281,16 +282,16 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
         end if
 
         Call Put_dArray('D1mo',D1Act,NACPAR)
-        Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
-        Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-        Call Put_dArray('P2mo',Work(iP2d),NACPR2)
+        Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
+        Call Put_dArray('P2mo',P2d,NACPR2)
 
-        Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+        Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
 
         IF(IPRLEV.ge.DEBUG) THEN
           write(6,*) 'D2'
           do i=1,NACPR2
-            write(6,*) Work(ip2d-1+i)
+            write(6,*) p2d(i)
           end do
         END IF
 
@@ -305,20 +306,20 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
           write(6,*) D1Act(i)
         end do
       end if
-         Call Get_D1A_RASSCF(CMO,D1Act,Work(iD1ActAO))
+         Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
 !ANDREW _ RIGHT HERE
       if (mcpdft_options%grad .and.
      &     (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
         Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
-        Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
+        Call Fold_pdft(nSym,nBas,D1ActAO,Work(iTmp_grd))
         Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
         Call GetMem('DtmpA_g','Free','Real',iTmp_grd,nTot1)
       end if
 !END _RIGHT HERE
 *
          Call Fold(nSym,nBas,D1I,Tmp3)
-         Call Fold(nSym,nBas,Work(iD1ActAO),Tmp4)
+         Call Fold(nSym,nBas,D1ActAO,Tmp4)
 *
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
          Call Dcopy_(nTot1,Tmp4,1,DIDA(:,iIntS),1)
@@ -346,13 +347,12 @@ cPS         call xflush(6)
 * Generate spin-density
 ***********************************************************
          if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[0.0d0],0,D1SpinAO,1)
          end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
-         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
-     &                      Work(iD1SpinAO))
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
+         Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
          Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
-         Call Fold(nSym,nBas,Work(iD1SpinAO),Tmp7)
+         Call Fold(nSym,nBas,D1SpinAO,Tmp7)
          Call Put_dArray('D1sao',Tmp7,nTot1)
          IF(iSpin.ne.1.and. mcpdft_options%grad
      &      .and.mcpdft_options%mspdft) THEN
@@ -455,8 +455,7 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
         Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
-     &             D1I,Work(iD1ActAO),
-     &             nTot1,DFTFOCK,Do_DFT)
+     &             D1I,D1ActAO,nTot1,DFTFOCK,Do_DFT)
 
 
         Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
@@ -476,7 +475,7 @@ c         call xflush(6)
 
       Call mma_allocate(Tmpa,nTot1,Label='Tmpa')
 c         call xflush(6)
-      Call Fold(nSym,nBas,Work(iD1ActAO),Tmpa)
+      Call Fold(nSym,nBas,D1ActAO,Tmpa)
 c         call xflush(6)
 *
       Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
@@ -566,9 +565,9 @@ c         call xflush(6)
         itsDisk = IADR19(3)
         do i=1,irlxroot-1
           Call DDaFile(JOBOLD,0,Work(iD1Act_FA),NACPAR,itsDisk)
-          Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,itsDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
+          Call DDaFile(JOBOLD,0,D1Spin,NACPAR,itsDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
         end do
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Act_FA))
@@ -601,9 +600,9 @@ c         call xflush(6)
             do i=1,nacpar
               write(6,*) d1act(i)
             end do
-            write(6,*) 'id1actao before tractl'
+            write(6,*) 'd1actao before tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao-1+i)
+              write(6,*) d1actao(i)
             end do
             write(6,*) 'd1i before tractl'
             do i=1,ntot2
@@ -654,8 +653,7 @@ c         call xflush(6)
 *
 *
          CALL TRACTL2(WORK(lcmo),WORK(LPUVX_tmp),WORK(LTUVX_tmp),
-     &                D1I,FockI,
-     &                WORK(iD1ActAO),FockA,
+     &                D1I,FockI,D1ActAO,FockA,
      &                IPR,lSquare,ExFac)
 *        Call dcopy_(ntot1,FA,1,FockA,1)
         if (iprlev.ge.debug) then
@@ -693,9 +691,9 @@ c         call xflush(6)
             do i=1,nacpar
               write(6,*) d1act(i)
             end do
-            write(6,*) 'id1actao after tractl'
+            write(6,*) 'd1actao after tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao-1+i)
+              write(6,*) d1actao(i)
             end do
             write(6,*) 'd1i before tractl'
             do i=1,ntot2
@@ -727,7 +725,7 @@ c         call xflush(6)
 *        Call dcopy_(ntot1,FA,1,FockA,1)
 *        end if
 *
-         Call Fmat_m(CMO,Work(lPUVX),D1Act,Work(iD1ActAO),
+         Call Fmat_m(CMO,Work(lPUVX),D1Act,D1ActAO,
      &             Work(iFockI_save),FockA)
         call  dcopy_(ntot1,work(ifocki_save),1,FockI,1)
 *        call  dcopy_(nacpar,work(id1act_FA),1,d1act,1)
@@ -758,7 +756,7 @@ c         call xflush(6)
            CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
            CALL DmatDmat(D1Act,WORK(LP))
            CALL GETMEM('ISTRP','ALLO','REAL',LP1,ISTORP(NSYM+1))
-           CALL PMAT_RASSCF(Work(iP2d),WORK(LP1))
+           CALL PMAT_RASSCF(P2d,WORK(LP1))
          END IF
 
        if(iprlev.ge.debug) then
@@ -1045,8 +1043,8 @@ cPS         call xflush(6)
 
        IF(ISTORP(NSYM+1).GT.0) THEN
       CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
-!p = work(iP2d)
-         CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
+!p = P2d
+         CALL PMAT_RASSCF(P2d,WORK(LP))
       END IF
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
@@ -1113,7 +1111,7 @@ cPS         call xflush(6)
 *      Hopefully this code will be neater.
        call savefock_pdft(CMO,FockI,FockA,D1Act,
      &                    Work(LFock),
-     &                    Work(LP),NQ,Work(lPUVX),Work(ip2d),jroot)
+     &                    Work(LP),NQ,Work(lPUVX),p2d,jroot)
       end if
 
 
@@ -1138,32 +1136,32 @@ cPS         call xflush(6)
         dmDisk = IADR19(3)
         do jroot=1,irlxroot-1
           Call DDaFile(JOBOLD,0,D1Act,NACPAR,dmDisk)
-          Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+          Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
         end do
         Call DDaFile(JOBOLD,2,D1Act,NACPAR,dmDisk)
 *        Andrew added this line to fix heh2plus
-        Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
         Call Put_dArray('D1mo',D1Act,NACPAR)
 *        write(6,*) 'd1Spin'
 *        do i=1,NACPAR
-*          write(6,*) work(iD1spin-1+i)
+*          write(6,*) D1spin(i)
 *        end do
 *TRS commenting out because we already read over this
-*        Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
-        Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-        Call Put_dArray('P2mo',Work(iP2d),NACPR2)
+*        Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
+        Call Put_dArray('P2mo',P2d,NACPR2)
 *        write(6,*) 'D2'
 *        do i=1,NACPR2
-*          write(6,*) Work(ip2d-1+i)
+*          write(6,*) p2d(i)
 *        end do
 
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
-         Call Get_D1A_RASSCF(CMO,D1Act,Work(iD1ActAO))
+         Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
          Call Fold(nSym,nBas,D1I,Tmp3)
-         Call Fold(nSym,nBas,Work(iD1ActAO),Tmp4)
+         Call Fold(nSym,nBas,D1ActAO,Tmp4)
          Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
          Call Put_dArray('D1ao',Tmp3,nTot1)
 !         write(6,*) 'd1ao'
@@ -1178,13 +1176,12 @@ cPS         call xflush(6)
 *TRS ams also commented out this if and endif part of this
 * statement
          !if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,[Zero],0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[Zero],0,D1SpinAO,1)
          !end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
-         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
-     &                      Work(iD1SpinAO))
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
+         Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
          Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
-         Call Fold(nSym,nBas,Work(iD1SpinAO),Tmp7)
+         Call Fold(nSym,nBas,D1SpinAO,Tmp7)
          Call Put_dArray('D1Sao',Tmp7,nTot1)
 !         write(6,*) 'd1so'
 !         do i=1,ntot1
@@ -1195,7 +1192,7 @@ cPS         call xflush(6)
 
 
 
-        Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+        Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
       end if
 
       if (nFint.gt.0) then
@@ -1207,14 +1204,14 @@ cPS         call xflush(6)
       Call mma_deallocate(Tmp3)
 
       Call mma_deallocate(D1Act)
-      Call GetMem('D1ActiveAO','free','Real',iD1ActAO,NTOT2)
-      Call GetMem('D1Spin','free','Real',iD1Spin,NACPAR)
-      Call GetMem('D1SpinAO','free','Real',iD1SpinAO,NTOT2)
+      Call mma_deallocate(D1ActAO)
+      Call mma_deallocate(D1Spin)
+      Call mma_deallocate(D1SpinAO)
       Call mma_deallocate(Tmp1)
       Call mma_deallocate(FockI)
       Call mma_deallocate(FockA)
-*      Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
-      Call GetMem('P2','Free','Real',iP2d,NACPR2)
+*      Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
+      Call mma_deallocate(P2D)
       Call mma_deallocate(D1I)
       Call mma_deallocate(Tmpk)
       Call mma_deallocate(Tmpn)
