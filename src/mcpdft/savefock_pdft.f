@@ -24,7 +24,7 @@
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: BM, FockOcc
+      use wadr, only: FockOcc
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -46,7 +46,7 @@
       INTEGER iPrLev
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
-      Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:)
+      Real*8, Allocatable:: ONTOPT(:), ONTOPO(:), FOne(:), BM(:)
       Real*8, Allocatable:: FA_V(:), FI_V(:), TUVX(:), FA_T(:), Q(:)
 
 

@@ -37,7 +37,7 @@
       use mcpdft_output, only: lf, iPrLoc
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: BM, FockOcc, TUVX
+      use wadr, only: FockOcc, TUVX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -59,7 +59,7 @@
       integer IAD19
       integer iJOB,dmDisk
       integer IADR19(1:30)
-      integer NQ,LQ
+      integer NQ
       integer jroot
       real*8,dimension(1:nroots) :: Energies
       integer  i_off1,i_off2,ifone
@@ -75,7 +75,7 @@
      &                      DtmpA_g(:), TE_POTG(:), OE_POT(:),
      &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
-     &                      P(:), P1(:), FOCK(:)
+     &                      P(:), P1(:), FOCK(:), Q(:), BM(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -758,10 +758,9 @@ c         call xflush(6)
 
          CALL mma_allocate(FOCK,NTOT4,Label='FOCK')
          CALL mma_allocate(BM,NSXS,Label='BM')
-         CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
+         CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
          IFINAL = 1
-         CALL FOCK_m(FOCK,BM,FockI,FockA,
-     &               D1Act,P,WORK(LQ),PUVX,IFINAL,CMO)
+         CALL FOCK_m(FOCK,BM,FockI,FockA,D1Act,P,Q,PUVX,IFINAL,CMO)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',FockOcc,ntot1)
 !END TMP TEST
@@ -793,7 +792,7 @@ c         call xflush(6)
 
 
          Call mma_deallocate(BM)
-         CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
+         Call mma_deallocate(Q)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
 
@@ -1029,11 +1028,10 @@ cPS         call xflush(6)
       END IF
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
-         CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
-         CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-         CALL FOCK_update(FOCK,WORK(LBM),FockI,
-     &                    FockA,D1Act,P,
-     &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
+         CALL mma_allocate(BM,NSXS,Label='BM')
+         CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
+         CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
+     &                    Q,WORK(ipTmpLTEOTP),IFINAL,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
         If ( IPRLEV.ge.DEBUG ) then
@@ -1044,8 +1042,8 @@ cPS         call xflush(6)
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
         end if
 
-         CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
-         CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
+         Call mma_deallocate(BM)
+         Call mma_deallocate(Q)
       Call GetMem('ONTOPO','FREE','Real',ipTmpOE_POT,ntot1)
       Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
 
