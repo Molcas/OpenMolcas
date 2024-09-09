@@ -60,7 +60,6 @@
       integer iJOB,dmDisk
       integer IADR19(1:30)
       integer LP,NQ,LQ
-      integer  LOEOTP
       integer jroot
       real*8,dimension(1:nroots) :: Energies
       integer count_tmp1,count_tmp2
@@ -73,7 +72,9 @@
      &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
      &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
-     &                      D1Spin(:), P2D(:), PUVX(:), P2t(:)
+     &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
+     &                      DtmpA_g(:), TE_POTG(:), OE_POT(:),
+     &                      Junk(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -312,10 +313,10 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
 !ANDREW _ RIGHT HERE
       if (mcpdft_options%grad .and.
      &     (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
-        Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
-        Call Fold_pdft(nSym,nBas,D1ActAO,Work(iTmp_grd))
-        Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
-        Call GetMem('DtmpA_g','Free','Real',iTmp_grd,nTot1)
+        Call mma_allocate(DtmpA_g,nTot1,Label='DtmpA_g')
+        Call Fold_pdft(nSym,nBas,D1ActAO,DtmpA_g)
+        Call put_darray('d1activeao',DtmpA_g,ntot1)
+        Call mma_deallocate(DtmpA_g)
       end if
 !END _RIGHT HERE
 *
@@ -416,10 +417,10 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
 
         do_pdftPot=.true.
 
-        CALL GETMEM('TE_POTG','ALLO','REAL',LTEOTPG,NFINT)
-        CALL GETMEM('OE_POT','ALLO','REAL',LOEOTP,NTOT1)
-        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
+        CALL mma_allocate(TE_POTG,NFINT,Label='TE_POTG')
+        TE_POTG(:)=0.0D0
+        CALL mma_allocate(OE_POT,NTOT1,Label='OE_POT')
+        OE_POT(:)=0.0D0
 
       !preallocate the runfile stuff for inact-containing potentials.
         count_tmp1 = 0
@@ -430,27 +431,27 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
           end do
           count_tmp1 = count_tmp1 + nIsh(isym)*(nish(isym)+nAsh(isym))
         end do
-        CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp2)
-        Call DCopy_(count_tmp2,[0.0d0],0,Work(ijunk),1)
-!        Call Put_dArray('TEP_I',work(ijunk),count_tmp2)
-        CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp2)
+        CALL mma_allocate(junk,count_tmp2,Label='Junk')
+        JUNK(:)=0.0D0
+!       Call Put_dArray('TEP_I',junk,count_tmp2)
+        CALL mma_deallocate(JUNK)
 
-        CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp1)
-        Call DCopy_(count_tmp1,[0.0d0],0,Work(ijunk),1)
-!        Call Put_dArray('OEP_I',work(ijunk),count_tmp1)
-        CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp1)
+        CALL mma_allocate(junk,count_tmp1,Label='Junk')
+        Junk(:)=0.0D0
+!       Call Put_dArray('OEP_I',junk,count_tmp1)
+        CALL mma_deallocate(JUNK)
 
-        Call Put_dArray('ONTOPO',work(LOEOTP),NTOT1)
-        Call Put_dArray('ONTOPT',work(LTEOTPG),NFINT)
+        Call Put_dArray('ONTOPO',OE_POT,NTOT1)
+        Call Put_dArray('ONTOPT',TE_POTG,NFINT)
 
-        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
+        OE_POT(:)=0.0D0
+        TE_POTG(:)=0.0D0
 
-        Call Put_dArray('FI_V',work(LOEOTP),NTOT1)
-        Call Put_dArray('FA_V',work(LOEOTP),NTOT1)
+        Call Put_dArray('FI_V',OE_POT,NTOT1)
+        Call Put_dArray('FA_V',OE_POT,NTOT1)
 
-        CALL GETMEM('OE_POT','FREE','REAL',LOEOTP,NTOT1)
-        CALL GETMEM('TE_POTG','FREE','REAL',LTEOTPG,NFINT)
+        CALL mma_deallocate(OE_POT)
+        CALL mma_deallocate(TE_POTG)
       end if
 
         Call DrvXV(Tmp5,Tmp6,Tmp3,
@@ -848,18 +849,18 @@ cPS         call xflush(6)
 !I will read in the one- and two-electron potentials here
 
       Call GetMem('ONTOPT','ALLO','Real',ipTmpLTEOTP,nfint)
-      Call GetMem('ONTOPO','ALLO','Real',ipTmpLOEOTP,ntot1)
+      Call GetMem('ONTOPO','ALLO','Real',ipTmpOE_POT,ntot1)
       Call FZero(Work(iptmplteotp),Nfint)
-      Call FZero(Work(iptmploeotp),ntot1)
+      Call FZero(Work(iptmpOE_POT),ntot1)
 
 
       Call Get_dArray('ONTOPT',work(ipTmpLTEOTP),NFINT)
-      Call Get_dArray('ONTOPO',work(ipTmpLOEOTP),NTOT1)
+      Call Get_dArray('ONTOPO',work(ipTmpOE_POT),NTOT1)
 !
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'One-electron potentials'
         do i=1,ntot1
-          write(6,*) Work(iptmploeotp-1+i)
+          write(6,*) Work(iptmpOE_POT-1+i)
         end do
         write(6,*) 'Two-electron potentials'
         do i=1,nfint
@@ -899,7 +900,7 @@ cPS         call xflush(6)
 
       !Call daxpy_(ntot1,0.5d0,FI_V,1,FockA,1)
       Call daxpy_(ntot1,1.0d0,FI_V,1,FockA,1)
-      Call daxpy_(ntot1,1.0d0,Work(iptmploeotp),1,FockA,1)
+      Call daxpy_(ntot1,1.0d0,Work(iptmpOE_POT),1,FockA,1)
 
 
       i_off1=0
@@ -974,11 +975,11 @@ cPS         call xflush(6)
 
 
 !      CALL DCOPY_(nFint,[0.0D0],0,WORK(ipTmpLTEOTP),1)
-!      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpLOEOTP),1)
+!      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpOE_POT),1)
 !        write(6,*) 'ONTOPT'
 !        call wrtmat(Work(ipTmpLTEOTP),1,nFInt,1,nFInt)
 !        write(6,*) 'ONTOPO'
-!        call wrtmat(Work(ipTmpLOEOTP),1,ntot1,1,ntot1)
+!        call wrtmat(Work(ipTmpOE_POT),1,ntot1,1,ntot1)
 
 !Zero out the matrices.  We will be adding the potential-containing
 !terms as a correction to the Focc component already on the runfile.
@@ -1013,7 +1014,7 @@ cPS         call xflush(6)
         If ( IPRLEV.ge.DEBUG ) then
       CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
       Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
+      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpOE_POT),1,Work(ifat),1)
       Call daxpy_(NTOT1,1.0D0,FI_V,1,Work(ifat),1)
       Call daxpy_(NTOT1,1.0D0,FA_V,1,Work(ifat),1)
       write(6,*) "Total F additions:"
@@ -1024,7 +1025,7 @@ cPS         call xflush(6)
 
 
       !Add one e potential, too.
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,FockI,1)
+      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpOE_POT),1,FockI,1)
       !Add two e potentials
       Call daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
       Call daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
@@ -1066,7 +1067,7 @@ cPS         call xflush(6)
 
          CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
+      Call GetMem('ONTOPO','FREE','Real',ipTmpOE_POT,ntot1)
       Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
 
 
