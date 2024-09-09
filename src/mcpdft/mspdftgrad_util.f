@@ -21,7 +21,6 @@
       use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
-#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"

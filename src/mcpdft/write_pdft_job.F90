@@ -40,7 +40,6 @@ contains
     use definitions,only:wp
     implicit none
 
-#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

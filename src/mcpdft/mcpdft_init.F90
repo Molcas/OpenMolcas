@@ -31,7 +31,6 @@ subroutine mcpdft_init()
 #include "general.fh"
 #include "gas.fh"
 #include "timers.fh"
-#include "WrkSpc.fh"
 
   integer i
 !----------------------------------------------------------------------*

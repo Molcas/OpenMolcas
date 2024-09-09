@@ -33,11 +33,10 @@
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
-      Dimension Ref_Ener(*)
+      Real*8 Ref_Ener(*)
       integer jroot, left
-      character*6 Fmt2
-      character*120 Line
-#include "WrkSpc.fh"
+      character(LEN=6) Fmt2
+      character(LEN=120) Line
 
       if (iPrGlb >= usual) then
 

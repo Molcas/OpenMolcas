@@ -58,7 +58,7 @@
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
       integer iJOB,dmDisk,iP2d
-      integer itmp0,itmp1,itmp2,itmp3,itmp4
+      integer itmp1,itmp2,itmp3,itmp4
       integer itmp5,itmp6,itmp7,itmpn,itmpk,itmpa
       integer ifocka
       integer IADR19(1:30)
@@ -71,7 +71,7 @@
       integer isym,iash,jsym
       integer, External:: IsFreeUnit
 
-      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:)
+      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:), Tmp0(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -85,21 +85,21 @@ C Local print level (if any)
 ***********************************************************
 * Generate molecular charges
 ***********************************************************
-      Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+      Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
       iRc=-1
       iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-      Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+      Tot_Nuc_Charge=Tmp0(nTot1+4)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
         Write(LF,*) 'iRc = ',iRc
         Call Abend
       Endif
-      Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+      Call mma_deallocate(Tmp0)
 
       Tot_El_Charge=Zero
       Do iSym=1,nSym

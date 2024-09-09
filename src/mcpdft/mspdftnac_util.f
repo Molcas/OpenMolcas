@@ -19,7 +19,6 @@
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
-#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
@@ -108,6 +107,6 @@
       Call Put_cArray('Relax Method','MSPDFT  ',8)
       Call Put_cArray('MCLR Root','****************',16)
       Call Put_iScalar('Relax CASSCF root',irlxroot)
-      RETURN
+
       End Subroutine
 
