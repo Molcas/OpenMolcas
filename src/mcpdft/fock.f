@@ -347,7 +347,6 @@ c
         END DO
        ENDIF
 
-CGLM        call recprt('Q-mat',' ',Q(1),NO,NAO)
 
 c
 c       active-active interaction term in the RASSCF energy
@@ -367,9 +366,6 @@ c
       END DO
 
 
-!Now, add all components to the original Fock matrix
-!      Call DAXPY_()
-!      Call DAXPY_()
 c
 C
 c     Calculate Fock matrix for occupied orbitals.
@@ -400,9 +396,6 @@ C
         End Do
       End If
 
-!What happens if we divide by two?
-!      Call Dscal_(ntot4,0.5d0,F,1)
-
 !For MCLR
       IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
        CALL DCopy_(nTot4,F,1,FxyMS(:,iIntS),1)
@@ -411,7 +404,7 @@ C
       END IF
 
       CALL FOCKOC(Q,F,CMO)
-C
+
       Call mma_deallocate(TF)
-C
+
       END SUBROUTINE FOCK_update

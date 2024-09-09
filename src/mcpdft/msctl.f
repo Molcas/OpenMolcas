@@ -380,11 +380,9 @@
          END IF
 
          NQ=0
-         NSXS=0
          NIAIA=0
          do ISYM=1,NSYM
            NQ = MAX(NQ,NASH(ISYM)*NORB(ISYM))
-           NSXS= NSXS+(NISH(ISYM)+NASH(ISYM))*(NASH(ISYM)+NSSH(ISYM))
            NIAIA = NIAIA+(NASH(ISYM)+NISH(ISYM))**2
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
