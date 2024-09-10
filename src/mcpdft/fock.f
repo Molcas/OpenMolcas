@@ -76,11 +76,9 @@ C
 C
 * A long loop over symmetry
       DO ISYM=1,NSYM
-       IX=IX1+NFRO(ISYM)
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
        NEO=NSSH(ISYM)
-       NIA=NIO+NAO
        NO=NORB(ISYM)
        NO2=(NO**2+NO)/2
        CSX=0.0D0

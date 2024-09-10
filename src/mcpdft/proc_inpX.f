@@ -33,7 +33,6 @@
 
       Real*8 potnucdummy
       logical lExists, RunFile_Exists
-      Logical, External :: Is_First_Iter
       integer, external :: isFreeUnit
       logical, external :: Langevin_On, PCM_On
 
