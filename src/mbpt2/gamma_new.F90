@@ -81,11 +81,11 @@ do iSym=1,nSym
   nNO = nBas(iSym)*nOcc(iSym)
   nNV = nBas(iSym)*nExt(iSym)
 
-  call dCopy_(nNO,CMO(iOffCMO(iSym)+iOff),1,CMO_o(iOffCMO_o(iSym)+1),1)
+  call dCopy_(nNO,CMO(iOffCMO(iSym)+iOff:),1,CMO_o(iOffCMO_o(iSym)+1:),1)
 
   iOff = iOff+nNO
 
-  call dCopy_(nNV,CMO(iOffCMO(iSym)+iOff),1,CMO_v(iOffCMO_v(iSym)+1),1)
+  call dCopy_(nNV,CMO(iOffCMO(iSym)+iOff:),1,CMO_v(iOffCMO_v(iSym)+1:),1)
 end do
 
 #ifdef _DEBUGPRINT_
