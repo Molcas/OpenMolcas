@@ -75,11 +75,11 @@ write(u6,'(A,8I4)')
 iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t),1,CMO(iStart),1)
+  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t:),1,CMO(iStart:),1)
   iStart = iStart+nOrb(iSym)*nBas(iSym)
   iStart_t = iStart_t+nOrb(iSym)*nBas(iSym)
 
-  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,CMO(iStart),1)
+  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,CMO(iStart:),1)
   iStart = iStart+(nBas(iSym)-nOrb(iSym))*nBas(iSym)
 end do
 call mma_deallocate(CMO_t)
@@ -89,11 +89,11 @@ call mma_deallocate(CMO_t)
 iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym),EOrb_t(iStart_t),1,EOrb(iStart),1)
+  call dcopy_(nOrb(iSym),EOrb_t(iStart_t:),1,EOrb(iStart:),1)
   iStart = iStart+nOrb(iSym)
   iStart_t = iStart_t+nOrb(iSym)
 
-  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,EOrb(iStart),1)
+  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,EOrb(iStart:),1)
   iStart = iStart+nBas(iSym)-nOrb(iSym)
 end do
 call mma_deallocate(EOrb_t)
