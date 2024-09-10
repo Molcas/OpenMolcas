@@ -19,7 +19,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8), nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
 integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
 real(kind=wp), intent(in), Target :: CMO(lthCMO)
-integer(kind=iwp), external :: ip_of_Work
 #include "rasdim.fh"
 #include "caspt2.fh"
 

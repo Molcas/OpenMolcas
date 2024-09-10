@@ -26,7 +26,8 @@ logical(kind=iwp) :: DelGhost, DoCholesky, DoDF
 character(len=80) :: Title(10)
 type(DSBA_Type) :: Density, DiaA, Mp2Lagr, WDensity
 integer(kind=iwp), allocatable :: iDel(:,:), iFro(:,:)
-real(kind=wp), allocatable :: CMO(:), EOrb(:)
+real(kind=wp), allocatable, target :: CMO(:)
+real(kind=wp), allocatable :: EOrb(:)
 real(kind=wp), allocatable, target :: EOcc(:), EVir(:)
 character(len=LenIn), allocatable :: NamAct(:)
 ! Unit Numbers & File Names
