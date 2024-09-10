@@ -28,6 +28,7 @@ contains
     use constants,only:zero
     use stdalloc,only:mma_allocate
     use rasscf_global,only:nroots,nacpr2,nTot4
+    use mcpdft_input,only:mcpdft_options
     implicit none
 
 #include "rasdim.fh"
@@ -45,6 +46,11 @@ contains
     endif
 
     P2MOT = zero
+
+    ! Put relevant information to the runfile
+    call Put_lScalar('isCMSNAC        ',mcpdft_options%nac)
+    call Put_iArray('cmsNACstates    ',mcpdft_options%nac_states,2)
+    call Put_lScalar('isMECIMSPD      ',mcpdft_options%meci)
 
   endsubroutine
 

@@ -45,7 +45,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use rasscf_global, only: ECAS, ExFac, IPR, ITER,
+      use rasscf_global, only: ExFac, IPR, ITER,
      &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
      &                         nFint, iRoot, Weight,
      &                         Ener
@@ -65,7 +65,7 @@
       integer IADR19(1:15)
       integer NMAYBE,KROOT
       real*8 EAV
-      
+
       real(kind=wp), allocatable :: Ref_E(:), EList(:,:), PUVX(:)
 
       Logical DSCF
@@ -157,7 +157,7 @@
 
       Call Timing(dum1,dum2,Ebel_1,dum3)
 
-      ECAS   = 0.0d0
+! This needs to be put somehwere else...
       Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
 
@@ -219,37 +219,8 @@
         JOBOLD=-1
       End if
 
-      IF(mcpdft_options%nac) Then
-        IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,A)') repeat('=',80)
-        write(6,*)
-        write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
-     &         mcpdft_options%nac_states(1),
-     &         mcpdft_options%nac_states(2)
-        write(6,*)
-        write(6,'(6X,A)') repeat('=',80)
-        END IF
-      ELSE
-        mcpdft_options%nac_states(1) = mcpdft_options%rlxroot
-        mcpdft_options%nac_states(2) = 0
-      End IF
-      call Put_lScalar('isCMSNAC        ', mcpdft_options%nac)
-      call Put_iArray('cmsNACstates    ', mcpdft_options%nac_states, 2)
-
-      IF(mcpdft_options%meci .and. iprlev .ge. usual) Then
-        write(lf,'(6X,A)') repeat('=',80)
-        write(lf,*)
-        write(lf,'(6X,A,I3,I3)')'keyword MECI is used for states:'
-        write(lf,*)
-        write(lf,'(6X,A)') repeat('=',80)
-      End IF
-      call Put_lScalar('isMECIMSPD      ', mcpdft_options%meci)
-
-
-*
-* Transform two-electron integrals and compute at the same time
-* the Fock matrices FI and FA
-*
+! Transform two-electron integrals and compute at the same time
+! the Fock matrices FI and FA
       Call Timing(dum1,dum2,Fortis_1,dum3)
 
       IPR=0
@@ -273,12 +244,12 @@
       ! so this does 2 things, first it puts the integrals
       ! into the file LUINTM, the second is that we write
       ! the integrals to the runfile anyways for mspdft grad
-      CALL TRACTL2(CMO,PUVX,TUVX,D1I,
-     &             FI,D1A,FA,IPR,lSquare,ExFac)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
       ! This TRACTL2 call has some side affects that I
       ! don't know of..
+      CALL TRACTL2(CMO,PUVX,TUVX,D1I,
+     &             FI,D1A,FA,IPR,lSquare,ExFac)
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
       end if
       call mma_deallocate(PUVX)

@@ -30,7 +30,7 @@
       use wadr, only: FockOcc
       use rasscf_global, only: DFTFOCK, ECAS, EMY, nRoots, ExFac,
      &                         IADR15, IPR, lRoots, lSquare,
-     &                         NAC, NACPAR, NACPR2, nFint, NonEq, NSXS,
+     &                         NAC, NACPAR, NACPR2, nFint, NonEq,
      &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
      &                         Tot_Nuc_Charge, ISTORP, ENER
       implicit none

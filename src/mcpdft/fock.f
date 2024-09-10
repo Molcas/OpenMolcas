@@ -26,7 +26,7 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rasscf_global, only: E2act, ECAS, HALFQ1,
+      use rasscf_global, only: E2act, HALFQ1,
      &                         NTOT3, ISTORP,
      &                         ISTORD, ITRI, CBLB, iBLB,
      &                         jBLB
@@ -41,8 +41,8 @@ C
       Integer iPrLev
       REAL*8  CSX, QNTM
       Integer ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
-     &        ISYM, IX, IX1, JSTF, N1, N2, NAO, NEO, NI, NIA, NIO,
-     &        NM, NO, NO2, NOR, NP, NT, NTM, NTT,
+     &        ISYM, IX1, JSTF, N1, N2, NAO, NEO, NI, NIO,
+     &        NM, NO, NO2, NOR, NP, NT, NTM,
      &        NTV, NUVX, NV, NVI, NVM
 
 C

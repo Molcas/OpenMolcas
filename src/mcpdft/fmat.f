@@ -51,7 +51,7 @@
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: ECAS, EMY, ExFac, NAC, nFint, VIA
+      use rasscf_global, only: ECAS, EMY, VIA
 
       Implicit None
 
@@ -65,6 +65,7 @@
       Real*8, allocatable:: Tmp1(:), Tmp2(:)
       Integer iBas, iFro, iOff, iOff1, iOff2, iOff3, iOrb, iPrLev, iSym
       Real*8, External:: DDot_
+      real*8 vaa
 
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
