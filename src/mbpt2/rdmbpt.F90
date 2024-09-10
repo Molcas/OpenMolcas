@@ -31,7 +31,7 @@ subroutine RdMBPT()
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: CMO, EOrb, nBas, nDsto, nnB
+use MBPT2_Global, only: CMO, CMO_Internal,EOrb, nBas, nDsto, nnB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -72,7 +72,8 @@ end do
 
 call mma_allocate(CMO_t,lthCMO,Label='CMO_t')
 call Get_CMO(CMO_t,lthCMO)
-call mma_allocate(CMO,lthCMO,label='CMO')
+call mma_allocate(CMO_Internal,lthCMO,label='CMO_Internal')
+CMO=>CMO_Internal
 
 ! set MO coefficients of the deleted orbitals to zero
 ! Observe that these are not included at all in the basis

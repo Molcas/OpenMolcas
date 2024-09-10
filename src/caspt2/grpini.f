@@ -13,7 +13,7 @@
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO
+      use caspt2_data, only: CMO, CMO_Internal
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -68,7 +68,8 @@
 * ---------------------------------------------------------------------
 
 * Load CASSCF MO coefficients
-      call mma_allocate(CMO,NCMO,Label='CMO')
+      call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       IDISK=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,IDISK)
       IAD1M(2)=IDISK
@@ -273,7 +274,8 @@ c You don't have to be beautiful to turn me on
       TIOINT=TIO1-TIO0
       call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
 
-      call mma_deallocate(CMO)
+      call mma_deallocate(CMO_Internal)
+      CMO=>Null()
 
 
       return

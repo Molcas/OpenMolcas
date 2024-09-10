@@ -21,7 +21,7 @@
       use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
-      use caspt2_data, only: CMO
+      use caspt2_data, only: CMO, CMO_Internal
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -193,7 +193,8 @@ C This density matrix may be approximated in several ways, see DENS.
       END IF
 
 C Compute natural orbitals of CASPT2 wave function.
-      CALL mma_allocate(CMO,NCMO,Label='CMO')
+      CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       CALL DCOPY_(NCMO,WORK(LCMOPT2),1,CMO,1)
       IF (MODE.EQ.1) THEN
         !! Read the CASSCF orbital (really?)
@@ -203,7 +204,8 @@ C Compute natural orbitals of CASPT2 wave function.
       CALL GETMEM('CNAT','ALLO','REAL',LCNAT,NCMO)
       CALL GETMEM('OCC','ALLO','REAL',LOCC,NOCC)
       CALL NATORB_CASPT2(WORK(LDMAT),CMO,WORK(LOCC),WORK(LCNAT))
-      CALL mma_deallocate(CMO)
+      CALL mma_deallocate(CMO_Internal)
+      CMO=>Null()
 C Backtransform density matrix to original MO basis before storing
       CALL TRANSFOCK(WORK(LTORB),WORK(LDMAT),-1)
       CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)

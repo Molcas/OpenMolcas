@@ -18,8 +18,9 @@ private
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
+real*8, Allocatable, Target:: CMO_Internal(:)
 real*8, Pointer:: CMO(:)
 
-public :: jState, mState, nActEl, nG3, CMO
+public :: jState, mState, nActEl, nG3, CMO, CMO_Internal
 
 end module caspt2_data

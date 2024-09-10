@@ -13,7 +13,7 @@
       subroutine rdminit
 
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO
+      use caspt2_data, only: CMO, CMO_Internal
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
       implicit real(8) (A-H,O-Z)
@@ -31,7 +31,8 @@
       end if
 
 * Get CASSCF MO coefficients
-      call mma_allocate(CMO,NCMO,Label='CMO')
+      call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       IDISK=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,IDISK)
 
@@ -76,7 +77,8 @@
       end do
 
 * Deallocate everything
-      call mma_deallocate(CMO)
+      call mma_deallocate(CMO_Internal)
+      CMO=>Null()
       call getmem('LCI','FREE','REAL',LCI,NCONF)
 
       return

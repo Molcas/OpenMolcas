@@ -16,7 +16,7 @@
       use PrintLevel, only: usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
-      use caspt2_data, only: CMO
+      use caspt2_data, only: CMO, CMO_Internal
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
@@ -111,7 +111,8 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL GETMEM('JROOT','FREE','INTE',LJROOT,MXROOT)
 * Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT
-      CALL mma_allocate(CMO,NCMO,Label='CMO')
+      CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       IAD15=IADR15(9)
       CALL DDAFILE(JOBIPH,2,CMO,NCMO,IAD15)
       IAD15=IADR15(9)
@@ -123,7 +124,8 @@ C to JOBMIX, we use the same TOC array, IADR15.
         IAD15=IADR15(2)
         CALL DDAFILE(JOBMIX,1,CMO,NCMO,IAD15)
       END IF
-      CALL mma_deallocate(CMO)
+      CALL mma_deallocate(CMO_Internal)
+      CMO=>Null()
 * Copy all CI coefficients
       IDR=IADR15(4)
       IDW=IADR15(4)

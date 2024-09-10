@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine correlating_orbitals
+      subroutine correlating_orbitals()
 ************************************************************************
 *
 * Alter the correlating orbital space by various freeze-delete schemes.
@@ -21,7 +21,7 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 
-      Real*8, Allocatable :: CMO(:), DPQ(:)
+      Real*8, Allocatable :: CMO_X(:), DPQ(:)
       Integer IDISK
       Integer ntri, NDPQ
       Real*8 Dummy(1)
@@ -29,11 +29,11 @@
 
 * memory to store MOs
       NCMO=NBSQT
-      CALL MMA_ALLOCATE(CMO,NCMO)
+      CALL MMA_ALLOCATE(CMO_X,NCMO)
 
 * Read the MOs from the LUONEM file
       IDISK=IAD1M(1)
-      CALL DDAFILE(LUONEM,2,CMO,NCMO,IDISK)
+      CALL DDAFILE(LUONEM,2,CMO_X,NCMO,IDISK)
 
 * AFreeze CASPT2 calculation, available only with
 * Cholesky or RI type integral representation.
@@ -61,7 +61,7 @@
         CALL MMA_ALLOCATE(DPQ,NDPQ)
         Call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,
      &    INPUT%NAMFRO,INPUT%LNFRO,DPQ,
-     &    Input%THRFR,Input%THRDE,IFQCAN,CMO,NCMO)
+     &    Input%THRFR,Input%THRDE,IFQCAN,CMO_X,NCMO)
         CALL MMA_DEALLOCATE(DPQ)
         Write(6,'(A,8I4)')
      &  ' Frozen orbitals after selection     ',(nfro(i),i=1,nsym)
@@ -107,7 +107,7 @@
         EMP2=0.0d0
         Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
      &    NAME,nUniqAt,Input%thr_atm,IFQCAN,
-     &    Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO,NCMO)
+     &    Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,NCMO)
 
         If (irc.ne.0) Then
           write(6,*) 'LovCASPT2 returned rc= ',irc
@@ -163,7 +163,7 @@
 
         EMP2=0.0d0
         Call FNO_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &           Input%vfrac,IFQCAN,Input%DoMP2,EMP2,CMO,NCMO)
+     &           Input%vfrac,IFQCAN,Input%DoMP2,EMP2,CMO_X,NCMO)
 
         If (irc.ne.0) Then
           write(6,*) 'FNO_CASPT2 returned rc= ',irc
@@ -197,7 +197,7 @@
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
         Call Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &          NAME,nUniqAt,Input%ThrGD,.True.,CMO,Dummy)
+     &          NAME,nUniqAt,Input%ThrGD,.True.,CMO_X,Dummy)
 
         If (irc.ne.0) Then
           write(6,*) 'Delete_GHOSTS returned rc= ',irc
@@ -212,9 +212,9 @@
 
 * Store the MOs on the LUONEM file
       IDISK=IAD1M(1)
-      CALL DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
+      CALL DDAFILE(LUONEM,1,CMO_X,NCMO,IDISK)
 
-      CALL MMA_DEALLOCATE(CMO)
+      CALL MMA_DEALLOCATE(CMO_X)
 
 * we need to force recanonicalization of the orbitals later
       IFQCAN=0

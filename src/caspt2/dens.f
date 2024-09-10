@@ -1431,7 +1431,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine TRAFRO(MODE)
 C
-      use caspt2_data, only: CMO
+      use caspt2_data, only: CMO, CMO_Internal
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1452,14 +1452,16 @@ C
         End Do
       End If
 C
-      Call mma_allocate(CMO,NCMO,Label='CMO')
+      Call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       Call DCopy_(NCMO,WORK(LCMOPT2),1,CMO,1)
       if (IfChol) then
         call TRACHO3(CMO)
       else
         call TRACTL(0)
       end if
-      Call mma_deallocate(CMO)
+      Call mma_deallocate(CMO_Internal)
+      CMO=>Null()
 C
       If (Mode.eq.1) Then
         Do jSym = 1, 8

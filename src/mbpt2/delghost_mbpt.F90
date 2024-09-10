@@ -11,7 +11,7 @@
 
 subroutine DelGHOST_MBPT()
 
-use MBPT2_Global, only: CMO, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
+use MBPT2_Global, only: CMO, CMO_Internal, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -40,10 +40,12 @@ do iSym=1,nSym
   nZero(iSym) = 0
 end do
 
-call move_alloc(CMO,CMO_t)
+call move_alloc(CMO_Internal,CMO_t)
+CMO=>Null()
 call move_alloc(EOrb,EOrb_t)
 
-call mma_allocate(CMO,size(CMO_t),label='CMO')
+call mma_allocate(CMO_Internal,size(CMO_t),label='CMO')
+CMO=>CMO_Internal
 call mma_allocate(EOrb,size(EOrb_t),label='EOrb')
 
 write(u6,'(A)') '-------------------------------------------------------'

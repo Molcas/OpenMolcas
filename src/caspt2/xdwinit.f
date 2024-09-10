@@ -16,7 +16,7 @@
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: CMO
+      use caspt2_data, only: CMO, CMO_Internal
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -81,7 +81,8 @@
       call getmem('LDAVE','FREE','REAL',LDAVE,NDREF)
 
 * Load CASSCF MO coefficients
-      call mma_allocate(CMO,NCMO,Label='CMO')
+      call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
@@ -173,9 +174,8 @@ C
 * Release all memory
       call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
-      call mma_deallocate(CMO)
+      call mma_deallocate(CMO_Internal)
+      CMO=>Null()
 
-
-      return
-      end
+      end subroutine xdwinit
 
