@@ -56,7 +56,6 @@ logical(kind=iwp), external :: Reduce_Prt
 character(len=LenIn8), external :: Clean_BName
 !character(len=4), allocatable :: TLbl(:)
 !character(len=LenIn), allocatable :: LblCnt(:)
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
