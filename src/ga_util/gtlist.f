@@ -25,8 +25,8 @@
       Call GATskL(.TRUE.,nTasks,igaTsk)
 #endif
 *
-      Return
-      End
+      End Subroutine Init_GTList
+
       Subroutine ReInit_GTList()
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -42,8 +42,7 @@
       Call GATskL_Zero(igaTsk)
 #endif
 *
-      Return
-      End
+      End Subroutine ReInit_GTList
 
 ************************************************************************
 * Rsv_GTList
@@ -58,7 +57,6 @@
       Integer RsvTsk
 #endif
       Logical NewBatch
-#include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -114,13 +112,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End Function Rsv_GTList
 
 ************************************************************************
 * Free_GTList
 ************************************************************************
-      Subroutine Free_GTList
+      Subroutine Free_GTList()
       Use Para_Info, Only: nProcs, Is_Real_Par
       use TList_Mod
 *
@@ -134,5 +131,4 @@
       Call GATskL(.False.,nTasks,igaTsk)
 #endif
 *
-      Return
-      End
+      End Subroutine Free_GTList
