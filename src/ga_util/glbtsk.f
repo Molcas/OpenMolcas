@@ -50,8 +50,7 @@ c Avoid unused argument warnings
          Call Unused_integer(igaTsk)
       End If
 #endif
-      Return
-      End
+      End SubRoutine GATskL
 *----------------------------------------------------------------------*
       SubRoutine GATskL_Zero(igaTsk)
       Implicit None
@@ -64,8 +63,7 @@ c Avoid unused argument warnings
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(igaTsk)
 #endif
-      Return
-      End
+      End SubRoutine GATskL_Zero
 ************************************************************************
 * Integer Function RsvTsk(igaTsk,iTskLs,nTsk,iStart)                   *
 *  -> reserve a task for my node and mark it on the global task list   *
@@ -76,15 +74,12 @@ c Avoid unused argument warnings
 *     iStart:   starting value of index of private task list           *
 ************************************************************************
       Integer Function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
-#  ifndef _GA_
-      use stdalloc, only: mma_allocate, mma_deallocate
-#  endif
+#ifdef _MOLCAS_MPP_
+#  ifdef _GA_
       Implicit None
       Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
-#ifdef _MOLCAS_MPP_
 #  include "global.fh"
       Logical Reserved
-#  ifdef _GA_
       Integer iCnt,iTsk
 *
       If (iStart.gt.mTsk) Then
@@ -111,6 +106,11 @@ c Avoid unused argument warnings
       RsvTsk=iTsk
       iStart=iCnt
 #  else
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
+#  include "global.fh"
+      Logical Reserved
       Integer iCnt,iTsk
       Integer :: One=1
       Integer, allocatable:: TSKR(:)
@@ -141,6 +141,8 @@ c Avoid unused argument warnings
       iStart=iCnt
 #  endif
 #else
+      Implicit None
+      Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
       RsvTsk=0
       iStart=nTsk
 c Avoid unused argument warnings
