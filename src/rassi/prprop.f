@@ -20,6 +20,7 @@
       use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,
      &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
      &                     rNAVO
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
       parameter (THRSH=1.0D-10)
@@ -29,44 +30,29 @@
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "stdalloc.fh"
 #include "WrkSpc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &          ENERGY(NSTATE),JBNUM(NSTATE), EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
-*      Character*8 EFPROP
-*      Character*8 PSOPROP
-*      Character*8 DMPPROP
-*     Character*8 OVRPROP
-      Dimension IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
-      Dimension DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
-      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
+      Integer IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
+      Real*8 DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
+      Real*8 TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
       COMPLEX*16 DIPSOm(3,NSS,NSS),Z(NSS,NSS),DIPSOn(3,NSS,NSS)
       COMPLEX*16 SPNSFS(3,NSS,NSS)
-*      COMPLEX*16 DIPSOf(3,NSS,NSS),DIMSO(3,3,NSS,NSS)
-*      COMPLEX*16 DIPSOfc(3,NSS,NSS),DIPSOfsd(3,NSS,NSS)
-*      COMPLEX*16 DIPSOfcsd(3,NSS,NSS),DIPSOfpso(3,NSS,NSS)
-       !REAL*8  DIMSOIJ(3,3,NSS)
       REAL*8 GTOTAL(9),ANGMOME(3,NSTATE,NSTATE),ESO(NSS)
       REAL*8 EDIP1MOM(3,NSTATE,NSTATE),AMFIINT(3,NSTATE,NSTATE)
-      Dimension TMPm(NTS)!,TMPf(NTP)
-*     Dimension TMPm(NTS),TMPf(NTP),TMFC(NTF)
-      Dimension c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
-      Dimension curit(3,3),paramt(3,3)
-*      Dimension HFC_1(3,3),HFC_2(3,3),HFC_3(3,3)
-*      Dimension CurieT(3,3),DiamT(3,3),PNMRCPS(NTP,NSS,3,3)
-      Dimension chiT_tens(NTS,3,3)!,PNMRT(NTP,3,3),PNMR(NTP,3,3)
-      Dimension chicuriT_tens(NTS,3,3),chiparamT_tens(NTS,3,3)
-*      Dimension PNMRC(NTP,3,3),PNMRD(NTP,3,3)
-*     Dimension PNMRC(NTP,3,3),PNMRD(NTP,3,3),PNMRFCC(NTP,3,3)
-*     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
-*     Dimension NMRFD(NTF,3,3)
+      Real*8 TMPm(NTS)!,TMPf(NTP)
+      Real*8 c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
+      Real*8 curit(3,3),paramt(3,3)
+      Real*8 chiT_tens(NTS,3,3)!,PNMRT(NTP,3,3),PNMR(NTP,3,3)
+      Real*8 chicuriT_tens(NTS,3,3),chiparamT_tens(NTS,3,3)
       REAL*8 DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi!,DLTTA
       LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
-      Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
+      Integer IMR(3),IMI(3)
+      Real*8 RMAGM(3),Chi(3)
       INTEGER IFUNCT, SECORD(4)
       REAL*8 J2CM
       Complex*16 T0(3), TM1
@@ -77,14 +63,12 @@
       REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
       REAL*8 TMPA(NSTATE,NSTATE,3)
 #endif
-
+      Integer, allocatable:: PMAP(:)
 
 
       AU2J=auTokJ*1.0D3
       J2CM=auTocm/AU2J
       AU2JTM=(AU2J/auToT)*rNAVO
-!      ALPHA=One/c_in_au
-!      ALPHA2= ALPHA*ALPHA
       AU2REDR=2.0D2*Debye
       HALF=0.5D0
 
@@ -323,14 +307,14 @@ c If PRPR requested, print the spin matrices
 
       IF( PRMES ) THEN
 * match the SO property list to the SF property list
-       CALL GETMEM('PMAP','ALLO','INTE',LPMAP,NPMSIZ)
+       CALL mma_allocate(PMAP,NPMSIZ,Label='PMap')
        NMISS=0
        DO ISOPR=1,NSOPR
-        IWORK(LPMAP-1+ISOPR)=0
+        PMAP(ISOPR)=0
         DO IPROP=1,NPROP
          IF(PNAME(IPROP).EQ.SOPRNM(ISOPR).AND.
      &     ICOMP(IPROP).EQ.ISOCMP(ISOPR)) THEN
-          IWORK(LPMAP-1+ISOPR)=IPROP
+          PMAP(ISOPR)=IPROP
           GOTO 10
          END IF
         END DO
@@ -350,7 +334,7 @@ c check for inconsistencies
          WRITE(6,*)'   (If you need these properties, change the'
          WRITE(6,*)'    input to SEWARD and recompute.)'
          DO ISOPR=1,NSOPR
-          IF(IWORK(LPMAP-1+ISOPR).EQ.0)
+          IF(PMAP(ISOPR).EQ.0)
      &       WRITE(6,*)'Property:',SOPRNM(ISOPR),
      &                 '      Component:',ISOCMP(ISOPR)
          END DO
@@ -383,14 +367,14 @@ c check for inconsistencies
 C Remove zeroes to make SOPRNM and ISOCMP lists contiguous. New NSOPR.
        ISOPR=0
        DO I=1,NSOPR
-        IPROP=IWORK(LPMAP-1+I)
+        IPROP=PMAP(I)
         IF(IPROP.GT.0) THEN
          ISOPR=ISOPR+1
          SOPRNM(ISOPR)=SOPRNM(I)
          ISOCMP(ISOPR)=ISOCMP(I)
         END IF
        END DO
-       CALL GETMEM('PMAP','FREE','INTE',LPMAP,NPMSIZ)
+       CALL mma_deallocate(PMAP)
        NSOPR=ISOPR
 
        Call mma_Allocate(SOPRR,NSS,NSS,Label='SOPRR')
