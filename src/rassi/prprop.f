@@ -67,6 +67,9 @@
       Real*8, allocatable:: DXR(:,:), DXI(:,:),
      &                      DYR(:,:), DYI(:,:),
      &                      DZR(:,:), DZI(:,:)
+      Real*8, allocatable:: SXR(:,:), SXI(:,:),
+     &                      SYR(:,:), SYI(:,:),
+     &                      SZR(:,:), SZI(:,:)
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
 
 
@@ -946,35 +949,13 @@ C printing threshold
 
 
 ! Spin-Magnetic-Dipole
-         CALL GETMEM('SXR','ALLO','REAL',LSXR,NSS**2)
-         CALL GETMEM('SXI','ALLO','REAL',LSXI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXI),1)
-         CALL GETMEM('SYR','ALLO','REAL',LSYR,NSS**2)
-         CALL GETMEM('SYI','ALLO','REAL',LSYI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYI),1)
-         CALL GETMEM('DSR','ALLO','REAL',LSZR,NSS**2)
-         CALL GETMEM('DSI','ALLO','REAL',LSZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZI),1)
+         Call Allocate_Spin_Magnetic_dipoles()
 
 ! Magnetic-Dipole
          Call Load_electric_dipoles()
 
 ! Spin-Magnetic-Dipole
-         IF(IPRSX.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSXR),NSS,IPRSX,1)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSXR),WORK(LSXI))
-         END IF
-         IF(IPRSY.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSYR),NSS,IPRSY,2)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSYR),WORK(LSYI))
-         END IF
-         IF(IPRSZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSZR),NSS,IPRSZ,3)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZR),WORK(LSZI))
-         END IF
+         Call Load_Spin_Magnetic_dipoles()
 
          ONEOVER6C2=1.0D0/(6.0D0*c_in_au**2)
          g = FEGVAL
@@ -984,12 +965,12 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
-            DX2=(DXI(JSS,ISS)+g*WORK(LSXR-1+IJSS))**2
-     &         +(DXR(JSS,ISS)-g*WORK(LSXI-1+IJSS))**2
-            DY2=(DYI(JSS,ISS)+g*WORK(LSYR-1+IJSS))**2
-     &         +(DYR(JSS,ISS)-g*WORK(LSYI-1+IJSS))**2
-            DZ2=(DZI(JSS,ISS)+g*WORK(LSZR-1+IJSS))**2
-     &         +(DZR(JSS,ISS)-g*WORK(LSZI-1+IJSS))**2
+            DX2=(DXI(JSS,ISS)+g*SXR(JSS,ISS))**2
+     &         +(DXR(JSS,ISS)-g*SXI(JSS,ISS))**2
+            DY2=(DYI(JSS,ISS)+g*SYR(JSS,ISS))**2
+     &         +(DYR(JSS,ISS)-g*SYI(JSS,ISS))**2
+            DZ2=(DZI(JSS,ISS)+g*SZR(JSS,ISS))**2
+     &         +(DZR(JSS,ISS)-g*SZI(JSS,ISS))**2
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
@@ -1005,12 +986,7 @@ C printing threshold
          Call Deallocate_electric_dipoles()
 
 ! Spin-Magnetic-Dipole
-         CALL GETMEM('DXR','FREE','REAL',LSXR,NSS**2)
-         CALL GETMEM('DXI','FREE','REAL',LSXI,NSS**2)
-         CALL GETMEM('DYR','FREE','REAL',LSYR,NSS**2)
-         CALL GETMEM('DYI','FREE','REAL',LSYI,NSS**2)
-         CALL GETMEM('DZR','FREE','REAL',LSZR,NSS**2)
-         CALL GETMEM('DZI','FREE','REAL',LSZI,NSS**2)
+         Call Deallocate_Spin_Magnetic_dipoles()
 
        IF(QIALL) THEN
          WRITE(6,35)
@@ -4093,6 +4069,46 @@ C backtransformation in two steps, -phi and -theta
           CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
          END IF
       End Subroutine Load_electric_dipoles
+
+      Subroutine Allocate_Spin_Magnetic_dipoles()
+         CALL mma_allocate(SXR,NSS,NSS,Label='SXR')
+         CALL mma_allocate(SXI,NSS,NSS,Label='SXI')
+         CALL mma_allocate(SYR,NSS,NSS,Label='SYR')
+         CALL mma_allocate(SYI,NSS,NSS,Label='SYI')
+         CALL mma_allocate(SZR,NSS,NSS,Label='SZR')
+         CALL mma_allocate(SZI,NSS,NSS,Label='SZI')
+         DXR(:,:)=0.0D0
+         DXI(:,:)=0.0D0
+         DYR(:,:)=0.0D0
+         DYI(:,:)=0.0D0
+         DZR(:,:)=0.0D0
+         DZI(:,:)=0.0D0
+      End Subroutine Allocate_Spin_Magnetic_dipoles
+
+      Subroutine Deallocate_Spin_Magnetic_dipoles()
+         CALL mma_deallocate(SXR)
+         CALL mma_deallocate(SXI)
+         CALL mma_deallocate(SYR)
+         CALL mma_deallocate(SYI)
+         CALL mma_deallocate(SZR)
+         CALL mma_deallocate(SZI)
+      End Subroutine Deallocate_Spin_Magnetic_dipoles
+
+      Subroutine Load_Spin_Magnetic_dipoles()
+         IF(IPRSX.GT.0) THEN
+          CALL SMMAT(PROP,SXR,NSS,IPRSX,1)
+          CALL ZTRNSF(NSS,USOR,USOI,SXR,SXI)
+         END IF
+         IF(IPRSY.GT.0) THEN
+          CALL SMMAT(PROP,SYR,NSS,IPRSY,2)
+          CALL ZTRNSF(NSS,USOR,USOI,SYR,SYI)
+         END IF
+         IF(IPRSZ.GT.0) THEN
+          CALL SMMAT(PROP,SZR,NSS,IPRSZ,3)
+          CALL ZTRNSF(NSS,USOR,USOI,SZR,SZI)
+         END IF
+      End Subroutine Load_Spin_Magnetic_dipoles
+
       END SUBROUTINE PRPROP
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
