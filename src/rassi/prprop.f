@@ -22,20 +22,21 @@
      &                     rNAVO
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-      parameter (THRSH=1.0D-10)
-      parameter (ZERO=0.0D0)
+      Integer NSS, JBNUM(NSTATE)
+      Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      Real*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &       ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
+
+      Real*8, parameter:: THRSH=1.0D-10, ZERO=0.0D0
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &          ENERGY(NSTATE),JBNUM(NSTATE), EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
-      Character*1 xyzchr(3)
+      Character(LEN=1) xyzchr(3)
       Integer IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
       Real*8 DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
       Real*8 TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
