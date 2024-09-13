@@ -67,6 +67,7 @@
       Real*8, allocatable:: DXR(:,:), DXI(:,:),
      &                      DYR(:,:), DYI(:,:),
      &                      DZR(:,:), DZI(:,:)
+      Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
 
 
       AU2J=auTokJ*1.0D3
@@ -516,10 +517,10 @@ C printing threshold
 !     These stores all dipole oscillator strengths in
 !     length and velocity gauge for a later comparison.
 !
-      CALL GETMEM('DL   ','ALLO','REAL',LDL,NSS**2)
-      CALL GETMEM('DV   ','ALLO','REAL',LDV,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDL),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDV),1)
+      CALL mma_allocate(DL,NSS,NSS,Label='DL')
+      CALL mma_allocate(DV,NSS,NSS,Label='DV')
+      DL(:,:)=0.0D0
+      DV(:,:)=0.0D0
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 
@@ -727,7 +728,7 @@ C printing threshold
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 ! Store dipole oscillator strength
-            WORK(LDV-1+IJSS) = F
+            DV(JSS,ISS) = F
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
@@ -810,14 +811,14 @@ C printing threshold
                IF(EDIFF.LT.0.0D0) CYCLE
              COMPARE=0.0D0
              dlt=1.0D-18 ! Add small value to avoid zero divide.
-             IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
-     &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
-               COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR+dlt).AND.
-     &               (WORK(LDL-1+IJ).GT.0.0D0)) THEN
+             IF(DL(J,I).GE.OSTHR+dlt .AND.
+     &          DV(J,I).GE.OSTHR+dlt) THEN
+               COMPARE = ABS(1-DL(J,I)/DV(J,I))
+             ELSE IF((DL(J,I).GE.OSTHR+dlt).AND.
+     &               (DL(J,I).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR+dlt).AND.
-     &               (WORK(LDV-1+IJ).GT.0.0D0)) THEN
+             ELSE IF((DV(J,I).GE.OSTHR+dlt).AND.
+     &               (DV(J,I).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
              IF(ABS(COMPARE).GE.TOLERANCE) THEN
@@ -832,11 +833,11 @@ C printing threshold
                END IF
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,38) I,J,COMPARE*100D0,
-     &                    WORK(LDL-1+IJ),WORK(LDV-1+IJ)
+     &                    DL(J,I),DV(J,I)
                ELSE IF (COMPARE.GE.-2.0D0) THEN
-                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+                 WRITE(6,36) I,J,DL(J,I),"below threshold"
                ELSE
-                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+                 WRITE(6,37) I,J,"below threshold",DV(J,I)
                END IF
              END IF
             END DO
@@ -860,13 +861,13 @@ C printing threshold
 *
 * Free the memory
 *
-      CALL GETMEM('DL   ','FREE','REAL',LDL,NSTATE**2)
-      CALL GETMEM('DV   ','FREE','REAL',LDV,NSTATE**2)
+      CALL mma_deallocate(DL)
+      CALL mma_deallocate(DV)
 !
 ! We will first allocate a matrix for the total of the second order wave vector
 !
-        CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSS**2)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTOT2K),1)
+        CALL mma_allocate(TOT2K,NSS,NSS,Label='TOT2K')
+        TOT2K(:,:)=0.0D0
 !
 ! Checking if all are in
         SECORD = 0
@@ -992,7 +993,7 @@ C printing threshold
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            TOT2K(JSS,ISS) = TOT2K(JSS,ISS) + F
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) ISS,JSS,F
             END IF
@@ -1159,7 +1160,7 @@ C printing threshold
 
             F =FXX+FXY+FXZ+FYY+FYZ+FZZ+FXXFYY+FXXFZZ+FYYFZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            TOT2K(JSS,ISS) = TOT2K(JSS,ISS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) ISS,JSS,F
@@ -1415,7 +1416,7 @@ C printing threshold
 
             F =FXXX+FYYX+FZZX+FXXY+FYYY+FZZY+FXXZ+FYYZ+FZZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            TOT2K(JSS,ISS) = TOT2K(JSS,ISS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) ISS,JSS,F
@@ -1769,7 +1770,7 @@ C printing threshold
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            TOT2K(JSS,ISS) = TOT2K(JSS,ISS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) ISS,JSS,F
@@ -1861,7 +1862,7 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             IJSS=JSS+NSS*(ISS-1)
-            F = WORK(LTOT2K-1+IJSS)
+            F = TOT2K(JSS,ISS)
             IF(ABS(F).GE.OSTHR2) THEN
              IF(i_Print.eq.0) THEN
               i_Print=1
@@ -1894,7 +1895,7 @@ C printing threshold
          END IF
        END IF
 ! release the memory again
-       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
+       CALL mma_deallocate(TOT2K)
 
       END IF
 !
