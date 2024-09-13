@@ -67,6 +67,12 @@
       Real*8, allocatable:: DXR(:,:), DXI(:,:),
      &                      DYR(:,:), DYI(:,:),
      &                      DZR(:,:), DZI(:,:)
+      Real*8, allocatable:: DXXR(:,:), DXXI(:,:),
+     &                      DXYR(:,:), DXYI(:,:),
+     &                      DXZR(:,:), DXZI(:,:),
+     &                      DYYR(:,:), DYYI(:,:),
+     &                      DYZR(:,:), DYZI(:,:),
+     &                      DZZR(:,:), DZZI(:,:)
       Real*8, allocatable:: SXR(:,:), SXI(:,:),
      &                      SYR(:,:), SYI(:,:),
      &                      SZR(:,:), SZI(:,:)
@@ -1047,55 +1053,10 @@ C printing threshold
          WRITE(6,35)
          END IF
 
-         CALL GETMEM('DXXR','ALLO','REAL',LDXXR,NSS**2)
-         CALL GETMEM('DXXI','ALLO','REAL',LDXXI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXI),1)
-         CALL GETMEM('DXYR','ALLO','REAL',LDXYR,NSS**2)
-         CALL GETMEM('DXYI','ALLO','REAL',LDXYI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXYR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXYI),1)
-         CALL GETMEM('DXZR','ALLO','REAL',LDXZR,NSS**2)
-         CALL GETMEM('DXZI','ALLO','REAL',LDXZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXZI),1)
-         CALL GETMEM('DYYR','ALLO','REAL',LDYYR,NSS**2)
-         CALL GETMEM('DYYI','ALLO','REAL',LDYYI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYI),1)
-         CALL GETMEM('DYZR','ALLO','REAL',LDYZR,NSS**2)
-         CALL GETMEM('DYZI','ALLO','REAL',LDYZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYZI),1)
-         CALL GETMEM('DZZR','ALLO','REAL',LDZZR,NSS**2)
-         CALL GETMEM('DZZI','ALLO','REAL',LDZZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZI),1)
+         Call Allocate_Electric_Quadrupoles()
 
-         IF(IPRDXX.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LDXXR),NSS,IPRDXX,0)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXXR),WORK(LDXXI))
-         END IF
-         IF(IPRDXY.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LDXYR),NSS,IPRDXY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXYR),WORK(LDXYI))
-         END IF
-         IF(IPRDXZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LDXZR),NSS,IPRDXZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXZR),WORK(LDXZI))
-         END IF
-         IF(IPRDYY.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LDYYR),NSS,IPRDYY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDYYR),WORK(LDYYI))
-         END IF
-         IF(IPRDYZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LDYZR),NSS,IPRDYZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDYZR),WORK(LDYZI))
-         END IF
-         IF(IPRDZZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LDZZR),NSS,IPRDZZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZZR),WORK(LDZZI))
-         END IF
+         Call Load_Electric_Quadrupoles()
+
 
          ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
          ONEOVER30C=ONEOVER10C/3.0D0
@@ -1110,26 +1071,26 @@ C printing threshold
             EDIFF3=EDIFF**3
             IJSS=JSS+NSS*(ISS-1)
 
-            DXX2=WORK(LDXXR-1+IJSS)**2+WORK(LDXXI-1+IJSS)**2
-            DYY2=WORK(LDYYR-1+IJSS)**2+WORK(LDYYI-1+IJSS)**2
-            DZZ2=WORK(LDZZR-1+IJSS)**2+WORK(LDZZI-1+IJSS)**2
+            DXX2=DXXR(JSS,ISS)**2+DXXI(JSS,ISS)**2
+            DYY2=DYYR(JSS,ISS)**2+DYYI(JSS,ISS)**2
+            DZZ2=DZZR(JSS,ISS)**2+DZZI(JSS,ISS)**2
             FXX=ONEOVER30C*EDIFF3*(DXX2)
             FYY=ONEOVER30C*EDIFF3*(DYY2)
             FZZ=ONEOVER30C*EDIFF3*(DZZ2)
 
-            DXY2=WORK(LDXYR-1+IJSS)**2+WORK(LDXYI-1+IJSS)**2
-            DXZ2=WORK(LDXZR-1+IJSS)**2+WORK(LDXZI-1+IJSS)**2
-            DYZ2=WORK(LDYZR-1+IJSS)**2+WORK(LDYZI-1+IJSS)**2
+            DXY2=DXYR(JSS,ISS)**2+DXYI(JSS,ISS)**2
+            DXZ2=DXZR(JSS,ISS)**2+DXZI(JSS,ISS)**2
+            DYZ2=DYZR(JSS,ISS)**2+DYZI(JSS,ISS)**2
             FXY=ONEOVER10C*EDIFF3*(DXY2)
             FXZ=ONEOVER10C*EDIFF3*(DXZ2)
             FYZ=ONEOVER10C*EDIFF3*(DYZ2)
 
-            DXXDYY=WORK(LDXXR-1+IJSS)*WORK(LDYYR-1+IJSS)
-     &            +WORK(LDXXI-1+IJSS)*WORK(LDYYI-1+IJSS)
-            DXXDZZ=WORK(LDXXR-1+IJSS)*WORK(LDZZR-1+IJSS)
-     &            +WORK(LDXXI-1+IJSS)*WORK(LDZZI-1+IJSS)
-            DYYDZZ=WORK(LDYYR-1+IJSS)*WORK(LDZZR-1+IJSS)
-     &            +WORK(LDYYI-1+IJSS)*WORK(LDZZI-1+IJSS)
+            DXXDYY=DXXR(JSS,ISS)*DYYR(JSS,ISS)
+     &            +DXXI(JSS,ISS)*DYYI(JSS,ISS)
+            DXXDZZ=DXXR(JSS,ISS)*DZZR(JSS,ISS)
+     &            +DXXI(JSS,ISS)*DZZI(JSS,ISS)
+            DYYDZZ=DYYR(JSS,ISS)*DZZR(JSS,ISS)
+     &            +DYYI(JSS,ISS)*DZZI(JSS,ISS)
             FXXFYY=-ONEOVER30C*EDIFF3*(DXXDYY)
             FXXFZZ=-ONEOVER30C*EDIFF3*(DXXDZZ)
             FYYFZZ=-ONEOVER30C*EDIFF3*(DYYDZZ)
@@ -1145,18 +1106,7 @@ C printing threshold
           END DO
          END DO
 
-         CALL GETMEM('DXXR','FREE','REAL',LDXXR,NSS**2)
-         CALL GETMEM('DXXI','FREE','REAL',LDXXI,NSS**2)
-         CALL GETMEM('DXYR','FREE','REAL',LDXYR,NSS**2)
-         CALL GETMEM('DXYI','FREE','REAL',LDXYI,NSS**2)
-         CALL GETMEM('DXZR','FREE','REAL',LDXZR,NSS**2)
-         CALL GETMEM('DXZI','FREE','REAL',LDXZI,NSS**2)
-         CALL GETMEM('DYYR','FREE','REAL',LDYYR,NSS**2)
-         CALL GETMEM('DYYI','FREE','REAL',LDYYI,NSS**2)
-         CALL GETMEM('DYZR','FREE','REAL',LDYZR,NSS**2)
-         CALL GETMEM('DYZI','FREE','REAL',LDYZI,NSS**2)
-         CALL GETMEM('DZZR','FREE','REAL',LDZZR,NSS**2)
-         CALL GETMEM('DZZI','FREE','REAL',LDZZI,NSS**2)
+         Call Deallocate_Electric_Quadrupoles()
 
         IF(QIALL) THEN
          WRITE(6,35)
@@ -4077,12 +4027,12 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_allocate(SYI,NSS,NSS,Label='SYI')
          CALL mma_allocate(SZR,NSS,NSS,Label='SZR')
          CALL mma_allocate(SZI,NSS,NSS,Label='SZI')
-         DXR(:,:)=0.0D0
-         DXI(:,:)=0.0D0
-         DYR(:,:)=0.0D0
-         DYI(:,:)=0.0D0
-         DZR(:,:)=0.0D0
-         DZI(:,:)=0.0D0
+         SXR(:,:)=0.0D0
+         SXI(:,:)=0.0D0
+         SYR(:,:)=0.0D0
+         SYI(:,:)=0.0D0
+         SZR(:,:)=0.0D0
+         SZI(:,:)=0.0D0
       End Subroutine Allocate_Spin_Magnetic_dipoles
 
       Subroutine Deallocate_Spin_Magnetic_dipoles()
@@ -4108,6 +4058,75 @@ C backtransformation in two steps, -phi and -theta
           CALL ZTRNSF(NSS,USOR,USOI,SZR,SZI)
          END IF
       End Subroutine Load_Spin_Magnetic_dipoles
+
+      Subroutine Allocate_Electric_Quadrupoles()
+         CALL mma_allocate(DXXR,NSS,NSS,Label='DXXR')
+         CALL mma_allocate(DXXI,NSS,NSS,Label='DXXI')
+         CALL mma_allocate(DXYR,NSS,NSS,Label='DXYR')
+         CALL mma_allocate(DXYI,NSS,NSS,Label='DXYI')
+         CALL mma_allocate(DXZR,NSS,NSS,Label='DXZR')
+         CALL mma_allocate(DXZI,NSS,NSS,Label='DXZI')
+         CALL mma_allocate(DYYR,NSS,NSS,Label='DYYR')
+         CALL mma_allocate(DYYI,NSS,NSS,Label='DYYI')
+         CALL mma_allocate(DYZR,NSS,NSS,Label='DYZR')
+         CALL mma_allocate(DYZI,NSS,NSS,Label='DYZI')
+         CALL mma_allocate(DZZR,NSS,NSS,Label='DZZR')
+         CALL mma_allocate(DZZI,NSS,NSS,Label='DZZI')
+         DXXR(:,:)=0.0D0
+         DXXI(:,:)=0.0D0
+         DXYR(:,:)=0.0D0
+         DXYI(:,:)=0.0D0
+         DXZR(:,:)=0.0D0
+         DXZI(:,:)=0.0D0
+         DYYR(:,:)=0.0D0
+         DYYI(:,:)=0.0D0
+         DYZR(:,:)=0.0D0
+         DYZI(:,:)=0.0D0
+         DZZR(:,:)=0.0D0
+         DZZI(:,:)=0.0D0
+      End Subroutine Allocate_Electric_Quadrupoles
+
+      Subroutine Deallocate_Electric_Quadrupoles()
+         CALL mma_deallocate(DXXR)
+         CALL mma_deallocate(DXXI)
+         CALL mma_deallocate(DXYR)
+         CALL mma_deallocate(DXYI)
+         CALL mma_deallocate(DXZR)
+         CALL mma_deallocate(DXZI)
+         CALL mma_deallocate(DYYR)
+         CALL mma_deallocate(DYYI)
+         CALL mma_deallocate(DYZR)
+         CALL mma_deallocate(DYZI)
+         CALL mma_deallocate(DZZR)
+         CALL mma_deallocate(DZZI)
+      End Subroutine Deallocate_Electric_Quadrupoles
+
+      Subroutine Load_Electric_Quadrupoles()
+         IF(IPRDXX.GT.0) THEN
+          CALL SMMAT(PROP,DXXR,NSS,IPRDXX,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DXXR,DXXI)
+         END IF
+         IF(IPRDXY.GT.0) THEN
+          CALL SMMAT(PROP,DXYR,NSS,IPRDXY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DXYR,DXYI)
+         END IF
+         IF(IPRDXZ.GT.0) THEN
+          CALL SMMAT(PROP,DXZR,NSS,IPRDXZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DXZR,DXZI)
+         END IF
+         IF(IPRDYY.GT.0) THEN
+          CALL SMMAT(PROP,DYYR,NSS,IPRDYY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DYYR,DYYI)
+         END IF
+         IF(IPRDYZ.GT.0) THEN
+          CALL SMMAT(PROP,DYZR,NSS,IPRDYZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DYZR,DYZI)
+         END IF
+         IF(IPRDZZ.GT.0) THEN
+          CALL SMMAT(PROP,DZZR,NSS,IPRDZZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DZZR,DZZI)
+         END IF
+      End Subroutine Load_Electric_Quadrupoles
 
       END SUBROUTINE PRPROP
 
