@@ -1743,7 +1743,7 @@ C printing threshold
 ! Electric dipole (linear momentum, p)
          Call Allocate_electric_dipoles()
 
-         Call Load_electric_dipoles()
+         Call Load_electric_dipoles_velocity()
 
 ! Magnetic-Dipole (angular momentum, l = r x p)
          CALL GETMEM('MDXR','ALLO','REAL',LMDXR,NSS**2)
@@ -3880,6 +3880,21 @@ C backtransformation in two steps, -phi and -theta
           CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
          END IF
       End Subroutine Load_electric_dipoles
+
+      Subroutine Load_electric_dipoles_velocity()
+         IF(IPRDXD.GT.0) THEN
+          CALL SMMAT(PROP,DXR,NSS,IPRDXD,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DXR,DXI)
+         END IF
+         IF(IPRDYD.GT.0) THEN
+          CALL SMMAT(PROP,DYR,NSS,IPRDYD,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DYR,DYI)
+         END IF
+         IF(IPRDZD.GT.0) THEN
+          CALL SMMAT(PROP,DZR,NSS,IPRDZD,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
+         END IF
+      End Subroutine Load_electric_dipoles_velocity
 
       Subroutine Allocate_Spin_Magnetic_dipoles()
          CALL mma_allocate(SXR,NSS,NSS,Label='SXR')
