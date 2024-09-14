@@ -614,7 +614,7 @@ C printing threshold
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 ! Store dipole oscillator strength
-            WORK(LDL-1+IJSS) = F
+            DL(JSS,ISS) = F
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
@@ -833,7 +833,6 @@ C printing threshold
           I_PRINT_HEADER = 0
           DO I=1,IEND
             DO J=JSTART,NSS
-               IJ=J+NSS*(I-1)
                EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
              COMPARE=0.0D0
