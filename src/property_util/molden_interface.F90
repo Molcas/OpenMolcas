@@ -172,20 +172,17 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Unnormalize contraction coefficients for the valence shells
+! Abort if there are contaminants
 
 do iCnttp=1,nCnttp
   if ((.not. dbsc(iCnttp)%Aux) .and. (.not. dbsc(iCnttp)%Frag)) then
     do l=0,dbsc(iCnttp)%nVal-1
       ishell = dbsc(iCnttp)%iVal+l
       if (Shells(ishell)%Transf .and. (.not. Shells(iShell)%Prjct)) then
-        if (jPL >= 2) then
-          write(u6,*) 'Sorry, Molden does not support contaminants'
-        end if
+        if (jPL >= 2) write(u6,*) 'Sorry, Molden does not support contaminants'
         call End1()
         return
       end if
-      call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
     end do
   end if
 end do
@@ -352,7 +349,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           isegm = 0
           do iprim=1,Shells(ishell)%nExp
-            coeff = Shells(ishell)%pCff(iprim,icontr)
+            coeff = Shells(ishell)%pCff(iprim,icontr)/Nrmlz(Shells(ishell)%Exp(iprim),l)
             if (coeff /= Zero) then
               isegm = isegm+1
             end if
@@ -363,7 +360,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
           ! Write exponents and contraction coefficients.
 
           do iprim=1,Shells(ishell)%nExp
-            coeff = Shells(ishell)%pCff(iprim,icontr)
+            coeff = Shells(ishell)%pCff(iprim,icontr)/Nrmlz(Shells(ishell)%Exp(iprim),l)
             prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
               write(MF,'(ES17.9,ES17.9)') prim,coeff
@@ -809,17 +806,6 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-do iCnttp=1,nCnttp
-  if ((.not. dbsc(iCnttp)%Aux) .and. (.not. dbsc(iCnttp)%Frag)) then
-    do l=0,dbsc(iCnttp)%nVal-1
-      ishell = dbsc(iCnttp)%iVal+l
-      call Unnrmlz2(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
-    end do
-  end if
-end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 if (jPL >= 2) then
   write(u6,*)
   write(u6,'(6X,A)') 'Input file to MOLDEN was generated!'
@@ -845,6 +831,14 @@ function CC(ix,iy,iz)
   integer(kind=iwp), intent(in) :: ix, iy, iz
   CC = sqrt(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
 end function CC
+
+function Nrmlz(Expn,iAng)
+  use Constants, only: Four, Quart, TwoP34
+  real(kind=wp) :: Nrmlz
+  real(kind=wp), intent(in) :: Expn
+  integer(kind=iwp), intent(in) :: iAng
+  Nrmlz = TwoP34*(Four*Expn)**(real(2*iAng+3,kind=wp)*Quart)
+end function
 
 subroutine End1()
   call mma_deallocate(AtomLabel)
