@@ -20,13 +20,11 @@ subroutine Init_PCM(NonEq,iCharg)
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use PCM_arrays, only: Centr, DCntr, dPnt, dRad, dTes, IntSph, MxVert, NewSph, nVert, PCM_n, PCM_SQ, PCMDm, PCMiSph, PCMSph, &
                       PCMTess, SSPh, Vert
 use Isotopes, only: MaxAtomNum, PTab
 use UnixInfo, only: ProgName
-use rctfld_module, only: cRFEnd, cRFStrt, DoDeriv, iCharge_Ref, iRFEnd, iRFStrt, iSlPar, lRFEnd, lRFStrt, NoNEQ_Ref, nPCM_Info, &
-                         nS, nTs, PCM, rRFEnd, rRFStrt
+use rctfld_module, only: DoDeriv, iCharge_Ref, iSlPar, NoNEQ_Ref, nPCM_Info, nS, nTs, PCM, PCM_Info_Dmp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -38,10 +36,9 @@ logical(kind=iwp), intent(in) :: NonEq
 integer(kind=iwp), intent(inout) :: iCharg
 #include "Molcas.fh"
 character(len=2) ::Elements(MxAtom*8)
-integer(kind=iwp) :: i, iPrint, j, lCnAtm, Length, nAtoms
+integer(kind=iwp) :: i, iPrint, j, lCnAtm, nAtoms
 real(kind=wp), allocatable :: Coor(:,:), LcCoor(:,:)
 integer(kind=iwp), allocatable :: ANr(:), LcANr(:)
-integer(kind=iwp), external :: ip_of_iWork, ip_of_Work
 
 if (.not. PCM) return
 !                                                                      *
@@ -170,60 +167,25 @@ call mma_deallocate(Coor)
 !                                                                      *
 ! Put the dynamic arrays on COMFILE
 
-call Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+call Put_iScalar('PCM info length',nPCM_info)
 
-return
+call Put_dArray('PCMSph',PCMSph,4*NS)
+call Put_dArray('PCMTess',PCMTess,4*nTs)
+call Put_dArray('Vert',Vert,3*MxVert*nTs)
+call Put_dArray('Centr',Centr,3*MxVert*nTs)
+call Put_dArray('SSph',SSph,NS)
+call Put_dArray('PCMDM',PCMDM,nTs**2)
+call Put_iArray('PCM_N',PCM_N,NS)
+call Put_iArray('PCMiSph',PCMiSph,nTs)
+call Put_iArray('NVert',NVert,nTs)
+call Put_iArray('IntSph',IntSph,MxVert*nTs)
+call Put_iArray('NewSph',NewSph,2*NS)
 
-! This is to allow type punning without an explicit interface
-contains
+iCharge_ref = iCharg
+NonEq_ref = NonEq
 
-subroutine Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
+! Put the reaction field common blocks on disk again!
 
-  integer(kind=iwp), target, intent(in) :: cRFStrt, iRFStrt, lRFStrt
-  real(kind=wp), target, intent(in) :: rRFStrt
-  integer(kind=iwp), pointer :: p_cRF(:), p_iRF(:), p_lRF(:)
-  real(kind=wp), pointer :: p_rRF(:)
-
-  call Put_iScalar('PCM info length',nPCM_info)
-
-  call Put_dArray('PCMSph',PCMSph,4*NS)
-  call Put_dArray('PCMTess',PCMTess,4*nTs)
-  call Put_dArray('Vert',Vert,3*MxVert*nTs)
-  call Put_dArray('Centr',Centr,3*MxVert*nTs)
-  call Put_dArray('SSph',SSph,NS)
-  call Put_dArray('PCMDM',PCMDM,nTs**2)
-  call Put_iArray('PCM_N',PCM_N,NS)
-  call Put_iArray('PCMiSph',PCMiSph,nTs)
-  call Put_iArray('NVert',NVert,nTs)
-  call Put_iArray('IntSph',IntSph,MxVert*nTs)
-  call Put_iArray('NewSph',NewSph,2*NS)
-
-  iCharge_ref = iCharg
-  NonEq_ref = NonEq
-
-  ! Put the reaction field common blocks on disk again!
-
-  Length = ip_of_iWork(lRFEnd)-ip_of_iWork(lRFStrt)+1
-  call c_f_pointer(c_loc(lRFStrt),p_lRF,[Length])
-  call Put_iArray('RFlInfo',p_lRF,Length)
-
-  Length = ip_of_Work(rRFEnd)-ip_of_Work(rRFStrt)+1
-  call c_f_pointer(c_loc(rRFStrt),p_rRF,[Length])
-  call Put_dArray('RFrInfo',p_rRF,Length)
-
-  Length = ip_of_iWork(iRFEnd)-ip_of_iWork(iRFStrt)+1
-  call c_f_pointer(c_loc(iRFStrt),p_iRF,[Length])
-  call Put_iArray('RFiInfo',p_iRF,Length)
-
-  Length = ip_of_iWork(cRFEnd)-ip_of_iWork(cRFStrt)+1
-  call c_f_pointer(c_loc(cRFStrt),p_cRF,[Length])
-  call Put_iArray('RFcInfo',p_cRF,Length)
-
-  nullify(p_lRF,p_rRF,p_iRF,p_cRF)
-
-end subroutine Save_PCM_Info
+call PCM_Info_Dmp()
 
 end subroutine Init_PCM
