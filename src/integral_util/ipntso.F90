@@ -21,6 +21,7 @@ function iPntSO(j1,j2,lOper,nbas)
 !             February '91                                             *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -34,8 +35,8 @@ do iIrrep=0,j1
   jMax = iIrrep
   if (iIrrep == j1) jMax = j2-1
   do jIrrep=0,jMax
-    ij = ieor(iIrrep,jIrrep)
-    if (iand(iSmLbl,2**ij) == 0) cycle
+    ij = Mul(iIrrep+1,jIrrep+1)-1
+    if (.not. btest(iSmLbl,ij)) cycle
     if (iIrrep == jIrrep) then
       iPntSO = iPntSO+nBas(iIrrep)*(nBas(iIrrep)+1)/2
     else

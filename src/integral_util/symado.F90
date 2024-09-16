@@ -20,7 +20,6 @@ real(kind=wp), intent(in) :: ArrIn(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
 real(kind=wp), intent(inout) :: ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
 integer(kind=iwp) :: iComp, iIC, iIrrep
 real(kind=wp) :: pO, Xg
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 ! Statement function for Cartesian index
 integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -35,7 +34,7 @@ iIC = 0
 do iComp=1,nComp
   pO = Prmt(iOper(iDCRT),iChO(iComp))
   do iIrrep=0,nIrrep-1
-    if (iand(lOper(iComp),iTwoj(iIrrep)) == 0) cycle
+    if (.not. btest(lOper(iComp),iIrrep)) cycle
     iIC = iIC+1
     Xg = real(iChTbl(iIrrep,iDCRT),kind=wp)
     call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)

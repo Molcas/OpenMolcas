@@ -224,7 +224,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
       else
         ixyz = 1
         iSymX = 2**IrrFnc(ixyz)
-        if (Origin(1) /= Zero) iSymX = ior(iSymX,1)
+        if (Origin(1) /= Zero) iSymX = ibset(iSymX,0)
       end if
       do iy=iMltpl-ix,0,-1
         if (mod(iy,2) == 0) then
@@ -232,7 +232,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
         else
           ixyz = 2
           iSymY = 2**IrrFnc(ixyz)
-          if (Origin(2) /= Zero) iSymY = ior(iSymY,1)
+          if (Origin(2) /= Zero) iSymY = ibset(iSymY,0)
         end if
         iz = iMltpl-ix-iy
         if (mod(iz,2) == 0) then
@@ -240,7 +240,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
         else
           ixyz = 4
           iSymZ = 2**IrrFnc(ixyz)
-          if (Origin(3) /= Zero) iSymZ = ior(iSymZ,1)
+          if (Origin(3) /= Zero) iSymZ = ibset(iSymZ,0)
         end if
 
         iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))

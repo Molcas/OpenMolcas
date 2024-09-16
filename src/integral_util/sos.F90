@@ -44,7 +44,7 @@ end if
 nStabO = 0
 outer: do iS=0,nIrrep-1
   inner: do iIrrep=0,nIrrep-1
-    if (iand(lOper,2**iIrrep) == 0) cycle inner
+    if (.not. btest(lOper,iIrrep)) cycle inner
     if (iChTbl(iIrrep,iS) /= 1) cycle outer
   end do inner
   nStabO = nStabO+1

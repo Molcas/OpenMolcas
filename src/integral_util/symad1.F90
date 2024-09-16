@@ -40,7 +40,6 @@ integer(kind=iwp), intent(inout) :: iIC
 real(kind=wp), intent(inout) :: SOInt(iBas*jBas,nSOInt)
 integer(kind=iwp) :: i1, i2, iChBs, ii, iIrrep, j1, j12, j2, jChBs, jIC(0:7), jj, jMx, kIC, lSO
 real(kind=wp) :: pae, pbr, xa, xb
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' lOper=',lOper
@@ -51,7 +50,7 @@ write(u6,*) ' iIC=',iIC
 #endif
 do iIrrep=0,nIrrep-1
   jIC(iIrrep) = -999999999
-  if (iand(lOper,iTwoj(iIrrep)) == 0) cycle
+  if (.not. btest(lOper,iIrrep)) cycle
   jIC(iIrrep) = iIC
   iIC = iIC+1
 end do
@@ -71,7 +70,7 @@ do j1=0,nIrrep-1
     do j2=0,nIrrep-1
       j12 = ieor(j1,j2)
 
-      if (iand(lOper,iTwoj(j12)) == 0) cycle
+      if (.not. btest(lOper,j12)) cycle
       kIC = jIC(j12)
       xb = real(iChTbl(j2,nOp(2)),kind=wp)
       jMx = jCmp

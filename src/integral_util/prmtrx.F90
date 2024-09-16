@@ -19,7 +19,7 @@ subroutine PrMtrx(Label,lOper,nComp,ip,Matrix)
 
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -33,13 +33,13 @@ character(len=80) :: Line
 do iComp=1,nComp
   ip1 = ip(iComp)
   iSmLbl = lOper(iComp)
-  if (Prprt) iSmLbl = iand(1,iSmLbl)
+  if (Prprt) iSmLbl = merge(1,0,btest(iSmLbl,0))
   typ = .true.
   do iIrrep=0,nIrrep-1
     if (nBas(iIrrep) <= 0) cycle
     do jIrrep=0,iIrrep
       if (nBas(jIrrep) <= 0) cycle
-      if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) cycle
+      if (.not. btest(iSmLbl,Mul(iIrrep+1,jIrrep+1)-1)) cycle
       if (typ) then
         typ = .false.
         write(u6,*)

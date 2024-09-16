@@ -125,7 +125,7 @@ do iS=1,nSkal
     jCnt = iSD(14,jS)
 
     iSmLbl = llOper
-    if (Prprt) iSmLbl = iand(1,iSmLbl)
+    if (Prprt) iSmLbl = merge(1,0,btest(iSmLbl,0))
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' nSO=',nSO
@@ -295,7 +295,7 @@ do iS=1,nSkal
 #       endif
 
         iSmLbl = llOper
-        if (Prprt) iSmLbl = iand(1,iSmLbl)
+        if (Prprt) iSmLbl = merge(1,0,btest(iSmLbl,0))
         mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
         nIC = 1
         iIC = 1
@@ -316,7 +316,7 @@ do iS=1,nSkal
     ! Accumulate contribution to the Hamiltonian.
 
     iSmLbl = llOper
-    if (Prprt) iSmLbl = iand(1,iSmLbl)
+    if (Prprt) iSmLbl = merge(1,0,btest(iSmLbl,0))
     call SOAdd(SO_Int,iBas,jBas,mSO,h0,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 
     call mma_deallocate(SO_Int)

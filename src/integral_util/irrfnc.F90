@@ -19,20 +19,21 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: IrrFnc
 integer(kind=iwp), intent(in) :: iFnc
-integer(kind=iwp) :: i, iCh, iTest(8), ix, iy, iz, jx, jy, jz
+integer(kind=iwp) :: i, iCh, iTest(8)
+logical(kind=iwp) :: ix, iy, iz, jx, jy, jz
 integer(kind=iwp), external :: iNew
 
-ix = iand(iFnc,1)
-iy = iand(iFnc,2)/2
-iz = iand(iFnc,4)/4
+ix = btest(iFnc,0)
+iy = btest(iFnc,1)
+iz = btest(iFnc,2)
 do i=1,nIrrep
-  jx = iand(iOper(i-1),1)
-  jy = iand(iOper(i-1),2)/2
-  jz = iand(iOper(i-1),4)/4
+  jx = btest(iOper(i-1),0)
+  jy = btest(iOper(i-1),1)
+  jz = btest(iOper(i-1),2)
   iCh = 1
-  if ((ix /= 0) .and. (jx /= 0)) iCh = -iCh
-  if ((iy /= 0) .and. (jy /= 0)) iCh = -iCh
-  if ((iz /= 0) .and. (jz /= 0)) iCh = -iCh
+  if (ix .and. jx) iCh = -iCh
+  if (iy .and. jy) iCh = -iCh
+  if (iz .and. jz) iCh = -iCh
   iTest(i) = iCh
 end do
 IrrFnc = iNew(iTest,nIrrep)-1

@@ -39,7 +39,7 @@ end if
 iPrmt = 1
 iCom = iand(iOper(jOper),iChct)
 do i=1,3
-  if (iand(iCom,2**(i-1)) /= 0) iPrmt = iPrmt*(-1)
+  if (btest(iCom,i-1)) iPrmt = -iPrmt
 end do
 
 return

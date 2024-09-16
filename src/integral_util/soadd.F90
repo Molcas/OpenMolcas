@@ -52,7 +52,7 @@ do j1=0,nIrrep-1
 
     do j2=0,j1
       j12 = ieor(j1,j2)
-      if (iand(lOper,2**j12) == 0) cycle
+      if (.not. btest(lOper,j12)) cycle
 
       do i2=1,jCmp
         if (iAOtSO(jAO+i2,j2) < 0) cycle

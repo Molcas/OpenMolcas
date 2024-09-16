@@ -18,7 +18,7 @@ function MltLbl(Lbl1,Lbl2)
 !             February '91                                             *
 !***********************************************************************
 
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use Definitions, only: iwp
 
 implicit none
@@ -27,12 +27,12 @@ integer(kind=iwp), intent(in) :: Lbl1, Lbl2
 integer(kind=iwp) :: iIrrep, ijSym, jIrrep
 
 MltLbl = 0
-do iIrrep=0,nIrrep-1
-  if (iand(Lbl1,2**iIrrep) == 0) cycle
-  do jIrrep=0,nIrrep-1
-    if (iand(Lbl2,2**jIrrep) == 0) cycle
-    ijSym = ieor(iIrrep,jIrrep)
-    if (iand(MltLbl,2**ijSym) == 0) MltLbl = MltLbl+2**ijSym
+do iIrrep=1,nIrrep
+  if (.not. btest(Lbl1,iIrrep-1)) cycle
+  do jIrrep=1,nIrrep
+    if (.not. btest(Lbl2,jIrrep-1)) cycle
+    ijSym = Mul(iIrrep,jIrrep)
+    if (.not. btest(MltLbl,ijSym-1)) MltLbl = MltLbl+2**(ijSym-1)
   end do
 end do
 

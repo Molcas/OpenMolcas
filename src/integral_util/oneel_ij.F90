@@ -60,7 +60,6 @@ character(len=LenIn) :: dbas
 #ifdef _GEN1INT_
 logical(kind=iwp) :: DO_TRAN, NATEST
 #endif
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 integer(kind=iwp), external :: MemSO1
 logical(kind=iwp), external :: EQ
 ! Statement function
@@ -168,7 +167,7 @@ if (Label(1:3) == 'MAG') then
         mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
         if (mSO == 0) then
           do iIrrep=0,nIrrep-1
-            if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) iIC = iIC+1
+            if (btest(lOper(iComp),iIrrep)) iIC = iIC+1
           end do
         else
           !write(u6,*) "Symmetry adapt component"
@@ -476,7 +475,7 @@ else  !  MAG Integrals
         mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
         if (mSO == 0) then
           do iIrrep=0,nIrrep-1
-            if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) iIC = iIC+1
+            if (btest(lOper(iComp),iIrrep)) iIC = iIC+1
           end do
         else
           call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,rFinal,iBas,jBas,nIC,iIC,SOInt(iSOBlk),mSO,nOp)

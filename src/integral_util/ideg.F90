@@ -36,9 +36,9 @@ iDeg = 1
 Cx(:,1) = Coor(:)
 do i=1,nIrrep-1
   r(:) = One
-  if (iand(iOper(i),1) /= 0) r(1) = -One
-  if (iand(iOper(i),2) /= 0) r(2) = -One
-  if (iand(iOper(i),4) /= 0) r(3) = -One
+  if (btest(iOper(i),0)) r(1) = -One
+  if (btest(iOper(i),1)) r(2) = -One
+  if (btest(iOper(i),2)) r(3) = -One
   x = r(1)*Coor(1)
   y = r(2)*Coor(2)
   z = r(3)*Coor(3)

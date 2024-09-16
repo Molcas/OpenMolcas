@@ -16,15 +16,17 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(out) :: iChCar(3)
 integer(kind=iwp), intent(in) :: nGen, iGen(nGen)
-integer(kind=iwp) :: i, iCar, iComp
+integer(kind=iwp) :: i, iCar
 
 ! Generate characteristics for x, y, and z.
 
 do iCar=1,3
   iChCar(iCar) = 0
-  iComp = 2**(iCar-1)
   do i=1,nGen
-    if (iand(iGen(i),iComp) == iComp) iChCar(iCar) = iComp
+    if (btest(iGen(i),iCar-1)) then
+      iChCar(iCar) = 2**(iCar-1)
+      exit
+    end if
   end do
 end do
 

@@ -45,7 +45,7 @@ do j1=0,nIrrep-1
     if (iAOtSO(iAO+i1,j1) < 0) cycle
     do j2=0,nIrrep-1
       j12 = ieor(j1,j2)
-      if (iand(lOper,2**j12) == 0) cycle
+      if (.not. btest(lOper,j12)) cycle
       jCmpMx = jCmp
       if ((iShell == jShell) .and. (j1 == j2)) jCmpMx = i1
       do i2=1,jCmpMx

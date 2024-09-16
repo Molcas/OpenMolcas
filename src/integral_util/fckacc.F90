@@ -167,7 +167,7 @@ mijkl = iBas*jBas*kBas*lBas
 do i1=1,iCmp
   ix = 0
   do j=0,nIrrep-1
-    if (iAOtSO(iAO(1)+i1,j) > 0) ix = ieor(ix,2**j)
+    if (iAOtSO(iAO(1)+i1,j) > 0) ix = ibset(ix,j)
   end do
   iSym(1) = ix
   jCmpMx = jCmp
@@ -178,7 +178,7 @@ do i1=1,iCmp
   do i2=1,jCmpMx
     ix = 0
     do j=0,nIrrep-1
-      if (iAOtSO(iAO(2)+i2,j) > 0) ix = ieor(ix,2**j)
+      if (iAOtSO(iAO(2)+i2,j) > 0) ix = ibset(ix,j)
     end do
     iSym(2) = ix
     jChBs = iChBas(jj+i2)
@@ -192,7 +192,7 @@ do i1=1,iCmp
     do i3=1,kCmp
       ix = 0
       do j=0,nIrrep-1
-        if (iAOtSO(iAO(3)+i3,j) > 0) ix = ieor(ix,2**j)
+        if (iAOtSO(iAO(3)+i3,j) > 0) ix = ibset(ix,j)
       end do
       iSym(3) = ix
       lCmpMx = lCmp
@@ -203,7 +203,7 @@ do i1=1,iCmp
       do i4=1,lCmpMx
         ix = 0
         do j=0,nIrrep-1
-          if (iAOtSO(iAO(4)+i4,j) > 0) ix = ieor(ix,2**j)
+          if (iAOtSO(iAO(4)+i4,j) > 0) ix = ibset(ix,j)
         end do
         iSym(4) = ix
         lChBs = iChBas(ll+i4)

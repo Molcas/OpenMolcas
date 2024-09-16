@@ -193,20 +193,13 @@ rHrmt = One
 nOrdOp = 1
 nComp = 3
 Sig = -One
-ixyz = 1
-iSymX = 2**IrrFnc(ixyz)
-ixyz = 2
-iSymY = 2**IrrFnc(ixyz)
-ixyz = 4
-iSymZ = 2**IrrFnc(ixyz)
-ixyz = 3
-iSymXY = 2**IrrFnc(ixyz)
-ixyz = 5
-iSymXZ = 2**IrrFnc(ixyz)
-ixyz = 6
-iSymYZ = 2**IrrFnc(ixyz)
-ixyz = 7
-iSyXYZ = 2**IrrFnc(ixyz)
+iSymX = IrrFnc(1)
+iSymY = IrrFnc(2)
+iSymZ = IrrFnc(4)
+iSymXY = IrrFnc(3)
+iSymXZ = IrrFnc(5)
+iSymYZ = IrrFnc(6)
+iSyXYZ = IrrFnc(7)
 
 call mma_allocate(ips,nComp,Label='ips')
 call mma_allocate(lOper,nComp,Label='lOper')
@@ -221,13 +214,13 @@ do iGrid=1,nGrid_
   write(Label,'(A,I5)') 'EF ',iGrid
   call dcopy_(3,Grid(1,iGrid),1,CCoor,1)
   iSymC = 1
-  if (Ccoor(1) /= Zero) iSymC = ior(iSymC,iSymX)
-  if (Ccoor(2) /= Zero) iSymC = ior(iSymC,iSymY)
-  if (Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymZ)
-  if ((Ccoor(1) /= Zero) .and. (Ccoor(2) /= Zero)) iSymC = ior(iSymC,iSymXY)
-  if ((Ccoor(1) /= Zero) .and. (Ccoor(3) /= Zero)) iSymC = ior(iSymC,iSymXZ)
-  if ((Ccoor(2) /= Zero) .and. (Ccoor(3) /= Zero)) iSymC = ior(iSymC,iSymYZ)
-  if ((Ccoor(1) /= Zero) .and. (Ccoor(2) /= Zero) .and. (Ccoor(3) /= Zero)) iSymC = ior(iSymC,iSyXYZ)
+  if (Ccoor(1) /= Zero) iSymC = ibset(iSymC,iSymX)
+  if (Ccoor(2) /= Zero) iSymC = ibset(iSymC,iSymY)
+  if (Ccoor(3) /= Zero) iSymC = ibset(iSymC,iSymZ)
+  if ((Ccoor(1) /= Zero) .and. (Ccoor(2) /= Zero)) iSymC = ibset(iSymC,iSymXY)
+  if ((Ccoor(1) /= Zero) .and. (Ccoor(3) /= Zero)) iSymC = ibset(iSymC,iSymXZ)
+  if ((Ccoor(2) /= Zero) .and. (Ccoor(3) /= Zero)) iSymC = ibset(iSymC,iSymYZ)
+  if ((Ccoor(1) /= Zero) .and. (Ccoor(2) /= Zero) .and. (Ccoor(3) /= Zero)) iSymC = ibset(iSymC,iSyXYZ)
 
   iComp = 0
   do ix=nOrdOp,0,-1
@@ -235,11 +228,11 @@ do iGrid=1,nGrid_
       iComp = iComp+1
       iz = nOrdOp-ix-iy
       ixyz = 0
-      if (mod(ix,2) /= 0) ixyz = ior(ixyz,1)
-      if (mod(iy,2) /= 0) ixyz = ior(ixyz,2)
-      if (mod(iz,2) /= 0) ixyz = ior(ixyz,4)
+      if (mod(ix,2) /= 0) ixyz = ibset(ixyz,0)
+      if (mod(iy,2) /= 0) ixyz = ibset(ixyz,1)
+      if (mod(iz,2) /= 0) ixyz = ibset(ixyz,2)
       iSym = 2**IrrFnc(ixyz)
-      if (Ccoor(iComp) /= Zero) iSym = ior(iSym,1)
+      if (Ccoor(iComp) /= Zero) iSym = ibset(iSym,0)
       lOper(iComp) = MltLbl(iSymC,iSym)
       kOper(iComp) = iChBas(iComp+1)
       call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)

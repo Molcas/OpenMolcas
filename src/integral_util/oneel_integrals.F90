@@ -34,7 +34,6 @@ real(kind=wp), allocatable, intent(out) :: Integrals(:)
 integer(kind=iwp) :: iComp, idum(1), iIrrep, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
 real(kind=wp) :: dum(1)
 integer(kind=iwp), external :: n2Tri
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 
 !                                                                      *
 !***********************************************************************
@@ -63,7 +62,7 @@ llOper = 0
 do iComp=1,nComp
   llOper = ior(llOper,lOper(iComp))
   do iIrrep=0,nIrrep-1
-    if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) nIC = nIC+1
+    if (btest(lOper(iComp),iIrrep)) nIC = nIC+1
   end do
 end do
 #ifdef _DEBUGPRINT_

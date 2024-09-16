@@ -135,7 +135,7 @@ if (.not. Atomic) then
             nDisp = nDisp+1
             if (Dirct(nDisp)) then
               iSD(iCar+16,nSkal) = nDisp
-              iTmp = ior(iTmp,2**iCar)
+              iTmp = ibset(iTmp,iCar)
             else
               iSD(iCar+16,nSkal) = 0
             end if

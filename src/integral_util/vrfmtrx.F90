@@ -19,7 +19,7 @@ subroutine VrfMtrx(Label,lOper,nComp,ip,Matrix)
 
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
-use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: Mul, nIrrep
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -37,12 +37,12 @@ do iComp=1,nComp
   VrfSum = Zero
   ip1 = ip(iComp)
   iSmLbl = lOper(iComp)
-  if (Prprt) iSmLbl = iand(1,iSmLbl)
+  if (Prprt) iSmLbl = merge(1,0,btest(iSmLbl,0))
   do iIrrep=0,nIrrep-1
     if (nBas(iIrrep) <= 0) cycle
     do jIrrep=0,iIrrep
       if (nBas(jIrrep) <= 0) cycle
-      if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) cycle
+      if (.not. btest(iSmLbl,Mul(iIrrep+1,jIrrep+1)-1)) cycle
       if (iIrrep == jIrrep) then
         n2 = nBas(iIrrep)*(nBas(iIrrep)+1)/2
         VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
