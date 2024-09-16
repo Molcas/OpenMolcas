@@ -82,106 +82,105 @@ end if
 iCnttp = int(CCoor(1,2))
 Q_Nuc = dbsc(iCnttp)%Charge
 
-if (Q_Nuc == Zero) Go To 111
-call dcopy_(3,CCoor,1,C,1)
-#ifdef _DEBUGPRINT_
-call RecPrt('C',' ',C,1,3)
-#endif
+if (Q_Nuc /= Zero) then
+  call dcopy_(3,CCoor,1,C,1)
+# ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,1,3)
+# endif
 
-call DCopy_(3,C,1,CoorAC(1,2),1)
-call DCopy_(3,C,1,Coori(1,3),1)
-call DCopy_(3,C,1,Coori(1,4),1)
-call DCopy_(3,C,1,Coora(1,3),1)
-call DCopy_(3,C,1,Coora(1,4),1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Compute integrals with the Rys quadrature.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-nT = nZeta
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if (Nuclear_Model == Gaussian_Type) then
-
-  ! Gaussian nuclear charge distribution
-
-  NoSpecial = .false.
-  Eta = dbsc(iCnttp)%ExpNuc
-  EInv = One/Eta
-  rKappcd = TwoP54/Eta
-  ! Tag on the normalization
-  rKappcd = rKappcd*(Eta/Pi)**(Three/Two)
-  ! s-type function
-  mcdMin = 0
-  mcdMax = 0
-  call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax,mcdMin,mcdMax, &
-           Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+  call DCopy_(3,C,1,CoorAC(1,2),1)
+  call DCopy_(3,C,1,Coori(1,3),1)
+  call DCopy_(3,C,1,Coori(1,4),1)
+  call DCopy_(3,C,1,Coora(1,3),1)
+  call DCopy_(3,C,1,Coora(1,4),1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (Nuclear_Model == mGaussian_Type) then
+  ! Compute integrals with the Rys quadrature.
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  nT = nZeta
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  if (Nuclear_Model == Gaussian_Type) then
 
-  ! Modified Gaussian nuclear charge distribution
+    ! Gaussian nuclear charge distribution
 
-  NoSpecial = .false.
-  Eta = dbsc(iCnttp)%ExpNuc
-  EInv = One/Eta
-  rKappcd = TwoP54/Eta
-  ! Tag on the normalization
-  rKappcd = rKappcd*(Eta/Pi)**(Three/Two)/(One+Three*dbsc(iCnttp)%w_mGauss/(Two*Eta))
-  ! s type function
-  mcdMin = 0
-  mcdMax = 0
-  call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax,mcdMin,mcdMax, &
-           Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+    NoSpecial = .false.
+    Eta = dbsc(iCnttp)%ExpNuc
+    EInv = One/Eta
+    rKappcd = TwoP54/Eta
+    ! Tag on the normalization
+    rKappcd = rKappcd*(Eta/Pi)**(Three/Two)
+    ! s-type function
+    mcdMin = 0
+    mcdMax = 0
+    call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax,mcdMin,mcdMax, &
+             Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  else if (Nuclear_Model == mGaussian_Type) then
 
-  ! d type function w*(x**2+y**2+z**2)
-  if (dbsc(iCnttp)%w_mGauss > Zero) then
-    rKappcd = rKappcd*dbsc(iCnttp)%w_mGauss
-    iAnga(3) = 2
-    mcdMin = nabSz(2+ld-1)+1
-    mcdMax = nabSz(2+ld)
-    ! tweak the pointers
-    ipOff = 1+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-    mArr = nArr-(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+    ! Modified Gaussian nuclear charge distribution
+
+    NoSpecial = .false.
+    Eta = dbsc(iCnttp)%ExpNuc
+    EInv = One/Eta
+    rKappcd = TwoP54/Eta
+    ! Tag on the normalization
+    rKappcd = rKappcd*(Eta/Pi)**(Three/Two)/(One+Three*dbsc(iCnttp)%w_mGauss/(Two*Eta))
+    ! s type function
+    mcdMin = 0
+    mcdMax = 0
+    call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax,mcdMin,mcdMax, &
+             Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+
+    ! d type function w*(x**2+y**2+z**2)
+    if (dbsc(iCnttp)%w_mGauss > Zero) then
+      rKappcd = rKappcd*dbsc(iCnttp)%w_mGauss
+      iAnga(3) = 2
+      mcdMin = nabSz(2+ld-1)+1
+      mcdMax = nabSz(2+ld)
+      ! tweak the pointers
+      ipOff = 1+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+      mArr = nArr-(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+      call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax,mcdMin, &
+               mcdMax,Array(ipOff),mArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+      iAnga(3) = 0
+
+      ! Add the s and d contributions together!
+
+      call Assemble_mGauss(Array,Array(ipOff),nZeta*(mabMax-mabMin+1))
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  else if (Nuclear_Model == Point_Charge) then
+
+    ! Point-like nuclear charge distribution
+
+    NoSpecial = .true.
+    Eta = One
+    EInv = One
+    rKappcd = One
+    mcdMin = 0
+    mcdMax = 0
     call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
-             Array(ipOff),mArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
-    iAnga(3) = 0
-
-    ! Add the s and d contributions together!
-
-    call Assemble_mGauss(Array,Array(ipOff),nZeta*(mabMax-mabMin+1))
+             Array,nArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (Nuclear_Model == Point_Charge) then
+  ! Use the HRR to compute the required primitive integrals.
 
-  ! Point-like nuclear charge distribution
+  call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
 
-  NoSpecial = .true.
-  Eta = One
-  EInv = One
-  rKappcd = One
-  mcdMin = 0
-  mcdMax = 0
-  call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
-           Array,nArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
+  call DCopy_(nZeta*nElem(la)*nElem(lb)*nComp,Array(ipIn),1,rFinal,1)
+  call DScal_(nZeta*nElem(la)*nElem(lb)*nComp,-Q_Nuc,rFinal,1)
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Use the HRR to compute the required primitive integrals.
-
-call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
-
-call DCopy_(nZeta*nElem(la)*nElem(lb)*nComp,Array(ipIn),1,rFinal,1)
-call DScal_(nZeta*nElem(la)*nElem(lb)*nComp,-Q_Nuc,rFinal,1)
-
-111 continue
 
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) then
   do iZeta=1,nZeta

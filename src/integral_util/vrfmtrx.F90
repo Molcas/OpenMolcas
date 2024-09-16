@@ -39,10 +39,10 @@ do iComp=1,nComp
   iSmLbl = lOper(iComp)
   if (Prprt) iSmLbl = iand(1,iSmLbl)
   do iIrrep=0,nIrrep-1
-    if (nBas(iIrrep) <= 0) Go To 30
+    if (nBas(iIrrep) <= 0) cycle
     do jIrrep=0,iIrrep
-      if (nBas(jIrrep) <= 0) Go To 40
-      if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) Go To 40
+      if (nBas(jIrrep) <= 0) cycle
+      if (iand(iSmLbl,2**ieor(iIrrep,jIrrep)) == 0) cycle
       if (iIrrep == jIrrep) then
         n2 = nBas(iIrrep)*(nBas(iIrrep)+1)/2
         VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
@@ -52,9 +52,7 @@ do iComp=1,nComp
         VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
         ip1 = ip1+n2
       end if
-40    continue
     end do
-30  continue
   end do
   ! Add the nuclear contribution and the operator position.
   n2 = 4

@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iCol, n
 real(kind=wp), intent(out) :: val(n)
-integer(kind=iwp) :: i, i1, i2, ic
+integer(kind=iwp) :: i, i1, i2, ic, istatus
 character(len=80) :: string
 
 ic = icol
@@ -29,25 +29,25 @@ do i=1,n
     if (i1 <= i2) then
       string = ' '
       string(len(string)+i1-i2:) = line(i1:i2)
-      read(string,'(F80.0)',err=600,end=600) val(i)
+      read(string,'(F80.0)',iostat=istatus) val(i)
+      if (istatus /= 0) exit
     else
       val(i) = Zero
     end if
     ic = ic+1
   else
     write(u6,110) icol+n-1,line
-    call FindErrorLine()
-    call WarningMessage(2,'Error in Get_F')
-    call Quit_OnUserError()
+    exit
   end if
 end do
 
-return
+if (i <= n) then
+  call FindErrorLine()
+  call WarningMessage(2,'Error in Get_F')
+  call Quit_OnUserError()
+end if
 
-600 continue
-call FindErrorLine()
-call WarningMessage(2,'Error in Get_F')
-call Quit_OnUserError()
+return
 
 110 format(/' ERROR IN GET_F: TRYING TO READ',i4,' VALUES'/1x,a)
 

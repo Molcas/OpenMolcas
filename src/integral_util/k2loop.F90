@@ -92,7 +92,7 @@ do lDCRR=0,nDCRR-1
   call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
   AeqB = EQ(CoorM(1,1),CoorM(1,2))
   ! Branch out if integrals are zero by symmetry.
-  if (AeqB .and. (mod(iSmAng,2) == 1)) Go To 100
+  if (AeqB .and. (mod(iSmAng,2) == 1)) cycle
   call dcopy_(6,CoorM(1,1),1,CoorM(1,3),1)
 # ifdef _DEBUGPRINT_
   call RecPrt(' Actual centers',' ',CoorM,3,4)
@@ -352,8 +352,7 @@ do lDCRR=0,nDCRR-1
   write(u6,*) ' abMaxD  =',k2Data(lDCRR+1)%abMaxD
   call WrCheck(' HrrMtrx',k2Data(lDCRR+1)%HrrMtrx(:,:),ne*iCmpa_*jCmpb_)
 # endif
-100 continue ! lDCRR
-end do
+end do ! lDCRR
 
 return
 

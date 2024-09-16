@@ -35,13 +35,12 @@ do iIrrep=0,j1
   if (iIrrep == j1) jMax = j2-1
   do jIrrep=0,jMax
     ij = ieor(iIrrep,jIrrep)
-    if (iand(iSmLbl,2**ij) == 0) Go To 20
+    if (iand(iSmLbl,2**ij) == 0) cycle
     if (iIrrep == jIrrep) then
       iPntSO = iPntSO+nBas(iIrrep)*(nBas(iIrrep)+1)/2
     else
       iPntSO = iPntSO+nBas(iIrrep)*nBas(jIrrep)
     end if
-20  continue
   end do
 end do
 

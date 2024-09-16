@@ -55,35 +55,35 @@ iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 ! Change phase factor. This is only necessary if T=/=E.
 
-if ((kOp == 0) .or. (ijCmp == 0)) Go To 14
-ii = iOff(iAng)
-jj = iOff(jAng)
-do i1=1,iCmp
-  iChBs = iChBas(ii+i1)
-  if (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
-  pa1T = real(iPrmt(kOp,iChBs),kind=wp)
-  do i2=1,jCmp
-    jChBs = iChBas(jj+i2)
-    if (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
-    pb1T = real(iPrmt(kOp,jChBs),kind=wp)
-    ij1 = iCmp*(i2-1)+i1
+if ((kOp /= 0) .and. (ijCmp /= 0)) then
+  ii = iOff(iAng)
+  jj = iOff(jAng)
+  do i1=1,iCmp
+    iChBs = iChBas(ii+i1)
+    if (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
+    pa1T = real(iPrmt(kOp,iChBs),kind=wp)
+    do i2=1,jCmp
+      jChBs = iChBas(jj+i2)
+      if (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
+      pb1T = real(iPrmt(kOp,jChBs),kind=wp)
+      ij1 = iCmp*(i2-1)+i1
 
-    do i3=1,iCmp
-      kChBs = iChBas(ii+i3)
-      if (Shells(iShll)%Transf) kChBs = iChBas(iSphCr(ii+i3))
-      pa2T = real(iPrmt(kOp,kChBs),kind=wp)
-      do i4=1,jCmp
-        lChBs = iChBas(jj+i4)
-        if (Shells(jShll)%Transf) lChBs = iChBas(iSphCr(jj+i4))
-        pb2T = real(iPrmt(kOp,lChBs),kind=wp)
-        ij2 = iCmp*(i4-1)+i3
-        Factor = pa1T*pb1T*pa2T*pb2T
-        if (Factor /= One) call DScal_(ijkl,Factor,AOInt(1,ij1,ij2),1)
+      do i3=1,iCmp
+        kChBs = iChBas(ii+i3)
+        if (Shells(iShll)%Transf) kChBs = iChBas(iSphCr(ii+i3))
+        pa2T = real(iPrmt(kOp,kChBs),kind=wp)
+        do i4=1,jCmp
+          lChBs = iChBas(jj+i4)
+          if (Shells(jShll)%Transf) lChBs = iChBas(iSphCr(jj+i4))
+          pb2T = real(iPrmt(kOp,lChBs),kind=wp)
+          ij2 = iCmp*(i4-1)+i3
+          Factor = pa1T*pb1T*pa2T*pb2T
+          if (Factor /= One) call DScal_(ijkl,Factor,AOInt(1,ij1,ij2),1)
+        end do
       end do
     end do
   end do
-end do
-14 continue
+end if
 
 ! Transpose ijkl,abcd to klij,cdab
 

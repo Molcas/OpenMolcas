@@ -17,14 +17,11 @@ implicit none
 integer(kind=iwp), intent(in) :: lUnit, iStrt, iEnd, Inc
 integer(kind=iwp), intent(inout) :: iwork(iend)
 integer(kind=iwp), intent(out) :: iErr
-integer(kind=iwp) :: i
+integer(kind=iwp) :: i, istatus
 
 ierr = 0
-read(lunit,*,err=100) (iwork(istrt+i),i=0,iend-istrt,inc)
-goto 110
-100 continue
-ierr = 1
-110 continue
+read(lunit,*,iostat=istatus) (iwork(istrt+i),i=0,iend-istrt,inc)
+if (istatus > 0) ierr = 1
 
 return
 

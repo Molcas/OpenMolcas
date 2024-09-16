@@ -103,7 +103,7 @@ do i=1,ncol
   end do
 
   nr1 = mod(nrow,16)
-  if (nr1 == 0) goto 100
+  if (nr1 == 0) cycle
   j = nrow-nr1+1
 
   if (nr1 >= 8) then
@@ -161,7 +161,6 @@ do i=1,ncol
     call WarningMessage(2,'nr1 > 3')
     call Abend()
   end if
-100 continue
 end do
 
 if (mxind >= nlink) return

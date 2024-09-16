@@ -16,42 +16,42 @@ use Definitions, only: iwp, u6
 
 implicit none
 character(len=180) :: line
-integer(kind=iwp) :: isave, lunit
+integer(kind=iwp) :: isave, istatus, lunit
 
 lunit = myunit
 isave = igetline
 rewind(lunit)
-2 continue
-read(lunit,'(a)',end=300) Line
-call UpCase(Line)
-Line = adjustl(Line)
-if (Line(1:1) == '&') then
-  line = line(2:)
-  goto 3
+do
+  read(lunit,'(a)',iostat=istatus) Line
+  if (istatus > 0) exit
+  call UpCase(Line)
+  Line = adjustl(Line)
+  if (Line(1:1) == '&') then
+    line = line(2:)
+    exit
+  end if
+end do
+if (istatus <= 0) then
+  igetline = 0
+  write(u6,'(a,a,a)') ' >>>>> Input file for module ',line(1:index(line,' ')),' <<<<<'
+  do
+    read(lunit,'(A)',iostat=istatus) line
+    if (istatus /= 0) exit
+    igetline = igetline+1
+    if (igetline == isave) then
+      write(u6,*) '******   Error  *******'
+      write(u6,'(a)') line
+      write(u6,'(a)')
+      call WarningMessage(2,'Error in FindErrorLine')
+      call Quit_OnUserError()
+    end if
+    if (isave-igetline <= 50) write(u6,'(a)') line
+  end do
+  !  write(u6,'(a)') ' >>>>> Input error <<<<<'
+  !  rewind(lunit)
+  !  igetline = 0
+  !end do
 end if
-goto 2
-3 continue
-igetline = 0
-write(u6,'(a,a,a)') ' >>>>> Input file for module ',line(1:index(line,' ')),' <<<<<'
-1 continue
-read(lunit,'(A)',err=100,end=200) line
-igetline = igetline+1
-if (igetline == isave) then
-  write(u6,*) '******   Error  *******'
-  write(u6,'(a)') line
-  write(u6,'(a)')
-  call WarningMessage(2,'Error in FindErrorLine')
-  call Quit_OnUserError()
-end if
-if (isave-igetline <= 50) write(u6,'(a)') line
-goto 1
-!write(u6,'(a)') ' >>>>> Input error <<<<<'
-!rewind(lunit)
-!igetline = 0
-!goto 1
-100 continue
-200 continue
-300 continue
 call WarningMessage(1,'FindErrorLine: Error in input was not located;  Please, check it manually!')
 
 return

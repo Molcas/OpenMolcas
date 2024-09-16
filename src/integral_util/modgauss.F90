@@ -59,66 +59,64 @@ r_90 = Half*RMS
 
 Thr = 1.0e-7_wp
 MaxIter = 100
-Iter = 0
 
-777 continue
+do Iter=1,MaxIter
+  !write(u6,*)
+  !write(u6,*) 'Iteration:', Iter
+  !write(u6,*) 'w.r_90:',w,r_90
+  Delta_w = 1.0e-4_wp*w
+  Delta_r = 1.0e-4_wp*r_90
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! The error is a function of r_90 and w
 
-Iter = Iter+1
-!write(u6,*)
-!write(u6,*) 'Iteration:', Iter
-!write(u6,*) 'w.r_90:',w,r_90
-Delta_w = 1.0e-4_wp*w
-Delta_r = 1.0e-4_wp*r_90
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! The error is a function of r_90 and w
+  !RMS_s = RMS
+  !RMS = RMS*1.0e-15_wp/rBohr  ! bohr
+  !write(u6,*) 'RMS:',RMS
+  !Xi = One/R(w)**2
+  !write(u6,*) 'Xi=',Xi
+  !RMS = RMS_s
+  do i=0,12
+    w0 = w+Facts(1,i)*Delta_w
+    r0 = r_90+Facts(2,i)*Delta_r
 
-!RMS_s = RMS
-!RMS = RMS*1.0e-15_wp/rBohr  ! bohr
-!write(u6,*) 'RMS:',RMS
-!Xi = One/R(w)**2
-!write(u6,*) 'Xi=',Xi
-!RMS = RMS_s
-do i=0,12
-  w0 = w+Facts(1,i)*Delta_w
-  r0 = r_90+Facts(2,i)*Delta_r
+    Errors(i) = E(r0/R(w0),(r0+T)/R(w0),w0)
 
-  Errors(i) = E(r0/R(w0),(r0+T)/R(w0),w0)
+    !if (i == 0) then
+    !  write(u6,*) 'r_90,f(x_90)=',r0,f(r0/R(w0),w0)
+    !  write(u6,*) 'r_10,f(x_10)=',r0+T,f((r0+T)/R(w0),w0)
+    !  write(u6,*) 'w,R(w)      =',w0,R(w0)
+    !end if
 
-  !if (i == 0) then
-  !  write(u6,*) 'r_90,f(x_90)=',r0,f(r0/R(w0),w0)
-  !  write(u6,*) 'r_10,f(x_10)=',r0+T,f((r0+T)/R(w0),w0)
-  !  write(u6,*) 'w,R(w)      =',w0,R(w0)
-  !end if
+  end do
+  !write(u6,*) 'Error=',Errors(0)
+  !call RecPrt('Errors',' ',Errors,13,1)
+  g(1) = (Errors(1)-Errors(2))/(Two*Delta_w)
+  H(1,1) = (Errors(3)+Errors(4)-Two*Errors(0))/(Two*Delta_w)**2
+  g(2) = (Errors(5)-Errors(6))/(Two*Delta_r)
+  H(2,2) = (Errors(7)+Errors(8)-Two*Errors(0))/(Two*Delta_r)**2
+  H(1,2) = (Errors(9)+Errors(12)-Errors(10)-Errors(11))/((Two*Delta_w)*(Two*Delta_r))
+  H(2,1) = H(1,2)
+  !call RecPrt('gradient',' ',g,1,2)
+  !call RecPrt('Hessian ',' ',H,2,2)
 
+  call DiagMtrx_x(H,2,iNeg)
+  !write(u6,*) 'iNeg=',iNeg
+  !call RecPrt('Hessian ',' ',H,2,2)
+  call MInv(H,HInv,Det,2)
+  !call RecPrt('HInv ',' ',HInv,2,2)
+  Step(1) = HInv(1,1)*g(1)+HInv(1,2)*g(2)
+  Step(2) = HInv(2,1)*g(1)+HInv(2,2)*g(2)
+  !call RecPrt('Step',' ',Step,1,2)
+  Step(1) = sign(min(abs(Step(1)),0.1_wp*w),Step(1))
+  Step(2) = sign(min(abs(Step(2)),0.1_wp*r_90),Step(2))
+  !call RecPrt('Step',' ',Step,1,2)
+  w = w-Step(1)
+  r_90 = r_90-Step(2)
+
+  if (Errors(0) <= Thr) exit
 end do
-!write(u6,*) 'Error=',Errors(0)
-!call RecPrt('Errors',' ',Errors,13,1)
-g(1) = (Errors(1)-Errors(2))/(Two*Delta_w)
-H(1,1) = (Errors(3)+Errors(4)-Two*Errors(0))/(Two*Delta_w)**2
-g(2) = (Errors(5)-Errors(6))/(Two*Delta_r)
-H(2,2) = (Errors(7)+Errors(8)-Two*Errors(0))/(Two*Delta_r)**2
-H(1,2) = (Errors(9)+Errors(12)-Errors(10)-Errors(11))/((Two*Delta_w)*(Two*Delta_r))
-H(2,1) = H(1,2)
-!call RecPrt('gradient',' ',g,1,2)
-!call RecPrt('Hessian ',' ',H,2,2)
-
-call DiagMtrx_x(H,2,iNeg)
-!write(u6,*) 'iNeg=',iNeg
-!call RecPrt('Hessian ',' ',H,2,2)
-call MInv(H,HInv,Det,2)
-!call RecPrt('HInv ',' ',HInv,2,2)
-Step(1) = HInv(1,1)*g(1)+HInv(1,2)*g(2)
-Step(2) = HInv(2,1)*g(1)+HInv(2,2)*g(2)
-!call RecPrt('Step',' ',Step,1,2)
-Step(1) = sign(min(abs(Step(1)),0.1_wp*w),Step(1))
-Step(2) = sign(min(abs(Step(2)),0.1_wp*r_90),Step(2))
-!call RecPrt('Step',' ',Step,1,2)
-w = w-Step(1)
-r_90 = r_90-Step(2)
-
-if ((Iter < MaxIter) .and. (Errors(0) > Thr)) Go To 777
 w0 = w
 r0 = r_90
 !write(u6,*)

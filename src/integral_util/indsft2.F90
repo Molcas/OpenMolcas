@@ -119,7 +119,7 @@ do i1=1,iCmp(1)
         else
           i34 = iCmp(3)*(i4-1)+i3
         end if
-        if (Shijij .and. (i34 > i12)) go to 400
+        if (Shijij .and. (i34 > i12)) cycle
         qijij = (Shijij .and. (i12 == i34))
         !write(u6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 
@@ -128,11 +128,11 @@ do i1=1,iCmp(1)
         ! integrals.
 
         do j1=0,nIrrep-1
-          if (iSym(j1) == 0) go to 110
+          if (iSym(j1) == 0) cycle
           j2max = nIrrep-1
           if (Shij .and. qij) j2max = j1
           do j2=0,j2max
-            if (jSym(j2) == 0) go to 210
+            if (jSym(j2) == 0) cycle
             j12 = ieor(j1,j2)
             if (qijij) then
               if (Shij .and. qij) then
@@ -150,10 +150,10 @@ do i1=1,iCmp(1)
             jSymj = min(j1,j2)+1
 
             do j3=0,nIrrep-1
-              if (kSym(j3) == 0) go to 310
+              if (kSym(j3) == 0) cycle
               j4 = ieor(j12,j3)
-              if (lSym(j4) == 0) go to 310
-              if (Shkl .and. qkl .and. (j4 > j3)) go to 310
+              if (lSym(j4) == 0) cycle
+              if (Shkl .and. qkl .and. (j4 > j3)) cycle
               if (qijij) then
                 if (Shkl .and. qkl) then
                   k34 = j3*(j3+1)/2+j4+1
@@ -164,12 +164,12 @@ do i1=1,iCmp(1)
                 else
                   k34 = nIrrep*j4+j3+1
                 end if
-                if (k34 > k12) go to 310
+                if (k34 > k12) cycle
               end if
               !write(u6,*) 'j1,j2,j3,j4=',j1,j2,j3,j4
 
               memSO2 = memSO2+1
-              if ((nSkip(j1+1)+nSkip(j2+1)+nSkip(j3+1)+nSkip(j4+1)) /= 0) goto 310
+              if ((nSkip(j1+1)+nSkip(j2+1)+nSkip(j3+1)+nSkip(j4+1)) /= 0) cycle
 
               ! Compute absolute starting SO index
               iSO = iAOtSO(iAO(1)+i1,j1)+iAOst(1)+iOffSO(j1)
@@ -241,7 +241,7 @@ do i1=1,iCmp(1)
                       do iSOi=iSO,iSO+iBas-1
                         nijkl = nijkl+1
                         A_Int = SOint(nijkl,memSO2)
-                        if (abs(A_Int) < ThrInt) Go To 199
+                        if (abs(A_Int) < ThrInt) cycle
                         ij = iPD(iSOi,jSOj,iSOSym,nSOs)
                         !write(u6,*)
                         !write(u6,*) 'iSOi,jSOj,kSOk,lSOl=',iSOi,jSOj,kSOk,lSO
@@ -255,7 +255,6 @@ do i1=1,iCmp(1)
                         Sew_Scr(lwSyB+nUt) = real(iBin+iStBin(iSyBlk),kind=wp)
                         !write(u6,*) 'iSqNum,iBin=',iSqNum,iBin+iStBin(iSyBlk)
 
-199                     continue
                       end do
                     end do
                   end do
@@ -271,7 +270,7 @@ do i1=1,iCmp(1)
                       do iSOi=iSO,iSO+iBas-1
                         nijkl = nijkl+1
                         A_Int = SOint(nijkl,memSO2)
-                        if (abs(A_Int) < ThrInt) Go To 299
+                        if (abs(A_Int) < ThrInt) cycle
                         ij = iPD(iSOi,jSOj,iSOSym,nSOs)
 
                         !write(u6,*)
@@ -294,7 +293,6 @@ do i1=1,iCmp(1)
                         Sew_Scr(lwSyB+nUt) = real(jBin+iStBin(jSyBlk),kind=wp)
                         !write(u6,*) 'jSqNum,jBin=',jSqNum,jBin+iStBin(jSyBlk)
 
-299                     continue
                       end do
                     end do
                   end do
@@ -302,14 +300,10 @@ do i1=1,iCmp(1)
 
               end if
 
-310           continue
             end do
-210         continue
           end do
-110       continue
         end do
 
-400     continue
       end do
     end do
   end do

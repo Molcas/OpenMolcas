@@ -40,42 +40,42 @@ do i=1,nStab1-1
   do iIrrep=1,nIrrep-1
     if (iStab1(i) == iOper(iIrrep)) then
       Ind1 = Ind1+2**(iIrrep-1)
-      Go To 11
+      exit
     end if
   end do
-11 continue
 end do
 do k=1,nIndx
   if (Ind1 == Indx(k)) then
     Ind1 = k
-    Go To 10
+    exit
   end if
 end do
-nIndx = nIndx+1
-Indx(nIndx) = Ind1
-Ind1 = nIndx
-10 continue
+if (k > nIndx) then
+  nIndx = nIndx+1
+  Indx(nIndx) = Ind1
+  Ind1 = nIndx
+end if
 
 Ind2 = 0
 do i=1,nStab2-1
   do iIrrep=1,nIrrep-1
     if (iStab2(i) == iOper(iIrrep)) then
       Ind2 = Ind2+2**(iIrrep-1)
-      Go To 21
+      exit
     end if
   end do
-21 continue
 end do
 do k=1,nIndx
   if (Ind2 == Indx(k)) then
     Ind2 = k
-    Go To 20
+    exit
   end if
 end do
-nIndx = nIndx+1
-Indx(nIndx) = Ind2
-Ind2 = nIndx
-20 continue
+if (k > nIndx) then
+  nIndx = nIndx+1
+  Indx(nIndx) = Ind2
+  Ind2 = nIndx
+end if
 
 ij = max(Ind1,Ind2)*(max(Ind1,Ind2)-1)/2+min(Ind1,Ind2)
 
@@ -127,10 +127,9 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
     if (iScrt(0,iOper(i)) /= 0) then
       iDCR(mDCR) = iOper(i)
       mDCR = mDCR+1
-      Go To 201
+      exit
     end if
   end do
-201 continue
 
   ! Now look through the remaining subgroups UGV, if any. If a new
   ! unique subgroup is found take a representative from this set.
@@ -138,27 +137,26 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
   ! completely disjoint.
 
   do i=1,nIrrep-1
-    do k=0,nIrrep-1
+    outer: do k=0,nIrrep-1
       ! Check if operator exists in UGV.
-      if (iScrt(i,iOper(k)) == 0) Go To 211
+      if (iScrt(i,iOper(k)) == 0) cycle outer
       do j=0,mDCR-1
         ! See that no element of UGV is already in DCR.
-        if (iDCR(j) == iOper(k)) Go To 210
+        if (iDCR(j) == iOper(k)) exit outer
       end do
-211   continue
-    end do
-    ! Here if new unique subgroup UGV was found.
-    do k=0,nIrrep-1
-      ! Move a representative to the DCR set.
-      if (iScrt(i,iOper(k)) /= 0) then
-        iDCR(mDCR) = iOper(k)
-        mDCR = mDCR+1
-        Go To 221
-      end if
-    end do
-221 continue
+    end do outer
+    if (k > nIrrep-1) then
+      ! Here if new unique subgroup UGV was found.
+      do k=0,nIrrep-1
+        ! Move a representative to the DCR set.
+        if (iScrt(i,iOper(k)) /= 0) then
+          iDCR(mDCR) = iOper(k)
+          mDCR = mDCR+1
+          exit
+        end if
+      end do
+    end if
 
-210 continue
   end do
 
   return

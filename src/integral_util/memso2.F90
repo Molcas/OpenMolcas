@@ -98,11 +98,10 @@ else
                 if (iAOtSO(kAO+i3,j3) < 0) cycle
                 j4 = ieor(j12,j3)
                 if (iAOtSO(lAO+i4,j4) < 0) cycle
-                if (Shkl .and. (i3 == i4) .and. (j4 > j3)) Go To 310
-                if (Shik .and. (i1 == i3) .and. Shjl .and. (i2 == i4) .and. (j1 == j3) .and. (j4 > j2)) Go To 310
+                if (Shkl .and. (i3 == i4) .and. (j4 > j3)) cycle
+                if (Shik .and. (i1 == i3) .and. Shjl .and. (i2 == i4) .and. (j1 == j3) .and. (j4 > j2)) cycle
                 MemSO2 = MemSO2+1
 
-310             continue
               end do
             end do
           end do

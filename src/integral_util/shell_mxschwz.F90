@@ -38,15 +38,15 @@ nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 Schwz_Shl(:,:) = Zero
 do iS=1,nSkal
   iShll = iSD(0,iS)
-  if (Shells(iShll)%Aux .and. (iS /= nSkal)) Go To 100
+  if (Shells(iShll)%Aux .and. (iS /= nSkal)) cycle
   iShell = iSD(11,iS)
   iCmp = iSD(2,iS)
   iAng = iSD(1,iS)
   iCnttp = iSD(13,iS)
   do jS=1,iS
     jShll = iSD(0,jS)
-    if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) Go To 200
-    if (Shells(jShll)%Aux .and. (jS == nSkal)) Go To 200
+    if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
+    if (Shells(jShll)%Aux .and. (jS == nSkal)) cycle
     !write(u6,*) 'Shell_..:iS,jS=',iS,jS
     jShell = iSD(11,jS)
     jCmp = iSD(2,jS)
@@ -73,9 +73,7 @@ do iS=1,nSkal
     end if
     Schwz_Shl(jS,iS) = Schwz_tmp
     Schwz_Shl(iS,jS) = Schwz_tmp
-200 continue
   end do
-100 continue
 end do
 !call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
 

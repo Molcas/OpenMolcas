@@ -109,7 +109,7 @@ do i1=1,iCmp
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
                 A_Int = AOint(nijkl,i1,i2,i3,i4)
-                if (abs(A_Int) < ThrInt) Go To 420
+                if (abs(A_Int) < ThrInt) cycle
                 iSOij = iTri(iSOi,jSOj)
 
                 !write(u6,*) 'iSOij,iSOkl=',iSOij,iSOkl
@@ -132,7 +132,6 @@ do i1=1,iCmp
                   !write(u6,*) 'iSq=',Sew_Scr(lwSqN+nUt)
                 end if
 
-420             continue
               end do
             end do
           end do

@@ -56,10 +56,10 @@ do iFd=1,nXF
       if (XMolnr(1,iGrid) == XMolnr(i,iFd)) LExcl = .true.
       if (XMolnr(1,iGrid) == -XMolnr(i,iFd)) scal = scal14
     end do
-    if (LExcl) goto 1
+    if (LExcl) cycle
     !if (LExcl) then
     !  write(u6,*) 'EXCLUDE ',iFd,' from field at ',iGrid
-    !  goto 1
+    !  cycle
     !else if (scal < One) then
     !  write(u6,*) 'SCALE ',iFd,' from field at ',iGrid,' with',scal
     !end if
@@ -106,14 +106,14 @@ do iFd=1,nXF
   dEF(2) = dEF(2)-ZA*y/r12**3
   dEF(3) = dEF(3)-ZA*z/r12**3
 
-  if (nOrd_XF < 1) goto 1
+  if (nOrd_XF < 1) cycle
 
   ! D field
   dEF(1) = dEF(1)+Three*(DAx*x+DAy*y+DAz*z)*x/r12**5-DAx/r12**3
   dEF(2) = dEF(2)+Three*(DAx*x+DAy*y+DAz*z)*y/r12**5-DAy/r12**3
   dEF(3) = dEF(3)+Three*(DAx*x+DAy*y+DAz*z)*z/r12**5-DAz/r12**3
 
-  if (nOrd_XF < 2) goto 1
+  if (nOrd_XF < 2) cycle
 
   ! Q field
   QAsum = (QAxx*x*x+QAyy*y*y+QAzz*z*z+Two*(QAxy*x*y+QAxz*x*z+QAyz*y*z))
@@ -132,7 +132,6 @@ do iFd=1,nXF
   !              Two*DRBz*QAxz*x+DRBx*QAyy*x+Three*DRBy*QAyy*y+DRBz*QAyy*z+Two*DRBy*QAyz*z+Two*DRBz*QAyz*y+DRBx*QAzz*x+ &
   !              DRBy*QAzz*y+Three*DRBz*QAzz*z))
 
-1 continue
 end do   !iFd
 
 return

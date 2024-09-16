@@ -131,162 +131,161 @@ do lsym=0,mirrep-1
         nxvut = nxvu*nt
         iocmot = iocmoi+nish(isym)*mbas(isym)
         ! Break loop if not acceptable symmetry combination.
-        ijsym = ieor(isym,jsym)
-        if (klsym /= ijsym) goto 1005
         ! Break loop if no such symmetry block:
-        if (nijkl == 0) goto 1005
-#       ifdef _DEBUGPRINT_
-        write(u6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
-#       endif
-        ! Bypass transformation if no active orbitals:
-        if (nxvut == 0) goto 300
-        ! Pick up matrix elements and put in a full symmetry block:
-        ind = 0
-        do ix=ixsta,ixend
-          do iv=ivsta,ivend
-            ivx = i3adr(iv,ix)
-            do iu=iusta,iuend
-              do it=itsta,itend
-                itu = i3adr(it,iu)
-                ituvx = i3adr(itu,ivx)
-                ind = ind+1
-                scr1(ind) = G2(ituvx,1)
-                if (isym == jsym) then
-                  fact = One
-                  if ((itu >= ivx) .and. (iv == ix)) fact = Two
-                  if ((itu < ivx) .and. (it == iu)) fact = Two
-                  scr1(ind) = fact*scr1(ind)
-                  !hjw multiplying the G1 product with coulfac gives wrong result
-                  scr1(ind) = scr1(ind)-G1(itu,1)*G1(ivx,1)
-                end if
-                if (isym == lsym) then
-                  itx = i3adr(it,ix)
-                  ivu = i3adr(iv,iu)
-                  !hjw t14 includes exfac, why not coulfac above? What are these terms?
-                  scr1(ind) = scr1(ind)+t14*G1(itx,1)*G1(ivu,1)
-                end if
-                if (isym == ksym) then
-                  itv = i3adr(it,iv)
-                  ixu = i3adr(ix,iu)
-                  scr1(ind) = scr1(ind)+t14*G1(itv,1)*G1(ixu,1)
-                end if
+        ijsym = ieor(isym,jsym)
+        if ((klsym == ijsym) .and. (nijkl /= 0)) then
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
+#         endif
+          ! Bypass transformation if no active orbitals:
+          if (nxvut /= 0) then
+            ! Pick up matrix elements and put in a full symmetry block:
+            ind = 0
+            do ix=ixsta,ixend
+              do iv=ivsta,ivend
+                ivx = i3adr(iv,ix)
+                do iu=iusta,iuend
+                  do it=itsta,itend
+                    itu = i3adr(it,iu)
+                    ituvx = i3adr(itu,ivx)
+                    ind = ind+1
+                    scr1(ind) = G2(ituvx,1)
+                    if (isym == jsym) then
+                      fact = One
+                      if ((itu >= ivx) .and. (iv == ix)) fact = Two
+                      if ((itu < ivx) .and. (it == iu)) fact = Two
+                      scr1(ind) = fact*scr1(ind)
+                      !hjw multiplying the G1 product with coulfac gives wrong result
+                      scr1(ind) = scr1(ind)-G1(itu,1)*G1(ivx,1)
+                    end if
+                    if (isym == lsym) then
+                      itx = i3adr(it,ix)
+                      ivu = i3adr(iv,iu)
+                      !hjw t14 includes exfac, why not coulfac above? What are these terms?
+                      scr1(ind) = scr1(ind)+t14*G1(itx,1)*G1(ivu,1)
+                    end if
+                    if (isym == ksym) then
+                      itv = i3adr(it,iv)
+                      ixu = i3adr(ix,iu)
+                      scr1(ind) = scr1(ind)+t14*G1(itv,1)*G1(ixu,1)
+                    end if
+                  end do
+                end do
               end do
             end do
-          end do
-        end do
-#       ifdef _DEBUGPRINT_
-        call RecPrt('G2-G1G1(MO)',' ',Scr1,nash(iSym)*nash(jSym),nash(kSym)*nash(lsym))
-#       endif
+#           ifdef _DEBUGPRINT_
+            call RecPrt('G2-G1G1(MO)',' ',Scr1,nash(iSym)*nash(jSym),nash(kSym)*nash(lsym))
+#           endif
 
-        ! Transform:
-        !  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
-        ncopy = nash(lsym)
-        nskip1 = mbas(lsym)
-        ioff2 = 0
-        nskip2 = npam(4,lsym)
-        ntuv = nash(isym)*nash(jsym)*nash(ksym)
-        do l=lsta,lend
-          ioff1 = iocmox+int(ipam(iopam4+l))
-          ioff2 = ioff2+1
-          call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
-        end do
-        call DGEMM_('N','T',nskip2,ntuv,ncopy,One,Cred,nskip2,Scr1,ntuv,Zero,Scr2,nskip2)
-        ! Transform:
-        !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
-        ncopy = nash(ksym)
-        nskip1 = mbas(ksym)
-        ioff2 = 0
-        nskip2 = npam(3,ksym)
-        nltu = nash(isym)*nash(jsym)*npam(4,lsym)
-        do k=ksta,kend
-          ioff1 = iocmov+int(ipam(iopam3+k))
-          ioff2 = ioff2+1
-          call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
-        end do
-        call DGEMM_('N','T',nskip2,nltu,ncopy,One,Cred,nskip2,Scr2,nltu,Zero,Scr1,nskip2)
-        ! Transform:
-        !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
-        ncopy = nash(jsym)
-        nskip1 = mbas(jsym)
-        ioff2 = 0
-        nskip2 = npam(2,jsym)
-        nklt = nash(isym)*npam(3,ksym)*npam(4,lsym)
-        do j=jsta,jend
-          ioff1 = iocmou+int(ipam(iopam2+j))
-          ioff2 = ioff2+1
-          call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
-        end do
-        call DGEMM_('N','T',nskip2,nklt,ncopy,One,Cred,nskip2,Scr1,nklt,Zero,Scr2,nskip2)
-        ! Transform:
-        !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
-        ncopy = nash(isym)
-        nskip1 = mbas(isym)
-        ioff2 = 0
-        nskip2 = npam(1,isym)
-        njkl = npam(2,jsym)*npam(3,ksym)*npam(4,lsym)
-        do i=ista,iend
-          ioff1 = iocmot+int(ipam(iopam1+i))
-          ioff2 = ioff2+1
-          call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
-        end do
-        call DGEMM_('N','T',nskip2,njkl,ncopy,One,Cred,nskip2,Scr2,njkl,Zero,Scr1,nskip2)
-#       ifdef _DEBUGPRINT_
-        call RecPrt('G2-G1G1(SO)',' ',Scr1,nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
-#       endif
+            ! Transform:
+            !  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
+            ncopy = nash(lsym)
+            nskip1 = mbas(lsym)
+            ioff2 = 0
+            nskip2 = npam(4,lsym)
+            ntuv = nash(isym)*nash(jsym)*nash(ksym)
+            do l=lsta,lend
+              ioff1 = iocmox+int(ipam(iopam4+l))
+              ioff2 = ioff2+1
+              call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
+            end do
+            call DGEMM_('N','T',nskip2,ntuv,ncopy,One,Cred,nskip2,Scr1,ntuv,Zero,Scr2,nskip2)
+            ! Transform:
+            !  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
+            ncopy = nash(ksym)
+            nskip1 = mbas(ksym)
+            ioff2 = 0
+            nskip2 = npam(3,ksym)
+            nltu = nash(isym)*nash(jsym)*npam(4,lsym)
+            do k=ksta,kend
+              ioff1 = iocmov+int(ipam(iopam3+k))
+              ioff2 = ioff2+1
+              call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
+            end do
+            call DGEMM_('N','T',nskip2,nltu,ncopy,One,Cred,nskip2,Scr2,nltu,Zero,Scr1,nskip2)
+            ! Transform:
+            !  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
+            ncopy = nash(jsym)
+            nskip1 = mbas(jsym)
+            ioff2 = 0
+            nskip2 = npam(2,jsym)
+            nklt = nash(isym)*npam(3,ksym)*npam(4,lsym)
+            do j=jsta,jend
+              ioff1 = iocmou+int(ipam(iopam2+j))
+              ioff2 = ioff2+1
+              call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
+            end do
+            call DGEMM_('N','T',nskip2,nklt,ncopy,One,Cred,nskip2,Scr1,nklt,Zero,Scr2,nskip2)
+            ! Transform:
+            !  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
+            ncopy = nash(isym)
+            nskip1 = mbas(isym)
+            ioff2 = 0
+            nskip2 = npam(1,isym)
+            njkl = npam(2,jsym)*npam(3,ksym)*npam(4,lsym)
+            do i=ista,iend
+              ioff1 = iocmot+int(ipam(iopam1+i))
+              ioff2 = ioff2+1
+              call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
+            end do
+            call DGEMM_('N','T',nskip2,njkl,ncopy,One,Cred,nskip2,Scr2,njkl,Zero,Scr1,nskip2)
+#           ifdef _DEBUGPRINT_
+            call RecPrt('G2-G1G1(SO)',' ',Scr1,nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
+#           endif
 
-        ! Put results into correct positions in PSOPam:
-        do l=lsta,lend
-          loff = nnpam3*(l-1)
-          lof1 = nPam(3,ksym)*(l-lsta)
-          do k=ksta,kend
-            kloff = nnpam2*(k-1+loff)
-            klof1 = nPam(2,jsym)*(k-ksta+lof1)
-            do j=jsta,jend
-              jkloff = nnpam1*(j-1+kloff)
-              jklof1 = nPam(1,isym)*(j-jsta+klof1)
-              do i=ista,iend
-                ipso = i+jkloff
-                iscr = 1+i-ista+jklof1
-                PSOPam(ipso) = Scr1(iscr)
+            ! Put results into correct positions in PSOPam:
+            do l=lsta,lend
+              loff = nnpam3*(l-1)
+              lof1 = nPam(3,ksym)*(l-lsta)
+              do k=ksta,kend
+                kloff = nnpam2*(k-1+loff)
+                klof1 = nPam(2,jsym)*(k-ksta+lof1)
+                do j=jsta,jend
+                  jkloff = nnpam1*(j-1+kloff)
+                  jklof1 = nPam(1,isym)*(j-jsta+klof1)
+                  do i=ista,iend
+                    ipso = i+jkloff
+                    iscr = 1+i-ista+jklof1
+                    PSOPam(ipso) = Scr1(iscr)
+                  end do
+                end do
+              end do
+            end do
+          end if
+          ! Add contributions from 1-el density matrix:
+          do l=lsta,lend
+            is = int(ipam(iopam4+l))
+            loff = nnpam3*(l-1)
+            do k=ksta,kend
+              ir = int(ipam(iopam3+k))
+              irs = i3adr(ir,is)
+              kloff = nnpam2*(k-1+loff)
+              do j=jsta,jend
+                iq = int(ipam(iopam2+j))
+                jkloff = nnpam1*(j-1+kloff)
+                do i=ista,iend
+                  ip = int(ipam(iopam1+i))
+                  ipq = i3adr(ip,iq)
+                  ipso = i+jkloff
+                  if (isym == lsym) then
+                    ips = i3adr(ip,is)
+                    irq = i3adr(ir,iq)
+                    PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDs+ips,1)*D0(ioDr+irq,1)
+                  end if
+                  if (isym == ksym) then
+                    ipr = i3adr(ip,ir)
+                    isq = i3adr(is,iq)
+                    PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDr+ipr,1)*D0(ioDs+isq,1)
+                  end if
+                  if (isym == jsym) then
+                    PSOPam(ipso) = PSOPam(ipso)+D0(ioDq+ipq,1)*D0(ioDs+irs,1)*coulfac
+                  end if
+                end do
               end do
             end do
           end do
-        end do
-        ! Add contributions from 1-el density matrix:
-300     continue
-        do l=lsta,lend
-          is = int(ipam(iopam4+l))
-          loff = nnpam3*(l-1)
-          do k=ksta,kend
-            ir = int(ipam(iopam3+k))
-            irs = i3adr(ir,is)
-            kloff = nnpam2*(k-1+loff)
-            do j=jsta,jend
-              iq = int(ipam(iopam2+j))
-              jkloff = nnpam1*(j-1+kloff)
-              do i=ista,iend
-                ip = int(ipam(iopam1+i))
-                ipq = i3adr(ip,iq)
-                ipso = i+jkloff
-                if (isym == lsym) then
-                  ips = i3adr(ip,is)
-                  irq = i3adr(ir,iq)
-                  PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDs+ips,1)*D0(ioDr+irq,1)
-                end if
-                if (isym == ksym) then
-                  ipr = i3adr(ip,ir)
-                  isq = i3adr(is,iq)
-                  PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDr+ipr,1)*D0(ioDs+isq,1)
-                end if
-                if (isym == jsym) then
-                  PSOPam(ipso) = PSOPam(ipso)+D0(ioDq+ipq,1)*D0(ioDs+irs,1)*coulfac
-                end if
-              end do
-            end do
-          end do
-        end do
+        end if
         ! End of loop over symmetry labels.
-1005    continue
         nbi = mbas(isym)
         iocmoi = iocmoi+nbi**2
       end do

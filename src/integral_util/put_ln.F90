@@ -50,19 +50,16 @@ do
   do i=j,l
     if (line(i:i) == ',') then
       icom = icom+1
-      if (icom /= 1) goto 20
+      if (icom /= 1) exit
     else
-      if (line(i:i) /= ' ') goto 20
+      if (line(i:i) /= ' ') exit
     end if
   end do
-  exit
+  if (i > l) exit
 
-20 continue
   do j=i,l
-    if ((line(j:j) == ' ') .or. (line(j:j) == ',')) goto 30
+    if ((line(j:j) == ' ') .or. (line(j:j) == ',')) exit
   end do
-  j = l+1
-30 continue
   ncol = ncol+1
   istrt(ncol) = i
   iend(ncol) = j-1

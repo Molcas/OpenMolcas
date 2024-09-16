@@ -147,7 +147,7 @@ do i1=1,iCmp
           !FactNs = 1
           call DYaX(ijkl,Fact,PSO(1,MemSO2),1,PAO(1,i1,i2,i3,i4),1)
           MemSO2 = MemSO2+1
-          Go To 400
+          cycle
         end if
 
         iAux = 0
@@ -164,15 +164,12 @@ do i1=1,iCmp
               j123 = ieor(j12,j3)
               do ls=0,nlSym-1
                 j4 = lSym(ls)
-                if (j123 /= j4) Go To 320
-
-                iAux = iAux+1
-                Aux(iAux) = real(iChTbl(j4,kOp(4)),kind=wp)*Xg*Fact
-                Go To 310
-
-320             continue
+                if (j123 == j4) then
+                  iAux = iAux+1
+                  Aux(iAux) = real(iChTbl(j4,kOp(4)),kind=wp)*Xg*Fact
+                  exit
+                end if
               end do
-310           continue
             end do
           end do
         end do
@@ -189,7 +186,6 @@ do i1=1,iCmp
           MemSO2 = MemSO2+iAux
         end if
 
-400     continue
       end do
     end do
   end do

@@ -73,8 +73,9 @@ do ix=ir,0,-1
 
     ndc = 0
     do iCnttp=1,nCnttp
+      if (iCnttp > 1) ndc = ndc+dbsc(iCnttp-1)%nCntr
       ZA = dbsc(iCnttp)%Charge
-      if (ZA == Zero) Go To 101
+      if (ZA == Zero) cycle
 #     ifdef _DEBUGPRINT_
       write(u6,*) ' Charge=',ZA
       call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
@@ -106,8 +107,6 @@ do ix=ir,0,-1
           temp = temp+ZA*CCoMx*CCoMy*CCoMz
         end do
       end do
-101   continue
-      ndc = ndc+dbsc(iCnttp)%nCntr
     end do
     rNucMm(iq) = temp
   end do
@@ -119,119 +118,118 @@ end do
 ! The remainder of this subroutine is obsolete and
 ! is kept only for testing reasons. It is replaced by
 ! the subroutine XFMoment which is more general.
-goto 99
 
-if ((.not. allocated(XF)) .or. (nOrd_XF < 0)) Go To 99
+if (allocated(XF) .and. (nOrd_XF >= 0) then
 
-! Contributions due to the charges and dipoles of the
-! static external electric field.
+  ! Contributions due to the charges and dipoles of the
+  ! static external electric field.
 
-!write(u6,*) ' Adding contributions from esef!'
+  !write(u6,*) ' Adding contributions from esef!'
 
-iq = 0
-do ix=ir,0,-1
-  do iy=ir-ix,0,-1
-    iq = iq+1
-    iz = ir-ix-iy
-    temp = Zero
-    !write(u6,*) ' ix,iy,iz=',ix,iy,iz
+  iq = 0
+  do ix=ir,0,-1
+    do iy=ir-ix,0,-1
+      iq = iq+1
+      iz = ir-ix-iy
+      temp = Zero
+      !write(u6,*) ' ix,iy,iz=',ix,iy,iz
 
-    do iFd=1,nXF
-      DAx = Zero
-      DAy = Zero
-      DAz = Zero
-      Qxx = Zero
-      Qxy = Zero
-      Qxz = Zero
-      Qyy = Zero
-      Qyz = Zero
-      Qzz = Zero
-      if (nOrd_XF == 0) then
-        ZA = XF(4,iFd)
-      else if (nOrd_XF == 1) then
-        ZA = XF(4,iFd)
-        DAx = XF(5,iFd)
-        DAy = XF(6,iFd)
-        DAz = XF(7,iFd)
-      else if (nOrd_XF == 2) then
-        ZA = XF(4,iFd)
-        DAx = XF(5,iFd)
-        DAy = XF(6,iFd)
-        DAz = XF(7,iFd)
-        Qxx = XF(8,iFd)
-        Qxy = XF(9,iFd)
-        Qxz = XF(10,iFd)
-        Qyy = XF(11,iFd)
-        Qyz = XF(12,iFd)
-        Qzz = XF(13,iFd)
-      else
-        call WarningMessage(2,'RFNuc: Option not implemented yet!')
-        call Abend()
-      end if
-#     ifdef _DEBUGPRINT_
-      write(u6,*) ' Charge=',ZA
-      write(u6,*) ' ixyz=',ixyz
-      call RecPrt(' Centers',' ',XF(1,iXF),3,1)
-#     endif
-
-      A(1:3) = XF(1:3,iXF)
-
-      ! Generate Stabilazor of C
-
-      iChxyz = iChAtm(A)
-      iDum = 0
-      call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
-
-      !write(u6,*) ' nStb=',nStb
-      do i=0,nIrrep/nStb-1
-        call OA(jCoSet(i,0),A,RA)
-        rRMy(1) = DAx*real(iPhase(1,jCoSet(i,0)),kind=wp)
-        rRMy(2) = DAy*real(iPhase(2,jCoSet(i,0)),kind=wp)
-        rRMy(3) = DAz*real(iPhase(3,jCoSet(i,0)),kind=wp)
-        QRAxx = QAxx
-        QRAyy = QAyy
-        QRAzz = QAzz
-        QRAxy = real(iPhase(1,jCoSet(i,0))*iPhase(2,jCoSet(i,0)),kind=wp)*QAxy
-        QRAxz = real(iPhase(1,jCoSet(i,0))*iPhase(3,jCoSet(i,0)),kind=wp)*QAxz
-        QRAyz = real(iPhase(2,jCoSet(i,0))*iPhase(3,jCoSet(i,0)),kind=wp)*QAyz
-
-        if (ix == 0) then
-          CCoMx = One
+      do iFd=1,nXF
+        DAx = Zero
+        DAy = Zero
+        DAz = Zero
+        Qxx = Zero
+        Qxy = Zero
+        Qxz = Zero
+        Qyy = Zero
+        Qyz = Zero
+        Qzz = Zero
+        if (nOrd_XF == 0) then
+          ZA = XF(4,iFd)
+        else if (nOrd_XF == 1) then
+          ZA = XF(4,iFd)
+          DAx = XF(5,iFd)
+          DAy = XF(6,iFd)
+          DAz = XF(7,iFd)
+        else if (nOrd_XF == 2) then
+          ZA = XF(4,iFd)
+          DAx = XF(5,iFd)
+          DAy = XF(6,iFd)
+          DAz = XF(7,iFd)
+          Qxx = XF(8,iFd)
+          Qxy = XF(9,iFd)
+          Qxz = XF(10,iFd)
+          Qyy = XF(11,iFd)
+          Qyz = XF(12,iFd)
+          Qzz = XF(13,iFd)
         else
-          CCoMx = (RA(1)-CoOp(1))**ix
+          call WarningMessage(2,'RFNuc: Option not implemented yet!')
+          call Abend()
         end if
-        if (iy == 0) then
-          CCoMy = One
-        else
-          CCoMy = (RA(2)-CoOp(2))**iy
-        end if
-        if (iz == 0) then
-          CCoMz = One
-        else
-          CCoMz = (RA(3)-CoOp(3))**iz
-        end if
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' Charge=',ZA
+        write(u6,*) ' ixyz=',ixyz
+        call RecPrt(' Centers',' ',XF(1,iXF),3,1)
+#       endif
 
-        !write(u6,*) CCoMx, CCoMy, CCoMz, temp
+        A(1:3) = XF(1:3,iXF)
 
-        ! The charge contribution
+        ! Generate Stabilazor of C
 
-        temp = temp+ZA*CCoMx*CCoMy*CCoMz
+        iChxyz = iChAtm(A)
+        iDum = 0
+        call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 
-        ! Dipole contributions
+        !write(u6,*) ' nStb=',nStb
+        do i=0,nIrrep/nStb-1
+          call OA(jCoSet(i,0),A,RA)
+          rRMy(1) = DAx*real(iPhase(1,jCoSet(i,0)),kind=wp)
+          rRMy(2) = DAy*real(iPhase(2,jCoSet(i,0)),kind=wp)
+          rRMy(3) = DAz*real(iPhase(3,jCoSet(i,0)),kind=wp)
+          QRAxx = QAxx
+          QRAyy = QAyy
+          QRAzz = QAzz
+          QRAxy = real(iPhase(1,jCoSet(i,0))*iPhase(2,jCoSet(i,0)),kind=wp)*QAxy
+          QRAxz = real(iPhase(1,jCoSet(i,0))*iPhase(3,jCoSet(i,0)),kind=wp)*QAxz
+          QRAyz = real(iPhase(2,jCoSet(i,0))*iPhase(3,jCoSet(i,0)),kind=wp)*QAyz
 
-        if (ix >= 1) temp = temp+real(ix,kind=wp)*rRmy(1)*CCoMy*CCoMz*(RA(1)-CoOp(1))**(ix-1)
-        if (iy >= 1) temp = temp+real(iy,kind=wp)*rRmy(2)*CCoMx*CCoMz*(RA(2)-CoOp(2))**(iy-1)
-        if (iz >= 1) temp = temp+real(iz,kind=wp)*rRmy(3)*CCoMx*CCoMy*(RA(3)-CoOp(3))**(iz-1)
+          if (ix == 0) then
+            CCoMx = One
+          else
+            CCoMx = (RA(1)-CoOp(1))**ix
+          end if
+          if (iy == 0) then
+            CCoMy = One
+          else
+            CCoMy = (RA(2)-CoOp(2))**iy
+          end if
+          if (iz == 0) then
+            CCoMz = One
+          else
+            CCoMz = (RA(3)-CoOp(3))**iz
+          end if
 
+          !write(u6,*) CCoMx, CCoMy, CCoMz, temp
+
+          ! The charge contribution
+
+          temp = temp+ZA*CCoMx*CCoMy*CCoMz
+
+          ! Dipole contributions
+
+          if (ix >= 1) temp = temp+real(ix,kind=wp)*rRmy(1)*CCoMy*CCoMz*(RA(1)-CoOp(1))**(ix-1)
+          if (iy >= 1) temp = temp+real(iy,kind=wp)*rRmy(2)*CCoMx*CCoMz*(RA(2)-CoOp(2))**(iy-1)
+          if (iz >= 1) temp = temp+real(iz,kind=wp)*rRmy(3)*CCoMx*CCoMy*(RA(3)-CoOp(3))**(iz-1)
+
+        end do
       end do
+      !write(u6,*) ' Temp=',temp
+      rNucMm(iq) = rNucMm(iq)+temp
+
     end do
-    !write(u6,*) ' Temp=',temp
-    rNucMm(iq) = rNucMm(iq)+temp
-
   end do
-end do
 
-99 continue
+end if
 #endif
 #ifdef _DEBUGPRINT_
 call RecPrt(' Nuclear Multipole Moments',' ',rNucMm,ip,1)

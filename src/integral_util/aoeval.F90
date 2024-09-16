@@ -123,7 +123,7 @@ Radial(:,:,:) = Zero
 do iCoor=1,nCoor
   R2 = (Coor(1,iCoor)-RA(1))**2+(Coor(2,iCoor)-RA(2))**2+(Coor(3,iCoor)-RA(3))**2
   do iExp=1,nExp
-    if (-Alpha(iExp)*R2 < Thre) Go To 9898
+    if (-Alpha(iExp)*R2 < Thre) exit
     Tmp = exp(-Alpha(iExp)*R2)
     if (nRad == 1) then
       do iBas=1,nBas
@@ -171,7 +171,6 @@ do iCoor=1,nCoor
       end do
     end if
   end do
-9898 continue
 end do
 
 #ifdef _DEBUGPRINT_

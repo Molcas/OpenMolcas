@@ -127,7 +127,7 @@ do i1=1,iCmp
         else
           i34 = kCmp*(i4-1)+i3
         end if
-        if (Shijij .and. (i34 > i12)) Go To 400
+        if (Shijij .and. (i34 > i12)) cycle
         Qijij = Shijij .and. (i12 == i34)
 
         ! Loop over irreps which are spanned by the basis function.
@@ -136,12 +136,12 @@ do i1=1,iCmp
 
         iAux = 0
         do j1=0,nIrrep-1
-          if (iSym(j1) == 0) Go To 110
+          if (iSym(j1) == 0) cycle
           Xa = real(iChTbl(j1,kOp(1)),kind=wp)*pTSd
           j2Max = nIrrep-1
           if (Shij .and. Qij) j2Max = j1
           do j2=0,j2Max
-            if (jSym(j2) == 0) Go To 210
+            if (jSym(j2) == 0) cycle
             Xb = real(iChTbl(j2,kOp(2)),kind=wp)*Xa
             j12 = ieor(j1,j2)
             if (Qijij) then
@@ -156,10 +156,10 @@ do i1=1,iCmp
               end if
             end if
             do j3=0,nIrrep-1
-              if (kSym(j3) == 0) Go To 310
+              if (kSym(j3) == 0) cycle
               j4 = ieor(j12,j3)
-              if (lSym(j4) == 0) Go To 310
-              if (Shkl .and. Qkl .and. (j4 > j3)) Go To 310
+              if (lSym(j4) == 0) cycle
+              if (Shkl .and. Qkl .and. (j4 > j3)) cycle
               if (Qijij) then
                 if (Shkl .and. Qkl) then
                   k34 = j3*(j3+1)/2+j4+1
@@ -170,17 +170,14 @@ do i1=1,iCmp
                 else
                   k34 = nIrrep*j4+j3+1
                 end if
-                if (Qijij .and. (k34 > k12)) Go To 310
+                if (Qijij .and. (k34 > k12)) cycle
               end if
               Xg = real(iChTbl(j3,kOp(3)),kind=wp)*Xb
               iAux = iAux+1
               Aux(iAux) = real(iChTbl(j4,kOp(4)),kind=wp)*Xg
 
-310           continue
             end do
-210         continue
           end do
-110       continue
         end do
 
 #       ifdef _DEBUGPRINT_
@@ -195,7 +192,6 @@ do i1=1,iCmp
           MemSO2 = MemSO2+iAux
         end if
 
-400     continue
       end do
     end do
   end do

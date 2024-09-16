@@ -74,14 +74,14 @@ if (la >= lb) then
     do iSph_a=1,nSph_a
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
-        if (C_a == Zero) Go To 100
+        if (C_a == Zero) cycle
         ix = iCan(1,iOff(la)+ipa)
         iy = iCan(2,iOff(la)+ipa)
         iz = iCan(3,iOff(la)+ipa)
         do iSph_b=1,nSph_b
           do ipb=1,(lb+1)*(lb+2)/2
             C_b = CS_b(ipb,iSph_b)
-            if (C_b == Zero) Go To 200
+            if (C_b == Zero) cycle
             jx = iCan(1,iOff(lb)+ipb)
             jy = iCan(2,iOff(lb)+ipb)
             jz = iCan(3,iOff(lb)+ipb)
@@ -110,10 +110,8 @@ if (la >= lb) then
               end do
             end do
 
-200         continue
           end do
         end do
-100     continue
       end do
     end do
 
@@ -122,7 +120,7 @@ if (la >= lb) then
     do iSph_a=1,nSph_a
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
-        if (C_a == Zero) Go To 101
+        if (C_a == Zero) cycle
         ix = iCan(1,iOff(la)+ipa)
         iy = iCan(2,iOff(la)+ipa)
         iz = iCan(3,iOff(la)+ipa)
@@ -156,7 +154,6 @@ if (la >= lb) then
           end do
 
         end do
-101     continue
       end do
     end do
 
@@ -169,7 +166,7 @@ if (la >= lb) then
       do iSph_b=1,nSph_b
         do ipb=1,(lb+1)*(lb+2)/2
           C_b = CS_b(ipb,iSph_b)
-          if (C_b == Zero) Go To 201
+          if (C_b == Zero) cycle
           jx = iCan(1,iOff(lb)+ipb)
           jy = iCan(2,iOff(lb)+ipb)
           jz = iCan(3,iOff(lb)+ipb)
@@ -198,7 +195,6 @@ if (la >= lb) then
             end do
           end do
 
-201       continue
         end do
       end do
     end do
@@ -250,14 +246,14 @@ else
     do iSph_a=1,nSph_a
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
-        if (C_a == Zero) Go To 300
+        if (C_a == Zero) cycle
         ix = iCan(1,iOff(la)+ipa)
         iy = iCan(2,iOff(la)+ipa)
         iz = iCan(3,iOff(la)+ipa)
         do iSph_b=1,nSph_b
           do ipb=1,(lb+1)*(lb+2)/2
             C_b = CS_b(ipb,iSph_b)
-            if (C_b == Zero) Go To 400
+            if (C_b == Zero) cycle
             jx = iCan(1,iOff(lb)+ipb)
             jy = iCan(2,iOff(lb)+ipb)
             jz = iCan(3,iOff(lb)+ipb)
@@ -286,10 +282,8 @@ else
               end do
             end do
 
-400         continue
           end do
         end do
-300     continue
       end do
     end do
 
@@ -298,7 +292,7 @@ else
     do iSph_a=1,nSph_a
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
-        if (C_a == Zero) Go To 301
+        if (C_a == Zero) cycle
         ix = iCan(1,iOff(la)+ipa)
         iy = iCan(2,iOff(la)+ipa)
         iz = iCan(3,iOff(la)+ipa)
@@ -332,7 +326,6 @@ else
           end do
 
         end do
-301     continue
       end do
     end do
 
@@ -345,7 +338,7 @@ else
       do iSph_b=1,nSph_b
         do ipb=1,(lb+1)*(lb+2)/2
           C_b = CS_b(ipb,iSph_b)
-          if (C_b == Zero) Go To 401
+          if (C_b == Zero) cycle
           jx = iCan(1,iOff(lb)+ipb)
           jy = iCan(2,iOff(lb)+ipb)
           jz = iCan(3,iOff(lb)+ipb)
@@ -374,7 +367,6 @@ else
             end do
           end do
 
-401       continue
         end do
       end do
     end do

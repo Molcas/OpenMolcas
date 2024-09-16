@@ -51,7 +51,7 @@ if (First) then
   write(u6,*) 'nEFP_fragments=',nEFP_fragments
 # endif
   iFrag = 0
-  do i=1,nEFP_fragments
+  outer: do i=1,nEFP_fragments
 
     ! Find a unique fragment potential.
     ! Procastinate.
@@ -59,7 +59,7 @@ if (First) then
     do j=i+1,nEFP_fragments
 
       ! Branch out if there is an entry later with the same potential
-      if (FRAG_TYPE(i) == FRAG_TYPE(j)) Go To 999
+      if (FRAG_TYPE(i) == FRAG_TYPE(j)) cycle outer
     end do
 
     ! At this point we have a unique potential label in FRAG_TYPE(i)
@@ -126,8 +126,7 @@ if (First) then
       iFrag = iFrag+1
     end do
 
-999 continue
-  end do
+  end do outer
 
   irc = EFP_PREPARE(EFP_Instance)
   if (irc /= 0) then

@@ -43,14 +43,12 @@ end do
 write(u6,frmt) Line
 do i=1,nLines
   do j=1,nChar
-    if (Lines(i)(j:j) /= ' ') Go To 21
+    if (Lines(i)(j:j) /= ' ') exit
   end do
-21 continue
   iFrst = j
   do j=nChar,iFrst,-1
-    if (Lines(i)(j:j) /= ' ') Go To 31
+    if (Lines(i)(j:j) /= ' ') exit
   end do
-31 continue
   iEnd = j
   do k=2,mWidth-1
     Line(k:k) = ' '

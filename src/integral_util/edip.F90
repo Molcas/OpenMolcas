@@ -88,229 +88,228 @@ write(u6,*)
 write(u6,*) 'Iter fmax             testa'
 #endif
 Iter = 0
-555 continue
-#ifdef _DEBUGPRINT_
-testa = fmax*afac
-#endif
-Iter = Iter+1
-! Loop over Langevin grid and make EF and dipol moments at the
-! grid self consistent.
-
-do iGrid=1,nGrid_Eff
-
-  fx = dEF(1,iGrid)+EF(1,iGrid)
-  fy = dEF(2,iGrid)+EF(2,iGrid)
-  fz = dEF(3,iGrid)+EF(3,iGrid)
-  ftot = fx*fx+fy*fy+fz*fz
-  ! Update EF and square norm
-
-  EF(1,iGrid) = fx
-  EF(2,iGrid) = fy
-  EF(3,iGrid) = fz
-  EF(4,iGrid) = ftot
-
-  ! Reset update vector
-
-  dEF(1,iGrid) = Zero
-  dEF(2,iGrid) = Zero
-  dEF(3,iGrid) = Zero
-  dEF(4,iGrid) = Zero
-
-end do
-do iGrid=1,nGrid_Eff
-  fx = EF(1,iGrid)
-  fy = EF(2,iGrid)
-  fz = EF(3,iGrid)
-  ftot = EF(4,iGrid)
-
-  ! Skip if square norm below threshold
-
-  !if (dEF(4,iGrid) < testa) goto 666
-
-  ghx = Grid(1,iGrid)
-  ghy = Grid(2,iGrid)
-  ghz = Grid(3,iGrid)
-
-  ! Pick up dipole moment at grid point
-
-  dx = DipMom(1,iGrid)
-  dy = DipMom(2,iGrid)
-  dz = DipMom(3,iGrid)
-
-  !Dip_Eff = DipEff(iGrid)*real(Min(Iter,100),kind=wp)/100.0_wp
-  Dip_Eff = DipEff(iGrid)
-
-  ! Compute new dipole moment as a function of the EF, effective dipole
-  ! moment and effective polarizability.
-
-  if (Dip_Eff < 1.0e-10_wp) then
-    if (iGrid > nAnisoPol) then   ! isotropic
-      DipMom(1,iGrid) = fx*PolEff(1,iGrid)
-      DipMom(2,iGrid) = fy*PolEff(1,iGrid)
-      DipMom(3,iGrid) = fz*PolEff(1,iGrid)
-    else  ! anisotropic
-      DipMom(1,iGrid) = fx*PolEff(1,iGrid)+fy*PolEff(2,iGrid)+fz*PolEff(3,iGrid)
-      DipMom(2,iGrid) = fx*PolEff(2,iGrid)+fy*PolEff(4,iGrid)+fz*PolEff(5,iGrid)
-      DipMom(3,iGrid) = fx*PolEff(3,iGrid)+fy*PolEff(5,iGrid)+fz*PolEff(6,iGrid)
-    end if
-  else   ! NB!! Only isotropic implemented for dip>0
-    fftots = sqrt(ftot)
-    ftots = One/fftots
-    x = Dip_Eff*tk*fftots
-    ex = exp(x)
-    emx = One/ex
-    alang = (ex+emx)/(ex-emx)-One/x
-    !alang = x/Three  ! Linear approximation
-    i = iGrid
-    uind = Dip_Eff*alang+ftot*PolEff(1,iGrid)*ftots
-    DipMom(1,iGrid) = uind*fx*ftots
-    DipMom(2,iGrid) = uind*fy*ftots
-    DipMom(3,iGrid) = uind*fz*ftots
-  end if
-
-  ! Grid
-
-  ! Compute the change in the dipole moment between the old (dx,dy,dz) and
-  ! the new (DipMom).
-
-  ! Try damping the change in dipole moment for better convergence
-
-  DipMom(1,iGrid) = (One-dampIter)*DipMom(1,iGrid)+dampIter*dx
-  DipMom(2,iGrid) = (One-dampIter)*DipMom(2,iGrid)+dampIter*dy
-  DipMom(3,iGrid) = (One-dampIter)*DipMom(3,iGrid)+dampIter*dz
-
-  dx = DipMom(1,iGrid)-dx
-  dy = DipMom(2,iGrid)-dy
-  dz = DipMom(3,iGrid)-dz
-
-  ! Given the charge (qqo=0.0) and the change of the dipole moment
-  ! at this point modify the multipole expansion around the origin
-  ! accordingly. On the first iteration we will have the MM of the
-  ! QM in Cavxyz too, in subsequential iterations we will only deal
-  ! with incremental contributions.
-
-  call qlm(ghx,ghy,ghz,qqo,dx,dy,dz,lMax,Cavxyz)
-
-  ! Loop over the whole grid and update the EF due to the change of
-  ! the dipole moment at the grid point "iGrid".
-
-  Tr1 = Zero
-  if (lDamping) then
-    if (iGrid > nAnisopol) then
-      Tr1 = PolEff(1,iGrid)
-    else
-      Tr1 = (PolEff(1,iGrid)+PolEff(4,iGrid)+PolEff(6,iGrid))/Three
-    end if
-  end if
-  do jGrid=1,nGrid_Eff
-    if (iGrid == jGrid) Go To 777
-    scal = One
-    if (lAmberpol .and. (iXPolType > 0) .and. (iGrid <= nXF) .and. (jGrid <= nXF)) then
-      lExcl = .false.
-      do i=1,nXMolnr
-        if (XMolnr(1,jGrid) == XMolnr(i,iGrid)) lExcl = .true.
-        if (XMolnr(1,jGrid) == -XMolnr(i,iGrid)) scal = scal14
-      end do
-      ! exclude field from iGrid when calculating the field at jGrid
-      if (lExcl) goto 777
-      !if (lExcl) then
-      !  write(u6,*) 'EXCLUDE dip',iGrid,' at ',jGrid
-      !  goto 777
-      !else if (scal < One) then
-      !  write(u6,*) 'SCALE dip',iGrid,' at ',jGrid,' with ',scal
-      !end if
-    end if
-    ghx1 = Grid(1,jGrid)
-    ghy1 = Grid(2,jGrid)
-    ghz1 = Grid(3,jGrid)
-    rx = ghx-ghx1
-    ry = ghy-ghy1
-    rz = ghz-ghz1
-    r2 = (rx*rx+ry*ry+rz*rz)
-    if (r2 < dipCutoff**2) Go To 777
-
-    r2i = One/r2
-    ska = dx*rx+dy*ry+dz*rz
-    disti = sqrt(r2i)
-    dist3 = r2i*disti
-    temp = Three*ska*r2i
-    if (lDamping) then
-      if (jGrid > nAnisopol) then
-        Tr2 = PolEff(1,jGrid)
-      else
-        Tr2 = (PolEff(1,jGrid)+PolEff(4,jGrid)+PolEff(6,jGrid))/Three
-      end if
-      !FIXME: what is this number?
-      s = 2.3268_wp*(Tr1*Tr2)**(One/Six)
-      v = min(One,sqrt(r2)/s)
-      d1 = Four*v**3-Three*v**4
-      d2 = v**4
-      !write(u6,*) 'DAMP',d1,d2,Tr1,Tr2,sqrt(r2)
-      dEF(1,jGrid) = dEF(1,jGrid)-(dx*d1-temp*rx*d2)*dist3*scal
-      dEF(2,jGrid) = dEF(2,jGrid)-(dy*d1-temp*ry*d2)*dist3*scal
-      dEF(3,jGrid) = dEF(3,jGrid)-(dz*d1-temp*rz*d2)*dist3*scal
-    else
-      dEF(1,jGrid) = dEF(1,jGrid)-(dx-temp*rx)*dist3*scal
-      dEF(2,jGrid) = dEF(2,jGrid)-(dy-temp*ry)*dist3*scal
-      dEF(3,jGrid) = dEF(3,jGrid)-(dz-temp*rz)*dist3*scal
-    end if
-777 continue
-  end do         ! jGrid
-
-!666     Continue
-end do           ! iGrid
-
-if (lRFCav) then
-
-  ! Compute the charge distribution on the boundary of the cavity due to the
-  ! MM expansion at origin.
-
-  Cavxyz(:) = Ravxyz(:)
-
-  call AppFld(Ravxyz,rds,Eps,lMax,EpsInf,NonEq)
-
-  ! Compute EF at the grid due to the charge distribution in MM expansion
-  ! for the QM system plus the dipole moments on the grid.
+do
+# ifdef _DEBUGPRINT_
+  testa = fmax*afac
+# endif
+  Iter = Iter+1
+  ! Loop over Langevin grid and make EF and dipol moments at the
+  ! grid self consistent.
 
   do iGrid=1,nGrid_Eff
-    ghx1 = Grid(1,iGrid)
-    ghy1 = Grid(2,iGrid)
-    ghz1 = Grid(3,iGrid)
-    fax = Zero
-    fay = Zero
-    faz = Zero
 
-    ! Given the charge distribution on the boundary of the cavity
-    ! compute EF at (ghx1,ghy1,ghz1).
+    fx = dEF(1,iGrid)+EF(1,iGrid)
+    fy = dEF(2,iGrid)+EF(2,iGrid)
+    fz = dEF(3,iGrid)+EF(3,iGrid)
+    ftot = fx*fx+fy*fy+fz*fz
+    ! Update EF and square norm
 
-    call hmod(ghx1,ghy1,ghz1,v_dummy,fax,fay,faz,Ravxyz,lmax)
+    EF(1,iGrid) = fx
+    EF(2,iGrid) = fy
+    EF(3,iGrid) = fz
+    EF(4,iGrid) = ftot
 
-    ! Accumulate in update vector
+    ! Reset update vector
 
-    dEF(1,iGrid) = dEF(1,iGrid)+fax
-    dEF(2,iGrid) = dEF(2,iGrid)+fay
-    dEF(3,iGrid) = dEF(3,iGrid)+faz
-  end do   ! iGrid
+    dEF(1,iGrid) = Zero
+    dEF(2,iGrid) = Zero
+    dEF(3,iGrid) = Zero
+    dEF(4,iGrid) = Zero
 
-end if ! if (lRFCav)
+  end do
+  do iGrid=1,nGrid_Eff
+    fx = EF(1,iGrid)
+    fy = EF(2,iGrid)
+    fz = EF(3,iGrid)
+    ftot = EF(4,iGrid)
 
-fmax = Zero
-do iGrid=1,nGrid_Eff
-  ftest = dEF(1,iGrid)**2+dEF(2,iGrid)**2+dEF(3,iGrid)**2
-  dEF(4,iGrid) = ftest
-  fmax = max(ftest,fmax)
-end do     ! iGrid
+    ! Skip if square norm below threshold
 
-Cavxyz(:) = Zero
+    !if (dEF(4,iGrid) < testa) cycle
 
-! Check convergence
+    ghx = Grid(1,iGrid)
+    ghy = Grid(2,iGrid)
+    ghz = Grid(3,iGrid)
 
-!call RecPrt('DipMom ',' ',DipMom,3,nGrid_Eff)
+    ! Pick up dipole moment at grid point
 
-#ifdef _DEBUGPRINT_
-write(u6,*) Iter,fmax,testa
-#endif
-if (fmax > clim) Go To 555
+    dx = DipMom(1,iGrid)
+    dy = DipMom(2,iGrid)
+    dz = DipMom(3,iGrid)
+
+    !Dip_Eff = DipEff(iGrid)*real(Min(Iter,100),kind=wp)/100.0_wp
+    Dip_Eff = DipEff(iGrid)
+
+    ! Compute new dipole moment as a function of the EF, effective dipole
+    ! moment and effective polarizability.
+
+    if (Dip_Eff < 1.0e-10_wp) then
+      if (iGrid > nAnisoPol) then   ! isotropic
+        DipMom(1,iGrid) = fx*PolEff(1,iGrid)
+        DipMom(2,iGrid) = fy*PolEff(1,iGrid)
+        DipMom(3,iGrid) = fz*PolEff(1,iGrid)
+      else  ! anisotropic
+        DipMom(1,iGrid) = fx*PolEff(1,iGrid)+fy*PolEff(2,iGrid)+fz*PolEff(3,iGrid)
+        DipMom(2,iGrid) = fx*PolEff(2,iGrid)+fy*PolEff(4,iGrid)+fz*PolEff(5,iGrid)
+        DipMom(3,iGrid) = fx*PolEff(3,iGrid)+fy*PolEff(5,iGrid)+fz*PolEff(6,iGrid)
+      end if
+    else   ! NB!! Only isotropic implemented for dip>0
+      fftots = sqrt(ftot)
+      ftots = One/fftots
+      x = Dip_Eff*tk*fftots
+      ex = exp(x)
+      emx = One/ex
+      alang = (ex+emx)/(ex-emx)-One/x
+      !alang = x/Three  ! Linear approximation
+      i = iGrid
+      uind = Dip_Eff*alang+ftot*PolEff(1,iGrid)*ftots
+      DipMom(1,iGrid) = uind*fx*ftots
+      DipMom(2,iGrid) = uind*fy*ftots
+      DipMom(3,iGrid) = uind*fz*ftots
+    end if
+
+    ! Grid
+
+    ! Compute the change in the dipole moment between the old (dx,dy,dz) and
+    ! the new (DipMom).
+
+    ! Try damping the change in dipole moment for better convergence
+
+    DipMom(1,iGrid) = (One-dampIter)*DipMom(1,iGrid)+dampIter*dx
+    DipMom(2,iGrid) = (One-dampIter)*DipMom(2,iGrid)+dampIter*dy
+    DipMom(3,iGrid) = (One-dampIter)*DipMom(3,iGrid)+dampIter*dz
+
+    dx = DipMom(1,iGrid)-dx
+    dy = DipMom(2,iGrid)-dy
+    dz = DipMom(3,iGrid)-dz
+
+    ! Given the charge (qqo=0.0) and the change of the dipole moment
+    ! at this point modify the multipole expansion around the origin
+    ! accordingly. On the first iteration we will have the MM of the
+    ! QM in Cavxyz too, in subsequential iterations we will only deal
+    ! with incremental contributions.
+
+    call qlm(ghx,ghy,ghz,qqo,dx,dy,dz,lMax,Cavxyz)
+
+    ! Loop over the whole grid and update the EF due to the change of
+    ! the dipole moment at the grid point "iGrid".
+
+    Tr1 = Zero
+    if (lDamping) then
+      if (iGrid > nAnisopol) then
+        Tr1 = PolEff(1,iGrid)
+      else
+        Tr1 = (PolEff(1,iGrid)+PolEff(4,iGrid)+PolEff(6,iGrid))/Three
+      end if
+    end if
+    do jGrid=1,nGrid_Eff
+      if (iGrid == jGrid) cycle
+      scal = One
+      if (lAmberpol .and. (iXPolType > 0) .and. (iGrid <= nXF) .and. (jGrid <= nXF)) then
+        lExcl = .false.
+        do i=1,nXMolnr
+          if (XMolnr(1,jGrid) == XMolnr(i,iGrid)) lExcl = .true.
+          if (XMolnr(1,jGrid) == -XMolnr(i,iGrid)) scal = scal14
+        end do
+        ! exclude field from iGrid when calculating the field at jGrid
+        if (lExcl) cycle
+        !if (lExcl) then
+        !  write(u6,*) 'EXCLUDE dip',iGrid,' at ',jGrid
+        !  cycle
+        !else if (scal < One) then
+        !  write(u6,*) 'SCALE dip',iGrid,' at ',jGrid,' with ',scal
+        !end if
+      end if
+      ghx1 = Grid(1,jGrid)
+      ghy1 = Grid(2,jGrid)
+      ghz1 = Grid(3,jGrid)
+      rx = ghx-ghx1
+      ry = ghy-ghy1
+      rz = ghz-ghz1
+      r2 = (rx*rx+ry*ry+rz*rz)
+      if (r2 < dipCutoff**2) cycle
+
+      r2i = One/r2
+      ska = dx*rx+dy*ry+dz*rz
+      disti = sqrt(r2i)
+      dist3 = r2i*disti
+      temp = Three*ska*r2i
+      if (lDamping) then
+        if (jGrid > nAnisopol) then
+          Tr2 = PolEff(1,jGrid)
+        else
+          Tr2 = (PolEff(1,jGrid)+PolEff(4,jGrid)+PolEff(6,jGrid))/Three
+        end if
+        !FIXME: what is this number?
+        s = 2.3268_wp*(Tr1*Tr2)**(One/Six)
+        v = min(One,sqrt(r2)/s)
+        d1 = Four*v**3-Three*v**4
+        d2 = v**4
+        !write(u6,*) 'DAMP',d1,d2,Tr1,Tr2,sqrt(r2)
+        dEF(1,jGrid) = dEF(1,jGrid)-(dx*d1-temp*rx*d2)*dist3*scal
+        dEF(2,jGrid) = dEF(2,jGrid)-(dy*d1-temp*ry*d2)*dist3*scal
+        dEF(3,jGrid) = dEF(3,jGrid)-(dz*d1-temp*rz*d2)*dist3*scal
+      else
+        dEF(1,jGrid) = dEF(1,jGrid)-(dx-temp*rx)*dist3*scal
+        dEF(2,jGrid) = dEF(2,jGrid)-(dy-temp*ry)*dist3*scal
+        dEF(3,jGrid) = dEF(3,jGrid)-(dz-temp*rz)*dist3*scal
+      end if
+    end do         ! jGrid
+
+  end do           ! iGrid
+
+  if (lRFCav) then
+
+    ! Compute the charge distribution on the boundary of the cavity due to the
+    ! MM expansion at origin.
+
+    Cavxyz(:) = Ravxyz(:)
+
+    call AppFld(Ravxyz,rds,Eps,lMax,EpsInf,NonEq)
+
+    ! Compute EF at the grid due to the charge distribution in MM expansion
+    ! for the QM system plus the dipole moments on the grid.
+
+    do iGrid=1,nGrid_Eff
+      ghx1 = Grid(1,iGrid)
+      ghy1 = Grid(2,iGrid)
+      ghz1 = Grid(3,iGrid)
+      fax = Zero
+      fay = Zero
+      faz = Zero
+
+      ! Given the charge distribution on the boundary of the cavity
+      ! compute EF at (ghx1,ghy1,ghz1).
+
+      call hmod(ghx1,ghy1,ghz1,v_dummy,fax,fay,faz,Ravxyz,lmax)
+
+      ! Accumulate in update vector
+
+      dEF(1,iGrid) = dEF(1,iGrid)+fax
+      dEF(2,iGrid) = dEF(2,iGrid)+fay
+      dEF(3,iGrid) = dEF(3,iGrid)+faz
+    end do   ! iGrid
+
+  end if ! if (lRFCav)
+
+  fmax = Zero
+  do iGrid=1,nGrid_Eff
+    ftest = dEF(1,iGrid)**2+dEF(2,iGrid)**2+dEF(3,iGrid)**2
+    dEF(4,iGrid) = ftest
+    fmax = max(ftest,fmax)
+  end do     ! iGrid
+
+  Cavxyz(:) = Zero
+
+  ! Check convergence
+
+  !call RecPrt('DipMom ',' ',DipMom,3,nGrid_Eff)
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) Iter,fmax,testa
+# endif
+  if (fmax <= clim) exit
+end do
 
 ! Now we have a MM from QM + Langevin grid which is consistent with the
 ! charge distribution on the boundary of the cavity. The Langevin

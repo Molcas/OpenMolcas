@@ -40,10 +40,9 @@ do i1=0,nSet1-1
     if (iSet1(i1) == iSet2(i2)) then
       iInter(nInter) = iSet1(i1)
       nInter = nInter+1
-      Go To 10
+      exit
     end if
   end do
-10 continue
 end do
 
 return

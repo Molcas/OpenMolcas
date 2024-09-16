@@ -190,7 +190,7 @@ do lDCRR=0,nDCRR-1
   vijij = k2Data1(lDCR1)%abMax
 
   ! switch (to generate better start orbitals...)
-  if (NDDO .and. (.not. AeqB)) Go To 100
+  if (NDDO .and. (.not. AeqB)) cycle
   ! switch
   MxDCRS = nDCRS-1
   do lDCRS=0,MxDCRS
@@ -200,14 +200,14 @@ do lDCRR=0,nDCRR-1
     CeqD = EQ(Coor(:,3),CoorM(:,4))
 
     ! switch (to generate better start orbitals...)
-    if (NDDO .and. (.not. CeqD)) Go To 200
+    if (NDDO .and. (.not. CeqD)) cycle
 
     lDCR2 = NrOpr(iDCRS(lDCRS))+1
 
     ! Pick up estimated largest integral value (AO)
 
     vijkl = vijij*k2Data2(lDCR2)%abMax
-    do lDCRT=0,nDCRT-1
+    outer: do lDCRT=0,nDCRT-1
       ipAOInt = 1
       iW3 = 1+nInts
       RS_doublet = real(lDCRS*nDCRR+lDCRR+1,kind=wp)
@@ -219,11 +219,11 @@ do lDCRR=0,nDCRR-1
       call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
       AeqC = EQ(CoorM(1,1),CoorM(1,3))
       ABeqCD = AeqB .and. CeqD .and. AeqC
-      if (ABeqCD .and. (mod(iSmAng,2) == 1)) Go To 300
+      if (ABeqCD .and. (mod(iSmAng,2) == 1)) cycle outer
 
       !lwj For Spherical Gaussians, batches like
       !lwj (DS|SS), (FP|SS) and (FS|PS) vanish as well
-      if (ABeqCD .and. All_Spherical .and. (2*max(la,lb,lc,ld) > iSmAng)) Go To 300
+      if (ABeqCD .and. All_Spherical .and. (2*max(la,lb,lc,ld) > iSmAng)) cycle outer
       !lwj
 
 #     ifdef _DEBUGPRINT_
@@ -334,37 +334,37 @@ do lDCRR=0,nDCRR-1
 
       if (.not. DoAOBatch) then
         ! AO batch is not on the disk
-        if (.not. Batch_On_Disk) Go To 300
+        if (.not. Batch_On_Disk) cycle outer
         if (.not. W2Disc) then
 
           ! AO batch is on disk! Do a no copy read to
           ! position the next batch on the disc.
 
-1111      continue
-          call iRBuf(iWR,2,Copy)
-          call dRBuf(QInd,2,Copy)
-          call Store_QLast(QInd)
-          kInts = iWR(1)
-          mInts = iWR(2)
-          if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
-            if (kInts /= nInts) then
-              call WarningMessage(2,'Twoel: kInts /= nInts!')
-              write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+          do
+            call iRBuf(iWR,2,Copy)
+            call dRBuf(QInd,2,Copy)
+            call Store_QLast(QInd)
+            kInts = iWR(1)
+            mInts = iWR(2)
+            if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
+              if (kInts /= nInts) then
+                call WarningMessage(2,'Twoel: kInts /= nInts!')
+                write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+                write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+                call Abend()
+              end if
+              if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
+              Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
+              cycle outer
+            else if (QInd(1) <= Quad_ijkl) then
+              if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
+              Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
+            else
+              call WarningMessage(2,'Twoel: batch is lost!')
               write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
               call Abend()
             end if
-            if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
-            Go To 300
-          else if (QInd(1) <= Quad_ijkl) then
-            if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
-            Go To 1111
-          else
-            call WarningMessage(2,'Twoel: batch is lost!')
-            write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
-            call Abend()
-          end if
+          end do
         end if
       end if
 
@@ -439,190 +439,191 @@ do lDCRR=0,nDCRR-1
 
       ! Branch point for partial integral storage.
 
-      if (Batch_On_Disk .and. (.not. W2Disc)) Go To 6767
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      ! Here if the AO batch will be computed !
+      if ((.not. Batch_On_Disk) .or. W2Disc) then
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        ! Here if the AO batch will be computed !
 
-      ! Compute actual size of the {a0|c0} block
+        ! Compute actual size of the {a0|c0} block
 
-      mabMin = nabSz(max(la,lb)-1)+1
-      if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
-      mabMax = nabSz(la+lb)
-      mcdMin = nabSz(max(lc,ld)-1)+1
-      if (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nabSz(lc+ld-1)+1
-      mcdMax = nabSz(lc+ld)
-      mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+        mabMin = nabSz(max(la,lb)-1)+1
+        if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
+        mabMax = nabSz(la+lb)
+        mcdMin = nabSz(max(lc,ld)-1)+1
+        if (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nabSz(lc+ld-1)+1
+        mcdMax = nabSz(lc+ld)
+        mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 
-      ! Find the proper centers to start of with the angular
-      ! momentum on. If la == lb there will exist an
-      ! ambiguity to which center that angular momentum should
-      ! be accumulated on. In that case we will use A and C of
-      ! the order as defined by the basis functions types.
+        ! Find the proper centers to start of with the angular
+        ! momentum on. If la == lb there will exist an
+        ! ambiguity to which center that angular momentum should
+        ! be accumulated on. In that case we will use A and C of
+        ! the order as defined by the basis functions types.
 
-      if (iAnga(1) >= iAnga(2)) then
-        call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
-      else
-        call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
-      end if
-      if (iAnga(3) >= iAnga(4)) then
-        call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
-      else
-        call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
-      end if
-
-      ! Set flags if triangularization will be used
-
-      IeqK = EQ(CoorM(1,1),CoorM(1,3))
-      JeqL = EQ(CoorM(1,2),CoorM(1,4))
-      IJeqKL = (IeqK .and. JeqL)
-
-      ! Loops to partition the primitives
-
-      ! Reset pointer ipAOInt if we need to reserve speacial
-      ! space for the contracted integrals.
-
-      IncZet = nAlpha*jPrInc
-      IncEta = nGamma*lPrInc
-      if ((nZeta /= IncZet) .or. (nEta /= IncEta)) then
-        mWork2 = nWork2-nijkl*mabcd
-        ipAOInt = 1+nijkl*mabcd
-      else
-        mWork2 = nWork2
-        ipAOInt = 1
-      end if
-
-      nZeta_Tot = k2Data1(lDCR1)%IndZ(nZeta+1)
-      nEta_Tot = k2Data2(lDCR2)%IndZ(nEta+1)
-
-      kabcd = 0
-      Do_TnsCtl = .false.
-      NoInts = .true.
-      NoPInts = .true.
-      ipAOInt_ = ipAOInt
-      iW4_ = iW4
-
-      do iZeta=1,nZeta_Tot,IncZet
-        mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-        if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
-
-        do iEta=1,nEta_Tot,IncEta
-          mEta = min(IncEta,nEta_Tot-iEta+1)
-          if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
-
-          call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
-                      nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga, &
-                      CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &
-                      k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp,iShll, &
-                      NoPInts,Dij(:,jOp(1)),mDij,Dkl(:,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
-                      lBasl)
-
-        end do
-      end do
-
-      ! Integrals are now returned in Wrk(ipAOInt) or Wrk(iW4)
-
-      if (NoPInts) then
-        if (W2Disc) then
-          if (Batch_On_Disk) then
-
-            ! If the batch was supposed to be on disk make a mark.
-
-            mInts = 0
-
-            iWR(1) = nInts
-            iWR(2) = mInts
-            call iWBuf(iWR,RtoI)
-            call dWBuf(QInd,2)
-            call Store_QLast(QInd)
-
-            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
-          end if
-        end if
-        Go To 300
-      end if
-
-      ! Multiply with factors due to summation over DCR
-
-      if (MolWgh == 1) then
-        FactNd = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
-      else if (MolWgh == 0) then
-        FactNd = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
-      else
-        FactNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
-      end if
-      if (FactNd /= One) call DScal_(kabcd*nijkl,FactNd,Wrk(iW4),1)
-
-      ! Apply the transfer equation and transform the spherical
-      ! harmonic gaussian.
-
-      if (Do_TnsCtl) then
-        call TnsCtl(Wrk(iW4),nWork2,nijkl,mabMax,mabMin,mcdMax,mcdMin,k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1), &
-                    k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShll(1),iShll(2), &
-                    iShll(3),iShll(4),i_Int)
-        ipAOInt = i_Int
-        if (i_Int == 1) then
-          iW3 = 1+nijkl*nabcd
+        if (iAnga(1) >= iAnga(2)) then
+          call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
         else
-          iW3 = 1
+          call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
         end if
-      else
+        if (iAnga(3) >= iAnga(4)) then
+          call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+        else
+          call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+        end if
 
-        ! Undo the late Cntrct
+        ! Set flags if triangularization will be used
 
-        call dcopy_(nabcd*nijkl,Wrk(ipAOInt),1,Wrk(iW3),1)
-        call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),nijkl)
+        IeqK = EQ(CoorM(1,1),CoorM(1,3))
+        JeqL = EQ(CoorM(1,2),CoorM(1,4))
+        IJeqKL = (IeqK .and. JeqL)
 
+        ! Loops to partition the primitives
+
+        ! Reset pointer ipAOInt if we need to reserve speacial
+        ! space for the contracted integrals.
+
+        IncZet = nAlpha*jPrInc
+        IncEta = nGamma*lPrInc
+        if ((nZeta /= IncZet) .or. (nEta /= IncEta)) then
+          mWork2 = nWork2-nijkl*mabcd
+          ipAOInt = 1+nijkl*mabcd
+        else
+          mWork2 = nWork2
+          ipAOInt = 1
+        end if
+
+        nZeta_Tot = k2Data1(lDCR1)%IndZ(nZeta+1)
+        nEta_Tot = k2Data2(lDCR2)%IndZ(nEta+1)
+
+        kabcd = 0
+        Do_TnsCtl = .false.
+        NoInts = .true.
+        NoPInts = .true.
+        ipAOInt_ = ipAOInt
+        iW4_ = iW4
+
+        do iZeta=1,nZeta_Tot,IncZet
+          mZeta = min(IncZet,nZeta_Tot-iZeta+1)
+          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
+
+          do iEta=1,nEta_Tot,IncEta
+            mEta = min(IncEta,nEta_Tot-iEta+1)
+            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
+
+            call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
+                        nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga, &
+                        CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &
+                        k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp, &
+                        iShll,NoPInts,Dij(:,jOp(1)),mDij,Dkl(:,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
+                        kBask,Coeff4,lBasl)
+
+          end do
+        end do
+
+        ! Integrals are now returned in Wrk(ipAOInt) or Wrk(iW4)
+
+        if (NoPInts) then
+          if (W2Disc) then
+            if (Batch_On_Disk) then
+
+              ! If the batch was supposed to be on disk make a mark.
+
+              mInts = 0
+
+              iWR(1) = nInts
+              iWR(2) = mInts
+              call iWBuf(iWR,RtoI)
+              call dWBuf(QInd,2)
+              call Store_QLast(QInd)
+
+              Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
+            end if
+          end if
+          cycle outer
+        end if
+
+        ! Multiply with factors due to summation over DCR
+
+        if (MolWgh == 1) then
+          FactNd = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
+        else if (MolWgh == 0) then
+          FactNd = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
+        else
+          FactNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
+        end if
+        if (FactNd /= One) call DScal_(kabcd*nijkl,FactNd,Wrk(iW4),1)
+
+        ! Apply the transfer equation and transform the spherical
+        ! harmonic gaussian.
+
+        if (Do_TnsCtl) then
+          call TnsCtl(Wrk(iW4),nWork2,nijkl,mabMax,mabMin,mcdMax,mcdMin,k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1), &
+                      k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShll(1),iShll(2), &
+                      iShll(3),iShll(4),i_Int)
+          ipAOInt = i_Int
+          if (i_Int == 1) then
+            iW3 = 1+nijkl*nabcd
+          else
+            iW3 = 1
+          end if
+        else
+
+          ! Undo the late Cntrct
+
+          call dcopy_(nabcd*nijkl,Wrk(ipAOInt),1,Wrk(iW3),1)
+          call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),nijkl)
+
+        end if
+
+        ! Branch point for partial integral storage
+
+        if (Batch_On_Disk .and. W2Disc) then
+
+          ! Write integrals to current position on disc.
+
+          iOpt = 0 ! Always Packing, not run length
+          call PkR8(iOpt,nInts,nByte,Wrk(ipAOInt),Wrk(iW3))
+          mInts = (nByte+RtoB-1)/RtoB
+
+          iWR(1) = nInts
+          iWR(2) = mInts
+          call iWBuf(iWR,2)
+          call dWBuf(QInd,2)
+          call Store_QLast(Qind)
+          call dWBuf(Wrk(iW3),mInts)
+          Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
+
+        end if
       end if
 
-      ! Branch point for partial integral storage
-
-      if (Batch_On_Disk .and. W2Disc) then
-
-        ! Write integrals to current position on disc.
-
-        iOpt = 0 ! Always Packing, not run length
-        call PkR8(iOpt,nInts,nByte,Wrk(ipAOInt),Wrk(iW3))
-        mInts = (nByte+RtoB-1)/RtoB
-
-        iWR(1) = nInts
-        iWR(2) = mInts
-        call iWBuf(iWR,2)
-        call dWBuf(QInd,2)
-        call Store_QLast(Qind)
-        call dWBuf(Wrk(iW3),mInts)
-        Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
-
-      end if
-
-6767  continue
       if (Batch_On_Disk .and. (.not. W2Disc)) then
-1112    continue
-        call iRBuf(iWR,2,Copy)
-        call dRBuf(QInd,2,Copy)
-        call Store_QLast(QInd)
-        kInts = iWR(1)
-        mInts = iWR(2)
-        if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
-          if (kInts /= nInts) then
-            call WarningMessage(2,'Twoel: kInts /= nInts!')
-            write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+        do
+          call iRBuf(iWR,2,Copy)
+          call dRBuf(QInd,2,Copy)
+          call Store_QLast(QInd)
+          kInts = iWR(1)
+          mInts = iWR(2)
+          if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
+            if (kInts /= nInts) then
+              call WarningMessage(2,'Twoel: kInts /= nInts!')
+              write(u6,*) 'Twoel: kInts,mInts,nInts=',kInts,mInts,nInts
+              write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
+              call Abend()
+            end if
+            if (mInts > 0) call dRBuf(Wrk(iW3),mInts,Copy)
+            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
+            if (mInts == 0) cycle outer
+            exit
+          else if (QInd(1) < Quad_ijkl) then
+            if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
+            Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
+          else
+            call WarningMessage(2,'Twoel: batch is lost!')
             write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
             call Abend()
           end if
-          if (mInts > 0) call dRBuf(Wrk(iW3),mInts,Copy)
-          Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
-          if (mInts == 0) Go To 300
-        else if (QInd(1) < Quad_ijkl) then
-          if (mInts > 0) call dRBuf(Wrk(iW3),mInts,NoCopy)
-          Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
-          Go To 1112
-        else
-          call WarningMessage(2,'Twoel: batch is lost!')
-          write(u6,*) 'Index,1:',QInd(1),QInd(2),Quad_ijkl,RST_triplet
-          call Abend()
-        end if
+        end do
 
         iOpt = 0 ! Always packing, not run length
         call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(ipAOInt))
@@ -642,11 +643,8 @@ do lDCRR=0,nDCRR-1
       if (DoIntegrals) call SymAdp(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux,Wrk(ipAOInt), &
                                    SOInt,nSOInt,NoInts)
 
-300   continue
-    end do
-200 continue
+    end do outer
   end do
-100 continue
 end do
 
 return

@@ -82,7 +82,7 @@ do iBlock=1,nBlocks
     nCD = nC*nD
     Triangular = .false.
   end if
-  if (nAB*nCD == 0) Go To 999
+  if (nAB*nCD == 0) cycle
 
   nAB_dist = min(nAB,nBuf/nCD)
   iSO_A_r = 1
@@ -138,7 +138,7 @@ do iBlock=1,nBlocks
 
         ! Jonas B 2010. If calculating mp2-integrals the cutoff for small
         ! gammas should not be used at the moment.
-        if ((.not. Case_mp2) .and. (abs(ABCD) < CutInt)) Go To 888
+        if ((.not. Case_mp2) .and. (abs(ABCD) < CutInt)) cycle
         iSO_C_a = iOffSO(iIrrep_C)+iSO_C_r
         iSO_D_a = iOffSO(iIrrep_D)+iSO_D_r
         iShell_C = iSO2Shell(iSO_C_a)
@@ -226,7 +226,6 @@ do iBlock=1,nBlocks
           !end if
         end if
 
-888     continue
       end do  ! iCD
       !                                                                *
       !*****************************************************************
@@ -262,7 +261,6 @@ do iBlock=1,nBlocks
     end do     ! iAB
 
   end do       ! iiAB
-999 continue
   iBlockAdr = iBlockAdr+nAB*nCD
 
 end do         ! iBlock

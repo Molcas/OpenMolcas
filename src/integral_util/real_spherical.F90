@@ -145,9 +145,8 @@ subroutine Sphere(lMax)
       do l=-m,m
         iii = iii+1
         do iElem=1,nElem
-          if (RSph(iElem-1+ii+ipSph(n)) /= Zero) Go To 66
+          if (RSph(iElem-1+ii+ipSph(n)) /= Zero) exit
         end do
-66      continue
         iSphCr(iii) = iElem+jjj
         ii = ii+nElem
       end do

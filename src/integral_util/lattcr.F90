@@ -78,7 +78,7 @@ do ii=-(maxa+1),maxa,nSparse
         ys = (real(jj,kind=wp)+(real(nSparse-1,kind=wp)*Half))*scala
         zs = (real(kk,kind=wp)+(real(nSparse-1,kind=wp)*Half))*scalc
         nGridOld = nGrid_Eff
-        do l=1,latato
+        outer: do l=1,latato
           co(1) = xs+cordsi(1,l)
           co(2) = ys+cordsi(2,l)
           co(3) = zs+cordsi(3,l)
@@ -91,11 +91,11 @@ do ii=-(maxa+1),maxa,nSparse
             zp = zp+co(m)*tr(3,m)
           end do
           rp2 = xp*xp+yp*yp+zp*zp
-          if (rp2 > radlat**2) go to 13
+          if (rp2 > radlat**2) exit outer
           if (lRFCav) then
             rp = sqrt(rp2)
             drp = rds-rp
-            if (drp <= Zero) go to 13
+            if (drp <= Zero) exit outer
             ener1 = (diedel/drp)**2
           else
             ener1 = Zero
@@ -113,7 +113,7 @@ do ii=-(maxa+1),maxa,nSparse
             dggy = ya-yp
             dggz = za-zp
             rpa2 = dggx**2+dggy**2+dggz**2
-            if (rpa2 < distSparse**2) goto 13
+            if (rpa2 < distSparse**2) exit outer
             ener = ener+(rrr/rpa2)**nexpo
           end do
 
@@ -133,13 +133,13 @@ do ii=-(maxa+1),maxa,nSparse
             dggy = ya-yp
             dggz = za-zp
             rpa2 = dggx**2+dggy**2+dggz**2
-            if (rpa2 < distSparse**2) goto 13
+            if (rpa2 < distSparse**2) exit outer
             ener = ener+(rrr/rpa2)**nexpo
             !if (rpa2 < Six) write(u6,*) 'DIST',iGrid,iXF,sqrt(rpa2),atrad
           end do
 
           ener = prefac*ener*500.0_wp+ener1
-          if (ener > Twelve) goto 13
+          if (ener > Twelve) exit outer
           fac = exp(-ener)
           nGrid_Eff_ = nGrid_Eff_+1
           Grid(1,nGrid_Eff_) = xp
@@ -148,12 +148,11 @@ do ii=-(maxa+1),maxa,nSparse
           PolEff(1,nGrid_Eff_) = polsi*real(nSparse,kind=wp)**Three*fac*fac
           DipEff(nGrid_Eff_) = dipsi*real(nSparse,kind=wp)**OneHalf*fac
           write(u6,*) 'DGRID',xp,yp,zp,fac
-        end do
+        end do outer
         ! Every sparse lattice point in this cell is ok, so skip dense grid
 
-        goto 14
+        if (l > latato) cycle
 
-13      continue
         ! Not every sparse lattice point is ok, so delete the sparse and do dense
         nGrid_Eff_ = nGridOld
       end if
@@ -177,11 +176,11 @@ do ii=-(maxa+1),maxa,nSparse
                 zp = zp+co(m)*tr(3,m)
               end do
               rp2 = xp*xp+yp*yp+zp*zp
-              if (rp2 > radlat**2) go to 11
+              if (rp2 > radlat**2) cycle
               if (lRFCav) then
                 rp = sqrt(rp2)
                 drp = rds-rp
-                if (drp <= Zero) go to 11
+                if (drp <= Zero) cycle
                 ener1 = (diedel/drp)**2
               else
                 ener1 = Zero
@@ -228,7 +227,7 @@ do ii=-(maxa+1),maxa,nSparse
               !ener = prefac*ener*1000.0_wp+ener1
               if (ener > Twelve) then
                 write(u6,*) 'REMOVED',xp,yp,zp
-                Go To 11
+                cycle
               end if
 
               fac = exp(-ener)
@@ -240,12 +239,10 @@ do ii=-(maxa+1),maxa,nSparse
               PolEff(1,nGrid_Eff_) = polsi*fac*fac
               DipEff(nGrid_Eff_) = dipsi*fac
               write(u6,*) 'GRID',xp,yp,zp,fac
-11            continue
             end do  ! l
           end do  ! k
         end do  ! j
       end do  ! i
-14    continue
     end do  ! kk
   end do  ! jj
 end do  ! ii

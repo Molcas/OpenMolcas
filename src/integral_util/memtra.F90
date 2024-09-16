@@ -31,13 +31,12 @@ mxS3 = 0
 mxS4 = 0
 do isym=0,mirrep-1
   na = nash(isym)
-  if (na == 0) goto 10
+  if (na == 0) cycle
   mxact = max(mxact,na)
   mxS1 = max(mxS1,npam(1,isym))
   mxS2 = max(mxS2,npam(2,isym))
   mxS3 = max(mxS3,npam(3,isym))
   mxS4 = max(mxS4,npam(4,isym))
-10 continue
 end do
 mxS = max(mxS1,mxS2,mxS3,mxS4)
 mxa2 = mxact*mxact

@@ -142,7 +142,7 @@ do i1=1,iCmp(1)
               j123 = ieor(j12,j3)
               do ls=0,nlSym-1
                 j4 = lSym(ls)
-                if (j123 /= j4) Go To 411
+                if (j123 /= j4) cycle
 
                 MemSO2 = MemSO2+1
 
@@ -177,7 +177,6 @@ do i1=1,iCmp(1)
                   end do
                 end do
 
-411             continue
               end do
             end do
           end do

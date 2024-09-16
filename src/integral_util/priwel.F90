@@ -31,7 +31,6 @@ indst = 1
 do iz=1,nz
   gri(iz,1) = grin(iz,0,1,1)
 end do
-if (k == 0) Go To 99
 do i=1,k
   ipot3i = ipot3(i)
   call dcopy_(iPot3i*nz,[Zero],0,gri(1,indst+1),1)
@@ -56,9 +55,9 @@ do i=1,k
       if (iv(l) == 3) iz = iz+1
     end do
     ix2 = (ix/2)*2
-    if (ix2 /= ix) go to 11
+    if (ix2 /= ix) cycle
     iy2 = (iy/2)*2
-    if (iy2 /= iy) go to 11
+    if (iy2 /= iy) cycle
     ixs = max(ix,iy)
     iys = min(ix,iy)
     ixys = (ixs+iys)/2+1
@@ -66,11 +65,9 @@ do i=1,k
     do mz=1,nz
       gri(mz,j+indst) = grin(mz,i,ixys,iys)
     end do
-11  continue
   end do
   indst = indst+ipot3i
 end do
-99 continue
 !call RecPrt(' In PriWel:gri',' ',gri,nz,isum)
 
 return

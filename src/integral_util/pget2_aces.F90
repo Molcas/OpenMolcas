@@ -132,7 +132,7 @@ do i1=1,iCmp(1)
               j123 = ieor(j12,j3)
               do ls=0,nlSym-1
                 j4 = lSym(ls)
-                if (j123 /= j4) Go To 410
+                if (j123 /= j4) cycle
 
                 MemSO2 = MemSO2+1
 
@@ -203,62 +203,64 @@ do i1=1,iCmp(1)
                         !density or partial two-particle densities but simply read them from
                         !file
 
-                        if (gamma_mrcisd) goto 95
-                        ! Contribution D(ij)*D(kl) to P(ijkl)
-                        if (j1 == j2) then
-                          ! j3 == j4 also
-                          Indi = max(iSOi,jSOj)
-                          Indj = iSOi+jSOj-Indi
-                          Indk = max(kSOk,lSOl)
-                          Indl = kSOk+lSOl-Indk
-                          iPntij = iPntSO(j1,j2,lOper,nbas)
-                          iPntkl = iPntSO(j3,j4,lOper,nbas)
-                          Indij = iPntij+(Indi-1)*Indi/2+Indj
-                          Indkl = iPntkl+(Indk-1)*Indk/2+Indl
-                          temp = DSO(Indij)*DSO(Indkl)+(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)+DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
+                        if (gamma_mrcisd) then
+                          temp = Gmma(Index_ABCD)
                         else
-                          temp = Zero
-                        end if
+                          ! Contribution D(ij)*D(kl) to P(ijkl)
+                          if (j1 == j2) then
+                            ! j3 == j4 also
+                            Indi = max(iSOi,jSOj)
+                            Indj = iSOi+jSOj-Indi
+                            Indk = max(kSOk,lSOl)
+                            Indl = kSOk+lSOl-Indk
+                            iPntij = iPntSO(j1,j2,lOper,nbas)
+                            iPntkl = iPntSO(j3,j4,lOper,nbas)
+                            Indij = iPntij+(Indi-1)*Indi/2+Indj
+                            Indkl = iPntkl+(Indk-1)*Indk/2+Indl
+                            temp = DSO(Indij)*DSO(Indkl)+(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)+ &
+                                   DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
+                          else
+                            temp = Zero
+                          end if
 
-                        ! Contribution -1/4*D(ik)*D(jl) to P(ijkl)
-                        if (j1 == j3) then
-                          ! j2 == j4 also
-                          Indi = max(iSOi,kSOk)
-                          Indk = iSOi+kSOk-Indi
-                          Indj = max(jSOj,lSOl)
-                          Indl = jSOj+lSOl-Indj
-                          iPntik = iPntSO(j1,j3,lOper,nbas)
-                          iPntjl = iPntSO(j2,j4,lOper,nbas)
-                          Indik = iPntik+(Indi-1)*Indi/2+Indk
-                          Indjl = iPntjl+(Indj-1)*Indj/2+Indl
-                          temp = temp-t14*(DSO(Indik)*DSO(Indjl)+(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)+ &
-                                           DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))+DSSO(Indik)*DSSO(Indjl)+ &
-                                           (DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)+DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl)))
-                        end if
+                          ! Contribution -1/4*D(ik)*D(jl) to P(ijkl)
+                          if (j1 == j3) then
+                            ! j2 == j4 also
+                            Indi = max(iSOi,kSOk)
+                            Indk = iSOi+kSOk-Indi
+                            Indj = max(jSOj,lSOl)
+                            Indl = jSOj+lSOl-Indj
+                            iPntik = iPntSO(j1,j3,lOper,nbas)
+                            iPntjl = iPntSO(j2,j4,lOper,nbas)
+                            Indik = iPntik+(Indi-1)*Indi/2+Indk
+                            Indjl = iPntjl+(Indj-1)*Indj/2+Indl
+                            temp = temp-t14*(DSO(Indik)*DSO(Indjl)+(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)+ &
+                                             DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))+DSSO(Indik)*DSSO(Indjl)+ &
+                                             (DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)+DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl)))
+                          end if
 
-                        ! Contribution -1/4*D(il)*D(jk) to P(ijkl)
-                        if (j1 == j4) then
-                          ! j2 == j3 also
-                          Indi = max(iSOi,lSOl)
-                          Indl = iSOi+lSOl-Indi
-                          Indj = max(jSOj,kSOk)
-                          Indk = jSOj+kSOk-Indj
-                          iPntil = iPntSO(j1,j4,lOper,nbas)
-                          iPntjk = iPntSO(j2,j3,lOper,nbas)
-                          Indil = iPntil+(Indi-1)*Indi/2+Indl
-                          Indjk = iPntjk+(Indj-1)*Indj/2+Indk
-                          temp = temp-t14*(DSO(Indil)*DSO(Indjk)+(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)+ &
-                                           DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
-                                           (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
-                        end if
+                          ! Contribution -1/4*D(il)*D(jk) to P(ijkl)
+                          if (j1 == j4) then
+                            ! j2 == j3 also
+                            Indi = max(iSOi,lSOl)
+                            Indl = iSOi+lSOl-Indi
+                            Indj = max(jSOj,kSOk)
+                            Indk = jSOj+kSOk-Indj
+                            iPntil = iPntSO(j1,j4,lOper,nbas)
+                            iPntjk = iPntSO(j2,j3,lOper,nbas)
+                            Indil = iPntil+(Indi-1)*Indi/2+Indl
+                            Indjk = iPntjk+(Indj-1)*Indj/2+Indk
+                            temp = temp-t14*(DSO(Indil)*DSO(Indjk)+(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)+ &
+                                             DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
+                                             (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
+                          end if
 
-                        !write(u6,*) 'iSO:',iSOi_a,jSOj_a,kSOk_a,lSOl_a
-                        !write(u6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
-                        !write(u6,*) 'nDim:',nDim_A,nDim_B,nDim_C,nDim_D
-                        !write(u6,*)  temp , Gmma(Index_ABCD),Index_ABCD
-                        temp = temp+Four*Gmma(Index_ABCD)
-95                      continue
-                        if (gamma_mrcisd) temp = Gmma(Index_ABCD)
+                          !write(u6,*) 'iSO:',iSOi_a,jSOj_a,kSOk_a,lSOl_a
+                          !write(u6,*) 'iShell:',iShell_A,iShell_B,iShell_C,iShell_D
+                          !write(u6,*) 'nDim:',nDim_A,nDim_B,nDim_C,nDim_D
+                          !write(u6,*)  temp , Gmma(Index_ABCD),Index_ABCD
+                          temp = temp+Four*Gmma(Index_ABCD)
+                        end if
 
                         PMax = max(PMax,abs(Temp))
                         PSO(mijkl,MemSO2) = temp
@@ -268,7 +270,6 @@ do i1=1,iCmp(1)
                   end do
                 end do
 
-410             continue
               end do
             end do
           end do

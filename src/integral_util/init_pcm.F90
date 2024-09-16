@@ -62,63 +62,62 @@ if (DoDeriv) then
   call mma_allocate(dCntr,nS,lcNAtm,3,3,Label='dCntr')
   call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
   call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
-  Go To 888
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Check if we have retrievable PCM data
+else
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! Check if we have retrievable PCM data
 
-call Get_iScalar('PCM info length',nPCM_info)
-if (nPCM_info /= 0) then
+  call Get_iScalar('PCM info length',nPCM_info)
+  if (nPCM_info /= 0) then
 
-  ! nonequilibrium model for the case of ionization:
-  ! redo PCM initiation but with the fake charge corresponding to
-  ! the one of the ground (reference) state
-  if ((iCharge_ref < iCharg) .and. NonEq) then
-    iCharg = iCharge_ref
-    Go To 888
+    ! nonequilibrium model for the case of ionization:
+    ! redo PCM initiation but with the fake charge corresponding to
+    ! the one of the ground (reference) state
+    if ((iCharge_ref < iCharg) .and. NonEq) then
+      iCharg = iCharge_ref
+    else
+      ! If charge or NonEq/Eq status in retrieved data not the same as
+      ! for request redo the PCM initiation.
+
+      if ((iCharge_ref == iCharg) .and. (NonEq_ref .eqv. NonEq)) then
+
+        ! Evolving the new code
+
+        call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+        call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+        call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
+        call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
+        call mma_allocate(SSph,NS,Label='SSph')
+        call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
+        call mma_allocate(PCM_N,NS,Label='PCM_N')
+        call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
+        call mma_allocate(NVert,nTs,Label='NVert')
+        call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
+        call mma_allocate(NewSph,2,NS,Label='NewSph')
+
+        call Get_dArray('PCMSph',PCMSph,4*NS)
+        call Get_dArray('PCMTess',PCMTess,4*nTs)
+        call Get_dArray('Vert',Vert,3*MxVert*nTs)
+        call Get_dArray('Centr',Centr,3*MxVert*nTs)
+        call Get_dArray('SSph',SSph,NS)
+        call Get_dArray('PCMDM',PCMDM,nTs**2)
+        call Get_iArray('PCM_N',PCM_N,NS)
+        call Get_iArray('PCMiSph',PCMiSph,nTs)
+        call Get_iArray('NVert',NVert,nTs)
+        call Get_iArray('IntSph',IntSph,MxVert*nTs)
+        call Get_iArray('NewSph',NewSph,2*NS)
+
+        return
+      end if
+    end if
   end if
-  ! If charge or NonEq/Eq status in retrieved data not the same as
-  ! for request redo the PCM initiation.
-
-  if (iCharge_ref /= iCharg) Go To 888
-  if (NonEq_ref .neqv. NonEq) Go To 888
-
-  ! Evolving the new code
-
-  call mma_allocate(PCMSph,4,NS,Label='PCMSph')
-  call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
-  call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
-  call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
-  call mma_allocate(SSph,NS,Label='SSph')
-  call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
-  call mma_allocate(PCM_N,NS,Label='PCM_N')
-  call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
-  call mma_allocate(NVert,nTs,Label='NVert')
-  call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
-  call mma_allocate(NewSph,2,NS,Label='NewSph')
-
-  call Get_dArray('PCMSph',PCMSph,4*NS)
-  call Get_dArray('PCMTess',PCMTess,4*nTs)
-  call Get_dArray('Vert',Vert,3*MxVert*nTs)
-  call Get_dArray('Centr',Centr,3*MxVert*nTs)
-  call Get_dArray('SSph',SSph,NS)
-  call Get_dArray('PCMDM',PCMDM,nTs**2)
-  call Get_iArray('PCM_N',PCM_N,NS)
-  call Get_iArray('PCMiSph',PCMiSph,nTs)
-  call Get_iArray('NVert',NVert,nTs)
-  call Get_iArray('IntSph',IntSph,MxVert*nTs)
-  call Get_iArray('NewSph',NewSph,2*NS)
-
-  Go To 999
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Initial processing for PCM
 
-888 continue
 call Get_nAtoms_All(nAtoms)
 call mma_allocate(Coor,3,nAtoms,Label='Coor')
 call Get_Coord_All(Coor,nAtoms)
@@ -175,7 +174,6 @@ call Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-999 continue
 
 return
 

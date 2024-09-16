@@ -52,10 +52,12 @@ real(kind=wp), intent(in) :: Dij(nZeta), Dkl(nEta), CutDInt, CutInt, vij, vkl, v
 logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 integer(kind=iwp) :: iEta, iZeta, jEta, jZeta
 real(kind=wp) :: aaaa, abMax, cdMax, Cut, DMax, ppaa, test, vMax
+logical(kind=iwp) :: Skip
 
 abMax = k2Data1%abMax
 cdMax = k2Data2%abMax
 
+Skip = .false.
 if (.not. Prescreen_On_Int_Only) then
 
   ! The former technique will be used for integrals which will
@@ -74,11 +76,7 @@ if (.not. Prescreen_On_Int_Only) then
 
   vMax = abMax*cdMax                     ! integral in AO basis
   ! Skip prescreening if too low.
-  if (vMax < Cut) then
-    lZeta = 0
-    lEta = 0
-    Go To 999
-  end if
+  if (vMax < Cut) Skip = .true.
 else
   DMax = Zero
 end if
@@ -86,85 +84,87 @@ end if
 lZeta = 0
 lEta = 0
 
-! prescreen zeta pairs
-if (.not. Prescreen_On_Int_Only) then
-  do iZeta=1,mZeta
-    ppaa = k2Data1%ab(iOffZ+iZeta)*cdMax
-    aaaa = k2Data1%abCon(iOffZ+iZeta)*cdMax
-    jZeta = k2Data1%IndZ(iOffZ+iZeta)
-    Test = ppaa*Dij(jZeta)+aaaa*(DMax+vkl)
-    if (Test >= CutDInt) then
-      lZeta = lZeta+1
-      Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-      KappAB(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
-      P(lZeta,1) = k2Data1%Pcoor(iOffZ+iZeta,1)
-      P(lZeta,2) = k2Data1%Pcoor(iOffZ+iZeta,2)
-      P(lZeta,3) = k2Data1%Pcoor(iOffZ+iZeta,3)
-      IndZet(lZeta) = jZeta
-      ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
+if (.not. Skip) then
+  ! prescreen zeta pairs
+  if (.not. Prescreen_On_Int_Only) then
+    do iZeta=1,mZeta
+      ppaa = k2Data1%ab(iOffZ+iZeta)*cdMax
+      aaaa = k2Data1%abCon(iOffZ+iZeta)*cdMax
+      jZeta = k2Data1%IndZ(iOffZ+iZeta)
+      Test = ppaa*Dij(jZeta)+aaaa*(DMax+vkl)
+      if (Test >= CutDInt) then
+        lZeta = lZeta+1
+        Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
+        KappAB(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
+        P(lZeta,1) = k2Data1%Pcoor(iOffZ+iZeta,1)
+        P(lZeta,2) = k2Data1%Pcoor(iOffZ+iZeta,2)
+        P(lZeta,3) = k2Data1%Pcoor(iOffZ+iZeta,3)
+        IndZet(lZeta) = jZeta
+        ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
+      end if
+    end do
+  else
+    do iZeta=1,mZeta
+      aaaa = k2Data1%abCon(iOffZ+iZeta)*cdMax
+      if (aaaa >= CutInt) then
+        lZeta = lZeta+1
+        Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
+        KappAB(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
+        P(lZeta,1) = k2Data1%Pcoor(iOffZ+iZeta,1)
+        P(lZeta,2) = k2Data1%Pcoor(iOffZ+iZeta,2)
+        P(lZeta,3) = k2Data1%Pcoor(iOffZ+iZeta,3)
+        IndZet(lZeta) = k2Data1%IndZ(iOffZ+iZeta)
+        ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
+      end if
+    end do
+  end if
+
+  if (lZeta /= 0) then
+    if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
+    if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
+    if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
+
+    ! prescreen eta pairs
+    if (.not. Prescreen_On_Int_Only) then
+      do iEta=1,mEta
+        ppaa = k2Data2%ab(iOffE+iEta)*abMax
+        aaaa = k2Data2%abCon(iOffE+iEta)*abMax
+        jEta = k2Data2%IndZ(iOffE+iEta)
+        Test = ppaa*Dkl(jEta)+aaaa*(DMax+vij)
+        if (Test >= CutDInt) then
+          lEta = lEta+1
+          IndEta(lEta) = jEta
+          Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
+          KappCD(lEta) = k2Data2%Kappa(iOffE+iEta)
+          Q(lEta,1) = k2Data2%Pcoor(iOffE+iEta,1)
+          Q(lEta,2) = k2Data2%Pcoor(iOffE+iEta,2)
+          Q(lEta,3) = k2Data2%PCoor(iOffE+iEta,3)
+          EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
+        end if
+      end do
+    else
+      do iEta=1,mEta
+        aaaa = k2Data2%abCon(iOffE+iEta)*abMax
+        if (aaaa >= CutInt) then
+          lEta = lEta+1
+          IndEta(lEta) = k2Data2%IndZ(iOffE+iEta)
+          Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
+          KappCD(lEta) = k2Data2%Kappa(iOffE+iEta)
+          Q(lEta,1) = k2Data2%Pcoor(iOffE+iEta,1)
+          Q(lEta,2) = k2Data2%Pcoor(iOffE+iEta,2)
+          Q(lEta,3) = k2Data2%PCoor(iOffE+iEta,3)
+          EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
+        end if
+      end do
     end if
-  end do
-else
-  do iZeta=1,mZeta
-    aaaa = k2Data1%abCon(iOffZ+iZeta)*cdMax
-    if (aaaa >= CutInt) then
-      lZeta = lZeta+1
-      Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-      KappAB(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
-      P(lZeta,1) = k2Data1%Pcoor(iOffZ+iZeta,1)
-      P(lZeta,2) = k2Data1%Pcoor(iOffZ+iZeta,2)
-      P(lZeta,3) = k2Data1%Pcoor(iOffZ+iZeta,3)
-      IndZet(lZeta) = k2Data1%IndZ(iOffZ+iZeta)
-      ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
+    if (lEta /= 0) then
+      if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
+      if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
+      if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
     end if
-  end do
+  end if
 end if
-if (lZeta == 0) Go To 999
 
-if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
-if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
-if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
-
-! prescreen eta pairs
-if (.not. Prescreen_On_Int_Only) then
-  do iEta=1,mEta
-    ppaa = k2Data2%ab(iOffE+iEta)*abMax
-    aaaa = k2Data2%abCon(iOffE+iEta)*abMax
-    jEta = k2Data2%IndZ(iOffE+iEta)
-    Test = ppaa*Dkl(jEta)+aaaa*(DMax+vij)
-    if (Test >= CutDInt) then
-      lEta = lEta+1
-      IndEta(lEta) = jEta
-      Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-      KappCD(lEta) = k2Data2%Kappa(iOffE+iEta)
-      Q(lEta,1) = k2Data2%Pcoor(iOffE+iEta,1)
-      Q(lEta,2) = k2Data2%Pcoor(iOffE+iEta,2)
-      Q(lEta,3) = k2Data2%PCoor(iOffE+iEta,3)
-      EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
-    end if
-  end do
-else
-  do iEta=1,mEta
-    aaaa = k2Data2%abCon(iOffE+iEta)*abMax
-    if (aaaa >= CutInt) then
-      lEta = lEta+1
-      IndEta(lEta) = k2Data2%IndZ(iOffE+iEta)
-      Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-      KappCD(lEta) = k2Data2%Kappa(iOffE+iEta)
-      Q(lEta,1) = k2Data2%Pcoor(iOffE+iEta,1)
-      Q(lEta,2) = k2Data2%Pcoor(iOffE+iEta,2)
-      Q(lEta,3) = k2Data2%PCoor(iOffE+iEta,3)
-      EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
-    end if
-  end do
-end if
-if (lEta == 0) Go To 999
-
-if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
-if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
-if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
-
-999 continue
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In Screen'

@@ -107,198 +107,202 @@ kPrInc = kPrim
 iFact = 1
 if (.not. (Cholesky .or. Do_RI)) iFact = 4+3
 
-999 continue
+do
 
-! We can partion the blocks on all contracted indices
-! and on the second and fourth primitive indices.
-! We put priority in keeping an as large fraction of the contracted
-! block as much preserved to limit the recompution of primitive
-! integrals.
+  ! We can partion the blocks on all contracted indices
+  ! and on the second and fourth primitive indices.
+  ! We put priority in keeping an as large fraction of the contracted
+  ! block as much preserved to limit the recompution of primitive
+  ! integrals.
 
-QjPrim = .false.
-QlPrim = .true.
-QiBas = .false.
-QjBas = .false.
-QkBas = .false.
-QlBas = .false.
-Mem0 = MemMax
-
-mijkl = iPrInc*jPrInc*kPrInc*lPrInc
-nijkl = iBsInc*jBsInc*kBsInc*lBsInc
-
-! Work1
-! Memory for SO block. If petite list format is used there
-! will be no SO block.
-
-kSOInt = nSO*nijkl
-Mem1 = iFact*kSOInt
-if (Mem1 == 0) Mem1 = 1
-if (nIrrep == 1) Mem1 = 1+(iFact-1)*nabcd*nijkl
-if (Mem1+1 > Mem0) then
   QjPrim = .false.
-  QlPrim = .false.
+  QlPrim = .true.
   QiBas = .false.
   QjBas = .false.
   QkBas = .false.
-  QlBas = .true.
-  call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,Fail)
-  if (Fail) then
-    call WarningMessage(2,' Allocation failed for Work1')
-    write(u6,*) Mem0,Mem1
-    write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
-    call Abend()
+  QlBas = .false.
+  Mem0 = MemMax
+
+  mijkl = iPrInc*jPrInc*kPrInc*lPrInc
+  nijkl = iBsInc*jBsInc*kBsInc*lBsInc
+
+  ! Work1
+  ! Memory for SO block. If petite list format is used there
+  ! will be no SO block.
+
+  kSOInt = nSO*nijkl
+  Mem1 = iFact*kSOInt
+  if (Mem1 == 0) Mem1 = 1
+  if (nIrrep == 1) Mem1 = 1+(iFact-1)*nabcd*nijkl
+  if (Mem1+1 > Mem0) then
+    QjPrim = .false.
+    QlPrim = .false.
+    QiBas = .false.
+    QjBas = .false.
+    QkBas = .false.
+    QlBas = .true.
+    call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
+                  Fail)
+    if (Fail) then
+      call WarningMessage(2,' Allocation failed for Work1')
+      write(u6,*) Mem0,Mem1
+      write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+      call Abend()
+    end if
+    cycle
   end if
-  Go To 999
-end if
-Mem0 = Mem0-Mem1-1
+  Mem0 = Mem0-Mem1-1
 
-! Work2
-! MemPr  : Scratch for Rys
+  ! Work2
+  ! MemPr  : Scratch for Rys
 
-! Memory for the Rys-Gauss procedure. This includes memory for
-! all the intermediate arrays AND the {e0|f0} block.
+  ! Memory for the Rys-Gauss procedure. This includes memory for
+  ! all the intermediate arrays AND the {e0|f0} block.
 
-MemPr = MemPrm*mijkl
+  MemPr = MemPrm*mijkl
 
-! MemAux : Auxiliary memory for partial contraction.
+  ! MemAux : Auxiliary memory for partial contraction.
 
-! If the primitive block is not full we need to accumulate primitive
-! contributions to the contracted block. This will require a
-! permanant pice of memory, during the computation of the primitive
-! sublocks, where the incomplete block of contracted integrals are
-! stored (Work4) - mabcd*nijkl.
+  ! If the primitive block is not full we need to accumulate primitive
+  ! contributions to the contracted block. This will require a
+  ! permanant pice of memory, during the computation of the primitive
+  ! sublocks, where the incomplete block of contracted integrals are
+  ! stored (Work4) - mabcd*nijkl.
 
-if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-  MemAux = max(mabcd,nabcd)*nijkl
-else
-  MemAux = 0
-end if
-!write(u6,*) 'MemAux:',MemAux
-
-! MemCon : Scratch for the contraction step
-
-! We need memory to the largest of the {e0|f0} or (e0|f0) block.
-! Note that this correspond to that the A3 block in the second
-! halftransformation is set to zero. We also assume that the
-! integrals might be transformed to real spherical harmonic before
-! the contraction step. This only happens for mijkl>=nijl
-!
-! The routine which does the contraction does this in two
-! half contraction steps with an intermediate which contains
-! a subset of the quater or three quarter transformed integrals.
-! Since we do not know the order of contraction at this time we will
-! have to compute for the worst case scenario.
-!
-! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
-! while the third and fourth indices are uncontracted.
-nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
-! Note that we do not know here the order of the contraction, hence
-! we assume worst case scenario. The worst case is when lSize is
-! the smallest.
-lSize = iPrInc*jPrInc+min(jPrInc*iBsInc,iPrInc*jBsInc)
-! Length of the compound index.
-nVec1 = kPrInc*lPrInc*max(nabcd,mabcd)
-! Compute the subsection length of the compound index.
-IncVec = min(max(1,nCache_/lSize),nVec1)
-! Size of the initial integrals
-nA1a = max(nabcd,mabcd)*mijkl
-! Size of the intemediate array
-nA2a = max(iPrim,jPrim)*IncVec
-! Size of the half transformed integrals
-nA3a = iBsInc*jBsInc*nVec1
-!write(u6,*)
-!write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-!write(u6,*) 'nVec1,lSize=',nVec1,lSize
-!write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
-
-! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
-! while the first and second indices are contracted.
-nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
-lSize = kPrInc*lPrInc+min(lPrInc*kBsInc,kPrInc*lBsInc)
-nVec2 = iBsInc*jBsInc*max(nabcd,mabcd)
-IncVec = min(max(1,nCache_/lSize),nVec2)
-nA1b = nVec2*kPrInc*lPrInc
-nA2b = max(kPrim,lPrim)*IncVec
-nA3b = kBsInc*lBsInc*nVec2
-if (MemAux /= 0) nA3b = 0
-MemCon = max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b)
-!write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-!write(u6,*) 'nVec2,lSize=',nVec1,lSize
-!write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-!write(u6,*) 'MemCon     :',MemCon
-
-! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
-! while the first and second indices are uncontracted.
-nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
-lSize = kPrInc*lPrInc+min(lPrInc*kBsInc,kPrInc*lBsInc)
-nVec1 = iPrInc*jPrInc*max(nabcd,mabcd)
-IncVec = min(max(1,nCache_/lSize),nVec1)
-nA1a = max(nabcd,mabcd)*mijkl
-nA2a = IncVec*max(kPrim,lPrim)
-nA3a = kBsInc*lBsInc*nVec1
-!write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-!write(u6,*) 'nVec1,lSize=',nVec1,lSize
-!write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
-
-! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
-! while the third and fourth indices are contracted.
-nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
-lSize = iPrInc*jPrInc+min(jPrInc*iBsInc,iPrInc*jBsInc)
-nVec2 = kBsInc*lBsInc*max(nabcd,mabcd)
-IncVec = min(max(1,nCache_/lSize),nVec2)
-nA1b = nVec2*iPrInc*jPrInc
-nA2b = IncVec*max(iPrim,jPrim)
-nA3b = iBsInc*jBsInc*nVec2
-if (MemAux /= 0) nA3b = 0
-MemCon = max(MemCon,max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b))
-!write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-!write(u6,*) 'nVec2,lSize=',nVec1,lSize
-!write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-!write(u6,*) 'MemCon     :',MemCon
-
-! MemSp1 : Scratch for the transformation from cartesian to
-!          spherical harmonics. This is executed inside the
-!          primitive block only if (1) the set of primitive
-!          integrals are fewer than the contracted functions
-!          and (2) there is no partitioning on the primitive
-!          index.
-
-if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-  MemSp1 = max(mabcd+nab*nf*nComp,nabcd+nab*nf*nComp)*nijkl
-else
-  MemSp1 = max(mabcd+nab*nf*nComp,nabcd+nab*nf*nComp)*nijkl
-end if
-
-! MemFck : Scratch for FckAcc.
-
-! Memory to manupulate the 1-particle densities in FckAcc.
-
-if (DoFock) then
-  MemFck = 6*max(iBsInc*lBsInc,iBsInc*kBsInc,jBsInc*lBsInc,jBsInc*kBsInc,iBsInc*jBsInc,kBsInc*lBsInc)+nijkl*nabcd
-else
-  MemFck = 0
-end if
-
-! MemPck : Scratch for integral packing
-
-! Memory for integral packing.
-
-if (.not. (Cholesky .or. Do_RI)) then
-  MemPck = 2*nabcd*nijkl
-else
-  MemPck = 0
-end if
-Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck)
-if (Mem2+1 > Mem0) then
-  call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,Fail)
-  if (Fail) then
-    call WarningMessage(2,' Allocation failed for Work2')
-    write(u6,*) Mem0
-    write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
-    call Abend()
+  if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
+    MemAux = max(mabcd,nabcd)*nijkl
+  else
+    MemAux = 0
   end if
-  Go To 999
-end if
+  !write(u6,*) 'MemAux:',MemAux
+
+  ! MemCon : Scratch for the contraction step
+
+  ! We need memory to the largest of the {e0|f0} or (e0|f0) block.
+  ! Note that this correspond to that the A3 block in the second
+  ! halftransformation is set to zero. We also assume that the
+  ! integrals might be transformed to real spherical harmonic before
+  ! the contraction step. This only happens for mijkl>=nijl
+  !
+  ! The routine which does the contraction does this in two
+  ! half contraction steps with an intermediate which contains
+  ! a subset of the quater or three quarter transformed integrals.
+  ! Since we do not know the order of contraction at this time we will
+  ! have to compute for the worst case scenario.
+  !
+  ! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
+  ! while the third and fourth indices are uncontracted.
+  nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
+  ! Note that we do not know here the order of the contraction, hence
+  ! we assume worst case scenario. The worst case is when lSize is
+  ! the smallest.
+  lSize = iPrInc*jPrInc+min(jPrInc*iBsInc,iPrInc*jBsInc)
+  ! Length of the compound index.
+  nVec1 = kPrInc*lPrInc*max(nabcd,mabcd)
+  ! Compute the subsection length of the compound index.
+  IncVec = min(max(1,nCache_/lSize),nVec1)
+  ! Size of the initial integrals
+  nA1a = max(nabcd,mabcd)*mijkl
+  ! Size of the intemediate array
+  nA2a = max(iPrim,jPrim)*IncVec
+  ! Size of the half transformed integrals
+  nA3a = iBsInc*jBsInc*nVec1
+  !write(u6,*)
+  !write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
+  !write(u6,*) 'nVec1,lSize=',nVec1,lSize
+  !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
+
+  ! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
+  ! while the first and second indices are contracted.
+  nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
+  lSize = kPrInc*lPrInc+min(lPrInc*kBsInc,kPrInc*lBsInc)
+  nVec2 = iBsInc*jBsInc*max(nabcd,mabcd)
+  IncVec = min(max(1,nCache_/lSize),nVec2)
+  nA1b = nVec2*kPrInc*lPrInc
+  nA2b = max(kPrim,lPrim)*IncVec
+  nA3b = kBsInc*lBsInc*nVec2
+  if (MemAux /= 0) nA3b = 0
+  MemCon = max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b)
+  !write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
+  !write(u6,*) 'nVec2,lSize=',nVec1,lSize
+  !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
+  !write(u6,*) 'MemCon     :',MemCon
+
+  ! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
+  ! while the first and second indices are uncontracted.
+  nCache_ = (3*lCache)/4-kPrim*kBas-lPrim*lBas
+  lSize = kPrInc*lPrInc+min(lPrInc*kBsInc,kPrInc*lBsInc)
+  nVec1 = iPrInc*jPrInc*max(nabcd,mabcd)
+  IncVec = min(max(1,nCache_/lSize),nVec1)
+  nA1a = max(nabcd,mabcd)*mijkl
+  nA2a = IncVec*max(kPrim,lPrim)
+  nA3a = kBsInc*lBsInc*nVec1
+  !write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
+  !write(u6,*) 'nVec1,lSize=',nVec1,lSize
+  !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
+
+  ! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
+  ! while the third and fourth indices are contracted.
+  nCache_ = (3*lCache)/4-iPrim*iBas-jPrim*jBas
+  lSize = iPrInc*jPrInc+min(jPrInc*iBsInc,iPrInc*jBsInc)
+  nVec2 = kBsInc*lBsInc*max(nabcd,mabcd)
+  IncVec = min(max(1,nCache_/lSize),nVec2)
+  nA1b = nVec2*iPrInc*jPrInc
+  nA2b = IncVec*max(iPrim,jPrim)
+  nA3b = iBsInc*jBsInc*nVec2
+  if (MemAux /= 0) nA3b = 0
+  MemCon = max(MemCon,max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b))
+  !write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
+  !write(u6,*) 'nVec2,lSize=',nVec1,lSize
+  !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
+  !write(u6,*) 'MemCon     :',MemCon
+
+  ! MemSp1 : Scratch for the transformation from cartesian to
+  !          spherical harmonics. This is executed inside the
+  !          primitive block only if (1) the set of primitive
+  !          integrals are fewer than the contracted functions
+  !          and (2) there is no partitioning on the primitive
+  !          index.
+
+  if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
+    MemSp1 = max(mabcd+nab*nf*nComp,nabcd+nab*nf*nComp)*nijkl
+  else
+    MemSp1 = max(mabcd+nab*nf*nComp,nabcd+nab*nf*nComp)*nijkl
+  end if
+
+  ! MemFck : Scratch for FckAcc.
+
+  ! Memory to manupulate the 1-particle densities in FckAcc.
+
+  if (DoFock) then
+    MemFck = 6*max(iBsInc*lBsInc,iBsInc*kBsInc,jBsInc*lBsInc,jBsInc*kBsInc,iBsInc*jBsInc,kBsInc*lBsInc)+nijkl*nabcd
+  else
+    MemFck = 0
+  end if
+
+  ! MemPck : Scratch for integral packing
+
+  ! Memory for integral packing.
+
+  if (.not. (Cholesky .or. Do_RI)) then
+    MemPck = 2*nabcd*nijkl
+  else
+    MemPck = 0
+  end if
+  Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck)
+  if (Mem2+1 > Mem0) then
+    call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
+                Fail)
+    if (Fail) then
+      call WarningMessage(2,' Allocation failed for Work2')
+      write(u6,*) Mem0
+      write(u6,*) iPrInc,iBsInc,kPrInc,kBsInc,jPrInc,jBsInc,lPrInc,lBsInc
+      call Abend()
+    end if
+  else
+    exit
+  end if
+end do
 Mem0 = Mem0-Mem2-1
 
 ipMem2 = ipMem1+Mem1

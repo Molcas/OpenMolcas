@@ -85,14 +85,14 @@ IND = 0
 do IRREP=2,NIRREP
   do IRREP1=1,NIRREP
     IRREP2 = ieor(IRREP-1,IRREP1-1)+1
-    if (IRREP2 < IRREP1) goto 314
+    if (IRREP2 < IRREP1) cycle
     IBOT = max(IRREP1,IRREP2)+1
     call IZERO(IDID,8)
     do ITMP=IBOT,NIRREP
       IRREP4 = ieor(ITMP-1,IRREP-1)+1
       IRREP3 = min(ITMP,IRREP4)
       IRREP4 = max(ITMP,IRREP4)
-      if (max(IDID(IRREP4),IDID(IRREP3)) /= 0) goto 315
+      if (max(IDID(IRREP4),IDID(IRREP3)) /= 0) cycle
       IDID(IRREP3) = 1
       IDID(IRREP4) = 1
       IND = IND+1
@@ -104,9 +104,7 @@ do IRREP=2,NIRREP
       iTable(5,iBlock) = IRREP2-1
       iTable(6,iBlock) = IND
       !write(u6,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
-315   continue
     end do
-314 continue
   end do
 end do
 

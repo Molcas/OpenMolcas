@@ -148,45 +148,46 @@ do i1=1,iCmp(1)
                 !do not reconstruct the two-particle density from the one-particle
                 !density or partial two-particle densities but simply read them from
                 !file
-                if (gamma_mrcisd) goto 95
+                if (gamma_mrcisd) then
+                  temp = Gmma(Index_ABCD)
+                else
 
-                ! D(ij)*D(kl)
+                  ! D(ij)*D(kl)
 
-                Indi = max(iSOi,jSOj)
-                Indj = iSOi+jSOj-Indi
-                Indk = max(kSOk,lSOl)
-                Indl = kSOk+lSOl-Indk
-                Indij = (Indi-1)*Indi/2+Indj
-                Indkl = (Indk-1)*Indk/2+Indl
-                temp = DSO(Indij)*DSO(Indkl)+(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)+DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
+                  Indi = max(iSOi,jSOj)
+                  Indj = iSOi+jSOj-Indi
+                  Indk = max(kSOk,lSOl)
+                  Indl = kSOk+lSOl-Indk
+                  Indij = (Indi-1)*Indi/2+Indj
+                  Indkl = (Indk-1)*Indk/2+Indl
+                  temp = DSO(Indij)*DSO(Indkl)+(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)+DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
 
-                ! -0.25*D(ik)*D(jl)
+                  ! -0.25*D(ik)*D(jl)
 
-                Indi = max(iSOi,kSOk)
-                Indk = iSOi+kSOk-Indi
-                Indj = max(jSOj,lSOl)
-                Indl = jSOj+lSOl-Indj
-                Indik = (Indi-1)*Indi/2+Indk
-                Indjl = (Indj-1)*Indj/2+Indl
-                temp = temp-t14*(DSO(Indik)*DSO(Indjl)+(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)+ &
-                                 DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))+DSSO(Indik)*DSSO(Indjl)+ &
-                                 (DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)+DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl)))
+                  Indi = max(iSOi,kSOk)
+                  Indk = iSOi+kSOk-Indi
+                  Indj = max(jSOj,lSOl)
+                  Indl = jSOj+lSOl-Indj
+                  Indik = (Indi-1)*Indi/2+Indk
+                  Indjl = (Indj-1)*Indj/2+Indl
+                  temp = temp-t14*(DSO(Indik)*DSO(Indjl)+(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)+ &
+                                   DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))+DSSO(Indik)*DSSO(Indjl)+ &
+                                   (DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)+DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl)))
 
-                ! -0.25*D(il)*D(jk)
+                  ! -0.25*D(il)*D(jk)
 
-                Indi = max(iSOi,lSOl)
-                Indl = iSOi+lSOl-Indi
-                Indj = max(jSOj,kSOk)
-                Indk = jSOj+kSOk-Indj
-                Indil = (Indi-1)*Indi/2+Indl
-                Indjk = (Indj-1)*Indj/2+Indk
-                temp = temp-t14*(DSO(Indil)*DSO(Indjk)+(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)+ &
-                                 DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
-                                 (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
+                  Indi = max(iSOi,lSOl)
+                  Indl = iSOi+lSOl-Indi
+                  Indj = max(jSOj,kSOk)
+                  Indk = jSOj+kSOk-Indj
+                  Indil = (Indi-1)*Indi/2+Indl
+                  Indjk = (Indj-1)*Indj/2+Indk
+                  temp = temp-t14*(DSO(Indil)*DSO(Indjk)+(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)+ &
+                                   DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
+                                   (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))
 
-                temp = temp+Four*Gmma(Index_ABCD)
-95              continue
-                if (gamma_mrcisd) temp = Gmma(Index_ABCD)
+                  temp = temp+Four*Gmma(Index_ABCD)
+                end if
 
                 PMax = max(PMax,abs(temp))
                 PAO(nijkl,iPAO) = temp

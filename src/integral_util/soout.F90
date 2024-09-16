@@ -42,7 +42,7 @@ do iIrrep=0,nIrrep-1
   mdc = 0
   mc = 1
   do iCnttp=1,nCnttp
-    if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) Go To 201
+    if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
 
     ! Loop over distinct centers
 
@@ -55,11 +55,12 @@ do iIrrep=0,nIrrep-1
       kComp = 0
       iSh = dbsc(iCnttp)%iVal-1
       do iAng=0,dbsc(iCnttp)%nVal-1
+        kComp = kComp+(iAng)*(iAng+1)/2
         iSh = iSh+1
         nExpi = Shells(iSh)%nExp
-        if (nExpi == 0) Go To 2033
+        if (nExpi == 0) cycle
         nBasisi = Shells(iSh)%nBasis
-        if (nBasisi == 0) Go To 2033
+        if (nBasisi == 0) cycle
         if (Shells(iSh)%Prjct) then
           jComp = 2*iAng+1
         else
@@ -73,7 +74,7 @@ do iIrrep=0,nIrrep-1
 
           ! Skip if function not a basis of irreps.
 
-          if (.not. TstFnc(dc(mdc)%iCoSet,iIrrep,iChBs,dc(mdc)%nStab)) Go To 204
+          if (.not. TstFnc(dc(mdc)%iCoSet,iIrrep,iChBs,dc(mdc)%nStab)) cycle
 
           do iCntrc=1,nBasisi
             iSO = iSO+1
@@ -90,15 +91,11 @@ do iIrrep=0,nIrrep-1
             Label(iSO) = dc(mdc)%LblCnt(1:LenIn)//ChTemp(1:8)
           end do
 
-204       continue
         end do
-2033    continue
-        kComp = kComp+(iAng+1)*(iAng+2)/2
       end do
       mc = mc+nIrrep/dc(mdc)%nStab
     end do
 
-201 continue
   end do
 end do
 

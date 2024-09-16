@@ -68,99 +68,100 @@ iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (.not. lRFCav) goto 99  !Skip calculation of moments if no cavity
-Origin(:) = Zero
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Compute the multipole moment of the QC system,
-! both nuclear(1) and electronic(2).
+if (lRFCav) then  !Skip calculation of moments if no cavity
+  Origin(:) = Zero
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! Compute the multipole moment of the QC system,
+  ! both nuclear(1) and electronic(2).
 
-! Cavxyz: Multipole moments in cartesian basis
-! Ravxyz: temporary storage
+  ! Cavxyz: Multipole moments in cartesian basis
+  ! Ravxyz: temporary storage
 
-Cavxyz(:) = Zero
+  Cavxyz(:) = Zero
 
-! 1) Compute M(nuc,nl), nuclear multipole moments
+  ! 1) Compute M(nuc,nl), nuclear multipole moments
 
-do iMax=0,lMax
-  ip = 1+iOff(iMax)
-  call RFNuc(Origin,Ravxyz(ip),iMax)
-end do
+  do iMax=0,lMax
+    ip = 1+iOff(iMax)
+    call RFNuc(Origin,Ravxyz(ip),iMax)
+  end do
 
-#ifdef _DEBUGPRINT_
-call RecPrt('Nuclear Multipole Moments',' ',Ravxyz,1,nCavxyz_)
-#endif
+# ifdef _DEBUGPRINT_
+  call RecPrt('Nuclear Multipole Moments',' ',Ravxyz,1,nCavxyz_)
+# endif
 
-! 2) Compute the electronic contribution to the charge distribution.
+  ! 2) Compute the electronic contribution to the charge distribution.
 
-! M(el,nl) =  - Sum(p,q) Dpq <p|M(nl)|q>
+  ! M(el,nl) =  - Sum(p,q) Dpq <p|M(nl)|q>
 
-nOpr = 1
-FactOp = One
-l_Oper = 1
-! Reset array for storage of multipole moment expansion
-do iMltpl=1,lMax
-  do ix=iMltpl,0,-1
-    if (mod(ix,2) == 0) then
-      iSymX = 1
-    else
-      ixyz = 1
-      iSymX = 2**IrrFnc(ixyz)
-      if (Origin(1) /= Zero) iSymX = ior(iSymX,1)
-    end if
-    do iy=iMltpl-ix,0,-1
-      if (mod(iy,2) == 0) then
-        iSymY = 1
+  nOpr = 1
+  FactOp = One
+  l_Oper = 1
+  ! Reset array for storage of multipole moment expansion
+  do iMltpl=1,lMax
+    do ix=iMltpl,0,-1
+      if (mod(ix,2) == 0) then
+        iSymX = 1
       else
-        ixyz = 2
-        iSymY = 2**IrrFnc(ixyz)
-        if (Origin(2) /= Zero) iSymY = ior(iSymY,1)
+        ixyz = 1
+        iSymX = 2**IrrFnc(ixyz)
+        if (Origin(1) /= Zero) iSymX = ior(iSymX,1)
       end if
-      iz = iMltpl-ix-iy
-      if (mod(iz,2) == 0) then
-        iSymZ = 1
-      else
-        ixyz = 4
-        iSymZ = 2**IrrFnc(ixyz)
-        if (Origin(3) /= Zero) iSymZ = ior(iSymZ,1)
-      end if
+      do iy=iMltpl-ix,0,-1
+        if (mod(iy,2) == 0) then
+          iSymY = 1
+        else
+          ixyz = 2
+          iSymY = 2**IrrFnc(ixyz)
+          if (Origin(2) /= Zero) iSymY = ior(iSymY,1)
+        end if
+        iz = iMltpl-ix-iy
+        if (mod(iz,2) == 0) then
+          iSymZ = 1
+        else
+          ixyz = 4
+          iSymZ = 2**IrrFnc(ixyz)
+          if (Origin(3) /= Zero) iSymZ = ior(iSymZ,1)
+        end if
 
-      iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
-      l_Oper = ior(l_Oper,iTemp)
+        iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+        l_Oper = ior(l_Oper,iTemp)
+      end do
     end do
   end do
-end do
-#ifdef _DEBUGPRINT_
-write(u6,*) '1st order total density'
-lOff = 1
-do iIrrep=0,nIrrep-1
-  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-  write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
-  call Triprt(Label,' ',D_Tot(lOff),nBas(iIrrep))
-  lOff = lOff+n
-end do
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) '1st order total density'
+  lOff = 1
+  do iIrrep=0,nIrrep-1
+    n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
+    call Triprt(Label,' ',D_Tot(lOff),nBas(iIrrep))
+    lOff = lOff+n
+  end do
+# endif
 
-call Drv1_RF(FactOp,nOpr,D_tot,nh1,Origin,l_Oper,Cavxyz,lMax)
+  call Drv1_RF(FactOp,nOpr,D_tot,nh1,Origin,l_Oper,Cavxyz,lMax)
 
-#ifdef _DEBUGPRINT_
-call RecPrt('Electronic Multipole Moments',' ',Cavxyz,1,nCavxyz_)
-#endif
+# ifdef _DEBUGPRINT_
+  call RecPrt('Electronic Multipole Moments',' ',Cavxyz,1,nCavxyz_)
+# endif
 
-! Add nuclear MM expansion to the electronic one
+  ! Add nuclear MM expansion to the electronic one
 
-call DaXpY_(nCavxyz_,One,Ravxyz,1,Cavxyz,1)
+  call DaXpY_(nCavxyz_,One,Ravxyz,1,Cavxyz,1)
 
-#ifdef _DEBUGPRINT_
-call RecPrt('Electronic+Nuclear Moments',' ',Cavxyz,1,nCavxyz_)
-#endif
+# ifdef _DEBUGPRINT_
+  call RecPrt('Electronic+Nuclear Moments',' ',Cavxyz,1,nCavxyz_)
+# endif
 
-if (allocated(XF)) call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
+  if (allocated(XF)) call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
 
-#ifdef _DEBUGPRINT_
-call RecPrt('Total Multipole Moments ',' ',Cavxyz,1,nCavxyz_)
-#endif
+# ifdef _DEBUGPRINT_
+  call RecPrt('Total Multipole Moments ',' ',Cavxyz,1,nCavxyz_)
+# endif
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -171,7 +172,6 @@ call RecPrt('Total Multipole Moments ',' ',Cavxyz,1,nCavxyz_)
 
 ! Be happy, don't worry!
 
-99 continue
 rHrmt = One
 nOrdOp = 1
 nComp = 3

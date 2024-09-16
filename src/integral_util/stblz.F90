@@ -48,31 +48,31 @@ do i=0,nIrrep-1
     iCoSet(i,j) = ieor(iOper(i),jStab(j))
   end do
 end do
-if (iStab == 1) Go To 39 ! skip if all are unique
+if (iStab /= 1) then ! skip if all are unique
 
-! Order the Coset so we will have the unique ones first
+  ! Order the Coset so we will have the unique ones first
 
-nMax = 1
-if (nMax == nIrrep/iStab) Go To 39 ! skip if there is only one
-iTest = iStab-1 ! Test on the last element
-do j=1,nIrrep-1 !
-  ! Check uniqueness
-  do i=0,nMax-1
-    do ielem=0,iStab-1
-      if (iCoSet(i,iTest) == iCoSet(j,ielem)) Go To 35
-    end do
-  end do
-  ! Move unique CoSet to nMax+1
-  nMax = nMax+1
-  do ielem=0,iStab-1
-    iTmp = iCoSet(nMax-1,ielem)
-    iCoSet(nMax-1,ielem) = iCoSet(j,ielem)
-    iCoSet(j,ielem) = iTmp
-  end do
-  if (nMax == nIrrep/iStab) Go To 39
-35 continue
-end do
-39 continue
+  nMax = 1
+  if (nMax /= nIrrep/iStab) then ! skip if there is only one
+    iTest = iStab-1 ! Test on the last element
+    outer: do j=1,nIrrep-1 !
+      ! Check uniqueness
+      do i=0,nMax-1
+        do ielem=0,iStab-1
+          if (iCoSet(i,iTest) == iCoSet(j,ielem)) cycle outer
+        end do
+      end do
+      ! Move unique CoSet to nMax+1
+      nMax = nMax+1
+      do ielem=0,iStab-1
+        iTmp = iCoSet(nMax-1,ielem)
+        iCoSet(nMax-1,ielem) = iCoSet(j,ielem)
+        iCoSet(j,ielem) = iTmp
+      end do
+      if (nMax == nIrrep/iStab) exit outer
+    end do outer
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -138,7 +138,7 @@ ipMem1 = 1
 
 do iS=1,mSkal
   iShll = iSD(0,iS)
-  if (Shells(iShll)%Aux .and. (iS /= mSkal)) Go To 100
+  if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
   iAng = iSD(1,iS)
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
@@ -156,8 +156,8 @@ do iS=1,mSkal
   iCmpV(1) = iCmp
   do jS=1,iS
     jShll = iSD(0,jS)
-    if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) Go To 200
-    if (Shells(jShll)%Aux .and. (jS == mSkal)) Go To 200
+    if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
+    if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
     jAng = iSD(1,jS)
     jCmp = iSD(2,jS)
     jBas = iSD(3,jS)
@@ -268,9 +268,7 @@ do iS=1,mSkal
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR
 
-200 continue
   end do
-100 continue
 end do
 
 call Destroy_Braket()

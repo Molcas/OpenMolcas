@@ -36,56 +36,59 @@ use Definitions, only: iwp, u6
 implicit none
 character(len=180) :: get_ln_quit
 integer(kind=iwp), intent(in) :: lUnit, iCritical
-integer(kind=iwp) :: i, icom, j, l
+integer(kind=iwp) :: i, icom, istatus, j, l
 character(len=256) :: filename
 
 Quit_On_Error = .false.
 myunit = lunit
-1 continue
-read(lunit,'(A)',err=100,end=200) line
-igetline = igetline+1
-if ((line == ' ') .or. (line(1:1) == '*') .or. (line(1:1) == '!')) goto 1
-l = len(line)
-do i=1,l
-  if (ichar(line(i:i)) == 9) line(i:i) = ' '
-  if (line(i:i) == ';') line(i:l) = ' '
+do
+  read(lunit,'(A)',iostat=istatus) line
+  if (istatus /= 0) exit
+  igetline = igetline+1
+  if ((line /= ' ') .and. (line(1:1) /= '*') .and. (line(1:1) /= '!')) exit
 end do
-ncol = 0
-j = 1
-10 continue
-icom = 0
-do i=j,l
-  if (line(i:i) == ',') then
-    icom = icom+1
-    if (icom /= 1) goto 20
-  else
-    if (line(i:i) /= ' ') goto 20
+if (istatus >= 0) then
+  if (istatus == 0) then
+    l = len(line)
+    do i=1,l
+      if (ichar(line(i:i)) == 9) line(i:i) = ' '
+      if (line(i:i) == ';') line(i:l) = ' '
+    end do
+    ncol = 0
+    j = 1
+    do
+      icom = 0
+      do i=j,l
+        if (line(i:i) == ',') then
+          icom = icom+1
+          if (icom /= 1) exit
+        else
+          if (line(i:i) /= ' ') exit
+        end if
+      end do
+      if (i > l) then
+        get_ln_quit = line
+        return
+      end if
+      do j=i,l
+        if ((line(j:j) == ' ') .or. (line(j:j) == ',')) exit
+      end do
+      ncol = ncol+1
+      istrt(ncol) = i
+      iend(ncol) = j-1
+    end do
   end if
-end do
-get_ln_quit = line
-return
-20 continue
-do j=i,l
-  if ((line(j:j) == ' ') .or. (line(j:j) == ',')) goto 30
-end do
-j = l+1
-30 continue
-ncol = ncol+1
-istrt(ncol) = i
-iend(ncol) = j-1
-goto 10
 
-100 continue
-filename = ' '
-inquire(unit=lunit,name=filename)
-if (filename /= ' ') then
-  write(u6,'(a,a)') 'Error reading file=',filename
-else
-  write(u6,'(a,i8)') 'Error reading unit=',lunit
+  filename = ' '
+  inquire(unit=lunit,name=filename)
+  if (filename /= ' ') then
+    write(u6,'(a,a)') 'Error reading file=',filename
+  else
+    write(u6,'(a,i8)') 'Error reading unit=',lunit
+  end if
+  write(u6,'(a)') 'Line: ',line(1:80)
+  Quit_On_Error = .true.
 end if
-write(u6,'(a)') 'Line: ',line(1:80)
-Quit_On_Error = .true.
-200 continue
 if (icritical == 0) then
   Quit_On_Error = .true.
   return

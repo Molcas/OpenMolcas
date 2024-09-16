@@ -102,7 +102,7 @@ call Nr_Shells(nSkal)
 
 do iS=1,nSkal
   iShll = iSD(0,iS)
-  if (Shells(iShll)%Aux) Go To 100
+  if (Shells(iShll)%Aux) exit
   iAng = iSD(1,iS)
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
@@ -130,7 +130,7 @@ do iS=1,nSkal
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' nSO=',nSO
 #   endif
-    if (nSO == 0) Go To 131
+    if (nSO == 0) cycle
 
 #   ifdef _DEBUGPRINT_
     write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
@@ -324,10 +324,8 @@ do iS=1,nSkal
     call mma_deallocate(Scr1)
     call mma_deallocate(Fnl)
     call mma_deallocate(Kern)
-131 continue
   end do
 end do
-100 continue
 
 call mma_deallocate(PCoor)
 call mma_deallocate(Kappa)

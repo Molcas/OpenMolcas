@@ -43,31 +43,32 @@ call RecPrt(' In vCrtCmp: A   ',' ',A,1,3)
 call RecPrt(' In vCrtCmp: P   ',' ',P,nZeta,3)
 #endif
 call dcopy_(nZeta*3*nHer,[One],0,Axyz(:,:,:,0),1)
-if (na == 0) Go To 999
+if (na /= 0) then
 
-do iHer=1,nHer
-  do iCar=1,3
+  do iHer=1,nHer
+    do iCar=1,3
 
-    if (ABeq(iCar)) then
-      do iZeta=1,nZeta
-        Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)
-      end do
-    else
-      do iZeta=1,nZeta
-        Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)+P(iZeta,iCar)-A(iCar)
-      end do
-    end if
+      if (ABeq(iCar)) then
+        do iZeta=1,nZeta
+          Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)
+        end do
+      else
+        do iZeta=1,nZeta
+          Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)+P(iZeta,iCar)-A(iCar)
+        end do
+      end if
 
-    do ia=2,na
-      do iZeta=1,nZeta
-        Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
+      do ia=2,na
+        do iZeta=1,nZeta
+          Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
+        end do
       end do
+
     end do
-
   end do
-end do
 
-999 continue
+end if
+
 #ifdef _DEBUGPRINT_
 do ia=0,na
   do iHer=1,nHer

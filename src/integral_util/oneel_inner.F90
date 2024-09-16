@@ -185,76 +185,75 @@ call mma_allocate(Kern,MemKrn,label='Kern')
 !                                                                      *
 ! big loop over individual tasks, distributed over individual nodes
 ijSh = 0
-10 continue
-! make reservation of a task on global task list and get task range
-! in return. Function will be false if no more tasks to execute.
-if (.not. Rsv_Tsk(id_Tsk,ijSh)) Go To 11
-iS = Ind_ij(1,ijSh)
-jS = Ind_ij(2,ijSh)
+do
+  ! make reservation of a task on global task list and get task range
+  ! in return. Function will be false if no more tasks to execute.
+  if (.not. Rsv_Tsk(id_Tsk,ijSh)) exit
+  iS = Ind_ij(1,ijSh)
+  jS = Ind_ij(2,ijSh)
 
-iCmp = iSD(2,iS)
-iBas = iSD(3,iS)
-iAO = iSD(7,iS)
-iShell = iSD(11,iS)
-iCnttp = iSD(13,iS)
+  iCmp = iSD(2,iS)
+  iBas = iSD(3,iS)
+  iAO = iSD(7,iS)
+  iShell = iSD(11,iS)
+  iCnttp = iSD(13,iS)
 
-jCmp = iSD(2,jS)
-jBas = iSD(3,jS)
-jAO = iSD(7,jS)
-jShell = iSD(11,jS)
-jCnttp = iSD(13,jS)
+  jCmp = iSD(2,jS)
+  jBas = iSD(3,jS)
+  jAO = iSD(7,jS)
+  jShell = iSD(11,jS)
+  jCnttp = iSD(13,jS)
 
-nSO = 0
-do iComp=1,nComp
-  iSmLbl = lOper(iComp)
-  nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-end do
-#ifdef _DEBUGPRINT_
-write(u6,*) ' nSO=',nSO
-#endif
-
-! Do not compute matrix elements in which electronic and
-! muonic basis sets are mixed.
-
-if ((nSO > 0) .and. (dbsc(iCnttp)%fMass == dbsc(jCnttp)%fMass)) then
-  l_SOInt = iBas*jBas*nSO
-  call mma_allocate(SOInt,l_SOInt,label='SOInt')
-  SOInt(:) = Zero
-  ipSO = 1
-  call OneEl_IJ(iS,jS,iPrint,Do_PGamma,Zeta,ZI,Kappa,PCoor,Kernel,KrnlMm,Label,lOper,nComp,CoorO,nOrdOp,iChO,iStabO,nStabO,nIC, &
-                PtChrg,nGrid,iAddPot,SOInt,l_SOInt,FArray,lFinal,Scrtch,lScrt1,ScrSph,lScrt2,Kern,MemKrn)
-  iSOBlk = ipSO
+  nSO = 0
   do iComp=1,nComp
     iSmLbl = lOper(iComp)
-    if (n2Tri(iSmLbl) /= 0) then
-      mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    else
-      mSO = 0
-    end if
-
-    ! Special trick for integrals over electromagnetic field
-    ! radiation integrals.
-
-    rHrmt_in = rHrmt
-
-    if ((Label(1:5) == 'EMFR ') .or. (Label(1:5) == 'TMOM ')) then
-      if (mod((iComp+5),6) < 3) then
-        rHrmt_in = One
-      else
-        rHrmt_in = -One
-      end if
-    end if
-    !write(u6,*) 'Label,iComp,rHrmt_in=',Label,iComp,rHrmt_in
-    if (mSO /= 0) then
-      call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label, &
-                  lOper,rHrmt_in)
-      iSOBlk = iSOBlk+mSO*iBas*jBas
-    end if
+    nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
   end do
-  call mma_deallocate(SOInt)
-end if
-goto 10
-11 continue
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' nSO=',nSO
+# endif
+
+  ! Do not compute matrix elements in which electronic and
+  ! muonic basis sets are mixed.
+
+  if ((nSO > 0) .and. (dbsc(iCnttp)%fMass == dbsc(jCnttp)%fMass)) then
+    l_SOInt = iBas*jBas*nSO
+    call mma_allocate(SOInt,l_SOInt,label='SOInt')
+    SOInt(:) = Zero
+    ipSO = 1
+    call OneEl_IJ(iS,jS,iPrint,Do_PGamma,Zeta,ZI,Kappa,PCoor,Kernel,KrnlMm,Label,lOper,nComp,CoorO,nOrdOp,iChO,iStabO,nStabO,nIC, &
+                  PtChrg,nGrid,iAddPot,SOInt,l_SOInt,FArray,lFinal,Scrtch,lScrt1,ScrSph,lScrt2,Kern,MemKrn)
+    iSOBlk = ipSO
+    do iComp=1,nComp
+      iSmLbl = lOper(iComp)
+      if (n2Tri(iSmLbl) /= 0) then
+        mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
+      else
+        mSO = 0
+      end if
+
+      ! Special trick for integrals over electromagnetic field
+      ! radiation integrals.
+
+      rHrmt_in = rHrmt
+
+      if ((Label(1:5) == 'EMFR ') .or. (Label(1:5) == 'TMOM ')) then
+        if (mod((iComp+5),6) < 3) then
+          rHrmt_in = One
+        else
+          rHrmt_in = -One
+        end if
+      end if
+      !write(u6,*) 'Label,iComp,rHrmt_in=',Label,iComp,rHrmt_in
+      if (mSO /= 0) then
+        call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label, &
+                    lOper,rHrmt_in)
+        iSOBlk = iSOBlk+mSO*iBas*jBas
+      end if
+    end do
+    call mma_deallocate(SOInt)
+  end if
+end do
 call Free_Tsk(id_Tsk)
 do iComp=1,nComp
   iSmLbl = lOper(iComp)

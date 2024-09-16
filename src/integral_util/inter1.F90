@@ -38,7 +38,7 @@ ndc = 0
 do iCnttp=1,nCnttp
   if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. dbsc(iCnttp)%pChrg) then
     mdc = mdc+dbsc(iCnttp)%nCntr
-    Go To 99
+    cycle
   end if
   do iCnt=1,dbsc(iCnttp)%nCntr
     mdc = mdc+1
@@ -53,7 +53,6 @@ do iCnttp=1,nCnttp
       ZNUC(ndc) = real(dbsc(iCnttp)%AtmNr,kind=wp)
     end do
   end do
-99 continue
 end do
 n_cent = ndc
 

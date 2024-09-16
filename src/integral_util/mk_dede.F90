@@ -134,7 +134,7 @@ do iS=1,nSkal
 
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    if (nSO == 0) Go To 131
+    if (nSO == 0) cycle
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -322,7 +322,7 @@ do iS=1,nSkal
 #         endif
         end if
 
-        if (DFT_Storage) Go To 99
+        if (DFT_Storage) cycle
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -348,8 +348,6 @@ do iS=1,nSkal
         call RecPrt(' D,prim',' ',DeDe(ipStart),iPrimi,jPrimj)
         write(u6,*) ' Max(DAO)=',Temp
 #       endif
-
-99      continue
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -366,7 +364,6 @@ do iS=1,nSkal
     call mma_deallocate(DSOc)
     call mma_deallocate(DSOp)
     call mma_deallocate(DAO)
-131 continue
   end do
 end do
 mDeDe = jOffD

@@ -99,7 +99,7 @@ do i1=1,iCmp
               do i=iSO,iSO+iBas-1
                 nijkl_ = nijkl_+1
                 AOijkl = AOInt(nijkl_,i1,i2,i3,i4)
-                if (abs(AOijkl) < CutInt) Go To 10
+                if (abs(AOijkl) < CutInt) cycle
                 ij = iTri(i,j)
                 ik = iTri(i,k)
                 il = iTri(i,l)
@@ -112,7 +112,6 @@ do i1=1,iCmp
                 FMat(il) = FMat(il)+AOijkl*D_jk
                 F_jk = F_jk+AOijkl*DMat(il)
 
-10              continue
               end do
               FMat(jl) = FMat(jl)+F_jl*Fac_E
               FMat(jk) = FMat(jk)+F_jk*Fac_E

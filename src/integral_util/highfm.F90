@@ -38,38 +38,39 @@ real(kind=wp) :: FValue, Gamma2, gTmp, Sum0, Sum1, Term, TMax, TNew
 ! Find T for which the asympotic formula can be used
 
 Tmax = 50.0_wp
-88 continue
-gTmp = Gamma2(m,Tmax)
-i = 1
-ii = 2*m-1
-sum1 = One
-sum0 = One
-77 continue
-Sum1 = Sum1*real(ii,kind=wp)/(Two*Tmax)
-Sum0 = Sum0+Sum1
-ii = ii-2
-i = i+1
-if ((i >= m) .and. (Sum1/sum0 > 1.0e-11_wp)) Go to 77
-Tnew = log(sum0/(2.0e-16_wp*Tmax*gTmp))
-if (abs(Tnew-Tmax) < 1.0e-9_wp) Go To 97
-Tmax = Tnew
-Go To 88
+do
+  gTmp = Gamma2(m,Tmax)
+  i = 1
+  ii = 2*m-1
+  sum1 = One
+  sum0 = One
+  do
+    Sum1 = Sum1*real(ii,kind=wp)/(Two*Tmax)
+    Sum0 = Sum0+Sum1
+    ii = ii-2
+    i = i+1
+    if ((i < m) .or. (Sum1/sum0 <= 1.0e-11_wp)) exit
+  end do
+  Tnew = log(sum0/(2.0e-16_wp*Tmax*gTmp))
+  if (abs(Tnew-Tmax) < 1.0e-9_wp) exit
+  Tmax = Tnew
+end do
 
 ! Compute the auxiliary functions
 
-97 continue
 Tmax = Tnew
 do k=1,n
   if (T(k) < Tmax) then
     Fvalue = Zero
     i = 0
     Term = One
-99  continue
-    Term = Term/real(2*(m+i)+1,kind=wp)
-    Fvalue = Fvalue+Term
-    i = i+1
-    Term = Term*(Two*T(k))
-    if (abs(Term/Fvalue) > 1.0e-18_wp) Go To 99
+    do
+      Term = Term/real(2*(m+i)+1,kind=wp)
+      Fvalue = Fvalue+Term
+      i = i+1
+      Term = Term*(Two*T(k))
+      if (abs(Term/Fvalue) <= 1.0e-18_wp) exit
+    end do
     F(k) = exp(-T(k))*Fvalue
   else
     F(k) = Gamma2(m,T(k))

@@ -345,214 +345,214 @@ end do
 ! Get the number of inactive, active and frozen orbitals
 !*********** columbus interface ****************************************
 ! no need for MRCI gradient
-if ((.not. lpso) .or. gamma_mrcisd) goto 1000
-call Get_iScalar('nSym',i)
-call Get_iArray('nIsh',nIsh,i)
-call Get_iArray('nAsh',nAsh,i)
-call Get_iArray('nFro',nFro,i)
-#ifdef _DEBUGPRINT_
-write(u6,*) ' nISh=',nISh
-write(u6,*) ' nASh=',nASh
-write(u6,*) ' nFro=',nFro
-#endif
-nAct = 0
-nTst = 0
-do iIrrep=0,nIrrep-1
-  !write(u6,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
-  nAct = nAct+nAsh(iIrrep)
-  nTst = nTst+nFro(iIrrep)
-end do
-if (nTst /= 0) then
-  call WarningMessage(2,'; No frozen orbitals are allowed!; ALASKA cannot continue;')
-  call Quit_OnUserError()
-end if
-
-! Get the one body density for the active orbitals
-! (not needed for SA-CASSCF)
-nG1 = nAct*(nAct+1)/2
-nsa = 1
-if (lsa) nsa = 0
-mG1 = nsa
-call mma_allocate(G1,nG1,mG1,Label='G1')
-if (nsa > 0) then
-  call Get_dArray_chk('D1mo',G1(:,1),nG1)
-#ifdef _DEBUGPRINT_
-  call TriPrt(' G1',' ',G1(:,1),nAct)
-#endif
-end if
-
-! Get the two body density for the active orbitals
-nG2 = nG1*(nG1+1)/2
-nsa = 1
-if (lsa) nsa = 2
-mG2 = nsa
-call mma_allocate(G2,nG2,mG2,Label='G2')
-!write(u6,*) 'got the 2rdm, Ithink.'
-if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
-  call Get_dArray_chk('P2MOt',G2,nG2)!PDFT-modified 2-RDM
-else
-  call Get_dArray_chk('P2mo',G2,nG2)
-end if
-#ifdef _DEBUGPRINT_
-call TriPrt(' G2',' ',G2(1,1),nG1)
-#endif
-if (lsa) then
-
-  ! CMO1 Ordinary CMOs
-
-  ! CMO2 CMO*Kappa
-
-  call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
+if (lpso .and. (.not. gamma_mrcisd)) then
+  call Get_iScalar('nSym',i)
+  call Get_iArray('nIsh',nIsh,i)
+  call Get_iArray('nAsh',nAsh,i)
+  call Get_iArray('nFro',nFro,i)
 # ifdef _DEBUGPRINT_
-  ipTmp1 = 1
+  write(u6,*) ' nISh=',nISh
+  write(u6,*) ' nASh=',nASh
+  write(u6,*) ' nFro=',nFro
+# endif
+  nAct = 0
+  nTst = 0
   do iIrrep=0,nIrrep-1
-    call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas(iIrrep),nBas(iIrrep))
-    ipTmp1 = ipTmp1+nBas(iIrrep)**2
+    !write(u6,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
+    nAct = nAct+nAsh(iIrrep)
+    nTst = nTst+nFro(iIrrep)
   end do
-# endif
-
-  ! P are stored as
-  !                            _                     _
-  !   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
-  !   P2=sum_i <i|e_pqrs|i>
-
-  call Get_dArray_chk('PLMO',G2(:,2),nG2)
-  ndim1 = 0
-  if (doDMRG) then
-    ndim0 = 0  !yma
-    do i=1,8
-      ndim0 = ndim0+LRras2(i)
-    end do
-    ndim1 = (ndim0+1)*ndim0/2
-    ndim2 = (ndim1+1)*ndim1/2
-    do i=1,ng2
-      if (i > ndim2) G2(i,2) = Zero
-    end do
+  if (nTst /= 0) then
+    call WarningMessage(2,'; No frozen orbitals are allowed!; ALASKA cannot continue;')
+    call Quit_OnUserError()
   end if
-  call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
-# ifdef _DEBUGPRINT_
-  call TriPrt(' G2L',' ',G2(:,2),nG1)
-  call TriPrt(' G2T',' ',G2(:,1),nG1)
-# endif
 
-  call Get_dArray_chk('D2av',G2(:,2),nG2)
-# ifdef _DEBUGPRINT_
-  call TriPrt('G2A',' ',G2(:,2),nG1)
-# endif
-
-  ! Densities are stored as:
-  !
-  !  ipd0 AO:
-  !
-  !  D1 = inactive diagonal density matrix
-  !                                _                 _
-  !  D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D2
-  !
-  !  D3 = sum_i <i|E_pq|i> (active)
-  !
-  !  D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
-  !
-  !  G1 = <i|e_ab|i>
-  !  G2 = sum i <i|e_ab|i>
-  !
-  !************************
-  !RlxLbl = 'D1AO    '
-  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
-
-  call mma_allocate(Tmp,nDens,2,Label='Tmp')
-  call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
-  call mma_deallocate(Tmp)
-
-  !************************
-  !RlxLbl = 'D1AO    '
-  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
-
-  call dcopy_(ndens,DVar,1,D0(1,2),1)
-  if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-  !RlxLbl = 'D1COMBO  '
-  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
-
-  ! This is necessary for the kap-lag
-
+  ! Get the one body density for the active orbitals
+  ! (not needed for SA-CASSCF)
   nG1 = nAct*(nAct+1)/2
-  call mma_allocate(D1AV,nG1,Label='D1AV')
-  call Get_dArray_chk('D1av',D1AV,nG1)
-  call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nbas,nish,nash,ndens)
-  call mma_deallocate(D1AV)
-  !************************
-  !RlxLbl = 'D1AOA   '
-  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
-
-  call Get_dArray_chk('DLAO',D0(:,4),nDens)
-
-  ! Getting conditions for hybrid MC-PDFT
-  Do_Hybrid = .false.
-  call qpg_DScalar('R_WF_HMC',Do_Hybrid)
-  if (Do_Hybrid) then
-    call Get_DScalar('R_WF_HMC',WF_Ratio)
-    PDFT_Ratio = One-WF_Ratio
+  nsa = 1
+  if (lsa) nsa = 0
+  mG1 = nsa
+  call mma_allocate(G1,nG1,mG1,Label='G1')
+  if (nsa > 0) then
+    call Get_dArray_chk('D1mo',G1(:,1),nG1)
+#   ifdef _DEBUGPRINT_
+    call TriPrt(' G1',' ',G1(:,1),nAct)
+#   endif
   end if
-  !ANDREW - modify D2: should contain only the correction pieces
-  if (Method == 'MCPDFT  ') then
-    ! Get the D_theta piece
-    call mma_allocate(D1ao,nDens)
-    call Get_dArray_chk('D1ao',D1ao,ndens)
-    ij = 0
+
+  ! Get the two body density for the active orbitals
+  nG2 = nG1*(nG1+1)/2
+  nsa = 1
+  if (lsa) nsa = 2
+  mG2 = nsa
+  call mma_allocate(G2,nG2,mG2,Label='G2')
+  !write(u6,*) 'got the 2rdm, Ithink.'
+  if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
+    call Get_dArray_chk('P2MOt',G2,nG2)!PDFT-modified 2-RDM
+  else
+    call Get_dArray_chk('P2mo',G2,nG2)
+  end if
+# ifdef _DEBUGPRINT_
+  call TriPrt(' G2',' ',G2(1,1),nG1)
+# endif
+  if (lsa) then
+
+    ! CMO1 Ordinary CMOs
+
+    ! CMO2 CMO*Kappa
+
+    call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
+#   ifdef _DEBUGPRINT_
+    ipTmp1 = 1
     do iIrrep=0,nIrrep-1
-      do iBas=1,nBas(iIrrep)
-        do jBas=1,iBas-1
-          ij = ij+1
-          D1ao(ij) = Half*D1ao(ij)
-        end do
-        ij = ij+1
-      end do
+      call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas(iIrrep),nBas(iIrrep))
+      ipTmp1 = ipTmp1+nBas(iIrrep)**2
     end do
-    call daxpy_(ndens,-One,D0(1,1),1,D1ao,1)
-    !write(u6,*) 'do they match?'
-    !do i=1,ndens
-    !  write(u6,*) d1ao(i),DO(i,3)
-    !end do
+#   endif
 
-    call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-    call daxpy_(ndens,-One,D1ao,1,D0(1,2),1)
-    !ANDREW -   Generate new D5 piece:
-    D0(:,5) = Zero
-    call daxpy_(ndens,Half,D0(1,1),1,D0(1,5),1)
-    call daxpy_(ndens,One,D1ao,1,D0(1,5),1)
+    ! P are stored as
+    !                            _                     _
+    !   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
+    !   P2=sum_i <i|e_pqrs|i>
 
-    if (do_hybrid) then
-      ! add back the wave function parts that are subtracted
-      ! this might be inefficient, but should have a clear logic
-      call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
-      call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
-      ! scale the pdft part
-      call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
+    call Get_dArray_chk('PLMO',G2(:,2),nG2)
+    ndim1 = 0
+    if (doDMRG) then
+      ndim0 = 0  !yma
+      do i=1,8
+        ndim0 = ndim0+LRras2(i)
+      end do
+      ndim1 = (ndim0+1)*ndim0/2
+      ndim2 = (ndim1+1)*ndim1/2
+      do i=1,ng2
+        if (i > ndim2) G2(i,2) = Zero
+      end do
     end if
-    call mma_deallocate(D1ao)
-  else if (Method == 'MSPDFT') then
-    call Get_DArray('MSPDFTD5',D0(1,5),nDens)
-    call Get_DArray('MSPDFTD6',D0(1,6),nDens)
-    call daxpy_(ndens,-One,D0(1,5),1,D0(1,2),1)
+    call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
+#   ifdef _DEBUGPRINT_
+    call TriPrt(' G2L',' ',G2(:,2),nG1)
+    call TriPrt(' G2T',' ',G2(:,1),nG1)
+#   endif
+
+    call Get_dArray_chk('D2av',G2(:,2),nG2)
+#   ifdef _DEBUGPRINT_
+    call TriPrt('G2A',' ',G2(:,2),nG1)
+#   endif
+
+    ! Densities are stored as:
+    !
+    !  ipd0 AO:
+    !
+    !  D1 = inactive diagonal density matrix
+    !                                _                 _
+    !  D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D2
+    !
+    !  D3 = sum_i <i|E_pq|i> (active)
+    !
+    !  D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
+    !
+    !  G1 = <i|e_ab|i>
+    !  G2 = sum i <i|e_ab|i>
+    !
+    !************************
+    !RlxLbl = 'D1AO    '
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
+
+    call mma_allocate(Tmp,nDens,2,Label='Tmp')
+    call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
+    call mma_deallocate(Tmp)
+
+    !************************
+    !RlxLbl = 'D1AO    '
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
+
+    call dcopy_(ndens,DVar,1,D0(1,2),1)
+    if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+    !RlxLbl = 'D1COMBO  '
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
+
+    ! This is necessary for the kap-lag
+
+    nG1 = nAct*(nAct+1)/2
+    call mma_allocate(D1AV,nG1,Label='D1AV')
+    call Get_dArray_chk('D1av',D1AV,nG1)
+    call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nbas,nish,nash,ndens)
+    call mma_deallocate(D1AV)
+    !************************
+    !RlxLbl = 'D1AOA   '
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
+
+    call Get_dArray_chk('DLAO',D0(:,4),nDens)
+
+    ! Getting conditions for hybrid MC-PDFT
+    Do_Hybrid = .false.
+    call qpg_DScalar('R_WF_HMC',Do_Hybrid)
+    if (Do_Hybrid) then
+      call Get_DScalar('R_WF_HMC',WF_Ratio)
+      PDFT_Ratio = One-WF_Ratio
+    end if
+    !ANDREW - modify D2: should contain only the correction pieces
+    if (Method == 'MCPDFT  ') then
+      ! Get the D_theta piece
+      call mma_allocate(D1ao,nDens)
+      call Get_dArray_chk('D1ao',D1ao,ndens)
+      ij = 0
+      do iIrrep=0,nIrrep-1
+        do iBas=1,nBas(iIrrep)
+          do jBas=1,iBas-1
+            ij = ij+1
+            D1ao(ij) = Half*D1ao(ij)
+          end do
+          ij = ij+1
+        end do
+      end do
+      call daxpy_(ndens,-One,D0(1,1),1,D1ao,1)
+      !write(u6,*) 'do they match?'
+      !do i=1,ndens
+      !  write(u6,*) d1ao(i),DO(i,3)
+      !end do
+
+      call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+      call daxpy_(ndens,-One,D1ao,1,D0(1,2),1)
+      !ANDREW -   Generate new D5 piece:
+      D0(:,5) = Zero
+      call daxpy_(ndens,Half,D0(1,1),1,D0(1,5),1)
+      call daxpy_(ndens,One,D1ao,1,D0(1,5),1)
+
+      if (do_hybrid) then
+        ! add back the wave function parts that are subtracted
+        ! this might be inefficient, but should have a clear logic
+        call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
+        call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
+        ! scale the pdft part
+        call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
+      end if
+      call mma_deallocate(D1ao)
+    else if (Method == 'MSPDFT') then
+      call Get_DArray('MSPDFTD5',D0(1,5),nDens)
+      call Get_DArray('MSPDFTD6',D0(1,6),nDens)
+      call daxpy_(ndens,-One,D0(1,5),1,D0(1,2),1)
+    end if
+
+    !call dcopy_(ndens*5,Zero,0,D0,1)
+    !call dcopy_(nG2,Zero,0,G2,1)
+
+    !************************
+    !call dscal_(Length,Half,D0(1,4),1)
+    !call dscal_(Length,Zero,D0(1,4),1)
+
+    !RlxLbl = 'DLAO    '
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
+    ! DMRG with the reduced AS
+    !if (doDMRG) length = ndim1  !yma
   end if
+# ifdef _DEBUGPRINT_
+  call TriPrt(' G2',' ',G2(1,1),nG1)
+# endif
 
-  !call dcopy_(ndens*5,Zero,0,D0,1)
-  !call dcopy_(nG2,Zero,0,G2,1)
-
-  !************************
-  !call dscal_(Length,Half,D0(1,4),1)
-  !call dscal_(Length,Zero,D0(1,4),1)
-
-  !RlxLbl = 'DLAO    '
-  !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
-  ! DMRG with the reduced AS
-  !if (doDMRG) length = ndim1  !yma
 end if
-#ifdef _DEBUGPRINT_
-call TriPrt(' G2',' ',G2(1,1),nG1)
-#endif
-
 ! Close 'RELAX' file
-1000 continue
 
 ! Epilogue, end
 #ifdef _CD_TIMING_

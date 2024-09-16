@@ -58,7 +58,7 @@ do j1=0,nIrrep-1
 
     do j2=0,j1
       j12 = ieor(j1,j2)
-      if (iand(lOper,2**j12) == 0) Go To 300
+      if (iand(lOper,2**j12) == 0) cycle
       Xb = real(iChTbl(j2,nOp(2)),kind=wp)
       jMx = jCmp
       if ((iShell == jShell) .and. (j1 == j2)) jMx = i1
@@ -76,7 +76,6 @@ do j1=0,nIrrep-1
         call DaXpY_(iBas*jBas,Deg*Xa*Xb*FactNs,DSO(1,lSO),1,DAO(1,i1,i2),1)
         lSO = lSO+1
       end do
-300   continue
     end do
 
   end do

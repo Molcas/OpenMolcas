@@ -35,11 +35,10 @@ iIC = 0
 do iComp=1,nComp
   pO = Prmt(iOper(iDCRT),iChO(iComp))
   do iIrrep=0,nIrrep-1
-    if (iand(lOper(iComp),iTwoj(iIrrep)) == 0) Go To 104
+    if (iand(lOper(iComp),iTwoj(iIrrep)) == 0) cycle
     iIC = iIC+1
     Xg = real(iChTbl(iIrrep,iDCRT),kind=wp)
     call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
-104 continue
   end do
 end do
 if (iIC /= nIC) then

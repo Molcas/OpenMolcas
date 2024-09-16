@@ -60,7 +60,7 @@ integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: ijS, iOpt, iS, jS, klS, kS, lS, mDens, nIJ, nSkal
 real(kind=wp) :: A_Int, Dtst, P_Eff, PP_Count, PP_Eff, PP_Eff_Delta, S_Eff, ST_Eff, T_Eff, TCPU1, TCPU2, ThrAO, TInt(nTInt), &
                  TMax_All, TskHi, TskLw, TWALL1, TWALL2
-logical(kind=iwp) :: DoGrad, Indexation, Semi_Direct, Triangular
+logical(kind=iwp) :: DoGrad, Indexation, Semi_Direct, Skip, Triangular
 character(len=72) :: SLine
 integer(kind=iwp), allocatable :: ip_ij(:,:)
 real(kind=wp), allocatable :: DMax(:,:), TMax(:,:)
@@ -186,100 +186,98 @@ call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks, distributed over individual nodes
 
-10 continue
-! make reservation of a task on global task list and get task range
-! in return. Function will be false if no more tasks to execute.
+do
+  ! make reservation of a task on global task list and get task range
+  ! in return. Function will be false if no more tasks to execute.
 
-if (.not. Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Go To 11
+  if (.not. Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) exit
 
-call Mode_SemiDSCF(W2Disc)
-!write(u6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
+  call Mode_SemiDSCF(W2Disc)
+  !write(u6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
 
-! Now do a quadruple loop over shells
+  ! Now do a quadruple loop over shells
 
-ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-iS = ip_ij(1,ijS)
-jS = ip_ij(2,ijS)
-klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-kS = ip_ij(1,klS)
-lS = ip_ij(2,klS)
-Quad_ijkl = TskLw
+  ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
+  iS = ip_ij(1,ijS)
+  jS = ip_ij(2,ijS)
+  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
+  kS = ip_ij(1,klS)
+  lS = ip_ij(2,klS)
+  Quad_ijkl = TskLw
 
-if (Quad_ijkl-TskHi > 1.0e-10_wp) Go To 12 ! Cut off check
-13 continue
+  Skip = (Quad_ijkl-TskHi > 1.0e-10_wp) ! Cut off check
 
-! What are these variables
-S_Eff = real(ijS,kind=wp)
-T_Eff = real(klS,kind=wp)
-ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
+  do
+    if (Skip) exit
+    ! What are these variables
+    S_Eff = real(ijS,kind=wp)
+    T_Eff = real(klS,kind=wp)
+    ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
 
-if (ST_Eff >= PP_Count) then
-  write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff,'% done so far.'
-  call StatusLine(' Seward:',SLine)
-  PP_Count = PP_Count+PP_Eff_delta
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-A_int = TMax(iS,jS)*TMax(kS,lS)
-if (Semi_Direct) then
+    if (ST_Eff >= PP_Count) then
+      write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff,'% done so far.'
+      call StatusLine(' Seward:',SLine)
+      PP_Count = PP_Count+PP_Eff_delta
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    A_int = TMax(iS,jS)*TMax(kS,lS)
+    if (Semi_Direct) then
 
-  ! No density screening in semi-direct case!
-  ! Cutint: Threshold for Integrals. In semi-direct case, this
-  !         must be the final threshold used in the last scf
-  !         iteration
-  ! Thrint: Threshold for Density screening. This the actual
-  !         threshold
-  !         for the current iteration
+      ! No density screening in semi-direct case!
+      ! Cutint: Threshold for Integrals. In semi-direct case, this
+      !         must be the final threshold used in the last scf
+      !         iteration
+      ! Thrint: Threshold for Density screening. This the actual
+      !         threshold
+      !         for the current iteration
 
-  if (A_Int < CutInt) Go To 14
-else
+      if (A_Int < CutInt) Skip = .true.
+    else
 
-  if (FckNoClmb) then
-    Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four)
-  else if (FckNoExch) then
-    Dtst = max(DMax(is,js),DMax(ks,ls))
-  else
-    Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
+      if (FckNoClmb) then
+        Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four)
+      else if (FckNoExch) then
+        Dtst = max(DMax(is,js),DMax(ks,ls))
+      else
+        Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
+      end if
+
+      if (A_int*Dtst < ThrInt) Skip = .true.
+
+    end if
+    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Skip = .true.
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    if (.not. Skip) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+    Skip = .false.
+
+    Quad_ijkl = Quad_ijkl+One
+    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
+    klS = klS+1
+    if (klS > ijS) then
+      ijS = ijS+1
+      klS = 1
+    end if
+    iS = ip_ij(1,ijS)
+    jS = ip_ij(2,ijS)
+    kS = ip_ij(1,klS)
+    lS = ip_ij(2,klS)
+  end do
+
+  ! Task endpoint
+
+  if (Semi_Direct) then
+    if (W2Disc) then
+      call Put_QLast()
+    else
+      call Pos_QLast(Disc)
+    end if
   end if
 
-  if (A_int*Dtst < ThrInt) goto 14
-
-end if
-if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Go To 14
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
-
-14 continue
-Quad_ijkl = Quad_ijkl+One
-if (Quad_ijkl-TskHi > 1.0e-10_wp) Go To 12
-klS = klS+1
-if (klS > ijS) then
-  ijS = ijS+1
-  klS = 1
-end if
-iS = ip_ij(1,ijS)
-jS = ip_ij(2,ijS)
-kS = ip_ij(1,klS)
-lS = ip_ij(2,klS)
-Go To 13
-
-! Task endpoint
-
-12 continue
-
-if (Semi_Direct) then
-  if (W2Disc) then
-    call Put_QLast()
-  else
-    call Pos_QLast(Disc)
-  end if
-end if
-
-Go To 10
-11 continue
+end do
 ! End of big task loop
 call CWTime(TCpu2,TWall2)
 !                                                                      *

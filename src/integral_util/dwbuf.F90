@@ -29,45 +29,46 @@ end if
 IODone = .true.
 iArray = 1
 mArray = nArray
-10 continue
-Left = lBuf-iPos+1
-if (mArray > Left) then
-  call dCopy_(Left,Array(iArray),1,Buffer(iPos,iBuf),1)
-  iArray = iArray+Left
-  mArray = mArray-Left
-  iPos = 1
+do
+  Left = lBuf-iPos+1
+  if (mArray > Left) then
+    call dCopy_(Left,Array(iArray),1,Buffer(iPos,iBuf),1)
+    iArray = iArray+Left
+    mArray = mArray-Left
+    iPos = 1
 
-  ! Wait for previous buffer to complete I/O.
-  ! Disk=32 after writing the control!
+    ! Wait for previous buffer to complete I/O.
+    ! Disk=32 after writing the control!
 
-  !write(u6,*) 'In dwbuf'
-  if ((Disk /= 32.0_wp) .and. OnDisk) call EAFWait(LuTmp,id)
+    !write(u6,*) 'In dwbuf'
+    if ((Disk /= 32.0_wp) .and. OnDisk) call EAFWait(LuTmp,id)
 
-  ! Put current buffer on disk and change buffer.
+    ! Put current buffer on disk and change buffer.
 
-  temp = Disk+real(lBuf*RtoB,kind=wp)
-  !write(u6,*) 'temp=',temp
-  if (temp <= DiskMx_Byte) then
-    Disk_2 = Disk_1
-    Disk_1 = Disk
-    !write(u6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
-    if (OnDisk) call dEAFAWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
-    if (iBuf == 1) then
-      iBuf = 2
+    temp = Disk+real(lBuf*RtoB,kind=wp)
+    !write(u6,*) 'temp=',temp
+    if (temp <= DiskMx_Byte) then
+      Disk_2 = Disk_1
+      Disk_1 = Disk
+      !write(u6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
+      if (OnDisk) call dEAFAWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
+      if (iBuf == 1) then
+        iBuf = 2
+      else
+        iBuf = 1
+      end if
     else
-      iBuf = 1
+      call WarningMessage(2,'WBuf: Disc is full!!')
+      call Abend()
     end if
   else
-    call WarningMessage(2,'WBuf: Disc is full!!')
-    call Abend()
+    !write(u6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
+    call dCopy_(mArray,Array(iArray),1,Buffer(iPos,iBuf),1)
+    iPos = iPos+mArray
+    mArray = 0
   end if
-else
-  !write(u6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
-  call dCopy_(mArray,Array(iArray),1,Buffer(iPos,iBuf),1)
-  iPos = iPos+mArray
-  mArray = 0
-end if
-if (mArray > 0) goto 10
+  if (mArray <= 0) exit
+end do
 
 !write(u6,*) 'Exit WBuf: iPos @',iPos,'iBuf=',iBuf
 

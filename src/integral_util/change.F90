@@ -42,81 +42,76 @@ if (QlPrim) then
   if (lPrInc == 1) then
     QlPrim = .false.
     QjPrim = .true.
-    Go To 100
+  else
+    do i=2,lPrim
+      if ((lPrim+1)/i < lPrInc) then
+        lPrInc = max(1,(lPrim+1)/i)
+        return
+      end if
+    end do
   end if
-  do i=2,lPrim
-    if ((lPrim+1)/i < lPrInc) then
-      lPrInc = max(1,(lPrim+1)/i)
-      return
-    end if
-  end do
 end if
-100 continue
 if (QjPrim) then
   lPrInc = lPrim
   if (jPrInc == 1) then
     QjPrim = .false.
     QlBas = .true.
-    Go To 200
+  else
+    do i=2,jPrim
+      if ((jPrim+1)/i < jPrInc) then
+        jPrInc = max(1,(jPrim+1)/i)
+        return
+      end if
+    end do
   end if
-  do i=2,jPrim
-    if ((jPrim+1)/i < jPrInc) then
-      jPrInc = max(1,(jPrim+1)/i)
-      return
-    end if
-  end do
 end if
-200 continue
 lPrInc = lPrim
 jPrInc = jPrim
 if (QlBas) then
   if (lBsInc == 1) then
     QlBas = .false.
     QjBas = .true.
-    Go To 300
+  else
+    do i=2,lBas
+      if ((lBas+1)/i < lBsInc) then
+        lBsInc = max(1,(lBas+1)/i)
+        QlPrim = .true.
+        return
+      end if
+    end do
   end if
-  do i=2,lBas
-    if ((lBas+1)/i < lBsInc) then
-      lBsInc = max(1,(lBas+1)/i)
-      QlPrim = .true.
-      return
-    end if
-  end do
 end if
-300 continue
 if (QjBas) then
   lBsInc = lBas
   if (jBsInc == 1) then
     QjBas = .false.
     QkBas = .true.
-    Go To 400
+  else
+    do i=2,jBas
+      if ((jBas+1)/i < jBsInc) then
+        jBsInc = max((jBas+1)/i,1)
+        QlPrim = .true.
+        return
+      end if
+    end do
   end if
-  do i=2,jBas
-    if ((jBas+1)/i < jBsInc) then
-      jBsInc = max((jBas+1)/i,1)
-      QlPrim = .true.
-      return
-    end if
-  end do
 end if
-400 continue
 if (QkBas) then
   lBsInc = lBas
   jBsInc = jBas
   if (kBsInc == 1) then
     QkBas = .false.
     QiBas = .true.
-    Go To 500
+  else
+    do i=2,kBas
+      if ((kBas+1)/i < kBsInc) then
+        kBsInc = max((kBas+1)/i,1)
+        QlPrim = .true.
+        return
+      end if
+    end do
   end if
-  do i=2,kBas
-    if ((kBas+1)/i < kBsInc) then
-      kBsInc = max((kBas+1)/i,1)
-      QlPrim = .true.
-      return
-    end if
-  end do
 end if
-500 continue
 if (QiBas) then
   lBsInc = lBas
   jBsInc = jBas
