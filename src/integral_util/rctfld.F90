@@ -15,39 +15,6 @@
 subroutine RctFld(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 !***********************************************************************
 !                                                                      *
-!     Driver for RctFld_                                               *
-!                                                                      *
-!***********************************************************************
-
-use rctfld_module, only: lMax, MM
-use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: nh1
-real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
-real(kind=wp), intent(in) :: D(nh1)
-logical(kind=iwp), intent(in) :: First, Dff, NonEq
-integer(kind=iwp) :: nComp
-real(kind=wp), allocatable :: QV(:,:), Vs(:,:)
-
-#include "macros.fh"
-unused_var(Dff)
-
-nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-call mma_Allocate(Vs,nComp,2,Label='Vs')
-call mma_Allocate(QV,nComp,2,Label='QV')
-
-call RctFld_Internal(MM,nComp)
-
-call mma_deallocate(Vs)
-call mma_deallocate(QV)
-
-contains
-
-subroutine RctFld_Internal(Q_solute,nComp)
-!***********************************************************************
-!                                                                      *
 ! Object: to apply a modification to the one-electron hamiltonian due  *
 !         the reaction field. The code here is direct!                 *
 !         This subroutine works only if a call to GetInf has been      *
@@ -76,212 +43,128 @@ subroutine RctFld_Internal(Q_solute,nComp)
 !             Modified for nonequilibrum calculations January 2002 (RL)*
 !***********************************************************************
 
-  use External_Centers, only: XF
-  use Gateway_global, only: PrPrt
-  use Gateway_Info, only: PotNuc
-  use rctfld_module, only: EPS, EPSINF, rds
-  use Constants, only: One, Zero, Half
+use External_Centers, only: XF
+use Gateway_global, only: PrPrt
+use Gateway_Info, only: PotNuc
+use rctfld_module, only: EPS, EPSINF, lMax, MM, rds
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Zero, Half
+use Definitions, only: wp, iwp
 # ifdef _DEBUGPRINT_
-  use Basis_Info, only: nBas
-  use Symmetry_Info, only: nIrrep
-  use Definitions, only: u6
+use Basis_Info, only: nBas
+use Symmetry_Info, only: nIrrep
+use Definitions, only: u6
 # endif
 
-  implicit none
-  integer(kind=iwp), intent(in) :: nComp
-  real(kind=wp), intent(inout) :: Q_solute(nComp,2)
-  integer(kind=iwp) :: iMax, iMltpl, ip, iSymX, iSymY, iSymZ, iTemp, ix, iy, iz, lOper(1), nOpr, nOrdOp
-  real(kind=wp) :: E_0_NN, FactOp(1), Origin(3)
-  character(len=8) :: Label2
-# ifdef _DEBUGPRINT_
-  integer(kind=iwp) :: iIrrep, lOff, n
-  character(len=72) :: Label
-# endif
-  integer(kind=iwp), external :: IrrFnc, MltLbl
-  real(kind=wp), external :: DDot_
-  ! Statement Function
-  integer(kind=iwp) :: ixyz, iOff
-  iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
+implicit none
+integer(kind=iwp), intent(in) :: nh1
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
+real(kind=wp), intent(in) :: D(nh1)
+logical(kind=iwp), intent(in) :: First, Dff, NonEq
+integer(kind=iwp) :: iMax, iMltpl, ip, iSymX, iSymY, iSymZ, iTemp, ix, iy, iz, lOper(1), nComp, nOpr, nOrdOp
+real(kind=wp) :: E_0_NN, FactOp(1), Origin(3)
+character(len=8) :: Label2
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iIrrep, lOff, n
+character(len=72) :: Label
+#endif
+real(kind=wp), allocatable :: QV(:,:), Vs(:,:)
+integer(kind=iwp), external :: IrrFnc, MltLbl
+real(kind=wp), external :: DDot_
+! Statement Function
+integer(kind=iwp) :: ixyz, iOff
+iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
-  lOper(1) = 1
-  nOrdOp = lMax
-  ! Set flag so only the diagonal blocks are computed
-  Prprt = .true.
-  Origin(:) = Zero
+#include "macros.fh"
+unused_var(Dff)
 
-  ! Generate local multipoles in the primitive basis and accumulate to
-  ! global multipoles.
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Add nuclear-nuclear contribution to the potential energy
+nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
+call mma_Allocate(Vs,nComp,2,Label='Vs')
+call mma_Allocate(QV,nComp,2,Label='QV')
 
-  if (First) then
+lOper(1) = 1
+nOrdOp = lMax
+! Set flag so only the diagonal blocks are computed
+Prprt = .true.
+Origin(:) = Zero
 
-    if (NonEq) then
-      call Get_dArray('RCTFLD',QV,nComp*2)
-      call Get_dScalar('E_0_NN',E_0_NN)
-    end if
-    !1)
-    ! Compute M(nuc,nl), nuclear multipole moments
+! Generate local multipoles in the primitive basis and accumulate to
+! global multipoles.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Add nuclear-nuclear contribution to the potential energy
 
-    do iMax=0,lMax
-      ip = 1+iOff(iMax)
-      call RFNuc(Origin,Q_solute(ip,1),iMax)
-    end do
+if (First) then
 
-    ! Add contribution from XFIELD multipoles
-
-    ! Use Vs as temporary space, it will anyway be overwritten
-    if (allocated(XF)) call XFMoment(lMax,Q_solute,Vs,nComp,Origin)
-
-#   ifdef _DEBUGPRINT_
-    call RecPrt('Nuclear Multipole Moments',' ',Q_solute(:,1),1,nComp)
-#   endif
-
-    ! Solve dielectical equation(nuclear contribution), i.e.
-    ! M(nuc,nl) -> E(nuc,nl)
-
-    call dcopy_(nComp,Q_solute(:,1),1,Vs(:,1),1)
-    call AppFld(Vs(:,1),rds,Eps,lMax,EpsInf,NonEq)
-
-#   ifdef _DEBUGPRINT_
-    call RecPrt('Nuclear Electric Field',' ',Vs(:,1),1,nComp)
-#   endif
-
-    ! Vnn = Vnn - 1/2 Sum(nl) E(nuc,nl)*M(nuc,nl)
-
-    RepNuc = PotNuc-Half*DDot_(nComp,Q_solute(:,1),1,Vs(:,1),1)
-
-    ! Add contributions due to slow counter charges
-
-    if (NonEq) RepNuc = RepNuc+E_0_NN
-#   ifdef _DEBUGPRINT_
-    write(u6,*) ' RepNuc=',RepNuc
-#   endif
-    !2)
-    ! Compute contribution to the one-electron hamiltonian
-
-    ! hpq = hpq + Sum(nl) E(nuc,nl)*<p|M(nl)|q>
-
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'h1'
-    lOff = 1
-    do iIrrep=0,nIrrep-1
-      n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      if (n > 0) then
-        write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
-        call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
-        lOff = lOff+n
-      end if
-    end do
-#   endif
-
-    ! Add potential due to slow counter charges
-
-    if (NonEq) then
-      call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
-      call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
-      call DaXpY_(nComp,One,QV(:,2),1,Vs(:,1),1)
-    end if
-
-    call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(:,1),lMax,h1,nh1)
-
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'h1(mod)'
-    lOff = 1
-    do iIrrep=0,nIrrep-1
-      n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      if (n > 0) then
-        write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
-        call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
-        lOff = lOff+n
-      end if
-    end do
-#   endif
-
-    ! Update h1 and RepNuc_save with respect to static contributions!
-
-    Label2 = 'PotNuc00'
-    call Put_Temp(Label2,[RepNuc],1)
-    Label2 = 'h1_raw  '
-    call Put_Temp(Label2,h1,nh1)
-
+  if (NonEq) then
+    call Get_dArray('RCTFLD',QV,nComp*2)
+    call Get_dScalar('E_0_NN',E_0_NN)
   end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Compute the electronic contribution to the charge distribution.
+  !1)
+  ! Compute M(nuc,nl), nuclear multipole moments
 
-  !3)
-  ! M(el,nl) =  - Sum(p,q) Dpq <p|M(nl)|q>
-
-  nOpr = 1
-  FactOp(1) = One
-  ! Reset array for storage of multipole moment expansion
-  call dcopy_(nComp,[Zero],0,Q_solute(:,2),1)
-  do iMltpl=1,lMax
-    do ix=iMltpl,0,-1
-      if (mod(ix,2) == 0) then
-        iSymX = 1
-      else
-        ixyz = 1
-        iSymX = 2**IrrFnc(ixyz)
-        if (Origin(1) /= Zero) iSymX = ibset(iSymX,0)
-      end if
-      do iy=iMltpl-ix,0,-1
-        if (mod(iy,2) == 0) then
-          iSymY = 1
-        else
-          ixyz = 2
-          iSymY = 2**IrrFnc(ixyz)
-          if (Origin(2) /= Zero) iSymY = ibset(iSymY,0)
-        end if
-        iz = iMltpl-ix-iy
-        if (mod(iz,2) == 0) then
-          iSymZ = 1
-        else
-          ixyz = 4
-          iSymZ = 2**IrrFnc(ixyz)
-          if (Origin(3) /= Zero) iSymZ = ibset(iSymZ,0)
-        end if
-
-        iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
-        lOper(1) = ior(lOper(1),iTemp)
-      end do
-    end do
+  do iMax=0,lMax
+    ip = 1+iOff(iMax)
+    call RFNuc(Origin,MM(ip,1),iMax)
   end do
+
+  ! Add contribution from XFIELD multipoles
+
+  ! Use Vs as temporary space, it will anyway be overwritten
+  if (allocated(XF)) call XFMoment(lMax,MM,Vs,nComp,Origin)
+
 # ifdef _DEBUGPRINT_
-  write(u6,*) '1st order density'
+  call RecPrt('Nuclear Multipole Moments',' ',MM(:,1),1,nComp)
+# endif
+
+  ! Solve dielectical equation(nuclear contribution), i.e.
+  ! M(nuc,nl) -> E(nuc,nl)
+
+  call dcopy_(nComp,MM(:,1),1,Vs(:,1),1)
+  call AppFld(Vs(:,1),rds,Eps,lMax,EpsInf,NonEq)
+
+# ifdef _DEBUGPRINT_
+  call RecPrt('Nuclear Electric Field',' ',Vs(:,1),1,nComp)
+# endif
+
+  ! Vnn = Vnn - 1/2 Sum(nl) E(nuc,nl)*M(nuc,nl)
+
+  RepNuc = PotNuc-Half*DDot_(nComp,MM(:,1),1,Vs(:,1),1)
+
+  ! Add contributions due to slow counter charges
+
+  if (NonEq) RepNuc = RepNuc+E_0_NN
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' RepNuc=',RepNuc
+# endif
+  !2)
+  ! Compute contribution to the one-electron hamiltonian
+
+  ! hpq = hpq + Sum(nl) E(nuc,nl)*<p|M(nl)|q>
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'h1'
   lOff = 1
   do iIrrep=0,nIrrep-1
     n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-    write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
-    call Triprt(Label,' ',D(lOff),nBas(iIrrep))
-    lOff = lOff+n
+    if (n > 0) then
+      write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
+      call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
+      lOff = lOff+n
+    end if
   end do
 # endif
 
-  call Drv1_RF(FactOp,nOpr,D,nh1,Origin,lOper,Q_solute(:,2),lMax)
+  ! Add potential due to slow counter charges
 
-# ifdef _DEBUGPRINT_
-  call RecPrt('Electronic Multipole Moments',' ',Q_solute(:,2),1,nComp)
-# endif
+  if (NonEq) then
+    call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
+    call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
+    call DaXpY_(nComp,One,QV(:,2),1,Vs(:,1),1)
+  end if
 
-  ! Solve dielectical equation(electronic contribution), i.e.
-  ! M(el,nl) -> E(el,nl)
-
-  call dcopy_(nComp,Q_solute(:,2),1,Vs(:,2),1)
-  call AppFld(Vs(:,2),rds,Eps,lMax,EpsInf,NonEq)
-# ifdef _DEBUGPRINT_
-  call RecPrt('Electronic Electric Field',' ',Vs(:,2),1,nComp)
-# endif
-  !4)
-  ! Compute contribution to the two-electron hamiltonian.
-
-  ! T(D)pq = T(D)pq + Sum(nl) E(el,nl)*<p|M(nl)|q>
-
-  call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(:,2),lMax,TwoHam,nh1)
+  call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(:,1),lMax,h1,nh1)
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'h1(mod)'
@@ -294,50 +177,147 @@ subroutine RctFld_Internal(Q_solute,nComp)
       lOff = lOff+n
     end if
   end do
-  write(u6,*) 'TwoHam(mod)'
-  lOff = 1
-  do iIrrep=0,nIrrep-1
-    n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-    write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
-    call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
-    lOff = lOff+n
-  end do
-  write(u6,*) ' RepNuc=',RepNuc
 # endif
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Write information to be used for gradient calculations or for
-  ! non-equilibrium calculations
 
-  if (.not. NonEq) then
+  ! Update h1 and RepNuc_save with respect to static contributions!
 
-    ! Save total solute multipole moments and total potential
-    ! of the solution.
+  Label2 = 'PotNuc00'
+  call Put_Temp(Label2,[RepNuc],1)
+  Label2 = 'h1_raw  '
+  call Put_Temp(Label2,h1,nh1)
 
-    call dcopy_(nComp,Q_solute(:,1),1,QV(:,1),1)
-    call daxpy_(nComp,One,Q_solute(:,2),1,QV(:,1),1)
-    call dcopy_(nComp,Vs(:,1),1,QV(:,2),1)
-    call daxpy_(nComp,One,Vs(:,2),1,QV(:,2),1)
-    call Put_dArray('RCTFLD',QV,nComp*2)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute the electronic contribution to the charge distribution.
 
-    ! Compute terms to be added to RepNuc for non-equilibrium
-    ! calculation.
+!3)
+! M(el,nl) =  - Sum(p,q) Dpq <p|M(nl)|q>
 
-    call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
-    call AppFld_NonEQ_1(QV(:,2),rds,Eps,lMax,EpsInf)
-    E_0_NN = -Half*DDot_(nComp,QV(:,1),1,QV(:,2),1)
+nOpr = 1
+FactOp(1) = One
+! Reset array for storage of multipole moment expansion
+call dcopy_(nComp,[Zero],0,MM(:,2),1)
+do iMltpl=1,lMax
+  do ix=iMltpl,0,-1
+  if (mod(ix,2) == 0) then
+        iSymX = 1
+    else
+      ixyz = 1
+      iSymX = 2**IrrFnc(ixyz)
+      if (Origin(1) /= Zero) iSymX = ibset(iSymX,0)
+    end if
+    do iy=iMltpl-ix,0,-1
+      if (mod(iy,2) == 0) then
+        iSymY = 1
+      else
+        ixyz = 2
+        iSymY = 2**IrrFnc(ixyz)
+        if (Origin(2) /= Zero) iSymY = ibset(iSymY,0)
+      end if
+      iz = iMltpl-ix-iy
+      if (mod(iz,2) == 0) then
+        iSymZ = 1
+      else
+        ixyz = 4
+        iSymZ = 2**IrrFnc(ixyz)
+        if (Origin(3) /= Zero) iSymZ = ibset(iSymZ,0)
+      end if
 
-    call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
-    call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
-    E_0_NN = E_0_NN+DDot_(nComp,Q_solute(:,1),1,QV(:,2),1)
-    call Put_dScalar('E_0_NN',E_0_NN)
+      iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+      lOper(1) = ior(lOper(1),iTemp)
+    end do
+  end do
+end do
+#ifdef _DEBUGPRINT_
+write(u6,*) '1st order density'
+lOff = 1
+do iIrrep=0,nIrrep-1
+  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
+  call Triprt(Label,' ',D(lOff),nBas(iIrrep))
+  lOff = lOff+n
+end do
+#endif
 
+call Drv1_RF(FactOp,nOpr,D,nh1,Origin,lOper,MM(:,2),lMax)
+
+#ifdef _DEBUGPRINT_
+call RecPrt('Electronic Multipole Moments',' ',MM(:,2),1,nComp)
+#endif
+
+! Solve dielectical equation(electronic contribution), i.e.
+! M(el,nl) -> E(el,nl)
+
+call dcopy_(nComp,MM(:,2),1,Vs(:,2),1)
+call AppFld(Vs(:,2),rds,Eps,lMax,EpsInf,NonEq)
+#ifdef _DEBUGPRINT_
+call RecPrt('Electronic Electric Field',' ',Vs(:,2),1,nComp)
+#endif
+!4)
+! Compute contribution to the two-electron hamiltonian.
+
+! T(D)pq = T(D)pq + Sum(nl) E(el,nl)*<p|M(nl)|q>
+
+call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(:,2),lMax,TwoHam,nh1)
+
+#ifdef _DEBUGPRINT_
+write(u6,*) 'h1(mod)'
+lOff = 1
+do iIrrep=0,nIrrep-1
+  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  if (n > 0) then
+    write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
+    call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
+    lOff = lOff+n
   end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+end do
+write(u6,*) 'TwoHam(mod)'
+lOff = 1
+do iIrrep=0,nIrrep-1
+  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
+  call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
+  lOff = lOff+n
+end do
+write(u6,*) ' RepNuc=',RepNuc
+#endif
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Write information to be used for gradient calculations or for
+! non-equilibrium calculations
 
-end subroutine RctFld_Internal
+if (.not. NonEq) then
+
+  ! Save total solute multipole moments and total potential
+  ! of the solution.
+
+  call dcopy_(nComp,MM(:,1),1,QV(:,1),1)
+  call daxpy_(nComp,One,MM(:,2),1,QV(:,1),1)
+  call dcopy_(nComp,Vs(:,1),1,QV(:,2),1)
+  call daxpy_(nComp,One,Vs(:,2),1,QV(:,2),1)
+  call Put_dArray('RCTFLD',QV,nComp*2)
+
+  ! Compute terms to be added to RepNuc for non-equilibrium
+  ! calculation.
+
+  call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
+  call AppFld_NonEQ_1(QV(:,2),rds,Eps,lMax,EpsInf)
+  E_0_NN = -Half*DDot_(nComp,QV(:,1),1,QV(:,2),1)
+
+  call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
+  call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
+  E_0_NN = E_0_NN+DDot_(nComp,MM(:,1),1,QV(:,2),1)
+  call Put_dScalar('E_0_NN',E_0_NN)
+
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+call mma_deallocate(Vs)
+call mma_deallocate(QV)
 
 end subroutine RctFld

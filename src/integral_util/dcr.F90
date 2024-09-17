@@ -33,7 +33,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(out) :: Lambda, iDCR(0:7), mDCR
 integer(kind=iwp), intent(in) :: nStab1, iStab1(0:nStab1-1), nStab2, iStab2(0:nStab2-1)
-integer(kind=iwp) :: i, iIrrep, ij, Ind1, Ind2, k
+integer(kind=iwp) :: i, iIrrep, ij, Ind1, Ind2, iScrt(0:7,0:7), j, jik, k
 
 Ind1 = 0
 do i=1,nStab1-1
@@ -79,22 +79,9 @@ end if
 
 ij = max(Ind1,Ind2)*(max(Ind1,Ind2)-1)/2+min(Ind1,Ind2)
 
-if (.not. Done(ij)) then
-  call DCR_Internal(Lambda_all(ij),iDCR_all(0,ij),mDCR_all(ij))
-  Done(ij) = .true.
-end if
-Lambda = Lambda_all(ij)
-mDCR = mDCR_all(ij)
-call ICopy(mDCR,iDCR_all(0,ij),1,iDCR,1)
-
-contains
-
-subroutine DCR_Internal(Lambda,iDCR,mDCR)
-
-  integer(kind=iwp), intent(inout) :: Lambda, iDCR(0:7)
-  integer(kind=iwp), intent(out) :: mDCR
-  integer(kind=iwp) :: i, iScrt(0:7,0:7), j, jik, k
-
+if (Done(ij)) then
+  mDCR = mDCR_all(ij)
+else
   iScrt(:,:) = 0
 
   ! Construct all UGV subgroups. We accumulate the number of times an
@@ -113,7 +100,7 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
   ! subgroup UGV. Look only in the first subgroup.
 
   do i=0,7
-    if (iScrt(0,i) /= 0) Lambda = iScrt(0,i)
+    if (iScrt(0,i) /= 0) Lambda_all(ij) = iScrt(0,i)
   end do
 
   ! Find the unique double cosets (DC) and construct the double coset
@@ -125,7 +112,7 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
   mDCR = 0
   do i=0,7
     if (iScrt(0,iOper(i)) /= 0) then
-      iDCR(mDCR) = iOper(i)
+      iDCR_all(mDCR,ij) = iOper(i)
       mDCR = mDCR+1
       exit
     end if
@@ -142,7 +129,7 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
       if (iScrt(i,iOper(k)) == 0) cycle outer
       do j=0,mDCR-1
         ! See that no element of UGV is already in DCR.
-        if (iDCR(j) == iOper(k)) exit outer
+        if (iDCR_all(j,ij) == iOper(k)) exit outer
       end do
     end do outer
     if (k > nIrrep-1) then
@@ -150,7 +137,7 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
       do k=0,nIrrep-1
         ! Move a representative to the DCR set.
         if (iScrt(i,iOper(k)) /= 0) then
-          iDCR(mDCR) = iOper(k)
+          iDCR_all(mDCR,ij) = iOper(k)
           mDCR = mDCR+1
           exit
         end if
@@ -158,9 +145,12 @@ subroutine DCR_Internal(Lambda,iDCR,mDCR)
     end if
 
   end do
+  mDCR_all(ij) = mDCR
+  Done(ij) = .true.
+end if
+Lambda = Lambda_all(ij)
+call ICopy(mDCR,iDCR_all(0,ij),1,iDCR,1)
 
-  return
-
-end subroutine DCR_Internal
+return
 
 end subroutine DCR
