@@ -44,7 +44,6 @@
 #endif
 #include "print.fh"
 #include "wldata.fh"
-#include "oneswi.fh"
 #include "warnings.h"
       Character*8 Label
       Dimension dum(1)

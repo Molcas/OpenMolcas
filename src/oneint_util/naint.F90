@@ -30,13 +30,13 @@ use Gateway_global, only: Primitive_Pass
 use DKH_Info, only: DKroll
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Symmetry_Info, only: ChOper
+use NDDO, only: oneel_NDDO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "oneswi.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, mabMax, &
                      mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
@@ -81,7 +81,7 @@ mabMax = nTri3_Elem1(la+lb)-1
 No3Cnt = .false.
 if (EQ(A,RB)) then
   mabMin = nTri3_Elem1(la+lb-1)
-else if (NDDO) then
+else if (oneel_NDDO) then
   No3Cnt = .true.
 end if
 

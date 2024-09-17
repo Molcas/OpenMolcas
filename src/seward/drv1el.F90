@@ -37,6 +37,7 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: Do_FckInt, DoFMM, EMFR, GIAO, kVector, lAMFI, lMXTC, lRel, NEMO, PotNuc, Vlct
 use Integral_interfaces, only: int_kernel, int_mem
 use Property_Label, only: PLabel
+use NDDO, only: oneel_NDDO
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
@@ -47,7 +48,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "print.fh"
 #include "wldata.fh"
-#include "oneswi.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
@@ -113,9 +113,9 @@ do i=1,nCnttp
   lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
 end do
 
-! set center selector in OneSwi to all centers (default)
+! set center selector in NDDO to all centers (default)
 
-NDDO = .false.
+oneel_NDDO = .false.
 if (Prprt .and. DKroll) then
   call WarningMessage(2,'Prprt and DKroll options cannot be combined!')
   call Quit_OnUserError()
@@ -249,12 +249,12 @@ do iMltpl=iLow,S%nMltpl
   !                                                                    *
   if (iMltpl == 0) then
     ! these are overlap integrals...
-    ! set center selector in OneSwi to single center...
-    NDDO = .true.
+    ! set center selector in NDDO to single center...
+    oneel_NDDO = .true.
     write(Label,'(A,I2)') 'MltplS',iMltpl
     call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
-    ! reset center selector in OneSwi to all centers...
-    NDDO = .false.
+    ! reset center selector in NDDO to all centers...
+    oneel_NDDO = .false.
   end if
 
   call Deallocate_Auxiliary()
@@ -390,12 +390,12 @@ if (.not. Prprt) then
   end if
 # endif
 
-  ! set center selector in OneSwi to two center NA Int...
-  NDDO = .true.
+  ! set center selector in NDDO to two center NA Int...
+  oneel_NDDO = .true.
   Label = 'AttractS'
   call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,0)
-  ! reset center selector in OneSwi to all centers...
-  NDDO = .false.
+  ! reset center selector in NDDO to all centers...
+  oneel_NDDO = .false.
   if (.not. Primitive_Pass) then
     if (lECPnp) then
       Label = 'PrjInt  '

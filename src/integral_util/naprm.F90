@@ -32,7 +32,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "prm_interface.fh"
-#include "oneswi.fh"
 integer(kind=iwp) :: iAnga(4), ipIn, ipOff, lc, ld, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Q_Nuc, rKappCD
 logical(kind=iwp) :: NoSpecial

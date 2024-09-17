@@ -8,16 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-! include file for switches in Two electron integral routine
-! twoel.f (to generate only those two electron integrals needed
-! for NDDO)
-! required to generate better starting vectors for direct SCF...
-! M. Schuetz
-! University of Lund, Sweden, 1996
-!
-!     NDDO : flag for semi empirical NDDO approach (to generate start
-!            orbitals...)
-!
-      Logical NDDO
-!
-      Common / TWOSWI / NDDO
+
+module NDDO
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: oneel_NDDO, twoel_NDDO
+
+public :: oneel_NDDO, twoel_NDDO
+
+end module NDDO

@@ -29,11 +29,11 @@ use RICD_Info, only: Do_RI, iRI_Type
 use rmat, only: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, keyr, lgamma, nagint, qCoul, Quadpack, RMat_On, RmatR, testint
 use DCR_mod, only: DCR_Init
 use NAC, only: isCSF, isNAC
+use NDDO, only: twoel_NDDO
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-#include "twoswi.fh"
 #include "print.fh"
 integer(kind=iwp) :: iPL
 character(len=180) :: Env
@@ -73,7 +73,7 @@ else
   Show = .true.
 end if
 
-NDDO = .false.
+twoel_NDDO = .false.
 
 Seward_Activated = .true.
 XMem = .false.

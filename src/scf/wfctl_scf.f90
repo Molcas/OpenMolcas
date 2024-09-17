@@ -59,7 +59,6 @@
       Logical :: FstItr
       Real*8 SIntTh
 
-#include "twoswi.fh"
 #include "warnings.h"
 
 !---  Define local variables

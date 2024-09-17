@@ -38,12 +38,12 @@ use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, Fck
 use k2_arrays, only: pDq, pFq
 use k2_structure, only: k2_type
 use Breit, only: nComp
+use NDDO, only: twoel_NDDO
 use Constants, only: One, Four, Eight
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
 #include "twoel_interface.fh"
-#include "twoswi.fh"
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
                      ncd, nEta_Tot, nijkl, nInts, nZeta_Tot
@@ -86,9 +86,9 @@ iSmAng = la+lb+lc+ld
 
 ! switch (to generate better start orbitals...)
 AeqB = EQ(Coor(:,1),Coor(:,2))
-if (NDDO .and. (.not. AeqB)) return
+if (twoel_NDDO .and. (.not. AeqB)) return
 CeqD = EQ(Coor(:,3),Coor(:,4))
-if (NDDO .and. (.not. CeqD)) return
+if (twoel_NDDO .and. (.not. CeqD)) return
 ! switch
 
 AeqC = EQ(Coor(:,1),Coor(:,3))

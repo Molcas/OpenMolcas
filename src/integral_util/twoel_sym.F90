@@ -41,6 +41,7 @@ use Integral_interfaces, only: FckAcc
 use k2_arrays, only: pFq
 use k2_structure, only: k2_type
 use Breit, only: nComp, nOrdOp
+use NDDO, only: twoel_NDDO
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 #endif
@@ -49,7 +50,6 @@ use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
 #include "twoel_interface.fh"
-#include "twoswi.fh"
 integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, ij4, ik1, ik2, ik3, ik4, il1, il2, &
                      il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, ISMAng, iStabM(0:7), iStabN(0:7), iStb, &
                      iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, iz2, iZeta, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, &
@@ -174,7 +174,7 @@ do lDCRR=0,nDCRR-1
   vijij = k2Data1(lDCR1)%abMax
 
   ! switch (to generate better start orbitals...)
-  if (NDDO .and. (.not. AeqB)) cycle
+  if (twoel_NDDO .and. (.not. AeqB)) cycle
   ! switch
   MxDCRS = nDCRS-1
   do lDCRS=0,MxDCRS
@@ -184,7 +184,7 @@ do lDCRR=0,nDCRR-1
     CeqD = EQ(Coor(:,3),CoorM(:,4))
 
     ! switch (to generate better start orbitals...)
-    if (NDDO .and. (.not. CeqD)) cycle
+    if (twoel_NDDO .and. (.not. CeqD)) cycle
 
     lDCR2 = NrOpr(iDCRS(lDCRS))+1
 

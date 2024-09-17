@@ -35,14 +35,13 @@
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
+      use NDDO, only: oneel_NDDO
       Implicit None
       Integer nDT,nEO,nCMO
       Real*8 Dens(nDT),TwoHam(nDT),OneHam(nDT),Ovlp(nDT),EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
 
       Character(LEN=80) Note
       External EFP_ON
-!
-#include "oneswi.fh"
 !
 !---- Define local variables
       Integer iCase, i, iBs, iCharge, iCMO, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
@@ -136,8 +135,8 @@
 !
 !nf
       Call DecideOnESPF(Do_ESPF)
-      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. EFP_On()) .and. .Not.NDDO .and. iCase.eq.0) Then
-!nf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.NDDO .and.
+      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. EFP_On()) .and. .Not.oneel_NDDO .and. iCase.eq.0) Then
+!nf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.oneel_NDDO .and.
          iCharge=Int(Tot_Charge)
          NonEq=.False.
 !        Call Get_PotNuc(PotNuc)
