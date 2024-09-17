@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
+subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 !***********************************************************************
 !                                                                      *
 !  object: to sift and index the petite list format integrals.         *
@@ -39,7 +39,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
+integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iBin, ijklCmp, iSO, iSOi, iSOij, &
                      iSOkl, iSOs(4), jSO, jSOj, kSO, kSOk, lSO, lSOl, mij, nij, nijkl, nUt
@@ -148,7 +148,5 @@ call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
 nUt = 0
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iShell)
 
 end subroutine PLF2

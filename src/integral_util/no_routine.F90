@@ -19,24 +19,23 @@ use Definitions, only: wp, iwp
 implicit none
 #include "int_wrout_interface.fh"
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iCmp)
-  call Unused_integer_array(iShell)
-  call Unused_integer(iBas)
-  call Unused_integer(jBas)
-  call Unused_integer(kBas)
-  call Unused_integer(lBas)
-  call Unused_integer_array(kOp)
-  call Unused_logical(Shijij)
-  call Unused_integer_array(iAO)
-  call Unused_integer_array(iAOst)
-  call Unused_integer(ijkl)
-  call Unused_real_array(AOInt)
-  call Unused_real_array(SOInt)
-  call Unused_integer(nSOint)
-  call Unused_integer_array(iSOSym)
-  call Unused_real_array(TInt)
-  call Unused_integer(mSym)
-end if
+#include "macros.fh"
+unused_var(iCmp)
+unused_var(iShell)
+unused_var(iBas)
+unused_var(jBas)
+unused_var(kBas)
+unused_var(lBas)
+unused_var(kOp)
+unused_var(Shijij)
+unused_var(iAO)
+unused_var(iAOst)
+unused_var(ijkl)
+unused_var(AOInt(1))
+unused_var(SOInt(1))
+unused_var(nSOint)
+unused_var(iSOSym)
+unused_var(TInt)
+unused_var(mSym)
+
 end subroutine No_Routine

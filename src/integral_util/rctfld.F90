@@ -31,6 +31,9 @@ logical(kind=iwp), intent(in) :: First, Dff, NonEq
 integer(kind=iwp) :: nComp
 real(kind=wp), allocatable :: QV(:,:), Vs(:,:)
 
+#include "macros.fh"
+unused_var(Dff)
+
 nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
 call mma_Allocate(Vs,nComp,2,Label='Vs')
 call mma_Allocate(QV,nComp,2,Label='QV')
@@ -178,7 +181,7 @@ subroutine RctFld_Internal(Q_solute,nComp)
 
     if (NonEq) then
       call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
-      call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf,NonEq)
+      call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
       call DaXpY_(nComp,One,QV(:,2),1,Vs(:,1),1)
     end if
 
@@ -322,11 +325,11 @@ subroutine RctFld_Internal(Q_solute,nComp)
     ! calculation.
 
     call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
-    call AppFld_NonEQ_1(QV(:,2),rds,Eps,lMax,EpsInf,NonEq)
+    call AppFld_NonEQ_1(QV(:,2),rds,Eps,lMax,EpsInf)
     E_0_NN = -Half*DDot_(nComp,QV(:,1),1,QV(:,2),1)
 
     call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
-    call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf,NonEq)
+    call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
     E_0_NN = E_0_NN+DDot_(nComp,Q_solute(:,1),1,QV(:,2),1)
     call Put_dScalar('E_0_NN',E_0_NN)
 
@@ -334,9 +337,6 @@ subroutine RctFld_Internal(Q_solute,nComp)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_logical(Dff)
 
 end subroutine RctFld_Internal
 

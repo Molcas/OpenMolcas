@@ -45,7 +45,7 @@
 #include "oneswi.fh"
 !
 !---- Define local variables
-      Integer iCase, i, iBs, iCharge, iCMO, iDumm, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
+      Integer iCase, i, iBs, iCharge, iCMO, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
       Integer, External:: iPrintLevel
       Real*8 EHomo, ELumo, ERelMV, ERelDC
       Character(LEN=60) Fmt
@@ -57,7 +57,6 @@
       Logical Do_ESPF, EFP_On
 !nf
       Character AlphaLabel*30
-      Real*8 Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 
 !
@@ -149,9 +148,7 @@
          First=.True.
          Dff = .False.
          Do_DFT=.False. ! We do not need to redo the DFT!
-         iDumm=1
-         Call DrvXV(RFfld,RFfld,Dens,PotNuc,nBT,First,Dff,NonEq,lRF,KSDFT,ExFac,      &
-                   iCharge,iSpin,Dumm0,Dumm1,iDumm,'SCF ',Do_DFT)
+         Call DrvXV(RFfld,RFfld,Dens,PotNuc,nBT,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
          Call mma_deallocate(RFfld)
 !
 !------- Print multipole analysis of the reaction field contributions

@@ -29,6 +29,9 @@ integer(kind=iwp) :: i, jCnt, jCnttp, MaxAto, mCnt, nC, nDC
 real(kind=wp) :: Z
 real(kind=wp), allocatable :: Chrg(:), Cord(:,:), PCM_charge(:,:), Q_Slow(:), V_Save(:,:), V_Slow(:), V_Tile(:,:)
 
+#include "macros.fh"
+unused_var(Dff)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -90,8 +93,6 @@ call mma_deallocate(Cord)
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Dff)
 
 contains
 

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+subroutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
@@ -28,7 +28,6 @@ implicit none
 integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
 real(kind=wp), intent(in) :: SOInt(iBas*jBas,nSOInt)
 real(kind=wp), intent(inout) :: PrpInt(nPrp)
-logical(kind=iwp), intent(in) :: AeqB
 integer(kind=iwp) :: i1, i2, IndAO1, IndAO2, Indij, ip, iPnt, iSO, iSO1, iSO2, j1, j12, j2, jSO, lSO, nRow
 integer(kind=iwp), external :: iPntSO
 ! Statement function
@@ -96,7 +95,5 @@ do j1=0,nIrrep-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(AeqB)
 
 end subroutine SOAdd

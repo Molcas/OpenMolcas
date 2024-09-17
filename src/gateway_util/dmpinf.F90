@@ -45,7 +45,6 @@ use RICD_Info, only: RICD_Info_Dmp
 use nq_Info, only: NQ_Info_Dmp
 use rctfld_module, only: PCM_Info_Dmp
 use Gateway_Info, only: Gateway_Info_Dmp
-use Definitions, only: wp, iwp
 
 implicit none
 

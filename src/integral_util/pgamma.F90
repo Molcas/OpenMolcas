@@ -17,7 +17,7 @@ subroutine pgamma()
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, Two, Pi
+use Constants, only: Zero, Two, Pi, Half
 use rmat, only: gammaph, gammath, lgamma
 use Definitions, only: wp, iwp
 
@@ -30,7 +30,7 @@ gammaph(:,:) = Zero
 
 ! Set intitial values for recursion of gammath
 gammath(0,0) = Two
-gammath(1,0) = Pi/two
+gammath(1,0) = Half*Pi
 
 m = 0
 !m_gam = m

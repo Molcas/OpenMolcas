@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet4(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,Cred,nCred,Scr1, &
-                 nScr1,Scr2,nScr2,PMax)
+subroutine PGet4(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,Cred,nCred,Scr1,nScr1,Scr2, &
+                 nScr2,PMax)
 !***********************************************************************
 !                                                                      *
 !  Object: to assemble the index list of the batch of the 2nd order    *
@@ -38,7 +38,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, mDim, nCred, &
                                  nScr1, nScr2
-logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), iPam(n1+n2+n3+n4), MapPam(4,mDim), Cred(nCred), Scr1(nScr1,2), &
                               Scr2(nScr2), PMax
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iiBas(4), in1, in2, iS, iSO, iSOi, iSym(0:7), j, j1, j12, j123, j2, j3, j4, jAOj, jPam, &
@@ -192,7 +191,5 @@ if (nPSO /= MemSO2) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Shijij)
 
 end subroutine PGet4

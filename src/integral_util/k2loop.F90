@@ -194,8 +194,7 @@ do lDCRR=0,nDCRR-1
   !                                                                    *
   ! Estimate the largest contracted integral.
 
-  k2Data(lDCRR+1)%EstI = EstI(k2Data(lDCRR+1)%Zeta(:),k2Data(lDCRR+1)%Kappa(:),nAlpha,nBeta,Coeff1,iBasn,Coeff2,jBasn, &
-                              k2Data(lDCRR+1)%ab(:),iCmpa_*jCmpb_,Wrk,nWork2,k2Data(lDCRR+1)%IndZ(:))
+  k2Data(lDCRR+1)%EstI = EstI(nAlpha,nBeta,Coeff1,iBasn,Coeff2,jBasn,k2Data(lDCRR+1)%ab(:),Wrk,nWork2,k2Data(lDCRR+1)%IndZ(:))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -246,7 +245,7 @@ do lDCRR=0,nDCRR-1
 
     do iZeta=1,mZeta,IncZZ
       lZeta = min(mZeta-iZeta+1,IncZZ)
-      call SchInt(CoorM,iAnga,iCmpa,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),k2Data(lDCRR+1)%Kappa(iZeta:), &
+      call SchInt(CoorM,iAnga,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),k2Data(lDCRR+1)%Kappa(iZeta:), &
                   k2Data(lDCRR+1)%PCoor(iZeta:,:),k2Data(lDCRR+1)%Kappa(iZeta:),k2Data(lDCRR+1)%PCoor(iZeta:,:),nZeta,Wrk,nWork2, &
                   HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
       call PckInt(Wrk(i_Int),lZeta,ijCmp,k2Data(lDCRR+1)%abG(iZeta:,1),k2Data(lDCRR+1)%Kappa(iZeta:),.true., &
@@ -279,7 +278,7 @@ do lDCRR=0,nDCRR-1
           call NewPK(CoorM(1,1),CoorM(1,2),Pnew,mZeta,nZeta,Knew,k2Data(lDCRR+1)%Alpha(:),k2Data(lDCRR+1)%Beta(:))
           do iZeta=1,mZeta,IncZZ
             lZeta = min(mZeta-iZeta+1,IncZZ)
-            call SchInt(CoorM,iAnga,iCmpa,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Knew(iZeta),Pnew(iZeta), &
+            call SchInt(CoorM,iAnga,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Knew(iZeta),Pnew(iZeta), &
                         Knew(iZeta),Pnew(iZeta),nZeta,Wrk,nWork2,HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,1),Knew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Knew(iZeta))
           end do
@@ -289,7 +288,7 @@ do lDCRR=0,nDCRR-1
           call NewPK(CoorM(1,1),CoorM(1,2),Qnew,mZeta,nZeta,Lnew,k2Data(lDCRR+1)%Alpha(:),k2Data(lDCRR+1)%Beta(:))
           do iZeta=1,mZeta,IncZZ
             lZeta = min(mZeta-iZeta+1,IncZZ)
-            call SchInt(CoorM,iAnga,iCmpa,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Lnew(iZeta),Qnew(iZeta), &
+            call SchInt(CoorM,iAnga,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Lnew(iZeta),Qnew(iZeta), &
                         Lnew(iZeta),Qnew(iZeta),nZeta,Wrk,nWork2,HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,2),Lnew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Lnew(iZeta))
           end do
@@ -300,7 +299,7 @@ do lDCRR=0,nDCRR-1
           CoorM(iComp,iCnt+2) = temp-Delta
           do iZeta=1,mZeta,IncZZ
             lZeta = min(mZeta-iZeta+1,IncZZ)
-            call SchInt(CoorM,iAnga,iCmpa,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Knew(iZeta),Pnew(iZeta), &
+            call SchInt(CoorM,iAnga,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Knew(iZeta),Pnew(iZeta), &
                         Lnew(iZeta),Qnew(iZeta),nZeta,Wrk,nWork2,HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,3),Knew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Lnew(iZeta))
           end do
@@ -311,7 +310,7 @@ do lDCRR=0,nDCRR-1
           CoorM(iComp,iCnt+2) = temp+Delta
           do iZeta=1,mZeta,IncZZ
             lZeta = min(mZeta-iZeta+1,IncZZ)
-            call SchInt(CoorM,iAnga,iCmpa,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Lnew(iZeta),Qnew(iZeta), &
+            call SchInt(CoorM,iAnga,lZeta,k2Data(lDCRR+1)%Zeta(iZeta:),k2Data(lDCRR+1)%ZInv(iZeta:),Lnew(iZeta),Qnew(iZeta), &
                         Knew(iZeta),Pnew(iZeta),nZeta,Wrk,nWork2,HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,3),Lnew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Knew(iZeta))
           end do

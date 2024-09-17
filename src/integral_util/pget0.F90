@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
+subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
                  iShell_D,nQuad,PMax)
 !***********************************************************************
 !                                                                      *
@@ -41,7 +41,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
                                  iShell_A, iShell_B, iShell_C, iShell_D, nQuad
-logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
 integer(kind=iwp) :: i, ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, j, kOp(4), nSA
 
@@ -96,7 +95,7 @@ if (lPSO) then
         call Abend()
       end if
     else
-      call PGet3(PSO,ijkl,nPSO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap), &
+      call PGet3(PSO,ijkl,nPSO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap), &
                  S%nDim,Mem2(ipC),nCred,Mem2(ipS1),nScr1,Mem2(ipS2),nScr2,PMax)
       !yma write(u6,*) 'PGet3 ==========='
     end if
@@ -126,7 +125,7 @@ if (lPSO) then
       !write(u6,*) 'Print out in integral_util/pget0 before'
       !call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
-      call PGet4(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap),S%nDim, &
+      call PGet4(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap),S%nDim, &
                  Mem2(ipC),nCred,Mem2(ipS1),nScr1,Mem2(ipS2),nScr2,PMax)
       !yma write(u6,*) 'PGet4 ============'
     end if
@@ -157,8 +156,8 @@ else
       else
         call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,nQuad,Mem2,nGamma,LuGamma,Bin,lBin)
       end if
-      call PGet1_Aces(PSO,ijkl,nPSO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,D0,DVar,DS,DSVar,nDens,Mem2,nGamma,SO2cI,nSOs, &
-                      iSO2Sh,PMax)
+      call PGet1_Aces(PSO,ijkl,nPSO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,D0,DVar,DS,DSVar,nDens,Mem2,nGamma,SO2cI,nSOs,iSO2Sh, &
+                      PMax)
     else
       if (Case_2C) then
         if (Do_RI) then
@@ -174,7 +173,7 @@ else
           call PGet1_CD3(PSO,ijkl,nPSO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,D0,DVar,nDens,ExFac,CoulFac,PMax,V_K,U_K,nV_K)
         end if
       else
-        call PGet1(PSO,ijkl,nPSO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,D0,DS,nDens,ExFac,CoulFac,PMax)
+        call PGet1(PSO,ijkl,nPSO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,D0,DS,nDens,ExFac,CoulFac,PMax)
       end if
     end if
   else
@@ -185,8 +184,7 @@ else
       else
         call Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,nQuad,Mem2,nGamma,LuGamma,Bin,lBin)
       end if
-      call PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,D0,DVar,DS,DSVar,nDens,Mem2,nGamma,SO2cI,nSOs, &
-                      iSO2Sh,PMax)
+      call PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,D0,DVar,DS,DSVar,nDens,Mem2,nGamma,SO2cI,nSOs,iSO2Sh,PMax)
     else
       if (Case_2C) then
         if (Do_RI) then
@@ -203,7 +201,7 @@ else
         end if
 
       else
-        call PGet2(iCmp,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,PSO,nPSO,D0,DS,nDens,ExFac,CoulFac,PMax)
+        call PGet2(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,D0,DS,nDens,ExFac,CoulFac,PMax)
       end if
     end if
   end if

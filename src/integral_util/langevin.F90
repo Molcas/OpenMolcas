@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
+subroutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 
 use Basis_Info, only: DBSC, ncnttp
 use Center_Info, only: DC
@@ -26,9 +26,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1
-real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), REPNUC
+real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
 real(kind=wp), intent(in) :: D(nh1)
-logical(kind=iwp), intent(in) :: First, Dff
+logical(kind=iwp), intent(in) :: First, Dff, NonEq
 integer(kind=iwp) :: mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC, mCnt, i, nAV, iSeed, iAV, Lu, j, Inc, iOrdOp, iXF, nCnt, &
                      iEle, k
 integer(kind=iwp), save :: nAnisopol, nPolComp
@@ -40,6 +40,9 @@ real(kind=wp), external :: CovRadT, Random_molcas
 ! Statement function
 integer(kind=iwp) :: ixyz, nElem
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "macros.fh"
+unused_var(NonEq)
 
 !                                                                      *
 !***********************************************************************

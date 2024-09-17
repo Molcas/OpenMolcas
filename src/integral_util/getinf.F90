@@ -28,7 +28,7 @@ use Gateway_global, only: Test
 use DKH_Info, only: DKroll
 use Sizes_of_Seward, only: S
 use rctfld_module, only: lMax, PCM_Info_Get
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: DoRys

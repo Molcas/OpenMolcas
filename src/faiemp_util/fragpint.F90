@@ -316,7 +316,7 @@ do iS=1,nSkal
 
       nHer = (la+iAng+2)/2
       call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,iPrim,Array(ipZ1),Array(ipZI1),Array(ipK1),Array(ipP1),Array(ipF1),nAlpha*iPrim, &
-                  iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp)
+                  iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
 #     ifdef _DEBUGPRINT_
       call RecPrt('<alpha|iS> (aBas x X)',' ',Array(ipF1),nAlpha*iPrim,nac)
 #     endif
@@ -348,7 +348,7 @@ do iS=1,nSkal
 
       nHer = (jAng+lb+2)/2
       call MltPrm(Shells(jShll)%Exp,jPrim,Beta,nBeta,Array(ipZ2),Array(ipZI2),Array(ipK2),Array(ipP2),Array(ipF2),jPrim*nBeta, &
-                  iComp,jAng,lb,TB,RB,nHer,Array(ip),mArr,CoorO,nOrdOp)
+                  iComp,jAng,lb,TB,RB,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
       ip = ip-6*jPrim*nBeta
       ipTmp = ip
       ip = ip+max(nAlpha*nac*max(iPrim,jBas),nBeta*ncb*jBas)

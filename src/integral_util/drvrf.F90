@@ -54,7 +54,7 @@ if (lLangevin .or. (iXPolType > 0)) then
   ! Reaction field a la polarizabilities and Langevin dipole
   ! moments on a grid in a cavity in a dielectric medium.
 
-  call Langevin(h1,RFld(:,2),D,RepNuc,nh1,First,Dff)
+  call Langevin(h1,RFld(:,2),D,RepNuc,nh1,First,Dff,NonEq)
 
 else if (PCM) then
 

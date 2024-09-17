@@ -59,7 +59,6 @@ integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDC
                      lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, &
                      NrOpr, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
 real(kind=wp) :: A(3), B(3), C(3), FactND, RB(3), TA(3), TRB(3)
-logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:), PCoor(:,:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
@@ -149,8 +148,6 @@ do iS=1,nSkal
 
     call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
 
-    AeqB = iS == jS
-
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
@@ -171,7 +168,7 @@ do iS=1,nSkal
 
     ! Gather the elements from 1st order density / Fock matrix.
 
-    call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+    call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 
     ! Project the Fock/1st order density matrix in AO
     ! basis on to the primitive basis.
@@ -267,8 +264,7 @@ do iS=1,nSkal
 
           ! Compute the potential at a tessera.
 
-          call EFPrm(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,nComp,iAng,jAng,TA,TRB, &
-                     nOrder,Kern,MemKer,C,nOrdOp)
+          call EFPrm(Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,nComp,iAng,jAng,TA,TRB,Kern,MemKer,C,nOrdOp)
 #         ifdef _DEBUGPRINT_
           call RecPrt(' Final Integrals',' ',Fnl,nDAO,nComp)
 #         endif

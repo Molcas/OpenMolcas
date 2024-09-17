@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gmma,nGamma, &
-                      iSO2cI,nSOs,iSO2Sh,PMax)
+subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DSO_Var,DSSO,DSSO_Var,nDSO,Gmma,nGamma,iSO2cI,nSOs, &
+                      iSO2Sh,PMax)
 !***********************************************************************
 !                                                                      *
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
@@ -46,7 +46,6 @@ implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO, nGamma, nSOs, &
                                  iSO2cI(2,nSOs), iSO2Sh(nSOs)
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
-logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(in) :: DSO(nDSO), DSO_Var(nDSO), DSSO(nDSO), DSSO_Var(nDSO), Gmma(nGamma)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, Indi, Indij, Indik, &
                      Indil, Indj, Indjk, Indjl, Indk, Indkl, Indl, iPAO, iShell_A, iShell_AB, iShell_B, iShell_C, iShell_CD, &
@@ -214,7 +213,5 @@ end do
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Shijij)
 
 end subroutine PGet1_Aces

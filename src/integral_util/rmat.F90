@@ -55,12 +55,12 @@ private
 !real(kind=wp) :: wrk1(4*INTparm)
 
 integer(kind=iwp), parameter :: lgammax = 15
-integer(kind=iwp) :: keyr, l, lcosf, lcost, lgamma, lsinf, lsint, m_gam, n_gam
+integer(kind=iwp) :: keyr, l, lgamma
 real(kind=wp) :: bParm, dipol(3), Dipol1, Epsabs, Epsq, Epsrel, expsum, gammaph(-2:2*lgammax+3,-2:2*lgammax+4), &
                  gammath(-2:2*lgammax+3,-2:2*lgammax+4), qCoul, RmatR
 logical(kind=iwp) :: nagint, Quadpack, RMat_On, RMat_Type_Integrals, testint
 
-public :: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, expsum, gammaph, gammath, keyr, l, lcosf, lcost, lgamma, lsinf, lsint, &
-          m_gam, n_gam, nagint, qCoul, Quadpack, RMat_On, RMat_Type_Integrals, RmatR, testint
+public :: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, expsum, gammaph, gammath, keyr, l, lgamma, nagint, qCoul, Quadpack, RMat_On, &
+          RMat_Type_Integrals, RmatR, testint
 
 end module RMat

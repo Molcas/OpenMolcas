@@ -68,7 +68,15 @@ external :: EQ, lEmpty
 integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
-All_Spherical = Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct
+#include "macros.fh"
+unused_var(iStabs)
+unused_var(iPrInc)
+unused_var(kPrInc)
+unused_var(FckTmp)
+unused_var(SoInt)
+unused_var(Aux)
+
+All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
@@ -385,14 +393,5 @@ if (DoIntegrals) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(iStabs)
-  call Unused_integer(iPrInc)
-  call Unused_integer(kPrInc)
-  call Unused_real_array(FckTmp)
-  call Unused_real_array(SoInt)
-  call Unused_real_array(Aux)
-end if
 
 end subroutine TwoEl_NoSym

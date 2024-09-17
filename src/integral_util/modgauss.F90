@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ModGauss(Z,A,Xi,w)
+subroutine ModGauss(A,Xi,w)
 
 use Constants, only: Zero, One, Two, Three, Five, Half, rBohr
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: Z
 integer(kind=iwp), intent(in) :: A
 real(kind=wp), intent(out) :: Xi, w
 integer(kind=iwp) :: i, iNeg, Iter, MaxIter
@@ -137,7 +136,5 @@ w = w*Xi
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(Z)
 
 end subroutine ModGauss

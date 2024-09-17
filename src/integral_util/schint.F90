@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SchInt(CoorM,iAnga,iCmp,mZeta,Zeta,ZInv,rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2,HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
+subroutine SchInt(CoorM,iAnga,mZeta,Zeta,ZInv,rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2,HMtrx,nHrrMtrx,iShlla,jShllb,i_Int)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
@@ -38,7 +38,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), mZeta, nZeta, nWork2, nHrrMtrx, iShlla, jShllb
+integer(kind=iwp), intent(in) :: iAnga(4), mZeta, nZeta, nWork2, nHrrMtrx, iShlla, jShllb
 real(kind=wp), intent(in) :: CoorM(3,4), Zeta(mZeta), ZInv(mZeta), rKapab(mZeta), P(nZeta,3), rKapcd(mZeta), Q(nZeta,3)
 real(kind=wp), intent(out) :: Wrk(nWork2), HMtrx(nHrrMtrx,2)
 integer(kind=iwp), intent(out) :: i_Int
@@ -125,8 +125,5 @@ call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,HMtrx(:,1),HMtrx(:,2),l
 #ifdef _DEBUGPRINT_
 call RecPrt(' In SchInt',' ',Wrk(i_Int),mZeta,(nElem(la)*nElem(lb))**2)
 #endif
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(iCmp)
 
 end subroutine SchInt

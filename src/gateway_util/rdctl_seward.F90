@@ -66,9 +66,9 @@ integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iA
                      iChk_RI, iChrct, iChxyz, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, ifnr, &
                      iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
                      iOpt_XYZ, iOptimType, iPrint, iprop_ord, iRout, iShll, ist, istatus, isxbas, isXfield, iTemp, ITkQMMM, iTtl, &
-                     itype, iUnique, iWel, ix, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, &
-                     LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
-                     nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
+                     itype, iUnique, iWel, ix, j, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, LuFS, LuIn, &
+                     LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, nFragment, &
+                     nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
 real(kind=wp) :: CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, sDel, &
                  spanCD, stepFac1, SymThr, tDel, Temp
 
@@ -3230,32 +3230,37 @@ end if
 ! Activate Finite Nucleus parameters
 
 if (Nuclear_Model == Point_Charge) then
-  if (ign == 2) Nuclear_Model = Gaussian_Type
-  if (ign == 3) Nuclear_Model = mGaussian_Type
+  if (ign == 2) then
+    Nuclear_Model = Gaussian_Type
+  else if (ign == 3) then
+    Nuclear_Model = mGaussian_Type
+  end if
 end if
 
-do iCnttp=1,nCnttp
-  if (Nuclear_Model == Gaussian_Type) then
+select case (Nuclear_Model)
+  case (Gaussian_Type)
 
     ! If ExpNuc not explicitly defined use default value.
 
-    nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
-    if (dbsc(iCnttp)%ExpNuc < Zero) dbsc(iCnttp)%ExpNuc = NucExp(nMass)
-  else if (Nuclear_Model == mGaussian_Type) then
+    do iCnttp=1,nCnttp
+      nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
+      if (dbsc(iCnttp)%ExpNuc < Zero) dbsc(iCnttp)%ExpNuc = NucExp(nMass)
+    end do
+  case (mGaussian_Type)
 
     ! Get parameters for the Modified Gaussian Nuclear
     ! charge distribution.
 
-    jAtmNr = dbsc(iCnttp)%AtmNr
-    nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
-    call ModGauss(real(jAtmNr,kind=wp),nMass,dbsc(iCnttp)%ExpNuc,dbsc(iCnttp)%w_mGauss)
+    do iCnttp=1,nCnttp
+      nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
+      call ModGauss(nMass,dbsc(iCnttp)%ExpNuc,dbsc(iCnttp)%w_mGauss)
+    end do
 
-  else
+  case default
 
     ! Nothing to do for point charges!
 
-  end if
-end do
+end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DAO,iBas,jBas,DSO,nDSO,nOp,FactNd,Scrt)
+subroutine Desym1(lOper,iCmp,jCmp,iShell,jShell,iAO,jAO,DAO,iBas,jBas,DSO,nDSO,nOp,Scrt)
 !***********************************************************************
 !                                                                      *
 ! Object: desymmetrize the first order density matrix.                 *
@@ -31,9 +31,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: lOper, iAng, jAng, iCmp, jCmp, iShell, jShell, iShll, jShll, iAO, jAO, iBas, jBas, nDSO, nOp(2)
+integer(kind=iwp), intent(in) :: lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, iBas, jBas, nDSO, nOp(2)
 real(kind=wp), intent(out) :: DAO(iBas*jBas,iCmp,jCmp), Scrt(iBas*jBas)
-real(kind=wp), intent(in) :: DSO(iBas*jBas,nDSO), FactNd
+real(kind=wp), intent(in) :: DSO(iBas*jBas,nDSO)
 integer(kind=iwp) :: i1, i2, j1, j12, j2, jMx, lSO
 real(kind=wp) :: Deg, Xa, Xb
 
@@ -87,13 +87,5 @@ call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iAng)
-  call Unused_integer(jAng)
-  call Unused_integer(iShll)
-  call Unused_integer(jShll)
-  call Unused_real(FactNd)
-end if
 
 end subroutine Desym1

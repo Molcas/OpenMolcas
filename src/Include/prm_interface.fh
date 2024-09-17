@@ -9,27 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Integral_WrOut2( &
-#                          define _CALLING_
-#                          include "int_wrout_interface.fh"
-                          )
-! calls the proper routines IndSft/PLF
-! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
-!                  else  integral order within symblk: ijkl
+#ifdef _CALLING_
 
-use Definitions, only: wp, iwp
+Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,iCnttp &
 
-implicit none
-#include "int_wrout_interface.fh"
+#else
 
-#include "macros.fh"
-unused_var(TInt)
-unused_var(mSym)
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp, iCnttp
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
+real(kind=wp), intent(inout) :: Array(nZeta*nArr)
 
-if (mSym == 1) then
-  call PLF2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
-else
-  call IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
-end if
+#endif
 
-end subroutine Integral_WrOut2
+#undef _CALLING_

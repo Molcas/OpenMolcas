@@ -55,7 +55,6 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), 
                      jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, &
                      niAng, njAng, nOp(3), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
 real(kind=wp) :: A(3), B(3), C(3), FactNd, RB(3), TA(3), TRB(3)
-logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 real(kind=wp), external :: DDot_
@@ -141,8 +140,6 @@ do iS=1,nSkal
 
     call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
 
-    AeqB = iS == jS
-
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
@@ -161,7 +158,7 @@ do iS=1,nSkal
 
     ! Gather the elements from 1st order density / Fock matrix.
 
-    call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+    call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 
     ! Project the Fock/1st order density matrix in AO
     ! basis on to the primitive basis.
@@ -260,12 +257,11 @@ do iS=1,nSkal
           !write(u6,*) 'Fnl,iPrim*jPrim,nComp,iAng,jAng,norder'
           !write(u6,*) Fnl(1),iPrim*jPrim,nComp,iAng,jAng,norder
           ! pcm_solvent end
-          call EFPrm(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,nComp,iAng,jAng,TA,TRB, &
-                     nOrder,Kern,MemKer,C,nOrdOp)
+          call EFPrm(Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,nComp,iAng,jAng,TA,TRB,Kern,MemKer,C,nOrdOp)
           if (iPrint >= 49) call RecPrt(' Final Integrals',' ',Fnl,nDAO,nComp)
 
           ! Trace with 1st order density matrix and accumulate
-          ! to the potenital at tessera iTile
+          ! to the potential at tessera iTile
 
           if (iPrint >= 49) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,nDAO,1)
           ipFnlc = 1

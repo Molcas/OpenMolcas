@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine AppFld_NonEq_1(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
+subroutine AppFld_NonEq_1(Cavxyz,radius,Eps,lmax,EpsInf)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
@@ -20,7 +20,6 @@ implicit none
 integer(kind=iwp), intent(in) :: lMax
 real(kind=wp), intent(inout) :: Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
 real(kind=wp), intent(in) :: Radius, Eps, EpsInf
-logical(kind=iwp), intent(in) :: NonEq
 integer(kind=iwp) :: ip, l
 real(kind=wp) :: Fact, rInv, rPoti
 real(kind=wp), allocatable :: CavSph(:)
@@ -65,7 +64,5 @@ call RecPrt('Electric Field',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(NonEq)
 
 end subroutine AppFld_NonEq_1

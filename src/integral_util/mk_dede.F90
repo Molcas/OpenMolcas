@@ -59,12 +59,10 @@ real(kind=wp), intent(in) :: FD(nFD,mFD)
 integer(kind=iwp), intent(out) :: ipOffD(2+mFD,nOffD), mDeDe, mIndij
 logical(kind=iwp), intent(in) :: Special_NoSym, DFT_Storage
 real(kind=wp), intent(inout) :: DeDe(nDeDe)
-integer(kind=iwp) :: iAng, iAngi, iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, Inc, ipD00, &
-                     iPrim, iPrimi, ipStart, iS, iSh, iShell, iShll, iShlli, iSmLbl, iuv, jAng, jAngj, jAO, jAOj, jBas, jBasj, &
-                     jCMp, jCmpj, jOffD, jpDAO, jPrim, jPrimj, jS, jSh, jShell, jShll, jShllj, lDCRR, LmbdR, mdci, mdcj, nDCRR, &
-                     nOp(2), nSkal, nSO
+integer(kind=iwp) :: iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, Inc, ipD00, iPrim, iPrimi, &
+                     ipStart, iS, iSh, iShell, iShll, iSmLbl, iuv, jAO, jAOj, jBas, jBasj, jCMp, jCmpj, jOffD, jpDAO, jPrim, &
+                     jPrimj, jS, jSh, jShell, jShll, lDCRR, LmbdR, mdci, mdcj, nDCRR, nOp(2), nSkal, nSO
 real(kind=wp) :: FactND, Temp
-logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOc(:), DSOp(:), Scrt(:)
 integer(kind=iwp), external :: iDAMax_, MemSO1, n2Tri, NrOpr
 #ifdef _DEBUGPRINT_
@@ -113,7 +111,6 @@ call Nr_Shells(nSkal)
 
 do iS=1,nSkal
   iShll = iSD(0,iS)
-  iAng = iSD(1,iS)
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
   iPrim = iSD(5,iS)
@@ -123,7 +120,6 @@ do iS=1,nSkal
 
   do jS=1,iS
     jShll = iSD(0,jS)
-    jAng = iSD(1,jS)
     jCmp = iSD(2,jS)
     jBas = iSD(3,jS)
     jPrim = iSD(5,jS)
@@ -140,12 +136,10 @@ do iS=1,nSkal
     !                                                                  *
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iS,jS=',iS,jS
-    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iSD(1,iS)),',',AngTp(iSD(1,jS)),') *****'
 #   endif
 
     call mma_allocate(DAO,max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,label='DAO')
-
-    AeqB = iS == jS
 
     !-------Find the DCR for A and B
 
@@ -187,12 +181,8 @@ do iS=1,nSkal
       jBasj = jBas
       iPrimi = iPrim
       jPrimj = jPrim
-      iAngi = iAng
-      jAngj = jAng
       iCmpi = iCmp
       jCmpj = jCmp
-      iShlli = iShll
-      jShllj = jShll
     else
       iSh = jShell
       jSh = iShell
@@ -202,12 +192,8 @@ do iS=1,nSkal
       jBasj = iBas
       iPrimi = jPrim
       jPrimj = iPrim
-      iAngi = jAng
-      jAngj = iAng
       iCmpi = jCmp
       jCmpj = iCmp
-      iShlli = jShll
-      jShllj = iShll
     end if
     !                                                                  *
     !*******************************************************************
@@ -227,7 +213,7 @@ do iS=1,nSkal
       !                                                                *
       ! Gather the elements from 1st order density / Fock matrix.
 
-      call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),n2Tri(iSmLbl),iSmLbl,iCmpi,jCmpj,iSh,jSh,AeqB,iAOi,jAOj)
+      call SOGthr(DSOc,iBasi,jBasj,nSO,FD(1,iFD),n2Tri(iSmLbl),iSmLbl,iCmpi,jCmpj,iSh,jSh,iAOi,jAOj)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -283,7 +269,7 @@ do iS=1,nSkal
         !                                                              *
         ! Desymmetrize the 1st order density matrix(contracted).
 
-        call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,iSh,jSh,iShlli,jShllj,iAOi,jAOj,DAO,iBasi,jBasj,DSOc,nSO,nOp,FactNd,Scrt)
+        call Desym1(iSmLbl,iCmpi,jCmpj,iSh,jSh,iAOi,jAOj,DAO,iBasi,jBasj,DSOc,nSO,nOp,Scrt)
 
         ! Store away result
 
@@ -328,7 +314,7 @@ do iS=1,nSkal
         !                                                              *
         ! Desymmetrize the 1st order density matrix(primitive).
 
-        call Desym1(iSmLbl,iAngi,jAngj,iCmpi,jCmpj,iSh,jSh,iShlli,jShllj,iAOi,jAOj,DAO,iPrimi,jPrimj,DSOp,nSO,nOp,FactNd,Scrt)
+        call Desym1(iSmLbl,iCmpi,jCmpj,iSh,jSh,iAOi,jAOj,DAO,iPrimi,jPrimj,DSOp,nSO,nOp,Scrt)
 
         ! Change order so it follows what is used in TwoEl
 

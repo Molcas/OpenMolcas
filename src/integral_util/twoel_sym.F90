@@ -40,11 +40,11 @@ use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, Fck
 use k2_arrays, only: pFq
 use k2_structure, only: k2_type
 use Breit, only: nComp, nOrdOp
-use Constants, only: Zero, One, Four
-use Definitions, only: wp, iwp, u6, RtoB, RtoI
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 #endif
+use Constants, only: Zero, One, Four
+use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
 integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, &
@@ -96,17 +96,23 @@ end interface
 integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
-iStb = iStabs(1)
-jStb = iStabs(2)
-kStb = iStabs(3)
-lStb = iStabs(4)
+#include "macros.fh"
+unused_var(iS_)
+unused_var(jS_)
+unused_var(kS_)
+unused_var(lS_)
+unused_var(iPrInc)
+unused_var(kPrInc)
+
 if (nOrdOp /= 0) then
   write(u6,*) 'Breit two-electron integrals not implemented yet'
   write(u6,*) 'Symmetry adaptation different since the operator'
   write(u6,*) 'is not symmetric.'
+  call Abend()
 end if
 
-All_Spherical = Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct
+All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
+
 QInd(1) = Quad_ijkl
 RST_triplet = One
 
@@ -142,6 +148,10 @@ jOp(:) = 0
 !                                                                      *
 ! Find the Double Coset Representatives for center A and B
 
+iStb = iStabs(1)
+jStb = iStabs(2)
+kStb = iStabs(3)
+lStb = iStabs(4)
 call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
 u = real(dc(iStb)%nStab,kind=wp)
 v = real(dc(jStb)%nStab,kind=wp)
@@ -648,14 +658,5 @@ do lDCRR=0,nDCRR-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iS_)
-  call Unused_integer(jS_)
-  call Unused_integer(kS_)
-  call Unused_integer(lS_)
-  call Unused_integer(iPrInc)
-  call Unused_integer(kPrInc)
-end if
 
 end subroutine TwoEl_Sym

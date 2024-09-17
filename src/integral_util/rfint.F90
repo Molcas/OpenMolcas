@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine RFInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp)
+subroutine RFInt(Zeta,rKappa,P,rFinal,nZeta,nComp,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments integrals with the          *
@@ -32,8 +32,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
-real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3)
+integer(kind=iwp), intent(in) :: nZeta, nComp, la, lb, nHer, nArr, nOrdOp
+real(kind=wp), intent(in) :: Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3)
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Array(nZeta*nArr)
 integer(kind=iwp) :: ipAxyz, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iZeta, nip
 logical(kind=iwp) :: ABeq(3)
@@ -93,13 +93,5 @@ call vAssmbl(Array(ipRnxyz),Array(ipAxyz),la,Array(ipRxyz),nOrdOp,Array(ipBxyz),
 ! Combine the cartesian components to the full one electron integral.
 
 call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,rFinal,nComp,Array(ipTemp1),Array(ipTemp2))
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_real_array(ZInv)
-end if
-#endif
 
 end subroutine RFInt

@@ -13,8 +13,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iChO,opmol,opnuc,ipad,iopadr,idirect,isyop,iStabO, &
-                       nStabO,nIC,PtChrg,nGrid,iAddPot,Array,LenTot)
+subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iChO,iStabO,nStabO,nIC,PtChrg,nGrid,iAddPot,Array, &
+                       LenTot)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the one-electron integrals. The method employed at*
@@ -59,9 +59,9 @@ implicit none
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
 character(len=8), intent(in) :: Label
-integer(kind=iwp), intent(in) :: nComp, ip(nComp), lOper(nComp), nOrdOp, iChO(nComp), ipad, iopadr(nComp,*), idirect, isyop, &
-                                 iStabO(0:7), nStabO, nIC, nGrid, iAddPot, LenTot
-real(kind=wp), intent(in) :: CoorO(3,nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
+integer(kind=iwp), intent(in) :: nComp, ip(nComp), lOper(nComp), nOrdOp, iChO(nComp), iStabO(0:7), nStabO, nIC, nGrid, iAddPot, &
+                                 LenTot
+real(kind=wp), intent(in) :: CoorO(3,nComp), rHrmt, PtChrg(nGrid)
 real(kind=wp), intent(inout) :: Array(LenTot)
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnttp, iComp, id_Tsk, ijS, ijSh, iPrim, iPrint, ipSO, iS, iShell, iSmLbl, iSOBlk, &
                      jAng, jAO, jBas, jCmp, jCnttp, jPrim, jS, jShell, l_SOInt, lA0, lA1, lB0, lB1, lFinal, lScrt1, lScrt2, &
@@ -246,8 +246,7 @@ do
       end if
       !write(u6,*) 'Label,iComp,rHrmt_in=',Label,iComp,rHrmt_in
       if (mSO /= 0) then
-        call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label, &
-                    lOper,rHrmt_in)
+        call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,rHrmt_in)
         iSOBlk = iSOBlk+mSO*iBas*jBas
       end if
     end do
@@ -271,14 +270,5 @@ call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(opmol)
-  call Unused_real_array(opnuc)
-  call Unused_integer(ipad)
-  call Unused_integer_array(iopadr)
-  call Unused_integer(idirect)
-  call Unused_integer(isyop)
-end if
 
 end subroutine OneEl_Inner

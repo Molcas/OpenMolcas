@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp)
+subroutine EFPrm(Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,Array,nArr,Ccoor,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of electric field         *
@@ -31,8 +31,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nRys, nArr, nOrdOp
-real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
+integer(kind=iwp), intent(in) :: nZeta, nComp, la, lb, nArr, nOrdOp
+real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
 real(kind=wp), intent(inout) :: Array(nZeta*nArr)
 integer(kind=iwp) :: iAnga(4), ip1, ip2, ip3, ipIn, kab, lab, labcd, lcd, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
@@ -48,14 +48,6 @@ character(len=80) :: Label
 integer(kind=iwp) :: ixyz, nElem, nabSz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
-
-#ifdef _DEBUGPRINT_
-call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
-call RecPrt(' In EFPrm: Beta',' ',Beta,nBeta,1)
-#else
-if (.false.) call Unused_Real_Array(Alpha)
-if (.false.) call Unused_Real_Array(Beta)
-#endif
 
 rFinal(:,:,:,:) = Zero
 
@@ -144,7 +136,5 @@ end do
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nRys)
 
 end subroutine EFPrm

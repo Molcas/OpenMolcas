@@ -54,12 +54,20 @@ abstract interface
     import :: wp, iwp
 #   include "int_wrout_interface.fh"
   end subroutine int_wrout
+
+  subroutine prm_kernel( &
+#                       define _CALLING_
+#                       include "prm_interface.fh"
+                       )
+    import :: wp, iwp
+#   include "prm_interface.fh"
+  end subroutine prm_kernel
 end interface
 
 ! Intel 13 compiler only works with "public" here
 procedure(int_wrout), public, pointer :: Int_postprocess => null()
 
-public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Integrals
+public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Integrals, prm_kernel
 
 contains
 

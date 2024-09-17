@@ -13,8 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rNuc,rHrmt,iChO,opmol,ipad,opnuc,iopadr,idirect,isyop,PtChrg, &
-                 nGrid,iAddPot)
+subroutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rNuc,rHrmt,iChO,PtChrg,nGrid,iAddPot)
 
 use Basis_Info, only: nBas
 use PrpPnt, only: nDen, nOcc, nVec, Occ, Vec
@@ -34,9 +33,9 @@ implicit none
 procedure(int_kernel) :: Kernel
 procedure(int_mem) :: KrnlMm
 character(len=8), intent(in) :: Label
-integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), ipAd, iopadr(nComp,*), idirect, isyop, nGrid, iAddPot
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), nGrid, iAddPot
 integer(kind=iwp), intent(out) :: ip(nComp)
-real(kind=wp), intent(in) :: CoorO(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
+real(kind=wp), intent(in) :: CoorO(3,nComp), rNuc(nComp), rHrmt, PtChrg(nGrid)
 integer(kind=iwp) :: iAdr, iComp, iComp_, iDIsk, iEF, ii, iInd1, iInd2, iIrrep, iOcc, iOpt, iPAMCount, ipC2, ipEl, ipNuc, ipOut, &
                      iRC, iSmLbl, iStabO(0:7), jComp, LenInt, LenTot, llOper, lPole, LuTmp, mDim, n_Int, nIC, nStabO
 real(kind=wp) :: rSum
@@ -113,8 +112,7 @@ end do
 !                                                                      *
 ! Compute all SO integrals for all components of the operator.
 
-call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iChO,opmol,opnuc,ipad,iopadr,idirect,isyop,iStabO,nStabO, &
-                 nIC,PtChrg,nGrid,iAddPot,Array,LenTot)
+call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iChO,iStabO,nStabO,nIC,PtChrg,nGrid,iAddPot,Array,LenTot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

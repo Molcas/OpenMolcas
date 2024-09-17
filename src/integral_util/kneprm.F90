@@ -13,7 +13,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine KnEPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp)
+subroutine KnEPrm( &
+#                 define _CALLING_
+#                 include "prm_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the kinetic energy integrals with the Gauss-      *
@@ -28,11 +31,13 @@ use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
-real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
-real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Array(nZeta*nArr)
+#include "prm_interface.fh"
 integer(kind=iwp) :: nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB, ipAOff, iAlpha, ipBOff, iBeta
 logical(kind=iwp) :: ABeq(3)
+
+#include "macros.fh"
+unused_var(ZInv)
+unused_var(iCnttp)
 
 ABeq(:) = (A(:) == RB(:))
 
@@ -112,7 +117,5 @@ call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZeta)
 call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,rFinal,nComp,Array(ipTxyz))
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(ZInv)
 
 end subroutine KnEPrm

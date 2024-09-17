@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir,nComp)
+subroutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the multipole moments for the nuclei.             *
@@ -26,7 +26,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtm, ir, nComp
+integer(kind=iwp), intent(in) :: nAtm, ir
 real(kind=wp), intent(in) :: CoOp(3), Chrg(nAtm), Coor(3,nAtm)
 real(kind=wp), intent(out) :: rNucMm((ir+1)*(ir+2)/2)
 integer(kind=iwp) :: iAtom, ip, ix, iy, iz
@@ -73,8 +73,5 @@ end do
 #ifdef _DEBUGPRINT_
 call RecPrt(' Nuclear Multipole Moments',' ',rNucMm,ip,1)
 #endif
-
-return
-if (.false.) call Unused_integer(nComp)
 
 end subroutine MltNuc

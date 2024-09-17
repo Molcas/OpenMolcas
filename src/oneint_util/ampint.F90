@@ -101,21 +101,21 @@ do lDCRT=0,nDCRT-1
   iComp = 6
   iOrdOp = 2
   nHer = (la+(lb+2)+2+2)/2
-  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTpp),nZeta,iComp,la,lb+2,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp)
+  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTpp),nZeta,iComp,la,lb+2,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp,0)
   nHer = (la+lb+2+2)/2
-  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipT),nZeta,iComp,la,lb,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp)
+  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipT),nZeta,iComp,la,lb,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp,0)
   if (lb >= 2) then
     nHer = (la+(lb-2)+2+2)/2
-    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTmm),nZeta,iComp,la,lb-2,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp)
+    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTmm),nZeta,iComp,la,lb-2,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp,0)
   end if
   ! Generate the dipole integral tables:
   iComp = 3
   iOrdOp = 1
   nHer = (la+(lb+1)+1+2)/2
-  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTp),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp)
+  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTp),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp,0)
   if (lb >= 1) then
     nHer = (la+(lb-1)+1+2)/2
-    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTm),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp)
+    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTm),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp,0)
   end if
 
   if (iprint > 49) write(u6,*) ' AMPInt calling AMPr.'

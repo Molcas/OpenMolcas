@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
+subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 !***********************************************************************
 !                                                                      *
 !  Object: to assemble the 2nd order density matrix of a SCF wave      *
@@ -38,7 +38,6 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
-logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(in) :: DSO(nDSO), DSSO(nDSO), ExFac, CoulFac
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndI, IndIJ, IndIK, IndIL, IndJ, IndJK, IndJL, IndK, IndKL, IndL, iPAO, iSO, iSOi, &
                      jAOj, jSO, jSOj, kAOk, kSO, kSOk, lAOl, lSO, lSOl, nijkl
@@ -140,7 +139,5 @@ end do
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(Shijij)
 
 end subroutine PGet1

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+subroutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO)
 !***********************************************************************
 !                                                                      *
 ! Object: to gather elements, from the Fock or 1st order density matrix*
@@ -42,7 +42,6 @@ implicit none
 integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
 real(kind=wp), intent(out) :: SOInt(iBas*jBas,nSOInt)
 real(kind=wp), intent(in) :: PrpInt(nPrp)
-logical(kind=iwp), intent(in) :: AeqB
 integer(kind=iwp) :: i1, i2, indAO1, indAO2, Indi, Indj, ipij, iPnt, iSO1, iSO2, j1, j12, j2, jjMx, lSO, nRow
 real(kind=wp) :: Fact
 integer(kind=iwp), external :: iPntSO
@@ -112,7 +111,5 @@ call RecPrt(' In SOGthr: SOInt',' ',SOInt,iBas*jBas,nSOInt)
 #endif
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(AeqB)
 
 end subroutine SOGthr

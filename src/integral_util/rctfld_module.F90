@@ -83,7 +83,7 @@ subroutine PCM_Info_Dmp()
   integer(kind=iwp) :: i, l_cRF, l_iRF, l_bRF, l_rRF
   integer(kind=iwp), allocatable :: bRF(:), iRF(:)
   real(kind=wp), allocatable :: rRF(:)
-  character, allocatable :: cRF(:)
+  character(len=:), allocatable :: cRF
 
   l_iRF = 17+size(ISlPar)+size(NOrdInp)
   call mma_allocate(iRF,l_iRF,label='iRF')
@@ -232,9 +232,8 @@ subroutine PCM_Info_Dmp()
 
   l_cRF = len(Solvent)
   call mma_allocate(cRF,l_cRF,label='cRF')
-  do i=1,len(Solvent)
-    cRF(i) = Solvent(i:i)
-  end do
+  i = 1
+  cRF(i:i+len(Solvent)-1) = Solvent
   call Put_cArray('RFcInfo',cRF,l_cRF)
   call mma_deallocate(cRF)
 
@@ -245,7 +244,7 @@ subroutine PCM_Info_Get()
   integer(kind=iwp) :: i, l_cRF, l_iRF, l_bRF, l_rRF
   integer(kind=iwp), allocatable :: bRF(:), iRF(:)
   real(kind=wp), allocatable :: rRF(:)
-  character, allocatable :: cRF(:)
+  character(len=:), allocatable :: cRF
 
   l_iRF = 17+size(ISlPar)+size(NOrdInp)
   call mma_allocate(iRF,l_iRF,label='iRF')
@@ -396,9 +395,8 @@ subroutine PCM_Info_Get()
   l_cRF = len(Solvent)
   call mma_allocate(cRF,l_cRF,label='cRF')
   call Get_cArray('RFcInfo',cRF,l_cRF)
-  do i=1,len(Solvent)
-    Solvent(i:i) = cRF(i)
-  end do
+  i = 1
+  Solvent = cRF(i:i+len(Solvent)-1)
   call mma_deallocate(cRF)
 
 end subroutine PCM_Info_Get

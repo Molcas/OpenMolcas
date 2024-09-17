@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label,kOper,rHrmt)
+subroutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO,rHrmt)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
@@ -25,10 +25,9 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO, nComp, kOper(nComp)
+integer(kind=iwp), intent(in) :: iBas, jBas, nSOInt, nPrp, lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
 real(kind=wp) , intent(in):: SOInt(iBas*jBas,nSOInt), rHrmt
 real(kind=wp) , intent(inout):: PrpInt(nPrp)
-character(len=8) , intent(in):: Label
 integer(kind=iwp) :: i1, i2, indAO1, indAO2, Indi, Indj, ip, iPnt, iSO1, iSO2, j1, j12, j2, jBsMax, jjMx, lSO, nRow
 integer(kind=iwp), external :: iPntSO
 
@@ -103,10 +102,5 @@ do j1=0,nIrrep-1
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(kOper)
-  call Unused_character(Label)
-end if
 
 end subroutine SOSctt

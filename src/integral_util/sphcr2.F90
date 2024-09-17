@@ -38,6 +38,10 @@ real(kind=wp), intent(out) :: Scrt(nScrt)
 real(kind=wp), intent(inout) :: Wout(ijkl*ncd*mab)
 logical(kind=iwp), intent(in) :: Tr1, Pr1, Tr2, Pr2
 
+#include "macros.fh"
+unused_var(Pr1)
+unused_var(Pr2)
+
 !call RecPrt(' In SphCr2: P(AB|cd) ',' ',Win,ncd*ijkl,iSph*jSph)
 if (Tr1 .and. Tr2) then
   !call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)
@@ -83,10 +87,5 @@ end if
 !call RecPrt(' In SphCr2: P(ab|cd)',' ',Wout,ijkl,ncd*mab)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_logical(Pr1)
-  call Unused_logical(Pr2)
-end if
 
 end subroutine SphCr2

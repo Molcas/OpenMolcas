@@ -60,7 +60,7 @@
       Real*8, Dimension(:,:), Pointer:: pTwoHam
       Real*8, Allocatable :: tVxc(:)
       Real*8, External :: DDot_
-      Real*8 Dummy(1),Dumm0(1),Dumm1(1)
+      Real*8 Dummy(1)
       Real*8, Allocatable:: Save(:,:)
 #include "SysDef.fh"
 !
@@ -116,13 +116,13 @@
          ltmp2=iter.ne.1
          If (nD==1) Then
             Call DrvXV(OneHam,TwoHam(1,1,iPsLst),Dens(1,1,iPsLst),PotNuc,nBT,ltmp1,ltmp2,NonEq,    &
-                        lRF,KSDFT,ExFac,iCharge,iSpin,Dumm0,Dumm1,iDumm,'SCF ',Do_DFT)
+                        lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
          Else
             Call mma_allocate(D,nBT,Label='D')
             call dcopy_(nBT,Dens(1,1,iPsLst),1,D,1)
             Call DaXpY_(nBT,One,Dens(1,2,iPsLst),1,D,1)
             Call DrvXV(OneHam,TwoHam(1,1,iPsLst),D,PotNuc,nBT,ltmp1,ltmp2,NonEq,       &
-                       lRF,KSDFT,ExFac,iCharge,iSpin,Dumm0,Dumm1,iDumm,'SCF ',Do_DFT)
+                       lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
             Call mma_deallocate(D)
             call dcopy_(nBT,TwoHam(1,1,iPsLst),1,TwoHam(1,2,iPsLst),1)
             If (MxConstr.gt.0 .and. klockan.eq.1) Then

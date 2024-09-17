@@ -42,8 +42,8 @@ integer(kind=iwp), intent(in) :: ncmp, ngrid, iaddpot
 real(kind=wp), intent(in) :: CCoor(3,ngrid)
 real(kind=wp), intent(_OUT_) :: opnuc(*)
 real(kind=wp), intent(inout) :: ptchrg(*)
-integer(kind=iwp) :: i, iIrrep, iopadr(1), jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nDiff, nOrdOp, nSym, ntdg
-real(kind=wp) :: dummy(1), rHrmt
+integer(kind=iwp) :: i, iIrrep, jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nDiff, nOrdOp, nSym, ntdg
+real(kind=wp) :: rHrmt
 logical(kind=iwp) :: Do_ESPF
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ip(:), kOper(:), lOper(:)
@@ -115,7 +115,7 @@ if (iaddpot < 0) then
 else
   lOper(1) = 2**nirrep-1
   kOper(1) = 0
-  call OneEl(PotInt,NAMem,Label,ip,lOper,ncmp,CCoor,nOrdOp,Nuc,rHrmt,kOper,dummy,1,opnuc,iopadr,1,1,ptchrg,ngrid,iaddpot)
+  call OneEl(PotInt,NAMem,Label,ip,lOper,ncmp,CCoor,nOrdOp,Nuc,rHrmt,kOper,ptchrg,ngrid,iaddpot)
   if ((iaddpot == 0) .and. (.not. Do_ESPF)) opnuc(1) = Nuc(1)
 end if
 call mma_deallocate(ip)

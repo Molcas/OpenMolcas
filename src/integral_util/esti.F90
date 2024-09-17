@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-function EstI(Zeta,rKapAB,nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,xab,nab,Scrt,nScrt,IndZ)
+function EstI(nAlpha,nBeta,Coeff1,niBas,Coeff2,njBas,xab,Scrt,nScrt,IndZ)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
@@ -26,8 +26,8 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp) :: EstI
-integer(kind=iwp), intent(in) :: nAlpha, nBeta, niBas, njBas, nab, nScrt, IndZ(nAlpha*nBeta+1)
-real(kind=wp), intent(in) :: Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta), Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas), xab(nAlpha*nBeta)
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, niBas, njBas, nScrt, IndZ(nAlpha*nBeta+1)
+real(kind=wp), intent(in) :: Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas), xab(nAlpha*nBeta)
 real(kind=wp), intent(out) :: Scrt(nScrt)
 integer(kind=iwp) :: iAlpha, iBas, iBeta, iDelta, iEta, iGamma, iHigh, ijBas, iZeta, jBas, mZeta
 real(kind=wp) :: A_Int, rab, rcd
@@ -63,11 +63,5 @@ iHigh = iDAMax_(niBas*njBas,Scrt,1)
 EstI = sqrt(Scrt(iHigh))
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(rKapAB)
-  call Unused_integer(nab)
-end if
 
 end function EstI

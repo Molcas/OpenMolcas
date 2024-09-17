@@ -51,6 +51,15 @@ nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
+#include "macros.fh"
+unused_var(Alpha)
+unused_var(Beta)
+unused_var(nHer)
+unused_var(CoorO)
+unused_var(nOrdOp)
+unused_var(PtChrg)
+unused_var(iAddPot)
+
 rFinal(:,:,:,:) = Zero
 
 iAnga(1) = la
@@ -137,17 +146,5 @@ do iTile=1,nTiles
 
   end do
 end do
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nHer)
-  call Unused_real_array(CoorO)
-  call Unused_integer(nOrdOp)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
-#endif
 
 end subroutine PCMInt

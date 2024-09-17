@@ -22,7 +22,6 @@
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
       Integer iComp, idum(1)
-      Real*8  rdum(1)
       Real*8, Allocatable:: D1ao(:), Nuc(:)
       Real*8, Allocatable:: Temp1(:), Temp2(:), Temp3(:)
       Real*8, Allocatable:: HTmp(:), GTmp(:)
@@ -106,7 +105,7 @@ cnf
 *
 *------ Don't care about the last arguments: no (CAS-)DFT here I guess)
 *
-     &              'SCF',ExFac,iCharge,iSpin,rdum,rdum,0,'1234',Do_DFT)
+     &              'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
          Call Daxpy_(leng,One,Htmp,1,Temp1,1)
 *
 *------ Hum, where the hell is FI (Fock Inactive) ???

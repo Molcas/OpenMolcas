@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,D1I,D1A,nD1,DFTFOCK,Do_DFT)
+subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
 
 use OFembed, only: Do_OFemb, OFE_KSDFT
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nh1, iSpin, nD1
+integer(kind=iwp), intent(in) :: nh1, iSpin
 real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc, ExFac
-real(kind=wp), intent(in) :: D(nh1,2), D1I(nD1), D1A(nD1)
+real(kind=wp), intent(in) :: D(nh1,2)
 integer(kind=iwp), intent(inout) :: iCharge
 logical(kind=iwp), intent(in) :: First, Dff, NonEq, lRF, Do_DFT
 character(len=*), intent(in) :: KSDFT
@@ -110,10 +110,5 @@ if (EFP_On()) call DrvEFP(First)
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(D1I)
-  call Unused_real_array(D1A)
-end if
 
 end subroutine DrvXV

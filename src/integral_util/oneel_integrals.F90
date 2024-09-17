@@ -31,7 +31,7 @@ integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp)
 integer(kind=iwp), intent(out) :: ip(nComp)
 real(kind=wp), intent(in) :: CCoor(3,nComp), rHrmt
 real(kind=wp), allocatable, intent(out) :: Integrals(:)
-integer(kind=iwp) :: iComp, idum(1), iIrrep, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
+integer(kind=iwp) :: iComp, iIrrep, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
 real(kind=wp) :: dum(1)
 integer(kind=iwp), external :: n2Tri
 
@@ -94,8 +94,7 @@ Integrals(:) = Zero
 !                                                                      *
 ! Compute all SO integrals for all components of the operator.
 
-call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,dum,dum,1,idum,0,0,iStabO,nStabO,nIC,Dum,1,0, &
-                 Integrals,LenTot)
+call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,iStabO,nStabO,nIC,Dum,1,0,Integrals,LenTot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
