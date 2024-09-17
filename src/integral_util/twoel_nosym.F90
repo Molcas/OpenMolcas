@@ -13,10 +13,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TwoEl_NoSym(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoInts,iStabs,nAlpha,iPrInc,nBeta,jPrInc,nGamma, &
-                       kPrInc,nDelta,lPrInc,nData1,nData2,k2Data1,k2Data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik, &
-                       mDCRik,Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
-                       FckTmp,nFT,nZeta,nEta,SOInt,nSOInt,Wrk,nWork2,Shijij,Aux,nAux)
+subroutine TwoEl_NoSym( &
+#                      define _CALLING_
+#                      include "twoel_interface.fh"
+                      )
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -42,18 +42,7 @@ use Constants, only: One, Four, Eight
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
-integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, &
-                                 iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, mDij, mDCRij, mDkl, &
-                                 mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, &
-                                 nZeta, nEta, nSOInt, nWork2, nAux
-real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
-                             Djl(mDjl,mDCRjl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
-                             Coeff4(nDelta,lBasl), FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Aux(nAux)
-logical(kind=iwp), intent(out) :: NoInts, IJeqKL
-type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
-integer(kind=iwp), intent(out) :: kOp(4)
-real(kind=wp), intent(out) :: Wrk(nWork2)
-logical(kind=iwp), intent(in) :: Shijij
+#include "twoel_interface.fh"
 #include "twoswi.fh"
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &

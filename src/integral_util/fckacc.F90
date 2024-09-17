@@ -11,6 +11,9 @@
 ! Copyright (C) 1993,1998, Roland Lindh                                *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 subroutine FckAcc(iAng,iCmp_,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas,kBas,lBas,Dij,ij1, &
                   ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3,jk4,Djl,jl1,jl2,jl3,jl4, &
                   FT,nFT,DoCoul,DoExch,ExFac)
@@ -651,3 +654,11 @@ subroutine Fck7(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl,Dik,Fik,Cik,Djl,Fjl,Cjl,Dil,Fil,Ci
 end subroutine Fck7
 
 end subroutine FckAcc
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(FckAcc)
+
+#endif

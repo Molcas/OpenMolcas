@@ -25,6 +25,7 @@ use Sizes_of_Seward, only:
 use Symmetry_Info, only:
 use stdalloc, only:
 use Constants, only:
+use k2_structure, only: k2_type
 use Definitions, only: wp, iwp
 
 private
@@ -62,18 +63,27 @@ abstract interface
     import :: wp, iwp
 #   include "prm_interface.fh"
   end subroutine prm_kernel
+
+  subroutine twoel_kernel( &
+#                         define _CALLING_
+#                         include "twoel_interface.fh"
+                         )
+    import :: wp, iwp, k2_type
+#   include "twoel_interface.fh"
+  end subroutine twoel_kernel
 end interface
 
 ! Intel 13 compiler only works with "public" here
 procedure(int_wrout), public, pointer :: Int_postprocess => null()
 
-public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Integrals, prm_kernel
+public :: DeDe_SCF, FckAcc, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Integrals, prm_kernel, twoel_kernel
 
 contains
 
 ! Subroutines that need an explicit interface (target or allocatable arguments)
 #define _IN_MODULE_
 #include "dede_scf.F90"
+#include "fckacc.F90"
 #include "oneel_ij.F90"
 #include "oneel_integrals.F90"
 

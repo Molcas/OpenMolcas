@@ -13,10 +13,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TwoEl_Sym(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoInts,iStabs,nAlpha,iPrInc,nBeta,jPrInc,nGamma, &
-                     kPrInc,nDelta,lPrInc,nData1,nData2,k2Data1,k2Data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik, &
-                     mDCRik,Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
-                     FckTmp,nFT,nZeta,nEta,SOInt,nSOInt,Wrk,nWork2,Shijij,Aux,nAux)
+subroutine TwoEl_Sym( &
+#                    define _CALLING_
+#                    include "twoel_interface.fh"
+                    )
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -37,6 +37,7 @@ use Phase_Info, only: iPhase
 use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
+use Integral_interfaces, only: FckAcc
 use k2_arrays, only: pFq
 use k2_structure, only: k2_type
 use Breit, only: nComp, nOrdOp
@@ -47,17 +48,7 @@ use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
-integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, &
-                                 iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, mDij, mDCRij, mDkl, &
-                                 mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, &
-                                 nZeta, nEta, nSOInt, nWork2, nAux
-real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
-                             Djl(mDjl,mDCRjl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
-logical(kind=iwp), intent(out) :: NoInts, IJeqKL
-type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
-integer(kind=iwp), intent(out) :: kOp(4)
-real(kind=wp), intent(out) :: FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Wrk(nWork2), Aux(nAux)
-logical(kind=iwp), intent(in) :: Shijij
+#include "twoel_interface.fh"
 #include "twoswi.fh"
 integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, ij4, ik1, ik2, ik3, ik4, il1, il2, &
                      il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, ISMAng, iStabM(0:7), iStabN(0:7), iStb, &
@@ -75,23 +66,6 @@ integer(kind=iwp) :: i
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
-interface
-  subroutine FckAcc(iAng,iCmp_,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas,kBas,lBas,Dij,ij1, &
-                    ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3,jk4,Djl,jl1,jl2,jl3, &
-                    jl4,FT,nFT,DoCoul,DoExch,ExFac)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iAng(4), iCmp_(4), iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
-                                     jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, &
-                                     il4, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nFT
-    logical(kind=iwp), intent(in) :: Shijij, DoCoul, DoExch
-    real(kind=wp), intent(in) :: AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)), ExFac
-    real(kind=wp), intent(inout) :: TwoHam(nDens)
-    real(kind=wp), target, intent(inout) :: Scrt(nScrt)
-    real(kind=wp), target, intent(in) :: Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), Dik(ik1*ik2+1,ik3,ik4), &
-                                         Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
-    real(kind=wp), target, intent(out) :: FT(nFT)
-  end subroutine FckAcc
-end interface
 ! Statement function
 integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1

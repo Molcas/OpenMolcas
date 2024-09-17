@@ -48,7 +48,7 @@ use Basis_Info, only: Shells
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals, Map4
-use Integral_interfaces, only: Int_PostProcess
+use Integral_interfaces, only: Int_PostProcess, twoel_kernel
 #ifdef _DEBUGBREIT_
 use Breit, only: nOrdOp
 use UnixInfo, only: SuperName
@@ -71,27 +71,8 @@ real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: IJeqKL, NoInts, Shijij
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_, MemSO2
-abstract interface
-  subroutine TwoEl(iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoInts,iStabs,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc, &
-                   nDelta,lPrInc,nData1,nData2,k2data1,k2data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,Dil, &
-                   mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,FckTmp,nFT, &
-                   nZeta,nEta,SOInt,nSOInt,Wrk,nWork2,Shijij,Aux,nAux)
-    use k2_Structure, only: k2_type
-    import :: wp, iwp
-    implicit none
-    integer(kind=iwp) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, iPrInc, &
-                         nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, kOp(4), mDij, mDCRij, mDkl, mDCRkl, mDik, &
-                         mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, nZeta, nEta, nSOInt, &
-                         nWork2, nAux
-    real(kind=wp) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
-                     Djl(mDjl,mDCRjl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
-                     FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Wrk(nWork2), Aux(nAux)
-    logical(kind=iwp) :: NoInts, IJeqKL, Shijij
-    type(k2_type) ::k2data1(nData1), k2data2(nData2)
-  end subroutine TwoEl
-end interface
-procedure(Twoel) :: TwoEl_NoSym, TwoEl_Sym
-procedure(Twoel), pointer :: Do_TwoEl
+procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
+procedure(twoel_kernel), pointer :: Do_TwoEl
 ! Statement function
 integer(kind=iwp) :: i, j, iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
