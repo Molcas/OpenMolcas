@@ -47,12 +47,12 @@ implicit none
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
                      ncd, nEta_Tot, nijkl, nInts, nZeta_Tot
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, EQ, IeqK, JeqL, &
-                     lEmpty, NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
+                     NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 real(kind=wp) :: CoorAC(3,2), QInd(2)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
-external :: EQ, lEmpty
+logical(kind=iwp), external :: EQ, lEmpty
 ! Statement function
 integer(kind=iwp) :: ixyz, nabSz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1

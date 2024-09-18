@@ -32,6 +32,7 @@ subroutine SchInt(CoorM,iAnga,mZeta,Zeta,ZInv,rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2
 !***********************************************************************
 
 use Real_Spherical, only: ipSph, RSph
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -45,8 +46,11 @@ integer(kind=iwp), intent(out) :: i_Int
 integer(kind=iwp) :: iW3, la, lb, mabcd, mabMax, mabMin, mcdMax, mcdMin, ne, nT
 real(kind=wp) :: CoorAC(3,2)
 logical(kind=iwp), parameter :: NoSpecial = .true.
+procedure(cff2d_kernel) :: Cff2Dq
+procedure(modu2_kernel) :: ModU2
+procedure(rys2d_kernel) :: xRys2D
+procedure(tval_kernel) :: TERISq
 logical(kind=iwp), external :: EQ
-external :: Cff2Dq, ModU2, TERISq, xRys2D
 ! Statement function to compute canonical index
 integer(kind=iwp) :: ixyz, i, nabSz, nElem
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1

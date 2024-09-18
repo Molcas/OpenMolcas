@@ -33,12 +33,13 @@ use Grid_On_Disk, only: Grid_Status, iDisk_Grid, Lu_Grid, Old_Functional_Type, R
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Functional_Type, GGA_Type, Grad_I, LDA_Type, &
                    meta_GGA_type1, meta_GGA_type2, mRad, NASHT, ndc, nOrbt, nPot1, NQ_Direct, Off, On, Packing, T_Y, Tau_I
 use Index_Functions, only: nTri_Elem1
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: mGrid, nlist_s, list_s(2,nlist_s), List_Exp(nlist_s), List_Bas(2,nlist_s), nIndex, Indx(nIndex), &
                                  nFckDim, nFckInt, mAO, nD, nP2_ontop, nMOs, nGrad, ndRho_dR, nGrad_Eff, iNQ, nTmpPUVX
 real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), TabMO(mAO,mGrid,nMOs), Grad(nGrad), EG_OT(nTmpPUVX), &

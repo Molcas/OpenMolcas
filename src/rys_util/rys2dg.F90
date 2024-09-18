@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Rys2Dg(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,IfGrad,IndGrd,Coora,Alpha,Beta,Gmma,Delta,nZeta,nEta,Scrtch,Temp,Indx,ExpX, &
-                  ExpY,mZeta,mEta)
+subroutine Rys2Dg(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,IfGrad,IndGrd,Coora,Alpha,Beta,Gmma,Delta,nZeta,nEta,Scrtch,Temp,Indx,mZeta, &
+                  mEta)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradients of the 2D-integrals.                *
@@ -35,7 +35,6 @@ real(kind=wp), intent(in) :: xyz2D0(nRys*nT,0:la+1,0:lb+1,0:lc+1,0:ld+1,3), Coor
 real(kind=wp), intent(out) :: xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), Scrtch(nRys*nT), Temp(nT)
 logical(kind=iwp), intent(inout) :: IfGrad(3,4)
 integer(kind=iwp), intent(inout) :: IndGrd(3,4), Indx(3,4)
-external :: ExpX, ExpY
 integer(kind=iwp) :: i1, i2, ia, ib, ic, iCar, iCent, id, Ind1(3), Ind2(3), jCent, nVec, nx, ny, nz
 real(kind=wp) :: Fact
 logical(kind=iwp), external :: EQ
@@ -56,7 +55,7 @@ Indx(:,:) = 0
 ! Differentiate with respect to the first center
 
 if (IfGrad(1,1) .or. IfGrad(2,1) .or. IfGrad(3,1)) then
-  call ExpX(Temp,mZeta,mEta,Alpha,One)
+  call Exp_1(Temp,mZeta,mEta,Alpha,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
   !call RecPrt('Expanded exponents (alpha)',' ',Scrtch,nT,nRys)
 end if
@@ -137,7 +136,7 @@ end if
 ! Differentiate with respect to the second center
 
 if (IfGrad(1,2) .or. IfGrad(2,2) .or. IfGrad(3,2)) then
-  call ExpX(Temp,mZeta,mEta,Beta,One)
+  call Exp_1(Temp,mZeta,mEta,Beta,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
   !call RecPrt('Expanded exponents (beta) ',' ',Scrtch,nT,nRys)
 end if
@@ -218,7 +217,7 @@ end if
 ! Differentiate with respect to the third center
 
 if (IfGrad(1,3) .or. IfGrad(2,3) .or. IfGrad(3,3)) then
-  call ExpY(Temp,mZeta,mEta,Gmma,One)
+  call Exp_2(Temp,mZeta,mEta,Gmma,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
   !call RecPrt('Expanded exponents (Gamma)',' ',Scrtch,nT,nRys)
 end if
@@ -299,7 +298,7 @@ end if
 ! Differentiate with respect to the fourth center
 
 if (IfGrad(1,4) .or. IfGrad(2,4) .or. IfGrad(3,4)) then
-  call ExpY(Temp,mZeta,mEta,Delta,One)
+  call Exp_2(Temp,mZeta,mEta,Delta,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
   !call RecPrt('Expanded exponents (delta)',' ',Scrtch,nT,nRys)
 end if

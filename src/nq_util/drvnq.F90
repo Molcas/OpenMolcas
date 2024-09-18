@@ -33,6 +33,7 @@ use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, me
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -42,7 +43,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: nFckDim, nFckInt, nD, nGrad
 real(kind=wp), intent(inout) :: FckInt(nFckInt,nFckDim), Funct, Grad(nGrad)
 real(kind=wp), intent(in) :: Density(nFckInt,nD)

@@ -24,6 +24,7 @@ subroutine EFPrm(Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,Array,nArr,Cco
 ! Modified for explicit code, R. Lindh, February '95.                  *
 !***********************************************************************
 
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -38,8 +39,11 @@ real(kind=wp), intent(inout) :: Array(nZeta*nArr)
 integer(kind=iwp) :: iAnga(4), ip1, ip2, ip3, ipIn, kab, lab, labcd, lcd, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
 real(kind=wp) :: CoorAC(3,2), Coori(3,4)
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 logical(kind=iwp), external :: EQ
-external :: TNAI, Fake, XCff2D, XRys2D
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iElem, jElem
 character(len=80) :: Label

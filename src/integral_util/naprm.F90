@@ -26,6 +26,7 @@ subroutine NAPrm( &
 !***********************************************************************
 
 use Basis_Info, only: DBSC, Gaussian_Type, mGaussian_Type, Nuclear_Model, Point_Charge
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp
@@ -36,10 +37,13 @@ integer(kind=iwp) :: iAnga(4), ipIn, ipOff, lc, ld, mabMax, mabMin, mArr, mcdMax
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Q_Nuc, rKappCD
 logical(kind=iwp) :: NoSpecial
 real(kind=wp), allocatable :: rKappa_mod(:)
-logical(kind=iwp), external :: EQ
 ! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D
 ! Used for finite nuclei: TERI, ModU2, vCff2D, vRys2D
-external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
+procedure(cff2d_kernel) :: vCff2D, XCff2D
+procedure(modu2_kernel) :: Fake, ModU2
+procedure(rys2d_kernel) :: vRys2D, XRys2D
+procedure(tval_kernel) :: TERI, TNAI
+logical(kind=iwp), external :: EQ
 ! Statement function for Cartesian index
 integer(kind=iwp) :: ixyz, nElem, nabSz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

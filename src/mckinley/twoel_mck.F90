@@ -85,6 +85,7 @@ use Center_Info, only: dc
 use Phase_Info, only: iPhase
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -110,9 +111,11 @@ integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCR
                      nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: ModU2
+procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
-external :: TERI1, ModU2, Cff2D
 
 !                                                                      *
 !***********************************************************************

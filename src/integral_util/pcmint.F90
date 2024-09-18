@@ -28,6 +28,7 @@ subroutine PCMInt( &
 
 use PCM_arrays, only: C_Tessera, nTiles, q_Tessera
 use Index_Functions, only: nTri_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -41,8 +42,11 @@ integer(kind=iwp) :: iAnga(4), iDCRT(0:7), ipIn, iTile, jStab_(0:0), lDCRT, Lmbd
                      nStab_, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, qTessera, TC(3)
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 logical(kind=iwp), external :: EQ
-external :: Fake, TNAI, XCff2D, XRys2D
 ! Statement function for Cartesian index
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nElem, ii

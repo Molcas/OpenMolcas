@@ -95,6 +95,7 @@ set (sources
      cho_inpmod.F90
      cho_intchk_id_of.F90
      cho_intchk_reg.F90
+     cho_interfaces.F90
      cho_invpck.F90
      cho_iodiag.F90
      cho_irange.F90
@@ -230,6 +231,9 @@ set (sources
      cho_setshp2rs_2.F90
      cho_setvecinf.F90
      cho_simri_z1cdia.F90
+     cho_sosmp2_col.F90
+     cho_sosmp2_decchk.F90
+     cho_sosmp2_decdrv.F90
      cho_stat.F90
      cho_stat_parentdiag.F90
      cho_subscr_dia.F90

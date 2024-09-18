@@ -11,7 +11,10 @@
 ! Copyright (C) 2004, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine ChoMP2_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
+subroutine ChoMP2_Vec( &
+#                     define _CALLING_
+#                     include "cdvec_interface.fh"
+                     )
 !
 ! Thomas Bondo Pedersen, Dec. 2004.
 !
@@ -21,8 +24,7 @@ use ChoMP2, only: lUnit_F, NowSym
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iVec1, nVec, lBuf, nDim, iOpt
-real(kind=wp), intent(inout) :: Buf(lBuf)
+#include "cdvec_interface.fh"
 integer(kind=iwp) :: iAdr, iJob, iSym, lTot
 logical(kind=iwp) :: DoClose
 character(len=*), parameter :: SecNam = 'ChoMP2_Vec'

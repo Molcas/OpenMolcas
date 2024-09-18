@@ -38,6 +38,7 @@
 subroutine CD_Tester(irc,PDM,n,Verbose)
 
 use Index_Functions, only: nTri_Elem
+use Cho_interfaces, only: cdcol_kernel, cdvec_kernel
 use CD_Tester_mod, only: Mat, Vec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
@@ -54,7 +55,8 @@ logical(kind=iwp) :: Restart
 real(kind=wp), allocatable :: Buf(:), Diag(:), ES(:), Qual(:)
 integer(kind=iwp), allocatable :: iQual(:), Pivot(:)
 character(len=*), parameter :: SecNam = 'CD_Tester'
-external :: CD_Tester_Col, CD_Tester_Vec
+procedure(cdcol_kernel) :: CD_Tester_Col
+procedure(cdvec_kernel) :: CD_Tester_Vec
 
 irc = 0
 if (n < 1) then

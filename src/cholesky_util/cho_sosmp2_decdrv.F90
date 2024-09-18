@@ -21,6 +21,7 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 !          decomposition completes.
 
 use Cholesky, only: lBuf, nSym, NumCho, Span
+use Cho_interfaces, only: cdcol_kernel, cdvec_kernel
 use ChoMP2, only: ChkDecoMP2, Incore, MxQual_Def, MxQualMP2, nMP2Vec, NowSym, nT1am, lUnit_F, OldVec, SpanMP2, ThrMP2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -36,7 +37,8 @@ integer(kind=iwp), allocatable :: iPivot(:), iQual(:)
 real(kind=wp), allocatable :: Bin(:), Buf(:), Qual(:)
 logical(kind=iwp), parameter :: Restart = .false.
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecDrv'
-external :: Cho_SOSmp2_Col, ChoMP2_Vec
+procedure(cdcol_kernel) :: Cho_SOSmp2_Col
+procedure(cdvec_kernel) :: ChoMP2_Vec
 
 ! Initializations.
 ! ----------------

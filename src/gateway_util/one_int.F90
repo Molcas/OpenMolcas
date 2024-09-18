@@ -14,12 +14,13 @@ subroutine One_Int(Kernel,Array,nArray,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2
 
 use Basis_Info, only: Shells
 use Real_Spherical, only: ipSph, RSph
+use Integral_interfaces, only: prm_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-external :: Kernel
+procedure(prm_kernel) :: Kernel
 integer(kind=iwp), intent(in) :: nArray, iAng, iComp, nOrdOp, nScr1, nScr2, naa, nSAR, iShll_a, nPrim_a, nCntrc_a, iCmp_a, &
                                  iShll_r, nPrim_r, nCntrc_r, iCmp_r, iCnttp
 real(kind=wp), intent(out) :: Array(nArray), Scr1(nScr1), Scr2(nScr2), SAR(nSAR)

@@ -41,6 +41,7 @@ use Index_Functions, only: nTri_Elem1
 use k2_structure, only: k2_type
 use k2_arrays, only: BraKet
 use Disp, only: CutGrd, l2DI
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 use Disp, only: ChDisp
@@ -66,10 +67,12 @@ integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7),
                      nW2, nW4, nWrk3, nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
+procedure(cff2d_kernel) :: vCff2D
+procedure(modu2_kernel) :: ModU2
+procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
-external :: ModU2, TERI1, vCff2D
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iPrint, iRout
 #include "print.fh"

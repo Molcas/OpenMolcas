@@ -11,7 +11,10 @@
 ! Copyright (C) 2007, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
+subroutine Cho_SOSmp2_Col( &
+#                         define _CALLING_
+#                         include "cdcol_interface.fh"
+                         )
 ! Francesco Aquilante, May 2007.
 !
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
@@ -23,9 +26,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), l_Buf
-real(kind=wp), intent(inout) :: Col(nDim,nCol)
-real(kind=wp), intent(out) :: Buf(l_Buf)
+#include "cdcol_interface.fh"
 integer(kind=iwp) :: ia, iAdr, iBat, iOpt, irc, iSym, iVec1, jCol, lScr, lTot, lWrk, lWsav, nBat, NumV, nVec
 real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose

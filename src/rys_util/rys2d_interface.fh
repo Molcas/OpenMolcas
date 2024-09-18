@@ -7,30 +7,18 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine CD_Tester_Col( &
-#                        define _CALLING_
-#                        include "cdcol_interface.fh"
-                        )
+#ifdef _CALLING_
 
-use CD_Tester_mod, only: Mat
-use Definitions, only: wp, iwp
+xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01 &
 
-implicit none
-#include "cdcol_interface.fh"
-integer(kind=iwp) :: i, kOff
+#else
 
-#include "macros.fh"
-unused_var(Buf)
+integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
+real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
+real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), B01(nArg*lRys,3)
 
-do i=1,nCol
-  kOff = nDim*(iCol(i)-1)
-  Col(:,i) = Mat(kOff+1:kOff+nDim)
-end do
+#endif
 
-return
-
-end subroutine CD_Tester_Col
+#undef _CALLING_

@@ -37,6 +37,7 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -60,9 +61,12 @@ integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iS
 real(kind=wp) :: abMax, abMaxD, Coora(3,4), CoorAC(3,2), Coori(3,4), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, &
                  Tst, ZtMax, ZtMaxD
 logical(kind=iwp) :: AeqB, NoSpecial
+procedure(cff2d_kernel) :: Cff2DS
+procedure(modu2_kernel) :: ModU2
+procedure(rys2d_kernel) :: Rys2D
+procedure(tval_kernel) :: TERIS
 logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
-external :: Cff2DS, ModU2, Rys2D, TERIS
 ! Statement function to compute canonical index
 integer(kind=iwp) :: nabSz, ixyz
 nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1

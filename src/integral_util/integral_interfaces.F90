@@ -23,11 +23,13 @@ use Center_Info, only:
 use Gateway_Info, only:
 use Sizes_of_Seward, only:
 use Symmetry_Info, only:
+use SOAO_Info, only:
 use stdalloc, only:
 use Constants, only:
 use k2_structure, only: k2_type
 use Definitions, only: wp, iwp
 
+implicit none
 private
 
 abstract interface

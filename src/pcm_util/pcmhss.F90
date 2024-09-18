@@ -33,6 +33,7 @@ use Index_Functions, only: nTri_Elem1
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use rctfld_module, only: nTS
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -44,8 +45,10 @@ integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIr
                      nOOp, nStb
 real(kind=wp) :: Coori(3,4), CoorAC(3,2), C(3), EInv, Eta, Fact, TC(3), q_i
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), NoLoop, Tr(0:3)
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-external :: Fake, TNAI1, XCff2D
 #include "print.fh"
 
 #include "macros.fh"

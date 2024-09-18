@@ -31,6 +31,7 @@ subroutine NAInt_GIAO( &
 use Basis_Info, only: dbsc, Gaussian_Type, nCnttp, Nuclear_Model, Point_Charge
 use Center_Info, only: dc
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp
@@ -44,9 +45,12 @@ integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, 
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappcd, TC(3)
 logical(kind=iwp) :: NoSpecial
 real(kind=wp), allocatable :: rKappa_mod(:)
+procedure(cff2d_kernel) :: vCff2D, XCff2D
+procedure(modu2_kernel) :: Fake, ModU2
+procedure(rys2d_kernel) :: vRys2D, XRys2D
+procedure(tval_kernel) :: TERI, TNAI
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-external :: Fake, MODU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)

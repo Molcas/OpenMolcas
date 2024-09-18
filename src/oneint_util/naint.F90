@@ -31,6 +31,7 @@ use DKH_Info, only: DKroll
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Symmetry_Info, only: ChOper
 use NDDO, only: oneel_NDDO
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
@@ -43,11 +44,14 @@ integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, kC
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q_Nuc, rKappcd, TC(3)
 logical(kind=iwp) :: lECP, No3Cnt, NoSpecial
 real(kind=wp), allocatable :: rKappa_mod(:)
-integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: EQ
 ! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D
 ! Used for finite nuclei: TERI, ModU2, vCff2D, vRys2D
-external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
+procedure(cff2d_kernel) :: vCff2D, XCff2D
+procedure(modu2_kernel) :: Fake, ModU2
+procedure(rys2d_kernel) :: vRys2D, XRys2D
+procedure(tval_kernel) :: TERI, TNAI
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
 unused_var(Alpha)

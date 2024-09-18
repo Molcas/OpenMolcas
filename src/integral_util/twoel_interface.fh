@@ -26,7 +26,8 @@ real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(
 logical(kind=iwp), intent(out) :: NoInts, IJeqKL
 type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
 integer(kind=iwp), intent(out) :: kOp(4)
-real(kind=wp), intent(out) :: FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Wrk(nWork2), Aux(nAux)
+real(kind=wp), intent(inout) :: FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Aux(nAux)
+real(kind=wp), intent(out) :: Wrk(nWork2)
 logical(kind=iwp), intent(in) :: Shijij
 
 #endif

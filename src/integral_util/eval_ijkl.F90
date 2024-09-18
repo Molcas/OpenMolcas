@@ -92,7 +92,7 @@ if (nIrrep == 1) then
 else
   Do_TwoEl => TwoEl_Sym
 end if
-!if (.not. associated(Int_PostProcess)) stop 124
+!if (.not. associated(Int_PostProcess)) call Abend()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

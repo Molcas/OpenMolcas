@@ -38,6 +38,7 @@ use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: ChOper
 use rctfld_module, only: nTS
 use Disp, only: IndDsp
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -48,8 +49,10 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, iIr
                      nDCRT, nDisp, nip, nRys, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-external :: Cff2D, Fake, TNAI1
 #include "print.fh"
 
 #include "macros.fh"
