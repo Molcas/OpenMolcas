@@ -2904,20 +2904,20 @@ do
         GWinput = .true.
         Kword = Get_Ln(LuRd)
         call Get_I1(1,nEFP_fragments)
-        allocate(FRAG_TYPE(nEFP_fragments))
-        allocate(ABC(3,nEFP_fragments))
+        call mma_allocate(FRAG_TYPE,nEFP_fragments,label='FRAG_TYPE')
+        call mma_allocate(ABC,3,nEFP_fragments,label='ABC')
         Kword = Get_Ln(LuRd)
         call Upcase(kWord)
         if (KWord == 'XYZABC') then
           Coor_Type = XYZABC_type
           nEFP_Coor = 6
-          allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+          call mma_allocate(EFP_COORS,nEFP_Coor,nEFP_fragments,label='EFP_COORS')
           write(u6,*) 'XYZABC option to be implemented'
           call Abend()
         else if (KWord == 'POINTS') then
           Coor_Type = POINTS_type
           nEFP_Coor = 9
-          allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+          call mma_allocate(EFP_COORS,nEFP_Coor,nEFP_fragments,label='EFP_COORS')
           do iFrag=1,nEFP_fragments
             KWord = Get_Ln(LuRd)
             FRAG_Type(iFrag) = KWord
@@ -2934,7 +2934,7 @@ do
         else if (KWord == 'ROTMAT') then
           Coor_Type = ROTMAT_type
           nEFP_Coor = 12
-          allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+          call mma_allocate(EFP_COORS,nEFP_Coor,nEFP_fragments,label='EFP_COORS')
           write(u6,*) 'ROTMAT option to be implemented'
           call Abend()
         else

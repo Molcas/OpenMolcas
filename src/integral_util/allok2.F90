@@ -29,7 +29,7 @@ use iSD_data, only: iSD
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use k2_structure, only: Allocate_k2data, IndK2, k2_Processed, k2data, ZZZ_i, ZZZ_r
+use k2_structure, only: Allocate_k2data, Allocate_k2data_in, IndK2, k2_Processed, k2data, ZZZ_i, ZZZ_r
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -93,7 +93,7 @@ end do
 
 call mma_allocate(ZZZ_r,nk2_real,Label='ZZZ_r')
 call mma_allocate(ZZZ_i,nk2_integer,Label='ZZZ_i')
-allocate(k2Data(1:nIrrep,1:ik2))
+call Allocate_k2Data(nIrrep,ik2)
 
 ! determine memory size for K2 entities
 ! for this, run dummy K2 loop...
@@ -152,7 +152,7 @@ do iS=1,nSkal
     ik2 = ik2+1
     Indk2(3,ijS) = ik2
     do iIrrep=1,nIrrep
-      call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
+      call Allocate_k2data_in(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
     end do
 
   end do

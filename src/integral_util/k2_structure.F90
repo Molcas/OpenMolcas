@@ -61,6 +61,7 @@
 
 module k2_structure
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -82,58 +83,81 @@ integer(kind=iwp), allocatable, target :: ZZZ_i(:)
 real(kind=wp), allocatable, target :: ZZZ_r(:)
 type(k2_type), allocatable, target :: k2data(:,:)
 
-public :: Allocate_k2data, Free_k2data, IndK2, k2_processed, k2_type, k2data, ZZZ_i, ZZZ_r
+public :: Allocate_k2data, Allocate_k2data_in, Free_k2data, IndK2, k2_processed, k2_type, k2data, ZZZ_i, ZZZ_r
+
+! Private extensions to mma interfaces
+
+interface cptr2loff
+  module procedure k2d_cptr2loff
+end interface
+interface mma_allocate
+  module procedure k2d_mma_allo_2D, k2d_mma_allo_2D_lim
+end interface
+interface mma_deallocate
+  module procedure k2d_mma_free_2D
+end interface
 
 contains
 
-subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
+subroutine Allocate_k2data(nIrrep,nk2)
+
+  integer(kind=iwp), intent(in) :: nIrrep, nk2
+
+  call mma_allocate(k2Data,nIrrep,nk2,label='k2Data')
+
+# include "macros.fh"
+  unused_proc(mma_allocate(k2Data,[0,0],[0,0]))
+
+end subroutine Allocate_k2data
+
+subroutine Allocate_k2data_in(k2Data_1D,nZeta,ijCmp,nHm)
 
   use Symmetry_Info, only: nIrrep
   use Definitions, only: u6
 
-  type(k2_type), target, intent(inout) :: k2data
+  type(k2_type), target, intent(inout) :: k2Data_1D
   integer(kind=iwp), intent(in) :: nZeta, ijCmp, nHm
-  integer(kind=iwp) :: iS, iE
+  integer(kind=iwp) :: iE, iS
 
-  k2Data%nZeta = nZeta
-  k2Data%nHm = nHm
-  k2Data%ijCmp = ijCmp
+  k2Data_1D%nZeta = nZeta
+  k2Data_1D%nHm = nHm
+  k2Data_1D%ijCmp = ijCmp
 
   iE = iZZZ_r
 
   iS = iE+1
   iE = iE+nZeta
-  k2Data%Zeta(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%Zeta(1:nZeta) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta
-  k2Data%Kappa(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%Kappa(1:nZeta) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta*3
-  k2Data%PCoor(1:nZeta,1:3) => ZZZ_r(iS:iE)
+  k2Data_1D%PCoor(1:nZeta,1:3) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta
-  k2Data%ZInv(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%ZInv(1:nZeta) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta
-  k2Data%ab(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%ab(1:nZeta) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta
-  k2Data%abCon(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%abCon(1:nZeta) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta
-  k2Data%Alpha(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%Alpha(1:nZeta) => ZZZ_r(iS:iE)
   iS = 1+iE
   iE = iE+nZeta
-  k2Data%Beta(1:nZeta) => ZZZ_r(iS:iE)
+  k2Data_1D%Beta(1:nZeta) => ZZZ_r(iS:iE)
   if (nHm /= 0) then
     iS = 1+iE
     iE = iE+nHm*nIrrep
-    k2Data%HrrMtrx(1:nHm,1:nIrrep) => ZZZ_r(iS:iE)
+    k2Data_1D%HrrMtrx(1:nHm,1:nIrrep) => ZZZ_r(iS:iE)
   end if
   if (ijCmp /= 0) then
     iS = 1+iE
     iE = iE+nZeta*ijCmp*2
-    k2Data%abG(1:nZeta*ijCmp,1:2) => ZZZ_r(iS:iE)
+    k2Data_1D%abG(1:nZeta*ijCmp,1:2) => ZZZ_r(iS:iE)
   end if
   iZZZ_r = iE
   if (iZZZ_r > size(ZZZ_r)) then
@@ -145,18 +169,16 @@ subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
 
   iS = iE+1
   iE = iE+nZeta+1
-  k2Data%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
+  k2Data_1D%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
   iZZZ_i = iE
   if (iZZZ_i > size(ZZZ_i)) then
     write(u6,*) 'iZZZ_i out for range'
     call Abend()
   end if
 
-end subroutine Allocate_k2data
+end subroutine Allocate_k2data_in
 
 subroutine Free_k2data()
-
-  use stdalloc, only: mma_deallocate
 
   integer(kind=iwp) :: i, iIrrep
 
@@ -171,28 +193,37 @@ subroutine Free_k2data()
   call mma_deallocate(ZZZ_i)
   iZZZ_i = 0
 
-  deallocate(k2data)
+  call mma_deallocate(k2data)
 
 end subroutine Free_k2data
 
-subroutine Free_k2data_Internal(k2data_1D)
+subroutine Free_k2data_Internal(k2Data_1D)
 
-  type(k2_type), intent(inout) :: k2data_1D
-
-  k2Data%nZeta = 0
-  k2Data%nHm = 0
-  k2Data%ijCmp = 0
-
-  k2Data%EstI = Zero
-  k2Data%ZtMax = Zero
-  k2Data%ZtMaxD = Zero
-  k2Data%ZetaM = Zero
-  k2Data%abMax = Zero
-  k2Data%abMaxD = Zero
+  type(k2_type), intent(inout) :: k2Data_1D
 
   nullify(k2Data_1D%Zeta,k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abG,k2Data_1D%abCon, &
           k2Data_1D%Alpha,k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%IndZ)
 
 end subroutine Free_k2data_Internal
+
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see src/mma_util/stdalloc.f)
+
+! Define k2d_cptr2loff, k2d_mma_allo_2D, k2d_mma_allo_2D_lim, k2d_mma_free_2D
+! (using _NO_GARBLE_ because all members are initialized)
+#define _TYPE_ type(k2_type)
+#  define _NO_GARBLE_
+#  define _FUNC_NAME_ k2d_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ k2d_mma
+#  define _DIMENSIONS_ 2
+#  define _DEF_LABEL_ 'k2_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#  undef _NO_GARBLE_
+#undef _TYPE_
 
 end module k2_structure

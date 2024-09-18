@@ -138,9 +138,9 @@ C     write(6,*) "iMethod:",iMethod,iCASSCF
 !           write(6,*)"Set ISSM eq 1 ",ISSM
 
            if(doDMRG)then !yma
-             ! mma_allocate and mma_deallocate
-             allocate(index_SD(ndets_RGLR))
-             allocate(vector_cidmrg(ndets_RGLR))
+             call mma_allocate(index_SD,ndets_RGLR,label='index_SD')
+             call mma_allocate(vector_cidmrg,ndets_RGLR,
+     &                         label='vector_cidmrg')
              call ci_reconstruct(i,ndets_RGLR,vector_cidmrg,index_SD)
              do ii=1,ndets_RGLR
                if(abs(vector_cidmrg(ii)).lt.0.0d0)then
@@ -149,9 +149,8 @@ C     write(6,*) "iMethod:",iMethod,iCASSCF
              end do
              call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,
      &                     index_SD,ISSM,1,IPRDIA)
-             ! mma_allocate and mma_deallocate
-             deallocate(index_SD)
-             deallocate(vector_cidmrg)
+             call mma_deallocate(index_SD)
+             call mma_deallocate(vector_cidmrg)
            end if
 
            call dcopy_(nconf,CITmp,1,CIVec(:,i),1)

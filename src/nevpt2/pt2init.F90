@@ -100,7 +100,7 @@ call refwfn_info()
 call refwfn_data()
 call refwfn_close()
 
-!> fill nevpt2 confuguration variables from caspt2.fh commons
+!> fill nevpt2 configuration variables from caspt2.fh commons
 !> ----------------------------------------------------------
 
 !> check if nr_states has been requested as 'all'

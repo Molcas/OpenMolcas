@@ -85,7 +85,7 @@
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      Real*8, allocatable :: PLWO(:), TmpDMat(:), Ref_E(:), EList(:,:),
+      Real*8, allocatable :: TmpDMat(:), Ref_E(:), EList(:,:),
      &                       HRot(:,:), PUVX(:)
       Logical DSCF
 
@@ -144,8 +144,6 @@
       Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-      allocate(PLWO(1:NACPAR))
-      PLWO(:) = 0
 !
 *
       Call mma_allocate(TUVX,NACPR2,Label='TUVX')

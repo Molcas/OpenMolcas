@@ -24,6 +24,7 @@ use Basis_Info, only: Basis_Info_Free, Seward_Activated
 use Center_Info, only: Center_Info_Free
 use Symmetry_Info, only: Symmetry_Info_Free
 use SOAO_Info, only: SOAO_Info_Free
+use stdalloc, only: mma_deallocate
 
 implicit none
 
@@ -42,9 +43,9 @@ if (Seward_Activated) then
   call CloseR()
 
   if (lEFP) then
-    deallocate(FRAG_TYPE)
-    deallocate(ABC)
-    deallocate(EFP_COORS)
+    call mma_deallocate(FRAG_TYPE)
+    call mma_deallocate(ABC)
+    call mma_deallocate(EFP_COORS)
     lEFP = .false.
   end if
 
