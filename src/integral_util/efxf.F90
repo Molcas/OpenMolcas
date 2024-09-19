@@ -24,6 +24,7 @@ subroutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,XMolnr,nXMolnr,iGrid,scal14)
 !              November 2004                                           *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp
 
@@ -34,15 +35,12 @@ real(kind=wp), intent(inout) :: dEF(3)
 integer(kind=iwp) :: i, iFD, Inc, iOrdOp
 real(kind=wp) :: Dax, Day, Daz, QaSum, Qaxx, Qaxy, Qaxz, Qayy, Qayz, Qazz, R12, Scal, x, y, z, ZA
 logical(kind=iwp) :: LExcl
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 if (nOrd_XF < 0) return
 ! Calculate number of entries per XFIELD point
 Inc = 3
 do iOrdOp=0,nOrd_XF
-  Inc = Inc+nElem(iOrdOp)
+  Inc = Inc+nTri_Elem1(iOrdOp)
 end do
 if (iXPolType > 0) Inc = Inc+6
 

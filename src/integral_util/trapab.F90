@@ -18,6 +18,10 @@ subroutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,Fac3,Fac4,Fac5,A,B,P
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind3, C3_Ind3
+#ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem1
+#endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -27,19 +31,11 @@ real(kind=wp), intent(out) :: AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Fac1(nZ
                               Fac5(nZeta)
 real(kind=wp), intent(inout) :: GInt(nZeta,jSum)
 real(kind=wp), intent(in) :: rKappa(nZeta), A(3), B(3), P(nZeta,3)
-integer(kind=iwp) :: i, ia, iax, iay, iaz, ibx, iby, ibz, igx, igy, igz, ipa, ipb, ipg, iTrgt, ixa, ixas, ixb, ixbs, iya, iyaMax, &
-                     iyas, iyb, iybMax, iybs, iza, izas, izb, izbs, iZeta, jx, jy, jz, kOff, lOff
+integer(kind=iwp) :: i, ia, iax, iay, iaz, ibx, iby, ibz, igx, igy, igz, ipa, ipb, ipg, iTrgt, ix, ixa, ixas, ixb, ixbs, iy, iya, &
+                     iyaMax, iyas, iyb, iybMax, iybs, iz, iza, izas, izb, izbs, iZeta, jx, jy, jz, kOff, lOff
 real(kind=wp) :: Ax, Ay, Az, Bx, By, Bz
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nElem
-#endif
-! Statement functions
-integer(kind=iwp) :: ix, iy, iz, iad, iOff
-iad(ix,iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
-iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
-#ifdef _DEBUGPRINT_
-nElem(i) = (i+1)*(i+2)/2
 
+#ifdef _DEBUGPRINT_
 call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
 call RecPrt(' In TraPAB: P   ',' ',P,nZeta,3)
 #endif
@@ -77,7 +73,7 @@ do i=2,la+lb
       if (jy == 1) lOff = lOff+2
       if (jx == 1) lOff = lOff+1
 
-      iTrgt = iOff(ix,iy,iz)+iAd(ix,iy,iz)
+      iTrgt = C3_Ind3(ix,iy,iz)
       !write(u6,*) ' ix,iy,iz,kOff,lOff,iTrgt=',ix,iy,iz,kOff,lOff,iTrgt
       call dcopy_(nZeta,GInt(1,kOff+lOff),1,GInt(1,iTrgt),1)
 
@@ -96,14 +92,14 @@ do ixa=la,0,-1
   iyaMax = la-ixa
   do iya=iyaMax,0,-1
     iza = la-ixa-iya
-    ipa = iad(ixa,iya,iza)
+    ipa = C_Ind3(ixa,iya,iza)
     !write(u6,*) ' ipa,ixa,iya,iza=',ipa,ixa,iya,iza
 
     do ixb=lb,0,-1
       iybMax = lb-ixb
       do iyb=iybMax,0,-1
         izb = lb-ixb-iyb
-        ipb = iad(ixb,iyb,izb)
+        ipb = C_Ind3(ixb,iyb,izb)
         !write(u6,*) ' ipb,ixb,iyb,izb=',ipb,ixb,iyb,izb
 
         ! Loop over the elements of functions at P
@@ -165,7 +161,7 @@ do ixa=la,0,-1
                     call Binom(izb,izbs,iBz)
                     Bz = real(iBz,kind=wp)
                     igz = izas+izbs
-                    ipg = iOff(igx,igy,igz)+iAd(igx,igy,igz)
+                    ipg = C3_Ind3(igx,igy,igz)
                     !write(u6,*) ' ipg,igx,igy,igz=', ipg,igx,igy,igz
 
                     do iZeta=1,nZeta
@@ -191,7 +187,7 @@ do ixa=la,0,-1
 end do
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In TraPAB: AB',' ',AB,nZeta,nElem(la)*nElem(lb))
+call RecPrt(' In TraPAB: AB',' ',AB,nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 #endif
 
 end subroutine TraPAB

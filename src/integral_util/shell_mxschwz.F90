@@ -17,6 +17,7 @@ subroutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, Shells
 use Symmetry_Info, only: nIrrep
@@ -30,9 +31,6 @@ integer(kind=iwp), intent(in) :: nSkal
 real(kind=wp), intent(out) :: Schwz_Shl(nSkal,nSkal)
 integer(kind=iwp) :: iAng, iCmp, iCnttp, ijS, ik2, iS, iShell, iShll, jAng, jCmp, jCnttp, jS, jShell, jShll, lDCRR, nDCRR, nHm
 real(kind=wp) :: Schwz_Tmp
-! Statement function
-integer(kind=iwp) :: ixyz, nabSz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 ! loop over shell pair...
 Schwz_Shl(:,:) = Zero
@@ -59,7 +57,7 @@ do iS=1,nSkal
     end if
     nDCRR = Indk2(2,ijS)
     ik2 = Indk2(3,ijS)
-    nHm = iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(max(iAng,jAng)-1))
+    nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
     nHm = nHm*nIrrep
     if (DoHess_) nHm = 0
     ! now loop over  R operator...

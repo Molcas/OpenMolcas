@@ -15,6 +15,7 @@
 !#define _DEBUGPRINT_
 module Real_Spherical
 
+use Index_Functions, only: C_Ind3
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -236,11 +237,8 @@ subroutine Recurse(P0,P1,P2,n2)
   integer(kind=iwp), intent(in) :: n2
   real(kind=wp), intent(in) :: P0((n2-1)*n2/2), P1(n2*(n2+1)/2)
   real(kind=wp), intent(out) :: P2((n2+1)*(n2+2)/2)
-  integer(kind=iwp) :: n0, n1
+  integer(kind=iwp) :: ix, iy, iz, n0, n1
   real(kind=wp) :: Fact_1, Fact_2
-  ! Statement function
-  integer(kind=iwp) :: ix, iy, iz, iad
-  iad(ix,iy,iz) = (iz+iy)*(iz+iy+1)/2+iz+1
 
   P2(:) = Zero
 
@@ -261,7 +259,7 @@ subroutine Recurse(P0,P1,P2,n2)
     do ix=n1,0,-1
       do iy=n1-ix,0,-1
         iz = n1-ix-iy
-        P2(iad(ix,iy,iz+1)) = P2(iad(ix,iy,iz+1))+Fact_1*P1(iad(ix,iy,iz))
+        P2(C_Ind3(ix,iy,iz+1)) = P2(C_Ind3(ix,iy,iz+1))+Fact_1*P1(C_Ind3(ix,iy,iz))
       end do
     end do
 
@@ -272,9 +270,9 @@ subroutine Recurse(P0,P1,P2,n2)
     do ix=n0,0,-1
       do iy=n0-ix,0,-1
         iz = n0-ix-iy
-        P2(iad(ix+2,iy,iz)) = P2(iad(ix+2,iy,iz))-Fact_2*P0(iad(ix,iy,iz))
-        P2(iad(ix,iy+2,iz)) = P2(iad(ix,iy+2,iz))-Fact_2*P0(iad(ix,iy,iz))
-        P2(iad(ix,iy,iz+2)) = P2(iad(ix,iy,iz+2))-Fact_2*P0(iad(ix,iy,iz))
+        P2(C_Ind3(ix+2,iy,iz)) = P2(C_Ind3(ix+2,iy,iz))-Fact_2*P0(C_Ind3(ix,iy,iz))
+        P2(C_Ind3(ix,iy+2,iz)) = P2(C_Ind3(ix,iy+2,iz))-Fact_2*P0(C_Ind3(ix,iy,iz))
+        P2(C_Ind3(ix,iy,iz+2)) = P2(C_Ind3(ix,iy,iz+2))-Fact_2*P0(C_Ind3(ix,iy,iz))
       end do
     end do
 
@@ -287,11 +285,8 @@ subroutine Ladder(P0,n)
   implicit none
   integer(kind=iwp), intent(in) :: n
   real(kind=wp), intent(inout) :: P0((n+1)*(n+2)/2,-n:n)
-  integer(kind=iwp) :: m, m_m, m_p
+  integer(kind=iwp) :: ix, iy, iz, m, m_m, m_p
   real(kind=wp) :: Fact
-  ! Statement function
-  integer(kind=iwp) :: ix, iy, iz, iad
-  iad(ix,iy,iz) = (iz+iy)*(iz+iy+1)/2+iz+1
 
   ! Generate Y(l,m) from Y(l,m-1), starting the process from Y(l,0)
 
@@ -328,20 +323,20 @@ subroutine Ladder(P0,n)
 
         ! Generating the real part
 
-        if (iz >= 1) P0(iad(ix+1,iy,iz-1),m_p) = P0(iad(ix+1,iy,iz-1),m_p)+Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),m)
-        if (ix >= 1) P0(iad(ix-1,iy,iz+1),m_p) = P0(iad(ix-1,iy,iz+1),m_p)-Fact*real(ix,kind=wp)*P0(iad(ix,iy,iz),m)
+        if (iz >= 1) P0(C_Ind3(ix+1,iy,iz-1),m_p) = P0(C_Ind3(ix+1,iy,iz-1),m_p)+Fact*real(iz,kind=wp)*P0(C_Ind3(ix,iy,iz),m)
+        if (ix >= 1) P0(C_Ind3(ix-1,iy,iz+1),m_p) = P0(C_Ind3(ix-1,iy,iz+1),m_p)-Fact*real(ix,kind=wp)*P0(C_Ind3(ix,iy,iz),m)
         if (m /= 0) then
-          if (iz >= 1) P0(iad(ix,iy+1,iz-1),m_p) = P0(iad(ix,iy+1,iz-1),m_p)-Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),-m)
-          if (iy >= 1) P0(iad(ix,iy-1,iz+1),m_p) = P0(iad(ix,iy-1,iz+1),m_p)+Fact*real(iy,kind=wp)*P0(iad(ix,iy,iz),-m)
+          if (iz >= 1) P0(C_Ind3(ix,iy+1,iz-1),m_p) = P0(C_Ind3(ix,iy+1,iz-1),m_p)-Fact*real(iz,kind=wp)*P0(C_Ind3(ix,iy,iz),-m)
+          if (iy >= 1) P0(C_Ind3(ix,iy-1,iz+1),m_p) = P0(C_Ind3(ix,iy-1,iz+1),m_p)+Fact*real(iy,kind=wp)*P0(C_Ind3(ix,iy,iz),-m)
         end if
 
         ! Generating the imaginary part
 
-        if (iz >= 1) P0(iad(ix,iy+1,iz-1),m_m) = P0(iad(ix,iy+1,iz-1),m_m)+Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),m)
-        if (iy >= 1) P0(iad(ix,iy-1,iz+1),m_m) = P0(iad(ix,iy-1,iz+1),m_m)-Fact*real(iy,kind=wp)*P0(iad(ix,iy,iz),m)
+        if (iz >= 1) P0(C_Ind3(ix,iy+1,iz-1),m_m) = P0(C_Ind3(ix,iy+1,iz-1),m_m)+Fact*real(iz,kind=wp)*P0(C_Ind3(ix,iy,iz),m)
+        if (iy >= 1) P0(C_Ind3(ix,iy-1,iz+1),m_m) = P0(C_Ind3(ix,iy-1,iz+1),m_m)-Fact*real(iy,kind=wp)*P0(C_Ind3(ix,iy,iz),m)
         if (m /= 0) then
-          if (iz >= 1) P0(iad(ix+1,iy,iz-1),m_m) = P0(iad(ix+1,iy,iz-1),m_m)+Fact*real(iz,kind=wp)*P0(iad(ix,iy,iz),-m)
-          if (ix >= 1) P0(iad(ix-1,iy,iz+1),m_m) = P0(iad(ix-1,iy,iz+1),m_m)-Fact*real(ix,kind=wp)*P0(iad(ix,iy,iz),-m)
+          if (iz >= 1) P0(C_Ind3(ix+1,iy,iz-1),m_m) = P0(C_Ind3(ix+1,iy,iz-1),m_m)+Fact*real(iz,kind=wp)*P0(C_Ind3(ix,iy,iz),-m)
+          if (ix >= 1) P0(C_Ind3(ix-1,iy,iz+1),m_m) = P0(C_Ind3(ix-1,iy,iz+1),m_m)-Fact*real(ix,kind=wp)*P0(C_Ind3(ix,iy,iz),-m)
         end if
 
       end do
@@ -369,10 +364,7 @@ subroutine Contaminant(P0,i,Px,j,l)
   integer(kind=iwp), intent(in) :: i, j, l
   real(kind=wp), intent(inout) :: P0((i+1)*(i+2)/2,-l:l)
   real(kind=wp), intent(in) :: Px((j+1)*(j+2)/2,-l:l)
-  integer(kind=iwp) :: m
-  ! Statement function
-  integer(kind=iwp) :: ix, iy, iz, iad
-  iad(ix,iy,iz) = (iz+iy)*(iz+iy+1)/2+iz+1
+  integer(kind=iwp) :: ix, iy, iz, m
 
   ! Px = (x^2+y^2+z^2) x P0
 
@@ -381,9 +373,9 @@ subroutine Contaminant(P0,i,Px,j,l)
     do ix=j,0,-1
       do iy=j-ix,0,-1
         iz = j-ix-iy
-        P0(iad(ix+2,iy,iz),m) = P0(iad(ix+2,iy,iz),m)+Px(iad(ix,iy,iz),m)
-        P0(iad(ix,iy+2,iz),m) = P0(iad(ix,iy+2,iz),m)+Px(iad(ix,iy,iz),m)
-        P0(iad(ix,iy,iz+2),m) = P0(iad(ix,iy,iz+2),m)+Px(iad(ix,iy,iz),m)
+        P0(C_Ind3(ix+2,iy,iz),m) = P0(C_Ind3(ix+2,iy,iz),m)+Px(C_Ind3(ix,iy,iz),m)
+        P0(C_Ind3(ix,iy+2,iz),m) = P0(C_Ind3(ix,iy+2,iz),m)+Px(C_Ind3(ix,iy,iz),m)
+        P0(C_Ind3(ix,iy,iz+2),m) = P0(C_Ind3(ix,iy,iz+2),m)+Px(C_Ind3(ix,iy,iz),m)
       end do
     end do
   end do
@@ -395,12 +387,9 @@ subroutine NrmSph(P,n)
   implicit none
   integer(kind=iwp), intent(in) :: n
   real(kind=wp), intent(inout) :: P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
-  integer(kind=iwp) :: ijx, ijy, ijz, jx, jy, jz, k, m
+  integer(kind=iwp) :: ijx, ijy, ijz, ix, iy, iz, jx, jy, jz, k, m
   real(kind=wp) :: DF, rMax, temp, tmp
   real(kind=wp), external :: DblFac
-  ! Statement function
-  integer(kind=iwp) :: ix, iy, iz, iad
-  iad(ix,iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
 
   do m=1,(n+1)*(n+2)/2
     rMax = Zero
@@ -422,7 +411,7 @@ subroutine NrmSph(P,n)
             jy = ijy-iy
             iz = n-ix-iy
             jz = n-jx-jy
-            temp = temp+P(iad(ix,iy,iz),m)*P(iad(jx,jy,jz),m)
+            temp = temp+P(C_Ind3(ix,iy,iz),m)*P(C_Ind3(jx,jy,jz),m)
           end do
         end do
         tmp = tmp+DF*temp

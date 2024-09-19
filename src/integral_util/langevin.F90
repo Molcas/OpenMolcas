@@ -12,6 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: DBSC, ncnttp
 use Center_Info, only: DC
 use Langevin_arrays, only: CAVxyz, DAVxyz, DField, DIP, DipEF, Field, Grid, PolEF, RAVxyz
@@ -37,9 +38,6 @@ real(kind=wp) :: ATOD, ATRad, SUMREPNUC, SumRepNuc2, XA, YA, Z, ZA
 real(kind=wp), allocatable :: Atom_R(:), Chrg(:), Cord(:,:), D1ao(:), pField(:,:), tmpField(:,:)
 real(kind=wp), parameter :: auToK = auTokJ/kBoltzmann*1.0e3_wp
 real(kind=wp), external :: CovRadT, Random_molcas
-! Statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(NonEq)
@@ -187,7 +185,7 @@ do iAv=1,nAv
     write(Lu,*) nXF
     Inc = 3
     do iOrdOp=0,nOrd_XF
-      Inc = Inc+nElem(iOrdOp)
+      Inc = Inc+nTri_Elem1(iOrdOp)
     end do
     if (iXPolType > 0) Inc = Inc+6
     do iXF=1,nXF

@@ -24,6 +24,7 @@ subroutine HrrMtrx(HMtrx,np,la,lb,A,B,Sph_a,CS_a,nSph_a,Sph_b,Cs_b,nSph_b)
 !             February 1999                                            *
 !***********************************************************************
 
+use Index_Functions, only: C3_Ind3, nTri3_Elem
 use define_af, only: Binom, iCan, iTabMx
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -37,16 +38,12 @@ real(kind=wp), intent(out) :: HMtrx(np,nSph_a,nSph_b)
 real(kind=wp), intent(in) :: A(3), B(3), CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)
 logical(kind=iwp), intent(in) :: Sph_a, Sph_b
 integer(kind=iwp) :: i, ipa, ipb, ipe, iSph_a, iSph_b, ix, ixLow, iy, iyLow, iz, izLow, jOff, jx, jxLow, jy, jyLow, jz, jzLow, kx, &
-                     ky, kz
+                     ky, kz, na, nab, nb
 real(kind=wp) :: AB(3,0:iTabMx), ABx, ABy, ABz, C_A, C_B
 logical(kind=iwp), external :: EQ
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: DDot_
 #endif
-! Statement functions
-integer(kind=iwp) :: ixyz, iOff, jCan
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
-jCan(ix,iy,iz) = iOff(ix+iy+iz)+(iy+iz)*(iy+iz+1)/2+iz+1
 
 #ifdef _DEBUGPRINT_
 call RecPrt('A',' ',A,1,3)
@@ -67,6 +64,10 @@ do i=2,min(la,lb)
   AB(:,i) = AB(:,i-1)*AB(:,1)
 end do
 
+na = nTri3_Elem(la)
+nb = nTri3_Elem(lb)
+nab = nTri3_Elem(la+lb)
+
 if (la >= lb) then
 
   if (Sph_a .and. Sph_b) then
@@ -75,32 +76,32 @@ if (la >= lb) then
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
-        ix = iCan(1,iOff(la)+ipa)
-        iy = iCan(2,iOff(la)+ipa)
-        iz = iCan(3,iOff(la)+ipa)
+        ix = iCan(1,na+ipa)
+        iy = iCan(2,na+ipa)
+        iz = iCan(3,na+ipa)
         do iSph_b=1,nSph_b
           do ipb=1,(lb+1)*(lb+2)/2
             C_b = CS_b(ipb,iSph_b)
             if (C_b == Zero) cycle
-            jx = iCan(1,iOff(lb)+ipb)
-            jy = iCan(2,iOff(lb)+ipb)
-            jz = iCan(3,iOff(lb)+ipb)
+            jx = iCan(1,nb+ipb)
+            jy = iCan(2,nb+ipb)
+            jz = iCan(3,nb+ipb)
 
             if (EQ(A,B)) then
               ixLow = ix+jx
               iyLow = iy+jy
               izLow = iz+jz
-              jOff = iOff(la+lb)
+              jOff = nab
             else
               ixLow = ix
               iyLow = iy
               izLow = iz
-              jOff = iOff(la)
+              jOff = na
             end if
             do kx=ixLow,ix+jx
               do ky=iyLow,iy+jy
                 do kz=izLow,iz+jz
-                  ipe = jCan(kx,ky,kz)-jOff
+                  ipe = C3_Ind3(kx,ky,kz)-jOff
 
                   ABx = AB(1,ix+jx-kx)*Binom(jx,kx-ix)
                   ABy = AB(2,iy+jy-ky)*Binom(jy,ky-iy)
@@ -121,29 +122,29 @@ if (la >= lb) then
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
-        ix = iCan(1,iOff(la)+ipa)
-        iy = iCan(2,iOff(la)+ipa)
-        iz = iCan(3,iOff(la)+ipa)
+        ix = iCan(1,na+ipa)
+        iy = iCan(2,na+ipa)
+        iz = iCan(3,na+ipa)
         do ipb=1,(lb+1)*(lb+2)/2
-          jx = iCan(1,iOff(lb)+ipb)
-          jy = iCan(2,iOff(lb)+ipb)
-          jz = iCan(3,iOff(lb)+ipb)
+          jx = iCan(1,nb+ipb)
+          jy = iCan(2,nb+ipb)
+          jz = iCan(3,nb+ipb)
 
           if (EQ(A,B)) then
             ixLow = ix+jx
             iyLow = iy+jy
             izLow = iz+jz
-            jOff = iOff(la+lb)
+            jOff = nab
           else
             ixLow = ix
             iyLow = iy
             izLow = iz
-            jOff = iOff(la)
+            jOff = na
           end if
           do kx=ixLow,ix+jx
             do ky=iyLow,iy+jy
               do kz=izLow,iz+jz
-                ipe = jCan(kx,ky,kz)-jOff
+                ipe = C3_Ind3(kx,ky,kz)-jOff
 
                 ABx = AB(1,ix+jx-kx)*Binom(jx,kx-ix)
                 ABy = AB(2,iy+jy-ky)*Binom(jy,ky-iy)
@@ -160,32 +161,32 @@ if (la >= lb) then
   else if (Sph_b) then
 
     do ipa=1,(la+1)*(la+2)/2
-      ix = iCan(1,iOff(la)+ipa)
-      iy = iCan(2,iOff(la)+ipa)
-      iz = iCan(3,iOff(la)+ipa)
+      ix = iCan(1,na+ipa)
+      iy = iCan(2,na+ipa)
+      iz = iCan(3,na+ipa)
       do iSph_b=1,nSph_b
         do ipb=1,(lb+1)*(lb+2)/2
           C_b = CS_b(ipb,iSph_b)
           if (C_b == Zero) cycle
-          jx = iCan(1,iOff(lb)+ipb)
-          jy = iCan(2,iOff(lb)+ipb)
-          jz = iCan(3,iOff(lb)+ipb)
+          jx = iCan(1,nb+ipb)
+          jy = iCan(2,nb+ipb)
+          jz = iCan(3,nb+ipb)
 
           if (EQ(A,B)) then
             ixLow = ix+jx
             iyLow = iy+jy
             izLow = iz+jz
-            jOff = iOff(la+lb)
+            jOff = nab
           else
             ixLow = ix
             iyLow = iy
             izLow = iz
-            jOff = iOff(la)
+            jOff = na
           end if
           do kx=ixLow,ix+jx
             do ky=iyLow,iy+jy
               do kz=izLow,iz+jz
-                ipe = jCan(kx,ky,kz)-jOff
+                ipe = C3_Ind3(kx,ky,kz)-jOff
 
                 ABx = AB(1,ix+jx-kx)*Binom(jx,kx-ix)
                 ABy = AB(2,iy+jy-ky)*Binom(jy,ky-iy)
@@ -202,29 +203,29 @@ if (la >= lb) then
   else
 
     do ipa=1,(la+1)*(la+2)/2
-      ix = iCan(1,iOff(la)+ipa)
-      iy = iCan(2,iOff(la)+ipa)
-      iz = iCan(3,iOff(la)+ipa)
+      ix = iCan(1,na+ipa)
+      iy = iCan(2,na+ipa)
+      iz = iCan(3,na+ipa)
       do ipb=1,(lb+1)*(lb+2)/2
-        jx = iCan(1,iOff(lb)+ipb)
-        jy = iCan(2,iOff(lb)+ipb)
-        jz = iCan(3,iOff(lb)+ipb)
+        jx = iCan(1,nb+ipb)
+        jy = iCan(2,nb+ipb)
+        jz = iCan(3,nb+ipb)
 
         if (EQ(A,B)) then
           ixLow = ix+jx
           iyLow = iy+jy
           izLow = iz+jz
-          jOff = iOff(la+lb)
+          jOff = nab
         else
           ixLow = ix
           iyLow = iy
           izLow = iz
-          jOff = iOff(la)
+          jOff = na
         end if
         do kx=ixLow,ix+jx
           do ky=iyLow,iy+jy
             do kz=izLow,iz+jz
-              ipe = jCan(kx,ky,kz)-jOff
+              ipe = C3_Ind3(kx,ky,kz)-jOff
 
               ABx = AB(1,ix+jx-kx)*Binom(jx,kx-ix)
               ABy = AB(2,iy+jy-ky)*Binom(jy,ky-iy)
@@ -247,32 +248,32 @@ else
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
-        ix = iCan(1,iOff(la)+ipa)
-        iy = iCan(2,iOff(la)+ipa)
-        iz = iCan(3,iOff(la)+ipa)
+        ix = iCan(1,na+ipa)
+        iy = iCan(2,na+ipa)
+        iz = iCan(3,na+ipa)
         do iSph_b=1,nSph_b
           do ipb=1,(lb+1)*(lb+2)/2
             C_b = CS_b(ipb,iSph_b)
             if (C_b == Zero) cycle
-            jx = iCan(1,iOff(lb)+ipb)
-            jy = iCan(2,iOff(lb)+ipb)
-            jz = iCan(3,iOff(lb)+ipb)
+            jx = iCan(1,nb+ipb)
+            jy = iCan(2,nb+ipb)
+            jz = iCan(3,nb+ipb)
 
             if (EQ(A,B)) then
               jxLow = ix+jx
               jyLow = iy+jy
               jzLow = iz+jz
-              jOff = iOff(la+lb)
+              jOff = nab
             else
               jxLow = jx
               jyLow = jy
               jzLow = jz
-              jOff = iOff(lb)
+              jOff = nb
             end if
             do kx=jxLow,ix+jx
               do ky=jyLow,iy+jy
                 do kz=jzLow,iz+jz
-                  ipe = jCan(kx,ky,kz)-jOff
+                  ipe = C3_Ind3(kx,ky,kz)-jOff
 
                   ABx = AB(1,ix+jx-kx)*Binom(ix,kx-jx)
                   ABy = AB(2,iy+jy-ky)*Binom(iy,ky-jy)
@@ -293,29 +294,29 @@ else
       do ipa=1,(la+1)*(la+2)/2
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
-        ix = iCan(1,iOff(la)+ipa)
-        iy = iCan(2,iOff(la)+ipa)
-        iz = iCan(3,iOff(la)+ipa)
+        ix = iCan(1,na+ipa)
+        iy = iCan(2,na+ipa)
+        iz = iCan(3,na+ipa)
         do ipb=1,(lb+1)*(lb+2)/2
-          jx = iCan(1,iOff(lb)+ipb)
-          jy = iCan(2,iOff(lb)+ipb)
-          jz = iCan(3,iOff(lb)+ipb)
+          jx = iCan(1,nb+ipb)
+          jy = iCan(2,nb+ipb)
+          jz = iCan(3,nb+ipb)
 
           if (EQ(A,B)) then
             jxLow = ix+jx
             jyLow = iy+jy
             jzLow = iz+jz
-            jOff = iOff(la+lb)
+            jOff = nab
           else
             jxLow = jx
             jyLow = jy
             jzLow = jz
-            jOff = iOff(lb)
+            jOff = nb
           end if
           do kx=jxLow,ix+jx
             do ky=jyLow,iy+jy
               do kz=jzLow,iz+jz
-                ipe = jCan(kx,ky,kz)-jOff
+                ipe = C3_Ind3(kx,ky,kz)-jOff
 
                 ABx = AB(1,ix+jx-kx)*Binom(ix,kx-jx)
                 ABy = AB(2,iy+jy-ky)*Binom(iy,ky-jy)
@@ -332,32 +333,32 @@ else
   else if (Sph_b) then
 
     do ipa=1,(la+1)*(la+2)/2
-      ix = iCan(1,iOff(la)+ipa)
-      iy = iCan(2,iOff(la)+ipa)
-      iz = iCan(3,iOff(la)+ipa)
+      ix = iCan(1,na+ipa)
+      iy = iCan(2,na+ipa)
+      iz = iCan(3,na+ipa)
       do iSph_b=1,nSph_b
         do ipb=1,(lb+1)*(lb+2)/2
           C_b = CS_b(ipb,iSph_b)
           if (C_b == Zero) cycle
-          jx = iCan(1,iOff(lb)+ipb)
-          jy = iCan(2,iOff(lb)+ipb)
-          jz = iCan(3,iOff(lb)+ipb)
+          jx = iCan(1,nb+ipb)
+          jy = iCan(2,nb+ipb)
+          jz = iCan(3,nb+ipb)
 
           if (EQ(A,B)) then
             jxLow = ix+jx
             jyLow = iy+jy
             jzLow = iz+jz
-            jOff = iOff(la+lb)
+            jOff = nab
           else
             jxLow = jx
             jyLow = jy
             jzLow = jz
-            jOff = iOff(lb)
+            jOff = nb
           end if
           do kx=jxLow,ix+jx
             do ky=jyLow,iy+jy
               do kz=jzLow,iz+jz
-                ipe = jCan(kx,ky,kz)-jOff
+                ipe = C3_Ind3(kx,ky,kz)-jOff
 
                 ABx = AB(1,ix+jx-kx)*Binom(ix,kx-jx)
                 ABy = AB(2,iy+jy-ky)*Binom(iy,ky-jy)
@@ -374,29 +375,29 @@ else
   else
 
     do ipa=1,(la+1)*(la+2)/2
-      ix = iCan(1,iOff(la)+ipa)
-      iy = iCan(2,iOff(la)+ipa)
-      iz = iCan(3,iOff(la)+ipa)
+      ix = iCan(1,na+ipa)
+      iy = iCan(2,na+ipa)
+      iz = iCan(3,na+ipa)
       do ipb=1,(lb+1)*(lb+2)/2
-        jx = iCan(1,iOff(lb)+ipb)
-        jy = iCan(2,iOff(lb)+ipb)
-        jz = iCan(3,iOff(lb)+ipb)
+        jx = iCan(1,nb+ipb)
+        jy = iCan(2,nb+ipb)
+        jz = iCan(3,nb+ipb)
 
         if (EQ(A,B)) then
           jxLow = ix+jx
           jyLow = iy+jy
           jzLow = iz+jz
-          jOff = iOff(la+lb)
+          jOff = nab
         else
           jxLow = jx
           jyLow = jy
           jzLow = jz
-          jOff = iOff(lb)
+          jOff = nb
         end if
         do kx=jxLow,ix+jx
           do ky=jyLow,iy+jy
             do kz=jzLow,iz+jz
-              ipe = jCan(kx,ky,kz)-jOff
+              ipe = C3_Ind3(kx,ky,kz)-jOff
 
               ABx = AB(1,ix+jx-kx)*Binom(ix,kx-jx)
               ABy = AB(2,iy+jy-ky)*Binom(iy,ky-jy)

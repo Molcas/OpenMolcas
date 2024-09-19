@@ -36,6 +36,7 @@ subroutine SymAdp(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,iAO,kOp,ijkl,Aux,
 !             March '90                                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
@@ -52,17 +53,14 @@ integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iAux, iChBs, ii, iSym(0:7), ix, j
                      jSym(0:7), k12, k34, kChBs, kk, kSym(0:7), lChBs, lCmpMx, ll, lSym(0:7), MemSO2
 real(kind=wp) :: pEa, pRb, pTc, pTSd, Xa, Xb, Xg
 logical(kind=iwp) :: Qij, Qijij, Qkl, Shij, Shkl
-! Statement Function
-integer(kind=iwp) :: ixyz, iOff
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 Done = .false.
 k12 = 0
 k34 = 0
-ii = iOff(iAng(1))
-jj = iOff(iAng(2))
-kk = iOff(iAng(3))
-ll = iOff(iAng(4))
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 MemSO2 = 1
 #ifdef _DEBUGPRINT_
 call RecPrt(' In SymAdp: AOInt ',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)

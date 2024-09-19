@@ -37,6 +37,7 @@ subroutine FckAcc_NoSym(iCmp,jCmp,kCmp,lCmp,Shijij,iShell,nijkl,AOInt,FMat,DMat,
 !             of Lund, Sweden. February '93                            *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Gateway_Info, only: CutInt
 use Constants, only: Zero, One, Four, Half
@@ -47,12 +48,9 @@ integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iShell(4), nijkl, nDens
 logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(in) :: AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), DMat(nDens), ExFac
 real(kind=wp), intent(inout) :: FMat(nDens)
-integer(kind=iwp) :: i1, i2, i3, i4, ij, ik, il, iSO, jk, jl, jSO, k, kl, kSO, l, lSO, nijkl_
+integer(kind=iwp) :: i, i1, i2, i3, i4, ij, ik, il, iSO, j, jk, jl, jSO, k, kl, kSO, l, lSO, nijkl_
 real(kind=wp) :: AOijkl, D_jk, D_jl, D_kl, F_jk, F_jl, F_kl, Fac, Fac_C, Fac_E
 logical(kind=iwp) :: Shij, Shkl
-! Statement Function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !write(u6,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
 !if (iPrint >= 49) &

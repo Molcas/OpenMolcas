@@ -27,7 +27,7 @@ subroutine PCMInt( &
 !***********************************************************************
 
 use PCM_arrays, only: C_Tessera, nTiles, q_Tessera
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -47,13 +47,6 @@ procedure(modu2_kernel) :: Fake
 procedure(rys2d_kernel) :: XRys2D
 procedure(tval_kernel) :: TNAI
 logical(kind=iwp), external :: EQ
-! Statement function for Cartesian index
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nElem, ii
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-#endif
-integer(kind=iwp) :: ixyz, nabSz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -73,9 +66,9 @@ iAnga(4) = 0
 call dcopy_(3,A,1,Coora(1,1),1)
 call dcopy_(3,RB,1,Coora(1,2),1)
 call dcopy_(2*3,Coora,1,Coori,1)
-mabMin = nabSz(max(la,lb)-1)+1
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-mabMax = nabSz(la+lb)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
+mabMax = nTri3_Elem1(la+lb)-1
 
 ! Compute FLOP's and size of work array which Hrr will use.
 
@@ -144,8 +137,8 @@ do iTile=1,nTiles
     call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*QTessera)
 #   ifdef _DEBUGPRINT_
     write(u6,*) Fact*QTessera
-    call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),nZeta,nElem(la)*nElem(lb)*nComp)
-    call RecPrt('PCMInt: rFinal',' ',rFinal,nZeta,nElem(la)*nElem(lb)*nIC)
+    call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+    call RecPrt('PCMInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
 #   endif
 
   end do

@@ -34,6 +34,7 @@ subroutine Trnsps_Seward(ijCmp,iCmp,jCmp,iAng,jAng,iShll,jShll,kOp,ijkl,ij,AOInt
 !             May '90                                                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas
@@ -47,17 +48,14 @@ real(kind=wp), intent(out) :: Scrtch(ijkl,ijCmp,ijCmp)
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, ii, ij1, ij2, jChBs, jj, kChBs, lChBs
 real(kind=wp) :: Factor, pa1T, pa2T, pb1T, pb2T
 integer(kind=iwp), external :: iPrmt
-! Statement Function
-integer(kind=iwp) :: ixyz, iOff
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 
 ! Change phase factor. This is only necessary if T=/=E.
 
 if ((kOp /= 0) .and. (ijCmp /= 0)) then
-  ii = iOff(iAng)
-  jj = iOff(jAng)
+  ii = nTri3_Elem(iAng)
+  jj = nTri3_Elem(jAng)
   do i1=1,iCmp
     iChBs = iChBas(ii+i1)
     if (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))

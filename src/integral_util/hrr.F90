@@ -30,6 +30,7 @@ subroutine HRR(la,lb,A,B,tgt,nPrim,nTrgt,ipIn)
 !             Modified to not use pointers June '91                    *
 !***********************************************************************
 
+use Index_Functions, only: C3_Ind, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -38,12 +39,8 @@ integer(kind=iwp), intent(in) :: la, lb, nPrim, nTrgt
 real(kind=wp), intent(in) :: A(3), B(3)
 real(kind=wp), intent(inout) :: tgt(nPrim,nTrgt)
 integer(kind=iwp), intent(out) :: ipIn
-integer(kind=iwp) :: ia, ia1, ia1b, iab, iab1, iaMax, iaMin, ib, ib1, ib1Max, Ind1, ipRslt
+integer(kind=iwp) :: ia, ia1, ia1b, iab, iab1, iaMax, iaMin, ib, ib1, ib1Max, ipRslt
 real(kind=wp) :: AB(3), ABSqrt
-! Statement function for canonical indices
-integer(kind=iwp) :: ix, ixyz, iz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-Ind1(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6+(ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 ! Fast exit if HRR will not be applied.
 if ((la == 0) .or. (lb == 0)) then
@@ -68,23 +65,23 @@ else
       ia1 = ia+1
       if (mod(ib1,2) == 0) then
         ! Low loading of target integrals.
-        iab1 = nElem(ib1)*(Ind1(ia,ia,0)-Ind1(iaMin,iaMin,0))
+        iab1 = nTri_Elem1(ib1)*(C3_Ind(ia,ia,0)-C3_Ind(iaMin,iaMin,0))
         ! High access of source integrals.
-        iab = nTrgt-nElem(ib)*(Ind1(iaMax+1,0,iaMax+1)-Ind1(ia,ia,0)+1)
-        ia1b = nTrgt-nElem(ib)*(Ind1(iaMax+1,0,iaMax+1)-Ind1(ia1,ia1,0)+1)
+        iab = nTrgt-nTri_Elem1(ib)*(C3_Ind(iaMax+1,0,iaMax+1)-C3_Ind(ia,ia,0)+1)
+        ia1b = nTrgt-nTri_Elem1(ib)*(C3_Ind(iaMax+1,0,iaMax+1)-C3_Ind(ia1,ia1,0)+1)
       else
         ! High loading of target integrals.
-        iab1 = nTrgt-nElem(ib1)*(Ind1(iaMax,0,iaMax)-Ind1(ia,ia,0)+1)
+        iab1 = nTrgt-nTri_Elem1(ib1)*(C3_Ind(iaMax,0,iaMax)-C3_Ind(ia,ia,0)+1)
         ! Low access of source integrals.
-        iab = nElem(ib)*(Ind1(ia,ia,0)-Ind1(iaMin,iaMin,0))
-        ia1b = nElem(ib)*(Ind1(ia1,ia1,0)-Ind1(iaMin,iaMin,0))
+        iab = nTri_Elem1(ib)*(C3_Ind(ia,ia,0)-C3_Ind(iaMin,iaMin,0))
+        ia1b = nTri_Elem1(ib)*(C3_Ind(ia1,ia1,0)-C3_Ind(iaMin,iaMin,0))
       end if
       ipRslt = iab1
 
       ! Generate this block of integrals with the HRR
 
-      call HRR1(tgt(1,iab1+1),nElem(ia)*nElem(ib1),tgt(1,ia1b+1),nElem(ia1)*nElem(ib),AB,tgt(1,iab+1),nElem(ia)*nElem(ib),ia,ib, &
-                ia1,ib1,nPrim,la,lb)
+      call HRR1(tgt(1,iab1+1),nTri_Elem1(ia)*nTri_Elem1(ib1),tgt(1,ia1b+1),nTri_Elem1(ia1)*nTri_Elem1(ib),AB,tgt(1,iab+1), &
+                nTri_Elem1(ia)*nTri_Elem1(ib),ia,ib,ia1,ib1,nPrim,la,lb)
 
     end do
   end do

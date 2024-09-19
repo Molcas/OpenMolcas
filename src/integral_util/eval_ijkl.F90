@@ -40,6 +40,7 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 !             Total rehack Aug '23                                     *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use setup, only: mSkal, nAux, nSOs
 use k2_structure, only: IndK2, k2data
 use k2_arrays, only: Aux, Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
@@ -73,9 +74,6 @@ real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_, MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

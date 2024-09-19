@@ -13,15 +13,13 @@
 
 subroutine mHrr(la,lb,nSize,nMem)
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: la, lb
 integer(kind=iwp), intent(out) :: nSize, nMem
 integer(kind=iwp) :: ia, ib, nMem1, nMem2
-! Statement function for canonical indices
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! First find the size of the working array.
 
@@ -31,8 +29,8 @@ nSize = 0
 do ib=0,min(la,lb)
   nMem1 = 0
   do ia=max(la,lb),la+lb-ib
-    nSize = nSize+nElem(ib)*nElem(ia)
-    nMem1 = nMem1+nElem(ib)*nElem(ia)
+    nSize = nSize+nTri_Elem1(ib)*nTri_Elem1(ia)
+    nMem1 = nMem1+nTri_Elem1(ib)*nTri_Elem1(ia)
   end do
   nMem = max(nMem,nMem1+nMem2)
   nMem2 = nMem1

@@ -27,6 +27,7 @@ subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp
 !          May '90                                                     *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use k2_arrays, only: Sew_Scr
 use lw_Info, only: lwInt, lwSqn, lwSyB
@@ -47,12 +48,7 @@ real(kind=wp) :: A_Int
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2
 real(kind=wp), external :: DDot_
-#endif
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-#ifdef _DEBUGPRINT_
 r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
 r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
 write(u6,*) ' Sum=',r1

@@ -41,6 +41,7 @@ subroutine Drv2_RF(llOper,Ccoor,nOrdOp,Fldxyz,lMax,h0,nh0)
 !             Modified loop structure April  99                        *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, MolWgh, Shells
@@ -71,9 +72,6 @@ integer(kind=iwp) :: i, ii
 #endif
 real(kind=wp), allocatable :: Fnl(:,:), Kappa(:), Kern(:), PCoor(:,:), Scr1(:), Scr2(:), SO_Int(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri
-! Statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In Drv2_RF: llOper'
@@ -147,17 +145,17 @@ do iS=1,nSkal
     ! Allocate memory for the final integrals all in the
     ! primitive basis.
     nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Fnl,lFinal,nComp+1,Label='Fnl')
 
     ! Scratch area for contraction step
 
-    nScr1 = max(S%MaxPrm(iAng),S%MaxPrm(jAng))*max(S%MaxBas(iAng),S%MaxBas(jAng))*nComp*nElem(iAng)*nElem(jAng)
+    nScr1 = max(S%MaxPrm(iAng),S%MaxPrm(jAng))*max(S%MaxBas(iAng),S%MaxBas(jAng))*nComp*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Scr1,nScr1,Label='Scr1')
 
     ! Scratch area for the transformation to spherical gaussians
 
-    nScr2 = nComp*S%MaxBas(iAng)*S%MaxBas(jAng)*nElem(iAng)*nElem(jAng)
+    nScr2 = nComp*S%MaxBas(iAng)*S%MaxBas(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Scr2,nScr2,Label='Scr2')
 
     ! At this point we can compute Zeta.
@@ -236,17 +234,17 @@ do iS=1,nSkal
 
         call RFInt(Zeta,Kappa,Pcoor,Fnl,iPrim*jPrim,nComp,iAng,jAng,A,B,nOrder,Kern,MemKer,Ccoor,lMax)
 #       ifdef _DEBUGPRINT_
-        call RecPrt(' Primitive Integrals',' ',Fnl,iPrim*jPrim*nElem(iAng)*nElem(jAng),nComp)
+        call RecPrt(' Primitive Integrals',' ',Fnl,iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng),nComp)
 #       endif
 
         ! Accumulate contributions due to interaction between the
         ! electric field and the multipole moments.
 
-        nFnc = iPrim*jPrim*nElem(iAng)*nElem(jAng)
+        nFnc = iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
         call dcopy_(nFnc,[Zero],0,Fnl(1,nComp+1),1)
         call DNaXpY(nComp,nFnc,Fldxyz,1,Fnl,1,nFnc,Fnl(1,nComp+1),1,0)
 #       ifdef _DEBUGPRINT_
-        call RecPrt(' Solvation integrals',' ',Fnl(1,nComp+1),iPrim*jPrim,nElem(iAng)*nElem(jAng))
+        call RecPrt(' Solvation integrals',' ',Fnl(1,nComp+1),iPrim*jPrim,nTri_Elem1(iAng)*nTri_Elem1(jAng))
 #       endif
 
         ! Transform from primitive to contracted basis functions.
@@ -260,7 +258,7 @@ do iS=1,nSkal
 #       endif
 
         ! Transform ij,x,ab to j,xabI
-        kk = nElem(iAng)*nElem(jAng)
+        kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
         call DGEMM_('T','N',jPrim*kk,iBas,iPrim,One,Fnl(1,nComp+1),iPrim,Shells(iShll)%pCff,iPrim,Zero,Scr1,jPrim*kk)
         ! Transform j,xabI to xab,IJ
         call DGEMM_('T','N',kk*iBas,jBas,jPrim,One,Scr1,jPrim,Shells(jShll)%pCff,jPrim,Zero,Fnl(1,nComp+1),kk*iBas)

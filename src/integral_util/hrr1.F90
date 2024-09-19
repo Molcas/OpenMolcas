@@ -19,6 +19,7 @@ subroutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,na,nb,na1,nb1,nPrim,la,lb)
 !             June '91                                                 *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind3, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -30,10 +31,6 @@ integer(kind=iwp) :: i, ipA1B, ipAB, ipAB1, ipxyz, ixa, ixb, ixyza, ixyza1, ixyz
 #ifdef _DEBUGPRINT_
 character(len=72) :: Label
 #endif
-! Statement functions
-integer(kind=iwp) :: iy, iz, ixyz, Ind, nElem
-Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #ifdef _DEBUGPRINT_
 write(Label,'(A,i1,A,i1,A)') ' Source: (',na1,',',nb,'|'
@@ -48,37 +45,37 @@ call RecPrt(Label,' ',ab,nPrim,nab)
 do ixb=nb1,0,-1
   do iyb=nb1-ixb,0,-1
     izb = nb1-ixb-iyb
-    ixyzb1 = Ind(iyb,izb)
+    ixyzb1 = C_Ind3(ixb,iyb,izb)
 
     do ixa=na,0,-1
       do iya=na-ixa,0,-1
         iza = na-ixa-iya
 
-        ixyza = Ind(iya,iza)
+        ixyza = C_Ind3(ixa,iya,iza)
 
         ! Find a angular index which can be decremented
 
         if (ixb /= 0) then
           ipxyz = 1
-          ixyza1 = Ind(iya,iza)
-          ixyzb = Ind(iyb,izb)
+          ixyza1 = C_Ind3(ixa,iya,iza)
+          ixyzb = C_Ind3(ixb,iyb,izb)
         else if (iyb /= 0) then
           ipxyz = 2
-          ixyza1 = Ind(iya+1,iza)
-          ixyzb = Ind(iyb-1,izb)
+          ixyza1 = C_Ind3(ixa,iya+1,iza)
+          ixyzb = C_Ind3(ixb,iyb-1,izb)
         else
           ipxyz = 3
-          ixyza1 = Ind(iya,iza+1)
-          ixyzb = Ind(iyb,izb-1)
+          ixyza1 = C_Ind3(ixa,iya,iza+1)
+          ixyzb = C_Ind3(ixb,iyb,izb-1)
         end if
         if (la >= lb) then
-          ipab1 = ixyza+nElem(na)*(ixyzb1-1)
-          ipa1b = ixyza1+nElem(na1)*(ixyzb-1)
-          ipab = ixyza+nElem(na)*(ixyzb-1)
+          ipab1 = ixyza+nTri_Elem1(na)*(ixyzb1-1)
+          ipa1b = ixyza1+nTri_Elem1(na1)*(ixyzb-1)
+          ipab = ixyza+nTri_Elem1(na)*(ixyzb-1)
         else
-          ipab1 = ixyzb1+nElem(nb1)*(ixyza-1)
-          ipa1b = ixyzb+nElem(nb)*(ixyza1-1)
-          ipab = ixyzb+nElem(nb)*(ixyza-1)
+          ipab1 = ixyzb1+nTri_Elem1(nb1)*(ixyza-1)
+          ipa1b = ixyzb+nTri_Elem1(nb)*(ixyza1-1)
+          ipab = ixyzb+nTri_Elem1(nb)*(ixyza-1)
         end if
         if (cffAB(ipxyz) /= Zero) then
           call DZaXpY(nPrim,cffAB(ipxyz),ab(1,ipab),1,a1b(1,ipa1b),1,ab1(1,ipab1),1)

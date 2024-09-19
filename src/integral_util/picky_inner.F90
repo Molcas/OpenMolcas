@@ -23,18 +23,16 @@ implicit none
 integer(kind=iwp), intent(in) :: n, m, nijPrm, nijCmp, nDCR, nSt, nEnd, mSt, mEnd
 real(kind=wp), intent(in) :: Din(((n*m+1)*nijCmp)+nijPrm+1,nDCR)
 real(kind=wp), intent(out) :: Dout((((nEnd-nSt+1)*(mEnd-mSt+1)+1)*nijCmp)+nijPrm+1,nDCR)
-integer(kind=iwp) :: i_n, iDCR, iIn, ijCmp, im, iOut, jIn, jm, jn, jOut
-! Statement functions
-integer(kind=iwp) :: i, j, k, ij1, ij2
-ij1(i,j,k) = (k-1)*(n*m+1)+(j-1)*n+i
-ij2(i,j,k) = (k-1)*((nEnd-nSt+1)*(mEnd-mSt+1)+1)+(j-1)*(nEnd-nSt+1)+i
+integer(kind=iwp) :: i_n, iDCR, iIn, ijCmp, im, iOut, jIn, jm, jn, jOut, nl, ml
 
 if ((nSt == 1) .and. (nEnd == n) .and. (mSt == 1) .and. (mEnd == m)) then
   ! Copy the whole block
   call dcopy_((((n*m+1)*nijCmp)+nijPrm+1)*nDCR,Din,1,Dout,1)
 else
+  nl = nEnd-nSt+1
+  ml = mEnd-mSt+1
   iIn = (n*m+1)*nijCmp
-  iOut = (((nEnd-nSt+1)*(mEnd-mSt+1)+1)*nijCmp)
+  iOut = (nl*ml+1)*nijCmp
   ! Loop over desymmetrized density blocks
   do iDCR=1,nDCR
     ! Loop over angular combinations
@@ -47,13 +45,13 @@ else
         ! Loop over subset of contracted basis
         do i_n=nSt,nEnd
           jn = jn+1
-          Dout(ij2(jn,jm,ijCmp),iDCR) = Din(ij1(i_n,im,ijCmp),iDCR)
+          Dout(ij(jn,jm,ijCmp,nl,ml),iDCR) = Din(ij(i_n,im,ijCmp,n,m),iDCR)
         end do
       end do
       ! Move the largest density matrix element for
       ! this angular combination
-      jIn = ij1(n,m,ijCmp)+1
-      jOut = ij2(nEnd-nSt+1,mEnd-mSt+1,ijCmp)+1
+      jIn = ij(n,m,ijCmp,n,m)+1
+      jOut = ij(nl,ml,ijCmp,nl,ml)+1
       Dout(jOut,iDCR) = Din(jIn,iDCR)
     end do
     ! Move the largest density matrix element for
@@ -63,5 +61,16 @@ else
 end if
 
 return
+
+contains
+
+pure function ij(i,j,k,nn,mm)
+
+  integer(kind=iwp) :: ij
+  integer(kind=iwp), intent(in) :: i, j, k, nn, mm
+
+  ij = (k-1)*(nn*mm+1)+(j-1)*nn+i
+
+end function
 
 end subroutine Picky_inner

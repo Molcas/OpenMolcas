@@ -22,6 +22,7 @@ subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,xZeta,xZI,xKappa,xPCoor,Kernel,KrnlMm
 ! Purpose: compute symmetry adapted one-electron integrals for
 !          shell doublet iS, jS.
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, MolWgh, Shells
@@ -62,9 +63,6 @@ logical(kind=iwp) :: DO_TRAN, NATEST
 #endif
 integer(kind=iwp), external :: MemSO1
 logical(kind=iwp), external :: EQ
-! Statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -111,7 +109,7 @@ if (Label(1:3) == 'MAG') then
     write(u6,*) 'interacted Ato.Fun '
     write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
   end if
-  lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+  lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   if (lFinal > nFinal) then
     call WarningMessage(2,'lFinal > nFinal')
     call Abend()
@@ -258,16 +256,16 @@ else  !  MAG Integrals
   if (PLabel /= ' ') then
     la0 = iAng
     lb0 = jAng
-    MemAux = 1+3*nElem(la0)*nElem(lb0+1)*nIC
+    MemAux = 1+3*nTri_Elem1(la0)*nTri_Elem1(lb0+1)*nIC
     la1 = la0
     lb1 = lb0+1
-    MemBux = 1+3*nElem(la1+1)*nElem(lb1)*nIC
-    if (la1 /= 0) MemBux = MemBux+3*nElem(la1-1)*nElem(lb1)*nIC
+    MemBux = 1+3*nTri_Elem1(la1+1)*nTri_Elem1(lb1)*nIC
+    if (la1 /= 0) MemBux = MemBux+3*nTri_Elem1(la1-1)*nTri_Elem1(lb1)*nIC
     if (lb0 /= 0) then
       lb1 = lb0-1
-      MemAux = MemAux+3*nElem(la0)*nElem(lb0-1)*nIC
-      MemCux = 1+3*nElem(la1+1)*nElem(lb1)*nIC
-      if (la1 /= 0) MemCux = MemCux+3*nElem(la1-1)*nElem(lb1)*nIC
+      MemAux = MemAux+3*nTri_Elem1(la0)*nTri_Elem1(lb0-1)*nIC
+      MemCux = 1+3*nTri_Elem1(la1+1)*nTri_Elem1(lb1)*nIC
+      if (la1 /= 0) MemCux = MemCux+3*nTri_Elem1(la1-1)*nTri_Elem1(lb1)*nIC
     else
       MemCux = 0
     end if
@@ -290,7 +288,7 @@ else  !  MAG Integrals
   ! Allocate memory for the final integrals all in the
   ! primitive basis.
 
-  lFinal = nIC*iPrim*jPrim*nElem(iAng)*nElem(jAng)
+  lFinal = nIC*iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   if (lFinal > nFinal) then
     call WarningMessage(2,'lFinal > nFinal')
     call Abend()
@@ -301,7 +299,7 @@ else  !  MAG Integrals
   !                                                                    *
   ! Scratch area for contraction step
 
-  lScrtch = max(iPrim,jPrim)*max(iBas,jBas)*nIC*nElem(iAng)*nElem(jAng)
+  lScrtch = max(iPrim,jPrim)*max(iBas,jBas)*nIC*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   if (lScrtch > nScrtch) then
     call WarningMessage(2,'lScrtch > nScrtch')
     call Abend()
@@ -311,7 +309,7 @@ else  !  MAG Integrals
   !                                                                    *
   ! Scratch area for the transformation to spherical gaussians
 
-  lScrSph = nIC*iBas*jBas*nElem(iAng)*nElem(jAng)
+  lScrSph = nIC*iBas*jBas*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   if (lScrSph > nScrSph) then
     call WarningMessage(2,'lScrSph > nScrSph')
     call Abend()
@@ -384,7 +382,7 @@ else  !  MAG Integrals
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,xZeta,xZI,xKappa,xPCoor,rFinal,iPrim*jPrim,nIC,nComp,iAng,jAng, &
                   A,RB,nOrder,Kern,MemKer,CoorO,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
-      if (iPrint >= 49) call RecPrt(' Primitive Integrals',' ',rFinal,iPrim*jPrim,nElem(iAng)*nElem(jAng)*nIC)
+      if (iPrint >= 49) call RecPrt(' Primitive Integrals',' ',rFinal,iPrim*jPrim,nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIC)
 
       ! Transform from primitive to contracted basis functions.
 
@@ -394,7 +392,7 @@ else  !  MAG Integrals
       end if
 
       ! Transform i,jabx to jabx,I
-      kk = nElem(iAng)*nElem(jAng)
+      kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
       call DGEMM_('T','N',jPrim*kk*nIC,iBas,iPrim,One,rFinal,iPrim,Shells(iShll)%pCff,iPrim,Zero,Scrtch,jPrim*kk*nIC)
       ! Transform j,abxI to abxI,J
       call DGEMM_('T','N',kk*nIC*iBas,jBas,jPrim,One,Scrtch,jPrim,Shells(jShll)%pCff,jPrim,Zero,ScrSph,kk*nIC*iBas)

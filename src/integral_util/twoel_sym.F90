@@ -31,6 +31,7 @@ subroutine TwoEl_Sym( &
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
@@ -66,9 +67,6 @@ integer(kind=iwp) :: i
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
-! Statement function
-integer(kind=iwp) :: ixyz, nabSz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(iS_)
@@ -431,12 +429,12 @@ do lDCRR=0,nDCRR-1
 
         ! Compute actual size of the {a0|c0} block
 
-        mabMin = nabSz(max(la,lb)-1)+1
-        if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
-        mabMax = nabSz(la+lb)
-        mcdMin = nabSz(max(lc,ld)-1)+1
-        if (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nabSz(lc+ld-1)+1
-        mcdMax = nabSz(lc+ld)
+        mabMin = nTri3_Elem1(max(la,lb)-1)
+        if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nTri3_Elem1(la+lb-1)
+        mabMax = nTri3_Elem1(la+lb)-1
+        mcdMin = nTri3_Elem1(max(lc,ld)-1)
+        if (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nTri3_Elem1(lc+ld-1)
+        mcdMax = nTri3_Elem1(lc+ld)-1
         mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 
         ! Find the proper centers to start of with the angular

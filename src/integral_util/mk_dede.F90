@@ -40,6 +40,7 @@ subroutine mk_DeDe(FD,nFD,mFD,ipOffD,nOffD,ipDeDe,ipD00,MaxDe,mDeDe,mIndij,Speci
 !             Modified to process 1st order density matrices, Dec. '92 *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use iSD_data, only: iSD
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: DC
@@ -59,8 +60,8 @@ real(kind=wp), intent(in) :: FD(nFD,mFD)
 integer(kind=iwp), intent(out) :: ipOffD(2+mFD,nOffD), mDeDe, mIndij
 logical(kind=iwp), intent(in) :: Special_NoSym, DFT_Storage
 real(kind=wp), intent(inout) :: DeDe(nDeDe)
-integer(kind=iwp) :: iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, Inc, ipD00, iPrim, iPrimi, &
-                     ipStart, iS, iSh, iShell, iShll, iSmLbl, iuv, jAO, jAOj, jBas, jBasj, jCMp, jCmpj, jOffD, jpDAO, jPrim, &
+integer(kind=iwp) :: i, iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, Inc, ipD00, iPrim, iPrimi, &
+                     ipStart, iS, iSh, iShell, iShll, iSmLbl, iuv, j, jAO, jAOj, jBas, jBasj, jCMp, jCmpj, jOffD, jpDAO, jPrim, &
                      jPrimj, jS, jSh, jShell, jShll, lDCRR, LmbdR, mdci, mdcj, nDCRR, nOp(2), nSkal, nSO
 real(kind=wp) :: FactND, Temp
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOc(:), DSOp(:), Scrt(:)
@@ -68,9 +69,6 @@ integer(kind=iwp), external :: iDAMax_, MemSO1, n2Tri, NrOpr
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iIrrep, jFD
 #endif
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

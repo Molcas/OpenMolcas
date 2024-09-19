@@ -19,6 +19,7 @@ subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp)
 !             Modified for reaction field calculations July '92        *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind, nTri3_Elem
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -29,11 +30,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Fact(nZeta), Temp(nZeta)
-integer(kind=iwp) :: iComp, ipa, ipb, ir, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, ix, iz, Ind, iOff
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
+integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 
 do iZeta=1,nZeta
   Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
@@ -44,10 +41,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 #       ifdef _DEBUGPRINT_
         write(u6,*) ixa,iya,iza,ixb,iyb,izb
         write(u6,*) ipa,ipb
@@ -62,7 +59,7 @@ do ixa=0,la
             end do
             do ir=ix+iy,lr
               iz = ir-ix-iy
-              iComp = Ind(ir,ix,iz)+iOff(ir)
+              iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
               do iZeta=1,nZeta
                 rFinal(iZeta,ipa,ipb,iComp) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
               end do

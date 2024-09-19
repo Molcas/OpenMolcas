@@ -33,6 +33,7 @@ subroutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,D
 !     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: Gamma_MRCISD
 use Constants, only: Zero, One, Quart, Four
@@ -57,9 +58,6 @@ real(kind=wp), parameter :: exfac = One
 integer(kind=iwp) :: iComp
 real(kind=wp), external :: DDOt_
 #endif
-! Statement Function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

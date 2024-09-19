@@ -22,6 +22,7 @@ subroutine Phase(iCmp,jCmp,kCmp,lCmp,iAng,iShll,kOp,ijkl,AOInt)
 !             June '90                                                 *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas
@@ -34,19 +35,16 @@ real(kind=wp), intent(inout) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: i1, i2, i3, i4, iChBs, ii, jChBs, jj, kChBs, kk, lChBs, ll
 real(kind=wp) :: Factor, pa1T, pa2T, pb1T, pb2T
 integer(kind=iwp), external :: iPrmt
-! Statement Function
-integer(kind=iwp) :: ixyz, iOff
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !call RecPrt(' In Phase: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 
 ! Change phase factor. This is only necessary if T=/=E.
 
 if ((kOp == 0) .or. (iCmp*jCmp*kCmp*lCmp == 0)) return
-ii = iOff(iAng(1))
-jj = iOff(iAng(2))
-kk = iOff(iAng(3))
-ll = iOff(iAng(4))
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 do i1=1,iCmp
   iChBs = iChBas(ii+i1)
   if (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))

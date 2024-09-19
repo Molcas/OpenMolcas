@@ -11,6 +11,7 @@
 
 subroutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,lOper,iChO,Factor)
 
+use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Definitions, only: wp, iwp, u6
 
@@ -20,9 +21,6 @@ real(kind=wp), intent(in) :: ArrIn(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
 real(kind=wp), intent(inout) :: ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
 integer(kind=iwp) :: iComp, iIC, iIrrep
 real(kind=wp) :: pO, Xg
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !nA = (la+1)*(la+2)/2
 !nB = (lb+1)*(lb+2)/2
@@ -37,7 +35,7 @@ do iComp=1,nComp
     if (.not. btest(lOper(iComp),iIrrep)) cycle
     iIC = iIC+1
     Xg = real(iChTbl(iIrrep,iDCRT),kind=wp)
-    call DaXpY_(nZeta*nElem(la)*nElem(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
+    call DaXpY_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
   end do
 end do
 if (iIC /= nIC) then

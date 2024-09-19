@@ -60,10 +60,11 @@ private
 
 integer, parameter :: MxA = 1000, MxPar = 100
 integer(kind=iwp) :: iCharge_ref, ISlPar(MxPar), latato, lMax = -1, maxa, maxb, maxc, nCavxyz, nexpo, nGrid, nGrid_Eff, &
-                     nGridAverage, nGridSeed, NOrdInp(MxA), nPCM_Info, NS, NSinit, nSparse, nTs
-real(kind=wp) :: afac, clim = Zero, Cordsi(3,4), dampIter = Zero, diedel, dipCutoff = Zero, dipsi, distSparse, Eps, Eps_User, &
-                 EpsInf, EpsInf_User, fmax, gatom, polsi, prefac, RadInp(MxA), radlat, rds, rotAlpha, rotBeta, rotGamma, rsca, &
-                 RSlPar(MxPar), RSolv, scaaa, scal14, scala, scalb, scalc, tK, VMol
+                     nGridAverage, nGridSeed, NOrdInp(MxA), nPCM_Info, NS, NSinit, nSparse = 0, nTs
+real(kind=wp) :: afac, clim = Zero, Cordsi(3,4) = Zero, dampIter = Zero, diedel, dipCutoff = Zero, dipsi = Zero, &
+                 distSparse = Zero, Eps, Eps_User, EpsInf, EpsInf_User, fmax, gatom, polsi = Zero, prefac, RadInp(MxA), &
+                 radlat = Zero, rds, rotAlpha = Zero, rotBeta = Zero, rotGamma = Zero, rsca, RSlPar(MxPar), RSolv, scaaa, scal14, &
+                 scala = Zero, scalb, scalc, tK = Zero, VMol
 logical(kind=iwp) :: Conductor, DoDeriv, Done_Lattice, lAmberPol, lDamping, lDiprestart, lFirstIter, LGridAverage, lLangevin, lRF, &
                      lRFCav, LSparse, NonEq_ref, PCM
 character(len=32) :: Solvent

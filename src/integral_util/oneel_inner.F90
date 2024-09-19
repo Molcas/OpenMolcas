@@ -42,6 +42,7 @@ subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iCh
 !             Modified loop structure April 99                         *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Sizes_of_Seward, only: S
@@ -73,9 +74,6 @@ real(kind=wp), allocatable :: Kappa(:), PCoor(:), ScrSph(:), Scrtch(:), SOInt(:)
 real(kind=wp), allocatable, target :: FArray(:), Kern(:)
 integer(kind=iwp), external :: MemSO1, n2Tri
 logical(kind=iwp), external :: Rsv_Tsk
-! Statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 !                                                                      *
 !***********************************************************************
@@ -141,14 +139,14 @@ do ijS=1,nijS
   iAng = iSD(1,iS)
   jAng = iSD(1,jS)
 
-  mFinal = nIC*iPrim*jPrim*nElem(iAng)*nElem(jAng)
+  mFinal = nIC*iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   lFinal = max(lFinal,mFinal)
 
   if (Label(1:3) == 'MAG') cycle
-  mScrt1 = nIC*max(iPrim,jBas)*max(iBas,jPrim)*nElem(iAng)*nElem(jAng)
+  mScrt1 = nIC*max(iPrim,jBas)*max(iBas,jPrim)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   lScrt1 = max(mScrt1,lScrt1)
 
-  mScrt2 = nIC*iBas*jBas*nElem(iAng)*nElem(jAng)
+  mScrt2 = nIC*iBas*jBas*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   lScrt2 = max(mScrt2,lScrt2)
 
   call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
@@ -156,16 +154,16 @@ do ijS=1,nijS
   if (PLabel /= ' ') then
     la0 = iAng
     lb0 = jAng
-    MemAux = 1+3*nElem(la0)*nElem(lb0+1)*nIC
+    MemAux = 1+3*nTri_Elem1(la0)*nTri_Elem1(lb0+1)*nIC
     la1 = la0
     lb1 = lb0+1
-    MemBux = 1+3*nElem(la1+1)*nElem(lb1)*nIC
-    if (la1 /= 0) MemBux = MemBux+3*nElem(la1-1)*nElem(lb1)*nIC
+    MemBux = 1+3*nTri_Elem1(la1+1)*nTri_Elem1(lb1)*nIC
+    if (la1 /= 0) MemBux = MemBux+3*nTri_Elem1(la1-1)*nTri_Elem1(lb1)*nIC
     if (lb0 /= 0) then
       lb1 = lb0-1
-      MemAux = MemAux+3*nElem(la0)*nElem(lb0-1)*nIC
-      MemCux = 1+3*nElem(la1+1)*nElem(lb1)*nIC
-      if (la1 /= 0) MemCux = MemCux+3*nElem(la1-1)*nElem(lb1)*nIC
+      MemAux = MemAux+3*nTri_Elem1(la0)*nTri_Elem1(lb0-1)*nIC
+      MemCux = 1+3*nTri_Elem1(la1+1)*nTri_Elem1(lb1)*nIC
+      if (la1 /= 0) MemCux = MemCux+3*nTri_Elem1(la1-1)*nTri_Elem1(lb1)*nIC
     else
       MemCux = 0
     end if

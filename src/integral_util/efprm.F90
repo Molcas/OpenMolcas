@@ -24,6 +24,7 @@ subroutine EFPrm(Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,Array,nArr,Cco
 ! Modified for explicit code, R. Lindh, February '95.                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -48,10 +49,6 @@ logical(kind=iwp), external :: EQ
 integer(kind=iwp) :: iElem, jElem
 character(len=80) :: Label
 #endif
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem, nabSz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 rFinal(:,:,:,:) = Zero
 
@@ -61,13 +58,13 @@ iAnga(3) = nOrdOp
 iAnga(4) = 0
 call dcopy_(3,A,1,Coori(1,1),1)
 call dcopy_(3,RB,1,Coori(1,2),1)
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-mcdMin = nabSz(nOrdOp-1)+1
-mcdMax = nabSz(nOrdOp)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
+mcdMin = nTri3_Elem1(nOrdOp-1)
+mcdMax = nTri3_Elem1(nOrdOp)-1
 lab = (mabMax-mabMin+1)
-kab = nElem(la)*nElem(lb)
+kab = nTri_Elem1(la)*nTri_Elem1(lb)
 lcd = (mcdMax-mcdMin+1)
 labcd = lab*lcd
 
@@ -122,8 +119,8 @@ call DScal_(nZeta*kab*lcd,-One,rFinal,1)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In EFPrm la,lb=',la,lb
-do iElem=1,nElem(la)
-  do jElem=1,nElem(lb)
+do iElem=1,nTri_Elem1(la)
+  do jElem=1,nTri_Elem1(lb)
     if (lcd == 1) then
       write(Label,'(A,I2,A,I2,A)') ' EFPrm: rFinal (',iElem,',',jElem,') '
       call RecPrt(Label,' ',rFinal(1,iElem,jElem,1),nZeta,1)

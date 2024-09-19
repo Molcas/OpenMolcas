@@ -13,6 +13,7 @@
 
 subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,ikop1,ikop2,Irrep,Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: iChTbl, iOper, nIrrep
 use SOAO_Info, only: iAOtSO, nSOInf
 use Basis_Info, only: nBas
@@ -27,9 +28,6 @@ logical(kind=iwp), intent(in) :: Shij
 integer(kind=iwp) :: i1, i2, iAO, iAOi, iChO, iIR, iIrrep, ipF, ipFij, iPnt(0:7), ipntij, iSO, iSOi, iSOj, jAO, jAOj, jirr(0:7), &
                      jIrrep, jSO, jSOi, jSOj, l1, l2, NrOpr
 real(kind=wp) :: Fac, x1, x2, x3, x4, xr
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iChO = iOper(Irrep)
 if (iChO == 0) then

@@ -39,6 +39,7 @@ subroutine PSOAO0(nSO,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBs
 !             Modified for unified Work2 and Work3 block. Febr. 2015   *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use lw_Info, only: lwInt, lwSqn, lwSyb
 use Gateway_global, only: force_part_c, force_part_p
 use RICD_Info, only: Cholesky, Do_RI
@@ -55,9 +56,6 @@ integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, 
                      mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
                      nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
-! Statement function to compute canonical index
-integer(kind=iwp) :: ixyz, nabSz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 la = iAnga(1)
 lb = iAnga(2)
@@ -69,11 +67,11 @@ nab = iCmp*jCmp
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
 ncd = kCmp*lCmp
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
 ne = (mabMax-mabMin+1)
-mcdMin = nabSz(max(lc,ld)-1)+1
-mcdMax = nabSz(lc+ld)
+mcdMin = nTri3_Elem1(max(lc,ld)-1)
+mcdMax = nTri3_Elem1(lc+ld)-1
 nf = (mcdMax-mcdMin+1)
 ! e0|f0 size
 mabcd = ne*nf*nComp

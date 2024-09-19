@@ -25,6 +25,7 @@ subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,Angular,nTerm,
 !                   University of Lund, SWEDEN. February 2004          *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind3
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -43,6 +44,7 @@ real(kind=wp) :: Cff, Coef, Exp_Min, R2, ThrE, Tmp, Tmp2, Tmp3, Tmp4, XCff
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -70,13 +72,6 @@ character(len=80) :: Label
 !            20:  d3Fdzdzdz
 !            ... and so on;
 !                in the same order for the higher order derivatives.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statement function
-integer(kind=iwp) :: Ind
-Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2+iz+1
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -219,7 +214,7 @@ do ix=iAng,0,-1
 
   do iy=iAng-ix,0,-1
     iz = iAng-ix-iy
-    ip = Ind(iy,iz)
+    ip = C_Ind3(ix,iy,iz)
 
     ! Initial values for 0th-order derivative
 
@@ -240,7 +235,7 @@ do ix=iAng,0,-1
       do jx=jDrv,0,-1
         do jy=jDrv-jx,0,-1
           jz = jDrv-jx-jy
-          jf = Ind(jy,jz)
+          jf = C_Ind3(jx,jy,jz)
 
           do kDrv=0,jDrv-1
             jf = jf+(kDrv+1)*(kDrv+2)/2

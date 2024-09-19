@@ -11,7 +11,7 @@
 
 subroutine ModGauss(A,Xi,w)
 
-use Constants, only: Zero, One, Two, Three, Five, Half, rBohr
+use Constants, only: Zero, One, Two, Three, Half, rBohr
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,11 +21,6 @@ integer(kind=iwp) :: i, iNeg, Iter, MaxIter
 real(kind=wp) :: A3, Delta_R, Delta_W, Det, Errors(0:12), g(2), H(2,2), HInv(2,2), R0, r_90, RMS, Step(2), T, Thr, W0
 real(kind=wp), parameter :: Facts(2,0:12) = reshape([Zero,Zero,One,Zero,-One,Zero,Two,Zero,-Two,Zero,Zero,One,Zero,-One,Zero,Two, &
                                                      Zero,-Two,One,One,-One,One,One,-One,-One,-One],[2,13])
-! Statement functions
-real(kind=wp) :: e, f, r, x, x1, x2
-f(x,w) = (One+w*x**2)*exp(-x**2)
-R(w) = sqrt(Two*RMS**2*(Three*w+Two)/(Three*(Two+Five*w)))
-E(x1,x2,w) = (f(x1,w)-0.9_wp)**2+(f(x2,w)-0.1_wp)**2
 
 !                                                                      *
 !***********************************************************************
@@ -80,7 +75,7 @@ do Iter=1,MaxIter
     w0 = w+Facts(1,i)*Delta_w
     r0 = r_90+Facts(2,i)*Delta_r
 
-    Errors(i) = E(r0/R(w0),(r0+T)/R(w0),w0)
+    Errors(i) = (f(r0/R(w0),w0)-0.9_wp)**2+(f((r0+T)/R(w0),w0)-0.1_wp)**2
 
     !if (i == 0) then
     !  write(u6,*) 'r_90,f(x_90)=',r0,f(r0/R(w0),w0)
@@ -136,5 +131,27 @@ w = w*Xi
 !***********************************************************************
 !                                                                      *
 return
+
+contains
+
+pure function f(x,w)
+
+  real(kind=wp) :: f
+  real(kind=wp), intent(in) :: x, w
+
+  f = (One+w*x**2)*exp(-x**2)
+
+end function
+
+pure function R(w)
+
+  use Constants, only: Five
+
+  real(kind=wp) :: R
+  real(kind=wp), intent(in) :: w
+
+  R = sqrt(Two*RMS**2*(Three*w+Two)/(Three*(Two+Five*w)))
+
+end function
 
 end subroutine ModGauss

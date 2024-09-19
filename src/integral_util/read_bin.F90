@@ -11,6 +11,7 @@
 
 subroutine Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,nQuad,Gmma,nGamma,LuGamma,Bin,lBin)
 
+use Index_Functions, only: iTri
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -20,9 +21,6 @@ real(kind=wp), intent(in) :: G_Toc(nQuad)
 real(kind=wp), intent(out) :: Gmma(nGamma), Bin(2,lBin)
 integer(kind=iwp) :: iDisk, iGamma, iShell_AB, iShell_ABCD, iShell_CD, jGamma, lGamma
 integer(kind=iwp), parameter :: iRead = 2
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 Gmma(:) = Zero
 

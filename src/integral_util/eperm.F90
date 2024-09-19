@@ -29,6 +29,7 @@ subroutine eperm(D_Tot,nDens,Ravxyz,Cavxyz,nCavxyz_,dEF,Grid,nGrid_,Cord,MaxAto,
 !              March 2000                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use external_centers, only: iXPolType, nOrd_XF, nXF, nXMolnr, XF, XMolnr
 use Symmetry_Info, only: iChBas
 use Integral_interfaces, only: int_kernel, int_mem
@@ -61,9 +62,6 @@ integer(kind=iwp), external :: IrrFnc
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: lOff, iIrrep, n
 #endif
-! Statement Function
-integer(kind=iwp) :: iOff
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !                                                                      *
 !***********************************************************************
@@ -84,7 +82,7 @@ if (lRFCav) then  !Skip calculation of moments if no cavity
   ! 1) Compute M(nuc,nl), nuclear multipole moments
 
   do iMax=0,lMax
-    ip = 1+iOff(iMax)
+    ip = 1+nTri3_Elem(iMax)
     call RFNuc(Origin,Ravxyz(ip),iMax)
   end do
 

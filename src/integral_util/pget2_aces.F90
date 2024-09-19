@@ -33,6 +33,7 @@ subroutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,DSO_
 !     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO, iOffSO
 use pso_stuff, only: Gamma_MRCISD
@@ -50,8 +51,8 @@ real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO), DSO_Var(nDSO), DSSO(nDSO), DSSO_Var(nDSO), Gmma(nGamma)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, Indi, Indij, Indik, &
                      Indil, Indj, Indjk, Indjl, Indk, Indkl, Indl, iPntij, iPntik, iPntil, iPntjk, iPntjl, iPntkl, iS, iShell_A, &
-                     iShell_AB, iShell_B, iShell_C, iShell_CD, iShell_D, iSO_A, iSO_R, iSOi, iSOi_A, iSym(0:7), j1, j12, j123, j2, &
-                     j3, j4, jAOj, jS, jSO_A, jSO_R, jSOj, jSOj_A, jSym(0:7), kAOk, kS, kSO_A, kSO_R, kSOk, kSOk_A, kSym(0:7), &
+                     iShell_AB, iShell_B, iShell_C, iShell_CD, iShell_D, iSO_A, iSO_R, iSOi, iSOi_A, iSym(0:7), j, j1, j12, j123, &
+                     j2, j3, j4, jAOj, jS, jSO_A, jSO_R, jSOj, jSOj_A, jSym(0:7), kAOk, kS, kSO_A, kSO_R, kSOk, kSOk_A, kSym(0:7), &
                      lAOl, lOper, lS, lSO_A, lSO_R, lSOl, lSOl_A, lSym(0:7), MemSO2, mijkl, nDim_A, nDim_AB, nDim_B, nDim_C, &
                      nDim_CD, nDim_D, niSym, njSym, nkSym, nlSym
 real(kind=wp) :: T14, Temp
@@ -60,9 +61,6 @@ integer(kind=iwp), external :: iPntSO
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iComp
 #endif
-! Statement Function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

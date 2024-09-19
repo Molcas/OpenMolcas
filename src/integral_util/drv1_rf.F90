@@ -35,6 +35,7 @@ subroutine Drv1_RF(FactOp,nOpr,FD,nFD,CCoor,lOper,Cavxyz,lMax)
 !             Modified loop structure  99                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, MolWgh, Shells
@@ -64,9 +65,6 @@ integer(kind=iwp), external :: MemSO1, n2Tri
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
-! Statement function
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! Auxiliary memory allocation.
 
@@ -128,20 +126,20 @@ do iS=1,nSkal
     ! primitive basis.
 
     nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nComp
+    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
     call mma_allocate(Fnl,lFinal,Label='Fnl')
 
     ! Scratch area for contraction step
 
-    nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Scr1,nScr1,Label='Scr1')
 
     ! Scratch area for the transformation to spherical gaussians
 
-    nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Scr2,nScr2,Label='Scr2')
 
-    nDAO = iPrim*jPrim*nElem(iAng)*nElem(jAng)
+    nDAO = iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(DAO,nDAO,Label='DAO')
 
     ! At this point we can compute Zeta.
@@ -244,7 +242,7 @@ do iS=1,nSkal
           ! Project the spherical harmonic space onto the
           ! cartesian space.
 
-          kk = nElem(iAng)*nElem(jAng)
+          kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
           if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
             ! ij,AB --> AB,ij

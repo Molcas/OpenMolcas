@@ -22,6 +22,7 @@ subroutine CmbnCB(Rnxyz,nZeta,la,lb,rKappa,rFinal,Beta,IfGrad,ld,nVecCB)
 !             October '91.                                             *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -33,9 +34,6 @@ logical(kind=iwp), intent(in) :: IfGrad(3)
 integer(kind=iwp), intent(out) :: nVecCB
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: xB, yB, zB
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, ix, iz, Ind
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In CmbnCB: rKappa',' ',rKappa,1,nZeta)
@@ -47,10 +45,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
 
         ! Combine overlap integral gradients
 

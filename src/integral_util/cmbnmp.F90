@@ -17,6 +17,7 @@ subroutine CmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,9 +26,6 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(
 real(kind=wp), intent(inout) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
 integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 real(kind=wp) :: Fact
-! Statement function for Cartesian index
-integer(kind=iwp) :: Ind, ixyz
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 do ixa=0,la
   iyaMax = la-ixa
@@ -35,10 +33,10 @@ do ixa=0,la
     iybMax = lb-ixb
     do iya=0,iyaMax
       iza = la-ixa-iya
-      ipa = Ind(la,ixa,iza)
+      ipa = C_Ind(la,ixa,iza)
       do iyb=0,iybMax
         izb = lb-ixb-iyb
-        ipb = Ind(lb,ixb,izb)
+        ipb = C_Ind(lb,ixb,izb)
         !if (iPrint >= 99) then
         !  write(u6,*) ixa,iya,iza,ixb,iyb,izb
         !  write(u6,*) ipa,ipb

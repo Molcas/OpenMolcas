@@ -32,6 +32,7 @@ subroutine k2Loop(Coor,iAnga,iCmpa,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nB
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use Real_Spherical, only: ipSph, rSph
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
@@ -67,9 +68,6 @@ procedure(rys2d_kernel) :: Rys2D
 procedure(tval_kernel) :: TERIS
 logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
-! Statement function to compute canonical index
-integer(kind=iwp) :: nabSz, ixyz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 !                                                                      *
 !***********************************************************************
@@ -114,9 +112,9 @@ do lDCRR=0,nDCRR-1
   ! Generate transformation matrix from intermediate integrals
   ! to final angular composition.
 
-  mabMin = nabSz(max(la,lb)-1)+1
-  if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
-  mabMax = nabSz(la+lb)
+  mabMin = nTri3_Elem1(max(la,lb)-1)
+  if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nTri3_Elem1(la+lb-1)
+  mabMax = nTri3_Elem1(la+lb)-1
   ne = (mabMax-mabMin+1)
   do iIrrep=0,nIrrep-1
     call OA(iOper(iIrrep),CoorM(1:3,1),TA)

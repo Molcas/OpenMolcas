@@ -29,6 +29,7 @@ subroutine Drvk2(DoFock,DoGrad)
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
 use setup, only: mSkal
 use iSD_data, only: iSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
@@ -56,11 +57,6 @@ real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
 real(kind=wp), allocatable :: HRRMtrx(:,:), Knew(:), Lnew(:), Pnew(:), Qnew(:), Scr(:,:)
-! Statement functions
-integer(kind=iwp) :: iTri, nabSz, nElem, i, ixyz, j
-nElem(i) = (i+1)*(i+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -82,10 +78,10 @@ call CWTime(TCpu1,TWall1)
 DoGrad_ = DoGrad
 DoHess_ = .false.
 la_ = S%iAngMx
-mabMin_ = nabSz(max(la_,la_)-1)+1
-mabMax_ = nabSz(la_+la_)
+mabMin_ = nTri3_Elem1(max(la_,la_)-1)
+mabMax_ = nTri3_Elem1(la_+la_)-1
 ne_ = (mabMax_-mabMin_+1)
-nHrrMtrx = ne_*nElem(la_)*nElem(la_)
+nHrrMtrx = ne_*nTri_Elem1(la_)*nTri_Elem1(la_)
 call mma_allocate(HRRMtrx,nHRRMtrx,2,Label='HRRMatrix')
 !                                                                      *
 !***********************************************************************
@@ -109,7 +105,7 @@ call Create_BraKet(S%m2Max,S%m2Max)
 !                                                                      *
 MemTmp = 0
 do iAng=0,S%iAngMx
-  MemTmp = max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
+  MemTmp = max(MemTmp,(S%MaxPrm(iAng)*nTri_Elem1(iAng))**2)
 end do
 call mma_allocate(Scr,MemTmp,3,Label='Scr')
 call mma_allocate(Knew,S%m2Max,Label='Knew')
@@ -255,9 +251,9 @@ do iS=1,mSkal
     ! total of six types) for all possible unique pairs of
     ! centers generated for the symmetry unique centers A and B.
 
-    nHm = iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(max(iAng,jAng)-1))
+    nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
     nHm = nHm*nIrrep
-    ijCmp = nElem(iAng)*nElem(jAng)
+    ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
     ik2 = Indk2(3,ijS)
     call k2Loop(Coor,iAngV,iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:), &

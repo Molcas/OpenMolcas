@@ -29,6 +29,7 @@ subroutine lattcr(Grid,nGrid_,nGrid_Eff_,PolEff,DipEff,cord,maxato,atorad,nPolCo
 !              March 2000                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use rctfld_module, only: Cordsi, DieDel, Dipsi, DistSparse, LatAto, lRFCav, lSparse, MaxA, MaxB, MaxC, nExpO, nGrid_Eff, nSparse, &
                          Polsi, PreFac, RadLat, rds, RotAlpha, RotBeta, RotGamma, rSca, Scala, Scalc
 use Constants, only: Zero, Three, Twelve, Half, OneHalf
@@ -43,14 +44,11 @@ integer(kind=iwp) :: i, ii, Inc, iOrdOp, ixf, j, jj, k, kk, l, m, nGridOld, ni, 
 real(kind=wp) :: atrad, co(3), dGGX, dGGY, dGGZ, drp, Ener, Ener1, fac, rp, rp2, rpa2, rrr, tr(3,3), xa, xp, xs, ya, yp, ys, za, &
                  zp, zs
 real(kind=wp), external :: CovRadT
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! Calculate number of entries per XFIELD point
 Inc = 3
 do iOrdOp=0,nOrd_XF
-  Inc = Inc+nElem(iOrdOp)
+  Inc = Inc+nTri_Elem1(iOrdOp)
 end do
 if (iXPolType > 0) Inc = Inc+6
 

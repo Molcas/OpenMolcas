@@ -13,6 +13,7 @@
 
 subroutine Get_D1A(CMO,D1A_MO,D1A_AO,nsym,nbas,nish,nash,ndens)
 
+use Index_Functions, only: iTri
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -23,11 +24,8 @@ implicit none
 real(kind=wp), intent(in) :: CMO(*), D1A_MO(*)
 real(kind=wp), intent(_OUT_) :: D1A_AO(*)
 integer(kind=iwp), intent(in) :: nSym, nbas(nsym), nish(nsym), nash(nsym), nDens
-integer(kind=iwp) :: iAsh, iBas, ii, iIsh, iOff2, iOff3, iSym
+integer(kind=iwp) :: i, iAsh, iBas, ii, iIsh, iOff2, iOff3, iSym, j
 real(kind=wp), allocatable :: Scr1(:), Tmp1(:,:), Tmp2(:,:)
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iOff2 = 1
 iOff3 = 1

@@ -44,6 +44,7 @@ subroutine FckAcc(iAng,iCmp_,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Sc
 !     Modified July '98 in Tokyo by R. Lindh                           *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
@@ -77,9 +78,6 @@ real(kind=wp), pointer :: Fij(:,:,:), Fik(:,:,:), Fil(:,:,:), Fjk(:,:,:), Fjl(:,
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: XDot
 #endif
-! Statement Function
-integer(kind=iwp) :: ixyz, iOff
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 !                                                                      *
 !***********************************************************************
@@ -108,10 +106,10 @@ if (iBas*jBas*kBas*lBas > nScrt) then
   call WarningMessage(2,'FckAcc: nScrt too small!')
   call Abend()
 end if
-ii = iOff(iAng(1))
-jj = iOff(iAng(2))
-kk = iOff(iAng(3))
-ll = iOff(iAng(4))
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 
 kOp2(1) = iOper(kOp(1))
 kOp2(2) = iOper(kOp(2))

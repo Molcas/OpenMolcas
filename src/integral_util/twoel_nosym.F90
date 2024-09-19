@@ -31,6 +31,7 @@ subroutine TwoEl_NoSym( &
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use Basis_Info, only: Shells
 use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
@@ -53,9 +54,6 @@ real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 real(kind=wp) :: CoorAC(3,2), QInd(2)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ, lEmpty
-! Statement function
-integer(kind=iwp) :: ixyz, nabSz
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(iStabs)
@@ -184,12 +182,12 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
 
   ! Compute actual size of the {a0|c0} block
 
-  mabMin = nabSz(max(la,lb)-1)+1
-  if (EQ(Coor(:,1),Coor(:,2))) mabMin = nabSz(la+lb-1)+1
-  mabMax = nabSz(la+lb)
-  mcdMin = nabSz(max(lc,ld)-1)+1
-  if (EQ(Coor(:,3),Coor(:,4))) mcdMin = nabSz(lc+ld-1)+1
-  mcdMax = nabSz(lc+ld)
+  mabMin = nTri3_Elem1(max(la,lb)-1)
+  if (EQ(Coor(:,1),Coor(:,2))) mabMin = nTri3_Elem1(la+lb-1)
+  mabMax = nTri3_Elem1(la+lb)-1
+  mcdMin = nTri3_Elem1(max(lc,ld)-1)
+  if (EQ(Coor(:,3),Coor(:,4))) mcdMin = nTri3_Elem1(lc+ld-1)
+  mcdMax = nTri3_Elem1(lc+ld)-1
   mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 
   ! Find the proper centers to start of with the angular

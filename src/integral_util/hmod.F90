@@ -17,6 +17,7 @@ subroutine hmod(gx,gy,gz,V,EFx,EFy,EFz,Cavxyz,lmax_)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: C3_Ind3
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,10 +27,6 @@ real(kind=wp), intent(in) :: gx, gy, gz, Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
 real(kind=wp), intent(out) :: V, EFx, EFy, EFz
 integer(kind=iwp) :: ix, iy, iz, lMax
 real(kind=wp) :: aX, aY, aZ, xEff, xyEff, xyzEff
-!---- Statement functions
-integer(kind=iwp) :: iOff, Indx
-iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
-Indx(ix,iy,iz) = iOff(ix,iy,iz)+(iy+iz)*(iy+iz+1)/2+iz+1
 
 V = Zero
 EFx = Zero
@@ -58,17 +55,17 @@ do ix=0,lmax
         xyzeff = xyeff*gz**iz
       end if
       az = real(iz+1,kind=wp)
-      !write(u6,*) ix,iy,iz,Indx(ix,iy,iz),Indx(ix+1,iy,iz),Indx(ix,iy+1,iz),Indx(ix,iy,iz+1)
+      !write(u6,*) ix,iy,iz,C3_Ind3(ix,iy,iz),C3_Ind3(ix+1,iy,iz),C3_Ind3(ix,iy+1,iz),C3_Ind3(ix,iy,iz+1)
 
       ! Charge term
 
-      V = V+xyzeff*Cavxyz(Indx(ix,iy,iz))
+      V = V+xyzeff*Cavxyz(C3_Ind3(ix,iy,iz))
 
       ! Dipole terms
 
-      EFx = EFx+ax*xyzeff*Cavxyz(Indx(ix+1,iy,iz))
-      EFy = EFy+ay*xyzeff*Cavxyz(Indx(ix,iy+1,iz))
-      EFz = EFz+az*xyzeff*Cavxyz(Indx(ix,iy,iz+1))
+      EFx = EFx+ax*xyzeff*Cavxyz(C3_Ind3(ix+1,iy,iz))
+      EFy = EFy+ay*xyzeff*Cavxyz(C3_Ind3(ix,iy+1,iz))
+      EFz = EFz+az*xyzeff*Cavxyz(C3_Ind3(ix,iy,iz+1))
 
     end do
   end do

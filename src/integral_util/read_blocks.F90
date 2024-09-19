@@ -11,6 +11,7 @@
 
 subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,iSO2cI,CutInt)
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iOffSO
 use PSO_Stuff, only: Case_MP2, LuGam, LuGamma
 use Constants, only: Zero, One
@@ -28,9 +29,6 @@ integer(kind=iwp) :: iAB, iAB_E, iAB_S, iAdr, iBlock, iBlockAdr, iBuf, iCD, iDis
                      nDim_CD, nDim_D
 real(kind=wp) :: ABCD, BackChain
 logical(kind=iwp) :: Triangular
-! Statement function for triangular indexation
-integer(kind=iwp) :: i, j, itri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

@@ -31,6 +31,7 @@ subroutine SchInt(CoorM,iAnga,mZeta,Zeta,ZInv,rKapab,P,rKapcd,Q,nZeta,Wrk,nWork2
 !              for estimates of the gradient.                          *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Definitions, only: wp, iwp
@@ -43,7 +44,7 @@ integer(kind=iwp), intent(in) :: iAnga(4), mZeta, nZeta, nWork2, nHrrMtrx, iShll
 real(kind=wp), intent(in) :: CoorM(3,4), Zeta(mZeta), ZInv(mZeta), rKapab(mZeta), P(nZeta,3), rKapcd(mZeta), Q(nZeta,3)
 real(kind=wp), intent(out) :: Wrk(nWork2), HMtrx(nHrrMtrx,2)
 integer(kind=iwp), intent(out) :: i_Int
-integer(kind=iwp) :: iW3, la, lb, mabcd, mabMax, mabMin, mcdMax, mcdMin, ne, nT
+integer(kind=iwp) :: iW3, la, lb, lta, ltb, mabcd, mabMax, mabMin, mcdMax, mcdMin, ne, nT
 real(kind=wp) :: CoorAC(3,2)
 logical(kind=iwp), parameter :: NoSpecial = .true.
 procedure(cff2d_kernel) :: Cff2Dq
@@ -51,10 +52,6 @@ procedure(modu2_kernel) :: ModU2
 procedure(rys2d_kernel) :: xRys2D
 procedure(tval_kernel) :: TERISq
 logical(kind=iwp), external :: EQ
-! Statement function to compute canonical index
-integer(kind=iwp) :: ixyz, i, nabSz, nElem
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
-nElem(i) = (i+1)*(i+2)/2
 
 la = iAnga(1)
 lb = iAnga(2)
@@ -70,11 +67,13 @@ write(u6,*) 'iAnga=',iAnga
 
 ! Compute actual size of [a0|c0] block
 
-mabMin = nabSz(max(la,lb)-1)+1
-if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nabSz(la+lb-1)+1
-mabMax = nabSz(la+lb)
-mcdMin = nabSz(max(la,lb)-1)+1
-if (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nabSz(la+lb-1)+1
+lta = nTri_Elem1(la)
+ltb = nTri_Elem1(lb)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+if (EQ(CoorM(1,1),CoorM(1,2))) mabMin = nTri3_Elem1(la+lb-1)
+mabMax = nTri3_Elem1(la+lb)-1
+mcdMin = nTri3_Elem1(max(la,lb)-1)
+if (EQ(CoorM(1,3),CoorM(1,4))) mcdMin = nTri3_Elem1(la+lb-1)
 mcdMax = mabMax
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 
@@ -111,8 +110,8 @@ call RecPrt(' In SchInt: ijkl,[a0|c0]',' ',Wrk,mZeta,mabcd)
 ! cartesians!
 
 ne = (mabMax-mabMin+1)
-call HrrMtrx(HMtrx(:,1),ne,la,lb,CoorM(:,1),CoorM(:,2),.false.,RSph(ipSph(la)),nElem(la),.false.,RSph(ipSph(lb)),nElem(lb))
-call HrrMtrx(HMtrx(:,2),ne,la,lb,CoorM(:,3),CoorM(:,4),.false.,RSph(ipSph(la)),nElem(la),.false.,RSph(ipSph(lb)),nElem(lb))
+call HrrMtrx(HMtrx(:,1),ne,la,lb,CoorM(:,1),CoorM(:,2),.false.,RSph(ipSph(la)),lta,.false.,RSph(ipSph(lb)),ltb)
+call HrrMtrx(HMtrx(:,2),ne,la,lb,CoorM(:,3),CoorM(:,4),.false.,RSph(ipSph(la)),lta,.false.,RSph(ipSph(lb)),ltb)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -121,13 +120,13 @@ call HrrMtrx(HMtrx(:,2),ne,la,lb,CoorM(:,3),CoorM(:,4),.false.,RSph(ipSph(la)),n
 iW3 = 1+mZeta*mabcd
 call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
 call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
-call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,HMtrx(:,1),HMtrx(:,2),la,lb,la,lb,nElem(la),nElem(lb),nElem(la), &
-            nElem(lb),iShlla,jShllb,iShlla,jShllb,i_Int)
+call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,HMtrx(:,1),HMtrx(:,2),la,lb,la,lb,lta,ltb,lta,ltb,iShlla,jShllb,iShlla, &
+            jShllb,i_Int)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-call RecPrt(' In SchInt',' ',Wrk(i_Int),mZeta,(nElem(la)*nElem(lb))**2)
+call RecPrt(' In SchInt',' ',Wrk(i_Int),mZeta,(lta*ltb)**2)
 #endif
 
 end subroutine SchInt

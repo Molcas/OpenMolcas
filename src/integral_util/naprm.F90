@@ -25,6 +25,7 @@ subroutine NAPrm( &
 !             of Lund, Sweden, January 1991                            *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Basis_Info, only: DBSC, Gaussian_Type, mGaussian_Type, Nuclear_Model, Point_Charge
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -44,10 +45,6 @@ procedure(modu2_kernel) :: Fake, ModU2
 procedure(rys2d_kernel) :: vRys2D, XRys2D
 procedure(tval_kernel) :: TERI, TNAI
 logical(kind=iwp), external :: EQ
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem, nabSz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -55,7 +52,7 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(nOrdOp)
 
-call FZero(rFinal,nZeta*nElem(la)*nElem(lb)*nComp)
+call FZero(rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
 
 lc = 0
 ld = 0
@@ -66,9 +63,9 @@ iAnga(4) = ld
 call dcopy_(3,A,1,Coora(1,1),1)
 call dcopy_(3,RB,1,Coora(1,2),1)
 call dcopy_(2*3,Coora,1,Coori,1)
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
 
 ! Compute FLOPs and size of work array which Hrr will use.
 
@@ -152,8 +149,8 @@ if (Q_Nuc /= Zero) then
       if (dbsc(iCnttp)%w_mGauss > Zero) then
         rKappcd = rKappcd*dbsc(iCnttp)%w_mGauss
         iAnga(3) = 2
-        mcdMin = nabSz(2+ld-1)+1
-        mcdMax = nabSz(2+ld)
+        mcdMin = nTri3_Elem1(2+ld-1)
+        mcdMax = nTri3_Elem1(2+ld)-1
         ! tweak the pointers
         ipOff = 1+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
         mArr = nArr-(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
@@ -188,8 +185,8 @@ if (Q_Nuc /= Zero) then
 
   call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
 
-  call DCopy_(nZeta*nElem(la)*nElem(lb)*nComp,Array(ipIn),1,rFinal,1)
-  call DScal_(nZeta*nElem(la)*nElem(lb)*nComp,-Q_Nuc,rFinal,1)
+  call DCopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,Array(ipIn),1,rFinal,1)
+  call DScal_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,-Q_Nuc,rFinal,1)
 end if
 
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) call mma_deallocate(rKappa_mod)

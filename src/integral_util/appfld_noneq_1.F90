@@ -24,9 +24,6 @@ integer(kind=iwp) :: ip, l
 real(kind=wp) :: Fact, rInv, rPoti
 real(kind=wp), allocatable :: CavSph(:)
 real(kind=wp), external :: DblFac
-! Statement function
-real(kind=wp) :: f, Eps_
-f(Eps_,l) = (real(1+l,kind=wp)*(Eps_-One))/(real(1+l,kind=wp)*Eps_+real(l,kind=wp))
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Multipole Moments',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
@@ -64,5 +61,17 @@ call RecPrt('Electric Field',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
 #endif
 
 return
+
+contains
+
+pure function f(Eps_,l)
+
+  real(kind=wp) :: f
+  real(kind=wp), intent(in) :: Eps_
+  integer(kind=iwp), intent(in) :: l
+
+  f = (real(1+l,kind=wp)*(Eps_-One))/(real(1+l,kind=wp)*Eps_+real(l,kind=wp))
+
+end function
 
 end subroutine AppFld_NonEq_1

@@ -24,6 +24,7 @@ subroutine AlloK2()
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
 use k2_arrays, only: DoGrad_, DoHess_, MaxDe, nDeDe
 use iSD_data, only: iSD
 use Basis_Info, only: Shells
@@ -40,11 +41,6 @@ implicit none
 integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iDeSiz, iIrrep, ijCmp, ijS, ik2, iPrim, iS, iShell, iShll, iSMLbl, jAng, jAO, jBas, &
                      jCmp, jPrim, jS, jShell, jShll, nData, nHm, nIndK2, nk2_integer, nk2_real, Nr_of_Densities, nSkal, nSO, nZeta
 integer(kind=iwp), external :: MemSO1
-! Statement functions
-integer(kind=iwp) :: nElem, nabSz, iTri, i, ixyz, j
-nElem(i) = (i+1)*(i+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
 if (allocated(k2Data) .and. k2_processed) then
@@ -78,8 +74,8 @@ do iS=1,nSkal
 
     nZeta = iPrim*jPrim
     ijCmp = 0
-    if (DoGrad_) ijCmp = nElem(iAng)*nElem(jAng)
-    nHm = iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(max(iAng,jAng)-1))
+    if (DoGrad_) ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
+    nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
     if (DoHess_) nHm = 0
 
     ik2 = ik2+1
@@ -144,8 +140,8 @@ do iS=1,nSkal
 
     nZeta = iPrim*jPrim
     ijCmp = 0
-    if (DoGrad_) ijCmp = nElem(iAng)*nElem(jAng)
-    nHm = iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(max(iAng,jAng)-1))
+    if (DoGrad_) ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
+    nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
     if (DoHess_) nHm = 0
 
     ijS = iTri(iShell,jShell)

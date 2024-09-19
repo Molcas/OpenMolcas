@@ -20,6 +20,7 @@ subroutine OCHRR(tgt,nPrim,nTrgt,la,lb,ipRs)
 !             May '90                                                  *
 !***********************************************************************
 
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,22 +28,18 @@ integer(kind=iwp), intent(in) :: nPrim, nTrgt, la, lb
 real(kind=wp), intent(inout) :: tgt(nPrim,nTrgt)
 integer(kind=iwp), intent(out) :: ipRs
 integer(kind=iwp) :: iab, iFrom, iout, iTo, ixa, ixab, ixb, ixyza, ixyzb, iya, iyaMax, iyb, iybMax, iza, izab, izb
-! Statement functions
-integer(kind=iwp) :: i, ixyz, ix, iz, nElem, Ind
-nElem(i) = (i+1)*(i+2)/2
-Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2+iz+1
 
 if ((la == 0) .or. (lb == 0)) then
   ipRs = 1
 else
   iab = 0
-  iout = nElem(la+lb)
+  iout = nTri_Elem1(la+lb)
   ipRs = iout*nPrim+1
   do ixb=0,lb
     iybMax = lb-ixb
     do iyb=0,iybMax
       izb = iybMax-iyb
-      ixyzb = Ind(lb,ixb,izb)
+      ixyzb = C_Ind(lb,ixb,izb)
 
       do ixa=0,la
         iyaMax = la-ixa
@@ -50,9 +47,9 @@ else
         do iya=0,iyaMax
           iza = iyaMax-iya
           izab = iza+izb
-          ixyza = Ind(la,ixa,iza)
-          iTo = iout+nElem(la)*(ixyzb-1)+ixyza
-          iFrom = iab+Ind(la+lb,ixab,izab)
+          ixyza = C_Ind(la,ixa,iza)
+          iTo = iout+nTri_Elem1(la)*(ixyzb-1)+ixyza
+          iFrom = iab+C_Ind(la+lb,ixab,izab)
 
           tgt(:,iTo) = tgt(:,iFrom)
 

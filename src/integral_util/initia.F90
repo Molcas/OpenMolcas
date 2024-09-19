@@ -30,8 +30,6 @@ implicit none
 integer(kind=iwp), intent(in) :: mDeg
 integer(kind=iwp), intent(out) :: I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
 integer(kind=iwp) :: a, b, c, n, new, p, q, r
-! Statement function
-!Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 
 ! initialize:
 I(:,:,:,:,:,:) = 0
@@ -76,12 +74,12 @@ end do
 !do a=n,0,-1
 !  do b=n-a,0,-1
 !    c = n-a-b
-!    write(u6,'(5x,''T('',i1,'','',i1,'','',i1,'')='',i5)')a,b,c,Ind(n,a,c)
+!    write(u6,'(5x,''T('',i1,'','',i1,'','',i1,'')='',i5)')a,b,c,C_Ind(n,a,c)
 !    do p=n,0,-1
 !      do q=n-p,0,-1
 !        r = n-p-q
 !        coef = I(a,b,c,p,q,r)
-!        if (coef /= 0) write(u6,'(10x,i8,''*x**'',i1,'' *y**'',i1,'' *z**'',i1,i5)') coef,p,q,r,Ind(n,p,r)
+!        if (coef /= 0) write(u6,'(10x,i8,''*x**'',i1,'' *y**'',i1,'' *z**'',i1,i5)') coef,p,q,r,C_Ind(n,p,r)
 !      end do
 !    end do
 !  end do

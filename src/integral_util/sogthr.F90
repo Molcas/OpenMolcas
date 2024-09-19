@@ -29,6 +29,7 @@ subroutine SOGthr(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShe
 !             October '91                                              *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
@@ -45,9 +46,6 @@ real(kind=wp), intent(in) :: PrpInt(nPrp)
 integer(kind=iwp) :: i1, i2, indAO1, indAO2, Indi, Indj, ipij, iPnt, iSO1, iSO2, j1, j12, j2, jjMx, lSO, nRow
 real(kind=wp) :: Fact
 integer(kind=iwp), external :: iPntSO
-! Statement function
-integer(kind=iwp) :: i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

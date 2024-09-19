@@ -23,6 +23,9 @@ subroutine EFNuc(CoOP,Chrg,Coor,nAtm,ESIT,nOrdOp)
 !             of Lund, April '95.                                      *
 !***********************************************************************
 
+#ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem1
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -35,11 +38,6 @@ integer(kind=iwp) :: iAtom, iPowr, ix, iy, iz, nTot
 real(kind=wp) :: eix, eiy, eiz, Fact, r, r2, temp, x, y, z
 integer(kind=iwp), allocatable :: C_ESIT(:)
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
-#ifdef _DEBUGPRINT_
-! Statement function
-integer(kind=iwp) :: n, nElem
-nElem(n) = (n+1)*(n+2)/2
-#endif
 
 ! Compute the nuclear contribution to the electrostatic interation
 ! tensor, ESIT.
@@ -90,7 +88,7 @@ end do           ! End loop over atoms
 call mma_deallocate(C_ESIT)
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' The Electrostatic Interaction Tensor',' ',ESIT,nElem(nOrdOp),1)
+call RecPrt(' The Electrostatic Interaction Tensor',' ',ESIT,nTri_Elem1(nOrdOp),1)
 #endif
 
 return

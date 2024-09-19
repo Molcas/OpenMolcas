@@ -43,6 +43,7 @@ subroutine RctFld(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 !             Modified for nonequilibrum calculations January 2002 (RL)*
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use External_Centers, only: XF
 use Gateway_global, only: PrPrt
 use Gateway_Info, only: PotNuc
@@ -61,7 +62,7 @@ integer(kind=iwp), intent(in) :: nh1
 real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
 real(kind=wp), intent(in) :: D(nh1)
 logical(kind=iwp), intent(in) :: First, Dff, NonEq
-integer(kind=iwp) :: iMax, iMltpl, ip, iSymX, iSymY, iSymZ, iTemp, ix, iy, iz, lOper(1), nComp, nOpr, nOrdOp
+integer(kind=iwp) :: iMax, iMltpl, ip, iSymX, iSymY, iSymZ, iTemp, ix, ixyz, iy, iz, lOper(1), nComp, nOpr, nOrdOp
 real(kind=wp) :: E_0_NN, FactOp(1), Origin(3)
 character(len=8) :: Label2
 #ifdef _DEBUGPRINT_
@@ -71,9 +72,6 @@ character(len=72) :: Label
 real(kind=wp), allocatable :: QV(:,:), Vs(:,:)
 integer(kind=iwp), external :: IrrFnc, MltLbl
 real(kind=wp), external :: DDot_
-! Statement Function
-integer(kind=iwp) :: ixyz, iOff
-iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 
 #include "macros.fh"
 unused_var(Dff)
@@ -105,7 +103,7 @@ if (First) then
   ! Compute M(nuc,nl), nuclear multipole moments
 
   do iMax=0,lMax
-    ip = 1+iOff(iMax)
+    ip = 1+nTri3_Elem(iMax)
     call RFNuc(Origin,MM(ip,1),iMax)
   end do
 

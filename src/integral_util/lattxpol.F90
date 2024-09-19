@@ -11,6 +11,7 @@
 
 subroutine lattXPol(Grid,nGrid,nGrid_Eff,PolEff,DipEff,XF,nXF,nOrd_XF,nPolComp)
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -20,14 +21,11 @@ integer(kind=iwp), intent(inout) :: nGrid_Eff
 real(kind=wp), intent(inout) :: Grid(3,nGrid), PolEff(nPolComp,nGrid), DipEff(nGrid)
 real(kind=wp), intent(in) :: XF(nXF)
 integer(kind=iwp) :: Inc, iOrdOp, iXF, j
-! Statement function for Cartesian index
-integer(kind=iwp) :: ixyz, nElem
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 ! Calculate number of entries per XFIELD point
 Inc = 3
 do iOrdOp=0,nOrd_XF
-  Inc = Inc+nElem(iOrdOp)
+  Inc = Inc+nTri_Elem1(iOrdOp)
 end do
 Inc = Inc+6  !iXpolType always > 0
 
