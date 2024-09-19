@@ -26,6 +26,7 @@ subroutine DCR(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
 !             January '90                                              *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: iOper, nIrrep
 use dcr_mod, only: Done, iDCR_all, Indx, Lambda_all, mDCR_all, nIndx
 use Definitions, only: iwp
@@ -77,7 +78,7 @@ if (k > nIndx) then
   Ind2 = nIndx
 end if
 
-ij = max(Ind1,Ind2)*(max(Ind1,Ind2)-1)/2+min(Ind1,Ind2)
+ij = iTri(Ind1,Ind2)
 
 if (Done(ij)) then
   mDCR = mDCR_all(ij)

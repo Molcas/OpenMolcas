@@ -19,6 +19,7 @@ subroutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,iCmp,jCmp,iShell,jShe
 !             January '91                                              *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
@@ -68,15 +69,9 @@ do j1=0,nIrrep-1
 
             if (j1 == j2) then
               ! Diagonal symmetry block
-              if (iSO1+indAO1 >= iSO2+indAO2) then
-                Indi = iSO1+indAO1
-                Indj = iSO2+indAO2
-                PrpInt(iPnt+(Indi-1)*Indi/2+Indj) = SOInt(ip,lSO)
-              else
-                Indj = iSO1+indAO1
-                Indi = iSO2+indAO2
-                PrpInt(iPnt+(Indi-1)*Indi/2+Indj) = rHrmt*SOInt(ip,lSO)
-              end if
+              Indi = iSO1+indAO1
+              Indj = iSO2+indAO2
+              PrpInt(iPnt+iTri(Indi,Indj)) = SOInt(ip,lSO)
             else
               ! Off-diagonal symmetry block j1>j2
               if (j1 > j2) then

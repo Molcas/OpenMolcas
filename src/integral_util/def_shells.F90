@@ -12,6 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine Def_Shells(iSD,nSD,mSkal)
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_dummy, nBas, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use BasisMode, only: All_Mode, Atomic, Auxiliary_Mode, Basis_Mode, Fragment_Mode, kCnttp, Valence_Mode, With_Auxiliary_Mode, &
@@ -88,7 +89,7 @@ if (.not. Atomic) then
         if (Shells(iShll)%Prjct) then
           iCmp = 2*iAng+1
         else
-          iCmp = (iAng+1)*(iAng+2)/2
+          iCmp = nTri_Elem1(iAng)
         end if
         if (nExpi == 0) cycle
         if (nBasisi == 0) cycle
@@ -191,7 +192,7 @@ else
       nBasisi = Shells(iShll)%nBasis
       if (nBasisi == 0) cycle
       if (Shells(iShll)%Frag) cycle
-      iCmp = (iAng+1)*(iAng+2)/2
+      iCmp = nTri_Elem1(iAng)
       if (Shells(iShll)%Prjct) iCmp = 2*iAng+1
       kSh = dbsc(iCnttp)%iVal+iAng
 
@@ -232,7 +233,7 @@ else
       if (Shells(iShll)%Prjct) then
         nFunctions = nFunctions+nBasisi*(2*iAng+1)
       else
-        nFunctions = nFunctions+nBasisi*(iAng+1)*(iAng+2)/2
+        nFunctions = nFunctions+nBasisi*nTri_Elem1(iAng)
       end if
       !                                                                *
       !*****************************************************************

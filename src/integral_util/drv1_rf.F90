@@ -35,7 +35,7 @@ subroutine Drv1_RF(FactOp,nOpr,FD,nFD,CCoor,lOper,Cavxyz,lMax)
 !             Modified loop structure  99                              *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, MolWgh, Shells
@@ -54,7 +54,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nOpr, nFD, lOper(nOpr), lMax
 real(kind=wp), intent(in) :: FactOp(nOpr), FD(nFD), CCoor(3,nOpr)
-real(kind=wp), intent(inout) :: Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+real(kind=wp), intent(inout) :: Cavxyz(nTri3_Elem1(lMax))
 integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0:7), iOpr, iPrim, iS, iShell, iShll, iSmLbl, &
                      iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, &
                      lDCRT, lFinal, Lmbdr, Lmbdt, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nOrdOp, &
@@ -125,7 +125,7 @@ do iS=1,nSkal
     ! Allocate memory for the final integrals, all in the
     ! primitive basis.
 
-    nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
+    nComp = nTri3_Elem1(lMax)
     lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
     call mma_allocate(Fnl,lFinal,Label='Fnl')
 

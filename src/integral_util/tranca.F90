@@ -11,20 +11,21 @@
 
 subroutine Tranca(Cavxyz,Cavsph,lMax,CarSph)
 
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Real_Spherical, only: ipSph, RSph
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lMax
-real(kind=wp), intent(inout) :: Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+real(kind=wp), intent(inout) :: Cavxyz(nTri3_Elem1(lMax)), Cavsph((lMax+1)**2)
 logical(kind=iwp), intent(in) :: CarSph
 integer(kind=iwp) :: iOff1, iOff2, m, nElem
 
 iOff1 = 1
 iOff2 = 1
 do m=0,lMax
-  nElem = (m+1)*(m+2)/2
+  nElem = nTri_Elem1(m)
   !call RecPrt('Car-->Sph',' ',RSph(ipSph(m)),nElem,nElem)
   if (CarSph) then
     call dcopy_(2*m+1,[Zero],0,Cavsph(iOff2),1)

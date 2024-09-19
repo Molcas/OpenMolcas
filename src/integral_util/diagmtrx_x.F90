@@ -11,6 +11,7 @@
 
 subroutine DiagMtrx_x(H,nH,iNeg)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -23,15 +24,16 @@ integer(kind=iwp) :: i, ii, ij, j
 real(kind=wp) :: SumHii, Temp
 real(kind=wp), allocatable :: Diag(:,:), EVal(:), EVec(:,:), HU(:,:)
 
-call mma_allocate(EVal,nH*(nH+1)/2,label='EVal')
+call mma_allocate(EVal,nTri_Elem(nH),label='EVal')
 call mma_allocate(EVec,nH,nH,label='EVec')
 
 ! Copy elements for H
 
 SumHii = Zero
+ij = 0
 do i=1,nH
   do j=1,i
-    ij = i*(i-1)/2+j
+    ij = ij+1
     EVal(ij) = H(i,j)
   end do
   SumHii = SumHii+H(i,i)
@@ -52,7 +54,7 @@ call Jacord(EVal,EVec,nH,nH)
 
 iNeg = 0
 do i=1,nH
-  ii = i*(i+1)/2
+  ii = nTri_Elem(i)
   if (EVal(ii) < Zero) iNeg = iNeg+1
 end do
 
@@ -61,7 +63,7 @@ call mma_allocate(HU,nH,nH,label='HU')
 
 call dcopy_(nH*nH,[Zero],0,Diag,1)
 do i=1,nH
-  ii = i*(i+1)/2
+  ii = nTri_Elem(i)
   temp = EVal(ii)
   !write(u6,'(A,G10.4)') 'Hii=',temp
   Diag(i,i) = max(abs(temp),1.0e-15_wp)

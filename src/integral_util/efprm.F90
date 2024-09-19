@@ -35,7 +35,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, nComp, la, lb, nArr, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
-real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
 real(kind=wp), intent(inout) :: Array(nZeta*nArr)
 integer(kind=iwp) :: iAnga(4), ip1, ip2, ip3, ipIn, kab, lab, labcd, lcd, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
 real(kind=wp) :: CoorAC(3,2), Coori(3,4)

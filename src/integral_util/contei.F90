@@ -13,11 +13,12 @@
 
 subroutine ContEI(I,mDeg,ESIT,ix,iy,iz,temp)
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mDeg, I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg), ix, iy, iz
-real(kind=wp), intent(inout) :: ESIT((mDeg+1)*(mDeg+2)/2)
+real(kind=wp), intent(inout) :: ESIT(nTri_Elem1(mDeg))
 real(kind=wp), intent(in) :: Temp
 integer(kind=iwp) :: a, b, c, ip, n
 

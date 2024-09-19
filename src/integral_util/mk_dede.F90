@@ -49,6 +49,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem
 use define_af, only: AngTp
 use Basis_Info, only: nBas
 use Symmetry_Info, only: ChOper
@@ -85,7 +86,7 @@ do iIrrep=0,nIrrep-1
     write(u6,*)
     call TriPrt(' Diagonal block',' ',FD(iFD,jFD),nBas(iIrrep))
   end do
-  iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  iFD = iFD+nTri_Elem(nBas(iIrrep))
 end do
 #endif
 

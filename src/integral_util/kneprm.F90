@@ -27,6 +27,7 @@ subroutine KnEPrm( &
 !             Modified to multipole moments November '90               *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Definitions, only: wp, iwp, u6
 

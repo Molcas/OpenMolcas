@@ -22,14 +22,14 @@ subroutine CmbnCB(Rnxyz,nZeta,la,lb,rKappa,rFinal,Beta,IfGrad,ld,nVecCB)
 !             October '91.                                             *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, ld
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb+ld), rKappa(nZeta), Beta(nZeta)
-real(kind=wp), intent(inout) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4)
+real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),4)
 logical(kind=iwp), intent(in) :: IfGrad(3)
 integer(kind=iwp), intent(out) :: nVecCB
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta

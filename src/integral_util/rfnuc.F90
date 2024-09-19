@@ -23,6 +23,7 @@ subroutine RFNuc(CoOP,rNucMm,ir)
 !             November '90                                             *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
@@ -39,7 +40,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: ir
 real(kind=wp), intent(in) :: CoOp(3)
-real(kind=wp), intent(out) :: rNucMm((ir+1)*(ir+2)/2)
+real(kind=wp), intent(out) :: rNucMm(nTri_Elem1(ir))
 integer(kind=iwp) :: i, iCnt, iCnttp, iq, ix, iy, iz, mdc, ndc
 real(kind=wp) :: A(3), CCoMx, CCoMy, CComZ, RA(3), temp, ZA
 #ifdef _OBSOLETE_

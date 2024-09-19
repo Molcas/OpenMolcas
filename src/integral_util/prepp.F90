@@ -22,6 +22,7 @@ subroutine PrepP()
 !             January '92                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
@@ -79,7 +80,7 @@ Case_mp2 = .false.
 
 nDens = 0
 do iIrrep=0,nIrrep-1
-  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  nDens = nDens+nTri_Elem(nBas(iIrrep))
 end do
 
 ! Get the method label
@@ -148,8 +149,8 @@ else if ((Method(1:7) == 'MR-CISD') .and. (Columbus == 1)) then
   !file
 
   nShell = mSkal
-  nPair = nShell*(nShell+1)/2
-  nQuad = nPair*(nPair+1)/2
+  nPair = nTri_Elem(nShell)
+  nQuad = nTri_Elem(nPair)
 
   ! Allocate Table Of Content for half sorted gammas.
 
@@ -369,7 +370,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
 
   ! Get the one body density for the active orbitals
   ! (not needed for SA-CASSCF)
-  nG1 = nAct*(nAct+1)/2
+  nG1 = nTri_Elem(nAct)
   nsa = 1
   if (lsa) nsa = 0
   mG1 = nsa
@@ -382,7 +383,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
   end if
 
   ! Get the two body density for the active orbitals
-  nG2 = nG1*(nG1+1)/2
+  nG2 = nTri_Elem(nG1)
   nsa = 1
   if (lsa) nsa = 2
   mG2 = nsa
@@ -423,8 +424,8 @@ if (lpso .and. (.not. gamma_mrcisd)) then
       do i=1,8
         ndim0 = ndim0+LRras2(i)
       end do
-      ndim1 = (ndim0+1)*ndim0/2
-      ndim2 = (ndim1+1)*ndim1/2
+      ndim1 = nTri_Elem(ndim0)
+      ndim2 = nTri_Elem(ndim1)
       do i=1,ng2
         if (i > ndim2) G2(i,2) = Zero
       end do
@@ -474,7 +475,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
 
     ! This is necessary for the kap-lag
 
-    nG1 = nAct*(nAct+1)/2
+    nG1 = nTri_Elem(nAct)
     call mma_allocate(D1AV,nG1,Label='D1AV')
     call Get_dArray_chk('D1av',D1AV,nG1)
     call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nbas,nish,nash,ndens)

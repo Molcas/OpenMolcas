@@ -43,7 +43,7 @@ subroutine RctFld(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 !             Modified for nonequilibrum calculations January 2002 (RL)*
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri3_Elem, nTri3_Elem1
 use External_Centers, only: XF
 use Gateway_global, only: PrPrt
 use Gateway_Info, only: PotNuc
@@ -52,6 +52,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero, Half
 use Definitions, only: wp, iwp
 # ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Definitions, only: u6
@@ -76,7 +77,7 @@ real(kind=wp), external :: DDot_
 #include "macros.fh"
 unused_var(Dff)
 
-nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
+nComp = nTri3_Elem1(lMax)
 call mma_Allocate(Vs,nComp,2,Label='Vs')
 call mma_Allocate(QV,nComp,2,Label='QV')
 
@@ -145,7 +146,7 @@ if (First) then
   write(u6,*) 'h1'
   lOff = 1
   do iIrrep=0,nIrrep-1
-    n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    n = nTri_Elem(nBas(iIrrep))
     if (n > 0) then
       write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
       call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
@@ -168,7 +169,7 @@ if (First) then
   write(u6,*) 'h1(mod)'
   lOff = 1
   do iIrrep=0,nIrrep-1
-    n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    n = nTri_Elem(nBas(iIrrep))
     if (n > 0) then
       write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
       call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
@@ -232,7 +233,7 @@ end do
 write(u6,*) '1st order density'
 lOff = 1
 do iIrrep=0,nIrrep-1
-  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  n = nTri_Elem(nBas(iIrrep))
   write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
   call Triprt(Label,' ',D(lOff),nBas(iIrrep))
   lOff = lOff+n
@@ -264,7 +265,7 @@ call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(:,2),lMax,TwoHam,nh1)
 write(u6,*) 'h1(mod)'
 lOff = 1
 do iIrrep=0,nIrrep-1
-  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  n = nTri_Elem(nBas(iIrrep))
   if (n > 0) then
     write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
     call Triprt(Label,' ',h1(lOff),nBas(iIrrep))
@@ -274,7 +275,7 @@ end do
 write(u6,*) 'TwoHam(mod)'
 lOff = 1
 do iIrrep=0,nIrrep-1
-  n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  n = nTri_Elem(nBas(iIrrep))
   write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
   call Triprt(Label,' ',TwoHam(lOff),nBas(iIrrep))
   lOff = lOff+n

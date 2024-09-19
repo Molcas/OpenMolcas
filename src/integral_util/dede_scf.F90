@@ -14,6 +14,7 @@
 
 subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
 
+use Index_Functions, only: nTri_Elem
 use k2_arrays, only: DeDe, Dq, Fq, ipD00, ipDeDe, ipDijS, ipOffD, MaxDe, MxDij, nDeDe, pDq, pFq
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
@@ -32,7 +33,7 @@ logical(kind=iwp) :: DFT_Storage, Special_NoSym
 
 nr_of_Densities = 1  ! Hardwired option
 
-nIndij = S%nShlls*(S%nShlls+1)/2
+nIndij = nTri_Elem(S%nShlls)
 nField = 2+nr_of_Densities
 call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
 

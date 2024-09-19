@@ -23,9 +23,7 @@ subroutine EFNuc(CoOP,Chrg,Coor,nAtm,ESIT,nOrdOp)
 !             of Lund, April '95.                                      *
 !***********************************************************************
 
-#ifdef _DEBUGPRINT_
 use Index_Functions, only: nTri_Elem1
-#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -33,7 +31,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nAtm, nOrdOp
 real(kind=wp), intent(in) :: CoOp(3), Chrg(nAtm), Coor(3,nAtm)
-real(kind=wp), intent(out) :: ESIT((nOrdOp+1)*(nOrdOp+2)/2)
+real(kind=wp), intent(out) :: ESIT(nTri_Elem1(nOrdOp))
 integer(kind=iwp) :: iAtom, iPowr, ix, iy, iz, nTot
 real(kind=wp) :: eix, eiy, eiz, Fact, r, r2, temp, x, y, z
 integer(kind=iwp), allocatable :: C_ESIT(:)

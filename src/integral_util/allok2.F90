@@ -24,7 +24,7 @@ subroutine AlloK2()
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
+use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1, nTri3_Elem1
 use k2_arrays, only: DoGrad_, DoHess_, MaxDe, nDeDe
 use iSD_data, only: iSD
 use Basis_Info, only: Shells
@@ -98,7 +98,7 @@ nDeDe = 0
 MaxDe = 0
 nr_of_Densities = 1 ! Hardwired option
 
-nIndk2 = S%nShlls*(S%nShlls+1)/2
+nIndk2 = nTri_Elem(S%nShlls)
 call mma_allocate(Indk2,3,nIndk2,Label='Indk2')
 Indk2(:,:) = 0
 !                                                                      *

@@ -23,6 +23,7 @@ subroutine SymAd1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,AO
 !             January '91                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
@@ -55,8 +56,8 @@ do iIrrep=0,nIrrep-1
   iIC = iIC+1
 end do
 
-ii = iAng*(iAng+1)*(iAng+2)/6
-jj = jAng*(jAng+1)*(jAng+2)/6
+ii = nTri3_Elem(iAng)
+jj = nTri3_Elem(jAng)
 
 lSO = 0
 do j1=0,nIrrep-1

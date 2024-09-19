@@ -21,6 +21,7 @@ subroutine RFmltp()
 !     modified by M. P. Fuelscher, 94/04/28                            *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use rctfld_module, only: Eps, EpsInf, lMax, lRF, lRFCav, MM, NonEq_ref, PCM, rds
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -33,7 +34,7 @@ real(kind=wp), allocatable :: QTot(:), VTot(:)
 real(kind=wp), external :: DDot_
 
 if (.not. lRF) return
-nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
+nComp = nTri3_Elem1(lMax)
 call mma_allocate(VTot,nComp,Label='VTot')
 call mma_allocate(QTot,nComp,Label='QTot')
 
@@ -60,7 +61,7 @@ if (lRF .and. (.not. PCM) .and. lRFCav) then
   Esolv = Zero
   iOff = 1
   do l=0,lMax
-    nElem = (l+1)*(l+2)/2
+    nElem = nTri_Elem1(l)
     dEsolv = -Half*DDot_(nElem,QTot(iOff),1,VTot(iOff),1)
     write(u6,'(8X,I2,10X,F13.10)') l,dEsolv
     iOff = iOff+nElem
@@ -73,7 +74,7 @@ if (lRF .and. (.not. PCM) .and. lRFCav) then
   write(u6,*) '     -----------------------------------'
   iM = 1
   do l=0,lMax
-    nElem = (l+1)*(l+2)/2
+    nElem = nTri_Elem1(l)
     jM = iM
     do iElem=1,nElem,7
       nM = min(7,nElem-iElem+1)
@@ -89,7 +90,7 @@ if (lRF .and. (.not. PCM) .and. lRFCav) then
   write(u6,*) '     --------------------------------'
   iM = 1
   do l=0,lMax
-    nElem = (l+1)*(l+2)/2
+    nElem = nTri_Elem1(l)
     jM = iM
     do iElem=1,nElem,7
       nM = min(7,nElem-iElem+1)

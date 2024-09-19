@@ -15,7 +15,7 @@
 !#define _DEBUGPRINT_
 module Real_Spherical
 
-use Index_Functions, only: C_Ind3
+use Index_Functions, only: C_Ind3, nTri_Elem1, nTri3_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -103,7 +103,7 @@ subroutine Sphere(lMax)
   end if
   call Get_lScalar('CSPF',Condon_Shortley_phase_factor)
 
-  nSphCr = (lmax+1)*(lmax+2)*(lmax+3)/6
+  nSphCr = nTri3_Elem1(lmax)
   call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
   iSphCr(:) = 0
 
@@ -113,7 +113,7 @@ subroutine Sphere(lMax)
   ! Gives info on basis function angular momenta
   ! n, l, ml or assigns it as a diffuse/polarising function with '*'
 
-  MxFnc = (lMax+1)*(lMax+2)*(lMax+3)/6
+  MxFnc = nSphCr
   call mma_allocate(LblCBs,MxFnc,Label='LblCBs')
   call mma_allocate(LblSBs,MxFnc,Label='LblSBs')
 
@@ -124,13 +124,13 @@ subroutine Sphere(lMax)
   ! transformation matrices of given ang mom
   nSphr = 0
   do iAng=0,lMax
-    nSphr = nSphr+(iAng*(iAng+1)/2+iAng+1)**2
+    nSphr = nSphr+nTri_Elem1(iAng)**2
   end do
   call mma_allocate(RSph,nSphr,label='RSph')
   call mma_allocate(ipSph,[0,lMax],label='ipSph')
   ipSph(0) = 1
   do iAng=0,lMax-1
-    ipSph(iAng+1) = ipSph(iAng)+(iAng*(iAng+1)/2+iAng+1)**2
+    ipSph(iAng+1) = ipSph(iAng)+nTri_Elem1(iAng)**2
   end do
 
   ! Here the transformation matrices from cartesian to spherical are made
@@ -140,7 +140,7 @@ subroutine Sphere(lMax)
   iii = 0
   jjj = 0
   do n=0,lMax
-    nElem = (n+1)*(n+2)/2
+    nElem = nTri_Elem1(n)
     ii = 0
     do m=n,0,-2
       do l=-m,m
@@ -161,7 +161,7 @@ subroutine Sphere(lMax)
   write(u6,*)
   iLbl = 1
   do n=0,lMax
-    nElem = (n+1)*(n+2)/2
+    nElem = nTri_Elem1(n)
     ii = 0
     write(u6,*)
     write(u6,'(8X,31(2X,I1,I1,I1))') ((i,j,n-i-j,j=n-i,0,-1),i=n,0,-1)
@@ -191,7 +191,7 @@ subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
   i10 = ipSph(0)
   do i=0,lMax
     i2 = ipSph(i)
-    nElem = (i+1)*(i+2)/2
+    nElem = nTri_Elem1(i)
     i20 = i2+i*nElem
     ! First generate the coefficients for Y(i,0) -- always real
     call Recurse(RSph(i00),RSph(i10),RSph(i20),i)
@@ -204,7 +204,7 @@ subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
     if (j >= 0) then
       iCont = i2+(2*i+1)*nElem
       iOff = ipSph(j)
-      mElem = (j+1)*(j+2)/2
+      mElem = nTri_Elem1(j)
       do l=j,0,-2
         call Contaminant(RSph(iCont),i,RSph(iOff),j,l)
         iCont = iCont+(2*l+1)*nElem
@@ -235,8 +235,8 @@ subroutine Recurse(P0,P1,P2,n2)
 
   implicit none
   integer(kind=iwp), intent(in) :: n2
-  real(kind=wp), intent(in) :: P0((n2-1)*n2/2), P1(n2*(n2+1)/2)
-  real(kind=wp), intent(out) :: P2((n2+1)*(n2+2)/2)
+  real(kind=wp), intent(in) :: P0(nTri_Elem1(n2-2)), P1(nTri_Elem1(n2-1))
+  real(kind=wp), intent(out) :: P2(nTri_Elem1(n2))
   integer(kind=iwp) :: ix, iy, iz, n0, n1
   real(kind=wp) :: Fact_1, Fact_2
 
@@ -284,7 +284,7 @@ subroutine Ladder(P0,n)
 
   implicit none
   integer(kind=iwp), intent(in) :: n
-  real(kind=wp), intent(inout) :: P0((n+1)*(n+2)/2,-n:n)
+  real(kind=wp), intent(inout) :: P0(nTri_Elem1(n),-n:n)
   integer(kind=iwp) :: ix, iy, iz, m, m_m, m_p
   real(kind=wp) :: Fact
 
@@ -362,8 +362,8 @@ subroutine Contaminant(P0,i,Px,j,l)
 
   implicit none
   integer(kind=iwp), intent(in) :: i, j, l
-  real(kind=wp), intent(inout) :: P0((i+1)*(i+2)/2,-l:l)
-  real(kind=wp), intent(in) :: Px((j+1)*(j+2)/2,-l:l)
+  real(kind=wp), intent(inout) :: P0(nTri_Elem1(i),-l:l)
+  real(kind=wp), intent(in) :: Px(nTri_Elem1(j),-l:l)
   integer(kind=iwp) :: ix, iy, iz, m
 
   ! Px = (x^2+y^2+z^2) x P0
@@ -386,17 +386,18 @@ subroutine NrmSph(P,n)
 
   implicit none
   integer(kind=iwp), intent(in) :: n
-  real(kind=wp), intent(inout) :: P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
-  integer(kind=iwp) :: ijx, ijy, ijz, ix, iy, iz, jx, jy, jz, k, m
+  real(kind=wp), intent(inout) :: P(nTri_Elem1(n),nTri_Elem1(n))
+  integer(kind=iwp) :: ijx, ijy, ijz, ix, iy, iz, jx, jy, jz, k, m, nt
   real(kind=wp) :: DF, rMax, temp, tmp
   real(kind=wp), external :: DblFac
 
-  do m=1,(n+1)*(n+2)/2
+  nt = nTri_Elem1(n)
+  do m=1,nt
     rMax = Zero
-    do k=1,(n+1)*(n+2)/2
+    do k=1,nt
       if (abs(P(k,m)) > rMax) rMax = abs(P(k,m))
     end do
-    do k=1,(n+1)*(n+2)/2
+    do k=1,nt
       if (abs(P(k,m)) < 1.0e-12_wp*rMax) P(k,m) = Zero
     end do
     tmp = Zero
@@ -417,7 +418,7 @@ subroutine NrmSph(P,n)
         tmp = tmp+DF*temp
       end do
     end do
-    call DScal_((n+1)*(n+2)/2,One/sqrt(tmp),P(1,m),1)
+    call DScal_(nt,One/sqrt(tmp),P(1,m),1)
   end do
 
 end subroutine NrmSph

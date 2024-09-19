@@ -17,6 +17,7 @@ subroutine Shell_MxDens(Dens,DMax,nSkal)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
@@ -41,7 +42,7 @@ do irp=0,nirrep-1
       ja = je+1
       je = je+m
       do i=ia,ie
-        ij = i*(i-1)/2+ja+ijoff
+        ij = nTri_Elem(i-1)+ja+ijoff
         do j=ja,min(i,je)
           dmax(jsh,ish) = max(dmax(jsh,ish),abs(dens(ij)))
           ij = ij+1
@@ -50,7 +51,7 @@ do irp=0,nirrep-1
       dmax(ish,jsh) = dmax(jsh,ish)
     end do
   end do
-  ijoff = ijoff+ie*(ie+1)/2
+  ijoff = ijoff+nTri_Elem(ie)
 end do
 
 end subroutine Shell_MxDens

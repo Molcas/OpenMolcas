@@ -36,7 +36,7 @@ subroutine SymAdp(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,iAO,kOp,ijkl,Aux,
 !             March '90                                                *
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
@@ -144,7 +144,7 @@ do i1=1,iCmp
             j12 = ieor(j1,j2)
             if (Qijij) then
               if (Shij .and. Qij) then
-                k12 = j1*(j1+1)/2+j2+1
+                k12 = nTri_Elem(j1)+j2+1
               else if (Shij) then
                 k12 = nIrrep*j1+j2+1
               else if (iShell(1) > iShell(2)) then
@@ -160,7 +160,7 @@ do i1=1,iCmp
               if (Shkl .and. Qkl .and. (j4 > j3)) cycle
               if (Qijij) then
                 if (Shkl .and. Qkl) then
-                  k34 = j3*(j3+1)/2+j4+1
+                  k34 = nTri_Elem(j3)+j4+1
                 else if (Shkl) then
                   k34 = nIrrep*j3+j4+1
                 else if (iShell(3) > iShell(4)) then

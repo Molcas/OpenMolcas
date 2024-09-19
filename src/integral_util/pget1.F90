@@ -27,6 +27,7 @@ subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,n
 !             January '92.                                             *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp
@@ -39,8 +40,8 @@ implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO), DSSO(nDSO), ExFac, CoulFac
-integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndI, IndIJ, IndIK, IndIL, IndJ, IndJK, IndJL, IndK, IndKL, IndL, iPAO, iSO, iSOi, &
-                     jAOj, jSO, jSOj, kAOk, kSO, kSOk, lAOl, lSO, lSOl, nijkl
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndIJ, IndIK, IndIL, IndJK, IndJL, IndKL, iPAO, iSO, iSOi, jAOj, jSO, jSOj, kAOk, kSO, &
+                     kSOk, lAOl, lSO, lSOl, nijkl
 real(kind=wp) :: t14, Temp
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iComp
@@ -86,32 +87,20 @@ do i1=1,iCmp(1)
 
                 ! D(ij)*D(kl)
 
-                Indi = max(iSOi,jSOj)
-                Indj = iSOi+jSOj-Indi
-                Indk = max(kSOk,lSOl)
-                Indl = kSOk+lSOl-Indk
-                Indij = (Indi-1)*Indi/2+Indj
-                Indkl = (Indk-1)*Indk/2+Indl
+                Indij = iTri(iSOi,jSOj)
+                Indkl = iTri(kSOk,lSOl)
                 temp = DSO(Indij)*DSO(Indkl)*CoulFac
 
                 ! -0.25*D(ik)*D(jl)
 
-                Indi = max(iSOi,kSOk)
-                Indk = iSOi+kSOk-Indi
-                Indj = max(jSOj,lSOl)
-                Indl = jSOj+lSOl-Indj
-                Indik = (Indi-1)*Indi/2+Indk
-                Indjl = (Indj-1)*Indj/2+Indl
+                Indik = iTri(iSOi,kSOk)
+                Indjl = iTri(jSOj,lSOl)
                 temp = temp-t14*(DSO(Indik)*DSO(Indjl)+DSSO(Indik)*DSSO(Indjl))
 
                 ! -0.25*D(il)*D(jk)
 
-                Indi = max(iSOi,lSOl)
-                Indl = iSOi+lSOl-Indi
-                Indj = max(jSOj,kSOk)
-                Indk = jSOj+kSOk-Indj
-                Indil = (Indi-1)*Indi/2+Indl
-                Indjk = (Indj-1)*Indj/2+Indk
+                Indil = iTri(iSOi,lSOl)
+                Indjk = iTri(jSOj,kSOk)
                 temp = temp-t14*(DSO(Indil)*DSO(Indjk)+DSSO(Indil)*DSSO(Indjk))
 
                 PMax = max(PMax,abs(Temp))

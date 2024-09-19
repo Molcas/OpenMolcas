@@ -17,13 +17,13 @@ subroutine CmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind
+use Index_Functions, only: C_Ind, nTri_Elem1
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
-real(kind=wp), intent(inout) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
+real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
 integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 real(kind=wp) :: Fact
 

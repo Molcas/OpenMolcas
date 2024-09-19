@@ -29,14 +29,14 @@ subroutine qlm(gx,gy,gz,qa,dax,day,daz,lmax_,Cavxyz)
 !              March 2000                                              *
 !***********************************************************************
 
-use Index_Functions, only: C3_Ind3
+use Index_Functions, only: C3_Ind3, nTri3_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: gx, gy, gz, qa, dax, day, daz
 integer(kind=iwp), intent(in) :: lmax_
-real(kind=wp), intent(inout) :: Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
+real(kind=wp), intent(inout) :: Cavxyz(nTri3_Elem1(lMax_))
 integer(kind=iwp) :: ix, iy, iz, lMax
 real(kind=wp) :: ax, ay, az, xeff, xyeff, xyzeff
 

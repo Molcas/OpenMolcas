@@ -39,6 +39,7 @@ subroutine DesymP(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,iAO,kOp,ijkl,Aux,
 !             matrix, January '92.                                     *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
@@ -88,10 +89,10 @@ call dcopy_(ijkl*iCmp*jCmp*kCmp*lCmp,[Zero],0,PAO,1)
 ! Observe that we will walk through the memory in PAO in a
 ! sequential way.
 
-ii = iAng(1)*(iAng(1)+1)*(iAng(1)+2)/6
-jj = iAng(2)*(iAng(2)+1)*(iAng(2)+2)/6
-kk = iAng(3)*(iAng(3)+1)*(iAng(3)+2)/6
-ll = iAng(4)*(iAng(4)+1)*(iAng(4)+2)/6
+ii = nTri3_Elem(iAng(1))
+jj = nTri3_Elem(iAng(2))
+kk = nTri3_Elem(iAng(3))
+ll = nTri3_Elem(iAng(4))
 do i1=1,iCmp
   iChBs = iChBas(ii+i1)
   if (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))

@@ -12,13 +12,14 @@
 !#define _DEBUGPRINT_
 subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
 
+use Index_Functions, only: nTri3_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lMax
-real(kind=wp), intent(inout) :: Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+real(kind=wp), intent(inout) :: Cavxyz(nTri3_Elem1(lMax))
 real(kind=wp), intent(in) :: Radius, Eps, EpsInf
 logical(kind=iwp), intent(in) :: NonEq
 integer(kind=iwp) :: ip, l
@@ -27,7 +28,7 @@ real(kind=wp), allocatable :: CavSph(:)
 real(kind=wp), external :: DblFac
 
 #ifdef _DEBUGPRINT_
-call RecPrt('Multipole Moments',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
+call RecPrt('Multipole Moments',' ',Cavxyz,nTri3_Elem1(lMax),1)
 #endif
 
 ! Backtransform from cartesian to spherical harmonics
@@ -68,7 +69,7 @@ call Tranca(Cavxyz,Cavsph,lmax,.false.)
 call mma_deallocate(CavSph)
 
 #ifdef _DEBUGPRINT_
-call RecPrt('Electric Field',' ',Cavxyz,(lMax+1)*(lMax+2)*(lMax+3)/6,1)
+call RecPrt('Electric Field',' ',Cavxyz,nTri3_Elem1(lMax),1)
 #endif
 
 return

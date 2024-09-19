@@ -25,6 +25,7 @@ subroutine Expnd_i(Array,n,m)
 !             May '90                                                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,7 +33,7 @@ integer(kind=iwp), intent(in) :: n, m
 real(kind=wp), intent(inout) :: Array(m,n*n)
 integer(kind=iwp) :: i, ii, ij, j, ji, nij
 
-nij = n*(n+1)/2
+nij = nTri_Elem(n)
 do i=n,1,-1
   do j=n,i+1,-1
     ji = n*(i-1)+j

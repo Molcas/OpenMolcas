@@ -27,6 +27,7 @@ subroutine RFInt(Zeta,rKappa,P,rFinal,nZeta,nComp,la,lb,A,B,nHer,Array,nArr,Ccoo
 !             Modified to reaction field calculations July '92         *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Her_RW, only: HerR, HerW, iHerR, iHerw
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -34,7 +35,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, nComp, la, lb, nHer, nArr, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3)
-real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Array(nZeta*nArr)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), Array(nZeta*nArr)
 integer(kind=iwp) :: ipAxyz, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iZeta, nip
 logical(kind=iwp) :: ABeq(3)
 

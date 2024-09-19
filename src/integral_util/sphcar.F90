@@ -36,20 +36,21 @@ subroutine SphCar(Win,nab,nijx,Scrt,nScrt,Coeff1,n1,Tr1,Pr1,Coeff2,n2,Tr2,Pr2,Wo
 !             Modified spherical harmonics to cartesians October '91.  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nab, nijx, nScrt, n1, n2, mab
-real(kind=wp), intent(in) :: Win(nab*nijx), Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2), Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2)
+real(kind=wp), intent(in) :: Win(nab*nijx), Coeff1(nTri_Elem1(n1),nTri_Elem1(n1)), Coeff2(nTri_Elem1(n2),nTri_Elem1(n2))
 real(kind=wp), intent(out) :: Scrt(nScrt), Wout(mab*nijx)
 logical(kind=iwp), intent(in) :: Tr1, Pr1, Tr2, Pr2
 integer(kind=iwp) :: k1, k2, l1, l2
 
-l1 = (n1+1)*(n1+2)/2
+l1 = nTri_Elem1(n1)
 k1 = l1
 if (Pr1) k1 = 2*n1+1
-l2 = (n2+1)*(n2+2)/2
+l2 = nTri_Elem1(n2)
 k2 = l2
 if (Pr2) k2 = 2*n2+1
 #ifdef _DEBUGPRINT_

@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "prm_interface.fh"
-integer(kind=iwp) :: iAnga(4), ipIn, ipOff, lc, ld, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
+integer(kind=iwp) :: iAnga(4), ipIn, ipOff, lc, ld, lta, ltb, mabMax, mabMin, mArr, mcdMax, mcdMin, nFlop, nMem, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Q_Nuc, rKappCD
 logical(kind=iwp) :: NoSpecial
 real(kind=wp), allocatable :: rKappa_mod(:)
@@ -52,7 +52,9 @@ unused_var(Beta)
 unused_var(nHer)
 unused_var(nOrdOp)
 
-call FZero(rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+lta = nTri_Elem1(la)
+ltb = nTri_Elem1(lb)
+call FZero(rFinal,nZeta*lta*ltb*nComp)
 
 lc = 0
 ld = 0
@@ -152,8 +154,8 @@ if (Q_Nuc /= Zero) then
         mcdMin = nTri3_Elem1(2+ld-1)
         mcdMax = nTri3_Elem1(2+ld)-1
         ! tweak the pointers
-        ipOff = 1+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-        mArr = nArr-(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
+        ipOff = 1+nZeta*lta*ltb
+        mArr = nArr-lta*ltb
         call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax,mcdMin, &
                  mcdMax,Array(ipOff),mArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
         iAnga(3) = 0
@@ -185,8 +187,8 @@ if (Q_Nuc /= Zero) then
 
   call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
 
-  call DCopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,Array(ipIn),1,rFinal,1)
-  call DScal_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,-Q_Nuc,rFinal,1)
+  call DCopy_(nZeta*lta*ltb*nComp,Array(ipIn),1,rFinal,1)
+  call DScal_(nZeta*lta*ltb*nComp,-Q_Nuc,rFinal,1)
 end if
 
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) call mma_deallocate(rKappa_mod)

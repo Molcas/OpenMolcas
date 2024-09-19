@@ -25,6 +25,7 @@ subroutine IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOint,n
 !          april '90                                                   *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use k2_arrays, only: Sew_Scr
 use SOAO_Info, only: iAOtSO, iOffSO
 use lw_Info, only: lwInt, lwSqn, lwSyb
@@ -136,7 +137,7 @@ do i1=1,iCmp(1)
             j12 = ieor(j1,j2)
             if (qijij) then
               if (Shij .and. qij) then
-                k12 = j1*(j1+1)/2+j2+1
+                k12 = nTri_Elem(j1)+j2+1
               else if (Shij) then
                 k12 = nIrrep*j1+j2+1
               else if (iShell(1) > iShell(2)) then
@@ -156,7 +157,7 @@ do i1=1,iCmp(1)
               if (Shkl .and. qkl .and. (j4 > j3)) cycle
               if (qijij) then
                 if (Shkl .and. qkl) then
-                  k34 = j3*(j3+1)/2+j4+1
+                  k34 = nTri_Elem(j3)+j4+1
                 else if (Shkl) then
                   k34 = nIrrep*j3+j4+1
                 else if (iShell(3) > iShell(4)) then

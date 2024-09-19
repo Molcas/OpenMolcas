@@ -27,6 +27,7 @@ subroutine PGet2(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,DSSO,nDSO
 !             January '92.                                             *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
@@ -40,10 +41,9 @@ implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO
 real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO), DSSO(nDSO), ExFac, CoulFac
-integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndI, IndIJ, IndIK, IndIL, IndJ, IndJK, IndJL, IndK, IndKL, IndL, ipntIJ, ipntIK, &
-                     ipntIL, ipntJK, ipntJL, ipntKL, iS, iSO, iSOi, iSym(0:7), j, j1, j12, j123, j2, j3, j4, jAOj, jS, jSO, jSOj, &
-                     jSym(0:7), kAOk, kS, kSO, kSOk, kSym(0:7), lAOl, lOper, lS, lSO, lSOl, lSym(0:7), MemSO2, mijkl, niSym, &
-                     njSym, nkSym, nlSym
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, IndIJ, IndIK, IndIL, IndJK, IndJL, IndKL, iS, iSO, iSOi, iSym(0:7), j, j1, j12, j123, &
+                     j2, j3, j4, jAOj, jS, jSO, jSOj, jSym(0:7), kAOk, kS, kSO, kSOk, kSym(0:7), lAOl, lOper, lS, lSO, lSOl, &
+                     lSym(0:7), MemSO2, mijkl, niSym, njSym, nkSym, nlSym
 real(kind=wp) :: t14, Temp
 integer(kind=iwp), external :: iPntSO
 #ifdef _DEBUGPRINT_
@@ -146,14 +146,8 @@ do i1=1,iCmp(1)
                         ! Contribution D(ij)*D(kl) to P(ijkl)
                         if (j1 == j2) then
                           ! j3 == j4 also
-                          Indi = max(iSOi,jSOj)
-                          Indj = iSOi+jSOj-Indi
-                          Indk = max(kSOk,lSOl)
-                          Indl = kSOk+lSOl-Indk
-                          iPntij = iPntSO(j1,j2,lOper,nbas)
-                          iPntkl = iPntSO(j3,j4,lOper,nbas)
-                          Indij = iPntij+(Indi-1)*Indi/2+Indj
-                          Indkl = iPntkl+(Indk-1)*Indk/2+Indl
+                          Indij = iPntSO(j1,j2,lOper,nbas)+iTri(iSOi,jSOj)
+                          Indkl = iPntSO(j3,j4,lOper,nbas)+iTri(kSOk,lSOl)
                           temp = DSO(Indij)*DSO(Indkl)*CoulFac
                         else
                           temp = Zero
@@ -162,28 +156,16 @@ do i1=1,iCmp(1)
                         ! Contribution -1/4*D(ik)*D(jl) to P(ijkl)
                         if (j1 == j3) then
                           ! j2 == j4 also
-                          Indi = max(iSOi,kSOk)
-                          Indk = iSOi+kSOk-Indi
-                          Indj = max(jSOj,lSOl)
-                          Indl = jSOj+lSOl-Indj
-                          iPntik = iPntSO(j1,j3,lOper,nbas)
-                          iPntjl = iPntSO(j2,j4,lOper,nbas)
-                          Indik = iPntik+(Indi-1)*Indi/2+Indk
-                          Indjl = iPntjl+(Indj-1)*Indj/2+Indl
+                          Indik = iPntSO(j1,j3,lOper,nbas)+iTri(iSOi,kSOk)
+                          Indjl = iPntSO(j2,j4,lOper,nbas)+iTri(jSOj,lSOl)
                           temp = temp-t14*(DSO(Indik)*DSO(Indjl)+DSSO(Indik)*DSSO(Indjl))
                         end if
 
                         ! Contribution -1/4*D(il)*D(jk) to P(ijkl)
                         if (j1 == j4) then
                           ! j2 == j3 also
-                          Indi = max(iSOi,lSOl)
-                          Indl = iSOi+lSOl-Indi
-                          Indj = max(jSOj,kSOk)
-                          Indk = jSOj+kSOk-Indj
-                          iPntil = iPntSO(j1,j4,lOper,nbas)
-                          iPntjk = iPntSO(j2,j3,lOper,nbas)
-                          Indil = iPntil+(Indi-1)*Indi/2+Indl
-                          Indjk = iPntjk+(Indj-1)*Indj/2+Indk
+                          Indil = iPntSO(j1,j4,lOper,nbas)+iTri(iSOi,lSOl)
+                          Indjk = iPntSO(j2,j3,lOper,nbas)+iTri(jSOj,kSOk)
                           temp = temp-t14*(DSO(Indil)*DSO(Indjk)+DSSO(Indil)*DSSO(Indjk))
                         end if
 

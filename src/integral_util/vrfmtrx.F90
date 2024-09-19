@@ -17,6 +17,7 @@ subroutine VrfMtrx(Label,lOper,nComp,ip,Matrix)
 !             University of Lund, Sweden, January '91                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: Mul, nIrrep
@@ -44,7 +45,7 @@ do iComp=1,nComp
       if (nBas(jIrrep) <= 0) cycle
       if (.not. btest(iSmLbl,Mul(iIrrep+1,jIrrep+1)-1)) cycle
       if (iIrrep == jIrrep) then
-        n2 = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+        n2 = nTri_Elem(nBas(iIrrep))
         VrfSum = VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
         ip1 = ip1+n2
       else

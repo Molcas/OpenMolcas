@@ -17,7 +17,7 @@ subroutine CmbnMPr(Rnr,nZeta,la,lb,lr,rFinal,nComp)
 !     Author: K.Pfingst                                                *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind
+use Index_Functions, only: C_Ind, nTri_Elem1
 use rmat, only: GammaPh, GammaTh
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -27,7 +27,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnr(nZeta,0:la+lb+lr)
-real(kind=wp), intent(out) :: rFinal(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
+real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
 integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta, lcosf, lcost, lrs, lsinf, &
                      lsint
 real(kind=wp) :: Fact

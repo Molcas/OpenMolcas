@@ -41,7 +41,7 @@ subroutine Drv2_RF(llOper,Ccoor,nOrdOp,Fldxyz,lMax,h0,nh0)
 !             Modified loop structure April  99                        *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Real_Spherical, only: ipSph, rSph
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, MolWgh, Shells
@@ -60,7 +60,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: llOper, nOrdOp, lMax, nh0
-real(kind=wp), intent(in) :: Ccoor(3), Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
+real(kind=wp), intent(in) :: Ccoor(3), Fldxyz(nTri3_Elem1(lMax))
 real(kind=wp), intent(inout) :: h0(nh0)
 integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRRT, iDCRT(0:7), iIC, iPrim, is, iShell, iShll, iSmLbl, &
                      iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, js, jShell, jShll, kk, lDCRR, &
@@ -144,7 +144,7 @@ do iS=1,nSkal
 
     ! Allocate memory for the final integrals all in the
     ! primitive basis.
-    nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
+    nComp = nTri3_Elem1(lMax)
     lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Fnl,lFinal,nComp+1,Label='Fnl')
 

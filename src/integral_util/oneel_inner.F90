@@ -42,7 +42,7 @@ subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iCh
 !             Modified loop structure April 99                         *
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Sizes_of_Seward, only: S
@@ -105,11 +105,11 @@ call Nr_Shells(nSkal)
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(Ind_ij,2,nskal*(nSkal+1)/2,label='Ind_ij')
+call mma_allocate(Ind_ij,2,nTri_Elem(nSkal),label='Ind_ij')
 nijS = 0
 is = 0
 js = 0
-do I=1,nSkal*(nSkal+1)/2
+do I=1,nTri_Elem(nSkal)
   nijS = nijS+1
   js = js+1
   if (jS > iS) then

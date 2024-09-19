@@ -11,6 +11,7 @@
 
 subroutine Init_RctFld(NonEq,iCharge)
 
+use Index_Functions, only: nTri3_Elem1
 use Langevin_arrays, only: Cavxyz, Davxyz, DField, Dip, DipEF, Field, Grid, PolEF, Ravxyz
 use external_centers, only: iXPolType, nXF
 use rctfld_module, only: lAtAto, lLangevin, lMax, MaxA, MaxB, MaxC, MM, nCavxyz, nGrid, NonEQ_Ref, PCM, RadLat, Scala, Scalb, &
@@ -22,11 +23,11 @@ use Definitions, only: wp, iwp
 implicit none
 logical(kind=iwp), intent(in) :: NonEq
 integer(kind=iwp), intent(inout) :: iCharge
-integer(kind=iwp) :: MMM, nABC, nPolComp
+integer(kind=iwp) :: mMM, nABC, nPolComp
 
 tK = 1.0e-99_wp ! Boltzman factor, initial set to 0 K
 if (allocated(MM)) return
-mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
+mMM = nTri3_Elem1(lMax)
 call mma_allocate(MM,mMM,2,Label='MM')
 MM(:,:) = Zero
 if (iXPolType > 0) nGrid = nXF
@@ -50,7 +51,7 @@ if (lLangevin .or. (iXPolType > 0)) then
   call mma_allocate(DipEf,nGrid,Label='DipEf')
   call mma_allocate(Grid,3,nGrid,Label='Grid')
 
-  nCavxyz = (lMax+1)*(lMax+2)*(lMax+3)/6
+  nCavxyz = mMM
   call mma_allocate(davxyz,nCavxyz,Label='davxyz')
   call mma_allocate(cavxyz,nCavxyz,Label='cavxyz')
   call mma_allocate(ravxyz,nCavxyz,Label='ravxyz')

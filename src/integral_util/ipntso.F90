@@ -21,6 +21,7 @@ function iPntSO(j1,j2,lOper,nbas)
 !             February '91                                             *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
@@ -38,7 +39,7 @@ do iIrrep=0,j1
     ij = Mul(iIrrep+1,jIrrep+1)-1
     if (.not. btest(iSmLbl,ij)) cycle
     if (iIrrep == jIrrep) then
-      iPntSO = iPntSO+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      iPntSO = iPntSO+nTri_Elem(nBas(iIrrep))
     else
       iPntSO = iPntSO+nBas(iIrrep)*nBas(jIrrep)
     end if

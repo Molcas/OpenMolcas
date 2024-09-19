@@ -17,7 +17,7 @@ subroutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem1
+use Index_Functions, only: iTri, nTri3_Elem1
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, Shells
 use Symmetry_Info, only: nIrrep
@@ -50,11 +50,7 @@ do iS=1,nSkal
     jCmp = iSD(2,jS)
     jAng = iSD(1,jS)
     jCnttp = iSD(13,jS)
-    if (iShell >= jShell) then
-      ijS = iShell*(iShell-1)/2+jShell
-    else
-      ijS = jShell*(jShell-1)/2+iShell
-    end if
+    ijS = iTri(iShell,jShell)
     nDCRR = Indk2(2,ijS)
     ik2 = Indk2(3,ijS)
     nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))

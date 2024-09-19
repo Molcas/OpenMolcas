@@ -13,6 +13,7 @@
 
 function iPD(iSO_,jSO_,iSOSym,nSOs)
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use Definitions, only: iwp
 
@@ -30,7 +31,7 @@ iSOr = iSOSym(2,iSO)
 jSym = iSOSym(1,jSO)
 jSOr = iSOSym(2,jSO)
 if (iSym == jSym) then
-  ij = iSOr*(iSOr-1)/2+jSOr
+  ij = nTri_Elem(iSOr-1)+jSOr
 else
   ij = (iSOr-1)*nBas(jSym)+jSOr
 end if

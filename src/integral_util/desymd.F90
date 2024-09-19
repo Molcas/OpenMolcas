@@ -22,6 +22,7 @@ subroutine DesymD(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DA
 !             October '91                                              *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
 use SOAO_Info, only: iAOtSO
@@ -46,8 +47,8 @@ call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
 
 call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
 lSO = 1
-ii = iAng*(iAng+1)*(iAng+2)/6
-jj = jAng*(jAng+1)*(jAng+2)/6
+ii = nTri3_Elem(iAng)
+jj = nTri3_Elem(jAng)
 do j1=0,nIrrep-1
   Xa = real(iChTbl(j1,nOp(1)),kind=wp)
   do i1=1,iCmp

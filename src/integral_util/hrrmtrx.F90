@@ -24,7 +24,7 @@ subroutine HrrMtrx(HMtrx,np,la,lb,A,B,Sph_a,CS_a,nSph_a,Sph_b,Cs_b,nSph_b)
 !             February 1999                                            *
 !***********************************************************************
 
-use Index_Functions, only: C3_Ind3, nTri3_Elem
+use Index_Functions, only: C3_Ind3, nTri_Elem1, nTri3_Elem
 use define_af, only: Binom, iCan, iTabMx
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -35,21 +35,23 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: np, la, lb, nSph_a, nSph_b
 real(kind=wp), intent(out) :: HMtrx(np,nSph_a,nSph_b)
-real(kind=wp), intent(in) :: A(3), B(3), CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)
+real(kind=wp), intent(in) :: A(3), B(3), CS_a(nTri_Elem1(la),nSph_a), CS_b(nTri_Elem1(lb),nSph_b)
 logical(kind=iwp), intent(in) :: Sph_a, Sph_b
 integer(kind=iwp) :: i, ipa, ipb, ipe, iSph_a, iSph_b, ix, ixLow, iy, iyLow, iz, izLow, jOff, jx, jxLow, jy, jyLow, jz, jzLow, kx, &
-                     ky, kz, na, nab, nb
+                     ky, kz, lta, ltb, na, nab, nb
 real(kind=wp) :: AB(3,0:iTabMx), ABx, ABy, ABz, C_A, C_B
 logical(kind=iwp), external :: EQ
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: DDot_
 #endif
 
+lta = nTri_Elem1(la)
+ltb = nTri_Elem1(lb)
 #ifdef _DEBUGPRINT_
 call RecPrt('A',' ',A,1,3)
 call RecPrt('B',' ',B,1,3)
-call RecPrt('CS_a',' ',CS_a,(la+1)*(la+2)/2,nSph_a)
-call RecPrt('CS_b',' ',CS_b,(lb+1)*(lb+2)/2,nSph_b)
+call RecPrt('CS_a',' ',CS_a,lta,nSph_a)
+call RecPrt('CS_b',' ',CS_b,ltb,nSph_b)
 write(u6,*) 'np=',np
 #endif
 HMtrx(:,:,:) = Zero
@@ -73,14 +75,14 @@ if (la >= lb) then
   if (Sph_a .and. Sph_b) then
 
     do iSph_a=1,nSph_a
-      do ipa=1,(la+1)*(la+2)/2
+      do ipa=1,lta
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
         ix = iCan(1,na+ipa)
         iy = iCan(2,na+ipa)
         iz = iCan(3,na+ipa)
         do iSph_b=1,nSph_b
-          do ipb=1,(lb+1)*(lb+2)/2
+          do ipb=1,ltb
             C_b = CS_b(ipb,iSph_b)
             if (C_b == Zero) cycle
             jx = iCan(1,nb+ipb)
@@ -119,13 +121,13 @@ if (la >= lb) then
   else if (Sph_a) then
 
     do iSph_a=1,nSph_a
-      do ipa=1,(la+1)*(la+2)/2
+      do ipa=1,lta
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
         ix = iCan(1,na+ipa)
         iy = iCan(2,na+ipa)
         iz = iCan(3,na+ipa)
-        do ipb=1,(lb+1)*(lb+2)/2
+        do ipb=1,ltb
           jx = iCan(1,nb+ipb)
           jy = iCan(2,nb+ipb)
           jz = iCan(3,nb+ipb)
@@ -160,12 +162,12 @@ if (la >= lb) then
 
   else if (Sph_b) then
 
-    do ipa=1,(la+1)*(la+2)/2
+    do ipa=1,lta
       ix = iCan(1,na+ipa)
       iy = iCan(2,na+ipa)
       iz = iCan(3,na+ipa)
       do iSph_b=1,nSph_b
-        do ipb=1,(lb+1)*(lb+2)/2
+        do ipb=1,ltb
           C_b = CS_b(ipb,iSph_b)
           if (C_b == Zero) cycle
           jx = iCan(1,nb+ipb)
@@ -202,11 +204,11 @@ if (la >= lb) then
 
   else
 
-    do ipa=1,(la+1)*(la+2)/2
+    do ipa=1,lta
       ix = iCan(1,na+ipa)
       iy = iCan(2,na+ipa)
       iz = iCan(3,na+ipa)
-      do ipb=1,(lb+1)*(lb+2)/2
+      do ipb=1,ltb
         jx = iCan(1,nb+ipb)
         jy = iCan(2,nb+ipb)
         jz = iCan(3,nb+ipb)
@@ -245,14 +247,14 @@ else
   if (Sph_a .and. Sph_b) then
 
     do iSph_a=1,nSph_a
-      do ipa=1,(la+1)*(la+2)/2
+      do ipa=1,lta
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
         ix = iCan(1,na+ipa)
         iy = iCan(2,na+ipa)
         iz = iCan(3,na+ipa)
         do iSph_b=1,nSph_b
-          do ipb=1,(lb+1)*(lb+2)/2
+          do ipb=1,ltb
             C_b = CS_b(ipb,iSph_b)
             if (C_b == Zero) cycle
             jx = iCan(1,nb+ipb)
@@ -291,13 +293,13 @@ else
   else if (Sph_a) then
 
     do iSph_a=1,nSph_a
-      do ipa=1,(la+1)*(la+2)/2
+      do ipa=1,lta
         C_a = CS_a(ipa,iSph_a)
         if (C_a == Zero) cycle
         ix = iCan(1,na+ipa)
         iy = iCan(2,na+ipa)
         iz = iCan(3,na+ipa)
-        do ipb=1,(lb+1)*(lb+2)/2
+        do ipb=1,ltb
           jx = iCan(1,nb+ipb)
           jy = iCan(2,nb+ipb)
           jz = iCan(3,nb+ipb)
@@ -332,12 +334,12 @@ else
 
   else if (Sph_b) then
 
-    do ipa=1,(la+1)*(la+2)/2
+    do ipa=1,lta
       ix = iCan(1,na+ipa)
       iy = iCan(2,na+ipa)
       iz = iCan(3,na+ipa)
       do iSph_b=1,nSph_b
-        do ipb=1,(lb+1)*(lb+2)/2
+        do ipb=1,ltb
           C_b = CS_b(ipb,iSph_b)
           if (C_b == Zero) cycle
           jx = iCan(1,nb+ipb)
@@ -374,11 +376,11 @@ else
 
   else
 
-    do ipa=1,(la+1)*(la+2)/2
+    do ipa=1,lta
       ix = iCan(1,na+ipa)
       iy = iCan(2,na+ipa)
       iz = iCan(3,na+ipa)
-      do ipb=1,(lb+1)*(lb+2)/2
+      do ipb=1,ltb
         jx = iCan(1,nb+ipb)
         jy = iCan(2,nb+ipb)
         jz = iCan(3,nb+ipb)

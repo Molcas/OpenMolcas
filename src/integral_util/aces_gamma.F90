@@ -11,6 +11,7 @@
 
 subroutine Aces_Gamma()
 
+use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOS
 use Basis_Info, only: nBas
 use PSO_Stuff, only: Bin, G_ToC, lBin, LuGamma, SO2CI
@@ -31,8 +32,8 @@ integer(kind=iwp), external :: IsFreeUnit
 !***********************************************************************
 !                                                                      *
 nShell = mSkal
-nPair = nShell*(nShell+1)/2
-nQuad = nPair*(nPair+1)/2
+nPair = nTri_Elem(nShell)
+nQuad = nTri_Elem(nPair)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -76,8 +77,8 @@ do iBlock=1,nBlocks
   nC = nBas(iIrrep_C)
   nD = nBas(iIrrep_D)
   if ((iType == 1) .or. (iType == 2)) then
-    nAB = nA*(nA+1)/2
-    nCD = nC*(nC+1)/2
+    nAB = nTri_Elem(nA)
+    nCD = nTri_Elem(nC)
   else
     nAB = nA*nB
     nCD = nC*nD

@@ -18,16 +18,16 @@ subroutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,Fac3,Fac4,Fac5,A,B,P
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind3, C3_Ind3
+use Index_Functions, only: C_Ind3, C3_Ind3, nTri_Elem1
 #ifdef _DEBUGPRINT_
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri3_Elem1
 #endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, jSum
-real(kind=wp), intent(out) :: AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta), Fac4(nZeta), &
+real(kind=wp), intent(out) :: AB(nZeta,nTri_Elem1(la),nTri_Elem1(lb)), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta), Fac4(nZeta), &
                               Fac5(nZeta)
 real(kind=wp), intent(inout) :: GInt(nZeta,jSum)
 real(kind=wp), intent(in) :: rKappa(nZeta), A(3), B(3), P(nZeta,3)
@@ -83,7 +83,7 @@ do i=2,la+lb
   kOff = kOff+3**i
 end do
 #ifdef _DEBUGPRINT_
-call RecPrt(' In TraPAB: GInt(unique)',' ',GInt,nZeta,(la+lb+1)*(la+lb+2)*(la+lb+3)/6)
+call RecPrt(' In TraPAB: GInt(unique)',' ',GInt,nZeta,nTri3_Elem1(la+lb))
 #endif
 
 ! Loop over the elements of the basis functions on A and B

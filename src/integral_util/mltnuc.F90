@@ -22,13 +22,14 @@ subroutine MltNuc(CoOP,Chrg,Coor,nAtm,rNucMm,ir)
 !             November '90                                             *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtm, ir
 real(kind=wp), intent(in) :: CoOp(3), Chrg(nAtm), Coor(3,nAtm)
-real(kind=wp), intent(out) :: rNucMm((ir+1)*(ir+2)/2)
+real(kind=wp), intent(out) :: rNucMm(nTri_Elem1(ir))
 integer(kind=iwp) :: iAtom, ip, ix, iy, iz
 real(kind=wp) :: CCoMx, CCoMy, CCoMz, Temp
 

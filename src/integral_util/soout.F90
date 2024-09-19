@@ -11,6 +11,7 @@
 
 subroutine SOOUT(label,cnt_ico,phase_ico)
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
@@ -55,7 +56,7 @@ do iIrrep=0,nIrrep-1
       kComp = 0
       iSh = dbsc(iCnttp)%iVal-1
       do iAng=0,dbsc(iCnttp)%nVal-1
-        kComp = kComp+(iAng)*(iAng+1)/2
+        kComp = kComp+nTri_Elem1(iAng-1)
         iSh = iSh+1
         nExpi = Shells(iSh)%nExp
         if (nExpi == 0) cycle
@@ -64,7 +65,7 @@ do iIrrep=0,nIrrep-1
         if (Shells(iSh)%Prjct) then
           jComp = 2*iAng+1
         else
-          jComp = (iAng+1)*(iAng+2)/2
+          jComp = nTri_Elem1(iAng)
         end if
         do iComp=1,jComp
           lComp = kComp+iComp

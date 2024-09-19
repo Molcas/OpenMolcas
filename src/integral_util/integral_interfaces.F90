@@ -26,6 +26,7 @@ use Symmetry_Info, only:
 use SOAO_Info, only:
 use stdalloc, only:
 use Constants, only:
+use Index_Functions, only: nTri_Elem1
 use k2_structure, only: k2_type
 use Definitions, only: wp, iwp
 
@@ -37,8 +38,7 @@ abstract interface
 #                       define _CALLING_
 #                       include "int_interface.fh"
                        )
-    use Index_Functions, only: nTri_Elem1
-    import :: wp, iwp
+    import :: nTri_Elem1, wp, iwp
 #   include "int_interface.fh"
   end subroutine int_kernel
 
@@ -62,7 +62,7 @@ abstract interface
 #                       define _CALLING_
 #                       include "prm_interface.fh"
                        )
-    import :: wp, iwp
+    import :: nTri_Elem1, wp, iwp
 #   include "prm_interface.fh"
   end subroutine prm_kernel
 

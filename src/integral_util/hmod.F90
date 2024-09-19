@@ -17,13 +17,13 @@ subroutine hmod(gx,gy,gz,V,EFx,EFy,EFz,Cavxyz,lmax_)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: C3_Ind3
+use Index_Functions, only: C3_Ind3, nTri3_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lmax_
-real(kind=wp), intent(in) :: gx, gy, gz, Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
+real(kind=wp), intent(in) :: gx, gy, gz, Cavxyz(nTri3_Elem1(lMax_))
 real(kind=wp), intent(out) :: V, EFx, EFy, EFz
 integer(kind=iwp) :: ix, iy, iz, lMax
 real(kind=wp) :: aX, aY, aZ, xEff, xyEff, xyzEff

@@ -22,6 +22,7 @@ subroutine XFMoment(lMax,Cavxyz,Tmom,nCavxyz_,Org)
 !              November 2004                                           *
 !***********************************************************************
 
+use Index_Functions, only: nTri3_Elem1
 use External_Centers, only: nOrd_XF, nXF, XF
 use Phase_Info, only: iPhase
 use Symmetry_Info, only: nIrrep
@@ -40,7 +41,7 @@ if (nOrd_XF > lMax) then
   call WarningMessage(2,'nOrd_XF > lMax')
   call Abend()
 end if
-nInp = (nOrd_XF+1)*(nOrd_XF+2)*(nOrd_XF+3)/6
+nInp = nTri3_Elem1(nOrd_XF)
 call FZero(Org,3)
 do i=1,nXF
 

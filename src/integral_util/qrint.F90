@@ -38,7 +38,7 @@ GINT = Zero
 Dac = -One
 do I=0,N
   TAL = (-BP)**(N-I)*Binom(n,i)
-  J = (I/2)
+  J = I/2
 
   if (J*2 == I) then
     Dac = Dac*Half*(real(2*J-1,kind=wp))

@@ -40,6 +40,9 @@ implicit none
 #include "int_interface.fh"
 integer(kind=iwp) :: iAnga(4), iDCRT(0:7), ipIn, iTile, jStab_(0:0), lDCRT, LmbdT, mabMax, mabMin, nDCRT, nFlop, nMem, nOp, NrOpr, &
                      nStab_, nT
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, qTessera, TC(3)
 logical(kind=iwp) :: NoSpecial
 procedure(cff2d_kernel) :: XCff2D

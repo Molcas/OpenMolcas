@@ -48,14 +48,13 @@ integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jB
                                  iSO2cI(2,nSOs), iSO2Sh(nSOs)
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO), DSO_Var(nDSO), DSSO(nDSO), DSSO_Var(nDSO), Gmma(nGamma)
-integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, Indi, Indij, Indik, &
-                     Indil, Indj, Indjk, Indjl, Indk, Indkl, Indl, iPAO, iShell_A, iShell_AB, iShell_B, iShell_C, iShell_CD, &
-                     iShell_D, iSO, iSOi, jAOj, jSO, jSOj, kAOk, kSO, kSOk, lAOl, lSO, lSOl, nDim_A, nDim_AB, nDim_B, nDim_C, &
-                     nDim_CD, nDim_D, nijkl
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, Index_A, Index_AB, Index_ABCD, Index_B, Index_C, Index_CD, Index_D, Indij, Indik, &
+                     Indil, Indjk, Indjl, Indkl, iPAO, iShell_A, iShell_AB, iShell_B, iShell_C, iShell_CD, iShell_D, iSO, iSOi, &
+                     jAOj, jSO, jSOj, kAOk, kSO, kSOk, lAOl, lSO, lSOl, nDim_A, nDim_AB, nDim_B, nDim_C, nDim_CD, nDim_D, nijkl
 real(kind=wp) :: t14, Temp
 real(kind=wp), parameter :: exfac = One
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iComp
+integer(kind=iwp) :: i, iComp
 real(kind=wp), external :: DDOt_
 #endif
 
@@ -151,34 +150,22 @@ do i1=1,iCmp(1)
 
                   ! D(ij)*D(kl)
 
-                  Indi = max(iSOi,jSOj)
-                  Indj = iSOi+jSOj-Indi
-                  Indk = max(kSOk,lSOl)
-                  Indl = kSOk+lSOl-Indk
-                  Indij = (Indi-1)*Indi/2+Indj
-                  Indkl = (Indk-1)*Indk/2+Indl
+                  Indij = iTri(iSOi,jSOj)
+                  Indkl = iTri(kSOk,lSOl)
                   temp = DSO(Indij)*DSO(Indkl)+(DSO_Var(Indij)-DSO(Indij))*DSO(Indkl)+DSO(Indij)*(DSO_Var(Indkl)-DSO(Indkl))
 
                   ! -0.25*D(ik)*D(jl)
 
-                  Indi = max(iSOi,kSOk)
-                  Indk = iSOi+kSOk-Indi
-                  Indj = max(jSOj,lSOl)
-                  Indl = jSOj+lSOl-Indj
-                  Indik = (Indi-1)*Indi/2+Indk
-                  Indjl = (Indj-1)*Indj/2+Indl
+                  Indik = iTri(iSOi,kSOk)
+                  Indjl = iTri(jSOj,lSOl)
                   temp = temp-t14*(DSO(Indik)*DSO(Indjl)+(DSO_Var(Indik)-DSO(Indik))*DSO(Indjl)+ &
                                    DSO(Indik)*(DSO_Var(Indjl)-DSO(Indjl))+DSSO(Indik)*DSSO(Indjl)+ &
                                    (DSSO_Var(Indik)-DSSO(Indik))*DSSO(Indjl)+DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl)))
 
                   ! -0.25*D(il)*D(jk)
 
-                  Indi = max(iSOi,lSOl)
-                  Indl = iSOi+lSOl-Indi
-                  Indj = max(jSOj,kSOk)
-                  Indk = jSOj+kSOk-Indj
-                  Indil = (Indi-1)*Indi/2+Indl
-                  Indjk = (Indj-1)*Indj/2+Indk
+                  Indil = iTri(iSOi,lSOl)
+                  Indjk = iTri(jSOj,kSOk)
                   temp = temp-t14*(DSO(Indil)*DSO(Indjk)+(DSO_Var(Indil)-DSO(Indil))*DSO(Indjk)+ &
                                    DSO(Indil)*(DSO_Var(Indjk)-DSO(Indjk))+DSSO(Indil)*DSSO(Indjk)+ &
                                    (DSSO_Var(Indil)-DSSO(Indil))*DSSO(Indjk)+DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk)))

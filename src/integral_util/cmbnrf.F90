@@ -19,7 +19,7 @@ subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp)
 !             Modified for reaction field calculations July '92        *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind, nTri3_Elem
+use Index_Functions, only: C_Ind, nTri_Elem1, nTri3_Elem
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -29,7 +29,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
-real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Fact(nZeta), Temp(nZeta)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), Fact(nZeta), Temp(nZeta)
 integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
 
 do iZeta=1,nZeta
@@ -73,7 +73,7 @@ do ixa=0,la
 end do
 
 #ifdef _DEBUGPRINT_
-call RecPrt('Final',' ',rFinal,nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2,nComp)
+call RecPrt('Final',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb),nComp)
 #endif
 
 return

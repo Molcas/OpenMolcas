@@ -39,6 +39,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: nBas
 use Definitions, only: u6
@@ -133,7 +134,7 @@ if (lRFCav) then  !Skip calculation of moments if no cavity
   write(u6,*) '1st order total density'
   lOff = 1
   do iIrrep=0,nIrrep-1
-    n = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    n = nTri_Elem(nBas(iIrrep))
     write(Label,'(A,I1)') 'Diagonal Symmetry Block ',iIrrep+1
     call Triprt(Label,' ',D_Tot(lOff),nBas(iIrrep))
     lOff = lOff+n

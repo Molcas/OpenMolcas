@@ -25,7 +25,7 @@ subroutine AOEval(iAng,nCoor,Coor,xyz,RA,Transf,CffSph,nElem,nCmp,Angular,nTerm,
 !                   University of Lund, SWEDEN. February 2004          *
 !***********************************************************************
 
-use Index_Functions, only: C_Ind3
+use Index_Functions, only: C_Ind3, nTri_Elem1
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -238,7 +238,7 @@ do ix=iAng,0,-1
           jf = C_Ind3(jx,jy,jz)
 
           do kDrv=0,jDrv-1
-            jf = jf+(kDrv+1)*(kDrv+2)/2
+            jf = jf+nTri_Elem1(kDrv)
           end do
 
 #         ifdef _DEBUGPRINT_
@@ -281,7 +281,7 @@ do ix=iAng,0,-1
         if (Cff /= Zero) then
           kForm = 0
           do iDrv=0,nDrv
-            mForm = (iDrv+1)*(iDrv+2)/2
+            mForm = nTri_Elem1(iDrv)
             do iForm=kForm+1,kForm+mForm
               mTerm = 2**(iDrv)
               do iTerm=1,mTerm
@@ -306,7 +306,7 @@ do ix=iAng,0,-1
     else
       kForm = 0
       do iDrv=0,nDrv
-        mForm = (iDrv+1)*(iDrv+2)/2
+        mForm = nTri_Elem1(iDrv)
         do iForm=kForm+1,kForm+mForm
           mTerm = 2**(iDrv)
           do iTerm=1,mTerm

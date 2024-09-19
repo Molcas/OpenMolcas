@@ -13,7 +13,7 @@
 
 subroutine FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmp,jCmp,ikop1,ikop2,Irrep,Shij,iAO1,iAO2,iAOst1,iAOst2,fact)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: iChTbl, iOper, nIrrep
 use SOAO_Info, only: iAOtSO, nSOInf
 use Basis_Info, only: nBas
@@ -35,7 +35,7 @@ if (iChO == 0) then
   iPntij = 0
   do iIrrep=0,nIrrep-1
     iPnt(iIrrep) = iPntij
-    ipntij = ipntij+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    ipntij = ipntij+nTri_Elem(nBas(iIrrep))
   end do
 
   ! Distribute contributions from the intermediate skeleton

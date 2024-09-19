@@ -54,7 +54,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
 real(kind=wp), intent(in) :: FactOp(nTs), FD(nFD), CCoor(4,nTs)
-real(kind=wp), intent(inout) :: VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)
+real(kind=wp), intent(inout) :: VTessera(nTri_Elem1(nOrdOp),2,nTs)
 integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlC, iPrim, iS, iShell, iShll, iSmLbl, &
                      iStabM(0:7), iStabO(0:7), iTile, iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, &
                      lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, &
@@ -125,7 +125,7 @@ do iS=1,nSkal
     ! Allocate memory for the final integrals, all in the
     ! primitive basis.
 
-    nComp = (nOrdOp+1)*(nOrdOp+2)/2
+    nComp = nTri_Elem1(nOrdOp)
     lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
     call mma_allocate(Fnl,lFinal,Label='Fnl')
 

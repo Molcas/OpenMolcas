@@ -27,6 +27,7 @@ subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,Cred,nC,Scr1,nS1,Scr2,nS2)
 !         elements.
 ! -------------------------------------------------------------------
 
+use Index_Functions, only: iTri, nTri_Elem
 use etwas, only: CoulFac, mBas, mIrrep, nAsh, nIsh, npSOp
 use pso_stuff, only: CMO, D0, G1, G2
 use Constants, only: Zero, One, Two, Quart
@@ -39,16 +40,13 @@ implicit none
 integer(kind=iwp), intent(in) :: npam(4,0:*), nxpam, nPSOPam, nC, nS1, nS2
 real(kind=wp), intent(in) :: ipam(nxpam)
 real(kind=wp), intent(out) :: PSOPam(nPSOPam), Cred(nC), Scr1(nS1), Scr2(nS2)
-integer(kind=iwp) :: iEnd, ijSym, Ind, iOCMOI, iOCMOJ, iOCMOK, iOCMOL, iOCMOT, iOCMOU, iOCMOV, iOCMOX, ioDQ, ioDR, iods, iOff1, &
+integer(kind=iwp) :: i, iEnd, ijSym, Ind, iOCMOI, iOCMOJ, iOCMOK, iOCMOL, iOCMOT, iOCMOU, iOCMOV, iOCMOX, ioDQ, ioDR, iods, iOff1, &
                      iOff2, ioPam1, ioPam2, ioPam3, ioPam4, ip, ipq, ipr, ips, ipSO, iq, ir, irq, irs, is, iScr, isq, iSta, iSym, &
                      it, itEnd, itSta, itu, ituvx, itv, itx, iu, iuEnd, iuSta, iv, iVEnd, ivSta, ivu, ivx, ix, ixEnd, ixSta, ixu, &
-                     jEnd, jklOf1, jklOff, jSta, jSym, k, kEnd, klOf1, klOff, klSym, kSta, kSym, l, lEnd, lOf1, lOff, lSta, lSym, &
-                     nbi, nbj, nbk, nbl, nCopy, ni, nijkl, nj, njkl, nk, nkl, nKLT, nl, nLTU, nnPam1, nnPam2, nnPam3, nnPam4, &
-                     nSkip1, nSkip2, nt, nTUV, nu, nv, nx, nxv, nxvu, nxvut
+                     j, jEnd, jklOf1, jklOff, jSta, jSym, k, kEnd, klOf1, klOff, klSym, kSta, kSym, l, lEnd, lOf1, lOff, lSta, &
+                     lSym, nbi, nbj, nbk, nbl, nCopy, ni, nijkl, nj, njkl, nk, nkl, nKLT, nl, nLTU, nnPam1, nnPam2, nnPam3, &
+                     nnPam4, nSkip1, nSkip2, nt, nTUV, nu, nv, nx, nxv, nxvu, nxvut
 real(kind=wp) :: Fact, t14
-! Triangular addressing without symmetry:
-integer(kind=iwp) :: i, j, i3adr
-i3adr(i,j) = ((max(i,j))*((max(i,j))-1))/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' iPam',iPam
@@ -143,11 +141,11 @@ do lsym=0,mirrep-1
             ind = 0
             do ix=ixsta,ixend
               do iv=ivsta,ivend
-                ivx = i3adr(iv,ix)
+                ivx = iTri(iv,ix)
                 do iu=iusta,iuend
                   do it=itsta,itend
-                    itu = i3adr(it,iu)
-                    ituvx = i3adr(itu,ivx)
+                    itu = iTri(it,iu)
+                    ituvx = iTri(itu,ivx)
                     ind = ind+1
                     scr1(ind) = G2(ituvx,1)
                     if (isym == jsym) then
@@ -159,14 +157,14 @@ do lsym=0,mirrep-1
                       scr1(ind) = scr1(ind)-G1(itu,1)*G1(ivx,1)
                     end if
                     if (isym == lsym) then
-                      itx = i3adr(it,ix)
-                      ivu = i3adr(iv,iu)
+                      itx = iTri(it,ix)
+                      ivu = iTri(iv,iu)
                       !hjw t14 includes exfac, why not coulfac above? What are these terms?
                       scr1(ind) = scr1(ind)+t14*G1(itx,1)*G1(ivu,1)
                     end if
                     if (isym == ksym) then
-                      itv = i3adr(it,iv)
-                      ixu = i3adr(ix,iu)
+                      itv = iTri(it,iv)
+                      ixu = iTri(ix,iu)
                       scr1(ind) = scr1(ind)+t14*G1(itv,1)*G1(ixu,1)
                     end if
                   end do
@@ -258,23 +256,23 @@ do lsym=0,mirrep-1
             loff = nnpam3*(l-1)
             do k=ksta,kend
               ir = int(ipam(iopam3+k))
-              irs = i3adr(ir,is)
+              irs = iTri(ir,is)
               kloff = nnpam2*(k-1+loff)
               do j=jsta,jend
                 iq = int(ipam(iopam2+j))
                 jkloff = nnpam1*(j-1+kloff)
                 do i=ista,iend
                   ip = int(ipam(iopam1+i))
-                  ipq = i3adr(ip,iq)
+                  ipq = iTri(ip,iq)
                   ipso = i+jkloff
                   if (isym == lsym) then
-                    ips = i3adr(ip,is)
-                    irq = i3adr(ir,iq)
+                    ips = iTri(ip,is)
+                    irq = iTri(ir,iq)
                     PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDs+ips,1)*D0(ioDr+irq,1)
                   end if
                   if (isym == ksym) then
-                    ipr = i3adr(ip,ir)
-                    isq = i3adr(is,iq)
+                    ipr = iTri(ip,ir)
+                    isq = iTri(is,iq)
                     PSOPam(ipso) = PSOPam(ipso)-t14*D0(ioDr+ipr,1)*D0(ioDs+isq,1)
                   end if
                   if (isym == jsym) then
@@ -291,15 +289,15 @@ do lsym=0,mirrep-1
       end do
       nbj = mbas(jsym)
       iocmoj = iocmoj+nbj**2
-      ioDq = ioDq+(nbj*(nbj+1))/2
+      ioDq = ioDq+nTri_Elem(nbj)
     end do
     nbk = mbas(ksym)
     iocmok = iocmok+nbk**2
-    ioDr = ioDr+(nbk*(nbk+1))/2
+    ioDr = ioDr+nTri_Elem(nbk)
   end do
   nbl = mbas(lsym)
   iocmol = iocmol+nbl**2
-  ioDs = ioDs+(nbl*(nbl+1))/2
+  ioDs = ioDs+nTri_Elem(nbl)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('PSOPam',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)

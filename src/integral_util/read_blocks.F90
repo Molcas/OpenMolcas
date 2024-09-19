@@ -11,7 +11,7 @@
 
 subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,iSO2cI,CutInt)
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iOffSO
 use PSO_Stuff, only: Case_MP2, LuGam, LuGamma
 use Constants, only: Zero, One
@@ -72,8 +72,8 @@ do iBlock=1,nBlocks
   nD = nBas(iIrrep_D)
   !write(u6,*) 'nA,nB,nC,nD=',nA,nB,nC,nD
   if ((iType == 1) .or. (iType == 2)) then
-    nAB = nA*(nA+1)/2
-    nCD = nC*(nC+1)/2
+    nAB = nTri_Elem(nA)
+    nCD = nTri_Elem(nC)
     Triangular = .true.
   else
     nAB = nA*nB

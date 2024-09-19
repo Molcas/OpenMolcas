@@ -17,6 +17,7 @@ subroutine PrMtrx(Label,lOper,nComp,ip,Matrix)
 !             University of Lund, Sweden, January '91                  *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: Mul, nIrrep
@@ -50,7 +51,7 @@ do iComp=1,nComp
       if (iIrrep == jIrrep) then
         write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
         call TriPrt(Line,' ',Matrix(ip1),nBas(iIrrep))
-        ip1 = ip1+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+        ip1 = ip1+nTri_Elem(nBas(iIrrep))
       else
         write(Line,'(1X,A,I1,A,I1)') ' Off-diagonal Symmetry Block ',iIrrep+1,',',jIrrep+1
         call RecPrt(Line,' ',Matrix(ip1),nBas(iIrrep),nBas(jIrrep))

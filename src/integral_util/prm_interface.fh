@@ -17,7 +17,7 @@ Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nComp,la,lb,A,RB,nHer,Ar
 
 integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp, iCnttp
 real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
-real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
 real(kind=wp), intent(inout) :: Array(nZeta*nArr)
 
 #endif

@@ -17,13 +17,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, nIC, iDCRT, lOper(nComp), iChO(nComp)
-real(kind=wp), intent(in) :: ArrIn(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp), Factor
-real(kind=wp), intent(inout) :: ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
+real(kind=wp), intent(in) :: ArrIn(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), Factor
+real(kind=wp), intent(inout) :: ArrOut(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC)
 integer(kind=iwp) :: iComp, iIC, iIrrep
 real(kind=wp) :: pO, Xg
 
-!nA = (la+1)*(la+2)/2
-!nB = (lb+1)*(lb+2)/2
+!nA = nTri_Elem1(la)
+!nB = nTri_Elem1(lb)
 !call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
 
 ! Accumulate contributions
