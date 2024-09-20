@@ -86,7 +86,7 @@ use Phase_Info, only: iPhase
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -115,7 +115,7 @@ procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: EQ, lEmpty
+logical(kind=iwp), external :: EQ
 
 !                                                                      *
 !***********************************************************************
@@ -341,11 +341,11 @@ do lDCRR=0,nDCRR-1
       do iZeta=1,nZeta_Tot,IncZet
         mZeta = min(IncZet,nZeta_Tot-iZeta+1)
         ! Check that subblock of contraction matrix has non-zero elements.
-        if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
+        if (all(Coeff2(:,:) == Zero)) cycle
         do iEta=1,nEta_Tot,IncEta
           mEta = min(IncEta,nEta_Tot-iEta+1)
           ! Check that subblock of contraction matrix has non-zero elements.
-          if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
+          if (all(Coeff4(:,:) == Zero)) cycle
           Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
           !------------------------------------------------------------*
           !

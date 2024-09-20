@@ -37,21 +37,17 @@ integer(kind=iwp), intent(in) :: mZeta, nab, nZeta
 real(kind=wp), intent(in) :: abab(mZeta,nab,nab), rKappa(mZeta), Zeta(mZeta), qKappa(mZeta)
 real(kind=wp), intent(inout) :: ab(nZeta,nab)
 logical(kind=iwp), intent(in) :: Mode
-integer(kind=iwp) :: iab, iZeta
+integer(kind=iwp) :: iab
 
 if (Mode) then
   ! Integrals
   do iab=1,nab
-    do iZeta=1,mZeta
-      ab(iZeta,iab) = sqrt(sqrt(Two*Zeta(iZeta))*abs(abab(iZeta,iab,iab)))/rKappa(iZeta)
-    end do
+    ab(1:mZeta,iab) = sqrt(sqrt(Two*Zeta(:))*abs(abab(:,iab,iab)))/rKappa(:)
   end do
 else
   ! Integrals for numerical estimation of the gradient.
   do iab=1,nab
-    do iZeta=1,mZeta
-      ab(iZeta,iab) = sqrt(Two*Zeta(iZeta))*abab(iZeta,iab,iab)/(rKappa(iZeta)*qKappa(iZeta))
-    end do
+    ab(1:mZeta,iab) = sqrt(Two*Zeta(:))*abab(:,iab,iab)/(rKappa(:)*qKappa(:))
   end do
 end if
 #ifdef _DEBUGPRINT_

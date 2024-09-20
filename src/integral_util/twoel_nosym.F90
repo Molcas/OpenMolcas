@@ -40,7 +40,7 @@ use k2_arrays, only: pDq, pFq
 use k2_structure, only: k2_type
 use Breit, only: nComp
 use NDDO, only: twoel_NDDO
-use Constants, only: One, Four, Eight
+use Constants, only: Zero, One, Four, Eight
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
@@ -53,7 +53,7 @@ logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 real(kind=wp) :: CoorAC(3,2), QInd(2)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
-logical(kind=iwp), external :: EQ, lEmpty
+logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
 unused_var(iStabs)
@@ -197,14 +197,14 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   ! the order as defined by the basis functions types.
 
   if (iAnga(1) >= iAnga(2)) then
-    call dcopy_(3,Coor(1,1),1,CoorAC(1,1),1)
+    CoorAC(:,1) = Coor(:,1)
   else
-    call dcopy_(3,Coor(1,2),1,CoorAC(1,1),1)
+    CoorAC(:,1) = Coor(:,2)
   end if
   if (iAnga(3) >= iAnga(4)) then
-    call dcopy_(3,Coor(1,3),1,CoorAC(1,2),1)
+    CoorAC(:,2) = Coor(:,3)
   else
-    call dcopy_(3,Coor(1,4),1,CoorAC(1,2),1)
+    CoorAC(:,2) = Coor(:,4)
   end if
 
   ! Set flags if triangularization will be used
@@ -241,11 +241,11 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
 
   do iZeta=1,nZeta_Tot,IncZet
     mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-    if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
+    if (all(Coeff2(:,:) == Zero)) cycle
 
     do iEta=1,nEta_Tot,IncEta
       mEta = min(IncEta,nEta_Tot-iEta+1)
-      if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
+      if (all(Coeff4(:,:) == Zero)) cycle
 
       call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
                   1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin, &
@@ -291,7 +291,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
 
     ! Undo the late Cntrct
 
-    call dcopy_(nijkl*nabcd,Wrk(ipAOInt),1,Wrk(iW3),1)
+    Wrk(iW3:iW3+nijkl*nabcd-1) = Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1)
     call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),nijkl)
 
   end if
@@ -362,7 +362,7 @@ if (DoFock) call FckAcc_NoSymq(iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShell,nij
 
 if (DoIntegrals) then
   if (ipAOInt /= 1) then
-    call dcopy_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),Wrk(ipAOInt),1,Wrk(1),1)
+    Wrk(1:nijkl*nabcd) = Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1)
     ipAOInt = 1
   end if
   iPer = 1
@@ -376,7 +376,7 @@ if (DoIntegrals) then
   if (Pijkl) iPer = iPer*2
   q4 = Eight/real(iPer,kind=wp)
   if (nIrrep == 1) q4 = One
-  if (q4 /= One) call DScal_(nijkl*iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4),q4,Wrk(ipAOInt),1)
+  if (q4 /= One) Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1) = q4*Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1)
 end if
 
 return

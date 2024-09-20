@@ -17,14 +17,10 @@ implicit none
 integer(kind=iwp), intent(in) :: iBas, iCmp, jBas, jCmp
 real(kind=wp), intent(in) :: D_Old(iBas,jBas,iCmp,jCmp)
 real(kind=wp), intent(out) :: D_New(iBas,iCmp,jBas,jCmp)
-integer(kind=iwp) :: iC, jB, jC
+integer(kind=iwp) :: jB
 
-do jC=1,jCmp
-  do jB=1,jBas
-    do iC=1,iCmp
-      D_New(:,iC,jB,jC) = D_Old(:,jB,iC,jC)
-    end do
-  end do
+do jB=1,jBas
+  D_New(:,:,jB,:) = D_Old(:,jB,:,:)
 end do
 
 return

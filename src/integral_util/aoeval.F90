@@ -40,7 +40,7 @@ logical(kind=iwp), intent(in) :: Transf
 integer(kind=iwp), intent(out) :: Angular(nTerm,5,nForm)
 integer(kind=iwp) :: iX, iY, iZ, nDrv, iExp, iCoor, iBas, iDrv, i, i_f, ip, jDrv, jX, jY, jZ, jF, kDrv, iCmp, kForm, mForm, mTerm, &
                      iTerm, iCoef, iRad, iForm
-real(kind=wp) :: Cff, Coef, Exp_Min, R2, ThrE, Tmp, Tmp2, Tmp3, Tmp4, XCff
+real(kind=wp) :: Cff, Coef, R2, ThrE, Tmp
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
@@ -110,61 +110,17 @@ end if
 
 Thre = -99.0_wp
 if (Thr_Rad > Zero) Thre = log(Thr_Rad)
-Exp_Min = 1.0e10_wp
-do iExp=1,nExp
-  Exp_Min = min(Exp_Min,Alpha(iExp))
-end do
 Radial(:,:,:) = Zero
 do iCoor=1,nCoor
   R2 = (Coor(1,iCoor)-RA(1))**2+(Coor(2,iCoor)-RA(2))**2+(Coor(3,iCoor)-RA(3))**2
   do iExp=1,nExp
     if (-Alpha(iExp)*R2 < Thre) exit
     Tmp = exp(-Alpha(iExp)*R2)
-    if (nRad == 1) then
-      do iBas=1,nBas
-        XCff = CffCnt(iExp,iBas)
-        Radial(iCoor,1,iBas) = Radial(iCoor,1,iBas)+XCff*Tmp
-      end do
-    else if (nRad == 2) then
-      Tmp2 = -Two*Alpha(iExp)*Tmp
-      do iBas=1,nBas
-        XCff = CffCnt(iExp,iBas)
-        Radial(iCoor,1,iBas) = Radial(iCoor,1,iBas)+XCff*Tmp
-        Radial(iCoor,2,iBas) = Radial(iCoor,2,iBas)+XCff*Tmp2
-      end do
-    else if (nRad == 3) then
-      Tmp2 = -Two*Alpha(iExp)*Tmp
-      Tmp3 = -Two*Alpha(iExp)*Tmp2
-      do iBas=1,nBas
-        XCff = CffCnt(iExp,iBas)
-        Radial(iCoor,1,iBas) = Radial(iCoor,1,iBas)+XCff*Tmp
-        Radial(iCoor,2,iBas) = Radial(iCoor,2,iBas)+XCff*Tmp2
-        Radial(iCoor,3,iBas) = Radial(iCoor,3,iBas)+XCff*Tmp3
-      end do
-    else if (nRad == 4) then
-      Tmp2 = -Two*Alpha(iExp)*Tmp
-      Tmp3 = -Two*Alpha(iExp)*Tmp2
-      Tmp4 = -Two*Alpha(iExp)*Tmp3
-      do iBas=1,nBas
-        XCff = CffCnt(iExp,iBas)
-        Radial(iCoor,1,iBas) = Radial(iCoor,1,iBas)+XCff*Tmp
-        Radial(iCoor,2,iBas) = Radial(iCoor,2,iBas)+XCff*Tmp2
-        Radial(iCoor,3,iBas) = Radial(iCoor,3,iBas)+XCff*Tmp3
-        Radial(iCoor,4,iBas) = Radial(iCoor,4,iBas)+XCff*Tmp4
-      end do
-    else
-      do iBas=1,nBas
-        XCff = CffCnt(iExp,iBas)
-        Radial(iCoor,1,iBas) = Radial(iCoor,1,iBas)+XCff*Tmp
-      end do
-      do iDrv=1,nDrv
-        Tmp = -Two*Alpha(iExp)*Tmp
-        do iBas=1,nBas
-          XCff = CffCnt(iExp,iBas)
-          Radial(iCoor,iDrv+1,iBas) = Radial(iCoor,iDrv+1,iBas)+XCff*Tmp
-        end do
-      end do
-    end if
+    Radial(iCoor,1,:) = Radial(iCoor,1,:)+CffCnt(iExp,:)*Tmp
+    do iDrv=1,nDrv
+      Tmp = -Two*Alpha(iExp)*Tmp
+      Radial(iCoor,iDrv+1,:) = Radial(iCoor,iDrv+1,:)+CffCnt(iExp,:)*Tmp
+    end do
   end do
 end do
 
@@ -179,20 +135,12 @@ call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
 ! Evaluate the angular part
 
 if (iAng+nRad-1 >= 1) then
-  do iCoor=1,nCoor
-    xyz(iCoor,1,0) = One
-    xyz(iCoor,2,0) = One
-    xyz(iCoor,3,0) = One
-    xyz(iCoor,1,1) = px*(Coor(1,iCoor)-RA(1))
-    xyz(iCoor,2,1) = py*(Coor(2,iCoor)-RA(2))
-    xyz(iCoor,3,1) = pz*(Coor(3,iCoor)-RA(3))
-  end do
+  xyz(:,:,0) = One
+  xyz(:,1,1) = px*(Coor(1,:)-RA(1))
+  xyz(:,2,1) = py*(Coor(2,:)-RA(2))
+  xyz(:,3,1) = pz*(Coor(3,:)-RA(3))
   do i=2,iAng+nRad-1
-    do iCoor=1,nCoor
-      xyz(iCoor,1,i) = xyz(iCoor,1,i-1)*xyz(iCoor,1,1)
-      xyz(iCoor,2,i) = xyz(iCoor,2,i-1)*xyz(iCoor,2,1)
-      xyz(iCoor,3,i) = xyz(iCoor,3,i-1)*xyz(iCoor,3,1)
-    end do
+    xyz(:,:,i) = xyz(:,:,i-1)*xyz(:,:,1)
   end do
 else
   xyz(:,:,0) = One
@@ -290,11 +238,9 @@ do ix=iAng,0,-1
                   Coef = real(iCoef,kind=wp)
                   iRad = Angular(iTerm,4,iForm)+1
                   do iBas=1,nBas
-                    do iCoor=1,nCoor
-                      AOValue(iForm,iCoor,iBas,iCmp) = AOValue(iForm,iCoor,iBas,iCmp)+xyz(iCoor,1,Angular(iTerm,1,iForm))* &
-                                                       xyz(iCoor,2,Angular(iTerm,2,iForm))*xyz(iCoor,3,Angular(iTerm,3,iForm))* &
-                                                       Coef*Cff*Radial(iCoor,iRad,iBas)
-                    end do
+                    AOValue(iForm,:,iBas,iCmp) = AOValue(iForm,:,iBas,iCmp)+xyz(:,1,Angular(iTerm,1,iForm))* &
+                                                 xyz(:,2,Angular(iTerm,2,iForm))*xyz(:,3,Angular(iTerm,3,iForm))* &
+                                                 Coef*Cff*Radial(:,iRad,iBas)
                   end do
                 end if
               end do
@@ -315,11 +261,9 @@ do ix=iAng,0,-1
               Coef = real(iCoef,kind=wp)
               iRad = Angular(iTerm,4,iForm)+1
               do iBas=1,nBas
-                do iCoor=1,nCoor
-                  AOValue(iForm,iCoor,iBas,ip) = AOValue(iForm,iCoor,iBas,ip)+xyz(iCoor,1,Angular(iTerm,1,iForm))* &
-                                                 xyz(iCoor,2,Angular(iTerm,2,iForm))*xyz(iCoor,3,Angular(iTerm,3,iForm))* &
-                                                 Coef*Radial(iCoor,iRad,iBas)
-                end do
+                AOValue(iForm,:,iBas,ip) = AOValue(iForm,:,iBas,ip)+xyz(:,1,Angular(iTerm,1,iForm))* &
+                                           xyz(:,2,Angular(iTerm,2,iForm))*xyz(:,3,Angular(iTerm,3,iForm))* &
+                                           Coef*Radial(:,iRad,iBas)
               end do
             end if
           end do

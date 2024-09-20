@@ -12,8 +12,10 @@
 !               2011, Roland Lindh                                     *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,xZeta,xZI,xKappa,xPCoor,Kernel,KrnlMm,Label,lOper,nComp,CoorO,nOrdOp,iChO,iStabO, &
                     nStabO,nIC,PtChrg,nGrid,iAddPot,SOInt,l_SOInt,rFinal,nFinal,Scrtch,nScrtch,ScrSph,nScrSph,Kern,nKern)
@@ -53,9 +55,9 @@ real(kind=wp), target, intent(out) :: rFinal(nFinal), Kern(nKern)
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iab, iAng, iAO, iAtom, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ii, iiC, iIrrep, ipFnl, &
                      iPrim, ipX, ipY, ipZ, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, &
-                     jj, jPrim, jShell, jShll, kk, l_Coord, lA0, lA1, LambdT, lB0, lB1, lDCRR, lFinal, Lmbdr, lScrSph, lScrtch, &
-                     mdci, mdcj, MemAux, MemBux, MemCux, MemKer, MemKrn, mSO, nAtoms, nDCRR, nDCRT, nij, nijab, nOp(2), nOrder, &
-                     NrOpr, nSO, nStabM
+                     jPrim, jShell, jShll, kk, l_Coord, lA0, lA1, LambdT, lB0, lB1, lDCRR, lFinal, Lmbdr, lScrSph, lScrtch, mdci, &
+                     mdcj, MemAux, MemBux, MemCux, MemKer, MemKrn, mSO, nAtoms, nDCRR, nDCRT, nij, nijab, nOp(2), nOrder, NrOpr, &
+                     nSO, nStabM
 real(kind=wp) :: A(3), B(3), Coord(3*MxAtom), Fact, RB(3), xFactor, xMass
 character(len=LenIn) :: dbas
 #ifdef _GEN1INT_
@@ -88,7 +90,7 @@ if (Label(1:3) == 'MAG') then
     call WarningMessage(2,'OneEl_IJ: insufficient SOInt dimension!')
     call Abend()
   end if
-  call dCopy_(nSO*iBas*jBas,[Zero],0,SOInt,1)
+  SOInt(1:nSO*iBas*jBas) = Zero
   iShll = iSD(0,iS)
   iAng = iSD(1,iS)
   iPrim = iSD(5,iS)
@@ -114,7 +116,7 @@ if (Label(1:3) == 'MAG') then
     call WarningMessage(2,'lFinal > nFinal')
     call Abend()
   end if
-  call dCopy_(lFinal,[Zero],0,rFinal,1)
+  rFinal(1:lFinal) = Zero
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
   call Inter(dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iStabM,nStabM)
   call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
@@ -203,7 +205,7 @@ else  !  MAG Integrals
     call WarningMessage(2,'OneEl_IJ: insufficient SOInt dimension!')
     call Abend()
   end if
-  call dCopy_(nSO*iBas*jBas,[Zero],0,SOInt,1)
+  SOInt(1:nSO*iBas*jBas) = Zero
 
   ! Shell info
 
@@ -281,7 +283,7 @@ else  !  MAG Integrals
     write(u6,*) 'nKern=',nKern
     call Abend()
   end if
-  call dCopy_(MemKrn,[Zero],0,Kern,1)
+  Kern(1:MemKrn) = Zero
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -293,7 +295,7 @@ else  !  MAG Integrals
     call WarningMessage(2,'lFinal > nFinal')
     call Abend()
   end if
-  call dCopy_(lFinal,[Zero],0,rFinal,1)
+  rFinal(1:lFinal) = Zero
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -422,22 +424,16 @@ else  !  MAG Integrals
           ipx = ipFnl+(iab-1)*nij
           ipy = ipx+nijab
           ipz = ipy+nijab
-          call dcopy_(nij,xPCoor(1),1,rFinal(ipx),1)
-          call dcopy_(nij,xPCoor(1+nij),1,rFinal(ipy),1)
-          call dcopy_(nij,xPCoor(1+2*nij),1,rFinal(ipz),1)
+          rFinal(ipx:ipx+nij-1) = xPCoor(1:nij)
+          rFinal(ipy:ipy+nij-1) = xPCoor(nij+1:2*nij)
+          rFinal(ipz:ipz+nij-1) = xPCoor(2*nij+1:3*nij)
         end do
       else if (Label == 'FMMCnX') then
-        do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          rFinal(ipFnl+jj-1) = Half*(A(1)+RB(1))
-        end do
+        rFinal(ipFnl:ipFnl+iBas*jBas*iCmp*jCmp*nIC-1) = Half*(A(1)+RB(1))
       else if (Label == 'FMMCnY') then
-        do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          rFinal(ipFnl+jj-1) = Half*(A(2)+RB(2))
-        end do
+        rFinal(ipFnl:ipFnl+iBas*jBas*iCmp*jCmp*nIC-1) = Half*(A(2)+RB(2))
       else if (Label == 'FMMCnZ') then
-        do jj=1,iBas*jBas*iCmp*jCmp*nIC
-          rFinal(ipFnl+jj-1) = Half*(A(3)+RB(3))
-        end do
+        rFinal(ipFnl:ipFnl+iBas*jBas*iCmp*jCmp*nIC-1) = Half*(A(3)+RB(3))
       else if (Label == 'Kinetic') then
 
         ! multiply with 1/m, where m is the mass of an electron or muon.
@@ -456,7 +452,7 @@ else  !  MAG Integrals
           xfactor = xfactor+One/xMass
         end if
         !write(u6,*) 'xfactor=',xfactor
-        call DScal_(iBas*jBas*iCmp*jCmp,xfactor,rFinal,1)
+        rFinal(1:iBas*jBas*iCmp*jCmp) = xfactor*rFinal(1:iBas*jBas*iCmp*jCmp)
       end if
 
       ! At this point accumulate the batch of integrals onto the
@@ -487,7 +483,7 @@ else  !  MAG Integrals
   !                                                                    *
   ! Multiply with factors due to projection operators
 
-  if (Fact /= One) call dScal_(nSO*iBas*jBas,Fact,SOInt,1)
+  if (Fact /= One) SOInt(1:nSO*iBas*jBas) = Fact*SOInt(1:nSO*iBas*jBas)
   if (iPrint >= 99) then
     write(u6,*) ' Scaling SO''s',Fact
     call RecPrt(' Accumulated SO integrals',' ',SOInt,iBas*jBas,nSO)
@@ -501,11 +497,3 @@ end if
 return
 
 end subroutine OneEl_IJ
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(OneEl_IJ)
-
-#endif

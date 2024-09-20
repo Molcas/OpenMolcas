@@ -45,7 +45,7 @@ write(u6,*) ' lOper=',lOper
 call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
 #endif
 
-call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
+DAO(:,:,:) = Zero
 lSO = 1
 ii = nTri3_Elem(iAng)
 jj = nTri3_Elem(jAng)
@@ -74,7 +74,7 @@ do j1=0,nIrrep-1
         ! Parity factor due to symmetry operations applied to
         ! angular part of the basis function.
         FactNs = pa*Prmt(iOper(nOp(2)),jChBs)
-        call DaXpY_(iBas*jBas,Deg*Xa*Xb*FactNs,DSO(1,lSO),1,DAO(1,i1,i2),1)
+        DAO(:,i1,i2) = DAO(:,i1,i2)+Deg*Xa*Xb*FactNs*DSO(:,lSO)
         lSO = lSO+1
       end do
     end do
@@ -82,7 +82,7 @@ do j1=0,nIrrep-1
   end do
 end do
 
-if (FactNd /= One) call DScal_(iBas*jBas*iCmp*jCmp,FactNd,DAO,1)
+if (FactNd /= One) DAO(:,:,:) = FactNd*DAO(:,:,:)
 #ifdef _DEBUGPRINT_
 call RecPrt(' In DesymD: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
 #endif

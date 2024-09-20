@@ -56,8 +56,8 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = nOrdOp
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A(:)
+Coori(:,2) = RB(:)
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
@@ -81,14 +81,14 @@ mArr = nArr-max(labcd,lcd*nMem)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A(:)
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB(:)
 end if
 
-call dcopy_(3,Ccoor,1,CoorAC(1,2),1)
-call dcopy_(3,Ccoor,1,Coori(1,3),1)
-call dcopy_(3,Ccoor,1,Coori(1,4),1)
+CoorAC(:,2) = Ccoor(:)
+Coori(:,3) = Ccoor(:)
+Coori(:,4) = Ccoor(:)
 
 ! Compute integrals with the Rys-Gauss quadrature.
 
@@ -115,7 +115,7 @@ ip3 = ip2-1+ipIn
 !c)--
 
 call DGetMO(Array(ip3),lcd,lcd,nZeta*kab,rFinal,nZeta*kab)
-call DScal_(nZeta*kab*lcd,-One,rFinal,1)
+rFinal(:,:,:,1:lcd) = -rFinal(:,:,:,1:lcd)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In EFPrm la,lb=',la,lb

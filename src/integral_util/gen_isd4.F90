@@ -16,18 +16,11 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nSD, iSD(0:nSD,1024)
 integer(kind=iwp), intent(out) :: iSD4(0:nSD,4)
-integer(kind=iwp) :: i, iSkal, j, jQuad(4)
 
-jQuad(1) = iS
-jQuad(2) = jS
-jQuad(3) = kS
-jQuad(4) = lS
-do i=1,4
-  iSkal = jQuad(i)
-  do j=0,nSD
-    iSD4(j,i) = iSD(j,iSkal)
-  end do
-end do
+iSD4(:,1) = iSD(:,iS)
+iSD4(:,2) = iSD(:,jS)
+iSD4(:,3) = iSD(:,kS)
+iSD4(:,4) = iSD(:,lS)
 
 return
 

@@ -41,6 +41,7 @@ subroutine Gauss(n,lDim,A,X,C)
 !                                                                      *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -49,15 +50,15 @@ real(kind=wp), intent(inout) :: A(lDim,n)
 real(kind=wp), intent(out) :: X(n)
 real(kind=wp), intent(in) :: C(n)
 integer(kind=iwp) :: i, j, k
-real(kind=wp) :: Fact, Swap
+real(kind=wp) :: Fact
+real(kind=wp), allocatable :: Swap(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
+call mma_allocate(Swap,n,label='Swap')
 
-do i=1,N
-  X(I) = C(I)
-end do
+X(:) = C(:)
 do i=1,n-1
   k = i
   do j=i+1,n
@@ -65,30 +66,25 @@ do i=1,n-1
   end do
   if (k /= i) then
     !write(u6,'(A,2I3)') ' Swapping:',i,k
-    do j=i,n
-      Swap = A(i,j)
-      A(i,j) = A(k,j)
-      A(k,j) = Swap
-    end do
-    Swap = X(i)
+    Swap(i:) = A(i,i:)
+    A(i,i:) = A(k,i:)
+    A(k,i:) = Swap(i:)
+    Swap(1) = X(i)
     X(i) = X(k)
-    X(k) = Swap
+    X(k) = Swap(1)
   end if
   do k=i+1,n
     Fact = A(k,i)/A(i,i)
-    do j=i+1,n
-      A(k,j) = A(k,j)-Fact*A(i,j)
-    end do
+    A(k,i+1:) = A(k,i+1:)-Fact*A(i,i+1:)
     X(k) = X(k)-Fact*X(i)
   end do
 end do
 X(n) = X(n)/A(n,n)
 do i=n-1,1,-1
-  do k=i+1,n
-    X(i) = X(i)-A(i,k)*X(k)
-  end do
-  X(i) = X(i)/A(i,i)
+  X(i) = (X(i)-sum(A(i,i+1:)*X(i+1:)))/A(i,i)
 end do
+
+call mma_deallocate(Swap)
 
 !----------------------------------------------------------------------*
 !     Exit                                                             *

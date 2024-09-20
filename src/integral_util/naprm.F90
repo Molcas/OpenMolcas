@@ -54,7 +54,7 @@ unused_var(nOrdOp)
 
 lta = nTri_Elem1(la)
 ltb = nTri_Elem1(lb)
-call FZero(rFinal,nZeta*lta*ltb*nComp)
+rFinal(:,:,:,:) = Zero
 
 lc = 0
 ld = 0
@@ -62,9 +62,9 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = lc
 iAnga(4) = ld
-call dcopy_(3,A,1,Coora(1,1),1)
-call dcopy_(3,RB,1,Coora(1,2),1)
-call dcopy_(2*3,Coora,1,Coori,1)
+Coora(:,1) = A(:)
+Coora(:,2) = RB(:)
+Coori(:,1:2) = Coora(:,1:2)
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
@@ -76,9 +76,9 @@ call mHrr(la,lb,nFLOP,nMem)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A(:)
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB(:)
 end if
 
 ! Modify Zeta if the two-electron code will be used!
@@ -91,16 +91,16 @@ end if
 Q_Nuc = dbsc(iCnttp)%Charge
 
 if (Q_Nuc /= Zero) then
-  call dcopy_(3,CCoor,1,C,1)
+  C(:) = CCoor(:)
 # ifdef _DEBUGPRINT_
   call RecPrt('C',' ',C,1,3)
 # endif
 
-  call DCopy_(3,C,1,CoorAC(1,2),1)
-  call DCopy_(3,C,1,Coori(1,3),1)
-  call DCopy_(3,C,1,Coori(1,4),1)
-  call DCopy_(3,C,1,Coora(1,3),1)
-  call DCopy_(3,C,1,Coora(1,4),1)
+  CoorAC(:,2) = C(:)
+  Coori(:,3) = C(:)
+  Coori(:,4) = C(:)
+  Coora(:,3) = C(:)
+  Coora(:,4) = C(:)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -187,8 +187,7 @@ if (Q_Nuc /= Zero) then
 
   call HRR(la,lb,A,RB,Array,nZeta,nMem,ipIn)
 
-  call DCopy_(nZeta*lta*ltb*nComp,Array(ipIn),1,rFinal,1)
-  call DScal_(nZeta*lta*ltb*nComp,-Q_Nuc,rFinal,1)
+  rFinal(:,:,:,:) = reshape(-Q_Nuc*Array(ipIn:ipIn+nZeta*lta*ltb*nComp-1),[nZeta,lta,ltb,nComp])
 end if
 
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) call mma_deallocate(rKappa_mod)

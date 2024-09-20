@@ -44,7 +44,7 @@ if (Tr1 .and. Tr2) then
   !call xxDGeMul(Coeff1,iCar,'T',Scrt,jSph*ncd*ijkl,'T',Wout,iSph,iSph,iCar,jSph*ncd*ijkl)
   call TTMul(Coeff1,Scrt,Wout,iCar,iSph,jSph*ncd*ijkl)
   ! Transpose AB,CD,IJKL to IJKL,AB,CD
-  call dcopy_(mab*ncd*ijkl,Wout,1,Scrt,1)
+  Scrt(1:mab*ncd*ijkl) = Wout(:)
   call dGeTMO(Scrt,mab*ncd,mab*ncd,ijkl,Wout,ijkl)
 else if (Tr2) then
   !call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)
@@ -62,16 +62,15 @@ else if (Tr1) then
   !call xxDGeMul(Coeff1,iCar,'T',Scrt,jCar*ncd*ijkl,'T',Wout,iSph,iSph,iCar,jCar*ncd*ijkl)
   call TTMul(Coeff1,Scrt,Wout,iCar,iSph,jCar*ncd*ijkl)
   ! Transpose Ab,CD,IJKL to IJKL,Ab,CD
-  call dcopy_(iSph*jCar*ncd*ijkl,Wout,1,Scrt,1)
+  Scrt(1:iSph*jCar*ncd*ijkl) = Wout(1:iSph*jCar*ncd*ijkl)
   call DGeTMO(Scrt,iSph*jCar*ncd,iSph*jCar*ncd,ijkl,Wout,ijkl)
 else
   ! Transpose CD,IJKL,a,b to IJKL,ab,CD
+  Scrt(1:ncd*ijkl*iCar*jCar) = Win(:)
   if (ncd /= 1) then
-    call dcopy_(ncd*ijkl*iCar*jCar,Win,1,Scrt,1)
     call DGeTMO(Scrt,ncd,ncd,ijkl*iCar*jCar,Wout,ijkl*iCar*jCar)
   else
-    call dcopy_(ncd*ijkl*iCar*jCar,Win,1,Scrt,1)
-    call dcopy_(ncd*ijkl*iCar*jCar,Scrt,1,Wout,1)
+    Wout(1:ncd*ijkl*iCar*jCar) = Scrt(1:ncd*ijkl*iCar*jCar)
   end if
 end if
 

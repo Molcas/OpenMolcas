@@ -75,7 +75,7 @@ do i=2,la+lb
 
       iTrgt = C3_Ind3(ix,iy,iz)
       !write(u6,*) ' ix,iy,iz,kOff,lOff,iTrgt=',ix,iy,iz,kOff,lOff,iTrgt
-      call dcopy_(nZeta,GInt(1,kOff+lOff),1,GInt(1,iTrgt),1)
+      GInt(:,iTrgt) = GInt(:,kOff+lOff)
 
     end do
   end do

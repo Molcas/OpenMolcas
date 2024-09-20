@@ -36,8 +36,8 @@ character(len=8), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), nGrid, iAddPot
 integer(kind=iwp), intent(out) :: ip(nComp)
 real(kind=wp), intent(in) :: CoorO(3,nComp), rNuc(nComp), rHrmt, PtChrg(nGrid)
-integer(kind=iwp) :: iAdr, iComp, iComp_, iDIsk, iEF, ii, iInd1, iInd2, iIrrep, iOcc, iOpt, iPAMCount, ipC2, ipEl, ipNuc, ipOut, &
-                     iRC, iSmLbl, iStabO(0:7), jComp, LenInt, LenTot, llOper, lPole, LuTmp, mDim, n_Int, nIC, nStabO
+integer(kind=iwp) :: iAdr, iComp, iComp_, iDIsk, iEF, ii, iInd1, iInd2, iIrrep, iOpt, iPAMCount, ipC2, ipEl, ipNuc, ipOut, iRC, &
+                     iSmLbl, iStabO(0:7), jComp, LenInt, LenTot, llOper, lPole, LuTmp, mDim, n_Int, nIC, nStabO
 real(kind=wp) :: rSum
 character(len=8) :: L_Temp
 character(len=4) :: LBL
@@ -88,22 +88,22 @@ call SOS(iStabO,nStabO,llOper)
 ! Will just store the unique elements, i.e. low triangular blocks
 ! and lower triangular elements in the diagonal blocks.
 
-call ICopy(nComp,[-1],0,ip,1)
+ip(:) = -1
 LenTot = 0
 do iComp=1,nComp
   LenInt = n2Tri(lOper(iComp))
   LenTot = LenTot+LenInt+4
 end do
 call mma_allocate(Array,LenTot,label='Array')
+Array(:) = Zero
 ip(1) = 1
-call dcopy_(LenTot,[Zero],0,Array(ip(1)),1)
 iadr = ip(1)
 do iComp=1,nComp
   LenInt = n2Tri(lOper(iComp))
   ip(icomp) = iadr
   iadr = iadr+LenInt+4
   ! Copy center of operator to work area.
-  call dcopy_(3,CoorO(1,iComp),1,Array(ip(iComp)+LenInt),1)
+  Array(ip(iComp)+LenInt:ip(iComp)+LenInt+2) = CoorO(:,iComp)
   ! Copy nuclear contribution to work area.
   Array(ip(iComp)+LenInt+3) = rNuc(iComp)
 end do
@@ -150,11 +150,11 @@ do iComp=1,nComp
         mDim = S%nDim
       end if
       call mma_allocate(Out_,mDim*nComp,label='Out_')
+      Out_(:) = Zero
       ipOut = 1
-      call dcopy_(mDim*nComp,[Zero],0,Out_,1)
       call mma_allocate(Nuc,nComp,label='Nuc')
+      Nuc(:) = Zero
       ipNuc = 1
-      call dcopy_(nComp,[Zero],0,Nuc,1)
     end if
     n_Int = n2Tri(iSmLbl)
     if (n_Int /= 0) call CmpInt(Array(ip(iComp)),n_Int,nBas,nIrrep,iSmLbl)
@@ -207,15 +207,13 @@ do iComp=1,nComp
 
       if (PrPrt .and. ((LBL(1:2) == 'EF') .or. (LBL(1:3) == 'CNT'))) then
         call mma_allocate(El,nComp,label='El')
+        El(:) = Zero
         ipEl = 1
-        call FZero(El,nComp)
         ! Compute the sum of all orbital components
         do jComp=0,nComp-1
           iInd1 = ipEl+jComp
           iInd2 = ipOut+jComp*mDim
-          do iOcc=0,mDim-1
-            El(iInd1) = El(iInd1)+Out_(iInd2+iOcc)
-          end do
+          El(iInd1) = El(iInd1)+sum(Out_(iInd2:iInd2+mDim-1))
         end do
         ! Write electronic and nuclear components in temp file
         LuTmp = 10

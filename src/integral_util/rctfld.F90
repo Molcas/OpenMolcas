@@ -120,7 +120,7 @@ if (First) then
   ! Solve dielectical equation(nuclear contribution), i.e.
   ! M(nuc,nl) -> E(nuc,nl)
 
-  call dcopy_(nComp,MM(:,1),1,Vs(:,1),1)
+  Vs(:,1) = MM(:,1)
   call AppFld(Vs(:,1),rds,Eps,lMax,EpsInf,NonEq)
 
 # ifdef _DEBUGPRINT_
@@ -158,9 +158,9 @@ if (First) then
   ! Add potential due to slow counter charges
 
   if (NonEq) then
-    call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
+    QV(:,2) = QV(:,1)
     call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
-    call DaXpY_(nComp,One,QV(:,2),1,Vs(:,1),1)
+    Vs(:,1) = Vs(:,1)+QV(:,2)
   end if
 
   call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(:,1),lMax,h1,nh1)
@@ -197,7 +197,7 @@ end if
 nOpr = 1
 FactOp(1) = One
 ! Reset array for storage of multipole moment expansion
-call dcopy_(nComp,[Zero],0,MM(:,2),1)
+MM(:,2) = Zero
 do iMltpl=1,lMax
   do ix=iMltpl,0,-1
   if (mod(ix,2) == 0) then
@@ -249,7 +249,7 @@ call RecPrt('Electronic Multipole Moments',' ',MM(:,2),1,nComp)
 ! Solve dielectical equation(electronic contribution), i.e.
 ! M(el,nl) -> E(el,nl)
 
-call dcopy_(nComp,MM(:,2),1,Vs(:,2),1)
+Vs(:,2) = MM(:,2)
 call AppFld(Vs(:,2),rds,Eps,lMax,EpsInf,NonEq)
 #ifdef _DEBUGPRINT_
 call RecPrt('Electronic Electric Field',' ',Vs(:,2),1,nComp)
@@ -293,20 +293,18 @@ if (.not. NonEq) then
   ! Save total solute multipole moments and total potential
   ! of the solution.
 
-  call dcopy_(nComp,MM(:,1),1,QV(:,1),1)
-  call daxpy_(nComp,One,MM(:,2),1,QV(:,1),1)
-  call dcopy_(nComp,Vs(:,1),1,QV(:,2),1)
-  call daxpy_(nComp,One,Vs(:,2),1,QV(:,2),1)
+  QV(:,1) = MM(:,1)+MM(:,2)
+  QV(:,2) = Vs(:,1)+Vs(:,2)
   call Put_dArray('RCTFLD',QV,nComp*2)
 
   ! Compute terms to be added to RepNuc for non-equilibrium
   ! calculation.
 
-  call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
+  QV(:,2) = QV(:,1)
   call AppFld_NonEQ_1(QV(:,2),rds,Eps,lMax,EpsInf)
   E_0_NN = -Half*DDot_(nComp,QV(:,1),1,QV(:,2),1)
 
-  call dcopy_(nComp,QV(:,1),1,QV(:,2),1)
+  QV(:,2) = QV(:,1)
   call AppFld_NonEQ_2(QV(:,2),rds,Eps,lMax,EpsInf)
   E_0_NN = E_0_NN+DDot_(nComp,MM(:,1),1,QV(:,2),1)
   call Put_dScalar('E_0_NN',E_0_NN)

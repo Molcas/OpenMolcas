@@ -29,8 +29,8 @@ real(kind=wp), intent(inout) :: h1(nh1), TwoHam(nh1), RepNuc
 real(kind=wp), intent(in) :: D(nh1)
 logical(kind=iwp), intent(in) :: First, Dff, NonEq
 integer(kind=iwp) :: i, ip(1), iTile, jCnt, jCnttp, jTile, kOper, lOper, MaxAto, mCnt, n_Int, nC, nComp, nDC, nOrdOp
-real(kind=wp) :: Alpha, Dij, EEE, EEN, ENE, ENN, Fact, Origin(3), QInf, rHrmt, Rij, W_0_or_El, W_0_or_Inf, W_or_El, W_or_Inf, &
-                 W_or_InfNuc, W_or_Nuc, Xi, Xj, Yi, Yj, Z, Zi, Zj
+real(kind=wp) :: Dij, ENN, Fact, Origin(3), QInf, rHrmt, Rij, W_0_or_El, W_0_or_Inf, W_or_El, W_or_Inf, W_or_InfNuc, W_or_Nuc, Xi, &
+                 Xj, Yi, Yj, Z, Zi, Zj
 logical(kind=iwp) :: Save_tmp
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: lOper2(:)
@@ -160,11 +160,11 @@ call mma_deallocate(FactOp)
 
 ! Save the electrostatic potential
 
-call dcopy_(2*nTs,V_Tile,1,V_Save,1)
+V_Save(:,:) = V_Tile(:,:)
 
 ! Add the slow charge contribution to the nuclear potential
 
-if (NonEq) call DaXpY_(nTs,One,V_Slow,1,V_Tile(:,1),2)
+if (NonEq) V_Tile(1,:) = V_Tile(1,:)+V_Slow(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -180,13 +180,11 @@ call PCM_Driver(PCMDM,V_Tile,PCM_Charge,nTs)
 
 if ((EpsInf > Zero) .and. (.not. NonEq)) then
   Fact = (Eps-EpsInf)/(Eps-One)
-  call dcopy_(nTs,PCM_Charge(1,1),2,Q_Slow,1)
-  call DaXpY_(nTs,One,PCM_Charge(2,1),2,Q_Slow,1)
-  call DScal_(nTs,Fact,Q_Slow,1)
+  Q_Slow(:) = Fact*(PCM_Charge(1,:)+PCM_Charge(2,:))
 
   ! Compute the electrostatic potential due to slow charges
 
-  call dcopy_(nTs,[Zero],0,V_Slow,1)
+  V_Slow(:) = Zero
   do iTile=1,nTs
     XI = PCMTess(1,iTile)
     YI = PCMTess(2,iTile)
@@ -210,7 +208,7 @@ end if
 ! Recover the nuclear potential (discarding the possible variations
 ! due to slow charges)
 
-call dcopy_(nTs,V_Save(1,1),2,V_Tile(1,1),2)
+V_Tile(1,:) = V_Save(1,:)
 
 W_or_el = Zero
 W_or_nuc = Zero
@@ -249,16 +247,10 @@ end if
 ! electrons-nuclear solvation charge    (EEN)
 ! electrons-electronic solvation charge (EEE)
 
-ENN = Zero
-ENE = Zero
-EEN = Zero
-EEE = Zero
-do iTile=1,nTs
-  ENN = ENN+PCM_Charge(1,iTile)*V_Tile(1,iTile)
-  ENE = ENE+PCM_Charge(1,iTile)*V_Tile(2,iTile)
-  EEN = EEN+PCM_Charge(2,iTile)*V_Tile(1,iTile)
-  EEE = EEE+PCM_Charge(2,iTile)*V_Tile(2,iTile)
-end do
+ENN = sum(PCM_Charge(1,:)*V_Tile(1,:))
+!ENE = sum(PCM_Charge(1,:)*V_Tile(2,:))
+!EEN = sum(PCM_Charge(2,:)*V_Tile(1,:))
+!EEE = sum(PCM_Charge(2,:)*V_Tile(2,:))
 if (First) then
   RepNuc = RepNuc+Half*ENN
   if (NonEq) RepNuc = RepNuc+Half*W_or_nuc+Half*W_or_InfNuc-Half*W_0_or_el-Half*W_0_or_Inf
@@ -282,13 +274,15 @@ if (First) then
   ! PCM-integrals weighted by Q(1)
   ! h1 + correction
 
-  Q_Tessera(:) = PCM_Charge(1,:)
-  if (NonEq) call DaXpY_(nTs,One,Q_Slow,1,Q_Tessera,1)
+  if (NonEq) then
+    Q_Tessera(:) = PCM_Charge(1,:)+Q_Slow(:)
+  else
+    Q_Tessera(:) = PCM_Charge(1,:)
+  end if
   call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,nOrdOp,rHrmt,[kOper],Integrals)
   n_Int = n2Tri(lOper)
   call CmpInt(Integrals(ip(1)),n_Int,nBas,nIrrep,lOper)
-  Alpha = One
-  call DaXpY_(n_Int,Alpha,Integrals(ip(1)),1,h1,1)
+  h1(1:n_Int) = h1(1:n_Int)+Integrals(ip(1):ip(1)+n_Int-1)
   call mma_deallocate(Integrals)
 
   ! Save the modified h1 matrix
@@ -306,8 +300,7 @@ Q_Tessera(:) = PCM_Charge(2,:)
 call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,nOrdOp,rHrmt,[kOper],Integrals)
 n_Int = n2Tri(lOper)
 call CmpInt(Integrals(ip(1)),n_Int,nBas,nIrrep,lOper)
-Alpha = One
-call DaXpY_(n_Int,Alpha,Integrals(ip(1)),1,TwoHam,1)
+TwoHam(1:n_Int) = TwoHam(1:n_Int)+Integrals(ip(1):ip(1)+n_Int-1)
 call mma_deallocate(Integrals)
 !                                                                      *
 !***********************************************************************

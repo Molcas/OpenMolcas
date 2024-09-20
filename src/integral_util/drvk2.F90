@@ -171,8 +171,8 @@ do iS=1,mSkal
     ! Fix for the dummy basis set
     if (Shells(iShll)%Aux) Coor(1:3,1) = Coor(1:3,2)
 
-    call iCopy(2,iAngV(1),1,iAngV(3),1)
-    call ICopy(2,iCmpV(1),1,iCmpV(3),1)
+    iAngV(3:4) = iAngV(1:2)
+    iCmpV(3:4) = iCmpV(1:2)
 
     iPrimi = iPrim
     jPrimj = jPrim
@@ -190,7 +190,7 @@ do iS=1,mSkal
 
     call ConMax(BraKet%Eta(:),iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
-    call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
+    Coor(:,3:4) = Coor(:,1:2)
 #   ifdef _DEBUGPRINT_
     call RecPrt(' Sym. Dist. Centers',' ',Coor,3,4)
 #   endif

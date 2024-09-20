@@ -35,16 +35,16 @@ do iSym=1,nSym
   iBas = nBas(iSym)
   iAsh = nAsh(iSym)
   iIsh = nIsh(iSym)
-  call dCopy_(iBas*iBas,[Zero],0,Scr1(iOff3),1)
+  Scr1(iOff3:iOff3+iBas**2-1) = Zero
   if (iAsh /= 0) then
     call mma_allocate(Tmp1,iAsh,iAsh,Label='Tmp1')
     call mma_allocate(Tmp2,iBas,iAsh,Label='Tmp2')
     do i=1,iAsh
       do j=1,iAsh
-        Tmp1(j,i) = D1A_MO(itri(i+ii,j+ii))
+        Tmp1(j,i) = D1A_MO(iTri(i+ii,j+ii))
       end do
     end do
-    ii = ii+iash
+    ii = ii+iAsh
     call DGEMM_('N','T',iBas,iAsh,iAsh,One,CMO(iOff2+iIsh*iBas),iBas,Tmp1,iAsh,Zero,Tmp2,iBas)
     call DGEMM_('N','T',iBas,iBas,iAsh,One,Tmp2,iBas,CMO(iOff2+iIsh*iBas),iBas,Zero,Scr1(iOff3),iBas)
     call mma_deallocate(Tmp2)

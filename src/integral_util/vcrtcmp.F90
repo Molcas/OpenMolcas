@@ -31,7 +31,7 @@ integer(kind=iwp), intent(in) :: nZeta, na, nHer
 real(kind=wp), intent(in) :: Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer)
 real(kind=wp), intent(out) :: Axyz(nZeta,3,nHer,0:na)
 logical(kind=iwp), intent(in) :: ABeq(3)
-integer(kind=iwp) :: ia, iCar, iHer, iZeta
+integer(kind=iwp) :: ia, iCar, iHer
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
@@ -42,26 +42,20 @@ call RecPrt(' In vCrtCmp: Zeta',' ',Zeta12,nZeta,1)
 call RecPrt(' In vCrtCmp: A   ',' ',A,1,3)
 call RecPrt(' In vCrtCmp: P   ',' ',P,nZeta,3)
 #endif
-call dcopy_(nZeta*3*nHer,[One],0,Axyz(:,:,:,0),1)
+Axyz(:,:,:,0) = One
 if (na /= 0) then
 
   do iHer=1,nHer
     do iCar=1,3
 
       if (ABeq(iCar)) then
-        do iZeta=1,nZeta
-          Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)
-        end do
+        Axyz(:,iCar,iHer,1) = HerR(iHer)*Zeta12(:)
       else
-        do iZeta=1,nZeta
-          Axyz(iZeta,iCar,iHer,1) = HerR(iHer)*Zeta12(iZeta)+P(iZeta,iCar)-A(iCar)
-        end do
+        Axyz(:,iCar,iHer,1) = HerR(iHer)*Zeta12(:)+P(:,iCar)-A(iCar)
       end if
 
       do ia=2,na
-        do iZeta=1,nZeta
-          Axyz(iZeta,iCar,iHer,ia) = Axyz(iZeta,iCar,iHer,1)*Axyz(iZeta,iCar,iHer,ia-1)
-        end do
+        Axyz(:,iCar,iHer,ia) = Axyz(:,iCar,iHer,1)*Axyz(:,iCar,iHer,ia-1)
       end do
 
     end do

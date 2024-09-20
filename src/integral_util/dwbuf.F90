@@ -32,7 +32,7 @@ mArray = nArray
 do
   Left = lBuf-iPos+1
   if (mArray > Left) then
-    call dCopy_(Left,Array(iArray),1,Buffer(iPos,iBuf),1)
+    Buffer(iPos:,iBuf) = Array(iArray:iArray+Left-1)
     iArray = iArray+Left
     mArray = mArray-Left
     iPos = 1
@@ -63,7 +63,7 @@ do
     end if
   else
     !write(u6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
-    call dCopy_(mArray,Array(iArray),1,Buffer(iPos,iBuf),1)
+    Buffer(iPos:iPos+mArray-1,iBuf) = Array(iArray:iArray+mArray-1)
     iPos = iPos+mArray
     mArray = 0
   end if

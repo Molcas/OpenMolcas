@@ -31,7 +31,7 @@ integer(kind=iwp), intent(in) :: nZeta, la
 real(kind=wp), intent(inout) :: WInt(nZeta*3**(la-1),3)
 real(kind=wp), intent(out) :: Scr(nZeta*3**la)
 real(kind=wp), intent(in) :: A(nZeta,3,3)
-integer(kind=iwp) :: i, iLen, iOff, iVec, iZeta, jVec, kLen, mLen, nLen
+integer(kind=iwp) :: i, iLen, iOff, iVec, iZeta, jVec, mLen, nLen
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' Enter Traxyz: WInt',' ',Wint,nZeta,3**la)
@@ -42,7 +42,6 @@ call RecPrt(' The transformation matrix',' ',A,nZeta,9)
 
 nLen = 3
 mLen = 3**(la-1)
-kLen = 3**la
 !write(u6,*) ' nLen, mLen=',nLen, mLen
 ! Loop over all angular indices to be transformed.
 do i=1,la
@@ -61,12 +60,12 @@ do i=1,la
 
     end do
   end do
-  !call RecPrt(' Partially transformed WInt',' ',Scr,nZeta,kLen)
-  call dcopy_(nZeta*kLen,Scr,1,WInt,1)
+  !call RecPrt(' Partially transformed WInt',' ',Scr,nZeta,mLen*3)
+  WInt(:,:) = reshape(Scr(:),[nZeta*mLen,3])
 end do
 
 #ifdef _DEBUGPRINT_
-call RecPrt('Exit Traxyz :Global well integrals',' ',WInt,nZeta,kLen)
+call RecPrt('Exit Traxyz :Global well integrals',' ',WInt,nZeta,mLen*3)
 #endif
 
 end subroutine Traxyz

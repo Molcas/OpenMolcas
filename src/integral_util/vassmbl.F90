@@ -30,7 +30,7 @@ implicit none
 integer(kind=iwp), intent(in) :: la, lr, lb, nZeta, nHer
 real(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr), Temp(nZeta*3,nHer)
 real(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), HerW(nHer)
-integer(kind=iwp) :: ia, ib, iHer, ir, iZCar
+integer(kind=iwp) :: ia, ib, iHer, ir
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
@@ -42,13 +42,11 @@ call RecPrt(' In vAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1))
 call RecPrt(' In vAssmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
 #endif
 
-rnxyz(:,:,:,:) = Zero
+Rnxyz(:,:,:,:) = Zero
 do ia=0,la
   do ib=0,lb
     do iHer=1,nHer
-      do iZCar=1,3*nZeta
-        Temp(iZCar,iHer) = Axyz(iZCar,iHer,ia)*Bxyz(iZCar,iHer,ib)*HerW(iHer)
-      end do
+      Temp(:,iHer) = Axyz(:,iHer,ia)*Bxyz(:,iHer,ib)*HerW(iHer)
     end do
     do ir=0,lr
 
@@ -57,9 +55,7 @@ do ia=0,la
       ! at a root, times a weight.
 
       do iHer=1,nHer
-        do iZCar=1,3*nZeta
-          Rnxyz(iZCar,ia,ib,ir) = Rnxyz(iZCar,ia,ib,ir)+Temp(iZCar,iHer)*Rxyz(iZCar,iHer,ir)
-        end do
+        Rnxyz(:,ia,ib,ir) = Rnxyz(:,ia,ib,ir)+Temp(:,iHer)*Rxyz(:,iHer,ir)
       end do
 
 #     ifdef _DEBUGPRINT_

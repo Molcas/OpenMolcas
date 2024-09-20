@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nab1, na1b, nab, na, nb, na1, nb1, nPrim, la, lb
 real(kind=wp), intent(out) :: ab1(nPrim,nab1)
 real(kind=wp), intent(in) :: a1b(nPrim,na1b), cffAB(3), ab(nPrim,nab)
-integer(kind=iwp) :: i, ipA1B, ipAB, ipAB1, ipxyz, ixa, ixb, ixyza, ixyza1, ixyzb, ixyzb1, iya, iyb, iza, izb
+integer(kind=iwp) :: ipA1B, ipAB, ipAB1, ipxyz, ixa, ixb, ixyza, ixyza1, ixyzb, ixyzb1, iya, iyb, iza, izb
 #ifdef _DEBUGPRINT_
 character(len=72) :: Label
 #endif
@@ -78,12 +78,9 @@ do ixb=nb1,0,-1
           ipab = ixyzb+nTri_Elem1(nb)*(ixyza-1)
         end if
         if (cffAB(ipxyz) /= Zero) then
-          call DZaXpY(nPrim,cffAB(ipxyz),ab(1,ipab),1,a1b(1,ipa1b),1,ab1(1,ipab1),1)
+          ab1(:,ipab1) = a1b(:,ipa1b)+cffAB(ipxyz)*ab(:,ipab)
         else
-          !call dcopy_(nPrim,a1b(1,ipa1b),1,ab1(1,ipab1),1)
-          do i=1,nPrim
-            ab1(i,ipab1) = a1b(i,ipa1b)
-          end do
+          ab1(:,ipab1) = a1b(:,ipa1b)
         end if
       end do
     end do

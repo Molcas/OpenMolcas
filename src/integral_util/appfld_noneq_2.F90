@@ -45,9 +45,9 @@ call RecPrt(' CavSph',' ',Cavsph,(lMax+1)**2,1)
 ip = 1
 do l=0,lmax
   rinv = One/radius**(2*l+1)
-  fact = F(Eps,l)-F(EpsInf,l)-(F(EpsInf,l)-F(EpsInf,l)**2/F(Eps,l))
+  fact = f(Eps,l)-f(EpsInf,l)-(f(EpsInf,l)-f(EpsInf,l)**2/f(Eps,l))
   rpoti = rinv*fact*DblFac(2*l-1)
-  call DScal_(2*l+1,rpoti,Cavsph(ip),1)
+  CavSph(ip:ip+2*l) = rpoti*CavSph(ip:ip+2*l)
   ip = ip+2*l+1
 end do
 

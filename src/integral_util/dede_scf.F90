@@ -9,8 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
 
@@ -63,7 +65,7 @@ call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,ipD00,MaxDe,mDeDe,m
 ! i.e. off-diagonal elements are divided by two.
 
 if (nIrrep == 1) then
-  call DScal_(nDens,Half,Dens,1)
+  Dens(:) = Half*Dens(:)
   ij = 0
   do i=1,nBas(0)
     ij = ij+i
@@ -84,11 +86,3 @@ else
 end if
 
 end subroutine DeDe_SCF
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(DeDe_SCF)
-
-#endif

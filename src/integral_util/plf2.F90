@@ -81,7 +81,7 @@ iAOk = iAO(3)
 iAOl = iAO(4)
 
 ijklCmp = iCmp*jCmp*kCmp*lCmp
-call DCopy_(ijkl*2*ijklCmp,[One],0,Sew_Scr(lwSyB),1)
+Sew_Scr(lwSyB:lwSyB+ijkl*2*ijklCmp-1) = One
 
 do i1=1,iCmp
   iSOs(1) = iAOtSO(iAOi+i1,kOp(1))+iAOsti

@@ -57,18 +57,12 @@ write(u6,*) ' nPam',(nPam(4,i),i=0,mIrrep-1)
 #endif
 t14 = Quart
 ! Offsets into the ipam array:
-nnpam1 = 0
-nnpam2 = 0
-nnpam3 = 0
-nnpam4 = 0
-do isym=0,mirrep-1
-  nnpam1 = nnpam1+npam(1,isym)
-  nnpam2 = nnpam2+npam(2,isym)
-  nnpam3 = nnpam3+npam(3,isym)
-  nnpam4 = nnpam4+npam(4,isym)
-end do
+nnpam1 = sum(npam(1,0:mirrep-1))
+nnpam2 = sum(npam(2,0:mirrep-1))
+nnpam3 = sum(npam(3,0:mirrep-1))
+nnpam4 = sum(npam(4,0:mirrep-1))
 nPSOP = nnpam1*nnpam2*nnpam3*nnpam4
-call dcopy_(nPSOP,[Zero],0,PSOPam,1)
+PSOPam(1:nPSOP) = Zero
 iopam1 = 0
 iopam2 = nnpam1
 iopam3 = iopam2+nnpam2

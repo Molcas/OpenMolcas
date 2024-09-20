@@ -66,9 +66,9 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = 0
 iAnga(4) = 0
-call dcopy_(3,A,1,Coora(1,1),1)
-call dcopy_(3,RB,1,Coora(1,2),1)
-call dcopy_(2*3,Coora,1,Coori,1)
+Coora(:,1) = A(:)
+Coora(:,2) = RB(:)
+Coori(:,1:2) = Coora(:,1:2)
 mabMin = nTri3_Elem1(max(la,lb)-1)
 if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
 mabMax = nTri3_Elem1(la+lb)-1
@@ -80,9 +80,9 @@ call mHrr(la,lb,nFLOP,nMem)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A(:)
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB(:)
 end if
 
 ! The coordinates of the individual tiles are not stabilized by any
@@ -117,11 +117,11 @@ do iTile=1,nTiles
 
   do lDCRT=0,nDCRT-1
     call OA(iDCRT(lDCRT),C,TC)
-    call dcopy_(3,TC,1,CoorAC(1,2),1)
-    call dcopy_(3,TC,1,Coori(1,3),1)
-    call dcopy_(3,TC,1,Coori(1,4),1)
-    call dcopy_(3,TC,1,Coora(1,3),1)
-    call dcopy_(3,TC,1,Coora(1,4),1)
+    CoorAC(:,2) = TC(:)
+    Coori(:,3) = TC(:)
+    Coori(:,4) = TC(:)
+    Coora(:,3) = TC(:)
+    Coora(:,4) = TC(:)
 
     ! Compute integrals with the Rys quadrature.
 

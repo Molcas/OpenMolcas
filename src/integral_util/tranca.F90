@@ -28,12 +28,12 @@ do m=0,lMax
   nElem = nTri_Elem1(m)
   !call RecPrt('Car-->Sph',' ',RSph(ipSph(m)),nElem,nElem)
   if (CarSph) then
-    call dcopy_(2*m+1,[Zero],0,Cavsph(iOff2),1)
+    Cavsph(iOff2:iOff2+2*m) = Zero
     !call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
     call dGeMV_('T',nElem,2*m+1,One,RSph(ipSph(m)),nElem,Cavxyz(iOff1),1,Zero,CavSph(iOff2),1)
     !call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
   else
-    call dcopy_(nElem,[Zero],0,Cavxyz(iOff1),1)
+    Cavxyz(iOff1:iOff1+nElem-1) = Zero
     !call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
     call dGeMV_('N',nElem,2*m+1,One,RSph(ipSph(m)),nElem,Cavsph(iOff2),1,Zero,Cavxyz(iOff1),1)
     !call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)

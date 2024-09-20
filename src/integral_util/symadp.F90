@@ -185,7 +185,7 @@ do i1=1,iCmp
           if (iAux /= 1) then
             call DNaXpY(iAux,ijkl,Aux,1,AOInt(1,i1,i2,i3,i4),1,0,SOInt(1,MemSO2),1,ijkl)
           else
-            call DaXpY_(ijkl,Aux(1),AOInt(1,i1,i2,i3,i4),1,SOInt(1,MemSO2),1)
+            SOInt(:,MemSO2) = SOInt(:,MemSO2)+Aux(1)*AOInt(:,i1,i2,i3,i4)
           end if
           MemSO2 = MemSO2+iAux
         end if

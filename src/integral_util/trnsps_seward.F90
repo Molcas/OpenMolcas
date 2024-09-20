@@ -76,7 +76,7 @@ if ((kOp /= 0) .and. (ijCmp /= 0)) then
           pb2T = real(iPrmt(kOp,lChBs),kind=wp)
           ij2 = iCmp*(i4-1)+i3
           Factor = pa1T*pb1T*pa2T*pb2T
-          if (Factor /= One) call DScal_(ijkl,Factor,AOInt(1,ij1,ij2),1)
+          if (Factor /= One) AOInt(:,ij1,ij2) = Factor*AOInt(:,ij1,ij2)
         end do
       end do
     end do
@@ -93,7 +93,7 @@ else
       call DGeTMO(AOInt(:,i12,i34),ij,ij,ij,Scrtch(:,i34,i12),ij)
     end do
   end do
-  call dcopy_(ijkl*ijCmp*ijCmp,Scrtch,1,AOInt,1)
+  AOInt(:,:,:) = Scrtch(:,:,:)
 end if
 
 !call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)

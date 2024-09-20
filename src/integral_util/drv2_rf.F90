@@ -241,7 +241,7 @@ do iS=1,nSkal
         ! electric field and the multipole moments.
 
         nFnc = iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
-        call dcopy_(nFnc,[Zero],0,Fnl(1,nComp+1),1)
+        Fnl(1:nFnc,nComp+1) = Zero
         call DNaXpY(nComp,nFnc,Fldxyz,1,Fnl,1,nFnc,Fnl(1,nComp+1),1,0)
 #       ifdef _DEBUGPRINT_
         call RecPrt(' Solvation integrals',' ',Fnl(1,nComp+1),iPrim*jPrim,nTri_Elem1(iAng)*nTri_Elem1(jAng))
@@ -272,7 +272,7 @@ do iS=1,nSkal
         if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
           ! Result comes back as IJxAB or IJxAb
-          call dcopy_(kk*iBas*jBas,Fnl(1,nComp+1),1,Scr2,1)
+          Scr2(1:kk*iBas*jBas) = Fnl(1:kk*iBas*jBas,nComp+1)
           call CarSph(Scr2,kk,iBas*jBas,Fnl(1,nComp+1),nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                       RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,Scr1,iCmp*jCmp)
         else
@@ -301,7 +301,7 @@ do iS=1,nSkal
 
     ! Multiply with factors due to projection operators
 
-    if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO_Int,1)
+    if (Fact /= One) SO_Int(:) = Fact*SO_Int(:)
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' Scaling SO''s',Fact
     call RecPrt(' Final SO integrals',' ',SO_Int,iBas*jBas,mSO)

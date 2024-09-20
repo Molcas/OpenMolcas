@@ -12,6 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
+!#define _CD_TIMING_
 subroutine PrepP()
 !***********************************************************************
 !                                                                      *
@@ -39,7 +40,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "dmrginfo_mclr.fh"
-!#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
@@ -191,15 +191,12 @@ else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF'
          (Method == 'MSPDFT') .or. (Method == 'DMRGSCF') .or. (Method == 'CASDFT')) then
 
   call Get_iArray('nAsh',nAsh,nIrrep)
-  nAct = 0
-  do iIrrep=0,nIrrep-1
-    nAct = nAct+nAsh(iIrrep)
-  end do
+  nAct = sum(nAsh(0:nIrrep-1))
   if (nAct > 0) lPSO = .true.
 
   nDSO = nDens
   mIrrep = nIrrep
-  call ICopy(nIrrep,nBas,1,mBas,1)
+  mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,'(2A)') ' Wavefunction type: ',Method
@@ -218,16 +215,13 @@ else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF'
 else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GASSCFSA') .or. (Method == 'RASSCFSA') .or. &
          (Method == 'CASPT2')) then
   call Get_iArray('nAsh',nAsh,nIrrep)
-  nAct = 0
-  do iIrrep=0,nIrrep-1
-    nAct = nAct+nAsh(iIrrep)
-  end do
+  nAct = sum(nAsh(0:nIrrep-1))
   if (nAct > 0) lPSO = .true.
   nDSO = nDens
   call Get_iScalar('SA ready',iGo)
   if (iGO == 1) lSA = .true.
   mIrrep = nIrrep
-  call ICopy(nIrrep,nBas,1,mBas,1)
+  mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
 # ifdef _DEBUGPRINT_
   write(u6,*)
   if (lSA) then
@@ -294,15 +288,15 @@ end if
 !*********** columbus interface ****************************************
 !do not modify the effective density matrices and fock matrices
 if (.not. gamma_mrcisd) then
-  ij = -1
+  ij = 0
   do iIrrep=0,nIrrep-1
     do iBas=1,nBas(iIrrep)
       do jBas=1,iBas-1
         ij = ij+1
-        D0(1+ij,1) = Half*D0(1+ij,1)
-        DVar(1+ij,1) = Half*DVar(1+ij,1)
-        DS(1+ij) = Half*DS(1+ij)
-        DSVar(1+ij) = Half*DSVar(1+ij)
+        D0(ij,1) = Half*D0(ij,1)
+        DVar(ij,1) = Half*DVar(ij,1)
+        DS(ij) = Half*DS(ij)
+        DSVar(ij) = Half*DSVar(ij)
       end do
       ij = ij+1
     end do
@@ -420,17 +414,14 @@ if (lpso .and. (.not. gamma_mrcisd)) then
     call Get_dArray_chk('PLMO',G2(:,2),nG2)
     ndim1 = 0
     if (doDMRG) then
-      ndim0 = 0  !yma
-      do i=1,8
-        ndim0 = ndim0+LRras2(i)
-      end do
+      ndim0 = sum(LRras2(1:8))  !yma
       ndim1 = nTri_Elem(ndim0)
       ndim2 = nTri_Elem(ndim1)
       do i=1,ng2
         if (i > ndim2) G2(i,2) = Zero
       end do
     end if
-    call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
+    G2(:,1) = G2(:,1)+G2(:,2)
 #   ifdef _DEBUGPRINT_
     call TriPrt(' G2L',' ',G2(:,2),nG1)
     call TriPrt(' G2T',' ',G2(:,1),nG1)
@@ -468,8 +459,11 @@ if (lpso .and. (.not. gamma_mrcisd)) then
     !RlxLbl = 'D1AO    '
     !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
-    call dcopy_(ndens,DVar,1,D0(1,2),1)
-    if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+    if (isNAC) then
+      D0(:,2) = DVar(:,1)
+    else
+      D0(:,2) = DVar(:,1)-Half*D0(:,1)
+    end if
     !RlxLbl = 'D1COMBO  '
     !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
 
@@ -488,6 +482,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
 
     ! Getting conditions for hybrid MC-PDFT
     Do_Hybrid = .false.
+    PDFT_Ratio = Zero
     call qpg_DScalar('R_WF_HMC',Do_Hybrid)
     if (Do_Hybrid) then
       call Get_DScalar('R_WF_HMC',WF_Ratio)
@@ -508,40 +503,36 @@ if (lpso .and. (.not. gamma_mrcisd)) then
           ij = ij+1
         end do
       end do
-      call daxpy_(ndens,-One,D0(1,1),1,D1ao,1)
+      D1ao(:) = D1ao(:)-D0(:,1)
       !write(u6,*) 'do they match?'
       !do i=1,ndens
       !  write(u6,*) d1ao(i),DO(i,3)
       !end do
 
-      call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-      call daxpy_(ndens,-One,D1ao,1,D0(1,2),1)
       !ANDREW -   Generate new D5 piece:
-      D0(:,5) = Zero
-      call daxpy_(ndens,Half,D0(1,1),1,D0(1,5),1)
-      call daxpy_(ndens,One,D1ao,1,D0(1,5),1)
+      D0(:,5) = Half*D0(:,1)+D1ao(:)
+      D0(:,2) = D0(:,2)-D0(:,5)
 
       if (do_hybrid) then
         ! add back the wave function parts that are subtracted
         ! this might be inefficient, but should have a clear logic
-        call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
-        call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
+        D0(:,2) = D0(:,2)+WF_Ratio*D0(:,5)
         ! scale the pdft part
-        call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
+        D0(:,5) = PDFT_Ratio*D0(:,5)
       end if
       call mma_deallocate(D1ao)
     else if (Method == 'MSPDFT') then
-      call Get_DArray('MSPDFTD5',D0(1,5),nDens)
-      call Get_DArray('MSPDFTD6',D0(1,6),nDens)
-      call daxpy_(ndens,-One,D0(1,5),1,D0(1,2),1)
+      call Get_DArray('MSPDFTD5',D0(:,5),nDens)
+      call Get_DArray('MSPDFTD6',D0(:,6),nDens)
+      D0(:,2) = D0(:,2)-D0(:,5)
     end if
 
-    !call dcopy_(ndens*5,Zero,0,D0,1)
-    !call dcopy_(nG2,Zero,0,G2,1)
+    !D0(:,:) = Zero
+    !G2(:) = Zero
 
     !************************
-    !call dscal_(Length,Half,D0(1,4),1)
-    !call dscal_(Length,Zero,D0(1,4),1)
+    !D0(1:Length,4) = Half*D0(1:Length,4)
+    !D0(1:Length,4) = Zero
 
     !RlxLbl = 'DLAO    '
     !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))

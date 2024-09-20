@@ -79,7 +79,10 @@ do i=0,nIrrep-1
 
 end do
 do i=0,nCoSet-1
-  if (iAcc(i) == 0) TstFnc = .false.
+  if (iAcc(i) == 0) then
+    TstFnc = .false.
+    exit
+  end if
 end do
 
 return

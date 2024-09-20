@@ -29,7 +29,7 @@ integer(kind=iwp) :: J, L
 do J=1,N
   if (DoIt(J) /= 1) cycle
   do L=1,K
-    if (B(L,J) /= Zero) call DAxPy_(M,B(L,J),A(:,L),1,C(:,J),1)
+    if (B(L,J) /= Zero) C(1:M,J) = C(1:M,J)+B(L,J)*A(1:M,L)
   end do
 end do
 

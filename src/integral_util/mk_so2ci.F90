@@ -21,10 +21,10 @@ integer(kind=iwp) :: Indx, iShell, iSO, nShell
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Set up table SO to contigues index over the shell
+! Set up table SO to contiguous index over the shell
 
 !write(u6,*) 'Enter SO2cI'
-call ICopy(2*nSOs,[0],0,SO2cI,1)
+SO2cI(:,:) = 0
 call Nr_Shells(nShell)
 do iShell=1,nShell
 

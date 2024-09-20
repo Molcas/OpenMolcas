@@ -25,7 +25,7 @@ integer(kind=iwp), intent(in) :: nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Ir
 real(kind=wp), intent(inout) :: TwoHam(nDens)
 real(kind=wp), intent(in) :: Fij(0:iBas-1,0:jBas-1,iCmp,jCmp), Fact
 logical(kind=iwp), intent(in) :: Shij
-integer(kind=iwp) :: i1, i2, iAO, iAOi, iChO, iIR, iIrrep, ipF, ipFij, iPnt(0:7), ipntij, iSO, iSOi, iSOj, jAO, jAOj, jirr(0:7), &
+integer(kind=iwp) :: i1, i2, iAO, iAOi, iChO, iIR, iIrrep, ipF, ipFij, iPnt(0:7), iPntij, iSO, iSOi, iSOj, jAO, jAOj, jirr(0:7), &
                      jIrrep, jSO, jSOi, jSOj, l1, l2, NrOpr
 real(kind=wp) :: Fac, x1, x2, x3, x4, xr
 
@@ -35,7 +35,7 @@ if (iChO == 0) then
   iPntij = 0
   do iIrrep=0,nIrrep-1
     iPnt(iIrrep) = iPntij
-    ipntij = ipntij+nTri_Elem(nBas(iIrrep))
+    iPntij = iPntij+nTri_Elem(nBas(iIrrep))
   end do
 
   ! Distribute contributions from the intermediate skeleton
@@ -55,14 +55,14 @@ if (iChO == 0) then
 
         if ((iSO < 0) .or. (jSO < 0)) cycle
 
-        ipntij = iPnt(iIrrep)
+        iPntij = iPnt(iIrrep)
         do jAOj=0,jBas-1
           do iAOi=0,iBas-1
             Fac = XR
             if (Shij .and. (i1 == i2) .and. (iAOi+iAOst1 == jAOj+iAOst2)) Fac = Two*XR
             jSOj = jSO+jAOj
             iSOi = iSO+iAOi
-            ipFij = ipntij+iTri(iSOi,jSOj)
+            ipFij = iPntij+iTri(iSOi,jSOj)
             TwoHam(ipFij) = TwoHam(ipFij)+Fact*Fac*Fij(iAOi,jAOj,i1,i2)
           end do
         end do
@@ -120,11 +120,11 @@ else
           end do
         end if
         if ((jSOi > -1) .and. (iSOj > -1)) then
-          ipntij = iPnt(iIrrep)
+          iPntij = iPnt(iIrrep)
           do jAO=0,jBas-1
             do iAO=0,iBas-1
               Fac = X3*X4
-              ipF = ipntij+nBas(iIrrep)*(iSOj+iAO-1)+jSOi+jAO
+              ipF = iPntij+nBas(iIrrep)*(iSOj+iAO-1)+jSOi+jAO
               TwoHam(ipF) = TwoHam(ipF)+Fact*Fac*Fij(iAO,jAO,i1,i2)
             end do
           end do

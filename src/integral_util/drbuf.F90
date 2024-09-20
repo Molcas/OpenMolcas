@@ -56,7 +56,7 @@ do while (mArray >= 1)
   end if
   Left = lBuf-iPos+1
   if (mArray > Left) then
-    if (Copy) call dCopy_(Left,Buffer(iPos,iBuf),1,Array(iArray),1)
+    if (Copy) Array(iArray:iArray+Left-1) = Buffer(iPos:,iBuf)
     iArray = iArray+Left
     mArray = mArray-Left
     iPos = 1
@@ -69,7 +69,7 @@ do while (mArray >= 1)
     end if
   else
     !write(u6,*) ' Copy ',mArray,'elements from buffer',iPos
-    if (Copy) call dCopy_(mArray,Buffer(iPos,iBuf),1,Array(iArray),1)
+    if (Copy) Array(iArray:iArray+mArray-1) = Buffer(iPos:iPos+mArray-1,iBuf)
     iPos = iPos+mArray
     mArray = 0
   end if

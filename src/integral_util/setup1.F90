@@ -33,7 +33,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nPrim, mPrim
 real(kind=wp), intent(in) :: ExpA(nPrim), ExpB(mPrim), A(3), B(3), ZInv(nPrim,mPrim)
 real(kind=wp), intent(out) :: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
-integer(kind=iwp) :: iPrim, jPrim
+integer(kind=iwp) :: jPrim
 real(kind=wp) :: ab
 
 #ifdef _DEBUGPRINT_
@@ -47,12 +47,10 @@ ab = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
 
 if (ab /= Zero) then
   do jPrim=1,mPrim
-    do iPrim=1,nPrim
-      rKappa(iPrim,jPrim) = exp(-ExpA(iPrim)*ExpB(jPrim)*ab*ZInv(iPrim,jPrim))
-      Pcoor(iPrim,jPrim,1) = (ExpA(iPrim)*A(1)+ExpB(jPrim)*B(1))*ZInv(iPrim,jPrim)
-      Pcoor(iPrim,jPrim,2) = (ExpA(iPrim)*A(2)+ExpB(jPrim)*B(2))*ZInv(iPrim,jPrim)
-      Pcoor(iPrim,jPrim,3) = (ExpA(iPrim)*A(3)+ExpB(jPrim)*B(3))*ZInv(iPrim,jPrim)
-    end do
+    rKappa(:,jPrim) = exp(-ExpA(:)*ExpB(jPrim)*ab*ZInv(:,jPrim))
+    Pcoor(:,jPrim,1) = (ExpA(:)*A(1)+ExpB(jPrim)*B(1))*ZInv(:,jPrim)
+    Pcoor(:,jPrim,2) = (ExpA(:)*A(2)+ExpB(jPrim)*B(2))*ZInv(:,jPrim)
+    Pcoor(:,jPrim,3) = (ExpA(:)*A(3)+ExpB(jPrim)*B(3))*ZInv(:,jPrim)
   end do
 else
   rKappa(:,:) = One

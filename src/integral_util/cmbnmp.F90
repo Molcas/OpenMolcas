@@ -24,8 +24,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
 real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
-integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
-real(kind=wp) :: Fact
+integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb
 
 do ixa=0,la
   iyaMax = la-ixa
@@ -50,11 +49,7 @@ do ixa=0,la
             iz = lr-ix-iy
             iComp = iComp+1
             !write(u6,*) ix,iy,iz,iComp
-            do iZeta=1,nZeta
-              Fact = rKappa(iZeta)/sqrt(Zeta(iZeta)**3)
-              !Fact = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
-              rFinal(iZeta,ipa,ipb,iComp) = Fact*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)*Rnxyz(iZeta,3,iza,izb,iz)
-            end do
+            rFinal(:,ipa,ipb,iComp) = rKappa(:)/sqrt(Zeta(:)**3)*Rnxyz(:,1,ixa,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)*Rnxyz(:,3,iza,izb,iz)
           end do
         end do
 

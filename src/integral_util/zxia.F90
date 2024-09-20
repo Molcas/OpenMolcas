@@ -36,8 +36,8 @@ call RecPrt(' In ZXia: Beta ',' ',Beta,M,1)
 
 do j=1,M
   Zeta(:,j) = (Alpha(:)+Beta(j))
-  ZInv(:,j) = One/Zeta(:,j)
 end do
+ZInv(:,:) = One/Zeta(:,:)
 #ifdef _DEBUGPRINT_
 call RecPrt(' In ZXia: Zeta',' ',Zeta,N,M)
 #endif

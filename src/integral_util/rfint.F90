@@ -36,7 +36,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, nComp, la, lb, nHer, nArr, nOrdOp
 real(kind=wp), intent(in) :: Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), Array(nZeta*nArr)
-integer(kind=iwp) :: ipAxyz, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, iZeta, nip
+integer(kind=iwp) :: ipAxyz, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, nip
 logical(kind=iwp) :: ABeq(3)
 
 ABeq(:) = (A(:) == B(:))
@@ -74,10 +74,8 @@ write(u6,*) ' In RFInt: nHer=',nHer
 
 ! Compute the cartesian values of the basis functions angular part
 
-do iZeta=1,nZeta
-  Array(ipTemp1-1+iZeta) = One/sqrt(Zeta(iZeta))
-  !Array(ipTemp1-1+iZeta) = Zeta(iZeta)**(-Half)
-end do
+Array(ipTemp1:ipTemp1+nZeta-1) = One/sqrt(Zeta(:))
+!Array(ipTemp1:ipTemp1+nZeta-1) = Zeta(:)**(-Half)
 call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),la,HerR(iHerR(nHer)),nHer,ABeq)
 call vCrtCmp(Array(ipTemp1),P,nZeta,B,Array(ipBxyz),lb,HerR(iHerR(nHer)),nHer,ABeq)
 

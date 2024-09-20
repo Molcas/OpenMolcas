@@ -21,17 +21,14 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(*)
 real(kind=wp), intent(in) :: A(*)
 real(kind=wp), intent(_OUT_) :: B(*)
-integer(kind=iwp) :: iBas, iOff1, iOff2, iSym, jBas, mBas
+integer(kind=iwp) :: iBas, iOff1, iOff2, iSym, mBas
 
 iOff1 = 0
 iOff2 = 0
 do iSym=1,nSym
   mBas = nBas(iSym)
   do iBas=1,mBas
-    do jBas=1,iBas-1
-      B(iOff2+jBas) = A(iOff1+jBas)
-    end do
-    B(iOff2+iBas) = A(iOff1+iBas)
+    B(iOff2+1:iOff2+iBas) = A(iOff1+1:iOff1+iBas)
     iOff1 = iOff1+mBas
     iOff2 = iOff2+iBas
   end do

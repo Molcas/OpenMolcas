@@ -69,9 +69,7 @@ do iiVec=1,nVec,IncVec
   ! First quarter transformation
 
   do iCntr1=1,nCntr1
-    do iprm2=1,nprm2
-      idone(iprm2) = 0
-    end do
+    idone(1:nprm2) = 0
 
     do iZeta=1,lZeta
       iPrm2 = (Indij(iZeta)-1)/nPrm1+1
@@ -79,9 +77,9 @@ do iiVec=1,nVec,IncVec
       C1 = Coeff1(iPrm1,iCntr1)
       if (abs(C1) > Zero) then
         if (idone(iprm2) > 0) then
-          call DaXpY_(mVec,C1,A1(iZeta,iiVec),lZeta,A2(1,iPrm2),1)
+          A2(1:mVec,iPrm2) = A2(1:mVec,iPrm2)+C1*A1(iZeta,iiVec:iiVec+mVec-1)
         else
-          call DYaX(mVec,C1,A1(iZeta,iiVec),lZeta,A2(1,iPrm2),1)
+          A2(1:mVec,iPrm2) = C1*A1(iZeta,iiVec:iiVec+mVec-1)
           idone(iprm2) = 1
         end if
       end if
@@ -92,7 +90,7 @@ do iiVec=1,nVec,IncVec
     ! Second quarter transformation
 
     do iprm2=1,nprm2
-      if (idone(iprm2) == 0) call FZero(a2(1,iprm2),mvec)
+      if (idone(iprm2) == 0) A2(1:mVec,iPrm2) = Zero
     end do
 
     ic1 = 1
@@ -112,7 +110,7 @@ do iiVec=1,nVec,IncVec
         else
           iprm2 = ifirst(icntr2)
           c2 = coeff2(iprm2,icntr2)
-          call DYaX(mVec,C2,A2(1,iPrm2),1,A3(iiVec,iCntr1,iCntr2),1)
+          A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2) = C2*A2(1:mVec,iPrm2)
 
           iPrm2 = ifirst(icntr2)+1
           mPrm2 = last(iCntr2)-iPrm2+1

@@ -212,7 +212,7 @@ PrPrt = .true.
 RepHlp = Zero
 do iGrid=1,nGrid_
   write(Label,'(A,I5)') 'EF ',iGrid
-  call dcopy_(3,Grid(1,iGrid),1,CCoor,1)
+  CCoor(:) = Grid(:,iGrid)
   iSymC = 1
   if (Ccoor(1) /= Zero) iSymC = ibset(iSymC,iSymX)
   if (Ccoor(2) /= Zero) iSymC = ibset(iSymC,iSymY)
@@ -235,7 +235,7 @@ do iGrid=1,nGrid_
       if (Ccoor(iComp) /= Zero) iSym = ibset(iSym,0)
       lOper(iComp) = MltLbl(iSymC,iSym)
       kOper(iComp) = iChBas(iComp+1)
-      call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
+      C_Coor(:,iComp) = Ccoor(:)
     end do
   end do
 
@@ -263,7 +263,7 @@ do iGrid=1,nGrid_
       ! Accumulate contribution to h1
 
       alfa = Sig*DipMom(iComp,iGrid)
-      call DaXpY_(n_Int,alfa,Integrals(ip),1,h1,1)
+      h1(1:n_Int) = h1(1:n_Int)+alfa*Integrals(ip:ip+n_Int-1)
       EelDip = EelDip-alfa*DDot_(nh1,D_tot,1,Integrals(ip),1)
 
     end if

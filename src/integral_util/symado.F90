@@ -35,7 +35,7 @@ do iComp=1,nComp
     if (.not. btest(lOper(iComp),iIrrep)) cycle
     iIC = iIC+1
     Xg = real(iChTbl(iIrrep,iDCRT),kind=wp)
-    call DaXpY_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),Xg*pO*Factor,ArrIn(1,1,1,iComp),1,ArrOut(1,1,1,iIC),1)
+    ArrOut(:,:,:,iIC) = ArrOut(:,:,:,iIC)+Xg*pO*Factor*ArrIn(:,:,:,iComp)
   end do
 end do
 if (iIC /= nIC) then

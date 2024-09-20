@@ -27,7 +27,7 @@ integer(kind=iwp) :: i_n, iDCR, iIn, ijCmp, im, iOut, jIn, jm, jn, jOut, nl, ml
 
 if ((nSt == 1) .and. (nEnd == n) .and. (mSt == 1) .and. (mEnd == m)) then
   ! Copy the whole block
-  call dcopy_((((n*m+1)*nijCmp)+nijPrm+1)*nDCR,Din,1,Dout,1)
+  Dout(:,:) = Din(:,:)
 else
   nl = nEnd-nSt+1
   ml = mEnd-mSt+1
@@ -56,7 +56,7 @@ else
     end do
     ! Move the largest density matrix element for
     ! each pair plus the overall largest element
-    call dcopy_(nijPrm+1,Din(iIn+1,iDCR),1,Dout(iOut+1,iDCR),1)
+    Dout(iOut+1:iOut+nijPrm+1,iDCR) = Din(iIn+1:iIn+nijPrm+1,iDCR)
   end do
 end if
 

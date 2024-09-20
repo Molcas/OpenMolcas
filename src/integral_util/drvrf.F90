@@ -15,7 +15,7 @@ subroutine DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,iCharge)
 use External_Centers, only: iXPolType
 use rctfld_module, only: lLangevin, lRF, lRFCav, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -79,15 +79,14 @@ end if
 ! field contribution to it.
 
 Label = 'h1    XX'
-call Get_Temp(Label,RFld(1,1),nh1)
-call DaXpY_(nh1,-One,h1,1,RFld(1,1),1)
-call DScal_(nh1,-One,RFld(1,1),1)
+call Get_Temp(Label,RFld(:,1),nh1)
+RFld(:,1) = h1(:)-RFld(:,1)
 ! Add contribution to the TwoHam array
-call DaXpY_(nh1,One,RFld(1,2),1,TwoHam,1)
+TwoHam(:) = TwoHam(:)+RFld(:,2)
 
 ! Store away information for perturbative calculations
 
-call DaXpY_(nh1,One,RFld(1,2),1,RFld(1,1),1)
+RFld(:,1)= RFld(:,1)+RFld(:,2)
 
 ERFSelf = RepNuc-RepNuc_Temp
 EEE = DDot_(nh1,RFld(1,2),1,D,1)
@@ -111,8 +110,7 @@ call mma_allocate(h1_XX,nh1,Label='h1_XX')
 
 Label = 'h1    XX'
 call Get_Temp(Label,h1_XX,nh1)
-call dcopy_(nh1,h1,1,h1_RF,1)
-call DaXpY_(nh1,-One,h1_XX,1,h1_RF,1)
+h1_RF(:) = h1(:)-h1_XX(:)
 call mma_deallocate(h1_XX)
 
 h1_RF(nh1+3) = RepNuc_RF

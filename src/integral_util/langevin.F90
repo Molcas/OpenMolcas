@@ -22,7 +22,7 @@ use rctfld_module, only: CordSI, DipCutOff, DIPSI, DistSparse, Done_Lattice, lDa
                          lLangevin, nCavxyz, nGrid, nGrid_Eff, nGridAverage, nGridSeed, nSparse, PolSI, RadLat, RotAlpha, RotBeta, &
                          RotGamma, Scala, TK
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, auTokJ, kBoltzmann
+use Constants, only: Zero, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -213,7 +213,7 @@ do iAv=1,nAv
   end if
   close(Lu)
 
-  call dcopy_(nGrid_Eff*4,dField,1,tmpField,1)
+  tmpField(:,:) = dField(:,1:nGrid_eff)
 
   if (lDiprestart .or. lFirstIter) then
     Field(:,:) = Zero
@@ -227,13 +227,10 @@ do iAv=1,nAv
   ! for use in the next iteration. Ravxyz is
   ! just a temporary array
 
-  call dcopy_(nCavxyz,Cavxyz,1,Ravxyz,1)
-  call DaXpY_(nCavxyz,-One,Davxyz,1,Cavxyz,1)
-  call dcopy_(nCavxyz,Ravxyz,1,Davxyz,1)
+  Ravxyz(:) = Cavxyz(:)
+  Cavxyz(:) = Cavxyz(:)-Davxyz(:)
+  Davxyz(:) = Ravxyz(:)
 
-  ! Ravxyz(:)=Cavxyz(:)
-  ! Cavxyz(:)=Cavxyz(:)-Davxyz(:)
-  ! Davxyz(:)=Ravxyz(:)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -258,7 +255,7 @@ do iAv=1,nAv
   ! in Field, to be used in the next iteration if
   ! not DRES has been requested
 
-  call DaXpY_(nGrid*4,-One,tmpField,1,Field,1)
+  Field(:,:) = Field(:,:)-tmpField(:,:)
   lFirstIter = .false.
 
   call mma_deallocate(pField)

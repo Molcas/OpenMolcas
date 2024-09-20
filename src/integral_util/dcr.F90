@@ -150,7 +150,7 @@ else
   Done(ij) = .true.
 end if
 Lambda = Lambda_all(ij)
-call ICopy(mDCR,iDCR_all(0,ij),1,iDCR,1)
+iDCR(0:mDCR-1) = iDCR_all(0:mDCR-1,ij)
 
 return
 

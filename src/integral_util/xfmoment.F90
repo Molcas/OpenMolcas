@@ -26,7 +26,7 @@ use Index_Functions, only: nTri3_Elem1
 use External_Centers, only: nOrd_XF, nXF, XF
 use Phase_Info, only: iPhase
 use Symmetry_Info, only: nIrrep
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -42,7 +42,7 @@ if (nOrd_XF > lMax) then
   call Abend()
 end if
 nInp = nTri3_Elem1(nOrd_XF)
-call FZero(Org,3)
+Org(:) = Zero
 do i=1,nXF
 
   ! Generate Stabilizer of C
@@ -53,8 +53,8 @@ do i=1,nXF
   iDum = 0
   call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
   do j=0,nIrrep/nStb-1
-    call FZero(Tmom,nCavxyz_)
-    call dcopy_(nInp,XF(4,i),1,Tmom,1)
+    Tmom(:) = Zero
+    Tmom(1:nInp) = XF(4:3+nInp,i)
     TCo(1:3) = XF(1:3,i)
     Tco(1) = Tco(1)*real(iPhase(1,jCoSet(j,0)),kind=wp)
     Tco(2) = Tco(2)*real(iPhase(2,jCoSet(j,0)),kind=wp)
@@ -70,7 +70,7 @@ do i=1,nXF
       end if
     end if
     call ReExpand(Tmom,1,nCavxyz_,Tco,Org,1,lMax)
-    call DaXpY_(nCavxyz_,One,Tmom,1,Cavxyz,1)
+    Cavxyz(:) = Cavxyz(:)+Tmom(:)
   end do
 end do
 

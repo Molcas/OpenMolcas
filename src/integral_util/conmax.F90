@@ -34,16 +34,12 @@ real(kind=wp), external :: DDot_
 
 do iPrim=1,nPrim
   Temp = DDot_(nCont,B(iPrim,1),nPrim,B(iPrim,1),nPrim)
-  do jPrim=1,mPrim
-    A(iPrim,jPrim) = Temp
-  end do
+  A(iPrim,:) = Temp
 end do
 
 do jPrim=1,mPrim
   Temp = DDot_(mCont,C(jPrim,1),mPrim,C(jPrim,1),mPrim)
-  do iPrim=1,nPrim
-    A(iPrim,jPrim) = sqrt(A(iPrim,jPrim)*Temp)
-  end do
+  A(:,jPrim) = sqrt(A(:,jPrim)*Temp)
 end do
 
 return

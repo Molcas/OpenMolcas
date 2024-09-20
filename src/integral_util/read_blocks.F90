@@ -42,10 +42,8 @@ call Mk_SO2cI(iSO2cI,iSO2Shell,nSOs)
 !                                                                      *
 ! Initiate bins
 
-do iQuad=1,nQuad
-  Bin(1,nBin,iQuad) = Zero  ! number of elements in bin
-  Bin(2,nBin,iQuad) = -One  ! back chaining address
-end do
+Bin(1,nBin,:) = Zero  ! number of elements in bin
+Bin(2,nBin,:) = -One  ! back chaining address
 iDisk = 0 ! initial disk address
 iWrite = 1
 !                                                                      *

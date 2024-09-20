@@ -46,7 +46,7 @@ use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Symmetry_Info, only: ChOper
 use Disp, only: ChDisp
 #endif
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -72,7 +72,7 @@ procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
-logical(kind=iwp), external :: EQ, lEmpty
+logical(kind=iwp), external :: EQ
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iPrint, iRout
 #include "print.fh"
@@ -421,11 +421,11 @@ do lDCRR=0,nDCRR-1
 
       do iZeta=1,nZeta_Tot,IncZet
         mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-        if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
+        if (all(Coeff2(:,:) == Zero)) cycle
 
         do iEta=1,nEta_Tot,IncEta
           mEta = min(IncEta,nEta_Tot-iEta+1)
-          if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
+          if (all(Coeff4(:,:) == Zero)) cycle
 
           Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
 

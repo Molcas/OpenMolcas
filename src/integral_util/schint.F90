@@ -84,11 +84,11 @@ mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 ! the order as defined by the basis functions types.
 
 if (iAnga(1) >= iAnga(2)) then
-  call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
-  call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+  CoorAC(:,1) = CoorM(:,1)
+  CoorAC(:,2) = CoorM(:,3)
 else
-  call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
-  call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+  CoorAC(:,1) = CoorM(:,2)
+  CoorAC(:,2) = CoorM(:,4)
 end if
 
 ! Compute [a0|c0], ijkl,a,c
@@ -119,7 +119,7 @@ call HrrMtrx(HMtrx(:,2),ne,la,lb,CoorM(:,3),CoorM(:,4),.false.,RSph(ipSph(la)),l
 
 iW3 = 1+mZeta*mabcd
 call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
-call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
+Wrk(1:mabcd*mZeta) = Wrk(iW3:iW3+mabcd*mZeta-1)
 call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,HMtrx(:,1),HMtrx(:,2),la,lb,la,lb,lta,ltb,lta,ltb,iShlla,jShllb,iShlla, &
             jShllb,i_Int)
 !                                                                      *

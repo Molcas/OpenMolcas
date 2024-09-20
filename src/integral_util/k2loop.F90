@@ -72,7 +72,7 @@ real(kind=wp), external :: EstI
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(3,[One],0,Q,1)
+Q(:) = One
 mStb(1) = iStb
 mStb(2) = jStb
 la = iAnga(1)
@@ -85,7 +85,7 @@ jShllb = iShll(2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
+CoorM(:,1) = Coor(:,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -95,7 +95,7 @@ do lDCRR=0,nDCRR-1
   AeqB = EQ(CoorM(1,1),CoorM(1,2))
   ! Branch out if integrals are zero by symmetry.
   if (AeqB .and. (mod(iSmAng,2) == 1)) cycle
-  call dcopy_(6,CoorM(1,1),1,CoorM(1,3),1)
+  CoorM(:,3:4) = CoorM(:,1:2)
 # ifdef _DEBUGPRINT_
   call RecPrt(' Actual centers',' ',CoorM,3,4)
 # endif
@@ -128,8 +128,8 @@ do lDCRR=0,nDCRR-1
   ! Compute primitive integrals to be used in the prescreening
   ! by the Schwarz inequality.
 
-  call dcopy_(12,CoorM(1,1),1,Coora(1,1),1)
-  call dcopy_(12,CoorM(1,1),1,Coori(1,1),1)
+  Coora(:,:) = CoorM(:,:)
+  Coori(:,:) = CoorM(:,:)
 
   ! Compute actual size of [a0|c0] block
 
@@ -144,11 +144,11 @@ do lDCRR=0,nDCRR-1
   ! the order as defined by the basis functions types.
 
   if (iAnga(1) >= iAnga(2)) then
-    call dcopy_(3,Coora(1,1),1,CoorAC(1,1),1)
+    CoorAC(:,1) = Coora(:,1)
   else
-    call dcopy_(3,Coora(1,2),1,CoorAC(1,1),1)
+    CoorAC(:,1) = Coora(:,2)
   end if
-  call dcopy_(3,CoorAC(1,1),1,CoorAC(1,2),1)
+  CoorAC(:,2) = CoorAC(:,1)
 
   ! Compute [a0|c0], ijkl,a,c
 
@@ -169,7 +169,7 @@ do lDCRR=0,nDCRR-1
 
     iW3 = 1+mZeta*mabcd
     call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
-    call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
+    Wrk(1:mabcd*mZeta) = Wrk(iW3:iW3+mabcd*mZeta-1)
     call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,k2data(lDCRR+1)%HrrMtrx(:,1),k2data(lDCRR+1)%HrrMtrx(:,1),la,lb,la, &
                 lb,iCmpa_,jCmpb_,iCmpa_,jCmpb_,iShlla,jShllb,iShlla,jShllb,i_Int)
     if (i_Int == 1) then
@@ -295,7 +295,7 @@ do lDCRR=0,nDCRR-1
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,2),Lnew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Lnew(iZeta))
           end do
 
-          call DaXpY_(nZeta*ijCmp,One,Scr(1,2),1,Scr(1,1),1)
+          Scr(1:nZeta*ijCmp,1) = Scr(1:nZeta*ijCmp,1)+Scr(1:nZeta*ijCmp,2)
 
           CoorM(iComp,iCnt) = temp+Delta
           CoorM(iComp,iCnt+2) = temp-Delta
@@ -306,7 +306,7 @@ do lDCRR=0,nDCRR-1
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,3),Knew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Lnew(iZeta))
           end do
 
-          call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,Scr(1,1),1)
+          Scr(1:nZeta*ijCmp,1) = Scr(1:nZeta*ijCmp,1)-Scr(1:nZeta*ijCmp,3)
 
           CoorM(iComp,iCnt) = temp-Delta
           CoorM(iComp,iCnt+2) = temp+Delta
@@ -317,10 +317,8 @@ do lDCRR=0,nDCRR-1
             call PckInt(Wrk(i_Int),lZeta,ijCmp,Scr(iZeta,3),Lnew(iZeta),.false.,k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,Knew(iZeta))
           end do
 
-          call DaXpY_(nZeta*ijCmp,-One,Scr(1,3),1,Scr(1,1),1)
-
-          call DScal_(nZeta*ijCmp,One/(Four*Delta**2),Scr(1,1),1)
-          call AbsAdd(nZeta*ijCmp,Scr(:,1),1,k2data(lDCRR+1)%abG(:,2),1)
+          Scr(1:nZeta*ijCmp,1) = (Scr(1:nZeta*ijCmp,1)-Scr(1:nZeta*ijCmp,3))/(Four*Delta**2)
+          k2data(lDCRR+1)%abG(1:nZeta*ijCmp,2) = k2data(lDCRR+1)%abG(1:nZeta*ijCmp,2)+sqrt(abs(Scr(1:nZeta*ijCmp,1)))
 
           CoorM(iComp,iCnt) = temp
           CoorM(iComp,iCnt+2) = temp

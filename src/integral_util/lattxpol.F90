@@ -20,7 +20,7 @@ integer(kind=iwp), intent(in) :: nGrid, nXF, nOrd_XF, nPolComp
 integer(kind=iwp), intent(inout) :: nGrid_Eff
 real(kind=wp), intent(inout) :: Grid(3,nGrid), PolEff(nPolComp,nGrid), DipEff(nGrid)
 real(kind=wp), intent(in) :: XF(nXF)
-integer(kind=iwp) :: Inc, iOrdOp, iXF, j
+integer(kind=iwp) :: Inc, iOrdOp, iXF
 
 ! Calculate number of entries per XFIELD point
 Inc = 3
@@ -32,13 +32,9 @@ Inc = Inc+6  !iXpolType always > 0
 ! Insert XFIELD polarisabilities into Grid
 do iXF=1,nXF
   nGrid_Eff = nGrid_Eff+1
-  do j=1,nPolComp
-    PolEff(j,nGrid_Eff) = XF(iXF*Inc-6+j)
-  end do
+  PolEff(:,nGrid_Eff) = XF(iXF*Inc-6+1:iXF*Inc-6+nPolComp)
   DipEff(nGrid_Eff) = Zero
-  do j=1,3
-    Grid(j,nGrid_Eff) = XF((iXF-1)*Inc+j)
-  end do
+  Grid(:,nGrid_Eff) = XF((iXF-1)*Inc+1:(iXF-1)*Inc+3)
 end do
 
 return

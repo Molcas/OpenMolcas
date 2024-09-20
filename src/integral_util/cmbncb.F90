@@ -32,7 +32,7 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb+ld), rKappa(nZeta), Beta(nZ
 real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),4)
 logical(kind=iwp), intent(in) :: IfGrad(3)
 integer(kind=iwp), intent(out) :: nVecCB
-integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb
 real(kind=wp) :: xB, yB, zB
 
 #ifdef _DEBUGPRINT_
@@ -53,53 +53,35 @@ do ixa=0,la
         ! Combine overlap integral gradients
 
         nVecCB = 1
-        do iZeta=1,nZeta
-          rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
-        end do
+        rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
         if (IfGrad(1)) then
           nVecCB = nVecCB+1
           if (ixb > 0) then
             xb = real(-ixb,kind=wp)
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*(Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)+xb*Rnxyz(iZeta,1,ixa,ixb-1))* &
-                                             Rnxyz(iZeta,2,iya,iyb)*Rnxyz(iZeta,3,iza,izb)
-            end do
+            rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*(Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1)+xb*Rnxyz(:,1,ixa,ixb-1))* &
+                                       Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
           else
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Two*Beta(iZeta)*Rnxyz(iZeta,1,ixa,ixb+1)*Rnxyz(iZeta,2,iya,iyb)* &
-                                             Rnxyz(iZeta,3,iza,izb)
-            end do
+            rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*Two*Beta(:)*Rnxyz(:,1,ixa,ixb+1)*Rnxyz(:,2,iya,iyb)*Rnxyz(:,3,iza,izb)
           end if
         end if
         if (IfGrad(2)) then
           nVecCB = nVecCB+1
           if (iyb > 0) then
             yb = real(-iyb,kind=wp)
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)* &
-                                             (Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)+yb*Rnxyz(iZeta,2,iya,iyb-1))* &
-                                             Rnxyz(iZeta,3,iza,izb)
-            end do
+            rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*(Two*Beta(:)*Rnxyz(:,2,iya,iyb+1)+yb*Rnxyz(:,2,iya,iyb-1))* &
+                                       Rnxyz(:,3,iza,izb)
           else
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Two*Beta(iZeta)*Rnxyz(iZeta,2,iya,iyb+1)* &
-                                             Rnxyz(iZeta,3,iza,izb)
-            end do
+            rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Two*Beta(:)*Rnxyz(:,2,iya,iyb+1)*Rnxyz(:,3,iza,izb)
           end if
         end if
         if (IfGrad(3)) then
           nVecCB = nVecCB+1
           if (izb > 0) then
             zb = real(-izb,kind=wp)
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*(Two*Beta(iZeta)* &
-                                             Rnxyz(iZeta,3,iza,izb+1)+zb*Rnxyz(iZeta,3,iza,izb-1))
-            end do
+            rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*(Two*Beta(:)* &
+                                       Rnxyz(:,3,iza,izb+1)+zb*Rnxyz(:,3,iza,izb-1))
           else
-            do iZeta=1,nZeta
-              rFinal(iZeta,ipa,ipb,nVecCB) = rKappa(iZeta)*Rnxyz(iZeta,1,ixa,ixb)*Rnxyz(iZeta,2,iya,iyb)*Two*Beta(iZeta)* &
-                                             Rnxyz(iZeta,3,iza,izb+1)
-            end do
+            rFinal(:,ipa,ipb,nVecCB) = rKappa(:)*Rnxyz(:,1,ixa,ixb)*Rnxyz(:,2,iya,iyb)*Two*Beta(:)*Rnxyz(:,3,iza,izb+1)
           end if
         end if
 

@@ -26,20 +26,16 @@ character(len=*), intent(in) :: Lines(nLines)
 integer(kind=iwp), parameter :: MxWdth = 132
 character(len=MxWdth-2) :: Line
 character(len=72) :: frmt
-integer(kind=iwp) :: i, iEnd, iFrst, j, jEnd, jFrst, k, Length, mWidth, nChar, nSplit
+integer(kind=iwp) :: i, iEnd, iFrst, j, jEnd, jFrst, Length, mWidth, nChar, nSplit
 
 mWidth = nWidth
 nChar = len(Lines(1))
 if (nChar+2 > mWidth) mWidth = nChar+2
 mWidth = min(MxWdth-2,mWidth)
 write(frmt,'(A,i3,A)') '(1X,A',mWidth,')'
-do i=1,mWidth
-  Line(i:i) = '*'
-end do
+Line(1:mWidth) = repeat('*',mWidth)
 write(u6,frmt) Line
-do i=2,mWidth-1
-  Line(i:i) = ' '
-end do
+Line(2:mWidth-1) = repeat(' ',mWidth-2)
 write(u6,frmt) Line
 do i=1,nLines
   do j=1,nChar
@@ -50,9 +46,7 @@ do i=1,nLines
     if (Lines(i)(j:j) /= ' ') exit
   end do
   iEnd = j
-  do k=2,mWidth-1
-    Line(k:k) = ' '
-  end do
+  Line(2:mWidth-1) = repeat(' ',mWidth-2)
   Length = iEnd-iFrst+1
   nSplit = (mWidth-2-Length)/2
   jFrst = 1+nSplit+1
@@ -61,13 +55,9 @@ do i=1,nLines
   write(u6,frmt) Line
 end do
 
-do k=2,mWidth-1
-  Line(k:k) = ' '
-end do
+Line(2:mWidth-1) = repeat(' ',mWidth-2)
 write(u6,frmt) Line
-do k=2,mWidth-1
-  Line(k:k) = '*'
-end do
+Line(2:mWidth-1) = repeat('*',mWidth-2)
 write(u6,frmt) Line
 
 return

@@ -82,7 +82,7 @@ if (Shijij) Fact = Fact*Half
 
 ! Initialize second order density matrix in AO basis
 
-call dcopy_(ijkl*iCmp*jCmp*kCmp*lCmp,[Zero],0,PAO,1)
+PAO(:,:,:,:,:) = Zero
 
 ! Quadruple loop over elements of the basis functions angular
 ! description. Loops are reduced to just produce unique SO integrals
@@ -146,7 +146,7 @@ do i1=1,iCmp
 
         if (nIrrep == 1) then
           !FactNs = 1
-          call DYaX(ijkl,Fact,PSO(1,MemSO2),1,PAO(1,i1,i2,i3,i4),1)
+          PAO(:,i1,i2,i3,i4) = PAO(:,i1,i2,i3,i4)+Fact*PSO(:,MemSO2)
           MemSO2 = MemSO2+1
           cycle
         end if
@@ -182,7 +182,7 @@ do i1=1,iCmp
           if (iAux /= 1) then
             call DNaXpY(iAux,ijkl,Aux,1,PSO(1,MemSO2),1,ijkl,PAO(1,i1,i2,i3,i4),1,0)
           else
-            call DaXpY_(ijkl,Aux(1),PSO(1,MemSO2),1,PAO(1,i1,i2,i3,i4),1)
+            PAO(:,i1,i2,i3,i4) = PAO(:,i1,i2,i3,i4)+Aux(1)*PSO(:,MemSO2)
           end if
           MemSO2 = MemSO2+iAux
         end if

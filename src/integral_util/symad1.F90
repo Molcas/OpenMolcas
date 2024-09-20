@@ -83,7 +83,7 @@ do j1=0,nIrrep-1
         jChBs = iChBas(jj+i2)
         if (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
         pbr = Prmt(iOper(nOp(2)),jChBs)
-        call DaXpY_(iBas*jBas,xa*pae*xb*pbr,AOInt(1,i1,i2,kIC),1,SOInt(1,lSO),1)
+        SOInt(:,lSO) = SOInt(:,lSO)+xa*pae*xb*pbr*AOInt(:,i1,i2,kIC)
       end do
 
     end do

@@ -418,7 +418,7 @@ subroutine NrmSph(P,n)
         tmp = tmp+DF*temp
       end do
     end do
-    call DScal_(nt,One/sqrt(tmp),P(1,m),1)
+    P(:,m) = P(:,m)/sqrt(tmp)
   end do
 
 end subroutine NrmSph

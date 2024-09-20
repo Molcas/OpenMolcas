@@ -20,7 +20,7 @@ integer(kind=iwp), intent(in) :: k, nz, iSum
 real(kind=wp), intent(in) :: alfa(nz), Beta, r0, a(nz)
 real(kind=wp), intent(inout) :: gri(nz,isum)
 real(kind=wp), intent(out) :: grin(nz,0:k,k/2+1,k/4+1)
-integer(kind=iwp) :: i, iDiv, indst, iPot3i, iv(kmax), ix, ix2, ixS, ixyS, ixyz, iy, iy2, iyS, iz, j, jj, l, mZ
+integer(kind=iwp) :: i, iDiv, indst, iPot3i, iv(kmax), ix, ix2, ixS, ixyS, ixyz, iy, iy2, iyS, iz, j, jj, l
 
 call binte(k,alfa,beta,r0,a,grin,nz)
 !call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
@@ -28,12 +28,10 @@ call binte(k,alfa,beta,r0,a,grin,nz)
 ! distribute the integrals into gri
 
 indst = 1
-do iz=1,nz
-  gri(iz,1) = grin(iz,0,1,1)
-end do
+gri(:,1) = grin(:,0,1,1)
 do i=1,k
   ipot3i = ipot3(i)
-  call dcopy_(iPot3i*nz,[Zero],0,gri(1,indst+1),1)
+  gri(:,indst+1:indst+iPot3i) = Zero
   do j=1,ipot3i
     jj = j
     do l=i,1,-1
@@ -62,9 +60,7 @@ do i=1,k
     iys = min(ix,iy)
     ixys = (ixs+iys)/2+1
     iys = iys/2+1
-    do mz=1,nz
-      gri(mz,j+indst) = grin(mz,i,ixys,iys)
-    end do
+    gri(:,j+indst) = grin(:,i,ixys,iys)
   end do
   indst = indst+ipot3i
 end do

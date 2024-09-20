@@ -63,7 +63,7 @@ do i1=1,iCmp
         if (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+i4))
         pb2T = real(iPrmt(kOp,lChBs),kind=wp)
         Factor = pa1T*pb1T*pa2T*pb2T
-        if (Factor /= One) call DScal_(ijkl,Factor,AOInt(1,i1,i2,i3,i4),1)
+        if (Factor /= One) AOInt(:,i1,i2,i3,i4) = Factor*AOInt(:,i1,i2,i3,i4)
       end do
     end do
   end do

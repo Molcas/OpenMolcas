@@ -30,7 +30,7 @@ integer(kind=iwp), intent(in) :: nZeta, k, jSum
 real(kind=wp), intent(in) :: r0, Beta, alpha(nZeta), P(nZeta,3)
 real(kind=wp), intent(out) :: a(nZeta), grin((k+1)*(k/2+1)*(k/4+1)*nZeta)
 real(kind=wp), intent(inout) :: gri(nZeta*jsum)
-integer(kind=iwp) :: i, iSum, iZeta
+integer(kind=iwp) :: i, iSum
 
 call poti(k,ipot3)
 !call IecPrt(' ipot3(0:k+1)',ipot3,k+2,1)
@@ -40,9 +40,7 @@ call fiin(k+1)
 call tetin(k+1)
 call ylmnor(k+1)
 
-do iZeta=1,nZeta
-  a(iZeta) = sqrt(P(iZeta,1)**2+P(iZeta,2)**2+P(iZeta,3)**2)
-end do
+a(:) = sqrt(P(:,1)**2+P(:,2)**2+P(:,3)**2)
 !call RecPrt(' In Rowel: Distances',' ',a,nZeta,1)
 
 fac(0) = One

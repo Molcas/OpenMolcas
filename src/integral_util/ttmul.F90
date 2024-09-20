@@ -18,7 +18,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nRowA, nColA, nRowB
 real(kind=wp), intent(in) :: A(nRowA,nColA), B(nRowB,nRowA)
 real(kind=wp), intent(out) :: C(nColA,nRowB)
-integer(kind=iwp) :: i, Incj, j, jj, k, mCache, nCache_, njVec
+integer(kind=iwp) :: i, Incj, jj, k, mCache, nCache_, njVec
 
 nCache_ = (64/8)*1024
 mCache = (nCache_*3)/4-nRowA*nColA
@@ -31,15 +31,9 @@ do jj=1,nRowB,Incj
 
   do i=1,nColA
     ! Set target to zero
-    do j=jj,jj+njVec-1
-      C(i,j) = Zero
-    end do
+    C(i,jj:jj+njVec-1) = Zero
     do k=1,nRowA
-      if (A(k,i) /= Zero) then
-        do j=jj,jj+njVec-1
-          C(i,j) = C(i,j)+A(k,i)*B(j,k)
-        end do
-      end if
+      if (A(k,i) /= Zero) C(i,jj:jj+njVec-1) = C(i,jj:jj+njVec-1)+A(k,i)*B(jj:jj+njVec-1,k)
     end do
   end do
 

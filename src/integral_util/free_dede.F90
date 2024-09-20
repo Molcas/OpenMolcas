@@ -29,7 +29,7 @@ nullify(pFq)
 if (nIrrep == 1) then
   ! symmetrize fock matrix
   ! Fix the diagonal elements of D and F
-  call DScal_(nDens,Two,Dens,1)
+  Dens(:) = Two*Dens(:)
   nc = nbas(0)
   ijq = 0
   jiq = 1-nc

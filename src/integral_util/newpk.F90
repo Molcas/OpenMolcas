@@ -48,16 +48,10 @@ do iZeta=1,mZeta
   Tmp1 = TwoP54*exp(-Alpha(iZeta)*Beta(iZeta)*AB2*Tmp0)*Tmp0
   if (Tmp1 < 1.0e-99_wp) Tmp1 = 1.0e-99_wp
   rKappa(iZeta) = Tmp1
-  P(iZeta,1) = (Alpha(iZeta)*A(1)+Beta(iZeta)*B(1))*Tmp0
-  P(iZeta,2) = (Alpha(iZeta)*A(2)+Beta(iZeta)*B(2))*Tmp0
-  P(iZeta,3) = (Alpha(iZeta)*A(3)+Beta(iZeta)*B(3))*Tmp0
+  P(iZeta,:) = (Alpha(iZeta)*A(:)+Beta(iZeta)*B(:))*Tmp0
 end do
-do iZeta=mZeta+1,nZeta
-  rKappa(iZeta) = Zero
-  P(iZeta,1) = Zero
-  P(iZeta,2) = Zero
-  P(iZeta,3) = Zero
-end do
+rKappa(mZeta+1:) = Zero
+P(mZeta+1:,:) = Zero
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In NewPK: Kappa',' ',rKappa,mZeta,1)

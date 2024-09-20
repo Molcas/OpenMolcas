@@ -111,10 +111,7 @@ do
 
     ! Reset update vector
 
-    dEF(1,iGrid) = Zero
-    dEF(2,iGrid) = Zero
-    dEF(3,iGrid) = Zero
-    dEF(4,iGrid) = Zero
+    dEF(:,iGrid) = Zero
 
   end do
   do iGrid=1,nGrid_Eff

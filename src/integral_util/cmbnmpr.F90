@@ -28,8 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnr(nZeta,0:la+lb+lr)
 real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
-integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta, lcosf, lcost, lrs, lsinf, &
-                     lsint
+integer(kind=iwp) :: iComp, ipa, ipb, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, lcosf, lcost, lrs, lsinf, lsint
 real(kind=wp) :: Fact
 
 do ixa=0,la
@@ -60,9 +59,7 @@ do ixa=0,la
             lsinf = iya+iyb+iy
             lcosf = ixa+ixb+ix
             Fact = gammath(lsint,lcost)*gammaph(lsinf,lcosf)
-            do iZeta=1,nZeta
-              rFinal(iZeta,iComp,ipa,ipb) = Fact*Rnr(iZeta,lrs)
-            end do
+            rFinal(:,iComp,ipa,ipb) = Fact*Rnr(:,lrs)
           end do
         end do
 

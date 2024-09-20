@@ -31,10 +31,7 @@ do IRREP=1,NIRREP
   IND = IND+1
   iBlock = iBlock+1
   iTable(1,iBlock) = 1
-  iTable(2,iBlock) = IRREP-1
-  iTable(3,iBlock) = IRREP-1
-  iTable(4,iBlock) = IRREP-1
-  iTable(5,iBlock) = IRREP-1
+  iTable(2:5,iBlock) = IRREP-1
   iTable(6,iBlock) = IND
   !write(u6,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
 end do
@@ -48,10 +45,8 @@ do IRREP1=2,NIRREP
     IND = IND+1
     iBlock = iBlock+1
     iTable(1,iBlock) = 2
-    iTable(2,iBlock) = IRREP2-1
-    iTable(3,iBlock) = IRREP2-1
-    iTable(4,iBlock) = IRREP1-1
-    iTable(5,iBlock) = IRREP1-1
+    iTable(2:3,iBlock) = IRREP2-1
+    iTable(4:5,iBlock) = IRREP1-1
     iTable(6,iBlock) = IND
     !write(u6,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
   end do
@@ -68,10 +63,8 @@ do IRREP=2,NIRREP
       IND = IND+1
       iBlock = iBlock+1
       iTable(1,iBlock) = 3
-      iTable(2,iBlock) = IRREP1-1
-      iTable(3,iBlock) = IRREP2-1
-      iTable(4,iBlock) = IRREP1-1
-      iTable(5,iBlock) = IRREP2-1
+      iTable(2:4:2,iBlock) = IRREP1-1
+      iTable(3:5:2,iBlock) = IRREP2-1
       iTable(6,iBlock) = IND
       !write(u6,*) IND,IRREP1-1,IRREP2-1,IRREP1-1,IRREP2-1
     end if
@@ -87,7 +80,7 @@ do IRREP=2,NIRREP
     IRREP2 = ieor(IRREP-1,IRREP1-1)+1
     if (IRREP2 < IRREP1) cycle
     IBOT = max(IRREP1,IRREP2)+1
-    call IZERO(IDID,8)
+    IDID(:) = 0
     do ITMP=IBOT,NIRREP
       IRREP4 = ieor(ITMP-1,IRREP-1)+1
       IRREP3 = min(ITMP,IRREP4)

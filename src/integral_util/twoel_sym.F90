@@ -66,7 +66,7 @@ integer(kind=iwp) :: i
 #endif
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: EQ, lEmpty
+logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
 unused_var(iS_)
@@ -161,7 +161,7 @@ call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
 !***********************************************************************
 !                                                                      *
 kOp(1) = NrOpr(0)
-call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
+CoorM(:,1) = Coor(:,1)
 do lDCRR=0,nDCRR-1
   kOp(2) = NrOpr(iDCRR(lDCRR))
   call OA(iDCRR(lDCRR),Coor(:,2),CoorM(:,2))
@@ -177,7 +177,7 @@ do lDCRR=0,nDCRR-1
   MxDCRS = nDCRS-1
   do lDCRS=0,MxDCRS
     RS_doublet = real(lDCRS*nDCRR+lDCRR+1,kind=wp)
-    call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
+    CoorM(:,3) = Coor(:,3)
     call OA(iDCRS(lDCRS),Coor(:,4),CoorM(:,4))
     CeqD = EQ(Coor(:,3),CoorM(:,4))
 
@@ -444,14 +444,14 @@ do lDCRR=0,nDCRR-1
         ! the order as defined by the basis functions types.
 
         if (iAnga(1) >= iAnga(2)) then
-          call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
+          CoorAC(:,1) = CoorM(:,1)
         else
-          call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
+          CoorAC(:,1) = CoorM(:,2)
         end if
         if (iAnga(3) >= iAnga(4)) then
-          call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+          CoorAC(:,2) = CoorM(:,3)
         else
-          call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+          CoorAC(:,2) = CoorM(:,4)
         end if
 
         ! Set flags if triangularization will be used
@@ -487,11 +487,11 @@ do lDCRR=0,nDCRR-1
 
         do iZeta=1,nZeta_Tot,IncZet
           mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-          if (lEmpty(Coeff2,nBeta,nBeta,jBasj)) cycle
+          if (all(Coeff2(:,:) == Zero)) cycle
 
           do iEta=1,nEta_Tot,IncEta
             mEta = min(IncEta,nEta_Tot-iEta+1)
-            if (lEmpty(Coeff4,nDelta,nDelta,lBasl)) cycle
+            if (all(Coeff4(:,:) == Zero)) cycle
 
             call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
                         nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga, &
@@ -534,7 +534,7 @@ do lDCRR=0,nDCRR-1
         else
           FactNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
         end if
-        if (FactNd /= One) call DScal_(kabcd*nijkl,FactNd,Wrk(iW4),1)
+        if (FactNd /= One) Wrk(iW4:iW4+kabcd*nijkl-1) = FactNd*Wrk(iW4:iW4+kabcd*nijkl-1)
 
         ! Apply the transfer equation and transform the spherical
         ! harmonic gaussian.
@@ -553,7 +553,7 @@ do lDCRR=0,nDCRR-1
 
           ! Undo the late Cntrct
 
-          call dcopy_(nabcd*nijkl,Wrk(ipAOInt),1,Wrk(iW3),1)
+          Wrk(iW3:iW3+nabcd*nijkl-1) = Wrk(ipAOInt:ipAOInt+nabcd*nijkl-1)
           call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(ipAOInt),nijkl)
 
         end if

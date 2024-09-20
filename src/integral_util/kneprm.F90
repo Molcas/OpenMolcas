@@ -33,7 +33,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "prm_interface.fh"
-integer(kind=iwp) :: nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB, ipAOff, iAlpha, ipBOff, iBeta
+integer(kind=iwp) :: nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB, ipAOff, ipBOff, iBeta
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -99,15 +99,12 @@ call Assmbl(Array(ipQxyz),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp-2,Array(ipBxyz
 ! components.
 
 ipAOff = ipA
-do iBeta=1,nBeta
-  call dcopy_(nAlpha,Alpha,1,Array(ipAOff),1)
-  ipAOff = ipAOff+nAlpha
-end do
-
 ipBOff = ipB
-do iAlpha=1,nAlpha
-  call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
-  ipBOff = ipBOff+1
+do iBeta=1,nBeta
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha(:)
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
+  ipAOff = ipAOff+nAlpha
+  ipBOff = ipBOff+nAlpha
 end do
 
 call Kntc(Array(ipTxyz),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZeta)

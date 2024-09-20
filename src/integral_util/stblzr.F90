@@ -36,17 +36,25 @@ logical(kind=iwp), external :: RinT
 
 UeqV = .true.
 do i=1,nV
-  if (.not. RinT(iU,nU,iV(i))) UeqV = .false.
+  if (.not. RinT(iU,nU,iV(i))) then
+    UeqV = .false.
+    exit
+  end if
 end do
-do i=1,nU
-  if (.not. RinT(iV,nV,iU(i))) UeqV = .false.
-end do
+if (UeqV) then
+  do i=1,nU
+    if (.not. RinT(iV,nV,iU(i))) then
+      UeqV = .false.
+      exit
+    end if
+  end do
+end if
 
 if (UeqV) then
 
   ! M is formed as U union RU
 
-  call iCopy(nU,iU,1,iM,1)
+  iM(1:nU) = iU(:)
   nM = nU
   do i=1,nU
     iRU = ieor(iR,iU(i))

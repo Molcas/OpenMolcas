@@ -31,7 +31,7 @@ PRSUM = exp(BP*BP*A+EXPA)
 ALF = sqrt(A)
 ARG = (BP*ALF)**2
 nT = 1
-call dcopy_(kMax+1,[Zero],0,F,1)
+F(:) = Zero
 call Auxil([Arg],nT,F,nn-1)
 !call RecPrt(' In qRint:Fm',' ',F,nt,nn)
 GINT = Zero

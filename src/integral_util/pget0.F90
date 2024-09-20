@@ -42,7 +42,7 @@ implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
                                  iShell_A, iShell_B, iShell_C, iShell_D, nQuad
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
-integer(kind=iwp) :: i, ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, j, kOp(4), nSA
+integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA
 
 !                                                                      *
 !***********************************************************************
@@ -116,11 +116,7 @@ if (lPSO) then
         call Abend()
       end if
     else
-      do i=1,ijkl  !yma for testing
-        do j=1,nPSO
-          PSO(i,j) = Zero
-        end do
-      end do
+      PSO(:,:) = Zero  !yma for testing
 
       !write(u6,*) 'Print out in integral_util/pget0 before'
       !call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======

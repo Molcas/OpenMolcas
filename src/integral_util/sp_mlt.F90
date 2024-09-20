@@ -19,7 +19,7 @@ integer(kind=iwp), intent(in) :: ne, nVec, nab
 real(kind=wp), intent(in) :: W_In(ne,nVec), C(ne,nab)
 real(kind=wp), intent(out) :: W_Out(nVec,nab)
 integer(kind=iwp), parameter :: meMax = 10
-integer(kind=iwp) :: iab, iAux(meMax+1), ie, iVec, me
+integer(kind=iwp) :: iab, iAux(meMax+1), ie, me
 
 do iab=1,nab
   me = 0
@@ -34,66 +34,44 @@ do iab=1,nab
   select case (me)
 
     case (1)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)
     case (2)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)
     case (3)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)
     case (4)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)
     case (5)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)
     case (6)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)+C(iAux(6),iab)*W_In(iAux(6),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)+C(iAux(6),iab)*W_In(iAux(6),:)
     case (7)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)+C(iAux(6),iab)*W_In(iAux(6),iVec)+ &
-                          C(iAux(7),iab)*W_In(iAux(7),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)+C(iAux(6),iab)*W_In(iAux(6),:)+ &
+                     C(iAux(7),iab)*W_In(iAux(7),:)
     case (8)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)+C(iAux(6),iab)*W_In(iAux(6),iVec)+ &
-                          C(iAux(7),iab)*W_In(iAux(7),iVec)+C(iAux(8),iab)*W_In(iAux(8),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)+C(iAux(6),iab)*W_In(iAux(6),:)+ &
+                     C(iAux(7),iab)*W_In(iAux(7),:)+C(iAux(8),iab)*W_In(iAux(8),:)
     case (9)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)+C(iAux(6),iab)*W_In(iAux(6),iVec)+ &
-                          C(iAux(7),iab)*W_In(iAux(7),iVec)+C(iAux(8),iab)*W_In(iAux(8),iVec)+C(iAux(9),iab)*W_In(iAux(9),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)+C(iAux(6),iab)*W_In(iAux(6),:)+ &
+                     C(iAux(7),iab)*W_In(iAux(7),:)+C(iAux(8),iab)*W_In(iAux(8),:)+C(iAux(9),iab)*W_In(iAux(9),:)
     case (10)
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)+C(iAux(6),iab)*W_In(iAux(6),iVec)+ &
-                          C(iAux(7),iab)*W_In(iAux(7),iVec)+C(iAux(8),iab)*W_In(iAux(8),iVec)+C(iAux(9),iab)*W_In(iAux(9),iVec)+ &
-                          C(iAux(10),iab)*W_In(iAux(10),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)+C(iAux(6),iab)*W_In(iAux(6),:)+ &
+                     C(iAux(7),iab)*W_In(iAux(7),:)+C(iAux(8),iab)*W_In(iAux(8),:)+C(iAux(9),iab)*W_In(iAux(9),:)+ &
+                     C(iAux(10),iab)*W_In(iAux(10),:)
     case default
-      do iVec=1,nVec
-        W_Out(iVec,iab) = C(iAux(1),iab)*W_In(iAux(1),iVec)+C(iAux(2),iab)*W_In(iAux(2),iVec)+C(iAux(3),iab)*W_In(iAux(3),iVec)+ &
-                          C(iAux(4),iab)*W_In(iAux(4),iVec)+C(iAux(5),iab)*W_In(iAux(5),iVec)+C(iAux(6),iab)*W_In(iAux(6),iVec)+ &
-                          C(iAux(7),iab)*W_In(iAux(7),iVec)+C(iAux(8),iab)*W_In(iAux(8),iVec)+C(iAux(9),iab)*W_In(iAux(9),iVec)+ &
-                          C(iAux(10),iab)*W_In(iAux(10),iVec)
-      end do
+      W_Out(:,iab) = C(iAux(1),iab)*W_In(iAux(1),:)+C(iAux(2),iab)*W_In(iAux(2),:)+C(iAux(3),iab)*W_In(iAux(3),:)+ &
+                     C(iAux(4),iab)*W_In(iAux(4),:)+C(iAux(5),iab)*W_In(iAux(5),:)+C(iAux(6),iab)*W_In(iAux(6),:)+ &
+                     C(iAux(7),iab)*W_In(iAux(7),:)+C(iAux(8),iab)*W_In(iAux(8),:)+C(iAux(9),iab)*W_In(iAux(9),:)+ &
+                     C(iAux(10),iab)*W_In(iAux(10),:)
       do ie=iAux(meMax+1),ne
-        if (C(ie,iab) /= Zero) call DaXpY_(nVec,C(ie,iab),W_In(ie,1),ne,W_Out(1,iab),1)
+        if (C(ie,iab) /= Zero) W_Out(:,iab) = W_Out(:,iab)+C(ie,iab)*W_In(ie,:)
       end do
   end select
 end do

@@ -61,7 +61,7 @@ real(kind=wp), intent(in) :: FD(nFD,mFD)
 integer(kind=iwp), intent(out) :: ipOffD(2+mFD,nOffD), mDeDe, mIndij
 logical(kind=iwp), intent(in) :: Special_NoSym, DFT_Storage
 real(kind=wp), intent(inout) :: DeDe(nDeDe)
-integer(kind=iwp) :: i, iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, Inc, ipD00, iPrim, iPrimi, &
+integer(kind=iwp) :: i, iAO, iAOi, iBas, iBasi, iCmp, iCmpi, iDCRR(0:7), iFD, iHigh, ij, ijCmp, ijShll, ipD00, iPrim, iPrimi, &
                      ipStart, iS, iSh, iShell, iShll, iSmLbl, iuv, j, jAO, jAOj, jBas, jBasj, jCMp, jCmpj, jOffD, jpDAO, jPrim, &
                      jPrimj, jS, jSh, jShell, jShll, lDCRR, LmbdR, mdci, mdcj, nDCRR, nOp(2), nSkal, nSO
 real(kind=wp) :: FactND, Temp
@@ -92,12 +92,10 @@ end do
 
 mIndij = 0
 jOffD = 0
-Inc = 3
-if (mFD == 2) Inc = 4
-call ICopy(nOffD,[ipD00],0,ipOffD(1,1),Inc)
-if (mFD == 2) call ICopy(nOffD,[ipD00],0,ipOffD(4,1),Inc)
-call ICopy(nOffD,[nIrrep],0,ipOffD(2,1),Inc)
-call ICopy(nOffD,[MaxDe],0,ipOffD(3,1),Inc)
+ipOffD(1,:) = ipD00
+ipOffD(2,:) = nIrrep
+ipOffD(3,:) = MaxDe
+if (mFD == 2) ipOffD(4,:) = ipD00
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -292,7 +290,7 @@ do iS=1,nSkal
           jpDAO = 1
           do ijCmp=1,iCmp*jCmp
             if ((nIrrep /= 1) .or. (.not. Special_NoSym)) then
-              call dcopy_(iBas*jBas,DAO(jpDAO),1,DeDe(ipDeDe+jOffD),1)
+              DeDe(ipDeDe+jOffD:ipDeDe+jOffD+iBas*jBas-1) = DAO(jpDAO:jpDAO+iBas*jBas-1)
               jOffD = jOffD+iBas*jBas
             end if
             ! Find the largest density for this angular combination

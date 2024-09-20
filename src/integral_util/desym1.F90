@@ -70,11 +70,11 @@ do j1=0,nIrrep-1
         ! Parity factor due to symmetry operations applied to
         ! angular part of the basis function.
 
-        call DaXpY_(iBas*jBas,Deg*Xa*Xb,DSO(1,lSO),1,DAO(1,i1,i2),1)
+        DAO(:,i1,i2) = DAO(:,i1,i2)+Deg*Xa*Xb*DSO(:,lSO)
 
         if ((iShell == jShell) .and. (j1 == j2) .and. (i1 /= i2)) then
           call DGeTMO(DSO(1,lSO),iBas,iBas,jBas,Scrt,jBas)
-          call DaXpY_(iBas*jBas,Deg*Xa*Xb,Scrt,1,DAO(1,i2,i1),1)
+          DAO(:,i2,i1) = DAO(:,i2,i1)+Deg*Xa*Xb*Scrt(:)
         end if
       end do
     end do

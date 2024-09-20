@@ -33,7 +33,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nCntr1, nPrm1, nCntr2, nPrm2, lZeta, nVec, IncVec, Indij(lZeta)
 real(kind=wp), intent(in) :: Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2), A1(nVec,nCntr1,nCntr2)
 real(kind=wp), intent(out) :: A2(nPrm2,IncVec,nCntr1), A3(lZeta,nVec)
-integer(kind=iwp) :: iCntr1, iCntr2, iiVec, iPrm1, iPrm2, iVec, iZeta, mVec
+integer(kind=iwp) :: iCntr1, iCntr2, iiVec, iPrm1, iPrm2, iZeta, mVec
 logical(kind=iwp) :: Seg1, Seg2
 
 ! Check if the basis set is segmented
@@ -60,14 +60,14 @@ end do loop2
 
 ! Set output matrix to zero
 
-call FZero(A3,nVec*lZeta)
+A3(:,:) = Zero
 
 ! Loop sectioning
 
 do iiVec=1,nVec,IncVec
   mVec = min(IncVec,nVec-iiVec+1)
   ! Set intermediate matrix to zero
-  call FZero(A2,nPrm2*IncVec*nCntr1)
+  A2(:,:,:) = Zero
 
   if (Seg2) then
 
@@ -76,13 +76,8 @@ do iiVec=1,nVec,IncVec
     do iPrm2=1,nPrm2
       do iCntr2=1,nCntr2
         ! Check for zero due to segmented basis
-        if (abs(Coeff2(iPrm2,iCntr2)) > Zero) then
-          do iCntr1=1,nCntr1
-            do iVec=1,mVec
-              A2(iPrm2,iVec,iCntr1) = A2(iPrm2,iVec,iCntr1)+Coeff2(iPrm2,iCntr2)*A1(iVec+iiVec-1,iCntr1,iCntr2)
-            end do
-          end do
-        end if
+        if (abs(Coeff2(iPrm2,iCntr2)) > Zero) &
+           A2(iPrm2,1:mVec,:) = A2(iPrm2,1:mVec,:)+Coeff2(iPrm2,iCntr2)*A1(iiVec:iiVec+mVec-1,:,iCntr2)
       end do
     end do
 
@@ -90,11 +85,7 @@ do iiVec=1,nVec,IncVec
 
     do iPrm2=1,nPrm2
       do iCntr2=1,nCntr2
-        do iCntr1=1,nCntr1
-          do iVec=1,mVec
-            A2(iPrm2,iVec,iCntr1) = A2(iPrm2,iVec,iCntr1)+Coeff2(iPrm2,iCntr2)*A1(iVec+iiVec-1,iCntr1,iCntr2)
-          end do
-        end do
+        A2(iPrm2,1:mVec,:) = A2(iPrm2,1:mVec,:)+Coeff2(iPrm2,iCntr2)*A1(iiVec:iiVec+mVec-1,:,iCntr2)
       end do
     end do
 
@@ -109,11 +100,8 @@ do iiVec=1,nVec,IncVec
         iPrm2 = (Indij(iZeta)-1)/nPrm1+1
         iPrm1 = Indij(iZeta)-(iPrm2-1)*nPrm1
         ! Check for zero due to segmented basis
-        if (abs(Coeff1(iPrm1,iCntr1)) > Zero) then
-          do iVec=iiVec,iiVec+mVec-1
-            A3(iZeta,iVec) = A3(iZeta,iVec)+Coeff1(iPrm1,iCntr1)*A2(iPrm2,iVec-iiVec+1,iCntr1)
-          end do ! iVec
-        end if
+        if (abs(Coeff1(iPrm1,iCntr1)) > Zero) &
+            A3(iZeta,iiVec:iiVec+mVec-1) = A3(iZeta,iiVec:iiVec+mVec-1)+Coeff1(iPrm1,iCntr1)*A2(iPrm2,1:mVec,iCntr1)
       end do     ! iZeta
     end do       ! iCntr1
 
@@ -125,9 +113,7 @@ do iiVec=1,nVec,IncVec
       do iZeta=1,lZeta
         iPrm2 = (Indij(iZeta)-1)/nPrm1+1
         iPrm1 = Indij(iZeta)-(iPrm2-1)*nPrm1
-        do iVec=iiVec,iiVec+mVec-1
-          A3(iZeta,iVec) = A3(iZeta,iVec)+Coeff1(iPrm1,iCntr1)*A2(iPrm2,iVec-iiVec+1,iCntr1)
-        end do ! iVec
+        A3(iZeta,iiVec:iiVec+mVec-1) = A3(iZeta,iiVec:iiVec+mVec-1)+Coeff1(iPrm1,iCntr1)*A2(iPrm2,1:mVec,iCntr1)
       end do   ! iZeta
     end do     ! iCntr1
 

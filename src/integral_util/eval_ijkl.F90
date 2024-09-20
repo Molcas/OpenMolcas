@@ -380,24 +380,20 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
 
   integer(kind=iwp), intent(in) :: nijkl, nComp, nA
   real(kind=wp), target, intent(inout) :: IntRaw(nijkl*nComp*nA)
-  real(kind=wp), pointer :: IntIn(:,:,:), IntOut(:,:,:)
+  real(kind=wp), pointer :: IntIn(:,:,:), IntOut(:,:)
   integer(kind=iwp) :: i_ijkl, iA
 
   IntIn(1:nijkl,1:nComp,1:nA) => IntRaw(:)
-  IntOut(1:nijkl,1:1,1:nA) => IntRaw(1:nijkl*nA)
+  IntOut(1:nijkl,1:nA) => IntRaw(1:nijkl*nA)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'nijkl,nComp,nA=',nijkl,nComp,nA
   call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
 # endif
 
-  do iA=1,nA
-    do i_ijkl=1,nijkl
-      IntOut(i_ijkl,1,iA) = IntIn(i_ijkl,1,iA)+IntIn(i_ijkl,4,iA)+IntIn(i_ijkl,6,iA)
-    end do
-  end do
+  IntOut(:,:) = IntIn(:,:)+IntIn(:,4,:)+IntIn(:,6,:)
 
-  IntIn => null()
-  IntOut => null()
+  nullify(IntIn)
+  nullify(IntOut)
 
 end subroutine ReSort_Int
 #endif

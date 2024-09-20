@@ -9,8 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 subroutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,Integrals)
@@ -101,11 +103,3 @@ call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,iSta
 return
 
 end subroutine OneEl_Integrals
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(OneEl_Integrals)
-
-#endif

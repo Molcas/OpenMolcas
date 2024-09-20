@@ -32,9 +32,7 @@ do i=0,lmax
   tal = One/anorm(i,0,0)
   lm2 = i/2
   do j=0,lm2
-    do k=0,j
-      anorm(i,j,k) = anorm(i,j,k)*tal
-    end do
+    anorm(i,j,0:j) = anorm(i,j,0:j)*tal
   end do
 end do
 

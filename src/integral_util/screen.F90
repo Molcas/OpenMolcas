@@ -37,7 +37,7 @@ subroutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,k2Data1,k2Data2,Z
 !***********************************************************************
 
 use k2_structure, only: k2_type
-use Constants, only: Zero, One, Four
+use Constants, only: Zero, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -120,9 +120,9 @@ if (.not. Skip) then
   end if
 
   if (lZeta /= 0) then
-    if (iphX1 /= 1) call DScal_(lZeta,-One,P(1,1),1)
-    if (iphY1 /= 1) call DScal_(lZeta,-One,P(1,2),1)
-    if (iphZ1 /= 1) call DScal_(lZeta,-One,P(1,3),1)
+    if (iphX1 /= 1) P(1:lZeta,1) = -P(1:lZeta,1)
+    if (iphY1 /= 1) P(1:lZeta,2) = -P(1:lZeta,2)
+    if (iphZ1 /= 1) P(1:lZeta,3) = -P(1:lZeta,3)
 
     ! prescreen eta pairs
     if (.not. Prescreen_On_Int_Only) then
@@ -158,9 +158,9 @@ if (.not. Skip) then
       end do
     end if
     if (lEta /= 0) then
-      if (iphX2 /= 1) call DScal_(lEta,-One,Q(1,1),1)
-      if (iphY2 /= 1) call DScal_(lEta,-One,Q(1,2),1)
-      if (iphZ2 /= 1) call DScal_(lEta,-One,Q(1,3),1)
+      if (iphX2 /= 1) Q(1:lEta,1) = -Q(1:lEta,1)
+      if (iphY2 /= 1) Q(1:lEta,2) = -Q(1:lEta,2)
+      if (iphZ2 /= 1) Q(1:lEta,3) = -Q(1:lEta,3)
     end if
   end if
 end if

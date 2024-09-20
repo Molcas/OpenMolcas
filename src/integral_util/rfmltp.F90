@@ -24,7 +24,7 @@ subroutine RFmltp()
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use rctfld_module, only: Eps, EpsInf, lMax, lRF, lRFCav, MM, NonEq_ref, PCM, rds
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -39,12 +39,11 @@ call mma_allocate(VTot,nComp,Label='VTot')
 call mma_allocate(QTot,nComp,Label='QTot')
 
 if (lRF .and. (.not. PCM) .and. lRFCav) then
-  call dcopy_(nComp,MM(1,1),1,QTot,1)
-  call DaXpY_(nComp,One,MM(1,2),1,QTot,1)
+  QTot(:) = MM(:,1)+MM(:,2)
 # ifdef _DEBUGPRINT_
   call RecPrt('Total Multipole Moments',' ',QTot,1,nComp)
 # endif
-  call dcopy_(nComp,QTot,1,VTot,1)
+  VTot(:) = QTot(:)
   ! Compute the electric field due to the total charge distribution.
   call AppFld(VTot,rds,Eps,lMax,EpsInf,NonEq_ref)
 # ifdef _DEBUGPRINT_

@@ -20,7 +20,6 @@ subroutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp)
 !***********************************************************************
 
 use Index_Functions, only: C_Ind, nTri_Elem1, nTri3_Elem
-use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -30,11 +29,9 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la,0:lb,0:lr), Zeta(nZeta), rKappa(nZeta)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp), Fact(nZeta), Temp(nZeta)
-integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, iZeta
+integer(kind=iwp) :: iComp, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb
 
-do iZeta=1,nZeta
-  Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**(-Three/Two)
-end do
+Fact(:) = rKappa(:)*sqrt(Zeta(:)**(-3))
 do ixa=0,la
   iyaMax = la-ixa
   do ixb=0,lb
@@ -54,15 +51,11 @@ do ixa=0,la
 
         do ix=0,lr
           do iy=0,lr-ix
-            do iZeta=1,nZeta
-              Temp(iZeta) = Fact(iZeta)*Rnxyz(iZeta,1,ixa,ixb,ix)*Rnxyz(iZeta,2,iya,iyb,iy)
-            end do
+            Temp(:) = Fact(:)*Rnxyz(:,1,ixa,ixb,ix)*Rnxyz(:,2,iya,iyb,iy)
             do ir=ix+iy,lr
               iz = ir-ix-iy
               iComp = C_Ind(ir,ix,iz)+nTri3_Elem(ir)
-              do iZeta=1,nZeta
-                rFinal(iZeta,ipa,ipb,iComp) = Temp(iZeta)*Rnxyz(iZeta,3,iza,izb,iz)
-              end do
+              rFinal(:,ipa,ipb,iComp) = Temp(:)*Rnxyz(:,3,iza,izb,iz)
             end do
           end do
         end do

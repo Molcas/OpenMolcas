@@ -56,7 +56,7 @@ nPSOPam = n1*n2*n3*n4
 ! with number of basis functions in each irrep in nPam.
 ! Observe that the SO index is only within a given irrep.
 
-call ICopy(4*8,[0],0,nPam,1)
+nPam(:,:) = 0
 in1 = 0
 do jPam=1,4
   in2 = 0

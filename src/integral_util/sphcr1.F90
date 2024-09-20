@@ -71,11 +71,11 @@ else if (Tr3) then
   call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
 else
   ! Transpose IJKL,AB,cd to cd,IJKL,AB
-  call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
+  Scrt(1:ijkla*kCar*lCar) = Win(1:ijkla*kCar*lCar)
   if (kCar*lCar /= 1) then
     call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
   else
-    call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
+    Wout(1:ijkla*kCar*lCar) = Scrt(1:ijkla*kCar*lCar)
   end if
 end if
 

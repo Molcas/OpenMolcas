@@ -58,14 +58,12 @@ call RecPrt('Cmpct:abcd',' ',abcd,mijkl,(na*nb)**2)
 ! Move data
 
 if (AeqB) then
-  call ICopy(mijkl,Ind_Pair,1,IndZ(iOff+1),1)
-  call dcopy_(mijkl,Zeta,1,xZeta(iOff+1),1)
-  call dcopy_(mijkl,KappAB,1,xKapp(iOff+1),1)
-  call dcopy_(mijkl,P(1,1),1,xP(iOff+1,1),1)
-  call dcopy_(mijkl,P(1,2),1,xP(iOff+1,2),1)
-  call dcopy_(mijkl,P(1,3),1,xP(iOff+1,3),1)
-  call dcopy_(mijkl,Alpha,1,xAlpha(iOff+1),1)
-  call dcopy_(mijkl,Beta,1,xBeta(iOff+1),1)
+  IndZ(iOff+1:iOff+mijkl) = Ind_Pair(:)
+  xZeta(iOff+1:iOff+mijkl) = Zeta(:)
+  xKapp(iOff+1:iOff+mijkl) = KappAB(:)
+  xP(iOff+1:iOff+mijkl,:) = P(1:mijkl,:)
+  xAlpha(iOff+1:iOff+mijkl) = Alpha(:)
+  xBeta(iOff+1:iOff+mijkl) = Beta(:)
   do ijkl=1,mijkl
     ijkl_ = Ind_Pair(ijkl)
     xZInv(iOff+ijkl) = One/Zeta(ijkl)
@@ -73,6 +71,9 @@ if (AeqB) then
     Temp = Zero
     do ia=1,na
       do ib=1,nb
+#       ifdef _BUGGY_INTEL_OPTIM_
+        if (Jnd < -1) call Abend()
+#       endif
         Temp = max(Temp,abs(abcd(ijkl,ia,ib,ia,ib)))
       end do
     end do

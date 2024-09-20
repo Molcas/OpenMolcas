@@ -36,15 +36,9 @@ do jj=1,nRowB,Incj
 
   do i=1,nRowA
     ! Set target to zero
-    do j=jj,jj+njVec-1
-      C(i,j) = Zero
-    end do
+    C(i,jj:jj+njVec-1) = Zero
     do k=1,nColA
-      if (A(i,k) /= Zero) then
-        do j=jj,jj+njVec-1
-          C(i,j) = C(i,j)+A(i,k)*B(j,k)
-        end do
-      end if
+      if (A(i,k) /= Zero) C(i,jj:jj+njVec-1) = C(i,jj:jj+njVec-1)+A(i,k)*B(jj:jj+njVec-1,k)
     end do
   end do
 
@@ -82,22 +76,7 @@ do i=1,ncol
   do j=1,nrow-15,16
     s(:) = Zero
     do k=1,nnot
-      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
-      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
-      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
-      s(4) = s(4)+a(i,ind(k))*b(j+3,ind(k))
-      s(5) = s(5)+a(i,ind(k))*b(j+4,ind(k))
-      s(6) = s(6)+a(i,ind(k))*b(j+5,ind(k))
-      s(7) = s(7)+a(i,ind(k))*b(j+6,ind(k))
-      s(8) = s(8)+a(i,ind(k))*b(j+7,ind(k))
-      s(9) = s(9)+a(i,ind(k))*b(j+8,ind(k))
-      s(10) = s(10)+a(i,ind(k))*b(j+9,ind(k))
-      s(11) = s(11)+a(i,ind(k))*b(j+10,ind(k))
-      s(12) = s(12)+a(i,ind(k))*b(j+11,ind(k))
-      s(13) = s(13)+a(i,ind(k))*b(j+12,ind(k))
-      s(14) = s(14)+a(i,ind(k))*b(j+13,ind(k))
-      s(15) = s(15)+a(i,ind(k))*b(j+14,ind(k))
-      s(16) = s(16)+a(i,ind(k))*b(j+15,ind(k))
+      s(:) = s(:)+a(i,ind(k))*b(j:j+15,ind(k))
     end do
     r(i,j:j+15) = s(:)
   end do
@@ -109,14 +88,7 @@ do i=1,ncol
   if (nr1 >= 8) then
     s(1:8) = Zero
     do k=1,nnot
-      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
-      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
-      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
-      s(4) = s(4)+a(i,ind(k))*b(j+3,ind(k))
-      s(5) = s(5)+a(i,ind(k))*b(j+4,ind(k))
-      s(6) = s(6)+a(i,ind(k))*b(j+5,ind(k))
-      s(7) = s(7)+a(i,ind(k))*b(j+6,ind(k))
-      s(8) = s(8)+a(i,ind(k))*b(j+7,ind(k))
+      s(1:8) = s(1:8)+a(i,ind(k))*b(j:j+7,ind(k))
     end do
     r(i,j:j+7) = s(1:8)
     nr1 = nr1-8
@@ -126,37 +98,31 @@ do i=1,ncol
   if (nr1 >= 4) then
     s(1:4) = Zero
     do k=1,nnot
-      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
-      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
-      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
-      s(4) = s(4)+a(i,ind(k))*b(j+3,ind(k))
+      s(1:4) = s(1:4)+a(i,ind(k))*b(j:j+3,ind(k))
     end do
     r(i,j:j+3) = s(1:4)
     nr1 = nr1-4
     j = j+4
   end if
 
-  if (nr1 == 1) then
+  if (nr1 == 3) then
+    s(1:3) = Zero
+    do k=1,nnot
+      s(1:3) = s(1:3)+a(i,ind(k))*b(j:j+2,ind(k))
+    end do
+    r(i,j:j+2) = s(1:3)
+  else if (nr1 == 2) then
+    s(1:2) = Zero
+    do k=1,nnot
+      s(1:2) = s(1:2)+a(i,ind(k))*b(j:j+1,ind(k))
+    end do
+    r(i,j:j+1) = s(1:2)
+  else if (nr1 == 1) then
     s(1) = Zero
     do k=1,nnot
       s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
     end do
     r(i,j) = s(1)
-  else if (nr1 == 2) then
-    s(1:2) = Zero
-    do k=1,nnot
-      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
-      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
-    end do
-    r(i,j:j+1) = s(1:2)
-  else if (nr1 == 3) then
-    s(1:3) = Zero
-    do k=1,nnot
-      s(1) = s(1)+a(i,ind(k))*b(j,ind(k))
-      s(2) = s(2)+a(i,ind(k))*b(j+1,ind(k))
-      s(3) = s(3)+a(i,ind(k))*b(j+2,ind(k))
-    end do
-    r(i,j:j+2) = s(1:3)
   else if (nr1 > 3) then
     call WarningMessage(2,'nr1 > 3')
     call Abend()

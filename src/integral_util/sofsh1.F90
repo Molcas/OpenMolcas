@@ -44,7 +44,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSkal, nSym, nSOs
-integer(kind=iwp) :: i, iAO, iCmp, iPtr, iRP, iSkal, iSO, iSOB, iTmp(1), nShBfi, nShOff(0:7)
+integer(kind=iwp) :: i, iAO, iCmp, iPtr, iRP, iSkal, iSO, iSOB, nShBfi, nShOff(0:7)
 
 ! Allocate all memory
 
@@ -105,12 +105,9 @@ end do
 
 ! and now set up SO-Shell and Shell-Psudoshell index vectors...
 
-iTmp = 0 ! Use iTmp to get round compiler bug on some machines
-call ICopy(nSym,iTmp,0,nShIrp,1)
-
-iTmp = -9999999
-call ICopy(nSOs,iTmp,0,iSO2Sh,1)
-call ICopy(nSkal*nSym,iTmp,0,iSh2Sh,1)
+nShIrp(0:nSym-1) = 0
+iSO2Sh(:) = -9999999
+iSh2Sh(:,:) = -9999999
 
 ! Loop over irreps...
 

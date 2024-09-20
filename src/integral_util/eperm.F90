@@ -34,7 +34,7 @@ use external_centers, only: iXPolType, nOrd_XF, nXF, nXMolnr, XF, XMolnr
 use Symmetry_Info, only: iChBas
 use Integral_interfaces, only: int_kernel, int_mem
 use Gateway_global, only: PrPrt
-use rctfld_module, only: fMax, lMax, lRFCav, nGrid, Scal14
+use rctfld_module, only: fMax, lMax, lRFCav, Scal14
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -149,7 +149,7 @@ if (lRFCav) then  !Skip calculation of moments if no cavity
 
   ! Add nuclear MM expansion to the electronic one
 
-  call DaXpY_(nCavxyz_,One,Ravxyz,1,Cavxyz,1)
+  Cavxyz(:) = Cavxyz(:)+Ravxyz(:)
 
 # ifdef _DEBUGPRINT_
   call RecPrt('Electronic+Nuclear Moments',' ',Cavxyz,1,nCavxyz_)
@@ -194,7 +194,7 @@ PrPrt = .true.
 
 do iGrid=1,nGrid_
   write(Label,'(A,I5)') 'EF ',iGrid
-  call dcopy_(3,Grid(1,iGrid),1,Ccoor,1)
+  Ccoor(:) = Grid(:,iGrid)
   iSymC = 1
   if (Ccoor(1) /= Zero) iSymC = ibset(iSymC,iSymX)
   if (Ccoor(2) /= Zero) iSymC = ibset(iSymC,iSymY)
@@ -217,7 +217,7 @@ do iGrid=1,nGrid_
       if (Ccoor(iComp) /= Zero) iSym = ibset(iSym,0)
       lOper(iComp) = MltLbl(iSymC,iSym)
       kOper(iComp) = iChBas(iComp+1)
-      call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
+      C_Coor(:,iComp) = Ccoor(:)
     end do
   end do
 
@@ -230,7 +230,7 @@ do iGrid=1,nGrid_
 end do
 
 ! Add XF contribution to the total field
-call DaXpY_(4*nGrid,One,xfEF,1,dEF,1)
+dEF(:,:) = dEF(:,:)+xfEF(:,:)
 
 PrPrt = Save_tmp
 

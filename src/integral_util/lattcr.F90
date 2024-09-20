@@ -80,14 +80,9 @@ do ii=-(maxa+1),maxa,nSparse
           co(1) = xs+cordsi(1,l)
           co(2) = ys+cordsi(2,l)
           co(3) = zs+cordsi(3,l)
-          xp = Zero
-          yp = Zero
-          zp = Zero
-          do m=1,3
-            xp = xp+co(m)*tr(1,m)
-            yp = yp+co(m)*tr(2,m)
-            zp = zp+co(m)*tr(3,m)
-          end do
+          xp = sum(co(:)*tr(1,:))
+          yp = sum(co(:)*tr(2,:))
+          zp = sum(co(:)*tr(3,:))
           rp2 = xp*xp+yp*yp+zp*zp
           if (rp2 > radlat**2) exit outer
           if (lRFCav) then
@@ -165,14 +160,9 @@ do ii=-(maxa+1),maxa,nSparse
               co(1) = xs+cordsi(1,l)
               co(2) = ys+cordsi(2,l)
               co(3) = zs+cordsi(3,l)
-              xp = Zero
-              yp = Zero
-              zp = Zero
-              do m=1,3
-                xp = xp+co(m)*tr(1,m)
-                yp = yp+co(m)*tr(2,m)
-                zp = zp+co(m)*tr(3,m)
-              end do
+              xp = sum(co(:)*tr(1,:))
+              yp = sum(co(:)*tr(2,:))
+              zp = sum(co(:)*tr(3,:))
               rp2 = xp*xp+yp*yp+zp*zp
               if (rp2 > radlat**2) cycle
               if (lRFCav) then

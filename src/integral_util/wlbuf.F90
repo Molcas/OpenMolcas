@@ -49,7 +49,7 @@ if (iPos /= 1) then
     !write(u6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
     if ((temp <= DiskMx_Byte) .and. OnDisk) then
       !write(u6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-      call dCopy_(lBuf,[Zero],0,Buffer(1,iBuf),1)
+      Buffer(:,iBuf) = Zero
       call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
     end if
   else

@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nH
 real(kind=wp), intent(inout) :: H(nH,nH)
 integer(kind=iwp), intent(out) :: iNeg
-integer(kind=iwp) :: i, ii, ij, j
+integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: SumHii, Temp
 real(kind=wp), allocatable :: Diag(:,:), EVal(:), EVec(:,:), HU(:,:)
 
@@ -42,8 +42,7 @@ end do
 
 ! Set up a unit matrix
 
-call dcopy_(nH*nH,[Zero],0,EVec,1)
-call dcopy_(nH,[One],0,EVec,nH+1)
+call unitmat(EVec,nH)
 
 ! Compute eigenvalues and eigenvectors
 
@@ -54,17 +53,15 @@ call Jacord(EVal,EVec,nH,nH)
 
 iNeg = 0
 do i=1,nH
-  ii = nTri_Elem(i)
-  if (EVal(ii) < Zero) iNeg = iNeg+1
+  if (EVal(nTri_Elem(i)) < Zero) iNeg = iNeg+1
 end do
 
 call mma_allocate(Diag,nH,nH,label='Diag')
 call mma_allocate(HU,nH,nH,label='HU')
 
-call dcopy_(nH*nH,[Zero],0,Diag,1)
+Diag(:,:) = Zero
 do i=1,nH
-  ii = nTri_Elem(i)
-  temp = EVal(ii)
+  temp = EVal(nTri_Elem(i))
   !write(u6,'(A,G10.4)') 'Hii=',temp
   Diag(i,i) = max(abs(temp),1.0e-15_wp)
 end do

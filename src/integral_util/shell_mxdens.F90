@@ -19,6 +19,7 @@ subroutine Shell_MxDens(Dens,DMax,nSkal)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,7 +30,7 @@ integer(kind=iwp) :: i, ia, ie, ij, ijOff, irp, iSh, j, ja, je, jSh, m, n
 integer(kind=iwp), external :: nbfshl
 
 ijoff = 0
-call fzero(dmax,nskal*nskal)
+dmax(:,:) = Zero
 do irp=0,nirrep-1
   ie = 0
   do iSh=1,nSkal

@@ -29,22 +29,19 @@ real(kind=wp), allocatable :: grint(:,:)
 call RecPrt(' In Binte: Alfa',' ',alfa,nz,1)
 call RecPrt(' In Binte: A   ',' ',a,nz,1)
 #endif
-call dcopy_(nz*(k+1)*(k/2+1)*(k/4+1),[Zero],0,ggrin,1)
+ggrin(:,:,:,:) = Zero
 call mma_allocate(grint,[0,kmax],[1,kmax],label='grint')
 do iz=1,nz
-  call dcopy_((kMax+1)*kMax,[Zero],0,grint,1)
+  grint(:,:) = Zero
   call rrint(k,alfa(iz),a(iz),beta,r0,grint,kmax)
   do i=0,k
     do j=0,i,2
       j2 = j/2+1
       ggrin(iz,i,j2,1) = Zero
-      do l=j,i
-        if (i-l == 0) then
-          ggrin(iz,i,j2,1) = ggrin(iz,i,j2,1)+grint(l,j2)*binom(i-j,l-j)
-        else
-          ggrin(iz,i,j2,1) = ggrin(iz,i,j2,1)+grint(l,j2)*a(iz)**(i-l)*binom(i-j,l-j)
-        end if
+      do l=j,i-1
+        ggrin(iz,i,j2,1) = ggrin(iz,i,j2,1)+grint(l,j2)*a(iz)**(i-l)*binom(i-j,l-j)
       end do
+      ggrin(iz,i,j2,1) = ggrin(iz,i,j2,1)+grint(l,j2)*binom(i-j,l-j)
       ind = 1
       do k2=2,j2-1,2
         tal = fiint((j-k2)/2,k2/2)/fiint(j/2,0)
