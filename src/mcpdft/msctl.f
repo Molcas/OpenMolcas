@@ -245,7 +245,14 @@ c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
 !matrices from the JOBIPH file.
       do jroot=1,lroots
         iIntS=jRoot
-
+        Tau_a1  = Zero
+        Tau_b1  = Zero
+        Tau_a2  = Zero
+        Tau_b2  = Zero
+        Lapl_a1 = Zero
+        Lapl_b1 = Zero
+        Lapl_a2 = Zero
+        Lapl_b2 = Zero
        !Load a fresh FockI and FockA
         Call dcopy_(ntot1,FI,1,FockI,1)
         Call dcopy_(ntot1,FA,1,FockA,1)

@@ -25,7 +25,9 @@ module mcpdft_input
     logical :: meci = .false.
     logical :: nac = .false.
     logical :: is_hdf5_wfn = .false.
+    logical :: extparam = .false.
     character(len=256) :: wfn_file = ""
+    character(len=256) :: extparamfile = ""
 
     integer(kind=iwp),dimension(2) :: nac_states = 0
     type(OTFNAL_t) :: otfnal
@@ -128,6 +130,16 @@ contains
 
       case("MECI")
         mcpdft_options%meci = .true.
+
+      case("EXPM")
+        if(.not. next_non_comment(lu_input,buffer)) then
+          call EOFError(buffer)
+        endif
+        read(buffer,*,IOStat=iError) mcpdft_options%extparamfile
+        call f_inquire(mcpdft_options%extparamfile, mcpdft_options%extparam)
+        if (.not. mcpdft_options%extparam) then
+          call FileLocatingError(buffer, mcpdft_options%extparamfile)
+        endif
 
         ! Done with reading input
       case("END ")
@@ -240,6 +252,16 @@ contains
     character(len=*),intent(in) :: buffer
 
     call WarningMessage(2,"I/O error when reading line.")
+    write(u6,*) "Last line read from input: ",buffer
+    call Quit_OnUserError()
+  endsubroutine
+
+  subroutine FileLocatingError(buffer, filename)
+    use definitions,only:u6
+    implicit none
+    character(len=*),intent(in) :: buffer, filename
+
+    call WarningMessage(2,"Error in locating file " // filename)
     write(u6,*) "Last line read from input: ",buffer
     call Quit_OnUserError()
   endsubroutine

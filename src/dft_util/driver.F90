@@ -14,7 +14,7 @@
 subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
 use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, libxc_functionals, nFuncs, nFuncs_max, &
-                            remove_libxc_functionals
+                            remove_libxc_functionals, lExtParams, Set_External_Params
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
                         xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_GGA_K_TFVW, XC_LDA_K_TF, XC_UNPOLARIZED
 use Functionals, only: Get_Funcs
@@ -23,7 +23,7 @@ use KSDFT_Info, only: Do_PDFTPOT
 use OFembed, only: dFMD, Do_Core, KEOnly
 use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
-use nq_Info, only: Functional_type, GGA_Type, LDA_Type
+use nq_Info, only: Functional_type, GGA_Type, LDA_Type, meta_GGA_Type1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -143,9 +143,12 @@ end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. l_CasDFT) then
-  write(u6,*) ' MC-PDFT combined with invalid functional class'
-  call Abend()
+if (l_CasDFT) then
+  if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. (Functional_type /= meta_GGA_type1)) then
+    write(u6,*) ' MC-PDFT combined with invalid functional class'
+    write(u6,*) Functional_type
+    call Abend()
+  end if
 end if
 !                                                                      *
 !***********************************************************************
@@ -207,6 +210,8 @@ nFuncs = j
 ! If the libxc interface is used do the proper initialization and closure.
 
 if (associated(Sub,libxc_functionals)) call Initiate_libxc_functionals(nD)
+
+if (lExtParams) call Set_External_Params()
 
 call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK,IsFT)
 

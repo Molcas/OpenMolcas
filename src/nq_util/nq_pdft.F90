@@ -25,18 +25,18 @@ private
 
 real(kind=wp), parameter :: fta = -475.6065601_wp, ftb = -379.4733192_wp, ftc = -85.3814968_wp, ThrsFT = 0.9_wp, ThrsNT = 1.15_wp, &
                             ThrsOMR = 1.0e-15_wp, ThrsRho = 1.0e-15_wp
-logical(kind=iwp) :: lft = .false., lGGA = .false.
+logical(kind=iwp) :: lft = .false., lGGA = .false.,lmGGA1 = .false., lmGGA2 = .false.
 real(kind=wp), allocatable :: d2RdRho2(:), d2RdRhodPi(:), d2ZdR2(:), dEdPi(:), dEdPiMO(:,:), dEdPix(:), dEdPiy(:), dEdPiz(:), &
                               dEdRho(:), dEdRhox(:), dEdRhoy(:), dEdRhoz(:), dF_dRhoamb(:), dF_dRhoapb(:), dF_dRhoxamb(:), &
                               dF_dRhoxapb(:), dF_dRhoyamb(:), dF_dRhoyapb(:), dF_dRhozamb(:), dF_dRhozapb(:), dRdPi(:), dRdRho(:), &
                               dRhodX(:), dRhodY(:), dRhodZ(:), dZdR(:), dZdRho(:), GdEdPiMO(:,:), GradPidFdRho(:), GradRdFdRho(:), &
                               GradRhodFdRho(:), MOas(:,:), MOax(:,:), MOay(:,:), MOaz(:,:), OneMZ(:), OnePZ(:), RatioA(:), &
-                              RhoAB(:), ZetaA(:)
+                              RhoAB(:), ZetaA(:),TauAB(:),LaplAB(:)
 logical(kind=iwp), allocatable :: Pass1(:), Pass2(:), Pass3(:)
 
 public :: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoamb, &
           dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhodX, dRhodY, &
-          dRhodZ, dZdR, dZdRho, fta, ftb, ftc, GdEdPiMO, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, &
-          MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, ThrsRho, ZetaA
+          dRhodZ, dZdR, dZdRho, fta, ftb, ftc, GdEdPiMO, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, lmGGA1, lmGGA2, MOas,&
+          MOax, MOay, MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, ThrsRho, ZetaA,TauAB, LaplAB
 
 end module nq_pdft

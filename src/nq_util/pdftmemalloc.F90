@@ -20,7 +20,7 @@ subroutine PDFTMemAlloc(mGrid,nOrbt)
 use nq_pdft, only: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, &
                    dF_dRhoamb, dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, &
                    dRdRho, dRhodX, dRhodY, dRhodZ, dZdR, dZdRho, GdEdPiMO, GradPidFdRho, GradRdFdRho, GradRhodFdRho, MOas, MOax, &
-                   MOay, MOaz, OneMz, OnePz, Pass1, Pass2, Pass3, RatioA, RhoAB, ZetaA
+                   MOay, MOaz, OneMz, OnePz, Pass1, Pass2, Pass3, RatioA, RhoAB, ZetaA, TauAB, LaplAB, lmGGA1, lmGGA2
 use KSDFT_Info, only: do_pdftpot
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
@@ -36,6 +36,8 @@ call mma_allocate(ZetaA,mGrid)
 call mma_allocate(dZdR,mGrid)
 call mma_allocate(Pass1,mGrid)
 call mma_allocate(Pass2,mGrid)
+IF(lmGGA1) call mma_allocate(TauAB,mGrid)
+IF(lmGGA2) call mma_allocate(LaplAB,mGrid)
 
 ! for ft-functional
 call mma_allocate(Pass3,mGrid)

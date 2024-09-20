@@ -26,7 +26,7 @@ use Basis_Info, only: dbsc, Shells
 use Phase_Info, only: iPhase
 use KSDFT_Info, only: do_pdftPot, Funcaa, Funcbb, Funccc
 use nq_Grid, only: Angular, D1UnZip, Dens_AO, dRho_dR, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, Grid_AO, iBfn_Index, kAO, &
-                   l_CASDFT, Mem, nRho, P2UnZip, Rho, Sigma, TabAO, TabAO_Pack, Weights
+                   l_CASDFT, Mem, nRho, P2UnZip, Rho, Sigma, TabAO, TabAO_Pack, Weights,Tau
 use nq_pdft, only: lft, lGGA, MOas, MOax, MOay, MOaz
 use nq_MO, only: CMO, D1MO, P2_ontop
 use Grid_On_Disk, only: Grid_Status, iDisk_Grid, Lu_Grid, Old_Functional_Type, Regenerate, Use_Old
@@ -357,7 +357,7 @@ if (l_casdft) then
                     mRho,nMOs,CMO,nCMO,TabSO,lft,P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz)
   end if
 
-  call TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,l_tanhr,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,Do_Grad)
+  call TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,Weights,l_tanhr,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,Do_Grad)
 
   call mma_deallocate(P2MOCube)
   call mma_deallocate(P2MOCubex)

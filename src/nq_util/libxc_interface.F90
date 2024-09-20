@@ -249,8 +249,8 @@ select case (xc_f03_func_info_get_family(xc_info))
       end if
 
       if (l_casdft) then
-        write(u6,*) 'Uncharted territory!'
-        call Abend()
+!        write(u6,*) 'Uncharted territory!'
+!        call Abend()
         select case (xc_f03_func_info_get_kind(xc_info))
           case (XC_EXCHANGE)
             dFunc_dRho(:,1:mGrid) = Rho(:,1:mGrid)
