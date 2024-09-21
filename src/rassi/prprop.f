@@ -1067,62 +1067,10 @@ C printing threshold
 *Electric-Dipole Electric-Octupole transitions
 
 ! Octupole
-! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
-! The order which comes in
-        IPRDXXX=0 !
-        IPRDXXY=0 !
-        IPRDXXZ=0 !
-
-!       IPRDXYX=0
-!       IPRDXYY=0 ! YYX These are the same due to symmetry
-!       IPRDXYZ=0 ! Not present
-
-!       IPRDXZX=0
-!       IPRDXZY=0
-!       IPRDXZZ=0 ! ZZX
-
-!       IPRDYXX=0
-!       IPRDYXY=0
-!       IPRDYXZ=0
-
-        IPRDYYX=0 ! Taking the XYY order
-        IPRDYYY=0 !
-        IPRDYYZ=0 !
-
-!       IPRDYZX=0
-!       IPRDYZY=0
-!       IPRDYZZ=0 ! ZZY
-
-!       IPRDZXX=0
-!       IPRDZXY=0
-!       IPRDZXZ=0
-
-!       IPRDZYX=0
-!       IPRDZYY=0
-!       IPRDZYZ=0
-
-        IPRDZZX=0 ! Taking order from XZZ
-        IPRDZZY=0 ! Taking order from YZZ
-        IPRDZZZ=0 !
+         Call Allocate_Octupoles()
 ! Dipole
+         Call Allocate_electric_dipoles()
 
-        IFANYD=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYYX=ISOPR ! Changed from XYY
-           !IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDZZX=ISOPR ! Changed from XZZ
-           IF(ISOCMP(ISOPR).EQ.7) IPRDYYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.8) IPRDYYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.9) IPRDZZY=ISOPR ! Changed from YZZ
-           IF(ISOCMP(ISOPR).EQ.10) IPRDZZZ=ISOPR
-
-          END IF
-        END DO
 ! Sanity check. Only check that dipole are there
 ! since it will give problems the other way when
 ! only calculating dipole transitions
@@ -1156,10 +1104,6 @@ C printing threshold
          WRITE(6,31) 'From','To','Osc. strength'
          WRITE(6,35)
          END IF
-! Octupole
-         Call Allocate_Octupoles()
-! Dipole
-         Call Allocate_electric_dipoles()
 ! Octupole
          Call Load_Octupoles()
 ! Dipole
@@ -1215,10 +1159,6 @@ C printing threshold
           END DO
          END DO
 
-         Call Deallocate_Octupoles()
-
-         Call Deallocate_electric_dipoles()
-
         IF(QIALL) THEN
          WRITE(6,35)
          Call CollapseOutput(0,
@@ -1228,6 +1168,10 @@ C printing threshold
         END IF
         SECORD(3) = 1
         END IF
+
+        Call Deallocate_Octupoles()
+
+        Call Deallocate_electric_dipoles()
 
 *Electric-Dipole - Magnetic-Quadrupole transitions and
 *Electric-Dipole - Spin-Magnetic-Quadrupole transitions
@@ -4096,6 +4040,61 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_Magnetic_Quadrupoles
 
       Subroutine Allocate_Octupoles()
+! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
+! The order which comes in
+         IPRDXXX=0 !
+         IPRDXXY=0 !
+         IPRDXXZ=0 !
+
+!        IPRDXYX=0
+!        IPRDXYY=0 ! YYX These are the same due to symmetry
+!        IPRDXYZ=0 ! Not present
+
+!        IPRDXZX=0
+!        IPRDXZY=0
+!        IPRDXZZ=0 ! ZZX
+
+!        IPRDYXX=0
+!        IPRDYXY=0
+!        IPRDYXZ=0
+
+         IPRDYYX=0 ! Taking the XYY order
+         IPRDYYY=0 !
+         IPRDYYZ=0 !
+
+!        IPRDYZX=0
+!        IPRDYZY=0
+!        IPRDYZZ=0 ! ZZY
+
+!        IPRDZXX=0
+!        IPRDZXY=0
+!        IPRDZXZ=0
+
+!        IPRDZYX=0
+!        IPRDZYY=0
+!        IPRDZYZ=0
+
+         IPRDZZX=0 ! Taking order from XZZ
+         IPRDZZY=0 ! Taking order from YZZ
+         IPRDZZZ=0 !
+
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRDXXX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
+            IF(ISOCMP(ISOPR).EQ.4) IPRDYYX=ISOPR ! Changed from XYY
+            !IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
+            IF(ISOCMP(ISOPR).EQ.6) IPRDZZX=ISOPR ! Changed from XZZ
+            IF(ISOCMP(ISOPR).EQ.7) IPRDYYY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.8) IPRDYYZ=ISOPR
+            IF(ISOCMP(ISOPR).EQ.9) IPRDZZY=ISOPR ! Changed from YZZ
+            IF(ISOCMP(ISOPR).EQ.10) IPRDZZZ=ISOPR
+
+           END IF
+         END DO
          CALL mma_allocate(DXXXR,NSS,NSS,Label='DXXXR')
          CALL mma_allocate(DXXXI,NSS,NSS,Label='DXXXI')
          CALL mma_allocate(DXXYR,NSS,NSS,Label='DXXYR')
