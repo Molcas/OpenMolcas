@@ -881,21 +881,9 @@ C printing threshold
 ! M^2 and Ms^2 can be calculated separately but the cross term not directly
 !
 ! Magnetic-Dipole
+        Call Allocate_magnetic_dipoles()
 ! Spin-Magnetic-Dipole ---- notice the S
-        IPRSX=0
-        IPRSY=0
-        IPRSZ=0
-
-        IFANYS=0
-        DO ISOPR=1,NSOPR
-           IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
-     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
-           IFANYS=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.1) IPRSY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.1) IPRSZ=ISOPR
-          END IF
-        END DO
+        Call Allocate_Spin_Magnetic_dipoles()
 
         IF(IFANYD.NE.0.OR.IFANYS.NE.0) THEN
 !
@@ -933,11 +921,7 @@ C printing threshold
          WRITE(6,31) 'From','To','Osc. strength'
          WRITE(6,35)
          END IF
-! Magnetic-Dipole
-         Call Allocate_magnetic_dipoles()
 
-! Spin-Magnetic-Dipole
-         Call Allocate_Spin_Magnetic_dipoles()
 
 ! Magnetic-Dipole
          Call Load_electric_dipoles()
@@ -3885,6 +3869,20 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_electric_dipoles_velocity
 
       Subroutine Allocate_Spin_Magnetic_dipoles()
+         IPRSX=0
+         IPRSY=0
+         IPRSZ=0
+
+         IFANYS=0
+         DO ISOPR=1,NSOPR
+            IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+     &             SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
+            IFANYS=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.1) IPRSY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.1) IPRSZ=ISOPR
+           END IF
+         END DO
          CALL mma_allocate(SXR,NSS,NSS,Label='SXR')
          CALL mma_allocate(SXI,NSS,NSS,Label='SXI')
          CALL mma_allocate(SYR,NSS,NSS,Label='SYR')
