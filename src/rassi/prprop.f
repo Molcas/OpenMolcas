@@ -575,14 +575,13 @@ C printing threshold
 *
         IF(IFANYD.NE.0) THEN
 *
+           Call Allocate_electric_dipoles()
+
+           Call Load_electric_dipoles()
+
            Do iVec = 1, nVec
 *
          i_Print=0
-
-
-         Call Allocate_electric_dipoles()
-
-         Call Load_electric_dipoles()
 
          Two3rds=2.0D0/3.0D0
          DO ISS=1,IEND
@@ -681,8 +680,6 @@ C printing threshold
           END DO
          END DO
 
-         Call Deallocate_electric_dipoles()
-
          If (i_Print.eq.1) THEN
            WRITE(6,32)
            Call CollapseOutput(0,
@@ -691,6 +688,8 @@ C printing threshold
          END IF
 *
          End Do ! iVec
+
+         Call Deallocate_electric_dipoles()
 *
          I_HAVE_DL = 1
         END IF
@@ -718,12 +717,13 @@ C printing threshold
 *
         IF(IFANYD.NE.0) THEN
 *
+           Call Allocate_electric_dipoles()
+
+           Call Load_electric_dipoles()
+
         Do iVec = 1, nVec
 *
          i_Print=0
-         Call Allocate_electric_dipoles()
-
-         Call Load_electric_dipoles()
 
          Two3rds=2.0D0/3.0D0
          DO ISS=1,IEND
@@ -787,8 +787,6 @@ C printing threshold
           END DO
          END DO
 
-         Call Deallocate_electric_dipoles()
-
          If (i_Print.eq.1) THEN
            WRITE(6,32)
            Call CollapseOutput(0,
@@ -797,6 +795,8 @@ C printing threshold
          END IF
 *
          End Do ! iVec
+
+         Call Deallocate_electric_dipoles()
 *
          I_HAVE_DV = 1
         END IF
