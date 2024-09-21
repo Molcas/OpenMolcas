@@ -553,19 +553,6 @@ C printing threshold
 
 *Electric-Dipole Electric-Dipole transitions
 
-        IPRDX=0
-        IPRDY=0
-        IPRDZ=0
-        IFANYD=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
-     &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          END IF
-        END DO
 
         If (Do_SK) Then
            nVec = nk_Vector
@@ -573,12 +560,12 @@ C printing threshold
            nVec = 1
         End If
 *
+        Call Allocate_electric_dipoles()
+
+        Call Load_electric_dipoles()
+
         IF(IFANYD.NE.0) THEN
 *
-           Call Allocate_electric_dipoles()
-
-           Call Load_electric_dipoles()
-
            Do iVec = 1, nVec
 *
          i_Print=0
@@ -688,26 +675,14 @@ C printing threshold
          END IF
 *
          End Do ! iVec
-
-         Call Deallocate_electric_dipoles()
 *
          I_HAVE_DL = 1
         END IF
 
+        Call Deallocate_electric_dipoles()
+
 *       Now the same in velocity representation
 
-        IPRDX=0
-        IPRDY=0
-        IPRDZ=0
-        IFANYD=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'VELOCITY') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          END IF
-        END DO
 *
         If (Do_SK) Then
            nVec = nk_Vector
@@ -715,12 +690,12 @@ C printing threshold
            nVec = 1
         End If
 *
+        Call Allocate_velocities()
+
+        Call Load_electric_dipoles()
+
         IF(IFANYD.NE.0) THEN
 *
-           Call Allocate_electric_dipoles()
-
-           Call Load_electric_dipoles()
-
         Do iVec = 1, nVec
 *
          i_Print=0
@@ -795,11 +770,11 @@ C printing threshold
          END IF
 *
          End Do ! iVec
-
-         Call Deallocate_electric_dipoles()
 *
          I_HAVE_DV = 1
         END IF
+
+        Call Deallocate_electric_dipoles()
 
 !
 !      Compare oscillator strengths in length and velocity gauge
@@ -906,23 +881,14 @@ C printing threshold
 ! M^2 and Ms^2 can be calculated separately but the cross term not directly
 !
 ! Magnetic-Dipole
-        IPRDX=0
-        IPRDY=0
-        IPRDZ=0
 ! Spin-Magnetic-Dipole ---- notice the S
         IPRSX=0
         IPRSY=0
         IPRSZ=0
 
-        IFANYD=0
         IFANYS=0
         DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
@@ -968,8 +934,7 @@ C printing threshold
          WRITE(6,35)
          END IF
 ! Magnetic-Dipole
-         Call Allocate_electric_dipoles()
-
+         Call Allocate_magnetic_dipoles()
 
 ! Spin-Magnetic-Dipole
          Call Allocate_Spin_Magnetic_dipoles()
@@ -1175,19 +1140,10 @@ C printing threshold
         IPRDZZY=0 ! Taking order from YZZ
         IPRDZZZ=0 !
 ! Dipole
-        IPRDX=0
-        IPRDY=0
-        IPRDZ=0
-
 
         IFANYD=0
         DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
-     &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
+          IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
@@ -1345,15 +1301,19 @@ C printing threshold
         IPRDZ=0
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
 
-        IFANYD=0
-        IFANYS=0
         DO ISOPR=1,NSOPR
           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
+          END IF
+        END DO
+
+        IFANYD=0
+        IFANYS=0
+        DO ISOPR=1,NSOPR
+          IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
@@ -3843,6 +3803,19 @@ C backtransformation in two steps, -phi and -theta
       Contains
 
       Subroutine Allocate_electric_dipoles()
+         IPRDX=0
+         IPRDY=0
+         IPRDZ=0
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
+           END IF
+         END DO
          CALL mma_allocate(DXR,NSS,NSS,Label='DXR')
          CALL mma_allocate(DXI,NSS,NSS,Label='DXI')
          CALL mma_allocate(DYR,NSS,NSS,Label='DYR')
@@ -3856,6 +3829,60 @@ C backtransformation in two steps, -phi and -theta
          DZR(:,:)=0.0D0
          DZI(:,:)=0.0D0
       End Subroutine Allocate_electric_dipoles
+
+      Subroutine Allocate_velocities()
+         IPRDX=0
+         IPRDY=0
+         IPRDZ=0
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'VELOCITY') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
+           END IF
+         END DO
+         CALL mma_allocate(DXR,NSS,NSS,Label='DXR')
+         CALL mma_allocate(DXI,NSS,NSS,Label='DXI')
+         CALL mma_allocate(DYR,NSS,NSS,Label='DYR')
+         CALL mma_allocate(DYI,NSS,NSS,Label='DYI')
+         CALL mma_allocate(DZR,NSS,NSS,Label='DZR')
+         CALL mma_allocate(DZI,NSS,NSS,Label='DZI')
+         DXR(:,:)=0.0D0
+         DXI(:,:)=0.0D0
+         DYR(:,:)=0.0D0
+         DYI(:,:)=0.0D0
+         DZR(:,:)=0.0D0
+         DZI(:,:)=0.0D0
+      End Subroutine Allocate_velocities
+
+      Subroutine Allocate_magnetic_dipoles()
+         IPRDX=0
+         IPRDY=0
+         IPRDZ=0
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
+           END IF
+         END DO
+         CALL mma_allocate(DXR,NSS,NSS,Label='DXR')
+         CALL mma_allocate(DXI,NSS,NSS,Label='DXI')
+         CALL mma_allocate(DYR,NSS,NSS,Label='DYR')
+         CALL mma_allocate(DYI,NSS,NSS,Label='DYI')
+         CALL mma_allocate(DZR,NSS,NSS,Label='DZR')
+         CALL mma_allocate(DZI,NSS,NSS,Label='DZI')
+         DXR(:,:)=0.0D0
+         DXI(:,:)=0.0D0
+         DYR(:,:)=0.0D0
+         DYI(:,:)=0.0D0
+         DZR(:,:)=0.0D0
+         DZI(:,:)=0.0D0
+      End Subroutine Allocate_magnetic_dipoles
 
       Subroutine Deallocate_electric_dipoles()
          CALL mma_deallocate(DXR)
