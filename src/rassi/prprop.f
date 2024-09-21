@@ -76,6 +76,10 @@
      &                      DYYR(:,:), DYYI(:,:),
      &                      DYZR(:,:), DYZI(:,:),
      &                      DZZR(:,:), DZZI(:,:)
+! Magnetic-Quadrupole
+      Real*8, allocatable:: DZXR(:,:), DZXI(:,:),
+     &                      DYXR(:,:), DYXI(:,:),
+     &                      DZYR(:,:), DZYI(:,:)
 ! Octupole
       Real*8, allocatable:: DXXXR(:,:),DXXXI(:,:),
      &                      DXXYR(:,:),DXXYI(:,:),
@@ -90,10 +94,6 @@
       Real*8, allocatable:: SXR(:,:), SXI(:,:),
      &                      SYR(:,:), SYI(:,:),
      &                      SZR(:,:), SZI(:,:)
-! Magnetic-Quadrupole
-      Real*8, allocatable:: DZXR(:,:), DZXI(:,:),
-     &                      DYXR(:,:), DYXI(:,:),
-     &                      DZYR(:,:), DZYI(:,:)
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
 
 
@@ -1289,21 +1289,9 @@ C printing threshold
           END IF
         END DO
 
-        IFANYD=0
         IFANYS=0
         DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
-
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDYZ=ISOPR
-
-           IF(ISOCMP(ISOPR).EQ.7) IPRDZX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.8) IPRDZY=ISOPR
-
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
@@ -4024,6 +4012,21 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_Electric_Quadrupoles
 
       Subroutine Allocate_Magnetic_Quadrupoles()
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
+
+            IF(ISOCMP(ISOPR).EQ.4) IPRDYX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.6) IPRDYZ=ISOPR
+
+            IF(ISOCMP(ISOPR).EQ.7) IPRDZX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.8) IPRDZY=ISOPR
+           END IF
+         END DO
+
          CALL mma_allocate(DXYR,NSS,NSS,Label='DXYR')
          CALL mma_allocate(DXYI,NSS,NSS,Label='DXYI')
          CALL mma_allocate(DYXR,NSS,NSS,Label='DYXR')
