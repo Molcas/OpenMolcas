@@ -1001,25 +1001,6 @@ C printing threshold
 
 *Electric-Quadrupole Electric-Quadrupole transitions
 
-        IPRDXX=0
-        IPRDXY=0
-        IPRDXZ=0
-        IPRDYY=0
-        IPRDYZ=0
-        IPRDZZ=0
-
-        IFANYD=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRDYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDZZ=ISOPR
-          END IF
-        END DO
 
         IF(IFANYD.NE.0) THEN
         IF(QIALL) THEN
@@ -1272,17 +1253,14 @@ C printing threshold
 ! DM + DMs
 !
 ! Magnetic-Quadrupole
-        IPRDXX=0
         IPRDXY=0
         IPRDXZ=0
 
         IPRDYX=0
-        IPRDYY=0
         IPRDYZ=0
 
         IPRDZX=0
         IPRDZY=0
-        IPRDZZ=0
 ! Spin-Magnetic-Quadrupole
 !       IPRSXX=0
         IPRSXY=0
@@ -1295,12 +1273,13 @@ C printing threshold
         IPRSZX=0
         IPRSZY=0
 !       IPRSZZ=0
-! Electric-Dipole
+! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
+
+
+! Electric-Dipole, this done explicit here for double checking purpose
         IPRDX=0
         IPRDY=0
         IPRDZ=0
-! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
-
         DO ISOPR=1,NSOPR
           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
@@ -1315,32 +1294,26 @@ C printing threshold
         DO ISOPR=1,NSOPR
           IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.4) IPRDYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRDYY=ISOPR
            IF(ISOCMP(ISOPR).EQ.6) IPRDYZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.7) IPRDZX=ISOPR
            IF(ISOCMP(ISOPR).EQ.8) IPRDZY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.9) IPRDZZ=ISOPR
 
           ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
-           !IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRSXZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.2) IPRSYX=ISOPR
-           !IF(ISOCMP(ISOPR).EQ.2) IPRSYY=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSYZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.3) IPRSZX=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRSZY=ISOPR
-           !IF(ISOCMP(ISOPR).EQ.3) IPRSZZ=ISOPR
 
           END IF
         END DO
@@ -3963,6 +3936,25 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_Spin_Magnetic_dipoles
 
       Subroutine Allocate_Electric_Quadrupoles()
+         IPRDXX=0
+         IPRDXY=0
+         IPRDXZ=0
+         IPRDYY=0
+         IPRDYZ=0
+         IPRDZZ=0
+
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
+            IF(ISOCMP(ISOPR).EQ.4) IPRDYY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.5) IPRDYZ=ISOPR
+            IF(ISOCMP(ISOPR).EQ.6) IPRDZZ=ISOPR
+           END IF
+         END DO
          CALL mma_allocate(DXXR,NSS,NSS,Label='DXXR')
          CALL mma_allocate(DXXI,NSS,NSS,Label='DXXI')
          CALL mma_allocate(DXYR,NSS,NSS,Label='DXYR')
