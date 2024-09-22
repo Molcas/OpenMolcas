@@ -101,6 +101,11 @@
      &                      SYR(:,:), SYI(:,:),
      &                      SZR(:,:), SZI(:,:)
       Integer IPRSX, IPRSY, IPRSZ
+! Spin-Magnetic-Quadrupole
+      Real*8, allocatable:: SXYR(:,:), SXYI(:,:), SYXR(:,:), SYXI(:,:),
+     &                      SYZR(:,:), SYZI(:,:), SZYR(:,:), SZYI(:,:),
+     &                      SZXR(:,:), SZXI(:,:), SXZR(:,:), SXZI(:,:)
+      Integer IPRSXY, IPRSYX, IPRSYZ, IPRSZY, IPRSZX, IPRSXZ
 
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
 
@@ -1313,62 +1318,62 @@ C printing threshold
 ! Magnetic-Quadrupole
          Call Allocate_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
-         CALL GETMEM('SZXR','ALLO','REAL',LSZXR,NSS**2)
-         CALL GETMEM('SZXI','ALLO','REAL',LSZXI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZXR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZXI),1)
-         CALL GETMEM('SXZR','ALLO','REAL',LSXZR,NSS**2)
-         CALL GETMEM('SXZI','ALLO','REAL',LSXZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXZI),1)
+         CALL mma_allocate(SZXR,NSS,NSS,Label='SZXR')
+         CALL mma_allocate(SZXI,NSS,NSS,Label='SZXI')
+         SZXR(:,:)=0.0D0
+         SZXI(:,:)=0.0D0
+         CALL mma_allocate(SXZR,NSS,NSS,Label='SXZR')
+         CALL mma_allocate(SXZI,NSS,NSS,Label='SXZI')
+         SXZR(:,:)=0.0D0
+         SXZI(:,:)=0.0D0
 
-         CALL GETMEM('SXYR','ALLO','REAL',LSXYR,NSS**2)
-         CALL GETMEM('SXYI','ALLO','REAL',LSXYI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXYR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXYI),1)
-         CALL GETMEM('SYXR','ALLO','REAL',LSYXR,NSS**2)
-         CALL GETMEM('SYXI','ALLO','REAL',LSYXI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYXR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYXI),1)
+         CALL mma_allocate(SXYR,NSS,NSS,Label='SXYR')
+         CALL mma_allocate(SXYI,NSS,NSS,Label='SXYI')
+         SXYR(:,:)=0.0D0
+         SXYI(:,:)=0.0D0
+         CALL mma_allocate(SYXR,NSS,NSS,Label='SYXR')
+         CALL mma_allocate(SYXI,NSS,NSS,Label='SYXI')
+         SYXR(:,:)=0.0D0
+         SYXI(:,:)=0.0D0
 
-         CALL GETMEM('SYZR','ALLO','REAL',LSYZR,NSS**2)
-         CALL GETMEM('SYZI','ALLO','REAL',LSYZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYZI),1)
-         CALL GETMEM('SZYR','ALLO','REAL',LSZYR,NSS**2)
-         CALL GETMEM('SZYI','ALLO','REAL',LSZYI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZYR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZYI),1)
+         CALL mma_allocate(SYZR,NSS,NSS,Label='SYZR')
+         CALL mma_allocate(SYZI,NSS,NSS,Label='SYZI')
+         SYZR(:,:)=0.0D0
+         SYZI(:,:)=0.0D0
+         CALL mma_allocate(SZYR,NSS,NSS,Label='SZYR')
+         CALL mma_allocate(SZYI,NSS,NSS,Label='SZYI')
+         SZYR(:,:)=0.0D0
+         SZYI(:,:)=0.0D0
 ! Electric-Dipole
          Call Allocate_electric_dipoles()
 ! Magnetic-Quadrupole
          Call Load_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
          IF(IPRSXY.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSXYR),NSS,IPRSXY,2)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSXYR),WORK(LSXYI))
+          CALL SMMAT(PROP,SXYR,NSS,IPRSXY,2)
+          CALL ZTRNSF(NSS,USOR,USOI,SXYR,SXYI)
          END IF
          IF(IPRSYX.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSYXR),NSS,IPRSYX,1)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSYXR),WORK(LSYXI))
+          CALL SMMAT(PROP,SYXR,NSS,IPRSYX,1)
+          CALL ZTRNSF(NSS,USOR,USOI,SYXR,SYXI)
          END IF
 
          IF(IPRSXZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSXZR),NSS,IPRSXZ,3)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSXZR),WORK(LSXZI))
+          CALL SMMAT(PROP,SXZR,NSS,IPRSXZ,3)
+          CALL ZTRNSF(NSS,USOR,USOI,SXZR,SXZI)
          END IF
          IF(IPRSZX.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSZXR),NSS,IPRSZX,1)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZXR),WORK(LSZXI))
+          CALL SMMAT(PROP,SZXR,NSS,IPRSZX,1)
+          CALL ZTRNSF(NSS,USOR,USOI,SZXR,SZXI)
          END IF
 
          IF(IPRSYZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSYZR),NSS,IPRSYZ,3)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSYZR),WORK(LSYZI))
+          CALL SMMAT(PROP,SYZR,NSS,IPRSYZ,3)
+          CALL ZTRNSF(NSS,USOR,USOI,SYZR,SYZI)
          END IF
          IF(IPRSZY.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSZYR),NSS,IPRSZY,2)
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZYR),WORK(LSZYI))
+          CALL SMMAT(PROP,SZYR,NSS,IPRSZY,2)
+          CALL ZTRNSF(NSS,USOR,USOI,SZYR,SZYI)
          END IF
 ! Electric-Dipole
          Call Load_electric_dipoles()
@@ -1392,35 +1397,35 @@ C printing threshold
 ! However, the spin y component is imaginary
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
-            DXYDZ=((-DXYI(JSS,ISS) + g*WORK(LSXYI-1+IJSS))
+            DXYDZ=((-DXYI(JSS,ISS) + g*SXYI(JSS,ISS))
      &           *DZI(JSS,ISS)) ! Electric-Dipole
-     &           +((DXYR(JSS,ISS) + g*WORK(LSXYR-1+IJSS))
+     &           +((DXYR(JSS,ISS) + g*SXYR(JSS,ISS))
      &           *DZR(JSS,ISS))
-            DYXDZ=-((DYXI(JSS,ISS) + g*WORK(LSYXR-1+IJSS))
+            DYXDZ=-((DYXI(JSS,ISS) + g*SYXR(JSS,ISS))
      &           *DZI(JSS,ISS))
-     &           +((DYXR(JSS,ISS) + g*WORK(LSYXI-1+IJSS))
+     &           +((DYXR(JSS,ISS) + g*SYXI(JSS,ISS))
      &           *DZR(JSS,ISS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
-            DZXDY=-((DZXI(JSS,ISS) + g*WORK(LSZXR-1+IJSS))
+            DZXDY=-((DZXI(JSS,ISS) + g*SZXR(JSS,ISS))
      &           *DYI(JSS,ISS))
-     &           +((DZXR(JSS,ISS) + g*WORK(LSZXI-1+IJSS))
+     &           +((DZXR(JSS,ISS) + g*SZXI(JSS,ISS))
      &           *DYR(JSS,ISS))
-            DXZDY=-((DXZI(JSS,ISS) + g*WORK(LSXZR-1+IJSS))
+            DXZDY=-((DXZI(JSS,ISS) + g*SXZR(JSS,ISS))
      &           *DYI(JSS,ISS))
-     &           +((DXZR(JSS,ISS) + g*WORK(LSXZI-1+IJSS))
+     &           +((DXZR(JSS,ISS) + g*SXZI(JSS,ISS))
      &           *DYR(JSS,ISS))
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
-            DYZDX=-((DYZI(JSS,ISS) + g*WORK(LSYZR-1+IJSS))
+            DYZDX=-((DYZI(JSS,ISS) + g*SYZR(JSS,ISS))
      &           *DXI(JSS,ISS))
-     &           +((DYZR(JSS,ISS) + g*WORK(LSYZI-1+IJSS))
+     &           +((DYZR(JSS,ISS) + g*SYZI(JSS,ISS))
      &           *DXR(JSS,ISS))
-            DZYDX=((-DZYI(JSS,ISS) + g*WORK(LSZYI-1+IJSS))
+            DZYDX=((-DZYI(JSS,ISS) + g*SZYI(JSS,ISS))
      &           *DXI(JSS,ISS))
-     &           +((DZYR(JSS,ISS) + g*WORK(LSZYR-1+IJSS))
+     &           +((DZYR(JSS,ISS) + g*SZYR(JSS,ISS))
      &           *DXR(JSS,ISS))
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
@@ -1439,20 +1444,20 @@ C printing threshold
 ! Magnetic-Quadrupole
          Call Deallocate_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
-         CALL GETMEM('SXYR','FREE','REAL',LSXYR,NSS**2)
-         CALL GETMEM('SXYI','FREE','REAL',LSXYI,NSS**2)
-         CALL GETMEM('SXZR','FREE','REAL',LSXZR,NSS**2)
-         CALL GETMEM('SXZI','FREE','REAL',LSXZI,NSS**2)
+         Call mma_deallocate(SXYR)
+         Call mma_deallocate(SXYI)
+         Call mma_deallocate(SYXR)
+         Call mma_deallocate(SYXI)
 
-         CALL GETMEM('SYXR','FREE','REAL',LSYXR,NSS**2)
-         CALL GETMEM('SYXI','FREE','REAL',LSYXI,NSS**2)
-         CALL GETMEM('SYZR','FREE','REAL',LSYZR,NSS**2)
-         CALL GETMEM('SYZI','FREE','REAL',LSYZI,NSS**2)
+         Call mma_deallocate(SYZR)
+         Call mma_deallocate(SYZI)
+         Call mma_deallocate(SZYR)
+         Call mma_deallocate(SZYI)
 
-         CALL GETMEM('SZXR','FREE','REAL',LSZXR,NSS**2)
-         CALL GETMEM('SZXI','FREE','REAL',LSZXI,NSS**2)
-         CALL GETMEM('SZYR','FREE','REAL',LSZYR,NSS**2)
-         CALL GETMEM('SZYI','FREE','REAL',LSZYI,NSS**2)
+         Call mma_deallocate(SZXR)
+         Call mma_deallocate(SZXI)
+         Call mma_deallocate(SXZR)
+         Call mma_deallocate(SXZI)
 ! Electric-Dipole
          Call Deallocate_electric_dipoles()
 
