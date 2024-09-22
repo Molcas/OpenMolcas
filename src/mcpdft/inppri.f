@@ -35,7 +35,6 @@
       use rctfld_module
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
-      use pdft_ext_param, only: do_ext_param, File_Ext_Param
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -280,9 +279,9 @@ C.. for RAS
           Write(6,*)
        END IF
 
-       IF(Do_Ext_Param) THEN
-         CALL CheckFuncParam(File_Ext_Param)
-       END IF
+       if(mcpdft_options%extparam) then
+        call CheckFuncParam(mcpdft_options%extparamfile)
+       endif
 
   900 CONTINUE
       Call XFlush(LF)

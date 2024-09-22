@@ -127,7 +127,6 @@ contains
         if(iError /= 0) then
           call IOError(buffer)
         endif
-
       case("MECI")
         mcpdft_options%meci = .true.
 
@@ -140,6 +139,7 @@ contains
         if (.not. mcpdft_options%extparam) then
           call FileLocatingError(buffer, mcpdft_options%extparamfile)
         endif
+
 
         ! Done with reading input
       case("END ")
