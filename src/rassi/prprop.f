@@ -1458,41 +1458,52 @@ C printing threshold
         IPRDXD=0
         IPRDYD=0
         IPRDZD=0
-        IPRDXM=0
-        IPRDYM=0
-        IPRDZM=0
-        IPRDXS=0
-        IPRDYS=0
-        IPRDZS=0
-        IPRQXX=0
-        IPRQXY=0
-        IPRQXZ=0
-        IPRQYY=0
-        IPRQYZ=0
-        IPRQZZ=0
-
         IFANYD=0
-        IFANYM=0
-        IFANYS=0
-        IFANYQ=0
         DO ISOPR=1,NSOPR
           IF (SOPRNM(ISOPR).EQ.'VELOCITY') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZD=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+          END IF
+        END DO
+
+        IPRDXM=0
+        IPRDYM=0
+        IPRDZM=0
+        IFANYM=0
+        DO ISOPR=1,NSOPR
+          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZM=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+          END IF
+        END DO
+
+        IPRDXS=0
+        IPRDYS=0
+        IPRDZS=0
+        IFANYS=0
+        DO ISOPR=1,NSOPR
+          IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXS=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRDYS=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRDZS=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPV  2') THEN
+          END IF
+        END DO
+
+        IPRQXX=0
+        IPRQXY=0
+        IPRQXZ=0
+        IPRQYY=0
+        IPRQYZ=0
+        IPRQZZ=0
+        IFANYQ=0
+        DO ISOPR=1,NSOPR
+          IF(SOPRNM(ISOPR).EQ.'MLTPV  2') THEN
            IFANYQ=1
            IF(ISOCMP(ISOPR).EQ.1) IPRQXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRQXY=ISOPR
