@@ -69,6 +69,7 @@
       Real*8, allocatable:: DXR(:,:), DXI(:,:),
      &                      DYR(:,:), DYI(:,:),
      &                      DZR(:,:), DZI(:,:)
+      Integer IPRDX, IPRDY, IPRDZ
 ! Quadrupole
       Real*8, allocatable:: DXXR(:,:), DXXI(:,:),
      &                      DXYR(:,:), DXYI(:,:),
@@ -76,10 +77,12 @@
      &                      DYYR(:,:), DYYI(:,:),
      &                      DYZR(:,:), DYZI(:,:),
      &                      DZZR(:,:), DZZI(:,:)
+      Integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ
 ! Magnetic-Quadrupole
       Real*8, allocatable:: DZXR(:,:), DZXI(:,:),
      &                      DYXR(:,:), DYXI(:,:),
      &                      DZYR(:,:), DZYI(:,:)
+      Integer IPRDZX, IPRDYX, IPRDZY
 ! Octupole
       Real*8, allocatable:: DXXXR(:,:),DXXXI(:,:),
      &                      DXXYR(:,:),DXXYI(:,:),
@@ -90,10 +93,15 @@
      &                      DZZXR(:,:),DZZXI(:,:),
      &                      DZZYR(:,:),DZZYI(:,:),
      &                      DZZZR(:,:),DZZZI(:,:)
+      Integer IPRDXXX, IPRDXXY, IPRDXXZ,
+     &        IPRDYYX, IPRDYYY, IPRDYYZ,
+     &        IPRDZZX, IPRDZZY, IPRDZZZ
 ! Spin-Magnetic-Dipole
       Real*8, allocatable:: SXR(:,:), SXI(:,:),
      &                      SYR(:,:), SYI(:,:),
      &                      SZR(:,:), SZI(:,:)
+      Integer IPRSX, IPRSY, IPRSZ
+
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
 
 
@@ -3692,6 +3700,7 @@ C backtransformation in two steps, -phi and -theta
       Contains
 
       Subroutine Allocate_electric_dipoles()
+      Integer ISOPR
          IPRDX=0
          IPRDY=0
          IPRDZ=0
@@ -3720,6 +3729,7 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Allocate_electric_dipoles
 
       Subroutine Allocate_velocities()
+      Integer ISOPR
          IPRDX=0
          IPRDY=0
          IPRDZ=0
@@ -3747,6 +3757,7 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Allocate_velocities
 
       Subroutine Allocate_magnetic_dipoles()
+      Integer ISOPR
          IPRDX=0
          IPRDY=0
          IPRDZ=0
@@ -3813,6 +3824,7 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_electric_dipoles_velocity
 
       Subroutine Allocate_Spin_Magnetic_dipoles()
+      Integer ISOPR
          IPRSX=0
          IPRSY=0
          IPRSZ=0
@@ -3820,7 +3832,7 @@ C backtransformation in two steps, -phi and -theta
          IFANYS=0
          DO ISOPR=1,NSOPR
             IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
-     &             SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
+     &         SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
             IFANYS=1
             IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
             IF(ISOCMP(ISOPR).EQ.1) IPRSY=ISOPR
@@ -3866,6 +3878,7 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_Spin_Magnetic_dipoles
 
       Subroutine Allocate_Electric_Quadrupoles()
+      Integer ISOPR
          IPRDXX=0
          IPRDXY=0
          IPRDXZ=0
@@ -3954,6 +3967,14 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_Electric_Quadrupoles
 
       Subroutine Allocate_Magnetic_Quadrupoles()
+      Integer ISOPR
+         IPRDXY=0
+         IPRDXZ=0
+         IPRDYX=0
+         IPRDYZ=0
+         IPRDZX=0
+         IPRDZY=0
+
          IFANYD=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
@@ -4040,6 +4061,7 @@ C backtransformation in two steps, -phi and -theta
       End Subroutine Load_Magnetic_Quadrupoles
 
       Subroutine Allocate_Octupoles()
+      Integer ISOPR
 ! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
 ! The order which comes in
          IPRDXXX=0 !
