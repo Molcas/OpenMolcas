@@ -1194,26 +1194,7 @@ C printing threshold
 ! DM + DMs
 !
 ! Magnetic-Quadrupole
-        IPRDXY=0
-        IPRDXZ=0
-
-        IPRDYX=0
-        IPRDYZ=0
-
-        IPRDZX=0
-        IPRDZY=0
 ! Spin-Magnetic-Quadrupole
-!       IPRSXX=0
-        IPRSXY=0
-        IPRSXZ=0
-
-        IPRSYX=0
-!       IPRSYY=0
-        IPRSYZ=0
-
-        IPRSZX=0
-        IPRSZY=0
-!       IPRSZZ=0
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
 
 
@@ -1230,22 +1211,13 @@ C printing threshold
           END IF
         END DO
 
-        IFANYS=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
-     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
-           IFANYS=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.1) IPRSXZ=ISOPR
+! Magnetic-Quadrupole
+        Call Allocate_Magnetic_Quadrupoles()
+! Spin-Magnetic-Quadrupole
+        Call Allocate_Spin_Magnetic_Quadrupoles()
+! Electric-Dipole
+        Call Allocate_electric_dipoles()
 
-           IF(ISOCMP(ISOPR).EQ.2) IPRSYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRSYZ=ISOPR
-
-           IF(ISOCMP(ISOPR).EQ.3) IPRSZX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRSZY=ISOPR
-
-          END IF
-        END DO
 ! Sanity check. Only check that dipole are there
 ! since it will give problems the other way when
 ! only calculating dipole transitions
@@ -1316,65 +1288,9 @@ C printing threshold
          WRITE(6,35)
          END IF
 ! Magnetic-Quadrupole
-         Call Allocate_Magnetic_Quadrupoles()
-! Spin-Magnetic-Quadrupole
-         CALL mma_allocate(SZXR,NSS,NSS,Label='SZXR')
-         CALL mma_allocate(SZXI,NSS,NSS,Label='SZXI')
-         SZXR(:,:)=0.0D0
-         SZXI(:,:)=0.0D0
-         CALL mma_allocate(SXZR,NSS,NSS,Label='SXZR')
-         CALL mma_allocate(SXZI,NSS,NSS,Label='SXZI')
-         SXZR(:,:)=0.0D0
-         SXZI(:,:)=0.0D0
-
-         CALL mma_allocate(SXYR,NSS,NSS,Label='SXYR')
-         CALL mma_allocate(SXYI,NSS,NSS,Label='SXYI')
-         SXYR(:,:)=0.0D0
-         SXYI(:,:)=0.0D0
-         CALL mma_allocate(SYXR,NSS,NSS,Label='SYXR')
-         CALL mma_allocate(SYXI,NSS,NSS,Label='SYXI')
-         SYXR(:,:)=0.0D0
-         SYXI(:,:)=0.0D0
-
-         CALL mma_allocate(SYZR,NSS,NSS,Label='SYZR')
-         CALL mma_allocate(SYZI,NSS,NSS,Label='SYZI')
-         SYZR(:,:)=0.0D0
-         SYZI(:,:)=0.0D0
-         CALL mma_allocate(SZYR,NSS,NSS,Label='SZYR')
-         CALL mma_allocate(SZYI,NSS,NSS,Label='SZYI')
-         SZYR(:,:)=0.0D0
-         SZYI(:,:)=0.0D0
-! Electric-Dipole
-         Call Allocate_electric_dipoles()
-! Magnetic-Quadrupole
          Call Load_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
-         IF(IPRSXY.GT.0) THEN
-          CALL SMMAT(PROP,SXYR,NSS,IPRSXY,2)
-          CALL ZTRNSF(NSS,USOR,USOI,SXYR,SXYI)
-         END IF
-         IF(IPRSYX.GT.0) THEN
-          CALL SMMAT(PROP,SYXR,NSS,IPRSYX,1)
-          CALL ZTRNSF(NSS,USOR,USOI,SYXR,SYXI)
-         END IF
-
-         IF(IPRSXZ.GT.0) THEN
-          CALL SMMAT(PROP,SXZR,NSS,IPRSXZ,3)
-          CALL ZTRNSF(NSS,USOR,USOI,SXZR,SXZI)
-         END IF
-         IF(IPRSZX.GT.0) THEN
-          CALL SMMAT(PROP,SZXR,NSS,IPRSZX,1)
-          CALL ZTRNSF(NSS,USOR,USOI,SZXR,SZXI)
-         END IF
-
-         IF(IPRSYZ.GT.0) THEN
-          CALL SMMAT(PROP,SYZR,NSS,IPRSYZ,3)
-          CALL ZTRNSF(NSS,USOR,USOI,SYZR,SYZI)
-         END IF
-         IF(IPRSZY.GT.0) THEN
-          CALL SMMAT(PROP,SZYR,NSS,IPRSZY,2)
-          CALL ZTRNSF(NSS,USOR,USOI,SZYR,SZYI)
-         END IF
+         Call Load_Spin_Magnetic_Quadrupoles()
 ! Electric-Dipole
          Call Load_electric_dipoles()
 
@@ -1441,26 +1357,6 @@ C printing threshold
           END DO
          END DO
 
-! Magnetic-Quadrupole
-         Call Deallocate_Magnetic_Quadrupoles()
-! Spin-Magnetic-Quadrupole
-         Call mma_deallocate(SXYR)
-         Call mma_deallocate(SXYI)
-         Call mma_deallocate(SYXR)
-         Call mma_deallocate(SYXI)
-
-         Call mma_deallocate(SYZR)
-         Call mma_deallocate(SYZI)
-         Call mma_deallocate(SZYR)
-         Call mma_deallocate(SZYI)
-
-         Call mma_deallocate(SZXR)
-         Call mma_deallocate(SZXI)
-         Call mma_deallocate(SXZR)
-         Call mma_deallocate(SXZI)
-! Electric-Dipole
-         Call Deallocate_electric_dipoles()
-
         IF(QIALL) THEN
          WRITE(6,35)
          IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
@@ -1483,6 +1379,13 @@ C printing threshold
         END IF
         SECORD(4) = 1
         END IF
+
+! Magnetic-Quadrupole
+        Call Deallocate_Magnetic_Quadrupoles()
+! Spin-Magnetic-Quadrupole
+        Call Deallocate_Spin_Magnetic_Quadrupoles()
+! Electric-Dipole
+        Call Deallocate_electric_dipoles()
 !
 ! Now write out the total
 !
@@ -3881,6 +3784,106 @@ C backtransformation in two steps, -phi and -theta
           CALL ZTRNSF(NSS,USOR,USOI,SZR,SZI)
          END IF
       End Subroutine Load_Spin_Magnetic_dipoles
+
+      Subroutine Allocate_Spin_Magnetic_Quadrupoles()
+      Integer ISOPR
+         IPRSXY=0
+         IPRSXZ=0
+
+         IPRSYX=0
+         IPRSYZ=0
+
+         IPRSZX=0
+         IPRSZY=0
+         IFANYS=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &             SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
+            IFANYS=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.1) IPRSXZ=ISOPR
+
+            IF(ISOCMP(ISOPR).EQ.2) IPRSYX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRSYZ=ISOPR
+
+            IF(ISOCMP(ISOPR).EQ.3) IPRSZX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRSZY=ISOPR
+
+           END IF
+         END DO
+         CALL mma_allocate(SZXR,NSS,NSS,Label='SZXR')
+         CALL mma_allocate(SZXI,NSS,NSS,Label='SZXI')
+         SZXR(:,:)=0.0D0
+         SZXI(:,:)=0.0D0
+         CALL mma_allocate(SXZR,NSS,NSS,Label='SXZR')
+         CALL mma_allocate(SXZI,NSS,NSS,Label='SXZI')
+         SXZR(:,:)=0.0D0
+         SXZI(:,:)=0.0D0
+
+         CALL mma_allocate(SXYR,NSS,NSS,Label='SXYR')
+         CALL mma_allocate(SXYI,NSS,NSS,Label='SXYI')
+         SXYR(:,:)=0.0D0
+         SXYI(:,:)=0.0D0
+         CALL mma_allocate(SYXR,NSS,NSS,Label='SYXR')
+         CALL mma_allocate(SYXI,NSS,NSS,Label='SYXI')
+         SYXR(:,:)=0.0D0
+         SYXI(:,:)=0.0D0
+
+         CALL mma_allocate(SYZR,NSS,NSS,Label='SYZR')
+         CALL mma_allocate(SYZI,NSS,NSS,Label='SYZI')
+         SYZR(:,:)=0.0D0
+         SYZI(:,:)=0.0D0
+         CALL mma_allocate(SZYR,NSS,NSS,Label='SZYR')
+         CALL mma_allocate(SZYI,NSS,NSS,Label='SZYI')
+         SZYR(:,:)=0.0D0
+         SZYI(:,:)=0.0D0
+      End Subroutine Allocate_Spin_Magnetic_Quadrupoles
+
+      Subroutine Load_Spin_Magnetic_Quadrupoles()
+         IF(IPRSXY.GT.0) THEN
+          CALL SMMAT(PROP,SXYR,NSS,IPRSXY,2)
+          CALL ZTRNSF(NSS,USOR,USOI,SXYR,SXYI)
+         END IF
+         IF(IPRSYX.GT.0) THEN
+          CALL SMMAT(PROP,SYXR,NSS,IPRSYX,1)
+          CALL ZTRNSF(NSS,USOR,USOI,SYXR,SYXI)
+         END IF
+
+         IF(IPRSXZ.GT.0) THEN
+          CALL SMMAT(PROP,SXZR,NSS,IPRSXZ,3)
+          CALL ZTRNSF(NSS,USOR,USOI,SXZR,SXZI)
+         END IF
+         IF(IPRSZX.GT.0) THEN
+          CALL SMMAT(PROP,SZXR,NSS,IPRSZX,1)
+          CALL ZTRNSF(NSS,USOR,USOI,SZXR,SZXI)
+         END IF
+
+         IF(IPRSYZ.GT.0) THEN
+          CALL SMMAT(PROP,SYZR,NSS,IPRSYZ,3)
+          CALL ZTRNSF(NSS,USOR,USOI,SYZR,SYZI)
+         END IF
+         IF(IPRSZY.GT.0) THEN
+          CALL SMMAT(PROP,SZYR,NSS,IPRSZY,2)
+          CALL ZTRNSF(NSS,USOR,USOI,SZYR,SZYI)
+         END IF
+      End Subroutine Load_Spin_Magnetic_Quadrupoles
+
+      Subroutine Deallocate_Spin_Magnetic_Quadrupoles()
+         Call mma_deallocate(SXYR)
+         Call mma_deallocate(SXYI)
+         Call mma_deallocate(SYXR)
+         Call mma_deallocate(SYXI)
+
+         Call mma_deallocate(SYZR)
+         Call mma_deallocate(SYZI)
+         Call mma_deallocate(SZYR)
+         Call mma_deallocate(SZYI)
+
+         Call mma_deallocate(SZXR)
+         Call mma_deallocate(SZXI)
+         Call mma_deallocate(SXZR)
+         Call mma_deallocate(SXZI)
+      End Subroutine Deallocate_Spin_Magnetic_Quadrupoles
 
       Subroutine Allocate_Electric_Quadrupoles()
       Integer ISOPR
