@@ -374,8 +374,8 @@ do NSP=1,NSYM
           end if
 
           LTUPQ = LTUPQX
-          call tr2NsA1(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6), &
-                       MEMX-(LW6-LW1),lBuf)
+          call tr2NsA1(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1), &
+                       lBuf)
           call tr2NsA2(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1))
           call tr2NsA3(CMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW4),LW5-LW4,W1(LW5),MEMX-(LW5-LW1))
           LTUPQ = LTURS

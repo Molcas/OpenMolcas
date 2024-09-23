@@ -23,6 +23,7 @@
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use Arrays, only: CMO_Inv, CMO
+      use transform_procedures, only: SetUp_CASPT2_Tra
       Implicit real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -33,20 +34,6 @@
       character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
-
-      interface
-      subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,
-     &                            nDel_,CMO,lthCMO,
-     &                            LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
-      use Definitions, only: wp, iwp
-
-      implicit none
-      integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8),
-     &       nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
-      integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
-       real(kind=wp), intent(in), Target :: CMO(lthCMO)
-      End subroutine SetUp_CASPT2_Tra
-      End interface
 
 *----------------------------------------------------------------------*
 *     start                                                            *

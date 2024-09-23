@@ -45,6 +45,7 @@ use MBPT2_Global, only: CMO, DoCholesky, DoDF, EOcc, EOrb, EVir, FnIntA, FnIntM,
                         MBPT2_Clean, NamAct, nBas
 use ChoMP2, only: all_Vir, C_os, ChoAlg, DoDens, DoMP2, DoT1amp, EOSMP2, FNOMP2, iOffT1, Laplace, Laplace_nGridPoints, LovMP2, &
                   nActa, pEOcc => EOcc, pEVir => EVir, SOS_mp2, T1amp, ThrLov, vkept, Wref, XEMP2
+use transform_procedures, only: SetUp_CASPT2_Tra
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -62,19 +63,6 @@ real(kind=wp), external :: ddot_, Seconds
 #include "Molcas.fh"
 #include "trafo.fh"
 #include "corbinf.fh"
-
-interface
-subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO,lthCMO,LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
-
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8), nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
-integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
-real(kind=wp), intent(in), Target :: CMO(lthCMO)
-End subroutine SetUp_CASPT2_Tra
-End interface
-
 
 !                                                                      *
 !***********************************************************************

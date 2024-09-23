@@ -26,18 +26,17 @@ logical(kind=iwp) :: DelGhost, DoCholesky, DoDF
 character(len=80) :: Title(10)
 type(DSBA_Type) :: Density, DiaA, Mp2Lagr, WDensity
 integer(kind=iwp), allocatable :: iDel(:,:), iFro(:,:)
-real(kind=wp), allocatable, target :: CMO_Internal(:)
-real(kind=wp), pointer:: CMO(:)=>Null()
 real(kind=wp), allocatable :: EOrb(:)
-real(kind=wp), allocatable, target :: EOcc(:), EVir(:)
+real(kind=wp), allocatable, target :: CMO_Internal(:), EOcc(:), EVir(:)
+real(kind=wp), pointer:: CMO(:) => null()
 character(len=LenIn), allocatable :: NamAct(:)
 ! Unit Numbers & File Names
 integer(kind=iwp) :: LuHLF1 = 40, LuHLF2 = 41, LuHLF3 = 42, LuIntA = 43, LuIntM = 44
 character(len=8) :: FnHLF1 = 'LUHLF1', FnHLF2 = 'LUHLF2', FnHLF3 = 'LUHLF3', FnIntA = 'ORDINT', FnIntM = 'MOLINT'
 
-public :: CMO, DelGhost, Density, DiaA, DoCholesky, DoDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, iDel, &
-          iFro, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, MP2Lagr, NamAct, &
-          nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, Thr_ghs, VECL2, WDensity, CMO_Internal
+public :: CMO, CMO_Internal, DelGhost, Density, DiaA, DoCholesky, DoDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, &
+          FnIntM, iDel, iFro, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, &
+          MP2Lagr, NamAct, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, Thr_ghs, VECL2, WDensity
 
 contains
 
@@ -50,7 +49,7 @@ subroutine MBPT2_Clean()
   if (allocated(iDel)) call mma_deallocate(iDel)
   if (allocated(iFro)) call mma_deallocate(iFro)
   if (allocated(NamAct)) call mma_deallocate(NamAct)
-  if (associated(CMO)) CMO=>Null()
+  nullify(CMO)
 end subroutine MBPT2_Clean
 
 end module MBPT2_Global
