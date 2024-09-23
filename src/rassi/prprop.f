@@ -1517,7 +1517,7 @@ C printing threshold
         IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
 ! Electric dipole (linear momentum, p)
-         Call Allocate_electric_dipoles()
+         Call Allocate_velocities()
 
          Call Load_dipoles()
 
