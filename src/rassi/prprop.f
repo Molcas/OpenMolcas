@@ -162,7 +162,7 @@
 * Skip printing if all the diagonal values are very small
 *  (presumed zero for reasons of selection rules)
         PLIMIT=1.0D-10
-        PMAX=0.0D0
+        PMAX=ZERO
 
 
         DO I=1,NSTATE
@@ -1701,7 +1701,11 @@ C printing threshold
             RXX=D_XR*D_MXR+D_XI*D_MXI
             RYY=D_YR*D_MYR+D_YI*D_MYI
             RZZ=D_ZR*D_MZR+D_ZI*D_MZI
-            R = Half/EDIFF*AU2REDR*(RXX+RYY+RZZ)
+            IF (ABS(EDIFF)>1.0D-10) THEN
+               R = Half/EDIFF*AU2REDR*(RXX+RYY+RZZ)
+            ELSE
+               R = ZERO
+            END IF
 *
 * Compute full rotatory strength tensor
 * (see Hansen and Bak, 10.1021/jp001899+)
@@ -1748,7 +1752,11 @@ C printing threshold
              Rtensor(4) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
+             If (ABS(EDIFF)>1.0D-10) Then
+                CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
+             ELSE
+                Rtensor(:)=ZERO
+             END IF
              IF (Do_SK) THEN
               ! k^T R k
               R = k_vector(1,iVec)**2*Rtensor(1)+
@@ -1775,6 +1783,7 @@ C printing threshold
          End Do
 
          Call Deallocate_electric_dipoles()
+
          CALL GETMEM('MDXR','FREE','REAL',LMDXR,NSS**2)
          CALL GETMEM('MDXI','FREE','REAL',LMDXI,NSS**2)
          CALL GETMEM('MDYR','FREE','REAL',LMDYR,NSS**2)
@@ -3612,7 +3621,7 @@ C backtransformation in two steps, -phi and -theta
 38    FORMAT (5X,2(1X,I4),6X,F15.6,4(1X,ES15.8))
 39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
 40    FORMAT (5X,63('-'))
-43    FORMAT (12X,A8,6(1X,ES15.8))
+43    FORMAT (12X,A8,6(1X,ES15.6))
 44    FORMAT (20X,6(1X,A15))
 49    FORMAT (5X,A,1X,ES15.8,1X,A)
 
