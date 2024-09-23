@@ -575,7 +575,7 @@ C printing threshold
 *
         Call Allocate_electric_dipoles()
 
-        Call Load_electric_dipoles()
+        Call Load_dipoles()
 
         IF(IFANYD.NE.0) THEN
 *
@@ -705,7 +705,7 @@ C printing threshold
 *
         Call Allocate_velocities()
 
-        Call Load_electric_dipoles()
+        Call Load_dipoles()
 
         IF(IFANYD.NE.0) THEN
 *
@@ -937,7 +937,7 @@ C printing threshold
 
 
 ! Magnetic-Dipole
-         Call Load_electric_dipoles()
+         Call Load_dipoles()
 
 ! Spin-Magnetic-Dipole
          Call Load_Spin_Magnetic_dipoles()
@@ -1120,7 +1120,7 @@ C printing threshold
 ! Octupole
          Call Load_Octupoles()
 ! Dipole
-         Call Load_electric_dipoles()
+         Call Load_dipoles()
 
          TWOOVERM45C=-2.0D0/(45.0D0*c_in_au**2)
          DO ISS=1,IEND
@@ -1292,7 +1292,7 @@ C printing threshold
 ! Spin-Magnetic-Quadrupole
          Call Load_Spin_Magnetic_Quadrupoles()
 ! Electric-Dipole
-         Call Load_electric_dipoles()
+         Call Load_dipoles()
 
          ONEOVER9C2=1.0D0/(9.0D0*c_in_au**2)
          g = FEGVAL*3.0D0/2.0D0 ! To remove the 2/3 factor in ONEOVER9C2
@@ -1455,16 +1455,16 @@ C printing threshold
       IF(DOCD) THEN
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - velocity gauge
-        IPRDXD=0
-        IPRDYD=0
-        IPRDZD=0
+        IPRDX=0
+        IPRDY=0
+        IPRDZ=0
         IFANYD=0
         DO ISOPR=1,NSOPR
           IF (SOPRNM(ISOPR).EQ.'VELOCITY') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZD=ISOPR
+           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
           END IF
         END DO
 
@@ -1519,7 +1519,7 @@ C printing threshold
 ! Electric dipole (linear momentum, p)
          Call Allocate_electric_dipoles()
 
-         Call Load_electric_dipoles_velocity()
+         Call Load_dipoles()
 
 ! Magnetic-Dipole (angular momentum, l = r x p)
          CALL GETMEM('MDXR','ALLO','REAL',LMDXR,NSS**2)
@@ -1809,9 +1809,9 @@ C printing threshold
         END IF
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
-        IPRDXD=0
-        IPRDYD=0
-        IPRDZD=0
+        IPRDX=0
+        IPRDY=0
+        IPRDZ=0
         IPRDXM=0
         IPRDYM=0
         IPRDZM=0
@@ -1833,9 +1833,9 @@ C printing threshold
           IF (SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZD=ISOPR
+           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
           ELSE IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
@@ -1863,7 +1863,7 @@ C printing threshold
 ! Electric dipole (r)
          Call Allocate_electric_dipoles()
 
-         Call Load_electric_dipoles()
+         Call Load_dipoles()
 
 ! Magnetic-Dipole (angular momentum, l = r x p)
          CALL GETMEM('MDXR','ALLO','REAL',LMDXR,NSS**2)
@@ -3712,7 +3712,7 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(DZI)
       End Subroutine Deallocate_electric_dipoles
 
-      Subroutine Load_electric_dipoles()
+      Subroutine Load_dipoles()
          IF(IPRDX.GT.0) THEN
           CALL SMMAT(PROP,DXR,NSS,IPRDX,0)
           CALL ZTRNSF(NSS,USOR,USOI,DXR,DXI)
@@ -3725,22 +3725,7 @@ C backtransformation in two steps, -phi and -theta
           CALL SMMAT(PROP,DZR,NSS,IPRDZ,0)
           CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
          END IF
-      End Subroutine Load_electric_dipoles
-
-      Subroutine Load_electric_dipoles_velocity()
-         IF(IPRDXD.GT.0) THEN
-          CALL SMMAT(PROP,DXR,NSS,IPRDXD,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXR,DXI)
-         END IF
-         IF(IPRDYD.GT.0) THEN
-          CALL SMMAT(PROP,DYR,NSS,IPRDYD,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DYR,DYI)
-         END IF
-         IF(IPRDZD.GT.0) THEN
-          CALL SMMAT(PROP,DZR,NSS,IPRDZD,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
-         END IF
-      End Subroutine Load_electric_dipoles_velocity
+      End Subroutine Load_dipoles
 
       Subroutine Allocate_Spin_Magnetic_dipoles()
       Integer ISOPR
