@@ -76,7 +76,6 @@
      &                      DYYR(:,:), DYYI(:,:),
      &                      DYZR(:,:), DYZI(:,:),
      &                      DZZR(:,:), DZZI(:,:)
-      Integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ
 ! Magnetic-Quadrupole
       Real*8, allocatable:: DZXR(:,:), DZXI(:,:),
      &                      DYXR(:,:), DYXI(:,:),
@@ -1008,10 +1007,7 @@ C printing threshold
          WRITE(6,35)
          END IF
 
-         Call Allocate_Electric_Quadrupoles()
-
-         Call Load_Electric_Quadrupoles()
-
+         Call Allocate_and_Load_Electric_Quadrupoles()
 
          ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
          ONEOVER30C=ONEOVER10C/3.0D0
@@ -3813,8 +3809,9 @@ C backtransformation in two steps, -phi and -theta
          Call mma_deallocate(SXZI)
       End Subroutine Deallocate_Spin_Magnetic_Quadrupoles
 
-      Subroutine Allocate_Electric_Quadrupoles()
+      Subroutine Allocate_and_Load_Electric_Quadrupoles()
       Integer ISOPR
+      Integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ
          IPRDXX=0
          IPRDXY=0
          IPRDXZ=0
@@ -3858,24 +3855,6 @@ C backtransformation in two steps, -phi and -theta
          DYZI(:,:)=0.0D0
          DZZR(:,:)=0.0D0
          DZZI(:,:)=0.0D0
-      End Subroutine Allocate_Electric_Quadrupoles
-
-      Subroutine Deallocate_Electric_Quadrupoles()
-         CALL mma_deallocate(DXXR)
-         CALL mma_deallocate(DXXI)
-         CALL mma_deallocate(DXYR)
-         CALL mma_deallocate(DXYI)
-         CALL mma_deallocate(DXZR)
-         CALL mma_deallocate(DXZI)
-         CALL mma_deallocate(DYYR)
-         CALL mma_deallocate(DYYI)
-         CALL mma_deallocate(DYZR)
-         CALL mma_deallocate(DYZI)
-         CALL mma_deallocate(DZZR)
-         CALL mma_deallocate(DZZI)
-      End Subroutine Deallocate_Electric_Quadrupoles
-
-      Subroutine Load_Electric_Quadrupoles()
          IF(IPRDXX.GT.0) THEN
           CALL SMMAT(PROP,DXXR,NSS,IPRDXX,0)
           CALL ZTRNSF(NSS,USOR,USOI,DXXR,DXXI)
@@ -3900,7 +3879,22 @@ C backtransformation in two steps, -phi and -theta
           CALL SMMAT(PROP,DZZR,NSS,IPRDZZ,0)
           CALL ZTRNSF(NSS,USOR,USOI,DZZR,DZZI)
          END IF
-      End Subroutine Load_Electric_Quadrupoles
+      End Subroutine Allocate_and_Load_Electric_Quadrupoles
+
+      Subroutine Deallocate_Electric_Quadrupoles()
+         CALL mma_deallocate(DXXR)
+         CALL mma_deallocate(DXXI)
+         CALL mma_deallocate(DXYR)
+         CALL mma_deallocate(DXYI)
+         CALL mma_deallocate(DXZR)
+         CALL mma_deallocate(DXZI)
+         CALL mma_deallocate(DYYR)
+         CALL mma_deallocate(DYYI)
+         CALL mma_deallocate(DYZR)
+         CALL mma_deallocate(DYZI)
+         CALL mma_deallocate(DZZR)
+         CALL mma_deallocate(DZZI)
+      End Subroutine Deallocate_Electric_Quadrupoles
 
       Subroutine Allocate_Magnetic_Quadrupoles()
       Integer ISOPR
