@@ -1672,7 +1672,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
-           IF(EDIFF.GT.0.0D0) THEN
+           IF(EDIFF.GT.0.0D0.AND.ABS(EDIFF)>1.0D-10) THEN
             IJSS=JSS+NSS*(ISS-1)
 
 ! These are all complex quantities, and their products are complex too,
@@ -1706,6 +1706,7 @@ C printing threshold
             ELSE
                R = ZERO
             END IF
+            WRITE(6,43) '1/3 Tr(RTensor): ',R
 *
 * Compute full rotatory strength tensor
 * (see Hansen and Bak, 10.1021/jp001899+)
