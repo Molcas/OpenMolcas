@@ -947,6 +947,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
+           IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
@@ -1024,6 +1025,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
+           IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
 !
 ! D should be purely real since D is a real symmetric matrix
@@ -1126,6 +1128,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
+           IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
@@ -1301,6 +1304,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
+           IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
@@ -1411,6 +1415,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
+           IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
 !
             IJSS=JSS+NSS*(ISS-1)
@@ -1672,7 +1677,8 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
-           IF(EDIFF.GT.0.0D0.AND.ABS(EDIFF)>1.0D-10) THEN
+           IF (ABS(EDIFF)<1.0D-8) Cycle
+           IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
 ! These are all complex quantities, and their products are complex too,
@@ -1701,7 +1707,7 @@ C printing threshold
             RXX=D_XR*D_MXR+D_XI*D_MXI
             RYY=D_YR*D_MYR+D_YI*D_MYI
             RZZ=D_ZR*D_MZR+D_ZI*D_MZI
-            IF (ABS(EDIFF)>1.0D-10) THEN
+            IF (ABS(EDIFF)>1.0D-8) THEN
                R = Half/EDIFF*AU2REDR*(RXX+RYY+RZZ)
             ELSE
                R = ZERO
@@ -1753,7 +1759,7 @@ C printing threshold
              Rtensor(4) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
-             If (ABS(EDIFF)>1.0D-10) Then
+             If (ABS(EDIFF)>1.0D-8) Then
                 CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
              ELSE
                 Rtensor(:)=ZERO
@@ -2031,6 +2037,7 @@ C printing threshold
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
+           IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
@@ -2191,6 +2198,7 @@ C printing threshold
          DO J=1,NSS
           F=SODYSAMPS(I,J)*SODYSAMPS(I,J)
           EDIFF=auToeV*(ENSOR(J)-ENSOR(I))
+          IF (ABS(EDIFF)<1.0D-8) Cycle
           IF (F.GT.0.00001) THEN
            IF (EDIFF.GT.0.0D0) THEN
             WRITE(6,'(A,I8,I8,F15.3,ES22.5)') '    ',I,J,EDIFF,F
