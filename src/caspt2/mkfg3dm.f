@@ -31,6 +31,9 @@ C However, because this introduces instability of CASPT2 calculation
 C (lots of negative denominators appear), relatively large IPEA and imaginary shifts
 C are required to converge CASPT2 iteration.
 C
+
+#include "compiler_features.h"
+
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_output, only:iPrGlb
@@ -565,8 +568,12 @@ C     so make sure that the _total_ fingerprint is computed
  999  continue
       RETURN
       END
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_MKFG3DM()
-      End
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_MKFG3DM()
+      end subroutine empty_MKFG3DM
+
 #endif

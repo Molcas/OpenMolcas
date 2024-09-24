@@ -84,12 +84,10 @@ contains
             ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
         unused_var(this)
+        unused_var(ifinal)
+        unused_var(weight)
 
-        if (size(iroot) >= 2) then
-            call abort_('SA-CC-CASSCF yet to be implemented.')
-            write(6,*) 'ifinal, weight have to be printed to compile NAGFOR.', &
-                ifinal, weight
-        end if
+        if (size(iroot) >= 2) call abort_('SA-CC-CASSCF yet to be implemented.')
 
         ! SOME DIRTY SETUPS
         S = 0.5_wp * dble(iSpin - 1)
