@@ -80,7 +80,6 @@
       Real*8, allocatable:: DZXR(:,:), DZXI(:,:),
      &                      DYXR(:,:), DYXI(:,:),
      &                      DZYR(:,:), DZYI(:,:)
-      Integer IPRDZX, IPRDYX, IPRDZY
 ! Octupole
       Real*8, allocatable:: DXXXR(:,:),DXXXI(:,:),
      &                      DXXYR(:,:),DXXYI(:,:),
@@ -1170,7 +1169,7 @@ C printing threshold
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
 
 ! Magnetic-Quadrupole
-        Call Allocate_Magnetic_Quadrupoles()
+        Call Allocate_and_Load_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
         Call Allocate_Spin_Magnetic_Quadrupoles()
 ! Electric-Dipole
@@ -1211,8 +1210,6 @@ C printing threshold
          WRITE(6,31) 'From','To','Osc. strength'
          WRITE(6,35)
          END IF
-! Magnetic-Quadrupole
-         Call Load_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
          Call Load_Spin_Magnetic_Quadrupoles()
 
@@ -3896,8 +3893,9 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(DZZI)
       End Subroutine Deallocate_Electric_Quadrupoles
 
-      Subroutine Allocate_Magnetic_Quadrupoles()
+      Subroutine Allocate_and_Load_Magnetic_Quadrupoles()
       Integer ISOPR
+      Integer IPRDZX, IPRDYX, IPRDZY
          IPRDXY=0
          IPRDXZ=0
          IPRDYX=0
@@ -3944,24 +3942,6 @@ C backtransformation in two steps, -phi and -theta
          DYZI(:,:)=0.0D0
          DZYR(:,:)=0.0D0
          DZYI(:,:)=0.0D0
-      End Subroutine Allocate_Magnetic_Quadrupoles
-
-      Subroutine Deallocate_Magnetic_Quadrupoles()
-         CALL mma_deallocate(DXYR)
-         CALL mma_deallocate(DXYI)
-         CALL mma_deallocate(DYXR)
-         CALL mma_deallocate(DYXI)
-         CALL mma_deallocate(DXZR)
-         CALL mma_deallocate(DXZI)
-         CALL mma_deallocate(DZXR)
-         CALL mma_deallocate(DZXI)
-         CALL mma_deallocate(DYZR)
-         CALL mma_deallocate(DYZI)
-         CALL mma_deallocate(DZYR)
-         CALL mma_deallocate(DZYI)
-      End Subroutine Deallocate_Magnetic_Quadrupoles
-
-      Subroutine Load_Magnetic_Quadrupoles()
          IF(IPRDXY.GT.0) THEN
           CALL SMMAT(PROP,DXYR,NSS,IPRDXY,0)
           CALL ZTRNSF(NSS,USOR,USOI,DXYR,DXYI)
@@ -3988,7 +3968,22 @@ C backtransformation in two steps, -phi and -theta
           CALL SMMAT(PROP,DZYR,NSS,IPRDZY,0)
           CALL ZTRNSF(NSS,USOR,USOI,DZYR,DZYI)
          END IF
-      End Subroutine Load_Magnetic_Quadrupoles
+      End Subroutine Allocate_and_Load_Magnetic_Quadrupoles
+
+      Subroutine Deallocate_Magnetic_Quadrupoles()
+         CALL mma_deallocate(DXYR)
+         CALL mma_deallocate(DXYI)
+         CALL mma_deallocate(DYXR)
+         CALL mma_deallocate(DYXI)
+         CALL mma_deallocate(DXZR)
+         CALL mma_deallocate(DXZI)
+         CALL mma_deallocate(DZXR)
+         CALL mma_deallocate(DZXI)
+         CALL mma_deallocate(DYZR)
+         CALL mma_deallocate(DYZI)
+         CALL mma_deallocate(DZYR)
+         CALL mma_deallocate(DZYI)
+      End Subroutine Deallocate_Magnetic_Quadrupoles
 
       Subroutine Allocate_Octupoles()
       Integer ISOPR
