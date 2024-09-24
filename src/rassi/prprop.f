@@ -69,7 +69,6 @@
       Real*8, allocatable:: DXR(:,:), DXI(:,:),
      &                      DYR(:,:), DYI(:,:),
      &                      DZR(:,:), DZI(:,:)
-      Integer IPRDX, IPRDY, IPRDZ
 ! Quadrupole
       Real*8, allocatable:: DXXR(:,:), DXXI(:,:),
      &                      DXYR(:,:), DXYI(:,:),
@@ -1081,25 +1080,6 @@ C printing threshold
 ! Dipole
          Call Allocate_and_Load_electric_dipoles()
 
-! Sanity check. Only check that dipole are there
-! since it will give problems the other way when
-! only calculating dipole transitions
-        IF(((IPRDXXX.GT.0.OR.IPRDYYX.GT.0.OR.IPRDZZX.GT.0)
-     &   .AND.IPRDX.LE.0)) THEN
-         WRITE(6,*) ' Remember to include both Dipole and Octupole'
-         CALL ABEND()
-        END IF
-        IF(((IPRDXXY.GT.0.OR.IPRDYYY.GT.0.OR.IPRDZZY.GT.0)
-     &   .AND.IPRDY.LE.0)) THEN
-         WRITE(6,*) ' Remember to include both Dipole and Octupole'
-         CALL ABEND()
-        END IF
-        IF(((IPRDXXZ.GT.0.OR.IPRDYYZ.GT.0.OR.IPRDZZZ.GT.0)
-     &   .AND.IPRDZ.LE.0)) THEN
-         WRITE(6,*) ' Remember to include both Dipole and Octupole'
-         CALL ABEND()
-        END IF
-
         IF(IFANYD.NE.0) THEN
         IF(QIALL) THEN
          Call CollapseOutput(1,
@@ -1193,20 +1173,6 @@ C printing threshold
 ! Spin-Magnetic-Quadrupole
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
 
-
-! Electric-Dipole, this done explicit here for double checking purpose
-        IPRDX=0
-        IPRDY=0
-        IPRDZ=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
-     &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          END IF
-        END DO
-
 ! Magnetic-Quadrupole
         Call Allocate_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
@@ -1214,40 +1180,6 @@ C printing threshold
 ! Electric-Dipole
         Call Allocate_and_Load_electric_dipoles()
 
-! Sanity check. Only check that dipole are there
-! since it will give problems the other way when
-! only calculating dipole transitions
-        IF(((IPRDYZ.GT.0.OR.IPRDZY.GT.0)
-     &   .AND.IPRDX.LE.0)) THEN
-         WRITE(6,*) ' Remember to include both Dipole and Quadrupole'
-         CALL ABEND()
-        END IF
-        IF(((IPRDZX.GT.0.OR.IPRDXZ.GT.0)
-     &   .AND.IPRDY.LE.0)) THEN
-         WRITE(6,*) ' Remember to include both Dipole and Quadrupole'
-         CALL ABEND()
-        END IF
-        IF(((IPRDXY.GT.0.OR.IPRDYX.GT.0)
-     &   .AND.IPRDZ.LE.0)) THEN
-         WRITE(6,*) ' Remember to include both Dipole and Quadrupole'
-         CALL ABEND()
-        END IF
-
-        IF(((IPRSYZ.GT.0.OR.IPRSZY.GT.0)
-     &   .AND.IPRDX.LE.0)) THEN
-         WRITE(6,*) ' Remember to include Dipole and Quadrupole'
-         CALL ABEND()
-        END IF
-        IF(((IPRSZX.GT.0.OR.IPRSXZ.GT.0)
-     &   .AND.IPRDY.LE.0)) THEN
-         WRITE(6,*) ' Remember to include Dipole and Quadrupole'
-         CALL ABEND()
-        END IF
-        IF(((IPRSXY.GT.0.OR.IPRSYX.GT.0)
-     &   .AND.IPRDZ.LE.0)) THEN
-         WRITE(6,*) ' Remember to include Dipole and Quadrupole'
-         CALL ABEND()
-        END IF
 
         IF(IFANYD.NE.0.OR.IFANYS.NE.0) THEN
         IF(QIALL) THEN
@@ -1802,15 +1734,14 @@ C printing threshold
         END IF
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
-        IPRDX=0
-        IPRDY=0
-        IPRDZ=0
         IPRDXM=0
         IPRDYM=0
         IPRDZM=0
+
         IPRDXS=0
         IPRDYS=0
         IPRDZS=0
+
         IPRQXX=0
         IPRQXY=0
         IPRQXZ=0
@@ -1823,13 +1754,7 @@ C printing threshold
         IFANYS=0
         IFANYQ=0
         DO ISOPR=1,NSOPR
-          IF (SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
-     &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
-           IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
@@ -1851,10 +1776,11 @@ C printing threshold
           END IF
         END DO
 
+! Electric dipole (r)
+        Call Allocate_and_Load_electric_dipoles()
+
         IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
-! Electric dipole (r)
-         Call Allocate_and_Load_electric_dipoles()
 
 ! Magnetic-Dipole (angular momentum, l = r x p)
          CALL GETMEM('MDXR','ALLO','REAL',LMDXR,NSS**2)
@@ -2113,7 +2039,7 @@ C printing threshold
          WRITE(6,35)
          End Do
 
-         Call Deallocate_electric_dipoles()
+
          CALL GETMEM('MDXR','FREE','REAL',LMDXR,NSS**2)
          CALL GETMEM('MDXI','FREE','REAL',LMDXI,NSS**2)
          CALL GETMEM('MDYR','FREE','REAL',LMDYR,NSS**2)
@@ -2126,6 +2052,7 @@ C printing threshold
          CALL GETMEM('SDYI','FREE','REAL',LSDYI,NSS**2)
          CALL GETMEM('SDZR','FREE','REAL',LSDZR,NSS**2)
          CALL GETMEM('SDZI','FREE','REAL',LSDZI,NSS**2)
+
          IF (IFANYQ.NE.0) THEN
           CALL GETMEM('QXXR','FREE','REAL',LQXXR,NSS**2)
           CALL GETMEM('QXXI','FREE','REAL',LQXXI,NSS**2)
@@ -2146,6 +2073,7 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF
+        Call Deallocate_electric_dipoles()
       END IF
 * CD end
 
