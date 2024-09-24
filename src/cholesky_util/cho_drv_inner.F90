@@ -340,8 +340,7 @@ end if
 
 if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
 if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-nullify(DIag)
-nullify(Diag_G)
+nullify(DIag,Diag_G)
 call mma_deallocate(Check)
 
 if (IPRINT >= INF_TIMING) then

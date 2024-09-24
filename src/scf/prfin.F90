@@ -14,7 +14,9 @@
 !               2003, Valera Veryazov                                  *
 !               2017, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine PrFin(OneHam,Ovlp,Dens,TwoHam,nDT,EOrb,OccNo,nEO,CMO,nCMO,note,iCase,MssVlc,Darwin)
+
+!#define _DEBUGPRINT_
+subroutine PrFin(OneHam,Ovlp,Dens,TwoHam,nDT,EOrb,OccNo,nEO,CMO,nCMO,note,iCase,MssVlc,Darwin)
 !***********************************************************************
 !                                                                      *
 !     purpose: Final printout                                          *
@@ -29,252 +31,252 @@
 !       CMO     : molecular orbital coefficients of length nCMO        *
 !                                                                      *
 !***********************************************************************
-      use SpinAV, only: Do_SpinAV
-      use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, nD, jPrint, kIvo, KSDFT, lRel, Name, nBB, &
-                        nBT, nIterP, nnB, NoProp, nSYm, PotNuc, ThrEne, ThrOcc, Tot_Charge, nBas, nOrb, nIter
-      use Constants, only: Zero
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module, only: lRF
-      use NDDO, only: oneel_NDDO
-      Implicit None
-      Integer nDT,nEO,nCMO
-      Real*8 Dens(nDT),TwoHam(nDT),OneHam(nDT),Ovlp(nDT),EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
 
-      Character(LEN=80) Note
-      External EFP_ON
-!
-!---- Define local variables
-      Integer iCase, i, iBs, iCharge, iCMO, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
-      Integer, External:: iPrintLevel
-      Real*8 EHomo, ELumo, ERelMV, ERelDC
-      Character(LEN=60) Fmt
-      Logical PrEne,PrOcc, get_BasisType
-      Logical DeBug, First, NonEq, Dff, Do_DFT, FullMlk, Reduce_Prt
-      External Reduce_Prt
-      Real*8, Dimension(:), Allocatable:: RFfld, Scr2, Scr3
+use SpinAV, only: Do_SpinAV
+use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, nD, jPrint, kIvo, KSDFT, lRel, Name, nBB, nBT, nIterP, nnB, &
+                  NoProp, nSYm, PotNuc, ThrEne, ThrOcc, Tot_Charge, nBas, nOrb, nIter
+use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
+use rctfld_module, only: lRF
+use NDDO, only: oneel_NDDO
+
+implicit none
+integer nDT, nEO, nCMO
+real*8 Dens(nDT), TwoHam(nDT), OneHam(nDT), Ovlp(nDT), EOrb(nEO), OccNo(nEO), CMO(nCMO), MssVlc(nDT), Darwin(nDT)
+character(len=80) Note
+external EFP_ON
+! Define local variables
+integer iCase, i, iBs, iCharge, iCMO, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
+integer, external :: iPrintLevel
+real*8 EHomo, ELumo, ERelMV, ERelDC
+character(len=60) Fmt
+logical PrEne, PrOcc, get_BasisType
+logical DeBug, First, NonEq, Dff, Do_DFT, FullMlk, Reduce_Prt
+external Reduce_Prt
+real*8, dimension(:), allocatable :: RFfld, Scr2, Scr3
 !nf
-      Logical Do_ESPF, EFP_On
+logical Do_ESPF, EFP_On
 !nf
-      Character AlphaLabel*30
+character AlphaLabel*30
 #include "SysDef.fh"
 
-!
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-      jPrint=iPrint
-      iPL=iPrintLevel(-1)
-      If (Reduce_Prt().and.iPL.lt.3) iPL=0
-      If (iPL.le.1) jPrint=1
-!
+
+jPrint = iPrint
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+if (iPL <= 1) jPrint = 1
+
 !----------------------------------------------------------------------*
-!
+
 #ifdef _DEBUGPRINT_
-      Debug=.true.
+Debug = .true.
 #else
-      Debug=.false.
-      If (jPrint.ge.4) Debug=.True.
+Debug = .false.
+if (jPrint >= 4) Debug = .true.
 #endif
-!
-      Fmt = '(6X,A,T50,F17.10)'
-      AlphaLabel=' '
-      if(nD==2.and.iCase.eq.0) AlphaLabel=' (alpha) '
-      if(nD==2.and.iCase.eq.1) AlphaLabel=' (beta)  '
 
-      if (Do_SpinAV) AlphaLabel=Alphalabel(1:9)//'and (spin-averaged)'
+Fmt = '(6X,A,T50,F17.10)'
+AlphaLabel = ' '
+if (nD == 2) then
+  if (iCase == 0) AlphaLabel = ' (alpha) '
+  if (iCase == 1) AlphaLabel = ' (beta)  '
+end if
 
-!---- Compute relativistic corrections
-      If (lRel) Then
-         Call RelEny(ERelMV,ERelDC,Dens,MssVlc,Darwin,nBT)
-         If (jPrint.ge.2) Then
-            Write(6,*)
-            Write(6,'(6X,A)') '1st order relativistic corrections'
-            Write(6,Fmt)'Total energy',EneV+ERelMV+ERelDC
-            Write(6,Fmt)'Mass-velocity correction',ERelMV
-            Write(6,Fmt)'1-el Darwin correction',ERelDC
-            Write(6,Fmt)'Sum of relatvity corrections',ERelDC+ERelMV
-            Write(6,*)
-         End If
-      End If
-!
-!---- Print numerical quadrature information
-      iSpin=1
-      if(nD==2) iSpin=2
-      If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info()
-!
-!---- Write out last density matrix to output
-      If (DeBug) Then
-         Write(6,'(6x,A)')'Last density matrix (interpolated) in AO basis'
-         ij = 1
-         Do iSym = 1, nSym
-            Write(6,*)' symmetry',iSym
-            Call TriPrt(' ',' ',Dens(ij),nBas(iSym))
-            ij=ij+nBas(iSym)*(nBas(iSym)+1)/2
-         End Do
-         Write(6,*)
-         Write(6,'(6x,A)')'Last 2-el. Hamiltonian (interpolated) in AO basis'
-         ij = 1
-         Do iSym = 1, nSym
-            Write(6,*)' symmetry',iSym
-            Call TriPrt(' ',' ',TwoHam(ij),nBas(iSym))
-            ij=ij+nBas(iSym)*(nBas(iSym)+1)/2
-         End Do
-         Write(6,*)
-         Write(6,'(6x,A)')'Last 1-el. Hamiltonian (interpolated) in AO basis'
-         ij = 1
-         Do iSym = 1, nSym
-            Write(6,*)' symmetry',iSym
-            Call TriPrt(' ',' ',OneHam(ij),nBas(iSym))
-            ij=ij+nBas(iSym)*(nBas(iSym)+1)/2
-         End Do
-         Write(6,*)
-      End If
-!
-!...  Process the external potential with the total electronic density
-!
+if (Do_SpinAV) AlphaLabel = Alphalabel(1:9)//'and (spin-averaged)'
+
+! Compute relativistic corrections
+if (lRel) then
+  call RelEny(ERelMV,ERelDC,Dens,MssVlc,Darwin,nBT)
+  if (jPrint >= 2) then
+    write(6,*)
+    write(6,'(6X,A)') '1st order relativistic corrections'
+    write(6,Fmt) 'Total energy',EneV+ERelMV+ERelDC
+    write(6,Fmt) 'Mass-velocity correction',ERelMV
+    write(6,Fmt) '1-el Darwin correction',ERelDC
+    write(6,Fmt) 'Sum of relatvity corrections',ERelDC+ERelMV
+    write(6,*)
+  end if
+end if
+
+! Print numerical quadrature information
+iSpin = 1
+if (nD == 2) iSpin = 2
+if ((KSDFT /= 'SCF') .and. (iCase == 0)) call Print_NQ_Info()
+
+! Write out last density matrix to output
+if (DeBug) then
+  write(6,'(6x,A)') 'Last density matrix (interpolated) in AO basis'
+  ij = 1
+  do iSym=1,nSym
+    write(6,*) ' symmetry',iSym
+    call TriPrt(' ',' ',Dens(ij),nBas(iSym))
+    ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+  end do
+  write(6,*)
+  write(6,'(6x,A)') 'Last 2-el. Hamiltonian (interpolated) in AO basis'
+  ij = 1
+  do iSym=1,nSym
+    write(6,*) ' symmetry',iSym
+    call TriPrt(' ',' ',TwoHam(ij),nBas(iSym))
+    ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+  end do
+  write(6,*)
+  write(6,'(6x,A)') 'Last 1-el. Hamiltonian (interpolated) in AO basis'
+  ij = 1
+  do iSym=1,nSym
+    write(6,*) ' symmetry',iSym
+    call TriPrt(' ',' ',OneHam(ij),nBas(iSym))
+    ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+  end do
+  write(6,*)
+end if
+
+! Process the external potential with the total electronic density
+
 !nf
-      Call DecideOnESPF(Do_ESPF)
-      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. EFP_On()) .and. .Not.oneel_NDDO .and. iCase.eq.0) Then
-!nf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.oneel_NDDO .and.
-         iCharge=Int(Tot_Charge)
-         NonEq=.False.
-!        Call Get_PotNuc(PotNuc)
-!        Call Get_dScalar('PotNuc',PotNuc)
-         Call Peek_dScalar('PotNuc',PotNuc)
-         Call mma_allocate(RFfld,nBT,Label='RFfld')
-         call dcopy_(nBT,[Zero],0,RFfld,1)
-         First=.True.
-         Dff = .False.
-         Do_DFT=.False. ! We do not need to redo the DFT!
-         Call DrvXV(RFfld,RFfld,Dens,PotNuc,nBT,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
-         Call mma_deallocate(RFfld)
-!
-!------- Print multipole analysis of the reaction field contributions
-!
-         Call RFmltp()
-!
-      End If
-!
-!
-!---- Print orbitals (the case InVec=3 and nIter=0 is set up in RdInp)
-      Fmt = '(6X,A)'
-      If (iPrOrb.ge.1) Then
-         FullMlk=.True.
-         PrEne=.True.
-         PrOcc=.True.
-         If (iPrOrb.eq.1) Then
-            EHomo = -99999.0d+00
-            ELumo =  99999.0d+00
-            ij = 1
-            Do iSym = 1, nSym
-              Do iv=1,nOrb(iSym)
-              if(OccNo(ij+iv-1).gt.0.001) then
-               EHomo = Max(EHomo,EOrb(ij + iv - 1))
-              else
-               ELumo = Min(ELumo,EOrb(ij + iv -1 ))
-              endif
-              End Do
-               ij    = ij + nOrb(iSym)
-            End Do
-            ThrEne = ELumo+0.5
-            If (jPrint.ge.2) Then
-               Write(6,*)
-               Write(6,Fmt)'All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed'
-            End If
-         Else
-            If (jPrint.ge.2) Then
-               Write(6,*)
-               Write(6,'(6X,A,ES11.4,A)')'All orbitals with orbital energies smaller than',ThrEne,' are printed'
-            End If
-         End If
-         ThrOcc = -99999.0d+00
-         If (KSDFT.eq.'SCF') Then
-            If(nD==1) Then
-               Note='SCF orbitals'//AlphaLabel
-               If (kIvo.ne.0)  Note='SCF orbitals + IVO'
-               If (iCoCo.ne.0) Note='SCF orbitals + arbitrary occupations'
-            Else
-               Note='UHF orbitals'//AlphaLabel
-               If (kIvo.ne.0)  Note='UHF orbitals + IVO'
-               If (iCoCo.ne.0) Note='UHF orbitals + arbitrary occupations'
-            End If
-         Else
-            If(nD==1) Then
-               Note='RKS-DFT orbitals'//AlphaLabel
-               If (kIvo.ne.0)  Note='RKS-DFT orbitals + IVO'
-               If (iCoCo.ne.0) Note='RKS-DFT orbitals + arbitrary occupations'
-            Else
-               Note='UKS-DFT orbitals'//AlphaLabel
-               If (kIvo.ne.0)  Note='UKS-DFT orbitals + IVO'
-               If (iCoCo.ne.0) Note='UKS-DFT orbitals + arbitrary occupations'
-            End If
-         End If
-         If (jPrint.ge.2) Call PriMO(Note,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Name,EOrb,OccNo,CMO,iPrForm)
-      Else
-         If (jPrint.ge.2) Write(6,Fmt)'No orbitals printed'
-         FullMlk=.False.
-      End If
-!
-      If (InVec.ne.3 .or. nIter(nIterP).gt.0) Then
-         Call mma_allocate(Scr2,nBB,Label='Scr2')
-         Call mma_allocate(Scr3,nnB,Label='Scr3')
-!
-!------- Prepare CMO in symmetry blocks nBas x nBas
-         iVec  = 0
-         iCMO  = 0
-         Do iSym = 1, nSym
-            Do i = 1, nBas(iSym)*nOrb(iSym)
-               Scr2(iVec + i) = CMO(iCMO + i)
-            End Do
-            iVec = iVec + nBas(iSym)*nOrb(iSym)
-            Do i = 1, nBas(iSym)*(nBas(iSym) - nOrb(iSym))
-               Scr2(iVec + i) = Zero
-            End Do
-            iVec = iVec + nBas(iSym)*(nBas(iSym) - nOrb(iSym))
-            iCMO = iCMO + nOrb(iSym)*nBas(iSym)
-         End Do
-!
-!------- Prepare occupation numbers
-!
-         iOr = 0
-         iBs = 0
-         Do iSym = 1, nSym
-            Do j = 1, nOrb(iSym)
-               Scr3(iBs + j) = OccNo(iOr + j)
-            End Do
-            Do j = nOrb(iSym) + 1, nBas(iSym)
-               Scr3(iBs + j) = Zero
-            End Do
-            iOr = iOr + nOrb(iSym)
-            iBs = iBs + nBas(iSym)
-         End Do
+call DecideOnESPF(Do_ESPF)
+!nf if ((lRF .or. (KSDFT /= 'SCF')) .and. (.not. oneel_NDDO) .and.
+if ((Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. EFP_On()) .and. (.not. oneel_NDDO) .and. (iCase == 0)) then
+  iCharge = int(Tot_Charge)
+  NonEq = .false.
+  !call Get_PotNuc(PotNuc)
+  !call Get_dScalar('PotNuc',PotNuc)
+  call Peek_dScalar('PotNuc',PotNuc)
+  call mma_allocate(RFfld,nBT,Label='RFfld')
+  call dcopy_(nBT,[Zero],0,RFfld,1)
+  First = .true.
+  Dff = .false.
+  Do_DFT = .false. ! We do not need to redo the DFT!
+  call DrvXV(RFfld,RFfld,Dens,PotNuc,nBT,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
+  call mma_deallocate(RFfld)
 
-         If(.not.NoProp) Then
-!
-!------- Population analysis
-!
-         jCase=iCase
-         if(nD==1) jCase=2
-         Call Charge(nSym,nBas,Name,Scr2,Scr3,Ovlp,jCase,FullMlk,.True.)
+  ! Print multipole analysis of the reaction field contributions
 
-         If (get_BasisType('ANO')) Then
-            iRc = 0
-            Call LoProp(iRc)
-!
-!------- NBO analysis
-!
-            Call Nat_Bond_Order(nSym,nBas,Name,jCase)
-         End If
-         End If
-!
-!------- ESPF analysis
-!
-         If (Do_ESPF) Call espf_analysis(.True.)
-!
-         Call mma_deallocate(Scr3)
-         Call mma_deallocate(Scr2)
-!
-      End If
+  call RFmltp()
 
-      End subroutine PrFin
+end if
+
+! Print orbitals (the case InVec=3 and nIter=0 is set up in RdInp)
+Fmt = '(6X,A)'
+if (iPrOrb >= 1) then
+  FullMlk = .true.
+  PrEne = .true.
+  PrOcc = .true.
+  if (iPrOrb == 1) then
+    EHomo = -99999.0d+00
+    ELumo = 99999.0d+00
+    ij = 1
+    do iSym=1,nSym
+      do iv=1,nOrb(iSym)
+        if (OccNo(ij+iv-1) > 0.001) then
+          EHomo = max(EHomo,EOrb(ij+iv-1))
+        else
+          ELumo = min(ELumo,EOrb(ij+iv-1))
+        end if
+      end do
+      ij = ij+nOrb(iSym)
+    end do
+    ThrEne = ELumo+0.5
+    if (jPrint >= 2) then
+      write(6,*)
+      write(6,Fmt) 'All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed'
+    end if
+  else
+    if (jPrint >= 2) then
+      write(6,*)
+      write(6,'(6X,A,ES11.4,A)') 'All orbitals with orbital energies smaller than',ThrEne,' are printed'
+    end if
+  end if
+  ThrOcc = -99999.0d+00
+  if (KSDFT == 'SCF') then
+    if (nD == 1) then
+      Note = 'SCF orbitals'//AlphaLabel
+      if (kIvo /= 0) Note = 'SCF orbitals + IVO'
+      if (iCoCo /= 0) Note = 'SCF orbitals + arbitrary occupations'
+    else
+      Note = 'UHF orbitals'//AlphaLabel
+      if (kIvo /= 0) Note = 'UHF orbitals + IVO'
+      if (iCoCo /= 0) Note = 'UHF orbitals + arbitrary occupations'
+    end if
+  else
+    if (nD == 1) then
+      Note = 'RKS-DFT orbitals'//AlphaLabel
+      if (kIvo /= 0) Note = 'RKS-DFT orbitals + IVO'
+      if (iCoCo /= 0) Note = 'RKS-DFT orbitals + arbitrary occupations'
+    else
+      Note = 'UKS-DFT orbitals'//AlphaLabel
+      if (kIvo /= 0) Note = 'UKS-DFT orbitals + IVO'
+      if (iCoCo /= 0) Note = 'UKS-DFT orbitals + arbitrary occupations'
+    end if
+  end if
+  if (jPrint >= 2) call PriMO(Note,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Name,EOrb,OccNo,CMO,iPrForm)
+else
+  if (jPrint >= 2) write(6,Fmt) 'No orbitals printed'
+  FullMlk = .false.
+end if
+
+if ((InVec /= 3) .or. (nIter(nIterP) > 0)) then
+  call mma_allocate(Scr2,nBB,Label='Scr2')
+  call mma_allocate(Scr3,nnB,Label='Scr3')
+
+  ! Prepare CMO in symmetry blocks nBas x nBas
+  iVec = 0
+  iCMO = 0
+  do iSym=1,nSym
+    do i=1,nBas(iSym)*nOrb(iSym)
+      Scr2(iVec+i) = CMO(iCMO+i)
+    end do
+    iVec = iVec+nBas(iSym)*nOrb(iSym)
+    do i=1,nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+      Scr2(iVec+i) = Zero
+    end do
+    iVec = iVec+nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+    iCMO = iCMO+nOrb(iSym)*nBas(iSym)
+  end do
+
+  ! Prepare occupation numbers
+
+  iOr = 0
+  iBs = 0
+  do iSym=1,nSym
+    do j=1,nOrb(iSym)
+      Scr3(iBs+j) = OccNo(iOr+j)
+    end do
+    do j=nOrb(iSym)+1,nBas(iSym)
+      Scr3(iBs+j) = Zero
+    end do
+    iOr = iOr+nOrb(iSym)
+    iBs = iBs+nBas(iSym)
+  end do
+
+  if (.not. NoProp) then
+
+    ! Population analysis
+
+    jCase = iCase
+    if (nD == 1) jCase = 2
+    call Charge(nSym,nBas,Name,Scr2,Scr3,Ovlp,jCase,FullMlk,.true.)
+
+    if (get_BasisType('ANO')) then
+      iRc = 0
+      call LoProp(iRc)
+
+      ! NBO analysis
+
+      call Nat_Bond_Order(nSym,nBas,Name,jCase)
+    end if
+  end if
+
+  ! ESPF analysis
+
+  if (Do_ESPF) call espf_analysis(.true.)
+
+  call mma_deallocate(Scr3)
+  call mma_deallocate(Scr2)
+
+end if
+
+end subroutine PrFin

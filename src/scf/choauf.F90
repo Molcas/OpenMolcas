@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module ChoAuf
-Logical Cho_Aufb
-End Module ChoAuf
+
+module ChoAuf
+
+logical Cho_Aufb
+
+end module ChoAuf

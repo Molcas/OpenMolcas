@@ -64,7 +64,7 @@ if (norb_act == 0) then
     iseg_upwei(jp) = iseg_dim(jp)/iseg_downwei(jp)
   end do
 else
-  !====================  norb_act<>0 ===================================
+  !====================  norb_act/=0 ===================================
   !if (logic_mr) call rst()         !npp=2
   !if (logic_mrelcas) call rcas()   !npp=3
 

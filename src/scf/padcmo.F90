@@ -10,53 +10,58 @@
 !                                                                      *
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
+
+subroutine PadCMO(CMO1,CMO2,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine pads CMO's from nBas x nOrb to nBas x nBas.             *
 !                                                                      *
 !***********************************************************************
-      SubRoutine PadCMO(CMO1,CMO2,nSym,nBas,nOrb)
-      use Constants, only: Zero
-      Implicit None
+
+use Constants, only: Zero
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Real*8  CMO1(*)
-      Real*8  CMO2(*)
-      Integer nSym
-      Integer nBas(*)
-      Integer nOrb(*)
+real*8 CMO1(*)
+real*8 CMO2(*)
+integer nSym
+integer nBas(*)
+integer nOrb(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer iFrom(8)
-      Integer iTo(8)
-      Integer iSym
-      Integer ndata
-      Integer iPtr
-      Integer i
+integer iFrom(8)
+integer iTo(8)
+integer iSym
+integer ndata
+integer iPtr
+integer i
+
 !----------------------------------------------------------------------*
 ! Transfer orbitals.                                                   *
 !----------------------------------------------------------------------*
-      iFrom(1) = nBas(1)*nOrb(1)
-      iTo(1)   = nBas(1)*nOrb(1)
-      Do iSym=1,nSym-1
-         iFrom(iSym+1) = iFrom(iSym) + nBas(iSym+1)*nOrb(iSym+1)
-         iTo(iSym+1)   = iTo(iSym)   + nBas(iSym+1)*nOrb(iSym+1) + nBas(iSym)*(nBas(iSym)-nOrb(iSym))
-      End Do
-      Do iSym=nSym,1,-1
-         ndata=nBas(iSym)*nOrb(iSym)
-         Do i=1,ndata
-            CMO2(iTo(iSym)+1-i)=CMO1(iFrom(iSym)+1-i)
-         End Do
-         If(nBas(iSym).gt.nOrb(iSym)) Then
-            ndata=nBas(iSym)*(nBas(iSym)-nOrb(iSym))
-            iPtr=iTo(iSym)+1
-            Call dCopy_(ndata,[Zero],0,CMO2(iPtr),1)
-         End If
-      End Do
+iFrom(1) = nBas(1)*nOrb(1)
+iTo(1) = nBas(1)*nOrb(1)
+do iSym=1,nSym-1
+  iFrom(iSym+1) = iFrom(iSym)+nBas(iSym+1)*nOrb(iSym+1)
+  iTo(iSym+1) = iTo(iSym)+nBas(iSym+1)*nOrb(iSym+1)+nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+end do
+do iSym=nSym,1,-1
+  ndata = nBas(iSym)*nOrb(iSym)
+  do i=1,ndata
+    CMO2(iTo(iSym)+1-i) = CMO1(iFrom(iSym)+1-i)
+  end do
+  if (nBas(iSym) > nOrb(iSym)) then
+    ndata = nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+    iPtr = iTo(iSym)+1
+    call dCopy_(ndata,[Zero],0,CMO2(iPtr),1)
+  end if
+end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *
 !----------------------------------------------------------------------*
-      Return
-      End SubRoutine PadCMO
+return
+
+end subroutine PadCMO

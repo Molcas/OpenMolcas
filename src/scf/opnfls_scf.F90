@@ -12,45 +12,47 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      Subroutine OpnFls_SCF()
+
+subroutine OpnFls_SCF()
 !***********************************************************************
 !                                                                      *
 !     purpose: Open files needed by SCF                                *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: DoCholesky, DSCF
-      use Files, only: LuDst, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy,  LuOrd, &
-                       FnDst, FnOSt, FnTSt, FnGrd, FnDGd, Fnx, FnDel, Fny,  FnOrd
-      Implicit None
-!
-!---- Define local variables
-      Logical test
-      Integer iOpt, iRC
+
+use InfSCF, only: DoCholesky, DSCF
+use Files, only: LuDst, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy, LuOrd, FnDst, FnOSt, FnTSt, FnGrd, FnDGd, Fnx, FnDel, Fny, &
+                 FnOrd
+
+implicit none
+! Define local variables
+logical test
+integer iOpt, iRC
 
 !---  open two-electron integral file ---------------------------------*
-      Call f_Inquire(FnOrd,test)
-      Call DecideOnDirect(.True.,test,DSCF,DoCholesky)
-      If (.Not.DSCF .And. .Not.DoCholesky) Then
-!        InVec=0
-         iRc=-1
-         iOpt=0
-         Call OpnOrd(iRC,iOpt,FnOrd,LuOrd)
-         If (iRc.ne.0) Then
-            Write (6,*) 'OpnFls: Error opening ORDINT'
-            Call Abend()
-         End If
-      End If
-!
+call f_Inquire(FnOrd,test)
+call DecideOnDirect(.true.,test,DSCF,DoCholesky)
+if ((.not. DSCF) .and. (.not. DoCholesky)) then
+  !InVec = 0
+  iRc = -1
+  iOpt = 0
+  call OpnOrd(iRC,iOpt,FnOrd,LuOrd)
+  if (iRc /= 0) then
+    write(6,*) 'OpnFls: Error opening ORDINT'
+    call Abend()
+  end if
+end if
+
 !---  open DNSMAT, dVxcdR, TWOHAM and GRADIENT ------------------------*
-      Call DAName(LuDSt,FnDSt)
-      Call DAName(LuOSt,FnOSt)
-      Call DAName(LuTSt,FnTSt)
-      Call DAName(LuGrd,FnGrd)
-!
+call DAName(LuDSt,FnDSt)
+call DAName(LuOSt,FnOSt)
+call DAName(LuTSt,FnTSt)
+call DAName(LuGrd,FnGrd)
+
 !---  open 2nd order update files      --------------------------------*
-      Call DAName(LuDGd,FnDGd)
-      Call DAName(Lux,Fnx)
-      Call DAName(LuDel,FnDel)
-      Call DAName(Luy,Fny)
-!
-      End Subroutine OpnFls_SCF
+call DAName(LuDGd,FnDGd)
+call DAName(Lux,Fnx)
+call DAName(LuDel,FnDel)
+call DAName(Luy,Fny)
+
+end subroutine OpnFls_SCF

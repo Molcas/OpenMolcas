@@ -10,59 +10,63 @@
 !                                                                      *
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
-      SubRoutine MulPop(CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
+
+subroutine MulPop(CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
 !***********************************************************************
 !                                                                      *
 ! This routine is a wrapper for Charge (which prints Mulliken popu-    *
 ! lation analyzes) since charge needs square CMO matrices.             *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: Name, nBB, nnB, nSym, nOrb, nBas
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer mBB, nD, mBT, mmB
-      Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
-!***********************************************************************
+
+use InfSCF, only: Name, nBB, nnB, nSym, nOrb, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer mBB, nD, mBT, mmB
+real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer iSym
-      Logical isOK
-      Real*8, Dimension(:), Allocatable:: Aux1, Aux2
+integer iSym
+logical isOK
+real*8, dimension(:), allocatable :: Aux1, Aux2
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      isOK=.true.
-      Do iSym=1,nSym
-         isOK=isOK .and. nBas(iSym).eq.nOrb(iSym)
-      End Do
-      If(isOK) Then
-         If(nD==1) Then
-            Call Charge(nSym,nBas,Name,CMO(1,1),OccNo(1,1),Ovrlp,2,.false.,.false.)
-         Else
-            Call Charge(nSym,nBas,Name,CMO(1,1),OccNo(1,1),Ovrlp,0,.false.,.false.)
-            Call Charge(nSym,nBas,Name,CMO(1,2),OccNo(1,2),Ovrlp,1,.false.,.false.)
-         End If
-      Else
-         Call mma_allocate(Aux1,nBB,Label='Aux1')
-         Call mma_allocate(Aux2,nnB,Label='Aux2')
-         If(nD==1) Then
-            Call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
-            Call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
-            Call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,2,.false.,.false.)
-         Else
-            Call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
-            Call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
-            Call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,0,.false.,.false.)
-            Call PadCMO(CMO(1,2),Aux1,nSym,nBas,nOrb)
-            Call PadEor(OccNo(1,2),Aux2,nSym,nBas,nOrb)
-            Call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,1,.false.,.false.)
-         End If
-         Call mma_deallocate(Aux1)
-         Call mma_deallocate(Aux2)
-      End If
+isOK = .true.
+do iSym=1,nSym
+  isOK = (isOK .and. (nBas(iSym) == nOrb(iSym)))
+end do
+if (isOK) then
+  if (nD == 1) then
+    call Charge(nSym,nBas,Name,CMO(1,1),OccNo(1,1),Ovrlp,2,.false.,.false.)
+  else
+    call Charge(nSym,nBas,Name,CMO(1,1),OccNo(1,1),Ovrlp,0,.false.,.false.)
+    call Charge(nSym,nBas,Name,CMO(1,2),OccNo(1,2),Ovrlp,1,.false.,.false.)
+  end if
+else
+  call mma_allocate(Aux1,nBB,Label='Aux1')
+  call mma_allocate(Aux2,nnB,Label='Aux2')
+  if (nD == 1) then
+    call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
+    call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
+    call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,2,.false.,.false.)
+  else
+    call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
+    call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
+    call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,0,.false.,.false.)
+    call PadCMO(CMO(1,2),Aux1,nSym,nBas,nOrb)
+    call PadEor(OccNo(1,2),Aux2,nSym,nBas,nOrb)
+    call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,1,.false.,.false.)
+  end if
+  call mma_deallocate(Aux1)
+  call mma_deallocate(Aux2)
+end if
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine MulPop

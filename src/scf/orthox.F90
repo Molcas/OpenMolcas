@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine Orthox(S,C,nOrb,nBas)
+
+subroutine Orthox(S,C,nOrb,nBas)
 !***********************************************************************
 !                                                                      *
 !     purpose: Perform Gram-Schmidt orthogonalization scheme           *
@@ -26,38 +27,38 @@
 !       C       : matrix transforming orthonormal basis                *
 !                                                                      *
 !***********************************************************************
-      use Constants, only: Zero, One
-      Implicit  None
-      Integer nBas,nOrb
-      Real*8 C(nBas,nOrb),S(nOrb,nOrb)
 
-      Integer iOrb, jOrb, iBas, kOrb
-      Real*8 F, A
+use Constants, only: Zero, One
 
+implicit none
+integer nBas, nOrb
+real*8 C(nBas,nOrb), S(nOrb,nOrb)
+integer iOrb, jOrb, iBas, kOrb
+real*8 F, A
 
-      Do 100 iOrb = 1, nOrb
-         F = Zero
-         If (S(iOrb,iOrb).gt.Zero) F=One/SqRt(S(iOrb,iOrb))
-         Do 110 iBas = 1, nBas
-            C(iBas,iOrb) = F*C(iBas,iOrb)
-  110    Continue
-         Do 120 jOrb = 1, nOrb
-            S(iOrb,jOrb) = F*S(iOrb,jOrb)
-            S(jOrb,iOrb) = F*S(jOrb,iOrb)
-  120    Continue
-         S(iOrb,iOrb) = One
-         Do 130 jOrb = iOrb + 1, nOrb
-            A = S(iOrb,jOrb)
-            Do 131 iBas = 1, nBas
-               C(iBas,jOrb) = C(iBas,jOrb) - A*C(iBas,iOrb)
-  131       Continue
-            Do 132 kOrb = 1, nOrb
-               S(jOrb,kOrb) = S(jOrb,kOrb) - A*S(iOrb,kOrb)
-  132       Continue
-            Do 133 kOrb = 1, nOrb
-               S(kOrb,jOrb) = S(kOrb,jOrb) - A*S(kOrb,iOrb)
-  133       Continue
-  130    Continue
-  100 Continue
+do iOrb=1,nOrb
+  F = Zero
+  if (S(iOrb,iOrb) > Zero) F = One/sqrt(S(iOrb,iOrb))
+  do iBas=1,nBas
+    C(iBas,iOrb) = F*C(iBas,iOrb)
+  end do
+  do jOrb=1,nOrb
+    S(iOrb,jOrb) = F*S(iOrb,jOrb)
+    S(jOrb,iOrb) = F*S(jOrb,iOrb)
+  end do
+  S(iOrb,iOrb) = One
+  do jOrb=iOrb+1,nOrb
+    A = S(iOrb,jOrb)
+    do iBas=1,nBas
+      C(iBas,jOrb) = C(iBas,jOrb)-A*C(iBas,iOrb)
+    end do
+    do kOrb=1,nOrb
+      S(jOrb,kOrb) = S(jOrb,kOrb)-A*S(iOrb,kOrb)
+    end do
+    do kOrb=1,nOrb
+      S(kOrb,jOrb) = S(kOrb,jOrb)-A*S(kOrb,iOrb)
+    end do
+  end do
+end do
 
-      End SubRoutine Orthox
+end subroutine Orthox

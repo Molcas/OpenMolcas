@@ -10,53 +10,58 @@
 !                                                                      *
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
-      SubRoutine PadEor(Eor1,Eor2,nSym,nBas,nOrb)
-      use Constants, only: Zero
+
+subroutine PadEor(Eor1,Eor2,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine pads orbital energy vectors.                            *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+use Constants, only: Zero
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Real*8  Eor1(*)
-      Real*8  Eor2(*)
-      Integer nSym
-      Integer nBas(*)
-      Integer nOrb(*)
+real*8 Eor1(*)
+real*8 Eor2(*)
+integer nSym
+integer nBas(*)
+integer nOrb(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer iFrom(8)
-      Integer iTo(8)
-      Integer iPtr
-      Integer iSym
-      Integer ndata
-      Integer i
+integer iFrom(8)
+integer iTo(8)
+integer iPtr
+integer iSym
+integer ndata
+integer i
+
 !----------------------------------------------------------------------*
 ! Transfer orbital energies.                                           *
 !----------------------------------------------------------------------*
-      iFrom(1) = nOrb(1)
-      iTo(1)   = nOrb(1)
-      Do iSym=1,nSym-1
-         iFrom(iSym+1) = iFrom(iSym) + nOrb(iSym+1)
-         iTo(iSym+1)   = iTo(iSym)   + nOrb(iSym+1) + nBas(iSym)-nOrb(iSym)
-      End Do
-      Do iSym=nSym,1,-1
-         ndata=nOrb(iSym)
-         Do i=1,ndata
-            Eor2(iTo(iSym)+1-i)=Eor1(iFrom(iSym)+1-i)
-         End Do
-         If(nBas(iSym).gt.nOrb(iSym)) Then
-            ndata=nBas(iSym)-nOrb(iSym)
-            iPtr=iTo(iSym)+1
-            Call dCopy_(ndata,[Zero],0,Eor2(iPtr),1)
-         End If
-      End Do
+iFrom(1) = nOrb(1)
+iTo(1) = nOrb(1)
+do iSym=1,nSym-1
+  iFrom(iSym+1) = iFrom(iSym)+nOrb(iSym+1)
+  iTo(iSym+1) = iTo(iSym)+nOrb(iSym+1)+nBas(iSym)-nOrb(iSym)
+end do
+do iSym=nSym,1,-1
+  ndata = nOrb(iSym)
+  do i=1,ndata
+    Eor2(iTo(iSym)+1-i) = Eor1(iFrom(iSym)+1-i)
+  end do
+  if (nBas(iSym) > nOrb(iSym)) then
+    ndata = nBas(iSym)-nOrb(iSym)
+    iPtr = iTo(iSym)+1
+    call dCopy_(ndata,[Zero],0,Eor2(iPtr),1)
+  end if
+end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *
 !----------------------------------------------------------------------*
-      Return
-      End SubRoutine PadEor
+return
+
+end subroutine PadEor

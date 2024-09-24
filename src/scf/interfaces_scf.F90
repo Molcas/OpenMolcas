@@ -9,48 +9,49 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-Module Interfaces_SCF
+module Interfaces_SCF
 
-Implicit None
-Private
-Public :: dOne_SCF, MinDns, OccDef, PMat_SCF, TraClc_i, vOO2OV
+implicit none
+private
 
-Interface
+public :: dOne_SCF, MinDns, OccDef, PMat_SCF, TraClc_i, vOO2OV
 
-  SubRoutine dOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
-    Integer :: nSym,nCMO,nBas(nSym),nOrb(nSym),nFro(nSym)
-    Real*8, Target:: CMO(nCMO), Occ(*), Dlt(*)
-    Logical :: alpha_density
-  End SubRoutine dOne_SCF
+interface
 
-  SubRoutine MinDns(Dens,mBT,NumD,XCff,ltXCff,nD)
-    Integer :: mBT,NumD,ltXCff,nD
-    Real*8 :: XCff(ltXCff,nD)
-    Real*8, Target :: Dens(mBT,nD,NumD)
-  End SubRoutine MinDns
+  subroutine dOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
+    integer :: nSym, nCMO, nBas(nSym), nOrb(nSym), nFro(nSym)
+    real*8, target :: CMO(nCMO), Occ(*), Dlt(*)
+    logical :: alpha_density
+  end subroutine dOne_SCF
 
-  SubRoutine OccDef(Occ,mmB,nD,CMO,mBB)
-    Integer :: mmB,nD,mBB
-    Real*8 :: Occ(mmB,nD)
-    Real*8, Target :: CMO(mBB,nD)
-  End SubRoutine OccDef
+  subroutine MinDns(Dens,mBT,NumD,XCff,ltXCff,nD)
+    integer :: mBT, NumD, ltXCff, nD
+    real*8 :: XCff(ltXCff,nD)
+    real*8, target :: Dens(mBT,nD,NumD)
+  end subroutine MinDns
 
-  SubRoutine PMat_SCF(FstItr,XCf,nXCf,nD)
-    Logical :: FstItr
-    Integer :: nXCf,nD
-    Real*8 :: XCf(nXCf,nD)
-  End SubRoutine PMat_SCF
+  subroutine OccDef(Occ,mmB,nD,CMO,mBB)
+    integer :: mmB, nD, mBB
+    real*8 :: Occ(mmB,nD)
+    real*8, target :: CMO(mBB,nD)
+  end subroutine OccDef
 
-  SubRoutine TraClc_i(iterLw,nD)
-    Integer :: iterLw,nD
-  End SubRoutine TraClc_i
+  subroutine PMat_SCF(FstItr,XCf,nXCf,nD)
+    logical :: FstItr
+    integer :: nXCf, nD
+    real*8 :: XCf(nXCf,nD)
+  end subroutine PMat_SCF
 
-  SubRoutine vOO2OV(v1,n1,v2,n2,nD,n3)
-    Integer :: n1,n2,nD
-    Integer :: n3(nD)
-    Real*8, Target :: v1(n1,nD),v2(n2)
-  End SubRoutine vOO2OV
+  subroutine TraClc_i(iterLw,nD)
+    integer :: iterLw, nD
+  end subroutine TraClc_i
 
-End Interface
+  subroutine vOO2OV(v1,n1,v2,n2,nD,n3)
+    integer :: n1, n2, nD
+    integer :: n3(nD)
+    real*8, target :: v1(n1,nD), v2(n2)
+  end subroutine vOO2OV
 
-End Module Interfaces_SCF
+end interface
+
+end module Interfaces_SCF

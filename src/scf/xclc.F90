@@ -8,58 +8,59 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-!
-!     Compute the x parameters value as a function of Iter_ref
-!
-      Subroutine XClc()
-      use LnkLst, only: SCF_V, LLx
-      use InfSCF, only: Iter, Iter_Start, mOV, Iter_Ref
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer jpgrd,inode, i
-      Real*8, Dimension(:), Allocatable:: Scr
-      Integer, External :: LstPtr
+subroutine XClc()
+! Compute the x parameters value as a function of Iter_ref
 
-      Call mma_allocate(Scr,mOV,Label='Scr')
+use LnkLst, only: SCF_V, LLx, LstPtr, GetNod, iVPtr, PutVec
+use InfSCF, only: Iter, Iter_Start, mOV, Iter_Ref
+use stdalloc, only: mma_allocate, mma_deallocate
 
-      jpgrd=LstPtr(Iter_Ref,LLx)   ! Pointer to X_old(i_ref)
+implicit none
+integer jpgrd, inode, i
+real*8, dimension(:), allocatable :: Scr
+
+call mma_allocate(Scr,mOV,Label='Scr')
+
+jpgrd = LstPtr(Iter_Ref,LLx)   ! Pointer to X_old(i_ref)
 #ifdef _DEBUGPRINT_
-      Write (6,*)
-      Write (6,*) 'iter=',iter
-      Write (6,*) 'iter_Start=',iter_Start
-      Write (6,*) 'iter_ref=',iter_ref
-      Call NrmClc(SCF_V(jpgrd)%A(:),mOV,'XClc','X(i_ref)(:)')
-      Write (6,*)
+write(6,*)
+write(6,*) 'iter=',iter
+write(6,*) 'iter_Start=',iter_Start
+write(6,*) 'iter_ref=',iter_ref
+call NrmClc(SCF_V(jpgrd)%A(:),mOV,'XClc','X(i_ref)(:)')
+write(6,*)
 #endif
 
-!     Loop over all iterations starting at Iter_Start+1
+! Loop over all iterations starting at Iter_Start+1
 
-      Do i = Iter_Start, Iter
+do i=Iter_Start,Iter
 
-!        X_new(i)=X_old(i)-X_old(i_ref)
+  !X_new(i) = X_old(i)-X_old(i_ref)
 
-         Call GetNod(i,LLx,inode)
-         If (inode.eq.0) Then
-            Write (6,*) 'inode.eq.0'
-            Call Abend()
-         End If
-         Call iVPtr(Scr,mOV,inode)
-#ifdef _DEBUGPRINT_
-         Write (6,*)
-         Write (6,*) 'X(i) before  i=',i
-         Call NrmClc(Scr(:),mOV,'XClc','Scr(:)')
-#endif
-         Scr(:)=Scr(:)-SCF_V(jpgrd)%A(:)
-#ifdef _DEBUGPRINT_
-         Write (6,*) 'X(i) after  i=',i
-         Call NrmClc(Scr(:),mOV,'XClc','Scr(:)')
-#endif
+  call GetNod(i,LLx,inode)
+  if (inode == 0) then
+    write(6,*) 'inode == 0'
+    call Abend()
+  end if
+  call iVPtr(Scr,mOV,inode)
+# ifdef _DEBUGPRINT_
+  write(6,*)
+  write(6,*) 'X(i) before  i=',i
+  call NrmClc(Scr(:),mOV,'XClc','Scr(:)')
+# endif
+  Scr(:) = Scr(:)-SCF_V(jpgrd)%A(:)
+# ifdef _DEBUGPRINT_
+  write(6,*) 'X(i) after  i=',i
+  call NrmClc(Scr(:),mOV,'XClc','Scr(:)')
+# endif
 
-         Call PutVec(Scr,mOV,i,'OVWR',LLx)
-      End Do
+  call PutVec(Scr,mOV,i,'OVWR',LLx)
+end do
 
-      Call mma_deallocate(Scr)
+call mma_deallocate(Scr)
 
-      Return
-      End Subroutine XClc
+return
+
+end subroutine XClc

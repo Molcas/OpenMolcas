@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine RWDTG(Num,DMat,lth,Option,DT,iDisk,MaxNum)
+
+subroutine RWDTG(Num,DMat,lth,Option,DT,iDisk,MaxNum)
 !***********************************************************************
 !                                                                      *
 ! purpose: Read / write density matrix, two-electron hamiltonian       *
@@ -32,81 +33,80 @@
 !   DMat      - matrix read from the disk (if the option was read)     *
 !                                                                      *
 !***********************************************************************
-      use Files, only: LuDSt, LuGrd, LuOSt, LuTSt
-      Implicit None
-      Integer Num, lth, MaxNum
-      Real*8 DMat(lth)
-      Integer iDisk(MaxNum)
-      Character Option, DT*6
 
-      Integer jDisk, LU
+use Files, only: LuDSt, LuGrd, LuOSt, LuTSt
+
+implicit none
+integer Num, lth, MaxNum
+real*8 DMat(lth)
+integer iDisk(MaxNum)
+character Option, DT*6
+integer jDisk, LU
 #include "SysDef.fh"
 
-
-!
 ! Check Num; Subroutine is called with Num = - MapDns(i)
-!
-      If (Num.le.0) Then
-         Write (6,*) 'RWDTG: Num.le.0'
-         Write (6,*) 'Num=',Num
-         Write (6,*) 'Wrong density number supplied.'
-         Call Abend()
-      End If
-      If (Num.gt.MaxNum) Then
-         Write (6,*) 'RWDTG: Num.gt.MaxNum'
-         Write (6,*) 'Num,MaxNum=',Num,MaxNum
-         Write (6,*) 'Wrong density number supplied.'
-         Call Abend()
-      End If
 
-      If (DT.ne.'DENS  '.and.DT.ne.'TWOHAM'.and.DT.ne.'GRAD  ' .AND. DT.ne.'dVxcdR') Then
-         Write (6,*) 'RWDTG: invalid value of DT'
-         Write (6,*) '->DT<-=->',DT,'<-'
-         Write (6,*) 'Valid values: "DENS  "'
-         Write (6,*) '              "dVxcdR"'
-         Write (6,*) '              "TWOHAM"'
-         Write (6,*) '              "GRAD  "'
-         Call Abend()
-      End If
+if (Num <= 0) then
+  write(6,*) 'RWDTG: Num <= 0'
+  write(6,*) 'Num=',Num
+  write(6,*) 'Wrong density number supplied.'
+  call Abend()
+end if
+if (Num > MaxNum) then
+  write(6,*) 'RWDTG: Num > MaxNum'
+  write(6,*) 'Num,MaxNum=',Num,MaxNum
+  write(6,*) 'Wrong density number supplied.'
+  call Abend()
+end if
 
-      If (Option.ne.'W'.and.Option.ne.'R') Then
-         Write (6,*) 'RWDTG: invalid Option'
-         Write (6,*) '->Option<-=->',Option,'<-'
-         Write (6,*) 'Valid Options: R'
-         Write (6,*) '               W'
-      End If
-!
-      If (DT.eq.'DENS  ') Then
-         LU =  LuDSt
-      Else If (DT.eq.'TWOHAM') Then
-         LU = LuTSt
-      Else If (DT.eq.'GRAD  ') Then
-         LU = LuGrd
-      Else
-         LU = LuOSt
-      End If
-!
-      If (Option.eq.'W') Then
-!
-!        Write density matrix to DNS
-!
-         If (Num.eq.1) iDisk(Num) = 0
-         jDisk = iDisk(Num)
-         If (jDisk.eq.-1) Then
-            Write (6,*) 'RWDTG: jDisk.eq.-1'
-            Write (6,*) 'Num,MaxNum=',Num,MaxNum
-            Write (6,*) 'The preceeding block was not written.'
-            Call Abend()
-         End If
-         Call dDaFile(LU,1,DMat,lth,jDisk)
-         If (Num + 1.le.MaxNum) iDisk(Num + 1) = jDisk
-!
-      Else If (Option.eq.'R') Then
-!
-!        Read density matrix from DNS
-!
-         jDisk = iDisk(Num)
-         Call dDaFile(LU,2,DMat,lth,jDisk)
-      End If
+if ((DT /= 'DENS') .and. (DT /= 'TWOHAM') .and. (DT /= 'GRAD') .and. (DT /= 'dVxcdR')) then
+  write(6,*) 'RWDTG: invalid value of DT'
+  write(6,*) '->DT<-=->',DT,'<-'
+  write(6,*) 'Valid values: "DENS  "'
+  write(6,*) '              "dVxcdR"'
+  write(6,*) '              "TWOHAM"'
+  write(6,*) '              "GRAD  "'
+  call Abend()
+end if
 
-      end subroutine RWDTG
+if ((Option /= 'W') .and. (Option /= 'R')) then
+  write(6,*) 'RWDTG: invalid Option'
+  write(6,*) '->Option<-=->',Option,'<-'
+  write(6,*) 'Valid Options: R'
+  write(6,*) '               W'
+end if
+
+if (DT == 'DENS  ') then
+  LU = LuDSt
+else if (DT == 'TWOHAM') then
+  LU = LuTSt
+else if (DT == 'GRAD  ') then
+  LU = LuGrd
+else
+  LU = LuOSt
+end if
+
+if (Option == 'W') then
+
+  ! Write density matrix to DNS
+
+  if (Num == 1) iDisk(Num) = 0
+  jDisk = iDisk(Num)
+  if (jDisk == -1) then
+    write(6,*) 'RWDTG: jDisk == -1'
+    write(6,*) 'Num,MaxNum=',Num,MaxNum
+    write(6,*) 'The preceeding block was not written.'
+    call Abend()
+  end if
+  call dDaFile(LU,1,DMat,lth,jDisk)
+  if (Num+1 <= MaxNum) iDisk(Num+1) = jDisk
+
+else if (Option == 'R') then
+
+  ! Read density matrix from DNS
+
+  jDisk = iDisk(Num)
+  call dDaFile(LU,2,DMat,lth,jDisk)
+end if
+
+end subroutine RWDTG

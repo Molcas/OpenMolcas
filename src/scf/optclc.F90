@@ -13,8 +13,9 @@
 !               1992, Piotr Borowski                                   *
 !               2016,2017, Roland Lindh                                *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine OptClc(CInter,nCI,nD,Ind,nInd)
+subroutine OptClc(CInter,nCI,nD,Ind,nInd)
 !***********************************************************************
 !                                                                      *
 ! purpose: calculate optimal density matrix and two-electron hamil-    *
@@ -31,17 +32,19 @@
 !   Dens and TwoHam                                                    *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: kOptim, nBT, nDens, iDisk, MapDns
-      use SCF_Arrays, only: Dens, TwoHam, Vxc
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer nCI, nD, nInd
-      Real*8 CInter(nCI,nD)
-      Integer Ind(nInd)
 
-      Real*8, Dimension(:,:), Allocatable:: DnsTmp, TwoTmp, VxcTmp
-      Integer Iter_D, iMap, iD, i, MatNO
-      Real*8  C
+use InfSCF, only: kOptim, nBT, nDens, iDisk, MapDns
+use SCF_Arrays, only: Dens, TwoHam, Vxc
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer nCI, nD, nInd
+real*8 CInter(nCI,nD)
+integer Ind(nInd)
+real*8, dimension(:,:), allocatable :: DnsTmp, TwoTmp, VxcTmp
+integer Iter_D, iMap, iD, i, MatNO
+real*8 C
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
@@ -50,84 +53,85 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-      If (kOptim==1) Return
-      Call mma_allocate(DnsTmp,nBT,nD,Label='DnsTmp')
-      Call mma_allocate(TwoTmp,nBT,nD,Label='TwoTmp')
-      Call mma_allocate(VxcTmp,nBT,nD,Label='VxcTmp')
+if (kOptim == 1) return
+call mma_allocate(DnsTmp,nBT,nD,Label='DnsTmp')
+call mma_allocate(TwoTmp,nBT,nD,Label='TwoTmp')
+call mma_allocate(VxcTmp,nBT,nD,Label='VxcTmp')
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-!     Accumulate liner combinations in position iPsLst
+! Accumulate linear combinations in position iPsLst
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-!     Start with the last iteration
+! Start with the last iteration
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-      iter_d=Ind(kOptim)
-!
-      iMap=MapDns(iter_d)
-      If (iMap.lt.0) Then
-         Call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
-         Call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
-         Call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
-      Else
-         Call DCopy_(nBT*nD,Dens  (1,1,iMap),1,DnsTmp,1)
-         Call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
-         Call DCopy_(nBT*nD,Vxc   (1,1,iMap),1,VxcTmp,1)
-      End If
-!
-      Do iD = 1, nD
-!
-         C = CInter(kOptim,iD)
-         Call DScal_(nBT,C,DnsTmp(1,iD),1)
-         Call DScal_(nBT,C,TwoTmp(1,iD),1)
-         Call DScal_(nBT,C,VxcTmp(1,iD),1)
-!
-      End Do
-!
-      Call dcopy_(nBT*nD,DnsTmp,1,Dens  (1,1,nDens),1)
-      Call dcopy_(nBT*nD,TwoTmp,1,TwoHam(1,1,nDens),1)
-      Call dcopy_(nBT*nD,VxcTmp,1,Vxc   (1,1,nDens),1)
-!
-      Do i = 1, kOptim - 1
-         C = CInter(i,1)
-         MatNo = Ind(i)
-!
-         iMap=MapDns(MatNo)
-         If (iMap.lt.0) Then
-            Call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
-            Call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
-            Call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
-         Else
-            Call DCopy_(nBT*nD,Dens  (1,1,iMap),1,DnsTmp,1)
-            Call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
-            Call DCopy_(nBT*nD,Vxc   (1,1,iMap),1,VxcTmp,1)
-         End If
-!
-         Do iD = 1, nD
-            C = CInter(i,iD)
-            call daxpy_(nBT,C,DnsTmp(1,iD),1,Dens  (1,iD,nDens),1)
-            call daxpy_(nBT,C,TwoTmp(1,iD),1,TwoHam(1,iD,nDens),1)
-            call daxpy_(nBT,C,VxcTmp(1,iD),1,Vxc   (1,iD,nDens),1)
-         End Do
-!
-      End Do ! i
-!
+iter_d = Ind(kOptim)
+
+iMap = MapDns(iter_d)
+if (iMap < 0) then
+  call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
+  call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
+  call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,size(iDisk,1))
+else
+  call DCopy_(nBT*nD,Dens(1,1,iMap),1,DnsTmp,1)
+  call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
+  call DCopy_(nBT*nD,Vxc(1,1,iMap),1,VxcTmp,1)
+end if
+
+do iD=1,nD
+
+  C = CInter(kOptim,iD)
+  call DScal_(nBT,C,DnsTmp(1,iD),1)
+  call DScal_(nBT,C,TwoTmp(1,iD),1)
+  call DScal_(nBT,C,VxcTmp(1,iD),1)
+
+end do
+
+call dcopy_(nBT*nD,DnsTmp,1,Dens(1,1,nDens),1)
+call dcopy_(nBT*nD,TwoTmp,1,TwoHam(1,1,nDens),1)
+call dcopy_(nBT*nD,VxcTmp,1,Vxc(1,1,nDens),1)
+
+do i=1,kOptim-1
+  C = CInter(i,1)
+  MatNo = Ind(i)
+
+  iMap = MapDns(MatNo)
+  if (iMap < 0) then
+    call RWDTG(-iMap,DnsTmp,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
+    call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
+    call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,size(iDisk,1))
+  else
+    call DCopy_(nBT*nD,Dens(1,1,iMap),1,DnsTmp,1)
+    call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
+    call DCopy_(nBT*nD,Vxc(1,1,iMap),1,VxcTmp,1)
+  end if
+
+  do iD=1,nD
+    C = CInter(i,iD)
+    call daxpy_(nBT,C,DnsTmp(1,iD),1,Dens(1,iD,nDens),1)
+    call daxpy_(nBT,C,TwoTmp(1,iD),1,TwoHam(1,iD,nDens),1)
+    call daxpy_(nBT,C,VxcTmp(1,iD),1,Vxc(1,iD,nDens),1)
+  end do
+
+end do ! i
+
 ! Deallocate memory
-!
-      Call mma_deallocate(DnsTmp)
-      Call mma_deallocate(TwoTmp)
-      Call mma_deallocate(VxcTmp)
-!
+
+call mma_deallocate(DnsTmp)
+call mma_deallocate(TwoTmp)
+call mma_deallocate(VxcTmp)
+
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Dens  (1,1,nDens),nBT*nD,'OptClc','D in iPsLst. ')
-      Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'OptClc','T in iPsLst. ')
-      Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'OptClc','V in iPsLst. ')
+call NrmClc(Dens(1,1,nDens),nBT*nD,'OptClc','D in iPsLst. ')
+call NrmClc(TwoHam(1,1,nDens),nBT*nD,'OptClc','T in iPsLst. ')
+call NrmClc(Vxc(1,1,nDens),nBT*nD,'OptClc','V in iPsLst. ')
 #endif
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      Return
-      End SubRoutine OptClc
+return
+
+end subroutine OptClc

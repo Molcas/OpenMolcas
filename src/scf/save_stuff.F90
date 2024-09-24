@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Save_Stuff
-Real*8 SIntTh_old, EThr_old, DThr_old, DltNTh_old
-Real*8 FThr_old, ThrInt_Old
-End Module Save_Stuff
+
+module Save_Stuff
+
+real*8 SIntTh_old, EThr_old, DThr_old, DltNTh_old
+real*8 FThr_old, ThrInt_Old
+
+end module Save_Stuff

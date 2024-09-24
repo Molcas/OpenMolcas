@@ -41,29 +41,31 @@
 !                    y-vector for recursive calculation of             *
 !                    Dn=-HnGn (H:inv Hessian orb rot) 2nd order update *
 !----------------------------------------------------------------------*
-!
-Module Files
-Integer                     :: LuOne = 10
-Character(LEN=8), Parameter :: FnOne = 'ONEINT '
-Integer                     :: LuOrd = 40
-Character(LEN=8), Parameter :: FnOrd = 'ORDINT '
-Integer                     :: LuOut = 20
-Character(LEN=8), Parameter :: FnOut = 'SCFORB  '
-Integer                     :: LuInp = 25
-Integer                     :: LuDSt = 34
-Character(LEN=8), Parameter :: FnDSt = 'DNSMAT  '
-Integer                     :: LuOSt = 40
-Character(LEN=8), Parameter :: FnOSt = 'DVXCDR  '
-Integer                     :: LuTSt = 35
-Character(LEN=8), Parameter :: FnTSt = 'TWOHAM  '
-Integer                     :: LuGrd = 36
-Character(LEN=8), Parameter :: FnGrd = 'GRADIENT'
-Integer                     :: LuDGd = 37
-Character(LEN=8), Parameter :: FnDGd = 'SODGRAD '
-Integer                     :: Lux   = 38
-Character(LEN=8), Parameter :: Fnx   = 'SOXVEC  '
-Integer                     :: LuDel = 39
-Character(LEN=8), Parameter :: FnDel = 'SODELTA '
-Integer                     :: Luy   = 29
-Character(LEN=8), Parameter :: Fny   = 'SOYVEC  '
-End Module Files
+
+module Files
+
+integer :: LuOne = 10
+character(len=8), parameter :: FnOne = 'ONEINT '
+integer :: LuOrd = 40
+character(len=8), parameter :: FnOrd = 'ORDINT '
+integer :: LuOut = 20
+character(len=8), parameter :: FnOut = 'SCFORB  '
+integer :: LuInp = 25
+integer :: LuDSt = 34
+character(len=8), parameter :: FnDSt = 'DNSMAT  '
+integer :: LuOSt = 40
+character(len=8), parameter :: FnOSt = 'DVXCDR  '
+integer :: LuTSt = 35
+character(len=8), parameter :: FnTSt = 'TWOHAM  '
+integer :: LuGrd = 36
+character(len=8), parameter :: FnGrd = 'GRADIENT'
+integer :: LuDGd = 37
+character(len=8), parameter :: FnDGd = 'SODGRAD '
+integer :: Lux = 38
+character(len=8), parameter :: Fnx = 'SOXVEC  '
+integer :: LuDel = 39
+character(len=8), parameter :: FnDel = 'SODELTA '
+integer :: Luy = 29
+character(len=8), parameter :: Fny = 'SOYVEC  '
+
+end module Files

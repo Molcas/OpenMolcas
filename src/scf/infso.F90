@@ -16,20 +16,22 @@
 !     DltNTh   - convergence threshold for Norm of delta
 !     DltNrm   - actual Norm of delta after QNR/C2Diis extrapolation
 
-Module InfSO
+module InfSO
+
 use MxDM, only: MxIter
 use Constants, only: Zero
-Private
-Public :: IterSO, IterSO_Max, MemRsv, QNRTh, DltNth, DltNrm, Energy
 
-Integer :: i
+private
+public :: IterSO, IterSO_Max, MemRsv, QNRTh, DltNth, DltNrm, Energy
 
-Integer :: IterSO=0
-Integer :: IterSO_Max=30
-Integer :: MemRsv=0
-Real*8  :: QNRTh = 0.075d+00
-Real*8  :: DltNTh= 0.2d-4
-Real*8  :: DltNrm= Zero
-Real*8  :: Energy(MxIter)=[(Zero,i=1,MxIter)]
+integer :: i
 
-End Module InfSO
+integer :: IterSO = 0
+integer :: IterSO_Max = 30
+integer :: MemRsv = 0
+real*8 :: QNRTh = 0.075d+00
+real*8 :: DltNTh = 0.2d-4
+real*8 :: DltNrm = Zero
+real*8 :: Energy(MxIter) = [(Zero,i=1,MxIter)]
+
+end module InfSO

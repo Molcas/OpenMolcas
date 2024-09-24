@@ -12,55 +12,58 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      Subroutine R1IBas()
+
+subroutine R1IBas()
 !***********************************************************************
 !                                                                      *
 !     purpose: Read basis set informations.                            *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nSym, Atom, Header, nAtoms, nBas, PotNuc, Type, Name
-      use stdalloc, only: mma_allocate
-      Implicit None
+
+use InfSCF, only: nSym, Atom, Header, nAtoms, nBas, PotNuc, type, Name
+use stdalloc, only: mma_allocate
+
+implicit none
 #include "Molcas.fh"
-      Integer nBas_Tot, iSym, LthBas, i
-!
+integer nBas_Tot, iSym, LthBas, i
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-!---- read file header
-      Call Get_cArray('Seward Title',Header,144)
-!---- read number of symm. species
-      Call Get_iScalar('nSym',nSym)
-!---- read number of basis functions per symmetry species
-      Call Get_iArray('nBas',nBas,nSym)
-!---- read basis function labels
-      nBas_tot=0
-      Do iSym = 1, nSym
-         nBas_tot=nBas_tot+nBas(iSym)
-      End Do
-      Call mma_allocate(Name,nBas_tot,Label='Name')
-      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
-!---- read number of atoms
-      Call Get_iScalar('Unique atoms',nAtoms)
-!---- read nuclear potential
-!     Call get_dScalar('PotNuc',PotNuc)
-      Call Peek_dScalar('PotNuc',PotNuc)
-!
-!---- Compute lengths of matrices
-      lthBas = 0
-      Do iSym = 1, nSym
-         lthBas = lthBas + nBas(iSym)
-      End Do
-      Call mma_allocate(Atom,lthBas,Label='Atom')
-      Call mma_allocate(Type,lthBas,Label='Type')
-!
-!---- Define atom and type
-      Do i = 1, lthBas
-         Atom(i) = Name(i)(1:LENIN)
-         Type(i) = Name(i)(LENIN1:LENIN8)
-      End Do
-!
-      Return
-      End Subroutine R1IBas
+
+! read file header
+call Get_cArray('Seward Title',Header,144)
+! read number of symm. species
+call Get_iScalar('nSym',nSym)
+! read number of basis functions per symmetry species
+call Get_iArray('nBas',nBas,nSym)
+! read basis function labels
+nBas_tot = 0
+do iSym=1,nSym
+  nBas_tot = nBas_tot+nBas(iSym)
+end do
+call mma_allocate(Name,nBas_tot,Label='Name')
+call Get_cArray('Unique Basis Names',Name,(LenIn8)*nBas_tot)
+! read number of atoms
+call Get_iScalar('Unique atoms',nAtoms)
+! read nuclear potential
+!call get_dScalar('PotNuc',PotNuc)
+call Peek_dScalar('PotNuc',PotNuc)
+
+! Compute lengths of matrices
+lthBas = 0
+do iSym=1,nSym
+  lthBas = lthBas+nBas(iSym)
+end do
+call mma_allocate(Atom,lthBas,Label='Atom')
+call mma_allocate(type,lthBas,Label='Type')
+
+! Define atom and type
+do i=1,lthBas
+  Atom(i) = Name(i)(1:LenIn)
+  type(i) = Name(i)(LenIn1:LenIn8)
+end do
+
+return
+
+end subroutine R1IBas

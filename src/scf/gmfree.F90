@@ -13,47 +13,51 @@
 !               1992, Piotr Borowski                                   *
 !               2016,2017, Roland Lindh                                *
 !***********************************************************************
-      SubRoutine GMFree()
-      use SCF_Arrays, only: Darwin, MssVlc, KntE, EDFT, TwoHam, Vxc, Dens, EOrb, OccNo, FockMO, FockAO,     &
-                            CMO_ref, CMO, TrM, Ovrlp, OneHam, HDiag
-      use Orb_Type, only: OrbType
+
+subroutine GMFree()
+
+use SCF_Arrays, only: Darwin, MssVlc, KntE, EDFT, TwoHam, Vxc, Dens, EOrb, OccNo, FockMO, FockAO, CMO_ref, CMO, TrM, Ovrlp, &
+                      OneHam, HDiag
+use Orb_Type, only: OrbType
 #ifdef _FDE_
-      use Embedding_Global, only: embInt
+use Embedding_Global, only: embInt
 #endif
-      use stdalloc, Only: mma_deallocate
-      Implicit None
-!
+use stdalloc, only: mma_deallocate
+
+implicit none
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!---- Deallocate memory
-      Call mma_deallocate(Darwin)
-      Call mma_deallocate(MssVlc)
-      Call mma_deallocate(KntE)
-      Call mma_deallocate(EDFT)
-      Call mma_deallocate(TwoHam)
-      Call mma_deallocate(Vxc)
-      Call mma_deallocate(Dens)
-      Call mma_deallocate(OrbType)
-      Call mma_deallocate(EOrb)
-      Call mma_deallocate(OccNo)
-      Call mma_deallocate(FockMO)
-      Call mma_deallocate(FockAO)
-      Call mma_deallocate(CMO_ref)
-      Call mma_deallocate(CMO)
-      Call mma_deallocate(TrM)
-!
-      Call mma_deallocate(Ovrlp)
-      Call mma_deallocate(OneHam)
-      Call mma_deallocate(HDiag)
+
+! Deallocate memory
+call mma_deallocate(Darwin)
+call mma_deallocate(MssVlc)
+call mma_deallocate(KntE)
+call mma_deallocate(EDFT)
+call mma_deallocate(TwoHam)
+call mma_deallocate(Vxc)
+call mma_deallocate(Dens)
+call mma_deallocate(OrbType)
+call mma_deallocate(EOrb)
+call mma_deallocate(OccNo)
+call mma_deallocate(FockMO)
+call mma_deallocate(FockAO)
+call mma_deallocate(CMO_ref)
+call mma_deallocate(CMO)
+call mma_deallocate(TrM)
+
+call mma_deallocate(Ovrlp)
+call mma_deallocate(OneHam)
+call mma_deallocate(HDiag)
 #ifdef _FDE_
-      If (Allocated(embInt)) Call mma_deallocate(embInt)
+if (allocated(embInt)) call mma_deallocate(embInt)
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine GMFree
+
+return
+
+end subroutine GMFree

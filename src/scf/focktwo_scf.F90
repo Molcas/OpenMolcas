@@ -12,32 +12,36 @@
 !               1992, Per Ake Malmqvist                                *
 !               2002,2023, Roland Lindh                                *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,X1,nX1,X2,nX2,ExFac,nD,nBSQT)
-      use RICD_Info, only: Do_DCCD
-      use Constants, only: Zero, Half, One
-!     IMPLICIT None
-      Integer nSym, nFlt, nD, nBSQT
-      Integer NBAS(8),NFRO(8), KEEP(8)
-      Real*8 DLT(nFlt,nD)
-      Real*8 DSQ(nBSQT,nD)
-      Real*8 FSQ(nBSQT,nD)
-      Real*8 FLT(nFlt,nD)
-      Integer nX1, nX2
-      Real*8 X1(nX1),X2(nX2)
-      Real*8 ExFac
 
-      Integer ISTLT(8),ISTSQ(8)
-      Integer MUL, I, J
-      Real*8  Factor, temp, temp_ab
-      Integer IB, JB, IJB, IJS, LB, KB, KLB,  iOpt, IPQ, IRC
-      Integer LPQ, NPQ
-      Integer IK, JK, KK, LK
-      Integer IS, JS, KS, LS, ISYM
-      Integer ISF, ISX, ISD
-      Integer K1, K2, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL
-      Real*8, External:: DDot_
-!
+!#define _DEBUGPRINT_
+subroutine FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,X1,nX1,X2,nX2,ExFac,nD,nBSQT)
+
+use RICD_Info, only: Do_DCCD
+use Constants, only: Zero, Half, One
+
+!implicit none
+integer nSym, nFlt, nD, nBSQT
+integer NBAS(8), NFRO(8), KEEP(8)
+real*8 DLT(nFlt,nD)
+real*8 DSQ(nBSQT,nD)
+real*8 FSQ(nBSQT,nD)
+real*8 FLT(nFlt,nD)
+integer nX1, nX2
+real*8 X1(nX1), X2(nX2)
+real*8 ExFac
+integer ISTLT(8), ISTSQ(8)
+integer MUL, I, J
+real*8 Factor, temp, temp_ab
+integer IB, JB, IJB, IJS, LB, KB, KLB, iOpt, IPQ, IRC
+integer LPQ, NPQ
+integer IK, JK, KK, LK
+integer IS, JS, KS, LS, ISYM
+integer ISF, ISX, ISD
+integer K1, K2, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL
+real*8, external :: DDot_
+! Statement function
+MUL(I,J) = ieor(I-1,J-1)+1
+
 ! This routine has been nicked from the MOTRA package. It was
 ! originally written by Marcus Fuelscher, and has been slightly
 ! modified by P-A Malmqvist 1992-12-04.
@@ -52,641 +56,626 @@
 ! It is assumed that the SEWARD integral file was opened before
 ! call to this routine.
 ! ISTSQ, ISTLT: Offsets to symmetry blocks of FSQ, FLT etc.
-!
-!***********************************************************************
-!                                                                      *
-      MUL(I,J)=IEOR(I-1,J-1)+1
 !                                                                      *
 !***********************************************************************
-      If (Do_DCCD.and.NSYM/=1) Then
-         Write (6,*) 'DCCD not implemented for nSym/=1'
-         Call Abend()
-      End If
+!                                                                      *
+if (Do_DCCD .and. (NSYM /= 1)) then
+  write(6,*) 'DCCD not implemented for nSym/=1'
+  call Abend()
+end if
 
-      Factor=DBLE(nD)*Half
-      ISTSQ(:)=0
-      ISTLT(:)=0
+Factor = dble(nD)*Half
+ISTSQ(:) = 0
+ISTLT(:) = 0
 
-      IF (Do_DCCD) THEN
-         If (NSYM/=1) Then
-            Write (6,*) 'DCCD not implemented for nSym/=1'
-            Call Abend()
-         End If
-         Call FOCKTWO_scf_DCCD()
-      ELSE
-         IF (NSYM==1) THEN
-            Call FOCKTWO_scf_NoSym()
-         ELSE
-            Call FOCKTWO_scf_Sym()
-         END IF
-      END IF
+if (Do_DCCD) then
+  if (NSYM /= 1) then
+    write(6,*) 'DCCD not implemented for nSym/=1'
+    call Abend()
+  end if
+  call FOCKTWO_scf_DCCD()
+else
+  if (NSYM == 1) then
+    call FOCKTWO_scf_NoSym()
+  else
+    call FOCKTWO_scf_Sym()
+  end if
+end if
 
-      IF (IRC/=0) THEN
-         WRITE(6,*)' Error return code IRC=',IRC
-         WRITE(6,*)' from RDORD call, in FTWOI.'
-         CALL Abend()
-      END IF
+if (IRC /= 0) then
+  write(6,*) ' Error return code IRC=',IRC
+  write(6,*) ' from RDORD call, in FTWOI.'
+  call Abend()
+end if
 
 ! Accumulate the contributions
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        K1=ISTLT(ISYM)
-        K2=ISTSQ(ISYM)
-        DO IB=1,NB
-          DO JB=1,IB
+do ISYM=1,NSYM
+  NB = NBAS(ISYM)
+  K1 = ISTLT(ISYM)
+  K2 = ISTSQ(ISYM)
+  do IB=1,NB
+    do JB=1,IB
 
-            FLT(K1+JB,1)=FLT(K1+JB,1)+FSQ(K2+JB,1)
-            if(nD==2) then
-             FLT(K1+JB,2)=FLT(K1+JB,2)+FSQ(K2+JB,2)
-            endif
-#ifdef _DEBUGPRINT_
-         if(nD==1)then
-          write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
-          else
-          write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',FLT(K1+JB,1),FLT(K1+JB,2)
-          endif
-#endif
+      FLT(K1+JB,1) = FLT(K1+JB,1)+FSQ(K2+JB,1)
+      if (nD == 2) FLT(K1+JB,2) = FLT(K1+JB,2)+FSQ(K2+JB,2)
+#     ifdef _DEBUGPRINT_
+      if (nD == 1) then
+        write(6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
+      else
+        write(6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',FLT(K1+JB,1),FLT(K1+JB,2)
+      end if
+#     endif
 
-          END DO
-          K1=K1+IB
-          K2=K2+NB
-        END DO
-      END DO
-!
-      Call GADSum(Flt,nFlt*nD)
-!
+    end do
+    K1 = K1+IB
+    K2 = K2+NB
+  end do
+end do
+
+call GADSum(Flt,nFlt*nD)
+
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-      WRITE(6,'(6X,A)')'TEST PRINT FROM FTWOI.'
-      WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
-      ISTLTT=1
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        IF ( NB.GT.0 ) THEN
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
-          if(nD==2) then
-          CALL TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
-          endif
-          ISTLTT=ISTLTT+NB*(NB+1)/2
-        END IF
-      END DO
-      WRITE(6,'(6X,A)')'----------------------------'
+write(6,'(6X,A)') 'TEST PRINT FROM FTWOI.'
+write(6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'
+ISTLTT = 1
+do ISYM=1,NSYM
+  NB = NBAS(ISYM)
+  if (NB > 0) then
+    write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+    call TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
+    if (nD == 2) call TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
+    ISTLTT = ISTLTT+NB*(NB+1)/2
+  end if
+end do
+write(6,'(6X,A)') '----------------------------'
 #endif
 
+contains
 
-      CONTAINS
+subroutine FOCKTWO_scf_Sym()
 
-      Subroutine FOCKTWO_scf_Sym()
-      Integer ISYM, IS, JS, KS, IP, JQ
+  integer ISYM, IS, JS, KS, IP, JQ
 
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-      END DO
+  do ISYM=2,NSYM
+    NB = NBAS(ISYM-1)
+    NB2 = NB*NB
+    NB3 = (NB2+NB)/2
+    ISTSQ(ISYM) = ISTSQ(ISYM-1)+NB2
+    ISTLT(ISYM) = ISTLT(ISYM-1)+NB3
+  end do
 
-!     Loop over the symmetry blocks (IS,JS|KS,LS)
+  ! Loop over the symmetry blocks (IS,JS|KS,LS)
 
-      DO IS=1,NSYM
-        IB=NBAS(IS)
-        IK=KEEP(IS)
-        NFI=NFRO(IS)
-        DO JS=1,IS
-          JB=NBAS(JS)
-          JK=KEEP(JS)
-          NFJ=NFRO(JS)
-          IJS=MUL(IS,JS)
-          IJB=IB*JB
-          IF( IS.EQ.JS ) IJB=(IB*(IB+1))/2
-          DO KS=1,IS
-            KB=NBAS(KS)
-            KK=KEEP(KS)
-            NFK=NFRO(KS)
-            LSMAX=KS
-            IF ( KS.EQ.IS ) LSMAX=JS
-            LS=MUL(IJS,KS)
-            IF(LS.GT.LSMAX) CYCLE
-            LB=NBAS(LS)
-            LK=KEEP(LS)
-            NFL=NFRO(LS)
-            KLB=KB*LB
-            IF( KS.EQ.LS ) KLB=(KB*(KB+1))/2
-! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
-            IF((IK+JK+KK+LK).NE.0) CYCLE
-! NO FROZEN ORBITALS?
-            IF((NFI+NFJ+NFK+NFL).EQ.0) CYCLE
-! NO BASIS FUNCTIONS?
-            IF((IJB*KLB).EQ.0 ) CYCLE
+  do IS=1,NSYM
+    IB = NBAS(IS)
+    IK = KEEP(IS)
+    NFI = NFRO(IS)
+    do JS=1,IS
+      JB = NBAS(JS)
+      JK = KEEP(JS)
+      NFJ = NFRO(JS)
+      IJS = MUL(IS,JS)
+      IJB = IB*JB
+      if (IS == JS) IJB = (IB*(IB+1))/2
+      do KS=1,IS
+        KB = NBAS(KS)
+        KK = KEEP(KS)
+        NFK = NFRO(KS)
+        LSMAX = KS
+        if (KS == IS) LSMAX = JS
+        LS = MUL(IJS,KS)
+        if (LS > LSMAX) cycle
+        LB = NBAS(LS)
+        LK = KEEP(LS)
+        NFL = NFRO(LS)
+        KLB = KB*LB
+        if (KS == LS) KLB = (KB*(KB+1))/2
+        ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+        if ((IK+JK+KK+LK) /= 0) cycle
+        ! NO FROZEN ORBITALS?
+        if ((NFI+NFJ+NFK+NFL) == 0) cycle
+        ! NO BASIS FUNCTIONS?
+        if ((IJB*KLB) == 0) cycle
 
-! Process the different symmetry cases
+        ! Process the different symmetry cases
 
-            IF ( IS.EQ.JS .AND. IS.EQ.KS ) THEN
-! CASE 1: Integrals are of symmetry type (II/II)
-! Coulomb and exchange terms need to be accumulated
-! Option code 1: Begin reading at first integral.
-! NPQ: Nr of submatrices in buffer X1.
-                IOPT=1
-                LPQ=0
-                IPQ=0
-                NPQ=0
-                DO IP=1,IB
-                  DO JQ=1,IP
-                    IPQ=IPQ+1
-                    LPQ=LPQ+1
-                    IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
-                      IF(IRC.GT.1) Return
-! Option code 2: Continue reading at next integral.
-                      IOPT=2
-                      IPQ=1
-                    ENDIF
-                    ISX=(IPQ-1)*KLB+1
-                    ISF=ISTLT(IS)+LPQ
-                    ISD=ISTLT(IS)+1
-                    TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
-                    FLT(ISF,1)=FLT(ISF,1)+TEMP
-                    if(nD==2) then
-                     TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
-                     FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
-                     FLT(ISF,2)=FLT(ISF,1)
-                    endif
-#ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
-          if(nD==2) then
-          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
-          endif
-#endif
-                    CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
-                    ISF=ISTSQ(IS)+(JQ-1)*JB+1
-                    ISD=ISTSQ(IS)+(IP-1)*IB+1
-!
-                 if(nD==1) then
-                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                 else
-                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+        if ((IS == JS) .and. (IS == KS)) then
+          ! CASE 1: Integrals are of symmetry type (II/II)
+          ! Coulomb and exchange terms need to be accumulated
+          ! Option code 1: Begin reading at first integral.
+          ! NPQ: Nr of submatrices in buffer X1.
+          IOPT = 1
+          LPQ = 0
+          IPQ = 0
+          NPQ = 0
+          do IP=1,IB
+            do JQ=1,IP
+              IPQ = IPQ+1
+              LPQ = LPQ+1
+              if (IPQ > NPQ) then
+                call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
+                if (IRC > 1) return
+                ! Option code 2: Continue reading at next integral.
+                IOPT = 2
+                IPQ = 1
+              end if
+              ISX = (IPQ-1)*KLB+1
+              ISF = ISTLT(IS)+LPQ
+              ISD = ISTLT(IS)+1
+              TEMP = DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
+              FLT(ISF,1) = FLT(ISF,1)+TEMP
+              if (nD == 2) then
+                TEMP_ab = DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
+                FLT(ISF,1) = FLT(ISF,1)+TEMP_ab
+                FLT(ISF,2) = FLT(ISF,1)
+              end if
+#             ifdef _DEBUGPRINT_
+              write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+              if (nD == 2) write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+#             endif
+              call SQUARE(X1(ISX),X2(1),1,KB,LB)
+              ISF = ISTSQ(IS)+(JQ-1)*JB+1
+              ISD = ISTSQ(IS)+(IP-1)*IB+1
 
-                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-                 endif
-                    IF ( IP.NE.JQ ) THEN
-                      ISF=ISTSQ(IS)+(IP-1)*IB+1
-                      ISD=ISTSQ(IS)+(JQ-1)*JB+1
-!
-                 if(nD==1) then
-                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                 else
-                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-                 endif
-                    ENDIF
-#ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
-          if(nD==2) then
-          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
-          endif
-#endif
+              if (nD == 1) then
+                call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+              else
+                call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
 
-                  END DO  ! JQ
-                END DO    ! IP
+                call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+              end if
+              if (IP /= JQ) then
+                ISF = ISTSQ(IS)+(IP-1)*IB+1
+                ISD = ISTSQ(IS)+(JQ-1)*JB+1
 
-              ELSE IF ( IS.EQ.JS .AND. IS.NE.KS ) THEN
-! CASE 2: Integrals are of symmetry type (II/JJ)
-! Coulomb terms need to be accumulated only
-                IOPT=1
-                LPQ=0
-                IPQ=0
-                NPQ=0
-                DO IP=1,IB
-                  DO JQ=1,IP
-                    IPQ=IPQ+1
-                    LPQ=LPQ+1
-                    IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
-                      IF(IRC.GT.1) Return
-                      IOPT=2
-                      IPQ=1
-                    ENDIF
-                    ISX=(IPQ-1)*KLB+1
-                    IF ( NFI.NE.0 ) THEN
-                      ISF=ISTLT(KS)+1
-                      ISD=ISTLT(IS)+LPQ
-                      TEMP=DLT(ISD,1)
-                    if(nD==2) then
-                      TEMP=DLT(ISD,1)+DLT(ISD,2)
-                    endif
-                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,1),1)
-                    if(nD==2) then
-                      CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,2),1)
-                    endif
-                    ENDIF
-                    IF ( NFK.NE.0 ) THEN
-                      ISF=ISTLT(IS)+LPQ
-                      ISD=ISTLT(KS)+1
-                      TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
-                      FLT(ISF,1)=FLT(ISF,1)+TEMP
-                      if (nD==2) then
-                         TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
-                         FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
-                         FLT(ISF,2)=FLT(ISF,1)
-                      endif
-#ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)') '02 Flt(',isf,',1)=',FLT(ISF,1)
-#endif
+                if (nD == 1) then
+                  call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                else
+                  call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                  call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+                end if
+              end if
+#             ifdef _DEBUGPRINT_
+              write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+              if (nD == 2) write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+#             endif
 
-                    ENDIF
-                  END DO! JQ
-                END DO  ! IP
-              ELSE IF ( IS.EQ.KS .AND. JS.EQ.LS ) THEN
-! CASE 3: Integrals are of symmetry type (IJ/IJ)
-! Exchange terms need to be accumulated only
-                IOPT=1
-                LPQ=0
-                IPQ=0
-                NPQ=0
-                DO IP=1,IB
-                  DO JQ=1,JB
-                    IPQ=IPQ+1
-                    LPQ=LPQ+1
-                    IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
-                      IF(IRC.GT.1) Return
-                      IOPT=2
-                      IPQ=1
-                    ENDIF
-                    ISX=(IPQ-1)*KLB+1
-                    IF ( NFI.NE.0 ) THEN
-                      ISD=ISTSQ(IS)+(IP-1)*IB+1
-                      ISF=ISTSQ(JS)+(JQ-1)*JB+1
-                      if(nD==1) then
-                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                      else
-                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-                      endif
-                    ENDIF
-                    IF ( NFJ.NE.0 ) THEN
-                      ISD=ISTSQ(JS)+(JQ-1)*JB+1
-                      ISF=ISTSQ(IS)+(IP-1)*IB+1
-                      if(nD==1) then
-                      CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                      else
-                      CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                      CALL DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+            end do  ! JQ
+          end do    ! IP
 
-                      endif
-                    ENDIF
-#ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
-          if(nD==2) then
-          write (6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
-          endif
-#endif
+        else if ((IS == JS) .and. (IS /= KS)) then
+          ! CASE 2: Integrals are of symmetry type (II/JJ)
+          ! Coulomb terms need to be accumulated only
+          IOPT = 1
+          LPQ = 0
+          IPQ = 0
+          NPQ = 0
+          do IP=1,IB
+            do JQ=1,IP
+              IPQ = IPQ+1
+              LPQ = LPQ+1
+              if (IPQ > NPQ) then
+                call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
+                if (IRC > 1) return
+                IOPT = 2
+                IPQ = 1
+              end if
+              ISX = (IPQ-1)*KLB+1
+              if (NFI /= 0) then
+                ISF = ISTLT(KS)+1
+                ISD = ISTLT(IS)+LPQ
+                TEMP = DLT(ISD,1)
+                if (nD == 2) TEMP = DLT(ISD,1)+DLT(ISD,2)
+                call DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,1),1)
+                if (nD == 2) call DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,2),1)
+              end if
+              if (NFK /= 0) then
+                ISF = ISTLT(IS)+LPQ
+                ISD = ISTLT(KS)+1
+                TEMP = DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
+                FLT(ISF,1) = FLT(ISF,1)+TEMP
+                if (nD == 2) then
+                  TEMP_ab = DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
+                  FLT(ISF,1) = FLT(ISF,1)+TEMP_ab
+                  FLT(ISF,2) = FLT(ISF,1)
+                end if
+#               ifdef _DEBUGPRINT_
+                write(6,'(a,i5,a,f12.6)') '02 Flt(',isf,',1)=',FLT(ISF,1)
+#               endif
 
-                  END DO ! JQ
-                END DO   ! IP
+              end if
+            end do! JQ
+          end do  ! IP
+        else if ((IS == KS) .and. (JS == LS)) then
+          ! CASE 3: Integrals are of symmetry type (IJ/IJ)
+          ! Exchange terms need to be accumulated only
+          IOPT = 1
+          LPQ = 0
+          IPQ = 0
+          NPQ = 0
+          do IP=1,IB
+            do JQ=1,JB
+              IPQ = IPQ+1
+              LPQ = LPQ+1
+              if (IPQ > NPQ) then
+                call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
+                if (IRC > 1) return
+                IOPT = 2
+                IPQ = 1
+              end if
+              ISX = (IPQ-1)*KLB+1
+              if (NFI /= 0) then
+                ISD = ISTSQ(IS)+(IP-1)*IB+1
+                ISF = ISTSQ(JS)+(JQ-1)*JB+1
+                if (nD == 1) then
+                  call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                else
+                  call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                  call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+                end if
+              end if
+              if (NFJ /= 0) then
+                ISD = ISTSQ(JS)+(JQ-1)*JB+1
+                ISF = ISTSQ(IS)+(IP-1)*IB+1
+                if (nD == 1) then
+                  call DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                else
+                  call DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                  call DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
 
-            ENDIF
+                end if
+              end if
+#             ifdef _DEBUGPRINT_
+              write(6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+              if (nD == 2) write(6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+#             endif
 
-            END DO! KS
-         END DO   ! JS
-      END DO      ! IS
+            end do ! JQ
+          end do   ! IP
 
-      END SUBROUTINE FOCKTWO_scf_Sym
+        end if
 
-      Subroutine FOCKTWO_scf_NoSym()
-      Integer IP, JQ
+      end do ! KS
+    end do   ! JS
+  end do     ! IS
 
-      IS=1
-      IB=NBAS(IS)
-      IK=KEEP(IS)
-      NFI=NFRO(IS)
+end subroutine FOCKTWO_scf_Sym
 
-      JS=1
-      JB=NBAS(JS)
-      JK=KEEP(JS)
-      NFJ=NFRO(JS)
-      IJS=MUL(IS,JS)
-      IJB=(IB*(IB+1))/2
+subroutine FOCKTWO_scf_NoSym()
 
-      KS=1
-      KB=NBAS(KS)
-      KK=KEEP(KS)
-      NFK=NFRO(KS)
-      LSMAX=JS
+  integer IP, JQ
 
-      LS=1
-      LB=NBAS(LS)
-      LK=KEEP(LS)
-      NFL=NFRO(LS)
-      KLB=(KB*(KB+1))/2
+  IS = 1
+  IB = NBAS(IS)
+  IK = KEEP(IS)
+  NFI = NFRO(IS)
 
-! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+  JS = 1
+  JB = NBAS(JS)
+  JK = KEEP(JS)
+  NFJ = NFRO(JS)
+  IJS = MUL(IS,JS)
+  IJB = (IB*(IB+1))/2
 
-      IF((IK+JK+KK+LK)/=0) Return
-! NO FROZEN ORBITALS?
-      IF((NFI+NFJ+NFK+NFL)==0) Return
-! NO BASIS FUNCTIONS?
-      IF((IJB*KLB)==0) Return
+  KS = 1
+  KB = NBAS(KS)
+  KK = KEEP(KS)
+  NFK = NFRO(KS)
+  LSMAX = JS
 
-! Process the different symmetry cases
+  LS = 1
+  LB = NBAS(LS)
+  LK = KEEP(LS)
+  NFL = NFRO(LS)
+  KLB = (KB*(KB+1))/2
 
-! CASE 1: Integrals are of symmetry type (II/II)
-! Coulomb and exchange terms need to be accumulated
-! Option code 1: Begin reading at first integral.
-! NPQ: Nr of submatrices in buffer X1.
-      IOPT=1
-      LPQ=0
-      IPQ=0
-      NPQ=0
-      DO IP=1,IB
-         DO JQ=1,IP
-            IPQ=IPQ+1
-            LPQ=LPQ+1
-            IF ( IPQ.GT.NPQ ) THEN
-               CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
-               IF(IRC.GT.1) Return
-! Option code 2: Continue reading at next integral.
-               IOPT=2
-               IPQ=1
-            ENDIF
-            ISX=(IPQ-1)*KLB+1
-            ISF=LPQ
-            ISD=1
-            TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
-            FLT(ISF,1)=FLT(ISF,1)+TEMP
-            if(nD==2) then
-              TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
-              FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
-              FLT(ISF,2)=FLT(ISF,1)
-            endif
-#ifdef _DEBUGPRINT_
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
-            if(nD==2) then
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
-            endif
-#endif
-            CALL SQUARE (X1(ISX),X2(:),1,KB,LB)
-            ISF=(JQ-1)*JB+1
-            ISD=(IP-1)*IB+1
-!
-            if(nD==1) then
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+  ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+
+  if ((IK+JK+KK+LK) /= 0) return
+  ! NO FROZEN ORBITALS?
+  if ((NFI+NFJ+NFK+NFL) == 0) return
+  ! NO BASIS FUNCTIONS?
+  if ((IJB*KLB) == 0) return
+
+  ! Process the different symmetry cases
+
+  ! CASE 1: Integrals are of symmetry type (II/II)
+  ! Coulomb and exchange terms need to be accumulated
+  ! Option code 1: Begin reading at first integral.
+  ! NPQ: Nr of submatrices in buffer X1.
+  IOPT = 1
+  LPQ = 0
+  IPQ = 0
+  NPQ = 0
+  do IP=1,IB
+    do JQ=1,IP
+      IPQ = IPQ+1
+      LPQ = LPQ+1
+      if (IPQ > NPQ) then
+        call RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
+        if (IRC > 1) return
+        ! Option code 2: Continue reading at next integral.
+        IOPT = 2
+        IPQ = 1
+      end if
+      ISX = (IPQ-1)*KLB+1
+      ISF = LPQ
+      ISD = 1
+      TEMP = DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
+      FLT(ISF,1) = FLT(ISF,1)+TEMP
+      if (nD == 2) then
+        TEMP_ab = DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
+        FLT(ISF,1) = FLT(ISF,1)+TEMP_ab
+        FLT(ISF,2) = FLT(ISF,1)
+      end if
+#     ifdef _DEBUGPRINT_
+      write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+      if (nD == 2) then
+        write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+      end if
+#     endif
+      call SQUARE(X1(ISX),X2(:),1,KB,LB)
+      ISF = (JQ-1)*JB+1
+      ISD = (IP-1)*IB+1
+
+      if (nD == 1) then
+        call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+      else
+        call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+
+        call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+      end if
+      if (IP /= JQ) then
+        ISF = (IP-1)*IB+1
+        ISD = (JQ-1)*JB+1
+
+        if (nD == 1) then
+          call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+        else
+          call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+          call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+        end if
+      end if
+#     ifdef _DEBUGPRINT_
+      write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+      if (nD == 2) then
+        write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+      end if
+#     endif
+
+    end do  ! JQ
+  end do    ! IP
+
+end subroutine FOCKTWO_scf_NoSym
+
+subroutine FOCKTWO_scf_DCCD()
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I, NumV, nVec, Vec2, NumCho, LuCVec, nPQ
+  use Index_Functions, only: iTri
+
+  integer nData
+  logical Found
+  integer IS, IB, IP, JQ, IPQ, KR, LS, IRS
+  integer ISR, ISP, IRQ, IRP, ISQ
+  integer IP_, JQ_, KR_, LS_
+  integer iVec1, J
+
+  IS = 1
+  IB = NBAS(IS)
+  IK = KEEP(IS)
+  NFI = NFRO(IS)
+
+  call Init_GetInt(IRC)
+  call Qpg_iArray('Basis IDs',Found,nData)
+  call mma_allocate(Basis_IDs,4,nData/4,Label='Basis_IDs')
+  call Get_iArray('Basis IDs',Basis_IDs,nData)
+
+  call mma_allocate(hash_table,size(Basis_IDs,2),Label='hash_table')
+  do IP=1,IB
+    hash_table(IP) = IP
+  end do
+  do IP=1,IB-1
+    KR = hash_table(IP)
+    do JQ=IP+1,IB
+      LS = hash_table(JQ)
+      if (Basis_IDs(1,KR) > Basis_IDs(1,LS)) then
+        IPQ = KR
+        KR = LS
+        LS = IPQ
+        hash_table(IP) = KR
+        hash_table(JQ) = LS
+      end if
+    end do
+  end do
+  IP = 1
+  ID_IP = Basis_IDs(1,hash_table(IP))
+  LS = 1
+  do IP=2,IB
+    if (ID_IP /= Basis_IDs(1,hash_table(IP))) then
+      ID_IP = Basis_IDs(1,hash_table(IP))
+      LS = LS+1
+    end if
+  end do
+  call mma_allocate(lists,4,LS)
+  IP = 1
+  ID_IP = Basis_IDs(1,hash_table(IP))
+  LS = 1
+  lists(1,LS) = 1
+  lists(2,LS) = ID_IP
+  lists(3,LS) = IP
+  lists(4,LS) = IP
+  do IP=2,IB
+    if (ID_IP /= Basis_IDs(1,hash_table(IP))) then
+      ID_IP = Basis_IDs(1,hash_table(IP))
+      LS = LS+1
+      lists(1,LS) = 1
+      lists(2,LS) = ID_IP
+      lists(3,LS) = IP
+      lists(4,LS) = IP
+    else
+      lists(1,LS) = lists(1,LS)+1
+      lists(4,LS) = IP
+    end if
+  end do
+
+  IJB = (IB*(IB+1))/2
+  if (nX1 < IJB) then
+    write(6,*) 'FOCKTWO_SCF_DCCD: nX1<IJB'
+    call Abend()
+  end if
+  call Get_Int_Open(IS,IS,IS,IS)
+
+  ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+
+  if (IK /= 0) return
+  ! NO FROZEN ORBITALS?
+  if (NFI == 0) return
+  ! NO BASIS FUNCTIONS?
+  !if (IJB == 0) return
+
+  ! Process the different symmetry cases
+  do iVec1=1,NumCho(1),nVec
+    NumV = min(nVec,NumCho(1)-iVec1+1)
+    call RdChoVec(Vec2,nPQ,NumV,iVec1,LuCVec(1))
+
+    ! CASE 1: Integrals are of symmetry type (II/II)
+    ! Coulomb and exchange terms need to be accumulated
+    ! Option code 1: Begin reading at first integral.
+    do J=1,size(lists,2)
+      I = J
+      ID_IP = lists(2,I)
+
+      do IP_=lists(3,I),lists(4,I)
+        IP = hash_table(IP_)
+        do JQ_=lists(3,I),IP_
+          JQ = hash_table(JQ_)
+          ! Skip processing (P,Q|... if they do not share the same center
+          IPQ = iTri(IP,JQ)
+          ! do batches of integrals for a single fixed pair of pq
+          call Get_Int_DCCD(IRC,X1,IPQ,IJB+1)
+          if (IRC > 1) return
+          ! Do the Coulomb contribution
+          if (nD == 1) then
+            TEMP = Zero
+            do KR_=lists(3,I),lists(4,I)
+              KR = hash_table(KR_)
+              do LS_=lists(3,I),KR_
+                LS = hash_table(LS_)
+                IRS = iTri(KR,LS)
+                TEMP = TEMP+X1(IRS)*DLT(IRS,1)
+              end do
+            end do
+            FLT(IPQ,1) = FLT(IPQ,1)+TEMP
+          else
+            TEMP = Zero
+            TEMP_ab = Zero
+            do KR_=lists(3,I),lists(4,I)
+              KR = hash_table(KR_)
+              do LS_=lists(3,I),KR_
+                LS = hash_table(LS_)
+                IRS = iTri(KR,LS)
+                TEMP = TEMP+X1(IRS)*DLT(IRS,1)
+                TEMP_ab = TEMP_ab+X1(IRS)*DLT(IRS,2)
+              end do
+            end do
+            FLT(IPQ,1) = FLT(IPQ,1)+TEMP+TEMP_ab
+            FLT(IPQ,2) = FLT(IPQ,1)
+          end if
+#         ifdef _DEBUGPRINT_
+          write(6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',1)=',FLT(IPQ,1)
+          if (nD == 2) then
+            write(6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
+          end if
+#         endif
+          ! Do the exchange contribution
+          call SQUARE(X1(:),X2(:),1,IB,IB)
+
+          if (nD == 1) then
+            do KR_=lists(3,I),lists(4,I)
+              KR = hash_table(KR_)
+              IRQ = (JQ-1)*IB+KR
+              TEMP = Zero
+              do LS_=lists(3,I),lists(4,I)
+                LS = hash_table(LS_)
+                ISR = (KR-1)*IB+LS
+                ISP = (IP-1)*IB+LS
+                TEMP = TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
+              end do
+              FSQ(IRQ,1) = FSQ(IRQ,1)+TEMP
+            end do
+          else
+            do KR_=lists(3,I),lists(4,I)
+              KR = hash_table(KR_)
+              IRQ = (JQ-1)*IB+KR
+              TEMP = Zero
+              TEMP_ab = Zero
+              do LS_=lists(3,I),lists(4,I)
+                LS = hash_table(LS_)
+                ISR = (KR-1)*IB+LS
+                ISP = (IP-1)*IB+LS
+                TEMP = TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
+                TEMP_ab = TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISP,2)
+              end do
+              FSQ(IRQ,1) = FSQ(IRQ,1)+TEMP
+              FSQ(IRQ,2) = FSQ(IRQ,2)+TEMP_ab
+            end do
+          end if
+          if (IP /= JQ) then
+            ISF = (IP-1)*IB+1
+            ISD = (JQ-1)*IB+1
+
+            if (nD == 1) then
+              do KR_=lists(3,I),lists(4,I)
+                KR = hash_table(KR_)
+                IRP = (IP-1)*IB+KR
+                TEMP = Zero
+                do LS_=lists(3,I),lists(4,I)
+                  LS = hash_table(LS_)
+                  ISR = (KR-1)*IB+LS
+                  ISQ = (JQ-1)*IB+LS
+                  TEMP = TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
+                end do
+                FSQ(IRP,1) = FSQ(IRP,1)+TEMP
+              end do
             else
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+              do KR_=lists(3,I),lists(4,I)
+                KR = hash_table(KR_)
+                IRP = (IP-1)*IB+KR
+                TEMP = Zero
+                TEMP_ab = Zero
+                do LS_=lists(3,I),lists(4,I)
+                  LS = hash_table(LS_)
+                  ISR = (KR-1)*IB+LS
+                  ISQ = (JQ-1)*IB+LS
+                  TEMP = TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
+                  TEMP_ab = TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISQ,2)
+                end do
+                FSQ(IRP,1) = FSQ(IRP,1)+TEMP
+                FSQ(IRP,2) = FSQ(IRP,2)+TEMP_ab
+              end do
+            end if
 
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-            endif
-            IF ( IP.NE.JQ ) THEN
-               ISF=(IP-1)*IB+1
-               ISD=(JQ-1)*JB+1
-!
-               if(nD==1) then
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-               else
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-               endif
-            ENDIF
-#ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
-          if(nD==2) then
-          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
-          endif
-#endif
+          end if
+#         ifdef _DEBUGPRINT_
+          ISF = (JQ-1)*IB
+          write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
+          if (nD == 2) then
+            write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
+          end if
+#         endif
 
-         END DO  ! JQ
-      END DO    ! IP
+        end do  ! JQ
+      end do    ! IP
+    end do      ! I
+  end do  ! end of the batch procedure
 
-      END SUBROUTINE FOCKTWO_scf_NoSym
+  call mma_deallocate(lists)
+  call Get_Int_Close()
+  call mma_deallocate(hash_table)
+  call mma_deallocate(Basis_IDs)
 
-      Subroutine FOCKTWO_scf_DCCD()
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I, NumV, nVec, Vec2, NumCho, LuCVec, nPQ
-      use Index_Functions, only: iTri
-      Integer nData
-      Logical Found
-      Integer IS, IB, IP, JQ, IPQ, KR, LS, IRS
-      Integer ISR, ISP, IRQ, IRP, ISQ
-      Integer IP_, JQ_, KR_, LS_
-      Integer iVec1, J
+end subroutine FOCKTWO_scf_DCCD
 
-      IS=1
-      IB=NBAS(IS)
-      IK=KEEP(IS)
-      NFI=NFRO(IS)
-
-      Call Init_GetInt(IRC)
-      Call Qpg_iArray('Basis IDs',Found,nData)
-      Call mma_allocate(Basis_IDs,4,nData/4,Label='Basis_IDs')
-      call Get_iArray('Basis IDs',Basis_IDs,nData)
-
-      call mma_allocate(hash_table,Size(Basis_IDs,2),Label='hash_table')
-      Do IP=1,IB
-         hash_table(IP)=IP
-      End Do
-      Do IP=1,IB-1
-         KR=hash_table(IP)
-         Do JQ=IP+1,IB
-            LS=hash_table(JQ)
-            If (Basis_IDs(1,KR)>Basis_IDs(1,LS)) Then
-               IPQ=KR
-               KR=LS
-               LS=IPQ
-               hash_table(IP)=KR
-               hash_table(JQ)=LS
-            End If
-         End Do
-      End Do
-      IP=1
-      ID_IP=Basis_IDs(1,hash_table(IP))
-      LS=1
-      Do IP=2,IB
-         If (ID_IP/=Basis_IDs(1,hash_table(IP))) Then
-            ID_IP=Basis_IDs(1,hash_table(IP))
-            LS=LS+1
-         End If
-      End Do
-      Call mma_allocate(lists,4,LS)
-      IP=1
-      ID_IP=Basis_IDs(1,hash_table(IP))
-      LS=1
-      lists(1,LS)=1
-      lists(2,LS)=ID_IP
-      lists(3,LS)=IP
-      lists(4,LS)=IP
-      Do IP=2,IB
-         If (ID_IP/=Basis_IDs(1,hash_table(IP))) Then
-            ID_IP=Basis_IDs(1,hash_table(IP))
-            LS=LS+1
-            lists(1,LS)=1
-            lists(2,LS)=ID_IP
-            lists(3,LS)=IP
-            lists(4,LS)=IP
-         Else
-            lists(1,LS)=lists(1,LS)+1
-            lists(4,LS)=IP
-         End If
-      End Do
-
-      IJB=(IB*(IB+1))/2
-      If (nX1<IJB) Then
-         Write (6,*) 'FOCKTWO_SCF_DCCD: nX1<IJB'
-         Call Abend()
-      End If
-      Call Get_Int_Open(IS,IS,IS,IS)
-
-! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
-
-      IF(IK/=0) Return
-! NO FROZEN ORBITALS?
-      IF(NFI==0) Return
-! NO BASIS FUNCTIONS?
-!     IF(IJB==0) Return
-
-! Process the different symmetry cases
-      do iVec1=1,NumCho(1),nVec
-         NumV=Min(nVec,NumCho(1)-iVec1+1)
-         call RdChoVec(Vec2,nPQ,NumV,iVec1,LuCVec(1))
-
-! CASE 1: Integrals are of symmetry type (II/II)
-! Coulomb and exchange terms need to be accumulated
-! Option code 1: Begin reading at first integral.
-      Do J = 1, Size(lists,2)
-         I = J
-         ID_IP=lists(2,I)
-
-      DO IP_=lists(3,I),lists(4,I)
-         IP=hash_table(IP_)
-         DO JQ_=lists(3,I),IP_
-            JQ=hash_table(JQ_)
-! Skip processing (P,Q|... if they do not share the same center
-            IPQ=iTri(IP,JQ)
-            ! do batches of integrals for a single fixed pair of pq
-            CALL Get_Int_DCCD(IRC,X1,IPQ,IJB+1)
-            IF(IRC.GT.1) Return
-! Do the Coulomb contribution
-            IF (nD==1) Then
-               TEMP=Zero
-               DO KR_=lists(3,I),lists(4,I)
-                  KR=hash_table(KR_)
-                  DO LS_=lists(3,I),KR_
-                     LS=hash_table(LS_)
-                     IRS=iTri(KR,LS)
-                     TEMP=TEMP+X1(IRS)*DLT(IRS,1)
-                  END DO
-               END DO
-               FLT(IPQ,1)=FLT(IPQ,1)+TEMP
-            ELSE
-               TEMP=Zero
-               TEMP_ab=Zero
-               DO KR_=lists(3,I),lists(4,I)
-                  KR=hash_table(KR_)
-                  DO LS_=lists(3,I),KR_
-                     LS=hash_table(LS_)
-                     IRS=iTri(KR,LS)
-                     TEMP=TEMP+X1(IRS)*DLT(IRS,1)
-                     TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
-                  END DO
-               END DO
-               FLT(IPQ,1)=FLT(IPQ,1)+TEMP+TEMP_ab
-               FLT(IPQ,2)=FLT(IPQ,1)
-            END IF
-#ifdef _DEBUGPRINT_
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',1)=',FLT(IPQ,1)
-            if(nD==2) then
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
-            endif
-#endif
-! Do the exchange contribution
-            CALL SQUARE (X1(:),X2(:),1,IB,IB)
-!
-            if(nD==1) then
-              DO KR_=lists(3,I),lists(4,I)
-                 KR=hash_table(KR_)
-                 IRQ=(JQ-1)*IB+KR
-                 TEMP=Zero
-                 DO LS_=lists(3,I),lists(4,I)
-                    LS=hash_table(LS_)
-                    ISR=(KR-1)*IB+LS
-                    ISP=(IP-1)*IB+LS
-                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
-                 END DO
-                 FSQ(IRQ,1)=FSQ(IRQ,1)+TEMP
-              END DO
-            else
-              DO KR_=lists(3,I),lists(4,I)
-                 KR=hash_table(KR_)
-                 IRQ=(JQ-1)*IB+KR
-                 TEMP=Zero
-                 TEMP_ab=Zero
-                 DO LS_=lists(3,I),lists(4,I)
-                    LS=hash_table(LS_)
-                    ISR=(KR-1)*IB+LS
-                    ISP=(IP-1)*IB+LS
-                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
-                    TEMP_ab=TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISP,2)
-                 END DO
-                 FSQ(IRQ,1)=FSQ(IRQ,1)+TEMP
-                 FSQ(IRQ,2)=FSQ(IRQ,2)+TEMP_ab
-              END DO
-            endif
-            IF ( IP.NE.JQ ) THEN
-               ISF=(IP-1)*IB+1
-               ISD=(JQ-1)*IB+1
-!
-            if(nD==1) then
-              DO KR_=lists(3,I),lists(4,I)
-                 KR=hash_table(KR_)
-                 IRP=(IP-1)*IB+KR
-                 TEMP=Zero
-                 DO LS_=lists(3,I),lists(4,I)
-                    LS=hash_table(LS_)
-                    ISR=(KR-1)*IB+LS
-                    ISQ=(JQ-1)*IB+LS
-                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
-                 END DO
-                 FSQ(IRP,1)=FSQ(IRP,1)+TEMP
-              END DO
-            else
-              DO KR_=lists(3,I),lists(4,I)
-                 KR=hash_table(KR_)
-                 IRP=(IP-1)*IB+KR
-                 TEMP=Zero
-                 TEMP_ab=Zero
-                 DO LS_=lists(3,I),lists(4,I)
-                    LS=hash_table(LS_)
-                    ISR=(KR-1)*IB+LS
-                    ISQ=(JQ-1)*IB+LS
-                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
-                    TEMP_ab=TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISQ,2)
-                 END DO
-                 FSQ(IRP,1)=FSQ(IRP,1)+TEMP
-                 FSQ(IRP,2)=FSQ(IRP,2)+TEMP_ab
-              END DO
-            endif
-
-            ENDIF
-#ifdef _DEBUGPRINT_
-          ISF=(JQ-1)*IB
-          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
-          if(nD==2) then
-          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
-          endif
-#endif
-
-         END DO  ! JQ
-      END DO    ! IP
-      END DO    ! I
-      end do  ! end of the batch procedure
-
-
-      call mma_deallocate(lists)
-      Call Get_Int_Close()
-      call mma_deallocate(hash_table)
-      Call mma_deallocate(Basis_IDs)
-
-      END SUBROUTINE FOCKTWO_scf_DCCD
-
-      END SUBROUTINE FOCKTWO_scf
+end subroutine FOCKTWO_scf

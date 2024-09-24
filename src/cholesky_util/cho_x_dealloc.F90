@@ -35,24 +35,18 @@ irc = 0
 ! -----------
 
 if (allocated(InfRed_Hidden)) call mma_deallocate(InfRed_Hidden)
-nullify(InfRed)
 
 if (allocated(InfVec_Hidden)) call mma_deallocate(InfVec_Hidden)
-nullify(InfVec)
 
 if (allocated(IndRed_Hidden)) call mma_deallocate(IndRed_Hidden)
-nullify(IndRed)
 
 if (allocated(IndRSh_Hidden)) call mma_deallocate(IndRSh_Hidden)
-nullify(IndRSh)
 
 if (allocated(iScr)) call mma_deallocate(iScr)
 
 if (allocated(iiBstRSh_Hidden)) call mma_deallocate(iiBstRSh_Hidden)
-nullify(iiBstRSh)
 
 if (allocated(nnBstRSh_Hidden)) call mma_deallocate(nnBstRSh_Hidden)
-nullify(nnBstRSh)
 
 if (allocated(IntMap)) call mma_deallocate(IntMap)
 
@@ -65,7 +59,6 @@ if (allocated(iSOShl)) call mma_deallocate(iSOShl)
 if (allocated(iShlSO)) call mma_deallocate(iShlSO)
 
 if (allocated(iQuAB_Hidden)) call mma_deallocate(iQuAB_Hidden)
-nullify(iQuAB)
 
 if (allocated(iBasSh)) call mma_deallocate(iBasSh)
 
@@ -82,7 +75,6 @@ if (allocated(iShP2RS)) call mma_deallocate(iShP2RS)
 if (allocated(iShP2Q)) call mma_deallocate(iShP2Q)
 
 if (allocated(iQuAB_L_Hidden)) call mma_deallocate(iQuAB_L_Hidden)
-nullify(iQuAB_L)
 
 if (allocated(iQL2G)) call mma_deallocate(iQL2G)
 
@@ -93,24 +85,20 @@ if (allocated(InfVec_Bak)) call mma_deallocate(InfVec_Bak)
 if (allocated(iSimRI)) call mma_deallocate(iSimRI)
 
 if (allocated(InfVec_G_Hidden)) call mma_deallocate(InfVec_G_Hidden)
-nullify(InfVec_G)
 
 if (allocated(IndRed_G_Hidden)) call mma_deallocate(IndRed_G_Hidden)
-nullify(IndRed_G)
 
 if (allocated(InfRed_G_Hidden)) call mma_deallocate(InfRed_G_Hidden)
-nullify(InfRed_G)
 
 if (allocated(IndRSh_G_Hidden)) call mma_deallocate(IndRSh_G_Hidden)
-nullify(IndRSh_G)
 
 if (allocated(iiBstRSh_L_Hidden)) call mma_deallocate(iiBstRSh_L_Hidden)
-nullify(iiBstRSh_G)
 
 if (allocated(nnBstRSh_L_Hidden)) call mma_deallocate(nnBstRSh_L_Hidden)
-nullify(nnBstRSh_G)
 
 if (allocated(iL2G)) call mma_deallocate(iL2G)
+
+nullify(InfRed,InfVec,IndRed,IndRSh,iiBstRSh,nnBstRSh,iQuAB,iQuAB_L,InfVec_G,IndRed_G,InfRed_G,IndRSh_G,iiBstRSh_G,nnBstRSh_G)
 
 return
 

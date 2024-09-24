@@ -71,6 +71,6 @@ pure function ij(i,j,k,nn,mm)
 
   ij = (k-1)*(nn*mm+1)+(j-1)*nn+i
 
-end function
+end function ij
 
 end subroutine Picky_inner

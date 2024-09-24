@@ -12,40 +12,42 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      Subroutine Rd2Int_SCF()
+
+subroutine Rd2Int_SCF()
 !***********************************************************************
 !                                                                      *
 !     purpose: Read basis set informations from two-electron file      *
 !              and compare them with those read from 2-el. file        *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nSym, nBas, nSkip
-      Implicit None
+
+use InfSCF, only: nSym, nBas, nSkip
+
+implicit none
 #include "Molcas.fh"
-!
-!---- Define local variables
-      Integer iRC, nSymX, iSym
-      Integer nBasX(MxSym)
-      Logical SqI2
+! Define local variables
+integer iRC, nSymX, iSym
+integer nBasX(MxSym)
+logical SqI2
 
-      iRc=-1
-      Call GetOrd(iRc,SqI2,nSymX,nBasX,nSkip)
-      If (iRc.ne.0) Then
-         Write (6,*) 'The program failed to read the header of ORDINT.'
-         Call Abend
-      End If
-!
-      If (nSymX.ne.nSym) Then
-         Write (6,*) 'nSymX.ne.nSym, nSymX, nSym=',nSymX,nSym
-         Call Abend
-      End If
-      Do iSym = 1, nSym
-         If (nBas(iSym).ne.nBasX(iSym)) Then
-            Write (6,*) 'nBas(iSym).ne.nBasX(iSym)'
-            Write (6,*) 'nBas=',nBas
-            Write (6,*) 'nBasX=',nBasX
-            Call Abend
-         End If
-      End Do
+iRc = -1
+call GetOrd(iRc,SqI2,nSymX,nBasX,nSkip)
+if (iRc /= 0) then
+  write(6,*) 'The program failed to read the header of ORDINT.'
+  call Abend()
+end if
 
-      End subroutine Rd2Int_SCF
+if (nSymX /= nSym) then
+  write(6,*) 'nSymX /= nSym, nSymX, nSym=',nSymX,nSym
+  call Abend()
+end if
+do iSym=1,nSym
+  if (nBas(iSym) /= nBasX(iSym)) then
+    write(6,*) 'nBas(iSym) /= nBasX(iSym)'
+    write(6,*) 'nBas=',nBas
+    write(6,*) 'nBasX=',nBasX
+    call Abend()
+  end if
+end do
+
+end subroutine Rd2Int_SCF

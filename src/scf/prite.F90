@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine PrIte(QNR,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
+
+subroutine PrIte(QNR,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
 !***********************************************************************
 !                                                                      *
 !     purpose: Print out informations in every iteration               *
@@ -22,107 +23,105 @@
 !     University of Lund, Sweden, 1992                                 *
 !                                                                      *
 !***********************************************************************
-      use InfSO, only: DltNrm, DltNTh
-      use InfSCF, only: AccCon, CPUItr, DMOMax, DNorm, DThr, E1V, E2V, EDiff, EneV, EThr, FMOMax, Iter, IterPrLv, jPrint, TNorm, &
-                        FThr
-      use Constants, only: Zero
-      Implicit None
-      Integer mBB, nD, mBT, mmB
-      Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
-      Logical QNR
 
-      Real*8 :: Shift=Zero
-      Logical :: Set_Shift=.False.
-      Save Shift, Set_Shift
-!
-      character cEDiff, cDMOMax, cFMOMax,cDltNrm
+use InfSO, only: DltNrm, DltNTh
+use InfSCF, only: AccCon, CPUItr, DMOMax, DNorm, DThr, E1V, E2V, EDiff, EneV, EThr, FMOMax, Iter, IterPrLv, jPrint, TNorm, FThr
+use Constants, only: Zero
 
-      If(iterprlv.gt.0) Then
-         Write(6,*)
-         Write(6,'(a)') '*******************'
-         Write(6,'(a,i3,a)') '** Iteration ',iter,' **'
-         Write(6,'(a)') '*******************'
-         Write(6,*)
-         Write(6,'(a,f10.2)') 'Cpu time [sec]        ',CpuItr
+implicit none
+integer mBB, nD, mBT, mmB
+real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
+logical QNR
+real*8 :: Shift = Zero
+logical :: Set_Shift = .false.
+save Shift, Set_Shift
+character cEDiff, cDMOMax, cFMOMax, cDltNrm
 
-         If(AccCon.eq.'None' .or. AccCon.eq.'NoneDa') Then
-            Write(6,'(a)') 'No convergence acceleration'
-         Else If(AccCon.eq.'EDIIS'.or.AccCon.eq.'ADIIS') Then
-            Write(6,'(a)') 'Convergence is accelerated by damping'
-         Else If(AccCon.eq.'QNRc1D') Then
-            Write(6,'(2a)') 'Convergence is accelerated by QNR with ','c1-DIIS'
-         Else If(AccCon.eq.'QNRc2D') Then
-            Write(6,'(2a)') 'Convergence is accelerated by QNR with ','c2-DIIS'
-         Else
-            Write(6,'(2a)') 'Convergence accelerations is ',AccCon
-         End If
+if (iterprlv > 0) then
+  write(6,*)
+  write(6,'(a)') '*******************'
+  write(6,'(a,i3,a)') '** Iteration ',iter,' **'
+  write(6,'(a)') '*******************'
+  write(6,*)
+  write(6,'(a,f10.2)') 'Cpu time [sec]        ',CpuItr
 
-         Write(6,*)
-         Write(6,'(a,f16.8)') 'Total energy          ',EneV
-         Write(6,'(a,f16.8)') 'One electron energy   ',E1V
-         Write(6,'(a,f16.8)') 'Two electron energy   ',E2V
+  select case (AccCon)
+    case ('None','NoneDa')
+      write(6,'(a)') 'No convergence acceleration'
+    case ('EDIIS','ADIIS')
+      write(6,'(a)') 'Convergence is accelerated by damping'
+    case ('QNRc1D')
+      write(6,'(2a)') 'Convergence is accelerated by QNR with ','c1-DIIS'
+    case ('QNRc2D')
+      write(6,'(2a)') 'Convergence is accelerated by QNR with ','c2-DIIS'
+    case default
+      write(6,'(2a)') 'Convergence accelerations is ',AccCon
+  end select
 
-         If(Abs(Ediff).gt.Ethr .or. iter.le.1) Then
-            Write(6,'(a,f16.8)') 'Energy difference     ',Ediff
-         Else
-            Write(6,'(a,f16.8,a)') 'Energy difference     ',Ediff,' is converged'
-         End If
+  write(6,*)
+  write(6,'(a,f16.8)') 'Total energy          ',EneV
+  write(6,'(a,f16.8)') 'One electron energy   ',E1V
+  write(6,'(a,f16.8)') 'Two electron energy   ',E2V
 
-         If(QNR) Then
-            If(DltNrm.gt.DltNth) Then
-               Write(6,'(a,f16.8)') 'Delta norm            ',DltNrm
-            Else
-               Write(6,'(a,f16.8,a)') 'Delta norm            ',DltNrm,' is converged'
-            End If
-         Else
-            If(Abs(DMOMax).gt.Dthr) Then
-               Write(6,'(a,f16.8)') 'Max offdiagonal Dij   ',DMOmax
-            Else
-               Write(6,'(a,f16.8,a)') 'Max offdiagonal Dij   ',DMOmax,' is converged'
-            End If
-         End If
+  if ((abs(Ediff) > Ethr) .or. (iter <= 1)) then
+    write(6,'(a,f16.8)') 'Energy difference     ',Ediff
+  else
+    write(6,'(a,f16.8,a)') 'Energy difference     ',Ediff,' is converged'
+  end if
 
-         If(Abs(FMOMax).gt.Fthr) Then
-            Write(6,'(a,f16.8)') 'Max offdiagonal Fij   ',FMOmax
-         Else
-            Write(6,'(a,f16.8,a)') 'Max offdiagonal Fij   ',FMOmax,' is converged'
-         End If
+  if (QNR) then
+    if (DltNrm > DltNth) then
+      write(6,'(a,f16.8)') 'Delta norm            ',DltNrm
+    else
+      write(6,'(a,f16.8,a)') 'Delta norm            ',DltNrm,' is converged'
+    end if
+  else
+    if (abs(DMOMax) > Dthr) then
+      write(6,'(a,f16.8)') 'Max offdiagonal Dij   ',DMOmax
+    else
+      write(6,'(a,f16.8,a)') 'Max offdiagonal Dij   ',DMOmax,' is converged'
+    end if
+  end if
 
-         Write(6,'(a,f16.8)') 'D-norm                ',Sqrt(Dnorm)
-         Write(6,'(a,f16.8)') 'T-norm                ',Sqrt(Tnorm)
-         If(iterprlv.ge.2) Then
-            Call MulPop(CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
-         End If
+  if (abs(FMOMax) > Fthr) then
+    write(6,'(a,f16.8)') 'Max offdiagonal Fij   ',FMOmax
+  else
+    write(6,'(a,f16.8,a)') 'Max offdiagonal Fij   ',FMOmax,' is converged'
+  end if
 
-      Else If(jPrint.ge.2) Then
+  write(6,'(a,f16.8)') 'D-norm                ',sqrt(Dnorm)
+  write(6,'(a,f16.8)') 'T-norm                ',sqrt(Tnorm)
+  if (iterprlv >= 2) call MulPop(CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
 
-         If (.Not.Set_Shift) Then
-            If (ABS(EneV).gt.1.0D3) Then
-               Shift=DBLE(INT(Abs(EneV)/1.0D3))*1.0D3
-               Write(6,*)
-               Write(6,'(1X,A,f10.0,A)') 'The total and one-electron energies are shifted by a value of ',Shift,' a.u.'
-               Write(6,*)
-            End If
-            Set_Shift=.True.
-         End If
-         cEDiff=' '
-         If (Abs(Ediff).gt.Ethr.or.EDiff>Zero) cEDiff='*'
-         cFMOMax=' '
-         If (Abs(FMOMax).gt.Fthr) cFMOMax='*'
+else if (jPrint >= 2) then
 
-         If (QNR) Then
-            cDltNrm=' '
-            If (DltNrm.gt.DltNth) cDltNrm='*'
-            Write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)')     &
-                  Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DltNrm,cDltNrm,FMOMax,cFMOMax,Sqrt(DNorm),Sqrt(TNorm),AccCon,CpuItr
-         Else
-            cDMOMax=' '
-            If (Abs(DMOMax).gt.Dthr) cDMOMax='*'
-            Write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)')     &
-                  Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DMOMax,cDMOMax,FMOMax,cFMOMax,Sqrt(DNorm),Sqrt(TNorm),AccCon,CpuItr
+  if (.not. Set_Shift) then
+    if (abs(EneV) > 1.0d3) then
+      Shift = dble(int(abs(EneV)/1.0d3))*1.0d3
+      write(6,*)
+      write(6,'(1X,A,f10.0,A)') 'The total and one-electron energies are shifted by a value of ',Shift,' a.u.'
+      write(6,*)
+    end if
+    Set_Shift = .true.
+  end if
+  cEDiff = ' '
+  if ((abs(Ediff) > Ethr) .or. (EDiff > Zero)) cEDiff = '*'
+  cFMOMax = ' '
+  if (abs(FMOMax) > Fthr) cFMOMax = '*'
 
-         End If
-      End If
-      Call XFlush(6)
+  if (QNR) then
+    cDltNrm = ' '
+    if (DltNrm > DltNth) cDltNrm = '*'
+    write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
+      Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DltNrm,cDltNrm,FMOMax,cFMOMax,sqrt(DNorm),sqrt(TNorm),AccCon,CpuItr
+  else
+    cDMOMax = ' '
+    if (abs(DMOMax) > Dthr) cDMOMax = '*'
+    write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
+      Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DMOMax,cDMOMax,FMOMax,cFMOMax,sqrt(DNorm),sqrt(TNorm),AccCon,CpuItr
 
-      End subroutine prite
+  end if
+end if
+call XFlush(6)
+
+end subroutine prite

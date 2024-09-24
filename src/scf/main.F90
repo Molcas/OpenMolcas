@@ -8,21 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
-      implicit None
-      Character(LEN=20), Parameter:: Module_Name='scf'
-      Integer iReturn
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-      Call Start(Module_Name)
-!      Call xml_Open('module',' ',' ','scf')
-      Call scf(ireturn)
-!      Call xml_Close('module')
-      Call Finish(ireturn)
+call Start('scf')
+call scf(rc)
+call Finish(rc)
 
-      end Program Main
+end program Main

@@ -12,51 +12,52 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      Subroutine ClsFls_SCF()
+
+subroutine ClsFls_SCF()
 !***********************************************************************
 !                                                                      *
 !     purpose: Close files after SCF calculations                      *
 !                                                                      *
 !***********************************************************************
-!
+
 #ifdef _HDF5_
-      Use mh5, Only: mh5_close_file
-      use SCFWfn, only: wfn_fileid
+use mh5, only: mh5_close_file
+use SCFWfn, only: wfn_fileid
 #endif
 use InfSCF, only: DSCF, DoCholesky
-      use Files, only: LuDSt, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy
-      Implicit None
-      Integer iRC
-!
+use Files, only: LuDSt, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy
+
+implicit none
+integer iRC
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
+
 !---  close two-electron integral file --------------------------------*
-      If (.Not.DSCF .And. .Not.DoCholesky) Then
-         iRc=-1
-         Call ClsOrd(iRc)
-         If (iRc.ne.0) Then
-            Write (6,*) 'ClsFls: Error closing ORDINT'
-            Call Abend()
-         End If
-      End If
-!
+if ((.not. DSCF) .and. (.not. DoCholesky)) then
+  iRc = -1
+  call ClsOrd(iRc)
+  if (iRc /= 0) then
+    write(6,*) 'ClsFls: Error closing ORDINT'
+    call Abend()
+  end if
+end if
+
 !---  close DNSMAT, dVxcdR, TWOHAM and GRADIENT -----------------------*
-      Call DaClos(LuDSt)
-      Call DaClos(LuOSt)
-      Call DaClos(LuTSt)
-      Call DaClos(LuGrd)
-!
-!---  close 2nd order updatefiles       -------------------------------*
-      Call DaClos(LuDGd)
-      Call DaClos(Lux)
-      Call DaClos(LuDel)
-      Call DaClos(Luy)
-!
+call DaClos(LuDSt)
+call DaClos(LuOSt)
+call DaClos(LuTSt)
+call DaClos(LuGrd)
+
+!---  close 2nd order updatefiles -------------------------------------*
+call DaClos(LuDGd)
+call DaClos(Lux)
+call DaClos(LuDel)
+call DaClos(Luy)
+
 #ifdef _HDF5_
-      call mh5_close_file(wfn_fileid)
+call mh5_close_file(wfn_fileid)
 #endif
 
-      End Subroutine ClsFls_SCF
+end subroutine ClsFls_SCF

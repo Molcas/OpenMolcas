@@ -10,43 +10,47 @@
 !                                                                      *
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
+
+subroutine TrimEor(Eor1,Eor2,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine trim orbital energy vectors.                            *
 !                                                                      *
 !***********************************************************************
-      SubRoutine TrimEor(Eor1,Eor2,nSym,nBas,nOrb)
-      Implicit None
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Real*8  Eor1(*)
-      Real*8  Eor2(*)
-      Integer nSym
-      Integer nBas(*)
-      Integer nOrb(*)
+real*8 Eor1(*)
+real*8 Eor2(*)
+integer nSym
+integer nBas(*)
+integer nOrb(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer iFrom(8)
-      Integer iTo(8)
-      Integer iSym
-      Integer ndata
+integer iFrom(8)
+integer iTo(8)
+integer iSym
+integer ndata
+
 !----------------------------------------------------------------------*
 ! Transfer orbital energies.                                           *
 !----------------------------------------------------------------------*
-      iFrom(1) = 1
-      iTo(1)   = 1
-      Do iSym=1,nSym-1
-         iFrom(iSym+1) = iFrom(iSym) + nBas(iSym)
-         iTo(iSym+1)   = iTo(iSym)   + nOrb(iSym)
-      End Do
-      Do iSym=nSym,1,-1
-         ndata=nOrb(iSym)
-         call dcopy_(ndata,Eor1(iFrom(iSym)),1,Eor2(iTo(iSym)),1)
-      End Do
+iFrom(1) = 1
+iTo(1) = 1
+do iSym=1,nSym-1
+  iFrom(iSym+1) = iFrom(iSym)+nBas(iSym)
+  iTo(iSym+1) = iTo(iSym)+nOrb(iSym)
+end do
+do iSym=nSym,1,-1
+  ndata = nOrb(iSym)
+  call dcopy_(ndata,Eor1(iFrom(iSym)),1,Eor2(iTo(iSym)),1)
+end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *
 !----------------------------------------------------------------------*
-      Return
-      End SubRoutine TrimEor
+return
+
+end subroutine TrimEor

@@ -110,9 +110,7 @@ do iPass=1,nPass
   end do
 end do
 
-nullify(V)
-nullify(VSqrt)
-nullify(VISqrt)
+nullify(V,VSqrt,VISqrt)
 
 ! Test orthonormalization (i.e. V=1?).
 ! ------------------------------------

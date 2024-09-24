@@ -14,8 +14,9 @@
 !               1996, Martin Schuetz                                   *
 !               2017, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine TraClc_i(iterLw,nD)
+subroutine TraClc_i(iterLw,nD)
 !***********************************************************************
 !                                                                      *
 ! purpose: compute traces                                              *
@@ -45,26 +46,29 @@
 ! - traces are recomputed for all iterations between iterLw & iter     *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: iDKeep, Iter, nBT, MapDns, iDisk
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use SCF_Arrays, only: OneHam, TwoHam, Vxc, Dens, TrDh, TrDP, TrDD
-      use Constants, only: Zero
-      Implicit None
-      Integer nD, IterLw
-!---- Define local variables
-      Integer ii, iPosL, iD, i, iPos
-      Real*8, External:: DDot_
-      Real*8, Dimension(:,:), Allocatable, Target:: Aux1, Aux2, Aux3
-      Real*8, Dimension(:,:), Pointer:: pDens, pTwoHam, pVxc
+
+use InfSCF, only: iDKeep, Iter, nBT, MapDns, iDisk
+use stdalloc, only: mma_allocate, mma_deallocate
+use SCF_Arrays, only: OneHam, TwoHam, Vxc, Dens, TrDh, TrDP, TrDD
+use Constants, only: Zero
+
+implicit none
+integer nD, IterLw
+! Define local variables
+integer ii, iPosL, iD, i, iPos
+real*8, external :: DDot_
+real*8, dimension(:,:), allocatable, target :: Aux1, Aux2, Aux3
+real*8, dimension(:,:), pointer :: pDens, pTwoHam, pVxc
 #ifdef _DEBUGPRINT_
-      Integer iR, iC
+integer iR, iC
 #endif
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-      If (iDKeep.lt.0) Return
-!
+
+if (iDKeep < 0) return
+
 !----------------------------------------------------------------------*
 !                                                                      *
 ! Expand the DFT contribution around the reference density             *
@@ -74,149 +78,145 @@
 ! density difference between the two last iterations.                  *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-!
-!     Loop over densities to interpolate over
-!
-      Do ii = iterLw, iter
+
+! Loop over densities to interpolate over
+
+do ii=iterLw,iter
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-!        Get the one-particle density_ii
+! Get the one-particle density_ii
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-!        Get pointer to the density
-!
-         iPosL=MapDns(ii)
-!
-         If(iPosL.le.0) Then
-!
-!           If not in memory pick up from disk
-!
-            If (.Not.Allocated(Aux1)) Call mma_allocate(Aux1,nBT,nD,Label='Aux1')
-!
-!           Pick up the density matrix and external potential
-!
-            Call RWDTG(-iPosL,Aux1,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
-            pDens => Aux1
-         Else
-            pDens => Dens(1:nBT,1:nD,iPosL)
-         End If
-!
-         Do iD = 1, nD
-!
-!           Trace the one-electron density with the one-electron
-!           Hamiltonian.
-!
-            TrDh(ii,ii,iD)=DDot_(nBT,pDens(:,iD),1,OneHam,1)
+! Get pointer to the density
+
+  iPosL = MapDns(ii)
+
+  if (iPosL <= 0) then
+
+    ! If not in memory pick up from disk
+
+    if (.not. allocated(Aux1)) call mma_allocate(Aux1,nBT,nD,Label='Aux1')
+
+    ! Pick up the density matrix and external potential
+
+    call RWDTG(-iPosL,Aux1,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
+    pDens => Aux1
+  else
+    pDens => Dens(1:nBT,1:nD,iPosL)
+  end if
+
+  do iD=1,nD
+
+    ! Trace the one-electron density with the one-electron Hamiltonian.
+
+    TrDh(ii,ii,iD) = DDot_(nBT,pDens(:,iD),1,OneHam,1)
+    !                                                                  *
+    !------------------------------------------------------------------*
+    !                                                                  *
+  end do ! iD
+
+  nullify(pDens)
+
+end do ! ii
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-         End Do ! iD
-!
-         Nullify(pDens)
-!
-      End Do ! ii
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!
+
 #ifdef _DEBUGPRINT_
-      Do iD = 1, nD
-         Write(6,'(a)') 'traclc: TrDh'
-         Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
-      End Do
+do iD=1,nD
+  write(6,'(a)') 'traclc: TrDh'
+  write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
+end do
 #endif
-      If (Allocated(Aux1)) Call mma_deallocate(Aux1)
+if (allocated(Aux1)) call mma_deallocate(Aux1)
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-      Do ii = iterLw, iter
-!
-         iPosL=MapDns(ii)
-         Do iD = 1, nD
-!
-!           Trace the two-electron contribution of the Fock matrix with
-!           the density. Diagonal terms.
-!
-            If (iPosL.gt.0) Then
-               TrDP(ii,ii,iD)=DDot_(nBT,Dens(1,iD,iPosL),1,TwoHam(1,iD,iPosL),1)    &
-                             +DDot_(nBT,Dens(1,iD,iPosL),1,Vxc   (1,iD,iPosL),1)
-               TrDD(ii,ii,iD)=DDot_(nBT,Dens(1,iD,iPosL),1,Dens(1,iD,iPosL),1)
-            Else
-               Write(6,'(a)') 'traclc: should not happen!!!'
-               TrDP(ii,ii,iD)=Zero
-               Call Abend()
-            End If
-         End Do ! iD
-!
-         Do i = 1, ii - 1
-!
-!           Get pointer to density
-!
-            iPos=MapDns(i)
-            If(iPos.le.0) Then
-               If (.NOT.Allocated(Aux1)) Then
-                  Call mma_allocate(Aux1,nBT,nD,Label='Aux1')
-                  Call mma_allocate(Aux2,nBT,nD,Label='Aux2')
-                  Call mma_allocate(Aux3,nBT,nD,Label='Aux3')
-               End If
-               Call RWDTG(-iPos,Aux1,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
-               Call RWDTG(-iPos,Aux2,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
-               Call RWDTG(-iPos,Aux3,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
-               pTwoHam => Aux1
-               pVxc    => Aux2
-               pDens   => Aux3
-            Else
-               pTwoHam => TwoHam(1:nBT,1:nD,iPos)
-               pVxc    => Vxc   (1:nBT,1:nD,iPos)
-               pDens   => Dens  (1:nBT,1:nD,iPos)
-            End If
-!
-            Do iD = 1, nD
-               TrDP(i,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,pTwoHam(:,iD),1)
-               TrDP(ii,i,iD) = TrDP(i,ii,iD)
-               TrDP(i,ii,iD) = TrDP(i,ii,iD)+ DDot_(nBT,Dens(1,iD,iPosL),1,pVxc   (:,iD),1)
-               TrDP(ii,i,iD) = TrDP(ii,i,iD)+ DDot_(nBT,Vxc (1,iD,iPosL),1,pDens(:,iD),1)
-               TrDD(i,ii,iD) = DDot_(nBT,Dens(1,iD,iPosl),1,pDens(:,iD),1)
-               TrDD(ii,i,iD) = TrDD(i,ii,iD)
-!
-            End Do ! iD
-!
-#ifdef _DEBUGPRINT_
-            Do iD = 1, nD
-               Write(6,*) 'iteration:',ii
-               Write(6,'(a)') 'traclc: TrDh'
-               Do iR = 1, ii
-                  Write (6,'(6f16.8)')TrDh(iR,iR,iD)
-               End Do
-               Write(6,'(a)') 'traclc: TrDP'
-               Do iR = 1, ii
-                  Write (6,'(6f16.8)')(TrDP(iR,iC,iD),iC=1,ii)
-               End Do
-               Write(6,'(a)') 'traclc: TrDD'
-               Do iR = 1, ii
-                  Write (6,'(6f16.8)')(TrDD(iR,iC,iD),iC=1,ii)
-               End Do
-            End Do ! iD
-#endif
-            Nullify(pTwoHam)
-            Nullify(pVxc   )
-            Nullify(pDens  )
-!
-         End Do ! i
-!
-      End Do ! ii
-!
-      If (Allocated(Aux1)) Then
-         Call mma_deallocate(Aux1)
-         Call mma_deallocate(Aux2)
-         Call mma_deallocate(Aux3)
-      End If
-!
+do ii=iterLw,iter
+
+  iPosL = MapDns(ii)
+  do iD=1,nD
+
+    ! Trace the two-electron contribution of the Fock matrix with
+    ! the density. Diagonal terms.
+
+    if (iPosL > 0) then
+      TrDP(ii,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,TwoHam(1,iD,iPosL),1)+DDot_(nBT,Dens(1,iD,iPosL),1,Vxc(1,iD,iPosL),1)
+      TrDD(ii,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,Dens(1,iD,iPosL),1)
+    else
+      write(6,'(a)') 'traclc: should not happen!!!'
+      TrDP(ii,ii,iD) = Zero
+      call Abend()
+    end if
+  end do ! iD
+
+  do i=1,ii-1
+
+    ! Get pointer to density
+
+    iPos = MapDns(i)
+    if (iPos <= 0) then
+      if (.not. allocated(Aux1)) then
+        call mma_allocate(Aux1,nBT,nD,Label='Aux1')
+        call mma_allocate(Aux2,nBT,nD,Label='Aux2')
+        call mma_allocate(Aux3,nBT,nD,Label='Aux3')
+      end if
+      call RWDTG(-iPos,Aux1,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
+      call RWDTG(-iPos,Aux2,nBT*nD,'R','dVxcdR',iDisk,size(iDisk,1))
+      call RWDTG(-iPos,Aux3,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
+      pTwoHam => Aux1
+      pVxc => Aux2
+      pDens => Aux3
+    else
+      pTwoHam => TwoHam(1:nBT,1:nD,iPos)
+      pVxc => Vxc(1:nBT,1:nD,iPos)
+      pDens => Dens(1:nBT,1:nD,iPos)
+    end if
+
+    do iD=1,nD
+      TrDP(i,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,pTwoHam(:,iD),1)
+      TrDP(ii,i,iD) = TrDP(i,ii,iD)
+      TrDP(i,ii,iD) = TrDP(i,ii,iD)+DDot_(nBT,Dens(1,iD,iPosL),1,pVxc(:,iD),1)
+      TrDP(ii,i,iD) = TrDP(ii,i,iD)+DDot_(nBT,Vxc(1,iD,iPosL),1,pDens(:,iD),1)
+      TrDD(i,ii,iD) = DDot_(nBT,Dens(1,iD,iPosl),1,pDens(:,iD),1)
+      TrDD(ii,i,iD) = TrDD(i,ii,iD)
+
+    end do ! iD
+
+#   ifdef _DEBUGPRINT_
+    do iD=1,nD
+      write(6,*) 'iteration:',ii
+      write(6,'(a)') 'traclc: TrDh'
+      do iR=1,ii
+        write(6,'(6f16.8)') TrDh(iR,iR,iD)
+      end do
+      write(6,'(a)') 'traclc: TrDP'
+      do iR=1,ii
+        write(6,'(6f16.8)') (TrDP(iR,iC,iD),iC=1,ii)
+      end do
+      write(6,'(a)') 'traclc: TrDD'
+      do iR=1,ii
+        write(6,'(6f16.8)') (TrDD(iR,iC,iD),iC=1,ii)
+      end do
+    end do ! iD
+#   endif
+    nullify(pTwoHam,pVxc,pDens)
+
+  end do ! i
+
+end do ! ii
+
+if (allocated(Aux1)) then
+  call mma_deallocate(Aux1)
+  call mma_deallocate(Aux2)
+  call mma_deallocate(Aux3)
+end if
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      Return
-      End SubRoutine TraClc_i
+return
+
+end subroutine TraClc_i

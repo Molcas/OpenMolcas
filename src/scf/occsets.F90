@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module OccSets
-Real*8, Dimension(:,:), Allocatable:: OccSet_e, OccSet_m
-Integer nOccSet_e, nOccSet_m
-End Module OccSets
+
+module OccSets
+
+real*8, dimension(:,:), allocatable :: OccSet_e, OccSet_m
+integer nOccSet_e, nOccSet_m
+
+end module OccSets

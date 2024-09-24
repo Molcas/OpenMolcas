@@ -8,41 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!     Compute the dx parameters value
-!
-      Subroutine dX()
-      use LnkLst, only: SCF_V, LLx, LLDelt
-      use InfSCF, only: Iter, Iter_Start, mOV
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer jpgrd,inode, i
-      Real*8, Dimension(:), Allocatable:: Scr
-      Integer, External :: LstPtr
 
-      Call mma_allocate(Scr,mOV,Label='Scr')
+! Compute the dx parameters value
 
-!     Loop over all iterations starting at Iter_Start
+subroutine dX()
 
-      Do i = Iter_Start, Iter-1
+use LnkLst, only: SCF_V, LLx, LLDelt, LstPtr, GetNod, iVPtr, PutVec
+use InfSCF, only: Iter, Iter_Start, mOV
+use stdalloc, only: mma_allocate, mma_deallocate
 
-!        dX(i)=X(i+1)-X(i)
+implicit none
+integer jpgrd, inode, i
+real*8, dimension(:), allocatable :: Scr
 
-         jpgrd=LstPtr(i+1,LLx)   ! Pointer to X(i+1)
+call mma_allocate(Scr,mOV,Label='Scr')
 
-         Call GetNod(i,LLx,inode) ! X(i)
-         If (inode.eq.0) Then
-            Write (6,*) 'inode.eq.0'
-            Call Abend()
-         End If
-         Call iVPtr(Scr,mOV,inode)
+! Loop over all iterations starting at Iter_Start
 
-         Scr(:)=SCF_V(jpgrd)%A(:)-Scr(:)
+do i=Iter_Start,Iter-1
 
-         Call PutVec(Scr,mOV,i,'OVWR',LLDelt)
-      End Do
+  !dX(i) = X(i+1)-X(i)
 
-      Call mma_deallocate(Scr)
+  jpgrd = LstPtr(i+1,LLx)   ! Pointer to X(i+1)
 
-      Return
-      End Subroutine dX
+  call GetNod(i,LLx,inode) ! X(i)
+  if (inode == 0) then
+    write(6,*) 'inode == 0'
+    call Abend()
+  end if
+  call iVPtr(Scr,mOV,inode)
+
+  Scr(:) = SCF_V(jpgrd)%A(:)-Scr(:)
+
+  call PutVec(Scr,mOV,i,'OVWR',LLDelt)
+end do
+
+call mma_deallocate(Scr)
+
+return
+
+end subroutine dX

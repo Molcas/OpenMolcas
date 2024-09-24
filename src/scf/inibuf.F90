@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1998, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine IniBuf(nDisc,nCore)
+
+subroutine IniBuf(nDisc,nCore)
 !***********************************************************************
 !                                                                      *
 !  Object: Initiate I/O buffer for semi-direct SCF                     *
@@ -22,74 +23,74 @@
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 !             University of Lund, Sweden. October '98                  *
 !***********************************************************************
-      use IOBUF, only: Buffer, DiskMx_Byte, InCore, lBuf, LuTmp, nBuf, OnDisk
-      use stdalloc, only: mma_allocate
-      use Constants, only: Two, Ten
-      Implicit None
-      Integer nDisc, nCore
 
-      Integer MaxMem, MemMin_Seward, MemReq
-      External AllocDisk
-      Integer AllocDisk
-!
-!     Open file for semi-direct implementation
-!     nDisc in units of MByte
-!     nCore in units of kByte
-!
-!
-!     The maximum number of bytes on disk. The file size limit times
-!     the number of multi files.
-!
-      DiskMx_Byte=DBLE(AllocDisk())*Ten*Two**20
-!
-      nBuf=-99
-      If (nDisc.eq.0.and.nCore.eq.0) Then
-         OnDisk=.False.
-         Incore=.False.
-      Else If (nDisc*1024.gt.nCore) Then
-         OnDisk=.True.
-         Incore=.False.
-         LuTMp = 32
-         Call EAFOpen(LuTmp,'SMDINT  ')
-         nBuf=2
-      Else
-         OnDisk=.False.
-         InCore=.True.
-         nBuf=1
-      End If
-!
-!---- Adjust buffer size and allocate memory for the buffer.
-!
-      If (OnDisk.or.InCore) Then
-         MemMin_Seward=1024**2 ! Real*8
-         Call mma_maxDBLE(MaxMem)
-!        lBuf in units of Real*8 per buffer
-         lBuf=(1024*nCore)/(8*nBuf)
-         if(InCore) then
-         MemReq=MemMin_Seward + lBuf*nBuf
-!        Write (6,*) 'MemReq,MaxMem=',MemReq,MaxMem,'  lbuf=',lbuf
-         If (MemReq.gt.MaxMem) Then
-            lBuf=(MaxMem-MemMin_Seward)/nBuf
-            If (lBuf.lt.0) Then
-               nCore=(((MaxMem*3)/4)*8)/1024
-            Else
-               nCore=(lBuf*8)/1024
-            End If
-         Else
-            nCore=(lBuf*8)/1024
-         End If
-         nCore=((nCore+7)/8)*8
-         lBuf=(1024*nCore)/(8*nBuf)
-         end if
-!        Write (6,*) 'OnDisk=',OnDisk
-!        Write (6,*) 'Incore=',Incore
-!        Write (6,*) 'nBuf=',nBuf
-!        Write (6,*) 'IniBuf: nDisc=',nDisc,'MByte'
-!        Write (6,*) 'nCore=',nCore,'kByte'
-!        Write (6,*) 'lBuf=',lBuf
-!
-!------- Allocate I/O Buffer
-         Call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')
-      End If
-!
-      End SubRoutine IniBuf
+use IOBUF, only: Buffer, DiskMx_Byte, InCore, lBuf, LuTmp, nBuf, OnDisk
+use stdalloc, only: mma_allocate
+use Constants, only: Two, Ten
+
+implicit none
+integer nDisc, nCore
+integer MaxMem, MemMin_Seward, MemReq
+external AllocDisk
+integer AllocDisk
+
+! Open file for semi-direct implementation
+! nDisc in units of MByte
+! nCore in units of kByte
+
+! The maximum number of bytes on disk. The file size limit times
+! the number of multi files.
+
+DiskMx_Byte = dble(AllocDisk())*Ten*Two**20
+
+nBuf = -99
+if ((nDisc == 0) .and. (nCore == 0)) then
+  OnDisk = .false.
+  Incore = .false.
+else if (nDisc*1024 > nCore) then
+  OnDisk = .true.
+  Incore = .false.
+  LuTMp = 32
+  call EAFOpen(LuTmp,'SMDINT  ')
+  nBuf = 2
+else
+  OnDisk = .false.
+  InCore = .true.
+  nBuf = 1
+end if
+
+! Adjust buffer size and allocate memory for the buffer.
+
+if (OnDisk .or. InCore) then
+  MemMin_Seward = 1024**2 ! Real*8
+  call mma_maxDBLE(MaxMem)
+  ! lBuf in units of Real*8 per buffer
+  lBuf = (1024*nCore)/(8*nBuf)
+  if (InCore) then
+    MemReq = MemMin_Seward+lBuf*nBuf
+    !write(6,*) 'MemReq,MaxMem=',MemReq,MaxMem,'  lbuf=',lbuf
+    if (MemReq > MaxMem) then
+      lBuf = (MaxMem-MemMin_Seward)/nBuf
+      if (lBuf < 0) then
+        nCore = (((MaxMem*3)/4)*8)/1024
+      else
+        nCore = (lBuf*8)/1024
+      end if
+    else
+      nCore = (lBuf*8)/1024
+    end if
+    nCore = ((nCore+7)/8)*8
+    lBuf = (1024*nCore)/(8*nBuf)
+  end if
+  !write(6,*) 'OnDisk=',OnDisk
+  !write(6,*) 'Incore=',Incore
+  !write(6,*) 'nBuf=',nBuf
+  !write(6,*) 'IniBuf: nDisc=',nDisc,'MByte'
+  !write(6,*) 'nCore=',nCore,'kByte'
+  !write(6,*) 'lBuf=',lBuf
+
+  ! Allocate I/O Buffer
+  call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')
+end if
+
+end subroutine IniBuf

@@ -27,70 +27,67 @@
 !> @param[in]  mynOcc Number of occupied orbitals (including frozen) in each symmetry
 !***********************************************************************
 
-      SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
-      use InfSCF, only: nOFs, nSym, nFro, TimFld, nOrb
-      Use Constants, only: Pi, Zero
-!
-      Implicit None
+#define qnext
+subroutine ExpKap(kapOV,nKapOV,U,mynOcc)
 
-#define  qnext
-!
-!     declaration subroutine parameters
-      Integer nKapOV
-      Real*8 kapOV(nkapOV),U(nOFS)
-      Integer mynOcc(8)
-!
-      Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
-      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
+use InfSCF, only: nOFs, nSym, nFro, TimFld, nOrb
+use Constants, only: Pi, Zero
 
+implicit none
+! declaration subroutine parameters
+integer nKapOV
+real*8 kapOV(nkapOV), U(nOFS)
+integer mynOcc(8)
+integer iKap, iSym, iU, j, jU, mOcc, mOrb, mVir
+real*8 Cpu1, Cpu2, Tim1, Tim2, Tim3
 #ifndef qnext
-      Real*8 theta
+real*8 theta
 #endif
+real*8, parameter :: Thrs = 1.0D-14
 
-      Real*8, Parameter :: Thrs = 1.0D-14
+do j=1,nKapOV
+  if (abs(KapOV(j)) > Pi) then
+    write(6,*) 'ExpKap: KapOV too large:',KapOV(j)
+    call Abend()
+  end if
+end do
+call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-      Do j = 1, nKapOV
-         If (Abs(KapOV(j))>Pi) Then
-            Write (6,*) 'ExpKap: KapOV too large:',KapOV(j)
-            Call Abend()
-         End If
-      End Do
-      Call Timing(Cpu1,Tim1,Tim2,Tim3)
-!
-      iU = 1
-      iKap = 1
-      U(:) = Zero
+iU = 1
+iKap = 1
+U(:) = Zero
 
-      Do iSym=1,nSym
-        mOrb = nOrb(iSym)-nFro(iSym)
-        mOcc = mynOcc(iSym)-nFro(iSym)
-        mVir = mOrb-mOcc
+do iSym=1,nSym
+  mOrb = nOrb(iSym)-nFro(iSym)
+  mOcc = mynOcc(iSym)-nFro(iSym)
+  mVir = mOrb-mOcc
 
-        If (mVir*mOcc == 0) Cycle
+  if (mVir*mOcc == 0) cycle
 
-        jU = iU+mOcc
+  jU = iU+mOcc
 
-        Do j=1,mOcc
-          U(jU:jU+mVir-1) = kapOV(iKap:iKap+mVir-1)
-          iKap = iKap+mVir
-          jU = jU+mOrb
-        End Do
+  do j=1,mOcc
+    U(jU:jU+mVir-1) = kapOV(iKap:iKap+mVir-1)
+    iKap = iKap+mVir
+    jU = jU+mOrb
+  end do
 
-#ifdef  qnext
-        Call matexp(mOrb,mOcc,U(iU:iU+mOrb**2))
-#else
-        Call Exp_Schur(mOrb,U(iU:iU+mOrb**2),theta)
-#endif
+# ifdef  qnext
+  call matexp(mOrb,mOcc,U(iU:iU+mOrb**2))
+# else
+  call Exp_Schur(mOrb,U(iU:iU+mOrb**2),theta)
+# endif
 
-        iU = iU+mOrb**2
-      End Do
-!
-      Do j=1,nOFS
-        If (abs(U(j)).lt.Thrs) U(j) = Zero
-      End do
-!
-      Call Timing(Cpu2,Tim1,Tim2,Tim3)
-      TimFld(10) = TimFld(10) + (Cpu2 - Cpu1)
+  iU = iU+mOrb**2
+end do
 
-      Return
-      End SubRoutine ExpKap
+do j=1,nOFS
+  if (abs(U(j)) < Thrs) U(j) = Zero
+end do
+
+call Timing(Cpu2,Tim1,Tim2,Tim3)
+TimFld(10) = TimFld(10)+(Cpu2-Cpu1)
+
+return
+
+end subroutine ExpKap

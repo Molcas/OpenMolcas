@@ -13,8 +13,9 @@
 !               1992, Piotr Borowski                                   *
 !               2016,2017, Roland Lindh                                *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine GrdClc(Do_All)
+subroutine GrdClc(Do_All)
 !***********************************************************************
 !                                                                      *
 !     purpose: Compute gradients and write on disk.                    *
@@ -28,67 +29,66 @@
 !     University of Lund, Sweden, 1992                                 *
 !                                                                      *
 !***********************************************************************
-      Use Interfaces_SCF, Only: vOO2OV
-      Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO, nBT, nOO, nD
-      use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Logical Do_All
-!
+
+use Interfaces_SCF, only: vOO2OV
+use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO, nBT, nOO, nD
+use LnkLst, only: LLGrad, PutVec
+use SCF_Arrays, only: OneHam, CMO_Ref, Ovrlp, FockMO
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+logical Do_All
 ! Local variables
-      Real*8, Allocatable:: GrdOV(:), GrdOO(:,:)
-      Integer iOpt, LpStrt
-!
+real*8, allocatable :: GrdOV(:), GrdOO(:,:)
+integer iOpt, LpStrt
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-!--- Allocate memory for gradients
-      Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
-      Call mma_allocate(GrdOV,mOV,Label='GrdOV')
 
-!--- Find the beginning of the loop
-      If (Do_All) Then
-         LpStrt = Iter_Start
-         Do_All=.False.
-      Else
-         LpStrt = Iter
-      End If
+! Allocate memory for gradients
+call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
+call mma_allocate(GrdOV,mOV,Label='GrdOV')
 
-!--- Compute all gradients / last gradient
-!
-      Do iOpt = LpStrt, Iter
-!
-         If (iOpt.eq.Iter) Then
-            Call Mk_FockMO(OneHam,Ovrlp,nBT,CMO_Ref,nBO,FockMO,nOO,nD,iOpt)
-         End If
+! Find the beginning of the loop
+if (Do_All) then
+  LpStrt = Iter_Start
+  Do_All = .false.
+else
+  LpStrt = Iter
+end if
 
-         Call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,GrdOO,nOO,nD,iOpt)
-!
-         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
-!
-!------- Write Gradient to linked list
-!
-         Call PutVec(GrdOV,mOV,iOpt,'OVWR',LLGrad)
-!
-#ifdef _DEBUGPRINT_
-         Write (6,*) 'GrdClc: Put Gradient iteration:',iOpt
-         Write (6,*) 'iOpt,mOV=',iOpt,mOV
-         Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
-         Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
-#endif
-      End Do
-!
-!     Deallocate memory
-!
-      Call mma_deallocate(GrdOV)
-      Call mma_deallocate(GrdOO)
-!
+! Compute all gradients / last gradient
+
+do iOpt=LpStrt,Iter
+
+  if (iOpt == Iter) call Mk_FockMO(OneHam,Ovrlp,nBT,CMO_Ref,nBO,FockMO,nOO,nD,iOpt)
+
+  call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,GrdOO,nOO,nD,iOpt)
+
+  call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
+
+  ! Write Gradient to linked list
+
+  call PutVec(GrdOV,mOV,iOpt,'OVWR',LLGrad)
+
+# ifdef _DEBUGPRINT_
+  write(6,*) 'GrdClc: Put Gradient iteration:',iOpt
+  write(6,*) 'iOpt,mOV=',iOpt,mOV
+  call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
+  call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
+# endif
+end do
+
+! Deallocate memory
+
+call mma_deallocate(GrdOV)
+call mma_deallocate(GrdOO)
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine GrdClc
+
+return
+
+end subroutine GrdClc

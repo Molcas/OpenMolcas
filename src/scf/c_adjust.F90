@@ -8,19 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine  C_Adjust(CInter,n,CThr)
-      use Constants, only: One
-      Implicit None
-      Integer n, i
-      Real*8 CInter(n), CThr, Fact
 
-      If (CInter(n).lt.CThr) Then
-         Fact=(One-CThr)/(One-CInter(n))
-         Do i = 1, n - 1
-            CInter(i) = Fact * CInter(i)
-         End Do
-         CInter(n)=CThr
-      End If
+subroutine C_Adjust(CInter,n,CThr)
 
-      Return
-      End Subroutine  C_Adjust
+use Constants, only: One
+
+implicit none
+integer n, i
+real*8 CInter(n), CThr, Fact
+
+if (CInter(n) < CThr) then
+  Fact = (One-CThr)/(One-CInter(n))
+  do i=1,n-1
+    CInter(i) = Fact*CInter(i)
+  end do
+  CInter(n) = CThr
+end if
+
+return
+
+end subroutine C_Adjust

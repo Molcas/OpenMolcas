@@ -16,51 +16,57 @@
 ! necessary.                                                           *
 !                                                                      *
 !***********************************************************************
-      SubRoutine DumpEor(Label,Eor,nSym,nBas,nOrb)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
+
+subroutine DumpEor(Label,Eor,nSym,nBas,nOrb)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Real*8  Eor(*)
-      Integer nSym
-      Integer nBas(*)
-      Integer nOrb(*)
+character*(*) Label
+real*8 Eor(*)
+integer nSym
+integer nBas(*)
+integer nOrb(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer npDump
-      Integer iFrom(8)
-      Integer iTo(8)
-      Integer iSym
-      Integer ndata
-      Real*8, Dimension(:), Allocatable:: Dump
+integer npDump
+integer iFrom(8)
+integer iTo(8)
+integer iSym
+integer ndata
+real*8, dimension(:), allocatable :: Dump
+
 !----------------------------------------------------------------------*
 ! Preliminaries                                                        *
 !----------------------------------------------------------------------*
-      npDump=0
-      Do iSym=1,nSym
-         npDump=npDump+nBas(iSym)
-      End Do
-      Call mma_allocate(Dump,npDump,Label='DumpOE')
+npDump = 0
+do iSym=1,nSym
+  npDump = npDump+nBas(iSym)
+end do
+call mma_allocate(Dump,npDump,Label='DumpOE')
 !----------------------------------------------------------------------*
 ! Dump orbital energies                                                *
 !----------------------------------------------------------------------*
-      iFrom(1)=1
-      iTo(1)=1
-      Do iSym=1,nSym-1
-         iFrom(iSym+1)=iFrom(iSym)+nOrb(iSym)
-         iTo(iSym+1)=iTo(iSym)+nBas(iSym)
-      End Do
-      Do iSym=nSym,1,-1
-         ndata=nOrb(iSym)
-         call dcopy_(ndata,Eor(iFrom(iSym)),1,Dump(iTo(iSym)),1)
-      End Do
-      Call Put_dArray(Label,Dump,npDump)
+iFrom(1) = 1
+iTo(1) = 1
+do iSym=1,nSym-1
+  iFrom(iSym+1) = iFrom(iSym)+nOrb(iSym)
+  iTo(iSym+1) = iTo(iSym)+nBas(iSym)
+end do
+do iSym=nSym,1,-1
+  ndata = nOrb(iSym)
+  call dcopy_(ndata,Eor(iFrom(iSym)),1,Dump(iTo(iSym)),1)
+end do
+call Put_dArray(Label,Dump,npDump)
 !----------------------------------------------------------------------*
 ! Finish                                                               *
 !----------------------------------------------------------------------*
-      Call mma_deallocate(Dump)
-      Return
-      End SubRoutine DumpEor
+call mma_deallocate(Dump)
+
+return
+
+end subroutine DumpEor

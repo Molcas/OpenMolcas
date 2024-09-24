@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine PickUp(Tri,Vec,n)
+
+subroutine PickUp(Tri,Vec,n)
 !***********************************************************************
 !                                                                      *
 !     purpose: Pick up diagonal elements from triangular matrix and    *
@@ -26,28 +27,25 @@
 !       Vec     : vector                                               *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit None
-!
-      Integer n
-      Real*8 Tri(n*(n+1)/2),Vec(n)
 
-      Integer ij, i
-!
+implicit none
+integer n
+real*8 Tri(n*(n+1)/2), Vec(n)
+integer ij, i
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-      ij = 0
-      Do i = 1, n
-         ij = ij + i
-         Vec(i) = Tri(ij)
-      End Do
-!
+
+ij = 0
+do i=1,n
+  ij = ij+i
+  Vec(i) = Tri(ij)
+end do
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine PickUp
+return
+
+end subroutine PickUp

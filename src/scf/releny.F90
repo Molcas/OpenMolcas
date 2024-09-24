@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      Subroutine RelEny(ERelMV,ERelDC,D,VMs,Dar,lth)
+
+subroutine RelEny(ERelMV,ERelDC,D,VMs,Dar,lth)
 !***********************************************************************
 !                                                                      *
 !     purpose: Compute relativistic corrections to the energy          *
@@ -20,32 +21,29 @@
 !     input:                                                           *
 !       D       : density matrix of length lth                         *
 !       VMs     : mass velocity integrals of length lth                *
-!       Dar     : Darvin integrals of length lth                       *
+!       Dar     : Darwin integrals of length lth                       *
 !                                                                      *
 !     output:                                                          *
 !       ERelMV  : mass velocity correction                             *
-!       ERelDC  : Darvin correction                                    *
+!       ERelDC  : Darwin correction                                    *
 !***********************************************************************
-!
-      Implicit None
-      Integer lth
-      Real*8 ERelMV,ERelDC
-      Real*8 D(lth),VMs(lth),Dar(lth)
 
-      Real*8, External:: DDot_
-!
+implicit none
+integer lth
+real*8 ERelMV, ERelDC
+real*8 D(lth), VMs(lth), Dar(lth)
+real*8, external :: DDot_
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-      ERelMV = DDot_(lth,D,1,VMs,1)
-      ERelDC = DDot_(lth,D,1,Dar,1)
-!
-!
+
+ERelMV = DDot_(lth,D,1,VMs,1)
+ERelDC = DDot_(lth,D,1,Dar,1)
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End Subroutine RelEny
+return
+
+end subroutine RelEny

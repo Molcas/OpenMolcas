@@ -13,72 +13,73 @@
 !               1992, Piotr Borowski                                   *
 !               2017, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
+
+subroutine Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
 !***********************************************************************
 !                                                                      *
 !     purpose: Get starting orbitals from density matrix read as input.*
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nBB, nBO, nBT, nSym, nBas
-      use Constants, only: Half
-      Implicit None
-      Integer mBB, nD, mBT
-      Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT), Dens(mBT,nD)
-!
-!---- Define local variables
-      Integer nBasX(8), i, iD, iSym, nSymX
-      Character(LEN=8) Location
-      Real*8 ra, rb
 
+use InfSCF, only: nBB, nBO, nBT, nSym, nBas
+use Constants, only: Half
+
+implicit none
+integer mBB, nD, mBT
+real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT), Dens(mBT,nD)
+! Define local variables
+integer nBasX(8), i, iD, iSym, nSymX
+character(len=8) Location
+real*8 ra, rb
 #include "SysDef.fh"
 
-!
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-      Location='Start3'
-!
-!---- Compute transformation matrix
-      Do iD = 1, nD
-         Call TrGen(TrM(1,iD),nBB,Ovrlp,OneHam,nBT)
-         Call DCopy_(nBO,TrM(1,iD),1,CMO(1,iD),1)
-      End Do
-!
-!...  read old system definitions
-!...  check for compatibility of the calculations
-!
-!     Call get_iScalar('nSym',nSymX)
-      Call Peek_iScalar('nSym',nSymX)
-      If (nSymX.ne.nSym) Then
-         Call SysWarnMsg(Location,'Error inconsistent number of Irreps',' ')
-         Call SysCondMsg('nSymX=nSym',nSymX,'<>',nSym)
-      End If
-      Call Get_iArray('nBas',nBasX,nSymX)
-      Do iSym=1,nSym
-         If (nBasX(iSym).ne.nBas(iSym)) Then
-            Call SysWarnMsg(Location,'Error inconsistent nBas',' ')
-            Call SysCondMsg('nBasX(iSym)=nBas (iSym)',nBasX(iSym),'<>',nBas(iSym))
-         End If
-      End Do
-!
-!...  read old density matrix
-      Call Get_dArray_chk('D1AO',Dens(1,1),nBT)
-      if (nD==2) then
-         Call Get_dArray_chk('D1sao',Dens(1,2),nBT)
-! now we need to fix interface - actually we read a+b,a-b
-         Do i=1,nBT
-            ra=Half*(Dens(i,1)+Dens(i,2))
-            rb=Half*(Dens(i,1)-Dens(i,2))
-            Dens(i,1)=ra
-            Dens(i,2)=rb
-         End Do
 
-      endif
-!
+Location = 'Start3'
+
+! Compute transformation matrix
+do iD=1,nD
+  call TrGen(TrM(1,iD),nBB,Ovrlp,OneHam,nBT)
+  call DCopy_(nBO,TrM(1,iD),1,CMO(1,iD),1)
+end do
+
+! read old system definitions
+! check for compatibility of the calculations
+
+!call get_iScalar('nSym',nSymX)
+call Peek_iScalar('nSym',nSymX)
+if (nSymX /= nSym) then
+  call SysWarnMsg(Location,'Error inconsistent number of Irreps',' ')
+  call SysCondMsg('nSymX=nSym',nSymX,'/=',nSym)
+end if
+call Get_iArray('nBas',nBasX,nSymX)
+do iSym=1,nSym
+  if (nBasX(iSym) /= nBas(iSym)) then
+    call SysWarnMsg(Location,'Error inconsistent nBas',' ')
+    call SysCondMsg('nBasX(iSym)=nBas (iSym)',nBasX(iSym),'/=',nBas(iSym))
+  end if
+end do
+
+! read old density matrix
+call Get_dArray_chk('D1AO',Dens(1,1),nBT)
+if (nD == 2) then
+  call Get_dArray_chk('D1sao',Dens(1,2),nBT)
+  ! now we need to fix interface - actually we read a+b,a-b
+  do i=1,nBT
+    ra = Half*(Dens(i,1)+Dens(i,2))
+    rb = Half*(Dens(i,1)-Dens(i,2))
+    Dens(i,1) = ra
+    Dens(i,2) = rb
+  end do
+
+end if
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine Start3
+
+return
+
+end subroutine Start3

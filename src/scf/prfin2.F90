@@ -10,105 +10,106 @@
 !                                                                      *
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine PrFin2(Ovlp,nDT,OccNo,nEO,CMO,nCMO,note)
-      use InfSCF, only: nBB, iCoCo, nD, jVOut, kIVO, KSDFT, nBT, nnB, nSym, nOrb, nBas
-      use Constants, only: Zero
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer nDT,nEO, nCMO
-      Real*8 Ovlp(nDT),OccNo(nEO),CMO(nBB)
+
+subroutine PrFin2(Ovlp,nDT,OccNo,nEO,CMO,nCMO,note)
+
+use InfSCF, only: nBB, iCoCo, nD, jVOut, kIVO, KSDFT, nBT, nnB, nSym, nOrb, nBas
+use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer nDT, nEO, nCMO
+real*8 Ovlp(nDT), OccNo(nEO), CMO(nBB)
 ! PAM 2007: Changed dimension of CMO array from nCMO to NBB:
 ! The larger size is needed here, and the allocated size is nBB.
-      Character(LEN=80) Note
-!
-!---- Define local variables
-      Integer i, iBs, iOr, iSym, iVec, iCMO, j
-      Real*8, Dimension(:), Allocatable:: Scr2
-
+character(len=80) Note
+! Define local variables
+integer i, iBs, iOr, iSym, iVec, iCMO, j
+real*8, dimension(:), allocatable :: Scr2
 #include "SysDef.fh"
-!
-!---- Write orbitals on the file (the case InVec=3 and nIter=0
-!     is set up in RdInp)
-      If (jVOut.ge.2) Then
-!
-!------- Allocate memory for expanded CMO's and occupation numbers
-         Call mma_allocate(Scr2,nBB,Label='Scr2')
-!
-!------- Prepare CMO in symmetry blocks nBas x nBas
-         iVec  = 0
-         iCMO  = 0
-!         iseed = 153759
-         Do iSym = 1, nSym
-            Do i = 1, nBas(iSym)*nOrb(iSym)
-               Scr2(iVec + i) = CMO(iCMO + i)
-            End Do
-            iVec = iVec + nBas(iSym)*nOrb(iSym)
-            Do i = 1, nBas(iSym)*(nBas(iSym) - nOrb(iSym))
-!              Scr2(iVec + i) = Random(iseed) - Half
-               Scr2(iVec + i) = Zero
-            End Do
-            iVec = iVec + nBas(iSym)*(nBas(iSym) - nOrb(iSym))
-            iCMO = iCMO + nOrb(iSym)*nBas(iSym)
-         End Do
-         Do i = 1, nBB
-            CMO(i)=Scr2(i)
-         End Do
-!
-!------- Prepare occupation numbers
-         iOr = 0
-         iBs = 0
-         Do iSym = 1, nSym
-            Do j = 1, nOrb(iSym)
-               Scr2(iBs + j) = OccNo(iOr + j)
-            End Do
-            Do j = nOrb(iSym) + 1, nBas(iSym)
-               Scr2(iBs + j) = Zero
-            End Do
-            iOr = iOr + nOrb(iSym)
-            iBs = iBs + nBas(iSym)
-         End Do
-         Do i = 1, nnB
-            OccNo(i) = Scr2(i)
-         End Do
-!
-         Do iSym = 1, nSym
-            nOrb(iSym) = nBas(iSym)
-         End Do
-         Call SetUp_SCF()
-!
-!------- Orthogonalize vectors
-         Call Ortho(CMO,nCMO,Ovlp,nBT)
-!
-!------- Write on the file
-         If (KSDFT.eq.'SCF') Then
-            If(nD==1) Then
-               Note='* SCF orbitals'
-               If (kIVO.ne.0 ) Note='* SCF orbitals + IVO'
-               If (iCoCo.ne.0) Note='* SCF orbitals + arbitrary occupations'
-            Else
-               Note='* UHF orbitals'
-               If (kIVO.ne.0 ) Note='* UHF orbitals + IVO'
-               If (iCoCo.ne.0) Note='* UHF orbitals + arbitrary occupations'
-            End If
-         Else
-            If(nD==1) Then
-               Note='* RKS-DFT orbitals'
-               If (kIVO.ne.0 ) Note='* RKS-DFT orbitals + IVO'
-               If (iCoCo.ne.0) Note='* RKS-DFT orbitals + arbitrary occupations'
-            Else
-               Note='* UKS-DFT orbitals'
-               If (kIVO.ne.0 ) Note='* UKS-DFT orbitals + IVO'
-               If (iCoCo.ne.0) Note='* UKS-DFT orbitals + arbitrary occupations'
-            End If
-         End If
-!
-!------- Deallocate memory for expanded CMO's and occupation numbers
-         Call mma_deallocate(Scr2)
-      End If
-!
+
+! Write orbitals on the file (the case InVec=3 and nIter=0
+! is set up in RdInp)
+if (jVOut >= 2) then
+
+  ! Allocate memory for expanded CMO's and occupation numbers
+  call mma_allocate(Scr2,nBB,Label='Scr2')
+
+  ! Prepare CMO in symmetry blocks nBas x nBas
+  iVec = 0
+  iCMO = 0
+  !iseed = 153759
+  do iSym=1,nSym
+    do i=1,nBas(iSym)*nOrb(iSym)
+      Scr2(iVec+i) = CMO(iCMO+i)
+    end do
+    iVec = iVec+nBas(iSym)*nOrb(iSym)
+    do i=1,nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+      !Scr2(iVec + i) = Random(iseed)-Half
+      Scr2(iVec+i) = Zero
+    end do
+    iVec = iVec+nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+    iCMO = iCMO+nOrb(iSym)*nBas(iSym)
+  end do
+  do i=1,nBB
+    CMO(i) = Scr2(i)
+  end do
+
+  ! Prepare occupation numbers
+  iOr = 0
+  iBs = 0
+  do iSym=1,nSym
+    do j=1,nOrb(iSym)
+      Scr2(iBs+j) = OccNo(iOr+j)
+    end do
+    do j=nOrb(iSym)+1,nBas(iSym)
+      Scr2(iBs+j) = Zero
+    end do
+    iOr = iOr+nOrb(iSym)
+    iBs = iBs+nBas(iSym)
+  end do
+  do i=1,nnB
+    OccNo(i) = Scr2(i)
+  end do
+
+  do iSym=1,nSym
+    nOrb(iSym) = nBas(iSym)
+  end do
+  call SetUp_SCF()
+
+  ! Orthogonalize vectors
+  call Ortho(CMO,nCMO,Ovlp,nBT)
+
+  ! Write on the file
+  if (KSDFT == 'SCF') then
+    if (nD == 1) then
+      Note = '* SCF orbitals'
+      if (kIVO /= 0) Note = '* SCF orbitals + IVO'
+      if (iCoCo /= 0) Note = '* SCF orbitals + arbitrary occupations'
+    else
+      Note = '* UHF orbitals'
+      if (kIVO /= 0) Note = '* UHF orbitals + IVO'
+      if (iCoCo /= 0) Note = '* UHF orbitals + arbitrary occupations'
+    end if
+  else
+    if (nD == 1) then
+      Note = '* RKS-DFT orbitals'
+      if (kIVO /= 0) Note = '* RKS-DFT orbitals + IVO'
+      if (iCoCo /= 0) Note = '* RKS-DFT orbitals + arbitrary occupations'
+    else
+      Note = '* UKS-DFT orbitals'
+      if (kIVO /= 0) Note = '* UKS-DFT orbitals + IVO'
+      if (iCoCo /= 0) Note = '* UKS-DFT orbitals + arbitrary occupations'
+    end if
+  end if
+
+  ! Deallocate memory for expanded CMO's and occupation numbers
+  call mma_deallocate(Scr2)
+end if
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine PrFin2
+return
+
+end subroutine PrFin2

@@ -12,8 +12,10 @@
 !               2017, Roland Lindh                                     *
 !               2018, Ignacio Fdez. Galvan                             *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine SOrUpV(V,lvec,W,Mode,UpTp)
+!#define _DIAGONAL_ONLY_
+subroutine SOrUpV(V,lvec,W,Mode,UpTp)
 !***********************************************************************
 !     for Ref., see T.H. Fischer and J. Almloef, JPC 96, 9768 (1992)   *
 !               doi:10.1021/j100203a036                                *
@@ -45,407 +47,409 @@
 !     Mode='DISP':  d=-H(-1)g    update for the Hessian                *
 !     Mode='GRAD':  g=-Hd        update for the inverse Hessian        *
 !***********************************************************************
-      use LnkLst, only: SCF_V
-      use LnkLst, only: LLdGrd,LLDelt,LLy
-!     only tentatively this Module
-      use InfSO, only: IterSO
-      use InfSCF, only: Iter, TimFld
-      use SCF_Arrays, only: HDiag
-      use Constants, only: Zero, One
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Files, only: LuDel, LuDGd
-      Implicit None
-!
-!     declaration subroutine parameters
-      Integer lvec
-      Real*8 W(lVec), V(lvec)
-      Character*4 Mode, UpTp
-!
-!     declaration local variables
-      Character(LEN=8), Save:: Mode_Old
-      Integer ipdel,ipdgd,ipynm1
-      Integer i,it,inode,leny
-      Logical updy
-      Real*8 S(6),T(4)
 
-!     declarations of functions
-      Integer, External:: LstPtr, LLLen
-      real*8, External:: ddot_
+use LnkLst, only: SCF_V
+use LnkLst, only: LLdGrd, LLDelt, LLy, LstPtr, LLLen, GetNod, iVPtr, PutVec
+! only tentatively this Module
+use InfSO, only: IterSO
+use InfSCF, only: Iter, TimFld
+use SCF_Arrays, only: HDiag
+use Constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
+use Files, only: LuDel, LuDGd
 
-      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
-      Real*8 :: Thr=1.0D-9
-      Integer LL1, LL2, Lu1
-      Real*8, Dimension(:), Allocatable:: SOGrd, SODel, SOScr
-      Logical Inverse_H
+implicit none
+! declaration subroutine parameters
+integer lvec
+real*8 W(lVec), V(lvec)
+character*4 Mode, UpTp
+! declaration local variables
+character(len=8), save :: Mode_Old
+integer ipdel, ipdgd, ipynm1
+integer i, it, inode, leny
+logical updy
+real*8 S(6), T(4)
+! declarations of functions
+real*8, external :: ddot_
+real*8 Cpu1, Cpu2, Tim1, Tim2, Tim3
+real*8 :: Thr = 1.0D-9
+integer LL1, LL2, Lu1
+real*8, dimension(:), allocatable :: SOGrd, SODel, SOScr
+logical Inverse_H, diag
+interface
+  subroutine yHx(X,Y,nXY)
+    integer nXY
+    real*8, target :: X(nXY), Y(nXY)
+  end subroutine yHx
+end interface
 
-      Interface
-         SubRoutine yHx(X,Y,nXY)
-         Integer nXY
-         Real*8, Target:: X(nXY), Y(nXY)
-         End SubRoutine yHx
-      End Interface
-!
-      If (DDot_(lVec,V,1,V,1)==Zero) Then
-         W(:)=Zero
-         Return
-      End If
-      Call Timing(Cpu1,Tim1,Tim2,Tim3)
-      S(:)=Zero
-      T(:)=Zero
-!
-!     Dummy initializations
-!
-      Inverse_H=.False.
-      Lu1=-1
-      LL1=-1
-      LL2=-1
-!
-!     This section will control the mode
-!
-      If (Mode.eq.'DISP') Then
-!
-!        Mode for computation d = -H(-1)g
-!
-         Inverse_H=.True.
-         Lu1=LuDel
-         LL1=LLDelt
-         LL2=LLdGrd
-!
-      Else If (Mode.eq.'GRAD') Then
-!
-!        Mode for computation g = -Hd
-!
-         Inverse_H=.False.
-         Lu1=LudGd
-         LL1=LLdGrd
-         LL2=LLDelt
-!
-      End If
-!
-      If (Lu1.lt.0) Then
-         Write (6,*) 'SOrUpV: Illegal mode'
-         Call Abend()
-      End If
-!
-      If ((UpTp.ne.'BFGS').and.(UpTp.ne.'DFP ')) Then
-         Write (6,*) 'SOrUpV: Illegal update type',UpTp
-         Call Abend()
-      End If
-!
-      If (iterso.gt.1.AND.Mode//UpTp.ne.Mode_Old) Then
-         Write (6,*) 'IterSO=',IterSO
-         Write (6,*) 'Mode_Old:',Mode_Old
-         Write (6,*) 'Mode//UpTp:',Mode//UpTp
-         Write (6,*) 'SOrUpV: Illegal mode switch'
-         Call Abend()
-      End If
-!
-!     Steps denoted as in the reference paper!
-!
-!     (1): initialize w=HDiag*v
-!
-      If (Inverse_H) Then
-         Do i=1,lvec
-            If (Abs(HDiag(i)).lt.Thr) Then
-               W(i)=1.0D2*V(i)
-            Else
-               W(i)=V(i)/HDiag(i)
-            End If
-         End Do
-      Else
-!        Do i=1,lvec
-!           W(i)=HDiag(i)*V(i)
-!        End Do
-         Call yHx(V,W,lvec)
-      End If
+if (DDot_(lVec,V,1,V,1) == Zero) then
+  W(:) = Zero
+  return
+end if
+call Timing(Cpu1,Tim1,Tim2,Tim3)
+S(:) = Zero
+T(:) = Zero
+
+! Dummy initializations
+
+Inverse_H = .false.
+Lu1 = -1
+LL1 = -1
+LL2 = -1
+
+! This section will control the mode
+
+if (Mode == 'DISP') then
+
+  ! Mode for computation d = -H(-1)g
+
+  Inverse_H = .true.
+  Lu1 = LuDel
+  LL1 = LLDelt
+  LL2 = LLdGrd
+
+else if (Mode == 'GRAD') then
+
+  ! Mode for computation g = -Hd
+
+  Inverse_H = .false.
+  Lu1 = LudGd
+  LL1 = LLdGrd
+  LL2 = LLDelt
+
+end if
+
+if (Lu1 < 0) then
+  write(6,*) 'SOrUpV: Illegal mode'
+  call Abend()
+end if
+
+if ((UpTp /= 'BFGS') .and. (UpTp /= 'DFP ')) then
+  write(6,*) 'SOrUpV: Illegal update type',UpTp
+  call Abend()
+end if
+
+if ((iterso > 1) .and. (Mode//UpTp /= Mode_Old)) then
+  write(6,*) 'IterSO=',IterSO
+  write(6,*) 'Mode_Old:',Mode_Old
+  write(6,*) 'Mode//UpTp:',Mode//UpTp
+  write(6,*) 'SOrUpV: Illegal mode switch'
+  call Abend()
+end if
+
+! Steps denoted as in the reference paper!
+
+! (1): initialize w=HDiag*v
+
+if (Inverse_H) then
+  do i=1,lvec
+    if (abs(HDiag(i)) < Thr) then
+      W(i) = 1.0d2*V(i)
+    else
+      W(i) = V(i)/HDiag(i)
+    end if
+  end do
+else
+  !do i=1,lvec
+  !  W(i) = HDiag(i)*V(i)
+  !end do
+  call yHx(V,W,lvec)
+end if
 #ifdef _DEBUGPRINT_
-      Write (6,*)
-      Write (6,*)
-      Call Check_Vec(W,Size(W),'H_{n-1}v')
-      Call NrmClc(V,lVec,'SORUPV','V')
-      Call NrmClc(HDiag,lVec,'SORUPV','HDiag')
-      Call NrmClc(W,lVec,'SORUPV','W')
+write(6,*)
+write(6,*)
+call Check_Vec(W,size(W),'H_{n-1}v')
+call NrmClc(V,lVec,'SORUPV','V')
+call NrmClc(HDiag,lVec,'SORUPV','HDiag')
+call NrmClc(W,lVec,'SORUPV','W')
 #endif
 
-!#define _DIAGONAL_ONLY_
+diag = (iterso == 1)
 #ifdef _DIAGONAL_ONLY_
-      If (.True.) Then
-         Write (6,*) ' SorUpV: Only diagonal approximation'
-#else
-      If (iterso.eq.1) Then
+write(6,*) ' SorUpV: Only diagonal approximation'
+diag = .true.
 #endif
-!        (2): no further work required this time
-         Call Timing(Cpu2,Tim1,Tim2,Tim3)
-         TimFld( 7) = TimFld( 7) + (Cpu2 - Cpu1)
-         Mode_Old=Mode//UpTp
-         Return
-      End If
-!
-!     need three vectors of length lvec as scratch space
-!
-      Call mma_allocate(SOGrd,lvec,Label='SOGrd')
-      Call mma_allocate(SODel,lvec,Label='SODel')
-      Call mma_allocate(SOScr,lvec,Label='SOScr')
-!
-      Call GetNod(iter-1,LL2,inode)
-      If (inode.eq.0) Call Error_Handling()
-      Call iVPtr(SOGrd,lvec,inode)
-!
-!     (3b): initialize y(n-1)=HDiag*dGrd(n-1) ...
-!
-      If (Inverse_H) Then
-        Do i=1,lvec
-           If (Abs(HDiag(i)).lt.Thr) Then
-              SOScr(i)=1.0D2*SOGrd(i)
-           Else
-              SOScr(i)=SOGrd(i)/HDiag(i)
-           End If
-        End Do
-      Else
-!       Do i=1,lvec
-!          SOScr(i)=HDiag(i)*SOGrd(i)
-!       End Do
-        Call yHx(SOGrd,SOScr,lvec)
-      End If
-#ifdef _DEBUGPRINT_
-!     Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
-      Call NrmClc(SOScr,lVec,'SOrUpV','Init y(n-1)')
-      Call Check_vec(SOScr,lVec,'y_{n-1}=H_{0}Delta_{n-1}')
-#endif
-!
-!     and store it on appropriate linked list
-!
-      leny=LLLen(LLy)
-      Call PutVec(SOScr,lvec,iter-1,'NOOP',LLy)
-      If (leny.eq.LLLen(LLy)) Then
-!        already there, so we don't have to recalculate later
-         updy=.False.
-      Else
-!        new listhead generated in ipy, we have to update
-         updy=.True.
-      End If
-!
-!     (4): now loop over 1..n-2 iterations.
-!
-#ifdef _DEBUGPRINT_
-      Write (6,*) 'IterSO=',IterSO
-#endif
-      Do it=iter-iterso+1,iter-2
-!
-!        fetch delta(i), dGrd(i) and y(i) from corresponding LLists
-!
-         Call GetNod(it,LL1,inode)
-         If (inode.eq.0) Call Error_Handling()
-         Call iVPtr(SODel,lvec,inode)
-!
-         Call GetNod(it,LL2,inode)
-         If (inode.eq.0) Call Error_Handling()
-         Call iVPtr(SOGrd,lvec,inode)
-!
-         Call GetNod(it,LLy,inode)
-         If (inode.eq.0) Call Error_Handling()
-         Call iVPtr(SOScr,lvec,inode)
-!
-!        calculate S_k and T_k dot products.
-!        (note that S(2) is the inverse of the one in the paper
-!
-         S(1)=ddot_(lvec,SODel,1,SOGrd,1)
-         If (Abs(S(1)).lt.Thr) Then
-            S(1)=Zero
-            !S(1)=One/Thr
-         Else
-            S(1)=One/S(1)
-         End If
-         S(2)=ddot_(lvec,SOGrd,1,SOScr,1)
-         S(3)=ddot_(lvec,SODel,1,V,1)
-         S(4)=ddot_(lvec,SOScr,1,V,1)
-         If (updy) Then
-!
-!           here we have to reload dGrd(n-1) from llist, but this
-!           for sure is a memory hit, since it was put there last
-!
-            ipdgd=LstPtr(iter-1,LL2)
-!
-            S(5)=ddot_(lvec,SODel,1,SCF_V(ipdgd)%A,1)
-            S(6)=ddot_(lvec,SOScr,1,SCF_V(ipdgd)%A,1)
-         Else
-            S(5)=Zero
-            S(6)=Zero
-         End If
-#ifdef _DEBUGPRINT_
-         Write (6,*) 'it=',it
-         Write (6,*) '(S(i),i=1,6)=',(S(i),i=1,6)
-#endif
-!
-         If ((Mode_Old.eq.'DISPBFGS').or.(Mode_Old.eq.'GRADDFP ')) Then
-            If (Abs(S(2)).lt.Thr) Then
-               S(2)=One
-               !S(2)=One+S(1)/Thr
-            Else
-               S(2)=One+S(1)*S(2)
-            End If
-            T(2)=S(1)*S(3)
-            T(4)=S(1)*S(5)
-            T(1)=S(2)*T(2)-S(1)*S(4)
-            T(3)=S(2)*T(4)-S(1)*S(6)
-         Else If ((Mode_Old.eq.'DISPDFP ').or.(Mode_Old.eq.'GRADBFGS')) Then
-!           DFP update (or BFGS for the Hessian) use
-!           a slightly different and simpler formula
-            If (Abs(S(2)).lt.Thr) Then
-               S(2)=Zero
-               S(2)=One/Thr
-            Else
-               S(2)=One/S(2)
-            End If
-            T(1)=S(1)*S(3)
-            T(2)=S(2)*S(4)
-            T(3)=S(1)*S(5)
-            T(4)=S(2)*S(6)
-         End If
-!
-!        Compute w and y(n-1)
-!
-#ifdef _DEBUGPRINT_
-         Write (6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
-         Call Check_Vec(W,Size(W),'W(0)')
-         Call daxpy_(lvec, T(1),SODel,1,W,1)
-         Call Check_Vec(W,Size(W),'W(1)')
-         Call daxpy_(lvec,-T(2),SOScr,1,W,1)
-         Call Check_Vec(W,Size(W),'W(2)')
-#else
-         W(:)=W(:)+T(1)*SODel(:)-T(2)*SOScr(:)
-#endif
-         If (updy) Then
-!
-!           here we have to reload y(n-1) from llist, but this
-!           for sure is a memory hit, since it was put there last
-!           -> we operate directly on the memory cells of the LList,
-!           where y(n-1) resides.
-!
-            ipynm1=LstPtr(iter-1,LLy)
-!           Call daxpy_(lvec, T(3),SODel,1,SCF_V(ipynm1)%A,1)
-!           Call daxpy_(lvec,-T(4),SOScr,1,SCF_V(ipynm1)%A,1)
-            SCF_V(ipynm1)%A(:) = SCF_V(ipynm1)%A(:) + T(3)*SODel(:) - T(4)*SOScr(:)
-         End If
-!
-      End Do
-!
-!     (5): reload y(n-1), delta(n-1) & dGrd(n-1) from linked list.
-!     these all are memory hits, of course
-!
-      ipynm1=LstPtr(iter-1,LLy)
-      ipdel =LstPtr(iter-1,LL1)
-      ipdgd =LstPtr(iter-1,LL2)
-#ifdef _DEBUGPRINT_
-      Write (6,*)
-!     Call RecPrt('y(n-1)',' ',SCF_V(ipynm1)%A,1,lVec)
-      Call NrmClc(SCF_V(ipynm1)%A,lVec,'SOrUpV','y(n-1)')
-      If (Mode.eq.'DISP') Then
-!        Call RecPrt('dX(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
-!        Call RecPrt('dg(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
-         Call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dX(n-1)')
-         Call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dg(n-1)')
-      Else
-!        Call RecPrt('dg(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
-!        Call RecPrt('dX(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
-         Call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dg(n-1)')
-         Call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dX(n-1)')
-      End If
-      Write (6,*)
-      Call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
-      Call Check_Vec(SCF_V(ipdgd)%A,lvec,'Delta_{n-1}')
-#endif
-!
-!     calculate diverse dot products...
-!
-      S(1)=ddot_(lvec,SCF_V(ipdel)%A,1,SCF_V(ipdgd)%A,1)
-!     Write (6,*) 'S(1)=',S(1)
-      If (Abs(S(1)).lt.Thr) Then
-         S(1)=Zero
-         !S(1)=One/Thr
-      Else
-         S(1)=One/S(1)
-      End If
-!     Write (6,*) 'S(1)=Alpha=',S(1)
-!     Call Check_vec(SCF_V(ipynm1)%A,lVec,'y_{n-1}=H_{n-1}Delta_{n-1}')
-      S(2)=ddot_(lvec,SCF_V(ipdgd)%A,1,SCF_V(ipynm1)%A,1)
-!     Write (6,*) 'S(2)=Delta_{n-1}^T*y_{n-1}=',S(2)
-      S(3)=ddot_(lvec,SCF_V(ipdel)%A,1,V,1)
-!     Write (6,*) 'S(3)=delta_{n-1}^T*v=',S(3)
-      S(4)=ddot_(lvec,SCF_V(ipynm1)%A,1,V,1)
-!     Write (6,*) 'S(4)=y_{n-1}^T*v=',S(4)
+if (diag) then
+  ! (2): no further work required this time
+  call Timing(Cpu2,Tim1,Tim2,Tim3)
+  TimFld(7) = TimFld(7)+(Cpu2-Cpu1)
+  Mode_Old = Mode//UpTp
+  return
+end if
 
+! need three vectors of length lvec as scratch space
+
+call mma_allocate(SOGrd,lvec,Label='SOGrd')
+call mma_allocate(SODel,lvec,Label='SODel')
+call mma_allocate(SOScr,lvec,Label='SOScr')
+
+call GetNod(iter-1,LL2,inode)
+if (inode == 0) call Error_Handling()
+call iVPtr(SOGrd,lvec,inode)
+
+! (3b): initialize y(n-1)=HDiag*dGrd(n-1) ...
+
+if (Inverse_H) then
+  do i=1,lvec
+    if (abs(HDiag(i)) < Thr) then
+      SOScr(i) = 1.0d2*SOGrd(i)
+    else
+      SOScr(i) = SOGrd(i)/HDiag(i)
+    end if
+  end do
+else
+  !do i=1,lvec
+  !  SOScr(i) = HDiag(i)*SOGrd(i)
+  !end do
+  call yHx(SOGrd,SOScr,lvec)
+end if
 #ifdef _DEBUGPRINT_
-      Write (6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
+!call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
+call NrmClc(SOScr,lVec,'SOrUpV','Init y(n-1)')
+call Check_vec(SOScr,lVec,'y_{n-1}=H_{0}Delta_{n-1}')
 #endif
 
-      If ((Mode_Old.eq.'DISPBFGS').or.(Mode_Old.eq.'GRADDFP ')) Then
-         If (Abs(S(2)).lt.Thr) Then
-            S(2)=One
-            !S(2)=One+S(1)/Thr
-         Else
-            S(2)=One+S(1)*S(2)
-         End If
-!        Write (6,*) 'S(2)(1+...)=',S(2)
-!        Write (6,*)
-         T(2)=S(1)*S(3)
-         T(1)=S(2)*T(2)-S(1)*S(4)
-!        Write (6,*) 'T(:)=',T(:)
-      Else If ((Mode_Old.eq.'DISPDFP ').or.(Mode_Old.eq.'GRADBFGS')) Then
-         If (Abs(S(2)).lt.Thr) Then
-            S(2)=Zero
-            S(2)=One/Thr
-         Else
-            S(2)=One/S(2)
-         End If
-         T(1)=S(1)*S(3)
-         T(2)=S(2)*S(4)
-      End If
-!
-!     update the vector w
-!
+! and store it on appropriate linked list
+
+leny = LLLen(LLy)
+call PutVec(SOScr,lvec,iter-1,'NOOP',LLy)
+if (leny == LLLen(LLy)) then
+  ! already there, so we don't have to recalculate later
+  updy = .false.
+else
+  ! new listhead generated in ipy, we have to update
+  updy = .true.
+end if
+
+! (4): now loop over 1..n-2 iterations.
+
 #ifdef _DEBUGPRINT_
-      Write (6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
-      Call Check_Vec(W,Size(W),'W(2), again')
-      Call daxpy_(lvec, T(1),SCF_V(ipdel)%A,1,W,1)
-      Call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
-      Call Check_Vec(W,Size(W),'W(3)')
-      Call daxpy_(lvec,-T(2),SCF_V(ipynm1)%A,1,W,1)
-      Call Check_Vec(SCF_V(ipynm1)%A,lvec,'y_{n-1}')
-!     Call RecPrt('The final W array',' ',W,1,lVec)
-      Call NrmClc(W,lVec,'SOrUpV','The final W array')
-      Call Check_Vec(W,Size(W),'W(final)')
-#else
-      W(:)=W(:)+T(1)*SCF_V(ipdel)%A(:)-T(2)*SCF_V(ipynm1)%A(:)
+write(6,*) 'IterSO=',IterSO
 #endif
-!
-!     so, we've made it, let's clean up workbench
-!
-      Call mma_deallocate(SOGrd)
-      Call mma_deallocate(SODel)
-      Call mma_deallocate(SOScr)
-!
-      Call Timing(Cpu2,Tim1,Tim2,Tim3)
-      TimFld( 7) = TimFld( 7) + (Cpu2 - Cpu1)
-      Return
-!
-!-----Error handling
-!
-!     Hmmm, no entry found in LList, that's strange
-      Contains
-      Subroutine Error_handling()
-      Write (6,*) 'SOrUpV: no entry found in LList'
-      Call Abend()
-      End Subroutine Error_handling
+do it=iter-iterso+1,iter-2
+
+  ! fetch delta(i), dGrd(i) and y(i) from corresponding LLists
+
+  call GetNod(it,LL1,inode)
+  if (inode == 0) call Error_Handling()
+  call iVPtr(SODel,lvec,inode)
+
+  call GetNod(it,LL2,inode)
+  if (inode == 0) call Error_Handling()
+  call iVPtr(SOGrd,lvec,inode)
+
+  call GetNod(it,LLy,inode)
+  if (inode == 0) call Error_Handling()
+  call iVPtr(SOScr,lvec,inode)
+
+  ! calculate S_k and T_k dot products.
+  ! (note that S(2) is the inverse of the one in the paper
+
+  S(1) = ddot_(lvec,SODel,1,SOGrd,1)
+  if (abs(S(1)) < Thr) then
+    S(1) = Zero
+    !S(1) = One/Thr
+  else
+    S(1) = One/S(1)
+  end if
+  S(2) = ddot_(lvec,SOGrd,1,SOScr,1)
+  S(3) = ddot_(lvec,SODel,1,V,1)
+  S(4) = ddot_(lvec,SOScr,1,V,1)
+  if (updy) then
+
+    ! here we have to reload dGrd(n-1) from llist, but this
+    ! for sure is a memory hit, since it was put there last
+
+    ipdgd = LstPtr(iter-1,LL2)
+
+    S(5) = ddot_(lvec,SODel,1,SCF_V(ipdgd)%A,1)
+    S(6) = ddot_(lvec,SOScr,1,SCF_V(ipdgd)%A,1)
+  else
+    S(5) = Zero
+    S(6) = Zero
+  end if
+# ifdef _DEBUGPRINT_
+  write(6,*) 'it=',it
+  write(6,*) '(S(i),i=1,6)=',(S(i),i=1,6)
+# endif
+
+  if ((Mode_Old == 'DISPBFGS') .or. (Mode_Old == 'GRADDFP ')) then
+    if (abs(S(2)) < Thr) then
+      S(2) = One
+      !S(2) = One+S(1)/Thr
+    else
+      S(2) = One+S(1)*S(2)
+    end if
+    T(2) = S(1)*S(3)
+    T(4) = S(1)*S(5)
+    T(1) = S(2)*T(2)-S(1)*S(4)
+    T(3) = S(2)*T(4)-S(1)*S(6)
+  else if ((Mode_Old == 'DISPDFP ') .or. (Mode_Old == 'GRADBFGS')) then
+    ! DFP update (or BFGS for the Hessian) use
+    ! a slightly different and simpler formula
+    if (abs(S(2)) < Thr) then
+      S(2) = Zero
+      S(2) = One/Thr
+    else
+      S(2) = One/S(2)
+    end if
+    T(1) = S(1)*S(3)
+    T(2) = S(2)*S(4)
+    T(3) = S(1)*S(5)
+    T(4) = S(2)*S(6)
+  end if
+
+  ! Compute w and y(n-1)
+
+# ifdef _DEBUGPRINT_
+  write(6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
+  call Check_Vec(W,size(W),'W(0)')
+  call daxpy_(lvec,T(1),SODel,1,W,1)
+  call Check_Vec(W,size(W),'W(1)')
+  call daxpy_(lvec,-T(2),SOScr,1,W,1)
+  call Check_Vec(W,size(W),'W(2)')
+# else
+  W(:) = W(:)+T(1)*SODel(:)-T(2)*SOScr(:)
+# endif
+  if (updy) then
+
+    ! here we have to reload y(n-1) from llist, but this
+    ! for sure is a memory hit, since it was put there last
+    ! -> we operate directly on the memory cells of the LList,
+    ! where y(n-1) resides.
+
+    ipynm1 = LstPtr(iter-1,LLy)
+    !call daxpy_(lvec, T(3),SODel,1,SCF_V(ipynm1)%A,1)
+    !call daxpy_(lvec,-T(4),SOScr,1,SCF_V(ipynm1)%A,1)
+    SCF_V(ipynm1)%A(:) = SCF_V(ipynm1)%A(:)+T(3)*SODel(:)-T(4)*SOScr(:)
+  end if
+
+end do
+
+! (5): reload y(n-1), delta(n-1) & dGrd(n-1) from linked list.
+! these all are memory hits, of course
+
+ipynm1 = LstPtr(iter-1,LLy)
+ipdel = LstPtr(iter-1,LL1)
+ipdgd = LstPtr(iter-1,LL2)
 #ifdef _DEBUGPRINT_
-      Subroutine Check_Vec(Vec,nVec,Label)
-      Integer nVec
-      Real*8 Vec(nVec), DD
-      Real*8, External:: DDot_
-      Character(Len=*) Label
-      DD=Sqrt(DDot_(nVec,Vec,1,Vec,1))
-      Write (6,*) 'Norm of ',Label,' is : ',DD
-      End Subroutine Check_Vec
+write(6,*)
+!call RecPrt('y(n-1)',' ',SCF_V(ipynm1)%A,1,lVec)
+call NrmClc(SCF_V(ipynm1)%A,lVec,'SOrUpV','y(n-1)')
+if (Mode == 'DISP') then
+  !call RecPrt('dX(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
+  !call RecPrt('dg(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
+  call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dX(n-1)')
+  call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dg(n-1)')
+else
+  !call RecPrt('dg(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
+  !call RecPrt('dX(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
+  call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dg(n-1)')
+  call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dX(n-1)')
+end if
+write(6,*)
+call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
+call Check_Vec(SCF_V(ipdgd)%A,lvec,'Delta_{n-1}')
 #endif
 
-      End Subroutine Sorupv
+! calculate diverse dot products...
+
+S(1) = ddot_(lvec,SCF_V(ipdel)%A,1,SCF_V(ipdgd)%A,1)
+!write(6,*) 'S(1)=',S(1)
+if (abs(S(1)) < Thr) then
+  S(1) = Zero
+  !S(1) = One/Thr
+else
+  S(1) = One/S(1)
+end if
+!write(6,*) 'S(1)=Alpha=',S(1)
+!call Check_vec(SCF_V(ipynm1)%A,lVec,'y_{n-1}=H_{n-1}Delta_{n-1}')
+S(2) = ddot_(lvec,SCF_V(ipdgd)%A,1,SCF_V(ipynm1)%A,1)
+!write(6,*) 'S(2)=Delta_{n-1}^T*y_{n-1}=',S(2)
+S(3) = ddot_(lvec,SCF_V(ipdel)%A,1,V,1)
+!write(6,*) 'S(3)=delta_{n-1}^T*v=',S(3)
+S(4) = ddot_(lvec,SCF_V(ipynm1)%A,1,V,1)
+!write(6,*) 'S(4)=y_{n-1}^T*v=',S(4)
+
+#ifdef _DEBUGPRINT_
+write(6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
+#endif
+
+if ((Mode_Old == 'DISPBFGS') .or. (Mode_Old == 'GRADDFP ')) then
+  if (abs(S(2)) < Thr) then
+    S(2) = One
+    !S(2) = One+S(1)/Thr
+  else
+    S(2) = One+S(1)*S(2)
+  end if
+  !write(6,*) 'S(2)(1+...)=',S(2)
+  !write(6,*)
+  T(2) = S(1)*S(3)
+  T(1) = S(2)*T(2)-S(1)*S(4)
+  !write(6,*) 'T(:)=',T(:)
+else if ((Mode_Old == 'DISPDFP ') .or. (Mode_Old == 'GRADBFGS')) then
+  if (abs(S(2)) < Thr) then
+    S(2) = Zero
+    S(2) = One/Thr
+  else
+    S(2) = One/S(2)
+  end if
+  T(1) = S(1)*S(3)
+  T(2) = S(2)*S(4)
+end if
+
+! update the vector w
+
+#ifdef _DEBUGPRINT_
+write(6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
+call Check_Vec(W,size(W),'W(2), again')
+call daxpy_(lvec,T(1),SCF_V(ipdel)%A,1,W,1)
+call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
+call Check_Vec(W,size(W),'W(3)')
+call daxpy_(lvec,-T(2),SCF_V(ipynm1)%A,1,W,1)
+call Check_Vec(SCF_V(ipynm1)%A,lvec,'y_{n-1}')
+!call RecPrt('The final W array',' ',W,1,lVec)
+call NrmClc(W,lVec,'SOrUpV','The final W array')
+call Check_Vec(W,size(W),'W(final)')
+#else
+W(:) = W(:)+T(1)*SCF_V(ipdel)%A(:)-T(2)*SCF_V(ipynm1)%A(:)
+#endif
+
+! so, we've made it, let's clean up workbench
+
+call mma_deallocate(SOGrd)
+call mma_deallocate(SODel)
+call mma_deallocate(SOScr)
+!
+call Timing(Cpu2,Tim1,Tim2,Tim3)
+TimFld(7) = TimFld(7)+(Cpu2-Cpu1)
+
+return
+
+contains
+
+! Error handling
+subroutine Error_handling()
+
+  ! Hmmm, no entry found in LList, that's strange
+  write(6,*) 'SOrUpV: no entry found in LList'
+  call Abend()
+
+end subroutine Error_handling
+
+#ifdef _DEBUGPRINT_
+subroutine Check_Vec(Vec,nVec,Label)
+
+  integer nVec
+  real*8 Vec(nVec), DD
+  real*8, external :: DDot_
+  character(len=*) Label
+
+  DD = sqrt(DDot_(nVec,Vec,1,Vec,1))
+  write(6,*) 'Norm of ',Label,' is : ',DD
+
+end subroutine Check_Vec
+#endif
+
+end subroutine Sorupv

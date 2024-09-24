@@ -11,8 +11,9 @@
 ! Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 !               2014,2018, Ignacio Fdez. Galvan                        *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      Subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc)
+subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc)
 !***********************************************************************
 !                                                                      *
 !     Object: Automatic restricted-step rational functional            *
@@ -29,79 +30,79 @@
 !     Remove references to work, Roland Lindh, Harvard, Cambridge      *
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Half, One, Three, Pi
-      use InfSCF, only: kOptim, Iter_x=>Iter, Iter_Start
-      use InfSO, only: IterSO
-      Implicit None
-      Integer nInter
-      Real*8 g(nInter), dq(nInter)
-      Character UpMeth*6
-      Real*8 dqdq, dqHdq, StepMax_Seed
-      Character Step_Trunc*1
 
-!     Local variables
-      Integer :: Lu, IterMx, NumVal, iStatus, iRoot, I, Iter
-      Real*8 :: GG, A_RFO, ZZ, Test, Fact, EigVal
-      Real*8 :: A_RFO_Long, A_RFO_Short
-      Real*8 :: DqDq_Long, DqDq_Short
-      Real*8, External :: DDot_
-      Real*8, Allocatable:: Tmp(:), Val(:), Vec(:,:)
-      Logical Iterate, Restart
-      Real*8, Save :: StepMax=One
-      Real*8, Save :: Step_Lasttime=Pi
-      Real*8, Parameter :: Thr=1.0D-4
-      Real*8, Parameter :: StepMax_Min=1.0D-2
-      Real*8, Parameter :: Step_Factor=Three
-!
-      UpMeth='RS-RFO'
-      Step_Trunc=' '
-      Lu=6
-      gg=Sqrt(DDot_(nInter,g,1,g,1))
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half, One, Three, Pi
+use InfSCF, only: kOptim, Iter_x => Iter, Iter_Start
+use InfSO, only: IterSO
+
+implicit none
+integer nInter
+real*8 g(nInter), dq(nInter)
+character UpMeth*6
+real*8 dqdq, dqHdq, StepMax_Seed
+character Step_Trunc*1
+! Local variables
+integer :: Lu, IterMx, NumVal, iStatus, iRoot, I, Iter
+real*8 :: GG, A_RFO, ZZ, Test, Fact, EigVal
+real*8 :: A_RFO_Long, A_RFO_Short
+real*8 :: DqDq_Long, DqDq_Short
+real*8, external :: DDot_
+real*8, allocatable :: Tmp(:), Val(:), Vec(:,:)
+logical Iterate, Restart
+real*8, save :: StepMax = One
+real*8, save :: Step_Lasttime = Pi
+real*8, parameter :: Thr = 1.0D-4
+real*8, parameter :: StepMax_Min = 1.0D-2
+real*8, parameter :: Step_Factor = Three
+
+UpMeth = 'RS-RFO'
+Step_Trunc = ' '
+Lu = 6
+gg = sqrt(DDot_(nInter,g,1,g,1))
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'StepMax_Seed=',StepMax_Seed
-      Write (6,*) 'Sqrt(gg)=',gg
+write(6,*) 'StepMax_Seed=',StepMax_Seed
+write(6,*) 'Sqrt(gg)=',gg
 #endif
 
+if (Step_Lasttime == Pi) Step_Lasttime = Step_Lasttime/(gg*Step_Factor)
 
-      If (Step_Lasttime==Pi) Step_Lasttime=Step_Lasttime/(gg*Step_Factor)
+StepMax = min(Pi,StepMax_Seed*gg,Step_Lasttime*Step_Factor*gg)
 
-      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*Step_Factor*gg)
-
-!     Make sure that step restriction is not too tight.
-      If (StepMax<StepMax_Min) StepMax=StepMax_Min
+! Make sure that step restriction is not too tight.
+if (StepMax < StepMax_Min) StepMax = StepMax_Min
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'StepMax=',StepMax
+write(6,*) 'StepMax=',StepMax
 #endif
 
 #ifdef _DEBUGPRINT_
-      Write (Lu,*)
-      Write (Lu,*) '***************************************************'
-      Write (Lu,*) '********* S T A R T  O F  R S - R F O SCF *********'
-      Write (Lu,*) '***************************************************'
-      Call NrmClc(g,nInter,'RS-RFO','g(n)')
-      Write (Lu,*) 'Trust radius=',StepMax
-!
-      Write (Lu,*)
-      Write (Lu,*) 'RS-RF Optimization'
-      Write (Lu,*) ' Iter    alpha    Sqrt(dqdq)  StepMax    EigVal'
+write(Lu,*)
+write(Lu,*) '***************************************************'
+write(Lu,*) '********* S T A R T  O F  R S - R F O SCF *********'
+write(Lu,*) '***************************************************'
+call NrmClc(g,nInter,'RS-RFO','g(n)')
+write(Lu,*) 'Trust radius=',StepMax
+
+write(Lu,*)
+write(Lu,*) 'RS-RF Optimization'
+write(Lu,*) ' Iter    alpha    Sqrt(dqdq)  StepMax    EigVal'
 #endif
-!
-      A_RFO=One   ! Initial seed of alpha
-      IterMx=50
-      Iter=0
-      Iterate=.False.
-      Restart=.False.
-      NumVal=Min(3,nInter+1)
-!     NumVal=Min(nInter+1,nInter+1)
-      Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
-      Call mma_allocate(Val,NumVal,Label='Val')
-      Call mma_allocate(Tmp,nInter+1,Label='Tmp')
-!
-      Vec(:,:)=Zero
-      Tmp(:)=Zero
- 998  Continue
-         Iter=Iter+1
+
+A_RFO = One   ! Initial seed of alpha
+IterMx = 50
+Iter = 0
+Iterate = .false.
+Restart = .false.
+NumVal = min(3,nInter+1)
+!NumVal = min(nInter+1,nInter+1)
+call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
+call mma_allocate(Val,NumVal,Label='Val')
+call mma_allocate(Tmp,nInter+1,Label='Tmp')
+
+Vec(:,:) = Zero
+Tmp(:) = Zero
+998 continue
+Iter = Iter+1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -109,46 +110,44 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!        Restore the vector from the previous iteration, if any
-         call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
-!
-!        Call special Davidson routine which do not require the
-!        augmented Hessian to be explicitly expressed but rather will
-!        handle the gradient and Hessian part separated. The gradient
-!        will be explicit, while the Hessian part will use an approach
-!        which computes Hc, where c is a trial vector, from an initial
-!        Hessian based on a diagonal approximation and a BFGS update.
-!
-         Call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
-         If (iStatus.gt.0) Then
-            Call SysWarnMsg('RS_RFO SCF','Davidson procedure did not converge','')
-         End If
-!        Write (6,*) 'Val(:)=',Val(:)
-!        Write (6,*) 'Vec(:,1)=',Vec(:,1)
-!        Write (6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
+! Restore the vector from the previous iteration, if any
+call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
 
-!        Select a root with a negative value close to the current point
+! Call special Davidson routine which do not require the
+! augmented Hessian to be explicitly expressed but rather will
+! handle the gradient and Hessian part separated. The gradient
+! will be explicit, while the Hessian part will use an approach
+! which computes Hc, where c is a trial vector, from an initial
+! Hessian based on a diagonal approximation and a BFGS update.
 
-         iRoot=1
-         dqdq=1.0D10
-         Do i = 1, NumVal
-            If (Val(i)<Zero) Then
-               Tmp(:)=Vec(:,i)/Sqrt(A_RFO)
-               ZZ=DDot_(nInter+1,Tmp(:),1,Tmp(:),1)
-               Tmp(:)=Tmp(:)/Sqrt(ZZ)
-               Tmp(:nInter)=Tmp(:nInter)/Tmp(nInter+1)
-               Test=DDot_(nInter,Tmp,1,Tmp,1)
-!              Write (6,*) 'Test=',Test
-               If (Test<dqdq) Then
-                  iRoot = i
-                  dqdq = Test
-               End If
-            End If
-         End Do
-!        Write (6,*) 'iRoot,dqdq=',iRoot,dqdq
-         If (iRoot/=1) Vec(:,1)=Vec(:,iRoot)
-         call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
-         Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
+call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
+if (iStatus > 0) call SysWarnMsg('RS_RFO SCF','Davidson procedure did not converge','')
+!write(6,*) 'Val(:)=',Val(:)
+!write(6,*) 'Vec(:,1)=',Vec(:,1)
+!write(6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
+
+! Select a root with a negative value close to the current point
+
+iRoot = 1
+dqdq = 1.0d10
+do i=1,NumVal
+  if (Val(i) < Zero) then
+    Tmp(:) = Vec(:,i)/sqrt(A_RFO)
+    ZZ = DDot_(nInter+1,Tmp(:),1,Tmp(:),1)
+    Tmp(:) = Tmp(:)/sqrt(ZZ)
+    Tmp(:nInter) = Tmp(:nInter)/Tmp(nInter+1)
+    Test = DDot_(nInter,Tmp,1,Tmp,1)
+    !write(6,*) 'Test=',Test
+    if (Test < dqdq) then
+      iRoot = i
+      dqdq = Test
+    end if
+  end if
+end do
+!write(6,*) 'iRoot,dqdq=',iRoot,dqdq
+if (iRoot /= 1) Vec(:,1) = Vec(:,iRoot)
+call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
+call DScal_(nInter,One/sqrt(A_RFO),Vec(:,1),1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -156,9 +155,9 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!        Write (Lu,*) ' RF eigenvalue=',Val
-         ZZ=DDot_(nInter+1,Vec(:,1),1,Vec(:,1),1)
-         Call DScal_(nInter+1,One/Sqrt(ZZ),Vec(:,1),1)
+!write(Lu,*) ' RF eigenvalue=',Val
+ZZ = DDot_(nInter+1,Vec(:,1),1,Vec(:,1),1)
+call DScal_(nInter+1,One/sqrt(ZZ),Vec(:,1),1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -166,114 +165,113 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!        Copy v^k_{n,i}
-!
-         call dcopy_(nInter,Vec(:,1),1,dq,1)
-!
-!        Pick v^k_{1,i}
-!
-         Fact=Vec(nInter+1,1)
-!        Write (Lu,*) 'v^k_{1,i}=',Fact
-!
-!        Normalize according to Eq. (5)
-!
-         Call DScal_(nInter,One/Fact,dq,1)
-!
-!        Compute lambda_i according to Eq. (8a)
-!
-         EigVal=-DDot_(nInter,dq,1,g,1) ! note sign
-!
-!        Compute R^2 according to Eq. (8c)
-!
-         dqdq=DDot_(nInter,dq,1,dq,1)
+! Copy v^k_{n,i}
 
-         If (Sqrt(dqdq)>Pi) Then
-!        If (Sqrt(dqdq)>Pi .or. Sqrt(dqdq)>StepMax.and.kOptim>1) Then
-            If (kOptim/=1) Then
-               Write (Lu,*) 'rs_rfo_SCF: Total displacement is too large.'
-               Write (Lu,*) 'DD=',Sqrt(dqdq)
-               Write (Lu,*)'Reset update depth in BFGS, redo the RS-RFO'
-               Iter=Iter-1
-               kOptim=1
-               Iter_Start=Iter_x
-               IterSO=1
-               Go To 998
-            End If
-         End If
+call dcopy_(nInter,Vec(:,1),1,dq,1)
+
+! Pick v^k_{1,i}
+
+Fact = Vec(nInter+1,1)
+!write(Lu,*) 'v^k_{1,i}=',Fact
+
+! Normalize according to Eq. (5)
+
+call DScal_(nInter,One/Fact,dq,1)
+
+! Compute lambda_i according to Eq. (8a)
+
+EigVal = -DDot_(nInter,dq,1,g,1) ! note sign
+
+! Compute R^2 according to Eq. (8c)
+
+dqdq = DDot_(nInter,dq,1,dq,1)
+
+if (sqrt(dqdq) > Pi) then
+  !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
+  if (kOptim /= 1) then
+    write(Lu,*) 'rs_rfo_SCF: Total displacement is too large.'
+    write(Lu,*) 'DD=',sqrt(dqdq)
+    write(Lu,*) 'Reset update depth in BFGS, redo the RS-RFO'
+    Iter = Iter-1
+    kOptim = 1
+    Iter_Start = Iter_x
+    IterSO = 1
+    Go To 998
+  end if
+end if
 #ifdef _DEBUGPRINT_
-         Write (Lu,'(I5,4ES11.3)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
+write(Lu,'(I5,4ES11.3)') Iter,A_RFO,sqrt(dqdq),StepMax,EigVal
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!------- Initialize data for iterative scheme (only at first iteration)
-!
-         If (.Not.Iterate.Or.Restart) Then
-            A_RFO_long=A_RFO
-            dqdq_long=Sqrt(dqdq)
-            A_RFO_short=Zero
-            dqdq_short=dqdq_long+One
-         End If
-!        Write (6,*) 'dqdq_long=',dqdq_long
-!        Write (6,*) 'dqdq_short=',dqdq_short
+! Initialize data for iterative scheme (only at first iteration)
+
+if ((.not. Iterate) .or. Restart) then
+  A_RFO_long = A_RFO
+  dqdq_long = sqrt(dqdq)
+  A_RFO_short = Zero
+  dqdq_short = dqdq_long+One
+end if
+!write(6,*) 'dqdq_long=',dqdq_long
+!write(6,*) 'dqdq_short=',dqdq_short
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!------- RF with constraints. Start iteration scheme if computed step
-!        is too long.
-!
-         If ((Iter==1.or.Restart).and.dqdq>StepMax**2) Then
-            Iterate=.True.
-            Restart=.False.
-         End If
+! RF with constraints. Start iteration scheme if computed step
+! is too long.
+
+if (((Iter == 1) .or. Restart) .and. (dqdq > StepMax**2)) then
+  Iterate = .true.
+  Restart = .false.
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!        Procedure if the step length is not equal to the trust radius
-!
-         If (Iterate.and.Abs(StepMax-Sqrt(dqdq))>Thr) Then
-            Step_Trunc='*'
-!           Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
-!
-!           Converge if small interval
-!
-            If ((dqdq.lt.StepMax**2).and.(Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
-            Call Find_RFO_Root(A_RFO_long,dqdq_long,       &
-                               A_RFO_short,dqdq_short,     &
-                               A_RFO,Sqrt(dqdq),StepMax)
-!           Write (6,*) 'A_RFO_Short=',A_RFO_Short
-!           Write (6,*) 'A_RFO_Long=',A_RFO_Long
-!           Write (6,*) 'dqdq_long=',dqdq_long
-!           Write (6,*) 'dqdq_short=',dqdq_short
-            If (A_RFO.eq.-One) Then
-               A_RFO=One
-               Step_Trunc=' '
-               Restart=.True.
-               Iterate=.False.
-            End If
-            If (Iter.gt.IterMx) Then
-               Write (Lu,*) ' Too many iterations in RF'
-               Go To 997
-            End If
-            Go To 998
-         End If
-!
- 997  Continue
-      Call mma_deallocate(Tmp)
-      dqHdq=dqHdq+EigVal*Half
-      Step_Lasttime=Sqrt(dqdq)/gg
+! Procedure if the step length is not equal to the trust radius
+
+if (Iterate .and. (abs(StepMax-sqrt(dqdq)) > Thr)) then
+  Step_Trunc = '*'
+  !write(Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+
+  ! Converge if small interval
+
+  if ((dqdq < StepMax**2) .and. (abs(A_RFO_long-A_RFO_short) < Thr)) Go To 997
+  call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
+  !write(6,*) 'A_RFO_Short=',A_RFO_Short
+  !write(6,*) 'A_RFO_Long=',A_RFO_Long
+  !write(6,*) 'dqdq_long=',dqdq_long
+  !write(6,*) 'dqdq_short=',dqdq_short
+  if (A_RFO == -One) then
+    A_RFO = One
+    Step_Trunc = ' '
+    Restart = .true.
+    Iterate = .false.
+  end if
+  if (Iter > IterMx) then
+    write(Lu,*) ' Too many iterations in RF'
+    Go To 997
+  end if
+  Go To 998
+end if
+
+997 continue
+call mma_deallocate(Tmp)
+dqHdq = dqHdq+EigVal*Half
+Step_Lasttime = sqrt(dqdq)/gg
 #ifdef _DEBUGPRINT_
-      Write (Lu,*)
-      Write (Lu,*) 'Rational Function Optimization, Lambda=',EigVal
-      Write (Lu,*)
-      Write (Lu,*) 'EigVal,dqHdq=',EigVal,dqHdq
-      Call NrmClc(g,nInter,'RS-RFO','g(n)')
-      Call NrmClc(dq,nInter,'RS-RFO','dX(n)')
-      Write (Lu,*) '***************************************************'
-      Write (Lu,*) '************* E N D  O F  R S - R F O SCF *********'
-      Write (Lu,*) '***************************************************'
-      Write (Lu,*)
+write(Lu,*)
+write(Lu,*) 'Rational Function Optimization, Lambda=',EigVal
+write(Lu,*)
+write(Lu,*) 'EigVal,dqHdq=',EigVal,dqHdq
+call NrmClc(g,nInter,'RS-RFO','g(n)')
+call NrmClc(dq,nInter,'RS-RFO','dX(n)')
+write(Lu,*) '***************************************************'
+write(Lu,*) '************* E N D  O F  R S - R F O SCF *********'
+write(Lu,*) '***************************************************'
+write(Lu,*)
 #endif
-      Call mma_deallocate(Vec)
-      Call mma_deallocate(Val)
-      End Subroutine RS_RFO_SCF
+call mma_deallocate(Vec)
+call mma_deallocate(Val)
+
+end subroutine RS_RFO_SCF

@@ -126,60 +126,50 @@
 !                                                                      *
 ! nConstr - number of constrained MOs for irrep                        *
 !                                                                      *
-! Atom    - name of atom *LENIN                                        *
+! Atom    - name of atom *LenIn                                        *
 ! Type    - type of basis function *8                                  *
-! Name    - Atom = Name(1:LENIN); Type = Name(LENIN+1:LENIN+8)         *
+! Name    - Atom = Name(1:LenIn); Type = Name(LenIn+1:LenIn+8)         *
 ! AccCon  - acceleration convergence scheeme used in iteration         *
 !                                                                      *
 ! ChFracMem - fraction of memory used as a buffer for keeping          *
 !             Cholesky vectors previously read from disk               *
 !----------------------------------------------------------------------*
-Module InfSCF
+
+module InfSCF
+
 use MxDM, only: LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
 use Cholesky, only: ChFracMem
 
-Private LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
+private LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
 
-Integer MxConstr, nConstr(8), indxC(16,2,8), klockan
-Real*8 E_nondyn
+integer MxConstr, nConstr(8), indxC(16,2,8), klockan
+real*8 E_nondyn
 
+real*8 E1, E2, EKin, PotNuc, EneV, E1V, E2V, EKinV, EThr, DThr, FThr, DelThr, DiisTh, QudThr, ThrEne, ThrOcc, DNorm, TNorm, &
+       DMOMax, FMOMax, EDiff, Thize, RTemp, TemFac, TStop, ExFac, Tot_Charge, Tot_Nuc_Charge, Tot_El_Charge, Elst(MxIter,2), &
+       RotFac, RotLev, RotMax, s2uhf, HLgap, ScrFac, FlipThr, Float_End
 
-Real*8 E1,E2,EKin,PotNuc,EneV,E1V,E2V,EKinV,                      &
-       EThr,DThr,FThr,DelThr,DiisTh,QudThr,ThrEne,ThrOcc,DNorm,   &
-       TNorm,DMOMax,FMOMax,EDiff,Thize,RTemp,TemFac,              &
-       TStop,ExFac,Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,       &
-       Elst(MxIter,2),                                            &
-       RotFac,RotLev,RotMax,s2uhf,HLgap,ScrFac,FlipThr,           &
-       Float_End
+integer, parameter :: nStOpt = 8
+integer :: kOptim_Max = 5
+integer :: Iter_Start = 1
+integer :: Iter_Ref = 1
 
-Integer, Parameter :: nStOpt = 8
-Integer :: kOptim_Max=5
-Integer :: Iter_Start=1
-Integer :: Iter_Ref  =1
+integer nBas(MxSym), nOrb(MxSym), nOcc(MxSym,2), nFro(MxSym), nFrz(MxSym), nDel(MxSym), nSym, nAufb(2), isAufbauInput, nAtoms, &
+        nDens, nDsk, nMem, kOptim, iDKeep, lPaper, MapDns(MxKeep), MapGrd(MxOptm), iDisk(MxDDsk,2), kDisk(MxOptm), kOV(2), &
+        nIter(0:1), nIterP, iter, jPrint, iPsLst, InVec, kIvo, iCoCo, nD, jVOut, iPrOrb, iPrint, MinDMx, iDMin, MaxBas, MaxOrb, &
+        ivvloop, MaxFro, MaxOrF, MaxBxO, MaxBOO, MaxBOF, MaxOrO, nBB, nBO, nOO, nOV, mOV, nnB, nnO, nBT, nOT, nnOc, nnFr, nOFS, &
+        nOFT, nDisc, nCore, iPrForm, MaxFlip, iterprlv, nSkip(MxSym), iAu_ab, LstVec(nStOpt), iDummy_run, Iter2run
 
-Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
-        nFro(MxSym),nFrz(MxSym),nDel(MxSym),nSym,nAufb(2),              &
-        isAufbauInput,nAtoms,nDens,nDsk,nMem,kOptim,                    &
-        iDKeep,lPaper,MapDns(MxKeep),MapGrd(MxOptm),                    &
-        iDisk(MxDDsk,2),kDisk(MxOptm),kOV(2),                           &
-        nIter(0:1),nIterP,iter,jPrint,iPsLst,InVec,                     &
-        kIvo,iCoCo,nD,jVOut,iPrOrb,iPrint,MinDMx,iDMin,               &
-        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,       &
-        MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,      &
-        nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,                      &
-        nSkip(MxSym),iAu_ab,LstVec(nStOpt),                             &
-        iDummy_run, Iter2run
-
-      Character(LEN=LENIN8), Allocatable::  Name(:)
-      Character(LEN=LENIN ), Allocatable::  Atom(:)
-      Character(LEN=8     ), Allocatable::  Type(:)
-      Character(LEN=9     )  AccCon
-      Character(LEN=4     )  Neg2_Action
-      Character(LEN=80    )  KSDFT
-      Character(LEN=512   )  SCF_FileOrb
-      Logical isHDF5
-      Integer fileorb_id
-      Logical MSYMON
+character(len=LenIn8), allocatable :: Name(:)
+character(len=LenIn), allocatable :: Atom(:)
+character(len=8), allocatable :: type(:)
+character(len=9) AccCon
+character(len=4) Neg2_Action
+character(len=80) KSDFT
+character(len=512) SCF_FileOrb
+logical isHDF5
+integer fileorb_id
+logical MSYMON
 
 !----------------------------------------------------------------------*
 ! Allocate space for timing informations                               *
@@ -190,26 +180,26 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 ! TimFld - time of specified sections of the program                   *
 ! NamFld - names of those sections (set up in scf_init)                *
 !----------------------------------------------------------------------*
-      Integer,Parameter::  nFld = 16
-      Real*8       CpuItr,TotCpu,TotIO,TimFld(nFld)
-      Character(LEN=45) NamFld(nFld)
+integer, parameter :: nFld = 16
+real*8 CpuItr, TotCpu, TotIO, TimFld(nFld)
+character(len=45) NamFld(nFld)
 !----------------------------------------------------------------------*
 ! Allocate space to store the one-electron inntegral file header       *
 !----------------------------------------------------------------------*
-      Character(LEN=72) Header(2)
+character(len=72) Header(2)
 !----------------------------------------------------------------------*
 ! Allocate space to store the header of INPORB file                    *
 !----------------------------------------------------------------------*
-      Character(LEN=40) VTitle
-      Character(LEN=80) StVec
+character(len=40) VTitle
+character(len=80) StVec
 !----------------------------------------------------------------------*
 ! Allocate space to store the title                                    *
 !                                                                      *
 ! nTit  - number of title lines                                        *
 ! Title - title lines                                                  *
 !----------------------------------------------------------------------*
-      Integer nTit
-      Character(LEN=72) Title(MxTit)
+integer nTit
+character(len=72) Title(MxTit)
 !----------------------------------------------------------------------*
 ! Allocate logical variables                                       *
 !----------------------------------------------------------------------*
@@ -243,12 +233,11 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 ! Falcon     - T   = Fock matrix is stored in Runfile                  *
 ! RSRFO      - F   = Use RS-RFO instead of DIIS extrapolation          *
 !----------------------------------------------------------------------*
-Logical DSCF,lRel,PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,  &
-        Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,         &
-        PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,            &
-        DoFMM,LKon,OnlyProp,NoExchange,WarnSlow,NoProp,           &
-        FckAuf,Falcon
-Logical :: RSRFO=.False., RGEK=.False.
+logical DSCF, lRel, PreSch, MiniDn, WrOutD, c1Diis, Scrmbl, RFpert, Aufb, Teee, Damping, Diis, One_Grid, DoCholesky, DDnOFF, &
+        Two_Thresholds, PmTime, EmConv, WarnCfg, DoHLgap, AddFragments, WarnPocc, DoFMM, LKon, OnlyProp, NoExchange, WarnSlow, &
+        NoProp, FckAuf, Falcon
+logical :: RSRFO = .false., RGEK = .false.
 
-Integer iStatPRN
-End Module InfSCF
+integer iStatPRN
+
+end module InfSCF

@@ -10,55 +10,59 @@
 !                                                                      *
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
+
+subroutine TrimCMO(CMO1,CMO2,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine trim CMO's from nBas x nBas to nBas x nOrb.             *
 !                                                                      *
 !***********************************************************************
-      SubRoutine TrimCMO(CMO1,CMO2,nSym,nBas,nOrb)
-      Implicit None
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Real*8  CMO1(*)
-      Real*8  CMO2(*)
-      Integer nSym
-      Integer nBas(*)
-      Integer nOrb(*)
+real*8 CMO1(*)
+real*8 CMO2(*)
+integer nSym
+integer nBas(*)
+integer nOrb(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer iFrom(8)
-      Integer iTo(8)
-      Integer iSym
-      Integer ndata, i
+integer iFrom(8)
+integer iTo(8)
+integer iSym
+integer ndata, i
+
 !----------------------------------------------------------------------*
 ! Transfer orbitals.                                                   *
 !----------------------------------------------------------------------*
-      iFrom(1) = 1
-      iTo(1)   = 1
-      Do iSym=1,nSym-1
-         iFrom(iSym+1) = iFrom(iSym) + nBas(iSym)*nBas(iSym)
-         iTo(iSym+1)   = iTo(iSym)   + nBas(iSym)*nOrb(iSym)
-         If (iTo(iSym+1).gt.iFrom(iSym+1)) Then
-            Write (6,*) 'Error in TrimCMO'
-            Call Abend()
-         End If
-      End Do
-      Do iSym=1,nSym
-         ndata=nBas(iSym)*nOrb(iSym)
-!
-!        Note that CMO1 and CMO2 might overlap. Hence, we cannot use
-!        an ordinary call to DCopy!
-!
-         If (iFrom(iSym).ne.iTo(iSym)) Then
-            Do i = 0, nData-1
-               CMO2(iTo(iSym)+i) = CMO1(iFrom(iSym)+i)
-            End Do
-         End If
-      End Do
+iFrom(1) = 1
+iTo(1) = 1
+do iSym=1,nSym-1
+  iFrom(iSym+1) = iFrom(iSym)+nBas(iSym)*nBas(iSym)
+  iTo(iSym+1) = iTo(iSym)+nBas(iSym)*nOrb(iSym)
+  if (iTo(iSym+1) > iFrom(iSym+1)) then
+    write(6,*) 'Error in TrimCMO'
+    call Abend()
+  end if
+end do
+do iSym=1,nSym
+  ndata = nBas(iSym)*nOrb(iSym)
+
+  ! Note that CMO1 and CMO2 might overlap. Hence, we cannot use
+  ! an ordinary call to DCopy!
+
+  if (iFrom(iSym) /= iTo(iSym)) then
+    do i=0,nData-1
+      CMO2(iTo(iSym)+i) = CMO1(iFrom(iSym)+i)
+    end do
+  end if
+end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *
 !----------------------------------------------------------------------*
-      Return
-      End SubRoutine TrimCMO
+return
+
+end subroutine TrimCMO

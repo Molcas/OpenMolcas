@@ -12,47 +12,46 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine PrBeg(Meth)
+
+subroutine PrBeg(Meth)
 !***********************************************************************
 !                                                                      *
 !     purpose: Print the header to iterations                          *
 !                                                                      *
 !***********************************************************************
-!
-      use InfSCF, only: iDummy_run, InVec, nD, jPrint, nIterP, SCF_FileOrb, nIter
-      Implicit None
-      Character(Len=*) Meth
-!
 
-      Character(Len=10) Label
-      Character(Len=4) cUHF
+use InfSCF, only: iDummy_run, InVec, nD, jPrint, nIterP, SCF_FileOrb, nIter
 
+implicit none
+character(len=*) Meth
+character(len=10) Label
+character(len=4) cUHF
 
-      If (jPrint<2) Return
+if (jPrint < 2) return
 
-      Write(6,*)
-      call CollapseOutput(1,'Convergence information')
-      iDummy_run=0
-      cUHF='    '
-      if(nD==2) cUHF='UHF '
-      Label=Meth(1:10)
-      If (nIter(nIterP).gt.0) Then
-        Write(6,'(31x,A,A,A)') cUHF,Label,' iterations: Energy and convergence statistics'
-        Write(6,*)
-        Write(6,'(A,A,A)')'Iter     Tot. ',Label,' One-elec.       Two-elec.     Energy      Max Dij or  Max Fij '//     &
-                '     DNorm      TNorm      AccCon     Time'
-        Write(6,'(A)')'         Energy          Energy          Energy        Change      Delta Norm           '//       &
-                '                                     in Sec.'
-      Else
-         iDummy_run=1
-         Write(6,'(45x,A)')'No optimization is performed'
-         If (InVec.eq.1) Then
-            Write(6,'(29x,A)') 'Results refer to orbitals obtained from core diagonalization'
-         Else If (InVec.eq.2) Then
-            Write(6,'(34x,A,A)') 'Results refer to input orbitals read from ',Trim(SCF_FileOrb)
-         Else If (InVec.eq.3) Then
-            Write(6,'(34x,A)') 'Results refer to density matrix read from COMOLD'
-         End If
-      End If
+write(6,*)
+call CollapseOutput(1,'Convergence information')
+iDummy_run = 0
+cUHF = '    '
+if (nD == 2) cUHF = 'UHF '
+Label = Meth(1:10)
+if (nIter(nIterP) > 0) then
+  write(6,'(31x,A,A,A)') cUHF,Label,' iterations: Energy and convergence statistics'
+  write(6,*)
+  write(6,'(A,A,A)') 'Iter     Tot. ',Label, &
+                     ' One-elec.       Two-elec.     Energy      Max Dij or  Max Fij      DNorm      TNorm      AccCon     Time'
+  write(6,'(A)') '         Energy          Energy          Energy        Change      Delta Norm'// &
+                 '                                                in Sec.'
+else
+  iDummy_run = 1
+  write(6,'(45x,A)') 'No optimization is performed'
+  if (InVec == 1) then
+    write(6,'(29x,A)') 'Results refer to orbitals obtained from core diagonalization'
+  else if (InVec == 2) then
+    write(6,'(34x,A,A)') 'Results refer to input orbitals read from ',trim(SCF_FileOrb)
+  else if (InVec == 3) then
+    write(6,'(34x,A)') 'Results refer to density matrix read from COMOLD'
+  end if
+end if
 
-      End subroutine PrBeg
+end subroutine PrBeg

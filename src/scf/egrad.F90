@@ -13,8 +13,9 @@
 !               1992, Piotr Borowski                                   *
 !               2017,2022, Roland Lindh                                *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
+subroutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
 !***********************************************************************
 !                                                                      *
 !     purpose: This routine calculates the gradient of the SCF energy  *
@@ -32,242 +33,242 @@
 !       G       : gradient of the SCF energy with respect to the       *
 !                 rotation parameters of length nG                     *
 !***********************************************************************
-      Use Orb_Type, only: OrbType
-      use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, nBas, nOrb, nFro, nOcc, MapDns, iDisk
-      use SCF_Arrays, only: Dens, TwoHam, Vxc
-      use Constants, only: Zero, One, Two
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer nOTSD, nD, nC, nG, iOpt
-      Real*8 O(nOTSD),S(nOTSD),C(nC,nD), G(nG,nD)
-!
-      Integer i, j, k, l, iD, ig, ih, ij, iOff, it, nOr, nOrbmF, nBs, iSym, jDT
-      Real*8, Dimension(:,:), Allocatable:: FckM
-      Real*8, Dimension(:), Allocatable:: Aux1, Aux2, Aux3
-      Real*8, Dimension(:,:), Allocatable, Target::AuxD, AuxT, AuxV
-      Real*8, Dimension(:,:), Pointer:: D, T, V
-!
-!----------------------------------------------------------------------*
-!     Start
-      jDT=MapDns(iOpt)
-      If (jDT<0) Then
-         Call mma_allocate(AuxD,nOTSD,nD,Label='AuxD')
-         Call mma_allocate(AuxT,nOTSD,nD,Label='AuxT')
-         Call mma_allocate(AuxV,nOTSD,nD,Label='AuxV')
 
-         Call RWDTG(-jDT,AuxD,nOTSD*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
-         Call RWDTG(-jDT,AuxT,nOTSD*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
-         Call RWDTG(-jDT,AuxV,nOTSD*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
+use Orb_Type, only: OrbType
+use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, nBas, nOrb, nFro, nOcc, MapDns, iDisk
+use SCF_Arrays, only: Dens, TwoHam, Vxc
+use Constants, only: Zero, One, Two
+use stdalloc, only: mma_allocate, mma_deallocate
 
-         D(1:nOTSD,1:nD) => AuxD(:,:)
-         T(1:nOTSD,1:nD) => AuxT(:,:)
-         V(1:nOTSD,1:nD) => AuxV(:,:)
-      Else
-         D(1:nOTSD,1:nD) =>   Dens(:,:,jDT)
-         T(1:nOTSD,1:nD) => TwoHam(:,:,jDT)
-         V(1:nOTSD,1:nD) =>    Vxc(:,:,jDT)
-      End If
+implicit none
+integer nOTSD, nD, nC, nG, iOpt
+real*8 O(nOTSD), S(nOTSD), C(nC,nD), G(nG,nD)
+integer i, j, k, l, iD, ig, ih, ij, iOff, it, nOr, nOrbmF, nBs, iSym, jDT
+real*8, dimension(:,:), allocatable :: FckM
+real*8, dimension(:), allocatable :: Aux1, Aux2, Aux3
+real*8, dimension(:,:), allocatable, target :: AuxD, AuxT, AuxV
+real*8, dimension(:,:), pointer :: D, T, V
+
+!----------------------------------------------------------------------*
+! Start
+jDT = MapDns(iOpt)
+if (jDT < 0) then
+  call mma_allocate(AuxD,nOTSD,nD,Label='AuxD')
+  call mma_allocate(AuxT,nOTSD,nD,Label='AuxT')
+  call mma_allocate(AuxV,nOTSD,nD,Label='AuxV')
+
+  call RWDTG(-jDT,AuxD,nOTSD*nD,'R','DENS  ',iDisk,size(iDisk,1))
+  call RWDTG(-jDT,AuxT,nOTSD*nD,'R','TWOHAM',iDisk,size(iDisk,1))
+  call RWDTG(-jDT,AuxV,nOTSD*nD,'R','dVxcdR',iDisk,size(iDisk,1))
+
+  D(1:nOTSD,1:nD) => AuxD(:,:)
+  T(1:nOTSD,1:nD) => AuxT(:,:)
+  V(1:nOTSD,1:nD) => AuxV(:,:)
+else
+  D(1:nOTSD,1:nD) => Dens(:,:,jDT)
+  T(1:nOTSD,1:nD) => TwoHam(:,:,jDT)
+  V(1:nOTSD,1:nD) => Vxc(:,:,jDT)
+end if
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'EGrad: input arrays'
-      Write (6,*) '==================================================='
-      Call NrmClc(O,nOTSD   ,'EGrad','O')
-      Call NrmClc(S,nOTSD   ,'EGrad','S')
-      Call NrmClc(D,nOTSD*nD,'EGrad','D')
-      Call NrmClc(T,nOTSD*nD,'EGrad','T')
-      Call NrmClc(V,nOTSD*nD,'EGrad','V')
-      Call NrmClc(C,nC   *nD,'EGrad','C')
-!     Do iD = 1, nD
-!        Write (*,*) 'OrbType(:,iD)', OrbType(:,iD)
-!     End Do ! iD
-      Write (6,*) '==================================================='
-      Write (6,*)
+write(6,*) 'EGrad: input arrays'
+write(6,*) '==================================================='
+call NrmClc(O,nOTSD,'EGrad','O')
+call NrmClc(S,nOTSD,'EGrad','S')
+call NrmClc(D,nOTSD*nD,'EGrad','D')
+call NrmClc(T,nOTSD*nD,'EGrad','T')
+call NrmClc(V,nOTSD*nD,'EGrad','V')
+call NrmClc(C,nC*nD,'EGrad','C')
+!do iD=1,nD
+!  write(6,*) 'OrbType(:,iD)',OrbType(:,iD)
+!end do ! iD
+write(6,*) '==================================================='
+write(6,*)
 #endif
 !----------------------------------------------------------------------*
-!
-!---- Allocate memory for modified fock matrix
-      Call mma_allocate(FckM,nBT,nD,Label='FckM')
-      FckM(:,:)=Zero
-      G(:,:)=Zero
-!
-!---- Allocate memory for auxiliary matrices
-      Call mma_allocate(Aux1,MaxBas**2,Label='Aux1')
-      Call mma_allocate(Aux2,MaxBas**2,Label='Aux2')
-      Call mma_allocate(Aux3,MaxBas**2,Label='Aux3')
-!
-      Do iD = 1, nD
-!
-         FckM(:,iD) = O(:) + T(:,iD)
+
+! Allocate memory for modified fock matrix
+call mma_allocate(FckM,nBT,nD,Label='FckM')
+FckM(:,:) = Zero
+G(:,:) = Zero
+
+! Allocate memory for auxiliary matrices
+call mma_allocate(Aux1,MaxBas**2,Label='Aux1')
+call mma_allocate(Aux2,MaxBas**2,Label='Aux2')
+call mma_allocate(Aux3,MaxBas**2,Label='Aux3')
+
+do iD=1,nD
+
+  FckM(:,iD) = O(:)+T(:,iD)
+# ifdef _DEBUGPRINT_
+  write(6,*) 'iD=',iD
+  call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
+# endif
+  if (nnFr > 0) call ModFck(FckM(:,iD),S,nBT,C(:,iD),nBO,nOcc(:,iD))
+
+  FckM(:,iD) = FckM(:,iD)+V(:,iD)
+# ifdef _DEBUGPRINT_
+  call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
+# endif
+
+  iOff = 0
+  ij = 1
+  it = 1
+  ig = 1
+  do iSym=1,nSym
+    nBs = nBas(iSym)
+    nOr = nOrb(iSym)
+    nOrbmF = nOrb(iSym)-nFro(iSym)
+
+    if (nOrb(iSym) > 0) then
+
+      ! Square Fock matrix and perform C(T)F
+      Aux2(:) = Zero
+      call Square(FckM(ij:,iD),Aux2,1,nBs,nBs)
+#     ifdef _DEBUGPRINT_
+      write(6,*) 'iSym=',iSym
+      call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
+#     endif
+      Aux1(:) = Zero
+      call DGEMM_('T','N',nOr,nBs,nBs, &
+                  One,C(it,iD),nBs, &
+                  Aux2,nBs, &
+                  Zero,Aux1,nOr)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
+#     endif
+
+      ! Square density matrix and perform C(T)FD
+      Aux2(:) = Zero
+      call DSq(D(ij:,iD),Aux2,1,nBs,nBs)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
+#     endif
+      Aux3(:) = Zero
+      call DGEMM_('N','N',nOr,nBs,nBs, &
+                  One,Aux1,nOr, &
+                  Aux2,nBs, &
+                  Zero,Aux3,nOr)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Aux3,nOr*nBs,'EGrad','Aux3')
+#     endif
+
+      ! Square overlap matrix and perform C(T)FDS
+      Aux2(:) = Zero
+      call Square(S(ij:),Aux2,1,nBs,nBs)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
+#     endif
+      Aux1(:) = Zero
+      call DGEMM_('N','N',nOr,nBs,nBs, &
+                  One,Aux3,nOr, &
+                  Aux2,nBs, &
+                  Zero,Aux1,nOr)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
+#     endif
+      ! C(T)FDSC
+      Aux2(:) = Zero
+      call DGEMM_('N','N',nOr,nOr,nBs, &
+                  One,Aux1,nOr, &
+                  C(it,iD),nBs, &
+                  Zero,Aux2,nOr)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Aux2,nOr*nOr,'EGrad','Aux2')
+#     endif
+
+      call Asym(Aux2,G(ig,iD),nOr)
+#     ifdef _DEBUGPRINT_
+      write(6,*)
+      call NrmClc(G,nG*nD,'EGrad','G')
+      write(6,*)
+#     endif
+
+      ! At this point enforce that the gradient is exactly zero
+      ! for elements corresponding to orbitals of different
+      ! fermion types.
+
+      do i=1,nOr
+        if (i <= nFro(iSym)) then
+          k = -1
+        else
+          k = OrbType(iOff+i-nFro(iSym),iD)
+        end if
+
+        do j=1,nOr
+          if (j <= nFro(iSym)) then
+            l = -1
+          else
+            l = OrbType(iOff+j-nFro(iSym),iD)
+          end if
+
+          ih = ig+(i-1)*nOr+j-1
+          if (k /= l) G(ih,iD) = Zero
+
+        end do
+      end do
+
+    end if
+    ij = ij+nBs*(nBs+1)/2
+    it = it+nBs*nOr
+    ig = ig+nOr*nOr
+    iOff = iOff+nOrbmF
+
+  end do ! iSym
+
+end do ! iD
+
+! Deallocate memory
+call mma_deallocate(Aux3)
+call mma_deallocate(Aux2)
+call mma_deallocate(Aux1)
+call mma_deallocate(FckM)
+
+G(:,:) = Two*G(:,:)
+
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'iD=',iD
-         Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
+block
+  real*8 GMax
+  integer :: i_Max = 0, j_Max = 0
+  GMax = Zero
+  do i=1,nD
+    do j=1,nG
+      if (GMax < abs(G(j,i))) then
+        GMax = abs(G(j,i))
+        i_Max = i
+        j_Max = j
+      end if
+    end do
+  end do
+  write(6,*) 'GMax,i_Max,j_Max=',GMax,i_Max,j_Max
+end block
+call NrmClc(G,nG*nD,'EGrad','G')
 #endif
-         If (nnFr.gt.0) Call ModFck(FckM(:,iD),S,nBT,C(:,iD),nBO,nOcc(:,iD))
-!
-         FckM(:,iD) = FckM(:,iD) + V(:,iD)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
-#endif
-!
-         iOff = 0
-         ij = 1
-         it = 1
-         ig = 1
-         Do iSym = 1, nSym
-            nBs = nBas(iSym)
-            nOr = nOrb(iSym)
-            nOrbmF = nOrb(iSym)-nFro(iSym)
-!
-            If (nOrb(iSym).gt.0) Then
-!
-!----------    Square Fock matrix and perform C(T)F
-               Aux2(:)=Zero
-               Call Square(FckM(ij:,iD),Aux2,1,nBs,nBs)
-#ifdef _DEBUGPRINT_
-         Write (6,*) 'iSym=',iSym
-         Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
-#endif
-               Aux1(:)=Zero
-               Call DGEMM_('T','N',               &
-                           nOr,nBs,nBs,           &
-                           One,C(it,iD),nBs,      &
-                               Aux2,nBs,          &
-                          Zero,Aux1,nOr)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
-#endif
-!
-!----------    Square density matrix and perform C(T)FD
-               Aux2(:)=Zero
-               Call DSq(D(ij:,iD),Aux2,1,nBs,nBs)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
-#endif
-               Aux3(:)=Zero
-               Call DGEMM_('N','N',               &
-                           nOr,nBs,nBs,           &
-                           One,Aux1,nOr,          &
-                               Aux2,nBs,          &
-                          Zero,Aux3,nOr)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(Aux3,nOr*nBs,'EGrad','Aux3')
-#endif
-!
-!----------    Square overlap matrix and perform C(T)FDS
-               Aux2(:)=Zero
-               Call Square(S(ij:),Aux2,1,nBs,nBs)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
-#endif
-               Aux1(:)=Zero
-               Call DGEMM_('N','N',               &
-                           nOr,nBs,nBs,           &
-                           One,Aux3,nOr,          &
-                                 Aux2,nBs,        &
-                           Zero,Aux1,nOr)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
-#endif
-!----------    C(T)FDSC
-               Aux2(:)=Zero
-               Call DGEMM_('N','N',               &
-                           nOr,nOr,nBs,           &
-                           One,Aux1,nOr,          &
-                                 C(it,iD),nBs,    &
-                           Zero,Aux2,nOr)
-#ifdef _DEBUGPRINT_
-         Call NrmClc(Aux2,nOr*nOr,'EGrad','Aux2')
-#endif
-!
-               Call Asym(Aux2,G(ig,iD),nOr)
-#ifdef _DEBUGPRINT_
-      Write (6,*)
-      Call NrmClc(G,nG   *nD,'EGrad','G')
-      Write (6,*)
-#endif
-!
-!              At this point enforce that the gradient is exactly zero
-!              for elements corresponding to orbitals of different
-!              fermion types.
-!
-               Do i = 1, nOr
-                  If (i.le.nFro(iSym)) Then
-                     k=-1
-                  Else
-                     k=OrbType(iOff+i-nFro(iSym),iD)
-                  End If
-!
-                  Do j = 1, nOr
-                     If (j.le.nFro(iSym)) Then
-                        l=-1
-                     Else
-                        l=OrbType(iOff+j-nFro(iSym),iD)
-                     End If
-!
-                     ih = ig + (i-1)*nOr + j - 1
-                     If (k/=l) G(ih,iD)=Zero
-!
-                  End Do
-               End Do
-!
-            End If
-            ij = ij + nBs*(nBs + 1)/2
-            it = it + nBs*nOr
-            ig = ig + nOr*nOr
-            iOff = iOff + nOrbmF
-!
-         End Do ! iSym
-!
-      End Do ! iD
-!
-!---- Deallocate memory
-      Call mma_deallocate(Aux3)
-      Call mma_deallocate(Aux2)
-      Call mma_deallocate(Aux1)
-      Call mma_deallocate(FckM)
-!
-      G(:,:)=Two*G(:,:)
-!
-#ifdef _DEBUGPRINT_
-      Block
-         Real*8 GMax
-         Integer  ::i_Max=0, j_Max=0
-         GMax=Zero
-         Do i = 1, nD
-           Do j = 1, nG
-             If (GMax<Abs(G(j,i))) Then
-                 GMax=Abs(G(j,i))
-                 i_Max=i
-                 j_Max=j
-               End If
-           End Do
-         End Do
-         Write (6,*) 'GMax,i_Max,j_Max=',GMax,i_Max, j_Max
-      End Block
-      Call NrmClc(G,nG   *nD,'EGrad','G')
-#endif
-      If (jDT<0) Then
-         Call mma_deallocate(AuxD)
-         Call mma_deallocate(AuxT)
-         Call mma_deallocate(AuxV)
-      End If
-      Nullify(D,T,V)
-!
+if (jDT < 0) then
+  call mma_deallocate(AuxD)
+  call mma_deallocate(AuxT)
+  call mma_deallocate(AuxV)
+end if
+nullify(D,T,V)
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Contains
-      SubRoutine Asym(H,A,n)
-      Implicit None
 
-      Integer n, i, j
-      Real*8 H(n,n), A(n,n)
+contains
 
-      Do i = 1, n
-         Do j = 1, i
-            A(i,j) = H(i,j) - H(j,i)
-         End Do
-      End Do
-      End Subroutine ASym
+subroutine Asym(H,A,n)
 
-      End Subroutine EGrad
+  implicit none
+
+  integer n, i, j
+  real*8 H(n,n), A(n,n)
+
+  do i=1,n
+    do j=1,i
+      A(i,j) = H(i,j)-H(j,i)
+    end do
+  end do
+
+end subroutine ASym
+
+end subroutine EGrad

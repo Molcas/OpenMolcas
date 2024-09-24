@@ -8,134 +8,134 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      Subroutine SorbCMOs(CMO,nCMO,nD,EOrb,Occ,nnB,nBas,nOrb,nSym)
-      use Constants, only: Zero
-      Implicit None
-      Integer nCMO, nD, nnB, nSym
-      Real*8 CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
-      Integer nBas(nSym), nOrb(nSym)
 
-      Integer iD, iOff1, iOff2, iBlock, iEnd, iOrb, iStr, iSym, jOrb, kOrb, nOcc
-      Real*8 EOrb_i, EOrb_j, Occ_i, Occ_j
+!#define _DEBUGPRINT_
+subroutine SorbCMOs(CMO,nCMO,nD,EOrb,Occ,nnB,nBas,nOrb,nSym)
+
+use Constants, only: Zero
+
+implicit none
+integer nCMO, nD, nnB, nSym
+real*8 CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
+integer nBas(nSym), nOrb(nSym)
+integer iD, iOff1, iOff2, iBlock, iEnd, iOrb, iStr, iSym, jOrb, kOrb, nOcc
+real*8 EOrb_i, EOrb_j, Occ_i, Occ_j
 #ifdef _DEBUGPRINT_
-      Integer iOff, jOff
-      Do iD = 1, nD
-         iOff=1
-         jOff=1
-         Do iSym = 1, nSym
-            Call RecPrt('Occ','(10F6.2)',Occ(iOff,iD),1,nOrb(iSym))
-            Call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),nBas(iSym),nOrb(iSym))
-            iOff = iOff + nOrb(iSym)
-            jOff = jOff + nBas(iSym)*nOrb(iSym)
-         End Do
-      End Do
+integer iOff, jOff
+
+do iD=1,nD
+  iOff = 1
+  jOff = 1
+  do iSym=1,nSym
+    call RecPrt('Occ','(10F6.2)',Occ(iOff,iD),1,nOrb(iSym))
+    call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),nBas(iSym),nOrb(iSym))
+    iOff = iOff+nOrb(iSym)
+    jOff = jOff+nBas(iSym)*nOrb(iSym)
+  end do
+end do
 #endif
-!
-!     Sort orbitals into
-!     1) occupied and virtual orbitals
-!     2) within each block sort according to the orbital energy
-!
-      Do iD = 1, nD
-!        Write (6,*)
-!        Write (6,*) 'iD=',iD
-!        Write (6,*)
-         iOff1= 0
-         iOff2= 1
-         Do iSym = 1, nSym
-!
-            nOcc = 0
-            If (nOrb(iSym).eq.0) Go To 100
-!
-!           Sort first the orbitals according to the occupation numbers.
-!
-            Do iOrb = 1, nOrb(iSym)-1
-!
-               Occ_i = Occ(iOff1+iOrb,iD)
-!              Write (6,*) 'Occ_i,iOrb=',Occ_i,iOrb
-               kOrb = 0
-               Do jOrb = iOrb + 1, nOrb(iSym)
-                  Occ_j = Occ(iOff1+jOrb,iD)
-!                 Write (6,*) 'Occ_j,jOrb=',Occ_j,jOrb
-                  If (Occ_j.gt.Occ_i) Then
-                     Occ_i=Occ_j
-                     kOrb = jOrb
-                  End If
-               End Do
-!              Write (6,*) 'kOrb=',kOrb
-               If (kOrb.ne.0) Then
-                  Occ_i = Occ(iOff1+iOrb,iD)
-                  Occ(iOff1+iOrb,iD)=Occ(iOff1+kOrb,iD)
-                  Occ(iOff1+kOrb,iD)=Occ_i
-                  EOrb_i = EOrb(iOff1+iOrb,iD)
-                  EOrb(iOff1+iOrb,iD)=EOrb(iOff1+kOrb,iD)
-                  EOrb(iOff1+kOrb,iD)=EOrb_i
-                  Call DSwap_(nBas(iSym),                           &
-                              CMO(iOff2+(iOrb-1)*nBas(iSym),iD),1,  &
-                              CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
-               End If
-!
-               If (Occ(iOff1+iOrb,iD).ne.Zero) nOcc = nOcc + 1
-!
-            End Do
-!
-!           Now sort the block with respect to the lowest possible
-!           orbital energy.
-!
-            Do iBlock = 1, 2
-!
-               If (iBlock.eq.1) Then
-                  iStr=1
-                  iEnd=nOcc
-               Else
-                  iStr=nOcc+1
-                  iEnd=nOrb(iSym)
-               End If
-!
-               Do iOrb = iStr, iEnd-1
-!
-                  EOrb_i = EOrb(iOff1+iOrb,iD)
-                  kOrb = 0
-                  Do jOrb = iOrb + 1, iEnd
-                     EOrb_j = EOrb(iOff1+jOrb,iD)
-                     If (EOrb_j.lt.EOrb_i) Then
-                        EOrb_i=EOrb_j
-                        kOrb = jOrb
-                     End If
-                  End Do
-                  If (kOrb.ne.0) Then
-                     Occ_i = Occ(iOff1+iOrb,iD)
-                     Occ(iOff1+iOrb,iD)=Occ(iOff1+kOrb,iD)
-                     Occ(iOff1+kOrb,iD)=Occ_i
-                     EOrb_i = EOrb(iOff1+iOrb,iD)
-                     EOrb(iOff1+iOrb,iD)=EOrb(iOff1+kOrb,iD)
-                     EOrb(iOff1+kOrb,iD)=EOrb_i
-                     Call DSwap_(nBas(iSym),                           &
-                                 CMO(iOff2+(iOrb-1)*nBas(iSym),iD),1,  &
-                                 CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
-                  End If
-!
-               End Do
-            End Do     ! iBlock
-!
- 100        Continue
-!
-            iOff1 = iOff1 + nOrb(iSym)
-            iOff2 = iOff2 + nBas(iSym)*nOrb(iSym)
-         End Do        ! iSym
-      End Do           ! iD
+
+! Sort orbitals into
+! 1) occupied and virtual orbitals
+! 2) within each block sort according to the orbital energy
+
+do iD=1,nD
+  !write(6,*)
+  !write(6,*) 'iD=',iD
+  !write(6,*)
+  iOff1 = 0
+  iOff2 = 1
+  do iSym=1,nSym
+
+    nOcc = 0
+    if (nOrb(iSym) == 0) Go To 100
+
+    ! Sort first the orbitals according to the occupation numbers.
+
+    do iOrb=1,nOrb(iSym)-1
+
+      Occ_i = Occ(iOff1+iOrb,iD)
+      !write(6,*) 'Occ_i,iOrb=',Occ_i,iOrb
+      kOrb = 0
+      do jOrb=iOrb+1,nOrb(iSym)
+        Occ_j = Occ(iOff1+jOrb,iD)
+        !write(6,*) 'Occ_j,jOrb=',Occ_j,jOrb
+        if (Occ_j > Occ_i) then
+          Occ_i = Occ_j
+          kOrb = jOrb
+        end if
+      end do
+      !write(6,*) 'kOrb=',kOrb
+      if (kOrb /= 0) then
+        Occ_i = Occ(iOff1+iOrb,iD)
+        Occ(iOff1+iOrb,iD) = Occ(iOff1+kOrb,iD)
+        Occ(iOff1+kOrb,iD) = Occ_i
+        EOrb_i = EOrb(iOff1+iOrb,iD)
+        EOrb(iOff1+iOrb,iD) = EOrb(iOff1+kOrb,iD)
+        EOrb(iOff1+kOrb,iD) = EOrb_i
+        call DSwap_(nBas(iSym),CMO(iOff2+(iOrb-1)*nBas(iSym),iD),1,CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
+      end if
+
+      if (Occ(iOff1+iOrb,iD) /= Zero) nOcc = nOcc+1
+
+    end do
+
+    ! Now sort the block with respect to the lowest possible
+    ! orbital energy.
+
+    do iBlock=1,2
+
+      if (iBlock == 1) then
+        iStr = 1
+        iEnd = nOcc
+      else
+        iStr = nOcc+1
+        iEnd = nOrb(iSym)
+      end if
+
+      do iOrb=iStr,iEnd-1
+
+        EOrb_i = EOrb(iOff1+iOrb,iD)
+        kOrb = 0
+        do jOrb=iOrb+1,iEnd
+          EOrb_j = EOrb(iOff1+jOrb,iD)
+          if (EOrb_j < EOrb_i) then
+            EOrb_i = EOrb_j
+            kOrb = jOrb
+          end if
+        end do
+        if (kOrb /= 0) then
+          Occ_i = Occ(iOff1+iOrb,iD)
+          Occ(iOff1+iOrb,iD) = Occ(iOff1+kOrb,iD)
+          Occ(iOff1+kOrb,iD) = Occ_i
+          EOrb_i = EOrb(iOff1+iOrb,iD)
+          EOrb(iOff1+iOrb,iD) = EOrb(iOff1+kOrb,iD)
+          EOrb(iOff1+kOrb,iD) = EOrb_i
+          call DSwap_(nBas(iSym),CMO(iOff2+(iOrb-1)*nBas(iSym),iD),1,CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
+        end if
+
+      end do
+    end do     ! iBlock
+
+100 continue
+
+    iOff1 = iOff1+nOrb(iSym)
+    iOff2 = iOff2+nBas(iSym)*nOrb(iSym)
+  end do    ! iSym
+end do      ! iD
 #ifdef _DEBUGPRINT_
-      Do iD = 1, nD
-         iOff=1
-         jOff=1
-         Do iSym = 1, nSym
-            Call RecPrt('Occ','(10F6.2)',Occ(iOff,iD),1,nOrb(iSym))
-            Call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),nBas(iSym),nOrb(iSym))
-            iOff = iOff + nOrb(iSym)
-            jOff = jOff + nBas(iSym)*nOrb(iSym)
-         End Do
-      End Do
+do iD=1,nD
+  iOff = 1
+  jOff = 1
+  do iSym=1,nSym
+    call RecPrt('Occ','(10F6.2)',Occ(iOff,iD),1,nOrb(iSym))
+    call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),nBas(iSym),nOrb(iSym))
+    iOff = iOff+nOrb(iSym)
+    jOff = jOff+nBas(iSym)*nOrb(iSym)
+  end do
+end do
 #endif
-!
-      Return
-      End Subroutine SorbCMOs
+
+return
+
+end subroutine SorbCMOs

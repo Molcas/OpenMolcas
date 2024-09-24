@@ -8,40 +8,42 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!     Compute the difference between consecutive gradients
-!
-      Subroutine dGrd()
-      use LnkLst, only: SCF_V, LLGrad, LLdGrd
-      use InfSCF, only: iter, Iter_Start, mOV
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer jpgrd,inode, i
-      Real*8, Dimension(:), Allocatable:: Scr
-      Integer, External :: LstPtr
 
-      Call mma_allocate(Scr,mOV,Label='Scr')
+! Compute the difference between consecutive gradients
 
-!     Loop over all iterations starting at Iter_Start+1
+subroutine dGrd()
 
-      Do i = Iter_Start+1, Iter
+use LnkLst, only: SCF_V, LLGrad, LLdGrd, LstPtr, GetNod, iVPTr, PutVec
+use InfSCF, only: iter, Iter_Start, mOV
+use stdalloc, only: mma_allocate, mma_deallocate
 
-!        dg(i-1)=g(i)-g(i-1)
+implicit none
+integer jpgrd, inode, i
+real*8, dimension(:), allocatable :: Scr
 
-         jpgrd=LstPtr(i,LLGrad)
-         Call GetNod(i-1,LLGrad,inode)
-         If (inode.eq.0) Then
-            Write (6,*) 'inode.eq.0'
-            Call Abend()
-         End If
-         Call iVPtr(Scr,mOV,inode)
+call mma_allocate(Scr,mOV,Label='Scr')
 
-         Scr(:) =  SCF_V(jpgrd)%A(:) - Scr (:)
+! Loop over all iterations starting at Iter_Start+1
 
-         Call PutVec(Scr,mOV,i-1,'OVWR',LLdGrd)
-      End Do
+do i=Iter_Start+1,Iter
 
-      Call mma_deallocate(Scr)
+  !dg(i-1) = g(i)-g(i-1)
 
-      Return
-      End Subroutine dGrd
+  jpgrd = LstPtr(i,LLGrad)
+  call GetNod(i-1,LLGrad,inode)
+  if (inode == 0) then
+    write(6,*) 'inode == 0'
+    call Abend()
+  end if
+  call iVPtr(Scr,mOV,inode)
+
+  Scr(:) = SCF_V(jpgrd)%A(:)-Scr(:)
+
+  call PutVec(Scr,mOV,i-1,'OVWR',LLdGrd)
+end do
+
+call mma_deallocate(Scr)
+
+return
+
+end subroutine dGrd

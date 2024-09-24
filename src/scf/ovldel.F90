@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine OvlDel(Ovlp,nOvlp,TrMat,nTrMat)
+
+subroutine OvlDel(Ovlp,nOvlp,TrMat,nTrMat)
 !***********************************************************************
 !                                                                      *
 !     purpose: Remove near linear dependencies from basis set          *
@@ -28,123 +29,119 @@
 !                 pendencies (if exist) are removed                    *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: DelThr, MaxBas, MaxBOF, MaxOrF, MiniDn, nSym, nBas, nFro, nOrb, nDel
-      use Constants, only: Zero, One
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      Integer nOvlp, nTrMat
-      Real*8 Ovlp(nOvlp),TrMat(nTrMat)
-!
-      Real*8 Dummy
-      Integer iDum, iErr, iiBT, ij, Ind, iNew, iOld, iOrb, iSym, nFound, nOF, nOrbi
-      Real*8, Dimension(:), Allocatable:: OvlT, OvlH, OvlS, EVec, EVal, NewB, Scratch
 
+use InfSCF, only: DelThr, MaxBas, MaxBOF, MaxOrF, MiniDn, nSym, nBas, nFro, nOrb, nDel
+use Constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
 
-!---- Allocate memory for transformed overlap matrix
-      Call mma_allocate(OvlT,MaxOrF*(MaxOrF+1)/2,Label='OvlT')
-!
-!---- Allocate memory for half-transformed overlap matrix
-      Call mma_allocate(OvlH,MaxBOF,Label='OvlH')
-!
-!---- Allocate memory for squared overlap matrix
-      Call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
-!
-!---- Allocate memory for eigenvectors of overlap
-      Call mma_allocate(EVec,MaxOrF**2,Label='EVec')
-!
-!---- Allocate memory for eigenvalues of overlap
-      Call mma_allocate(EVal,MaxOrF,Label='EVal')
-!
-!---- Allocate memory for 'basis' that diagonalizes overlap
-      Call mma_allocate(NewB,MaxBOF,Label='NewB')
-!
-      ij   = 1
-      iOld = 1
-      iNew = 1
-      Do iSym = 1, nSym
-!
-         iiBT = nBas(iSym)*(nBas(iSym) + 1)/2
-         nOF  = nOrb(iSym) - nFro(iSym)
-!
-!------- Copy frozen vectors to the right position
-         If(nFro(iSym)*nBas(iSym).gt.0) Then
-!           Write(6,'(a,i2)') 'Copying symmetry block',iSym
-!           Write(6,'(i8,a,i8)') iOld,' ->',iNew
-!           Write(6,'(a,i8)') 'nTrMat =',nTrMat
-            call dcopy_(nFro(iSym)*nBas(iSym),TrMat(iOld),1,TrMat(iNew),1)
-!        Else
-!           Write(6,'(a,i2)') 'No copying of symmetry block',iSym
-         End If
-!
-         iOld = iOld + nFro(iSym)*nBas(iSym)
-         iNew = iNew + nFro(iSym)*nBas(iSym)
-!
-         If (nOF.gt.0) Then
-!
-!---------- Square overlap and transform to basis given by TrMat
-            Call Square(Ovlp(ij),OvlS,1,nBas(iSym),nBas(iSym))
-            Call DGEMM_('N','N',nBas(iSym),nOF,nBas(iSym),   &
-                        One,OvlS,nBas(iSym),               &
-                              TrMat(iOld),nBas(iSym),        &
-                        Zero,OvlH,nBas(iSym))
-            Call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym),       &
-                          One,TrMat(iOld),nBas(iSym),        &
-                              OvlH,nBas(iSym),               &
-                          Zero,OvlT,nOF)
-!
-!---------- Diagonalize overlap and form eigenvalues vector
-            Call mma_allocate(Scratch,nOF**2,Label='Scrtach')
-            Dummy=Zero
-            iDum=0
-            Call Diag_Driver('V','A','L',nOF,OvlT,                &
-                             Scratch,nOF,Dummy,Dummy,iDum,iDum,   &
-                             EVal,EVec,nOF,1,0,'J',               &
-                             nFound,iErr)
-            Call mma_deallocate(Scratch)
-!??         Call dCopy_(nOF*(nOF+1)/2,Zero,0,OvlT,1)
-!??         iDiag=0
-!??         Do i = 1, nOF
-!??            OvlT(i+iDiag) = EVal(i)
-!??            iDiag = iDiag + i
-!??         End Do
-!
-!---------- Transform to basis that diagonalizes overlap
-            Call DGEMM_('N','N',                            &
-                        nBas(iSym),nOF,nOF,                 &
-                        One,TrMat(iOld),nBas(iSym),       &
-                              EVec,nOF,                     &
-                        Zero,NewB,nBas(iSym))
-!
-!---------- Remove linear dependencies
-            nOrbi = nFro(iSym)
-            ind   = 1
-            Do iOrb = 1, nOF
-               If (EVal(iOrb).gt.DelThr) Then
-                  If(EVal(iOrb).lt.1.0d-5) MiniDn=.False.
-                  call dcopy_(nBas(iSym),NewB(ind),1,TrMat(iNew),1)
-                  iNew  = iNew  + nBas(iSym)
-                  nOrbi = nOrbi + 1
-               End If
-               ind = ind + nBas(iSym)
-            End Do
-!
-            iOld       = iOld + nOF*nBas(iSym)
-            nDel(iSym) = nOrb(iSym) - nOrbi
-            nOrb(iSym) = nOrbi
-!
-         End If
-!
-         ij = ij + iiBT
-!
-      End Do
-      Call Put_iArray('nDel',nDel,nSym)
-!
-!---- Deallocate memory
-      Call mma_deallocate(NewB)
-      Call mma_deallocate(EVal)
-      Call mma_deallocate(EVec)
-      Call mma_deallocate(OvlS)
-      Call mma_deallocate(OvlH)
-      Call mma_deallocate(OvlT)
+implicit none
+integer nOvlp, nTrMat
+real*8 Ovlp(nOvlp), TrMat(nTrMat)
+real*8 Dummy
+integer iDum, iErr, iiBT, ij, Ind, iNew, iOld, iOrb, iSym, nFound, nOF, nOrbi
+real*8, dimension(:), allocatable :: OvlT, OvlH, OvlS, EVec, EVal, NewB, Scratch
 
-      End subroutine OvlDel
+! Allocate memory for transformed overlap matrix
+call mma_allocate(OvlT,MaxOrF*(MaxOrF+1)/2,Label='OvlT')
+
+! Allocate memory for half-transformed overlap matrix
+call mma_allocate(OvlH,MaxBOF,Label='OvlH')
+
+! Allocate memory for squared overlap matrix
+call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
+
+! Allocate memory for eigenvectors of overlap
+call mma_allocate(EVec,MaxOrF**2,Label='EVec')
+
+! Allocate memory for eigenvalues of overlap
+call mma_allocate(EVal,MaxOrF,Label='EVal')
+
+! Allocate memory for 'basis' that diagonalizes overlap
+call mma_allocate(NewB,MaxBOF,Label='NewB')
+
+ij = 1
+iOld = 1
+iNew = 1
+do iSym=1,nSym
+
+  iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+  nOF = nOrb(iSym)-nFro(iSym)
+
+  ! Copy frozen vectors to the right position
+  if (nFro(iSym)*nBas(iSym) > 0) then
+    !write(6,'(a,i2)') 'Copying symmetry block',iSym
+    !write(6,'(i8,a,i8)') iOld,' ->',iNew
+    !write(6,'(a,i8)') 'nTrMat =',nTrMat
+    call dcopy_(nFro(iSym)*nBas(iSym),TrMat(iOld),1,TrMat(iNew),1)
+  !else
+  !  write(6,'(a,i2)') 'No copying of symmetry block',iSym
+  end if
+
+  iOld = iOld+nFro(iSym)*nBas(iSym)
+  iNew = iNew+nFro(iSym)*nBas(iSym)
+
+  if (nOF > 0) then
+
+    ! Square overlap and transform to basis given by TrMat
+    call Square(Ovlp(ij),OvlS,1,nBas(iSym),nBas(iSym))
+    call DGEMM_('N','N',nBas(iSym),nOF,nBas(iSym), &
+                One,OvlS,nBas(iSym), &
+                TrMat(iOld),nBas(iSym), &
+                Zero,OvlH,nBas(iSym))
+    call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym), &
+                   One,TrMat(iOld),nBas(iSym), &
+                   OvlH,nBas(iSym), &
+                   Zero,OvlT,nOF)
+
+    ! Diagonalize overlap and form eigenvalues vector
+    call mma_allocate(Scratch,nOF**2,Label='Scrtach')
+    Dummy = Zero
+    iDum = 0
+    call Diag_Driver('V','A','L',nOF,OvlT,Scratch,nOF,Dummy,Dummy,iDum,iDum,EVal,EVec,nOF,1,0,'J',nFound,iErr)
+    call mma_deallocate(Scratch)
+    !?? call dCopy_(nOF*(nOF+1)/2,Zero,0,OvlT,1)
+    !?? iDiag = 0
+    !?? do i=1,nOF
+    !??   OvlT(i+iDiag) = EVal(i)
+    !??   iDiag = iDiag+i
+    !?? end do
+
+    ! Transform to basis that diagonalizes overlap
+    call DGEMM_('N','N',nBas(iSym),nOF,nOF, &
+                One,TrMat(iOld),nBas(iSym), &
+                EVec,nOF, &
+                Zero,NewB,nBas(iSym))
+
+    ! Remove linear dependencies
+    nOrbi = nFro(iSym)
+    ind = 1
+    do iOrb=1,nOF
+      if (EVal(iOrb) > DelThr) then
+        if (EVal(iOrb) < 1.0d-5) MiniDn = .false.
+        call dcopy_(nBas(iSym),NewB(ind),1,TrMat(iNew),1)
+        iNew = iNew+nBas(iSym)
+        nOrbi = nOrbi+1
+      end if
+      ind = ind+nBas(iSym)
+    end do
+
+    iOld = iOld+nOF*nBas(iSym)
+    nDel(iSym) = nOrb(iSym)-nOrbi
+    nOrb(iSym) = nOrbi
+
+  end if
+
+  ij = ij+iiBT
+
+end do
+call Put_iArray('nDel',nDel,nSym)
+
+! Deallocate memory
+call mma_deallocate(NewB)
+call mma_deallocate(EVal)
+call mma_deallocate(EVec)
+call mma_deallocate(OvlS)
+call mma_deallocate(OvlH)
+call mma_deallocate(OvlT)
+
+end subroutine OvlDel

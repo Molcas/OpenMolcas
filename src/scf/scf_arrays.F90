@@ -10,14 +10,27 @@
 !                                                                      *
 ! Copyright (C) 2016, Roland Lindh                                     *
 !***********************************************************************
+!***********************************************************************
+!                                                                      *
 !     This module contains the most-important globally-allocated arrays*
 !     in the SCF program.                                              *
 !                                                                      *
 !***********************************************************************
-Module SCF_Arrays
-   Real*8, Dimension(:),     Allocatable:: HDiag, Ovrlp, OneHam, EDFT, KntE, Darwin, MssVlc
-   Real*8, Dimension(:,:),   Allocatable:: CMO, TrM, FockAO, OccNo, EOrb, CInter, CMO_ref
-   Real*8, Dimension(:,:,:), Allocatable:: TrDh, TrDP, TrDD
-   Real*8, Dimension(:,:),   Allocatable, Target:: FockMO
-   Real*8, Dimension(:,:,:), Allocatable, Target:: TwoHam, Vxc, Dens
-End Module SCF_Arrays
+
+module SCF_Arrays
+!   Dens    : density matrix - vector containing some (NumDT) last     *
+!             (optimized) density matrix differences - (nDT,nD,NumDT)  *
+!   TwoHam  : two-el. part of the Fock matrix - vector containing      *
+!             corresponding 2-el. contributions - (nDT,nD,NumDT)       *
+!   Vxc     : Vxc     part of the Fock matrix - vector containing      *
+!             corresponding 2-el. contributions - (nDT,nD,NumDT)       *
+!   CMO     : molecular orbitals of length nCMO                        *
+!   OccNo   : occupation numbers of length lthO                        *
+
+real*8, dimension(:), allocatable :: HDiag, Ovrlp, OneHam, EDFT, KntE, Darwin, MssVlc
+real*8, dimension(:,:), allocatable :: CMO, TrM, FockAO, OccNo, EOrb, CInter, CMO_ref
+real*8, dimension(:,:,:), allocatable :: TrDh, TrDP, TrDD
+real*8, dimension(:,:), allocatable, target :: FockMO
+real*8, dimension(:,:,:), allocatable, target :: TwoHam, Vxc, Dens
+
+end module SCF_Arrays

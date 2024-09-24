@@ -58,7 +58,7 @@ if (norb_act == 0) then
   nci_dim = iseg_sta(25)+iseg_dim(25)
   iseg_sta(26) = nci_dim
 else
-  !====================  norb_act<>0 ========================
+  !====================  norb_act/=0 ========================
   if (logic_mr) call gugadrt_rst(ndd,indd)
   if (logic_mrelcas) call gugadrt_rcas(ndd,indd) !npp=3
 

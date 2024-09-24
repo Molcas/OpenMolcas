@@ -29,10 +29,6 @@ if (release(1)) then
   call mma_deallocate(iafrm)
   call mma_deallocate(iato)
   call mma_deallocate(phato)
-  nullify(i1bet)
-  nullify(ibfrm)
-  nullify(ibto)
-  nullify(phbto)
   if (allocated(i1c)) call mma_deallocate(i1c)
   if (allocated(icfrm)) call mma_deallocate(icfrm)
   if (allocated(icto)) call mma_deallocate(icto)
@@ -49,6 +45,7 @@ if (release(1)) then
   call mma_deallocate(ixapr1)
   call mma_deallocate(ibpr1)
   call mma_deallocate(ixbpr1)
+  nullify(i1bet,ibfrm,ibto,phbto)
 end if
 release(1) = .true.
 release(2) = .false.

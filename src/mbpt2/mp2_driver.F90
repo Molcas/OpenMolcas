@@ -460,10 +460,7 @@ contains
 subroutine finalize()
   call MBPT2_Clean()
   if (DoT1amp) call mma_deallocate(T1amp)
-  if (DoCholesky) then
-    nullify(pEOcc)
-    nullify(pEVir)
-  end if
+  if (DoCholesky) nullify(pEOcc,pEVir)
   ireturn = 0
 end subroutine finalize
 

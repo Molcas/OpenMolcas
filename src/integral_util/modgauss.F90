@@ -141,7 +141,7 @@ pure function f(x,w)
 
   f = (One+w*x**2)*exp(-x**2)
 
-end function
+end function f
 
 pure function R(w)
 
@@ -152,6 +152,6 @@ pure function R(w)
 
   R = sqrt(Two*RMS**2*(Three*w+Two)/(Three*(Two+Five*w)))
 
-end function
+end function R
 
 end subroutine ModGauss

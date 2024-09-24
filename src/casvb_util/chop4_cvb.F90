@@ -24,14 +24,7 @@ integer(kind=iwp) :: iv
 
 if (release(4)) then
   call mma_deallocate(civbvecs)
-  nullify(civb1)
-  nullify(civb2)
-  nullify(civb3)
-  nullify(civb4)
-  nullify(civb5)
-  nullify(civb6)
-  nullify(civb7)
-  nullify(civb8)
+  nullify(civb1,civb2,civb3,civb4,civb5,civb6,civb7,civb8)
 end if
 release(4) = .true.
 release(5) = .false.

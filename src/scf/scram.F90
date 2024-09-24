@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2006, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine Scram(CMO,nSym,nBas,nOrb,ScrFac)
+
+subroutine Scram(CMO,nSym,nBas,nOrb,ScrFac)
 !***********************************************************************
 !                                                                      *
 ! This routine scrambles start orbitals in order to introduce symmetry *
@@ -23,62 +24,66 @@
 ! Written: September 2006                                              *
 !                                                                      *
 !***********************************************************************
-      use Constants, only: One, Two
-      Implicit None
+
+use Constants, only: One, Two
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Real*8  CMO(*)
-      Integer nSym
-      Integer nBas(nSym)
-      Integer nOrb(nSym)
-      Real*8  ScrFac
+real*8 CMO(*)
+integer nSym
+integer nBas(nSym)
+integer nOrb(nSym)
+real*8 ScrFac
 !----------------------------------------------------------------------*
 ! External references                                                  *
 !----------------------------------------------------------------------*
-      Real*8 Random_Molcas
-      External Random_Molcas
+real*8 Random_Molcas
+external Random_Molcas
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer iSeed
-      Save    iSeed
-      Integer iSym
-      Integer iOrb
-      Integer jOrb
-      Integer iBas
-      Integer iOff
-      Integer indx
-      Integer jndx
-      Real*8  p
-      Real*8  q
-      Real*8  u
-      Real*8  v
-      Data iSeed/13/
+integer iSeed
+save iSeed
+integer iSym
+integer iOrb
+integer jOrb
+integer iBas
+integer iOff
+integer indx
+integer jndx
+real*8 p
+real*8 q
+real*8 u
+real*8 v
+data iSeed/13/
+
 !----------------------------------------------------------------------*
 ! Do small rotations                                                   *
 !----------------------------------------------------------------------*
-      iOff=0
-      Do iSym=1,nSym
-!        Write(6,*) 'Scrambling irrep',iSym
-         Do iOrb=1,nOrb(iSym)-1
-            jOrb=iOrb+1
-            q=ScrFac*(Two*Random_Molcas(iSeed)-One)
-            p=Sqrt(One-q*q)
-!           Write(6,*) 'q=',q
-            Do iBas=1,nBas(iSym)
-               indx=iOff+(iOrb-1)*nBas(iSym)+iBas
-               jndx=iOff+(jOrb-1)*nBas(iSym)+iBas
-               u=p*CMO(indx)-q*CMO(jndx)
-               v=q*CMO(indx)+p*CMO(jndx)
-               CMO(indx)=u
-               CMO(jndx)=v
-            End Do
-         End Do
-         iOff=iOff+nBas(iSym)*nOrb(iSym)
-      End Do
+iOff = 0
+do iSym=1,nSym
+  !write(6,*) 'Scrambling irrep',iSym
+  do iOrb=1,nOrb(iSym)-1
+    jOrb = iOrb+1
+    q = ScrFac*(Two*Random_Molcas(iSeed)-One)
+    p = sqrt(One-q*q)
+    !write(6,*) 'q=',q
+    do iBas=1,nBas(iSym)
+      indx = iOff+(iOrb-1)*nBas(iSym)+iBas
+      jndx = iOff+(jOrb-1)*nBas(iSym)+iBas
+      u = p*CMO(indx)-q*CMO(jndx)
+      v = q*CMO(indx)+p*CMO(jndx)
+      CMO(indx) = u
+      CMO(jndx) = v
+    end do
+  end do
+  iOff = iOff+nBas(iSym)*nOrb(iSym)
+end do
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End Subroutine Scram
+return
+
+end subroutine Scram

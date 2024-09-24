@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Orb_Type
-Integer, Dimension(:,:), Allocatable:: OrbType
-End Module Orb_Type
+
+module Orb_Type
+
+integer, dimension(:,:), allocatable :: OrbType
+
+end module Orb_Type

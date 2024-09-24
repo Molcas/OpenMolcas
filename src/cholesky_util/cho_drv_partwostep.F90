@@ -518,8 +518,7 @@ subroutine Finish_this()
 
   if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
   if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-  nullify(Diag)
-  nullify(Diag_G)
+  nullify(Diag,Diag_G)
   call mma_deallocate(Check)
 
   ! Print total timing

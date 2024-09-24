@@ -13,117 +13,120 @@
 !               1992, Piotr Borowski                                   *
 !               2022, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine MODens()
+
+!#define _DEBUGPRINT_
+subroutine MODens()
 !***********************************************************************
 !                                                                      *
 !     purpose: Compute density matrix in molecular orbital basis       *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens, TimFld, MaxBXO, nBas, nOcc, nOrb, nD
+
+use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens, TimFld, MaxBXO, nBas, nOcc, nOrb, nD
 #ifdef _DEBUGPRINT_
-      Use InfSCF, only: nBO, nBT
+use InfSCF, only: nBO, nBT
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One
-      Use SCF_Arrays, only: Dens, CMO, Ovrlp
-      Implicit None
-!
-      Integer iD, jD, iT, iOvl, iSym, iiBO, iiBT, i, j
-      Real*8, Dimension(:), Allocatable:: DnsS, OvlS, DMoO, Aux1, Aux2
-      Real*8 CPU1, CPU2, Tim1, Tim2, Tim3
-!
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use SCF_Arrays, only: Dens, CMO, Ovrlp
+
+implicit none
+integer iD, jD, iT, iOvl, iSym, iiBO, iiBT, i, j
+real*8, dimension(:), allocatable :: DnsS, OvlS, DMoO, Aux1, Aux2
+real*8 CPU1, CPU2, Tim1, Tim2, Tim3
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-      Call Timing(Cpu1,Tim1,Tim2,Tim3)
-!
-!---- Allocate memory for squared density matrix
-      Call mma_allocate(DnsS,MaxBas**2,Label='DnsS')
-!
-!---- Allocate memory for squared overlap matrix
-      Call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
-!
-!---- Allocate memory for density matrix in MO basis
-      Call mma_allocate(DMoO,MaxOrb*(MaxOrb+1)/2,Label='DMoO')
-!
-!---- Allocate memory for auxiliary matrix
-      Call mma_allocate(Aux1,MaxBxO,Label='Aux1')
-!
-!---- Allocate memory for auxiliary matrix
-      Call mma_allocate(Aux2,MaxBxO,Label='Aux2')
-!
-!
-      DMOMax = Zero
-      Do jD = 1, nD
-!
+
+call Timing(Cpu1,Tim1,Tim2,Tim3)
+
+! Allocate memory for squared density matrix
+call mma_allocate(DnsS,MaxBas**2,Label='DnsS')
+
+! Allocate memory for squared overlap matrix
+call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
+
+! Allocate memory for density matrix in MO basis
+call mma_allocate(DMoO,MaxOrb*(MaxOrb+1)/2,Label='DMoO')
+
+! Allocate memory for auxiliary matrix
+call mma_allocate(Aux1,MaxBxO,Label='Aux1')
+
+! Allocate memory for auxiliary matrix
+call mma_allocate(Aux2,MaxBxO,Label='Aux2')
+
+DMOMax = Zero
+do jD=1,nD
+
+# ifdef _DEBUGPRINT_
+  call NrmClc(Dens(1,jD,nDens),nBT,'MoDens','D in AO   ')
+  call NrmClc(Ovrlp,nBT,'MoDens','Overlap   ')
+  call NrmClc(CMO(1,jD),nBO,'MoDens','CMOs      ')
+  write(6,*) 'nOcc=',(nOcc(i,jD),i=1,nSym)
+  !write(6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
+# endif
+  it = 1
+  id = 1
+  iOvl = 1
+  do iSym=1,nSym
+
+    iiBO = nBas(iSym)*nOrb(iSym)
+    iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+
+    if ((nOcc(iSym,jD) > 0) .or. (Teee .and. (nBas(iSym) > 0))) then
+      call DSq(Dens(id,jD,nDens),DnsS,1,nBas(iSym),nBas(iSym))
+      call Square(Ovrlp(iOvl),OvlS,1,nBas(iSym),nBas(iSym))
+
+      call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym), &
+                  One,OvlS,nBas(iSym), &
+                  CMO(it,jD),nBas(iSym), &
+                  Zero,Aux1,nBas(iSym))
+      call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym), &
+                  One,DnsS,nBas(iSym), &
+                  Aux1,nBas(iSym), &
+                  Zero,Aux2,nBas(iSym))
+      call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym), &
+                  One,OvlS,nBas(iSym), &
+                  Aux2,nBas(iSym), &
+                  Zero,Aux1,nBas(iSym))
+      call DGEMM_Tri('T','N',nOrb(iSym),nOrb(iSym),nBas(iSym), &
+                     One,CMO(it,jD),nBas(iSym), &
+                     Aux1,nBas(iSym), &
+                     Zero,DMoO,nOrb(iSym))
+
+      !call TriPrt('D(mo)','(8F12.6)',DMoO,nOrb(iSym))
+      do i=nOcc(iSym,jD)+1,nOrb(iSym)
+        do j=1,nOcc(iSym,jD)
+          DMOMax = max(DMOMax,dble(nD)*abs(DMoO(i*(i-1)/2+j)))
+        end do
+      end do
+    end if
+
+    it = it+iiBO
+    id = id+iiBT
+    iOvl = iOvl+iiBT
+  end do
+
+end do
+
+! Deallocate memory
+call mma_deallocate(Aux2)
+call mma_deallocate(Aux1)
+call mma_deallocate(DMoO)
+call mma_deallocate(OvlS)
+call mma_deallocate(DnsS)
+
 #ifdef _DEBUGPRINT_
-         Call NrmClc(Dens(1,jD,nDens),nBT,'MoDens','D in AO   ')
-         Call NrmClc(Ovrlp         ,nBT,'MoDens','Overlap   ')
-         Call NrmClc(CMO(1,jD)    ,nBO,'MoDens','CMOs      ')
-         Write (6,*) 'nOcc=',(nOcc(i,jD),i=1,nSym)
-!        Write (6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
+write(6,*) ' DMOMax in MODens',DMOMax
 #endif
-         it   = 1
-         id   = 1
-         iOvl = 1
-         Do iSym = 1, nSym
-!
-            iiBO = nBas(iSym)*nOrb(iSym)
-            iiBT = nBas(iSym)*(nBas(iSym) + 1)/2
-!
-            If (nOcc(iSym,jD)>0 .or. (Teee.and.nBas(iSym)>0)) Then
-               Call DSq(Dens(id,jD,nDens),DnsS,1,nBas(iSym),nBas(iSym))
-               Call Square(Ovrlp(iOvl),OvlS,1,nBas(iSym),nBas(iSym))
-!
-               Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym),      &
-                           One,OvlS,nBas(iSym),                           &
-                                 CMO(it,jD),nBas(iSym),                   &
-                           Zero,Aux1,nBas(iSym))
-               Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym),      &
-                           One,DnsS,nBas(iSym),                           &
-                                 Aux1,nBas(iSym),                         &
-                           Zero,Aux2,nBas(iSym))
-               Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym),      &
-                           One,OvlS,nBas(iSym),                           &
-                                 Aux2,nBas(iSym),                         &
-                           Zero,Aux1,nBas(iSym))
-               Call DGEMM_Tri('T','N',nOrb(iSym),nOrb(iSym),nBas(iSym),   &
-                              One,CMO(it,jD),nBas(iSym),                  &
-                                  Aux1,nBas(iSym),                        &
-                              Zero,DMoO,nOrb(iSym))
-!
-!              Call TriPrt('D(mo)','(8F12.6)',DMoO,nOrb(iSym))
-               Do i = nOcc(iSym,jD)+1 , nOrb(iSym)
-                  Do j = 1, nOcc(iSym,jD)
-                     DMOMax = Max(DMOMax,DBLE(nD)*Abs(DMoO(i*(i-1)/2+j)))
-                  End Do
-               End Do
-            End If
-!
-            it   = it   + iiBO
-            id   = id   + iiBT
-            iOvl = iOvl + iiBT
-         End Do
-!
-      End Do
-!
-!---- Deallocate memory
-      Call mma_deallocate(Aux2)
-      Call mma_deallocate(Aux1)
-      Call mma_deallocate(DMoO)
-      Call mma_deallocate(OvlS)
-      Call mma_deallocate(DnsS)
-!
-#ifdef _DEBUGPRINT_
-      Write(6,*)' DMOMax in MODens',DMOMax
-#endif
-      Call Timing(Cpu2,Tim1,Tim2,Tim3)
-      TimFld(14) = TimFld(14) + (Cpu2 - Cpu1)
-!
+call Timing(Cpu2,Tim1,Tim2,Tim3)
+TimFld(14) = TimFld(14)+(Cpu2-Cpu1)
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine MODens
+
+return
+
+end subroutine MODens

@@ -218,8 +218,7 @@ do iBatch=1,nBatch
 
   end if
 
-  nullify(V)
-  nullify(W)
+  nullify(V,W)
 
 end do
 

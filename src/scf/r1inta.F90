@@ -12,8 +12,9 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      Subroutine R1IntA()
+subroutine R1IntA()
 !***********************************************************************
 !     purpose: Read one-electron hamiltonian and overlap matrix        *
 !                                                                      *
@@ -22,127 +23,128 @@
 !     University of Lund, Sweden, 1992                                 *
 !                                                                      *
 !***********************************************************************
-      use SCF_Arrays, only: OneHam, Ovrlp
-      use OneDat, only: sNoNuc, sNoOri
+
+use SCF_Arrays, only: OneHam, Ovrlp
+use OneDat, only: sNoNuc, sNoOri
 #ifdef _FDE_
-      use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
+use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
-      use InfSCF, only: nBT, Tot_Nuc_Charge
+use InfSCF, only: nBT, Tot_Nuc_Charge
 #ifdef _DEBUGPRINT_
-      use InfSCF, only: nBas, nSym
+use InfSCF, only: nBas, nSym
 #endif
-      use stdalloc, only: mma_allocate
-      Implicit None
-!
-!---- Define local variables
-      Integer iComp, iOpt, iRC, iSyLbl
+use stdalloc, only: mma_allocate
+
+implicit none
+! Define local variables
+integer iComp, iOpt, iRC, iSyLbl
 #ifdef _DEBUGPRINT_
-      Integer ist1Hm, istOvl, iSym
+integer ist1Hm, istOvl, iSym
 #endif
-      Character(LEN=8) Label
+character(len=8) Label
 #ifdef _FDE_
-      Integer iDummyEmb, iEmb, iUnit
-      Integer, External:: isFreeUnit
+integer iDummyEmb, iEmb, iUnit
+integer, external :: isFreeUnit
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
+
 #ifdef _FDE_
-      ! Embedding
-      iDummyEmb=0
-      Call Get_iScalar('embpot', iDummyEmb)
-      if (iDummyEmb.eq.1) embPot=.true.
-      if (embPot) then
-         call mma_allocate(embInt,nBT,Label='Emb')
-         Call EmbPotRdRun()
-      end if
+! Embedding
+iDummyEmb = 0
+call Get_iScalar('embpot',iDummyEmb)
+if (iDummyEmb == 1) embPot = .true.
+if (embPot) then
+  call mma_allocate(embInt,nBT,Label='Emb')
+  call EmbPotRdRun()
+end if
 #endif
-!---- Allocate memory for one-electron integrals
-      Call mma_allocate(OneHam,nBT,Label='OneHam')
-      Call mma_allocate(Ovrlp,nBT+4,Label='Ovrlp')
-      Call FZero(OneHam,nBT)
-      Call FZero(Ovrlp,nBT+4)
-!
-!---- Read core Hamiltonian
-      iRc=-1
-      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
-      iComp=1
-      iSyLbl=1
-      Label='OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,OneHam,iSyLbl)
-      If (iRc.ne.0) Then
-         Write (6,*) 'R1Inta: Error readin ONEINT'
-         Write (6,'(A,A)') 'Label=',Label
-         Call Abend()
-      End If
+! Allocate memory for one-electron integrals
+call mma_allocate(OneHam,nBT,Label='OneHam')
+call mma_allocate(Ovrlp,nBT+4,Label='Ovrlp')
+call FZero(OneHam,nBT)
+call FZero(Ovrlp,nBT+4)
+
+! Read core Hamiltonian
+iRc = -1
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+iComp = 1
+iSyLbl = 1
+Label = 'OneHam  '
+call RdOne(iRc,iOpt,Label,iComp,OneHam,iSyLbl)
+if (iRc /= 0) then
+  write(6,*) 'R1Inta: Error readin ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
 #ifdef _FDE_
-      ! Embedding
-      if (embPot) then
-       if (embPotInBasis) then
-        ! If the potential is given in basis set representation it
-        ! has not been calculated with a OneEl call and is just read
-        ! from file here.
-        iunit = isFreeUnit(1)
-        call molcas_open(iunit, embPotPath)
-        do iEmb=1, nBT
-         read(iunit,*) embInt(iEmb)
-        end do
-        close(iunit)
-       else
-        ! Read one-electron integrals due to embedding potential
-        iRc=-1
-        Label='embpot  '
-        Call RdOne(iRc,iOpt,Label,iComp,embInt,iSyLbl)
-        If (iRc.ne.0) Then
-           Write (6,*) 'R1Inta: Error readin ONEINT'
-           Write (6,'(A,A)') 'Label=',Label
-           Call Abend()
-        End If
-       end if
-      end if
+! Embedding
+if (embPot) then
+  if (embPotInBasis) then
+    ! If the potential is given in basis set representation it
+    ! has not been calculated with a OneEl call and is just read
+    ! from file here.
+    iunit = isFreeUnit(1)
+    call molcas_open(iunit,embPotPath)
+    do iEmb=1,nBT
+      read(iunit,*) embInt(iEmb)
+    end do
+    close(iunit)
+  else
+    ! Read one-electron integrals due to embedding potential
+    iRc = -1
+    Label = 'embpot  '
+    call RdOne(iRc,iOpt,Label,iComp,embInt,iSyLbl)
+    if (iRc /= 0) then
+      write(6,*) 'R1Inta: Error readin ONEINT'
+      write(6,'(A,A)') 'Label=',Label
+      call Abend()
+    end if
+  end if
+end if
 #endif
 #ifdef _DEBUGPRINT_
-      ist1Hm=1
-      Write (6,*)
-      Write (6,*) ' One electron Hamiltonian at start'
-      Write (6,*) ' ---------------------------------'
-      Do iSym=1,nSym
-         Write (6,*) ' symmetry block',iSym
-         Call TriPrt(' ',' ',OneHam(ist1Hm),nBas(iSym))
-         ist1Hm=ist1Hm+nBas(iSym)*(nBas(iSym)+1)/2
-      End Do
+ist1Hm = 1
+write(6,*)
+write(6,*) ' One electron Hamiltonian at start'
+write(6,*) ' ---------------------------------'
+do iSym=1,nSym
+  write(6,*) ' symmetry block',iSym
+  call TriPrt(' ',' ',OneHam(ist1Hm),nBas(iSym))
+  ist1Hm = ist1Hm+nBas(iSym)*(nBas(iSym)+1)/2
+end do
 #endif
-!
-!---- Read overlap integrals and total effective nuclear charge
-      iRc=-1
-      iOpt=ibset(0,sNoOri)
-      iComp=1
-      iSyLbl=1
-      Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,Ovrlp,iSyLbl)
-      If (iRc.ne.0) Then
-         Write (6,*) 'R1Inta: Error readin ONEINT'
-         Write (6,'(A,A)') 'Label=',Label
-         Call Abend()
-      End If
-      Tot_Nuc_Charge=Ovrlp(nBT+4)
+
+! Read overlap integrals and total effective nuclear charge
+iRc = -1
+iOpt = ibset(0,sNoOri)
+iComp = 1
+iSyLbl = 1
+Label = 'Mltpl  0'
+call RdOne(iRc,iOpt,Label,iComp,Ovrlp,iSyLbl)
+if (iRc /= 0) then
+  write(6,*) 'R1Inta: Error readin ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
+Tot_Nuc_Charge = Ovrlp(nBT+4)
 #ifdef _DEBUGPRINT_
-      istOvl=1
-      Write (6,*)
-      Write (6,*) ' Overlap matrix at start'
-      Write (6,*) ' -----------------------'
-      Do iSym=1,nSym
-         Write (6,*) ' symmetry block',iSym
-         Call TriPrt(' ',' ',Ovrlp(istOvl),nBas(iSym))
-         istOvl=istOvl+nBas(iSym)*(nBAs(iSym)+1)/2
-      End Do
+istOvl = 1
+write(6,*)
+write(6,*) ' Overlap matrix at start'
+write(6,*) ' -----------------------'
+do iSym=1,nSym
+  write(6,*) ' symmetry block',iSym
+  call TriPrt(' ',' ',Ovrlp(istOvl),nBas(iSym))
+  istOvl = istOvl+nBas(iSym)*(nBAs(iSym)+1)/2
+end do
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End Subroutine R1IntA
+return
+
+end subroutine R1IntA

@@ -8,30 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Init_SCF()
-      use SCF_Arrays, only: Dens, TwoHam, Vxc
-      use InfSCF, only: MapDns, Two_Thresholds
-      use RICD_Info, only: Do_DCCD
-      use Constants, only: Zero
-      Implicit None
-      Integer i, nActEl
-!
-!---- Clear Dens and TwoHam matrices
-      Dens  (:,:,:)=Zero
-      TwoHam(:,:,:)=Zero
-      Vxc   (:,:,:)=Zero
-!
-!---- Set number of active shells on the RUNFILE to zero
-!
-      Call Peek_iScalar('nSym',i)
-      nActEl = 0
-      Call Put_iScalar('nActel',nActEl)
-!
-      Call IniLLs()
-!     clear MapDns ...
-      MapDns(:)=0
-!
-      Two_Thresholds=.NOT.Do_DCCD
-!
-      Return
-      End Subroutine Init_SCF
+
+subroutine Init_SCF()
+
+use SCF_Arrays, only: Dens, TwoHam, Vxc
+use InfSCF, only: MapDns, Two_Thresholds
+use RICD_Info, only: Do_DCCD
+use Constants, only: Zero
+
+implicit none
+integer i, nActEl
+
+! Clear Dens and TwoHam matrices
+Dens(:,:,:) = Zero
+TwoHam(:,:,:) = Zero
+Vxc(:,:,:) = Zero
+
+! Set number of active shells on the RUNFILE to zero
+
+call Peek_iScalar('nSym',i)
+nActEl = 0
+call Put_iScalar('nActel',nActEl)
+
+call IniLLs()
+! clear MapDns ...
+MapDns(:) = 0
+
+Two_Thresholds = .not. Do_DCCD
+
+return
+
+end subroutine Init_SCF

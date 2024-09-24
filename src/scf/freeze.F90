@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine Freeze(TrMat,nTrMat,OneHam,mBT)
+
+subroutine Freeze(TrMat,nTrMat,OneHam,mBT)
 !***********************************************************************
 !                                                                      *
 !     purpose: Modify transformation matrix such atomic orbitals we    *
@@ -30,73 +31,73 @@
 !     University of Lund, Sweden, 1992                                 *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nSym, nBas, nFro, nOrb, nBT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
+
+use InfSCF, only: nSym, nBas, nFro, nOrb, nBT
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
 #include "Molcas.fh"
-      Integer nTrMat, mBT
-      Real*8 TrMat(nTrMat), OneHam(mBT)
-!
-!---- Define local variables
-      Integer iStart, iSym, nOr, iFro, iStrt, iSta, iBas, i, j, k, iSwap, iCMO, Ind1, Ind2
-      Real*8 OEMin
-      Real*8, Dimension(:), Allocatable:: Temp
-      Integer MapBas(MxBas,MxSym)
-!
+integer nTrMat, mBT
+real*8 TrMat(nTrMat), OneHam(mBT)
+! Define local variables
+integer iStart, iSym, nOr, iFro, iStrt, iSta, iBas, i, j, k, iSwap, iCMO, Ind1, Ind2
+real*8 OEMin
+real*8, dimension(:), allocatable :: Temp
+integer MapBas(MxBas,MxSym)
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-!---- Allocate temporary spaces
-      Call mma_allocate(Temp,nBT,Label='Temp')
-!
-      call dcopy_(nBT,OneHam,1,Temp,1)
-!
-!---- Form an array saying which atomic orbitals are frozen
-      iStart = 0
-      Do iSym = 1, nSym
-         nOr = nOrb(iSym)
-         Do iFro = 1, nFro(iSym)
-            OEMin = 1.0d+06
-            iStrt = iStart
-            iSta=0
-            Do iBas = 1, nOr
-               iStrt = iStrt + iBas
-               If (Temp(iStrt).lt.OEMin) Then
-                  MapBas(iFro,iSym)=iBas
-                  OEMin = Temp(iStrt)
-                  iSta = iStrt
-               End If
-            End Do
-            If (iSta.ne.0) Temp(iSta) = -Temp(iSta)
-         End Do
-         iStart = iStart + nOr*(nOr + 1)/2
-         Do i = 1, nFro(iSym) - 1
-            k = i
-            Do j = i + 1, nFro(iSym)
-               If (MapBas(j,iSym).lt.MapBas(k,iSym)) k = j
-            End Do
-            If (k.ne.i) Then
-               iSwap          = MapBas(k,iSym)
-               MapBas(k,iSym) = MapBas(i,iSym)
-               MapBas(i,iSym) = iSwap
-            End If
-         End Do
-      End Do
-!
-!---- Move frozen atomic orbitals to the first positions
-      iCMO = 1
-      Do iSym = 1, nSym
-         Do iFro = 1, nFro(iSym)
-            ind1 = iCMO + (iFro              - 1)*nBas(iSym)
-            ind2 = iCMO + (MapBas(iFro,iSym) - 1)*nBas(iSym)
-            Call DSwap_(nBas(iSym),TrMat(ind1),1,TrMat(ind2),1)
-         End Do
-         iCMO = iCMO + nBas(iSym)*nOrb(iSym)
-      End Do
-!
-!---- Deallocate memory
-      Call mma_deallocate(Temp)
-!
-      End SubRoutine Freeze
+
+! Allocate temporary spaces
+call mma_allocate(Temp,nBT,Label='Temp')
+
+call dcopy_(nBT,OneHam,1,Temp,1)
+
+! Form an array saying which atomic orbitals are frozen
+iStart = 0
+do iSym=1,nSym
+  nOr = nOrb(iSym)
+  do iFro=1,nFro(iSym)
+    OEMin = 1.0d+06
+    iStrt = iStart
+    iSta = 0
+    do iBas=1,nOr
+      iStrt = iStrt+iBas
+      if (Temp(iStrt) < OEMin) then
+        MapBas(iFro,iSym) = iBas
+        OEMin = Temp(iStrt)
+        iSta = iStrt
+      end if
+    end do
+    if (iSta /= 0) Temp(iSta) = -Temp(iSta)
+  end do
+  iStart = iStart+nOr*(nOr+1)/2
+  do i=1,nFro(iSym)-1
+    k = i
+    do j=i+1,nFro(iSym)
+      if (MapBas(j,iSym) < MapBas(k,iSym)) k = j
+    end do
+    if (k /= i) then
+      iSwap = MapBas(k,iSym)
+      MapBas(k,iSym) = MapBas(i,iSym)
+      MapBas(i,iSym) = iSwap
+    end if
+  end do
+end do
+
+! Move frozen atomic orbitals to the first positions
+iCMO = 1
+do iSym=1,nSym
+  do iFro=1,nFro(iSym)
+    ind1 = iCMO+(iFro-1)*nBas(iSym)
+    ind2 = iCMO+(MapBas(iFro,iSym)-1)*nBas(iSym)
+    call DSwap_(nBas(iSym),TrMat(ind1),1,TrMat(ind2),1)
+  end do
+  iCMO = iCMO+nBas(iSym)*nOrb(iSym)
+end do
+
+! Deallocate memory
+call mma_deallocate(Temp)
+
+end subroutine Freeze

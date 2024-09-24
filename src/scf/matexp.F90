@@ -37,14 +37,11 @@ use Definitions, only: wp, iwp
 implicit none
 
 integer(kind=iwp), intent(in) :: N, No
-real(kind=wp), intent(inout)  :: U(N,N)
-
-integer(kind=iwp)  :: Nv
-integer(kind=iwp)  :: count, i
-
+real(kind=wp), intent(inout) :: U(N,N)
+integer(kind=iwp) :: Nv
+integer(kind=iwp) :: count, i
 real(kind=wp), parameter :: thrsh = 1.0D-20
 real(kind=wp) :: ithrsh, ithrshoo, ithrshvv, ithrshvo, factor
-
 real(kind=wp), allocatable :: Uoo(:,:), xUoo(:,:), Koo(:,:)
 real(kind=wp), allocatable :: Uvv(:,:), xUvv(:,:), Kvv(:,:)
 real(kind=wp), allocatable :: Uvo(:,:), xUvo(:,:), Kvo(:,:)
@@ -73,7 +70,7 @@ theta(:,:) = U(No+1:N,:No)
 
 U(:,:) = Zero
 
-count  = 1
+count = 1
 factor = One
 
 ithrsh = 2.0E-16_wp
@@ -109,22 +106,22 @@ Uvo(:,:) = theta
 do while (thrsh < ithrsh)
   count = count+1
 
-  if (mod(count,2)==0) then
+  if (mod(count,2) == 0) then
     call dgemm_('T','N',No,No,Nv,One,-theta,Nv,Kvo,Nv,Zero,Koo,No)
     call dgemm_('N','T',Nv,Nv,No,One,Kvo,Nv,-theta,Nv,Zero,Kvv,Nv)
     factor = factor*count
-    Uoo(:,:) = Uoo + Koo/factor
-    Uvv(:,:) = Uvv + Kvv/factor
+    Uoo(:,:) = Uoo+Koo/factor
+    Uvv(:,:) = Uvv+Kvv/factor
 
   else
     call dgemm_('N','N',Nv,No,No,One,theta,Nv,Koo,No,Zero,Kvo,Nv)
     factor = factor*count
-    Uvo(:,:) = Uvo + Kvo/factor
+    Uvo(:,:) = Uvo+Kvo/factor
 
     ithrshoo = maxval(abs(Uoo-xUoo)/(abs(Uoo)+thrsh))
     ithrshvv = maxval(abs(Uvv-xUvv)/(abs(Uvv)+thrsh))
     ithrshvo = maxval(abs(Uvo-xUvo)/(abs(Uvo)+thrsh))
-    ithrsh   = max(ithrshoo, ithrshvv, ithrshvo)
+    ithrsh = max(ithrshoo,ithrshvv,ithrshvo)
 
     xUoo(:,:) = Uoo
     xUvv(:,:) = Uvv
@@ -135,9 +132,9 @@ end do
 
 Uov(:,:) = -transpose(Uvo)
 
-U(:No,:No)       = Uoo
-U(No+1:N,:No)    = Uvo
-U(:No,No+1:N)    = Uov
+U(:No,:No) = Uoo
+U(No+1:N,:No) = Uvo
+U(:No,No+1:N) = Uov
 U(No+1:N,No+1:N) = Uvv
 
 call mma_deallocate(Koo)

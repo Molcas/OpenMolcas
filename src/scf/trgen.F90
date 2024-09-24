@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine TrGen(TrMat,nTrMat,Ovrlp,OneHam,mBT)
+
+subroutine TrGen(TrMat,nTrMat,Ovrlp,OneHam,mBT)
 !***********************************************************************
 !                                                                      *
 !     purpose: Generate transformation matrix from AO's in which       *
@@ -27,43 +28,42 @@
 !       TrMat   : Transformation matrix of length nTrMat               *
 !                                                                      *
 !***********************************************************************
-!
-      use InfSCF, only: DelThr, nBO, nBT, nnFr, nSym, nBas
-      use Constants, only: Zero, One
-      Implicit None
-!
-      Integer nTrMat, mBT
-      Real*8 TrMat(nTrMat),Ovrlp(mBT),OneHam(mBT)
 
-      Integer i, j, iSym, ind
-!
-      ind=0
-      Do iSym = 1, nSym
-         Do i = 1, nBas(iSym)
-            Do j = 1, nBas(iSym)
-               ind = ind + 1
-               TrMat(ind) = Zero
-               If (I.eq.J) TrMat(ind) = One
-            End Do
-         End Do
-      End Do
-!
-!---- Set up certain parameters (nOrb(i) may be changed)
-      Call SetUp_SCF()
-!
-!---- Move frozen atomic orbitals to the begining
-      If (nnFr.gt.0) Then
-         Call Freeze(TrMat,nBO,OneHam,mBT)
-         Call SetUp_SCF()
-      End If
-!
-!---- Remove near linear dependencies from basis set
-      If (DelThr.ne.Zero) Then
-         Call OvlDel(Ovrlp,nBT,TrMat,nBO)
-         Call SetUp_SCF()
-      End If
-!
-!---- Orthogonalize final orbitals
-      Call Ortho(TrMat,nBO,Ovrlp,nBT)
-!
-      End subroutine TrGen
+use InfSCF, only: DelThr, nBO, nBT, nnFr, nSym, nBas
+use Constants, only: Zero, One
+
+implicit none
+integer nTrMat, mBT
+real*8 TrMat(nTrMat), Ovrlp(mBT), OneHam(mBT)
+integer i, j, iSym, ind
+
+ind = 0
+do iSym=1,nSym
+  do i=1,nBas(iSym)
+    do j=1,nBas(iSym)
+      ind = ind+1
+      TrMat(ind) = Zero
+      if (I == J) TrMat(ind) = One
+    end do
+  end do
+end do
+
+! Set up certain parameters (nOrb(i) may be changed)
+call SetUp_SCF()
+
+! Move frozen atomic orbitals to the begining
+if (nnFr > 0) then
+  call Freeze(TrMat,nBO,OneHam,mBT)
+  call SetUp_SCF()
+end if
+
+! Remove near linear dependencies from basis set
+if (DelThr /= Zero) then
+  call OvlDel(Ovrlp,nBT,TrMat,nBO)
+  call SetUp_SCF()
+end if
+
+! Orthogonalize final orbitals
+call Ortho(TrMat,nBO,Ovrlp,nBT)
+
+end subroutine TrGen

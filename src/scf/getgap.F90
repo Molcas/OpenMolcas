@@ -10,63 +10,68 @@
 !                                                                      *
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
-      Subroutine GetGap(Eorb,nData,nAufb,Gap,Efermi)
-      use Constants, only: Half
+
+subroutine GetGap(Eorb,nData,nAufb,Gap,Efermi)
 !***********************************************************************
 !                                                                      *
 ! This routine figure out the homo lumo gap.                           *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+use Constants, only: Half
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Integer nData
-      Integer nAufb
-      Real*8  Eorb(nData)
-      Real*8  Gap
-      Real*8  Efermi
+integer nData
+integer nAufb
+real*8 Eorb(nData)
+real*8 Gap
+real*8 Efermi
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer i,j,k
-      Real*8  tmp
+integer i, j, k
+real*8 tmp
+
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Sort array                                                           *
 !----------------------------------------------------------------------*
-!     Write(6,*) 'Unsorted orbitals energies'
-!     Write(6,'(10F12.6)') Eorb
-      Do i=1,nData-1
-         k=i
-         Do j=i+1,nData
-            If(Eorb(j).lt.Eorb(k)) k=j
-         End Do
-         tmp=Eorb(k)
-         Eorb(k)=Eorb(i)
-         Eorb(i)=tmp
-      End Do
-!     Write(6,*) 'Sorted orbitals energies'
-!     Write(6,'(10F12.6)') Eorb
+!write(6,*) 'Unsorted orbitals energies'
+!write(6,'(10F12.6)') Eorb
+do i=1,nData-1
+  k = i
+  do j=i+1,nData
+    if (Eorb(j) < Eorb(k)) k = j
+  end do
+  tmp = Eorb(k)
+  Eorb(k) = Eorb(i)
+  Eorb(i) = tmp
+end do
+!Write(6,*) 'Sorted orbitals energies'
+!Write(6,'(10F12.6)') Eorb
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      If(nAufb.le.0) Then
-         Gap=1.0d3
-         Efermi=Eorb(1)
-      Else If(nAufb.ge.nData) Then
-         Gap=1.0d3
-         Efermi=Eorb(nData)+1.0d-3
-      Else
-         Gap=Eorb(nAufb+1)-Eorb(nAufb)
-         Efermi=half*(Eorb(nAufb+1)+Eorb(nAufb))
-      End If
-!     Write(6,*) 'Gap:',Gap
-!     Write(6,*) 'Efermi:',Efermi
+if (nAufb <= 0) then
+  Gap = 1.0d3
+  Efermi = Eorb(1)
+else if (nAufb >= nData) then
+  Gap = 1.0d3
+  Efermi = Eorb(nData)+1.0d-3
+else
+  Gap = Eorb(nAufb+1)-Eorb(nAufb)
+  Efermi = half*(Eorb(nAufb+1)+Eorb(nAufb))
+end if
+!write(6,*) 'Gap:',Gap
+!write(6,*) 'Efermi:',Efermi
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine GetGap

@@ -11,8 +11,9 @@
 ! Copyright (C) 1994, Martin Schuetz                                   *
 !               2017, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine RotMOs(Delta,nDelta)
+subroutine RotMOs(Delta,nDelta)
 !***********************************************************************
 !                                                                      *
 !     purpose: rotates MOs according to last displacement vector       *
@@ -30,95 +31,94 @@
 !                                                                      *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb, TimFld, nD
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use SCF_Arrays, only: CMO
-      use Constants, only: Zero, One
-      Implicit None
-!
-      Integer nDelta
-      Real*8  Delta(nDelta)
-!
-!---- Define local variables
-      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt, nSize, nOfNBA, iEnd, iD, iSt
-!#define _DEBUGPRINT_
+
+use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb, TimFld, nD
+use stdalloc, only: mma_allocate, mma_deallocate
+use SCF_Arrays, only: CMO
+use Constants, only: Zero, One
+
+implicit none
+integer nDelta
+real*8 Delta(nDelta)
+! Define local variables
+integer iSym, iSyBlpt, nOF, nVrt, nOccmF, iCMOpt, nSize, nOfNBA, iEnd, iD, iSt
 #ifdef _DEBUGPRINT_
-      Integer nCMO
+integer nCMO
 #endif
-      Real*8, Dimension(:), Allocatable:: RoM, Scratch
-      Real*8 Cpu1,CPU2,Tim1,Tim2,Tim3, WhatEver
-!
-      Call Timing(Cpu1,Tim1,Tim2,Tim3)
-!
-      Call mma_allocate(RoM,nOFS,Label='RoM')
-      nSize=0
-      Do iSym=1,nSym
-         nOF=nOrb(iSym)-nFro(iSym)
-         nOFnBa=nOF*nBas(iSym)
-         nSize=Max(nSize,nOFnBa)
-      End Do
-      Call mma_allocate(Scratch,nSize,Label='Scratch')
-!
-      iEnd = 0
-      Do iD = 1, nD
-         iSt = iEnd + 1
-         iEnd = iEnd + kOV(iD)
-!        compute rotation matrix via expkap
-         Call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOcc(1,iD))
-         iSyBlpt=1
-         iCMOpt=1
-!
-!        loop over all symmetry blocks
-!
-         Do iSym=1,nSym
-!
-            nOF=nOrb(iSym)-nFro(iSym)
-            nVrt=nOrb(iSym)-nOcc(iSym,iD)
-            nOccmF=nOcc(iSym,iD)-nFro(iSym)
-            nOFnBa=nOF*nBas(iSym)
-            iCMOpt=iCMOpt+nBas(iSym)*nFro(iSym)
-!
-            If ((nVrt.gt.0).AND.(nOccmF.gt.0)) Then
-!              skip, if no orbitals within this irrep
-               call dcopy_(nOFnBa,CMO(iCMOpt,iD),1,Scratch,1)
-               Call DGEMM_('N','N',nBas(iSym),nOF,nOF,       &
-                           One,Scratch,nBas(iSym),           &
-                                 RoM(iSyBlpt),nOF,           &
-                           Zero,CMO(iCMOpt,iD),nBas(iSym))
+real*8, dimension(:), allocatable :: RoM, Scratch
+real*8 Cpu1, CPU2, Tim1, Tim2, Tim3, WhatEver
+
+call Timing(Cpu1,Tim1,Tim2,Tim3)
+
+call mma_allocate(RoM,nOFS,Label='RoM')
+nSize = 0
+do iSym=1,nSym
+  nOF = nOrb(iSym)-nFro(iSym)
+  nOFnBa = nOF*nBas(iSym)
+  nSize = max(nSize,nOFnBa)
+end do
+call mma_allocate(Scratch,nSize,Label='Scratch')
+
+iEnd = 0
+do iD=1,nD
+  iSt = iEnd+1
+  iEnd = iEnd+kOV(iD)
+  ! compute rotation matrix via expkap
+  call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOcc(1,iD))
+  iSyBlpt = 1
+  iCMOpt = 1
+
+  ! loop over all symmetry blocks
+
+  do iSym=1,nSym
+
+    nOF = nOrb(iSym)-nFro(iSym)
+    nVrt = nOrb(iSym)-nOcc(iSym,iD)
+    nOccmF = nOcc(iSym,iD)-nFro(iSym)
+    nOFnBa = nOF*nBas(iSym)
+    iCMOpt = iCMOpt+nBas(iSym)*nFro(iSym)
+
+    if ((nVrt > 0) .and. (nOccmF > 0)) then
+      ! skip, if no orbitals within this irrep
+      call dcopy_(nOFnBa,CMO(iCMOpt,iD),1,Scratch,1)
+      call DGEMM_('N','N',nBas(iSym),nOF,nOF, &
+                  One,Scratch,nBas(iSym), &
+                  RoM(iSyBlpt),nOF, &
+                  Zero,CMO(iCMOpt,iD),nBas(iSym))
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Scratch,nBas(iSym)*nOrb(iSym),'RotMOs','Old CMOs')
+      call NrmClc(CMo(iCMOpt,iD),nBas(iSym)*nOrb(iSym),'RotMOs','New CMOs')
+      call RecPrt('RoM',' ',RoM(iSyBlpt),nOF,nOF)
+      !call RecPrt('RotMOs: Old CMOs',' ',Scratch,nBas(iSym),nOrb(iSym))
+      !call RecPrt('RotMOs: New CMOs',' ',CMO(iCMOpt,iD),nBas(iSym),nOrb(iSym))
+#     endif
+      iSyBlpt = iSyBlpt+nOF*nOF
+    end if
+    iCMOpt = iCMOpt+nOF*nBas(iSym)
+  end do
+
+  ! Check orthogonality
+
+  call ChkOrt(iD,Whatever)
+
+end do ! iD
+
+call mma_deallocate(Scratch)
+call mma_deallocate(RoM)
+
 #ifdef _DEBUGPRINT_
-               Call NrmClc(Scratch,nBas(iSym)*nOrb(iSym),'RotMOs','Old CMOs')
-               Call NrmClc(CMo(iCMOpt,iD),nBas(iSym)*nOrb(iSym),'RotMOs','New CMOs')
-               Call RecPrt('RoM',' ',RoM(iSyBlpt),nOF,nOF)
-!              Call RecPrt('RotMOs: Old CMOs',' ',Scratch,nBas(iSym),nOrb(iSym))
-!              Call RecPrt('RotMOs: New CMOs',' ',CMO(iCMOpt,iD),nBas(iSym),nOrb(iSym))
+nCMO = size(CMO,1)
+call NrmClc(Delta,nDelta,'RotMos','Delta')
+call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
+call RecPrt('RotMOs: Delta',' ',Delta,1,nDelta)
+call RecPrt('RotMOs: CMO',' ',CMO,nCMO,nD)
 #endif
-               iSyBlpt=iSyBlpt+nOF*nOF
-            End If
-            iCMOpt=iCMOpt+nOF*nBas(iSym)
-         End Do
-!
-!----    Check orthogonality
-!
-         Call ChkOrt(iD,Whatever)
-!
-      End Do ! iD
-!
-      Call mma_deallocate(Scratch)
-      Call mma_deallocate(RoM)
-!
-#ifdef _DEBUGPRINT_
-      nCMO = Size(CMO,1)
-      Call NrmClc(Delta,nDelta,'RotMos','Delta')
-      Call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
-      Call RecPrt('RotMOs: Delta',' ',Delta,1,nDelta)
-      Call RecPrt('RotMOs: CMO',' ',CMO,nCMO,nD)
-#endif
-      Call Timing(Cpu2,Tim1,Tim2,Tim3)
-      TimFld( 9) = TimFld( 9) + (Cpu2 - Cpu1)
-!
+call Timing(Cpu2,Tim1,Tim2,Tim3)
+TimFld(9) = TimFld(9)+(Cpu2-Cpu1)
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End SubRoutine RotMOs
+return
+
+end subroutine RotMOs

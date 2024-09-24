@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module DCSCF
-Real*8 Erest_xc
-Real*8 s2CNO
-End Module DCSCF
+
+module DCSCF
+
+real*8 Erest_xc
+real*8 s2CNO
+
+end module DCSCF

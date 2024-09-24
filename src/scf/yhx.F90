@@ -10,8 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      SubRoutine yHx(X,Y,nXY)
+subroutine yHx(X,Y,nXY)
 !***********************************************************************
 !                                                                      *
 !     purpose: multiply an approximation of the orbital Hessian times  *
@@ -20,101 +21,100 @@
 !     Y = H(approximate) x  X                                          *
 !                                                                      *
 !***********************************************************************
-      use Orb_Type, only: OrbType
-      use InfSCF, only: nSym, nFro, nOrb, nOcc
-      use SCF_Arrays, only: FockMO
-      use Constants, only: Zero, Four
-      Implicit None
-      Integer nXY
-      Real*8, Target:: X(nXY), Y(nXY)
-!
-!     declaration local variables
-      Integer nD, iD
-      Integer iSym,iOcc,iVir,nOccmF,nOrbmF, iOff_F
-      Integer jOcc, jVir, iOff_XY
-      Real*8 Tmp, Hij
-      Real*8, Parameter:: Hii_Min=0.05D0
-      Real*8, Parameter:: Hii_Max=1.00D0
-      Real*8, Pointer:: Fock(:,:), XP(:,:), YP(:,:)
-!
+
+use Orb_Type, only: OrbType
+use InfSCF, only: nSym, nFro, nOrb, nOcc
+use SCF_Arrays, only: FockMO
+use Constants, only: Zero, Four
+
+implicit none
+integer nXY
+real*8, target :: X(nXY), Y(nXY)
+! declaration local variables
+integer nD, iD
+integer iSym, iOcc, iVir, nOccmF, nOrbmF, iOff_F
+integer jOcc, jVir, iOff_XY
+real*8 Tmp, Hij
+real*8, parameter :: Hii_Min = 0.05d0
+real*8, parameter :: Hii_Max = 1.00d0
+real*8, pointer :: Fock(:,:), XP(:,:), YP(:,:)
+
 !----------------------------------------------------------------------*
-!
-!     Write (6,*)
-!     Call NrmClc(FockMO,SIZE(FockMO),'yHx','FockMO(:,:)')
-!     Call NrmClc(X,SIZE(X),'yHx','X(:)')
-!     Call RecPrt('yHx: FockMO',' ',FockMO,Size(FockMO,1),Size(FockMO,2))
-!     Call RecPrt('yHx: X',' ',X,1,Size(X))
 
-!
-      nD = Size(FockMO,2)
-      iOff_XY = 0
-      Do iD = 1, nD
-!
-         iOff_F=0
-         Do iSym=1,nSym
-!
-!            loop over all occ orbitals in sym block
-!
-             ! number of Occupied, excluding frozen
-             nOccmF=nOcc(iSym,iD)-nFro(iSym)
-             ! number of Orbitals, excluding frozen
-             nOrbmF=nOrb(iSym)-nFro(iSym)
+!write(6,*)
+!call NrmClc(FockMO,SIZE(FockMO),'yHx','FockMO(:,:)')
+!call NrmClc(X,SIZE(X),'yHx','X(:)')
+!call RecPrt('yHx: FockMO',' ',FockMO,Size(FockMO,1),Size(FockMO,2))
+!call RecPrt('yHx: X',' ',X,1,Size(X))
 
-             Fock(1:nOrb(iSym),1:nOrb(iSym)) => FockMO(iOff_F+1:iOff_F+nOrb(iSym)**2,iD)
-             XP(nOccmF+1:nOrbmF,1:nOccmF) => X(iOff_XY+1:iOff_XY+nOccmF*(nOrbmF-nOccmF))
-             YP(nOccmF+1:nOrbmF,1:nOccmF) => Y(iOff_XY+1:iOff_XY+nOccmF*(nOrbmF-nOccmF))
-!
-             Do iOcc= 1, nOccmF
-                Do iVir=nOccmF+1,nOrbmF
-!
-                   Tmp = Zero
-                   Do jOcc = 1, nOccmF
-                      Do jVir=nOccmF+1,nOrbmF
+nD = size(FockMO,2)
+iOff_XY = 0
+do iD=1,nD
 
-                         Hij = Zero
-                         If (OrbType(iVir,iD).eq.OrbType(iOcc,iD) .and.   &
-                             OrbType(jVir,iD).eq.OrbType(jOcc,iD) .and.   &
-                             OrbType(iVir,iD).eq.OrbType(jOcc,iD)) Then
+  iOff_F = 0
+  do iSym=1,nSym
 
-                         If (iVir==jVir .and. iOcc==jOcc) Then
-                            Hij = ( Four * (Fock(iVir,jVir)-Fock(iOcc,jOcc)) / DBLE(nD) )
+    ! loop over all occ orbitals in sym block
 
-                            If (Hij<Zero) Then
-!                              Write (6,*) 'Hii<0.0, Hii=',Hij
-                               Hij=Max(Hii_Max,Abs(Hij))
-                            Else If (Abs(Hij)<Hii_Min) Then
-!                              Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
-!                              Write (6,*) 'jVir,jOcc=',jVir,jOcc
-!                              Write (6,*) 'Fock(jOcc,jOcc)=', Fock(jOcc,jOcc)
-!                              Write (6,*) 'Fock(jVir,jVir)=', Fock(jVir,jVir)
-                               Hij=Hii_Min
-                            End If
+    ! number of Occupied, excluding frozen
+    nOccmF = nOcc(iSym,iD)-nFro(iSym)
+    ! number of Orbitals, excluding frozen
+    nOrbmF = nOrb(iSym)-nFro(iSym)
 
-                         Else If (iVir==jVir .and. iOcc/=jOcc) Then
-                            Hij = ( Four * (               -Fock(iOcc,jOcc)) / DBLE(nD) )
-                         Else If (iOcc==jOcc .and. iVir/=jVir) Then
-                            Hij = ( Four * (Fock(iVir,jVir)                ) / DBLE(nD) )
-                         End If
-                         Tmp = Tmp + Hij * XP(jVir,jOcc)
+    Fock(1:nOrb(iSym),1:nOrb(iSym)) => FockMO(iOff_F+1:iOff_F+nOrb(iSym)**2,iD)
+    XP(nOccmF+1:nOrbmF,1:nOccmF) => X(iOff_XY+1:iOff_XY+nOccmF*(nOrbmF-nOccmF))
+    YP(nOccmF+1:nOrbmF,1:nOccmF) => Y(iOff_XY+1:iOff_XY+nOccmF*(nOrbmF-nOccmF))
 
-                         End If
+    do iOcc=1,nOccmF
+      do iVir=nOccmF+1,nOrbmF
 
-                      End Do  ! jVir
-                   End Do     ! jOcc
-                   YP(iVir,iOcc) = Tmp
+        Tmp = Zero
+        do jOcc=1,nOccmF
+          do jVir=nOccmF+1,nOrbmF
 
+            Hij = Zero
+            if ((OrbType(iVir,iD) == OrbType(iOcc,iD)) .and. (OrbType(jVir,iD) == OrbType(jOcc,iD)) .and. &
+                (OrbType(iVir,iD) == OrbType(jOcc,iD))) then
 
-                End Do  ! iVir
-             End Do     ! iOcc
-!
-             Nullify(Fock,XP,YP)
-             iOff_XY= iOff_XY + nOccmF*(nOrbmF-nOccmF)
-             iOff_F = iOff_F + nOrb(iSym)**2
-!
-          End Do ! iSym
-      End Do ! iD
+              if ((iVir == jVir) .and. (iOcc == jOcc)) then
+                Hij = (Four*(Fock(iVir,jVir)-Fock(iOcc,jOcc))/dble(nD))
+
+                if (Hij < Zero) then
+                  !write (6,*) 'Hii<0.0, Hii=',Hij
+                  Hij = max(Hii_Max,abs(Hij))
+                else if (abs(Hij) < Hii_Min) then
+                  !write(6,*) 'Abs(Hii)<0.05, Hii=',Hij
+                  !write(6,*) 'jVir,jOcc=',jVir,jOcc
+                  !write(6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
+                  !write(6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
+                  Hij = Hii_Min
+                end if
+
+              else if ((iVir == jVir) .and. (iOcc /= jOcc)) then
+                Hij = (Four*(-Fock(iOcc,jOcc))/dble(nD))
+              else if ((iOcc == jOcc) .and. (iVir /= jVir)) then
+                Hij = (Four*(Fock(iVir,jVir))/dble(nD))
+              end if
+              Tmp = Tmp+Hij*XP(jVir,jOcc)
+
+            end if
+
+          end do  ! jVir
+        end do    ! jOcc
+        YP(iVir,iOcc) = Tmp
+
+      end do  ! iVir
+    end do    ! iOcc
+
+    nullify(Fock,XP,YP)
+    iOff_XY = iOff_XY+nOccmF*(nOrbmF-nOccmF)
+    iOff_F = iOff_F+nOrb(iSym)**2
+
+  end do ! iSym
+end do ! iD
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Y,SIZE(Y),'yHx','Y(:)')
-      Call RecPrt('yHx: Y',' ',Y,1,Size(Y))
+call NrmClc(Y,size(Y),'yHx','Y(:)')
+call RecPrt('yHx: Y',' ',Y,1,size(Y))
 #endif
-      End Subroutine yHx
+
+end subroutine yHx

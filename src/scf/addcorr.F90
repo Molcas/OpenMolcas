@@ -8,9 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module AddCorr
-Logical Do_Tw
-Character(LEN=80) ADDC_KSDFT
-Logical Do_Addc
-Real*8 DE_KSDFT_c
-End Module AddCorr
+
+module AddCorr
+
+logical Do_Tw
+character(len=80) ADDC_KSDFT
+logical Do_Addc
+real*8 DE_KSDFT_c
+
+end module AddCorr
