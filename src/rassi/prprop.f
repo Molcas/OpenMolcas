@@ -1662,7 +1662,7 @@ C printing threshold
              Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
              If (ABS(EDIFF)>1.0D-8) Then
-                CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
+                CALL DSCAL_(6,AU2REDR/EDIFF,Rtensor,1)
              ELSE
                 Rtensor(:)=ZERO
              END IF
@@ -2007,7 +2007,7 @@ C printing threshold
              Rtensor(4) =  0.75D0 *(RXX+RZZ+EDIFF*(RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY+EDIFF*(RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR,Rtensor,1)
+             CALL DSCAL_(6,AU2REDR,Rtensor,1)
              IF (Do_SK) THEN
               ! k^T R k
               R = k_vector(1,iVec)**2*Rtensor(1)+
@@ -3641,6 +3641,18 @@ C backtransformation in two steps, -phi and -theta
          DYI(:,:)=0.0D0
          DZR(:,:)=0.0D0
          DZI(:,:)=0.0D0
+         IF(IPRDX.GT.0) THEN
+          CALL SMMAT(PROP,DXR,NSS,IPRDX,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DXR,DXI)
+         END IF
+         IF(IPRDY.GT.0) THEN
+          CALL SMMAT(PROP,DYR,NSS,IPRDY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DYR,DYI)
+         END IF
+         IF(IPRDZ.GT.0) THEN
+          CALL SMMAT(PROP,DZR,NSS,IPRDZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
+         END If
       End Subroutine Allocate_magnetic_dipoles
 
       Subroutine Deallocate_electric_dipoles()

@@ -2012,7 +2012,7 @@ C                                                                      C
              Rtensor(4) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
+             CALL DSCAL_(6,AU2REDR/EDIFF,Rtensor,1)
              IF (Do_SK) THEN
               ! k^T R k
               R = k_vector(1,iVec)**2*Rtensor(1)+
@@ -2253,7 +2253,7 @@ C                                                                      C
              Rtensor(4) =  0.75D0 *(RXX+RZZ+EDIFF*(RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY+EDIFF*(RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR,Rtensor,1)
+             CALL DSCAL_(6,AU2REDR,Rtensor,1)
              IF (Do_SK) THEN
               ! k^T R k
               R = k_vector(1,iVec)**2*Rtensor(1)+
