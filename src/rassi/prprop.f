@@ -101,7 +101,6 @@
       Real*8, allocatable:: SXYR(:,:), SXYI(:,:), SYXR(:,:), SYXI(:,:),
      &                      SYZR(:,:), SYZI(:,:), SZYR(:,:), SZYI(:,:),
      &                      SZXR(:,:), SZXI(:,:), SXZR(:,:), SXZI(:,:)
-      Integer IPRSXY, IPRSYX, IPRSYZ, IPRSZY, IPRSZX, IPRSXZ
 
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
 
@@ -1169,7 +1168,7 @@ C printing threshold
 ! Magnetic-Quadrupole
         Call Allocate_and_Load_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
-        Call Allocate_Spin_Magnetic_Quadrupoles()
+        Call Allocate_and_Load_Spin_Magnetic_Quadrupoles()
 ! Electric-Dipole
         Call Allocate_and_Load_electric_dipoles()
 
@@ -1208,8 +1207,6 @@ C printing threshold
          WRITE(6,31) 'From','To','Osc. strength'
          WRITE(6,35)
          END IF
-! Spin-Magnetic-Quadrupole
-         Call Load_Spin_Magnetic_Quadrupoles()
 
          ONEOVER9C2=1.0D0/(9.0D0*c_in_au**2)
          g = FEGVAL*3.0D0/2.0D0 ! To remove the 2/3 factor in ONEOVER9C2
@@ -3714,8 +3711,9 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(SZI)
       End Subroutine Deallocate_Spin_Magnetic_dipoles
 
-      Subroutine Allocate_Spin_Magnetic_Quadrupoles()
+      Subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles()
       Integer ISOPR
+      Integer IPRSXY, IPRSXZ, IPRSYX, IPRSYZ, IPRSZX, IPRSZY
          IPRSXY=0
          IPRSXZ=0
 
@@ -3766,9 +3764,6 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_allocate(SZYI,NSS,NSS,Label='SZYI')
          SZYR(:,:)=0.0D0
          SZYI(:,:)=0.0D0
-      End Subroutine Allocate_Spin_Magnetic_Quadrupoles
-
-      Subroutine Load_Spin_Magnetic_Quadrupoles()
          IF(IPRSXY.GT.0) THEN
           CALL SMMAT(PROP,SXYR,NSS,IPRSXY,2)
           CALL ZTRNSF(NSS,USOR,USOI,SXYR,SXYI)
@@ -3795,7 +3790,7 @@ C backtransformation in two steps, -phi and -theta
           CALL SMMAT(PROP,SZYR,NSS,IPRSZY,2)
           CALL ZTRNSF(NSS,USOR,USOI,SZYR,SZYI)
          END IF
-      End Subroutine Load_Spin_Magnetic_Quadrupoles
+      End Subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles
 
       Subroutine Deallocate_Spin_Magnetic_Quadrupoles()
          Call mma_deallocate(SXYR)
