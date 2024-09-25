@@ -94,9 +94,6 @@
      &                      DZZXR(:,:),DZZXI(:,:),
      &                      DZZYR(:,:),DZZYI(:,:),
      &                      DZZZR(:,:),DZZZI(:,:)
-      Integer IPRDXXX, IPRDXXY, IPRDXXZ,
-     &        IPRDYYX, IPRDYYY, IPRDYYZ,
-     &        IPRDZZX, IPRDZZY, IPRDZZZ
 ! Spin-Magnetic-Dipole
       Real*8, allocatable:: SXR(:,:), SXI(:,:),
      &                      SYR(:,:), SYI(:,:),
@@ -1072,7 +1069,7 @@ C printing threshold
 *Electric-Dipole Electric-Octupole transitions
 
 ! Octupole
-         Call Allocate_Octupoles()
+         Call Allocate_and_Load_Octupoles()
 ! Dipole
          Call Allocate_and_Load_electric_dipoles()
 
@@ -1090,8 +1087,6 @@ C printing threshold
          WRITE(6,31) 'From','To','Osc. strength'
          WRITE(6,35)
          END IF
-! Octupole
-         Call Load_Octupoles()
 
          TWOOVERM45C=-2.0D0/(45.0D0*c_in_au**2)
          DO ISS=1,IEND
@@ -3923,8 +3918,10 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(DZYI)
       End Subroutine Deallocate_Magnetic_Quadrupoles
 
-      Subroutine Allocate_Octupoles()
+      Subroutine Allocate_and_Load_Octupoles()
       Integer ISOPR
+      Integer IPRDZZX, IPRDZZY, IPRDZZZ, IPRDXXX, IPRDXXY, IPRDXXZ,
+     &        IPRDYYX, IPRDYYY, IPRDYYZ
 ! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
 ! The order which comes in
          IPRDXXX=0 !
@@ -4016,30 +4013,6 @@ C backtransformation in two steps, -phi and -theta
          DZZYI(:,:)=0.0D0
          DZZZR(:,:)=0.0D0
          DZZZI(:,:)=0.0D0
-      End Subroutine Allocate_Octupoles
-
-      Subroutine deallocate_Octupoles()
-         CALL mma_deallocate(DXXXR)
-         CALL mma_deallocate(DXXXI)
-         CALL mma_deallocate(DXXYR)
-         CALL mma_deallocate(DXXYI)
-         CALL mma_deallocate(DXXZR)
-         CALL mma_deallocate(DXXZI)
-         CALL mma_deallocate(DYYXR)
-         CALL mma_deallocate(DYYXI)
-         CALL mma_deallocate(DYYYR)
-         CALL mma_deallocate(DYYYI)
-         CALL mma_deallocate(DYYZR)
-         CALL mma_deallocate(DYYZI)
-         CALL mma_deallocate(DZZXR)
-         CALL mma_deallocate(DZZXI)
-         CALL mma_deallocate(DZZYR)
-         CALL mma_deallocate(DZZYI)
-         CALL mma_deallocate(DZZZR)
-         CALL mma_deallocate(DZZZI)
-      End Subroutine deallocate_Octupoles
-
-      Subroutine Load_octupoles()
          IF(IPRDXXX.GT.0) THEN
           CALL SMMAT(PROP,DXXXR,NSS,IPRDXXX,0)
           CALL ZTRNSF(NSS,USOR,USOI,DXXXR,DXXXI)
@@ -4078,7 +4051,29 @@ C backtransformation in two steps, -phi and -theta
           CALL SMMAT(PROP,DZZZR,NSS,IPRDZZZ,0)
           CALL ZTRNSF(NSS,USOR,USOI,DZZZR,DZZZI)
          END IF
-      End Subroutine Load_octupoles
+      End Subroutine Allocate_and_Load_Octupoles
+
+      Subroutine deallocate_Octupoles()
+         CALL mma_deallocate(DXXXR)
+         CALL mma_deallocate(DXXXI)
+         CALL mma_deallocate(DXXYR)
+         CALL mma_deallocate(DXXYI)
+         CALL mma_deallocate(DXXZR)
+         CALL mma_deallocate(DXXZI)
+         CALL mma_deallocate(DYYXR)
+         CALL mma_deallocate(DYYXI)
+         CALL mma_deallocate(DYYYR)
+         CALL mma_deallocate(DYYYI)
+         CALL mma_deallocate(DYYZR)
+         CALL mma_deallocate(DYYZI)
+         CALL mma_deallocate(DZZXR)
+         CALL mma_deallocate(DZZXI)
+         CALL mma_deallocate(DZZYR)
+         CALL mma_deallocate(DZZYI)
+         CALL mma_deallocate(DZZZR)
+         CALL mma_deallocate(DZZZI)
+      End Subroutine deallocate_Octupoles
+
       END SUBROUTINE PRPROP
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
