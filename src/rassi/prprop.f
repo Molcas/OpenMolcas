@@ -97,7 +97,6 @@
       Real*8, allocatable:: SXR(:,:), SXI(:,:),
      &                      SYR(:,:), SYI(:,:),
      &                      SZR(:,:), SZI(:,:)
-      Integer IPRSX, IPRSY, IPRSZ
 ! Spin-Magnetic-Quadrupole
       Real*8, allocatable:: SXYR(:,:), SXYI(:,:), SYXR(:,:), SYXI(:,:),
      &                      SYZR(:,:), SYZI(:,:), SZYR(:,:), SZYI(:,:),
@@ -889,7 +888,7 @@ C printing threshold
 ! Magnetic-Dipole
         Call Allocate_magnetic_dipoles()
 ! Spin-Magnetic-Dipole ---- notice the S
-        Call Allocate_Spin_Magnetic_dipoles()
+        Call Allocate_and_Load_Spin_Magnetic_dipoles()
 
         IF(IFANYD.NE.0.OR.IFANYS.NE.0) THEN
 !
@@ -932,7 +931,6 @@ C printing threshold
 ! Magnetic-Dipole
 
 ! Spin-Magnetic-Dipole
-         Call Load_Spin_Magnetic_dipoles()
 
          ONEOVER6C2=1.0D0/(6.0D0*c_in_au**2)
          g = FEGVAL
@@ -3664,8 +3662,9 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(DZI)
       End Subroutine Deallocate_electric_dipoles
 
-      Subroutine Allocate_Spin_Magnetic_dipoles()
+      Subroutine Allocate_and_Load_Spin_Magnetic_dipoles()
       Integer ISOPR
+      Integer IPRSX, IPRSY, IPRSZ
          IPRSX=0
          IPRSY=0
          IPRSZ=0
@@ -3692,18 +3691,6 @@ C backtransformation in two steps, -phi and -theta
          SYI(:,:)=0.0D0
          SZR(:,:)=0.0D0
          SZI(:,:)=0.0D0
-      End Subroutine Allocate_Spin_Magnetic_dipoles
-
-      Subroutine Deallocate_Spin_Magnetic_dipoles()
-         CALL mma_deallocate(SXR)
-         CALL mma_deallocate(SXI)
-         CALL mma_deallocate(SYR)
-         CALL mma_deallocate(SYI)
-         CALL mma_deallocate(SZR)
-         CALL mma_deallocate(SZI)
-      End Subroutine Deallocate_Spin_Magnetic_dipoles
-
-      Subroutine Load_Spin_Magnetic_dipoles()
          IF(IPRSX.GT.0) THEN
           CALL SMMAT(PROP,SXR,NSS,IPRSX,1)
           CALL ZTRNSF(NSS,USOR,USOI,SXR,SXI)
@@ -3716,7 +3703,16 @@ C backtransformation in two steps, -phi and -theta
           CALL SMMAT(PROP,SZR,NSS,IPRSZ,3)
           CALL ZTRNSF(NSS,USOR,USOI,SZR,SZI)
          END IF
-      End Subroutine Load_Spin_Magnetic_dipoles
+      End Subroutine Allocate_and_Load_Spin_Magnetic_dipoles
+
+      Subroutine Deallocate_Spin_Magnetic_dipoles()
+         CALL mma_deallocate(SXR)
+         CALL mma_deallocate(SXI)
+         CALL mma_deallocate(SYR)
+         CALL mma_deallocate(SYI)
+         CALL mma_deallocate(SZR)
+         CALL mma_deallocate(SZI)
+      End Subroutine Deallocate_Spin_Magnetic_dipoles
 
       Subroutine Allocate_Spin_Magnetic_Quadrupoles()
       Integer ISOPR
