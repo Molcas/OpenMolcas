@@ -38,6 +38,8 @@
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc, TUVX
+      use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
+     &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
 
       Implicit Real*8 (A-H,O-Z)
 
