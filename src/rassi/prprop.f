@@ -69,6 +69,10 @@
       Real*8, allocatable:: DXR(:,:), DXI(:,:),
      &                      DYR(:,:), DYI(:,:),
      &                      DZR(:,:), DZI(:,:)
+! Magnetic-Dipole
+      Real*8, allocatable:: MDXR(:,:), MDXI(:,:),
+     &                      MDYR(:,:), MDYI(:,:),
+     &                      MDZR(:,:), MDZI(:,:)
 ! Quadrupole
       Real*8, allocatable:: DXXR(:,:), DXXI(:,:),
      &                      DXYR(:,:), DXYI(:,:),
@@ -885,7 +889,7 @@ C printing threshold
 ! M^2 and Ms^2 can be calculated separately but the cross term not directly
 !
 ! Magnetic-Dipole
-        Call Allocate_magnetic_dipoles()
+        Call Allocate_and_Load_Magnetic_Dipoles()
 ! Spin-Magnetic-Dipole ---- notice the S
         Call Allocate_and_Load_Spin_Magnetic_dipoles()
 
@@ -940,12 +944,12 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
-            DX2=(DXI(JSS,ISS)+g*SXR(JSS,ISS))**2
-     &         +(DXR(JSS,ISS)-g*SXI(JSS,ISS))**2
-            DY2=(DYI(JSS,ISS)+g*SYR(JSS,ISS))**2
-     &         +(DYR(JSS,ISS)-g*SYI(JSS,ISS))**2
-            DZ2=(DZI(JSS,ISS)+g*SZR(JSS,ISS))**2
-     &         +(DZR(JSS,ISS)-g*SZI(JSS,ISS))**2
+            DX2=(MDXI(JSS,ISS)+g*SXR(JSS,ISS))**2
+     &         +(MDXR(JSS,ISS)-g*SXI(JSS,ISS))**2
+            DY2=(MDYI(JSS,ISS)+g*SYR(JSS,ISS))**2
+     &         +(MDYR(JSS,ISS)-g*SYI(JSS,ISS))**2
+            DZ2=(MDZI(JSS,ISS)+g*SZR(JSS,ISS))**2
+     &         +(MDZR(JSS,ISS)-g*SZI(JSS,ISS))**2
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
@@ -958,7 +962,7 @@ C printing threshold
          END DO
 
 ! Magnetic-Dipole
-         Call Deallocate_electric_dipoles()
+         Call Deallocate_Magnetic_dipoles()
 
 ! Spin-Magnetic-Dipole
          Call Deallocate_Spin_Magnetic_dipoles()
@@ -3610,46 +3614,6 @@ C backtransformation in two steps, -phi and -theta
          END If
       End Subroutine Allocate_and_Load_velocities
 
-      Subroutine Allocate_magnetic_dipoles()
-      Integer ISOPR
-         IPRDX=0
-         IPRDY=0
-         IPRDZ=0
-         IFANYD=0
-         DO ISOPR=1,NSOPR
-           IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
-            IFANYD=1
-            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-           END IF
-         END DO
-         CALL mma_allocate(DXR,NSS,NSS,Label='DXR')
-         CALL mma_allocate(DXI,NSS,NSS,Label='DXI')
-         CALL mma_allocate(DYR,NSS,NSS,Label='DYR')
-         CALL mma_allocate(DYI,NSS,NSS,Label='DYI')
-         CALL mma_allocate(DZR,NSS,NSS,Label='DZR')
-         CALL mma_allocate(DZI,NSS,NSS,Label='DZI')
-         DXR(:,:)=0.0D0
-         DXI(:,:)=0.0D0
-         DYR(:,:)=0.0D0
-         DYI(:,:)=0.0D0
-         DZR(:,:)=0.0D0
-         DZI(:,:)=0.0D0
-         IF(IPRDX.GT.0) THEN
-          CALL SMMAT(PROP,DXR,NSS,IPRDX,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXR,DXI)
-         END IF
-         IF(IPRDY.GT.0) THEN
-          CALL SMMAT(PROP,DYR,NSS,IPRDY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DYR,DYI)
-         END IF
-         IF(IPRDZ.GT.0) THEN
-          CALL SMMAT(PROP,DZR,NSS,IPRDZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DZR,DZI)
-         END If
-      End Subroutine Allocate_magnetic_dipoles
-
       Subroutine Deallocate_electric_dipoles()
          CALL mma_deallocate(DXR)
          CALL mma_deallocate(DXI)
@@ -3658,6 +3622,57 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(DZR)
          CALL mma_deallocate(DZI)
       End Subroutine Deallocate_electric_dipoles
+
+      Subroutine Allocate_and_Load_magnetic_dipoles()
+      Integer ISOPR
+      Integer IPRMDX, IPRMDY, IPRMDZ
+         IPRMDX=0
+         IPRMDY=0
+         IPRMDZ=0
+
+         IFANYD=0
+         DO ISOPR=1,NSOPR
+           IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+            IFANYD=1
+            IF(ISOCMP(ISOPR).EQ.1) IPRMDX=ISOPR
+            IF(ISOCMP(ISOPR).EQ.2) IPRMDY=ISOPR
+            IF(ISOCMP(ISOPR).EQ.3) IPRMDZ=ISOPR
+           END IF
+         END DO
+         CALL mma_allocate(MDXR,NSS,NSS,Label='MDXR')
+         CALL mma_allocate(MDXI,NSS,NSS,Label='MDXI')
+         CALL mma_allocate(MDYR,NSS,NSS,Label='MDYR')
+         CALL mma_allocate(MDYI,NSS,NSS,Label='MDYI')
+         CALL mma_allocate(MDZR,NSS,NSS,Label='MDZR')
+         CALL mma_allocate(MDZI,NSS,NSS,Label='MDZI')
+         MDXR(:,:)=0.0D0
+         MDXI(:,:)=0.0D0
+         MDYR(:,:)=0.0D0
+         MDYI(:,:)=0.0D0
+         MDZR(:,:)=0.0D0
+         MDZI(:,:)=0.0D0
+         IF(IPRMDX.GT.0) THEN
+          CALL SMMAT(PROP,MDXR,NSS,IPRMDX,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MDXR,MDXI)
+         END IF
+         IF(IPRMDY.GT.0) THEN
+          CALL SMMAT(PROP,MDYR,NSS,IPRMDY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MDYR,MDYI)
+         END IF
+         IF(IPRMDZ.GT.0) THEN
+          CALL SMMAT(PROP,MDZR,NSS,IPRMDZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MDZR,MDZI)
+         END If
+      End Subroutine Allocate_and_Load_magnetic_dipoles
+
+      Subroutine Deallocate_magnetic_dipoles()
+         CALL mma_deallocate(MDXR)
+         CALL mma_deallocate(MDXI)
+         CALL mma_deallocate(MDYR)
+         CALL mma_deallocate(MDYI)
+         CALL mma_deallocate(MDZR)
+         CALL mma_deallocate(MDZI)
+      End Subroutine Deallocate_magnetic_dipoles
 
       Subroutine Allocate_and_Load_Spin_Magnetic_dipoles()
       Integer ISOPR
