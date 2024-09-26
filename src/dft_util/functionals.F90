@@ -308,9 +308,9 @@ subroutine check_supported(Label,flags)
 end subroutine check_supported
 
 subroutine check_n_ext_params(nrequired, nparam)
-  use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_name, xc_f03_func_info_get_references, &
+  use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, &
                           xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_get_n_ext_params, &
-                          xc_f03_func_set_ext_params, XC_UNPOLARIZED
+                          XC_UNPOLARIZED
   use Definitions, only: u6
   use libxc_parameters, only: FuncExtParams
 

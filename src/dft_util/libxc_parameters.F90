@@ -138,7 +138,7 @@ end subroutine libxc_functionals
 !                                                                      *
 subroutine Set_External_Params()
   use xc_f03_lib_m, only: xc_f03_func_set_ext_params
-  use Definitions, only: iwp, u6
+  use Definitions, only: iwp
   use stdalloc,       only: mma_deallocate
   integer(kind=iwp) :: iFunc
 
