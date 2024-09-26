@@ -81,9 +81,12 @@
      &                      DYZR(:,:), DYZI(:,:),
      &                      DZZR(:,:), DZZI(:,:)
 ! Magnetic-Quadrupole
-      Real*8, allocatable:: DZXR(:,:), DZXI(:,:),
-     &                      DYXR(:,:), DYXI(:,:),
-     &                      DZYR(:,:), DZYI(:,:)
+      Real*8, allocatable:: MQZXR(:,:), MQZXI(:,:),
+     &                      MQXZR(:,:), MQXZI(:,:),
+     &                      MQXYR(:,:), MQXYI(:,:),
+     &                      MQYXR(:,:), MQYXI(:,:),
+     &                      MQYZR(:,:), MQYZI(:,:),
+     &                      MQZYR(:,:), MQZYI(:,:)
 ! Octupole
       Real*8, allocatable:: DXXXR(:,:),DXXXI(:,:),
      &                      DXXYR(:,:),DXXYI(:,:),
@@ -1227,35 +1230,35 @@ C printing threshold
 ! However, the spin y component is imaginary
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
-            DXYDZ=((-DXYI(JSS,ISS) + g*SXYI(JSS,ISS))
+            DXYDZ=((-MQXYI(JSS,ISS) + g*SXYI(JSS,ISS))
      &           *DZI(JSS,ISS)) ! Electric-Dipole
-     &           +((DXYR(JSS,ISS) + g*SXYR(JSS,ISS))
+     &           +((MQXYR(JSS,ISS) + g*SXYR(JSS,ISS))
      &           *DZR(JSS,ISS))
-            DYXDZ=-((DYXI(JSS,ISS) + g*SYXR(JSS,ISS))
+            DYXDZ=-((MQYXI(JSS,ISS) + g*SYXR(JSS,ISS))
      &           *DZI(JSS,ISS))
-     &           +((DYXR(JSS,ISS) + g*SYXI(JSS,ISS))
+     &           +((MQYXR(JSS,ISS) + g*SYXI(JSS,ISS))
      &           *DZR(JSS,ISS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
-            DZXDY=-((DZXI(JSS,ISS) + g*SZXR(JSS,ISS))
+            DZXDY=-((MQZXI(JSS,ISS) + g*SZXR(JSS,ISS))
      &           *DYI(JSS,ISS))
-     &           +((DZXR(JSS,ISS) + g*SZXI(JSS,ISS))
+     &           +((MQZXR(JSS,ISS) + g*SZXI(JSS,ISS))
      &           *DYR(JSS,ISS))
-            DXZDY=-((DXZI(JSS,ISS) + g*SXZR(JSS,ISS))
+            DXZDY=-((MQXZI(JSS,ISS) + g*SXZR(JSS,ISS))
      &           *DYI(JSS,ISS))
-     &           +((DXZR(JSS,ISS) + g*SXZI(JSS,ISS))
+     &           +((MQXZR(JSS,ISS) + g*SXZI(JSS,ISS))
      &           *DYR(JSS,ISS))
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
-            DYZDX=-((DYZI(JSS,ISS) + g*SYZR(JSS,ISS))
+            DYZDX=-((MQYZI(JSS,ISS) + g*SYZR(JSS,ISS))
      &           *DXI(JSS,ISS))
-     &           +((DYZR(JSS,ISS) + g*SYZI(JSS,ISS))
+     &           +((MQYZR(JSS,ISS) + g*SYZI(JSS,ISS))
      &           *DXR(JSS,ISS))
-            DZYDX=((-DZYI(JSS,ISS) + g*SZYI(JSS,ISS))
+            DZYDX=((-MQZYI(JSS,ISS) + g*SZYI(JSS,ISS))
      &           *DXI(JSS,ISS))
-     &           +((DZYR(JSS,ISS) + g*SZYR(JSS,ISS))
+     &           +((MQZYR(JSS,ISS) + g*SZYR(JSS,ISS))
      &           *DXR(JSS,ISS))
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
@@ -1884,7 +1887,7 @@ C printing threshold
          WRITE(6,35)
          End Do
 
-         Call Dellocate_Spin_Magnetic_Dipoles()
+         Call Deallocate_Spin_Magnetic_Dipoles()
 
          IF (IFANYQ.NE.0) THEN
           CALL GETMEM('QXXR','FREE','REAL',LQXXR,NSS**2)
@@ -3779,71 +3782,71 @@ C backtransformation in two steps, -phi and -theta
            END IF
          END DO
 
-         CALL mma_allocate(DXYR,NSS,NSS,Label='DXYR')
-         CALL mma_allocate(DXYI,NSS,NSS,Label='DXYI')
-         CALL mma_allocate(DYXR,NSS,NSS,Label='DYXR')
-         CALL mma_allocate(DYXI,NSS,NSS,Label='DYXI')
-         CALL mma_allocate(DXZR,NSS,NSS,Label='DXZR')
-         CALL mma_allocate(DXZI,NSS,NSS,Label='DXZI')
-         CALL mma_allocate(DZXR,NSS,NSS,Label='DZXR')
-         CALL mma_allocate(DZXI,NSS,NSS,Label='DZXI')
-         CALL mma_allocate(DYZR,NSS,NSS,Label='DYZR')
-         CALL mma_allocate(DYZI,NSS,NSS,Label='DYZI')
-         CALL mma_allocate(DZYR,NSS,NSS,Label='DZYR')
-         CALL mma_allocate(DZYI,NSS,NSS,Label='DZYI')
-         DXYR(:,:)=0.0D0
-         DXYI(:,:)=0.0D0
-         DYXR(:,:)=0.0D0
-         DYXI(:,:)=0.0D0
-         DXZR(:,:)=0.0D0
-         DXZI(:,:)=0.0D0
-         DZXR(:,:)=0.0D0
-         DZXI(:,:)=0.0D0
-         DYZR(:,:)=0.0D0
-         DYZI(:,:)=0.0D0
-         DZYR(:,:)=0.0D0
-         DZYI(:,:)=0.0D0
+         CALL mma_allocate(MQXYR,NSS,NSS,Label='MQXYR')
+         CALL mma_allocate(MQXYI,NSS,NSS,Label='MQXYI')
+         CALL mma_allocate(MQYXR,NSS,NSS,Label='MQYXR')
+         CALL mma_allocate(MQYXI,NSS,NSS,Label='MQYXI')
+         CALL mma_allocate(MQXZR,NSS,NSS,Label='MQXZR')
+         CALL mma_allocate(MQXZI,NSS,NSS,Label='MQXZI')
+         CALL mma_allocate(MQZXR,NSS,NSS,Label='MQZXR')
+         CALL mma_allocate(MQZXI,NSS,NSS,Label='MQZXI')
+         CALL mma_allocate(MQYZR,NSS,NSS,Label='MQYZR')
+         CALL mma_allocate(MQYZI,NSS,NSS,Label='MQYZI')
+         CALL mma_allocate(MQZYR,NSS,NSS,Label='MQZYR')
+         CALL mma_allocate(MQZYI,NSS,NSS,Label='MQZYI')
+         MQXYR(:,:)=0.0D0
+         MQXYI(:,:)=0.0D0
+         MQYXR(:,:)=0.0D0
+         MQYXI(:,:)=0.0D0
+         MQXZR(:,:)=0.0D0
+         MQXZI(:,:)=0.0D0
+         MQZXR(:,:)=0.0D0
+         MQZXI(:,:)=0.0D0
+         MQYZR(:,:)=0.0D0
+         MQYZI(:,:)=0.0D0
+         MQZYR(:,:)=0.0D0
+         MQZYI(:,:)=0.0D0
          IF(IPRDXY.GT.0) THEN
-          CALL SMMAT(PROP,DXYR,NSS,IPRDXY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXYR,DXYI)
+          CALL SMMAT(PROP,MQXYR,NSS,IPRDXY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MQXYR,MQXYI)
          END IF
          IF(IPRDYX.GT.0) THEN
-          CALL SMMAT(PROP,DYXR,NSS,IPRDYX,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DYXR,DYXI)
+          CALL SMMAT(PROP,MQYXR,NSS,IPRDYX,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MQYXR,MQYXI)
          END IF
 
          IF(IPRDXZ.GT.0) THEN
-          CALL SMMAT(PROP,DXZR,NSS,IPRDXZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXZR,DXZI)
+          CALL SMMAT(PROP,MQXZR,NSS,IPRDXZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MQXZR,MQXZI)
          END IF
          IF(IPRDZX.GT.0) THEN
-          CALL SMMAT(PROP,DZXR,NSS,IPRDZX,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DZXR,DZXI)
+          CALL SMMAT(PROP,MQZXR,NSS,IPRDZX,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MQZXR,MQZXI)
          END IF
 
          IF(IPRDYZ.GT.0) THEN
-          CALL SMMAT(PROP,DYZR,NSS,IPRDYZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DYZR,DYZI)
+          CALL SMMAT(PROP,MQYZR,NSS,IPRDYZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MQYZR,MQYZI)
          END IF
          IF(IPRDZY.GT.0) THEN
-          CALL SMMAT(PROP,DZYR,NSS,IPRDZY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DZYR,DZYI)
+          CALL SMMAT(PROP,MQZYR,NSS,IPRDZY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,MQZYR,MQZYI)
          END IF
       End Subroutine Allocate_and_Load_Magnetic_Quadrupoles
 
       Subroutine Deallocate_Magnetic_Quadrupoles()
-         CALL mma_deallocate(DXYR)
-         CALL mma_deallocate(DXYI)
-         CALL mma_deallocate(DYXR)
-         CALL mma_deallocate(DYXI)
-         CALL mma_deallocate(DXZR)
-         CALL mma_deallocate(DXZI)
-         CALL mma_deallocate(DZXR)
-         CALL mma_deallocate(DZXI)
-         CALL mma_deallocate(DYZR)
-         CALL mma_deallocate(DYZI)
-         CALL mma_deallocate(DZYR)
-         CALL mma_deallocate(DZYI)
+         CALL mma_deallocate(MQXYR)
+         CALL mma_deallocate(MQXYI)
+         CALL mma_deallocate(MQYXR)
+         CALL mma_deallocate(MQYXI)
+         CALL mma_deallocate(MQXZR)
+         CALL mma_deallocate(MQXZI)
+         CALL mma_deallocate(MQZXR)
+         CALL mma_deallocate(MQZXI)
+         CALL mma_deallocate(MQYZR)
+         CALL mma_deallocate(MQYZI)
+         CALL mma_deallocate(MQZYR)
+         CALL mma_deallocate(MQZYI)
       End Subroutine Deallocate_Magnetic_Quadrupoles
 
       Subroutine Allocate_and_Load_Octupoles()
