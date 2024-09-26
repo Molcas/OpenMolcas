@@ -17,7 +17,7 @@
 
 subroutine CheckFuncParam(FileExtParam)
 
-  use Definitions,    only: iwp6
+  use Definitions,    only: iwp
   use Constants,      only: Zero
   use stdalloc,       only: mma_allocate, mma_deallocate
   use Functionals,    only: check_n_ext_params
