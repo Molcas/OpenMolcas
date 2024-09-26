@@ -28,10 +28,12 @@ subroutine PickUp(Tri,Vec,n)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 Tri(n*(n+1)/2), Vec(n)
-integer ij, i
+integer(kind=iwp) :: n
+real(kind=wp) :: Tri(n*(n+1)/2), Vec(n)
+integer(kind=iwp) :: i, ij
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

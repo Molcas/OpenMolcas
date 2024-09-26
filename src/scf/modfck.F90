@@ -28,16 +28,16 @@ subroutine ModFck(Fock,Ovlp,nFO,CMO,nCMO,mynOcc)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, nBO, nBT, nSym, nBas
-use Constants, only: Zero, One
+use InfSCF, only: MaxBas, nBas, nBO, nBT, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nFO, nCMO
-real*8 Fock(nFO), Ovlp(nFO), CMO(nCMO)
-integer mynOcc(*)
-integer ij, iSym
-real*8, dimension(:), allocatable :: DFro, DFSq, OvSq, Aux1
+integer(kind=iwp) :: nFO, nCMO, mynOcc(*)
+real(kind=wp) :: Fock(nFO), Ovlp(nFO), CMO(nCMO)
+integer(kind=iwp) :: ij, iSym
+real(kind=wp), allocatable :: Aux1(:), DFro(:), DFSq(:), OvSq(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

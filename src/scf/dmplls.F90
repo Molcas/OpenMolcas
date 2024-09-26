@@ -17,11 +17,12 @@
 
 subroutine DmpLLs(iDskPt)
 
-use LnkLst, only: LLGrad, LLdGrd, LLDelt, LLy, LLx, Init_LLs, DmpLst
+use LnkLst, only: DmpLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
 use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
+use Definitions, only: iwp, u6
 
 implicit none
-integer iDskPt(5)
+integer(kind=iwp) :: iDskPt(5)
 
 if (Init_LLs) then
   !call StatLLs()
@@ -31,8 +32,8 @@ if (Init_LLs) then
   call DmpLst(LLy,Lux,iDskPt(4))
   call DmpLst(LLx,Luy,iDskPt(5))
 else
-  write(6,*) '****** W A R N I N G ! ******'
-  write(6,*) ' Linked list already killed!'
+  write(u6,*) '****** W A R N I N G ! ******'
+  write(u6,*) ' Linked list already killed!'
 end if
 
 return

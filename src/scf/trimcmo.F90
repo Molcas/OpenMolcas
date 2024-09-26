@@ -18,22 +18,12 @@ subroutine TrimCMO(CMO1,CMO2,nSym,nBas,nOrb)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-real*8 CMO1(*)
-real*8 CMO2(*)
-integer nSym
-integer nBas(*)
-integer nOrb(*)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer iFrom(8)
-integer iTo(8)
-integer iSym
-integer ndata, i
+real(kind=wp) :: CMO1(*), CMO2(*)
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+integer(kind=iwp) :: i, iFrom(8), iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*
 ! Transfer orbitals.                                                   *
@@ -44,7 +34,7 @@ do iSym=1,nSym-1
   iFrom(iSym+1) = iFrom(iSym)+nBas(iSym)*nBas(iSym)
   iTo(iSym+1) = iTo(iSym)+nBas(iSym)*nOrb(iSym)
   if (iTo(iSym+1) > iFrom(iSym+1)) then
-    write(6,*) 'Error in TrimCMO'
+    write(u6,*) 'Error in TrimCMO'
     call Abend()
   end if
 end do

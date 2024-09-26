@@ -19,44 +19,15 @@ subroutine NatoUHF(DensA,DensB,FockA,FockB,nBT,CMO,nBB,Ovl,Nato,Eta,Eps,nnB,nSym
 !***********************************************************************
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-integer nBT, nBB, nnB
-real*8 DensA(nBT)
-real*8 DensB(nBT)
-real*8 FockA(nBT)
-real*8 FockB(nBT)
-real*8 CMO(nBB)
-real*8 Ovl(nBT)
-real*8 Nato(nBB)
-real*8 Eta(nnB)
-real*8 Eps(nnB)
-integer nSym
-integer nBas(nSym)
-integer nOrb(nSym)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer MaxTri
-integer MaxSqr
-integer nTri
-integer nSqr
-integer nCMO
-integer nEta
-integer iOffTri
-integer iOffSqr
-integer iOffCMO
-integer iOffEta
-integer iSym
-integer iOrb
-integer indx
-integer i
-real*8 tmp
-real*8, dimension(:), allocatable :: Dens, Fock, SMat, Aux1, Aux2, Aux3
+integer(kind=iwp) :: nBT, nBB, nnB, nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp) :: DensA(nBT), DensB(nBT), FockA(nBT), FockB(nBT), CMO(nBB), Ovl(nBT), Nato(nBB), Eta(nnB), Eps(nnB)
+integer(kind=iwp) :: i, indx, iOffCMO, iOffEta, iOffSqr, iOffTri, iOrb, iSym, MaxSqr, MaxTri, nCMO, nEta, nSqr, nTri
+real(kind=wp) :: tmp
+real(kind=wp), allocatable :: Aux1(:), Aux2(:), Aux3(:), Dens(:), Fock(:), SMat(:)
 
 !----------------------------------------------------------------------*
 ! Setup                                                                *
@@ -157,7 +128,7 @@ do iSym=1,nSym
 
   ! Shift diagonal slightly
 
-  tmp = 1.0d-6
+  tmp = 1.0e-6_wp
   do iOrb=1,nOrb(iSym)
     indx = iOrb*(iOrb+1)/2
     Aux2(indx) = Aux2(indx)+tmp
@@ -186,7 +157,7 @@ end do
 ! Compute diagonal of average Fock matrix                              *
 !----------------------------------------------------------------------*
 call MkEorb_Inner(Fock,nBT,Nato,nBB,Eps,nnB,nSym,nBas,nOrb)
-!call PriMO('natouhf: UHF nato',.true.,.true.,-One,1.0d6,nSym,nBas,nOrb,Name,Eps,Eta,Nato,3)
+!call PriMO('natouhf: UHF nato',.true.,.true.,-One,1.0e6_wp,nSym,nBas,nOrb,Name,Eps,Eta,Nato,3)
 !----------------------------------------------------------------------*
 ! Deallocate arrays                                                    *
 !----------------------------------------------------------------------*

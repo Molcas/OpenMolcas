@@ -17,7 +17,8 @@
 
 subroutine StatLLS()
 
-use LnkLst, only: LLGrad, LLdGrd, LLDelt, LLy, LLx, Init_LLs
+use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
+use Definitions, only: u6
 
 implicit none
 
@@ -28,8 +29,8 @@ if (Init_LLs) then
   call StlLst(LLy)
   call StlLst(LLx)
 else
-  write(6,*) '****** W A R N I N G ! ******'
-  write(6,*) ' Linked lists are not there!'
+  write(u6,*) '****** W A R N I N G ! ******'
+  write(u6,*) ' Linked lists are not there!'
 end if
 
 return

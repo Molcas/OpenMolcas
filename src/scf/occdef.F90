@@ -9,32 +9,38 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 !#define _DEBUGPRINT_
 !#define _SPECIAL_DEBUGPRINT_
 subroutine OccDef(Occ,mmB,nD,CMO,mBB)
 
-#include "compiler_features.h"
 #ifndef POINTER_REMAP
-use, intrinsic :: iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 #endif
 use OccSets, only: OccSet_e, OccSet_m
 use Orb_Type, only: OrbType
-use InfSCF, only: kOV, mOV, nnb, nOV, nSym, OnlyProp, nOcc, nOrb, nBas, nFro
-use Constants, only: Zero
+use InfSCF, only: kOV, mOV, nBas, nFro, nnb, nOcc, nOrb, nOV, nSym, OnlyProp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer mmB, nD, mBB
-real*8 Occ(mmB,nD)
-real*8, target :: CMO(mBB,nD)
-integer iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
+integer(kind=iwp) :: mmB, nD, mBB
+real(kind=wp) :: Occ(mmB,nD)
+real(kind=wp), target :: CMO(mBB,nD)
+integer(kind=iwp) :: iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
 #ifdef _DEBUGPRINT_
-integer i
+integer(kind=iwp) :: i
 #endif
-real*8 Tmp
-real*8, pointer, dimension(:,:) :: pCMO
-real*8, dimension(:), allocatable :: OccTmp
-integer, allocatable :: iFerm(:)
+real(kind=wp) :: Tmp
+integer(kind=iwp), allocatable :: iFerm(:)
+real(kind=wp), allocatable :: OccTmp(:)
+real(kind=wp), pointer :: pCMO(:,:)
 
 ! Form occupation numbers
 !
@@ -46,12 +52,12 @@ if (OnlyProp) return
 
 #ifdef _DEBUGPRINT_
 do iD=1,nD
-  write(6,*) 'iD=',iD
-  write(6,'(a,8i5)') 'sorb: nOcc   ',(nOcc(i,iD),i=1,nSym)
+  write(u6,*) 'iD=',iD
+  write(u6,'(a,8i5)') 'sorb: nOcc   ',(nOcc(i,iD),i=1,nSym)
 end do
 if (allocated(OccSet_e)) then
   do iD=1,nD
-    write(6,*) 'iD=',iD
+    write(u6,*) 'iD=',iD
     iOff = 1
     do iSym=1,nSym
       call RecPrt('OccSet_e',' ',OccSet_e(iOff,iD),1,nOcc(iSym,iD))
@@ -61,7 +67,7 @@ if (allocated(OccSet_e)) then
 end if
 if (allocated(OccSet_m)) then
   do iD=1,nD
-    write(6,*) 'iD=',iD
+    write(u6,*) 'iD=',iD
     iOff = 1
     do iSym=1,nSym
       call RecPrt('OccSet_m',' ',OccSet_m(iOff,iD),1,nOcc(iSym,iD))
@@ -88,7 +94,7 @@ do iD=1,nD
   mOcc = 0
   do iSym=1,nSym
     do iOrb=1,nOcc(iSym,iD)
-      Occ(iOrb+mOcc,iD) = dble(3-nD) ! Value 2 or 1
+      Occ(iOrb+mOcc,iD) = real(3-nD,kind=wp) ! Value 2 or 1
     end do
     mOcc = mOcc+nOrb(iSym)
   end do
@@ -128,15 +134,15 @@ if (allocated(OccSet_m)) then
   call mma_Allocate(OccTmp,mmB,Label='OccTmp')
   call mma_allocate(iFerm,nnB,Label='iFerm')
   call Get_iArray('Fermion IDs',iFerm,nnB)
-  !write(6,*) 'iFerm=',iFerm
+  !write(u6,*) 'iFerm=',iFerm
 
   do iD=1,nD
 
     ! Store the electronic occupation numbers in OccTmp
 
     call DCopy_(mmB,Occ(1,iD),1,OccTmp,1)
-    !write(6,*) 'OccTmp=',OccTmp
-    !write(6,*) 'Occset_m=',Occset_m
+    !write(u6,*) 'OccTmp=',OccTmp
+    !write(u6,*) 'Occset_m=',Occset_m
     call FZero(Occ(1,iD),mmB)
 
     nOcc_e = 0   ! number of occupied electronic orbitals
@@ -161,7 +167,7 @@ if (allocated(OccSet_m)) then
 
         tmp = Zero
         do k=1,nB
-          tmp = tmp+dble(iFerm(jEOr+k))*abs(pCMO(k,iOrb))
+          tmp = tmp+real(iFerm(jEOr+k),kind=wp)*abs(pCMO(k,iOrb))
         end do
         Muon_i = 0                  ! electronic
         if (tmp /= Zero) Muon_i = 1 ! muonic
@@ -179,7 +185,7 @@ if (allocated(OccSet_m)) then
           else
             Occ(jEor+iOrb,iD) = Zero
           end if
-          !write(6,*) 'Electronic:',iOrb,Occ(jEOr+iOrb,iD)
+          !write(u6,*) 'Electronic:',iOrb,Occ(jEOr+iOrb,iD)
 
         else if (Muon_i == 1) then
 
@@ -195,7 +201,7 @@ if (allocated(OccSet_m)) then
             Occ(jEor+iOrb,iD) = Zero
           end if
           OrbType(jEor+iOrb,iD) = 1
-          !write(6,*) 'Muonic:',iOrb,Occ(jEOr+iOrb,iD)
+          !write(u6,*) 'Muonic:',iOrb,Occ(jEOr+iOrb,iD)
 
         end if
 
@@ -229,10 +235,10 @@ end if
 
 do iD=1,nD
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iD=',iD
-  write(6,*) 'nOccs(original):'
-  write(6,*) (nOcc(iSym,iD),iSym=1,nSym)
-  write(6,*) 'nOV=',nOV
+  write(u6,*) 'iD=',iD
+  write(u6,*) 'nOccs(original):'
+  write(u6,*) (nOcc(iSym,iD),iSym=1,nSym)
+  write(u6,*) 'nOV=',nOV
 # endif
   iOff = 1
   jOff = 0
@@ -263,9 +269,9 @@ do iD=1,nD
     iOff = iOff+nBas(iSym)*nOrb(iSym)
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iD=',iD
-  write(6,*) 'nOccs(new):'
-  write(6,*) (nOcc(iSym,iD),iSym=1,nSym)
+  write(u6,*) 'iD=',iD
+  write(u6,*) 'nOccs(new):'
+  write(u6,*) (nOcc(iSym,iD),iSym=1,nSym)
 # endif
 end do
 
@@ -303,7 +309,7 @@ do iD=1,nD
     call RecPrt('Occ','(10F6.2)',Occ(iOff,iD),1,nOrb(iSym))
     call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),nBas(iSym),nOrb(iSym))
     do i=0,nOrb(iSym)-1
-      write(6,*) 'i,OrbType=',i+1,OrbType(iOff+i,iD)
+      write(u6,*) 'i,OrbType=',i+1,OrbType(iOff+i,iD)
     end do
     iOff = iOff+nOrb(iSym)
     jOff = jOff+nOrb(iSym)*nBas(iSym)
@@ -318,42 +324,42 @@ contains
 
 subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
 
-  implicit none
-  integer nCMO, nD, nnB, nSym
-  real*8 CMO(nCMO,nD), Occ(nnB,nD)
-  integer nBas(nSym), nOrb(nSym), iFerm(nnB)
-  character(len=*) Label
-  integer iD, iOff, jOff, iSym, iOrb, k
-  real*8 tmp
+  use Definitions, only: u6
 
-  write(6,*) Label
+  integer(kind=iwp) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym), iFerm(nnB)
+  real(kind=wp) :: CMO(nCMO,nD), Occ(nnB,nD)
+  character(len=*) :: Label
+  integer(kind=iwp) :: iD, iOff, iOrb, iSym, jOff, k
+  real(kind=wp) :: tmp
+
+  write(u6,*) Label
   do iD=1,nD
-    write(6,*)
+    write(u6,*)
     if (iD == 1) then
       if (nD == 1) then
-        write(6,*) ' RHF CMOs'
+        write(u6,*) ' RHF CMOs'
       else
-        write(6,*) ' UHF alpha CMOs'
+        write(u6,*) ' UHF alpha CMOs'
       end if
     else
-      write(6,*) ' UHF beta CMOs'
+      write(u6,*) ' UHF beta CMOs'
     end if
-    write(6,*)
+    write(u6,*)
     jOff = 0
     iOff = 1
     do iSym=1,nSym
       do iOrb=1,nOrb(iSym)
         tmp = Zero
         do k=1,nBas(iSym)
-          tmp = tmp+dble(iFerm(jOff+k))*abs(CMO(iOff-1+(iOrb-1)*nBas(iSym)+k,iD))
+          tmp = tmp+real(iFerm(jOff+k),kind=wp)*abs(CMO(iOff-1+(iOrb-1)*nBas(iSym)+k,iD))
         end do
-        write(6,*)
+        write(u6,*)
         if (tmp /= Zero) then
-          write(6,*) 'Muonic Orbital:',iOrb
+          write(u6,*) 'Muonic Orbital:',iOrb
         else
-          write(6,*) 'Electronic  Orbital:',iOrb
+          write(u6,*) 'Electronic  Orbital:',iOrb
         end if
-        write(6,*) 'Occupation number:',Occ(jOff+iOrb,iD)
+        write(u6,*) 'Occupation number:',Occ(jOff+iOrb,iD)
         call RecPrt('CMO',' ',CMO(iOff+(iOrb-1)*nBas(iSym),iD),1,nBas(iSym))
       end do
       jOff = jOff+nOrb(iSym)
@@ -367,3 +373,11 @@ end subroutine DebugCMO
 #endif
 
 end subroutine OccDef
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(OccDef)
+
+#endif

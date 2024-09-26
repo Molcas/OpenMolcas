@@ -21,10 +21,11 @@ implicit none
 logical(kind=iwp), intent(in) :: Run_MCLR
 integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp), intent(in) :: iPrint
-#include "warnings.h"
 integer(kind=iwp) :: LuInput
 character(len=16) :: StdIn
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 if (Run_MCLR) then
 

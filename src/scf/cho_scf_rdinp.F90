@@ -22,17 +22,18 @@ use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 use Cholesky, only: ChFracMem, timings
 use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical DFonly
-integer LuSpool
+logical(kind=iwp) :: DFonly
+integer(kind=iwp) :: LuSpool
 #include "print.fh"
-character(len=180) KWord, Key
+integer(kind=iwp) :: i, iChrct, iPrint, iRout, jRout, Last, n
+real(kind=wp) :: dmpk_dfl
+character(len=180) :: Key, KWord
+character(len=*), parameter :: SECNAM = 'CHO_SCF_RDINP'
+integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
-character(len=13), parameter :: SECNAM = 'CHO_SCF_RDINP'
-real*8 dmpk_dfl
-integer i, iChrct, iPrint, iRout, jRout, Last, n
-integer, external :: iCLast
 
 iRout = 1
 iPrint = nPrint(iRout)
@@ -63,9 +64,9 @@ iPrint = nPrint(iRout)
 ! Default  parameters
 
 #ifdef _MOLCAS_MPP_
-ChFracMem = 0.3d0
+ChFracMem = 0.3_wp
 #else
-ChFracMem = half
+ChFracMem = Half
 #endif
 
 if (DFonly) then
@@ -75,7 +76,7 @@ if (DFonly) then
   DensityCheck = .false.
   timings = .false.
   NSCREEN = 10    ! default screening interval (# of red sets)
-  dmpk = 0.045d0  ! default damping of the screening threshold
+  dmpk = 0.045_wp ! default damping of the screening threshold
   Estimate = .false.
   Update = .true.
   goto 999  !return flag
@@ -88,7 +89,7 @@ DECO = .true.
 DensityCheck = .false.
 timings = .false.
 NSCREEN = 10
-dmpk = 0.045d0
+dmpk = 0.045_wp
 Estimate = .false.
 Update = .true.
 
@@ -141,8 +142,8 @@ if (KWord(1:4) == 'ENDO') Go To 998
 !----------------------------------------------------------------------*
 iChrct = len(KWord)
 Last = iCLast(KWord,iChrct)
-write(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(6,*) SECNAM,' Error in keyword.'
+write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+write(u6,*) SECNAM,' Error in keyword.'
 call Quit_OnUserError()
 !                                                                      *
 !***** ALGO ************************************************************
@@ -156,17 +157,17 @@ read(LuSpool,*) ALGO
 #ifdef _DEBUGPRINT_
 select case (ALGO)
   case (0)
-    write(6,*) 'Integral regeneration from Cholesky vectors reordered on disk'
+    write(u6,*) 'Integral regeneration from Cholesky vectors reordered on disk'
   case (1)
-    write(6,*) 'Density-based Cholesky. Default reorder: on the fly'
+    write(u6,*) 'Density-based Cholesky. Default reorder: on the fly'
   case (2)
-    write(6,*) 'MO-based-Exchange Cholesky. Default reorder: on the fly'
+    write(u6,*) 'MO-based-Exchange Cholesky. Default reorder: on the fly'
   case (3)
-    write(6,*) 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+    write(u6,*) 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
   case (4)
-    write(6,*) 'Local-Exchange (LK) algorithm.'
+    write(u6,*) 'Local-Exchange (LK) algorithm.'
 end select
-write(6,*)
+write(u6,*)
 #endif
 
 Go To 1000
@@ -176,8 +177,8 @@ Go To 1000
 800 continue
 REORD = .true.
 #ifdef _DEBUGPRINT_
-write(6,*) 'Vectors reordered on DISK'
-write(6,*)
+write(u6,*) 'Vectors reordered on DISK'
+write(u6,*)
 #endif
 
 Go To 1000
@@ -187,8 +188,8 @@ Go To 1000
 810 continue
 DECO = .false.
 #ifdef _DEBUGPRINT_
-write(6,*) 'Not-Using Decomposed density matrix'
-write(6,*)
+write(u6,*) 'Not-Using Decomposed density matrix'
+write(u6,*)
 #endif
 
 Go To 1000
@@ -219,7 +220,7 @@ Go To 1000
 850 continue
 read(LuSpool,*) dmpk
 if (dmpk < Zero) then
-  write(6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
+  write(u6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
   dmpk = dmpk_dfl
 end if
 
@@ -230,8 +231,8 @@ Go To 1000
 860 continue
 Update = .true.
 #ifdef _DEBUGPRINT_
-write(6,*) 'Local-K with updating of the true diagonals'
-write(6,*)
+write(u6,*) 'Local-K with updating of the true diagonals'
+write(u6,*)
 #endif
 
 Go To 1000
@@ -241,8 +242,8 @@ Go To 1000
 870 continue
 Estimate = .true.
 #ifdef _DEBUGPRINT_
-write(6,*) 'Local-K with evaluation of the diagonals from the current vec'
-write(6,*)
+write(u6,*) 'Local-K with evaluation of the diagonals from the current vec'
+write(u6,*)
 #endif
 
 Go To 1000
@@ -252,8 +253,8 @@ Go To 1000
 880 continue
 algo = 4
 #ifdef _DEBUGPRINT_
-write(6,*) 'Local-Exchange (LK) algorithm.'
-write(6,*)
+write(u6,*) 'Local-Exchange (LK) algorithm.'
+write(u6,*)
 #endif
 
 Go To 1000
@@ -263,8 +264,8 @@ Go To 1000
 881 continue
 algo = 3
 #ifdef _DEBUGPRINT_
-write(6,*) 'Local-Exchange (LK) screening turned off! '
-write(6,*)
+write(u6,*) 'Local-Exchange (LK) screening turned off! '
+write(u6,*)
 #endif
 
 Go To 1000
@@ -306,9 +307,9 @@ return
 !                                                                      *
 ! Error handling
 
-write(6,*) SECNAM,' Premature end of input file.'
+write(u6,*) SECNAM,' Premature end of input file.'
 call Quit_OnUserError()
-write(6,*) SECNAM,' Error while reading input file.'
+write(u6,*) SECNAM,' Error while reading input file.'
 call Quit_OnUserError()
 
 end subroutine CHO_SCF_RDINP

@@ -36,7 +36,6 @@ integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mAtoms, iIter, mTR, iTab
                                  nBonds, iTabBonds(3,nBonds), iRef, nWndw
 real(kind=wp), intent(in) :: TRVec(nDimBC,mTR)
 integer(kind=iwp), intent(out) :: nQQ
-#include "warnings.h"
 #include "print.fh"
 integer(kind=iwp) :: i, i_Dim, iAtom, iB, iDum(6), iEnd, iGhi, iGlow, iPrint, iq, iqA, iQD, iqO, iQQ, iqR, iqRF, iqT, iRout, iSt, &
                      iX, ixyz, jIter, LuIC, M, mIter, N, nB, nB_Tot, ndB_Tot, nK, nq, nqA, nqB, nqO, nqRF, nqT, NRHS, nX
@@ -49,6 +48,8 @@ real(kind=wp), allocatable :: Degen2(:), EVal(:), F_c(:), G(:), GRef(:), GxR(:),
                               Proj(:), qVal(:,:), Temp2(:,:)
 character(len=14), allocatable :: qLbl(:)
 integer(kind=iwp), external :: isfreeunit
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

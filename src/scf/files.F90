@@ -44,28 +44,18 @@
 
 module Files
 
-integer :: LuOne = 10
-character(len=8), parameter :: FnOne = 'ONEINT '
-integer :: LuOrd = 40
-character(len=8), parameter :: FnOrd = 'ORDINT '
-integer :: LuOut = 20
-character(len=8), parameter :: FnOut = 'SCFORB  '
-integer :: LuInp = 25
-integer :: LuDSt = 34
-character(len=8), parameter :: FnDSt = 'DNSMAT  '
-integer :: LuOSt = 40
-character(len=8), parameter :: FnOSt = 'DVXCDR  '
-integer :: LuTSt = 35
-character(len=8), parameter :: FnTSt = 'TWOHAM  '
-integer :: LuGrd = 36
-character(len=8), parameter :: FnGrd = 'GRADIENT'
-integer :: LuDGd = 37
-character(len=8), parameter :: FnDGd = 'SODGRAD '
-integer :: Lux = 38
-character(len=8), parameter :: Fnx = 'SOXVEC  '
-integer :: LuDel = 39
-character(len=8), parameter :: FnDel = 'SODELTA '
-integer :: Luy = 29
-character(len=8), parameter :: Fny = 'SOYVEC  '
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: LuDel = 39, LuDGd = 37, LuDSt = 34, LuGrd = 36, LuInp = 25, LuOne = 10, LuOrd = 40, LuOSt = 40, LuOut = 20, &
+                     LuTSt = 35, Lux = 38, Luy = 29
+character(len=8), parameter :: FnDel = 'SODELTA', FnDGd = 'SODGRAD', FnDSt = 'DNSMAT', FnGrd = 'GRADIENT', FnOne = 'ONEINT', &
+                               FnOrd = 'ORDINT', FnOSt = 'DVXCDR', FnOut = 'SCFORB', FnTSt = 'TWOHAM', Fnx = 'SOXVEC', &
+                               Fny = 'SOYVEC'
+
+public :: FnDel, FnDGd, FnDSt, FnGrd, FnOne, FnOrd, FnOSt, FnOut, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuInp, LuOne, &
+          LuOrd, LuOSt, LuOut, LuTSt, Lux, Luy
 
 end module Files

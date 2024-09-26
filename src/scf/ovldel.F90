@@ -30,16 +30,17 @@ subroutine OvlDel(Ovlp,nOvlp,TrMat,nTrMat)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: DelThr, MaxBas, MaxBOF, MaxOrF, MiniDn, nSym, nBas, nFro, nOrb, nDel
-use Constants, only: Zero, One
+use InfSCF, only: DelThr, MaxBas, MaxBOF, MaxOrF, MiniDn, nBas, nDel, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nOvlp, nTrMat
-real*8 Ovlp(nOvlp), TrMat(nTrMat)
-real*8 Dummy
-integer iDum, iErr, iiBT, ij, Ind, iNew, iOld, iOrb, iSym, nFound, nOF, nOrbi
-real*8, dimension(:), allocatable :: OvlT, OvlH, OvlS, EVec, EVal, NewB, Scratch
+integer(kind=iwp) :: nOvlp, nTrMat
+real(kind=wp) :: Ovlp(nOvlp), TrMat(nTrMat)
+integer(kind=iwp) :: iDum, iErr, iiBT, ij, Ind, iNew, iOld, iOrb, iSym, nFound, nOF, nOrbi
+real(kind=wp) :: Dummy
+real(kind=wp), allocatable :: EVal(:), EVec(:), NewB(:), OvlH(:), OvlS(:), OvlT(:), Scratch(:)
 
 ! Allocate memory for transformed overlap matrix
 call mma_allocate(OvlT,MaxOrF*(MaxOrF+1)/2,Label='OvlT')
@@ -69,12 +70,12 @@ do iSym=1,nSym
 
   ! Copy frozen vectors to the right position
   if (nFro(iSym)*nBas(iSym) > 0) then
-    !write(6,'(a,i2)') 'Copying symmetry block',iSym
-    !write(6,'(i8,a,i8)') iOld,' ->',iNew
-    !write(6,'(a,i8)') 'nTrMat =',nTrMat
+    !write(u6,'(a,i2)') 'Copying symmetry block',iSym
+    !write(u6,'(i8,a,i8)') iOld,' ->',iNew
+    !write(u6,'(a,i8)') 'nTrMat =',nTrMat
     call dcopy_(nFro(iSym)*nBas(iSym),TrMat(iOld),1,TrMat(iNew),1)
   !else
-  !  write(6,'(a,i2)') 'No copying of symmetry block',iSym
+  !  write(u6,'(a,i2)') 'No copying of symmetry block',iSym
   end if
 
   iOld = iOld+nFro(iSym)*nBas(iSym)
@@ -117,7 +118,7 @@ do iSym=1,nSym
     ind = 1
     do iOrb=1,nOF
       if (EVal(iOrb) > DelThr) then
-        if (EVal(iOrb) < 1.0d-5) MiniDn = .false.
+        if (EVal(iOrb) < 1.0e-5_wp) MiniDn = .false.
         call dcopy_(nBas(iSym),NewB(ind),1,TrMat(iNew),1)
         iNew = iNew+nBas(iSym)
         nOrbi = nOrbi+1

@@ -13,13 +13,14 @@
 
 subroutine dX()
 
-use LnkLst, only: SCF_V, LLx, LLDelt, LstPtr, GetNod, iVPtr, PutVec
+use LnkLst, only: GetNod, iVPtr, LLDelt, LLx, LstPtr, PutVec, SCF_V
 use InfSCF, only: Iter, Iter_Start, mOV
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer jpgrd, inode, i
-real*8, dimension(:), allocatable :: Scr
+integer(kind=iwp) :: i, inode, jpgrd
+real(kind=wp), allocatable :: Scr(:)
 
 call mma_allocate(Scr,mOV,Label='Scr')
 
@@ -33,7 +34,7 @@ do i=Iter_Start,Iter-1
 
   call GetNod(i,LLx,inode) ! X(i)
   if (inode == 0) then
-    write(6,*) 'inode == 0'
+    write(u6,*) 'inode == 0'
     call Abend()
   end if
   call iVPtr(Scr,mOV,inode)

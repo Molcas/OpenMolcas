@@ -24,6 +24,7 @@ real(kind=wp), intent(in) :: Cmo(nBas,nBas)
 integer(kind=iwp) :: i, iB1, iT, j, kaunt1
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: Diff(:), Inv(:,:), RedSq(:,:), SqD(:,:), SqE(:), TEMP(:,:)
+
 #include "warnings.h"
 
 write(u6,*)

@@ -32,18 +32,17 @@ subroutine Freeze(TrMat,nTrMat,OneHam,mBT)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: nSym, nBas, nFro, nOrb, nBT
+use InfSCF, only: nBas, nBT, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp) :: nTrMat, mBT
+real(kind=wp) :: TrMat(nTrMat), OneHam(mBT)
 #include "Molcas.fh"
-integer nTrMat, mBT
-real*8 TrMat(nTrMat), OneHam(mBT)
-! Define local variables
-integer iStart, iSym, nOr, iFro, iStrt, iSta, iBas, i, j, k, iSwap, iCMO, Ind1, Ind2
-real*8 OEMin
-real*8, dimension(:), allocatable :: Temp
-integer MapBas(MxBas,MxSym)
+integer(kind=iwp) :: i, iBas, iCMO, iFro, Ind1, Ind2, iSta, iStart, iStrt, iSwap, iSym, j, k, MapBas(MxBas,MxSym), nOr
+real(kind=wp) :: OEMin
+real(kind=wp), allocatable :: Temp(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -59,7 +58,7 @@ iStart = 0
 do iSym=1,nSym
   nOr = nOrb(iSym)
   do iFro=1,nFro(iSym)
-    OEMin = 1.0d+06
+    OEMin = 1.0e6_wp
     iStrt = iStart
     iSta = 0
     do iBas=1,nOr

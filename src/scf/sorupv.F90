@@ -48,38 +48,31 @@ subroutine SOrUpV(V,lvec,W,Mode,UpTp)
 !     Mode='GRAD':  g=-Hd        update for the inverse Hessian        *
 !***********************************************************************
 
-use LnkLst, only: SCF_V
-use LnkLst, only: LLdGrd, LLDelt, LLy, LstPtr, LLLen, GetNod, iVPtr, PutVec
-! only tentatively this Module
+use LnkLst, only: GetNod, iVPtr, LLDelt, LLdGrd, LLLen, LLy, LstPtr, PutVec, SCF_V
 use InfSO, only: IterSO
 use InfSCF, only: Iter, TimFld
 use SCF_Arrays, only: HDiag
-use Constants, only: Zero, One
-use stdalloc, only: mma_allocate, mma_deallocate
 use Files, only: LuDel, LuDGd
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! declaration subroutine parameters
-integer lvec
-real*8 W(lVec), V(lvec)
-character*4 Mode, UpTp
-! declaration local variables
-character(len=8), save :: Mode_Old
-integer ipdel, ipdgd, ipynm1
-integer i, it, inode, leny
-logical updy
-real*8 S(6), T(4)
-! declarations of functions
-real*8, external :: ddot_
-real*8 Cpu1, Cpu2, Tim1, Tim2, Tim3
-real*8 :: Thr = 1.0D-9
-integer LL1, LL2, Lu1
-real*8, dimension(:), allocatable :: SOGrd, SODel, SOScr
-logical Inverse_H, diag
+integer(kind=iwp) :: lvec
+real(kind=wp) :: V(lVec), W(lvec)
+character(len=4) :: Mode, UpTp
+integer(kind=iwp) :: i, inode, ipdel, ipdgd, ipynm1, it, leny, LL1, LL2, Lu1
+real(kind=wp) :: Cpu1, Cpu2, S(6), T(4), Tim1, Tim2, Tim3
+logical(kind=iwp) :: diag, Inverse_H, updy
+character(len=8) :: Mode_Old = ''
+real(kind=wp), allocatable :: SOGrd(:), SODel(:), SOScr(:)
+real(kind=wp), parameter :: Thr = 1.0e-9_wp
+real(kind=wp), external :: ddot_
 interface
   subroutine yHx(X,Y,nXY)
-    integer nXY
-    real*8, target :: X(nXY), Y(nXY)
+    import :: wp, iwp
+    integer(kind=iwp) :: nXY
+    real(kind=wp), target :: X(nXY), Y(nXY)
   end subroutine yHx
 end interface
 
@@ -121,20 +114,20 @@ else if (Mode == 'GRAD') then
 end if
 
 if (Lu1 < 0) then
-  write(6,*) 'SOrUpV: Illegal mode'
+  write(u6,*) 'SOrUpV: Illegal mode'
   call Abend()
 end if
 
 if ((UpTp /= 'BFGS') .and. (UpTp /= 'DFP ')) then
-  write(6,*) 'SOrUpV: Illegal update type',UpTp
+  write(u6,*) 'SOrUpV: Illegal update type',UpTp
   call Abend()
 end if
 
 if ((iterso > 1) .and. (Mode//UpTp /= Mode_Old)) then
-  write(6,*) 'IterSO=',IterSO
-  write(6,*) 'Mode_Old:',Mode_Old
-  write(6,*) 'Mode//UpTp:',Mode//UpTp
-  write(6,*) 'SOrUpV: Illegal mode switch'
+  write(u6,*) 'IterSO=',IterSO
+  write(u6,*) 'Mode_Old:',Mode_Old
+  write(u6,*) 'Mode//UpTp:',Mode//UpTp
+  write(u6,*) 'SOrUpV: Illegal mode switch'
   call Abend()
 end if
 
@@ -145,7 +138,7 @@ end if
 if (Inverse_H) then
   do i=1,lvec
     if (abs(HDiag(i)) < Thr) then
-      W(i) = 1.0d2*V(i)
+      W(i) = 1.0e2_wp*V(i)
     else
       W(i) = V(i)/HDiag(i)
     end if
@@ -157,8 +150,8 @@ else
   call yHx(V,W,lvec)
 end if
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*)
+write(u6,*)
+write(u6,*)
 call Check_Vec(W,size(W),'H_{n-1}v')
 call NrmClc(V,lVec,'SORUPV','V')
 call NrmClc(HDiag,lVec,'SORUPV','HDiag')
@@ -167,7 +160,7 @@ call NrmClc(W,lVec,'SORUPV','W')
 
 diag = (iterso == 1)
 #ifdef _DIAGONAL_ONLY_
-write(6,*) ' SorUpV: Only diagonal approximation'
+write(u6,*) ' SorUpV: Only diagonal approximation'
 diag = .true.
 #endif
 if (diag) then
@@ -193,7 +186,7 @@ call iVPtr(SOGrd,lvec,inode)
 if (Inverse_H) then
   do i=1,lvec
     if (abs(HDiag(i)) < Thr) then
-      SOScr(i) = 1.0d2*SOGrd(i)
+      SOScr(i) = 1.0e2_wp*SOGrd(i)
     else
       SOScr(i) = SOGrd(i)/HDiag(i)
     end if
@@ -225,7 +218,7 @@ end if
 ! (4): now loop over 1..n-2 iterations.
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'IterSO=',IterSO
+write(u6,*) 'IterSO=',IterSO
 #endif
 do it=iter-iterso+1,iter-2
 
@@ -270,8 +263,8 @@ do it=iter-iterso+1,iter-2
     S(6) = Zero
   end if
 # ifdef _DEBUGPRINT_
-  write(6,*) 'it=',it
-  write(6,*) '(S(i),i=1,6)=',(S(i),i=1,6)
+  write(u6,*) 'it=',it
+  write(u6,*) '(S(i),i=1,6)=',(S(i),i=1,6)
 # endif
 
   if ((Mode_Old == 'DISPBFGS') .or. (Mode_Old == 'GRADDFP ')) then
@@ -303,7 +296,7 @@ do it=iter-iterso+1,iter-2
   ! Compute w and y(n-1)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
+  write(u6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
   call Check_Vec(W,size(W),'W(0)')
   call daxpy_(lvec,T(1),SODel,1,W,1)
   call Check_Vec(W,size(W),'W(1)')
@@ -334,7 +327,7 @@ ipynm1 = LstPtr(iter-1,LLy)
 ipdel = LstPtr(iter-1,LL1)
 ipdgd = LstPtr(iter-1,LL2)
 #ifdef _DEBUGPRINT_
-write(6,*)
+write(u6,*)
 !call RecPrt('y(n-1)',' ',SCF_V(ipynm1)%A,1,lVec)
 call NrmClc(SCF_V(ipynm1)%A,lVec,'SOrUpV','y(n-1)')
 if (Mode == 'DISP') then
@@ -348,7 +341,7 @@ else
   call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dg(n-1)')
   call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dX(n-1)')
 end if
-write(6,*)
+write(u6,*)
 call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
 call Check_Vec(SCF_V(ipdgd)%A,lvec,'Delta_{n-1}')
 #endif
@@ -356,24 +349,24 @@ call Check_Vec(SCF_V(ipdgd)%A,lvec,'Delta_{n-1}')
 ! calculate diverse dot products...
 
 S(1) = ddot_(lvec,SCF_V(ipdel)%A,1,SCF_V(ipdgd)%A,1)
-!write(6,*) 'S(1)=',S(1)
+!write(u6,*) 'S(1)=',S(1)
 if (abs(S(1)) < Thr) then
   S(1) = Zero
   !S(1) = One/Thr
 else
   S(1) = One/S(1)
 end if
-!write(6,*) 'S(1)=Alpha=',S(1)
+!write(u6,*) 'S(1)=Alpha=',S(1)
 !call Check_vec(SCF_V(ipynm1)%A,lVec,'y_{n-1}=H_{n-1}Delta_{n-1}')
 S(2) = ddot_(lvec,SCF_V(ipdgd)%A,1,SCF_V(ipynm1)%A,1)
-!write(6,*) 'S(2)=Delta_{n-1}^T*y_{n-1}=',S(2)
+!write(u6,*) 'S(2)=Delta_{n-1}^T*y_{n-1}=',S(2)
 S(3) = ddot_(lvec,SCF_V(ipdel)%A,1,V,1)
-!write(6,*) 'S(3)=delta_{n-1}^T*v=',S(3)
+!write(u6,*) 'S(3)=delta_{n-1}^T*v=',S(3)
 S(4) = ddot_(lvec,SCF_V(ipynm1)%A,1,V,1)
-!write(6,*) 'S(4)=y_{n-1}^T*v=',S(4)
+!write(u6,*) 'S(4)=y_{n-1}^T*v=',S(4)
 
 #ifdef _DEBUGPRINT_
-write(6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
+write(u6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
 #endif
 
 if ((Mode_Old == 'DISPBFGS') .or. (Mode_Old == 'GRADDFP ')) then
@@ -383,11 +376,11 @@ if ((Mode_Old == 'DISPBFGS') .or. (Mode_Old == 'GRADDFP ')) then
   else
     S(2) = One+S(1)*S(2)
   end if
-  !write(6,*) 'S(2)(1+...)=',S(2)
-  !write(6,*)
+  !write(u6,*) 'S(2)(1+...)=',S(2)
+  !write(u6,*)
   T(2) = S(1)*S(3)
   T(1) = S(2)*T(2)-S(1)*S(4)
-  !write(6,*) 'T(:)=',T(:)
+  !write(u6,*) 'T(:)=',T(:)
 else if ((Mode_Old == 'DISPDFP ') .or. (Mode_Old == 'GRADBFGS')) then
   if (abs(S(2)) < Thr) then
     S(2) = Zero
@@ -402,7 +395,7 @@ end if
 ! update the vector w
 
 #ifdef _DEBUGPRINT_
-write(6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
+write(u6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
 call Check_Vec(W,size(W),'W(2), again')
 call daxpy_(lvec,T(1),SCF_V(ipdel)%A,1,W,1)
 call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
@@ -433,7 +426,7 @@ contains
 subroutine Error_handling()
 
   ! Hmmm, no entry found in LList, that's strange
-  write(6,*) 'SOrUpV: no entry found in LList'
+  write(u6,*) 'SOrUpV: no entry found in LList'
   call Abend()
 
 end subroutine Error_handling
@@ -441,13 +434,11 @@ end subroutine Error_handling
 #ifdef _DEBUGPRINT_
 subroutine Check_Vec(Vec,nVec,Label)
 
-  integer nVec
-  real*8 Vec(nVec), DD
-  real*8, external :: DDot_
-  character(len=*) Label
+  integer(kind=iwp) :: nVec
+  real(kind=wp) :: Vec(nVec)
+  character(len=*) :: Label
 
-  DD = sqrt(DDot_(nVec,Vec,1,Vec,1))
-  write(6,*) 'Norm of ',Label,' is : ',DD
+  write(u6,*) 'Norm of ',Label,' is : ',sqrt(DDot_(nVec,Vec,1,Vec,1))
 
 end subroutine Check_Vec
 #endif

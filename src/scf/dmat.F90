@@ -24,23 +24,19 @@ subroutine DMat(XCf,nXCf,nD)
 !***********************************************************************
 
 use Interfaces_SCF, only: dOne_SCF, MinDns
-use InfSCF, only: DDnOFF, DNorm, iDisk, InVec, iPsLst, Iter, MiniDN, nBas
-use InfSCF, only: nBT, nDens, nDsk, nFrz, nIterP, nMem, nOrb, nSym, MapDns, nIter
+use InfSCF, only: DDnOFF, DNorm, iDisk, InVec, iPsLst, Iter, MapDns, MiniDN, nBas, nBT, nDens, nFrz, nIter, nIterP, nMem, nOrb, nSym
+use SCF_Arrays, only: CMO, Dens, OccNo, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-use SCF_Arrays, only: Dens, TwoHam, Vxc, CMO, OccNo
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nXCF, nD
-real*8 XCf(nXCf,nD)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-logical alpha_density
-real*8, dimension(:), allocatable :: Aux
-integer iFrom, iOnDsk, iD
-real*8, external :: DDot_
-integer nCMO
+integer(kind=iwp) :: nXCF, nD
+real(kind=wp) :: XCf(nXCf,nD)
+integer(kind=iwp) :: iD, iFrom, iOnDsk, nCMO
+logical(kind=iwp) :: alpha_density
+real(kind=wp), allocatable :: Aux(:)
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 ! Start                                                                *
@@ -55,9 +51,7 @@ if (MapDns(iter) == 0) then   ! Position not defined
   ! Update MapDns and eventually write earlier Dens, TwoHam,
   ! and Vxc matrices to disk.
 
-  nDsk = max(0,iter-nMem) ! is there too many densities?
-
-  if (nDsk == 0) then    ! keep the array in memory
+  if (iter <= nMem) then    ! keep the array in memory
 
     MapDns(iter) = iter
 
@@ -87,8 +81,8 @@ end if
 
 iPsLst = MapDns(iter)
 if (iPsLst <= 0) then
-  write(6,*) 'DMat: iPsLst <= 0'
-  write(6,*) 'iPsLst=',iPsLst
+  write(u6,*) 'DMat: iPsLst <= 0'
+  write(u6,*) 'iPsLst=',iPsLst
   call Abend()
 end if
 
@@ -158,10 +152,10 @@ else
 
 end if
 
-DNorm = dble(nD)*DDot_(nBT*nD,Dens(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
+DNorm = real(nD,kind=wp)*DDot_(nBT*nD,Dens(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'DNorm=',DNorm
+write(u6,*) 'DNorm=',DNorm
 call NrmClc(Dens(1,1,iPsLst),nBT*nD,'DMat  ','D iPsLst  ')
 call NrmClc(Dens(1,1,nDens),nBT*nD,'DMat  ','D nDens   ')
 #endif

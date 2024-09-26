@@ -13,11 +13,12 @@
 
 subroutine Mk_EOrb()
 
-use SCF_Arrays, only: FockAO, EOrb, CMO
-use InfSCF, only: nSym, nBas, nOrb, nD
+use SCF_Arrays, only: CMO, EOrb, FockAO
+use InfSCF, only: nBas, nD, nOrb, nSym
+use Definitions, only: iwp
 
 implicit none
-integer nFck, nEOrb, nCMO, iD
+integer(kind=iwp) :: iD, nCMO, nEOrb, nFck
 
 nFck = size(FockAO,1)
 nEOrb = size(EOrb,1)

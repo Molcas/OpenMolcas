@@ -15,6 +15,9 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 !#define _DEBUGPRINT_
 subroutine TraClc_i(iterLw,nD)
 !***********************************************************************
@@ -47,21 +50,21 @@ subroutine TraClc_i(iterLw,nD)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: iDKeep, Iter, nBT, MapDns, iDisk
+use InfSCF, only: iDisk, iDKeep, Iter, MapDns, nBT
+use SCF_Arrays, only: Dens, OneHam, TrDD, TrDh, TrDP, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
-use SCF_Arrays, only: OneHam, TwoHam, Vxc, Dens, TrDh, TrDP, TrDD
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nD, IterLw
-! Define local variables
-integer ii, iPosL, iD, i, iPos
-real*8, external :: DDot_
-real*8, dimension(:,:), allocatable, target :: Aux1, Aux2, Aux3
-real*8, dimension(:,:), pointer :: pDens, pTwoHam, pVxc
+integer(kind=iwp) :: IterLw, nD
+integer(kind=iwp) :: i, iD, ii, iPos, iPosL
 #ifdef _DEBUGPRINT_
-integer iR, iC
+integer(kind=iwp) :: iC, iR
 #endif
+real(kind=wp), allocatable, target :: Aux1(:,:), Aux2(:,:), Aux3(:,:)
+real(kind=wp), pointer :: pDens(:,:), pTwoHam(:,:), pVxc(:,:)
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -126,8 +129,8 @@ end do ! ii
 
 #ifdef _DEBUGPRINT_
 do iD=1,nD
-  write(6,'(a)') 'traclc: TrDh'
-  write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
+  write(u6,'(a)') 'traclc: TrDh'
+  write(u6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
 end do
 #endif
 if (allocated(Aux1)) call mma_deallocate(Aux1)
@@ -146,7 +149,7 @@ do ii=iterLw,iter
       TrDP(ii,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,TwoHam(1,iD,iPosL),1)+DDot_(nBT,Dens(1,iD,iPosL),1,Vxc(1,iD,iPosL),1)
       TrDD(ii,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,Dens(1,iD,iPosL),1)
     else
-      write(6,'(a)') 'traclc: should not happen!!!'
+      write(u6,'(a)') 'traclc: should not happen!!!'
       TrDP(ii,ii,iD) = Zero
       call Abend()
     end if
@@ -187,18 +190,18 @@ do ii=iterLw,iter
 
 #   ifdef _DEBUGPRINT_
     do iD=1,nD
-      write(6,*) 'iteration:',ii
-      write(6,'(a)') 'traclc: TrDh'
+      write(u6,*) 'iteration:',ii
+      write(u6,'(a)') 'traclc: TrDh'
       do iR=1,ii
-        write(6,'(6f16.8)') TrDh(iR,iR,iD)
+        write(u6,'(6f16.8)') TrDh(iR,iR,iD)
       end do
-      write(6,'(a)') 'traclc: TrDP'
+      write(u6,'(a)') 'traclc: TrDP'
       do iR=1,ii
-        write(6,'(6f16.8)') (TrDP(iR,iC,iD),iC=1,ii)
+        write(u6,'(6f16.8)') (TrDP(iR,iC,iD),iC=1,ii)
       end do
-      write(6,'(a)') 'traclc: TrDD'
+      write(u6,'(a)') 'traclc: TrDD'
       do iR=1,ii
-        write(6,'(6f16.8)') (TrDD(iR,iC,iD),iC=1,ii)
+        write(u6,'(6f16.8)') (TrDD(iR,iC,iD),iC=1,ii)
       end do
     end do ! iD
 #   endif
@@ -220,3 +223,11 @@ end if
 return
 
 end subroutine TraClc_i
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(TraClc_i)
+
+#endif

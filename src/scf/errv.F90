@@ -24,21 +24,21 @@ subroutine ErrV(lvec,ivec,QNRstp,ErrVec)
 !                                                                      *
 !***********************************************************************
 
-use LnkLst, only: LLGrad, GetNod, iVPtr
+use LnkLst, only: GetNod, iVPtr, LLGrad
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer lVec, iVec
-real*8 ErrVec(lVec)
-logical QNRstp
-! local vars
-integer inode
-real*8, allocatable :: Grad(:)
+integer(kind=iwp) :: lVec, iVec
+real(kind=wp) :: ErrVec(lVec)
+logical(kind=iwp) :: QNRstp
+integer(kind=iwp) :: inode
+real(kind=wp), allocatable :: Grad(:)
 
 call GetNod(ivec,LLGrad,inode)
 if (inode == 0) then
   ! Hmmm, no entry found in LList, that's strange
-  write(6,*) 'ErrV: no entry found in LList!'
+  write(u6,*) 'ErrV: no entry found in LList!'
   call Abend()
 end if
 
@@ -49,7 +49,7 @@ if (QNRstp) then
   call mma_allocate(Grad,lvec,Label='Grad')
   call iVPtr(Grad,lvec,inode)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'ErrV, iVec=',iVec
+  write(u6,*) 'ErrV, iVec=',iVec
   call NrmClc(Grad,lVec,'ErrV','Grad')
 # endif
   call SOrUpV(Grad,lvec,ErrVec,'DISP','BFGS')

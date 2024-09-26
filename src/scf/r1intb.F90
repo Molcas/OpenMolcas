@@ -22,15 +22,15 @@ subroutine R1IntB()
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: KntE, MssVlc, Darwin
+use SCF_Arrays, only: Darwin, KntE, MssVlc
 use InfSCF, only: lRel, nBT
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
 implicit none
-! Define local variables
-integer iComp, iOpt, iRC, iSyLbl
-character(len=8) Label
+integer(kind=iwp) :: iComp, iOpt, iRC, iSyLbl
+character(len=8) :: Label
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -50,8 +50,8 @@ iSyLbl = 1
 Label = 'Kinetic '
 call RdOne(iRc,iOpt,Label,iComp,KntE,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'R1Intb: Error readin ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'R1Intb: Error readin ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 

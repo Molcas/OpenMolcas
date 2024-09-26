@@ -18,18 +18,18 @@
 subroutine Reduce_Thresholds(EThr_,SIntTh)
 
 use InfSO, only: DltNTh
-use InfSCF, only: EThr, DThr, FThr
-use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, SIntTh_old, ThrInt_old
+use InfSCF, only: DThr, EThr, FThr
+use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_old
 use Constants, only: Zero, One, Ten
+use Definitions, only: wp, u6
 
 implicit none
-real*8 EThr_, SIntTh, Relax
-real*8, external :: Get_ThrInt
+real(kind=wp) :: EThr_, Relax, SIntTh
+real(kind=wp), external :: Get_ThrInt
 
-write(6,*)
-write(6,*) 'Temporary increase of thresholds...'
-write(6,*)
-SIntTh_old = SIntTh
+write(u6,*)
+write(u6,*) 'Temporary increase of thresholds...'
+write(u6,*)
 EThr_old = EThr
 DThr_old = DThr
 DltNTh_old = DltNTh

@@ -25,31 +25,25 @@ subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !                                                                      *
 !***********************************************************************
 
+use InfSCF, only: FileOrb_ID, iAU_AB, isHDF5, nBas, nD, nOcc, nOrb, nSym, nSym, SCF_FileOrb, Tot_EL_Charge, vTitle
 #ifdef _HDF5_
 use mh5, only: mh5_exists_dset
 #endif
-use InfSCF, only: nSym, nD, SCF_FileOrb, isHDF5, Tot_EL_Charge, iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use InfSCF, only: Tot_Charge, Tot_Nuc_Charge
+use Definitions, only: u6
 #endif
-use Constants, only: Zero, Half, One, Two
-use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-logical OccSet
-logical FermSet
-logical SpinSet
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character(len=512) FNAME
-logical Idem
-real*8, dimension(:,:), allocatable :: OccVec, EpsVec
-real*8 Dummy(1), qA, qB, Tmp, Tmp1
-integer nVec, iSym, LU, isUHF, LU_, I, iDiff, iOff, N, iBas, iDummy(1), iErr, iWFType
+logical(kind=iwp) :: OccSet, FermSet, SpinSet
+integer(kind=iwp) :: I, iBas, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, LU, LU_, N, nVec
+real(kind=wp) :: Dummy(1), qA, qB, Tmp, Tmp1
+logical(kind=iwp) :: Idem
+character(len=512) :: FNAME
+real(kind=wp), allocatable :: EpsVec(:,:), OccVec(:,:)
 
 !----------------------------------------------------------------------*
 ! Setup                                                                *
@@ -108,19 +102,19 @@ else
 end if
 #ifdef _DEBUGPRINT_
 if (nD == 1) then
-  write(6,*) 'Orbital energies'
-  write(6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
-  write(6,*) 'Occupation numbers'
-  write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+  write(u6,*) 'Orbital energies'
+  write(u6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
+  write(u6,*) 'Occupation numbers'
+  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
 else
-  write(6,*) 'Alpha orbital energies'
-  write(6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
-  write(6,*) 'Alpha occupation numbers'
-  write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
-  write(6,*) 'Beta orbital energies'
-  write(6,'(10f12.6)') (EpsVec(i,2),i=1,nVec)
-  write(6,*) 'Beta occupation numbers'
-  write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+  write(u6,*) 'Alpha orbital energies'
+  write(u6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
+  write(u6,*) 'Alpha occupation numbers'
+  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+  write(u6,*) 'Beta orbital energies'
+  write(u6,'(10f12.6)') (EpsVec(i,2),i=1,nVec)
+  write(u6,*) 'Beta occupation numbers'
+  write(u6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
 end if
 #endif
 !----------------------------------------------------------------------*
@@ -147,7 +141,7 @@ if (nD == 1) then
       tmp1 = tmp1+OccVec(i,1)
     end do
     OccVec(:,:) = Zero
-    tmp1 = dble(nint(tmp1))
+    tmp1 = real(nint(tmp1),kind=wp)
     do i=1,(nint(tmp1)+1)/2
       if (tmp1 >= Two) then
         qa = qa+Two
@@ -186,7 +180,7 @@ else
       tmp1 = tmp1+OccVec(i,1)+OccVec(i,2)
     end do
     OccVec(:,:) = Zero
-    tmp1 = dble(nint(tmp1))
+    tmp1 = real(nint(tmp1),kind=wp)
     do i=1,(nint(tmp1)+1)/2
       if (tmp1 >= Two) then
         qa = qa+One
@@ -209,22 +203,22 @@ else
 end if
 #ifdef _DEBUGPRINT_
 if (nD == 1) then
-  write(6,*) 'chklumo: Idempotency'
-  write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
-  write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
-  write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
-  write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
-  write(6,'(a,f12.6)') 'Electron count     ',Two*qa
+  write(u6,*) 'chklumo: Idempotency'
+  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+  write(u6,'(a,f12.6)') 'Tot charge         ',Tot_charge
+  write(u6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
+  write(u6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
+  write(u6,'(a,f12.6)') 'Electron count     ',Two*qa
 else
-  write(6,*) 'chklumo: Alpha idempotency'
-  write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
-  write(6,*) 'chklumo: Beta idempotency'
-  write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
-  write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
-  write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
-  write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
-  write(6,'(a,f12.6)') 'Alpha count        ',qa
-  write(6,'(a,f12.6)') 'Beta count         ',qb
+  write(u6,*) 'chklumo: Alpha idempotency'
+  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+  write(u6,*) 'chklumo: Beta idempotency'
+  write(u6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+  write(u6,'(a,f12.6)') 'Tot charge         ',Tot_charge
+  write(u6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
+  write(u6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
+  write(u6,'(a,f12.6)') 'Alpha count        ',qa
+  write(u6,'(a,f12.6)') 'Beta count         ',qb
 end if
 #endif
 !----------------------------------------------------------------------*
@@ -232,7 +226,7 @@ end if
 !----------------------------------------------------------------------*
 if (abs(qa+qb+Tot_el_charge) > half) then
 # ifdef _DEBUGPRINT_
-  write(6,*) 'chklumo: System has changed charge!'
+  write(u6,*) 'chklumo: System has changed charge!'
 # endif
   Occset = .false.
   FermSet = .true.
@@ -243,14 +237,14 @@ end if
 !----------------------------------------------------------------------*
 if (SpinSet) then
 # ifdef _DEBUGPRINT_
-  write(6,*) 'chklumo: System might have changed spin!'
-  write(6,*) '   iAu_ab=',iAu_ab
-  write(6,*) '   qa-qb=',qa-qb
+  write(u6,*) 'chklumo: System might have changed spin!'
+  write(u6,*) '   iAu_ab=',iAu_ab
+  write(u6,*) '   qa-qb=',qa-qb
 # endif
   idiff = iAu_ab-int(qa-qb)
   if (idiff /= 0) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) '   yes indeed, spin has changed!'
+    write(u6,*) '   yes indeed, spin has changed!'
 #   endif
     Occset = .false.
     FermSet = .true.
@@ -264,29 +258,29 @@ if (nD == 1) then
   Idem = .true.
   do i=1,nVec
     tmp = half*OccVec(i,1)*(One-half*OccVec(i,1))
-    if (abs(tmp) > 0.25d0) Idem = .false.
+    if (abs(tmp) > Quart) Idem = .false.
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'chklumo: Idempotency'
-  write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+  write(u6,*) 'chklumo: Idempotency'
+  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
 # endif
 else
   Idem = .true.
   do i=1,nVec
     tmp = OccVec(i,1)*(One-OccVec(i,1))
-    if (abs(tmp) > 0.25d0) Idem = .false.
+    if (abs(tmp) > Quart) Idem = .false.
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'chklumo: Alpha idempotency'
-  write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+  write(u6,*) 'chklumo: Alpha idempotency'
+  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
 # endif
   do i=1,nVec
     tmp = OccVec(i,2)*(One-OccVec(i,2))
-    if (abs(tmp) > 0.25d0) Idem = .false.
+    if (abs(tmp) > Quart) Idem = .false.
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'chklumo: Beta idempotency'
-  write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+  write(u6,*) 'chklumo: Beta idempotency'
+  write(u6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
 # endif
 end if
 !----------------------------------------------------------------------*
@@ -294,7 +288,7 @@ end if
 !----------------------------------------------------------------------*
 if (Idem) then
 # ifdef _DEBUGPRINT_
-  write(6,*) 'chklumo: Idempotent'
+  write(u6,*) 'chklumo: Idempotent'
 # endif
   if (nD == 1) then
     iOff = 0
@@ -307,7 +301,7 @@ if (Idem) then
       iOff = iOff+nBas(iSym)
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,'(a,8i5)') 'Occupation       ',(nOcc(i,1),i=1,nSym)
+    write(u6,'(a,8i5)') 'Occupation       ',(nOcc(i,1),i=1,nSym)
 #   endif
   else
     iOff = 0
@@ -329,15 +323,15 @@ if (Idem) then
       iOff = iOff+nBas(iSym)
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,'(a,8i5)') 'Alpha occupation ',(nOcc(i,1),i=1,nSym)
-    write(6,'(a,8i5)') 'Beta occupation  ',(nOcc(i,2),i=1,nSym)
+    write(u6,'(a,8i5)') 'Alpha occupation ',(nOcc(i,1),i=1,nSym)
+    write(u6,'(a,8i5)') 'Beta occupation  ',(nOcc(i,2),i=1,nSym)
 #   endif
   end if
   Occset = .true.
   FermSet = .false.
 else
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Not idempotent'
+  write(u6,*) 'Not idempotent'
 # endif
   Occset = .false.
   FermSet = .true.

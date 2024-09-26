@@ -15,19 +15,22 @@
 subroutine Mk_FockMO(O,S,nOTSD,C,nC,FockMO,nFockMO,nD,iOpt)
 
 use Orb_Type, only: OrbType
-use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, nBas, nOrb, nFro, nOcc, MapDns, iDisk
+use InfSCF, only: iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym
 use SCF_Arrays, only: TwoHam, Vxc
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer nOTSD, nD, nC, nFockMO, iOpt
-real*8 O(nOTSD), S(nOTSD), C(nC,nD), FockMO(nFockMO,nD)
-integer i, j, k, l, iD, ig, ih, ij, iOff, it, nOr, nOrbmF, nBs, iSym, jDT
-real*8, dimension(:,:), allocatable :: FckM
-real*8, dimension(:), allocatable :: Aux1, Aux2
-real*8, dimension(:,:), allocatable, target :: AuxT, AuxV
-real*8, dimension(:,:), pointer :: T, V
+integer(kind=iwp) :: nOTSD, nC, nFockMO, nD, iOpt
+real(kind=wp) :: O(nOTSD), S(nOTSD), C(nC,nD), FockMO(nFockMO,nD)
+integer(kind=iwp) :: i, iD, ig, ih, ij, iOff, iSym, it, j, jDT, k, l, nBs, nOr, nOrbmF
+real(kind=wp), allocatable :: Aux1(:), Aux2(:), FckM(:,:)
+real(kind=wp), allocatable, target :: AuxT(:,:), AuxV(:,:)
+real(kind=wp), pointer :: T(:,:), V(:,:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -47,17 +50,17 @@ else
   V(1:nOTSD,1:nD) => Vxc(:,:,jDT)
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) 'EGrad: input arrays'
-write(6,*) '==================================================='
+write(u6,*) 'EGrad: input arrays'
+write(u6,*) '==================================================='
 call NrmClc(O,nOTSD,'EGrad','O')
 call NrmClc(T,nOTSD*nD,'EGrad','T')
 call NrmClc(V,nOTSD*nD,'EGrad','V')
 call NrmClc(C,nC*nD,'EGrad','C')
 !do iD=1,nD
-!  write(6,*) 'OrbType(:,iD)',OrbType(:,iD)
+!  write(u6,*) 'OrbType(:,iD)',OrbType(:,iD)
 !end do ! iD
-write(6,*) '==================================================='
-write(6,*)
+write(u6,*) '==================================================='
+write(u6,*)
 #endif
 !----------------------------------------------------------------------*
 
@@ -74,7 +77,7 @@ do iD=1,nD
 
   FckM(:,iD) = O(:)+T(:,iD)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iD=',iD
+  write(u6,*) 'iD=',iD
   call NrmClc(FckM(1,iD),nBT,'Mk_FockMO','FckM')
 # endif
   if (nnFr > 0) call ModFck(FckM(1,iD),S,nBT,C(1,iD),nBO,nOcc(1,1))
@@ -99,7 +102,7 @@ do iD=1,nD
       Aux2(:) = Zero
       call Square(FckM(ij,iD),Aux2,1,nBs,nBs)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'iSym=',iSym
+      write(u6,*) 'iSym=',iSym
       call NrmClc(Aux2,nBs*nBs,'Mk_FockMO','Aux2')
 #     endif
       Aux1(:) = Zero

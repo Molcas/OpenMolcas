@@ -43,28 +43,29 @@ subroutine vOO2OV_inner(v1,n1,v2,n2,iD)
 !***********************************************************************
 
 #ifndef POINTER_REMAP
-use, intrinsic :: iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 #endif
-use InfSCF, only: nOO, nSym, nFro, nOcc, nOrb, kOV
+use InfSCF, only: kOV, nFro, nOcc, nOO, nOrb, nSym
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-! declaration subroutine parameters
-integer n1, n2, iD
-real*8, target :: v1(n1), v2(n2)
-real*8, dimension(:,:), pointer :: pv1, pv2
-! declaration local variables
-integer iSym, ii, ia, ioffs, ivoffs
-integer nia1, nia2, nii1, nii2, nv1, nv2
+integer(kind=iwp) :: n1, n2, iD
+real(kind=wp), target :: v1(n1), v2(n2)
+integer(kind=iwp) :: ia, ii, ioffs, iSym, ivoffs, nia1, nia2, nii1, nii2, nv1, nv2
 #ifdef _DEBUGPRINT_
-integer iOff, nO, nV
+integer(kind=iwp) :: iOff, nO, nV
 #endif
+real(kind=wp), pointer :: pv1(:,:), pv2(:,:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'n1,n2,nOO,kOV(:)=',n1,n2,nOO,kOV(:)
+write(u6,*) 'n1,n2,nOO,kOV(:)=',n1,n2,nOO,kOV(:)
 iOff = 1
 do iSym=1,nSym
   if (n1 == nOO) then
@@ -104,7 +105,7 @@ do iSym=1,nSym
     do ii=nii1,nii2
       do ia=nia1,nia2
         !if (pv1(ia,ii) /= -pv1(ii,ia)) then
-        !  write(6,*) 'inconsistency in gradient'
+        !  write(u6,*) 'inconsistency in gradient'
         !  call Abend()
         !end if
         pv2(ia,ii) = pv1(ia,ii)
@@ -117,7 +118,7 @@ do iSym=1,nSym
     do ii=nii1,nii2
       do ia=nia1,nia2
         !If (pv1(ia,ii) /= -pv1(ii,ia)) then
-        !  write(6,*) 'inconsistency in gradient'
+        !  write(u6,*) 'inconsistency in gradient'
         !  call Abend()
         !end if
         pv2(ia-nia1+1,ii-nii1+1) = pv1(ia,ii)
@@ -158,7 +159,7 @@ do iSym=1,nSym
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'n1,n2,nOO,kOV=',n1,n2,nOO,kOV(:)
+write(u6,*) 'n1,n2,nOO,kOV=',n1,n2,nOO,kOV(:)
 iOff = 1
 do iSym=1,nSym
   if (n2 == nOO) then

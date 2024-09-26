@@ -23,6 +23,7 @@ integer(kind=iwp), intent(in) :: rc
 integer(kind=iwp) :: lb, ub
 character(len=128) :: msg
 logical(kind=iwp), external :: bomb_on_error
+
 #include "warnings.h"
 
 call xflush(u6)

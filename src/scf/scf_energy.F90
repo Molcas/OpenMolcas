@@ -13,14 +13,15 @@ subroutine SCF_Energy(FstItr,E1_,E2_,EV)
 
 use Interfaces_SCF, only: PMat_SCF
 use InfSCF, only: nD
-use stdalloc, only: mma_allocate, mma_deallocate
 use MxDM, only: MxIter
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-logical FstItr
-real*8 E1_, E2_, EV
-real*8, allocatable :: XCf(:,:)
-integer nXCf
+logical(kind=iwp) :: FstItr
+real(kind=wp) :: E1_, E2_, EV
+integer(kind=iwp) :: nXCf
+real(kind=wp), allocatable :: XCf(:,:)
 
 ! Allocate memory for coefficients for minimized densities.
 

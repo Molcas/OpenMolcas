@@ -16,25 +16,22 @@ subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
 use Fock_util_global, only: Deco
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use SpinAV, only: Do_SpinAV, DSC
-use InfSCF, only: E_nondyn, KSDFT, nBB, nSym, nBas
+use InfSCF, only: E_nondyn, KSDFT, nBas, nBB, nSym
 use ChoSCF, only: dmpk, nScreen
 use DCSCF, only: Erest_xc
-use Constants, only: Zero, Half, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nBDT
-real*8 Dma(nBDT), Dmb(nBDT)
-logical DFTX
-real*8 dFMat, FactXI
-integer i, iOff, ipDai, ipDbi, iRC, nDMat
-real*8, external :: DDot_
-integer nForb(8,2), nIorb(8,2)
+integer(kind=iwp) :: nBDT
+real(kind=wp) :: Dma(nBDT), Dmb(nBDT)
+logical(kind=iwp) :: DFTX
+integer(kind=iwp) :: i, iOff, ipDai, ipDbi, iRC, nDMat, nForb(8,2), nIorb(8,2)
+real(kind=wp) :: dFMat, E2act(1), FactXI
+type(DSBA_Type) :: FLT(2), KLT(2), PLT(2), POrb(2)
 real*8, dimension(:,:), allocatable :: Dm
-real*8 E2act(1)
-real*8 Get_ExFac
-external Get_ExFac
-type(DSBA_Type) FLT(2), KLT(2), POrb(2), PLT(2)
+real(kind=wp), external :: DDot_, Get_ExFac
 
 nDMat = 2
 do i=1,nSym
@@ -64,8 +61,8 @@ call UnFold(Dmb,nBDT,Dm(:,2),nBB,nSym,nBas)
 
 if (Do_SpinAV) then
   if (.not. DECO) then
-    write(6,*) ' Keywords NODE and SAVE are incompatible. '
-    write(6,*) ' NODE will be reset to default. '
+    write(u6,*) ' Keywords NODE and SAVE are incompatible. '
+    write(u6,*) ' NODE will be reset to default. '
     DECO = .true.
   end if
   call daxpy_(NBB,-One,DSc,1,Dm(:,1),1)
@@ -75,16 +72,16 @@ end if
 iOff = 0
 do i=1,nSym
   ipDai = 1+iOff
-  call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),nIorb(i,1),1.0d-12,irc)
+  call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),nIorb(i,1),1.0e-12_wp,irc)
   if (irc /= 0) then
-    write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
+    write(u6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
     call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))
     call Abend()
   end if
   ipDbi = 1+iOff
-  call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(2)%SB(i)%A2,nBas(i),nIorb(i,2),1.0d-12,irc)
+  call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(2)%SB(i)%A2,nBas(i),nIorb(i,2),1.0e-12_wp,irc)
   if (irc /= 0) then
-    write(6,*) ' Beta density. Sym= ',i,'   rc= ',irc
+    write(u6,*) ' Beta density. Sym= ',i,'   rc= ',irc
     call RecPrt('Dm',' ',Dm(ipDbi,1),nBas(i),nBas(i))
     call Abend()
   end if

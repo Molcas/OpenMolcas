@@ -19,25 +19,12 @@ subroutine PadEor(Eor1,Eor2,nSym,nBas,nOrb)
 !***********************************************************************
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-real*8 Eor1(*)
-real*8 Eor2(*)
-integer nSym
-integer nBas(*)
-integer nOrb(*)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer iFrom(8)
-integer iTo(8)
-integer iPtr
-integer iSym
-integer ndata
-integer i
+real(kind=wp) :: Eor1(*), Eor2(*)
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+integer(kind=iwp) :: i, iFrom(8), iPtr, iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*
 ! Transfer orbital energies.                                           *

@@ -13,15 +13,17 @@
 
 subroutine RdTwoEnrg(LU,E2act)
 
-implicit none
-integer LU
-real*8 E2act
-logical Exist
-character(len=80) LINE
+use Definitions, only: wp, iwp, u6
 
-call OpnFl('INPORB',LU,Exist)
-if (.not. Exist) then
-  write(6,*) 'RdTwoEnrg: INPORB not found!'
+implicit none
+integer(kind=iwp) :: LU
+real(kind=wp) :: E2act
+logical(kind=iwp) :: Exists
+character(len=80) :: LINE
+
+call OpnFl('INPORB',LU,Exists)
+if (.not. Exists) then
+  write(u6,*) 'RdTwoEnrg: INPORB not found!'
   call Abend()
 end if
 rewind(LU)

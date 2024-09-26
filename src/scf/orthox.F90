@@ -29,12 +29,13 @@ subroutine Orthox(S,C,nOrb,nBas)
 !***********************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nBas, nOrb
-real*8 C(nBas,nOrb), S(nOrb,nOrb)
-integer iOrb, jOrb, iBas, kOrb
-real*8 F, A
+integer(kind=iwp) :: nOrb, nBas
+real(kind=wp) :: S(nOrb,nOrb), C(nBas,nOrb)
+integer(kind=iwp) :: iBas, iOrb, jOrb, kOrb
+real(kind=wp) :: A, F
 
 do iOrb=1,nOrb
   F = Zero

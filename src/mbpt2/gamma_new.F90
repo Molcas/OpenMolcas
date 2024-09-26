@@ -91,7 +91,7 @@ end do
 #ifdef _DEBUGPRINT_
 ! Print the elements of the Full CMO-matrices as well as CMO_o and CMO_v.
 do iSym=1,nSym
-  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1),nBas(iSym),nTOrb(iSym))
+  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1:),nBas(iSym),nTOrb(iSym))
 end do
 do iSym=1,nSym
   call RecPrt('Occupied CMO',' ',CMO_o(iOffCMO_o(iSym)+1),nBas(iSym),nOcc(iSym))

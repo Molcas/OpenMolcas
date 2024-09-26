@@ -29,36 +29,14 @@ subroutine MkEorb_Inner(FockAO,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments.                                                     *
-!----------------------------------------------------------------------*
-integer nFck, nCMO, nEOrb
-real*8 FockAO(nFck)
-real*8 CMO(nCMO)
-real*8 EOrb(nEOrb)
-integer nSym
-integer nBas(nSym)
-integer nOrb(nSym)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-real*8 t
-real*8, dimension(:), allocatable :: FckSqr
-integer iSym
-integer iBas
-integer jBas
-integer iOrb
-integer MaxTri
-integer MaxSqr
-integer iOffTri
-integer iOffCMO
-integer npFckSqr
-integer indE
-integer indF
-integer indx
-integer jndx
+integer(kind=iwp) :: nFck, nCMO, nEOrb, nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp) :: FockAO(nFck), CMO(nCMO), EOrb(nEOrb)
+integer(kind=iwp) :: iBas, indE, indF, indx, iOffCMO, iOffTri, iOrb, iSym, jBas, jndx, MaxSqr, MaxTri, npFckSqr
+real(kind=wp) :: t
+real(kind=wp), allocatable :: FckSqr(:)
 
 !----------------------------------------------------------------------*
 ! Some preliminary setup.                                              *

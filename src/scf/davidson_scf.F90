@@ -42,27 +42,24 @@
 subroutine Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
 
 use SCF_Arrays, only: HDiag
-use Constants, only: Zero, One, Ten
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer m, n, k, iRC
-real*8 g(m), Eig(k), Vec(m+1,k), Fact
-real*8, dimension(:,:), allocatable :: Sub, Ab
-real*8, dimension(:), allocatable :: Eig_old, EVec, Proj, EVal
-integer, dimension(:), allocatable :: Index_D
-real*8 Aux, Thr, Thr2, Thr3, Conv, Alpha, tmp
-real*8 ddot_
-integer mk, old_mk, mink, maxk, ig, info, nTmp, iter, maxiter
-integer i, j, ii, jj
-logical Last, Augmented, Reduced
-external ddot_
-parameter(Thr=1.0D-6,maxiter=300,Thr2=1.0D-12,Thr3=1.0D-16)
-real*8, allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:), TRes(:)
-real*8 :: Dum(1) = Zero
+integer(kind=iwp) :: m, k, iRC
+real(kind=wp) :: g(m), Fact, Eig(k), Vec(m+1,k)
 #include "print.fh"
+integer(kind=iwp) :: i, ig, ii, info, iter, j, jj, maxk, mink, mk, n, nTmp, old_mk
+real(kind=wp) :: Alpha, Aux, Conv, Dum(1) = Zero, tmp
+logical(kind=iwp) :: Augmented, Last, Reduced
+integer(kind=iwp), allocatable :: Index_D(:)
+real(kind=wp), allocatable :: Ab(:,:), Diag(:), Eig_old(:), EVal(:), EVec(:), Proj(:), Sub(:,:), TAV(:), TmpVec(:), TRes(:), TVec(:)
+integer(kind=iwp), parameter :: maxiter = 300
+real(kind=wp), parameter :: Thr = 1.0e-6_wp, Thr2 = 1.0e-12_wp, Thr3 = 1.0e-16_wp
+real(kind=wp), external :: ddot_
 #ifdef _DEBUGPRINT_
-integer iPrint, iRout
+integer(kind=iwp) :: iPrint, iRout
 
 iRout = 216
 iPrint = nPrint(iRout)
@@ -70,9 +67,8 @@ iPrint = nPrint(iRout)
 n = m+1
 #ifdef _DEBUGCode_
 block
-  real*8, allocatable :: Vec(:), HM(:,:), HAug(:,:)
-  real*8, allocatable :: EVal(:), EVec(:)
-  integer ij
+  integer(kind=iwp) :: ij
+  real(kind=wp), allocatable :: EVal(:), EVec(:), HAug(:,:), HM(:,:), Vec(:)
 
   call mma_allocate(Vec,m,Label='Vec')
   call mma_allocate(HM,m,m,Label='HM')
@@ -108,7 +104,7 @@ block
 
   !do i=1,m
   !  ij = i*(i+1)/2
-  !  write(6,*) 'Eval0(ij)=',EVal(ij)
+  !  write(u6,*) 'Eval0(ij)=',EVal(ij)
   !end do
 
   call mma_deallocate(EVal)
@@ -144,7 +140,7 @@ block
 
   do i=1,n
     ij = i*(i+1)/2
-    if (EVal(ij) < Zero) write(6,*) 'Eval(ij)=',EVal(ij)
+    if (EVal(ij) < Zero) write(u6,*) 'Eval(ij)=',EVal(ij)
   end do
 
   call mma_deallocate(EVal)
@@ -225,7 +221,7 @@ do i=1,n
   end if
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) 'Index_D=',Index_D
+write(u6,*) 'Index_D=',Index_D
 #endif
 
 ! Setup the initial subspace
@@ -257,7 +253,7 @@ do while ((nTmp < mk) .and. (ii < n))
   else
     Aux = HDiag(jj)
   end if
-  if ((Aux < 1.0d10) .and. (Aux > -0.10d0)) then
+  if ((Aux < 1.0e10_wp) .and. (Aux > -0.1_wp)) then
     TmpVec(jj) = One
     call Add_Vector(n,nTmp,Sub,TmpVec,Thr3)
     TmpVec(jj) = Zero
@@ -287,8 +283,8 @@ do while (.not. Last)
   if (iter > 1) call dcopy_(k,Eig,1,Eig_old,1)
 # ifdef _DEBUGPRINT_
   if (.not. Reduced) then
-    write(6,'(A)') '---------------'
-    write(6,'(A,1X,I5)') 'Iteration',iter
+    write(u6,'(A)') '---------------'
+    write(u6,'(A,1X,I5)') 'Iteration',iter
   end if
   !call RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
 # endif
@@ -305,7 +301,7 @@ do while (.not. Last)
 
   do j=old_mk,mk-1
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Davidson_SCF: j,Fact=',j,Fact
+    write(u6,*) 'Davidson_SCF: j,Fact=',j,Fact
     call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
     !call RecPrt('Sub',' ',Sub(1,j+1),1,n)
 #   endif
@@ -349,19 +345,19 @@ do while (.not. Last)
 
   if (.not. Reduced) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
+    write(u6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #   endif
     call dcopy_(maxk*maxk,Proj,1,EVec,1)
     call dsyev_('V','L',mk,EVec,maxk,EVal,Dum,-1,info)
     if (info /= 0) then
-      write(6,*) 'info(2)/=0',info
+      write(u6,*) 'info(2)/=0',info
       call Abend()
     end if
     nTmp = max(1,int(Dum(1)))
     call mma_allocate(TmpVec,nTmp,Label='TmpVec')
     call dsyev_('V','L',mk,EVec,maxk,EVal,TmpVec,nTmp,info)
     if (info /= 0) then
-      write(6,*) 'info(2)/=0',info
+      write(u6,*) 'info(2)/=0',info
       call Abend()
     end if
     call mma_deallocate(TmpVec)
@@ -375,7 +371,7 @@ do while (.not. Last)
   if (iPrint >= 99) then
     !call RecPrt('Eigenvalues',' ',EVal,1,mk)
     !call SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
-    write(6,*)
+    write(u6,*)
   end if
 # endif
   !                                                                    *
@@ -407,7 +403,7 @@ do while (.not. Last)
       end if
     end do
 #   ifdef _DEBUGPRINT_
-    if (Augmented) write(6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue change:',Conv
+    if (Augmented) write(u6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue change:',Conv
 #   endif
     !                                                                  *
     !*******************************************************************
@@ -435,7 +431,7 @@ do while (.not. Last)
     !*******************************************************************
     !                                                                  *
 #   ifdef _DEBUGPRINT_
-    write(6,'(A)') 'Converged due to small change'
+    write(u6,'(A)') 'Converged due to small change'
 #   endif
     Last = .true.
     !                                                                  *
@@ -446,7 +442,7 @@ do while (.not. Last)
     !*******************************************************************
     !                                                                  *
 #   ifdef _DEBUGPRINT_
-    write(6,'(A)') 'Complete system solved'
+    write(u6,'(A)') 'Complete system solved'
 #   endif
     Last = .true.
     !                                                                  *
@@ -457,7 +453,7 @@ do while (.not. Last)
     !*******************************************************************
     !                                                                  *
 #   ifdef _DEBUGPRINT_
-    write(6,'(A)') 'Not converged'
+    write(u6,'(A)') 'Not converged'
 #   endif
     Last = .true.
     iRC = 1
@@ -477,7 +473,7 @@ do while (.not. Last)
     !                                                                  *
     if (iRC == 2) iRC = 0
 #   ifdef _DEBUGPRINT_
-    write(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
+    write(u6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #   endif
     call mma_allocate(TmpVec,mink*n,Label='TmpVec')
     call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,TmpVec,n)
@@ -496,7 +492,7 @@ do while (.not. Last)
     ! j should be mink, but who knows...
 
 #   ifdef _DEBUGPRINT_
-    if (j < mink) write(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
+    if (j < mink) write(u6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
 #   endif
     call FZero(Sub(1,j+1),(maxk-j)*n)
     call FZero(Ab(1,j+1),(maxk-j)*n)
@@ -551,10 +547,10 @@ do while (.not. Last)
         if (j == n-1) then
           Diag(1+j) = One/sign(max(abs(Aux),Thr2),Aux)
         else
-          if (HDiag(j+1) < 1.0d20) then
+          if (HDiag(j+1) < 1.0e20_wp) then
             Diag(1+j) = One/sign(max(abs(Aux),Thr2),Aux)
           else
-            Diag(1+j) = 1.0d20
+            Diag(1+j) = 1.0e20_wp
           end if
         end if
       end do
@@ -591,7 +587,7 @@ do while (.not. Last)
     end do
 
 #   ifdef _DEBUGPRINT_
-    write(6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
+    write(u6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
 #   endif
     !                                                                  *
     !------------------------------------------------------------------*
@@ -601,7 +597,7 @@ do while (.not. Last)
       !----------------------------------------------------------------*
       !                                                                *
 #     ifdef _DEBUGPRINT_
-      write(6,'(A)') 'Converged due to small residual'
+      write(u6,'(A)') 'Converged due to small residual'
 #     endif
       Last = .true.
       !                                                                *
@@ -619,7 +615,7 @@ do while (.not. Last)
 
       if (jj == 0) then
 #       ifdef _DEBUGPRINT_
-        write(6,'(A)') 'Process stagnated'
+        write(u6,'(A)') 'Process stagnated'
 #       endif
         if (mk < maxk) then
           TmpVec(:n) = Zero
@@ -639,7 +635,7 @@ do while (.not. Last)
             else
               Aux = HDiag(ii)
             end if
-            if ((Aux < 1.0d20) .and. (Aux > -0.10d0)) then
+            if ((Aux < 1.0e20_wp) .and. (Aux > -0.1_wp)) then
               TmpVec(ii) = One
               jj = mk+jj
               call Add_Vector(n,jj,Sub,TmpVec,Thr3)

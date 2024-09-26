@@ -12,10 +12,13 @@
 subroutine C_Adjust(CInter,n,CThr)
 
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer n, i
-real*8 CInter(n), CThr, Fact
+integer(kind=iwp) :: n
+real(kind=wp) :: CInter(n), CThr
+integer(kind=iwp) :: i
+real(kind=wp) :: Fact
 
 if (CInter(n) < CThr) then
   Fact = (One-CThr)/(One-CInter(n))

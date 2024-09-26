@@ -13,26 +13,25 @@
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
 
-subroutine DCore(OneHam,nOH,CMO,TrMat,nCMO,EOr,nEOr,mynOcc,Ovrlp)
+subroutine DCore(OneHam,nOH,CMO,TrMat,nCMO,E_Or,nEOr,mynOcc,Ovrlp)
 !***********************************************************************
 !                                                                      *
 !     purpose: Diagonalize core hamiltonian to get starting orbitals.  *
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, MaxBOF, MaxORF, nBO, nBT, nnFr, nSym, nBas, nFro, nOrb
-use Constants, only: Zero, One
+use InfSCF, only: MaxBas, MaxBOF, MaxORF, nBas, nBO, nBT, nFro, nnFr, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nOH, nCMO, nEOr
-real*8 OneHam(nOH), CMO(nCMO), TrMat(nCMO), EOr(nEOr), Ovrlp(nOH)
-integer mynOcc(*)
-real*8, dimension(:), allocatable :: OMod, OHSq, OHHl, OHTr, EiVe, Scratch
-integer, dimension(:), allocatable :: Fermi
-real*8 :: Dummy
-integer :: iCMO, iDum, iEOr, iErr, iiBT, ij, iSym, nFound, nOF
-real*8, external :: Random_Molcas
+integer(kind=iwp) :: nOH, nCMO, nEOr, mynOcc(*)
+real(kind=wp) :: OneHam(nOH), CMO(nCMO), TrMat(nCMO), E_Or(nEOr), Ovrlp(nOH)
+integer(kind=iwp) :: iCMO, iDum, iE_Or, iErr, iiBT, ij, iSym, nFound, nOF
+real(kind=wp) :: Dummy
+integer(kind=iwp), allocatable :: Fermi(:)
+real(kind=wp), allocatable :: EiVe(:), OHHl(:), OHSq(:), OHTr(:), OMod(:), Scratch(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -64,7 +63,7 @@ if (nnFr > 0) call ModFck(OMod,Ovrlp,nBT,TrMat,nBO,mynOcc)
 ! Diagonalize core in non-frozen molecular basis
 ij = 1
 iCMO = 1
-iEOr = 1
+iE_Or = 1
 do iSym=1,nSym
 
   iiBT = nBas(iSym)*(nBas(iSym)+1)/2
@@ -74,7 +73,7 @@ do iSym=1,nSym
   if (nFro(iSym)*nBas(iSym) > 0) call dcopy_(nFro(iSym)*nBas(iSym),TrMat(iCMO),1,CMO(iCMO),1)
 
   iCMO = iCMO+nBas(iSym)*nFro(iSym)
-  iEOr = iEOr+nFro(iSym)
+  iE_Or = iE_Or+nFro(iSym)
 
   if (nOF > 0) then
 
@@ -101,7 +100,7 @@ do iSym=1,nSym
     !  ind = 1
     !  do i=1,nOF
     !    do j=1,i-1
-    !      OHTr(ind) = OHTr(ind)+0.050d+00*Random_Molcas(iseed)
+    !      OHTr(ind) = OHTr(ind)+0.05_wp*Random_Molcas(iseed)
     !      ind = ind+1
     !    end do
     !    ind = ind+1
@@ -112,7 +111,7 @@ do iSym=1,nSym
     call mma_allocate(Scratch,nOF**2,Label='Scratch')
     Dummy = Zero
     iDum = 0
-    call Diag_Driver('V','A','L',nOF,OHTr,Scratch,nOF,Dummy,Dummy,iDum,iDum,EOr(iEOr),EiVe,nOF,1,-1,'J',nFound,iErr)
+    call Diag_Driver('V','A','L',nOF,OHTr,Scratch,nOF,Dummy,Dummy,iDum,iDum,E_Or(iE_Or),EiVe,nOF,1,-1,'J',nFound,iErr)
     call mma_deallocate(Scratch)
 
     ! Transform to AO basis
@@ -125,7 +124,7 @@ do iSym=1,nSym
 
   ! Update pointers
   iCMO = iCMO+nOF*nBas(iSym)
-  iEOr = iEOr+nOF
+  iE_Or = iE_Or+nOF
   ij = ij+iiBT
 
 end do

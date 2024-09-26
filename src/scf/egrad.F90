@@ -35,19 +35,22 @@ subroutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
 !***********************************************************************
 
 use Orb_Type, only: OrbType
-use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, nBas, nOrb, nFro, nOcc, MapDns, iDisk
+use InfSCF, only: iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym
 use SCF_Arrays, only: Dens, TwoHam, Vxc
-use Constants, only: Zero, One, Two
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer nOTSD, nD, nC, nG, iOpt
-real*8 O(nOTSD), S(nOTSD), C(nC,nD), G(nG,nD)
-integer i, j, k, l, iD, ig, ih, ij, iOff, it, nOr, nOrbmF, nBs, iSym, jDT
-real*8, dimension(:,:), allocatable :: FckM
-real*8, dimension(:), allocatable :: Aux1, Aux2, Aux3
-real*8, dimension(:,:), allocatable, target :: AuxD, AuxT, AuxV
-real*8, dimension(:,:), pointer :: D, T, V
+integer(kind=iwp) :: nOTSD, nC, nG, nD, iOpt
+real(kind=wp) :: O(nOTSD), S(nOTSD), C(nC,nD), G(nG,nD)
+integer(kind=iwp) :: i, iD, ig, ih, ij, iOff, iSym, it, j, jDT, k, l, nBs, nOr, nOrbmF
+real(kind=wp), allocatable :: Aux1(:), Aux2(:), Aux3(:), FckM(:,:)
+real(kind=wp), allocatable, target :: AuxD(:,:), AuxT(:,:), AuxV(:,:)
+real(kind=wp), pointer :: D(:,:), T(:,:), V(:,:)
 
 !----------------------------------------------------------------------*
 ! Start
@@ -70,8 +73,8 @@ else
   V(1:nOTSD,1:nD) => Vxc(:,:,jDT)
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) 'EGrad: input arrays'
-write(6,*) '==================================================='
+write(u6,*) 'EGrad: input arrays'
+write(u6,*) '==================================================='
 call NrmClc(O,nOTSD,'EGrad','O')
 call NrmClc(S,nOTSD,'EGrad','S')
 call NrmClc(D,nOTSD*nD,'EGrad','D')
@@ -79,10 +82,10 @@ call NrmClc(T,nOTSD*nD,'EGrad','T')
 call NrmClc(V,nOTSD*nD,'EGrad','V')
 call NrmClc(C,nC*nD,'EGrad','C')
 !do iD=1,nD
-!  write(6,*) 'OrbType(:,iD)',OrbType(:,iD)
+!  write(u6,*) 'OrbType(:,iD)',OrbType(:,iD)
 !end do ! iD
-write(6,*) '==================================================='
-write(6,*)
+write(u6,*) '==================================================='
+write(u6,*)
 #endif
 !----------------------------------------------------------------------*
 
@@ -100,7 +103,7 @@ do iD=1,nD
 
   FckM(:,iD) = O(:)+T(:,iD)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iD=',iD
+  write(u6,*) 'iD=',iD
   call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 # endif
   if (nnFr > 0) call ModFck(FckM(:,iD),S,nBT,C(:,iD),nBO,nOcc(:,iD))
@@ -125,7 +128,7 @@ do iD=1,nD
       Aux2(:) = Zero
       call Square(FckM(ij:,iD),Aux2,1,nBs,nBs)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'iSym=',iSym
+      write(u6,*) 'iSym=',iSym
       call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
 #     endif
       Aux1(:) = Zero
@@ -178,9 +181,9 @@ do iD=1,nD
 
       call Asym(Aux2,G(ig,iD),nOr)
 #     ifdef _DEBUGPRINT_
-      write(6,*)
+      write(u6,*)
       call NrmClc(G,nG*nD,'EGrad','G')
-      write(6,*)
+      write(u6,*)
 #     endif
 
       ! At this point enforce that the gradient is exactly zero
@@ -227,8 +230,10 @@ G(:,:) = Two*G(:,:)
 
 #ifdef _DEBUGPRINT_
 block
-  real*8 GMax
-  integer :: i_Max = 0, j_Max = 0
+  integer(kind=iwp) :: i_Max, j_Max
+  real(kind=wp) :: GMax
+  i_Max = 0
+  j_Max = 0
   GMax = Zero
   do i=1,nD
     do j=1,nG
@@ -239,7 +244,7 @@ block
       end if
     end do
   end do
-  write(6,*) 'GMax,i_Max,j_Max=',GMax,i_Max,j_Max
+  write(u6,*) 'GMax,i_Max,j_Max=',GMax,i_Max,j_Max
 end block
 call NrmClc(G,nG*nD,'EGrad','G')
 #endif
@@ -258,15 +263,14 @@ contains
 
 subroutine Asym(H,A,n)
 
-  implicit none
-
-  integer n, i, j
-  real*8 H(n,n), A(n,n)
+  integer(kind=iwp) :: i, j, n
+  real(kind=wp) :: A(n,n), H(n,n)
 
   do i=1,n
-    do j=1,i
+    do j=1,i-1
       A(i,j) = H(i,j)-H(j,i)
     end do
+    A(i,i) = Zero
   end do
 
 end subroutine ASym

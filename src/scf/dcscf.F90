@@ -11,7 +11,13 @@
 
 module DCSCF
 
-real*8 Erest_xc
-real*8 s2CNO
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp) :: Erest_xc, s2CNO
+
+public :: Erest_xc, s2CNO
 
 end module DCSCF

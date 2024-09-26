@@ -23,25 +23,22 @@ subroutine yHx(X,Y,nXY)
 !***********************************************************************
 
 use Orb_Type, only: OrbType
-use InfSCF, only: nSym, nFro, nOrb, nOcc
+use InfSCF, only: nFro, nOcc, nOrb, nSym
 use SCF_Arrays, only: FockMO
-use Constants, only: Zero, Four
+use Constants, only: Zero, One, Four
+use Definitions, only: wp, iwp
 
 implicit none
-integer nXY
-real*8, target :: X(nXY), Y(nXY)
-! declaration local variables
-integer nD, iD
-integer iSym, iOcc, iVir, nOccmF, nOrbmF, iOff_F
-integer jOcc, jVir, iOff_XY
-real*8 Tmp, Hij
-real*8, parameter :: Hii_Min = 0.05d0
-real*8, parameter :: Hii_Max = 1.00d0
-real*8, pointer :: Fock(:,:), XP(:,:), YP(:,:)
+integer(kind=iwp) :: nXY
+real(kind=wp), target :: X(nXY), Y(nXY)
+integer(kind=iwp) :: iD, iOcc, iOff_F, iOff_XY, iSym, iVir, jOcc, jVir, nD, nOccmF, nOrbmF
+real(kind=wp) :: Hij, Tmp
+real(kind=wp), parameter :: Hii_Max = One, Hii_Min = 0.05_wp
+real(kind=wp), pointer :: Fock(:,:), XP(:,:), YP(:,:)
 
 !----------------------------------------------------------------------*
 
-!write(6,*)
+!write(u6,*)
 !call NrmClc(FockMO,SIZE(FockMO),'yHx','FockMO(:,:)')
 !call NrmClc(X,SIZE(X),'yHx','X(:)')
 !call RecPrt('yHx: FockMO',' ',FockMO,Size(FockMO,1),Size(FockMO,2))
@@ -77,23 +74,23 @@ do iD=1,nD
                 (OrbType(iVir,iD) == OrbType(jOcc,iD))) then
 
               if ((iVir == jVir) .and. (iOcc == jOcc)) then
-                Hij = (Four*(Fock(iVir,jVir)-Fock(iOcc,jOcc))/dble(nD))
+                Hij = (Four*(Fock(iVir,jVir)-Fock(iOcc,jOcc))/real(nD,kind=wp))
 
                 if (Hij < Zero) then
-                  !write (6,*) 'Hii<0.0, Hii=',Hij
+                  !write (u6,*) 'Hii<0.0, Hii=',Hij
                   Hij = max(Hii_Max,abs(Hij))
                 else if (abs(Hij) < Hii_Min) then
-                  !write(6,*) 'Abs(Hii)<0.05, Hii=',Hij
-                  !write(6,*) 'jVir,jOcc=',jVir,jOcc
-                  !write(6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
-                  !write(6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
+                  !write(u6,*) 'Abs(Hii)<0.05, Hii=',Hij
+                  !write(u6,*) 'jVir,jOcc=',jVir,jOcc
+                  !write(u6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
+                  !write(u6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
                   Hij = Hii_Min
                 end if
 
               else if ((iVir == jVir) .and. (iOcc /= jOcc)) then
-                Hij = (Four*(-Fock(iOcc,jOcc))/dble(nD))
+                Hij = (Four*(-Fock(iOcc,jOcc))/real(nD,kind=wp))
               else if ((iOcc == jOcc) .and. (iVir /= jVir)) then
-                Hij = (Four*(Fock(iVir,jVir))/dble(nD))
+                Hij = (Four*(Fock(iVir,jVir))/real(nD,kind=wp))
               end if
               Tmp = Tmp+Hij*XP(jVir,jOcc)
 

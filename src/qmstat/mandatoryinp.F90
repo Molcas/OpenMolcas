@@ -15,6 +15,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: YesNo(*)
+
 #include "warnings.h"
 
 if ((.not. YesNo(8)) .and. (.not. YesNo(7))) then

@@ -53,30 +53,19 @@ subroutine Optim2(E_Pred,G,H,D,C,n,nDim,n0,n1,r2)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, Half, One, Two
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments.                                                     *
-!----------------------------------------------------------------------*
-integer n, nDim, n0, n1
-real*8 G(nDim), H(nDim,nDim), C(nDim), D(nDim,nDim)
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-real*8 Step, Eref, E_Pred
-real*8 Step_pi, Step_mi, Step_pj, Step_mj, Step_pk, Step_mk
-real*8 Optim_E
+integer(kind=iwp) :: n, nDim, n0, n1
+real(kind=wp) :: E_Pred, G(nDim), H(nDim,nDim), D(nDim,nDim), C(nDim), r2
+integer(kind=iwp) :: i, Iter, j, k, l, nLow
+real(kind=wp) :: A, AI, AJ1, AJ2, AJK, AK1, AK2, B, BI, BJ1, BJ2, Eref, Es(4), Optim_E, Step, Step_mi, Step_mj, Step_mk, Step_pi, &
+                 Step_pj, Step_pk, Steps(3,4)
 #ifdef _DEBUGPRINT_
-real*8 sum
+real(kind=wp) :: rSum
 #endif
-logical DidChange
-integer Iter
-integer i, j, k, l, nLow
-real*8 A, B, r2
-real*8 AI, AJ1, AK1, AJK, AJ2, AK2
-real*8 BI, BJ1, BJ2
-real*8 Steps(3,4), Es(4)
+logical(kind=iwp) :: DidChange
 
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
@@ -103,25 +92,25 @@ B = (D(n1,n1)-r2)/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
 C(n0) = -(A/Two)+sqrt((A/Two)**2-B)
 if (C(n0) > One) C(n0) = -(A/Two)-sqrt((A/Two)**2-B)
 if (C(n0) < Zero) then
-  write(6,*) 'C(n0) < Zero'
+  write(u6,*) 'C(n0) < Zero'
   call Abend()
 end if
 C(n1) = One-C(n0)
 if (C(n1) > One) then
-  write(6,*) 'C(n1) > One'
+  write(u6,*) 'C(n1) > One'
   call Abend()
 end if
 if (C(n1) < Zero) then
-  write(6,*) 'C(n1) < Zero'
+  write(u6,*) 'C(n1) < Zero'
   call Abend()
 end if
 
 ! At this point we have a set of Cs which fulfil the two contraints.
 #ifdef _DEBUGPRINT_
-write(6,'(a)') 'Start C:'
-write(6,'(6F15.6)') (C(i),i=1,n)
-write(6,'(a)') 'Start G:'
-write(6,'(6F15.6)') (G(i),i=1,n)
+write(u6,'(a)') 'Start C:'
+write(u6,'(6F15.6)') (C(i),i=1,n)
+write(u6,'(a)') 'Start G:'
+write(u6,'(6F15.6)') (G(i),i=1,n)
 call RecPrt('H',' ',H,nDim,nDim)
 call RecPrt('D',' ',D,nDim,nDim)
 #endif
@@ -136,14 +125,14 @@ do i=1,n
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,'(a,F15.6)') 'Eref = ',Eref
+write(u6,'(a,F15.6)') 'Eref = ',Eref
 #endif
 !----------------------------------------------------------------------*
 ! Do a scan in all tripletwise directions.                             *
 !----------------------------------------------------------------------*
 Iter = 0
 DidChange = .true.
-Step = 0.10d0
+Step = 0.1_wp
 call Abend()
 
 ! Below we explore changes to all triplets that are consistent with
@@ -269,7 +258,7 @@ if ((Iter < 500) .and. DidChange) then
         C(i) = C(i)-Step_mi
 
 #       ifdef _DEBUGPRINT_
-        write(6,'(a,3I3,4F20.10)') 'i,j,k,Es(i),i=1,4)=',i,j,k,(Es(l),l=1,4)
+        write(u6,'(a,3I3,4F20.10)') 'i,j,k,Es(i),i=1,4)=',i,j,k,(Es(l),l=1,4)
 #       endif
         nLow = 0
         do l=1,4
@@ -290,11 +279,11 @@ if ((Iter < 500) .and. DidChange) then
   end do
 
   if (.not. DidChange) then
-    if (Step > 0.9d-4) then
-      Step = 0.1d0*Step
+    if (Step > 0.9e-4_wp) then
+      Step = 0.1_wp*Step
       DidChange = .true.
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Step is',Step
+      write(u6,*) 'Step is',Step
 #     endif
     end if
   end if
@@ -302,24 +291,24 @@ if ((Iter < 500) .and. DidChange) then
 
   ! Check that the constraint is fullfilled.
 
-  sum = Zero
+  rSum = Zero
   do i=1,n
-    sum = sum+C(i)
+    rSum = rSum+C(i)
   end do
-  write(6,*) 'optim: sum-1',sum-One
+  write(u6,*) 'optim: rSum-1',rSum-One
 
-  sum = Zero
+  rSum = Zero
   do i=1,n
     do j=1,n
-      sum = sum+C(i)*C(j)*D(i,j)
+      rSum = rSum+C(i)*C(j)*D(i,j)
     end do
   end do
-  write(6,*) 'optim: sum-r2',sum-r2
+  write(u6,*) 'optim: rSum-r2',rSum-r2
 # endif
   Go To 100
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) 'ERef=',ERef
+write(u6,*) 'ERef=',ERef
 #endif
 E_Pred = ERef
 

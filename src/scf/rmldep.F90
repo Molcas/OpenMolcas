@@ -27,19 +27,22 @@ subroutine RmLDep(AMat,lDm,lth)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer lDm, lth
-real*8 AMat(lDm,lDm)
-! Local variables
-real*8 Dummy
-integer i, iDum, iErr, ij, lthS, nFound, lthT
+integer(kind=iwp) :: lDm, lth
+real(kind=wp) :: AMat(lDm,lDm)
+real(kind=wp) :: Dummy
+integer(kind=iwp) :: i, iDum, iErr, ij, lthS, lthT, nFound
 #ifdef _DEBUGPRINT_
-integer j
+integer(kind=iwp) :: j
 #endif
-real*8, dimension(:), allocatable :: ATri, EVec, EVal, Scr
+real(kind=wp), allocatable :: ATri(:), EVal(:), EVec(:), Scr(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -62,12 +65,12 @@ do i=1,lth
   ij = ij+i
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' Squared A-matrix in RmLDep:'
+write(u6,*) ' Squared A-matrix in RmLDep:'
 do i=1,lth
-  write(6,'(5(1x,es13.6))') (AMat(i,j),j=1,lth)
+  write(u6,'(5(1x,es13.6))') (AMat(i,j),j=1,lth)
 end do
-write(6,*) ' Triangular A-matrix:'
-write(6,'(5(1x,es13.6))') (ATri(i),i=1,lthT)
+write(u6,*) ' Triangular A-matrix:'
+write(u6,'(5(1x,es13.6))') (ATri(i),i=1,lthT)
 #endif
 
 ! Diagonalize
@@ -77,17 +80,17 @@ iDum = 0
 call Diag_Driver('V','A','L',lth,ATri,Scr,lth,Dummy,Dummy,iDum,iDum,EVal,EVec,lth,1,0,'J',nFound,iErr)
 call mma_deallocate(Scr)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Eigenvalues of A-matrix in RLnDep:'
-write(6,'(5(1x,es13.6))') (EVal(i),i=1,lth)
+write(u6,*) ' Eigenvalues of A-matrix in RLnDep:'
+write(u6,'(5(1x,es13.6))') (EVal(i),i=1,lth)
 #endif
 
 ! Form the inverse
 call dCopy_(lDm*lth,[Zero],0,AMat,1)
 do i=1,lth
-  if (EVal(i) > 1.0d-12) then
-    AMat(i,i) = 1.0d+00/EVal(i)
+  if (EVal(i) > 1.0e-12_wp) then
+    AMat(i,i) = One/EVal(i)
   else
-    !write(6,*) ' Eigenvalue',i,' smaller then 1.0e-12'
+    !write(u6,*) ' Eigenvalue',i,' smaller then 1.0e-12'
     AMat(i,i) = Zero
   end if
 end do

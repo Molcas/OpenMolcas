@@ -15,9 +15,10 @@
 subroutine xSet_ThrInt(tmp)
 
 use Gateway_Info, only: ThrInt
+use Definitions, only: wp
 
 implicit none
-real*8 tmp
+real(kind=wp) :: tmp
 
 ThrInt = tmp
 

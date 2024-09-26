@@ -24,11 +24,12 @@ subroutine ClsFls_SCF()
 use mh5, only: mh5_close_file
 use SCFWfn, only: wfn_fileid
 #endif
-use InfSCF, only: DSCF, DoCholesky
-use Files, only: LuDSt, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy
+use InfSCF, only: DoCholesky, DSCF
+use Files, only: LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
+use Definitions, only: iwp, u6
 
 implicit none
-integer iRC
+integer(kind=iwp) :: iRC
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -39,7 +40,7 @@ if ((.not. DSCF) .and. (.not. DoCholesky)) then
   iRc = -1
   call ClsOrd(iRc)
   if (iRc /= 0) then
-    write(6,*) 'ClsFls: Error closing ORDINT'
+    write(u6,*) 'ClsFls: Error closing ORDINT'
     call Abend()
   end if
 end if

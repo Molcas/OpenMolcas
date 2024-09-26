@@ -17,28 +17,17 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine DumpEor(Label,Eor,nSym,nBas,nOrb)
+subroutine DumpEor(Label,E_or,nSym,nBas,nOrb)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-character*(*) Label
-real*8 Eor(*)
-integer nSym
-integer nBas(*)
-integer nOrb(*)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer npDump
-integer iFrom(8)
-integer iTo(8)
-integer iSym
-integer ndata
-real*8, dimension(:), allocatable :: Dump
+character(len=*) :: Label
+real(kind=wp) :: E_or(*)
+integer(kind=iwp) :: nSym, nBas(*), nOrb(*)
+integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata, npDump
+real(kind=wp), allocatable :: Dump(:)
 
 !----------------------------------------------------------------------*
 ! Preliminaries                                                        *
@@ -59,7 +48,7 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nOrb(iSym)
-  call dcopy_(ndata,Eor(iFrom(iSym)),1,Dump(iTo(iSym)),1)
+  call dcopy_(ndata,E_or(iFrom(iSym)),1,Dump(iTo(iSym)),1)
 end do
 call Put_dArray(Label,Dump,npDump)
 !----------------------------------------------------------------------*

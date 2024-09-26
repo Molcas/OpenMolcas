@@ -21,19 +21,18 @@ subroutine DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,DM0,DM)
 !***********************************************************************
 
 use ChoMP2, only: MP2_small
-use Constants, only: Zero, One, Two
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: iRC, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
+real(kind=wp) :: CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
 #include "Molcas.fh"
-integer iRC, nSym
-integer nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
-real*8 CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
-integer i, ifr, ioff, iSkip, iSym, iTo, jD, jOcc, jp, jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT, nBmx, nCMO, nOA, &
-  nOkk, nOrb, nSQ, nTri, nVV, j, jOff
-real*8 SqOcc, tmp, Dummy
-integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-real*8, allocatable :: CMO(:,:), EOrb(:,:), DMAT(:)
+integer(kind=iwp) :: i, ifr, ioff, iSkip, iSym, iTo, j, jD, jOcc, jOff, jp, jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lnDel(8), &
+                     lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, nBasT, nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV
+real(kind=wp) :: Dummy, SqOcc, tmp
+real(kind=wp), allocatable :: CMO(:,:), DMAT(:), EOrb(:,:)
 
 irc = 0
 MP2_small = .false.
@@ -57,7 +56,7 @@ do i=1,nSym
   nBmx = max(nBmx,nBas(i))
 end do
 if (nBasT > mxBas) then
-  write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
 end if
 
@@ -124,22 +123,22 @@ call Check_Amp_SCF(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
   call ChoMP2_Drv(irc,Dummy,CMO(:,2),EOrb(:,3),EOrb(:,4),DMAT(1:nVV),DMAT(nVV+1:))
   if (irc /= 0) then
-    write(6,*) 'MP2 pseudodensity calculation failed !'
+    write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
   end if
 else
-  write(6,*)
-  write(6,*) 'There are ZERO amplitudes T(ai,bj) with the given '
-  write(6,*) 'combinations of inactive and virtual orbitals !! '
-  write(6,*) 'Check your input and rerun the calculation! Bye!!'
+  write(u6,*)
+  write(u6,*) 'There are ZERO amplitudes T(ai,bj) with the given '
+  write(u6,*) 'combinations of inactive and virtual orbitals !! '
+  write(u6,*) 'Check your input and rerun the calculation! Bye!!'
   call Abend()
 end if
 
 ! Compute the correlated density in AO basis
 ! -------------------------------------------------------------
 jOcc = 1+nVV
-!write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
-!write(6,*) ' Sum    : ',ddot_(nOA,One,0,DMAT(jOcc),1)
+!write(u6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
+!write(u6,*) ' Sum    : ',ddot_(nOA,One,0,DMAT(jOcc),1)
 call dscal_(nOA,Two,DMAT(jOcc),1)
 call daxpy_(nOA,Two,[One],0,DMAT(jOcc),1)
 
@@ -193,8 +192,8 @@ do iSym=1,nSym
                 DMAT(jD),nSsh(iSym), &
                 Zero,CMO(kto,1),nBas(iSym))
 
-    !write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
-    !write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),One,0,EOrb(:,2),1)
+    !write(u6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
+    !write(u6,*) ' Sum_vir: ',ddot_(nSsh(iSym),One,0,EOrb(:,2),1)
     do j=0,nSsh(iSym)-1
       sqocc = sqrt(Two*EOrb(1+j,2))
       jto = kto+nBas(iSym)*j

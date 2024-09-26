@@ -18,41 +18,43 @@
 subroutine StlLst(LLink)
 
 use LnkLst, only: nLList
+use Definitions, only: iwp, u6
 
 implicit none
-integer LLink, iRoot
+integer(kind=iwp) :: LLink
+integer(kind=iwp) :: iRoot
 
 !return
-write(6,*)
-write(6,*) '*********** Status of Linked List *************'
-write(6,*)
-write(6,*) ' LLink:',LLink
-write(6,*)
-write(6,*) ' CNOD data'
-write(6,*) 'Error code:                       ',nLList(LLink,0)
-write(6,*) 'Pointer to first NODE in the list:',nLList(LLink,1)
-write(6,*) 'Actual length of list:            ',nLList(LLink,2)
-write(6,*) '# of vectors in core:             ',nLList(LLink,3)
-write(6,*)
+write(u6,*)
+write(u6,*) '*********** Status of Linked List *************'
+write(u6,*)
+write(u6,*) ' LLink:',LLink
+write(u6,*)
+write(u6,*) ' CNOD data'
+write(u6,*) 'Error code:                       ',nLList(LLink,0)
+write(u6,*) 'Pointer to first NODE in the list:',nLList(LLink,1)
+write(u6,*) 'Actual length of list:            ',nLList(LLink,2)
+write(u6,*) '# of vectors in core:             ',nLList(LLink,3)
+write(u6,*)
 iRoot = nLList(LLink,1)
 do while (iRoot /= 0)
-  write(6,*) ' NODE data'
-  write(6,*) 'NODE @:                         ',iRoot
-  write(6,*) 'Pointer to next NODE:           ',nLList(iRoot,0)
-  write(6,*) 'Pointer to stored vector:       ',nLList(iRoot,1)
+  write(u6,*) ' NODE data'
+  write(u6,*) 'NODE @:                         ',iRoot
+  write(u6,*) 'Pointer to next NODE:           ',nLList(iRoot,0)
+  write(u6,*) 'Pointer to stored vector:       ',nLList(iRoot,1)
   if (nLList(iRoot,5) >= 1) then
-    write(6,*) 'Vector status:                  in Core'
+    write(u6,*) 'Vector status:                  in Core'
   else
-    write(6,*) 'Vector status:                  on Disk'
+    write(u6,*) 'Vector status:                  on Disk'
   end if
-  write(6,*) 'Next free position:             ',nLList(iRoot,2)
-  write(6,*) 'Length of vector:               ',nLList(iRoot,3)
-  write(6,*) 'Iteration number:               ',nLList(iRoot,4)
-  write(6,*)
+  write(u6,*) 'Next free position:             ',nLList(iRoot,2)
+  write(u6,*) 'Length of vector:               ',nLList(iRoot,3)
+  write(u6,*) 'Iteration number:               ',nLList(iRoot,4)
+  write(u6,*)
   iRoot = nLList(iRoot,0)
 end do
-write(6,*) '************ End of Status Report *************'
-write(6,*)
+write(u6,*) '************ End of Status Report *************'
+write(u6,*)
 
 return
 

@@ -14,6 +14,9 @@
 !               2011, Francesco Aquilante                              *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 !#define _DEBUGPRINT_
 subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 !***********************************************************************
@@ -37,25 +40,24 @@ subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 #include "compiler_features.h"
 
 #ifndef POINTER_REMAP
-use, intrinsic :: iso_c_binding
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 #endif
 use SpinAV, only: Do_SpinAV, DSc
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer nSym, nCMO
-integer nBas(nSym), nOrb(nSym), nFro(nSym)
-real*8, target :: CMO(nCMO), Occ(*), Dlt(*)
-logical alpha_density
-real*8, pointer :: pCMO(:,:), pOcc(:), pDlt(:)
-integer i, j, Ind
-integer iCol, iDSc, iOff, iOffD, ipCMO, ipDlt, ipDScc, ipOcc, iROw, iSym, ji, jj, lOff
-integer lth, nBs, nFr, nOr
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nCMO
+real(kind=wp), target :: CMO(nCMO), Occ(*), Dlt(*)
+logical(kind=iwp) :: alpha_density
+integer(kind=iwp) :: i, iCol, iDSc, iOff, iOffD, ipCMO, ipDlt, ipDScc, ipOcc, iROw, iSym, j, ji, jj, lOff, lth, nBs, nFr, nOr
 #ifdef _DEBUGPRINT_
-integer nOcc
+integer(kind=iwp) :: nOcc
 #endif
-real*8 Sum, xsign
+real(kind=wp) :: rSum, xsign
+real(kind=wp), pointer :: pCMO(:,:), pOcc(:), pDlt(:)
 ! Statement function for triangular storage
+integer(kind=iwp) :: Ind
 Ind(i,j) = i*(i-1)/2+j
 
 !----------------------------------------------------------------------*
@@ -93,19 +95,19 @@ do iSym=1,nSym
   pDlt => Dlt(ipDlt:ipDlt+lth-1)
 
   do iRow=1,nBs
-    Sum = Zero
+    rSum = Zero
     do i=nFr+1,nOr
-      Sum = Sum+pOcc(i)*pCMO(iRow,i)**2
-      !Sum = Sum+pOcc(i)*pCMO(iRow,i)*pCMO(iRow,i)
+      rSum = rSum+pOcc(i)*pCMO(iRow,i)**2
+      !rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iRow,i)
     end do
-    pDlt(Ind(iRow,iRow)) = Sum
+    pDlt(Ind(iRow,iRow)) = rSum
 
     do iCol=1,iRow-1
-      Sum = Zero
+      rSum = Zero
       do i=nFr+1,nOr
-        Sum = Sum+pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
+        rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
       end do
-      pDlt(Ind(iRow,iCol)) = Two*Sum
+      pDlt(Ind(iRow,iCol)) = Two*rSum
     end do
   end do
 # ifdef _DEBUGPRINT_
@@ -158,3 +160,11 @@ end if
 return
 
 end subroutine DOne_SCF
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(DOne_SCF)
+
+#endif

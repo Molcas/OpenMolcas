@@ -29,14 +29,15 @@ subroutine Ortho(AMat,nAMat,Ovlp,nOvlp)
 !***********************************************************************
 
 use InfSCF, only: MaxBas, MaxBxO, MaxOrb, nSym, nOrb, nBas
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nAMat, nOvlp
-real*8 AMat(nAMat), Ovlp(nOvlp)
-real*8, dimension(:), allocatable :: OvlT, OvlH, OvlS
-integer iiBO, iiBT, ij, im, iSym
+integer(kind=iwp) :: nAMat, nOvlp
+real(kind=wp) :: AMat(nAMat), Ovlp(nOvlp)
+integer(kind=iwp) :: iiBO, iiBT, ij, im, iSym
+real(kind=wp), allocatable :: OvlT(:), OvlH(:), OvlS(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

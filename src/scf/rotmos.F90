@@ -32,21 +32,21 @@ subroutine RotMOs(Delta,nDelta)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb, TimFld, nD
-use stdalloc, only: mma_allocate, mma_deallocate
+use InfSCF, only: kOV, nBas, nD, nFro, nOcc, NoFS, nOrb, nSym, TimFld
 use SCF_Arrays, only: CMO
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDelta
-real*8 Delta(nDelta)
-! Define local variables
-integer iSym, iSyBlpt, nOF, nVrt, nOccmF, iCMOpt, nSize, nOfNBA, iEnd, iD, iSt
+integer(kind=iwp) :: nDelta
+real(kind=wp) :: Delta(nDelta)
+integer(kind=iwp) :: iCMOpt, iD, iEnd, iSt, iSyBlpt, iSym, nOccmF, nOF, nOfNBA, nSize, nVrt
 #ifdef _DEBUGPRINT_
-integer nCMO
+integer(kind=iwp) :: nCMO
 #endif
-real*8, dimension(:), allocatable :: RoM, Scratch
-real*8 Cpu1, CPU2, Tim1, Tim2, Tim3, WhatEver
+real(kind=wp) :: Cpu1, CPU2, Tim1, Tim2, Tim3, WhatEver
+real(kind=wp), allocatable :: RoM(:), Scratch(:)
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 

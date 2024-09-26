@@ -44,25 +44,15 @@ subroutine Optim(E_Pred,G,H,C,n,nDim)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, Half, One
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments.                                                     *
-!----------------------------------------------------------------------*
-integer n, nDim
-real*8 G(nDim), H(nDim,nDim), C(nDim)
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
-real*8 Step, Eref, Eplus, Eminus, Step_m, Step_p, E_Pred
-real*8 Optim_E, Ci, Cj
-real*8 sum, fact
-logical DidChange
-integer Iter
-integer i, j
-logical Debug
-logical Debug2
+integer(kind=iwp) :: n, nDim
+real(kind=wp) :: E_Pred, G(nDim), H(nDim,nDim), C(nDim)
+integer(kind=iwp) :: i, Iter, j
+real(kind=wp) :: Ci, Cj, Eminus, Eplus, Eref, fact, Optim_E, rSum, Step, Step_m, Step_p
+logical(kind=iwp) :: Debug, Debug2, DidChange
 
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
@@ -84,15 +74,15 @@ j = 1
 do i=1,n
   if (G(i)+Half*H(i,i) < G(j)+half*H(j,j)) j = i
 end do
-C(j) = 0.9d0
+C(j) = 0.9_wp
 do i=1,n
   if (i /= j) C(i) = (One-C(j))/(n-1)
 end do
 if (Debug) then
-  write(6,'(a)') 'Start C:'
-  write(6,'(6F15.6)') (C(i),i=1,n)
-  write(6,'(a)') 'Start G:'
-  write(6,'(6F26.16)') (G(i),i=1,n)
+  write(u6,'(a)') 'Start C:'
+  write(u6,'(6F15.6)') (C(i),i=1,n)
+  write(u6,'(a)') 'Start G:'
+  write(u6,'(6F26.16)') (G(i),i=1,n)
   call RecPrt('H',' ',H,nDim,nDim)
 end if
 !----------------------------------------------------------------------*
@@ -105,13 +95,13 @@ do i=1,n
     Eref = Eref+Half*C(i)*C(j)*H(i,j)
   end do
 end do
-if (Debug) write(6,'(a,F24.16)') 'Eref = ',Eref
+if (Debug) write(u6,'(a,F24.16)') 'Eref = ',Eref
 !----------------------------------------------------------------------*
 ! Do a scan in all pairwise directions                                 *
 !----------------------------------------------------------------------*
 Iter = 0
 DidChange = .true.
-Step = 0.10d0
+Step = 0.1_wp
 Eminus = One
 Eplus = One
 
@@ -144,13 +134,13 @@ do while ((Iter < 500) .and. DidChange)
       C(j) = Cj
 
       if (Debug2) then
-        write(6,'(a,2I3,3F26.16)') 'i,j,Eref,Eplus,Eminus',i,j,Eref,Eplus,Eminus
-        write(6,'(a,2F26.16)') 'Step_p, Step_m=',Step_p,Step_m
-        write(6,*) 'Eplus < EMinus=',Eplus < EMinus
-        write(6,*) 'Eplus < Eref=',Eplus < Eref
-        write(6,*) 'Eminus < Eref=',Eminus < Eref
+        write(u6,'(a,2I3,3F26.16)') 'i,j,Eref,Eplus,Eminus',i,j,Eref,Eplus,Eminus
+        write(u6,'(a,2F26.16)') 'Step_p, Step_m=',Step_p,Step_m
+        write(u6,*) 'Eplus < EMinus=',Eplus < EMinus
+        write(u6,*) 'Eplus < Eref=',Eplus < Eref
+        write(u6,*) 'Eminus < Eref=',Eminus < Eref
       end if
-      if (abs(Eplus-EMinus) > 1.0D-12) then
+      if (abs(Eplus-EMinus) > 1.0e-12_wp) then
         if (Eplus < Eminus) then
           if (Eplus < Eref) then
             C(i) = C(i)+Step_p
@@ -172,31 +162,31 @@ do while ((Iter < 500) .and. DidChange)
   end do ! i
 
   if (.not. DidChange) then
-    if (Step > 0.9d-4) then
-      Step = 0.1d0*Step
+    if (Step > 0.9e-4_wp) then
+      Step = 0.1_wp*Step
       DidChange = .true.
-      if (Debug2) write(6,*) 'Step is',Step
+      if (Debug2) write(u6,*) 'Step is',Step
     end if
   end if
 
   ! Check that the constraint is fullfilled.
 
-  sum = Zero
+  rSum = Zero
   do i=1,n
     if (C(i) < Zero) C(i) = Zero
     if (C(i) > One) C(i) = One
-    sum = sum+C(i)
+    rSum = rSum+C(i)
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'optim: sum-1',sum-One
+  write(u6,*) 'optim: rSum-1',rSum-One
 # endif
-  fact = One/sum
+  fact = One/rSum
   do i=1,n
     C(i) = fact*C(i)
   end do
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) 'ERef=',ERef
+write(u6,*) 'ERef=',ERef
 #endif
 E_Pred = ERef
 

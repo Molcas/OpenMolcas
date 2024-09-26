@@ -18,23 +18,22 @@ subroutine SCF_Init()
 !                                                                      *
 !***********************************************************************
 
-use InfSO, only: qNRTh, DltnTH, Energy, IterSO
-use InfSCF, only: nAtoms, nOcc, nD, Thize, EThr, DThr, DelThr, DIISTh, FThr, QudThr, E1, E2, EKin, OnlyProp, NoProp, FckAuf, &
-                  InVec, nIterP, Iter, iPrint, jPrint, iPrOrb, kIVO, iCoCo, jVOut, DIIS, Damping, One_Grid, Two_Thresholds, &
-                  IDKeep, lPaper, nDens, kOptim, AccCon, nDisc, nCore, kDisk, PotNuc, EneV, E1V, E2V, iDisk, EkInv, MapDns, &
-                  PreSch, MiniDn, WrOutD, C1DIIS, RSRFO, RGEK, Scrmbl, RFPert, pmTime, EmConv, AddFragments, rTemp, TemFac, TStop, &
-                  KSDFT, ExFac, WarnCFG, WarnPOCC, WarnSlow, DoFMM, nIter, NamFld, LstVec, nBas, nDel, nFro, nOrb, nSym, TimFld, &
-                  nFrz
-use Constants, only: Zero, One
+use InfSO, only: DltnTH, Energy, IterSO, qNRTh
+use InfSCF, only: AccCon, AddFragments, C1DIIS, Damping, DelThr, DIIS, DIISTh, DoFMM, DThr, E1V, E2V, EKin, EmConv, EneV, EThr, &
+                  ExFac, FckAuf, FThr, iCoCo, iDisk, IDKeep, InVec, iPrint, iPrOrb, Iter, jPrint, jVOut, kIVO, kOptim, KSDFT, &
+                  lPaper, LstVec, MapDns, MiniDn, NamFld, nAtoms, nBas, nCore, nD, nDel, nDens, nDisc, nFro, nFrz, nIter, nIterP, &
+                  nOcc, NoProp, nOrb, nSym, One_Grid, OnlyProp, pmTime, PotNuc, PreSch, QudThr, RFPert, RGEK, RSRFO, rTemp, &
+                  Scrmbl, TemFac, Thize, TimFld, TStop, Two_Thresholds, WarnCFG, WarnPOCC, WarnSlow, WrOutD
 use MxDM, only: MxIter
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 #include "hfc_logical.fh"
-integer iFMM, iPrintLevel, nData
-logical Found, Reduce_Prt
-external Reduce_Prt
+integer(kind=iwp) :: iFMM, iPrintLevel, nData
+logical(kind=iwp) :: Found
+logical(kind=iwp), external :: Reduce_Prt
 
 !----------------------------------------------------------------------*
 !     Initialize global variables                                      *
@@ -56,31 +55,28 @@ nFrz(:) = 0
 nDel(:) = 0
 call qpg_iarray('nDel',Found,ndata)
 if (.not. Found) call Put_iArray('nDel',nDel,nSym)
-Thize = 1.0d-6
-EThr = 1.0d-9
-DThr = 1.0d-4
+Thize = 1.0e-6_wp
+EThr = 1.0e-9_wp
+DThr = 1.0e-4_wp
 call Qpg_dScalar('S delete thr',Found)
 if (Found) then
   call Get_dScalar('S delete thr',DelThr)
 else
-  DelThr = 1.0d-5
+  DelThr = 1.0e-5_wp
   call Put_dScalar('S delete thr',DelThr)
 end if
-DiisTh = 0.15d+00
-QNRTh = 0.075d+00
-!DltNTh = 0.2d-4
-DltNTh = 0.1d-2
-FThr = 1.5d-4
-QudThr = 1.0d-5
+DiisTh = 0.15_wp
+QNRTh = 0.075_wp
+!DltNTh = 0.2e-4_wp
+DltNTh = 0.1e-2_wp
+FThr = 1.5e-4_wp
+QudThr = 1.0e-5_wp
 Energy = Zero
-E1 = Zero
-E2 = Zero
 EKin = Zero
 PotNuc = Zero
 EneV = Zero
 E1V = Zero
 E2V = Zero
-EKinV = Zero
 OnlyProp = .false.
 NoProp = .false.
 FckAuf = .true.
@@ -121,7 +117,6 @@ kOptim = 1
 AccCon = '         '
 nDisc = 2000
 nCore = 512
-kDisk(:) = -1
 iDisk(:,1) = -1
 MapDns(:) = 0
 PreSch = .false.
@@ -153,9 +148,9 @@ NamFld(14) = '  f ) other calculations                    :'
 NamFld(15) = '3) Final processing (generation of outputs) :'
 NamFld(16) = '   T O T A L                                :'
 twoel_NDDO = .false.
-RTemp = 0.04d0
-TemFac = 0.02d0
-TStop = 0.00d0
+RTemp = 0.04_wp
+TemFac = 0.02_wp
+TStop = Zero
 KSDFT = 'SCF '
 ExFac = One
 WarnCfg = .false.

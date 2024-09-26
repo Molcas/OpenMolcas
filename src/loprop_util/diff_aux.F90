@@ -36,6 +36,7 @@ character(len=10) :: Label
 integer(kind=iwp) :: i, iComp, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
 real(kind=wp), allocatable :: idiot(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 ! Open One-electron file.

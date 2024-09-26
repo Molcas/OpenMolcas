@@ -25,17 +25,19 @@ subroutine SCF(ireturn)
 use SCF_Arrays, only: CMO, HDiag, OccNo
 use Interfaces_SCF, only: OccDef
 use OFembed, only: Do_OFemb
-use InfSCF, only: DSCF, nDisc, nCore, nD, AufB, nBB, mOV, OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB, type
-use stdalloc, only: mma_allocate, mma_deallocate
+use InfSCF, only: Atom, AufB, BName, BType, DSCF, iStatPrn, KSDFT, mOV, nBB, nCore, nD, nDisc, nnB, OnlyProp
 use Files, only: LuInp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp) :: iReturn
+integer(kind=iwp) :: iTerm, LthH, LUOrb, MemLow, MemSew
+real(kind=wp) :: SIntTh, TCPU1, TCPU2, TWALL1, TWALL2
+logical(kind=iwp) :: FstItr, Semi_Direct
+character(len=8) :: EMILOOP
+
 #include "warnings.h"
-integer iReturn
-character(len=8) EMILOOP
-logical FstItr, Semi_Direct
-real*8 SIntTh, TCPU1, TCPU2, TWALL1, TWALL2
-integer iTerm, LUOrb, MemLow, MemSew, LthH
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -85,11 +87,11 @@ FstItr = .true.
 
 if (.not. OnlyProp) call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
 
-call final()
+call FinalSCF()
 if (DSCF) call Free_TLists()
-call mma_deallocate(type)
+call mma_deallocate(BType)
 call mma_deallocate(Atom)
-call mma_deallocate(Name)
+call mma_deallocate(BName)
 
 call CWTime(TCPU2,TWall2)
 

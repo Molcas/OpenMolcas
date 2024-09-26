@@ -11,7 +11,14 @@
 
 module OccSets
 
-real*8, dimension(:,:), allocatable :: OccSet_e, OccSet_m
-integer nOccSet_e, nOccSet_m
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: OccSet_e(:,:), OccSet_m(:,:)
+integer(kind=iwp) :: nOccSet_e, nOccSet_m
+
+public :: nOccSet_e, nOccSet_m, OccSet_e, OccSet_m
 
 end module OccSets

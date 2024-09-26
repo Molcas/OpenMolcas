@@ -21,17 +21,16 @@ subroutine Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: nBB, nBO, nBT, nSym, nBas
+use InfSCF, only: nBas, nBB, nBO, nBT, nSym
 use Constants, only: Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer mBB, nD, mBT
-real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT), Dens(mBT,nD)
-! Define local variables
-integer nBasX(8), i, iD, iSym, nSymX
-character(len=8) Location
-real*8 ra, rb
-#include "SysDef.fh"
+integer(kind=iwp) :: mBB, nD, mBT
+real(kind=wp) :: CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT)
+integer(kind=iwp) :: i, iD, iSym, nBasX(8), nSymX
+real(kind=wp) :: Dens(mBT,nD), ra, rb
+character(len=8) :: Location
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

@@ -18,11 +18,12 @@
 subroutine RclLLs(iDskPt)
 
 use InfSO, only: MemRsv
-use LnkLst, only: LLGrad, LLdGrd, LLDelt, LLy, LLx, Init_LLs, RclLst
+use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy, RclLst
 use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
+use Definitions, only: iwp
 
 implicit none
-integer iDskPt(5)
+integer(kind=iwp) :: iDskPt(5)
 
 call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
 call RclLst(LLDgrd,LuDGd,iDskPt(2),MemRsv)

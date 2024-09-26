@@ -13,6 +13,9 @@
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 !#define _DEBUGPRINT_
 subroutine MinDns(Dens,mBT,NumD,XCff,ltXCff,nD)
 !***********************************************************************
@@ -27,26 +30,28 @@ subroutine MinDns(Dens,mBT,NumD,XCff,ltXCff,nD)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: iDisk, iPsLst, Iter, nBT, MapDns
+use InfSCF, only: iDisk, iPsLst, Iter, MapDns, nBT
 use MxDM, only: MxIter
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer mBT, nD, NumD, ltXCff
-real*8 XCff(ltXCff,nD)
-real*8, target :: Dens(mBT,nD,NumD)
-! Define local variables
-integer iC, iCol, iD, iM, iMat, iR, iRow, iStart, jCol, jRow
+integer(kind=iwp) :: mBT, NumD, ltXCff, nD
+real(kind=wp), target :: Dens(mBT,nD,NumD)
+real(kind=wp) :: XCff(ltXCff,nD)
+integer(kind=iwp) :: iC, iCol, iD, iM, iMat, iR, iRow, iStart, jCol, jRow
 #ifdef _DEBUGPRINT_
-integer i
+integer(kind=iwp) :: i
 #endif
-real*8 XC
-real*8 BVec(MxIter,2)
-real*8, dimension(:,:,:), allocatable :: AMat
-real*8, dimension(:,:), allocatable, target :: DRow, DCol
-real*8, dimension(:,:), pointer :: pDR, pDC
-real*8, external :: DDot_
+real(kind=wp) :: BVec(MxIter,2), XC
+real(kind=wp), allocatable :: AMat(:,:,:)
+real(kind=wp), allocatable, target :: DRow(:,:), DCol(:,:)
+real(kind=wp), pointer :: pDR(:,:), pDC(:,:)
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -65,7 +70,7 @@ BVec(:,:) = Zero
 !iStart = iter-iDMin
 iStart = max(1,iter-9)
 #ifdef _DEBUGPRINT_
-write(6,*) 'iter,iStart=',iter,iStart
+write(u6,*) 'iter,iStart=',iter,iStart
 #endif
 
 jRow = 0
@@ -122,9 +127,9 @@ do iD=1,nD
               BVec(1,iD),iter-iStart, &
               Zero,XCff(iStart,iD),iter-iStart)
 # ifdef _DEBUGPRINT_
-  write(6,*) ' Coefficients minimizing density difference:'
-  write(6,'(5f16.8)') (XCff(i,iD),i=1,iter-1)
-  write(6,*)
+  write(u6,*) ' Coefficients minimizing density difference:'
+  write(u6,'(5f16.8)') (XCff(i,iD),i=1,iter-1)
+  write(u6,*)
 # endif
 
 end do ! iD
@@ -152,3 +157,11 @@ call mma_deallocate(DCol)
 call mma_deallocate(DRow)
 
 end subroutine MinDns
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(MinDns)
+
+#endif

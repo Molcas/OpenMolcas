@@ -13,19 +13,20 @@ subroutine Get_DEcorr(nh1,Grad,nGrad,DFTFOCK)
 
 use SCF_Arrays, only: CMO
 use SpinAV, only: Do_SpinAV, DSC
-use InfSCF, only: nBT, nSym, nOcc, nConstr, nBas, nOrb
-use Constants, only: Zero, One, Two
+use InfSCF, only: nBas, nBT, nConstr, nOcc, nOrb, nSym
 use AddCorr, only: addc_KSDFT, DE_KSDFT_c
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer nh1, nGrad
-real*8 Grad(nGrad), Ec_AB(2)
-character(LEN=4) DFTFOCK
-integer i, iAB, iDij, iDSC, iOff, iSym, iXoX, nXoX, j, jOff, ji, lOff, mAdCMOO, Nd
-real*8, allocatable :: F_DFT(:,:), D_DS(:,:)
-
-nD = 2
+integer(kind=iwp) :: nh1, nGrad
+real(kind=wp) :: Grad(nGrad)
+character(len=4) :: DFTFOCK
+integer(kind=iwp) :: i, iAB, iDij, iDSC, iOff, iSym, iXoX, j, ji, jOff, lOff, mAdCMOO, nXoX
+real(kind=wp) :: Ec_AB(2)
+real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
+integer(kind=iwp), parameter :: nD = 2
 
 call mma_allocate(F_DFT,nBT,nD,Label='F_DFT')
 call mma_allocate(D_DS,nBT,nD,Label='D_DS')

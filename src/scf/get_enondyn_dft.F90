@@ -12,17 +12,18 @@
 subroutine Get_Enondyn_dft(nh1,Grad,nGrad,DFTFOCK)
 
 use SCF_Arrays, only: CMO
-use InfSCF, only: KSDFT, nBT, nSym, nBas, nOrb, nOcc
+use InfSCF, only: KSDFT, nBas, nBT, nOcc, nOrb, nSym
 use DCSCF, only: Erest_xc
-use Constants, only: Zero, One, Two
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer nh1, nGrad
-real*8 Grad(nGrad)
-character(len=4) DFTFOCK
-integer i, iDji, iSym, j, ji, iOff, jOff
-real*8, allocatable :: F_DFT(:,:), D_DS(:,:)
+integer(kind=iwp) :: nh1, nGrad
+real(kind=wp) :: Grad(nGrad)
+character(len=4) :: DFTFOCK
+integer(kind=iwp) :: i, iDji, iOff, iSym, j, ji, jOff
+real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
 
 Erest_xc = Zero
 call mma_allocate(D_DS,nBT,2,Label='D_DS ')

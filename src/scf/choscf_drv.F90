@@ -19,14 +19,11 @@ subroutine ChoSCF_Drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,E
 ! This routine calls the original ChoSCF_Drv routine (now
 ! ChoSCF_Drv_) in case of Cholesky or full DF.
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer nBSQT, nD, nSym, nFLT
-integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
-real*8 DSQ(*), DLT(*)
-real*8 DSQ_ab(*), DLT_ab(*)
-real*8 FLT(*), FLT_ab(*)
-real*8 FSQ(nBSQT,nD)
-real*8 ExFac
+integer(kind=iwp) :: nBSQT, nD, nSym, nBas(nSym), nFLT, nOcc(nSym), nOcc_ab(nSym)
+real(kind=wp) :: DSQ(*), DLT(*), DSQ_ab(*), DLT_ab(*), FLT(*), FLT_ab(*), ExFac, FSQ(nBSQT,nD)
 
 !                                                                      *
 !***********************************************************************
@@ -41,40 +38,27 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
   use Scf_Arrays, only: CMO
   use Fock_util_global, only: Deco, Lunit
-  use Data_Structures, only: Allocate_DT, Deallocate_DT
-  use Data_Structures, only: DSBA_Type, Integer_Pointer
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, Integer_Pointer
   use SpinAV, only: Do_SpinAV
   use ChoSCF, only: Algo, dFKmat, dmpk, nScreen, ReOrd
-  use Constants, only: Zero, Half, One, Two
   use ChoAuf, only: Cho_Aufb
+  use Constants, only: Zero, One, Two, Half
+  use stdalloc, only: mma_allocate, mma_deallocate
 
-  implicit none
-  integer nD, nSym
-  integer nBas(nSym)
-  real*8 W_DSQ(*), W_DSQ_ab(*)
-  real*8 W_DLT(*), W_DLT_ab(*)
-  real*8 W_FLT(*), W_FLT_ab(*)
-  integer nFLT
-  real*8 ExFac
-  real*8 W_FSQ(*), W_FSQ_ab(*)
-  integer, target :: nOcc(nSym), nOcc_ab(nSym)
-  integer MinMem(nSym), rc
-  integer, parameter :: MaxDs = 3
-  logical DoCoulomb(MaxDs), DoExchange(MaxDs)
-  real*8 FactC(MaxDs), FactX(MaxDs)
-  integer nnBSF(8,8), n2BSF(8,8)
-  integer nForb(8,2), nIorb(8,2)
-  character(len=512) ww
-  integer :: iTri, i, j
-  integer :: ikk, iSym, ja, k, kj, loff1, nmat, numV, numV1, numV2
-  integer :: nDen
-  real*8 :: Thr, xFac, YMax
-  logical :: ReOrd_Set = .false.
+  integer(kind=iwp) :: nD, nSym, nBas(nSym), nFLT
+  real(kind=wp) :: W_DSQ(*), W_DLT(*), W_DSQ_ab(*), W_DLT_ab(*), W_FLT(*), W_FLT_ab(*), ExFac, W_FSQ(*), W_FSQ_ab(*)
+  integer(kind=iwp), target :: nOcc(nSym), nOcc_ab(nSym)
+  integer(kind=iwp), parameter :: MaxDs = 3
+  integer(kind=iwp) :: i, ikk, iSym, j, ja, k, kj, loff1, MinMem(nSym), n2BSF(8,8), nDen, nForb(8,2), nIorb(8,2), nmat, &
+                       nnBSF(8,8), numV, numV1, numV2, rc
+  real(kind=wp) :: FactC(MaxDs), FactX(MaxDs), Thr, xFac, YMax
+  logical(kind=iwp) :: DoCoulomb(MaxDs), DoExchange(MaxDs), ReOrd_Set = .false.
+  character(len=512) :: ww
+  type(DSBA_Type) :: Cka(2), DDec(2), DLT(1), DSQ(3), FLT(2), FSQ(3), KLT(2), MSQ(3), Vec(2)
   type(Integer_Pointer) :: pNocc(3)
-  integer, allocatable, target :: nVec(:,:)
-  type(DSBA_Type) Cka(2), FLT(2), KLT(2), MSQ(3), DLT(1), FSQ(3), DSQ(3), DDec(2), Vec(2)
+  integer(kind=iwp), allocatable, target :: nVec(:,:)
   ! Statement function
+  integer(kind=iwp) :: iTri
   iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
   rc = 0
@@ -131,7 +115,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
           do ja=1,nBas(i)
             Ymax = max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
           end do
-          Thr = 1.0d-8*Ymax
+          Thr = 1.0e-8_wp*Ymax
           call CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,nBas(i),NumV,Thr,rc)
           if (rc /= 0) goto 999
           nVec(i,1) = NumV
@@ -238,7 +222,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
         !***************************************************************
         !                                                              *
         rc = 99
-        write(6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
+        write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
         call QUIT(rc)
         !                                                              *
         !***************************************************************
@@ -344,7 +328,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
           do ja=1,nBas(i)
             Ymax = max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
           end do
-          Thr = 1.0d-8*Ymax
+          Thr = 1.0e-8_wp*Ymax
           call CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,nBas(i),NumV1,Thr,rc)
           if (rc /= 0) goto 999
           nVec(i,1) = NumV1
@@ -359,7 +343,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
           do ja=1,nBas(i)
             Ymax = max(Ymax,DDec(2)%SB(i)%A2(ja,ja))
           end do
-          Thr = 1.0d-8*Ymax
+          Thr = 1.0e-8_wp*Ymax
           call CD_InCore(DDec(2)%SB(i)%A2,nBas(i),Vec(2)%SB(i)%A2,nBas(i),NumV2,Thr,rc)
           if (rc /= 0) goto 999
           nVec(i,2) = NumV2
@@ -467,7 +451,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
       case Default
 
         rc = 99
-        write(6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
+        write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
         call QUIT(rc)
     end select
 
@@ -537,7 +521,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
     999 continue
     if (rc /= 0) then
-    write(6,*) 'CHOSCF_DRV. Non-zero return code.'
+    write(u6,*) 'CHOSCF_DRV. Non-zero return code.'
     call QUIT(rc)
   end if
 

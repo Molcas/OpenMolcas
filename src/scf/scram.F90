@@ -26,50 +26,26 @@ subroutine Scram(CMO,nSym,nBas,nOrb,ScrFac)
 !***********************************************************************
 
 use Constants, only: One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-real*8 CMO(*)
-integer nSym
-integer nBas(nSym)
-integer nOrb(nSym)
-real*8 ScrFac
-!----------------------------------------------------------------------*
-! External references                                                  *
-!----------------------------------------------------------------------*
-real*8 Random_Molcas
-external Random_Molcas
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer iSeed
-save iSeed
-integer iSym
-integer iOrb
-integer jOrb
-integer iBas
-integer iOff
-integer indx
-integer jndx
-real*8 p
-real*8 q
-real*8 u
-real*8 v
-data iSeed/13/
+real(kind=wp) :: CMO(*), ScrFac
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+integer(kind=iwp) :: iBas, indx, iOff, iOrb, iSeed = 13, iSym, jndx, jOrb
+real(kind=wp) :: p, q, u, v
+real(kind=wp), external :: Random_Molcas
 
 !----------------------------------------------------------------------*
 ! Do small rotations                                                   *
 !----------------------------------------------------------------------*
 iOff = 0
 do iSym=1,nSym
-  !write(6,*) 'Scrambling irrep',iSym
+  !write(u6,*) 'Scrambling irrep',iSym
   do iOrb=1,nOrb(iSym)-1
     jOrb = iOrb+1
     q = ScrFac*(Two*Random_Molcas(iSeed)-One)
     p = sqrt(One-q*q)
-    !write(6,*) 'q=',q
+    !write(u6,*) 'q=',q
     do iBas=1,nBas(iSym)
       indx = iOff+(iOrb-1)*nBas(iSym)+iBas
       jndx = iOff+(jOrb-1)*nBas(iSym)+iBas

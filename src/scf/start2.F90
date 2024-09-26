@@ -40,27 +40,23 @@ use, intrinsic :: iso_c_binding, only: c_ptr
 #ifdef _HDF5_
 use mh5, only: mh5_exists_dset
 #endif
-use InfSCF, only: Aufb, FileOrb_id, isHDF5, nBO, nBT, nSym, OnlyProp, VTitle, nOcc, nOrb, nBas, nnB, nDel
-use InfSCF, only: mSymON
+use InfSCF, only: Aufb, FileOrb_id, isHDF5, mSymON, nBas, nBO, nBT, nDel, nnB, nOcc, nOrb, nSym, OnlyProp, VTitle
 use Files, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One, Two
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) FName
-integer LuOrb, mBB, nD, mBT, mmB
-real*8 CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
-integer iBas, iD, iErr, indx, iOff, iOrb, isUHF, iSym, Lu_
-integer nTmp(8), iWFtype
-character(len=6) OrbName
-! Pam 2012 Changed VECSORT arg list, need dummy array:
-integer iDummy(1)
-integer, dimension(:,:), allocatable :: IndT
+character(len=*) :: FName
+integer(kind=iwp) :: LuOrb, mBB, nD, mBT, mmB
+real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
+integer(kind=iwp) :: iBas, iD, iDum(7,8), iDummy(1), iErr, indx, iOff, iOrb, isUHF, iSym, iWFtype, Lu_, nTmp(8)
+real(kind=wp) :: Dummy(1)
+character(len=6) :: OrbName
+integer, allocatable :: IndT(:,:)
 #ifdef _MSYM_
-type(c_ptr) msym_ctx
+type(c_ptr) :: msym_ctx
 #endif
-integer iDum(7,8)
-real*8 Dummy(1)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -199,7 +195,7 @@ if (allocated(IndT)) call mma_deallocate(IndT)
 
 if (MSYMON) then
 # ifdef _MSYM_
-  write(6,*) 'Symmetrizing start orbitals'
+  write(u6,*) 'Symmetrizing start orbitals'
   call fmsym_create_context(msym_ctx)
   call fmsym_set_elements(msym_ctx)
   call fmsym_find_symmetry(msym_ctx)
@@ -207,7 +203,7 @@ if (MSYMON) then
     call fmsym_symmetrize_orbitals(msym_ctx,CMO(1,iD))
   end do
 # else
-  write(6,*) 'No msym support, skipping symmetrization of start orbitals...'
+  write(u6,*) 'No msym support, skipping symmetrization of start orbitals...'
 # endif
 end if
 

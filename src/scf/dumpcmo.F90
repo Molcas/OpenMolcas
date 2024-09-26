@@ -19,25 +19,14 @@
 subroutine DumpCMO(Label,CMO,nSym,nBas,nOrb)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-character*(*) Label
-real*8 CMO(*)
-integer nSym
-integer nBas(*)
-integer nOrb(*)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer npDump
-integer iFrom(8)
-integer iTo(8)
-integer iSym
-integer ndata
-real*8, dimension(:), allocatable :: Dump
+character(len=*) :: Label
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: nSym, nBas(*), nOrb(*)
+integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata, npDump
+real(kind=wp), allocatable :: Dump(:)
 
 !----------------------------------------------------------------------*
 ! Preliminaries                                                        *

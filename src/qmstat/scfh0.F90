@@ -31,6 +31,7 @@ character(len=LenIn8) :: NameM(maxbfn)
 character(len=10) :: firstind
 real(kind=wp), allocatable :: AOx(:), Buff(:), Fine(:,:), MOx(:), SqAO(:,:), TEMP(:,:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 ! Wilkommen.

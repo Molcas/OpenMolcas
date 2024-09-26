@@ -25,82 +25,83 @@ subroutine PrIte(QNR,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
 !***********************************************************************
 
 use InfSO, only: DltNrm, DltNTh
-use InfSCF, only: AccCon, CPUItr, DMOMax, DNorm, DThr, E1V, E2V, EDiff, EneV, EThr, FMOMax, Iter, IterPrLv, jPrint, TNorm, FThr
+use InfSCF, only: AccCon, CPUItr, DMOMax, DNorm, DThr, E1V, E2V, EDiff, EneV, EThr, FMOMax, FThr, Iter, IterPrLv, jPrint, TNorm
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer mBB, nD, mBT, mmB
-real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
-logical QNR
-real*8 :: Shift = Zero
-logical :: Set_Shift = .false.
-save Shift, Set_Shift
-character cEDiff, cDMOMax, cFMOMax, cDltNrm
+logical(kind=iwp) :: QNR
+integer(kind=iwp) :: mBB, nD, mBT, mmB
+real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
+real(kind=wp) :: Shift = Zero
+logical(kind=iwp) :: Set_Shift = .false.
+character :: cDltNrm, cDMOMax, cEDiff, cFMOMax
 
 if (iterprlv > 0) then
-  write(6,*)
-  write(6,'(a)') '*******************'
-  write(6,'(a,i3,a)') '** Iteration ',iter,' **'
-  write(6,'(a)') '*******************'
-  write(6,*)
-  write(6,'(a,f10.2)') 'Cpu time [sec]        ',CpuItr
+  write(u6,*)
+  write(u6,'(a)') '*******************'
+  write(u6,'(a,i3,a)') '** Iteration ',iter,' **'
+  write(u6,'(a)') '*******************'
+  write(u6,*)
+  write(u6,'(a,f10.2)') 'Cpu time [sec]        ',CpuItr
 
   select case (AccCon)
     case ('None','NoneDa')
-      write(6,'(a)') 'No convergence acceleration'
+      write(u6,'(a)') 'No convergence acceleration'
     case ('EDIIS','ADIIS')
-      write(6,'(a)') 'Convergence is accelerated by damping'
+      write(u6,'(a)') 'Convergence is accelerated by damping'
     case ('QNRc1D')
-      write(6,'(2a)') 'Convergence is accelerated by QNR with ','c1-DIIS'
+      write(u6,'(2a)') 'Convergence is accelerated by QNR with ','c1-DIIS'
     case ('QNRc2D')
-      write(6,'(2a)') 'Convergence is accelerated by QNR with ','c2-DIIS'
+      write(u6,'(2a)') 'Convergence is accelerated by QNR with ','c2-DIIS'
     case default
-      write(6,'(2a)') 'Convergence accelerations is ',AccCon
+      write(u6,'(2a)') 'Convergence accelerations is ',AccCon
   end select
 
-  write(6,*)
-  write(6,'(a,f16.8)') 'Total energy          ',EneV
-  write(6,'(a,f16.8)') 'One electron energy   ',E1V
-  write(6,'(a,f16.8)') 'Two electron energy   ',E2V
+  write(u6,*)
+  write(u6,'(a,f16.8)') 'Total energy          ',EneV
+  write(u6,'(a,f16.8)') 'One electron energy   ',E1V
+  write(u6,'(a,f16.8)') 'Two electron energy   ',E2V
 
   if ((abs(Ediff) > Ethr) .or. (iter <= 1)) then
-    write(6,'(a,f16.8)') 'Energy difference     ',Ediff
+    write(u6,'(a,f16.8)') 'Energy difference     ',Ediff
   else
-    write(6,'(a,f16.8,a)') 'Energy difference     ',Ediff,' is converged'
+    write(u6,'(a,f16.8,a)') 'Energy difference     ',Ediff,' is converged'
   end if
 
   if (QNR) then
     if (DltNrm > DltNth) then
-      write(6,'(a,f16.8)') 'Delta norm            ',DltNrm
+      write(u6,'(a,f16.8)') 'Delta norm            ',DltNrm
     else
-      write(6,'(a,f16.8,a)') 'Delta norm            ',DltNrm,' is converged'
+      write(u6,'(a,f16.8,a)') 'Delta norm            ',DltNrm,' is converged'
     end if
   else
     if (abs(DMOMax) > Dthr) then
-      write(6,'(a,f16.8)') 'Max offdiagonal Dij   ',DMOmax
+      write(u6,'(a,f16.8)') 'Max offdiagonal Dij   ',DMOmax
     else
-      write(6,'(a,f16.8,a)') 'Max offdiagonal Dij   ',DMOmax,' is converged'
+      write(u6,'(a,f16.8,a)') 'Max offdiagonal Dij   ',DMOmax,' is converged'
     end if
   end if
 
   if (abs(FMOMax) > Fthr) then
-    write(6,'(a,f16.8)') 'Max offdiagonal Fij   ',FMOmax
+    write(u6,'(a,f16.8)') 'Max offdiagonal Fij   ',FMOmax
   else
-    write(6,'(a,f16.8,a)') 'Max offdiagonal Fij   ',FMOmax,' is converged'
+    write(u6,'(a,f16.8,a)') 'Max offdiagonal Fij   ',FMOmax,' is converged'
   end if
 
-  write(6,'(a,f16.8)') 'D-norm                ',sqrt(Dnorm)
-  write(6,'(a,f16.8)') 'T-norm                ',sqrt(Tnorm)
+  write(u6,'(a,f16.8)') 'D-norm                ',sqrt(Dnorm)
+  write(u6,'(a,f16.8)') 'T-norm                ',sqrt(Tnorm)
   if (iterprlv >= 2) call MulPop(CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
 
 else if (jPrint >= 2) then
 
   if (.not. Set_Shift) then
-    if (abs(EneV) > 1.0d3) then
-      Shift = dble(int(abs(EneV)/1.0d3))*1.0d3
-      write(6,*)
-      write(6,'(1X,A,f10.0,A)') 'The total and one-electron energies are shifted by a value of ',Shift,' a.u.'
-      write(6,*)
+    if (abs(EneV) > 1.0e3_wp) then
+      Shift = abs(EneV)*1.0e-3_wp
+      Shift = real(int(Shift),kind=wp)*1.0e3_wp
+      write(u6,*)
+      write(u6,'(1X,A,f10.0,A)') 'The total and one-electron energies are shifted by a value of ',Shift,' a.u.'
+      write(u6,*)
     end if
     Set_Shift = .true.
   end if
@@ -112,16 +113,16 @@ else if (jPrint >= 2) then
   if (QNR) then
     cDltNrm = ' '
     if (DltNrm > DltNth) cDltNrm = '*'
-    write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
+    write(u6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
       Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DltNrm,cDltNrm,FMOMax,cFMOMax,sqrt(DNorm),sqrt(TNorm),AccCon,CpuItr
   else
     cDMOMax = ' '
     if (abs(DMOMax) > Dthr) cDMOMax = '*'
-    write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
+    write(u6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
       Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DMOMax,cDMOMax,FMOMax,cFMOMax,sqrt(DNorm),sqrt(TNorm),AccCon,CpuItr
 
   end if
 end if
-call XFlush(6)
+call XFlush(u6)
 
 end subroutine prite

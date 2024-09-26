@@ -21,13 +21,13 @@ subroutine OpnFls_SCF()
 !***********************************************************************
 
 use InfSCF, only: DoCholesky, DSCF
-use Files, only: LuDst, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy, LuOrd, FnDst, FnOSt, FnTSt, FnGrd, FnDGd, Fnx, FnDel, Fny, &
-                 FnOrd
+use Files, only: FnDel, FnDGd, FnDst, FnGrd, FnOrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDst, LuGrd, LuOrd, LuOSt, LuTSt, Lux, &
+                 Luy
+use Definitions, only: iwp, u6
 
 implicit none
-! Define local variables
-logical test
-integer iOpt, iRC
+integer(kind=iwp) :: iOpt, iRC
+logical(kind=iwp) :: test
 
 !---  open two-electron integral file ---------------------------------*
 call f_Inquire(FnOrd,test)
@@ -38,7 +38,7 @@ if ((.not. DSCF) .and. (.not. DoCholesky)) then
   iOpt = 0
   call OpnOrd(iRC,iOpt,FnOrd,LuOrd)
   if (iRc /= 0) then
-    write(6,*) 'OpnFls: Error opening ORDINT'
+    write(u6,*) 'OpnFls: Error opening ORDINT'
     call Abend()
   end if
 end if

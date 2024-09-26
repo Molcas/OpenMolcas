@@ -31,57 +31,38 @@ subroutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 !                                                                      *
 !***********************************************************************
 
-use InfSO, only: IterSO, Energy
-use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon, Iter_Start, kOV
+use InfSO, only: Energy, IterSO
+use InfSCF, only: AccCon, C1DIIS, Iter, Iter_Start, kOptim, kOV, mOV, TimFld
+use MxDM, only: MxOptm
+use LnkLst, only: LLx
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 #ifdef _NEW_
 use Constants, only: Half
 #endif
-use MxDM, only: MxOptm
-use stdalloc, only: mma_allocate, mma_deallocate
-use LnkLst, only: LLx
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nCI, nD
-real*8 CInter(nCI,nD)
-integer Ind(MxOptm)
-logical QNRstp
-! Define local variables
-real*8, dimension(:,:), allocatable :: EVector, Bij
-real*8, dimension(:), allocatable :: EValue, Err1, Err2, Scratch
-!real*8, dimension(:), allocatable :: Err3, Err4
-real*8 GDiis(MxOptm+1), BijTri(MxOptm*(MxOptm+1)/2)
-real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
-real*8 :: E_Min = Zero
-integer iVec, jVec, kVec, nBij, nFound
-integer :: i, j
-!integer :: iPos
-integer :: ipBst, ij, iErr, iDiag, iDum
-real*8 :: cpu1, cpu2
-real*8 :: tim1, tim2, tim3
-logical :: Case1 = .false., Case2 = .false., Case3 = .false.
-! threshold to determine numerical imbalance.
-real*8 :: delta = 1.0D-4
-real*8 :: delta_E = 1.0D-4
-! Factor for checking that the diagonal B elements decline.
-real*8, parameter :: Fact_Decline = 15.0d0
-real*8 :: ThrCff = Ten
-#ifdef _NOT_USED_
-real*8 :: f1 = Half, f2 = One/Half
-#endif
-real*8 :: c2, Bii_Min, DD, DD1
-real*8, external :: DDot_
-character(len=80) Text, Fmt
+integer(kind=iwp) :: nD, nCI, Ind(MxOptm)
+real(kind=wp) :: CInter(nCI,nD)
+logical(kind=iwp) :: QNRstp
+integer(kind=iwp) :: i, iDiag, iDum, iErr, ij, ipBst, iVec, j, jVec, kVec, nBij, nFound
+real(kind=wp) :: Alpha, B11, Bii_Min, BijTri(MxOptm*(MxOptm+1)/2), c2, cpu1, cpu2, DD, DD1, Dummy, E_Min, E_Min_G, ee1, ee2, EMax, &
+                 Fact, GDiis(MxOptm+1), tim1, tim2, tim3
 #ifdef _DEBUGPRINT_
-real*8 cDotV
+real(kind=wp) :: cDotV
 #endif
+logical(kind=iwp) :: Case1, Case2, Case3
+character(len=80) :: Frmt, Text
+real(kind=wp), allocatable :: Bij(:,:), Err1(:), Err2(:), EValue(:), EVector(:,:), Scratch(:) !, Err3(:), Err4(:)
+real(kind=wp), parameter :: delta = 1.0e-4_wp, delta_E = 1.0e-4_wp, Fact_Decline = 15.0_wp, ThrCff = Ten
+real(kind=wp), external :: DDot_
 interface
   subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,kOptim,kOV,LL,DD)
-    implicit none
-    integer nCI, nD, mOV, MxOptm, kOptim, kOV(2), LL
-    real*8 CInter(nCI,nD), Array(mOV)
-    integer Ind(MxOptm)
-    real*8, optional :: DD
+    import :: wp, iwp
+    integer(kind=iwp) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
+    real(kind=wp) :: CInter(nCI,nD), Array(mOV)
+    real(kind=wp), optional :: DD
   end subroutine OptClc_X
 end interface
 
@@ -101,9 +82,9 @@ do i=1,kOptim
   Ind(i) = iter-kOptim+i
 end do
 #ifdef _DEBUGPRINT_
-!write(6,*) 'Iter, Iter_Start=',Iter,Iter_Start
-write(6,*) 'kOptim=',kOptim
-write(6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
+!write(u6,*) 'Iter, Iter_Start=',Iter,Iter_Start
+write(u6,*) 'kOptim=',kOptim
+write(u6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
 #endif
 
 ! The following piece of code computes the DIIS coeffs
@@ -123,13 +104,13 @@ call FZero(Bij,nBij**2)
 ! Compute norms, <e_i|e_j>
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'kOV(:)=',kOV
-write(6,*) 'mOV   =',mOV
+write(u6,*) 'kOV(:)=',kOV
+write(u6,*) 'mOV   =',mOV
 call RecPrt('Energy',' ',Energy,1,iter)
 #endif
 E_Min_G = Zero
 E_Min = Zero
-Bii_min = 1.0D+99
+Bii_min = 1.0e99_wp
 do i=1,kOptim
   call ErrV(mOV,Ind(i),QNRStp,Err1)
   !if (QNRStp) call ErrV(mOV,Ind(i),.false.,Err3)
@@ -145,23 +126,23 @@ do i=1,kOptim
 #   endif
     if (QNRStp) then
 #     ifdef _NEW_
-      !Bij(i,j) = Half*dble(nD)*(DDot_(mOV,Err1,1,Err4,1)+DDot_(mOV,Err3,1,Err2,1))
+      !Bij(i,j) = Half*real(nD,kind=wp)*(DDot_(mOV,Err1,1,Err4,1)+DDot_(mOV,Err3,1,Err2,1))
 #     else
-      Bij(i,j) = dble(nD)*DDot_(mOV,Err1,1,Err2,1)
+      Bij(i,j) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err2,1)
 #     endif
     else
-      Bij(i,j) = dble(nD)*DDot_(mOV,Err1,1,Err2,1)
+      Bij(i,j) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err2,1)
     end if
     Bij(j,i) = Bij(i,j)
   end do
   if (QNRStp) then
 #   ifdef _NEW_
-    !Bij(i,i) = dble(nD)*DDot_(mOV,Err1,1,Err3,1)
+    !Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err3,1)
 #   else
-    Bij(i,i) = dble(nD)*DDot_(mOV,Err1,1,Err1,1)
+    Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err1,1)
 #   endif
   else
-    Bij(i,i) = dble(nD)*DDot_(mOV,Err1,1,Err1,1)
+    Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err1,1)
   end if
   E_min = min(E_min,Energy(Ind(i)))
   if (Bij(i,i) < Bii_Min) then
@@ -191,37 +172,37 @@ Case2 = ((Bij(i,i) > Bii_Min) .and. (Energy(Ind(i))+delta_E < E_Min_G) .and. (kO
 ! Check if elements are in decending order
 Case3 = .false.
 do i=1,kOptim-1
-  if (Bij(i,i) < 1.0D-6) cycle
+  if (Bij(i,i) < 1.0e-6_wp) cycle
   if (Fact_Decline*Bij(i,i) < Bij(i+1,i+1)) Case3 = .true.
 end do
 if (Energy(Ind(i)) >= E_min) Case3 = .false.
 
 if (qNRStp .and. (Case1 .or. Case2 .or. Case3)) then
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Case1=',Case1
-  write(6,*) 'Case2=',Case2
-  write(6,*) 'Case3=',Case3
-  write(6,*) '   RESETTING kOptim!!!!'
-  write(6,*) '   Calculation of the norms in Diis :'
-  Fmt = '(6(G0.12,2x))'
+  write(u6,*) 'Case1=',Case1
+  write(u6,*) 'Case2=',Case2
+  write(u6,*) 'Case3=',Case3
+  write(u6,*) '   RESETTING kOptim!!!!'
+  write(u6,*) '   Calculation of the norms in Diis :'
+  Frmt = '(6(G0.12,2x))'
   Text = 'B-matrix squared in Diis :'
-  call RecPrt(Text,Fmt,Bij,nBij,nBij)
-  write(6,'(A,2(G0.9,2x))') 'Bij(i,i),      Bii_Min=',Bij(i,i),Bii_Min
-  write(6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',Energy(Ind(i)),E_Min_G
-  write(6,*) Energy(Ind(i)),E_Min_g
-  write(6,*)
+  call RecPrt(Text,Frmt,Bij,nBij,nBij)
+  write(u6,'(A,2(G0.9,2x))') 'Bij(i,i),      Bii_Min=',Bij(i,i),Bii_Min
+  write(u6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',Energy(Ind(i)),E_Min_G
+  write(u6,*) Energy(Ind(i)),E_Min_g
+  write(u6,*)
 
 # endif
   ! Rest the depth of the DIIS and the BFGS update.
   if (Case3) then
-    write(6,*) 'DIIS_X: Resetting kOptim!'
-    write(6,*) '        Caused by inconsistent B matrix values.'
+    write(u6,*) 'DIIS_X: Resetting kOptim!'
+    write(u6,*) '        Caused by inconsistent B matrix values.'
   else if (Case1) then
-    write(6,*) 'DIIS_X: Resetting BFGS depth!'
-    write(6,*) '        Too large B matrix values.'
+    write(u6,*) 'DIIS_X: Resetting BFGS depth!'
+    write(u6,*) '        Too large B matrix values.'
   else if (Case2) then
-    write(6,*) 'DIIS_X: Resetting kOptim!'
-    write(6,*) '        Caused by energies and gradients which are inconsistent with a convex energy functional.'
+    write(u6,*) 'DIIS_X: Resetting kOptim!'
+    write(u6,*) '        Caused by energies and gradients which are inconsistent with a convex energy functional.'
   end if
   if (Case1) then
     ! The BFGS update is probably to blame. Reset the update depth.
@@ -229,12 +210,12 @@ if (qNRStp .and. (Case1 .or. Case2 .or. Case3)) then
     IterSO = 1
   else
     !if (Case2) then
-    write(6,*) 'kOptim=',kOptim,'-> kOptim=',1
+    write(u6,*) 'kOptim=',kOptim,'-> kOptim=',1
     kOptim = 1
     Iter_Start = Iter
     IterSO = 1
     !else
-    !  write(6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
+    !  write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
     !  kOptim = kOptim-1
     !  Iter_Start = Iter_Start+1
     !  IterSO = IterSO-1
@@ -249,8 +230,8 @@ end if
 if (kOptim /= 1) then
   do i=1,kOptim-1
     if (delta*sqrt(Bij(i,i)) > sqrt(Bij(kOptim,kOptim))) then
-      write(6,*) 'DIIS_X: Reduction of the subspace dimension due to numerical imbalance of the values in the B-Matrix'
-      write(6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
+      write(u6,*) 'DIIS_X: Reduction of the subspace dimension due to numerical imbalance of the values in the B-Matrix'
+      write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
       kOptim = kOptim-1
       Iter_Start = Iter_Start+1
       IterSO = IterSO-1
@@ -269,12 +250,12 @@ call mma_deallocate(Err2)
 call mma_deallocate(Err1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) '   Calculation of the norms in Diis :'
-Fmt = '(6f16.8)'
+write(u6,*) '   Calculation of the norms in Diis :'
+Frmt = '(6f16.8)'
 Text = 'B-matrix squared in Diis :'
-call RecPrt(Text,Fmt,Bij,nBij,nBij)
-write(6,*)
-write(6,*)
+call RecPrt(Text,Frmt,Bij,nBij,nBij)
+write(u6,*)
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -319,13 +300,13 @@ if (.not. c1Diis) then
   end do
 
 # ifdef _DEBUGPRINT_
-  Fmt = '(5g25.15)'
+  Frmt = '(5g25.15)'
   Text = 'B-matrix before Jacobi :'
-  call TriPrt(Text,Fmt,BijTri,kOptim)
+  call TriPrt(Text,Frmt,BijTri,kOptim)
   Text = 'EigenVectors before Jacobi :'
-  call RecPrt(Text,Fmt,EVector,kOptim,kOptim)
-  write(6,*)
-  write(6,*)
+  call RecPrt(Text,Frmt,EVector,kOptim,kOptim)
+  write(u6,*)
+  write(u6,*)
 # endif
 
   ! Diagonalize B-matrix
@@ -335,7 +316,7 @@ if (.not. c1Diis) then
     EMax = max(EMax,abs(BijTri(i)))
   end do
   do i=1,kOptim*(kOptim+1)/2
-    if (abs(BijTri(i)) < EMax*1.0D-14) BijTri(i) = Zero
+    if (abs(BijTri(i)) < EMax*1.0e-14_wp) BijTri(i) = Zero
   end do
 
   call mma_allocate(Scratch,kOptim**2,Label='Scratch')
@@ -354,21 +335,21 @@ if (.not. c1Diis) then
   end do
 
 # ifdef _DEBUGPRINT_
-  Fmt = '(5g25.15)'
+  Frmt = '(5g25.15)'
   Text = 'B-matrix after Jacobi :'
-  call TriPrt(Text,Fmt,BijTri,kOptim)
+  call TriPrt(Text,Frmt,BijTri,kOptim)
   Text = 'EigenValues :'
-  call RecPrt(Text,Fmt,EValue,1,kOptim)
+  call RecPrt(Text,Frmt,EValue,1,kOptim)
   Text = 'EigenVectors :'
-  call RecPrt(Text,Fmt,EVector,kOptim,kOptim)
-  write(6,*)
-  write(6,*)
+  call RecPrt(Text,Frmt,EVector,kOptim,kOptim)
+  write(u6,*)
+  write(u6,*)
 # endif
 
   ! Renormalize the eigenvectors to the C1-DIIS format
 
 # ifdef _DEBUGPRINT_
-  write(6,*) ' Normalization constants :'
+  write(u6,*) ' Normalization constants :'
 # endif
 
   do iVec=1,kOptim
@@ -378,8 +359,8 @@ if (.not. c1Diis) then
     end do
 
 #   ifdef _DEBUGPRINT_
-    Fmt = '(A7,i2,A4,f16.8)'
-    write(6,Fmt) ' Alpha(',iVec,') = ',Alpha
+    Frmt = '(A7,i2,A4,f16.8)'
+    write(u6,Frmt) ' Alpha(',iVec,') = ',Alpha
 #   endif
 
     EVector(:,iVec) = EVector(:,iVec)/Alpha
@@ -392,27 +373,27 @@ if (.not. c1Diis) then
         ee1 = ee1+EVector(iVec,kVec)*EVector(jVec,kVec)*Bij(iVec,jVec)
       end do
     end do
-    !write(6,*) 'EValue(kVec),ee1:',EValue(kVec),ee1
+    !write(u6,*) 'EValue(kVec),ee1:',EValue(kVec),ee1
     EValue(kVec) = ee1
   end do
 
 # ifdef _DEBUGPRINT_
-  Fmt = '(6es16.8)'
+  Frmt = '(6es16.8)'
   Text = 'B-matrix after scaling :'
-  call TriPrt(Text,Fmt,BijTri,kOptim)
+  call TriPrt(Text,Frmt,BijTri,kOptim)
   Text = 'EigenValues after scaling :'
-  call RecPrt(Text,Fmt,EValue,1,kOptim)
+  call RecPrt(Text,Frmt,EValue,1,kOptim)
   Text = 'EigenVectors after scaling :'
-  call RecPrt(Text,Fmt,EVector,kOptim,kOptim)
-  write(6,*)
-  write(6,*)
+  call RecPrt(Text,Frmt,EVector,kOptim,kOptim)
+  write(u6,*)
+  write(u6,*)
 # endif
 
   ! Select a vector.
-  ee1 = 1.0D+72
-  DD1 = 1.0D+72
+  ee1 = 1.0e72_wp
+  DD1 = 1.0e72_wp
 # ifdef _DEBUGPRINT_
-  cDotV = 1.0D+72
+  cDotV = 1.0e72_wp
 # endif
   ipBst = -99999999
   call mma_allocate(Scratch,mOV,label='Scratch')
@@ -430,18 +411,18 @@ if (.not. c1Diis) then
       DD = Zero
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*) '<e|e>=',ee2
-    write(6,*) 'c**2=',c2
-    write(6,*) 'DD=',DD
+    write(u6,*) '<e|e>=',ee2
+    write(u6,*) 'c**2=',c2
+    write(u6,*) 'DD=',DD
 #   endif
 
     ! Reject if coefficients are too large (linear dep.).
 
-    if ((sqrt(c2) > ThrCff) .and. (ee2 < 1.0D-5) .and. (.not. QNRStp)) then
+    if ((sqrt(c2) > ThrCff) .and. (ee2 < 1.0e-5_wp) .and. (.not. QNRStp)) then
 #     ifdef _DEBUGPRINT_
-      Fmt = '(A,i2,5x,g12.6)'
+      Frmt = '(A,i2,5x,g12.6)'
       Text = '|c| is too large,     iVec, |c| = '
-      write(6,Fmt) Text(1:36),iVec,sqrt(c2)
+      write(u6,Frmt) Text(1:36),iVec,sqrt(c2)
 #     endif
       cycle
     end if
@@ -459,7 +440,7 @@ if (.not. c1Diis) then
 #       endif
       end if
 #     ifdef _NOT_USED_
-      if ((ee2/ee1 > f1) .and. (ee2/ee1 < f2)) then
+      if ((ee2/ee1 > Half) .and. (ee2/ee1 < Two)) then
         if (DD < DD1) then
           ee1 = ee2
           ipBst = iVec
@@ -492,20 +473,20 @@ if (.not. c1Diis) then
   call mma_deallocate(Scratch)
 
   if ((ipBst < 1) .or. (ipBst > kOptim)) then
-    write(6,*) ' No proper solution found in C2-DIIS !'
-    Fmt = '(6es16.8)'
+    write(u6,*) ' No proper solution found in C2-DIIS !'
+    Frmt = '(6es16.8)'
     Text = 'EigenValues :'
-    call RecPrt(Text,Fmt,EValue,1,kOptim)
+    call RecPrt(Text,Frmt,EValue,1,kOptim)
     Text = 'EigenVectors :'
-    call RecPrt(Text,Fmt,EVector,kOptim,kOptim)
+    call RecPrt(Text,Frmt,EVector,kOptim,kOptim)
     call Quit_OnConvError()
   end if
   call dcopy_(kOptim,EVector(1,ipBst),1,CInter(1,1),1)
 
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) ' Selected root :',ipBst
-  write(6,'(A,f16.8)') '  c**2 =         ',cDotV
+  write(u6,*)
+  write(u6,*) ' Selected root :',ipBst
+  write(u6,'(A,f16.8)') '  c**2 =         ',cDotV
 # endif
 
   call mma_deallocate(EValue)
@@ -543,9 +524,9 @@ else
   GDiis(kOptim+1) = -One  ! note sign change
 
 # ifdef _DEBUGPRINT_
-  write(6,*) ' B matrix in DIIS_e:'
+  write(u6,*) ' B matrix in DIIS_e:'
   do i=1,kOptim+1
-    write(6,'(7f16.8)') (Bij(i,j),j=1,kOptim+1),GDiis(i)
+    write(u6,'(7f16.8)') (Bij(i,j),j=1,kOptim+1),GDiis(i)
   end do
 # endif
 
@@ -575,7 +556,7 @@ else
   end do
 
   ! Make sure new density gets a weight
-  call C_Adjust(CInter(1,1),kOptim,0.05d0)
+  call C_Adjust(CInter(1,1),kOptim,0.05_wp)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -590,9 +571,9 @@ if (nD == 2) call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-Fmt = '(6es16.8)'
+Frmt = '(6es16.8)'
 Text = 'The solution vector :'
-call RecPrt(Text,Fmt,CInter(1,1),1,kOptim)
+call RecPrt(Text,Frmt,CInter(1,1),1,kOptim)
 #endif
 
 call Timing(Cpu2,Tim1,Tim2,Tim3)

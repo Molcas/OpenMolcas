@@ -31,16 +31,19 @@ subroutine GrdClc(Do_All)
 !***********************************************************************
 
 use Interfaces_SCF, only: vOO2OV
-use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO, nBT, nOO, nD
+use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO, nBT, nD, nOO
 use LnkLst, only: LLGrad, PutVec
-use SCF_Arrays, only: OneHam, CMO_Ref, Ovrlp, FockMO
+use SCF_Arrays, only: CMO_Ref, FockMO, OneHam, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-logical Do_All
-! Local variables
-real*8, allocatable :: GrdOV(:), GrdOO(:,:)
-integer iOpt, LpStrt
+logical(kind=iwp) :: Do_All
+integer(kind=iwp) :: iOpt, LpStrt
+real(kind=wp), allocatable :: GrdOO(:,:), GrdOV(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -73,8 +76,8 @@ do iOpt=LpStrt,Iter
   call PutVec(GrdOV,mOV,iOpt,'OVWR',LLGrad)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'GrdClc: Put Gradient iteration:',iOpt
-  write(6,*) 'iOpt,mOV=',iOpt,mOV
+  write(u6,*) 'GrdClc: Put Gradient iteration:',iOpt
+  write(u6,*) 'iOpt,mOV=',iOpt,mOV
   call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
   call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
 # endif

@@ -12,18 +12,17 @@
 !#define _DEBUGPRINT_
 subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,kOptim,kOV,LL,DD)
 
-use LnkLst, only: GetVec, GetNod, iVPtr
+use LnkLst, only: GetNod, GetVec, iVPtr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nCI, nD, mOV, MxOptm, kOptim, kOV(2), LL
-real*8 CInter(nCI,nD), Array(mOV)
-integer Ind(MxOptm)
-real*8, optional :: DD
-integer iSt, iEnd
-real*8, allocatable :: Aux(:)
-integer inode, ivec, iD, i
+integer(kind=iwp) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
+real(kind=wp) ::  CInter(nCI,nD), Array(mOV)
+real(kind=wp), optional :: DD
+integer(kind=iwp) :: i, iD, iEnd, inode, iSt, ivec
+real(kind=wp), allocatable :: Aux(:)
 
 ! QNR/DIIS case: compute extrapolated Gradient grd'(n),
 ! extrapolated Orb Rot Param x'(n), and from this, the
@@ -42,10 +41,10 @@ do iD=1,nD
   Array(iSt:iEnd) = CInter(kOptim,iD)*Array(iSt:iEnd)
 end do
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Initial scaled entities.'
+write(u6,*)
+write(u6,*) 'Initial scaled entities.'
 call NrmClc(Array(:),mOV,'OptClc_X','Array')
-write(6,*)
+write(u6,*)
 #endif
 
 do i=1,kOptim-1
@@ -54,7 +53,7 @@ do i=1,kOptim-1
   ! get proper gradient from LList.
   call GetNod(ivec,LL,inode)
   if (inode == 0) then
-    write(6,*) 'DIIS: no entry found in LList!'
+    write(u6,*) 'DIIS: no entry found in LList!'
     call Abend()
   end if
   call iVPtr(Aux,mOV,inode)
@@ -67,9 +66,9 @@ do i=1,kOptim-1
 
 end do
 #ifdef _DEBUGPRINT_
-write(6,*)
+write(u6,*)
 call NrmClc(Array(:),mOV,'OptClc_X','Array')
-write(6,*)
+write(u6,*)
 #endif
 if (present(DD)) then
   DD = Zero

@@ -11,9 +11,15 @@
 
 module AddCorr
 
-logical Do_Tw
-character(len=80) ADDC_KSDFT
-logical Do_Addc
-real*8 DE_KSDFT_c
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: Do_Addc, Do_Tw
+character(len=80) :: ADDC_KSDFT
+real(kind=wp) :: DE_KSDFT_c
+
+public :: ADDC_KSDFT, DE_KSDFT_c, Do_Addc, Do_Tw
 
 end module AddCorr

@@ -27,12 +27,12 @@ subroutine IniBuf(nDisc,nCore)
 use IOBUF, only: Buffer, DiskMx_Byte, InCore, lBuf, LuTmp, nBuf, OnDisk
 use stdalloc, only: mma_allocate
 use Constants, only: Two, Ten
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDisc, nCore
-integer MaxMem, MemMin_Seward, MemReq
-external AllocDisk
-integer AllocDisk
+integer(kind=iwp) :: nDisc, nCore
+integer(kind=iwp) :: MaxMem, MemMin_Seward, MemReq
+integer(kind=iwp), external :: AllocDisk
 
 ! Open file for semi-direct implementation
 ! nDisc in units of MByte
@@ -41,7 +41,7 @@ integer AllocDisk
 ! The maximum number of bytes on disk. The file size limit times
 ! the number of multi files.
 
-DiskMx_Byte = dble(AllocDisk())*Ten*Two**20
+DiskMx_Byte = real(AllocDisk(),kind=wp)*Ten*Two**20
 
 nBuf = -99
 if ((nDisc == 0) .and. (nCore == 0)) then
@@ -68,7 +68,7 @@ if (OnDisk .or. InCore) then
   lBuf = (1024*nCore)/(8*nBuf)
   if (InCore) then
     MemReq = MemMin_Seward+lBuf*nBuf
-    !write(6,*) 'MemReq,MaxMem=',MemReq,MaxMem,'  lbuf=',lbuf
+    !write(u6,*) 'MemReq,MaxMem=',MemReq,MaxMem,'  lbuf=',lbuf
     if (MemReq > MaxMem) then
       lBuf = (MaxMem-MemMin_Seward)/nBuf
       if (lBuf < 0) then
@@ -82,12 +82,12 @@ if (OnDisk .or. InCore) then
     nCore = ((nCore+7)/8)*8
     lBuf = (1024*nCore)/(8*nBuf)
   end if
-  !write(6,*) 'OnDisk=',OnDisk
-  !write(6,*) 'Incore=',Incore
-  !write(6,*) 'nBuf=',nBuf
-  !write(6,*) 'IniBuf: nDisc=',nDisc,'MByte'
-  !write(6,*) 'nCore=',nCore,'kByte'
-  !write(6,*) 'lBuf=',lBuf
+  !write(u6,*) 'OnDisk=',OnDisk
+  !write(u6,*) 'Incore=',Incore
+  !write(u6,*) 'nBuf=',nBuf
+  !write(u6,*) 'IniBuf: nDisc=',nDisc,'MByte'
+  !write(u6,*) 'nCore=',nCore,'kByte'
+  !write(u6,*) 'lBuf=',lBuf
 
   ! Allocate I/O Buffer
   call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')

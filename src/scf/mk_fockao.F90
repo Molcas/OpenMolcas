@@ -20,13 +20,17 @@ subroutine Mk_FockAO(nIter_)
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: OneHam, TwoHam, Vxc, FockAO
+use SCF_Arrays, only: FockAO, OneHam, TwoHam, Vxc
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer nIter_
-integer nD, NumDT, iD, i2Hm
+integer(kind=iwp) :: nIter_
+integer(kind=iwp) :: i2Hm, iD, nD, NumDT
 #ifdef _DEBUGPRINT_
-integer nDT
+integer(kind=iwp) :: nDT
 #endif
 
 NumDT = size(TwoHam,3)
@@ -36,7 +40,7 @@ i2Hm = NumDT
 if (nIter_ == 1) i2Hm = 1
 #ifdef _DEBUGPRINT_
 nDT = size(FockAO,1)
-write(6,*) 'i2Hm=',i2Hm
+write(u6,*) 'i2Hm=',i2Hm
 call NrmClc(OneHam,nDT,'UpdFck','OneHam')
 call NrmClc(TwoHam(1,1,i2Hm),nDT*nD,'UpdFck','T in i2Hm')
 call NrmClc(FockAO,(nDT)*nD,'UpdFck','FockAO')
@@ -74,8 +78,8 @@ do iD=1,nD
   FockAO(:,iD) = OneHam(:)+TwoHam(:,iD,i2Hm)+Vxc(:,iD,i2Hm)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Fock'
-  !write(6,'(5f12.6)') (FockAO(ivv,iD),ivv=1,nDT)
+  write(u6,*) 'Fock'
+  !write(u6,'(5f12.6)') (FockAO(ivv,iD),ivv=1,nDT)
   call NrmClc(FockAO(1,iD),nDT,'Fock  ','UpdFck ')
   call NrmClc(TwoHam(1,iD,i2Hm),nDT,'TwoHam','UpdFck ')
   call NrmClc(Vxc(1,iD,i2Hm),nDT,'Vxc','UpdFck ')

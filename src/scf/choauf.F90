@@ -11,6 +11,13 @@
 
 module ChoAuf
 
-logical Cho_Aufb
+use Definitions, only: iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: Cho_Aufb
+
+public :: Cho_Aufb
 
 end module ChoAuf

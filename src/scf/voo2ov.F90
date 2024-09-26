@@ -12,18 +12,23 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 subroutine vOO2OV(v1,nOO,v2,mOV,nD,kOV)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nOO, mOV, nD, iSt, iEnd, iD
-integer kOV(nD)
-real*8 v1(nOO,nD), v2(mOV)
+integer(kind=iwp) :: nOO, mOV, nD, kOV(nD)
+real(kind=wp) :: v1(nOO,nD), v2(mOV)
+integer(kind=iwp) :: iD, iEnd, iSt
 interface
   subroutine vOO2OV_inner(v1,n1,v2,n2,iD)
-    integer n1, n2, iD
-    real*8, target :: v1(n1), v2(n2)
+    import :: wp, iwp
+    integer(kind=iwp) :: n1, n2, iD
+    real(kind=wp), target :: v1(n1), v2(n2)
   end subroutine vOO2OV_inner
 end interface
 
@@ -36,3 +41,11 @@ do iD=1,nD
 end do
 
 end subroutine vOO2OV
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(vOO2OV)
+
+#endif

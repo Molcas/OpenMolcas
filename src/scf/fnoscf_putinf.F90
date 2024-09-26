@@ -15,12 +15,12 @@ subroutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 ! Purpose: put info in MP2 common blocks.
 
 use ChoMP2, only: DoFNO, l_Dii
+use Definitions, only: iwp
 
 implicit none
-integer mSym
-integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+integer(kind=iwp) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
-integer iSym
+integer(kind=iwp) :: iSym
 
 nSym = mSym
 

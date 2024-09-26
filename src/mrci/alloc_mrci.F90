@@ -17,9 +17,10 @@ use guga_util_global, only: IAD10
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp) :: I, ILIM, MBUF1, MBUF2, MEMB, MEMX, NARR, NBSIZ1, NBSIZ2, NBSIZ3, NBUFBI, NHREF, NIJ, NIJKL, NOT2, NOVLY1, &
                      NPER, NPLEN, NVT
+
+#include "warnings.h"
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2

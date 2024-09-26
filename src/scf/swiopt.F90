@@ -24,19 +24,17 @@ use InfSO, only: DltNth
 use InfSCF, only: DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
 use Files, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
 use NDDO, only: twoel_NDDO
-use Constants, only: One
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! declaration of subroutine parameter...
-logical AllCnt
-integer mBT, mBB, nD
-real*8 OneHam(mBT), Ovrlp(mBT), CMO(mBB,nD)
-! declaration of some local variables...
-real*8 EThr_o, FThr_o, DThr_o, DNTh_o, ThrInt_o
-save EThr_o, FThr_o, DThr_o, DNTh_o, ThrInt_o
-character(len=8) Label
-integer iComp, iD, iOpt, iRC, lOper
-real*8, external :: Get_ThrInt
+logical(kind=iwp) :: AllCnt
+integer(kind=iwp) :: mBT, mBB, nD
+real(kind=wp) :: OneHam(mBT), Ovrlp(mBT), CMO(mBB,nD)
+integer(kind=iwp) :: iComp, iD, iOpt, iRC, lOper
+real(kind=wp) :: DNTh_o = Zero, DThr_o = Zero, EThr_o = Zero, FThr_o = Zero, ThrInt_o = Zero
+character(len=8) :: Label
+real(kind=wp), external :: Get_ThrInt
 
 if (AllCnt .and. twoel_NDDO) then
   nIterP = 1
@@ -117,12 +115,12 @@ else
   DNTh_o = DltNTh
   ThrInt_o = Get_ThrInt()
   ! and set new thresholds
-  !EThr = EThr*1.0D+04
+  !EThr = EThr*1.0e4_wp
   !call Put_dScalar('EThr',EThr)
-  !FThr = FThr*1.0D+04
-  !DThr = DThr*1.0D+04
-  !DltNTh = DltNTh*1.0D+04
-  !call xSet_ThrInt(ThrInt_o*1.0D+04)
+  !FThr = FThr*1.0e4_wp
+  !DThr = DThr*1.0e4_wp
+  !DltNTh = DltNTh*1.0e4_wp
+  !call xSet_ThrInt(ThrInt_o*1.0e4_wp)
   ! set twoel to OneCnt...
   twoel_NDDO = .true.
 end if
@@ -131,8 +129,8 @@ return
 
 ! Error exit
 9999 continue
-write(6,*) 'SwiOpt: Error reading ONEINT'
-write(6,'(A,A)') 'Label=',Label
+write(u6,*) 'SwiOpt: Error reading ONEINT'
+write(u6,'(A,A)') 'Label=',Label
 call Abend()
 
 end subroutine SwiOpt

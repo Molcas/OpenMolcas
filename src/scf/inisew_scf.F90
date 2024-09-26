@@ -22,21 +22,21 @@ subroutine IniSew_scf(DSCF,EThr,SIntTh,KSDFT)
 !***********************************************************************
 
 use Sizes_of_Seward, only: S
-use Gateway_Info, only: ThrInt, CutInt
+use Gateway_Info, only: CutInt, ThrInt
 use OFembed, only: Do_OFemb
 use RICD_Info, only: Do_DCCD
-use InfSCF, only: nDisc, nCore
+use InfSCF, only: nCore, nDisc
 use AddCorr, only: Do_Addc, Do_Tw
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-logical DSCF
-character(len=*) KSDFT
-real*8 EThr, SIntTh
-integer nDiff
-logical RF_On, Langevin_On, PCM_On, EFP_On
-external EFP_On
+logical(kind=iwp) :: DSCF
+real(kind=wp) :: EThr, SIntTh
+character(len=*) :: KSDFT
 #include "print.fh"
+integer(kind=iwp) :: nDiff
+logical(kind=iwp), external :: EFP_On, Langevin_On, PCM_On, RF_On
 
 if (DSCF .or. RF_On() .or. Langevin_On() .or. (KSDFT /= 'SCF') .or. Do_Addc .or. Do_Tw .or. Do_OFemb .or. EFP_On()) then
   nDiff = 0
@@ -49,7 +49,7 @@ if (Do_DCCD) then
   nDisc = 0
 end if
 if (DSCF) then
-  CutInt = EThr*min(1.0D-7,One/dble(S%nDim)**2)
+  CutInt = EThr*min(1.0e-7_wp,One/real(S%nDim,kind=wp)**2)
   ThrInt = Cutint
   SIntTh = CutInt
 end if

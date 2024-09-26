@@ -13,11 +13,13 @@
 
 subroutine Check_Amp_SCF(nSym,nOcc,nVir,iSkip)
 
+use Definitions, only: iwp
+
 implicit none
-integer nSym, nOcc(nSym), nVir(nSym), iSkip
-integer nT1amTot, nT1am(8)
-integer MulD2h, i, j, iSym, iSyma, iSymi
+integer(kind=iwp) :: nSym, nOcc(nSym), nVir(nSym), iSkip
+integer(kind=iwp) :: iSym, iSyma, iSymi, nT1am(8), nT1amTot
 ! Statement function
+integer(kind=iwp) :: MulD2h, i, j
 MulD2h(i,j) = ieor(i-1,j-1)+1
 
 iSkip = 0

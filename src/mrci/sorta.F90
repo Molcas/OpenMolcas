@@ -26,13 +26,14 @@ real(kind=wp), intent(out) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BI
 integer(kind=iwp), intent(out) :: INDS(NBITM1+2,NCHN1), NINTGR
 integer(kind=iwp), intent(in) :: ISAB(*)
 #include "tratoc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADD10, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, &
                      INSB, INSOUT, INUMB, IOUT, IPOS, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, &
                      NOP, NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &
                      NUMAX, NUMIN, NV, NX, NXM
 real(kind=wp) :: FINI
 logical(kind=iwp) :: Skip
+
+#include "warnings.h"
 
 call COUNT_MRCI(NINTGR,NSYM,NORB,MUL)
 if (IPRINT >= 6) write(u6,1234) NINTGR

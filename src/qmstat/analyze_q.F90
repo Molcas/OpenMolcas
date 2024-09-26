@@ -22,6 +22,7 @@ integer(kind=iwp) :: i, iCNum, iCStart, iDiskSa, iDiskTemp, iDum(1), iH, iHMax, 
 real(kind=wp) :: dist, dist2, dR, Dum, Etot, Ract
 real(kind=wp), allocatable :: Co(:,:), gR(:,:,:)
 integer(kind=iwp), parameter :: iHUltraMax = 1000
+
 #include "warnings.h"
 
 Dum = Zero

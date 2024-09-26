@@ -40,57 +40,43 @@ use, intrinsic :: iso_c_binding, only: c_ptr
 use InfSCF, only: nBO
 #endif
 use Interfaces_SCF, only: TraClc_i
-use LnkLst, only: SCF_V, LLGrad, LLDelt, LLx, LstPtr, PutVec, GetVec
-use InfSO, only: DltNrm, DltnTh, IterSO, IterSO_Max, qNRTh, Energy
-use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter, TrDD, TrDh, TrDP
-use InfSCF, only: AccCon, Aufb, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc, Two_Thresholds, TStop, TemFac, Teee, &
-                  Scrmbl, S2Uhf, rTemp, RGEK, One_Grid, nSym, nnB, nIterP, nIter, RSRFO, Neg2_Action, nBT, nBB, nAufb, mOV, &
-                  MiniDn, MinDMX, kOV, FckAuf, MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, nD, &
-                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF, DoCholesky, DIISTh, DIIS, DMOMax, FMOMax, MSYMON, Iter_Start, &
-                  nnB, nBB
+use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
+use InfSO, only: DltNrm, DltnTh, Energy, IterSO, IterSO_Max, qNRTh
+use SCF_Arrays, only: CMO, CMO_Ref, OccNo, Ovrlp, TrDD, TrDh, TrDP
+use InfSCF, only: AccCon, Aufb, CPUItr, Damping, DIIS, DIISTh, DMOMax, DoCholesky, DSCF, DThr, E1V, E2V, EDiff, EneV, EThr, &
+                  FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, jPrint, kOptim, kOptim_Max, kOV, KSDFT, &
+                  MaxFlip, MiniDn, mOV, MSYMON, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, &
+                  nSym, One_Grid, RGEK, RSRFO, rTemp, S2Uhf, Scrmbl, Teee, TemFac, TimFld, TStop, Two_Thresholds, WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
-use Constants, only: Zero, One, Ten, Pi
 use MxDM, only: MxIter, MxOptm
 use Files, only: LuOut
-use Constants, only: Zero, One, Two, Ten, Pi
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Ten, Pi
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iTerm
-character(len=*) Meth
-logical :: FstItr
-real*8 SIntTh
+integer(kind=iwp) :: iTerm
+character(len=*) :: Meth
+logical(kind=iwp) :: FstItr
+real(kind=wp) :: SIntTh
+integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
+                     Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
+                 TWall2
+logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
+character(len=128) :: OrbName
+character(len=72) :: Note
+character(len=10) :: Meth_
+#ifdef _MSYM_
+integer(kind=iwp) :: iD
+real(kind=wp) :: Whatever
+type(c_ptr) :: msym_ctx
+#endif
+real(kind=wp), allocatable :: CInter(:,:), D1Sao(:), Disp(:), Grd1(:), Xn(:), Xnp1(:)
+real(kind=wp), parameter :: E2VTolerance = -1.0e-8_wp, StepMax = Ten
+real(kind=wp), external :: DDot_, Seconds
+
 #include "warnings.h"
-! Define local variables
-integer iTrM, nBs, nOr, iOpt, lth, iCMO, jpxn, iSym, IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI, iOpt_DIIS, iOffOcc, iNode, &
-        iBas, iDummy(7,8), nTr
-integer iAufOK, Ind(MxOptm)
-#ifdef _MSYM_
-integer iD
-#endif
-real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
-real*8 DiisTH_Save, EThr_new, Dummy(1), dqdq, dqHdq, EnVOld
-real*8, external :: DDot_, Seconds
-real*8, dimension(:), allocatable :: D1Sao
-real*8, dimension(:), allocatable :: Grd1, Disp, Xnp1, Xn
-#ifdef _MSYM_
-real*8 Whatever
-#endif
-! Tolerance for negative two-electron energy
-real*8, parameter :: E2VTolerance = -1.0d-8
-real*8 :: StepMax = Ten
-real*8 :: LastStep = 1.0D-1
-logical :: QNR1st, FrstDs
-logical :: Converged = .false.
-logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
-logical Always_True
-logical FckAuf_save
-character(len=10) Meth_
-character(len=72) Note
-character(len=128) OrbName
-#ifdef _MSYM_
-type(c_ptr) msym_ctx
-#endif
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -177,7 +163,7 @@ end if
 ! at once.
 
 if (.not. Damping) then
-  DiisTh = DiisTh*1.0d99
+  DiisTh = DiisTh*1.0e99_wp
   Iter_no_Diis = 1
 end if
 
@@ -248,12 +234,12 @@ DltNrm = Zero
 
 if (MSYMON) then
 # ifdef _MSYM_
-  write(6,*) 'Symmetrizing orbitals during SCF calculation'
+  write(u6,*) 'Symmetrizing orbitals during SCF calculation'
   call fmsym_create_context(msym_ctx)
   call fmsym_set_elements(msym_ctx)
   call fmsym_find_symmetry(msym_ctx)
 # else
-  write(6,*) 'No msym support, skipping symmetrization of SCF orbitals...'
+  write(u6,*) 'No msym support, skipping symmetrization of SCF orbitals...'
 # endif
 end if
 !                                                                      *
@@ -326,7 +312,7 @@ do iter_=1,nIter(nIterP)
   ! 2017-02-03: add energy criterion to make sure that the DIIS
   !             gets some decent to work with.
 
-  if ((DMOMax < DiisTh) .and. (IterX > Iter_no_Diis) .and. (EDiff < 1.0D-1)) then
+  if ((DMOMax < DiisTh) .and. (IterX > Iter_no_Diis) .and. (EDiff < 0.1_wp)) then
 
     if (iOpt == 0) kOptim = 2
     iOpt = max(1,iOpt)
@@ -562,17 +548,17 @@ do iter_=1,nIter(nIterP)
           DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
           if (DD > Pi) then
-            write(6,*) 'WfCtl_SCF: Additional displacement is too large.'
-            write(6,*) 'DD=',DD
+            write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
+            write(u6,*) 'DD=',DD
             if (kOptim /= 1) then
-              write(6,*) 'Reset update depth in BFGS, redo the DIIS'
+              write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
               kOptim = 1
               Iter_Start = Iter
               IterSO = 1
               Go To 101
             else
-              write(6,*) 'Scale the step to be within the threshold.'
-              write(6,*) 'LastStep=',LastStep
+              write(u6,*) 'Scale the step to be within the threshold.'
+              write(u6,*) 'LastStep=',LastStep
               Disp(:) = Disp(:)*(LastStep/DD)
             end if
           end if
@@ -595,21 +581,21 @@ do iter_=1,nIter(nIterP)
           DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
           if (DD > Pi) then
-            write(6,*) 'WfCtl_SCF: Total displacement is too large.'
-            write(6,*) 'DD=',DD
+            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+            write(u6,*) 'DD=',DD
             if (kOptim /= 1) then
-              write(6,*) 'Reset update depth in BFGS, redo the DIIS'
+              write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
               kOptim = 1
               Iter_Start = Iter
               IterSO = 1
               Go To 101
             else
-              write(6,*) 'Scale the step to be within the threshold.'
+              write(u6,*) 'Scale the step to be within the threshold.'
               Disp(:) = Disp(:)*(LastStep/DD)
             end if
             DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
           end if
-          LastStep = min(DD,1.0D-2)
+          LastStep = min(DD,1.0e-2_wp)
           !                                                            *
           !*************************************************************
           !*************************************************************
@@ -635,16 +621,16 @@ do iter_=1,nIter(nIterP)
               call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
               DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
               if (DD > Pi) then
-                write(6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(6,*) 'DD=',DD
+                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+                write(u6,*) 'DD=',DD
                 if (kOptim /= 1) then
-                  write(6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
+                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
                   kOptim = 1
                   Iter_Start = Iter
                   IterSO = 1
                   Go To 102
                 else
-                  write(6,*) 'Probably a bug.'
+                  write(u6,*) 'Probably a bug.'
                   call Abend()
                 end if
               end if
@@ -656,16 +642,16 @@ do iter_=1,nIter(nIterP)
               call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
               DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
               if (DD > Pi) then
-                write(6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(6,*) 'DD=',DD
+                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+                write(u6,*) 'DD=',DD
                 if (kOptim /= 1) then
-                  write(6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
+                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
                   kOptim = 1
                   Iter_Start = Iter
                   IterSO = 1
                   Go To 103
                 else
-                  write(6,*) 'Probably a bug.'
+                  write(u6,*) 'Probably a bug.'
                   call Abend()
                 end if
               end if
@@ -695,7 +681,7 @@ do iter_=1,nIter(nIterP)
 
       ! compute Norm of dX(n)
 
-      DltNrm = dble(nD)*dqdq
+      DltNrm = real(nD,kind=wp)*dqdq
 
       ! Generate the CMOs, rotate MOs accordingly to new point
 
@@ -710,7 +696,7 @@ do iter_=1,nIter(nIterP)
       !*****************************************************************
       !                                                                *
     case Default
-      write(6,*) 'WfCtl_SCF: Illegal option'
+      write(u6,*) 'WfCtl_SCF: Illegal option'
       call Abend()
   end select
   !                                                                    *
@@ -748,7 +734,7 @@ do iter_=1,nIter(nIterP)
   !                                                                    *
   if (Aufb .and. (.not. Teee)) then
 
-    if ((iter /= 1) .and. (abs(EDiff) < 0.002d0) .and. (.not. AufBau_Done)) then
+    if ((iter /= 1) .and. (abs(EDiff) < 0.002_wp) .and. (.not. AufBau_Done)) then
       Aufbau_Done = .true.
       Diis = Diis_Save
       DiisTh = DiisTh_save
@@ -762,7 +748,7 @@ do iter_=1,nIter(nIterP)
     ! temperature
 
     ! !!! continue here
-    if ((abs(RTemp-TStop) <= 1.0d-3) .and. (iAufOK == 1) .and. (abs(Ediff) < 1.0d-2)) then
+    if ((abs(RTemp-TStop) <= 1.0e-3_wp) .and. (iAufOK == 1) .and. (abs(Ediff) < 1.0e-2_wp)) then
       Aufbau_Done = .true.
       Diis = Diis_Save
       DiisTh = DiisTh_save
@@ -796,8 +782,8 @@ do iter_=1,nIter(nIterP)
   if (Neg2_Action /= 'CONT') then
     if (E2V < E2VTolerance) then
       call WarningMessage(2,'WfCtl_SCF: negative two-electron energy')
-      write(6,'(A,ES25.10)') 'Two-electron energy E2V=',E2V
-      call xFlush(6)
+      write(u6,'(A,ES25.10)') 'Two-electron energy E2V=',E2V
+      call xFlush(u6)
       if (Neg2_Action == 'STOP') call Abend()
     end if
   end if
@@ -826,7 +812,7 @@ do iter_=1,nIter(nIterP)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if ((EDiff > 1.0d-14) .and. (.not. Reset)) EDiff = Ten*EThr
+  if ((EDiff > 1.0e-14_wp) .and. (.not. Reset)) EDiff = Ten*EThr
   if ((iter /= 1) .and. (abs(EDiff) <= EThr) .and. (abs(FMOMax) <= FThr) .and. &
       (((abs(DMOMax) <= DThr) .and. (iOpt < 2)) .or. ((DltNrm <= DltNTh) .and. iOpt >= 2))) then
     !                                                                  *
@@ -861,8 +847,8 @@ do iter_=1,nIter(nIterP)
 
     Aufb = .false.
     if (jPrint >= 2) then
-      write(6,*)
-      write(6,'(6X,A)') ' Fermi aufbau procedure completed!'
+      write(u6,*)
+      write(u6,'(6X,A)') ' Fermi aufbau procedure completed!'
     end if
     IterX = -2
     if (nD == 1) then
@@ -878,8 +864,8 @@ do iter_=1,nIter(nIterP)
         end do
       end do
       if (jPrint >= 2) then
-        write(6,'(6X,A,8I5)') 'nOcc=',(nOcc(iSym,1),iSym=1,nSym)
-        write(6,*)
+        write(u6,'(6X,A,8I5)') 'nOcc=',(nOcc(iSym,1),iSym=1,nSym)
+        write(u6,*)
       end if
     else
       iOffOcc = 0
@@ -899,9 +885,9 @@ do iter_=1,nIter(nIterP)
         end do
       end do
       if (jPrint >= 2) then
-        write(6,'(6X,A,8I5)') 'nOcc(alpha)=',(nOcc(iSym,1),iSym=1,nSym)
-        write(6,'(6X,A,8I5)') 'nOcc(beta) =',(nOcc(iSym,2),iSym=1,nSym)
-        write(6,*)
+        write(u6,'(6X,A,8I5)') 'nOcc(alpha)=',(nOcc(iSym,1),iSym=1,nSym)
+        write(u6,'(6X,A,8I5)') 'nOcc(beta) =',(nOcc(iSym,2),iSym=1,nSym)
+        write(u6,*)
       end if
 
     end if
@@ -924,8 +910,8 @@ end do ! iter_
 if (Converged) then
 
   if (jPrint >= 2) then
-    write(6,*)
-    write(6,'(6X,A,I3,A)') ' Convergence after ',iter,' Macro Iterations'
+    write(u6,*)
+    write(u6,'(6X,A,I3,A)') ' Convergence after ',iter,' Macro Iterations'
   end if
 
 else
@@ -936,18 +922,18 @@ else
   iter = iter-1
   if (nIter(nIterP) > 1) then
     if (jPrint >= 1) then
-      write(6,*)
-      write(6,'(6X,A,I3,A)') ' No convergence after ',iter,' Iterations'
+      write(u6,*)
+      write(u6,'(6X,A,I3,A)') ' No convergence after ',iter,' Iterations'
     end if
     iTerm = _RC_NOT_CONVERGED_
   else
     if (jPrint >= 2) then
-      write(6,*)
-      write(6,'(6X,A)') ' Single iteration finished!'
+      write(u6,*)
+      write(u6,'(6X,A)') ' Single iteration finished!'
     end if
   end if
 
-  if (jPrint >= 2) write(6,*)
+  if (jPrint >= 2) write(u6,*)
 
   if (Reset) then
     if (DSCF .and. (KSDFT == 'SCF')) call Reset_Thresholds()
@@ -962,7 +948,7 @@ end if
 
 if (jPrint >= 2) then
   call CollapseOutput(0,'Convergence information')
-  write(6,*)
+  write(u6,*)
 end if
 ! Compute total spin (if UHF)
 if (nD == 1) then
@@ -971,7 +957,7 @@ else
   call s2calc(CMO(:,1),CMO(:,2),Ovrlp,nOcc(:,1),nOcc(:,2),nBas,nOrb,nSym,s2uhf)
 end if
 
-call Add_Info('SCF_ITER',[dble(Iter)],1,8)
+call Add_Info('SCF_ITER',[real(Iter,kind=wp)],1,8)
 !call Scf_XML(0)
 
 call KiLLs()
@@ -1043,9 +1029,9 @@ contains
 !                                                                      *
 subroutine Save_Orbitals()
 
-  use SCF_Arrays, only: TrM, EOrb
+  use SCF_Arrays, only: EOrb, TrM
 
-  integer iSym, iD
+  integer(kind=iwp) :: iD, iSym
 
   ! Save the new orbitals in case the SCF program aborts
 

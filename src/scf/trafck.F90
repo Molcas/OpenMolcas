@@ -29,26 +29,27 @@ subroutine TraFck(canorb,FOVMax)
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, FckAuf, nBas, nFro, nConstr, nOcc, nOrb, TimFld
-use SCF_Arrays, only: FockAO, Ovrlp, CMO, EOrb
-use Constants, only: Zero, One
+use InfSCF, only: FckAuf, MaxBas, nBas, nBO, nBT, nConstr, nFro, nnFr, nOcc, nOrb, nSym, TimFld
+use SCF_Arrays, only: CMO, EOrb, FockAO, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer nD
-real*8 FOVMax
-logical CanOrb
-real*8, dimension(:), allocatable :: FckM, FckS, HlfF, EigV, Ctmp, Scratch, CMOOld, Scrt, COvrlp
-real*8 Fia, Dummy
-real*8 Cpu1, Cpu2, Tim1, Tim2, Tim3
-real*8 Tmp, Tmp0, Tmp1
-integer ioFckM, iCMO, jEOr, iptr, iptr2, nOrbmF, nOccmF, nVrt, ia, iD, iSym, iDiag, iDum, iErr, iiCMO, iiEigV, iiScratch, iOff, &
-        jjEOr, kk, kOcc, kOff, n2Sort, n2Zero, nFound
+real(kind=wp) :: FOVMax
+logical(kind=iwp) :: CanOrb
+integer(kind=iwp) :: ia, iCMO, iD, iDiag, iDum, iErr, iiCMO, iiEigV, iiScratch, ioFckM, iOff, iptr, iptr2, iSym, jEOr, jjEOr, kk, &
+                     kOcc, kOff, n2Sort, n2Zero, nD, nFound, nOccmF, nOrbmF, nVrt
 #ifdef _DEBUGPRINT_
-integer jCMO
+integer(kind=iwp) :: jCMO
 #endif
-integer, external :: iDaMax_
-real*8, external :: DDot_
+real(kind=wp) :: Cpu1, Cpu2, Dummy, Fia, Tim1, Tim2, Tim3, Tmp, Tmp0, Tmp1
+real(kind=wp), allocatable :: CMOOld(:), COvrlp(:), Ctmp(:), EigV(:), FckM(:), FckS(:), HlfF(:), Scratch(:), Scrt(:)
+integer(kind=iwp), external :: iDaMax_
+real(kind=wp), external :: DDot_
 
 nD = size(FockAO,2)
 
@@ -84,7 +85,7 @@ do iD=1,nD
     !*******************************************************************
     !                                                                  *
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iD=',iD
+    write(u6,*) 'iD=',iD
     call RecPrt('TraFck: Old CMO',' ',CMO(iCMO,iD),nBas(iSym),nOrb(iSym))
     jCMO = iCMO
 #   endif
@@ -110,7 +111,7 @@ do iD=1,nD
                      HlfF,nBas(iSym), &
                      Zero,FckS,nOrbmF)
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'transformed Fck in trafck:'
+      write(u6,*) 'transformed Fck in trafck:'
       call TriPrt(' ',' ',FckS,nOrbmF)
 #     endif
       ! dispose memory of half-transformed Fock matrix
@@ -177,7 +178,7 @@ contains
 
 subroutine Mk_CanOrb()
 
-  integer :: ii, ia, i, j, iOcc, jOcc
+  integer(kind=iwp) :: i, ia, ii, iOcc, j, jOcc
 
   !                                                                    *
   !*********************************************************************
@@ -308,7 +309,7 @@ subroutine Mk_CanOrb()
       iptr = 1+nOccmF*(nOccmF+3)/2
       do ia=1,nConstr(iSym)
         iptr = iptr+nOccmF+ia
-        FckS(iptr) = -0.666d3*dble(1000-ia)
+        FckS(iptr) = -0.666e3_wp*real(1000-ia,kind=wp)
       end do
     end if
     Dummy = Zero

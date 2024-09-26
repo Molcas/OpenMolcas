@@ -35,45 +35,45 @@ subroutine RWDTG(Num,DMat,lth,Option,DT,iDisk,MaxNum)
 !***********************************************************************
 
 use Files, only: LuDSt, LuGrd, LuOSt, LuTSt
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer Num, lth, MaxNum
-real*8 DMat(lth)
-integer iDisk(MaxNum)
-character Option, DT*6
-integer jDisk, LU
-#include "SysDef.fh"
+integer(kind=iwp) :: Num, lth, MaxNum, iDisk(MaxNum)
+real(kind=wp) :: DMat(lth)
+character :: Option
+character(len=6) :: DT
+integer(kind=iwp) :: jDisk, LU
 
 ! Check Num; Subroutine is called with Num = - MapDns(i)
 
 if (Num <= 0) then
-  write(6,*) 'RWDTG: Num <= 0'
-  write(6,*) 'Num=',Num
-  write(6,*) 'Wrong density number supplied.'
+  write(u6,*) 'RWDTG: Num <= 0'
+  write(u6,*) 'Num=',Num
+  write(u6,*) 'Wrong density number supplied.'
   call Abend()
 end if
 if (Num > MaxNum) then
-  write(6,*) 'RWDTG: Num > MaxNum'
-  write(6,*) 'Num,MaxNum=',Num,MaxNum
-  write(6,*) 'Wrong density number supplied.'
+  write(u6,*) 'RWDTG: Num > MaxNum'
+  write(u6,*) 'Num,MaxNum=',Num,MaxNum
+  write(u6,*) 'Wrong density number supplied.'
   call Abend()
 end if
 
 if ((DT /= 'DENS') .and. (DT /= 'TWOHAM') .and. (DT /= 'GRAD') .and. (DT /= 'dVxcdR')) then
-  write(6,*) 'RWDTG: invalid value of DT'
-  write(6,*) '->DT<-=->',DT,'<-'
-  write(6,*) 'Valid values: "DENS  "'
-  write(6,*) '              "dVxcdR"'
-  write(6,*) '              "TWOHAM"'
-  write(6,*) '              "GRAD  "'
+  write(u6,*) 'RWDTG: invalid value of DT'
+  write(u6,*) '->DT<-=->',DT,'<-'
+  write(u6,*) 'Valid values: "DENS  "'
+  write(u6,*) '              "dVxcdR"'
+  write(u6,*) '              "TWOHAM"'
+  write(u6,*) '              "GRAD  "'
   call Abend()
 end if
 
 if ((Option /= 'W') .and. (Option /= 'R')) then
-  write(6,*) 'RWDTG: invalid Option'
-  write(6,*) '->Option<-=->',Option,'<-'
-  write(6,*) 'Valid Options: R'
-  write(6,*) '               W'
+  write(u6,*) 'RWDTG: invalid Option'
+  write(u6,*) '->Option<-=->',Option,'<-'
+  write(u6,*) 'Valid Options: R'
+  write(u6,*) '               W'
 end if
 
 if (DT == 'DENS  ') then
@@ -93,9 +93,9 @@ if (Option == 'W') then
   if (Num == 1) iDisk(Num) = 0
   jDisk = iDisk(Num)
   if (jDisk == -1) then
-    write(6,*) 'RWDTG: jDisk == -1'
-    write(6,*) 'Num,MaxNum=',Num,MaxNum
-    write(6,*) 'The preceeding block was not written.'
+    write(u6,*) 'RWDTG: jDisk == -1'
+    write(u6,*) 'Num,MaxNum=',Num,MaxNum
+    write(u6,*) 'The preceeding block was not written.'
     call Abend()
   end if
   call dDaFile(LU,1,DMat,lth,jDisk)

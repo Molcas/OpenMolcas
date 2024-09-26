@@ -15,9 +15,10 @@
 function Get_ThrInt()
 
 use Gateway_Info, only: ThrInt
+use Definitions, only: wp
 
 implicit none
-real*8 Get_ThrInt
+real(kind=wp) :: Get_ThrInt
 
 Get_ThrInt = ThrInt
 

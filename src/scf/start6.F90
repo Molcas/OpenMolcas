@@ -19,34 +19,28 @@ subroutine Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use SpinAV, only: DSC, Do_SpinAV
-use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, DoCholesky, E_nondyn, FileOrb_id, isHDF5, MaxBas, MxConstr, nBB, &
-                  nBT, nnB, nSym, VTitle
+use SpinAV, only: Do_SpinAV, DSC
+use InfSCF, only: DoCholesky, E_nondyn, FileOrb_id, IndxC, isHDF5, MaxBas, MxConstr, nBas, nBB, nBT, nConstr, nDel, nFro, nnB, &
+                  nOcc, nOrb, nSym, VTitle
 use Cholesky, only: ChFracMem
 use DCSCF, only: Erest_xc, s2CNO
-use Constants, only: Zero, Half, One, Two
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) FName
-integer mBB, nD, mmB, LuOrb
-real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
-
-integer i, ibas, ic1, ic2, iCMO, iComp, iDaa, iDbb, iDSc, iErr, Indx, iOcc, iOff, iOpt, iOrb, ipDaa, ipDbb, ipDScc, ipMK, ipML, &
-        iRC, iSym, iSymLbl, iWFType, j, jc, ji, jOcc, jOff, k, kc, kc1, kc2, kDSc, kk, kkc, kks, l, lc, lc1, lc2, llc, lls, lOcc, &
-        lOff, lsq, ltri, Lu_, mAdCMOO, mOff, nDiff_ab
-real*8 ThrD, xNorm, xOkk, yOkk
-character(len=62) Line
-integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
-integer nSsh(8), nSsh_ab(8)
-! Pam 2012 Changed VECSORT arg list, need dummy array:
-integer iDummy(1)
-integer, dimension(:), allocatable :: IndT, ID_vir
-real*8, allocatable :: Da(:,:)
-integer, allocatable :: Match(:,:)
-real*8, dimension(:), allocatable :: Corb, SAV, SLT, SQ
-real*8 Dummy(1)
+character(len=*) :: FName
+integer(kind=iwp) :: LuOrb, mBB, nD, mmB
+real(kind=wp) :: CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
+integer(kind=iwp) :: i, ibas, ic1, ic2, iCMO, iComp, iDaa, iDbb, iDSc, iDummy(1), iErr, Indx, iOcc, iOff, iOpt, iOrb, ipDaa, &
+                     ipDbb, ipDScc, ipMK, ipML, iRC, iSym, iSymLbl, iWFType, j, jc, ji, jOcc, jOff, k, kc, kc1, kc2, kDSc, kk, &
+                     kkc, kks, l, lc, lc1, lc2, llc, lls, lOcc, lOff, lsq, ltri, Lu_, mAdCMOO, mOff, nBD(8), nDiff_ab, nHoles(8), &
+                     nIF(8), nRASO(8), nSsh(8), nSsh_ab(8), nTmp(8), nZero(8)
+real(kind=wp) :: Dummy(1), ThrD, xNorm, xOkk, yOkk
+character(len=62) :: Line
 character(len=8) :: Label
+integer(kind=iwp), allocatable :: ID_vir(:), IndT(:), Match(:,:)
+real(kind=wp), allocatable :: Corb(:), Da(:,:), SAV(:), SLT(:), SQ(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -55,34 +49,34 @@ character(len=8) :: Label
 Erest_xc = Zero
 
 if (.not. DoCholesky) then
-  write(6,*)
-  write(6,*) ' ERROR in Constrained SCF: problem in start6.'
-  write(6,*) '*** Constrained NOs implemented only with CD or RI.'
-  write(6,*) '*** Use Cholesky or RICD in Seward and rerun! *****'
+  write(u6,*)
+  write(u6,*) ' ERROR in Constrained SCF: problem in start6.'
+  write(u6,*) '*** Constrained NOs implemented only with CD or RI.'
+  write(u6,*) '*** Use Cholesky or RICD in Seward and rerun! *****'
   call Abend()
 end if
 
 do iSym=1,nSym
   nDiff_ab = nOcc(iSym,1)-nOcc(iSym,2)
   if (nDiff_ab < 0) then
-    write(6,*)
-    write(6,*) ' ERROR in Constrained SCF: problem in start6.'
-    write(6,*) '*** #alpha < #beta not permitted in CNOs    ***'
-    write(6,*) '*** Change SCF input accordingly and rerun! ***'
+    write(u6,*)
+    write(u6,*) ' ERROR in Constrained SCF: problem in start6.'
+    write(u6,*) '*** #alpha < #beta not permitted in CNOs    ***'
+    write(u6,*) '*** Change SCF input accordingly and rerun! ***'
     call Abend()
   end if
   nHoles(iSym) = nDiff_ab
 end do
 
-write(6,*) ' -------------------------------------------------'
+write(u6,*) ' -------------------------------------------------'
 if (Do_SpinAV) then
-  write(6,*) ' Spin-averaged wavelets (+/-) '
+  write(u6,*) ' Spin-averaged wavelets (+/-) '
 else
-  write(6,*) ' Configuration of the constrained spins (up/down) '
+  write(u6,*) ' Configuration of the constrained spins (up/down) '
 end if
-write(6,*) ' -------------------------------------------------'
+write(u6,*) ' -------------------------------------------------'
 do iSym=1,nSym
-  write(6,'(1X,A,I1)') ' sym: ',iSym
+  write(u6,'(1X,A,I1)') ' sym: ',iSym
   Line(1:14) = '         (+) '
   k = 15
   do j=1,nConstr(iSym)
@@ -103,7 +97,7 @@ do iSym=1,nSym
     end if
     k = k+3
   end do
-  write(6,*) Line(1:k-1)
+  write(u6,*) Line(1:k-1)
   Line(1:14) = '         (-) '
   k = 15
   do j=1,nConstr(iSym)
@@ -124,9 +118,9 @@ do iSym=1,nSym
     end if
     k = k+3
   end do
-  write(6,*) Line(1:k-1)
+  write(u6,*) Line(1:k-1)
 end do
-write(6,*) ' -------------------------------------------------'
+write(u6,*) ' -------------------------------------------------'
 
 Lu_ = LuOrb
 call mma_Allocate(IndT,nnB,Label='IndT')
@@ -159,13 +153,13 @@ do iSym=1,nSym
     indx = indx+1
   end do
   if (nRASO(iSym) /= 2*nConstr(iSym)) then
-    write(6,*) ' ERROR in Constrained SCF: problem in start6.'
-    write(6,*) ' Detected inconsistency between # of partially occupied orbitals and # of constraints. Sym: ',iSym
+    write(u6,*) ' ERROR in Constrained SCF: problem in start6.'
+    write(u6,*) ' Detected inconsistency between # of partially occupied orbitals and # of constraints. Sym: ',iSym
     call Abend()
   end if
   if (nHoles(iSym) /= nDiff_ab) then
-    write(6,*) ' ERROR in Constrained SCF: problem in start6.'
-    write(6,*) ' Detected inconsistency between # of excess alpha orbitals and # of RAS1 orbitals. Sym: ',iSym
+    write(u6,*) ' ERROR in Constrained SCF: problem in start6.'
+    write(u6,*) ' Detected inconsistency between # of excess alpha orbitals and # of RAS1 orbitals. Sym: ',iSym
     call Abend()
   end if
   if (nOrb(iSym) > nBas(iSym)-nTmp(iSym)) then
@@ -277,7 +271,7 @@ do iSym=1,nSym
       else
         ipMK = 666666  ! avoid compiler wrngs
         ipML = 666666
-        write(6,*) ' Start6: wrong indxC value: ',kk
+        write(u6,*) ' Start6: wrong indxC value: ',kk
         call Abend()
       end if
       kc = kc+1
@@ -382,16 +376,16 @@ Label = 'Mltpl  0'
 iComp = 1
 call RdOne(irc,iOpt,Label,iComp,SLT,isymlbl)
 if (irc /= 0) then
-  write(6,*) ' Start6 : error in getting overlap matrix '
+  write(u6,*) ' Start6 : error in getting overlap matrix '
   call Abend()
 end if
 call s2calc(CMO(1,1),CMO(1,2),SLT,nOcc(1,1),nOcc(1,2),nBas,nOrb,nSym,s2CNO)
 
 if (.not. Do_SpinAV) then
-  write(6,'(A,f9.6)') '  Initial value of Total Spin, S(S+1): ',s2CNO
-  write(6,*) ' -------------------------------------------------'
+  write(u6,'(A,f9.6)') '  Initial value of Total Spin, S(S+1): ',s2CNO
+  write(u6,*) ' -------------------------------------------------'
 end if
-write(6,*)
+write(u6,*)
 
 !----------------------------------------------------------------------*
 !  Virtual space must be orthogonal to the occupied space              *
@@ -403,7 +397,7 @@ if (Do_SpinAV) then
   end do
 end if
 
-Thrd = 1.0d-6
+Thrd = 1.0e-6_wp
 do i=1,nSym
   nSsh(i) = nOrb(i)-nOcc(i,1)-nFro(i)
   nSsh_ab(i) = nOrb(i)-nOcc(i,2)-nFro(i)
@@ -421,7 +415,7 @@ call mma_allocate(ID_vir,nnB,Label='ID_vir')
 call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,1),nZero,nZero,nSsh,CMO(1,1),SQ,ID_vir)
 
 if (irc /= 0) then
-  write(6,*) ' Start6 : error in getting alpha virt MOs '
+  write(u6,*) ' Start6 : error in getting alpha virt MOs '
   call Abend()
 end if
 
@@ -436,7 +430,7 @@ end do
 call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,nZero,nSsh_ab,CMO(1,2),SQ,iD_vir)
 
 if (irc /= 0) then
-  write(6,*) ' Start6 : error in getting beta virt MOs '
+  write(u6,*) ' Start6 : error in getting beta virt MOs '
   call Abend()
 end if
 

@@ -38,27 +38,21 @@ subroutine DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,nTr,nD,iOpt_DIIS,Ind)
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: kOptim, AccCon, Iter, EmConv, WarnPOcc, Elst, TimFld
-use Constants, only: Zero, Half, One
-use MxDM, only: MxOptm, MxIter
+use InfSCF, only: AccCon, Elst, EmConv, Iter, kOptim, TimFld, WarnPOcc
+use MxDM, only: MxIter, MxOptm
+use Constants, only: Zero, One, Half, Quart
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nCI, nD, nTr
-real*8 CInter(nCI,nD), TrDh(nTr,nTr,nD), TrDP(nTr,nTr,nD), TrDD(nTr,nTr,nD)
-! Define local variables
-real*8 Eline(MxOptm,2), Equad(MxOptm**2,2), DD(MxOptm**2,2)
-integer Ind(MxOptm)
+integer(kind=iwp) :: nCI, nTr, nD, iOpt_DIIS, Ind(MxOptm)
+real(kind=wp) :: CInter(nCI,nD), TrDh(nTr,nTr,nD), TrDP(nTr,nTr,nD), TrDD(nTr,nTr,nD)
+integer(kind=iwp) :: i, iD, ii, j, jj, kk, n1, n_Min, nn
+real(kind=wp) :: Big, BigOne, BigTwo, CPU1, CPU2, CSUM, DD(MxOptm**2,2), DiFi, DiFj, DiFn, DjFi, DjFj, DnFj, DnFn, E_Min, E_n, &
+                 E_n1, E_Pred, E_Tot, Eline(MxOptm,2), EPred(MxIter+1) = Zero, Equad(MxOptm**2,2), h = 0.35_wp, R2, r_SO, Tim1, &
+                 Tim2, Tim3, Tmp_A, Tmp_B
 #ifdef _NEW_CODE_
-logical Ignore
+logical(kind=iwp) :: Ignore
 #endif
-!save Eline, Equad
-real*8 r_SO
-real*8, save :: EPred(MxIter+1), h = 0.35d0
-integer iOpt_DIIS, i, j, iD, ii, jj, kk, n1, nn, n_Min
-real*8 DiFi, DiFj, DjFi, DjFj, DiFn, DnFj, DnFn
-real*8 Tmp_A, Tmp_B, BigOne, BigTwo, Big
-real*8 E_Pred, E_n1, E_n, E_Min, E_Tot
-real*8 R2, CSUM, CPU1, CPU2, Tim1, Tim2, Tim3
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -70,12 +64,12 @@ call Timing(Cpu1,Tim1,Tim2,Tim3)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'E_pred=',(EPred(i),i=1,iter)
+write(u6,*)
+write(u6,*) 'E_pred=',(EPred(i),i=1,iter)
 if (nD == 1) then
-  write(6,*) 'E_actu=',(Elst(i,1),i=1,iter)
+  write(u6,*) 'E_actu=',(Elst(i,1),i=1,iter)
 else
-  write(6,*) 'E_actu=',(Elst(i,1)+Elst(i,2),i=1,iter)
+  write(u6,*) 'E_actu=',(Elst(i,1)+Elst(i,2),i=1,iter)
 end if
 #endif
 if (kOptim == 1) then
@@ -204,7 +198,7 @@ if (kOptim >= 3) then
     end do
   end do
   Big = max(BigOne,BigTwo)
-  if (Big < 1.0d-8) then
+  if (Big < 1.0e-8_wp) then
     EmConv = .true.
     WarnPocc = .true.
   else
@@ -224,8 +218,8 @@ call Optim(E_Pred,Eline,Equad,CInter(1,1),kOptim,kOptim)
 EPred(iter+1) = E_Pred
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Interpolation coefficients:'
-write(6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
+write(u6,*) ' Interpolation coefficients:'
+write(u6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
 #endif
 
 ! Temporary fix for UHF
@@ -233,8 +227,8 @@ write(6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
 if (nD == 2) call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Interpolation coefficients:'
-write(6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
+write(u6,*) ' Interpolation coefficients:'
+write(u6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -254,11 +248,11 @@ if (iter > 3) then
   end do
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'iter=',iter
-  write(6,*) 'Energy of iter  =',E_n1
-  write(6,*) 'E_pred of iter  =',E_Pred
-  write(6,*) 'Energy of iter-1=',E_n
-  write(6,*)
+  write(u6,*) 'iter=',iter
+  write(u6,*) 'Energy of iter  =',E_n1
+  write(u6,*) 'E_pred of iter  =',E_Pred
+  write(u6,*) 'Energy of iter-1=',E_n
+  write(u6,*)
 # endif
 
   ! In some cases the DIIS will come out with a set to
@@ -266,17 +260,17 @@ if (iter > 3) then
   ! case the E_Pred(i+1)=E(i). We add a small number to avoid
   ! dividing with zero.
 
-  r_SO = (E_n1-E_n)/(E_Pred-E_n+1.0D-12)
+  r_SO = (E_n1-E_n)/(E_Pred-E_n+1.0e-12_wp)
 else
   r_SO = One
 end if
 
 ! Update the trust radius according to this ad hoc scheme.
 
-if (r_SO >= 0.75d0) then
-  h = 1.2d0*h
-else if (r_SO < 0.25d0) then
-  h = 0.7d0*h
+if (r_SO >= 0.75_wp) then
+  h = 1.2_wp*h
+else if (r_SO < Quart) then
+  h = 0.7_wp*h
 end if
 !                                                                      *
 !***********************************************************************
@@ -321,8 +315,8 @@ if (.false.) then
   ! Perform a RS-DIIS interpolation if required
 
   if (sqrt(r2) > h) then
-    write(6,*) 'Apply optimization with step restriction'
-    write(6,*) 'r,h =',sqrt(r2),h
+    write(u6,*) 'Apply optimization with step restriction'
+    write(u6,*) 'r,h =',sqrt(r2),h
     call Abend()
     call Optim2(E_Pred,Eline,Equad,DD,CInter(1,1),kOptim,kOptim,n_min,n1,r2)
     EPred(iter+1) = E_Pred
@@ -343,20 +337,20 @@ do iD=1,nD
   do i=1,kOptim
     CSum = CSum+CInter(i,iD)
   end do
-  if (abs(CSum-One) > 1.0D-5) then
-    write(6,*) 'diis_i: Abs(CSum - One) > 1.0D-5'
-    write(6,*) 'CSum=',CSum
+  if (abs(CSum-One) > 1.0e-5_wp) then
+    write(u6,*) 'diis_i: Abs(CSum - One) > 1.0e-5'
+    write(u6,*) 'CSum=',CSum
     call Abend()
   end if
 
   ! If the coefficient for the last density is zero we are in problem.
 
   if ((CInter(kOptim,iD) == Zero) .and. (kOptim > 2) .and. (CInter(kOptim-1,iD) == One)) then
-    write(6,*) 'DIIS_I optimization failed!'
-    !write(6,*) 'iD=',iD
-    !write(6,*) (CInter(i,iD),i=1,kOptim)
-    CInter(kOptim,iD) = 1.0D-6
-    CInter(kOptim,iD-1) = One-1.0D-6
+    write(u6,*) 'DIIS_I optimization failed!'
+    !write(u6,*) 'iD=',iD
+    !write(u6,*) (CInter(i,iD),i=1,kOptim)
+    CInter(kOptim,iD) = 1.0e-6_wp
+    CInter(kOptim,iD-1) = One-1.0e-6_wp
     !EmConv = .true.
   end if
 end do

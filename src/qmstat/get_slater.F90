@@ -28,8 +28,8 @@ integer(kind=iwp) :: iC, ind, jhr, l, Lu, nS, nSlCentQ, nT, nTestjhr
 real(kind=wp) :: CoordTest(3), SlFactQ(6)
 logical(kind=iwp) :: Exists
 integer(kind=iwp), external :: IsFreeUnit
-#include "warnings.h"
 
+#include "warnings.h"
 #include "macros.fh"
 
 ! Open the file

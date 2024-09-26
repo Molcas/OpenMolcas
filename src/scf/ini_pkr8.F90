@@ -17,8 +17,11 @@
 subroutine Ini_PkR8(PkMode)
 
 use Gateway_Info, only: PkAcc
+use Definitions, only: iwp
 
-logical PkMode
+implicit none
+
+logical(kind=iwp) :: PkMode
 
 call inipkr8(PkAcc,PkMode)
 

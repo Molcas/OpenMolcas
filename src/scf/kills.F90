@@ -18,7 +18,8 @@
 subroutine KiLLs()
 ! dispose the diverse linked lists
 
-use LnkLst, only: LLGrad, LLdGrd, LLDelt, LLy, LLx, Init_LLs, KilLst
+use LnkLst, only: Init_LLs, KilLst, LLDelt, LLdGrd, LLGrad, LLx, LLy
+use Definitions, only: u6
 
 implicit none
 
@@ -30,8 +31,8 @@ if (Init_LLs) then
   call KilLst(LLx)
   Init_LLs = .false.
 else
-  write(6,*) '****** W A R N I N G ! ******'
-  write(6,*) ' Linked list already killed!'
+  write(u6,*) '****** W A R N I N G ! ******'
+  write(u6,*) ' Linked list already killed!'
 end if
 
 return

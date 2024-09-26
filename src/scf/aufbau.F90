@@ -29,27 +29,25 @@ subroutine Aufbau(nAuf,Occup,nOccup,iOK,nD)
 !       Occup(nOccup) : orbital occupation numbers                     *
 !***********************************************************************
 
-use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
+use InfSCF, only: nFro, nOcc, nOrb, nSym, rTemp, TEEE
 use SCF_Arrays, only: EOrb
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, Two, Three
+use Constants, only: Zero, Two, Three, Half
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
+integer(kind=iwp) :: nAuf(2), nOccup, iOK, nD
+real(kind=wp) :: Occup(nOccup,nD)
 #include "Molcas.fh"
-! declaration subroutine parameters
-integer nOccup, nD, iOK
-real*8 Occup(nOccup,nD)
-integer nAuf(2)
-! declaration of local variables...
-integer nEOrb, iOrBas, iSym, iOrb, iD, nOrBas, jOrBas, mD, ipOcc, jSym, nElec, Tmp
-real*8 UHF_Occ, EFerm, UnlikelyOcc, Fact, Fact2
-real*8, external :: Fermipop
-integer, dimension(:,:), allocatable :: Map, Irp
-real*8 Sum_el(2)
-integer nOrb_AS(2), mOrb_AS(2)
+integer(kind=iwp) :: iD, iOrb, iOrBas, ipOcc, iSym, jOrBas, jSym, mD, mOrb_AS(2), nElec, nEOrb, nOrb_AS(2), nOrBas, Tmp
 ! These occupation number vectors are used to determine if we have convergence.
-integer, save :: kOccAuf = -1
-integer, save :: nOccAuf(MxSym,2,2)
+integer(kind=iwp) :: kOccAuf = 1, nOccAuf(MxSym,2,2) = -1
+real(kind=wp) :: EFerm, Fact, Fact2, Sum_el(2), UHF_Occ, UnlikelyOcc
+integer(kind=iwp), allocatable :: Map(:,:), Irp(:,:)
+real(kind=wp), external :: Fermipop
 
 nEOrb = size(EOrb,1)
 
@@ -98,12 +96,12 @@ call dcopy_(nOccup*nD,[Zero],0,Occup,1)
 
 if (Teee) then
 
-  UHF_occ = Three-dble(nD)
+  UHF_occ = Three-real(nD,kind=wp)
   mD = 2/nD
   do iD=1,nD
     eferm = FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,nAuf(iD)*mD,UHF_occ)
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,G20.10)') '         E(Fermi)=',eferm
+    write(u6,'(A,G20.10)') '         E(Fermi)=',eferm
 #   endif
   end do
 
@@ -116,7 +114,7 @@ if (Teee) then
     end do
 
     jOrbAS = iOrbAS
-    unlikelyOcc = 0.19d0
+    unlikelyOcc = 0.19_wp
     do iOrb=1,nOrb(iSym)-nFro(iSym)
       iOrbAS = iOrbAS+1
       do iD=1,nD
@@ -126,7 +124,7 @@ if (Teee) then
       end do
     end do
     Fact = nD*half
-    Fact2 = 0.99d0+dble(2-nD)
+    Fact2 = 0.99_wp+real(2-nD,kind=wp)
     do iD=1,nD
       nOccAuf(iSym,kOccAuf,iD) = nOrb_AS(iD)
       nOcc(iSym,iD) = int(Fact*(sum_el(iD)+Fact2/nSym))
@@ -136,7 +134,7 @@ if (Teee) then
 
 else
 
-  Fact = Two/dble(nD)
+  Fact = Two/real(nD,kind=wp)
   do iD=1,nD
     do iOrbAS=1,nAuf(iD)
       iSym = Irp(Map(iOrbAS,iD),iD)

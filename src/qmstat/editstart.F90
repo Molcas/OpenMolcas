@@ -25,6 +25,7 @@ character(len=200) :: Head
 character(len=6) :: FilSlut, Filstart
 real(kind=wp), allocatable :: C(:,:), C2(:,:), Coord(:,:)
 real(kind=wp), parameter :: ThrdSpread = One
+
 #include "warnings.h"
 
 ! Inquire if file exists, and if so open it.

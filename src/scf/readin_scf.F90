@@ -22,12 +22,12 @@ subroutine ReadIn_SCF(SIntTh)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: DSCF, nDisc, EThr, KSDFT, nCore, TimFld
+use InfSCF, only: DSCF, EThr, KSDFT, nCore, nDisc, TimFld
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 SIntTh
-real*8 CPU1, CPU2, Tim1, Tim2, Tim3
-logical PkMode
+real(kind=wp) :: CPU1, CPU2, SIntTh, Tim1, Tim2, Tim3
+logical(kind=iwp) :: PkMode
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 !                                                                      *

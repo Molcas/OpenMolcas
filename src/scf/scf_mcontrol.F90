@@ -12,16 +12,17 @@
 subroutine Scf_Mcontrol(id_call)
 
 use Para_Info, only: MyRank
-use InfSCF, only: nIter, DThr, EThr, FThr
+use InfSCF, only: DThr, EThr, FThr, nIter
 use ChoSCF, only: ALGO, dmpk, nScreen
 use Cholesky, only: timings
 use Constants, only: Zero
+use Definitions, only: iwp, u6
 
 implicit none
-integer id_call
-integer icount, icount0
-character(len=512) List
-character(len=32) value
+integer(kind=iwp) :: id_call
+integer(kind=iwp) :: icount, icount0
+character(len=512) :: List
+character(len=32) :: Val
 
 icount = 0
 
@@ -41,59 +42,59 @@ else
   ! Read the molcas control file
 
   !1
-  call MolcasControl('Cho_ALGO',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) ALGO
-    write(6,*) '--- Warning: Cho_ALGOrithm changed by user to the value ',ALGO
+  call MolcasControl('Cho_ALGO',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) ALGO
+    write(u6,*) '--- Warning: Cho_ALGOrithm changed by user to the value ',ALGO
     icount = icount+1
   end if
   !2
-  call MolcasControl('Chotime',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) timings
-    write(6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
+  call MolcasControl('Chotime',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) timings
+    write(u6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
     icount = icount+1
   end if
   !3
-  call MolcasControl('En_thr',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) Ethr
-    write(6,*) '--- Warning: SCF Energy threshold changed by user to the value ',Ethr
+  call MolcasControl('En_thr',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) Ethr
+    write(u6,*) '--- Warning: SCF Energy threshold changed by user to the value ',Ethr
     icount = icount+1
   end if
   !4
-  call MolcasControl('D_thr',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) Dthr
-    write(6,*) '--- Warning: SCF Density threshold changed by user to the value ',Dthr
+  call MolcasControl('D_thr',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) Dthr
+    write(u6,*) '--- Warning: SCF Density threshold changed by user to the value ',Dthr
     icount = icount+1
   end if
   !5
-  call MolcasControl('F_thr',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) Fthr
-    write(6,*) '--- Warning: SCF Fmat threshold changed by user to the value ',Fthr
+  call MolcasControl('F_thr',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) Fthr
+    write(u6,*) '--- Warning: SCF Fmat threshold changed by user to the value ',Fthr
     icount = icount+1
   end if
   !6
-  call MolcasControl('MaxIter',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) nIter(1)
-    write(6,*) '--- Warning: SCF Max # iterations changed by user to the value ',nIter(1)
+  call MolcasControl('MaxIter',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) nIter(1)
+    write(u6,*) '--- Warning: SCF Max # iterations changed by user to the value ',nIter(1)
     icount = icount+1
   end if
   !7
-  call MolcasControl('nScreen',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) nScreen
-    write(6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
+  call MolcasControl('nScreen',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) nScreen
+    write(u6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
     icount = icount+1
   end if
   !8
-  call MolcasControl('dmpK',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) dmpK
-    write(6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
+  call MolcasControl('dmpK',Val)
+  if (Val(1:4) /= '    ') then
+    read(Val,*,err=101,end=102) dmpK
+    write(u6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
     icount = icount+1
   end if
 
@@ -107,8 +108,8 @@ call gaIgOP_SCAL(icount,'max')
 
 if (MyRank == 0) then
   if (icount > icount0) then
-    write(6,*) ' Steering will NOT be activated this time because'
-    write(6,*) ' molcas.control file must be changed on node_0 !!'
+    write(u6,*) ' Steering will NOT be activated this time because'
+    write(u6,*) ' molcas.control file must be changed on node_0 !!'
     call gaIgOP_SCAL(icount,'min')
   end if
 end if
@@ -149,7 +150,8 @@ return
 
 100 format(A21,',Cho_ALGO=',I2,',Chotime=',L2,',dmpK=',ES11.4,',En_thr=',ES11.4,',D_thr=',ES11.4,',F_thr=',ES11.4,',MaxIter=',I4, &
            ',nScreen=',I4)
-101 write(6,*) 'Scf_Mcontrol: error in data Input. ( icount= ',icount,' )'
-102 write(6,*) 'Scf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+
+101 write(u6,*) 'Scf_Mcontrol: error in data Input. ( icount= ',icount,' )'
+102 write(u6,*) 'Scf_Mcontrol: reached end of file. ( icount= ',icount,' )'
 
 end subroutine Scf_Mcontrol

@@ -34,35 +34,37 @@ subroutine NewOrb_SCF(AllowFlip)
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: MxConstr, DoHLGap, HLGap, FlipThr, FCKAuf, MaxBas, MaxOrf, nnB, WarnCFG, nnFr, Aufb, nSym, TEEE, RotFac, RotLev, &
-                  ScrFac, RotMax, MaxBOF, nBas, nBB, nBO, nBT, nConstr, nFro, nOcc, nOrb, TimFld, nD, Iter, Scrmbl, FMOMax
-use Constants, only: Zero, One, Two
+use InfSCF, only: Aufb, DoHLGap, FCKAuf, FlipThr, FMOMax, HLGap, Iter, MaxBas, MaxBOF, MaxOrf, MxConstr, nBas, nBB, nBO, nBT, &
+                  nConstr, nD, nFro, nnB, nnFr, nOcc, nOrb, nSym, RotFac, RotLev, RotMax, ScrFac, Scrmbl, TEEE, TimFld, WarnCFG
+use SCF_Arrays, only: CMO, EOrb, FockAO, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
-use SCF_Arrays, only: Ovrlp, EOrb, Fock => FockAO, CMO
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-logical AllowFlip
-real*8, dimension(:), allocatable :: eConstr, FckM, FckS, HlfF, TraF, Scratch, Temp
-real*8 Fia, GapAdd, EHOMO, ELUMO, Q, Tmp1, Tmp2, Dummy, Tmp, CPU1, CPU2, Tim1, Tim2, Tim3, WhatEver, Tmp0
-real*8, external :: DDot_, Random_Molcas
-integer, external :: iDAMax_
-logical em_On, Scram
-integer, dimension(:), allocatable :: iFerm
-integer iCMO, iiBT, jEOr, iptr, nOrbmF, nOccmF, nVrt, ia, ij, nsDg, iChk, iiB, iAddGap, iSym, iBas, Ind, iD, iOvlpOff, kConstr, &
-        iConstr, nj, iFC, j, jj, ijBas, iOrb, jOrb, IndII, IndJJ, iDum, i, kBas, Muon_I, jBas, IndIJ, jOff, ii, kk, kOff, lConstr, &
-        kCMO, keOR, iErr, nFound, Muon_J, iOff, kOrb
-integer, save :: iSeed = 13
-integer Fermion_Type
-logical :: Muons_Present = .false.
+logical(kind=iwp) :: AllowFlip
+integer(kind=iwp) :: Fermion_Type, i, ia, iAddGap, iBas, iChk, iCMO, iConstr, iD, iDum, iErr, iFC, ii, iiB, iiBT, ij, ijBas, Ind, &
+                     IndII, IndIJ, IndJJ, iOff, iOrb, iOvlpOff, iptr, iSeed = 13, iSym, j, jBas, jEOr, jj, jOff, jOrb, kBas, kCMO, &
+                     kConstr, keOR, kk, kOff, kOrb, lConstr, Muon_I, Muon_J, nFound, nj, nOccmF, nOrbmF, nsDg, nVrt
+real(kind=wp) :: CPU1, CPU2, Dummy, EHOMO, ELUMO, Fia, GapAdd, Q, Tim1, Tim2, Tim3, Tmp, Tmp0, Tmp1, Tmp2, WhatEver
+logical(kind=iwp) :: em_On, Muons_Present, Scram
+integer(kind=iwp), allocatable :: iFerm(:)
+real(kind=wp), allocatable :: eConstr(:), FckM(:), FckS(:), HlfF(:), Scratch(:), Temp(:), TraF(:)
+integer(kind=iwp), external :: iDAMax_
+real(kind=wp), external :: DDot_, Random_Molcas
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
-call NrmClc(Fock,size(Fock),'NewOrb','Fock')
+call NrmClc(FockAO,size(FockAO),'NewOrb','FockAO')
 #endif
 
+Muons_Present = .false.
 Scram = (Scrmbl .and. (iter == 1))
 nSdg = 1
 if (Do_SpinAV) nSdg = 2
@@ -101,7 +103,7 @@ WarnCfg = .false.
 do iD=1,nD
 
   ! Modify Fock matrix
-  call dcopy_(nBT,Fock(1,iD),1,FckM,1)
+  call dcopy_(nBT,FockAO(1,iD),1,FckM,1)
   if (nnFr > 0) call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
   ! Prediagonalize Fock matrix
   iAddGap = 0
@@ -110,8 +112,8 @@ do iD=1,nD
     ij = 1
     iCMO = 1
     jEOr = 1
-    Ehomo = -1.0d6
-    Elumo = 1.0d6
+    Ehomo = -1.0e6_wp
+    Elumo = 1.0e6_wp
     do iSym=1,nSym
       iiBT = nBas(iSym)*(nBas(iSym)+1)/2
       nOrbmF = nOrb(iSym)-nFro(iSym)
@@ -182,16 +184,16 @@ do iD=1,nD
       ij = ij+iiBT
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,'(a,F12.6)') 'E(homo)   ',Ehomo
-    write(6,'(a,F12.6)') 'E(lumo)   ',Elumo
-    write(6,'(a,F12.6)') 'E(gap)    ',Elumo-Ehomo
+    write(u6,'(a,F12.6)') 'E(homo)   ',Ehomo
+    write(u6,'(a,F12.6)') 'E(lumo)   ',Elumo
+    write(u6,'(a,F12.6)') 'E(gap)    ',Elumo-Ehomo
 #   endif
     WarnCfg = ((Elumo-Ehomo < Zero) .or. WarnCfg)
     if (Elumo-Ehomo < HLgap) then
       iAddGap = 1
       GapAdd = HLgap-Elumo+Ehomo
 #     ifdef _DEBUGPRINT_
-      write(6,'(a,F12.6)') 'E(add)    ',GapAdd
+      write(u6,'(a,F12.6)') 'E(add)    ',GapAdd
 #     endif
     end if
   end if
@@ -231,7 +233,7 @@ do iD=1,nD
           jj = 1+j*(j+1)/2+nj
           Traf(jj) = Zero
         end do
-        Traf(ifc+nj) = -0.666d6*dble(iConstr) ! for sorting
+        Traf(ifc+nj) = -0.666e6_wp*real(iConstr,kind=wp) ! for sorting
         kConstr = kConstr+1
       end do
       if (Do_SpinAV) then
@@ -244,7 +246,7 @@ do iD=1,nD
             jj = 1+j*(j+1)/2+nj
             TraF(jj) = Zero
           end do
-          TraF(ifc+nj) = 0.666d6*dble(kConstr) ! for sorting
+          TraF(ifc+nj) = 0.666e6_wp*real(kConstr,kind=wp) ! for sorting
           kConstr = kConstr+1
         end do
       end if
@@ -288,7 +290,7 @@ do iD=1,nD
       ind = 1
       do iOrb=1,nOrbmF
         do jOrb=1,iOrb
-          ! Scale OV elements of fock matrix
+          ! Scale OV elements of Fock matrix
           if ((iOrb > nOcc(iSym,iD)) .and. (jOrb <= nOcc(iSym,iD))) TraF(ind) = RotFac*TraF(ind)
           ! Levelshift virtual diagonal matrix elements
           if ((iOrb > nOcc(iSym,iD)) .and. (iOrb == jOrb)) TraF(ind) = TraF(ind)+RotLev
@@ -316,9 +318,9 @@ do iD=1,nD
         indjj = 1
         do jOrb=1,iOrb
           if ((iOrb > nOcc(iSym,iD)) .and. (jOrb <= nOcc(iSym,iD))) then
-            tmp1 = max(abs(TraF(indii)-TraF(indjj)),1.0d-3)
+            tmp1 = max(abs(TraF(indii)-TraF(indjj)),1.0e-3_wp)
             tmp2 = abs(TraF(indij)/tmp1)
-            if ((tmp2 > RotMax) .and. (abs(TraF(indij)) > 0.001d0)) TraF(indij) = TraF(indij)*RotMax/tmp2
+            if ((tmp2 > RotMax) .and. (abs(TraF(indij)) > 0.001_wp)) TraF(indij) = TraF(indij)*RotMax/tmp2
           end if
           indij = indij+1
           indjj = indjj+jOrb+1
@@ -336,7 +338,7 @@ do iD=1,nD
           jj = 1+j*(j+1)/2+nj
           TraF(jj) = Zero
         end do
-        TraF(ifc+nj) = -0.666d6*dble(iConstr) ! for sorting
+        TraF(ifc+nj) = -0.666e6_wp*real(iConstr,kind=wp) ! for sorting
         kConstr = kConstr+1
       end do
       if (Do_SpinAV) then
@@ -348,7 +350,7 @@ do iD=1,nD
             jj = 1+j*(j+1)/2+nj
             TraF(jj) = Zero
           end do
-          TraF(ifc+nj) = 0.666d6*dble(kConstr) ! for sorting
+          TraF(ifc+nj) = 0.666e6_wp*real(kConstr,kind=wp) ! for sorting
           kConstr = kConstr+1
         end do
       end if
@@ -394,12 +396,12 @@ do iD=1,nD
 
         tmp = Zero
         do kBas=0,nBas(iSym)-1
-          tmp = tmp+dble(iFerm(jEOr+kBas))*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
+          tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
         end do
         Muon_i = 0                  ! electronic
         if (tmp /= Zero) Muon_i = 1! muonic
         Muons_Present = (Muons_Present .or. (Muon_i == 1))
-        !write(6,*) 'iOrb,Muon_i,tmp=',iOrb,Muon_i,tmp
+        !write(u6,*) 'iOrb,Muon_i,tmp=',iOrb,Muon_i,tmp
 
         ! Loop over the new orbitals and test if it is of the
         ! same type. i.e. fermionic or electronic.
@@ -407,7 +409,7 @@ do iD=1,nD
         do jOrb=iOrb,nOrb(iSym)
           tmp = Zero
           do kBas=0,nBas(iSym)-1
-            tmp = tmp+dble(iFerm(jEOr+kBas))*abs(CMO(iCMO+(jOrb-1)*nBas(iSym)+kBas,iD))
+            tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(CMO(iCMO+(jOrb-1)*nBas(iSym)+kBas,iD))
           end do
 
           Muon_j = 0                  ! electronic
@@ -444,7 +446,7 @@ do iD=1,nD
       ! do not populate according to the aufbau principle.
 
       if (.not. FckAuf) then
-        !write(6,*) 'Follow the orbitals'
+        !write(u6,*) 'Follow the orbitals'
 
         ! Form  C^+ S  C for the old orbitals
 
@@ -467,14 +469,14 @@ do iD=1,nD
 
           tmp = Zero
           do kBas=0,nBas(iSym)-1
-            tmp = tmp+dble(iFerm(jEOr+kBas))*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
+            tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
           end do
 
           Muon_i = 0                  ! electronic
           if (tmp /= Zero) Muon_i = 1 ! muonic
           if (Muon_i == Fermion_Type) cycle
 
-          !write(6,*) 'iOrb,Muon_i=',iOrb,Muon_i
+          !write(u6,*) 'iOrb,Muon_i=',iOrb,Muon_i
 
           kOrb = 0
           Tmp0 = Zero
@@ -483,7 +485,7 @@ do iD=1,nD
 
             tmp = Zero
             do kBas=0,nBas(iSym)-1
-              tmp = tmp+dble(iFerm(jEOr+kBas))*abs(FckS((jOrb-1)*nBas(iSym)+kBas+1))
+              tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((jOrb-1)*nBas(iSym)+kBas+1))
             end do
 
             Muon_j = 0                  ! electronic
@@ -497,9 +499,9 @@ do iD=1,nD
             end if
           end do
 
-          !write(6,*) 'Fermion_Type=',Fermion_type
-          !write(6,*) 'kOrb,Tmp0=',kOrb,Tmp0
-          !write(6,*) 'Muon_i, Muon_j=',Muon_i, Muon_j
+          !write(u6,*) 'Fermion_Type=',Fermion_type
+          !write(u6,*) 'kOrb,Tmp0=',kOrb,Tmp0
+          !write(u6,*) 'Muon_i, Muon_j=',Muon_i, Muon_j
 
           if (iOrb /= kOrb) then
             ii = iOrb+jEOr-1
@@ -524,7 +526,7 @@ do iD=1,nD
       if (nConstr(iSym) > 0) then
         do kConstr=1,nConstr(iSym)
           iConstr = jEOr-1+kConstr
-          EOrb(iConstr,iD) = 0.666d6*dble(kConstr)
+          EOrb(iConstr,iD) = 0.666e6_wp*real(kConstr,kind=wp)
         end do
         call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOccmF,nBas(iSym),1,.true.)
         iConstr = 1
@@ -536,7 +538,7 @@ do iD=1,nD
         if (Do_SpinAV) then
           do kConstr=nConstr(iSym),1,-1
             iConstr = jEOr+nOrbmF-kConstr
-            EOrb(iConstr,iD) = -0.666d6*dble(kConstr)
+            EOrb(iConstr,iD) = -0.666e6_wp*real(kConstr,kind=wp)
           end do
           kCMO = iCMO+nOccmF*nBas(iSym)
           kEOr = jEOr+nOccmF

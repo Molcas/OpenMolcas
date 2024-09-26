@@ -27,10 +27,13 @@ subroutine Sym(A,S,n)
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer n
-real*8 A(n,n), S(n*(n+1)/2)
-integer i, j, ij
+integer(kind=iwp) :: n
+real(kind=wp) :: A(n,n), S(n*(n+1)/2)
+integer(kind=iwp) :: i, ij, j
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -40,7 +43,7 @@ ij = 0
 do i=1,n
   do j=1,i
     ij = ij+1
-    S(ij) = (A(i,j)+A(j,i))/2.0d+00
+    S(ij) = (A(i,j)+A(j,i))*Half
   end do
 end do
 

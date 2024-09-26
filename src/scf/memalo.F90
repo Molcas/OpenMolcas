@@ -18,21 +18,22 @@
 subroutine MemAlo()
 !***********************************************************************
 !                                                                      *
-!     purpose: allocate memory for density & fock metrices etc.        *
+!     purpose: allocate memory for density & fock matrices etc.        *
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: FockAO, CMO, CMO_Ref, Dens, EDFT, EOrb, FockMO, HDiag, OccNo, TrM, TwoHam, Vxc
+use SCF_Arrays, only: CMO, CMO_Ref, Dens, EDFT, EOrb, FockAO, FockMO, HDiag, OccNo, TrM, TwoHam, Vxc
 use Orb_Type, only: OrbType
 use LnkLst, only: NodSiz
 use InfSO, only: MemRsv
-use InfSCF, only: Aufb, DSCF, nD, MaxBas, mOV, nBB, nBO, nBT, nDens, nMem, nnB, nnOc, nOO, nOV, nIter
+use InfSCF, only: Aufb, DSCF, MaxBas, mOV, nBB, nBO, nBT, nD, nDens, nIter, nMem, nnB, nnOc, nOO, nOV
 use MxDM, only: MxIter, MxOptm
-use Constants, only: Zero
 use stdalloc, only: mma_allocate
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
 implicit none
-integer lthCor, lthDii, lthGrd, lthH, lthLiS, lthPMt, lthRst, lthTot, Mx_nIter, nIt0, MxMem
+integer(kind=iwp) :: lthCor, lthDii, lthGrd, lthH, lthLiS, lthPMt, lthRst, lthTot, Mx_nIter, MxMem, nIt0
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -87,14 +88,14 @@ nDens = min(lthRst/(nBT*nD)/2,6)
 ! We need at least 2 Dens in core at the same time for computing
 ! the DIIS error vectors
 if (nDens < 2) then
-  write(6,*) 'MemAlo: nDens < 2'
-  write(6,*) 'lthTot=',lthTot
-  write(6,*) 'nOV=',nOV
-  write(6,*) 'MxMem=',MxMem
-  write(6,*) 'nDens=',nDens
-  write(6,*) 'lthRst=',lthRst
-  write(6,*) 'nD=',nD
-  write(6,*) 'nBT=',nBT
+  write(u6,*) 'MemAlo: nDens < 2'
+  write(u6,*) 'lthTot=',lthTot
+  write(u6,*) 'nOV=',nOV
+  write(u6,*) 'MxMem=',MxMem
+  write(u6,*) 'nDens=',nDens
+  write(u6,*) 'lthRst=',lthRst
+  write(u6,*) 'nD=',nD
+  write(u6,*) 'nBT=',nBT
   call Abend()
 end if
 ! Francesco Aquilante

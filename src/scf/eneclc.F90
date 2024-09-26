@@ -30,18 +30,21 @@ subroutine EneClc(En1V,En2V,EnerV)
 #ifdef _FDE_
 use Embedding_Global, only: Eemb, embInt, embPot
 #endif
-use OFembed, only: Do_OFemb
-use OFembed, only: Rep_EN
+use OFembed, only: Do_OFemb, Rep_EN
+use InfSCF, only: ELst, ipsLst, Iter, KSDFT, nBT, nD, nOcc, nSym, PotNuc, TimFld
+use SCF_Arrays, only: Dens, EDFT, OneHam, TwoHam
 use Constants, only: Zero, Half
-use InfSCF, only: ipsLst, nD, Iter, nSym, KSDFT, PotNuc, ELst, nBT, nOcc, TimFld
-use SCF_Arrays, only: OneHam, TwoHam, Dens, EDFT
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 ! Declaration of procedure parameters
-real*8 En1V, En2V, EnerV
-real*8 :: En1V_AB, En2V_AB, E_DFT, CPU1, CPU2, Tim1, Tim2, Tim3
-integer nElec, iSym
-real*8, external :: DDot_
+real(kind=wp) :: En1V, En2V, EnerV
+integer(kind=iwp) :: iSym, nElec
+real(kind=wp) :: CPU1, CPU2, E_DFT, En1V_AB, En2V_AB, Tim1, Tim2, Tim3
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 ! Start                                                                *
@@ -96,10 +99,10 @@ end if
 
 #ifdef _DEBUGPRINT_
 if (nD == 2) then
-  write(6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
-  write(6,*) 'EnerClc:',En1V_ab,En2V_ab
+  write(u6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
+  write(u6,*) 'EnerClc:',En1V_ab,En2V_ab
 else
-  write(6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
+  write(u6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
 end if
 #endif
 if (nD == 2) then
@@ -117,7 +120,7 @@ end if
 En1V = (En1V+En1V_ab)+E_DFT
 EnerV = En1V+En2V+PotNuc
 #ifdef _DEBUGPRINT_
-write(6,*) 'EneClc: Ene=',En1V,En1V_ab,En2V,EnerV
+write(u6,*) 'EneClc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
 call Timing(Cpu2,Tim1,Tim2,Tim3)
 TimFld(14) = TimFld(14)+(Cpu2-Cpu1)

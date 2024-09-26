@@ -28,6 +28,7 @@ logical(kind=iwp), intent(in) :: lTooSmall
 real(kind=wp), intent(out) :: Colle(3)
 real(kind=wp) :: Ex, ExA, ExB, Pi1, Pi2, Sigma, Width
 real(kind=wp), external :: CoulT0_1, CoulT0_2, CoulT0_4, CoulT0_5, CoulTN_1, CoulTN_2, CoulTN_4, CoulTN_5
+
 #include "warnings.h"
 
 ! To calculate the interaction Sigma is the product of both multipoles

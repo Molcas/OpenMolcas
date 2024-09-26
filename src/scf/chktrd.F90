@@ -27,30 +27,28 @@ subroutine ChkTrD(nSym,nBas,nOrb,Occ,nOcc,Dlt,nDlt)
 
 use SCF_Arrays, only: Ovrlp
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! declaration of subroutine parameters...
-integer nSym, nOcc, nDlt
-real*8 Occ(nOcc), Dlt(nDlt)
-integer nBas(nSym), nOrb(nSym)
-! declaration of some local variables...
-integer iOr, ipDlt, ipOcc, ipOvl, iSym, lth, nBs, nOr
-real*8 :: ThrDif = 1.0d-7
-real*8 :: Scale, SumOcc, TrDns
-real*8, external :: DDot_
+integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym), nOcc, nDlt
+real(kind=wp) :: Occ(nOcc), Dlt(nDlt)
+integer(kind=iwp) :: i_Or, ipDlt, ipOcc, ipOvl, iSym, lth, nBs, nOr
+real(kind=wp) :: Scal, SumOcc, TrDns
+real(kind=wp), parameter :: ThrDif = 1.0e-7_wp
+real(kind=wp), external :: DDot_
 
 ipDlt = 1
 ipOvl = 1
 ipOcc = 0
-Scale = One
+Scal = One
 do iSym=1,nSym
   nBs = nBas(iSym)
   nOr = nOrb(iSym)
   lth = nBs*(nBs+1)/2
   ! count occupation number...
   SumOcc = Zero
-  do iOr=1,nOr
-    SumOcc = SumOcc+Occ(ipOcc+iOr)*Scale
+  do i_Or=1,nOr
+    SumOcc = SumOcc+Occ(ipOcc+i_Or)*Scal
   end do
   ! do trace of PS for symmetry block...
   TrDns = DDOT_(lth,Dlt(ipDlt),1,Ovrlp(ipOvl),1)
@@ -58,10 +56,10 @@ do iSym=1,nSym
   ipOvl = ipOvl+lth
   ipOcc = ipOcc+nOr
   if (abs(SumOcc-TrDns) > ThrDif) then
-    write(6,*) abs(SumOcc-TrDns)
+    write(u6,*) abs(SumOcc-TrDns)
     ! print Warning...
     call WarningMessage(1,'WARNING: trace of density is inconsistent with occupation !')
-    write(6,'(A,I1,A,3F12.7)') 'SymBlock: ',iSym,' deviation: ',SumOcc-TrDns,SumOcc,TrDns
+    write(u6,'(A,I1,A,3F12.7)') 'SymBlock: ',iSym,' deviation: ',SumOcc-TrDns,SumOcc,TrDns
   end if
 end do
 

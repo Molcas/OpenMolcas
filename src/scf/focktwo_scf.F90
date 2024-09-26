@@ -17,29 +17,21 @@
 subroutine FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,X1,nX1,X2,nX2,ExFac,nD,nBSQT)
 
 use RICD_Info, only: Do_DCCD
-use Constants, only: Zero, Half, One
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-!implicit none
-integer nSym, nFlt, nD, nBSQT
-integer NBAS(8), NFRO(8), KEEP(8)
-real*8 DLT(nFlt,nD)
-real*8 DSQ(nBSQT,nD)
-real*8 FSQ(nBSQT,nD)
-real*8 FLT(nFlt,nD)
-integer nX1, nX2
-real*8 X1(nX1), X2(nX2)
-real*8 ExFac
-integer ISTLT(8), ISTSQ(8)
-integer MUL, I, J
-real*8 Factor, temp, temp_ab
-integer IB, JB, IJB, IJS, LB, KB, KLB, iOpt, IPQ, IRC
-integer LPQ, NPQ
-integer IK, JK, KK, LK
-integer IS, JS, KS, LS, ISYM
-integer ISF, ISX, ISD
-integer K1, K2, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL
-real*8, external :: DDot_
+implicit none
+integer(kind=iwp) :: nSym, NBAS(8), NFRO(8), KEEP(8), nFlt, nX1, nX2, nD, nBSQT
+real(kind=wp) :: DLT(nFlt,nD), DSQ(nBSQT,nD), FLT(nFlt,nD), FSQ(nBSQT,nD), X1(nX1), X2(nX2), ExFac
+integer(kind=iwp) :: IB, IJB, IJS, IK, iOpt, IPQ, IRC, IS, ISD, ISF, ISTLT(8), ISTSQ(8), ISX, ISYM, JB, JK, JS, K1, K2, KB, KK, &
+                     KLB, KS, LB, LK, LPQ, LS, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL, NPQ
+real(kind=wp) :: Factor, temp, temp_ab
+real(kind=wp), external :: DDot_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISTLTT, ivv
+#endif
 ! Statement function
+integer(kind=iwp) :: MUL, I, J
 MUL(I,J) = ieor(I-1,J-1)+1
 
 ! This routine has been nicked from the MOTRA package. It was
@@ -60,17 +52,17 @@ MUL(I,J) = ieor(I-1,J-1)+1
 !***********************************************************************
 !                                                                      *
 if (Do_DCCD .and. (NSYM /= 1)) then
-  write(6,*) 'DCCD not implemented for nSym/=1'
+  write(u6,*) 'DCCD not implemented for nSym/=1'
   call Abend()
 end if
 
-Factor = dble(nD)*Half
+Factor = real(nD,kind=wp)*Half
 ISTSQ(:) = 0
 ISTLT(:) = 0
 
 if (Do_DCCD) then
   if (NSYM /= 1) then
-    write(6,*) 'DCCD not implemented for nSym/=1'
+    write(u6,*) 'DCCD not implemented for nSym/=1'
     call Abend()
   end if
   call FOCKTWO_scf_DCCD()
@@ -83,8 +75,8 @@ else
 end if
 
 if (IRC /= 0) then
-  write(6,*) ' Error return code IRC=',IRC
-  write(6,*) ' from RDORD call, in FTWOI.'
+  write(u6,*) ' Error return code IRC=',IRC
+  write(u6,*) ' from RDORD call, in FTWOI.'
   call Abend()
 end if
 
@@ -100,9 +92,9 @@ do ISYM=1,NSYM
       if (nD == 2) FLT(K1+JB,2) = FLT(K1+JB,2)+FSQ(K2+JB,2)
 #     ifdef _DEBUGPRINT_
       if (nD == 1) then
-        write(6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
+        write(u6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
       else
-        write(6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',FLT(K1+JB,1),FLT(K1+JB,2)
+        write(u6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',FLT(K1+JB,1),FLT(K1+JB,2)
       end if
 #     endif
 
@@ -116,26 +108,26 @@ call GADSum(Flt,nFlt*nD)
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-write(6,'(6X,A)') 'TEST PRINT FROM FTWOI.'
-write(6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'
+write(u6,'(6X,A)') 'TEST PRINT FROM FTWOI.'
+write(u6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'
 ISTLTT = 1
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   if (NB > 0) then
-    write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+    write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
     if (nD == 2) call TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
     ISTLTT = ISTLTT+NB*(NB+1)/2
   end if
 end do
-write(6,'(6X,A)') '----------------------------'
+write(u6,'(6X,A)') '----------------------------'
 #endif
 
 contains
 
 subroutine FOCKTWO_scf_Sym()
 
-  integer ISYM, IS, JS, KS, IP, JQ
+  integer(kind=iwp) :: IP, IS, ISYM, JQ, JS, KS
 
   do ISYM=2,NSYM
     NB = NBAS(ISYM-1)
@@ -211,8 +203,8 @@ subroutine FOCKTWO_scf_Sym()
                 FLT(ISF,2) = FLT(ISF,1)
               end if
 #             ifdef _DEBUGPRINT_
-              write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
-              if (nD == 2) write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+              write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+              if (nD == 2) write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
 #             endif
               call SQUARE(X1(ISX),X2(1),1,KB,LB)
               ISF = ISTSQ(IS)+(JQ-1)*JB+1
@@ -237,8 +229,8 @@ subroutine FOCKTWO_scf_Sym()
                 end if
               end if
 #             ifdef _DEBUGPRINT_
-              write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
-              if (nD == 2) write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+              write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+              if (nD == 2) write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
 #             endif
 
             end do  ! JQ
@@ -281,7 +273,7 @@ subroutine FOCKTWO_scf_Sym()
                   FLT(ISF,2) = FLT(ISF,1)
                 end if
 #               ifdef _DEBUGPRINT_
-                write(6,'(a,i5,a,f12.6)') '02 Flt(',isf,',1)=',FLT(ISF,1)
+                write(u6,'(a,i5,a,f12.6)') '02 Flt(',isf,',1)=',FLT(ISF,1)
 #               endif
 
               end if
@@ -327,8 +319,8 @@ subroutine FOCKTWO_scf_Sym()
                 end if
               end if
 #             ifdef _DEBUGPRINT_
-              write(6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
-              if (nD == 2) write(6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+              write(u6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+              if (nD == 2) write(u6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
 #             endif
 
             end do ! JQ
@@ -344,7 +336,7 @@ end subroutine FOCKTWO_scf_Sym
 
 subroutine FOCKTWO_scf_NoSym()
 
-  integer IP, JQ
+  integer(kind=iwp) :: IP, JQ
 
   IS = 1
   IB = NBAS(IS)
@@ -410,9 +402,9 @@ subroutine FOCKTWO_scf_NoSym()
         FLT(ISF,2) = FLT(ISF,1)
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+      write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
       if (nD == 2) then
-        write(6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+        write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
       end if
 #     endif
       call SQUARE(X1(ISX),X2(:),1,KB,LB)
@@ -438,9 +430,9 @@ subroutine FOCKTWO_scf_NoSym()
         end if
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+      write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
       if (nD == 2) then
-        write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+        write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
       end if
 #     endif
 
@@ -451,16 +443,12 @@ end subroutine FOCKTWO_scf_NoSym
 
 subroutine FOCKTWO_scf_DCCD()
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I, NumV, nVec, Vec2, NumCho, LuCVec, nPQ
+  use GetInt_mod, only: Basis_IDs, hash_table, I, ID_IP, lists, LuCVec, nPQ, NumCho, NumV, nVec, Vec2
   use Index_Functions, only: iTri
+  use stdalloc, only: mma_allocate, mma_deallocate
 
-  integer nData
-  logical Found
-  integer IS, IB, IP, JQ, IPQ, KR, LS, IRS
-  integer ISR, ISP, IRQ, IRP, ISQ
-  integer IP_, JQ_, KR_, LS_
-  integer iVec1, J
+  integer(kind=iwp) :: IB, IP, IP_, IPQ, IRP, IRQ, IRS, IS, ISP, ISQ, ISR, iVec1, J, JQ, JQ_, KR, KR_, LS, LS_, nData
+  logical(kind=iwp) :: Found
 
   IS = 1
   IB = NBAS(IS)
@@ -522,7 +510,7 @@ subroutine FOCKTWO_scf_DCCD()
 
   IJB = (IB*(IB+1))/2
   if (nX1 < IJB) then
-    write(6,*) 'FOCKTWO_SCF_DCCD: nX1<IJB'
+    write(u6,*) 'FOCKTWO_SCF_DCCD: nX1<IJB'
     call Abend()
   end if
   call Get_Int_Open(IS,IS,IS,IS)
@@ -584,9 +572,9 @@ subroutine FOCKTWO_scf_DCCD()
             FLT(IPQ,2) = FLT(IPQ,1)
           end if
 #         ifdef _DEBUGPRINT_
-          write(6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',1)=',FLT(IPQ,1)
+          write(u6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',1)=',FLT(IPQ,1)
           if (nD == 2) then
-            write(6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
+            write(u6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
           end if
 #         endif
           ! Do the exchange contribution
@@ -660,9 +648,9 @@ subroutine FOCKTWO_scf_DCCD()
           end if
 #         ifdef _DEBUGPRINT_
           ISF = (JQ-1)*IB
-          write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
+          write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
           if (nD == 2) then
-            write(6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
+            write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
           end if
 #         endif
 

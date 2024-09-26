@@ -15,20 +15,22 @@ subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,F_DFT,D_DS,nBT,nD,KSDFT,Ec_AB)
 use OFembed, only: dFMD, Do_Core
 use nq_Info, only: Dens_I, Grad_I, Tau_I
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer nh1, nGrad, nBT, nD
+integer(kind=iwp) :: nh1, nGrad, nBT, nD
+real(kind=wp) :: Grad(nGrad), F_DFT(nBT,nD), D_DS(nBT,nD), Ec_AB
+character(len=4) :: DFTFOCK
+character(len=80) :: KSDFT
+integer(kind=iwp) :: nFckDim
+real(kind=wp) :: dFMD_, Func
+logical(kind=iwp) :: Do_Grad, Do_MO, Do_TwoEl
 #ifdef _DEBUGPRINT_
-integer i
+integer(kind=iwp) :: i
 #endif
-real*8 Grad(nGrad)
-character(LEN=4) DFTFOCK
-character(LEN=80) KSDFT
-real*8 :: F_DFT(nBT,nD), D_DS(nBT,nD)
-real*8 Ec_AB
-logical Do_MO, Do_TwoEl, Do_Grad
-real*8 dFMD_, Func
-integer nFckDim
 
 !                                                                      *
 !***********************************************************************
@@ -58,12 +60,12 @@ Do_Core = .false.
 Ec_AB = Func
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Correlation energy: ',Ec_AB
-write(6,*)
-write(6,*) ' Correlation potentials: (itri,F_alpha,F_beta)'
-write(6,*)
+write(u6,*) ' Correlation energy: ',Ec_AB
+write(u6,*)
+write(u6,*) ' Correlation potentials: (itri,F_alpha,F_beta)'
+write(u6,*)
 do i=1,nh1
-  write(6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2)
+  write(u6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2)
 end do
 #endif
 

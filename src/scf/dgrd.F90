@@ -13,13 +13,14 @@
 
 subroutine dGrd()
 
-use LnkLst, only: SCF_V, LLGrad, LLdGrd, LstPtr, GetNod, iVPTr, PutVec
+use LnkLst, only: GetNod, iVPTr, LLdGrd, LLGrad, LstPtr, PutVec, SCF_V
 use InfSCF, only: iter, Iter_Start, mOV
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer jpgrd, inode, i
-real*8, dimension(:), allocatable :: Scr
+integer(kind=iwp) :: i, inode, jpgrd
+real(kind=wp), allocatable :: Scr(:)
 
 call mma_allocate(Scr,mOV,Label='Scr')
 
@@ -32,7 +33,7 @@ do i=Iter_Start+1,Iter
   jpgrd = LstPtr(i,LLGrad)
   call GetNod(i-1,LLGrad,inode)
   if (inode == 0) then
-    write(6,*) 'inode == 0'
+    write(u6,*) 'inode == 0'
     call Abend()
   end if
   call iVPtr(Scr,mOV,inode)

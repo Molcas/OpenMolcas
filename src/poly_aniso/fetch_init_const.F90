@@ -472,6 +472,7 @@ contains
 subroutine Error(code)
 
   integer(kind=iwp), intent(in) :: code
+
 # include "warnings.h"
 
   select case (code)

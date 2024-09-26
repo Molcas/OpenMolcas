@@ -14,6 +14,9 @@
 !               2003, Valera Veryazov                                  *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 !#define _DEBUGPRINT_
 subroutine PMat_SCF(FstItr,XCf,nXCF,nD)
 !***********************************************************************
@@ -29,46 +32,37 @@ subroutine PMat_SCF(FstItr,XCf,nXCF,nD)
 !***********************************************************************
 
 use OFembed, only: Do_OFemb
-use InfSCF, only: pMTime, nBT, ipsLst, KSDFT, Iter, MxConstr, Klockan, RFPert, PotNuc, exFac, NoExchange, DSCF, nDIsc, nOcc, &
-                  DoFMM, MiniDn, nDens, tNorm, DDnOff, FMOMax, iDisk, iDummy_Run, MapDns, MaxBas, nBas, nBB, nCore, nIter, nIterP, &
-                  nSkip, nSym, PreSch, Thize, TimFld, Tot_Charge
-use ChoSCF, only: dfkMat, Algo
+use InfSCF, only: DDnOff, DoFMM, DSCF, exFac, FMOMax, iDisk, iDummy_Run, ipsLst, Iter, Klockan, KSDFT, MapDns, MaxBas, MiniDn, &
+                  MxConstr, nBas, nBB, nBT, nCore, nDens, nDIsc, nIter, nIterP, nOcc, NoExchange, nSkip, nSym, pMTime, PotNuc, &
+                  PreSch, RFPert, Thize, TimFld, tNorm, Tot_Charge
+use ChoSCF, only: Algo, dfkMat
+use RICD_Info, only: Do_DCCD
+use SCF_Arrays, only: Dens, EDFT, FockAO, OneHam, TwoHam, Vxc
+use Int_Options, only: Exfac_Int => ExFac, FckNoClmb, PreSch_Int => PreSch, Thize_Int => Thize
+use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use RICD_Info, only: Do_DCCD
-use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock => FockAO, EDFT
-use Int_Options, only: FckNoClmb, Exfac_Int => ExFac, Thize_Int => Thize, PreSch_Int => PreSch
-use rctfld_module, only: lRF
+use Definitions, only: wp, iwp, u6
 
 implicit none
-external EFP_On
-integer nD, nXCf
-real*8 XCf(nXCf,nD)
-! Define local variables
-integer nDT, iSpin, iCharge, iDumm, nVxc, iD, nT, iMat, iM
-integer Algo_Save
-logical FstItr, Found, EFP_On
-logical, save :: First = .true.
-logical NonEq, ltmp1, ltmp2, Do_DFT, Do_ESPF
-real*8 ERFSelf, Backup_ExFac, TCF2, TCF2_1, TWF2, TWF2_1
-real*8 Tmp, CPU1, CPU2, XCPM, XCPM1, XCPM2
-real*8 XWPM, XwPM1, XwPM2
-real*8 Tim1, Tim2, Tim3
-real*8, dimension(:), allocatable :: RFfld, D
-real*8, dimension(:,:), allocatable :: DnsS
-real*8, allocatable, target :: Temp(:,:)
-real*8, dimension(:,:), allocatable, target :: Aux
-real*8, dimension(:,:), pointer :: pTwoHam
-real*8, allocatable :: tVxc(:)
-real*8, external :: DDot_
-real*8 Dummy(1)
-real*8, allocatable :: save(:,:)
-#include "SysDef.fh"
+logical(kind=iwp) :: FstItr
+integer(kind=iwp) :: nXCf, nD
+real(kind=wp) :: XCf(nXCf,nD)
+integer(kind=iwp) :: Algo_Save, iCharge, iD, iDumm, iM, iMat, iSpin, nDT, nT, nVxc
+real(kind=wp) :: Backup_ExFac, CPU1, CPU2, Dummy(1), ERFSelf, TCF2, TCF2_1, Tim1, Tim2, Tim3, Tmp, TWF2, TWF2_1, XCPM, XCPM1, &
+                 XCPM2, XWPM, XwPM1, XwPM2
+logical(kind=iwp) :: Do_DFT, Do_ESPF, First = .true., Found, ltmp1, ltmp2, NonEq
+real(kind=wp), allocatable :: D(:), DnsS(:,:), RFfld(:), Saved(:,:), tVxc(:)
+real(kind=wp), allocatable, target :: Aux(:,:), Temp(:,:)
+real(kind=wp), pointer :: pTwoHam(:,:)
+real(kind=wp), external :: DDot_
+logical(kind=iwp), external :: EFP_On
 interface
   subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
-    integer, intent(in) :: nDens, nDisc
-    real*8, target, intent(inout) :: Dens(nDens), TwoHam(nDens)
-    logical, intent(inout) :: FstItr
+    import :: wp, iwp
+    integer(kind=iwp), intent(in) :: nDens, nDisc
+    real(kind=wp), target, intent(inout) :: Dens(nDens), TwoHam(nDens)
+    logical(kind=iwp), intent(inout) :: FstItr
   end subroutine Drv2El_dscf
 end interface
 
@@ -166,7 +160,7 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb .or. EFP_On()) then
 else if (RFpert .and. First) then
 
   if (nD == 2) then
-    write(6,*) ' UHF+RF: Not implemented'
+    write(u6,*) ' UHF+RF: Not implemented'
     call Abend()
   end if
   call mma_allocate(RFfld,nBT,Label='RFfld')
@@ -178,7 +172,7 @@ else if (RFpert .and. First) then
   PotNuc = PotNuc+ERFself
   call Daxpy_(nBT,One,RFfld,1,OneHam,1)
   do iD=1,nD
-    call DCopy_(nBT,OneHam,1,Fock(1,iD),1)
+    call DCopy_(nBT,OneHam,1,FockAO(1,iD),1)
   end do
   call mma_deallocate(RFfld)
 
@@ -221,19 +215,19 @@ else   ! RICD/Cholesky option
   call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,Dens(:,:,iPsLst),DnsS,Temp,nBT,ExFac,nBB,MaxBas,nD,nOcc,size(nOcc,1),iDummy_run)
 
   if (Do_DCCD) then
-    call mma_Allocate(save,size(Temp,1),size(Temp,2),Label='Save')
+    call mma_Allocate(Saved,size(Temp,1),size(Temp,2),Label='Saved')
 
-    save(:,:) = Zero
-    call Drv2El_dscf_Front_End(save,size(Temp,1),size(Temp,2))
-    Temp(:,:) = Temp(:,:)+save(:,:)
+    Saved(:,:) = Zero
+    call Drv2El_dscf_Front_End(Saved,size(Temp,1),size(Temp,2))
+    Temp(:,:) = Temp(:,:)+Saved(:,:)
 
     Algo_save = Algo
     Algo = 0
-    save(:,:) = Zero
-    call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,Dens(:,:,iPsLst),DnsS,save,nBT,ExFac,nBB,MaxBas,nD,nOcc,size(nOcc,1),iDummy_run)
-    Temp(:,:) = Temp(:,:)-save(:,:)
+    Saved(:,:) = Zero
+    call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,Dens(:,:,iPsLst),DnsS,Saved,nBT,ExFac,nBB,MaxBas,nD,nOcc,size(nOcc,1),iDummy_run)
+    Temp(:,:) = Temp(:,:)-Saved(:,:)
     Algo = Algo_save
-    call mma_deAllocate(save)
+    call mma_deAllocate(Saved)
   end if
 
   ! Deallocate memory for squared density matrix
@@ -326,7 +320,7 @@ if (NoExchange) ExFac = Backup_ExFac
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-TNorm = DDot_(nBT*nD,TwoHam(1,1,iPsLst),1,TwoHam(1,1,iPsLst),1)/dble(nD)
+TNorm = DDot_(nBT*nD,TwoHam(1,1,iPsLst),1,TwoHam(1,1,iPsLst),1)/real(nD,kind=wp)
 
 #ifdef _DEBUGPRINT_
 call NrmClc(Dens(1,1,iPsLst),nBT*nD,'PMat  ','D iPsLst  ')
@@ -343,18 +337,18 @@ if (PmTime) then
   call CWTime(xCPM2,xWPM2)
   xCPM = xCPM2-xCPM1
   xWPM = xWPM2-xWPM1
-  write(6,'(1X,A,F15.2,A,F15.2,A,/,1X,A,F15.2,A,F15.2,A)') '>>> PMat_SCF: CPU  time:',xCPM,' seconds  (2-el contributions: ',tCF2, &
-                                                           ' seconds) <<<','>>> PMat_SCF: Wall time:',xWPM, &
-                                                           ' seconds  (2-el contributions: ',tWF2,' seconds) <<<'
-  call xFlush(6)
+  write(u6,'(1X,A,F15.2,A,F15.2,A,/,1X,A,F15.2,A,F15.2,A)') '>>> PMat_SCF: CPU  time:',xCPM,' seconds  (2-el contributions: ', &
+                                                            tCF2,' seconds) <<<','>>> PMat_SCF: Wall time:',xWPM, &
+                                                            ' seconds  (2-el contributions: ',tWF2,' seconds) <<<'
+  call xFlush(u6)
 end if
 
 contains
 
 subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
 
-  integer n1, n2
-  real*8 Temp(n1,n2)
+  integer(kind=iwp) :: n1, n2
+  real(kind=wp) :: Temp(n1,n2)
 
   ! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
   ! to be used.
@@ -404,3 +398,11 @@ subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
 end subroutine Drv2El_dscf_Front_End
 
 end subroutine PMat_SCF
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(PMat_SCF)
+
+#endif

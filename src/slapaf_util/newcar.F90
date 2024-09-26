@@ -30,12 +30,13 @@ integer(kind=iwp), intent(in) :: Iter, nAtom, mTtAtm
 real(kind=wp), intent(inout) :: Coor(3,nAtom)
 logical(kind=iwp), intent(inout) :: Error
 #include "print.fh"
-#include "warnings.h"
 logical(kind=iwp) :: BSet_Save, Converged, HSet_Save, lOld_Save
 integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, jter, M, N, nQQ, nWndw
 real(kind=wp) :: denom, dx2, dx_RMS, rMax
 real(kind=wp), allocatable :: DFC(:,:), dss(:), rInt(:)
 integer(kind=iwp), parameter :: NRHS = 1
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

@@ -27,7 +27,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-real*8 function FermiPop(e,o,n,T,nEle,UHF_occ)
+function FermiPop(e,o,n,T,nEle,UHF_occ)
 !----------------------------------------------------------------------*
 ! Dummy arguments:                                                     *
 ! e(*) -- Orbital energies, input.                                     *
@@ -37,19 +37,20 @@ real*8 function FermiPop(e,o,n,T,nEle,UHF_occ)
 ! nEle -- Number of electrons.                                         *
 !----------------------------------------------------------------------*
 
-use Constants, only: Zero, Half, One, Three, Ten
+use Constants, only: Zero, One, Three, Ten, Half
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer n, nEle
-real*8 e(n), o(n), T, UHF_occ
-!----------------------------------------------------------------------*
-! Local variables:                                                     *
-!----------------------------------------------------------------------*
-real*8 ef, beta, f, f_old, Step, ff
-real*8 x0, x1, x2, y0, y2, z
-integer i, iter
+real(kind=wp) :: FermiPop
+integer(kind=iwp) :: n, nEle
+real(kind=wp) :: e(n), o(n), T, UHF_occ
+integer(kind=iwp) :: i, iter
+real(kind=wp) :: beta, ef, f, f_old, ff, Step, x0, x1, x2, y0, y2, z
 #ifdef _DEBUGPRINT_
-real*8 y1
+real(kind=wp) :: y1
 #endif
 
 !----------------------------------------------------------------------*
@@ -57,7 +58,7 @@ real*8 y1
 !----------------------------------------------------------------------*
 ef = Zero
 if (T <= Zero) then
-  beta = 1.0d99
+  beta = 1.0e99_wp
 else
   beta = One/T
 end if
@@ -65,17 +66,17 @@ end if
 ! Scan for Fermi level                                                 *
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-write(6,'(a)') 'Scan for Fermi energy level'
-write(6,'(a)') '       ef             y       '
-write(6,'(a)') ' -------------- --------------'
+write(u6,'(a)') 'Scan for Fermi energy level'
+write(u6,'(a)') '       ef             y       '
+write(u6,'(a)') ' -------------- --------------'
 #endif
 
 f = -nEle
 f_old = f
 do i=1,n
-  !write(6,'(A,G20.10)') 'e(i)=',e(i)
+  !write(u6,'(A,G20.10)') 'e(i)=',e(i)
   z = beta*(e(i)-ef)
-  z = min(z,30.d0)
+  z = min(z,30.0_wp)
   f = f+UHF_occ/(One+exp(z))
 end do
 if (f > Zero) then
@@ -96,14 +97,14 @@ i = 1
 300 continue
 !do i=1,n
 z = beta*(e(i)-ef)
-z = min(z,30.d0)
+z = min(z,30.0_wp)
 ff = ff+1/(One+exp(z))
 i = i+1
 if (i <= n) goto 300
 !end do
 f = -nEle+ff*UHF_occ
 #ifdef _DEBUGPRINT_
-write(6,'(2G20.10)') ef,f
+write(u6,'(2G20.10)') ef,f
 #endif
 if (f*f_old > Zero) goto 100
 101 continue
@@ -111,9 +112,9 @@ if (f*f_old > Zero) goto 100
 ! Refine with interval halving.                                        *
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-write(6,'(a)') 'Refine Fermi level with interval halving'
-write(6,'(a)') '       y0            y2             y1       '
-write(6,'(a)') ' -------------- -------------- --------------'
+write(u6,'(a)') 'Refine Fermi level with interval halving'
+write(u6,'(a)') '       y0            y2             y1       '
+write(u6,'(a)') ' -------------- -------------- --------------'
 y1 = f
 #endif
 x0 = ef-Step
@@ -133,9 +134,9 @@ do i=1,n
 end do
 y2 = f
 #ifdef _DEBUGPRINT_
-write(6,'(3f15.8)') y0,y2,y1
+write(u6,'(3f15.8)') y0,y2,y1
 #endif
-if (abs(y2) < 1.0d-9) goto 201
+if (abs(y2) < 1.0e-9_wp) goto 201
 if (y0*y2 <= Zero) then
   x1 = x2
 # ifdef _DEBUGPRINT_
@@ -152,25 +153,25 @@ goto 200
 !----------------------------------------------------------------------*
 ! Populate occupation number vector.                                   *
 !----------------------------------------------------------------------*
-!write(6,*)
+!write(u6,*)
 f = Zero
 do i=1,n
-  !write(6,'(2G20.10)') e(i),ef
+  !write(u6,'(2G20.10)') e(i),ef
   z = beta*(e(i)-ef)
-  !write(6,*) 'z,Beta=',z,Beta
+  !write(u6,*) 'z,Beta=',z,Beta
   z = min(z,Three*Ten)
-  !write(6,*) 'z=',z
+  !write(u6,*) 'z=',z
   o(i) = UHF_occ/(One+exp(z))
-  !write(6,'(1G20.10)') o(i)
+  !write(u6,'(1G20.10)') o(i)
   f = f+o(i)
 end do
 f = nEle/f
-!write(6,*)
-!write(6,'(1G20.10)') f
-!write(6,*)
+!write(u6,*)
+!write(u6,'(1G20.10)') f
+!write(u6,*)
 do i=1,n
   o(i) = f*o(i)
-  !write(6,'(1G20.10)') o(i)
+  !write(u6,'(1G20.10)') o(i)
 end do
 !----------------------------------------------------------------------*
 ! Done                                                                 *

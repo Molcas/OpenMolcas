@@ -29,13 +29,14 @@ subroutine TrGen(TrMat,nTrMat,Ovrlp,OneHam,mBT)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: DelThr, nBO, nBT, nnFr, nSym, nBas
+use InfSCF, only: DelThr, nBas, nBO, nBT, nnFr, nSym
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nTrMat, mBT
-real*8 TrMat(nTrMat), Ovrlp(mBT), OneHam(mBT)
-integer i, j, iSym, ind
+integer(kind=iwp) :: nTrMat, mBT
+real(kind=wp) :: TrMat(nTrMat), Ovrlp(mBT), OneHam(mBT)
+integer(kind=iwp) :: i, ind, iSym, j
 
 ind = 0
 do iSym=1,nSym

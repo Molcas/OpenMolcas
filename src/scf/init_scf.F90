@@ -15,9 +15,10 @@ use SCF_Arrays, only: Dens, TwoHam, Vxc
 use InfSCF, only: MapDns, Two_Thresholds
 use RICD_Info, only: Do_DCCD
 use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer i, nActEl
+integer(kind=iwp) :: i, nActEl
 
 ! Clear Dens and TwoHam matrices
 Dens(:,:,:) = Zero

@@ -15,19 +15,22 @@ subroutine Get_Exc_dft(nh1,Grad,nGrad,DFTFOCK,F_DFT,D_DS,nBT,nD,KSDFT)
 use nq_Info, only: Dens_I, Grad_I, Tau_I
 use DCSCF, only: Erest_xc
 use Constants, only: Zero
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer nh1, nGrad, nBT, nD
+integer(kind=iwp) :: nh1, nGrad, nBT, nD
+real(kind=wp) :: Grad(nGrad), F_DFT(nBT,nD), D_DS(nBT,nD)
+character(len=4) :: DFTFOCK
+character(len=80) :: KSDFT
+integer(kind=iwp) :: nFckDim
 #ifdef _DEBUGPRINT_
-integer i
+integer(kind=iwp) :: i
 #endif
-real*8 Grad(nGrad)
-character(len=4) DFTFOCK
-real*8 :: D_DS(nBT,nD), F_DFT(nBT,nD)
-character(len=80) KSDFT
-real*8 Func
-integer nFckDim
-logical Do_MO, Do_TwoEl, Do_Grad
+real(kind=wp) :: Func
+logical(kind=iwp) :: Do_Grad, Do_MO, Do_TwoEl
 
 !                                                                      *
 !***********************************************************************
@@ -53,12 +56,12 @@ call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,
 Erest_xc = Erest_xc-Func
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' XC-part of energy-restoring term : ',-Func
-write(6,*)
-write(6,*) ' XC-potentials: (itri,F_alpha,F_beta)'
-write(6,*)
+write(u6,*) ' XC-part of energy-restoring term : ',-Func
+write(u6,*)
+write(u6,*) ' XC-potentials: (itri,F_alpha,F_beta)'
+write(u6,*)
 do i=1,nh1
-  write(6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2)
+  write(u6,'(i4,3f22.16)') i,F_DFT(i,1),F_DFT(i,2)
 end do
 #endif
 

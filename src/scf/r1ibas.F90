@@ -20,12 +20,13 @@ subroutine R1IBas()
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: nSym, Atom, Header, nAtoms, nBas, PotNuc, type, Name
+use InfSCF, only: Atom, BName, BType, Header, nAtoms, nBas, nSym, PotNuc
 use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
 #include "Molcas.fh"
-integer nBas_Tot, iSym, LthBas, i
+integer(kind=iwp) :: i, iSym, LthBas, nBas_Tot
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -42,8 +43,8 @@ nBas_tot = 0
 do iSym=1,nSym
   nBas_tot = nBas_tot+nBas(iSym)
 end do
-call mma_allocate(Name,nBas_tot,Label='Name')
-call Get_cArray('Unique Basis Names',Name,(LenIn8)*nBas_tot)
+call mma_allocate(BName,nBas_tot,Label='BName')
+call Get_cArray('Unique Basis Names',BName,(LenIn8)*nBas_tot)
 ! read number of atoms
 call Get_iScalar('Unique atoms',nAtoms)
 ! read nuclear potential
@@ -56,12 +57,12 @@ do iSym=1,nSym
   lthBas = lthBas+nBas(iSym)
 end do
 call mma_allocate(Atom,lthBas,Label='Atom')
-call mma_allocate(type,lthBas,Label='Type')
+call mma_allocate(BType,lthBas,Label='BType')
 
 ! Define atom and type
 do i=1,lthBas
-  Atom(i) = Name(i)(1:LenIn)
-  type(i) = Name(i)(LenIn1:LenIn8)
+  Atom(i) = BName(i)(1:LenIn)
+  BType(i) = BName(i)(LenIn1:LenIn8)
 end do
 
 return

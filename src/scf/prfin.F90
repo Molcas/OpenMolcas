@@ -33,32 +33,27 @@ subroutine PrFin(OneHam,Ovlp,Dens,TwoHam,nDT,EOrb,OccNo,nEO,CMO,nCMO,note,iCase,
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, nD, jPrint, kIvo, KSDFT, lRel, Name, nBB, nBT, nIterP, nnB, &
-                  NoProp, nSYm, PotNuc, ThrEne, ThrOcc, Tot_Charge, nBas, nOrb, nIter
-use Constants, only: Zero
-use stdalloc, only: mma_allocate, mma_deallocate
+use InfSCF, only: BName, EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, jPrint, kIvo, KSDFT, lRel, nBas, nBB, nBT, nD, nIter, &
+                  nIterP, nnB, NoProp, nOrb, nSYm, PotNuc, ThrEne, Tot_Charge
 use rctfld_module, only: lRF
 use NDDO, only: oneel_NDDO
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nDT, nEO, nCMO
-real*8 Dens(nDT), TwoHam(nDT), OneHam(nDT), Ovlp(nDT), EOrb(nEO), OccNo(nEO), CMO(nCMO), MssVlc(nDT), Darwin(nDT)
-character(len=80) Note
-external EFP_ON
-! Define local variables
-integer iCase, i, iBs, iCharge, iCMO, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
-integer, external :: iPrintLevel
-real*8 EHomo, ELumo, ERelMV, ERelDC
-character(len=60) Fmt
-logical PrEne, PrOcc, get_BasisType
-logical DeBug, First, NonEq, Dff, Do_DFT, FullMlk, Reduce_Prt
-external Reduce_Prt
-real*8, dimension(:), allocatable :: RFfld, Scr2, Scr3
-!nf
-logical Do_ESPF, EFP_On
-!nf
-character AlphaLabel*30
-#include "SysDef.fh"
+integer(kind=iwp) :: nDT, nEO, nCMO, iCase
+real(kind=wp) :: OneHam(nDT), Ovlp(nDT), Dens(nDT), TwoHam(nDT), EOrb(nEO), OccNo(nEO), CMO(nCMO), MssVlc(nDT), Darwin(nDT)
+character(len=80) :: Note
+integer(kind=iwp) :: i, iBs, iCharge, iCMO, ij, i_Or, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
+real(kind=wp) :: EHomo, ELumo, ERelDC, ERelMV
+logical(kind=iwp) :: DeBug, Dff, Do_DFT, Do_ESPF, First, FullMlk, get_BasisType, NonEq, PrEne, PrOcc
+character(len=60) :: Frmt
+character(len=30) :: AlphaLabel
+real(kind=wp), allocatable :: RFfld(:), Scr2(:), Scr3(:)
+real(kind=wp), parameter :: ThrOcc = -99999.0_wp
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: EFP_On, Reduce_Prt
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -78,7 +73,7 @@ Debug = .false.
 if (jPrint >= 4) Debug = .true.
 #endif
 
-Fmt = '(6X,A,T50,F17.10)'
+Frmt = '(6X,A,T50,F17.10)'
 AlphaLabel = ' '
 if (nD == 2) then
   if (iCase == 0) AlphaLabel = ' (alpha) '
@@ -91,13 +86,13 @@ if (Do_SpinAV) AlphaLabel = Alphalabel(1:9)//'and (spin-averaged)'
 if (lRel) then
   call RelEny(ERelMV,ERelDC,Dens,MssVlc,Darwin,nBT)
   if (jPrint >= 2) then
-    write(6,*)
-    write(6,'(6X,A)') '1st order relativistic corrections'
-    write(6,Fmt) 'Total energy',EneV+ERelMV+ERelDC
-    write(6,Fmt) 'Mass-velocity correction',ERelMV
-    write(6,Fmt) '1-el Darwin correction',ERelDC
-    write(6,Fmt) 'Sum of relatvity corrections',ERelDC+ERelMV
-    write(6,*)
+    write(u6,*)
+    write(u6,'(6X,A)') '1st order relativistic corrections'
+    write(u6,Frmt) 'Total energy',EneV+ERelMV+ERelDC
+    write(u6,Frmt) 'Mass-velocity correction',ERelMV
+    write(u6,Frmt) '1-el Darwin correction',ERelDC
+    write(u6,Frmt) 'Sum of relatvity corrections',ERelDC+ERelMV
+    write(u6,*)
   end if
 end if
 
@@ -108,30 +103,30 @@ if ((KSDFT /= 'SCF') .and. (iCase == 0)) call Print_NQ_Info()
 
 ! Write out last density matrix to output
 if (DeBug) then
-  write(6,'(6x,A)') 'Last density matrix (interpolated) in AO basis'
+  write(u6,'(6x,A)') 'Last density matrix (interpolated) in AO basis'
   ij = 1
   do iSym=1,nSym
-    write(6,*) ' symmetry',iSym
+    write(u6,*) ' symmetry',iSym
     call TriPrt(' ',' ',Dens(ij),nBas(iSym))
     ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
   end do
-  write(6,*)
-  write(6,'(6x,A)') 'Last 2-el. Hamiltonian (interpolated) in AO basis'
+  write(u6,*)
+  write(u6,'(6x,A)') 'Last 2-el. Hamiltonian (interpolated) in AO basis'
   ij = 1
   do iSym=1,nSym
-    write(6,*) ' symmetry',iSym
+    write(u6,*) ' symmetry',iSym
     call TriPrt(' ',' ',TwoHam(ij),nBas(iSym))
     ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
   end do
-  write(6,*)
-  write(6,'(6x,A)') 'Last 1-el. Hamiltonian (interpolated) in AO basis'
+  write(u6,*)
+  write(u6,'(6x,A)') 'Last 1-el. Hamiltonian (interpolated) in AO basis'
   ij = 1
   do iSym=1,nSym
-    write(6,*) ' symmetry',iSym
+    write(u6,*) ' symmetry',iSym
     call TriPrt(' ',' ',OneHam(ij),nBas(iSym))
     ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 ! Process the external potential with the total electronic density
@@ -160,18 +155,18 @@ if ((Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. EFP_On()) .and. (.not. oneel_ND
 end if
 
 ! Print orbitals (the case InVec=3 and nIter=0 is set up in RdInp)
-Fmt = '(6X,A)'
+Frmt = '(6X,A)'
 if (iPrOrb >= 1) then
   FullMlk = .true.
   PrEne = .true.
   PrOcc = .true.
   if (iPrOrb == 1) then
-    EHomo = -99999.0d+00
-    ELumo = 99999.0d+00
+    EHomo = -99999.0_wp
+    ELumo = 99999.0_wp
     ij = 1
     do iSym=1,nSym
       do iv=1,nOrb(iSym)
-        if (OccNo(ij+iv-1) > 0.001) then
+        if (OccNo(ij+iv-1) > 0.001_wp) then
           EHomo = max(EHomo,EOrb(ij+iv-1))
         else
           ELumo = min(ELumo,EOrb(ij+iv-1))
@@ -179,18 +174,17 @@ if (iPrOrb >= 1) then
       end do
       ij = ij+nOrb(iSym)
     end do
-    ThrEne = ELumo+0.5
+    ThrEne = ELumo+Half
     if (jPrint >= 2) then
-      write(6,*)
-      write(6,Fmt) 'All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed'
+      write(u6,*)
+      write(u6,Frmt) 'All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed'
     end if
   else
     if (jPrint >= 2) then
-      write(6,*)
-      write(6,'(6X,A,ES11.4,A)') 'All orbitals with orbital energies smaller than',ThrEne,' are printed'
+      write(u6,*)
+      write(u6,'(6X,A,ES11.4,A)') 'All orbitals with orbital energies smaller than',ThrEne,' are printed'
     end if
   end if
-  ThrOcc = -99999.0d+00
   if (KSDFT == 'SCF') then
     if (nD == 1) then
       Note = 'SCF orbitals'//AlphaLabel
@@ -212,9 +206,9 @@ if (iPrOrb >= 1) then
       if (iCoCo /= 0) Note = 'UKS-DFT orbitals + arbitrary occupations'
     end if
   end if
-  if (jPrint >= 2) call PriMO(Note,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Name,EOrb,OccNo,CMO,iPrForm)
+  if (jPrint >= 2) call PriMO(Note,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,BName,EOrb,OccNo,CMO,iPrForm)
 else
-  if (jPrint >= 2) write(6,Fmt) 'No orbitals printed'
+  if (jPrint >= 2) write(u6,Frmt) 'No orbitals printed'
   FullMlk = .false.
 end if
 
@@ -239,16 +233,16 @@ if ((InVec /= 3) .or. (nIter(nIterP) > 0)) then
 
   ! Prepare occupation numbers
 
-  iOr = 0
+  i_Or = 0
   iBs = 0
   do iSym=1,nSym
     do j=1,nOrb(iSym)
-      Scr3(iBs+j) = OccNo(iOr+j)
+      Scr3(iBs+j) = OccNo(i_Or+j)
     end do
     do j=nOrb(iSym)+1,nBas(iSym)
       Scr3(iBs+j) = Zero
     end do
-    iOr = iOr+nOrb(iSym)
+    i_Or = i_Or+nOrb(iSym)
     iBs = iBs+nBas(iSym)
   end do
 
@@ -258,7 +252,7 @@ if ((InVec /= 3) .or. (nIter(nIterP) > 0)) then
 
     jCase = iCase
     if (nD == 1) jCase = 2
-    call Charge(nSym,nBas,Name,Scr2,Scr3,Ovlp,jCase,FullMlk,.true.)
+    call Charge(nSym,nBas,BName,Scr2,Scr3,Ovlp,jCase,FullMlk,.true.)
 
     if (get_BasisType('ANO')) then
       iRc = 0
@@ -266,7 +260,7 @@ if ((InVec /= 3) .or. (nIter(nIterP) > 0)) then
 
       ! NBO analysis
 
-      call Nat_Bond_Order(nSym,nBas,Name,jCase)
+      call Nat_Bond_Order(nSym,nBas,BName,jCase)
     end if
   end if
 

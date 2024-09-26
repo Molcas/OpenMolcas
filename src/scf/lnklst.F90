@@ -80,27 +80,6 @@
 !     M. Schuetz                                                       *
 !     University of Lund, Sweden, 1994/96                              *
 !***********************************************************************
-
-module LnkLst
-
-use MxDM, only: MxIter
-
-private
-
-public :: Debug_LnkLst, lLList, nLList, MAXnodes, NodSiz
-public :: SCF_V
-integer, parameter :: NodSiz = 6
-integer, parameter :: MAXnodes = MxIter*5
-logical :: Debug_LnkLst
-integer :: lLList = 0
-integer :: nLList(MAXnodes,0:NodSiz-1)
-
-type Vector
-  real*8, allocatable :: A(:)
-end type Vector
-
-type(Vector) :: SCF_V(Maxnodes)
-
 !----------------------------------------------------------------------*
 !     Define linked lists for storage of vectors of subsequent iters   *
 !----------------------------------------------------------------------*
@@ -111,20 +90,31 @@ type(Vector) :: SCF_V(Maxnodes)
 !     LLx    - linked list of x orbital rotation parameter vectors     *
 !              (only for QNR/DIIS combination)                         *
 !----------------------------------------------------------------------*
-!
-integer, public :: LLGrad, LLdGrd, LLDelt, LLy, LLx
-logical, public :: Init_LLs = .false.
 
-public :: IniLst, PutVec, GetVec, GetNod, InfNod, InCore_f, iVPtr, LstPtr, LLErr, LLLen, KilLst, DmpLst, RclLst
+module LnkLst
+
+use MxDM, only: MxIter
+use Data_Structures, only: Alloc1DArray_Type
+use Definitions, only: wp, iwp, u6
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: MAXnodes = MxIter*5, NodSiz = 6
+logical(kind=iwp), parameter :: Debug_LnkLst = .false.
+
+integer(kind=iwp) :: LLDelt, LLdGrd, LLGrad, lLList = 0, LLx, LLy, nLList(MAXnodes,0:NodSiz-1)
+logical(kind=iwp) :: Init_LLs = .false.
+type(Alloc1DArray_Type) :: SCF_V(Maxnodes)
+
+public :: DmpLst, GetNod, GetVec, IniLst, Init_LLs, iVPtr, KilLst, LLDelt, LLdGrd, LLGrad, LLLen, lLList, LLx, LLy, LstPtr, &
+          nLList, NodSiz, PutVec, RclLst, SCF_V
 
 contains
 
 subroutine IniLst(iLList,incore)
 
-  implicit none
-  integer iLList, incore
-
-  Debug_LnkLst = .false.
+  integer(kind=iwp) :: iLList, incore
 
   ! allocate list header CNOD
   lLList = lLList+1
@@ -135,7 +125,7 @@ subroutine IniLst(iLList,incore)
   nLList(iLList,3) = incore
 
   if (Debug_LnkLst) then
-    write(6,*) 'IniLst'
+    write(u6,*) 'IniLst'
     call StlLst(iLList)
   end if
 
@@ -155,19 +145,13 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
 
   use stdalloc, only: mma_allocate
 
-  implicit none
-  ! declaration subroutine parameters
-  integer lvec, iterat, iLList, iroot, lislen
-  real*8 vec(lvec)
-  character opcode*4
-  ! declaration local variables
-  integer iPtr2, MaxMem
-  !integer iDskPt,len
-
-# include "SysDef.fh"
+  integer(kind=iwp) :: lvec, iterat, iLList
+  real(kind=wp) :: vec(lvec)
+  character(len=4) :: opcode
+  integer(kind=iwp) :: iPtr2, iroot, lislen, MaxMem
 
   if (Debug_LnkLst) then
-    write(6,*) 'PutVec'
+    write(u6,*) 'PutVec'
     call StlLst(iLList)
   end if
 
@@ -198,8 +182,8 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
     case default
 
       ! opcode unknown
-      write(6,*) 'PutVec: opcode unknown'
-      write(6,'(A,A)') 'opcode=',opcode
+      write(u6,*) 'PutVec: opcode unknown'
+      write(u6,'(A,A)') 'opcode=',opcode
       call Abend()
 
   end select
@@ -212,12 +196,12 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
   lLList = lLList+1
   iPtr2 = lLList
   if (iPtr2 > Maxnodes) then
-    write(6,*) 'PutVec: iPtr2 > Maxnodes'
+    write(u6,*) 'PutVec: iPtr2 > Maxnodes'
     call Abend()
   end if
   if (allocated(SCF_V(iPtr2)%A)) then
-    write(6,*) 'Node already allocated'
-    write(6,*) 'iPtr2=',iPtr2
+    write(u6,*) 'Node already allocated'
+    write(u6,*) 'iPtr2=',iPtr2
     call Abend()
   end if
   call mma_allocate(SCF_V(iPtr2)%A,lVec,Label='LVec')
@@ -250,16 +234,12 @@ subroutine GetVec(iterat,iLList,inode,vec,lvec)
   ! if LList<0, then -LList is interpreted as a direct node address,
   ! and not the address of the listhead (faster access).
 
-  implicit none
-  ! declaration subroutine parameters
-  integer lvec, iterat, iLList, inode
-  real*8 vec(lvec)
-
-# include "SysDef.fh"
+  integer(kind=iwp) :: iterat, iLList, inode, lvec
+  real(kind=wp) :: vec(lvec)
 
   inode = nLList(iLList,1)
   if (inode <= 0) then
-    write(6,*) 'GetVec: iNode<=0'
+    write(u6,*) 'GetVec: iNode<=0'
     call Abend()
   end if
 
@@ -274,7 +254,7 @@ subroutine GetVec(iterat,iLList,inode,vec,lvec)
       vec(1:lVec) = SCF_V(iNode)%A(1:lVec)
     else
       ! inconsistency
-      write(6,*) ' Found inconsistency.'
+      write(u6,*) ' Found inconsistency.'
       !inode = -inode
       inode = 0
     end if
@@ -290,12 +270,10 @@ subroutine GetNod(iterat,iLList,inode)
   ! inode is set to zero and iWork(LList)=0 is set to ErrCode 1,
   ! if no correspondance was found.
 
-  implicit none
-  ! declaration subroutine parameters
-  integer iterat, iLList, inode
+  integer(kind=iwp) :: iterat, iLList, inode
 
   if (Debug_LnkLst) then
-    write(6,*) 'GetNod'
+    write(u6,*) 'GetNod'
     call StlLst(iLList)
   end if
 
@@ -304,8 +282,8 @@ subroutine GetNod(iterat,iLList,inode)
   ! set inode to iroot
   inode = nLList(iLList,1)
   if (inode <= 0) then
-    write(6,*) 'GetNod: iNode<=0'
-    write(6,*) 'iLList=',iLList
+    write(u6,*) 'GetNod: iNode<=0'
+    write(u6,*) 'iLList=',iLList
     call Abend()
   end if
 
@@ -315,7 +293,7 @@ subroutine GetNod(iterat,iLList,inode)
   if (nLList(inode,4) == iterat) then
     ! we've found matching entry
   else
-    write(6,*) 'GetNod: Warning!'
+    write(u6,*) 'GetNod: Warning!'
     inode = 0
     nLList(iLList,0) = 1
   end if
@@ -326,9 +304,7 @@ subroutine InfNod(inode,iterat,ipnext,ipvec,lvec)
   ! returns info of node indicated by inode. iterat,ipnext,ipvec,lvec
   ! are overwritten with the corresponding info on the node
 
-  implicit none
-  ! declaration of procedure parameters
-  integer inode, iterat, ipnext, ipvec, lvec
+  integer(kind=iwp) :: inode, iterat, ipnext, ipvec, lvec
 
   iterat = nLList(inode,4)
   ipnext = nLList(inode,0)
@@ -339,11 +315,11 @@ subroutine InfNod(inode,iterat,ipnext,ipvec,lvec)
 
 end subroutine InfNod
 
-logical function InCore_f(inode)
+function InCore_f(inode)
   ! returns true, if corresponding vector is incore, false otherwise
 
-  implicit none
-  integer inode
+  logical(kind=iwp) :: InCore_f
+  integer(kind=iwp) :: inode
 
   if (nLList(inode,5) == 1) then
     InCore_f = .true.
@@ -355,11 +331,11 @@ logical function InCore_f(inode)
 
 end function InCore_f
 
-logical function LLErr(iLList)
+function LLErr(iLList)
   ! checks, if ErrCode was set in previous LL Operation
 
-  implicit none
-  integer iLList
+  logical(kind=iwp) :: LLErr
+  integer(kind=iwp) :: iLList
 
   if (nLList(iLList,0) == 0) then
     LLErr = .false.
@@ -371,11 +347,11 @@ logical function LLErr(iLList)
 
 end function LLErr
 
-integer function LLLen(iLList)
+function LLLen(iLList)
   ! returns the actual length of the LL
 
-  implicit none
-  integer iLList
+  integer(kind=iwp) :: LLLen
+  integer(kind=iwp) :: iLList
 
   LLLen = nLList(iLList,2)
 
@@ -393,9 +369,9 @@ subroutine iVPtr(vptr1,nvptr1,inode)
   !
   ! 2017-03-15:Converted to return the array in vptr1.
 
-  implicit none
-  integer nvptr1, ivptr2, inode, idum1, idum2, idum3
-  real*8 vptr1(nvptr1)
+  integer(kind=iwp) :: nvptr1, inode
+  real(kind=wp) :: vptr1(nvptr1)
+  integer(kind=iwp) :: idum1, idum2, idum3, ivptr2
 
   if (InCore_f(inode)) then
     call InfNod(inode,idum1,idum2,ivptr2,idum3)
@@ -408,7 +384,7 @@ subroutine iVPtr(vptr1,nvptr1,inode)
 
 end subroutine iVPtr
 
-integer function LstPtr(iterat,iLList)
+function LstPtr(iterat,iLList)
   ! uses GetNod and InfNod to obtain the pointer to the vector, which
   ! corresponds to iterat. The pointer is the return value of the
   ! function. If the vector is not InCore, the function terminates
@@ -416,26 +392,24 @@ integer function LstPtr(iterat,iLList)
   ! where the vector for sure is stored in core (e.g. last entries
   ! in LList).
 
-  implicit none
-  ! declaration subroutine parameters
-  integer iterat, iLList
-  ! declaration local variables
-  integer inode, idum1, idum2, idum3, ivptr
+  integer(kind=iwp) :: LstPtr
+  integer(kind=iwp) :: iterat, iLList
+  integer(kind=iwp) :: idum1, idum2, idum3, inode, ivptr
 
   LstPtr = -999999
   call GetNod(iterat,iLList,inode)
   if (inode == 0) then
     ! Hmmm, no entry found in LList, that's strange
-    write(6,*) 'LstPtr: inode <= 0'
-    write(6,*) 'inode=',inode
+    write(u6,*) 'LstPtr: inode <= 0'
+    write(u6,*) 'inode=',inode
     call Abend()
   else if (InCore_f(inode)) then
     call InfNod(inode,idum1,idum2,ivptr,idum3)
     LstPtr = ivptr
   else
     ! Hmmm, no incore hit for this entry, that's strange
-    write(6,*) 'LstPtr: no incore hit for this entry'
-    write(6,*) 'inode=',inode
+    write(u6,*) 'LstPtr: no incore hit for this entry'
+    write(u6,*) 'inode=',inode
     call Abend()
   end if
 
@@ -446,12 +420,11 @@ subroutine KilLst(iLList)
 
   use stdalloc, only: mma_deallocate
 
-  implicit none
-  ! local vars
-  integer iLList, iroot, iFlag
+  integer(kind=iwp) :: iLList
+  integer(kind=iwp) :: iFlag, iroot
 
   if (Debug_LnkLst) then
-    write(6,*) 'KilLst'
+    write(u6,*) 'KilLst'
     call StlLst(iLList)
   end if
 
@@ -469,10 +442,8 @@ subroutine DmpLst(iLList,LUnit,lDskPt)
 
   use stdalloc, only: mma_deallocate
 
-  implicit none
-  integer iLList, LUnit, lDskPt
-# include "SysDef.fh"
-  integer iDskPt, iPtr1, iPtr2, iRoot, Len
+  integer(kind=iwp) :: iLList, LUnit, lDskPt
+  integer(kind=iwp) :: iDskPt, iPtr1, iPtr2, iRoot, Length
 
   ! clear ErrCode
   nLList(iLList,0) = 0
@@ -509,9 +480,9 @@ subroutine DmpLst(iLList,LUnit,lDskPt)
     ! now set up node again and write vec to disk
     nLList(iPtr2,1) = iDskPt
     nLList(iPtr2,5) = 0
-    len = nLList(iPtr2,3)
+    Length = nLList(iPtr2,3)
 
-    call dDaFile(LUnit,1,SCF_V(iPtr2)%A,len,iDskPt)
+    call dDaFile(LUnit,1,SCF_V(iPtr2)%A,Length,iDskPt)
     call mma_deallocate(SCF_V(iPtr2)%A)
   end do
   lDskPt = iDskPt
@@ -530,10 +501,8 @@ subroutine RclLst(iLList,LUnit,lDskPt,NoAllo)
 
   use stdalloc, only: mma_allocate
 
-  implicit none
-  integer iLList, LUnit, lDskPt, NoAllo
-# include "SysDef.fh"
-  integer iPtr1, iPtr2, iRoot, lislen, MaxMem, lVec, incore
+  integer(kind=iwp) :: iLList, LUnit, lDskPt, NoAllo
+  integer(kind=iwp) :: incore, iPtr1, iPtr2, iRoot, lislen, lVec, MaxMem
 
   ! load listhead...
   lLList = lLList+1
@@ -543,7 +512,7 @@ subroutine RclLst(iLList,LUnit,lDskPt,NoAllo)
   iroot = nLList(iLList,1)
 
   if (iroot <= 0) then
-    write(6,*) 'RclLst: linked list has zero length, that''s strange!'
+    write(u6,*) 'RclLst: linked list has zero length, that''s strange!'
     ! linked list has zero length, that's strange
     !call Quit(20)
     return
@@ -569,10 +538,10 @@ subroutine RclLst(iLList,LUnit,lDskPt,NoAllo)
     iPtr2 = iPtr1
   end do
   if (nLList(iLList,2) /= lislen) then
-    write(6,*) 'RclLst:LList length mismatch:',nLList(iLList,2),lislen
+    write(u6,*) 'RclLst:LList length mismatch:',nLList(iLList,2),lislen
     call Abend()
   end if
-  write(6,*) 'Let''s restore...'
+  write(u6,*) 'Let''s restore...'
   ! now we have restored the list, let's fetch some vectors
   incore = nLList(iLList,3)
   call mma_maxDBLE(MaxMem)
@@ -582,12 +551,12 @@ subroutine RclLst(iLList,LUnit,lDskPt,NoAllo)
     lDskPt = nLList(iPtr2,1)
 
     if (iPtr2 > Maxnodes) then
-      write(6,*) 'iPtr2 > Maxnodes, restoring'
+      write(u6,*) 'iPtr2 > Maxnodes, restoring'
       call Abend()
     end if
     if (allocated(SCF_V(iPtr2)%A)) then
-      write(6,*) 'Node already allocated while restoring'
-      write(6,*) 'iPtr2=',iPtr2
+      write(u6,*) 'Node already allocated while restoring'
+      write(u6,*) 'iPtr2=',iPtr2
       call Abend()
     end if
     call mma_Allocate(SCF_V(iPtr2)%A,lvec,Label='LVec')

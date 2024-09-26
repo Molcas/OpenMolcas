@@ -11,8 +11,15 @@
 
 module ChoSCF
 
-logical REORD
-real*8 :: dmpk = 0.045d0, dFKmat
-integer ALGO, NSCREEN
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: ALGO, NSCREEN
+real(kind=wp) :: dFKmat, dmpk = 0.045_wp
+logical(kind=iwp) :: REORD
+
+public :: ALGO, dFKmat, dmpk, NSCREEN, REORD
 
 end module ChoSCF

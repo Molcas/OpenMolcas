@@ -11,15 +11,17 @@
 ! Copyright (C) 2003, Per-Olof Widmark                                 *
 !***********************************************************************
 
-real*8 function optim_E(C,G,H,n,nDim)
+function optim_E(C,G,H,n,nDim)
 
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer n, nDim
-real*8 C(nDim), G(nDim), H(nDim,nDim)
-integer k, m
-real*8 Tmp
+real(kind=wp) :: optim_E
+integer(kind=iwp) :: n, nDim
+real(kind=wp) :: C(nDim), G(nDim), H(nDim,nDim)
+integer(kind=iwp) :: k, m
+real(kind=wp) :: Tmp
 
 Optim_E = Zero
 do k=1,n

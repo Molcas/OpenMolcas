@@ -13,19 +13,18 @@
 
 subroutine Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
 
-use InfSCF, only: nBT, nSym, nFro, nOcc, nDel, nBas
+use InfSCF, only: nBas, nBT, nDel, nFro, nOcc, nSym
 use ChoMP2, only: ChoAlg, DoDens
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iRC
-real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
-integer nExt(8)
-integer i, nElk
-real*8 TW, TW0
-real*8 Grad(1)
-real*8, allocatable :: DMAT(:,:), F_DFT(:)
+integer(kind=iwp) :: iRC
+real(kind=wp) :: DeTW, CMOI(*), EOcc(*), EVir(*)
+integer(kind=iwp) :: i, nElk, nExt(8)
+real(kind=wp) :: Grad(1), TW, TW0
+real(kind=wp), allocatable :: DMAT(:,:), F_DFT(:)
 
 DoDens = .false.
 ChoAlg = 2
@@ -40,7 +39,7 @@ end do
 
 call DM_FNO_RHF(irc,nSym,nBas,nFro,nOcc(1,1),nExt,nDel,CMOI,EOcc,EVir,DMAT(:,2),DMAT(:,1))
 if (irc /= 0) then
-  write(6,*) 'DM_FNO_RHF returned ',irc
+  write(u6,*) 'DM_FNO_RHF returned ',irc
   call SysAbendMsg('DM_FNO_RHF','Non-zero return code from DM_FNO_RHF',' ')
 end if
 
@@ -55,7 +54,7 @@ Grad = Zero
 call wrap_DrvNQ('HUNTER',F_DFT,1,TW,DMAT(:,1),nBT,1,.false.,Grad,1,'SCF ')
 
 call wrap_DrvNQ('HUNTER',F_DFT,1,TW0,DMAT(:,2),nBT,1,.false.,Grad,1,'SCF ')
-DeTW = (TW-TW0)/dble(nElk)
+DeTW = (TW-TW0)/real(nElk,kind=wp)
 
 call mma_deallocate(F_DFT)
 call mma_deallocate(DMAT)

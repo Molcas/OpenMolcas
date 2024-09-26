@@ -30,24 +30,24 @@
 #define qnext
 subroutine ExpKap(kapOV,nKapOV,U,mynOcc)
 
-use InfSCF, only: nOFs, nSym, nFro, TimFld, nOrb
-use Constants, only: Pi, Zero
+use InfSCF, only: nFro, nOFs, nOrb, nSym, TimFld
+use Constants, only: Zero, Pi
+use Definitions, only: wp, iwp, u6
 
 implicit none
 ! declaration subroutine parameters
-integer nKapOV
-real*8 kapOV(nkapOV), U(nOFS)
-integer mynOcc(8)
-integer iKap, iSym, iU, j, jU, mOcc, mOrb, mVir
-real*8 Cpu1, Cpu2, Tim1, Tim2, Tim3
+integer(kind=iwp) :: nKapOV, mynOcc(8)
+real(kind=wp) :: kapOV(nkapOV), U(nOFS)
+integer(kind=iwp) :: iKap, iSym, iU, j, jU, mOcc, mOrb, mVir
+real(kind=wp) :: Cpu1, Cpu2, Tim1, Tim2, Tim3
 #ifndef qnext
-real*8 theta
+real(kind=wp) :: theta
 #endif
-real*8, parameter :: Thrs = 1.0D-14
+real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
 do j=1,nKapOV
   if (abs(KapOV(j)) > Pi) then
-    write(6,*) 'ExpKap: KapOV too large:',KapOV(j)
+    write(u6,*) 'ExpKap: KapOV too large:',KapOV(j)
     call Abend()
   end if
 end do

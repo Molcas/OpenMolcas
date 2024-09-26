@@ -22,16 +22,17 @@ subroutine DFroz(Dlt,nDlt,CMO,nCMO,OccNo)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: nBas, nnB, nSym, nFro, nOrb
-use Constants, only: Zero, One, Two
+use InfSCF, only: nBas, nFro, nnB, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDlt, nCMO
-real*8 Dlt(nDlt), CMO(nCMO)
-integer OccNo(*)
-integer iOrb, iStrtN, iStrtO, iSym
-real*8, dimension(:), allocatable :: NewOcc
+integer(kind=iwp) :: nDlt, nCMO
+real(kind=wp) :: Dlt(nDlt), CMO(nCMO)
+integer(kind=iwp) :: OccNo(*)
+integer(kind=iwp) :: iOrb, iStrtN, iStrtO, iSym
+real(kind=wp), allocatable :: NewOcc(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -76,27 +77,25 @@ subroutine DOne_SCF_froz(Cff,nCff,Occ,nnB)
   !     Occ     : occupation numbers                                   *
   !                                                                    *
   !   output:                                                          *
-  !     Dlt     : density matrix in triangular storrage                *
+  !     Dlt     : density matrix in triangular storage                 *
   !                                                                    *
   !   called from: DFroz                                               *
   !                                                                    *
   !*********************************************************************
 
-  implicit none
-  integer nCff, nnB
-  real*8 Cff(nCff), Occ(nnB)
-  integer i, j, iCol, ij, ipCff, ipDlt, ipOcc, iRow, lth, nBs, nFr, nOr, nOF, iSym
-  integer Ind
-  real*8 Scale, SScale, Sum
-  ! Statement function for triangular storrage
+  integer(kind=iwp) :: nCff, nnB
+  real(kind=wp) :: Cff(nCff), Occ(nnB)
+  integer(kind=iwp) :: i, iCol, ij, ipCff, ipDlt, ipOcc, iRow, iSym, lth, nBs, nFr, nOF, nOr
+  real(kind=wp) :: rSum
+  real(kind=wp), parameter :: Scal = Two, SScale = One
+  ! Statement function for triangular storage
+  integer(kind=iwp) :: Ind, j
   Ind(i,j) = i*(i-1)/2+j
 
   !--------------------------------------------------------------------*
   !     Start                                                          *
   !--------------------------------------------------------------------*
 
-  Scale = Two
-  SScale = One
   ipCff = 0
   ipDlt = 0
   ipOcc = 0
@@ -111,26 +110,26 @@ subroutine DOne_SCF_froz(Cff,nCff,Occ,nnB)
 
     ipCff = ipCff+nBs*nFr
     do iRow=1,nBs
-      Sum = Zero
+      rSum = Zero
       ij = -1
       do i=nFr+1,nOr
         ij = ij+1
         !if (Occ(ipOcc+i) == Zero) Go To 100
-        Sum = Sum+Occ(ipOcc+i)*Cff(ipCff+iRow+ij*nBs)*Cff(ipCff+iRow+ij*nBs)
+        rSum = rSum+Occ(ipOcc+i)*Cff(ipCff+iRow+ij*nBs)*Cff(ipCff+iRow+ij*nBs)
       end do
       !100 continue
-      Dlt(ipDlt+Ind(iRow,iRow)) = Sum*SScale
+      Dlt(ipDlt+Ind(iRow,iRow)) = rSum*SScale
 
       do iCol=1,iRow-1
-        Sum = Zero
+        rSum = Zero
         ij = -1
         do i=nFr+1,nOr
           ij = ij+1
           !if (Occ(ipOcc+i) == Zero) Go To 200
-          Sum = Sum+Occ(ipOcc+i)*Cff(ipCff+iRow+ij*nBs)*Cff(ipCff+iCol+ij*nBs)
+          rSum = rSum+Occ(ipOcc+i)*Cff(ipCff+iRow+ij*nBs)*Cff(ipCff+iCol+ij*nBs)
         end do
         !200 continue
-        Dlt(ipDlt+Ind(iRow,iCol)) = Scale*Sum
+        Dlt(ipDlt+Ind(iRow,iCol)) = Scal*rSum
       end do
     end do
 #   ifdef _DEBUGPRINT_

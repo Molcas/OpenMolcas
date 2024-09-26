@@ -13,14 +13,15 @@
 
 subroutine Tw_corr_drv(EOrb,nEO,CMO,nCMO,Ecorr)
 
-use InfSCF, only: nnOc, nSym, nOcc, nDel, nOrb, nFro, nBas
+use InfSCF, only: nBas, nDel, nFro, nnOc, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nEO, nCMO
-real*8 EOrb(nEO), CMO(nCMO), Ecorr
-integer i, iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb, jVir, kOff, nExt, nOkk
-real*8, allocatable :: Eov(:)
+integer(kind=iwp) :: nEO, nCMO
+real(kind=wp) :: EOrb(nEO), CMO(nCMO), Ecorr
+integer(kind=iwp) :: i, iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb, jVir, kOff, nExt, nOkk
+real(kind=wp), allocatable :: Eov(:)
 
 call mma_Allocate(Eov,nEO,Label='Eov')
 

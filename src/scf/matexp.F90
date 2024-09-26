@@ -38,15 +38,11 @@ implicit none
 
 integer(kind=iwp), intent(in) :: N, No
 real(kind=wp), intent(inout) :: U(N,N)
-integer(kind=iwp) :: Nv
-integer(kind=iwp) :: count, i
-real(kind=wp), parameter :: thrsh = 1.0D-20
-real(kind=wp) :: ithrsh, ithrshoo, ithrshvv, ithrshvo, factor
-real(kind=wp), allocatable :: Uoo(:,:), xUoo(:,:), Koo(:,:)
-real(kind=wp), allocatable :: Uvv(:,:), xUvv(:,:), Kvv(:,:)
-real(kind=wp), allocatable :: Uvo(:,:), xUvo(:,:), Kvo(:,:)
-real(kind=wp), allocatable :: Uov(:,:)
-real(kind=wp), allocatable :: theta(:,:)
+integer(kind=iwp) :: cnt, i, Nv
+real(kind=wp) :: factor, ithrsh, ithrshoo, ithrshvo, ithrshvv
+real(kind=wp), allocatable :: Koo(:,:), Kvo(:,:), Kvv(:,:), theta(:,:), Uoo(:,:), Uov(:,:), Uvo(:,:), Uvv(:,:), xUoo(:,:), &
+                              xUvo(:,:), xUvv(:,:)
+real(kind=wp), parameter :: thrsh = 1.0e-20_wp
 
 if (N < 1) return
 Nv = N-No
@@ -70,10 +66,10 @@ theta(:,:) = U(No+1:N,:No)
 
 U(:,:) = Zero
 
-count = 1
+cnt = 1
 factor = One
 
-ithrsh = 2.0E-16_wp
+ithrsh = 2.0e-16_wp
 
 ! Initialization
 ! Taylor expansion terms to n=1
@@ -104,18 +100,18 @@ Uvo(:,:) = theta
 ! Taylor expansion terms from n=2 to convergence
 
 do while (thrsh < ithrsh)
-  count = count+1
+  cnt = cnt+1
 
-  if (mod(count,2) == 0) then
+  if (mod(cnt,2) == 0) then
     call dgemm_('T','N',No,No,Nv,One,-theta,Nv,Kvo,Nv,Zero,Koo,No)
     call dgemm_('N','T',Nv,Nv,No,One,Kvo,Nv,-theta,Nv,Zero,Kvv,Nv)
-    factor = factor*count
+    factor = factor*cnt
     Uoo(:,:) = Uoo+Koo/factor
     Uvv(:,:) = Uvv+Kvv/factor
 
   else
     call dgemm_('N','N',Nv,No,No,One,theta,Nv,Koo,No,Zero,Kvo,Nv)
-    factor = factor*count
+    factor = factor*cnt
     Uvo(:,:) = Uvo+Kvo/factor
 
     ithrshoo = maxval(abs(Uoo-xUoo)/(abs(Uoo)+thrsh))

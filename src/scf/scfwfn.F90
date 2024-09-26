@@ -11,13 +11,15 @@
 
 module SCFWfn
 
-integer wfn_fileid
-integer wfn_energy
-integer wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens
-integer wfn_supsym, wfn_basfns, wfn_ovlmat, wfn_orbene
-integer wfn_tpidx
-integer wfn_mocoef_a, wfn_occnum_a, wfn_orbene_a, wfn_tpidx_a
-integer wfn_mocoef_b, wfn_occnum_b, wfn_orbene_b, wfn_tpidx_b
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_mocoef_a, wfn_mocoef_b, wfn_occnum, wfn_occnum_a, wfn_occnum_b, &
+                     wfn_orbene, wfn_orbene_a, wfn_orbene_b, wfn_tpidx, wfn_tpidx_a, wfn_tpidx_b
+
+public :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_mocoef_a, wfn_mocoef_b, wfn_occnum, wfn_occnum_a, wfn_occnum_b, wfn_orbene, &
+          wfn_orbene_a, wfn_orbene_b, wfn_tpidx, wfn_tpidx_a, wfn_tpidx_b
 
 end module SCFWfn
-

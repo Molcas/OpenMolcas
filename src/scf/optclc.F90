@@ -33,17 +33,17 @@ subroutine OptClc(CInter,nCI,nD,Ind,nInd)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: kOptim, nBT, nDens, iDisk, MapDns
+use InfSCF, only: iDisk, kOptim, MapDns, nBT, nDens
 use SCF_Arrays, only: Dens, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nCI, nD, nInd
-real*8 CInter(nCI,nD)
-integer Ind(nInd)
-real*8, dimension(:,:), allocatable :: DnsTmp, TwoTmp, VxcTmp
-integer Iter_D, iMap, iD, i, MatNO
-real*8 C
+integer(kind=iwp) :: nCI, nD, nInd, Ind(nInd)
+real(kind=wp) :: CInter(nCI,nD)
+integer(kind=iwp) :: i, iD, iMap, Iter_D, MatNO
+real(kind=wp) :: C
+real(kind=wp), allocatable :: DnsTmp(:,:), TwoTmp(:,:), VxcTmp(:,:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

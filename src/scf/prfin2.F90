@@ -13,20 +13,19 @@
 
 subroutine PrFin2(Ovlp,nDT,OccNo,nEO,CMO,nCMO,note)
 
-use InfSCF, only: nBB, iCoCo, nD, jVOut, kIVO, KSDFT, nBT, nnB, nSym, nOrb, nBas
-use Constants, only: Zero
+use InfSCF, only: iCoCo, jVOut, kIVO, KSDFT, nBas, nBB, nBT, nD, nnB, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDT, nEO, nCMO
-real*8 Ovlp(nDT), OccNo(nEO), CMO(nBB)
 ! PAM 2007: Changed dimension of CMO array from nCMO to NBB:
 ! The larger size is needed here, and the allocated size is nBB.
-character(len=80) Note
-! Define local variables
-integer i, iBs, iOr, iSym, iVec, iCMO, j
-real*8, dimension(:), allocatable :: Scr2
-#include "SysDef.fh"
+integer(kind=iwp) :: nDT, nEO, nCMO
+real(kind=wp) :: Ovlp(nDT), OccNo(nEO), CMO(nBB)
+character(len=80) :: Note
+integer(kind=iwp) :: i, iBs, iCMO, i_Or, iSym, iVec, j
+real(kind=wp), allocatable :: Scr2(:)
 
 ! Write orbitals on the file (the case InVec=3 and nIter=0
 ! is set up in RdInp)
@@ -56,16 +55,16 @@ if (jVOut >= 2) then
   end do
 
   ! Prepare occupation numbers
-  iOr = 0
+  i_Or = 0
   iBs = 0
   do iSym=1,nSym
     do j=1,nOrb(iSym)
-      Scr2(iBs+j) = OccNo(iOr+j)
+      Scr2(iBs+j) = OccNo(i_Or+j)
     end do
     do j=nOrb(iSym)+1,nBas(iSym)
       Scr2(iBs+j) = Zero
     end do
-    iOr = iOr+nOrb(iSym)
+    i_Or = i_Or+nOrb(iSym)
     iBs = iBs+nBas(iSym)
   end do
   do i=1,nnB

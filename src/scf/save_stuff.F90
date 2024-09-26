@@ -11,7 +11,13 @@
 
 module Save_Stuff
 
-real*8 SIntTh_old, EThr_old, DThr_old, DltNTh_old
-real*8 FThr_old, ThrInt_Old
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp) :: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_old
+
+public :: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_old
 
 end module Save_Stuff

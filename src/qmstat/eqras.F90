@@ -41,6 +41,7 @@ real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Random_Molcas
+
 #include "warnings.h"
 !****Jose** Interaction with Slater type to consider Penetration
 !           Eint_Nuc

@@ -21,20 +21,20 @@ subroutine ChkOrt(iD,OffMx)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, nSYm, nBas, nOrb
+use InfSCF, only: MaxBas, nBas, nOrb, nSym
+use SCF_Arrays, only: CMO, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use SCF_Arrays, only: Ovrlp, CMO
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iD
-real*8 OffMx
-! declaration of local vars
-integer iOffMx, jOffMx, iDgNo1, ij, iCMO, iSym, nBs, nOr, i, j, iOff
-logical termin
-real*8 DgNo1
-real*8, parameter :: OrtThr = 1.0d-9
-real*8, dimension(:), allocatable :: OvlS, Aux
+integer(kind=iwp) :: iD
+real(kind=wp) :: OffMx
+integer(kind=iwp) :: i, iCMO, iDgNo1, ij, iOff, iOffMx, iSym, j, jOffMx, nBs, nOr
+real(kind=wp) :: DgNo1
+logical(kind=iwp) :: termin
+real(kind=wp), allocatable :: Aux(:), OvlS(:)
+real(kind=wp), parameter :: OrtThr = 1.0e-9_wp
 
 call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
 call mma_allocate(Aux,MaxBas**2,Label='Aux')
@@ -72,7 +72,7 @@ do iSym=1,nSym
     ! check, if orthogonality violated
     if ((OffMx > OrtThr) .or. (DgNo1 > OrtThr)) then
       ! Ooooops...
-      !write(6,*) 'WARNING: reorthonormalizing MOs...',OffMx,DgNo1
+      !write(u6,*) 'WARNING: reorthonormalizing MOs...',OffMx,DgNo1
 
       ! try to re-orthonormalize...
       call Orthox(OvlS,CMO(iCMO,iD),nOr,nBs)
@@ -123,8 +123,8 @@ do iSym=1,nSym
           end do
 100       continue
           !call WarningMessage(0,'Orthogonality violated')
-          write(6,*) ' iSym =',iSym
-          write(6,*) ' largest off diag element:',' [',iOffMx,',',jOffMx,']',' = ',OffMx
+          write(u6,*) ' iSym =',iSym
+          write(u6,*) ' largest off diag element:',' [',iOffMx,',',jOffMx,']',' = ',OffMx
         end if
         if (DgNo1 > OrtThr) then
           ! diag element too different from One
@@ -140,10 +140,10 @@ do iSym=1,nSym
           end do
 110       continue
           !call WarningMessage(0,'Orthogonality violated')
-          write(6,*)
-          write(6,*) ' ***** Orthogonality violated *****'
-          write(6,*) ' iSym =',iSym
-          write(6,*) ' diag element most different from 1.0:',' [',iDgNo1,',',iDgNo1,']',' = ',DgNo1
+          write(u6,*)
+          write(u6,*) ' ***** Orthogonality violated *****'
+          write(u6,*) ' iSym =',iSym
+          write(u6,*) ' diag element most different from 1.0:',' [',iDgNo1,',',iDgNo1,']',' = ',DgNo1
         end if
       end if
     end if

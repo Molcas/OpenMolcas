@@ -28,11 +28,12 @@ subroutine RelEny(ERelMV,ERelDC,D,VMs,Dar,lth)
 !       ERelDC  : Darwin correction                                    *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer lth
-real*8 ERelMV, ERelDC
-real*8 D(lth), VMs(lth), Dar(lth)
-real*8, external :: DDot_
+integer(kind=iwp) :: lth
+real(kind=wp) :: ERelMV, ERelDC, D(lth), VMs(lth), Dar(lth)
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

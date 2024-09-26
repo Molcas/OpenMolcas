@@ -60,7 +60,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.h"
 #include "print.fh"
 integer(kind=iwp) :: i, iOpt, iRC, iRout, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
@@ -77,6 +76,8 @@ interface
     integer(kind=MOLCAS_C_INT) :: nDNA
   end subroutine get_genome
 end interface
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

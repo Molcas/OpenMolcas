@@ -21,31 +21,30 @@ subroutine Rd2Int_SCF()
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: nSym, nBas, nSkip
+use InfSCF, only: nBas, nSkip, nSym
+use Definitions, only: iwp, u6
 
 implicit none
 #include "Molcas.fh"
-! Define local variables
-integer iRC, nSymX, iSym
-integer nBasX(MxSym)
-logical SqI2
+integer(kind=iwp) :: iRC, iSym, nBasX(MxSym), nSymX
+logical(kind=iwp) :: SqI2
 
 iRc = -1
 call GetOrd(iRc,SqI2,nSymX,nBasX,nSkip)
 if (iRc /= 0) then
-  write(6,*) 'The program failed to read the header of ORDINT.'
+  write(u6,*) 'The program failed to read the header of ORDINT.'
   call Abend()
 end if
 
 if (nSymX /= nSym) then
-  write(6,*) 'nSymX /= nSym, nSymX, nSym=',nSymX,nSym
+  write(u6,*) 'nSymX /= nSym, nSymX, nSym=',nSymX,nSym
   call Abend()
 end if
 do iSym=1,nSym
   if (nBas(iSym) /= nBasX(iSym)) then
-    write(6,*) 'nBas(iSym) /= nBasX(iSym)'
-    write(6,*) 'nBas=',nBas
-    write(6,*) 'nBasX=',nBasX
+    write(u6,*) 'nBas(iSym) /= nBasX(iSym)'
+    write(u6,*) 'nBas=',nBas
+    write(u6,*) 'nBasX=',nBasX
     call Abend()
   end if
 end do

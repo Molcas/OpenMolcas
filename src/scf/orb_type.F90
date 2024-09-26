@@ -11,6 +11,13 @@
 
 module Orb_Type
 
-integer, dimension(:,:), allocatable :: OrbType
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), allocatable :: OrbType(:,:)
+
+public :: OrbType
 
 end module Orb_Type

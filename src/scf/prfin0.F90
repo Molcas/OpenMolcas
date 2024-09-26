@@ -27,31 +27,30 @@ subroutine PrFin0(Dens,Dens_ab,nDT,EOrb,nEO,CMO,nCMO,KntE)
 use mh5, only: mh5_put_dset
 use SCFWfn, only: wfn_energy
 #endif
-use KSDFT_Info, only: CoefR, CoefX
-use OFembed, only: Do_OFemb
 #ifdef _FDE_
 use Embedding_Global, only: Eemb, embPot
 #endif
+use KSDFT_Info, only: CoefR, CoefX
+use OFembed, only: Do_OFemb
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: DMOMax, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, nD, jPrint, KSDFT, lPaper, MxConstr, nBas, nBT, nIterP, &
-                  nOrb, nSym, PotNuc, s2UHF, WarnCfg, WarnPocc, WarnSlow, nIter, nOcc
-use AddCorr, only: DE_KSDFT_c, Do_Addc, Do_Tw, Addc_KSDFT
+use InfSCF, only: DMOMax, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, jPrint, KSDFT, lPaper, MxConstr, nBas, nBT, nD, nIter, &
+                  nIterP, nOcc, nOrb, nSym, PotNuc, s2UHF, WarnCfg, WarnPocc, WarnSlow
+use AddCorr, only: Addc_KSDFT, DE_KSDFT_c, Do_Addc, Do_Tw
 use DCSCF, only: Erest_xc, s2CNO
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDT, nEO, nCMO
-real*8 Dens(nDT), Dens_ab(nDT), EOrb(nEO), CMO(nCMO), KntE(nDT)
-integer iSpn, iMult
+integer(kind=iwp) :: nDT, nEO, nCMO
+real(kind=wp) :: Dens(nDT), Dens_ab(nDT), EOrb(nEO), CMO(nCMO), KntE(nDT)
 ! Define local variables
-integer, external :: Cho_X_GetTol, iPrintLevel
-character(len=80) Lines(6)
-character(len=60) Fmt
-logical, external :: Reduce_Prt
-real*8, external :: DDot_
-real*8 Dumm1(1), E_Tw, ECNO, Ecorr, sUHF, Virial
-integer i, iDumm, iPL, iTol
-#include "SysDef.fh"
+integer(kind=iwp) :: i, iDumm, iMult, iPL, iSpn, iTol
+real(kind=wp) :: Dumm1(1), E_Tw, ECNO, Ecorr, sUHF, Virial
+character(len=80) :: Lines(6)
+character(len=60) :: Frmt
+integer(kind=iwp), external :: Cho_X_GetTol, iPrintLevel
+real(kind=wp), external :: DDot_
+logical(kind=iwp), external :: Reduce_Prt
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -99,7 +98,7 @@ if (WarnCfg) &
   call WarningMessage(1,'Warning:; The program may have converged to a solution;that does not correspond to the lowest energy!')
 if (WarnPocc) call WarningMessage(1,'Warning:; The program may have converged to a solution;with partial occupation numbers!')
 if (WarnSlow) call WarningMessage(1,'Warning:; The program had convergence problems;and terminated with looser convergence')
-Fmt = '(6X,A,T50,F19.10)'
+Frmt = '(6X,A,T50,F19.10)'
 suhf = -Half+sqrt(0.25d0+s2uhf)
 call put_dscalar('UHFSPIN',SUHF)
 iTol = min(Cho_X_GetTol(8),8)
@@ -113,39 +112,39 @@ if (jPrint >= 2) then
     end if
     ECNO = EneV+E_nondyn+DE_KSDFT_c
     if (KSDFT /= 'SCF') ECNO = ECNO+Erest_xc
-    call PrintResult(6,FMT,'Total energy',0,' ',[ECNO],1)
-    call PrintResult(6,FMT,'Nondynamical correlation energy',0,' ',[E_nondyn],1)
-    if (KSDFT /= 'SCF') call PrintResult(6,FMT,'Energy-restoring term',0,' ',[Erest_xc],1)
-    if (Do_Addc) call PrintResult(6,FMT,'Added correlation energy ('//ADDC_KSDFT(1:4)//') ',0,' ',[DE_KSDFT_c],1)
+    call PrintResult(6,Frmt,'Total energy',0,' ',[ECNO],1)
+    call PrintResult(6,Frmt,'Nondynamical correlation energy',0,' ',[E_nondyn],1)
+    if (KSDFT /= 'SCF') call PrintResult(6,Frmt,'Energy-restoring term',0,' ',[Erest_xc],1)
+    if (Do_Addc) call PrintResult(6,Frmt,'Added correlation energy ('//ADDC_KSDFT(1:4)//') ',0,' ',[DE_KSDFT_c],1)
     call Add_Info('E_CNO',[ECNO],1,iTol)
   end if
   if (Do_Tw) then
     E_Tw = EneV+Ecorr
-    call PrintResult(6,FMT,'Total energy',0,' ',[E_Tw],1)
-    call PrintResult(6,FMT,'Delta_Tw correlation energy',0,' ',[Ecorr],1)
+    call PrintResult(6,Frmt,'Total energy',0,' ',[E_Tw],1)
+    call PrintResult(6,Frmt,'Delta_Tw correlation energy',0,' ',[Ecorr],1)
     call Add_Info('E_Tw',[E_Tw],1,iTol)
   end if
   if (KSDFT == 'SCF') then
-    call PrintResult(6,FMT,'Total SCF energy',0,' ',[EneV],1)
-    !write(6,Fmt) 'Total SCF energy',EneV
+    call PrintResult(6,Frmt,'Total SCF energy',0,' ',[EneV],1)
+    !write(6,Frmt) 'Total SCF energy',EneV
   else
-    call PrintResult(6,FMT,'Total KS-DFT energy',0,' ',[EneV],1)
-    !write(6,Fmt) 'Total KS-DFT energy',EneV
+    call PrintResult(6,Frmt,'Total KS-DFT energy',0,' ',[EneV],1)
+    !write(6,Frmt) 'Total KS-DFT energy',EneV
   end if
-  write(6,Fmt) 'One-electron energy',E1V
+  write(6,Frmt) 'One-electron energy',E1V
 # ifdef _FDE_
   ! Embedding
-  if (embPot) write(6,Fmt) 'E from embedding potential(<Psi|v_emb|Psi>)',Eemb
+  if (embPot) write(6,Frmt) 'E from embedding potential(<Psi|v_emb|Psi>)',Eemb
 # endif
-  write(6,Fmt) 'Two-electron energy',E2V
-  write(6,Fmt) 'Nuclear repulsion energy',PotNuc
-  write(6,Fmt) 'Kinetic energy (interpolated)',EKin
-  write(6,Fmt) 'Virial theorem',Virial
+  write(6,Frmt) 'Two-electron energy',E2V
+  write(6,Frmt) 'Nuclear repulsion energy',PotNuc
+  write(6,Frmt) 'Kinetic energy (interpolated)',EKin
+  write(6,Frmt) 'Virial theorem',Virial
   if (.not. Do_SpinAV) then
-    write(6,Fmt) 'Total spin, S(S+1)',s2uhf
-    write(6,Fmt) 'Total spin, S',suhf
+    write(6,Frmt) 'Total spin, S(S+1)',s2uhf
+    write(6,Frmt) 'Total spin, S',suhf
   end if
-  if (MxConstr > 0) write(6,Fmt) 'Spin deviation',s2uhf-s2CNO
+  if (MxConstr > 0) write(6,Frmt) 'Spin deviation',s2uhf-s2CNO
 end if
 iSpn = int(suhf+Half)
 iMult = 2*iSpn+1
@@ -156,12 +155,12 @@ call mh5_put_dset(wfn_energy,EneV)
 #endif
 
 if ((nIter(nIterP) > 0) .and. (jPrint >= 2)) then
-  write(6,Fmt) 'Max non-diagonal density matrix element',DMOMax
-  write(6,Fmt) 'Max non-diagonal Fock matrix element',FMOMax
+  write(6,Frmt) 'Max non-diagonal density matrix element',DMOMax
+  write(6,Frmt) 'Max non-diagonal Fock matrix element',FMOMax
 end if
 if ((CoefX /= 1.0) .or. (CoefR /= 1.0)) then
-  write(6,Fmt) 'Exchange scaling factor',CoefX
-  write(6,Fmt) 'Correlation scaling factor',CoefR
+  write(6,Frmt) 'Exchange scaling factor',CoefX
+  write(6,Frmt) 'Correlation scaling factor',CoefR
 end if
 if (jPrint >= 2) write(6,*)
 !if ((jPrint >= 2) .and. Do_OFemb) Call OFE_print(EneV)
@@ -184,10 +183,10 @@ call xml_iDump('nsym','Number of irreps','',1,[nSym],1,1)
 call xml_iDump('nbas','Number of basis functions','',1,nBas,nSym,1)
 call xml_iDump('norb','Number of orbitals','',1,nOrb,nSym,1)
 if (nD == 1) then
-  call xml_iDump('nocc','Number of occupied orbitals','',1,nOcc(1,1),nSym,1)
+  call xml_iDump('nocc','Number of occupied orbitals','',1,nOcc(:,1),nSym,1)
 else
-  call xml_iDump('nocc_a','Number of occupied alpha orbitals','',1,nOcc(1,1),nSym,1)
-  call xml_iDump('nocc_b','Number of occupied beta orbitals','',1,nOcc(1,2),nSym,1)
+  call xml_iDump('nocc_a','Number of occupied alpha orbitals','',1,nOcc(:,1),nSym,1)
+  call xml_iDump('nocc_b','Number of occupied beta orbitals','',1,nOcc(:,2),nSym,1)
 end if
 
 !----------------------------------------------------------------------*

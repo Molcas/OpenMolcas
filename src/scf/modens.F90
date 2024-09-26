@@ -22,18 +22,20 @@ subroutine MODens()
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens, TimFld, MaxBXO, nBas, nOcc, nOrb, nD
-#ifdef _DEBUGPRINT_
-use InfSCF, only: nBO, nBT
-#endif
+use InfSCF, only: DMOMax, MaxBas, MaxBXO, MaxOrb, nBas, nD, nDens, nOcc, nOrb, nSym, TEEE, TimFld
+use SCF_Arrays, only: CMO, Dens, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use SCF_Arrays, only: Dens, CMO, Ovrlp
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use InfSCF, only: nBO, nBT
+use Definitions, only: u6
+#endif
 
 implicit none
-integer iD, jD, iT, iOvl, iSym, iiBO, iiBT, i, j
-real*8, dimension(:), allocatable :: DnsS, OvlS, DMoO, Aux1, Aux2
-real*8 CPU1, CPU2, Tim1, Tim2, Tim3
+integer(kind=iwp) :: i, iD, iiBO, iiBT, iOvl, iSym, iT, j, jD
+real(kind=wp) :: CPU1, CPU2, Tim1, Tim2, Tim3
+real(kind=wp), allocatable :: Aux1(:), Aux2(:), DMoO(:), DnsS(:), OvlS(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -63,8 +65,8 @@ do jD=1,nD
   call NrmClc(Dens(1,jD,nDens),nBT,'MoDens','D in AO   ')
   call NrmClc(Ovrlp,nBT,'MoDens','Overlap   ')
   call NrmClc(CMO(1,jD),nBO,'MoDens','CMOs      ')
-  write(6,*) 'nOcc=',(nOcc(i,jD),i=1,nSym)
-  !write(6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
+  write(u6,*) 'nOcc=',(nOcc(i,jD),i=1,nSym)
+  !write(u6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
 # endif
   it = 1
   id = 1
@@ -98,7 +100,7 @@ do jD=1,nD
       !call TriPrt('D(mo)','(8F12.6)',DMoO,nOrb(iSym))
       do i=nOcc(iSym,jD)+1,nOrb(iSym)
         do j=1,nOcc(iSym,jD)
-          DMOMax = max(DMOMax,dble(nD)*abs(DMoO(i*(i-1)/2+j)))
+          DMOMax = max(DMOMax,real(nD,kind=wp)*abs(DMoO(i*(i-1)/2+j)))
         end do
       end do
     end if
@@ -118,7 +120,7 @@ call mma_deallocate(OvlS)
 call mma_deallocate(DnsS)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' DMOMax in MODens',DMOMax
+write(u6,*) ' DMOMax in MODens',DMOMax
 #endif
 call Timing(Cpu2,Tim1,Tim2,Tim3)
 TimFld(14) = TimFld(14)+(Cpu2-Cpu1)

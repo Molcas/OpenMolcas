@@ -29,15 +29,16 @@ subroutine FixOrb(Ovrlp,CMO,TrMat,nCMO)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, nSym, nFro, nBas, nOrb
-use Constants, only: Zero, One
+use InfSCF, only: MaxBas, nBas, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nCMO
-real*8 Ovrlp(nCMO), CMO(nCMO), TrMat(nCMO)
-integer iCMO, iS, iSym, iTrM, nBF, nOF
-real*8, dimension(:), allocatable :: S, TT, TTS, CMO0
+integer(kind=iwp) :: nCMO
+real(kind=wp) :: Ovrlp(nCMO), CMO(nCMO), TrMat(nCMO)
+integer(kind=iwp) :: iCMO, iS, iSym, iTrM, nBF, nOF
+real(kind=wp), allocatable :: S(:), TT(:), TTS(:), CMO0(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

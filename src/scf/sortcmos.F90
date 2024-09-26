@@ -13,15 +13,15 @@
 subroutine SorbCMOs(CMO,nCMO,nD,EOrb,Occ,nnB,nBas,nOrb,nSym)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nCMO, nD, nnB, nSym
-real*8 CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
-integer nBas(nSym), nOrb(nSym)
-integer iD, iOff1, iOff2, iBlock, iEnd, iOrb, iStr, iSym, jOrb, kOrb, nOcc
-real*8 EOrb_i, EOrb_j, Occ_i, Occ_j
+integer(kind=iwp) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp) :: CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
+integer(kind=iwp) :: iBlock, iD, iEnd, iOff1, iOff2, iOrb, iStr, iSym, jOrb, kOrb, nOcc
+real(kind=wp) :: EOrb_i, EOrb_j, Occ_i, Occ_j
 #ifdef _DEBUGPRINT_
-integer iOff, jOff
+integer(kind=iwp) :: iOff, jOff
 
 do iD=1,nD
   iOff = 1
@@ -40,9 +40,9 @@ end do
 ! 2) within each block sort according to the orbital energy
 
 do iD=1,nD
-  !write(6,*)
-  !write(6,*) 'iD=',iD
-  !write(6,*)
+  !write(u6,*)
+  !write(u6,*) 'iD=',iD
+  !write(u6,*)
   iOff1 = 0
   iOff2 = 1
   do iSym=1,nSym
@@ -55,17 +55,17 @@ do iD=1,nD
     do iOrb=1,nOrb(iSym)-1
 
       Occ_i = Occ(iOff1+iOrb,iD)
-      !write(6,*) 'Occ_i,iOrb=',Occ_i,iOrb
+      !write(u6,*) 'Occ_i,iOrb=',Occ_i,iOrb
       kOrb = 0
       do jOrb=iOrb+1,nOrb(iSym)
         Occ_j = Occ(iOff1+jOrb,iD)
-        !write(6,*) 'Occ_j,jOrb=',Occ_j,jOrb
+        !write(u6,*) 'Occ_j,jOrb=',Occ_j,jOrb
         if (Occ_j > Occ_i) then
           Occ_i = Occ_j
           kOrb = jOrb
         end if
       end do
-      !write(6,*) 'kOrb=',kOrb
+      !write(u6,*) 'kOrb=',kOrb
       if (kOrb /= 0) then
         Occ_i = Occ(iOff1+iOrb,iD)
         Occ(iOff1+iOrb,iD) = Occ(iOff1+kOrb,iD)

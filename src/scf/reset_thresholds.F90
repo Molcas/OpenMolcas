@@ -18,14 +18,15 @@
 subroutine Reset_Thresholds()
 
 use InfSO, only: DltNTh
-use InfSCF, only: EThr, DThr, FThr
+use InfSCF, only: DThr, EThr, FThr
 use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_Old
+use Definitions, only: u6
 
 implicit none
 
-write(6,*)
-write(6,*) 'Restore thresholds...'
-write(6,*)
+write(u6,*)
+write(u6,*) 'Restore thresholds...'
+write(u6,*)
 EThr = EThr_old
 DThr = DThr_old
 DltNTh = DltNTh_old

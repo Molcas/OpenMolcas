@@ -19,21 +19,13 @@ subroutine GetGap(Eorb,nData,nAufb,Gap,Efermi)
 !***********************************************************************
 
 use Constants, only: Half
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-integer nData
-integer nAufb
-real*8 Eorb(nData)
-real*8 Gap
-real*8 Efermi
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-integer i, j, k
-real*8 tmp
+integer(kind=iwp) :: nData, nAufb
+real(kind=wp) :: Eorb(nData), Gap, Efermi
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: tmp
 
 !----------------------------------------------------------------------*
 ! Setup                                                                *
@@ -41,8 +33,8 @@ real*8 tmp
 !----------------------------------------------------------------------*
 ! Sort array                                                           *
 !----------------------------------------------------------------------*
-!write(6,*) 'Unsorted orbitals energies'
-!write(6,'(10F12.6)') Eorb
+!write(u6,*) 'Unsorted orbitals energies'
+!write(u6,'(10F12.6)') Eorb
 do i=1,nData-1
   k = i
   do j=i+1,nData
@@ -52,23 +44,23 @@ do i=1,nData-1
   Eorb(k) = Eorb(i)
   Eorb(i) = tmp
 end do
-!Write(6,*) 'Sorted orbitals energies'
-!Write(6,'(10F12.6)') Eorb
+!Write(u6,*) 'Sorted orbitals energies'
+!Write(u6,'(10F12.6)') Eorb
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
 if (nAufb <= 0) then
-  Gap = 1.0d3
+  Gap = 1.0e3_wp
   Efermi = Eorb(1)
 else if (nAufb >= nData) then
-  Gap = 1.0d3
-  Efermi = Eorb(nData)+1.0d-3
+  Gap = 1.0e3_wp
+  Efermi = Eorb(nData)+1.0e-3_wp
 else
   Gap = Eorb(nAufb+1)-Eorb(nAufb)
   Efermi = half*(Eorb(nAufb+1)+Eorb(nAufb))
 end if
-!write(6,*) 'Gap:',Gap
-!write(6,*) 'Efermi:',Efermi
+!write(u6,*) 'Gap:',Gap
+!write(u6,*) 'Efermi:',Efermi
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

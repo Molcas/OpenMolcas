@@ -15,6 +15,7 @@ subroutine Abend()
 ! this routine kept only for compatibility
 
 implicit none
+
 #include "warnings.h"
 
 call xQuit(_RC_INTERNAL_ERROR_)

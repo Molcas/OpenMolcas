@@ -25,20 +25,19 @@ subroutine SOiniH()
 !***********************************************************************
 
 use Orb_Type, only: OrbType
-use InfSCF, only: nSym, nFro, nOrb, nOcc
-!use SCF_Arrays, only: HDiag, FockMO, EOrb, CMO_Ref
-use SCF_Arrays, only: HDiag, FockMO
-use Constants, only: Zero, Four
+use InfSCF, only: nFro, nOcc, nOrb, nSym
+use SCF_Arrays, only: FockMO, HDiag
+use Constants, only: Zero, One, Four
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-! declaration local variables
-integer iD, nD
-integer iSym, iOcc, iVir, ioffs, iOff_H, nOccmF, nOrbmF, iOff_F
-integer jOcc, jVir
-real*8, parameter :: Hii_Min = 0.05d0
-real*8, parameter :: Hii_Max = 1.00d0
-real*8, pointer :: Fock(:,:)
-real*8 Hii
+integer(kind=iwp) :: iD, iOcc, iOff_F, iOff_H, ioffs, iSym, iVir, jOcc, jVir, nD, nOccmF, nOrbmF
+real(kind=wp) :: Hii
+real(kind=wp), pointer :: Fock(:,:)
+real(kind=wp), parameter :: Hii_Max = One, Hii_Min = 0.05_wp
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -55,13 +54,13 @@ nD = size(FockMO,2)
 HDiag(:) = Zero
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'nD=',nD
+write(u6,*) 'nD=',nD
 do iD=1,nD
-  write(6,*) 'iD=',iD
-  write(6,'(A,8I3)') 'nOcc',(nOcc(iSym,iD),iSym=1,nSym)
+  write(u6,*) 'iD=',iD
+  write(u6,'(A,8I3)') 'nOcc',(nOcc(iSym,iD),iSym=1,nSym)
 end do
-write(6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
-write(6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
+write(u6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
+write(u6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
 call RecPrt('SOIniH: FockMO',' ',FockMO,1,size(FockMO))
 call NrmClc(FockMO,size(FockMO),'SOIniH','FockMO')
 #endif
@@ -92,22 +91,22 @@ do iD=1,nD
 
         if (OrbType(iVir,iD) == OrbType(iOcc,iD)) then
 
-          Hii = Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/dble(nD)
+          Hii = Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/real(nD,kind=wp)
 
-          !write(6,*) 'Hii, iOff_H=', Hii, iOff_H
-          !write(6,*) 'Fock(jVir,jVir), jVir=',Fock(jVir,jVir),jVir
-          !write(6,*) 'Fock(jOcc,jOcc), jOcc=',Fock(jOcc,jOcc),jOcc
+          !write(u6,*) 'Hii, iOff_H=', Hii, iOff_H
+          !write(u6,*) 'Fock(jVir,jVir), jVir=',Fock(jVir,jVir),jVir
+          !write(u6,*) 'Fock(jOcc,jOcc), jOcc=',Fock(jOcc,jOcc),jOcc
           if (Hii < Zero) then
-            !write(6,*) 'SOIniH: Hii<0.0, Hii=',Hii
+            !write(u6,*) 'SOIniH: Hii<0.0, Hii=',Hii
             Hii = max(Hii_Max,abs(Hii))
-            !write(6,*) '        Reset to Hii=',Hii
+            !write(u6,*) '        Reset to Hii=',Hii
           else if (abs(Hii) < Hii_Min) then
-            !write(6,*) 'SOIniH: Abs(Hii)<Hii_Min, Hii=',Hii
-            !write(6,*) 'jVir,jOcc=',jVir,jOcc
-            !write(6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
-            !write(6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
+            !write(u6,*) 'SOIniH: Abs(Hii)<Hii_Min, Hii=',Hii
+            !write(u6,*) 'jVir,jOcc=',jVir,jOcc
+            !write(u6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
+            !write(u6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
             Hii = Hii_Min
-            !write(6,*) 'SOIniH: Reset to          Hii=',Hii
+            !write(u6,*) 'SOIniH: Reset to          Hii=',Hii
           end if
           HDiag(iOff_H) = Hii
         end if

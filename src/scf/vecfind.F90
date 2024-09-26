@@ -42,35 +42,25 @@ subroutine VecFind(OccSet,FermSet,CharSet,SpinSet)
 !                                                                      *
 !***********************************************************************
 
+use InfSCF, only: iAu_ab, InVec, isHDF5, LstVec, nAufb, nBas, nD, nOcc, nStOpt, nSym, SCF_FileOrb, Tot_Charge, Tot_El_Charge, &
+                  Tot_Nuc_Charge
 #ifdef _HDF5_
 use mh5, only: mh5_fetch_attr
 use InfSCF, only: FileOrb_ID
 #endif
-use InfSCF, only: iAu_ab, InVec, isHDF5, nD, nSym, nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, nBas, LstVec, &
-                  nOcc, nAufb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-logical OccSet
-logical FermSet
-logical CharSet
-logical SpinSet
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-character*80 cList
-logical Found
-integer mynSym
-integer mynBas(8)
-integer mynOrb(8)
-character*10 infoLbl
-real*8, dimension(:), allocatable :: EOrb
-integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle, iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC
-real*8 GAP, eAlpha, eBeta, tmp
+logical(kind=iwp) :: OccSet, FermSet, CharSet, SpinSet
+integer(kind=iwp) :: i, iBas, iDSpin, iOff, iRC, iSym, iTmp, iVer, j, mTmp, mynBas(8), mynOrb(8), mynSym, n, N1, N2, nData, nEle, &
+                     nEle1, nEle2, nSQRSum
+real(kind=wp) :: eAlpha, eBeta, GAP, tmp
+logical(kind=iwp) :: Found
+character(len=80) :: cList
+character(len=10) :: infoLbl
+real(kind=wp), allocatable :: EOrb(:)
 
 !----------------------------------------------------------------------*
 ! Setup                                                                *
@@ -83,23 +73,23 @@ end do
 ! Check start orbital priority list                                    *
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-write(6,*) 'VecFind: LstVec',LstVec
+write(u6,*) 'VecFind: LstVec',LstVec
 #endif
 do i=1,nStOpt
   Found = .false.
   if (LstVec(i) == 0) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2i5,a)') i,LstVec(i),' Old scf orbitals'
+    write(u6,'(2i5,a)') i,LstVec(i),' Old scf orbitals'
 #   endif
     call qpg_darray('SCF orbitals',Found,nData)
     if (Found .and. (nData == nSqrSum)) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Found orbitals'
+      write(u6,*) 'Found orbitals'
 #     endif
       call qpg_darray('OrbE',Found,nData)
       if (Found) then
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Found energies'
+        write(u6,*) 'Found energies'
 #       endif
         InVec = 8
         goto 101
@@ -107,7 +97,7 @@ do i=1,nStOpt
     end if
   else if (LstVec(i) == 1) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2i5,a)') i,LstVec(i),' Guessorb orbitals'
+    write(u6,'(2i5,a)') i,LstVec(i),' Guessorb orbitals'
 #   endif
     call qpg_darray('Guessorb',Found,nData)
     if (Found .and. (nData == nSqrSum)) then
@@ -119,7 +109,7 @@ do i=1,nStOpt
     end if
   else if (LstVec(i) == 2) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
+    write(u6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
 #   endif
     call F_Inquire(SCF_FileOrb,Found)
     if (Found) then
@@ -140,39 +130,39 @@ do i=1,nStOpt
     end if
     if (Found) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Found INPORB'
+      write(u6,*) 'Found INPORB'
 #     endif
       InVec = 2
       goto 101
     end if
   else if (LstVec(i) == 3) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2i5,a)') i,LstVec(i),' Density'
+    write(u6,'(2i5,a)') i,LstVec(i),' Density'
 #   endif
     InVec = 0
   else if (LstVec(i) == 4) then
 #   ifdef _DEBUGPRINT_
-    write(6,'(2i5,a)') i,LstVec(i),' Core orbitals'
+    write(u6,'(2i5,a)') i,LstVec(i),' Core orbitals'
 #   endif
     InVec = 0
     Found = .true.
     goto 101
   else
 #   ifdef _DEBUGPRINT_
-    write(6,'(2i5,a)') i,LstVec(i),' Die'
+    write(u6,'(2i5,a)') i,LstVec(i),' Die'
 #   endif
     InVec = 0
     Found = .false.
     goto 101
   end if
 # ifdef _DEBUGPRINT_
-  write(6,*) 'LstVec(i),Found:',LstVec(i),Found
+  write(u6,*) 'LstVec(i),Found:',LstVec(i),Found
 # endif
 end do
 Found = .false.
 101 continue
 #ifdef _DEBUGPRINT_
-write(6,*) 'VecFind: InVec, Found=',InVec,Found
+write(u6,*) 'VecFind: InVec, Found=',InVec,Found
 #endif
 !----------------------------------------------------------------------*
 ! Did we find the requested orbitals?                                  *
@@ -230,7 +220,7 @@ if (InVec == 0) then
   ! We will use core diagonalization
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using core diagonalization'
+  write(u6,*) 'Using core diagonalization'
 # endif
   OccSet = .false.
   FermSet = .true.
@@ -239,14 +229,14 @@ else if (Invec == 1) then
   ! We will use NDDO orbitals, should not be used!
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using NDDO orbitals'
+  write(u6,*) 'Using NDDO orbitals'
 # endif
 else if (Invec == 2) then
 
   ! We will use Lumorb orbitals
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using Lumorb orbitals'
+  write(u6,*) 'Using Lumorb orbitals'
 # endif
   call ChkLumo(OccSet,FermSet,SpinSet)
 else if (Invec == 3) then
@@ -254,30 +244,30 @@ else if (Invec == 3) then
   ! We will use density as start, does it even work?
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using density'
+  write(u6,*) 'Using density'
 # endif
 else if (Invec == 4) then
 
   ! This is a restart case
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using Restart'
+  write(u6,*) 'Using Restart'
 # endif
 else if (Invec == 8) then
 
 ! We will use old SCF orbitals
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using SCF orbitals'
-  write(6,*) 'tot_charge',tot_charge
-  write(6,*) 'tot_el_charge',tot_el_charge
-  write(6,*) 'tot_nuc_charge',tot_nuc_charge
+  write(u6,*) 'Using SCF orbitals'
+  write(u6,*) 'tot_charge',tot_charge
+  write(u6,*) 'tot_el_charge',tot_el_charge
+  write(u6,*) 'tot_nuc_charge',tot_nuc_charge
 # endif
   call qpg_iarray('SCF nOcc',Found,nData)
   idspin = 0
   if (Found) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'vecfind: Alright, old scf orbitals it is'
+    write(u6,*) 'vecfind: Alright, old scf orbitals it is'
 #   endif
     nEle = 0
     if (nD == 1) then
@@ -285,14 +275,14 @@ else if (Invec == 8) then
       call Get_iScalar('SCF mode',iTmp)
       if (iTmp == 0) then
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Starting RHF with RHF orbitals'
+        write(u6,*) 'Starting RHF with RHF orbitals'
 #       endif
         do iSym=1,nSym
           nEle = nEle+2*nOcc(iSym,1)
         end do
       else
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Starting RHF with UHF orbitals'
+        write(u6,*) 'Starting RHF with UHF orbitals'
 #       endif
         call Get_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
         nEle1 = 0
@@ -309,15 +299,15 @@ else if (Invec == 8) then
         end if
         nEle = nEle2
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'After strange code'
-        write(6,*) 'tot_charge',tot_charge
-        write(6,*) 'tot_el_charge',tot_el_charge
-        write(6,*) 'tot_nuc_charge',tot_nuc_charge
+        write(u6,*) 'After strange code'
+        write(u6,*) 'tot_charge',tot_charge
+        write(u6,*) 'tot_el_charge',tot_el_charge
+        write(u6,*) 'tot_nuc_charge',tot_nuc_charge
 #       endif
       end if
     else
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Starting UHF with RHF/UHF orbitals'
+      write(u6,*) 'Starting UHF with RHF/UHF orbitals'
 #     endif
       call Get_iarray('SCF nOcc',nOcc(1,1),nSym)
       call qpg_iarray('SCF nOcc_ab',Found,nData)
@@ -332,19 +322,19 @@ else if (Invec == 8) then
       end do
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'idspin',idspin
-    write(6,*) 'iAu_ab',iAu_ab
+    write(u6,*) 'idspin',idspin
+    write(u6,*) 'iAu_ab',iAu_ab
 #   endif
     idspin = idspin-iAu_ab
     if ((abs(Tot_El_Charge+nEle) > Half) .or. (idspin /= 0)) then
       if (abs(Tot_El_Charge+nEle) > Half) then
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'System have changed charge!'
+        write(u6,*) 'System have changed charge!'
 #       endif
       end if
       if (idspin /= 0) then
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'System have changed spin!'
+        write(u6,*) 'System have changed spin!'
 #       endif
       end if
       if (CharSet .or. (idspin /= 0)) then
@@ -358,17 +348,17 @@ else if (Invec == 8) then
       end if
     else
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'System have same spin and charge'
+      write(u6,*) 'System have same spin and charge'
 #     endif
       OccSet = .true.
       FermSet = .false.
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'OccSet  ',OccSet
-    write(6,*) 'FermSet ',FermSet
-    write(6,*) 'CharSet ',CharSet
-    write(6,*) 'SpinSet ',SpinSet
-    write(6,*) 'nOcc',nOcc
+    write(u6,*) 'OccSet  ',OccSet
+    write(u6,*) 'FermSet ',FermSet
+    write(u6,*) 'CharSet ',CharSet
+    write(u6,*) 'SpinSet ',SpinSet
+    write(u6,*) 'nOcc',nOcc
 #   endif
   else
     OccSet = .false.
@@ -379,27 +369,27 @@ else if (Invec == 9) then
   ! We will use Guessorb orbitals
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Using Guessorb orbitals'
+  write(u6,*) 'Using Guessorb orbitals'
 # endif
   if (OccSet) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Occupation is set'
+    write(u6,*) 'Occupation is set'
 #   endif
   else if (FermSet) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Fermi is set'
+    write(u6,*) 'Fermi is set'
 #   endif
   else
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Must decide if to use Fermi'
+    write(u6,*) 'Must decide if to use Fermi'
 #   endif
     if (nAufb(1) == -1) then
-      mtmp = int(-Tot_El_Charge+0.1d0)
+      mtmp = int(-Tot_El_Charge+0.1_wp)
       if (nD == 1) then
         if (mod(mtmp,2) /= 0) then
-          write(6,*) 'VecFind: Error in number of electrons'
-          write(6,*) '         An even number of electrons ','are required by RHF, use UHF'
-          write(6,*)
+          write(u6,*) 'VecFind: Error in number of electrons'
+          write(u6,*) '         An even number of electrons ','are required by RHF, use UHF'
+          write(u6,*)
           call Abend()
         end if
         nAufb(1) = mtmp/2
@@ -409,8 +399,8 @@ else if (Invec == 9) then
       end if
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'nAufb',nAufb
-    write(6,*) 'Now figure out homo-lumo gap'
+    write(u6,*) 'nAufb',nAufb
+    write(u6,*) 'Now figure out homo-lumo gap'
 #   endif
     call qpg_darray('Guessorb energies',Found,nData)
     call mma_allocate(EOrb,nData,Label='EOrb')
@@ -457,18 +447,18 @@ else if (Invec == 9) then
       OccSet = .true.
       FermSet = .false.
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Decided on occupation list'
+      write(u6,*) 'Decided on occupation list'
 #     endif
     else
       OccSet = .false.
       FermSet = .true.
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Decided on Fermi aufbau'
+      write(u6,*) 'Decided on Fermi aufbau'
 #     endif
     end if
     call mma_deallocate(EOrb)
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Gap is',Gap
+    write(u6,*) 'Gap is',Gap
 #   endif
   end if
 else
@@ -481,9 +471,9 @@ end if
 !                                                                      *
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-write(6,'(a,i2)') 'VecFind: InVec=',InVec
-write(6,*) 'OccSet=',OccSet
-write(6,*) 'FermSet=',FermSet
+write(u6,'(a,i2)') 'VecFind: InVec=',InVec
+write(u6,*) 'OccSet=',OccSet
+write(u6,*) 'FermSet=',FermSet
 #endif
 !----------------------------------------------------------------------*
 !                                                                      *

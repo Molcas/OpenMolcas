@@ -15,15 +15,22 @@
 !               2016,2017, Roland Lindh                                *
 !***********************************************************************
 
-subroutine Final()
+subroutine FinalSCF()
 !***********************************************************************
 !                                                                      *
 !     purpose: perform final calculations                              *
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: Dens, OneHam, Ovrlp, TwoHam, CMO, EOrb, FockAO, OccNo, KntE, MssVlc, Darwin
-use InfSCF, only: nD
+use SCF_Arrays, only: CMO, Darwin, Dens, EOrb, FockAO, KntE, MssVlc, OccNo, OneHam, Ovrlp, TwoHam
+use Interfaces_SCF, only: dOne_SCF
+use OFembed, only: Do_OFemb, FMaux, NDSD
+use SpinAV, only: DSc
+use InfSCF, only: BName, DMOMax, DSCF, E1V, E2V, EneV, Falcon, FMOMax, FThr, iPrForm, iPrint, iStatPrn, kIVO, KSDFT, MaxBas, &
+                  MaxBXO, NamFld, nBas, nBB, nBO, nBT, nD, nDel, nDens, nFld, nFro, nIter, nIterP, nnB, nnO, nOcc, NoProp, nOrb, &
+                  nSym, TimFld
+use Files, only: LuOut
+use AddCorr, only: Do_Addc, Do_Tw
 #ifdef _EFP_
 use EFP_Module, only: EFP_Instance
 use EFP, only: EFP_Shutdown
@@ -33,50 +40,33 @@ use mh5, only: mh5_put_dset
 use SCFWFn, only: wfn_mocoef, wfn_mocoef_a, wfn_mocoef_b, wfn_occnum, wfn_occnum_a, wfn_occnum_b, wfn_orbene, wfn_orbene_a, &
                   wfn_orbene_b, wfn_tpidx, wfn_tpidx_a, wfn_tpidx_b
 #endif
-use Interfaces_SCF, only: dOne_SCF
-use OFembed, only: Do_OFemb, FMaux, NDSD
 #ifdef _FDE_
 use Embedding_Global, only: embPot, embWriteEsp
-#endif
-use SpinAV, only: DSc
-use InfSCF, only: nBT, nDens, DMOMax, FMOMax, kIVO, MaxBas, nSym, KSDFT, EneV, Falcon, iPrint, NoProp, DSCF, TotCPU, nFld, &
-                  iStatPrn, E1V, E2V, FThr, iPrForm, MaxBXO, Name, NamFld, nBas, nBB, nBO, nDel, nFro, nIter, nIterP, nnB, nnO, &
-                  nOcc, nOrb, TimFld
-#ifdef _FDE_
 use InfSCF, only: nAtoms
 #endif
-use Constants, only: Zero, One, Two
 use stdalloc, only: mma_allocate, mma_deallocate
-use Files, only: LuOut
-use AddCorr, only: Do_Addc, Do_Tw
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#ifdef _EFP_
-logical, external :: EFP_On
-#endif
-! Define local variable
-integer iD, iRC, iOpt, iSymLb, iFock, jFock, iCMO, iVirt, jVirt, ij, iBas, jBas, iSym, kl, lk, iRef, jRef, iiOrb, iOrb, nOccMax, &
-        nOccMin, iWFType, kBas, iFld
-real*8 TCPU1, TCPU2, Dummy, TWall1, TWall2
-logical FstItr
-character(len=8) RlxLbl, Method
-character(len=60) Fmt
-character(len=128) OrbName
-logical RF_On, Langevin_On, PCM_On
-character(len=80) Note
-character(len=8) What
-integer IndType(7,8)
-real*8, dimension(:), allocatable :: Temp, CMOn, Etan, Epsn
-real*8, dimension(:,:), allocatable :: GVFck, Scrt1, Scrt2, DMat, EOr
+integer(kind=iwp) :: iBas, iCMO, iD, iFld, iFock, iiOrb, ij, IndType(7,8), iOpt, iOrb, iRC, iRef, iSym, iSymLb, iVirt, iWFType, &
+                     jBas, jFock, jRef, jVirt, kBas, kl, lk, nFldP, nOccMax, nOccMin
+real(kind=wp) :: Dummy(1), TCPU1, TCPU2, TotCpu, TWall1, TWall2
+logical(kind=iwp) :: FstItr
+character(len=128) :: OrbName
+character(len=80) :: Note
+character(len=60) :: Frmt
+character(len=8) :: Method, RlxLbl, What
+real(kind=wp), allocatable :: CMOn(:), DMat(:,:), E_Or(:,:), Epsn(:), Etan(:), GVFck(:,:), Scrt1(:,:), Scrt2(:,:), Temp(:)
+logical, external :: RF_On, Langevin_On, PCM_On
 #ifdef _HDF5_
 #include "Molcas.fh"
-character(len=1), allocatable :: typestring(:)
-integer nSSh(mxSym), nZero(mxSym)
-integer i
-integer IndTypeT(8,7)
+integer(kind=iwp) :: i, IndTypeT(8,7), nSSh(mxSym), nZero(mxSym)
+character, allocatable :: typestring(:)
 #endif
-integer nFldP
-dimension Dummy(1)
+#ifdef _EFP_
+logical(kind=iwp), external :: EFP_On
+#endif
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -109,7 +99,7 @@ else
   ! Compute improved virtuals (if needed)
   if (kIvo == 1) then
     do iD=1,nD
-      call IvoGen(OneHam,nBT,CMO(1,iD),nBO,EOrb(1,iD),nnO,nOcc(1,iD))
+      call IvoGen(OneHam,nBT,CMO(:,iD),nBO,EOrb(:,iD),nnO,nOcc(:,iD))
     end do
   end if
 
@@ -135,8 +125,8 @@ else
     iSymLb = 1
     call WrOne(iRc,iOpt,RlxLbl,1,Temp,iSymLb)
     if (iRc /= 0) then
-      write(6,*) 'Final: Error writing on ONEINT'
-      write(6,'(A,A)') 'RlxLbl=',RlxLbl
+      write(u6,*) 'Final: Error writing on ONEINT'
+      write(u6,'(A,A)') 'RlxLbl=',RlxLbl
       call Abend()
     end if
   end do
@@ -236,10 +226,10 @@ else
     call mma_allocate(DMat,nBT,nD,Label='DMat')
 
     if (nD == 1) then
-      call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,1),nBB,OccNo(1,1),DMat(1,1),.true.)
+      call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(:,1),nBB,OccNo(:,1),DMat(:,1),.true.)
     else
-      call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,1),nBB,OccNo(1,1),DMat(1,1),.true.)
-      call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,2),nBB,OccNo(1,2),DMat(1,2),.false.)
+      call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(:,1),nBB,OccNo(:,1),DMat(:,1),.true.)
+      call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(:,2),nBB,OccNo(:,2),DMat(:,2),.false.)
       call Put_dArray('D1aoVar',Dummy,0) ! Undefined the field.
     end if
 
@@ -263,12 +253,12 @@ else
   else
     call DScal_(nBT,Two,GvFck(1,1),1)
   end if
-  call Put_dArray('FockOcc',GVFck(1,1),nBT)
+  call Put_dArray('FockOcc',GVFck(:,1),nBT)
   call mma_deallocate(GVFck)
 
   ! Add SCF orbital energies
-  call Put_dArray('OrbE',EOrb(1,1),nnB)
-  if (nD == 2) call Put_dArray('OrbE_ab',EOrb(1,2),nnB)
+  call Put_dArray('OrbE',EOrb(:,1),nnB)
+  if (nD == 2) call Put_dArray('OrbE_ab',EOrb(:,2),nnB)
 
   call Put_dScalar('Thrs',Fthr)
 end if
@@ -281,11 +271,11 @@ if (embPot .and. embWriteEsp) call embPotOutput(nAtoms,Dens)
 ! t.t.;
 ! store Fock matrix in Runfile in case of fragment calculation
 if (Falcon) then
-  !write(6,*) 'Fock matrix is written in RunFile.'
-  !write(6,*) 'fck:'
-  !write(6,*) 'nbt=',nbt
-  !write(6,*) 'ndens=',ndens
-  !write(6,*) (FockAO(itt),itt=1,nbt)
+  !write(u6,*) 'Fock matrix is written in RunFile.'
+  !write(u6,*) 'fck:'
+  !write(u6,*) 'nbt=',nbt
+  !write(u6,*) 'ndens=',ndens
+  !write(u6,*) (FockAO(itt),itt=1,nbt)
   call Put_dArray('Fragment_Fock',FockAO(1,1),nBT)
 end if
 
@@ -305,15 +295,15 @@ do iD=1,nD
 end do
 
 if ((iPrint >= 2) .and. (nD == 2)) &
-  call PriMO('Natural orbitals',.true.,.true.,Zero,2.0d9,nSym,nBas,nOrb,Name,Epsn,Etan,CMOn,iPrForm)
+  call PriMO('Natural orbitals',.true.,.true.,Zero,2.0e9_wp,nSym,nBas,nOrb,BName,Epsn,Etan,CMOn,iPrForm)
 ! Calculate expectation values
 if (.not. NoProp) then
-  if (iPrint >= 3) write(6,'(/6X,A)') 'Expectation values of various operators'
+  if (iPrint >= 3) write(u6,'(/6X,A)') 'Expectation values of various operators'
   call Prpt()
 end if
 
 ! make a fix for energies for deleted orbitals
-call mma_allocate(EOr,nnB,nD,Label='EOr')
+call mma_allocate(E_Or,nnB,nD,Label='E_Or')
 
 iRef = 1
 jRef = 1
@@ -321,14 +311,14 @@ do iSym=1,nSym
   iiOrb = nOrb(iSym)-nDel(iSym)
   do iOrb=1,iiOrb
     do iD=1,nD
-      EOr(iRef,iD) = EOrb(jRef,iD)
+      E_Or(iRef,iD) = EOrb(jRef,iD)
     end do
     iRef = iRef+1
     jRef = jRef+1
   end do
   do iOrb=1,nDel(iSym)
     do iD=1,nD
-      EOr(iRef,iD) = 1000
+      E_Or(iRef,iD) = 1000
     end do
     iRef = iRef+1
   end do
@@ -365,7 +355,7 @@ if (nD == 1) then
     Note = trim(Note)//' / '//trim(KSDFT)
     iWFtype = 3
   end if
-  call WrVec_(OrbName,LuOut,What,nD-1,nSym,nBas,nBas,CMO(1,1),Dummy,OccNo(1,1),Dummy,EOr(1,1),Dummy,IndType,Note,iWFtype)
+  call WrVec_(OrbName,LuOut,What,nD-1,nSym,nBas,nBas,CMO(:,1),Dummy,OccNo(:,1),Dummy,E_Or(:,1),Dummy,IndType,Note,iWFtype)
 # ifdef _HDF5_
   nZero = 0
   call mma_allocate(typestring,nnB)
@@ -387,7 +377,8 @@ else
     Note = trim(Note)//' / '//trim(KSDFT)
     iWFtype = 5
   end if
-  call WrVec_(OrbName,LuOut,What,nD-1,nSym,nBas,nBas,CMO(1,1),CMO(1,2),OccNo(1,1),OccNo(1,2),EOr(1,1),EOr(1,2),IndType,Note,iWFtype)
+  call WrVec_(OrbName,LuOut,What,nD-1,nSym,nBas,nBas,CMO(:,1),CMO(:,2),OccNo(:,1),OccNo(:,2),E_Or(:,1),E_Or(:,2),IndType,Note, &
+              iWFtype)
 # ifdef _HDF5_
   nZero = 0
   call mma_allocate(typestring,nnB)
@@ -419,10 +410,10 @@ else
     IndType(7,iSym) = nDel(iSym)
     do kBas=1,nBas(iSym)
       iBas = iBas+1
-      if (Etan(iBas) > 1.99d0) then
+      if (Etan(iBas) > 1.99_wp) then
         IndType(2,iSym) = IndType(2,iSym)+1
         IndType(6,iSym) = IndType(6,iSym)-1
-      else if (Etan(iBas) > 0.01d0) then
+      else if (Etan(iBas) > 0.01_wp) then
         IndType(4,iSym) = IndType(4,iSym)+1
         IndType(6,iSym) = IndType(6,iSym)-1
       end if
@@ -450,7 +441,7 @@ else
   call mma_deallocate(CMOn)
 end if
 
-call mma_deallocate(EOr)
+call mma_deallocate(E_Or)
 
 ! release Buffers for semi-direct SCF
 if (DSCF) call ClsBuf()
@@ -470,7 +461,7 @@ if (EFP_On()) call EFP_ShutDown(EFP_Instance)
 
 call CWTime(TCpu2,TWall2)
 TimFld(15) = TimFld(15)+(TCpu2-TCpu1)
-TotCpu = max(TCpu2,0.1d0)
+TotCpu = max(TCpu2,0.1_wp)
 
 ! Write out timing informations
 if (.not. NoProp) then
@@ -478,24 +469,24 @@ if (.not. NoProp) then
 else
   nFldP = nFld-2
 end if
-Fmt = '(2x,A)'
+Frmt = '(2x,A)'
 if (iStatPRN > 0) then
-  write(6,*)
+  write(u6,*)
   call CollapseOutput(1,'Statistics and timing')
-  write(6,'(3X,A)') '---------------------'
-  write(6,*)
-  write(6,Fmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,Fmt) '   Part of the program                              CPU    fraction'
-  write(6,Fmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(3X,A)') '---------------------'
+  write(u6,*)
+  write(u6,Frmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,Frmt) '   Part of the program                              CPU    fraction'
+  write(u6,Frmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
   do iFld=1,nFldP
     if ((iFld == 11) .or. (iFld == 12)) cycle
-    write(6,'(2x,A45,2f10.2)') NamFld(iFld),TimFld(iFld),TimFld(iFld)/TotCpu
+    write(u6,'(2x,A45,2f10.2)') NamFld(iFld),TimFld(iFld),TimFld(iFld)/TotCpu
   end do
-  write(6,*)
-  write(6,'(2x,A45,2F10.2)') NamFld(nFld),TotCpu
-  write(6,Fmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,'(2x,A45,2F10.2)') NamFld(nFld),TotCpu
+  write(u6,Frmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
   call CollapseOutput(0,'Statistics and timing')
-  write(6,*)
+  write(u6,*)
 end if
 
-end subroutine Final
+end subroutine FinalSCF

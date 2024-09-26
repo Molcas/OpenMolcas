@@ -13,7 +13,7 @@
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
 
-subroutine IvoGen(OneHam,none,CMO,nCMO,EOrb,nEOrb,mynOcc)
+subroutine IvoGen(OneHam,nOneH,CMO,nCMO,EOrb,nEOrb,mynOcc)
 !***********************************************************************
 !                                                                      *
 !     purpose: Generate improved virtual orbitals by diagonalization   *
@@ -21,7 +21,7 @@ subroutine IvoGen(OneHam,none,CMO,nCMO,EOrb,nEOrb,mynOcc)
 !              by the virtual orbitals                                 *
 !                                                                      *
 !     input:                                                           *
-!       OneHam  : one-electron hamiltonian of length nOne              *
+!       OneHam  : one-electron hamiltonian of length nOneH             *
 !       CMO     : molecular orbital coefficients of length nCMO        *
 !                                                                      *
 !     output:                                                          *
@@ -34,17 +34,17 @@ subroutine IvoGen(OneHam,none,CMO,nCMO,EOrb,nEOrb,mynOcc)
 !     University of Lund, Sweden, 1992                                 *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, MaxBOO, MaxOrO, nSym, nBas, nOrb
-use Constants, only: Zero, One
+use InfSCF, only: MaxBas, MaxBOO, MaxOrO, nBas, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer none, nCMO, nEOrb
-real*8 OneHam(none), CMO(nCMO), EOrb(nEOrb)
-integer mynOcc(*)
-real*8 Dummy
-integer iCMO, iDum, iEOr, iErr, ij, iSym, nFound, nOrbi
-real*8, dimension(:), allocatable :: FckS, FckH, FckT, Scratch
+integer(kind=iwp) :: nOneH, nCMO, nEOrb, mynOcc(*)
+real(kind=wp) :: OneHam(nOneH), CMO(nCMO), EOrb(nEOrb)
+integer(kind=iwp) :: iCMO, iDum, i_EOr, iErr, ij, iSym, nFound, nOrbi
+real(kind=wp) :: Dummy
+real(kind=wp), allocatable :: FckH(:), FckS(:), FckT(:), Scratch(:)
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -61,14 +61,14 @@ call mma_allocate(FckT,MaxOrO*(MaxOrO+1)/2,Label='FckT')
 
 ij = 1
 iCMO = 1
-iEOr = 1
+i_EOr = 1
 do iSym=1,nSym
   nOrbi = nOrb(iSym)-mynOcc(iSym)
 
-  ! If nOrbi == 0 - no virtual orbitals; iCMO and iEOr must be
+  ! If nOrbi == 0 - no virtual orbitals; iCMO and i_EOr must be
   ! updated anyway (occupied orbitals may exist)
   iCMO = iCMO+nBas(iSym)*mynOcc(iSym)
-  iEOr = iEOr+mynOcc(iSym)
+  i_EOr = i_EOr+mynOcc(iSym)
 
   if (nOrbi > 0) then
 
@@ -87,18 +87,18 @@ do iSym=1,nSym
     call mma_allocate(Scratch,nOrbi**2,Label='Scratch')
     Dummy = Zero
     iDum = 0
-    call Diag_Driver('V','A','L',nOrbi,FckT,Scratch,nOrbi,Dummy,Dummy,iDum,iDum,EOrb(iEOr),CMO(iCMO),nBas(iSym),0,-1,'J',nFound, &
+    call Diag_Driver('V','A','L',nOrbi,FckT,Scratch,nOrbi,Dummy,Dummy,iDum,iDum,EOrb(i_EOr),CMO(iCMO),nBas(iSym),0,-1,'J',nFound, &
                      iErr)
     call mma_deallocate(Scratch)
 
     ! Orbital energies are now meaningless; set them to zero
-    EOrb(iEOr:iEOr+nOrbi-1) = Zero
+    EOrb(i_EOr:i_EOr+nOrbi-1) = Zero
 
   end if
 
   ! Update pointers
   iCMO = iCMO+nOrbi*nBas(iSym)
-  iEOr = iEOr+nOrbi
+  i_EOr = i_EOr+nOrbi
   ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
 
 end do

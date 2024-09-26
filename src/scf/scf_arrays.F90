@@ -27,10 +27,16 @@ module SCF_Arrays
 !   CMO     : molecular orbitals of length nCMO                        *
 !   OccNo   : occupation numbers of length lthO                        *
 
-real*8, dimension(:), allocatable :: HDiag, Ovrlp, OneHam, EDFT, KntE, Darwin, MssVlc
-real*8, dimension(:,:), allocatable :: CMO, TrM, FockAO, OccNo, EOrb, CInter, CMO_ref
-real*8, dimension(:,:,:), allocatable :: TrDh, TrDP, TrDD
-real*8, dimension(:,:), allocatable, target :: FockMO
-real*8, dimension(:,:,:), allocatable, target :: TwoHam, Vxc, Dens
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp), allocatable :: CMO(:,:), CMO_ref(:,:), Darwin(:), EDFT(:), EOrb(:,:), FockAO(:,:), HDiag(:), KntE(:), MssVlc(:), &
+                              OccNo(:,:), OneHam(:), Ovrlp(:), TrDD(:,:,:), TrDh(:,:,:), TrDP(:,:,:), TrM(:,:)
+real(kind=wp), allocatable, target :: Dens(:,:,:), FockMO(:,:), TwoHam(:,:,:), Vxc(:,:,:)
+
+public :: CMO, CMO_ref, Darwin, Dens, EDFT, EOrb, FockAO, FockMO, HDiag, KntE, MssVlc, OccNo, OneHam, Ovrlp, TrDD, TrDh, TrDP, &
+          TrM, TwoHam, Vxc
 
 end module SCF_Arrays

@@ -35,48 +35,45 @@ subroutine RdInp_scf()
 !                                                                      *
 !***********************************************************************
 
-use OccSets, only: OccSet_e, OccSet_M, nOccSet_e, nOccSet_m
+use OccSets, only: nOccSet_e, nOccSet_m, OccSet_e, OccSet_M
 use KSDFT_Info, only: CoefR, CoefX
-use OFembed, only: OFE_KSDFT, dfmd, Do_OFemb, KEonly, ThrFThaw, XSigma
+use OFembed, only: dfmd, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, XSigma
 use Functionals, only: Custom_File, Custom_Func
 use IOBuf, only: lDaRec, nSect
 use InfSO, only: DltnTh, QNRTh
-#ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r
-use InfSCF, only: FileOrb_ID
-#endif
 use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, Damping, DDnOff, DelThr, DIIS, DIISTh, DoCholesky, DoHLgap, DSCF, &
-                  DThr, EThr, FThr, Falcon, FckAuf, FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo, iDKeep, InVec, iPrForm, iPrint, &
-                  iPrOrb, isHDF5, iStatPRN, Iter2run, IterPrlv, nD, ivvloop, jPrint, jVOut, kIVO, klockan, kOptim_Max, KSDFT, &
-                  LKon, MaxFlip, MiniDn, MSYMON, MxConstr, nCore, nDisc, Neg2_Action, NoExchange, NoProp, nSym, nTit, One_Grid, &
-                  OnlyProp, PmTime, PreSch, QudThr, RFPert, RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, &
-                  Scrmbl, Teee, TemFac, Thize, ThrEne, Tot_Charge, Tot_Nuc_Charge, TStop, WrOutD, nConstr, nOrb, nBas, &
-                  Tot_El_Charge, Title, nOcc, nDel, nFro, LstVec, indxc
+use InfSCF, only: AddFragments, Aufb, C1DIIS, Damping, DDnOff, DelThr, DIIS, DIISTh, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, &
+                  Falcon, FckAuf, FckAuf, FlipThr, FThr, HLgap, iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, &
+                  isHDF5, iStatPRN, Iter2run, IterPrlv, jPrint, jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, &
+                  MiniDn, MSYMON, MxConstr, nAufb, nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, &
+                  NoExchange, NoProp, nOrb, nSym, nTit, One_Grid, OnlyProp, PmTime, PreSch, QudThr, RFPert, RGEK, RotFac, RotLev, &
+                  RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, Title, Tot_Charge, &
+                  Tot_El_Charge, Tot_Nuc_Charge, TStop, WrOutD
 use Cholesky, only: ChFracMem, timings
 use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
 use MxDM, only: MxIter, MxOptm
 use AddCorr, only: Addc_KSDFT, Do_Addc, Do_Tw
 use ChoAuf, only: Cho_Aufb
-use Constants, only: Zero, Half, One, Two
+#ifdef _HDF5_
+use mh5, only: mh5_is_hdf5, mh5_open_file_r
+use InfSCF, only: FileOrb_ID
+#endif
 use stdalloc, only: mma_allocate
+use Constants, only: Zero, One, Two, Ten, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "hfc_logical.fh"
-! Define local variables
-integer i, iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, LuSpool, nFunc, nnn, nSqrSum
-real*8 Tot_Ml_Charge
-integer, external :: Allocdisk, IsFreeUnit
-real*8, external :: Get_ExFac
-character(len=180) Key, Line
+integer(kind=iwp) :: i, iArray(32), iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, &
+                     LuSpool, Mode(1), nFunc, nnn, nSqrSum
+real(kind=wp) :: Tot_Ml_Charge
+logical(kind=iwp) :: CharSet, Chol, FermSet, IfAufChg, lTtl, OccSet, SpinSet, TDen_UsrDef, UHFSet
+character(len=180) :: Key, Line
+character(len=8) :: Method
+integer(kind=iwp), external :: Allocdisk, IsFreeUnit
+real(kind=wp), external :: Get_ExFac
 character(len=180), external :: Get_Ln
-integer iArray(32)
-logical lTtl, IfAufChg, OccSet, FermSet, CharSet, UHFSet, SpinSet
-logical Chol
-integer Mode(1)
-character Method*8
-logical TDen_UsrDef
 
 ! copy input from standard input to a local scratch file
 
@@ -99,13 +96,13 @@ DensityCheck = .false.
 timings = .false.
 UHFSet = .false.
 Nscreen = 10    ! default screening interval (# of red sets)
-dmpk = 0.045d0   ! default damping of the screening threshold
+dmpk = 0.045_wp ! default damping of the screening threshold
 Estimate = .false.
 Update = .true.
 #ifdef _MOLCAS_MPP_
-ChFracMem = 0.3d0
+ChFracMem = 0.3_wp
 #else
-ChFracMem = half
+ChFracMem = Half
 #endif
 SCF_FileOrb = 'INPORB'
 isHDF5 = .false.
@@ -151,7 +148,6 @@ iOrbi = 0
 iFroz = 0
 iOccu = 0
 nTit = 0
-ivvloop = 0
 iPrForm = -1
 iterprlv = 0
 ScrFac = Zero
@@ -160,12 +156,12 @@ ScrFac = Zero
 
 RotLev = Zero
 RotFac = One
-RotMax = 1.0d1
+RotMax = Ten
 !HLgap = -One
-HLgap = 0.2d0
+HLgap = 0.2_wp
 DoHLgap = .false.
 MaxFlip = 10
-FlipThr = 0.1
+FlipThr = 0.1_wp
 
 ! Skip exchange when building Fock matrix
 ! (for debugging purposes)
@@ -181,9 +177,9 @@ InVec = -1
 
 Aufb = .true.
 Teee = .true.
-RTemp = 0.500d0
-TemFac = 0.460d0
-TStop = 0.010d0
+RTemp = Half
+TemFac = 0.46_wp
+TStop = 0.01_wp
 nAufb(1) = -1
 nAufb(2) = -1
 call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
@@ -300,7 +296,7 @@ if (Line(1:4) == 'FALC') Go To 30000
 if (Line(1:4) == 'END ') Go To 9000
 
 if (lTtl) Go To 1101
-write(6,*) 'Unidentified key word:',Key
+write(u6,*) 'Unidentified key word:',Key
 call FindErrorLine()
 call Quit_OnUserError()
 
@@ -354,11 +350,11 @@ end do
 iOccu = 1
 if (nD == 1) then
   do i=1,nSym
-    Tot_El_Charge = Tot_El_Charge-dble(2*nOcc(i,1))
+    Tot_El_Charge = Tot_El_Charge-real(2*nOcc(i,1),kind=wp)
   end do
 else
   do i=1,nSym
-    Tot_El_Charge = Tot_El_Charge-dble(nOcc(i,1)+nOcc(i,2))
+    Tot_El_Charge = Tot_El_Charge-real(nOcc(i,1)+nOcc(i,2),kind=wp)
   end do
 end if
 Aufb = .false. ! Disable default action.
@@ -428,9 +424,9 @@ call Get_I(1,LstVec,7)
 ! temporary hack to use density
 if (LstVec(1) == 3) then
   InVec = 3
-  RTemp = 0.100d0
-  TemFac = 0.100d0
-  TStop = 0.005d0
+  RTemp = 0.1_wp
+  TemFac = 0.1_wp
+  TStop = 0.005_wp
   !Aufb = .false.
   !Teee = .false.
 end if
@@ -476,12 +472,12 @@ do i=1,nSym
   Line = Get_Ln(LuSpool)
   call Get_I(1,indxC(1,1,i),nConstr(i))
   if (nConstr(i) > 16) then
-    write(6,*) ' Max nConstr=16. Increase 1st dim of indxC and recompile'
+    write(u6,*) ' Max nConstr=16. Increase 1st dim of indxC and recompile'
     call Abend()
   end if
   do j=1,nConstr(i)
     if ((indxC(j,1,i) /= 1) .and. (indxC(j,1,i) /= -1)) then
-      write(6,*) ' Only 1 and -1 are accepted values'
+      write(u6,*) ' Only 1 and -1 are accepted values'
       call Abend()
     else if (indxC(j,1,i) == 1) then
       indxC(j,2,i) = 2
@@ -540,7 +536,7 @@ LstVec(2) = -1
 goto 1000
 !>>>>>>>>>>>>> REST <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21004 continue
-write(6,*) 'WARNING: Option REST is redundant.'
+write(u6,*) 'WARNING: Option REST is redundant.'
 goto 1000
 !>>>>>>>>>>>>> THRE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 2200 continue
@@ -554,38 +550,38 @@ call Get_F1(4,DltNTh)
 !tbp   write(ww,'(a,es20.8)') 'Detected Cholesky or RI/DF calculation BUT user specified EThr will be used. Ethr = ',EThr
 !tbp   call WarningMessage(1,ww)
 !tbp end if
-!if (  DThr*1.D-2 > EThr) then
-!  write(6,*)
-!  write(6,*) '----> WARNING! <----'
-!  write(6,*)
-!  write(6,*) ' The value of DThr is inconsistent with'
-!  write(6,*) ' with the value of EThr. The code will'
-!  write(6,*) ' automatically reset the value to something'
-!  write(6,*) ' more reasonable based on the requested'
-!  write(6,*) ' threshold of the energy.'
-!  DThr = 100.D+00*EThr
+!if (  DThr*1.0e-2_wp > EThr) then
+!  write(u6,*)
+!  write(u6,*) '----> WARNING! <----'
+!  write(u6,*)
+!  write(u6,*) ' The value of DThr is inconsistent with'
+!  write(u6,*) ' with the value of EThr. The code will'
+!  write(u6,*) ' automatically reset the value to something'
+!  write(u6,*) ' more reasonable based on the requested'
+!  write(u6,*) ' threshold of the energy.'
+!  DThr = 100.0_wp*EThr
 !end if
-!if (  FThr*1.D-2 > EThr) then
-!  write(6,*)
-!  write(6,*) '----> WARNING! <----'
-!  write(6,*)
-!  write(6,*) ' The value of FThr is inconsistent with'
-!  write(6,*) ' with the value of EThr. The code will'
-!  write(6,*) ' automatically reset the value to something'
-!  write(6,*) ' more reasonable based on the requested'
-!  write(6,*) ' threshold of the energy.'
-!  FThr = 100.D+00*EThr
+!if (  FThr*1.0e-2_wp > EThr) then
+!  write(u6,*)
+!  write(u6,*) '----> WARNING! <----'
+!  write(u6,*)
+!  write(u6,*) ' The value of FThr is inconsistent with'
+!  write(u6,*) ' with the value of EThr. The code will'
+!  write(u6,*) ' automatically reset the value to something'
+!  write(u6,*) ' more reasonable based on the requested'
+!  write(u6,*) ' threshold of the energy.'
+!  FThr = 100.0_wp*EThr
 !end if
-!if (DltNTh*1.D-2 > Sqrt(EThr)) then
-!  write(6,*)
-!  write(6,*) '----> WARNING! <----'
-!  write(6,*)
-!  write(6,*) ' The value of DltNTh is inconsistent with'
-!  write(6,*) ' with the value of EThr. The code will'
-!  write(6,*) ' automatically reset the value to something'
-!  write(6,*) ' more reasonable based on the requested'
-!  write(6,*) ' threshold of the energy.'
-!  DltNTh = 100.D+00*Sqrt(EThr)
+!if (DltNTh*1.0e-2_wp > sqrt(EThr)) then
+!  write(u6,*)
+!  write(u6,*) '----> WARNING! <----'
+!  write(u6,*)
+!  write(u6,*) ' The value of DltNTh is inconsistent with'
+!  write(u6,*) ' with the value of EThr. The code will'
+!  write(u6,*) ' automatically reset the value to something'
+!  write(u6,*) ' more reasonable based on the requested'
+!  write(u6,*) ' threshold of the energy.'
+!  DltNTh = 100.0_wp*Sqrt(EThr)
 !end if
 goto 1000
 
@@ -613,8 +609,8 @@ do iSym=1,nSym
   if (nD == 2) lthSet_b = lthSet_b+nOcc(iSym,2)
 end do
 nOccSet_e = max(lthSet_a,lthSet_b)
-!write(6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
-!write(6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
+!write(u6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
+!write(u6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
 
 ! Note, it is dangerous to read Line first. There may be many
 ! lines with occupation numbers.
@@ -648,8 +644,8 @@ do iSym=1,nSym
   if (nD == 2) lthSet_b = lthSet_b+nOcc(iSym,2)
 end do
 nOccset_m = max(lthSet_a,lthSet_b)
-!write(6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
-!write(6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
+!write(u6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
+!write(u6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
 
 ! Note, it is dangerous to read Line first. There may be many
 ! lines with occupation numbers.
@@ -799,39 +795,37 @@ if (IfAufChg) then
   call Abend()
 end if
 if (nD == 1) then
-  Tot_El_Charge = -Two*dble(nAufb(1))
+  Tot_El_Charge = -Two*real(nAufb(1),kind=wp)
 else
-  Tot_El_Charge = -dble(nAufb(1)+nAufb(2))
+  Tot_El_Charge = -real(nAufb(1)+nAufb(2),kind=wp)
 end if
 IfAufChg = .true.
-4210 if (iAuf == 0) then
-  Teee = .false.
-else if (iAuf == 1) then
-  RTemp = 0.500d0
-  TemFac = 0.400d0
-  TStop = 0.005d0
-else if (iAuf == 2) then
-  RTemp = 0.500d0
-  TemFac = 0.460d0
-  TStop = 0.010d0
-else if (iAuf == 3) then
-  RTemp = 0.500d0
-  TemFac = 0.610d0
-  TStop = 0.025d0
-else if (iAuf == 4) then
-  RTemp = 1.000d0
-  TemFac = 0.730d0
-  TStop = 0.060d0
-else if (iAuf == 5) then
-  RTemp = 1.000d0
-  TemFac = 0.870d0
-  TStop = 0.150d0
-else
-  call WarningMessage(1,' RdInp: Aufbau case must be in the range 0-5;Using case 5!')
-  RTemp = 1.000d0
-  TemFac = 0.870d0
-  TStop = 0.150d0
-end if
+4210 continue
+select case (iAuf)
+  case (0)
+    Teee = .false.
+  case (1)
+    RTemp = Half
+    TemFac = 0.4_wp
+    TStop = 0.005_wp
+  case (2)
+    RTemp = Half
+    TemFac = 0.46_wp
+    TStop = 0.01_wp
+  case (3)
+    RTemp = Half
+    TemFac = 0.61_wp
+    TStop = 0.025_wp
+  case (4)
+    RTemp = One
+    TemFac = 0.73_wp
+    TStop = 0.06_wp
+  case default
+    if (iAuf /= 5) call WarningMessage(1,' RdInp: Aufbau case must be in the range 0-5;Using case 5!')
+    RTemp = One
+    TemFac = 0.87_wp
+    TStop = 0.15_wp
+end select
 UHFSet = .true.
 goto 1000
 !>>>>>>>>>>>>> FERM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -876,7 +870,7 @@ goto 1000
 4400 continue
 Line = Get_Ln(LuSpool)
 call Get_I(1,iArray,1)
-Tot_Charge = dble(iArray(1))
+Tot_Charge = real(iArray(1),kind=wp)
 nAufb(1) = -1
 nAufb(2) = -1
 if (IfAufChg) then
@@ -932,21 +926,21 @@ Line = Get_Ln(LuSpool)
 call UpCase(Line)
 Line = adjustl(Line)
 OFE_KSDFT = Line(1:16)
-write(6,*) '  --------------------------------------'
-write(6,*) '   Orbital-Free Embedding Calculation'
-write(6,*) '  --------------------------------------'
+write(u6,*) '  --------------------------------------'
+write(u6,*) '   Orbital-Free Embedding Calculation'
+write(u6,*) '  --------------------------------------'
 if (OFE_KSDFT(1:4) == 'LDTF') then
-  write(6,*) '    T_nad potential   : Thomas-Fermi    '
+  write(u6,*) '    T_nad potential   : Thomas-Fermi    '
 else
-  write(6,*) '    T_nad potential   : ',OFE_KSDFT(1:4)
+  write(u6,*) '    T_nad potential   : ',OFE_KSDFT(1:4)
 end if
 if (KEonly) then
-  write(6,*) '    Exc_nad potential :  None           '
+  write(u6,*) '    Exc_nad potential :  None           '
 else
-  write(6,*) '    Exc_nad potential : ',OFE_KSDFT(6:10)
+  write(u6,*) '    Exc_nad potential : ',OFE_KSDFT(6:10)
 end if
-write(6,*) '  --------------------------------------'
-write(6,*)
+write(u6,*) '  --------------------------------------'
+write(u6,*)
 goto 1000
 
 !>>>>>>>>>>>>> FTHA <<<< threshold for Freeze-n-Thaw <<<<<<<
@@ -961,8 +955,8 @@ Line = Get_Ln(LuSpool)
 call Get_F1(1,dFMD)
 call Get_F1(2,Xsigma)
 if (dFMD+Xsigma < Zero) then
-  write(6,*) ' *** Warning: arguments to DFMD must be nonnegative!'
-  write(6,*) ' ***          I will take their ABS !!! '
+  write(u6,*) ' *** Warning: arguments to DFMD must be nonnegative!'
+  write(u6,*) ' ***          I will take their ABS !!! '
   dFMD = abs(dFMD)
   Xsigma = abs(Xsigma)
 end if
@@ -972,11 +966,11 @@ goto 1000
 4660 continue
 KEonly = .true.
 if (.not. Do_OFemb) then
-  write(6,*) ' *** Warning:  KEonly works in OFembedding runs!'
+  write(u6,*) ' *** Warning:  KEonly works in OFembedding runs!'
 else
-  write(6,*) ' *** Warning:  Exc_nad set to NONE at this point ***'
+  write(u6,*) ' *** Warning:  Exc_nad set to NONE at this point ***'
 end if
-write(6,*)
+write(u6,*)
 goto 1000
 
 !>>>>>>>>>>>>> TWCO <<<<< activate Tw correlation <<<<<<<<<<
@@ -1000,7 +994,6 @@ goto 1000
 
 !>>>>>>>>>>>>> DEBUG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 4700 continue
-ivvloop = 1
 Diis = .false.
 MiniDn = .false.
 Damping = .false.
@@ -1067,15 +1060,15 @@ Line = Get_Ln(LuSpool)
 call Get_F1(1,RotLev)
 call Get_F1(2,RotFac)
 call Get_F1(3,RotMax)
-write(6,'(a,ES15.3)') 'Fock matrix levelshift   ',RotLev
-write(6,'(a,ES15.3)') 'Fock matrix scaling      ',RotFac
-write(6,'(a,ES15.3)') 'Fock matrix max rotation ',RotMax
+write(u6,'(a,ES15.3)') 'Fock matrix levelshift   ',RotLev
+write(u6,'(a,ES15.3)') 'Fock matrix scaling      ',RotFac
+write(u6,'(a,ES15.3)') 'Fock matrix max rotation ',RotMax
 goto 1000
 !>>>>>>>>>>>>> HLGA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 5002 continue
 Line = Get_Ln(LuSpool)
 call Get_F1(1,HLgap)
-write(6,'(a,ES15.3)') 'Minimum HOMO-LUMO gap    ',HLgap
+write(u6,'(a,ES15.3)') 'Minimum HOMO-LUMO gap    ',HLgap
 DoHLgap = .true.
 QNRTh = Zero
 goto 1000
@@ -1087,8 +1080,8 @@ call Put_Ln(Line)
 call Get_I(1,iArray,1)
 call Get_F1(2,FlipThr)
 MaxFlip = iArray(1)
-!write(6,*) 'MaxFlip:',MaxFlip
-!write(6,*) 'FlipThr:',FlipThr
+!write(u6,*) 'MaxFlip:',MaxFlip
+!write(u6,*) 'FlipThr:',FlipThr
 goto 1000
 !>>>>>>>>>>>>> PMTI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! Time (CPU *and* wall) subroutine pmat_scf (2-el Fock matrix)
@@ -1150,7 +1143,7 @@ Line = Get_Ln(LuSpool)
 call UpCase(Line)
 Neg2_Action = Line(1:4)
 if ((Neg2_Action /= 'STOP') .and. (Neg2_Action /= 'WARN') .and. (Neg2_Action /= 'CONT')) then
-  write(6,'(A,A)') 'Illegal input for NEG2 keyword: ',Line(1:4)
+  write(u6,'(A,A)') 'Illegal input for NEG2 keyword: ',Line(1:4)
   !call FindErrorLine()
   call Quit_OnUserError()
 end if
@@ -1179,10 +1172,10 @@ goto 1000
 Line = Get_Ln(LuSpool)
 call Get_I1(1,kOptim_Max)
 if (kOptim_Max > MxOptm) then
-  write(6,*) 'kOptim_Max>MxOptm'
-  write(6,*) 'kOptim_Max=',kOptim_Max
-  write(6,*) 'MxOptm=',MxOptm
-  write(6,*) 'Modify mxdm.f90 and recompile!'
+  write(u6,*) 'kOptim_Max>MxOptm'
+  write(u6,*) 'kOptim_Max=',kOptim_Max
+  write(u6,*) 'MxOptm=',MxOptm
+  write(u6,*) 'Modify mxdm.f90 and recompile!'
   call Abend()
 end if
 goto 1000
@@ -1224,15 +1217,15 @@ end if
 ! Check start orbital priority list
 
 if ((.not. OccSet) .and. (.not. FermSet)) then
-  !write(6,*) 'rdinp: Checking OCCU/FERM'
+  !write(u6,*) 'rdinp: Checking OCCU/FERM'
   call VecFind(OccSet,FermSet,CharSet,SpinSet)
   if (OccSet .and. (.not. FermSet)) then
-    !write(6,*) 'Using OCCU'
+    !write(u6,*) 'Using OCCU'
     Aufb = .false.
     Teee = .false.
     Cho_Aufb = .false.
   else if (FermSet .and. (.not. OccSet)) then
-    !write(6,*) 'Using FERM'
+    !write(u6,*) 'Using FERM'
     Aufb = .true.
     Teee = .true.
     Cho_Aufb = .true.
@@ -1258,15 +1251,15 @@ end if
 
 if (max(nIter(0),nIter(1)) > MxIter) then
   call WarningMessage(1,'Input error!;Number of iterations specified in input exceeds allowed maximum!')
-  !write(6,*) 'nIter(0)=',nIter(0)
-  !write(6,*) 'nIter(1)=',nIter(1)
-  !write(6,*) 'MxIter=',MxIter
-  !write(6,*)
+  !write(u6,*) 'nIter(0)=',nIter(0)
+  !write(u6,*) 'nIter(1)=',nIter(1)
+  !write(u6,*) 'MxIter=',MxIter
+  !write(u6,*)
   nIter(0) = MxIter
   nIter(1) = MxIter
 
-  !write(6,*) 'Number of iteration reset to ',MxIter
-  !write(6,*)
+  !write(u6,*) 'Number of iteration reset to ',MxIter
+  !write(u6,*)
 end if
 
 if ((iOrbi == 1) .and. ((InVec /= 2) .and. (InVec /= 4))) then
@@ -1331,11 +1324,11 @@ end if
 ! Check Cholesky vs. Aufbau
 if (Aufb .and. DoCholesky) then
   Cho_Aufb = .true.
-  !write(6,*)
-  !write(6,*) ' ********** WARNING! *********'
-  !write(6,*) ' Cholesky SCF runs much slower with AufBau !'
-  !write(6,*) ' *** Do you really need AufBau in this case? ***'
-  !write(6,*)
+  !write(u6,*)
+  !write(u6,*) ' ********** WARNING! *********'
+  !write(u6,*) ' Cholesky SCF runs much slower with AufBau !'
+  !write(u6,*) ' *** Do you really need AufBau in this case? ***'
+  !write(u6,*)
 end if
 
 ! Check CONS vs. UHF+OCCU
@@ -1356,7 +1349,7 @@ if ((MxConstr == 0) .and. Do_SpinAV) then
   Do_SpinAV = .false.
 end if
 
-if (Do_SpinAV) DThr = 1.0d4 ! reset because it is not meaningful
+if (Do_SpinAV) DThr = 1.0e4_wp ! reset because it is not meaningful
 if (MxConstr > 0) InVec = 6
 
 ! Check parameters of KS-DFT
@@ -1368,12 +1361,12 @@ if (KSDFT /= 'SCF') then
   end if
   if (Do_OFemb .and. (dFMD /= Zero)) then
     call WarningMessage(0,' KSDFT/OFE requires DFMD=0 for correlation potential!')
-    write(6,*) ' dFMD = ',dFMD
+    write(u6,*) ' dFMD = ',dFMD
   end if
 else
   if (Do_OFemb .and. (dFMD /= One)) then
     call WarningMessage(0,' HF/OFE may require DFMD=1 for correlation potential!')
-    write(6,*) ' dFMD = ',dFMD
+    write(u6,*) ' dFMD = ',dFMD
   end if
 end if
 

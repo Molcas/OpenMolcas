@@ -26,25 +26,25 @@ subroutine R1IntA()
 
 use SCF_Arrays, only: OneHam, Ovrlp
 use OneDat, only: sNoNuc, sNoOri
-#ifdef _FDE_
-use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
-#endif
 use InfSCF, only: nBT, Tot_Nuc_Charge
 #ifdef _DEBUGPRINT_
 use InfSCF, only: nBas, nSym
 #endif
+#ifdef _FDE_
+use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
+#endif
 use stdalloc, only: mma_allocate
+use Definitions, only: iwp, u6
 
 implicit none
-! Define local variables
-integer iComp, iOpt, iRC, iSyLbl
+integer(kind=iwp) :: iComp, iOpt, iRC, iSyLbl
+character(len=8) :: Label
 #ifdef _DEBUGPRINT_
-integer ist1Hm, istOvl, iSym
+integer(kind=iwp) :: ist1Hm, istOvl, iSym
 #endif
-character(len=8) Label
 #ifdef _FDE_
-integer iDummyEmb, iEmb, iUnit
-integer, external :: isFreeUnit
+integer(kind=iwp) :: iDummyEmb, iEmb, iUnit
+integer(kind=iwp), external :: isFreeUnit
 #endif
 
 !----------------------------------------------------------------------*
@@ -75,8 +75,8 @@ iSyLbl = 1
 Label = 'OneHam  '
 call RdOne(iRc,iOpt,Label,iComp,OneHam,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'R1Inta: Error readin ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'R1Inta: Error readin ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 #ifdef _FDE_
@@ -98,8 +98,8 @@ if (embPot) then
     Label = 'embpot  '
     call RdOne(iRc,iOpt,Label,iComp,embInt,iSyLbl)
     if (iRc /= 0) then
-      write(6,*) 'R1Inta: Error readin ONEINT'
-      write(6,'(A,A)') 'Label=',Label
+      write(u6,*) 'R1Inta: Error readin ONEINT'
+      write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
   end if
@@ -107,11 +107,11 @@ end if
 #endif
 #ifdef _DEBUGPRINT_
 ist1Hm = 1
-write(6,*)
-write(6,*) ' One electron Hamiltonian at start'
-write(6,*) ' ---------------------------------'
+write(u6,*)
+write(u6,*) ' One electron Hamiltonian at start'
+write(u6,*) ' ---------------------------------'
 do iSym=1,nSym
-  write(6,*) ' symmetry block',iSym
+  write(u6,*) ' symmetry block',iSym
   call TriPrt(' ',' ',OneHam(ist1Hm),nBas(iSym))
   ist1Hm = ist1Hm+nBas(iSym)*(nBas(iSym)+1)/2
 end do
@@ -125,18 +125,18 @@ iSyLbl = 1
 Label = 'Mltpl  0'
 call RdOne(iRc,iOpt,Label,iComp,Ovrlp,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'R1Inta: Error readin ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'R1Inta: Error readin ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Tot_Nuc_Charge = Ovrlp(nBT+4)
 #ifdef _DEBUGPRINT_
 istOvl = 1
-write(6,*)
-write(6,*) ' Overlap matrix at start'
-write(6,*) ' -----------------------'
+write(u6,*)
+write(u6,*) ' Overlap matrix at start'
+write(u6,*) ' -----------------------'
 do iSym=1,nSym
-  write(6,*) ' symmetry block',iSym
+  write(u6,*) ' symmetry block',iSym
   call TriPrt(' ',' ',Ovrlp(istOvl),nBas(iSym))
   istOvl = istOvl+nBas(iSym)*(nBAs(iSym)+1)/2
 end do

@@ -18,11 +18,12 @@ subroutine DensAB(nBT,nDens,nD,Dens)
 !***********************************************************************
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDens, nD, nBT
-real*8 Dens(nBT,nD,nDens)
-real*8, dimension(:), allocatable :: Dtemp
+integer(kind=iwp) :: nBT, nDens, nD
+real(kind=wp) :: Dens(nBT,nD,nDens)
+real(kind=wp), allocatable :: Dtemp(:)
 
 if (nD == 1) then
   call Put_dArray('D1ao',Dens(1,1,nDens),nBT)
