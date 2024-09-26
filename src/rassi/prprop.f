@@ -1230,36 +1230,24 @@ C printing threshold
 ! However, the spin y component is imaginary
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
-            DXYDZ=((-MQXYI(JSS,ISS) + g*SXYI(JSS,ISS))
-     &           *DZI(JSS,ISS)) ! Electric-Dipole
-     &           +((MQXYR(JSS,ISS) + g*SXYR(JSS,ISS))
-     &           *DZR(JSS,ISS))
-            DYXDZ=-((MQYXI(JSS,ISS) + g*SYXR(JSS,ISS))
-     &           *DZI(JSS,ISS))
-     &           +((MQYXR(JSS,ISS) + g*SYXI(JSS,ISS))
-     &           *DZR(JSS,ISS))
+            DXYDZ=-((MQXYI(JSS,ISS) + g*SXYI(JSS,ISS)) * DZI(JSS,ISS)) ! Electric-Dipole
+     &           +(( MQXYR(JSS,ISS) + g*SXYR(JSS,ISS)) * DZR(JSS,ISS))
+            DYXDZ=-((MQYXI(JSS,ISS) + g*SYXR(JSS,ISS)) * DZI(JSS,ISS))
+     &           +(( MQYXR(JSS,ISS) + g*SYXI(JSS,ISS)) * DZR(JSS,ISS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
-            DZXDY=-((MQZXI(JSS,ISS) + g*SZXR(JSS,ISS))
-     &           *DYI(JSS,ISS))
-     &           +((MQZXR(JSS,ISS) + g*SZXI(JSS,ISS))
-     &           *DYR(JSS,ISS))
-            DXZDY=-((MQXZI(JSS,ISS) + g*SXZR(JSS,ISS))
-     &           *DYI(JSS,ISS))
-     &           +((MQXZR(JSS,ISS) + g*SXZI(JSS,ISS))
-     &           *DYR(JSS,ISS))
+            DZXDY=-((MQZXI(JSS,ISS) + g*SZXR(JSS,ISS)) * DYI(JSS,ISS))
+     &            +((MQZXR(JSS,ISS) + g*SZXI(JSS,ISS)) * DYR(JSS,ISS))
+            DXZDY=-((MQXZI(JSS,ISS) + g*SXZR(JSS,ISS)) * DYI(JSS,ISS))
+     &            +((MQXZR(JSS,ISS) + g*SXZI(JSS,ISS)) * DYR(JSS,ISS))
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
-            DYZDX=-((MQYZI(JSS,ISS) + g*SYZR(JSS,ISS))
-     &           *DXI(JSS,ISS))
-     &           +((MQYZR(JSS,ISS) + g*SYZI(JSS,ISS))
-     &           *DXR(JSS,ISS))
-            DZYDX=((-MQZYI(JSS,ISS) + g*SZYI(JSS,ISS))
-     &           *DXI(JSS,ISS))
-     &           +((MQZYR(JSS,ISS) + g*SZYR(JSS,ISS))
-     &           *DXR(JSS,ISS))
+            DYZDX=-((MQYZI(JSS,ISS) + g*SYZR(JSS,ISS)) * DXI(JSS,ISS))
+     &            +((MQYZR(JSS,ISS) + g*SYZI(JSS,ISS)) * DXR(JSS,ISS))
+            DZYDX=-((MQZYI(JSS,ISS) + g*SZYI(JSS,ISS)) * DXI(JSS,ISS))
+     &           + ((MQZYR(JSS,ISS) + g*SZYR(JSS,ISS)) * DXR(JSS,ISS))
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
 
