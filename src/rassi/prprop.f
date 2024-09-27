@@ -596,7 +596,6 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=JSS+NSS*(ISS-1)
             T0(1)=CMPLX(DXR(JSS,ISS),DXI(JSS,ISS),kind=8)
             T0(2)=CMPLX(DYR(JSS,ISS),DYI(JSS,ISS),kind=8)
             T0(3)=CMPLX(DZR(JSS,ISS),DZI(JSS,ISS),kind=8)
@@ -724,7 +723,6 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=JSS+NSS*(ISS-1)
             T0(1)=CMPLX(DXR(JSS,ISS),DXI(JSS,ISS),kind=8)
             T0(2)=CMPLX(DYR(JSS,ISS),DYI(JSS,ISS),kind=8)
             T0(3)=CMPLX(DZR(JSS,ISS),DZI(JSS,ISS),kind=8)
@@ -952,7 +950,6 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=JSS+NSS*(ISS-1)
 
             DX2=(MDXI(JSS,ISS)+g*SXR(JSS,ISS))**2
      &         +(MDXR(JSS,ISS)-g*SXI(JSS,ISS))**2
@@ -1031,7 +1028,6 @@ C printing threshold
 ! D should be purely real since D is a real symmetric matrix
 !
             EDIFF3=EDIFF**3
-            IJSS=JSS+NSS*(ISS-1)
 
             DXX2=QXXR(JSS,ISS)**2+QXXI(JSS,ISS)**2
             DYY2=QYYR(JSS,ISS)**2+QYYI(JSS,ISS)**2
@@ -1109,7 +1105,6 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=JSS+NSS*(ISS-1)
 
             DXXXDX=DXXXR(JSS,ISS)*DXR(JSS,ISS)
      &            +DXXXI(JSS,ISS)*DXI(JSS,ISS)
@@ -1231,7 +1226,6 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJSS=JSS+NSS*(ISS-1)
 !
 ! Since the Spin-Magnetic-Quadrupole is made from the multiplication of two complex integrals we have
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
@@ -1240,7 +1234,8 @@ C printing threshold
 ! However, the spin y component is imaginary
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
-            DXYDZ=-((MQXYI(JSS,ISS) + g*SXYI(JSS,ISS)) * DZI(JSS,ISS)) ! Electric-Dipole
+!                  Electric-Dipole
+            DXYDZ=-((MQXYI(JSS,ISS) + g*SXYI(JSS,ISS)) * DZI(JSS,ISS))
      &           +(( MQXYR(JSS,ISS) + g*SXYR(JSS,ISS)) * DZR(JSS,ISS))
             DYXDZ=-((MQYXI(JSS,ISS) + g*SYXR(JSS,ISS)) * DZI(JSS,ISS))
      &           +(( MQYXR(JSS,ISS) + g*SYXI(JSS,ISS)) * DZR(JSS,ISS))
@@ -1329,7 +1324,6 @@ C printing threshold
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJSS=JSS+NSS*(ISS-1)
             F = TOT2K(JSS,ISS)
             IF(ABS(F).GE.OSTHR2) THEN
              IF(i_Print.eq.0) THEN
@@ -1434,7 +1428,6 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=JSS+NSS*(ISS-1)
 
 ! These are all complex quantities, and their products are complex too,
 ! but eventually every piece will be:
@@ -1560,21 +1553,6 @@ C printing threshold
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
 
-        IPRDXS=0
-        IPRDYS=0
-        IPRDZS=0
-
-        IFANYS=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
-     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
-           IFANYS=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXS=ISOPR
-           IF(ISOCMP(ISOPR).EQ.1) IPRDYS=ISOPR
-           IF(ISOCMP(ISOPR).EQ.1) IPRDZS=ISOPR
-          END IF
-        END DO
-
 ! Electric dipole (r)
         Call Allocate_and_Load_electric_dipoles()
 ! Magnetic-Dipole (angular momentum, l = r x p)
@@ -1639,7 +1617,6 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=JSS+NSS*(ISS-1)
 
 ! These are all complex quantities, and their products are complex too,
 ! but eventually every piece will be:
