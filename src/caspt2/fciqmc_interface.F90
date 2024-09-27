@@ -435,8 +435,8 @@ contains
                 array(y, z, t, u, v, x) = val
                 array(y, z, v, x, t, u) = val
             end subroutine apply_6fold_symmetry
-    end subroutine load_six_tensor
 #endif
+    end subroutine load_six_tensor
 
     subroutine user_barrier()
 #ifdef _MOLCAS_MPP_
