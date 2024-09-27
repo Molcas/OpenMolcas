@@ -11,7 +11,6 @@
 * Copyright (C) 1991, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine Add2(rMat,fact)
-      use Arrays, only: SFock
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -20,12 +19,13 @@
 *             a beautifull convergence of the PCG,
 *             which is just the case if E is symmetric.
 *
+      use Arrays, only: SFock
+      use Constants, only: Four
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "spin_mclr.fh"
 
 #include "Input.fh"
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8 rMat(*)
       Real*8, Allocatable:: Temp(:)

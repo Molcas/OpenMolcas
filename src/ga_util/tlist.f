@@ -11,6 +11,7 @@
       Subroutine Init_TList(Triangular,P_Eff)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       use TList_Mod
+      use Constants, only: Zero, One
       implicit real*8 (a-h,o-z)
       real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular
@@ -21,7 +22,6 @@
       Parameter ( MinPQ    = 4 )
 * max number of tasks in tasklist per node...
       Parameter ( MxnTsk = 100 )
-#include "real.fh"
 #include "stdalloc.fh"
 
       fint(a)=dble(int(a))
@@ -48,9 +48,9 @@ c
       Call mma_allocate(TskL,nTasks*2,Label='TskL')
 *
       tskmin=1.d14
-      tskmax=zero
-      TskLw=one
-      TskHi=zero
+      tskmax=Zero
+      TskLw=One
+      TskHi=Zero
       iTsk=0
 
 *     REPEAT
@@ -84,9 +84,9 @@ c
           iTsk=iTsk+1
           TskM(1,iTsk)=TskLw
           TskM(2,iTsk)=TskHi
-          tskmin=min(tskmin,(TskHi-TskLw+one))
-          tskmax=max(tskmax,(TskHi-TskLw+one))
-          TskLw=TskHi+one
+          tskmin=min(tskmin,(TskHi-TskLw+One))
+          tskmax=max(tskmax,(TskHi-TskLw+One))
+          TskLw=TskHi+One
         End Do
         nTasks=nTasks-kTskHi
       If (abs(PQ).gt.1.d-10) Go To 100

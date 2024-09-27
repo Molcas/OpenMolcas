@@ -47,7 +47,7 @@ integer(kind=iwp), allocatable :: oType(:), Center(:)
 real(kind=wp), allocatable :: STr(:), SSq(:,:), T(:,:), Tinv(:,:), HVac(:), V(:), VS(:,:), TEMP(:,:), VLoP(:,:)
 logical(kind=iwp), parameter :: Debug = .false.
 
-!-- Commence!
+! Commence!
 
 write(u6,*)
 write(u6,*) ' The perturbation will be localized "LoProp style".'
@@ -64,7 +64,7 @@ do i=1,nSets
   end do
 end do
 
-!-- No symmetry allowed.
+! No symmetry allowed.
 
 call Get_iScalar('nSym',nSym)
 if (nSym /= 1) then
@@ -74,7 +74,7 @@ if (nSym /= 1) then
   call Abend()
 end if
 
-!-- Collect the overlap and some auxiliaries for LoProp.
+! Collect the overlap and some auxiliaries for LoProp.
 
 call mma_allocate(oType,nBas(1),label='Orbital_Type')
 call mma_allocate(Center,nBas(1),label='Center_Index')
@@ -103,11 +103,11 @@ if (iRc /= 0) then
   write(u6,*) 'Error reading overlap matrix in SELECTLOC!'
   call Abend()
 end if
-!-- Let's be square.
+! Let's be square.
 call mma_allocate(SSq,nBas(1),nBas(1),label='SMatSq')
 call Square(STr,SSq,1,nBas(1),nBas(1))
 
-!-- Call the localization utility and get the transformation matrix.
+! Call the localization utility and get the transformation matrix.
 
 call mma_allocate(T,nBas(1),nBas(1),label='T')
 call mma_allocate(Tinv,nBas(1),nBas(1),label='Tinv')
@@ -116,9 +116,9 @@ if (DeBug) then
   call RecPrt('Total transfMat',' ',T,nBas(1),nBas(1))
 end if
 
-!-- Transform the perturbation to the LoProp basis. FFPT accumulates the
-!   perturbation to H0, but we only want the perturbation V, hence first
-!   a subtraction is necessary.
+! Transform the perturbation to the LoProp basis. FFPT accumulates the
+! perturbation to H0, but we only want the perturbation V, hence first
+! a subtraction is necessary.
 
 call mma_allocate(HVac,nInts+4,label='VacH0')
 if (LCumulate) then
@@ -138,9 +138,9 @@ H01 = H0(nInts+1)
 H02 = H0(nInts+2)
 H03 = H0(nInts+3)
 H04 = H0(nInts+4)
-!----But first translate the perturbation origo to the relevant centre
+! But first translate the perturbation origo to the relevant centre
 call TransNow(V,STr)
-!----You may proceed.
+! You may proceed.
 call mma_allocate(VS,nBas(1),nBas(1),label='PertSq')
 call Square(V,VS,1,nBas(1),nBas(1))
 if (DeBug) then
@@ -149,15 +149,15 @@ end if
 
 call mma_allocate(TEMP,nBas(1),nBas(1),label='TEMP')
 call mma_allocate(VLoP,nBas(1),nBas(1),label='PertL')
-!----Go to basis where overlap matrix, S, is diagonal.
+! Go to basis where overlap matrix, S, is diagonal.
 call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),One,T,nBas(1),VS,nBas(1),Zero,TEMP,nBas(1))
 call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),One,TEMP,nBas(1),T,nBas(1),Zero,VLoP,nBas(1))
 if (DeBug) then
   call RecPrt('Pert:(Basis:LoP)',' ',VLoP,nBas(1),nBas(1))
 end if
 
-!-- Set elements to zero as designated in input. The routine below is
-!   far from optimal, but we are not in need of great speed here so....
+! Set elements to zero as designated in input. The routine below is
+! far from optimal, but we are not in need of great speed here so....
 
 do i=1,nBas(1)
   do j=1,nBas(1)
@@ -179,8 +179,8 @@ do i=1,nBas(1)
           write(u6,*) 'Your set selection is not exclusive!'
         end if
         if (OneOrNot) Siff = One
-        !-- Here we enable to set the weight in the bond-domain to some
-        !   other number than one.
+        ! Here we enable to set the weight in the bond-domain to some
+        ! other number than one.
         if (OneOrNot .and. (Atoms(k) .and. Bonds(k,l))) then
           ! FIXME
           write(u6,*) 'Bug! SiffBond is uninitialized!'
@@ -193,9 +193,9 @@ do i=1,nBas(1)
   end do
 end do
 
-!-- Transform back. Due to the non-unitarian and non-orthogonal basis
-!   the inverse is is contravariant (if the transformation was
-!   covariant). See the Book by Lanczos.
+! Transform back. Due to the non-unitarian and non-orthogonal basis
+! the inverse is is contravariant (if the transformation was
+! covariant). See the Book by Lanczos.
 
 call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),One,Tinv,nBas(1),VLoP,nBas(1),Zero,TEMP,nBas(1))
 call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),One,TEMP,nBas(1),Tinv,nBas(1),Zero,VS,nBas(1))
@@ -203,7 +203,7 @@ if (DeBug) then
   call RecPrt('Pert.Zeroed',' ',VS,nBas(1),nBas(1))
 end if
 
-!-- Add this perturbation to the one-electron hamiltonian.
+! Add this perturbation to the one-electron hamiltonian.
 
 kaunter = 0
 do i=1,nBas(1)
@@ -212,13 +212,13 @@ do i=1,nBas(1)
     H0(kaunter) = HVac(kaunter)+VS(j,i)
   end do
 end do
-!----And don't forget the orgio and the nuclear repulsion.
+! And don't forget the orgio and the nuclear repulsion.
 H0(nInts+1) = H01
 H0(nInts+2) = H02
 H0(nInts+3) = H03
 H0(nInts+4) = H04
 
-!-- Deallocations en masse.
+! Deallocations en masse.
 
 call mma_deallocate(oType)
 call mma_deallocate(Center)
@@ -232,7 +232,7 @@ call mma_deallocate(VS)
 call mma_deallocate(TEMP)
 call mma_deallocate(VLoP)
 
-!-- Exit
+! Exit
 
 write(u6,*)
 write(u6,*) '  ....Done!'

@@ -66,7 +66,7 @@ if (ipglob > 2) then
 end if
 LWORK = -1
 
-call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
+call zheev_('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
 if (INFO == 0) then
   LWORK = max(1,int(WORK(1))+1)
@@ -76,7 +76,7 @@ else
   call abend()
 end if
 
-call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
+call zheev_('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
 if (ipglob > 4) then
   call dashes()

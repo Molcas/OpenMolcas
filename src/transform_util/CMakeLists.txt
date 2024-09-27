@@ -50,13 +50,13 @@ set (sources
      rbufo_tra2.F90
      rbuf_tra2.F90
      rdint2.F90
-     setup_caspt2_tra.F90
      tr2nsa1.F90
      tr2nsa2.F90
      tr2nsa3.F90
      tr2nsb.F90
      tr2sq.F90
      tractl.F90
+     transform_procedures.F90
      transp_MOs.F90
 )
 

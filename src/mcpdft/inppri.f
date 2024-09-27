@@ -29,26 +29,26 @@
       use OneDat, only: sNoOri
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
-      use mspdft_grad, only: dogradmspd
-      use mcpdft_output, only: silent, usual, lf, iPrLoc
+      use printlevel, only: silent, usual
+      use mcpdft_output, only: lf, iPrLoc
       use Fock_util_global, only: docholesky
-      use rctfld_module
+      use rctfld_module, only: lRF
+      use mcpdft_input, only: mcpdft_options
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "ciinfo.fh"
-#include "WrkSpc.fh"
-      Character*8   Fmt1,Fmt2, Label
-      Character*120  Line,BlLine,StLine
-      Character*3 lIrrep(8)
-      Character*80 KSDFT2
+      Character(LEN=8)   Fmt1,Fmt2, Label
+      Character(LEN=120)  Line,BlLine,StLine
+      Character(LEN=3) lIrrep(8)
+
+      Real*8, Allocatable:: Tmp0(:)
 
 * Print level:
       IPRLEV=IPRLOC(1)
-      DoDMRG=.False.
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
@@ -110,9 +110,9 @@
          Write(LF,Fmt1) 'OrdInt status: non-squared'
        End If
        Write(LF,*)
-*----------------------------------------------------------------------*
-*     Print cartesian coordinates of the system                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print cartesian coordinates of the system                        *
+!----------------------------------------------------------------------*
        Call PrCoor
       END IF
 *----------------------------------------------------------------------*
@@ -191,44 +191,6 @@ C.. for RAS
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
-      If(.Not.DoDMRG) GoTo 113
-
-      Line=' '
-      Write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
-      Call CollapseOutput(1,Line)
-      Write(LF,Fmt1)'--------------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A,T45,I6)')'Number of renormalized basis',
-     &                           MxDMRG
-      Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
-     &                           NROOTS
-* NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
-      Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
-     &                           IRLXROOT
-      Call CollapseOutput(0,'DMRG sweep specifications:')
-
-*     Skip printing CI specifications in DMRG-CASSCF
-      GoTo 114
-
- 113  Continue
-
-      Line=' '
-      Write(Line(left-2:),'(A)') 'CI expansion specifications:'
-      Call CollapseOutput(1,Line)
-      Write(LF,Fmt1)'----------------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
-     &                           NCSASM(STSYM)
-      Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(STSYM)
-        n_Det=2
-        n_unpaired_elec=(iSpin-1)
-        n_paired_elec=nActEl-n_unpaired_elec
-        If(n_unpaired_elec+n_paired_elec/2.eq.nac.or.
-     &     NDTASM(STSYM).eq.1) n_Det = 1
-        If(KSDFT.eq.'DIFF')   n_Det = 1
-        If(KSDFT.eq.'ROKS')   n_Det = 1
-
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                             NROOTS
 *TRS
@@ -243,46 +205,7 @@ C.. for RAS
 
       Call CollapseOutput(0,'CI expansion specifications:')
 
- 114  Continue
-
       END IF
-
-* Check that the user doesn't try to calculate more roots than it's possible
-* NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
-*              since Block DMRG code will check this internally
-*     If (NROOTS .GT. NCSASM(STSYM)) Then
-      If (.false.) Then
-!      If (.NOT.DoDMRG .AND. NROOTS .GT. NCSASM(STSYM)) Then
-         Write(LF,*) '************ ERROR ***********'
-         Write(LF,*) ' You can''t ask for more roots'
-         Write(LF,*) ' than there are configurations '
-         Write(LF,*) '******************************'
-         Write(LF,*)
-!         Call Quit_OnUserError()
-      End If
-* If the calculation will be too big:
-      call GetMem('ChkMx','Max','Real',iDum,MaxRem)
-      WillNeedMB=(8.0D0*1.50D0*6.0D0*NDTASM(STSYM)/1.048D6)
-      AvailMB=(8.0D0*MaxRem/1.048D6)
-      if (WillNeedMB .gt. AvailMB) then
-        write(6,*)
-        write(6,*)' *************************************************'
-        write(6,*)' Sorry, but your calculation will probably be too'
-        write(6,*)' large for the available memory.'
-        write(6,*)' The number of determinants is ',NDTASM(STSYM)
-        write(6,*)' During CI equation solution, there will be'
-        write(6,*)' up to six vectors of this size in memory.'
-        write(6,*)' We estimate an additional 50% for other stuff.'
-        write(6,*)
-        write(6,'(A,F9.1,A)')' This alone will need at least ',
-     &                                            WillNeedMB,' MB.'
-        write(6,'(A,F9.1,A)')' Available at this point is ',
-     &                                               AvailMB,' MB.'
-        write(6,*)' Please increase MOLCAS_MEM, and try again.'
-        write(6,*)' *************************************************'
-        write(6,*)
-        Call Quit_OnUserError()
-      end if
 
       IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
@@ -302,34 +225,30 @@ C.. for RAS
        Else
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
        EndIf
-       KSDFT2 = KSDFT
-       IF(KSDFT(1:2).eq.'T:'.or.KSDFT(1:3).eq.'FT:') Then
-        KSDFT2 = KSDFT(index(KSDFT,'T:')+2:)
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
-     &   'with functional: '//KSDFT
+     &   'with functional: '//mcpdft_options%otfnal%otxc
         Write(LF,Fmt2//'A,T45,ES10.3)')'Exchange scaling factor',CoefX
         Write(LF,Fmt2//'A,T45,ES10.3)')'Correlation scaling factor',
      &                                 CoefR
-       end if
-       If (dogradPDFT.or.dogradMSPD) then
+       If (mcpdft_options%grad) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        If ( lRF ) then
-         Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+         Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
          iRc=-1
          iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'
-         Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-         Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+         Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+         Tot_Nuc_Charge=Tmp0(nTot1+4)
          If ( iRc.ne.0 ) then
             Write(LF,*) 'InpPri: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
             Call Abend
          Endif
-         Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+         Call mma_deallocate(Tmp0)
          Tot_El_Charge=Zero
          Do iSym=1,nSym
             Tot_El_Charge=Tot_El_Charge
@@ -346,28 +265,21 @@ C.. for RAS
       END IF
       Write(LF,*)
 
-       Call Put_dScalar('EThr',ThrE)
-*
-*---- Print out grid information in case of DFT
-*
-       If (KSDFT.ne.'SCF') Then
-         Call Put_dScalar('DFT exch coeff',CoefX)
-         Call Put_dScalar('DFT corr coeff',CoefR)
-         Call Funi_Print()
-         IF(IPRLEV.GE.USUAL) THEN
-            Write(6,*)
-            Write(6,'(6X,A)') 'DFT functional specifications'
-            Write(6,'(6X,A)') '-----------------------------'
-            Call libxc_version()
-            Call Init_Funcs(KSDFT2)
-            Call Print_Info()
-            Write(6,*)
-         END IF
-       End If
+!---- Print out grid information
+       Call Put_dScalar('DFT exch coeff',CoefX)
+       Call Put_dScalar('DFT corr coeff',CoefR)
+       Call Funi_Print()
+       IF(IPRLEV.GE.USUAL) THEN
+          Write(6,*)
+          Write(6,'(6X,A)') 'DFT functional specifications'
+          Write(6,'(6X,A)') '-----------------------------'
+          Call libxc_version()
+          Call Init_Funcs(mcpdft_options%otfnal%xc)
+          Call Print_Info()
+          Write(6,*)
+       END IF
   900 CONTINUE
       Call XFlush(LF)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+
       Return
       End

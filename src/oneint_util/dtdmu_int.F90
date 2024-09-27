@@ -32,18 +32,17 @@ implicit none
 #include "int_interface.fh"
 #include "print.fh"
 integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, iPrint, ipS1, ipS2, iRout, iStabO(0:7), lDCRT, llOper, &
-                     LmbdT, mArr, nDCRT, nip, nOp, nRys, nStabO
+                     LmbdT, mArr, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
 
 #include "macros.fh"
+unused_var(nHer)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
 iRout = 230
 iPrint = nPrint(iRout)
-
-nRys = nHer
 
 if (iPrint >= 99) then
   call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
@@ -90,12 +89,11 @@ do lDCRT=0,nDCRT-1
 
   ! Compute contribution from a,b+1
 
-  call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp,la,lb+1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp)
+  call EFPrm(Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp,la,lb+1,A,RB,Array(ipArr),mArr,TC,nOrdOp)
 
   ! Compute contribution from a,b-1
 
-  if (lb >= 1) &
-    call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp)
+  if (lb >= 1) call EFPrm(Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp,la,lb-1,A,RB,Array(ipArr),mArr,TC,nOrdOp)
 
   ! Assemble final integral from the derivative integrals
 

@@ -16,6 +16,7 @@ use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, AtomLbl, Coor, Degen, 
                        Line_Search, MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, MxItr, NADC, nDimBC, nStab, q_nuclear, RootMap, Smmtrc, &
                        ThrCons, ThrEne, ThrGrd, ThrMEP !, lRP, R12
 use UnixInfo, only: SuperName
+use dcr_mod, only: DCR_Init
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -36,6 +37,8 @@ logical(kind=iwp), external :: Reduce_Prt
 !************************* StartUp section   ***************************
 !***********************************************************************
 !                                                                      *
+Call DCR_Init()
+
 ! Set the default value of iterations from MOLCAS_MAXITER if it
 ! has been defined.
 
@@ -316,7 +319,7 @@ call RecPrt('Degen',' ',Degen,3,size(Coor,2))
 ! Compute center of mass and molecular mass. The molecule is
 ! translated so origin and center of mass is identical.
 
-if (jPrint >= 99) call Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
+if (jPrint >= 99) call Prlist('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
 if (jPrint >= 99) call PrList('Symmetry Distinct Nuclear Forces / au',AtomLbl,size(Coor,2),Grd,3,size(Coor,2))
 !                                                                      *
 !***********************************************************************

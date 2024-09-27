@@ -54,7 +54,7 @@ IfTest = .false.
 ! nBase  : number of BasisSets found in input.
 ! Base(i): BasisSet for atom with Atomic Number -i-.
 ! BasAva(i) & BasReq(i): Logical to check BasisSet-consistency.
-! Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
+! Coords(_,i): X, Y, Z, coordinates (in angstrom) for atom -i-.
 
 nAtoms = 0
 nXAtoms = 0
@@ -62,7 +62,7 @@ nBase = 0
 lSTDINP = 0
 nBasis = 0
 iErr = 0
-Angstring = '  / Angstrom'
+Angstring = '  / angstrom'
 
 call mma_allocate(Base,MaxAtomNum,label='Base')
 call mma_allocate(BasAva,MaxAtomNum,label='BasAva')
@@ -136,7 +136,7 @@ call Put_iScalar('N ZMAT',0)
 if (IfTest) then
   write(LuWr,*)
   write(LuWr,*) '------------------------------------------------'
-  write(LuWr,*) 'ZMatrixConverter - XYZCoords (Angstroms) :'
+  write(LuWr,*) 'ZMatrixConverter - XYZCoords (angstroms) :'
   do i=1,nAtoms+nXAtoms
     write(LuWr,99) i,NAT(i),(Coords(j,i),j=1,3)
   end do

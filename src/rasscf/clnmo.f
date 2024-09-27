@@ -34,35 +34,31 @@
 *     University of Lund, Sweden, 2000                                 *
 *                                                                      *
 ************************************************************************
-
+      use general_data, only: CleanMask
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 
-      Dimension CMO(*)
+      Real*8 CMO(*)
 
 * Prelude
 
 
 * Body
 
-      iOff = ipCleanMask-1
       ij = 0
       Do iSym = 1,nSym
         mBas = nBas(iSym)
         Do i = 1,mBas
           Do j = 1,mBas
             ij = ij+1
-            If ( iWork(iOff+ij).eq.1 ) CMO(ij) = 0.0D0
+            If ( CleanMask(ij).eq.1 ) CMO(ij) = 0.0D0
           End Do
         End Do
       End Do
 
 * Epilogue
 
-
-      Return
-      End
+      End Subroutine ClnMO

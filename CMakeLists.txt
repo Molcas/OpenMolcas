@@ -39,8 +39,8 @@ get_filename_component (sourcedir "${CMAKE_SOURCE_DIR}" REALPATH)
 get_filename_component (binarydir "${CMAKE_BINARY_DIR}" REALPATH)
 if ("${sourcedir}" STREQUAL "${binarydir}")
   message (FATAL_ERROR "In-source builds in ${CMAKE_BINARY_DIR} are not "
-          "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
-          "separate build directory and run cmake from there.")
+           "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
+           "separate build directory and run cmake from there.")
 endif ()
 
 # discover some necessary tools
@@ -2594,7 +2594,7 @@ endif ()
 # now go through utility list
 foreach (util ${utils})
   add_subdirectory (src/${util} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util})
-  add_dependencies (${util}_obj mods_obj)
+  target_link_libraries (${util}_obj mods_obj)
   if (${util}_mods)
     # move the module files to the mods_obj target
     # (note COMPILE_DEFINITIONS must be on target level to properly compute dependencies)
@@ -2648,7 +2648,7 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH "TRUE")
 foreach (prog ${progs})
   add_subdirectory (src/${prog} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog})
   if (TARGET ${prog}_obj)
-    add_dependencies (${prog}_obj ${utils_obj})
+    target_link_libraries (${prog}_obj ${utils_obj})
     add_dependencies (only_objs   ${prog}_obj)
   endif ()
   if (EXTERNAL_PROJECTS)
@@ -2707,6 +2707,7 @@ if (DEBUG_DEFS)
       string (REGEX MATCH ${def} result "${contents}")
       if (NOT ${result} STREQUAL "")
         set_property (SOURCE ${file} DIRECTORY ${subdirs} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
+        set_property (SOURCE ${file} TARGET mods_obj APPEND PROPERTY COMPILE_DEFINITIONS ${def})
       endif ()
     endforeach ()
   endforeach ()

@@ -46,7 +46,7 @@ do iSet=1,size(Lebedev_order)
     L_Eff = Lebedev_order(iSet)
 
     Info_Ang(nAngularGrids)%L_Eff = L_Eff
-    call Do_Lebedev(L_Eff,Info_Ang(nAngularGrids)%nPoints,Info_Ang(nAngularGrids)%R)
+    call Do_Lebedev(L_Eff,Info_Ang(nAngularGrids)%nPoints,Info_Ang(nAngularGrids)%R,0)
   else
 
     return

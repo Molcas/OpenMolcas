@@ -38,7 +38,7 @@ iPL = iPL_espf()
 write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 
 ! Always update the coordinates of the tinker xyz file
-! WARNING: coordinates are converted to Angstroms
+! WARNING: coordinates are converted to angstroms
 ! This is done through a communication file: Project.qmmm
 
 ! Only call Tinker on the master node

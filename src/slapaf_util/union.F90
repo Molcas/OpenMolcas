@@ -17,7 +17,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nU, iU(nU), nV, iV(nV), iR
 integer(kind=iwp), intent(out) :: iM(8), nM
 integer(kind=iwp) :: i, iRV
-logical(kind=iwp) :: RinT_
+logical(kind=iwp), external :: RinT
 
 ! M is formed as U union RU
 
@@ -25,7 +25,7 @@ iM(1:nU) = iU(:) ! copy the first elements
 nM = nU
 do i=1,nV
   iRV = ieor(iR,iV(i))
-  if (.not. RinT_(iM,nM,iRV)) then
+  if (.not. RinT(iM,nM,iRV)) then
     nM = nM+1
     iM(nM) = iRV
   end if

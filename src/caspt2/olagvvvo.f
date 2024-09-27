@@ -281,7 +281,6 @@ C
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
-#include "real.fh"
 
       Integer nBas(8), nAsh(8), nSkipX(8), nfro(8)
       Dimension CMO(*),T2AO(*),vLag(*)
@@ -302,15 +301,15 @@ C     IF (DoCholesky.and.ALGO.eq.2)THEN
 C        Call GetMem('LWFSQ','Allo','Real',LWFSQ,nTot2)
 C        call dcopy_(nTot2,[Zero],0,Work(LWFSQ),1)
 
-C        Call Allocate_Work(ipTemp,nTot1)
-C        Call FZero(Work(ipTemp),nTot1)
+C        Call mma_allocate(Temp,nTot1,Label='Temp')
+C        Temp(:)=0.0D0
 C
-C        CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Work(ipTemp),
+C        CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Temp,
 C    &                   ExFac,LWFSQ,CMO)
 
-C        Call DaXpY_(nTot1,One,Work(ipTemp),1,FA,1)
+C        Call DaXpY_(nTot1,One,Temp,1,FA,1)
 *
-C        Call Free_Work(ipTemp)
+C        Call mma_deallocate(Temp)
 C        Call GetMem('LWFSQ','Free','Real',LWFSQ,nTot2)
 
 C     ELSE
@@ -342,9 +341,9 @@ C
      *                     DIA,DI,FIFA,FIMO)
 C
       USE CHOVEC_IO
+      use Constants, only: Zero
 C
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "WrkSpc.fh"
       Real*8 T2AO(*),vLag(*),CMO(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
@@ -371,8 +370,8 @@ C     if((.not.DoCholesky).or.(GenInt)) then
       Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
 C     end if
 *
-C     Call Allocate_Work(ipTemp,nFlt)
-C     Call FZero(Work(ipTemp),nFlt)
+C     Call mma_allocate(Temp,nFlt,Label='Temp')
+C     Temp(:)=0.0D0
 *
 C     write(6,*) "lbuf = ", lbuf
       Call GetMem('LW1','MAX','Real',LW1,LBUF)
@@ -436,15 +435,15 @@ C     ENDIF
 *      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,
 *     &                      ExFac,LWFSQ,CMO)
 C      CALL CHOras_drv(nSym,nBas,nAux,DSQ,DLT,
-C    &                 Work(ipTemp),ExFac,LWFSQ,CMO_DUMMY)
+C    &                 Temp,ExFac,LWFSQ,CMO_DUMMY)
 *
       ENDIF
 *
 
 
-C     Call DaXpY_(nFlt,One,Work(ipTemp),1,FLT,1)
+C     Call DaXpY_(nFlt,One,Temp,1,FLT,1)
 *
-C     Call Free_Work(ipTemp)
+C     Call mma_deallocate(Temp)
 
 C     if(.not.DoCholesky)then
       Call GetMem('LW1','Free','Real',LW1,LBUF)

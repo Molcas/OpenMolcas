@@ -305,7 +305,7 @@ do iCnttp=1,nCnttp
 
   if (output .and. (iPrint >= 6)) then
     write(u6,*)
-    write(u6,'(6X,A)') ' Label   Cartesian Coordinates / Bohr'
+    write(u6,'(6X,A)') ' Label   Cartesian Coordinates / bohr'
     write(u6,*)
     do iCnt=1,dbsc(iCnttp)%nCntr
       write(u6,'(1X,A,1X,3F20.10)') dc(mdc+iCnt)%LblCnt,dbsc(iCnttp)%Coor(1:3,iCnt)

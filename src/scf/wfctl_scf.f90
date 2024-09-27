@@ -59,7 +59,6 @@
       Logical :: FstItr
       Real*8 SIntTh
 
-#include "twoswi.fh"
 #include "warnings.h"
 
 !---  Define local variables
@@ -838,7 +837,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EThr
+         If (EDiff>1.0d-14.and..Not.Reset) EDiff=Ten*EThr
          If (iter.ne.1             .AND.                        &
              (Abs(EDiff).le.EThr)  .AND.                        &
              (Abs(FMOMax).le.FThr) .AND.                        &

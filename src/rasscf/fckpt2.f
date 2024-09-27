@@ -44,6 +44,7 @@
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
       Character*3 Label
+      Integer, Allocatable:: OrbSym(:)
 #endif
 
 #ifdef _HDF5_
@@ -57,12 +58,11 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
 #include "raswfn.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FCKPT2  ')
 
-      DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
+      Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
      &          WO(*),SQ(*),CMOX(*)
 
 * Local print level (if any)
@@ -110,11 +110,11 @@
       Call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
 * Convert orbital symmetry into MOLPRO format
-      Call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
+      Call mma_allocate(OrbSym,NAC,Label='OrbSym')
       iOrb=1
       Do iSym=1,nSym
         Do jOrb=1,NASH(iSym)
-          iWork(lOrbSym+iOrb-1)=iChMolpro(iSym)
+          OrbSym(iOrb)=iChMolpro(iSym)
           iOrb=iOrb+1
         End Do
       End Do
@@ -127,11 +127,11 @@
       write(LuFCK,'(1X,A12,I2,A1)') '&FOCK NACT= ', norbtot,','
       write(LuFCK,'(2X,A7)',ADVANCE = "NO") 'ORBSYM='
       do iOrb=1,norbtot
-        write(LuFCK,'(I1,A1)',ADVANCE = "NO") iWork(lOrbSym+iOrb-1),','
+        write(LuFCK,'(I1,A1)',ADVANCE = "NO") OrbSym(iOrb),','
       enddo
       write(LuFCK,*)
       write(LuFCK,*) '/'
-      Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
+      Call mma_deallocate(OrbSym)
 #endif
 
       DO ISYM=1,NSYM
@@ -700,5 +700,4 @@
       CALL DDAFILE(JOBIPH,1,FP,NTOT3,IAD15)
       CALL DDAFILE(JOBIPH,1,SQ,NORBT,IAD15)
 *
-      RETURN
-      END
+      END SUBROUTINE FCKPT2

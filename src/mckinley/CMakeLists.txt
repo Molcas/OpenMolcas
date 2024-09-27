@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     main.F90
      acore.F90
      clr2.F90
      clrbuf.F90
@@ -65,7 +66,6 @@ set (sources
      m1kernel.F90
      m1mm1.F90
      m1mmh.F90
-     main.F90
      makemo.F90
      mckinley_banner.F90
      mckinley.F90

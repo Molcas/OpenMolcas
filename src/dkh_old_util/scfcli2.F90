@@ -29,7 +29,7 @@ integer(kind=iwp) :: I, icontr, iex, ii, IJ, j, K
 real(kind=wp) :: CON, CON2, det, dtol, PREA, RATIO, TOL, TV1, TV2, TV3, TV4
 
 TOL = 1.0e-14_wp
-PREA = 1/(VELIT*VELIT)
+PREA = One/(VELIT*VELIT)
 CON2 = PREA+PREA
 CON = One/PREA
 do I=1,ISIZE

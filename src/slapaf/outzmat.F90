@@ -71,7 +71,7 @@ if (IfTest) then
   end do
   write(LuWr,*)
   write(LuWr,*) '------------------------------------------------'
-  write(LuWr,*) 'OutZMat - XYZCoords (Angstrom):'
+  write(LuWr,*) 'OutZMat - XYZCoords (angstrom):'
   do i=1,nAtoms
     write(LuWr,98) i,(Angstrom*XYZCoords(j,i),j=1,3)
   end do
@@ -301,7 +301,7 @@ end if
 
 write(LuWr,*)
 write(LuWr,*) '****************************************************************'
-write(LuWr,*) '* Nuclear coordinates in Z-Matrix format / Angstrom and Degree *'
+write(LuWr,*) '* Nuclear coordinates in Z-Matrix format / angstrom and degree *'
 write(LuWr,*) '----------------------------------------------------------------'
 do i=1,N_ZMAT
   if (i == 1) write(LuWr,201) Symbols(i)

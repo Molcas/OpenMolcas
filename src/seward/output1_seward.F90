@@ -176,7 +176,7 @@ else
           else
             write(LuWr,'(17X,A)') '   - Partial local approximation:'
             write(LuWr,'(17X,A,10(A4))') '     - Centers: ',(dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
-            write(LuWr,'(17X,A,F6.2,A)') '     - Cutoff radius: ',radiLD,' Bohr'
+            write(LuWr,'(17X,A,F6.2,A)') '     - Cutoff radius: ',radiLD,' bohr'
           end if
         else
           write(LuWr,'(17X,A)') ' Relativistic Douglas-Kroll-Hess integrals:'
@@ -298,7 +298,7 @@ else
     temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
     temp = (Two*Pi)/temp
     write(LuWr,'(15X,A,(F10.4,1X),A)') '   Wavelength:        ',Temp,'a.u.'
-    write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom,'Angstrom'
+    write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom,'angstrom'
     write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom/Ten,'nm'
   end if
 

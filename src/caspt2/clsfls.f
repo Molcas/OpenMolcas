@@ -20,7 +20,8 @@
 *     University of Lund, Sweden, 1993                                 *
 *                                                                      *
 ************************************************************************
-      use caspt2_output, only:iPrGlb,silent
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: silent
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *

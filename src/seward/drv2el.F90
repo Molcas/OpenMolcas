@@ -29,7 +29,8 @@ subroutine Drv2El(ThrAO)
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
-use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, TskCount => Quad_ijkl, W2Disc
+use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, PreSch, Thize, &
+                       Quad_ijkl, W2Disc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
@@ -148,9 +149,9 @@ do
   klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
   kS = Pair_Index(1,klS)
   lS = Pair_Index(2,klS)
-  TskCount = TskLw
+  Quad_ijkl = TskLw
 
-  do while (TskCount-TskHi <= 1.0e-10_wp)
+  do while (Quad_ijkl-TskHi <= 1.0e-10_wp)
 
     ! Logic to avoid computing integrals in a mixed muonic and
     ! electronic basis.
@@ -177,8 +178,8 @@ do
         end if
       end if
     end if
-    TskCount = TskCount+One
-    if (TskCount-TskHi > 1.0e-10_wp) exit
+    Quad_ijkl = Quad_ijkl+One
+    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
     klS = klS+1
     if (klS > ijS) then
       ijS = ijS+1

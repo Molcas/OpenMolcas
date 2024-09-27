@@ -959,14 +959,14 @@ by that the center of the diffuse basis is assigned the unique atom label DBAS.
 :kword:`CELL`
   Defines the three vectors of the unit cell (:math:`\vec{e}_1`, :math:`\vec{e}_2`, :math:`\vec{e}_3`).
   The optional keyword
-  *Angstrom* before the definition of vectors would read data in Å.
+  *angstrom* before the definition of vectors would read data in Å.
   Must consist of three entries (four in the case of Å) which correspond to coordinates of the vectors. All the atoms which
   are defined after that key are considered as the atoms of the cell.
 
   .. xmldoc:: %%Keyword: CELL <advanced>
               Defines the three vectors of the unit cell (e1,e2,e3).
               The optional keyword
-              Angstrom before the definition of vectors would read data in A.
+              angstrom before the definition of vectors would read data in A.
               Must consist of three entries (four in the case of A) which correspond to coordinates of the vectors.
               All the atoms which
               are defined after that key are considered as the atoms of the cell.

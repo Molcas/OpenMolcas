@@ -29,15 +29,15 @@
 *     AMS, Minneapolis,   Feb 2016
 *
       use OneDat, only: sNoNuc, sNoOri
-      Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
-      Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
-      use mspdft_grad, only: dogradmspd
-      use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
-     &                  D1AOMS, D1SAOMS
-      use mcpdft_output, only: debug, lf, iPrLoc
-      use rctfld_module
+      use mcpdft_input, only: mcpdft_options
+      Use KSDFT_Info, only: do_pdftpot
+      Use hybridpdft, only: E_NoHyb
+      use mspdft, only: do_rotate, iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
+      use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: BM, FockOcc, TUVX
+      use wadr, only: FockOcc, TUVX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -45,33 +45,37 @@
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 !      Logical TraOnly
 
 *
-      Character*8 Label
+      Character(LEN=8) Label
       Logical First, Dff, Do_DFT,Found
       Parameter ( Zero=0.0d0 , One=1.0d0 )
-      integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
-      integer iJOB,dmDisk,iP2d
-      integer itmp0,itmp1,itmp2,itmp3,itmp4
-      integer itmp5,itmp6,itmp7,itmpn,itmpk,itmpa
-      integer ifocki,ifocka
+      integer IAD19
+      integer iJOB,dmDisk
       integer IADR19(1:30)
-      integer LP,NQ,LQ,LPUVX
-      integer  LOEOTP
+      integer NQ
       integer jroot
       real*8,dimension(1:nroots) :: Energies
-      integer count_tmp1,count_tmp2
-      integer  i_off1,i_off2,ifone
-      integer isym,iash,jsym
-      integer LUGS
-      External IsFreeUnit
+      integer  i_off1,i_off2
+      integer isym,iash
+      integer, External:: IsFreeUnit
+
+      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:), Tmp0(:),
+     &                      Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:),
+     &                      Tmp5(:), Tmp6(:), Tmp7(:), Tmpn(:),
+     &                      Tmpk(:), Tmpa(:), D1I(:), D1Act(:),
+     &                      FockA(:), D1ActAO(:), D1SpinAO(:),
+     &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
+     &                      DtmpA_g(:), OnTopT(:), OnTopO(:),
+     &                      D1Act_FA(:), D1ActAO_FA(:), CMO_X(:),
+     &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
+     &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
+     &                      FOne(:), FA_t(:)
 
 ***********************************************************
 C Local print level (if any)
@@ -81,31 +85,25 @@ C Local print level (if any)
 
 *TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-***********************************************************
-* Load the nuclear repulsion energy
-***********************************************************
-*TRS
-*
-      Call Get_dScalar('PotNuc',potNuc)
 
 ***********************************************************
 * Generate molecular charges
 ***********************************************************
-      Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+      Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
       iRc=-1
       iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-      Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+      Tot_Nuc_Charge=Tmp0(nTot1+4)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
         Write(LF,*) 'iRc = ',iRc
         Call Abend
       Endif
-      Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+      Call mma_deallocate(Tmp0)
 
       Tot_El_Charge=Zero
       Do iSym=1,nSym
@@ -120,13 +118,13 @@ C Local print level (if any)
 * Load bare nuclei Hamiltonian
 ! This is h_pq but in the AO basis (so h_{mu, nu})
 ***********************************************************
-      Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
+      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
@@ -138,35 +136,35 @@ C Local print level (if any)
         Write(LF,*) ' OneHam in AO basis in CASDFT_Terms'
         Write(LF,*) ' ---------------------'
         Write(LF,*)
-        iOff=0
+        iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
+          Call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
 
-      Call GetMem('Kincore','Allo','Real',iTmpk,nTot1)
-c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
+      Call mma_allocate(Tmpk,nTot1,Label='Tmpk')
+c--reads kinetic energy integrals  Tmpk--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Kinetic '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpk),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmpk,iSyLbl)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
         Write(LF,*) 'iRc = ',iRc
         Call Abend
       Endif
-      Call GetMem('NucElcore','Allo','Real',iTmpn,nTot1)
+      Call mma_allocate(Tmpn,nTot1,Label='Tmpn')
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Attract '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpn),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmpn,iSyLbl)
       If ( iRc.ne.0 ) then
         Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
         Write(LF,*) 'Label = ',Label
@@ -176,13 +174,13 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 
 
 !Here we calculate the D1 Inactive matrix (AO).
-      Call GetMem('D1Inact','Allo','Real',iD1I,NTOT2)
-      Call Get_D1I_RASSCF(CMO,Work(iD1I))
+      Call mma_allocate(D1I,NTOT2,Label='D1I')
+      Call Get_D1I_RASSCF(CMO,D1I)
 
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'iD1inact'
         do i=1,ntot2
-        write(6,*) Work(iD1i-1+i)
+        write(6,*) D1i(i)
         end do
       END IF
 
@@ -205,33 +203,34 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       IADR15 = IADR19
       dmDisk = IADR19(3)
 
-      Call GetMem('D1Active','Allo','Real',iD1Act,NACPAR)
-      Call GetMem('D1ActiveAO','Allo','Real',iD1ActAO,NTOT2)
-      Call GetMem('D1Spin','Allo','Real',iD1Spin,NACPAR)
-      Call GetMem('D1SpinAO','Allo','Real',iD1SpinAO,NTOT2)
+      Call mma_allocate(D1Act,NACPAR,Label='D1Act')
+      Call mma_allocate(D1ActAO,NTOT2,Label='D1ActAO')
+      Call mma_allocate(D1Spin,NACPAR,Label='D1Spin')
+      Call mma_allocate(D1SpinAO,NTOT2,Label='D1SpinAO')
 
-      Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)
-      Call GetMem('DtmpA','Allo','Real',iTmp4,nTot1)
-      Call GetMem('P2','Allo','Real',iP2d,NACPR2)
+      Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
+      Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
+      Call mma_allocate(P2d,NACPR2,Label='P2D')
 
 
-      Call GetMem('FockI','ALLO','Real',ifocki,ntot1)
-      Call GetMem('FockA','ALLO','Real',ifocka,ntot1)
+      Call mma_allocate(FockI,ntot1,Label='FockI')
+      Call mma_allocate(FockA,ntot1,Label='FockA')
 
 ************************************************************************
 * load back two-electron integrals (pu!vx)
 ************************************************************************
-      lPUVX = 1
 
       If ( nFint.gt.0) then
+        Call mma_allocate(PUVX,nFint,Label='PUVX')
         iDisk = 0
-        Call GetMem('PUVX','Allo','Real',lPUVX,nFint)
-        Call DDaFile(LUINTM,2,Work(lPUVX),nFint,iDisk)
+        Call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
+      Else
+        Call mma_allocate(PUVX,1,Label='PUVX')
       End If
 
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'PUVX integrals in msctl'
-        call wrtmat(Work(lPUVX),1,nFInt,1,nFInt)
+        call wrtmat(PUVX,1,nFInt,1,nFInt)
       END IF
 
 
@@ -248,53 +247,54 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
         iIntS=jRoot
 
        !Load a fresh FockI and FockA
-        Call dcopy_(ntot1,FI,1,Work(ifocki),1)
-        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
+        Call dcopy_(ntot1,FI,1,FockI,1)
+        Call dcopy_(ntot1,FA,1,FockA,1)
 *
 !Read in the density matrices for <jroot>.
-        Call Fzero(Work(iD1Act),NACPAR)
-        Call Fzero(Work(iD1ActAO),NTOT2)
-        Call Fzero(Work(iD1Spin),NACPAR)
-        Call Fzero(Work(iD1SpinAO),NTOT2)
-        Call Fzero(Work(iTmp3),nTot1)
-        Call Fzero(Work(iTmp4),nTot1)
-        Call Fzero(Work(iP2d),NACPR2)
+        D1Act(:)=0.0D0
+        D1ActAO(:)=0.0D0
+        D1Spin(:)=0.0D0
+        D1SpinAO(:)=0.0D0
+        Tmp3(:)=0.0D0
+        Tmp4(:)=0.0D0
+        P2D(:)=0.0D0
 
 !Get the D1 Active matrix for this state.  These should probably be
 !most easily read from the previous JOBIPH file.  Then, convert D1A from
 !the MO to the AO basis.
 
-        Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,D1Act,NACPAR,dmDisk)
 
-        if(DoGradPDFT.and.jroot.eq.irlxroot) then
-          Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
-          Call FZero(Work(ip2dt1),Nacpr2)
-          Call P2_contraction(Work(iD1Act),Work(iP2dt1))
-          Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
-          Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
-        else if(dogradmspd) then
-          Call P2_contraction(Work(iD1Act),
-     &                        Work(iP2MOt+(jroot-1)*NACPR2))
+        if(mcpdft_options%grad) then
+          if(mcpdft_options%mspdft) then
+            Call P2_contraction(D1Act,P2MOt(:,jroot))
+          else if (jroot .eq. irlxroot) then
+            Call mma_allocate(P2t,NACPR2,Label='P2t')
+            P2t(:)=0.0D0
+            Call P2_contraction(D1Act,P2t)
+            Call Put_dArray('P2MOt',P2t,NACPR2)
+            Call mma_deallocate(P2t)
+          end if
         end if
 
         IF(IPRLEV.ge.DEBUG) THEN
-          write(6,*) 'd1act'
+          write(6,*) 'D1Act'
           do i=1,NACPAR
-            write(6,*) work(iD1Act-1+i)
+            write(6,*) D1Act(i)
           end do
         end if
 
-        Call Put_dArray('D1mo',Work(iD1Act),NACPAR)
-        Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
-        Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-        Call Put_dArray('P2mo',Work(iP2d),NACPR2)
+        Call Put_dArray('D1mo',D1Act,NACPAR)
+        Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
+        Call Put_dArray('P2mo',P2d,NACPR2)
 
-        Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+        Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
 
         IF(IPRLEV.ge.DEBUG) THEN
           write(6,*) 'D2'
           do i=1,NACPR2
-            write(6,*) Work(ip2d-1+i)
+            write(6,*) p2d(i)
           end do
         END IF
 
@@ -302,45 +302,45 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 * Generate total density
 ***********************************************************
 
-         If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
+         If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
       IF(IPRLEV.ge.DEBUG) THEN
-        write(6,*) 'd1act'
+        write(6,*) 'D1Act'
         do i=1,NACPAR
-          write(6,*) work(iD1Act-1+i)
+          write(6,*) D1Act(i)
         end do
       end if
-         Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
+         Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
 !ANDREW _ RIGHT HERE
-      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
-        Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
-        Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
-        Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
-        Call GetMem('DtmpA_g','Free','Real',iTmp_grd,nTot1)
+      if (mcpdft_options%grad .and.
+     &     (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
+        Call mma_allocate(DtmpA_g,nTot1,Label='DtmpA_g')
+        Call Fold_pdft(nSym,nBas,D1ActAO,DtmpA_g)
+        Call put_darray('D1Activeao',DtmpA_g,ntot1)
+        Call mma_deallocate(DtmpA_g)
       end if
 !END _RIGHT HERE
 *
-         Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
-         Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
+         Call Fold(nSym,nBas,D1I,Tmp3)
+         Call Fold(nSym,nBas,D1ActAO,Tmp4)
 *
-      if(DoGradMSPD) then
-         Call Dcopy_(nTot1,Work(iTmp4),1,Work(iDIDA+(iIntS-1)*nTot1),1)
+      if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
+         Call Dcopy_(nTot1,Tmp4,1,DIDA(:,iIntS),1)
          if (iIntS.eq.lRoots)
-     &   Call Dcopy_(ntot1,Work(iTmp3),1,Work(iDIDA+lRoots*nTot1),1)
+     &   Call Dcopy_(ntot1,Tmp3,1,DIDA(:,lRoots+1),1)
       end if
-         Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
+         Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
-         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
-         IF(DoGradMSPD)THEN
-          Call DCopy_(nTot1,Work(iTmp3),1,
-     &        Work(D1AOMS+(jRoot-1)*nTot1),1)
+         Call Put_dArray('D1ao',Tmp3,nTot1)
+         IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
+          Call DCopy_(nTot1,Tmp3,1,D1AOMS(:,jRoot),1)
          END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1ao'
          do i=1,ntot1
-           write(6,*) work(itmp3-1+i)
+           write(6,*) tmp3(i)
          end do
 cPS         call xflush(6)
       end if
@@ -350,25 +350,24 @@ cPS         call xflush(6)
 * Generate spin-density
 ***********************************************************
          if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[0.0d0],0,D1SpinAO,1)
          end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
-         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
-     &                      Work(iD1SpinAO))
-         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
-         Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_dArray('D1sao',Work(iTmp7),nTot1)
-         IF(iSpin.ne.1.and.DoGradMSPD) THEN
-         Call DCopy_(nTot1,Work(iTmp7),1,
-     &       Work(D1SAOMS+(jRoot-1)*nTot1),1)
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
+         Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
+         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
+         Call Fold(nSym,nBas,D1SpinAO,Tmp7)
+         Call Put_dArray('D1sao',Tmp7,nTot1)
+         IF(iSpin.ne.1.and. mcpdft_options%grad
+     &      .and.mcpdft_options%mspdft) THEN
+         Call DCopy_(nTot1,Tmp7,1,D1SAOMS(:,jRoot),1)
          END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1so'
          do i=1,ntot1
-           write(6,*) work(itmp7-1+i)
+           write(6,*) tmp7(i)
          end do
       end if
-         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
+         Call mma_deallocate(Tmp7)
 
 
 ***********************************************************
@@ -379,10 +378,10 @@ cPS         call xflush(6)
 !doing redundant transformations by retransforming AOs (which may have
 !been included in a previous batch) into MOs.
 *
-        Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
-        Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp5),1)
-        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp6),1)
+        Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
+        Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
+        Tmp5(:)=0.0D0
+        Tmp6(:)=0.0D0
 *
         First=.True.
         Dff=.False.
@@ -394,7 +393,7 @@ cPS         call xflush(6)
 
         iCharge=Int(Tot_Charge)
 
-c iTmp5 and iTmp6 are not updated in DrvXV...
+c Tmp5 and Tmp6 are not updated in DrvXV...
                    NTU=0
                    ITU=0
                    IADD=0
@@ -414,90 +413,66 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     End Do
 
       do_pdftPot=.false.
-      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
+      if (mcpdft_options%grad .and.
+     &    (mcpdft_options%mspdft .or. (jroot .eq. irlxroot))) then
 
         do_pdftPot=.true.
 
-        CALL GETMEM('TE_POTG','ALLO','REAL',LTEOTPG,NFINT)
-        CALL GETMEM('OE_POT','ALLO','REAL',LOEOTP,NTOT1)
-        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
+        CALL mma_allocate(OnTopT,NFINT,Label='OnTopT')
+        OnTopT(:)=0.0D0
+        CALL mma_allocate(OnTopO,NTOT1,Label='OnTopO')
+        OnTopO(:)=0.0D0
 
-      !preallocate the runfile stuff for inact-containing potentials.
-        count_tmp1 = 0
-        count_tmp2 = 0
-        do isym=1,nsym
-          do jsym=1,nsym
-         count_tmp2 = count_tmp2 + nIsh(isym)*(nIsh(jsym)+nAsh(jsym))**2
-          end do
-          count_tmp1 = count_tmp1 + nIsh(isym)*(nish(isym)+nAsh(isym))
-        end do
-        CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp2)
-        Call DCopy_(count_tmp2,[0.0d0],0,Work(ijunk),1)
-!        Call Put_dArray('TEP_I',work(ijunk),count_tmp2)
-        CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp2)
+        Call Put_dArray('ONTOPO',OnTopO,NTOT1)
+        Call Put_dArray('ONTOPT',OnTopT,NFINT)
+        Call Put_dArray('FI_V',OnTopO,NTOT1)
+        Call Put_dArray('FA_V',OnTopO,NTOT1)
 
-        CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp1)
-        Call DCopy_(count_tmp1,[0.0d0],0,Work(ijunk),1)
-!        Call Put_dArray('OEP_I',work(ijunk),count_tmp1)
-        CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp1)
+        CALL mma_deallocate(OnTopO)
+        CALL mma_deallocate(OnTopT)
+      end if
 
-        Call Put_dArray('ONTOPO',work(LOEOTP),NTOT1)
-        Call Put_dArray('ONTOPT',work(LTEOTPG),NFINT)
-
-        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
-
-        Call Put_dArray('FI_V',work(LOEOTP),NTOT1)
-        Call Put_dArray('FA_V',work(LOEOTP),NTOT1)
-
-        CALL GETMEM('OE_POT','FREE','REAL',LOEOTP,NTOT1)
-        CALL GETMEM('TE_POTG','FREE','REAL',LTEOTPG,NFINT)
-      end if !DoGradPdft
-
-        Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
+        Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             KSDFT_TEMP,ExFac,iCharge,iSpin,
-     &             Work(iD1I),Work(iD1ActAO),
-     &             nTot1,DFTFOCK,Do_DFT)
+     &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
+     &             DFTFOCK,Do_DFT)
 
 
-        Call Daxpy_(nTot1,1.0d0,Work(iTmp5),1,Work(iTmp1),1)
-        Call Daxpy_(nTot1,1.0d0,Work(iTmp6),1,Work(iFockI),1)
+        Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
+        Call Daxpy_(nTot1,1.0d0,Tmp6,1,FockI,1)
 
-        Call GetMem('gtmp','Free','Real',iTmp6,nTot1)
-        Call GetMem('htmp','Free','Real',iTmp5,nTot1)
+        Call mma_deallocate(Tmp6)
+        Call mma_deallocate(Tmp5)
 
 !
 ***********************************************************
 *     Compute energy contributions
 ***********************************************************
-      iTmp2=0
-      Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
+      Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
-      Call Fold(nSym,nBas,Work(iD1I),Work(iTmp2))
+      Call Fold(nSym,nBas,D1I,Tmp2)
 c         call xflush(6)
 
-      Call GetMem('DoneA','Allo','Real',iTmpa,nTot1)
+      Call mma_allocate(Tmpa,nTot1,Label='Tmpa')
 c         call xflush(6)
-      Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmpa))
+      Call Fold(nSym,nBas,D1ActAO,Tmpa)
 c         call xflush(6)
 *
-      Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
+      Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
-      Etwo = dDot_(nTot1,Work(iTmp2),1,Work(iFockI),1)
+      Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
 
 !**************Kinetic energy of inactive electrons********
-      Ekin = dDot_(nTot1,Work(iTmp2),1,Work(iTmpk),1)
+      Ekin = dDot_(nTot1,Tmp2,1,Tmpk,1)
 
 !*****Nuclear electron attraction for inactive electrons******
-      Enuc = dDot_(nTot1,Work(iTmp2),1,Work(iTmpn),1)
+      Enuc = dDot_(nTot1,Tmp2,1,Tmpn,1)
 
 c**************Kinetic energy of active electrons*********
-      EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
+      EactK = dDot_(nTot1,Tmpk,1,Tmpa,1)
 
-      EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
+      EactN = dDot_(nTot1,Tmpn,1,Tmpa,1)
 c         call xflush(6)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
@@ -531,12 +506,12 @@ c         call xflush(6)
         iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(IFockI+iOff-1),iBas)
+          Call TriPrt(' ','(5G17.11)',FockI(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
 
-      Call DaXpY_(nTot1,One,Work(iTmp1),1,Work(iFockI),1)
+      Call DaXpY_(nTot1,One,Tmp1,1,FockI,1)
 
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
@@ -547,7 +522,7 @@ c         call xflush(6)
         iOff=1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iFockI+iOff-1),iBas)
+          Call TriPrt(' ','(5G17.11)',FockI(iOff),iBas)
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End If
@@ -558,217 +533,217 @@ c         call xflush(6)
 ************************************************************************
 
         if (iprlev.ge.debug) then
-              write(6,*) 'id1act before reading in'
+              write(6,*) 'D1Act before reading in'
               do i=1,nacpar
-                write(6,*) work(id1act-1+i)
+                write(6,*) D1Act(i)
               end do
         end if
 *
-        Call GetMem('id1act_FA','ALLO','Real',id1act_FA,nacpar)
-        Call GetMem('id1actao_FA','ALLO','Real',id1actao_FA,ntot2)
+        Call mma_allocate(D1Act_FA,nacpar,Label='D1Act_FA')
+        Call mma_allocate(D1ActAO_FA,ntot2,Label='D1ActAO_FA')
 *
         itsDisk = IADR19(3)
         do i=1,irlxroot-1
-          Call DDaFile(JOBOLD,0,Work(iD1Act_FA),NACPAR,itsDisk)
-          Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,itsDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
+          Call DDaFile(JOBOLD,0,D1Act_FA,NACPAR,itsDisk)
+          Call DDaFile(JOBOLD,0,D1Spin,NACPAR,itsDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,itsDisk)
         end do
-        Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Act_FA))
-        Call Get_D1A_RASSCF(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
+        Call DDaFile(JOBOLD,2,D1Act_FA,NACPAR,itsDisk)
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Act_FA)
+        Call Get_D1A_RASSCF(CMO,D1Act_FA,D1ActAO_FA)
 *****
-        Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
-        CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
+        Call mma_allocate(CMO_X,ntot2,Label='CMO_X')
+        CALL DCOPY_(NTOT2,CMO,1,CMO_X,1)
         if(iprlev.ge.debug) then
             write(6,*) 'cmo before tractl'
             do i=1,ntot2
-              write(6,*) work(lcmo-1+i)
+              write(6,*) CMO_X(i)
             end do
-            write(6,*) 'lpuvx before tractl'
+            write(6,*) 'puvx before tractl'
             do i=1,nfint
-              write(6,*) work(lpuvx-1+i)
+              write(6,*) puvx(i)
             end do
             write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
               write(6,*) tuvx(i)
             end do
-            write(6,*) 'id1act_fa before tractl'
+            write(6,*) 'D1Act_FA before tractl'
             do i=1,nacpar
-              write(6,*) work(id1act_FA-1+i)
+              write(6,*) D1Act_FA(i)
             end do
-            write(6,*) 'id1actao_fa before tractl'
+            write(6,*) 'D1ActAO_FA before tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao_FA-1+i)
+              write(6,*) D1ActAO_FA(i)
             end do
-            write(6,*) 'id1act before tractl'
+            write(6,*) 'D1Act before tractl'
             do i=1,nacpar
-              write(6,*) work(id1act-1+i)
+              write(6,*) D1Act(i)
             end do
-            write(6,*) 'id1actao before tractl'
+            write(6,*) 'D1Actao before tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao-1+i)
+              write(6,*) D1Actao(i)
             end do
-            write(6,*) 'id1i before tractl'
+            write(6,*) 'd1i before tractl'
             do i=1,ntot2
-              write(6,*) work(id1i-1+i)
+              write(6,*) d1i(i)
             end do
         end if
 *
-        Call GetMem('FockI_save','ALLO','Real',ifocki_save,ntot1)
+        Call mma_allocate(FockI_Save,ntot1,Label='FockI_Save')
         if(iprlev.ge.debug) then
             write(6,*) 'ifocki before tractl'
             do i=1,ntot1
-              write(6,*) work(ifocki-1+i)
+              write(6,*) FockI(i)
             end do
         end if
 *
-        call  dcopy_(ntot1,work(ifocki),1,work(ifocki_save),1)
+        call  dcopy_(ntot1,FockI,1,FockI_Save,1)
 *
         if (iprlev.ge.debug) then
-             write(6,*) 'ifocki_save before tractl'
+             write(6,*) 'focki_save before tractl'
              do i=1,ntot1
-               write(6,*) work(ifocki_save-1+i)
+               write(6,*) focki_save(i)
              end do
 
-             write(6,*) 'ifocka before tractl'
+             write(6,*) 'FockA before tractl'
              do i=1,ntot1
-               write(6,*) work(ifocka-1+i)
+               write(6,*) FockA(i)
              end do
          end if
 *
-      Call GetMem('ltuvx_tmp','ALLO','Real',ltuvx_tmp,nacpr2)
-      Call GetMem('lpuvx_tmp','ALLO','Real',lpuvx_tmp,nfint)
+      Call mma_allocate(tuvx_tmp,nacpr2,Label='TUVX_tmp')
+      Call mma_allocate(puvx_tmp,nfint,Label='PUVX_tmp')
+      TUVX_tmp(:)=0.0D0
+      PUVX_tmp(:)=0.0D0
 *
-      CALL DCOPY_(nacpr2,[Zero],0,WORK(ltuvx_tmp),1)
       if (iprlev.ge.debug) then
-            write(6,*) 'ltuvx_tmp before !!! tractl'
+            write(6,*) 'tuvx_tmp before !!! tractl'
             do i=1, nacpr2
-              write(6,*) work(ltuvx_tmp-1+i)
+              write(6,*) tuvx_tmp(i)
             end do
       end if
 *
-      CALL DCOPY_(nfint,[Zero],0,WORK(lpuvx_tmp),1)
       if (iprlev.ge.debug) then
-            write(6,*) 'lpuvx before tractl'
+            write(6,*) 'puvx before tractl'
             do i=1,nfint
-              write(6,*) work(lpuvx_tmp-1+i)
+              write(6,*) puvx_tmp(i)
             end do
       end if
 *
 *
-         CALL TRACTL2(WORK(lcmo),WORK(LPUVX_tmp),WORK(LTUVX_tmp),
-     &                WORK(iD1I),WORK(ifocki),
-     &                WORK(iD1ActAO),WORK(ifocka),
+         CALL TRACTL2(CMO_X,PUVX_tmp,TUVX_tmp,D1I,FockI,D1ActAO,FockA,
      &                IPR,lSquare,ExFac)
-*        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
+*        Call dcopy_(ntot1,FA,1,FockA,1)
         if (iprlev.ge.debug) then
              write(6,*) 'FA tractl msctl'
-             call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+             call wrtmat(FockA,1,ntot1,1,ntot1)
              write(6,*) 'FI tractl msctl'
-             call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+             call wrtmat(FockI,1,ntot1,1,ntot1)
         end if
 *
-      Call GetMem('ltuvx_tmp','Free','Real',ltuvx_tmp,nacpr2)
-      Call GetMem('lpuvx_tmp','Free','Real',lpuvx_tmp,nfint)
+      Call mma_deallocate(tuvx_tmp)
+      Call mma_deallocate(puvx_tmp)
 *
         if(iprlev.ge.debug) then
             write(6,*) 'cmo after tractl'
             do i=1,ntot2
-              write(6,*) work(lcmo-1+i)
+              write(6,*) CMO_X(i)
             end do
-            write(6,*) 'lpuvx after tractl'
+            write(6,*) 'puvx after tractl'
             do i=1,nfint
-              write(6,*) work(lpuvx-1+i)
+              write(6,*) puvx(i)
             end do
             write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
               write(6,*) tuvx(i)
             end do
-           write(6,*) 'id1act_FA after tractl'
+           write(6,*) 'D1Act_FA after tractl'
             do i=1,nacpar
-              write(6,*) work(id1act_FA-1+i)
+              write(6,*) D1Act_FA(i)
             end do
-            write(6,*) 'id1actao_FA after tractl'
+            write(6,*) 'D1ActAO_FA after tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao_FA-1+i)
+              write(6,*) D1ActAO_FA(i)
             end do
-            write(6,*) 'id1act after tractl'
+            write(6,*) 'D1Act after tractl'
             do i=1,nacpar
-              write(6,*) work(id1act-1+i)
+              write(6,*) D1Act(i)
             end do
-            write(6,*) 'id1actao after tractl'
+            write(6,*) 'D1Actao after tractl'
             do i=1,ntot2
-              write(6,*) work(id1actao-1+i)
+              write(6,*) D1Actao(i)
             end do
-            write(6,*) 'id1i before tractl'
+            write(6,*) 'd1i before tractl'
             do i=1,ntot2
-              write(6,*) work(id1i-1+i)
+              write(6,*) d1i(i)
             end do
         end if
 
         if(iprlev.ge.debug) then
             write(6,*) 'ifocki after tractl'
             do i=1,ntot1
-              write(6,*) work(ifocki-1+i)
+              write(6,*) FockI(i)
             end do
         end if
 
         if (iprlev.ge.debug) then
-             write(6,*) 'ifocki_save after tractl'
+             write(6,*) 'focki_save after tractl'
              do i=1,ntot1
-               write(6,*) work(ifocki_save-1+i)
+               write(6,*) focki_save(i)
              end do
 *
-             write(6,*) 'ifocka after tractl'
+             write(6,*) 'focka after tractl'
              do i=1,ntot1
-               write(6,*) work(ifocka-1+i)
+               write(6,*) FockA(i)
              end do
-         end  if
+        end  if
 *
-*        if (jroot.ne.irlxroot) then
-*        Call dcopy_(ntot1,FI,1,Work(ifocki),1)
-*        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
-*        end if
+*       if (jroot.ne.irlxroot) then
+*          Call dcopy_(ntot1,FI,1,FockI,1)
+*          Call dcopy_(ntot1,FA,1,FockA,1)
+*       end if
 *
-         Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
-     &             Work(iFockI_save),Work(iFockA))
-        call  dcopy_(ntot1,work(ifocki_save),1,work(ifocki),1)
-*        call  dcopy_(nacpar,work(id1act_FA),1,work(id1act),1)
-        Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
-        Call GetMem('lcmo','Free','Real',lcmo,ntot2)
-        Call GetMem('id1act_FA','Free','Real',id1act_FA,nacpar)
-        Call GetMem('id1actao_FA','Free','Real',id1actao_FA,ntot2)
+        Call Fmat_m(CMO,PUVX,D1Act,D1ActAO,FockI_save,FockA)
+        call  dcopy_(ntot1,focki_save,1,FockI,1)
+*       call  dcopy_(nacpar,D1Act_FA,1,D1Act,1)
+        Call mma_deallocate(FockI_Save)
+        Call mma_deallocate(CMO_X)
+        Call mma_deallocate(D1Act_FA)
+        Call mma_deallocate(D1ActAO_FA)
 !
 !
         if (iprlev.ge.debug) then
              write(6,*) 'FA after fmat 1'
-             call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+             call wrtmat(FockA,1,ntot1,1,ntot1)
              write(6,*) 'FI after fmat 1'
-             call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+             call wrtmat(FockI,1,ntot1,1,ntot1)
         end if
 *      end if
 *TRS
 ******
 *
       if (iprlev.ge.debug) then
-           write(6,*) 'id1act after copy in tractl'
+           write(6,*) 'D1Act after copy in tractl'
             do i=1,nacpar
-              write(6,*) work(id1act-1+i)
+              write(6,*) D1Act(i)
             end do
       end if
 *
          IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
-           CALL DmatDmat(Work(iD1Act),WORK(LP))
-           CALL GETMEM('ISTRP','ALLO','REAL',LP1,ISTORP(NSYM+1))
-           CALL PMAT_RASSCF(Work(iP2d),WORK(LP1))
+           CALL mma_allocate(P,ISTORP(NSYM+1),Label='P')
+           CALL DmatDmat(D1Act,P)
+           CALL mma_allocate(P1,ISTORP(NSYM+1),Label='P1')
+           CALL PMAT_RASSCF(P2d,P1)
+         Else
+           CALL mma_allocate(P,1,Label='P')
+           CALL mma_allocate(P1,1,Label='P1')
          END IF
 
        if(iprlev.ge.debug) then
          write(6,*) 'dmatdmat'
          do i=1,istorp(nsym+1)
-           write(6,*) Work(LP-1+i)
+           write(6,*) P(i)
          end do
        end if
          NQ=0
@@ -781,12 +756,11 @@ c         call xflush(6)
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
 
-         CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
+         CALL mma_allocate(FOCK,NTOT4,Label='FOCK')
          CALL mma_allocate(BM,NSXS,Label='BM')
-         CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
+         CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
          IFINAL = 1
-         CALL FOCK_m(WORK(LFOCK),BM,Work(iFockI),Work(iFockA),
-     &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
+         CALL FOCK_m(FOCK,BM,FockI,FockA,D1Act,P,Q,PUVX,IFINAL,CMO)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',FockOcc,ntot1)
 !END TMP TEST
@@ -797,20 +771,14 @@ c         call xflush(6)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
-         IF(Do_Hybrid) THEN
-          E_NoHyb=CASDFT_E
-          CASDFT_E=Ratio_WF*Ref_Ener(jRoot)+(1-Ratio_WF)*E_NoHyb
-         END IF
-!         Write(6,*)
-!         '**************************************************'
-!         write(6,*) 'ENERGY REPORT FOR STATE',jroot
-*TRS
-*          write(6,*) 'ECAS', ECAS
+        IF(mcpdft_options%otfnal%is_hybrid()) THEN
+            E_NoHyb=CASDFT_E
+            CASDFT_E = mcpdft_options%otfnal%lambda*Ref_Ener(jRoot) +
+     &            (1.0-mcpdft_options%otfnal%lambda) * E_NoHyb
+        END IF
 
-*TRS
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
      &         jroot,Ref_Ener)
-c         call xflush(6)
 
 
          IF(Do_Rotate) Then
@@ -824,7 +792,7 @@ c         call xflush(6)
 
 
          Call mma_deallocate(BM)
-         CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
+         Call mma_deallocate(Q)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
 
@@ -833,7 +801,8 @@ c         call xflush(6)
 *            BUILDING OF THE NEW FOCK MATRIX                           *
 *
 ************************************************************************
-        if(DoGradPDFT.and.jroot.eq.irlxroot) then
+      if(mcpdft_options%grad .and. (.not. mcpdft_options%mspdft)
+     &   .and. jroot .eq. irlxroot) then
 
          Write(LF,*) 'Calculating potentials for analytic gradients...'
 !MCLR requires two sets of things:
@@ -857,83 +826,28 @@ cPS         call xflush(6)
 
 !I will read in the one- and two-electron potentials here
 
-      Call GetMem('ONTOPT','ALLO','Real',ipTmpLTEOTP,nfint)
-      Call GetMem('ONTOPO','ALLO','Real',ipTmpLOEOTP,ntot1)
-      Call FZero(Work(iptmplteotp),Nfint)
-      Call FZero(Work(iptmploeotp),ntot1)
+      Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
+      OnTopT(:)=0.0D0
+      Call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
+      OnTopO(:)=0.0D0
 
 
-      Call Get_dArray('ONTOPT',work(ipTmpLTEOTP),NFINT)
-      Call Get_dArray('ONTOPO',work(ipTmpLOEOTP),NTOT1)
+      Call Get_dArray('ONTOPT',OnTopT,NFINT)
+      Call Get_dArray('ONTOPO',OnTopO,NTOT1)
 !
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'One-electron potentials'
         do i=1,ntot1
-          write(6,*) Work(iptmploeotp-1+i)
+          write(6,*) OnTopO(i)
         end do
         write(6,*) 'Two-electron potentials'
         do i=1,nfint
-          if (abs(work(lpuvx-1+i)).ge.1d-10)then
-            write(6,*) Work(iptmplteotp-1+i),work(lpuvx-1+i)
+          if (abs(puvx(i)).ge.1d-10)then
+            write(6,*) OnTopT(i),puvx(i)
           end if
         end do
         end if
-*
-*         do i=1,nacpr2
-*         call dcopy_(nacpr2,0.0d0,1,Work(ltuvx_tmp-1+i),1)
-*         end do
-*
-*         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
-*
-*         do i=1,nfint
-*         Call dcopy_(nfint,0.0D0,1,WORK(lpuvx_tmp-1+i),1)
-*         end do
-*
-*
-*         CALL TRA_CTL2_(WORK(lcmo),
-*     &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao)
-*     &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
-*
-*         write(6,*) 'cmo after before fmat 2'
-*         do i=1,ntot2
-*           write(6,*) work(lcmo-1+i)
-*         end do
-*        write(6,*) 'lpuvx after before fmat 2'
-*         do i=1,nfint
-*           write(6,*) work(lpuvx-1+i)
-*         end do
-*        write(6,*) 'id1act after before fmat 2'
-*         do i=1,nacpar
-*           write(6,*) work(id1act-1+i)
-*         end do
-*        write(6,*) 'id1actao after before fmat 2'
-*         do i=1,ntot2
-*           write(6,*) work(id1actao-1+i)
-*         end do
-*
-*         write(6,*) 'ifocki_save after before fmat 2'
-*         do i=1,ntot1
-*           write(6,*) work(ifocki_save-1+i)
-*         end do
-*        write(6,*) 'ifocka after before fmat 2'
-*         do i=1,ntot1
-*           write(6,*) work(ifocka-1+i)
-*         end do
-*
 
-*        Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
-*     &             Work(iFockI_save),Work(iFockA))
-*       call  dcopy_(ntot1,work(ifocki_save),1,work(ifocki),1)
-*
-*        Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
-*        Call GetMem('lcmo','Free','Real',lcmo,ntot2)
-*
-*        write(6,*) 'FA msctl after fmat 2'
-*        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
-*        write(6,*) 'FI msctl after fmat 2'
-*        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
-
-!
 
 !______________________________________________________
 !Grab the active-active part of the FI+FA matrix (currently held in the
@@ -942,33 +856,33 @@ cPS         call xflush(6)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "FA+FI to send to MCLR"
       do i=1,Ntot1
-        write(6,*) Work(ifocka-1+i)
+        write(6,*) FockA(i)
       end do
         end if
 
-      Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
-      CALL DCOPY_(NTOT1,[0.0D0],0,WORK(iFone),1)
+      Call mma_allocate(Fone,NTOT1,Label='FOne')
+      FOne(:)=0.0D0
 
 !I think I need to generate FI, which will contain both the one-electron
 !potential contribution and the V_kkpu contribution.
 
 
 
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,Ntot1)
-      Call Get_dArray('FI_V',work(ifiv),NTOT1)
-!         Call Dscal_(nTOT1,4.0d0,Work(ifiv),1)
+      CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
+      Call Get_dArray('FI_V',FI_V,NTOT1)
+!         Call Dscal_(nTOT1,4.0d0,FI_V,1)
 *         write(6,*) 'fiv after tractl'
 *         do i=1,ntot1
-*           write(6,*) work(ifiv-1+i)
+*           write(6,*) FI_V(i)
 *         end do
 
-      !Call daxpy_(ntot1,0.5d0,Work(ifiv),1,Work(iFocka),1)
-      Call daxpy_(ntot1,1.0d0,Work(ifiv),1,Work(iFocka),1)
-      Call daxpy_(ntot1,1.0d0,Work(iptmploeotp),1,Work(iFocka),1)
+      !Call daxpy_(ntot1,0.5d0,FI_V,1,FockA,1)
+      Call daxpy_(ntot1,1.0d0,FI_V,1,FockA,1)
+      Call daxpy_(ntot1,1.0d0,OnTopO,1,FockA,1)
 
 
-      i_off1=0
-      i_off2=0
+      i_off1=1
+      i_off2=1
 
 
       Do iSym = 1,nSym
@@ -982,8 +896,7 @@ cPS         call xflush(6)
           do j=1,i
 !            if (i.gt.iIsh.and.j.gt.iIsh) then
 !              if(i.le.iAct+iIsh.and.j.le.iAct+iIsh) then
-                Work(iFone+i_off1) = Work(ifone+i_off1) +
-     &              Work(ifocka+i_off2)
+                Fone(i_off1) = fone(i_off1) + FockA(i_off2)
                 i_off1 = i_off1 + 1
 !              end if
 !            end if
@@ -994,7 +907,7 @@ cPS         call xflush(6)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) 'F1 to send'
       do i=1,NTOT1
-        write(6,*) work(iFone-1+i)
+        write(6,*) Fone(i)
       end do
         end if
 
@@ -1007,125 +920,113 @@ cPS         call xflush(6)
       LUTMP=IsFreeUnit(LUTMP)
       Call Molcas_Open(LUTMP,'TmpFock')
       do i=1,ntot1
-        write(LUTMP,*) Work(iFone+i-1)
+        write(LUTMP,*) Fone(i)
       end do
 
 !Write the TUVX teotp to file.q
 
-!      Call GetMem('ttTUVX2','Allo','Real',ittTUVX2,NACPR2)
-!      Call Get_TUVX(Work(lPUVX),Work(ittTUVX2))
+!      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
+!      Call Get_TUVX(PUVX,TUVX_tmp)
 !      write(6,*) 'TUVX'
 !      do i=1,nacpr2
-!      write(6,*) work(ittTUVX2-1+i)
+!      write(6,*) TUVX_tmp(i)
 !      end do
-!      Call GetMem('ttTUVX2','Free','Real',ittTUVX2,NACPR2)
+!      Call mma_deallocate(TUVX_tmp,NACPR2)
 
 
-      Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
-      CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
-      Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
-      !Call Get_TUVX(Work(lpuvx),Work(ittTUVX))
+      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
+      TUVX_tmp(:)=0.0D0
+      Call Get_TUVX(OnTopT,TUVX_tmp)
+      !Call Get_TUVX(puvx,TUVX_tmp)
 
       !Unpack TUVX to size
       do i=1,nacpr2
-        write(LUTMP,*) Work(ittTUVX+i-1)
+        write(LUTMP,*) TUVX_tmp(i)
       end do
       Close(LUTMP)
-      Call GetMem('F_ONE','Free','Real',iFone,NTOT1)
-      Call GetMem('ttTUVX','Free','Real',ittTUVX,NACPR2)
-
+      Call mma_deallocate(FOne)
+      Call mma_deallocate(TUVX_tmp)
 
 !____________________________________________________________
 !This next part is to generate the MC-PDFT generalized fock operator.
 
 
-!      CALL DCOPY_(nFint,[0.0D0],0,WORK(ipTmpLTEOTP),1)
-!      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpLOEOTP),1)
+!      CALL DCOPY_(nFint,[0.0D0],0,OnTopT,1)
+!      CALL DCOPY_(ntot1,[0.0D0],0,OnTopO,1)
 !        write(6,*) 'ONTOPT'
-!        call wrtmat(Work(ipTmpLTEOTP),1,nFInt,1,nFInt)
+!        call wrtmat(OnTopT,1,nFInt,1,nFInt)
 !        write(6,*) 'ONTOPO'
-!        call wrtmat(Work(ipTmpLOEOTP),1,ntot1,1,ntot1)
+!        call wrtmat(OnTopO,1,ntot1,1,ntot1)
 
 !Zero out the matrices.  We will be adding the potential-containing
 !terms as a correction to the Focc component already on the runfile.
-      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocka),1)
-      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocki),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,FockA,1)
+      CALL DCOPY_(ntot1,[0.0D0],0,FockI,1)
 
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
 !debugged.
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,Ntot1)
-      Call Get_dArray('FA_V',work(ifav),NTOT1)
-!         Call Dscal_(nTOT1,4.0d0,Work(ifav),1)
-      !work(ifav-1+2) = 0d0
+      CALL mma_allocate(FA_V,Ntot1,Label='FA_V')
+      Call Get_dArray('FA_V',FA_V,NTOT1)
+!         Call Dscal_(nTOT1,4.0d0,FA_V),1)
+      !FA_V(2) = 0d0
 
 
-!         Call Dscal_(ntot1,0.5d0,Work(ifiv),1)
-!         Call Dscal_(ntot1,0.5d0,Work(ifav),1)
-      !Call Dscal_(nfint,-0.5d0,Work(ipTmpLTEOTP),1)
+!         Call Dscal_(ntot1,0.5d0,FI_V,1)
+!         Call Dscal_(ntot1,0.5d0,FA_V,1)
+      !Call Dscal_(nfint,-0.5d0,OnTopT,1)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "extra terms to update FI"
       do i=1,ntot1
-      write(6,*) Work(ifiv-1+i)
+      write(6,*) FI_V(i)
       end do
-      !Call TriPrt(' ','(5G18.10)',Work(ifiv),norb(1))
+      !Call TriPrt(' ','(5G18.10)',FI_V,norb(1))
       write(6,*) "extra terms to update FA"
       do i=1,ntot1
-      write(6,*) Work(ifav-1+i)
+      write(6,*) FA_V(i)
       end do
-      !Call TriPrt(' ','(5G18.10)',Work(ifav),norb(1))
+      !Call TriPrt(' ','(5G18.10)',FA_V,norb(1))
         end if
 
         If ( IPRLEV.ge.DEBUG ) then
-      CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
-      Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
-      Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
-      Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
+      CALL mma_allocate(FA_t,Ntot1,Label='FA_t')
+      FA_t(:)=0.0D0
+      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FA_t,1)
+      Call daxpy_(NTOT1,1.0D0,FI_V,1,FA_t,1)
+      Call daxpy_(NTOT1,1.0D0,FA_V,1,FA_t,1)
       write(6,*) "Total F additions:"
-      Call TriPrt(' ','(5G18.10)',Work(ifat),norb(1))
-      CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
+      Call TriPrt(' ','(5G18.10)',FA_t,norb(1))
+      CALL mma_deallocate(FA_t)
         end if
 
 
 
       !Add one e potential, too.
-!test comment
-      Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifocki),1)
+      Call DaXpY_(NTOT1,1.0D0,OnTopO,1,FockI,1)
       !Add two e potentials
-!test comment
-      Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifocki),1)
-!test comment
-      Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifocka),1)
+      Call daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
+      Call daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
         If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "new FI"
-      Call TriPrt(' ','(5G18.10)',Work(ifocki),norb(1))
+      Call TriPrt(' ','(5G18.10)',FockI,norb(1))
       write(6,*) "new FA"
-      Call TriPrt(' ','(5G18.10)',Work(ifocka),norb(1))
+      Call TriPrt(' ','(5G18.10)',FockA,norb(1))
         end if
 
-      CALL GETMEM('FI_V','Free','REAL',ifiv,Ntot1)
-      CALL GETMEM('FA_V','Free','REAL',ifav,Ntot1)
-
-!Reordering of the two-body density matrix.
-!      Call Getmem('test_p2','allo','real',ip2test,ISTORP(NSYM+1))
-!      Call dcopy_(ISTORP(NSYM+1),Work(LP),1,Work(ip2test),1)
+      CALL mma_deallocate(FI_V)
+      CALL mma_deallocate(FA_V)
 
        IF(ISTORP(NSYM+1).GT.0) THEN
-      CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
-!p = work(iP2d)
-         CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
+         P(:)=0.0D0
+!p = P2d
+         CALL PMAT_RASSCF(P2d,P)
       END IF
-!test comment add
-!      Call FZero(Work(iptmplteotp),nfint)
-!test comment add end
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
-         CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
-         CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-         CALL FOCK_update(WORK(LFOCK),WORK(LBM),Work(iFockI),
-     &        Work(iFockA),Work(iD1Act),WORK(LP),
-     &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
+         CALL mma_allocate(BM,NSXS,Label='BM')
+         CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
+         CALL FOCK_update(FOCK,BM,FockI,FockA,D1Act,P,
+     &                    Q,OnTopT,IFINAL,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
         If ( IPRLEV.ge.DEBUG ) then
@@ -1136,10 +1037,10 @@ cPS         call xflush(6)
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
         end if
 
-         CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
-         CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
-      Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
+         Call mma_deallocate(BM)
+         Call mma_deallocate(Q)
+      Call mma_deallocate(ONTOPO)
+      Call mma_deallocate(ONTOPT)
 
 
 !Put some information on the runfile for possible gradient calculations.
@@ -1149,19 +1050,19 @@ cPS         call xflush(6)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
       iSA = 1
 
-!      Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
-!      Call FZero(Work(ip2dt1),Nacpr2)
-!      !I need the non-symmetry blocked d1act, hence the read.
-!      Call GetMem('D1Act1','Allo','Real',iD1Act1,NACPAR)
-!      Call Get_dArray_chk('D1mo',Work(iD1Act1),NACPAR)
-!        write(6,*) 'd1act'
+!      Call mma_allocate(P2dt1,NACPR2,Label='P2dt1')
+!      P2dt1(:)=0.0D0
+!      !I need the non-symmetry blocked D1Act, hence the read.
+!      Call mma_allocate(D1Act1,NACPAR,Label='D1Act1')
+!      Call Get_dArray_chk('D1mo',D1Act1,NACPAR)
+!        write(6,*) 'D1Act'
 !        do i=1,NACPAR
-!          write(6,*) work(iD1Act1-1+i)
+!          write(6,*) D1Act1(i)
 !        end do
-!      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
-!      Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
-!      Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
-!      Call GetMem('Dens','free','Real',iD1Act1,NACPAR)
+!      Call P2_contraction(D1Act1,P2dt1)
+!      Call Put_dArray('P2MOt',P2dt1,NACPR2)
+!      Call mma_deallocate(P2dt1)
+!      Call mma_deallocate(D1Act1)
 
 !Put information needed for geometry optimizations.
       !if (jroot.eq.iRlxRoot) then
@@ -1176,14 +1077,14 @@ cPS         call xflush(6)
 
 
 
-      end if !DoGradPDFT
+      end if
 
-      if (dogradmspd) then
+      if (mcpdft_options%grad .and. mcpdft_options%mspdft) then
 *      doing exactly the same thing as done in the previous chunck
 *      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 *      Hopefully this code will be neater.
-       call savefock_pdft(CMO,IFockI,IFockA,iD1Act,LFock,
-     &                    LP,NQ,LQ,LPUVX,ip2d,jroot)
+       call savefock_pdft(CMO,FockI,FockA,D1Act,Fock,
+     &                    P,NQ,PUVX,p2d,jroot)
       end if
 
 
@@ -1195,50 +1096,48 @@ cPS         call xflush(6)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
       !end if
 
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
-      Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
-      CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
-         IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
-           CALL GETMEM('ISTRP','FREE','REAL',LP1,ISTORP(NSYM+1))
-         END IF
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmpa)
+      Call mma_deallocate(FOCK)
+      CALL mma_deallocate(P)
+      CALL mma_deallocate(P1)
       end do !loop over roots
 
-      if(DoGradPDFT.or.DoGradMSPD) then
+      if(mcpdft_options%grad) then
         dmDisk = IADR19(3)
         do jroot=1,irlxroot-1
-          Call DDaFile(JOBOLD,0,Work(iD1Act),NACPAR,dmDisk)
-          Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
-          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+          Call DDaFile(JOBOLD,0,D1Act,NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
+          Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
         end do
-        Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,D1Act,NACPAR,dmDisk)
 *        Andrew added this line to fix heh2plus
-        Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
-        Call Put_dArray('D1mo',Work(iD1Act),NACPAR)
+        Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
+        Call Put_dArray('D1mo',D1Act,NACPAR)
 *        write(6,*) 'd1Spin'
 *        do i=1,NACPAR
-*          write(6,*) work(iD1spin-1+i)
+*          write(6,*) D1spin(i)
 *        end do
 *TRS commenting out because we already read over this
-*        Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
-        Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-        Call Put_dArray('P2mo',Work(iP2d),NACPR2)
+*        Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
+        Call Put_dArray('P2mo',P2d,NACPR2)
 *        write(6,*) 'D2'
 *        do i=1,NACPR2
-*          write(6,*) Work(ip2d-1+i)
+*          write(6,*) p2d(i)
 *        end do
 
-         If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
-         Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
+         If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
+         Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
-         Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
-         Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
-         Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
+         Call Fold(nSym,nBas,D1I,Tmp3)
+         Call Fold(nSym,nBas,D1ActAO,Tmp4)
+         Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
+         Call Put_dArray('D1ao',Tmp3,nTot1)
 !         write(6,*) 'd1ao'
 !         do i=1,ntot1
-!           write(6,*) work(itmp3-1+i)
+!           write(6,*) tmp3(i)
 !         end do
 
 !Get the spin density matrix for open shell cases
@@ -1248,60 +1147,46 @@ cPS         call xflush(6)
 *TRS ams also commented out this if and endif part of this
 * statement
          !if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,[Zero],0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[Zero],0,D1SpinAO,1)
          !end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
-         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
-     &                      Work(iD1SpinAO))
-         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
-         Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_dArray('D1Sao',Work(iTmp7),nTot1)
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
+         Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
+         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
+         Call Fold(nSym,nBas,D1SpinAO,Tmp7)
+         Call Put_dArray('D1Sao',Tmp7,nTot1)
 !         write(6,*) 'd1so'
 !         do i=1,ntot1
-!           write(6,*) work(itmp7-1+i)
+!           write(6,*) tmp7(i)
 !         end do
-         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
+         Call mma_deallocate(Tmp7)
 
 
 
 
-        Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+        Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
       end if
 
-
-      if(doGSOR) then
-        LUGS=25
-        LUGS=IsFreeUnit(LUGS)
-        IAD19=0
-        Call DaName(LUGS,'JOBGS')
-        Call IDaFile(LUGS,2,IADR19,15,IAD19)
-        Call DDAFile(LUGS,1,Energies,lroots,IADR19(6))
-        Call DaClos(LUGS)
-      end if
-
-      if (nFint.gt.0) then
-        Call GetMem('PUVX','FREE','Real',lPUVX,nFint)
-      end if
+      Call mma_deallocate(PUVX)
 
 !Free up all the memory we can here, eh?
-      Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)
-      Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
+      Call mma_deallocate(Tmp4)
+      Call mma_deallocate(Tmp3)
 
-      Call GetMem('D1Active','free','Real',iD1Act,NACPAR)
-      Call GetMem('D1ActiveAO','free','Real',iD1ActAO,NTOT2)
-      Call GetMem('D1Spin','free','Real',iD1Spin,NACPAR)
-      Call GetMem('D1SpinAO','free','Real',iD1SpinAO,NTOT2)
-      Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
-      Call GetMem('FockI','FREE','Real',ifocki,ntot1)
-      Call GetMem('FockA','FREE','Real',ifocka,ntot1)
-*      Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
-      Call GetMem('P2','Free','Real',iP2d,NACPR2)
-      Call GetMem('D1Inact','Free','Real',iD1i,NTOT2)
-      Call GetMem('Kincore','free','Real',iTmpk,nTot1)
-      Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
+      Call mma_deallocate(D1Act)
+      Call mma_deallocate(D1ActAO)
+      Call mma_deallocate(D1Spin)
+      Call mma_deallocate(D1SpinAO)
+      Call mma_deallocate(Tmp1)
+      Call mma_deallocate(FockI)
+      Call mma_deallocate(FockA)
+*      Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
+      Call mma_deallocate(P2D)
+      Call mma_deallocate(D1I)
+      Call mma_deallocate(Tmpk)
+      Call mma_deallocate(Tmpn)
 c      call xflush(6)
-      Return
-      END
+
+      END Subroutine MSCtl
 
       Subroutine P2_contraction(D1MO,P2MO)
       use definitions, only: wp
@@ -1341,7 +1226,7 @@ c      call xflush(6)
           integer, intent(in) :: i, j
           itrii = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
         end function
-      end subroutine
+      end Subroutine P2_contraction
 
 
       Subroutine Fold_pdft(nSym,nBas,A,B)
@@ -1365,5 +1250,4 @@ c      call xflush(6)
       End Do
 
       Return
-      end
-************ columbus interface ****************************************
+      end Subroutine Fold_pdft

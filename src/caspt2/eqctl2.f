@@ -17,8 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use caspt2_output, only: iPrGlb,usual,verbose,insane
+      use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: nStpGrd, do_grad, iStpGrd
+      use PrintLevel, only: insane, usual, verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.

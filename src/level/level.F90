@@ -216,7 +216,7 @@ outer: do
   EJ = Zero
   EJ2 = Zero
   LRPT = 1
-  ! Lower limit (RMIN) and increment (RH) of integration in (Angstroms).
+  ! Lower limit (RMIN) and increment (RH) of integration in (angstroms).
   ! Upper limit of the reduced variable integration range automatically
   ! set at  YMAX= 1.0 , which corresponds to  RMAX= infinity !!.
   ! A hard wall boundary condition may be imposed at a smaller distance
@@ -340,12 +340,12 @@ outer: do
   !** If(ILR > 1) fit last turning points to:  VLIM - sum{of ILR
   !  inverse-power terms beginning with  1/R**NCN}. *** If CNN /= 0 ,
   !  leading coefficient fixed at  CNN ; otherwise get it from points too.
-  !* Assume read-in CNN value has units:  [(cm-1)(Angstroms)**'NCN'].
+  !* Assume read-in CNN value has units:  [(cm-1)(angstroms)**'NCN'].
   !* If ILR = 2 or 3 , successive higher power terms differ by  1/R**2
   !* If ILR > 3 : successive higher power terms differ by factor  1/R
   !
   !** RFACT & EFACT are factors required to convert units of input turning
-  !       points (XI,YI) to Angstroms & cm-1, respectively (often = 1.0)
+  !       points (XI,YI) to angstroms & cm-1, respectively (often = 1.0)
   !** Turning points (XI,YI) must be ordered with increasing XI(I)
   !** Energy VSHIFT (cm-1) is added to the input potential points to
   !   make their absolute energy consistent with VLIM (often VSHIFT=Te).
@@ -1310,8 +1310,8 @@ RC = 0
            'based on radial variable  yp(r;a)= (r^p - a^p)/(r^p + a^p)'/5x,'for   p=',f6.3,'    and   a=',F9.6/ &
            ' Range corresponds to   Rmin=',f7.3,' [Angst]    to    Rmax= infinity (!!)'/5x,'and   RH=',F10.7,' [Angst]   at   R=', &
            f11.8//' Potential #1 for ',A2,'(',I3,')-',A2,'(',I3,')'/1x,32('='))
-605 format(/A78/40('=='):/' Generate   ZMU=',F15.11,'(u)','   &   BZ=',ES16.9,'((1/cm-1)(1/Ang**2))'/10x,'from atomic masses:', &
-           f16.11,'  & ',F16.11,'(u)')
+605 format(/A78/40('=='):/' Generate   ZMU=',F15.11,'(u)','   &   BZ=',ES16.9,'((1/cm-1)(1/angstrom**2))'/10x, &
+           'from atomic masses:',f16.11,'  & ',F16.11,'(u)')
 606 format(' E(v=',i3,', J=',i3,')=',f10.3,'   Bv=',F11.7,'  -Dv=',ES12.4,'   Hv=',ES12.4/8x,'   Lv=',ES12.4,'   Mv=',ES12.4, &
            '   Nv=',ES12.4,'   Ov=',ES12.4)
 6065 format(' E(v=',i3,', J=',i3,')=',f11.7,'  Bv=',ES11.4,'  -Dv=',ES12.4,'   Hv=',ES12.4/8x,'   Lv=',ES12.4,'   Mv=',ES12.4, &
@@ -1327,8 +1327,8 @@ RC = 0
 611 format(/' Matrix element argument expansion vble is   X = ((r^',i1,' - DREF^',i1,')/(r^',i1,' + DREF^',i1,'))')
 612 format(/' Eigenvalue convergence criterion is   EPS=',ES8.1,'(cm-1)'/ &
            ' Airy function at 3-rd turning point is quasibound outer boundary condition')
-613 format(5X,'where reference length is held fixed at   DREF =',F13.10,'(Angstroms)')
-614 format(/' Matrix element arguments are powers of the distance  r (in Angstroms)')
+613 format(5X,'where reference length is held fixed at   DREF =',F13.10,'(angstroms)')
+614 format(/' Matrix element arguments are powers of the distance  r (in angstroms)')
 615 format(/' Matrix element argument expansion variable is:    X = (r - DREF)/DREF')
 616 format(/' Matrix element arguments are powers of the squared inverse distance  X = 1/r**',i1)
 617 format(/' Matrix element argument is fixed as a constant = 1')
@@ -1374,7 +1374,7 @@ RC = 0
 812 format(' Perform',I3,'-point piecewise polynomial interpolation over',I5,' input points')
 814 format(' Perform cubic spline interpolation over the',I5,' input points')
 816 format('- Beyond read-in points extrapolate to limiting asymptoticbehaviour:'/20x,'Y(R)  =  Y(lim) - (',ES16.7,')/R**',I2)
-818 format(' Scale input points:  (distance)*',ES16.9,'     (moment)*',ES16.9/4x,'to get required units  [Angstroms & debye]'/ &
+818 format(' Scale input points:  (distance)*',ES16.9,'     (moment)*',ES16.9/4x,'to get required units  [angstroms & debye]'/ &
            3('      R(i)         Y(i)  ')/3(3X,11('--')))
 820 format((3(F12.6,F13.6)))
 !824 format(//A78/30('==')/" Note that (v',J') &",' (v",J") strictly label the upper and lower levels, resp.,'/6x, &

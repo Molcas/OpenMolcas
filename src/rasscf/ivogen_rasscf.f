@@ -51,8 +51,8 @@
 *                                                                      *
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
+      use Constants, only: Zero, One
       Implicit None
-#include "real.fh"
 #include "stdalloc.fh"
 #include "warnings.h"
 #include "output_ras.fh"

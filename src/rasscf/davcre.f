@@ -41,30 +41,30 @@ C ********** IBM-3090 Release 88 09 08 *****
 C
       use fciqmc, only : DoNECI
       use wadr, only: PA, DIA, SXN
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasrc.fh"
-#include "WrkSpc.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='DAVCRE  ')
-      CHARACTER*4 IOUTW,IOUTX
-      DIMENSION C((NROOT+NSXS)*NROOT*(ITMAX+1))
-      DIMENSION HC((NROOT+NSXS)*NROOT*ITMAX)
-      DIMENSION HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
-      DIMENSION CC((ITMAX*NROOT)**2)
-      DIMENSION E((ITMAX*NROOT))
-      DIMENSION HD(NROOT+NSXS)
-      DIMENSION SC((NROOT+NSXS))
-      DIMENSION Q((NROOT+NSXS)*(NROOT+1))
-      DIMENSION QQ(NROOT)
-      DIMENSION S(ITMAX*NROOT**2)
-      CHARACTER*(*) SXSEL
+      Character(LEN=16):: ROUTINE='DAVCRE  '
+      CHARACTER(LEN=4) IOUTW,IOUTX
+      Real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))
+      Real*8 HC((NROOT+NSXS)*NROOT*ITMAX)
+      Real*8 HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
+      Real*8 CC((ITMAX*NROOT)**2)
+      Real*8 E((ITMAX*NROOT))
+      Real*8 HD(NROOT+NSXS)
+      Real*8 SC((NROOT+NSXS))
+      Real*8 Q((NROOT+NSXS)*(NROOT+1))
+      Real*8 QQ(NROOT)
+      Real*8 S(ITMAX*NROOT**2)
+      CHARACTER(LEN=*) SXSEL
 cvv   DATA THRA/1.D-13/,THRLD2/1.D-15/,THRQ/1.D-07/,THRZ/1.D-06/,
 cvv   Thrld2 changed to 1.D-14 to avoid numerial unstabillity
       DATA THRA/1.D-13/,THRLD2/5.D-14/,THRQ/1.D-07/,THRZ/1.D-06/,
      &     THRLD1/1.D-08/
+      Real*8, Allocatable:: C1(:), C2(:), X(:)
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
@@ -90,9 +90,9 @@ C
 C
 C  memory allocation for COVLP
 C
-       CALL GETMEM('SXC1','ALLO','REAL',LC1,NSXS)
-       CALL GETMEM('SXC2','ALLO','REAL',LC2,NSXS)
-       CALL GETMEM('SXX2','ALLO','REAL',LX,NSXS)
+       CALL mma_allocate(C1,NSXS,Label='C1')
+       CALL mma_allocate(C2,NSXS,Label='C2')
+       CALL mma_allocate(X,NSXS,Label='X')
 C
 C Begin Davidson iterations
 C Start by setting up the Davidson HH-matrix
@@ -146,10 +146,10 @@ C Root selection by maximum overlap.
          ISEL=1
          XMX=ABS(CC(1))
          DO I=2,NDIMH
-          X=ABS(CC(1+NDIMH*(I-1)))
-          IF(X.GT.XMX) THEN
+          XX=ABS(CC(1+NDIMH*(I-1)))
+          IF(XX.GT.XMX) THEN
             ISEL=I
-            XMX=X
+            XMX=XX
           END IF
          END DO
          IF(ISEL.NE.I) THEN
@@ -222,7 +222,7 @@ C
       IST=1+NDIM
       DO I=1,NROOT
        CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,
-     &            WORK(LC1),WORK(LC2),WORK(LX),QQ(I))
+     &            C1,C2,X,QQ(I))
        IST=IST+NDIM
       END DO
 C
@@ -333,7 +333,7 @@ C First form the overlap matrix
        DO J=1,NDIMH
         IJ=IJ+1
         CALL COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,
-     &  WORK(LC1),WORK(LC2),WORK(LX),OVL)
+     &             C1,C2,X,OVL)
         S(IJ)=-OVL
         ISTC=ISTC+NDIM
        END DO
@@ -363,7 +363,7 @@ C
         JST=1
         DO J=1,NTRIAL
          CALL COVLP(Q(IST),Q(JST),DIA,PA,SXN,
-     *              WORK(LC1),WORK(LC2),WORK(LX),OVL)
+     *              C1,C2,X,OVL)
          S(J)=-OVL
          JST=JST+NDIM
         END DO
@@ -378,7 +378,7 @@ C
 C  Normalize this vector and move to trial set if norm large enough
 C
        CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,
-     *            WORK(LC1),WORK(LC2),WORK(LX),XNORM)
+     *            C1,C2,X,XNORM)
 C Due to large noise amplification in COVLP, the squared-norm
 C can actually come out as a negative number.
 C Acceptable, only if it is very close to zero. Else, quit.
@@ -545,7 +545,7 @@ C
       IST=1
       DO I=1,NROOT
        CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,
-     * WORK(LC1),WORK(LC2),WORK(LX),XNORM)
+     *            C1,C2,X,XNORM)
        XNORM=1.0D00/XNORM
        CALL DYAX(NDIM,XNORM,Q(IST),1,C(IST),1)
        IST=IST+NDIM
@@ -565,8 +565,8 @@ C
 C End of diagonalization
 C Free memory for COVLP
 C
-      CALL GETMEM('XXXX','FREE','REAL',LC1,NSXS)
-      CALL GETMEM('XXXX','FREE','REAL',LC2,NSXS)
-      CALL GETMEM('XXXX','FREE','REAL',LX,NSXS)
+      CALL mma_deallocate(C1)
+      CALL mma_deallocate(C2)
+      CALL mma_deallocate(X)
       RETURN
       END

@@ -40,7 +40,7 @@
       Integer nAuf(2)
 !
 !     declaration of local variables...
-      Integer nEOrb, iOrBas, iSym, iOrb, iD, nOrBas, jOrBas, mD, ipOcc, jSym, nElec
+      Integer nEOrb, iOrBas, iSym, iOrb, iD, nOrBas, jOrBas, mD, ipOcc, jSym, nElec, Tmp
       Real*8 UHF_Occ, EFerm, UnlikelyOcc, Fact, Fact2
       Real*8, External:: Fermipop
       Integer, Dimension(:,:), Allocatable:: Map, Irp
@@ -84,8 +84,11 @@
       Do iOrbAS = 1, nOrbAS-1
          Do jOrbAS = nOrbAS-1, iOrbAS, -1
             Do iD = 1, nD
-               If (EOrb(Map(  jOrbAS,iD),iD).gt.EOrb(Map(1+jOrbAS,iD),iD))   &
-                 Call Swap_Seward(Map(  jOrbAS,iD),Map(1+jOrbAS,iD))
+               If (EOrb(Map(jOrbAS,iD),iD).gt.EOrb(Map(1+jOrbAS,iD),iD)) Then
+                 Tmp = Map(jOrbAS,iD)
+                 Map(jOrbAS,iD) = Map(1+jOrbAS,iD)
+                 Map(1+jOrbAS,iD) = Tmp
+               End If
             End Do
          End Do
       End Do

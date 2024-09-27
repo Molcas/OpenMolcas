@@ -27,7 +27,7 @@ subroutine PREPOT(LNPT,NPP,OMEGA,RR,RM2,VLIM,VV,CNN,NCN,PPAR,QPAR,NSR,NLR,DSCM,R
 !  IAN1 & IAN2 are the atomic numbers and IMN1 & IMN2 the mass numbers
 !        of atoms #1 & 2, used (if needed) to specify isotope masses for
 !        calculating adiabatic and/or non-adiabatic BOB correction fx.
-!  NPP (integer) is the number of input distances  RR(i) (in Angstroms)
+!  NPP (integer) is the number of input distances  RR(i) (in angstroms)
 !        at which potential values  VV(i) (in cm-1) are to be generated
 !  RR  (real array) is set of NPP distances where potential calculated
 !  RM2 (real array) on input is the (centrifugal) array of  1/RR(i)**2
@@ -157,7 +157,7 @@ if (LNPT > 0) then
     !** If(ILR > 1) fit last turning points to:  VLIM - sum{of ILR
     !  inverse-power terms beginning with  1/R**NCN}. *** If CNN /= 0 ,
     !  leading coefficient fixed at  CNN ; otherwise get it from points too.
-    !* Assume read-in CNN value has units:  [(cm-1)(Angstroms)**'NCN'].
+    !* Assume read-in CNN value has units:  [(cm-1)(angstroms)**'NCN'].
     !* If ILR = 2 or 3 , successive higher power terms differ by  1/R**2
     !* If ILR > 3 : successive higher power terms differ by factor  1/R
     !-------------------------------------------------------------------
@@ -177,7 +177,7 @@ if (LNPT > 0) then
     if ((ILR > 1) .and. (abs(CNN) > Zero)) write(u6,610) CNN,NCN
     !** Read in turning points to be interpolated over
     !** RFACT & EFACT are factors required to convert units of input turning
-    !       points (XI,YI) to Angstroms & cm-1, respectively (may be = 1.0)
+    !       points (XI,YI) to angstroms & cm-1, respectively (may be = 1.0)
     !** Turning points (XI,YI) must be ordered with increasing XI(I)
     !** Energy VSHIFT [cm-1] is added to the input potential points to
     !   make their absolute energy consistent with VLIM (often VSHIFT=Te).
@@ -344,7 +344,7 @@ return
 608 format(' Interpolation actually performed over modified input array:   Y(I) * r(I)**2')
 610 format(' Beyond read-in points extrapolate to limiting asymptotic behaviour:'/20x,'Y(r)  =  Y(lim) - (',ES16.7,')/r**',I2)
 612 format(' To make input points Y(i) consistent with  Y(lim),  add  Y(shift)=',F12.4/' Scale input points:  (distance)*', &
-           ES16.9,'    (energy)*',ES16.9/13x,'to get required internal units  [Angstroms & cm-1 for potentials]'/ &
+           ES16.9,'    (energy)*',ES16.9/13x,'to get required internal units  [angstroms & cm-1 for potentials]'/ &
            3('      r(i)         Y(i)  ')/3(3X,11('--')))
 614 format((3(F13.8,F12.4)))
 616 format((3(F12.6,F13.8)))

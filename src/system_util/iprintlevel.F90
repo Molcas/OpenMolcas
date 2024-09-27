@@ -39,12 +39,13 @@
 
 function iPrintLevel(Level)
 
+use PrintLevel, only: DEBUG, INSANE, SILENT, TERSE, USUAL, VERBOSE
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iPrintLevel
 integer(kind=iwp), intent(in) :: Level
-integer(kind=iwp), save :: isFirst = 0, nPrintLevel
+integer(kind=iwp), save :: inum, isFirst = 0, istatus, nPrintLevel
 character(len=80) :: Val
 
 if (Level >= 0) then
@@ -57,20 +58,26 @@ if (isFirst == 0) then
   call getenvf('MOLCAS_PRINT',Val)
   call UpCase(Val)
   select case (Val)
-    case ('SILENT','0')
-      nPrintLevel = 0
-    case ('TERSE','1')
-      nPrintLevel = 1
-    case ('NORMAL','2')
-      nPrintLevel = 2
-    case ('VERBOSE','3')
-      nPrintLevel = 3
-    case ('DEBUG','4')
-      nPrintLevel = 4
-    case ('INSANE','5')
-      nPrintLevel = 5
+    case ('SILENT')
+      nPrintLevel = SILENT
+    case ('TERSE')
+      nPrintLevel = TERSE
+    case ('NORMAL','USUAL')
+      nPrintLevel = USUAL
+    case ('VERBOSE')
+      nPrintLevel = VERBOSE
+    case ('DEBUG')
+      nPrintLevel = DEBUG
+    case ('INSANE')
+      nPrintLevel = INSANE
     case default
-      nPrintLevel = 2
+      inum = -1
+      read(Val,*,iostat=istatus) inum
+      if ((istatus == 0) .and. (inum >= SILENT) .and. (inum <= INSANE)) then
+        nPrintLevel = inum
+      else
+        nPrintLevel = USUAL
+      end if
   end select
 end if
 iPrintLevel = nPrintLevel

@@ -46,17 +46,17 @@
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
       use gas_data, only : nGssh
+      use stdalloc, only: mma_allocate, mma_deallocate
 
 #include "output_ras.fh"
-#include "WrkSpc.fh"
       integer, intent(in) :: JobIph, iPrlev
 
-      integer :: iDisk, iRt, lCMO, iNDType(7, 8),
-     &    lUVVVec, lEdum, ipEne,ipOcc
+      integer :: iDisk, iRt, iNDType(7, 8), lUVVVec
       real*8 :: Energy, PotNucDummy
 
       character(len=80) :: VecTyp
       character(len=128) :: Filename
+      real*8, allocatable:: CMO(:), Occ(:), Ene(:), EDum(:)
       interface
         integer function isfreeunit(iseed)
           integer, intent(in) :: iseed
@@ -95,8 +95,8 @@
 *----------------------------------------------------------------------*
 *     Allocate CMO array                                               *
 *----------------------------------------------------------------------*
-      call getmem('CMO','allo','real',LCMO,ntot2)
-      call getmem('Occ','allo','real',ipOcc,ntot)
+      call mma_allocate(CMO,ntot2,Label='CMO')
+      call mma_allocate(Occ,ntot,Label='Occ')
 *----------------------------------------------------------------------*
 *     Make typeindex information                                       *
 *----------------------------------------------------------------------*
@@ -116,22 +116,22 @@
       filename = 'RASORB'
       If (iOrbTyp .ne. 2) then
         iDisk=iToc(2)
-        Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
+        Call dDaFile(JobIph,2,CMO,ntot2,iDisk)
         IF(IPRLEV.GE.USUAL) then
           Write(LF,'(6X,3A)') 'Average orbitals are written to the ',
      &                          trim(filename),' file'
         end if
         VecTyp = '* RASSCF average (pseudo-natural) orbitals'
-        Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
+        Call dDaFile(JobIph,2,Occ,ntot,iDisk)
       Else
         iDisk=iToc(9)
-        Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
+        Call dDaFile(JobIph,2,CMO,ntot2,iDisk)
         IF(IPRLEV.GE.USUAL) then
           Write(LF,'(6X,3A)') 'Canonical orbitals are written to the ',
      &          trim(filename),' file'
         end if
         VecTyp = '* RASSCF canonical orbitals for CASPT2'
-        call dcopy_(ntot,[1.0D0],0,Work(ipOcc),1)
+        call dcopy_(ntot,[1.0D0],0,Occ,1)
       End If
 *----------------------------------------------------------------------*
 *     Write  orbitals                                                  *
@@ -139,31 +139,26 @@
       LuvvVec=50
       LuvvVec=isfreeunit(LuvvVec)
 c      Call WrVec(filename,LuvvVec,'COE',nSym,nBas,nBas,
-c     &  Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
+c     &           CMO, Occ, FDIAG, iDummy,VecTyp)
       Call WrVec_(filename,LuvvVec,'COET',0,nSym,nBas,nBas,
-     &            Work(lCMO),Work(lCMO),
-     &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,[E2act],
-     &            indType,VecTyp,0)
+     &            CMO,CMO,Occ,Occ,FDIAG,[E2act],indType,VecTyp,0)
 c      Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
-c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
+c     &           CMO, Occ, FDIAG, IndType,VecTyp)
       Call WrVec_(filename,LuvvVec,'AIT',0,nSym,nBas,nBas,
-     &            Work(lCMO),Work(lCMO),
-     &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,[E2act],
+     &            CMO,CMO,Occ,Occ,FDIAG,[E2act],
      &            indType,VecTyp,0)
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals
 *----------------------------------------------------------------------*
-      Call GetMem('Ene','Allo','Real',ipEne,mxRoot*mxIter)
-      Call Get_dArray('Last energies',Work(ipEne),lRoots)
+      Call mma_allocate(Ene,mxRoot*mxIter,Label='Ene')
+      Call Get_dArray('Last energies',Ene,lRoots)
 
       iDisk=iToc(12)
       DO IRT=1, MIN(MAXORBOUT, LROOTS, 999)
-        energy=Work(ipEne+IRT-1)
+        energy=Ene(IRT)
         filename = 'RASORB.'//merge(str(IRT), 'x', irt < 999)
-        Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
-        Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
+        Call dDaFile(JobIph,2,CMO,ntot2,iDisk)
+        Call dDaFile(JobIph,2,Occ,ntot,iDisk)
         IF(IPRLEV.GE.USUAL) then
           Write(LF,'(6X,A,I3,3A)') 'Natural orbitals for root ', IRT,
      &    ' are written to the ', trim(filename), ' file'
@@ -177,21 +172,21 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         LuvvVec=50
         LuvvVec=isfreeunit(LuvvVec)
         Call WrVec(filename,LuvvVec,'COE',nSym,nBas,nBas,
-     &    Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
+     &             CMO, Occ, FDIAG, IndType,VecTyp)
         Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
-     &   Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
+     &             CMO, Occ, FDIAG, IndType,VecTyp)
       END DO
-      Call GetMem('Ene','Free','Real',ipEne,mxRoot*mxIter)
+      Call mma_deallocate(Ene)
 *----------------------------------------------------------------------*
 *     Third, write spin density orbitals
 *----------------------------------------------------------------------*
       iDisk=iToc(14)
-      Call GetMem('EDummy','Allo','Real',LEDum,NTot)
-      call dcopy_(NTot,[0.0D0],0,Work(LEDum),1)
+      Call mma_allocate(EDum,NTot,Label='EDum')
+      EDum(:)=0.0D0
       DO IRT=1,MIN(MAXORBOUT,LROOTS,999)
         filename = 'SPDORB.'//merge(str(IRT), 'x', irt < 999)
-        Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
-        Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
+        Call dDaFile(JobIph,2,CMO,ntot2,iDisk)
+        Call dDaFile(JobIph,2,Occ,ntot,iDisk)
         IF (IPRLEV.GE.USUAL) then
           Write(LF,'(6X,A,I3,3A)')'Spin density orbitals for root ',
      &      irt, ' are written to the ',trim(filename),' file'
@@ -204,16 +199,16 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         LuvvVec = 50
         LuvvVec = isfreeunit(LuvvVec)
         Call WrVec(filename,LuvvVec,'CEO',nSym,nBas,nBas,
-     &    Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
+     &             CMO, Occ, EDum, IndType,VecTyp)
         Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
-     &   Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
+     &             CMO, Occ, EDum, IndType,VecTyp)
       END DO
-      Call GetMem('EDummy','Free','Real',LEDUM,NTOT)
+      Call mma_deallocate(EDum)
 *----------------------------------------------------------------------*
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
-      call getmem('CMO','free','real',LCMO,ntot2)
-      call getmem('Occ','free','real',ipOcc,ntot)
+      call mma_deallocate(CMO)
+      call mma_deallocate(Occ)
 
       Return
       End subroutine

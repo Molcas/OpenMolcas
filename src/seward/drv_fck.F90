@@ -92,8 +92,8 @@ do iComp=1,nComp
   LenTot = LenTot+LenInt+4
 end do
 call mma_allocate(Int1El,LenTot)
+Int1El(:) = Zero
 ip(1) = 1
-call DCopy_(LenTot,[Zero],0,Int1El(ip(1)),1)
 iadr = ip(1)
 do iComp=1,nComp
   LenInt = n2Tri(lOper(iComp))
@@ -109,7 +109,7 @@ end do
 !                                                                      *
 !---- Compute all SO integrals for all components of the operator.
 
-call Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
+call Drv_Fck_Inner(ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -159,7 +159,7 @@ return
 
 end subroutine Drv_Fck
 
-subroutine Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
+subroutine Drv_Fck_Inner(ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the one-electron integrals. The method employed at*
@@ -196,9 +196,9 @@ use Definitions, only: wp, iwp, u6
 use define_af, only: AngTp
 
 implicit none
-character(len=8), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
-real(kind=wp), intent(in) :: Int1El(LenTot), rHrmt
+real(kind=wp), intent(inout) :: Int1El(LenTot)
+real(kind=wp), intent(in) :: rHrmt
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iElem, ii, iIC, iIrrep, ijB, &
                      ijC, iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, &
@@ -413,8 +413,7 @@ do iS=1,nSkal
         mSO = 0
       end if
       if (mSO /= 0) then
-        call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Int1El(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,nComp,Label, &
-                    lOper,rHrmt)
+        call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Int1El(ip(iComp)),n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,rHrmt)
         iSOBlk = iSOBlk+mSO*iBas*jBas
       end if
     end do

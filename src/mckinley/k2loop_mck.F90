@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,k2data, &
+subroutine k2Loop_mck(Coor,iAnga,iDCRR,nDCRR,k2data, &
                       ijCmp,Alpha,nAlpha,Beta,nBeta,Coeff1,iBasn,Coeff2,jBasn,nMemab,Wk002,m002,Wk003,m003)
 !***********************************************************************
 !                                                                      *
@@ -25,7 +25,7 @@ subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,k2data, &
 !             March '90                                                *
 !                                                                      *
 !             June '91, modified to compute zeta, P, kappa and inte-   *
-!             grals for Schwartz inequality in a k2 loop.              *
+!             grals for Schwarz inequality in a k2 loop.               *
 !             January '92 modified to gradient calculations.           *
 !             April '92, modified to use the Cauchy-Schwarz inequality *
 !              to estimate the integral derivatives.                   *
@@ -39,7 +39,7 @@ use Definitions, only: wp, iwp
 use k2_structure, only: k2_type
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003
+integer(kind=iwp), intent(in) :: iAnga(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003
 real(kind=wp), intent(in) :: Coor(3,2), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn)
 type(k2_type), intent(inout) :: k2Data(nDCRR)
 real(kind=wp), intent(out) :: Wk002(m002)
@@ -73,8 +73,7 @@ do lDCRR=0,nDCRR-1
   !                                                                  *
   ! Estimate the largest contracted integral.
 
-  k2data(lDCRR+1)%EstI = EstI(k2Data(lDCRR+1)%Zeta,k2Data(lDCRR+1)%Kappa,nAlpha,nBeta,Coeff1,iBasn,Coeff2,jBasn, &
-                              k2Data(lDCRR+1)%ab,iCmpa(1)*iCmpa(2),Wk002,m002,k2Data(lDCRR+1)%IndZ)
+  k2data(lDCRR+1)%EstI = EstI(nAlpha,nBeta,Coeff1,iBasn,Coeff2,jBasn,k2Data(lDCRR+1)%ab,Wk002,m002,k2Data(lDCRR+1)%IndZ)
   !                                                                  *
   !*******************************************************************
   !                                                                  *

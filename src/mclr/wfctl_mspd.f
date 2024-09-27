@@ -22,6 +22,7 @@
       use Exp, only: Exp_Close
       use ipPage, only: W
       use cmslag, only: ResQaaLag2
+      use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
 *
 #include "stdalloc.fh"
@@ -33,7 +34,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 
@@ -482,11 +482,11 @@
       Subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,
      & ipCiOut)
       use ipPage, only: w
+      use Constants, only: One
       Implicit Real*8(a-h,o-z)
 #include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
-#include "real.fh"
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)

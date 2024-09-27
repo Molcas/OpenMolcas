@@ -23,13 +23,15 @@ C     Luis Serrano-Andres
 C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
+      Real*8, Allocatable:: Temp1(:), Temp2(:)
+      Integer, Allocatable:: IxSym2(:)
 *
 *
       nOrbMX=0
@@ -39,16 +41,15 @@ C
          nOrb_tot=nOrb_tot+nBas(iSym)
       End Do
 *
-      Call GetMem('Temp1','Allo','Real',ipTemp1,nOrbMX*nOrbMX)
-      Call GetMem('Temp2','Allo','Real',ipTemp2,nOrbMX*nOrbMX)
-      Call GetMem('IxSym2','Allo','Inte',ipIxSym2,nOrb_tot)
+      Call mma_allocate(Temp1,nOrbMX*nOrbMX,Label='Temp1')
+      Call mma_allocate(Temp2,nOrbMX*nOrbMX,Label='Temp2')
+      Call mma_allocate(IxSym2,nOrb_tot,Label='IxSym2')
 *
-      Call SUPSCH_(SMAT,CMOO,CMON,Work(ipTemp1),Work(ipTemp2),nOrbMX,
-     &             iWork(ipIxSym2),nOrb_tot)
+      Call SUPSCH_(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,nOrb_tot)
 *
-      Call GetMem('IxSym2','Free','Inte',ipIxSym2,nOrb_tot)
-      Call GetMem('Temp2','Free','Real',ipTemp2,nOrbMX*nOrbMX)
-      Call GetMem('Temp1','Free','Real',ipTemp1,nOrbMX*nOrbMX)
+      Call mma_deallocate(IxSym2)
+      Call mma_deallocate(Temp2)
+      Call mma_deallocate(Temp1)
 *
 *
       Return

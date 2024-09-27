@@ -1,111 +1,76 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
-
-! module dependencies
-      use mspdft_grad, only: dogradmspd
-      use mspdft, only: cmsNACstates, doNACMSPD, doMECIMSPD
-#ifdef module_DMRG
-!     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
-#endif
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
+      use UnixInfo, only: SuperName
+      use mcpdft_input, only: mcpdft_options
+      use printlevel, only: terse, debug, insane
+      use mcpdft_output, only: lf, iPrLoc
+
 #ifdef _HDF5_
-      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+      Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-      use KSDFT_Info, only: CoefR, CoefX
-      use hybridpdft, only: Ratio_WF, Do_Hybrid
-      use UnixInfo, only: SuperName
-      use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
-      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
-      use lucia_interface, only: lucia_util
-      use gugx, only: SGS, CIS, EXS
+      implicit none
 
-      Implicit Real*8 (A-H,O-Z)
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "WrkSpc.fh"
-#include "gas.fh"
 #include "rasscf.fh"
-#include "input_ras_mcpdft.fh"
 #include "general.fh"
-* Lucia-stuff:
-#include "ciinfo.fh"
-#include "spinfo.fh"
-#include "lucia_ini.fh"
-*
-      Character*180  Line
 
+      Real*8 potnucdummy
       logical lExists, RunFile_Exists
-* Some strange extra logical variables...
-      logical DSCF
-      logical RF_On
-      logical Langevin_On
-      logical PCM_On
+      Logical, External :: Is_First_Iter
+      integer, external :: isFreeUnit
+      logical, external :: Langevin_On, PCM_On
 
+      logical DSCF
       Logical DBG
 
 #ifdef _HDF5_
-* Local NBAS_L, NORB_L .. avoid collision with items in common.
-      DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
-      DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
+! Local NBAS_L, NORB_L .. avoid collision with items in common.
+      integer, DIMENSION(8) :: NFRO_L,NISH_L,NRS1_L,NRS2_L
+      integer, DIMENSION(8) :: NRS3_L,NSSH_L,NDEL_L
       character(len=1), allocatable :: typestring(:)
-      DIMENSION NBAS_L(8)
+      integer, DIMENSION(8) :: NBAS_L
+      integer :: mh5id
+      integer :: nsym_l
+      logical :: err
 #endif
-* TOC on JOBOLD (or JOBIPH)
-      DIMENSION IADR19(15)
 
-      Character*180 Get_LN
-      External Get_LN
-      Real*8   Get_ExFac
-      External Get_ExFac
+! TOC on JOBOLD (or JOBIPH)
+      integer, DIMENSION(15) :: IADR19
+
+
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
-      Character*256 RealName
-      Logical, External :: Is_First_Iter
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
-      CHARACTER*(80) OriginalKS
 
       INTEGER :: iDNG,IPRLEV
       Logical :: DNG
       Character*8 emiloop
       Character*8 inGeo
       logical :: keyJOBI
-      Intrinsic DBLE
-C...Dongxia note for GAS:
-C   No changing about read in orbital information from INPORB yet.
+
+      integer irc, i, iad19
+      integer iorbdata, isym
+      integer nisht, nasht, ndiff
 
       Call StatusLine('MCPDFT:','Processing Input')
 
       IPRLEV = TERSE
-
-      doGradPDFT = .false.
-      doGradMSPD = .false.
-      doNOGRad = .false.
-      DoGSOR=.false.
-
-! TODO PUT THIS INITIALITION IN MODULE FILE
-*     CMS NACs variables
-      doNACMSPD = .false.
-      doMECIMSPD = .false.
-      cmsNACstates(1) = 0
-      cmsNACstates(2) = 0
-
-*    GAS flag, means the INPUT was GAS
-      iDoGas = .false.
 
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
@@ -113,13 +78,15 @@ C   No changing about read in orbital information from INPORB yet.
       iRc=_RC_ALL_IS_WELL_
 
 
+! I am not sure exactly what we should do here, but lets try and mimic
+! the behavior from before..
+! For geometry optimizations use the old CI coefficients.
       If (SuperName(1:6).eq.'mcpdft') Then
-* For geometry optimizations use the old CI coefficients.
         If (.Not.Is_First_Iter()) Then
-          KeyFILE=.false.
+          mcpdft_options%wfn_file = ""
         End If
       Else If (SuperName(1:18).eq.'numerical_gradient') Then
-        KeyFILE=.false.
+        mcpdft_options%wfn_file = ""
       End If
 
       !> Local print level in this routine:
@@ -129,9 +96,9 @@ C   No changing about read in orbital information from INPORB yet.
 
 * ==== Check if there is any runfile ====
       Call F_Inquire('RUNFILE',RunFile_Exists)
-      If (DBG) Write(6,*)' Inquire about RUNFILE.'
+      If (DBG) Write(lf,*)' Inquire about RUNFILE.'
       IF (RunFile_Exists) Then
-       If (DBG) Write(6,*)' Yes, there is one.'
+       If (DBG) Write(lf,*)' Yes, there is one.'
        NSYM=0
        Call qpg_iScalar('nSym',lExists)
        IF (lExists) Then
@@ -158,206 +125,74 @@ C   No changing about read in orbital information from INPORB yet.
       END IF
 * ==== End check if there is any runfile ====
 
+! Make these enumerations??
+! Also, allow FILE to specify either a binary (JobIph or HDF5 reference for
+! example). No reason why we cannot do this.
       iOrbData=0
-* iOrbData=0: no orbital space data is specified
-*         >0: specifications from some orbital file (JOBOLD, JOBIPH, HDF5)
+! iOrbData=0: no orbital space data is specified
+!         >0: specifications from some orbital file (JOBOLD, JOBIPH, HDF5)
       INVEC=0
-* INVEC=0, no source for orbitals (yet)
-*       3, take from JOBOLD, or JOBIPH file
-*       4, take from an HDF5 file
+! INVEC=0, no source for orbitals (yet)
+!       3, take from JOBOLD, or JOBIPH file
+!       4, take from an HDF5 file
+!       5, take from startorb (instead of jobold or jobiph) NOT IMPLEMENTED
 
 *---  ==== FILE(ORB) keyword =====
-      If (DBG) Write(6,*)' Where to read MOs/CI vectors? '
-      StartOrbFile=''
-
-      If (KeyFILE) Then
-       If (DBG) Then
-         Write(6,*)' Reading file name for start orbitals.'
+      If (len_trim(mcpdft_options%wfn_file) .ne. 0) Then
+       keyJOBI = .false.
+       if (mcpdft_options%is_hdf5_wfn) then
+         invec = 4
+       else
+        invec = 5
+        write(lf,*) 'WARNING: cannot specify non-hdf5'
+        write(lf,*) 'file with FILE keyword.'
+        call abend()
        End If
-       Call SetPos_m(LUInput,'FILE',Line,iRc)
-       Line=Get_Ln(LUInput)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       If (DBG) Then
-         Write(6,*) ' Calling fileorb with filename='
-         Write(6,*) Line
-       End If
-       call fileorb(Line,StartOrbFile)
-#ifdef _HDF5_
-       if (mh5_is_hdf5(StartOrbFile)) then
-         hasHDF5ref = .true.
-       end if
-#endif
-!> we do not need a JOBIPH file if we have HDF5 - override the default!
-       if(hasHDF5ref) keyJOBI = .false.
-
-      End If
-
+      endif
 *---  ==== JOBI(PH) keyword =====
-
-* The JOBIPH file, following decisions from the Torre Normanna labour camp:
-* Default, the file name is 'JOBIPH'.
-* However, if keyword IPHNAME was used, then the name was given in input.
-* Also, if instead the keyword NEWIPH was given, then a new name will be
-* chosen as the first not-already-used name in the sequence
-* 'JOBIPH', 'JOBIPH01', 'JOBIPH02', etc.
-
+! The following is run, EXCEPT if FILE key is provided an points to an
+! HDF5 input file
+! I have a feeling that this should only run IF FILE(ORB) key is not passed
       if(keyJOBI)then
-        IPHNAME='ToBeFoun'
-        If (KeyIPHN) Then
-          If (DBG) Then
-            Write(6,*)' Reading file name for JOBIPH file.'
-          End If
-          Call SetPos_m(LUInput,'IPHN',Line,iRc)
-          If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-          ReadStatus=' Failure reading IPHNAME string.'
-          Read(LUInput,*,End=9910,Err=9920) IPHNAME
-          ReadStatus=' O.K. after reading IPHNAME string.'
-          Call UpCase(IPHNAME)
-        End If
-
-        IF(IPHNAME.EQ.'ToBeFoun') IPHNAME='JOBIPH'
-
-        !> check first for JOBOLD
-        Call f_Inquire('JOBOLD',lExists)
-        If (lExists) Then
-          INVEC=3
-        else !> check next for JOBIPH
-          Call F_Inquire(trim(IPHNAME),lExists)
-          If(lExists) Then
-            Call PrgmTranslate(IPHNAME,RealName,not_sure)
-            If (DBG) Then
-                Write(6,*)' A JOBIPH file has been found:'
-                write(6,*) RealName
-            End If
-            INVEC=3
-          Else
+        mcpdft_options%wfn_file = "JOBOLD"
+        call f_Inquire("JOBOLD",lExists)
+        if (.not. lexists) then
+          mcpdft_options%wfn_file = "JOBIPH"
+          call f_inquire(mcpdft_options%wfn_file, lexists)
+          if(.not. lexists) then
             Write(LF,*)
             Write(LF,*)'******************************************'
-            Write(LF,*)' JOBIPH does not seem to exist,           '
-            Write(LF,*)' so the calculation cannot continue.      '
+            Write(LF,*)'JOBIPH and JOBOLD does not seem to exist, '
+            Write(LF,*)'so the calculation cannot continue.       '
             Write(LF,*)'******************************************'
             Call Abend()
-          End If
-        end if !> check for JOBOLD
+          end if
+        endif
+        invec = 3
 
         if(JOBIPH.gt.0) Then
           Call DaClos(JOBIPH)
           JOBIPH=-1
         end if
         JOBIPH=IsFreeUnit(15)
-        CALL DANAME(JOBIPH,IPHNAME)
+        CALL DANAME(JOBIPH,mcpdft_options%wfn_file)
         INVEC=3
       end if !> JOBI(PH) keyword
+!---  ==== JOBI(PH) keyword =====
 
-*---  ==== JOBI(PH) keyword =====
-
-*---  process KSDF command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if KSDFT was requested.'
-      If (.not.KeyKSDF) Then
-        Call WarningMessage(2,'No KSDFT functional specified')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' KSDFT functional type must be     '
-        Write(LF,*) ' specified for MCPDFT calculations '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-      End If
-      If (DBG) Write(6,*) ' KSDFT command was given.'
-      DFTFOCK='ROKS'
-      Call SetPos_m(LUInput,'KSDF',Line,iRc)
-      If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-      Read(LUInput,*,End=9910,Err=9920) Line
-      KSDFT=Line(1:80)
-      Call UpCase(KSDFT)
-* checking KSDFT input for MC-PDFT
-      IF(KSDFT(1:2) == 'T:') THEN
-       OriginalKS=KSDFT(3:80)
-      ELSE IF(KSDFT(1:3) == 'FT:') THEN
-       OriginalKS=KSDFT(4:80)
-      ELSE
-       Call WarningMessage(2,'Wrong on-top functional for MC-PDFT')
-       Write(LF,*) ' ************* ERROR **************'
-       Write(LF,*) ' Current on-top functionals are:   '
-       Write(LF,*) ' T :  translated functionals       '
-       Write(LF,*) ' FT:  fully translated functionals '
-       Write(LF,*) ' e.g. T:PBE for tPBE functional    '
-       Write(LF,*) ' **********************************'
-       Call Abend()
-      END IF
-      If (DBG) write(LF,*) 'The original KS functional is', OriginalKS
-      ExFac=Get_ExFac(OriginalKS)
-* Assuming hybrid KS functionals contain more than 10E-6 percent
-* Hartree-Fock exchagne.
-      IF(Abs(ExFac).gt.1.0d-8) THEN
-       Call WarningMessage(2,'Hybrid functionals not supported')
-       Write(LF,*) ' ************* ERROR **************'
-       Write(LF,*) ' MC-PDFT does not translate hybrid '
-       Write(LF,*) ' functionals. If you want to run   '
-       Write(LF,*) ' hybrid MC-PDFT, use the LAMBda    '
-       Write(LF,*) ' keyword instead.                  '
-       Write(LF,*) '                                   '
-       Write(LF,*) ' EXAMPLE:                          '
-       Write(LF,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
-       Write(LF,*) ' Usage:                            '
-       Write(LF,*) '  KSDFT=T:PBE                      '
-       Write(LF,*) '  LAMB =0.25                       '
-       Write(LF,*) ' **********************************'
-       Call Abend()
-      END IF
-* End of checking KSDFT input for MC-PDFT
-
-      ExFac=Get_ExFac(KSDFT)
-
-*---  Process DFCF command (S Dong, 2018)--------------------------*
-      If (DBG) Write(6,*) ' Check if DFCF was provided.'
-      If (KeyDFCF) Then
-       If (DBG) Write(6,*) ' DFCF command has been used.'
-       Call SetPos_m(LUInput,'DFCF',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure after reading DFCF keyword.'
-       Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
-       ReadStatus=' O.K. after reading DFCF keyword.'
-      End If
-*---  Process MSPD command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
-      If (KeyMSPD) Then
-       If (DBG) Write(6,*) ' MSPD keyword was used.'
-       iMSPDFT=1
-       Call SetPos_m(LUInput,'MSPD',Line,iRc)
-       if(dogradpdft) then
-        dogradmspd=.true.
-        dogradpdft=.false.
-       end if
-      End If
-*---  Process WJOB command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if write JOBIPH case.'
-      If (KeyWJOB) Then
-       If (DBG) Write(6,*) ' WJOB keyword was used.'
-       iWJOB=1
-       Call SetPos_m(LUInput,'WJOB',Line,iRc)
-      End If
-*---  Process LAMB command --------------------------------------------*
-      If (KeyLAMB) Then
-       If (DBG) Write(6,*) 'Check if hybrid PDFT case'
-       Call SetPos_m(LUInput,'LAMB',Line,iRc)
-       ReadStatus=' Failure reading data following LAMB keyword.'
-       Read(LUInput,*,End=9910,Err=9920) Ratio_WF
-       ReadStatus=' O.K. reading data following LAMB keyword.'
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       If(Ratio_WF.gt.0.0d0) Then
-        Do_Hybrid=.true.
-        CALL Put_DScalar('R_WF_HMC',Ratio_WF)
-       End If
-       If (DBG) Write(6,*) 'Wave Funtion Ratio in hybrid PDFT',Ratio_WF
-       If (dogradmspd.or.dogradpdft) Then
-        Call WarningMessage(2,'GRAD currently not compatible with HPDF')
-        GoTo 9810
-       End If
+!--- Finish process..some cleanup
+      If(mcpdft_options%otfnal%is_hybrid()) Then
+        CALL Put_DScalar('R_WF_HMC',mcpdft_options%otfnal%lambda)
+        If (DBG) then
+        Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
+     &             mcpdft_options%otfnal%lambda
+        end if
       End If
 
 *---  Process HDF5 file --------------------------------------------*
-      If (hasHDF5ref) Then
+      If (mcpdft_options%is_hdf5_wfn) Then
 #ifdef _HDF5_
-        mh5id = mh5_open_file_r(StartOrbFile)
+        mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
 *     read basic attributes
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
@@ -367,20 +202,19 @@ C   No changing about read in orbital information from INPORB yet.
           call Quit(_RC_INPUT_ERROR_)
         end if
         call mh5_fetch_attr(mh5id, 'NBAS', NBAS_L)
-        ierr=0
+
+        err = .False.
         do isym=1,nsym
-          if (nbas(isym).ne.nbas_l(isym)) ierr=1
+          if (nbas(isym).ne.nbas_l(isym)) err = .True.
         end do
-        if (ierr.eq.1) then
+        if (err) then
           write (LF,*) 'Number of basis functions on HDF5 file does not'
           write (LF,*) 'match the number of basis functions on the'
           write (LF,*) 'RunFile, calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
 *     orbitals available?
-        if (mh5_exists_dset(mh5id, 'MO_VECTORS')) then
-          inVec=4
-        else
+        if (.not. mh5_exists_dset(mh5id, 'MO_VECTORS')) then
           write (LF,*)'The HDF5 ref file does not contain MO vectors.'
           write (LF,*)'Fatal error, the calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
@@ -402,13 +236,10 @@ C   No changing about read in orbital information from INPORB yet.
           call Quit(_RC_INPUT_ERROR_)
         end if
 
+
 #ifdef _DMRG_
-        !> QCMaquis MPS reference wave function
-        if (mh5_exists_dset(mh5id, 'QCMAQUIS_CHECKPOINT')) then
-           hasMPSref  = .true.
-        end if
+        if(.not. mh5_exists_dset(mh5id, 'QCMAQUIS_CHECKPOINT')) then
 #endif
-        if(.not.hasMPSref)then
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
             write (LF,*)' CI vectors will be read from HDF5 ref file.'
           else
@@ -416,7 +247,10 @@ C   No changing about read in orbital information from INPORB yet.
             write (LF,*)'Fatal error, the calculation will stop now.'
             call Quit(_RC_INPUT_ERROR_)
           end if
-        end if
+#ifdef _DMRG_
+        endif
+#endif
+
         call mh5_close_file(mh5id)
 #else
         write (6,*) 'The format of the start orbital file was'
@@ -458,9 +292,9 @@ C   No changing about read in orbital information from INPORB yet.
       End If  !> IORBDATA
 
 !> read CI optimiation parameters from HDF5 file
-      if(hasHDF5ref)then
+      if(mcpdft_options%is_hdf5_wfn) then
 #ifdef _HDF5_
-        mh5id = mh5_open_file_r(StartOrbFile)
+        mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
         call mh5_fetch_attr (mh5id,'SPINMULT', iSpin)
         call mh5_fetch_attr (mh5id,'NSYM', nSym)
         call mh5_fetch_attr (mh5id,'LSYM', stSym)
@@ -500,7 +334,7 @@ C   No changing about read in orbital information from INPORB yet.
       end if
 !Rename JOBIPH file, and open it.
       JOBIPH=IsFreeUnit(15)
-      CALL DANAME(JOBIPH,IPHNAME)
+      CALL DANAME(JOBIPH,"JOBIPH")
 
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym
@@ -554,127 +388,8 @@ c      end do
 * Same, NISHT, NIN:
       NIN=NISHT
       NFR=NFROT
-      If (DBG) Write(6,*)' The iOrbData code is now',iOrbData
-* =======================================================================
-* Compute effective nuclear charge.
-* Identical to nr of protons for conventional basis sets only, not ECP.
-      Call Get_iScalar('Unique atoms',nNuc)
-      Call GetMem('EffNChrg','Allo','Real',ipENC,nNuc)
-      Call Get_dArray('Effective nuclear Charge',Work(ipENC),nNuc)
-      TEffNChrg=0.0D0
-      Call GetMem('nStab','Allo','Inte',ipStab,nNuc)
-      Call Get_iArray('nStab',iWork(ipStab),nNuc)
-      do i=1,nNuc
-       TEffNChrg=TEffNChrg+Work(ipENC-1+i)*DBLE(nSym/iWork(ipStab-1+i))
-      end do
-      Call GetMem('nStab','Free','Inte',ipStab,nNuc)
-      Call GetMem('EffNChrg','Free','Real',ipENC,nNuc)
-      If (DBG) Write(6,*)
-     &             ' Effective nuclear charge is TEffNChrg=',TEffNChrg
-      TotChrg=0.0D0
-      If (DBG) Write(6,*)' Set TotChrg=',TotChrg
-*---  Process GRAD command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if GRADient case.'
-      If (KeyGRAD) Then
-       If (DBG) Write(6,*) ' GRADient keyword was used.'
-       DoGradPDFT=.true.
-       if(iMSPDFT==1) then
-        dogradmspd=.true.
-        dogradpdft=.false.
-       end if
-       Call SetPos_m(LUInput,'GRAD',Line,iRc)
-*TRS - Adding else statement to make nograd the default if the grad
-*keyword isn't used
-       Else
-       DoNoGrad=.true.
-*TRS
-      End If
-*---  Process NAC command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if NAC case.'
-      If (KeyNAC) Then
-       If (DBG) Write(6,*) ' NAC keyword was used.'
-       if(iMSPDFT==1 .and. DoGradMSPD .eqv. .true.)  then
-           doNACMSPD=.true.
-       end if
-       if(iMSPDFT==0) then
-        Call WarningMessage(2,'NACs implemented only for MS-PDFT')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' NACs are only implemented         '
-        Write(LF,*) ' for Multistate PDFT               '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       if(DoGradMSPD .eqv. .false.) then
-        Call WarningMessage(2,'NACs implemented with GRAD Code')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' NACs require the GRAD Keyword     '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       Call SetPos_m(LUInput,'NAC',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Read(LUInput,*,End=9910,Err=9920) cmsNACstates(1),
-     & cmsNACstates(2)
-      End If
-*
-*---  Process MECI command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if MECI case.'
-      If (KeyMECI) Then
-       If (DBG) Write(6,*) ' MECI keyword was used.'
-       if(iMSPDFT==1 .and. DoGradMSPD .eqv. .true. .and.
-     & doNACMSPD .eqv. .true.)  then
-           doMECIMSPD=.true.
-       end if
-       if(iMSPDFT==0) then
-        Call WarningMessage(2,'NACs implemented only for MS-PDFT')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' MECI is only implemented          '
-        Write(LF,*) ' for Multistate PDFT               '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       if(DoGradMSPD .eqv. .false.) then
-        Call WarningMessage(2,'NACs implemented with GRAD Code')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' MECI requires the GRAD Keyword    '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       if(DoNACMSPD .eqv. .false.) then
-        Call WarningMessage(2,'NACs implemented with GRAD Code')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' MECI requires the NAC Keyword     '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       end if
-       Call SetPos_m(LUInput,'MECI',Line,iRc)
-      End If
-*
-*---  Process GSOR command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if Gram-Schmidt case.'
-      If (KeyGSOR) Then
-       If (DBG) Write(6,*) ' GSOR keyword was used.'
-       DoGSOR=.true.
-       Call SetPos_m(LUInput,'GSOR',Line,iRc)
-      End If
-*
-*---  All keywords have been processed ------------------------------*
 
-************************************************************************
-* Generate artificial splitting or RAS into GAS for parallel blocking  *
-************************************************************************
-* SVC: convert CAS/RAS to general GAS description here, then we only
-* need to copy it for lucia later, which always uses GAS description.
-      NGSSH(1,1:NSYM)=NRS1(1:NSYM)
-      NGSSH(2,1:NSYM)=NRS2(1:NSYM)
-      NGSSH(3,1:NSYM)=NRS3(1:NSYM)
-      IGSOCCX(1,1) = MAX(2*SUM(NRS1(1:NSYM))-NHOLE1,0)
-      IGSOCCX(1,2) = 2*SUM(NRS1(1:NSYM))
-      IGSOCCX(2,1) = NACTEL - NELEC3
-      IGSOCCX(2,2) = NACTEL
-      IGSOCCX(3,1) = NACTEL
-      IGSOCCX(3,2) = NACTEL
-*
+
 !Considerations for gradients/geometry optimizations
 
 *     Numerical gradients requested in GATEWAY
@@ -683,7 +398,7 @@ c      end do
          Call Get_iScalar('DNG',iDNG)
          DNG = iDNG.eq.1
       End If
-      DNG=DoNoGrad.or.DNG
+      DNG = (.not. mcpdft_options%grad) .or.DNG
 *
 *     Inside LAST_ENERGY we do not need analytical gradients
       If (SuperName(1:11).eq.'last_energy') DNG=.true.
@@ -693,10 +408,7 @@ c      end do
 *
 *
       If (DNG) Then
-         DoGradPDFT=.false.
-         if(iMSPDFT==1) then
-          dogradmspd=.false.
-         end if
+         mcpdft_options%grad = .false.
       End If
 *
 *     Check to see if we are in a Do While loop
@@ -705,42 +417,9 @@ c      end do
       Call GetEnvF('MOLCAS_IN_GEO',inGeo)
       If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
      &    .and. .not.DNG) Then
-         DoGradPDFT=.true.
-         if(iMSPDFT==1) then
-          dogradmspd=.true.
-          dogradpdft=.false.
-         end if
+        mcpdft_options%grad = .true.
       End If
-*                                                                      *
-*---  Compute IZROT. IZROT is a matrix (lower triangular over the -----*
-*     active space), which specifies which t,u rotations should be
-*     avoided, since the orbitals belong to the same RAS space.
-*     This is the only way the RAS concept is explicitly used in the
-*     SX section of the program.
-      ITU=0
-      DO ISYM=1,NSYM
-        NAO=NASH(ISYM)
-          DO NT=2,NAO
-            DO NU=1,NT-1
-              ITU=ITU+1
-              IZROT(ITU)=0
-CSVC: check if NU<NT are included in the same gas space
-              NGSSH_LO=0
-              DO IGAS=1,NGAS
-                NGSSH_HI=NGSSH_LO+NGSSH(IGAS,ISYM)
-                IF (NU.GT.NGSSH_LO.AND.NT.LE.NGSSH_HI) THEN
-                  IZROT(ITU)=1
-                END IF
-                NGSSH_LO=NGSSH_HI
-              END DO
-            END DO
-          END DO
-      END DO
-*
-      Call Put_iArray('nIsh',nIsh,nSym)
-      Call Put_iArray('nAsh',nAsh,nSym)
-      Call Put_iScalar('Multiplicity',ISPIN)
-*
+
 *---  Initialize Cholesky information if requested
       if (DoCholesky) then
          Call Cho_X_init(irc,ChFracMem)
@@ -754,12 +433,7 @@ CSVC: check if NU<NT are included in the same gas space
 *
       If (DBG) Write(6,*)' Initialize seward.'
       nDiff = 0
-      If (DSCF           .or.
-     &    RF_On()        .or.
-     &    Langevin_On()  .or.
-     &    PCM_On()       .or.
-     &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+      Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 *
 *     Check the input data
@@ -771,100 +445,10 @@ CSVC: check if NU<NT are included in the same gas space
       Call ChkInp_m()
 * ===============================================================
 
-      if(.not.DoGSOR) then
-        NCONF=1
-        GoTo 9000
-      end if
-
-      If(hasMPSref) GoTo 9000
-* ===============================================================
-*
-*     Construct the Guga tables
-*
-      call gugactl(nSym,iSpin,nActEl,nHole1,nElec3,
-     &             nRs1,nRs2,nRs3,
-     &            SGS,CIS,EXS,STSYM,DoBlockDMRG)
-      NCONF=CIS%NCSF(STSYM)
-* ===============================================================
-*
-*     Construct the determinant tables
-*
-
-      If (DBG) Write(6,*)' Construct the determinant tables.'
-      MS2 = iSpin - 1
-*
-* Set variables needed in Lucia_Ini
-*
-      Call iCopy(mxGAS*mxSym,ngssh,1,ngssh_Molcas,1)
-      Call iCopy(mxGAS*2,igsoccx,1,igsoccx_Molcas,1)
-      Call iCopy(nSym,norb,1,norb_Molcas,1)
-      Call iCopy(nSym,nbas,1,nbas_Molcas,1)
-      Call iCopy(nSym,nish,1,nish_Molcas,1)
-      potnuc_Molcas    = potnuc
-      thre_Molcas      = thre
-      nsym_Molcas      = nsym
-      nactel_Molcas    = nactel
-      ms2_Molcas       = ms2
-      ispin_Molcas     = ispin
-      lsym_Molcas      = stsym
-      NHOLE1_Molcas    = NHOLE1
-      NELEC3_Molcas    = NELEC3
-      itmax_Molcas     = itmax
-      rtoi_Molcas      = rtoi
-      nroots_Molcas    = Max(nroots,lRoots)
-      ipt2_Molcas      = ipt2
-      iprci_molcas     = iprloc(3)
-      ngas_molcas      = ngas
-      INOCALC_MOLCAS   = INOCALC
-      ISAVE_EXP_MOLCAS = ISAVE_EXP
-      IEXPAND_MOLCAS   = IEXPAND
-
-*
-* And call Lucia_Ini to initialize LUCIA
-      CALL Lucia_Util('Ini')
-* to get number of CSFs for GAS
-      nconf=0
-      do i=1,mxsym
-        nconf=nconf+ncsasm(i)
-      end do
-*
-      ISCF=0
-      IF (ISPIN.EQ.NAC+1.AND.NACTEL.EQ.NAC) ISCF=1
-      IF (ISPIN.EQ.1.AND.NACTEL.EQ.2*NAC)   ISCF=1
-      IF (ISCF.EQ.1) THEN
-         NCONF=1
-      END IF
-
-* ===============================================================
-
+      NCONF=1
       Go to 9000
-*
-*---  Error exits -----------------------------------------------------*
-9810  CONTINUE
-      If (IPRLEV.ge.TERSE) Then
-       Call WarningMessage(2,'Error in input preprocessing.')
-       Write(6,*)' PROC_INP: A keyword was found during prescanning'
-       Write(6,*)' the input file, but when later trying to locate'
-       Write(6,*)' this input, it could not be found. Something has'
-       Write(6,*)' happened to the input file, or else there is some'
-       Write(6,*)' strange program error.'
-       iRc=_RC_INPUT_ERROR_
-      End If
-      Go to 9900
 
-9910  CONTINUE
-      Call WarningMessage(2,'End of input file during preprocessing.')
-      Call WarningMessage(2,ReadStatus)
-      If (IPRLEV.ge.TERSE) Write(6,*)' Error exit 9910 from PROC_INP.'
-      iRc=_RC_INPUT_ERROR_
-      Go to 9900
-*
-9920  CONTINUE
-      Call WarningMessage(2,'Read error during input preprocessing.')
-      Call WarningMessage(2,ReadStatus)
-      If (IPRLEV.ge.TERSE) Write(6,*)' Error exit 9920 from PROC_INP.'
-      iRc=_RC_INPUT_ERROR_
-      Go to 9900
+!---  Error exits -----------------------------------------------------*
 *
 9930  CONTINUE
       Call WarningMessage(2,'Error during input preprocessing.')
@@ -882,4 +466,4 @@ CSVC: check if NU<NT are included in the same gas space
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
       Return
-      End
+      End Subroutine

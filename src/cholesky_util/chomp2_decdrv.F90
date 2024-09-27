@@ -35,6 +35,7 @@ subroutine ChoMP2_DecDrv(irc,DelOrig,Diag,CD_Type)
 ! files.
 
 use Cholesky, only: lBuf, nSym, NumCho, Span
+use Cho_interfaces, only: cdcol_kernel, cdvec_kernel
 use ChoMP2, only: ChkDecoMP2, Incore, iOption_MP2CD, lUnit_F, MxQual_Def, MxQualMP2, nMP2Vec, NowSym, nT1am, OldVec, SpanMP2, &
                   ThrMP2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -55,7 +56,8 @@ real(kind=wp), allocatable :: Bin(:), Buf(:), ErrStat(:), Qual(:)
 integer(kind=iwp), parameter :: nOption = 2
 logical(kind=iwp), parameter :: Restart = .false.
 character(len=*), parameter :: SecNam = 'ChoMP2_DecDrv'
-external :: ChoMP2_Col, ChoMP2_Vec
+procedure(cdcol_kernel) :: ChoMP2_Col
+procedure(cdvec_kernel) :: ChoMP2_Vec
 
 ! Initializations.
 ! ----------------

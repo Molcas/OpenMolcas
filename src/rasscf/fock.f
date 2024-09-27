@@ -49,8 +49,6 @@ C
 #include "qmat.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
-#include "WrkSpc.fh"
-
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -147,12 +145,12 @@ c --- where a is an AO index and v is an active index
 c --- Transform the 1st index to MOs (one symmetry at the time)
 c --- Q(m,v) = C(a,m) * Q(a,v)
 *********************************************************************************
-          ipQS = ipQmat + ISTAV(iSym)
+          ipQS = 1 + ISTAV(iSym)
           ipMOs= 1 + ISTSQ(iSym) + nBas(iSym)*nFro(iSym)
 
           CALL DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),
      &               1.0d0,CMO(ipMOs),nBas(iSym),
-     &               Work(ipQS),nBas(iSym),
+     &                     Q(ipQS),nBas(iSym),
      &               0.0d0,Q(1),nOrb(iSym))
         Else
           Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO

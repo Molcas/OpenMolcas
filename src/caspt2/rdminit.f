@@ -12,7 +12,10 @@
 ************************************************************************
       subroutine rdminit
 
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
+      use caspt2_data, only: CMO, CMO_Internal
+      use PrintLevel, only: debug
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit real(8) (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -28,9 +31,10 @@
       end if
 
 * Get CASSCF MO coefficients
-      call getmem('LCMO','ALLO','REAL',LCMO,NCMO)
+      call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       IDISK=IAD1M(1)
-      call ddafile(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+      call ddafile(LUONEM,2,CMO,NCMO,IDISK)
 
 * Allocate memory for CI vector
       call getmem('LCI','ALLO','REAL',LCI,Nconf)
@@ -73,7 +77,8 @@
       end do
 
 * Deallocate everything
-      call getmem('LCMO','FREE','REAL',LCMO,NCMO)
+      call mma_deallocate(CMO_Internal)
+      CMO=>Null()
       call getmem('LCI','FREE','REAL',LCI,NCONF)
 
       return

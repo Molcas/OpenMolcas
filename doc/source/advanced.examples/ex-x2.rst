@@ -212,11 +212,11 @@ and versions of the code.
   X Y
   Basis set
   Ni.ANO-L...5s4p3d1f.
-  Ni    0.00000   0.00000   0.000000   Bohr
+  Ni    0.00000   0.00000   0.000000   bohr
   End of basis
   Basis set
   H.ANO-L...3s2p.
-  H     0.000000  0.000000  2.747000   Bohr
+  H     0.000000  0.000000  2.747000   bohr
   End of basis
   End of Input
 
@@ -984,7 +984,7 @@ input can be:
   *RelInt
   Basis set
   Ni.ANO-L...5s4p3d1f.
-  Ni    0.00000   0.00000   0.000000   Bohr
+  Ni    0.00000   0.00000   0.000000   bohr
   End of basis
   Basis set
   Ni....4s4p4d. / Inline
@@ -1010,11 +1010,11 @@ input can be:
    0. 1. 0. 0.
    0. 0. 1. 0.
    0. 0. 0. 1.
-  Nix   0.00000   0.00000   0.000000   Bohr
+  Nix   0.00000   0.00000   0.000000   bohr
   End of basis
   Basis set
   H.ANO-L...3s2p.
-  H     0.000000  0.000000  2.747000   Bohr
+  H     0.000000  0.000000  2.747000   bohr
   End of basis
   End of Input
 
@@ -1099,19 +1099,19 @@ nickel basis set including core uncontracted functions is:
   RelInt
   Basis set
   Ni.ANO-L...5s4p3d1f.
-  Ni    0.00000   0.00000   0.000000   Bohr
+  Ni    0.00000   0.00000   0.000000   bohr
   Charge
   0.0
   End of basis
   Basis set
   Ni.Uncontracted...4s4p4d. / AUXLIB
-  Nix   0.00000   0.00000   0.000000   Bohr
+  Nix   0.00000   0.00000   0.000000   bohr
   Charge
   0.0
   End of basis
   Basis set
   H.ANO-L...3s2p.
-  H     0.000000  0.000000  2.747000   Bohr
+  H     0.000000  0.000000  2.747000   bohr
   End of basis
   End of Input
 
@@ -2094,26 +2094,26 @@ program outputs or data bases.
     X Y Z
    Basis set
    C.ANO-S...3s2p1d.
-   C1    4.254984     .681879     .000000  Angstrom
-   C2    2.873412    1.101185    0.000000  Angstrom
-   C3    2.426979    2.426979    0.000000  Angstrom
-   C4    1.101185    2.873412    0.000000  Angstrom
-   C5     .681879    4.254984    0.000000  Angstrom
+   C1    4.254984     .681879     .000000  angstrom
+   C2    2.873412    1.101185    0.000000  angstrom
+   C3    2.426979    2.426979    0.000000  angstrom
+   C4    1.101185    2.873412    0.000000  angstrom
+   C5     .681879    4.254984    0.000000  angstrom
    End of basis
    Basis set
    N.ANO-S...3s2p1d.
-   N1    2.061400     .000000    0.000000  Angstrom
-   N2     .000000    2.061400    0.000000  Angstrom
+   N1    2.061400     .000000    0.000000  angstrom
+   N2     .000000    2.061400    0.000000  angstrom
    End of basis
    Basis set
    H.ANO-S...2s0p.
-   H1    5.109145    1.348335    0.000000  Angstrom
-   H3    3.195605    3.195605    0.000000  Angstrom
-   H5    1.348335    5.109145    0.000000  Angstrom
+   H1    5.109145    1.348335    0.000000  angstrom
+   H3    3.195605    3.195605    0.000000  angstrom
+   H5    1.348335    5.109145    0.000000  angstrom
    End of basis
    Basis set
    Mg.ANO-S...4s3p1d.
-   Mg     .000000     .000000    0.000000  Angstrom
+   Mg     .000000     .000000    0.000000  angstrom
    End of basis
    End of Input
 

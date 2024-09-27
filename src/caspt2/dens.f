@@ -18,10 +18,11 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF,U0)
       USE CHOVEC_IO
-      use caspt2_output, only: iPrGlb, verbose, debug
+      use caspt2_output, only: iPrGlb
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
+      use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -1190,8 +1191,7 @@ C so that the slaves have the same density matrix as the master.
       END IF
 #endif
 
-      RETURN
-      END
+      END SUBROUTINE DENS
 C
 C-----------------------------------------------------------------------
 C
@@ -1431,6 +1431,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine TRAFRO(MODE)
 C
+      use caspt2_data, only: CMO, CMO_Internal
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1450,14 +1452,16 @@ C
         End Do
       End If
 C
-      Call GetMem('LCMO','ALLO','REAL',LCMO,NCMO)
-      Call DCopy_(NCMO,WORK(LCMOPT2),1,WORK(LCMO),1)
+      Call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
+      Call DCopy_(NCMO,WORK(LCMOPT2),1,CMO,1)
       if (IfChol) then
-        call TRACHO3(WORK(LCMO))
+        call TRACHO3(CMO)
       else
         call TRACTL(0)
       end if
-      Call GetMem('LCMO','FREE','REAL',LCMO,NCMO)
+      Call mma_deallocate(CMO_Internal)
+      CMO=>Null()
 C
       If (Mode.eq.1) Then
         Do jSym = 1, 8

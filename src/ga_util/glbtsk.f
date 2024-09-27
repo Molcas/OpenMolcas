@@ -50,8 +50,7 @@ c Avoid unused argument warnings
          Call Unused_integer(igaTsk)
       End If
 #endif
-      Return
-      End
+      End SubRoutine GATskL
 *----------------------------------------------------------------------*
       SubRoutine GATskL_Zero(igaTsk)
       Implicit None
@@ -64,8 +63,7 @@ c Avoid unused argument warnings
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(igaTsk)
 #endif
-      Return
-      End
+      End SubRoutine GATskL_Zero
 ************************************************************************
 * Integer Function RsvTsk(igaTsk,iTskLs,nTsk,iStart)                   *
 *  -> reserve a task for my node and mark it on the global task list   *
@@ -76,12 +74,12 @@ c Avoid unused argument warnings
 *     iStart:   starting value of index of private task list           *
 ************************************************************************
       Integer Function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
+#ifdef _MOLCAS_MPP_
+#  ifdef _GA_
       Implicit None
       Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
-#ifdef _MOLCAS_MPP_
 #  include "global.fh"
       Logical Reserved
-#  ifdef _GA_
       Integer iCnt,iTsk
 *
       If (iStart.gt.mTsk) Then
@@ -108,19 +106,24 @@ c Avoid unused argument warnings
       RsvTsk=iTsk
       iStart=iCnt
 #  else
-#    include "WrkSpc.fh"
-      Integer iCnt,iTsk,One,ipTSKR
-      Data    One/1/
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
+#  include "global.fh"
+      Logical Reserved
+      Integer iCnt,iTsk
+      Integer :: One=1
+      Integer, allocatable:: TSKR(:)
 *
       If (iStart.gt.mTsk) Then
         iTsk=0
         iCnt=nTsk
       Else
-        Call GetMem('TSKR','ALLO','INTE',ipTSKR,mTsk)
-        Call ga_readb_inc(igaTsk,mTsk,iTskLs(iStart,1),iWork(ipTSKR))
+        Call mma_allocate(TSKR,mTsk,Label='TSKR')
+        Call ga_readb_inc(igaTsk,mTsk,iTskLs(iStart,1),TSKR)
         Do iCnt = iStart, mTsk
           iTsk = iTskLs(iCnt,1)
-          Reserved = iWork(ipTSKR+iCnt-iStart) .ne. 0
+          Reserved = TSKR(1+iCnt-iStart) .ne. 0
           If (Reserved) Then
              iE = iE - 1
              iTskLs(iE,2)=iTsk
@@ -132,12 +135,14 @@ c Avoid unused argument warnings
         End Do
         iTsk=0
   100   Continue
-        Call GetMem('TSKR','FREE','INTE',ipTSKR,mTsk)
+        Call mma_deallocate(TSKR)
       End If
       RsvTsk=iTsk
       iStart=iCnt
 #  endif
 #else
+      Implicit None
+      Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
       RsvTsk=0
       iStart=nTsk
 c Avoid unused argument warnings

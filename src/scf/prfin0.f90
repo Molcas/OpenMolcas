@@ -42,9 +42,6 @@
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
       Integer iSpn, iMult
 !
-#include "oneswi.fh"
-
-!
 !---- Define local variables
       Integer , External:: Cho_X_GetTol, iPrintLevel
       Character(LEN=80) Lines(6)

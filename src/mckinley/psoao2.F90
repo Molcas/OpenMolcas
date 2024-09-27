@@ -23,7 +23,7 @@ subroutine PSOAO2(nSO,MemPrm,MemM,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,k
 !          the AO block this will affect the vectorization. Hence, at  *
 !          some point it will actually be better to recompute the      *
 !          primitives.                                                 *
-!          Current stratergy:                                          *
+!          Current strategy:                                           *
 !          1. Reduce the size of the density matrix and buffer so that *
 !             it fits into memory.                                     *
 !                                                                      *

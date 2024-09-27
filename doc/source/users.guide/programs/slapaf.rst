@@ -958,7 +958,7 @@ Optional force constant keywords
               </KEYWORD>
 
 :kword:`RHIDden`
-  Define the hidden atoms selection radius in order to improve a QM/MM Hessian. It can be followed by :kword:`Angstrom`.
+  Define the hidden atoms selection radius in order to improve a QM/MM Hessian. It can be followed by :kword:`angstrom`.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RHID" APPEAR="Hidden atoms selection radius" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: rHid <advanced>
@@ -997,10 +997,10 @@ Optional miscellaneous keywords
   the radius defining the maximum length of a bond follows.
   The latter is used as a threshold when printing out
   angles and dihedral angles. The length can be followed by
-  :kword:`Bohr` or
-  :kword:`Angstrom` which indicates the unit in which the length
+  :kword:`bohr` or
+  :kword:`angstrom` which indicates the unit in which the length
   was specified, the default is
-  :kword:`Bohr`.
+  :kword:`bohr`.
   The default values are 15 and 3.0 au.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RTRN" KIND="CUSTOM" LEVEL="ADVANCED">
@@ -1011,8 +1011,8 @@ Optional miscellaneous keywords
               the radius defining the maximum length of a bond follows on
               the next line. The latter is used as a threshold when printing out
               angles and dihedral angles. The length can be followed by
-              "Bohr" or "Angstrom" which indicates the unit in which the length
-              was specified, the default is "Bohr".
+              "bohr" or "angstrom" which indicates the unit in which the length
+              was specified, the default is "bohr".
               </HELP>
               </KEYWORD>
 
@@ -1377,11 +1377,11 @@ Keywords :kword:`NUMErical` and :kword:`RowH` are mutually exclusive.
   In case of a definition of **constraints** the sections contains either a
   direct reference to a *rLabel* as in
 
-    *rLabel* = *rValue* [Angstrom,Degrees] [Soft,Hard] [Phantom]
+    *rLabel* = *rValue* [angstrom,degrees] [Soft,Hard] [Phantom]
 
   or one can also use expressions like
 
-    f1 *rLabel1* |+-| f2 *rLabel2* |+-| ... = *Value* [Angstrom,Degrees] [Soft,Hard] [Phantom]
+    f1 *rLabel1* |+-| f2 *rLabel2* |+-| ... = *Value* [angstrom,degrees] [Soft,Hard] [Phantom]
 
   where *rValue* is the desired value of the constraint in au or rad, or in
   angstrom or degrees if the corresponding keyword is added. The "Hard" and "Soft"

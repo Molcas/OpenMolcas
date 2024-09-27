@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE LINPUR(CMO)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CMO(*)
-      CHARACTER*2 LCHAR
-      DIMENSION WGTLMB(0:9)
+      Real*8 CMO(*)
+      CHARACTER(LEN=2) LCHAR
+      Real*8 WGTLMB(0:9)
       LOGICAL IFTEST
 * Define mxsym etc.
 #include "rasdim.fh"
@@ -20,8 +21,7 @@
 #include "general.fh"
 * rasscf.fh defines NAME:
 #include "rasscf.fh"
-
-#include "WrkSpc.fh"
+      Integer, Allocatable:: LMB(:)
 
 * Set IFTEST=.true. to get supsym input generated in the output
 * for further use, or for testing.
@@ -34,7 +34,7 @@
       DO ISYM=1,NSYM
        NBTOT=NBTOT+NBAS(ISYM)
       END DO
-      CALL GETMEM('LAMBDA','ALLO','INTE',LLMB,NBTOT)
+      CALL mma_allocate(LMB,NBTOT,Label='LMB')
       DO IBAS=1,NBTOT
        LCHAR=NAME(IBAS)(LENIN4:LENIN5)
        IF(LCHAR.EQ.'  ') THEN
@@ -51,7 +51,7 @@
            L=-L
          END IF
        END IF
-       IWORK(LLMB-1+IBAS)=ABS(L)
+       LMB(IBAS)=ABS(L)
       END DO
       ICMOES=0
       IBASES=0
@@ -67,7 +67,7 @@
         END DO
         DO IB=1,NB
          IBAS=IBASES+IB
-         L=IWORK(LLMB-1+IBAS)
+         L=LMB(IBAS)
          WGT=CMO(ICMOES+IB+NB*(IO-1))**2
          WGTLMB(L)=WGTLMB(L)+WGT
         END DO
@@ -101,7 +101,7 @@
         NONZ=NONZ+LEXIST
        END DO
 * There are NONZ different values, so we want NONZ-1 special supsym
-* labels for this symmetry. Reuse IWORK(LLMB) for orbital numbers:
+* labels for this symmetry. Reuse LMB for orbital numbers:
 * This will be the supsym label:
        IF (IFTEST) WRITE(6,*) NONZ-1
        ISSLAB=0
@@ -111,7 +111,7 @@
          IORB=IORBES+IO
          IF(L.EQ.IXSYM(IORB))THEN
           LCOUNT=LCOUNT+1
-          IWORK(LLMB-1+LCOUNT)=IO
+          LMB(LCOUNT)=IO
          END IF
         END DO
         IF(LCOUNT.GT.0) THEN
@@ -123,7 +123,7 @@
 * Lowest L = label zero = do not specify in input:
           IF (IFTEST.and.(ISSLAB.GT.0)) THEN
            WRITE(6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,
-     &         (IWORK(LLMB+i),i=0,LCOUNT-1)
+     &         (LMB(i),i=1,LCOUNT)
           END IF
           ISSLAB=ISSLAB+1
         END IF
@@ -134,6 +134,6 @@
  100   CONTINUE
        IBASES=IBASES+NB
       END DO
-      CALL GETMEM('LAMBDA','FREE','INTE',LLMB,NBTOT)
-      RETURN
-      END
+      CALL mma_deallocate(LMB)
+
+      END SUBROUTINE LINPUR

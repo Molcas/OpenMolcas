@@ -11,6 +11,8 @@
 
 module caspt2_data
 
+use Definitions, only: wp
+
 implicit none
 private
 
@@ -18,6 +20,9 @@ private
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
-public :: jState, mState, nActEl, nG3
+real(kind=wp), allocatable, target:: CMO_Internal(:)
+real(kind=wp), pointer:: CMO(:)
+
+public :: CMO, CMO_Internal, jState, mState, nActEl, nG3
 
 end module caspt2_data

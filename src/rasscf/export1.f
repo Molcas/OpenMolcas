@@ -47,13 +47,13 @@
 #include "gas.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
-      Dimension CMO(*),DA(*),PA(*),DAO(*),Focc(*)
+      Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)
 *...  Define local variables ..........................................*
-      Character*8 RlxLbl,Method
+      Character(LEN=8) RlxLbl,Method
       Logical SCF, Found
       Integer nTemp(8)
       Character(Len=16) mstate
+      Real*8 Dum(1)
 *
 *----------------------------------------------------------------------*
 *     Prologue                                                         *
@@ -159,7 +159,7 @@
       End If
       Call Put_iScalar('Relax CASSCF root',irlxroot)
 *...  Remove overlaps (computed by rassi) .............................*
-      Call Put_darray('State Overlaps',Work(ip_Dummy),0)
+      Call Put_darray('State Overlaps',Dum,0)
       Call Put_lscalar('Track Done',.False.)
 *...  Add generalized Fock matrix .....................................*
       If ( ifinal.ge.1 ) then

@@ -897,7 +897,7 @@ C        if (DYSO) SFDYS = SFDYS/dble(nProcs)
 C        if (DYSO) DYSAMPS = DYSAMPS/dble(nProcs)
 C      end if
 C 400  if (.not. Rsv_Tsk(ID,iTask)) goto 401
-CC recovers (jstate,istate) indicies as in serial calc
+CC recovers (jstate,istate) indices as in serial calc
 C      jst = iWork(ltaskj+iTask-1)
 C      ist = iWork(ltaski+iTask-1)
 C      jstate = istat(JOB2)-1+jst

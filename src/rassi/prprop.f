@@ -17,6 +17,9 @@
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
 #endif
+      use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,
+     &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
+     &                     rNAVO
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
       parameter (THRSH=1.0D-10)
@@ -28,7 +31,6 @@
 #include "Files.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
-#include "constants.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &          ENERGY(NSTATE),JBNUM(NSTATE), EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
@@ -78,25 +80,19 @@
 
 
 
-      AVOGADRO=CONST_AVOGADRO_
-      AU2EV=CONV_AU_TO_EV_
-      AU2CM=CONV_AU_TO_CM1_
-      AU2T=CONV_AU_TO_T_
-      AU2J=CONV_AU_TO_KJ_*1.0D3
-      J2CM=AU2CM/AU2J
-      AU2JTM=(AU2J/AU2T)*AVOGADRO
-!      ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
+      AU2J=auTokJ*1.0D3
+      J2CM=auTocm/AU2J
+      AU2JTM=(AU2J/auToT)*rNAVO
+!      ALPHA=One/c_in_au
 !      ALPHA2= ALPHA*ALPHA
-      DEBYE=CONV_AU_TO_DEBYE_
-      AU2REDR=2.0D2*DEBYE
+      AU2REDR=2.0D2*Debye
       HALF=0.5D0
 
-      BOLTZ_K=CONST_BOLTZMANN_*J2CM
-      coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
-     &          CONST_BOHR_MAGNETON_IN_SI_**2
-      FEGVAL=-(CONST_ELECTRON_G_FACTOR_)
-      BOLTZ=CONST_BOLTZMANN_/AU2J
-      Rmu0=4.0D-7*CONST_PI_
+      BOLTZ_K=kBoltzmann*J2CM
+      coeff_chi=0.1D0*rNAVO/kBoltzmann*mBohr**2
+      FEGVAL=-gElectron
+      BOLTZ=kBoltzmann/AU2J
+      Rmu0=4.0D-7*Pi
 
       xyzchr(1)='x'
       xyzchr(2)='y'
@@ -467,8 +463,7 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
 
        ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
        ! numerically: 2/c^3 (in a.u. of time ^ -1)
-       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
-     &           /CONST_AU_TIME_IN_SI_
+       AFACTOR = 2.0D0/c_in_au**3/(auTofs*1.0D-15)
 
       IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
@@ -1069,7 +1064,7 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZR),WORK(LSZI))
          END IF
 
-         ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
+         ONEOVER6C2=1.0D0/(6.0D0*c_in_au**2)
          g = FEGVAL
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
@@ -1219,7 +1214,7 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZZR),WORK(LDZZI))
          END IF
 
-         ONEOVER10C=1.0D0/(10.0D0*CONST_C_IN_AU_**2)
+         ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
          ONEOVER30C=ONEOVER10C/3.0D0
 
          DO ISS=1,IEND
@@ -1495,7 +1490,7 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZR),WORK(LDZI))
          END IF
 
-         TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
+         TWOOVERM45C=-2.0D0/(45.0D0*c_in_au**2)
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -1863,7 +1858,7 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZR),WORK(LDZI))
          END IF
 
-         ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
+         ONEOVER9C2=1.0D0/(9.0D0*c_in_au**2)
          g = FEGVAL*3.0D0/2.0D0 ! To remove the 2/3 factor in ONEOVER9C2
          g = g*2.0d0 ! Seem to be needed to agree with the exact term,
                      ! needs to be looked further into!
@@ -2823,7 +2818,7 @@ C printing threshold
         DO I=1,NSS
          DO J=1,NSS
           F=SODYSAMPS(I,J)*SODYSAMPS(I,J)
-          EDIFF=AU2EV*(ENSOR(J)-ENSOR(I))
+          EDIFF=auToeV*(ENSOR(J)-ENSOR(I))
           IF (F.GT.0.00001) THEN
            IF (EDIFF.GT.0.0D0) THEN
             WRITE(6,'(A,I8,I8,F15.3,ES22.5)') '    ',I,J,EDIFF,F
@@ -2982,7 +2977,7 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
      & xyzchr(IXYZ), (DTENS(IXYZ,JXYZ),JXYZ=1,3),
      & 'D_',IXYZ,':',EVR(IXYZ),
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3),
-     & 'D_',IXYZ,':',EVR(IXYZ)*AU2CM,'cm^-1'
+     & 'D_',IXYZ,':',EVR(IXYZ)*auTocm,'cm^-1'
       ENDDO
 
 
@@ -4018,8 +4013,8 @@ C initialization same as G-tensor, construct L+gS matrix elements
         B=BSTART+BINCRE*(IBSTEP-1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*B/AU2T,WORK(IMR(IXYZ)),1,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*B/AU2T,WORK(IMI(IXYZ)),1,WORK(LZI),1)
+        CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMR(IXYZ)),1,WORK(LZR),1)
+        CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMI(IXYZ)),1,WORK(LZI),1)
         DO ISS=1,NSS
          IISS=ISS+NSS*(ISS-1)
          HZER=WORK(LZR-1+IISS)
@@ -4060,7 +4055,7 @@ C initialization same as G-tensor, construct L+gS matrix elements
           RPART=RPART+FACT
           IF(IPGLOB.GT.2) THEN
            WRITE(6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)')
-     &      (WORK(LZR-1+IISS)-WORK(LZR))*AU2CM,
+     &      (WORK(LZR-1+IISS)-WORK(LZR))*auTocm,
      &      WORK(IZMR(1)-1+IISS),WORK(IZMR(2)-1+IISS),
      &      WORK(IZMR(3)-1+IISS),FACT
           ENDIF
@@ -4137,13 +4132,13 @@ C scale number of points on phi via sin(theta)
         BY=B*SIN(THE)*SIN(PHI)
         BZ=B*COS(THE)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*BX/AU2T,WORK(LMXR),1,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*BY/AU2T,WORK(LMYR),1,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*BZ/AU2T,WORK(LMZR),1,WORK(LZR),1)
+        CALL DAXPY_(NSS**2,0.5D0*BX/auToT,WORK(LMXR),1,WORK(LZR),1)
+        CALL DAXPY_(NSS**2,0.5D0*BY/auToT,WORK(LMYR),1,WORK(LZR),1)
+        CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,WORK(LMZR),1,WORK(LZR),1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*BX/AU2T,WORK(LMXI),1,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*BY/AU2T,WORK(LMYI),1,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*BZ/AU2T,WORK(LMZI),1,WORK(LZI),1)
+        CALL DAXPY_(NSS**2,0.5D0*BX/auToT,WORK(LMXI),1,WORK(LZI),1)
+        CALL DAXPY_(NSS**2,0.5D0*BY/auToT,WORK(LMYI),1,WORK(LZI),1)
+        CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,WORK(LMZI),1,WORK(LZI),1)
         DO ISS=1,NSS
          IISS=ISS+NSS*(ISS-1)
          HZER=WORK(LZR-1+IISS)

@@ -231,10 +231,9 @@
       Subroutine NM_MOPAC_print(EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,
      &                          Lu_10,iOff,lut)
 
+      use Constants, only: Zero
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "real.fh"
-#include "constants2.fh"
       Real*8 EVal(nDim), EVec(nX,nDim),dDipM(ndim,iel),IRInt(nDim)
       Parameter(Inc=6)
       Character*80 Format

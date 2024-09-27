@@ -12,7 +12,7 @@
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
-      USE do_grid, only: Do_Lebedev_Sym
+      USE do_grid, only: Do_Lebedev
       use frenkel_global_vars, only: iTyp
 #ifdef _HDF5_
       USE Dens2HDF5
@@ -22,6 +22,7 @@
 #ifndef POINTER_REMAP
       USE ISO_C_Binding
 #endif
+      USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -30,8 +31,6 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-* constants.fh defines values of physical constants.
-#include "constants.fh"
 #include "stdalloc.fh"
 #include "rassiwfn.fh"
 
@@ -73,13 +72,8 @@
       DYSAMPS2=DYSAMPS
 
 C CONSTANTS:
-      AU2EV=CONV_AU_TO_EV_
-      AU2CM=CONV_AU_TO_CM1_
-      DEBYE=CONV_AU_TO_DEBYE_
-      AU2REDR=2.0D2*DEBYE
-      SPEED_OF_LIGHT=CONST_C_IN_AU_
+      AU2REDR=2.0D2*Debye
       HALF=0.5D0
-      PI= CONST_PI_
 *
       DIAGONAL=.TRUE.
 
@@ -262,7 +256,7 @@ c               lower than 1.0D-4 cm-1
         Do JJ=1,MSTATE
           J=IWORK(LSTK-1+JJ)
           IF(I==J) CYCLE
-          DLT=ABS(ENERGY(J)-TMP)*AU2CM
+          DLT=ABS(ENERGY(J)-TMP)*auTocm
           If(DLT<1.0D-4) THEN
             ENERGY(J)=TMP
           End If
@@ -462,8 +456,8 @@ C REPORT ON SECULAR EQUATION RESULT:
        Do kSTATE=1,NSTATE
           iState=IndexE(kState)
           E1=ENERGY(ISTATE)
-          E2=AU2EV*(E1-E0)
-          E3=AU2CM*(E1-E0)
+          E2=auToeV*(E1-E0)
+          E3=auTocm*(E1-E0)
 *
          IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
@@ -661,8 +655,7 @@ C                                                                      C
 *
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
       ! numerically: 2/c^3 (in a.u. of time ^ -1)
-      AFACTOR = 2.0D0/CONST_C_IN_AU_**3
-     &          /CONST_AU_TIME_IN_SI_
+      AFACTOR = 2.0D0/c_in_au**3/(auTofs*1.0D-15)
 *
       IF(IPGLOB.le.0) GOTO 900
 !
@@ -1151,7 +1144,7 @@ C                                                                      C
          WRITE(6,35)
         END IF
 
-         ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
+         ONEOVER6C2=1.0D0/(6.0D0*c_in_au**2)
 
          DO K_=1,IEND
             I=IndexE(K_)
@@ -1180,7 +1173,7 @@ C                                                                      C
 ! Debug to move along z. Change DX and DY (1 Aangstrom)
 !
 !     DO I = 1, 9
-!     AA = 1.889726D0*ZVAL(I)*EDIFF!/(2.0D0*CONST_C_IN_AU_)
+!     AA = 1.889726D0*ZVAL(I)*EDIFF!/(2.0D0*c_in_au)
 ! z-direction
 !     DX2=(PROP(J,I,IPRDX)
 !    &    -AA*PROP(J,I,IPRDY_TEMP))**2
@@ -1255,7 +1248,7 @@ C                                                                      C
          WRITE(6,35)
         END IF
 
-         ONEOVER10C=1.0D0/(10.0D0*CONST_C_IN_AU_**2)
+         ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
          ONEOVER30C=ONEOVER10C/3.0D0
 
          DO K_=1,IEND
@@ -1458,7 +1451,7 @@ C                                                                      C
          WRITE(6,35)
         END IF
 
-         TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
+         TWOOVERM45C=-2.0D0/(45.0D0*c_in_au**2)
          DO K_=1,IEND
             I=IndexE(K_)
           DO L_=JSTART,NSTATE
@@ -1643,7 +1636,7 @@ C                                                                      C
          WRITE(6,35)
          END IF
 
-         ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
+         ONEOVER9C2=1.0D0/(9.0D0*c_in_au**2)
          DO K_=1,IEND
             I=IndexE(K_)
           DO L_=JSTART,NSTATE
@@ -1691,7 +1684,7 @@ C                                                                      C
 !
 ! Debug to move along z.
 !
-!           ONEOVER3C = 1.0D0/(3.0D0*CONST_C_IN_AU_)
+!           ONEOVER3C = 1.0D0/(3.0D0*c_in_au)
 !           DYXDZ=(PROP(J,I,IPRDYX)*ONEOVER3C
 !    &           + PROP(J,I,IPRDXX_TEMP)*ONEOVER3C*EDIFF*1.889726D0)
 !    &           * PROP(J,I,IPRDZ)
@@ -2318,7 +2311,7 @@ C                                                                      C
          DO J_=1,NSTATE
             J=IndexE(J_)
           F=DYSAMPS2(I,J)*DYSAMPS2(I,J)
-          EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
+          EDIFF=auToeV*(ENERGY(J)-ENERGY(I))
           IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
             WRITE(6,'(A,I8,I8,F15.3,ES22.5)') '    ',
@@ -2407,10 +2400,8 @@ C                                                                      C
       Else
          Call Setup_O()
 *        In the spin-free case, oscillator and rotatory strengths for k and -k
-*        are equal, so we compute only half the quadrature points and multiply
-*        the weights by 2
-         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
-         Rquad(4,:) = 2.0D0*Rquad(4,:)
+*        are equal, so we compute only half the quadrature points
+         Call Do_Lebedev(L_Eff,nQuad,Rquad,4)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
@@ -2562,7 +2553,7 @@ C                                                                      C
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=ABS(EDIFF_)/SPEED_OF_LIGHT
+            rkNorm=ABS(EDIFF_)/c_in_au
 *
 *           Iterate over the quadrature points.
 *
@@ -2588,7 +2579,7 @@ C                                                                      C
 *              4*pi over the solid angles.
 *
                Weight=Rquad(4,iQuad)
-               If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
+               If (.Not.Do_SK) Weight=Weight/(4.0D0*Pi)
 *
 *              Generate the polarization vector
 *
@@ -2828,7 +2819,7 @@ C                 Why do it when we don't do the L.S-term!
 *
 *              R = 3/4 * c*hbar^2/DeltaE^2 * (|T^L|^2 - |T^R|^2)
 *
-               R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
+               R_Temp=0.75D0*c_in_au/EDIFF**2*TM_2
 *
 *              Now let's convert this to reduced rotational strength
 *              (units of 1e-2 debye*Bohr_magneton)

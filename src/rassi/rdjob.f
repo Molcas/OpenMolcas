@@ -257,7 +257,7 @@
       End If
 
 #ifdef _DMRG_
-      call getenv("CurrDir", currdir)
+      call getenvf("CurrDir", currdir)
       ! Leon 5/12/2016: Fetch QCMaquis checkpoint names if requested
       if (doDMRG) then
         if(mh5_exists_dset(refwfn_id, 'QCMAQUIS_CHECKPOINT')) then

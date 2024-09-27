@@ -41,6 +41,7 @@
 ! dsytrd_
 ! ilaenv_
 ! zgesvd_
+! zheev_
 ! zhpev_
 
 ! Specify if integer (and logical) conversion will be needed.
@@ -728,6 +729,28 @@ subroutine zgesvd_(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,rwork,i
   call zgesvd(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,rwork,info_)
 # endif
 end subroutine zgesvd_
+
+subroutine zheev_(jobz,uplo,n_,a,lda_,w,work,lwork_,rwork,info_)
+  use Definitions, only: BLASR8, iwp
+  _BLAS_INT_use_
+  implicit none
+  character, intent(in) :: jobz, uplo
+  integer(kind=iwp), intent(in) :: n_, lda_, lwork_
+  complex(kind=BLASR8), intent(inout) :: a(lda_,*)
+  real(kind=BLASR8), intent(_OUT_) :: w(*), rwork(*)
+  complex(kind=BLASR8), intent(_OUT_) :: work(*)
+  integer(kind=iwp), intent(out) :: info_
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, lwork, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
+  call zheev(jobz,uplo,n,a,lda,w,work,lwork,rwork,info)
+  info_ = info
+# else
+  call zheev(jobz,uplo,n_,a,lda_,w,work,lwork_,rwork,info_)
+# endif
+end subroutine zheev_
 
 subroutine zhpev_(jobz,uplo,n_,ap,w,z,ldz_,work,rwork,info_)
   use Definitions, only: BLASR8, iwp

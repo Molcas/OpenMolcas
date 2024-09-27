@@ -22,7 +22,7 @@
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 !             University of Lund, Sweden. October '98                  *
 !***********************************************************************
-      use IOBUF, only: Buffer, DiskMx_Byte, DiskMx_MByte, InCore, lBuf, LuTmp, nBuf, OnDisk
+      use IOBUF, only: Buffer, DiskMx_Byte, InCore, lBuf, LuTmp, nBuf, OnDisk
       use stdalloc, only: mma_allocate
       use Constants, only: Two, Ten
       Implicit None
@@ -40,7 +40,6 @@
 !     The maximum number of bytes on disk. The file size limit times
 !     the number of multi files.
 !
-      DiskMx_MByte=DBLE(AllocDisk())*Ten
       DiskMx_Byte=DBLE(AllocDisk())*Ten*Two**20
 !
       nBuf=-99

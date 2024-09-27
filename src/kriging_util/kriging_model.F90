@@ -54,7 +54,7 @@ call DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
 #endif
 
 if (INFO /= 0) then
-  write(u6,*) 'kriging_model: INFO.ne.0'
+  write(u6,*) 'kriging_model: INFO /= 0'
   write(u6,*) 'kriging_model: INFO=',INFO
   call Abend()
 end if

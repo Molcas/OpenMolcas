@@ -11,7 +11,6 @@
 * Copyright (C) Jonna Stalring                                         *
 ************************************************************************
       SubRoutine RInt_td(ekappa,mkappa,isym)
-      use Arrays, only: G1t
 c
 c
 *******************************************************
@@ -33,11 +32,12 @@ c     wDKt   Omega*(density matrix)*(kappa transposed)
 c     wKtD   As above but different order
 c
 c
+      use Arrays, only: G1t
+      use Constants, only: Zero, Two
       Implicit Real*8 (a-h,o-z)
 c
 #include "stdalloc.fh"
 #include "Input.fh"
-#include "real.fh"
 #include "Pointers.fh"
       Real*8 ekappa(ndens2),mkappa(ndens2)
       Real*8, Allocatable:: Dens(:), wDKt(:), wKtD(:)
@@ -77,9 +77,9 @@ c
 *               residual=DMOD((k+1),(nbas(is)+1))
 *               if ((residual.eq.zero).and.(k.lt.(nbas(is)*nIsh
 *     &      (is))).and.(nIsh(is).ne.0)) then
-*                     Dens(1+ipCM(is)+k)=two
+*                     Dens(1+ipCM(is)+k)=Two
 *               else
-*                     Dens(1+ipCM(is)+k)=zero
+*                     Dens(1+ipCM(is)+k)=Zero
 *               end if
 *            end do
 *          end do
@@ -110,12 +110,12 @@ C      wDKt
              call DGEMM_('n','n',nbas(is),nbas(js),nbas(is),
      &                   Two*Omega,Dens(ipCM(is)),nbas(is),
      &                             mkappa(ipmat(is,js)),nbas(is),
-     &                   zero,wDKt(ipmat(is,js)),nbas(is))
+     &                   Zero,wDKt(ipmat(is,js)),nbas(is))
 C      wKtD
              call DGEMM_('n','n',nbas(is),nbas(js),nbas(js),
      &                   Two*Omega,mkappa(ipmat(is,js)),nbas(is),
      &                             Dens(ipCM(js)),nbas(js),
-     &                   zero,wKtD(ipmat(is,js)),nbas(is))
+     &                   Zero,wKtD(ipmat(is,js)),nbas(is))
 
 c*****************************************************
 c            Replace ekappa ekappa=ekappa-wDKt+wKtD

@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine RHS_NAC(Fock,SLag)
       use ipPage, only: W
+      use Constants, only: Zero, One, Two, Half, Quart
       Implicit None
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -99,7 +99,7 @@
 *
       !! The anti-symmetric RDM is contructed somewhere in the CASPT2
       !! module. It will be read from disk in out_pt2.f.
-      If (PT2) Call DCopy_(ng1,[zero],0,G1m,1)
+      If (PT2) Call DCopy_(ng1,[Zero],0,G1m,1)
 *
       Do i=1,ntAsh**2
         j=itri(i,i)

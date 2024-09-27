@@ -16,15 +16,13 @@
 ! ****************************************************************
 
 module hybridpdft
-  use definitions, only: wp
+  use definitions,only:wp
 
   implicit none
   private
 
-  logical :: Do_Hybrid = .false.
-  real(kind=wp) :: Ratio_WF = 0.0d0
   Real(kind=wp) :: E_nohyb ! PDFT energy if it is not hybrid
 
-  public :: do_hybrid, ratio_wf, e_nohyb
-end module hybridpdft
+  public :: e_nohyb
+endmodule hybridpdft
 

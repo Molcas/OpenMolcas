@@ -89,12 +89,11 @@
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT
 !
-      INTEGER         IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
-     &                ICMSIterMin
+      INTEGER         IRotPsi,IXMSP,ICMSP,ICMSIterMax,ICMSIterMin
       Real*8          CMSThreshold
       CHARACTER(256)  CMSStartMat
-      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
-     &                ICMSIterMin,CMSThreshold,CMSStartMat
+      COMMON/ROTST/   IRotPsi,IXMSP,ICMSP,ICMSIterMax,ICMSIterMin,      &
+     &                CMSThreshold,CMSStartMat
 !
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S
@@ -106,9 +105,6 @@
 !
       REAL*8          CBLB(8),LVSHFT,ESX,SXSHFT
       COMMON/RELSX/   CBLB,LVSHFT,ESX,SXSHFT
-!
-      INTEGER         iClean,ipCleanMask
-      Common/CLEANMO/ iClean,ipCleanMask
 !
       INTEGER         iOrbTyp,iOrbOnly,iOrbRoot
       Common/RASCOMM/ iOrbTyp,iOrbOnly,iOrbRoot

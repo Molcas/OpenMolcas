@@ -20,9 +20,9 @@
 *                  pq       pq                 pq
 *
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use Constants, only: Zero, One, Two
       Implicit Real*8(a-h,o-z)
 
-#include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"

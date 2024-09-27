@@ -115,7 +115,7 @@ do iCnttp=1,nCnttp
 
           nHer = (la+iAng+2)/2
           call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,Array(ipZ1),Array(ipZI1),Array(ipK1),Array(ipP1),Array(ipF1), &
-                      nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp)
+                      nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
           ip = ip-6*nAlpha*nExpi
 
           ipF2 = ip
@@ -144,7 +144,7 @@ do iCnttp=1,nCnttp
 
           nHer = (iAng+lb+2)/2
           call MltPrm(Shells(iShll)%Exp,nExpi,Beta,nBeta,Array(ipZ2),Array(ipZI2),Array(ipK2),Array(ipP2),Array(ipF2),nExpi*nBeta, &
-                      iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CoorO,nOrdOp)
+                      iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
           ip = ip-6*nExpi*nBeta
           ipTmp = ip
           ip = ip+max(nAlpha*nExpi*nac,nBeta*ncb*nBasisi)

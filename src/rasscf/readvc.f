@@ -62,7 +62,7 @@
       use rasscf_data, only : lRoots, nRoots,
      &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
      &  nAcPar, iXsym, iAlphaBeta,
-     &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT, iClean,
+     &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT,
      &  purify, iAdr15
       use general_data, only : nSym, mXSym,
      &  nDel, nBas, nOrb,
@@ -79,6 +79,7 @@
 #endif
 !     See comment below why this is commented out.
 !     use sxci, only: IDXCI, IDXSX
+      use general_data, only: CleanMask
 
       implicit none
 
@@ -86,7 +87,6 @@
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='READVC  ')
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
@@ -94,12 +94,9 @@
       type(t_ON_scheme), intent(in) :: scheme
 
       logical :: found, changed
-      integer :: iPrlev, nData,
-     &    i, j, iTIND, NNwOrd, iSym,
-     &    LNEWORD, LTMPXSYM, iErr, IAD19, iJOB,
-     &    lll, lJobH, ldJobH, lscr, iDisk,
-     &    jRoot, kRoot,
-     &    iDummy(1), IADR19(30), iAD15, lEne, nTmp(8)
+      integer :: iPrlev, nData, i, j, NNwOrd, iSym, iErr, IAD19, iJOB,
+     &           lll, iDisk, jRoot, kRoot,
+     &           iDummy(1), IADR19(30), iAD15, nTmp(8)
       real*8 :: Dummy(1), Scal
       real*8, allocatable :: CMO_copy(:)
 #ifdef _HDF5_
@@ -111,14 +108,12 @@
       character(len=72) :: JobTit(mxTit)
       character(len=80) :: VecTit
       character(len=4) :: Label
+      Integer, Allocatable:: TIND(:), NewOrd(:), TmpXSym(:), JobH(:)
+      Real*8, Allocatable:: Scr(:), Ene(:), JobR(:)
 
       interface
         integer function isfreeunit(seed)
           integer, intent(in) :: seed
-        end function
-
-        integer function ip_of_Work_i(A)
-          integer :: A
         end function
       end interface
 
@@ -184,9 +179,9 @@ C Local print level (if any)
      &             CMO, OCC, Dummy, iDummy, VECTIT, 0, iErr)
        else
         Label(4:4)="I"
-        Call GetMem('TIND','Allo','Inte',iTIND,maxbfn)
+        Call mma_allocate(TIND,maxbfn,Label='TIND')
         CALL RDVEC(StartOrbFile,LUStartOrb,Label,NSYM,NBAS,NBAS,
-     &          CMO, OCC, Dummy,iWork(iTIND), VECTIT, 0, iErr)
+     &          CMO, OCC, Dummy,TIND, VECTIT, 0, iErr)
 * If the typeindex array is used to resort orbitals, then if also
 * a supersymmetry array is used, it has to be changed.
 * The supersymmtry array is IXSYM().
@@ -195,30 +190,29 @@ C Local print level (if any)
 * other orbital indices -- what about ALTER??) must be done HERE
 * immediately togather with the VecSort, but not *inside* VecSort.
 
-* But VecSort does not return any indicing information -- how are
+* But VecSort does not return any indexing information -- how are
 * we to know how to change IXSYM?
 * VecSort changed to include a reindexing array!
         NNwOrd=0
         Do ISym=1,NSym
          NNwOrd=NNwOrd+NBas(ISym)
         End Do
-        Call GetMem('NewOrd','Allo','Inte',LNEWORD,NNwOrd)
-*        Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTIND),iErr)
-        Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTIND),
-     &                              NNwOrd,iWork(lNewOrd),iErr)
+        Call mma_allocate(NEWORD,NNwOrd,Label='NewOrd')
+*        Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,TIND,iErr)
+        Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,TIND,NNwOrd,NewOrd,iErr)
 * If there is a supersymmetry array, use the orbital mapping:
       If (iSUPSM.ne.0) Then
-       Call GetMem('TmpXSym','Allo','Inte',LTMPXSYM,NNwOrd)
+       Call mma_allocate(TMPXSYM,NNwOrd,Label='TmpXSym')
        Do I=1,NNwOrd
-        J=iWork(lNewOrd-1+I)
-        iWork(lTmpXSym-1+I)=IXSYM(J)
+        J=NewOrd(I)
+        TmpXSym(I)=IXSYM(J)
        End Do
-       Call ICopy(NNwOrd,iWork(lTmpXSym),1,IXSYM,1)
-       Call GetMem('TmpXSym','Free','Inte',LTMPXSYM,NNwOrd)
+       Call ICopy(NNwOrd,TmpXSym,1,IXSYM,1)
+       Call mma_deallocate(TMPXSYM)
       End If
 
-        Call GetMem('NewOrd','Free','Inte',LNEWORD,NNwOrd)
-        Call GetMem('TIND','Free','Inte',iTIND,maxbfn)
+        Call mma_deallocate(NewOrd)
+        Call mma_deallocate(TIND)
        endif
        Close(LUStartOrb)
        if(iErr.eq.1) then
@@ -272,23 +266,23 @@ C Local print level (if any)
         lll = 10+RtoI
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI*mxRoot)
-        CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
-        ldJobH=ip_of_Work_i(iWork(lJobH+10))
+        lll = MAX(lll,mxRoot)
+        CALL mma_allocate(JobH,lll,Label='JobH')
+        CALL mma_allocate(JobR,MxRoot,Label='JobH')
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,
-     &                      iWork(lJobH),iWork(lJobH+1),iWork(lJobH+2),
-     &                      iWork(lJobH+3),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
+     &                      JobH(1),JobH(2),JobH(3),
+     &                      JobH(4),JobH,JobH,
+     &                      JobH,JobH,JobH,
      &                      mxSym,
-     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH+4),
+     &                      lJobH1,LENIN8*mxOrb,JobH(5),
      &                      lJobH2,2*72,JobTit,72*mxTit,
-     &                      Work(ldJobH),iWork(lJobH+5),
-     &                      iWork(lJobH+6),iWork(lJobH),mxRoot,
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH+7),iWork(lJobH+8),
-     &                      iWork(lJobH+9),
-     &                      Work(ldJobH))
+     &                      JobR(1),JobH(6),
+     &                      JobH(7),JobH,mxRoot,
+     &                      JobH,JobH,JobH,
+     &                      JobH(8),JobH(9),
+     &                      JobH(10),
+     &                      JobR(:))
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then
             Write(LF,'(6X,A)')
@@ -302,7 +296,8 @@ C Local print level (if any)
          Write(VecTit(1:72),'(A72)') JobTit(1)
          Write(LF,'(6X,2A)') 'Title:',VecTit(1:72)
         END IF
-        CALL GETMEM('JOBOLD','FREE','INTEGER',lJobH,lll)
+        CALL mma_deallocate(JobH)
+        CALL mma_deallocate(JobR)
         iAd19=iAdr19(2)
         Call DDaFile(JobOld,2,CMO,NTOT2,iAd19)
         Call DDaFile(JobOld,2,OCC,nTot,iAd19)
@@ -318,7 +313,7 @@ C Local print level (if any)
      &        ' file '//trim(iPhName)//' and weighted together.'
            End If
          End If
-         Call GetMem('Scr','Allo','Real',lscr,NACPR2)
+         Call mma_allocate(Scr,NACPR2,Label='Scr')
          iDisk = IADR19(3)
          Do jRoot = 1,lRoots
            Scal = 0.0d0
@@ -327,16 +322,16 @@ C Local print level (if any)
                Scal = Weight(kRoot)
              End If
            End Do
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
-           call daxpy_(NACPAR,Scal,Work(lscr),1,D,1)
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
-           call daxpy_(NACPAR,Scal,Work(lscr),1,DS,1)
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
-           call daxpy_(NACPR2,Scal,Work(lscr),1,P,1)
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
-           call daxpy_(NACPR2,Scal,Work(lscr),1,PA,1)
+           Call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
+           call daxpy_(NACPAR,Scal,scr,1,D,1)
+           Call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
+           call daxpy_(NACPAR,Scal,scr,1,DS,1)
+           Call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
+           call daxpy_(NACPR2,Scal,scr,1,P,1)
+           Call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
+           call daxpy_(NACPR2,Scal,scr,1,PA,1)
          End Do
-         Call GetMem('Scr','Free','Real',lscr,NACPR2)
+         Call mma_deallocate(Scr)
         End If
 CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 !IFG: disabled, since it breaks when changing active space specification
@@ -384,28 +379,28 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
           Do iSym=1,nSym
             NNwOrd=NNwOrd+NBas(iSym)
           End Do
-          Call GetMem('TInd','Allo','Inte',iTInd,NNWOrd)
-          Call GetMem('NewOrd','Allo','Inte',LNewOrd,NNwOrd)
-          Call tpstr2tpidx(typestring,iWork(iTInd),NNWOrd)
-          Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTInd),
-     &                                NNwOrd,iWork(lNewOrd),iErr)
+          Call mma_allocate(TInd,NNWOrd,Label='TIND')
+          Call mma_allocate(NewOrd,NNwOrd,Label='NewOrd')
+          Call tpstr2tpidx(typestring,TInd,NNWOrd)
+          Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,TInd,
+     &                                NNwOrd,NewOrd,iErr)
 * If there is a supersymmetry array, use the orbital mapping:
           If (iSUPSM.ne.0) Then
-            Call GetMem('TmpXSym','Allo','Inte',LTmpXSym,NNwOrd)
+            Call mma_allocate(TmpXSym,NNwOrd,Label='TmpXSym')
             Do i=1,NNwOrd
-              j=iWork(lNewOrd-1+i)
-              iWork(lTmpXSym-1+i)=iXSym(j)
+              j=NewOrd(i)
+              TmpXSym(i)=iXSym(j)
             End Do
-            Call iCopy(NNwOrd,iWork(lTmpXSym),1,iXSym,1)
-            Call GetMem('TmpXSym','Free','Inte',LTmpXSym,NNwOrd)
+            Call iCopy(NNwOrd,TmpXSym,1,iXSym,1)
+            Call mma_deallocate(TmpXSym)
           End If
-          Call GetMem('NewOrd','Free','Inte',LNewOrd,NNwOrd)
-          Call GetMem('TInd','Free','Inte',iTInd,maxbfn)
+          Call mma_deallocate(NewOrd)
+          Call mma_deallocate(TInd)
         End If
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'
         write (6,*) 'installation does not support that, abort!'
-        call abend
+        call abend()
 #endif
 
 *     guess MO-coefficients
@@ -516,15 +511,15 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       End If
 *     print start orbitals
       IF(IPRLEV.GE.DEBUG) THEN
-        CALL GETMEM('DumE','Allo','Real',LENE,nTot)
-        CALL DCOPY_(nTot,[0.0D0],0,WORK(LENE),1)
-        CALL PRIMO_RASSCF('Input orbitals',WORK(LENE),OCC,CMO)
-        CALL GETMEM('DumE','Free','Real',LENE,nTot)
+        CALL mma_allocate(ENE,nTot,Label='ENE')
+        CALL DCOPY_(nTot,[0.0D0],0,ENE,1)
+        CALL PRIMO_RASSCF('Input orbitals',ENE,OCC,CMO)
+        CALL mma_deallocate(ENE)
       END IF
 
 *     cleaning orbitals for high symmetry cases
 
-      If(iClean.ne.0) Call ClnMO(CMO)
+      If(Allocated(CleanMask)) Call ClnMO(CMO)
       If(PURIFY(1:6).eq.'LINEAR') CALL LINPUR(CMO)
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 

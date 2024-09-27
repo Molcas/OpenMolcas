@@ -30,7 +30,7 @@ Real*8, Allocatable:: G2t(:)
 Real*8, Allocatable:: G2sq(:)
 Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
 !     MO coefficients
-Real*8, Allocatable:: CMO(:)
+Real*8, Allocatable, target:: CMO(:)
 Real*8, Allocatable:: CMO_Inv(:)
 
 !         INT1        :  1-electron integrals

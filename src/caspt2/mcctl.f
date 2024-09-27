@@ -18,7 +18,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MCCTL(HEFF)
-      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: verbose
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

@@ -23,7 +23,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 ****** Output
@@ -57,6 +56,7 @@
       subroutine SolveforzX(zX,AXX,bX)
       use stdalloc, only : mma_allocate, mma_deallocate
       use cmslag,   only : ResQaaLag2
+      use Constants, only: Pi
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -65,7 +65,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 #include "warnings.h"
@@ -76,13 +75,11 @@
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 ****** Assistants
       Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
-      Real*8 TwoPi
       INTEGER NDim,nSPair,iPair,nScr,INFO
 
 
       NDim=((nRoots-1)*nRoots/2)
       nSPair=nDim
-      TwoPi=2.0d0*Pi
       ResQaaLag2=0.0d0
       CALL mma_allocate(EigVal,nDim)
       CALL mma_allocate(bxScr ,nDim)
@@ -99,7 +96,7 @@
 
       DO iPair=1,nDim
        zxScr(iPair)=-bxScr(iPair)/EigVal(iPair)
-       IF(Abs(zxScr(iPair)).gt.TwoPi) THEN
+       IF(Abs(zxScr(iPair)).gt.2.0d0*Pi) THEN
         zxScr(iPair)=0.0d0
         ResQaaLag2=ResQaaLag2+bxScr(iPair)**2
        END IF
@@ -145,7 +142,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 ******Input
@@ -225,6 +221,7 @@
 
 ******************************************************
       Subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
+      use Constants, only: One, Two
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -233,7 +230,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
       INTEGER nG2,nG2r
@@ -274,7 +270,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
       INTEGER nG2,nPUVX
@@ -319,7 +314,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 ******  Input

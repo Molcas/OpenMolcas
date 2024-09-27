@@ -30,7 +30,7 @@ use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_AdrVec, Cho_DecAlg, Cho
                     ThrDiag, ThrNeg, TimSec, tInteg, tMisc, Tol_DiaChk, TooNeg, Trace_Idle, WarNeg, XCho_AdrVec, XDamp, XlDiag, &
                     XnBas, XnnShl, XnPass, XnShell, XnSym, XScDiag, XSpan, XThrCom, XThrDiag, XThrNeg, XTooNeg, XWarNeg
 use Constants, only: Zero
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

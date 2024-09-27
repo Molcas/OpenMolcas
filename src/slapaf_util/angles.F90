@@ -61,7 +61,7 @@ do ic=1,mCentr
         tp = .true.
         write(u6,*)
         write(u6,'(19X,A)') ' ************************************** '
-        write(u6,'(19X,A)') ' *    Valence Bond Angles / Degree    * '
+        write(u6,'(19X,A)') ' *    Valence Bond Angles / degree    * '
         write(u6,'(19X,A)') ' ************************************** '
         write(u6,'(19X,A)') '       Atom centers                 Phi'
       end if

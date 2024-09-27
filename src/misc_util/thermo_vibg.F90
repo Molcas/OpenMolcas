@@ -11,7 +11,7 @@
 
 subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
 
-use Constants, only: Zero, One, Two, Half, OneHalf, Pi, auTokcalmol, auTokJ, atmToPa, cal_to_J, kBoltzmann, Rgas, rNAVO, rPlanck
+use Constants, only: Zero, One, Two, Half, OneHalf, Pi, auTokcalmol, auTokJ, atmToPa, cal_to_J, hPlanck, kBoltzmann, Rgas, rNAVO
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -56,7 +56,7 @@ dU_e = Zero
 
 if (T > Zero) then
   ! Molecular Partition Function (q/V in 1/m^3)
-  dFact = (Two*Pi*kBoltzmann/(rPlanck**2*rNAVO*1.0e3_wp))**OneHalf ! ((2*PI*k_B)/(h^2*N_A*1000))^(3/2)
+  dFact = (Two*Pi*kBoltzmann/(hPlanck**2*rNAVO*1.0e3_wp))**OneHalf ! ((2*PI*k_B)/(h^2*N_A*1000))^(3/2)
   dMT = (TotalM*1.0e-3_wp)*T  ! m = PM/1000
   q_tr = dFact*dMT
   q_tr = q_tr*sqrt(dMT)
@@ -146,7 +146,7 @@ dG_TOT = dH_TOT-dS_TOT*T*1.0e-3_wp
 
 write(u6,*)
 write(u6,'(A)') ' *****************************************************'
-write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' Kelvin, Pressure =',P,' atm'
+write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' kelvin, Pressure =',P,' atm'
 write(u6,'(A)') ' -----------------------------------------------------'
 write(u6,'(A)') ' Molecular Partition Function and Molar Entropy:'
 write(u6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'

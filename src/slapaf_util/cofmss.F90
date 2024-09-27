@@ -62,7 +62,7 @@ if ((iCOM >= 1) .and. (iCOM <= nsAtom)) cMass(:) = Coor(:,iCom)
 
 #ifdef _DEBUGPRINT_
 write(u6,100) cMass(:),TMass
-100 format(//,' Center of Mass (Bohr) ',3F10.5,/,' Molecular Mass   (au) ',1F15.5)
+100 format(//,' Center of Mass (bohr) ',3F10.5,/,' Molecular Mass   (au) ',1F15.5)
 #endif
 
 #ifdef _DO_NOT_

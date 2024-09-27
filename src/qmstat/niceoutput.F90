@@ -78,10 +78,10 @@ if (It) then
   write(u6,11) '*  Parameters of the calculation  *'
   write(u6,*)
   write(u6,12) '--Macroscopic quantities'
-  write(u6,12) '  Temperature(K)      Pressure(Atm.)   Permitivity'
+  write(u6,12) '  Temperature(K)      Pressure(atm.)   Permitivity'
   write(u6,13) Temp,Pres,Diel
   write(u6,12) '--Maximal MC-Step parameters'
-  write(u6,12) '  Translation(Ang.)   Rotation(deg.)   Cavity Radius(Ang.)'
+  write(u6,12) '  Translation(ang.)   Rotation(deg.)   Cavity Radius(ang.)'
   write(u6,13) delX*Angstrom,delFi/deg2rad,delR*Angstrom
   write(u6,12) '--Configuration data'
   write(u6,12) '  Initial conf.       Writing conf.    MC-Steps'

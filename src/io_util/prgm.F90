@@ -374,7 +374,7 @@ function ExpandVars(String,WD)
           Val = Project
         case ('WorkDir')
           Val = WD
-        case Default
+        case default
           call GetEnvF(Var,Val)
           if (trim(Val) == '') then
             if (Var /= 'SubProject') Val = 'UNK_VAR'

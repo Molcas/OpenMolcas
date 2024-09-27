@@ -27,9 +27,9 @@
 *                                                                      *
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
+      use Constants, only: Zero, One
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
      &        nDel(nSym)

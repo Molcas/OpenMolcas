@@ -15,66 +15,61 @@
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT NAC calculation.
       use definitions, only: wp
-      use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
-     &                  D1AOMS, D1SAOMS, cmsnacstates
+      use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, P2MOt,
+     &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
-#include "WrkSpc.fh"
+      use mcpdft_input, only: mcpdft_options
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
       real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
-      INTEGER ij,iS,jRoot,iBas,jBas
+      INTEGER ij,iS,jRoot,iBas,jBas, bra_state, ket_state
       Real*8 RJKRIK
 
 ******* Functions added by Paul Calio for MECI Opt *****
 ******* Original calls are in slapaf_util/start_alasaks.f
       Logical :: CalcNAC_Opt = .False.
       Logical :: MECI_via_SLAPAF = .False.
-      INTEGER NACstatesOpt(2)
 
-      NACstatesOpt(1)=cmsNACstates(1)
-      NACstatesOpt(2)=cmsNACstates(2)
+      bra_state = mcpdft_options%nac_states(1)
+      ket_state = mcpdft_options%nac_states(2)
+
 
       call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
-      Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
+      Call put_iArray('NACstatesOpt    ', mcpdft_options%nac_states,2)
       Call Put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
 ****** End of stuff added by Paul
 
 
-      Call Put_DArray('MS_FINAL_ROT    ',si_pdft,     lRoots**2)
-      CALL Put_DArray('F1MS            ',Work(iF1MS),  nTot1*nRoots)
-      CALL Put_DArray('F2MS            ',Work(iF2MS), NACPR2*nRoots)
-      CALL Put_DArray('D1AO_MS         ',Work(D1AOMS), nTot1*nRoots)
+      Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:),lRoots**2)
+      CALL Put_DArray('F1MS            ',F1MS(:,:),  nTot1*nRoots)
+      CALL Put_DArray('F2MS            ',F2MS(:,:), NACPR2*nRoots)
+      CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:), nTot1*nRoots)
       if (ispin.ne.1)
-     &CALL Put_DArray('D1SAO_MS        ',Work(D1SAOMS),nTot1*nRoots)
+     &CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*nRoots)
 
 **********Fock_Occ Part
       FockOcc(:)=0.0D0
       DO JRoot=1,lRoots
 
-        RJKRIK = si_pdft((cmsnacstates(2)-1)*lroots+jroot) *
-     &     si_pdft((cmsnacstates(1)-1)*lroots+jroot)
-!       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
-!    &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
+        RJKRIK = si_pdft((ket_state-1)*lroots+jroot) *
+     &     si_pdft((bra_state-1)*lroots+jroot)
 
-        CALL daXpY_(ntot1,RJKRIK,
-     &           Work(iFocMS+(JRoot-1)*nTot1),1,FockOcc,1)
+        CALL daXpY_(ntot1,RJKRIK,FocMS(:,JRoot),1,FockOcc,1)
       END DO
       Call Put_dArray('FockOcc',FockOcc,ntot1)
 **********Now storing the density matrix needed for computing 1RDM
 **********First rescale the off-diagonal elements as done in
 **********integral_util/prep.f
-      ij=-1
+      ij=0
       Do iS=1,nSym
        do iBas=1,nBas(iS)
        do jBas=1,iBas-1
         ij=ij+1
         do jRoot=1,nRoots+1
-         Work(iDIDA+ij+(jRoot-1)*nTot1)=0.5D0*
-     &   Work(iDIDA+ij+(jRoot-1)*nTot1)
+         DIDA(ij,jRoot)=0.5D0*DIDA(ij,jRoot)
         end do
        end do
        ij=ij+1
@@ -83,42 +78,35 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-      RJKRIK=si_pdft(1+(cmsnacstates(2)-1)*lRoots)*
-     &    si_pdft(1+(cmsnacstates(1)-1)*lroots)
-!     RJKRIK=Work(LHRot+(cmsNACstates(2)-1)*lRoots)*
-!    &    Work(LHRot+(cmsNACstates(1)-1)*lRoots)
-      CALL DScal_(nTot1,-RJKRIK,Work(iDIDA),1)
-      CALL DScal_(nTot4,RJKRIK,Work(iFxyMS),1)
-      CALL DScal_(NACPR2,RJKRIK,Work(iP2MOt),1)
+      RJKRIK=si_pdft(1+(ket_state-1)*lRoots)*
+     &    si_pdft(1+(bra_state-1)*lroots)
+      CALL DScal_(nTot1,-RJKRIK,DIDA(:,1),1)
+      CALL DScal_(nTot4,RJKRIK,FxyMS(:,1),1)
+      CALL DScal_(NACPR2,RJKRIK,P2MOt(:,1),1)
 
       ij=0
       jRoot=1
       Do jRoot=2,lRoots
         ij=0
-        RJKRIK = si_pdft((cmsnacstates(2)-1)*lroots+jroot) *
-     &     si_pdft((cmsnacstates(1)-1)*lroots+jroot)
-!       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
-!    &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
+        RJKRIK = si_pdft((ket_state-1)*lroots+jroot) *
+     &     si_pdft((bra_state-1)*lroots+jroot)
 *******DIDA for prepp
-       CALL DaXpY_(nTot1,-RJKRIK,
-     &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
+       CALL DaXpY_(nTot1,-RJKRIK,DIDA(:,jRoot),1,DIDA(:,1),1)
 *******FT99 for bk
-       CALL DaXpY_(nTot4,RJKRIK,
-     &            Work(iFxyMS+(jRoot-1)*nTot4),1,Work(iFxyMS),1)
+       CALL DaXpY_(nTot4,RJKRIK,FxyMS(:,jRoot),1,FxyMS(:,1),1)
 *******P2MOt for active 2RDM
-       CALL DaXpY_(NACPR2,RJKRIK,
-     &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
+       CALL DaXpY_(NACPR2,RJKRIK,P2MOt(:,jRoot),1,P2MOt(:,1),1)
       End Do
 
-      CALL Put_DArray('MSPDFTD6        ',Work(iDIDA),nTot1)
-********Work(iDIDA+lRoots*nTot1) is currently DI
-      CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
-      Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
+      CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
+********DIDA(:,lRoots+1) is currently DI
+      CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
+      Call Put_dArray('P2MOt',P2MOt(:,1),NACPR2)
 
       ! Some other things that were initially in mcpdft.f
       Call Put_cArray('Relax Method','MSPDFT  ',8)
       Call Put_cArray('MCLR Root','****************',16)
       Call Put_iScalar('Relax CASSCF root',irlxroot)
-      RETURN
+
       End Subroutine
 

@@ -32,7 +32,6 @@ implicit none
 #include "int_interface.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
-external :: Fake, TNAI, XCff2D, XRys2D
 procedure(int_kernel) :: NAint
 
 iRout = 221

@@ -91,10 +91,6 @@ Output files
 :file:`RUNFILE`
   The :file:`RUNFILE` is updated with information from the MC-PDFT calculation.
 
-:file:`MCDENS`
-  This ASCII file is generated for MC-PDFT calculations.
-  It contains spin densities, total density and on-top pair-density values on grid (coordinates in a.u.).
-
 .. _UG\:sec\:mcpdft_inp:
 
 Input
@@ -164,7 +160,7 @@ The :kword:`KSDFT` is the only required keyword.
 
 :kword:`GRAD`
   The keyword is needed to calculate potentials for analytical gradients.
-  This keyword can be used with state-specific and state-averaged CASSCF reference wavefunctions and with the CMS-PDFT method..
+  This keyword can be used with state-specific and state-averaged CASSCF reference wavefunctions and with the CMS-PDFT method.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
@@ -235,7 +231,7 @@ The :kword:`KSDFT` is the only required keyword.
 
 :kword:`FILEORB`
   This keyword allows one to set a reference wave function file to be used instead of the default,
-  which is the :file: `JOBIPH` file; in particular, one can use an :file: `HDF5` file.
+  which is the :file:`JOBIPH` file; in particular, one can use an :file:`HDF5` file.
   If a MC-PDFT calculation is to be followed by an MPSSI calculation for a reference DMRG wave function, please also add the keyword :kword:`WJOB`.
   Example: ``FileOrb = wavefunction.h5``
 
@@ -341,7 +337,7 @@ The following example shows a part of the input to run CMS-PDFT geometry optimiz
    &GATEWAY
     Coord
     2
-    Angstrom
+    angstrom
     Li 0.0 0.0  1.3
     F  0.0 0.0 -1.3
     Group=XY Y

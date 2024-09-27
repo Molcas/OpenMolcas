@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SODIAG(UMATR, UMATI, NSS)
       use rassi_aux, only: ipglob
+      use Constants, only: cm_s, hPlanck, gElectron, mBohr
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -20,7 +21,6 @@
 #include "rassi.fh"
 #include "jobin.fh"
 #include "symmul.fh"
-#include "constants.fh"
 
 C subroutine arguments
       REAL*8 UMATR(NSS,NSS),UMATI(NSS,NSS)
@@ -63,9 +63,8 @@ C DEIGVAL     Storage for eigenvalues (REAL!)
 C DEIGVEC     Storage for eigenvectors
 C BPTST       Storage for some testing
 
-      ge=-(CONST_ELECTRON_G_FACTOR_)
-      MU_BOHR=CONST_BOHR_MAGNETON_IN_SI_*
-     &        (CONV_AU_TO_CM1_/CONV_AU_TO_KJ_/1.0D3) ! in cm-1/T
+      ge=-gElectron
+      MU_BOHR=mBohr*(cm_s*hPlanck) ! in cm-1/T
 
       WRITE(6,*)
       WRITE(6,*)
@@ -221,7 +220,7 @@ c  apply the magnetic field along the main iDir axis
 
 c DIAGONALIZE
       lcwork = (2*n-1); info = 0
-      call zheev('V','U',n,h_zee,n,deigval,zwork,lcwork,
+      call zheev_('V','U',n,h_zee,n,deigval,zwork,lcwork,
      &           rwork,info)
 
       !> put eigenvectors in deigvec

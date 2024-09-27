@@ -14,9 +14,6 @@ set (sources
      bjai.F90
      build_mp2dens_old.F90
      check_amp2.F90
-     cho_sosmp2_col.F90
-     cho_sosmp2_decchk.F90
-     cho_sosmp2_decdrv.F90
      cho_sosmp2_drv.F90
      cho_sosmp2_energy.F90
      cho_sosmp2_setup.F90

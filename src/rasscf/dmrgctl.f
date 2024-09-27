@@ -40,25 +40,26 @@
 
       use wadr, only: FMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
 !     use sxci, only: IDXSX
 
       Implicit Real* 8 (A-H,O-Z)
-      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
+      Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
 c     Logical Exist
       Logical Do_ESPF
       Real*8 rdum(1)
+      Real*8, Allocatable:: RCT_F(:), RCT_FS(:), RCT(:), RCT_S(:),
+     &                      P2MO(:), TmpDS(:), TmpD1S(:),
+     &                      TmpPUVX(:), TmpTUVX(:)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='DMRGCTL ')
-#include "WrkSpc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
 #include "SysDef.fh"
 #include "timers.fh"
 #include "gas.fh"
@@ -75,7 +76,7 @@ C Local print level (if any)
 * IFCAS = 0: This is a CAS calculation
 * IFCAS = 1: This is a RAS calculation - This might cause an error in DMRG-CASSCF.
 *
-      if(iDoGas) call setsxci
+      if(iDoGas) call setsxci()
       If(IPRLEV.gt.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' Enter DMRG section'
@@ -97,7 +98,7 @@ C Local print level (if any)
 *
       CALL mma_allocate(FMO,NACPAR,Label='FMO')
       Call DecideOnESPF(Do_ESPF)
-      If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
+      If ( lRF .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
 *
 * In case of a reaction field in combination with an average CAS
 * select the potential of the appropriate state.
@@ -110,45 +111,45 @@ C Local print level (if any)
           Call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
         End Do
 *
-        CALL GETMEM('D1A_FULL','ALLO','REAL',LRCT_F,NTOT2)
-        CALL GETMEM('D1S_FULL','ALLO','REAL',LRCT_FS,NTOT2)
+        CALL mma_allocate(RCT_F,NTOT2,Label='RCT_F')
+        CALL mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
         If (IFINAL.eq.0) Then
 *
 * Use normal MOs
 *
-           CALL GETMEM('D1A_RCT','ALLO','REAL',LRCT,NACPAR)
-           CALL GETMEM('P2MO','ALLO','REAL',ipP2MO,NACPR2)
+           CALL mma_allocate(RCT,NACPAR,Label='RCT')
+           CALL mma_allocate(P2MO,NACPR2,Label='P2MO')
 *
 * Get the total density in MOs
 *
-           Call DDafile(JOBIPH,2,Work(LRCT),NACPAR,jDisk)
-           Call Put_dArray('D1mo',Work(LRCT),NACPAR)  ! Put it on the RUNFILE
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT))
+           Call DDafile(JOBIPH,2,RCT,NACPAR,jDisk)
+           Call Put_dArray('D1mo',RCT,NACPAR)  ! Put it on the RUNFILE
+           IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT)
 * Transform to AOs
-           Call Get_D1A_RASSCF(CMO,WORK(LRCT),WORK(LRCT_F))
+           Call Get_D1A_RASSCF(CMO,RCT,RCT_F)
 *
 * Get the spin density in MOs
 *
            IF (NACTEL.EQ.0) THEN
-             CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LRCT_FS),1)
+             CALL DCOPY_(NTOT2,[0.0D0],0,RCT_FS,1)
            ELSE
-             CALL GETMEM('D1S_RCT','ALLO','REAL',LRCT_S,NACPAR)
-             Call DDafile(JOBIPH,2,Work(LRCT_S),NACPAR,jDisk)
-             IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT_S))
+             CALL mma_allocate(RCT_S,NACPAR,Label='RCT_S')
+             Call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
+             IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT_S)
 * Transform to AOs
-             Call Get_D1A_RASSCF(CMO,WORK(LRCT_S),WORK(LRCT_FS))
-             CALL GETMEM('D1S_RCT','FREE','REAL',LRCT_S,NACPAR)
+             Call Get_D1A_RASSCF(CMO,RCT_S,RCT_FS)
+             CALL mma_deallocate(RCT_S)
            END IF
 *
 * Get the 2-particle density in MO
 *
-           Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
-           Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
+           Call DDafile(JOBIPH,2,P2MO,NACPR2,jDisk)
+           Call Put_dArray('P2mo',P2MO,NACPR2) ! Put it on the RUNFILE
 *
-           CALL SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           CALL SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
 *
-           CALL GETMEM('P2MO','FREE','REAL',ipP2MO,NACPR2)
-           CALL GETMEM('D1A_RCT','FREE','REAL',LRCT,NACPAR)
+           CALL mma_deallocate(P2MO)
+           CALL mma_deallocate(RCT)
 *
         Else
 *
@@ -211,19 +212,19 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *
            Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put it on the RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Dtmp)
-           Call Get_D1A_RASSCF(CMO,Dtmp,Work(LRCT_F))
+           Call Get_D1A_RASSCF(CMO,Dtmp,RCT_F)
 *
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(DStmp)
-           Call Get_D1A_RASSCF(CMO,DStmp,Work(LRCT_FS))
+           Call Get_D1A_RASSCF(CMO,DStmp,RCT_FS)
 *
            Call mma_deallocate(Dtmp)
            Call mma_deallocate(DStmp)
 *
-           Call SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           Call SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
 *
         End If
-        CALL GETMEM('D1S_FULL','FREE','REAL',LRCT_FS,NTOT2)
-        CALL GETMEM('D1A_RCT','FREE','REAL',LRCT_F,NTOT1)
+        CALL mma_deallocate(RCT_FS)
+        CALL mma_deallocate(RCT_F)
 *
       ELSE
 *
@@ -232,15 +233,15 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *
 *
 *
-        CALL GETMEM('TmpDS' ,'Allo','REAL',ipTmpDS ,NACPAR)
-        CALL GETMEM('TmpD1S','Allo','REAL',ipTmpD1S,NTOT2 )
-        call dcopy_(NACPAR,DS,1,Work(ipTmpDS),1)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(ipTmpDS))
-        Call Get_D1A_RASSCF(CMO,Work(ipTmpDS),Work(ipTmpD1S))
-        CALL GETMEM('TmpDS' ,'Free','REAL',ipTmpDS ,NACPAR)
+        CALL mma_allocate(TmpDS ,NACPAR,Label='TmpDS')
+        CALL mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
+        call dcopy_(NACPAR,DS,1,TmpDS,1)
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(TmpDS)
+        Call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
+        CALL mma_deallocate(TmpDS)
 *
-        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,Work(ipTmpD1S))
-        CALL GETMEM('TmpD1S','Free','REAL',ipTmpD1S,NTOT2 )
+        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,TmpD1S)
+        CALL mma_deallocate(TmpD1S)
 *
       END IF
 *
@@ -255,22 +256,22 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
         If (KSDFT(1:3).ne.'SCF'.
      &      and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
           nTmpPUVX=nFint
-          Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-          Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
-          Call dCopy_(NACPR2,[0.0d0],0,Work(ipTmpTUVX),1)
-          Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
-          Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
-          Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
+          Call mma_allocate(TmpPUVX,nTmpPUVX,Label='TmpPUVX')
+          Call mma_allocate(TmpTUVX,NACPR2,Label='TmpTUVX')
+          TmpTUVX(:)=0.0D0
+          Call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
+          Call Get_TUVX(TmpPUVX,TmpTUVX)
+          Call DaXpY_(NACPR2,1.0d0,TUVX,1,TmpTUVX,1)
 #ifdef _ENABLE_BLOCK_DMRG_
-          Call BlockCtl(FMO,Work(ipTmpTUVX),IFINAL,IRst)
+          Call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
 #elif _ENABLE_CHEMPS2_DMRG_
-          Call Chemps2Ctl(FMO,Work(ipTmpTUVX),IFINAL,IRst)
+          Call Chemps2Ctl(FMO,TmpTUVX,IFINAL,IRst)
 #elif _ENABLE_DICE_SHCI_
-          Call DiceCtl(FMO,Work(ipTmpTUVX),IFINAL,IRst)
+          Call DiceCtl(FMO,TmpTUVX,IFINAL,IRst)
 #endif
 
-          Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
-          Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
+          Call mma_deallocate(TmpTUVX)
+          Call mma_deallocate(TmpPUVX)
         Else
 #ifdef _ENABLE_BLOCK_DMRG_
           Call BlockCtl(FMO,TUVX,IFINAL,IRst)
@@ -428,7 +429,7 @@ c          Call Put_iScalar("RF CASSCF root",IPCMROOT)
 c          Call Put_iScalar("RF0CASSCF root",IPCMROOT)
 c       End If
 *
-c       Call Allocate_Work(ipRF,nConf)
+c       Call mma_allocate(RF,nConf)
 c       Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
 *       Write (6,*) 'Exist=',Exist
 c       If (Exist
@@ -436,17 +437,17 @@ c    &      .and. mConf .eq. nConf
 c    &      .and. iFinal.ne.2
 c    &      .and. (ABS(RotMax).lt.1.0D-3 .or. KeyCISE)
 c    &     ) Then
-c          Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)
-c          rNorm=Sqrt(DDot_(nConf,Work(ipRF),1,Work(ipRF),1))
+c          Call Get_dArray("RF CASSCF Vector",RF,nConf)
+c          rNorm=Sqrt(DDot_(nConf,RF,1,RF,1))
 *          Write (6,*) 'rNorm=',rNorm
 c          JPCMROOT=IPCMROOT
 c          If (rNorm.gt.1.0D-10) Then
-c             Call Allocate_Work(ipTemp,nConf)
+c             Call mma_allocate(Temp,nConf,Label='Temp')
 c             rMax=0.0D0
 c             jDisk = IADR15(4)
 c             Do i = 1, lRoots
-c                Call DDafile(JOBIPH,2,Work(ipTemp),nConf,jDisk)
-c                qMax=Abs(DDot_(nConf,Work(ipTemp),1,Work(ipRF),1))
+c                Call DDafile(JOBIPH,2,Temp,nConf,jDisk)
+c                qMax=Abs(DDot_(nConf,Temp,1,RF,1))
 *                Write (6,*) 'qMax=',qMax
 c                If (qMax.gt.rMax .and.
 c    &               qMax.gt.0.5D0) Then
@@ -454,7 +455,7 @@ c                   rMax = qMax
 c                   JPCMROOT=i
 c                End If
 c             End Do
-c             Call Free_Work(ipTemp)
+c             Call mma_deallocate(Temp)
 c          End If
 c       Else
 c          JPCMROOT=IPCMROOT
@@ -471,9 +472,9 @@ c       jDisk = IADR15(4)
 c       Do i=1,IPCMROOT-1
 c         Call DDafile(JOBIPH,0,rdum,nConf,jDisk)
 c       End Do
-c       Call DDafile(JOBIPH,2,Work(ipRF),nConf,jDisk)
-c       Call Put_dArray("RF CASSCF Vector",Work(ipRF),nConf)
-c       Call Free_Work(ipRF)
+c       Call DDafile(JOBIPH,2,RF,nConf,jDisk)
+c       Call Put_dArray("RF CASSCF Vector",RF,nConf)
+c       Call mma_deallocate(RF)
 c     End If
 *
       Return

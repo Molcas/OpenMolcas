@@ -127,6 +127,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     caspt2_data.F90
      csfbas.F90
      gugx.F90
      wadr.F90

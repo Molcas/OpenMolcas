@@ -19,7 +19,8 @@
       SUBROUTINE POLY2(CI)
       use gugx, only: SGS
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: debug
 #endif
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07

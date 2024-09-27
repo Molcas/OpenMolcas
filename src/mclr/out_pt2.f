@@ -14,6 +14,7 @@
 ********************************************************************
       use Arrays, only: CMO
       use ipPage, only: W
+      use Constants, only: Zero, One, Two, Half, Quart
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
@@ -22,7 +23,6 @@
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "stdalloc.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
@@ -741,11 +741,11 @@ c
       Subroutine OITD(rK,isym,D,Dtmp,act)
 *
       use Arrays, only: G1t
+      use Constants, only: Zero, One, Two
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "real.fh"
 #include "sa.fh"
       Real*8 rK(*),D(*),Dtmp(*)
       Logical act
@@ -787,12 +787,12 @@ c
       Return
       End
       Subroutine NatOrb(Dens,CMOO,CMON,OCCN)
+      use Constants, only: Zero, One
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
-#include "real.fh"
       Real*8 Dens(*),CMOO(*),CMON(*),OCCN(*)
       Real*8, Allocatable:: EVal(:), EVec(:)
 

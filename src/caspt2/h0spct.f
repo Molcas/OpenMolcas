@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
-      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb
       use caspt2_output, only:dnmThr,cntThr,cmpThr
+      use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
       USE Para_Info, ONLY: Is_Real_Par

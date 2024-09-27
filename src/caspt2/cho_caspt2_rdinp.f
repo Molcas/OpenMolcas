@@ -19,7 +19,6 @@
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
       Use Cholesky, only: timings
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "print.fh"
       Character(Len=180) KWord, Key, Get_Ln
       External Get_Ln

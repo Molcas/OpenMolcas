@@ -14,8 +14,11 @@
       subroutine xdwinit(Heff,H0,U0)
 
       use definitions, only: wp, iwp, u6
-      use caspt2_output, only: iPrGlb, usual, verbose, debug, insane
+      use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
+      use caspt2_data, only: CMO, CMO_Internal
+      use PrintLevel, only: debug, insane, usual, verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       implicit none
 
@@ -78,9 +81,10 @@
       call getmem('LDAVE','FREE','REAL',LDAVE,NDREF)
 
 * Load CASSCF MO coefficients
-      call getmem('LCMO','ALLO','REAL',LCMO,NCMO)
+      call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       iDisk=IAD1M(1)
-      call ddafile(LUONEM,2,WORK(LCMO),NCMO,iDisk)
+      call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
 * Build the state-average Fock matrix in MO basis
       if (IfChol) then
@@ -88,7 +92,7 @@
         call INTCTL2(.false.)
       else
 * INTCTL1 uses TRAONE and FOCK_RPT2 to get the matrices in MO basis.
-        call INTCTL1(WORK(LCMO))
+        call INTCTL1(CMO)
       end if
 
 * Loop again over all states to compute H0 in the model space
@@ -165,14 +169,13 @@
         end if
       end do
 C
-      If (do_grad) call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+      If (do_grad) call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
 
 * Release all memory
       call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
-      call getmem('LCMO','FREE','REAL',LCMO,NCMO)
+      call mma_deallocate(CMO_Internal)
+      CMO=>Null()
 
-
-      return
-      end
+      end subroutine xdwinit
 

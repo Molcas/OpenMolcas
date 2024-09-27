@@ -152,7 +152,7 @@ do jter=1,iterMx
   end do
 
   Cx(:,:,Iter+1) = Coor(:,:)
-  if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',AtomLbl,nAtom,Coor,3,nAtom)
+  if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,nAtom,Coor,3,nAtom)
 
   ! Compute new values q and the Wilson B-matrix for the new
   ! geometry with the current new set of Cartesian coordinates.

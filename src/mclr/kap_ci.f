@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
       use ipPage, only: W
+      use Constants, only: Two
       Implicit Real*8(a-h,o-z)
 
-#include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"

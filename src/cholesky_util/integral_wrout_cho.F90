@@ -9,21 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This subroutine should be in a module
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
-
 subroutine Integral_WrOut_Cho( &
 #                             define _CALLING_
 #                             include "int_wrout_interface.fh"
                              )
 ! calls the proper routines IndSft/PLF
-! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
-!                  else  integral order within symblk: ijkl
+! if IntOrd_jikl == .true. integral order within symblk: jikl
+!                   else   integral order within symblk: ijkl
 
 use Cholesky, only: IfcSew, nSym
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_wrout_interface.fh"

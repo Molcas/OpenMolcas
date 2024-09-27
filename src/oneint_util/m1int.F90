@@ -30,6 +30,7 @@ subroutine M1Int( &
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -41,8 +42,11 @@ integer(kind=iwp) :: ia, iAnga(4), ib, iDCRT(0:7), ii, iM1xp, ip, ipAInt, ipIn, 
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 character(len=80) :: Label
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 logical(kind=iwp), external :: EQ
-external :: Cff2D, Fake, TNAI, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)

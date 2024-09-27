@@ -12,9 +12,12 @@
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
+      use caspt2_data, only: CMO, CMO_Internal
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
@@ -108,19 +111,21 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL GETMEM('JROOT','FREE','INTE',LJROOT,MXROOT)
 * Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT
-      CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
+      CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       IAD15=IADR15(9)
-      CALL DDAFILE(JOBIPH,2,WORK(LCMO),NCMO,IAD15)
+      CALL DDAFILE(JOBIPH,2,CMO,NCMO,IAD15)
       IAD15=IADR15(9)
-      CALL DDAFILE(JOBMIX,1,WORK(LCMO),NCMO,IAD15)
+      CALL DDAFILE(JOBMIX,1,CMO,NCMO,IAD15)
 * If IFQCAN.EQ.0, there is also an additional CMO set:
       IF(IFQCAN.EQ.0) THEN
         IAD15=IADR15(2)
-        CALL DDAFILE(JOBIPH,2,WORK(LCMO),NCMO,IAD15)
+        CALL DDAFILE(JOBIPH,2,CMO,NCMO,IAD15)
         IAD15=IADR15(2)
-        CALL DDAFILE(JOBMIX,1,WORK(LCMO),NCMO,IAD15)
+        CALL DDAFILE(JOBMIX,1,CMO,NCMO,IAD15)
       END IF
-      CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+      CALL mma_deallocate(CMO_Internal)
+      CMO=>Null()
 * Copy all CI coefficients
       IDR=IADR15(4)
       IDW=IADR15(4)

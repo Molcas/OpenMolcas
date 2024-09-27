@@ -38,7 +38,6 @@
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "orthonormalize.fh"
-#include "WrkSpc.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
@@ -118,9 +117,6 @@ C        ICIRST=1 ! to be activated!
       MAXORBOUT=100
 * Default title line:
       TITLE(1)='(No title given)'
-*
-* assign ipCleanMask to dummy pointer
-      ipCleanMask=ip_Dummy
 *
 * iteration control
 *
@@ -308,7 +304,6 @@ C
       DO I=1,mxOrb
         IXSYM(I)=0
       END DO
-      ICLEAN=0
       PURIFY='NO'
 *
 *     Auxiliary vector ITRI(I)=I*(I-1)/2

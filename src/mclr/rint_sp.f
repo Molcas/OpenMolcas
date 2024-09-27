@@ -11,18 +11,18 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       SubRoutine RInt_SP(rkappa,rmos,rmoa,Focki,Sigma)
-      use Arrays, only: FAMO_SpinP, FAMO_SpinM, SFock,
-     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 *
 *                          ^   ~
 *     Constructs  F  = <0|[Q  ,H]|0>
 *                  pq       pq
 *
+      use Arrays, only: FAMO_SpinP, FAMO_SpinM, SFock,
+     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
+      use Constants, only: Zero, One, Half
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "real.fh"
 #include "stdalloc.fh"
 #include "spin_mclr.fh"
       Real*8 rkappa(nDensC),Sigma(nDensC), Focki(ndens2),rMOs(*),rmoa(*)
@@ -44,7 +44,7 @@
      &            -One,G2mp,One,Fm,
      &            G1m,FAMO_Spinm,
      &            MT1,MT2,Focki)
-*     Call DYAX(ndensc,rbetaA/Two,SCR,1,sigma,1)
+*     Call DYAX(ndensc,rbetaA*Half,SCR,1,sigma,1)
       Call DYAX(ndensc,One,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
 *
@@ -54,7 +54,7 @@
      &            -One,G2mp,One,Fm,
      &            G1m,FAMO_Spinm,
      &            MT1,MT2,Focki)
-*     call daxpy_(ndensc,-rbetaA/Two,SCR,1,sigma,1)
+*     call daxpy_(ndensc,-rbetaA*Half,SCR,1,sigma,1)
       call daxpy_(ndensc,-One,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
 *
@@ -78,7 +78,7 @@
 
       Call AddGrad_sp(rKappa,Scr,SFock,1,One,One)
       Call Recprt(' ',' ',SCR,ndensc,1)
-      call daxpy_(ndensc,rbetaA/Two,SCR,1,sigma,1)
+      call daxpy_(ndensc,rbetaA*Half,SCR,1,sigma,1)
 *
       Call DZAXPY(nmba,One,MT1,1,MT2,1,MT3,1)
       Call PickMO_MCLR(MT3,rmos,1)

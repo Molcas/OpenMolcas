@@ -877,15 +877,13 @@ Keywords
 
 :kword:`IIORder`
   Set the order of the Lebedev grids used in the isotropic integration of transition intensities
-  in association with the :kword:`TINT` option. Default value is 5.
-  Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
+  in association with the :kword:`TINT` option. Default value is 5, the maximum is 131.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="IIORDER" APPEAR="Isotropic integration order" KIND="INT" MIN_VALUE="5" DEFAULT_VALUE="5" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="IIORDER" APPEAR="Isotropic integration order" KIND="INT" MIN_VALUE="3" MAX_VALUE="131" DEFAULT_VALUE="5" LEVEL="ADVANCED">
               %%Keyword: IIORder <advanced>
               <HELP>
               Set the order of the Lebedev grids used in the isotropic integration of transition intensities
-              in association with the TINT option. Default value is 5.
-              Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
+              in association with the TINT option. Default value is 5, the maximum is 131.
               </HELP>
               </KEYWORD>
 

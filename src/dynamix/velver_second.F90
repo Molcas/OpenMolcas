@@ -34,7 +34,8 @@ subroutine VelVer_Second(irc)
 use mh5, only: mh5_put_dset
 use Dynamix_Globals, only: dyn_etot, dyn_vel
 #endif
-use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, INSANE
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO
+use PrintLevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: kBoltzmann, auTokJ, Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -51,9 +52,9 @@ character(len=2), allocatable :: atom(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
-! The parameter conv converts the gradients (Hartree/Bohr) to
-! (i)  forces (Hartree/Bohr)    => -1.0
-! (ii) forces (kJ/mole/Agstrom) => -4961.47525891
+! The parameter conv converts the gradients (hartree/bohr) to
+! (i)  forces (hartree/bohr)     => -1.0
+! (ii) forces (kJ/mole/angstrom) => -4961.47525891
 
 real(kind=wp), parameter :: conv = -One, kb = kBoltzmann/(auTokJ*1.0e3_wp)
 

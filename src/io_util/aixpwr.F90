@@ -123,7 +123,7 @@ function c_pwrite_wrapper(FileDescriptor,Buffer,nBytes,Offset)
 
   integer(kind=iwp) :: c_pwrite_wrapper
   integer(kind=iwp), intent(in) :: FileDescriptor, nBytes, Offset
-  integer(kind=iwp), intent(in), target :: Buffer(*)
+  integer(kind=iwp), target, intent(in) :: Buffer(*)
   interface
     function c_pwrite(FileDescriptor,Buffer,nBytes,Offset) bind(C,name='c_pwrite_')
       use, intrinsic :: iso_c_binding, only: c_ptr

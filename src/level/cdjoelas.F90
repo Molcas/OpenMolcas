@@ -24,8 +24,8 @@ subroutine CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V,WF0,RM2,RCNST)
 !
 !** On entry:   EO    is the eigenvalue (in units [cm-1])
 !               NBEG & NEND  the mesh point range over which the input
-! wavefunction  WF0  (in units 1/sqrt(Ang))  has non-negligible values
-!               BvWn  is the numerical factor (hbar^2/2mu) [cm-1 Ang^2]
+! wavefunction  WF0  (in units 1/sqrt(angstrom))  has non-negligible values
+!               BvWn  is the numerical factor (hbar^2/2mu) [cm-1 angstrom^2]
 !               YH    is the integration stepsize
 !               WARN  is an integer flag: > 0 print internal warnings,
 !               V(i)  is the effective potential (including centrifugal

@@ -22,6 +22,7 @@
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
+      use Constants, only: auTocm, auToeV
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -30,7 +31,6 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-#include "constants.fh"
 #include "stdalloc.fh"
 #include "rassiwfn.fh"
 
@@ -50,7 +50,6 @@
       INTEGER MAGN
       INTEGER MPLET,MPLET1,MPLET2,MSPROJ,MSPROJ1,MSPROJ2
 
-      REAL*8 AU2EV,AU2CM
       REAL*8 AMFIX,AMFIY,AMFIZ
       REAL*8 CG0,CGM,CGP,CGX,CGY
       REAL*8 E,E0,E1,E2,E3,E_TMP,FACT,FRAC,EI,EPSH,EPSS,ERMS,V2SUM
@@ -79,8 +78,6 @@
 
 
 C CONSTANTS:
-      AU2EV=CONV_AU_TO_EV_
-      AU2CM=CONV_AU_TO_CM1_
       lOMG=.False.
       lJ2 =.False.
 
@@ -213,7 +210,7 @@ C  is multiplied by imaginary unit to keep its hermicity
          HSOR=WORK(LHTOTR-1+IJSS)
          HSOI=WORK(LHTOTI-1+IJSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
-         IF(HSOTOT*AU2CM.GT.SOTHR_PRT) N=N+1
+         IF(HSOTOT*auTocm.GT.SOTHR_PRT) N=N+1
         END DO
        END DO
        IF(N.LE.NSOTHR_PRT) GOTO 17
@@ -247,14 +244,14 @@ C  is multiplied by imaginary unit to keep its hermicity
          HSOR=WORK(LHTOTR-1+IJSS)
          HSOI=WORK(LHTOTI-1+IJSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
-         IF(HSOTOT*AU2CM.GE.SOTHR_PRT) THEN
+         IF(HSOTOT*auTocm.GE.SOTHR_PRT) THEN
           JSTATE=IWORK(LMAPST-1+JSS)
           MPLET2=IWORK(LMAPSP-1+JSS)
           MSPROJ2=IWORK(LMAPMS-1+JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
          WRITE(6,'(1X,I5,F5.1,F5.1,I5,F5.1,F5.1,3F14.3)') ISS,S1,SM1,
-     &         JSS,S2,SM2,HSOR*AU2CM,HSOI*AU2CM,HSOTOT*AU2CM
+     &         JSS,S2,SM2,HSOR*auTocm,HSOI*auTocm,HSOTOT*auTocm
          END IF
         END DO
        END DO
@@ -313,7 +310,7 @@ C  is multiplied by imaginary unit to keep its hermicity
         END DO
 
         lcwork = (2*nss-1); info = 0
-        call zheev('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,
+        call zheev_('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,
      &             rwork,info)
 
         if(info /= 0)then
@@ -535,8 +532,8 @@ C910  CONTINUE
        CALL MMA_ALLOCATE(ESO,NSS)
        DO ISS=1,NSS
         E1=ENSOR(ISS)
-        E2=AU2EV*(E1-E0)
-        E3=AU2CM*(E1-E0)
+        E2=auToeV*(E1-E0)
+        E3=auTocm*(E1-E0)
         IF (IFJ2.gt.0) THEN
          XJEFF=SQRT(0.25D0+WORK(LJ2R-1+ISS+NSS*(ISS-1)))-0.5D0
         END IF

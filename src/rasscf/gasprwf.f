@@ -50,7 +50,6 @@
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "gas.fh"
-#include "WrkSpc.fh"
 #include "output_ras.fh"
 C
       DIMENSION ICONF(*),ISPIN(*)

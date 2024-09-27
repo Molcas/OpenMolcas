@@ -56,7 +56,7 @@ if (iErr /= 0) then
   return
 end if
 write(LuOut,*) nAtoms
-write(LuOut,'(A)') 'Angstrom'
+write(LuOut,'(A)') 'angstrom'
 
 ! Some checks
 if (nAtoms == 0) then

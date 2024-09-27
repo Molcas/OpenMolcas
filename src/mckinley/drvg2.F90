@@ -741,10 +741,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         jBasn = min(jBsInc,jBasj-jBasAO+1)
         iAOst(2) = jBasAO-1
         if (lpick .and. (nDij*mDCRij /= 0)) then
-          call Picky(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1, &
-                     DeDe(ipDDij))
-          if (nMethod == RASSCF) call Picky(DeDe2(ipDij2),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO, &
-                                            iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
+          call Picky_inner(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO, &
+                           jBasAO+jBasn-1,DeDe(ipDDij))
+          if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDij2),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO, &
+                                                  iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
         end if
         mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2)+iPrimi*jPrimj+1
         mDij = min(nDij,mDij)
@@ -753,18 +753,18 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
           kBasn = min(kBsInc,kBask-kBasAO+1)
           iAOst(3) = kBasAO-1
           if (lpick .and. (nDik*mDCRik /= 0)) then
-            call Picky(DeDe(ipDik),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO,iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1, &
-                       DeDe(ipDDik))
-            if (nMethod == RASSCF) call Picky(DeDe2(ipDik2),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO, &
-                                              iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
+            call Picky_inner(DeDe(ipDik),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO,iBasAO+iBasn-1,kBasAO, &
+                             kBasAO+kBasn-1,DeDe(ipDDik))
+            if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDik2),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO, &
+                                                    iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
           end if
           mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3)+iPrimi*kPrimk+1
           mDik = min(nDik,mDik)
           if (lpick .and. (nDjk*mDCRjk /= 0)) then
-            call Picky(DeDe(ipDjk),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO,jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1, &
-                       DeDe(ipDDjk))
-            if (nMethod == RASSCF) call Picky(DeDe2(ipDjk2),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO, &
-                                              jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
+            call Picky_inner(DeDe(ipDjk),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO,jBasAO+jBasn-1,kBasAO, &
+                             kBasAO+kBasn-1,DeDe(ipDDjk))
+            if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDjk2),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO, &
+                                                    jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
           end if
           mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3)+jPrimj*kPrimk+1
           mDjk = min(nDjk,mDjk)
@@ -773,26 +773,26 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             lBasn = min(lBsInc,lBasl-lBasAO+1)
             iAOst(4) = lBasAO-1
             if (lpick .and. (nDkl*mDCRkl /= 0)) then
-              call Picky(DeDe(ipDkl),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO,kBasAO+kBasn-1,lBasAO, &
-                         lBasAO+lBasn-1,DeDe(ipDDkl))
-              if (nMethod == RASSCF) call Picky(DeDe2(ipDkl2),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO, &
-                                                kBasAO+kBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
+              call Picky_inner(DeDe(ipDkl),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO,kBasAO+kBasn-1,lBasAO, &
+                               lBasAO+lBasn-1,DeDe(ipDDkl))
+              if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDkl2),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO, &
+                                                      kBasAO+kBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
             end if
             mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4)+kPrimk*lPriml+1
             mDkl = min(nDkl,mDkl)
             if (lpick .and. (nDil*mDCRil /= 0)) then
-              call Picky(DeDe(ipDil),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO,iBasAO+iBasn-1,lBasAO, &
-                         lBasAO+lBasn-1,DeDe(ipDDil))
-              if (nMethod == RASSCF) call Picky(DeDe2(ipDil2),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO, &
-                                                iBasAO+iBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
+              call Picky_inner(DeDe(ipDil),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO,iBasAO+iBasn-1,lBasAO, &
+                               lBasAO+lBasn-1,DeDe(ipDDil))
+              if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDil2),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO, &
+                                                      iBasAO+iBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
             end if
             mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4)+iPrimi*lPriml+1
             mDil = min(nDil,mDil)
             if (lpick .and. (nDjl*mDCRjl /= 0)) then
-              call Picky(DeDe(ipDjl),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO,jBasAO+jBasn-1,lBasAO, &
-                         lBasAO+lBasn-1,DeDe(ipDDjl))
-              if (nMethod == RASSCF) call Picky(DeDe2(ipDjl2),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO, &
-                                                jBasAO+jBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
+              call Picky_inner(DeDe(ipDjl),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO,jBasAO+jBasn-1,lBasAO, &
+                               lBasAO+lBasn-1,DeDe(ipDDjl))
+              if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDjl2),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO, &
+                                                      jBasAO+jBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
             end if
             mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4)+jPrimj*lPriml+1
             mDjl = min(nDjl,mDjl)
@@ -835,8 +835,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum1,Time,dum2,dum3)
             if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
-            if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn, &
-                                  iFnc(2)*jBasn,iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+            if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+                                  iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 

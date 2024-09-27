@@ -18,12 +18,15 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0)
       USE PT2WFN
-      use caspt2_output, only:iPrGlb,usual,verbose
+      use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
+      use caspt2_data, only: CMO, CMO_Internal
+      use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -190,17 +193,19 @@ C This density matrix may be approximated in several ways, see DENS.
       END IF
 
 C Compute natural orbitals of CASPT2 wave function.
-      CALL GETMEM('CMO','ALLO','REAL',LCMO,NCMO)
-      CALL DCOPY_(NCMO,WORK(LCMOPT2),1,WORK(LCMO),1)
+      CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
+      CALL DCOPY_(NCMO,WORK(LCMOPT2),1,CMO,1)
       IF (MODE.EQ.1) THEN
         !! Read the CASSCF orbital (really?)
         IDISK=IAD1M(1)
-        call ddafile(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+        call ddafile(LUONEM,2,CMO,NCMO,IDISK)
       END IF
       CALL GETMEM('CNAT','ALLO','REAL',LCNAT,NCMO)
       CALL GETMEM('OCC','ALLO','REAL',LOCC,NOCC)
-      CALL NATORB_CASPT2(WORK(LDMAT),WORK(LCMO),WORK(LOCC),WORK(LCNAT))
-      CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+      CALL NATORB_CASPT2(WORK(LDMAT),CMO,WORK(LOCC),WORK(LCNAT))
+      CALL mma_deallocate(CMO_Internal)
+      CMO=>Null()
 C Backtransform density matrix to original MO basis before storing
       CALL TRANSFOCK(WORK(LTORB),WORK(LDMAT),-1)
       CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)

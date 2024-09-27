@@ -65,7 +65,7 @@ call RecPrt(' Center of mass of fragments',' ',R,3,2)
 
 Dist = sqrt(Dist)
 
-if (lWrite) write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Dissociation distance=',Dist,'/bohr',Dist*Angstrom,'/Angstrom'
+if (lWrite) write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Dissociation distance=',Dist,'/bohr',Dist*Angstrom,'/angstrom'
 
 ! Compute the B-matrix
 

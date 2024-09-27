@@ -38,9 +38,9 @@
 *                                                                           *
 *****************************************************************************
       use OneDat, only: sNoNuc, sNoOri
+      use Constants, only: Zero
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "real.fh"
 #include "stdalloc.fh"
 *
       CHARACTER(LEN=LENIN8) NAME(*)
@@ -186,7 +186,7 @@
            Call Abend
           Endif
 *         Add diagonal elements that belong to selected atoms
-          selch=zero
+          selch=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -223,7 +223,7 @@
 *     Now sort virtual orbitals
 *     Orbitals with too low population on selected atoms will be deleted
       Do i=1,nb2
-       DPQ(i)=zero
+       DPQ(i)=Zero
       Enddo
       ib=0
       imo0=0
@@ -290,7 +290,7 @@
           Endif
 *         Write(6,*) 'Checksum', isym, ni, chksum
 *         Add diagonal elements that belong to selected atoms
-          selch=zero
+          selch=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np

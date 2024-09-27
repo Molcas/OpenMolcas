@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1995, Roland Lindh                                *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
 subroutine EFInt( &
 #                define _CALLING_
@@ -27,6 +28,7 @@ subroutine EFInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -45,9 +47,12 @@ character(len=80) :: Label
 #endif
 real(kind=wp), pointer :: EFInts(:,:)
 real(kind=wp), parameter :: ThreeI = One/Three
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-external :: Fake, TNAI, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)

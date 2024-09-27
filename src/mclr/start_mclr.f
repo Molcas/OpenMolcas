@@ -23,6 +23,7 @@
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use Arrays, only: CMO_Inv, CMO
+      use transform_procedures, only: SetUp_CASPT2_Tra
       Implicit real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -33,6 +34,7 @@
       character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
+
 *----------------------------------------------------------------------*
 *     start                                                            *
 *----------------------------------------------------------------------*

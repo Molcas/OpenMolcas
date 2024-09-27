@@ -443,7 +443,7 @@ Input example
       2.6458862449704900   -137805.7761879516  
       3.1750634939645880   -134764.6588985511  
       5.2917724899409790   -131360.0872323780  
-    DistUnit = Angstrom
+    DistUnit = angstrom
     EnerUnit = cm-1
     Grid = 450
     Range = 0.4 5.0

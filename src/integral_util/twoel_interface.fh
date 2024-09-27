@@ -1,0 +1,35 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+#ifdef _CALLING_
+
+iS_,jS_,kS_,lS_,Coor,iAnga,iCmp,iShell,iShll,iAO,iAOst,NoInts,iStabs,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
+nData1,nData2,k2Data1,k2Data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl, &
+mDCRjl,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,FckTmp,nFT,nZeta,nEta,SOInt,nSOInt,Wrk,nWork2,Shijij,Aux,nAux &
+
+#else
+
+integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), nAlpha, &
+                                 iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, nData1, nData2, mDij, mDCRij, mDkl, &
+                                 mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, &
+                                 nZeta, nEta, nSOInt, nWork2, nAux
+real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
+                             Djl(mDjl,mDCRjl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
+logical(kind=iwp), intent(out) :: NoInts, IJeqKL
+type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
+integer(kind=iwp), intent(out) :: kOp(4)
+real(kind=wp), intent(inout) :: FckTmp(nFT), SOInt(iBasi*jBasj*kBask*lBasl,nSOInt), Aux(nAux)
+real(kind=wp), intent(out) :: Wrk(nWork2)
+logical(kind=iwp), intent(in) :: Shijij
+
+#endif
+
+#undef _CALLING_

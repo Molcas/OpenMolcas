@@ -17,7 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NEWFOCK(FIFA,CMO)
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: usual
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

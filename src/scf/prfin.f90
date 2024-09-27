@@ -35,6 +35,7 @@
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
+      use NDDO, only: oneel_NDDO
       Implicit None
       Integer nDT,nEO,nCMO
       Real*8 Dens(nDT),TwoHam(nDT),OneHam(nDT),Ovlp(nDT),EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
@@ -42,10 +43,8 @@
       Character(LEN=80) Note
       External EFP_ON
 !
-#include "oneswi.fh"
-!
 !---- Define local variables
-      Integer iCase, i, iBs, iCharge, iCMO, iDumm, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
+      Integer iCase, i, iBs, iCharge, iCMO, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
       Integer, External:: iPrintLevel
       Real*8 EHomo, ELumo, ERelMV, ERelDC
       Character(LEN=60) Fmt
@@ -57,7 +56,6 @@
       Logical Do_ESPF, EFP_On
 !nf
       Character AlphaLabel*30
-      Real*8 Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 
 !
@@ -137,8 +135,8 @@
 !
 !nf
       Call DecideOnESPF(Do_ESPF)
-      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. EFP_On()) .and. .Not.NDDO .and. iCase.eq.0) Then
-!nf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.NDDO .and.
+      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. EFP_On()) .and. .Not.oneel_NDDO .and. iCase.eq.0) Then
+!nf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.oneel_NDDO .and.
          iCharge=Int(Tot_Charge)
          NonEq=.False.
 !        Call Get_PotNuc(PotNuc)
@@ -149,9 +147,7 @@
          First=.True.
          Dff = .False.
          Do_DFT=.False. ! We do not need to redo the DFT!
-         iDumm=1
-         Call DrvXV(RFfld,RFfld,Dens,PotNuc,nBT,First,Dff,NonEq,lRF,KSDFT,ExFac,      &
-                   iCharge,iSpin,Dumm0,Dumm1,iDumm,'SCF ',Do_DFT)
+         Call DrvXV(RFfld,RFfld,Dens,PotNuc,nBT,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
          Call mma_deallocate(RFfld)
 !
 !------- Print multipole analysis of the reaction field contributions

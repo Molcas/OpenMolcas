@@ -43,11 +43,13 @@ subroutine CD_Decomposer(CD_Col,CD_Vec,MxNumCho,Thr,Span,MxQual,ThrNeg,ThrFail,D
 ! CD_Col : external routine for matrix columns
 ! CD_Vec : external routine for Cholesky vectors
 
+use Cho_interfaces, only: cdcol_kernel, cdvec_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-external :: CD_Col, CD_Vec
+procedure(cdcol_kernel) :: CD_Col
+procedure(cdvec_kernel) :: CD_Vec
 integer(kind=iwp), intent(in) :: MxNumCho, MxQual, nDim, lBuf
 real(kind=wp), intent(in) :: Thr, Span, ThrNeg, ThrFail
 real(kind=wp), intent(inout) :: Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)

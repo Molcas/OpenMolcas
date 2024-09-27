@@ -13,6 +13,9 @@
 
 module mck_interface
 
+use Index_Functions, only: nTri_Elem1
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
@@ -21,8 +24,7 @@ abstract interface
 #                           define _CALLING_
 #                           include "grd_mck_interface.fh"
                            )
-    use Index_Functions, only: nTri_Elem1
-    use Definitions, only: wp, iwp
+    import :: nTri_Elem1, wp, iwp
 #   include "grd_mck_interface.fh"
   end subroutine grd_mck_kernel
 
@@ -30,8 +32,7 @@ abstract interface
 #                       define _CALLING_
 #                       include "hss_interface.fh"
                        )
-    use Index_Functions, only: nTri_Elem1
-    use Definitions, only: wp, iwp
+    import :: nTri_Elem1, wp, iwp
 #   include "hss_interface.fh"
   end subroutine hss_kernel
 
@@ -39,7 +40,7 @@ abstract interface
 #                             define _CALLING_
 #                             include "1el_mck_interface.fh"
                              )
-    use Definitions, only: wp, iwp
+    import :: wp, iwp
 #   include "1el_mck_interface.fh"
   end subroutine oneel_mck_kernel
 
@@ -47,8 +48,7 @@ abstract interface
 #                                define _CALLING_
 #                                include "1eldot_mck_interface.fh"
                                 )
-    use Index_Functions, only: nTri_Elem1
-    use Definitions, only: wp, iwp
+    import :: nTri_Elem1, wp, iwp
 #   include "1eldot_mck_interface.fh"
   end subroutine oneeldot_mck_kernel
 
@@ -56,7 +56,7 @@ abstract interface
 #                    define _CALLING_
 #                    include "mem_interface.fh"
                     )
-    use Definitions, only: iwp
+    import :: iwp
 #   include "mem_interface.fh"
   end subroutine mck_mem
 end interface

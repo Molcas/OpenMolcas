@@ -35,7 +35,7 @@ C***********************************************************************C
       use Center_Info
       use rassi_aux, only: ipglob
       use Symmetry_Info, only: nIrrep
-      use Disp
+      use Disp, only: IndDsp
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "Molcas.fh"

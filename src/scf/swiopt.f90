@@ -22,9 +22,9 @@
       use InfSCF, only: DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
       use Files, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, &
                        LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
+      use NDDO, only: twoel_NDDO
       use Constants, only: One
       Implicit None
-#include "twoswi.fh"
 !
 !     declaration of subroutine parameter...
       Logical AllCnt
@@ -38,7 +38,7 @@
       Integer iComp, iD, iOpt, iRC, lOper
       Real*8, External:: Get_ThrInt
 !
-      If (AllCnt .AND. NDDO) Then
+      If (AllCnt .AND. twoel_NDDO) Then
         nIterP=1
 !       read full overlap matrix from ONEINT file
         Label='Mltpl  0'
@@ -68,7 +68,7 @@
         DltNTh=DNTh_o
         Call xSet_ThrInt(ThrInt_o)
 !       set twoel to AllCnt...
-        NDDO=.FALSE.
+        twoel_NDDO=.FALSE.
 !       close and reopen some DA files...
         Call DaClos(LuDSt)
         Call DaClos(LuOSt)
@@ -124,7 +124,7 @@
 !       DltNTh=DltNTh*1.0D+04
 !       Call xSet_ThrInt(ThrInt_o*1.0D+04)
 !       set twoel to OneCnt...
-        NDDO=.TRUE.
+        twoel_NDDO=.TRUE.
       End If
 !
       Return

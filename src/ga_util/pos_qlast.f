@@ -14,7 +14,6 @@
       Integer iWR(2)
       Real*8 Dummy(1)
       Logical Copy,NoCopy
-#include "real.fh"
 #include "SysDef.fh"
 
       Data Copy/.True./, NoCopy/.False./

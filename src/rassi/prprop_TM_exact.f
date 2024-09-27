@@ -15,7 +15,7 @@
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
       USE RASSI_AUX
       USE kVectors
-      USE do_grid, only: Do_Lebedev_Sym
+      USE do_grid, only: Do_Lebedev
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
 #endif
@@ -23,6 +23,7 @@
 #ifndef POINTER_REMAP
       USE ISO_C_Binding
 #endif
+      use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
       parameter (THRSH=1.0D-10)
@@ -33,7 +34,6 @@
 #include "cntrl.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-#include "constants.fh"
 #include "stdalloc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP),JBNUM(NSTATE),
      &          EigVec(NSTATE,NSTATE)
@@ -80,16 +80,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      DEBYE=CONV_AU_TO_DEBYE_
-      AU2REDR=2.0D2*DEBYE
+      AU2REDR=2.0D2*Debye
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
       ! 1/c^3 (in a.u. of time ^ -1)
-      AFACTOR = 2.0D0/CONST_C_IN_AU_**3
-     &          /CONST_AU_TIME_IN_SI_
+      AFACTOR = 2.0D0/c_in_au**3/(auTofs*1.0D-15)
       HALF=0.5D0
-      PI= CONST_PI_
-      SPEED_OF_LIGHT=CONST_C_IN_AU_
-      G_Elec=CONST_ELECTRON_G_FACTOR_
 
 *define _TIME_TMOM_
 #ifdef _TIME_TMOM_
@@ -211,7 +206,8 @@ C printing threshold
          If (.Not.(PRRAW.Or.PRWEIGHT)) kPhase(2) = 0.0D0
       Else
          Call Setup_O()
-         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+         Call Do_Lebedev(L_Eff,nQuad,Rquad,4)
+         Rquad(4,:) = 0.5D0*Rquad(4,:)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
@@ -448,13 +444,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=ABS(EDIFF_)/SPEED_OF_LIGHT
+            rkNorm=ABS(EDIFF_)/c_in_au
 *
 *           For the case the energy difference is negative we
 *           need to change the sign of the B.s term to get
 *           consistency.
 *
-            cst=SIGN(Half,EDIFF_)*g_Elec
+            cst=SIGN(Half,EDIFF_)*gElectron
 *
 *           Iterate over the quadrature points.
 *
@@ -477,7 +473,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              4*pi over the solid angles.
 *
                Weight=Rquad(4,iQuad)
-               If (.Not.Do_SK) Weight = Weight/(4.0D0*PI)
+               If (.Not.Do_SK) Weight = Weight/(4.0D0*Pi)
 *
 *              Generate the polarization vector
 *
@@ -796,7 +792,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
                    TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
                    TM_2 = 2.0D0*kPhase(kp)*DDot_(3,TM_C,1,UK,1)
-                   R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
+                   R_Temp=0.75D0*c_in_au/EDIFF**2*TM_2
                    R_Temp=R_Temp*AU2REDR
 *
 *              Save the raw oscillator and rotatory strengths in a given direction
