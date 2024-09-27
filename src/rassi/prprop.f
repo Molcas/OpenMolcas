@@ -33,7 +33,6 @@
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character(LEN=1) xyzchr(3)
@@ -120,6 +119,8 @@
       Real*8, allocatable, Target:: MYR(:,:), MYI(:,:)
       Real*8, allocatable, Target:: MZR(:,:), MZI(:,:)
       Real*8, allocatable, Target:: UZR(:,:), UZI(:,:)
+
+      Real*8, allocatable:: MAGM(:)
 
 
       AU2J=auTokJ*1.0D3
@@ -2934,7 +2935,7 @@ C initialization same as G-tensor, construct L+gS matrix elements
       WRITE(6,'(2x,f6.2,a3,f6.2,a4,i4,a6)')
      & TSTART," - ",TFINAL," in ",NTSTEP," steps"
 
-      CALL GETMEM('MAGM','ALLO','REAL',LMAGM,9*NBSTEP*NTSTEP)
+      CALL mma_allocate(MAGM,9*NBSTEP*NTSTEP,Label='MAGM')
 
       LMSTEP=0
 
@@ -3008,9 +3009,9 @@ C initialization same as G-tensor, construct L+gS matrix elements
          RMAGMO=SQRT(RMAGM2)
          DO JXYZ=1,3
           LMSTEP=LMSTEP+1
-          WORK(LMAGM-1+LMSTEP)=RMAGM(JXYZ)
+          MAGM(LMSTEP)=RMAGM(JXYZ)
           IF(IBSTEP.GT.1) THEN
-              Chi(JXYZ)=RMAGM(JXYZ)-WORK(LMAGM-1+LMSTEP-3*NTSTEP)
+              Chi(JXYZ)=RMAGM(JXYZ)-MAGM(LMSTEP-3*NTSTEP)
               Chi(JXYZ)=Chi(JXYZ)*Rmu0/BINCRE
           ENDIF
          ENDDO
@@ -3025,7 +3026,7 @@ C initialization same as G-tensor, construct L+gS matrix elements
        ENDDO
       ENDDO
 
-      CALL GETMEM('MAGM','FREE','REAL',LMAGM,9*NBSTEP*NTSTEP)
+      CALL mma_deallocate(MAGM)
 
       WRITE(6,*)
 
@@ -3040,8 +3041,8 @@ C powder magnetization, useful in nonlinear cases
      & "    B  (T)  ","   M (J/T)  ",
      & "  Mx (J/T)  ","  My (J/T)  ","  Mz (J/T)  "
 
-      CALL GETMEM('MAGM','ALLO','REAL',LMAGM,3*NBSTEP*NTSTEP)
-      CALL DCOPY_(3*NBSTEP*NTSTEP,[0.0D0],0,WORK(LMAGM),1)
+      CALL mma_allocate(MAGM,3*NBSTEP*NTSTEP,Label='MAGM')
+      MAGM(:)=0.0D0
 
       NPHISTEP=INT(360.0D0/BANGRES)
       NTHESTEP=INT(180.0D0/BANGRES)
@@ -3123,7 +3124,7 @@ C backtransformation in two steps, -phi and -theta
          RMAGM(3)=B*COS(THE)+A*SIN(THE)
          DO IXYZ=1,3
           LMSTEP=LMSTEP+1
-          WORK(LMAGM-1+LMSTEP)=WORK(LMAGM-1+LMSTEP)+RMAGM(IXYZ)
+          MAGM(LMSTEP)=MAGM(LMSTEP)+RMAGM(IXYZ)
          ENDDO
         ENDDO
        ENDDO
@@ -3139,7 +3140,7 @@ C backtransformation in two steps, -phi and -theta
         T=TSTART+TINCRE*(ITSTEP-1)
         DO IXYZ=1,3
         LMSTEP=LMSTEP+1
-          RMAGM(IXYZ)=WORK(LMAGM-1+LMSTEP)/NORIENT
+          RMAGM(IXYZ)=MAGM(LMSTEP)/NORIENT
         ENDDO
         RMAGM2=RMAGM(1)*RMAGM(1)+RMAGM(2)*RMAGM(2)+RMAGM(3)*RMAGM(3)
         RMAGMO=SQRT(RMAGM2)
@@ -3148,7 +3149,7 @@ C backtransformation in two steps, -phi and -theta
        ENDDO
       ENDDO
 
-      CALL GETMEM('MAGM','FREE','REAL',LMAGM,3*NBSTEP*NTSTEP)
+      CALL mma_deallocate(MAGM)
 
  810  CONTINUE
 
