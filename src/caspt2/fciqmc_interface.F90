@@ -52,8 +52,8 @@ contains
     !>  @param[inout]  g1        dense redundant 1RDM
     !>  @param[in]     iroot     CASSCF root number
     subroutine load_fciqmc_g1(g1, iroot, nLev)
-        real(wp), intent(inout) :: g1(nLev, nLev)
         integer(iwp), intent(in) :: iroot, nLev
+        real(wp), intent(inout) :: g1(nLev, nLev)
 
 #ifdef _HDF5_
         call user_barrier()  ! copy required files into WorkDir
@@ -124,10 +124,10 @@ contains
     !>  @param[out]    f3        sparse contraction of Fockian with 4RDM
     !>  @param[in]     idxG3     Table containing the active space indices
     subroutine mkfg3fciqmc(g1, g2, g3, f1, f2, f3, idxG3, nLev)
+        integer(iwp), intent(in) :: nLev
         real(wp), intent(inout) :: g1(nLev, nLev), g2(nLev, nLev, nLev, nLev), g3(*), &
                                    f1(nLev, nLev), f2(nLev, nLev, nLev, nLev), f3(*)
         integer(1), intent(in) :: idxG3(6, *)
-        integer(iwp), intent(in) :: nLev
 
 #ifdef _HDF5_
         call load_fciqmc_mats(idxG3, g3, g2, g1, &
@@ -158,10 +158,10 @@ contains
     !>  @param[in]     f1         contracted Fock matrix with 2RDM
     !>  @param[in]     iroot      MCSCF root number.
     subroutine load_fciqmc_mats(idxG3, g3, g2, g1, f3, f2, f1, iroot, nLev)
+        integer(iwp), intent(in) :: iroot, nLev
         integer(1), intent(in) :: idxG3(6, nG3)
         real(wp), intent(inout) :: g3(*), g2(nLev, nLev, nLev, nLev), g1(nLev, nLev), &
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
-        integer(iwp), intent(in) :: iroot, nLev
         real(wp) :: f3_temp(nLev, nLev, nLev, nLev, nLev, nLev), &
                     g3_temp(nLev, nLev, nLev, nLev, nLev, nLev)
         integer(iwp) :: t, u, v, x, y, z, i
@@ -351,9 +351,10 @@ contains
     end subroutine broadcast_filename
 
     subroutine load_six_tensor(tensor, dataset, iroot, nLev)
+        integer(iwp), intent(in) :: iroot, nLev
         real(wp), intent(inout) :: tensor(nLev, nLev, nLev, nLev, nLev, nLev)
         character(len=*), intent(in) :: dataset
-        integer(iwp), intent(in) :: iroot, nLev
+#ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
@@ -435,11 +436,9 @@ contains
                 array(y, z, v, x, t, u) = val
             end subroutine apply_6fold_symmetry
     end subroutine load_six_tensor
+#endif
 
     subroutine user_barrier()
-#ifdef NAGFOR
-        use f90_unix_proc, only: sleep
-#endif
 #ifdef _MOLCAS_MPP_
         integer(MPIInt) :: error
         integer(MPIInt), parameter :: ROOT = 0_MPIInt
@@ -466,7 +465,7 @@ contains
         write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
 
         do while(.not. proceed_found)
-            call sleep(1)
+            call sleepf(1)
             if (myrank == 0) call f_Inquire('PROCEED', proceed_found)
 #ifdef _MOLCAS_MPP_
             if (is_real_par()) then
