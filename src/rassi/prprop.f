@@ -73,7 +73,7 @@
       Real*8, allocatable:: MDXR(:,:), MDXI(:,:),
      &                      MDYR(:,:), MDYI(:,:),
      &                      MDZR(:,:), MDZI(:,:)
-! Quadrupole
+! Electric-Quadrupole
       Real*8, allocatable:: QXXR(:,:), QXXI(:,:),
      &                      QXYR(:,:), QXYI(:,:),
      &                      QXZR(:,:), QXZI(:,:),
@@ -1362,24 +1362,6 @@ C printing threshold
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - velocity gauge
 
-        IPRQXX=0
-        IPRQXY=0
-        IPRQXZ=0
-        IPRQYY=0
-        IPRQYZ=0
-        IPRQZZ=0
-        IFANYQ=0
-        DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPV  2') THEN
-           IFANYQ=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRQXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRQXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRQXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRQYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRQYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRQZZ=ISOPR
-          END IF
-        END DO
 
 ! Electric dipole (linear momentum, p)
          Call Allocate_and_Load_velocities()
@@ -1393,57 +1375,8 @@ C printing threshold
          Call Allocate_and_Load_Spin_Magnetic_Dipoles()
 
 ! Electric quadrupole (r:p+p:r)
-         IF (IFANYQ.NE.0) THEN
-          CALL GETMEM('QXXR','ALLO','REAL',LQXXR,NSS**2)
-          CALL GETMEM('QXXI','ALLO','REAL',LQXXI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXI),1)
-          CALL GETMEM('QXYR','ALLO','REAL',LQXYR,NSS**2)
-          CALL GETMEM('QXYI','ALLO','REAL',LQXYI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYI),1)
-          CALL GETMEM('QXZR','ALLO','REAL',LQXZR,NSS**2)
-          CALL GETMEM('QXZI','ALLO','REAL',LQXZI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZI),1)
-          CALL GETMEM('QYYR','ALLO','REAL',LQYYR,NSS**2)
-          CALL GETMEM('QYYI','ALLO','REAL',LQYYI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYI),1)
-          CALL GETMEM('QYZR','ALLO','REAL',LQYZR,NSS**2)
-          CALL GETMEM('QYZI','ALLO','REAL',LQYZI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZI),1)
-          CALL GETMEM('QZZR','ALLO','REAL',LQZZR,NSS**2)
-          CALL GETMEM('QZZI','ALLO','REAL',LQZZI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZI),1)
 
-          IF(IPRQXX.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQXXR),NSS,IPRQXX,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXXR),WORK(LQXXI))
-          END IF
-          IF(IPRQXY.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQXYR),NSS,IPRQXY,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXYR),WORK(LQXYI))
-          END IF
-          IF(IPRQXZ.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQXZR),NSS,IPRQXZ,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXZR),WORK(LQXZI))
-          END IF
-          IF(IPRQYY.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQYYR),NSS,IPRQYY,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYYR),WORK(LQYYI))
-          END IF
-          IF(IPRQYZ.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQYZR),NSS,IPRQYZ,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYZR),WORK(LQYZI))
-          END IF
-          IF(IPRQZZ.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQZZR),NSS,IPRQZZ,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQZZR),WORK(LQZZI))
-          END IF
-         END IF
+         Call Allocate_and_Load_Electric_Quadrupoles()
 !
 ! Only print the part calculated
 !
@@ -1531,18 +1464,18 @@ C printing threshold
 *
             IF (IFANYQ.NE.0) THEN
 !            Note r:p+p:r = -i*hbar * (r:nabla+nabla:r)
-             Q_XXR=WORK(LQXXI-1+IJSS)
-             Q_XYR=WORK(LQXYI-1+IJSS)
-             Q_XZR=WORK(LQXZI-1+IJSS)
-             Q_YYR=WORK(LQYYI-1+IJSS)
-             Q_YZR=WORK(LQYZI-1+IJSS)
-             Q_ZZR=WORK(LQZZI-1+IJSS)
-             Q_XXI=-WORK(LQXXR-1+IJSS)
-             Q_XYI=-WORK(LQXYR-1+IJSS)
-             Q_XZI=-WORK(LQXZR-1+IJSS)
-             Q_YYI=-WORK(LQYYR-1+IJSS)
-             Q_YZI=-WORK(LQYZR-1+IJSS)
-             Q_ZZI=-WORK(LQZZR-1+IJSS)
+             Q_XXR= QXXI(JSS,ISS)
+             Q_XYR= QXYI(JSS,ISS)
+             Q_XZR= QXZI(JSS,ISS)
+             Q_YYR= QYYI(JSS,ISS)
+             Q_YZR= QYZI(JSS,ISS)
+             Q_ZZR= QZZI(JSS,ISS)
+             Q_XXI=-QXXR(JSS,ISS)
+             Q_XYI=-QXYR(JSS,ISS)
+             Q_XZI=-QXZR(JSS,ISS)
+             Q_YYI=-QYYR(JSS,ISS)
+             Q_YZI=-QYZR(JSS,ISS)
+             Q_ZZI=-QZZR(JSS,ISS)
              RXY=D_XR*D_MYR+D_XI*D_MYI
              RXZ=D_XR*D_MZR+D_XI*D_MZI
              RYX=D_YR*D_MXR+D_YI*D_MXI
@@ -1607,21 +1540,7 @@ C printing threshold
 
          Call Deallocate_Spin_Magnetic_Dipoles()
 
-
-         IF (IFANYQ.NE.0) THEN
-          CALL GETMEM('QXXR','FREE','REAL',LQXXR,NSS**2)
-          CALL GETMEM('QXXI','FREE','REAL',LQXXI,NSS**2)
-          CALL GETMEM('QXYR','FREE','REAL',LQXYR,NSS**2)
-          CALL GETMEM('QXYI','FREE','REAL',LQXYI,NSS**2)
-          CALL GETMEM('QXZR','FREE','REAL',LQXZR,NSS**2)
-          CALL GETMEM('QXZI','FREE','REAL',LQXZI,NSS**2)
-          CALL GETMEM('QYYR','FREE','REAL',LQYYR,NSS**2)
-          CALL GETMEM('QYYI','FREE','REAL',LQYYI,NSS**2)
-          CALL GETMEM('QYZR','FREE','REAL',LQYZR,NSS**2)
-          CALL GETMEM('QYZI','FREE','REAL',LQYZI,NSS**2)
-          CALL GETMEM('QZZR','FREE','REAL',LQZZR,NSS**2)
-          CALL GETMEM('QZZI','FREE','REAL',LQZZI,NSS**2)
-         END IF
+         Call Deallocate_Electric_Quadrupoles()
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - velocity gauge '//
@@ -1635,15 +1554,7 @@ C printing threshold
         IPRDYS=0
         IPRDZS=0
 
-        IPRQXX=0
-        IPRQXY=0
-        IPRQXZ=0
-        IPRQYY=0
-        IPRQYZ=0
-        IPRQZZ=0
-
         IFANYS=0
-        IFANYQ=0
         DO ISOPR=1,NSOPR
           IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
@@ -1651,14 +1562,6 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.1) IPRDXS=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRDYS=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRDZS=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
-           IFANYQ=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRQXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRQXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRQXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRQYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRQYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRQZZ=ISOPR
           END IF
         END DO
 
@@ -1673,57 +1576,7 @@ C printing threshold
          Call Allocate_and_Load_Spin_Magnetic_Dipoles()
 
 ! Electric quadrupole (r:r)
-         IF (IFANYQ.NE.0) THEN
-          CALL GETMEM('QXXR','ALLO','REAL',LQXXR,NSS**2)
-          CALL GETMEM('QXXI','ALLO','REAL',LQXXI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXXI),1)
-          CALL GETMEM('QXYR','ALLO','REAL',LQXYR,NSS**2)
-          CALL GETMEM('QXYI','ALLO','REAL',LQXYI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXYI),1)
-          CALL GETMEM('QXZR','ALLO','REAL',LQXZR,NSS**2)
-          CALL GETMEM('QXZI','ALLO','REAL',LQXZI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQXZI),1)
-          CALL GETMEM('QYYR','ALLO','REAL',LQYYR,NSS**2)
-          CALL GETMEM('QYYI','ALLO','REAL',LQYYI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYYI),1)
-          CALL GETMEM('QYZR','ALLO','REAL',LQYZR,NSS**2)
-          CALL GETMEM('QYZI','ALLO','REAL',LQYZI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQYZI),1)
-          CALL GETMEM('QZZR','ALLO','REAL',LQZZR,NSS**2)
-          CALL GETMEM('QZZI','ALLO','REAL',LQZZI,NSS**2)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZR),1)
-          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LQZZI),1)
-
-          IF(IPRQXX.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQXXR),NSS,IPRQXX,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXXR),WORK(LQXXI))
-          END IF
-          IF(IPRQXY.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQXYR),NSS,IPRQXY,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXYR),WORK(LQXYI))
-          END IF
-          IF(IPRQXZ.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQXZR),NSS,IPRQXZ,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQXZR),WORK(LQXZI))
-          END IF
-          IF(IPRQYY.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQYYR),NSS,IPRQYY,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYYR),WORK(LQYYI))
-          END IF
-          IF(IPRQYZ.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQYZR),NSS,IPRQYZ,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQYZR),WORK(LQYZI))
-          END IF
-          IF(IPRQZZ.GT.0) THEN
-           CALL SMMAT(PROP,WORK(LQZZR),NSS,IPRQZZ,0)
-           CALL ZTRNSF(NSS,USOR,USOI,WORK(LQZZR),WORK(LQZZI))
-          END IF
-         END IF
+         Call Allocate_and_Load_Electric_Quadrupoles()
 !
 ! Only print the part calculated
 !
@@ -1810,18 +1663,18 @@ C printing threshold
 * (see Hansen and Bak, 10.1021/jp001899+)
 *
             IF (IFANYQ.NE.0) THEN
-             Q_XXR=WORK(LQXXR-1+IJSS)
-             Q_XYR=WORK(LQXYR-1+IJSS)
-             Q_XZR=WORK(LQXZR-1+IJSS)
-             Q_YYR=WORK(LQYYR-1+IJSS)
-             Q_YZR=WORK(LQYZR-1+IJSS)
-             Q_ZZR=WORK(LQZZR-1+IJSS)
-             Q_XXI=WORK(LQXXI-1+IJSS)
-             Q_XYI=WORK(LQXYI-1+IJSS)
-             Q_XZI=WORK(LQXZI-1+IJSS)
-             Q_YYI=WORK(LQYYI-1+IJSS)
-             Q_YZI=WORK(LQYZI-1+IJSS)
-             Q_ZZI=WORK(LQZZI-1+IJSS)
+             Q_XXR=QXXR(JSS,ISS)
+             Q_XYR=QXYR(JSS,ISS)
+             Q_XZR=QXZR(JSS,ISS)
+             Q_YYR=QYYR(JSS,ISS)
+             Q_YZR=QYZR(JSS,ISS)
+             Q_ZZR=QZZR(JSS,ISS)
+             Q_XXI=QXXI(JSS,ISS)
+             Q_XYI=QXYI(JSS,ISS)
+             Q_XZI=QXZI(JSS,ISS)
+             Q_YYI=QYYI(JSS,ISS)
+             Q_YZI=QYZI(JSS,ISS)
+             Q_ZZI=QZZI(JSS,ISS)
              RXY=D_XR*D_MYR+D_XI*D_MYI
              RXZ=D_XR*D_MZR+D_XI*D_MZI
              RYX=D_YR*D_MXR+D_YI*D_MXI
@@ -1877,20 +1730,7 @@ C printing threshold
 
          Call Deallocate_Spin_Magnetic_Dipoles()
 
-         IF (IFANYQ.NE.0) THEN
-          CALL GETMEM('QXXR','FREE','REAL',LQXXR,NSS**2)
-          CALL GETMEM('QXXI','FREE','REAL',LQXXI,NSS**2)
-          CALL GETMEM('QXYR','FREE','REAL',LQXYR,NSS**2)
-          CALL GETMEM('QXYI','FREE','REAL',LQXYI,NSS**2)
-          CALL GETMEM('QXZR','FREE','REAL',LQXZR,NSS**2)
-          CALL GETMEM('QXZI','FREE','REAL',LQXZI,NSS**2)
-          CALL GETMEM('QYYR','FREE','REAL',LQYYR,NSS**2)
-          CALL GETMEM('QYYI','FREE','REAL',LQYYI,NSS**2)
-          CALL GETMEM('QYZR','FREE','REAL',LQYZR,NSS**2)
-          CALL GETMEM('QYZI','FREE','REAL',LQYZI,NSS**2)
-          CALL GETMEM('QZZR','FREE','REAL',LQZZR,NSS**2)
-          CALL GETMEM('QZZI','FREE','REAL',LQZZI,NSS**2)
-         END IF
+         Call Deallocate_Electric_Quadrupoles()
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - mixed gauge '//
@@ -3668,10 +3508,10 @@ C backtransformation in two steps, -phi and -theta
          IPRDYZ=0
          IPRDZZ=0
 
-         IFANYD=0
+         IFANYQ=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
-            IFANYD=1
+            IFANYQ=1
             IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
             IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
