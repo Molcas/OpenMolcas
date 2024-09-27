@@ -2226,9 +2226,9 @@ C and the eigenvectors of G = gg+ by back transformation
       Call mma_allocate(LXI,NSS,NSS,Label='LXI')
       LXI(:,:)=0.0D0
       Call mma_allocate(LYI,NSS,NSS,Label='LYI')
-      LXI(:,:)=0.0D0
+      LYI(:,:)=0.0D0
       Call mma_allocate(LZI,NSS,NSS,Label='LZI')
-      LXI(:,:)=0.0D0
+      LZI(:,:)=0.0D0
 
       IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,0)
       IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
@@ -2313,15 +2313,7 @@ C and the eigenvectors of G = gg+ by back transformation
 *        counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
 
       IMLTPL=1
-      DO ISTATE=1,NSTATE
-       DO IXYZ=1,3
-        DO J=1,2
-         DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
+      ZEKL(:,:,:,:)=CMPLX(0.0d0,0.0d0,kind=8)
 
       DO ISTATE=1,NSTATE
 
@@ -2403,14 +2395,8 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 *     In the end, the outer division by 2 cancels on both sides, and the
 *     inner divisions by two combine to a division by 4.
 
-      DO ISTATE=1,NSTATE
-       DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
-       ENDDO
-      ENDDO
-      DO IJXYZ=1,9
-       GTOTAL(IJXYZ)=0.0d0
-      ENDDO
+      GCONT(:,:)=CMPLX(0.0d0,0.0d0,kind=8)
+      GTOTAL(:)=0.0d0
 
       DO ISTATE=1,NSTATE
        DO IXYZ=1,3
@@ -2466,14 +2452,8 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
        ENDDO
       ENDDO
 
-        do I=1,NSS
-         do J=1,NSS
-          do L=1,3
-       DIPSOm(L,I,J)=(0.0d0,0.0d0)
-       DIPSOn(L,I,J)=(0.0d0,0.0d0)
-          enddo
-         enddo
-       enddo
+       DIPSOm(:,:,:)=(0.0d0,0.0d0)
+       DIPSOn(:,:,:)=(0.0d0,0.0d0)
 
 
 *     Continue original calculation of G tensor (=gg^*)
@@ -2850,9 +2830,9 @@ C initialization same as G-tensor, construct L+gS matrix elements
       Call mma_allocate(LXI,NSS,NSS,Label='LXI')
       LXI(:,:)=0.0D0
       Call mma_allocate(LYI,NSS,NSS,Label='LYI')
-      LXI(:,:)=0.0D0
+      LYI(:,:)=0.0D0
       Call mma_allocate(LZI,NSS,NSS,Label='LZI')
-      LXI(:,:)=0.0D0
+      LZI(:,:)=0.0D0
 
       IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,0)
       IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
@@ -4043,7 +4023,6 @@ C actual multiplication
       DIMENSION UR(N,N),UI(N,N)
       DIMENSION AR(N,N),AI(N,N)
       COMPLEX*16 ZEKL(2,2,3,NSTATE)
-#include "WrkSpc.fh"
 
       TMPR1=AR(ISS,JSS)*UR(JSS,1)-AI(ISS,JSS)*UI(JSS,1)
       TMPR2=AR(ISS,JSS)*UR(JSS,2)-AI(ISS,JSS)*UI(JSS,2)
