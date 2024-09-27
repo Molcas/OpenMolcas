@@ -2238,19 +2238,19 @@ C and the eigenvectors of G = gg+ by back transformation
       Call mma_allocate(ZXR,NSS,NSS,Label='ZXR')
       Call mma_allocate(ZXI,NSS,NSS,Label='ZXI')
       ZXR(:,:)=0.0D0
-      ZXR(:,:)=0.0D0
+      ZXI(:,:)=0.0D0
       pZMR(1)%A2=>ZXR(:,:)
       pZMI(1)%A2=>ZXI(:,:)
       Call mma_allocate(ZYR,NSS,NSS,Label='ZYR')
       Call mma_allocate(ZYI,NSS,NSS,Label='ZYI')
       ZYR(:,:)=0.0D0
-      ZYR(:,:)=0.0D0
+      ZYI(:,:)=0.0D0
       pZMR(2)%A2=>ZYR(:,:)
       pZMI(2)%A2=>ZYI(:,:)
       Call mma_allocate(ZZR,NSS,NSS,Label='ZZR')
       Call mma_allocate(ZZI,NSS,NSS,Label='ZZI')
       ZZR(:,:)=0.0D0
-      ZZR(:,:)=0.0D0
+      ZZI(:,:)=0.0D0
       pZMR(3)%A2=>ZZR(:,:)
       pZMI(3)%A2=>ZZI(:,:)
 
@@ -2709,8 +2709,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        IJSO=ISO+NSS*(JSO-1)
-        JISO=JSO+NSS*(ISO-1)
         CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
