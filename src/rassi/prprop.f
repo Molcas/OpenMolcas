@@ -74,12 +74,12 @@
      &                      MDYR(:,:), MDYI(:,:),
      &                      MDZR(:,:), MDZI(:,:)
 ! Quadrupole
-      Real*8, allocatable:: DXXR(:,:), DXXI(:,:),
-     &                      DXYR(:,:), DXYI(:,:),
-     &                      DXZR(:,:), DXZI(:,:),
-     &                      DYYR(:,:), DYYI(:,:),
-     &                      DYZR(:,:), DYZI(:,:),
-     &                      DZZR(:,:), DZZI(:,:)
+      Real*8, allocatable:: QXXR(:,:), QXXI(:,:),
+     &                      QXYR(:,:), QXYI(:,:),
+     &                      QXZR(:,:), QXZI(:,:),
+     &                      QYYR(:,:), QYYI(:,:),
+     &                      QYZR(:,:), QYZI(:,:),
+     &                      QZZR(:,:), QZZI(:,:)
 ! Magnetic-Quadrupole
       Real*8, allocatable:: MQZXR(:,:), MQZXI(:,:),
      &                      MQXZR(:,:), MQXZI(:,:),
@@ -1023,26 +1023,26 @@ C printing threshold
             EDIFF3=EDIFF**3
             IJSS=JSS+NSS*(ISS-1)
 
-            DXX2=DXXR(JSS,ISS)**2+DXXI(JSS,ISS)**2
-            DYY2=DYYR(JSS,ISS)**2+DYYI(JSS,ISS)**2
-            DZZ2=DZZR(JSS,ISS)**2+DZZI(JSS,ISS)**2
+            DXX2=QXXR(JSS,ISS)**2+QXXI(JSS,ISS)**2
+            DYY2=QYYR(JSS,ISS)**2+QYYI(JSS,ISS)**2
+            DZZ2=QZZR(JSS,ISS)**2+QZZI(JSS,ISS)**2
             FXX=ONEOVER30C*EDIFF3*(DXX2)
             FYY=ONEOVER30C*EDIFF3*(DYY2)
             FZZ=ONEOVER30C*EDIFF3*(DZZ2)
 
-            DXY2=DXYR(JSS,ISS)**2+DXYI(JSS,ISS)**2
-            DXZ2=DXZR(JSS,ISS)**2+DXZI(JSS,ISS)**2
-            DYZ2=DYZR(JSS,ISS)**2+DYZI(JSS,ISS)**2
+            DXY2=QXYR(JSS,ISS)**2+QXYI(JSS,ISS)**2
+            DXZ2=QXZR(JSS,ISS)**2+QXZI(JSS,ISS)**2
+            DYZ2=QYZR(JSS,ISS)**2+QYZI(JSS,ISS)**2
             FXY=ONEOVER10C*EDIFF3*(DXY2)
             FXZ=ONEOVER10C*EDIFF3*(DXZ2)
             FYZ=ONEOVER10C*EDIFF3*(DYZ2)
 
-            DXXDYY=DXXR(JSS,ISS)*DYYR(JSS,ISS)
-     &            +DXXI(JSS,ISS)*DYYI(JSS,ISS)
-            DXXDZZ=DXXR(JSS,ISS)*DZZR(JSS,ISS)
-     &            +DXXI(JSS,ISS)*DZZI(JSS,ISS)
-            DYYDZZ=DYYR(JSS,ISS)*DZZR(JSS,ISS)
-     &            +DYYI(JSS,ISS)*DZZI(JSS,ISS)
+            DXXDYY=QXXR(JSS,ISS)*QYYR(JSS,ISS)
+     &            +QXXI(JSS,ISS)*QYYI(JSS,ISS)
+            DXXDZZ=QXXR(JSS,ISS)*QZZR(JSS,ISS)
+     &            +QXXI(JSS,ISS)*QZZI(JSS,ISS)
+            DYYDZZ=QYYR(JSS,ISS)*QZZR(JSS,ISS)
+     &            +QYYI(JSS,ISS)*QZZI(JSS,ISS)
             FXXFYY=-ONEOVER30C*EDIFF3*(DXXDYY)
             FXXFZZ=-ONEOVER30C*EDIFF3*(DXXDZZ)
             FYYFZZ=-ONEOVER30C*EDIFF3*(DYYDZZ)
@@ -3680,69 +3680,69 @@ C backtransformation in two steps, -phi and -theta
             IF(ISOCMP(ISOPR).EQ.6) IPRDZZ=ISOPR
            END IF
          END DO
-         CALL mma_allocate(DXXR,NSS,NSS,Label='DXXR')
-         CALL mma_allocate(DXXI,NSS,NSS,Label='DXXI')
-         CALL mma_allocate(DXYR,NSS,NSS,Label='DXYR')
-         CALL mma_allocate(DXYI,NSS,NSS,Label='DXYI')
-         CALL mma_allocate(DXZR,NSS,NSS,Label='DXZR')
-         CALL mma_allocate(DXZI,NSS,NSS,Label='DXZI')
-         CALL mma_allocate(DYYR,NSS,NSS,Label='DYYR')
-         CALL mma_allocate(DYYI,NSS,NSS,Label='DYYI')
-         CALL mma_allocate(DYZR,NSS,NSS,Label='DYZR')
-         CALL mma_allocate(DYZI,NSS,NSS,Label='DYZI')
-         CALL mma_allocate(DZZR,NSS,NSS,Label='DZZR')
-         CALL mma_allocate(DZZI,NSS,NSS,Label='DZZI')
-         DXXR(:,:)=0.0D0
-         DXXI(:,:)=0.0D0
-         DXYR(:,:)=0.0D0
-         DXYI(:,:)=0.0D0
-         DXZR(:,:)=0.0D0
-         DXZI(:,:)=0.0D0
-         DYYR(:,:)=0.0D0
-         DYYI(:,:)=0.0D0
-         DYZR(:,:)=0.0D0
-         DYZI(:,:)=0.0D0
-         DZZR(:,:)=0.0D0
-         DZZI(:,:)=0.0D0
+         CALL mma_allocate(QXXR,NSS,NSS,Label='QXXR')
+         CALL mma_allocate(QXXI,NSS,NSS,Label='DXXI')
+         CALL mma_allocate(QXYR,NSS,NSS,Label='DXYR')
+         CALL mma_allocate(QXYI,NSS,NSS,Label='DXYI')
+         CALL mma_allocate(QXZR,NSS,NSS,Label='DXZR')
+         CALL mma_allocate(QXZI,NSS,NSS,Label='DXZI')
+         CALL mma_allocate(QYYR,NSS,NSS,Label='DYYR')
+         CALL mma_allocate(QYYI,NSS,NSS,Label='DYYI')
+         CALL mma_allocate(QYZR,NSS,NSS,Label='DYZR')
+         CALL mma_allocate(QYZI,NSS,NSS,Label='DYZI')
+         CALL mma_allocate(QZZR,NSS,NSS,Label='DZZR')
+         CALL mma_allocate(QZZI,NSS,NSS,Label='DZZI')
+         QXXR(:,:)=0.0D0
+         QXXI(:,:)=0.0D0
+         QXYR(:,:)=0.0D0
+         QXYI(:,:)=0.0D0
+         QXZR(:,:)=0.0D0
+         QXZI(:,:)=0.0D0
+         QYYR(:,:)=0.0D0
+         QYYI(:,:)=0.0D0
+         QYZR(:,:)=0.0D0
+         QYZI(:,:)=0.0D0
+         QZZR(:,:)=0.0D0
+         QZZI(:,:)=0.0D0
          IF(IPRDXX.GT.0) THEN
-          CALL SMMAT(PROP,DXXR,NSS,IPRDXX,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXXR,DXXI)
+          CALL SMMAT(PROP,QXXR,NSS,IPRDXX,0)
+          CALL ZTRNSF(NSS,USOR,USOI,QXXR,QXXI)
          END IF
          IF(IPRDXY.GT.0) THEN
-          CALL SMMAT(PROP,DXYR,NSS,IPRDXY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXYR,DXYI)
+          CALL SMMAT(PROP,QXYR,NSS,IPRDXY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,QXYR,QXYI)
          END IF
          IF(IPRDXZ.GT.0) THEN
-          CALL SMMAT(PROP,DXZR,NSS,IPRDXZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DXZR,DXZI)
+          CALL SMMAT(PROP,QXZR,NSS,IPRDXZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,QXZR,QXZI)
          END IF
          IF(IPRDYY.GT.0) THEN
-          CALL SMMAT(PROP,DYYR,NSS,IPRDYY,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DYYR,DYYI)
+          CALL SMMAT(PROP,QYYR,NSS,IPRDYY,0)
+          CALL ZTRNSF(NSS,USOR,USOI,QYYR,QYYI)
          END IF
          IF(IPRDYZ.GT.0) THEN
-          CALL SMMAT(PROP,DYZR,NSS,IPRDYZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DYZR,DYZI)
+          CALL SMMAT(PROP,QYZR,NSS,IPRDYZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,QYZR,QYZI)
          END IF
          IF(IPRDZZ.GT.0) THEN
-          CALL SMMAT(PROP,DZZR,NSS,IPRDZZ,0)
-          CALL ZTRNSF(NSS,USOR,USOI,DZZR,DZZI)
+          CALL SMMAT(PROP,QZZR,NSS,IPRDZZ,0)
+          CALL ZTRNSF(NSS,USOR,USOI,QZZR,QZZI)
          END IF
       End Subroutine Allocate_and_Load_Electric_Quadrupoles
 
       Subroutine Deallocate_Electric_Quadrupoles()
-         CALL mma_deallocate(DXXR)
-         CALL mma_deallocate(DXXI)
-         CALL mma_deallocate(DXYR)
-         CALL mma_deallocate(DXYI)
-         CALL mma_deallocate(DXZR)
-         CALL mma_deallocate(DXZI)
-         CALL mma_deallocate(DYYR)
-         CALL mma_deallocate(DYYI)
-         CALL mma_deallocate(DYZR)
-         CALL mma_deallocate(DYZI)
-         CALL mma_deallocate(DZZR)
-         CALL mma_deallocate(DZZI)
+         CALL mma_deallocate(QXXR)
+         CALL mma_deallocate(QXXI)
+         CALL mma_deallocate(QXYR)
+         CALL mma_deallocate(QXYI)
+         CALL mma_deallocate(QXZR)
+         CALL mma_deallocate(QXZI)
+         CALL mma_deallocate(QYYR)
+         CALL mma_deallocate(QYYI)
+         CALL mma_deallocate(QYZR)
+         CALL mma_deallocate(QYZI)
+         CALL mma_deallocate(QZZR)
+         CALL mma_deallocate(QZZI)
       End Subroutine Deallocate_Electric_Quadrupoles
 
       Subroutine Allocate_and_Load_Magnetic_Quadrupoles()
