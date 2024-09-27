@@ -435,6 +435,11 @@ contains
                 array(y, z, t, u, v, x) = val
                 array(y, z, v, x, t, u) = val
             end subroutine apply_6fold_symmetry
+#else
+        unused_var(tensor)
+        unused_var(dataset)
+        unused_var(iroot)
+        unused_var(nLev)
 #endif
     end subroutine load_six_tensor
 
@@ -518,7 +523,10 @@ contains
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
-
+#else
+        unused_var(fock_matrix)
+        unused_var(fock_eigenvectors)
+        unused_var(nLev)
 #endif
     end subroutine load_fockmat
 
