@@ -107,6 +107,8 @@
      &                      SZXR(:,:), SZXI(:,:), SXZR(:,:), SXZI(:,:)
 
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
+      Real*8, Allocatable:: LXI(:,:), LYI(:,:), LZI(:,:)
+      Real*8, Allocatable:: ZR(:,:), ZI(:,:)
 
 
       AU2J=auTokJ*1.0D3
@@ -2232,16 +2234,16 @@ C and the eigenvectors of G = gg+ by back transformation
        END IF
       END DO
 
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
+      Call mma_allocate(LXI,NSS,NSS,Label='LXI')
+      LXI(:,:)=0.0D0
+      Call mma_allocate(LYI,NSS,NSS,Label='LYI')
+      LXI(:,:)=0.0D0
+      Call mma_allocate(LZI,NSS,NSS,Label='LZI')
+      LXI(:,:)=0.0D0
 
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
+      IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,0)
+      IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
+      IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,0)
 
 * PAM09 -- This code appears to be unused:
 *      CALL GETMEM('LXR','ALLO','REAL',LLXR,NSS**2)
@@ -2280,13 +2282,13 @@ C and the eigenvectors of G = gg+ by back transformation
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LZYI),1)
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LZZR),1)
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LZXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LZYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LZZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LZXI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LZYI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LZZI),1)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
+      Call mma_deallocate(LXI)
+      Call mma_deallocate(LYI)
+      Call mma_deallocate(LZI)
 
 *     SVC 20090926 Experimental
 *     Add analysis of different contributions
@@ -2861,16 +2863,16 @@ C initialization same as G-tensor, construct L+gS matrix elements
        END IF
       END DO
 
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
+      Call mma_allocate(LXI,NSS,NSS,Label='LXI')
+      LXI(:,:)=0.0D0
+      Call mma_allocate(LYI,NSS,NSS,Label='LYI')
+      LXI(:,:)=0.0D0
+      Call mma_allocate(LZI,NSS,NSS,Label='LZI')
+      LXI(:,:)=0.0D0
 
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
+      IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,0)
+      IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
+      IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,0)
 
       CALL GETMEM('MXR','ALLO','REAL',LMXR,NSS**2)
       CALL GETMEM('MXI','ALLO','REAL',LMXI,NSS**2)
@@ -2901,13 +2903,13 @@ C initialization same as G-tensor, construct L+gS matrix elements
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LMYI),1)
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LMZR),1)
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LMXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LMYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LMZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LMXI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LMYI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LMZI),1)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
+      Call mma_deallocate(LXI)
+      Call mma_deallocate(LYI)
+      Call mma_deallocate(LZI)
 
       CALL ZTRNSF(NSS,USOR,USOI,WORK(LMXR),WORK(LMXI))
       CALL ZTRNSF(NSS,USOR,USOI,WORK(LMYR),WORK(LMYI))
@@ -2927,8 +2929,8 @@ C initialization same as G-tensor, construct L+gS matrix elements
       IZMR(3)=LZZR
       IZMI(3)=LZZI
 
-      CALL GETMEM('LZR','ALLO','REAL',LZR,NSS**2)
-      CALL GETMEM('LZI','ALLO','REAL',LZI,NSS**2)
+      Call mma_allocate(ZR,NSS,NSS,Label='ZR')
+      Call mma_allocate(ZI,NSS,NSS,Label='ZI')
       CALL GETMEM('UZR','ALLO','REAL',LUZR,NSS**2)
       CALL GETMEM('UZI','ALLO','REAL',LUZI,NSS**2)
 
@@ -2960,10 +2962,10 @@ C initialization same as G-tensor, construct L+gS matrix elements
 
        DO IBSTEP=1,NBSTEP
         B=BSTART+BINCRE*(IBSTEP-1)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMR(IXYZ)),1,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMI(IXYZ)),1,WORK(LZI),1)
+        ZR(:,:)=0.0D0
+        ZI(:,:)=0.0D0
+        CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMR(IXYZ)),1,ZR,1)
+        CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMI(IXYZ)),1,ZI,1)
         DO ISS=1,NSS
          IISS=ISS+NSS*(ISS-1)
          HZER=WORK(LZR-1+IISS)
@@ -2972,7 +2974,7 @@ C initialization same as G-tensor, construct L+gS matrix elements
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZR),1)
         CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUZR),NSS+1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZI),1)
-        CALL ZJAC(NSS,WORK(LZR),WORK(LZI),NSS,WORK(LUZR),WORK(LUZI))
+        CALL ZJAC(NSS,ZR,ZI,NSS,WORK(LUZR),WORK(LUZI))
         DO JXYZ=1,3
          CALL DCOPY_(NSS**2,WORK(IMR(JXYZ)),1,WORK(IZMR(JXYZ)),1)
          CALL DCOPY_(NSS**2,WORK(IMI(JXYZ)),1,WORK(IZMI(JXYZ)),1)
@@ -3081,13 +3083,13 @@ C scale number of points on phi via sin(theta)
         BY=B*SIN(THE)*SIN(PHI)
         BZ=B*COS(THE)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*BX/auToT,WORK(LMXR),1,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*BY/auToT,WORK(LMYR),1,WORK(LZR),1)
-        CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,WORK(LMZR),1,WORK(LZR),1)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*BX/auToT,WORK(LMXI),1,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*BY/auToT,WORK(LMYI),1,WORK(LZI),1)
-        CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,WORK(LMZI),1,WORK(LZI),1)
+        CALL DAXPY_(NSS**2,0.5D0*BX/auToT,WORK(LMXR),1,ZR,1)
+        CALL DAXPY_(NSS**2,0.5D0*BY/auToT,WORK(LMYR),1,ZR,1)
+        CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,WORK(LMZR),1,ZR,1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,ZI,1)
+        CALL DAXPY_(NSS**2,0.5D0*BX/auToT,WORK(LMXI),1,ZI,1)
+        CALL DAXPY_(NSS**2,0.5D0*BY/auToT,WORK(LMYI),1,ZI,1)
+        CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,WORK(LMZI),1,ZI,1)
         DO ISS=1,NSS
          IISS=ISS+NSS*(ISS-1)
          HZER=WORK(LZR-1+IISS)
@@ -3096,7 +3098,7 @@ C scale number of points on phi via sin(theta)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZR),1)
         CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUZR),NSS+1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZI),1)
-        CALL ZJAC(NSS,WORK(LZR),WORK(LZI),NSS,WORK(LUZR),WORK(LUZI))
+        CALL ZJAC(NSS,ZR,ZI,NSS,WORK(LUZR),WORK(LUZI))
         DO IXYZ=1,3
          CALL DCOPY_(NSS**2,WORK(IMR(IXYZ)),1,WORK(IZMR(IXYZ)),1)
          CALL DCOPY_(NSS**2,WORK(IMI(IXYZ)),1,WORK(IZMI(IXYZ)),1)
@@ -3168,8 +3170,8 @@ C backtransformation in two steps, -phi and -theta
 
       WRITE(6,*)
 
-      CALL GETMEM('LZR','FREE','REAL',LZR,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LZI,NSS**2)
+      Call mma_deallocate(ZR)
+      Call mma_deallocate(ZI)
       CALL GETMEM('UZR','FREE','REAL',LUZR,NSS**2)
       CALL GETMEM('UZI','FREE','REAL',LUZI,NSS**2)
 
