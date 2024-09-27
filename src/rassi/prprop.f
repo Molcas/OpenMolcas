@@ -37,7 +37,7 @@
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character(LEN=1) xyzchr(3)
-      Integer IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
+      Integer IPAMFI(3),IPAM(3)
       Real*8 DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
       Real*8 TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
@@ -109,6 +109,14 @@
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
       Real*8, Allocatable:: LXI(:,:), LYI(:,:), LZI(:,:)
       Real*8, Allocatable:: ZR(:,:), ZI(:,:)
+      Type A2_Array
+           Real*8, Pointer:: A2(:,:)
+      End Type A2_Array
+      Type (A2_array):: pZMR(3), pZMI(3)
+      Real*8, allocatable, Target:: ZXR(:,:), ZXI(:,:)
+      Real*8, allocatable, Target:: ZYR(:,:), ZYI(:,:)
+      Real*8, allocatable, Target:: ZZR(:,:), ZZI(:,:)
+      Integer IZMR(3), IZMI(3)
 
 
       AU2J=auTokJ*1.0D3
@@ -2245,46 +2253,37 @@ C and the eigenvectors of G = gg+ by back transformation
       IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
       IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,0)
 
-* PAM09 -- This code appears to be unused:
-*      CALL GETMEM('LXR','ALLO','REAL',LLXR,NSS**2)
-*      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXR),1)
-*      CALL GETMEM('LYR','ALLO','REAL',LLYR,NSS**2)
-*      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYR),1)
-*      CALL GETMEM('LZR','ALLO','REAL',LLZR,NSS**2)
-*      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZR),1)
-*------------------------
 
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
+      Call mma_allocate(ZXR,NSS,NSS,Label='ZXR')
+      Call mma_allocate(ZXI,NSS,NSS,Label='ZXI')
+      ZXR(:,:)=0.0D0
+      ZXR(:,:)=0.0D0
+      pZMR(1)%A2=>ZXR(:,:)
+      pZMI(1)%A2=>ZXI(:,:)
+      Call mma_allocate(ZYR,NSS,NSS,Label='ZYR')
+      Call mma_allocate(ZYI,NSS,NSS,Label='ZYI')
+      ZYR(:,:)=0.0D0
+      ZYR(:,:)=0.0D0
+      pZMR(2)%A2=>ZYR(:,:)
+      pZMI(2)%A2=>ZYI(:,:)
+      Call mma_allocate(ZZR,NSS,NSS,Label='ZZR')
+      Call mma_allocate(ZZI,NSS,NSS,Label='ZZI')
+      ZZR(:,:)=0.0D0
+      ZZR(:,:)=0.0D0
+      pZMR(3)%A2=>ZZR(:,:)
+      pZMI(3)%A2=>ZZI(:,:)
 
+      CALL SMMAT(PROP,ZXR,NSS,0,1)
+      CALL SMMAT(PROP,ZYI,NSS,0,2)
+      CALL SMMAT(PROP,ZZR,NSS,0,3)
 
-      CALL SMMAT(PROP,WORK(LZXR),NSS,0,1)
-      CALL SMMAT(PROP,WORK(LZYI),NSS,0,2)
-      CALL SMMAT(PROP,WORK(LZZR),NSS,0,3)
+      CALL DSCAL_(NSS**2,FEGVAL,ZXR,1)
+      CALL DSCAL_(NSS**2,FEGVAL,ZYI,1)
+      CALL DSCAL_(NSS**2,FEGVAL,ZZR,1)
 
-      CALL DSCAL_(NSS**2,FEGVAL,WORK(LZXR),1)
-      CALL DSCAL_(NSS**2,FEGVAL,WORK(LZYI),1)
-      CALL DSCAL_(NSS**2,FEGVAL,WORK(LZZR),1)
-
-      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LZXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LZYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LZZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,ZXI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,ZYI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,ZZI,1)
 
       Call mma_deallocate(LXI)
       Call mma_deallocate(LYI)
@@ -2356,10 +2355,10 @@ C and the eigenvectors of G = gg+ by back transformation
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
 C     &                    ZEKL(:,:,IXYZ,ISTATE)
@@ -2375,17 +2374,17 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
@@ -2498,24 +2497,24 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
 *     Continue original calculation of G tensor (=gg^*)
       CALL get_dArray( 'ESO_SINGLE',ESO,NSS)
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZXR),WORK(LZXI))
-      CALL MULMAT(NSS,WORK(LZXR),WORK(LZXI),eex,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
+      CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOm(1,ISS,JSS)=0.5d0*Z(ISS,JSS)
       DIPSOn(1,ISS,JSS)=-Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZYR),WORK(LZYI))
-      CALL MULMAT(NSS,WORK(LZYR),WORK(LZYI),eey,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
+      CALL MULMAT(NSS,ZYR,ZYI,eey,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOm(2,ISS,JSS)=0.5d0*Z(ISS,JSS)
       DIPSOn(2,ISS,JSS)=-Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZZR),WORK(LZZI))
-      CALL MULMAT(NSS,WORK(LZZR),WORK(LZZI),eez,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
+      CALL MULMAT(NSS,ZZR,ZZI,eez,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOm(3,ISS,JSS)=0.5d0*Z(ISS,JSS)
@@ -2731,8 +2730,8 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
         DO JSO=ISS,JSS
         IJSO=ISO+NSS*(JSO-1)
         JISO=JSO+NSS*(ISO-1)
-        CONTRIB=WORK(IZMR(IXYZ)-1+IJSO)*WORK(IZMR(JXYZ)-1+JISO)
-     &          -WORK(IZMI(IXYZ)-1+IJSO)*WORK(IZMI(JXYZ)-1+JISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+     &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
        END DO
@@ -2800,12 +2799,18 @@ C square root of the G eigenvalues
 
       ENDDO
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call mma_deallocate(ZXR)
+      Call mma_deallocate(ZXI)
+      Call mma_deallocate(ZYR)
+      Call mma_deallocate(ZYI)
+      Call mma_deallocate(ZZR)
+      Call mma_deallocate(ZZI)
+      pZMR(1)%A2=>NUll()
+      pZMI(1)%A2=>NUll()
+      pZMR(2)%A2=>NUll()
+      pZMI(2)%A2=>NUll()
+      pZMR(3)%A2=>NUll()
+      pZMI(3)%A2=>NUll()
 
  800  CONTINUE
 
