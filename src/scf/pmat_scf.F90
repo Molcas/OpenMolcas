@@ -40,6 +40,7 @@ use RICD_Info, only: Do_DCCD
 use SCF_Arrays, only: Dens, EDFT, FockAO, OneHam, TwoHam, Vxc
 use Int_Options, only: Exfac_Int => ExFac, FckNoClmb, PreSch_Int => PreSch, Thize_Int => Thize
 use rctfld_module, only: lRF
+use Integral_interfaces, only: Drv2El_dscf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -57,14 +58,6 @@ real(kind=wp), allocatable, target :: Aux(:,:), Temp(:,:)
 real(kind=wp), pointer :: pTwoHam(:,:)
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EFP_On
-interface
-  subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: nDens, nDisc
-    real(kind=wp), target, intent(inout) :: Dens(nDens), TwoHam(nDens)
-    logical(kind=iwp), intent(inout) :: FstItr
-  end subroutine Drv2El_dscf
-end interface
 
 nDT = size(OneHam)
 if (PmTime) call CWTime(xCPM1,xWPM1)

@@ -49,6 +49,7 @@ subroutine SOrUpV(V,lvec,W,Mode,UpTp)
 !***********************************************************************
 
 use LnkLst, only: GetNod, iVPtr, LLDelt, LLdGrd, LLLen, LLy, LstPtr, PutVec, SCF_V
+use Interfaces_SCF, only: yHx
 use InfSO, only: IterSO
 use InfSCF, only: Iter, TimFld
 use SCF_Arrays, only: HDiag
@@ -68,13 +69,6 @@ character(len=8) :: Mode_Old = ''
 real(kind=wp), allocatable :: SOGrd(:), SODel(:), SOScr(:)
 real(kind=wp), parameter :: Thr = 1.0e-9_wp
 real(kind=wp), external :: ddot_
-interface
-  subroutine yHx(X,Y,nXY)
-    import :: wp, iwp
-    integer(kind=iwp) :: nXY
-    real(kind=wp), target :: X(nXY), Y(nXY)
-  end subroutine yHx
-end interface
 
 if (DDot_(lVec,V,1,V,1) == Zero) then
   W(:) = Zero

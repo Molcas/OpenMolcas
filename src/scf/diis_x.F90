@@ -35,6 +35,7 @@ use InfSO, only: Energy, IterSO
 use InfSCF, only: AccCon, C1DIIS, Iter, Iter_Start, kOptim, kOV, mOV, TimFld
 use MxDM, only: MxOptm
 use LnkLst, only: LLx
+use Interfaces_SCF, only: OptClc_X
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 #ifdef _NEW_
@@ -57,14 +58,6 @@ character(len=80) :: Frmt, Text
 real(kind=wp), allocatable :: Bij(:,:), Err1(:), Err2(:), EValue(:), EVector(:,:), Scratch(:) !, Err3(:), Err4(:)
 real(kind=wp), parameter :: delta = 1.0e-4_wp, delta_E = 1.0e-4_wp, Fact_Decline = 15.0_wp, ThrCff = Ten
 real(kind=wp), external :: DDot_
-interface
-  subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,kOptim,kOV,LL,DD)
-    import :: wp, iwp
-    integer(kind=iwp) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
-    real(kind=wp) :: CInter(nCI,nD), Array(mOV)
-    real(kind=wp), optional :: DD
-  end subroutine OptClc_X
-end interface
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

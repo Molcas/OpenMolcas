@@ -13,6 +13,11 @@
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 !***********************************************************************
 !                                                                      *
@@ -46,7 +51,6 @@ use IOBUF, only: lBuf
 use Gateway_Info, only: CutInt, ThrInt
 use RICD_Info, only: Do_DCCD
 use iSD_data, only: iSD
-use Integral_Interfaces, only: DeDe_SCF, Int_PostProcess, int_wrout
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, Exfac, FckNoClmb, FckNoExch, Quad_ijkl, Thize, W2Disc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Eight, Half

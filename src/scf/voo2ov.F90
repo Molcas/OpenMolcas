@@ -24,13 +24,6 @@ implicit none
 integer(kind=iwp) :: nOO, mOV, nD, kOV(nD)
 real(kind=wp) :: v1(nOO,nD), v2(mOV)
 integer(kind=iwp) :: iD, iEnd, iSt
-interface
-  subroutine vOO2OV_inner(v1,n1,v2,n2,iD)
-    import :: wp, iwp
-    integer(kind=iwp) :: n1, n2, iD
-    real(kind=wp), target :: v1(n1), v2(n2)
-  end subroutine vOO2OV_inner
-end interface
 
 iEnd = 0
 v2(:) = Zero

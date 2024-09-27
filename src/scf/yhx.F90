@@ -11,6 +11,9 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 !#define _DEBUGPRINT_
 subroutine yHx(X,Y,nXY)
 !***********************************************************************
@@ -115,3 +118,11 @@ call RecPrt('yHx: Y',' ',Y,1,size(Y))
 #endif
 
 end subroutine yHx
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(yHx)
+
+#endif

@@ -13,6 +13,7 @@
 !***********************************************************************
 
 #include "compiler_features.h"
+#ifdef _IN_MODULE_
 
 !#define _DEBUGPRINT_
 subroutine vOO2OV_inner(v1,n1,v2,n2,iD)
@@ -178,3 +179,11 @@ end do
 return
 
 end subroutine vOO2OV_inner
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(vOO2OV_inner)
+
+#endif

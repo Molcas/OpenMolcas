@@ -12,19 +12,12 @@
 subroutine OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,kOptim,kOV)
 
 use LnkLst, only: LLGrad, LLx
+use Interfaces_SCF, only: OptClc_X
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2)
 real(kind=wp) :: CInter(nCI,nD), Grd1(mOV), Xnp1(mOV)
-interface
-  subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,kOptim,kOV,LL,DD)
-    import :: wp, iwp
-    integer(kind=iwp) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
-    real(kind=wp) :: CInter(nCI,nD), Array(mOV)
-    real(kind=wp), optional :: DD
-  end subroutine OptClc_X
-end interface
 
 call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
 call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)

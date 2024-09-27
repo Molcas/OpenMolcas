@@ -11,10 +11,19 @@
 
 module Interfaces_SCF
 
+! Dummy modules to get correct order of compilation
+use ChoSCF, only:
+use InfSCF, only:
+use LnkLst, only:
+use MxDM, only:
+use OccSets, only:
+use Orb_Type, only:
+use SCF_Arrays, only:
+
 implicit none
 private
 
-public :: dOne_SCF, MinDns, OccDef, PMat_SCF, TraClc_i, vOO2OV
+public :: dOne_SCF, MinDns, OccDef, OptClc_X, PMat_SCF, TraClc_i, vOO2OV, yHx
 
 contains
 
@@ -23,8 +32,11 @@ contains
 #include "done_scf.F90"
 #include "mindns.F90"
 #include "occdef.F90"
+#include "optclc_x.F90"
 #include "pmat_scf.F90"
 #include "traclc_i.F90"
 #include "voo2ov.F90"
+#include "voo2ov_inner.F90"
+#include "yhx.F90"
 
 end module Interfaces_SCF
