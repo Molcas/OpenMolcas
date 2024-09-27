@@ -264,7 +264,7 @@ c You don't have to be beautiful to turn me on
 * Fock matrices
 * TRACTL(0) computes transformed 2-body MO integrals
       if (IfChol) then
-          call TRACHO3(WORK(LCMO))
+          call TRACHO3(CMO)
       else
           if (.not. DoFCIQMC) call TRACTL(0)
       end if
