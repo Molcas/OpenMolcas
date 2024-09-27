@@ -116,9 +116,9 @@
       Real*8, allocatable, Target:: ZXR(:,:), ZXI(:,:)
       Real*8, allocatable, Target:: ZYR(:,:), ZYI(:,:)
       Real*8, allocatable, Target:: ZZR(:,:), ZZI(:,:)
-      Real*8, allocatable, Target:: MXR(:,:), MXI(:,:)
-      Real*8, allocatable, Target:: MYR(:,:), MYI(:,:)
-      Real*8, allocatable, Target:: MZR(:,:), MZI(:,:)
+      Real*8, allocatable:: MXR(:,:), MXI(:,:)
+      Real*8, allocatable:: MYR(:,:), MYI(:,:)
+      Real*8, allocatable:: MZR(:,:), MZI(:,:)
       Integer IZMR(3), IZMI(3)
 
 
@@ -2899,19 +2899,24 @@ C initialization same as G-tensor, construct L+gS matrix elements
       CALL ZTRNSF(NSS,USOR,USOI,MYR,MYI)
       CALL ZTRNSF(NSS,USOR,USOI,MZR,MZI)
 
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
+      Call mma_allocate(ZXR,NSS,NSS,Label='ZXR')
+      Call mma_allocate(ZXI,NSS,NSS,Label='ZXI')
+      ZXR(:,:)=0.0D0
+      ZXR(:,:)=0.0D0
+      pZMR(1)%A2=>ZXR(:,:)
+      pZMI(1)%A2=>ZXI(:,:)
+      Call mma_allocate(ZYR,NSS,NSS,Label='ZYR')
+      Call mma_allocate(ZYI,NSS,NSS,Label='ZYI')
+      ZYR(:,:)=0.0D0
+      ZYR(:,:)=0.0D0
+      pZMR(2)%A2=>ZYR(:,:)
+      pZMI(2)%A2=>ZYI(:,:)
+      Call mma_allocate(ZZR,NSS,NSS,Label='ZZR')
+      Call mma_allocate(ZZI,NSS,NSS,Label='ZZI')
+      ZZR(:,:)=0.0D0
+      ZZR(:,:)=0.0D0
+      pZMR(3)%A2=>ZZR(:,:)
+      pZMI(3)%A2=>ZZI(:,:)
 
       Call mma_allocate(ZR,NSS,NSS,Label='ZR')
       Call mma_allocate(ZI,NSS,NSS,Label='ZI')
@@ -2951,21 +2956,20 @@ C initialization same as G-tensor, construct L+gS matrix elements
         CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMR(IXYZ)),1,ZR,1)
         CALL DAXPY_(NSS**2,0.5D0*B/auToT,WORK(IMI(IXYZ)),1,ZI,1)
         DO ISS=1,NSS
-         IISS=ISS+NSS*(ISS-1)
-         HZER=WORK(LZR-1+IISS)
-         WORK(LZR-1+IISS)=HZER+ENSOR(ISS)
+         HZER=ZR(ISS,ISS)
+         ZR(ISS,ISS)=HZER+ENSOR(ISS)
         END DO
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZR),1)
         CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUZR),NSS+1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZI),1)
         CALL ZJAC(NSS,ZR,ZI,NSS,WORK(LUZR),WORK(LUZI))
         DO JXYZ=1,3
-         CALL DCOPY_(NSS**2,WORK(IMR(JXYZ)),1,WORK(IZMR(JXYZ)),1)
-         CALL DCOPY_(NSS**2,WORK(IMI(JXYZ)),1,WORK(IZMI(JXYZ)),1)
-         CALL DSCAL_(NSS**2,-0.5D0,WORK(IZMR(JXYZ)),1)
-         CALL DSCAL_(NSS**2,-0.5D0,WORK(IZMI(JXYZ)),1)
+         CALL DCOPY_(NSS**2,WORK(IMR(JXYZ)),1,pZMR(JXYZ)%A2,1)
+         CALL DCOPY_(NSS**2,WORK(IMI(JXYZ)),1,pZMI(JXYZ)%A2,1)
+         CALL DSCAL_(NSS**2,-0.5D0,pZMR(JXYZ)%A2,1)
+         CALL DSCAL_(NSS**2,-0.5D0,pZMI(JXYZ)%A2,1)
          CALL ZTRNSF(NSS,WORK(LUZR),WORK(LUZI),
-     &    WORK(IZMR(JXYZ)),WORK(IZMI(JXYZ)))
+     &               pZMR(JXYZ)%A2,pZMI(JXYZ)%A2)
         ENDDO
         DO ITSTEP=1,NTSTEP
          T=TSTART+TINCRE*(ITSTEP-1)
@@ -2981,18 +2985,18 @@ C initialization same as G-tensor, construct L+gS matrix elements
           WRITE(6,*)
          ENDIF
          DO ISS=1,NSS
-          IISS=ISS+NSS*(ISS-1)
-          DELTA=WORK(LZR-1+IISS)-WORK(LZR)
+          DELTA=ZR(ISS,ISS)-ZR(1,1)
           FACT=EXP(-DELTA/RkT)
-          RMAGM(1)=RMAGM(1)+WORK(IZMR(1)-1+IISS)*FACT
-          RMAGM(2)=RMAGM(2)+WORK(IZMR(2)-1+IISS)*FACT
-          RMAGM(3)=RMAGM(3)+WORK(IZMR(3)-1+IISS)*FACT
+          RMAGM(1)=RMAGM(1)+pZMR(1)%A2(ISS,ISS)*FACT
+          RMAGM(2)=RMAGM(2)+pZMR(2)%A2(ISS,ISS)*FACT
+          RMAGM(3)=RMAGM(3)+pZMR(3)%A2(ISS,ISS)*FACT
           RPART=RPART+FACT
           IF(IPGLOB.GT.2) THEN
            WRITE(6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)')
-     &      (WORK(LZR-1+IISS)-WORK(LZR))*auTocm,
-     &      WORK(IZMR(1)-1+IISS),WORK(IZMR(2)-1+IISS),
-     &      WORK(IZMR(3)-1+IISS),FACT
+     &      (ZR(ISS,ISS)-ZR(1,1))*auTocm,
+     &      pZMR(1)%A2(ISS,ISS),
+     &      pZMR(2)%A2(ISS,ISS),
+     &      pZMR(3)%A2(ISS,ISS),FACT
           ENDIF
          ENDDO
          IF(IPGLOB.GT.2) THEN
@@ -3066,7 +3070,7 @@ C scale number of points on phi via sin(theta)
         BX=B*SIN(THE)*COS(PHI)
         BY=B*SIN(THE)*SIN(PHI)
         BZ=B*COS(THE)
-        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,ZR,1)
         CALL DAXPY_(NSS**2,0.5D0*BX/auToT,MXR,1,ZR,1)
         CALL DAXPY_(NSS**2,0.5D0*BY/auToT,MYR,1,ZR,1)
         CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,MZR,1,ZR,1)
@@ -3075,21 +3079,20 @@ C scale number of points on phi via sin(theta)
         CALL DAXPY_(NSS**2,0.5D0*BY/auToT,MYI,1,ZI,1)
         CALL DAXPY_(NSS**2,0.5D0*BZ/auToT,MZI,1,ZI,1)
         DO ISS=1,NSS
-         IISS=ISS+NSS*(ISS-1)
-         HZER=WORK(LZR-1+IISS)
-         WORK(LZR-1+IISS)=HZER+ENSOR(ISS)
+         HZER=ZR(ISS,ISS)
+         ZR(ISS,ISS)=HZER+ENSOR(ISS)
         END DO
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZR),1)
         CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUZR),NSS+1)
         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZI),1)
         CALL ZJAC(NSS,ZR,ZI,NSS,WORK(LUZR),WORK(LUZI))
         DO IXYZ=1,3
-         CALL DCOPY_(NSS**2,WORK(IMR(IXYZ)),1,WORK(IZMR(IXYZ)),1)
-         CALL DCOPY_(NSS**2,WORK(IMI(IXYZ)),1,WORK(IZMI(IXYZ)),1)
-         CALL DSCAL_(NSS**2,-0.5D0,WORK(IZMR(IXYZ)),1)
-         CALL DSCAL_(NSS**2,-0.5D0,WORK(IZMI(IXYZ)),1)
+         CALL DCOPY_(NSS**2,WORK(IMR(IXYZ)),1,pZMR(IXYZ)%A2,1)
+         CALL DCOPY_(NSS**2,WORK(IMI(IXYZ)),1,pZMI(IXYZ)%A2,1)
+         CALL DSCAL_(NSS**2,-0.5D0,pZMR(IXYZ)%A2,1)
+         CALL DSCAL_(NSS**2,-0.5D0,pZMI(IXYZ)%A2,1)
          CALL ZTRNSF(NSS,WORK(LUZR),WORK(LUZI),
-     &    WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)))
+     &               pZMR(IXYZ)%A2,pZMI(IXYZ)%A2)
         ENDDO
         DO ITSTEP=1,NTSTEP
          T=TSTART+TINCRE*(ITSTEP-1)
@@ -3099,12 +3102,11 @@ C scale number of points on phi via sin(theta)
          RMAGM(3)=0.0D0
          RPART=0.0D0
          DO ISS=1,NSS
-          IISS=ISS+NSS*(ISS-1)
-          DELTA=WORK(LZR-1+IISS)-WORK(LZR)
+          DELTA=ZR(ISS,ISS)-ZR(1,1)
           FACT=EXP(-DELTA/RkT)
-          RMAGM(1)=RMAGM(1)+WORK(IZMR(1)-1+IISS)*FACT
-          RMAGM(2)=RMAGM(2)+WORK(IZMR(2)-1+IISS)*FACT
-          RMAGM(3)=RMAGM(3)+WORK(IZMR(3)-1+IISS)*FACT
+          RMAGM(1)=RMAGM(1)+pZMR(1)%A2(ISS,ISS)*FACT
+          RMAGM(2)=RMAGM(2)+pZMR(2)%A2(ISS,ISS)*FACT
+          RMAGM(3)=RMAGM(3)+pZMR(3)%A2(ISS,ISS)*FACT
           RPART=RPART+FACT
          ENDDO
          RMAGM(1)=(RMAGM(1)/RPART)*AU2JTM
@@ -3159,12 +3161,12 @@ C backtransformation in two steps, -phi and -theta
       CALL GETMEM('UZR','FREE','REAL',LUZR,NSS**2)
       CALL GETMEM('UZI','FREE','REAL',LUZI,NSS**2)
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call mma_deallocate(ZXR)
+      Call mma_deallocate(ZXI)
+      Call mma_deallocate(ZYR)
+      Call mma_deallocate(ZYI)
+      Call mma_deallocate(ZZR)
+      Call mma_deallocate(ZZI)
 
       Call mma_deallocate(MXR)
       Call mma_deallocate(MXI)
