@@ -66,7 +66,7 @@
       use glbbas, only: CFTP
       use casvb_global, only: ifvb
       use CMS, only: iCMSOpt,CMSGiveOpt
-      use rctfld_module
+      use rctfld_module, only: lRF
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2

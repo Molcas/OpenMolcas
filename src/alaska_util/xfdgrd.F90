@@ -28,6 +28,7 @@ use external_centers, only: iXPolType, nOrd_XF, nXF, XF
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: ChOper
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -38,8 +39,10 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7),
                      mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3)
 logical(kind=iwp) :: JfGrad(3,4), NoLoop
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: iChAtm, NrOpr
-external :: Fake, TNAI1, XCff2D
 #include "print.fh"
 
 #include "macros.fh"

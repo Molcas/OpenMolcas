@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Rys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
+subroutine Rys2D( &
+#                define _CALLING_
+#                include "rys2d_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -32,9 +35,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), B01(nArg*lRys,3)
+#include "rys2d_interface.fh"
 integer(kind=iwp) :: iab, icd
 #ifdef _DEBUGPRINT_
 character(len=30) :: Label

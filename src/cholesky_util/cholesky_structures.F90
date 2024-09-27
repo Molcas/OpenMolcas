@@ -17,6 +17,7 @@ module Cholesky_Structures
 ! This is in a separate module because it needs the Cholesky module,
 ! which needs Data_Structures, so there would be a circular dependency.
 
+use Index_Functions, only: iTri, nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, V1
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -82,7 +83,6 @@ contains
 
 subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
-  use Index_Functions, only: iTri, nTri_Elem
   use Cholesky, only: nBasSh, nnBstRSh
   use Constants, only: Zero
 
@@ -179,8 +179,6 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 end subroutine Allocate_L_Full
 
 subroutine Deallocate_L_Full(Adam)
-
-  use Index_Functions, only: iTri
 
   type(L_Full_Type), intent(inout) :: Adam
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma

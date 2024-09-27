@@ -111,4 +111,4 @@ PosFree = PosT
 
 return
 
-end
+end subroutine DistMemPerm

@@ -44,12 +44,12 @@
 #endif
 #include "print.fh"
 #include "wldata.fh"
-#include "oneswi.fh"
 #include "warnings.h"
       Character*8 Label
-      Dimension dum(1),idum(1)
+      Dimension dum(1)
 *
 #ifdef _DEBUGPRINT_
+      Dimension idum(1)
       MulTab(i,j)=iEor(i-1,j-1)+1
 #endif
 *
@@ -90,7 +90,6 @@
          Call dcopy_(nComp,[Zero],0,Nuc,1)
          Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &              dum,1,dum,idum,0,0,
      &              dum,1,0)
 *
          Call Deallocate_Aux()
@@ -342,7 +341,6 @@
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call Deallocate_Aux()
@@ -371,7 +369,6 @@
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call Deallocate_Aux()

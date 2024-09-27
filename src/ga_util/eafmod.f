@@ -15,7 +15,7 @@
 ************************************************************************
 
 ************************************************************************
-* Wrapper routines agains the GA-ChemIO or MPI-IO package.             *
+* Wrapper routines against the GA-ChemIO or MPI-IO package.            *
 * (EAF = exclusive access file)                                        *
 *                                                                      *
 * If not an mpp installation the AIX-IO facility will be used.         *

@@ -161,7 +161,7 @@ do
   call UpCase(KWord)
   if (index(KWord,'6-31G') /= 0) then
     iSh=jShll+3
-    if (iSh.le.iShll) then
+    if (iSh <= iShll) then
       Shells(iSh)%Transf = .false.
       Shells(iSh)%Prjct = .false.
     end if

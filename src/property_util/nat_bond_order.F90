@@ -128,12 +128,12 @@ if (iCase == 0) return
 
 ! Core Orbitals threshold, default 1.999
 thr_CO = 1.999_wp
-! Lone Pairs threshold .le. Core Orbitals threshold, default 1.90
+! Lone Pairs threshold <= Core Orbitals threshold, default 1.90
 !thr_LP = 1.90_wp
 !thr_LP = 1.85_wp
 thr_LP = 1.80_wp
 thr_LP_Orig = thr_LP
-! Bond occupation threshold .le. Lone Pairs Orbitals threshold
+! Bond occupation threshold <= Lone Pairs Orbitals threshold
 ! Guessed to 1.90. Minimum possible threshold thr_MIN guessed to 1.50
 thr_BO = 1.999_wp
 thr_Orig = thr_BO

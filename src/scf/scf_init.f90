@@ -26,10 +26,10 @@
                         nOrb, nSym, TimFld, nFrz
       use Constants, only: Zero, One
       use MxDM, only: MxIter
+      use NDDO, only: twoel_NDDO
       use Constants, only: Zero, One
       Implicit None
 !
-#include "twoswi.fh"
 #include "hfc_logical.fh"
 !
       Integer  iFMM, iPrintLevel, nData
@@ -153,7 +153,7 @@
       NamFld(14)='  f ) other calculations                    :'
       NamFld(15)='3) Final processing (generation of outputs) :'
       NamFld(16)='   T O T A L                                :'
-      NDDO = .False.
+      twoel_NDDO = .False.
       RTemp = 0.04D0
       TemFac= 0.02D0
       TStop = 0.00D0

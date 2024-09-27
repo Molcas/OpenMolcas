@@ -139,7 +139,7 @@ do IVLT=1,SGS%nVert
         V = sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
       case (7)
         V = sqrt(real(IB*(2+IB),kind=wp))/real(1+IB,kind=wp)
-      case Default
+      case default
         V = Zero ! Dummy assignment
         call Abend()
     end select

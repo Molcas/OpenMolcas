@@ -14,7 +14,7 @@
 !***********************************************************************
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
-               Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
+               Array,nArray,Tvalue,ModU2_k,Cff2D_k,Rys2D_k,NoSpecial)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the source integrals for the transfer equation    *
@@ -37,6 +37,7 @@ use RysScratch, only: RysRtsWgh
 #else
 use vRys_RW, only: nMxRys
 #endif
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Breit, only: nOrdOp
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
@@ -46,7 +47,10 @@ integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabM
 real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), Q(lQ,3), rKapab(nZeta), rKapcd(nEta), &
                              Coori(3,4), Coora(3,4), CoorAC(3,2)
 real(kind=wp), intent(inout) :: Array(nArray)
-external :: Tvalue, ModU2, Cff2D, Rys2D
+procedure(tval_kernel) :: Tvalue
+procedure(modu2_kernel) :: ModU2_k
+procedure(cff2d_kernel) :: Cff2D_k
+procedure(rys2d_kernel) :: Rys2D_k
 logical(kind=iwp), intent(in) :: NoSpecial
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
                      ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipxyzN, &
@@ -432,13 +436,13 @@ select case (ijkl)
 
       ! Compute coefficients for the recurrence relations of the 2D-integrals
 
-      if (la+lb+lc+ld+nOrdOp > 0) call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
+      if (la+lb+lc+ld+nOrdOp > 0) call ModU2_k(Array(ipU2),nT,nRys,Array(ipDiv))
       ! Let go of inverse
       ip = ip-nT
 
-      call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
-                 Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
-                 Array(ipB01),nOrdOp)
+      call Cff2D_k(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
+                   Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
+                   Array(ipB01),nOrdOp)
       ! Let go of roots
       ip = ip-nT*nRys
       ! Let go of Zeta, ZInv, Eta, and EInv
@@ -448,7 +452,7 @@ select case (ijkl)
 
       ! Compute the 2D-integrals from the roots and weights
 
-      call Rys2D(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01))
+      call Rys2D_k(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01))
       ip = ip-nTR*3*lB01
       ip = ip-nTR*3*lB00
       ip = ip-nTR*3*lB10

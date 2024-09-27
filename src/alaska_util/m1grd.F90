@@ -33,6 +33,7 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Disp, only: Dirct, IndDsp
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -42,10 +43,12 @@ integer(kind=iwp) :: i, iAlpha, ianga(4), iBeta, iCar, iCmp, iDAO, iDCRT(0:7), i
                      ipDAOt, ipK, ipPx, ipPy, ipPz, iPrint, ipZ, ipZI, iRout, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, &
                      lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nRys
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fac, Fact, Gmma, PTC2, TC(3), Tmp0, Tmp1
-logical(kind=iwp) :: EQ, JfGrad(3,4)
+logical(kind=iwp) :: JfGrad(3,4)
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: TF
-external :: TNAI1, Fake, Cff2D
+logical(kind=iwp), external :: EQ, TF
 #include "print.fh"
 
 #include "macros.fh"

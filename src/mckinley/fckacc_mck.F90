@@ -28,7 +28,7 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !          onical order.                                               *
 !                                                                      *
 !          In addition to this complication we have that the order of  *
-!          indicies in the integrals are not ordered canonically but   *
+!          indices in the integrals are not ordered canonically but    *
 !          rather in an order such that the contraction step will be   *
 !          optimal. Hence, special care has to be taken when tracing   *
 !          the density with the integrals so that both entities have   *
@@ -85,12 +85,12 @@ real(kind=wp), external :: DNrm2_
 !end if
 !if (iPrint >= 99) then
 !  call RecPrt('FckAcc:AOInt','(5G20.10)',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-!  write(u6,'(A,G20.10)') 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-!  write(u6,'(A,G20.10)') 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-!  write(u6,'(A,G20.10)') 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-!  write(u6,'(A,G20.10)') 'Dil=',XDot(Dil,il1,il2,il3,il4)
-!  write(u6,'(A,G20.10)') 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-!  write(u6,'(A,G20.10)') 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+!  write(u6,'(A,G20.10)') 'Dij=',sum(Dij(1:ij1*ij2,:,:))
+!  write(u6,'(A,G20.10)') 'Dkl=',sum(Dkl(1:kl1*kl2,:,:))
+!  write(u6,'(A,G20.10)') 'Dik=',sum(Dik(1:ik1*ik2,:,:))
+!  write(u6,'(A,G20.10)') 'Dil=',sum(Dil(1:il1*il2,:,:))
+!  write(u6,'(A,G20.10)') 'Djk=',sum(Djk(1:jk1*jk2,:,:))
+!  write(u6,'(A,G20.10)') 'Djl=',sum(Djl(1:jl1*jl2,:,:))
 !end if
 
 !write(u6,'(A,8L1)') 'Pert=',Pert
@@ -541,7 +541,7 @@ return
 !          onical order.                                               *
 !                                                                      *
 !          In addition to this complication we have that the order of  *
-!          indicies in the integrals are not ordered canonically but   *
+!          indices in the integrals are not ordered canonically but    *
 !          rather in an order such that the contraction step will be   *
 !          optimal. Hence, special care has to be taken when tracing   *
 !          the density with the integrals so that both entities have   *
@@ -595,12 +595,12 @@ logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iS
 !end if
 !if (iPrint >= 99) then
 !   call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-!   write(u6,*) 'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-!   write(u6,*) 'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-!   write(u6,*) 'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-!   write(u6,*) 'Dil=',XDot(Dil,il1,il2,il3,il4)
-!   write(u6,*) 'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-!   write(u6,*) 'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+!   write(u6,*) 'Dij=',sum(Dij(1:ij1*ij2,:,:))
+!   write(u6,*) 'Dkl=',sum(Dkl(1:kl1*kl2,:,:))
+!   write(u6,*) 'Dik=',sum(Dik(1:ik1*ik2,:,:))
+!   write(u6,*) 'Dil=',sum(Dil(1:il1*il2,:,:))
+!   write(u6,*) 'Djk=',sum(Djk(1:jk1*jk2,:,:))
+!   write(u6,*) 'Djl=',sum(Djl(1:jl1*jl2,:,:))
 !end if
 
 ExFac = One

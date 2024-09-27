@@ -23,13 +23,14 @@ subroutine SchInt_mck(CoorM,iAnga,nAlpha,nBeta,nMemab,Zeta,ZInv,rKapab,P,nZeta,W
 !             March '90                                                *
 !                                                                      *
 !             June '91, modified to compute zeta, P, kappa and inte-   *
-!             grals for Schwartz inequality in a k2 loop.              *
+!             grals for Schwarz inequality in a k2 loop.               *
 !             April '92 modified from k2Loop to a separate subroutine  *
 !              for estimates of the gradient.                          *
 !***********************************************************************
 
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -41,15 +42,18 @@ real(kind=wp), intent(out) :: Work2(nWork2)
 integer(kind=iwp) :: ijklcd, ipIn, la, lb, mabMax, mabMin, mcdMax, mcdMin, mZeta, nijkla, nT
 real(kind=wp) :: CoorAC(3,2), Q(3)
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: Cff2DS
+procedure(modu2_kernel) :: ModU2
+procedure(rys2d_kernel) :: Rys2D
+procedure(tval_kernel) :: TERIS
 logical(kind=iwp), external :: EQ
-external :: TERIS, ModU2, Cff2DS, rys2d
 
 Q(:) = One
 la = iAnga(1)
 lb = iAnga(2)
 
 ! Compute primitive integrals to be used in the prescreening
-! by the Schwartz inequality.
+! by the Schwarz inequality.
 
 ! Compute actual size of [a0|c0] block
 

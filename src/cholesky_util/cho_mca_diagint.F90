@@ -13,7 +13,7 @@ subroutine CHO_MCA_DIAGINT(ISHLA,ISHLB,SCR,LSCR)
 !
 ! Purpose: call Seward to calculate diagonal shell (AB|AB).
 
-use Integral_interfaces, only: Int_PostProcess, Integral_WrOut_Cho_diag
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 #ifdef _DEBUGPRINT_
 use Cholesky, only: LuPri
 use Gateway_Info, only: CutInt, ThrInt
@@ -24,6 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: ISHLA, ISHLB, LSCR
 real(kind=wp), intent(out) :: SCR(LSCR)
+procedure(int_wrout) :: Integral_Wrout_Cho_Diag
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CUTINT1, CUTINT2, THRINT1, THRINT2
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'

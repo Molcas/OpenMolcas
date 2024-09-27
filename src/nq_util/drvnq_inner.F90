@@ -31,6 +31,7 @@ use nq_Structure, only: Close_Info_Ang
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Grad_I, iOpt_Angular, NASHT, nPot1, nPot2, &
                    number_of_subblocks, nx, ny, nz, Tau_I
 use Grid_On_Disk, only: Grid_Status, GridInfo, Regenerate
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, Quart
 use Definitions, only: wp, iwp
@@ -42,7 +43,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nFckDim, nFckInt, nD, mGrid, nP2_ontop, nTmpPUVX, &
                                  nGrad, mAO, mdRho_dR
 integer(kind=iwp), intent(out) :: list_s(nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)

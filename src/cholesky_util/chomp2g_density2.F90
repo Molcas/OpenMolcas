@@ -158,10 +158,10 @@ do iBat=1,nBatL
     index1 = index1+nOcc(iSym1)*nVir(iSym1)
   end do
   do i=1,lFDiag
-    Wrk(kDiag(1)+i-1) = 1/Wrk(kDiag(1)+i-1)
+    Wrk(kDiag(1)+i-1) = One/Wrk(kDiag(1)+i-1)
   end do
   do i=1,lDiag
-    Wrk(kDiag(2)+i-1) = 1/Wrk(kDiag(2)+i-1)
+    Wrk(kDiag(2)+i-1) = One/Wrk(kDiag(2)+i-1)
   end do
 end do
 

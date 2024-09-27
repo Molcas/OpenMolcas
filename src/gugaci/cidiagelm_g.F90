@@ -13,7 +13,7 @@ subroutine diagonal_loop_wyb_g()  !  for norb_act<>0
 
 use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, mxnode, ndim, ng_sm, &
                          nu_ad, nu_ae
-use Definitions, only: iwp, iwp
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: im, iwupwei, jaedownwei, jpad_, ndimsum

@@ -37,6 +37,7 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: Do_FckInt, DoFMM, EMFR, GIAO, kVector, lAMFI, lMXTC, lRel, NEMO, PotNuc, Vlct
 use Integral_interfaces, only: int_kernel, int_mem
 use Property_Label, only: PLabel
+use NDDO, only: oneel_NDDO
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
@@ -47,7 +48,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "print.fh"
 #include "wldata.fh"
-#include "oneswi.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
@@ -113,9 +113,9 @@ do i=1,nCnttp
   lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
 end do
 
-! set center selector in OneSwi to all centers (default)
+! set center selector in NDDO to all centers (default)
 
-NDDO = .false.
+oneel_NDDO = .false.
 if (Prprt .and. DKroll) then
   call WarningMessage(2,'Prprt and DKroll options cannot be combined!')
   call Quit_OnUserError()
@@ -203,14 +203,14 @@ do iMltpl=iLow,S%nMltpl
     end do
   end do
 
-  call MltNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,iMltpl,nComp)
+  call MltNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,iMltpl)
   !--- pow hack
   if (iMltpl == 0) then
     call Put_dScalar('Total Nuclear Charge',Nuc(1))
   end if
   !--- pow hack
   nOrdOp = iMltpl
-  call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -218,7 +218,7 @@ do iMltpl=iLow,S%nMltpl
 
   if ((.not. Prprt) .and. DoFMM) then
     write(Label,'(A,I2)') 'FMMInt',iMltpl
-    call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
     ! FMM overlap distribution centres:
     ! Pretend they are 1-e integrals with three (x,y,z)
@@ -226,11 +226,11 @@ do iMltpl=iLow,S%nMltpl
 
     if (iMltpl == 0) then
       write(Label,'(A)') 'FMMCnX'
-      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,0)
       write(Label,'(A)') 'FMMCnY'
-      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,0)
       write(Label,'(A)') 'FMMCnZ'
-      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,0)
     end if
   end if
   !                                                                    *
@@ -242,19 +242,19 @@ do iMltpl=iLow,S%nMltpl
     write(Label,'(A,I2)') 'pMp   ',iMltpl
     PLabel = 'MltInt'
     call FZero(Nuc,nComp)
-    call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,0)
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   if (iMltpl == 0) then
     ! these are overlap integrals...
-    ! set center selector in OneSwi to single center...
-    NDDO = .true.
+    ! set center selector in NDDO to single center...
+    oneel_NDDO = .true.
     write(Label,'(A,I2)') 'MltplS',iMltpl
-    call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
-    ! reset center selector in OneSwi to all centers...
-    NDDO = .false.
+    call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
+    ! reset center selector in NDDO to all centers...
+    oneel_NDDO = .false.
   end if
 
   call Deallocate_Auxiliary()
@@ -340,7 +340,7 @@ if (lPAM2np .and. (.not. Primitive_Pass)) then
 
           call dcopy_(nComp,[Zero],0,Nuc,1)
 
-          call OneEl(PAM2Int,PAM2Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+          call OneEl(PAM2Int,PAM2Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
           !iPAMcount = iPAMcount+1
 
@@ -375,54 +375,54 @@ if (.not. Prprt) then
 
   Label = 'Kinetic '
   nOrdOp = 2
-  call OneEl(KnEInt,KnEMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(KnEInt,KnEMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
 
   nOrdOp = 0
 
   Label = 'Attract '
-  call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,0)
 
 # ifdef _FDE_
   ! Embedding
   if (embPot) then
     Label = 'Embpot '
-    call OneEl(EmbPotKernel,EmbPotMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(EmbPotKernel,EmbPotMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
   end if
 # endif
 
-  ! set center selector in OneSwi to two center NA Int...
-  NDDO = .true.
+  ! set center selector in NDDO to two center NA Int...
+  oneel_NDDO = .true.
   Label = 'AttractS'
-  call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
-  ! reset center selector in OneSwi to all centers...
-  NDDO = .false.
+  call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,0)
+  ! reset center selector in NDDO to all centers...
+  oneel_NDDO = .false.
   if (.not. Primitive_Pass) then
     if (lECPnp) then
       Label = 'PrjInt  '
-      call OneEl(PrjInt,PrjMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(PrjInt,PrjMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
       Label = 'M1Int   '
-      call OneEl(M1Int,M1Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(M1Int,M1Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
       Label = 'M2Int   '
-      call OneEl(M2Int,M2Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(M2Int,M2Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
       Label = 'SROInt  '
-      call OneEl(SROInt,SROMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(SROInt,SROMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
     end if
     if (lPP) then
       Label = 'PPInt   '
-      call OneEl(PPInt,PPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(PPInt,PPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
     end if
     if (allocated(XF)) then
       mOrdOp = nOrd_XF
       Label = 'XFdInt  '
-      call OneEl(XFdInt,XFdMem,Label,ipList,OperI,nComp,CoorO,mOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(XFdInt,XFdMem,Label,ipList,OperI,nComp,CoorO,mOrdOp,[Zero],rHrmt,OperC,dum,1,0)
     end if
     if (lRel) then
       Label = 'MassVel '
       nOrdOp = 4
-      call OneEl(MVeInt,MVeMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(MVeInt,MVeMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
       Label = 'Darwin  '
       nOrdOp = 0
-      call OneEl(D1Int,D1Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(D1Int,D1Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
     end if
   end if
 
@@ -455,7 +455,7 @@ if (Vlct .and. (.not. Primitive_Pass)) then
   OperC(1+2) = iChBas(4)
 
   call dcopy_(3,[Zero],0,Nuc,1)
-  call OneEl(VeInt,VeMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(VeInt,VeMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end if    ! Vlct
@@ -493,7 +493,7 @@ if (EMFR .and. (.not. Primitive_Pass)) then
   OperC(1+1) = 0 ! Dummy
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 
@@ -537,7 +537,7 @@ if (EMFR .and. (.not. Primitive_Pass)) then
   OperC(1+11) = 0 ! Dummy
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end if    ! EMFR
@@ -628,7 +628,7 @@ do nOrdOp=0,nOrdEF
     end do
 
     call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
-    call OneEl(EFInt,EFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(EFInt,EFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -638,7 +638,7 @@ do nOrdOp=0,nOrdEF
       write(Label,'(A,I1,I5)') 'PP',nOrdOp,iEF
       PLabel = 'EFInt '
       call FZero(Nuc,nComp)
-      call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,0)
     end if
     !                                                                  *
     !*******************************************************************
@@ -728,7 +728,7 @@ if (allocated(OAM_Center) .and. (.not. Primitive_Pass)) then
   OperC(1+2) = iChOz
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(OAMInt,OAMMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(OAMInt,OAMMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end if   ! OAM_Center
@@ -790,7 +790,7 @@ if (Vlct .and. (S%nMltpl >= 2) .and. (.not. Primitive_Pass)) then
   OperC(1+5) = iChBas(4)
 
   call DCopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(QpVInt,QpVMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(QpVInt,QpVMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end if   ! Vlct .and. (S%nMltpl > 2)
@@ -884,7 +884,7 @@ if (allocated(OMQ_Center) .and. (.not. Primitive_Pass)) then
   OperC(1+8) = iChOzz
 
   call DCopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(OMQInt,OMQMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(OMQInt,OMQMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end if   ! OMQ_Center
@@ -906,7 +906,7 @@ if (DKroll .and. Primitive_Pass) then
   OperC(1) = iChBas(1)
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 
@@ -931,10 +931,10 @@ if (DKroll .and. Primitive_Pass) then
 
     Label = 'pV      '
     PLabel = 'NAInt '
-    call OneEl(PXInt,PXMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(PXInt,PXMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
     Label = 'Vp      '
-    call OneEl(VPInt,VPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(VPInt,VPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
     call Deallocate_Auxiliary()
   end if    ! BSS
@@ -1013,7 +1013,7 @@ do iDMS=1,mDMS
   call dcopy_(3,Dxyz,1,CoorO(1+3),1)
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(DMSInt,DMSMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(DMSInt,DMSMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end do
@@ -1049,7 +1049,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     r0 = Wel_Info(1,iWel)
     ExpB = Wel_Info(2,iWel)
     write(Label,'(A,I4)') 'Well',iWel
-    call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,CoorO,iWel,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,CoorO,iWel,[Zero],rHrmt,OperC,dum,1,0)
   end do
   call Deallocate_Auxiliary()
 end if  ! .not. Prprt
@@ -1305,7 +1305,7 @@ if (allocated(AMP_Center) .and. (.not. Primitive_Pass)) then
   OperC(1+5) = 0
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(AMPInt,AMPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(AMPInt,AMPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 end if
@@ -1357,7 +1357,7 @@ do iCnt=1,mCnt
   OperC(1) = 0
 
   call dcopy_(nComp,[Zero],0,Nuc,1)
-  call OneEl(CntInt,CntMem,Label,ipList,OperI,nComp,Ccoor,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(CntInt,CntMem,Label,ipList,OperI,nComp,Ccoor,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -1367,7 +1367,7 @@ do iCnt=1,mCnt
     write(Label,'(A,I2)') 'pCp   ',iCnt
     PLabel = 'CntInt'
     call FZero(Nuc,nComp)
-    call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CCoor,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CCoor,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,0)
   end if
 
   call Deallocate_Auxiliary()
@@ -1504,7 +1504,7 @@ if (GIAO .and. (.not. Primitive_Pass)) then
 
     ! Zero nuclear contribution.
     call dcopy_(nComp,[Zero],0,Nuc,1)
-    call OneEl(MltInt_GIAO,MltMem_GIAO,Label,ipList,OperI,nComp,CoorO,iMltpl,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(MltInt_GIAO,MltMem_GIAO,Label,ipList,OperI,nComp,CoorO,iMltpl,Nuc,rHrmt,OperC,dum,1,0)
 
     call Deallocate_Auxiliary()
 
@@ -1599,7 +1599,7 @@ if (lMXTC .and. DKroll .and. Primitive_Pass) then
       ! Zero nuclear contribution
       call dcopy_(nComp,[Zero],0,Nuc,1)
       ! Compute one electron integrals
-      call OneEl(DumInt,DumMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(DumInt,DumMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
       call Deallocate_Auxiliary()
     end do
   end do
@@ -1637,11 +1637,11 @@ if (GIAO .and. (.not. Primitive_Pass)) then
   call dcopy_(3,[Zero],0,Nuc,1)
 
   Label = 'dT/dB   '
-  call OneEl(KneInt_GIAO,KneMem_GIAO,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(KneInt_GIAO,KneMem_GIAO,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   nOrdOp = 1
   Label = 'dV/dB   '
-  call OneEl(NAInt_GIAO,NAMem_GIAO,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(NAInt_GIAO,NAMem_GIAO,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Auxiliary()
 
@@ -1700,7 +1700,7 @@ if (GIAO .and. (.not. Primitive_Pass)) then
 
       !call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
 
-      call OneEl(dTdmu_Int,dTdmu_Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call OneEl(dTdmu_Int,dTdmu_Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
       call Deallocate_Auxiliary()
     end do
@@ -1780,7 +1780,7 @@ if (NEMO) then
     end do
 
     Label = 'P_matrix'
-    call OneEl(P_Int,P_Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero,Zero,Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call OneEl(P_Int,P_Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero,Zero,Zero],rHrmt,OperC,dum,1,0)
     call Deallocate_Auxiliary()
   else
 
@@ -1812,7 +1812,7 @@ if (lFAIEMP .and. (.not. Primitive_Pass)) then
   OperI(1) = 1
   OperC(1) = iChBas(1)
   Label = 'FragProj'
-  call OneEl(FragPInt,FragPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call OneEl(FragPInt,FragPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,0)
   call Deallocate_Auxiliary()
   ! add the results to the one-electron hamiltonian
   iOpt = 0

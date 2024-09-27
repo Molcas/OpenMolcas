@@ -21,8 +21,6 @@
 ! The larger size is needed here, and the allocated size is nBB.
       Character(LEN=80) Note
 !
-#include "oneswi.fh"
-!
 !---- Define local variables
       Integer i, iBs, iOr, iSym, iVec, iCMO, j
       Real*8, Dimension(:), Allocatable:: Scr2

@@ -144,7 +144,7 @@ subroutine Center_Info_Dmp()
   end do
   lcDmp = n_dc*LenIn4
 # ifdef _DEBUGPRINT_
-  write(u6,*) 'cDmp=',cDmp(1:lcDmp)
+  write(u6,*) 'cDmp=',cDmp(1:n_dc)
 # endif
   call Put_cArray('dc: cDmp',cDmp(1),lcDmp)
   call mma_deallocate(cDmp)
@@ -216,10 +216,10 @@ subroutine Center_Info_Get()
     write(u6,*) 'Center_Info_Get: Len1 /= lcDmp'
     call Abend()
   end if
-  call mma_Allocate(cDmp,lcDmp,Label='cDmp')
+  call mma_Allocate(cDmp,n_dc,Label='cDmp')
   call Get_cArray('dc: cDmp',cDmp,lcDmp)
 # ifdef _DEBUGPRINT_
-  write(u6,*) 'cDmp=',cDmp(1:lcDmp)
+  write(u6,*) 'cDmp=',cDmp(1:n_dc)
 # endif
   do i=1,n_dc
     dc(i)%LblCnt = cDmp(i)

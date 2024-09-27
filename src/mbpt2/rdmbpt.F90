@@ -31,13 +31,13 @@ subroutine RdMBPT()
 !                                                                      *
 !***********************************************************************
 
-use MBPT2_Global, only: CMO, CMO_Internal,EOrb, nBas, nDsto, nnB
+use MBPT2_Global, only: CMO, CMO_Internal, EOrb, nBas, nDsto, nnB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iStart, iStart_t, iSym, lthCMO, lthEOr
+integer(kind=iwp) :: i, iLen, iStart, iStart_t, iSym, lthCMO, lthEOr
 logical(kind=iwp) :: Found
 character(len=24) :: Label
 real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
@@ -73,19 +73,21 @@ end do
 call mma_allocate(CMO_t,lthCMO,Label='CMO_t')
 call Get_CMO(CMO_t,lthCMO)
 call mma_allocate(CMO_Internal,lthCMO,label='CMO_Internal')
-CMO=>CMO_Internal
+CMO => CMO_Internal
 
 ! set MO coefficients of the deleted orbitals to zero
 ! Observe that these are not included at all in the basis
 iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t:),1,CMO(iStart:),1)
-  iStart = iStart+nOrb(iSym)*nBas(iSym)
-  iStart_t = iStart_t+nOrb(iSym)*nBas(iSym)
+  iLen = nOrb(iSym)*nBas(iSym)
+  CMO(iStart:iStart+iLen-1) = CMO_t(iStart_t:iStart_t+iLen-1)
+  iStart = iStart+iLen
+  iStart_t = iStart_t+iLen
 
-  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,CMO(iStart:),1)
-  iStart = iStart+(nBas(iSym)-nOrb(iSym))*nBas(iSym)
+  iLen = (nBas(iSym)-nOrb(iSym))*nBas(iSym)
+  CMO(iStart:iStart+iLen-1) = Zero
+  iStart = iStart+iLen
 end do
 call mma_deallocate(CMO_t)
 
@@ -108,12 +110,14 @@ call mma_allocate(EOrb,lthEOr,label='EOrb')
 iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym),EOrb_t(iStart_t:),1,EOrb(iStart:),1)
-  iStart = iStart+nOrb(iSym)
-  iStart_t = iStart_t+nOrb(iSym)
+  iLen = nOrb(iSym)
+  EOrb(iStart:iStart+iLen-1) = EOrb_t(iStart_t:iStart_t+iLen-1)
+  iStart = iStart+iLen
+  iStart_t = iStart_t+iLen
 
-  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,EOrb(iStart:),1)
-  iStart = iStart+nBas(iSym)-nOrb(iSym)
+  iLen = nBas(iSym)-nOrb(iSym)
+  EOrb(iStart:iStart+iLen-1) = Zero
+  iStart = iStart+iLen
 end do
 call mma_deallocate(EOrb_t)
 

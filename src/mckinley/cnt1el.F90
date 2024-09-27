@@ -126,8 +126,8 @@ iStart = 1
 do iIrrep=0,nIrrep-1
   if (btest(loper,iIrrep)) then
     LenInt = nFck(iIrrep)
-    nIc = nIC+1
-    ip(NIC) = iStart
+    nIC = nIC+1
+    ip(nIC) = iStart
     iStart = iStart+LenInt
   end if
 end do
@@ -366,8 +366,8 @@ do iS=1,nSkal
             iSmlbl = 2**iIrrep
             iiC = iiC+1
             mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-            if ((nfck(iIrrep) /= 0) .and. (mSO /= 0)) call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl, &
-                                                                  iCmp,jCmp,iShell,jShell,iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
+            if ((nfck(iIrrep) /= 0) .and. (mSO /= 0)) &
+              call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,rHrmt)
             iSOBlk = iSOBlk+mSO*iBas*jBas
           end if
         end do

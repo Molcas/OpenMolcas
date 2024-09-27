@@ -81,8 +81,7 @@ Contains
 #ifdef _DEBUGPRINT_
       INTEGER, SAVE :: COUNTER = 0
       COUNTER=COUNTER+1
-      WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)')
-     & '[',COUNTER,']','ENTRY LUCIA_UTIL','(',Module,')'
+      WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','ENTRY LUCIA_UTIL','(',Module,')'
 #endif
 !
 ! Make sure the Module variable is in upper case.
@@ -129,8 +128,7 @@ Contains
       End If
 
 #ifdef _DEBUGPRINT_
-      WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)')
-     & '[',COUNTER,']','EXIT LUCIA_UTIL','(',Module,')'
+      WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','EXIT LUCIA_UTIL','(',Module,')'
 #endif
       End Subroutine Lucia_Util
 
@@ -448,8 +446,7 @@ Contains
          write(6,*) 'CI-vector put to disk:'
          DO IREC = 1,NREC
             IF(LREC(IREC) .GE. 0) THEN
-               call wrtmat(CIVec(ioff),1,lrec(irec),
-     &            1,lrec(irec))
+               call wrtmat(CIVec(ioff),1,lrec(irec),1,lrec(irec))
             ioff = ioff + lrec(irec)
             ENDIF
          ENDDO

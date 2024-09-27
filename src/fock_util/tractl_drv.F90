@@ -49,8 +49,8 @@
 !***********************************************************************
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
-use Definitions, only: iwp
 use caspt2_data, only: CMO
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iType, iPart

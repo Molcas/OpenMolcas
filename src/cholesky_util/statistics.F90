@@ -40,7 +40,7 @@
 subroutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,ip_MaxAbs,ip_Variance,ip_VarianceU)
 
 use Constants, only: One
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 

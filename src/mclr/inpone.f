@@ -11,7 +11,7 @@
       SubRoutine InpOne()
       use Arrays, only: CMO, Int1, KAIN1
       use OneDat, only: sOpSiz
-      use rctfld_module
+      use rctfld_module, only: lRF
       use Constants, only: Zero, One, Two
       Implicit Real*8 (a-h,o-z)
 
@@ -22,7 +22,6 @@
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
       Integer iComp, idum(1)
-      Real*8  rdum(1)
       Real*8, Allocatable:: D1ao(:), Nuc(:)
       Real*8, Allocatable:: Temp1(:), Temp2(:), Temp3(:)
       Real*8, Allocatable:: HTmp(:), GTmp(:)
@@ -100,12 +99,13 @@ cnf
          First=.True.
          Dff=.False.
          Do_DFT=.True.
+         ExFac=Zero
          Call Get_dScalar('PotNuc',PotNuc)
          Call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,
 *
 *------ Don't care about the last arguments: no (CAS-)DFT here I guess)
 *
-     &              'SCF',Zero,iCharge,iSpin,rdum,rdum,0,'1234',Do_DFT)
+     &              'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
          Call Daxpy_(leng,One,Htmp,1,Temp1,1)
 *
 *------ Hum, where the hell is FI (Fock Inactive) ???

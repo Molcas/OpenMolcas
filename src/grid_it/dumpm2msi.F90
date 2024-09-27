@@ -353,7 +353,7 @@ function c_write_wrapper(FileDescriptor,Buffer,nBytes)
 
   integer(kind=iwp) :: c_write_wrapper
   integer(kind=iwp), intent(in) :: FileDescriptor, nBytes
-  real(kind=wp), intent(in), target :: Buffer(*)
+  real(kind=wp), target, intent(in) :: Buffer(*)
   interface
     function c_write(FileDescriptor,Buffer,nBytes) bind(C,name='c_write_')
       use, intrinsic :: iso_c_binding, only: c_ptr

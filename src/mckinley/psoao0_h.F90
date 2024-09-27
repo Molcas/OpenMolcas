@@ -22,7 +22,7 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 !          the AO block this will affect the vectorization. Hence, at  *
 !          some point it will actually be better to recompute the      *
 !          primitives.                                                 *
-!          Current stratergy:                                          *
+!          Current strategy:                                           *
 !          1. Start reducing the length of the primitives in the order *
 !             lPrim,jPrim.                                             *
 !          2. Reduce the size of the SO block by reducing the number of*

@@ -253,8 +253,8 @@ C Local print level (if any)
 
         Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             KSDFT,ExFac,iCharge,iSpin,D1I,D1A,
-     &             nTot1,DFTFOCK,Do_DFT)
+     &             KSDFT,ExFac,iCharge,iSpin,
+     &             DFTFOCK,Do_DFT)
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
           Write(LF,*) ' Tmp5, h1 (DFT), in AO basis in SGFCIN'

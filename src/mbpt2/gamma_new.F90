@@ -77,15 +77,15 @@ call mma_allocate(CMO_v,lCMO_v,label='CMO_v')
 ! Copy CMO to CMO_o and CMO_v
 
 do iSym=1,nSym
-  iOff = nBas(iSym)*nFro(iSym)+1
+  iOff = nBas(iSym)*nFro(iSym)
   nNO = nBas(iSym)*nOcc(iSym)
   nNV = nBas(iSym)*nExt(iSym)
 
-  call dCopy_(nNO,CMO(iOffCMO(iSym)+iOff:),1,CMO_o(iOffCMO_o(iSym)+1:),1)
+  CMO_o(iOffCMO_o(iSym)+1:iOffCMO_o(iSym)+nNO) = CMO(iOffCMO(iSym)+iOff+1:iOffCMO(iSym)+iOff+nNO)
 
   iOff = iOff+nNO
 
-  call dCopy_(nNV,CMO(iOffCMO(iSym)+iOff:),1,CMO_v(iOffCMO_v(iSym)+1:),1)
+  CMO_v(iOffCMO_v(iSym)+1:iOffCMO_v(iSym)+nNV) = CMO(iOffCMO(iSym)+iOff+1:iOffCMO(iSym)+iOff+nNV)
 end do
 
 #ifdef _DEBUGPRINT_

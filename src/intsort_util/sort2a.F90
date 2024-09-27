@@ -89,7 +89,7 @@ write(u6,*)
 write(u6,*) 'Processing slice                   :',iBin
 write(u6,*) 'Actual number of non-zero integrals:',mInt(1,iBin)
 write(u6,*) 'Effective number of integrals      :',mInt(2,iBin)
-write(u6,*) 'Effective number of indicies       :',mInt(3,iBin)
+write(u6,*) 'Effective number of indices        :',mInt(3,iBin)
 write(u6,*) 'Total number of integrals          :',lSrtA
 write(u6,*) 'Packed storage                     :',iP_Storage
 write(u6,*) 'Indexed storage                    :',iI_Storage

@@ -82,14 +82,15 @@ do lDCRT=0,nDCRT-1
 
   if (.not. lDOWNONLY) then
     nHer = (la+(lb+1)+(nOrdOp-1)+2)/2
-    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-1)
+    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC, &
+                nOrdOp-1,0)
   end if
 
   if (lb > 0) then
     if (.not. lUPONLY) then
       nHer = (la+(lb-1)+(nOrdOp-1)+2)/2
       call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC, &
-                  nOrdOp-1)
+                  nOrdOp-1,0)
     end if
   end if
 

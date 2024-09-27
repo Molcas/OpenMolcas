@@ -59,7 +59,6 @@
       use printlevel, only: terse, debug, insane, usual
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
-      use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
@@ -86,7 +85,7 @@
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      Real*8, allocatable :: PLWO(:), TmpDMat(:), Ref_E(:), EList(:,:),
+      Real*8, allocatable :: TmpDMat(:), Ref_E(:), EList(:,:),
      &                       HRot(:,:), PUVX(:)
       Logical DSCF
 
@@ -145,8 +144,6 @@
       Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-      allocate(PLWO(1:NACPAR))
-      PLWO(:) = 0
 !
 *
       Call mma_allocate(TUVX,NACPR2,Label='TUVX')

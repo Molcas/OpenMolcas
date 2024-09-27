@@ -28,6 +28,7 @@ use external_centers, only: nXF, XF
 use Phase_Info, only: iPhase
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Symmetry_Info, only: ChOper
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -41,9 +42,12 @@ integer(kind=iwp) :: i, iAnga(4), iChxyz, iDCRT(0:7), iDum, iFd, ii, iOrdOp, ip1
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Factx, Facty, Factz, TC(3)
 logical(kind=iwp) :: NoLoop, NoSpecial
 real(kind=wp), allocatable :: ZFd(:), ZRFd(:)
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 integer(kind=iwp), external :: iChAtm, NrOpr
 logical(kind=iwp), external :: EQ
-external :: TNAI, Fake, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)

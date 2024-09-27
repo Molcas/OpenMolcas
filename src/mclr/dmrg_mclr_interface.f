@@ -37,7 +37,8 @@
 !>          write(6,*)LRras2
             read(100,*)
             read(100,"(4X,I8,4X)")nstates_RGLR
-!            allocate(checkpoint(nstates_RGLR))
+!            call mma_allocate(checkpoint,nstates_RGLR, &
+!                              label='checkpoint')
 !            checkpoint=""
             do i=1,nstates_RGLR
               read(100,*)
@@ -123,6 +124,7 @@
 
       Subroutine ci_reconstruct(istate,nSDET,vector,indexSD)
 
+        use stdalloc, only: mma_allocate, mma_deallocate
 #include "dmrginfo_mclr.fh"
         character*100,allocatable :: checkpoint(:)  ! for many states
 
@@ -190,7 +192,7 @@
           lcheckpoint=20
           lcheckpoint=isFreeUnit(lcheckpoint)
           Call Molcas_Open(lcheckpoint,'dmrg_for_mclr.parameters')
-          allocate(checkpoint(nstates_RGLR))
+          call mma_allocate(checkpoint,nstates_RGLR,label='checkpoint')
           checkpoint=""
           do i=1,6
             read(lcheckpoint,*)
@@ -216,7 +218,7 @@
              irrep_diff(j) =  RGras2(j) -   LRras2(j)
           end do
 
-          allocate(pre_ele(norbLR)); pre_ele=0
+          call mma_allocate(pre_ele,norbLR,label='pre_ele'); pre_ele=0
           iorbLR0=1
           iorbLR =0
           irrep_pre=0
@@ -240,9 +242,9 @@
           open(UNIT=117,file="mclr_dets.initial",status="OLD")
           allocate(SD_DMRG(ndets_RGLR))
           do idet=1,ndets_RGLR
-            allocate(SD_DMRG(idet)%electron(neletol))
-            allocate(SD_DMRG(idet)%ele_conf(norb))
-            allocate(SD_DMRG(idet)%dv(nstates_RGLR))
+            call mma_allocate(SD_DMRG(idet)%electron,neletol)
+            call mma_allocate(SD_DMRG(idet)%ele_conf,norb)
+            call mma_allocate(SD_DMRG(idet)%dv,nstates_RGLR)
             SD_DMRG(idet)%electron=0
             SD_DMRG(idet)%ele_conf=0
             SD_DMRG(idet)%dv=0.0d0
@@ -263,8 +265,8 @@
 
           write(6,*)"before get the executable file"
 
-          allocate(ele_orb_alpha(norb))
-          allocate(ele_orb_beta(norb))
+          call mma_allocate(ele_orb_alpha,norb,label='ele_orb_alpha')
+          call mma_allocate(ele_orb_beta,norb,label='ele_orb_beta')
           !> All of the DETs into Maquis format
           open(unit=118,file="dets.mclr")
           do idet=1,ndets_RGLR
@@ -300,6 +302,8 @@
             write(118,*)
           end do
           close(118)
+          call mma_deallocate(ele_orb_alpha)
+          call mma_deallocate(ele_orb_beta)
 
           write(6,*)"After write dets.mclr file"
 
@@ -377,7 +381,13 @@
 
 !          stop
 
-          deallocate(pre_ele)
+          call mma_deallocate(checkpoint)
+          call mma_deallocate(pre_ele)
+          do idet=1,size(SD_DMRG)
+            call mma_deallocate(SD_DMRG(idet)%electron)
+            call mma_deallocate(SD_DMRG(idet)%ele_conf)
+            call mma_deallocate(SD_DMRG(idet)%dv)
+          end do
           deallocate(SD_DMRG)
 
       end Subroutine ci_reconstruct

@@ -203,7 +203,7 @@ do iSym=1,nSym
   C(1:nBa,1:nSsh(iSym)) => Ct(1:nBa*nSsh(iSym))
   S2(1:nBas(iSym),1:nBa) => St(1:nBas(iSym)*nBa)
   X(1:nBas(iSym),1:nSsh(iSym)) => Xt(1:nBa*nSsh(iSym))
-  Z(1:nBas(iSym),1:nSsh(iSym)) => Zt(1:nBa*nSsh(iSym))
+  Z(1:nBa,1:nSsh(iSym)) => Zt(1:nBa*nSsh(iSym))
 
   iCMO = nFro(iSym)+nIsh(iSym)+nAsh(iSym)+1
   do ia=1,nBa

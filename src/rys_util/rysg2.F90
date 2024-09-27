@@ -14,7 +14,7 @@
 !***********************************************************************
 
 subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
-                 Tvalue,ModU2,Cff2D,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
+                 Tvalue,ModU2_k,Cff2D_k,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the two-electron integrals.       *
@@ -71,6 +71,7 @@ use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi, NoTab
 use Index_Functions, only: nTri_Elem1
 use Breit, only: nOrdOp
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -78,7 +79,9 @@ integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray
 real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
                              P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
 real(kind=wp), intent(inout) :: Array(nArray), Hess(nHess)
-external :: Tvalue, ModU2, Cff2D
+procedure(tval1_kernel) :: Tvalue
+procedure(modu2_kernel) :: ModU2_k
+procedure(cff2d_kernel) :: Cff2D_k
 logical(kind=iwp), intent(inout) :: IfGrd(3,4), IfHss(4,3,4,3), IfG(4), Tr(4)
 integer(kind=iwp), intent(inout) :: IndHss(4,3,4,3,0:7)
 integer(kind=iwp), intent(out) :: mVec, Index_Out(3,4)
@@ -88,7 +91,6 @@ integer(kind=iwp) :: i, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), In
                      ipZeta, ipZInv, iStop, iZeta, jCar, JndGrd(3,4,0:7), kCent, la, lab, labMax, lb, lB00, lB01, lB10, lc, lCar, &
                      lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR
 logical(kind=iwp) :: KfGrd(3,4)
-external :: Exp_1, Exp_2
 
 KfGrd(:,:) = .false.
 lOp(1) = iOper(nOp(1))
@@ -209,7 +211,7 @@ end do
 
 ! Compute the arguments for which we will compute the roots and the weights.
 
-call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,Array(ipTv),Array(ipDiv),IsChi,ChiI2,nOrdOp)
+call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),Array(ipTv),Array(ipDiv),nT,IsChi,ChiI2)
 
 ! Compute roots and weights. Make sure that the weights ends up in
 ! the array where the z component of the 2D integrals will be.
@@ -242,16 +244,16 @@ ip = ip-nT
 
 ! Modify the roots.
 
-call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
+call ModU2_k(Array(ipU2),nT,nRys,Array(ipDiv))
 
 ! Drop ipDiv
 ip = ip-nT
 
 ! Compute coefficients for the recurrence relations of the 2D-integrals
 
-call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC,Array(ipP), &
-           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01), &
-           nOrdOp)
+call Cff2D_k(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
+             Array(ipP),Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
+             Array(ipB01),nOrdOp)
 ! Drop ipU2
 ip = ip-nT*nRys
 ! Let go of Zeta, ZInv, Eta, and EInv
@@ -322,7 +324,7 @@ end do
 KfGrd(:,:) = KfGrd .or. IfGrd
 
 call Rs2Dgh(Array(ip2D0),nT,nRys,la,lb,lc,ld,Array(ip2D1),Array(ip2D2),IfHss,IndHss,KfGrd,JndGrd,IfG,Coora,Alpha,Beta,Gmma,Delta, &
-            nZeta,nEta,Array(ipScr),Array(ipScr2),Array(ipTmp),Index1,Index2,Index3,Index4,ng,nh,Exp_1,Exp_2,nZeta,nEta,nIrrep,Tr)
+            nZeta,nEta,Array(ipScr),Array(ipScr2),Array(ipTmp),Index1,Index2,Index3,Index4,ng,nh,nZeta,nEta,nIrrep,Tr)
 ! Drop ipScr
 ip = ip-nTR
 ! Drop ipScr2

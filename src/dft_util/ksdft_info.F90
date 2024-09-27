@@ -22,7 +22,6 @@ real(kind=wp) :: CoefR = One, CoefX = One, FA_time, FI_time, Funcaa = Zero, Func
 logical(kind=iwp) :: do_pdftpot
 character(len=80) :: KSDFA
 
-public :: CoefR, CoefX, FA_time, FI_time, Funcaa, Funcbb, Funccc, KSDFA, LuMC, LuMT, PUVX_time, &
-          sp_time, do_pdftpot
+public :: CoefR, CoefX, FA_time, FI_time, Funcaa, Funcbb, Funccc, KSDFA, LuMC, LuMT, PUVX_time, sp_time, do_pdftpot
 
 end module KSDFT_Info

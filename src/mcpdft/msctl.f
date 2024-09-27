@@ -35,7 +35,7 @@
       use mspdft, only: do_rotate, iIntS, DIDA, P2MOt, D1AOMS, D1SAOMS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rctfld_module
+      use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc, TUVX
 
@@ -435,7 +435,7 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
         Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
-     &             D1I,D1ActAO,nTot1,DFTFOCK,Do_DFT)
+     &             DFTFOCK,Do_DFT)
 
 
         Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)

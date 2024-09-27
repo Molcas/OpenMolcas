@@ -44,7 +44,7 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use Int_Options, only: iTOffs
-use Integral_Interfaces, only: Int_PostProcess, Integral_RI_3
+use Integral_Interfaces, only: Int_PostProcess, int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -63,6 +63,7 @@ character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)
 real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
+procedure(int_wrout) :: Integral_RI_3
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 

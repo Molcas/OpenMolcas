@@ -29,7 +29,6 @@
       use Files, only: LuInp
       Implicit None
 !
-#include "twoswi.fh"
 #include "warnings.h"
 !
       Integer iReturn

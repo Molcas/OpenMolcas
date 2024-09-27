@@ -22,7 +22,6 @@
       use mspdft, only: F1MS, F2MS, FocMS, iIntS
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc
 

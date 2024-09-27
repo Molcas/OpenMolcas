@@ -331,8 +331,8 @@ do iS=1,nSkal
             iSmlbl = 2**iIrrep
             iiC = iiC+1
             mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-            if ((nfck(iirrep) /= 0) .and. (mSO /= 0)) call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl, &
-                                                                  iCmp,jCmp,iShell,jShell,iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
+            if ((nfck(iirrep) /= 0) .and. (mSO /= 0)) &
+              call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,rHrmt)
             iSOBlk = iSOBlk+mSO*iBas*jBas
           end if
         end do
