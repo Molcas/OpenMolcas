@@ -20,25 +20,28 @@
      &                 ESO,XYZCHR,BOLTZ_K)
       use rassi_aux, only: ipglob
       use Constants, only: One, auTocm, c_in_au, gElectron
+      use stdalloc, only: mma_allocate, mma_deallocate
+
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      Integer NSS
+      Real*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
+      Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      Integer JBNUM(NSTATE)
+
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "hfc_logical.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE),
-     &          JBNUM(NSTATE)
-      Character*1 xyzchr(3)
-      Character*8 SDPROP
-      Character*8 PSOPROP
-      Character*8 DMPPROP
-      Dimension IZMR(3),IZMI(3)
-      Dimension GTENS(3,3)
-      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
+      Character(LEN=1) xyzchr(3)
+      Character(LEN=8) SDPROP
+      Character(LEN=8) PSOPROP
+      Character(LEN=8) DMPPROP
+      Integer IZMR(3),IZMI(3)
+      Real*8 GTENS(3,3)
+      Real*8 TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
       COMPLEX*16 DIPSOm(3,NSS,NSS),Z(NSS,NSS)
       COMPLEX*16 SPNSFS(3,NSS,NSS)
@@ -46,63 +49,63 @@
       COMPLEX*16 DIPSOfc(3,NSS,NSS),DIPSOfsd(3,NSS,NSS)
       COMPLEX*16 DIPSOfcsd(3,NSS,NSS),DIPSOfpso(3,NSS,NSS)
       REAL*8 GTOTAL(9),ESO(NSS)
-      Dimension TMPf(NTP)
-      Dimension HFC_1(3,3),HFC_2(3,3),HFC_3(3,3)
-      Dimension CurieT(3,3),DiamT(3,3),PNMRCPS(NTP,NSS,3,3)
-      Dimension PNMRT(NTP,3,3),PNMR(NTP,3,3)
-      Dimension PNMRC(NTP,3,3),PNMRD(NTP,3,3)
+      Real*8 TMPf(NTP)
+      Real*8 HFC_1(3,3),HFC_2(3,3),HFC_3(3,3)
+      Real*8 CurieT(3,3),DiamT(3,3),PNMRCPS(NTP,NSS,3,3)
+      Real*8 PNMRT(NTP,3,3),PNMR(NTP,3,3)
+      Real*8 PNMRC(NTP,3,3),PNMRD(NTP,3,3)
       REAL*8 DLTTA,Zstat,p_Boltz,Boltz_k
       LOGICAL ISGS(NSS)
-!      Dimension IMR(3),IMI(3)
       INTEGER IFUNCT
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
+      Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
 
-!      AU2J=auTokJ*1.0D3
-!      J2CM=auTocm/AU2J
-!      AU2JTM=(AU2J/auToT)*rNAVO
+!     AU2J=auTokJ*1.0D3
+!     J2CM=auTocm/AU2J
+!     AU2JTM=(AU2J/auToT)*rNAVO
       ALPHA=One/c_in_au
       ALPHA2= ALPHA*ALPHA
-!      AU2REDR=2.0D2*Debye
-!      HALF=0.5D0
+!     AU2REDR=2.0D2*Debye
+!     HALF=0.5D0
 
-!      coeff_chi=0.1D0*rNAVO/kBoltzmann*mBohr**2
+!     coeff_chi=0.1D0*rNAVO/kBoltzmann*mBohr**2
       FEGVAL=-gElectron
-!      BOLTZ=kBoltzmann/AU2J
-!      Rmu0=4.0D-7*Pi
+!     BOLTZ=kBoltzmann/AU2J
+!     Rmu0=4.0D-7*Pi
 
       IF(IFSONCINI) THEN
-      WRITE(6,*)
-      WRITE(6,*) '  Soncini pNMR Tensor and A-Matrix Approach II '
-      WRITE(6,*) '  ============================================='
-      WRITE(6,*) '  1st order degenerate perturbation theory '
-      WRITE(6,*) '  within isolated kramers doublets.        '
-      WRITE(6,*) '  > spatial degeneracy'
-      WRITE(6,*) '  > strong spin-orbit coupling'
-      WRITE(6,*)
+         WRITE(6,*)
+         WRITE(6,*) '  Soncini pNMR Tensor and A-Matrix Approach II '
+         WRITE(6,*) '  ============================================='
+         WRITE(6,*) '  1st order degenerate perturbation theory '
+         WRITE(6,*) '  within isolated kramers doublets.        '
+         WRITE(6,*) '  > spatial degeneracy'
+         WRITE(6,*) '  > strong spin-orbit coupling'
+         WRITE(6,*)
       ELSE
-      WRITE(6,*)
-      WRITE(6,*) '  A-Matrix Approach II                     '
-      WRITE(6,*) '  ========================================='
-      WRITE(6,*) '  1st order degenerate perturbation theory '
-      WRITE(6,*) '  within isolated kramers doublets.        '
-      WRITE(6,*) '  > spatial degeneracy'
-      WRITE(6,*) '  > strong spin-orbit coupling'
-      WRITE(6,*)
+         WRITE(6,*)
+         WRITE(6,*) '  A-Matrix Approach II                     '
+         WRITE(6,*) '  ========================================='
+         WRITE(6,*) '  1st order degenerate perturbation theory '
+         WRITE(6,*) '  within isolated kramers doublets.        '
+         WRITE(6,*) '  > spatial degeneracy'
+         WRITE(6,*) '  > strong spin-orbit coupling'
+         WRITE(6,*)
       ENDIF
 
 C Mapping from spin states to spin-free state and to spin:
-      CALL GETMEM('MAPST','ALLO','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','ALLO','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
+      CALL mma_allocate(MAPST,NSS,Label='MAPST')
+      CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
+      CALL mma_allocate(MAPMS,NSS,Label='MAPMS')
       ISS=0
       DO ISTATE=1,NSTATE
        JOB=JBNUM(ISTATE)
        MPLET=MLTPLT(JOB)
        DO MSPROJ=-MPLET+1,MPLET-1,2
         ISS=ISS+1
-        IWORK(LMAPST-1+ISS)=ISTATE
-        IWORK(LMAPSP-1+ISS)=MPLET
-        IWORK(LMAPMS-1+ISS)=MSPROJ
+        MAPST(ISS)=ISTATE
+        MAPSP(ISS)=MPLET
+        MAPMS(ISS)=MSPROJ
        END DO
       END DO
 
@@ -214,15 +217,15 @@ cccccccccccccccccccccccccccccccccccccccc
 
 
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,NSS
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
           AMFI1=0.0D0
@@ -1151,15 +1154,15 @@ C square root of the G eigenvalues
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,NSS
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
           AMFI1=0.0D0
@@ -1620,15 +1623,15 @@ c
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,NSS
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
           AMFI1=0.0D0
@@ -2118,15 +2121,15 @@ c
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,NSS
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
           AMFI1=0.0D0
@@ -2968,8 +2971,8 @@ C square root of the G eigenvalues
       END IF
       END DO
 
-      CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
+      CALL mma_deallocate(MAPST)
+      CALL mma_deallocate(MAPSP)
+      CALL mma_deallocate(MAPMS)
 
-      END
+      END SUBROUTINE HFCTS
