@@ -39,7 +39,6 @@
       Character(LEN=8) SDPROP
       Character(LEN=8) PSOPROP
       Character(LEN=8) DMPPROP
-      Integer IZMR(3),IZMI(3)
       Real*8 GTENS(3,3)
       Real*8 TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
@@ -60,6 +59,13 @@
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
       Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
       Real*8, Allocatable:: LXI(:,:), LYI(:,:), LZI(:,:)
+      Type A2_array
+           Real*8, Pointer:: A2(:,:)
+      End Type A2_array
+      Type (A2_array):: pZMR(3), pZMI(3)
+      Real*8, Allocatable, Target:: ZXR(:,:), ZXI(:,:),
+     &                              ZYR(:,:), ZYI(:,:),
+     &                              ZZR(:,:), ZZI(:,:)
 
 !     AU2J=auTokJ*1.0D3
 !     J2CM=auTocm/AU2J
@@ -174,26 +180,8 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
          IF(ICOMP(KPROP).EQ.6) IAMFI6=KPROP
        END IF
       END DO
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
-
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
+      Call Allocate_Z()
 
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
@@ -299,19 +287,19 @@ C WIGNER-ECKART THEOREM:
           CGX=SQRT(0.5D0)*(CGM-CGP)
           CGY=SQRT(0.5D0)*(CGM+CGP)
 
-          WORK(LZXR-1+IJSS)=CGX*AMFI1+CG0*AMFI3
-          WORK(LZXI-1+IJSS)=CGY*AMFI2
-          WORK(LZYR-1+IJSS)=CGX*AMFI2+CG0*AMFI5
-          WORK(LZYI-1+IJSS)=CGY*AMFI4
-          WORK(LZZR-1+IJSS)=CGX*AMFI3+CG0*AMFI6
-          WORK(LZZI-1+IJSS)=CGY*AMFI5
+          ZXR(ISS,JSS)=CGX*AMFI1+CG0*AMFI3
+          ZXI(ISS,JSS)=CGY*AMFI2
+          ZYR(ISS,JSS)=CGX*AMFI2+CG0*AMFI5
+          ZYI(ISS,JSS)=CGY*AMFI4
+          ZZR(ISS,JSS)=CGX*AMFI3+CG0*AMFI6
+          ZZI(ISS,JSS)=CGY*AMFI5
         END DO
       END DO
 
 
-      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LZXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LZYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LZZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,ZXI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,ZYI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,ZZI,1)
 
       Call Deallocate_PSOP()
 
@@ -381,10 +369,10 @@ C WIGNER-ECKART THEOREM:
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
 C     &                    ZEKL(:,:,IXYZ,ISTATE)
@@ -400,17 +388,17 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
@@ -523,23 +511,23 @@ c
 c*     Continue original calculation of G tensor (=gg^*)
 c
 
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZXR),WORK(LZXI))
-      CALL PRCMAT(NSS,WORK(LZXR),WORK(LZXI))
-      CALL MULMAT(NSS,WORK(LZXR),WORK(LZXI),eex,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
+      CALL PRCMAT(NSS,ZXR,ZXI)
+      CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOf(1,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZYR),WORK(LZYI))
-      CALL MULMAT(NSS,WORK(LZYR),WORK(LZYI),eey,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
+      CALL MULMAT(NSS,ZYR,ZYI,eey,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOf(2,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZZR),WORK(LZZI))
-      CALL MULMAT(NSS,WORK(LZZR),WORK(LZZI),eez,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
+      CALL MULMAT(NSS,ZZR,ZZI,eez,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOf(3,ISS,JSS)=Z(ISS,JSS)
@@ -943,8 +931,8 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
         DO JSO=ISS,JSS
         IJSO=ISO+NSS*(JSO-1)
         JISO=JSO+NSS*(ISO-1)
-        CONTRIB=WORK(IZMR(IXYZ)-1+IJSO)*WORK(IZMR(JXYZ)-1+JISO)
-     &          -WORK(IZMI(IXYZ)-1+IJSO)*WORK(IZMI(JXYZ)-1+JISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+     &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
        END DO
@@ -1015,12 +1003,7 @@ C square root of the G eigenvalues
 
       ENDDO
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call Deallocate_Z()
 
       IF(.NOT.IFACALFCON) GOTO 1901
 
@@ -1029,25 +1012,6 @@ C square root of the G eigenvalues
       WRITE(6,*) '  A (FC)-Matrix for center:',ICEN
       WRITE(6,*) '  ========================================='
 
-      IAMFI1=0
-      IAMFI2=0
-      IAMFI3=0
-      IAMFI4=0
-      IAMFI5=0
-      IAMFI6=0
-      WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
-      WRITE(6,*) "Looking for ",SDPROP
-      DO KPROP=1,NPROP
-       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
-     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
-         IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
-         IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
-         IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
-         IF(ICOMP(KPROP).EQ.4) IAMFI4=KPROP
-         IF(ICOMP(KPROP).EQ.5) IAMFI5=KPROP
-         IF(ICOMP(KPROP).EQ.6) IAMFI6=KPROP
-       END IF
-      END DO
 
       Call Allocate_and_Load_PSOP()
 
@@ -1089,26 +1053,28 @@ C square root of the G eigenvalues
       CALL GETMEM('MZR','FREE','REAL',LMZR,NSS**2)
       CALL GETMEM('MZI','FREE','REAL',LMZI,NSS**2)
 
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
+      IAMFI1=0
+      IAMFI2=0
+      IAMFI3=0
+      IAMFI4=0
+      IAMFI5=0
+      IAMFI6=0
+      WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
+      WRITE(6,*) "Looking for ",SDPROP
+      DO KPROP=1,NPROP
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
+         IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
+         IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
+         IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
+         IF(ICOMP(KPROP).EQ.4) IAMFI4=KPROP
+         IF(ICOMP(KPROP).EQ.5) IAMFI5=KPROP
+         IF(ICOMP(KPROP).EQ.6) IAMFI6=KPROP
+       END IF
+      END DO
 
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
+      Call Allocate_Z()
 
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
@@ -1182,12 +1148,12 @@ C WIGNER-ECKART THEOREM:
           CGX=SQRT(0.5D0)*(CGM-CGP)
           CGY=SQRT(0.5D0)*(CGM+CGP)
 
-          WORK(LZXR-1+IJSS)=CGX*AMFI1+CG0*AMFI3
-          WORK(LZXI-1+IJSS)=CGY*AMFI2
-          WORK(LZYR-1+IJSS)=CGX*AMFI2+CG0*AMFI5
-          WORK(LZYI-1+IJSS)=CGY*AMFI4
-          WORK(LZZR-1+IJSS)=CGX*AMFI3+CG0*AMFI6
-          WORK(LZZI-1+IJSS)=CGY*AMFI5
+          ZXR(ISS,JSS)=CGX*AMFI1+CG0*AMFI3
+          ZXI(ISS,JSS)=CGY*AMFI2
+          ZYR(ISS,JSS)=CGX*AMFI2+CG0*AMFI5
+          ZYI(ISS,JSS)=CGY*AMFI4
+          ZZR(ISS,JSS)=CGX*AMFI3+CG0*AMFI6
+          ZZI(ISS,JSS)=CGY*AMFI5
         END DO
       END DO
 
@@ -1239,10 +1205,10 @@ C WIGNER-ECKART THEOREM:
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
 C     &                    ZEKL(:,:,IXYZ,ISTATE)
@@ -1258,17 +1224,17 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 
@@ -1364,22 +1330,22 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 c
 c*     Continue original calculation of G tensor (=gg^*)
 c
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZXR),WORK(LZXI))
-      CALL MULMAT(NSS,WORK(LZXR),WORK(LZXI),eex,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
+      CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfc(1,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZYR),WORK(LZYI))
-      CALL MULMAT(NSS,WORK(LZYR),WORK(LZYI),eey,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
+      CALL MULMAT(NSS,ZYR,ZYI,eey,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfc(2,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZZR),WORK(LZZI))
-      CALL MULMAT(NSS,WORK(LZZR),WORK(LZZI),eez,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
+      CALL MULMAT(NSS,ZZR,ZZI,eez,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfc(3,ISS,JSS)=Z(ISS,JSS)
@@ -1455,8 +1421,8 @@ c
         DO JSO=ISS,JSS
         IJSO=ISO+NSS*(JSO-1)
         JISO=JSO+NSS*(ISO-1)
-        CONTRIB=WORK(IZMR(IXYZ)-1+IJSO)*WORK(IZMR(JXYZ)-1+JISO)
-     &          -WORK(IZMI(IXYZ)-1+IJSO)*WORK(IZMI(JXYZ)-1+JISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+     &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
        END DO
@@ -1523,12 +1489,7 @@ c
 
       ENDDO
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call Deallocate_Z()
  1901  CONTINUE
 
       IF(.NOT.IFACALSDON) GOTO 1902
@@ -1558,26 +1519,7 @@ c
        END IF
       END DO
 
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
-
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
-
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
+      Call Allocate_Z()
 
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
@@ -1652,12 +1594,12 @@ C WIGNER-ECKART THEOREM:
           CGX=SQRT(0.5D0)*(CGM-CGP)
           CGY=SQRT(0.5D0)*(CGM+CGP)
 
-          WORK(LZXR-1+IJSS)=CGX*AMFI1+CG0*AMFI3
-          WORK(LZXI-1+IJSS)=CGY*AMFI2
-          WORK(LZYR-1+IJSS)=CGX*AMFI2+CG0*AMFI5
-          WORK(LZYI-1+IJSS)=CGY*AMFI4
-          WORK(LZZR-1+IJSS)=CGX*AMFI3+CG0*AMFI6
-          WORK(LZZI-1+IJSS)=CGY*AMFI5
+          ZXR(ISS,JSS)=CGX*AMFI1+CG0*AMFI3
+          ZXI(ISS,JSS)=CGY*AMFI2
+          ZYR(ISS,JSS)=CGX*AMFI2+CG0*AMFI5
+          ZYI(ISS,JSS)=CGY*AMFI4
+          ZZR(ISS,JSS)=CGX*AMFI3+CG0*AMFI6
+          ZZI(ISS,JSS)=CGY*AMFI5
         END DO
       END DO
 
@@ -1710,10 +1652,10 @@ C WIGNER-ECKART THEOREM:
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
 C     &                    ZEKL(:,:,IXYZ,ISTATE)
@@ -1729,17 +1671,17 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 
@@ -1835,22 +1777,22 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 c
 c*     Continue original calculation of G tensor (=gg^*)
 c
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZXR),WORK(LZXI))
-      CALL MULMAT(NSS,WORK(LZXR),WORK(LZXI),eex,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
+      CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfsd(1,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZYR),WORK(LZYI))
-      CALL MULMAT(NSS,WORK(LZYR),WORK(LZYI),eey,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
+      CALL MULMAT(NSS,ZYR,ZYI,eey,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfsd(2,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZZR),WORK(LZZI))
-      CALL MULMAT(NSS,WORK(LZZR),WORK(LZZI),eez,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
+      CALL MULMAT(NSS,ZZR,ZZI,eez,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfsd(3,ISS,JSS)=Z(ISS,JSS)
@@ -1926,8 +1868,8 @@ c
         DO JSO=ISS,JSS
         IJSO=ISO+NSS*(JSO-1)
         JISO=JSO+NSS*(ISO-1)
-        CONTRIB=WORK(IZMR(IXYZ)-1+IJSO)*WORK(IZMR(JXYZ)-1+JISO)
-     &          -WORK(IZMI(IXYZ)-1+IJSO)*WORK(IZMI(JXYZ)-1+JISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+     &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
        END DO
@@ -2019,12 +1961,7 @@ c
 
       ENDDO
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call Deallocate_Z()
  1902  CONTINUE
 
 * Skip if not a hyperfine calculation
@@ -2056,26 +1993,7 @@ c
       END IF
       END DO
 
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
-
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
-
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
+      Call Allocate_Z()
 
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
@@ -2152,12 +2070,12 @@ C WIGNER-ECKART THEOREM:
           CGY=SQRT(0.5D0)*(CGM+CGP)
 
 
-          WORK(LZXR-1+IJSS)=CGX*AMFI1+CG0*AMFI3
-          WORK(LZXI-1+IJSS)=CGY*AMFI2
-          WORK(LZYR-1+IJSS)=CGX*AMFI2+CG0*AMFI5
-          WORK(LZYI-1+IJSS)=CGY*AMFI4
-          WORK(LZZR-1+IJSS)=CGX*AMFI3+CG0*AMFI6
-          WORK(LZZI-1+IJSS)=CGY*AMFI5
+          ZXR(ISS,JSS)=CGX*AMFI1+CG0*AMFI3
+          ZXI(ISS,JSS)=CGY*AMFI2
+          ZYR(ISS,JSS)=CGX*AMFI2+CG0*AMFI5
+          ZYI(ISS,JSS)=CGY*AMFI4
+          ZZR(ISS,JSS)=CGX*AMFI3+CG0*AMFI6
+          ZZI(ISS,JSS)=CGY*AMFI5
 
         END DO
       END DO
@@ -2211,10 +2129,10 @@ C WIGNER-ECKART THEOREM:
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
 C     &                    ZEKL(:,:,IXYZ,ISTATE)
@@ -2230,17 +2148,17 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
@@ -2324,22 +2242,22 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
          enddo
        enddo
 
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZXR),WORK(LZXI))
-      CALL MULMAT(NSS,WORK(LZXR),WORK(LZXI),eex,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
+      CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfcsd(1,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZYR),WORK(LZYI))
-      CALL MULMAT(NSS,WORK(LZYR),WORK(LZYI),eey,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
+      CALL MULMAT(NSS,ZYR,ZYI,eey,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfcsd(2,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZZR),WORK(LZZI))
-      CALL MULMAT(NSS,WORK(LZZR),WORK(LZZI),eez,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
+      CALL MULMAT(NSS,ZZR,ZZI,eez,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfcsd(3,ISS,JSS)=Z(ISS,JSS)
@@ -2413,8 +2331,8 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
         DO JSO=ISS,JSS
         IJSO=ISO+NSS*(JSO-1)
         JISO=JSO+NSS*(ISO-1)
-        CONTRIB=WORK(IZMR(IXYZ)-1+IJSO)*WORK(IZMR(JXYZ)-1+JISO)
-     &          -WORK(IZMI(IXYZ)-1+IJSO)*WORK(IZMI(JXYZ)-1+JISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+     &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
        END DO
@@ -2481,12 +2399,7 @@ C square root of the G eigenvalues
 
       ENDDO
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call Deallocate_Z()
 
  1903  CONTINUE
 
@@ -2505,31 +2418,11 @@ C square root of the G eigenvalues
 
       Call Allocate_and_Load_PSOP()
 
-      CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
-      IZMR(1)=LZXR
-      IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
+      Call Allocate_Z()
 
-      CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
-      IZMR(2)=LZYR
-      IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
-
-      CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
-      IZMR(3)=LZZR
-      IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
-
-
-      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LZXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LZYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LZZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,ZXI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,ZYI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,ZZI,1)
 
       Call Deallocate_PSOP()
 
@@ -2582,10 +2475,10 @@ C square root of the G eigenvalues
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
 C     &                    ZEKL(:,:,IXYZ,ISTATE)
@@ -2601,17 +2494,17 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
             CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           WORK(IZMR(IXYZ)),WORK(IZMI(IXYZ)),
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
@@ -2707,22 +2600,22 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 c
 c*     Continue original calculation of G tensor (=gg^*)
 c
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZXR),WORK(LZXI))
-      CALL MULMAT(NSS,WORK(LZXR),WORK(LZXI),eex,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
+      CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfpso(1,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZYR),WORK(LZYI))
-      CALL MULMAT(NSS,WORK(LZYR),WORK(LZYI),eey,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
+      CALL MULMAT(NSS,ZYR,ZYI,eey,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfpso(2,ISS,JSS)=Z(ISS,JSS)
       enddo
       enddo
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LZZR),WORK(LZZI))
-      CALL MULMAT(NSS,WORK(LZZR),WORK(LZZI),eez,Z)
+      CALL ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
+      CALL MULMAT(NSS,ZZR,ZZI,eez,Z)
       DO ISS=1,NSS
       DO JSS=1,NSS
       DIPSOfpso(3,ISS,JSS)=Z(ISS,JSS)
@@ -2799,8 +2692,8 @@ c
         DO JSO=ISS,JSS
         IJSO=ISO+NSS*(JSO-1)
         JISO=JSO+NSS*(ISO-1)
-        CONTRIB=WORK(IZMR(IXYZ)-1+IJSO)*WORK(IZMR(JXYZ)-1+JISO)
-     &          -WORK(IZMI(IXYZ)-1+IJSO)*WORK(IZMI(JXYZ)-1+JISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+     &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
 
 
         GTIJ=GTIJ+CONTRIB
@@ -2895,12 +2788,8 @@ C square root of the G eigenvalues
 
       ENDDO
 
-      CALL GETMEM('ZXR','FREE','REAL',LZXR,NSS**2)
-      CALL GETMEM('ZXI','FREE','REAL',LZXI,NSS**2)
-      CALL GETMEM('ZYR','FREE','REAL',LZYR,NSS**2)
-      CALL GETMEM('ZYI','FREE','REAL',LZYI,NSS**2)
-      CALL GETMEM('ZZR','FREE','REAL',LZZR,NSS**2)
-      CALL GETMEM('ZZI','FREE','REAL',LZZI,NSS**2)
+      Call Deallocate_Z()
+
  1904  CONTINUE
 
 * End loop over CNT properties
@@ -2941,5 +2830,41 @@ C square root of the G eigenvalues
       CALL mma_deallocate(LYI)
       CALL mma_deallocate(LZI)
       End Subroutine Deallocate_PSOP
+
+      Subroutine Allocate_Z()
+      CALL mma_allocate(ZXR,NSS,NSS,Label='ZXR')
+      CALL mma_allocate(ZXI,NSS,NSS,Label='ZXI')
+      ZXR(:,:)=0.0D0
+      ZXI(:,:)=0.0D0
+      pZMR(1)%A2=>ZXR(:,:)
+      pZMI(1)%A2=>ZXI(:,:)
+      CALL mma_allocate(ZYR,NSS,NSS,Label='ZYR')
+      CALL mma_allocate(ZYI,NSS,NSS,Label='ZYI')
+      ZYR(:,:)=0.0D0
+      ZYI(:,:)=0.0D0
+      pZMR(2)%A2=>ZYR(:,:)
+      pZMI(2)%A2=>ZYI(:,:)
+      CALL mma_allocate(ZZR,NSS,NSS,Label='ZZR')
+      CALL mma_allocate(ZZI,NSS,NSS,Label='ZZI')
+      ZZR(:,:)=0.0D0
+      ZZI(:,:)=0.0D0
+      pZMR(3)%A2=>ZZR(:,:)
+      pZMI(3)%A2=>ZZI(:,:)
+      End Subroutine Allocate_Z
+
+      Subroutine Deallocate_Z()
+      Call mma_deallocate(ZXR)
+      Call mma_deallocate(ZXI)
+      Call mma_deallocate(ZYR)
+      Call mma_deallocate(ZYI)
+      Call mma_deallocate(ZZR)
+      Call mma_deallocate(ZZI)
+      pZMR(1)%A2=>Null()
+      pZMR(2)%A2=>Null()
+      pZMR(3)%A2=>Null()
+      pZMI(1)%A2=>Null()
+      pZMI(2)%A2=>Null()
+      pZMI(3)%A2=>Null()
+      End Subroutine Deallocate_Z
 
       END SUBROUTINE HFCTS
