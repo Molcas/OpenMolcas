@@ -42,15 +42,17 @@
 ************************************************************************
       SUBROUTINE CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
       use gugx, only: SGStruct, CIStruct, EXStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION TRA(NTRA),CI(NCO)
-#include "WrkSpc.fh"
+      Real*8 TRA(NTRA),CI(NCO)
 #include "rassi.fh"
 #include "symmul.fh"
       CHARACTER(LEN=8) WFTP
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
+
+      Real*8, Allocatable:: TMP(:)
 
 
 #ifdef DEBUG_MPSSI
@@ -98,18 +100,18 @@ C  THEN THE ACTIVE ONES:
         CALL DSCAL_(NCO,FAC,CI,1)
       ELSE
 C The general case:
-        CALL GETMEM('TMP   ','ALLO','REAL',LTMP,NCO)
+        CALL mma_allocate(TMP,NCO,Label='TMP')
         ISTA=1
         DO ISYM=1,NSYM
           NA=NASH(ISYM)
           NO=NOSH(ISYM)
           IF(NA.NE.0) THEN
             CALL SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,
-     *                TRA(ISTA),NCO,CI,WORK(LTMP))
+     &                TRA(ISTA),NCO,CI,TMP)
           END IF
           ISTA=ISTA+NO**2
         END DO
-        CALL GETMEM('TMP   ','FREE','REAL',LTMP,NCO)
+        CALL mma_deallocate(TMP)
       END IF
 #ifdef DEBUG_MPSSI
       write(6,*)' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
