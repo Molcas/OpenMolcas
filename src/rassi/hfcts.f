@@ -33,7 +33,6 @@
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "hfc_logical.fh"
       Character(LEN=1) xyzchr(3)
       Character(LEN=8) SDPROP
@@ -66,6 +65,9 @@
       Real*8, Allocatable, Target:: ZXR(:,:), ZXI(:,:),
      &                              ZYR(:,:), ZYI(:,:),
      &                              ZZR(:,:), ZZI(:,:)
+      Real*8, Allocatable, Target:: MXR(:,:), MXI(:,:),
+     &                              MYR(:,:), MYI(:,:),
+     &                              MZR(:,:), MZI(:,:)
 
 !     AU2J=auTokJ*1.0D3
 !     J2CM=auTocm/AU2J
@@ -1015,44 +1017,43 @@ C square root of the G eigenvalues
 
       Call Allocate_and_Load_PSOP()
 
-      CALL GETMEM('MXR','ALLO','REAL',LMXR,NSS**2)
-      CALL GETMEM('MXI','ALLO','REAL',LMXI,NSS**2)
-      CALL GETMEM('MYR','ALLO','REAL',LMYR,NSS**2)
-      CALL GETMEM('MYI','ALLO','REAL',LMYI,NSS**2)
-      CALL GETMEM('MZR','ALLO','REAL',LMZR,NSS**2)
-      CALL GETMEM('MZI','ALLO','REAL',LMZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXI),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYI),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZI),1)
-      CALL SMMAT(PROP,WORK(LMXR),NSS,0,1)
-      CALL SMMAT(PROP,WORK(LMYI),NSS,0,2)
-      CALL SMMAT(PROP,WORK(LMZR),NSS,0,3)
+      CALL mma_allocate(MXR,NSS,NSS,Label='MXR')
+      CALL mma_allocate(MXI,NSS,NSS,Label='MXI')
+      MXR(:,:)=0.0D0
+      MXI(:,:)=0.0D0
+      CALL mma_allocate(MXR,NSS,NSS,Label='MYR')
+      CALL mma_allocate(MXI,NSS,NSS,Label='MYI')
+      MYR(:,:)=0.0D0
+      MYI(:,:)=0.0D0
+      CALL mma_allocate(MZR,NSS,NSS,Label='MZR')
+      CALL mma_allocate(MZI,NSS,NSS,Label='MZI')
+      MZR(:,:)=0.0D0
+      MZI(:,:)=0.0D0
+      CALL SMMAT(PROP,MXR,NSS,0,1)
+      CALL SMMAT(PROP,MYI,NSS,0,2)
+      CALL SMMAT(PROP,MZR,NSS,0,3)
 
 
-      CALL DSCAL_(NSS**2,FEGVAL,WORK(LMXR),1)
-      CALL DSCAL_(NSS**2,FEGVAL,WORK(LMYI),1)
-      CALL DSCAL_(NSS**2,FEGVAL,WORK(LMZR),1)
+      CALL DSCAL_(NSS**2,FEGVAL,MXR,1)
+      CALL DSCAL_(NSS**2,FEGVAL,MYI,1)
+      CALL DSCAL_(NSS**2,FEGVAL,MZR,1)
 
-      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LMXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LMYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LMZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,MXI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,MYI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,MZI,1)
 
       Call Deallocate_PSOP()
 
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LMXR),WORK(LMXI))
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LMYR),WORK(LMYI))
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LMZR),WORK(LMZI))
+      CALL ZTRNSF(NSS,USOR,USOI,MXR,MXI)
+      CALL ZTRNSF(NSS,USOR,USOI,MYR,MYI)
+      CALL ZTRNSF(NSS,USOR,USOI,MZR,MZI)
 
-      CALL GETMEM('MXR','FREE','REAL',LMXR,NSS**2)
-      CALL GETMEM('MXI','FREE','REAL',LMXI,NSS**2)
-      CALL GETMEM('MYR','FREE','REAL',LMYR,NSS**2)
-      CALL GETMEM('MYI','FREE','REAL',LMYI,NSS**2)
-      CALL GETMEM('MZR','FREE','REAL',LMZR,NSS**2)
-      CALL GETMEM('MZI','FREE','REAL',LMZI,NSS**2)
-
+      CALL mma_deallocate(MXR)
+      CALL mma_deallocate(MXI)
+      CALL mma_deallocate(MYR)
+      CALL mma_deallocate(MYI)
+      CALL mma_deallocate(MZR)
+      CALL mma_deallocate(MZI)
 
       IAMFI1=0
       IAMFI2=0
