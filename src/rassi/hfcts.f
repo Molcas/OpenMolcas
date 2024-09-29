@@ -59,6 +59,7 @@
       INTEGER IFUNCT
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
       Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
+      Real*8, Allocatable:: LXI(:,:), LYI(:,:), LZI(:,:)
 
 !     AU2J=auTokJ*1.0D3
 !     J2CM=auTocm/AU2J
@@ -109,9 +110,6 @@ C Mapping from spin states to spin-free state and to spin:
        END DO
       END DO
 
-
-      IAMX=0
-
       DO IPROP=1,NPROP
         IF(PNAME(IPROP)(1:3).EQ.'ASD'.AND.ICOMP(IPROP).EQ.1) THEN
 
@@ -155,26 +153,7 @@ cccccccccccccccccccccccccccccccccccccccc
 * For A: ?
 
 C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
-      IAMX=0
-      IAMY=0
-      IAMZ=0
-      DO KPROP=1,NPROP
-        IF(PNAME(KPROP).EQ.PSOPROP) THEN
-         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
-         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
-         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
-       END IF
-      END DO
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,1)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,2)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,3)
-
+      Call Allocate_and_Load_PSOP()
 
 c Labeled AMFI for now
 c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
@@ -330,14 +309,11 @@ C WIGNER-ECKART THEOREM:
       END DO
 
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LZXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LZYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LZZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LZXI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LZYI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LZZI),1)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
-
+      Call Deallocate_PSOP()
 
 *     SVC 20090926 Experimental
 *     Add analysis of different contributions
@@ -1073,25 +1049,7 @@ C square root of the G eigenvalues
        END IF
       END DO
 
-      IAMX=0
-      IAMY=0
-      IAMZ=0
-      DO KPROP=1,NPROP
-        IF(PNAME(KPROP).EQ.PSOPROP) THEN
-         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
-         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
-         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
-       END IF
-      END DO
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
+      Call Allocate_and_Load_PSOP()
 
       CALL GETMEM('MXR','ALLO','REAL',LMXR,NSS**2)
       CALL GETMEM('MXI','ALLO','REAL',LMXI,NSS**2)
@@ -1114,13 +1072,11 @@ C square root of the G eigenvalues
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LMYI),1)
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LMZR),1)
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LMXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LMYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LMZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LMXI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LMYI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LMZI),1)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
+      Call Deallocate_PSOP()
 
       CALL ZTRNSF(NSS,USOR,USOI,WORK(LMXR),WORK(LMXI))
       CALL ZTRNSF(NSS,USOR,USOI,WORK(LMYR),WORK(LMYI))
@@ -2547,25 +2503,7 @@ C square root of the G eigenvalues
       WRITE(PSOPROP,'(a4,i4)') 'PSOP',ICEN
       WRITE(6,*) "Looking for ",PSOPROP
 
-      IAMX=0
-      IAMY=0
-      IAMZ=0
-      DO KPROP=1,NPROP
-         IF(PNAME(KPROP).EQ.PSOPROP) THEN
-         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
-         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
-         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
-       END IF
-      END DO
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,1)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,2)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,3)
+      Call Allocate_and_Load_PSOP()
 
       CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
@@ -2589,13 +2527,11 @@ C square root of the G eigenvalues
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LZXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LZYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LZZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LZXI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LZYI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LZZI),1)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
+      Call Deallocate_PSOP()
 
       DO I=1,NSS
        ISGS(I)=.FALSE.
@@ -2974,5 +2910,36 @@ C square root of the G eigenvalues
       CALL mma_deallocate(MAPST)
       CALL mma_deallocate(MAPSP)
       CALL mma_deallocate(MAPMS)
+
+      Contains
+      Subroutine Allocate_and_Load_PSOP()
+      Integer KPROP
+      Integer IAMX, IAMY, IAMZ
+      IAMX=0
+      IAMY=0
+      IAMZ=0
+      DO KPROP=1,NPROP
+        IF(PNAME(KPROP).EQ.PSOPROP) THEN
+         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
+         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
+         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
+       END IF
+      END DO
+      CALL mma_allocate(LXI,NSS,NSS,Label='LXI')
+      LXI(:,:)=0.0D0
+      CALL mma_allocate(LYI,NSS,NSS,Label='LYI')
+      LYI(:,:)=0.0D0
+      CALL mma_allocate(LZI,NSS,NSS,Label='LZI')
+      LZI(:,:)=0.0D0
+      IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,1)
+      IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,2)
+      IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,3)
+      End Subroutine Allocate_and_Load_PSOP
+
+      Subroutine Deallocate_PSOP()
+      CALL mma_deallocate(LXI)
+      CALL mma_deallocate(LYI)
+      CALL mma_deallocate(LZI)
+      End Subroutine Deallocate_PSOP
 
       END SUBROUTINE HFCTS
