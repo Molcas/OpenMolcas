@@ -128,37 +128,7 @@ C Mapping from spin states to spin-free state and to spin:
       WRITE(6,*) "Looking for ",PSOPROP
 
 C Identify which properties are ASD matrix elements:
-c Labeled AMFI for now
-c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
-      IAMFI1=0
-      IAMFI2=0
-      IAMFI3=0
-      IAMFI4=0
-      IAMFI5=0
-      IAMFI6=0
-      DO KPROP=1,NPROP
-       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
-     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
-         IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
-         IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
-         IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
-         IF(ICOMP(KPROP).EQ.4) IAMFI4=KPROP
-         IF(ICOMP(KPROP).EQ.5) IAMFI5=KPROP
-         IF(ICOMP(KPROP).EQ.6) IAMFI6=KPROP
-       END IF
-      END DO
 
-C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
-      IAMX=0
-      IAMY=0
-      IAMZ=0
-      DO KPROP=1,NPROP
-        IF(PNAME(KPROP).EQ.PSOPROP) THEN
-         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
-         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
-         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
-       END IF
-      END DO
 
 cccccccccccccccccccccccccccccccccccccccc
 c Testing - use overlap matrix
@@ -184,18 +154,47 @@ cccccccccccccccccccccccccccccccccccccccc
 * For g: L+2S
 * For A: ?
 
+C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
+      IAMX=0
+      IAMY=0
+      IAMZ=0
+      DO KPROP=1,NPROP
+        IF(PNAME(KPROP).EQ.PSOPROP) THEN
+         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
+         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
+         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
+       END IF
+      END DO
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-
       IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,1)
       IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,2)
       IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,3)
 
 
+c Labeled AMFI for now
+c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
+      IAMFI1=0
+      IAMFI2=0
+      IAMFI3=0
+      IAMFI4=0
+      IAMFI5=0
+      IAMFI6=0
+      DO KPROP=1,NPROP
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+     &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
+         IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
+         IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
+         IF(ICOMP(KPROP).EQ.3) IAMFI3=KPROP
+         IF(ICOMP(KPROP).EQ.4) IAMFI4=KPROP
+         IF(ICOMP(KPROP).EQ.5) IAMFI5=KPROP
+         IF(ICOMP(KPROP).EQ.6) IAMFI6=KPROP
+       END IF
+      END DO
       CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
@@ -216,7 +215,6 @@ cccccccccccccccccccccccccccccccccccccccc
       IZMI(3)=LZZI
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
-
 
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
@@ -1075,13 +1073,22 @@ C square root of the G eigenvalues
        END IF
       END DO
 
+      IAMX=0
+      IAMY=0
+      IAMZ=0
+      DO KPROP=1,NPROP
+        IF(PNAME(KPROP).EQ.PSOPROP) THEN
+         IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
+         IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
+         IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
+       END IF
+      END DO
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-
       IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
       IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
       IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
@@ -1092,24 +1099,16 @@ C square root of the G eigenvalues
       CALL GETMEM('MYI','ALLO','REAL',LMYI,NSS**2)
       CALL GETMEM('MZR','ALLO','REAL',LMZR,NSS**2)
       CALL GETMEM('MZI','ALLO','REAL',LMZI,NSS**2)
-
-!      IMR(1)=LMXR
-!      IMI(1)=LMXI
-!      IMR(2)=LMYR
-!      IMI(2)=LMYI
-!      IMR(3)=LMZR
-!      IMI(3)=LMZI
-
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXR),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXI),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYR),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYI),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZR),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZI),1)
-
       CALL SMMAT(PROP,WORK(LMXR),NSS,0,1)
       CALL SMMAT(PROP,WORK(LMYI),NSS,0,2)
       CALL SMMAT(PROP,WORK(LMZR),NSS,0,3)
+
 
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LMXR),1)
       CALL DSCAL_(NSS**2,FEGVAL,WORK(LMYI),1)
@@ -2558,14 +2557,12 @@ C square root of the G eigenvalues
          IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
        END IF
       END DO
-
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-
       IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,1)
       IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,2)
       IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,3)
