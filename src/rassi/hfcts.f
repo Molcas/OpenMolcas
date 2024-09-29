@@ -122,7 +122,10 @@ C Mapping from spin states to spin-free state and to spin:
       write(6,*) '  A(Total)-Matrix for center:',ICEN
       WRITE(6,*) '  ========================================='
 
-
+      WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
+      WRITE(6,*) "Looking for ",SDPROP
+      WRITE(PSOPROP,'(a4,i4)') 'PSOP',ICEN
+      WRITE(6,*) "Looking for ",PSOPROP
 
 C Identify which properties are ASD matrix elements:
 c Labeled AMFI for now
@@ -133,15 +136,6 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
       IAMFI4=0
       IAMFI5=0
       IAMFI6=0
-C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
-      IAMX=0
-      IAMY=0
-      IAMZ=0
-
-      WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
-      WRITE(6,*) "Looking for ",SDPROP
-      WRITE(PSOPROP,'(a4,i4)') 'PSOP',ICEN
-      WRITE(6,*) "Looking for ",PSOPROP
       DO KPROP=1,NPROP
        IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
      &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
@@ -151,7 +145,15 @@ C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
          IF(ICOMP(KPROP).EQ.4) IAMFI4=KPROP
          IF(ICOMP(KPROP).EQ.5) IAMFI5=KPROP
          IF(ICOMP(KPROP).EQ.6) IAMFI6=KPROP
-       ELSE IF(PNAME(KPROP).EQ.PSOPROP) THEN
+       END IF
+      END DO
+
+C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
+      IAMX=0
+      IAMY=0
+      IAMZ=0
+      DO KPROP=1,NPROP
+        IF(PNAME(KPROP).EQ.PSOPROP) THEN
          IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMY=KPROP
          IF(ICOMP(KPROP).EQ.3) IAMZ=KPROP
@@ -2542,12 +2544,13 @@ C square root of the G eigenvalues
       WRITE(6,*) '  A (PSO)-Matrix for center:',ICEN
       WRITE(6,*) '  ========================================='
 
-       IAMX=0
-       IAMY=0
-       IAMZ=0
 
       WRITE(PSOPROP,'(a4,i4)') 'PSOP',ICEN
       WRITE(6,*) "Looking for ",PSOPROP
+
+      IAMX=0
+      IAMY=0
+      IAMZ=0
       DO KPROP=1,NPROP
          IF(PNAME(KPROP).EQ.PSOPROP) THEN
          IF(ICOMP(KPROP).EQ.1) IAMX=KPROP
