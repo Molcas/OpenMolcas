@@ -13,7 +13,9 @@
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct, EXStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
+      Real*8 :: Energy(nState)
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
@@ -21,13 +23,13 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
-      Real*8 :: Energy(nState)
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
       INTEGER      I,JOB1,JOB2,iRlxRoot
-      CHARACTER*8  WFTYP1,WFTYP2
+      CHARACTER(LEN=8) WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
+      Real*8, Allocatable:: CI1(:), CI2(:)
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
@@ -106,7 +108,7 @@ C CI sizes, as function of symmetry, are now known.
 * NOTE: The HISPIN case is suspected to be buggy. Not used now.
           NCI1=1
       END IF
-      CALL GETMEM('GTDMCI1','ALLO','REAL',LCI1,NCI1)
+      CALL mma_allocate(CI1,NCI1,Label='CI1')
 
 C
 C Check for the possibility to hop to a lower root
@@ -186,7 +188,7 @@ C     CI sizes, as function of symmetry, are now known.
 C     Presently, the only other cases are HISPIN, CLOSED or EMPTY.
             NCI2=1
          END IF
-         CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCI2)
+         CALL mma_allocate(CI2,NCI2,Label='CI2')
 C     Check if the Energy gap is smaller than the threshold.
          Ediff=ABS(ENERGY(ISTATE2)-ENERGY(ISTATE1))
          Ethr=3.0D-2
@@ -203,14 +205,14 @@ C     Check if the Energy gap is smaller than the threshold.
 #ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit calls TSHop.'
 #endif
-         CALL TSHop(WORK(LCI1),WORK(LCI2))
+         CALL TSHop(CI1,CI2)
 #ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
            CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
-         CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
+         CALL mma_deallocate(CI2)
          CALL KILLOBJ(LPART)
       END IF
 C
@@ -261,7 +263,7 @@ C     CI sizes, as function of symmetry, are now known.
 C     Presently, the only other cases are HISPIN, CLOSED or EMPTY.
             NCI2=1
          END IF
-         CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCI2)
+         CALL mma_allocate(CI2,NCI2,Label='CI2')
 C     Check if the Energy gap is smaller than the threshold.
          Ediff=ABS(ENERGY(ISTATE2)-ENERGY(ISTATE1))
          Ethr=3.0D-2
@@ -278,25 +280,20 @@ C     Check if the Energy gap is smaller than the threshold.
 #ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit calls TSHop.'
 #endif
-         CALL TSHop(WORK(LCI1),WORK(LCI2))
+         CALL TSHop(CI1,CI2)
 #ifdef _DEBUGPRINT_
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
            CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
-         CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
+         CALL mma_deallocate(CI2)
          CALL KILLOBJ(LPART)
       END IF
 *
-C      ELSE
-C         LCI2=LCI1
-C         NCI2=NCI1
-C         CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCI2)
-C      END IF
       IF(WFTYP1.EQ.'GENERAL ') THEN
         CALL MkGUGA_Free(SGS(1),CIS(1),EXS(1))
       END IF
-      CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)
+      CALL mma_deallocate(CI1)
 *
       END SUBROUTINE TSHinit
