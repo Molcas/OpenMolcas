@@ -157,6 +157,7 @@ contains
     !>  @param[in]     f2         contracted Fock matrix with 3RDM
     !>  @param[in]     f1         contracted Fock matrix with 2RDM
     !>  @param[in]     iroot      MCSCF root number.
+#ifdef _HDF5_
     subroutine load_fciqmc_mats(idxG3, g3, g2, g1, f3, f2, f1, iroot, nLev)
         integer(iwp), intent(in) :: iroot, nLev
         integer(1), intent(in) :: idxG3(6, nG3)
@@ -337,6 +338,8 @@ contains
                 g1(:,:) = g1(:,:) / (nActel - 1)
             end subroutine calc_f1_and_g1
     end subroutine load_fciqmc_mats
+#endif
+
 
     ! required for MPI parallelisation
     subroutine broadcast_filename(InFile)
@@ -349,6 +352,7 @@ contains
       call symlink_(trim(master), trim(InFile), err)
       if (err == 0) write(u6, *) strerror_(get_errno_())
     end subroutine broadcast_filename
+
 
     subroutine load_six_tensor(tensor, dataset, iroot, nLev)
         integer(iwp), intent(in) :: iroot, nLev
@@ -443,6 +447,7 @@ contains
 #endif
     end subroutine load_six_tensor
 
+#ifdef _HDF5_
     subroutine user_barrier()
 #ifdef _MOLCAS_MPP_
         integer(MPIInt) :: error
@@ -485,12 +490,13 @@ contains
             call broadcast_filename('fciqmc.caspt2.' // str(mstate(jstate)) // '.h5')
         end if
     end subroutine user_barrier
+#endif
 
     subroutine load_fockmat(fock_matrix, fock_eigenvectors, nLev)
         ! sometimes eigenvectors are superfluous, but I/O should stay in one place
         ! and loading them is basically for free.
-        real(wp), intent(inout) :: fock_matrix(nLev, nLev), fock_eigenvectors(nLev, nLev)
         integer(iwp), intent(in) :: nLev
+        real(wp), intent(inout) :: fock_matrix(nLev, nLev), fock_eigenvectors(nLev, nLev)
         logical :: tExist
 #ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, len2index(2), i, t, u
@@ -527,6 +533,7 @@ contains
         unused_var(fock_matrix)
         unused_var(fock_eigenvectors)
         unused_var(nLev)
+        unused_var(tExist)
 #endif
     end subroutine load_fockmat
 
