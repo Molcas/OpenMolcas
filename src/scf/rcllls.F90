@@ -17,9 +17,9 @@
 
 subroutine RclLLs(iDskPt)
 
-use InfSO, only: MemRsv
+use InfSCF, only: MemRsv
 use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy, RclLst
-use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
+use SCFFiles, only: LuDel, LuDgd, LuGrd, Lux, Luy
 use Definitions, only: iwp
 
 implicit none

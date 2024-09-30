@@ -21,8 +21,7 @@ subroutine ChkOrt(iD,OffMx)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: MaxBas, nBas, nOrb, nSym
-use SCF_Arrays, only: CMO, Ovrlp
+use InfSCF, only: CMO, MaxBas, nBas, nOrb, nSym, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

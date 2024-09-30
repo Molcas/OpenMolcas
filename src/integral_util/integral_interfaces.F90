@@ -12,6 +12,7 @@
 module Integral_Interfaces
 
 ! Dummy modules to get correct order of compilation
+use IOBuf, only:
 use Real_Spherical, only:
 use iSD_data, only:
 use k2_arrays, only:

@@ -22,11 +22,10 @@ subroutine SCF(ireturn)
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: CMO, HDiag, OccNo
 use Interfaces_SCF, only: OccDef
 use OFembed, only: Do_OFemb
-use InfSCF, only: Atom, AufB, BName, BType, DSCF, iStatPrn, KSDFT, mOV, nBB, nCore, nD, nDisc, nnB, OnlyProp
-use Files, only: LuInp
+use InfSCF, only: Atom, AufB, BName, BType, CMO, DSCF, HDiag, iStatPrn, KSDFT, mOV, nBB, nCore, nD, nDisc, nnB, OccNo, OnlyProp
+use SCFFiles, only: LuInp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -12,7 +12,7 @@
 subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,DLT,DSQ,FLT,nFLT,ExFac,nBSQT,nBMX,nD,nOcc,lOcc,iDummy_run)
 
 use OFembed, only: Do_OFemb, FMaux, OFE_first, Rep_EN
-use ChoSCF, only: ALGO
+use InfSCF, only: ALGO
 use Cholesky, only: timings
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

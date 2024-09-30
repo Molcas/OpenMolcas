@@ -32,12 +32,10 @@ subroutine PMat_SCF(FstItr,XCf,nXCF,nD)
 !***********************************************************************
 
 use OFembed, only: Do_OFemb
-use InfSCF, only: DDnOff, DoFMM, DSCF, exFac, FMOMax, iDisk, iDummy_Run, ipsLst, Iter, Klockan, KSDFT, MapDns, MaxBas, MiniDn, &
-                  MxConstr, nBas, nBB, nBT, nCore, nDens, nDIsc, nIter, nIterP, nOcc, NoExchange, nSkip, nSym, pMTime, PotNuc, &
-                  PreSch, RFPert, Thize, TimFld, tNorm, Tot_Charge
-use ChoSCF, only: Algo, dfkMat
+use InfSCF, only: Algo, DDnOff, Dens, dfkMat, DoFMM, DSCF, EDFT, exFac, FMOMax, FockAO, iDisk, iDummy_Run, ipsLst, Iter, Klockan, &
+                  KSDFT, MapDns, MaxBas, MiniDn, MxConstr, nBas, nBB, nBT, nCore, nDens, nDIsc, nIter, nIterP, nOcc, NoExchange, &
+                  nSkip, nSym, OneHam, pMTime, PotNuc, PreSch, RFPert, Thize, TimFld, tNorm, Tot_Charge, TwoHam, Vxc
 use RICD_Info, only: Do_DCCD
-use SCF_Arrays, only: Dens, EDFT, FockAO, OneHam, TwoHam, Vxc
 use Int_Options, only: Exfac_Int => ExFac, FckNoClmb, PreSch_Int => PreSch, Thize_Int => Thize
 use rctfld_module, only: lRF
 use Integral_interfaces, only: Drv2El_dscf
@@ -338,9 +336,9 @@ end if
 
 contains
 
-subroutine Drv2El_dscf_Front_End(Temp)
+subroutine Drv2El_dscf_Front_End(Tmp)
 
-  real(kind=wp) :: Temp(:,:)
+  real(kind=wp) :: Tmp(:,:)
 
   ! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
   ! to be used.
@@ -349,8 +347,8 @@ subroutine Drv2El_dscf_Front_End(Temp)
   Thize_Int = Thize
   PreSch_Int = PreSch
   FckNoClmb = .false.
-  if (size(Temp,1) == 1) then
-    call Drv2El_dscf(Dens(:,1,iPsLst),Temp(:,1),nBT,0,FstItr)
+  if (size(Tmp,2) == 1) then
+    call Drv2El_dscf(Dens(:,1,iPsLst),Tmp(:,1),nBT,0,FstItr)
   else
 
     ! Compute the Coulomb potential for the total density and
@@ -361,28 +359,28 @@ subroutine Drv2El_dscf_Front_End(Temp)
     ! Set exchange factor to zero and compute only Coulomb
     ! for the total electron density.
 
-    Temp(:,2) = Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
+    Tmp(:,2) = Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
 
     ExFac_Int = Zero
-    call Drv2El_dscf(Temp(:,2),Temp(:,3),nBT,max(nDisc*1024,nCore),FstItr)
+    call Drv2El_dscf(Tmp(:,2),Tmp(:,3),nBT,max(nDisc*1024,nCore),FstItr)
 
     ! alpha exchange
     FckNoClmb = .true.
-    Temp(:,2) = Zero
+    Tmp(:,2) = Zero
     ExFac_Int = ExFac
-    call Drv2El_dscf(Dens(:,1,iPsLst),Temp(:,1),nBT,max(nDisc*1024,nCore),FstItr)
-    Temp(:,1) = Two*Temp(:,1)
+    call Drv2El_dscf(Dens(:,1,iPsLst),Tmp(:,1),nBT,max(nDisc*1024,nCore),FstItr)
+    Tmp(:,1) = Two*Tmp(:,1)
 
     ! beta exchange
     ExFac_Int = ExFac
-    call Drv2El_dscf(Dens(:,2,iPsLst),Temp(:,2),nBT,max(nDisc*1024,nCore),FstItr)
-    Temp(:,2) = Two*Temp(:,2)
+    call Drv2El_dscf(Dens(:,2,iPsLst),Tmp(:,2),nBT,max(nDisc*1024,nCore),FstItr)
+    Tmp(:,2) = Two*Tmp(:,2)
 
     ! Add together J and K contributions to form the correct
     ! alpha and beta Fock matrices.
 
-    Temp(:,1) = Temp(:,1)+Temp(:,3)
-    Temp(:,2) = Temp(:,2)+Temp(:,3)
+    Tmp(:,1) = Tmp(:,1)+Tmp(:,3)
+    Tmp(:,2) = Tmp(:,2)+Tmp(:,3)
   end if
 
 end subroutine Drv2El_dscf_Front_End

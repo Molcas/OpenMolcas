@@ -24,8 +24,8 @@ subroutine PrIte(QNR,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
 !                                                                      *
 !***********************************************************************
 
-use InfSO, only: DltNrm, DltNTh
-use InfSCF, only: AccCon, CPUItr, DMOMax, DNorm, DThr, E1V, E2V, EDiff, EneV, EThr, FMOMax, FThr, Iter, IterPrLv, jPrint, TNorm
+use InfSCF, only: AccCon, CPUItr, DltNrm, DltNTh, DMOMax, DNorm, DThr, E1V, E2V, EDiff, EneV, EThr, FMOMax, FThr, Iter, IterPrLv, &
+                  jPrint, TNorm
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

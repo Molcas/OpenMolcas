@@ -41,7 +41,7 @@
 !#define _DEBUGCode_
 subroutine Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
 
-use SCF_Arrays, only: HDiag
+use InfSCF, only: HDiag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp, u6

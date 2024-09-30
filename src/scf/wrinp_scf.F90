@@ -25,12 +25,10 @@ subroutine WrInp_SCF(SIntTh)
 
 use Functionals, only: Print_Info
 use KSDFT_Info, only: CoefR, CoefX
-use InfSO, only: DltNth, IterSO_Max, QNRTh
-use InfSCF, only: Aufb, DDnoff, DelThr, DIIS, DIISTh, DoCholesky, DSCF, DThr, EThr, FThr, Header, iAU_ab, InVec, isHDF5, jPrint, &
-                  jVOut, kIVO, kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nAufb, nBas, nCore, nD, nDel, nDIsc, nFro, nIter, nMem, &
-                  nOcc, NoExchange, nOrb, nSym, nTit, One_Grid, PreSch, RFPert, rTemp, Scrmbl, StVec, Teee, TemFac, Thize, Title, &
-                  Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, VTitle
-use ChoSCF, only: Algo, dmpk, ReOrd
+use InfSCF, only: Algo, Aufb, DDnoff, DelThr, DIIS, DIISTh, DltNth, dmpk, DoCholesky, DSCF, DThr, EThr, FThr, Header, iAU_ab, &
+                  InVec, isHDF5, IterSO_Max, jPrint, jVOut, kIVO, kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nAufb, nBas, nCore, nD, &
+                  nDel, nDIsc, nFro, nIter, nMem, nOcc, NoExchange, nOrb, nSym, nTit, One_Grid, PreSch, QNRTh, ReOrd, RFPert, &
+                  rTemp, Scrmbl, StVec, Teee, TemFac, Thize, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, VTitle
 use Fock_util_global, only: Deco
 use RICD_Info, only: Do_DCCD
 use Definitions, only: wp, iwp, u6

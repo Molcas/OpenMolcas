@@ -93,7 +93,7 @@
 
 module LnkLst
 
-use MxDM, only: MxIter
+use InfSCF, only: MxIter
 use Data_Structures, only: Alloc1DArray_Type
 use Definitions, only: wp, iwp, u6
 

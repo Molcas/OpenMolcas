@@ -16,9 +16,8 @@
 
 subroutine GMFree()
 
-use SCF_Arrays, only: CMO, CMO_ref, Darwin, Dens, EDFT, EOrb, FockAO, FockMO, HDiag, KntE, MssVlc, OccNo, OneHam, Ovrlp, TrM, &
-                      TwoHam, Vxc
-use Orb_Type, only: OrbType
+use InfSCF, only: CMO, CMO_ref, Darwin, Dens, EDFT, EOrb, FockAO, FockMO, HDiag, KntE, MssVlc, OccNo, OneHam, OrbType, Ovrlp, TrM, &
+                  TwoHam, Vxc
 #ifdef _FDE_
 use Embedding_Global, only: embInt
 #endif

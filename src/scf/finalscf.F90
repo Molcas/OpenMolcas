@@ -22,15 +22,13 @@ subroutine FinalSCF()
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: CMO, Darwin, Dens, EOrb, FockAO, KntE, MssVlc, OccNo, OneHam, Ovrlp, TwoHam
 use Interfaces_SCF, only: dOne_SCF
 use OFembed, only: Do_OFemb, FMaux, NDSD
 use SpinAV, only: DSc
-use InfSCF, only: BName, DMOMax, DSCF, E1V, E2V, EneV, Falcon, FMOMax, FThr, iPrForm, iPrint, iStatPrn, kIVO, KSDFT, MaxBas, &
-                  MaxBXO, NamFld, nBas, nBB, nBO, nBT, nD, nDel, nDens, nFld, nFro, nIter, nIterP, nnB, nnO, nOcc, NoProp, nOrb, &
-                  nSym, TimFld
-use Files, only: LuOut
-use AddCorr, only: Do_Addc, Do_Tw
+use InfSCF, only: BName, CMO, Darwin, Dens, DMOMax, Do_Addc, Do_Tw, DSCF, E1V, E2V, EneV, EOrb, Falcon, FMOMax, FockAO, FThr, &
+                  iPrForm, iPrint, iStatPrn, kIVO, KntE, KSDFT, MaxBas, MaxBXO, MssVlc, NamFld, nBas, nBB, nBO, nBT, nD, nDel, &
+                  nDens, nFld, nFro, nIter, nIterP, nnB, nnO, nOcc, NoProp, nOrb, nSym, OccNo, OneHam, Ovrlp, TimFld, TwoHam
+use SCFFiles, only: LuOut
 #ifdef _EFP_
 use EFP_Module, only: EFP_Instance
 use EFP, only: EFP_Shutdown

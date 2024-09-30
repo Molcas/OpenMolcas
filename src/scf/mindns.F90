@@ -30,8 +30,7 @@ subroutine MinDns(Dens,mBT,NumD,XCff,ltXCff,nD)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: iDisk, iPsLst, Iter, MapDns, nBT
-use MxDM, only: MxIter
+use InfSCF, only: iDisk, iPsLst, Iter, MapDns, MxIter, nBT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

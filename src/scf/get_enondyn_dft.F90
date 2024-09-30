@@ -11,9 +11,7 @@
 
 subroutine Get_Enondyn_dft(nh1,Grad,nGrad,DFTFOCK)
 
-use SCF_Arrays, only: CMO
-use InfSCF, only: KSDFT, nBas, nBT, nOcc, nOrb, nSym
-use DCSCF, only: Erest_xc
+use InfSCF, only: CMO, Erest_xc, KSDFT, nBas, nBT, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

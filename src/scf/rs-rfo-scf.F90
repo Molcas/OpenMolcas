@@ -31,8 +31,7 @@ subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc)
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
 
-use InfSCF, only: Iter, Iter_Start, kOptim
-use InfSO, only: IterSO
+use InfSCF, only: Iter, Iter_Start, IterSO, kOptim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Three, Pi
 use Definitions, only: wp, iwp, u6

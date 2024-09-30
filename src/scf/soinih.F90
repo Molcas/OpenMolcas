@@ -24,9 +24,7 @@ subroutine SOiniH()
 !                                                                      *
 !***********************************************************************
 
-use Orb_Type, only: OrbType
-use InfSCF, only: nFro, nOcc, nOrb, nSym
-use SCF_Arrays, only: FockMO, HDiag
+use InfSCF, only: FockMO, HDiag, nFro, nOcc, nOrb, nSym, OrbType
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

@@ -11,8 +11,7 @@
 
 subroutine Init_SCF()
 
-use SCF_Arrays, only: Dens, TwoHam, Vxc
-use InfSCF, only: MapDns, Two_Thresholds
+use InfSCF, only: Dens, MapDns, Two_Thresholds, TwoHam, Vxc
 use RICD_Info, only: Do_DCCD
 use Constants, only: Zero
 use Definitions, only: iwp

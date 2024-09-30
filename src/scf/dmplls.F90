@@ -18,7 +18,7 @@
 subroutine DmpLLs(iDskPt)
 
 use LnkLst, only: DmpLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
-use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
+use SCFFiles, only: LuDel, LuDgd, LuGrd, Lux, Luy
 use Definitions, only: iwp, u6
 
 implicit none

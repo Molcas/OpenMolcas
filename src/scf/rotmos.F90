@@ -32,8 +32,7 @@ subroutine RotMOs(Delta,nDelta)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: kOV, nBas, nD, nFro, nOcc, NoFS, nOrb, nSym, TimFld
-use SCF_Arrays, only: CMO
+use InfSCF, only: CMO, kOV, nBas, nD, nFro, nOcc, NoFS, nOrb, nSym, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

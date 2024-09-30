@@ -12,8 +12,7 @@
 subroutine Scf_Mcontrol(id_call)
 
 use Para_Info, only: MyRank
-use InfSCF, only: DThr, EThr, FThr, nIter
-use ChoSCF, only: ALGO, dmpk, nScreen
+use InfSCF, only: ALGO, dmpk, DThr, EThr, FThr, nIter, nScreen
 use Cholesky, only: timings
 use Constants, only: Zero
 use Definitions, only: iwp, u6

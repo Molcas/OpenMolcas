@@ -19,9 +19,7 @@ subroutine OccDef(Occ,mmB,nD,CMO,mBB)
 #ifndef POINTER_REMAP
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 #endif
-use OccSets, only: OccSet_e, OccSet_m
-use Orb_Type, only: OrbType
-use InfSCF, only: kOV, mOV, nBas, nFro, nnb, nOcc, nOrb, nOV, nSym, OnlyProp
+use InfSCF, only: kOV, mOV, nBas, nFro, nnb, nOcc, nOrb, nOV, nSym, OccSet_e, OccSet_m, OnlyProp, OrbType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

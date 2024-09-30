@@ -34,7 +34,7 @@ subroutine RWDTG(Num,DMat,lth,Option,DT,iDisk,MaxNum)
 !                                                                      *
 !***********************************************************************
 
-use Files, only: LuDSt, LuGrd, LuOSt, LuTSt
+use SCFFiles, only: LuDSt, LuGrd, LuOSt, LuTSt
 use Definitions, only: wp, iwp, u6
 
 implicit none

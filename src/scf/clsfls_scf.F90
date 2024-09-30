@@ -25,7 +25,7 @@ use mh5, only: mh5_close_file
 use SCFWfn, only: wfn_fileid
 #endif
 use InfSCF, only: DoCholesky, DSCF
-use Files, only: LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
+use SCFFiles, only: LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
 use Definitions, only: iwp, u6
 
 implicit none

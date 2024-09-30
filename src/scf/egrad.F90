@@ -34,9 +34,7 @@ subroutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
 !                 rotation parameters of length nG                     *
 !***********************************************************************
 
-use Orb_Type, only: OrbType
-use InfSCF, only: iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym
-use SCF_Arrays, only: Dens, TwoHam, Vxc
+use InfSCF, only: Dens, iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym, OrbType, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

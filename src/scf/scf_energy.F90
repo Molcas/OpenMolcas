@@ -12,8 +12,7 @@
 subroutine SCF_Energy(FstItr,E1_,E2_,EV)
 
 use Interfaces_SCF, only: PMat_SCF
-use InfSCF, only: nD
-use MxDM, only: MxIter
+use InfSCF, only: MxIter, nD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

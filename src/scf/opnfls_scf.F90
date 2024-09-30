@@ -21,8 +21,8 @@ subroutine OpnFls_SCF()
 !***********************************************************************
 
 use InfSCF, only: DoCholesky, DSCF
-use Files, only: FnDel, FnDGd, FnDst, FnGrd, FnOrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDst, LuGrd, LuOrd, LuOSt, LuTSt, Lux, &
-                 Luy
+use SCFFiles, only: FnDel, FnDGd, FnDst, FnGrd, FnOrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDst, LuGrd, LuOrd, LuOSt, LuTSt, &
+                    Lux, Luy
 use Definitions, only: iwp, u6
 
 implicit none

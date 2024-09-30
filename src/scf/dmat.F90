@@ -24,8 +24,8 @@ subroutine DMat(XCf,nXCf,nD)
 !***********************************************************************
 
 use Interfaces_SCF, only: dOne_SCF, MinDns
-use InfSCF, only: DDnOFF, DNorm, iDisk, InVec, iPsLst, Iter, MapDns, MiniDN, nBas, nBT, nDens, nFrz, nIter, nIterP, nMem, nOrb, nSym
-use SCF_Arrays, only: CMO, Dens, OccNo, TwoHam, Vxc
+use InfSCF, only: CMO, DDnOFF, Dens, DNorm, iDisk, InVec, iPsLst, Iter, MapDns, MiniDN, nBas, nBT, nDens, nFrz, nIter, nIterP, &
+                  nMem, nOrb, nSym, OccNo, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6

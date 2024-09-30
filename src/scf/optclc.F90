@@ -33,8 +33,7 @@ subroutine OptClc(CInter,nCI,nD,Ind,nInd)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: iDisk, kOptim, MapDns, nBT, nDens
-use SCF_Arrays, only: Dens, TwoHam, Vxc
+use InfSCF, only: Dens, iDisk, kOptim, MapDns, nBT, nDens, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

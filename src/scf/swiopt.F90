@@ -21,9 +21,8 @@ subroutine SwiOpt(AllCnt,OneHam,Ovrlp,mBT,CMO,mBB,nD)
 
 use OneDat, only: sNoNuc, sNoOri
 use Gateway_Info, only: ThrInt
-use InfSO, only: DltNth
-use InfSCF, only: DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
-use Files, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
+use InfSCF, only: DltNth, DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
+use SCFFiles, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

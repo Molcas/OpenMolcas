@@ -18,13 +18,12 @@ subroutine SCF_Init()
 !                                                                      *
 !***********************************************************************
 
-use InfSO, only: DltnTH, Energy, IterSO, qNRTh
-use InfSCF, only: AccCon, AddFragments, C1DIIS, Damping, DelThr, DIIS, DIISTh, DoFMM, DThr, E1V, E2V, EKin, EmConv, EneV, EThr, &
-                  ExFac, FckAuf, FThr, iCoCo, iDisk, IDKeep, InVec, iPrint, iPrOrb, Iter, jPrint, jVOut, kIVO, kOptim, KSDFT, &
-                  lPaper, LstVec, MapDns, MiniDn, NamFld, nAtoms, nBas, nCore, nD, nDel, nDens, nDisc, nFro, nFrz, nIter, nIterP, &
-                  nOcc, NoProp, nOrb, nSym, One_Grid, OnlyProp, pmTime, PotNuc, PreSch, QudThr, RFPert, RGEK, RSRFO, rTemp, &
-                  Scrmbl, TemFac, Thize, TimFld, TStop, Two_Thresholds, WarnCFG, WarnPOCC, WarnSlow, WrOutD
-use MxDM, only: MxIter
+use InfSCF, only: AccCon, AddFragments, C1DIIS, Damping, DelThr, DIIS, DIISTh, DltnTH, DoFMM, DThr, E1V, E2V, EKin, EmConv, &
+                  Energy, EneV, EThr, ExFac, FckAuf, FThr, iCoCo, iDisk, IDKeep, InVec, iPrint, iPrOrb, Iter, IterSO, jPrint, &
+                  jVOut, kIVO, kOptim, KSDFT, lPaper, LstVec, MapDns, MiniDn, MxIter, NamFld, nAtoms, nBas, nCore, nD, nDel, &
+                  nDens, nDisc, nFro, nFrz, nIter, nIterP, nOcc, NoProp, nOrb, nSym, One_Grid, OnlyProp, pmTime, PotNuc, PreSch, &
+                  qNRTh, QudThr, RFPert, RGEK, RSRFO, rTemp, Scrmbl, TemFac, Thize, TimFld, TStop, Two_Thresholds, WarnCFG, &
+                  WarnPOCC, WarnSlow, WrOutD
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

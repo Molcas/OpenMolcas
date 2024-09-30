@@ -25,9 +25,7 @@ subroutine yHx(X,Y,nXY)
 !                                                                      *
 !***********************************************************************
 
-use Orb_Type, only: OrbType
-use InfSCF, only: nFro, nOcc, nOrb, nSym
-use SCF_Arrays, only: FockMO
+use InfSCF, only: FockMO, nFro, nOcc, nOrb, nSym, OrbType
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 

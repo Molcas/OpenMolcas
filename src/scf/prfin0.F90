@@ -33,10 +33,9 @@ use Embedding_Global, only: Eemb, embPot
 use KSDFT_Info, only: CoefR, CoefX
 use OFembed, only: Do_OFemb
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: DMOMax, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, jPrint, KSDFT, lPaper, MxConstr, nBas, nBT, nD, nIter, &
-                  nIterP, nOcc, nOrb, nSym, PotNuc, s2UHF, WarnCfg, WarnPocc, WarnSlow
-use AddCorr, only: Addc_KSDFT, DE_KSDFT_c, Do_Addc, Do_Tw
-use DCSCF, only: Erest_xc, s2CNO
+use InfSCF, only: Addc_KSDFT, DE_KSDFT_c, DMOMax, Do_Addc, Do_Tw, E1V, E2V, E_nondyn, EKin, EneV, Erest_xc, FMOMax, iPrint, &
+                  jPrint, KSDFT, lPaper, MxConstr, nBas, nBT, nD, nIter, nIterP, nOcc, nOrb, nSym, PotNuc, s2CNO, s2UHF, WarnCfg, &
+                  WarnPocc, WarnSlow
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 

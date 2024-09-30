@@ -24,7 +24,7 @@ subroutine ReadIn_SCF(SIntTh)
 
 use Gateway_Info, only: PkAcc
 use InfSCF, only: DSCF, EThr, KSDFT, nCore, nDisc, TimFld
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: CPU1, CPU2, SIntTh, Tim1, Tim2, Tim3

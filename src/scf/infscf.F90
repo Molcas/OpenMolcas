@@ -11,7 +11,7 @@
 
 module InfSCF
 
-use MxDM, only: LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxSym, MxTit
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -128,6 +128,14 @@ private
 ! BName   - Atom = BName(1:LenIn); BType = BName(LenIn+1:LenIn+8)      *
 ! AccCon  - acceleration convergence scheeme used in iteration         *
 !----------------------------------------------------------------------*
+! For second order update info                                         *
+!----------------------------------------------------------------------*
+! iterso   - second order iteration number                             *
+! MemRsv   - memory kept unallocated in LList management               *
+! QNRTh    - threshold for QNR/C2Diis startup                          *
+! DltNTh   - convergence threshold for Norm of delta                   *
+! DltNrm   - actual Norm of delta after QNR/C2Diis extrapolation       *
+!----------------------------------------------------------------------*
 ! Timing informations                                                  *
 !----------------------------------------------------------------------*
 ! CpuItr - CPU time per iteration                                      *
@@ -147,7 +155,6 @@ private
 !----------------------------------------------------------------------*
 ! nTit  - number of title lines                                        *
 ! Title - title lines                                                  *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Logical variables                                                    *
 !----------------------------------------------------------------------*
@@ -181,42 +188,66 @@ private
 ! Falcon     - T   = Fock matrix is stored in Runfile                  *
 ! RSRFO      - F   = Use RS-RFO instead of DIIS extrapolation          *
 !----------------------------------------------------------------------*
+! Globally-allocated arrays                                            *
+!----------------------------------------------------------------------*
+! Dens    : density matrix - vector containing some (NumDT) last       *
+!           (optimized) density matrix differences - (nDT,nD,NumDT)    *
+! TwoHam  : two-el. part of the Fock matrix - vector containing        *
+!           corresponding 2-el. contributions - (nDT,nD,NumDT)         *
+! Vxc     : Vxc     part of the Fock matrix - vector containing        *
+!           corresponding 2-el. contributions - (nDT,nD,NumDT)         *
+! CMO     : molecular orbitals of length nCMO                          *
+! OccNo   : occupation numbers of length lthO                          *
+!----------------------------------------------------------------------*
 
-integer(kind=iwp), parameter :: nFld = 16, nStOpt = 8
+#include "Molcas.fh"
+integer(kind=iwp), parameter :: IterSO_Max = 30, MxIter = 400, MxOptm = 20, nFld = 16, nStOpt = 8
 
-integer(kind=iwp) :: fileorb_id, iAu_ab, iCoCo, iDisk(MxDDsk,2), iDKeep, iDMin, iDummy_run, indxC(16,2,8), InVec, iPrForm, iPrint, &
-                     iPrOrb, iPsLst, iStatPRN, iter, Iter2run, Iter_Ref = 1, Iter_Start = 1, iterprlv, jPrint, jVOut, kIvo, &
-                     klockan, kOptim, kOptim_Max = 5, kOV(2), lPaper, LstVec(nStOpt), MapDns(MxKeep), MaxBas, MaxBOF, MaxBOO, &
-                     MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, mOV, MxConstr, nAtoms, nAufb(2), nBas(MxSym), nBB, nBO, nBT, &
-                     nConstr(8), nCore, nD, nDel(MxSym), nDens, nDisc, nFro(MxSym), nFrz(MxSym), nIter(0:1), nIterP, nMem, nnB, &
-                     nnFr, nnO, nnOc, nOcc(MxSym,2), nOFS, nOO, nOrb(MxSym), nOV, nSkip(MxSym), nSym, nTit
-real(kind=wp) :: CpuItr, DelThr, DiisTh, DMOMax, DNorm, DThr, E1V, E2V, E_nondyn, EDiff, EKin, Elst(MxIter,2), EneV, EThr, ExFac, &
-                 FlipThr, FMOMax, FThr, HLgap, PotNuc, QudThr, RotFac, RotLev, RotMax, RTemp, s2uhf, ScrFac, TemFac, Thize, &
-                 ThrEne, TimFld(nFld), TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop
-logical(kind=iwp) :: AddFragments, Aufb, c1Diis, Damping, DDnOFF, Diis, DoCholesky, DoFMM, DoHLgap, DSCF, EmConv, Falcon, FckAuf, &
-                     isHDF5, LKon, lRel, MiniDn, MSYMON, NoExchange, NoProp, One_Grid, OnlyProp, PmTime, PreSch, RFpert, &
-                     RGEK = .false., RSRFO = .false., Scrmbl, Teee, Two_Thresholds, WarnCfg, WarnPocc, WarnSlow, WrOutD
+integer(kind=iwp) :: ALGO, fileorb_id, iAu_ab, iCoCo, iDisk(MxIter,2), iDKeep, iDMin, iDummy_run, indxC(16,2,8), InVec, iPrForm, &
+                     iPrint, iPrOrb, iPsLst, iStatPRN, iter, Iter2run, Iter_Ref = 1, Iter_Start = 1, iterprlv, IterSO = 0, &
+                     jPrint, jVOut, kIvo, klockan, kOptim, kOptim_Max = 5, kOV(2), lPaper, LstVec(nStOpt), MapDns(MxIter), MaxBas, &
+                     MaxBOF, MaxBOO, MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv = 0, mOV, MxConstr, nAtoms, nAufb(2), &
+                     nBas(MxSym), nBB, nBO, nBT, nConstr(8), nCore, nD, nDel(MxSym), nDens, nDisc, nFro(MxSym), nFrz(MxSym), &
+                     nIter(0:1), nIterP, nMem, nnB, nnFr, nnO, nnOc, nOcc(MxSym,2), nOFS, nOO, nOrb(MxSym), nOV, NSCREEN, &
+                     nSkip(MxSym), nSym, nTit
+real(kind=wp) :: CpuItr, DE_KSDFT_c, DelThr, dFKmat, DiisTh, DltNrm = Zero, DltNTh = 0.2e-4_wp, DltNTh_old, DMOMax, &
+                 dmpk = 0.045_wp, DNorm, DThr, DThr_Old, E1V, E2V, E_nondyn, EDiff, EKin, Elst(MxIter,2), Energy(MxIter) = Zero, &
+                 EneV, Erest_xc, EThr, EThr_old, ExFac, FlipThr, FMOMax, FThr, FThr_Old, HLgap, PotNuc, QNRTh = 0.075_wp, QudThr, &
+                 RotFac, RotLev, RotMax, RTemp, s2CNO, s2uhf, ScrFac, TemFac, Thize, ThrEne, ThrInt_old, TimFld(nFld), TNorm, &
+                 Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop
+logical(kind=iwp) :: AddFragments, Aufb, c1Diis, Cho_Aufb, Damping, DDnOFF, Diis, Do_Addc, Do_Tw, DoCholesky, DoFMM, DoHLgap, &
+                     DSCF, EmConv, Falcon, FckAuf, isHDF5, LKon, lRel, MiniDn, MSYMON, NoExchange, NoProp, One_Grid, OnlyProp, &
+                     PmTime, PreSch, REORD, RFpert, RGEK = .false., RSRFO = .false., Scrmbl, Teee, Two_Thresholds, WarnCfg, &
+                     WarnPocc, WarnSlow, WrOutD
 character(len=512) :: SCF_FileOrb
-character(len=80) :: KSDFT, StVec
-character(len=72) :: Header(2), Title(MxTit)
+character(len=80) :: ADDC_KSDFT, KSDFT, StVec
+character(len=72) :: Header(2), Title(1)
 character(len=45) :: NamFld(nFld)
 character(len=40) :: VTitle
 character(len=9) :: AccCon
 character(len=4) :: Neg2_Action
+integer(kind=iwp), allocatable :: OrbType(:,:)
+real(kind=wp), allocatable :: CMO(:,:), CMO_ref(:,:), Darwin(:), EDFT(:), EOrb(:,:), FockAO(:,:), HDiag(:), KntE(:), MssVlc(:), &
+                              OccNo(:,:), OneHam(:), Ovrlp(:), TrDD(:,:,:), TrDh(:,:,:), TrDP(:,:,:), TrM(:,:)
+real(kind=wp), allocatable :: OccSet_e(:,:), OccSet_m(:,:)
+real(kind=wp), allocatable, target :: Dens(:,:,:), FockMO(:,:), TwoHam(:,:,:), Vxc(:,:,:)
 character(len=LenIn8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: Atom(:)
 character(len=8), allocatable :: BType(:)
 
-public :: AccCon, AddFragments, Atom, Aufb, BName, BType, c1Diis, CpuItr, Damping, DDnOFF, DelThr, Diis, DiisTh, DMOMax, DNorm, &
-          DoCholesky, DoFMM, DoHLgap, DSCF, DThr, E1V, E2V, E_nondyn, EDiff, EKin, Elst, EmConv, EneV, EThr, ExFac, Falcon, &
-          FckAuf, fileorb_id, FlipThr, FMOMax, FThr, Header, HLgap, iAu_ab, iCoCo, iDisk, iDKeep, iDMin, iDummy_run, indxC, InVec, &
-          iPrForm, iPrint, iPrOrb, iPsLst, isHDF5, iStatPRN, iter, Iter2run, Iter_Ref, Iter_Start, iterprlv, jPrint, jVOut, kIvo, &
-          klockan, kOptim, kOptim_Max, kOV, KSDFT, LKon, lPaper, lRel, LstVec, MapDns, MaxBas, MaxBOF, MaxBOO, MaxBxO, MaxFlip, &
-          MaxOrb, MaxOrF, MaxOrO, MiniDn, mOV, MSYMON, MxConstr, NamFld, nAtoms, nAufb, nBas, nBB, nBO, nBT, nConstr, nCore, nD, &
-          nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, nIter, nIterP, nMem, nnB, nnFr, nnO, nnOc, nOcc, NoExchange, nOFS, &
-          nOO, NoProp, nOrb, nOV, nSkip, nStOpt, nSym, nTit, One_Grid, OnlyProp, PmTime, PotNuc, PreSch, QudThr, RFpert, RGEK, &
-          RotFac, RotLev, RotMax, RSRFO, RTemp, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, Teee, TemFac, Thize, ThrEne, TimFld, &
-          Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, Two_Thresholds, VTitle, WarnCfg, WarnPocc, WarnSlow, &
-          WrOutD
+public :: AccCon, ADDC_KSDFT, AddFragments, ALGO, Atom, Aufb, BName, BType, c1Diis, Cho_Aufb, CMO, CMO_ref, CpuItr, Damping, &
+          Darwin, DDnOFF, DE_KSDFT_c, DelThr, Dens, dFKmat, Diis, DiisTh, DltNrm, DltNth, DltNTh_old, DMOMax, dmpk, DNorm, &
+          Do_Addc, Do_Tw, DoCholesky, DoFMM, DoHLgap, DSCF, DThr, DThr_Old, E1V, E2V, E_nondyn, EDFT, EDiff, EKin, Elst, EmConv, &
+          Energy, EneV, EOrb, Erest_xc, EThr, EThr_old, ExFac, Falcon, FckAuf, fileorb_id, FlipThr, FMOMax, FockAO, FockMO, FThr, &
+          FThr_Old, HDiag, Header, HLgap, iAu_ab, iCoCo, iDisk, iDKeep, iDMin, iDummy_run, indxC, InVec, iPrForm, iPrint, iPrOrb, &
+          iPsLst, isHDF5, iStatPRN, iter, Iter2run, Iter_Ref, Iter_Start, iterprlv, IterSO, IterSO_Max, jPrint, jVOut, kIvo, &
+          klockan, KntE, kOptim, kOptim_Max, kOV, KSDFT, LKon, lPaper, lRel, LstVec, MapDns, MaxBas, MaxBOF, MaxBOO, MaxBxO, &
+          MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv, MiniDn, mOV, MssVlc, MSYMON, MxConstr, MxIter, MxOptm, NamFld, nAtoms, nAufb, &
+          nBas, nBB, nBO, nBT, nConstr, nCore, nD, nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, nIter, nIterP, nMem, nnB, &
+          nnFr, nnO, nnOc, nOcc, NoExchange, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, nStOpt, nSym, nTit, OccNo, OccSet_e, &
+          OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, QNRTh, QudThr, REORD, RFpert, RGEK, &
+          RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, Teee, TemFac, Thize, ThrEne, &
+          ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, TrDh, TrDP, TrM, TStop, &
+          Two_Thresholds, TwoHam, VTitle, Vxc, WarnCfg, WarnPocc, WarnSlow, WrOutD
 
 end module InfSCF

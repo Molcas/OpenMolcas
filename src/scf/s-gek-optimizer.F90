@@ -27,10 +27,8 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !             May '22, November-December '22                           *
 !***********************************************************************
 
-use InfSO, only: Energy, iterso
-use InfSCF, only: iter
+use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
-use SCF_Arrays, only: HDiag
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate

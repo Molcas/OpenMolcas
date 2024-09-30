@@ -22,8 +22,7 @@ subroutine R1IntB()
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: Darwin, KntE, MssVlc
-use InfSCF, only: lRel, nBT
+use InfSCF, only: Darwin, KntE, lRel, MssVlc, nBT
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6

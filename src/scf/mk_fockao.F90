@@ -20,7 +20,7 @@ subroutine Mk_FockAO(nIter_)
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: FockAO, OneHam, TwoHam, Vxc
+use InfSCF, only: FockAO, OneHam, TwoHam, Vxc
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

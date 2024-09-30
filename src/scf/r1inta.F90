@@ -24,9 +24,8 @@ subroutine R1IntA()
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: OneHam, Ovrlp
 use OneDat, only: sNoNuc, sNoOri
-use InfSCF, only: nBT, Tot_Nuc_Charge
+use InfSCF, only: nBT, OneHam, Ovrlp, Tot_Nuc_Charge
 #ifdef _DEBUGPRINT_
 use InfSCF, only: nBas, nSym
 #endif

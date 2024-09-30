@@ -36,12 +36,10 @@ contains
 
 subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_FLT_ab,nFLT,ExFac,W_FSQ,W_FSQ_ab,nOcc,nOcc_ab)
 
-  use Scf_Arrays, only: CMO
+  use InfSCF, only: Algo, Cho_Aufb, CMO, dFKmat, dmpk, nScreen, ReOrd
   use Fock_util_global, only: Deco, Lunit
   use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, Integer_Pointer
   use SpinAV, only: Do_SpinAV
-  use ChoSCF, only: Algo, dFKmat, dmpk, nScreen, ReOrd
-  use ChoAuf, only: Cho_Aufb
   use Constants, only: Zero, One, Two, Half
   use stdalloc, only: mma_allocate, mma_deallocate
 

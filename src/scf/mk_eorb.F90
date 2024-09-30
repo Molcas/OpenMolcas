@@ -13,8 +13,7 @@
 
 subroutine Mk_EOrb()
 
-use SCF_Arrays, only: CMO, EOrb, FockAO
-use InfSCF, only: nBas, nD, nOrb, nSym
+use InfSCF, only: CMO, EOrb, FockAO, nBas, nD, nOrb, nSym
 use Definitions, only: iwp
 
 implicit none

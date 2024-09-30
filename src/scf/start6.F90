@@ -20,10 +20,9 @@ subroutine Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
 
 use OneDat, only: sNoNuc, sNoOri
 use SpinAV, only: Do_SpinAV, DSC
-use InfSCF, only: DoCholesky, E_nondyn, FileOrb_id, IndxC, isHDF5, MaxBas, MxConstr, nBas, nBB, nBT, nConstr, nDel, nFro, nnB, &
-                  nOcc, nOrb, nSym, VTitle
+use InfSCF, only: DoCholesky, E_nondyn, Erest_xc, FileOrb_id, IndxC, isHDF5, MaxBas, MxConstr, nBas, nBB, nBT, nConstr, nDel, &
+                  nFro, nnB, nOcc, nOrb, nSym, s2CNO, VTitle
 use Cholesky, only: ChFracMem
-use DCSCF, only: Erest_xc, s2CNO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6

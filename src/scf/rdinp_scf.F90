@@ -35,26 +35,21 @@ subroutine RdInp_scf()
 !                                                                      *
 !***********************************************************************
 
-use OccSets, only: nOccSet_e, nOccSet_m, OccSet_e, OccSet_M
 use KSDFT_Info, only: CoefR, CoefX
 use OFembed, only: dfmd, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, XSigma
 use Functionals, only: Custom_File, Custom_Func
 use IOBuf, only: lDaRec, nSect
-use InfSO, only: DltnTh, QNRTh
 use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: AddFragments, Aufb, C1DIIS, Damping, DDnOff, DelThr, DIIS, DIISTh, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, &
-                  Falcon, FckAuf, FckAuf, FlipThr, FThr, HLgap, iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, &
-                  isHDF5, iStatPRN, Iter2run, IterPrlv, jPrint, jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, &
-                  MiniDn, MSYMON, MxConstr, nAufb, nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, &
-                  NoExchange, NoProp, nOrb, nSym, nTit, One_Grid, OnlyProp, PmTime, PreSch, QudThr, RFPert, RGEK, RotFac, RotLev, &
-                  RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, Title, Tot_Charge, &
+use InfSCF, only: Addc_KSDFT, AddFragments, ALGO, Aufb, C1DIIS, Cho_Aufb, Damping, dmpk, DDnOff, DelThr, DIIS, DIISTh, DltnTh, &
+                  Do_addc, Do_Tw, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, Falcon, FckAuf, FckAuf, FlipThr, FThr, HLgap, &
+                  iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, isHDF5, iStatPRN, Iter2run, IterPrlv, jPrint, &
+                  jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, MiniDn, MSYMON, MxConstr, MxIter, MxOptm, nAufb, &
+                  nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, NoExchange, NoProp, nOrb, nScreen, nSym, &
+                  nTit, OccSet_e, OccSet_m, One_Grid, OnlyProp, PmTime, PreSch, QNRTh, QudThr, ReOrd, RFPert, RGEK, RotFac, &
+                  RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, Title, Tot_Charge, &
                   Tot_El_Charge, Tot_Nuc_Charge, TStop, WrOutD
 use Cholesky, only: ChFracMem, timings
-use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
-use MxDM, only: MxIter, MxOptm
-use AddCorr, only: Addc_KSDFT, Do_Addc, Do_Tw
-use ChoAuf, only: Cho_Aufb
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r
 use InfSCF, only: FileOrb_ID
@@ -66,7 +61,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "hfc_logical.fh"
 integer(kind=iwp) :: i, iArray(32), iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, &
-                     LuSpool, Mode(1), nFunc, nnn, nSqrSum
+                     LuSpool, nOccSet_e, nOccSet_m, Mode(1), nFunc, nnn, nSqrSum
 real(kind=wp) :: Tot_Ml_Charge
 logical(kind=iwp) :: CharSet, Chol, FermSet, IfAufChg, lTtl, OccSet, SpinSet, TDen_UsrDef, UHFSet
 character(len=180) :: Key, Line
@@ -1175,7 +1170,7 @@ if (kOptim_Max > MxOptm) then
   write(u6,*) 'kOptim_Max>MxOptm'
   write(u6,*) 'kOptim_Max=',kOptim_Max
   write(u6,*) 'MxOptm=',MxOptm
-  write(u6,*) 'Modify mxdm.f90 and recompile!'
+  write(u6,*) 'Modify infscf.F90 and recompile!'
   call Abend()
 end if
 goto 1000

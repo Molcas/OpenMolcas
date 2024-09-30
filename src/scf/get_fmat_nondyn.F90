@@ -16,9 +16,7 @@ subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
 use Fock_util_global, only: Deco
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use SpinAV, only: Do_SpinAV, DSC
-use InfSCF, only: E_nondyn, KSDFT, nBas, nBB, nSym
-use ChoSCF, only: dmpk, nScreen
-use DCSCF, only: Erest_xc
+use InfSCF, only: dmpk, E_nondyn, Erest_xc, KSDFT, nBas, nBB, nScreen, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6

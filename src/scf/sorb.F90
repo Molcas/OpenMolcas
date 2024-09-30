@@ -27,13 +27,13 @@ subroutine SOrb(LuOrb,SIntTh,iTerm)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: DoCholesky, InVec, KSDFT, nBas, nBB, nBB, nBT, nD, nnB, nOrb, nSym, One_Grid, SCF_FileOrb, ScrFac, Scrmbl, StVec
+use InfSCF, only: CMO, DoCholesky, EOrb, FockAO, InVec, KSDFT, nBas, nBB, nBB, nBT, nD, nnB, nOrb, nSym, OccNo, One_Grid, OneHam, &
+                  Ovrlp, SCF_FileOrb, ScrFac, Scrmbl, StVec, TrM
 #ifdef _HDF5_
 use mh5, only: mh5_close_file
 use InfSCF, only: FileOrb_ID, IsHDF5
 #endif
-use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo, OneHam
-use Files, only: LuOut
+use SCFFiles, only: LuOut
 use Definitions, only: wp, iwp, u6
 
 implicit none

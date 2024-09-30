@@ -31,8 +31,7 @@ subroutine EneClc(En1V,En2V,EnerV)
 use Embedding_Global, only: Eemb, embInt, embPot
 #endif
 use OFembed, only: Do_OFemb, Rep_EN
-use InfSCF, only: ELst, ipsLst, Iter, KSDFT, nBT, nD, nOcc, nSym, PotNuc, TimFld
-use SCF_Arrays, only: Dens, EDFT, OneHam, TwoHam
+use InfSCF, only: Dens, EDFT, ELst, ipsLst, Iter, KSDFT, nBT, nD, nOcc, nSym, OneHam, PotNuc, TimFld, TwoHam
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

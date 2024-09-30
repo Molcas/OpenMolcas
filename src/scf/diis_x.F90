@@ -31,9 +31,7 @@ subroutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 !                                                                      *
 !***********************************************************************
 
-use InfSO, only: Energy, IterSO
-use InfSCF, only: AccCon, C1DIIS, Iter, Iter_Start, kOptim, kOV, mOV, TimFld
-use MxDM, only: MxOptm
+use InfSCF, only: AccCon, C1DIIS, Energy, Iter, Iter_Start, IterSO, kOptim, kOV, mOV, MxOptm, TimFld
 use LnkLst, only: LLx
 use Interfaces_SCF, only: OptClc_X
 use stdalloc, only: mma_allocate, mma_deallocate

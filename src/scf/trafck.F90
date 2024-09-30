@@ -29,8 +29,7 @@ subroutine TraFck(canorb,FOVMax)
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: FckAuf, MaxBas, nBas, nBO, nBT, nConstr, nFro, nnFr, nOcc, nOrb, nSym, TimFld
-use SCF_Arrays, only: CMO, EOrb, FockAO, Ovrlp
+use InfSCF, only: CMO, EOrb, FckAuf, FockAO, MaxBas, nBas, nBO, nBT, nConstr, nFro, nnFr, nOcc, nOrb, nSym, Ovrlp, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

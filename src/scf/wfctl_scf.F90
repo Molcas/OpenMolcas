@@ -41,15 +41,13 @@ use InfSCF, only: nBO
 #endif
 use Interfaces_SCF, only: OptClc_X, TraClc_i
 use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
-use InfSO, only: DltNrm, DltnTh, Energy, IterSO, IterSO_Max, qNRTh
-use SCF_Arrays, only: CMO, CMO_Ref, EOrb, OccNo, Ovrlp, TrDD, TrDh, TrDP, TrM
-use InfSCF, only: AccCon, Aufb, CPUItr, Damping, DIIS, DIISTh, DMOMax, DoCholesky, DSCF, DThr, E1V, E2V, EDiff, EneV, EThr, &
-                  FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, jPrint, kOptim, kOptim_Max, kOV, KSDFT, &
-                  MaxFlip, MiniDn, mOV, MSYMON, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, &
-                  nSym, One_Grid, RGEK, RSRFO, rTemp, S2Uhf, Scrmbl, Teee, TemFac, TimFld, TStop, Two_Thresholds, WarnCfg, WarnPocc
+use InfSCF, only: AccCon, Aufb, CMO, CMO_Ref, CPUItr, Damping, DIIS, DIISTh, DltNrm, DltnTh, DMOMax, DoCholesky, DSCF, DThr, E1V, &
+                  E2V, EDiff, Energy, EneV, EOrb, EThr, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, iterSO, &
+                  iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, MxOptm, nAufb, nBas, &
+                  nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, Ovrlp, qNRTh, RGEK, &
+                  RSRFO, rTemp, S2Uhf, Scrmbl, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
-use MxDM, only: MxIter, MxOptm
-use Files, only: LuOut
+use SCFFiles, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Pi
 use Definitions, only: wp, iwp, u6

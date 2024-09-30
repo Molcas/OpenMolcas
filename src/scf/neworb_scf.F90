@@ -34,9 +34,9 @@ subroutine NewOrb_SCF(AllowFlip)
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: Aufb, DoHLGap, FCKAuf, FlipThr, FMOMax, HLGap, Iter, MaxBas, MaxBOF, MaxOrf, MxConstr, nBas, nBB, nBO, nBT, &
-                  nConstr, nD, nFro, nnB, nnFr, nOcc, nOrb, nSym, RotFac, RotLev, RotMax, ScrFac, Scrmbl, TEEE, TimFld, WarnCFG
-use SCF_Arrays, only: CMO, EOrb, FockAO, Ovrlp
+use InfSCF, only: Aufb, CMO, DoHLGap, EOrb, FCKAuf, FlipThr, FMOMax, FockAO, HLGap, Iter, MaxBas, MaxBOF, MaxOrf, MxConstr, nBas, &
+                  nBB, nBO, nBT, nConstr, nD, nFro, nnB, nnFr, nOcc, nOrb, nSym, Ovrlp, RotFac, RotLev, RotMax, ScrFac, Scrmbl, &
+                  TEEE, TimFld, WarnCFG
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

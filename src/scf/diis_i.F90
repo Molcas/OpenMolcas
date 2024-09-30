@@ -38,8 +38,7 @@ subroutine DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,nTr,nD,iOpt_DIIS,Ind)
 !***********************************************************************
 
 use SpinAV, only: Do_SpinAV
-use InfSCF, only: AccCon, Elst, EmConv, Iter, kOptim, TimFld, WarnPOcc
-use MxDM, only: MxIter, MxOptm
+use InfSCF, only: AccCon, Elst, EmConv, Iter, kOptim, MxIter, MxOptm, TimFld, WarnPOcc
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 

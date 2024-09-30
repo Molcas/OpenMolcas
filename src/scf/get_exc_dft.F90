@@ -13,7 +13,7 @@
 subroutine Get_Exc_dft(nh1,Grad,nGrad,DFTFOCK,F_DFT,D_DS,nBT,nD,KSDFT)
 
 use nq_Info, only: Dens_I, Grad_I, Tau_I
-use DCSCF, only: Erest_xc
+use InfSCF, only: Erest_xc
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

@@ -50,8 +50,7 @@ subroutine TraClc_i(iterLw,nD)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: iDisk, iDKeep, Iter, MapDns, nBT
-use SCF_Arrays, only: Dens, OneHam, TrDD, TrDh, TrDP, TwoHam, Vxc
+use InfSCF, only: Dens, iDisk, iDKeep, Iter, MapDns, nBT, OneHam, TrDD, TrDh, TrDP, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

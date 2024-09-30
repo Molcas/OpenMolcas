@@ -41,7 +41,7 @@ use, intrinsic :: iso_c_binding, only: c_ptr
 use mh5, only: mh5_exists_dset
 #endif
 use InfSCF, only: Aufb, FileOrb_id, isHDF5, mSymON, nBas, nBO, nBT, nDel, nnB, nOcc, nOrb, nSym, OnlyProp, VTitle
-use Files, only: LuOut
+use SCFFiles, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6

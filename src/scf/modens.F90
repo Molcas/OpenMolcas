@@ -22,8 +22,7 @@ subroutine MODens()
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: DMOMax, MaxBas, MaxBXO, MaxOrb, nBas, nD, nDens, nOcc, nOrb, nSym, TEEE, TimFld
-use SCF_Arrays, only: CMO, Dens, Ovrlp
+use InfSCF, only: CMO, Dens, DMOMax, MaxBas, MaxBXO, MaxOrb, nBas, nD, nDens, nOcc, nOrb, nSym, Ovrlp, TEEE, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

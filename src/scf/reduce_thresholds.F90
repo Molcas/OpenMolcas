@@ -18,9 +18,7 @@
 subroutine Reduce_Thresholds(EThr_,SIntTh)
 
 use Gateway_Info, only: ThrInt
-use InfSO, only: DltNTh
-use InfSCF, only: DThr, EThr, FThr
-use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old
+use InfSCF, only: DltNTh, DltNTh_old, DThr, DThr_old, EThr, EThr_old, FThr, FThr_old, ThrInt_old
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, u6
 
@@ -36,6 +34,8 @@ DltNTh_old = DltNTh
 FThr_old = FThr
 
 ! Get threshold used in connection of products of integrals and densities
+
+ThrInt_old = ThrInt
 
 EThr = EThr_
 if (EThr_old == Zero) then

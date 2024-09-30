@@ -29,8 +29,7 @@ subroutine Aufbau(nAuf,Occup,nOccup,iOK,nD)
 !       Occup(nOccup) : orbital occupation numbers                     *
 !***********************************************************************
 
-use InfSCF, only: nFro, nOcc, nOrb, nSym, rTemp, TEEE
-use SCF_Arrays, only: EOrb
+use InfSCF, only: EOrb, nFro, nOcc, nOrb, nSym, rTemp, TEEE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, Half
 use Definitions, only: wp, iwp

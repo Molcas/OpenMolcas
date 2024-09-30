@@ -14,9 +14,7 @@
 !#define _DEBUGPRINT_
 subroutine Mk_FockMO(O,S,nOTSD,C,nC,FockMO,nFockMO,nD,iOpt)
 
-use Orb_Type, only: OrbType
-use InfSCF, only: iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym
-use SCF_Arrays, only: TwoHam, Vxc
+use InfSCF, only: iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym, OrbType, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

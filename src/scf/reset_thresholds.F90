@@ -18,9 +18,7 @@
 subroutine Reset_Thresholds()
 
 use Gateway_Info, only: ThrInt
-use InfSO, only: DltNTh
-use InfSCF, only: DThr, EThr, FThr
-use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_Old
+use InfSCF, only: DltNTh, DltNTh_old, DThr, DThr_Old, EThr, EThr_old, FThr, FThr_Old, ThrInt_Old
 use Definitions, only: u6
 
 implicit none

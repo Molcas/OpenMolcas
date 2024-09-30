@@ -22,12 +22,9 @@ subroutine MemAlo()
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: CMO, CMO_Ref, Dens, EDFT, EOrb, FockAO, FockMO, HDiag, OccNo, TrM, TwoHam, Vxc
-use Orb_Type, only: OrbType
 use LnkLst, only: NodSiz
-use InfSO, only: MemRsv
-use InfSCF, only: Aufb, DSCF, MaxBas, mOV, nBB, nBO, nBT, nD, nDens, nIter, nMem, nnB, nnOc, nOO, nOV
-use MxDM, only: MxIter, MxOptm
+use InfSCF, only: Aufb, CMO, CMO_Ref, Dens, DSCF, EDFT, EOrb, FockAO, FockMO, HDiag, MaxBas, MemRsv, mOV, MxIter, MxOptm, nBB, &
+                  nBO, nBT, nD, nDens, nIter, nMem, nnB, nnOc, nOO, nOV, OccNo, OrbType, TrM, TwoHam, Vxc
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp, u6

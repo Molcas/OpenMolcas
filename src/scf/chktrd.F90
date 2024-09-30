@@ -25,7 +25,7 @@ subroutine ChkTrD(nSym,nBas,nOrb,Occ,nOcc,Dlt,nDlt)
 !                                                                      *
 !***********************************************************************
 
-use SCF_Arrays, only: Ovrlp
+use InfSCF, only: Ovrlp
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

@@ -12,13 +12,8 @@
 module Interfaces_SCF
 
 ! Dummy modules to get correct order of compilation
-use ChoSCF, only:
 use InfSCF, only:
 use LnkLst, only:
-use MxDM, only:
-use OccSets, only:
-use Orb_Type, only:
-use SCF_Arrays, only:
 
 implicit none
 private

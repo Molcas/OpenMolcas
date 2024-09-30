@@ -11,10 +11,8 @@
 
 subroutine Get_DEcorr(nh1,Grad,nGrad,DFTFOCK)
 
-use SCF_Arrays, only: CMO
 use SpinAV, only: Do_SpinAV, DSC
-use InfSCF, only: nBas, nBT, nConstr, nOcc, nOrb, nSym
-use AddCorr, only: addc_KSDFT, DE_KSDFT_c
+use InfSCF, only: addc_KSDFT, CMO, DE_KSDFT_c, nBas, nBT, nConstr, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

@@ -50,10 +50,8 @@ subroutine SOrUpV(V,lvec,W,Mode,UpTp)
 
 use LnkLst, only: GetNod, iVPtr, LLDelt, LLdGrd, LLLen, LLy, LstPtr, PutVec, SCF_V
 use Interfaces_SCF, only: yHx
-use InfSO, only: IterSO
-use InfSCF, only: Iter, TimFld
-use SCF_Arrays, only: HDiag
-use Files, only: LuDel, LuDGd
+use InfSCF, only: HDiag, Iter, IterSO, TimFld
+use SCFFiles, only: LuDel, LuDGd
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

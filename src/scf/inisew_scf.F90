@@ -25,8 +25,7 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt, ThrInt
 use OFembed, only: Do_OFemb
 use RICD_Info, only: Do_DCCD
-use InfSCF, only: nCore, nDisc
-use AddCorr, only: Do_Addc, Do_Tw
+use InfSCF, only: Do_Addc, Do_Tw, nCore, nDisc
 use Constants, only: One
 use Definitions, only: wp, iwp
 
