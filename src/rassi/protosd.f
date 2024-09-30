@@ -58,15 +58,12 @@ CPAM      write(*,*)'         Need array siz:',NPORB*NDET
       END DO
       NDET=NDET+1
       IF(NDET.GT.NPSDSZ) GOTO 997
-CPAM      CALL GETMEM('E0','Chec','Dummy',LDUM,NDUM)
       DO J=1,NPORB
         IPSDMS(J,NDET)=BSPIN
       END DO
-CPAM      CALL GETMEM('E1','Chec','Dummy',LDUM,NDUM)
       DO L=1,NPELA
         IPSDMS(ITMP(L),NDET)=ASPIN
       END DO
-CPAM      CALL GETMEM('E2','Chec','Dummy',LDUM,NDUM)
       GOTO 10
 
   30  CONTINUE

@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
@@ -21,11 +22,12 @@ C ISYMP is the symmetry irrep label of the derivatives.
 #include "rassi.fh"
 #include "jobin.fh"
 #include "symmul.fh"
-#include "WrkSpc.fh"
-      DIMENSION ARRAY(NARRAY)
-      DIMENSION ITOFF(8),IAOFF(8)
-      CHARACTER*8 LABEL,STYPE
+      Integer JOB,IDISP,ISYMP,NARRAY
+      Real*8 ARRAY(NARRAY)
+      Integer ITOFF(8),IAOFF(8)
+      CHARACTER(LEN=8) LABEL,STYPE
 
+      Real*8, Allocatable:: TEMP(:)
 
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
         WRITE(6,*)' RASSI/RDMGRD: Invalid JOB parameter.'
@@ -74,10 +76,10 @@ C Read MCKINT file:
       IOPT=0
       ISCODE=2**(ISYMP-1)
 C Get temporary buffer to read data by RDMCK calls
-      CALL GETMEM('RDMGRD','ALLO','REAL',LTEMP,NTEMP)
+      CALL mma_allocate(TEMP,NTEMP,Label='TEMP')
 C Read 1-electron integral derivatives:
       IRC=NTEMP
-      CALL dRDMCK(IRC,IOPT,LABEL,IDISP,WORK(LTEMP),ISCODE)
+      CALL dRDMCK(IRC,IOPT,LABEL,IDISP,TEMP,ISCODE)
       IF(IRC.NE.0) THEN
         WRITE(6,*)'RDMGRD: RDMGRD failed to read '//MINAME(JOB)
         WRITE(6,*)'  Displacement IDISP=',IDISP
@@ -109,9 +111,9 @@ C Move buffer integrals into ARRAY in proper format:
         NBI=NBASF(IS)
         IF(NBI.LE.0) GOTO 11
         IF(ISYMP.EQ.1) THEN
-         LT=LTEMP+ITOFF(IS)
+         LT=1+ITOFF(IS)
          IA1=1+IAOFF(IS)
-         CALL SQUARE(WORK(LT),ARRAY(IA1),1,NBI,NBI)
+         CALL SQUARE(TEMP(LT),ARRAY(IA1),1,NBI,NBI)
          IF(STYPE(1:4).EQ.'ANTI') THEN
           DO J=1,NBI-1
            DO I=J+1,NBI
@@ -124,10 +126,10 @@ C Move buffer integrals into ARRAY in proper format:
          IF(IS.LT.JS) GOTO 11
          NBJ=NBASF(JS)
          IF(NBJ.LE.0) GOTO 11
-         LT=LTEMP+ITOFF(IS)
+         LT=1+ITOFF(IS)
          IA1=1+IAOFF(IS)
          IA2=1+IAOFF(JS)
-         CALL DCOPY_(NBI*NBJ,WORK(LT),1,ARRAY(IA1),1)
+         CALL DCOPY_(NBI*NBJ,TEMP(LT),1,ARRAY(IA1),1)
          F=1.0D0
          IF(STYPE(1:4).EQ.'ANTI') F=-F
          DO I=1,NBI
@@ -139,7 +141,7 @@ C Move buffer integrals into ARRAY in proper format:
   11    CONTINUE
       END DO
 C Get rid of temporary buffer
-      CALL GETMEM('RDMGRD','FREE','REAL',LTEMP,NTEMP)
+      CALL mma_deallocate(TEMP)
 
 C Close MCKINT file:
       IRC=-1
@@ -153,4 +155,4 @@ C Close MCKINT file:
         CALL ABEND()
       END IF
 
-      END
+      END SUBROUTINE RDMGRD
