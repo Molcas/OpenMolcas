@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE VERTAB(NACTEL,M2SPIN,LSYM,NPART,NGASORB,NGASLIM,
      &                  ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LFSBARR)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER ISSTAB(*)
       INTEGER NASPRT,NACTEL,M2SPIN,LSYM
@@ -25,7 +26,7 @@
       INTEGER ISPEND,NGO,NSP,ISPSTA,MNL,MXL,MNR,MXR,NO
       INTEGER NPC2,M2C2,ISC2
       INTEGER NSSTP,KSSTP,KPOPMAX,KMS2MAX,NPOP,MS2,NSSTPTR
-      INTEGER LSSTPTR,LSSTARR,N,IEND,ISTA,IADDR,ISAVE,NEXT
+      INTEGER LSSTPTR,N,IEND,ISTA,IADDR,ISAVE,NEXT
       INTEGER MS2MIN,MS2MAX,MSFACT,NVIDX,LVIDX,IVIDX,IVERT
       INTEGER LEVUP,LEVDWN,IADDR1,IADDR2,NARC
       INTEGER NARCVRT,NVERTAB,LVERTAB,NDWNTAB,LDWNTAB,NARCLEV,LWEIGHT
@@ -39,6 +40,7 @@ C     INTEGER NSBS,LDUM,NDUM
 #include "WrkSpc.fh"
       INTEGER LIMARR(2,0:50)
       INTEGER ITRY(50)
+      INTEGER, Allocatable::  SSTARR(:)
 
 *----------------------------------------------------------------
 * Unbutton the substring table:
@@ -139,7 +141,7 @@ CTEST      write(*,'(1x,8i5)')(limarr(2,ispart),ispart=0,nasprt)
           IWORK(LSSTPTR+KPOP+(KPOPMAX+2)*(ISPART-1))=0
         END DO
       END DO
-      CALL GETMEM('SSTARR','ALLO','INTE',LSSTARR,NSSTP)
+      CALL mma_allocate(SSTARR,NSSTP,Label='SSTARR')
       DO ISST=1,NSSTP
        NPOP   = ISSTAB(KSSTP+1+5*(ISST-1))
        ISPART = ISSTAB(KSSTP+4+5*(ISST-1))
@@ -161,7 +163,7 @@ CTEST      write(*,'(1x,8i5)')(limarr(2,ispart),ispart=0,nasprt)
        ISPART = ISSTAB(KSSTP+4+5*(ISST-1))
        IADDR=IWORK(LSSTPTR+NPOP+(KPOPMAX+2)*(ISPART-1))
        IWORK(LSSTPTR+NPOP+(KPOPMAX+2)*(ISPART-1))=IADDR+1
-       IWORK(LSSTARR-1+IADDR)=ISST
+       SSTARR(IADDR)=ISST
       END DO
       ISAVE=1
       DO ISPART=1,NASPRT
@@ -176,7 +178,7 @@ CTEST      IADDR1=iwork(lsstptr+0+(kpopmax+2)*(1-1))
 CTEST      IADDR2=iwork(lsstptr+kpopmax+1+(kpopmax+2)*(nasprt-1))
 CTEST      write(*,'(1x,a,8i8)')'iaddr1,iaddr2:',iaddr1,iaddr2
 CTEST      do IADDR=IADDR1,IADDR2-1
-CTEST        isst=iwork(lsstarr-1+IADDR)
+CTEST        isst=sstarr(IADDR)
 CTEST        kpop=ISSTAB(KSSTP+1+5*(ISST-1))
 CTEST        ksym=ISSTAB(KSSTP+2+5*(ISST-1))
 CTEST        kms2=ISSTAB(KSSTP+3+5*(ISST-1))
@@ -223,7 +225,6 @@ CTESTC End of test print
 *----------------------------------
 * Recursively, find all other reachable vertices:
 * Upper and lower level:
-CTEST      CALL GETMEM('A','Check','Inte',LDUM,NDUM)
       DO LEVUP=NASPRT,1,-1
         LEVDWN=LEVUP-1
 * A wasteful loop to pick out vertices on the upper level:
@@ -242,7 +243,7 @@ CTEST      CALL GETMEM('A','Check','Inte',LDUM,NDUM)
            IADDR1=IWORK(LSSTPTR+0+(KPOPMAX+2)*(LEVUP-1))
            IADDR2=IWORK(LSSTPTR+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
            DO IADDR=IADDR1,IADDR2-1
-             ISST=IWORK(LSSTARR-1+IADDR)
+             ISST=SSTARR(IADDR)
              KPOP=ISSTAB(KSSTP+1+5*(ISST-1))
              KSYM=ISSTAB(KSSTP+2+5*(ISST-1))
              KMS2=ISSTAB(KSSTP+3+5*(ISST-1))
@@ -287,7 +288,6 @@ CTEST      CALL GETMEM('A','Check','Inte',LDUM,NDUM)
 * We now need to keep just those that can also be reached from below.
 * This is accomplished by a similar loop, now in the other direction:
 *----------------------------------
-CTEST      CALL GETMEM('B','Check','Inte',LDUM,NDUM)
       NARC=0
 * Upper and lower level:
       DO LEVUP=1,NASPRT
@@ -310,7 +310,7 @@ CTEST      CALL GETMEM('B','Check','Inte',LDUM,NDUM)
            IADDR1=IWORK(LSSTPTR+0+(KPOPMAX+2)*(LEVUP-1))
            IADDR2=IWORK(LSSTPTR+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
            DO IADDR=IADDR1,IADDR2-1
-             ISST=IWORK(LSSTARR-1+IADDR)
+             ISST=SSTARR(IADDR)
              KPOP=ISSTAB(KSSTP+1+5*(ISST-1))
              KSYM=ISSTAB(KSSTP+2+5*(ISST-1))
              KMS2=ISSTAB(KSSTP+3+5*(ISST-1))
@@ -352,7 +352,6 @@ CTEST      CALL GETMEM('B','Check','Inte',LDUM,NDUM)
       END DO
 * Finished loop over upper level, LEVUP.
 *----------------------------------
-CTEST      CALL GETMEM('C','Check','Inte',LDUM,NDUM)
 * Renumber the vertices:
       NVERT=0
 * Upper and lower level:
@@ -389,7 +388,6 @@ C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
       CALL GETMEM('LTDA','Allo','Inte',LLTDA,2*(NASPRT+1))
 *----------------------------------
 * Upper and lower level:
-CTEST      CALL GETMEM('D','Check','Inte',LDUM,NDUM)
       DO LEVUP=NASPRT,1,-1
         LEVDWN=LEVUP-1
 * Level-to-Downarc array:
@@ -421,7 +419,7 @@ CTEST      CALL GETMEM('D','Check','Inte',LDUM,NDUM)
            IADDR1=IWORK(LSSTPTR+0+(KPOPMAX+2)*(LEVUP-1))
            IADDR2=IWORK(LSSTPTR+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
            DO IADDR=IADDR1,IADDR2-1
-             ISST=IWORK(LSSTARR-1+IADDR)
+             ISST=SSTARR(IADDR)
              KPOP=ISSTAB(KSSTP+1+5*(ISST-1))
              KSYM=ISSTAB(KSSTP+2+5*(ISST-1))
              KMS2=ISSTAB(KSSTP+3+5*(ISST-1))
@@ -474,11 +472,10 @@ CTEST      CALL GETMEM('D','Check','Inte',LDUM,NDUM)
       IWORK(LVERTAB-1+6+6*(NVERT-1))=0
       IWORK(LLTDA)=IARC
       IWORK(LLTDA+1)=0
-CTEST      CALL GETMEM('E','Check','Inte',LDUM,NDUM)
 *---------------------------------------------------------
 * The graph is finished. we do no longer need these arrays:
       CALL GETMEM('SSTPTR','FREE','INTE',LSSTPTR,NSSTPTR)
-      CALL GETMEM('SSTARR','FREE','INTE',LSSTARR,NSSTP)
+      CALL mma_deallocate(SSTARR)
       CALL GETMEM('VERIDX','FREE','INTE',LVIDX,NVIDX)
 *---------------------------------------------------------
 * A graph has been constructed. We may construct a weight array:
@@ -487,7 +484,6 @@ CTEST      CALL GETMEM('E','Check','Inte',LDUM,NDUM)
        IWORK(LWEIGHT-1+IVERT)=0
       END DO
       IWORK(LWEIGHT-1+NVERT)=1
-CTEST      CALL GETMEM('G','Check','Inte',LDUM,NDUM)
       DO LEVUP=1,NASPRT
         LEVDWN=LEVUP-1
 * Loop over arcs leading down from upper level:
@@ -503,7 +499,6 @@ CTEST      CALL GETMEM('G','Check','Inte',LDUM,NDUM)
       END DO
 C No more use for Level-to-Downarc array:
       CALL GETMEM('LTDA','Free','Inte',LLTDA,2*(NASPRT+1))
-CTEST      CALL GETMEM('H','Check','Inte',LDUM,NDUM)
 *---------------------------------------------------------
 * Now, for any vertex iv, iwork(lweight-1+iv) is the total number of
 * downwalks that can reach vertex nr nvert (The bottom vertex).
@@ -600,5 +595,4 @@ CTEST     &                  LEVUP+NASPRT*(NFSB-1)),LEVUP=1,NASPRT),NSDBLK
 CTEST      write(*,*)' Total nr of Slater determinants, NRDETS=',NRDETS
 CTEST      write(*,*)' Returning from VERTAB.'
 
-      RETURN
-      END
+      END SUBROUTINE VERTAB
