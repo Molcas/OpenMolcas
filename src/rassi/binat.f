@@ -23,7 +23,7 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
       INTEGER IOFF_SEV, IOFF_VEC, IOFF_TDM, IOFF_ISV
-      INTEGER LSEV, LSAO, IOPT, ICMP, ISYLAB, LS, LV, LV1
+      INTEGER IOPT, ICMP, ISYLAB, LS, LV, LV1
       INTEGER LE, I, LS1, ISEL, LS2, J, K, L, LE1
       INTEGER LUMAT, LVTMAT, LSVAL, LTDMAT, LTDMAO
       INTEGER LBRABNO, LKETBNO, LSNGV1, LSNGV2
@@ -32,7 +32,7 @@
       INTEGER ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
       INTEGER ISV, LB, LK, NBMIN, iEmpty, iGo
       INTEGER LUNIT, IDUMMY
-      REAL*8  SSEL, SWAP, SEV, X, DUMMY, SUMSNG
+      REAL*8  SSEL, SWAP, S_EV, X, DUMMY, SUMSNG
       CHARACTER(LEN=16) KNUM
       CHARACTER(LEN=8)  BNUM, LABEL
       CHARACTER(LEN=21) TXT
@@ -45,7 +45,7 @@ C Tables of starting locations, created and used later
       Integer, EXTERNAL :: ISFREEUNIT
       Real*8, EXTERNAL :: DDOT_
 
-      Real*8, Allocatable:: ONBAS(:), SCR(:)
+      Real*8, Allocatable:: ONBAS(:), SCR(:), SEV(:), SAO(:)
 
 C Nr of basis functions, total
       NBSQ=0
@@ -56,15 +56,15 @@ C============================================================
 C START BY CREATING A SET OF ORTHONORMAL VECTORS:
       CALL mma_allocate(ONBAS,NBSQ,Label='ONBAS')
 C EIGENVALUES OF OVERLAP MATRIX:
-      CALL GETMEM('SEV','ALLO','REAL',LSEV,NBST)
+      CALL mma_allocate(SEV,NBST,Label='SEV')
 C READ ORBITAL OVERLAP MATRIX.
-      CALL GETMEM('SAO','ALLO','REAL',LSAO,NBTRI)
+      CALL mma_allocate(SAO,NBTRI,Label='SAO')
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       LABEL = 'MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSAO),ISYLAB)
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,SAO,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  BINAT ***'
@@ -75,32 +75,32 @@ C READ ORBITAL OVERLAP MATRIX.
 
 C LOOP OVER SYMMETRY BLOCKS
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
-      LS=LSAO
+      LS=1
       LV=1
-      LE=LSEV
+      LE=1
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         CALL DCOPY_(NB**2,[0.0D0],0,ONBAS(LV),1)
         CALL DCOPY_(NB,[1.0D0],0,ONBAS(LV),NB+1)
-        CALL JACOB(WORK(LS),ONBAS(LV),NB,NB)
+        CALL JACOB(SAO(LS),ONBAS(LV),NB,NB)
 C SORT IN ORDER OF DECREASING EIGENVALUES.
         LS1=LS
         DO I=1,NB-1
          ISEL=I
-         SSEL=WORK(LS1)
+         SSEL=SAO(LS1)
          LS2=LS1
          DO J=I+1,NB
           LS2=LS2+J
-          IF(WORK(LS2).GT.SSEL) THEN
+          IF(SAO(LS2).GT.SSEL) THEN
             ISEL=J
-            SSEL=WORK(LS2)
+            SSEL=SAO(LS2)
           END IF
          END DO
          IF (ISEL.GT.I) THEN
           LS2=LS-1+(ISEL*(ISEL+1))/2
-          SWAP=WORK(LS2)
-          WORK(LS2)=WORK(LS1)
-          WORK(LS1)=SWAP
+          SWAP=SAO(LS2)
+          SAO(LS2)=SAO(LS1)
+          SAO(LS1)=SWAP
           DO K=1,NB
            SWAP=ONBAS(LV-1+K+NB*(ISEL-1))
            ONBAS(LV-1+K+NB*(ISEL-1))=ONBAS(LV-1+K+NB*(I-1))
@@ -114,10 +114,10 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV1=LV
         LE1=LE
         DO I=1,NB
-          SEV=WORK(LS1)
-          WORK(LE1)=SEV
-          IF (SEV.GT.1.0D-14) THEN
-           X=1.0D00/SQRT(SEV)
+          S_EV=SAO(LS1)
+          SEV(LE1)=S_EV
+          IF (S_EV.GT.1.0D-14) THEN
+           X=1.0D00/SQRT(S_EV)
            CALL DSCAL_(NB,X,ONBAS(LV1),1)
           ELSE
            CALL DCOPY_(NB,[0.0D0],0,ONBAS(LV1),1)
@@ -130,7 +130,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV=LV+NB**2
         LE=LE+NB
       END DO
-      CALL GETMEM('SAO','FREE','REAL',LSAO,NBTRI)
+      CALL mma_deallocate(SAO)
 C Starting at ONBAS there is now symmetry blocks of CMO arrays
 C describing orthonormal vectors. In case the AO overlap matrix is
 C (almost) singular, one or more vectors at the end of each symmetry
@@ -243,25 +243,25 @@ C tables of offsets:
         NB2=NBASF(ISYM2)
         LV1=1+IOFF_VEC(ISYM1)
         LV2=1+IOFF_VEC(ISYM2)
-        LE1=LSEV+IOFF_SEV(ISYM1)
-        LE2=LSEV+IOFF_SEV(ISYM2)
+        LE1=1+IOFF_SEV(ISYM1)
+        LE2=1+IOFF_SEV(ISYM2)
 C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
 C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
         CALL DGEMM_('N','N',NB1,NB2,NB2,1.0D0,
-     &              WORK(LTDMAT+ITD),NB1,ONBAS(LV2),NB2,tshinit.f
+     &              WORK(LTDMAT+ITD),NB1,ONBAS(LV2),NB2,
      &         0.0D0, SCR,NB1)
         CALL DGEMM_('T','N',NB1,NB2,NB1,1.0D0,
      &                ONBAS(LV1),NB1,SCR,NB1,
      &         0.0D0, WORK(LTDMAT+ITD),NB1)
         ITD1=ITD
         DO I=1,NB1
-         CALL DSCAL_(NB2,WORK(LE1-1+I),WORK(LTDMAT+ITD1),NB1)
+         CALL DSCAL_(NB2,SEV(LE1-1+I),WORK(LTDMAT+ITD1),NB1)
          ITD1=ITD1+1
         END DO
         ITD2=ITD
         DO I=1,NB2
-         CALL DSCAL_(NB1,WORK(LE2-1+I),WORK(LTDMAT+ITD2),1)
+         CALL DSCAL_(NB1,SEV(LE2-1+I),WORK(LTDMAT+ITD2),1)
          ITD2=ITD2+NB1
         END DO
 
@@ -328,7 +328,7 @@ C End of very long loop over eigenstate pairs.
 
       WRITE(6,*) repeat('*',80)
       CALL mma_deallocate(ONBAS)
-      CALL GETMEM('SEV','FREE','REAL',LSEV,NBST)
+      CALL mma_deallocate(SEV)
       CALL mma_deallocate(SCR)
       CALL GETMEM('UMAT','FREE','REAL',LUMAT,NBMX**2)
       CALL GETMEM('VTMAT','FREE','REAL',LVTMAT,NBMX**2)
