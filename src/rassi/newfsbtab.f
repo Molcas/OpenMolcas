@@ -49,7 +49,7 @@ C Table consists of a 6-word header with data (see below), then
 C an array dimensioned (NASPRT+2)*NFSB, and finally a hash map
 C with suitable capacity e.g. 2*NFSB (50% usage). Each item in a
 C hash map takes up 2 integers. Capacity must be at least NFSB+997.
-      CALL VERTAB(NACTEL,MSPIN2,LSYM,NPART,IWORK(LGORB),IWORK(LGLIM),
+      CALL mkVERTAB(NACTEL,MSPIN2,LSYM,NPART,IWORK(LGORB),IWORK(LGLIM),
      &            IWORK(LSSTAB),NFSB0,NRDETS0,NFSB,NRDETS,LSSTARR)
       NHEAD=7
       NSSTARR=(NASPRT+2)*NFSB

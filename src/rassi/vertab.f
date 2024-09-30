@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE VERTAB(NACTEL,M2SPIN,LSYM,NPART,NGASORB,NGASLIM,
-     &                  ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LFSBARR)
+      SUBROUTINE mkVERTAB(NACTEL,M2SPIN,LSYM,NPART,NGASORB,NGASLIM,
+     &                   ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LFSBARR)
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER ISSTAB(*)
@@ -27,11 +27,11 @@
       INTEGER NPC2,M2C2,ISC2
       INTEGER NSSTP,KSSTP,KPOPMAX,KMS2MAX,NPOP,MS2,NSSTPTR
       INTEGER N,IEND,ISTA,IADDR,ISAVE,NEXT
-      INTEGER MS2MIN,MS2MAX,MSFACT,NVIDX,LVIDX,IVIDX,IVERT
+      INTEGER MS2MIN,MS2MAX,MSFACT,NVIDX,IVIDX,IVERT
       INTEGER LEVUP,LEVDWN,IADDR1,IADDR2,NARC
-      INTEGER NARCVRT,NVERTAB,LVERTAB,NDWNTAB,LDWNTAB,NARCLEV,LWEIGHT
+      INTEGER NARCVRT,NVERTAB,NDWNTAB,NARCLEV
       INTEGER NFSBARR,LFSBARR,IVUP,LOWEST,ISW,NSW
-      INTEGER KPOPLIM,LLTDA,LSWITCH
+      INTEGER KPOPLIM,LSWITCH
       INTEGER IARC,IA,ISUM,KEEP
 C     INTEGER NSBS,LDUM,NDUM
       INTEGER NSBS
@@ -40,7 +40,9 @@ C     INTEGER NSBS,LDUM,NDUM
 #include "WrkSpc.fh"
       INTEGER LIMARR(2,0:50)
       INTEGER ITRY(50)
-      INTEGER, Allocatable::  SSTPTR(:), SSTARR(:)
+      INTEGER, Allocatable::  SSTPTR(:), SSTARR(:), VIDX(:)
+      INTEGER, Allocatable::  VERTAB(:), DWNTAB(:), LTDA(:)
+      INTEGER, Allocatable::  WEIGHT(:), SWITCH(:)
 
 *----------------------------------------------------------------
 * Unbutton the substring table:
@@ -212,15 +214,15 @@ CTESTC End of test print
 *----------------------------------
 * Allocate temporary counter array:
       NVIDX=NSYM*MSFACT*(NACTEL+1)*(NASPRT+1)
-      CALL GETMEM('VERIDX','ALLO','INTE',LVIDX,NVIDX)
+      CALL mma_allocate(VIDX,NVIDX,Label='VIDX')
       DO IVIDX=1,NVIDX
-       IWORK(LVIDX-1+IVIDX)=0
+       VIDX(IVIDX)=0
       END DO
 *----------------------------------
 * Initialize top vertex:
       IPOS=LSYM+NSYM*((M2SPIN-MS2MIN)/2+MSFACT*(
      &              NACTEL+(NACTEL+1)*NASPRT))
-      IWORK(LVIDX-1+IPOS)=1
+      VIDX(IPOS)=1
       IVERT=1
 *----------------------------------
 * Recursively, find all other reachable vertices:
@@ -235,7 +237,7 @@ CTESTC End of test print
           DO ISC1=1,NSYM
            IPOS=ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(
      &              NPC1+(NACTEL+1)*LEVUP))
-           IVER1=IWORK(LVIDX-1+IPOS)
+           IVER1=VIDX(+IPOS)
            IF(IVER1.EQ.0) GOTO 120
 * This is a valid upper vertex on the upper level.
 * Loop over valid arcs:
@@ -265,12 +267,12 @@ CTESTC End of test print
 * Inspect the lower vertex: Is it a new one?
              IPOS=ISC2+NSYM*((M2C2-MS2MIN)/2+MSFACT*(
      &              NPC2+(NACTEL+1)*LEVDWN))
-             IVER2=IWORK(LVIDX-1+IPOS)
+             IVER2=VIDX(+IPOS)
              IF(IVER2.GT.0) GOTO 110
 * This is a new vertex. Register its number
              IVERT=IVERT+1
              IVER2=IVERT
-             IWORK(LVIDX-1+IPOS)=IVER2
+             VIDX(+IPOS)=IVER2
  110         CONTINUE
            END DO
 * Finished looping over possible arcs.
@@ -300,7 +302,7 @@ CTESTC End of test print
           DO ISC1=1,NSYM
            IPOS=ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(
      &              NPC1+(NACTEL+1)*LEVUP))
-           IVER1=IWORK(LVIDX-1+IPOS)
+           IVER1=VIDX(+IPOS)
            IF(IVER1.EQ.0) GOTO 220
 * This is a valid upper vertex on the upper level.
 * Is it reachable from below?
@@ -331,7 +333,7 @@ CTESTC End of test print
 * Inspect the lower vertex: Is it reachable?
              IPOS=ISC2+NSYM*((M2C2-MS2MIN)/2+MSFACT*(
      &              NPC2+(NACTEL+1)*LEVDWN))
-             IVER2=IWORK(LVIDX-1+IPOS)
+             IVER2=VIDX(+IPOS)
              IF(IVER2.GT.0) NARCVRT=NARCVRT+1
  210         CONTINUE
            END DO
@@ -340,7 +342,7 @@ CTESTC End of test print
           IF(NARCVRT.EQ.0) THEN
            IPOS=ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(
      &              NPC1+(NACTEL+1)*LEVUP))
-           IWORK(LVIDX-1+IPOS)=0
+           VIDX(+IPOS)=0
           END IF
           NARC=NARC+NARCVRT
  220      CONTINUE
@@ -364,10 +366,10 @@ CTESTC End of test print
           DO ISC1=1,NSYM
            IPOS=ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(
      &              NPC1+(NACTEL+1)*LEVUP))
-           IVER1=IWORK(LVIDX-1+IPOS)
+           IVER1=VIDX(+IPOS)
            IF(IVER1.EQ.0) GOTO 320
            NVERT=NVERT+1
-           IWORK(LVIDX-1+IPOS)=NVERT
+           VIDX(+IPOS)=NVERT
  320       CONTINUE
           END DO
  330      CONTINUE
@@ -377,22 +379,22 @@ CTESTC End of test print
 *----------------------------------
 * Now allocate the vertex and downchain tables, and loop again:
       NVERTAB=6*NVERT
-      CALL GETMEM('VERTAB','ALLO','INTE',LVERTAB,NVERTAB)
+      CALL mma_allocate(VERTAB,NVERTAB,Label='VERTAB')
       NDWNTAB=3*NARC
-      CALL GETMEM('DWNTAB','ALLO','INTE',LDWNTAB,NDWNTAB)
+      CALL mma_allocate(DWNTAB,NDWNTAB,Label='DWNTAB')
       IARC =0
 CTEST      write(*,'(1x,a,8i8)')'Nr of vertices NVERT=',NVERT
 CTEST      write(*,'(1x,a,8i8)')'Nr of arcs     NARC =',NARC
 * --------------------------------------------------------------
 C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
-      CALL GETMEM('LTDA','Allo','Inte',LLTDA,2*(NASPRT+1))
+      CALL mma_allocate(LTDA,2*(NASPRT+1),Label='LTDA')
 *----------------------------------
 * Upper and lower level:
       DO LEVUP=NASPRT,1,-1
         LEVDWN=LEVUP-1
 * Level-to-Downarc array:
-        IWORK(LLTDA+2*LEVUP)=IARC+1
-        IWORK(LLTDA+2*LEVUP+1)=0
+        LTDA(1+2*LEVUP)=IARC+1
+        LTDA(1+2*LEVUP+1)=0
 * Initialize counter of arcs from this upper level:
         NARCLEV=0
 * A wasteful loop to pick out vertices on the upper level:
@@ -403,15 +405,15 @@ C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
           DO ISC1=1,NSYM
            IPOS=ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(
      &              NPC1+(NACTEL+1)*LEVUP))
-           IVER1=IWORK(LVIDX-1+IPOS)
+           IVER1=VIDX(+IPOS)
            IF(IVER1.EQ.0) GOTO 420
 * This is a valid upper vertex on the upper level.
-           IWORK(LVERTAB-1+1+6*(IVER1-1))=LEVUP
-           IWORK(LVERTAB-1+2+6*(IVER1-1))=NPC1
-           IWORK(LVERTAB-1+3+6*(IVER1-1))=M2C1
-           IWORK(LVERTAB-1+4+6*(IVER1-1))=ISC1
-           IWORK(LVERTAB-1+5+6*(IVER1-1))=IARC+1
-           IWORK(LVERTAB-1+6+6*(IVER1-1))=0
+           VERTAB(+1+6*(IVER1-1))=LEVUP
+           VERTAB(+2+6*(IVER1-1))=NPC1
+           VERTAB(+3+6*(IVER1-1))=M2C1
+           VERTAB(+4+6*(IVER1-1))=ISC1
+           VERTAB(+5+6*(IVER1-1))=IARC+1
+           VERTAB(+6+6*(IVER1-1))=0
 * Initialize counter of arcs from this upper vertex:
            NARCVRT=0
 * Loop over valid arcs:
@@ -440,7 +442,7 @@ C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
 * Is it a valid arc? See if a lower vertex exists.
              IPOS=ISC2+NSYM*((M2C2-MS2MIN)/2+MSFACT*(
      &              NPC2+(NACTEL+1)*LEVDWN))
-             IVER2=IWORK(LVIDX-1+IPOS)
+             IVER2=VIDX(+IPOS)
              IF(IVER2.EQ.0) GOTO 410
 * A valid arc has been found. The upper vertex IVER1 is
 * joined to the lower vertex IVER2 by an arc associated
@@ -448,71 +450,71 @@ C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
              NARCVRT=NARCVRT+1
              NARCLEV=NARCLEV+1
              IARC=IARC+1
-             IWORK(LDWNTAB-1+1+3*(IARC-1))=ISST
-             IWORK(LDWNTAB-1+2+3*(IARC-1))=IVER1
-             IWORK(LDWNTAB-1+3+3*(IARC-1))=IVER2
+             DWNTAB(+1+3*(IARC-1))=ISST
+             DWNTAB(+2+3*(IARC-1))=IVER1
+             DWNTAB(+3+3*(IARC-1))=IVER2
  410         CONTINUE
            END DO
 * Finished looping over possible arcs.
-          IWORK(LVERTAB-1+6+6*(IVER1-1))=NARCVRT
+          VERTAB(+6+6*(IVER1-1))=NARCVRT
  420      CONTINUE
          END DO
  430     CONTINUE
         END DO
        END DO
 * Finished looping over vertices on this level.
-       IWORK(LLTDA+2*LEVUP+1)=NARCLEV
+       LTDA(1+2*LEVUP+1)=NARCLEV
       END DO
 * Finished loop over upper level, LEVUP.
-      IWORK(LVERTAB-1+1+6*(NVERT-1))=0
-      IWORK(LVERTAB-1+2+6*(NVERT-1))=0
-      IWORK(LVERTAB-1+3+6*(NVERT-1))=0
-      IWORK(LVERTAB-1+4+6*(NVERT-1))=1
-      IWORK(LVERTAB-1+5+6*(NVERT-1))=IARC
-      IWORK(LVERTAB-1+6+6*(NVERT-1))=0
-      IWORK(LLTDA)=IARC
-      IWORK(LLTDA+1)=0
+      VERTAB(+1+6*(NVERT-1))=0
+      VERTAB(+2+6*(NVERT-1))=0
+      VERTAB(+3+6*(NVERT-1))=0
+      VERTAB(+4+6*(NVERT-1))=1
+      VERTAB(+5+6*(NVERT-1))=IARC
+      VERTAB(+6+6*(NVERT-1))=0
+      LTDA(1)=IARC
+      LTDA(1+1)=0
 *---------------------------------------------------------
 * The graph is finished. we do no longer need these arrays:
       CALL mma_deallocate(SSTPTR)
       CALL mma_deallocate(SSTARR)
-      CALL GETMEM('VERIDX','FREE','INTE',LVIDX,NVIDX)
+      CALL mma_deallocate(VIDX)
 *---------------------------------------------------------
 * A graph has been constructed. We may construct a weight array:
-      CALL GETMEM('WEIGHT','ALLO','INTE',LWEIGHT,NVERT)
+      CALL mma_allocate(WEIGHT,NVERT,Label='WEIGHT')
       DO IVERT=1,NVERT-1
-       IWORK(LWEIGHT-1+IVERT)=0
+       WEIGHT(+IVERT)=0
       END DO
-      IWORK(LWEIGHT-1+NVERT)=1
+      WEIGHT(+NVERT)=1
       DO LEVUP=1,NASPRT
         LEVDWN=LEVUP-1
 * Loop over arcs leading down from upper level:
-        NARCLEV=IWORK(LLTDA+2*LEVUP+1)
+        NARCLEV=LTDA(1+2*LEVUP+1)
         DO IA=1,NARCLEV
-          IARC=IWORK(LLTDA+2*LEVUP)-1+IA
-          ISST =IWORK(LDWNTAB-1+1+3*(IARC-1))
-          IVER1=IWORK(LDWNTAB-1+2+3*(IARC-1))
-          IVER2=IWORK(LDWNTAB-1+3+3*(IARC-1))
-          ISUM=IWORK(LWEIGHT-1+IVER1)+IWORK(LWEIGHT-1+IVER2)
-          IWORK(LWEIGHT-1+IVER1)=ISUM
+          IARC=LTDA(1+2*LEVUP)-1+IA
+          ISST =DWNTAB(+1+3*(IARC-1))
+          IVER1=DWNTAB(+2+3*(IARC-1))
+          IVER2=DWNTAB(+3+3*(IARC-1))
+          ISUM=WEIGHT(+IVER1)+WEIGHT(+IVER2)
+          WEIGHT(+IVER1)=ISUM
         END DO
       END DO
 C No more use for Level-to-Downarc array:
-      CALL GETMEM('LTDA','Free','Inte',LLTDA,2*(NASPRT+1))
+      CALL mma_deallocate(LTDA)
 *---------------------------------------------------------
-* Now, for any vertex iv, iwork(lweight-1+iv) is the total number of
+* Now, for any vertex iv, WEIGHT(+iv) is the total number of
 * downwalks that can reach vertex nr nvert (The bottom vertex).
 * Traverse the graph. Use a swich array. The graph is traversed
 * from the top. At each vertex, one of the available arcs downwards
 * is selected. Which arc to select is given by ISWITCH(LEVUP), where
 * LEVUP is the level of the upper vertex.
-      CALL GETMEM('Switch','Allo','Inte',LSWITCH,NASPRT)
+      CALL mma_allocate(SWITCH,NASPRT,Label='SWITCH')
 * Initial values: Lowest walk
       DO LEVUP=1,NASPRT
-        IWORK(LSWITCH-1+LEVUP)=1
+        SWITCH(+LEVUP)=1
       END DO
 * The total number of walks in the graph:
-      NFSB0=IWORK(LWEIGHT)
+      NFSB0=WEIGHT(1)
       NFSBARR=(NASPRT+2)*NFSB0
       CALL GETMEM('FSBARR','ALLO','INTE',LFSBARR,NFSBARR)
       NRDETS0=0
@@ -525,17 +527,17 @@ CTEST      write(*,*)' A list of all generated FS blocks:'
       IVUP=1
       LOWEST=NASPRT+1
       DO LEVUP=NASPRT,1,-1
-       ISW=IWORK(LSWITCH-1+LEVUP)
+       ISW=SWITCH(+LEVUP)
 * Select arc nr isw from those available to vertex ivup.
-       IARC=IWORK(LVERTAB-1+5+6*(IVUP-1))-1+ISW
+       IARC=VERTAB(+5+6*(IVUP-1))-1+ISW
 * Could it be incremented?
-       NSW=IWORK(LVERTAB-1+6+6*(IVUP-1))
+       NSW=VERTAB(+6+6*(IVUP-1))
 CTEST      write(*,'(1x,a,8i8)')'IVUP,ISW,NSW:',IVUP,ISW,NSW
        IF(NSW.GT.ISW) LOWEST=LEVUP
 * Consult the downarc table:
-       ISST =IWORK(LDWNTAB-1+1+3*(IARC-1))
-       IVER1=IWORK(LDWNTAB-1+2+3*(IARC-1))
-       IVER2=IWORK(LDWNTAB-1+3+3*(IARC-1))
+       ISST =DWNTAB(+1+3*(IARC-1))
+       IVER1=DWNTAB(+2+3*(IARC-1))
+       IVER2=DWNTAB(+3+3*(IARC-1))
 CTEST      write(*,'(1x,a,8i8)')'ISST,IVER1,IVER2:',ISST,IVER1,IVER2
        IF(IVER1.NE.IVUP) THEN
          WRITE(6,*)' OOOOPS! THIS SHOULD NOT HAPPEN.'
@@ -581,18 +583,18 @@ CTEST     &                  LEVUP+NASPRT*(NFSB-1)),LEVUP=1,NASPRT),NSDBLK
       END IF
       IF(LOWEST.GT.NASPRT) GOTO 600
       DO LEVUP=1,LOWEST-1
-       IWORK(LSWITCH-1+LEVUP)=1
+       SWITCH(+LEVUP)=1
       END DO
-      IWORK(LSWITCH-1+LOWEST)=1+IWORK(LSWITCH-1+LOWEST)
+      SWITCH(+LOWEST)=1+SWITCH(+LOWEST)
       GOTO 500
 
  600  CONTINUE
-      CALL GETMEM('Switch','Free','Inte',LSWITCH,NASPRT)
-      CALL GETMEM('VERTAB','FREE','INTE',LVERTAB,NVERTAB)
-      CALL GETMEM('DWNTAB','FREE','INTE',LDWNTAB,NDWNTAB)
-      CALL GETMEM('WEIGHT','FREE','INTE',LWEIGHT,NVERT)
+      CALL mma_deallocate(SWITCH)
+      CALL mma_deallocate(VERTAB)
+      CALL mma_deallocate(DWNTAB)
+      CALL mma_deallocate(WEIGHT)
 * Here we are. No more FS blocks can be constructed.
 CTEST      write(*,*)' Total nr of Slater determinants, NRDETS=',NRDETS
 CTEST      write(*,*)' Returning from VERTAB.'
 
-      END SUBROUTINE VERTAB
+      END SUBROUTINE mkVERTAB
