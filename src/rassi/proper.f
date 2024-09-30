@@ -54,19 +54,6 @@ C CALCULATED BEGINNING IN SCR.
 C LOOP OVER ALL REQUIRED ONE-ELECTRON OPERATORS:
 C
 C-------------------------------------------
-CTL2004-start
-C-------------------------------------------
-      IF (NONA.AND.(ISTATE.EQ.MAX(NONA_ISTATE,NONA_ISTATE))
-     &        .AND.(JSTATE.EQ.MIN(NONA_ISTATE,NONA_JSTATE))) THEN
-C
-C IF NONADIABATIC COUPLINGS ARE REQUIRED LET'S COMPUTE THEM RIGHT NOW!
-C
-         CALL COMP_NAC(ISTATE, JSTATE, SCR, 4*nSCR, ISY12, IOFF, LCI1)
-      END IF
-C WE CONTINUE WITH THE NORMAL CALCULATION OF PROPERTIES...
-C-------------------------------------------
-CTL2004-end
-C-------------------------------------------
 *If requested by user, put SCR in an unformatted file for later
 *use by another program. (A.Ohrn)
       If(ToFile) then

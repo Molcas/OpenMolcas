@@ -133,14 +133,6 @@ C Addition of NJOB,MSJOB and MLTPLT on RunFile.
 !     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
 C
 C .. and print it out
-CTEST      CALL PRINF()
-C Set up tables of coordinates and differentiated nuclei:
-#if 0
-      IF(NONA) THEN
-        CALL MKDISP()
-      END IF
-#endif
-
 
 C Additional input processing. Start writing report.
       CALL INPPRC()

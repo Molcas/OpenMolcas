@@ -135,7 +135,6 @@ C DEFAULT FLAGS:
       IFNTO=.FALSE.
       NATO=.FALSE.
       BINA=.FALSE.
-      NONA=.FALSE.
       IFTRD1=.FALSE.
       IFTRD2=.FALSE.
       RFPERT=.FALSE.

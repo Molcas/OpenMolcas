@@ -1483,7 +1483,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
       call mma_deallocate(detocc)
       CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCONF2)
       If (DoGSOR) CALL GETMEM('GTDMCI2_o','FREE','REAL',LCI2_o,NCONF2)
-      IF (.NOT.NONA) CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCONF1)
+      CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCONF1)
       if(.not.doDMRG)then
         CALL KILLSCTAB(LSPNTAB1)
         CALL KILLSCTAB(LSPNTAB2)

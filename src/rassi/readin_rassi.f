@@ -131,17 +131,6 @@ C ------------------------------------------
         GOTO 100
       END IF
 C-------------------------------------------
-CTL2004-start
-C-------------------------------------------
-      IF (LINE(1:4).EQ.'NONA') THEN
-         NONA=.TRUE.
-        Read(LuIn,*,ERR=997)NONA_ISTATE, NONA_JSTATE
-        LINENR=LINENR+1
-        GOTO 100
-      END IF
-C-------------------------------------------
-CTL2004-end
-C-------------------------------------------
       IF(LINE(1:4).EQ.'RFPE') THEN
         RFPERT=.TRUE.
         GOTO 100
