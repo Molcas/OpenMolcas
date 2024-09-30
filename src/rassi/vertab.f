@@ -26,7 +26,7 @@
       INTEGER ISPEND,NGO,NSP,ISPSTA,MNL,MXL,MNR,MXR,NO
       INTEGER NPC2,M2C2,ISC2
       INTEGER NSSTP,KSSTP,KPOPMAX,KMS2MAX,NPOP,MS2,NSSTPTR
-      INTEGER LSSTPTR,N,IEND,ISTA,IADDR,ISAVE,NEXT
+      INTEGER N,IEND,ISTA,IADDR,ISAVE,NEXT
       INTEGER MS2MIN,MS2MAX,MSFACT,NVIDX,LVIDX,IVIDX,IVERT
       INTEGER LEVUP,LEVDWN,IADDR1,IADDR2,NARC
       INTEGER NARCVRT,NVERTAB,LVERTAB,NDWNTAB,LDWNTAB,NARCLEV,LWEIGHT
@@ -40,7 +40,7 @@ C     INTEGER NSBS,LDUM,NDUM
 #include "WrkSpc.fh"
       INTEGER LIMARR(2,0:50)
       INTEGER ITRY(50)
-      INTEGER, Allocatable::  SSTARR(:)
+      INTEGER, Allocatable::  SSTPTR(:), SSTARR(:)
 
 *----------------------------------------------------------------
 * Unbutton the substring table:
@@ -135,47 +135,47 @@ CTEST      write(*,'(1x,8i5)')(limarr(2,ispart),ispart=0,nasprt)
 * array with index limits (0:KPOPMAX+1,1:NASPRT), and one with
 * index limits (1:NSSTP).
       NSSTPTR=(KPOPMAX+2)*NASPRT
-      CALL GETMEM('SSTPTR','ALLO','INTE',LSSTPTR,NSSTPTR)
+      CALL mma_allocate(SSTPTR,NSSTPTR,Label='SSTPTR')
       DO ISPART=1,NASPRT
-        DO KPOP=0,KPOPMAX+1
-          IWORK(LSSTPTR+KPOP+(KPOPMAX+2)*(ISPART-1))=0
+        DO KPOP=1,KPOPMAX+2
+          SSTPTR(KPOP+(KPOPMAX+2)*(ISPART-1))=0
         END DO
       END DO
       CALL mma_allocate(SSTARR,NSSTP,Label='SSTARR')
       DO ISST=1,NSSTP
        NPOP   = ISSTAB(KSSTP+1+5*(ISST-1))
        ISPART = ISSTAB(KSSTP+4+5*(ISST-1))
-       N=1+IWORK(LSSTPTR+NPOP+(KPOPMAX+2)*(ISPART-1))
-       IWORK(LSSTPTR+NPOP+(KPOPMAX+2)*(ISPART-1))=N
+       N=1+SSTPTR(1+NPOP+(KPOPMAX+2)*(ISPART-1))
+       SSTPTR(1+NPOP+(KPOPMAX+2)*(ISPART-1))=N
       END DO
       IEND=0
       DO ISPART=1,NASPRT
         DO KPOP=0,KPOPMAX
-          N=IWORK(LSSTPTR+KPOP+(KPOPMAX+2)*(ISPART-1))
+          N=SSTPTR(1+KPOP+(KPOPMAX+2)*(ISPART-1))
           ISTA=IEND+1
           IEND=IEND+N
-          IWORK(LSSTPTR+KPOP+(KPOPMAX+2)*(ISPART-1))=ISTA
+          SSTPTR(1+KPOP+(KPOPMAX+2)*(ISPART-1))=ISTA
         END DO
-        IWORK(LSSTPTR+KPOPMAX+1+(KPOPMAX+2)*(ISPART-1))=IEND+1
+        SSTPTR(1+KPOPMAX+1+(KPOPMAX+2)*(ISPART-1))=IEND+1
       END DO
       DO ISST=1,NSSTP
        NPOP   = ISSTAB(KSSTP+1+5*(ISST-1))
        ISPART = ISSTAB(KSSTP+4+5*(ISST-1))
-       IADDR=IWORK(LSSTPTR+NPOP+(KPOPMAX+2)*(ISPART-1))
-       IWORK(LSSTPTR+NPOP+(KPOPMAX+2)*(ISPART-1))=IADDR+1
+       IADDR=SSTPTR(1+NPOP+(KPOPMAX+2)*(ISPART-1))
+       SSTPTR(1+NPOP+(KPOPMAX+2)*(ISPART-1))=IADDR+1
        SSTARR(IADDR)=ISST
       END DO
       ISAVE=1
       DO ISPART=1,NASPRT
         DO KPOP=0,KPOPMAX
-          NEXT=IWORK(LSSTPTR+KPOP+(KPOPMAX+2)*(ISPART-1))
-          IWORK(LSSTPTR+KPOP+(KPOPMAX+2)*(ISPART-1))=ISAVE
+          NEXT=SSTPTR(1+KPOP+(KPOPMAX+2)*(ISPART-1))
+          SSTPTR(1+KPOP+(KPOPMAX+2)*(ISPART-1))=ISAVE
           ISAVE=NEXT
         END DO
       END DO
 CTESTC test print
-CTEST      IADDR1=iwork(lsstptr+0+(kpopmax+2)*(1-1))
-CTEST      IADDR2=iwork(lsstptr+kpopmax+1+(kpopmax+2)*(nasprt-1))
+CTEST      IADDR1=sstptr(1+(kpopmax+2)*(1-1))
+CTEST      IADDR2=sstptr(1+kpopmax+1+(kpopmax+2)*(nasprt-1))
 CTEST      write(*,'(1x,a,8i8)')'iaddr1,iaddr2:',iaddr1,iaddr2
 CTEST      do IADDR=IADDR1,IADDR2-1
 CTEST        isst=sstarr(IADDR)
@@ -240,8 +240,8 @@ CTESTC End of test print
 * This is a valid upper vertex on the upper level.
 * Loop over valid arcs:
            KPOPLIM=MIN(NPC1,KPOPMAX)
-           IADDR1=IWORK(LSSTPTR+0+(KPOPMAX+2)*(LEVUP-1))
-           IADDR2=IWORK(LSSTPTR+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
+           IADDR1=SSTPTR(1+(KPOPMAX+2)*(LEVUP-1))
+           IADDR2=SSTPTR(1+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
            DO IADDR=IADDR1,IADDR2-1
              ISST=SSTARR(IADDR)
              KPOP=ISSTAB(KSSTP+1+5*(ISST-1))
@@ -307,8 +307,8 @@ CTESTC End of test print
           NARCVRT=0
 * Loop over valid arcs:
            KPOPLIM=MIN(NPC1,KPOPMAX)
-           IADDR1=IWORK(LSSTPTR+0+(KPOPMAX+2)*(LEVUP-1))
-           IADDR2=IWORK(LSSTPTR+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
+           IADDR1=SSTPTR(1+(KPOPMAX+2)*(LEVUP-1))
+           IADDR2=SSTPTR(1+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
            DO IADDR=IADDR1,IADDR2-1
              ISST=SSTARR(IADDR)
              KPOP=ISSTAB(KSSTP+1+5*(ISST-1))
@@ -416,8 +416,8 @@ C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
            NARCVRT=0
 * Loop over valid arcs:
            KPOPLIM=MIN(NPC1,KPOPMAX)
-           IADDR1=IWORK(LSSTPTR+0+(KPOPMAX+2)*(LEVUP-1))
-           IADDR2=IWORK(LSSTPTR+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
+           IADDR1=SSTPTR(1+(KPOPMAX+2)*(LEVUP-1))
+           IADDR2=SSTPTR(1+KPOPLIM+1+(KPOPMAX+2)*(LEVUP-1))
            DO IADDR=IADDR1,IADDR2-1
              ISST=SSTARR(IADDR)
              KPOP=ISSTAB(KSSTP+1+5*(ISST-1))
@@ -474,7 +474,7 @@ C Allocate LTDA(1:2,1:NASPRT), Level-to-Downarc array:
       IWORK(LLTDA+1)=0
 *---------------------------------------------------------
 * The graph is finished. we do no longer need these arrays:
-      CALL GETMEM('SSTPTR','FREE','INTE',LSSTPTR,NSSTPTR)
+      CALL mma_deallocate(SSTPTR)
       CALL mma_deallocate(SSTARR)
       CALL GETMEM('VERIDX','FREE','INTE',LVIDX,NVIDX)
 *---------------------------------------------------------
