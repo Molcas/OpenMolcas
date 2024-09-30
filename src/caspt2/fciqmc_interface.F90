@@ -338,7 +338,6 @@ contains
                 g1(:,:) = g1(:,:) / (nActel - 1)
             end subroutine calc_f1_and_g1
     end subroutine load_fciqmc_mats
-#endif
 
 
     ! required for MPI parallelisation
@@ -358,7 +357,6 @@ contains
         integer(iwp), intent(in) :: iroot, nLev
         real(wp), intent(inout) :: tensor(nLev, nLev, nLev, nLev, nLev, nLev)
         character(len=*), intent(in) :: dataset
-#ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
@@ -439,15 +437,8 @@ contains
                 array(y, z, t, u, v, x) = val
                 array(y, z, v, x, t, u) = val
             end subroutine apply_6fold_symmetry
-#else
-        unused_var(tensor)
-        unused_var(dataset)
-        unused_var(iroot)
-        unused_var(nLev)
-#endif
     end subroutine load_six_tensor
 
-#ifdef _HDF5_
     subroutine user_barrier()
 #ifdef _MOLCAS_MPP_
         integer(MPIInt) :: error
@@ -490,7 +481,6 @@ contains
             call broadcast_filename('fciqmc.caspt2.' // str(mstate(jstate)) // '.h5')
         end if
     end subroutine user_barrier
-#endif
 
     subroutine load_fockmat(fock_matrix, fock_eigenvectors, nLev)
         ! sometimes eigenvectors are superfluous, but I/O should stay in one place
@@ -498,7 +488,6 @@ contains
         integer(iwp), intent(in) :: nLev
         real(wp), intent(inout) :: fock_matrix(nLev, nLev), fock_eigenvectors(nLev, nLev)
         logical :: tExist
-#ifdef _HDF5_
         integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, len2index(2), i, t, u
         integer(iwp), allocatable :: indices(:,:)
         real(wp), allocatable :: values(:)
@@ -529,12 +518,7 @@ contains
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
-#else
-        unused_var(fock_matrix)
-        unused_var(fock_eigenvectors)
-        unused_var(nLev)
-        unused_var(tExist)
-#endif
     end subroutine load_fockmat
+#endif
 
 end module fciqmc_interface
