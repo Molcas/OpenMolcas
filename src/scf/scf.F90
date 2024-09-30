@@ -88,7 +88,7 @@ FstItr = .true.
 if (.not. OnlyProp) call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
 
 call FinalSCF()
-if (DSCF) call Free_TLists()
+call Free_TLists()
 call mma_deallocate(BType)
 call mma_deallocate(Atom)
 call mma_deallocate(BName)

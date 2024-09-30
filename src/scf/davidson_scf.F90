@@ -58,6 +58,10 @@ real(kind=wp), allocatable :: Ab(:,:), Diag(:), Eig_old(:), EVal(:), EVec(:), Pr
 integer(kind=iwp), parameter :: maxiter = 300
 real(kind=wp), parameter :: Thr = 1.0e-6_wp, Thr2 = 1.0e-12_wp, Thr3 = 1.0e-16_wp
 real(kind=wp), external :: ddot_
+#ifdef _DEBUGCode_
+integer(kind=iwp) :: ij
+real(kind=wp), allocatable :: EVal(:), EVec(:), HAug(:,:), HM(:,:), Vec(:)
+#endif
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 
@@ -65,91 +69,86 @@ iRout = 216
 iPrint = nPrint(iRout)
 #endif
 n = m+1
+
 #ifdef _DEBUGCode_
-block
-  integer(kind=iwp) :: ij
-  real(kind=wp), allocatable :: EVal(:), EVec(:), HAug(:,:), HM(:,:), Vec(:)
+call mma_allocate(Vec,m,Label='Vec')
+call mma_allocate(HM,m,m,Label='HM')
+HM(:,:) = Zero
+call mma_allocate(HAug,n,n,Label='HAug')
+HAug(:,:) = Zero
 
-  call mma_allocate(Vec,m,Label='Vec')
-  call mma_allocate(HM,m,m,Label='HM')
-  HM(:,:) = Zero
-  call mma_allocate(HAug,n,n,Label='HAug')
-  HAug(:,:) = Zero
+do i=1,m
+  Vec(:) = Zero
+  Vec(i) = One
+  call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
+end do
+!call RecPrt('HM',' ',HM,m,m)
 
-  do i=1,m
-    Vec(:) = Zero
-    Vec(i) = One
-    call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
+call mma_allocate(EVal,m*(m+1)/2,Label='EVal')
+call mma_allocate(EVec,m*m,Label='EVec')
+do i=1,m
+  do j=1,i
+    ij = i*(i-1)/2+j
+    EVal(ij) = HM(i,j)
   end do
-  !call RecPrt('HM',' ',HM,m,m)
+end do
 
-  call mma_allocate(EVal,m*(m+1)/2,Label='EVal')
-  call mma_allocate(EVec,m*m,Label='EVec')
-  do i=1,m
-    do j=1,i
-      ij = i*(i-1)/2+j
-      EVal(ij) = HM(i,j)
-    end do
+! Set up a unit matrix
+
+call dcopy_(m*m,[Zero],0,EVec,1)
+call dcopy_(m,[One],0,EVec,m+1)
+
+! Compute eigenvalues and eigenvectors
+
+call NIDiag_new(EVal,EVec,m,m)
+call Jacord(EVal,EVec,m,m)
+
+!do i=1,m
+!  ij = i*(i+1)/2
+!  write(u6,*) 'Eval0(ij)=',EVal(ij)
+!end do
+
+call mma_deallocate(EVal)
+call mma_deallocate(EVec)
+
+do i=1,m
+  HAug(n,i) = g(i)
+  HAug(i,n) = g(i)
+  do j=1,m
+    HAug(i,j) = HM(i,j)
   end do
+end do
 
-  ! Set up a unit matrix
+call mma_allocate(EVal,n*(n+1)/2,Label='EVal')
+call mma_allocate(EVec,n*n,Label='EVec')
 
-  call dcopy_(m*m,[Zero],0,EVec,1)
-  call dcopy_(m,[One],0,EVec,m+1)
-
-  ! Compute eigenvalues and eigenvectors
-
-  call NIDiag_new(EVal,EVec,m,m)
-  call Jacord(EVal,EVec,m,m)
-
-  !do i=1,m
-  !  ij = i*(i+1)/2
-  !  write(u6,*) 'Eval0(ij)=',EVal(ij)
-  !end do
-
-  call mma_deallocate(EVal)
-  call mma_deallocate(EVec)
-
-  do i=1,m
-    HAug(n,i) = g(i)
-    HAug(i,n) = g(i)
-    do j=1,m
-      HAug(i,j) = HM(i,j)
-    end do
+do i=1,n
+  do j=1,i
+    ij = i*(i-1)/2+j
+    EVal(ij) = HAug(i,j)
   end do
+end do
 
-  call mma_allocate(EVal,n*(n+1)/2,Label='EVal')
-  call mma_allocate(EVec,n*n,Label='EVec')
+! Set up a unit matrix
 
-  do i=1,n
-    do j=1,i
-      ij = i*(i-1)/2+j
-      EVal(ij) = HAug(i,j)
-    end do
-  end do
+call dcopy_(n*n,[Zero],0,EVec,1)
+call dcopy_(n,[One],0,EVec,n+1)
 
-  ! Set up a unit matrix
+! Compute eigenvalues and eigenvectors
 
-  call dcopy_(n*n,[Zero],0,EVec,1)
-  call dcopy_(n,[One],0,EVec,n+1)
+call NIDiag_new(EVal,EVec,n,n)
+call Jacord(EVal,EVec,n,n)
 
-  ! Compute eigenvalues and eigenvectors
+do i=1,n
+  ij = i*(i+1)/2
+  if (EVal(ij) < Zero) write(u6,*) 'Eval(ij)=',EVal(ij)
+end do
 
-  call NIDiag_new(EVal,EVec,n,n)
-  call Jacord(EVal,EVec,n,n)
-
-  do i=1,n
-    ij = i*(i+1)/2
-    if (EVal(ij) < Zero) write(u6,*) 'Eval(ij)=',EVal(ij)
-  end do
-
-  call mma_deallocate(EVal)
-  call mma_deallocate(EVec)
-  call mma_deallocate(HAug)
-  call mma_deallocate(HM)
-  call mma_deallocate(Vec)
-
-end block
+call mma_deallocate(EVal)
+call mma_deallocate(EVec)
+call mma_deallocate(HAug)
+call mma_deallocate(HM)
+call mma_deallocate(Vec)
 #endif
 
 #ifdef _DEBUGPRINT_

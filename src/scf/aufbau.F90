@@ -99,9 +99,12 @@ if (Teee) then
   UHF_occ = Three-real(nD,kind=wp)
   mD = 2/nD
   do iD=1,nD
-    eferm = FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,nAuf(iD)*mD,UHF_occ)
+    eferm = FermiPop(EOrb(:,iD),Occup(:,iD),nOrbAS,RTemp,nAuf(iD)*mD,UHF_occ)
 #   ifdef _DEBUGPRINT_
     write(u6,'(A,G20.10)') '         E(Fermi)=',eferm
+#   else
+#   include "macros.fh"
+    unused_var(eferm)
 #   endif
   end do
 
@@ -175,8 +178,5 @@ call mma_deallocate(Irp)
 call mma_deallocate(Map)
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_real(eferm)
-#endif
 
 end subroutine Aufbau

@@ -40,8 +40,8 @@ integer(kind=iwp), intent(in) :: N, No
 real(kind=wp), intent(inout) :: U(N,N)
 integer(kind=iwp) :: cnt, i, Nv
 real(kind=wp) :: factor, ithrsh, ithrshoo, ithrshvo, ithrshvv
-real(kind=wp), allocatable :: Koo(:,:), Kvo(:,:), Kvv(:,:), theta(:,:), Uoo(:,:), Uov(:,:), Uvo(:,:), Uvv(:,:), xUoo(:,:), &
-                              xUvo(:,:), xUvv(:,:)
+real(kind=wp), allocatable :: Koo(:,:), Kvo(:,:), Kvv(:,:), theta(:,:), Uoo(:,:), Uvo(:,:), Uvv(:,:), xUoo(:,:), xUvo(:,:), &
+                              xUvv(:,:)
 real(kind=wp), parameter :: thrsh = 1.0e-20_wp
 
 if (N < 1) return
@@ -55,7 +55,6 @@ call mma_allocate(Kvo,Nv,No,label='Kvo')
 
 call mma_allocate(Uoo,No,No,label='Uoo')
 call mma_allocate(Uvv,Nv,Nv,label='Uvv')
-call mma_allocate(Uov,No,Nv,label='Uov')
 call mma_allocate(Uvo,Nv,No,label='Uvo')
 
 call mma_allocate(xUoo,No,No,label='xUoo')
@@ -74,7 +73,6 @@ ithrsh = 2.0e-16_wp
 ! Initialization
 ! Taylor expansion terms to n=1
 
-Uov(:,:) = Zero
 Uvo(:,:) = Zero
 
 Uoo(:,:) = Zero
@@ -126,11 +124,9 @@ do while (thrsh < ithrsh)
   end if
 end do
 
-Uov(:,:) = -transpose(Uvo)
-
 U(:No,:No) = Uoo
 U(No+1:N,:No) = Uvo
-U(:No,No+1:N) = Uov
+U(:No,No+1:N) = -transpose(Uvo)
 U(No+1:N,No+1:N) = Uvv
 
 call mma_deallocate(Koo)
@@ -139,7 +135,6 @@ call mma_deallocate(Kvo)
 
 call mma_deallocate(Uoo)
 call mma_deallocate(Uvv)
-call mma_deallocate(Uov)
 call mma_deallocate(Uvo)
 
 call mma_deallocate(xUoo)

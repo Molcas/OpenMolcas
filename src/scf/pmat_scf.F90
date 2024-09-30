@@ -193,7 +193,7 @@ if (PmTime) call CWTime(tCF2,tWF2)
 
 if (DSCF .and. (.not. Do_DCCD)) then
 
-  call Drv2El_dscf_Front_End(Temp,size(Temp,1),size(Temp,2))
+  call Drv2El_dscf_Front_End(Temp)
 
 else   ! RICD/Cholesky option
 
@@ -211,7 +211,7 @@ else   ! RICD/Cholesky option
     call mma_Allocate(Saved,size(Temp,1),size(Temp,2),Label='Saved')
 
     Saved(:,:) = Zero
-    call Drv2El_dscf_Front_End(Saved,size(Temp,1),size(Temp,2))
+    call Drv2El_dscf_Front_End(Saved)
     Temp(:,:) = Temp(:,:)+Saved(:,:)
 
     Algo_save = Algo
@@ -338,10 +338,9 @@ end if
 
 contains
 
-subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
+subroutine Drv2El_dscf_Front_End(Temp)
 
-  integer(kind=iwp) :: n1, n2
-  real(kind=wp) :: Temp(n1,n2)
+  real(kind=wp) :: Temp(:,:)
 
   ! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
   ! to be used.
@@ -349,10 +348,9 @@ subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
   ExFac_Int = ExFac
   Thize_Int = Thize
   PreSch_Int = PreSch
-  if (n2 == 1) then
-    FckNoClmb = .false.
-    ExFac_Int = ExFac
-    call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,0,FstItr)
+  FckNoClmb = .false.
+  if (size(Temp,1) == 1) then
+    call Drv2El_dscf(Dens(:,1,iPsLst),Temp(:,1),nBT,0,FstItr)
   else
 
     ! Compute the Coulomb potential for the total density and
@@ -363,22 +361,21 @@ subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
     ! Set exchange factor to zero and compute only Coulomb
     ! for the total electron density.
 
-    FckNoClmb = .false.
     Temp(:,2) = Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
 
     ExFac_Int = Zero
-    call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,max(nDisc*1024,nCore),FstItr)
+    call Drv2El_dscf(Temp(:,2),Temp(:,3),nBT,max(nDisc*1024,nCore),FstItr)
 
     ! alpha exchange
     FckNoClmb = .true.
     Temp(:,2) = Zero
     ExFac_Int = ExFac
-    call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,max(nDisc*1024,nCore),FstItr)
+    call Drv2El_dscf(Dens(:,1,iPsLst),Temp(:,1),nBT,max(nDisc*1024,nCore),FstItr)
     Temp(:,1) = Two*Temp(:,1)
 
     ! beta exchange
     ExFac_Int = ExFac
-    call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,max(nDisc*1024,nCore),FstItr)
+    call Drv2El_dscf(Dens(:,2,iPsLst),Temp(:,2),nBT,max(nDisc*1024,nCore),FstItr)
     Temp(:,2) = Two*Temp(:,2)
 
     ! Add together J and K contributions to form the correct

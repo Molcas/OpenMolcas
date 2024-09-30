@@ -56,7 +56,7 @@ real(kind=wp) :: cDotV
 logical(kind=iwp) :: Case1, Case2, Case3
 character(len=80) :: Frmt, Text
 real(kind=wp), allocatable :: Bij(:,:), Err1(:), Err2(:), EValue(:), EVector(:,:), Scratch(:) !, Err3(:), Err4(:)
-real(kind=wp), parameter :: delta = 1.0e-4_wp, delta_E = 1.0e-4_wp, Fact_Decline = 15.0_wp, ThrCff = Ten
+real(kind=wp), parameter :: CThr = 0.05_wp, delta = 1.0e-4_wp, delta_E = 1.0e-4_wp, Fact_Decline = 15.0_wp, ThrCff = Ten
 real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
@@ -549,7 +549,13 @@ else
   end do
 
   ! Make sure new density gets a weight
-  call C_Adjust(CInter(1,1),kOptim,0.05_wp)
+  if (CInter(kOptim,1) < CThr) then
+    Fact = (One-CThr)/(One-CInter(kOptim,1))
+    do i=1,kOptim-1
+      CInter(i,1) = Fact*CInter(i,1)
+    end do
+    CInter(kOptim,1) = CThr
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *

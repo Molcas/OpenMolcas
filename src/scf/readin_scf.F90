@@ -22,12 +22,12 @@ subroutine ReadIn_SCF(SIntTh)
 !                                                                      *
 !***********************************************************************
 
+use Gateway_Info, only: PkAcc
 use InfSCF, only: DSCF, EThr, KSDFT, nCore, nDisc, TimFld
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: CPU1, CPU2, SIntTh, Tim1, Tim2, Tim3
-logical(kind=iwp) :: PkMode
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 !                                                                      *
@@ -73,10 +73,7 @@ if (DSCF) then
 
   ! Initiate integral packing for semi-direct implementation
 
-  if (nDisc /= 0) then
-    PkMode = .true.
-    call Ini_PkR8(PkMode)
-  end if
+  if (nDisc /= 0) call inipkr8(PkAcc,.true.)
 
   ! Allocate buffers for semi-direct SCF
 

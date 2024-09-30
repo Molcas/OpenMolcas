@@ -23,8 +23,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nSym, NBAS(8), NFRO(8), KEEP(8), nFlt, nX1, nX2, nD, nBSQT
 real(kind=wp) :: DLT(nFlt,nD), DSQ(nBSQT,nD), FLT(nFlt,nD), FSQ(nBSQT,nD), X1(nX1), X2(nX2), ExFac
-integer(kind=iwp) :: IB, IJB, IJS, IK, iOpt, IPQ, IRC, IS, ISD, ISF, ISTLT(8), ISTSQ(8), ISX, ISYM, JB, JK, JS, K1, K2, KB, KK, &
-                     KLB, KS, LB, LK, LPQ, LS, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL, NPQ
+integer(kind=iwp) :: IB, IJB, IJS, IK, iOpt, IRC, ISD, ISF, ISTLT(8), ISTSQ(8), ISX, ISYM, JB, JK, K1, K2, KB, KK, KLB, LB, LK, &
+                     LPQ, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL, NPQ
 real(kind=wp) :: Factor, temp, temp_ab
 real(kind=wp), external :: DDot_
 #ifdef _DEBUGPRINT_
@@ -127,7 +127,7 @@ contains
 
 subroutine FOCKTWO_scf_Sym()
 
-  integer(kind=iwp) :: IP, IS, ISYM, JQ, JS, KS
+  integer(kind=iwp) :: IP, IPQ, IS, ISYM, JQ, JS, KS, LS
 
   do ISYM=2,NSYM
     NB = NBAS(ISYM-1)
@@ -336,7 +336,7 @@ end subroutine FOCKTWO_scf_Sym
 
 subroutine FOCKTWO_scf_NoSym()
 
-  integer(kind=iwp) :: IP, JQ
+  integer(kind=iwp) :: IP, IPQ, IS, JQ, JS, KS, LS
 
   IS = 1
   IB = NBAS(IS)

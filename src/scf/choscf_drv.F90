@@ -241,7 +241,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 997 continue
     call GADSum(FLT(1)%A0,nFLT)
 
-    pNocc(1)%I1 => null()
+    nullify(pNocc(1)%I1)
     call Deallocate_DT(MSQ(1))
     call Deallocate_DT(FSQ(1))
     call Deallocate_DT(DSQ(1))

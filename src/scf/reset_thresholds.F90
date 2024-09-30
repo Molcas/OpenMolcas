@@ -17,6 +17,7 @@
 
 subroutine Reset_Thresholds()
 
+use Gateway_Info, only: ThrInt
 use InfSO, only: DltNTh
 use InfSCF, only: DThr, EThr, FThr
 use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_Old
@@ -31,7 +32,7 @@ EThr = EThr_old
 DThr = DThr_old
 DltNTh = DltNTh_old
 FThr = FThr_old
-call xSet_ThrInt(ThrInt_Old)
+ThrInt = ThrInt_Old
 
 return
 

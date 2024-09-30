@@ -31,8 +31,13 @@ implicit none
 integer(kind=iwp) :: nDlt, nCMO
 real(kind=wp) :: Dlt(nDlt), CMO(nCMO)
 integer(kind=iwp) :: OccNo(*)
-integer(kind=iwp) :: iOrb, iStrtN, iStrtO, iSym
+integer(kind=iwp) :: i, iCol, ij, iOrb, ipCff, ipDlt, ipOcc, iRow, iStrtN, iStrtO, iSym, lth, nBs, nFr, nOF, nOr
+real(kind=wp) :: rSum
 real(kind=wp), allocatable :: NewOcc(:)
+real(kind=wp), parameter :: Scal = Two, SScale = One
+! Statement function for triangular storage
+integer(kind=iwp) :: Ind, j
+Ind(i,j) = i*(i-1)/2+j
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -54,7 +59,51 @@ do iSym=1,nSym
 end do
 
 ! Compute density contribution
-call DOne_SCF_froz(CMO,nCMO,NewOcc,nnB)
+
+ipCff = 0
+ipDlt = 0
+ipOcc = 0
+do iSym=1,nSym
+
+  nBs = nBas(iSym)
+  nOr = nOrb(iSym)
+  nFr = nFro(iSym)
+
+  nOF = nOr-nFr
+  lth = nBs*(nBs+1)/2
+
+  ipCff = ipCff+nBs*nFr
+  do iRow=1,nBs
+    rSum = Zero
+    ij = -1
+    do i=nFr+1,nOr
+      ij = ij+1
+      !if (NewOcc(ipOcc+i) == Zero) Go To 100
+      rSum = rSum+NewOcc(ipOcc+i)*CMO(ipCff+iRow+ij*nBs)*CMO(ipCff+iRow+ij*nBs)
+    end do
+    !100 continue
+    Dlt(ipDlt+Ind(iRow,iRow)) = rSum*SScale
+
+    do iCol=1,iRow-1
+      rSum = Zero
+      ij = -1
+      do i=nFr+1,nOr
+        ij = ij+1
+        !if (NewOcc(ipOcc+i) == Zero) Go To 200
+        rSum = rSum+NewOcc(ipOcc+i)*CMO(ipCff+iRow+ij*nBs)*CMO(ipCff+iCol+ij*nBs)
+      end do
+      !200 continue
+      Dlt(ipDlt+Ind(iRow,iCol)) = Scal*rSum
+    end do
+  end do
+# ifdef _DEBUGPRINT_
+  call NrmClc(Dlt(ipDlt),nBs,'DOne_SCF_froz','Dlt(ipDlt)')
+# endif
+
+  ipCff = ipCff+nBs*nOF
+  ipDlt = ipDlt+lth
+  ipOcc = ipOcc+nOr
+end do
 
 ! Deallocate memory for new occupation numbers
 call mma_deallocate(NewOcc)
@@ -64,89 +113,5 @@ call mma_deallocate(NewOcc)
 !----------------------------------------------------------------------*
 
 return
-
-contains
-
-subroutine DOne_SCF_froz(Cff,nCff,Occ,nnB)
-  !*********************************************************************
-  !                                                                    *
-  !   purpose: Compute density matrix in AO basis                      *
-  !                                                                    *
-  !   input:                                                           *
-  !     Cff     : molecular orbitals                                   *
-  !     Occ     : occupation numbers                                   *
-  !                                                                    *
-  !   output:                                                          *
-  !     Dlt     : density matrix in triangular storage                 *
-  !                                                                    *
-  !   called from: DFroz                                               *
-  !                                                                    *
-  !*********************************************************************
-
-  integer(kind=iwp) :: nCff, nnB
-  real(kind=wp) :: Cff(nCff), Occ(nnB)
-  integer(kind=iwp) :: i, iCol, ij, ipCff, ipDlt, ipOcc, iRow, iSym, lth, nBs, nFr, nOF, nOr
-  real(kind=wp) :: rSum
-  real(kind=wp), parameter :: Scal = Two, SScale = One
-  ! Statement function for triangular storage
-  integer(kind=iwp) :: Ind, j
-  Ind(i,j) = i*(i-1)/2+j
-
-  !--------------------------------------------------------------------*
-  !     Start                                                          *
-  !--------------------------------------------------------------------*
-
-  ipCff = 0
-  ipDlt = 0
-  ipOcc = 0
-  do iSym=1,nSym
-
-    nBs = nBas(iSym)
-    nOr = nOrb(iSym)
-    nFr = nFro(iSym)
-
-    nOF = nOr-nFr
-    lth = nBs*(nBs+1)/2
-
-    ipCff = ipCff+nBs*nFr
-    do iRow=1,nBs
-      rSum = Zero
-      ij = -1
-      do i=nFr+1,nOr
-        ij = ij+1
-        !if (Occ(ipOcc+i) == Zero) Go To 100
-        rSum = rSum+Occ(ipOcc+i)*Cff(ipCff+iRow+ij*nBs)*Cff(ipCff+iRow+ij*nBs)
-      end do
-      !100 continue
-      Dlt(ipDlt+Ind(iRow,iRow)) = rSum*SScale
-
-      do iCol=1,iRow-1
-        rSum = Zero
-        ij = -1
-        do i=nFr+1,nOr
-          ij = ij+1
-          !if (Occ(ipOcc+i) == Zero) Go To 200
-          rSum = rSum+Occ(ipOcc+i)*Cff(ipCff+iRow+ij*nBs)*Cff(ipCff+iCol+ij*nBs)
-        end do
-        !200 continue
-        Dlt(ipDlt+Ind(iRow,iCol)) = Scal*rSum
-      end do
-    end do
-#   ifdef _DEBUGPRINT_
-    call NrmClc(Dlt(ipDlt),nBs,'DOne_SCF_froz','Dlt(ipDlt)')
-#   endif
-
-    ipCff = ipCff+nBs*nOF
-    ipDlt = ipDlt+lth
-    ipOcc = ipOcc+nOr
-  end do
-
-  !--------------------------------------------------------------------*
-  !     Exit                                                           *
-  !--------------------------------------------------------------------*
-
-  return
-
-end subroutine DOne_SCF_froz
 
 end subroutine DFroz

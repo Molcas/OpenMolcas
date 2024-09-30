@@ -48,6 +48,10 @@ implicit none
 integer(kind=iwp) :: nOTSD, nC, nG, nD, iOpt
 real(kind=wp) :: O(nOTSD), S(nOTSD), C(nC,nD), G(nG,nD)
 integer(kind=iwp) :: i, iD, ig, ih, ij, iOff, iSym, it, j, jDT, k, l, nBs, nOr, nOrbmF
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i_Max, j_Max
+real(kind=wp) :: GMax
+#endif
 real(kind=wp), allocatable :: Aux1(:), Aux2(:), Aux3(:), FckM(:,:)
 real(kind=wp), allocatable, target :: AuxD(:,:), AuxT(:,:), AuxV(:,:)
 real(kind=wp), pointer :: D(:,:), T(:,:), V(:,:)
@@ -229,23 +233,19 @@ call mma_deallocate(FckM)
 G(:,:) = Two*G(:,:)
 
 #ifdef _DEBUGPRINT_
-block
-  integer(kind=iwp) :: i_Max, j_Max
-  real(kind=wp) :: GMax
-  i_Max = 0
-  j_Max = 0
-  GMax = Zero
-  do i=1,nD
-    do j=1,nG
-      if (GMax < abs(G(j,i))) then
-        GMax = abs(G(j,i))
-        i_Max = i
-        j_Max = j
-      end if
-    end do
+i_Max = 0
+j_Max = 0
+GMax = Zero
+do i=1,nD
+  do j=1,nG
+    if (GMax < abs(G(j,i))) then
+      GMax = abs(G(j,i))
+      i_Max = i
+      j_Max = j
+    end if
   end do
-  write(u6,*) 'GMax,i_Max,j_Max=',GMax,i_Max,j_Max
-end block
+end do
+write(u6,*) 'GMax,i_Max,j_Max=',GMax,i_Max,j_Max
 call NrmClc(G,nG*nD,'EGrad','G')
 #endif
 if (jDT < 0) then
@@ -263,8 +263,9 @@ contains
 
 subroutine Asym(H,A,n)
 
-  integer(kind=iwp) :: i, j, n
-  real(kind=wp) :: A(n,n), H(n,n)
+  integer(kind=iwp) :: n
+  real(kind=wp) :: H(n,n), A(n,n)
+  integer(kind=iwp) :: i, j
 
   do i=1,n
     do j=1,i-1

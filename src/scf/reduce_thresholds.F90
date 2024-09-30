@@ -17,15 +17,15 @@
 
 subroutine Reduce_Thresholds(EThr_,SIntTh)
 
+use Gateway_Info, only: ThrInt
 use InfSO, only: DltNTh
 use InfSCF, only: DThr, EThr, FThr
-use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_old
+use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, u6
 
 implicit none
 real(kind=wp) :: EThr_, Relax, SIntTh
-real(kind=wp), external :: Get_ThrInt
 
 write(u6,*)
 write(u6,*) 'Temporary increase of thresholds...'
@@ -37,8 +37,6 @@ FThr_old = FThr
 
 ! Get threshold used in connection of products of integrals and densities
 
-ThrInt_Old = Get_ThrInt()
-
 EThr = EThr_
 if (EThr_old == Zero) then
   Relax = One
@@ -49,7 +47,7 @@ SIntTh = SIntTh*Relax
 DThr = DThr*Relax
 DltNTh = Ten**2*EThr
 FThr = FThr*Relax
-call xSet_ThrInt(ThrInt_Old*Relax)
+ThrInt = ThrInt*Relax
 
 return
 

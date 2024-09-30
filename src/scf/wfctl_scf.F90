@@ -39,10 +39,10 @@ subroutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
 use, intrinsic :: iso_c_binding, only: c_ptr
 use InfSCF, only: nBO
 #endif
-use Interfaces_SCF, only: TraClc_i
+use Interfaces_SCF, only: OptClc_X, TraClc_i
 use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
 use InfSO, only: DltNrm, DltnTh, Energy, IterSO, IterSO_Max, qNRTh
-use SCF_Arrays, only: CMO, CMO_Ref, OccNo, Ovrlp, TrDD, TrDh, TrDP
+use SCF_Arrays, only: CMO, CMO_Ref, EOrb, OccNo, Ovrlp, TrDD, TrDh, TrDP, TrM
 use InfSCF, only: AccCon, Aufb, CPUItr, Damping, DIIS, DIISTh, DMOMax, DoCholesky, DSCF, DThr, E1V, E2V, EDiff, EneV, EThr, &
                   FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, jPrint, kOptim, kOptim_Max, kOV, KSDFT, &
                   MaxFlip, MiniDn, mOV, MSYMON, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, &
@@ -59,8 +59,8 @@ integer(kind=iwp) :: iTerm
 character(len=*) :: Meth
 logical(kind=iwp) :: FstItr
 real(kind=wp) :: SIntTh
-integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
-                     Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+integer(kind=iwp) :: iAufOK, iBas, iCMO, iD, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
+                     Iter_DIIS, Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
                  TWall2
 logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
@@ -68,7 +68,6 @@ character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
 #ifdef _MSYM_
-integer(kind=iwp) :: iD
 real(kind=wp) :: Whatever
 type(c_ptr) :: msym_ctx
 #endif
@@ -538,7 +537,8 @@ do iter_=1,nIter(nIterP)
 101       continue
           call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
 
-          call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,kOptim,kOV)
+          call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
+          call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
 
           ! compute new displacement vector delta
           ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
@@ -721,7 +721,43 @@ do iter_=1,nIter(nIterP)
   !*********************************************************************
   !*********************************************************************
   !                                                                    *
-  call Save_Orbitals()
+  ! Save the new orbitals in case the SCF program aborts
+
+  iTrM = 1
+  iCMO = 1
+  do iSym=1,nSym
+    nBs = nBas(iSym)
+    nOr = nOrb(iSym)
+    lth = nBs*nOr
+    do iD=1,nD
+      call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
+      call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
+    end do
+    iTrM = iTrM+nBs*nBs
+    iCMO = iCMO+nBs*nOr
+  end do
+
+  if (nD == 1) then
+    OrbName = 'SCFORB'
+    Note = '*  intermediate SCF orbitals'
+
+    call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1),Dummy,OccNo(:,1),Dummy,Dummy,Dummy,iDummy,Note,2)
+    call Put_darray('SCF orbitals',TrM(:,1),nBB)
+    call Put_darray('OrbE',Eorb(:,1),nnB)
+    if (.not. Aufb) call Put_iarray('SCF nOcc',nOcc(:,1),nSym)
+  else
+    OrbName = 'UHFORB'
+    Note = '*  intermediate UHF orbitals'
+    call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1),TrM(:,2),OccNo(:,1),OccNo(:,2),Dummy,Dummy,iDummy,Note,3)
+    call Put_darray('SCF orbitals',TrM(:,1),nBB)
+    call Put_darray('SCF orbitals_ab',TrM(:,2),nBB)
+    call Put_darray('OrbE',Eorb(:,1),nnB)
+    call Put_darray('OrbE_ab',Eorb(:,2),nnB)
+    if (.not. Aufb) then
+      call Put_iarray('SCF nOcc',nOcc(:,1),nSym)
+      call Put_iarray('SCF nOcc_ab',nOcc(:,2),nSym)
+    end if
+  end if
   !                                                                    *
   !*********************************************************************
   !*********************************************************************
@@ -825,7 +861,24 @@ do iter_=1,nIter(nIterP)
     ! possibly used for direct SCF and DFT.
 
     if (Reset) then
-      call Reset_some_stuff()
+      ! Reset thresholds for direct SCF procedure
+
+      Reset = .false.
+
+      if (iOpt == 2) then
+        iOpt = 1        ! True if step is QNR
+        QNR1st = .true.
+      end if
+      IterSO = 0
+      if (Reset_Thresh) call Reset_Thresholds()
+      if (KSDFT /= 'SCF') then
+        if (.not. One_Grid) then
+          iterX = 0
+          call Reset_NQ_grid()
+          !call PrBeg(Meth_)
+        end if
+        if (iOpt == 0) kOptim = 1
+      end if
       cycle
     end if
 
@@ -1020,83 +1073,6 @@ call mma_deallocate(TrDD)
 call mma_deallocate(TrDP)
 call mma_deallocate(TrDh)
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-contains
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-subroutine Save_Orbitals()
-
-  use SCF_Arrays, only: EOrb, TrM
-
-  integer(kind=iwp) :: iD, iSym
-
-  ! Save the new orbitals in case the SCF program aborts
-
-  iTrM = 1
-  iCMO = 1
-  do iSym=1,nSym
-    nBs = nBas(iSym)
-    nOr = nOrb(iSym)
-    lth = nBs*nOr
-    do iD=1,nD
-      call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
-      call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
-    end do
-    iTrM = iTrM+nBs*nBs
-    iCMO = iCMO+nBs*nOr
-  end do
-
-  if (nD == 1) then
-    OrbName = 'SCFORB'
-    Note = '*  intermediate SCF orbitals'
-
-    call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1),Dummy,OccNo(:,1),Dummy,Dummy,Dummy,iDummy,Note,2)
-    call Put_darray('SCF orbitals',TrM(:,1),nBB)
-    call Put_darray('OrbE',Eorb(:,1),nnB)
-    if (.not. Aufb) call Put_iarray('SCF nOcc',nOcc(:,1),nSym)
-  else
-    OrbName = 'UHFORB'
-    Note = '*  intermediate UHF orbitals'
-    call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1),TrM(:,2),OccNo(:,1),OccNo(:,2),Dummy,Dummy,iDummy,Note,3)
-    call Put_darray('SCF orbitals',TrM(:,1),nBB)
-    call Put_darray('SCF orbitals_ab',TrM(:,2),nBB)
-    call Put_darray('OrbE',Eorb(:,1),nnB)
-    call Put_darray('OrbE_ab',Eorb(:,2),nnB)
-    if (.not. Aufb) then
-      call Put_iarray('SCF nOcc',nOcc(:,1),nSym)
-      call Put_iarray('SCF nOcc_ab',nOcc(:,2),nSym)
-    end if
-  end if
-
-end subroutine Save_Orbitals
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-subroutine Reset_some_Stuff()
-
-  ! Reset thresholds for direct SCF procedure
-
-  Reset = .false.
-
-  if (iOpt == 2) then
-    iOpt = 1        ! True if step is QNR
-    QNR1st = .true.
-  end if
-  IterSO = 0
-  if (Reset_Thresh) call Reset_Thresholds()
-  if (KSDFT /= 'SCF') then
-    if (.not. One_Grid) then
-      iterX = 0
-      call Reset_NQ_grid()
-      !call PrBeg(Meth_)
-    end if
-    if (iOpt == 0) kOptim = 1
-  end if
-
-end subroutine Reset_some_Stuff
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -20,6 +20,7 @@ subroutine SwiOpt(AllCnt,OneHam,Ovrlp,mBT,CMO,mBB,nD)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
+use Gateway_Info, only: ThrInt
 use InfSO, only: DltNth
 use InfSCF, only: DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
 use Files, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
@@ -34,7 +35,6 @@ real(kind=wp) :: OneHam(mBT), Ovrlp(mBT), CMO(mBB,nD)
 integer(kind=iwp) :: iComp, iD, iOpt, iRC, lOper
 real(kind=wp) :: DNTh_o = Zero, DThr_o = Zero, EThr_o = Zero, FThr_o = Zero, ThrInt_o = Zero
 character(len=8) :: Label
-real(kind=wp), external :: Get_ThrInt
 
 if (AllCnt .and. twoel_NDDO) then
   nIterP = 1
@@ -64,7 +64,7 @@ if (AllCnt .and. twoel_NDDO) then
   FThr = FThr_o
   DThr = DThr_o
   DltNTh = DNTh_o
-  call xSet_ThrInt(ThrInt_o)
+  ThrInt = ThrInt_o
   ! set twoel to AllCnt...
   twoel_NDDO = .false.
   ! close and reopen some DA files...
@@ -113,14 +113,14 @@ else
   FThr_o = FThr
   DThr_o = DThr
   DNTh_o = DltNTh
-  ThrInt_o = Get_ThrInt()
+  ThrInt_o = ThrInt
   ! and set new thresholds
   !EThr = EThr*1.0e4_wp
   !call Put_dScalar('EThr',EThr)
   !FThr = FThr*1.0e4_wp
   !DThr = DThr*1.0e4_wp
   !DltNTh = DltNTh*1.0e4_wp
-  !call xSet_ThrInt(ThrInt_o*1.0e4_wp)
+  !ThrInt = ThrInt_o*1.0e4_wp
   ! set twoel to OneCnt...
   twoel_NDDO = .true.
 end if
