@@ -23,6 +23,7 @@
       SUBROUTINE DO_SONTO(NSS, USOR, USOI)
       use rassi_global_arrays, only: JBNUM, EIGVEC
       use stdalloc, only: mma_allocate, mma_deallocate
+      use cntrl_data, only: SONTOSTATES, SONTO
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NSS
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
@@ -33,6 +34,7 @@
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
       Real*8, Allocatable:: TDMAO(:), TSDMAO(:)
+      Real*8, Allocatable:: ANTSIN(:)
 
 c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*)
@@ -98,8 +100,8 @@ c Spinorbit contributions to this are disabled
 c SONTONSTATE = number of state pairs to calculate.
 c These states are stored as pairs beginning in IWORK(LSONTO)
       DO I=1,SONTOSTATES
-        INTOSTATE=IWORK(LSONTO-1+I*2-1)
-        JNTOSTATE=IWORK(LSONTO-1+I*2)
+        INTOSTATE=SONTO(1,I)
+        JNTOSTATE=SONTO(2,I)
         WRITE(6,*)
         WRITE(6,*) "CALCULATING SO-NTOs BETWEEM SO STATES: ",
      &              INTOSTATE,JNTOSTATE
@@ -113,11 +115,11 @@ c These states are stored as pairs beginning in IWORK(LSONTO)
 c Currently only HERMISING TDMs are dealt with here
         call mma_allocate(TDMAO,6*NBST**2,Label='TDMAO')
         call mma_allocate(TSDMAO,6*NBST**2,Label='TSDMAO')
-        call GETMEM('ANTSIN','ALLO','REAL',LANTSIN,6*NBST**2)
+        call mma_allocate(ANTSIN,6*NBST**2,Label='ANTSIN')
 c Initialization is important
         TDMAO(:)=0.0D0
         TSDMAO(:)=0.0D0
-        call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LANTSIN),1)
+        ANTSIN(:)=0.0D0
 c
         Call MAKETDMAO('HERMSING',UMATR,UMATI,
      &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
@@ -132,19 +134,19 @@ c        Call print_matrixt('TSDM after MAKETDMAO 1',nbst,nbst**2,1,
 c     &                    TSDMAO)
 c        CALL MAKETDMAO('ANTISING',UMATR,UMATI,
 c     &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
-c     &                        WORK(LANTSIN),NBST)
+c     &                        ANTSIN,NBST)
 c        Call print_matrixt('ANTITDM after MAKETDMAO 1',nbst,nbst**2,1,
-c     &                    WORK(LANTSIN))
-        Call DO_AOTDMNTO(TDMAO,TSDMAO,WORK(LANTSIN),
+c     &                    ANTSIN)
+        Call DO_AOTDMNTO(TDMAO,TSDMAO,ANTSIN,
      &                     INTOSTATE,JNTOSTATE,NBST,NBST**2)
         Call mma_deallocate(TDMAO)
         Call mma_deallocate(TSDMAO)
-        call GETMEM('ANTSIN','FREE','REAL',LANTSIN,6*NBST**2)
+        Call mma_deallocate(ANTSIN)
       END DO
       Call mma_deallocate(UMATR)
       Call mma_deallocate(UMATI)
       Call mma_deallocate(VMAT)
-      CALL GETMEM('SONTO','FREE','INTE',LSONTO,2*SONTOSTATES)
+      Call mma_deallocate(SONTO)
 
       END SUBROUTINE DO_SONTO
 

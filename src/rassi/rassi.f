@@ -34,6 +34,7 @@
       use Fock_util_global, only: Fake_CMO2
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
       use Data_Structures
+      use cntrl_data, only: SONTOSTATES
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.
@@ -287,13 +288,9 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
-      IF(SONATNSTATE.GT.0) THEN
-        CALL DO_SONATORB(NSS,USOR,USOI)
-      END IF
+      IF(SONATNSTATE.GT.0) CALL DO_SONATORB(NSS,USOR,USOI)
 C Plot SO-Natural Transition Orbitals if requested
-      IF(SONTOSTATES.GT.0) THEN
-        CALL DO_SONTO(NSS,USOR,USOI)
-      END IF
+      IF(SONTOSTATES.GT.0) CALL DO_SONTO(NSS,USOR,USOI)
 
       Call mma_deallocate(USOR)
       Call mma_deallocate(USOI)

@@ -23,6 +23,8 @@
 #endif
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       use Cholesky, only: timings
+      use stdalloc, only: mma_allocate
+      use cntrl_data, only: SONTO, SONTOSTATES
 
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -30,7 +32,6 @@
 #include "cntrl.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
@@ -594,10 +595,10 @@ c END BP OPTIONS
 c RF SO-NTO
       If(line(1:4).eq.'SONT') then
         read(LuIn,*,ERR=997) SONTOSTATES
-        CALL GETMEM('SONTO','ALLO','INTE',LSONTO,2*SONTOSTATES)
+        CALL mma_allocate(SONTO,2,SONTOSTATES,Label='SONTO')
         linenr=linenr+1
         do ILINE=1,SONTOSTATES
-          read(LuIn,*,ERR=997) (iwork(LSONTO+J-1),J=ILINE*2-1,ILINE*2)
+          read(LuIn,*,ERR=997) SONTO(1,ILINE),SONTO(2,ILINE)
           linenr=linenr+1
         enddo
         goto 100
