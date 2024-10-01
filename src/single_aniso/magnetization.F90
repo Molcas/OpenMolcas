@@ -23,10 +23,10 @@ subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,m
 !               scalar integer                                         *
 !     EM      : cut-off energy (energy of the last s-o state which is  *
 !               included in the Zeeman matrix                          *
-!               scalar real*8                                          *
+!               scalar real                                            *
 !     EM      : cut-off energy (energy of the last s-o state which is  *
 !               included in the Zeeman matrix                          *
-!               scalar real*8                                          *
+!               scalar real                                            *
 !     IFINAL  : integer                                                *
 !               termination flag                                       *
 !                                                                      *

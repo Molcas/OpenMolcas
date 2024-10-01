@@ -30,7 +30,7 @@
 !>
 !> @details
 !> This routine is used to put scalar data of type
-!> ``Real*8`` into the runfile. The data items are
+!> ``Real`` into the runfile. The data items are
 !> identified by the \p label. Below is a list of the
 !> data items that are recognized. The labels are
 !> case insensitive and significant to 16 characters.

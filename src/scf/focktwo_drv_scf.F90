@@ -77,7 +77,7 @@ if ((.not. DoCholesky) .or. (DoCholesky .and. GenInt)) then
     write(u6,*) ' Largest allocatable array size LBUF=',LBUF
     write(u6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
     write(u6,*) ' Required minimum size       NBMX**2=',NBMX**2
-    write(u6,*) '    (All in Real*8-size words)'
+    write(u6,*) '    (All in Real words)'
     call ABEND()
   end if
 

@@ -17,8 +17,8 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !     CI Hamiltonian Matrix elements reader                            *
 !     calling arguments:                                               *
 !     LW1     : Memory pointer to active Fock matrix                   *
-!               array of real*8                                        *
-!     TUVX    : array of real*8                                        *
+!               array of real                                          *
+!     TUVX    : array of real                                          *
 !               two-electron integrals (tu!vx)                         *
 !     IFINAL  : integer                                                *
 !               termination flag                                       *

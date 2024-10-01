@@ -23,9 +23,9 @@ subroutine BlockCtl(LW1,TUVX,IFINAL,IRST)
 !     DMRG control section                                             *
 !                                                                      *
 !     calling arguments:                                               *
-!     LW1     : array of real*8                                        *
+!     LW1     : array of real                                          *
 !               Memory pointer to active Fock matrix                   *
-!     TUVX    : array of real*8                                        *
+!     TUVX    : array of real                                          *
 !               two-electron integrals (tu!vx)                         *
 !     IFINAL  : integer                                                *
 !               termination flag                                       *

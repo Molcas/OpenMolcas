@@ -47,8 +47,8 @@ NBSIZ1 = MEMX/NCHN1-1
 NBUFBI = KBUFF1
 NBSIZ1 = min(NBSIZ1,MEMX-2*ISMAX-NBUFBI-1)
 NBSIZ1 = max(NBSIZ1,256)
-!PAM96 NBSIZ1=Size counted in real*8 words.
-!PAM96 Must contain NBITM1 real*8 + NBITM1 integ + 2 integ:
+!PAM96 NBSIZ1=Size counted in real words.
+!PAM96 Must contain NBITM1 real + NBITM1 integ + 2 integ:
 NBITM1 = (RTOI*NBSIZ1-2)/(RTOI+1)
 NBITM1 = min(NBITM1,NVSQ)
 NBITM1 = ((NBITM1+2)/RTOI)*RTOI-2

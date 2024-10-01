@@ -28,7 +28,7 @@ logical(kind=iwp) :: DFTX
 integer(kind=iwp) :: i, iOff, ipDai, ipDbi, iRC, nDMat, nForb(8,2), nIorb(8,2)
 real(kind=wp) :: dFMat, E2act(1), FactXI
 type(DSBA_Type) :: FLT(2), KLT(2), PLT(2), POrb(2)
-real*8, dimension(:,:), allocatable :: Dm
+real(kind=wp), allocatable :: Dm(:,:)
 real(kind=wp), external :: DDot_, Get_ExFac
 
 nDMat = 2

@@ -22,8 +22,8 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 !                                                                      *
 !     calling arguments:                                               *
 !     LW1     : active Fock matrix                                     *
-!               array of real*8                                        *
-!     TUVX    : array of real*8                                        *
+!               array of real                                          *
+!     TUVX    : array of real                                          *
 !               two-electron integrals (tu|vx)                         *
 !     IFINAL  : integer                                                *
 !               termination flag                                       *

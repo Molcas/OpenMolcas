@@ -382,7 +382,7 @@ outer: do
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !** IPOTL specifies the type of potential function to be generated.
   !** MPAR, NSR & NCMM are integers characterizing the chosen potential
-  !** NVARB is number of (real*8) potential parameters read in.
+  !** NVARB is number of (real) potential parameters read in.
   !** IBOB specifies whether (if > 0) or not (if <= 0) atomic mass
   !      dependent Born-Oppenheimer breakdown corrections will be included
   !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

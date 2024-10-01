@@ -29,7 +29,7 @@
 !> @author Per-Olof Widmark
 !>
 !> @details
-!> This routine is used to get scalar data of type ``Real*8``
+!> This routine is used to get scalar data of type ``Real``
 !> from the peek/poke buffer. The data items are identified
 !> by a text label.
 !>

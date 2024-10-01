@@ -27,22 +27,22 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !
 !        computation of a definite integral
 !        standard fortran subroutine
-!        real*8 version
+!        real version
 !
-!            f      - real*8
+!            f      - real
 !                     function subprogam defining the integrand
 !                     function f(x). the actual name for f needs to be
 !                     declared e x t e r n a l in the driver program.
 !
-!            a      - real*8
+!            a      - real
 !                     lower limit of integration
 !
-!            b      - real*8
+!            b      - real
 !                     upper limit of integration
 !
-!            epsabs - real*8
+!            epsabs - real
 !                     absolute accoracy requested
-!            epsrel - real*8
+!            epsrel - real
 !                     relative accuracy requested
 !                     if  epsabs <= 0
 !                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
@@ -59,10 +59,10 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                      30 - 61 points if key > 5.
 !
 !         on return
-!            reslt  - real*8
+!            reslt  - real
 !                     approximation to the integral
 !
-!            abserr - real*8
+!            abserr - real
 !                     estimate of the modulus of the absolute error,
 !                     which should equal or exceed abs(i-reslt)
 !
@@ -141,7 +141,7 @@ subroutine dqag(f,a,b,epsabs,epsrel,key,reslt,abserr,neval,ier,limit,lenw,last,i
 !                    form a decreasing sequence with k = last if
 !                    last <= (limit/2+2), and k = limit+1-last otherwise
 !
-!            work  - real*8
+!            work  - real
 !                    vector of dimension at least lenw
 !                    on return
 !                    work(1), ..., work(last) contain the left end

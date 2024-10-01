@@ -25,9 +25,9 @@ subroutine Fold(nSym,nBas,A,B)
 !               number of symmetry blocks                              *
 !     nBas    : input, array of integers                               *
 !               matrix dimension per symmetry block                    *
-!     A       : input, array of real*8                                 *
+!     A       : input, array of real                                   *
 !               Unfolded input matrix                                  *
-!     B       : output, array of real*8                                *
+!     B       : output, array of real                                  *
 !               Folded output matrix                                   *
 !                                                                      *
 !----------------------------------------------------------------------*

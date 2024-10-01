@@ -181,8 +181,8 @@ MxSrtA1 = ((1+RtoI)*nBin*lBin)/RtoI
 
 if ((.not. Reduce_Prt()) .and. (iPrint > 5)) then
   write(u6,*)
-  write(u6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real*8) in the first phase (=',nBin,' bins).'
-  write(u6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real*8) in the second phase.'
+  write(u6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real) in the first phase (=',nBin,' bins).'
+  write(u6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real) in the second phase.'
   write(u6,*)
 end if
 

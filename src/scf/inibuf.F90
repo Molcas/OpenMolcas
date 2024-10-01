@@ -62,9 +62,9 @@ end if
 ! Adjust buffer size and allocate memory for the buffer.
 
 if (OnDisk .or. InCore) then
-  MemMin_Seward = 1024**2 ! Real*8
+  MemMin_Seward = 1024**2 ! Real
   call mma_maxDBLE(MaxMem)
-  ! lBuf in units of Real*8 per buffer
+  ! lBuf in units of Real per buffer
   lBuf = (1024*nCore)/(8*nBuf)
   if (InCore) then
     MemReq = MemMin_Seward+lBuf*nBuf

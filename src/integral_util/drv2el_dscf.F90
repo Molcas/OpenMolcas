@@ -90,7 +90,7 @@ DoIntegrals = .false.
 DoFock = .true.
 FckNoExch = ExFac == Zero
 W2Disc = .false.     ! Default value
-! Disc_Mx = file size in Real*8 128=1024/8
+! Disc_Mx = file size in Real 128=1024/8
 Disc_Mx = real(nDisc,kind=wp)*128.0_wp
 ! Subtract for the last buffer
 Disc_Mx = Disc_Mx-lBuf

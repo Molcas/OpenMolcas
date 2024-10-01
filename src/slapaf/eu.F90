@@ -31,7 +31,7 @@ subroutine EU(dq,dg,gi,H,nH)
 !                                                                      *
 !     gi    :  gradient from previous it.(nH)
 !     dg    :  gradient difference       (nH)
-!     de    :  energy constant           (real*8)
+!     de    :  energy constant           (real)
 !     dq    :  Perturbation Geometry     (nH)
 !     Eval  :  EigenValues of Hessian    (nH*(nH+1)/2)
 !     Evec  :  EigenVector(s) of Hessian (nH,nH)
@@ -39,11 +39,11 @@ subroutine EU(dq,dg,gi,H,nH)
 !     E     :  Error matrix              (nH,nH)
 !     WorkM :  Temporary working matrix  (nH,nH)
 !     WorkV :  Temporary working vector  (nH)
-!     WorkR :  Temporary working varii   (real*8)
+!     WorkR :  Temporary working varii   (real)
 !     H     :  Hessian                   (nH,nH)
 !     nH    :  Hessian size              (integer)
 !     p,f   :  Multi-used vectors        (nh)
-!     mi    :  Used varii                (real*8)
+!     mi    :  Used varii                (real)
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
