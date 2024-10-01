@@ -22,4 +22,9 @@ Integer, Public:: SONTOSTATES=0
 Integer, Allocatable, Public:: SONAT(:)
 !    SONATNSTATE      Number of states to calculate
 Integer, Public:: SONATNSTATE=0
+
+Integer, Allocatable, Public:: SODIAG(:)
+!    SODIAGNSTATE     Number of states to diagonalize
+INTEGER, Public::  SODIAGNSTATE=0
+
 End Module Cntrl_Data

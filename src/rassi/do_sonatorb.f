@@ -11,7 +11,8 @@
       SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, EIGVEC
-      use cntrl_data, only: SONAT, SONATNSTATE
+      use cntrl_data, only: SONAT, SONATNSTATE,
+     &                      SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -210,14 +211,14 @@ c what is done in single_aniso
       IF(SODIAGNSTATE.GT.0) THEN
 
 c This actually does all the work
-        CALL SODIAG(WORK(LUMATR), WORK(LUMATI), NSS)
+        CALL mkSODIAG(WORK(LUMATR), WORK(LUMATI), NSS)
 
 c This is only allocated if SODIAGNSTATE.GT.0
-        CALL GETMEM('SODIAG','FREE','INTE',LSODIAG,SODIAGNSTATE)
+        CALL mma_deallocate(SODIAG)
       END IF
 
       CALL GETMEM('UMATR2','FREE','REAL',LUMATR,NSS**2)
       CALL GETMEM('UMATI2','FREE','REAL',LUMATI,NSS**2)
       CALL GETMEM('EIGVEC2','FREE','REAL',LVMAT,NSS**2)
 
-      END
+      END SUBROUTINE DO_SONATORB

@@ -32,7 +32,6 @@
 ! BP - SO Natural orbital information
 ! RF - SO Natural transition orbital infomation
 !    IFARGU           Do phase factor for SO-NTOs
-!    SODIAGNSTATE     Number of states to diagonalize
 !    IFCURD           Do current density stuff
 !    Do_TMOM          Do (exact) Transition MOMents
 !    L_Eff            The order of the Lebedev solid angle integration
@@ -42,7 +41,6 @@
 !    Do_Pol           Specify a polarization vector direction
 !    DOCD             Regular circular dichroism - velocity and mixed gauge
 !    SaveDens         Save input-state transition densities in temp. file
-      INTEGER SODIAGNSTATE,LSODIAG
       LOGICAL IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM,   &
      &        SaveDens, IFARGU
       REAL*8 TDIPMIN,SOTHR_PRT,TMGr_thrs
@@ -67,7 +65,7 @@
      &                 LGAM1,LGAM2,LGAM3,                               &
      &                             LIPAIR,                              &
      &     IFJ2,IFJZ,                                                   &
-     &     SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOM,                         &
+     &     IFCURD,Do_TMOM,                                              &
      &     TMGr_thrs,Do_SK,Do_Pol,DOCD, Force_NON_AO_TDM, SaveDens,     &
      &     IFARGU
 ! CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.

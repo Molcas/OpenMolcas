@@ -12,7 +12,7 @@
 
       use rassi_aux, only: ipglob
       use rasscf_data, only: doDMRG
-      use cntrl_data, only: SONTOSTATES, SONATNSTATE
+      use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"

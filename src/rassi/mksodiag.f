@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SODIAG(UMATR, UMATI, NSS)
+      SUBROUTINE mkSODIAG(UMATR, UMATI, NSS)
       use rassi_aux, only: ipglob
       use Constants, only: cm_s, hPlanck, gElectron, mBohr
+      use cntrl_data, only: SODIAG, SODIAGNSTATE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -78,7 +79,7 @@ C BPTST       Storage for some testing
       WRITE(6,*) "Number of states to be diagonalized: ",N
       WRITE(6,*) "STATES:"
       DO I = 1,N
-        WRITE(6,*) IWORK(LSODIAG-1+I)
+        WRITE(6,*) SODIAG(I)
       END DO
 
       CALL DCOPY_(9*N**2,[0.0d0],0,LMATR,1)
@@ -104,8 +105,8 @@ C Only work with one triangle - this is a hermitian matrix
       DO J=1,N
       DO I=1,J
 
-        ISTATE=IWORK(LSODIAG-1+I)
-        JSTATE=IWORK(LSODIAG-1+J)
+        ISTATE=SODIAG(I)
+        JSTATE=SODIAG(J)
         WRITE(6,*) "States: ",ISTATE,JSTATE
 
         iOpt=0
@@ -197,7 +198,7 @@ c  apply the magnetic field along the main iDir axis
         DO I=1,N
         DO J=1,N
 
-          WRITE(6,*) "I,J",IWORK(LSODIAG-1+I),IWORK(LSODIAG-1+J),
+          WRITE(6,*) "I,J",SODIAG(I),SODIAG(J),
      &                PROP2(IDIR, I,J)
 
         END DO
@@ -211,8 +212,8 @@ c  apply the magnetic field along the main iDir axis
 
         DO I=1,N
         DO J=1,N
-          ISTATE=IWORK(LSODIAG-1+I)
-          JSTATE=IWORK(LSODIAG-1+J)
+          ISTATE=SODIAG(I)
+          JSTATE=SODIAG(J)
           WRITE(6,*) ISTATE,JSTATE,H_ZEE(I,J)
         END DO
         END DO
@@ -257,8 +258,8 @@ CCCCCCCCCCCCCCCC
         WRITE(6,*) "V*V: Should be real unit matrix"
         DO I=1,N
         DO J=1,N
-          ISTATE=IWORK(LSODIAG-1+I)
-          JSTATE=IWORK(LSODIAG-1+J)
+          ISTATE=SODIAG(I)
+          JSTATE=SODIAG(J)
           WRITE(6,*) ISTATE,JSTATE,BPTST(I,J)
         END DO
         END DO
@@ -302,8 +303,8 @@ c AS A PART OF AN IDENTITY MATRIX
 
       DO I=1,N
       DO J=1,N
-        I2=IWORK(LSODIAG-1+I)
-        J2=IWORK(LSODIAG-1+J)
+        I2=SODIAG(I)
+        J2=SODIAG(J)
 
         IJ=NSS*(J2-1)+I2
         WRITE(6,*) I2,J2,IJ
@@ -342,8 +343,8 @@ c REDO USING SONATORB_MIX
       DO I=1,SODIAGNSTATE
       DO J=1,SODIAGNSTATE
 
-        ISTATE=IWORK(LSODIAG-1+I)
-        JSTATE=IWORK(LSODIAG-1+J)
+        ISTATE=SODIAG(I)
+        JSTATE=SODIAG(J)
 
         IJ=J*(J-1)/2+I
 
@@ -493,8 +494,7 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
 
       CALL GETMEM('DMATTMPA','FREE','REAL',LDMATTMP,3*(NBST*(NBST+1)))
 
-      RETURN
-      END
+      END SUBROUTINE mkSODIAG
 
 
 

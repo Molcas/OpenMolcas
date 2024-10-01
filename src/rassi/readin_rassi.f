@@ -25,7 +25,8 @@
       use Cholesky, only: timings
       use stdalloc, only: mma_allocate
       use cntrl_data, only: SONTO, SONTOSTATES,
-     &                      SONAT, SONATNSTATE
+     &                      SONAT, SONATNSTATE,
+     &                      SODIAG,SODIAGNSTATE
 
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -574,10 +575,10 @@ c BP Natural orbitals options
       Endif
       If(Line(1:4).eq.'SODI') then
         Read(LuIn,*,ERR=997) SODIAGNSTATE
-        CALL GETMEM('SODIAG','ALLO','INTE',LSODIAG,SODIAGNSTATE)
+        CALL mma_allocate(SODIAG,SODIAGNSTATE,Label='SODIAG')
         Linenr=Linenr+1
         DO ILINE=1,SODIAGNSTATE
-          Read(LuIn,*,ERR=997) IWORK(LSODIAG-1+ILINE)
+          Read(LuIn,*,ERR=997) SODIAG(ILINE)
           Linenr=Linenr+1
         END DO
         GoTo 100
