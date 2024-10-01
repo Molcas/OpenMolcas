@@ -76,10 +76,9 @@ do iSym=1,nSym
     ij = -1
     do i=nFr+1,nOr
       ij = ij+1
-      !if (NewOcc(ipOcc+i) == Zero) Go To 100
+      !if (NewOcc(ipOcc+i) == Zero) exit
       rSum = rSum+NewOcc(ipOcc+i)*CMO(ipCff+iRow+ij*nBs)*CMO(ipCff+iRow+ij*nBs)
     end do
-    !100 continue
     Dlt(ipDlt+iTri(iRow,iRow)) = rSum*SScale
 
     do iCol=1,iRow-1
@@ -87,10 +86,9 @@ do iSym=1,nSym
       ij = -1
       do i=nFr+1,nOr
         ij = ij+1
-        !if (NewOcc(ipOcc+i) == Zero) Go To 200
+        !if (NewOcc(ipOcc+i) == Zero) exit
         rSum = rSum+NewOcc(ipOcc+i)*CMO(ipCff+iRow+ij*nBs)*CMO(ipCff+iCol+ij*nBs)
       end do
-      !200 continue
       Dlt(ipDlt+iTri(iRow,iCol)) = Scal*rSum
     end do
   end do

@@ -19,7 +19,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: id_call
-integer(kind=iwp) :: icount, icount0
+integer(kind=iwp) :: icount, icount0, istatus
 character(len=512) :: List
 character(len=32) :: Val
 
@@ -43,56 +43,72 @@ else
   !1
   call MolcasControl('Cho_ALGO',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) ALGO
+    read(Val,*,iostat=istatus) ALGO
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: Cho_ALGOrithm changed by user to the value ',ALGO
     icount = icount+1
   end if
   !2
   call MolcasControl('Chotime',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) timings
+    read(Val,*,iostat=istatus) timings
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
     icount = icount+1
   end if
   !3
   call MolcasControl('En_thr',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) Ethr
+    read(Val,*,iostat=istatus) Ethr
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: SCF Energy threshold changed by user to the value ',Ethr
     icount = icount+1
   end if
   !4
   call MolcasControl('D_thr',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) Dthr
+    read(Val,*,iostat=istatus) Dthr
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: SCF Density threshold changed by user to the value ',Dthr
     icount = icount+1
   end if
   !5
   call MolcasControl('F_thr',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) Fthr
+    read(Val,*,iostat=istatus) Fthr
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: SCF Fmat threshold changed by user to the value ',Fthr
     icount = icount+1
   end if
   !6
   call MolcasControl('MaxIter',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) nIter(1)
+    read(Val,*,iostat=istatus) nIter(1)
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: SCF Max # iterations changed by user to the value ',nIter(1)
     icount = icount+1
   end if
   !7
   call MolcasControl('nScreen',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) nScreen
+    read(Val,*,iostat=istatus) nScreen
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
     icount = icount+1
   end if
   !8
   call MolcasControl('dmpK',Val)
   if (Val(1:4) /= '    ') then
-    read(Val,*,err=101,end=102) dmpK
+    read(Val,*,iostat=istatus) dmpK
+    call Error_check()
+    if (istatus /= 0) return
     write(u6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
     icount = icount+1
   end if
@@ -150,7 +166,17 @@ return
 100 format(A21,',Cho_ALGO=',I2,',Chotime=',L2,',dmpK=',ES11.4,',En_thr=',ES11.4,',D_thr=',ES11.4,',F_thr=',ES11.4,',MaxIter=',I4, &
            ',nScreen=',I4)
 
-101 write(u6,*) 'Scf_Mcontrol: error in data Input. ( icount= ',icount,' )'
-102 write(u6,*) 'Scf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+contains
+
+subroutine Error_check()
+
+  select case (istatus)
+    case (:-1)
+      write(u6,*) 'Scf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+    case (1:)
+      write(u6,*) 'Scf_Mcontrol: error in data Input. ( icount= ',icount,' )'
+  end select
+
+end subroutine Error_check
 
 end subroutine Scf_Mcontrol

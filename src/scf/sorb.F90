@@ -40,7 +40,7 @@ implicit none
 integer(kind=iwp) :: LuOrb, iTerm
 real(kind=wp) :: SIntTh
 integer(kind=iwp) :: iD, IsUHF, nData
-logical(kind=iwp) :: found, FstItr
+logical(kind=iwp) :: found, FstItr, Retry
 character(len=512) :: FName
 character(len=80) :: KSDFT_save
 
@@ -73,118 +73,121 @@ if (InVec == -1) InVec = 0
 !                                                                      *
 ! Has the user selected a method?
 
-100 continue
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-select case (InVec)
+do
+  Retry = .false.
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  case (0)
-
-    ! Diagonalize core
-    call Start0()
+  select case (InVec)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-  case (1)
+    case (0)
 
-    ! HF AO orbitals as intermediate step...
+      ! Diagonalize core
+      call Start0()
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case (1)
 
-    ! NDDO, always none-DFT
+      ! HF AO orbitals as intermediate step...
 
-    call SwiOpt(.false.,OneHam,Ovrlp,nBT,CMO,nBB,nD)
-    call Start0()
-    InVec = 0
-    call SOrbCHk(OneHam,FockAO,nBT,nD)
-    KSDFT_save = KSDFT
-    KSDFT = 'SCF'
-    call WrInp_SCF(SIntTh)
-    FstItr = .true.
-    call WfCtl_SCF(iTerm,'NDDO      ',FstItr,SIntTh)
-    KSDFT = KSDFT_save
-    call Free_TLists()
-    if (iTerm /= 0) call Quit(iTerm)
-    write(u6,*)
-    write(u6,'(A)') 'Generation of NDDO vectors completed!'
-    write(u6,*)
-    write(u6,*) '2nd step: optimizing HF MOs...'
-    write(u6,*) '------------------------------'
-    call SwiOpt(.true.,OneHam,Ovrlp,nBT,CMO,nBB,nD)
-    ! Reset to to start from the current MO set
-    call Init_SCF()
-    InVec = 5
-    !IFG: I presume the arguments after LuOut in these two calls are correct,
-    !     they were missing!
-    if (nD == 1) then
-      FName = 'SCFORB'
-      call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
-    else
-      FName = 'UHFORB'
-      call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
-    end if
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  case (2)
+      ! NDDO, always none-DFT
 
-    ! Read INPORB
-    One_Grid = .true.
-    FName = SCF_FileOrb
-    call Start2(FName,LuOrb,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  case (3)
+      call SwiOpt(.false.,OneHam,Ovrlp,nBT,CMO,nBB,nD)
+      call Start0()
+      InVec = 0
+      call SOrbCHk(OneHam,FockAO,nBT,nD)
+      KSDFT_save = KSDFT
+      KSDFT = 'SCF'
+      call WrInp_SCF(SIntTh)
+      FstItr = .true.
+      call WfCtl_SCF(iTerm,'NDDO      ',FstItr,SIntTh)
+      KSDFT = KSDFT_save
+      call Free_TLists()
+      if (iTerm /= 0) call Quit(iTerm)
+      write(u6,*)
+      write(u6,'(A)') 'Generation of NDDO vectors completed!'
+      write(u6,*)
+      write(u6,*) '2nd step: optimizing HF MOs...'
+      write(u6,*) '------------------------------'
+      call SwiOpt(.true.,OneHam,Ovrlp,nBT,CMO,nBB,nD)
+      ! Reset to to start from the current MO set
+      call Init_SCF()
+      InVec = 5
+      !IFG: I presume the arguments after LuOut in these two calls are correct,
+      !     they were missing!
+      if (nD == 1) then
+        FName = 'SCFORB'
+        call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
+      else
+        FName = 'UHFORB'
+        call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
+      end if
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case (2)
 
-    ! Read COMOLD
-    One_Grid = .true.
-    call Start3(CMO,TrM,nBB,nD,OneHam,Ovrlp,nBT)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  case (6)
+      ! Read INPORB
+      One_Grid = .true.
+      FName = SCF_FileOrb
+      call Start2(FName,LuOrb,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case (3)
 
-    write(u6,*)
-    write(u6,*) '     Constrained SCF calculation '
-    write(u6,*)
-    StVec = 'Constrained orbitals'
-    One_Grid = .true.
-    FName = SCF_FileOrb
-    call Chk_Vec_UHF(FName,LuOrb,isUHF)
-    if (IsUHF == 1) then
-      InVec = 2
-      Go To 100
-    end if
-    call Start6(FName,LuOrb,CMO,nBB,nD,EOrb,OccNo,nnB)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  case (8)
+      ! Read COMOLD
+      One_Grid = .true.
+      call Start3(CMO,TrM,nBB,nD,OneHam,Ovrlp,nBT)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case (6)
 
-    StVec = 'Detected old SCF orbitals'
-    One_Grid = .true.
-    call start0y(CMO,nBB,nD,EOrb,nnB)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  case (9)
+      write(u6,*)
+      write(u6,*) '     Constrained SCF calculation '
+      write(u6,*)
+      StVec = 'Constrained orbitals'
+      One_Grid = .true.
+      FName = SCF_FileOrb
+      call Chk_Vec_UHF(FName,LuOrb,isUHF)
+      if (IsUHF == 1) then
+        InVec = 2
+        Retry = .true.
+      end if
+      call Start6(FName,LuOrb,CMO,nBB,nD,EOrb,OccNo,nnB)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case (8)
 
-    StVec = 'Detected guessorb starting orbitals'
-    !One_Grid = .true.
-    call start0x(CMO,nBB,nD,EOrb,nnB)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-  case Default
+      StVec = 'Detected old SCF orbitals'
+      One_Grid = .true.
+      call start0y(CMO,nBB,nD,EOrb,nnB)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case (9)
 
-    write(u6,*) 'Illegal inVec value:',InVec
-    call Abend()
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-end select
+      StVec = 'Detected guessorb starting orbitals'
+      !One_Grid = .true.
+      call start0x(CMO,nBB,nD,EOrb,nnB)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    case Default
+
+      write(u6,*) 'Illegal inVec value:',InVec
+      call Abend()
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+  end select
+  if (.not. Retry) exit
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *

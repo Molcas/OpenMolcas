@@ -88,7 +88,13 @@ iOffTri = 0
 iOffCMO = 0
 iOffEta = 0
 do iSym=1,nSym
-  if (nBas(iSym) <= 0) goto 200
+  if (iSym > 1) then
+    iOffTri = iOffTri+nBas(iSym-1)*(nBas(iSym-1)+1)/2
+    iOffSqr = iOffSqr+nBas(iSym-1)*nBas(iSym-1)
+    iOffEta = iOffEta+nOrb(iSym-1)
+    iOffCMO = iOffCMO+nBas(iSym-1)*nOrb(iSym-1)
+  end if
+  if (nBas(iSym) <= 0) cycle
 
   ! Compute C(t)S (=aux1), but square S first
 
@@ -147,11 +153,6 @@ do iSym=1,nSym
   do i=1,nOrb(iSym)
     Eta(iOffEta+i) = -Eta(iOffEta+i)
   end do
-200 continue
-  iOffTri = iOffTri+nBas(iSym)*(nBas(iSym)+1)/2
-  iOffSqr = iOffSqr+nBas(iSym)*nBas(iSym)
-  iOffEta = iOffEta+nOrb(iSym)
-  iOffCMO = iOffCMO+nBas(iSym)*nOrb(iSym)
 end do
 !----------------------------------------------------------------------*
 ! Compute diagonal of average Fock matrix                              *

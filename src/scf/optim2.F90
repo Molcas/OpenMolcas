@@ -138,10 +138,8 @@ call Abend()
 ! Below we explore changes to all triplets that are consistent with
 ! that the constrains are not broken.
 
-100 continue
-if ((Iter < 500) .and. DidChange) then
+do Iter=1,500
 
-  Iter = Iter+1
   DidChange = .false.
 
   do i=1,n-2
@@ -305,8 +303,8 @@ if ((Iter < 500) .and. DidChange) then
   end do
   write(u6,*) 'optim: rSum-r2',rSum-r2
 # endif
-  Go To 100
-end if
+  if (.not. DidChange) exit
+end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'ERef=',ERef
 #endif

@@ -77,90 +77,88 @@ write(u6,*) 'VecFind: LstVec',LstVec
 #endif
 do i=1,nStOpt
   Found = .false.
-  if (LstVec(i) == 0) then
-#   ifdef _DEBUGPRINT_
-    write(u6,'(2i5,a)') i,LstVec(i),' Old scf orbitals'
-#   endif
-    call qpg_darray('SCF orbitals',Found,nData)
-    if (Found .and. (nData == nSqrSum)) then
+  select case (LstVec(i))
+    case (0)
 #     ifdef _DEBUGPRINT_
-      write(u6,*) 'Found orbitals'
+      write(u6,'(2i5,a)') i,LstVec(i),' Old scf orbitals'
 #     endif
-      call qpg_darray('OrbE',Found,nData)
+      call qpg_darray('SCF orbitals',Found,nData)
+      if (Found .and. (nData == nSqrSum)) then
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Found orbitals'
+#       endif
+        call qpg_darray('OrbE',Found,nData)
+        if (Found) then
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'Found energies'
+#         endif
+          InVec = 8
+          exit
+        end if
+      end if
+    case (1)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(2i5,a)') i,LstVec(i),' Guessorb orbitals'
+#     endif
+      call qpg_darray('Guessorb',Found,nData)
+      if (Found .and. (nData == nSqrSum)) then
+        call qpg_darray('Guessorb energies',Found,nData)
+        if (Found) then
+          InVec = 9
+          exit
+        end if
+      end if
+    case (2)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
+#     endif
+      call F_Inquire(SCF_FileOrb,Found)
+      if (Found) then
+        if (isHDF5) then
+#         ifdef _HDF5_
+          iVer = -1
+          call mh5_fetch_attr(fileorb_id,'NSYM',mynSym)
+          call mh5_fetch_attr(fileorb_id,'NBAS',mynBas)
+#         endif
+        else
+          call ChkVec(SCF_FileOrb,iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
+        end if
+        if (iVer == 0) Found = .false.
+        if (mynSym /= nSym) Found = .false.
+        do j=1,nSym
+          if (mynBas(j) /= nBas(j)) Found = .false.
+        end do
+      end if
       if (Found) then
 #       ifdef _DEBUGPRINT_
-        write(u6,*) 'Found energies'
+        write(u6,*) 'Found INPORB'
 #       endif
-        InVec = 8
-        goto 101
+        InVec = 2
+        exit
       end if
-    end if
-  else if (LstVec(i) == 1) then
-#   ifdef _DEBUGPRINT_
-    write(u6,'(2i5,a)') i,LstVec(i),' Guessorb orbitals'
-#   endif
-    call qpg_darray('Guessorb',Found,nData)
-    if (Found .and. (nData == nSqrSum)) then
-      call qpg_darray('Guessorb energies',Found,nData)
-      if (Found) then
-        InVec = 9
-        goto 101
-      end if
-    end if
-  else if (LstVec(i) == 2) then
-#   ifdef _DEBUGPRINT_
-    write(u6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
-#   endif
-    call F_Inquire(SCF_FileOrb,Found)
-    if (Found) then
-      if (isHDF5) then
-#       ifdef _HDF5_
-        iVer = -1
-        call mh5_fetch_attr(fileorb_id,'NSYM',mynSym)
-        call mh5_fetch_attr(fileorb_id,'NBAS',mynBas)
-#       endif
-      else
-        call ChkVec(SCF_FileOrb,iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
-      end if
-      if (iVer == 0) Found = .false.
-      if (mynSym /= nSym) Found = .false.
-      do j=1,nSym
-        if (mynBas(j) /= nBas(j)) Found = .false.
-      end do
-    end if
-    if (Found) then
+    case (3)
 #     ifdef _DEBUGPRINT_
-      write(u6,*) 'Found INPORB'
+      write(u6,'(2i5,a)') i,LstVec(i),' Density'
 #     endif
-      InVec = 2
-      goto 101
-    end if
-  else if (LstVec(i) == 3) then
-#   ifdef _DEBUGPRINT_
-    write(u6,'(2i5,a)') i,LstVec(i),' Density'
-#   endif
-    InVec = 0
-  else if (LstVec(i) == 4) then
-#   ifdef _DEBUGPRINT_
-    write(u6,'(2i5,a)') i,LstVec(i),' Core orbitals'
-#   endif
-    InVec = 0
-    Found = .true.
-    goto 101
-  else
-#   ifdef _DEBUGPRINT_
-    write(u6,'(2i5,a)') i,LstVec(i),' Die'
-#   endif
-    InVec = 0
-    Found = .false.
-    goto 101
-  end if
+      InVec = 0
+    case (4)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(2i5,a)') i,LstVec(i),' Core orbitals'
+#     endif
+      InVec = 0
+      Found = .true.
+      exit
+    case default
+#     ifdef _DEBUGPRINT_
+      write(u6,'(2i5,a)') i,LstVec(i),' Die'
+#     endif
+      InVec = 0
+      exit
+  end select
 # ifdef _DEBUGPRINT_
   write(u6,*) 'LstVec(i),Found:',LstVec(i),Found
 # endif
 end do
-Found = .false.
-101 continue
 #ifdef _DEBUGPRINT_
 write(u6,*) 'VecFind: InVec, Found=',InVec,Found
 #endif
@@ -171,43 +169,43 @@ if (.not. Found) then
   cList = ''
   n2 = 0
   do i=1,nStOpt
-    if (LstVec(i) == 0) then
-      n1 = n2+1
-      n2 = n1+9
-      write(cList(n1:n2),'(a)') 'Old Scf, '
-    else if (LstVec(i) == 1) then
-      n1 = n2+1
-      n2 = n1+10
-      write(cList(n1:n2),'(a)') 'Guessorb, '
-    else if (LstVec(i) == 2) then
-      n1 = n2+1
-      n2 = n1+8
-      if (isHDF5) then
-        write(cList(n1:n2),'(a)') 'HDF5, '
-      else
-        write(cList(n1:n2),'(a)') 'Lumorb, '
-      end if
-    else if (LstVec(i) == 3) then
-      n1 = n2+1
-      n2 = n1+13
-      write(cList(n1:n2),'(a)') 'Old density, '
-    else if (LstVec(i) == 4) then
-      n1 = n2+1
-      n2 = n1+6
-      write(cList(n1:n2),'(a)') 'Core, '
-    else if (LstVec(i) == 5) then
-      n1 = n2+1
-      n2 = n1+6
-      write(cList(n1:n2),'(a)') 'NDDO, '
-    else if (LstVec(i) == -1) then
-      goto 290
-    else
-      n1 = n2+1
-      n2 = n1+9
-      write(cList(n1:n2),'(a)') 'Unknown, '
-    end if
+    select case (LstVec(i))
+      case (0)
+        n1 = n2+1
+        n2 = n1+9
+        write(cList(n1:n2),'(a)') 'Old Scf, '
+      case (1)
+        n1 = n2+1
+        n2 = n1+10
+        write(cList(n1:n2),'(a)') 'Guessorb, '
+      case (2)
+        n1 = n2+1
+        n2 = n1+8
+        if (isHDF5) then
+          write(cList(n1:n2),'(a)') 'HDF5, '
+        else
+          write(cList(n1:n2),'(a)') 'Lumorb, '
+        end if
+      case (3)
+        n1 = n2+1
+        n2 = n1+13
+        write(cList(n1:n2),'(a)') 'Old density, '
+      case (4)
+        n1 = n2+1
+        n2 = n1+6
+        write(cList(n1:n2),'(a)') 'Core, '
+      case (5)
+        n1 = n2+1
+        n2 = n1+6
+        write(cList(n1:n2),'(a)') 'NDDO, '
+      case (-1)
+        exit
+      case default
+        n1 = n2+1
+        n2 = n1+9
+        write(cList(n1:n2),'(a)') 'Unknown, '
+    end select
   end do
-290 continue
   call SysAbendMsg('SCF:','Cannot find start orbitals according to list:',cList)
 end if
 !----------------------------------------------------------------------*

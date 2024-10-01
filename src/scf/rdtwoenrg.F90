@@ -18,6 +18,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: LU
 real(kind=wp) :: E2act
+integer(kind=iwp) :: istatus
 logical(kind=iwp) :: Exists
 character(len=80) :: LINE
 
@@ -27,13 +28,25 @@ if (.not. Exists) then
   call Abend()
 end if
 rewind(LU)
-55 read(LU,'(A80)',end=888,ERR=888) Line
-if (Line(1:22) /= '* ACTIVE TWO-EL ENERGY') goto 55
-read(LU,'(ES19.12)',err=888,end=888) E2act
+do
+  read(LU,'(A80)',iostat=istatus) Line
+  if (istatus /= 0) call Error_quit()
+  if (Line(1:22) == '* ACTIVE TWO-EL ENERGY') exit
+end do
+read(LU,'(ES19.12)',iostat=istatus) E2act
+if (istatus /= 0) call Error_quit()
 
 close(LU)
+
 return
-888 call SysWarnFileMsg('RdTwoEnrg','INPORB','Error during reading INPORB\n','Field not there')
-call Abend()
+
+contains
+
+subroutine Error_quit()
+
+  call SysWarnFileMsg('RdTwoEnrg','INPORB','Error during reading INPORB\n','Field not there')
+  call Abend()
+
+end subroutine Error_quit
 
 end subroutine RdTwoEnrg

@@ -83,40 +83,39 @@ end if
 
 call FZero(Occ,mmB*nD)
 
-if (allocated(OccSet_e)) Go To 100
+if (.not. allocated(OccSet_e)) then
 
-! Default is that occupied orbitals are set to 2 and 1
-! for RHF and UHF, respectively.
+  ! Default is that occupied orbitals are set to 2 and 1
+  ! for RHF and UHF, respectively.
 
-do iD=1,nD
-  mOcc = 0
-  do iSym=1,nSym
-    do iOrb=1,nOcc(iSym,iD)
-      Occ(iOrb+mOcc,iD) = real(3-nD,kind=wp) ! Value 2 or 1
+  do iD=1,nD
+    mOcc = 0
+    do iSym=1,nSym
+      do iOrb=1,nOcc(iSym,iD)
+        Occ(iOrb+mOcc,iD) = real(3-nD,kind=wp) ! Value 2 or 1
+      end do
+      mOcc = mOcc+nOrb(iSym)
     end do
-    mOcc = mOcc+nOrb(iSym)
   end do
-end do
-Go To 200
 
-100 continue
+else
 
-! User define occupation numbers according to the OCCN key word.
+  ! User define occupation numbers according to the OCCN key word.
 
-do iD=1,nD
-  mOcc = 0
-  mSet = 0
-  do iSym=1,nSym
-    do iOrb=1,nOcc(iSym,iD)
-      Occ(iOrb+mOcc,iD) = OccSet_e(iOrb+mSet,iD)
+  do iD=1,nD
+    mOcc = 0
+    mSet = 0
+    do iSym=1,nSym
+      do iOrb=1,nOcc(iSym,iD)
+        Occ(iOrb+mOcc,iD) = OccSet_e(iOrb+mSet,iD)
+      end do
+      mOcc = mOcc+nOrb(iSym)
+      mSet = mSet+nOcc(iSym,iD)
     end do
-    mOcc = mOcc+nOrb(iSym)
-    mSet = mSet+nOcc(iSym,iD)
   end do
-end do
-call mma_deallocate(OccSet_e)
+  call mma_deallocate(OccSet_e)
 
-200 continue
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

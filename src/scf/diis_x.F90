@@ -62,177 +62,177 @@ real(kind=wp), external :: DDot_
 !----------------------------------------------------------------------*
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
-100 continue
-Case1 = .false.
-Case2 = .false.
-Case3 = .false.
+do
+  Case1 = .false.
+  Case2 = .false.
+  Case3 = .false.
 
-! Select from the kOptim last iterations
+  ! Select from the kOptim last iterations
 
-do i=1,kOptim
-  Ind(i) = iter-kOptim+i
-end do
-#ifdef _DEBUGPRINT_
-!write(u6,*) 'Iter, Iter_Start=',Iter,Iter_Start
-write(u6,*) 'kOptim=',kOptim
-write(u6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
-#endif
-
-! The following piece of code computes the DIIS coeffs
-! with error vectors chosen as the grds (DIIS only)
-! or as delta=-Hinv*grd (QNR/DIIS)
-
-! Allocate memory for error vectors (gradient or delta)
-
-call mma_allocate(Err1,mOV,Label='Err1')
-call mma_allocate(Err2,mOV,Label='Err2')
-!call mma_allocate(Err3,mOV,Label='Err3')
-!call mma_allocate(Err4,mOV,Label='Err4')
-nBij = kOptim+1
-call mma_allocate(Bij,nBij,nBij)
-call FZero(Bij,nBij**2)
-
-! Compute norms, <e_i|e_j>
-
-#ifdef _DEBUGPRINT_
-write(u6,*) 'kOV(:)=',kOV
-write(u6,*) 'mOV   =',mOV
-call RecPrt('Energy',' ',Energy,1,iter)
-#endif
-E_Min_G = Zero
-E_Min = Zero
-Bii_min = 1.0e99_wp
-do i=1,kOptim
-  call ErrV(mOV,Ind(i),QNRStp,Err1)
-  !if (QNRStp) call ErrV(mOV,Ind(i),.false.,Err3)
+  do i=1,kOptim
+    Ind(i) = iter-kOptim+i
+  end do
 # ifdef _DEBUGPRINT_
-  call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
+  !write(u6,*) 'Iter, Iter_Start=',Iter,Iter_Start
+  write(u6,*) 'kOptim=',kOptim
+  write(u6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
 # endif
-  do j=1,i-1
 
-    call ErrV(mOV,Ind(j),QNRStp,Err2)
-    !if (QNRStp) call ErrV(mOV,Ind(j),.false.,Err4)
+  ! The following piece of code computes the DIIS coeffs
+  ! with error vectors chosen as the grds (DIIS only)
+  ! or as delta=-Hinv*grd (QNR/DIIS)
+
+  ! Allocate memory for error vectors (gradient or delta)
+
+  call mma_allocate(Err1,mOV,Label='Err1')
+  call mma_allocate(Err2,mOV,Label='Err2')
+  !call mma_allocate(Err3,mOV,Label='Err3')
+  !call mma_allocate(Err4,mOV,Label='Err4')
+  nBij = kOptim+1
+  call mma_allocate(Bij,nBij,nBij)
+  call FZero(Bij,nBij**2)
+
+  ! Compute norms, <e_i|e_j>
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'kOV(:)=',kOV
+  write(u6,*) 'mOV   =',mOV
+  call RecPrt('Energy',' ',Energy,1,iter)
+# endif
+  E_Min_G = Zero
+  E_Min = Zero
+  Bii_min = 1.0e99_wp
+  do i=1,kOptim
+    call ErrV(mOV,Ind(i),QNRStp,Err1)
+    !if (QNRStp) call ErrV(mOV,Ind(i),.false.,Err3)
 #   ifdef _DEBUGPRINT_
-    call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
+    call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #   endif
+    do j=1,i-1
+
+      call ErrV(mOV,Ind(j),QNRStp,Err2)
+      !if (QNRStp) call ErrV(mOV,Ind(j),.false.,Err4)
+#     ifdef _DEBUGPRINT_
+      call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
+#     endif
+      if (QNRStp) then
+#       ifdef _NEW_
+        !Bij(i,j) = Half*real(nD,kind=wp)*(DDot_(mOV,Err1,1,Err4,1)+DDot_(mOV,Err3,1,Err2,1))
+#       else
+        Bij(i,j) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err2,1)
+#       endif
+      else
+        Bij(i,j) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err2,1)
+      end if
+      Bij(j,i) = Bij(i,j)
+    end do
     if (QNRStp) then
 #     ifdef _NEW_
-      !Bij(i,j) = Half*real(nD,kind=wp)*(DDot_(mOV,Err1,1,Err4,1)+DDot_(mOV,Err3,1,Err2,1))
+      !Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err3,1)
 #     else
-      Bij(i,j) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err2,1)
+      Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err1,1)
 #     endif
     else
-      Bij(i,j) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err2,1)
+      Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err1,1)
     end if
-    Bij(j,i) = Bij(i,j)
+    E_min = min(E_min,Energy(Ind(i)))
+    if (Bij(i,i) < Bii_Min) then
+      E_min_G = Energy(Ind(i))
+      Bii_Min = Bij(i,i)
+    end if
   end do
-  if (QNRStp) then
-#   ifdef _NEW_
-    !Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err3,1)
-#   else
-    Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err1,1)
-#   endif
-  else
-    Bij(i,i) = real(nD,kind=wp)*DDot_(mOV,Err1,1,Err1,1)
-  end if
-  E_min = min(E_min,Energy(Ind(i)))
-  if (Bij(i,i) < Bii_Min) then
-    E_min_G = Energy(Ind(i))
-    Bii_Min = Bij(i,i)
-  end if
-end do
 
-i = kOptim
-! Monitor if the sequence of norms of the error vectors and their
-! corresponding energies are consistent with a single convex
-! potential energy minimum.
+  i = kOptim
+  ! Monitor if the sequence of norms of the error vectors and their
+  ! corresponding energies are consistent with a single convex
+  ! potential energy minimum.
 
-! Case 1
-! Matrix elements are just too large. This is probably due to
-! that the BFGS update is ill-conditioned.
-! Case1 = ((Bii_Min > One) .and. (kOptim > 1))
-Case1 = (((Bij(i,i) > One) .or. (Bii_Min > One)) .and. (kOptim > 1) .and. (IterSO > 1))
+  ! Case 1
+  ! Matrix elements are just too large. This is probably due to
+  ! that the BFGS update is ill-conditioned.
+  ! Case1 = ((Bii_Min > One) .and. (kOptim > 1))
+  Case1 = (((Bij(i,i) > One) .or. (Bii_Min > One)) .and. (kOptim > 1) .and. (IterSO > 1))
 
-! Case 2
-! Check if we are sliding off a shoulder, that is, we have a
-! lowering of the energy while the norm of the error vector
-! increase.
-Case2 = ((Bij(i,i) > Bii_Min) .and. (Energy(Ind(i))+delta_E < E_Min_G) .and. (kOptim > 1))
+  ! Case 2
+  ! Check if we are sliding off a shoulder, that is, we have a
+  ! lowering of the energy while the norm of the error vector
+  ! increase.
+  Case2 = ((Bij(i,i) > Bii_Min) .and. (Energy(Ind(i))+delta_E < E_Min_G) .and. (kOptim > 1))
 
-! Case 3
-! Check if elements are in decending order
-Case3 = .false.
-do i=1,kOptim-1
-  if (Bij(i,i) < 1.0e-6_wp) cycle
-  if (Fact_Decline*Bij(i,i) < Bij(i+1,i+1)) Case3 = .true.
-end do
-if (Energy(Ind(i)) >= E_min) Case3 = .false.
-
-if (qNRStp .and. (Case1 .or. Case2 .or. Case3)) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Case1=',Case1
-  write(u6,*) 'Case2=',Case2
-  write(u6,*) 'Case3=',Case3
-  write(u6,*) '   RESETTING kOptim!!!!'
-  write(u6,*) '   Calculation of the norms in Diis :'
-  Frmt = '(6(G0.12,2x))'
-  Text = 'B-matrix squared in Diis :'
-  call RecPrt(Text,Frmt,Bij,nBij,nBij)
-  write(u6,'(A,2(G0.9,2x))') 'Bij(i,i),      Bii_Min=',Bij(i,i),Bii_Min
-  write(u6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',Energy(Ind(i)),E_Min_G
-  write(u6,*) Energy(Ind(i)),E_Min_g
-  write(u6,*)
-
-# endif
-  ! Rest the depth of the DIIS and the BFGS update.
-  if (Case3) then
-    write(u6,*) 'DIIS_X: Resetting kOptim!'
-    write(u6,*) '        Caused by inconsistent B matrix values.'
-  else if (Case1) then
-    write(u6,*) 'DIIS_X: Resetting BFGS depth!'
-    write(u6,*) '        Too large B matrix values.'
-  else if (Case2) then
-    write(u6,*) 'DIIS_X: Resetting kOptim!'
-    write(u6,*) '        Caused by energies and gradients which are inconsistent with a convex energy functional.'
-  end if
-  if (Case1) then
-    ! The BFGS update is probably to blame. Reset the update depth.
-    Iter_Start = Iter
-    IterSO = 1
-  else
-    !if (Case2) then
-    write(u6,*) 'kOptim=',kOptim,'-> kOptim=',1
-    kOptim = 1
-    Iter_Start = Iter
-    IterSO = 1
-    !else
-    !  write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
-    !  kOptim = kOptim-1
-    !  Iter_Start = Iter_Start+1
-    !  IterSO = IterSO-1
-    !end if
-  end if
-  call mma_deallocate(Err2)
-  call mma_deallocate(Err1)
-  call mma_deallocate(Bij)
-  Go To 100
-end if
-
-if (kOptim /= 1) then
+  ! Case 3
+  ! Check if elements are in decending order
+  Case3 = .false.
   do i=1,kOptim-1
-    if (delta*sqrt(Bij(i,i)) > sqrt(Bij(kOptim,kOptim))) then
-      write(u6,*) 'DIIS_X: Reduction of the subspace dimension due to numerical imbalance of the values in the B-Matrix'
-      write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
-      kOptim = kOptim-1
-      Iter_Start = Iter_Start+1
-      IterSO = IterSO-1
-      call mma_deallocate(Err2)
-      call mma_deallocate(Err1)
-      call mma_deallocate(Bij)
-      Go To 100
-    end if
+    if (Bij(i,i) < 1.0e-6_wp) cycle
+    if (Fact_Decline*Bij(i,i) < Bij(i+1,i+1)) Case3 = .true.
   end do
-end if
+  if (Energy(Ind(i)) >= E_min) Case3 = .false.
+
+  if (qNRStp .and. (Case1 .or. Case2 .or. Case3)) then
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Case1=',Case1
+    write(u6,*) 'Case2=',Case2
+    write(u6,*) 'Case3=',Case3
+    write(u6,*) '   RESETTING kOptim!!!!'
+    write(u6,*) '   Calculation of the norms in Diis :'
+    Frmt = '(6(G0.12,2x))'
+    Text = 'B-matrix squared in Diis :'
+    call RecPrt(Text,Frmt,Bij,nBij,nBij)
+    write(u6,'(A,2(G0.9,2x))') 'Bij(i,i),      Bii_Min=',Bij(i,i),Bii_Min
+    write(u6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',Energy(Ind(i)),E_Min_G
+    write(u6,*) Energy(Ind(i)),E_Min_g
+    write(u6,*)
+
+#   endif
+    ! Rest the depth of the DIIS and the BFGS update.
+    if (Case3) then
+      write(u6,*) 'DIIS_X: Resetting kOptim!'
+      write(u6,*) '        Caused by inconsistent B matrix values.'
+    else if (Case1) then
+      write(u6,*) 'DIIS_X: Resetting BFGS depth!'
+      write(u6,*) '        Too large B matrix values.'
+    else if (Case2) then
+      write(u6,*) 'DIIS_X: Resetting kOptim!'
+      write(u6,*) '        Caused by energies and gradients which are inconsistent with a convex energy functional.'
+    end if
+    if (Case1) then
+      ! The BFGS update is probably to blame. Reset the update depth.
+      Iter_Start = Iter
+      IterSO = 1
+    else
+      !if (Case2) then
+      write(u6,*) 'kOptim=',kOptim,'-> kOptim=',1
+      kOptim = 1
+      Iter_Start = Iter
+      IterSO = 1
+      !else
+      !  write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
+      !  kOptim = kOptim-1
+      !  Iter_Start = Iter_Start+1
+      !  IterSO = IterSO-1
+      !end if
+    end if
+    call mma_deallocate(Err2)
+    call mma_deallocate(Err1)
+    call mma_deallocate(Bij)
+  else
+    do i=1,kOptim-1
+      if (delta*sqrt(Bij(i,i)) > sqrt(Bij(kOptim,kOptim))) then
+        write(u6,*) 'DIIS_X: Reduction of the subspace dimension due to numerical imbalance of the values in the B-Matrix'
+        write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
+        kOptim = kOptim-1
+        Iter_Start = Iter_Start+1
+        IterSO = IterSO-1
+        call mma_deallocate(Err2)
+        call mma_deallocate(Err1)
+        call mma_deallocate(Bij)
+        exit
+      end if
+    end do
+    if (i >= kOptim) exit
+  end if
+
+end do
 
 ! Deallocate memory for error vectors & gradient
 !call mma_deallocate(Err4)

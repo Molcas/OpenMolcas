@@ -85,29 +85,24 @@ else
   Step = One
 end if
 Iter = 0
-100 continue
-Iter = Iter+1
-if (Iter > 100000) goto 101
-f_old = f
-ef = ef+Step
-!f = -nEle
-ff = Zero
-!vv overoptimization with Intel compiler
-i = 1
-300 continue
-!do i=1,n
-z = beta*(e(i)-ef)
-z = min(z,30.0_wp)
-ff = ff+1/(One+exp(z))
-i = i+1
-if (i <= n) goto 300
-!end do
-f = -nEle+ff*UHF_occ
-#ifdef _DEBUGPRINT_
-write(u6,'(2G20.10)') ef,f
-#endif
-if (f*f_old > Zero) goto 100
-101 continue
+do
+  Iter = Iter+1
+  if (Iter > 100000) exit
+  f_old = f
+  ef = ef+Step
+  !f = -nEle
+  ff = Zero
+  do i=1,n
+    z = beta*(e(i)-ef)
+    z = min(z,30.0_wp)
+    ff = ff+1/(One+exp(z))
+  end do
+  f = -nEle+ff*UHF_occ
+# ifdef _DEBUGPRINT_
+  write(u6,'(2G20.10)') ef,f
+# endif
+  if (f*f_old <= Zero) exit
+end do
 !----------------------------------------------------------------------*
 ! Refine with interval halving.                                        *
 !----------------------------------------------------------------------*
@@ -122,33 +117,32 @@ x1 = ef
 y0 = f_old
 x2 = half*(x0+x1)
 Iter = 0
-200 continue
-Iter = iter+1
-if (Iter > 1000) goto 201
-ef = x2
-f = -nEle
-do i=1,n
-  z = beta*(e(i)-ef)
-  z = min(z,three*ten)
-  f = f+UHF_occ/(One+exp(z))
-end do
-y2 = f
-#ifdef _DEBUGPRINT_
-write(u6,'(3f15.8)') y0,y2,y1
-#endif
-if (abs(y2) < 1.0e-9_wp) goto 201
-if (y0*y2 <= Zero) then
-  x1 = x2
+do
+  Iter = iter+1
+  if (Iter > 1000) exit
+  ef = x2
+  f = -nEle
+  do i=1,n
+    z = beta*(e(i)-ef)
+    z = min(z,three*ten)
+    f = f+UHF_occ/(One+exp(z))
+  end do
+  y2 = f
 # ifdef _DEBUGPRINT_
-  y1 = y2
+  write(u6,'(3f15.8)') y0,y2,y1
 # endif
-else
-  x0 = x2
-  y0 = y2
-end if
-x2 = half*(x0+x1)
-goto 200
-201 continue
+  if (abs(y2) < 1.0e-9_wp) exit
+  if (y0*y2 <= Zero) then
+    x1 = x2
+#   ifdef _DEBUGPRINT_
+    y1 = y2
+#   endif
+  else
+    x0 = x2
+    y0 = y2
+  end if
+  x2 = half*(x0+x1)
+end do
 
 !----------------------------------------------------------------------*
 ! Populate occupation number vector.                                   *

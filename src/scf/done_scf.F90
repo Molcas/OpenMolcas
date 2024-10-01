@@ -82,42 +82,41 @@ do iSym=1,nSym
 
   lth = nBs*(nBs+1)/2
   call FZero(Dlt(ipDlt),lth)
-  if (nOr == 0) Go To 100
 
-# ifdef POINTER_REMAP
-  pCMO(1:nBs,1:nBs) => CMO(ipCMO:ipCMO+nBs**2-1)
-# else
-  call c_f_pointer(c_loc(CMO(ipCMO)),pCMO,[nBs,nBs])
-# endif
-  pOcc => Occ(ipOcc:ipOcc+nOr-1)
-  pDlt => Dlt(ipDlt:ipDlt+lth-1)
+  if (nOr /= 0) then
+#   ifdef POINTER_REMAP
+    pCMO(1:nBs,1:nBs) => CMO(ipCMO:ipCMO+nBs**2-1)
+#   else
+    call c_f_pointer(c_loc(CMO(ipCMO)),pCMO,[nBs,nBs])
+#   endif
+    pOcc => Occ(ipOcc:ipOcc+nOr-1)
+    pDlt => Dlt(ipDlt:ipDlt+lth-1)
 
-  do iRow=1,nBs
-    rSum = Zero
-    do i=nFr+1,nOr
-      rSum = rSum+pOcc(i)*pCMO(iRow,i)**2
-      !rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iRow,i)
-    end do
-    pDlt(iTri(iRow,iRow)) = rSum
-
-    do iCol=1,iRow-1
+    do iRow=1,nBs
       rSum = Zero
       do i=nFr+1,nOr
-        rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
+        rSum = rSum+pOcc(i)*pCMO(iRow,i)**2
+        !rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iRow,i)
       end do
-      pDlt(iTri(iRow,iCol)) = Two*rSum
+      pDlt(iTri(iRow,iRow)) = rSum
+
+      do iCol=1,iRow-1
+        rSum = Zero
+        do i=nFr+1,nOr
+          rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
+        end do
+        pDlt(iTri(iRow,iCol)) = Two*rSum
+      end do
     end do
-  end do
-# ifdef _DEBUGPRINT_
-  call NrmClc(pDlt,nBs*(nBs+1)/2,'DOne_SCF','Dlt')
-  !call RecPrt('CMO',' ',pCMO,nBs,nBs)
-  !call RecPrt('Occ',' ',pOcc,1,nOr)
-  !call TriPrt('Dlt',' ',pDlt,nBs)
-# endif
+#   ifdef _DEBUGPRINT_
+    call NrmClc(pDlt,nBs*(nBs+1)/2,'DOne_SCF','Dlt')
+    !call RecPrt('CMO',' ',pCMO,nBs,nBs)
+    !call RecPrt('Occ',' ',pOcc,1,nOr)
+    !call TriPrt('Dlt',' ',pDlt,nBs)
+#   endif
+    nullify(pCMO,pOcc,pDlt)
+  end if
 
-100 continue
-
-  nullify(pCMO,pOcc,pDlt)
   ipCMO = ipCMO+nBs**2
   ipDlt = ipDlt+lth
   ipOcc = ipOcc+nOr

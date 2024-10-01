@@ -25,7 +25,7 @@ use InfSCF, only: DltNth, DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
 use SCFFiles, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: AllCnt
@@ -43,13 +43,13 @@ if (AllCnt .and. twoel_NDDO) then
   iRC = -1
   iComp = 1
   call RdOne(iRC,iOpt,Label,iComp,Ovrlp,lOper)
-  if (iRC /= 0) goto 9999
+  call Error_check()
   ! read full one-electron Hamiltonian from ONEINT file
   Label = 'OneHam  '
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iRC = -1
   call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
-  if (iRc /= 0) goto 9999
+  call Error_check()
   !call Get_PotNuc(PotNuc)
   !call Get_dScalar('PotNuc',PotNuc)
   call Peek_dScalar('PotNuc',PotNuc)
@@ -92,13 +92,13 @@ else
   iRC = -1
   iComp = 1
   call RdOne(iRC,iOpt,Label,iComp,Ovrlp,lOper)
-  if (iRC /= 0) goto 9999
+  call Error_check()
   ! read NDDO NA matrix from ONEINT file...
   Label = 'AttractS'
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iRC = -1
   call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
-  if (iRC /= 0) goto 9999
+  call Error_check()
   ! and form NDDO one-electron Hamiltonian...
   call DaXpY_(nBT,One,Ovrlp,1,OneHam,1)
   ! read NDDO overlap matrix from ONEINT file...
@@ -106,7 +106,7 @@ else
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iRC = -1
   call RdOne(iRC,iOpt,Label,iComp,Ovrlp,lOper)
-  if (iRC /= 0) goto 9999
+  call Error_check()
   ! save threshold values in WfCtl
   EThr_o = EThr
   FThr_o = FThr
@@ -126,10 +126,18 @@ end if
 
 return
 
-! Error exit
-9999 continue
-write(u6,*) 'SwiOpt: Error reading ONEINT'
-write(u6,'(A,A)') 'Label=',Label
-call Abend()
+contains
+
+subroutine Error_check()
+
+  use Definitions, only: u6
+
+  if (iRC /= 0) then
+    write(u6,*) 'SwiOpt: Error reading ONEINT'
+    write(u6,'(A,A)') 'Label=',Label
+    call Abend()
+  end if
+
+end subroutine Error_check
 
 end subroutine SwiOpt

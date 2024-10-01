@@ -532,53 +532,53 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           ! Compute extrapolated g_x(n) and X_x(n)
 
-101       continue
-          call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+          do
+            call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
 
-          call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
-          call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
+            call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
+            call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
 
-          ! compute new displacement vector delta
-          ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+            ! compute new displacement vector delta
+            ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
-          call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+            call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
 
-          DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-          if (DD > Pi) then
-            write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
-            write(u6,*) 'DD=',DD
-            if (kOptim /= 1) then
-              write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
-              kOptim = 1
-              Iter_Start = Iter
-              IterSO = 1
-              Go To 101
-            else
-              write(u6,*) 'Scale the step to be within the threshold.'
-              write(u6,*) 'LastStep=',LastStep
-              Disp(:) = Disp(:)*(LastStep/DD)
+            if (DD > Pi) then
+              write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
+              write(u6,*) 'DD=',DD
+              if (kOptim /= 1) then
+                write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+                kOptim = 1
+                Iter_Start = Iter
+                IterSO = 1
+                cycle
+              else
+                write(u6,*) 'Scale the step to be within the threshold.'
+                write(u6,*) 'LastStep=',LastStep
+                Disp(:) = Disp(:)*(LastStep/DD)
+              end if
             end if
-          end if
 
-          ! from this, compute new orb rot parameter X(n+1)
-          !
-          ! X(n+1) = X_x(n) - H(-1)g_x(n)
-          ! X(n+1) = X_x(n) + dX_x(n)
+            ! from this, compute new orb rot parameter X(n+1)
+            !
+            ! X(n+1) = X_x(n) - H(-1)g_x(n)
+            ! X(n+1) = X_x(n) + dX_x(n)
 
-          Xnp1(:) = Xnp1(:)-Disp(:)
+            Xnp1(:) = Xnp1(:)-Disp(:)
 
-          ! get address of actual X(n) in corresponding LList
+            ! get address of actual X(n) in corresponding LList
 
-          jpXn = LstPtr(iter,LLx)
+            jpXn = LstPtr(iter,LLx)
 
-          ! and compute actual displacement dX(n)=X(n+1)-X(n)
+            ! and compute actual displacement dX(n)=X(n+1)-X(n)
 
-          Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
+            Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
 
-          DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-          if (DD > Pi) then
+            if (DD <= Pi) exit
             write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
             write(u6,*) 'DD=',DD
             if (kOptim /= 1) then
@@ -586,13 +586,13 @@ do iter_=1,nIter(nIterP)
               kOptim = 1
               Iter_Start = Iter
               IterSO = 1
-              Go To 101
             else
               write(u6,*) 'Scale the step to be within the threshold.'
               Disp(:) = Disp(:)*(LastStep/DD)
+              DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+              exit
             end if
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-          end if
+          end do
           LastStep = min(DD,1.0e-2_wp)
           !                                                            *
           !*************************************************************
@@ -615,10 +615,10 @@ do iter_=1,nIter(nIterP)
             case (3)
 
               dqHdq = Zero
-102           continue
-              call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-              DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-              if (DD > Pi) then
+              do
+                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
+                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+                if (DD <= Pi) exit
                 write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
                 write(u6,*) 'DD=',DD
                 if (kOptim /= 1) then
@@ -626,20 +626,19 @@ do iter_=1,nIter(nIterP)
                   kOptim = 1
                   Iter_Start = Iter
                   IterSO = 1
-                  Go To 102
                 else
                   write(u6,*) 'Probably a bug.'
                   call Abend()
                 end if
-              end if
+              end do
 
             case (4)
 #             ifdef _KRYLOV_
               dqHdq = Zero
-103           continue
-              call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-              DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-              if (DD > Pi) then
+              do
+                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
+                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+                if (DD <= Pi) exit
                 write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
                 write(u6,*) 'DD=',DD
                 if (kOptim /= 1) then
@@ -647,12 +646,11 @@ do iter_=1,nIter(nIterP)
                   kOptim = 1
                   Iter_Start = Iter
                   IterSO = 1
-                  Go To 103
                 else
                   write(u6,*) 'Probably a bug.'
                   call Abend()
                 end if
-              end if
+              end do
 #             endif
               call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9))
 

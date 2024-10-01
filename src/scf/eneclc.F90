@@ -79,11 +79,10 @@ else
   end do
 end if
 En2V = 0
-if ((nElec <= 1) .and. (KSDFT == 'SCF')) Go To 999
-
-En2V = DDot_(nBT,TwoHam(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
-if (nD == 2) En2V_ab = DDot_(nBT,TwoHam(1,2,iPsLst),1,Dens(1,2,iPsLst),1)
-999 continue
+if ((nElec > 1) .or. (KSDFT /= 'SCF')) then
+  En2V = DDot_(nBT,TwoHam(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
+  if (nD == 2) En2V_ab = DDot_(nBT,TwoHam(1,2,iPsLst),1,Dens(1,2,iPsLst),1)
+end if
 
 if (Do_OFemb) then
   if (nD == 2) then ! equipartition

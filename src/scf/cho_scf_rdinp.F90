@@ -69,29 +69,17 @@ ChFracMem = 0.3_wp
 ChFracMem = Half
 #endif
 
-if (DFonly) then
-  ALGO = 4
-  REORD = .false.
-  DECO = .true.
-  DensityCheck = .false.
-  timings = .false.
-  NSCREEN = 10    ! default screening interval (# of red sets)
-  dmpk = 0.045_wp ! default damping of the screening threshold
-  Estimate = .false.
-  Update = .true.
-  goto 999  !return flag
-end if
-
 ! set some parameters if not specified in ChoInput section
 ALGO = 4
 REORD = .false.
 DECO = .true.
 DensityCheck = .false.
 timings = .false.
-NSCREEN = 10
-dmpk = 0.045_wp
+NSCREEN = 10    ! default screening interval (# of red sets)
+dmpk = 0.045_wp ! default damping of the screening threshold
 Estimate = .false.
 Update = .true.
+if (DFonly) return
 
 dmpk_dfl = dmpk
 !                                                                      *
@@ -106,210 +94,173 @@ iPrint = 5
 !----------------------------------------------------------------------*
 ! The big turning point.                                               *
 !----------------------------------------------------------------------*
-1000 continue
-!----------------------------------------------------------------------*
-! Use Get_Ln to read the lines.                                        *
-!----------------------------------------------------------------------*
-Key = Get_Ln(LuSpool)
-Kword = Key
-call UpCase(Kword)
-!----------------------------------------------------------------------*
-! The keywords and their labels.                                       *
-!----------------------------------------------------------------------*
+do
+  !--------------------------------------------------------------------*
+  ! Use Get_Ln to read the lines.                                      *
+  !--------------------------------------------------------------------*
+  Key = Get_Ln(LuSpool)
+  Kword = Key
+  call UpCase(Kword)
+  !--------------------------------------------------------------------*
+  ! The keywords and their labels.                                     *
+  !--------------------------------------------------------------------*
 
-if (KWord(1:1) == '*') Go To 1000
-if (KWord == '') Go To 1000
-if (KWord(1:4) == 'ALGO') Go To 900
-if (KWord(1:4) == 'REOR') Go To 800
-if (KWord(1:4) == 'NODE') Go To 810
-if (KWord(1:4) == 'DCHK') Go To 820
-if (KWord(1:4) == 'TIME') Go To 830
-if (KWord(1:4) == 'SCRN') Go To 840
-if (KWord(1:4) == 'DMPK') Go To 850
-if (KWord(1:4) == 'UPDA') Go To 860
-if (KWord(1:4) == 'ESTI') Go To 870
-if (KWord(1:4) == 'LOCK') Go To 880
-if (KWord(1:4) == 'LK  ') Go To 880
-if (KWord(1:4) == 'NOLK') Go To 881
-if (KWord(1:4) == 'MEMF') Go To 890
-if (KWord(1:4) == 'PRIN') Go To 700
-if (KWord(1:4) == 'ENDC') Go To 998
-if (KWord(1:4) == 'END ') Go To 998
-if (KWord(1:4) == 'ENDO') Go To 998
+  if ((KWord(1:1) == '*') .or. (KWord == '')) cycle
+  select case (KWord(1:4))
+    case ('ALGO')
+      !                                                                *
+      !***** ALGO ******************************************************
+      !                                                                *
+      ! Read Cholesky algorithm parameters
 
-!----------------------------------------------------------------------*
-! Control section
-!----------------------------------------------------------------------*
-iChrct = len(KWord)
-Last = iCLast(KWord,iChrct)
-write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(u6,*) SECNAM,' Error in keyword.'
-call Quit_OnUserError()
-!                                                                      *
-!***** ALGO ************************************************************
-!                                                                      *
-! Read Cholesky algorithm parameters
+      read(LuSpool,*) ALGO
 
-900 continue
+#     ifdef _DEBUGPRINT_
+      select case (ALGO)
+        case (0)
+          write(u6,*) 'Integral regeneration from Cholesky vectors reordered on disk'
+        case (1)
+          write(u6,*) 'Density-based Cholesky. Default reorder: on the fly'
+        case (2)
+          write(u6,*) 'MO-based-Exchange Cholesky. Default reorder: on the fly'
+        case (3)
+          write(u6,*) 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+        case (4)
+          write(u6,*) 'Local-Exchange (LK) algorithm.'
+      end select
+      write(u6,*)
+#     endif
 
-read(LuSpool,*) ALGO
+    case ('REOR')
+      !                                                                *
+      !***** REOR ******************************************************
+      !                                                                *
+      REORD = .true.
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Vectors reordered on DISK'
+      write(u6,*)
+#     endif
 
-#ifdef _DEBUGPRINT_
-select case (ALGO)
-  case (0)
-    write(u6,*) 'Integral regeneration from Cholesky vectors reordered on disk'
-  case (1)
-    write(u6,*) 'Density-based Cholesky. Default reorder: on the fly'
-  case (2)
-    write(u6,*) 'MO-based-Exchange Cholesky. Default reorder: on the fly'
-  case (3)
-    write(u6,*) 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
-  case (4)
-    write(u6,*) 'Local-Exchange (LK) algorithm.'
-end select
-write(u6,*)
-#endif
+    case ('NODE')
+      !                                                                *
+      !***** NODE ******************************************************
+      !                                                                *
+      DECO = .false.
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Not-Using Decomposed density matrix'
+      write(u6,*)
+#     endif
 
-Go To 1000
-!                                                                      *
-!***** REOR ************************************************************
-!                                                                      *
-800 continue
-REORD = .true.
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Vectors reordered on DISK'
-write(u6,*)
-#endif
+    case ('DCHK')
+      !                                                                *
+      !***** DCHK ******************************************************
+      !                                                                *
+      DensityCheck = .true.
 
-Go To 1000
-!                                                                      *
-!***** NODE ************************************************************
-!                                                                      *
-810 continue
-DECO = .false.
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Not-Using Decomposed density matrix'
-write(u6,*)
-#endif
+    case ('TIME')
+      !                                                                *
+      !***** TIME ******************************************************
+      !                                                                *
+      timings = .true.
 
-Go To 1000
-!                                                                      *
-!***** DCHK ************************************************************
-!                                                                      *
-820 continue
-DensityCheck = .true.
+    case ('SCRN')
+      !                                                                *
+      !***** SCRN ******************************************************
+      !                                                                *
+      read(LuSpool,*) NSCREEN
 
-Go To 1000
-!                                                                      *
-!***** TIME ************************************************************
-!                                                                      *
-830 continue
-timings = .true.
+    case ('DMPK')
+      !                                                                *
+      !***** DMPK ******************************************************
+      !                                                                *
+      read(LuSpool,*) dmpk
+      if (dmpk < Zero) then
+        write(u6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
+        dmpk = dmpk_dfl
+      end if
 
-Go To 1000
-!                                                                      *
-!***** SCRN ************************************************************
-!                                                                      *
-840 continue
-read(LuSpool,*) NSCREEN
+    case ('UPDA')
+      !                                                                *
+      !***** UPDA ******************************************************
+      !                                                                *
+      Update = .true.
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Local-K with updating of the true diagonals'
+      write(u6,*)
+#     endif
 
-Go To 1000
-!                                                                      *
-!***** DMPK ************************************************************
-!                                                                      *
-850 continue
-read(LuSpool,*) dmpk
-if (dmpk < Zero) then
-  write(u6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
-  dmpk = dmpk_dfl
-end if
+    case ('ESTI')
+      !                                                                *
+      !***** ESTI ******************************************************
+      !                                                                *
+      Estimate = .true.
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Local-K with evaluation of the diagonals from the current vec'
+      write(u6,*)
+#     endif
 
-Go To 1000
-!                                                                      *
-!***** UPDA ************************************************************
-!                                                                      *
-860 continue
-Update = .true.
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Local-K with updating of the true diagonals'
-write(u6,*)
-#endif
+    case ('LOCK','LK  ')
+      !                                                                *
+      !***** LOCK or LK ************************************************
+      !                                                                *
+      algo = 4
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Local-Exchange (LK) algorithm.'
+      write(u6,*)
+#     endif
 
-Go To 1000
-!                                                                      *
-!***** ESTI ************************************************************
-!                                                                      *
-870 continue
-Estimate = .true.
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Local-K with evaluation of the diagonals from the current vec'
-write(u6,*)
-#endif
+    case ('NOLK')
+      !                                                                *
+      !***** NoLK ******************************************************
+      !                                                                *
+      algo = 3
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Local-Exchange (LK) screening turned off! '
+      write(u6,*)
+#     endif
 
-Go To 1000
-!                                                                      *
-!***** LOCK or LK ******************************************************
-!                                                                      *
-880 continue
-algo = 4
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Local-Exchange (LK) algorithm.'
-write(u6,*)
-#endif
+    case ('MEMF')
+      !                                                                *
+      !***** MemF ******************************************************
+      !                                                                *
+      read(LuSpool,*) ChFracMem
 
-Go To 1000
-!                                                                      *
-!***** NoLK ************************************************************
-!                                                                      *
-881 continue
-algo = 3
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Local-Exchange (LK) screening turned off! '
-write(u6,*)
-#endif
+    case ('PRIN')
+      !                                                                *
+      !***** PRIN ******************************************************
+      !                                                                *
+      ! Print level
 
-Go To 1000
-!                                                                      *
-!***** MemF ************************************************************
-!                                                                      *
-890 continue
-read(LuSpool,*) ChFracMem
+      Key = Get_Ln(LuSpool)
+      KWord = Key
+      call Get_I1(1,n)
+      do i=1,n
+        KWord = Get_Ln(LuSpool)
+        call Get_I1(1,jRout)
+        call Get_I1(2,iPrint)
+        nPrint(jRout) = iPrint
+      end do
 
-Go To 1000
-!                                                                      *
-!***** PRIN ************************************************************
-!                                                                      *
-! Print level
+    case ('ENDC','END ','ENDO')
+      !                                                                *
+      !***** ENDOFchoinput  ********************************************
+      !                                                                *
+      exit
 
-700 Key = Get_Ln(LuSpool)
-KWord = Key
-call Get_I1(1,n)
-do i=1,n
-  KWord = Get_Ln(LuSpool)
-  call Get_I1(1,jRout)
-  call Get_I1(2,iPrint)
-  nPrint(jRout) = iPrint
+    case default
+      !----------------------------------------------------------------*
+      ! Control section                                                *
+      !----------------------------------------------------------------*
+      iChrct = len(KWord)
+      Last = iCLast(KWord,iChrct)
+      write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+      write(u6,*) SECNAM,' Error in keyword.'
+      call Quit_OnUserError()
+  end select
 end do
-Go To 1000
-!                                                                      *
-!***** ENDOFchoinput  **************************************************
-!                                                                      *
-! EndofChoinput
-
-998 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-999 continue
 return
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Error handling
-
-write(u6,*) SECNAM,' Premature end of input file.'
-call Quit_OnUserError()
-write(u6,*) SECNAM,' Error while reading input file.'
-call Quit_OnUserError()
 
 end subroutine CHO_SCF_RDINP

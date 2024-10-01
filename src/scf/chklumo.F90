@@ -41,7 +41,7 @@ implicit none
 logical(kind=iwp) :: OccSet, FermSet, SpinSet
 integer(kind=iwp) :: I, iBas, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, LU, LU_, N, nVec
 real(kind=wp) :: Dummy(1), qA, qB, Tmp, Tmp1
-logical(kind=iwp) :: Idem
+logical(kind=iwp) :: Idem, Skip
 character(len=512) :: FNAME
 real(kind=wp), allocatable :: EpsVec(:,:), OccVec(:,:)
 
@@ -66,9 +66,9 @@ Lu = 17
 FName = SCF_FileOrb
 if (nD == 1) then
   if (isHDF5) then
-    call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
+    call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(:,1),EpsVec(:,1),iDummy)
   else
-    call RdVec_(FNAME,Lu,'OE',nD-1,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),Dummy,EpsVec(1,1),Dummy,iDummy,VTitle,1,iErr,iWFtype)
+    call RdVec_(FNAME,Lu,'OE',nD-1,nSym,nBas,nOrb,Dummy,Dummy,OccVec(:,1),Dummy,EpsVec(:,1),Dummy,iDummy,VTitle,1,iErr,iWFtype)
   end if
 else
   isUHF = 0
@@ -83,17 +83,17 @@ else
   end if
   if (isUHF == 1) then
     if (isHDF5) then
-      call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
-      call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,Dummy,OccVec(1,2),EpsVec(1,2),iDummy)
+      call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,Dummy,OccVec(:,1),EpsVec(:,1),iDummy)
+      call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,Dummy,OccVec(:,2),EpsVec(:,2),iDummy)
     else
-      call RdVec_(FNAME,Lu,'OE',nD-1,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1),EpsVec(1,2),iDummy,VTitle,1, &
+      call RdVec_(FNAME,Lu,'OE',nD-1,nSym,nBas,nOrb,Dummy,Dummy,OccVec(:,1),OccVec(:,2),EpsVec(:,1),EpsVec(:,2),iDummy,VTitle,1, &
                   iErr,iWFtype)
     end if
   else
     if (isHDF5) then
-      call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
+      call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(:,1),EpsVec(:,1),iDummy)
     else
-      call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),Dummy,EpsVec(1,1),Dummy,iDummy,VTitle,1,iErr,iWFtype)
+      call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,OccVec(:,1),Dummy,EpsVec(:,1),Dummy,iDummy,VTitle,1,iErr,iWFtype)
     end if
     call dCopy_(nVec,OccVec(1,1),1,OccVec(1,2),1)
     call dCopy_(nVec,EpsVec(1,1),1,EpsVec(1,2),1)
@@ -224,18 +224,19 @@ end if
 !----------------------------------------------------------------------*
 ! Is it the same charge.                                               *
 !----------------------------------------------------------------------*
+Skip = .false.
 if (abs(qa+qb+Tot_el_charge) > half) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'chklumo: System has changed charge!'
 # endif
   Occset = .false.
   FermSet = .true.
-  goto 999
+  Skip = .true.
 end if
 !----------------------------------------------------------------------*
 ! Is it the same spin.                                                 *
 !----------------------------------------------------------------------*
-if (SpinSet) then
+if (SpinSet .and. (.not. Skip)) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'chklumo: System might have changed spin!'
   write(u6,*) '   iAu_ab=',iAu_ab
@@ -248,98 +249,99 @@ if (SpinSet) then
 #   endif
     Occset = .false.
     FermSet = .true.
-    goto 999
+    Skip = .true.
   end if
 end if
-!----------------------------------------------------------------------*
-! Is it idempotent     D^2 = 2 D                                       *
-!----------------------------------------------------------------------*
-if (nD == 1) then
-  Idem = .true.
-  do i=1,nVec
-    tmp = half*OccVec(i,1)*(One-half*OccVec(i,1))
-    if (abs(tmp) > Quart) Idem = .false.
-  end do
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'chklumo: Idempotency'
-  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
-# endif
-else
-  Idem = .true.
-  do i=1,nVec
-    tmp = OccVec(i,1)*(One-OccVec(i,1))
-    if (abs(tmp) > Quart) Idem = .false.
-  end do
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'chklumo: Alpha idempotency'
-  write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
-# endif
-  do i=1,nVec
-    tmp = OccVec(i,2)*(One-OccVec(i,2))
-    if (abs(tmp) > Quart) Idem = .false.
-  end do
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'chklumo: Beta idempotency'
-  write(u6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
-# endif
-end if
-!----------------------------------------------------------------------*
-! Was it idempotent?                                                   *
-!----------------------------------------------------------------------*
-if (Idem) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'chklumo: Idempotent'
-# endif
+if (.not. Skip) then
+  !----------------------------------------------------------------------*
+  ! Is it idempotent     D^2 = 2 D                                       *
+  !----------------------------------------------------------------------*
   if (nD == 1) then
-    iOff = 0
-    do iSym=1,nSym
-      n = 0
-      do iBas=1,nBas(iSym)
-        n = n+int(OccVec(iOff+iBas,1))
-      end do
-      nOcc(iSym,1) = n/2
-      iOff = iOff+nBas(iSym)
+    Idem = .true.
+    do i=1,nVec
+      tmp = half*OccVec(i,1)*(One-half*OccVec(i,1))
+      if (abs(tmp) > Quart) Idem = .false.
     end do
 #   ifdef _DEBUGPRINT_
-    write(u6,'(a,8i5)') 'Occupation       ',(nOcc(i,1),i=1,nSym)
+    write(u6,*) 'chklumo: Idempotency'
+    write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
 #   endif
   else
-    iOff = 0
-    do iSym=1,nSym
-      n = 0
-      do iBas=1,nBas(iSym)
-        n = n+int(OccVec(iOff+iBas,1))
-      end do
-      nOcc(iSym,1) = n
-      iOff = iOff+nBas(iSym)
-    end do
-    iOff = 0
-    do iSym=1,nSym
-      n = 0
-      do iBas=1,nBas(iSym)
-        n = n+int(OccVec(iOff+iBas,2))
-      end do
-      nOcc(iSym,2) = n
-      iOff = iOff+nBas(iSym)
+    Idem = .true.
+    do i=1,nVec
+      tmp = OccVec(i,1)*(One-OccVec(i,1))
+      if (abs(tmp) > Quart) Idem = .false.
     end do
 #   ifdef _DEBUGPRINT_
-    write(u6,'(a,8i5)') 'Alpha occupation ',(nOcc(i,1),i=1,nSym)
-    write(u6,'(a,8i5)') 'Beta occupation  ',(nOcc(i,2),i=1,nSym)
+    write(u6,*) 'chklumo: Alpha idempotency'
+    write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+#   endif
+    do i=1,nVec
+      tmp = OccVec(i,2)*(One-OccVec(i,2))
+      if (abs(tmp) > Quart) Idem = .false.
+    end do
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'chklumo: Beta idempotency'
+    write(u6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
 #   endif
   end if
-  Occset = .true.
-  FermSet = .false.
-else
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Not idempotent'
-# endif
-  Occset = .false.
-  FermSet = .true.
+  !----------------------------------------------------------------------*
+  ! Was it idempotent?                                                   *
+  !----------------------------------------------------------------------*
+  if (Idem) then
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'chklumo: Idempotent'
+#   endif
+    if (nD == 1) then
+      iOff = 0
+      do iSym=1,nSym
+        n = 0
+        do iBas=1,nBas(iSym)
+          n = n+int(OccVec(iOff+iBas,1))
+        end do
+        nOcc(iSym,1) = n/2
+        iOff = iOff+nBas(iSym)
+      end do
+#     ifdef _DEBUGPRINT_
+      write(u6,'(a,8i5)') 'Occupation       ',(nOcc(i,1),i=1,nSym)
+#     endif
+    else
+      iOff = 0
+      do iSym=1,nSym
+        n = 0
+        do iBas=1,nBas(iSym)
+          n = n+int(OccVec(iOff+iBas,1))
+        end do
+        nOcc(iSym,1) = n
+        iOff = iOff+nBas(iSym)
+      end do
+      iOff = 0
+      do iSym=1,nSym
+        n = 0
+        do iBas=1,nBas(iSym)
+          n = n+int(OccVec(iOff+iBas,2))
+        end do
+        nOcc(iSym,2) = n
+        iOff = iOff+nBas(iSym)
+      end do
+#     ifdef _DEBUGPRINT_
+      write(u6,'(a,8i5)') 'Alpha occupation ',(nOcc(i,1),i=1,nSym)
+      write(u6,'(a,8i5)') 'Beta occupation  ',(nOcc(i,2),i=1,nSym)
+#     endif
+    end if
+    Occset = .true.
+    FermSet = .false.
+  else
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Not idempotent'
+#   endif
+    Occset = .false.
+    FermSet = .true.
+  end if
 end if
 !----------------------------------------------------------------------*
 ! Deallocate fields                                                    *
 !----------------------------------------------------------------------*
-999 continue
 call mma_deallocate(EpsVec)
 call mma_deallocate(OccVec)
 !----------------------------------------------------------------------*

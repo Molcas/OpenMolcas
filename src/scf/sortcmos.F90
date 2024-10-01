@@ -48,7 +48,7 @@ do iD=1,nD
   do iSym=1,nSym
 
     nOcc = 0
-    if (nOrb(iSym) == 0) Go To 100
+    if (nOrb(iSym) == 0) cycle
 
     ! Sort first the orbitals according to the occupation numbers.
 
@@ -117,10 +117,6 @@ do iD=1,nD
       end do
     end do     ! iBlock
 
-100 continue
-
-    iOff1 = iOff1+nOrb(iSym)
-    iOff2 = iOff2+nBas(iSym)*nOrb(iSym)
   end do    ! iSym
 end do      ! iD
 #ifdef _DEBUGPRINT_

@@ -386,59 +386,56 @@ do iD=1,nD
       !                                                                *
       ! Reorder the orbitals to preserve e/m partition.
 
-      if (.not. em_On) Go To 110 ! skip if all orbitals are of
-      ! the same type.
+      if (em_On) then ! skip if all orbitals are of the same type.
 
-      do iOrb=1,nOrb(iSym)-1    ! Loop over the old orbitals
+        do iOrb=1,nOrb(iSym)-1    ! Loop over the old orbitals
 
-        ! Compute a check sum which is not zero if the orbital
-        ! is a muonic orbital.
+          ! Compute a check sum which is not zero if the orbital
+          ! is a muonic orbital.
 
-        tmp = Zero
-        do kBas=0,nBas(iSym)-1
-          tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
-        end do
-        Muon_i = 0                  ! electronic
-        if (tmp /= Zero) Muon_i = 1! muonic
-        Muons_Present = (Muons_Present .or. (Muon_i == 1))
-        !write(u6,*) 'iOrb,Muon_i,tmp=',iOrb,Muon_i,tmp
-
-        ! Loop over the new orbitals and test if it is of the
-        ! same type. i.e. fermionic or electronic.
-
-        do jOrb=iOrb,nOrb(iSym)
           tmp = Zero
           do kBas=0,nBas(iSym)-1
-            tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(CMO(iCMO+(jOrb-1)*nBas(iSym)+kBas,iD))
+            tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
           end do
+          Muon_i = 0                  ! electronic
+          if (tmp /= Zero) Muon_i = 1! muonic
+          Muons_Present = (Muons_Present .or. (Muon_i == 1))
+          !write(u6,*) 'iOrb,Muon_i,tmp=',iOrb,Muon_i,tmp
 
-          Muon_j = 0                  ! electronic
-          if (tmp /= Zero) Muon_j = 1 ! muonic
+          ! Loop over the new orbitals and test if it is of the
+          ! same type. i.e. fermionic or electronic.
 
-          ! If orbital and fermion index are identical fine.
+          do jOrb=iOrb,nOrb(iSym)
+            tmp = Zero
+            do kBas=0,nBas(iSym)-1
+              tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(CMO(iCMO+(jOrb-1)*nBas(iSym)+kBas,iD))
+            end do
 
-          if ((iOrb == jOrb) .and. (Muon_i == Muon_j)) Go To 678
+            Muon_j = 0                  ! electronic
+            if (tmp /= Zero) Muon_j = 1 ! muonic
 
-          ! If fermion index the same swap orbital and the
-          ! corresponding orbital energy in the new list.
+            ! If orbital and fermion index are identical fine.
 
-          if (Muon_i == Muon_j) then
-            Tmp = EOrb(jEOr-1+iOrb,iD)
-            EOrb(jEOr-1+iOrb,iD) = EOrb(jEOr-1+jOrb,iD)
-            EOrb(jEOr-1+jOrb,iD) = Tmp
-            call DSwap_(nBas(iSym),CMO(iCMO+(iOrb-1)*nBas(iSym),iD),1,CMO(iCMO+(jOrb-1)*nBas(iSym),iD),1)
-            Go To 678
-          end if
+            if ((iOrb == jOrb) .and. (Muon_i == Muon_j)) exit
 
-        end do   !  jOrb
+            ! If fermion index the same swap orbital and the
+            ! corresponding orbital energy in the new list.
 
-        ! Arrive at this point when the iOrb'th orbital in the
-        ! new list is of the same type as in the old list.
+            if (Muon_i == Muon_j) then
+              Tmp = EOrb(jEOr-1+iOrb,iD)
+              EOrb(jEOr-1+iOrb,iD) = EOrb(jEOr-1+jOrb,iD)
+              EOrb(jEOr-1+jOrb,iD) = Tmp
+              call DSwap_(nBas(iSym),CMO(iCMO+(iOrb-1)*nBas(iSym),iD),1,CMO(iCMO+(jOrb-1)*nBas(iSym),iD),1)
+              exit
+            end if
 
-678     continue
+          end do   !  jOrb
 
-      end do      !  iOrb
-110   continue
+          ! Arrive at this point when the iOrb'th orbital in the
+          ! new list is of the same type as in the old list.
+
+        end do      !  iOrb
+      end if
       !                                                                *
       !*****************************************************************
       !                                                                *

@@ -62,19 +62,18 @@ iComp = 1
 iSyLbl = 1
 Label = 'MassVel '
 call RdOne(iRc,iOpt,Label,iComp,MssVlc,iSyLbl)
-if (iRc /= 0) Go To 777
 
-! Read Darwin integrals
-iRc = -1
-iOpt = ibset(ibset(0,sNoOri),sNoNuc)
-iComp = 1
-iSyLbl = 1
-Label = 'Darwin  '
-call RdOne(iRc,iOpt,Label,iComp,Darwin,iSyLbl)
-if (iRc /= 0) Go To 777
-lRel = .true.
+if (iRc == 0) then
+  ! Read Darwin integrals
+  iRc = -1
+  iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+  iComp = 1
+  iSyLbl = 1
+  Label = 'Darwin  '
+  call RdOne(iRc,iOpt,Label,iComp,Darwin,iSyLbl)
+  if (iRc == 0) lRel = .true.
+end if
 
-777 continue
 if (.not. lRel) then
   call mma_deallocate(MssVlc)
   call mma_deallocate(Darwin)

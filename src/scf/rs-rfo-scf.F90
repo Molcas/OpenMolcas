@@ -93,142 +93,141 @@ call mma_allocate(Tmp,nInter+1,Label='Tmp')
 
 Vec(:,:) = Zero
 Tmp(:) = Zero
-998 continue
-Iter_i = Iter_i+1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Execute step 1 of page 266                                    *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Restore the vector from the previous iteration, if any
-call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
+do
+  Iter_i = Iter_i+1
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !        Execute step 1 of page 266                                  *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Restore the vector from the previous iteration, if any
+  call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
 
-! Call special Davidson routine which do not require the
-! augmented Hessian to be explicitly expressed but rather will
-! handle the gradient and Hessian part separated. The gradient
-! will be explicit, while the Hessian part will use an approach
-! which computes Hc, where c is a trial vector, from an initial
-! Hessian based on a diagonal approximation and a BFGS update.
+  ! Call special Davidson routine which do not require the
+  ! augmented Hessian to be explicitly expressed but rather will
+  ! handle the gradient and Hessian part separated. The gradient
+  ! will be explicit, while the Hessian part will use an approach
+  ! which computes Hc, where c is a trial vector, from an initial
+  ! Hessian based on a diagonal approximation and a BFGS update.
 
-call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
-if (iStatus > 0) call SysWarnMsg('RS_RFO SCF','Davidson procedure did not converge','')
-!write(u6,*) 'Val(:)=',Val(:)
-!write(u6,*) 'Vec(:,1)=',Vec(:,1)
-!write(u6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
+  call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
+  if (iStatus > 0) call SysWarnMsg('RS_RFO SCF','Davidson procedure did not converge','')
+  !write(u6,*) 'Val(:)=',Val(:)
+  !write(u6,*) 'Vec(:,1)=',Vec(:,1)
+  !write(u6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
 
-! Select a root with a negative value close to the current point
+  ! Select a root with a negative value close to the current point
 
-iRoot = 1
-dqdq = 1.0e10_wp
-do i=1,NumVal
-  if (Val(i) < Zero) then
-    Tmp(:) = Vec(:,i)/sqrt(A_RFO)
-    ZZ = DDot_(nInter+1,Tmp(:),1,Tmp(:),1)
-    Tmp(:) = Tmp(:)/sqrt(ZZ)
-    Tmp(:nInter) = Tmp(:nInter)/Tmp(nInter+1)
-    Test = DDot_(nInter,Tmp,1,Tmp,1)
-    !write(u6,*) 'Test=',Test
-    if (Test < dqdq) then
-      iRoot = i
-      dqdq = Test
+  iRoot = 1
+  dqdq = 1.0e10_wp
+  do i=1,NumVal
+    if (Val(i) < Zero) then
+      Tmp(:) = Vec(:,i)/sqrt(A_RFO)
+      ZZ = DDot_(nInter+1,Tmp(:),1,Tmp(:),1)
+      Tmp(:) = Tmp(:)/sqrt(ZZ)
+      Tmp(:nInter) = Tmp(:nInter)/Tmp(nInter+1)
+      Test = DDot_(nInter,Tmp,1,Tmp,1)
+      !write(u6,*) 'Test=',Test
+      if (Test < dqdq) then
+        iRoot = i
+        dqdq = Test
+      end if
+    end if
+  end do
+  !write(u6,*) 'iRoot,dqdq=',iRoot,dqdq
+  if (iRoot /= 1) Vec(:,1) = Vec(:,iRoot)
+  call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
+  call DScal_(nInter,One/sqrt(A_RFO),Vec(:,1),1)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !        Execute step 2 on page 266                                  *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !write(u6,*) ' RF eigenvalue=',Val
+  ZZ = DDot_(nInter+1,Vec(:,1),1,Vec(:,1),1)
+  call DScal_(nInter+1,One/sqrt(ZZ),Vec(:,1),1)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !       Execute step 3 of page 266                                   *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Copy v^k_{n,i}
+
+  call dcopy_(nInter,Vec(:,1),1,dq,1)
+
+  ! Pick v^k_{1,i}
+
+  Fact = Vec(nInter+1,1)
+  !write(u6,*) 'v^k_{1,i}=',Fact
+
+  ! Normalize according to Eq. (5)
+
+  call DScal_(nInter,One/Fact,dq,1)
+
+  ! Compute lambda_i according to Eq. (8a)
+
+  EigVal = -DDot_(nInter,dq,1,g,1) ! note sign
+
+  ! Compute R^2 according to Eq. (8c)
+
+  dqdq = DDot_(nInter,dq,1,dq,1)
+
+  if (sqrt(dqdq) > Pi) then
+    !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
+    if (kOptim /= 1) then
+      write(u6,*) 'rs_rfo_SCF: Total displacement is too large.'
+      write(u6,*) 'DD=',sqrt(dqdq)
+      write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO'
+      Iter_i = Iter_i-1
+      kOptim = 1
+      Iter_Start = Iter
+      IterSO = 1
+      cycle
     end if
   end if
-end do
-!write(u6,*) 'iRoot,dqdq=',iRoot,dqdq
-if (iRoot /= 1) Vec(:,1) = Vec(:,iRoot)
-call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
-call DScal_(nInter,One/sqrt(A_RFO),Vec(:,1),1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Execute step 2 on page 266                                    *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!write(u6,*) ' RF eigenvalue=',Val
-ZZ = DDot_(nInter+1,Vec(:,1),1,Vec(:,1),1)
-call DScal_(nInter+1,One/sqrt(ZZ),Vec(:,1),1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!       Execute step 3 of page 266                                     *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Copy v^k_{n,i}
+# ifdef _DEBUGPRINT_
+  write(u6,'(I5,4ES11.3)') Iter_i,A_RFO,sqrt(dqdq),StepMax,EigVal
+# endif
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Initialize data for iterative scheme (only at first iteration)
 
-call dcopy_(nInter,Vec(:,1),1,dq,1)
-
-! Pick v^k_{1,i}
-
-Fact = Vec(nInter+1,1)
-!write(u6,*) 'v^k_{1,i}=',Fact
-
-! Normalize according to Eq. (5)
-
-call DScal_(nInter,One/Fact,dq,1)
-
-! Compute lambda_i according to Eq. (8a)
-
-EigVal = -DDot_(nInter,dq,1,g,1) ! note sign
-
-! Compute R^2 according to Eq. (8c)
-
-dqdq = DDot_(nInter,dq,1,dq,1)
-
-if (sqrt(dqdq) > Pi) then
-  !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
-  if (kOptim /= 1) then
-    write(u6,*) 'rs_rfo_SCF: Total displacement is too large.'
-    write(u6,*) 'DD=',sqrt(dqdq)
-    write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO'
-    Iter_i = Iter_i-1
-    kOptim = 1
-    Iter_Start = Iter
-    IterSO = 1
-    Go To 998
+  if ((.not. Iterate) .or. Restart) then
+    A_RFO_long = A_RFO
+    dqdq_long = sqrt(dqdq)
+    A_RFO_short = Zero
+    dqdq_short = dqdq_long+One
   end if
-end if
-#ifdef _DEBUGPRINT_
-write(u6,'(I5,4ES11.3)') Iter_i,A_RFO,sqrt(dqdq),StepMax,EigVal
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Initialize data for iterative scheme (only at first iteration)
+  !write(u6,*) 'dqdq_long=',dqdq_long
+  !write(u6,*) 'dqdq_short=',dqdq_short
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! RF with constraints. Start iteration scheme if computed step
+  ! is too long.
 
-if ((.not. Iterate) .or. Restart) then
-  A_RFO_long = A_RFO
-  dqdq_long = sqrt(dqdq)
-  A_RFO_short = Zero
-  dqdq_short = dqdq_long+One
-end if
-!write(u6,*) 'dqdq_long=',dqdq_long
-!write(u6,*) 'dqdq_short=',dqdq_short
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! RF with constraints. Start iteration scheme if computed step
-! is too long.
+  if (((Iter_i == 1) .or. Restart) .and. (dqdq > StepMax**2)) then
+    Iterate = .true.
+    Restart = .false.
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Procedure if the step length is not equal to the trust radius
 
-if (((Iter_i == 1) .or. Restart) .and. (dqdq > StepMax**2)) then
-  Iterate = .true.
-  Restart = .false.
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Procedure if the step length is not equal to the trust radius
-
-if (Iterate .and. (abs(StepMax-sqrt(dqdq)) > Thr)) then
   Step_Trunc = '*'
   !write(u6,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
 
   ! Converge if small interval
 
-  if ((dqdq < StepMax**2) .and. (abs(A_RFO_long-A_RFO_short) < Thr)) Go To 997
+  if ((dqdq < StepMax**2) .and. (abs(A_RFO_long-A_RFO_short) < Thr)) exit
   call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
   !write(u6,*) 'A_RFO_Short=',A_RFO_Short
   !write(u6,*) 'A_RFO_Long=',A_RFO_Long
@@ -242,12 +241,13 @@ if (Iterate .and. (abs(StepMax-sqrt(dqdq)) > Thr)) then
   end if
   if (Iter_i > IterMx) then
     write(u6,*) ' Too many iterations in RF'
-    Go To 997
+    exit
   end if
-  Go To 998
-end if
 
-997 continue
+  if ((.not. Iterate) .or. (abs(StepMax-sqrt(dqdq)) <= Thr)) exit
+
+end do
+
 call mma_deallocate(Tmp)
 dqHdq = dqHdq+EigVal*Half
 Step_Lasttime = sqrt(dqdq)/gg

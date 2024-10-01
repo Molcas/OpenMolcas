@@ -91,150 +91,150 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
     if (ExFac == Zero) then
       call CHO_FOCK_DFT_RED(rc,DLT,FLT)
-      if (rc /= 0) Go To 999
-      goto 997
-    end if
-
-    if (DECO) then !use decomposed density
-
-      xFac = ExFac*half
-
-      call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
-
-      call Allocate_DT(Vec(1),nBas,nBas,nSym)
-      call Allocate_DT(DDec(1),nBas,nBas,nSym)
-      DDec(1)%A0(:) = DSQ(1)%A0(:)
-
-      do i=1,nSym
-        if (nBas(i) > 0) then
-          Ymax = Zero
-          do ja=1,nBas(i)
-            Ymax = max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
-          end do
-          Thr = 1.0e-8_wp*Ymax
-          call CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,nBas(i),NumV,Thr,rc)
-          if (rc /= 0) goto 999
-          nVec(i,1) = NumV
-          if ((NumV /= nOcc(i)) .and. (.not. Do_SpinAV) .and. (.not. Cho_Aufb)) then
-            write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)') &
-              'Warning! The number of occupied from the decomposition of the density matrix is ',numV,' in symm. ',i, &
-              ';Expected value = ',nOcc(i),'; Max diagonal of the density in symm. ',i,' is equal to ',Ymax
-            call WarningMessage(1,trim(ww))
-          end if
-        else
-          nVec(i,1) = 0
-        end if
-      end do
-      call Deallocate_DT(DDec(1))
-
-      pNocc(1)%I1(1:) => nVec(1:,1) ! occup. numbers
-
-      call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
-
-      FactX(1) = half*ExFac ! ExFac used for hybrid functionals
-
+      call Error_check(rc)
     else
 
-      pNocc(1)%I1(1:) => nOcc(1:) ! occup. numbers
+      if (DECO) then !use decomposed density
 
-      call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
+        xFac = ExFac*half
 
-    end if
+        call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
-    call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
+        call Allocate_DT(Vec(1),nBas,nBas,nSym)
+        call Allocate_DT(DDec(1),nBas,nBas,nSym)
+        DDec(1)%A0(:) = DSQ(1)%A0(:)
 
-    select case (ALGO)
+        do i=1,nSym
+          if (nBas(i) > 0) then
+            Ymax = Zero
+            do ja=1,nBas(i)
+              Ymax = max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
+            end do
+            Thr = 1.0e-8_wp*Ymax
+            call CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,nBas(i),NumV,Thr,rc)
+            call Error_check(rc)
+            nVec(i,1) = NumV
+            if ((NumV /= nOcc(i)) .and. (.not. Do_SpinAV) .and. (.not. Cho_Aufb)) then
+              write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)') &
+                'Warning! The number of occupied from the decomposition of the density matrix is ',numV,' in symm. ',i, &
+                ';Expected value = ',nOcc(i),'; Max diagonal of the density in symm. ',i,' is equal to ',Ymax
+              call WarningMessage(1,trim(ww))
+            end if
+          else
+            nVec(i,1) = 0
+          end if
+        end do
+        call Deallocate_DT(DDec(1))
+
+        pNocc(1)%I1(1:) => nVec(1:,1) ! occup. numbers
+
+        call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
+
+        FactX(1) = half*ExFac ! ExFac used for hybrid functionals
+
+      else
+
+        pNocc(1)%I1(1:) => nOcc(1:) ! occup. numbers
+
+        call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
+
+      end if
+
+      call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
+
+      select case (ALGO)
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        case (1)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          FactX(1) = Half*ExFac
+
+          if (REORD) then
+            call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+          else
+            call CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+          end if
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+        case (2)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          if (DECO) then
+            FactX(1) = Half*ExFac ! vectors are scaled by construction
+          else
+            FactX(1) = One*ExFac ! MOs coeff. are not scaled
+          end if
+
+          if (REORD) then
+            call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+          else
+            call CHO_FMO_RED(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+          end if
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+        case (3)
+
+          do iSym=1,nSym
+            nIorb(iSym,1) = pNocc(1)%I1(iSym)
+          end do
+          call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
+
+          do iSym=1,nSym
+            if (nBas(iSym)*nIorb(iSym,1) /= 0) then
+              do ikk=1,nIorb(iSym,1)
+                Cka(1)%SB(iSym)%A2(ikk,:) = MSQ(1)%SB(iSym)%A2(:,ikk)
+              end do
+            end if
+            nForb(iSym,1) = 0
+          end do
+
+          call CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Cka(1),DLT,xFac)
+
+          call Deallocate_DT(Cka(1))
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+        case (4)
+
+          do iSym=1,nSym
+            nForb(iSym,1) = 0
+            nIorb(iSym,1) = pNocc(1)%I1(iSym)
+          end do
+
+          call CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
+
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+        case default
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          rc = 99
+          write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
+          call QUIT(rc)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+      end select
       !                                                                *
       !*****************************************************************
       !                                                                *
-      case (1)
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-        FactX(1) = Half*ExFac
+      call Error_check(rc)
 
-        if (REORD) then
-          call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
-        else
-          call CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
-        end if
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-      case (2)
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-        if (DECO) then
-          FactX(1) = Half*ExFac ! vectors are scaled by construction
-        else
-          FactX(1) = One*ExFac ! MOs coeff. are not scaled
-        end if
+      if (DECO) call Deallocate_DT(Vec(1))
 
-        if (REORD) then
-          call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-        else
-          call CHO_FMO_RED(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-        end if
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-      case (3)
+      if ((ALGO < 3) .and. (ExFac /= Zero)) call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
-        do iSym=1,nSym
-          nIorb(iSym,1) = pNocc(1)%I1(iSym)
-        end do
-        call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
-
-        do iSym=1,nSym
-          if (nBas(iSym)*nIorb(iSym,1) /= 0) then
-            do ikk=1,nIorb(iSym,1)
-              Cka(1)%SB(iSym)%A2(ikk,:) = MSQ(1)%SB(iSym)%A2(:,ikk)
-            end do
-          end if
-          nForb(iSym,1) = 0
-        end do
-
-        call CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Cka(1),DLT,xFac)
-
-        call Deallocate_DT(Cka(1))
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-      case (4)
-
-        do iSym=1,nSym
-          nForb(iSym,1) = 0
-          nIorb(iSym,1) = pNocc(1)%I1(iSym)
-        end do
-
-        call CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
-
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-      case default
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-        rc = 99
-        write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
-        call QUIT(rc)
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-    end select
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    if (rc /= 0) goto 999
-
-    if (DECO) call Deallocate_DT(Vec(1))
-
-    if ((ALGO < 3) .and. (ExFac /= Zero)) call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
+    end if
 
     !-------------------------------------------------------------------
-997 continue
     call GADSum(FLT(1)%A0,nFLT)
 
     nullify(pNocc(1)%I1)
@@ -302,161 +302,160 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
     if (ExFac == Zero) then
       call CHO_FOCK_DFT_RED(rc,DLT,FLT)
-      if (rc /= 0) Go To 999
-      goto 998
-    end if
-
-    if (DECO) then !use decomposed density
-
-      call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
-
-      call Allocate_DT(Vec(1),nBas,nBas,nSym)
-      call Allocate_DT(Vec(2),nBas,nBas,nSym)
-
-      call Allocate_DT(DDec(1),nBas,nBas,nSym)
-      call Allocate_DT(DDec(2),nBas,nBas,nSym)
-      DDec(1)%A0(:) = DSQ(2)%A0(:)
-      DDec(2)%A0(:) = DSQ(3)%A0(:)
-
-      do i=1,nSym
-        if (nBas(i) > 0) then
-          Ymax = Zero
-          do ja=1,nBas(i)
-            Ymax = max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
-          end do
-          Thr = 1.0e-8_wp*Ymax
-          call CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,nBas(i),NumV1,Thr,rc)
-          if (rc /= 0) goto 999
-          nVec(i,1) = NumV1
-          if ((NumV1 /= nOcc(i)) .and. (.not. Do_SpinAV) .and. (.not. Cho_Aufb)) then
-            write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)') &
-              'Warning! The number of occupied from the decomposition of the ALPHA dens. matrix is ',numV1,' in symm. ',i, &
-              ';Expected value = ',nOcc(i),';Max diagonal of the alpha density in symmetry ',i,' is equal to ',Ymax
-            call WarningMessage(1,trim(ww))
-          end if
-
-          Ymax = Zero
-          do ja=1,nBas(i)
-            Ymax = max(Ymax,DDec(2)%SB(i)%A2(ja,ja))
-          end do
-          Thr = 1.0e-8_wp*Ymax
-          call CD_InCore(DDec(2)%SB(i)%A2,nBas(i),Vec(2)%SB(i)%A2,nBas(i),NumV2,Thr,rc)
-          if (rc /= 0) goto 999
-          nVec(i,2) = NumV2
-          if ((NumV2 /= nOcc_ab(i)) .and. (.not. Do_SpinAV) .and. (.not. Cho_Aufb)) then
-            write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)') &
-              'Warning! The number of occupied from the decomposition of the BETA dens. matrix is ',numV2,' in symm. ',i, &
-              ';Expected value = ',nOcc_ab(i),';Max diagonal of the beta density in symmetry ',i,' is equal to ',Ymax
-            call WarningMessage(1,trim(ww))
-          end if
-        else
-          nVec(i,1) = 0
-          nVec(i,2) = 0
-        end if
-      end do
-
-      call deallocate_DT(DDec(2))
-      call deallocate_DT(DDec(1))
-
-      pNocc(1)%I1(1:) => nVec(1:,1) ! dummy
-      pNocc(2)%I1(1:) => nVec(1:,1) ! alpha occup. numbers
-      pNocc(3)%I1(1:) => nVec(1:,2) ! beta occup. numbers
-
-      call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
-      call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
-      call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
+      call Error_check(rc)
     else
-      pNocc(1)%I1(1:) => nOcc(1:) ! dummy assignement
-      pNocc(2)%I1(1:) => nOcc(1:) ! occup. numbers alpha MOs
-      pNocc(3)%I1(1:) => nOcc_ab(1:) ! occup. numbers beta MOs
 
-      call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
-      call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=CMO(:,1))
-      call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=CMO(:,2))
+      if (DECO) then !use decomposed density
+
+        call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
+
+        call Allocate_DT(Vec(1),nBas,nBas,nSym)
+        call Allocate_DT(Vec(2),nBas,nBas,nSym)
+
+        call Allocate_DT(DDec(1),nBas,nBas,nSym)
+        call Allocate_DT(DDec(2),nBas,nBas,nSym)
+        DDec(1)%A0(:) = DSQ(2)%A0(:)
+        DDec(2)%A0(:) = DSQ(3)%A0(:)
+
+        do i=1,nSym
+          if (nBas(i) > 0) then
+            Ymax = Zero
+            do ja=1,nBas(i)
+              Ymax = max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
+            end do
+            Thr = 1.0e-8_wp*Ymax
+            call CD_InCore(DDec(1)%SB(i)%A2,nBas(i),Vec(1)%SB(i)%A2,nBas(i),NumV1,Thr,rc)
+            call Error_check(rc)
+            nVec(i,1) = NumV1
+            if ((NumV1 /= nOcc(i)) .and. (.not. Do_SpinAV) .and. (.not. Cho_Aufb)) then
+              write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)') &
+                'Warning! The number of occupied from the decomposition of the ALPHA dens. matrix is ',numV1,' in symm. ',i, &
+                ';Expected value = ',nOcc(i),';Max diagonal of the alpha density in symmetry ',i,' is equal to ',Ymax
+              call WarningMessage(1,trim(ww))
+            end if
+
+            Ymax = Zero
+            do ja=1,nBas(i)
+              Ymax = max(Ymax,DDec(2)%SB(i)%A2(ja,ja))
+            end do
+            Thr = 1.0e-8_wp*Ymax
+            call CD_InCore(DDec(2)%SB(i)%A2,nBas(i),Vec(2)%SB(i)%A2,nBas(i),NumV2,Thr,rc)
+            call Error_check(rc)
+            nVec(i,2) = NumV2
+            if ((NumV2 /= nOcc_ab(i)) .and. (.not. Do_SpinAV) .and. (.not. Cho_Aufb)) then
+              write(ww,'(a,i6,a,i6,a,i6,a,i6,a,f6.4)') &
+                'Warning! The number of occupied from the decomposition of the BETA dens. matrix is ',numV2,' in symm. ',i, &
+                ';Expected value = ',nOcc_ab(i),';Max diagonal of the beta density in symmetry ',i,' is equal to ',Ymax
+              call WarningMessage(1,trim(ww))
+            end if
+          else
+            nVec(i,1) = 0
+            nVec(i,2) = 0
+          end if
+        end do
+
+        call deallocate_DT(DDec(2))
+        call deallocate_DT(DDec(1))
+
+        pNocc(1)%I1(1:) => nVec(1:,1) ! dummy
+        pNocc(2)%I1(1:) => nVec(1:,1) ! alpha occup. numbers
+        pNocc(3)%I1(1:) => nVec(1:,2) ! beta occup. numbers
+
+        call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
+        call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
+        call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
+      else
+        pNocc(1)%I1(1:) => nOcc(1:) ! dummy assignement
+        pNocc(2)%I1(1:) => nOcc(1:) ! occup. numbers alpha MOs
+        pNocc(3)%I1(1:) => nOcc_ab(1:) ! occup. numbers beta MOs
+
+        call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
+        call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=CMO(:,1))
+        call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=CMO(:,2))
+
+      end if
+
+      call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
+
+      select case (ALGO)
+
+        case (1)
+
+          if (REORD) then
+            call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+          else
+            call CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
+          end if
+
+        case (2)
+
+          if (REORD) then
+
+            call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+
+          else
+
+            call CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
+
+          end if
+
+        case (3)
+
+          do iSym=1,nSym
+            nIorb(iSym,1) = pNocc(2)%I1(iSym)
+            nIorb(iSym,2) = pNocc(3)%I1(iSym)
+          end do
+          call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
+          call Allocate_DT(Cka(2),nIorb(:,2),nBas,nSym)
+
+          do iSym=1,nSym
+            if (nBas(iSym)*nIorb(iSym,1) /= 0) then
+              do ikk=1,nIorb(iSym,1)
+                Cka(1)%SB(iSym)%A2(ikk,:) = MSQ(2)%SB(iSym)%A2(:,ikk)
+              end do
+            end if
+            if (nBas(iSym)*nIorb(iSym,2) /= 0) then
+              do ikk=1,nIorb(iSym,2)
+                Cka(2)%SB(iSym)%A2(ikk,:) = MSQ(3)%SB(iSym)%A2(:,ikk)
+              end do
+            end if
+            nForb(iSym,1) = 0
+            nForb(iSym,2) = 0
+          end do
+
+          nMat = 2  ! alpha and beta Fock matrices
+
+          call CHO_FSCF(rc,nMat,FLT,nForb,nIorb,Cka,DLT,ExFac)
+
+          call Deallocate_DT(Cka(2))
+          call Deallocate_DT(Cka(1))
+
+        case (4)
+
+          nMat = 2  ! alpha and beta Fock matrices
+
+          do iSym=1,nSym
+            nForb(iSym,1) = 0
+            nForb(iSym,2) = 0
+            nIorb(iSym,1) = pNocc(2)%I1(iSym)
+            nIorb(iSym,2) = pNocc(3)%I1(iSym)
+          end do
+
+          call CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),DLT,FactX(2),nSCReen,dmpk,dFKmat)
+
+        case Default
+
+          rc = 99
+          write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
+          call QUIT(rc)
+      end select
+
+      call Error_check(rc)
+
+      if (DECO) call deallocate_DT(Vec(2))
+      if (DECO) call deallocate_DT(Vec(1))
 
     end if
-
-    call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
-
-    select case (ALGO)
-
-      case (1)
-
-        if (REORD) then
-          call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
-        else
-          call CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ,FLT,FSQ,pNocc,MinMem)
-        end if
-
-      case (2)
-
-        if (REORD) then
-
-          call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-
-        else
-
-          call CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-
-        end if
-
-      case (3)
-
-        do iSym=1,nSym
-          nIorb(iSym,1) = pNocc(2)%I1(iSym)
-          nIorb(iSym,2) = pNocc(3)%I1(iSym)
-        end do
-        call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
-        call Allocate_DT(Cka(2),nIorb(:,2),nBas,nSym)
-
-        do iSym=1,nSym
-          if (nBas(iSym)*nIorb(iSym,1) /= 0) then
-            do ikk=1,nIorb(iSym,1)
-              Cka(1)%SB(iSym)%A2(ikk,:) = MSQ(2)%SB(iSym)%A2(:,ikk)
-            end do
-          end if
-          if (nBas(iSym)*nIorb(iSym,2) /= 0) then
-            do ikk=1,nIorb(iSym,2)
-              Cka(2)%SB(iSym)%A2(ikk,:) = MSQ(3)%SB(iSym)%A2(:,ikk)
-            end do
-          end if
-          nForb(iSym,1) = 0
-          nForb(iSym,2) = 0
-        end do
-
-        nMat = 2  ! alpha and beta Fock matrices
-
-        call CHO_FSCF(rc,nMat,FLT,nForb,nIorb,Cka,DLT,ExFac)
-
-        call Deallocate_DT(Cka(2))
-        call Deallocate_DT(Cka(1))
-
-      case (4)
-
-        nMat = 2  ! alpha and beta Fock matrices
-
-        do iSym=1,nSym
-          nForb(iSym,1) = 0
-          nForb(iSym,2) = 0
-          nIorb(iSym,1) = pNocc(2)%I1(iSym)
-          nIorb(iSym,2) = pNocc(3)%I1(iSym)
-        end do
-
-        call CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),DLT,FactX(2),nSCReen,dmpk,dFKmat)
-
-      case Default
-
-        rc = 99
-        write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO
-        call QUIT(rc)
-    end select
-
-    if (rc /= 0) goto 999
-
-    if (DECO) call deallocate_DT(Vec(2))
-    if (DECO) call deallocate_DT(Vec(1))
-
-998 continue
 
     ! To get the Fbeta in LT storage ----
 
@@ -467,9 +466,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
     end if
 
     ! Accumulates Coulomb and Exchange contributions
-    if ((ALGO < 3) .and. (ExFac /= Zero)) then
-      call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
-    end if
+    if ((ALGO < 3) .and. (ExFac /= Zero)) call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
     !-------------------------------------------------------------------
     call GADSum(FLT(1)%A0,nFLT)
@@ -515,16 +512,23 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
   !*********************************************************************
   !                                                                    *
 
-    999 continue
-    if (rc /= 0) then
-    write(u6,*) 'CHOSCF_DRV. Non-zero return code.'
-    call QUIT(rc)
-  end if
+  call Error_check(rc)
 
   call mma_deallocate(nVec)
 
   return
 
 end subroutine ChoSCF_Drv_Inner
+
+subroutine Error_check(rc)
+
+  integer(kind=iwp), intent(in) :: rc
+
+  if (rc /= 0) then
+    write(u6,*) 'CHOSCF_DRV. Non-zero return code.'
+    call QUIT(rc)
+  end if
+
+end subroutine Error_check
 
 end subroutine ChoSCF_Drv

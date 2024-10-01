@@ -107,7 +107,7 @@ do iSym=1,nSym
           ! off diag element too large. Now we have time, since
           ! program will terminate anyway -> Go through matrix
           ! again, this time we want element indices...
-          do i=1,nOr
+          outer: do i=1,nOr
             do j=1,i-1
               iOff = (j-1)*nOr+i
               if (abs(OvlS(iOff)) >= OffMx) then
@@ -116,11 +116,10 @@ do iSym=1,nSym
                 jOffMx = j
                 OffMx = OvlS(iOff)
                 ! exit loop
-                goto 100
+                exit outer
               end if
             end do
-          end do
-100       continue
+          end do outer
           !call WarningMessage(0,'Orthogonality violated')
           write(u6,*) ' iSym =',iSym
           write(u6,*) ' largest off diag element:',' [',iOffMx,',',jOffMx,']',' = ',OffMx
@@ -134,10 +133,9 @@ do iSym=1,nSym
               iDgNo1 = i
               DgNo1 = OvlS(iOff)
               ! exit loop
-              goto 110
+              exit
             end if
           end do
-110       continue
           !call WarningMessage(0,'Orthogonality violated')
           write(u6,*)
           write(u6,*) ' ***** Orthogonality violated *****'
