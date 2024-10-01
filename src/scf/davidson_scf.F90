@@ -75,7 +75,6 @@ call mma_allocate(Vec,m,Label='Vec')
 call mma_allocate(HM,m,m,Label='HM')
 HM(:,:) = Zero
 call mma_allocate(HAug,n,n,Label='HAug')
-HAug(:,:) = Zero
 
 do i=1,m
   Vec(:) = Zero
@@ -95,8 +94,7 @@ end do
 
 ! Set up a unit matrix
 
-call dcopy_(m*m,[Zero],0,EVec,1)
-call dcopy_(m,[One],0,EVec,m+1)
+call unitmat(EVec,m)
 
 ! Compute eigenvalues and eigenvectors
 
@@ -111,13 +109,9 @@ call Jacord(EVal,EVec,m,m)
 call mma_deallocate(EVal)
 call mma_deallocate(EVec)
 
-do i=1,m
-  HAug(n,i) = g(i)
-  HAug(i,n) = g(i)
-  do j=1,m
-    HAug(i,j) = HM(i,j)
-  end do
-end do
+HAug(n,1:m) = g(:)
+HAug(1:m,n) = g(:)
+HAug(1:m,1:m) = HM(:,:)
 
 call mma_allocate(EVal,n*(n+1)/2,Label='EVal')
 call mma_allocate(EVec,n*n,Label='EVec')
@@ -131,8 +125,7 @@ end do
 
 ! Set up a unit matrix
 
-call dcopy_(n*n,[Zero],0,EVec,1)
-call dcopy_(n,[One],0,EVec,n+1)
+call unitmat(EVec,n)
 
 ! Compute eigenvalues and eigenvectors
 
@@ -182,9 +175,9 @@ call mma_allocate(Ab,n,maxk,Label='Ab ')
 call mma_allocate(Proj,maxk*maxk,Label='Proj')
 call mma_allocate(EVal,maxk,Label='EVal')
 call mma_allocate(EVec,maxk*maxk,Label='EVec')
-call FZero(Ab,n*maxk)
-call FZero(EVal,maxk)
-call FZero(EVec,maxk*maxk)
+Ab(:,:) = Zero
+EVal(:) = Zero
+EVec(:) = Zero
 
 ! Build an index of sorted diagonal elements in A
 
@@ -232,7 +225,7 @@ write(u6,*) 'Index_D=',Index_D
 nTmp = 0
 call mma_allocate(TmpVec,n,Label='TmpVec')
 do i=1,k
-  call dcopy_(n,Vec(1,i),1,TmpVec,1)
+  TmpVec(:) = Vec(1:n,i)
   call Add_Vector(n,nTmp,Sub,TmpVec,Thr3)
 end do
 
@@ -262,7 +255,7 @@ end do
 ! ig will be a global counter to loop across all n base vectors
 ig = ii
 call mma_deallocate(TmpVec)
-call FZero(Sub(1,mk+1),(maxk-mk)*n)
+Sub(:,mk+1:) = Zero
 
 ! Iterative procedure starts here
 !  mk     = subspace size at each iteration
@@ -279,7 +272,7 @@ call mma_allocate(TAV,n,Label='TAV ')
 call mma_allocate(TRes,n,Label='TRes')
 do while (.not. Last)
   iter = iter+1
-  if (iter > 1) call dcopy_(k,Eig,1,Eig_old,1)
+  if (iter > 1) Eig_old(:) = Eig(:)
 # ifdef _DEBUGPRINT_
   if (.not. Reduced) then
     write(u6,'(A)') '---------------'
@@ -306,15 +299,12 @@ do while (.not. Last)
 #   endif
 
     ! Pick up the contribution for the updated Hessian (BFGS update)
+    ! Add contribution from the gradient
 
     call SOrUpV(Sub(1,j+1),m,Ab(1,j+1),'GRAD','BFGS')
     !call RecPrt('Ab(0)',' ',Ab(1,j+1),1,n)
-    call DScal_(m,One/Fact,Ab(1,j+1),1)
-
-    ! Add contribution from the gradient
-
-    tmp = Sub(n,j+1)
-    call DaXpY_(m,tmp/sqrt(Fact),g,1,Ab(1,j+1),1)
+    tmp = Sub(n,j+1)/sqrt(Fact)
+    Ab(1:m,j+1) = Ab(1:m,j+1)/Fact+tmp*g(:)
 
     Ab(n,j+1) = DDot_(m,g,1,Sub(1,j+1),1)/sqrt(Fact)
 #   ifdef _DEBUGPRINT_
@@ -333,7 +323,7 @@ do while (.not. Last)
   else
     do i=0,mk-1
       do j=max(old_mk,i),mk-1
-        Proj(1+i*maxk+j) = DDot_(n,Sub(1,j+1),1,Ab(1,i+1),1)
+        Proj(1+i*maxk+j) = DDot_(n,Sub(:,j+1),1,Ab(:,i+1),1)
       end do
     end do
   end if
@@ -346,7 +336,7 @@ do while (.not. Last)
 #   ifdef _DEBUGPRINT_
     write(u6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #   endif
-    call dcopy_(maxk*maxk,Proj,1,EVec,1)
+    EVec(:) = Proj(:)
     call dsyev_('V','L',mk,EVec,maxk,EVal,Dum,-1,info)
     if (info /= 0) then
       write(u6,*) 'info(2)/=0',info
@@ -361,7 +351,7 @@ do while (.not. Last)
     end if
     call mma_deallocate(TmpVec)
     call SortEig(EVal,EVec,mk,maxk,1,.false.)
-    call dcopy_(k,EVal,1,Eig,1)
+    Eig(:) = EVal(1:k)
 #   ifdef _DEBUGPRINT_
     !call RecPrt('Current guess',' ',Eig,1,k)
 #   endif
@@ -474,10 +464,7 @@ do while (.not. Last)
 #   ifdef _DEBUGPRINT_
     write(u6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #   endif
-    call mma_allocate(TmpVec,mink*n,Label='TmpVec')
-    call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,TmpVec,n)
-    call dcopy_(mink*n,TmpVec,1,Sub,1)
-    call mma_deallocate(TmpVec)
+    call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,Sub,n)
 
     ! To make sure Sub' is orthonormal, add the vectors one by one
 
@@ -493,9 +480,9 @@ do while (.not. Last)
 #   ifdef _DEBUGPRINT_
     if (j < mink) write(u6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
 #   endif
-    call FZero(Sub(1,j+1),(maxk-j)*n)
-    call FZero(Ab(1,j+1),(maxk-j)*n)
-    call FZero(EVec,maxk*maxk)
+    Sub(:,j+1:) = Zero
+    Ab(:,j+1:) = Zero
+    EVec(:) = Zero
     do i=0,j-1
       EVec(1+i*(maxk+1)) = One
     end do
@@ -529,8 +516,7 @@ do while (.not. Last)
       ! Product of matrix and vector: Ab*Vec(i)
       call dGeMV_('N',n,mk,One,Ab,n,EVec(1+i*maxk),1,Zero,TAV,1)
       ! Residual: (A-Val(i))*Vec(i) = Ab*Vec(i) - Val(i)*Sub*Vec(i)
-      call dcopy_(n,TAV,1,TRes,1)
-      call daxpy_(n,-EVal(1+i),TVec,1,TRes,1)
+      TRes(:) = TAV(:)-EVal(1+i)*TVec(:)
       Conv = max(Conv,DDot_(n,TRes,1,TRes,1))
 
       ! Scale vector, orthonormalize, and add to subspace
@@ -576,7 +562,7 @@ do while (.not. Last)
           TVec(1+j) = Zero
         end if
       end do
-      call daxpy_(n,-Alpha,TVec,1,TmpVec,1)
+      TmpVec(:) = TmpVec(:)-Alpha*TVec(:)
 
       if (mk+jj <= n-1) then
         jj = mk+jj

@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nEO, nCMO
 real(kind=wp) :: EOrb(nEO), CMO(nCMO), Ecorr
-integer(kind=iwp) :: i, iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb, jVir, kOff, nExt, nOkk
+integer(kind=iwp) :: iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb, jVir, kOff, nExt, nOkk
 real(kind=wp), allocatable :: Eov(:)
 
 call mma_Allocate(Eov,nEO,Label='Eov')
@@ -35,14 +35,10 @@ do iSym=1,nSym
   nExt = nBas(iSym)-nDel(iSym)-nOkk
   jOrb = 1+jOff
   jOkk = ipEOkk+iOff
-  do i=0,nOkk-1
-    Eov(jOkk+i) = EOrb(jOrb+i)
-  end do
+  Eov(jOkk:jOkk+nOkk-1) = EOrb(jOrb:jOrb+nOkk-1)
   jOrb = jOrb+nOkk
   jVir = ipEVir+kOff
-  do i=0,nExt-1
-    Eov(jVir+i) = EOrb(jOrb+i)
-  end do
+  Eov(jVir:jVir+nExt-1) = EOrb(jOrb:jOrb+nExt-1)
   iOff = iOff+nOkk
   jOff = jOff+nOrb(iSym)
   kOff = kOff+nExt

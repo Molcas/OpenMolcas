@@ -257,8 +257,8 @@ subroutine FOCKTWO_scf_Sym()
                 ISD = ISTLT(IS)+LPQ
                 TEMP = DLT(ISD,1)
                 if (nD == 2) TEMP = DLT(ISD,1)+DLT(ISD,2)
-                call DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,1),1)
-                if (nD == 2) call DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,2),1)
+                FLT(ISF:ISF+KLB-1,1) = FLT(ISF:ISF+KLB-1,1)+TEMP*X1(ISX:ISX+KLB-1)
+                if (nD == 2) FLT(ISF:ISF+KLB-1,2) = FLT(ISF:ISF+KLB-1,2)+TEMP*X1(ISX:ISX+KLB-1)
               end if
               if (NFK /= 0) then
                 ISF = ISTLT(IS)+LPQ
@@ -401,9 +401,7 @@ subroutine FOCKTWO_scf_NoSym()
       end if
 #     ifdef _DEBUGPRINT_
       write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
-      if (nD == 2) then
-        write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
-      end if
+      if (nD == 2) write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
 #     endif
       call SQUARE(X1(ISX),X2(:),1,KB,LB)
       ISF = (JQ-1)*JB+1
@@ -429,9 +427,7 @@ subroutine FOCKTWO_scf_NoSym()
       end if
 #     ifdef _DEBUGPRINT_
       write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
-      if (nD == 2) then
-        write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
-      end if
+      if (nD == 2) write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
 #     endif
 
     end do  ! JQ
@@ -571,9 +567,7 @@ subroutine FOCKTWO_scf_DCCD()
           end if
 #         ifdef _DEBUGPRINT_
           write(u6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',1)=',FLT(IPQ,1)
-          if (nD == 2) then
-            write(u6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
-          end if
+          if (nD == 2) write(u6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
 #         endif
           ! Do the exchange contribution
           call SQUARE(X1(:),X2(:),1,IB,IB)
@@ -647,9 +641,7 @@ subroutine FOCKTWO_scf_DCCD()
 #         ifdef _DEBUGPRINT_
           ISF = (JQ-1)*IB
           write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
-          if (nD == 2) then
-            write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
-          end if
+          if (nD == 2) write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
 #         endif
 
         end do  ! JQ

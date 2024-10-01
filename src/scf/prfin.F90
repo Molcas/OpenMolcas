@@ -45,7 +45,7 @@ implicit none
 integer(kind=iwp) :: nDT, nEO, nCMO, iCase
 real(kind=wp) :: OneHam(nDT), Ovlp(nDT), Dens(nDT), TwoHam(nDT), EOrb(nEO), OccNo(nEO), CMO(nCMO), MssVlc(nDT), Darwin(nDT)
 character(len=80) :: Note
-integer(kind=iwp) :: i, iBs, iCharge, iCMO, ij, i_Or, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
+integer(kind=iwp) :: iBs, iCharge, iCMO, ij, i_Or, iPL, iRC, iSpin, iSym, iv, iVec, jCase
 real(kind=wp) :: EHomo, ELumo, ERelDC, ERelMV
 logical(kind=iwp) :: DeBug, Dff, Do_DFT, Do_ESPF, First, FullMlk, get_BasisType, NonEq, PrEne, PrOcc
 character(len=60) :: Frmt
@@ -141,7 +141,7 @@ if ((Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. EFP_On()) .and. (.not. oneel_ND
   !call Get_dScalar('PotNuc',PotNuc)
   call Peek_dScalar('PotNuc',PotNuc)
   call mma_allocate(RFfld,nBT,Label='RFfld')
-  call dcopy_(nBT,[Zero],0,RFfld,1)
+  RFfld(:)= Zero
   First = .true.
   Dff = .false.
   Do_DFT = .false. ! We do not need to redo the DFT!
@@ -220,13 +220,9 @@ if ((InVec /= 3) .or. (nIter(nIterP) > 0)) then
   iVec = 0
   iCMO = 0
   do iSym=1,nSym
-    do i=1,nBas(iSym)*nOrb(iSym)
-      Scr2(iVec+i) = CMO(iCMO+i)
-    end do
+    Scr2(iVec+1:iVec+nBas(iSym)*nOrb(iSym)) = CMO(iCMO+1:iCMO+nBas(iSym)*nOrb(iSym))
     iVec = iVec+nBas(iSym)*nOrb(iSym)
-    do i=1,nBas(iSym)*(nBas(iSym)-nOrb(iSym))
-      Scr2(iVec+i) = Zero
-    end do
+    Scr2(iVec+1:iVec+nBas(iSym)*(nBas(iSym)-nOrb(iSym))) = Zero
     iVec = iVec+nBas(iSym)*(nBas(iSym)-nOrb(iSym))
     iCMO = iCMO+nOrb(iSym)*nBas(iSym)
   end do
@@ -236,12 +232,8 @@ if ((InVec /= 3) .or. (nIter(nIterP) > 0)) then
   i_Or = 0
   iBs = 0
   do iSym=1,nSym
-    do j=1,nOrb(iSym)
-      Scr3(iBs+j) = OccNo(i_Or+j)
-    end do
-    do j=nOrb(iSym)+1,nBas(iSym)
-      Scr3(iBs+j) = Zero
-    end do
+    Scr3(iBs+1:iBs+nOrb(iSym)) = OccNo(i_Or+1:i_Or+nOrb(iSym))
+    Scr3(iBs+nOrb(iSym)+1:iBs+nBas(iSym)) = Zero
     i_Or = i_Or+nOrb(iSym)
     iBs = iBs+nBas(iSym)
   end do

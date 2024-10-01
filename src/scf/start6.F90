@@ -31,10 +31,10 @@ implicit none
 character(len=*) :: FName
 integer(kind=iwp) :: LuOrb, mBB, nD, mmB
 real(kind=wp) :: CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
-integer(kind=iwp) :: i, ibas, ic1, ic2, iCMO, iComp, iDaa, iDbb, iDSc, iDummy(1), iErr, Indx, iOcc, iOff, iOpt, iOrb, ipDaa, &
-                     ipDbb, ipDScc, ipMK, ipML, iRC, iSym, iSymLbl, iWFType, j, jc, ji, jOcc, jOff, k, kc, kc1, kc2, kDSc, kk, &
-                     kkc, kks, l, lc, lc1, lc2, llc, lls, lOcc, lOff, lsq, ltri, Lu_, mAdCMOO, mOff, nBD(8), nDiff_ab, nHoles(8), &
-                     nIF(8), nRASO(8), nSsh(8), nSsh_ab(8), nTmp(8), nZero(8)
+integer(kind=iwp) :: i, ibas, ic1, ic2, iCMO, iComp, iDaa, iDbb, iDSc, iDummy(1), iErr, Indx, iOcc, iOff, iOpt, ipDaa, ipDbb, &
+                     ipDScc, ipMK, ipML, iRC, iSym, iSymLbl, iWFType, j, jc, ji, jOcc, jOff, k, kc, kc1, kc2, kDSc, kk, kkc, kks, &
+                     l, lc, lc1, lc2, llc, lls, lOcc, lOff, lsq, ltri, Lu_, mAdCMOO, mOff, nBD(8), nDiff_ab, nHoles(8), nIF(8), &
+                     nRASO(8), nSsh(8), nSsh_ab(8), nTmp(8), nZero(8)
 real(kind=wp) :: Dummy(1), ThrD, xNorm, xOkk, yOkk
 character(len=62) :: Line
 character(len=8) :: Label
@@ -131,11 +131,11 @@ end if
 call RdTwoEnrg(Lu_,E_nondyn)
 call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,iDummy,iErr)
 indx = 1
+nZero(1:nSym) = 0
+nTmp(1:nSym) = 0
+nIF(1:nSym) = 0
+nRASO(1:nSym) = 0
 do iSym=1,nSym
-  nZero(iSym) = 0
-  nTmp(iSym) = 0
-  nIF(iSym) = 0
-  nRASO(iSym) = 0
   nDiff_ab = 0
   do iBas=1,nBas(iSym)
     select case (IndT(indx))
@@ -173,7 +173,7 @@ call mma_deallocate(IndT)
 
 call Setup_SCF()
 
-call Izero(nBD,nSym)
+nBD(1) = 0
 do iSym=2,nSym
   nBD(iSym) = nBD(iSym-1)+nBas(iSym-1)*(nBas(iSym-1)+1)/2
 end do
@@ -187,10 +187,10 @@ if (Do_SpinAV) call mma_allocate(SAV,2*MaxBas**2,Label='SAV')
 iOff = 1
 jOff = 0
 do iSym=1,nSym
-  call dcopy_(nBas(iSym)*nOrb(iSym),CMO(iOff,1),1,CMO(iOff,2),1)
-  call dcopy_(nOrb(iSym),EOrb(1+jOff,1),1,EOrb(1+jOff,2),1)
+  CMO(iOff:iOff+nBas(iSym)*nOrb(iSym)-1,2) = CMO(iOff:iOff+nBas(iSym)*nOrb(iSym)-1,1)
+  EOrb(jOff+1:jOff+nOrb(iSym),2) = EOrb(jOff+1:jOff+nOrb(iSym),1)
   lOcc = 1+jOff+nIF(iSym)
-  call dcopy_(nRASO(iSym),OccNo(lOcc,1),1,OccNo(1,2),1)
+  OccNo(1:nRASO(iSym),2) = OccNo(lOcc:lOcc+nRASO(iSym)-1,1)
   call BestMatch(nConstr(iSym),nRASO(iSym),OccNo(1,2),Match,MxConstr)
   do i=1,nConstr(iSym)
     k = Match(1,i) ! (+) wavelet
@@ -207,22 +207,12 @@ do iSym=1,nSym
     if (Do_SpinAV) then
       kkc = 1+nBas(iSym)*(k-1)
       llc = 1+nBas(iSym)*(nConstr(iSym)+l-1)
-      call dcopy_(nBas(iSym),CMO(kc,1),1,SAV(kkc),1)
-      call dcopy_(nBas(iSym),CMO(lc,1),1,SAV(llc),1)
-      call dscal_(nBas(iSym),yOkk,SAV(kkc),1)
-      call dscal_(nBas(iSym),xOkk,SAV(llc),1)
-      call dcopy_(nBas(iSym),SAV(kkc),1,Corb,1)
-      call dcopy_(nBas(iSym),CMO(kc,1),1,SAV(kkc),1)
-      call daxpy_(nBas(iSym),-One,SAV(llc),1,SAV(kkc),1)
-      call daxpy_(nBas(iSym),One,Corb,1,SAV(llc),1)
+      SAV(kkc:kkc+nBas(iSym)-1) = CMO(kc:kc+nBas(iSym)-1,1)-xOkk*CMO(lc:lc+nBas(iSym)-1,1)
+      SAV(llc:llc+nBas(iSym)-1) = xOkk*CMO(lc:lc+nBas(iSym)-1,1)+yOkk*CMO(kc:kc+nBas(iSym)-1,1)
     end if
-    call dscal_(nBas(iSym),xOkk,CMO(kc,1),1)
-    call dscal_(nBas(iSym),yOkk,CMO(lc,1),1)
-    call dcopy_(nBas(iSym),CMO(lc,1),1,Corb,1)
-    call daxpy_(nBas(iSym),One,CMO(kc,1),1,Corb,1)
-    call daxpy_(nBas(iSym),-One,CMO(kc,1),1,CMO(lc,1),1)
-    call dscal_(nBas(iSym),-One,CMO(lc,1),1)
-    call dcopy_(nBas(iSym),Corb,1,CMO(kc,1),1)
+    Corb(1:nBas(iSym)) = xOkk*CMO(kc:kc+nBas(iSym)-1,1)
+    CMO(kc:kc+nBas(iSym)-1,1) = Corb(1:nBas(iSym))+yOkk*CMO(lc:lc+nBas(iSym)-1,1)
+    CMO(lc:lc+nBas(iSym)-1,1) = Corb(1:nBas(iSym))-yOkk*CMO(lc:lc+nBas(iSym)-1,1)
   end do
   jc = 1
   kc = nConstr(iSym)+1
@@ -230,11 +220,11 @@ do iSym=1,nSym
     l = Match(indxC(i,2,iSym),i)
     lc1 = iOff+nBas(iSym)*(nIF(iSym)+l-1)
     lc2 = iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym)+jc-1)
-    call dcopy_(nBas(iSym),CMO(lc1,1),1,CMO(lc2,2),1)
+    CMO(lc2:lc2+nBas(iSym)-1,2) = CMO(lc1:lc1+nBas(iSym)-1,1)
     k = Match(indxC(i,1,iSym),i)
     kc1 = iOff+nBas(iSym)*(nIF(iSym)+k-1)
     kc2 = iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym)+kc-1)
-    call dcopy_(nBas(iSym),CMO(kc1,1),1,CMO(kc2,2),1)
+    CMO(kc2:kc2+nBas(iSym)-1,2) = CMO(kc1:kc1+nBas(iSym)-1,1)
     jc = jc+1
     kc = kc+1
   end do
@@ -242,10 +232,10 @@ do iSym=1,nSym
   do i=1,nConstr(iSym)
     ic1 = iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym)+i-1)
     ic2 = iOff+nBas(iSym)*(nIF(iSym)+kc-1)
-    call dcopy_(nBas(iSym),CMO(ic1,2),1,CMO(ic2,1),1)
+    CMO(ic2:ic2+nBas(iSym)-1,1) = CMO(ic1:ic1+nBas(iSym)-1,2)
     kc1 = iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym)+kc-1)
     kc2 = iOff+nBas(iSym)*(nIF(iSym)+i-1)
-    call dcopy_(nBas(iSym),CMO(kc1,2),1,CMO(kc2,1),1)
+    CMO(kc2:kc2+nBas(iSym)-1,1) = CMO(kc1:kc1+nBas(iSym)-1,2)
     kc = kc+1
   end do
   kc = nConstr(iSym)+1  ! wavelets in virt space
@@ -260,13 +250,13 @@ do iSym=1,nSym
       if (kk == 1) then ! => (+) wavelet is in alpha
         ipMK = mOff
         ipML = mOff-nBas(iSym)*nHoles(iSym)
-        call dcopy_(nBas(iSym),SAV(kks),1,CMO(ipMK,1),1)
-        call dcopy_(nBas(iSym),SAV(lls),1,CMO(ipML,2),1)
+        CMO(ipMK:ipMK+nBas(iSym)-1,1) = SAV(kks:kks+nBas(iSym)-1)
+        CMO(ipML:ipML+nBas(iSym)-1,2) = SAV(lls:lls+nBas(iSym)-1)
       else if (kk == 2) then
         ipMK = mOff-nBas(iSym)*nHoles(iSym)
         ipML = mOff
-        call dcopy_(nBas(iSym),SAV(kks),1,CMO(ipMK,2),1)
-        call dcopy_(nBas(iSym),SAV(lls),1,CMO(ipML,1),1)
+        CMO(ipMK:ipMK+nBas(iSym)-1,2) = SAV(kks:kks+nBas(iSym)-1)
+        CMO(ipML:ipML+nBas(iSym)-1,1) = SAV(lls:lls+nBas(iSym)-1)
       else
         ipMK = 666666  ! avoid compiler wrngs
         ipML = 666666
@@ -352,19 +342,10 @@ call mma_deallocate(Match)
 iOff = 0
 jOff = 0
 do iSym=1,nSym
-  do iOrb=1,nOcc(iSym,1)
-    OccNo(iOrb+iOff,1) = One
-  end do
-  do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-    OccNo(iOrb+iOff,1) = Zero
-  end do
-
-  do iOrb=1,nOcc(iSym,2)
-    OccNo(iOrb+iOff,2) = One
-  end do
-  do iOrb=nOcc(iSym,2)+1,nOrb(iSym)
-    OccNo(iOrb+iOff,2) = Zero
-  end do
+  OccNo(iOff+1:iOff+nOcc(iSym,1),1) = One
+  OccNo(iOff+nOcc(iSym,1)+1:iOff+nOrb(iSym),1) = Zero
+  OccNo(iOff+1:iOff+nOcc(iSym,2),2) = One
+  OccNo(iOff+nOcc(iSym,2)+1:iOff+nOrb(iSym),2) = Zero
   iOff = iOff+nOrb(iSym)
 end do
 
@@ -390,17 +371,13 @@ write(u6,*)
 !  Virtual space must be orthogonal to the occupied space              *
 !----------------------------------------------------------------------*
 if (Do_SpinAV) then
-  do i=1,nSym
-    nOcc(i,1) = nOcc(i,1)+nConstr(i)
-    nOcc(i,2) = nOcc(i,2)+nConstr(i)
-  end do
+  nOcc(1:nSym,1) = nOcc(1:nSym,1)+nConstr(1:nSym)
+  nOcc(1:nSym,2) = nOcc(1:nSym,2)+nConstr(1:nSym)
 end if
 
 Thrd = 1.0e-6_wp
-do i=1,nSym
-  nSsh(i) = nOrb(i)-nOcc(i,1)-nFro(i)
-  nSsh_ab(i) = nOrb(i)-nOcc(i,2)-nFro(i)
-end do
+nSsh(1:nSym) = nOrb(1:nSym)-nOcc(1:nSym,1)-nFro(1:nSym)
+nSsh_ab(1:nSym) = nOrb(1:nSym)-nOcc(1:nSym,2)-nFro(1:nSym)
 
 call mma_allocate(SQ,nBB,Label='SQ')
 ltri = 1
@@ -442,10 +419,8 @@ end do
 !call ChkOrt(2,Whatever) ! silent
 
 if (Do_SpinAV) then ! reset # of occupied
-  do i=1,nSym
-    nOcc(i,1) = nOcc(i,1)-nConstr(i)
-    nOcc(i,2) = nOcc(i,2)-nConstr(i)
-  end do
+  nOcc(1:nSym,1) = nOcc(1:nSym,1)-nConstr(1:nSym)
+  nOcc(1:nSym,2) = nOcc(1:nSym,2)-nConstr(1:nSym)
 end if
 
 call mma_deallocate(ID_vir)

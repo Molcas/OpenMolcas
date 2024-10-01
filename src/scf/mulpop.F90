@@ -26,18 +26,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: mBB, nD, mBT, mmB
 real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
-integer(kind=iwp) :: iSym
-logical(kind=iwp) :: isOK
 real(kind=wp), allocatable :: Aux1(:), Aux2(:)
 
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-isOK = .true.
-do iSym=1,nSym
-  isOK = (isOK .and. (nBas(iSym) == nOrb(iSym)))
-end do
-if (isOK) then
+if (all(nBas(1:nSym) == nOrb(1:nSym))) then
   if (nD == 1) then
     call Charge(nSym,nBas,BName,CMO(1,1),OccNo(1,1),Ovrlp,2,.false.,.false.)
   else

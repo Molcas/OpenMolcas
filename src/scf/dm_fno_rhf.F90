@@ -62,7 +62,7 @@ end if
 
 NCMO = nSQ
 call mma_allocate(CMO,nCMO,2,Label='CMO')
-call DCOPY_(NCMO,CMOI,1,CMO(:,1),1)
+CMO(:,1) = CMOI(1:nCMO)
 
 nOA = 0
 do iSym=1,nSym  ! setup info
@@ -81,10 +81,10 @@ lOff = 0
 do iSym=1,nSym
   jp = 1+lOff+nFro(iSym)
   jOcc = jOff+1
-  call dcopy_(nIsh(iSym),EOcc(jOcc),1,EOrb(jp,1),1)
+  EOrb(jp:jp+nIsh(iSym)-1,1) = EOcc(jOcc:jOcc+nIsh(iSym)-1)
   jVir = kOff+1
   jp = jp+nIsh(iSym)
-  call dcopy_(nSsh(iSym),EVir(jVir),1,EOrb(jp,1),1)
+  EOrb(jp:jp+nSsh(iSym)-1,1) = EVir(jVir:jVir+nSsh(iSym)-1)
   jOff = jOff+nIsh(iSym)
   kOff = kOff+nSsh(iSym)
   lOff = lOff+nBas(iSym)
@@ -95,10 +95,10 @@ koff = 0
 do iSym=1,nSym
   ifr = 1+ioff+nFro(iSym)
   ito = 1+joff
-  call dcopy_(nIsh(iSym),EOrb(ifr,1),1,EOrb(ito,3),1)
+  EOrb(ito:ito+nIsh(iSym)-1,3) = EOrb(ifr:ifr+nIsh(iSym)-1,1)
   ifr = 1+ioff+nFro(iSym)+nIsh(iSym)
   ito = 1+koff
-  call dcopy_(nSsh(iSym),EOrb(ifr,1),1,EOrb(ito,4),1)
+  EOrb(ito:ito+nSsh(iSym)-1,4) = EOrb(ifr:ifr+nSsh(iSym)-1,1)
   ioff = ioff+nBas(iSym)
   joff = joff+nIsh(iSym)
   koff = koff+nSsh(iSym)
@@ -113,10 +113,10 @@ iOff = 0
 do iSym=1,nSym
   kfr = 1+iOff+nBas(iSym)*nFro(iSym)
   kto = 1+iOff+nBas(iSym)*lnFro(iSym)
-  call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr,1),1,CMO(kto,2),1)
+  CMO(kto:kto+nBas(iSym)*lnOcc(iSym)-1,2) = CMO(kfr:kfr+nBas(iSym)*lnOcc(iSym)-1,1)
   kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
   kto = kto+nBas(iSym)*lnOcc(iSym)
-  call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr,1),1,CMO(kto,2),1)
+  CMO(kto:kto+nBas(iSym)*lnVir(iSym)-1,2) = CMO(kfr:kfr+nBas(iSym)*lnVir(iSym)-1,1)
   iOff = iOff+nBas(iSym)**2
 end do
 call Check_Amp_SCF(nSym,lnOcc,lnVir,iSkip)
@@ -139,8 +139,7 @@ end if
 jOcc = 1+nVV
 !write(u6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
 !write(u6,*) ' Sum    : ',ddot_(nOA,One,0,DMAT(jOcc),1)
-call dscal_(nOA,Two,DMAT(jOcc),1)
-call daxpy_(nOA,Two,[One],0,DMAT(jOcc),1)
+DMAT(jOcc:jOcc+nOA-1) = Two*DMAT(jOcc:jOcc+nOA-1)+One
 
 iOff = 0
 jOff = 0
@@ -155,11 +154,11 @@ do iSym=1,nSym
                  Zero,DM0(kDM),nBas(iSym))
 
   sqocc = sqrt(Two)
-  call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
+  CMO(kto:kto+nBas(iSym)*nFro(iSym)-1,1) = sqocc*CMO(kto:kto+nBas(iSym)*nFro(iSym)-1,1)
   do j=0,nIsh(iSym)-1
     sqocc = sqrt(DMAT(jOcc+j))
     ito = kto+nBas(iSym)*j
-    call dscal_(nBas(iSym),sqocc,CMO(ito,1),1)
+    CMO(ito:ito+nBas(iSym)-1,1) = sqocc*CMO(ito:ito+nBas(iSym)-1,1)
   end do
   call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk, &
                  One,CMO(kto,1),nBas(iSym), &
@@ -197,7 +196,7 @@ do iSym=1,nSym
     do j=0,nSsh(iSym)-1
       sqocc = sqrt(Two*EOrb(1+j,2))
       jto = kto+nBas(iSym)*j
-      call dscal_(nBas(iSym),sqocc,CMO(jto,1),1)
+      CMO(jto:jto+nBas(iSym)-1,1) = sqocc*CMO(jto:jto+nBas(iSym)-1,1)
     end do
     call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nSsh(iSym), &
                    One,CMO(kto,1),nBas(iSym), &

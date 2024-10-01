@@ -31,10 +31,7 @@ real(kind=wp), allocatable :: Dump(:)
 !----------------------------------------------------------------------*
 ! Preliminaries                                                        *
 !----------------------------------------------------------------------*
-npDump = 0
-do iSym=1,nSym
-  npDump = npDump+nBas(iSym)*nBas(iSym)
-end do
+npDump = sum(nBas(1:nSym)**2)
 call mma_allocate(Dump,npDump,Label='Dump')
 !----------------------------------------------------------------------*
 ! Dump orbitals                                                        *
@@ -47,7 +44,7 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nBas(iSym)*nOrb(iSym)
-  call DCopy_(ndata,CMO(iFrom(iSym)),1,Dump(iTo(iSym)),1)
+  Dump(iTo(iSym):iTo(iSym)+ndata-1) = CMO(iFrom(iSym):iFrom(iSym)+ndata-1)
 end do
 call Put_dArray(Label,Dump,npDump)
 !----------------------------------------------------------------------*

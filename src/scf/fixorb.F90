@@ -103,7 +103,7 @@ do iSym=1,nSym
                 One,TTS,nBas(iSym), &
                 CMO(iCMO),nBas(iSym), &
                 Zero,CMO0,nBas(iSym))
-    call dcopy_(nBas(iSym)*nOF,CMO0,1,CMO(iCMO),1)
+    CMO(iCMO:iCMO+nBas(iSym)*nOF-1) = CMO0(1:nBas(iSym)*nOF)
 #   ifdef _DEBUGPRINT_
     call RecPrt('FixOrb: CMO(out)',' ',CMO(iCMO),nBas(iSym),nBas(iSym))
 #   endif

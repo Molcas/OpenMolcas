@@ -180,9 +180,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
           !                                                            *
         case (3)
 
-          do iSym=1,nSym
-            nIorb(iSym,1) = pNocc(1)%I1(iSym)
-          end do
+          nIorb(1:nSym,1) = pNocc(1)%I1(1:nSym)
           call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
 
           do iSym=1,nSym
@@ -202,10 +200,8 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
           !                                                            *
         case (4)
 
-          do iSym=1,nSym
-            nForb(iSym,1) = 0
-            nIorb(iSym,1) = pNocc(1)%I1(iSym)
-          end do
+          nForb(1:nSym,1) = 0
+          nIorb(1:nSym,1) = pNocc(1)%I1(1:nSym)
 
           call CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,MSQ,DLT,FactX(1),nSCReen,dmpk,dFKmat)
 
@@ -275,7 +271,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
     !call get_iarray('nIsh beta',nOcc_ab,nSym)
 
     ! Compute the total density Dalpha + Dbeta
-    call DAXPY_(nFLT,One,W_DLT(1),1,W_DLT_ab(1),1)
+    W_DLT_ab(1:nFLT) = W_DLT_ab(1:nFLT)+W_DLT(1:nFLT)
 
     call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_DLT_ab)
     ! alpha density SQ
@@ -390,21 +386,15 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
         case (2)
 
           if (REORD) then
-
             call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-
           else
-
             call CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-
           end if
 
         case (3)
 
-          do iSym=1,nSym
-            nIorb(iSym,1) = pNocc(2)%I1(iSym)
-            nIorb(iSym,2) = pNocc(3)%I1(iSym)
-          end do
+          nIorb(1:nSym,1) = pNocc(2)%I1(1:nSym)
+          nIorb(1:nSym,2) = pNocc(3)%I1(1:nSym)
           call Allocate_DT(Cka(1),nIorb(:,1),nBas,nSym)
           call Allocate_DT(Cka(2),nIorb(:,2),nBas,nSym)
 
@@ -434,12 +424,9 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
           nMat = 2  ! alpha and beta Fock matrices
 
-          do iSym=1,nSym
-            nForb(iSym,1) = 0
-            nForb(iSym,2) = 0
-            nIorb(iSym,1) = pNocc(2)%I1(iSym)
-            nIorb(iSym,2) = pNocc(3)%I1(iSym)
-          end do
+          nForb(1:nSym,:) = 0
+          nIorb(1:nSym,1) = pNocc(2)%I1(1:nSym)
+          nIorb(1:nSym,2) = pNocc(3)%I1(1:nSym)
 
           call CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),DLT,FactX(2),nSCReen,dmpk,dFKmat)
 
@@ -459,11 +446,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
     ! To get the Fbeta in LT storage ----
 
-    if ((ALGO < 3) .or. (ExFac == Zero)) then
-
-      FLT(2)%A0(:) = FLT(1)%A0(:)
-
-    end if
+    if ((ALGO < 3) .or. (ExFac == Zero)) FLT(2)%A0(:) = FLT(1)%A0(:)
 
     ! Accumulates Coulomb and Exchange contributions
     if ((ALGO < 3) .and. (ExFac /= Zero)) call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)

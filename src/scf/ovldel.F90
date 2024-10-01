@@ -73,7 +73,7 @@ do iSym=1,nSym
     !write(u6,'(a,i2)') 'Copying symmetry block',iSym
     !write(u6,'(i8,a,i8)') iOld,' ->',iNew
     !write(u6,'(a,i8)') 'nTrMat =',nTrMat
-    call dcopy_(nFro(iSym)*nBas(iSym),TrMat(iOld),1,TrMat(iNew),1)
+    TrMat(iNew:iNew+nFro(iSym)*nBas(iSym)-1) = TrMat(iOld:iOld+nFro(iSym)*nBas(iSym)-1)
   !else
   !  write(u6,'(a,i2)') 'No copying of symmetry block',iSym
   end if
@@ -100,7 +100,7 @@ do iSym=1,nSym
     iDum = 0
     call Diag_Driver('V','A','L',nOF,OvlT,Scratch,nOF,Dummy,Dummy,iDum,iDum,EVal,EVec,nOF,1,0,'J',nFound,iErr)
     call mma_deallocate(Scratch)
-    !?? call dCopy_(nOF*(nOF+1)/2,Zero,0,OvlT,1)
+    !?? Ovlt(1:nOF*(nOF+1)/2) = Zero
     !?? iDiag = 0
     !?? do i=1,nOF
     !??   OvlT(i+iDiag) = EVal(i)
@@ -119,7 +119,7 @@ do iSym=1,nSym
     do iOrb=1,nOF
       if (EVal(iOrb) > DelThr) then
         if (EVal(iOrb) < 1.0e-5_wp) MiniDn = .false.
-        call dcopy_(nBas(iSym),NewB(ind),1,TrMat(iNew),1)
+        TrMat(iNew:iNew+nBas(iSym)-1) = NewB(ind:ind+nBas(iSym)-1)
         iNew = iNew+nBas(iSym)
         nOrbi = nOrbi+1
       end if

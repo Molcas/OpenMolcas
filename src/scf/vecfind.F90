@@ -65,10 +65,7 @@ real(kind=wp), allocatable :: EOrb(:)
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
-nSqrSum = 0
-do iSym=1,nSym
-  nSqrSum = nSqrSum+nBas(iSym)*nBas(iSym)
-end do
+nSqrSum = sum(nBas(1:nSym)*nBas(1:nSym))
 !----------------------------------------------------------------------*
 ! Check start orbital priority list                                    *
 !----------------------------------------------------------------------*
@@ -267,7 +264,6 @@ else if (Invec == 8) then
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'vecfind: Alright, old scf orbitals it is'
 #   endif
-    nEle = 0
     if (nD == 1) then
       call Get_iarray('SCF nOcc',nOcc(1,1),nSym)
       call Get_iScalar('SCF mode',iTmp)
@@ -275,21 +271,15 @@ else if (Invec == 8) then
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'Starting RHF with RHF orbitals'
 #       endif
-        do iSym=1,nSym
-          nEle = nEle+2*nOcc(iSym,1)
-        end do
+        nEle = 2*sum(nOcc(1:nSym,1))
       else
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'Starting RHF with UHF orbitals'
 #       endif
         call Get_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
-        nEle1 = 0
-        nEle2 = 0
-        do iSym=1,nSym
-          nEle1 = nEle1+2*nOcc(iSym,1)
-          nEle2 = nEle2+nOcc(iSym,1)+nOcc(iSym,2)
-          idspin = idspin+nOcc(iSym,1)-nOcc(iSym,2)
-        end do
+        nEle1 = 2*sum(nOcc(1:nSym,1))
+        nEle2 = sum(nOcc(1:nSym,1:2))
+        idspin = sum(nOcc(1:nSym,1)-nOcc(1:nSym,2))
         if (nEle1 /= nEle2) then
           !Tot_Charge = Tot_Nuc_Charge-nEle1
           !Tot_El_Charge = -nEle1
@@ -314,10 +304,8 @@ else if (Invec == 8) then
       else
         call Get_iarray('SCF nOcc',nOcc(1,2),nSym)
       end if
-      do iSym=1,nSym
-        nEle = nEle+nOcc(iSym,1)+nOcc(iSym,2)
-        idspin = idspin+nOcc(iSym,1)-nOcc(iSym,2)
-      end do
+      nEle = sum(nOcc(1:nSym,1:2))
+      idspin = sum(nOcc(1:nSym,1)-nOcc(1:nSym,2))
     end if
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'idspin',idspin
@@ -325,16 +313,10 @@ else if (Invec == 8) then
 #   endif
     idspin = idspin-iAu_ab
     if ((abs(Tot_El_Charge+nEle) > Half) .or. (idspin /= 0)) then
-      if (abs(Tot_El_Charge+nEle) > Half) then
-#       ifdef _DEBUGPRINT_
-        write(u6,*) 'System have changed charge!'
-#       endif
-      end if
-      if (idspin /= 0) then
-#       ifdef _DEBUGPRINT_
-        write(u6,*) 'System have changed spin!'
-#       endif
-      end if
+#     ifdef _DEBUGPRINT_
+      if (abs(Tot_El_Charge+nEle) > Half) write(u6,*) 'System have changed charge!'
+      if (idspin /= 0) write(u6,*) 'System have changed spin!'
+#     endif
       if (CharSet .or. (idspin /= 0)) then
         OccSet = .false.
         FermSet = .true.

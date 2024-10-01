@@ -49,9 +49,6 @@ integer(kind=iwp) :: i, iD, ii, j, jj, kk, n1, n_Min, nn
 real(kind=wp) :: Big, BigOne, BigTwo, CPU1, CPU2, CSUM, DD(MxOptm**2,2), DiFi, DiFj, DiFn, DjFi, DjFj, DnFj, DnFn, E_Min, E_n, &
                  E_n1, E_Pred, E_Tot, Eline(MxOptm,2), EPred(MxIter+1) = Zero, Equad(MxOptm**2,2), h = 0.35_wp, R2, r_SO, Tim1, &
                  Tim2, Tim3, Tmp_A, Tmp_B
-#ifdef _NEW_CODE_
-logical(kind=iwp) :: Ignore
-#endif
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -88,16 +85,9 @@ do i=kOptim,1,-1
   tmp0 = Zero
   do j=1,iter
 
-    Ignore = .false.
-    do k=kOptim,i+1,-1
-      Ignore = (Ignore .or. (Ind(k) == j))
-    end do
-    if (Ignore) cycle
+    if (any(Ind(i+1:kOptim) == j)) cycle
 
-    tmp = Zero
-    do iD=1,nD
-      tmp = tmp+Elst(j,iD)
-    end do
+    tmp = sum(Elst(j,1:nD))
 
     if (tmp < tmp0) then
       tmp = tmp0
@@ -223,7 +213,7 @@ write(u6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
 
 ! Temporary fix for UHF
 
-if (nD == 2) call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
+if (nD == 2) CInter(:,2) = CInter(:,1)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Interpolation coefficients:'
@@ -239,12 +229,8 @@ write(u6,'(5f16.8)') (CInter(i,1),i=1,kOptim)
 
 if (iter > 3) then
   E_Pred = EPred(iter)
-  E_n1 = Zero
-  E_n = Zero
-  do iD=1,nD
-    E_n1 = E_n1+Elst(iter,iD)
-    E_n = E_n+Elst(iter-1,iD)
-  end do
+  E_n1 = sum(Elst(iter,1:nD))
+  E_n = sum(Elst(iter-1,1:nD))
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'iter=',iter
@@ -280,10 +266,7 @@ E_Min = Zero
 n_min = 0
 n1 = 0
 do i=1,kOptim
-  E_tot = Zero
-  do iD=1,nD
-    E_tot = E_tot+Elst(Ind(i),iD)
-  end do
+  E_tot = sum(Elst(Ind(i),1:nD))
   if (E_tot < E_Min) then
     n1 = n_min
     n_min = i
@@ -303,9 +286,7 @@ if (.false.) then
     ii = Ind(i)
     do j=1,kOptim
       jj = Ind(j)
-      do iD=1,nD
-        r2 = r2+CInter(i,iD)*CInter(j,iD)*(TrDD(ii,jj,iD)-TrDD(nn,jj,iD)-TrDD(ii,nn,iD)+TrDD(nn,nn,iD))
-      end do
+      r2 = r2+sum(CInter(i,1:nD)*CInter(j,1:nD)*(TrDD(ii,jj,1:nD)-TrDD(nn,jj,1:nD)-TrDD(ii,nn,1:nD)+TrDD(nn,nn,1:nD)))
     end do
   end do
   !                                                                    *
@@ -322,7 +303,7 @@ if (.false.) then
 
     ! Temporary fix for UHF
 
-    if (nD == 2) call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
+    if (nD == 2) CInter(:,2) = CInter(:,1)
 
   end if
 end if
@@ -332,10 +313,7 @@ end if
 ! Check that the coefficients sum up correctly.
 
 do iD=1,nD
-  CSum = Zero
-  do i=1,kOptim
-    CSum = CSum+CInter(i,iD)
-  end do
+  CSum = sum(CInter(1:kOptim,iD))
   if (abs(CSum-One) > 1.0e-5_wp) then
     write(u6,*) 'diis_i: Abs(CSum - One) > 1.0e-5'
     write(u6,*) 'CSum=',CSum

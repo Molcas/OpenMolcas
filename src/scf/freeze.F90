@@ -51,7 +51,7 @@ real(kind=wp), allocatable :: Temp(:)
 ! Allocate temporary spaces
 call mma_allocate(Temp,nBT,Label='Temp')
 
-call dcopy_(nBT,OneHam,1,Temp,1)
+Temp(:) = OneHam(:)
 
 ! Form an array saying which atomic orbitals are frozen
 iStart = 0

@@ -32,10 +32,7 @@ real(kind=wp), allocatable :: Dm(:,:)
 real(kind=wp), external :: DDot_, Get_ExFac
 
 nDMat = 2
-do i=1,nSym
-  nForb(i,1) = 0
-  nForb(i,2) = 0
-end do
+nForb(1:nSym,:) = 0
 if (DFTX) then
   FactXI = Get_ExFac(KSDFT)-One ! note this trick
 else
@@ -63,8 +60,8 @@ if (Do_SpinAV) then
     write(u6,*) ' NODE will be reset to default. '
     DECO = .true.
   end if
-  call daxpy_(NBB,-One,DSc,1,Dm(:,1),1)
-  call daxpy_(NBB,One,DSc,1,Dm(:,2),1)
+  Dm(:,1) = Dm(:,1)-DSc(:)
+  Dm(:,2) = Dm(:,1)+DSc(:)
 end if
 
 iOff = 0
@@ -106,8 +103,8 @@ end if
 if (Do_SpinAV) then
   call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
   call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
-  call daxpy_(NBB,-One,DSc,1,Dm(1,1),1)
-  call daxpy_(NBB,One,DSc,1,Dm(1,2),1)
+  Dm(:,1) = Dm(:,1)-DSc(:)
+  Dm(:,2) = Dm(:,2)+DSc(:)
   call Fold(nSym,nBas,Dm(1,1),Dma)
   call Fold(nSym,nBas,Dm(1,2),Dmb)
 end if

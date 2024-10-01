@@ -26,7 +26,7 @@ use Definitions, only: iwp
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: i, iSym, LthBas, nBas_Tot
+integer(kind=iwp) :: lthBas, nBas_Tot
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -39,10 +39,7 @@ call Get_iScalar('nSym',nSym)
 ! read number of basis functions per symmetry species
 call Get_iArray('nBas',nBas,nSym)
 ! read basis function labels
-nBas_tot = 0
-do iSym=1,nSym
-  nBas_tot = nBas_tot+nBas(iSym)
-end do
+nBas_tot = sum(nBas(1:nSym))
 call mma_allocate(BName,nBas_tot,Label='BName')
 call Get_cArray('Unique Basis Names',BName,(LenIn8)*nBas_tot)
 ! read number of atoms
@@ -52,18 +49,13 @@ call Get_iScalar('Unique atoms',nAtoms)
 call Peek_dScalar('PotNuc',PotNuc)
 
 ! Compute lengths of matrices
-lthBas = 0
-do iSym=1,nSym
-  lthBas = lthBas+nBas(iSym)
-end do
+lthBas = sum(nBas(1:nSym))
 call mma_allocate(Atom,lthBas,Label='Atom')
 call mma_allocate(BType,lthBas,Label='BType')
 
 ! Define atom and type
-do i=1,lthBas
-  Atom(i) = BName(i)(1:LenIn)
-  BType(i) = BName(i)(LenIn1:LenIn8)
-end do
+Atom(:) = BName(1:lthBas)(1:LenIn)
+BType(:) = BName(1:lthBas)(LenIn1:LenIn8)
 
 return
 

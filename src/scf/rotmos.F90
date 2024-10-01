@@ -79,7 +79,7 @@ do iD=1,nD
 
     if ((nVrt > 0) .and. (nOccmF > 0)) then
       ! skip, if no orbitals within this irrep
-      call dcopy_(nOFnBa,CMO(iCMOpt,iD),1,Scratch,1)
+      Scratch(1:nOFnBA) = CMO(iCMOpt:iCMOpt-nOFnBa-1,iD)
       call DGEMM_('N','N',nBas(iSym),nOF,nOF, &
                   One,Scratch,nBas(iSym), &
                   RoM(iSyBlpt),nOF, &

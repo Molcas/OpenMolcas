@@ -61,7 +61,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "hfc_logical.fh"
 integer(kind=iwp) :: i, iArray(32), iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, &
-                     LuSpool, nOccSet_e, nOccSet_m, Mode(1), nFunc, nnn, nSqrSum
+                     LuSpool, nOccSet_e, nOccSet_m, Mode(1), nFunc, nnn
 real(kind=wp) :: Tot_Ml_Charge
 logical(kind=iwp) :: CharSet, Chol, DoTit, FermSet, IfAufChg, lTtl, OccSet, SpinSet, TDen_UsrDef, UHFSet
 character(len=180) :: Key, Line
@@ -102,9 +102,7 @@ ChFracMem = Half
 SCF_FileOrb = 'INPORB'
 isHDF5 = .false.
 ! Constrained SCF initialization
-do i=1,nSym
-  nConstr(i) = 0
-end do
+nConstr(1:nSym) = 0
 MxConstr = 0
 klockan = 1
 Do_Addc = .false.
@@ -130,15 +128,9 @@ end if
 TDen_UsrDef = .false.
 
 ! Set up number of orbitals
-do iSym=1,nSym
-  nOrb(iSym) = nBas(iSym)
-end do
-! Set up some counters
-nSqrSum = 0
-do iSym=1,nSym
-  nSqrSum = nSqrSum+nBas(iSym)*nBas(iSym)
-end do
+nOrb(1:nSym) = nBas(1:nSym)
 
+! Set up some counters
 iOrbi = 0
 iFroz = 0
 iOccu = 0
@@ -246,13 +238,9 @@ do
 
       iOccu = 1
       if (nD == 1) then
-        do i=1,nSym
-          Tot_El_Charge = Tot_El_Charge-real(2*nOcc(i,1),kind=wp)
-        end do
+        Tot_El_Charge = -real(sum(2*nOcc(1:nSym,1)),kind=wp)
       else
-        do i=1,nSym
-          Tot_El_Charge = Tot_El_Charge-real(nOcc(i,1)+nOcc(i,2),kind=wp)
-        end do
+        Tot_El_Charge = -real(sum(nOcc(1:nSym,1:2)),kind=wp)
       end if
       Aufb = .false. ! Disable default action.
       Teee = .false.
@@ -265,9 +253,7 @@ do
       Line = Get_Ln(LuSpool)
       call Get_I(1,nOrb,nSym)
       iOrbi = 1
-      do iSym=1,nSym
-        nDel(iSym) = nBas(iSym)-nOrb(iSym)
-      end do
+      nDel(1:nSym) = nBas(1:nSym)-nOrb(1:nSym)
 
     case ('FROZ')
       !>>>>>>>>>>>>> FROZ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -348,7 +334,7 @@ do
       !>>>>>>>>>>>>> CONS <<<<<<<<<<<< Constrained SCF <<<<<<<<<<<
       Line = Get_Ln(LuSpool)
       call Get_I(1,nConstr,nSym)
-      call Izero(indxC,16*2*8)
+      indxC(:,:,:) = 0
       do i=1,nSym
         MxConstr = max(MxConstr,nConstr(i))
         Line = Get_Ln(LuSpool)
@@ -479,7 +465,7 @@ do
       ! lines with occupation numbers.
 
       call mma_allocate(OccSet_e,nOccSet_e,nD,Label='OccSet_e')
-      call FZero(OccSet_e,nOccSet_e*nD)
+      OccSet_e(:,:) = Zero
       read(LuSpool,*,iostat=istatus) (OccSet_e(i,1),i=1,lthSet_a)
       call Error_check()
       if (nD == 2) then
@@ -487,12 +473,7 @@ do
         call Error_check()
       end if
 
-      Tot_El_Charge = Zero
-      do iD=1,nD
-        do i=1,nOccSet_e
-          Tot_El_Charge = Tot_El_Charge-OccSet_e(i,iD)
-        end do
-      end do
+      Tot_El_Charge = -sum(OccSet_e(1:nOccSet_e,1:nD))
       UHFSet = .true.
       iCoCo = 1
 
@@ -517,7 +498,7 @@ do
       ! lines with occupation numbers.
 
       call mma_allocate(OccSet_m,nOccSet_m,nD,Label='OccSet_m')
-      call FZero(OccSet_m,nOccSet_m*nD)
+      OccSet_m(:,:) = Zero
       read(LuSpool,*,iostat=istatus) (OccSet_m(i,1),i=1,lthSet_a)
       call Error_check()
       if (nD == 2) then
@@ -525,12 +506,7 @@ do
         call Error_check()
       end if
 
-      Tot_Ml_Charge = Zero
-      do iD=1,nD
-        do i=1,nOccSet_m
-          Tot_Ml_Charge = Tot_Ml_Charge-OccSet_m(i,iD)
-        end do
-      end do
+      Tot_Ml_Charge = -sum(OccSet_m(1:nOccSet_m,1:nD))
       UHFSet = .true.
       iCoCo = 1
 
@@ -1138,7 +1114,7 @@ if (Aufb .and. (iFroz == 1)) then
     nAufb(1) = nAufb(1)+nFro(iSym)
     if (nD == 2) nAufb(2) = nAufb(2)+nFro(iSym)
   end do
-  call ICopy(nSym,[0],0,nFro,1)
+  nFro(1:nSym) = 0
   call WarningMessage(2,'Input error!;Aufbau not allowed with frozen orbitals')
   call Abend()
 end if

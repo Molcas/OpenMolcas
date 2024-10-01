@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nBT, nBB, nnB, nSym, nBas(nSym), nOrb(nSym)
 real(kind=wp) :: DensA(nBT), DensB(nBT), FockA(nBT), FockB(nBT), CMO(nBB), Ovl(nBT), Nato(nBB), Eta(nnB), Eps(nnB)
-integer(kind=iwp) :: i, indx, iOffCMO, iOffEta, iOffSqr, iOffTri, iOrb, iSym, MaxSqr, MaxTri, nCMO, nEta, nSqr, nTri
+integer(kind=iwp) :: indx, iOffCMO, iOffEta, iOffSqr, iOffTri, iOrb, iSym, MaxSqr, MaxTri, nCMO, nEta, nSqr, nTri
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: Aux1(:), Aux2(:), Aux3(:), Dens(:), Fock(:), SMat(:)
 
@@ -58,21 +58,15 @@ call mma_allocate(Aux3,MaxSqr,Label='Aux3')
 !----------------------------------------------------------------------*
 ! Add up the densities                                                 *
 !----------------------------------------------------------------------*
-do i=1,nTri
-  Dens(i) = DensA(i)+DensB(i)
-end do
+Dens(:) = DensA(1:nTri)+DensB(1:nTri)
 !----------------------------------------------------------------------*
 ! Copy orbitals                                                        *
 !----------------------------------------------------------------------*
-do i=1,nCMO
-  Nato(i) = CMO(i)
-end do
+Nato(1:nCMO) = CMO(1:nCMO)
 !----------------------------------------------------------------------*
 ! Average Fock matrix.                                                 *
 !----------------------------------------------------------------------*
-do i=1,nTri
-  Fock(i) = Half*(FockA(i)+FockB(i))
-end do
+Fock(:) = Half*(FockA(1:nTri)+FockB(1:nTri))
 !iOffTri = 0
 !do iSym=1,nSym
 !  call TriPrt('natouhf: Fock A','(20f10.4)',FockA(1+iOffTri),nBas(iSym))
@@ -146,13 +140,9 @@ do iSym=1,nSym
 
   call NIdiag(Aux2,Nato(iOffCMO+1),nOrb(iSym),nBas(iSym))
   call Pickup(Aux2,Eta(iOffEta+1),nOrb(iSym))
-  do i=1,nOrb(iSym)
-    Eta(iOffEta+i) = -Eta(iOffEta+i)
-  end do
+  Eta(iOffEta+1:iOffEta+nOrb(iSym)) = -Eta(iOffEta+1:iOffEta+nOrb(iSym))
   call SortEig(Eta(iOffEta+1),Nato(iOffCMO+1),nOrb(iSym),nBas(iSym),1,.true.)
-  do i=1,nOrb(iSym)
-    Eta(iOffEta+i) = -Eta(iOffEta+i)
-  end do
+  Eta(iOffEta+1:iOffEta+nOrb(iSym)) = -Eta(iOffEta+1:iOffEta+nOrb(iSym))
 end do
 !----------------------------------------------------------------------*
 ! Compute diagonal of average Fock matrix                              *

@@ -32,10 +32,7 @@ real(kind=wp), allocatable :: Dump(:)
 !----------------------------------------------------------------------*
 ! Preliminaries                                                        *
 !----------------------------------------------------------------------*
-npDump = 0
-do iSym=1,nSym
-  npDump = npDump+nBas(iSym)
-end do
+npDump = sum(nBas(1:nSym))
 call mma_allocate(Dump,npDump,Label='DumpOE')
 !----------------------------------------------------------------------*
 ! Dump orbital energies                                                *
@@ -48,7 +45,7 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nOrb(iSym)
-  call dcopy_(ndata,E_or(iFrom(iSym)),1,Dump(iTo(iSym)),1)
+  Dump(iTo(iSym):iTo(iSym)+ndata-1) = E_or(iFrom(iSym):iFrom(iSym)+ndata-1)
 end do
 call Put_dArray(Label,Dump,npDump)
 !----------------------------------------------------------------------*

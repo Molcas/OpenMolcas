@@ -87,7 +87,7 @@ Iterate = .false.
 Restart = .false.
 NumVal = min(3,nInter+1)
 !NumVal = min(nInter+1,nInter+1)
-call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
+call mma_allocate(Vec,nInter+1,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
 call mma_allocate(Tmp,nInter+1,Label='Tmp')
 
@@ -103,7 +103,7 @@ do
   !*********************************************************************
   !                                                                    *
   ! Restore the vector from the previous iteration, if any
-  call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
+  Vec(:,1) = Tmp(:)
 
   ! Call special Davidson routine which do not require the
   ! augmented Hessian to be explicitly expressed but rather will
@@ -138,8 +138,8 @@ do
   end do
   !write(u6,*) 'iRoot,dqdq=',iRoot,dqdq
   if (iRoot /= 1) Vec(:,1) = Vec(:,iRoot)
-  call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
-  call DScal_(nInter,One/sqrt(A_RFO),Vec(:,1),1)
+  Tmp(:) = Vec(:,1)
+  Vec(:,1) = Vec(:,1)/sqrt(A_RFO)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -149,7 +149,7 @@ do
   !                                                                    *
   !write(u6,*) ' RF eigenvalue=',Val
   ZZ = DDot_(nInter+1,Vec(:,1),1,Vec(:,1),1)
-  call DScal_(nInter+1,One/sqrt(ZZ),Vec(:,1),1)
+  Vec(:,1) = Vec(:,1)/sqrt(ZZ)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -159,7 +159,7 @@ do
   !                                                                    *
   ! Copy v^k_{n,i}
 
-  call dcopy_(nInter,Vec(:,1),1,dq,1)
+  dq(:) = Vec(1:nInter,1)
 
   ! Pick v^k_{1,i}
 
@@ -168,7 +168,7 @@ do
 
   ! Normalize according to Eq. (5)
 
-  call DScal_(nInter,One/Fact,dq,1)
+  dq(:) = dq(:)/Fact
 
   ! Compute lambda_i according to Eq. (8a)
 

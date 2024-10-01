@@ -108,13 +108,13 @@ if (nDens < 2) nDens = 2
 nMem = nDens-1
 
 call mma_allocate(Dens,nBT,nD,nDens,Label='Dens  ')
-call FZero(Dens,nBT*nD*nDens)
+Dens(:,:,:) = Zero
 call mma_allocate(TwoHam,nBT,nD,nDens,Label='TwoHam')
-call FZero(TwoHam,nBT*nD*nDens)
+TwoHam(:,:,:) = Zero
 call mma_allocate(Vxc,nBT,nD,nDens,Label='Vxc')
-call FZero(Vxc,nBT*nD*nDens)
+Vxc(:,:,:) = Zero
 call mma_allocate(EDFT,MxIter,Label='EDFT')
-call FZero(EDFT,MxIter)
+EDFT(:) = Zero
 
 ! Allocate memory for diagonal Hessian with respect to the elements
 ! of the anti-symmetric matrix kappa which represents the

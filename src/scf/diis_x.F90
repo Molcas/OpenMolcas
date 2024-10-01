@@ -45,7 +45,7 @@ implicit none
 integer(kind=iwp) :: nD, nCI, Ind(MxOptm)
 real(kind=wp) :: CInter(nCI,nD)
 logical(kind=iwp) :: QNRstp
-integer(kind=iwp) :: i, iDiag, iDum, iErr, ij, ipBst, iVec, j, jVec, kVec, nBij, nFound
+integer(kind=iwp) :: i, iDiag, iDum, iErr, ij, ipBst, iVec, j, kVec, nBij, nFound
 real(kind=wp) :: Alpha, B11, Bii_Min, BijTri(MxOptm*(MxOptm+1)/2), c2, cpu1, cpu2, DD, DD1, Dummy, E_Min, E_Min_G, ee1, ee2, EMax, &
                  Fact, GDiis(MxOptm+1), tim1, tim2, tim3
 #ifdef _DEBUGPRINT_
@@ -90,7 +90,7 @@ do
   !call mma_allocate(Err4,mOV,Label='Err4')
   nBij = kOptim+1
   call mma_allocate(Bij,nBij,nBij)
-  call FZero(Bij,nBij**2)
+  Bij(:,:) = Zero
 
   ! Compute norms, <e_i|e_j>
 
@@ -279,14 +279,13 @@ if (.not. c1Diis) then
   call mma_allocate(EVector,kOptim,kOptim,Label='EVector')
   call mma_allocate(EValue,kOptim,Label='EValue')
 
-  call dcopy_(kOptim**2,[Zero],0,EVector,1)
-  call dcopy_(kOptim,[One],0,EVector,kOptim+1)
+  call unitmat(EVector,kOptim)
 
   ! Form a triangular B-matrix
 
   ij = 1
   do i=1,kOptim
-    call dcopy_(i,Bij(i,1),nBij,BijTri(ij),1)
+    BijTri(ij:ij+i-1) = Bij(i,1:i)
     ij = ij+i
   end do
 
@@ -317,7 +316,7 @@ if (.not. c1Diis) then
   call Diag_Driver('V','A','L',kOptim,BijTri,Scratch,kOptim,Dummy,Dummy,iDum,iDum,EValue,EVector,kOptim,1,0,'J',nFound,iErr)
 
   call mma_deallocate(Scratch)
-  call dCopy_(kOptim*(kOptim+1)/2,[Zero],0,BijTri,1)
+  BijTri(1:kOptim*(kOptim+1)/2) = Zero
 
   iDiag = 0
   do i=1,kOptim
@@ -348,6 +347,7 @@ if (.not. c1Diis) then
     do i=1,kOptim
       Alpha = Alpha+EVector(i,iVec)
     end do
+    Alpha = sum(EVector(:,iVec))
 
 #   ifdef _DEBUGPRINT_
     Frmt = '(A7,i2,A4,f16.8)'
@@ -360,9 +360,7 @@ if (.not. c1Diis) then
   do kVec=1,kOptim
     ee1 = Zero
     do iVec=1,kOptim
-      do jVec=1,kOptim
-        ee1 = ee1+EVector(iVec,kVec)*EVector(jVec,kVec)*Bij(iVec,jVec)
-      end do
+      ee1 = ee1+EVector(iVec,kVec)*sum(EVector(:,kVec)*Bij(iVec,1:kOptim))
     end do
     !write(u6,*) 'EValue(kVec),ee1:',EValue(kVec),ee1
     EValue(kVec) = ee1
@@ -395,8 +393,8 @@ if (.not. c1Diis) then
     ee2 = EValue(iVec)
     c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
     if (QNRStp) then
-      call dcopy_(kOptim,EVector(:,iVec),1,CInter(:,1),1)
-      if (nD == 2) call DCopy_(nCI,CInter(:,1),1,CInter(:,2),1)
+      CInter(1:kOptim,1) = EVector(1:kOptim,iVec)
+      if (nD == 2) CInter(:,2) = CInter(:,1)
       call OptClc_x(CInter,nCI,nD,Scratch,mOV,Ind,MxOptm,kOptim,kOV,LLx,DD)
     else
       DD = Zero
@@ -472,7 +470,7 @@ if (.not. c1Diis) then
     call RecPrt(Text,Frmt,EVector,kOptim,kOptim)
     call Quit_OnConvError()
   end if
-  call dcopy_(kOptim,EVector(1,ipBst),1,CInter(1,1),1)
+  CInter(1:kOptim,1) = EVector(:,ipBst)
 
 # ifdef _DEBUGPRINT_
   write(u6,*)
@@ -506,12 +504,10 @@ else
   ! Set up the missing part of the matrix in Eq. (5) and the
   ! vector on the RHS in the same equation. Note the sign change!
 
-  do i=1,kOptim
-    Bij(kOptim+1,i) = -One ! note sign change
-    Bij(i,kOptim+1) = -One ! note sign change
-    GDiis(i) = Zero
-  end do
+  Bij(kOptim+1,1:kOptim) = -One ! note sign change
+  Bij(1:kOptim,kOptim+1) = -One ! note sign change
   Bij(kOptim+1,kOptim+1) = Zero
+  GDiis(1:kOptim) = Zero
   GDiis(kOptim+1) = -One  ! note sign change
 
 # ifdef _DEBUGPRINT_
@@ -524,11 +520,7 @@ else
   ! Condition the B matrix
 
   B11 = sqrt(Bij(1,1)*Bij(kOptim,kOptim))
-  do i=1,kOptim
-    do j=1,kOptim
-      Bij(i,j) = Bij(i,j)/B11
-    end do
-  end do
+  Bij(1:kOptim,1:kOptim) = Bij(1:kOptim,1:kOptim)/B11
 
   ! Solve for the coefficients, solve the equations.
 
@@ -536,22 +528,13 @@ else
 
   ! Normalize sum of interpolation coefficients
 
-  Fact = Zero
-  do i=1,kOptim
-    Fact = Fact+CInter(i,1)
-  end do
-
-  Fact = One/Fact
-  do i=1,kOptim
-    CInter(i,1) = Fact*CInter(i,1)
-  end do
+  Fact = One/sum(CInter(1:kOptim,1))
+  CInter(1:kOptim,1) = Fact*CInter(1:kOptim,1)
 
   ! Make sure new density gets a weight
   if (CInter(kOptim,1) < CThr) then
     Fact = (One-CThr)/(One-CInter(kOptim,1))
-    do i=1,kOptim-1
-      CInter(i,1) = Fact*CInter(i,1)
-    end do
+    CInter(1:kOptim-1,1) = Fact*CInter(1:kOptim-1,1)
     CInter(kOptim,1) = CThr
   end if
   !                                                                    *
@@ -563,7 +546,7 @@ call mma_deallocate(Bij)
 
 ! Temporary fix for UHF.
 
-if (nD == 2) call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
+if (nD == 2) CInter(:,2) = CInter(:,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

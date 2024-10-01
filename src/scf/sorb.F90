@@ -224,7 +224,7 @@ subroutine Start0()
 
   ! Form transformation matrix
   call TrGen(TrM(1,1),nBB,Ovrlp,OneHam,nBT)
-  if (nD == 2) call dCopy_(nBB,TrM(1,1),1,TrM(1,2),1)
+  if (nD == 2) TrM(:,2) = TrM(:,1)
 
   ! Diagonalize core
   do iD=1,nD
@@ -249,7 +249,7 @@ subroutine Start0x(CMO,mBB,nD,E_Or,mmB)
 
   integer(kind=iwp) :: mBB, nD, mmB
   real(kind=wp) :: CMO(mBB,nD), E_Or(mmB,nD)
-  integer(kind=iwp) :: iD, iRC, iSym, nSum
+  integer(kind=iwp) :: iD, iRC, nSum
 
   !--------------------------------------------------------------------*
   ! Get start orbitals.                                                *
@@ -292,8 +292,8 @@ subroutine Start0x(CMO,mBB,nD,E_Or,mmB)
   end if
 
   if (nD == 2) then
-    call dCopy_(mBB,CMO(1,1),1,CMO(1,2),1)
-    call dCopy_(mmB,E_Or(1,1),1,E_Or(1,2),1)
+    CMO(:,2) = CMO(:,1)
+    E_Or(:,2)= E_Or(:,1)
   end if
 
   call qpg_iarray('nDel_go',Found,ndata)
@@ -301,15 +301,11 @@ subroutine Start0x(CMO,mBB,nD,E_Or,mmB)
   if (Found) then
     call Get_iArray('nDel_go',nDel,ndata)
     call Put_iArray('nDel',nDel,ndata)
-    do iSym=1,nSym
-      nSum = nSum+nDel(iSym)
-    end do
+    nSum = sum(nDel(1:nSym))
   end if
 
   if (nSum > 0) then
-    do iSym=1,nSym
-      nOrb(iSym) = nBas(iSym)-nDel(iSym)
-    end do
+    nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
     do iD=1,nD
       call TrimCMO(CMO(1,iD),CMO(1,iD),nSym,nBas,nOrb)
       call TrimEor(E_Or(1,iD),E_Or(1,iD),nSym,nBas,nOrb)
@@ -334,7 +330,7 @@ subroutine Start0y(CMO,mBB,nD,E_Or,mmB)
 
   integer(kind=iwp) :: mBB, nD, mmB
   real(kind=wp) :: CMO(mBB,nD), E_Or(mmB,nD)
-  integer(kind=iwp) :: iD, iSym, nSum
+  integer(kind=iwp) :: iD, nSum
 
   !--------------------------------------------------------------------*
   ! Get start orbitals.                                                *
@@ -347,8 +343,8 @@ subroutine Start0y(CMO,mBB,nD,E_Or,mmB)
 
   if (nD == 2) then
 
-    call DCopy_(mBB,CMO(1,1),1,CMO(1,2),1)
-    call DCopy_(mmB,E_Or(1,1),1,E_Or(1,2),1)
+    CMO(:,2) = CMO(:,1)
+    E_Or(:,2) = E_Or(:,1)
 
     call qpg_darray('SCF orbitals_ab',found,ndata)
     if (Found) call get_darray('SCF orbitals_ab',CMO(:,2),ndata)
@@ -360,14 +356,10 @@ subroutine Start0y(CMO,mBB,nD,E_Or,mmB)
   nSum = 0
   if (Found) then
     call Get_iArray('nDel',nDel,ndata)
-    do iSym=1,nSym
-      nSum = nSum+nDel(iSym)
-    end do
+    nSum = sum(nDel(1:nSym))
   end if
   if (nSum > 0) then
-    do iSym=1,nSym
-      nOrb(iSym) = nBas(iSym)-nDel(iSym)
-    end do
+    nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
     do iD=1,nD
       call TrimCMO(CMO(1,iD),CMO(1,iD),nSym,nBas,nOrb)
       call TrimEor(E_or(1,iD),E_or(1,iD),nSym,nBas,nOrb)
@@ -392,7 +384,7 @@ subroutine SOrbChk(OneHam,Fock,mBT,nD)
     call ChkOrt(iD,Whatever)
 
     ! Form the first Fock matrix
-    call DCopy_(mBT,OneHam,1,Fock(1,iD),1)
+    Fock(:,iD) = OneHam(:)
   end do
 
   return

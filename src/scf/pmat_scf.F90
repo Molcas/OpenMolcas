@@ -40,24 +40,23 @@ use Int_Options, only: Exfac_Int => ExFac, FckNoClmb, PreSch_Int => PreSch, Thiz
 use rctfld_module, only: lRF
 use Integral_interfaces, only: Drv2El_dscf
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp) :: FstItr
 integer(kind=iwp) :: nXCf, nD
 real(kind=wp) :: XCf(nXCf,nD)
-integer(kind=iwp) :: Algo_Save, iCharge, iD, iDumm, iM, iMat, iSpin, nDT, nT, nVxc
+integer(kind=iwp) :: Algo_Save, iCharge, iD, iDumm, iM, iMat, iSpin, nT
 real(kind=wp) :: Backup_ExFac, CPU1, CPU2, Dummy(1), ERFSelf, TCF2, TCF2_1, Tim1, Tim2, Tim3, Tmp, TWF2, TWF2_1, XCPM, XCPM1, &
                  XCPM2, XWPM, XwPM1, XwPM2
 logical(kind=iwp) :: Do_DFT, Do_ESPF, First = .true., Found, ltmp1, ltmp2, NonEq
-real(kind=wp), allocatable :: D(:), DnsS(:,:), RFfld(:), Saved(:,:), tVxc(:)
+real(kind=wp), allocatable :: D(:), DnsS(:,:), RFfld(:), Saved(:,:), tVxc(:,:)
 real(kind=wp), allocatable, target :: Aux(:,:), Temp(:,:)
 real(kind=wp), pointer :: pTwoHam(:,:)
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EFP_On
 
-nDT = size(OneHam)
 if (PmTime) call CWTime(xCPM1,xWPM1)
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
@@ -73,7 +72,7 @@ dFKmat = abs(FMOmax)
 
 ! Add contribution due to external potential
 
-call DCopy_(nBT*nD,[Zero],0,TwoHam(1,1,iPsLst),1)
+TwoHam(:,:,iPsLst) = Zero
 iSpin = 1
 if (nD == 2) iSpin = 2
 call Put_iScalar('Multiplicity',iSpin)
@@ -100,14 +99,13 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb .or. EFP_On()) then
   ltmp1 = iter == 1
   ltmp2 = iter /= 1
   if (nD == 1) then
-    call DrvXV(OneHam,TwoHam(1,1,iPsLst),Dens(1,1,iPsLst),PotNuc,nBT,ltmp1,ltmp2,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
+    call DrvXV(OneHam,TwoHam(:,1,iPsLst),Dens(:,1,iPsLst),PotNuc,nBT,ltmp1,ltmp2,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
   else
     call mma_allocate(D,nBT,Label='D')
-    call dcopy_(nBT,Dens(1,1,iPsLst),1,D,1)
-    call DaXpY_(nBT,One,Dens(1,2,iPsLst),1,D,1)
-    call DrvXV(OneHam,TwoHam(1,1,iPsLst),D,PotNuc,nBT,ltmp1,ltmp2,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
+    D(:) = Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
+    call DrvXV(OneHam,TwoHam(:,1,iPsLst),D,PotNuc,nBT,ltmp1,ltmp2,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,'SCF ',Do_DFT)
     call mma_deallocate(D)
-    call dcopy_(nBT,TwoHam(1,1,iPsLst),1,TwoHam(1,2,iPsLst),1)
+    TwoHam(:,2,iPsLst) = TwoHam(:,1,iPsLst)
     if ((MxConstr > 0) .and. (klockan == 1)) then
       call SetUp_iSD()
       call Get_Enondyn_dft(nBT,Dummy,iDumm,'SCF ')
@@ -126,26 +124,21 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb .or. EFP_On()) then
   ! potential is neither linear nor bi-linear.
 
   if (KSDFT /= 'SCF') then
-    nVxc = size(Vxc,1)*size(Vxc,2)
-    call mma_allocate(tVxc,nVxc,Label='tVxc')
-    call Get_dArray_chk('dExcdRa',tVxc,nVxc)
-    call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
-    call mma_deallocate(tVxc)
+    call Get_dArray_chk('dExcdRa',Vxc(:,:,iPsLst),nBT*nD)
   else
-    call FZero(Vxc(1,1,iPsLst),nBT*nD)
+    Vxc(:,:,iPsLst) = Zero
   end if
 
   if (Do_OFemb) then
     call NameRun('AUXRFIL') ! switch the RUNFILE name
-    nVxc = size(Vxc,1)*size(Vxc,2)
-    call mma_allocate(tVxc,nVxc,Label='tVxc')
-    call Get_dArray_chk('dExcdRa',tVxc,nVxc)
-    call DaXpY_(nDT*nD,One,tVxc,1,Vxc(1,1,iPsLst),1)
+    call mma_allocate(tVxc,nBT,nD,Label='tVxc')
+    call Get_dArray_chk('dExcdRa',tVxc,nBT*nD)
+    Vxc(:,:,iPsLst) = Vxc(:,:,iPsLst)+tVxc(:,:)
     call mma_deallocate(tVxc)
     call NameRun('#Pop')    ! switch back RUNFILE name
   end if
 # ifdef _DEBUGPRINT_
-  call NrmClc(Vxc(1,1,iPsLst),nDT*nD,'PMat','Optimal V ')
+  call NrmClc(Vxc(:,:,iPsLst),nBT*nD,'PMat','Optimal V ')
 # endif
 
 else if (RFpert .and. First) then
@@ -161,15 +154,15 @@ else if (RFpert .and. First) then
   call Get_dArray('Reaction field',RFfld,nBT)
   if (Found) call NameRun('#Pop')
   PotNuc = PotNuc+ERFself
-  call Daxpy_(nBT,One,RFfld,1,OneHam,1)
+  OneHam(:) = OneHam(:)+RFfld(:)
   do iD=1,nD
-    call DCopy_(nBT,OneHam,1,FockAO(1,iD),1)
+    FockAO(:,iD) = OneHam(:)
   end do
   call mma_deallocate(RFfld)
 
 else
 
-  call FZero(Vxc(1,1,iPsLst),nBT*nD)
+  Vxc(:,:,iPsLst) = Zero
 
 end if
 !                                                                      *
@@ -240,10 +233,10 @@ if (DoFMM) call FMMFck(Dens(1,1,iPsLst),Temp(1,1),nDens)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call DaXpY_(nBT*nD,One,Temp,1,TwoHam(1,1,iPsLst),1)
+TwoHam(:,:,iPsLst) = TwoHam(:,:,iPsLst)+Temp(:,1:nD)
 #ifdef _DEBUGPRINT_
 call NrmClc(Temp,nBT*nD,'PMat_SCF','Temp')
-call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
+call NrmClc(TwoHam(:,:,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
 call mma_deallocate(Temp)
 
@@ -263,26 +256,23 @@ if (MiniDn .and. (max(0,nIter(nIterP)-1) > 0)) then
   !
   ! G(D(k+1)) = G(delta(k+1)) + Sum_i_k C_i G(D_i)
 
-  call mma_allocate(Aux,nDT,nD,Label='Aux')
+  call mma_allocate(Aux,nBT,nD,Label='Aux')
   do iMat=1,iter-1
 
-    tmp = Zero
-    do iD=1,nD
-      tmp = tmp+abs(XCf(iMat,iD))
-    end do
+    tmp = sum(abs(XCf(iMat,:)))
     if (tmp == Zero) cycle
 
     iM = MapDns(iMat)
     if (iM < 0) then
-      call RWDTG(-iM,Aux,nDT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
+      call RWDTG(-iM,Aux,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
       pTwoHam => Aux
     else
-      pTwoHam => TwoHam(1:nDT,1:nD,iM)
+      pTwoHam => TwoHam(1:nBT,1:nD,iM)
     end if
 
     do iD=1,nD
       if (Xcf(iMat,iD) == Zero) cycle
-      call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(:,iD),1,TwoHam(1,iD,iPsLst),1)
+      TwoHam(:,iD,iPsLst) = TwoHam(:,iD,iPsLst)+Xcf(iMat,iD)*pTwoHam(:,iD)
     end do
 
     nullify(pTwoHam)
@@ -296,15 +286,15 @@ else if (.not. DDnOFF) then
   !
   ! G(D(k+1)) = G(D(k)) + G(D(k+1)-D(k))
 
-  call DaXpY_(nBT*nD,One,TwoHam(1,1,nDens),1,TwoHam(1,1,iPsLst),1)
+  TwoHam(:,:,iPsLst) = TwoHam(:,:,iPsLst)+TwoHam(:,:,nDens)
 
 end if
 
 ! Restore the total density in position iPsLst
 
-call DCopy_(nBT*nD,Dens(1,1,nDens),1,Dens(1,1,iPsLst),1)
-call DCopy_(nBT*nD,TwoHam(1,1,iPsLst),1,TwoHam(1,1,nDens),1)
-call DCopy_(nBT*nD,Vxc(1,1,iPsLst),1,Vxc(1,1,nDens),1)
+Dens(:,:,iPsLst) = Dens(:,:,nDens)
+TwoHam(:,:,nDens) = TwoHam(:,:,iPsLst)
+Vxc(:,:,nDens) = Vxc(:,:,iPsLst)
 
 ! Restore ExFac (if it was changed)
 if (NoExchange) ExFac = Backup_ExFac

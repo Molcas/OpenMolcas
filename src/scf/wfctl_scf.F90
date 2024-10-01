@@ -57,8 +57,8 @@ integer(kind=iwp) :: iTerm
 character(len=*) :: Meth
 logical(kind=iwp) :: FstItr
 real(kind=wp) :: SIntTh
-integer(kind=iwp) :: iAufOK, iBas, iCMO, iD, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
-                     Iter_DIIS, Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
+                     Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
                  TWall2
 logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
@@ -66,6 +66,7 @@ character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
 #ifdef _MSYM_
+integer(kind=iwp) :: iD
 real(kind=wp) :: Whatever
 type(c_ptr) :: msym_ctx
 #endif
@@ -93,7 +94,7 @@ call mma_allocate(CInter,nCI,nD,Label='CInter')
 call CWTime(TCpu1,TWall1)
 ! Put empty spin density on the runfile.
 call mma_allocate(D1Sao,nBT,Label='D1Sao')
-call FZero(D1Sao,nBT)
+D1Sao(:) = Zero
 call Put_dArray('D1sao',D1Sao,nBT)
 call mma_deallocate(D1Sao)
 
@@ -725,10 +726,8 @@ do iter_=1,nIter(nIterP)
     nBs = nBas(iSym)
     nOr = nOrb(iSym)
     lth = nBs*nOr
-    do iD=1,nD
-      call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
-      call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
-    end do
+    TrM(iTrM:iTrM+lth-1,1:nD) = CMO(iCMO:iCMO+lth-1,1:nD)
+    TrM(iTrm+nBs*nOr:iTrm+nBs*nBs-1,1:nD) = Zero
     iTrM = iTrM+nBs*nBs
     iCMO = iCMO+nBs*nOr
   end do

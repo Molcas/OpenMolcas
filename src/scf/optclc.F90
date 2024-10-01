@@ -75,23 +75,23 @@ if (iMap < 0) then
   call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
   call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,size(iDisk,1))
 else
-  call DCopy_(nBT*nD,Dens(1,1,iMap),1,DnsTmp,1)
-  call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
-  call DCopy_(nBT*nD,Vxc(1,1,iMap),1,VxcTmp,1)
+  DnsTmp(:,:) = Dens(:,:,iMap)
+  TwoTmp(:,:) = TwoHam(:,:,iMap)
+  VxcTmp(:,:) = Vxc(:,:,iMap)
 end if
 
 do iD=1,nD
 
   C = CInter(kOptim,iD)
-  call DScal_(nBT,C,DnsTmp(1,iD),1)
-  call DScal_(nBT,C,TwoTmp(1,iD),1)
-  call DScal_(nBT,C,VxcTmp(1,iD),1)
+  DnsTmp(:,iD) = C*DnsTmp(:,iD)
+  TwoTmp(:,iD) = C*TwoTmp(:,iD)
+  VxcTmp(:,iD) = C*VxcTmp(:,iD)
 
 end do
 
-call dcopy_(nBT*nD,DnsTmp,1,Dens(1,1,nDens),1)
-call dcopy_(nBT*nD,TwoTmp,1,TwoHam(1,1,nDens),1)
-call dcopy_(nBT*nD,VxcTmp,1,Vxc(1,1,nDens),1)
+Dens(:,:,nDens) = DnsTmp(:,:)
+TwoHam(:,:,nDens) = TwoTmp(:,:)
+Vxc(:,:,nDens) = VxcTmp(:,:)
 
 do i=1,kOptim-1
   C = CInter(i,1)
@@ -103,16 +103,16 @@ do i=1,kOptim-1
     call RWDTG(-iMap,TwoTmp,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
     call RWDTG(-iMap,VxcTmp,nBT*nD,'R','dVxcdR',iDisk,size(iDisk,1))
   else
-    call DCopy_(nBT*nD,Dens(1,1,iMap),1,DnsTmp,1)
-    call DCopy_(nBT*nD,TwoHam(1,1,iMap),1,TwoTmp,1)
-    call DCopy_(nBT*nD,Vxc(1,1,iMap),1,VxcTmp,1)
+    DnsTmp(:,:) = Dens(:,:,iMap)
+    TwoTmp(:,:) = TwoHam(:,:,iMap)
+    VxcTmp(:,:) = Vxc(:,:,iMap)
   end if
 
   do iD=1,nD
     C = CInter(i,iD)
-    call daxpy_(nBT,C,DnsTmp(1,iD),1,Dens(1,iD,nDens),1)
-    call daxpy_(nBT,C,TwoTmp(1,iD),1,TwoHam(1,iD,nDens),1)
-    call daxpy_(nBT,C,VxcTmp(1,iD),1,Vxc(1,iD,nDens),1)
+    Dens(:,iD,nDens) = Dens(:,iD,nDens)+C*DnsTmp(:,iD)
+    TwoHam(:,iD,nDens) = TwoHam(:,iD,nDens)+C*TwoTmp(:,iD)
+    Vxc(:,iD,nDens) = Vxc(:,iD,nDens)+C*VxcTmp(:,iD)
   end do
 
 end do ! i

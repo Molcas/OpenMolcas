@@ -55,7 +55,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp) :: n1, n2, iD
 real(kind=wp), target :: v1(n1), v2(n2)
-integer(kind=iwp) :: ia, ii, ioffs, iSym, ivoffs, nia1, nia2, nii1, nii2, nv1, nv2
+integer(kind=iwp) :: ii, ioffs, iSym, ivoffs, nia1, nia2, nii1, nii2, nv1, nv2
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iOff, nO, nV
 #endif
@@ -103,28 +103,28 @@ do iSym=1,nSym
     pv1(1:nia2,1:nia2) => v1(ioffs+1:ioffs+nv1)
     pv2(nia1:nia2,nii1:nii2) => v2(ivoffs:ivoffs+nv2-1)
 
-    do ii=nii1,nii2
-      do ia=nia1,nia2
-        !if (pv1(ia,ii) /= -pv1(ii,ia)) then
-        !  write(u6,*) 'inconsistency in gradient'
-        !  call Abend()
-        !end if
-        pv2(ia,ii) = pv1(ia,ii)
-      end do
-    end do
+    !do ii=nii1,nii2
+    !  do ia=nia1,nia2
+    !    if (pv1(ia,ii) /= -pv1(ii,ia)) then
+    !      write(u6,*) 'inconsistency in gradient'
+    !      call Abend()
+    !    end if
+    !  end do
+    !end do
+    pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
 #   else
     call c_f_pointer(c_loc(v1(ioffs+1)),pv1,[nia2,nia2])
     call c_f_pointer(c_loc(v2(ivoffs)),pv2,[nia2-nia1+1,nii2-nii1+1])
 
-    do ii=nii1,nii2
-      do ia=nia1,nia2
-        !If (pv1(ia,ii) /= -pv1(ii,ia)) then
-        !  write(u6,*) 'inconsistency in gradient'
-        !  call Abend()
-        !end if
-        pv2(ia-nia1+1,ii-nii1+1) = pv1(ia,ii)
-      end do
-    end do
+    !do ii=nii1,nii2
+    !  do ia=nia1,nia2
+    !    if (pv1(ia,ii) /= -pv1(ii,ia)) then
+    !      write(u6,*) 'inconsistency in gradient'
+    !      call Abend()
+    !    end if
+    !  end do
+    !end do
+    pv2(1:nia2-nia1+1,1:nii2-nii1+1) = pv1(nia1:nia2,nii1:nii2)
 #   endif
 
   else if ((n1 == kOV(iD)) .and. (n2 == nOO)) then
@@ -135,21 +135,17 @@ do iSym=1,nSym
     pv1(nia1:nia2,nii1:nii2) => v1(ivoffs:ivoffs+nv2-1)
     pv2(1:nia2,1:nia2) => v2(ioffs+1:ioffs+nv1)
 
+    pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
     do ii=nii1,nii2
-      do ia=nia1,nia2
-        pv2(ia,ii) = pv1(ia,ii)
-        pv2(ii,ia) = -pv1(ia,ii)
-      end do
+      pv2(ii,nia1:nia2) = -pv1(nia1:nia2,ii)
     end do
 #   else
     call c_f_pointer(c_loc(v1(ivoffs)),pv1,[nia2-nia1+1,nii2-nii1+1])
     call c_f_pointer(c_loc(v2(ioffs+1)),pv2,[nia2,nia2])
 
+    pv2(nia1:nia2,nii1:nii2) = pv1(1:nia2-nia1+1,1:nii2-nii1+1)
     do ii=nii1,nii2
-      do ia=nia1,nia2
-        pv2(ia,ii) = pv1(ia-nia1+1,ii-nii1+1)
-        pv2(ii,ia) = -pv1(ia-nia1+1,ii-nii1+1)
-      end do
+      pv2(ii,nia1:nia2) = -pv1(1:nia2-nia1+1,ii-nii1+1)
     end do
 #   endif
   end if

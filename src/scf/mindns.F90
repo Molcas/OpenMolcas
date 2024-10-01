@@ -46,7 +46,7 @@ integer(kind=iwp) :: iC, iCol, iD, iM, iMat, iR, iRow, iStart, jCol, jRow
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
-real(kind=wp) :: BVec(MxIter,2), XC
+real(kind=wp) :: BVec(MxIter,2)
 real(kind=wp), allocatable :: AMat(:,:,:)
 real(kind=wp), allocatable, target :: DRow(:,:), DCol(:,:)
 real(kind=wp), pointer :: pDR(:,:), pDC(:,:)
@@ -89,7 +89,7 @@ do iRow=iStart,iter-1
 # endif
   do iD=1,nD
     AMat(jRow,jRow,iD) = DDot_(nBT,pDR(:,iD),1,pDR(:,iD),1)
-    BVec(jRow,iD) = DDot_(nBT,pDR(:,iD),1,Dens(1,iD,iPsLst),1)
+    BVec(jRow,iD) = DDot_(nBT,pDR(:,iD),1,Dens(:,iD,iPsLst),1)
   end do ! iD
 
   jCol = 0
@@ -106,8 +106,8 @@ do iRow=iStart,iter-1
 
     do iD=1,nD
       AMat(jRow,jCol,iD) = DDot_(nBT,pDR(:,iD),1,pDC(:,iD),1)
-      AMat(jCol,jRow,iD) = AMat(jRow,jCol,iD)
     end do ! iD
+    AMat(jCol,jRow,1:nD) = AMat(jRow,jCol,1:nD)
 
     nullify(pDC)
 
@@ -145,8 +145,7 @@ do iMat=iter-1,iStart,-1
   end if
 
   do iD=1,nD
-    XC = -XCff(iMat,iD)
-    call daxpy_(nBT,XC,pDR(:,iD),1,Dens(1,iD,iPsLst),1)
+    Dens(:,iD,iPsLst) = Dens(:,iD,iPsLst)-XCff(iMat,iD)*pDR(1:nBT,iD)
   end do ! iD
 
 end do ! iMat

@@ -290,9 +290,9 @@ do it=iter-iterso+1,iter-2
 # ifdef _DEBUGPRINT_
   write(u6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
   call Check_Vec(W,size(W),'W(0)')
-  call daxpy_(lvec,T(1),SODel,1,W,1)
+  W(:) = W(:)+T(1)*SODel(:)
   call Check_Vec(W,size(W),'W(1)')
-  call daxpy_(lvec,-T(2),SOScr,1,W,1)
+  W(:) = W(:)-T(2)*SOScr(:)
   call Check_Vec(W,size(W),'W(2)')
 # else
   W(:) = W(:)+T(1)*SODel(:)-T(2)*SOScr(:)
@@ -305,8 +305,6 @@ do it=iter-iterso+1,iter-2
     ! where y(n-1) resides.
 
     ipynm1 = LstPtr(iter-1,LLy)
-    !call daxpy_(lvec, T(3),SODel,1,SCF_V(ipynm1)%A,1)
-    !call daxpy_(lvec,-T(4),SOScr,1,SCF_V(ipynm1)%A,1)
     SCF_V(ipynm1)%A(:) = SCF_V(ipynm1)%A(:)+T(3)*SODel(:)-T(4)*SOScr(:)
   end if
 
@@ -389,10 +387,10 @@ end if
 #ifdef _DEBUGPRINT_
 write(u6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
 call Check_Vec(W,size(W),'W(2), again')
-call daxpy_(lvec,T(1),SCF_V(ipdel)%A,1,W,1)
+W(:) = W(:)+T(1)*SCF_V(ipdel)%A(:)
 call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
 call Check_Vec(W,size(W),'W(3)')
-call daxpy_(lvec,-T(2),SCF_V(ipynm1)%A,1,W,1)
+W(:) = W(:)-T(2)*SCF_V(ipdel)%A(:)
 call Check_Vec(SCF_V(ipynm1)%A,lvec,'y_{n-1}')
 !call RecPrt('The final W array',' ',W,1,lVec)
 call NrmClc(W,lVec,'SOrUpV','The final W array')

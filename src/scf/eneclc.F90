@@ -41,7 +41,7 @@ use Definitions, only: u6
 implicit none
 ! Declaration of procedure parameters
 real(kind=wp) :: En1V, En2V, EnerV
-integer(kind=iwp) :: iSym, nElec
+integer(kind=iwp) :: nElec
 real(kind=wp) :: CPU1, CPU2, E_DFT, En1V_AB, En2V_AB, Tim1, Tim2, Tim3
 real(kind=wp), external :: DDot_
 
@@ -68,15 +68,10 @@ if (embPot) Eemb = DDot_(nBT*nD,embInt,1,Dens(1,1,iPsLst),1)
 
 ! If just one electron make sure that the two-electron energy is zero.
 
-nElec = 0
 if (nD == 1) then
-  do iSym=1,nSym
-    nElec = nElec+2*nOcc(iSym,1)
-  end do
+  nElec = 2*sum(nOcc(1:nSym,1))
 else
-  do iSym=1,nSym
-    nElec = nElec+nOcc(iSym,1)+nOcc(iSym,2)
-  end do
+  nElec = sum(nOcc(1:nSym,1:2))
 end if
 En2V = 0
 if ((nElec > 1) .or. (KSDFT /= 'SCF')) then

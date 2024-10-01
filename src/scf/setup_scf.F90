@@ -52,14 +52,14 @@ MaxOrO = 0
 MaxBxO = 0
 MaxBOF = 0
 MaxBOO = 0
+if (nD == 1) then
+  maxnOcc(1:nSym) = nOcc(1:nSym,1)
+  minnOcc(1:nSym) = nOcc(1:nSym,1)
+else
+  maxnOcc(1:nSym) = max(nOcc(1:nSym,1),nOcc(1:nSym,2))
+  minnOcc(1:nSym) = min(nOcc(1:nSym,1),nOcc(1:nSym,2))
+end if
 do iSym=1,nSym
-  if (nD == 1) then
-    maxnOcc(iSym) = nOcc(iSym,1)
-    minnOcc(iSym) = nOcc(iSym,1)
-  else
-    maxnOcc(iSym) = max(nOcc(iSym,1),nOcc(iSym,2))
-    minnOcc(iSym) = min(nOcc(iSym,1),nOcc(iSym,2))
-  end if
   if (nBas(iSym) > MxBas) then
     write(u6,*) 'SetUp: nBas(iSym) > MxBas'
     write(u6,*) 'nBas(iSym),MxBas=',nBas(iSym),MxBas

@@ -111,8 +111,8 @@ call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 ! Set up the full space
 nExplicit = mOV
 call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
+e_diis(:,:) = Zero
 do k=1,nExplicit
-  e_diis(:,k) = Zero
   e_diis(k,k) = One
 end do
 

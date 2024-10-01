@@ -33,6 +33,7 @@ use InfSCF, only: nBas, nSym
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
 use stdalloc, only: mma_allocate
+use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
@@ -63,8 +64,8 @@ end if
 ! Allocate memory for one-electron integrals
 call mma_allocate(OneHam,nBT,Label='OneHam')
 call mma_allocate(Ovrlp,nBT+4,Label='Ovrlp')
-call FZero(OneHam,nBT)
-call FZero(Ovrlp,nBT+4)
+OneHam(:) = Zero
+Ovrlp(:) = Zero
 
 ! Read core Hamiltonian
 iRc = -1

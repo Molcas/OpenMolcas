@@ -39,7 +39,7 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp) :: OccSet, FermSet, SpinSet
-integer(kind=iwp) :: I, iBas, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, LU, LU_, N, nVec
+integer(kind=iwp) :: I, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, LU, LU_, N, nVec
 real(kind=wp) :: Dummy(1), qA, qB, Tmp, Tmp1
 logical(kind=iwp) :: Idem, Skip
 character(len=512) :: FNAME
@@ -50,10 +50,7 @@ real(kind=wp), allocatable :: EpsVec(:,:), OccVec(:,:)
 !----------------------------------------------------------------------*
 call Peek_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
-nVec = 0
-do iSym=1,nSym
-  nVec = nVec+nBas(iSym)
-end do
+nVec = sum(nBas(1:nSym))
 !----------------------------------------------------------------------*
 ! Allocate fields                                                      *
 !----------------------------------------------------------------------*
@@ -95,9 +92,9 @@ else
     else
       call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,OccVec(:,1),Dummy,EpsVec(:,1),Dummy,iDummy,VTitle,1,iErr,iWFtype)
     end if
-    call dCopy_(nVec,OccVec(1,1),1,OccVec(1,2),1)
-    call dCopy_(nVec,EpsVec(1,1),1,EpsVec(1,2),1)
-    call dScal_(nVec*nD,half,OccVec,1)
+    OccVec(:,2) = OccVec(:,1)
+    EpsVec(:,2) = EpsVec(:,1)
+    OccVec(:,:) = Half*OccVec(:,:)
   end if
 end if
 #ifdef _DEBUGPRINT_
@@ -136,10 +133,7 @@ if (nD == 1) then
       end if
     end do
   else
-    tmp1 = Zero
-    do i=1,nVec
-      tmp1 = tmp1+OccVec(i,1)
-    end do
+    tmp1 = sum(OccVec(:,1))
     OccVec(:,:) = Zero
     tmp1 = real(nint(tmp1),kind=wp)
     do i=1,(nint(tmp1)+1)/2
@@ -175,10 +169,7 @@ else
       end if
     end do
   else
-    tmp1 = Zero
-    do i=1,nVec
-      tmp1 = tmp1+OccVec(i,1)+OccVec(i,2)
-    end do
+    tmp1 = sum(OccVec(:,1:2))
     OccVec(:,:) = Zero
     tmp1 = real(nint(tmp1),kind=wp)
     do i=1,(nint(tmp1)+1)/2
@@ -295,10 +286,7 @@ if (.not. Skip) then
     if (nD == 1) then
       iOff = 0
       do iSym=1,nSym
-        n = 0
-        do iBas=1,nBas(iSym)
-          n = n+int(OccVec(iOff+iBas,1))
-        end do
+        n = sum(int(OccVec(iOff+1:iOff+nBas(iSym),1)))
         nOcc(iSym,1) = n/2
         iOff = iOff+nBas(iSym)
       end do
@@ -308,19 +296,13 @@ if (.not. Skip) then
     else
       iOff = 0
       do iSym=1,nSym
-        n = 0
-        do iBas=1,nBas(iSym)
-          n = n+int(OccVec(iOff+iBas,1))
-        end do
+        n = sum(int(OccVec(iOff+1:iOff+nBas(iSym),1)))
         nOcc(iSym,1) = n
         iOff = iOff+nBas(iSym)
       end do
       iOff = 0
       do iSym=1,nSym
-        n = 0
-        do iBas=1,nBas(iSym)
-          n = n+int(OccVec(iOff+iBas,2))
-        end do
+        n = sum(int(OccVec(iOff+1:iOff+nBas(iSym),2)))
         nOcc(iSym,2) = n
         iOff = iOff+nBas(iSym)
       end do

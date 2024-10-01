@@ -188,7 +188,7 @@ subroutine Mk_CanOrb()
   call mma_allocate(CTmp,max(nOccmF,nVrt)*nBas(iSym),Label='CTmpX')
   if (.not. FckAuf) then
     call mma_allocate(CMOOld,nOccmF*nBas(iSym),Label='CMOOld')
-    call DCopy_(nOccmF*nBas(iSym),CMO(iCMO,iD),1,CMOOld,1)
+    CMOOld(:) = CMO(iCMO:iCMO+nOccmF*nBas(iSym)-1,iD)
     call mma_allocate(Scrt,nBas(iSym)**2,Label='Scrt')
     call mma_allocate(COvrlp,nBas(iSym)*nOccmF,Label='COvrlp')
   end if
@@ -206,23 +206,23 @@ subroutine Mk_CanOrb()
     call Diag_Driver('V','A','L',nOccmF,FckS,Scratch,nOccmF,Dummy,Dummy,iDum,iDum,EOrb(jEOr,iD),EigV,nOccmF,1,0,'J',nFound,iErr)
 
     if (nConstr(iSym) > 0) then
-      call FZero(Scratch,(nOccmF+nConstr(iSym))**2)
+      Scratch(1:(nOccmF+nConstr(iSym))**2) = Zero
       do j=1,nOccmF
         iiEigV = 1+nOccmF*(j-1)
         iiScratch = 1+(nOccmF+nConstr(iSym))*(j-1)
-        call dcopy_(nOccmF,EigV(iiEigV),1,Scratch(iiScratch),1)
+        Scratch(iiScratch:iiScratch+nOccmF-1) = EigV(iiEigV:iiEigV+nOccmF-1)
       end do
       do j=nOccmF+1,nOccmF+nConstr(iSym)
         iiScratch = 1+(nOccmF+nConstr(iSym))*(j-1)+j-1
         Scratch(iiScratch) = One
       end do
-      call dcopy_((nOccmF+nConstr(iSym))**2,Scratch,1,EigV,1)
+      EigV(1:(nOccmF+nConstr(iSym))**2) = Scratch(1:(nOccmF+nConstr(iSym))**2)
     end if
     nOccmF = nOccmF+nConstr(iSym)
     call mma_deallocate(Scratch)
     n2zero = nOccmF
     if (Do_SpinAV) n2zero = n2zero+nConstr(iSym)
-    call dCopy_(n2zero*(n2zero+1)/2,[Zero],0,FckS,1)
+    FckS(1:n2zero*(n2zero+1)/2) = Zero
 
     iDiag = 0
     do i=1,n2zero
@@ -232,7 +232,7 @@ subroutine Mk_CanOrb()
 
     ! Rotate MOs to diagonalize occ/occ block
     do ii=0,nOccmF-1
-      call dcopy_(nBas(iSym),CMO(iCMO+nBas(iSym)*ii,iD),1,CTmp(1+nBas(iSym)*ii),1)
+      CTmp(nBas(iSym)*ii+1:nBas(iSym)*(ii+1)) = CMO(iCMO+nBas(iSym)*ii:iCMO+nBas(iSym)*(ii+1)-1,iD)
     end do
     call DGEMM_('N','N',nBas(iSym),nOccmF,nOccmF, &
                 One,Ctmp,nBas(iSym), &
@@ -249,7 +249,7 @@ subroutine Mk_CanOrb()
 
     if (.not. FckAuf) then
 
-      call FZero(COvrlp,nOccmF*nBas(iSym))
+      COvrlp(:) = Zero
       call Square(Ovrlp(ioFckM),Scrt,1,nBas(iSym),nBas(iSym))
       call DGEMM_('T','N',nOccmF,nBas(iSym),nBas(iSym), &
                   One,CMO(iCMO,iD),nBas(iSym), &
@@ -297,7 +297,7 @@ subroutine Mk_CanOrb()
     iptr = 1+nOccmF*(nOccmF+3)/2
     iptr2 = 1
     do ia=1,nVrt
-      call dcopy_(ia,FckS(iptr),1,FckS(iptr2),1)
+      FckS(iptr2:iptr2+ia-1) = FckS(iptr:iptr+ia-1)
       iptr = iptr+nOccmF+ia
       iptr2 = iptr2+ia
     end do
@@ -317,23 +317,23 @@ subroutine Mk_CanOrb()
     if (Do_SpinAV) then
       nVrt = nVrt+nConstr(iSym)
       jEOr = jEOr-nConstr(iSym)
-      call FZero(Scratch,nVrt**2)
+      Scratch(1:nVrt**2) = Zero
       do j=1,nVrt-nConstr(iSym)
         iiEigV = 1+(nVrt-nConstr(iSym))*(j-1)
         iiScratch = 1+nVrt*(nConstr(iSym)+j-1)
-        call dcopy_(nVrt-nConstr(iSym),EigV(iiEigV),1,Scratch(iiScratch),1)
+        Scratch(iiScratch:iiScratch+nVrt-nConstr(iSym)-1) = EigV(iiEigV:iiEigV+nVrt-nConstr(iSym)-1)
       end do
       do j=1,nConstr(iSym)
         iiScratch = 1+nVrt*(j-1)+j-1
         Scratch(iiScratch) = One
       end do
-      call dcopy_(nVrt**2,Scratch,1,EigV,1)
+      EigV(1:nVrt**2) = Scratch(1:nVrt**2)
     end if
     call mma_deallocate(Scratch)
     ! rotate MOs to diagonalize virt/virt block
     iptr = iCMO+nOccmF*nBas(iSym)
     do ia=0,nVrt-1
-      call dcopy_(nBas(iSym),CMO(iptr+nBas(iSym)*ia,iD),1,CTmp(1+nBas(iSym)*ia),1)
+      CTmp(nBas(iSym)*ia+1:nBas(iSym)*(ia+1)) = CMO(iptr+nBas(iSym)*ia:iptr+nBas(iSym)*(ia+1)-1,iD)
     end do
     call DGEMM_('N','N',nBas(iSym),nVrt,nVrt, &
                 One,Ctmp,nBas(iSym), &

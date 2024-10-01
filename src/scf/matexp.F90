@@ -38,7 +38,7 @@ implicit none
 
 integer(kind=iwp), intent(in) :: N, No
 real(kind=wp), intent(inout) :: U(N,N)
-integer(kind=iwp) :: cnt, i, Nv
+integer(kind=iwp) :: cnt, Nv
 real(kind=wp) :: factor, ithrsh, ithrshoo, ithrshvo, ithrshvv
 real(kind=wp), allocatable :: Koo(:,:), Kvo(:,:), Kvv(:,:), theta(:,:), Uoo(:,:), Uvo(:,:), Uvv(:,:), xUoo(:,:), xUvo(:,:), &
                               xUvv(:,:)
@@ -75,21 +75,13 @@ ithrsh = 2.0e-16_wp
 
 Uvo(:,:) = Zero
 
-Uoo(:,:) = Zero
+call unitmat(Uoo,No)
 
 xUoo(:,:) = Zero
 xUvv(:,:) = Zero
 xUvo(:,:) = Zero
 
-do i=1,No
-  Uoo(i,i) = One
-end do
-
-Uvv(:,:) = Zero
-
-do i=1,Nv
-  Uvv(i,i) = One
-end do
+call unitmat(Uvv,Nv)
 
 Kvo(:,:) = theta
 Uvo(:,:) = theta

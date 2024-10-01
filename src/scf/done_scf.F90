@@ -64,10 +64,7 @@ real(kind=wp), pointer :: pCMO(:,:), pOcc(:), pDlt(:)
 
 #ifdef _DEBUGPRINT_
 call NrmClc(CMO,nCMO,'DOne_SCF','CMO')
-nOcc = 0
-do iSym=1,nSym
-  nOcc = nOcc+nOrb(iSym)
-end do
+nOcc = sum(nOrb(1:nSym))
 call NrmClc(Occ,nOcc,'DOne_SCF','Occ')
 #endif
 
@@ -81,7 +78,7 @@ do iSym=1,nSym
   nFr = nFro(iSym)
 
   lth = nBs*(nBs+1)/2
-  call FZero(Dlt(ipDlt),lth)
+  Dlt(ipDlt:ipDlt+lth-1) = Zero
 
   if (nOr /= 0) then
 #   ifdef POINTER_REMAP
@@ -93,19 +90,13 @@ do iSym=1,nSym
     pDlt => Dlt(ipDlt:ipDlt+lth-1)
 
     do iRow=1,nBs
-      rSum = Zero
-      do i=nFr+1,nOr
-        rSum = rSum+pOcc(i)*pCMO(iRow,i)**2
-        !rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iRow,i)
-      end do
-      pDlt(iTri(iRow,iRow)) = rSum
-
-      do iCol=1,iRow-1
-        rSum = Zero
-        do i=nFr+1,nOr
-          rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
-        end do
-        pDlt(iTri(iRow,iCol)) = Two*rSum
+      do iCol=1,iRow
+        rSum = sum(pOcc(nFr+1:nOr)*pCMO(iRow,nFr+1:nOr)*pCMO(iCol,nFr+1:nOr))
+        if (iCol == iRow) then
+          pDlt(iTri(iRow,iRow)) = rSum
+        else
+          pDlt(iTri(iRow,iCol)) = Two*rSum
+        end if
       end do
     end do
 #   ifdef _DEBUGPRINT_

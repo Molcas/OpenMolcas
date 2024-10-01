@@ -41,7 +41,7 @@ implicit none
 integer(kind=iwp) :: nAuf(2), nOccup, iOK, nD
 real(kind=wp) :: Occup(nOccup,nD)
 #include "Molcas.fh"
-integer(kind=iwp) :: iD, iOrb, iOrBas, ipOcc, iSym, jOrBas, jSym, mD, mOrb_AS(2), nElec, nEOrb, nOrb_AS(2), nOrBas, Tmp
+integer(kind=iwp) :: iD, iOrb, iOrBas, ipOcc, iSym, jOrBas, mD, mOrb_AS(2), nElec, nEOrb, nOrb_AS(2), nOrBas, Tmp
 ! These occupation number vectors are used to determine if we have convergence.
 integer(kind=iwp) :: kOccAuf = 1, nOccAuf(MxSym,2,2) = -1
 real(kind=wp) :: EFerm, Fact, Fact2, Sum_el(2), UHF_Occ, UnlikelyOcc
@@ -62,17 +62,15 @@ end if
 
 ! Set up map...
 
-iOrbAS = 1
+iOrbAS = 0
 do iSym=1,nSym
   do iOrb=1,nOrb(iSym)-nFro(iSym)
-    do iD=1,nD
-      Irp(iOrbAS,iD) = iSym
-      Map(iOrbAS,iD) = iOrbAS
-    end do
     iOrbAS = iOrbAS+1
+    Irp(iOrbAS,:) = iSym
+    Map(iOrbAS,:) = iOrbAS
   end do
 end do
-nOrbAS = iOrbAS-1
+nOrbAS = iOrbAS
 
 ! Now sort map with respect to orbital energies (bubblesort)
 
@@ -91,7 +89,7 @@ end do
 ! and fill up the orbitals...
 
 nOcc(:,:) = 0
-call dcopy_(nOccup*nD,[Zero],0,Occup,1)
+Occup(:,:) = Zero
 
 if (Teee) then
 
@@ -109,11 +107,9 @@ if (Teee) then
 
   iOrbAS = 0
   do iSym=1,nSym
-    do iD=1,nD
-      nOrb_AS(iD) = 0
-      mOrb_AS(iD) = 0
-      sum_el(iD) = Zero
-    end do
+    nOrb_AS(1:nD) = 0
+    mOrb_AS(1:nD) = 0
+    sum_el(1:nD) = Zero
 
     jOrbAS = iOrbAS
     unlikelyOcc = 0.19_wp
@@ -122,15 +118,13 @@ if (Teee) then
       do iD=1,nD
         if (Occup(iOrbAS,iD) >= UHF_occ-unlikelyOcc) nOrb_AS(iD) = nOrb_AS(iD)+1
         if (Occup(iOrbAS,iD) < unlikelyOcc) mOrb_AS(iD) = mOrb_AS(iD)+1
-        sum_el(iD) = sum_el(iD)+Occup(iOrbAS,iD)
       end do
+      sum_el(1:nD) = sum_el(1:nD)+Occup(iOrbAS,1:nD)
     end do
     Fact = nD*half
     Fact2 = 0.99_wp+real(2-nD,kind=wp)
-    do iD=1,nD
-      nOccAuf(iSym,kOccAuf,iD) = nOrb_AS(iD)
-      nOcc(iSym,iD) = int(Fact*(sum_el(iD)+Fact2/nSym))
-    end do
+    nOccAuf(iSym,kOccAuf,1:nD) = nOrb_AS(1:nD)
+    nOcc(iSym,1:nD) = int(Fact*(sum_el(1:nD)+Fact2/nSym))
   end do
   kOccAuf = 3-kOccAuf
 
@@ -141,10 +135,7 @@ else
     do iOrbAS=1,nAuf(iD)
       iSym = Irp(Map(iOrbAS,iD),iD)
       nOcc(iSym,iD) = nOcc(iSym,iD)+1
-      ipOcc = 0
-      do jSym=1,iSym-1
-        ipOcc = ipOcc+nOrb(jSym)
-      end do
+      ipOcc = sum(nOrb(1:iSym-1))
       Occup(ipOcc+nOcc(iSym,iD),iD) = Fact
     end do
   end do
@@ -153,20 +144,11 @@ end if
 
 iOK = 1
 do iD=1,nD
-  nElec = 0
-  do iSym=1,nSym
-    if (nOccAuf(iSym,1,iD) /= nOccAuf(iSym,2,iD)) iOK = 0
-    nElec = nElec+nOccAuf(iSym,1,iD)
-  end do
+  if (any(nOccAuf(1:nSym,1,iD) /= nOccAuf(1:nSym,2,iD))) iOK = 0
+  nElec = sum(nOccAuf(1:nSym,1,iD))
   if (nElec /= nAuf(iD)) iOK = 0
 end do
-if (iOK == 1) then
-  do iSym=1,nSym
-    do iD=1,nD
-      nOcc(iSym,iD) = nOccAuf(iSym,1,iD)
-    end do
-  end do
-end if
+if (iOK == 1) nOcc(1:nSym,1:nD) = nOccAuf(1:nSym,1,1:nD)
 
 ! Write new occupation on the RUNFILE
 

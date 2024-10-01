@@ -24,7 +24,7 @@ implicit none
 integer(kind=iwp) :: nDT, nEO, nCMO
 real(kind=wp) :: Ovlp(nDT), OccNo(nEO), CMO(nBB)
 character(len=80) :: Note
-integer(kind=iwp) :: i, iBs, iCMO, i_Or, iSym, iVec, j
+integer(kind=iwp) :: iBs, iCMO, i_Or, iSym, iVec
 real(kind=wp), allocatable :: Scr2(:)
 
 ! Write orbitals on the file (the case InVec=3 and nIter=0
@@ -39,41 +39,29 @@ if (jVOut >= 2) then
   iCMO = 0
   !iseed = 153759
   do iSym=1,nSym
-    do i=1,nBas(iSym)*nOrb(iSym)
-      Scr2(iVec+i) = CMO(iCMO+i)
-    end do
+    Scr2(iVec+1:iVec+nBas(iSym)*nOrb(iSym)) = CMO(iCMO+1:iCMO+nBas(iSym)*nOrb(iSym))
     iVec = iVec+nBas(iSym)*nOrb(iSym)
-    do i=1,nBas(iSym)*(nBas(iSym)-nOrb(iSym))
-      !Scr2(iVec + i) = Random(iseed)-Half
-      Scr2(iVec+i) = Zero
-    end do
+    !do i=1,nBas(iSym)*(nBas(iSym)-nOrb(iSym))
+    !  Scr2(iVec+i) = Random(iseed)-Half
+    !end do
+    Scr2(iVec+1:iVec+nBas(iSym)*(nBas(iSym)-nOrb(iSym))) = Zero
     iVec = iVec+nBas(iSym)*(nBas(iSym)-nOrb(iSym))
     iCMO = iCMO+nOrb(iSym)*nBas(iSym)
   end do
-  do i=1,nBB
-    CMO(i) = Scr2(i)
-  end do
+  CMO(:) = Scr2(:)
 
   ! Prepare occupation numbers
   i_Or = 0
   iBs = 0
   do iSym=1,nSym
-    do j=1,nOrb(iSym)
-      Scr2(iBs+j) = OccNo(i_Or+j)
-    end do
-    do j=nOrb(iSym)+1,nBas(iSym)
-      Scr2(iBs+j) = Zero
-    end do
+    Scr2(iBs+1:iBs+nOrb(iSym)) = OccNo(i_Or+1:i_Or+nOrb(iSym))
+    Scr2(iBs+nOrb(iSym)+1:iBs+nBas(iSym)) = Zero
     i_Or = i_Or+nOrb(iSym)
     iBs = iBs+nBas(iSym)
   end do
-  do i=1,nnB
-    OccNo(i) = Scr2(i)
-  end do
+  OccNo(1:nnB) = Scr2(1:nnB)
 
-  do iSym=1,nSym
-    nOrb(iSym) = nBas(iSym)
-  end do
+  nOrb(1:nSym) = nBas(1:nSym)
   call SetUp_SCF()
 
   ! Orthogonalize vectors

@@ -64,7 +64,7 @@ do i=1,kOptim-1
   do iD=1,nD
     iSt = iEnd+1
     iEnd = iEnd+kOV(iD)
-    call Daxpy_(kOV(iD),CInter(i,iD),Aux(iSt:iEnd),1,Array(iSt:iEnd),1)
+    Array(iSt:iEnd) = Array(iSt:iEnd)+CInter(i,iD)*Aux(iSt:iEnd)
   end do
 
 end do
@@ -79,9 +79,7 @@ if (present(DD)) then
   do iD=1,nD
     iSt = iEnd+1
     iEnd = iEnd+kOV(iD)
-    do i=iSt,iEnd
-      DD = DD+Array(i)**2
-    end do
+    DD = DD+sum(Array(iSt:iEnd)**2)
   end do
   DD = sqrt(DD)
 end if

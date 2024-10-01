@@ -33,9 +33,9 @@ call mma_allocate(DMAT,nBT,2,Label='DMAT')
 
 nElk = 0
 do i=1,nSym
-  nExt(i) = nBas(i)-nDel(i)-nOcc(i,1)-nFro(i)
   nElk = nElk+2*(nFro(i)+nOcc(i,1))
 end do
+nExt(1:nSym) = nBas(1:nSym)-nDel(1:nSym)-nOcc(1:nSym,1)-nFro(1:nSym)
 
 call DM_FNO_RHF(irc,nSym,nBas,nFro,nOcc(1,1),nExt,nDel,CMOI,EOcc,EVir,DMAT(:,2),DMAT(:,1))
 if (irc /= 0) then
@@ -46,9 +46,9 @@ end if
 call mma_allocate(F_DFT,nBT,Label='F_DFT')
 
 call Fold_tMat(nSym,nBas,DMAT(:,1),DMAT(:,1))
-call dscal_(nBT,Half,DMAT(:,1),1)
+DMAT(:,1) = Half*DMAT(:,1)
 call Fold_tMat(nSym,nBas,DMAT(:,2),DMAT(:,2))
-call dscal_(nBT,Half,DMAT(:,2),1)
+DMAT(:,2) = Half*DMAT(:,2)
 Grad = Zero
 
 call wrap_DrvNQ('HUNTER',F_DFT,1,TW,DMAT(:,1),nBT,1,.false.,Grad,1,'SCF ')

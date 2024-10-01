@@ -84,14 +84,14 @@ if (iDKeep < 0) return
 ! Loop over densities to interpolate over
 
 do ii=iterLw,iter
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-! Get the one-particle density_ii
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-! Get pointer to the density
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  ! Get the one-particle density_ii
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  ! Get pointer to the density
 
   iPosL = MapDns(ii)
 
@@ -114,13 +114,13 @@ do ii=iterLw,iter
     ! Trace the one-electron density with the one-electron Hamiltonian.
 
     TrDh(ii,ii,iD) = DDot_(nBT,pDens(:,iD),1,OneHam,1)
-    !                                                                  *
-    !------------------------------------------------------------------*
-    !                                                                  *
+
   end do ! iD
 
   nullify(pDens)
-
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  !                                                                    *
 end do ! ii
 !                                                                      *
 !----------------------------------------------------------------------*

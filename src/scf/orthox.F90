@@ -34,31 +34,21 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nOrb, nBas
 real(kind=wp) :: S(nOrb,nOrb), C(nBas,nOrb)
-integer(kind=iwp) :: iBas, iOrb, jOrb, kOrb
+integer(kind=iwp) :: iOrb, jOrb
 real(kind=wp) :: A, F
 
 do iOrb=1,nOrb
   F = Zero
   if (S(iOrb,iOrb) > Zero) F = One/sqrt(S(iOrb,iOrb))
-  do iBas=1,nBas
-    C(iBas,iOrb) = F*C(iBas,iOrb)
-  end do
-  do jOrb=1,nOrb
-    S(iOrb,jOrb) = F*S(iOrb,jOrb)
-    S(jOrb,iOrb) = F*S(jOrb,iOrb)
-  end do
+  C(:,iOrb) = F*C(:,iOrb)
+  S(iOrb,:) = F*S(iOrb,:)
+  S(:,iOrb) = F*S(:,iOrb)
   S(iOrb,iOrb) = One
   do jOrb=iOrb+1,nOrb
     A = S(iOrb,jOrb)
-    do iBas=1,nBas
-      C(iBas,jOrb) = C(iBas,jOrb)-A*C(iBas,iOrb)
-    end do
-    do kOrb=1,nOrb
-      S(jOrb,kOrb) = S(jOrb,kOrb)-A*S(iOrb,kOrb)
-    end do
-    do kOrb=1,nOrb
-      S(kOrb,jOrb) = S(kOrb,jOrb)-A*S(kOrb,iOrb)
-    end do
+    C(:,jOrb) = C(:,jOrb)-A*C(:,iOrb)
+    S(jOrb,:) = S(jOrb,:)-A*S(iOrb,:)
+    S(:,jOrb) = S(:,jOrb)-A*S(:,iOrb)
   end do
 end do
 

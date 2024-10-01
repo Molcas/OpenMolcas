@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: CMO1(*), CMO2(*)
 integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
-integer(kind=iwp) :: i, iFrom(8), iSym, iTo(8), ndata
+integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*
 ! Transfer orbitals.                                                   *
@@ -43,12 +43,9 @@ do iSym=1,nSym
 
   ! Note that CMO1 and CMO2 might overlap. Hence, we cannot use
   ! an ordinary call to DCopy!
+  ! FIXME: Overlapping non-input-only arguments are not allowed in Fortran
 
-  if (iFrom(iSym) /= iTo(iSym)) then
-    do i=0,nData-1
-      CMO2(iTo(iSym)+i) = CMO1(iFrom(iSym)+i)
-    end do
-  end if
+  if (iFrom(iSym) /= iTo(iSym)) CMO2(iTo(iSym):iTo(iSym)+nData-1) = CMO1(iFrom(iSym):iFrom(iSym)+nData-1)
 end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *

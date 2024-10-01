@@ -51,7 +51,7 @@ implicit none
 integer(kind=iwp) :: n, nDim
 real(kind=wp) :: E_Pred, G(nDim), H(nDim,nDim), C(nDim)
 integer(kind=iwp) :: i, Iter, j
-real(kind=wp) :: Ci, Cj, Eminus, Eplus, Eref, fact, Optim_E, rSum, Step, Step_m, Step_p
+real(kind=wp) :: Ci, Cj, Eminus, Eplus, Eref, Optim_E, rSum, Step, Step_m, Step_p
 logical(kind=iwp) :: Debug, Debug2, DidChange
 
 !----------------------------------------------------------------------*
@@ -67,9 +67,7 @@ Debug2 = .false.
 !----------------------------------------------------------------------*
 ! Make first guess.                                                    *
 !----------------------------------------------------------------------*
-do i=1,n
-  C(i) = Zero
-end do
+C(1:n) = Zero
 j = 1
 do i=1,n
   if (G(i)+Half*H(i,i) < G(j)+half*H(j,j)) j = i
@@ -88,12 +86,9 @@ end if
 !----------------------------------------------------------------------*
 ! Compute start energy.                                                *
 !----------------------------------------------------------------------*
-Eref = Zero
+Eref = sum(C(1:n)*G(1:n))
 do i=1,n
-  Eref = Eref+C(i)*G(i)
-  do j=1,n
-    Eref = Eref+Half*C(i)*C(j)*H(i,j)
-  end do
+  Eref = Eref+Half*C(i)*sum(C(1:n)*H(i,1:n))
 end do
 if (Debug) write(u6,'(a,F24.16)') 'Eref = ',Eref
 !----------------------------------------------------------------------*
@@ -180,10 +175,7 @@ do while ((Iter < 500) .and. DidChange)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'optim: rSum-1',rSum-One
 # endif
-  fact = One/rSum
-  do i=1,n
-    C(i) = fact*C(i)
-  end do
+  C(1:n) = C(1:n)/rSum
 end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'ERef=',ERef

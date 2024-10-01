@@ -43,7 +43,7 @@ implicit none
 integer(kind=iwp) :: nDT, nEO, nCMO
 real(kind=wp) :: Dens(nDT), Dens_ab(nDT), EOrb(nEO), CMO(nCMO), KntE(nDT)
 ! Define local variables
-integer(kind=iwp) :: i, iDumm, iMult, iPL, iSpn, iTol
+integer(kind=iwp) :: iDumm, iMult, iPL, iSpn, iTol
 real(kind=wp) :: Dumm1(1), E_Tw, ECNO, Ecorr, sUHF, Virial
 character(len=80) :: Lines(6)
 character(len=60) :: Frmt
@@ -63,11 +63,7 @@ if (iPL <= 1) jPrint = 1
 !----------------------------------------------------------------------*
 
 ! Calculate kinetic energy
-if (nD == 2) then
-  do i=1,nDT
-    Dens(i) = Dens(i)+Dens_ab(i)
-  end do
-end if
+if (nD == 2) Dens(:) = Dens(:)+Dens_ab(:)
 EKin = DDot_(nBT,KntE,1,Dens,1)
 
 ! Print out header to final results

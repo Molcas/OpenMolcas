@@ -55,13 +55,12 @@ call mma_allocate(EVec,lthS,Label='EVec')
 call mma_allocate(EVal,lth,Label='EVal')
 
 ! Put a unit matrix into the eigenvectors work space
-call dcopy_(lthS,[Zero],0,EVec,1)
-call dcopy_(lth,[One],0,EVec,lth+1)
+call unitmat(EVec,lth)
 
-! Copy trialangular part of AMat to work space
+! Copy triangular part of AMat to work space
 ij = 1
 do i=1,lth
-  call dcopy_(i,AMat(i,1),lDm,ATri(ij),1)
+  ATri(ij:ij+i-1) = AMat(i,1:i)
   ij = ij+i
 end do
 #ifdef _DEBUGPRINT_
@@ -85,7 +84,7 @@ write(u6,'(5(1x,es13.6))') (EVal(i),i=1,lth)
 #endif
 
 ! Form the inverse
-call dCopy_(lDm*lth,[Zero],0,AMat,1)
+AMat(:,1:lth) = Zero
 do i=1,lth
   if (EVal(i) > 1.0e-12_wp) then
     AMat(i,i) = One/EVal(i)

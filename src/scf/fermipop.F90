@@ -75,8 +75,7 @@ f = -nEle
 f_old = f
 do i=1,n
   !write(u6,'(A,G20.10)') 'e(i)=',e(i)
-  z = beta*(e(i)-ef)
-  z = min(z,30.0_wp)
+  z = min(beta*(e(i)-ef),30.0_wp)
   f = f+UHF_occ/(One+exp(z))
 end do
 if (f > Zero) then
@@ -93,8 +92,7 @@ do
   !f = -nEle
   ff = Zero
   do i=1,n
-    z = beta*(e(i)-ef)
-    z = min(z,30.0_wp)
+    z = min(beta*(e(i)-ef),30.0_wp)
     ff = ff+1/(One+exp(z))
   end do
   f = -nEle+ff*UHF_occ
@@ -123,8 +121,7 @@ do
   ef = x2
   f = -nEle
   do i=1,n
-    z = beta*(e(i)-ef)
-    z = min(z,three*ten)
+    z = min(beta*(e(i)-ef),three*ten)
     f = f+UHF_occ/(One+exp(z))
   end do
   y2 = f
@@ -163,10 +160,10 @@ f = nEle/f
 !write(u6,*)
 !write(u6,'(1G20.10)') f
 !write(u6,*)
-do i=1,n
-  o(i) = f*o(i)
-  !write(u6,'(1G20.10)') o(i)
-end do
+o(:) = f*o(:)
+!do i=1,n
+!  write(u6,'(1G20.10)') o(i)
+!end do
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*

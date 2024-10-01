@@ -46,8 +46,8 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp) :: AllowFlip
-integer(kind=iwp) :: Fermion_Type, i, ia, iAddGap, iBas, iChk, iCMO, iConstr, iD, iDum, iErr, iFC, ii, iiB, iiBT, ij, ijBas, Ind, &
-                     IndII, IndIJ, IndJJ, iOff, iOrb, iOvlpOff, iptr, iSeed = 13, iSym, j, jBas, jEOr, jj, jOff, jOrb, kBas, kCMO, &
+integer(kind=iwp) :: Fermion_Type, i, ia, iAddGap, iBas, iChk, iCMO, iConstr, iD, iDum, iErr, iFC, ii, iiBT, ij, ijBas, Ind, &
+                     IndII, IndIJ, IndJJ, iOff, iOrb, iOvlpOff, iptr, iSeed = 13, iSym, j, jBas, jEOr, jj, jOff, jOrb, kCMO, &
                      kConstr, keOR, kk, kOff, kOrb, lConstr, Muon_I, Muon_J, nFound, nj, nOccmF, nOrbmF, nsDg, nVrt
 real(kind=wp) :: CPU1, CPU2, Dummy, EHOMO, ELUMO, Fia, GapAdd, Q, Tim1, Tim2, Tim3, Tmp, Tmp0, Tmp1, Tmp2, WhatEver
 logical(kind=iwp) :: em_On, Muons_Present, Scram
@@ -92,10 +92,7 @@ call mma_allocate(TraF,MaxOrF*(MaxOrF+1)/2,Label='TraF')
 ! Allocate memory for fermi index array
 call mma_allocate(iFerm,nBB,Label='iFerm')
 call Get_iArray('Fermion IDs',iFerm,nnB)
-iChk = 0
-do iiB=1,nnB
-  iChk = iChk+iFerm(iiB)
-end do
+iChk = sum(iFerm(:))
 em_On = ((iChk /= 0) .and. (iChk /= nnB))
 
 FMOMax = Zero
@@ -103,7 +100,7 @@ WarnCfg = .false.
 do iD=1,nD
 
   ! Modify Fock matrix
-  call dcopy_(nBT,FockAO(1,iD),1,FckM,1)
+  FckM(:) = FockAO(:,iD)
   if (nnFr > 0) call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
   ! Prediagonalize Fock matrix
   iAddGap = 0
@@ -228,7 +225,7 @@ do iD=1,nD
         nj = nOccmF-iConstr
         ifc = 1+nj*(nj+1)/2
         eConstr(kConstr) = TraF(ifc+nj)
-        call FZero(TraF(ifc),nj)
+        TraF(ifc:ifc+nj-1) = Zero
         do j=nj+1,nOrbmF-1
           jj = 1+j*(j+1)/2+nj
           Traf(jj) = Zero
@@ -241,7 +238,7 @@ do iD=1,nD
           nj = nOccmF+iConstr
           ifc = 1+nj*(nj+1)/2
           eConstr(kConstr) = TraF(ifc+nj)
-          call FZero(TraF(ifc),nj)
+          TraF(ifc:ifc+nj-1) = Zero
           do j=nj+1,nOrbmF-1
             jj = 1+j*(j+1)/2+nj
             TraF(jj) = Zero
@@ -333,7 +330,7 @@ do iD=1,nD
       do iConstr=nConstr(iSym),1,-1
         nj = nOccmF-iConstr
         ifc = 1+nj*(nj+1)/2
-        call FZero(TraF(ifc),nj)
+        TraF(ifc:ifc+nj-1) = Zero
         do j=nj+1,nOrbmF-1
           jj = 1+j*(j+1)/2+nj
           TraF(jj) = Zero
@@ -345,7 +342,7 @@ do iD=1,nD
         do iConstr=0,nConstr(iSym)-1
           nj = nOccmF+iConstr
           ifc = 1+nj*(nj+1)/2
-          call FZero(TraF(ifc),nj)
+          TraF(ifc:ifc+nj-1) = Zero
           do j=nj+1,nOrbmF-1
             jj = 1+j*(j+1)/2+nj
             TraF(jj) = Zero
@@ -367,7 +364,7 @@ do iD=1,nD
 
       ! Store the original CMOs for root following.
 
-      call DCopy_(nBas(iSym)**2,CMO(iCMO,iD),1,FckS,1)
+      FckS(1:nBas(iSym)**2) = CMO(iCMO:iCMO+nBas(iSym)**2-1,iD)
 
       call Diag_Driver('V','A','L',nOrbmF,TraF,TraF,nOrbmF,Dummy,Dummy,iDum,iDum,EOrb(jEOr,iD),CMO(iCMO,iD),nBas(iSym),0,-1,'J', &
                        nFound,iErr)
@@ -393,10 +390,7 @@ do iD=1,nD
           ! Compute a check sum which is not zero if the orbital
           ! is a muonic orbital.
 
-          tmp = Zero
-          do kBas=0,nBas(iSym)-1
-            tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
-          end do
+          tmp = sum(real(iFerm(jEOr:jEOr+nBas(iSym)-1),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+1:iOrb*nBas(iSym))))
           Muon_i = 0                  ! electronic
           if (tmp /= Zero) Muon_i = 1! muonic
           Muons_Present = (Muons_Present .or. (Muon_i == 1))
@@ -406,10 +400,7 @@ do iD=1,nD
           ! same type. i.e. fermionic or electronic.
 
           do jOrb=iOrb,nOrb(iSym)
-            tmp = Zero
-            do kBas=0,nBas(iSym)-1
-              tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(CMO(iCMO+(jOrb-1)*nBas(iSym)+kBas,iD))
-            end do
+            tmp = sum(real(iFerm(jEOr:jEOr+nBas(iSym)-1),kind=wp)*abs(CMO(iCMO+(jOrb-1)*nBas(iSym):iCMO+(jOrb)*nBas(iSym)-1,iD)))
 
             Muon_j = 0                  ! electronic
             if (tmp /= Zero) Muon_j = 1 ! muonic
@@ -447,7 +438,7 @@ do iD=1,nD
 
         ! Form  C^+ S  C for the old orbitals
 
-        call FZero(Scratch,nOrb(iSym)*nBas(iSym))
+        Scratch(1:nOrb(iSym)*nBas(iSym)) = Zero
         call Square(Ovrlp(iOvlpOff),Temp,1,nBas(iSym),nBas(iSym))
         call DGEMM_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym), &
                     One,FckS,nBas(iSym), &
@@ -464,10 +455,7 @@ do iD=1,nD
 
           ! Identify orbital type.
 
-          tmp = Zero
-          do kBas=0,nBas(iSym)-1
-            tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+kBas+1))
-          end do
+          tmp = sum(real(iFerm(jEOr:jEOr+nBas(iSym)-1),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+1:iOrb*nBas(iSym))))
 
           Muon_i = 0                  ! electronic
           if (tmp /= Zero) Muon_i = 1 ! muonic
@@ -480,10 +468,7 @@ do iD=1,nD
           do jOrb=1,nOrb(iSym)   ! Loop over the new orbitals
             jOff = (jOrb-1)*nBas(iSym)+iCMO
 
-            tmp = Zero
-            do kBas=0,nBas(iSym)-1
-              tmp = tmp+real(iFerm(jEOr+kBas),kind=wp)*abs(FckS((jOrb-1)*nBas(iSym)+kBas+1))
-            end do
+            tmp = sum(real(iFerm(jEOr:jEOr+nBas(iSym)-1),kind=wp)*abs(FckS((jOrb-1)*nBas(iSym)+1:jOrb*nBas(iSym))))
 
             Muon_j = 0                  ! electronic
             if (tmp /= Zero) Muon_j = 1 ! muonic

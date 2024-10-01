@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: Eor1(*), Eor2(*)
 integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
-integer(kind=iwp) :: i, iFrom(8), iPtr, iSym, iTo(8), ndata
+integer(kind=iwp) :: iFrom(8), iPtr, iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*
 ! Transfer orbital energies.                                           *
@@ -37,13 +37,11 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nOrb(iSym)
-  do i=1,ndata
-    Eor2(iTo(iSym)+1-i) = Eor1(iFrom(iSym)+1-i)
-  end do
+  Eor2(iTo(iSym)-ndata+1:iTo(iSym)) = Eor1(iFrom(iSym)-ndata+1:iFrom(iSym))
   if (nBas(iSym) > nOrb(iSym)) then
     ndata = nBas(iSym)-nOrb(iSym)
     iPtr = iTo(iSym)+1
-    call dCopy_(ndata,[Zero],0,Eor2(iPtr),1)
+    Eor2(iPtr:iPtr+ndata-1) = Zero
   end if
 end do
 !----------------------------------------------------------------------*

@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: CMO1(*), CMO2(*)
 integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
-integer(kind=iwp) :: i, iFrom(8), iPtr, iSym, iTo(8), ndata
+integer(kind=iwp) :: iFrom(8), iPtr, iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*
 ! Transfer orbitals.                                                   *
@@ -37,13 +37,11 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nBas(iSym)*nOrb(iSym)
-  do i=1,ndata
-    CMO2(iTo(iSym)+1-i) = CMO1(iFrom(iSym)+1-i)
-  end do
+  CMO2(iTo(iSym)-ndata+1:iTo(iSym)) = CMO1(iFrom(iSym)-ndata+1:iFrom(iSym))
   if (nBas(iSym) > nOrb(iSym)) then
     ndata = nBas(iSym)*(nBas(iSym)-nOrb(iSym))
     iPtr = iTo(iSym)+1
-    call dCopy_(ndata,[Zero],0,CMO2(iPtr),1)
+    CMO2(iPtr:iPtr+ndata-1) = Zero
   end if
 end do
 !----------------------------------------------------------------------*

@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nOH, nCMO, nEOr, mynOcc(*)
 real(kind=wp) :: OneHam(nOH), CMO(nCMO), TrMat(nCMO), E_Or(nEOr), Ovrlp(nOH)
-integer(kind=iwp) :: iCMO, iDum, iE_Or, iErr, iiBT, ij, iSym, nFound, nOF
+integer(kind=iwp) :: iCMO, iDum, iE_Or, iErr, iiBT, ij, iSym, nC, nFound, nOF
 real(kind=wp) :: Dummy
 integer(kind=iwp), allocatable :: Fermi(:)
 real(kind=wp), allocatable :: EiVe(:), OHHl(:), OHSq(:), OHTr(:), OMod(:), Scratch(:)
@@ -57,7 +57,7 @@ call mma_allocate(Fermi,nEOr,Label='Fermi')
 call Get_iArray('Fermion IDs',Fermi,nEOr)
 
 ! Modify one-electron hamiltonian
-call dcopy_(nBT,OneHam,1,OMod,1)
+OMod(:) = OneHam(1:nBT)
 if (nnFr > 0) call ModFck(OMod,Ovrlp,nBT,TrMat,nBO,mynOcc)
 
 ! Diagonalize core in non-frozen molecular basis
@@ -70,7 +70,8 @@ do iSym=1,nSym
   nOF = nOrb(iSym)-nFro(iSym)
 
   ! Copy frozen vectors to CMO array
-  if (nFro(iSym)*nBas(iSym) > 0) call dcopy_(nFro(iSym)*nBas(iSym),TrMat(iCMO),1,CMO(iCMO),1)
+  nC = nFro(iSym)*nBas(iSym)
+  if (nC > 0) CMO(iCMO:iCMO+nC-1) = TrMat(iCMO:iCMO+nC-1)
 
   iCMO = iCMO+nBas(iSym)*nFro(iSym)
   iE_Or = iE_Or+nFro(iSym)
@@ -90,8 +91,7 @@ do iSym=1,nSym
                    Zero,OHTr,nOF)
 
     ! Put a unit matrix into the eigenvector matrix
-    call dcopy_(nOF*nOF,[Zero],0,EiVe,1)
-    call dcopy_(nOF,[One],0,EiVe,nOF+1)
+    call unitmat(EiVe,nOF)
 
     ! Add small random number to the one-electron Hamiltonian
     ! Not done here anymore, done in routine scram called by sorb!

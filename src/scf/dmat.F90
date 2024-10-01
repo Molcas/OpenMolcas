@@ -27,7 +27,6 @@ use Interfaces_SCF, only: dOne_SCF, MinDns
 use InfSCF, only: CMO, DDnOFF, Dens, DNorm, iDisk, InVec, iPsLst, Iter, MapDns, MiniDN, nBas, nBT, nDens, nFrz, nIter, nIterP, &
                   nMem, nOrb, nSym, OccNo, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -35,7 +34,7 @@ integer(kind=iwp) :: nXCF, nD
 real(kind=wp) :: XCf(nXCf,nD)
 integer(kind=iwp) :: iD, iFrom, iOnDsk, nCMO
 logical(kind=iwp) :: alpha_density
-real(kind=wp), allocatable :: Aux(:)
+real(kind=wp), allocatable :: Aux(:,:)
 real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
@@ -133,22 +132,22 @@ if (MiniDn .and. (max(0,nIter(nIterP)-1) > 0)) then
 
   ! Minimized density option
 
-  call DCopy_(nBT*nD,Dens(1,1,iPsLst),1,Dens(1,1,nDens),1)
+  Dens(:,:,nDens) = Dens(:,:,iPsLst)
   if (iter > 1) call MinDns(Dens,nBT,nDens,XCf,nXCf,nD)
 
 else if (.not. DDnOFF) then
 
   ! Do the density difference, D(iPsLst)-D(nDens)=D(k+1)-D(k)
 
-  call mma_allocate(Aux,nBT*nD,Label='Aux')
-  call DCopy_(nBT*nD,Dens(1,1,iPsLst),1,Aux,1)
-  call Daxpy_(nBT*nD,-One,Dens(1,1,nDens),1,Dens(1,1,iPsLst),1)
-  call DCopy_(nBT*nD,Aux,1,Dens(1,1,nDens),1)
+  call mma_allocate(Aux,nBT,nD,Label='Aux')
+  Aux(:,:) = Dens(:,:,iPsLst)
+  Dens(:,:,iPsLst) = Dens(:,:,iPsLst)-Dens(:,:,nDens)
+  Dens(:,:,nDens) = Aux(:,:)
   call mma_deallocate(Aux)
 
 else
 
-  call DCopy_(nBT*nD,Dens(1,1,iPsLst),1,Dens(1,1,nDens),1)
+  Dens(:,:,nDens) = Dens(:,:,iPsLst)
 
 end if
 

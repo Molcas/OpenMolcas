@@ -263,12 +263,10 @@ subroutine Asym(H,A,n)
 
   integer(kind=iwp) :: n
   real(kind=wp) :: H(n,n), A(n,n)
-  integer(kind=iwp) :: i, j
+  integer(kind=iwp) :: i
 
   do i=1,n
-    do j=1,i-1
-      A(i,j) = H(i,j)-H(j,i)
-    end do
+    A(i,1:i-1) = H(i,1:i-1)-H(1:i-1,i)
     A(i,i) = Zero
   end do
 

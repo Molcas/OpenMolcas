@@ -13,23 +13,18 @@
 
 function optim_E(C,G,H,n,nDim)
 
-use Constants, only: Zero, Half
+use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: optim_E
 integer(kind=iwp) :: n, nDim
 real(kind=wp) :: C(nDim), G(nDim), H(nDim,nDim)
-integer(kind=iwp) :: k, m
-real(kind=wp) :: Tmp
+integer(kind=iwp) :: k
 
-Optim_E = Zero
+Optim_E = sum(C(1:n)*G(1:n))
 do k=1,n
-  Tmp = Zero
-  do m=1,n
-    Tmp = Tmp+Half*(C(k)*C(m)*H(k,m))
-  end do
-  Optim_E = Optim_E+C(k)*G(k)+Tmp
+  Optim_E = Optim_E+Half*C(k)*sum(C(1:n)*H(k,1:n))
 end do
 
 end function optim_E

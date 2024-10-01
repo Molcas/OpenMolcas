@@ -24,7 +24,7 @@ use Gateway_Info, only: ThrInt
 use InfSCF, only: DltNth, DThr, EThr, FThr, nBO, nBT, nIterP, PotNuc
 use SCFFiles, only: FnDel, FnDGd, FnDSt, FnGrd, FnOSt, FnTSt, Fnx, Fny, LuDel, LuDGd, LuDSt, LuGrd, LuOSt, LuTSt, Lux, Luy
 use NDDO, only: twoel_NDDO
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -100,7 +100,7 @@ else
   call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
   call Error_check()
   ! and form NDDO one-electron Hamiltonian...
-  call DaXpY_(nBT,One,Ovrlp,1,OneHam,1)
+  OneHam(:) = OneHam(:)+Ovrlp(:)
   ! read NDDO overlap matrix from ONEINT file...
   Label = 'MltplS 0'
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)

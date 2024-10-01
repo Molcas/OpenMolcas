@@ -20,23 +20,17 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 #include "corbinf.fh"
-integer(kind=iwp) :: iSym
 
 nSym = mSym
 
-do iSym=1,nSym
-  nOrb(iSym) = lnOrb(iSym)
-  nOcc(iSym) = lnOcc(iSym)
-  nFro(iSym) = lnFro(iSym)
-  nDel(iSym) = lnDel(iSym)
-  nExt(iSym) = lnVir(iSym)
-end do
+nOrb(1:nSym) = lnOrb(1:nSym)
+nOcc(1:nSym) = lnOcc(1:nSym)
+nFro(1:nSym) = lnFro(1:nSym)
+nDel(1:nSym) = lnDel(1:nSym)
+nExt(1:nSym) = lnVir(1:nSym)
 
 DoFNO = .true.
-l_Dii = nOcc(1)
-do iSym=2,nSym
-  l_Dii = l_Dii+nOcc(iSym)
-end do
+l_Dii = sum(nOcc(1:nSym))
 
 return
 

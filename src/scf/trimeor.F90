@@ -36,7 +36,7 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nOrb(iSym)
-  call dcopy_(ndata,Eor1(iFrom(iSym)),1,Eor2(iTo(iSym)),1)
+  Eor2(iTo(iSym):iTo(iSym)+ndata-1) = Eor1(iFrom(iSym):iFrom(iSym)+ndata-1)
 end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *

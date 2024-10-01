@@ -50,7 +50,7 @@ implicit none
 character(len=*) :: FName
 integer(kind=iwp) :: LuOrb, mBB, nD, mBT, mmB
 real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
-integer(kind=iwp) :: iBas, iD, iDum(7,8), iDummy(1), iErr, indx, iOff, iOrb, isUHF, iSym, iWFtype, Lu_, nTmp(8)
+integer(kind=iwp) :: iBas, iD, iDum(7,8), iDummy(1), iErr, indx, iOff, isUHF, iSym, iWFtype, Lu_, nTmp(8)
 real(kind=wp) :: Dummy(1)
 character(len=6) :: OrbName
 integer, allocatable :: IndT(:,:)
@@ -94,12 +94,8 @@ if (nD == 1) then
   if ((.not. Aufb) .and. (.not. OnlyProp)) then
     iOff = 0
     do iSym=1,nSym
-      do iOrb=1,nOcc(iSym,1)
-        OccNo(iOrb+iOff,1) = Two
-      end do
-      do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-        OccNo(iOrb+iOff,1) = Zero
-      end do
+      OccNo(iOff+1:iOff+nOcc(iSym,1),1) = Two
+      OccNo(iOff+nOcc(iSym,1)+1:iOff+nOrb(iSym),1) = Zero
       iOff = iOff+nOrb(iSym)
     end do
   end if
@@ -119,7 +115,7 @@ else
     else
       call RdVec_(FName,Lu_,'COEI',nD-1,nSym,nBas,nOrb,CMO(:,1),CMO(:,2),OccNo(:,1),OccNo(:,2),EOrb(:,1),EOrb(:,2),IndT(:,1), &
                   VTitle,1,iErr,iWFtype)
-      call iCopy(nnB,IndT(1,1),1,IndT(1,2),1)
+      IndT(:,2) = IndT(:,1)
     end if
     call VecSort(nSym,nBas,nBas,CMO(1,1),OccNo(1,1),IndT(1,1),0,iDummy,iErr)
     call VecSort(nSym,nBas,nBas,CMO(1,2),OccNo(1,2),IndT(1,2),0,iDummy,iErr)
@@ -162,31 +158,22 @@ else
     call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
     call TrimEor(EOrb(1,1),EOrb(1,1),nSym,nBas,nOrb)
     call Setup_SCF()
-    call dCopy_(nBO,CMO(1,1),1,CMO(1,2),1)
-    call dCopy_(nnB,OccNo(1,1),1,OccNo(1,2),1)
-    call dCopy_(nnB,EOrb(1,1),1,EOrb(1,2),1)
-    call dScal_(nnB,Half,OccNo(1,1),1)
-    call dScal_(nnB,Half,OccNo(1,2),1)
+    CMO(1:nBO,2) = CMO(1:nBO,1)
+    OccNo(1:nnB,2) = OccNo(1:nnB,1)
+    EOrb(1:nnB,2) = EOrb(1:nnB,1)
+    OccNo(1:nnB,1:2) = Half*OccNo(1:nnB,1:2)
   end if
   if (.not. Aufb) then
     iOff = 0
     do iSym=1,nSym
-      do iOrb=1,nOcc(iSym,1)
-        OccNo(iOrb+iOff,1) = One
-      end do
-      do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-        OccNo(iOrb+iOff,1) = Zero
-      end do
+      OccNo(iOff+1:iOff+nOcc(iSym,1),1) = One
+      OccNo(iOff+nOcc(iSym,1)+1:iOff+nOrb(iSym),1) = Zero
       iOff = iOff+nOrb(iSym)
     end do
     iOff = 0
     do iSym=1,nSym
-      do iOrb=1,nOcc(iSym,2)
-        OccNo(iOrb+iOff,2) = One
-      end do
-      do iOrb=nOcc(iSym,2)+1,nOrb(iSym)
-        OccNo(iOrb+iOff,2) = Zero
-      end do
+      OccNo(iOff+1:iOff+nOcc(iSym,2),2) = One
+      OccNo(iOff+nOcc(iSym,2)+1:iOff+nOrb(iSym),2) = Zero
       iOff = iOff+nOrb(iSym)
     end do
   end if

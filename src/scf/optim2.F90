@@ -84,9 +84,7 @@ logical(kind=iwp) :: DidChange
 !
 ! Sum_i C(i) C(j) D(i,j) = r2
 
-do i=1,n
-  C(i) = Zero
-end do
+C(1:n) = Zero
 A = Two*(D(n0,n1)-D(n1,n1))/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
 B = (D(n1,n1)-r2)/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
 C(n0) = -(A/Two)+sqrt((A/Two)**2-B)
@@ -117,12 +115,9 @@ call RecPrt('D',' ',D,nDim,nDim)
 !----------------------------------------------------------------------*
 ! Compute start energy.                                                *
 !----------------------------------------------------------------------*
-Eref = Zero
+Eref = sum(C(1:n)*G(1:n))
 do i=1,n
-  Eref = Eref+C(i)*G(i)
-  do j=1,n
-    Eref = Eref+Half*C(i)*C(j)*H(i,j)
-  end do
+  Eref = Eref+Half*C(i)*sum(C(1:n)*H(i,1:n))
 end do
 #ifdef _DEBUGPRINT_
 write(u6,'(a,F15.6)') 'Eref = ',Eref
@@ -289,17 +284,12 @@ do Iter=1,500
 
   ! Check that the constraint is fullfilled.
 
-  rSum = Zero
-  do i=1,n
-    rSum = rSum+C(i)
-  end do
+  rSum = sum(C(1:n))
   write(u6,*) 'optim: rSum-1',rSum-One
 
   rSum = Zero
   do i=1,n
-    do j=1,n
-      rSum = rSum+C(i)*C(j)*D(i,j)
-    end do
+    rSum = rSum+C(i)*sum(C(1:n)*D(i,1:n))
   end do
   write(u6,*) 'optim: rSum-r2',rSum-r2
 # endif

@@ -31,7 +31,7 @@ implicit none
 integer(kind=iwp) :: mmB, nD, mBB
 real(kind=wp) :: Occ(mmB,nD)
 real(kind=wp), target :: CMO(mBB,nD)
-integer(kind=iwp) :: iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
+integer(kind=iwp) :: iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
@@ -81,7 +81,7 @@ end if
 ! by default or as specied by the user. The numbers are stored
 ! in the array Occ.
 
-call FZero(Occ,mmB*nD)
+Occ(:,:) = Zero
 
 if (.not. allocated(OccSet_e)) then
 
@@ -91,9 +91,7 @@ if (.not. allocated(OccSet_e)) then
   do iD=1,nD
     mOcc = 0
     do iSym=1,nSym
-      do iOrb=1,nOcc(iSym,iD)
-        Occ(iOrb+mOcc,iD) = real(3-nD,kind=wp) ! Value 2 or 1
-      end do
+      Occ(mOcc+1:mOcc+nOcc(iSym,iD),iD) = real(3-nD,kind=wp) ! Value 2 or 1
       mOcc = mOcc+nOrb(iSym)
     end do
   end do
@@ -106,9 +104,7 @@ else
     mOcc = 0
     mSet = 0
     do iSym=1,nSym
-      do iOrb=1,nOcc(iSym,iD)
-        Occ(iOrb+mOcc,iD) = OccSet_e(iOrb+mSet,iD)
-      end do
+      Occ(mOcc+1:mOcc+nOcc(iSym,iD),iD) = OccSet_e(mSet+1:mSet+nOcc(iSym,iD),iD)
       mOcc = mOcc+nOrb(iSym)
       mSet = mSet+nOcc(iSym,iD)
     end do
@@ -137,10 +133,10 @@ if (allocated(OccSet_m)) then
 
     ! Store the electronic occupation numbers in OccTmp
 
-    call DCopy_(mmB,Occ(1,iD),1,OccTmp,1)
+    OccTmp(:) = Occ(:,iD)
     !write(u6,*) 'OccTmp=',OccTmp
     !write(u6,*) 'Occset_m=',Occset_m
-    call FZero(Occ(1,iD),mmB)
+    Occ(:,iD) = Zero
 
     nOcc_e = 0   ! number of occupied electronic orbitals
     nOcc_m = 0   ! number of occupied muonic orbitals
@@ -163,9 +159,7 @@ if (allocated(OccSet_m)) then
         ! if the orbital is muonic.
 
         tmp = Zero
-        do k=1,nB
-          tmp = tmp+real(iFerm(jEOr+k),kind=wp)*abs(pCMO(k,iOrb))
-        end do
+        tmp = sum(real(iFerm(jEOr+1:jEOr+nB-1),kind=wp)*abs(pCMO(1:nB,iOrb)))
         Muon_i = 0                  ! electronic
         if (tmp /= Zero) Muon_i = 1 ! muonic
 
@@ -326,7 +320,7 @@ subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
   integer(kind=iwp) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym), iFerm(nnB)
   real(kind=wp) :: CMO(nCMO,nD), Occ(nnB,nD)
   character(len=*) :: Label
-  integer(kind=iwp) :: iD, iOff, iOrb, iSym, jOff, k
+  integer(kind=iwp) :: iD, iOff, iOrb, iSym, jOff
   real(kind=wp) :: tmp
 
   write(u6,*) Label
@@ -346,10 +340,7 @@ subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
     iOff = 1
     do iSym=1,nSym
       do iOrb=1,nOrb(iSym)
-        tmp = Zero
-        do k=1,nBas(iSym)
-          tmp = tmp+real(iFerm(jOff+k),kind=wp)*abs(CMO(iOff-1+(iOrb-1)*nBas(iSym)+k,iD))
-        end do
+        tmp = sum(real(iFerm(jOff+1:jOff+nBas(iSym)-1),kind=wp)*abs(CMO(iOff+(iOrb-1)*nBas(iSym):iOff+iOrb*nBas(iSym),iD))
         write(u6,*)
         if (tmp /= Zero) then
           write(u6,*) 'Muonic Orbital:',iOrb
