@@ -22,13 +22,17 @@
 *                                                      -RF 8/18,2021
       SUBROUTINE DO_SONTO(NSS, USOR, USOI)
       use rassi_global_arrays, only: JBNUM, EIGVEC
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
+      Integer NSS
+      Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-      Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
       Real*8 IDENTMAT(3,3)
+      Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
+      Real*8, Allocatable:: TDMAO(:), TSDMAO(:)
 
 c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*)
@@ -41,11 +45,11 @@ c Calculates natural orbitals, including spinorbit effects
       IDENTMAT(:,:)=0.0D0
       FOR ALL (I=1:3) IDENTMAT(I,I)=1.0D0
 
-      CALL GETMEM('UMATR2','ALLO','REAL',LUMATR,NSS**2)
-      CALL GETMEM('UMATI2','ALLO','REAL',LUMATI,NSS**2)
-      CALL GETMEM('EIGVEC2','ALLO','REAL',LVMAT,NSS**2)
+      CALL mma_allocate(UMATR,NSS**2,Label='UMATR')
+      CALL mma_allocate(UMATI,NSS**2,Label='UMATI')
+      CALL mma_allocate(VMAT,NSS,NSS,Label='VMAT')
 
-      CALL DCOPY_(NSS**2,[0.0d0],0,WORK(LVMAT),1)
+      VMAT(:,:)=0.0D0
 
 c transform V matrix in SF basis to spin basis
 c This was taken from smmat.f and modified slightly
@@ -70,8 +74,7 @@ c          SM2=0.5D0*DBLE(MSPROJ2)
           JSS=JSS+1
 
           IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
-           IJ=(JSS-1)*NSS+ISS
-           WORK(LVMAT-1+IJ)=EIGVEC(JSTATE,ISTATE)
+           VMAT(ISS,JSS)=EIGVEC(JSTATE,ISTATE)
           END IF ! IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2)
          END DO ! DO MSPROJ2=-MPLET2+1,MPLET2-1,2
         END DO ! end DO JSTATE=1,NSTATE
@@ -81,15 +84,15 @@ c          SM2=0.5D0*DBLE(MSPROJ2)
 c combine this matrix with the SO eigenvector matrices
       IF(.not.NOSO) THEN
         CALL DGEMM_('N','N',NSS,NSS,NSS,
-     &      1.0d0,WORK(LVMAT),NSS,USOR,NSS,0.0d0,
-     &      WORK(LUMATR),NSS)
+     &      1.0d0,VMAT,NSS,USOR,NSS,0.0d0,
+     &      UMATR,NSS)
         CALL DGEMM_('N','N',NSS,NSS,NSS,
-     &      1.0d0,WORK(LVMAT),NSS,USOI,NSS,0.0d0,
-     &      WORK(LUMATI),NSS)
+     &      1.0d0,VMAT,NSS,USOI,NSS,0.0d0,
+     &      UMATI,NSS)
       ELSE
 c Spinorbit contributions to this are disabled
-        CALL DCOPY_(NSS,WORK(LVMAT),1,WORK(LUMATR),1)
-        CALL DCOPY_(NSS,[0.0d0],0,WORK(LUMATI),1)
+        CALL DCOPY_(NSS,VMAT,1,UMATR,1)
+        CALL DCOPY_(NSS,[0.0d0],0,UMATI,1)
       END IF
 
 c SONTONSTATE = number of state pairs to calculate.
@@ -108,40 +111,40 @@ c These states are stored as pairs beginning in IWORK(LSONTO)
         WRITE(6,*)
         iOpt=0
 c Currently only HERMISING TDMs are dealt with here
-        call GETMEM('TDMAO','ALLO','REAL',LTDMAO,6*NBST**2)
-        call GETMEM('TSDMAO','ALLO','REAL',LTSDMAO,6*NBST**2)
+        call mma_allocate(TDMAO,6*NBST**2,Label='TDMAO')
+        call mma_allocate(TSDMAO,6*NBST**2,Label='TSDMAO')
         call GETMEM('ANTSIN','ALLO','REAL',LANTSIN,6*NBST**2)
 c Initialization is important
-        call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LTDMAO),1)
-        call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LTSDMAO),1)
+        TDMAO(:)=0.0D0
+        TSDMAO(:)=0.0D0
         call DCOPY_(6*NBST**2,[0.0D0],0,WORK(LANTSIN),1)
 c
-        Call MAKETDMAO('HERMSING',WORK(LUMATR),WORK(LUMATI),
+        Call MAKETDMAO('HERMSING',UMATR,UMATI,
      &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
-     &                        WORK(LTDMAO))
+     &                        TDMAO)
 c Following codes are left for other types of SO-TDMs
 c        Call print_matrixt('TDM after MAKETDMAO 1',nbst,nbst**2,1,
-c     &                    WORK(LTDMAO))
-c        CALL MAKETDMAO('HERMTRIP',WORK(LUMATR),WORK(LUMATI),
+c     &                    TDMAO)
+c        CALL MAKETDMAO('HERMTRIP',UMATR,UMATI,
 c     &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
-c     &                        WORK(LTSDMAO),NBST)
+c     &                        TSDMAO,NBST)
 c        Call print_matrixt('TSDM after MAKETDMAO 1',nbst,nbst**2,1,
-c     &                    WORK(LTSDMAO))
-c        CALL MAKETDMAO('ANTISING',WORK(LUMATR),WORK(LUMATI),
+c     &                    TSDMAO)
+c        CALL MAKETDMAO('ANTISING',UMATR,UMATI,
 c     &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
 c     &                        WORK(LANTSIN),NBST)
 c        Call print_matrixt('ANTITDM after MAKETDMAO 1',nbst,nbst**2,1,
 c     &                    WORK(LANTSIN))
-        Call DO_AOTDMNTO(WORK(LTDMAO),WORK(LTSDMAO),WORK(LANTSIN),
+        Call DO_AOTDMNTO(TDMAO,TSDMAO,WORK(LANTSIN),
      &                     INTOSTATE,JNTOSTATE,NBST,NBST**2)
-        call GETMEM('TDMAO','FREE','REAL',LTDMAO,6*NBST**2)
-        call GETMEM('TSDMAO','FREE','REAL',LTSDMAO,6*NBST**2)
+        Call mma_deallocate(TDMAO)
+        Call mma_deallocate(TSDMAO)
         call GETMEM('ANTSIN','FREE','REAL',LANTSIN,6*NBST**2)
       END DO
-      CALL GETMEM('UMATR2','FREE','REAL',LUMATR,NSS**2)
-      CALL GETMEM('UMATI2','FREE','REAL',LUMATI,NSS**2)
-      CALL GETMEM('EIGVEC2','FREE','REAL',LVMAT,NSS**2)
+      Call mma_deallocate(UMATR)
+      Call mma_deallocate(UMATI)
+      Call mma_deallocate(VMAT)
       CALL GETMEM('SONTO','FREE','INTE',LSONTO,2*SONTOSTATES)
 
-      END
+      END SUBROUTINE DO_SONTO
 

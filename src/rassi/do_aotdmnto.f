@@ -37,7 +37,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
       Integer ISTATE,JSTATE,nb,nb2
       REAL*8 TDMZZ(6,nb2)
       REAL*8 TSDMZZ(6,nb2)
@@ -50,7 +49,6 @@
       COMPLEX*16, ALLOCATABLE:: BUFF1(:),BUFF2(:),SumofYdiag(:)
       COMPLEX*16  Transition_Dipole
       Integer i,j,info,lwork,di,icmp,iopt,irc,isylab
-      Integer LSVDVR,LSVDVI
       REAL*8 NumofEc, Sumofeigen, eigen_print_limit,Zero,Two,pi
       REAL*8 SumofTDMZZLC
       REAL*8 Dummy(1)
@@ -77,6 +75,7 @@ c end
       Real*8, Allocatable:: SVDUR(:), SVDUI(:)
       Integer, Allocatable:: PIV(:)
       Real*8, Allocatable:: SVDVHR(:), SVDVHI(:)
+      Real*8, Allocatable:: SVDVR(:), SVDVI(:)
 
       Zero=0.0D0
       Two=2.0D0
@@ -475,15 +474,15 @@ c V^H
      &             SMI,nb,0.0D0,TMP,nb)
       SVDVHI(:)=TMP(:)
 c V
-      call GETMEM('LSVDVR','ALLO','REAL',LSVDVR,nb2)
-      call GETMEM('LSVDVI','ALLO','REAL',LSVDVI,nb2)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVR),1)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVI),1)
+      call mma_allocate(SVDVR,nb2,Label='SVDVR')
+      call mma_allocate(SVDVI,nb2,Label='SVDVI')
+      SVDVR(:)=0.0D0
+      SVDVI(:)=0.0D0
       do i=0, nb-1
         do j=0, nb-1
-          WORK(LSVDVR+i*nb+j)=SVDVHR(1+j*nb+i)
+          SVDVR(1+i*nb+j)=SVDVHR(1+j*nb+i)
 c imaginary part takes a negative sign
-          WORK(LSVDVI+i*nb+j)=-1.D0*SVDVHI(1+j*nb+i)
+          SVDVI(1+i*nb+j)=-1.D0*SVDVHI(1+j*nb+i)
         enddo
       enddo
       call mma_deallocate(SVDVHR)
@@ -573,7 +572,7 @@ c V real
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDVR),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],SVDVR,
      &           SVDS ,Dummy,iDummy,Note)
 c V imaginary
       write(FNAME,'(6(a))')
@@ -583,7 +582,7 @@ c V imaginary
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDVI),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],SVDVI,
      &           SVDS ,Dummy,iDummy,Note)
 c End of output
       write(6,*)
@@ -612,7 +611,7 @@ c Free up workspace
       Call MMA_DEALLOCATE(TMP)
       Call MMA_DEALLOCATE(SVDUR)
       Call MMA_DEALLOCATE(SVDUI)
-      call GETMEM('LSVDVR','FREE','REAL',LSVDVR,nb2)
-      call GETMEM('LSVDVI','FREE','REAL',LSVDVI,nb2)
+      Call MMA_DEALLOCATE(SVDVR)
+      Call MMA_DEALLOCATE(SVDVI)
 
       END SUBROUTINE DO_AOTDMNTO
