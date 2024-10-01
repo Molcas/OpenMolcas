@@ -13,20 +13,22 @@
       SUBROUTINE SDCHS(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
      &                   PSI1,PSI2,IF20,IF02,SDCHSM)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 
-      REAL*8 PSI1(*),PSI2(*),SDCHSM(*)
-      REAL*8 COEFF,OVERLAP_RASSI,OVLP
-      INTEGER IORBTAB(*),NASORB
-      INTEGER ISSTAB(*)
+      INTEGER IORBTAB(*), ISSTAB(*)
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
+      REAL*8 PSI1(*),PSI2(*),SDCHSM(*)
+      LOGICAL IF20,IF02
+
+      REAL*8 COEFF,OVERLAP_RASSI,OVLP
+      INTEGER NASORB
       INTEGER FSBOP,IMODE
       INTEGER LFSBANN1,LFSBANN2
       INTEGER ISORB,JSORB,IJ
-      INTEGER LANN1,LANN2
       INTEGER ND1,ND2
       !INTEGER JSMLAB,JSPLAB
-      LOGICAL IF20,IF02
+      Real*8, Allocatable:: ANN1(:), ANN2(:)
 
 #include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -53,10 +55,10 @@ C Annihilate a single spin orbital from PSI2, the spin orbital ISORB:
         LFSBANN1=FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB2)
         ND1=IWORK(LFSBANN1+4)
         COEFF=1.0D0
-        CALL GETMEM('ANN1','Allo','Real',LANN1,ND1)
-        CALL DCOPY_(ND1,[0.0D0],0,WORK(LANN1),1)
+        CALL mma_allocate(ANN1,ND1,Label='ANN1')
+        ANN1(:)=0.0D0
         CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,IWORK(LFSBANN1),
-     &                IFSBTAB2,COEFF,WORK(LANN1),PSI2)
+     &                IFSBTAB2,COEFF,ANN1,PSI2)
 
         DO JSORB=1,ISORB-1
 C Symmetry properties:
@@ -70,22 +72,22 @@ C Annihilate another spin orbital from PSI2, LSORB:
          LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN1))
          ND2=IWORK(LFSBANN2+4)
          COEFF=1.0D0
-         CALL GETMEM('ANN2','Allo','Real',LANN2,ND2)
-         CALL DCOPY_(ND2,[0.0D0],0,WORK(LANN2),1)
+         CALL mma_allocate(ANN2,ND2,Label='ANN2')
+         ANN2(:)=0.0D0
          CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN2),
-     &                   IWORK(LFSBANN1),COEFF,WORK(LANN2),WORK(LANN1))
+     &                   IWORK(LFSBANN1),COEFF,ANN2,ANN1)
 
 C Compute the spin transition density matrix element:
          OVLP=OVERLAP_RASSI(IFSBTAB1,
-     &                  IWORK(LFSBANN2),PSI1,WORK(LANN2))
+     &                  IWORK(LFSBANN2),PSI1,ANN2)
 
          IJ=((ISORB-1)*(ISORB-2))/2+JSORB
          SDCHSM(IJ)=SDCHSM(IJ)+OVLP
 
-         CALL GETMEM('ANN2','Free','Real',LANN2,ND2)
+         CALL mma_deallocate(ANN2)
          CALL KILLOBJ(LFSBANN2)
         END DO
-        CALL GETMEM('ANN1','Free','Real',LANN1,ND1)
+        CALL mma_deallocate(ANN1)
         CALL KILLOBJ(LFSBANN1)
        END DO
 
