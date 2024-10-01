@@ -30,6 +30,7 @@
 
       SUBROUTINE DO_AOTDMNTO(TDMZZ,TSDMZZ,ANTSIN,ISTATE,JSTATE,nb,nb2)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT None
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -37,7 +38,6 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
       Integer ISTATE,JSTATE,nb,nb2
       REAL*8 TDMZZ(6,nb2)
       REAL*8 TSDMZZ(6,nb2)
@@ -49,8 +49,8 @@
       REAL*8, ALLOCATABLE:: SVDS(:)
       COMPLEX*16, ALLOCATABLE:: BUFF1(:),BUFF2(:),SumofYdiag(:)
       COMPLEX*16  Transition_Dipole
-      Integer i,j,info,lwork,di,icmp,iopt,irc,isylab,LDIP,LDIPs,LEIG
-      Integer LEIGM,LP,LRESI,LRESIR,LSM,LSMI,LSZZ,LSZZs,LTMP,LSVDUR
+      Integer i,j,info,lwork,di,icmp,iopt,irc,isylab
+      Integer LP,LRESI,LRESIR,LSM,LSMI,LSVDUR
       Integer LSVDUI,LSVDVHR,LSVDVHI,LSVDVR,LSVDVI
       REAL*8 NumofEc, Sumofeigen, eigen_print_limit,Zero,Two,pi
       REAL*8 SumofTDMZZLC
@@ -62,18 +62,18 @@ c start Phase factor stuff
 c trace of transition dipole real and imaginary (x,y,and z)
       REAL*8 ttdr(3),ttdi(3)
       REAL*8 phi,sd
-      Integer LTMPR,LTMPI
 c end
-      CHARACTER*8 LABEL
+      CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=7) STATENAME,STATENAMETMP
       CHARACTER(LEN=128) FNAME
       CHARACTER(LEN=72) NOTE
-c      Logical TestPrint
-c Test variables
-      Integer LBUFF1
-c End test variables
-c      TestPrint=.TRUE.
-c      TestPrint=.FALSE.
+      Real*8, Allocatable:: Dips(:), Dip(:)
+      Real*8, Allocatable:: TMPR(:), TMPI(:)
+      Real*8, Allocatable:: SZZs(:), SZZ(:)
+      Real*8, Allocatable:: EIG(:), EIGM(:)
+      Real*8, Allocatable:: TMP(:)
+      Real*8, Allocatable:: BFF(:)
+
       Zero=0.0D0
       Two=2.0D0
       pi=ACOS(-1.0D0)
@@ -109,7 +109,7 @@ c      If (TestPrint) then
       Call MMA_ALLOCATE(BUFF,nb2,LABEL="LBUFF")
       Call MMA_ALLOCATE(TDMZZC,nb2,LABEL="TDMZZC")
       do di=1, 3
-        Call GETMEM('MSq','ALLO','REAL',LDIPs,nb2)
+        Call mma_allocate(DIPs,nb2,Label='Dips')
         LABEL(1:8)='MLTPL  1'
         IRC = -1
         ICMP = di
@@ -118,17 +118,17 @@ c      If (TestPrint) then
         CALL IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
         !no nuclear contrib, no origin of operator
         IOPT = ibset(ibset(0,sNoOri),sNoNuc)
-        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ(1))
-        CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
-        Call DESYM_SONTO(WORK(LDIP),SIZ(1),WORK(LDIPs),ISYLAB)
-        Call GETMEM('MLTPL  1','FREE','REAL',LDIP,SIZ(1))
+        Call mma_allocate(DIP,SIZ(1),Label='DIP')
+        CALL RDONE(IRC,IOPT,LABEL,ICMP,DIP,ISYLAB)
+        Call DESYM_SONTO(DIP,SIZ(1),DIPs,ISYLAB)
+        Call mma_deallocate(DIP)
         write(6,*) '  For istate ', ISTATE, ' jstate ',JSTATE
         write(6,*) '  Component ',ICMP
 c Get complex matrices
-        Call MMA_ALLOCATE(DIPsC,nb2,LABEL="LDIPsC")
+        Call MMA_ALLOCATE(DIPsC,nb2,LABEL="DIPsC")
         do i=1,nb2
           TDMZZC(i)=cmplx(TDMZZ(di,i),TDMZZ(di+3,i),8)
-          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,8)
+          DIPsC(i)=cmplx(DIPs(i),zero,8)
         enddo
 c TDM
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),DIPsC,nb,
@@ -143,7 +143,7 @@ C Trace the resulting matrix
         ttdi(di)=aimag(Transition_Dipole)
         write(6,*) '  Transition_Dipole :',Transition_Dipole
         write(6,*)
-        Call GETMEM('MSq','FREE','REAL',LDIPs,nb2)
+        Call MMA_DEALLOCATE(DIPs)
         Call MMA_DEALLOCATE(DIPsC)
       enddo
       Call MMA_DEALLOCATE(BUFF)
@@ -177,20 +177,20 @@ c make sure it's minimum
 c multipole phase factor with tdm as a whole
         write(6,*) 'Phase factor turned on with calculated'
         write(6,'(2X,A,F6.2)') "argument Phi: ", phi
-        call GETMEM('TMPR  ','ALLO','REAL',LTMPR,nb2)
-        call GETMEM('TMPI  ','ALLO','REAL',LTMPI,nb2)
+        call mma_allocate(TMPR,nb2,Label='TMPR')
+        call mma_allocate(TMPI,nb2,Label='TMPI')
         do i=1,nb2
-          WORK(LTMPR+i-1)=TDMZZ(3,i)*cos(phi)-TDMZZ(6,i)*sin(phi)
-          WORK(LTMPI+i-1)=TDMZZ(6,i)*cos(phi)+TDMZZ(3,i)*sin(phi)
+          TMPR(i)=TDMZZ(3,i)*cos(phi)-TDMZZ(6,i)*sin(phi)
+          TMPI(i)=TDMZZ(6,i)*cos(phi)+TDMZZ(3,i)*sin(phi)
         enddo
-        TDMZZ(1,:) = WORK(LTMPR:LTMPR+nb2-1)
-        TDMZZ(2,:) = WORK(LTMPR:LTMPR+nb2-1)
-        TDMZZ(3,:) = WORK(LTMPR:LTMPR+nb2-1)
-        TDMZZ(4,:) = WORK(LTMPI:LTMPI+nb2-1)
-        TDMZZ(5,:) = WORK(LTMPI:LTMPI+nb2-1)
-        TDMZZ(6,:) = WORK(LTMPI:LTMPI+nb2-1)
-        call GETMEM('TMPI  ','FREE','REAL',LTMPI,nb2)
-        call GETMEM('TMPR  ','FREE','REAL',LTMPR,nb2)
+        TDMZZ(1,:) = TMPR(1:nb2)
+        TDMZZ(2,:) = TMPR(1:nb2)
+        TDMZZ(3,:) = TMPR(1:nb2)
+        TDMZZ(4,:) = TMPI(1:nb2)
+        TDMZZ(5,:) = TMPI(1:nb2)
+        TDMZZ(6,:) = TMPI(1:nb2)
+        call mma_deallocate(TMPI)
+        call mma_deallocate(TMPR)
       EndIf
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -203,15 +203,15 @@ C Make NTO output file names without spin
       write(STATENAME,'(a)') trim(adjustl(STATENAMETMP))
 Cc Everything is in C1 symmetry for now
 C Do the Lowdin Orthogonalization assuming C1 symmetry
-c LSZZ  - AO Overlap integral
-c LSZZs - AO Overlap integral in square
-c LEIG  - AO Overlap eigenvalues
-      call GETMEM('SZZ   ','ALLO','REAL',LSZZ,NBTRI)
-      call GETMEM('SZZs  ','ALLO','REAL',LSZZs,nb2)
-      call GETMEM('EIG   ','ALLO','REAL',LEIG,nb)
-      call DCOPY_(NBTRI,[0.0D00],0,WORK(LSZZ),1)
-      call DCOPY_(nb2,[0.0D00],0,WORK(LSZZs),1)
-      call DCOPY_(nb,[0.0D00],0,WORK(LEIG),1)
+c SZZ  - AO Overlap integral
+c SZZs - AO Overlap integral in square
+c EIG  - AO Overlap eigenvalues
+      call mma_allocate(SZZ,NBTRI,Label='SZZ')
+      call mma_allocate(SZZs,nb2,Label='SZZs')
+      call mma_allocate(EIG,nb,Label='EIG')
+      SZZ(:)=0.0D0
+      SZZs(:)=0.0D0
+      EIG(:)=0.0D0
 C AO OVERLAP MATRIX
       IRC=-1
 c IOPT=6, origin and nuclear contrib not read
@@ -219,7 +219,7 @@ c IOPT=6, origin and nuclear contrib not read
       ICMP=1
       ISYLAB=1
       LABEL='MLTPL  0'
-      call RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
+      call RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF (IRC.NE.0) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -227,28 +227,27 @@ c IOPT=6, origin and nuclear contrib not read
         WRITE(6,*)
         CALL ABEND()
       ENDIF
-      Call DESYM_SONTO(WORK(LSZZ),NBTRI,WORK(LSZZs),ISYLAB)
-      call GETMEM('SZZ   ','FREE','REAL',LSZZ,NBTRI)
+      Call DESYM_SONTO(SZZ,NBTRI,SZZs,ISYLAB)
+      call mma_deallocate(SZZ)
 **************
 * For tests
 **************
-      call GETMEM('TMP   ','ALLO','REAL',LTMP,nb2)
-      WORK(LTMP:LTMP+nb2-1) = TDMZZ(3,:)
-      Call GETMEM('BUFF1','ALLO','REAL',LBUFF1,nb2)
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSZZs),nb,
-     &              WORK(LTMP),nb,0.0D0,WORK(LBUFF1),nb)
+      call mma_allocate(TMP,nb2,Label='TMP')
+      TMP(1:nb2) = TDMZZ(3,:)
+      Call mma_allocate(BFF,nb2,Label='BFF')
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SZZs,nb,
+     &             TMP,nb,0.0D0,BFF,nb)
 C Trace the resulting matrix
       NumOfEc = Zero
       do i=0, nb-1
         do j=0, nb-1
           if(i.eq.j) then
-            NumOfEc = NumOfEc +
-     &      WORK(LBUFF1+i*nb+j)
+            NumOfEc = NumOfEc + BFF(1+i*nb+j)
           endif
         enddo
       enddo
 c      write(6,*) 'NumOfEc ',NumOfEc
-      Call GETMEM('BUFF1','FREE','REAL',LBUFF1,nb2)
+      Call mma_deallocate(BFF)
 **************
 
 c DIAGONALIZE AO OVERLAP MATRIX
@@ -257,37 +256,37 @@ c then let LWORK equal to length of scratch space
 c free and reallocate memory for LRESI using that length
       call GETMEM('RESI  ','ALLO','REAL',LRESI,1)
       LWORK=-1
-      call DSYEV_('V','U',nb,WORK(LSZZs),nb,WORK(LEIG),
+      call DSYEV_('V','U',nb,SZZs,nb,EIG,
      &            WORK(LRESI),LWORK,INFO)
       LWORK=INT(WORK(LRESI))
       call GETMEM('RESI  ','FREE','REAL',LRESI,1)
       call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
-c WORK(LSZZs) in as the AO overlap sqaure matrix
-c out as the eigenvector matrix of WORK(LSZZs)
-c with eigenvalues in WORK(LEIG)
-      call DSYEV_('V','U',nb,WORK(LSZZs),nb,WORK(LEIG),
+c SZZs in as the AO overlap sqaure matrix
+c out as the eigenvector matrix of SZZs
+c with eigenvalues in EIG
+      call DSYEV_('V','U',nb,SZZs,nb,EIG,
      &            WORK(LRESI),LWORK,INFO)
-c Put WORK(LEIG) in sqrt and in diagonal in WORK(LEIGM)
-      call GETMEM('EIGM  ','ALLO','REAL',LEIGM,nb2)
+c Put EIG in sqrt and in diagonal in EIGM
+      call mma_allocate(EIGM,nb2,Label='EIGM')
       do i=0,nb-1
         do j=0,nb-1
           If (i.eq.j) then
-            WORK(LEIGM+i*nb+j)=sqrt(WORK(LEIG+i))
+            EIGM(1+i*nb+j)=sqrt(EIG(1+i))
           Else
-            WORK(LEIGM+i*nb+j)=zero
+            EIGM(1+i*nb+j)=zero
           Endif
         enddo
       enddo
-      call GETMEM('EIG   ','FREE','REAL',LEIG,nb)
+      call mma_deallocate(EIG)
       call GETMEM('RESI  ','FREE','REAL',LRESI,LWORK)
 c Get S^1/2 from S^1/2 = U S_diag^1/2 U^T
       call GETMEM('SsqrtM','ALLO','REAL',LSM,nb2)
-      call DGEMM_('N','T',nb,nb,nb,1.0D0,WORK(LEIGM),nb,
-     &             WORK(LSZZs),nb,0.0D0,WORK(LTMP),nb)
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSZZs),nb,
-     &             WORK(LTMP),nb,0.0D0,WORK(LSM),nb)
-      call GETMEM('SZZs  ','FREE','REAL',LSZZs,nb2)
-      call GETMEM('EIGM  ','FREE','REAL',LEIGM,nb2)
+      call DGEMM_('N','T',nb,nb,nb,1.0D0,EIGM,nb,
+     &             SZZs,nb,0.0D0,TMP,nb)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SZZs,nb,
+     &             TMP,nb,0.0D0,WORK(LSM),nb)
+      call mma_deallocate(SZZs)
+      call mma_deallocate(EIGM)
 c Get inverse of S^1/2 -> S^-1/2
 c Before calling DGETRI, call DGETRF to factorize WORK(LSM)
 c Set LWORK=-1 to get the optimal scratch space WORK(LRESI)
@@ -313,31 +312,31 @@ c Note: The density matrix should transform as S^1/2 D S^1/2
 c Transform TDMZZ and TSDMZZ as S^1/2 T S^1/2
       Call MMA_ALLOCATE(TDMZZL,6,nb2,LABEL='LTDMZZL')
       Call MMA_ALLOCATE(TSDMZZL,6,nb2,LABEL='LTSDMZZL')
-      call GETMEM('TMPR  ','ALLO','REAL',LTMPR,nb2)
+      call mma_allocate(TMPR,nb2,Label='TMPR')
 c Real part of TDMZZ
-      WORK(LTMPR:LTMPR+nb2-1) = TDMZZ(3,:)
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LTMPR),nb,
-     &               WORK(LSM),nb,0.0D0,WORK(LTMP),nb)
+      TMPR(1:nb2) = TDMZZ(3,:)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,TMPR,nb,
+     &               WORK(LSM),nb,0.0D0,TMP,nb)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
-     &               WORK(LTMP),nb,0.0D0,WORK(LTMPR),nb)
-      TDMZZL(3,:) = WORK(LTMPR:LTMPR+nb2-1)
+     &               TMP,nb,0.0D0,TMPR,nb)
+      TDMZZL(3,:) = TMPR(1:nb2)
 c Imaginary part of TDMZZ
-      WORK(LTMPR:LTMPR+nb2-1) = TDMZZ(6,:)
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LTMPR),nb,
-     &               WORK(LSM),nb,0.0D0,WORK(LTMP),nb)
+      TMPR(1:nb2) = TDMZZ(6,:)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,TMPR,nb,
+     &               WORK(LSM),nb,0.0D0,TMP,nb)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
-     &               WORK(LTMP),nb,0.0D0,WORK(LTMPR),nb)
-      TDMZZL(6,:) = WORK(LTMPR:LTMPR+nb2-1)
+     &               TMP,nb,0.0D0,TMPR,nb)
+      TDMZZL(6,:) = TMPR(1:nb2)
 c Do for all components of TSDMZZ
       do i=1, 6
-        WORK(LTMPR:LTMPR+nb2-1) = TSDMZZ(i,:)
-        call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LTMPR),nb,
-     &               WORK(LSM),nb,0.0D0,WORK(LTMP),nb)
+        TMPR(1:nb2) = TSDMZZ(i,:)
+        call DGEMM_('N','N',nb,nb,nb,1.0D0,TMPR,nb,
+     &               WORK(LSM),nb,0.0D0,TMP,nb)
         call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
-     &               WORK(LTMP),nb,0.0D0,WORK(LTMPR),nb)
-        TSDMZZL(i,:) = WORK(LTMPR:LTMPR+nb2-1)
+     &               TMP,nb,0.0D0,TMPR,nb)
+        TSDMZZL(i,:) = TMPR(1:nb2)
       enddo
-      call GETMEM('TMPR  ','FREE','REAL',LTMPR,nb2)
+      call mma_deallocate(TMPR)
 C End of the Lowdin Orthogonalization
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -387,7 +386,7 @@ c Do SVD for TDMZZLC
 c End testing SVD
 c For partitioning properties in the NTO basis
 c Partition of the MLTPL 1, dipole moment intergals
-      Call GETMEM('MSq','ALLO','REAL',LDIPs,nb2)
+      Call mma_allocate(DIPs,nb2,Label='DIPs')
       Call MMA_ALLOCATE(DIPsC,nb2,LABEL="LDIPsC")
       Call MMA_ALLOCATE(BUFF1,nb2,LABEL='BUFF1')
       Call MMA_ALLOCATE(BUFF2,nb2,LABEL='BUFF2')
@@ -402,21 +401,21 @@ c The three components of dipole
         IOPT = ibset(0,sOpSiz)
         CALL IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
         IOPT = 6
-        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ(1))
-        CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
-        Call DESYM_SONTO(WORK(LDIP),SIZ(1),WORK(LDIPs),ISYLAB)
-        Call GETMEM('MLTPL  1','FREE','REAL',LDIP,SIZ(1))
+        Call mma_allocate(DIP,SIZ(1),Label='DIP')
+        CALL RDONE(IRC,IOPT,LABEL,ICMP,DIP,ISYLAB)
+        Call DESYM_SONTO(DIP,SIZ(1),DIPs,ISYLAB)
+        Call mma_deallocate(DIP)
 c Perform Lowdin orthogonalization on operator matrix
 c They transform as S^-1/2 P S^-1/2
-        Call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LDIPs),nb,
-     &              WORK(LSMI),nb,0.0D0,WORK(LTMP),nb)
+        Call DGEMM_('N','N',nb,nb,nb,1.0D0,DIPs,nb,
+     &              WORK(LSMI),nb,0.0D0,TMP,nb)
         Call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSMI),nb,
-     &              WORK(LTMP),nb,0.0D0,WORK(LDIPs),nb)
+     &              TMP,nb,0.0D0,DIPs,nb)
 c ZGESVD destroys TDMZZLC after it finishes
 c reconstruct TDMZZLC and DIPsC
         do i=1, nb2
           TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),8)
-          DIPsC(i)=cmplx(WORK(LDIPs+i-1),zero,8)
+          DIPsC(i)=cmplx(DIPs(i),zero,8)
         enddo
 c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
         Call ZGEMM_('N','N',nb,nb,nb,(1.0D0,0.0D0),TDMZZLC(:),nb,
@@ -431,7 +430,7 @@ c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
           SumofYdiag(di)=SumofYdiag(di) + YMAT(di,(i-1)*nb+i)
         enddo
       enddo
-      Call GETMEM('MSq','FREE','REAL',LDIPs,nb2)
+      Call mma_deallocate(DIPs)
       Call MMA_DEALLOCATE(BUFF1)
       Call MMA_DEALLOCATE(BUFF2)
       Call MMA_DEALLOCATE(DIPsC)
@@ -456,7 +455,7 @@ c for V^t it is V'^t S^{-1/2} = V^t
       call DCOPY_(nb2,[0.0D0],0,WORK(LSVDUI),1)
       call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVHR),1)
       call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVHI),1)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LTMP),1)
+      call DCOPY_(nb2,[0.0D0],0,TMP,1)
       do i=0, nb2-1
         WORK(LSVDUR+i)=real(SVDU(i+1))
         WORK(LSVDUI+i)=aimag(SVDU(i+1))
@@ -465,25 +464,25 @@ c for V^t it is V'^t S^{-1/2} = V^t
       enddo
 c U
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSMI),nb,
-     &             WORK(LSVDUR),nb,0.0D0,WORK(LTMP),nb)
+     &             WORK(LSVDUR),nb,0.0D0,TMP,nb)
       do i=0, nb2-1
-        WORK(LSVDUR+i)=WORK(LTMP+i)
+        WORK(LSVDUR+i)=TMP(1+i)
       enddo
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSMI),nb,
-     &             WORK(LSVDUI),nb,0.0D0,WORK(LTMP),nb)
+     &             WORK(LSVDUI),nb,0.0D0,TMP,nb)
       do i=0, nb2-1
-        WORK(LSVDUI+i)=WORK(LTMP+i)
+        WORK(LSVDUI+i)=TMP(1+i)
       enddo
 c V^H
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSVDVHR),nb,
-     &             WORK(LSMI),nb,0.0D0,WORK(LTMP),nb)
+     &             WORK(LSMI),nb,0.0D0,TMP,nb)
       do i=0, nb2-1
-        WORK(LSVDVHR+i)=WORK(LTMP+i)
+        WORK(LSVDVHR+i)=TMP(1+i)
       enddo
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSVDVHI),nb,
-     &             WORK(LSMI),nb,0.0D0,WORK(LTMP),nb)
+     &             WORK(LSMI),nb,0.0D0,TMP,nb)
       do i=0, nb2-1
-        WORK(LSVDVHI+i)=WORK(LTMP+i)
+        WORK(LSVDVHI+i)=TMP(1+i)
       enddo
 c V
       call GETMEM('LSVDVR','ALLO','REAL',LSVDVR,nb2)
@@ -620,7 +619,7 @@ c Free up workspace
       Call MMA_DEALLOCATE(SumofYdiag)
       call GETMEM('SsqrtM','FREE','REAL',LSM,nb2)
       call GETMEM('SsqrtMI','FREE','REAL',LSMI,nb2)
-      Call GETMEM('TMP   ','FREE','REAL',LTMP,nb2)
+      Call MMA_DEALLOCATE(TMP)
       call GETMEM('LSVDUR','FREE','REAL',LSVDUR,nb2)
       call GETMEM('LSVDUI','FREE','REAL',LSVDUI,nb2)
       call GETMEM('LSVDVR','FREE','REAL',LSVDVR,nb2)
