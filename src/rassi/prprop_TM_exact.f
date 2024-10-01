@@ -61,6 +61,8 @@
       Real*8, Allocatable:: VSOR(:,:), VSOI(:,:), TMP(:)
       Real*8, Allocatable:: DXR(:,:,:), DXI(:,:,:)
       Real*8, Allocatable:: DXRM(:,:,:), DXIM(:,:,:)
+      Real*8, Allocatable:: TMR(:,:,:), TMI(:,:,:)
+      Real*8, Allocatable:: IP(:), OscStr(:,:), Aux(:,:)
 
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
@@ -234,12 +236,12 @@ C printing threshold
       CALL mma_allocate(DXRM,NSS,NSS,3,Label='DXRM')
       CALL mma_allocate(DXIM,NSS,NSS,3,Label='DXIM')
       Call mma_Allocate(TMP,NSS**2,Label='TMP')
-      CALL GETMEM('TMR','ALLO','REAL',LTMR,3*NSS**2)
-      CALL GETMEM('TMI','ALLO','REAL',LTMI,3*NSS**2)
+      CALL mma_allocate(TMR,NSS,NSS,3,Label='TMR')
+      CALL mma_allocate(TMI,NSS,NSS,3,Label='TMI')
 *
 C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+      CALL mma_allocate(IP,NIP,Label='IP')
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -336,9 +338,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *     Array for printing contributions from different directions
 *
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,2*NQUAD*6*nmax2)
-      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
-      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
-      LMAX_=0
+      CALL mma_allocate(OSCSTR,2,nmax2,Label='OSCSTR')
+      CALL mma_allocate(Aux,8,nmax2,Label='Aux')
 *
       Do iVec = 1, nVec
 *
@@ -461,9 +462,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
+            OscStr(:,:)=0.0D0
             CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
-            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
+            Aux(:,:)=0.0D0
 *
             Do iQuad = 1, nQuad
                iVec_=(iVec-1)*nQuad+iQuad
@@ -558,7 +559,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                         LABEL=PNAME(IPROP)
                         Call MK_PROP(PROP,IPROP,I,J,
      &                               LABEL,ITYPE,
-     &                               WORK(LIP),NIP,SCR,nSCR,
+     &                               IP,NIP,SCR,nSCR,
      &                               MASK,ISY12,IOFF)
                      END DO
 *
@@ -689,17 +690,17 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                DO kp = 1, 2
 *
                IF (ABS(kPhase(kp)).LT.0.5d0) CYCLE
-               CALL DCOPY_(3*NSS**2,DXR(:,:,:),1,WORK(LTMR),1)
-               CALL DCOPY_(3*NSS**2,DXI(:,:,:),1,WORK(LTMI),1)
+               CALL DCOPY_(3*NSS**2,DXR(:,:,:),1,TMR(:,:,:),1)
+               CALL DCOPY_(3*NSS**2,DXI(:,:,:),1,TMI(:,:,:),1)
                CALL DAXPY_(3*NSS**2,kPhase(kp),
-     &                     DXRM(:,:,:),1,WORK(LTMR),1)
+     &                     DXRM(:,:,:),1,TMR(:,:,:),1)
                CALL DAXPY_(3*NSS**2,kPhase(kp),
-     &                     DXIM(:,:,:),1,WORK(LTMI),1)
+     &                     DXIM(:,:,:),1,TMI(:,:,:),1)
                DO iCar=1, 3
                   LR_=LTMR+(iCar-1)*NSS**2
                   LI_=LTMI+(iCar-1)*NSS**2
                   CALL ZTRNSF_MASKED(NSS,VSOR,VSOI,
-     &                               WORK(LR_),WORK(LI_),
+     &                               TMR(:,:,iCar),TMI(:,:,iCar),
      &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
                END DO
 *
@@ -708,13 +709,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  Do JSO=jstart_,jend_
                    IJ=(JSO-1)*NSS+ISO-1
                    IJ_=IJ_+1
-                   LFIJ=LF+(ij_-1)*2
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
 *
 *              Store the vectors for this direction
 *
-                   Call DCopy_(3,Work(LTMR+IJ),NSS**2,TM_R,1)
-                   Call DCopy_(3,Work(LTMI+IJ),NSS**2,TM_I,1)
+                   TM_R(:)=TMR(ISO,JSO,:)
+                   TM_I(:)=TMI(ISO,JSO,:)
 #ifdef _HDF5_
 *              Get proper triangular index
                    IJSO_=(JSO-1)*(JSO-2)/2+ISO
@@ -744,31 +744,27 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              and the corresponding polarization vectors
 *
                    If (Do_SK) Then
-                      LMAX_ = LMAX+8*(ij_-1)
                       TM3 = DDot_(3,TM_R,1,TM_I,1)
                       Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
-                      Work(LMAX_+0) = TM_2+Half*Rng
-                      Work(LMAX_+4) = TM_2-Half*Rng
+                      Aux(1,ij_) = TM_2+Half*Rng
+                      Aux(5,ij_) = TM_2-Half*Rng
 *                     The direction for the maximum
                       Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
-                      Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
-                      Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+                      Call daXpY_(3, Cos(Ang),TM_R,1,Aux(2,ij_),1)
+                      Call daXpY_(3, Sin(Ang),TM_I,1,Aux(2,ij_),1)
 *                     Normalize and compute the direction for the minimum
 *                     as a cross product with k
-                      rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                      rNorm = DDot_(3,Aux(2,ij_),1,Aux(2,ij_),1)
                       If (rNorm.gt.1.0D-12) Then
-                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
-                         Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
-     &                                 Work(LMAX_+3)*UK(2)
-                         Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
-     &                                 Work(LMAX_+1)*UK(3)
-                         Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
-     &                                 Work(LMAX_+2)*UK(1)
-                         rNorm=DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
-                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                         Call dScal_(3,1.0/Sqrt(rNorm),Aux(2,ij_),1)
+                         Aux(6,ij_)=Aux(3,ij_)*UK(3)-Aux(4,ij_)*UK(2)
+                         Aux(7,ij_)=Aux(4,ij_)*UK(1)-Aux(2,ij_)*UK(3)
+                         Aux(8,ij_)=Aux(2,ij_)*UK(2)-Aux(3,ij_)*UK(1)
+                         rNorm=DDot_(3,Aux(6,ij_),1,Aux(6,ij_),1)
+                         Call dScal_(3,1.0/Sqrt(rNorm),Aux(6,ij_),1)
                       Else
-                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
-                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                         Call dCopy_(3,[0.0D0],0,Aux(2,ij_),1)
+                         Call dCopy_(3,[0.0D0],0,Aux(6,ij_),1)
                       End If
                    End If
 *
@@ -784,8 +780,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                    F_Temp = 2.0D0*TM_2/EDIFF
                    If (Do_SK) Then
-                      Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
-                      Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+                      Aux(1,ij_) = 2.0D0*Aux(1,ij_)/EDIFF
+                      Aux(5,ij_) = 2.0D0*Aux(5,ij_)/EDIFF
                    End If
 *
 *              Compute the rotatory strength, note that it depends on kPhase
@@ -818,11 +814,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Accumulate to the isotropic oscillator strength
 *
-                   Work(LFIJ  )=Work(LFIJ  ) + Weight * F_Temp
+                   OscStr(1,IJ_)=OscStr(1,IJ_) + Weight * F_Temp
 *
 *              Accumulate to the isotropic rotatory strength
 *
-                   Work(LFIJ+1)=Work(LFIJ+1) + Weight * R_Temp
+                   OscStr(2,IJ_)=OscStr(2,IJ_) + Weight * R_Temp
                  End Do
                End Do
 *
@@ -835,17 +831,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               Do JSO=jstart_,jend_
                  IJ=(ISO-1)*NSS+JSO-1
                  IJ_=IJ_+1
-                 LFIJ=LF+(ij_-1)*2
                  EDIFF=ENSOR(JSO)-ENSOR(ISO)
-                 F=Work(LFIJ)
-                 R=Work(LFIJ+1)
+                 F=OscStr(1,IJ_)
+                 R=OscStr(2,IJ_)
 *
                  Call Add_Info('ITMS(SO)',[F],1,6)
                  Call Add_Info('ROTS(SO)',[R],1,4)
 *
                  IF (Do_Pol) THEN
-                   LMAX_=LMAX+8*(ij_-1)
-                   F_CHECK=ABS(WORK(LMAX_+0))
+                   F_CHECK=ABS(Aux(1,ij_))
                    R_CHECK=0.0D0 ! dummy assign
                  ELSE
                    F_CHECK=ABS(F)
@@ -918,12 +912,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  END IF
 
                  IF (Do_SK) THEN
-                  WRITE(6,50) 'maximum',WORK(LMAX_+0),
+                  WRITE(6,50) 'maximum',Aux(1,ij_),
      &               'for polarization direction:',
-     &                WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
-                  WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &                Aux(2,ij_),Aux(3,ij_),Aux(4,ij_)
+                  WRITE(6,50) 'minimum',Aux(5,ij_),
      &               'for polarization direction:',
-     &                WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+     &                Aux(6,ij_),Aux(7,ij_),Aux(8,ij_)
                  END IF
 *
 *
@@ -1022,7 +1016,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *     Do some cleanup
 *
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
+      CALL mma_deallocate(IP)
       CALL mma_deallocate(DXR)
       CALL mma_deallocate(DXI)
       CALL mma_deallocate(DXRM)
@@ -1033,10 +1027,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
         Call mma_DeAllocate(TMOgrp2)
       EndIf
       If (Do_Pol) Call mma_deallocate(pol_Vector)
-      CALL GETMEM('TMR','FREE','REAL',LTMR,3*NSS**2)
-      CALL GETMEM('TMI','FREE','REAL',LTMI,3*NSS**2)
-      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
-      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
+      CALL mma_deallocate(TMR)
+      CALL mma_deallocate(TMI)
+      CALL mma_deallocate(OSCSTR)
+      CALL mma_deallocate(Aux)
 *
       Call mma_deallocate(SCR)
       Call mma_deAllocate(TDMZZ)
