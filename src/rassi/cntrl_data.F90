@@ -12,8 +12,14 @@ Module Cntrl_Data
 Private
 #include "Molcas.fh"
 #include "cntrl.fh"
+
+!    SONTO            Array of SO state pairs
+Integer, Allocatable, Public:: SONTO(:,:)
 !    SONTOSTATES      Number of state pairs to calculate
 Integer, Public:: SONTOSTATES=0
-!    SONTO            Array of SO state pairs
-     Integer, Allocatable, Public:: SONTO(:,:)
+
+!    SONAT            Array of SO state to compute
+Integer, Allocatable, Public:: SONAT(:)
+!    SONATNSTATE      Number of states to calculate
+Integer, Public:: SONATNSTATE=0
 End Module Cntrl_Data

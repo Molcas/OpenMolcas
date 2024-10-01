@@ -11,6 +11,8 @@
       SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, EIGVEC
+      use cntrl_data, only: SONAT, SONATNSTATE
+      use stdalloc, only: mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -83,9 +85,9 @@ c Holds the density matrices for all three directions
       CALL GETMEM('DMATTMP','ALLO','REAL',LDMATTMP,6*NBTRI)
 
 c SONATNSTATE = number of states to calculate.
-c These states are stored beginning in IWORK(LSONAT)
+c These states are stored beginning in SONAT
       DO I=1,SONATNSTATE
-        INATSTATE=IWORK(LSONAT-1+I)
+        INATSTATE=SONAT(I)
 
         WRITE(6,*)
         WRITE(6,*) "CALCULATING NAT ORBITALS FOR SSTATE: ",INATSTATE
@@ -200,7 +202,7 @@ C            CALL ADD_INFO('CURD3_INT6',DUM6,1,6)
       END DO
 
       CALL GETMEM('DMATTMP','FREE','REAL',LDMATTMP,6*NBTRI)
-      CALL GETMEM('SONATS','FREE','INTE',LSONAT,SONATNSTATE)
+      CALL mma_deallocate(SONAT)
 
 
 c perform the state diagonalization similar to

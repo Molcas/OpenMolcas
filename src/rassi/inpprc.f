@@ -16,7 +16,7 @@
       use kVectors
       use Lebedev_quadrature, only: order_table
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
-      use cntrl_data, only: SONTOSTATES
+      use cntrl_data, only: SONTOSTATES, SONATNSTATE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "stdalloc.fh"
 #include "WrkSpc.fh"

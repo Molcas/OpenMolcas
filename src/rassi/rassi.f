@@ -34,7 +34,7 @@
       use Fock_util_global, only: Fake_CMO2
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
       use Data_Structures
-      use cntrl_data, only: SONTOSTATES
+      use cntrl_data, only: SONTOSTATES, SONATNSTATE
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.

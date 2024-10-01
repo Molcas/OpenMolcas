@@ -24,7 +24,8 @@
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       use Cholesky, only: timings
       use stdalloc, only: mma_allocate
-      use cntrl_data, only: SONTO, SONTOSTATES
+      use cntrl_data, only: SONTO, SONTOSTATES,
+     &                      SONAT, SONATNSTATE
 
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -563,10 +564,10 @@ c Kamal Sharkas end - PSO Hyperfine calculations
 c BP Natural orbitals options
       If(Line(1:4).eq.'SONO') then
         Read(LuIn,*,ERR=997) SONATNSTATE
-        CALL GETMEM('SONATS','ALLO','INTE',LSONAT,SONATNSTATE)
+        CALL mma_allocate(SONAT,SONATNSTATE,Label='SONAT')
         Linenr=Linenr+1
         DO ILINE=1,SONATNSTATE
-          Read(LuIn,*,ERR=997) IWORK(LSONAT-1+ILINE)
+          Read(LuIn,*,ERR=997) SONAT(ILINE)
           Linenr=Linenr+1
         END DO
         GoTo 100
