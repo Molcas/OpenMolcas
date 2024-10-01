@@ -50,7 +50,7 @@
       COMPLEX*16, ALLOCATABLE:: BUFF1(:),BUFF2(:),SumofYdiag(:)
       COMPLEX*16  Transition_Dipole
       Integer i,j,info,lwork,di,icmp,iopt,irc,isylab
-      Integer LSVDVHR,LSVDVHI,LSVDVR,LSVDVI
+      Integer LSVDVR,LSVDVI
       REAL*8 NumofEc, Sumofeigen, eigen_print_limit,Zero,Two,pi
       REAL*8 SumofTDMZZLC
       REAL*8 Dummy(1)
@@ -76,6 +76,7 @@ c end
       Real*8, Allocatable:: SM(:), SMI(:)
       Real*8, Allocatable:: SVDUR(:), SVDUI(:)
       Integer, Allocatable:: PIV(:)
+      Real*8, Allocatable:: SVDVHR(:), SVDVHI(:)
 
       Zero=0.0D0
       Two=2.0D0
@@ -448,17 +449,17 @@ c for V^t it is V'^t S^{-1/2} = V^t
       call mma_allocate(SVDUI,nb2,Label='SVDUI')
       SVDUR(:)=0.0D0
       SVDUI(:)=0.0D0
-      call GETMEM('LSVDVHR','ALLO','REAL',LSVDVHR,nb2)
-      call GETMEM('LSVDVHI','ALLO','REAL',LSVDVHI,nb2)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVHR),1)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVHI),1)
+      call mma_allocate(SVDVHR,nb2,Label='SVDVHR')
+      call mma_allocate(SVDVHI,nb2,Label='SVDVHR')
+      SVDVHR(:)=0.0D0
+      SVDVHI(:)=0.0D0
+
       TMP(:)=0.0D0
+
       SVDUR(:)= real(SVDU(:))
       SVDUI(:)=aimag(SVDU(:))
-      do i=0, nb2-1
-        WORK(LSVDVHR+i)=real(SVDVH(i+1))
-        WORK(LSVDVHI+i)=aimag(SVDVH(i+1))
-      enddo
+      SVDVHR(:)= real(SVDVH(:))
+      SVDVHI(:)=aimag(SVDVH(:))
 c U
       call DGEMM_('N','N',nb,nb,nb,1.0D0,SMI,nb,
      &             SVDUR,nb,0.0D0,TMP,nb)
@@ -467,16 +468,12 @@ c U
      &             SVDUI,nb,0.0D0,TMP,nb)
       SVDUI(:)=TMP(:)
 c V^H
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSVDVHR),nb,
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SVDVHR,nb,
      &             SMI,nb,0.0D0,TMP,nb)
-      do i=0, nb2-1
-        WORK(LSVDVHR+i)=TMP(1+i)
-      enddo
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSVDVHI),nb,
+      SVDVHR(:)=TMP(:)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SVDVHI,nb,
      &             SMI,nb,0.0D0,TMP,nb)
-      do i=0, nb2-1
-        WORK(LSVDVHI+i)=TMP(1+i)
-      enddo
+      SVDVHI(:)=TMP(:)
 c V
       call GETMEM('LSVDVR','ALLO','REAL',LSVDVR,nb2)
       call GETMEM('LSVDVI','ALLO','REAL',LSVDVI,nb2)
@@ -484,13 +481,13 @@ c V
       call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVI),1)
       do i=0, nb-1
         do j=0, nb-1
-          WORK(LSVDVR+i*nb+j)=WORK(LSVDVHR+j*nb+i)
+          WORK(LSVDVR+i*nb+j)=SVDVHR(1+j*nb+i)
 c imaginary part takes a negative sign
-          WORK(LSVDVI+i*nb+j)=-1.D0*WORK(LSVDVHI+j*nb+i)
+          WORK(LSVDVI+i*nb+j)=-1.D0*SVDVHI(1+j*nb+i)
         enddo
       enddo
-      call GETMEM('LSVDVHR','FREE','REAL',LSVDVHR,nb2)
-      call GETMEM('LSVDVHI','FREE','REAL',LSVDVHI,nb2)
+      call mma_deallocate(SVDVHR)
+      call mma_deallocate(SVDVHI)
 c tests
       CALL ADD_INFO("LAMBDA",SVDS,5,4)
 
