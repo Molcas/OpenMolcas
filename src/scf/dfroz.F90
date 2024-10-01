@@ -22,6 +22,7 @@ subroutine DFroz(Dlt,nDlt,CMO,nCMO,OccNo)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use InfSCF, only: nBas, nFro, nnB, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -35,9 +36,6 @@ integer(kind=iwp) :: i, iCol, ij, iOrb, ipCff, ipDlt, ipOcc, iRow, iStrtN, iStrt
 real(kind=wp) :: rSum
 real(kind=wp), allocatable :: NewOcc(:)
 real(kind=wp), parameter :: Scal = Two, SScale = One
-! Statement function for triangular storage
-integer(kind=iwp) :: Ind, j
-Ind(i,j) = i*(i-1)/2+j
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -82,7 +80,7 @@ do iSym=1,nSym
       rSum = rSum+NewOcc(ipOcc+i)*CMO(ipCff+iRow+ij*nBs)*CMO(ipCff+iRow+ij*nBs)
     end do
     !100 continue
-    Dlt(ipDlt+Ind(iRow,iRow)) = rSum*SScale
+    Dlt(ipDlt+iTri(iRow,iRow)) = rSum*SScale
 
     do iCol=1,iRow-1
       rSum = Zero
@@ -93,7 +91,7 @@ do iSym=1,nSym
         rSum = rSum+NewOcc(ipOcc+i)*CMO(ipCff+iRow+ij*nBs)*CMO(ipCff+iCol+ij*nBs)
       end do
       !200 continue
-      Dlt(ipDlt+Ind(iRow,iCol)) = Scal*rSum
+      Dlt(ipDlt+iTri(iRow,iCol)) = Scal*rSum
     end do
   end do
 # ifdef _DEBUGPRINT_

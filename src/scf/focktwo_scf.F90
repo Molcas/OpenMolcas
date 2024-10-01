@@ -16,6 +16,7 @@
 !#define _DEBUGPRINT_
 subroutine FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,X1,nX1,X2,nX2,ExFac,nD,nBSQT)
 
+use Symmetry_Info, only: Mul
 use RICD_Info, only: Do_DCCD
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -30,9 +31,6 @@ real(kind=wp), external :: DDot_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ISTLTT, ivv
 #endif
-! Statement function
-integer(kind=iwp) :: MUL, I, J
-MUL(I,J) = ieor(I-1,J-1)+1
 
 ! This routine has been nicked from the MOTRA package. It was
 ! originally written by Marcus Fuelscher, and has been slightly
@@ -147,7 +145,7 @@ subroutine FOCKTWO_scf_Sym()
       JB = NBAS(JS)
       JK = KEEP(JS)
       NFJ = NFRO(JS)
-      IJS = MUL(IS,JS)
+      IJS = Mul(IS,JS)
       IJB = IB*JB
       if (IS == JS) IJB = (IB*(IB+1))/2
       do KS=1,IS
@@ -156,7 +154,7 @@ subroutine FOCKTWO_scf_Sym()
         NFK = NFRO(KS)
         LSMAX = KS
         if (KS == IS) LSMAX = JS
-        LS = MUL(IJS,KS)
+        LS = Mul(IJS,KS)
         if (LS > LSMAX) cycle
         LB = NBAS(LS)
         LK = KEEP(LS)
@@ -347,7 +345,7 @@ subroutine FOCKTWO_scf_NoSym()
   JB = NBAS(JS)
   JK = KEEP(JS)
   NFJ = NFRO(JS)
-  IJS = MUL(IS,JS)
+  IJS = Mul(IS,JS)
   IJB = (IB*(IB+1))/2
 
   KS = 1

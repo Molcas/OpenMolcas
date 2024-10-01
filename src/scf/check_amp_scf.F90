@@ -13,21 +13,19 @@
 
 subroutine Check_Amp_SCF(nSym,nOcc,nVir,iSkip)
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nSym, nOcc(nSym), nVir(nSym), iSkip
 integer(kind=iwp) :: iSym, iSyma, iSymi, nT1am(8), nT1amTot
-! Statement function
-integer(kind=iwp) :: MulD2h, i, j
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 iSkip = 0
 nT1amTot = 0
 do iSym=1,nSym
   nT1am(iSym) = 0
   do iSymi=1,nSym
-    iSyma = MulD2h(iSymi,iSym)
+    iSyma = Mul(iSymi,iSym)
     nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
   end do
   nT1amTot = nT1amTot+nT1am(iSym)

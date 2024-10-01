@@ -36,6 +36,7 @@ contains
 
 subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_FLT_ab,nFLT,ExFac,W_FSQ,W_FSQ_ab,nOcc,nOcc_ab)
 
+  use Index_Functions, only: iTri
   use InfSCF, only: Algo, Cho_Aufb, CMO, dFKmat, dmpk, nScreen, ReOrd
   use Fock_util_global, only: Deco, Lunit
   use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, Integer_Pointer
@@ -55,9 +56,6 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
   type(DSBA_Type) :: Cka(2), DDec(2), DLT(1), DSQ(3), FLT(2), FSQ(3), KLT(2), MSQ(3), Vec(2)
   type(Integer_Pointer) :: pNocc(3)
   integer(kind=iwp), allocatable, target :: nVec(:,:)
-  ! Statement function
-  integer(kind=iwp) :: iTri
-  iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
   rc = 0
   Lunit(:) = -1

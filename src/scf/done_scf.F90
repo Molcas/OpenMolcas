@@ -42,6 +42,7 @@ subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 #ifndef POINTER_REMAP
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 #endif
+use Index_Functions, only: iTri
 use SpinAV, only: Do_SpinAV, DSc
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
@@ -56,9 +57,6 @@ integer(kind=iwp) :: nOcc
 #endif
 real(kind=wp) :: rSum, xsign
 real(kind=wp), pointer :: pCMO(:,:), pOcc(:), pDlt(:)
-! Statement function for triangular storage
-integer(kind=iwp) :: Ind
-Ind(i,j) = i*(i-1)/2+j
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -100,14 +98,14 @@ do iSym=1,nSym
       rSum = rSum+pOcc(i)*pCMO(iRow,i)**2
       !rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iRow,i)
     end do
-    pDlt(Ind(iRow,iRow)) = rSum
+    pDlt(iTri(iRow,iRow)) = rSum
 
     do iCol=1,iRow-1
       rSum = Zero
       do i=nFr+1,nOr
         rSum = rSum+pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
       end do
-      pDlt(Ind(iRow,iCol)) = Two*rSum
+      pDlt(iTri(iRow,iCol)) = Two*rSum
     end do
   end do
 # ifdef _DEBUGPRINT_
