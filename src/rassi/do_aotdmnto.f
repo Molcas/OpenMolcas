@@ -50,8 +50,7 @@
       COMPLEX*16, ALLOCATABLE:: BUFF1(:),BUFF2(:),SumofYdiag(:)
       COMPLEX*16  Transition_Dipole
       Integer i,j,info,lwork,di,icmp,iopt,irc,isylab
-      Integer LP,LRESI,LRESIR,LSM,LSMI,LSVDUR
-      Integer LSVDUI,LSVDVHR,LSVDVHI,LSVDVR,LSVDVI
+      Integer LSVDVHR,LSVDVHI,LSVDVR,LSVDVI
       REAL*8 NumofEc, Sumofeigen, eigen_print_limit,Zero,Two,pi
       REAL*8 SumofTDMZZLC
       REAL*8 Dummy(1)
@@ -73,6 +72,10 @@ c end
       Real*8, Allocatable:: EIG(:), EIGM(:)
       Real*8, Allocatable:: TMP(:)
       Real*8, Allocatable:: BFF(:)
+      Real*8, Allocatable:: RESIX(:), RESIR(:)
+      Real*8, Allocatable:: SM(:), SMI(:)
+      Real*8, Allocatable:: SVDUR(:), SVDUI(:)
+      Integer, Allocatable:: PIV(:)
 
       Zero=0.0D0
       Two=2.0D0
@@ -251,21 +254,21 @@ c      write(6,*) 'NumOfEc ',NumOfEc
 **************
 
 c DIAGONALIZE AO OVERLAP MATRIX
-c Set LWORK=-1 to get the optimal scratch space WORK(LRESI)
+c Set LWORK=-1 to get the optimal scratch space RESI
 c then let LWORK equal to length of scratch space
-c free and reallocate memory for LRESI using that length
-      call GETMEM('RESI  ','ALLO','REAL',LRESI,1)
+c free and reallocate memory for RESI using that length
+      call mma_allocate(RESIX,1,Label='RESIX')
       LWORK=-1
       call DSYEV_('V','U',nb,SZZs,nb,EIG,
-     &            WORK(LRESI),LWORK,INFO)
-      LWORK=INT(WORK(LRESI))
-      call GETMEM('RESI  ','FREE','REAL',LRESI,1)
-      call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
+     &            RESIX,LWORK,INFO)
+      LWORK=INT(RESIX(1))
+      call mma_deallocate(RESIX)
+      call mma_allocate(RESIX,LWORK,Label='RESIX')
 c SZZs in as the AO overlap sqaure matrix
 c out as the eigenvector matrix of SZZs
 c with eigenvalues in EIG
       call DSYEV_('V','U',nb,SZZs,nb,EIG,
-     &            WORK(LRESI),LWORK,INFO)
+     &            RESIX,LWORK,INFO)
 c Put EIG in sqrt and in diagonal in EIGM
       call mma_allocate(EIGM,nb2,Label='EIGM')
       do i=0,nb-1
@@ -278,35 +281,33 @@ c Put EIG in sqrt and in diagonal in EIGM
         enddo
       enddo
       call mma_deallocate(EIG)
-      call GETMEM('RESI  ','FREE','REAL',LRESI,LWORK)
+      call mma_deallocate(RESIX)
 c Get S^1/2 from S^1/2 = U S_diag^1/2 U^T
-      call GETMEM('SsqrtM','ALLO','REAL',LSM,nb2)
+      call mma_allocate(SM,nb2,Label='SM')
       call DGEMM_('N','T',nb,nb,nb,1.0D0,EIGM,nb,
      &             SZZs,nb,0.0D0,TMP,nb)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,SZZs,nb,
-     &             TMP,nb,0.0D0,WORK(LSM),nb)
+     &             TMP,nb,0.0D0,SM,nb)
       call mma_deallocate(SZZs)
       call mma_deallocate(EIGM)
 c Get inverse of S^1/2 -> S^-1/2
-c Before calling DGETRI, call DGETRF to factorize WORK(LSM)
-c Set LWORK=-1 to get the optimal scratch space WORK(LRESI)
+c Before calling DGETRI, call DGETRF to factorize SM
+c Set LWORK=-1 to get the optimal scratch space RESI
 c then let LWORK equal to length of scratch space
-c free and reallocate memory for LRESI using that length
-      call GETMEM('SsqrtMI','ALLO','REAL',LSMI,nb2)
-      do i=0,nb2-1
-        WORK(LSMI+i)=WORK(LSM+i)
-      enddo
-      call GETMEM('PIV   ','ALLO','INTE',LP,nb)
-      call DGETRF_(nb,nb,WORK(LSMI),nb,IWORK(LP),INFO)
-      call GETMEM('RESI  ','ALLO','REAL',LRESI,1)
+c free and reallocate memory for RESI using that length
+      call mma_allocate(SMI,nb2,Label='SMI')
+      SMI(:)=SM(:)
+      call mma_allocate(PIV,nb,Label='PIV')
+      call DGETRF_(nb,nb,SMI,nb,PIV,INFO)
+      call mma_allocate(RESIX,1,Label='RESIX')
       LWORK=-1
-      call DGETRI_(nb,WORK(LSMI),nb,IWORK(LP),WORK(LRESI),LWORK,INFO)
-      LWORK=INT(WORK(LRESI))
-      call GETMEM('RESI  ','FREE','REAL',LRESI,1)
-      call GETMEM('RESI  ','ALLO','REAL',LRESI,LWORK)
-      call DGETRI_(nb,WORK(LSMI),nb,IWORK(LP),WORK(LRESI),LWORK,INFO)
-      call GETMEM('PIV   ','FREE','INTE',LP,nb)
-      call GETMEM('RESI  ','FREE','REAL',LRESI,LWORK)
+      call DGETRI_(nb,SMI,nb,PIV,RESIX,LWORK,INFO)
+      LWORK=INT(RESIX(1))
+      call mma_deallocate(RESIX)
+      call mma_allocate(RESIX,LWORK,Label='RESIX')
+      call DGETRI_(nb,SMI,nb,PIV,RESIX,LWORK,INFO)
+      call mma_deallocate(PIV)
+      call mma_deallocate(RESIX)
 
 c Note: The density matrix should transform as S^1/2 D S^1/2
 c Transform TDMZZ and TSDMZZ as S^1/2 T S^1/2
@@ -316,23 +317,23 @@ c Transform TDMZZ and TSDMZZ as S^1/2 T S^1/2
 c Real part of TDMZZ
       TMPR(1:nb2) = TDMZZ(3,:)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,TMPR,nb,
-     &               WORK(LSM),nb,0.0D0,TMP,nb)
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
+     &               SM,nb,0.0D0,TMP,nb)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SM,nb,
      &               TMP,nb,0.0D0,TMPR,nb)
       TDMZZL(3,:) = TMPR(1:nb2)
 c Imaginary part of TDMZZ
       TMPR(1:nb2) = TDMZZ(6,:)
       call DGEMM_('N','N',nb,nb,nb,1.0D0,TMPR,nb,
-     &               WORK(LSM),nb,0.0D0,TMP,nb)
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
+     &               SM,nb,0.0D0,TMP,nb)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SM,nb,
      &               TMP,nb,0.0D0,TMPR,nb)
       TDMZZL(6,:) = TMPR(1:nb2)
 c Do for all components of TSDMZZ
       do i=1, 6
         TMPR(1:nb2) = TSDMZZ(i,:)
         call DGEMM_('N','N',nb,nb,nb,1.0D0,TMPR,nb,
-     &               WORK(LSM),nb,0.0D0,TMP,nb)
-        call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSM),nb,
+     &               SM,nb,0.0D0,TMP,nb)
+        call DGEMM_('N','N',nb,nb,nb,1.0D0,SM,nb,
      &               TMP,nb,0.0D0,TMPR,nb)
         TSDMZZL(i,:) = TMPR(1:nb2)
       enddo
@@ -357,20 +358,16 @@ C Get work space for U, SIGMA, and V^dagger, VH
       Call MMA_ALLOCATE(SVDS,nb,LABEL='SVDS')
       Call MMA_ALLOCATE(SVDVH,nb2,LABEL='SVDVH')
       Call MMA_ALLOCATE(SIZC,1,LABEL='RESI')
-c      call GETMEM('SVDRESI','ALLO','REAL',LRESI,1)
-      call GETMEM('SVDRESIR','ALLO','REAL',LRESIR,5*nb)
+      call mma_allocate(RESIR,5*nb,Label='RESIR')
 c Set LWORK=-1 to get the optimal scratch space in SIZC
 c then let LWORK equal to length of scratch space
 c free and reallocate memory for SIZC using that length
       LWORK=-1
       Call ZGESVD_('A','A',NB,NB,TDMZZLC,NB,SVDS,
-c     &            SVDU,NB,SVDVH,NB,WORK(LRESI),
      &            SVDU,NB,SVDVH,NB,SIZC,
-     &            LWORK,WORK(LRESIR),INFO)
-c      LWORK=max(1,int(WORK(LRESI)))
+     &            LWORK,RESIR,INFO)
       LWORK=max(1,int(SIZC(1)))
       Call MMA_DEALLOCATE(SIZC)
-c      call GETMEM('SVDRESI','FREE','INTE',LRESI,1)
       Call MMA_ALLOCATE(RESI,LWORK,LABEL='RESI')
 c Do SVD for TDMZZLC
       call ZCOPY_(nb2,[(0.0d0,0.0d0)],0,SVDU,1)
@@ -380,7 +377,7 @@ c Do SVD for TDMZZLC
       If(SumofTDMZZLC.GE.1.0D-20) Then
         Call ZGESVD_('A','A',nb,nb,TDMZZLC,nb,SVDS,
      &            SVDU,nb,SVDVH,nb,RESI,
-     &            LWORK,WORK(LRESIR),INFO)
+     &            LWORK,RESIR,INFO)
       EndIf
       If(INFO.ne.zero) write(6,*) "SVD convergence issue"
 c End testing SVD
@@ -408,8 +405,8 @@ c The three components of dipole
 c Perform Lowdin orthogonalization on operator matrix
 c They transform as S^-1/2 P S^-1/2
         Call DGEMM_('N','N',nb,nb,nb,1.0D0,DIPs,nb,
-     &              WORK(LSMI),nb,0.0D0,TMP,nb)
-        Call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSMI),nb,
+     &              SMI,nb,0.0D0,TMP,nb)
+        Call DGEMM_('N','N',nb,nb,nb,1.0D0,SMI,nb,
      &              TMP,nb,0.0D0,DIPs,nb)
 c ZGESVD destroys TDMZZLC after it finishes
 c reconstruct TDMZZLC and DIPsC
@@ -435,7 +432,7 @@ c Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
       Call MMA_DEALLOCATE(BUFF2)
       Call MMA_DEALLOCATE(DIPsC)
       Call MMA_DEALLOCATE(RESI)
-      call GETMEM('SVDRESIR','FREE','REAL',LRESIR,5*nb)
+      Call MMA_DEALLOCATE(RESIR)
 
 c      Call MMA_DEALLOCATE(YMAT)
 
@@ -447,40 +444,36 @@ c End of partitioning properties
 c But we still need to transform U and V back to original AO
 c basis using U=S^{-1/2) U' and V=S^{-1/2} V'
 c for V^t it is V'^t S^{-1/2} = V^t
-      call GETMEM('LSVDUR','ALLO','REAL',LSVDUR,nb2)
-      call GETMEM('LSVDUI','ALLO','REAL',LSVDUI,nb2)
+      call mma_allocate(SVDUR,nb2,Label='SVDUR')
+      call mma_allocate(SVDUI,nb2,Label='SVDUI')
+      SVDUR(:)=0.0D0
+      SVDUI(:)=0.0D0
       call GETMEM('LSVDVHR','ALLO','REAL',LSVDVHR,nb2)
       call GETMEM('LSVDVHI','ALLO','REAL',LSVDVHI,nb2)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LSVDUR),1)
-      call DCOPY_(nb2,[0.0D0],0,WORK(LSVDUI),1)
       call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVHR),1)
       call DCOPY_(nb2,[0.0D0],0,WORK(LSVDVHI),1)
-      call DCOPY_(nb2,[0.0D0],0,TMP,1)
+      TMP(:)=0.0D0
+      SVDUR(:)= real(SVDU(:))
+      SVDUI(:)=aimag(SVDU(:))
       do i=0, nb2-1
-        WORK(LSVDUR+i)=real(SVDU(i+1))
-        WORK(LSVDUI+i)=aimag(SVDU(i+1))
         WORK(LSVDVHR+i)=real(SVDVH(i+1))
         WORK(LSVDVHI+i)=aimag(SVDVH(i+1))
       enddo
 c U
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSMI),nb,
-     &             WORK(LSVDUR),nb,0.0D0,TMP,nb)
-      do i=0, nb2-1
-        WORK(LSVDUR+i)=TMP(1+i)
-      enddo
-      call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSMI),nb,
-     &             WORK(LSVDUI),nb,0.0D0,TMP,nb)
-      do i=0, nb2-1
-        WORK(LSVDUI+i)=TMP(1+i)
-      enddo
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SMI,nb,
+     &             SVDUR,nb,0.0D0,TMP,nb)
+      SVDUR(:)=TMP(:)
+      call DGEMM_('N','N',nb,nb,nb,1.0D0,SMI,nb,
+     &             SVDUI,nb,0.0D0,TMP,nb)
+      SVDUI(:)=TMP(:)
 c V^H
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSVDVHR),nb,
-     &             WORK(LSMI),nb,0.0D0,TMP,nb)
+     &             SMI,nb,0.0D0,TMP,nb)
       do i=0, nb2-1
         WORK(LSVDVHR+i)=TMP(1+i)
       enddo
       call DGEMM_('N','N',nb,nb,nb,1.0D0,WORK(LSVDVHI),nb,
-     &             WORK(LSMI),nb,0.0D0,TMP,nb)
+     &             SMI,nb,0.0D0,TMP,nb)
       do i=0, nb2-1
         WORK(LSVDVHI+i)=TMP(1+i)
       enddo
@@ -563,7 +556,7 @@ c U real
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDUR),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],SVDUR,
      &           SVDS ,Dummy,iDummy,Note)
 c U imaginary
       write(FNAME,'(6(a))')
@@ -573,7 +566,7 @@ c U imaginary
      & trim(STATENAME),
      & ' ARE WRITTEN ONTO FILE ',
      & FNAME
-      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],WORK(LSVDUI),
+      call WRVEC(FNAME,LU,'CO',1,[NB],[NB],SVDUI,
      &           SVDS ,Dummy,iDummy,Note)
 c V real
       write(FNAME,'(6(a))')
@@ -617,12 +610,12 @@ c Free up workspace
       Call MMA_DEALLOCATE(TDMZZLC)
       Call MMA_DEALLOCATE(YMAT)
       Call MMA_DEALLOCATE(SumofYdiag)
-      call GETMEM('SsqrtM','FREE','REAL',LSM,nb2)
-      call GETMEM('SsqrtMI','FREE','REAL',LSMI,nb2)
+      Call MMA_DEALLOCATE(SM)
+      Call MMA_DEALLOCATE(SMI)
       Call MMA_DEALLOCATE(TMP)
-      call GETMEM('LSVDUR','FREE','REAL',LSVDUR,nb2)
-      call GETMEM('LSVDUI','FREE','REAL',LSVDUI,nb2)
+      Call MMA_DEALLOCATE(SVDUR)
+      Call MMA_DEALLOCATE(SVDUI)
       call GETMEM('LSVDVR','FREE','REAL',LSVDVR,nb2)
       call GETMEM('LSVDVI','FREE','REAL',LSVDVI,nb2)
 
-      END
+      END SUBROUTINE DO_AOTDMNTO
