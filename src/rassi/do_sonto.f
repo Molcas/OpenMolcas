@@ -29,7 +29,6 @@
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
@@ -98,7 +97,7 @@ c Spinorbit contributions to this are disabled
       END IF
 
 c SONTONSTATE = number of state pairs to calculate.
-c These states are stored as pairs beginning in IWORK(LSONTO)
+c These states are stored as pairs beginning in SONTO
       DO I=1,SONTOSTATES
         INTOSTATE=SONTO(1,I)
         JNTOSTATE=SONTO(2,I)
