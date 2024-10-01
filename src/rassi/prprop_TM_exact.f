@@ -41,7 +41,6 @@
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
-#include "WrkSpc.fh"
       LOGICAL TMOgroup
       INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER*8 LABEL
@@ -63,6 +62,7 @@
       Real*8, Allocatable:: DXRM(:,:,:), DXIM(:,:,:)
       Real*8, Allocatable:: TMR(:,:,:), TMI(:,:,:)
       Real*8, Allocatable:: IP(:), OscStr(:,:), Aux(:,:)
+      Real*8, Allocatable:: RAW(:)
 
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
@@ -337,7 +337,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *     Array for printing contributions from different directions
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,2*NQUAD*6*nmax2)
+      CALL mma_allocate(RAW,2*NQUAD*6*nmax2,Label='RAW')
+      LRAW=1
       CALL mma_allocate(OSCSTR,2,nmax2,Label='OSCSTR')
       CALL mma_allocate(Aux,8,nmax2,Label='Aux')
 *
@@ -463,7 +464,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           Initialize output arrays
 *
             OscStr(:,:)=0.0D0
-            CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
+            RAW(:)=0.0D0
             Aux(:,:)=0.0D0
 *
             Do iQuad = 1, nQuad
@@ -798,15 +799,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    NQUAD_=2*NQUAD
                    LRAW_=LRAW+6*NQUAD_*(ij_-1)
                    IQUAD_=2*(IQUAD-1)+(kp-1)
-                   WORK(LRAW_+IQUAD_+0*NQUAD_) = F_Temp
-                   WORK(LRAW_+IQUAD_+1*NQUAD_) = R_Temp
+                   RAW(LRAW_+IQUAD_+0*NQUAD_) = F_Temp
+                   RAW(LRAW_+IQUAD_+1*NQUAD_) = R_Temp
 *
 *              Save the direction and weight too
 *
-                   WORK(LRAW_+IQUAD_+2*NQUAD_) = UK(1)*kPhase(kp)
-                   WORK(LRAW_+IQUAD_+3*NQUAD_) = UK(2)*kPhase(kp)
-                   WORK(LRAW_+IQUAD_+4*NQUAD_) = UK(3)*kPhase(kp)
-                   WORK(LRAW_+IQUAD_+5*NQUAD_) = Weight
+                   RAW(LRAW_+IQUAD_+2*NQUAD_) = UK(1)*kPhase(kp)
+                   RAW(LRAW_+IQUAD_+3*NQUAD_) = UK(2)*kPhase(kp)
+                   RAW(LRAW_+IQUAD_+4*NQUAD_) = UK(3)*kPhase(kp)
+                   RAW(LRAW_+IQUAD_+5*NQUAD_) = Weight
 *
 *              Do not accumulate if not doing an isotropic integration
 *
@@ -936,11 +937,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                        IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
                        IQUAD_=2*(IQUAD-1)+(kp-1)
                        WRITE(6,33) ISO,JSO,
-     &                 WORK(LRAW_+IQUAD_+0*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+1*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+2*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+3*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+4*NQUAD_)
+     &                 RAW(LRAW_+IQUAD_+0*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+1*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+2*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+3*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+4*NQUAD_)
                      END DO
                    END DO
                    WRITE(6,35)
@@ -961,13 +962,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                 DO kp=1,2
                   IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
                   IQUAD_=2*(IQUAD-1)+(kp-1)
-                  Weight=WORK(LRAW_+IQUAD_+5*NQUAD_)
+                  Weight=RAW(LRAW_+IQUAD_+5*NQUAD_)
                   WRITE(6,33) ISO,JSO,
-     &            WORK(LRAW_+IQUAD_+0*NQUAD_)*Weight,
-     &            WORK(LRAW_+IQUAD_+1*NQUAD_)*Weight,
-     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
+     &            RAW(LRAW_+IQUAD_+0*NQUAD_)*Weight,
+     &            RAW(LRAW_+IQUAD_+1*NQUAD_)*Weight,
+     &            RAW(LRAW_+IQUAD_+2*NQUAD_),
+     &            RAW(LRAW_+IQUAD_+3*NQUAD_),
+     &            RAW(LRAW_+IQUAD_+4*NQUAD_)
                 END DO
               END DO
               WRITE(6,35)
@@ -1015,7 +1016,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *     Do some cleanup
 *
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
+      CALL mma_deallocate(RAW)
       CALL mma_deallocate(IP)
       CALL mma_deallocate(DXR)
       CALL mma_deallocate(DXI)
