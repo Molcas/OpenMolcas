@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE SPIND(ISYOP,MS2OP,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
      &                 PSI1,PSI2,SPD12)
-
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       REAL*8 PSI1(*),PSI2(*),SPD12(*)
 C     REAL*8 COEFF,OVERLAP,OVLP,PRTHR
@@ -21,13 +21,14 @@ C     REAL*8 COEFF,OVERLAP,OVLP,PRTHR
       INTEGER FSBOP,IJSORB,IMODE,ISORB
       INTEGER NDETS1,NDETS2
       INTEGER LFSBANN1,LFSBANN2
-      INTEGER JSORB,LANN1,LANN2
+      INTEGER JSORB
       INTEGER ISYOP,MS2OP,KOINFO
       INTEGER ISMLAB,ISPLAB,JSYM,JMS2,JSMLAB,JSPLAB
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "symmul.fh"
       EXTERNAL OVERLAP_RASSI
+      Real*8, Allocatable:: ANN1(:), ANN2(:)
 
 CTEST      write(*,*)' Test prints in SPIND.'
 C Nr of active spin-orbitals
@@ -43,16 +44,16 @@ C Annihilate a single orbital:
        IMODE=-1
        LFSBANN1=FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1)
        NDETS1=IWORK(LFSBANN1+4)
-       CALL GETMEM('ANN1','Allo','Real',LANN1,NDETS1)
-       CALL DCOPY_(NDETS1,[0.0D0],0,WORK(LANN1),1)
+       CALL mma_allocate(ANN1,NDETS1,Label='ANN1')
+       ANN1(:)=0.0D0
        CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,IWORK(LFSBANN1),
-     &                   IFSBTAB1,COEFF,WORK(LANN1),PSI1)
+     &                   IFSBTAB1,COEFF,ANN1,PSI1)
 CTEST       write(*,*)' Prior to call to PRIMSGM.'
 CTEST       write(*,*)' FS block structure at LFSBANN1:'
 CTEST       CALL PRFSBTAB(IWORK(LFSBANN1))
 CTEST       write(*,*)' Wave function ANN1 after PRIMSGM:'
 CTEST       PRTHR=0.01D0
-CTEST       CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN1),PRTHR,WORK(LANN1))
+CTEST       CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN1),PRTHR,ANN1)
 C Compute those ANN2 wave functions, which have the correct properties:
        JSYM=MUL(ISMLAB,ISYOP)
        JMS2= MS2OP+ISPLAB
@@ -67,22 +68,22 @@ CUNUSED        JSOIND=IORBTAB(KOINFO+2+8*(JSORB-1))
         IMODE=-1
         LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2)
         NDETS2=IWORK(LFSBANN2+4)
-        CALL GETMEM('ANN2','Allo','Real',LANN2,NDETS2)
-        CALL DCOPY_(NDETS2,[0.0D0],0,WORK(LANN2),1)
+        CALL mma_allocate(ANN2,NDETS2,Label='ANN2')
+        ANN2(:)=0.0D0
         CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN2),
-     &                   IFSBTAB2,COEFF,WORK(LANN2),PSI2)
+     &                   IFSBTAB2,COEFF,ANN2,PSI2)
 
 C Compute the spin transition density matrix element:
         OVLP=OVERLAP_RASSI(IWORK(LFSBANN1),
-     &                  IWORK(LFSBANN2),WORK(LANN1),WORK(LANN2))
+     &                  IWORK(LFSBANN2),ANN1,ANN2)
 CTEST       write(*,*)' Their overlap:',OVLP
-        CALL GETMEM('ANN2','Free','Real',LANN2,NDETS2)
+        CALL mma_deallocate(ANN2)
         CALL KILLOBJ(LFSBANN2)
  100    CONTINUE
         IJSORB=ISORB+NASORB*(JSORB-1)
         SPD12(IJSORB)=OVLP
        END DO
-       CALL GETMEM('ANN1','Free','Real',LANN1,NDETS1)
+       CALL mma_deallocate(ANN1)
        CALL KILLOBJ(LFSBANN1)
       END DO
 
