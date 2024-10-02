@@ -175,6 +175,7 @@
       External Proc_Inp
 #ifdef _DMRG_
       integer :: maxtrR
+      integer :: maxBD
       real*8  :: maxtrW
 #endif
       Integer IndType(56)
@@ -564,13 +565,13 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
      &         'update hh:mm:ss'
         else if (DoDMRG .and. ICIONLY == 0)then
          Write(LF,'(6X,A)')
-     &         'Iter num  DMRG max tr DMRG  SX      DMRGSCF'//
-     &         '       Energy    '//
+     &         'Iter num   Bond  DMRG max tr DMRG  SX'//
+     &         '      DMRGSCF       Energy    '//
      &         'max ROT   max BLB     max BLB  Level Ln srch  Step '//
      &         '  QN     CPU Time'
          Write(LF,'(6X,A)')
-     &         '   sweeps/root weight/root iter     energy'//
-     &         '        change    '//
+     &         '   sweeps/ dim  /root weight/root iter'//
+     &         '     energy        change    '//
      &         ' param    element      value   shift minimum  type '//
      &         'update   hh:mm:ss'
         else if (DoDMRG .and. ICIONLY /= 0)then
@@ -1418,14 +1419,16 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
 #ifdef _DMRG_
               maxtrW = 0.0d0
               maxtrR = -1
+              maxBD = -1
               ITERCI = MAXVAL(dmrg_energy%num_sweeps)
               IROT   = MAXLOC(dmrg_energy%num_sweeps,1)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW, 1)
-         Write(LF,'(6X,I3,I3,I4,ES12.2,I4,I5,F15.8,ES12.2,A1,ES9.2,'//
-     &            'A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,'//
-     &            'I2.2,A1,I2.2)')
-     &        ITER,ITERCI,IROT,maxtrW,maxtrR,
+              maxBD   = MAXVAL(dmrg_energy%bond_dim)
+         Write(LF,'(6X,I3,I3,I4,I7,ES12.2,I4,I5,F15.8,ES12.2,A1,'//
+     &            'ES9.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,'//
+     &            'I7,A1,I2.2,A1,I2.2)')
+     &        ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
