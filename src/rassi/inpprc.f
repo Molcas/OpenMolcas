@@ -876,8 +876,6 @@ C Write out various input data:
           ifheff=.true.
           DO J=1,NSTATE
             DO I=1,NSTATE
-              iadr=(j-1)*nstate+i-1
-              iadr2=(i-1)*nstate+j-1
               HAM(i,j)=0.5D0*(HEff(i,j)+HEff(j,i))
             END DO
           END DO
