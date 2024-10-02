@@ -30,7 +30,7 @@
       CHARACTER CDIR
       Real*8 Dummy(1)
       Integer iDummy(7,8)
-      Real*8, allocatable:: SZZ(:)
+      Real*8, allocatable:: SZZ(:), VEC(:)
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -50,7 +50,7 @@ C Get the proper type of the property
       NBMX2=NBMX**2
 
 c SZZ  - AO Overlap integral
-c LVEC  - AO Overlap eigenvectors
+c VEC  - AO Overlap eigenvectors
 c LEIG  - AO Overlap eigenvalues
 c LVEC2 - Eigenvectors of density matrix
 c LSCR  - Temporary for matrix multiplication
@@ -58,12 +58,12 @@ C NOTE: LSCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
-      CALL GETMEM('VEC   ','ALLO','REAL',LVEC,NBSQ)
+      CALL mma_allocate(VEC,NBSQ,Label='VEC')
       CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NBMX2)
       CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NBMX2)
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
       SZZ(:)=0.0D0
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVEC),1)
+      VEC(:)=0.0D0
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2),1)
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
       CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
@@ -93,15 +93,15 @@ c IOPT=6, origin and nuclear contrib not read
 
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
-      LV=LVEC
+      LV=1
       LE=LEIG
-      CALL FZERO(WORK(LVEC),NBSQ)
+      VEC(:)=0.0D0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          WORK(LV-1+I)=1.0D00
+          VEC(LV-1+I)=1.0D00
         END DO
-        CALL JACOB(SZZ(LS),WORK(LV),NB,NB)
+        CALL JACOB(SZZ(LS),VEC,NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
@@ -110,7 +110,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
           EIG=SZZ(LS1)
           WORK(LE1)=EIG
           X=1.0D00/SQRT(MAX(EIG,1.0D-14))
-          CALL DSCAL_(NB,X,WORK(LV1),1)
+          CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
@@ -142,7 +142,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         INV=1
         II2=0
         IOCC=0
-        LV=LVEC
+        LV=1
         LE=LEIG
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
@@ -171,10 +171,10 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
 
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMAT),NB,WORK(LV),NB,
+     &                 WORK(LDMAT),NB,VEC(LV),NB,
      &                 0.0D0,WORK(LSCR),NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCR),NB,
+     &                 VEC(LV),NB,WORK(LSCR),NB,
      &                 0.0D0,WORK(LDMAT),NB)
 
           ID1=1
@@ -221,7 +221,7 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
 
 C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2),NB,
+     &                 VEC(LV),NB,WORK(LVEC2),NB,
      &                 0.0D0,WORK(LSCR),NB)
           I1=LSCR
           I2=INV+NB**2
@@ -279,7 +279,7 @@ c    ONLYFOR NATURAL ORBITALS
       END DO
 
       CALL GETMEM('TDMAT ','FREE','REAL',LDMAT,NBMX2)
-      CALL GETMEM('VEC   ','FREE','REAL',LVEC,NBSQ)
+      CALL mma_deallocate(VEC)
       CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NBMX2)
       CALL GETMEM('SCR   ','FREE','REAL',LSCR,NBMX2)
       CALL GETMEM('EIG   ','FREE','REAL',LEIG,NBST)
