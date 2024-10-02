@@ -26,6 +26,7 @@
      &               mh5_close_file
 #endif
       use cntrl_data, only: RefEne, HEff
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -33,9 +34,7 @@
 #include "symmul.fh"
 #include "rassi.fh"
 #include "jobin.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "stdalloc.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
 
@@ -58,10 +57,10 @@
       Integer IPT2
       Integer ISY, IT
       Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM
-      Integer LEJOB, LEREAD, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1,
-     &        NMAYBE
+      Integer NEJOB, NHEFF, NIS, NIS1, NTIT1, NMAYBE
       INTEGER JOB, NROOT0
       LOGICAL ISZERO, READ_STATES
+      Real*8, Allocatable:: EJOB(:), EREAD(:), H_Eff(:)
 #ifdef _HDF5_
       character(len=16) :: molcas_module
       character(len=8)  :: heff_string
@@ -452,9 +451,9 @@ C is added in GETH1.
 
 C First read energies, which may be used in any case
       NEJOB=MXROOT*MXITER
-      CALL GETMEM('EJOB','ALLO','REAL',LEJOB,NEJOB)
+      CALL mma_allocate(EJOB,NEJOB,Label='EJOB')
       IAD=ITOC15(6)
-      CALL DDAFILE(LUIPH,2,WORK(LEJOB),NEJOB,IAD)
+      CALL DDAFILE(LUIPH,2,EJOB,NEJOB,IAD)
 C Note that there is no info on nr of iterations
 C so we cannot know what energies to pick...
 C Let us make a guess: The correct set of energy values in the
@@ -463,27 +462,27 @@ C table of energies/iteration is the last one with not all zeroes.
       DO IT=1,MXITER
         AEMAX=0.0D0
         DO I=1,MXROOT
-          E=WORK(LEJOB+MXROOT*(IT-1)+(I-1))
+          E=EJOB(MXROOT*(IT-1)+I)
           AEMAX=MAX(AEMAX,ABS(E))
         END DO
         IF(ABS(AEMAX).LE.1.0D-12) exit
         NMAYBE=IT
       END DO
-      CALL GETMEM('EREAD','ALLO','REAL',LEREAD,NSTATE)
+      CALL mma_allocate(EREAD,NSTATE,Label='EREAD')
       DO I=1,NSTAT(JOB)
         ISTATE=ISTAT(JOB)-1+I
 #ifdef _DMRG_
         if (doDMRG) then
-          E=WORK(LEJOB-1+LROOT(ISTATE)-ISTAT(JOB)+1+MXROOT*(NMAYBE-1))
+          E=EJOB(LROOT(ISTATE)-ISTAT(JOB)+1+MXROOT*(NMAYBE-1))
         else
 #endif
-        E=WORK(LEJOB-1+LROOT(ISTATE)+MXROOT*(NMAYBE-1))
+        E=EJOB(LROOT(ISTATE)+MXROOT*(NMAYBE-1))
 #ifdef _DMRG_
         endif
 #endif
-        Work(LEREAD+istate-1)=E
+        EREAD(istate)=E
       END DO
-      CALL GETMEM('EJOB','FREE','REAL',LEJOB,NEJOB)
+      CALL mma_deallocate(EJOB)
 
 C Using energy data from JobIph?
       IF(IFEJOB) THEN
@@ -498,7 +497,7 @@ C Using energy data from JobIph?
 C Put the energies into diagonal of Hamiltonian:
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          REFENE(istate)=Work(LEREAD+istate-1)
+          REFENE(istate)=EREAD(istate)
         END DO
       END IF
 
@@ -515,16 +514,16 @@ C Using effective Hamiltonian from JobIph file?
         END IF
         HAVE_HEFF=.TRUE.
         NHEFF=LROT1**2
-        CALL GETMEM('HEFF','ALLO','REAL',LHEFF,NHEFF)
+        CALL mma_allocate(H_EFF,NHEFF,Label='H_Eff')
         IAD15=ITOC15(17)
-        CALL DDAFILE(LUIPH,2,WORK(LHEFF),NHEFF,IAD15)
+        CALL DDAFILE(LUIPH,2,H_EFF,NHEFF,IAD15)
 C If both EJOB and HEFF are given, read only the diagonal
         IF(IFEJOB) THEN
           HAVE_DIAG=.TRUE.
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
             ISNUM=LROOT(ISTATE)
-            HIJ=WORK(LHEFF-1+ISNUM+LROT1*(ISNUM-1))
+            HIJ=H_EFF(ISNUM+LROT1*(ISNUM-1))
             REFENE(istate)=HIJ
             HEff(iState,iState)=HIJ
           END DO
@@ -536,19 +535,19 @@ C If both EJOB and HEFF are given, read only the diagonal
             DO J=1,NSTAT(JOB)
               JSTATE=ISTAT(JOB)-1+J
               JSNUM=LROOT(JSTATE)
-              HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
+              HIJ=H_EFF(ISNUM+LROT1*(JSNUM-1))
               HEff(jState,iState)=HIJ
               IF (I.EQ.J) REFENE(istate)=HIJ
               IF (ABS(HIJ)>0.0d0) ISZERO=.FALSE.
             END DO
             IF (ISZERO) THEN
-              Heff(iState,iState)=Work(LEREAD+istate-1)
+              Heff(iState,iState)=EREAD(istate)
             END IF
           END DO
         END IF
-        CALL GETMEM('HEFF','FREE','REAL',LHEFF,NHEFF)
+        CALL mma_deallocate(H_Eff)
       END IF
-      CALL GETMEM('EREAD','FREE','REAL',LEREAD,NSTATE)
+      CALL mma_deallocate(EREAD)
 C Read the level to orbital translations
       IDISK=ITOC15(18)
       CALL IDAFILE(LUIPH,0,IDUM,MXLEV,IDISK) ! L2ACT
