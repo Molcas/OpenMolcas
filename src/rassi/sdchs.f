@@ -78,8 +78,7 @@ C Annihilate another spin orbital from PSI2, LSORB:
      &                   IWORK(LFSBANN1),COEFF,ANN2,ANN1)
 
 C Compute the spin transition density matrix element:
-         OVLP=OVERLAP_RASSI(IFSBTAB1,
-     &                  IWORK(LFSBANN2),PSI1,ANN2)
+         OVLP=OVERLAP_RASSI(IFSBTAB1,IWORK(LFSBANN2),PSI1,ANN2)
 
          IJ=((ISORB-1)*(ISORB-2))/2+JSORB
          SDCHSM(IJ)=SDCHSM(IJ)+OVLP

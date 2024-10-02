@@ -52,10 +52,8 @@ C Count how big the new table will be:
       IFSB2=0
       IDET2=0
       DO IFSB1=1,NFSB1
-CTEST        write(*,'(1x,a,8I8)')'FSBOP IFSB1=',IFSB1
         KPOS1=KSTARR1+(NASPRT1+2)*(IFSB1-1)
         NDET1=IFSBTAB(KPOS1+NASPRT)
-CTEST        write(*,'(1x,a,8I8)')'NDET1:',NDET1
 C The substring type to be annihilated from or created in:
         ISST1=IFSBTAB(KPOS1-1+ISPART)
 C The resulting substring type:
@@ -68,8 +66,6 @@ C Old vs. new nr of substrings:
         NSBS1=ISSTAB(KSSTTB+5*(ISST1-1))
         NSBS2=ISSTAB(KSSTTB+5*(ISST2-1))
         NDET2=(NDET1*NSBS2)/NSBS1
-CTEST      write(*,'(1x,a,8I8)')'NSBS1,NSBS2:',NSBS1,NSBS2
-CTEST      write(*,'(1x,a,8I8)')'NDET1,NDET2:',NDET1,NDET2
         IDET2=IDET2+NDET2
       END DO
       NFSB2=IFSB2
@@ -81,13 +77,6 @@ CTEST      write(*,'(1x,a,8I8)')'NDET1,NDET2:',NDET1,NDET2
       NHSH2=997+2*NFSB2
       NTAB2=NHEAD+NSSTARR2+2*NHSH2
 C NTAB2 is now known. Make a new FSB table:
-CTEST      WRITE(*,*)' FSBOP: Here, NTAB2 should be known.'
-CTEST      WRITE(*,*)'   NFSB2 =',NFSB2
-CTEST      WRITE(*,*)'   NDETS2=',NDETS2
-CTEST      WRITE(*,*)'   NHEAD =',NHEAD
-CTEST      WRITE(*,*)' NSSTARR2=',NSSTARR2
-CTEST      WRITE(*,*)'   NHSH2 =',NHSH2
-CTEST      WRITE(*,*)'   NTAB2 =',NTAB2
       CALL GETMEM('FSBOP','Allo','Inte',LFSBOP,NTAB2)
       IWORK(LFSBOP+0)=NTAB2
       IWORK(LFSBOP+1)=ITYPE
@@ -96,10 +85,8 @@ CTEST      WRITE(*,*)'   NTAB2 =',NTAB2
       IFSB2=0
       IDET2=0
       DO IFSB1=1,NFSB1
-CTEST        write(*,'(1x,a,8I8)')'FSBOP IFSB1=',IFSB1
         KPOS1=KSTARR1+(NASPRT1+2)*(IFSB1-1)
         NDET1=IFSBTAB(KPOS1+NASPRT)
-CTEST        write(*,'(1x,a,8I8)')'NDET1:',NDET1
 C The substring type to be annihilated from or created in:
         ISST1=IFSBTAB(KPOS1-1+ISPART)
 C The resulting substring type:
@@ -116,12 +103,8 @@ C Old vs. new nr of substrings:
         NDET2=(NDET1*NSBS2)/NSBS1
         IWORK(LFSBOP-1+KPOS2+NASPRT  )=NDET2
         IWORK(LFSBOP-1+KPOS2+NASPRT+1)=IDET2+1
-CTEST      write(*,'(1x,a,8I8)')'NSBS1,NSBS2:',NSBS1,NSBS2
-CTEST      write(*,'(1x,a,8I8)')'NDET1,NDET2:',NDET1,NDET2
         IDET2=IDET2+NDET2
       END DO
-CTEST      write(*,'(1x,a,8I8)')'finished, with NFSB2=',NFSB2
-CTEST      write(*,'(1x,a,8I8)')'              NDETS2=',NDETS2
 C Store this block in the PSI2 hash structure.
       NHEAD=7
       LSSTARR2=LFSBOP+NHEAD
@@ -153,6 +136,7 @@ C Store values in the map:
      &                         NHSH2,IWORK(LHSH2),IFSB2)
       END DO
       FSBOP=LFSBOP
+
       IERR=0
       DO IFSB2=1,NFSB2
         LPOS=LSSTARR2+(NASPRT+2)*(IFSB2-1)
@@ -167,5 +151,5 @@ C Store values in the map:
         CALL PRFSBTAB(IWORK(LFSBOP))
         CALL ABEND()
       END IF
-      RETURN
-      END
+
+      END FUNCTION FSBOP
