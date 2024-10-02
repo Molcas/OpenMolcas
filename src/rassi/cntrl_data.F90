@@ -27,4 +27,5 @@ Integer, Allocatable, Public:: SODIAG(:)
 !    SODIAGNSTATE     Number of states to diagonalize
 INTEGER, Public::  SODIAGNSTATE=0
 
+Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
 End Module Cntrl_Data

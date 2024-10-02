@@ -25,6 +25,7 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
 #endif
+      use cntrl_data, only: RefEne, HEff
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -56,7 +57,7 @@
       Integer IAD, IAD15, IDISK, IERR, IDUM(1)
       Integer IPT2
       Integer ISY, IT
-      Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM, iAdr
+      Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM
       Integer LEJOB, LEREAD, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1,
      &        NMAYBE
       INTEGER JOB, NROOT0
@@ -204,7 +205,7 @@
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
             ISNUM=root2state(LROOT(ISTATE))
-            Work(LREFENE+istate-1)=ref_Heff(ISNUM,ISNUM)
+            REFENE(istate)=ref_Heff(ISNUM,ISNUM)
           END DO
         Else
           write(6,'(2x,a)')
@@ -217,11 +218,7 @@
             DO J=1,NSTAT(JOB)
               JSTATE=ISTAT(JOB)-1+J
               JSNUM=root2state(LROOT(JSTATE))
-              iadr=(istate-1)*nstate+jstate-1
-              Work(l_heff+iadr)=ref_Heff(ISNUM,JSNUM)
-!             write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
-!    &        Work(l_heff+iadr)
-!             call xflush(6)
+              HEff(jState,iState)=ref_Heff(ISNUM,JSNUM)
             END DO
           END DO
         End If
@@ -234,10 +231,9 @@
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
-          Work(LREFENE+istate-1)=ref_energies(ISNUM)
+          REFENE(istate)=ref_energies(ISNUM)
           ! put the energies on the Heff diagonal too, just in case
-          iadr=(istate-1)*nstate+istate-1
-          Work(l_heff+iadr)=ref_energies(ISNUM)
+          HEff(iState,iState)=ref_energies(ISNUM)
         END DO
         call mma_deallocate(ref_energies)
 * read rasscf energies
@@ -248,10 +244,9 @@
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
-          Work(LREFENE+istate-1)=ref_energies(ISNUM)
+          REFENE(istate)=ref_energies(ISNUM)
           ! put the energies on the Heff diagonal too, just in case
-          iadr=(istate-1)*nstate+istate-1
-          Work(l_heff+iadr)=ref_energies(ISNUM)
+          HEff(iState,iState)=ref_energies(ISNUM)
         END DO
         call mma_deallocate(ref_energies)
       End If
@@ -503,7 +498,7 @@ C Using energy data from JobIph?
 C Put the energies into diagonal of Hamiltonian:
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          Work(LREFENE+istate-1)=Work(LEREAD+istate-1)
+          REFENE(istate)=Work(LEREAD+istate-1)
         END DO
       END IF
 
@@ -530,9 +525,8 @@ C If both EJOB and HEFF are given, read only the diagonal
             ISTATE=ISTAT(JOB)-1+I
             ISNUM=LROOT(ISTATE)
             HIJ=WORK(LHEFF-1+ISNUM+LROT1*(ISNUM-1))
-            Work(LREFENE+istate-1)=HIJ
-            iadr=(istate-1)*nstate+istate-1
-            Work(l_heff+iadr)=HIJ
+            REFENE(istate)=HIJ
+            HEff(iState,iState)=HIJ
           END DO
         ELSE
           DO I=1,NSTAT(JOB)
@@ -543,14 +537,12 @@ C If both EJOB and HEFF are given, read only the diagonal
               JSTATE=ISTAT(JOB)-1+J
               JSNUM=LROOT(JSTATE)
               HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
-              iadr=(istate-1)*nstate+jstate-1
-              Work(l_heff+iadr)=HIJ
-              IF (I.EQ.J) Work(LREFENE+istate-1)=HIJ
+              HEff(jState,iState)=HIJ
+              IF (I.EQ.J) REFENE(istate)=HIJ
               IF (ABS(HIJ)>0.0d0) ISZERO=.FALSE.
             END DO
             IF (ISZERO) THEN
-              iadr=(istate-1)*nstate+istate-1
-              Work(l_heff+iadr)=Work(LEREAD+istate-1)
+              Heff(iState,iState)=Work(LEREAD+istate-1)
             END IF
           END DO
         END IF

@@ -24,7 +24,6 @@
       INTEGER NDET,NRNATO,NBINA,IBINA,IPCODE,LSYM1,LSYM2,NCONF1,NCONF2
       INTEGER LCI1,LCI2,LCI3,            LGAM1,LGAM2,LGAM3
       INTEGER                                       LIPAIR
-      INTEGER                 LREFENE,L_HEFF
       INTEGER                      NTSTEP,NBSTEP,LOOPDIVIDE
       INTEGER DYSEXPSF,DYSEXPSO
       INTEGER OCAN,DCHO
@@ -50,9 +49,8 @@
       COMMON /PROPS/ EMIN,ERFNUC,PNUC(MXPROP),                          &
      &     PORIG(3,MXPROP),SOTHR_PRT,                                   &
      &     BSTART,BINCRE,TSTART,TINCRE,BANGRES,OSTHR_DIPR,OSTHR_QIPR,   &
-     &     RSTHR,TOLERANCE,     LREFENE,                                &
+     &     RSTHR,TOLERANCE,                                             &
      &     NSOTHR_PRT,ICOMP(MXPROP),ISOCMP(MXPROP),                     &
-     &     L_HEFF,                                                      &
      &     IPUSED(MXPROP),NDISP,LDISP(8),ISMGRD(MXDISP),                &
      &     NTDISP(MXDISP),NTSTEP,NBSTEP,LOOPDIVIDE,L_Eff,nQuad
       COMMON /CNTRL/ TDIPMIN,CITHR,EPRTHR,EPRATHR,                      &
