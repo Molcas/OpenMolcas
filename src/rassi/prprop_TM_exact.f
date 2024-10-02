@@ -411,7 +411,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               ENSOR2=ENSOR(jstart_)
             EndIf
             EDIFF_=ENSOR2-ENSOR1
-            n12=(iend_-istart_+1)*(jend_-jstart_+1)
 *Screening
             Call iCopy(NState,[0],0,jMask,1)
             Call iCopy(NSS,[0],0,jSSMask,1)
@@ -698,8 +697,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                CALL DAXPY_(3*NSS**2,kPhase(kp),
      &                     DXIM(:,:,:),1,TMI(:,:,:),1)
                DO iCar=1, 3
-                  LR_=LTMR+(iCar-1)*NSS**2
-                  LI_=LTMI+(iCar-1)*NSS**2
                   CALL ZTRNSF_MASKED(NSS,VSOR,VSOI,
      &                               TMR(:,:,iCar),TMI(:,:,iCar),
      &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
@@ -708,7 +705,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                IJ_=0
                Do ISO=istart_,iend_
                  Do JSO=jstart_,jend_
-                   IJ=(JSO-1)*NSS+ISO-1
                    IJ_=IJ_+1
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
 *
@@ -830,7 +826,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IJ_=0
             Do ISO=istart_,iend_
               Do JSO=jstart_,jend_
-                 IJ=(ISO-1)*NSS+JSO-1
                  IJ_=IJ_+1
                  EDIFF=ENSOR(JSO)-ENSOR(ISO)
                  F=OscStr(1,IJ_)

@@ -26,7 +26,7 @@
       Save iDiskSav !(For ToFile)
       Integer, SAVE:: ICALL=0
       Real*8, Allocatable:: SCR(:,:)
-      Integer, Allocatable:: IP(:)
+      Real*8, Allocatable:: IP(:)
 
 C COMBINED SYMMETRY OF STATES:
       JOB1=JBNUM(ISTATE)

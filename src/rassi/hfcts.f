@@ -279,7 +279,6 @@ cccccccccccccccccccccccccccccccccccccccc
 c END Testing - use overlap matrix
 cccccccccccccccccccccccccccccccccccccccc
 
-          IJSS=ISS+NSS*(JSS-1)
 C WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
@@ -931,8 +930,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        IJSO=ISO+NSS*(JSO-1)
-        JISO=JSO+NSS*(ISO-1)
         CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
@@ -1139,7 +1136,6 @@ C square root of the G eigenvalues
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-          IJSS=ISS+NSS*(JSS-1)
 C WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
@@ -1420,8 +1416,6 @@ c
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        IJSO=ISO+NSS*(JSO-1)
-        JISO=JSO+NSS*(ISO-1)
         CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
@@ -1585,7 +1579,6 @@ c
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-          IJSS=ISS+NSS*(JSS-1)
 C WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
@@ -1867,8 +1860,6 @@ c
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        IJSO=ISO+NSS*(JSO-1)
-        JISO=JSO+NSS*(ISO-1)
         CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
@@ -2060,7 +2051,6 @@ c
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-          IJSS=ISS+NSS*(JSS-1)
 C WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
@@ -2330,8 +2320,6 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        IJSO=ISO+NSS*(JSO-1)
-        JISO=JSO+NSS*(ISO-1)
         CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
@@ -2691,8 +2679,6 @@ c
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        IJSO=ISO+NSS*(JSO-1)
-        JISO=JSO+NSS*(ISO-1)
         CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
 
