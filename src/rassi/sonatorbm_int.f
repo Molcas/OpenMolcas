@@ -14,44 +14,27 @@
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
       use rassi_global_arrays, only: JBNUM
       use OneDat, only: sOpSiz
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
-      DIMENSION DENS(6,NBTRI)
-      INTEGER ASS,BSS
-      CHARACTER*8 CHARPROP, CHARTYPE
-      Dimension ROTMAT(3,3)
-      DIMENSION IDUM(1)
+      Real*8 DENS(6,NBTRI)
+      CHARACTER(LEN=8) CHARPROP
+      INTEGER IC_
+      CHARACTER(LEN=8) CHARTYPE
+      INTEGER ASS, BSS, NSS, iOpt
+      Real*8 ROTMAT(3,3),
+     &       PROPVALXR,PROPVALYR,PROPVALZR,
+     &       PROPVALXI,PROPVALYI,PROPVALZI
+
+      Integer IDUM(1)
+      Real*8, allocatable:: IP(:), IPX(:), IPY(:), IPZ(:)
 
 C NOW DO INTEGRATION WITH AO MATRICES
 C FOR THE EXPECTATION VALUE
-
-C The following creates an array that is used to
-C map a specific spin state to the corresponding
-C spin-free state and to its spin
-C (see prprop.f and others)
-
-      CALL GETMEM('MAPST','ALLO','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','ALLO','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
-
-      ISS=0
-      DO ISF=1,NSTATE
-        JOB=JBNUM(ISF)
-        MPLET=MLTPLT(JOB)
-
-        DO MSPROJ=-MPLET+1,MPLET-1,2
-          ISS=ISS+1
-          IWORK(LMAPST-1+ISS)=ISF
-          IWORK(LMAPSP-1+ISS)=MPLET
-          IWORK(LMAPMS-1+ISS)=MSPROJ
-        END DO
-      END DO
-
 
 C Get the proper type of the property
       ITYPE=0
@@ -69,14 +52,14 @@ C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 c The extra 4 elements correspond to the nuclear contribution
 c and the origin of the operator
       NIP=4+NBTRI
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+      CALL mma_allocate(IP,NIP,Label='IP')
       If (iOpt.eq.1) Then
-         CALL GETMEM('IPX    ','ALLO','REAL',LIPX,NIP)
-         CALL GETMEM('IPY    ','ALLO','REAL',LIPY,NIP)
-         CALL GETMEM('IPZ    ','ALLO','REAL',LIPZ,NIP)
-         CALL DCOPY_(NIP,[0.0D00],0,WORK(LIPX),1)
-         CALL DCOPY_(NIP,[0.0D00],0,WORK(LIPY),1)
-         CALL DCOPY_(NIP,[0.0D00],0,WORK(LIPZ),1)
+         CALL mma_allocate(IPX,NIP,Label='IPX')
+         CALL mma_allocate(IPY,NIP,Label='IPY')
+         CALL mma_allocate(IPZ,NIP,Label='IPZ')
+         IPX(:)=0.0D0
+         IPY(:)=0.0D0
+         IPZ(:)=0.0D0
       End If
 
       If (iOpt.eq.1) Then
@@ -100,7 +83,7 @@ c (see OneDat module)
 
 c Actually read the integral
       JOPT=0
-      CALL RDONE(IRC,JOPT,CHARPROP,ICMP,WORK(LIP),ISCHK)
+      CALL RDONE(IRC,JOPT,CHARPROP,ICMP,IP,ISCHK)
 
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
@@ -114,9 +97,9 @@ c Actually read the integral
 
       If (iOpt.eq.1) Then
 c        note reordering
-             CALL DAXPY_(NIP,ROTMAT(IC,1),WORK(LIP),1,WORK(LIPX),1)
-             CALL DAXPY_(NIP,ROTMAT(IC,2),WORK(LIP),1,WORK(LIPY),1)
-             CALL DAXPY_(NIP,ROTMAT(IC,3),WORK(LIP),1,WORK(LIPZ),1)
+             CALL DAXPY_(NIP,ROTMAT(IC,1),IP,1,IPX,1)
+             CALL DAXPY_(NIP,ROTMAT(IC,2),IP,1,IPY,1)
+             CALL DAXPY_(NIP,ROTMAT(IC,3),IP,1,IPZ,1)
       End If
 
       END DO ! end loop over reading X,Y, and Z AO Integrals
@@ -136,45 +119,45 @@ c in SONATORB.F from the symmetric/antisymmetric equations
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         If (iOpt.eq.1) Then
         DO I=1,NBTRI
-          PROPVALXR=PROPVALXR+WORK(LIPX-1+I)*DENS(1,I)
-          PROPVALYR=PROPVALYR+WORK(LIPY-1+I)*DENS(2,I)
-          PROPVALZR=PROPVALZR+WORK(LIPZ-1+I)*DENS(3,I)
+          PROPVALXR=PROPVALXR+IPX(I)*DENS(1,I)
+          PROPVALYR=PROPVALYR+IPY(I)*DENS(2,I)
+          PROPVALZR=PROPVALZR+IPZ(I)*DENS(3,I)
 
-          PROPVALXI=PROPVALXI+WORK(LIPX-1+I)*DENS(4,I)
-          PROPVALYI=PROPVALYI+WORK(LIPY-1+I)*DENS(5,I)
-          PROPVALZI=PROPVALZI+WORK(LIPZ-1+I)*DENS(6,I)
+          PROPVALXI=PROPVALXI+IPX(I)*DENS(4,I)
+          PROPVALYI=PROPVALYI+IPY(I)*DENS(5,I)
+          PROPVALZI=PROPVALZI+IPZ(I)*DENS(6,I)
         END DO
         Else
         DO I=1,NBTRI
-          PROPVALXR=PROPVALXR+WORK(LIP-1+I)*DENS(1,I)
-          PROPVALYR=PROPVALYR+WORK(LIP-1+I)*DENS(2,I)
-          PROPVALZR=PROPVALZR+WORK(LIP-1+I)*DENS(3,I)
+          PROPVALXR=PROPVALXR+IP(I)*DENS(1,I)
+          PROPVALYR=PROPVALYR+IP(I)*DENS(2,I)
+          PROPVALZR=PROPVALZR+IP(I)*DENS(3,I)
 
-          PROPVALXI=PROPVALXI+WORK(LIP-1+I)*DENS(4,I)
-          PROPVALYI=PROPVALYI+WORK(LIP-1+I)*DENS(5,I)
-          PROPVALZI=PROPVALZI+WORK(LIP-1+I)*DENS(6,I)
+          PROPVALXI=PROPVALXI+IP(I)*DENS(4,I)
+          PROPVALYI=PROPVALYI+IP(I)*DENS(5,I)
+          PROPVALZI=PROPVALZI+IP(I)*DENS(6,I)
         END DO
         End If
       ELSE
         If (iOpt.eq.1) Then
         DO I=1,NBTRI
-          PROPVALXI=PROPVALXI+WORK(LIPX-1+I)*DENS(1,I)
-          PROPVALYI=PROPVALYI+WORK(LIPY-1+I)*DENS(2,I)
-          PROPVALZI=PROPVALZI+WORK(LIPZ-1+I)*DENS(3,I)
+          PROPVALXI=PROPVALXI+IPX(I)*DENS(1,I)
+          PROPVALYI=PROPVALYI+IPY(I)*DENS(2,I)
+          PROPVALZI=PROPVALZI+IPZ(I)*DENS(3,I)
 
-          PROPVALXR=PROPVALXR-WORK(LIPX-1+I)*DENS(4,I)
-          PROPVALYR=PROPVALYR-WORK(LIPY-1+I)*DENS(5,I)
-          PROPVALZR=PROPVALZR-WORK(LIPZ-1+I)*DENS(6,I)
+          PROPVALXR=PROPVALXR-IPX(I)*DENS(4,I)
+          PROPVALYR=PROPVALYR-IPY(I)*DENS(5,I)
+          PROPVALZR=PROPVALZR-IPZ(I)*DENS(6,I)
         END DO
         Else
         DO I=1,NBTRI
-          PROPVALXI=PROPVALXI+WORK(LIP-1+I)*DENS(1,I)
-          PROPVALYI=PROPVALYI+WORK(LIP-1+I)*DENS(2,I)
-          PROPVALZI=PROPVALZI+WORK(LIP-1+I)*DENS(3,I)
+          PROPVALXI=PROPVALXI+IP(I)*DENS(1,I)
+          PROPVALYI=PROPVALYI+IP(I)*DENS(2,I)
+          PROPVALZI=PROPVALZI+IP(I)*DENS(3,I)
 
-          PROPVALXR=PROPVALXR-WORK(LIP-1+I)*DENS(4,I)
-          PROPVALYR=PROPVALYR-WORK(LIP-1+I)*DENS(5,I)
-          PROPVALZR=PROPVALZR-WORK(LIP-1+I)*DENS(6,I)
+          PROPVALXR=PROPVALXR-IP(I)*DENS(4,I)
+          PROPVALYR=PROPVALYR-IP(I)*DENS(5,I)
+          PROPVALZR=PROPVALZR-IP(I)*DENS(6,I)
         END DO
         End If
       END IF
@@ -195,17 +178,12 @@ c in SONATORB.F from the symmetric/antisymmetric equations
       WRITE(6,*) "************************************"
 
 c Free up un-needed space
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
+      call mma_deallocate(IP)
       If (iOpt.eq.1) Then
-         CALL GETMEM('IPX    ','FREE','REAL',LIPX,NIP)
-         CALL GETMEM('IPY    ','FREE','REAL',LIPY,NIP)
-         CALL GETMEM('IPZ    ','FREE','REAL',LIPZ,NIP)
+         call mma_deallocate(IPX)
+         call mma_deallocate(IPY)
+         call mma_deallocate(IPZ)
       End If
 
-      CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
-
-      RETURN
-      END
+      END SUBROUTINE SONATORBM_INT
 
