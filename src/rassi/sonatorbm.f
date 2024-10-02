@@ -20,7 +20,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
       CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS,BSS,NSS
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS)
@@ -28,17 +27,20 @@
       Real*8 ROTMAT(3,3)
       Real*8 DENSOUT(6,NBTRI)
 
-      Integer IZMR2(3),IZMI2(3)
       Integer IOFF(8)
       Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
       Real*8, allocatable:: TMPR(:), TMPI(:), SCR(:), TDMZZ(:)
       Real*8, allocatable, Target:: SDMXR(:) ,SDMYR(:) ,SDMZR(:)
       Real*8, allocatable, Target:: SDMXI(:) ,SDMYI(:) ,SDMZI(:)
+      Real*8, allocatable, Target:: SDMXR2(:) ,SDMYR2(:) ,SDMZR2(:)
+      Real*8, allocatable, Target:: SDMXI2(:) ,SDMYI2(:) ,SDMZI2(:)
       Type A2_Array
         Real*8, Pointer:: A2(:)=>Null()
       End Type A2_Array
       Type (A2_array):: IZMR(3)
       Type (A2_array):: IZMI(3)
+      Type (A2_array):: IZMR2(3)
+      Type (A2_array):: IZMI2(3)
 
 c VV: dummy initialization
       CGY=-1
@@ -104,24 +106,25 @@ c SCR             Scratch for expansion of TDMZZ
       IZMI(2)%A2=>SDMYI(:)
       IZMI(3)%A2=>SDMZI(:)
 
-      CALL GETMEM('TSDMXR2','ALLO','REAL',LSDMXR2,NBTRI)
-      CALL GETMEM('TSDMYR2','ALLO','REAL',LSDMYR2,NBTRI)
-      CALL GETMEM('TSDMZR2','ALLO','REAL',LSDMZR2,NBTRI)
-      CALL GETMEM('TSDMXI2','ALLO','REAL',LSDMXI2,NBTRI)
-      CALL GETMEM('TSDMYI2','ALLO','REAL',LSDMYI2,NBTRI)
-      CALL GETMEM('TSDMZI2','ALLO','REAL',LSDMZI2,NBTRI)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSDMXR2),1)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSDMYR2),1)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSDMZR2),1)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSDMXI2),1)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSDMYI2),1)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSDMZI2),1)
-      IZMR2(1)=LSDMXR2
-      IZMR2(2)=LSDMYR2
-      IZMR2(3)=LSDMZR2
-      IZMI2(1)=LSDMXI2
-      IZMI2(2)=LSDMYI2
-      IZMI2(3)=LSDMZI2
+      CALL mma_allocate(SDMXR2,NBTRI,Label='SDMXR2')
+      CALL mma_allocate(SDMYR2,NBTRI,Label='SDMYR2')
+      CALL mma_allocate(SDMZR2,NBTRI,Label='SDMZR2')
+      CALL mma_allocate(SDMXI2,NBTRI,Label='SDMXI2')
+      CALL mma_allocate(SDMYI2,NBTRI,Label='SDMYI2')
+      CALL mma_allocate(SDMZI2,NBTRI,Label='SDMZI2')
+      SDMXR2(:)=0.0D0
+      SDMYR2(:)=0.0D0
+      SDMZR2(:)=0.0D0
+      SDMXI2(:)=0.0D0
+      SDMYI2(:)=0.0D0
+      SDMZI2(:)=0.0D0
+      IZMR2(1)%A2=>SDMXR2(:)
+      IZMR2(2)%A2=>SDMYR2(:)
+      IZMR2(3)%A2=>SDMZR2(:)
+      IZMI2(1)%A2=>SDMXI2(:)
+      IZMI2(2)%A2=>SDMYI2(:)
+      IZMI2(3)%A2=>SDMZI2(:)
+
 
       CALL mma_allocate(TMPR,NBTRI,Label='TMPR')
       CALL mma_allocate(TMPI,NBTRI,Label='TMPI')
@@ -342,10 +345,10 @@ C right side
           CALL DAXPY_(NBTRI,       URR,IZMI(IDIR)%A2(:),1,TMPI,1)
 
 C left side
-         CALL DAXPY_(NBTRI,       URL,TMPR,1,WORK(IZMR2(IDIR)),1)
-         CALL DAXPY_(NBTRI,       UIL,TMPI,1,WORK(IZMR2(IDIR)),1)
-         CALL DAXPY_(NBTRI,       URL,TMPI,1,WORK(IZMI2(IDIR)),1)
-         CALL DAXPY_(NBTRI,-1.0d0*UIL,TMPR,1,WORK(IZMI2(IDIR)),1)
+         CALL DAXPY_(NBTRI,       URL,TMPR,1,IZMR2(IDIR)%A2(:),1)
+         CALL DAXPY_(NBTRI,       UIL,TMPI,1,IZMR2(IDIR)%A2(:),1)
+         CALL DAXPY_(NBTRI,       URL,TMPI,1,IZMI2(IDIR)%A2(:),1)
+         CALL DAXPY_(NBTRI,-1.0d0*UIL,TMPR,1,IZMI2(IDIR)%A2(:),1)
         END DO
 cccccccccccccccccccccc
 c END SPINORBIT STUFF
@@ -363,21 +366,21 @@ C END MAIN LOOP OVER STATES (KSS,LSS)
 C Store this density to DENSOUT
       IF(ITYPE.EQ.3.OR.ITYPE.EQ.4) THEN
         DO I=1,NBTRI
-          DENSOUT(1,I)=WORK(LSDMXR2-1+I)
-          DENSOUT(2,I)=WORK(LSDMYR2-1+I)
-          DENSOUT(3,I)=WORK(LSDMZR2-1+I)
-          DENSOUT(4,I)=WORK(LSDMXI2-1+I)
-          DENSOUT(5,I)=WORK(LSDMYI2-1+I)
-          DENSOUT(6,I)=WORK(LSDMZI2-1+I)
+          DENSOUT(1,I)=SDMXR2(I)
+          DENSOUT(2,I)=SDMYR2(I)
+          DENSOUT(3,I)=SDMZR2(I)
+          DENSOUT(4,I)=SDMXI2(I)
+          DENSOUT(5,I)=SDMYI2(I)
+          DENSOUT(6,I)=SDMZI2(I)
         END DO
       ELSE
         DO I=1,NBTRI
-          DENSOUT(1,I)=WORK(LSDMZR2-1+I)
-          DENSOUT(2,I)=WORK(LSDMZR2-1+I)
-          DENSOUT(3,I)=WORK(LSDMZR2-1+I)
-          DENSOUT(4,I)=WORK(LSDMZI2-1+I)
-          DENSOUT(5,I)=WORK(LSDMZI2-1+I)
-          DENSOUT(6,I)=WORK(LSDMZI2-1+I)
+          DENSOUT(1,I)=SDMZR2(I)
+          DENSOUT(2,I)=SDMZR2(I)
+          DENSOUT(3,I)=SDMZR2(I)
+          DENSOUT(4,I)=SDMZI2(I)
+          DENSOUT(5,I)=SDMZI2(I)
+          DENSOUT(6,I)=SDMZI2(I)
         END DO
       END IF
 
@@ -401,12 +404,18 @@ c Free memory
       Call mma_deallocate(TMPI)
       Call mma_deallocate(TMPR)
 
-      CALL GETMEM('TSDMXR2','FREE','REAL',LSDMXR2,NBTRI)
-      CALL GETMEM('TSDMYR2','FREE','REAL',LSDMYR2,NBTRI)
-      CALL GETMEM('TSDMZR2','FREE','REAL',LSDMZR2,NBTRI)
-      CALL GETMEM('TSDMXI2','FREE','REAL',LSDMXI2,NBTRI)
-      CALL GETMEM('TSDMYI2','FREE','REAL',LSDMYI2,NBTRI)
-      CALL GETMEM('TSDMZI2','FREE','REAL',LSDMZI2,NBTRI)
+      Call mma_deallocate(SDMXR2)
+      Call mma_deallocate(SDMYR2)
+      Call mma_deallocate(SDMZR2)
+      Call mma_deallocate(SDMXI2)
+      Call mma_deallocate(SDMYI2)
+      Call mma_deallocate(SDMZI2)
+      IZMR2(1)%A2=>Null()
+      IZMR2(2)%A2=>Null()
+      IZMR2(3)%A2=>Null()
+      IZMI2(1)%A2=>Null()
+      IZMI2(2)%A2=>Null()
+      IZMI2(3)%A2=>Null()
 
       Call mma_deallocate(MAPMS)
       Call mma_deallocate(MAPSP)
