@@ -12,18 +12,19 @@
       use rassi_aux, only: ipglob
       use Constants, only: cm_s, hPlanck, gElectron, mBohr
       use cntrl_data, only: SODIAG, SODIAGNSTATE
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "symmul.fh"
 
 C subroutine arguments
+      Integer NSS
       REAL*8 UMATR(NSS,NSS),UMATI(NSS,NSS)
 
 
@@ -50,9 +51,13 @@ C subroutine arguments
 
       REAL*8 MU_BOHR
 
+      Real*8, Allocatable:: DMATTMP(:)
+      Real*8, Allocatable:: EIGVECR(:,:), EIGVECI(:,:)
+      Real*8, Allocatable:: UWR(:), UWI(:)
+
 C For creating the filename of the ORB file
-      CHARACTER*11 FILEBASE
-      CHARACTER*11 FILEBASEL
+      CHARACTER(LEN=11) FILEBASE
+      CHARACTER(LEN=11) FILEBASEL
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Matrices
@@ -89,7 +94,7 @@ C BPTST       Storage for some testing
       CALL DCOPY_(9*N**2,[0.0d0],0,MUMAT2R,1)
       CALL DCOPY_(9*N**2,[0.0d0],0,MUMAT2I,1)
 
-      CALL GETMEM('DMATTMPA','ALLO','REAL',LDMATTMP,3*(NBST*(NBST+1)))
+      CALL mma_allocate(DMATTMP,3*(NBST*(NBST+1)),Label='DMATTMP')
 
       !> identity mat
       IDENTMAT(:,:)=0.0D0
@@ -112,22 +117,22 @@ C Only work with one triangle - this is a hermitian matrix
         iOpt=0
         CALL SONATORBM('ANTISING',UMATR,UMATI,
      &                 ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
-     &                 WORK(LDMATTMP))
+     &                 DMATTMP)
 
         IC=-1
         iOpt=1
-        CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+        CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
      &                     ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
      &                     AXR,AYR,AZR,AXI,AYI,AZI)
 
         iOpt=1
         CALL SONATORBM('HERMTRIP',UMATR,UMATI,
      &                 ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
-     &                 WORK(LDMATTMP))
+     &                 DMATTMP)
 
         IC=1
         iOpt=0
-        CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
+        CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',
      &                    ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
      &                    SXR,SYR,SZR,SXI,SYI,SZI)
 
@@ -283,20 +288,19 @@ c      SUBROUTINE SPIN_PHASE(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
 
 c EXPAND EIGENVECTORS TO SEPARATE R,I MATRICES AND
 c AS A PART OF AN IDENTITY MATRIX
-      CALL GETMEM('SODEIGR','ALLO','REAL',LEIGVECR,NSS**2)
-      CALL GETMEM('SODEIGI','ALLO','REAL',LEIGVECI,NSS**2)
+      CALL mma_allocate(EIGVECR,NSS,NSS,Label='EIGVECR')
+      CALL mma_allocate(EIGVECI,NSS,NSS,Label='EIGVECI')
+      EigVecR(:,:)=0.0D0
+      EigVecI(:,:)=0.0D0
 
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LEIGVECR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LEIGVECI),1)
 
       DO I=1,NSS
       DO J=1,NSS
-        IJ=NSS*(J-1)+I
-        WORK(LEIGVECI-1+IJ)=0.0d0
+        EIGVECI(I,J)=0.0d0
         IF(I.EQ.J) THEN
-          WORK(LEIGVECR-1+IJ)=1.0d0
+          EIGVECR(I,J)=1.0d0
         ELSE
-          WORK(LEIGVECR-1+IJ)=0.0d0
+          EIGVECR(I,J)=0.0d0
         END IF
       END DO
       END DO
@@ -308,8 +312,8 @@ c AS A PART OF AN IDENTITY MATRIX
 
         IJ=NSS*(J2-1)+I2
         WRITE(6,*) I2,J2,IJ
-        WORK(LEIGVECR-1+IJ)=REAL(ZOUT(I,J))
-        WORK(LEIGVECI-1+IJ)=AIMAG(ZOUT(I,J))
+        EIGVECR(I2,J2)=REAL(ZOUT(I,J))
+        EIGVECI(I2,J2)=AIMAG(ZOUT(I,J))
       END DO
       END DO
 
@@ -317,25 +321,25 @@ c      WRITE(6,*) "EIGENVECTORS SPLIT INTO REAL/IMAG PARTS"
 c      DO I=1,NSS
 c      DO J=1,NSS
 c        IJ=NSS*(J-1)+I
-c        WRITE(6,*) I,J,WORK(LEIGVECR-1+IJ)
-c        WRITE(6,*) I,J,WORK(LEIGVECI-1+IJ)
+c        WRITE(6,*) I,J,EIGVECR(I,J)
+c        WRITE(6,*) I,J,EIGVECI(I,J)
 c      END DO
 c      END DO
 
 
 c Multiply by SO eigenvectors to get new UW matrix
 
-      CALL GETMEM('SONUWR','ALLO','REAL',LUWR,NSS**2)
-      CALL GETMEM('SONUWI','ALLO','REAL',LUWI,NSS**2)
+      CALL mma_allocate(UWR,NSS**2,Label='UWR')
+      CALL mma_allocate(UWI,NSS**2,Label='UWI')
 
       CALL DGEMM_('N','N',NSS,NSS,NSS,1.0d0,
-     &           UMATR,NSS,WORK(LEIGVECR),NSS,0.0d0,WORK(LUWR),NSS)
+     &           UMATR,NSS,EIGVECR,NSS,0.0d0,UWR,NSS)
       CALL DGEMM_('N','N',NSS,NSS,NSS,1.0d0,
-     &           UMATI,NSS,WORK(LEIGVECR),NSS,0.0d0,WORK(LUWI),NSS)
+     &           UMATI,NSS,EIGVECR,NSS,0.0d0,UWI,NSS)
       CALL DGEMM_('N','N',NSS,NSS,NSS,1.0d0,
-     &           UMATR,NSS,WORK(LEIGVECI),NSS,1.0d0,WORK(LUWI),NSS)
+     &           UMATR,NSS,EIGVECI,NSS,1.0d0,UWI,NSS)
       CALL DGEMM_('N','N',NSS,NSS,NSS,-1.0d0,
-     &           UMATI,NSS,WORK(LEIGVECI),NSS,1.0d0,WORK(LUWR),NSS)
+     &           UMATI,NSS,EIGVECI,NSS,1.0d0,UWR,NSS)
 
 
 c REDO USING SONATORB_MIX
@@ -367,15 +371,15 @@ c    -> Call SONATORBM, SONATORBM_INT
 
 c store antising density in LDMATTMP
         iOpt=0
-        CALL SONATORBM('ANTISING',WORK(LUWR),WORK(LUWI),
+        CALL SONATORBM('ANTISING',UWR,UWI,
      &                 ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
-     &                 WORK(LDMATTMP))
+     &                 DMATTMP)
 
 
 c Expectation values of L -> LMAT{R,I}
         IC=-1
         iOpt=1
-        CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
+        CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
      &                    ISTATE,JSTATE,NSS,iOpt,MAXES,
      &                    LMATR(I,J,IDIR,1),LMATR(I,J,IDIR,2),
      &                    LMATR(I,J,IDIR,3),
@@ -384,21 +388,21 @@ c Expectation values of L -> LMAT{R,I}
 
 c Plot for generation of current density
         IF(IFCURD) THEN
-          CALL SONATORB_CPLOT(WORK(LDMATTMP),FILEBASEL,'ANTISING',
+          CALL SONATORB_CPLOT(DMATTMP,FILEBASEL,'ANTISING',
      &                        ISTATE,JSTATE)
         END IF
 
 
 c store hermtrip density in LDMATTMP
         iOpt=1
-        CALL SONATORBM('HERMTRIP',WORK(LUWR),WORK(LUWI),
+        CALL SONATORBM('HERMTRIP',UWR,UWI,
      &                 ISTATE,JSTATE,NSS,iOpt,MAXES,
-     &                 WORK(LDMATTMP))
+     &                 DMATTMP)
 
 c Expectation values of S -> SMAT{R,I}
         IC=1
         iOpt=0
-        CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
+        CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',
      &                     ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
      &                     SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2),
      &                     SMATR(I,J,IDIR,3),
@@ -406,7 +410,7 @@ c Expectation values of S -> SMAT{R,I}
      &                     SMATI(I,J,IDIR,3))
 
 c plot the rotated density
-        CALL SONATORB_PLOT(WORK(LDMATTMP),FILEBASE,'HERMTRIP',
+        CALL SONATORB_PLOT(DMATTMP,FILEBASE,'HERMTRIP',
      &                     ISTATE,JSTATE)
 
       END DO
@@ -420,10 +424,10 @@ c write the magnetic axes to a file
       WRITE(LUMAXES,*) MAXES
       CLOSE(LUMAXES)
 
-      CALL GETMEM('SONUWR','FREE','REAL',LUWR,NSS**2)
-      CALL GETMEM('SONUWI','FREE','REAL',LUWI,NSS**2)
-      CALL GETMEM('SODEIGR','FREE','REAL',LEIGVECR,2*N**2)
-      CALL GETMEM('SODEIGI','FREE','REAL',LEIGVECI,2*N**2)
+      Call mma_deallocate(UWI)
+      Call mma_deallocate(UWR)
+      Call mma_deallocate(EIGVECI)
+      Call mma_deallocate(EIGVECR)
 
       END DO ! end loop over directions
 
@@ -492,7 +496,7 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
       WRITE(6,*) "* ENDING SODIAG *******************************"
       WRITE(6,*) "***********************************************"
 
-      CALL GETMEM('DMATTMPA','FREE','REAL',LDMATTMP,3*(NBST*(NBST+1)))
+      CALL mma_deallocate(DMATTMP)
 
       END SUBROUTINE mkSODIAG
 
@@ -630,10 +634,7 @@ CC Rewrite the Spin m.e. in a new basis:
       enddo
       endif
 
-      RETURN
-      END
-
-
+      END SUBROUTINE SPIN_PHASE_RASSI
 
 
       SUBROUTINE ATENS_RASSI(moment, dim, gtens, maxes, IPGLOB)
@@ -900,8 +901,7 @@ C      Call Add_Info('GTENS_MAIN',gtens,3,5)
 
  199  continue
 
-      RETURN
-      END
+      END SUBROUTINE ATENS_RASSI
 
 
 
@@ -919,22 +919,13 @@ C
 
 C initializations
       INFO=0
-      Do j=1,Nbtot
-        Do i=1,j
-       AP(i+(j-1)*j/2)=0.0D0
-        enddo
-      enddo
-      do i=1,3*Nbtot
-      work(i)=0.0d0
-      enddo
-      Do I=1,Nbtot
-      W1(I)=0.0D0
-      W(i)=0.d0
-       Do J=1,Nbtot
-      Z1(J,I)=0.0D0
-      Z(j,i)=0.0D0
-       enddo
-      enddo
+      AP(:)=0.0D0
+      WORK(:)=0.0D0
+      W1(:)=0.0D0
+      W(:)=0.d0
+      Z1(:,:)=0.0D0
+      Z(:,:)=0.0D0
+
       Do j=1,Nbtot
         Do i=1,j
        AP(i+(j-1)*j/2)=MATRIX(i,j)
@@ -948,5 +939,4 @@ C initializations
       Z1(J,I)=Z(J,I)
        enddo
       enddo
-      Return
-      End
+      End Subroutine DIAG_R2_RASSI
