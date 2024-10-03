@@ -67,6 +67,7 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
       Integer, Allocatable:: LIST(:), STACK(:)
+      Real*8, allocatable:: HH(:), HSQ(:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -139,8 +140,8 @@ CTEST      write(*,*)' The LIST array:'
 CTEST      write(*,'(1x,20i3)')(LIST(I),I=1,NSTATE)
 
       NHH=(NSTATE*(NSTATE+1))/2
-      CALL GETMEM('HH','ALLO','REAL',LHH,NHH)
-      CALL GETMEM('HSQ','ALLO','REAL',LHSQ,NSTATE**2)
+      CALL mma_allocate(HH,NHH,Label='HH')
+      CALL mma_allocate(HSQ,NSTATE**2,Label='HSQ')
       CALL GETMEM('SS','ALLO','REAL',LSS,NHH)
       CALL GETMEM('UU','ALLO','REAL',LUU,NSTATE**2)
       CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
@@ -167,7 +168,7 @@ C 1. PUT UNIT MATRIX INTO UU
       CALL DCOPY_(MSTATE   ,[1.0D0],0,WORK(LUU),MSTATE+1)
 C 2. COPY OVERLAP MATRIX INTO TRIANGULAR STORAGE,
 C    and Hamiltonian into square storage:
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LHSQ),1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,HSQ,1)
       IJ=0
       DO II=1,MSTATE
         I=STACK(II)
@@ -183,8 +184,8 @@ C    and Hamiltonian into square storage:
             write(6,*) 'Hamiltonian for i,j',i,j,HAM(i,j)
           end if
           WORK(LSS-1+IJ)=OVLP(I,J)
-          WORK(LHSQ-1+II+MSTATE*(JJ-1))=HAM(I,J)
-          WORK(LHSQ-1+JJ+MSTATE*(II-1))=HAM(I,J)
+          HSQ(II+MSTATE*(JJ-1))=HAM(I,J)
+          HSQ(JJ+MSTATE*(II-1))=HAM(I,J)
         END DO
       END DO
 C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
@@ -202,29 +203,29 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
         CALL DGEMM_('N','N',MSTATE,MSTATE,MSTATE,1.0D0,
-     &             WORK(LHSQ),MSTATE,WORK(LUU),MSTATE,
+     &             HSQ,MSTATE,WORK(LUU),MSTATE,
      &             0.0D0,WORK(LSCR),MSTATE)
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
-     &             0.0D0,WORK(LHSQ),MSTATE)
+     &             0.0D0,HSQ,MSTATE)
 
 C 5. DIAGONALIZE HAMILTONIAN.
       IJ=0
       DO I=1,MSTATE
         DO J=1,I
           IJ=IJ+1
-          WORK(LHH-1+IJ)=WORK(LHSQ-1+I+MSTATE*(J-1))
+          HH(IJ)=HSQ(I+MSTATE*(J-1))
         END DO
       END DO
 
-      CALL Jacob (WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      CALL SortDiag(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+      CALL Jacob (HH,WORK(LUU),MSTATE,MSTATE)
+      CALL SortDiag(HH,WORK(LUU),MSTATE,MSTATE)
 
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
         I=STACK(II)
-        ENERGY(I)=WORK(LHH-1+IDIAG)
+        ENERGY(I)=HH(IDIAG)
         DO JJ=1,MSTATE
           J=STACK(JJ)
           EIGVEC(I,J)=WORK(LUU-1+II+MSTATE*(JJ-1))
@@ -268,7 +269,7 @@ c               lower than 1.0D-4 cm-1
       DO II=1,MSTATE
         IDIAG=IDIAG+II
         I=STACK(II)
-        WORK(LHH-1+IDIAG)=ENERGY(I)
+        HH(IDIAG)=ENERGY(I)
       END DO
 C End of loop over sets.
       END DO
@@ -283,10 +284,10 @@ C especially for already diagonal Hamiltonian matrix.
            eigvec(:,i) = -eigvec(:,i)
          endif
       enddo
-      CALL GETMEM('HH','FREE','REAL',LHH,NHH)
+      CALL mma_deallocate(HH)
       CALL GETMEM('SS','FREE','REAL',LSS,NHH)
       CALL GETMEM('UU','FREE','REAL',LUU,NSTATE**2)
-      CALL GETMEM('HSQ','FREE','REAL',LHSQ,NSTATE**2)
+      CALL mma_deallocate(HSQ)
       CALL mma_deallocate(STACK)
       CALL mma_deallocate(LIST)
 
