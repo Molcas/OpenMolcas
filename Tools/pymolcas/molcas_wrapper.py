@@ -26,7 +26,7 @@ except ImportError:
 from os import environ, access, W_OK, X_OK, listdir, remove, rmdir, getpid, getcwd, makedirs, symlink, devnull
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
 from datetime import datetime
-from shutil import copy2, move, Error
+from shutil import copy2, move, copytree, Error
 from subprocess import check_output, STDOUT, CalledProcessError
 from re import compile as re_compile, search, sub, MULTILINE, IGNORECASE
 from io import BytesIO
@@ -1206,7 +1206,7 @@ class Molcas_module(object):
       return
     files_to_copy = sorted([(k,v[0]) for (k,v) in self._files.items() if 's' in v[1]])
     files_to_move = sorted([(k,v[0]) for (k,v) in self._files.items() if 'm' in v[1]])
-    files = self._copy_or_move(copy2, dest, files_to_copy)
+    files = self._copy_or_move(self.copy_any, dest, files_to_copy)
     files.extend(self._copy_or_move(move, dest, files_to_move))
     if (len(files) > 0):
       listfiles = ' '.join(files)
@@ -1214,6 +1214,15 @@ class Molcas_module(object):
                initial_indent='*** files: ',
             subsequent_indent='           '))
       print('    saved to directory {0}'.format(dest))
+
+  def copy_any(self, src, dest):
+    """ Copies either file or directory from src to dest. """
+    if isfile(src):
+        copy2(src, dest)
+    elif isdir(src):
+        copytree(src, dest)
+    else:
+        raise ValueError(f"Source {src} is neither a file nor a directory.")
 
   def _copy_or_move(self, action, dest, filelist):
     #TODO: use parnell
