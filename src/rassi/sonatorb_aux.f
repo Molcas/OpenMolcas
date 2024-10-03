@@ -17,7 +17,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
@@ -297,7 +296,6 @@ c    ONLYFOR NATURAL ORBITALS
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
@@ -315,6 +313,8 @@ c    ONLYFOR NATURAL ORBITALS
       Real*8, Allocatable:: VNAT(:), VNATI(:), OCC(:)
       Real*8, Allocatable:: DMAT(:), DMATI(:)
       Real*8, Allocatable:: SANG(:)
+      Real*8, Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
+      Real*8, Allocatable:: SANGTR2(:), SANGTI2(:)
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -606,16 +606,16 @@ CCCCCCCC TESTING
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IF(IPGLOB.GE.4) THEN
 
-      CALL GETMEM('SANGF ','ALLO','REAL',LSANGF,NBMX**2)
-      CALL GETMEM('SANGTR  ','ALLO','REAL',LSANGTR,NBMX**2)
-      CALL GETMEM('SANGTI  ','ALLO','REAL',LSANGTI,NBMX**2)
-      CALL GETMEM('SANGTR2  ','ALLO','REAL',LSANGTR2,NBMX**2)
-      CALL GETMEM('SANGTI2  ','ALLO','REAL',LSANGTI2,NBMX**2)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGF),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTR),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTI),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTR2),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTI2),1)
+      CALL mma_allocate(SANGF,NBMX**2,Label='SANGF')
+      SANGF(:)=0.0D0
+      CALL mma_allocate(SANGTR,NBMX**2,Label='SANGTR')
+      CALL mma_allocate(SANGTI,NBMX**2,Label='SANGTI')
+      SANGTR(:)=0.0D0
+      SANGTI(:)=0.0D0
+      CALL mma_allocate(SANGTR2,NBMX**2,Label='SANGTR2')
+      CALL mma_allocate(SANGTI2,NBMX**2,Label='SANGTI2')
+      SANGTR2(:)=0.0D0
+      SANGTI2(:)=0.0D0
 
       INV=0
       INV2=0
@@ -628,20 +628,20 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         IF(NB.EQ.0) GOTO 1860
 
 c       Expand integrals for this symmetry to full storage
-        CALL DCOPY_(NBMX**2,[0.0d0],0,WORK(LSANGF),1)
+        SANGF(:)=0.0D0
 
         DO J=1,NB
         DO I=1,J
           IJ=NB*(J-1)+I-1
           JI=NB*(I-1)+J-1
 
-          WORK(LSANGF+JI) = SANG(1+II)
+          SANGF(1+JI) = SANG(1+II)
 
           IF(I.NE.J) THEN
             IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
-              WORK(LSANGF+IJ) = 1.0d0 * SANG(1+II)
+              SANGF(1+IJ) = -SANG(1+II)
             ELSE
-              WORK(LSANGF+IJ) = SANG(1+II)
+              SANGF(1+IJ) =  SANG(1+II)
             END IF
           END IF
 
@@ -651,45 +651,45 @@ c       Expand integrals for this symmetry to full storage
         END DO
 
         IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &             VNAT(1+INV),NB,0.0d0,WORK(LSANGTR),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &              VNATI(1+INV),NB,0.0d0,WORK(LSANGTI),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
+     &             VNAT(1+INV),NB,0.0d0,SANGTR,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
+     &              VNATI(1+INV),NB,0.0d0,SANGTI,NB)
 
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTR2),NB)
+     &             SANGTR,NB,0.0d0,SANGTR2,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTR2),NB)
+     &             SANGTI,NB,1.0d0,SANGTR2,NB)
 
           CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTI2),NB)
+     &             SANGTR,NB,0.0d0,SANGTI2,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTI2),NB)
+     &             SANGTI,NB,1.0d0,SANGTI,NB)
 
         ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &             VNAT(1+INV),NB,0.0d0,WORK(LSANGTI),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LSANGF),NB,
-     &             VNATI(1+INV),NB,0.0d0,WORK(LSANGTR),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
+     &             VNAT(1+INV),NB,0.0d0,SANGTI,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,SANGF,NB,
+     &             VNATI(1+INV),NB,0.0d0,SANGTR,NB)
 
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTR2),NB)
+     &             SANGTR,NB,0.0d0,SANGTR2,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTR2),NB)
+     &             SANGTI,NB,1.0d0,SANGTR2,NB)
 
           CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTI2),NB)
+     &             SANGTR,NB,0.0d0,SANGTI2,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTI2),NB)
+     &             SANGTI,NB,1.0d0,SANGTI2,NB)
 
         END IF
 
 c Sum over the trace
         DO I = 1,NB
           IJ = I+(I-1)*NB-1
-          SUM  = SUM  + OCC(I+INV2) * WORK(LSANGTR2+IJ)
-          SUMI = SUMI + OCC(I+INV2) * WORK(LSANGTI2+IJ)
+          SUM  = SUM  + OCC(I+INV2) * SANGTR2(1+IJ)
+          SUMI = SUMI + OCC(I+INV2) * SANGTI2(1+IJ)
         END DO
 
 1860    CONTINUE
@@ -703,11 +703,11 @@ c Sum over the trace
         WRITE(6,*) "REAL: ",SUM
         WRITE(6,*) "IMAG: ",SUMI
 
-        CALL GETMEM('SANGF ','FREE','REAL',LSANGF,NBMX**2)
-        CALL GETMEM('SANGTR  ','FREE','REAL',LSANGTR,NBMX**2)
-        CALL GETMEM('SANGTI  ','FREE','REAL',LSANGTI,NBMX**2)
-        CALL GETMEM('SANGTR2  ','FREE','REAL',LSANGTR2,NBMX**2)
-        CALL GETMEM('SANGTI2  ','FREE','REAL',LSANGTI2,NBMX**2)
+        CALL mma_deallocate(SANGF)
+        CALL mma_deallocate(SANGTR)
+        CALL mma_deallocate(SANGTI)
+        CALL mma_deallocate(SANGTR2)
+        CALL mma_deallocate(SANGTI2)
       END IF ! IPGLOB >= 4
 
       CALL mma_deallocate(SANG)
