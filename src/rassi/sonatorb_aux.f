@@ -310,7 +310,7 @@ c    ONLYFOR NATURAL ORBITALS
       CHARACTER CDIR
       Real*8 Dummy(1)
       Integer IDUM(1),iDummy(7,8)
-      Real*8, Allocatable:: SZZ(:)
+      Real*8, Allocatable:: SZZ(:), VEC(:), SCR(:)
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -331,25 +331,25 @@ C Get the proper type of the property
       NBMX2=NBMX**2
 
 c SZZ  - AO Overlap integral
-c LVEC  - AO Overlap eigenvectors
+c VEC  - AO Overlap eigenvectors
 c LEIG  - AO Overlap eigenvalues
 c LVEC2 - Eigenvectors of density matrix
-c LSCR  - Temporary for matrix multiplication
-C NOTE: LSCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
+c SCR  - Temporary for matrix multiplication
+C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
       SZZ(:)=0.0D0
-      CALL GETMEM('VEC   ','ALLO','REAL',LVEC,NBSQ)
+      CALL mma_allocate(VEC,NBSQ,Label='VEC')
+      VEC(:)=0.0D0
       CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NBMX2)
       CALL GETMEM('VEC2I  ','ALLO','REAL',LVEC2I,NBMX2)
-      CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NBMX2)
+      CALL mma_allocate(SCR,NBMX2,Label='SCR')
+      SCR(:)=0.0D0
       CALL GETMEM('SCRI   ','ALLO','REAL',LSCRI,NBMX2)
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVEC),1)
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2),1)
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2I),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCRI),1)
       CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
 
@@ -380,24 +380,23 @@ c IOPT=6, origin and nuclear contrib not read
 
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
-      LV=LVEC
+      LV=1
       LE=LEIG
-      CALL FZERO(WORK(LVEC),NBSQ)
+      VEC(:)=0.0D0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          WORK(LV-1+I)=1.0D00
+          VEC(LV-1+I)=1.0D00
         END DO
-        CALL JACOB(SZZ(LS),WORK(LV),NB,NB)
+        CALL JACOB(SZZ(LS),VEC(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
         DO I=1,NB
-          EIG=SZZ(LS1)
-          WORK(LE1)=EIG
-          X=1.0D00/SQRT(MAX(EIG,1.0D-14))
-          CALL DSCAL_(NB,X,WORK(LV1),1)
+          WORK(LE1)=SZZ(LS1)
+          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
@@ -479,7 +478,7 @@ cccccccccccccccccccccccc
         INV=1
         II2=0
         IOCC=0
-        LV=LVEC
+        LV=1
         LE=LEIG
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
@@ -492,7 +491,7 @@ C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 C expand the triangular matrix for this symmetry to a square matrix
           CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMAT),1)
           CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMATI),1)
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
+          SCR(:)=0.0D0
           CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCRI),1)
 
           DO J=1,NB
@@ -513,19 +512,19 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
 
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMAT),NB,WORK(LV),NB,
-     &                 0.0D0,WORK(LSCR),NB)
+     &                 WORK(LDMAT),NB,VEC(LV),NB,
+     &                 0.0D0,SCR,NB)
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMATI),NB,WORK(LV),NB,
+     &                 WORK(LDMATI),NB,VEC(LV),NB,
      &                 0.0D0,WORK(LSCRI),NB)
 
 
 
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCR),NB,
+     &                 VEC(LV),NB,SCR,NB,
      &                 0.0D0,WORK(LDMAT),NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCRI),NB,
+     &                 VEC(LV),NB,WORK(LSCRI),NB,
      &                 0.0D0,WORK(LDMATI),NB)
 
           ID1=1
@@ -542,20 +541,20 @@ C expand the triangular matrix for this symmetry to a square matrix
 
 
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
+          SCR(:)=0.0D0
           CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCRI),1)
 
-          ISCR=LSCR
+          ISCR=1
           ISCRI=LSCRI
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              WORK(ISCR)=(WORK(LDMAT-1+JI)+WORK(LDMAT-1+IJ))/2.0d0
+              SCR(ISCR)=(WORK(LDMAT-1+JI)+WORK(LDMAT-1+IJ))/2.0d0
               WORK(ISCRI)=(WORK(LDMATI-1+JI)-WORK(LDMATI-1+IJ))/2.0d0
 c add a factor of two to convert spin -> sigma
-              IF(ITYPE.GE.3) WORK(ISCR)=WORK(ISCR)*2.0d0
+              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
               IF(ITYPE.GE.3) WORK(ISCRI)=WORK(ISCRI)*2.0d0
               ISCR=ISCR+1
               ISCRI=ISCRI+1
@@ -566,31 +565,31 @@ C DIAGONALIZE THE DENSITY MATRIX BLOCK:
           CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LVEC2),1)
           CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LVEC2I),1)
 
-          CALL CPLOT_DIAG(WORK(LSCR),WORK(LSCRI), NB,
+          CALL CPLOT_DIAG(SCR,WORK(LSCRI), NB,
      &                    WORK(LVEC2),WORK(LVEC2I))
 
 C LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
-          II=LSCR-1
+          II=0
           DO I=1,NB
             II=II+I
-            WORK(LOCC-1+IOCC+NB+1-I)=WORK(II)
+            WORK(LOCC-1+IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
 
 C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2),NB,
-     &                 0.0D0,WORK(LSCR),NB)
+     &                 VEC(LV),NB,WORK(LVEC2),NB,
+     &                 0.0D0,SCR,NB)
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2I),NB,
+     &                 VEC(LV),NB,WORK(LVEC2I),NB,
      &                 0.0D0,WORK(LSCRI),NB)
 
-          I1=LSCR
+          I1=1
           I1I=LSCRI
           I2=INV+NB**2
           DO I=1,NB
             I2=I2-NB
-            CALL DCOPY_(NB,WORK(I1),1,WORK(LVNAT-1+I2),1)
+            CALL DCOPY_(NB,SCR(I1),1,WORK(LVNAT-1+I2),1)
             CALL DCOPY_(NB,WORK(I1I),1,WORK(LVNATI-1+I2),1)
             I1=I1+NB
             I1I=I1I+NB
@@ -780,10 +779,10 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
 
       CALL GETMEM('TDMAT ','FREE','REAL',LDMAT,NBMX2)
       CALL GETMEM('TDMATI ','FREE','REAL',LDMATI,NBMX2)
-      CALL GETMEM('VEC   ','FREE','REAL',LVEC,NBSQ)
+      CALL mma_deallocate(VEC)
       CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NBMX2)
       CALL GETMEM('VEC2I  ','FREE','REAL',LVEC2I,NBMX2)
-      CALL GETMEM('SCR   ','FREE','REAL',LSCR,NBMX2)
+      CALL mma_deallocate(SCR)
       CALL GETMEM('SCRI   ','FREE','REAL',LSCRI,NBMX2)
       CALL GETMEM('EIG   ','FREE','REAL',LEIG,NBST)
       CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
@@ -795,12 +794,12 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
 
 
 
-
       SUBROUTINE CPLOT_DIAG(MATR, MATI, DIM, EIGVECR, EIGVECI)
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER DIM
       REAL*8 MATR(DIM*(DIM+1)/2),MATI(DIM*(DIM+1)/2)
       REAL*8 EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
+
       REAL*8 CEIGVAL(DIM)
       COMPLEX*16 MATFULL((DIM*(DIM+1)/2))
       COMPLEX*16 CEIGVEC(DIM,DIM)
