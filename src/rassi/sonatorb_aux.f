@@ -30,7 +30,7 @@
       CHARACTER CDIR
       Real*8 Dummy(1)
       Integer iDummy(7,8)
-      Real*8, allocatable:: SZZ(:), VEC(:)
+      Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:)
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -52,19 +52,19 @@ C Get the proper type of the property
 c SZZ  - AO Overlap integral
 c VEC  - AO Overlap eigenvectors
 c LEIG  - AO Overlap eigenvalues
-c LVEC2 - Eigenvectors of density matrix
+c VEC2 - Eigenvectors of density matrix
 c LSCR  - Temporary for matrix multiplication
 C NOTE: LSCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
       CALL mma_allocate(VEC,NBSQ,Label='VEC')
-      CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NBMX2)
+      CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
       CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NBMX2)
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
       SZZ(:)=0.0D0
       VEC(:)=0.0D0
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2),1)
+      VEC2(:)=0.0D0
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
       CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
 
@@ -122,7 +122,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
 
       CALL mma_deallocate(SZZ)
 
-      CALL GETMEM('TDMAT ','ALLO','REAL',LDMAT,NBMX2)
+      CALL mma_allocate(DMAT,NBMX2,Label='DMAT')
 
       IF(ITYPE.LE.2) THEN
         ISTART=3
@@ -153,7 +153,7 @@ C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMAT),1)
+          DMAT(:)=0.0D0
           CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
           DO J=1,NB
           DO I=1,J
@@ -161,28 +161,28 @@ C expand the triangular matrix for this symmetry to a square matrix
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)/2.0d0
-              WORK(LDMAT-1+JI)=DENS(IDIR,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
+              DMAT(JI)=DENS(IDIR,II2)/2.0d0
             ELSE
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)
-              WORK(LDMAT-1+JI)=DENS(IDIR,II2)
+              DMAT(IJ)=DENS(IDIR,II2)
+              DMAT(JI)=DENS(IDIR,II2)
             END IF
           END DO
           END DO
 
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMAT),NB,VEC(LV),NB,
+     &                 DMAT,NB,VEC(LV),NB,
      &                 0.0D0,WORK(LSCR),NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
      &                 VEC(LV),NB,WORK(LSCR),NB,
-     &                 0.0D0,WORK(LDMAT),NB)
+     &                 0.0D0,DMAT,NB)
 
           ID1=1
           ID2=1
           DO I=1,NB
             EIG=WORK(LE-1+I)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID1),NB)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID2),1)
+            CALL DSCAL_(NB,EIG,DMAT(ID1),NB)
+            CALL DSCAL_(NB,EIG,DMAT(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
@@ -196,7 +196,7 @@ C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              WORK(ISCR)=(WORK(LDMAT-1+IJ)+WORK(LDMAT-1+JI))/2.0d0
+              WORK(ISCR)=(DMAT(IJ)+DMAT(JI))/2.0d0
 
 c add a factor of two to convert spin -> sigma
               IF(ITYPE.GE.3) WORK(ISCR)=WORK(ISCR)*2.0d0
@@ -205,11 +205,11 @@ c add a factor of two to convert spin -> sigma
           END DO
 
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LVEC2),1)
-          CALL DCOPY_(NB,[1.0D0],0,WORK(LVEC2),NB+1)
+          CALL DCOPY_(NBMX2,[0.0D0],0,VEC2,1)
+          CALL DCOPY_(NB,[1.0D0],0,VEC2,NB+1)
 
-          CALL JACOB(WORK(LSCR),WORK(LVEC2),NB,NB)
-          CALL JACORD(WORK(LSCR),WORK(LVEC2),NB,NB)
+          CALL JACOB(WORK(LSCR),VEC2,NB,NB)
+          CALL JACORD(WORK(LSCR),VEC2,NB,NB)
 
 C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=LSCR-1
@@ -221,7 +221,7 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
 
 C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 VEC(LV),NB,WORK(LVEC2),NB,
+     &                 VEC(LV),NB,VEC2,NB,
      &                 0.0D0,WORK(LSCR),NB)
           I1=LSCR
           I2=INV+NB**2
@@ -278,18 +278,15 @@ c    ONLYFOR NATURAL ORBITALS
 
       END DO
 
-      CALL GETMEM('TDMAT ','FREE','REAL',LDMAT,NBMX2)
+      CALL mma_deallocate(DMAT)
       CALL mma_deallocate(VEC)
-      CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NBMX2)
+      CALL mma_deallocate(VEC2)
       CALL GETMEM('SCR   ','FREE','REAL',LSCR,NBMX2)
       CALL GETMEM('EIG   ','FREE','REAL',LEIG,NBST)
       CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
       CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
 
       END SUBROUTINE SONATORB_PLOT
-
-
-
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
