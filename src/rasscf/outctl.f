@@ -96,83 +96,6 @@ C Local print level (if any)
 *----------------------------------------------------------------------*
 *     Print orbital and wavefunction specifications                    *
 *----------------------------------------------------------------------*
-      Write(LF,*)
-      Line=''
-      Write(Line(left-2:),'(A)') 'Wave function specifications:'
-      Call CollapseOutput(1,Line)
-      Write(LF,Fmt2//'A)')'-----------------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A,T45,I6)')'Number of closed shell electrons',
-     &                           2*NIN
-      Write(LF,Fmt2//'A,T45,I6)')'Number of electrons in active shells',
-     &                           NACTEL
-      If(.not.iDoGas) then
-        Write(LF,Fmt2//'A,T45,I6)')'Max number of holes in RAS1 space',
-     &                           NHOLE1
-        Write(LF,Fmt2//'A,T45,I6)')'Max nr of electrons in RAS3 space',
-     &                           NELEC3
-      End If
-      Write(LF,Fmt2//'A,T45,I6)')'Number of inactive orbitals',
-     &                           NIN
-      Write(LF,Fmt2//'A,T45,I6)')'Number of active orbitals',
-     &                           NAC
-      Write(LF,Fmt2//'A,T45,I6)')'Number of secondary orbitals',
-     &                           NSEC
-      Write(LF,Fmt2//'A,T45,F6.1)')'Spin quantum number',
-     &                           (DBLE(ISPIN-1))/2.0d0
-      Write(LF,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           STSYM
-      Call CollapseOutput(0,'Wave function specifications:')
-*
-      Call Get_cArray('Irreps',lIrrep,24)
-      Do iSym = 1, nSym
-         lIrrep(iSym) = adjustr(lIrrep(iSym))
-      End Do
-*
-      Write(LF,*)
-      Line=''
-      Write(Line(left-2:),'(A)') 'Orbital specifications:'
-      Call CollapseOutput(1,Line)
-      Write(LF,Fmt2//'A)')'-----------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A,T47,8I4)') 'Symmetry species',
-     &                            (iSym,iSym=1,nSym)
-      Write(LF,Fmt2//'A,T47,8(1X,A))') '                ',
-     &                            (lIrrep(iSym),iSym=1,nSym)
-      Write(LF,Fmt2//'A,T47,8I4)') 'Frozen orbitals',
-     &                            (nFro(iSym),iSym=1,nSym)
-      Write(LF,Fmt2//'A,T47,8I4)') 'Inactive orbitals',
-     &                            (nIsh(iSym),iSym=1,nSym)
-      Write(LF,Fmt2//'A,T47,8I4)') 'Active orbitals',
-     &                            (nAsh(iSym),iSym=1,nSym)
-      IF(.not.iDoGas)then
-        Write(LF,Fmt2//'A,T47,8I4)') 'RAS1 orbitals',
-     &                            (nRs1(iSym),iSym=1,nSym)
-        Write(LF,Fmt2//'A,T47,8I4)') 'RAS2 orbitals',
-     &                            (nRs2(iSym),iSym=1,nSym)
-        Write(LF,Fmt2//'A,T47,8I4)') 'RAS3 orbitals',
-     &                            (nRs3(iSym),iSym=1,nSym)
-      Else
-        DO IGAS=1,NGAS
-          Write(LF,Fmt2//'A,I1,A,T47,8I4)') 'GAS',IGAS,' orbitals',
-     &                            (ngssh(igas,iSym),iSym=1,nSym)
-        END DO
-      End If
-
-      Write(LF,Fmt2//'A,T47,8I4)') 'Secondary orbitals',
-     &                            (nSsh(iSym),iSym=1,nSym)
-      Write(LF,Fmt2//'A,T47,8I4)') 'Deleted orbitals',
-     &                            (nDel(iSym),iSym=1,nSym)
-      Write(LF,Fmt2//'A,T47,8I4)') 'Number of basis functions',
-     &                            (nBas(iSym),iSym=1,nSym)
-      If (kIVO) Then
-        Write(LF,Fmt2//'A,T47)') 'Improved Virtual Orbitals '//
-     &                           'option is used'
-        Write(LF,Fmt2//'A,T47)') 'Molecular Orbitals are NOT '//
-     &                           'suitable for CASPT2 & MRCI!'
-      End If
-      Call CollapseOutput(0,'Orbital specifications:')
-      Write(LF,*)
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       If(.Not.DoBlockDMRG) GoTo 113
@@ -249,26 +172,7 @@ C Local print level (if any)
  113  Continue
 #endif
 
-      Line=''
-      if(doDMRG)then ! yingjin - dmrg output
-        Write(Line(left-2:),'(A)') 'DMRG specifications:'
-        Call CollapseOutput(1,Line)
-        Write(LF,Fmt2//'A)')'----------------------------'
-        Write(LF,*)
-#ifdef _DMRG_
-       if(dmrg_warmup%docideas .and. nsym > 1)then
-          Write(LF,*) ' CI-DEAS decativated for point group symmetry'//
-     &                ' other than C1'
-          dmrg_warmup%docideas = .false.
-       end if
-       if(dmrg_orbital_space%initial_occ(1,1) > 0)then
-         dmrg_start_guess = "Single determinant"
-       else
-         dmrg_start_guess = "Random numbers (default)"
-       end if
-       call print_dmrg_info(lf,fmt2,2,dmrg_start_guess,nroots,thre)
-#endif
-      else
+      if (.not. doDMRG) then
         Write(Line(left-2:),'(A)') 'CI expansion specifications:'
         Call CollapseOutput(1,Line)
         Write(LF,Fmt2//'A)')'----------------------------'
