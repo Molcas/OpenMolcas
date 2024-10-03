@@ -313,6 +313,8 @@ c    ONLYFOR NATURAL ORBITALS
       Real*8, Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:), SCR(:)
       Real*8, Allocatable:: SCRI(:), EIG(:)
       Real*8, Allocatable:: VNAT(:), VNATI(:), OCC(:)
+      Real*8, Allocatable:: DMAT(:), DMATI(:)
+      Real*8, Allocatable:: SANG(:)
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -410,8 +412,8 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
 
       CALL mma_deallocate(SZZ)
 
-      CALL GETMEM('TDMAT ','ALLO','REAL',LDMAT,NBMX2)
-      CALL GETMEM('TDMATI ','ALLO','REAL',LDMATI,NBMX2)
+      CALL mma_allocate(DMAT,NBMX2,Label='DMAT')
+      CALL mma_allocate(DMATI,NBMX2,Label='DMATI')
 
       IF(ITYPE.LE.2) THEN
         ISTART=3
@@ -434,8 +436,8 @@ cccccccccccccccccccccccc
 cccccccccccccccccccccccc
 cccccccccccccccccccccccc
 C read in ao matrix for angmom or mltpl
-      CALL GETMEM('SANG  ','ALLO','REAL',LSANG,NBTRI)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSANG),1)
+      CALL mma_allocate(SANG,NBTRI,Label='SANG')
+      SANG(:)=0.0D0
 
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
@@ -444,8 +446,8 @@ C read in ao matrix for angmom or mltpl
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         ICMP=1
         LABEL='MLTPL  0'
-        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -459,8 +461,8 @@ C read in ao matrix for angmom or mltpl
       ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
         ICMP=3
         LABEL='ANGMOM'
-        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -491,8 +493,8 @@ C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMAT),1)
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMATI),1)
+          DMAT(:)=0.0D0
+          DMATI(:)=0.0D0
           SCR(:)=0.0D0
           SCRI(:)=0.0D0
 
@@ -502,40 +504,40 @@ C expand the triangular matrix for this symmetry to a square matrix
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)/2.0d0
-              WORK(LDMAT-1+JI)=DENS(IDIR,II2)/2.0d0
-              WORK(LDMATI-1+IJ)=-1.0d0*DENS(IDIR+3,II2)/2.0d0
-              WORK(LDMATI-1+JI)=DENS(IDIR+3,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
+              DMAT(JI)=DENS(IDIR,II2)/2.0d0
+              DMATI(IJ)=-DENS(IDIR+3,II2)/2.0d0
+              DMATI(JI)= DENS(IDIR+3,II2)/2.0d0
             ELSE
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)
-              WORK(LDMATI-1+JI)=DENS(IDIR+3,II2)
+              DMAT(IJ)=DENS(IDIR,II2)
+              DMATI(JI)=DENS(IDIR+3,II2)
             END IF
           END DO
           END DO
 
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMAT),NB,VEC(LV),NB,
+     &                 DMAT,NB,VEC(LV),NB,
      &                 0.0D0,SCR,NB)
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMATI),NB,VEC(LV),NB,
+     &                 DMATI,NB,VEC(LV),NB,
      &                 0.0D0,SCRI,NB)
 
 
 
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
      &                 VEC(LV),NB,SCR,NB,
-     &                 0.0D0,WORK(LDMAT),NB)
+     &                 0.0D0,DMAT,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
      &                 VEC(LV),NB,SCRI,NB,
-     &                 0.0D0,WORK(LDMATI),NB)
+     &                 0.0D0,DMATI,NB)
 
           ID1=1
           ID2=1
           DO I=1,NB
-            CALL DSCAL_(NB,EIG(LE-1+I),WORK(LDMAT-1+ID1),NB)
-            CALL DSCAL_(NB,EIG(LE-1+I),WORK(LDMAT-1+ID2),1)
-            CALL DSCAL_(NB,EIG(LE-1+I),WORK(LDMATI-1+ID1),NB)
-            CALL DSCAL_(NB,EIG,WORK(LDMATI-1+ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMATI(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMATI(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
@@ -552,8 +554,8 @@ C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              SCR(ISCR)=(WORK(LDMAT-1+JI)+WORK(LDMAT-1+IJ))/2.0d0
-              SCRI(ISCRI)=(WORK(LDMATI-1+JI)-WORK(LDMATI-1+IJ))/2.0d0
+              SCR(ISCR)=(DMAT(JI)+DMAT(IJ))/2.0d0
+              SCRI(ISCRI)=(DMATI(JI)-DMATI(IJ))/2.0d0
 c add a factor of two to convert spin -> sigma
               IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
               IF(ITYPE.GE.3) SCRI(ISCRI)=SCRI(ISCRI)*2.0d0
@@ -633,13 +635,13 @@ c       Expand integrals for this symmetry to full storage
           IJ=NB*(J-1)+I-1
           JI=NB*(I-1)+J-1
 
-          WORK(LSANGF+JI) = WORK(LSANG+II)
+          WORK(LSANGF+JI) = SANG(1+II)
 
           IF(I.NE.J) THEN
             IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
-              WORK(LSANGF+IJ) = 1.0d0 * WORK(LSANG+II)
+              WORK(LSANGF+IJ) = 1.0d0 * SANG(1+II)
             ELSE
-              WORK(LSANGF+IJ) = WORK(LSANG+II)
+              WORK(LSANGF+IJ) = SANG(1+II)
             END IF
           END IF
 
@@ -708,7 +710,7 @@ c Sum over the trace
         CALL GETMEM('SANGTI2  ','FREE','REAL',LSANGTI2,NBMX**2)
       END IF ! IPGLOB >= 4
 
-      CALL GETMEM('SANG  ','FREE','REAL',LSANG,NBTRI)
+      CALL mma_deallocate(SANG)
 
 C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
 C REAL PART
@@ -777,8 +779,8 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
 
       END DO
 
-      CALL GETMEM('TDMAT ','FREE','REAL',LDMAT,NBMX2)
-      CALL GETMEM('TDMATI ','FREE','REAL',LDMATI,NBMX2)
+      CALL mma_deallocate(DMAT)
+      CALL mma_deallocate(DMATI)
       CALL mma_deallocate(VEC)
       CALL mma_deallocate(VEC2)
       CALL mma_deallocate(VEC2I)
