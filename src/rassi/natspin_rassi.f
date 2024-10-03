@@ -19,7 +19,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
       Real*8 DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       REAL*8 EIGVEC(NSTATE,NSTATE)
 
@@ -31,7 +30,7 @@
 
       Real*8 Dummy(1)
       Integer iDummy(7,8)
-      Real*8, allocatable:: SZZ(:), VEC(:), SCR(:)
+      Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), SCR(:), EIG(:)
 
 C ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI
@@ -41,9 +40,9 @@ C ALLOCATE WORKSPACE AREAS.
       NEIG=NBST
       CALL mma_allocate(SZZ,NSZZ,Label='SZZ')
       CALL mma_allocate(VEC,NVEC,Label='VEC')
-      CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NVEC2)
+      CALL mma_allocate(VEC2,NVEC2,Label='VEC2')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NEIG)
+      CALL mma_allocate(EIG,NEIG,Label='EIG')
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
@@ -61,7 +60,7 @@ C READ ORBITAL OVERLAP MATRIX.
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
-      LE=LEIG
+      LE=1
       VEC(:)=0.0D0
       DO 100 ISYM=1,NSYM
         NB=NBASF(ISYM)
@@ -74,7 +73,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV1=LV
         LE1=LE
         DO 30 I=1,NB
-          WORK(LE1)=SZZ(LS1)
+          EIG(LE1)=SZZ(LS1)
           X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
           CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
@@ -119,7 +118,7 @@ C LOOP OVER SYMMETRY BLOCKS OF DMAT.
         INV=1
         IOCC=0
         LV=1
-        LE=LEIG
+        LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
 C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
@@ -134,8 +133,8 @@ C SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
           ID1=ID
           ID2=ID
           DO I=1,NB
-            CALL DSCAL_(NB,WORK(LE-1+I),DMAT(ID1),NB)
-            CALL DSCAL_(NB,WORK(LE-1+I),DMAT(ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
@@ -150,20 +149,20 @@ C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
             END DO
           END DO
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          CALL DCOPY_(NVEC2,[0.0D0],0,WORK(LVEC2),1)
-          CALL DCOPY_(NB,[1.0D0],0,WORK(LVEC2),NB+1)
-          CALL JACOB(SCR,WORK(LVEC2),NB,NB)
-          CALL JACORD(SCR,WORK(LVEC2),NB,NB)
+          VEC2(:)=0.0D0
+          CALL DCOPY_(NB,[1.0D0],0,VEC2,NB+1)
+          CALL JACOB(SCR,VEC2,NB,NB)
+          CALL JACORD(SCR,VEC2,NB,NB)
 C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
-          II=LSCR-1
+          II=0
           DO I=1,NB
             II=II+I
-            OCC(IOCC+NB+1-I)=WORK(II)
+            OCC(IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
 C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2),NB,
+     &                 VEC(LV),NB,VEC2,NB,
      &           0.0D0,SCR,NB)
           I1=1
           I2=INV+NB**2
@@ -210,7 +209,7 @@ C End of very long loop over eigenstates KEIG.
 
       WRITE(6,*) repeat('*',80)
       CALL mma_deallocate(VEC)
-      CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NVEC2)
+      CALL mma_deallocate(VEC2)
       CALL mma_deallocate(SCR)
-      CALL GETMEM('EIG   ','FREE','REAL',LEIG,NEIG)
+      CALL mma_deallocate(EIG)
       END SUBROUTINE NATSPIN_RASSI
