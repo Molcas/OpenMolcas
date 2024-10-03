@@ -11,6 +11,7 @@
       SUBROUTINE NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
       use OneDat, only: sNoNuc, sNoOri
       use rassi_aux, only : iDisk_TDM
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -19,15 +20,18 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-      DIMENSION DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
-      CHARACTER*14 FNAME
-      CHARACTER*8 KNUM, LABEL
+      Real*8 DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       REAL*8 EIGVEC(NSTATE,NSTATE)
 
-      EXTERNAL ISFREEUNIT
-      EXTERNAL DDOT_
+      CHARACTER(LEN=14) FNAME
+      CHARACTER(LEN=8) KNUM, LABEL
 
-      DIMENSION Dummy(1),iDummy(7,8)
+      INTEGER, EXTERNAL :: ISFREEUNIT
+      REAL*8, EXTERNAL :: DDOT_
+
+      Real*8 Dummy(1)
+      Integer iDummy(7,8)
+      Real*8, allocatable:: SZZ(:), VEC(:), SCR(:)
 
 C ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI
@@ -35,10 +39,10 @@ C ALLOCATE WORKSPACE AREAS.
       NVEC2=NBMX**2
       NSCR=NBMX**2
       NEIG=NBST
-      CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NSZZ)
-      CALL GETMEM('VEC   ','ALLO','REAL',LVEC,NVEC)
+      CALL mma_allocate(SZZ,NSZZ,Label='SZZ')
+      CALL mma_allocate(VEC,NVEC,Label='VEC')
       CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NVEC2)
-      CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NSCR)
+      CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NEIG)
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -46,7 +50,7 @@ C READ ORBITAL OVERLAP MATRIX.
       ICMP=1
       ISYLAB=1
       LABEL='MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  NATSPIN ***'
@@ -55,25 +59,24 @@ C READ ORBITAL OVERLAP MATRIX.
         CALL ABEND()
       ENDIF
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
-      LS=LSZZ
-      LV=LVEC
+      LS=1
+      LV=1
       LE=LEIG
-      CALL FZERO(WORK(LVEC),NVEC)
+      VEC(:)=0.0D0
       DO 100 ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO 20 I=1,NB**2,(NB+1)
-          WORK(LV-1+I)=1.0D00
+          VEC(LV-1+I)=1.0D00
 20      CONTINUE
-        CALL JACOB(WORK(LS),WORK(LV),NB,NB)
+        CALL JACOB(SZZ(LS),VEC(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
         DO 30 I=1,NB
-          EIG=WORK(LS1)
-          WORK(LE1)=EIG
-          X=1.0D00/SQRT(MAX(EIG,1.0D-14))
-          CALL DSCAL_(NB,X,WORK(LV1),1)
+          WORK(LE1)=SZZ(LS1)
+          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
@@ -82,7 +85,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV=LV+NB**2
         LE=LE+NB
 100   CONTINUE
-      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NSZZ)
+      Call mma_deallocate(SZZ)
 
 C VERY LONG LOOP OVER EIGENSTATES KEIG.
       DO KEIG=1,NRNATO
@@ -115,7 +118,7 @@ C LOOP OVER SYMMETRY BLOCKS OF DMAT.
         ID=1
         INV=1
         IOCC=0
-        LV=LVEC
+        LV=1
         LE=LEIG
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
@@ -123,35 +126,34 @@ C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
 C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 DMAT(ID),NB,WORK(LV),NB,
-     &           0.0D0,WORK(LSCR),NB)
+     &                 DMAT(ID),NB,VEC(LV),NB,
+     &           0.0D0,SCR,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCR),NB,
+     &                 VEC(LV),NB,SCR,NB,
      &           0.0D0,DMAT(ID),NB)
           ID1=ID
           ID2=ID
           DO I=1,NB
-            EIG=WORK(LE-1+I)
-            CALL DSCAL_(NB,EIG,DMAT(ID1),NB)
-            CALL DSCAL_(NB,EIG,DMAT(ID2),1)
+            CALL DSCAL_(NB,WORK(LE-1+I),DMAT(ID1),NB)
+            CALL DSCAL_(NB,WORK(LE-1+I),DMAT(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          ISCR=LSCR
+          ISCR=1
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
-              WORK(ISCR)=DMAT(ID-1+IJ)+DMAT(ID-1+JI)
+              SCR(ISCR)=DMAT(ID-1+IJ)+DMAT(ID-1+JI)
               ISCR=ISCR+1
             END DO
           END DO
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
           CALL DCOPY_(NVEC2,[0.0D0],0,WORK(LVEC2),1)
           CALL DCOPY_(NB,[1.0D0],0,WORK(LVEC2),NB+1)
-          CALL JACOB(WORK(LSCR),WORK(LVEC2),NB,NB)
-          CALL JACORD(WORK(LSCR),WORK(LVEC2),NB,NB)
+          CALL JACOB(SCR,WORK(LVEC2),NB,NB)
+          CALL JACORD(SCR,WORK(LVEC2),NB,NB)
 C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=LSCR-1
           DO I=1,NB
@@ -162,12 +164,12 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
 C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
      &                 WORK(LV),NB,WORK(LVEC2),NB,
-     &           0.0D0,WORK(LSCR),NB)
-          I1=LSCR
+     &           0.0D0,SCR,NB)
+          I1=1
           I2=INV+NB**2
           DO I=1,NB
             I2=I2-NB
-            CALL DCOPY_(NB,WORK(I1),1,VNAT(I2),1)
+            CALL DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
             I1=I1+NB
           END DO
           ID=ID+NB**2
@@ -197,7 +199,7 @@ C SSORB.1, SSORB.2, ...
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &     VNAT, OCC, Dummy, iDummy,
+     &             VNAT, OCC, Dummy, iDummy,
      &     '* NATURAL SPIN ORBITALS FROM RASSI EIGENSTATE NR '//
      &     TRIM(KNUM))
         SUMOCC=DDOT_(SUM(NBASF),OCC,1,OCC,1)
@@ -207,9 +209,8 @@ C End of very long loop over eigenstates KEIG.
       END DO
 
       WRITE(6,*) repeat('*',80)
-      CALL GETMEM('VEC   ','FREE','REAL',LVEC,NVEC)
+      CALL mma_deallocate(VEC)
       CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NVEC2)
-      CALL GETMEM('SCR   ','FREE','REAL',LSCR,NSCR)
+      CALL mma_deallocate(SCR)
       CALL GETMEM('EIG   ','FREE','REAL',LEIG,NEIG)
-      RETURN
-      END
+      END SUBROUTINE NATSPIN_RASSI

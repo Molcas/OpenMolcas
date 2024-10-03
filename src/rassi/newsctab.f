@@ -10,12 +10,8 @@
 ************************************************************************
       INTEGER FUNCTION NEWSCTAB(MINOP,MAXOP,MLTPL,MS2)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER ASPIN,BSPIN
-C     INTEGER ID,ICP
-      PARAMETER(ASPIN=1, BSPIN=0)
-      INTEGER UPCPL, DWNCPL
-      PARAMETER (UPCPL=1,DWNCPL=0)
-      PARAMETER (NULLPTR=-1)
+      INTEGER, PARAMETER :: ASPIN=1, BSPIN=0
+      INTEGER, PARAMETER :: UPCPL=1,DWNCPL=0, NULLPTR=-1
 #include "WrkSpc.fh"
 
       NEWSCTAB=0 ! dummy initialize
@@ -75,56 +71,25 @@ C Individual information for each separate nr of open shells:
         NCP=NGENE(IOPEN,MLTPL)
         NA=(IOPEN+MS2)/2
         NB= IOPEN-NA
-CTEST      write(*,*)' In the loop. IOPEN=',IOPEN
-CTEST      write(*,*)'              MLTPL=',MLTPL
-CTEST      write(*,*)'                NCP=',NCP
-CTEST      write(*,*)'                MS2=',MS2
-CTEST      write(*,*)'                 NA=',NA
-CTEST      write(*,*)'                 NB=',NB
         IF(NCP.GT.0) THEN
-CPAM        CALL GETMEM('A','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call NOVERM for ND.'
           ND=NOVERM(IOPEN,NA)
-CTEST        write(*,*)' Back from NOVERM. ND=',ND
-CPAM        CALL GETMEM('A','Chec','Dummy',LDUM,NDUM)
           IWORK(LTAB+ 8+(IBLK-1)*6)=IOPEN
           IWORK(LTAB+ 9+(IBLK-1)*6)=NCP
           IWORK(LTAB+10+(IBLK-1)*6)=ND
 C Compute spin couplings:
-CPAM        CALL GETMEM('B','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call PROTOCSF. KSPCPL=',KSPCPL
           CALL PROTOCSF(IOPEN,MLTPL,NCP,IWORK(LTAB-1+KSPCPL))
-CTEST        write(*,*)' Back from PROTOCSF.'
-CPAM        CALL GETMEM('B','Chec','Dummy',LDUM,NDUM)
           IWORK(LTAB+11+(IBLK-1)*6)=KSPCPL
 C Compute spin determinants:
-CPAM        CALL GETMEM('C','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call PROTOSD.'
-CTEST        write(*,*)' Assumed available start:',KSPDET
-CTEST        write(*,*)'                     end:',
-CTEST     &                                     KSPDET+IOPEN*ND-1
           CALL PROTOSD(NA,NB,ND,IWORK(LTAB-1+KSPDET))
-CTEST        write(*,*)' Back from PROTOSD.'
-CPAM        CALL GETMEM('C','Chec','Dummy',LDUM,NDUM)
           IWORK(LTAB+12+(IBLK-1)*6)=KSPDET
 C Compute spin coupling coefficients:
-CPAM        CALL GETMEM('D','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call PROTOT.'
           CALL PROTOT(IOPEN,ND,IWORK(LTAB-1+KSPDET),NCP,
      &                      IWORK(LTAB-1+KSPCPL),WORK(LTRANS))
-CTEST        write(*,*)' Back from PROTOT.'
-CTEST        write(*,*)' Spin transformation matrix at LTRANS=',LTRANS
-CTEST        do id=1,nd
-CTEST          write(*,'(1x,5f16.8)')
-CTEST     &                (work(ltrans-1+id+nd*(icp-1)),icp=1,ncp)
-CTEST        end do
-CPAM        CALL GETMEM('D','Chec','Dummy',LDUM,NDUM)
           IWORK(LTAB+13+(IBLK-1)*6)=LTRANS
           KSPCPL=KSPCPL+IOPEN*NCP
           KSPDET=KSPDET+IOPEN*ND
           LTRANS=LTRANS+ND*NCP
         ELSE
-CTEST        write(*,*)' ELSE clause'
           IWORK(LTAB+ 8+(IBLK-1)*6)=IOPEN
           IWORK(LTAB+ 9+(IBLK-1)*6)=0
           IWORK(LTAB+10+(IBLK-1)*6)=0
@@ -132,11 +97,10 @@ CTEST        write(*,*)' ELSE clause'
           IWORK(LTAB+12+(IBLK-1)*6)=NULLPTR
           IWORK(LTAB+13+(IBLK-1)*6)=NULLPTR
         END IF
-CPAM        write(*,*)' Checking memory now...'
-CPAM        CALL GETMEM('LoopEnd','Chec','Dummy',LDUM,NDUM)
       END DO
       NEWSCTAB=LTAB
       RETURN
+
  900  CONTINUE
       WRITE(6,*)'NewSCTab: Contradictory values of MLTPL vs. MS2.'
       WRITE(6,*)'The function was invoked with the following arguments:'
@@ -145,4 +109,4 @@ CPAM        CALL GETMEM('LoopEnd','Chec','Dummy',LDUM,NDUM)
       WRITE(6,'(1X,A,I9)')' MLTPL:',MLTPL
       WRITE(6,'(1X,A,I9)')' MS2  :',MS2
       CALL ABEND()
-      END
+      END FUNCTION NEWSCTAB
