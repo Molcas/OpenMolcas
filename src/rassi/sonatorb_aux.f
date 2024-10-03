@@ -311,7 +311,8 @@ c    ONLYFOR NATURAL ORBITALS
       Real*8 Dummy(1)
       Integer IDUM(1),iDummy(7,8)
       Real*8, Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:), SCR(:)
-      Real*8, Allocatable:: SCRI(:)
+      Real*8, Allocatable:: SCRI(:), EIG(:)
+      Real*8, Allocatable:: VNAT(:), VNATI(:), OCC(:)
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -333,7 +334,7 @@ C Get the proper type of the property
 
 c SZZ  - AO Overlap integral
 c VEC  - AO Overlap eigenvectors
-c LEIG  - AO Overlap eigenvalues
+c EIG  - AO Overlap eigenvalues
 c VEC2 - Eigenvectors of density matrix
 c SCR  - Temporary for matrix multiplication
 C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
@@ -351,15 +352,15 @@ C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       SCR(:)=0.0D0
       CALL mma_allocate(SCRI,NBMX2,Label='SCRI')
       SCRI(:)=0.0D0
-      CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
+      CALL mma_allocate(EIG,NBST,Label='EIG')
+      EIG(:)=0.0D0
 
-      CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-      CALL GETMEM('VNATI  ','ALLO','REAL',LVNATI,NBSQ)
-      CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVNAT),1)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVNATI),1)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LOCC),1)
+      CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
+      VNAT(:)=0.0D0
+      CALL mma_allocate(VNATI,NBSQ,Label='VNATI')
+      VNATI(:)=0.0D0
+      CALL mma_allocate(OCC,NBST,Label='OCC')
+      OCC(:)=0.0D0
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -382,7 +383,7 @@ c IOPT=6, origin and nuclear contrib not read
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
-      LE=LEIG
+      LE=1
       VEC(:)=0.0D0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
@@ -395,7 +396,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV1=LV
         LE1=LE
         DO I=1,NB
-          WORK(LE1)=SZZ(LS1)
+          EIG(LE1)=SZZ(LS1)
           X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
           CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
@@ -480,7 +481,7 @@ cccccccccccccccccccccccc
         II2=0
         IOCC=0
         LV=1
-        LE=LEIG
+        LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
           IF(NB.EQ.0) cycle
@@ -531,10 +532,9 @@ C expand the triangular matrix for this symmetry to a square matrix
           ID1=1
           ID2=1
           DO I=1,NB
-            EIG=WORK(LE-1+I)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID1),NB)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID2),1)
-            CALL DSCAL_(NB,EIG,WORK(LDMATI-1+ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),WORK(LDMAT-1+ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),WORK(LDMAT-1+ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),WORK(LDMATI-1+ID1),NB)
             CALL DSCAL_(NB,EIG,WORK(LDMATI-1+ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
@@ -572,7 +572,7 @@ C LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=0
           DO I=1,NB
             II=II+I
-            WORK(LOCC-1+IOCC+NB+1-I)=SCR(II)
+            OCC(IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
 
@@ -589,8 +589,8 @@ C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           I2=INV+NB**2
           DO I=1,NB
             I2=I2-NB
-            CALL DCOPY_(NB,SCR(I1),1,WORK(LVNAT-1+I2),1)
-            CALL DCOPY_(NB,SCRI(I1I),1,WORK(LVNATI-1+I2),1)
+            CALL DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
+            CALL DCOPY_(NB,SCRI(I1I),1,VNATI(I2),1)
             I1=I1+NB
             I1I=I1I+NB
           END DO
@@ -650,35 +650,35 @@ c       Expand integrals for this symmetry to full storage
 
         IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &             WORK(LVNAT+INV),NB,0.0d0,WORK(LSANGTR),NB)
+     &             VNAT(1+INV),NB,0.0d0,WORK(LSANGTR),NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &              WORK(LVNATI+INV),NB,0.0d0,WORK(LSANGTI),NB)
+     &              VNATI(1+INV),NB,0.0d0,WORK(LSANGTI),NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
      &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTR2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNATI+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
      &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTR2),NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LVNATI+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
      &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTI2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
      &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTI2),NB)
 
         ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
 
           CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &             WORK(LVNAT+INV),NB,0.0d0,WORK(LSANGTI),NB)
+     &             VNAT(1+INV),NB,0.0d0,WORK(LSANGTI),NB)
           CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LSANGF),NB,
-     &             WORK(LVNATI+INV),NB,0.0d0,WORK(LSANGTR),NB)
+     &             VNATI(1+INV),NB,0.0d0,WORK(LSANGTR),NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
      &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTR2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNATI+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
      &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTR2),NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LVNATI+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
      &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTI2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
      &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTI2),NB)
 
         END IF
@@ -686,8 +686,8 @@ c       Expand integrals for this symmetry to full storage
 c Sum over the trace
         DO I = 1,NB
           IJ = I+(I-1)*NB-1
-          SUM  = SUM  + WORK(LOCC-1+I+INV2) * WORK(LSANGTR2+IJ)
-          SUMI = SUMI + WORK(LOCC-1+I+INV2) * WORK(LSANGTI2+IJ)
+          SUM  = SUM  + OCC(I+INV2) * WORK(LSANGTR2+IJ)
+          SUMI = SUMI + OCC(I+INV2) * WORK(LSANGTI2+IJ)
         END DO
 
 1860    CONTINUE
@@ -741,7 +741,7 @@ C REAL PART
         LuxxVec=isfreeunit(LuxxVec)
 
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LVNAT), WORK(LOCC), Dummy, iDummy,
+     &             VNAT, OCC, Dummy, iDummy,
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
 C IMAGINARY PART
@@ -767,13 +767,13 @@ C IMAGINARY PART
         LuxxVec=isfreeunit(LuxxVec)
 
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LVNATI), WORK(LOCC), Dummy, iDummy,
+     &             VNATI, OCC, Dummy, iDummy,
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
 c       Test a few values
-C        CALL ADD_INFO("SONATORB_CPLOTR", WORK(LVNAT), 1, 4)
-C        CALL ADD_INFO("SONATORB_CPLOTI", WORK(LVNATI), 1, 4)
-C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
+C        CALL ADD_INFO("SONATORB_CPLOTR", VNAT, 1, 4)
+C        CALL ADD_INFO("SONATORB_CPLOTI", VNATI, 1, 4)
+C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
 
       END DO
 
@@ -784,9 +784,9 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
       CALL mma_deallocate(VEC2I)
       CALL mma_deallocate(SCR)
       CALL mma_deallocate(SCRI)
-      CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-      CALL GETMEM('VNATI  ','FREE','REAL',LVNATI,NBSQ)
-      CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
+      CALL mma_deallocate(VNAT)
+      CALL mma_deallocate(VNATI)
+      CALL mma_deallocate(OCC)
 
       END SUBROUTINE SONATORB_CPLOT
 
