@@ -70,6 +70,7 @@
       Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
       Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
       Real*8, Allocatable:: DV(:), DL(:)
+      Real*8, Allocatable:: TOT2K(:,:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -1101,8 +1102,8 @@ C                                                                      C
 !
 ! We will first allocate a matrix for the total of the second order wave vector
 !
-      CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LTOT2K),1)
+      CALL mma_allocate(TOT2K,NSTATE,NSTATE,Label='TOT2K')
+      TOT2K(:,:)=0.0D0
 
 * Magnetic-Dipole - Magnetic-Dipole transitions
 !
@@ -1156,7 +1157,6 @@ C                                                                      C
              J=IndexE(L_)
            EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
-            IJ=J+NSTATE*(I-1)
 
             DX2=0.0D0
             DY2=0.0D0
@@ -1168,7 +1168,7 @@ C                                                                      C
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,J) = TOT2K(J,I) + F
             IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' value at distance '
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1263,7 +1263,6 @@ C                                                                      C
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJ=J+NSTATE*(I-1)
 
             DXX=0.0D0
             DYY=0.0D0
@@ -1301,7 +1300,7 @@ C                                                                      C
 
             F =FXX+FXY+FXZ+FYY+FYZ+FZZ+FXXFYY+FXXFZZ+FYYFZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1464,7 +1463,6 @@ C                                                                      C
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJ=J+NSTATE*(I-1)
 
             DXXXDX=0.0D0
             DYYXDX=0.0D0
@@ -1507,7 +1505,7 @@ C                                                                      C
 
             F =FXXX+FYYX+FZZX+FXXY+FYYY+FZZY+FXXZ+FYYZ+FZZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1649,7 +1647,6 @@ C                                                                      C
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJ=J+NSTATE*(I-1)
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
@@ -1680,7 +1677,7 @@ C                                                                      C
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1774,8 +1771,7 @@ C                                                                      C
            EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJ=J+NSTATE*(I-1)
-            F = WORK(LTOT2K-1+IJ)
+            F = TOT2K(J,I)
             IF(ABS(F).GE.OSTHR2) THEN
             If (iPrint.eq.0) Then
          WRITE(6,*)
@@ -1808,7 +1804,7 @@ C                                                                      C
          End If
        END IF
 ! release the memory again
-       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSTATE**2)
+       CALL mma_deallocate(TOT2K)
 !
 !
       IF(DOCD) THEN
