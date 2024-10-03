@@ -66,8 +66,10 @@
       logical TMOgroup
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
-      Integer, Allocatable:: LIST(:), STACK(:)
+      Integer, Allocatable:: LIST(:), STACK(:), ILST(:)
       Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
+      Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
+      Real*8, Allocatable:: DV(:), DL(:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -363,24 +365,24 @@ C i.e. assume L**2 = -(iLx)*(iLx)-(iLy)*(iLy)-(iLz)*(iLz)
 C within the basis formed by the states.
       IAMXYZ=0
       IF (IAMZ.GT.0) THEN
-         CALL GETMEM('L2','ALLO','REAL',LL2,NSTATE**2)
-         CALL GETMEM('M2DIA','ALLO','REAL',LM2DIA,NSTATE)
+         CALL mma_allocate(L2,NSTATE**2,Label='L2')
+         CALL mma_allocate(M2DIA,NSTATE,Label='M2DIA')
          CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,-1.0D0,
      &             PROP(1,1,IAMZ),NSTATE,PROP(1,1,IAMZ),NSTATE,
-     &             0.0D0,WORK(LL2),NSTATE)
-         CALL DCOPY_(NSTATE,WORK(LL2),(NSTATE+1),WORK(LM2DIA),1)
+     &             0.0D0,L2,NSTATE)
+         CALL DCOPY_(NSTATE,L2,(NSTATE+1),M2DIA,1)
          IF (IAMX.GT.0.and.IAMY.gt.0) THEN
             IAMXYZ=1
             CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,-1.0D0,
      &               PROP(1,1,IAMX),NSTATE,PROP(1,1,IAMX),NSTATE,
-     &               1.0D0,WORK(LL2),NSTATE)
+     &               1.0D0,L2,NSTATE)
             CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,-1.0D0,
      &               PROP(1,1,IAMY),NSTATE,PROP(1,1,IAMY),NSTATE,
-     &               1.0D0,WORK(LL2),NSTATE)
-            CALL GETMEM('L2DIA','ALLO','REAL',LL2DIA,NSTATE)
-            CALL DCOPY_(NSTATE,WORK(LL2),(NSTATE+1),WORK(LL2DIA),1)
+     &               1.0D0,L2,NSTATE)
+            CALL mma_allocate(L2DIA,NSTATE,Label='L2DIA')
+            CALL DCOPY_(NSTATE,L2,(NSTATE+1),L2DIA,1)
          END IF
-         CALL GETMEM('L2','FREE','REAL',LL2,NSTATE**2)
+         CALL mma_deallocate(L2)
       END IF
 *                                                                      *
 ************************************************************************
@@ -463,19 +465,19 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
          IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-Half
-           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+L2DIA(ISTATE)))-Half
+           EFFM=SQRT(MAX(0.5D-12,M2DIA(ISTATE)))
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1,2X,'//
      &             'F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
-           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-Half
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+L2DIA(ISTATE)))-Half
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL
           END IF
          ELSE
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           EFFM=SQRT(MAX(0.5D-12,M2DIA(ISTATE)))
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFM
           ELSE
@@ -489,10 +491,10 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
       END IF
       IF(IAMZ.GT.0) THEN
-       CALL GETMEM('M2DIA','FREE','REAL',LM2DIA,NSTATE)
+       CALL mma_deallocate(M2DIA)
       END IF
       IF(IAMXYZ.GT.0) THEN
-       CALL GETMEM('L2DIA','FREE','REAL',LL2DIA,NSTATE)
+       CALL mma_deallocate(L2DIA)
       END IF
 c LU: save esfs array
        CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
@@ -514,8 +516,8 @@ c
           WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
         END DO
        END IF
-       CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
-       CALL GETMEM('VLST','ALLO','REAL',LVLST,NSTATE)
+       CALL mma_allocate(ILST,NSTATE,Label='ILST')
+       CALL mma_allocate(VLST,NSTATE,Label='VLST')
        DO L=1,NSTATE
           I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
@@ -530,21 +532,21 @@ c
          EV=EIGVEC(IndexE(K),I)
          IF(ABS(EV).GE.EVLIM) THEN
            NLST=NLST+1
-           WORK(LVLST-1+NLST)=EV
-           IWORK(LILST-1+NLST)=IndexE(K)
+           VLST(NLST)=EV
+           ILST(NLST)=IndexE(K)
          END IF
         END DO
         DO KSTA=1,NLST,6
          KEND=MIN(NLST,KSTA+4)
          WRITE(Line,'(5X,5(I5,F12.6))')
-     &    (IWORK(LILST-1+K),WORK(LVLST-1+K),K=KSTA,KEND)
+     &    (ILST(K),VLST(K),K=KSTA,KEND)
          CALL NORMAL(Line)
          WRITE(6,*) Line
         END DO
         WRITE(6,*)
        END DO
-       CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
-       CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
+       CALL mma_deallocate(ILST)
+       CALL mma_deallocate(VLST)
        IF(IPGLOB.ge.3) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
@@ -667,10 +669,10 @@ C                                                                      C
 !     These stores all dipole oscillator strengths in
 !     length and velocity gauge for a later comparison.
 !
-      CALL GETMEM('DL   ','ALLO','REAL',LDL,NSTATE**2)
-      CALL GETMEM('DV   ','ALLO','REAL',LDV,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDL),1)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDV),1)
+      CALL mma_allocate(DL,NSTATE**2,Label='DL')
+      CALL mma_allocate(DV,NSTATE**2,Label='DV')
+      DL(:)=0.0D0
+      DV(:)=0.0D0
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 !
@@ -778,7 +780,7 @@ C                                                                      C
               write(losc_strength,33) I,J,F,Fx,Fy,Fz
            END IF
 ! Store dipole oscillator strength
-            WORK(LDL-1+IJ) = F
+            DL(IJ) = F
 *
            If (F.gt.1.0D0) Then
               k=INT(LOG10(F))+1
@@ -978,7 +980,7 @@ C                                                                      C
                   LNCNT=1
                   WRITE(6,33) I,J,F,AX,AY,AZ,A
 ! Store dipole oscillator strength
-                  WORK(LDV-1+IJ) = F
+                  DV(IJ) = F
                END IF
                Call Add_Info('TMS(SF,Vel)',[F],1,6)
                END IF
@@ -1038,14 +1040,14 @@ C                                                                      C
 *
              COMPARE=0.0D0
              dlt=1.0D-18 ! Add small value to avoid zero divide.
-             IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
-     &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
-               COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR+dlt).AND.
-     &               (WORK(LDL-1+IJ).GT.0.0D0)) THEN
+             IF(DL(IJ).GE.OSTHR+dlt .AND.
+     &          DV(IJ).GE.OSTHR+dlt) THEN
+               COMPARE = ABS(1-DL(IJ)/DV(IJ))
+             ELSE IF((DL(IJ).GE.OSTHR+dlt).AND.
+     &               (DL(IJ).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR+dlt).AND.
-     &               (WORK(LDV-1+IJ).GT.0.0D0)) THEN
+             ELSE IF((DV(IJ).GE.OSTHR+dlt).AND.
+     &               (DV(IJ).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
 
@@ -1061,11 +1063,11 @@ C                                                                      C
                END IF
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,38) I,J,COMPARE*100D0,
-     &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
+     &                      DL(IJ),DV(IJ)
                ELSE IF (COMPARE.GE.-2.0D0) THEN
-                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+                 WRITE(6,36) I,J,DL(IJ),"below threshold"
                ELSE
-                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+                 WRITE(6,37) I,J,"below threshold",DV(IJ)
                END IF
              END IF
 *
@@ -1090,8 +1092,8 @@ C                                                                      C
 *
 * Free the memory
 *
-      CALL GETMEM('DV   ','FREE','REAL',LDV,NSTATE**2)
-      CALL GETMEM('DL   ','FREE','REAL',LDL,NSTATE**2)
+      CALL mma_deallocate(DV)
+      CALL mma_deallocate(DL)
 *
 * CALCULATION OF THE QUADRUPOLE TRANSITION STRENGTHS
 *
