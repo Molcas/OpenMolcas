@@ -67,7 +67,7 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
       Integer, Allocatable:: LIST(:), STACK(:)
-      Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:)
+      Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -144,8 +144,8 @@ CTEST      write(*,'(1x,20i3)')(LIST(I),I=1,NSTATE)
       CALL mma_allocate(HSQ,NSTATE**2,Label='HSQ')
       CALL mma_allocate(SS,NHH,Label='SS')
       CALL mma_allocate(UU,NSTATE**2,Label='UU')
-      CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LSCR),1)
+      CALL mma_allocate(SCR1,NSTATE**2,Label='SCR1')
+      SCR1(:)=0.0D0
       CALL mma_allocate(STACK,NSTATE,Label='STACK')
 C Loop over the sets:
       DO ISET=1,NSETS
@@ -204,9 +204,9 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
 C 4. TRANSFORM HAMILTON MATRIX.
         CALL DGEMM_('N','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             HSQ,MSTATE,UU,MSTATE,
-     &             0.0D0,WORK(LSCR),MSTATE)
+     &             0.0D0,SCR1,MSTATE)
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
-     &             UU,MSTATE,WORK(LSCR),MSTATE,
+     &             UU,MSTATE,SCR1,MSTATE,
      &             0.0D0,HSQ,MSTATE)
 
 C 5. DIAGONALIZE HAMILTONIAN.
@@ -553,10 +553,10 @@ c
            I=IndexE(L)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,OVLP,NSTATE,
-     &             0.0D0,WORK(LSCR),NSTATE)
+     &             0.0D0,SCR1,NSTATE)
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
-         WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+IndexE(K)+NSTATE*(I-1)),
+         WRITE(6,'(5(1X,F15.7))')(SCR1(IndexE(K)+NSTATE*(I-1)),
      &          K=1,NSTATE)
          WRITE(6,*)
         END DO
@@ -579,9 +579,9 @@ C
       DO IP=1,NPROP
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
-     &             0.0D0,WORK(LSCR),NSTATE)
+     &             0.0D0,SCR1,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
+     &             EIGVEC,NSTATE,SCR1,NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
 
@@ -589,16 +589,16 @@ C And the same for the Dyson amplitudes
       IF (DYSO) THEN
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
-     &             0.0D0,WORK(LSCR),NSTATE)
+     &             0.0D0,SCR1,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
+     &             EIGVEC,NSTATE,SCR1,NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
       END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
 
-      CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
+      CALL mma_deallocate(SCR1)
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
 *
@@ -2706,18 +2706,18 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *                       Transform to the new basis. Do it just for the
 *                       elements we will use.
 *
-                        CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE)
-                        Call FZero(Work(lSCR),nState)
+                        CALL mma_allocate(SCR1,NSTATE,Label='SCR1')
+                        SCR1(:)=0.0D0
                         DO IP=1,12
                            IPROP=IPRTMOM(IP)
                            CALL DGEMM_('N','N',NSTATE,1,NSTATE,
      &                                 1.0D0,PROP(1,1,IPROP),NSTATE,
      &                                       EIGVEC(1,J),NSTATE,
-     &                                 0.0D0,WORK(LSCR),NSTATE)
-                           PROP(I,J,IPROP)=DDot_(NSTATE,WORK(LSCR),1,
+     &                                 0.0D0,SCR1,NSTATE)
+                           PROP(I,J,IPROP)=DDot_(NSTATE,SCR1,1,
      &                                                  EIGVEC(1,I),1)
                         END DO
-                        CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE)
+                        CALL mma_deallocate(SCR1)
 *
                      End If
 *
