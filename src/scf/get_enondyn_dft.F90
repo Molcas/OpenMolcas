@@ -11,15 +11,16 @@
 
 subroutine Get_Enondyn_dft(nh1,Grad,nGrad,DFTFOCK)
 
+use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: CMO, Erest_xc, KSDFT, nBas, nBT, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nh1, nGrad
-real(kind=wp) :: Grad(nGrad)
-character(len=4) :: DFTFOCK
+integer(kind=iwp), intent(in) :: nh1, nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+character(len=4), intent(in) :: DFTFOCK
 integer(kind=iwp) :: i, iDji, iOff, iSym, j, ji, jOff
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
 
@@ -40,14 +41,14 @@ do iSym=1,nSym
                  Zero,D_DS(jOff:,2),nBas(iSym))
   do j=1,nBas(iSym)
     do i=1,j-1
-      ji = j*(j-1)/2+i
+      ji = iTri(j,i)
       iDji = iOff-1+ji
       D_DS(iDji,1) = Two*D_DS(iDji,1)
       D_DS(iDji,2) = Two*D_DS(iDji,2)
     end do
   end do
   iOff = iOff+nBas(iSym)*nOrb(iSym)
-  jOff = jOff+nBas(iSym)*(nBas(iSym)+1)/2
+  jOff = jOff+nTri_Elem(nBas(iSym))
 end do
 
 !----------------------------------------------------------------------*

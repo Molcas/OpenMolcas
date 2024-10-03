@@ -53,10 +53,10 @@ use Constants, only: Zero, One, Two, Ten, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iTerm
-character(len=*) :: Meth
-logical(kind=iwp) :: FstItr
-real(kind=wp) :: SIntTh
+integer(kind=iwp), intent(out) :: iTerm
+character(len=*), intent(in) :: Meth
+logical(kind=iwp), intent(inout) :: FstItr
+real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
                      Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &

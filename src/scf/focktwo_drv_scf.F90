@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(8), nAux(8), Keep(8), nFLT, nBSQT, nBMX, nD, lOcc, nOcc(lOcc,nD), iDummy_run
-real(kind=wp) :: FLT(nFLT,nD), DLT(nFLT,nD), DSQ(nBSQT,nD), ExFac
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nAux(nSym), Keep(nSym), nFLT, nBSQT, nBMX, nD, lOcc, nOcc(lOcc,nD), iDummy_run
+real(kind=wp), intent(inout) :: DLT(nFLT,nD), FLT(nFLT,nD)
+real(kind=wp), intent(in) :: DSQ(nBSQT,nD), ExFac
 integer(kind=iwp) :: iRC, lBuf
 real(kind=wp) :: TotCPU, TotCPU1, TotCPU2, TotWall, TotWall1, TotWall2
 logical(kind=iwp) :: DoCholesky, GenInt
@@ -35,7 +36,7 @@ call DecideOnCholesky(DoCholesky)
 !write(u6,*) '*************************'
 !write(u6,*) 'ONLY COULOMB CONTRIBUTION'
 !write(u6,*) '*************************'
-!exFac = Zero
+!ExFac = Zero
 !write(u6,*) 'ExFac= ',ExFac
 
 if (Do_OFemb) then ! Coul. potential from subsys B
@@ -62,9 +63,9 @@ call mma_maxDBLE(LBUF)
 
 call CWTIME(TotCPU1,TotWALL1)
 
-if ((.not. DoCholesky) .or. (DoCholesky .and. GenInt)) then
+if ((.not. DoCholesky) .or. GenInt) then
 
-  if (DoCholesky .and. GenInt) then
+  if (DoCholesky) then
     ! save some space for GenInt
     LBUF = max(LBUF-LBUF/10,0)
     ! Make sure that the ri/ch vectors are in reordered mode
@@ -90,7 +91,7 @@ TOTCPU = TotCPU2-TotCPU1
 TOTWALL = TotWALL2-TotWALL1
 
 ! Timings information for conventional or Cholesky with ALGO=0
-if ((.not. DoCholesky) .or. (DoCholesky .and. GenInt)) then
+if ((.not. DoCholesky) .or. GenInt) then
   if (timings) then
     CFmt = '(2x,A)'
     write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'

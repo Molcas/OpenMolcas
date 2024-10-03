@@ -38,8 +38,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDelta
-real(kind=wp) :: Delta(nDelta)
+integer(kind=iwp), intent(in) :: nDelta
+real(kind=wp), intent(in) :: Delta(nDelta)
 integer(kind=iwp) :: iCMOpt, iD, iEnd, iSt, iSyBlpt, iSym, nOccmF, nOF, nOfNBA, nSize, nVrt
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nCMO

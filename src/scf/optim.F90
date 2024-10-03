@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine Optim(E_Pred,G,H,C,n,nDim)
+subroutine Optim(E_Pred,G,H,C,n)
 !***********************************************************************
 !                                                                      *
 !    purpose: Solve a set of non-linear equations to get interpolation *
@@ -22,7 +22,6 @@ subroutine Optim(E_Pred,G,H,C,n,nDim)
 !       G       : linear terms                                         *
 !       H       : bilinear terms                                       *
 !       n       : size of matrices                                     *
-!       nDim    : leading dimension for H                              *
 !                                                                      *
 !     output:                                                          *
 !       C       : interpolation coefficients                           *
@@ -48,11 +47,13 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, nDim
-real(kind=wp) :: E_Pred, G(nDim), H(nDim,nDim), C(nDim)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(out) :: E_Pred, C(n)
+real(kind=wp), intent(in) :: G(n), H(n,n)
 integer(kind=iwp) :: i, Iter, j
-real(kind=wp) :: Ci, Cj, Eminus, Eplus, Eref, Optim_E, rSum, Step, Step_m, Step_p
+real(kind=wp) :: Ci, Cj, Eminus, Eplus, Eref, rSum, Step, Step_m, Step_p
 logical(kind=iwp) :: Debug, Debug2, DidChange
+real(kind=wp), external :: Optim_E
 
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
@@ -67,7 +68,7 @@ Debug2 = .false.
 !----------------------------------------------------------------------*
 ! Make first guess.                                                    *
 !----------------------------------------------------------------------*
-C(1:n) = Zero
+C(:) = Zero
 j = 1
 do i=1,n
   if (G(i)+Half*H(i,i) < G(j)+half*H(j,j)) j = i
@@ -81,14 +82,14 @@ if (Debug) then
   write(u6,'(6F15.6)') (C(i),i=1,n)
   write(u6,'(a)') 'Start G:'
   write(u6,'(6F26.16)') (G(i),i=1,n)
-  call RecPrt('H',' ',H,nDim,nDim)
+  call RecPrt('H',' ',H,n,n)
 end if
 !----------------------------------------------------------------------*
 ! Compute start energy.                                                *
 !----------------------------------------------------------------------*
-Eref = sum(C(1:n)*G(1:n))
+Eref = sum(C(:)*G(:))
 do i=1,n
-  Eref = Eref+Half*C(i)*sum(C(1:n)*H(i,1:n))
+  Eref = Eref+Half*C(i)*sum(C(:)*H(i,:))
 end do
 if (Debug) write(u6,'(a,F24.16)') 'Eref = ',Eref
 !----------------------------------------------------------------------*
@@ -113,7 +114,7 @@ do while ((Iter < 500) .and. DidChange)
       C(i) = C(i)+Step_p
       C(j) = C(j)-Step_p
 
-      Eplus = optim_E(C,G,H,n,nDim)
+      Eplus = optim_E(C,G,H,n)
 
       C(i) = Ci
       C(j) = Cj
@@ -123,7 +124,7 @@ do while ((Iter < 500) .and. DidChange)
       C(i) = C(i)-Step_m
       C(j) = C(j)+Step_m
 
-      EMinus = optim_E(C,G,H,n,nDim)
+      EMinus = optim_E(C,G,H,n)
 
       C(i) = Ci
       C(j) = Cj
@@ -175,7 +176,7 @@ do while ((Iter < 500) .and. DidChange)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'optim: rSum-1',rSum-One
 # endif
-  C(1:n) = C(1:n)/rSum
+  C(:) = C(:)/rSum
 end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'ERef=',ERef

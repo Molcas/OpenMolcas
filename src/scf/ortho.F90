@@ -28,14 +28,16 @@ subroutine Ortho(AMat,nAMat,Ovlp,nOvlp)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: MaxBas, MaxBxO, MaxOrb, nSym, nOrb, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAMat, nOvlp
-real(kind=wp) :: AMat(nAMat), Ovlp(nOvlp)
+integer(kind=iwp), intent(in) :: nAMat, nOvlp
+real(kind=wp), intent(inout) :: AMat(nAMat)
+real(kind=wp), intent(in) :: Ovlp(nOvlp)
 integer(kind=iwp) :: iiBO, iiBT, ij, im, iSym
 real(kind=wp), allocatable :: OvlT(:), OvlH(:), OvlS(:)
 
@@ -57,7 +59,7 @@ im = 1
 do iSym=1,nSym
 
   iiBO = nBas(iSym)*nOrb(iSym)
-  iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+  iiBT = nTri_Elem(nBas(iSym))
 
   if (nOrb(iSym) > 0) then
 

@@ -22,6 +22,7 @@ subroutine MemAlo()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use LnkLst, only: NodSiz
 use InfSCF, only: Aufb, CMO, CMO_Ref, Dens, DSCF, EDFT, EOrb, FockAO, FockMO, HDiag, MaxBas, MemRsv, mOV, MxIter, MxOptm, nBB, &
                   nBO, nBT, nD, nDens, nIter, nMem, nnB, nnOc, nOO, nOV, OccNo, OrbType, TrM, TwoHam, Vxc
@@ -61,7 +62,7 @@ Mx_nIter = max(nIter(0),nIter(1)+nIt0)
 
 ! Allocate Dens and TwoHam
 ! a) permanently in core (apart from Dens and TwoHam)
-lthCor = 3*nBT+2*nBB+2*nnB+nnOc+MxOptm+1+(MxOptm+1)**2+MxIter+MxIter**2+Mx_nIter*(Mx_nIter+1)/2+1
+lthCor = 3*nBT+2*nBB+2*nnB+nnOc+MxOptm+1+(MxOptm+1)**2+MxIter+MxIter**2+nTri_Elem(Mx_nIter)+1
 ! b) space needed by PMat
 if (DSCF) then
   lthPMt = 1024*1024+2*nBT

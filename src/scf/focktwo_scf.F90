@@ -16,14 +16,17 @@
 !#define _DEBUGPRINT_
 subroutine FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,X1,nX1,X2,nX2,ExFac,nD,nBSQT)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use RICD_Info, only: Do_DCCD
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, NBAS(8), NFRO(8), KEEP(8), nFlt, nX1, nX2, nD, nBSQT
-real(kind=wp) :: DLT(nFlt,nD), DSQ(nBSQT,nD), FLT(nFlt,nD), FSQ(nBSQT,nD), X1(nX1), X2(nX2), ExFac
+integer(kind=iwp), intent(in) :: nSym, NBAS(nSym), NFRO(nSym), KEEP(nSym), nFlt, nX1, nX2, nD, nBSQT
+real(kind=wp), intent(in) :: DLT(nFlt,nD), DSQ(nBSQT,nD), ExFac
+real(kind=wp), intent(inout) :: FLT(nFlt,nD), FSQ(nBSQT,nD)
+real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 integer(kind=iwp) :: IB, IJB, IJS, IK, iOpt, IRC, ISD, ISF, ISTLT(8), ISTSQ(8), ISX, ISYM, JB, JK, K1, K2, KB, KK, KLB, LB, LK, &
                      LPQ, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL, NPQ
 real(kind=wp) :: Factor, temp, temp_ab
@@ -115,7 +118,7 @@ do ISYM=1,NSYM
     write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
     if (nD == 2) call TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
-    ISTLTT = ISTLTT+NB*(NB+1)/2
+    ISTLTT = ISTLTT+nTri_Elem(NB)
   end if
 end do
 write(u6,'(6X,A)') '----------------------------'
@@ -147,7 +150,7 @@ subroutine FOCKTWO_scf_Sym()
       NFJ = NFRO(JS)
       IJS = Mul(IS,JS)
       IJB = IB*JB
-      if (IS == JS) IJB = (IB*(IB+1))/2
+      if (IS == JS) IJB = nTri_Elem(IB)
       do KS=1,IS
         KB = NBAS(KS)
         KK = KEEP(KS)
@@ -160,7 +163,7 @@ subroutine FOCKTWO_scf_Sym()
         LK = KEEP(LS)
         NFL = NFRO(LS)
         KLB = KB*LB
-        if (KS == LS) KLB = (KB*(KB+1))/2
+        if (KS == LS) KLB = nTri_Elem(KB)
         ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
         if ((IK+JK+KK+LK) /= 0) cycle
         ! NO FROZEN ORBITALS?
@@ -204,27 +207,18 @@ subroutine FOCKTWO_scf_Sym()
               write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
               if (nD == 2) write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
 #             endif
-              call SQUARE(X1(ISX),X2(1),1,KB,LB)
+              call SQUARE(X1(ISX),X2,1,KB,LB)
               ISF = ISTSQ(IS)+(JQ-1)*JB+1
               ISD = ISTSQ(IS)+(IP-1)*IB+1
 
-              if (nD == 1) then
-                call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-              else
-                call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-
-                call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-              end if
+              call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+              if (nD == 2) call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
               if (IP /= JQ) then
                 ISF = ISTSQ(IS)+(IP-1)*IB+1
                 ISD = ISTSQ(IS)+(JQ-1)*JB+1
 
-                if (nD == 1) then
-                  call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                else
-                  call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                  call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-                end if
+                call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                if (nD == 2) call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
               end if
 #             ifdef _DEBUGPRINT_
               write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
@@ -298,23 +292,14 @@ subroutine FOCKTWO_scf_Sym()
               if (NFI /= 0) then
                 ISD = ISTSQ(IS)+(IP-1)*IB+1
                 ISF = ISTSQ(JS)+(JQ-1)*JB+1
-                if (nD == 1) then
-                  call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                else
-                  call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                  call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-                end if
+                call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                if (nD == 2) call DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
               end if
               if (NFJ /= 0) then
                 ISD = ISTSQ(JS)+(JQ-1)*JB+1
                 ISF = ISTSQ(IS)+(IP-1)*IB+1
-                if (nD == 1) then
-                  call DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                else
-                  call DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-                  call DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-
-                end if
+                call DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                if (nD == 2) call DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
               end if
 #             ifdef _DEBUGPRINT_
               write(u6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
@@ -346,7 +331,7 @@ subroutine FOCKTWO_scf_NoSym()
   JK = KEEP(JS)
   NFJ = NFRO(JS)
   IJS = Mul(IS,JS)
-  IJB = (IB*(IB+1))/2
+  IJB = nTri_Elem(IB)
 
   KS = 1
   KB = NBAS(KS)
@@ -358,7 +343,7 @@ subroutine FOCKTWO_scf_NoSym()
   LB = NBAS(LS)
   LK = KEEP(LS)
   NFL = NFRO(LS)
-  KLB = (KB*(KB+1))/2
+  KLB = nTri_Elem(KB)
 
   ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
 
@@ -403,27 +388,18 @@ subroutine FOCKTWO_scf_NoSym()
       write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
       if (nD == 2) write(u6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
 #     endif
-      call SQUARE(X1(ISX),X2(:),1,KB,LB)
+      call SQUARE(X1(ISX),X2,1,KB,LB)
       ISF = (JQ-1)*JB+1
       ISD = (IP-1)*IB+1
 
-      if (nD == 1) then
-        call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-      else
-        call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-
-        call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-      end if
+      call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+      if (nD == 2)  call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
       if (IP /= JQ) then
         ISF = (IP-1)*IB+1
         ISD = (JQ-1)*JB+1
 
-        if (nD == 1) then
-          call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-        else
-          call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-          call DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
-        end if
+        call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+        if (nD == 2) call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
       end if
 #     ifdef _DEBUGPRINT_
       write(u6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
@@ -502,7 +478,7 @@ subroutine FOCKTWO_scf_DCCD()
     end if
   end do
 
-  IJB = (IB*(IB+1))/2
+  IJB = nTri_Elem(IB)
   if (nX1 < IJB) then
     write(u6,*) 'FOCKTWO_SCF_DCCD: nX1<IJB'
     call Abend()
@@ -570,7 +546,7 @@ subroutine FOCKTWO_scf_DCCD()
           if (nD == 2) write(u6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
 #         endif
           ! Do the exchange contribution
-          call SQUARE(X1(:),X2(:),1,IB,IB)
+          call SQUARE(X1,X2,1,IB,IB)
 
           if (nD == 1) then
             do KR_=lists(3,I),lists(4,I)

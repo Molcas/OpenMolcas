@@ -40,7 +40,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-logical(kind=iwp) :: Do_All
+logical(kind=iwp), intent(inout) :: Do_All
 integer(kind=iwp) :: iOpt, LpStrt
 real(kind=wp), allocatable :: GrdOO(:,:), GrdOV(:)
 

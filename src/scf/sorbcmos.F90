@@ -10,16 +10,16 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine Sorb2CMOs(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,OrbType)
+subroutine SorbCMOs(CMO,nCMO,nD,EOrb,Occ,nnB,nBas,nOrb,nSym)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym), OrbType(nnB,nD)
-real(kind=wp) :: CMO(nCMO,nD), Occ(nnB,nD)
-integer(kind=iwp) :: iD, iOff1, iOff2, iOrb, iSym, iTmp, jOrb, kOrb, nOcc
-real(kind=wp) :: Occ_i, Occ_j
+integer(kind=iwp), intent(in) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(inout) :: CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
+integer(kind=iwp) :: iBlock, iD, iEnd, iOff1, iOff2, iOrb, iStr, iSym, jOrb, kOrb, nOcc
+real(kind=wp) :: EOrb_i, EOrb_j, Occ_i, Occ_j
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iOff, jOff
 
@@ -48,6 +48,7 @@ do iD=1,nD
   do iSym=1,nSym
 
     nOcc = 0
+    if (nOrb(iSym) == 0) cycle
 
     ! Sort first the orbitals according to the occupation numbers.
 
@@ -59,20 +60,19 @@ do iD=1,nD
       do jOrb=iOrb+1,nOrb(iSym)
         Occ_j = Occ(iOff1+jOrb,iD)
         !write(u6,*) 'Occ_j,jOrb=',Occ_j,jOrb
-        if ((Occ_i == Zero) .and. (Occ_j > Occ_i)) then
+        if (Occ_j > Occ_i) then
           Occ_i = Occ_j
           kOrb = jOrb
         end if
       end do
       !write(u6,*) 'kOrb=',kOrb
       if (kOrb /= 0) then
-        iTmp = OrbType(iOff1+iOrb,iD)
-        OrbType(iOff1+iOrb,iD) = OrbType(iOff1+kOrb,iD)
-        OrbType(iOff1+kOrb,iD) = iTmp
-
         Occ_i = Occ(iOff1+iOrb,iD)
         Occ(iOff1+iOrb,iD) = Occ(iOff1+kOrb,iD)
         Occ(iOff1+kOrb,iD) = Occ_i
+        EOrb_i = EOrb(iOff1+iOrb,iD)
+        EOrb(iOff1+iOrb,iD) = EOrb(iOff1+kOrb,iD)
+        EOrb(iOff1+kOrb,iD) = EOrb_i
         call DSwap_(nBas(iSym),CMO(iOff2+(iOrb-1)*nBas(iSym),iD),1,CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
       end if
 
@@ -80,8 +80,43 @@ do iD=1,nD
 
     end do
 
-    iOff1 = iOff1+nOrb(iSym)
-    iOff2 = iOff2+nBas(iSym)*nOrb(iSym)
+    ! Now sort the block with respect to the lowest possible
+    ! orbital energy.
+
+    do iBlock=1,2
+
+      if (iBlock == 1) then
+        iStr = 1
+        iEnd = nOcc
+      else
+        iStr = nOcc+1
+        iEnd = nOrb(iSym)
+      end if
+
+      do iOrb=iStr,iEnd-1
+
+        EOrb_i = EOrb(iOff1+iOrb,iD)
+        kOrb = 0
+        do jOrb=iOrb+1,iEnd
+          EOrb_j = EOrb(iOff1+jOrb,iD)
+          if (EOrb_j < EOrb_i) then
+            EOrb_i = EOrb_j
+            kOrb = jOrb
+          end if
+        end do
+        if (kOrb /= 0) then
+          Occ_i = Occ(iOff1+iOrb,iD)
+          Occ(iOff1+iOrb,iD) = Occ(iOff1+kOrb,iD)
+          Occ(iOff1+kOrb,iD) = Occ_i
+          EOrb_i = EOrb(iOff1+iOrb,iD)
+          EOrb(iOff1+iOrb,iD) = EOrb(iOff1+kOrb,iD)
+          EOrb(iOff1+kOrb,iD) = EOrb_i
+          call DSwap_(nBas(iSym),CMO(iOff2+(iOrb-1)*nBas(iSym),iD),1,CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
+        end if
+
+      end do
+    end do     ! iBlock
+
   end do    ! iSym
 end do      ! iD
 #ifdef _DEBUGPRINT_
@@ -99,4 +134,4 @@ end do
 
 return
 
-end subroutine Sorb2CMOs
+end subroutine SorbCMOs

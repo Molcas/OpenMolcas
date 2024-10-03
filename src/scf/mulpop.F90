@@ -24,8 +24,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mBB, nD, mBT, mmB
-real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
+integer(kind=iwp), intent(in) :: mBB, nD, mBT, mmB
+real(kind=wp) , intent(in):: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
 real(kind=wp), allocatable :: Aux1(:), Aux2(:)
 
 !----------------------------------------------------------------------*
@@ -33,24 +33,24 @@ real(kind=wp), allocatable :: Aux1(:), Aux2(:)
 !----------------------------------------------------------------------*
 if (all(nBas(1:nSym) == nOrb(1:nSym))) then
   if (nD == 1) then
-    call Charge(nSym,nBas,BName,CMO(1,1),OccNo(1,1),Ovrlp,2,.false.,.false.)
+    call Charge(nSym,nBas,BName,CMO(:,1),OccNo(:,1),Ovrlp,2,.false.,.false.)
   else
-    call Charge(nSym,nBas,BName,CMO(1,1),OccNo(1,1),Ovrlp,0,.false.,.false.)
-    call Charge(nSym,nBas,BName,CMO(1,2),OccNo(1,2),Ovrlp,1,.false.,.false.)
+    call Charge(nSym,nBas,BName,CMO(:,1),OccNo(:,1),Ovrlp,0,.false.,.false.)
+    call Charge(nSym,nBas,BName,CMO(:,2),OccNo(:,2),Ovrlp,1,.false.,.false.)
   end if
 else
   call mma_allocate(Aux1,nBB,Label='Aux1')
   call mma_allocate(Aux2,nnB,Label='Aux2')
   if (nD == 1) then
-    call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
-    call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
+    call PadCMO(CMO(:,1),Aux1,nSym,nBas,nOrb)
+    call PadEor(OccNo(:,1),Aux2,nSym,nBas,nOrb)
     call Charge(nSym,nBas,BName,Aux1,Aux2,Ovrlp,2,.false.,.false.)
   else
-    call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
-    call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
+    call PadCMO(CMO(:,1),Aux1,nSym,nBas,nOrb)
+    call PadEor(OccNo(:,1),Aux2,nSym,nBas,nOrb)
     call Charge(nSym,nBas,BName,Aux1,Aux2,Ovrlp,0,.false.,.false.)
-    call PadCMO(CMO(1,2),Aux1,nSym,nBas,nOrb)
-    call PadEor(OccNo(1,2),Aux2,nSym,nBas,nOrb)
+    call PadCMO(CMO(:,2),Aux1,nSym,nBas,nOrb)
+    call PadEor(OccNo(:,2),Aux2,nSym,nBas,nOrb)
     call Charge(nSym,nBas,BName,Aux1,Aux2,Ovrlp,1,.false.,.false.)
   end if
   call mma_deallocate(Aux1)

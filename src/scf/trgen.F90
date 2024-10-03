@@ -34,8 +34,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTrMat, mBT
-real(kind=wp) :: TrMat(nTrMat), Ovrlp(mBT), OneHam(mBT)
+integer(kind=iwp), intent(in) :: nTrMat, mBT
+real(kind=wp), intent(out) :: TrMat(nTrMat)
+real(kind=wp), intent(in) :: Ovrlp(mBT), OneHam(mBT)
 integer(kind=iwp) :: i, ind, iSym, j
 
 ind = 0

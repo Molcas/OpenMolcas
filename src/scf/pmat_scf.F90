@@ -44,9 +44,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: FstItr
-integer(kind=iwp) :: nXCf, nD
-real(kind=wp) :: XCf(nXCf,nD)
+logical(kind=iwp), intent(inout) :: FstItr
+integer(kind=iwp), intent(in) :: nXCf, nD
+real(kind=wp), intent(in) :: XCf(nXCf,nD)
 integer(kind=iwp) :: Algo_Save, iCharge, iD, iDumm, iM, iMat, iSpin, nT
 real(kind=wp) :: Backup_ExFac, CPU1, CPU2, Dummy(1), ERFSelf, TCF2, TCF2_1, Tim1, Tim2, Tim3, Tmp, TWF2, TWF2_1, XCPM, XCPM1, &
                  XCPM2, XWPM, XwPM1, XwPM2
@@ -267,7 +267,7 @@ if (MiniDn .and. (max(0,nIter(nIterP)-1) > 0)) then
       call RWDTG(-iM,Aux,nBT*nD,'R','TWOHAM',iDisk,size(iDisk,1))
       pTwoHam => Aux
     else
-      pTwoHam => TwoHam(1:nBT,1:nD,iM)
+      pTwoHam => TwoHam(:,:,iM)
     end if
 
     do iD=1,nD

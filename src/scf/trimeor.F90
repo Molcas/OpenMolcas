@@ -21,8 +21,9 @@ subroutine TrimEor(Eor1,Eor2,nSym,nBas,nOrb)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Eor1(*), Eor2(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(in) :: Eor1(*)
+real(kind=wp), intent(inout) :: Eor2(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*

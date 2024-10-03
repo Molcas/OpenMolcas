@@ -16,8 +16,8 @@ subroutine RdTwoEnrg(LU,E2act)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LU
-real(kind=wp) :: E2act
+integer(kind=iwp), intent(inout) :: LU
+real(kind=wp), intent(out) :: E2act
 integer(kind=iwp) :: istatus
 logical(kind=iwp) :: Exists
 character(len=80) :: LINE

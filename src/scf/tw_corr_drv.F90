@@ -18,8 +18,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nEO, nCMO
-real(kind=wp) :: EOrb(nEO), CMO(nCMO), Ecorr
+integer(kind=iwp), intent(in) :: nEO, nCMO
+real(kind=wp), intent(in) :: EOrb(nEO), CMO(nCMO)
+real(kind=wp), intent(out) :: Ecorr
 integer(kind=iwp) :: iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb, jVir, kOff, nExt, nOkk
 real(kind=wp), allocatable :: Eov(:)
 

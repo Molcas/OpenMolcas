@@ -41,14 +41,20 @@
 !#define _DEBUGCode_
 subroutine Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
 
+#ifdef _DEBUGCode_
+use Index_Functions, only: iTri, nTri_Elem
+#endif
 use InfSCF, only: HDiag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: m, k, iRC
-real(kind=wp) :: g(m), Fact, Eig(k), Vec(m+1,k)
+integer(kind=iwp), intent(in) :: m, k
+real(kind=wp), intent(in) :: g(m), Fact
+real(kind=wp), intent(out) :: Eig(k)
+real(kind=wp), intent(inout) :: Vec(m+1,k)
+integer(kind=iwp), intent(out) :: iRC
 #include "print.fh"
 integer(kind=iwp) :: i, ig, ii, info, iter, j, jj, maxk, mink, mk, n, nTmp, old_mk
 real(kind=wp) :: Alpha, Aux, Conv, Dum(1) = Zero, tmp
@@ -60,7 +66,7 @@ real(kind=wp), parameter :: Thr = 1.0e-6_wp, Thr2 = 1.0e-12_wp, Thr3 = 1.0e-16_w
 real(kind=wp), external :: ddot_
 #ifdef _DEBUGCode_
 integer(kind=iwp) :: ij
-real(kind=wp), allocatable :: EVal(:), EVec(:), HAug(:,:), HM(:,:), Vec(:)
+real(kind=wp), allocatable :: EVal(:), EVec(:), HAug(:,:), HM(:,:), Vec_(:)
 #endif
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
@@ -71,24 +77,23 @@ iPrint = nPrint(iRout)
 n = m+1
 
 #ifdef _DEBUGCode_
-call mma_allocate(Vec,m,Label='Vec')
+call mma_allocate(Vec_,m,Label='Vec_')
 call mma_allocate(HM,m,m,Label='HM')
 HM(:,:) = Zero
 call mma_allocate(HAug,n,n,Label='HAug')
 
 do i=1,m
-  Vec(:) = Zero
-  Vec(i) = One
-  call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
+  Vec_(:) = Zero
+  Vec_(i) = One
+  call SOrUpV(Vec_(:),m,HM(:,i),'GRAD','BFGS')
 end do
 !call RecPrt('HM',' ',HM,m,m)
 
-call mma_allocate(EVal,m*(m+1)/2,Label='EVal')
-call mma_allocate(EVec,m*m,Label='EVec')
+call mma_allocate(EVal,nTri_Elem(m),Label='EVal')
+call mma_allocate(EVec,m**2,Label='EVec')
 do i=1,m
   do j=1,i
-    ij = i*(i-1)/2+j
-    EVal(ij) = HM(i,j)
+    EVal(iTri(i,j)) = HM(i,j)
   end do
 end do
 
@@ -102,7 +107,7 @@ call NIDiag_new(EVal,EVec,m,m)
 call Jacord(EVal,EVec,m,m)
 
 !do i=1,m
-!  ij = i*(i+1)/2
+!  ij = iTri(i,j)
 !  write(u6,*) 'Eval0(ij)=',EVal(ij)
 !end do
 
@@ -113,13 +118,12 @@ HAug(n,1:m) = g(:)
 HAug(1:m,n) = g(:)
 HAug(1:m,1:m) = HM(:,:)
 
-call mma_allocate(EVal,n*(n+1)/2,Label='EVal')
-call mma_allocate(EVec,n*n,Label='EVec')
+call mma_allocate(EVal,nTri_Elem(n),Label='EVal')
+call mma_allocate(EVec,n**2,Label='EVec')
 
 do i=1,n
   do j=1,i
-    ij = i*(i-1)/2+j
-    EVal(ij) = HAug(i,j)
+    EVal(iTri(i,j)) = HAug(i,j)
   end do
 end do
 
@@ -133,7 +137,7 @@ call NIDiag_new(EVal,EVec,n,n)
 call Jacord(EVal,EVec,n,n)
 
 do i=1,n
-  ij = i*(i+1)/2
+  ij = iTri(i,j)
   if (EVal(ij) < Zero) write(u6,*) 'Eval(ij)=',EVal(ij)
 end do
 
@@ -141,7 +145,7 @@ call mma_deallocate(EVal)
 call mma_deallocate(EVec)
 call mma_deallocate(HAug)
 call mma_deallocate(HM)
-call mma_deallocate(Vec)
+call mma_deallocate(Vec_)
 #endif
 
 #ifdef _DEBUGPRINT_
@@ -523,7 +527,7 @@ do while (.not. Last)
 
       ! Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
       do j=0,n-1
-        !Aux = A((j+1)*(j+2)/2)-EVal(1+i)
+        !Aux = A(nTri_Elem(j+1))-EVal(1+i)
         if (j == n-1) then
           Aux = -Eval(1+i)
         else

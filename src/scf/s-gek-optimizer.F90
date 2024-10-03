@@ -27,6 +27,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !             May '22, November-December '22                           *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
@@ -41,7 +42,7 @@ real(kind=wp), intent(inout) :: dq(mOV)
 real(kind=wp), intent(out) :: dqdq
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
-integer(kind=iwp) :: i, iFirst, ipg, ipq, Iter_Save, Iteration, Iteration_Micro, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
+integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Micro, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
                      nDIIS, nExplicit
 real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Variance(1)
 real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), &
@@ -447,14 +448,13 @@ do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate 
     call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
     !call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
 
-    call mma_allocate(Val,mDIIS*(mDIIS+1)/2,Label='Val')
+    call mma_allocate(Val,nTri_Elem(mDIIS),Label='Val')
     call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
 
-    Vec(:,:) = Zero
+    call unitmat(Vec,mDIIS)
     do i=1,mDIIS
-      Vec(:,:) = One
       do j=1,i
-        Val((i-1)*i/2+j) = H_diis(i,j)
+        Val(iTri(i,j)) = H_diis(i,j)
       end do
     end do
 
@@ -463,14 +463,15 @@ do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate 
 
     ! If negative eigenvalues then correct and signal that the micro iterartions should be terminanted.
     do i=1,mDIIS
+      ii = nTri_Elem(i)
 #     ifdef _DEBUGPRINT_
-      write(u6,*) 'Eigenvalue:',Val(i*(i+1)/2)
+      write(u6,*) 'Eigenvalue:',Val(ii)
 #     endif
-      if (Val(i*(i+1)/2) < Zero) then
+      if (Val(ii) < Zero) then
         Terminate = .true.
         do j=1,mDIIS
           do k=1,mDIIS
-            H_Diis(j,k) = H_Diis(j,k)+Two*abs(Val(i*(i+1)/2))*Vec(j,i)*Vec(k,i)
+            H_Diis(j,k) = H_Diis(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
           end do
         end do
       end if

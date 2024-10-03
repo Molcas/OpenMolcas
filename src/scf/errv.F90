@@ -29,9 +29,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lVec, iVec
-real(kind=wp) :: ErrVec(lVec)
-logical(kind=iwp) :: QNRstp
+integer(kind=iwp), intent(in) :: lVec, iVec
+logical(kind=iwp), intent(in) :: QNRstp
+real(kind=wp), intent(out) :: ErrVec(lVec)
 integer(kind=iwp) :: inode
 real(kind=wp), allocatable :: Grad(:)
 

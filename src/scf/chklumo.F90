@@ -38,7 +38,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-logical(kind=iwp) :: OccSet, FermSet, SpinSet
+logical(kind=iwp), intent(inout) :: OccSet, FermSet
+logical(kind=iwp), intent(in) :: SpinSet
 integer(kind=iwp) :: I, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, LU, LU_, N, nVec
 real(kind=wp) :: Dummy(1), qA, qB, Tmp, Tmp1
 logical(kind=iwp) :: Idem, Skip

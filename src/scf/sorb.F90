@@ -37,8 +37,9 @@ use SCFFiles, only: LuOut
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LuOrb, iTerm
-real(kind=wp) :: SIntTh
+integer(kind=iwp), intent(inout) :: LuOrb
+real(kind=wp), intent(inout) :: SIntTh
+integer(kind=iwp), intent(out) :: iTerm
 integer(kind=iwp) :: iD, IsUHF, nData
 logical(kind=iwp) :: found, FstItr, Retry
 character(len=512) :: FName

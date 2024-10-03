@@ -29,8 +29,9 @@ use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMO(*), ScrFac
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(inout) :: CMO(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(in) :: ScrFac
 integer(kind=iwp) :: iBas, indx, iOff, iOrb, iSeed = 13, iSym, jndx, jOrb
 real(kind=wp) :: p, q, u, v
 real(kind=wp), external :: Random_Molcas

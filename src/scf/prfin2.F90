@@ -21,9 +21,10 @@ use Definitions, only: wp, iwp
 implicit none
 ! PAM 2007: Changed dimension of CMO array from nCMO to NBB:
 ! The larger size is needed here, and the allocated size is nBB.
-integer(kind=iwp) :: nDT, nEO, nCMO
-real(kind=wp) :: Ovlp(nDT), OccNo(nEO), CMO(nBB)
-character(len=80) :: Note
+integer(kind=iwp), intent(in) :: nDT, nEO, nCMO
+real(kind=wp), intent(in) :: Ovlp(nDT)
+real(kind=wp), intent(inout) :: OccNo(nEO), CMO(nBB)
+character(len=80), intent(out) :: Note
 integer(kind=iwp) :: iBs, iCMO, i_Or, iSym, iVec
 real(kind=wp), allocatable :: Scr2(:)
 

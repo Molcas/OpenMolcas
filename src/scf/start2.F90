@@ -47,9 +47,10 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: FName
-integer(kind=iwp) :: LuOrb, mBB, nD, mBT, mmB
-real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
+character(len=*), intent(in) :: FName
+integer(kind=iwp), intent(in) :: LuOrb, mBB, nD, mBT, mmB
+real(kind=wp), intent(out) :: CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
+real(kind=wp), intent(in) :: Ovrlp(mBT)
 integer(kind=iwp) :: iBas, iD, iDum(7,8), iDummy(1), iErr, indx, iOff, isUHF, iSym, iWFtype, Lu_, nTmp(8)
 real(kind=wp) :: Dummy(1)
 character(len=6) :: OrbName
@@ -72,9 +73,9 @@ if (nD == 1) then
   if (isHDF5) then
     call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO,OccNo,EOrb,IndT)
   else
-    call RdVec_(FName,Lu_,'COEI',nD-1,nSym,nBas,nOrb,CMO,Dummy,OccNo,Dummy,EOrb(1,1),Dummy,IndT(1,1),VTitle,1,iErr,iWFtype)
+    call RdVec_(FName,Lu_,'COEI',nD-1,nSym,nBas,nOrb,CMO,Dummy,OccNo,Dummy,EOrb(:,1),Dummy,IndT(1,1),VTitle,1,iErr,iWFtype)
   end if
-  call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT(1,1),0,iDummy,iErr)
+  call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT(:,1),0,iDummy,iErr)
   indx = 1
   do iSym=1,nSym
     nTmp(iSym) = 0
@@ -88,7 +89,7 @@ if (nD == 1) then
     end if
   end do
   call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
-  call TrimEor(EOrb(1,1),EOrb(1,1),nSym,nBas,nOrb)
+  call TrimEor(EOrb(:,1),EOrb(:,1),nSym,nBas,nOrb)
 
   call Setup_SCF()
   if ((.not. Aufb) .and. (.not. OnlyProp)) then
@@ -110,15 +111,15 @@ else
   end if
   if (isUHF == 1) then
     if (isHDF5) then
-      call RdVec_HDF5(fileorb_id,'COEIA',nSym,nBas,CMO(1,1),OccNo(1,1),EOrb(1,1),IndT(1,1))
-      call RdVec_HDF5(fileorb_id,'COEIB',nSym,nBas,CMO(1,2),OccNo(1,2),EOrb(1,2),IndT(1,2))
+      call RdVec_HDF5(fileorb_id,'COEIA',nSym,nBas,CMO(:,1),OccNo(:,1),EOrb(:,1),IndT(:,1))
+      call RdVec_HDF5(fileorb_id,'COEIB',nSym,nBas,CMO(:,2),OccNo(:,2),EOrb(:,2),IndT(:,2))
     else
       call RdVec_(FName,Lu_,'COEI',nD-1,nSym,nBas,nOrb,CMO(:,1),CMO(:,2),OccNo(:,1),OccNo(:,2),EOrb(:,1),EOrb(:,2),IndT(:,1), &
                   VTitle,1,iErr,iWFtype)
       IndT(:,2) = IndT(:,1)
     end if
-    call VecSort(nSym,nBas,nBas,CMO(1,1),OccNo(1,1),IndT(1,1),0,iDummy,iErr)
-    call VecSort(nSym,nBas,nBas,CMO(1,2),OccNo(1,2),IndT(1,2),0,iDummy,iErr)
+    call VecSort(nSym,nBas,nBas,CMO(:,1),OccNo(:,1),IndT(:,1),0,iDummy,iErr)
+    call VecSort(nSym,nBas,nBas,CMO(:,2),OccNo(:,2),IndT(:,2),0,iDummy,iErr)
     indx = 1
     do iSym=1,nSym
       nTmp(iSym) = 0
@@ -131,18 +132,18 @@ else
         nDel(iSym) = nTmp(iSym)
       end if
     end do
-    call TrimCMO(CMO(1,1),CMO(1,1),nSym,nBas,nOrb)
-    call TrimEor(EOrb(1,1),EOrb(1,2),nSym,nBas,nOrb)
-    call TrimCMO(CMO(1,2),CMO(1,2),nSym,nBas,nOrb)
-    call TrimEor(EOrb(1,2),EOrb(1,2),nSym,nBas,nOrb)
+    call TrimCMO(CMO(:,1),CMO(:,1),nSym,nBas,nOrb)
+    call TrimCMO(CMO(:,2),CMO(:,2),nSym,nBas,nOrb)
+    call TrimEor(EOrb(:,1),EOrb(:,2),nSym,nBas,nOrb)
+    call TrimEor(EOrb(:,2),EOrb(:,2),nSym,nBas,nOrb)
     call Setup_SCF()
   else
     if (isHDF5) then
       call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO,OccNo,EOrb,IndT)
     else
-      call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,CMO,Dummy,OccNo,Dummy,EOrb(1,1),Dummy,IndT(1,1),VTitle,1,iErr,iWFtype)
+      call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,CMO,Dummy,OccNo,Dummy,EOrb(:,1),Dummy,IndT(:,1),VTitle,1,iErr,iWFtype)
     end if
-    call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT(1,1),0,iDummy,iErr)
+    call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT(:,1),0,iDummy,iErr)
     indx = 1
     do iSym=1,nSym
       nTmp(iSym) = 0
@@ -156,12 +157,12 @@ else
       end if
     end do
     call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
-    call TrimEor(EOrb(1,1),EOrb(1,1),nSym,nBas,nOrb)
+    call TrimEor(EOrb(:,1),EOrb(:,1),nSym,nBas,nOrb)
     call Setup_SCF()
     CMO(1:nBO,2) = CMO(1:nBO,1)
-    OccNo(1:nnB,2) = OccNo(1:nnB,1)
     EOrb(1:nnB,2) = EOrb(1:nnB,1)
-    OccNo(1:nnB,1:2) = Half*OccNo(1:nnB,1:2)
+    OccNo(1:nnB,1) = Half*OccNo(1:nnB,1)
+    OccNo(1:nnB,2) = OccNo(1:nnB,1)
   end if
   if (.not. Aufb) then
     iOff = 0
@@ -187,7 +188,7 @@ if (MSYMON) then
   call fmsym_set_elements(msym_ctx)
   call fmsym_find_symmetry(msym_ctx)
   do iD=1,nD
-    call fmsym_symmetrize_orbitals(msym_ctx,CMO(1,iD))
+    call fmsym_symmetrize_orbitals(msym_ctx,CMO(:,iD))
   end do
 # else
   write(u6,*) 'No msym support, skipping symmetrization of start orbitals...'
@@ -195,7 +196,7 @@ if (MSYMON) then
 end if
 
 do iD=1,nD
-  call Ortho(CMO(1,iD),nBO,Ovrlp,nBT)
+  call Ortho(CMO(:,iD),nBO,Ovrlp,nBT)
 end do
 
 #ifdef _MSYM_
@@ -206,7 +207,7 @@ if (MSYMON) call fmsym_release_context(msym_ctx)
 
 if (nD == 1) then
   OrbName = 'SCFORB'
-  call WrVec_(OrbName,LuOut,'COE',nD-1,nSym,nBas,nBas,CMO,Dummy,OccNo,Dummy,EOrb(1,1),Dummy,iDum,VTitle,iWFtype)
+  call WrVec_(OrbName,LuOut,'COE',nD-1,nSym,nBas,nBas,CMO,Dummy,OccNo,Dummy,EOrb(:,1),Dummy,iDum,VTitle,iWFtype)
 else
   OrbName = 'UHFORB'
   call WrVec_(OrbName,LuOut,'COE',nD-1,nSym,nBas,nBas,CMO(:,1),CMO(:,2),OccNo(:,1),OccNo(:,2),EOrb(:,1),EOrb(:,2),iDum,VTitle, &

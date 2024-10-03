@@ -27,6 +27,7 @@ subroutine RmLDep(AMat,lDm,lth)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -35,8 +36,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: lDm, lth
-real(kind=wp) :: AMat(lDm,lDm)
+integer(kind=iwp), intent(in) :: lDm, lth
+real(kind=wp), intent(inout) :: AMat(lDm,lDm)
 real(kind=wp) :: Dummy
 integer(kind=iwp) :: i, iDum, iErr, ij, lthS, lthT, nFound
 #ifdef _DEBUGPRINT_
@@ -48,8 +49,8 @@ real(kind=wp), allocatable :: ATri(:), EVal(:), EVec(:), Scr(:)
 !     Start                                                            *
 !----------------------------------------------------------------------*
 
-lthT = lth*(lth+1)/2
-lthS = lth*lth
+lthT = nTri_Elem(lth)
+lthS = lth**2
 call mma_allocate(ATri,lthT,Label='ATri')
 call mma_allocate(EVec,lthS,Label='EVec')
 call mma_allocate(EVal,lth,Label='EVal')

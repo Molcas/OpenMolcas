@@ -40,9 +40,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDT, nEO, nCMO
-real(kind=wp) :: Dens(nDT), Dens_ab(nDT), EOrb(nEO), CMO(nCMO), KntE(nDT)
-! Define local variables
+integer(kind=iwp), intent(in) :: nDT, nEO, nCMO
+real(kind=wp), intent(inout) :: Dens(nDT)
+real(kind=wp), intent(in) :: Dens_ab(nDT), EOrb(nEO), CMO(nCMO), KntE(nDT)
 integer(kind=iwp) :: iDumm, iMult, iPL, iSpn, iTol
 real(kind=wp) :: Dumm1(1), E_Tw, ECNO, Ecorr, sUHF, Virial
 character(len=80) :: Lines(6)

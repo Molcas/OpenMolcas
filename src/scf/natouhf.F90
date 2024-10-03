@@ -18,13 +18,15 @@ subroutine NatoUHF(DensA,DensB,FockA,FockB,nBT,CMO,nBB,Ovl,Nato,Eta,Eps,nnB,nSym
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBT, nBB, nnB, nSym, nBas(nSym), nOrb(nSym)
-real(kind=wp) :: DensA(nBT), DensB(nBT), FockA(nBT), FockB(nBT), CMO(nBB), Ovl(nBT), Nato(nBB), Eta(nnB), Eps(nnB)
+integer(kind=iwp), intent(in) :: nBT, nBB, nnB, nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(in) :: DensA(nBT), DensB(nBT), FockA(nBT), FockB(nBT), CMO(nBB), Ovl(nBT)
+real(kind=wp), intent(out) :: Nato(nBB), Eta(nnB), Eps(nnB)
 integer(kind=iwp) :: indx, iOffCMO, iOffEta, iOffSqr, iOffTri, iOrb, iSym, MaxSqr, MaxTri, nCMO, nEta, nSqr, nTri
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: Aux1(:), Aux2(:), Aux3(:), Dens(:), Fock(:), SMat(:)
@@ -39,10 +41,10 @@ nSqr = 0
 nCMO = 0
 nEta = 0
 do iSym=1,nSym
-  MaxTri = max(MaxTri,nBas(iSym)*(nBas(iSym)+1)/2)
-  MaxSqr = max(MaxSqr,nBas(iSym)*nBas(iSym))
-  nTri = nTri+nBas(iSym)*(nBas(iSym)+1)/2
-  nSqr = nSqr+nBas(iSym)*nBas(iSym)
+  MaxTri = max(MaxTri,nTri_Elem(nBas(iSym)))
+  MaxSqr = max(MaxSqr,nBas(iSym)**2)
+  nTri = nTri+nTri_Elem(nBas(iSym))
+  nSqr = nSqr+nBas(iSym)**2
   nCMO = nCMO+nBas(iSym)*nOrb(iSym)
   nEta = nEta+nOrb(iSym)
 end do
@@ -72,7 +74,7 @@ Fock(:) = Half*(FockA(1:nTri)+FockB(1:nTri))
 !  call TriPrt('natouhf: Fock A','(20f10.4)',FockA(1+iOffTri),nBas(iSym))
 !  call TriPrt('natouhf: Fock B','(20f10.4)',FockB(1+iOffTri),nBas(iSym))
 !  call TriPrt('natouhf: Average Fock','(20f10.4)',FockB(1+iOffTri),nBas(iSym))
-!  iOffTri = iOffTri+nBas(iSym)*(nBas(iSym)+1)/2
+!  iOffTri = iOffTri+nTri_Elem(nBas(iSym))
 !end do
 !----------------------------------------------------------------------*
 ! Form density in MO basis: C(t)SDSC                                   *
@@ -83,8 +85,8 @@ iOffCMO = 0
 iOffEta = 0
 do iSym=1,nSym
   if (iSym > 1) then
-    iOffTri = iOffTri+nBas(iSym-1)*(nBas(iSym-1)+1)/2
-    iOffSqr = iOffSqr+nBas(iSym-1)*nBas(iSym-1)
+    iOffTri = iOffTri+nTri_Elem(nBas(iSym-1))
+    iOffSqr = iOffSqr+nBas(iSym-1)**2
     iOffEta = iOffEta+nOrb(iSym-1)
     iOffCMO = iOffCMO+nBas(iSym-1)*nOrb(iSym-1)
   end if
@@ -130,7 +132,7 @@ do iSym=1,nSym
 
   tmp = 1.0e-6_wp
   do iOrb=1,nOrb(iSym)
-    indx = iOrb*(iOrb+1)/2
+    indx = nTri_Elem(iOrb)
     Aux2(indx) = Aux2(indx)+tmp
     tmp = Half*tmp
   end do

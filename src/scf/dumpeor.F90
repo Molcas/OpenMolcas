@@ -23,16 +23,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Label
-real(kind=wp) :: E_or(*)
-integer(kind=iwp) :: nSym, nBas(*), nOrb(*)
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(in) :: E_or(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata, npDump
 real(kind=wp), allocatable :: Dump(:)
 
 !----------------------------------------------------------------------*
 ! Preliminaries                                                        *
 !----------------------------------------------------------------------*
-npDump = sum(nBas(1:nSym))
+npDump = sum(nBas(:))
 call mma_allocate(Dump,npDump,Label='DumpOE')
 !----------------------------------------------------------------------*
 ! Dump orbital energies                                                *

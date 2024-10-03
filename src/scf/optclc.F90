@@ -38,8 +38,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nCI, nD, nInd, Ind(nInd)
-real(kind=wp) :: CInter(nCI,nD)
+integer(kind=iwp), intent(in) :: nCI, nD, nInd, Ind(nInd)
+real(kind=wp), intent(in) :: CInter(nCI,nD)
 integer(kind=iwp) :: i, iD, iMap, Iter_D, MatNO
 real(kind=wp) :: C
 real(kind=wp), allocatable :: DnsTmp(:,:), TwoTmp(:,:), VxcTmp(:,:)

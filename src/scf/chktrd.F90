@@ -25,13 +25,14 @@ subroutine ChkTrD(nSym,nBas,nOrb,Occ,nOcc,Dlt,nDlt)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: Ovrlp
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym), nOcc, nDlt
-real(kind=wp) :: Occ(nOcc), Dlt(nDlt)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nOcc, nDlt
+real(kind=wp), intent(in) :: Occ(nOcc), Dlt(nDlt)
 integer(kind=iwp) :: ipDlt, ipOcc, ipOvl, iSym, lth, nBs, nOr
 real(kind=wp) :: Scal, SumOcc, TrDns
 real(kind=wp), parameter :: ThrDif = 1.0e-7_wp
@@ -44,7 +45,7 @@ Scal = One
 do iSym=1,nSym
   nBs = nBas(iSym)
   nOr = nOrb(iSym)
-  lth = nBs*(nBs+1)/2
+  lth = nTri_Elem(nBs)
   ! count occupation number...
   SumOcc = sum(Occ(ipOcc+1:ipOcc+nOr))*Scal
   ! do trace of PS for symmetry block...

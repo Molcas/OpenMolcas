@@ -17,7 +17,8 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nOcc(nSym), nVir(nSym), iSkip
+integer(kind=iwp), intent(in) :: nSym, nOcc(nSym), nVir(nSym)
+integer(kind=iwp), intent(out) :: iSkip
 integer(kind=iwp) :: iSym, iSyma, iSymi, nT1am(8), nT1amTot
 
 iSkip = 0

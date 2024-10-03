@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine Optim2(E_Pred,G,H,D,C,n,nDim,n0,n1,r2)
+subroutine Optim2(E_Pred,G,H,D,C,n,n0,n1,r2)
 !***********************************************************************
 !                                                                      *
 !    purpose: Solve a set of non-linear equations to get interpolation *
@@ -24,7 +24,6 @@ subroutine Optim2(E_Pred,G,H,D,C,n,nDim,n0,n1,r2)
 !       H       : bilinear energy terms                                *
 !       D       : bilinear density terms                               *
 !       n       : size of matrices                                     *
-!       nDim    : leading dimension for H                              *
 !       n0      : index number of the lowest energy                    *
 !       n1      : index number of the second lowest energy             *
 !       r2      : square of density change constraint                  *
@@ -57,15 +56,17 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, nDim, n0, n1
-real(kind=wp) :: E_Pred, G(nDim), H(nDim,nDim), D(nDim,nDim), C(nDim), r2
+integer(kind=iwp), intent(in) :: n, n0, n1
+real(kind=wp), intent(out) :: E_Pred, C(n)
+real(kind=wp), intent(in) :: G(n), H(n,n), D(n,n), r2
 integer(kind=iwp) :: i, Iter, j, k, l, nLow
-real(kind=wp) :: A, AI, AJ1, AJ2, AJK, AK1, AK2, B, BI, BJ1, BJ2, Eref, Es(4), Optim_E, Step, Step_mi, Step_mj, Step_mk, Step_pi, &
-                 Step_pj, Step_pk, Steps(3,4)
+real(kind=wp) :: A, AI, AJ1, AJ2, AJK, AK1, AK2, B, BI, BJ1, BJ2, Eref, Es(4), Step, Step_mi, Step_mj, Step_mk, Step_pi, Step_pj, &
+                 Step_pk, Steps(3,4)
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: rSum
 #endif
 logical(kind=iwp) :: DidChange
+real(kind=wp), external :: Optim_E
 
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
@@ -84,7 +85,7 @@ logical(kind=iwp) :: DidChange
 !
 ! Sum_i C(i) C(j) D(i,j) = r2
 
-C(1:n) = Zero
+C(:) = Zero
 A = Two*(D(n0,n1)-D(n1,n1))/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
 B = (D(n1,n1)-r2)/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
 C(n0) = -(A/Two)+sqrt((A/Two)**2-B)
@@ -109,15 +110,15 @@ write(u6,'(a)') 'Start C:'
 write(u6,'(6F15.6)') (C(i),i=1,n)
 write(u6,'(a)') 'Start G:'
 write(u6,'(6F15.6)') (G(i),i=1,n)
-call RecPrt('H',' ',H,nDim,nDim)
-call RecPrt('D',' ',D,nDim,nDim)
+call RecPrt('H',' ',H,n,n)
+call RecPrt('D',' ',D,n,n)
 #endif
 !----------------------------------------------------------------------*
 ! Compute start energy.                                                *
 !----------------------------------------------------------------------*
-Eref = sum(C(1:n)*G(1:n))
+Eref = sum(C(:)*G(:))
 do i=1,n
-  Eref = Eref+Half*C(i)*sum(C(1:n)*H(i,1:n))
+  Eref = Eref+Half*C(i)*sum(C(:)*H(i,:))
 end do
 #ifdef _DEBUGPRINT_
 write(u6,'(a,F15.6)') 'Eref = ',Eref
@@ -185,7 +186,7 @@ do Iter=1,500
         Steps(2,1) = Step_mj
         Steps(3,1) = Step_mk
 
-        Es(1) = optim_E(C,G,H,n,nDim)
+        Es(1) = optim_E(C,G,H,n)
 
         C(j) = C(j)-Step_mj
         C(k) = C(k)-Step_mk
@@ -195,7 +196,7 @@ do Iter=1,500
         Steps(2,2) = Step_pj
         Steps(3,2) = Step_pk
 
-        Es(2) = optim_E(C,G,H,n,nDim)
+        Es(2) = optim_E(C,G,H,n)
 
         C(j) = C(j)-Step_pj
         C(k) = C(k)-Step_pk
@@ -233,7 +234,7 @@ do Iter=1,500
         Steps(2,3) = Step_mj
         Steps(3,3) = Step_mk
 
-        Es(3) = optim_E(C,G,H,n,nDim)
+        Es(3) = optim_E(C,G,H,n)
 
         C(j) = C(j)-Step_mj
         C(k) = C(k)-Step_mk
@@ -243,7 +244,7 @@ do Iter=1,500
         Steps(2,4) = Step_pj
         Steps(3,4) = Step_pk
 
-        Es(4) = optim_E(C,G,H,n,nDim)
+        Es(4) = optim_E(C,G,H,n)
 
         C(j) = C(j)-Step_pj
         C(k) = C(k)-Step_pk
@@ -284,12 +285,12 @@ do Iter=1,500
 
   ! Check that the constraint is fullfilled.
 
-  rSum = sum(C(1:n))
+  rSum = sum(C(:))
   write(u6,*) 'optim: rSum-1',rSum-One
 
   rSum = Zero
   do i=1,n
-    rSum = rSum+C(i)*sum(C(1:n)*D(i,1:n))
+    rSum = rSum+C(i)*sum(C(:)*D(i,:))
   end do
   write(u6,*) 'optim: rSum-r2',rSum-r2
 # endif

@@ -27,6 +27,7 @@ subroutine R1IntA()
 use OneDat, only: sNoNuc, sNoOri
 use InfSCF, only: nBT, OneHam, Ovrlp, Tot_Nuc_Charge
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: nBas, nSym
 #endif
 #ifdef _FDE_
@@ -113,7 +114,7 @@ write(u6,*) ' ---------------------------------'
 do iSym=1,nSym
   write(u6,*) ' symmetry block',iSym
   call TriPrt(' ',' ',OneHam(ist1Hm),nBas(iSym))
-  ist1Hm = ist1Hm+nBas(iSym)*(nBas(iSym)+1)/2
+  ist1Hm = ist1Hm+nTri_Elem(nBas(iSym))
 end do
 #endif
 
@@ -138,7 +139,7 @@ write(u6,*) ' -----------------------'
 do iSym=1,nSym
   write(u6,*) ' symmetry block',iSym
   call TriPrt(' ',' ',Ovrlp(istOvl),nBas(iSym))
-  istOvl = istOvl+nBas(iSym)*(nBAs(iSym)+1)/2
+  istOvl = istOvl+nTri_Elem(nBas(iSym))
 end do
 #endif
 

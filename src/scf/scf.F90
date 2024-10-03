@@ -30,7 +30,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iReturn
+integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: iTerm, LthH, LUOrb, MemLow, MemSew
 real(kind=wp) :: SIntTh, TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: FstItr, Semi_Direct

@@ -17,8 +17,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: FstItr
-real(kind=wp) :: E1_, E2_, EV
+logical(kind=iwp), intent(inout) :: FstItr
+real(kind=wp), intent(out) :: E1_, E2_, EV
 integer(kind=iwp) :: nXCf
 real(kind=wp), allocatable :: XCf(:,:)
 

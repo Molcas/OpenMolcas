@@ -30,8 +30,9 @@ use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nXY
-real(kind=wp), target :: X(nXY), Y(nXY)
+integer(kind=iwp), intent(in) :: nXY
+real(kind=wp), target, intent(in) :: X(nXY)
+real(kind=wp), target, intent(out) :: Y(nXY)
 integer(kind=iwp) :: iD, iOcc, iOff_F, iOff_XY, iSym, iVir, jOcc, jVir, nD, nOccmF, nOrbmF
 real(kind=wp) :: Hij, Tmp
 real(kind=wp), parameter :: Hii_Max = One, Hii_Min = 0.05_wp
@@ -124,3 +125,4 @@ end subroutine yHx
 dummy_empty_procedure(yHx)
 
 #endif
+

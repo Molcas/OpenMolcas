@@ -45,8 +45,9 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp) :: FermiPop
-integer(kind=iwp) :: n, nEle
-real(kind=wp) :: e(n), o(n), T, UHF_occ
+integer(kind=iwp), intent(in) :: n, nEle
+real(kind=wp), intent(in) :: e(n), T, UHF_occ
+real(kind=wp), intent(out) :: o(n)
 integer(kind=iwp) :: i, iter
 real(kind=wp) :: beta, ef, f, f_old, ff, Step, x0, x1, x2, y0, y2, z
 #ifdef _DEBUGPRINT_

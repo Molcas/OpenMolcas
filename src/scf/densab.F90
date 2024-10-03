@@ -21,12 +21,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nBT, nDens, nD
-real(kind=wp) :: Dens(nBT,nD,nDens)
+integer(kind=iwp), intent(in) :: nBT, nDens, nD
+real(kind=wp), intent(in) :: Dens(nBT,nD,nDens)
 real(kind=wp), allocatable :: Dtemp(:)
 
 if (nD == 1) then
-  call Put_dArray('D1ao',Dens(1,1,nDens),nBT)
+  call Put_dArray('D1ao',Dens(:,1,nDens),nBT)
 else
   call mma_allocate(DTemp,nBT,Label='DTemp')
 

@@ -21,9 +21,12 @@ subroutine PadCMO(CMO1,CMO2,nSym,nBas,nOrb)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO1(*), CMO2(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(in) :: CMO1(*)
+real(kind=wp), intent(_OUT_) :: CMO2(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp) :: iFrom(8), iPtr, iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*

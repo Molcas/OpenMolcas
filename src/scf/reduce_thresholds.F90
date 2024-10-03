@@ -23,7 +23,9 @@ use Constants, only: Zero, One, Ten
 use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp) :: EThr_, Relax, SIntTh
+real(kind=wp), intent(in) :: EThr_
+real(kind=wp), intent(inout) :: SIntTh
+real(kind=wp) :: Relax
 
 write(u6,*)
 write(u6,*) 'Temporary increase of thresholds...'

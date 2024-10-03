@@ -38,8 +38,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nAuf(2), nOccup, iOK, nD
-real(kind=wp) :: Occup(nOccup,nD)
+integer(kind=iwp), intent(in) :: nAuf(2), nOccup, nD
+real(kind=wp), intent(out) :: Occup(nOccup,nD)
+integer(kind=iwp), intent(out) :: iOK
 #include "Molcas.fh"
 integer(kind=iwp) :: iD, iOrb, iOrBas, ipOcc, iSym, jOrBas, mD, mOrb_AS(2), nElec, nEOrb, nOrb_AS(2), nOrBas, Tmp
 ! These occupation number vectors are used to determine if we have convergence.
@@ -121,7 +122,7 @@ if (Teee) then
       end do
       sum_el(1:nD) = sum_el(1:nD)+Occup(iOrbAS,1:nD)
     end do
-    Fact = nD*half
+    Fact = nD*Half
     Fact2 = 0.99_wp+real(2-nD,kind=wp)
     nOccAuf(iSym,kOccAuf,1:nD) = nOrb_AS(1:nD)
     nOcc(iSym,1:nD) = int(Fact*(sum_el(1:nD)+Fact2/nSym))

@@ -30,7 +30,8 @@ use Constants, only: Two, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDisc, nCore
+integer(kind=iwp), intent(in) :: nDisc
+integer(kind=iwp), intent(inout) :: nCore
 integer(kind=iwp) :: MaxMem, MemMin_Seward, MemReq
 integer(kind=iwp), external :: AllocDisk
 

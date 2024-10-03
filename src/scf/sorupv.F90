@@ -57,9 +57,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lvec
-real(kind=wp) :: V(lVec), W(lvec)
-character(len=4) :: Mode, UpTp
+integer(kind=iwp), intent(in) :: lvec
+real(kind=wp), intent(in) :: V(lVec)
+real(kind=wp), intent(out) :: W(lvec)
+character(len=4), intent(in) :: Mode, UpTp
 integer(kind=iwp) :: i, inode, ipdel, ipdgd, ipynm1, it, leny, LL1, LL2, Lu1
 real(kind=wp) :: Cpu1, Cpu2, S(6), T(4), Tim1, Tim2, Tim3
 logical(kind=iwp) :: diag, Inverse_H, updy
@@ -144,7 +145,7 @@ end if
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*)
-call Check_Vec(W,size(W),'H_{n-1}v')
+call Check_Vec(W,lVec,'H_{n-1}v')
 call NrmClc(V,lVec,'SORUPV','V')
 call NrmClc(HDiag,lVec,'SORUPV','HDiag')
 call NrmClc(W,lVec,'SORUPV','W')
@@ -289,11 +290,11 @@ do it=iter-iterso+1,iter-2
 
 # ifdef _DEBUGPRINT_
   write(u6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
-  call Check_Vec(W,size(W),'W(0)')
+  call Check_Vec(W,lVec,'W(0)')
   W(:) = W(:)+T(1)*SODel(:)
-  call Check_Vec(W,size(W),'W(1)')
+  call Check_Vec(W,lVec,'W(1)')
   W(:) = W(:)-T(2)*SOScr(:)
-  call Check_Vec(W,size(W),'W(2)')
+  call Check_Vec(W,lVec,'W(2)')
 # else
   W(:) = W(:)+T(1)*SODel(:)-T(2)*SOScr(:)
 # endif
@@ -386,15 +387,15 @@ end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
-call Check_Vec(W,size(W),'W(2), again')
+call Check_Vec(W,lVec,'W(2), again')
 W(:) = W(:)+T(1)*SCF_V(ipdel)%A(:)
 call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
-call Check_Vec(W,size(W),'W(3)')
+call Check_Vec(W,lVec,'W(3)')
 W(:) = W(:)-T(2)*SCF_V(ipdel)%A(:)
 call Check_Vec(SCF_V(ipynm1)%A,lvec,'y_{n-1}')
 !call RecPrt('The final W array',' ',W,1,lVec)
 call NrmClc(W,lVec,'SOrUpV','The final W array')
-call Check_Vec(W,size(W),'W(final)')
+call Check_Vec(W,lVec,'W(final)')
 #else
 W(:) = W(:)+T(1)*SCF_V(ipdel)%A(:)-T(2)*SCF_V(ipynm1)%A(:)
 #endif
@@ -424,9 +425,9 @@ end subroutine Error_handling
 #ifdef _DEBUGPRINT_
 subroutine Check_Vec(Vec,nVec,Label)
 
-  integer(kind=iwp) :: nVec
-  real(kind=wp) :: Vec(nVec)
-  character(len=*) :: Label
+  integer(kind=iwp), intent(in) :: nVec
+  real(kind=wp), intent(in) :: Vec(nVec)
+  character(len=*), intent(in) :: Label
 
   write(u6,*) 'Norm of ',Label,' is : ',sqrt(DDot_(nVec,Vec,1,Vec,1))
 

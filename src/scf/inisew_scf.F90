@@ -30,9 +30,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: DSCF
-real(kind=wp) :: EThr, SIntTh
-character(len=*) :: KSDFT
+logical(kind=iwp), intent(in) :: DSCF
+real(kind=wp), intent(in) :: EThr
+real(kind=wp), intent(inout) :: SIntTh
+character(len=*), intent(in) :: KSDFT
 #include "print.fh"
 integer(kind=iwp) :: nDiff
 logical(kind=iwp), external :: EFP_On, Langevin_On, PCM_On, RF_On

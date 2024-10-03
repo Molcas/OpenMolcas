@@ -38,9 +38,10 @@ use SCFFiles, only: LuDSt, LuGrd, LuOSt, LuTSt
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: Num, lth, MaxNum, iDisk(MaxNum)
-real(kind=wp) :: DMat(lth)
-character :: Option
+integer(kind=iwp), intent(in) :: Num, lth, MaxNum
+real(kind=wp), intent(inout) :: DMat(lth)
+character, intent(in) :: Option
+integer(kind=iwp), intent(inout) :: iDisk(MaxNum)
 character(len=6) :: DT
 integer(kind=iwp) :: jDisk, LU
 
@@ -59,54 +60,56 @@ if (Num > MaxNum) then
   call Abend()
 end if
 
-if ((DT /= 'DENS') .and. (DT /= 'TWOHAM') .and. (DT /= 'GRAD') .and. (DT /= 'dVxcdR')) then
-  write(u6,*) 'RWDTG: invalid value of DT'
-  write(u6,*) '->DT<-=->',DT,'<-'
-  write(u6,*) 'Valid values: "DENS  "'
-  write(u6,*) '              "dVxcdR"'
-  write(u6,*) '              "TWOHAM"'
-  write(u6,*) '              "GRAD  "'
-  call Abend()
-end if
-
-if ((Option /= 'W') .and. (Option /= 'R')) then
-  write(u6,*) 'RWDTG: invalid Option'
-  write(u6,*) '->Option<-=->',Option,'<-'
-  write(u6,*) 'Valid Options: R'
-  write(u6,*) '               W'
-end if
-
-if (DT == 'DENS  ') then
-  LU = LuDSt
-else if (DT == 'TWOHAM') then
-  LU = LuTSt
-else if (DT == 'GRAD  ') then
-  LU = LuGrd
-else
-  LU = LuOSt
-end if
-
-if (Option == 'W') then
-
-  ! Write density matrix to DNS
-
-  if (Num == 1) iDisk(Num) = 0
-  jDisk = iDisk(Num)
-  if (jDisk == -1) then
-    write(u6,*) 'RWDTG: jDisk == -1'
-    write(u6,*) 'Num,MaxNum=',Num,MaxNum
-    write(u6,*) 'The preceeding block was not written.'
+select case (DT)
+  case ('DENS')
+    LU = LuDSt
+  case ('TWOHAM')
+    LU = LuTSt
+  case ('GRAD')
+    LU = LuGrd
+  case ('dVxcdR')
+    LU = LuOSt
+  case default
+    write(u6,*) 'RWDTG: invalid value of DT'
+    write(u6,*) '->DT<-=->',DT,'<-'
+    write(u6,*) 'Valid values: "DENS  "'
+    write(u6,*) '              "dVxcdR"'
+    write(u6,*) '              "TWOHAM"'
+    write(u6,*) '              "GRAD  "'
     call Abend()
-  end if
-  call dDaFile(LU,1,DMat,lth,jDisk)
-  if (Num+1 <= MaxNum) iDisk(Num+1) = jDisk
+end select
 
-else if (Option == 'R') then
+select case (Option)
 
-  ! Read density matrix from DNS
+  case ('W')
 
-  jDisk = iDisk(Num)
-  call dDaFile(LU,2,DMat,lth,jDisk)
-end if
+    ! Write density matrix to DNS
+
+    if (Num == 1) iDisk(Num) = 0
+    jDisk = iDisk(Num)
+    if (jDisk == -1) then
+      write(u6,*) 'RWDTG: jDisk == -1'
+      write(u6,*) 'Num,MaxNum=',Num,MaxNum
+      write(u6,*) 'The preceeding block was not written.'
+      call Abend()
+    end if
+    call dDaFile(LU,1,DMat,lth,jDisk)
+    if (Num+1 <= MaxNum) iDisk(Num+1) = jDisk
+
+  case ('R')
+
+    ! Read density matrix from DNS
+
+    jDisk = iDisk(Num)
+    call dDaFile(LU,2,DMat,lth,jDisk)
+
+  case default
+
+    write(u6,*) 'RWDTG: invalid Option'
+    write(u6,*) '->Option<-=->',Option,'<-'
+    write(u6,*) 'Valid Options: R'
+    write(u6,*) '               W'
+
+end select
 
 end subroutine RWDTG

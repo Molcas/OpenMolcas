@@ -18,6 +18,7 @@ subroutine Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use SpinAV, only: Do_SpinAV, DSC
 use InfSCF, only: DoCholesky, E_nondyn, Erest_xc, FileOrb_id, IndxC, isHDF5, MaxBas, MxConstr, nBas, nBB, nBT, nConstr, nDel, &
@@ -28,9 +29,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: FName
-integer(kind=iwp) :: LuOrb, mBB, nD, mmB
-real(kind=wp) :: CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
+character(len=*), intent(in) :: FName
+integer(kind=iwp), intent(in) :: LuOrb, mBB, nD, mmB
+real(kind=wp), intent(out) :: CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
 integer(kind=iwp) :: i, ibas, ic1, ic2, iCMO, iComp, iDaa, iDbb, iDSc, iDummy(1), iErr, Indx, iOcc, iOff, iOpt, ipDaa, ipDbb, &
                      ipDScc, ipMK, ipML, iRC, iSym, iSymLbl, iWFType, j, jc, ji, jOcc, jOff, k, kc, kc1, kc2, kDSc, kk, kkc, kks, &
                      l, lc, lc1, lc2, llc, lls, lOcc, lOff, lsq, ltri, Lu_, mAdCMOO, mOff, nBD(8), nDiff_ab, nHoles(8), nIF(8), &
@@ -175,7 +176,7 @@ call Setup_SCF()
 
 nBD(1) = 0
 do iSym=2,nSym
-  nBD(iSym) = nBD(iSym-1)+nBas(iSym-1)*(nBas(iSym-1)+1)/2
+  nBD(iSym) = nBD(iSym-1)+nTri_Elem(nBas(iSym-1))
 end do
 call mma_allocate(Da,nBT,2,Label='Da')
 Da(:,:) = Zero
@@ -296,7 +297,7 @@ do iSym=1,nSym
     ipDScc = lOff
     do j=1,nBas(iSym)
       do i=1,j
-        ji = j*(j-1)/2+i
+        ji = iTri(j,i)
         iDaa = ipDaa-1+ji
         iDbb = ipDbb-1+ji
         iDSc = ipDScc+nBas(iSym)*(j-1)+i
@@ -310,7 +311,7 @@ do iSym=1,nSym
 
   do j=1,nBas(iSym)
     do i=1,j-1
-      ji = j*(j-1)/2+i
+      ji = iTri(j,i)
       iDaa = ipDaa-1+ji
       Da(iDaa,1) = Two*Da(iDaa,1)
       iDbb = ipDbb-1+ji
@@ -359,7 +360,7 @@ if (irc /= 0) then
   write(u6,*) ' Start6 : error in getting overlap matrix '
   call Abend()
 end if
-call s2calc(CMO(1,1),CMO(1,2),SLT,nOcc(1,1),nOcc(1,2),nBas,nOrb,nSym,s2CNO)
+call s2calc(CMO(:,1),CMO(:,2),SLT,nOcc(:,1),nOcc(:,2),nBas,nOrb,nSym,s2CNO)
 
 if (.not. Do_SpinAV) then
   write(u6,'(A,f9.6)') '  Initial value of Total Spin, S(S+1): ',s2CNO
@@ -384,11 +385,11 @@ ltri = 1
 lsq = 1
 do iSym=1,nSym
   call Square(SLT(ltri),SQ(lsq),1,nBas(iSym),nBas(iSym))
-  ltri = ltri+nBas(iSym)*(nBas(iSym)+1)/2
+  ltri = ltri+nTri_Elem(nBas(iSym))
   lsq = lsq+nBas(iSym)**2
 end do
 call mma_allocate(ID_vir,nnB,Label='ID_vir')
-call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,1),nZero,nZero,nSsh,CMO(1,1),SQ,ID_vir)
+call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(:,1),nZero,nZero,nSsh,CMO(:,1),SQ,ID_vir)
 
 if (irc /= 0) then
   write(u6,*) ' Start6 : error in getting alpha virt MOs '
@@ -398,12 +399,12 @@ end if
 iOff = 1
 do iSym=1,nSym
   iCMO = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym,1))
-  call Ortho_Orb(CMO(iCMO,1),SQ,nBas(iSym),nSsh(iSym),2,.true.)
+  call Ortho_Orb(CMO(iCMO:,1),SQ,nBas(iSym),nSsh(iSym),2,.true.)
   iOff = iOff+nBas(iSym)*nOrb(iSym)
 end do
 !call ChkOrt(1,Whatever) ! silent
 
-call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,nZero,nSsh_ab,CMO(1,2),SQ,iD_vir)
+call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,nZero,nSsh_ab,CMO(:,2),SQ,iD_vir)
 
 if (irc /= 0) then
   write(u6,*) ' Start6 : error in getting beta virt MOs '
@@ -413,7 +414,7 @@ end if
 iOff = 1
 do iSym=1,nSym
   iCMO = iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym,2))
-  call Ortho_Orb(CMO(iCMO,2),SQ,nBas(iSym),nSsh_ab(iSym),2,.true.)
+  call Ortho_Orb(CMO(iCMO:,2),SQ,nBas(iSym),nSsh_ab(iSym),2,.true.)
   iOff = iOff+nBas(iSym)*nOrb(iSym)
 end do
 !call ChkOrt(2,Whatever) ! silent

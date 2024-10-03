@@ -22,16 +22,13 @@ subroutine Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
 !***********************************************************************
 
 use InfSCF, only: nBas, nBB, nBO, nBT, nSym
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: mBB, nD, mBT
-real(kind=wp) :: CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT)
+integer(kind=iwp), intent(in) :: mBB, nD, mBT
+real(kind=wp), intent(out) :: CMO(mBB,nD), TrM(mBB,nD)
+real(kind=wp), intent(in) :: OneHam(mBT), Ovrlp(mBT)
 integer(kind=iwp) :: iD, iSym, nBasX(8), nSymX
-real(kind=wp) :: Dens(mBT,nD)
-real(kind=wp), allocatable :: Tmp(:)
 character(len=8) :: Location
 
 !----------------------------------------------------------------------*
@@ -42,7 +39,7 @@ Location = 'Start3'
 
 ! Compute transformation matrix
 do iD=1,nD
-  call TrGen(TrM(1,iD),nBB,Ovrlp,OneHam,nBT)
+  call TrGen(TrM(:,iD),nBB,Ovrlp,OneHam,nBT)
   CMO(1:nBO,iD) = TrM(1:nBO,iD)
 end do
 
@@ -64,17 +61,18 @@ do iSym=1,nSym
 end do
 
 ! read old density matrix
-call Get_dArray_chk('D1AO',Dens(1,1),nBT)
-if (nD == 2) then
-  call Get_dArray_chk('D1sao',Dens(1,2),nBT)
-  ! now we need to fix interface - actually we read a+b,a-b
-  call mma_allocate(Tmp,nBT,Label='Tmp')
-  Tmp(:) = Half*(Dens(1:nBT,1)-Dens(1:nBT,2))
-  Dens(1:nBT,1) = Half*(Dens(1:nBT,1)+Dens(1:nBT,2))
-  Dens(1:nBT,2) = Tmp(:)
-  call mma_deallocate(Tmp)
-
-end if
+!call mma_allocate(Dens,nBT,nD,Label='Dens')
+!call Get_dArray_chk('D1AO',Dens(:,1),nBT)
+!if (nD == 2) then
+!  call Get_dArray_chk('D1sao',Dens(:,2),nBT)
+!  ! now we need to fix interface - actually we read a+b,a-b
+!  call mma_allocate(Tmp,nBT,Label='Tmp')
+!  Tmp(:) = Half*(Dens(:,1)-Dens(:,2))
+!  Dens(:,1) = Half*(Dens(:,1)+Dens(:,2))
+!  Dens(:,2) = Tmp(:)
+!  call mma_deallocate(Tmp)
+!end if
+!call mma_deallocate(Dens)
 
 !----------------------------------------------------------------------*
 !     Exit                                                             *

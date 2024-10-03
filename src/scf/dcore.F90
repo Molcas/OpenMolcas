@@ -20,14 +20,16 @@ subroutine DCore(OneHam,nOH,CMO,TrMat,nCMO,E_Or,nEOr,mynOcc,Ovrlp)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: MaxBas, MaxBOF, MaxORF, nBas, nBO, nBT, nFro, nnFr, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nOH, nCMO, nEOr, mynOcc(*)
-real(kind=wp) :: OneHam(nOH), CMO(nCMO), TrMat(nCMO), E_Or(nEOr), Ovrlp(nOH)
+integer(kind=iwp), intent(in) :: nOH, nCMO, nEOr, mynOcc(*)
+real(kind=wp), intent(in) :: OneHam(nOH), TrMat(nCMO), Ovrlp(nOH)
+real(kind=wp), intent(out) :: CMO(nCMO), E_Or(nEOr)
 integer(kind=iwp) :: iCMO, iDum, iE_Or, iErr, iiBT, ij, iSym, nC, nFound, nOF
 real(kind=wp) :: Dummy
 integer(kind=iwp), allocatable :: Fermi(:)
@@ -47,7 +49,7 @@ call mma_allocate(OHSq,MaxBas**2,Label='OHSq')
 call mma_allocate(OHHl,MaxBOF,Label='OHHl')
 
 ! Allocate memory for transformed one-electron Hamiltonian
-call mma_allocate(OHTr,MaxOrF*(MaxOrF+1)/2,Label='OHTr')
+call mma_allocate(OHTr,nTri_Elem(MaxOrF),Label='OHTr')
 
 ! Allocate memory for eigenvectors
 call mma_allocate(EiVe,MaxOrF**2,Label='EiVe')
@@ -66,7 +68,7 @@ iCMO = 1
 iE_Or = 1
 do iSym=1,nSym
 
-  iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+  iiBT = nTri_Elem(nBas(iSym))
   nOF = nOrb(iSym)-nFro(iSym)
 
   ! Copy frozen vectors to CMO array

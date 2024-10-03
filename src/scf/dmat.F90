@@ -30,8 +30,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nXCF, nD
-real(kind=wp) :: XCf(nXCf,nD)
+integer(kind=iwp), intent(in) :: nXCF, nD
+real(kind=wp), intent(out) :: XCf(nXCf,nD)
 integer(kind=iwp) :: iD, iFrom, iOnDsk, nCMO
 logical(kind=iwp) :: alpha_density
 real(kind=wp), allocatable :: Aux(:,:)

@@ -22,8 +22,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nData, nAufb
-real(kind=wp) :: Eorb(nData), Gap, Efermi
+integer(kind=iwp), intent(in) :: nData, nAufb
+real(kind=wp), intent(inout) :: Eorb(nData)
+real(kind=wp), intent(out) :: Gap, Efermi
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: tmp
 
@@ -57,7 +58,7 @@ else if (nAufb >= nData) then
   Efermi = Eorb(nData)+1.0e-3_wp
 else
   Gap = Eorb(nAufb+1)-Eorb(nAufb)
-  Efermi = half*(Eorb(nAufb+1)+Eorb(nAufb))
+  Efermi = Half*(Eorb(nAufb+1)+Eorb(nAufb))
 end if
 !write(u6,*) 'Gap:',Gap
 !write(u6,*) 'Efermi:',Efermi

@@ -21,7 +21,7 @@ use LnkLst, only: nLList
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LLink
+integer(kind=iwp), intent(in) :: LLink
 integer(kind=iwp) :: iRoot
 
 !return

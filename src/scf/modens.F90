@@ -22,6 +22,7 @@ subroutine MODens()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: CMO, Dens, DMOMax, MaxBas, MaxBXO, MaxOrb, nBas, nD, nDens, nOcc, nOrb, nSym, Ovrlp, TEEE, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -49,7 +50,7 @@ call mma_allocate(DnsS,MaxBas**2,Label='DnsS')
 call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
 
 ! Allocate memory for density matrix in MO basis
-call mma_allocate(DMoO,MaxOrb*(MaxOrb+1)/2,Label='DMoO')
+call mma_allocate(DMoO,nTri_Elem(MaxOrb),Label='DMoO')
 
 ! Allocate memory for auxiliary matrix
 call mma_allocate(Aux1,MaxBxO,Label='Aux1')
@@ -73,7 +74,7 @@ do jD=1,nD
   do iSym=1,nSym
 
     iiBO = nBas(iSym)*nOrb(iSym)
-    iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+    iiBT = nTri_Elem(nBas(iSym))
 
     if ((nOcc(iSym,jD) > 0) .or. (Teee .and. (nBas(iSym) > 0))) then
       call DSq(Dens(id,jD,nDens),DnsS,1,nBas(iSym),nBas(iSym))
@@ -99,7 +100,7 @@ do jD=1,nD
       !call TriPrt('D(mo)','(8F12.6)',DMoO,nOrb(iSym))
       do i=nOcc(iSym,jD)+1,nOrb(iSym)
         do j=1,nOcc(iSym,jD)
-          DMOMax = max(DMOMax,real(nD,kind=wp)*abs(DMoO(i*(i-1)/2+j)))
+          DMOMax = max(DMOMax,real(nD,kind=wp)*abs(DMoO(iTri(i,j))))
         end do
       end do
     end if

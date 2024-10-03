@@ -30,20 +30,22 @@ subroutine OvlDel(Ovlp,nOvlp,TrMat,nTrMat)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: DelThr, MaxBas, MaxBOF, MaxOrF, MiniDn, nBas, nDel, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nOvlp, nTrMat
-real(kind=wp) :: Ovlp(nOvlp), TrMat(nTrMat)
+integer(kind=iwp), intent(in) :: nOvlp, nTrMat
+real(kind=wp), intent(in) :: Ovlp(nOvlp)
+real(kind=wp), intent(inout) :: TrMat(nTrMat)
 integer(kind=iwp) :: iDum, iErr, iiBT, ij, Ind, iNew, iOld, iOrb, iSym, nFound, nOF, nOrbi
 real(kind=wp) :: Dummy
 real(kind=wp), allocatable :: EVal(:), EVec(:), NewB(:), OvlH(:), OvlS(:), OvlT(:), Scratch(:)
 
 ! Allocate memory for transformed overlap matrix
-call mma_allocate(OvlT,MaxOrF*(MaxOrF+1)/2,Label='OvlT')
+call mma_allocate(OvlT,nTri_Elem(MaxOrF),Label='OvlT')
 
 ! Allocate memory for half-transformed overlap matrix
 call mma_allocate(OvlH,MaxBOF,Label='OvlH')
@@ -65,7 +67,7 @@ iOld = 1
 iNew = 1
 do iSym=1,nSym
 
-  iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+  iiBT = nTri_Elem(nBas(iSym))
   nOF = nOrb(iSym)-nFro(iSym)
 
   ! Copy frozen vectors to the right position
@@ -100,7 +102,7 @@ do iSym=1,nSym
     iDum = 0
     call Diag_Driver('V','A','L',nOF,OvlT,Scratch,nOF,Dummy,Dummy,iDum,iDum,EVal,EVec,nOF,1,0,'J',nFound,iErr)
     call mma_deallocate(Scratch)
-    !?? Ovlt(1:nOF*(nOF+1)/2) = Zero
+    !?? Ovlt(1:nTri_Elem(nOF)) = Zero
     !?? iDiag = 0
     !?? do i=1,nOF
     !??   OvlT(i+iDiag) = EVal(i)

@@ -22,16 +22,17 @@ subroutine DFroz(Dlt,nDlt,CMO,nCMO,OccNo)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: nBas, nFro, nnB, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDlt, nCMO
-real(kind=wp) :: Dlt(nDlt), CMO(nCMO)
-integer(kind=iwp) :: OccNo(*)
+integer(kind=iwp), intent(in) :: nDlt, nCMO
+real(kind=wp), intent(out) :: Dlt(nDlt)
+real(kind=wp), intent(in) :: CMO(nCMO)
+integer(kind=iwp), intent(in) :: OccNo(*)
 integer(kind=iwp) :: i, iCol, ij, iOrb, ipCff, ipDlt, ipOcc, iRow, iStrtN, iStrtO, iSym, lth, nBs, nFr, nOF, nOr
 real(kind=wp) :: rSum
 real(kind=wp), allocatable :: NewOcc(:)
@@ -68,7 +69,7 @@ do iSym=1,nSym
   nFr = nFro(iSym)
 
   nOF = nOr-nFr
-  lth = nBs*(nBs+1)/2
+  lth = nTri_Elem(nBs)
 
   ipCff = ipCff+nBs*nFr
   do iRow=1,nBs
@@ -93,7 +94,7 @@ do iSym=1,nSym
     end do
   end do
 # ifdef _DEBUGPRINT_
-  call NrmClc(Dlt(ipDlt),nBs,'DOne_SCF_froz','Dlt(ipDlt)')
+  call NrmClc(Dlt(ipDlt),nBs,'DFroz','Dlt(ipDlt)')
 # endif
 
   ipCff = ipCff+nBs*nOF

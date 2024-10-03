@@ -28,6 +28,7 @@ subroutine TraFck(canorb,FOVMax)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use SpinAV, only: Do_SpinAV
 use InfSCF, only: CMO, EOrb, FckAuf, FockAO, MaxBas, nBas, nBO, nBT, nConstr, nFro, nnFr, nOcc, nOrb, nSym, Ovrlp, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,8 +39,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp) :: FOVMax
-logical(kind=iwp) :: CanOrb
+real(kind=wp), intent(out) :: FOVMax
+logical(kind=iwp), intent(in) :: CanOrb
 integer(kind=iwp) :: ia, iCMO, iD, iDiag, iDum, iErr, iiCMO, iiEigV, iiScratch, ioFckM, iOff, iptr, iptr2, iSym, jEOr, jjEOr, kk, &
                      kOcc, kOff, n2Sort, n2Zero, nD, nFound, nOccmF, nOrbmF, nVrt
 #ifdef _DEBUGPRINT_
@@ -117,7 +118,7 @@ do iD=1,nD
       call mma_deallocate(HlfF)
 
       if ((nOccmF > 0) .and. (nVrt > 0)) then
-        iptr = 1+nOccmF*(nOccmF+1)/2
+        iptr = 1+nTri_Elem(nOccmF)
 
         ! get max Fock Matrix Element in OV block...
 
@@ -141,7 +142,7 @@ do iD=1,nD
     !                                                                  *
     ! Update pointers
     iCMO = iCMO+nOrbmF*nBas(iSym)
-    ioFckM = ioFckM+nBas(iSym)*(nBas(iSym)+1)/2
+    ioFckM = ioFckM+nTri_Elem(nBas(iSym))
     jEOr = jEOr+nOrbmF
 #   ifdef _DEBUGPRINT_
     call RecPrt('TraFck: New CMO',' ',CMO(jCMO,iD),nBas(iSym),nOrb(iSym))
@@ -222,7 +223,7 @@ subroutine Mk_CanOrb()
     call mma_deallocate(Scratch)
     n2zero = nOccmF
     if (Do_SpinAV) n2zero = n2zero+nConstr(iSym)
-    FckS(1:n2zero*(n2zero+1)/2) = Zero
+    FckS(1:nTri_Elem(n2zero)) = Zero
 
     iDiag = 0
     do i=1,n2zero
@@ -294,7 +295,7 @@ subroutine Mk_CanOrb()
     ! now diagonalize virt/virt block
     ! setup virt/virt block in triangular Fock Matrix
 
-    iptr = 1+nOccmF*(nOccmF+3)/2
+    iptr = 1+nTri_Elem(nOccmF)+nOccmF
     iptr2 = 1
     do ia=1,nVrt
       FckS(iptr2:iptr2+ia-1) = FckS(iptr:iptr+ia-1)
@@ -305,7 +306,7 @@ subroutine Mk_CanOrb()
     if (Do_SpinAV) then
       nVrt = nVrt-nConstr(iSym)
       jEOr = jEOr+nConstr(iSym)
-      iptr = 1+nOccmF*(nOccmF+3)/2
+      iptr = 1+nTri_Elem(nOccmF)+nOccmF
       do ia=1,nConstr(iSym)
         iptr = iptr+nOccmF+ia
         FckS(iptr) = -0.666e3_wp*real(1000-ia,kind=wp)

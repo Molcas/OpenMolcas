@@ -33,6 +33,7 @@ subroutine NewOrb_SCF(AllowFlip)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use SpinAV, only: Do_SpinAV
 use InfSCF, only: Aufb, CMO, DoHLGap, EOrb, FCKAuf, FlipThr, FMOMax, FockAO, HLGap, Iter, MaxBas, MaxBOF, MaxOrf, MxConstr, nBas, &
                   nBB, nBO, nBT, nConstr, nD, nFro, nnB, nnFr, nOcc, nOrb, nSym, Ovrlp, RotFac, RotLev, RotMax, ScrFac, Scrmbl, &
@@ -45,7 +46,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-logical(kind=iwp) :: AllowFlip
+logical(kind=iwp), intent(in) :: AllowFlip
 integer(kind=iwp) :: Fermion_Type, i, ia, iAddGap, iBas, iChk, iCMO, iConstr, iD, iDum, iErr, iFC, ii, iiBT, ij, ijBas, Ind, &
                      IndII, IndIJ, IndJJ, iOff, iOrb, iOvlpOff, iptr, iSeed = 13, iSym, j, jBas, jEOr, jj, jOff, jOrb, kCMO, &
                      kConstr, keOR, kk, kOff, kOrb, lConstr, Muon_I, Muon_J, nFound, nj, nOccmF, nOrbmF, nsDg, nVrt
@@ -88,7 +89,7 @@ call mma_allocate(FckS,MaxBas**2,Label='FckSX')
 ! Allocate memory for half-transformed Fock matrix
 call mma_allocate(HlfF,MaxBOF,Label='HlfF')
 ! Allocate memory for transformed Fock matrix (triangular)
-call mma_allocate(TraF,MaxOrF*(MaxOrF+1)/2,Label='TraF')
+call mma_allocate(TraF,nTri_Elem(MaxOrF),Label='TraF')
 ! Allocate memory for fermi index array
 call mma_allocate(iFerm,nBB,Label='iFerm')
 call Get_iArray('Fermion IDs',iFerm,nnB)
@@ -112,7 +113,7 @@ do iD=1,nD
     Ehomo = -1.0e6_wp
     Elumo = 1.0e6_wp
     do iSym=1,nSym
-      iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+      iiBT = nTri_Elem(nBas(iSym))
       nOrbmF = nOrb(iSym)-nFro(iSym)
       nOccmF = nOcc(iSym,iD)-nFro(iSym)
       nVrt = nOrb(iSym)-nOcc(iSym,iD)
@@ -138,7 +139,7 @@ do iD=1,nD
         call Triprt('Occupied Fock matrix in MO basis','(20F10.4)',TraF,nOccmF)
 #       endif
         do iBas=1,nOccmF
-          ind = iBas*(iBas+1)/2
+          ind = nTri_Elem(iBas)
           Ehomo = max(Ehomo,TraF(ind))
         end do
       end if
@@ -167,7 +168,7 @@ do iD=1,nD
         call Triprt('Virtual Fock matrix in MO basis','(20F10.4)',TraF,nVrt)
 #       endif
         do iBas=1,nVrt
-          ind = iBas*(iBas+1)/2
+          ind = nTri_Elem(iBas)
           Elumo = min(Elumo,TraF(ind))
         end do
       end if
@@ -200,7 +201,7 @@ do iD=1,nD
   jEOr = 1
   iOvlpOff = 1
   do iSym=1,nSym
-    iiBT = nBas(iSym)*(nBas(iSym)+1)/2
+    iiBT = nTri_Elem(nBas(iSym))
     nOrbmF = nOrb(iSym)-nFro(iSym)
     nOccmF = nOcc(iSym,iD)-nFro(iSym)
     nVrt = nOrb(iSym)-nOcc(iSym,iD)
@@ -223,11 +224,11 @@ do iD=1,nD
       kConstr = 1
       do iConstr=nConstr(iSym),1,-1
         nj = nOccmF-iConstr
-        ifc = 1+nj*(nj+1)/2
+        ifc = 1+nTri_Elem(nj)
         eConstr(kConstr) = TraF(ifc+nj)
         TraF(ifc:ifc+nj-1) = Zero
         do j=nj+1,nOrbmF-1
-          jj = 1+j*(j+1)/2+nj
+          jj = 1+nTri_Elem(j)+nj
           Traf(jj) = Zero
         end do
         Traf(ifc+nj) = -0.666e6_wp*real(iConstr,kind=wp) ! for sorting
@@ -236,11 +237,11 @@ do iD=1,nD
       if (Do_SpinAV) then
         do iConstr=0,nConstr(iSym)-1
           nj = nOccmF+iConstr
-          ifc = 1+nj*(nj+1)/2
+          ifc = 1+nTri_Elem(nj)
           eConstr(kConstr) = TraF(ifc+nj)
           TraF(ifc:ifc+nj-1) = Zero
           do j=nj+1,nOrbmF-1
-            jj = 1+j*(j+1)/2+nj
+            jj = 1+nTri_Elem(j)+nj
             TraF(jj) = Zero
           end do
           TraF(ifc+nj) = 0.666e6_wp*real(kConstr,kind=wp) ! for sorting
@@ -252,7 +253,7 @@ do iD=1,nD
       ! get max element of Fock matrix
       !do iBas=2,nOrbmF
       !  do jBas=1,iBas-1
-      !    ijBas = iBas*(iBas-1)/2+jBas-1+1
+      !    ijBas = iTri(iBas,jBas)
       !    FMOMax = Max(Abs(TraF(ijBas)),FMOMax)
       !  end do
       !end do
@@ -261,12 +262,12 @@ do iD=1,nD
       if (Teee) then
         do iBas=2,nOrbmF
           do jBas=1,iBas-1
-            ijBas = iBas*(iBas-1)/2+jBas
+            ijBas = iTri(iBas,jBas)
             FMOMax = max(abs(TraF(ijBas)),FMOMax)
           end do
         end do
       else if ((nOccmF > 0) .and. (nVrt > 0)) then
-        iptr = 1+nOccmF*(nOccmF+1)/2
+        iptr = 1+nTri_Elem(nOccmF)
         do ia=1,nVrt
           Fia = abs(TraF(iptr+IDAMAX_(nOccmF,TraF(iptr),1)-1))
           FMOMax = max(Fia,FMOMax)
@@ -280,7 +281,7 @@ do iD=1,nD
 
       if (iAddGap == 1) then
         do iOrb=nOccmF+1,nOrbmF
-          ind = iOrb*(iOrb+1)/2
+          ind = nTri_Elem(iOrb)
           TraF(ind) = TraF(ind)+GapAdd
         end do
       end if
@@ -329,10 +330,10 @@ do iD=1,nD
       kConstr = 1
       do iConstr=nConstr(iSym),1,-1
         nj = nOccmF-iConstr
-        ifc = 1+nj*(nj+1)/2
+        ifc = 1+nTri_Elem(nj)
         TraF(ifc:ifc+nj-1) = Zero
         do j=nj+1,nOrbmF-1
-          jj = 1+j*(j+1)/2+nj
+          jj = 1+nTri_Elem(j)+nj
           TraF(jj) = Zero
         end do
         TraF(ifc+nj) = -0.666e6_wp*real(iConstr,kind=wp) ! for sorting
@@ -341,10 +342,10 @@ do iD=1,nD
       if (Do_SpinAV) then
         do iConstr=0,nConstr(iSym)-1
           nj = nOccmF+iConstr
-          ifc = 1+nj*(nj+1)/2
+          ifc = 1+nTri_Elem(nj)
           TraF(ifc:ifc+nj-1) = Zero
           do j=nj+1,nOrbmF-1
-            jj = 1+j*(j+1)/2+nj
+            jj = 1+nTri_Elem(j)+nj
             TraF(jj) = Zero
           end do
           TraF(ifc+nj) = 0.666e6_wp*real(kConstr,kind=wp) ! for sorting
@@ -539,7 +540,7 @@ do iD=1,nD
     iCMO = iCMO+nOrbmF*nBas(iSym)
     jEOr = jEOr+nOrbmF
     ij = ij+iiBT
-    iOvlpOff = iOvlpOff+nBas(iSym)*(nBas(iSym)+1)/2
+    iOvlpOff = iOvlpOff+nTri_Elem(nBas(iSym))
   end do
 
   ! Check orthogonality

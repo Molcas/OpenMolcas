@@ -22,8 +22,9 @@ subroutine ChoSCF_Drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,E
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBSQT, nD, nSym, nBas(nSym), nFLT, nOcc(nSym), nOcc_ab(nSym)
-real(kind=wp) :: DSQ(*), DLT(*), DSQ_ab(*), DLT_ab(*), FLT(*), FLT_ab(*), ExFac, FSQ(nBSQT,nD)
+integer(kind=iwp), intent(in) :: nBSQT, nD, nSym, nBas(nSym), nFLT, nOcc(nSym), nOcc_ab(nSym)
+real(kind=wp), intent(in) :: DSQ(*), DLT(*), DSQ_ab(*), ExFac
+real(kind=wp), intent(inout) :: DLT_ab(*), FLT(*), FLT_ab(*), FSQ(nBSQT,nD)
 
 !                                                                      *
 !***********************************************************************
@@ -44,9 +45,10 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
   use Constants, only: Zero, One, Two, Half
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  integer(kind=iwp) :: nD, nSym, nBas(nSym), nFLT
-  real(kind=wp) :: W_DSQ(*), W_DLT(*), W_DSQ_ab(*), W_DLT_ab(*), W_FLT(*), W_FLT_ab(*), ExFac, W_FSQ(*), W_FSQ_ab(*)
-  integer(kind=iwp), target :: nOcc(nSym), nOcc_ab(nSym)
+  integer(kind=iwp), intent(in) :: nD, nSym, nBas(nSym), nFLT
+  real(kind=wp), intent(in) :: W_DSQ(*), W_DLT(*), W_DSQ_ab(*), ExFac
+  real(kind=wp), intent(inout) :: W_DLT_ab(*), W_FLT(*), W_FLT_ab(*), W_FSQ(*), W_FSQ_ab(*)
+  integer(kind=iwp), target, intent(in) :: nOcc(nSym), nOcc_ab(nSym)
   integer(kind=iwp), parameter :: MaxDs = 3
   integer(kind=iwp) :: i, ikk, iSym, j, ja, k, kj, loff1, MinMem(nSym), n2BSF(8,8), nDen, nForb(8,2), nIorb(8,2), nmat, &
                        nnBSF(8,8), numV, numV1, numV2, rc
@@ -76,9 +78,9 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
     call mma_allocate(nVec,nSym,1,Label='nVec')
     nDen = 1
     DoCoulomb(1) = .true.
-    DoExchange(1) = ExFac /= Zero ! no SCF-exchange in pure DFT
+    DoExchange(1) = (ExFac /= Zero) ! no SCF-exchange in pure DFT
     FactC(1) = One
-    FactX(1) = One*ExFac ! ExFac used for hybrid functionals
+    FactX(1) = ExFac ! ExFac used for hybrid functionals
 
     xFac = ExFac
 
@@ -96,7 +98,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
       if (DECO) then !use decomposed density
 
-        xFac = ExFac*half
+        xFac = ExFac*Half
 
         call set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
@@ -126,15 +128,15 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
         end do
         call Deallocate_DT(DDec(1))
 
-        pNocc(1)%I1(1:) => nVec(1:,1) ! occup. numbers
+        pNocc(1)%I1(1:) => nVec(:,1) ! occup. numbers
 
         call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
 
-        FactX(1) = half*ExFac ! ExFac used for hybrid functionals
+        FactX(1) = Half*ExFac ! ExFac used for hybrid functionals
 
       else
 
-        pNocc(1)%I1(1:) => nOcc(1:) ! occup. numbers
+        pNocc(1)%I1(1:) => nOcc(:) ! occup. numbers
 
         call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
 
@@ -167,7 +169,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
           if (DECO) then
             FactX(1) = Half*ExFac ! vectors are scaled by construction
           else
-            FactX(1) = One*ExFac ! MOs coeff. are not scaled
+            FactX(1) = ExFac ! MOs coeff. are not scaled
           end if
 
           if (REORD) then
@@ -260,11 +262,11 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
     ! Density(2) is Dalpha in a SQ storage
     DoCoulomb(2) = .false.
-    DoExchange(2) = ExFac /= Zero
+    DoExchange(2) = (ExFac /= Zero)
 
     ! Density(3) is Dbeta in a SQ storage
     DoCoulomb(3) = .false.
-    DoExchange(3) = ExFac /= Zero
+    DoExchange(3) = (ExFac /= Zero)
 
     ! Occupation numbers
     !call get_iarray('nIsh',nOcc,nSym)
@@ -293,8 +295,8 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
     call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
     call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ_ab)
 
-    FactX(2) = One*ExFac ! UHF SQ-density is not scaled
-    FactX(3) = One*ExFac
+    FactX(2) = ExFac ! UHF SQ-density is not scaled
+    FactX(3) = ExFac
 
     if (ExFac == Zero) then
       call CHO_FOCK_DFT_RED(rc,DLT,FLT)
@@ -353,17 +355,17 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
         call deallocate_DT(DDec(2))
         call deallocate_DT(DDec(1))
 
-        pNocc(1)%I1(1:) => nVec(1:,1) ! dummy
-        pNocc(2)%I1(1:) => nVec(1:,1) ! alpha occup. numbers
-        pNocc(3)%I1(1:) => nVec(1:,2) ! beta occup. numbers
+        pNocc(1)%I1(1:) => nVec(:,1) ! dummy
+        pNocc(2)%I1(1:) => nVec(:,1) ! alpha occup. numbers
+        pNocc(3)%I1(1:) => nVec(:,2) ! beta occup. numbers
 
         call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
         call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=Vec(1)%A0)
         call Allocate_DT(MSQ(3),nBas,nBas,nSym,Ref=Vec(2)%A0)
       else
-        pNocc(1)%I1(1:) => nOcc(1:) ! dummy assignement
-        pNocc(2)%I1(1:) => nOcc(1:) ! occup. numbers alpha MOs
-        pNocc(3)%I1(1:) => nOcc_ab(1:) ! occup. numbers beta MOs
+        pNocc(1)%I1(1:) => nOcc(:) ! dummy assignement
+        pNocc(2)%I1(1:) => nOcc(:) ! occup. numbers alpha MOs
+        pNocc(3)%I1(1:) => nOcc_ab(:) ! occup. numbers beta MOs
 
         call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=CMO(:,1))
         call Allocate_DT(MSQ(2),nBas,nBas,nSym,Ref=CMO(:,1))

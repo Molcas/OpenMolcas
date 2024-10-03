@@ -53,8 +53,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: n1, n2, iD
-real(kind=wp), target :: v1(n1), v2(n2)
+integer(kind=iwp), intent(in) :: n1, n2, iD
+real(kind=wp), target, intent(in) :: v1(n1)
+real(kind=wp), target, intent(inout) :: v2(n2)
 integer(kind=iwp) :: ii, ioffs, iSym, ivoffs, nia1, nia2, nii1, nii2, nv1, nv2
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iOff, nO, nV

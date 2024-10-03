@@ -24,7 +24,7 @@ use InfSCF, only: iDummy_run, InVec, jPrint, nD, nIter, nIterP, SCF_FileOrb
 use Definitions, only: u6
 
 implicit none
-character(len=*) :: Meth
+character(len=*), intent(in) :: Meth
 character(len=10) :: Label
 character(len=4) :: cUHF
 

@@ -30,9 +30,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: QNR
-integer(kind=iwp) :: mBB, nD, mBT, mmB
-real(kind=wp) :: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
+logical(kind=iwp), intent(in) :: QNR
+integer(kind=iwp), intent(in) :: mBB, nD, mBT, mmB
+real(kind=wp), intent(in) :: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
 real(kind=wp) :: Shift = Zero
 logical(kind=iwp) :: Set_Shift = .false.
 character :: cDltNrm, cDMOMax, cEDiff, cFMOMax

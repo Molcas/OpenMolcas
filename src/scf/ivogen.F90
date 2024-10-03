@@ -34,14 +34,17 @@ subroutine IvoGen(OneHam,nOneH,CMO,nCMO,EOrb,nEOrb,mynOcc)
 !     University of Lund, Sweden, 1992                                 *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: MaxBas, MaxBOO, MaxOrO, nBas, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nOneH, nCMO, nEOrb, mynOcc(*)
-real(kind=wp) :: OneHam(nOneH), CMO(nCMO), EOrb(nEOrb)
+integer(kind=iwp), intent(in) :: nOneH, nCMO, nEOrb, mynOcc(*)
+real(kind=wp), intent(in) :: OneHam(nOneH)
+real(kind=wp), intent(inout) :: CMO(nCMO)
+real(kind=wp), intent(out) :: EOrb(nEOrb)
 integer(kind=iwp) :: iCMO, iDum, i_EOr, iErr, ij, iSym, nFound, nOrbi
 real(kind=wp) :: Dummy
 real(kind=wp), allocatable :: FckH(:), FckS(:), FckT(:), Scratch(:)
@@ -57,7 +60,7 @@ call mma_allocate(FckS,MaxBas**2,Label='FckS')
 call mma_allocate(FckH,MaxBOO,Label='FckH')
 
 ! Allocate memory for transformed Fock matrix
-call mma_allocate(FckT,MaxOrO*(MaxOrO+1)/2,Label='FckT')
+call mma_allocate(FckT,nTri_Elem(MaxOrO),Label='FckT')
 
 ij = 1
 iCMO = 1
@@ -99,7 +102,7 @@ do iSym=1,nSym
   ! Update pointers
   iCMO = iCMO+nOrbi*nBas(iSym)
   i_EOr = i_EOr+nOrbi
-  ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+  ij = ij+nTri_Elem(nBas(iSym))
 
 end do
 

@@ -21,10 +21,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nh1, nGrad, nBT, nD
-real(kind=wp) :: Grad(nGrad), F_DFT(nBT,nD), D_DS(nBT,nD)
-character(len=4) :: DFTFOCK
-character(len=80) :: KSDFT
+integer(kind=iwp), intent(in) :: nh1, nGrad, nBT, nD
+real(kind=wp), intent(inout) :: Grad(nGrad), F_DFT(nBT,nD)
+character(len=4), intent(in) :: DFTFOCK
+real(kind=wp), intent(in) :: D_DS(nBT,nD)
+character(len=80), intent(in) :: KSDFT
 integer(kind=iwp) :: nFckDim
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i

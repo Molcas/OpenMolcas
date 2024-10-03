@@ -43,8 +43,10 @@ use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCI, nTr, nD, iOpt_DIIS, Ind(MxOptm)
-real(kind=wp) :: CInter(nCI,nD), TrDh(nTr,nTr,nD), TrDP(nTr,nTr,nD), TrDD(nTr,nTr,nD)
+integer(kind=iwp), intent(in) :: nCI, nTr, nD, iOpt_DIIS
+real(kind=wp), intent(inout) :: CInter(nCI,nD)
+real(kind=wp), intent(in) :: TrDh(nTr,nTr,nD), TrDP(nTr,nTr,nD), TrDD(nTr,nTr,nD)
+integer(kind=iwp), intent(out) :: Ind(MxOptm)
 integer(kind=iwp) :: i, iD, ii, j, jj, kk, n1, n_Min, nn
 real(kind=wp) :: Big, BigOne, BigTwo, CPU1, CPU2, CSUM, DD(MxOptm**2,2), DiFi, DiFj, DiFn, DjFi, DjFj, DnFj, DnFn, E_Min, E_n, &
                  E_n1, E_Pred, E_Tot, Eline(MxOptm,2), EPred(MxIter+1) = Zero, Equad(MxOptm**2,2), h = 0.35_wp, R2, r_SO, Tim1, &
@@ -79,8 +81,8 @@ else
 end if
 
 #ifdef _NEW_CODE_
+Ind(1:kOptim) = 0
 do i=kOptim,1,-1
-  Ind(i) = 0
 
   tmp0 = Zero
   do j=1,iter
@@ -203,7 +205,7 @@ end if
 !  Sum_i c_i = 1
 !  0 =< c_i =< 1
 
-call Optim(E_Pred,Eline,Equad,CInter(1,1),kOptim,kOptim)
+call Optim(E_Pred,Eline,Equad,CInter(1:kOptim,1),kOptim)
 EPred(iter+1) = E_Pred
 
 #ifdef _DEBUGPRINT_
@@ -298,7 +300,7 @@ if (.false.) then
     write(u6,*) 'Apply optimization with step restriction'
     write(u6,*) 'r,h =',sqrt(r2),h
     call Abend()
-    call Optim2(E_Pred,Eline,Equad,DD,CInter(1,1),kOptim,kOptim,n_min,n1,r2)
+    call Optim2(E_Pred,Eline,Equad,DD,CInter(1:kOptim,1),kOptim,n_min,n1,r2)
     EPred(iter+1) = E_Pred
 
     ! Temporary fix for UHF

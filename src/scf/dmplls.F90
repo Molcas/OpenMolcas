@@ -22,7 +22,7 @@ use SCFFiles, only: LuDel, LuDgd, LuGrd, Lux, Luy
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iDskPt(5)
+integer(kind=iwp), intent(out) :: iDskPt(5)
 
 if (Init_LLs) then
   !call StatLLs()

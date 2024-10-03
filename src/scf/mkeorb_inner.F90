@@ -27,13 +27,15 @@ subroutine MkEorb_Inner(FockAO,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nFck, nCMO, nEOrb, nSym, nBas(nSym), nOrb(nSym)
-real(kind=wp) :: FockAO(nFck), CMO(nCMO), EOrb(nEOrb)
+integer(kind=iwp), intent(in) :: nFck, nCMO, nEOrb, nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(in) :: FockAO(nFck), CMO(nCMO)
+real(kind=wp), intent(out) :: EOrb(nEOrb)
 integer(kind=iwp) :: iBas, indE, indF, indx, iOffCMO, iOffTri, iOrb, iSym, jBas, jndx, MaxSqr, MaxTri, npFckSqr
 real(kind=wp) :: t
 real(kind=wp), allocatable :: FckSqr(:)
@@ -44,8 +46,8 @@ real(kind=wp), allocatable :: FckSqr(:)
 MaxTri = 0
 MaxSqr = 0
 do iSym=1,nSym
-  MaxTri = max(MaxTri,nBas(iSym)*(nBas(iSym)+1)/2)
-  MaxSqr = max(MaxSqr,nBas(iSym)*nBas(iSym))
+  MaxTri = max(MaxTri,nTri_ELem(nBas(iSym)))
+  MaxSqr = max(MaxSqr,nBas(iSym)**2)
 end do
 !----------------------------------------------------------------------*
 ! Allocate matrices.                                                   *
@@ -76,7 +78,7 @@ do iSym=1,nSym
       indE = indE+1
     end do
   end if
-  iOffTri = iOffTri+nBas(iSym)*(nBas(iSym)+1)/2
+  iOffTri = iOffTri+nTri_Elem(nBas(iSym))
   iOffCMO = iOffCMO+nBas(iSym)*nOrb(iSym)
 end do
 !----------------------------------------------------------------------*

@@ -20,8 +20,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iRC
-real(kind=wp) :: DeTW, CMOI(*), EOcc(*), EVir(*)
+integer(kind=iwp), intent(out) :: iRC
+real(kind=wp), intent(out) :: DeTW
+real(kind=wp), intent(in) :: CMOI(*), EOcc(*), EVir(*)
 integer(kind=iwp) :: i, nElk, nExt(8)
 real(kind=wp) :: Grad(1), TW, TW0
 real(kind=wp), allocatable :: DMAT(:,:), F_DFT(:)

@@ -27,12 +27,14 @@ subroutine Sym(A,S,n)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: A(n,n), S(n*(n+1)/2)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: A(n,n)
+real(kind=wp), intent(out) :: S(nTri_Elem(n))
 integer(kind=iwp) :: i, ij, j
 
 !----------------------------------------------------------------------*

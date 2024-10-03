@@ -32,8 +32,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nOrb, nBas
-real(kind=wp) :: S(nOrb,nOrb), C(nBas,nOrb)
+integer(kind=iwp), intent(in) :: nOrb, nBas
+real(kind=wp), intent(inout) :: S(nOrb,nOrb), C(nBas,nOrb)
 integer(kind=iwp) :: iOrb, jOrb
 real(kind=wp) :: A, F
 

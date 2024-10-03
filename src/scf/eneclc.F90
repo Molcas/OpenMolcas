@@ -23,7 +23,7 @@ subroutine EneClc(En1V,En2V,EnerV)
 ! output:                                                              *
 !   En1V    : one-electron energy (variational)                        *
 !   En2V    : two-electron energy (variational)                        *
-!   EnerV   : En1V + En2V                                              *
+!   EnerV   : En1V + En2V + PotNuc                                     *
 !                                                                      *
 !***********************************************************************
 
@@ -39,8 +39,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-! Declaration of procedure parameters
-real(kind=wp) :: En1V, En2V, EnerV
+real(kind=wp), intent(out) :: En1V, En2V, EnerV
 integer(kind=iwp) :: nElec
 real(kind=wp) :: CPU1, CPU2, E_DFT, En1V_AB, En2V_AB, Tim1, Tim2, Tim3
 real(kind=wp), external :: DDot_

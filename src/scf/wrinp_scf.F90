@@ -34,7 +34,7 @@ use RICD_Info, only: Do_DCCD
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: SIntTh
+real(kind=wp), intent(in) :: SIntTh
 integer(kind=iwp) :: i, iCharge, iDoRI, iSym, iTit, mTmp
 logical(kind=iwp) :: NonEq
 character(len=60) :: Frmt, FmtI, FmtR

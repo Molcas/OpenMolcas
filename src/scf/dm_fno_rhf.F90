@@ -20,14 +20,19 @@ subroutine DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,DM0,DM)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use ChoMP2, only: MP2_small
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRC, nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
-real(kind=wp) :: CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
+integer(kind=iwp), intent(out) :: iRC
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
+real(kind=wp), intent(in) :: CMOI(*), EOcc(*), EVir(*)
+real(kind=wp), intent(_OUT_) :: DM0(*), DM(*)
 #include "Molcas.fh"
 integer(kind=iwp) :: i, ifr, ioff, iSkip, iSym, iTo, j, jD, jOcc, jOff, jp, jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lnDel(8), &
                      lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, nBasT, nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV
@@ -50,7 +55,7 @@ nVV = 0
 do i=1,nSym
   nBasT = nBasT+nBas(i)
   nOrb = nOrb+nFro(i)+nIsh(i)+nSsh(i)+nDel(i)
-  ntri = ntri+nBas(i)*(nBas(i)+1)/2
+  ntri = ntri+nTri_Elem(nBas(i))
   nSQ = nSQ+nBas(i)**2
   nVV = nVV+nSsh(i)**2
   nBmx = max(nBmx,nBas(i))
@@ -206,7 +211,7 @@ do iSym=1,nSym
     iOff = iOff+nSsh(iSym)**2
   end if
   jOff = jOff+nBas(iSym)**2
-  kDM = kDM+nBas(iSym)*(nBas(iSym)+1)/2
+  kDM = kDM+nTri_Elem(nBas(iSym))
   jOcc = jOcc+nIsh(iSym)
 end do
 

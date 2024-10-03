@@ -56,7 +56,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IterLw, nD
+integer(kind=iwp), intent(in) :: IterLw, nD
 integer(kind=iwp) :: i, iD, ii, iPos, iPosL
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iC, iR

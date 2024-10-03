@@ -27,7 +27,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nIter_
+integer(kind=iwp), intent(in) :: nIter_
 integer(kind=iwp) :: i2Hm, iD, nD, NumDT
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nDT
@@ -36,8 +36,11 @@ integer(kind=iwp) :: nDT
 NumDT = size(TwoHam,3)
 nD = size(FockAO,2)
 
-i2Hm = NumDT
-if (nIter_ == 1) i2Hm = 1
+if (nIter_ == 1) then
+  i2Hm = 1
+else
+  i2Hm = NumDT
+end if
 #ifdef _DEBUGPRINT_
 nDT = size(FockAO,1)
 write(u6,*) 'i2Hm=',i2Hm

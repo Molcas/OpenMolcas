@@ -21,8 +21,9 @@ subroutine TrimCMO(CMO1,CMO2,nSym,nBas,nOrb)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO1(*), CMO2(*)
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym)
+real(kind=wp), intent(in) :: CMO1(*)
+real(kind=wp), intent(inout) :: CMO2(*)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata
 
 !----------------------------------------------------------------------*

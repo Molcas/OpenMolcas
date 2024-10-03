@@ -28,9 +28,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: mmB, nD, mBB
-real(kind=wp) :: Occ(mmB,nD)
-real(kind=wp), target :: CMO(mBB,nD)
+integer(kind=iwp), intent(in) :: mmB, nD, mBB
+real(kind=wp), intent(out) :: Occ(mmB,nD)
+real(kind=wp), target, intent(inout) :: CMO(mBB,nD)
 integer(kind=iwp) :: iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
@@ -317,8 +317,8 @@ subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
 
   use Definitions, only: u6
 
-  integer(kind=iwp) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym), iFerm(nnB)
-  real(kind=wp) :: CMO(nCMO,nD), Occ(nnB,nD)
+  integer(kind=iwp), intent(in) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym), iFerm(nnB)
+  real(kind=wp), intent(in) :: CMO(nCMO,nD), Occ(nnB,nD)
   character(len=*) :: Label
   integer(kind=iwp) :: iD, iOff, iOrb, iSym, jOff
   real(kind=wp) :: tmp

@@ -23,7 +23,7 @@ use SCFFiles, only: LuDel, LuDgd, LuGrd, Lux, Luy
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iDskPt(5)
+integer(kind=iwp), intent(inout) :: iDskPt(5)
 
 call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
 call RclLst(LLDgrd,LuDGd,iDskPt(2),MemRsv)

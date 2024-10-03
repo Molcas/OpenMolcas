@@ -31,8 +31,9 @@ subroutine RelEny(ERelMV,ERelDC,D,VMs,Dar,lth)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lth
-real(kind=wp) :: ERelMV, ERelDC, D(lth), VMs(lth), Dar(lth)
+real(kind=wp), intent(out) :: ERelMV, ERelDC
+integer(kind=iwp), intent(in) :: lth
+real(kind=wp), intent(in) :: D(lth), VMs(lth), Dar(lth)
 real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*

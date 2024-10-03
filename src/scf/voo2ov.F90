@@ -21,8 +21,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nOO, mOV, nD, kOV(nD)
-real(kind=wp) :: v1(nOO,nD), v2(mOV)
+integer(kind=iwp), intent(in) :: nOO, mOV, nD, kOV(nD)
+real(kind=wp), intent(in) :: v1(nOO,nD)
+real(kind=wp), intent(out) :: v2(mOV)
 integer(kind=iwp) :: iD, iEnd, iSt
 
 iEnd = 0

@@ -27,7 +27,8 @@ use InfSCF, only: DSCF, EThr, KSDFT, nCore, nDisc, TimFld
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: CPU1, CPU2, SIntTh, Tim1, Tim2, Tim3
+real(kind=wp), intent(inout) :: SIntTh
+real(kind=wp) :: CPU1, CPU2, Tim1, Tim2, Tim3
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 !                                                                      *

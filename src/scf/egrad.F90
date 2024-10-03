@@ -34,6 +34,7 @@ subroutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
 !                 rotation parameters of length nG                     *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: Dens, iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym, OrbType, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -43,8 +44,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nOTSD, nC, nG, nD, iOpt
-real(kind=wp) :: O(nOTSD), S(nOTSD), C(nC,nD), G(nG,nD)
+integer(kind=iwp), intent(in) :: nOTSD, nC, nG, nD, iOpt
+real(kind=wp), intent(in) :: O(nOTSD), S(nOTSD), C(nC,nD)
+real(kind=wp), intent(inout) :: G(nG,nD)
 integer(kind=iwp) :: i, iD, ig, ih, ij, iOff, iSym, it, j, jDT, k, l, nBs, nOr, nOrbmF
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i_Max, j_Max
@@ -181,7 +183,7 @@ do iD=1,nD
       call NrmClc(Aux2,nOr*nOr,'EGrad','Aux2')
 #     endif
 
-      call Asym(Aux2,G(ig,iD),nOr)
+      call Asym(Aux2,G(ig:ig+nOr**2,iD),nOr)
 #     ifdef _DEBUGPRINT_
       write(u6,*)
       call NrmClc(G,nG*nD,'EGrad','G')
@@ -213,9 +215,9 @@ do iD=1,nD
       end do
 
     end if
-    ij = ij+nBs*(nBs+1)/2
+    ij = ij+nTri_Elem(nBs)
     it = it+nBs*nOr
-    ig = ig+nOr*nOr
+    ig = ig+nOr**2
     iOff = iOff+nOrbmF
 
   end do ! iSym
@@ -261,8 +263,9 @@ contains
 
 subroutine Asym(H,A,n)
 
-  integer(kind=iwp) :: n
-  real(kind=wp) :: H(n,n), A(n,n)
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp), intent(in) :: H(n,n)
+  real(kind=wp), intent(inout) :: A(n,n)
   integer(kind=iwp) :: i
 
   do i=1,n

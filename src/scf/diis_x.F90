@@ -31,6 +31,7 @@ subroutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: AccCon, C1DIIS, Energy, Iter, Iter_Start, IterSO, kOptim, kOV, mOV, MxOptm, TimFld
 use LnkLst, only: LLx
 use Interfaces_SCF, only: OptClc_X
@@ -42,18 +43,18 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nD, nCI, Ind(MxOptm)
-real(kind=wp) :: CInter(nCI,nD)
-logical(kind=iwp) :: QNRstp
+integer(kind=iwp), intent(in) :: nD, nCI
+real(kind=wp), intent(inout) :: CInter(nCI,nD)
+logical(kind=iwp), intent(in) :: QNRstp
+integer(kind=iwp), intent(out) :: Ind(MxOptm)
 integer(kind=iwp) :: i, iDiag, iDum, iErr, ij, ipBst, iVec, j, kVec, nBij, nFound
-real(kind=wp) :: Alpha, B11, Bii_Min, BijTri(MxOptm*(MxOptm+1)/2), c2, cpu1, cpu2, DD, DD1, Dummy, E_Min, E_Min_G, ee1, ee2, EMax, &
-                 Fact, GDiis(MxOptm+1), tim1, tim2, tim3
+real(kind=wp) :: Alpha, B11, Bii_Min, c2, cpu1, cpu2, DD, DD1, Dummy, E_Min, E_Min_G, ee1, ee2, EMax, Fact, tim1, tim2, tim3
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: cDotV
 #endif
 logical(kind=iwp) :: Case1, Case2, Case3
 character(len=80) :: Frmt, Text
-real(kind=wp), allocatable :: Bij(:,:), Err1(:), Err2(:), EValue(:), EVector(:,:), Scratch(:) !, Err3(:), Err4(:)
+real(kind=wp), allocatable :: Bij(:,:), BijTri(:), Err1(:), Err2(:), EValue(:), EVector(:,:), GDiis(:), Scratch(:)
 real(kind=wp), parameter :: CThr = 0.05_wp, delta = 1.0e-4_wp, delta_E = 1.0e-4_wp, Fact_Decline = 15.0_wp, ThrCff = Ten
 real(kind=wp), external :: DDot_
 
@@ -283,6 +284,7 @@ if (.not. c1Diis) then
 
   ! Form a triangular B-matrix
 
+  call mma_allocate(BijTri,nTri_Elem(MxOptm),Label='BijTri')
   ij = 1
   do i=1,kOptim
     BijTri(ij:ij+i-1) = Bij(i,1:i)
@@ -302,10 +304,10 @@ if (.not. c1Diis) then
   ! Diagonalize B-matrix
 
   EMax = Zero
-  do i=1,kOptim*(kOptim+1)/2
+  do i=1,nTri_Elem(kOptim)
     EMax = max(EMax,abs(BijTri(i)))
   end do
-  do i=1,kOptim*(kOptim+1)/2
+  do i=1,nTri_Elem(kOptim)
     if (abs(BijTri(i)) < EMax*1.0e-14_wp) BijTri(i) = Zero
   end do
 
@@ -316,7 +318,7 @@ if (.not. c1Diis) then
   call Diag_Driver('V','A','L',kOptim,BijTri,Scratch,kOptim,Dummy,Dummy,iDum,iDum,EValue,EVector,kOptim,1,0,'J',nFound,iErr)
 
   call mma_deallocate(Scratch)
-  BijTri(1:kOptim*(kOptim+1)/2) = Zero
+  BijTri(1:nTri_Elem(kOptim)) = Zero
 
   iDiag = 0
   do i=1,kOptim
@@ -377,6 +379,7 @@ if (.not. c1Diis) then
   write(u6,*)
   write(u6,*)
 # endif
+  call mma_deallocate(BijTri)
 
   ! Select a vector.
   ee1 = 1.0e72_wp
@@ -504,6 +507,7 @@ else
   ! Set up the missing part of the matrix in Eq. (5) and the
   ! vector on the RHS in the same equation. Note the sign change!
 
+  call mma_allocate(GDiis,MxOptm+1,Label='GDiis')
   Bij(kOptim+1,1:kOptim) = -One ! note sign change
   Bij(1:kOptim,kOptim+1) = -One ! note sign change
   Bij(kOptim+1,kOptim+1) = Zero
@@ -524,7 +528,8 @@ else
 
   ! Solve for the coefficients, solve the equations.
 
-  call Gauss(kOptim+1,nBij,Bij,CInter(1,1),GDiis)
+  call Gauss(kOptim+1,nBij,Bij,CInter(:,1),GDiis)
+  call mma_deallocate(GDiis)
 
   ! Normalize sum of interpolation coefficients
 

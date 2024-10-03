@@ -32,6 +32,7 @@ subroutine PrFin(OneHam,Ovlp,Dens,TwoHam,nDT,EOrb,OccNo,nEO,CMO,nCMO,note,iCase,
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use SpinAV, only: Do_SpinAV
 use InfSCF, only: BName, EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, jPrint, kIvo, KSDFT, lRel, nBas, nBB, nBT, nD, nIter, &
                   nIterP, nnB, NoProp, nOrb, nSYm, PotNuc, ThrEne, Tot_Charge
@@ -42,9 +43,10 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDT, nEO, nCMO, iCase
-real(kind=wp) :: OneHam(nDT), Ovlp(nDT), Dens(nDT), TwoHam(nDT), EOrb(nEO), OccNo(nEO), CMO(nCMO), MssVlc(nDT), Darwin(nDT)
-character(len=80) :: Note
+integer(kind=iwp), intent(in) :: nDT, nEO, nCMO, iCase
+real(kind=wp), intent(in) :: OneHam(nDT), Ovlp(nDT), Dens(nDT), TwoHam(nDT), EOrb(nEO), OccNo(nEO), CMO(nCMO), MssVlc(nDT), &
+                             Darwin(nDT)
+character(len=80), intent(out) :: Note
 integer(kind=iwp) :: iBs, iCharge, iCMO, ij, i_Or, iPL, iRC, iSpin, iSym, iv, iVec, jCase
 real(kind=wp) :: EHomo, ELumo, ERelDC, ERelMV
 logical(kind=iwp) :: DeBug, Dff, Do_DFT, Do_ESPF, First, FullMlk, get_BasisType, NonEq, PrEne, PrOcc
@@ -108,7 +110,7 @@ if (DeBug) then
   do iSym=1,nSym
     write(u6,*) ' symmetry',iSym
     call TriPrt(' ',' ',Dens(ij),nBas(iSym))
-    ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+    ij = ij+nTri_Elem(nBas(iSym))
   end do
   write(u6,*)
   write(u6,'(6x,A)') 'Last 2-el. Hamiltonian (interpolated) in AO basis'
@@ -116,7 +118,7 @@ if (DeBug) then
   do iSym=1,nSym
     write(u6,*) ' symmetry',iSym
     call TriPrt(' ',' ',TwoHam(ij),nBas(iSym))
-    ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+    ij = ij+nTri_Elem(nBas(iSym))
   end do
   write(u6,*)
   write(u6,'(6x,A)') 'Last 1-el. Hamiltonian (interpolated) in AO basis'
@@ -124,7 +126,7 @@ if (DeBug) then
   do iSym=1,nSym
     write(u6,*) ' symmetry',iSym
     call TriPrt(' ',' ',OneHam(ij),nBas(iSym))
-    ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+    ij = ij+nTri_Elem(nBas(iSym))
   end do
   write(u6,*)
 end if

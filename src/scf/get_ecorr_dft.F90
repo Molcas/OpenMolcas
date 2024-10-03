@@ -21,12 +21,14 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nh1, nGrad, nBT, nD
-real(kind=wp) :: Grad(nGrad), F_DFT(nBT,nD), D_DS(nBT,nD), Ec_AB
-character(len=4) :: DFTFOCK
-character(len=80) :: KSDFT
+integer(kind=iwp), intent(in) :: nh1, nGrad, nBT, nD
+real(kind=wp), intent(inout) :: Grad(nGrad), F_DFT(nBT,nD)
+character(len=4), intent(in) :: DFTFOCK
+real(kind=wp), intent(in) :: D_DS(nBT,nD)
+character(len=80), intent(in) :: KSDFT
+real(kind=wp), intent(out) :: Ec_AB
 integer(kind=iwp) :: nFckDim
-real(kind=wp) :: dFMD_, Func
+real(kind=wp) :: dFMD_
 logical(kind=iwp) :: Do_Grad, Do_MO, Do_TwoEl
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
@@ -37,7 +39,7 @@ integer(kind=iwp) :: i
 !                                                                      *
 ! DFT functionals, compute integrals over the potential
 
-Func = Zero
+Ec_AB = Zero
 Dens_I = Zero
 Grad_I = Zero
 Tau_I = Zero
@@ -52,12 +54,11 @@ dFMD = One
 !***********************************************************************
 !                                                                      *
 Do_Core = .true.
-call Driver(KSDFT,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
+call Driver(KSDFT,Do_Grad,Ec_AB,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nFckDim,DFTFOCK)
 Do_Core = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Ec_AB = Func
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Correlation energy: ',Ec_AB

@@ -22,9 +22,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBDT
-real(kind=wp) :: Dma(nBDT), Dmb(nBDT)
-logical(kind=iwp) :: DFTX
+integer(kind=iwp), intent(in) :: nBDT
+real(kind=wp), intent(inout) :: Dma(nBDT), Dmb(nBDT)
+logical(kind=iwp), intent(in) :: DFTX
 integer(kind=iwp) :: i, iOff, ipDai, ipDbi, iRC, nDMat, nForb(8,2), nIorb(8,2)
 real(kind=wp) :: dFMat, E2act(1), FactXI
 type(DSBA_Type) :: FLT(2), KLT(2), PLT(2), POrb(2)
@@ -101,12 +101,12 @@ if (irc /= 0) then
 end if
 
 if (Do_SpinAV) then
-  call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
-  call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
+  call UnFold(Dma,nBDT,Dm(:,1),nBB,nSym,nBas)
+  call UnFold(Dmb,nBDT,Dm(:,2),nBB,nSym,nBas)
   Dm(:,1) = Dm(:,1)-DSc(:)
   Dm(:,2) = Dm(:,2)+DSc(:)
-  call Fold(nSym,nBas,Dm(1,1),Dma)
-  call Fold(nSym,nBas,Dm(1,2),Dmb)
+  call Fold(nSym,nBas,Dm(:,1),Dma)
+  call Fold(nSym,nBas,Dm(:,2),Dmb)
 end if
 
 E2act(1) = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))

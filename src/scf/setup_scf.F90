@@ -20,6 +20,7 @@ subroutine SetUp_SCF()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: DSCF, kOV, MaxBas, MaxBOF, MaxBOO, MaxBXO, MaxOrb, MaxORF, MaxORO, mOV, nBas, nBB, nBO, nBT, nD, nFro, nnB, &
                   nnFr, nnO, nnOc, nOCC, nOFS, nOO, nOrb, nOV, nSym
 use Definitions, only: iwp, u6
@@ -86,9 +87,9 @@ do iSym=1,nSym
   nnFr = nnFr+nFro(iSym)
   nnB = nnB+nBas(iSym)
   nnO = nnO+nOrb(iSym)
-  nBT = nBT+nBas(iSym)*(nBas(iSym)+1)/2
+  nBT = nBT+nTri_Elem(nBas(iSym))
   nBO = nBO+nBas(iSym)*nOrb(iSym)
-  nBB = nBB+nBas(iSym)*nBas(iSym)
+  nBB = nBB+nBas(iSym)**2
   nOO = nOO+nOrb(iSym)*nOrb(iSym)
   kOV(:) = kOV(:)+(nOcc(iSym,:)-nFro(iSym))*(nOrb(iSym)-nOcc(iSym,:))
   nOV = nOV+(maxnOcc(iSym)-nFro(iSym))*(nOrb(iSym)-minnOcc(iSym))

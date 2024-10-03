@@ -28,11 +28,13 @@ subroutine PickUp(Tri,Vec,n)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: Tri(n*(n+1)/2), Vec(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: Tri(nTri_Elem(n))
+real(kind=wp), intent(out) :: Vec(n)
 integer(kind=iwp) :: i, ij
 
 !----------------------------------------------------------------------*

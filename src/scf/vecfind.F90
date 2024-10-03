@@ -53,7 +53,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: OccSet, FermSet, CharSet, SpinSet
+logical(kind=iwp), intent(inout) :: OccSet, FermSet, CharSet
+logical(kind=iwp), intent(in) :: SpinSet
 integer(kind=iwp) :: i, iBas, iDSpin, iOff, iRC, iSym, iTmp, iVer, j, mTmp, mynBas(8), mynOrb(8), mynSym, n, N1, N2, nData, nEle, &
                      nEle1, nEle2, nSQRSum
 real(kind=wp) :: eAlpha, eBeta, GAP, tmp

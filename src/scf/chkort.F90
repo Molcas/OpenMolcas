@@ -21,14 +21,15 @@ subroutine ChkOrt(iD,OffMx)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: CMO, MaxBas, nBas, nOrb, nSym, Ovrlp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iD
-real(kind=wp) :: OffMx
+integer(kind=iwp), intent(in) :: iD
+real(kind=wp), intent(out) :: OffMx
 integer(kind=iwp) :: i, iCMO, iDgNo1, ij, iOff, iOffMx, iSym, j, jOffMx, nBs, nOr
 real(kind=wp) :: DgNo1
 logical(kind=iwp) :: termin
@@ -145,7 +146,7 @@ do iSym=1,nSym
       end if
     end if
   end if
-  ij = ij+nBs*(nBs+1)/2
+  ij = ij+nTri_Elem(nBs)
   iCMO = iCMO+nBs*nOr
 end do
 

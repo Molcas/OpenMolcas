@@ -37,20 +37,21 @@ subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 !       Dlt     : density matrix in triangular storrage                *
 !***********************************************************************
 
-#include "compiler_features.h"
-
 #ifndef POINTER_REMAP
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 #endif
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use SpinAV, only: Do_SpinAV, DSc
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nCMO
-real(kind=wp), target :: CMO(nCMO), Occ(*), Dlt(*)
-logical(kind=iwp) :: alpha_density
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nCMO
+real(kind=wp), target, intent(in) :: CMO(nCMO), Occ(*)
+real(kind=wp), target, intent(_OUT_) :: Dlt(*)
+logical(kind=iwp), intent(in) :: alpha_density
 integer(kind=iwp) :: i, iCol, iDSc, iOff, iOffD, ipCMO, ipDlt, ipDScc, ipOcc, iROw, iSym, j, ji, jj, lOff, lth, nBs, nFr, nOr
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nOcc
@@ -64,7 +65,7 @@ real(kind=wp), pointer :: pCMO(:,:), pOcc(:), pDlt(:)
 
 #ifdef _DEBUGPRINT_
 call NrmClc(CMO,nCMO,'DOne_SCF','CMO')
-nOcc = sum(nOrb(1:nSym))
+nOcc = sum(nOrb(:))
 call NrmClc(Occ,nOcc,'DOne_SCF','Occ')
 #endif
 
@@ -77,7 +78,7 @@ do iSym=1,nSym
   nOr = nOrb(iSym)
   nFr = nFro(iSym)
 
-  lth = nBs*(nBs+1)/2
+  lth = nTri_Elem(nBs)
   Dlt(ipDlt:ipDlt+lth-1) = Zero
 
   if (nOr /= 0) then
@@ -100,7 +101,7 @@ do iSym=1,nSym
       end do
     end do
 #   ifdef _DEBUGPRINT_
-    call NrmClc(pDlt,nBs*(nBs+1)/2,'DOne_SCF','Dlt')
+    call NrmClc(pDlt,nTri_Elem(nBs),'DOne_SCF','Dlt')
     !call RecPrt('CMO',' ',pCMO,nBs,nBs)
     !call RecPrt('Occ',' ',pOcc,1,nOr)
     !call TriPrt('Dlt',' ',pDlt,nBs)
@@ -120,24 +121,26 @@ if (Do_SpinAV) then
   iOffD = 1
   lOff = 0
   do iSym=1,nSym
-    lth = nBas(iSym)*(nBas(iSym)+1)/2
+    lth = nTri_Elem(nBas(iSym))
 
     pDlt => Dlt(iOffD:iOffD+lth-1)
 
     ipDScc = 1+lOff
     do j=1,nBas(iSym)
       do i=1,j-1
-        ji = j*(j-1)/2+i
+        ji = iTri(j,i)
         iDSc = ipDScc-1+nBas(iSym)*(j-1)+i
         pDlt(ji) = pDlt(ji)+xsign*Two*DSc(iDSc)
       end do
-      jj = j*(j+1)/2
+      jj = nTri_Elem(j)
       iDSc = ipDScc-1+nBas(iSym)*(j-1)+j
       pDlt(jj) = pDlt(jj)+xsign*DSc(iDSc)
     end do
     iOff = iOff+lth
     lOff = lOff+nBas(iSym)**2
   end do
+
+  nullify(pDlt)
 
 end if
 

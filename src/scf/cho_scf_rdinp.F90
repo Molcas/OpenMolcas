@@ -25,8 +25,8 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: DFonly
-integer(kind=iwp) :: LuSpool
+logical(kind=iwp), intent(in) :: DFonly
+integer(kind=iwp), intent(in) :: LuSpool
 #include "print.fh"
 integer(kind=iwp) :: i, iChrct, iPrint, iRout, jRout, Last, n
 real(kind=wp) :: dmpk_dfl

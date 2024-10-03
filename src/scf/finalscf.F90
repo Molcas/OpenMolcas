@@ -22,6 +22,7 @@ subroutine FinalSCF()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Interfaces_SCF, only: dOne_SCF
 use OFembed, only: Do_OFemb, FMaux, NDSD
 use SpinAV, only: DSc
@@ -48,7 +49,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iBas, iCMO, iD, iFld, iFock, iiOrb, ij, IndType(7,8), iOpt, iOrb, iRC, iRef, iSym, iSymLb, iVirt, iWFType, &
-                     jBas, jFock, jRef, jVirt, kBas, kl, lk, nFldP, nOccMax(nSym), nOccMin(nSym)
+                     jBas, jRef, jVirt, kBas, kl, lk, nFldP, nOccMax(nSym), nOccMin(nSym)
 real(kind=wp) :: Dummy(1), TCPU1, TCPU2, TotCpu, TWall1, TWall2
 logical(kind=iwp) :: FstItr
 character(len=128) :: OrbName
@@ -137,13 +138,12 @@ else
   call mma_allocate(Scrt2,MaxBxO,nD,Label='Scrt2')
 
   iFock = 1
-  jFock = 1
   iCMo = 1
   do iSym=1,nSym
     if (nOrb(iSym) <= 0) cycle
 
     do iD=1,nD
-      call Square(FockAO(jFock,iD),Scrt1(1,iD),1,nBas(iSym),nBas(iSym))
+      call Square(FockAO(iFock,iD),Scrt1(1,iD),1,nBas(iSym),nBas(iSym))
       ! Transform to MO basis
       call DGEMM_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym), &
                   One,CMO(iCMo,iD),nBas(iSym), &
@@ -184,8 +184,7 @@ else
 
     end do ! iD
 
-    iFock = iFock+nBas(iSym)*(nBas(iSym)+1)/2
-    jFock = jFock+nBas(iSym)*(nBas(iSym)+1)/2
+    iFock = iFock+nTri_Elem(nBas(iSym))
     iCMo = iCMo+nBas(iSym)*nOrb(iSym)
 
   end do  ! iSym

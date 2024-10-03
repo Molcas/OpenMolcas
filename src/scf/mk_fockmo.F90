@@ -14,6 +14,7 @@
 !#define _DEBUGPRINT_
 subroutine Mk_FockMO(O,S,nOTSD,C,nC,FockMO,nFockMO,nD,iOpt)
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: iDisk, MapDns, MaxBas, nBas, nBO, nBT, nFro, nnFr, nOcc, nOrb, nSym, OrbType, TwoHam, Vxc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -23,8 +24,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nOTSD, nC, nFockMO, nD, iOpt
-real(kind=wp) :: O(nOTSD), S(nOTSD), C(nC,nD), FockMO(nFockMO,nD)
+integer(kind=iwp), intent(in) :: nOTSD, nC, nFockMO, nD, iOpt
+real(kind=wp), intent(in) :: O(nOTSD), S(nOTSD), C(nC,nD)
+real(kind=wp), intent(out) :: FockMO(nFockMO,nD)
 integer(kind=iwp) :: i, iD, ig, ih, ij, iOff, iSym, it, j, jDT, k, l, nBs, nOr, nOrbmF
 real(kind=wp), allocatable :: Aux1(:), Aux2(:), FckM(:,:)
 real(kind=wp), allocatable, target :: AuxT(:,:), AuxV(:,:)
@@ -78,7 +80,7 @@ do iD=1,nD
   write(u6,*) 'iD=',iD
   call NrmClc(FckM(1,iD),nBT,'Mk_FockMO','FckM')
 # endif
-  if (nnFr > 0) call ModFck(FckM(1,iD),S,nBT,C(1,iD),nBO,nOcc(1,1))
+  if (nnFr > 0) call ModFck(FckM(:,iD),S,nBT,C(:,iD),nBO,nOcc(:,1))
 
   FckM(:,iD) = FckM(:,iD)+V(:,iD)
 # ifdef _DEBUGPRINT_
@@ -146,7 +148,7 @@ do iD=1,nD
       end do
 
     end if
-    ij = ij+nBs*(nBs+1)/2
+    ij = ij+nTri_Elem(nBs)
     it = it+nBs*nOr
     iG = iG+nOr*nOr
     iOff = iOff+nOrbmF
@@ -166,7 +168,7 @@ if (jDT < 0) then
 end if
 nullify(T,V)
 #ifdef _DEBUGPRINT_
-call RecPrt('Mk_FockMO: FockMO',' ',FockMO,1,size(FockMO))
+call RecPrt('Mk_FockMO: FockMO',' ',FockMO,nFockMO,nD)
 #endif
 
 !----------------------------------------------------------------------*

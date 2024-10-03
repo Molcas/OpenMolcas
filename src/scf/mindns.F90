@@ -39,9 +39,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: mBT, NumD, ltXCff, nD
-real(kind=wp), target :: Dens(mBT,nD,NumD)
-real(kind=wp) :: XCff(ltXCff,nD)
+integer(kind=iwp), intent(in) :: mBT, NumD, ltXCff, nD
+real(kind=wp), target, intent(inout) :: Dens(mBT,nD,NumD)
+real(kind=wp), intent(out) :: XCff(ltXCff,nD)
 integer(kind=iwp) :: iC, iCol, iD, iM, iMat, iR, iRow, iStart, jCol, jRow
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
@@ -81,7 +81,7 @@ do iRow=iStart,iter-1
     call RWDTG(-iR,DRow,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
     pDR => DRow
   else
-    pDR => Dens(1:mBT,1:nD,iR)
+    pDR => Dens(:,:,iR)
   end if
 
 # ifdef _DEBUGPRINT_
@@ -101,7 +101,7 @@ do iRow=iStart,iter-1
       call RWDTG(-iC,DCol,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
       pDC => DCol
     else
-      pDC => Dens(1:mBT,1:nD,iC)
+      pDC => Dens(:,:,iC)
     end if
 
     do iD=1,nD
@@ -141,7 +141,7 @@ do iMat=iter-1,iStart,-1
     call RWDTG(-iM,DRow,nBT*nD,'R','DENS  ',iDisk,size(iDisk,1))
     pDR => DRow
   else
-    pDR => Dens(1:mBT,1:nD,iM)
+    pDR => Dens(:,:,iM)
   end if
 
   do iD=1,nD

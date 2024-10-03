@@ -29,14 +29,16 @@ subroutine FixOrb(Ovrlp,CMO,TrMat,nCMO)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: MaxBas, nBas, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nCMO
-real(kind=wp) :: Ovrlp(nCMO), CMO(nCMO), TrMat(nCMO)
+integer(kind=iwp), intent(in) :: nCMO
+real(kind=wp), intent(in) :: Ovrlp(nCMO), TrMat(nCMO)
+real(kind=wp), intent(inout) :: CMO(nCMO)
 integer(kind=iwp) :: iCMO, iS, iSym, iTrM, nBF, nOF
 real(kind=wp), allocatable :: S(:), TT(:), TTS(:), CMO0(:)
 
@@ -113,7 +115,7 @@ do iSym=1,nSym
   ! Update pointers
   iCMO = iCMO+nBF*nBas(iSym)
   iTrM = iTrM+nOF*nBas(iSym)
-  iS = iS+nBas(iSym)*(nBas(iSym)+1)/2
+  iS = iS+nTri_Elem(nBas(iSym))
 
 end do
 !                                                                      *

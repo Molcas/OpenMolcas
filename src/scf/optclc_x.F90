@@ -21,9 +21,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
-real(kind=wp) ::  CInter(nCI,nD), Array(mOV)
-real(kind=wp), optional :: DD
+integer(kind=iwp), intent(in) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
+real(kind=wp), intent(in) :: CInter(nCI,nD)
+real(kind=wp), intent(out) :: Array(mOV)
+real(kind=wp), optional, intent(out) :: DD
 integer(kind=iwp) :: i, iD, iEnd, inode, iSt, ivec
 real(kind=wp), allocatable :: Aux(:)
 
@@ -46,7 +47,7 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) 'Initial scaled entities.'
-call NrmClc(Array(:),mOV,'OptClc_X','Array')
+call NrmClc(Array,mOV,'OptClc_X','Array')
 write(u6,*)
 #endif
 
@@ -70,7 +71,7 @@ do i=1,kOptim-1
 end do
 #ifdef _DEBUGPRINT_
 write(u6,*)
-call NrmClc(Array(:),mOV,'OptClc_X','Array')
+call NrmClc(Array,mOV,'OptClc_X','Array')
 write(u6,*)
 #endif
 if (present(DD)) then

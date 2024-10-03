@@ -114,7 +114,8 @@ contains
 
 subroutine IniLst(iLList,incore)
 
-  integer(kind=iwp) :: iLList, incore
+  integer(kind=iwp), intent(out) :: iLList
+  integer(kind=iwp), intent(in) :: incore
 
   ! allocate list header CNOD
   lLList = lLList+1
@@ -145,9 +146,9 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
 
   use stdalloc, only: mma_allocate
 
-  integer(kind=iwp) :: lvec, iterat, iLList
-  real(kind=wp) :: vec(lvec)
-  character(len=4) :: opcode
+  integer(kind=iwp), intent(in) :: lvec, iterat, iLList
+  real(kind=wp), intent(in) :: vec(lvec)
+  character(len=4), intent(in) :: opcode
   integer(kind=iwp) :: iPtr2, iroot, lislen, MaxMem
 
   if (Debug_LnkLst) then
@@ -173,7 +174,7 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
           ! Set error code: inconsistency in vector lengths
           nLList(iLList,0) = 1
         else if (nLList(iroot,4) == iterat) then
-          SCF_V(iroot)%A(1:lVec) = vec(1:lVec)
+          SCF_V(iroot)%A(1:lVec) = vec(:)
           return
         end if
         iroot = nLList(iroot,0)
@@ -234,8 +235,9 @@ subroutine GetVec(iterat,iLList,inode,vec,lvec)
   ! if LList<0, then -LList is interpreted as a direct node address,
   ! and not the address of the listhead (faster access).
 
-  integer(kind=iwp) :: iterat, iLList, inode, lvec
-  real(kind=wp) :: vec(lvec)
+  integer(kind=iwp), intent(in) :: iterat, iLList, lvec
+  integer(kind=iwp), intent(out) :: inode
+  real(kind=wp), intent(out) :: vec(lvec)
 
   inode = nLList(iLList,1)
   if (inode <= 0) then
@@ -251,7 +253,7 @@ subroutine GetVec(iterat,iLList,inode,vec,lvec)
     ! we've found matching entry, so check if consistent
     if (nLList(inode,3) == lvec) then
       ! everything's alright, we made it, let's copy to vec
-      vec(1:lVec) = SCF_V(iNode)%A(1:lVec)
+      vec(:) = SCF_V(iNode)%A(1:lVec)
     else
       ! inconsistency
       write(u6,*) ' Found inconsistency.'
@@ -270,7 +272,8 @@ subroutine GetNod(iterat,iLList,inode)
   ! inode is set to zero and iWork(LList)=0 is set to ErrCode 1,
   ! if no correspondance was found.
 
-  integer(kind=iwp) :: iterat, iLList, inode
+  integer(kind=iwp), intent(in) :: iterat, iLList
+  integer(kind=iwp), intent(out) :: inode
 
   if (Debug_LnkLst) then
     write(u6,*) 'GetNod'
@@ -304,7 +307,8 @@ subroutine InfNod(inode,iterat,ipnext,ipvec,lvec)
   ! returns info of node indicated by inode. iterat,ipnext,ipvec,lvec
   ! are overwritten with the corresponding info on the node
 
-  integer(kind=iwp) :: inode, iterat, ipnext, ipvec, lvec
+  integer(kind=iwp), intent(in) :: inode
+  integer(kind=iwp), intent(out) :: iterat, ipnext, ipvec, lvec
 
   iterat = nLList(inode,4)
   ipnext = nLList(inode,0)
@@ -319,7 +323,7 @@ function InCore_f(inode)
   ! returns true, if corresponding vector is incore, false otherwise
 
   logical(kind=iwp) :: InCore_f
-  integer(kind=iwp) :: inode
+  integer(kind=iwp), intent(in) :: inode
 
   if (nLList(inode,5) == 1) then
     InCore_f = .true.
@@ -335,7 +339,7 @@ function LLErr(iLList)
   ! checks, if ErrCode was set in previous LL Operation
 
   logical(kind=iwp) :: LLErr
-  integer(kind=iwp) :: iLList
+  integer(kind=iwp), intent(in) :: iLList
 
   if (nLList(iLList,0) == 0) then
     LLErr = .false.
@@ -351,7 +355,7 @@ function LLLen(iLList)
   ! returns the actual length of the LL
 
   integer(kind=iwp) :: LLLen
-  integer(kind=iwp) :: iLList
+  integer(kind=iwp), intent(in) :: iLList
 
   LLLen = nLList(iLList,2)
 
@@ -369,15 +373,15 @@ subroutine iVPtr(vptr1,nvptr1,inode)
   !
   ! 2017-03-15:Converted to return the array in vptr1.
 
-  integer(kind=iwp) :: nvptr1, inode
-  real(kind=wp) :: vptr1(nvptr1)
+  integer(kind=iwp), intent(in) :: nvptr1, inode
+  real(kind=wp), intent(out) :: vptr1(nvptr1)
   integer(kind=iwp) :: idum1, idum2, idum3, ivptr2
 
   if (InCore_f(inode)) then
     call InfNod(inode,idum1,idum2,ivptr2,idum3)
-    vPtr1(1:nvptr1) = SCF_V(inode)%A(1:nvptr1)
+    vPtr1(:) = SCF_V(inode)%A(1:nvptr1)
   else
-    call GetVec(nLList(inode,4),inode,inode,vptr1,nLList(inode,3))
+    call GetVec(nLList(inode,4),inode,idum1,vptr1,nLList(inode,3))
   end if
 
   return
@@ -393,7 +397,7 @@ function LstPtr(iterat,iLList)
   ! in LList).
 
   integer(kind=iwp) :: LstPtr
-  integer(kind=iwp) :: iterat, iLList
+  integer(kind=iwp), intent(in) :: iterat, iLList
   integer(kind=iwp) :: idum1, idum2, idum3, inode, ivptr
 
   LstPtr = -999999
@@ -420,7 +424,7 @@ subroutine KilLst(iLList)
 
   use stdalloc, only: mma_deallocate
 
-  integer(kind=iwp) :: iLList
+  integer(kind=iwp), intent(in) :: iLList
   integer(kind=iwp) :: iFlag, iroot
 
   if (Debug_LnkLst) then
@@ -442,7 +446,8 @@ subroutine DmpLst(iLList,LUnit,lDskPt)
 
   use stdalloc, only: mma_deallocate
 
-  integer(kind=iwp) :: iLList, LUnit, lDskPt
+  integer(kind=iwp), intent(in) :: iLList, LUnit
+  integer(kind=iwp), intent(out) :: lDskPt
   integer(kind=iwp) :: iDskPt, iPtr1, iPtr2, iRoot, Length
 
   ! clear ErrCode
@@ -501,7 +506,9 @@ subroutine RclLst(iLList,LUnit,lDskPt,NoAllo)
 
   use stdalloc, only: mma_allocate
 
-  integer(kind=iwp) :: iLList, LUnit, lDskPt, NoAllo
+  integer(kind=iwp), intent(out) :: iLList
+  integer(kind=iwp), intent(in) :: LUnit, NoAllo
+  integer(kind=iwp), intent(inout) :: lDskPt
   integer(kind=iwp) :: incore, iPtr1, iPtr2, iRoot, lislen, lVec, MaxMem
 
   ! load listhead...

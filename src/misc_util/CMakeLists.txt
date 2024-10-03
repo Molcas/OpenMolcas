@@ -43,6 +43,7 @@ set (sources
      expand_coor.F90
      fcidump_output.F90
      fix_symmetry.F90
+     fold.F90
      full_svd.F90
      gen_int.F90
      gen_int_dccd.F90
@@ -158,6 +159,7 @@ set (sources
      triprt.F90
      trnsps.F90
      twodat.F90
+     unfold.F90
      unused.F90
      upki4.F90
      upkr8.F90

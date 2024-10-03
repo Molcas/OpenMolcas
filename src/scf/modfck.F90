@@ -28,14 +28,16 @@ subroutine ModFck(Fock,Ovlp,nFO,CMO,nCMO,mynOcc)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InfSCF, only: MaxBas, nBas, nBO, nBT, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nFO, nCMO, mynOcc(*)
-real(kind=wp) :: Fock(nFO), Ovlp(nFO), CMO(nCMO)
+integer(kind=iwp), intent(in) :: nFO, nCMO, mynOcc(*)
+real(kind=wp), intent(inout) :: Fock(nFO)
+real(kind=wp), intent(in) :: Ovlp(nFO), CMO(nCMO)
 integer(kind=iwp) :: ij, iSym
 real(kind=wp), allocatable :: Aux1(:), DFro(:), DFSq(:), OvSq(:)
 
@@ -90,7 +92,7 @@ do iSym=1,nSym
   end if
 
   ! Update pointers
-  ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+  ij = ij+nTri_Elem(nBas(iSym))
 
 end do
 

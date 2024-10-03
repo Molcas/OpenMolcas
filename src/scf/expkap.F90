@@ -35,9 +35,9 @@ use Constants, only: Zero, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-! declaration subroutine parameters
-integer(kind=iwp) :: nKapOV, mynOcc(8)
-real(kind=wp) :: kapOV(nkapOV), U(nOFS)
+integer(kind=iwp), intent(in) :: nKapOV, mynOcc(8)
+real(kind=wp), intent(in) :: kapOV(nkapOV)
+real(kind=wp), intent(out) :: U(nOFS)
 integer(kind=iwp) :: iKap, iSym, iU, j, jU, mOcc, mOrb, mVir
 real(kind=wp) :: Cpu1, Cpu2, Tim1, Tim2, Tim3
 #ifndef qnext

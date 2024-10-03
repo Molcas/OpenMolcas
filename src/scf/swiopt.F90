@@ -28,9 +28,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) :: AllCnt
-integer(kind=iwp) :: mBT, mBB, nD
-real(kind=wp) :: OneHam(mBT), Ovrlp(mBT), CMO(mBB,nD)
+logical(kind=iwp), intent(in) :: AllCnt
+integer(kind=iwp), intent(in) :: mBT, mBB, nD
+real(kind=wp), intent(out) :: OneHam(mBT), Ovrlp(mBT)
+real(kind=wp), intent(inout) :: CMO(mBB,nD)
 integer(kind=iwp) :: iComp, iD, iOpt, iRC, lOper
 real(kind=wp) :: DNTh_o = Zero, DThr_o = Zero, EThr_o = Zero, FThr_o = Zero, ThrInt_o = Zero
 character(len=8) :: Label
@@ -55,7 +56,7 @@ if (AllCnt .and. twoel_NDDO) then
   call Peek_dScalar('PotNuc',PotNuc)
   ! orthonormalize CMO
   do iD=1,nD
-    call Ortho(CMO(1,iD),nBO,Ovrlp,nBT)
+    call Ortho(CMO(:,iD),nBO,Ovrlp,nBT)
   end do
   ! restore threshold values in WfCtl
   EThr = EThr_o
