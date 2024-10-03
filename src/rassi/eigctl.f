@@ -23,6 +23,7 @@
       USE ISO_C_Binding
 #endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -31,13 +32,14 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "stdalloc.fh"
 #include "rassiwfn.fh"
 
-      character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE), DYSAMPS2(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE),
+     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
+
+      REAL*8 DYSAMPS2(NSTATE,NSTATE)
+      character(LEN=100) line
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
@@ -45,9 +47,9 @@
       Integer  cho_x_gettol
       External cho_x_gettol
       INTEGER IOFF(8), SECORD(4), IPRTMOM(12)
-      CHARACTER*8 LABEL
+      CHARACTER(LEN=8) LABEL
       Real*8 TM_R(3), TM_I(3), TM_C(3)
-      Character*60 FMTLINE
+      Character(LEN=60) FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:), Rquad(:,:)
       Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
@@ -64,6 +66,7 @@
       logical TMOgroup
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
+      Integer, Allocatable:: LIST(:), STACK(:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -106,21 +109,19 @@ C listed in various tables in common /CNTRL/.
 C So it is worth the extra inconvenience to construct an outer
 C loop over sets of interacting wave functions.
 C Make a list of interacting sets of states:
-      CALL GETMEM('LIST','ALLO','INTE',LLIST,NSTATE)
-      DO I=1,NSTATE
-        IWORK(LLIST-1+I)=0
-      END DO
+      CALL mma_allocate(LIST,NSTATE,Label='LIST')
+      LIST(:)=0
       ISET=0
       DO I=1,NSTATE
-        IF(IWORK(LLIST-1+I).GT.0) cycle
+        IF(LIST(I).GT.0) cycle
         ISET=ISET+1
-        IWORK(LLIST-1+I)=ISET
+        LIST(I)=ISET
         JOB1=JBNUM(I)
         NACTE1=NACTE(JOB1)
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
-          IF(IWORK(LLIST-1+J).GT.0) cycle
+          IF(LIST(J).GT.0) cycle
           JOB2=JBNUM(J)
           NACTE2=NACTE(JOB2)
           IF(NACTE2.NE.NACTE1) cycle
@@ -128,14 +129,14 @@ C Make a list of interacting sets of states:
           IF(MPLET2.NE.MPLET1) cycle
           LSYM2=IRREP(JOB2)
           IF(LSYM2.NE.LSYM1) cycle
-          IWORK(LLIST-1+J)=ISET
+          LIST(J)=ISET
         END DO
       END DO
       NSETS=ISET
 CTEST      write(*,*)' EIGCTL. There are NSETS sets of interacting states.'
 CTEST      write(*,'(1x,a,i3)')' where NSETS=',NSETS
 CTEST      write(*,*)' The LIST array:'
-CTEST      write(*,'(1x,20i3)')(IWORK(LLIST-1+I),I=1,NSTATE)
+CTEST      write(*,'(1x,20i3)')(LIST(I),I=1,NSTATE)
 
       NHH=(NSTATE*(NSTATE+1))/2
       CALL GETMEM('HH','ALLO','REAL',LHH,NHH)
@@ -144,16 +145,16 @@ CTEST      write(*,'(1x,20i3)')(IWORK(LLIST-1+I),I=1,NSTATE)
       CALL GETMEM('UU','ALLO','REAL',LUU,NSTATE**2)
       CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
       CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LSCR),1)
-      CALL GETMEM('STACK','ALLO','INTE',LSTK,NSTATE)
+      CALL mma_allocate(STACK,NSTATE,Label='STACK')
 C Loop over the sets:
       DO ISET=1,NSETS
 C Stack up the states belonging to this set:
        MSTATE=0
        DO I=1,NSTATE
-        JSET=IWORK(LLIST-1+I)
+        JSET=LIST(I)
         IF(JSET.EQ.ISET) THEN
          MSTATE=MSTATE+1
-         IWORK(LSTK-1+MSTATE)=I
+         STACK(MSTATE)=I
         END IF
        END DO
 
@@ -169,9 +170,9 @@ C    and Hamiltonian into square storage:
       CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LHSQ),1)
       IJ=0
       DO II=1,MSTATE
-        I=IWORK(LSTK-1+II)
+        I=STACK(II)
         DO JJ=1,II
-          J=IWORK(LSTK-1+JJ)
+          J=STACK(JJ)
           IJ=IJ+1
           If (I.NE.J .AND.
      &    (ABS(ovlp(i,j)).gt.1.0D-9.or.ABS(ham(i,j)).gt.1.0D-9)) Then
@@ -222,20 +223,20 @@ C 5. DIAGONALIZE HAMILTONIAN.
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
-        I=IWORK(LSTK-1+II)
+        I=STACK(II)
         ENERGY(I)=WORK(LHH-1+IDIAG)
         DO JJ=1,MSTATE
-          J=IWORK(LSTK-1+JJ)
+          J=STACK(JJ)
           EIGVEC(I,J)=WORK(LUU-1+II+MSTATE*(JJ-1))
         END DO
       END DO
 *if diagonal
       Else
         DO II=1,MSTATE
-          I=IWORK(LSTK-1+II)
+          I=STACK(II)
           ENERGY(I)=HAM(I,I)
           Do JJ=1,MSTATE
-            J=IWORK(LSTK-1+JJ)
+            J=STACK(JJ)
             EIGVEC(I,J)=0.0d0
           End Do
           EIGVEC(I,I)=1.0d0
@@ -251,10 +252,10 @@ c               lower than 1.0D-4 cm-1
       DLT=0.d0
       IDIAG=0
       DO II=1,MSTATE
-        I=IWORK(LSTK-1+II)
+        I=STACK(II)
         TMP=ENERGY(I)
         Do JJ=1,MSTATE
-          J=IWORK(LSTK-1+JJ)
+          J=STACK(JJ)
           IF(I==J) CYCLE
           DLT=ABS(ENERGY(J)-TMP)*auTocm
           If(DLT<1.0D-4) THEN
@@ -266,7 +267,7 @@ c               lower than 1.0D-4 cm-1
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
-        I=IWORK(LSTK-1+II)
+        I=STACK(II)
         WORK(LHH-1+IDIAG)=ENERGY(I)
       END DO
 C End of loop over sets.
@@ -286,8 +287,8 @@ C especially for already diagonal Hamiltonian matrix.
       CALL GETMEM('SS','FREE','REAL',LSS,NHH)
       CALL GETMEM('UU','FREE','REAL',LUU,NSTATE**2)
       CALL GETMEM('HSQ','FREE','REAL',LHSQ,NSTATE**2)
-      CALL GETMEM('STACK','FREE','INTE',LSTK,NSTATE)
-      CALL GETMEM('LIST','FREE','INTE',LLIST,NSTATE)
+      CALL mma_deallocate(STACK)
+      CALL mma_deallocate(LIST)
 
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sfs_energy, ENERGY)
