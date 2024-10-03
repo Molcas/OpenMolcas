@@ -173,6 +173,7 @@ C Local print level (if any)
 #endif
 
       if (.not. doDMRG) then
+        Line=''
         Write(Line(left-2:),'(A)') 'CI expansion specifications:'
         Call CollapseOutput(1,Line)
         Write(LF,Fmt2//'A)')'----------------------------'
