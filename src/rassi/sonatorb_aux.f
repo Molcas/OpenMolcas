@@ -31,7 +31,7 @@
       Real*8 Dummy(1)
       Integer iDummy(7,8)
       Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:), SCR(:)
-      Real*8, allocatable:: VNAT(:)
+      Real*8, allocatable:: VNAT(:), EIG(:), OCC(:)
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -52,7 +52,7 @@ C Get the proper type of the property
 
 c SZZ  - AO Overlap integral
 c VEC  - AO Overlap eigenvectors
-c LEIG  - AO Overlap eigenvalues
+c EIG  - AO Overlap eigenvalues
 c VEC2 - Eigenvectors of density matrix
 c SCR  - Temporary for matrix multiplication
 C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
@@ -62,17 +62,17 @@ C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(VEC,NBSQ,Label='VEC')
       CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
       CALL mma_allocate(SCR,NBMX2,Label='SCR')
-      CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
+      CALL mma_allocate(EIG,NBST,Label='EIG')
       SZZ(:)=0.0D0
       VEC(:)=0.0D0
       VEC2(:)=0.0D0
       SCR(:)=0.0D0
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
+      EIG(:)=0.0D0
 
       CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
       VNAT(:)=0.0D0
-      CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LOCC),1)
+      CALL mma_allocate(OCC,NBST,Label='OCC')
+      OCC(:)=0.0D0
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -95,7 +95,7 @@ c IOPT=6, origin and nuclear contrib not read
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
-      LE=LEIG
+      LE=1
       VEC(:)=0.0D0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
@@ -108,9 +108,8 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV1=LV
         LE1=LE
         DO I=1,NB
-          EIG=SZZ(LS1)
-          WORK(LE1)=EIG
-          X=1.0D00/SQRT(MAX(EIG,1.0D-14))
+          EIG(LE1)=SZZ(LS1)
+          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
           CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
@@ -144,7 +143,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         II2=0
         IOCC=0
         LV=1
-        LE=LEIG
+        LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
           IF(NB.EQ.0) GOTO 1750
@@ -181,9 +180,8 @@ C expand the triangular matrix for this symmetry to a square matrix
           ID1=1
           ID2=1
           DO I=1,NB
-            EIG=WORK(LE-1+I)
-            CALL DSCAL_(NB,EIG,DMAT(ID1),NB)
-            CALL DSCAL_(NB,EIG,DMAT(ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
@@ -216,7 +214,7 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=0
           DO I=1,NB
             II=II+I
-            WORK(LOCC-1+IOCC+NB+1-I)=SCR(II)
+            OCC(IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
 
@@ -267,7 +265,7 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
         LuxxVec=isfreeunit(LuxxVec)
 
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &             VNAT, WORK(LOCC), Dummy, iDummy,
+     &             VNAT, OCC, Dummy, iDummy,
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
 c       Test a few values
@@ -275,7 +273,7 @@ C        CALL ADD_INFO("SONATORB_PLOT", VNAT, 1, 4)
 
 c    ONLYFOR NATURAL ORBITALS
       if(ITYPE.EQ.1)
-     &       CALL ADD_INFO("SONATORB_NO_OCC", WORK(LOCC), SUM(NBASF), 4)
+     &       CALL ADD_INFO("SONATORB_NO_OCC", OCC, SUM(NBASF), 4)
 
       END DO
 
@@ -283,15 +281,16 @@ c    ONLYFOR NATURAL ORBITALS
       CALL mma_deallocate(VEC)
       CALL mma_deallocate(VEC2)
       CALL mma_deallocate(SCR)
-      CALL GETMEM('EIG   ','FREE','REAL',LEIG,NBST)
+      CALL mma_deallocate(EIG)
       CALL mma_deallocate(VNAT)
-      CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
+      CALL mma_deallocate(OCC)
 
       END SUBROUTINE SONATORB_PLOT
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -299,17 +298,19 @@ c    ONLYFOR NATURAL ORBITALS
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-      DIMENSION DENS(6,NBTRI)
-      CHARACTER*25 FNAME
+      Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
-      CHARACTER*16 KNUM
-      CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE,LABEL
-      CHARACTER CDIR
+      CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS,BSS
-      DIMENSION IDUM(1),Dummy(1),iDummy(7,8)
 
-
+      CHARACTER(LEN=25) FNAME
+      CHARACTER(LEN=16) KNUM
+      CHARACTER(LEN=16) FNUM,XNUM
+      CHARACTER(LEN=8) LABEL
+      CHARACTER CDIR
+      Real*8 Dummy(1)
+      Integer IDUM(1),iDummy(7,8)
+      Real*8, Allocatable:: SZZ(:)
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -329,7 +330,7 @@ C Get the proper type of the property
 
       NBMX2=NBMX**2
 
-c LSZZ  - AO Overlap integral
+c SZZ  - AO Overlap integral
 c LVEC  - AO Overlap eigenvectors
 c LEIG  - AO Overlap eigenvalues
 c LVEC2 - Eigenvectors of density matrix
@@ -337,14 +338,14 @@ c LSCR  - Temporary for matrix multiplication
 C NOTE: LSCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
-      CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NBTRI)
+      CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
+      SZZ(:)=0.0D0
       CALL GETMEM('VEC   ','ALLO','REAL',LVEC,NBSQ)
       CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NBMX2)
       CALL GETMEM('VEC2I  ','ALLO','REAL',LVEC2I,NBMX2)
       CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NBMX2)
       CALL GETMEM('SCRI   ','ALLO','REAL',LSCRI,NBMX2)
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSZZ),1)
       CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVEC),1)
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2),1)
       CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2I),1)
@@ -367,7 +368,7 @@ c IOPT=6, origin and nuclear contrib not read
       ICMP=1
       ISYLAB=1
       LABEL='MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -378,7 +379,7 @@ c IOPT=6, origin and nuclear contrib not read
 
 
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
-      LS=LSZZ
+      LS=1
       LV=LVEC
       LE=LEIG
       CALL FZERO(WORK(LVEC),NBSQ)
@@ -387,13 +388,13 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
         DO I=1,NB**2,(NB+1)
           WORK(LV-1+I)=1.0D00
         END DO
-        CALL JACOB(WORK(LS),WORK(LV),NB,NB)
+        CALL JACOB(SZZ(LS),WORK(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
         DO I=1,NB
-          EIG=WORK(LS1)
+          EIG=SZZ(LS1)
           WORK(LE1)=EIG
           X=1.0D00/SQRT(MAX(EIG,1.0D-14))
           CALL DSCAL_(NB,X,WORK(LV1),1)
@@ -406,7 +407,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE=LE+NB
       END DO
 
-      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NBTRI)
+      CALL mma_deallocate(SZZ)
 
       CALL GETMEM('TDMAT ','ALLO','REAL',LDMAT,NBMX2)
       CALL GETMEM('TDMATI ','ALLO','REAL',LDMATI,NBMX2)
