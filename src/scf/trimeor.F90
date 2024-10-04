@@ -11,33 +11,35 @@
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
 
-subroutine TrimEor(Eor1,Eor2,nSym,nBas,nOrb)
+subroutine TrimEor(E_or,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine trim orbital energy vectors.                            *
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: Eor1(*)
-real(kind=wp), intent(inout) :: Eor2(*)
+real(kind=wp), intent(inout) :: E_or(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
-integer(kind=iwp) :: iFrom(8), iSym, iTo(8), ndata
+integer(kind=iwp) :: iFrom, iSym, iTo, nData
 
+if (all(nOrb(:nSym-1) == nBas(:nSym-1))) return ! difference in last irrep is irrelevant
+if (any(nOrb(:) > nBas(:))) then
+  write(u6,*) 'Error in TrimEor'
+  call Abend()
+end if
 !----------------------------------------------------------------------*
 ! Transfer orbital energies.                                           *
 !----------------------------------------------------------------------*
-iFrom(1) = 1
-iTo(1) = 1
-do iSym=1,nSym-1
-  iFrom(iSym+1) = iFrom(iSym)+nBas(iSym)
-  iTo(iSym+1) = iTo(iSym)+nOrb(iSym)
-end do
+iFrom = 0
+iTo = 0
 do iSym=nSym,1,-1
-  ndata = nOrb(iSym)
-  Eor2(iTo(iSym):iTo(iSym)+ndata-1) = Eor1(iFrom(iSym):iFrom(iSym)+ndata-1)
+  nData = nOrb(iSym)
+  if (iFrom /= iTo) E_or(iTo+1:iTo+nData) = E_or(iFrom+1:iFrom+nData)
+  iFrom = iFrom+nBas(iSym)
+  iTo = iTo+nData
 end do
 !----------------------------------------------------------------------*
 ! Finish                                                               *

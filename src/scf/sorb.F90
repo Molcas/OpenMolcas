@@ -308,8 +308,8 @@ subroutine Start0x(CMO,mBB,nD,E_Or,mmB)
   if (nSum > 0) then
     nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
     do iD=1,nD
-      call TrimCMO(CMO(1,iD),CMO(1,iD),nSym,nBas,nOrb)
-      call TrimEor(E_Or(1,iD),E_Or(1,iD),nSym,nBas,nOrb)
+      call TrimCMO(CMO(:,iD),nSym,nBas,nOrb)
+      call TrimEor(E_Or(:,iD),nSym,nBas,nOrb)
     end do
   end if
 
@@ -362,8 +362,8 @@ subroutine Start0y(CMO,mBB,nD,E_Or,mmB)
   if (nSum > 0) then
     nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
     do iD=1,nD
-      call TrimCMO(CMO(1,iD),CMO(1,iD),nSym,nBas,nOrb)
-      call TrimEor(E_or(1,iD),E_or(1,iD),nSym,nBas,nOrb)
+      call TrimCMO(CMO(:,iD),nSym,nBas,nOrb)
+      call TrimEor(E_or(:,iD),nSym,nBas,nOrb)
     end do
   end if
   !--------------------------------------------------------------------*

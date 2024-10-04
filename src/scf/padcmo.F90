@@ -11,7 +11,7 @@
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
 
-subroutine PadCMO(CMO1,CMO2,nSym,nBas,nOrb)
+subroutine PadCMO(CMO,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine pads CMO's from nBas x nOrb to nBas x nBas.             *
@@ -24,8 +24,7 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: CMO1(*)
-real(kind=wp), intent(_OUT_) :: CMO2(*)
+real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp) :: iFrom(8), iPtr, iSym, iTo(8), ndata
 
@@ -40,11 +39,11 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nBas(iSym)*nOrb(iSym)
-  CMO2(iTo(iSym)-ndata+1:iTo(iSym)) = CMO1(iFrom(iSym)-ndata+1:iFrom(iSym))
+  CMO(iTo(iSym)-ndata+1:iTo(iSym)) = CMO(iFrom(iSym)-ndata+1:iFrom(iSym))
   if (nBas(iSym) > nOrb(iSym)) then
     ndata = nBas(iSym)*(nBas(iSym)-nOrb(iSym))
     iPtr = iTo(iSym)+1
-    CMO2(iPtr:iPtr+ndata-1) = Zero
+    CMO(iPtr:iPtr+ndata-1) = Zero
   end if
 end do
 !----------------------------------------------------------------------*

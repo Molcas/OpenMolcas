@@ -168,8 +168,8 @@ do iSym=1,nSym
   end if
 end do
 
-call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
-call TrimEor(EOrb,EOrb,nSym,nBas,nOrb)
+call TrimCMO(CMO,nSym,nBas,nOrb)
+call TrimEor(EOrb,nSym,nBas,nOrb)
 call mma_deallocate(IndT)
 
 call Setup_SCF()

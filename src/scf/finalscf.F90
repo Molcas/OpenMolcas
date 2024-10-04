@@ -238,10 +238,10 @@ else
     call mma_allocate(CMOn,nBB,Label='CMOn')
     call mma_allocate(Etan,nnB,Label='Etan')
     call mma_allocate(Epsn,nnB,Label='Epsn')
-    call NatoUHF(Dens(1,1,1),Dens(1,2,1),FockAO(1,1),FockAO(1,2),nBT,CMO(1,1),nBB,Ovrlp,CMOn,Etan,Epsn,nnB,nSym,nBas,nOrb)
-    call PadCMO(CMOn,CMOn,nSym,nBas,nOrb)
-    call PadEor(Etan,Etan,nSym,nBas,nOrb)
-    call PadEor(Epsn,Epsn,nSym,nBas,nOrb)
+    call NatoUHF(Dens(:,1,1),Dens(:,2,1),FockAO(:,1),FockAO(:,2),nBT,CMO(:,1),nBB,Ovrlp,CMOn,Etan,Epsn,nnB,nSym,nBas,nOrb)
+    call PadCMO(CMOn,nSym,nBas,nOrb)
+    call PadEor(Etan,nSym,nBas,nOrb)
+    call PadEor(Epsn,nSym,nBas,nOrb)
   end if
 
   ! Add generalized Fock matrix

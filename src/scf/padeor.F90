@@ -11,7 +11,7 @@
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
 
-subroutine PadEor(Eor1,Eor2,nSym,nBas,nOrb)
+subroutine PadEor(E_or,nSym,nBas,nOrb)
 !***********************************************************************
 !                                                                      *
 ! This routine pads orbital energy vectors.                            *
@@ -21,11 +21,8 @@ subroutine PadEor(Eor1,Eor2,nSym,nBas,nOrb)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(in) :: Eor1(*)
-real(kind=wp), intent(_OUT_) :: Eor2(*)
+real(kind=wp), intent(inout) :: E_or(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp) :: iFrom(8), iPtr, iSym, iTo(8), ndata
 
@@ -40,11 +37,11 @@ do iSym=1,nSym-1
 end do
 do iSym=nSym,1,-1
   ndata = nOrb(iSym)
-  Eor2(iTo(iSym)-ndata+1:iTo(iSym)) = Eor1(iFrom(iSym)-ndata+1:iFrom(iSym))
+  E_or(iTo(iSym)-ndata+1:iTo(iSym)) = E_or(iFrom(iSym)-ndata+1:iFrom(iSym))
   if (nBas(iSym) > nOrb(iSym)) then
     ndata = nBas(iSym)-nOrb(iSym)
     iPtr = iTo(iSym)+1
-    Eor2(iPtr:iPtr+ndata-1) = Zero
+    E_or(iPtr:iPtr+ndata-1) = Zero
   end if
 end do
 !----------------------------------------------------------------------*

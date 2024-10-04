@@ -88,8 +88,8 @@ if (nD == 1) then
       nDel(iSym) = nTmp(iSym)
     end if
   end do
-  call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
-  call TrimEor(EOrb(:,1),EOrb(:,1),nSym,nBas,nOrb)
+  call TrimCMO(CMO(:,1),nSym,nBas,nOrb)
+  call TrimEor(EOrb(:,1),nSym,nBas,nOrb)
 
   call Setup_SCF()
   if ((.not. Aufb) .and. (.not. OnlyProp)) then
@@ -132,10 +132,10 @@ else
         nDel(iSym) = nTmp(iSym)
       end if
     end do
-    call TrimCMO(CMO(:,1),CMO(:,1),nSym,nBas,nOrb)
-    call TrimCMO(CMO(:,2),CMO(:,2),nSym,nBas,nOrb)
-    call TrimEor(EOrb(:,1),EOrb(:,2),nSym,nBas,nOrb)
-    call TrimEor(EOrb(:,2),EOrb(:,2),nSym,nBas,nOrb)
+    call TrimCMO(CMO(:,1),nSym,nBas,nOrb)
+    call TrimCMO(CMO(:,2),nSym,nBas,nOrb)
+    call TrimEor(EOrb(:,1),nSym,nBas,nOrb)
+    call TrimEor(EOrb(:,2),nSym,nBas,nOrb)
     call Setup_SCF()
   else
     if (isHDF5) then
@@ -156,8 +156,8 @@ else
         nDel(iSym) = nTmp(iSym)
       end if
     end do
-    call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
-    call TrimEor(EOrb(:,1),EOrb(:,1),nSym,nBas,nOrb)
+    call TrimCMO(CMO(:,1),nSym,nBas,nOrb)
+    call TrimEor(EOrb(:,1),nSym,nBas,nOrb)
     call Setup_SCF()
     CMO(1:nBO,2) = CMO(1:nBO,1)
     EOrb(1:nnB,2) = EOrb(1:nnB,1)
