@@ -34,7 +34,7 @@
       INTEGER FSBOP,IMODE,ISORB
       INTEGER NDETS1,NDETS2
       INTEGER LFSBANN1,LFSBANN2
-      INTEGER JSORB,LANN2
+      INTEGER JSORB
       Real*8, Allocatable:: ANN1(:), ANN2(:)
 
 ! +++ J. Norell 12/7 - 2018

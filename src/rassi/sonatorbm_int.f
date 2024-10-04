@@ -8,11 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SONATORBM_INT(DENS, CHARPROP, IC_,CHARTYPE,ASS,BSS,NSS,
+      SUBROUTINE SONATORBM_INT(DENS, CHARPROP, IC_,CHARTYPE,ASS,BSS,
      &                         iOpt,ROTMAT,
      &                         PROPVALXR,PROPVALYR,PROPVALZR,
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
-      use rassi_global_arrays, only: JBNUM
       use OneDat, only: sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -25,7 +24,7 @@
       CHARACTER(LEN=8) CHARPROP
       INTEGER IC_
       CHARACTER(LEN=8) CHARTYPE
-      INTEGER ASS, BSS, NSS, iOpt
+      INTEGER ASS, BSS, iOpt
       Real*8 ROTMAT(3,3),
      &       PROPVALXR,PROPVALYR,PROPVALZR,
      &       PROPVALXI,PROPVALYI,PROPVALZI

@@ -122,7 +122,7 @@ C Only work with one triangle - this is a hermitian matrix
         IC=-1
         iOpt=1
         CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
-     &                     ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
+     &                     ISTATE,JSTATE,iOpt,IDENTMAT,
      &                     AXR,AYR,AZR,AXI,AYI,AZI)
 
         iOpt=1
@@ -133,7 +133,7 @@ C Only work with one triangle - this is a hermitian matrix
         IC=1
         iOpt=0
         CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',
-     &                    ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
+     &                    ISTATE,JSTATE,iOpt,IDENTMAT,
      &                    SXR,SYR,SZR,SXI,SYI,SZI)
 
 
@@ -380,7 +380,7 @@ c Expectation values of L -> LMAT{R,I}
         IC=-1
         iOpt=1
         CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
-     &                    ISTATE,JSTATE,NSS,iOpt,MAXES,
+     &                    ISTATE,JSTATE,iOpt,MAXES,
      &                    LMATR(I,J,IDIR,1),LMATR(I,J,IDIR,2),
      &                    LMATR(I,J,IDIR,3),
      &                    LMATI(I,J,IDIR,1),LMATI(I,J,IDIR,2),
@@ -403,7 +403,7 @@ c Expectation values of S -> SMAT{R,I}
         IC=1
         iOpt=0
         CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',
-     &                     ISTATE,JSTATE,NSS,iOpt,IDENTMAT,
+     &                     ISTATE,JSTATE,iOpt,IDENTMAT,
      &                     SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2),
      &                     SMATR(I,J,IDIR,3),
      &                     SMATI(I,J,IDIR,1),SMATI(I,J,IDIR,2),

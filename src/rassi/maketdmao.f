@@ -24,6 +24,7 @@
      &                     iOpt,ROTMAT,DENSOUT)
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -31,19 +32,19 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS)
-      DIMENSION DENSOUT(6,nbst**2)
-      Dimension IZMR(3),IZMI(3)
-      Dimension IZMR2(3),IZMI2(3)
-      DIMENSION IOFF(8)
-      CHARACTER*8 CHARTYPE!,LABEL
-      Dimension ROTMAT(3,3)
-      INTEGER ASS,BSS
-c      INTEGER ASF,BSF
-c      INTEGER, DIMENSION(1)::SIZ
-c      INTEGER jm,count_i
+      CHARACTER(LEN=8) CHARTYPE!,LABEL
+      Integer NSS
+      Real*8 USOR(NSS,NSS),USOI(NSS,NSS)
+      INTEGER ASS,BSS, iOpt
+      Real*8 ROTMAT(3,3)
+      Real*8 DENSOUT(6,nbst**2)
+
+      Integer IZMR(3),IZMI(3)
+      Integer IZMR2(3),IZMI2(3)
+      Integer IOFF(8)
+      Integer, Allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
+
       nbsts=nbst**2
-c      count_i = 0
 
 c VV: dummy initialization
       CGY=-1
@@ -68,9 +69,9 @@ C map a specific spin state to the corresponding
 C spin-free state and to its spin
 C (see prprop.f and others)
 
-      CALL GETMEM('MAPST','ALLO','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','ALLO','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
+      CALL mma_allocate(MAPST,NSS,Label='MAPST')
+      CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
+      CALL mma_allocate(MAPMS,NSS,Label='MAPMS')
 
       ISS=0
       DO ISF=1,NSTATE
@@ -79,9 +80,9 @@ C (see prprop.f and others)
 
         DO MSPROJ=-MPLET+1,MPLET-1,2
           ISS=ISS+1
-          IWORK(LMAPST-1+ISS)=ISF
-          IWORK(LMAPSP-1+ISS)=MPLET
-          IWORK(LMAPMS-1+ISS)=MSPROJ
+          MAPST(ISS)=ISF
+          MAPSP(ISS)=MPLET
+          MAPMS(ISS)=MSPROJ
         END DO
       END DO
 
@@ -148,18 +149,18 @@ C WRITTEN AS IN PRPROP
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C CORRESPONDING SPIN-FREE STATES OF THE
 C REQUESTED SPIN STATES
-c      ASF=IWORK(LMAPST-1+ASS)
-c      BSF=IWORK(LMAPST-1+BSS)
+c      ASF=MAPST(ASS)
+c      BSF=MAPST(BSS)
 
       DO KSS=1,NSS
-       KSF=IWORK(LMAPST-1+KSS)
-       MPLETK=IWORK(LMAPSP-1+KSS)
-       MSPROJK=IWORK(LMAPMS-1+KSS)
+       KSF=MAPST(KSS)
+       MPLETK=MAPSP(KSS)
+       MSPROJK=MAPMS(KSS)
 
        DO LSS=1,NSS
-        LSF=IWORK(LMAPST-1+LSS)
-        MPLETL=IWORK(LMAPSP-1+LSS)
-        MSPROJL=IWORK(LMAPMS-1+LSS)
+        LSF=MAPST(LSS)
+        MPLETL=MAPSP(LSS)
+        MSPROJL=MAPMS(LSS)
 
         JOB1=JBNUM(KSF)
         JOB2=JBNUM(LSF)
@@ -218,46 +219,6 @@ c Thus we expand the final TDM in C1 symmetry
 c Leave the zero matrix elements as they are
 ccccccccccccccc
 
-cc Code seems to work for both diagonal symmetry blocks and NON-DIAGONAL symmetry blocks
-cc This is strange, but WORK(TDMZZ) stores the matrix elements transposed in its
-cc symmetry blocks, e.g., see mk_twdm.f
-cc I don't know what's the reason, assuming it must be correct,
-cc the following scheme is to change the orders of lower-triangular
-cc elements of WORK(TDMZZ), putting them in WORK(TDMZZSCR) for later expansion into
-cc C1 matrix.
-c        Call GETMEM('TDMZZSCR','ALLO','REAL',LTDMZZSCR,NTDMZZ)
-c        Call DCOPY_(NTDMZZ,[0.0D00],0,WORK(LTDMZZSCR),1)
-c        ITD=0
-c        IOF=0
-c        Do ISY1=1,NSYM
-c          NB1=NBASF(ISY1)
-c          Do ISY2=1,NSYM
-c            NB2=NBASF(ISY2)
-c            ISY12_ma=MUL(ISY1,ISY2)
-c            IF(ISY12_ma.EQ.ISY12) then
-c              IF(ISY1.GT.ISY2) THEN
-c                Do J=1,NB2
-c                  Do I=1,NB1
-c                    ITD=IOF+I+NB1*(J-1)
-c                    IJ=IOF+J+NB2*(I-1)
-c                    TDM=WORK(LTDMZZ-1+IJ)
-c                    WORK(LTDMZZSCR-1+ITD)=TDM
-c                  Enddo
-c                Enddo
-c              ELSE
-c                Do J=1,NB2
-c                  Do I=1,NB1
-c                    ITD=IOF+J+NB2*(I-1)
-c                    IJ=IOF+I+NB1*(J-1)
-c                    TDM=WORK(LTDMZZ-1+IJ)
-c                    WORK(LTDMZZSCR-1+ITD)=TDM
-c                  Enddo
-c                Enddo
-c              Endif
-c              IOF=IOF+NB1*NB2
-c            Endif
-c          Enddo
-c        Enddo
 cc Expand into C1
         ITD=0
         NB1_i=0
@@ -286,43 +247,6 @@ c                  TDM=WORK(LTDMZZSCR-1+ITD)
           Enddo
           NB1_i=NB1_i+NB1
         Enddo
-c        Call GETMEM('TDMZZSCR','FREE','REAL',LTDMZZSCR,NTDMZZ)
-***********************************
-c        write(6,*) 'In maketdmao'
-c        LABEL(1:8)='MLTPL  1'
-c        IRC=-1
-c        ICMP=3
-c        ISYLAB=1
-c        Call GETMEM('MSq','ALLO','REAL',LDIPs,nbsts)
-c        Call GETMEM('BUFF1','ALLO','REAL',LBUFF1,nbsts)
-c        IOPT=ibset(0,sOpSiz)
-c        Call IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
-c        write(6,*) 'SIZ', SIZ
-c        write(6,*) 'ISYLAB', ISYLAB
-c        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ)
-c        IOPT=ibset(ibset(0,sNoOri),sNoNuc)
-c        Call RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
-c        Do I=0,NTDMZZ-1
-c          write(6,*) 'TDMZZ', WORK(LTDMZZ+I)
-c        Enddo
-c          write(6,*) '*********************'
-c        Do I=0,SIZ(1)-1
-c          write(6,*) 'DIP', WORK(LDIP+i)
-c        Enddo
-c        Call DESYM_SONTO(WORK(LDIP),SIZ,WORK(LDIPs),ISYLAB)
-c        Call print_matrix('LSCR ',nbst,nbsts,WORK(LSCR))
-c        Call print_matrix('LDIPs ',nbst,nbsts,WORK(LDIPs))
-c        call DGEMM_('N','T',nbst,nbst,nbst,1.0D0,WORK(LDIPs),nbst,
-c     &              WORK(LSCR),nbst,0.0D0,WORK(LBUFF1),nbst)
-c        Call print_matrix('LBUFF ',nbst,nbsts,WORK(LBUFF1))
-cc Trace the BUFF1 matrix
-c        Transition_Dipole=0.0D0
-c        do i=0,nbst-1
-c            Transition_Dipole=Transition_Dipole+WORK(LBUFF1+i*nbst+i)
-c        enddo
-c        write(6,*) 'Transition_Dipole in maketdmao', Transition_Dipole
-c        write(6,*)
-*************************************
 
 c ie, see how AMFI is processed in soeig.f
         CALL DCOPY_(nbsts,[0.0D00],0,WORK(LSDMXR),1)
@@ -450,8 +374,8 @@ c Free memory
       CALL GETMEM('TSDMYI2','FREE','REAL',LSDMYI2,nbsts)
       CALL GETMEM('TSDMZI2','FREE','REAL',LSDMZI2,nbsts)
 
-      CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
+      CALL mma_deallocate(MAPST)
+      CALL mma_deallocate(MAPSP)
+      CALL mma_deallocate(MAPMS)
 
       END SUBROUTINE MAKETDMAO

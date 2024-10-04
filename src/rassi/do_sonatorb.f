@@ -113,7 +113,7 @@ C Integrate for the expectation value
           IC=1
           iOpt=0
           CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMSING',
-     &                      INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                      INATSTATE,INATSTATE,iOpt,IDENTMAT,
      &                      DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 
 C          CALL ADD_INFO('MLTPL0SING_INT3',DUM3,1,6)
@@ -144,7 +144,7 @@ C Integrate for the expectation value
           IC=1
           iOpt=0
           CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',
-     &                      INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                      INATSTATE,INATSTATE,iOpt,IDENTMAT,
      &                      DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 C          CALL ADD_INFO('MLTPL0TRIP_INT3',DUM3,1,6)
 C          CALL ADD_INFO('MLTPL0TRIP_INT6',DUM6,1,6)
@@ -173,7 +173,7 @@ c Type 2 - current density
             IC=1
             iOpt=0
             CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
-     &                        INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                        INATSTATE,INATSTATE,iOpt,IDENTMAT,
      &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 C            CALL ADD_INFO('CURD1_INT3',DUM3,1,6)
 C            CALL ADD_INFO('CURD1_INT6',DUM6,1,6)
@@ -181,7 +181,7 @@ C            CALL ADD_INFO('CURD1_INT6',DUM6,1,6)
             IC=2
             iOpt=0
             CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
-     &                        INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                        INATSTATE,INATSTATE,iOpt,IDENTMAT,
      &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 
 C            CALL ADD_INFO('CURD2_INT3',DUM3,1,6)
@@ -190,7 +190,7 @@ C            CALL ADD_INFO('CURD2_INT6',DUM6,1,6)
             IC=3
             iOpt=0
             CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',
-     &                        INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,
+     &                        INATSTATE,INATSTATE,iOpt,IDENTMAT,
      &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 C            CALL ADD_INFO('CURD3_INT3',DUM3,1,6)
 C            CALL ADD_INFO('CURD3_INT6',DUM6,1,6)

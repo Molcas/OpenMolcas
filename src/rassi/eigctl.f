@@ -2541,7 +2541,6 @@ C                                                                      C
               jend_=jgrp+jstart-1
               EDIFF_=ENERGY(IndexE(jstart_))-ENERGY(IndexE(istart_))
             EndIf
-            n12=(iend_-istart_+1)*(jend_-jstart_+1)
             If (ABS(EDIFF_).le.1.0D-8) CYCLE
 *
             If (JSTART.eq.1 .AND.  EDIFF_.LT.0.0D0) CYCLE
