@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER FUNCTION NEWSSTAB(LORBTAB)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER LORBTAB
+
       INTEGER NTAB,ITYPE,NSSTP,NSBSTOT,KSBSMRS,KMRSSBS
       INTEGER KSBSANN,KSBSCRE
 #include "symmul.fh"
@@ -21,16 +23,14 @@
       INTEGER ISGN,ISORB,ISPART,ISSTP
       INTEGER ISYM,J,KMS2,KOINFO,KSSTANN
       INTEGER KSSTCRE,KSSTP,KSYM,LNOSUB
-      INTEGER LOINFO,LOSPN,LOSYM,LPOS,LSCR,LSCR2
-      INTEGER LTAB,MORSANN,MORSCRE,MORSPOP
-      INTEGER MORSSPIN,MORSSYMM,MRS,MS2
+      INTEGER LOINFO,LPOS,LSCR,LSCR2
+      INTEGER LTAB,MRS,MS2
       INTEGER MXMS2,MXPOP,N
       INTEGER NEWMRS,NEWSBS,NEWSST,NO
       INTEGER NSBS,NSCR,NASPO,NASPRT
-C     INTEGER NTEST,iscrmx
       INTEGER IERR,ISBS1,ISBS2,ISBS3,ISBS4,ISBS5,ISBS6,ISBS7,ISBS8
-C     CHARACTER*8 STRING8
-      EXTERNAL MORSANN,MORSCRE,MORSPOP,MORSSPIN,MORSSYMM
+      INTEGER, EXTERNAL :: MORSANN,MORSCRE,MORSPOP,MORSSPIN,MORSSYMM
+      Integer, allocatable:: OSPN(:), OSYM(:), NOSUB(:), SCR(:), SCR2(:)
 
 C Table type ID:
       ITYPE=19
@@ -41,29 +41,27 @@ C Pick up some data from the orbital table:
       KOINFO=19
       LOINFO=LORBTAB-1+KOINFO
 C Make temporary arrays for spin label and symmetry of each orbital
-      CALL GETMEM('OrbSpn','Allo','Inte',LOSPN,NASPO)
-      CALL GETMEM('OrbSym','Allo','Inte',LOSYM,NASPO)
+      CALL mma_allocate(OSPN,NASPO,Label='OSPN')
+      CALL mma_allocate(OSYM,NASPO,Label='OSYM')
 C Make a temporary array, which gives the number of spin orbitals in
 C each subpartition:
-      CALL GETMEM('NOSub','Allo','Inte',LNOSUB,NASPRT)
-      DO ISPART=1,NASPRT
-        IWORK(LNOSUB-1+ISPART)=0
-      END DO
+      CALL mma_allocate(NOSUB,NASPRT,Label='NOSUB')
+      NOSUB(:)=0
       DO ISORB=1,NASPO
         ISYM  = IWORK(LOINFO+ 1+(ISORB-1)*8)
-        IWORK(LOSYM-1+ISORB)=ISYM
+        OSYM(ISORB)=ISYM
         MS2   = IWORK(LOINFO+ 3+(ISORB-1)*8)
-        IWORK(LOSPN-1+ISORB)=MS2
+        OSPN(ISORB)=MS2
         ISPART= IWORK(LOINFO+ 6+(ISORB-1)*8)
-        N=1+IWORK(LNOSUB-1+ISPART)
-        IWORK(LNOSUB-1+ISPART)=N
+        N=1+NOSUB(ISPART)
+        NOSUB(ISPART)=N
       END DO
 C We need a temporary array, NSBSSCR(NSYM,0:NPOP,-MXMS2:MXMS2,NASPRT),
 C to keep the number of substrings of different kind:
       MXPOP=MORSBITS
       MXMS2=MORSBITS
       NSCR=NSYM*(1+MXPOP)*(2*MXMS2+1)*NASPRT
-      CALL GETMEM('SSTScr','Allo','Inte',LSCR,NSCR)
+      CALL mma_allocate(SCR,NSCR,Label='SCR')
 C Addressing will be through the cumbersome formula
 C ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+MS2+(2*MXMS2+1)*(ISPART-1)))
 C Initialize counter of substrings:
@@ -74,22 +72,22 @@ C Initialize counter of substrings:
 C NSBSSCR(ISYM,IPOP,IMS2,ISPART)=0:
            ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*
      &                     (ISPART-1)))
-           IWORK(LSCR-1+ISCR)=0
+           SCR(ISCR)=0
           END DO
          END DO
         END DO
 C NSBSSCR(ISYM=1,IPOP=0,IMS2=0,ISPART)=1:
         ISCR=1+NSYM*(0+(1+MXPOP)*(MXMS2+0+(2*MXMS2+1)*(ISPART-1)))
-        IWORK(LSCR-1+ISCR)=1
+        SCR(ISCR)=1
       END DO
 C Compute number of substrings:
       ISORB=0
       DO ISPART=1,NASPRT
-        NO=IWORK(LNOSUB-1+ISPART)
+        NO=NOSUB(ISPART)
         DO I=1,NO
           ISORB=ISORB+1
-          KSYM=IWORK(LOSYM-1+ISORB)
-          KMS2=IWORK(LOSPN-1+ISORB)
+          KSYM=OSYM(ISORB)
+          KMS2=OSPN(ISORB)
           DO IPOP=I,1,-1
            DO IMS2=-IPOP,IPOP
             IKMS2=IMS2-KMS2
@@ -98,11 +96,11 @@ C Compute number of substrings:
              IKSYM=MUL(ISYM,KSYM)
              ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*
      &                      (ISPART-1)))
-             N=IWORK(LSCR-1+ISCR)
+             N=SCR(ISCR)
              IKSCR=IKSYM+NSYM*(IPOP-1+(1+MXPOP)*(MXMS2+IKMS2+
      &                          (2*MXMS2+1)*(ISPART-1)))
-             N=N+IWORK(LSCR-1+IKSCR)
-             IWORK(LSCR-1+ISCR)=N
+             N=N+SCR(IKSCR)
+             SCR(ISCR)=N
             END DO
             END IF
            END DO
@@ -112,13 +110,13 @@ C Compute number of substrings:
       NSSTP=0
       NSBSTOT=0
       DO ISPART=1,NASPRT
-        NO=IWORK(LNOSUB-1+ISPART)
+        NO=NOSUB(ISPART)
         DO IPOP=0,NO
          DO ISYM=1,NSYM
           DO IMS2=-NO,NO
            ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*
      &                     (ISPART-1)))
-           N=IWORK(LSCR-1+ISCR)
+           N=SCR(ISCR)
            IF(N.GT.0) THEN
              NSSTP=NSSTP+1
              NSBSTOT=NSBSTOT+N
@@ -159,23 +157,23 @@ C The header data
 C Fill in the Substring Type table
 C Change the counter array into an array of offsets. Also allocate
 C a translation table (POP,MS2,ISYM) to Substring Type.
-      CALL GETMEM('SSTScr2','Allo','Inte',LSCR2,NSCR)
+      CALL mma_allocate(SCR2,NSCR,Label='SCR2')
       ISSTP=0
       ISBS=0
       DO ISPART=1,NASPRT
-        NO=IWORK(LNOSUB-1+ISPART)
+        NO=NOSUB(ISPART)
         DO IPOP=0,NO
          DO ISYM=1,NSYM
           DO IMS2=-NO,NO
            ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*
      &                      (ISPART-1)))
-           NSBS=IWORK(LSCR-1+ISCR)
-           IWORK(LSCR-1+ISCR)=-1
-           IWORK(LSCR2-1+ISCR)=-1
+           NSBS=SCR(ISCR)
+           SCR(ISCR)=-1
+           SCR2(ISCR)=-1
            IF(NSBS.GT.0) THEN
              ISSTP=ISSTP+1
-             IWORK(LSCR-1+ISCR)=ISBS
-             IWORK(LSCR2-1+ISCR)=ISSTP
+             SCR(ISCR)=ISBS
+             SCR2(ISCR)=ISSTP
              ISBS=ISBS+NSBS
              IWORK(LTAB-1+KSSTP+ 0+5*(ISSTP-1))=NSBS
              IWORK(LTAB-1+KSSTP+ 1+5*(ISSTP-1))=IPOP
@@ -190,25 +188,25 @@ C a translation table (POP,MS2,ISYM) to Substring Type.
 
 C Now produce all possible substrings:
 CTEST      write(*,*)' Test in NEWSSTAB, producing substrings.'
-CTEST      write(*,'(1x,a,8i5)')'IWORK(LOSYM-1+ISORB):',
-CTEST     &                           (IWORK(LOSYM-1+ISORB),ISORB=1,NASPO)
-CTEST      write(*,'(1x,a,8i5)')'IWORK(LOSPN-1+ISORB):',
-CTEST     &                           (IWORK(LOSPN-1+ISORB),ISORB=1,NASPO)
+CTEST      write(*,'(1x,a,8i5)')'OSYM(ISORB):',
+CTEST     &                           (OSYM(ISORB),ISORB=1,NASPO)
+CTEST      write(*,'(1x,a,8i5)')'OSPN(ISORB):',
+CTEST     &                           (OSPN(ISORB),ISORB=1,NASPO)
       ISORB=1
       DO ISPART=1,NASPRT
-        NO=IWORK(LNOSUB-1+ISPART)
+        NO=NOSUB(ISPART)
         DO MRS=0,2**NO-1
           IPOP=MorsPop(MRS)
-          ISYM=MorsSymm(MRS,IWORK(LOSYM-1+ISORB))
-          IMS2=MorsSpin(MRS,IWORK(LOSPN-1+ISORB))
+          ISYM=MorsSymm(MRS,OSYM(ISORB))
+          IMS2=MorsSpin(MRS,OSPN(ISORB))
 C Which substring is this?
           ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*
      &                     (ISPART-1)))
-          ISBS=1+IWORK(LSCR-1+ISCR)
+          ISBS=1+SCR(ISCR)
 CTEST      write(*,'(1x,a,8i5)')'MRS,IPOP,IMS2,ISYM,ISBS:',
 CTEST     &                      MRS,IPOP,IMS2,ISYM,ISBS
-          IWORK(LSCR-1+ISCR)=ISBS
-          ISSTP=IWORK(LSCR2-1+ISCR)
+          SCR(ISCR)=ISBS
+          ISSTP=SCR2(ISCR)
 C Fill in the Substring/Morsel translation arrays:
           LPOS=LTAB-1+KSBSMRS+2*(ISBS-1)
           IWORK(LPOS)=MRS
@@ -219,12 +217,12 @@ C Fill in the Substring/Morsel translation arrays:
         END DO
         ISORB=ISORB+NO
       END DO
-      CALL GETMEM('SSTScr','Free','Inte',LSCR,NSCR)
-      CALL GETMEM('SSTScr2','Free','Inte',LSCR2,NSCR)
-      CALL GETMEM('OrbSpn','Free','Inte',LOSPN,NASPO)
-      CALL GETMEM('OrbSym','Free','Inte',LOSYM,NASPO)
+      CALL mma_deallocate(SCR)
+      CALL mma_deallocate(SCR2)
+      CALL mma_deallocate(OSPN)
+      CALL mma_deallocate(OSYM)
       DO ISPART=1,NASPRT
-       NO=IWORK(LNOSUB-1+ISPART)
+       NO=NOSUB(ISPART)
        DO MRS=0,2**NO-1
         LPOS=LTAB-1+KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
         ISBS=IWORK(LPOS)
@@ -236,7 +234,7 @@ C Create the Substring Annihilator and Creator arrays, and
 C also Substring Type Ann/Cre arrays.
 CTEST      write(*,*)' Making annih and creat arrays:'
       DO ISPART=1,NASPRT
-       NO=IWORK(LNOSUB-1+ISPART)
+       NO=NOSUB(ISPART)
        DO MRS=0,2**NO-1
         LPOS=LTAB-1+KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
         ISBS=IWORK(LPOS)
@@ -293,7 +291,7 @@ C Its substring type
        ISSTP=IWORK(LPOS+1)
 C Its subpartition
        ISPART=IWORK(LTAB-1+KSSTP+ 4+5*(ISSTP-1))
-       NO=IWORK(LNOSUB-1+ISPART)
+       NO=NOSUB(ISPART)
        DO I=1,NO
 C Annihilate orbital nr I in the subpartition.
         LPOS=LTAB-1+KSBSANN-1+I+MORSBITS*(ISBS-1)
@@ -357,6 +355,6 @@ C Now check:
 
 
       NEWSSTAB=LTAB
-      CALL GETMEM('NOSub','Free','Inte',LNOSUB,NASPRT)
+      CALL mma_deallocate(NOSUB)
       RETURN
       END
