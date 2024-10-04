@@ -30,7 +30,6 @@
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
 
@@ -69,7 +68,7 @@
       Integer, Allocatable:: LIST(:), STACK(:), ILST(:)
       Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
       Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
-      Real*8, Allocatable:: DV(:), DL(:)
+      Real*8, Allocatable:: DV(:), DL(:), Aux(:,:)
       Real*8, Allocatable:: TOT2K(:,:), IP(:), OscStr(:,:), RAW(:,:,:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
@@ -2514,8 +2513,7 @@ C                                                                      C
 *
       CALL mma_allocate(RAW,NQUAD,6,nmax2,Label='RAW')
       CALL mma_allocate(OSCSTR,2,nmax2,Label='OscStr')
-      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
-      LMAX_=0
+      CALL mma_allocate(Aux,8,nmax2,Label='Aux')
 *
       Do iVec = 1, nVec
          If (Do_SK) Then
@@ -2562,7 +2560,7 @@ C                                                                      C
 *           Initialize output arrays
 *
             RAW(:,:,:)=0.0D0
-            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
+            Aux(:,:)=0.0D0
 *
             Do iQuad = 1, nQuad
                iVec_=(iVec-1)*nQuad+iQuad
@@ -2765,31 +2763,30 @@ C                 Why do it when we don't do the L.S-term!
 *              and the corresponding polarization vectors
 *
                If (Do_SK) Then
-                  LMAX_ = LMAX+8*(ij_-1)
                   TM3 = DDot_(3,TM_R,1,TM_I,1)
                   Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
-                  Work(LMAX_+0) = TM_2+Half*Rng
-                  Work(LMAX_+4) = TM_2-Half*Rng
+                  Aux(1,ij_) = TM_2+Half*Rng
+                  Aux(5,ij_) = TM_2-Half*Rng
 *                 The direction for the maximum
                   Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
-                  Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
-                  Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+                  Call daXpY_(3, Cos(Ang),TM_R,1,Aux(2,ij_),1)
+                  Call daXpY_(3, Sin(Ang),TM_I,1,Aux(2,ij_),1)
 *                 Normalize and compute the direction for the minimum
 *                 as a cross product with k
-                  rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                  rNorm = DDot_(3,Aux(2,ij_),1,Aux(2,ij_),1)
                   If (rNorm.gt.1.0D-12) Then
-                     Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
-                     Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
-     &                             Work(LMAX_+3)*UK(2)
-                     Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
-     &                             Work(LMAX_+1)*UK(3)
-                     Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
-     &                             Work(LMAX_+2)*UK(1)
-                     rNorm = DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
-                     Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                     Call dScal_(3,1.0/Sqrt(rNorm),Aux(2,ij_),1)
+                     Aux(6,ij_)=Aux(3,ij_)*UK(3)-
+     &                             Aux(4,ij_)*UK(2)
+                     Aux(7,ij_)=Aux(4,ij_)*UK(1)-
+     &                             Aux(2,ij_)*UK(3)
+                     Aux(8,ij_)=Aux(2,ij_)*UK(2)-
+     &                             Aux(3,ij_)*UK(1)
+                     rNorm = DDot_(3,Aux(6,ij_),1,Aux(6,ij_),1)
+                     Call dScal_(3,1.0/Sqrt(rNorm),Aux(6,ij_),1)
                   Else
-                     Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
-                     Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                     Call dCopy_(3,[0.0D0],0,Aux(2,ij_),1)
+                     Call dCopy_(3,[0.0D0],0,Aux(6,ij_),1)
                   End If
                End If
 *
@@ -2805,8 +2802,8 @@ C                 Why do it when we don't do the L.S-term!
 *
                F_Temp = 2.0D0*TM_2/EDIFF
                If (Do_SK) Then
-                  Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
-                  Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+                  Aux(1,ij_) = 2.0D0*Aux(1,ij_)/EDIFF
+                  Aux(5,ij_) = 2.0D0*Aux(5,ij_)/EDIFF
                End If
 *
 *              Compute the rotatory strength
@@ -2860,8 +2857,7 @@ C                 Why do it when we don't do the L.S-term!
                 Call Add_Info('ROTS(SF)',[R],1,4)
 *
                 IF (Do_Pol) THEN
-                   LMAX_=LMAX+8*(ij_-1)
-                   F_CHECK=ABS(WORK(LMAX_+0))
+                   F_CHECK=ABS(Aux(1,ij_))
                    R_CHECK=0.0D0 ! dummy assign
                 ELSE
                    F_CHECK=ABS(F)
@@ -2937,12 +2933,12 @@ C                 Why do it when we don't do the L.S-term!
 
 *
                 IF (Do_SK) THEN
-                   WRITE(6,50) 'maximum',WORK(LMAX_+0),
+                   WRITE(6,50) 'maximum',Aux(1,ij_),
      &                'for polarization direction:',
-     &                WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
-                   WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &                Aux(2,ij_),Aux(3,ij_),Aux(4,ij_)
+                   WRITE(6,50) 'minimum',Aux(5,ij_),
      &                'for polarization direction:',
-     &                WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+     &                Aux(6,ij_),Aux(7,ij_),Aux(8,ij_)
                 END IF
 *
 *     Printing raw (unweighted) and direction for every transition
@@ -3021,7 +3017,7 @@ C                 Why do it when we don't do the L.S-term!
       CALL mma_deallocate(RAW)
       Call mma_deallocate(IP)
       Call mma_deallocate(OscStr)
-      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
+      Call mma_deallocate(Aux)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
