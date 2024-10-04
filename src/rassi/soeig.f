@@ -74,6 +74,7 @@
       LOGICAL :: debug_dmrg_rassi_code = .false.
       Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
       Real*8, allocatable:: HTOTR(:,:), HTOTI(:,:)
+      Real*8, allocatable:: LXI(:), LYI(:), LZI(:)
 
 
 
@@ -393,16 +394,16 @@ C
 * The following matrix elements  require angular moment integrals:
 C     IF(IAMX.eq.0 .or. IAMY.eq.0 .or. IAMZ.eq.0) GOTO 910
 C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
+      CALL mma_allocate(LXI,NSS**2,Label='LXI')
+      LXI(:)=0.0D0
+      CALL mma_allocate(LYI,NSS**2,Label='LYI')
+      LYI(:)=0.0D0
+      CALL mma_allocate(LZI,NSS**2,Label='LZI')
+      LZI(:)=0.0D0
 
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
+      IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,0)
+      IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
+      IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,0)
 
       CALL GETMEM('JXR','ALLO','REAL',LJXR,NSS**2)
       CALL GETMEM('JXI','ALLO','REAL',LJXI,NSS**2)
@@ -421,13 +422,13 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL SMMAT(PROP,WORK(LJYI),NSS,0,2)
       CALL SMMAT(PROP,WORK(LJZR),NSS,0,3)
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LJXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LJYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LJZI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,WORK(LJXI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,WORK(LJYI),1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,WORK(LJZI),1)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
+      CALL mma_deallocate(LXI)
+      CALL mma_deallocate(LYI)
+      CALL mma_deallocate(LZI)
 
       CALL GETMEM('OMGR','ALLO','REAL',LOMGR,NSS**2)
       CALL GETMEM('OMGI','ALLO','REAL',LOMGI,NSS**2)
