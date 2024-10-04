@@ -579,13 +579,13 @@ C     fly. To account for this transformation we will have to transformC
 C     the coefficients of the SO states from a basis of the SF eigen-  C
 C     states to the basis of the original SF states.                   C
 C
-      DO IP=1,NPROP
+      DO IPRP=1,NPROP
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
+     &             PROP(1,1,IPRP),NSTATE,EIGVEC,NSTATE,
      &             0.0D0,SCR1,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,SCR1,NSTATE,
-     &             0.0D0,PROP(1,1,IP),NSTATE)
+     &             0.0D0,PROP(1,1,IPRP),NSTATE)
       END DO
 
 C And the same for the Dyson amplitudes
@@ -2706,8 +2706,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
                         CALL mma_allocate(SCR1,NSTATE,Label='SCR1')
                         SCR1(:)=0.0D0
-                        DO IP=1,12
-                           IPROP=IPRTMOM(IP)
+                        DO IPRP=1,12
+                           IPROP=IPRTMOM(IPRP)
                            CALL DGEMM_('N','N',NSTATE,1,NSTATE,
      &                                 1.0D0,PROP(1,1,IPROP),NSTATE,
      &                                       EIGVEC(1,J),NSTATE,
@@ -2977,15 +2977,15 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,41) 'From', 'To', 'Weig. osc. str.',
      &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LRAW_=LRAW+5*NQUAD*(ij_-1)
+                  LRAW_=LRAW+6*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
                     Weight=WORK(LRAW+(IQUAD-1)+5*NQUAD)
                     WRITE(6,33) I,J,
-     &                WORK(LRAW+(IQUAD-1)+0*NQUAD)*Weight,
-     &                WORK(LRAW+(IQUAD-1)+1*NQUAD)*Weight,
-     &                WORK(LRAW+(IQUAD-1)+2*NQUAD),
-     &                WORK(LRAW+(IQUAD-1)+3*NQUAD),
-     &                WORK(LRAW+(IQUAD-1)+4*NQUAD)
+     &                WORK(LRAW_+(IQUAD-1)+0*NQUAD)*Weight,
+     &                WORK(LRAW_+(IQUAD-1)+1*NQUAD)*Weight,
+     &                WORK(LRAW_+(IQUAD-1)+2*NQUAD),
+     &                WORK(LRAW_+(IQUAD-1)+3*NQUAD),
+     &                WORK(LRAW_+(IQUAD-1)+4*NQUAD)
                   END DO
                   WRITE(6,32)
                   WRITE(6,*)
