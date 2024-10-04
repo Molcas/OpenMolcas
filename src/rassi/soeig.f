@@ -44,8 +44,7 @@
       INTEGER JOB
       INTEGER IPROP
       INTEGER IAMFIX,IAMFIY,IAMFIZ,IAMX,IAMY,IAMZ
-      INTEGER ISS,JSS,IJSS,ISTATE,JSTATE
-      INTEGER LHTOTI,LHTOTR
+      INTEGER ISS,JSS,ISTATE,JSTATE
       INTEGER LJ2I,LJ2R,LJXI,LJXR,LJYI,LJYR,LJZI,LJZR,LLXI,LLYI,LLZI
       INTEGER LOMGI,LOMGR
       INTEGER MAGN
@@ -71,10 +70,10 @@
       REAL*8, EXTERNAL :: DCLEBS
 
       Logical lOMG, lJ2
-      Integer  cho_x_gettol
-      External cho_x_gettol
+      Integer, External :: cho_x_gettol
       LOGICAL :: debug_dmrg_rassi_code = .false.
       Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
+      Real*8, allocatable:: HTOTR(:,:), HTOTI(:,:)
 
 
 
@@ -115,10 +114,10 @@ C Mapping from spin states to spin-free state and to spin:
        END DO
       END DO
 C Complex hamiltonian matrix elements over spin states:
-      CALL GETMEM('HTOTR','ALLO','REAL',LHTOTR,NSS**2)
-      CALL GETMEM('HTOTI','ALLO','REAL',LHTOTI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTI),1)
+      CALL mma_allocate(HTOTR,NSS,NSS,Label='HTOTR')
+      CALL mma_allocate(HTOTI,NSS,NSS,Label='HTOTI')
+      HTOTR(:,:)=0.0D0
+      HTOTI(:,:)=0.0D0
 
       IF(IPGLOB.GE.1) THEN
        WRITE(6,*)
@@ -166,7 +165,6 @@ C Complex hamiltonian matrix elements over spin states:
           IF(IAMFIZ.NE.0) AMFIZ=PROP(ISTATE,JSTATE,IAMFIZ)
 * PAM07          HSCAL=0.0D0
 * PAM07          IF(ISS.EQ.JSS) HSCAL=ENERGY(ISTATE)
-          IJSS=ISS+NSS*(JSS-1)
 C WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
@@ -183,9 +181,8 @@ C  is multiplied by imaginary unit to keep its hermicity
           HSOR=CGY*AMFIY
           HSOI=CGX*AMFIX+CG0*AMFIZ
 * PAM07: Delay addition of diagonal scalar part until later, see below:
-*          WORK(LHTOTR-1+IJSS)=HSCAL+HSOR
-          WORK(LHTOTR-1+IJSS)=HSOR
-          WORK(LHTOTI-1+IJSS)=HSOI
+          HTOTR(ISS,JSS)=HSOR
+          HTOTI(ISS,JSS)=HSOI
 
         END DO
       END DO
@@ -193,8 +190,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 * VKochetov 2021 put SOC matrix elements to hdf5:
 #ifdef _HDF5_
       if (rhodyn) then
-        call mh5_put_dset(wfn_sos_vsor, work(LHTOTR))
-        call mh5_put_dset(wfn_sos_vsoi, work(LHTOTI))
+        call mh5_put_dset(wfn_sos_vsor, HTOTR)
+        call mh5_put_dset(wfn_sos_vsoi, HTOTI)
       endif
 #endif
 
@@ -208,9 +205,8 @@ C  is multiplied by imaginary unit to keep its hermicity
        N=0
        DO ISS=1,NSS
         DO JSS=1,ISS
-         IJSS=ISS+NSS*(JSS-1)
-         HSOR=WORK(LHTOTR-1+IJSS)
-         HSOI=WORK(LHTOTI-1+IJSS)
+         HSOR=HTOTR(ISS,JSS)
+         HSOI=HTOTI(ISS,JSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
          IF(HSOTOT*auTocm.GT.SOTHR_PRT) N=N+1
         END DO
@@ -242,9 +238,8 @@ C  is multiplied by imaginary unit to keep its hermicity
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,ISS
-         IJSS=ISS+NSS*(JSS-1)
-         HSOR=WORK(LHTOTR-1+IJSS)
-         HSOI=WORK(LHTOTI-1+IJSS)
+         HSOR=HTOTR(ISS,JSS)
+         HSOI=HTOTI(ISS,JSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
          IF(HSOTOT*auTocm.GE.SOTHR_PRT) THEN
           JSTATE=MAPST(JSS)
@@ -265,9 +260,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 * PAM07: Addition of scalar diagonal part was delayed until here, see above.
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
-        IJSS=ISS+NSS*(ISS-1)
-        HSOR=WORK(LHTOTR-1+IJSS)
-        WORK(LHTOTR-1+IJSS)=HSOR+ENERGY(ISTATE)
+        HSOR=HTOTR(ISS,ISS)
+        HTOTR(ISS,ISS)=HSOR+ENERGY(ISTATE)
       END DO
 
 
@@ -277,7 +271,7 @@ C  is multiplied by imaginary unit to keep its hermicity
        WRITE(6,*)'Complex Hamiltonian matrix including SO-coupling'
        WRITE(6,*)'over spin components of spin-free eigenstates (SFS):'
        WRITE(6,'(1X,11A7)')('-------',I=1,11)
-       CALL PRCHAM(NSS,WORK(LHTOTR),WORK(LHTOTI))
+       CALL PRCHAM(NSS,HTOTR,HTOTI)
        WRITE(6,'(1X,11A7)')('-------',I=1,11)
       ENDIF
       ! save the Hamiltonian
@@ -285,8 +279,8 @@ C  is multiplied by imaginary unit to keep its hermicity
       call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
       call dcopy_(NSS*NSS,[0.d0],0,HAMSOR,1)
       call dcopy_(NSS*NSS,[0.d0],0,HAMSOI,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
+      call dcopy_(NSS*NSS,HTOTR,1,HAMSOR,1)
+      call dcopy_(NSS*NSS,HTOTI,1,HAMSOI,1)
       call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
       call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
 #ifdef _HDF5_
@@ -304,8 +298,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 
         DO jss = 1, nss
           DO iss = 1, nss
-            hso_tmp(iss,jss) = cmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
-     &                               WORK(LHTOTI-1+ISS+NSS*(JSS-1)),
+            hso_tmp(iss,jss) = cmplx(HTOTR(ISS,JSS),
+     &                               HTOTI(ISS,JSS),
      &                               kind=8)
 !         write(6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
           END DO
@@ -344,10 +338,9 @@ C  is multiplied by imaginary unit to keep its hermicity
       else
 #endif
         !> diagonalize H_SO and get array of eigenvalues/eigenvectors
-        CALL ZJAC(NSS,WORK(LHTOTR),WORK(LHTOTI),
-     &          NSS,USOR,USOI)
+        CALL ZJAC(NSS,HTOTR,HTOTI,NSS,USOR,USOI)
         DO ISS=1,NSS
-         ENSOR(ISS)=WORK(LHTOTR-1+ISS+NSS*(ISS-1))
+         ENSOR(ISS)=HTOTR(ISS,ISS)
         END DO
 #ifdef _DMRG_
       end if
@@ -373,8 +366,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 #endif
       !> free memory for H_SO - do not use it below!
       !> eigenvalues are stored in ENSOR!
-      CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
-      CALL GETMEM('HTOTI','FREE','REAL',LHTOTI,NSS**2)
+      CALL mma_deallocate(HTOTR)
+      CALL mma_deallocate(HTOTI)
 C
 C     BOR in Krapperup 070227
 C     Compute J-values and Omega here instead of in subroutine PRPROP
@@ -406,6 +399,7 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
+
       IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
       IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
       IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
