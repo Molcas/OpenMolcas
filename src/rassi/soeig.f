@@ -31,7 +31,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "rassiwfn.fh"
 
       INTEGER NSS
@@ -45,8 +44,6 @@
       INTEGER IPROP
       INTEGER IAMFIX,IAMFIY,IAMFIZ,IAMX,IAMY,IAMZ
       INTEGER ISS,JSS,ISTATE,JSTATE
-      INTEGER LJ2I,LJ2R
-      INTEGER LOMGI,LOMGR
       INTEGER MAGN
       INTEGER MPLET,MPLET1,MPLET2,MSPROJ,MSPROJ1,MSPROJ2
 
@@ -77,8 +74,8 @@
       Real*8, allocatable:: LXI(:), LYI(:), LZI(:)
       Real*8, allocatable:: JXR(:), JYR(:), JZR(:)
       Real*8, allocatable:: JXI(:), JYI(:), JZI(:)
-
-
+      Real*8, allocatable:: OMGR(:,:), OMGI(:,:)
+      Real*8, allocatable:: J2R(:,:), J2I(:,:)
 
 
 C CONSTANTS:
@@ -432,53 +429,53 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL mma_deallocate(LYI)
       CALL mma_deallocate(LZI)
 
-      CALL GETMEM('OMGR','ALLO','REAL',LOMGR,NSS**2)
-      CALL GETMEM('OMGI','ALLO','REAL',LOMGI,NSS**2)
+      CALL mma_allocate(OMGR,NSS,NSS,Label='OMGR')
+      CALL mma_allocate(OMGI,NSS,NSS,Label='OMGI')
       lOMG=.True.
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LOMGR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LOMGI),1)
+      OMGR(:,:)=0.0D0
+      OMGI(:,:)=0.0D0
 
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,
-     &     JZR,NSS,0.0D0,WORK(LOMGR),NSS)
+     &     JZR,NSS,0.0D0,OMGR,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JZI,NSS,
-     &     JZI,NSS,1.0D0,WORK(LOMGR),NSS)
+     &     JZI,NSS,1.0D0,OMGR,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,
-     &     JZI,NSS,0.0D0,WORK(LOMGI),NSS)
+     &     JZI,NSS,0.0D0,OMGI,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZI,NSS,
-     &     JZR,NSS,1.0D0,WORK(LOMGI),NSS)
+     &     JZR,NSS,1.0D0,OMGI,NSS)
 
       CALL mma_deallocate(JZR)
       CALL mma_deallocate(JZI)
 
       lJ2 =.True.
-      CALL GETMEM('J2R','ALLO','REAL',LJ2R,NSS**2)
-      CALL GETMEM('J2I','ALLO','REAL',LJ2I,NSS**2)
-      CALL DCOPY_(NSS**2,WORK(LOMGR),1,WORK(LJ2R),1)
-      CALL DCOPY_(NSS**2,WORK(LOMGI),1,WORK(LJ2I),1)
+      CALL mma_allocate(J2R,NSS,NSS,Label='J2R')
+      CALL mma_allocate(J2I,NSS,NSS,Label='J2I')
+      J2R(:,:)=0.0D0
+      J2I(:,:)=0.0D0
 
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,
-     &     JXR,NSS,1.0D0,WORK(LJ2R),NSS)
+     &     JXR,NSS,1.0D0,J2R,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JXI,NSS,
-     &     JXI,NSS,1.0D0,WORK(LJ2R),NSS)
+     &     JXI,NSS,1.0D0,J2R,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,
-     &     JYR,NSS,1.0D0,WORK(LJ2R),NSS)
+     &     JYR,NSS,1.0D0,J2R,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JYI,NSS,
-     &     JYI,NSS,1.0D0,WORK(LJ2R),NSS)
+     &     JYI,NSS,1.0D0,J2R,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,
-     &     JXI,NSS,1.0D0,WORK(LJ2I),NSS)
+     &     JXI,NSS,1.0D0,J2I,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXI,NSS,
-     &     JXR,NSS,1.0D0,WORK(LJ2I),NSS)
+     &     JXR,NSS,1.0D0,J2I,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,
-     &     JYI,NSS,1.0D0,WORK(LJ2I),NSS)
+     &     JYI,NSS,1.0D0,J2I,NSS)
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYI,NSS,
-     &     JYR,NSS,1.0D0,WORK(LJ2I),NSS)
+     &     JYR,NSS,1.0D0,J2I,NSS)
 
       CALL mma_deallocate(JXR)
       CALL mma_deallocate(JXI)
       CALL mma_deallocate(JYR)
       CALL mma_deallocate(JYI)
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LOMGR),WORK(LOMGI))
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LJ2R),WORK(LJ2I))
+      CALL ZTRNSF(NSS,USOR,USOI,OMGR,OMGI)
+      CALL ZTRNSF(NSS,USOR,USOI,J2R,J2I)
 
 * Jump here to skip computing omega and/or J:
 C910  CONTINUE
@@ -534,10 +531,10 @@ C910  CONTINUE
         E2=auToeV*(E1-E0)
         E3=auTocm*(E1-E0)
         IF (IFJ2.gt.0) THEN
-         XJEFF=SQRT(0.25D0+WORK(LJ2R-1+ISS+NSS*(ISS-1)))-0.5D0
+         XJEFF=SQRT(0.25D0+J2R(ISS,ISS))-0.5D0
         END IF
         IF (IFJZ.gt.0) THEN
-        OMEGA=SQRT(1.0D-12+WORK(LOMGR-1+ISS+NSS*(ISS-1)))
+        OMEGA=SQRT(1.0D-12+OMGR(ISS,ISS))
         END IF
 
 C Added by Ungur Liviu on 04.11.2009
@@ -567,12 +564,12 @@ C Saving the ESO array in the RunFile.
       END IF
 
       IF(lOMG) THEN
-       CALL GETMEM('OMGR','FREE','REAL',LOMGR,NSS**2)
-       CALL GETMEM('OMGI','FREE','REAL',LOMGI,NSS**2)
+       CALL mma_deallocate(OMGR)
+       CALL mma_deallocate(OMGI)
       END IF
       IF(lJ2) THEN
-       CALL GETMEM('J2R','FREE','REAL',LJ2R,NSS**2)
-       CALL GETMEM('J2I','FREE','REAL',LJ2I,NSS**2)
+       CALL mma_deallocate(J2R)
+       CALL mma_deallocate(J2I)
       END IF
 
 C Put energy onto info file for automatic verification runs:
