@@ -70,7 +70,7 @@
       Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
       Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
       Real*8, Allocatable:: DV(:), DL(:)
-      Real*8, Allocatable:: TOT2K(:,:), IP(:)
+      Real*8, Allocatable:: TOT2K(:,:), IP(:), OscStr(:,:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -2513,7 +2513,7 @@ C                                                                      C
 *     Array for printing contributions from different directions
 *
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*6*nmax2)
-      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
+      CALL mma_allocate(OSCSTR,2,nmax2,Label='OscStr')
       CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
       LMAX_=0
 *
@@ -2557,7 +2557,7 @@ C                                                                      C
 *
 *           Iterate over the quadrature points.
 *
-            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
+            OscStr(:,:)=0.0D0
 *
 *           Initialize output arrays
 *
@@ -2611,7 +2611,6 @@ C                                                                      C
                      J=IndexE(J_)
                      EDIFF=ENERGY(J)-ENERGY(I)
                      ij_=ij_+1
-                     LFIJ=LF+(ij_-1)*2
 C COMBINED SYMMETRY OF STATES:
                      JOB1=JBNUM(I)
                      JOB2=JBNUM(J)
@@ -2841,8 +2840,8 @@ C                 Why do it when we don't do the L.S-term!
 *
 *              Compute the oscillator and rotatory strength
 *
-               Work(LFIJ  ) = Work(LFIJ  ) + Weight * F_Temp
-               Work(LFIJ+1) = Work(LFIJ+1) + Weight * R_Temp
+               OscStr(1,ij_) = OscStr(1,ij_) + Weight * F_Temp
+               OscStr(2,ij_) = OscStr(2,ij_) + Weight * R_Temp
                   End Do ! j_
                End Do ! i_
 *
@@ -2854,10 +2853,9 @@ C                 Why do it when we don't do the L.S-term!
               Do j_=jstart_,jend_
                 J=IndexE(J_)
                 ij_=ij_+1
-                LFIJ=LF+(ij_-1)*2
 *
-                F=Work(LFIJ)
-                R=Work(LFIJ+1)
+                F=OscStr(1,ij_)
+                R=OscStr(2,ij_)
 *
                 Call Add_Info('ITMS(SF)',[F],1,6)
                 Call Add_Info('ROTS(SF)',[R],1,4)
@@ -3025,7 +3023,7 @@ C                 Why do it when we don't do the L.S-term!
 *
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
       Call mma_deallocate(IP)
-      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
+      Call mma_deallocate(OscStr)
       CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
