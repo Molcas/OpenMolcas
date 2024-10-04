@@ -70,7 +70,7 @@
       Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
       Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
       Real*8, Allocatable:: DV(:), DL(:)
-      Real*8, Allocatable:: TOT2K(:,:), IP(:), OscStr(:,:)
+      Real*8, Allocatable:: TOT2K(:,:), IP(:), OscStr(:,:), RAW(:,:,:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -2512,7 +2512,7 @@ C                                                                      C
 *
 *     Array for printing contributions from different directions
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*6*nmax2)
+      CALL mma_allocate(RAW,NQUAD,6,nmax2,Label='RAW')
       CALL mma_allocate(OSCSTR,2,nmax2,Label='OscStr')
       CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
       LMAX_=0
@@ -2561,7 +2561,7 @@ C                                                                      C
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
+            RAW(:,:,:)=0.0D0
             CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
 *
             Do iQuad = 1, nQuad
@@ -2827,16 +2827,15 @@ C                 Why do it when we don't do the L.S-term!
 *
 *              Save the raw oscillator and rotatory strengths in a given direction
 *
-               LRAW_=LRAW+6*NQUAD*(ij_-1)
-               WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_Temp
-               WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_Temp
+               RAW(IQUAD,1,ij_) = F_Temp
+               RAW(IQUAD,2,ij_) = R_Temp
 *
 *              Save the direction and weight too
 *
-               WORK(LRAW_+(IQUAD-1)+2*NQUAD) = UK(1)
-               WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
-               WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
-               WORK(LRAW_+(IQUAD-1)+5*NQUAD) = Weight
+               RAW(IQUAD,3,ij_) = UK(1)
+               RAW(IQUAD,4,ij_) = UK(2)
+               RAW(IQUAD,5,ij_) = UK(3)
+               RAW(IQUAD,6,ij_) = Weight
 *
 *              Compute the oscillator and rotatory strength
 *
@@ -2954,14 +2953,13 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,41) 'From', 'To', 'Raw osc. str.',
      &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LRAW_=LRAW+6*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
                     WRITE(6,33) I,J,
-     &              WORK(LRAW_+(IQUAD-1)+0*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+1*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+2*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+3*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+4*NQUAD)
+     &              RAW(IQUAD,1,ij_),
+     &              RAW(IQUAD,2,ij_),
+     &              RAW(IQUAD,3,ij_),
+     &              RAW(IQUAD,4,ij_),
+     &              RAW(IQUAD,5,ij_)
                   END DO
                   WRITE(6,32)
                   WRITE(6,*)
@@ -2975,15 +2973,14 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,41) 'From', 'To', 'Weig. osc. str.',
      &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LRAW_=LRAW+6*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
-                    Weight=WORK(LRAW+(IQUAD-1)+5*NQUAD)
+                    Weight=RAW(IQUAD,6,ij_)
                     WRITE(6,33) I,J,
-     &                WORK(LRAW_+(IQUAD-1)+0*NQUAD)*Weight,
-     &                WORK(LRAW_+(IQUAD-1)+1*NQUAD)*Weight,
-     &                WORK(LRAW_+(IQUAD-1)+2*NQUAD),
-     &                WORK(LRAW_+(IQUAD-1)+3*NQUAD),
-     &                WORK(LRAW_+(IQUAD-1)+4*NQUAD)
+     &              RAW(IQUAD,1,ij_)*Weight,
+     &              RAW(IQUAD,2,ij_)*Weight,
+     &              RAW(IQUAD,3,ij_),
+     &              RAW(IQUAD,4,ij_),
+     &              RAW(IQUAD,5,ij_)
                   END DO
                   WRITE(6,32)
                   WRITE(6,*)
@@ -3021,7 +3018,7 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Deallocate some arrays.
 *
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
+      CALL mma_deallocate(RAW)
       Call mma_deallocate(IP)
       Call mma_deallocate(OscStr)
       CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
