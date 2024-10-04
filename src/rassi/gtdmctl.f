@@ -103,8 +103,8 @@ CC    NTO section
       Integer, Allocatable:: OMAP(:)
       real*8, allocatable:: CI1(:), CI2(:), CI2_o(:)
       real*8, allocatable:: DET1(:), DET2(:)
+      real*8, allocatable:: DETTOT1(:,:), DETTOT2(:,:)
       real*8, allocatable:: Theta1(:), ThetaN(:), ThetaM(:)
-      Integer, allocatable:: IDDET1(:), IDDET2(:)
 #include "SysDef.fh"
 
       Interface
@@ -129,9 +129,6 @@ CC    NTO section
       deallocate(mstate_1pdens)
 #endif
 C WF parameters for ISTATE and JSTATE
-
-      Call mma_allocate(IDDET1,NSTATE,Label='IDDET1')
-      Call mma_allocate(IDDET2,NSTATE,Label='IDDET2')
 
       NACTE1=NACTE(JOB1)
       MPLET1=MLTPLT(JOB1)
@@ -700,13 +697,11 @@ C At present, we will only annihilate. This limits the possible MAXOP:
 C-------------------------------------------------------------
       CALL mma_allocate(DET1,NDET1,Label='DET1')
       CALL mma_allocate(DET2,NDET2,Label='DET2')
-      call GetMem('TOTDET1','ALLO','REAL',LDETTOT1,NDET1*NSTAT(JOB1))
-      call GetMem('TOTDET2','ALLO','REAL',LDETTOT2,NDET2*NSTAT(JOB2))
+      call mma_allocate(DETTOT1,NDET1,NSTAT(JOB1),Label='DETTOT1')
+      call mma_allocate(DETTOT2,NDET2,NSTAT(JOB2),Label='DETTOT2')
       call mma_allocate(detocc,max(nDet1,nDet2),label='detocc')
 
 C Loop over the states of JOBIPH nr JOB1
-C LWDET pointer to write WORK(LDET) to WORK(LDETTOT)
-      LWDET = LDETTOT1
       DO IST=1,NSTAT(JOB1)
         ISTATE=ISTAT(JOB1)-1+IST
 
@@ -757,9 +752,7 @@ C         JOB1=JOB2, put original ci coefficients for JOB1 to h5
         call mma_deallocate(detcoeff1)
 
 C Write the determinant expansion to LDETTOT1 position
-          IDDET1(ISTATE) = LWDET
-          call DCOPY_(ndet1, DET1, 1, WORK(LWDET), 1)
-          LWDET = LWDET+nDet1
+          DETTOT1(:,IST)=DET1(:)
         else ! doDMRG
 #ifdef _DMRG_
           call prepMPS(
@@ -791,8 +784,6 @@ C Write the determinant expansion to LDETTOT1 position
 
 C-------------------------------------------------------------
 
-C Loop over the states of JOBIPH nr JOB2
-      LWDET=LDETTOT2
       DO JST=1,NSTAT(JOB2)
         JSTATE=ISTAT(JOB2)-1+JST
         if(.not.doDMRG)then
@@ -834,9 +825,7 @@ C           put ci coefficients for JOB2 to h5
           call mma_deallocate(detcoeff2)
 
 C Write the determinant expansion to LDETTOT2 position
-          IDDET2(JSTATE) = LWDET
-          call DCOPY_(nDet2, DET2, 1, WORK(LWDET), 1)
-          LWDET = LWDET+nDet2
+          DETTOT2(:,JST)=DET2(:)
 
         else
 #ifdef _DMRG_
@@ -931,10 +920,8 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
-      LRDET = IDDET1(ISTATE)
-      CALL DCOPY_(NDET1,WORK(LRDET),1,DET1,1)
-      LRDET = IDDET2(JSTATE)
-      CALL DCOPY_(NDET2,WORK(LRDET),1,DET2,1)
+      DET1(:)=DETTOT1(:,IST)
+      DET2(:)=DETTOT2(:,JST)
 #ifdef _DMRG_
       end if
 #endif
@@ -1485,8 +1472,8 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
       END IF
       CALL mma_deallocate(DET1)
       CALL mma_deallocate(DET2)
-      call GetMem('TOTDET1','FREE','REAL',LDETTOT1,NDET1*NSTAT(JOB1))
-      call GetMem('TOTDET2','FREE','REAL',LDETTOT2,NDET2*NSTAT(JOB2))
+      call mma_deallocate(DETTOT1)
+      call mma_deallocate(DETTOT2)
       call mma_deallocate(detocc)
       CALL mma_deallocate(CI2)
       If (DoGSOR) CALL mma_deallocate(CI2_o)
@@ -1549,9 +1536,6 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         end do
         if(allocated(mstate_1pdens)) deallocate(mstate_1pdens)
       end if
-      Call mma_deallocate(IDDET2)
-      Call mma_deallocate(IDDET1)
-
 
 #ifdef _TIME_GTDM_
       Call CWTime(TCpu2,TWall2)
