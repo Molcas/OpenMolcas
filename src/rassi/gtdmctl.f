@@ -102,6 +102,8 @@ CC    NTO section
       real*8, Allocatable:: RT2M(:),RT2MAB(:)
       real*8, Allocatable:: DCHSM(:)
       real*8 BEi,BEj,BEij
+      Integer, Allocatable:: OMAP(:)
+      real*8, allocatable:: CI1(:), CI2(:), CI2_o(:)
 #include "SysDef.fh"
 
       Interface
@@ -414,7 +416,7 @@ C Note that these differ, not just because of the existence of two
 C spin-orbitals for each orbital, but also because the active orbitals
 C (external order) are grouped by symmetry and then RAS space, but the
 C spin orbitals are grouped by subpartition.
-      CALL GETMEM('OrbMap','Allo','Inte',LOMAP,NASORB)
+      CALL mma_allocate(OMAP,NASORB,Label='OMAP')
       NASPRT=IWORK(LORBTAB+8)
       KSPART=IWORK(LORBTAB+9)
       LSPART=LORBTAB-1+KSPART
@@ -438,7 +440,7 @@ C Subtract nr of inactive orbitals in that symmetry:
           IT=ISOIND-NISH(ISYM)
 C Add nr of actives in earlier symmetries:
           ITABS=NASHES(ISYM)+IT
-          IWORK(LOMAP-1+ISORB)=ITABS
+          OMAP(ISORB)=ITABS
         END DO
       END DO
 
@@ -477,7 +479,7 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 * Note: the HISPIN case may be buggy and is not used presently.
         NCONF1=1
       END IF
-      CALL GETMEM('GTDMCI1','ALLO','REAL',LCI1,NCONF1)
+      CALL mma_allocate(CI1,NCONF1,Label='CI1')
 
 C Still JOB1, define structures ('tables') pertinent to JOB1
 C These are at:
@@ -604,9 +606,9 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 * Note: the HISPIN case may be buggy and is not used presently.
         NCONF2=1
       END IF
-      CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCONF2)
+      CALL mma_allocate(CI2,NCONF2,Label='CI2')
       If (DoGSOR) Then
-        CALL GETMEM('GTDMCI2_o','ALLO','REAL',LCI2_o,NCONF2)
+        CALL mma_allocate(CI2_o,NCONF2,Label='CI2_o')
       end if!DoGSOR
 
       NPART=3
@@ -706,18 +708,18 @@ C LWDET pointer to write WORK(LDET) to WORK(LDETTOT)
         if(.not.doDMRG)then
 C Read ISTATE wave function
           IF(WFTP1.EQ.'GENERAL ') THEN
-            CALL READCI(ISTATE,SGS(1),CIS(1),NCONF1,WORK(LCI1))
+            CALL READCI(ISTATE,SGS(1),CIS(1),NCONF1,CI1)
           ELSE
-            WORK(LCI1) = One
+            CI1(1) = One
           END IF
           CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
 C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),EXS(1),
-     &                           LSYM1,TRA1,NCONF1,Work(LCI1))
+     &                           LSYM1,TRA1,NCONF1,CI1)
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
      &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
-     &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,CI1,
      &                WORK(LDET1),detocc,detcoeff1)
 
 C       print transformed ci expansion
@@ -791,21 +793,21 @@ C Loop over the states of JOBIPH nr JOB2
         if(.not.doDMRG)then
 C Read JSTATE wave function
           IF(WFTP2.EQ.'GENERAL ') THEN
-            CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,WORK(LCI2))
+            CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
           ELSE
-            WORK(LCI2) = One
+            CI2(1) = One
           END IF
           If(DoGSOR) Then
-            CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
+            CALL DCOPY_(NCONF2,CI2,1,CI2_o,1)
           End If
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
 C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
-     &                           LSYM2,TRA2,NCONF2,Work(LCI2))
+     &                           LSYM2,TRA2,NCONF2,CI2)
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,CI2,
      &                WORK(LDET2),detocc,detcoeff2)
 
 C         print transformed ci expansion
@@ -935,8 +937,8 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
        if(doGSOR) then
          if(JOB1.ne.JOB2) then
            Dot_prod = 0
-           Dot_prod = DDOT_(NCONF2,Work(LCI1),1,Work(LCI2),1)
-           Call DAXPY_(NCONF2,Dot_prod,Work(LCI2_o),1,Work(LTHETA1),1)
+           Dot_prod = DDOT_(NCONF2,CI1,1,CI2,1)
+           Call DAXPY_(NCONF2,Dot_prod,CI2_o,1,Work(LTHETA1),1)
          end if
        end if
 
@@ -999,7 +1001,7 @@ C evaluate K-2V spin+1 density
         AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      OMAP,WORK(LDET1),WORK(LDET2),
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1009,7 +1011,7 @@ C evaluate K-2V spin-1 density
         AUGSPIN=-1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      OMAP,WORK(LDET1),WORK(LDET2),
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1017,7 +1019,7 @@ C evaluate K-2V spin-1 density
         AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      OMAP,WORK(LDET1),WORK(LDET2),
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1025,7 +1027,7 @@ C evaluate K-2V spin-1 density
         AUGSPIN=-1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      OMAP,WORK(LDET1),WORK(LDET2),
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1046,7 +1048,7 @@ C     Defining the Binding energy Ei-Ej
       DCHSM(:) = Zero
       CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      OMAP,WORK(LDET1),WORK(LDET2),
      &      IF20,IF02,NDCHSM,DCHSM)
       Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
      &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
@@ -1059,7 +1061,7 @@ C General 1-particle transition density matrix:
       IF (IF11) THEN
         CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
      &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),IWORK(LSSTAB),
-     &            IWORK(LOMAP),WORK(LDET1),WORK(LDET2),SIJ,NASHT,
+     &            OMAP,WORK(LDET1),WORK(LDET2),SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
      &            JSTATE,job1,job2,ist,jst)
 C Calculate Natural Transition Orbital (NTO):
@@ -1222,7 +1224,7 @@ C             Write density 1-matrices in AO basis to disk.
           IF (IF22) THEN
             CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
      &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
-     &                  IWORK(LSSTAB),IWORK(LOMAP),
+     &                  IWORK(LSSTAB),OMAP,
      &                  WORK(LDET1),WORK(LDET2),NTDM2,TDM2,
      &                  ISTATE,JSTATE)
 
@@ -1333,19 +1335,19 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
         DO JST=2,NSTAT(JOB2)
           JSTATE=ISTAT(JOB2)-1+JST
-          CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,WORK(LCI2))
-          Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
+          CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
+          Call DCOPY_(NCONF2,CI2,1,CI2_o,1)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
-     &                           LSYM2,TRA2,NCONF2,Work(LCI2))
+     &                           LSYM2,TRA2,NCONF2,CI2)
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,CI2,
      &                WORK(LDET2),detocc,detcoeff2)
 
           CALL GETMEM('ThetaN','ALLO','REAL',LThetaN,NCONF2)
-          CALL DCOPY_(NCONF2,Work(LCI2_o),1,WORK(LThetaN),1)
-          Norm_Fac = DDOT_(NCONF2,Work(LTheta1),1,Work(LCI2_o),1)
+          CALL DCOPY_(NCONF2,CI2_o,1,WORK(LThetaN),1)
+          Norm_Fac = DDOT_(NCONF2,Work(LTheta1),1,CI2_o,1)
           Call DAXPY_(NCONF2,-Norm_Fac,Work(LTHETA1),1,Work(LThetaN),1)
 
           LUCITH=IsFreeUnit(LUCITH)
@@ -1363,7 +1365,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
             do i=1,NCONF2
               Read(LUCITH,*) Work(LThetaM-1+i)
             end do
-            Dot_prod = DDOT_(NCONF2,Work(LThetaM),1,Work(LCI2_o),1)
+            Dot_prod = DDOT_(NCONF2,Work(LThetaM),1,CI2_o,1)
            Call DAXPY_(NCONF2,-Dot_prod,Work(LThetaM),1,Work(LThetaN),1)
 
           END DO
@@ -1482,9 +1484,9 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
       call GetMem('TOTDET1','FREE','REAL',LDETTOT1,NDET1*NSTAT(JOB1))
       call GetMem('TOTDET2','FREE','REAL',LDETTOT2,NDET2*NSTAT(JOB2))
       call mma_deallocate(detocc)
-      CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCONF2)
-      If (DoGSOR) CALL GETMEM('GTDMCI2_o','FREE','REAL',LCI2_o,NCONF2)
-      CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCONF1)
+      CALL mma_deallocate(CI2)
+      If (DoGSOR) CALL mma_deallocate(CI2_o)
+      CALL mma_deallocate(CI1)
       if(.not.doDMRG)then
         CALL KILLSCTAB(LSPNTAB1)
         CALL KILLSCTAB(LSPNTAB2)
@@ -1527,7 +1529,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         CALL KILLOBJ(LFSBTAB1)
         CALL KILLOBJ(LFSBTAB2)
       end if
-      CALL GETMEM('OrbMap','Free','Inte',LOMAP,NASORB)
+      CALL mma_deallocate(OMAP)
 
       !> release memory
       if(mstate_dens)then
