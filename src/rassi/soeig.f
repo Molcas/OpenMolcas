@@ -23,6 +23,7 @@
       use qcmaquis_interface_cfg
 #endif
       use Constants, only: auTocm, auToeV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -31,12 +32,12 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "rassiwfn.fh"
 
       INTEGER NSS
+      REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-      REAL*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
+      REAL*8 ENERGY(NSTATE)
 
       INTEGER I,N
       INTEGER ITOL,IDX
@@ -46,7 +47,7 @@
       INTEGER ISS,JSS,IJSS,ISTATE,JSTATE
       INTEGER LHTOTI,LHTOTR
       INTEGER LJ2I,LJ2R,LJXI,LJXR,LJYI,LJYR,LJZI,LJZR,LLXI,LLYI,LLZI
-      INTEGER LMAPMS,LMAPSP,LMAPST,LOMGI,LOMGR
+      INTEGER LOMGI,LOMGR
       INTEGER MAGN
       INTEGER MPLET,MPLET1,MPLET2,MSPROJ,MSPROJ1,MSPROJ2
 
@@ -73,6 +74,7 @@
       Integer  cho_x_gettol
       External cho_x_gettol
       LOGICAL :: debug_dmrg_rassi_code = .false.
+      Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
 
 
 
@@ -98,18 +100,18 @@ C Identify AMFI and ANGMOM matrix elements:
       END DO
 
 C Mapping from spin states to spin-free state and to spin:
-      CALL GETMEM('MAPST','ALLO','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','ALLO','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
+      CALL mma_allocate(MAPST,NSS,Label='MAPST')
+      CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
+      CALL mma_allocate(MAPMS,NSS,Label='MAPMS')
       ISS=0
       DO ISTATE=1,NSTATE
        JOB=JBNUM(ISTATE)
        MPLET=MLTPLT(JOB)
        DO MSPROJ=-MPLET+1,MPLET-1,2
         ISS=ISS+1
-        IWORK(LMAPST-1+ISS)=ISTATE
-        IWORK(LMAPSP-1+ISS)=MPLET
-        IWORK(LMAPMS-1+ISS)=MSPROJ
+        MAPST(ISS)=ISTATE
+        MAPSP(ISS)=MPLET
+        MAPMS(ISS)=MSPROJ
        END DO
       END DO
 C Complex hamiltonian matrix elements over spin states:
@@ -145,15 +147,15 @@ C Complex hamiltonian matrix elements over spin states:
       end if
 
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,NSS
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
           AMFIX=0.0D0
@@ -234,9 +236,9 @@ C  is multiplied by imaginary unit to keep its hermicity
          WRITE(6,'(A)')'  I1  S1  MS1    I2  S2  MS2 '//
      &            '   Real part    Imag part      Absolute'
        DO  ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,ISS
@@ -245,9 +247,9 @@ C  is multiplied by imaginary unit to keep its hermicity
          HSOI=WORK(LHTOTI-1+IJSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
          IF(HSOTOT*auTocm.GE.SOTHR_PRT) THEN
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
          WRITE(6,'(1X,I5,F5.1,F5.1,I5,F5.1,F5.1,3F14.3)') ISS,S1,SM1,
@@ -262,7 +264,7 @@ C  is multiplied by imaginary unit to keep its hermicity
 
 * PAM07: Addition of scalar diagonal part was delayed until here, see above.
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
+        ISTATE=MAPST(ISS)
         IJSS=ISS+NSS*(ISS-1)
         HSOR=WORK(LHTOTR-1+IJSS)
         WORK(LHTOTR-1+IJSS)=HSOR+ENERGY(ISTATE)
@@ -604,8 +606,7 @@ C Put energy onto info file for automatic verification runs:
          WRITE(6,*)'    (A selection of the largest components)'
        END IF
       END IF
-       CALL PRCEVC(NSS,FRAC,ENSOR,IWORK(LMAPST),IWORK(LMAPSP),
-     &            IWORK(LMAPMS),USOR,USOI)
+       CALL PRCEVC(NSS,FRAC,ENSOR,MAPST,MAPSP,MAPMS,USOR,USOI)
 
 C Update LoopDivide (SUBSets keyword)
 C Assume the SO "ground states" are mostly formed by the SF "ground states"
@@ -620,14 +621,14 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
         LoopDivide=n
 #ifdef _HDF5_
         If (IFTRD1.or.IFTRD2)
-     &    Call UpdateIdx(IndexE,nSS,USOR,USOI,iWork(lMapSt))
+     &    Call UpdateIdx(IndexE,nSS,USOR,USOI,MapSt)
 #endif
         Call mma_deAllocate(IndexE)
       End If
 
-      CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
+      CALL mma_deallocate(MAPST)
+      CALL mma_deallocate(MAPSP)
+      CALL mma_deallocate(MAPMS)
 
       call mma_deallocate(HAMSOR)
       call mma_deallocate(HAMSOI)
