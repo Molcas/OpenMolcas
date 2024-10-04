@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,
-     &                   IDDET2,IDISK)
+      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 
       use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
      &                  NRS3T, NRSPRT
@@ -50,19 +49,18 @@ C      use para_info, only: nProcs, is_real_par, king
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
-      DIMENSION NGASORB(100),NGASLIM(2,10)
-      DIMENSION NASHES(8)
-      DIMENSION OVLP(NSTATE,NSTATE)
-      DIMENSION DYSAMPS(NSTATE,NSTATE)
-      DIMENSION IDDET1(NSTATE), IDDET2(NSTATE)
+      Real*8 PROP(NSTATE,NSTATE,NPROP)
+      Integer NGASORB(100),NGASLIM(2,10)
+      Integer NASHES(8)
+      Real*8 OVLP(NSTATE,NSTATE)
+      Real*8 DYSAMPS(NSTATE,NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
       CHARACTER(LEN=8) WFTP1,WFTP2
       CHARACTER(LEN=6) STLNE1
       CHARACTER(LEN=48) STLNE2
       Real*8 Energies(1:20)
-      Integer IAD,LUIPHn,lThetaM,LUCITH
+      Integer IAD,LUIPHn,LUCITH
       Real*8 Norm_fac
 CC prepare the parallel infrastructure for (istate,jstate loop)
 C      integer :: itask, ltask, ltaski, ltaskj, ntasks
@@ -104,6 +102,9 @@ CC    NTO section
       real*8 BEi,BEj,BEij
       Integer, Allocatable:: OMAP(:)
       real*8, allocatable:: CI1(:), CI2(:), CI2_o(:)
+      real*8, allocatable:: DET1(:), DET2(:)
+      real*8, allocatable:: Theta1(:), ThetaN(:), ThetaM(:)
+      Integer, allocatable:: IDDET1(:), IDDET2(:)
 #include "SysDef.fh"
 
       Interface
@@ -128,6 +129,10 @@ CC    NTO section
       deallocate(mstate_1pdens)
 #endif
 C WF parameters for ISTATE and JSTATE
+
+      Call mma_allocate(IDDET1,NSTATE,Label='IDDET1')
+      Call mma_allocate(IDDET2,NSTATE,Label='IDDET2')
+
       NACTE1=NACTE(JOB1)
       MPLET1=MLTPLT(JOB1)
       LSYM1=IRREP(JOB1)
@@ -693,8 +698,8 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         NDET2 = 1 ! minimum to avoid runtime error
       end if
 C-------------------------------------------------------------
-      CALL GETMEM('GTDMDET1','ALLO','REAL',LDET1,NDET1)
-      CALL GETMEM('GTDMDET2','ALLO','REAL',LDET2,NDET2)
+      CALL mma_allocate(DET1,NDET1,Label='DET1')
+      CALL mma_allocate(DET2,NDET2,Label='DET2')
       call GetMem('TOTDET1','ALLO','REAL',LDETTOT1,NDET1*NSTAT(JOB1))
       call GetMem('TOTDET2','ALLO','REAL',LDETTOT2,NDET2*NSTAT(JOB2))
       call mma_allocate(detocc,max(nDet1,nDet2),label='detocc')
@@ -712,7 +717,7 @@ C Read ISTATE wave function
           ELSE
             CI1(1) = One
           END IF
-          CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
+          DET1(:)=0.0D0
 C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),EXS(1),
      &                           LSYM1,TRA1,NCONF1,CI1)
@@ -720,7 +725,7 @@ C         Transform to bion basis, Split-Guga format
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
      &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,CI1,
-     &                WORK(LDET1),detocc,detcoeff1)
+     &                DET1,detocc,detcoeff1)
 
 C       print transformed ci expansion
         if (JOB1 /= JOB2) then
@@ -753,7 +758,7 @@ C         JOB1=JOB2, put original ci coefficients for JOB1 to h5
 
 C Write the determinant expansion to LDETTOT1 position
           IDDET1(ISTATE) = LWDET
-          call DCOPY_(ndet1, WORK(LDET1), 1, WORK(LWDET), 1)
+          call DCOPY_(ndet1, DET1, 1, WORK(LWDET), 1)
           LWDET = LWDET+nDet1
         else ! doDMRG
 #ifdef _DMRG_
@@ -780,8 +785,8 @@ C Write the determinant expansion to LDETTOT1 position
       END DO
 
       If (DoGSOR) Then
-        CALL GETMEM('Theta1','ALLO','REAL',LTheta1,NCONF2)
-        CALL DCOPY_(NCONF2,[Zero],0,WORK(LTheta1),1)
+        CALL mma_allocate(Theta1,NCONF2,Label='Theta1')
+        Theta1(:)=0.0D0
       End If
 
 C-------------------------------------------------------------
@@ -800,7 +805,7 @@ C Read JSTATE wave function
           If(DoGSOR) Then
             CALL DCOPY_(NCONF2,CI2,1,CI2_o,1)
           End If
-          CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
+          DET2(:)=0.0D0
 C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
      &                           LSYM2,TRA2,NCONF2,CI2)
@@ -808,7 +813,7 @@ C         Transform to bion basis, Split-Guga format
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,CI2,
-     &                WORK(LDET2),detocc,detcoeff2)
+     &                DET2,detocc,detcoeff2)
 
 C         print transformed ci expansion
           if (JOB1 /= JOB2) then
@@ -830,7 +835,7 @@ C           put ci coefficients for JOB2 to h5
 
 C Write the determinant expansion to LDETTOT2 position
           IDDET2(JSTATE) = LWDET
-          call DCOPY_(nDet2, WORK(LDET2), 1, WORK(LWDET), 1)
+          call DCOPY_(nDet2, DET2, 1, WORK(LWDET), 1)
           LWDET = LWDET+nDet2
 
         else
@@ -927,9 +932,9 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
       if(.not.doDMRG)then
 #endif
       LRDET = IDDET1(ISTATE)
-      CALL DCOPY_(NDET1,WORK(LRDET),1,WORK(LDET1),1)
+      CALL DCOPY_(NDET1,WORK(LRDET),1,DET1,1)
       LRDET = IDDET2(JSTATE)
-      CALL DCOPY_(NDET2,WORK(LRDET),1,WORK(LDET2),1)
+      CALL DCOPY_(NDET2,WORK(LRDET),1,DET2,1)
 #ifdef _DMRG_
       end if
 #endif
@@ -938,7 +943,7 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
          if(JOB1.ne.JOB2) then
            Dot_prod = 0
            Dot_prod = DDOT_(NCONF2,CI1,1,CI2,1)
-           Call DAXPY_(NCONF2,Dot_prod,CI2_o,1,Work(LTHETA1),1)
+           Call DAXPY_(NCONF2,Dot_prod,CI2_o,1,THETA1,1)
          end if
        end if
 
@@ -958,7 +963,7 @@ C DYSCOF = Active orbital coefficents of the DO
       IF ((IF10.or.IF01).and.DYSO) THEN
         CALL DYSON(IWORK(LFSBTAB1),
      &            IWORK(LFSBTAB2),IWORK(LSSTAB),
-     &            WORK(LDET1),WORK(LDET2),
+     &            DET1,DET2,
      &            IF10,IF01,
      &            DYSAMP,DYSCOF)
 
@@ -1001,7 +1006,7 @@ C evaluate K-2V spin+1 density
         AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      OMAP,WORK(LDET1),WORK(LDET2),
+     &      OMAP,DET1,DET2,
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1011,7 +1016,7 @@ C evaluate K-2V spin-1 density
         AUGSPIN=-1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      OMAP,WORK(LDET1),WORK(LDET2),
+     &      OMAP,DET1,DET2,
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1019,7 +1024,7 @@ C evaluate K-2V spin-1 density
         AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      OMAP,WORK(LDET1),WORK(LDET2),
+     &      OMAP,DET1,DET2,
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1027,7 +1032,7 @@ C evaluate K-2V spin-1 density
         AUGSPIN=-1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      OMAP,WORK(LDET1),WORK(LDET2),
+     &      OMAP,DET1,DET2,
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
@@ -1048,7 +1053,7 @@ C     Defining the Binding energy Ei-Ej
       DCHSM(:) = Zero
       CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
-     &      OMAP,WORK(LDET1),WORK(LDET2),
+     &      OMAP,DET1,DET2,
      &      IF20,IF02,NDCHSM,DCHSM)
       Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
      &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
@@ -1061,7 +1066,7 @@ C General 1-particle transition density matrix:
       IF (IF11) THEN
         CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
      &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),IWORK(LSSTAB),
-     &            OMAP,WORK(LDET1),WORK(LDET2),SIJ,NASHT,
+     &            OMAP,DET1,DET2,SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
      &            JSTATE,job1,job2,ist,jst)
 C Calculate Natural Transition Orbital (NTO):
@@ -1201,7 +1206,7 @@ C             Write density 1-matrices in AO basis to disk.
               if(.not.doDMRG)then
 #endif
                 SIJ=OVERLAP_RASSI(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &                            WORK(LDET1),WORK(LDET2))
+     &                            DET1,DET2)
 #ifdef _DMRG_
               else
                 sij = qcmaquis_mpssi_overlap(
@@ -1225,7 +1230,7 @@ C             Write density 1-matrices in AO basis to disk.
             CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
      &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
      &                  IWORK(LSSTAB),OMAP,
-     &                  WORK(LDET1),WORK(LDET2),NTDM2,TDM2,
+     &                  DET1,DET2,NTDM2,TDM2,
      &                  ISTATE,JSTATE)
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
@@ -1317,9 +1322,9 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
       IF(DoGSOR) then
         if(job1.ne.job2) then
         Norm_Fac = Zero
-        dot_prod = DDOT_(NCONF2,Work(LTheta1),1,Work(LTheta1),1)
+        dot_prod = DDOT_(NCONF2,THETA1,1,THETA1,1)
         Norm_Fac = One/sqrt(dot_prod)
-        Call DSCAL_(NCONF2,Norm_Fac,Work(LTheta1),1)
+        Call DSCAL_(NCONF2,Norm_Fac,THETA1,1)
 
       !Write theta1 to file.
         LUCITH=87
@@ -1327,7 +1332,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         !Open(unit=87,file='CI_THETA', action='write',iostat=ios)
         Call Molcas_Open(LUCITH,'CI_THETA')
         do i=1,NCONF2
-          write(LUCITH,*) Work(LTheta1-1+i)
+          write(LUCITH,*) Theta1(i)
         end do
         Close(LUCITH)
 
@@ -1337,18 +1342,18 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           JSTATE=ISTAT(JOB2)-1+JST
           CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
           Call DCOPY_(NCONF2,CI2,1,CI2_o,1)
-          CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[Zero],0,DET2,1)
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
      &                           LSYM2,TRA2,NCONF2,CI2)
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,CI2,
-     &                WORK(LDET2),detocc,detcoeff2)
+     &                DET2,detocc,detcoeff2)
 
-          CALL GETMEM('ThetaN','ALLO','REAL',LThetaN,NCONF2)
-          CALL DCOPY_(NCONF2,CI2_o,1,WORK(LThetaN),1)
-          Norm_Fac = DDOT_(NCONF2,Work(LTheta1),1,CI2_o,1)
-          Call DAXPY_(NCONF2,-Norm_Fac,Work(LTHETA1),1,Work(LThetaN),1)
+          CALL mma_allocate(ThetaN,NCONF2,Label='ThetaN')
+          ThetaN(:)=0.0D0
+          Norm_Fac = DDOT_(NCONF2,THETA1,1,CI2_o,1)
+          Call DAXPY_(NCONF2,-Norm_Fac,THETA1,1,ThetaN,1)
 
           LUCITH=IsFreeUnit(LUCITH)
           Call Molcas_Open(LUCITH,'CI_THETA')
@@ -1358,27 +1363,27 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
               Read(LUCITH,*) dot_prod ! dummy
             end do
           end if
-          CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
+          CALL mma_allocate(ThetaM,NCONF2,Label='ThetaM')
           DO IST=2,JST-1
-            CALL DCOPY_(NCONF2,[Zero],0,WORK(LThetaM),1)
+            ThetaM(:)=0.0D0
             !Read in previous theta vectors
             do i=1,NCONF2
-              Read(LUCITH,*) Work(LThetaM-1+i)
+              Read(LUCITH,*) ThetaM(i)
             end do
-            Dot_prod = DDOT_(NCONF2,Work(LThetaM),1,CI2_o,1)
-           Call DAXPY_(NCONF2,-Dot_prod,Work(LThetaM),1,Work(LThetaN),1)
+            Dot_prod = DDOT_(NCONF2,ThetaM,1,CI2_o,1)
+           Call DAXPY_(NCONF2,-Dot_prod,ThetaM,1,ThetaN,1)
 
           END DO
           call mma_deallocate(detcoeff2)
           Close(LUCITH)
           !Normalize
-          dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
+          dot_prod = DDOT_(NCONF2,ThetaN,1,ThetaN,1)
           Norm_Fac = One/sqrt(dot_prod)
-          Call DSCAL_(NCONF2,Norm_Fac,Work(LThetaN),1)
+          Call DSCAL_(NCONF2,Norm_Fac,ThetaN,1)
 
-        !dot_prod = DDOT_(NCONF2,Work(LTheta1),1,Work(LTheta1),1)
-        !dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LTheta1),1)
-        !dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
+        !dot_prod = DDOT_(NCONF2,THETA1,1,THETA1,1)
+        !dot_prod = DDOT_(NCONF2,ThetaN,1,THETA1,1)
+        !dot_prod = DDOT_(NCONF2,ThetaN,1,ThetaN,1)
 
           !Write to file
           LUCITH=IsFreeUnit(LUCITH)
@@ -1387,11 +1392,11 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           !Open(unit=87,file='CI_THETA', position='append',iostat=ios,
 !    &    action='write')
           do i=1,nConf2
-            write(LUCITH,*) Work(LThetaN-1+i)
+            write(LUCITH,*) ThetaN(i)
           end do
           close(LUCITH)
           !Deallocate
-          CALL GETMEM('ThetaN','FREE','REAL',LThetaN,NCONF2)
+          CALL mma_deallocate(ThetaN)
         END DO
 !Copy to new IPH file
         LUCITH=IsFreeUnit(LUCITH)
@@ -1403,25 +1408,24 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         Call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
         IAD=ITOC15(4)
         do i=1,ISTAT(JOB1)-1
-         CALL DCOPY_(NCONF2,[Zero],0,WORK(LThetaM),1)
+         ThetaM(:)=0.0D0
          do j=1,nCONF2
-           read(LUCITH,*) Work(LThetaM-1+i)
+           read(LUCITH,*) ThetaM(i)
          end do
-         Call DDafile(LUIPHn,1,Work(LThetaM),nCONF2,IAD)
+         Call DDafile(LUIPHn,1,ThetaM,nCONF2,IAD)
         end do
 
        IAD = ITOC15(4)
-       CALL DCOPY_(NCONF2,[Zero],0,WORK(LThetaM),1)
-       Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
-       Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
+       ThetaM(:)=0.0D0
+       Call DDAFILE(LUIPHn,2,ThetaM,nCONF2,IAD)
+       Call DDAFILE(LUIPHn,2,ThetaM,nCONF2,IAD)
 
        Close(LUCITH)
        Call DACLOS(LUIPHn)
-       CALL GETMEM('ThetaM','FREE','REAL',LThetaM,NCONF2)
+       CALL mma_deallocate(ThetaM)
        end if
-       CALL GETMEM('Theta1','FREE','REAL',LTheta1,NCONF1)
+       CALL mma_deallocate(Theta1)
       end if!DoGSOR
-
 
 
 #ifdef _DMRG_
@@ -1479,8 +1483,8 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         Call mma_deallocate(TRA1)
         Call mma_deallocate(TRA2)
       END IF
-      CALL GETMEM('GTDMDET1','FREE','REAL',LDET1,NDET1)
-      CALL GETMEM('GTDMDET2','FREE','REAL',LDET2,NDET2)
+      CALL mma_deallocate(DET1)
+      CALL mma_deallocate(DET2)
       call GetMem('TOTDET1','FREE','REAL',LDETTOT1,NDET1*NSTAT(JOB1))
       call GetMem('TOTDET2','FREE','REAL',LDETTOT2,NDET2*NSTAT(JOB2))
       call mma_deallocate(detocc)
@@ -1545,6 +1549,10 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         end do
         if(allocated(mstate_1pdens)) deallocate(mstate_1pdens)
       end if
+      Call mma_deallocate(IDDET2)
+      Call mma_deallocate(IDDET1)
+
+
 #ifdef _TIME_GTDM_
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
