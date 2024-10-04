@@ -102,8 +102,8 @@ CC    NTO section
       real*8 BEi,BEj,BEij
       Integer, Allocatable:: OMAP(:)
       real*8, allocatable:: CI1(:), CI2(:), CI2_o(:)
-      real*8, allocatable:: DET1(:), DET2(:)
-      real*8, allocatable:: DETTOT1(:,:), DETTOT2(:,:)
+      real*8, pointer:: DET1(:), DET2(:)
+      real*8, allocatable, target:: DETTOT1(:,:), DETTOT2(:,:)
       real*8, allocatable:: Theta1(:), ThetaN(:), ThetaM(:)
 #include "SysDef.fh"
 
@@ -695,14 +695,13 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         NDET2 = 1 ! minimum to avoid runtime error
       end if
 C-------------------------------------------------------------
-      CALL mma_allocate(DET1,NDET1,Label='DET1')
-      CALL mma_allocate(DET2,NDET2,Label='DET2')
       call mma_allocate(DETTOT1,NDET1,NSTAT(JOB1),Label='DETTOT1')
       call mma_allocate(DETTOT2,NDET2,NSTAT(JOB2),Label='DETTOT2')
       call mma_allocate(detocc,max(nDet1,nDet2),label='detocc')
 
 C Loop over the states of JOBIPH nr JOB1
       DO IST=1,NSTAT(JOB1)
+        DET1=>DETTOT1(1:NDET1,IST)
         ISTATE=ISTAT(JOB1)-1+IST
 
         if(.not.doDMRG)then
@@ -751,8 +750,6 @@ C         JOB1=JOB2, put original ci coefficients for JOB1 to h5
 
         call mma_deallocate(detcoeff1)
 
-C Write the determinant expansion to LDETTOT1 position
-          DETTOT1(:,IST)=DET1(:)
         else ! doDMRG
 #ifdef _DMRG_
           call prepMPS(
@@ -785,6 +782,7 @@ C Write the determinant expansion to LDETTOT1 position
 C-------------------------------------------------------------
 
       DO JST=1,NSTAT(JOB2)
+        DET2=>DETTOT2(1:NDET2,JST)
         JSTATE=ISTAT(JOB2)-1+JST
         if(.not.doDMRG)then
 C Read JSTATE wave function
@@ -824,9 +822,6 @@ C           put ci coefficients for JOB2 to h5
           end if
           call mma_deallocate(detcoeff2)
 
-C Write the determinant expansion to LDETTOT2 position
-          DETTOT2(:,JST)=DET2(:)
-
         else
 #ifdef _DMRG_
           call prepMPS(
@@ -851,55 +846,6 @@ C Write the determinant expansion to LDETTOT2 position
         end if
       end do
 
-C-----------------------------------------------------------------------
-C VK: setup index table for calculation in parallel
-C double loop (jstate,istate>=jstate) -> a set of indices (itask)
-C      write(6,*) "Setting up index table"
-C      if (JOB1 == JOB2) then
-C       nTasks = nstat(JOB1)*(nstat(JOB1)+1)/2
-C      else
-C        nTasks = nstat(JOB1)*nstat(JOB2)
-C      end if
-C      call GetMem('Tasks','ALLO','INTE',lTask,2*nTasks)
-C      ltaskj = lTask
-C      ltaski = lTask+nTasks
-C      iTask = 0
-C      do jst=1,nstat(JOB2)
-C        jstate = istat(JOB2)-1+jst
-C        do ist=1,nstat(JOB1)
-C          istate = istat(JOB1)-1+ist
-C          if (istate < jstate) cycle
-C          iTask = iTask+1
-C          iWork(ltaskj+iTask-1) = jst
-C          iWork(ltaski+iTask-1) = ist
-C        end do
-C      end do
-C      if (iTask /= nTasks) then
-C        write(6,*) "Error in number of nTasks"
-C      else
-C        write(6,*)"Index table was successfully set up, nproc ",nProcs
-C      end if
-C
-CC Parallel loop over the states of JOBIPHs nr JOB2, JOB1
-C  (does not work consistently yet)
-C
-C#ifdef _MOLCAS_MPP_
-C      call Init_Tsk(ID,nTasks)
-C      if (nProcs > 1) then
-CC to avoid double counting
-C        OVLP = OVLP/dble(nProcs)
-C        PROP = PROP/dble(nProcs)
-C        HAM = HAM/dble(nProcs)
-C        if (DYSO) SFDYS = SFDYS/dble(nProcs)
-C        if (DYSO) DYSAMPS = DYSAMPS/dble(nProcs)
-C      end if
-C 400  if (.not. Rsv_Tsk(ID,iTask)) goto 401
-CC recovers (jstate,istate) indices as in serial calc
-C      jst = iWork(ltaskj+iTask-1)
-C      ist = iWork(ltaski+iTask-1)
-C      jstate = istat(JOB2)-1+jst
-C      istate = istat(JOB1)-1+ist
-C#else
 C Loop over the states of JOBIPH nr JOB2
       job2_loop: DO JST=1,NSTAT(JOB2)
         JSTATE=ISTAT(JOB2)-1+JST
@@ -907,7 +853,6 @@ C Loop over the states of JOBIPH nr JOB1
         job1_loop: DO IST=1,NSTAT(JOB1)
           ISTATE=ISTAT(JOB1)-1+IST
         IF(ISTATE.LT.JSTATE) cycle
-C#endif
 CC-----------------------------------------------------------------------
 
 C Entry into monitor: Status line
@@ -920,8 +865,8 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
-      DET1(:)=DETTOT1(:,IST)
-      DET2(:)=DETTOT2(:,JST)
+      DET1=>DETTOT1(1:NDET1,IST)
+      DET2=>DETTOT2(1:NDET2,JST)
 #ifdef _DMRG_
       end if
 #endif
@@ -1265,29 +1210,9 @@ C             Write density 1-matrices in AO basis to disk.
               WRITE(6,'(1x,a,f16.8)')' HIJ  =',HIJ
             END IF
           END IF
-C prepare the parallel infrastructure: end of parallel loop
-C#ifdef _MOLCAS_MPP_
-CCSVC: The master node now continues to only handle task scheduling,
-CC     needed to achieve better load balancing. So it exits from the task
-CC     list.  It has to do it here since each process gets at least one
-CC     task.
-C#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-C      if (IS_REAL_PAR().and.KING().and.(NPROCS>1)) goto 401
-C#endif
-C      goto 400
-C 401  continue
-C      call Free_Tsk(ID)
-C      call GAdSUM(PROP,nstate*nstate*nprop)
-C      call GAdSUM(OVLP,nstate*nstate)
-C      call GAdSUM(HAM,nstate*nstate)
-C      if (DYSO) call GAdSUM(SFDYS,nz*nstate*nstate)
-C      call GAdSUM(DYSAMPS,nstate*nstate)
-C#else
         END DO job1_loop
 
       END DO job2_loop
-C#endif
-C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
 *
 ** For ejob, create an approximate off-diagonal based on the overlap (temporarily stored in HIJ)
 *
@@ -1470,8 +1395,8 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         Call mma_deallocate(TRA1)
         Call mma_deallocate(TRA2)
       END IF
-      CALL mma_deallocate(DET1)
-      CALL mma_deallocate(DET2)
+      DET1=>Null()
+      DET2=>Null()
       call mma_deallocate(DETTOT1)
       call mma_deallocate(DETTOT2)
       call mma_deallocate(detocc)
