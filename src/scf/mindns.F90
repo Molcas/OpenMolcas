@@ -13,8 +13,10 @@
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 subroutine MinDns(Dens,mBT,NumD,XCff,ltXCff,nD)
@@ -155,11 +157,3 @@ call mma_deallocate(DCol)
 call mma_deallocate(DRow)
 
 end subroutine MinDns
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(MinDns)
-
-#endif

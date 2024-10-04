@@ -143,11 +143,11 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
       end if
 
       call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,loff1)
-
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
       select case (ALGO)
-        !                                                              *
-        !***************************************************************
-        !                                                              *
+
         case (1)
           !                                                            *
           !*************************************************************

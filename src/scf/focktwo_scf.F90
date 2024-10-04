@@ -393,7 +393,7 @@ subroutine FOCKTWO_scf_NoSym()
       ISD = (IP-1)*IB+1
 
       call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
-      if (nD == 2)  call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
+      if (nD == 2) call DGEMV_('N',KB,LB,-Factor*ExFac,X2,KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
       if (IP /= JQ) then
         ISF = (IP-1)*IB+1
         ISD = (JQ-1)*JB+1

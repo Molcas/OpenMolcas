@@ -46,7 +46,7 @@ character, intent(out) :: Step_Trunc
 integer :: I, iRoot, iStatus, Iter_i, IterMx, NumVal
 real(kind=wp) :: A_RFO, A_RFO_Long, A_RFO_Short, DqDq_Long, DqDq_Short, EigVal, Fact, GG, Step_Lasttime = Pi, StepMax = One, Test, &
                  ZZ
-logical(kind=iwp) ::  Iterate, Restart
+logical(kind=iwp) :: Iterate, Restart
 real(kind=wp), allocatable :: Tmp(:), Val(:), Vec(:,:)
 real(kind=wp), parameter :: Step_Factor = Three, StepMax_Min = 1.0e-2_wp, Thr = 1.0e-4_wp
 real(kind=wp), external :: DDot_

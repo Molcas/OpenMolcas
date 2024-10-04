@@ -19,10 +19,6 @@
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
 #endif
-#include "compiler_features.h"
-#ifndef POINTER_REMAP
-      USE ISO_C_Binding
-#endif
       use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
@@ -1007,11 +1003,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 #endif
 *
 #ifdef _HDF5_
-#ifdef POINTER_REMAP
       flatStorage(1:SIZE(Storage)) => Storage
-#else
-      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
-#endif
       Call mh5_put_dset(wfn_sos_tm,flatStorage)
       Nullify(flatStorage)
       Call mma_deallocate(Storage)

@@ -14,8 +14,10 @@
 !               2003, Valera Veryazov                                  *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 subroutine PMat_SCF(FstItr,XCf,nXCF,nD)
@@ -376,11 +378,3 @@ subroutine Drv2El_dscf_Front_End(Tmp)
 end subroutine Drv2El_dscf_Front_End
 
 end subroutine PMat_SCF
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(PMat_SCF)
-
-#endif

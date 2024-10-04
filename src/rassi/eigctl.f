@@ -18,10 +18,6 @@
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
 #endif
-#include "compiler_features.h"
-#ifndef POINTER_REMAP
-      USE ISO_C_Binding
-#endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
@@ -3011,11 +3007,7 @@ C                 Why do it when we don't do the L.S-term!
       End Do ! iVec
 *
 #ifdef _HDF5_
-#ifdef POINTER_REMAP
       flatStorage(1:SIZE(Storage)) => Storage
-#else
-      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
-#endif
       Call mh5_put_dset(wfn_sfs_tm,flatStorage)
       Nullify(flatStorage)
       Call mma_deallocate(Storage)

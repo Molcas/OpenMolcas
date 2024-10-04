@@ -80,9 +80,7 @@ do
   !*********************************************************************
   !                                                                    *
   select case (InVec)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
+
     case (0)
 
       ! Diagonalize core
@@ -294,7 +292,7 @@ subroutine Start0x(CMO,mBB,nD,E_Or,mmB)
 
   if (nD == 2) then
     CMO(:,2) = CMO(:,1)
-    E_Or(:,2)= E_Or(:,1)
+    E_Or(:,2) = E_Or(:,1)
   end if
 
   call qpg_iarray('nDel_go',Found,ndata)

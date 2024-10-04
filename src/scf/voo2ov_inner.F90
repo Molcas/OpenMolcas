@@ -12,8 +12,10 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 subroutine vOO2OV_inner(v1,n1,v2,n2,iD)
@@ -43,9 +45,6 @@ subroutine vOO2OV_inner(v1,n1,v2,n2,iD)
 !                                                                      *
 !***********************************************************************
 
-#ifndef POINTER_REMAP
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-#endif
 use InfSCF, only: kOV, nFro, nOcc, nOO, nOrb, nSym
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -100,7 +99,6 @@ do iSym=1,nSym
 
     ! compress
 
-#   ifdef POINTER_REMAP
     pv1(1:nia2,1:nia2) => v1(ioffs+1:ioffs+nv1)
     pv2(nia1:nia2,nii1:nii2) => v2(ivoffs:ivoffs+nv2-1)
 
@@ -113,26 +111,11 @@ do iSym=1,nSym
     !  end do
     !end do
     pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
-#   else
-    call c_f_pointer(c_loc(v1(ioffs+1)),pv1,[nia2,nia2])
-    call c_f_pointer(c_loc(v2(ivoffs)),pv2,[nia2-nia1+1,nii2-nii1+1])
-
-    !do ii=nii1,nii2
-    !  do ia=nia1,nia2
-    !    if (pv1(ia,ii) /= -pv1(ii,ia)) then
-    !      write(u6,*) 'inconsistency in gradient'
-    !      call Abend()
-    !    end if
-    !  end do
-    !end do
-    pv2(1:nia2-nia1+1,1:nii2-nii1+1) = pv1(nia1:nia2,nii1:nii2)
-#   endif
 
   else if ((n1 == kOV(iD)) .and. (n2 == nOO)) then
 
     ! decompress
 
-#   ifdef POINTER_REMAP
     pv1(nia1:nia2,nii1:nii2) => v1(ivoffs:ivoffs+nv2-1)
     pv2(1:nia2,1:nia2) => v2(ioffs+1:ioffs+nv1)
 
@@ -140,15 +123,6 @@ do iSym=1,nSym
     do ii=nii1,nii2
       pv2(ii,nia1:nia2) = -pv1(nia1:nia2,ii)
     end do
-#   else
-    call c_f_pointer(c_loc(v1(ivoffs)),pv1,[nia2-nia1+1,nii2-nii1+1])
-    call c_f_pointer(c_loc(v2(ioffs+1)),pv2,[nia2,nia2])
-
-    pv2(nia1:nia2,nii1:nii2) = pv1(1:nia2-nia1+1,1:nii2-nii1+1)
-    do ii=nii1,nii2
-      pv2(ii,nia1:nia2) = -pv1(1:nia2-nia1+1,ii-nii1+1)
-    end do
-#   endif
   end if
 
   nullify(pv1,pv2)
@@ -176,11 +150,3 @@ end do
 return
 
 end subroutine vOO2OV_inner
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(vOO2OV_inner)
-
-#endif

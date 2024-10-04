@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nCMO, nD, nnB, nSym, nBas(nSym), nOrb(nSym)
-real(kind=wp) , intent(inout):: CMO(nCMO,nD), Occ(nnB,nD)
+real(kind=wp), intent(inout) :: CMO(nCMO,nD), Occ(nnB,nD)
 integer(kind=iwp), intent(inout) :: OrbType(nnB,nD)
 integer(kind=iwp) :: iD, iOff1, iOff2, iOrb, iSym, iTmp, jOrb, kOrb, nOcc
 real(kind=wp) :: Occ_i, Occ_j

@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 !#define _SPECIAL_DEBUGPRINT_
 subroutine OccDef(Occ,mmB,nD,CMO,mBB)
 
-#ifndef POINTER_REMAP
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-#endif
+#include "compiler_features.h"
+
 use InfSCF, only: kOV, mOV, nBas, nFro, nnb, nOcc, nOrb, nOV, nSym, OccSet_e, OccSet_m, OnlyProp, OrbType
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -147,11 +148,7 @@ if (allocated(OccSet_m)) then
       ! map the relevant portion of CMO onto pCMO
 
       nB = nBas(iSym)
-#     ifdef POINTER_REMAP
       pCMO(1:nB,1:nB) => CMO(iOff:iOff+nB**2-1,iD)
-#     else
-      call c_f_pointer(c_loc(CMO(iOff,iD)),pCMO,[nB,nB])
-#     endif
 
       do iOrb=1,nOrb(iSym)  ! Loop over the orbitals
 
@@ -361,11 +358,3 @@ end subroutine DebugCMO
 #endif
 
 end subroutine OccDef
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(OccDef)
-
-#endif

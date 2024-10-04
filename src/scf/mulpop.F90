@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mBB, nD, mBT, mmB
-real(kind=wp) , intent(in):: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
+real(kind=wp), intent(in) :: CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
 real(kind=wp), allocatable :: Aux1(:), Aux2(:)
 
 !----------------------------------------------------------------------*

@@ -12,8 +12,10 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine vOO2OV(v1,nOO,v2,mOV,nD,kOV)
 
@@ -35,11 +37,3 @@ do iD=1,nD
 end do
 
 end subroutine vOO2OV
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(vOO2OV)
-
-#endif

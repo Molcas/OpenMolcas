@@ -14,8 +14,10 @@
 !               2011, Francesco Aquilante                              *
 !***********************************************************************
 
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
@@ -37,9 +39,6 @@ subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 !       Dlt     : density matrix in triangular storrage                *
 !***********************************************************************
 
-#ifndef POINTER_REMAP
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-#endif
 use Index_Functions, only: iTri, nTri_Elem
 use SpinAV, only: Do_SpinAV, DSc
 use Constants, only: Zero, One, Two
@@ -82,11 +81,7 @@ do iSym=1,nSym
   Dlt(ipDlt:ipDlt+lth-1) = Zero
 
   if (nOr /= 0) then
-#   ifdef POINTER_REMAP
     pCMO(1:nBs,1:nBs) => CMO(ipCMO:ipCMO+nBs**2-1)
-#   else
-    call c_f_pointer(c_loc(CMO(ipCMO)),pCMO,[nBs,nBs])
-#   endif
     pOcc => Occ(ipOcc:ipOcc+nOr-1)
     pDlt => Dlt(ipDlt:ipDlt+lth-1)
 
@@ -151,11 +146,3 @@ end if
 return
 
 end subroutine DOne_SCF
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-dummy_empty_procedure(DOne_SCF)
-
-#endif

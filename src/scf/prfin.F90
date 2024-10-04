@@ -143,7 +143,7 @@ if ((Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. EFP_On()) .and. (.not. oneel_ND
   !call Get_dScalar('PotNuc',PotNuc)
   call Peek_dScalar('PotNuc',PotNuc)
   call mma_allocate(RFfld,nBT,Label='RFfld')
-  RFfld(:)= Zero
+  RFfld(:) = Zero
   First = .true.
   Dff = .false.
   Do_DFT = .false. ! We do not need to redo the DFT!
