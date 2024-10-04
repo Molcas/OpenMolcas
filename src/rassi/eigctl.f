@@ -70,7 +70,7 @@
       Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
       Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
       Real*8, Allocatable:: DV(:), DL(:)
-      Real*8, Allocatable:: TOT2K(:,:)
+      Real*8, Allocatable:: TOT2K(:,:), IP(:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -2409,7 +2409,7 @@ C                                                                      C
 *     Scratch for one-electron integrals
 *
       NIP=4+(NBST*(NBST+1))/2
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+      CALL mma_allocate(IP,NIP,Label='IP')
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -2650,7 +2650,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                            IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                            LABEL=PNAME(IPROP)
                            Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
-     &                                  WORK(LIP),NIP,SCR,nSCR,
+     &                                  IP,NIP,SCR,nSCR,
      &                                  MASK,ISY12,IOFF)
                         END DO ! IPRP
                      Else
@@ -2695,7 +2695,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                                  IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                                  LABEL=PNAME(IPROP)
                                  Call MK_PROP(PROP,IPROP,K,L,LABEL,ITYPE
-     &                                       ,WORK(LIP),NIP,SCR,nSCR,
+     &                                       ,IP,NIP,SCR,nSCR,
      &                                        MASK34,ISY34,IOFF)
                               END DO ! IPRP
                            End Do
@@ -3024,7 +3024,7 @@ C                 Why do it when we don't do the L.S-term!
 *     Deallocate some arrays.
 *
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
+      Call mma_deallocate(IP)
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
       CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
       if (TMOgroup) Then
