@@ -146,7 +146,7 @@ subroutine Set_External_Params()
     do iFunc = 1, nFuncs
       call xc_f03_func_set_ext_params(xc_func(iFunc), FuncExtParams(:, iFunc))
     end do
-    CALL mma_deallocate(FuncExtParams)
+!    CALL mma_deallocate(FuncExtParams)
   ELSE
     CALL WarningMessage(2, 'External Parameter Arrays Not Initialized!')
     CALL Quit_OnUserError()

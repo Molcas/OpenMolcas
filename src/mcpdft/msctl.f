@@ -40,7 +40,7 @@
       use wadr, only: FockOcc, TUVX
       use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
-
+      use libxc_parameters, only: FuncExtParams
       Implicit Real*8 (A-H,O-Z)
 
       Real*8 CMO(*), FI(*), FA(*), Ref_Ener(*)
@@ -1194,6 +1194,8 @@ cPS         call xflush(6)
       Call mma_deallocate(Tmpk)
       Call mma_deallocate(Tmpn)
 c      call xflush(6)
+
+      If (Allocated(FuncExtParams)) Call mma_deallocate(FuncExtParams)
 
       END Subroutine MSCtl
 

@@ -107,10 +107,11 @@ The :kword:`KSDFT` is the only required keyword.
 .. class:: keywordlist
 
 :kword:`KSDFT`
-  The functional choice follows. Specify the functional by prefixing
-  ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`).
-  Note that hybrid functional names (e.g. PBE0 or B3LYP) should not be used after ``KSDFT=T:`` or
-  ``KSDFT=FT:`` in this module.
+  The functional choice follows. 
+  For LSDA and GGA exchange-correlation functionals, one may specify a translated or fully translated on-top functional by prefixing
+  ``T:`` or ``FT:`` to the standard DFT functionals.
+  For meta-GGAs, one may specify a translated on-top functional by the prefix ``T:``, but one cannot use ``FT:``
+  Hybrid functional names (e.g. PBE0 or B3LYP) should not be used after ``KSDFT=T:`` or ``KSDFT=FT:`` in this module.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT calculations.
   Also note that the format of a number :math:`N` followed by :math:`N` lines,
   each of them containing a weight factor and a Libxc functional name,
@@ -138,6 +139,26 @@ The :kword:`KSDFT` is the only required keyword.
               T: or FT: to the standard DFT functionals (see keyword KSDFT of SCF program)
               </HELP>
               </KEYWORD>
+
+
+:kword:`EXPM`
+  The :kword:`EXPM` keyowrd allows one to use on-top functionals with parameters that are defined by users. 
+  The :kword:`EXPM` keyword should be followed by the filename of the external-parameter file in the scratch directory. 
+  The external parameters in the external-parameter file has the following format::
+:math:`N_Functions`
+:math:`N_Parameters_1, N_Parameters_2, ...`
+:math:`Parameters_in_Function_1`
+:math:`Parameters_in_Function_2`
+:math:`...`
+
+where :math:`N_Functions` is the number of Libxc functions that are called when a functional is invoked.
+For example, M06-L requires two Libxc functions, one for the exchange functional and the other for the correlation functional.
+Therefore, :math:`N_Functions` is 2 if the on-top functional to be used has the translated M06-L form 
+but with different parameters than those used in the original M06-L functional.
+:math:`N_Parameters_1, N_Parameters_2, ...` are the number of parameters for each Libxc function.
+For M06-L, these numbers are 18 and 28, respectively.
+:math:`Parameters_in_Function_1` is a list of parameter values for the first Libxc function, and so on.
+
 
 :kword:`DFCF`
   Use this keyword to scale the exchange terms and/or correlation terms of the functional requested.
