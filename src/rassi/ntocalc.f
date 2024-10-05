@@ -72,7 +72,7 @@
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
       REAL*8 WGRONK(2)
-      INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
+      INTEGER N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
 !     re-organizing orbitals
@@ -94,6 +94,7 @@
 #include "ntocom.fh"
       EXTERNAL Molden_interface
       Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
+      Real*8, allocatable:: ONTO(:), UNTO(:)
 
       LU=233
 
@@ -181,8 +182,8 @@ C     building up a super-CMO matrix (to be C1-like)
       CALL mma_allocate (SUPCMO2,NSUPCMO,Label='SUPCMO1')
       SUPCMO1(:)=0.0D0
       SUPCMO2(:)=0.0D0
-      CALL GETMEM ('ONTO','Allo','Real',LONTO,NSUPCMO)
-      CALL GETMEM ('UNTO','Allo','Real',LUNTO,NSUPCMO)
+      CALL mma_allocate(ONTO,NSUPCMO,Label='ONTO')
+      CALL mma_allocate(UNTO,NSUPCMO,Label='UNTO')
       icactorb=0
       I=0
       Do IOrb=1,NAISHT
@@ -253,8 +254,8 @@ C     Start and initialize spaces
       Do I_NTO=1,N_NTO
       CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOUeig),1)
       CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOVeig),1)
-      CALL DCOPY_(NSupCMO,[Zero],0,WORK(LONTO),1)
-      CALL DCOPY_(NSupCMO,[Zero],0,WORK(LUNTO),1)
+      ONTO(:)=0.0D0
+      UNTO(:)=0.0D0
 !      CALL DCOPY_(Ndge,WORK(LTRAD),1,WORK(LTDM),1)
       If (Spin(I_NTO).eq.'a') Then
 C       WORK(LTDM-1+I)=WORK(LTRAD-1+I)
@@ -359,15 +360,15 @@ C     End of Diagonlazing the mataces
 C     Constructing hole and particle orbitals
 
       CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOUmat),
-     &      NASHT,SupCMO1,NASHT,0.0D0,WORK(LONTO),NASHT)
+     &      NASHT,SupCMO1,NASHT,0.0D0,ONTO,NASHT)
       CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOVmat),
-     &      NASHT,SupCMO2,NASHT,0.0D0,WORK(LUNTO),NASHT)
+     &      NASHT,SupCMO2,NASHT,0.0D0,UNTO,NASHT)
 
       If (DoTest) Then
        write(6,*)'printing Particle NTO in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LONTO+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(ONTO(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
@@ -387,7 +388,7 @@ C     Printing NTOs
       CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymfr,NASHT)
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
       NTOType='PART'
-      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LONTO,NTOType,
+      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
      &STATENAME,LNTOUeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymto,LIndto)
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
@@ -454,14 +455,14 @@ C     Putting particle-hole pairs in the output
 
       CALL mma_deallocate(SUPCMO2)
       CALL mma_deallocate(SUPCMO1)
-      CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
-      CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
+      CALL mma_deallocate(UNTO)
+      CALL mma_deallocate(ONTO)
 
       END SUBROUTINE NTOCalc
 
 
 
-      SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,
+      SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
      &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
 #include "rasdim.fh"
 #include "symmul.fh"
@@ -471,7 +472,8 @@ C     Putting particle-hole pairs in the output
 #include "Files.fh"
 
 C     input variables
-      INTEGER NUseSym,LNTO,LEigVal
+      INTEGER NUseSym,LEigVal
+      REAL*8 :: NTO(*)
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
@@ -526,7 +528,7 @@ C
          I=INTO
          J=ICount+NUsedBF(IUseSym)
          SquareSum(IUseSym)=SquareSum(IUseSym)
-     &   +WORK(LNTO+I-1+(J-1)*NASHT)**2
+     &   +NTO(I+(J-1)*NASHT)**2
         End DO
         If (SquareSum(IUseSym).gt.Threshold) THEN
          If (iPrintSym.eq.0) Then
@@ -586,7 +588,7 @@ C Recording Printed NTO (PCMO)
         Do ICount=1,NUseBF(IUSeSym)
          IPCMO=IPCMO+1
          J=ICount+NUsedBF(IUseSym)
-         PCMO(IPCMO)=WORK(LNTO+I-1+(J-1)*NASHT)
+         PCMO(IPCMO)=NTO(I+(J-1)*NASHT)
         End Do
 C Recording Printed NTO (PCMO)
        End Do
