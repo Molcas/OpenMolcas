@@ -44,6 +44,7 @@
       SUBROUTINE NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 
       use fortran_strings, only : str
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -52,7 +53,9 @@
 #include "Files.fh"
 
       Integer ISpin,JOB1,JOB2
+      Integer IState, jState
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
+
       Character,DIMENSION(2) :: Spin
       INTEGER Iprint,Jprint,I,J,isym
 ! Printing or looping control
@@ -65,7 +68,7 @@
 ! and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
-      INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
+      INTEGER NSUPCMO
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
       REAL*8 WGRONK(2)
@@ -86,9 +89,11 @@
       CHARACTER (len=9)  STATENAME
       Character*3 lIrrep(8)
       Logical DOTEST
-      INTEGER LU,ISFREEUNIT
+      INTEGER LU
+      INTEGER, External:: ISFREEUNIT
 #include "ntocom.fh"
-      EXTERNAL ISFREEUNIT, Molden_interface
+      EXTERNAL Molden_interface
+      Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
 
       LU=233
 
@@ -172,12 +177,12 @@ C     Analyzing the symmetry of the wave function
 C     End of analyzing wave function
 
 C     building up a super-CMO matrix (to be C1-like)
-      CALL GETMEM ('SupCMO1','Allo','Real',LSUPCMO1,NSUPCMO)
-      CALL GETMEM ('SupCMO2','Allo','Real',LSUPCMO2,NSUPCMO)
+      CALL mma_allocate (SUPCMO1,NSUPCMO,Label='SUPCMO1')
+      CALL mma_allocate (SUPCMO2,NSUPCMO,Label='SUPCMO1')
+      SUPCMO1(:)=0.0D0
+      SUPCMO2(:)=0.0D0
       CALL GETMEM ('ONTO','Allo','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Allo','Real',LUNTO,NSUPCMO)
-      CALL DCOPY_(NSUPCMO,[Zero],0,WORK(LSUPCMO1),1)
-      CALL DCOPY_(NSUPCMO,[Zero],0,WORK(LSUPCMO2),1)
       icactorb=0
       I=0
       Do IOrb=1,NAISHT
@@ -188,19 +193,17 @@ C     building up a super-CMO matrix (to be C1-like)
           J=I+IPrint-1
 C          write(6,'(4X,5I4,2F10.6)') IOrb,icactorb,
 C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
-          WORK(LSUPCMO1+icactorb-1+(JPRINT-1)*NASHT)=WORK(LCMO1+J)
-          WORK(LSUPCMO2+icactorb-1+(JPRINT-1)*NASHT)=WORK(LCMO2+J)
+          SUPCMO1(icactorb+(JPRINT-1)*NASHT)=WORK(LCMO1+J)
+          SUPCMO2(icactorb+(JPRINT-1)*NASHT)=WORK(LCMO2+J)
         End DO
        End IF
        I=I+OrbBas(IOrb)
       End DO
       If (DoTest) Then
-      write (6,*) 'LSupCMO1=',LSupCMO1
-      write (6,*) 'LSupCMO2=',LSupCMO2
        write(6,*)'printing CMO1 in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LSUPCMO1+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(SUPCMO1(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
@@ -209,7 +212,7 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
        write(6,*)'printing CMO2 in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LSUPCMO2+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(SUPCMO2(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
@@ -356,9 +359,9 @@ C     End of Diagonlazing the mataces
 C     Constructing hole and particle orbitals
 
       CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOUmat),
-     &      NASHT,WORK(LSupCMO1),NASHT,0.0D0,WORK(LONTO),NASHT)
+     &      NASHT,SupCMO1,NASHT,0.0D0,WORK(LONTO),NASHT)
       CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOVmat),
-     &      NASHT,WORK(LSupCMO2),NASHT,0.0D0,WORK(LUNTO),NASHT)
+     &      NASHT,SupCMO2,NASHT,0.0D0,WORK(LUNTO),NASHT)
 
       If (DoTest) Then
        write(6,*)'printing Particle NTO in a C1-like format'
@@ -449,8 +452,8 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM('GTDMCMO1','Free','REAL',LCMO1,NCMO)
       CALL GETMEM('GTDMCMO2','Free','REAL',LCMO2,NCMO)
 
-      CALL GETMEM ('SupCMO1','Free','Real',LSUPCMO1,NSUPCMO)
-      CALL GETMEM ('SupCMO2','Free','Real',LSUPCMO2,NSUPCMO)
+      CALL mma_deallocate(SUPCMO2)
+      CALL mma_deallocate(SUPCMO1)
       CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
 
@@ -495,11 +498,11 @@ C     then give a warning message and print the one with the largest SquareSum
 C     Printing control
 C
       INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
-      INTEGER LU,ISFREEUNIT
+      INTEGER LU
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
-      External ISFREEUNIT
+      Integer, External:: ISFREEUNIT
 
       Threshold=0.0D-10
       Zero=0.0D0
