@@ -69,7 +69,7 @@
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
       INTEGER NSUPCMO
-      INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
+      INTEGER NDge,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
       REAL*8 WGRONK(2)
       INTEGER N_NTO,INFO, LNTOUeig,I_NTO
@@ -96,6 +96,7 @@
       Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
       Real*8, allocatable:: ONTO(:), UNTO(:)
       Real*8, allocatable:: CMO1(:), CMO2(:)
+      Real*8, allocatable:: UMAT(:), VMAT(:)
 
       LU=233
 
@@ -223,8 +224,8 @@ C     end of building up the super-CMO matrix
 C     Start and initialize spaces
       statename = str(JSTATE)//'_'//str(ISTATE)
       NDge=NASHT**2
-      CALL GETMEM ('Umat','Allo','Real',LNTOUmat,NDge)
-      CALL GETMEM ('Vmat','Allo','Real',LNTOVmat,NDge)
+      CALL mma_allocate (Umat,NDge,Label='UMat')
+      CALL mma_allocate (Vmat,NDge,Label='VMat')
       CALL GETMEM ('Ueig','Allo','Real',LNTOUeig,NDge)
       CALL GETMEM ('Veig','Allo','Real',LNTOVeig,NDge)
       CALL GETMEM ('TDM' ,'Allo','Real',LTDM,NDge)
@@ -296,30 +297,28 @@ C     Generalizing transpose of TDM, TDM_T
 
 C     Calculating T_trans*T
       CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDMT),NASHT,
-     &             WORK(LTDM),NASHT,0.0D0,WORK(LNTOVmat),NASHT)
+     &             WORK(LTDM),NASHT,0.0D0,Vmat,NASHT)
 C     Writing Particle Matrix
       write (FILENAME,fmt='(a,a,a)')
      &"Dhole.",trim(adjustl(STATENAME)),Spin(I_NTO)
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(1X,ES11.4E2))')
-     &    (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
+        write (LU,'(10(1X,ES11.4E2))') (Vmat(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
 C     Calculating T*T_transpose
       CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDM),NASHT,
-     &             WORK(LTDMT),NASHT,0.0D0,WORK(LNTOUmat),NASHT)
+     &             WORK(LTDMT),NASHT,0.0D0,Umat,NASHT)
       write (FILENAME,fmt='(a,a,a)')
      &"Dpart.",trim(adjustl(STATENAME)),Spin(I_NTO)
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(1X,ES11.4E2))')
-     &    (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
+        write (LU,'(10(1X,ES11.4E2))') (Umat(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
-       CALL DSYEV_('V','U',NASHT,WORK(LNTOVmat),NASHT,WORK(LNTOVeig),
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,WORK(LNTOVeig),
      &              WGRONK,-1,INFO)
        NScrq=INT(WGRONK(1))
        If(Nscrq.eq.0) Then
@@ -330,9 +329,9 @@ C     Calculating T*T_transpose
        End If
        CALL GETMEM ('Scrq','Allo','Real',LScrq,NScrq)
 C       Diagonalizing matrices
-       CALL DSYEV_('V','U',NASHT,WORK(LNTOUmat),NASHT,WORK(LNTOUeig),
+       CALL DSYEV_('V','U',NASHT,Umat,NASHT,WORK(LNTOUeig),
      &              WORK(LScrq),NScrq,INFO)
-       CALL DSYEV_('V','U',NASHT,WORK(LNTOVmat),NASHT,WORK(LNTOVeig),
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,WORK(LNTOVeig),
      &              WORK(LScrq),NScrq,INFO)
        CALL GETMEM ('Scrq','Free','Real',LScrq,NScrq)
 C     Printing some matrices
@@ -342,8 +341,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(1X,ES11.4E2))')
-     &     (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
+         write (LU,'(5(1X,ES11.4E2))') (Vmat(NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
        write (FILENAME,fmt='(a,a,a)')
@@ -351,8 +349,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(1X,ES11.4E2))')
-     &     (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
+         write (LU,'(5(1X,ES11.4E2))') (Umat(NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
       End IF
@@ -360,9 +357,9 @@ C     End of Diagonlazing the mataces
 
 C     Constructing hole and particle orbitals
 
-      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOUmat),
+      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,Umat,
      &      NASHT,SupCMO1,NASHT,0.0D0,ONTO,NASHT)
-      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOVmat),
+      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,Vmat,
      &      NASHT,SupCMO2,NASHT,0.0D0,UNTO,NASHT)
 
       If (DoTest) Then
@@ -447,8 +444,8 @@ C     Putting particle-hole pairs in the output
      &'*','BETWEEN STATE ',JSTATE,' AND STATE ',ISTATE,'*'
       WRITE(6,'(6X,A)') repeat('*',100)
 
-      CALL GETMEM ('Umat','Free','Real',LNTOUmat,NDge)
-      CALL GETMEM ('Vmat','Free','Real',LNTOVmat,NDge)
+      CALL mma_deallocate(VMat)
+      CALL mma_deallocate(UMat)
       CALL GETMEM ('Ueig','Free','Real',LNTOUeig,NDge)
       CALL GETMEM ('Veig','Free','Real',LNTOVeig,NDge)
       CALL GETMEM ('TDM' ,'Free','Real',LTDM,NDge)
