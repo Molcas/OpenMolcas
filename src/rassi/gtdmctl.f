@@ -13,9 +13,9 @@
       use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
      &                  NRS3T, NRSPRT
 #ifdef _DMRG_
-      use rassi_global_arrays, only: PART, HAM, SFDYS, LROOT
+      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT
 #else
-      use rassi_global_arrays, only: PART, HAM, SFDYS
+      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -402,15 +402,15 @@ C Define structures ('tables') pertinent all jobs.
 C (Later, move this up before the GTDMCTL calls).
 C These are at:
 C PART
-C IWORK(LORBTAB)
+C ORBTA)
 C IWORK(LSSTAB)
       Call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
       IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 
-      LORBTAB=NEWORBTAB(PART)
-      IF(IPGLOB.GE.4) CALL PRORBTAB(iWork(LORBTAB))
+      Call NEWORBTAB(PART)
+      IF(IPGLOB.GE.4) CALL PRORBTAB(ORBTAB)
 
-      LSSTAB=NEWSSTAB(iWork(LORBTAB))
+      LSSTAB=NEWSSTAB(ORBTAB)
       IF(IPGLOB.GE.4) CALL PRSSTAB(LSSTAB)
 
 C Mapping from active spin-orbital to active orbital in external order.
@@ -419,11 +419,9 @@ C spin-orbitals for each orbital, but also because the active orbitals
 C (external order) are grouped by symmetry and then RAS space, but the
 C spin orbitals are grouped by subpartition.
       CALL mma_allocate(OMAP,NASORB,Label='OMAP')
-      NASPRT=IWORK(LORBTAB+8)
-      KSPART=IWORK(LORBTAB+9)
-      LSPART=LORBTAB-1+KSPART
+      NASPRT=ORBTAB(9)
+      KSPART=ORBTAB(10)
       KOINFO=19
-      LOINFO=LORBTAB-1+KOINFO
       ISUM=0
       DO ISYM=1,NSYM
         NASHES(ISYM)=ISUM
@@ -431,13 +429,13 @@ C spin orbitals are grouped by subpartition.
       END DO
       ISORB=0
       DO ISPART=1,NASPRT
-        NO=IWORK(LSPART-1+ISPART)
+        NO=OrbTab(KSPART-1+ISPART)
         DO IO=1,NO
           ISORB=ISORB+1
 C Orbital symmetry:
-          ISYM=IWORK(LOINFO+1+(ISORB-1)*8)
+          ISYM=OrbTab(KOINFO+1+(ISORB-1)*8)
 C In-Symmetry orbital index:
-          ISOIND=IWORK(LOINFO+2+(ISORB-1)*8)
+          ISOIND=OrbTab(KOINFO+2+(ISORB-1)*8)
 C Subtract nr of inactive orbitals in that symmetry:
           IT=ISOIND-NISH(ISYM)
 C Add nr of actives in earlier symmetries:
@@ -1435,7 +1433,7 @@ C             Write density 1-matrices in AO basis to disk.
       Call mma_deallocate(CMO2)
       Call mma_deallocate(CMO1)
       Call mma_deallocate(PART)
-      CALL KILLOBJ(LORBTAB)
+      Call mma_deallocate(OrbTab)
       CALL KILLOBJ(LSSTAB)
       if(.not.doDMRG)then
         CALL KILLOBJ(LREST1)

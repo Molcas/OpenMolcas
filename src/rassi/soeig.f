@@ -414,8 +414,8 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       JYI(:)=0.0D0
       CALL mma_allocate(JZR,NSS**2,Label='JZR')
       CALL mma_allocate(JZI,NSS**2,Label='JZR')
-      JXR(:)=0.0D0
-      JXI(:)=0.0D0
+      JZR(:)=0.0D0
+      JZI(:)=0.0D0
 
       CALL SMMAT(PROP,JXR,NSS,0,1)
       CALL SMMAT(PROP,JYI,NSS,0,2)

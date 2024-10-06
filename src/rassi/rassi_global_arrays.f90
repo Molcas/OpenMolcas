@@ -17,5 +17,6 @@
                             PROP(:,:,:), ESHFT(:), HDIAG(:)
       Integer, Allocatable:: JBNUM(:), LROOT(:)
       Integer, Allocatable:: PART(:)
+      Integer, Allocatable:: OrbTab(:)
       Integer, Allocatable:: SSTAB(:)
       End Module RASSI_GLOBAL_ARRAYS
