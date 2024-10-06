@@ -390,10 +390,12 @@ C     Printing NTOs
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
       NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
-     &STATENAME,LNTOUeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymto,LIndto)
+     &STATENAME,Work(NTOUeig),UsetoReal,RealtoUse,Spin(I_NTO),
+     &                    iWork(LSymto),iWork(LIndto))
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
-     &STATENAME,LNTOVeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymfr,LIndfr)
+     &STATENAME,Work(NTOVeig),UsetoReal,RealtoUse,Spin(I_NTO),
+     &                    iWork(LSymfr),iWork(LIndfr))
 C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
@@ -464,21 +466,23 @@ C     Putting particle-hole pairs in the output
 
 
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
-     &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
+     &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 
 C     input variables
-      INTEGER NUseSym,LEigVal
+      INTEGER NUseSym
       REAL*8 :: NTO(*)
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
       CHARACTER (len=5)  STATENAME
+      Real*8 :: EigVal(*)
+      Integer :: Sym(*), Ind(*)
+
       CHARACTER (len=128) FILENAME, molden_name
 C     Loop control
       INTEGER I, J, ICount
@@ -500,7 +504,7 @@ C     then give a warning message and print the one with the largest SquareSum
       Real*8,DIMENSION(:),allocatable::PCMO
 C     Printing control
 C
-      INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
+      INTEGER iPrintSym,OrbNum,IOrbinSym
       INTEGER LU
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
@@ -554,8 +558,8 @@ C
        End If
         NOrbinSym(IPrintSym)=NOrbinSym(IPrintSym)+1
         OrbSymIndex(IPrintSym,NOrbinSym(IPrintSym))=INTO
-      iWORK(LSym-1+INTO)=UsetoReal(IPrintSym)
-      iWORK(LInd-1+INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
+      Sym(INTO)=UsetoReal(IPrintSym)
+      Ind(INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
       End Do
 
 C     generating file in a similar way to other orbital files
@@ -583,8 +587,8 @@ C       write active part
         OrbNum=IOrbinSym+NISH(ISym)
         IOrb=IOrb+1
         I=OrbSymIndex(IUseSym,IOrbinSym)
-        EigValArray(IOrb)=WORK(LEigVal-1+I)
-        SumEigVal=SumEigVal+WORK(LEigVal-1+I)
+        EigValArray(IOrb)=EigVal(I)
+        SumEigVal=SumEigVal+EigVal(I)
 C Recording Printed NTO (PCMO)
         Do ICount=1,NUseBF(IUSeSym)
          IPCMO=IPCMO+1
