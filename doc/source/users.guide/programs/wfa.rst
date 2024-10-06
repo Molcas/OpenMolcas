@@ -351,6 +351,52 @@ Input example
   1 2 4 *
   3 *
 
+Large jobs
+..........
+
+The computational effort spent in :program:`RASSI` and the size of the :file:`$Project.rassi.h5` scale with the square of the number of states included in the computation.
+This can be a severe bottleneck.
+To reduce the time spent in :program:`RASSI` use the :kword:`HEFF` or :kword:`EJOB` keywords;
+these will cause RASSI to read in the Hamiltonian rather than recomputing it.
+To reduce the output to the :file:`$Project.rassi.h5` use :kword:`SUBSets` (set equal to :kword:`REFState`).
+
+::
+
+  &RASSI
+  TRD1
+  EJOB
+  SUBSets = 2
+
+  &WFA
+  H5file = $Project.rassi.h5
+  REFState = 2
+
+Subsequently you may reduce the file size by repacking the HDF5 file: ::
+
+  h5repack -f GZIP=5 $Project.rassi.h5 $Project.rassi-repack.h5 && rm $Project.rassi.h5
+
+Alternatively, you can avoid the quadratic scaling in :program:`RASSI` by processing states in batches specified via the :kword:`NROF` keyword.
+As an extreme example, you can iterate over individual states using the following input:
+
+::
+  
+  >> FOREACH IST in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+  &RASSI
+  TRD1
+  NROF
+  2 1 1
+  1
+  $IST
+
+  >> COPY $Project.rassi.h5 $Project.rassi.$IST.h5
+
+  &WFA
+  h5file=$Project.rassi.$IST.h5
+
+  >> ENDDO
+
+
 .. _UG\:sec\:wfa_output:
 
 Output

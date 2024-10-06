@@ -629,6 +629,7 @@ Keywords
   a set of initial states (for example the ground state) and a set of final states.
   This keyword allows to restrict the computation of transition moments between the two sets
   and not within each set, thus saving time and reducing the output size.
+  This also affects data written to :file:`rassi.h5`.
   The keyword is followed by the index where the two sets split (assuming energy ordering).
   For a calculation between one ground state and several excited states, :kword:`SUBSets` should be 1.
   Default is to compute the transition moments between all states.
@@ -984,6 +985,8 @@ Keywords
   a multi-state calculation using :program:`CASPT2`. In the future, other programs may add
   dynamic correlation estimates in a similar way. This keyword is not needed if the input
   file is in HDF5 format.
+  Note that using :kword:`HEFF` or :kword:`EJOB` can significantly speed up the RASSI job by
+  avoiding the explicit computation of the Hamiltonian.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEFF" APPEAR="Effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HEff <advanced>
@@ -1003,6 +1006,8 @@ Keywords
   The off-diagonal elements are approximated as :math:`H_{ij} \approx \frac{1}{2} S_{ij}(H_{ii}+H_{ij})`,
   where :math:`S_{ij}` is the overlap between two states; so if the input states
   are orthogonal, the effective Hamiltonian will be diagonal.
+  Note that using :kword:`HEFF` or :kword:`EJOB` can significantly speed up the RASSI job by
+  avoiding the explicit computation of the Hamiltonian.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="Read energies from file" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: EJob <advanced>
