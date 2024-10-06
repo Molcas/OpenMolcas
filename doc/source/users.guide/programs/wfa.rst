@@ -358,7 +358,7 @@ The computational effort spent in :program:`RASSI` and the size of the :file:`$P
 This can be a severe bottleneck.
 To reduce the time spent in :program:`RASSI` use the :kword:`HEFF` or :kword:`EJOB` keywords;
 these will cause RASSI to read in the Hamiltonian rather than recomputing it.
-To reduce the output to the :file:`$Project.rassi.h5` use :kword:`SUBSets` (set equal to :kword:`REFState`).
+To reduce the output to the file :file:`$Project.rassi.h5` use :kword:`SUBSets` (set equal to :kword:`REFState`).
 
 ::
 
