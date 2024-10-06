@@ -98,6 +98,7 @@
       Real*8, allocatable:: CMO1(:), CMO2(:)
       Real*8, allocatable:: UMAT(:), VMAT(:)
       Real*8, allocatable:: UEig(:), VEig(:)
+      Real*8, allocatable:: TDM(:), TDMT(:)
       Real*8, allocatable:: Scrq(:)
 
       LU=233
@@ -230,8 +231,8 @@ C     Start and initialize spaces
       CALL mma_allocate (Vmat,NDge,Label='VMat')
       CALL mma_allocate (Ueig,NDge,Label='Ueig')
       CALL mma_allocate (Veig,NDge,Label='Veig')
-      CALL GETMEM ('TDM' ,'Allo','Real',LTDM,NDge)
-      CALL GETMEM ('TDMT','Allo','Real',LTDMT,NDge)
+      CALL mma_allocate (TDM,NDge,Label='TDM')
+      CALL mma_allocate (TDMT,NDge,Label='TDMT')
        write(6,*)
        WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
@@ -260,20 +261,18 @@ C     Start and initialize spaces
       Veig(:)=0.0D0
       ONTO(:)=0.0D0
       UNTO(:)=0.0D0
-!      CALL DCOPY_(Ndge,WORK(LTRAD),1,WORK(LTDM),1)
       If (Spin(I_NTO).eq.'a') Then
-C       WORK(LTDM-1+I)=WORK(LTRAD-1+I)
       Do I=1,Ndge
-       WORK(LTDM-1+I)=(TRAD(I)+TRASD(I))/Two
+       TDM(I)=(TRAD(I)+TRASD(I))/Two
       End DO
       else
       Do I=1,Ndge
-       WORK(LTDM-1+I)=(TRAD(I)-TRASD(I))/Two
+       TDM(I)=(TRAD(I)-TRASD(I))/Two
       End DO
       End IF
       DO I=1,NASHT
        DO J=1,NASHT
-        WORK(LTDMT+(I-1)+NASHT*(J-1))=WORK(LTDM+(J-1)+NASHT*(I-1))
+        TDMT(I+NASHT*(J-1))=TDM(J+NASHT*(I-1))
        END DO
       END DO
 C     Print out transition density matrix
@@ -298,8 +297,8 @@ C     Print out transition density matrix
 C     Generalizing transpose of TDM, TDM_T
 
 C     Calculating T_trans*T
-      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDMT),NASHT,
-     &             WORK(LTDM),NASHT,0.0D0,Vmat,NASHT)
+      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,TDMT,NASHT,
+     &             TDM,NASHT,0.0D0,Vmat,NASHT)
 C     Writing Particle Matrix
       write (FILENAME,fmt='(a,a,a)')
      &"Dhole.",trim(adjustl(STATENAME)),Spin(I_NTO)
@@ -310,8 +309,8 @@ C     Writing Particle Matrix
       END DO
       close (LU)
 C     Calculating T*T_transpose
-      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDM),NASHT,
-     &             WORK(LTDMT),NASHT,0.0D0,Umat,NASHT)
+      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,TDM,NASHT,
+     &             TDMT,NASHT,0.0D0,Umat,NASHT)
       write (FILENAME,fmt='(a,a,a)')
      &"Dpart.",trim(adjustl(STATENAME)),Spin(I_NTO)
       LU=ISFREEUNIT(LU)
@@ -447,8 +446,8 @@ C     Putting particle-hole pairs in the output
       CALL mma_deallocate(UMat)
       CALL mma_deallocate(VEig)
       CALL mma_deallocate(UEig)
-      CALL GETMEM ('TDM' ,'Free','Real',LTDM,NDge)
-      CALL GETMEM ('TDMT','Free','Real',LTDMT,NDge)
+      CALL mma_deallocate(TDMT)
+      CALL mma_deallocate(TDM)
       CALL mma_deallocate(CMO1)
       CALL mma_deallocate(CMO2)
 
