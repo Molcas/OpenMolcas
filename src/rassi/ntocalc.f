@@ -49,7 +49,6 @@
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 
       Integer ISpin,JOB1,JOB2
@@ -69,11 +68,10 @@
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
       INTEGER NSUPCMO
-      INTEGER NDge,LNTOVeig
-      INTEGER LTDM,LTDMT,NScrq,LCMO1,LCMO2
+      INTEGER NDge
+      INTEGER NScrq,LCMO1,LCMO2
       REAL*8 WGRONK(2)
       INTEGER N_NTO,INFO, I_NTO
-      INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
 !     re-organizing orbitals
 !     This is to convert active MO sets in any symmetry into a C1 symmetry
@@ -100,6 +98,8 @@
       Real*8, allocatable:: UEig(:), VEig(:)
       Real*8, allocatable:: TDM(:), TDMT(:)
       Real*8, allocatable:: Scrq(:)
+      Integer, allocatable:: Symfr(:), Symto(:)
+      Integer, allocatable:: Indfr(:), Indto(:)
 
       LU=233
 
@@ -114,12 +114,6 @@
       CALL RDCMO_RASSI(JOB2,CMO2)
 
       if(dotest)then
-C       write (6,*) 'LTRad ',LTRad,WORK(LTRAD)
-C       write(6,*) 'Transition density matrix '
-C       Do IPrint=1,NASHT
-C       write (6,'(10(2X,F10.7))')
-C     & (WORK(LTRAD+JPrint-1+NASHT*(IPrint-1)),JPrint=1,NASHT)
-C       End Do
        write(6,*) 'LCMO1 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
@@ -197,8 +191,6 @@ C     building up a super-CMO matrix (to be C1-like)
          Do IPrint=1,(OrbBas(IOrb))
           JPrint=IPrint+NUsedBF(OrbUsedSym(IOrb))
           J=I+IPrint-1
-C          write(6,'(4X,5I4,2F10.6)') IOrb,icactorb,
-C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,CMO1(1+J),WORK(LCMO2+J)
           SUPCMO1(icactorb+(JPRINT-1)*NASHT)=CMO1(1+J)
           SUPCMO2(icactorb+(JPRINT-1)*NASHT)=CMO2(1+J)
         End DO
@@ -372,25 +364,23 @@ C     Constructing hole and particle orbitals
        write(6,*)'printing Hole     NTO in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LUNTO+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(UNTO(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
       End If
 
 C     Printing NTOs
-      CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymto,NASHT)
-      CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndto,NASHT)
-      CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymfr,NASHT)
-      CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
+      CALL mma_allocate (Symto,NASHT,Label='Symto')
+      CALL mma_allocate (Indto,NASHT,Label='Indto')
+      CALL mma_allocate (Symfr,NASHT,Label='Symfr')
+      CALL mma_allocate (Indfr,NASHT,Label='Indfr')
       NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
-     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),
-     &                    iWork(LSymto),iWork(LIndto))
+     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto)
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
-     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),
-     &                    iWork(LSymfr),iWork(LIndfr))
+     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr)
 C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
@@ -418,8 +408,8 @@ C     Putting particle-hole pairs in the output
        write(6,'(10X,2(10X,F8.5),10X,F8.2,2(A9,I9))')
      & SQRT(Ueig(IOrb)),Ueig(IOrb),
      &                  Ueig(IOrb)/SumEigVal*1.0D2,
-     & lIrrep(iWORK(LSymfr-1+IOrb)),iWORK(LIndfr-1+IOrb),
-     & lIrrep(iWORK(LSymto-1+IOrb)),iWORK(LIndto-1+IOrb)
+     & lIrrep(Symfr(IOrb)),Indfr(IOrb),
+     & lIrrep(Symto(IOrb)),Indto(IOrb)
       End Do
 
       WRITE(6,'(6X,A)') repeat('-',100)
@@ -427,10 +417,10 @@ C     Putting particle-hole pairs in the output
       WRITE(6,'(6X,A)') repeat('=',100)
 
 
-      CALL GETMEM ('PartNTOSyms','Free','Inte',LSymto,NASHT)
-      CALL GETMEM ('PartNTOIndx','Free','Inte',LIndto,NASHT)
-      CALL GETMEM ('PartNTOSyms','Free','Inte',LSymfr,NASHT)
-      CALL GETMEM ('PartNTOIndx','Free','Inte',LIndfr,NASHT)
+      CALL mma_deallocate (Symto)
+      CALL mma_deallocate (Indto)
+      CALL mma_deallocate (Symfr)
+      CALL mma_deallocate (Indfr)
       End DO
 ! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
 
