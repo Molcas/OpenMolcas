@@ -95,6 +95,7 @@
       EXTERNAL Molden_interface
       Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
       Real*8, allocatable:: ONTO(:), UNTO(:)
+      Real*8, allocatable:: CMO1(:), CMO2(:)
 
       LU=233
 
@@ -103,10 +104,10 @@
       Zero=0.0D0
       Two=2.0D0
       PrintThres=1.0D-5
-      CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
-      CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
-      CALL RDCMO_RASSI(JOB1,WORK(LCMO1))
-      CALL RDCMO_RASSI(JOB2,WORK(LCMO2))
+      CALL mma_allocate(CMO1,NCMO,Label='CMO1')
+      CALL mma_allocate(CMO2,NCMO,Label='CMO2')
+      CALL RDCMO_RASSI(JOB1,CMO1)
+      CALL RDCMO_RASSI(JOB2,CMO2)
 
       if(dotest)then
 C       write (6,*) 'LTRad ',LTRad,WORK(LTRAD)
@@ -118,12 +119,12 @@ C       End Do
        write(6,*) 'LCMO1 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
-     & (WORK(LCMO1+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
+     & (CMO1(I+IPrint),IPrint=1,MIN(5,NCMO-I))
        End Do
        write(6,*) 'LCMO2 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
-     & (WORK(LCMO2+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
+     & (CMO2(I+IPrint),IPrint=1,MIN(5,NCMO-I))
        End Do
       endif
 
@@ -193,9 +194,9 @@ C     building up a super-CMO matrix (to be C1-like)
           JPrint=IPrint+NUsedBF(OrbUsedSym(IOrb))
           J=I+IPrint-1
 C          write(6,'(4X,5I4,2F10.6)') IOrb,icactorb,
-C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
-          SUPCMO1(icactorb+(JPRINT-1)*NASHT)=WORK(LCMO1+J)
-          SUPCMO2(icactorb+(JPRINT-1)*NASHT)=WORK(LCMO2+J)
+C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,CMO1(1+J),WORK(LCMO2+J)
+          SUPCMO1(icactorb+(JPRINT-1)*NASHT)=CMO1(1+J)
+          SUPCMO2(icactorb+(JPRINT-1)*NASHT)=CMO2(1+J)
         End DO
        End IF
        I=I+OrbBas(IOrb)
@@ -450,8 +451,8 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('Veig','Free','Real',LNTOVeig,NDge)
       CALL GETMEM ('TDM' ,'Free','Real',LTDM,NDge)
       CALL GETMEM ('TDMT','Free','Real',LTDMT,NDge)
-      CALL GETMEM('GTDMCMO1','Free','REAL',LCMO1,NCMO)
-      CALL GETMEM('GTDMCMO2','Free','REAL',LCMO2,NCMO)
+      CALL mma_deallocate(CMO1)
+      CALL mma_deallocate(CMO2)
 
       CALL mma_deallocate(SUPCMO2)
       CALL mma_deallocate(SUPCMO1)
