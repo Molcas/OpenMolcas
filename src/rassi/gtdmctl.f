@@ -411,7 +411,7 @@ C IWORK(LSSTAB)
       IF(IPGLOB.GE.4) CALL PRORBTAB(ORBTAB)
 
       LSSTAB=NEWSSTAB(ORBTAB)
-      IF(IPGLOB.GE.4) CALL PRSSTAB(LSSTAB)
+      IF(IPGLOB.GE.4) CALL PRSSTAB(iWork(LSSTAB))
 
 C Mapping from active spin-orbital to active orbital in external order.
 C Note that these differ, not just because of the existence of two
@@ -558,7 +558,7 @@ C be removed. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB1,100)
 
-        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,LSSTAB)
+        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,iWork(LSSTAB))
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB1))
         NDET1=IWORK(LFSBTAB1+4)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
@@ -679,7 +679,7 @@ C At present, we will only annihilate. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB2,100)
 
-        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,LSSTAB)
+        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,iWork(LSSTAB))
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB2))
         NDET2=IWORK(LFSBTAB2+4)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2

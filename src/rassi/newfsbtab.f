@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWFSBTAB(NACTEL,MSPIN2,LSYM,LREST,LSSTAB)
+      INTEGER FUNCTION NEWFSBTAB(NACTEL,MSPIN2,LSYM,LREST,SSTAB)
       IMPLICIT NONE
-      INTEGER NACTEL,MSPIN2,LSYM,LREST,LSSTAB
+      INTEGER NACTEL,MSPIN2,LSYM,LREST
+      INTEGER SSTAB(*)
 
       INTEGER LFSBTAB,LSSTARR,NSIZE,ITYPE
       INTEGER NASPRT
@@ -23,9 +24,8 @@ C Purpose: Construct an FSB table and return its address in the
 C IWORK array.
 C ITYPE=73 is the check code for this table.
       ITYPE=73
-      IF(IWORK(LSSTAB+1).NE.19) THEN
+      IF(SSTAB(2).NE.19) THEN
         WRITE(6,*)' NEWFSBTAB error: Not a Substring Table.'
-        WRITE(6,*)' Address is LSSTAB=',LSSTAB
         CALL ABEND()
       END IF
       IF(IWORK(LREST+1).NE.91) THEN
@@ -33,8 +33,8 @@ C ITYPE=73 is the check code for this table.
         WRITE(6,*)' Address is LREST=',LREST
         CALL ABEND()
       END IF
-      NSYM  =IWORK(LSSTAB+3)
-      NASPRT=IWORK(LSSTAB+4)
+      NSYM  =SSTAB(4)
+      NASPRT=SSTAB(5)
       NPART=IWORK(LREST+2)
       KORB=5
       KREST=KORB+(NSYM+1)*(NPART+1)
@@ -45,7 +45,7 @@ C an array dimensioned (NASPRT+2)*NFSB, and finally a hash map
 C with suitable capacity e.g. 2*NFSB (50% usage). Each item in a
 C hash map takes up 2 integers. Capacity must be at least NFSB+997.
       CALL mkVERTAB(NACTEL,MSPIN2,LSYM,NPART,IWORK(LGORB),IWORK(LGLIM),
-     &            IWORK(LSSTAB),NFSB0,NRDETS0,NFSB,NRDETS,LSSTARR)
+     &              SSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LSSTARR)
       NHEAD=7
       NSSTARR=(NASPRT+2)*NFSB
       NHSHMAP=997+2*NFSB
@@ -87,4 +87,4 @@ C Check that they can be obtained back:
       END IF
       NEWFSBTAB=LFSBTAB
       RETURN
-      END
+      END FUNCTION NEWFSBTAB
