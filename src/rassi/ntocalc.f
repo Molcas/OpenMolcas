@@ -24,7 +24,7 @@
 *        multiplied by its transpose. Vmat is the V matrix, the eigen-
 *        vector matrix of a matrix calculated by the transpose
 *        multiplied by the TDM.
-*        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
+*        Ueig is the eigenvalen matrix for the U matrix, Veig is
 *        that
 *        for the V matrix.
 *        ONTO is the hole NTO, calculated by multiplying MO matrix with
@@ -72,7 +72,7 @@
       INTEGER NDge,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
       REAL*8 WGRONK(2)
-      INTEGER N_NTO,INFO, LNTOUeig,I_NTO
+      INTEGER N_NTO,INFO, I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
 !     re-organizing orbitals
@@ -97,6 +97,7 @@
       Real*8, allocatable:: ONTO(:), UNTO(:)
       Real*8, allocatable:: CMO1(:), CMO2(:)
       Real*8, allocatable:: UMAT(:), VMAT(:)
+      Real*8, allocatable:: UEig(:), VEig(:)
 
       LU=233
 
@@ -226,8 +227,8 @@ C     Start and initialize spaces
       NDge=NASHT**2
       CALL mma_allocate (Umat,NDge,Label='UMat')
       CALL mma_allocate (Vmat,NDge,Label='VMat')
-      CALL GETMEM ('Ueig','Allo','Real',LNTOUeig,NDge)
-      CALL GETMEM ('Veig','Allo','Real',LNTOVeig,NDge)
+      CALL mma_allocate (Ueig,NDge,Label='Ueig')
+      CALL mma_allocate (Veig,NDge,Label='Veig')
       CALL GETMEM ('TDM' ,'Allo','Real',LTDM,NDge)
       CALL GETMEM ('TDMT','Allo','Real',LTDMT,NDge)
        write(6,*)
@@ -254,8 +255,8 @@ C     Start and initialize spaces
         Spin(2)='b'
       End IF
       Do I_NTO=1,N_NTO
-      CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOUeig),1)
-      CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOVeig),1)
+      Ueig(:)=0.0D0
+      Veig(:)=0.0D0
       ONTO(:)=0.0D0
       UNTO(:)=0.0D0
 !      CALL DCOPY_(Ndge,WORK(LTRAD),1,WORK(LTDM),1)
@@ -318,8 +319,7 @@ C     Calculating T*T_transpose
         write (LU,'(10(1X,ES11.4E2))') (Umat(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
-       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,WORK(LNTOVeig),
-     &              WGRONK,-1,INFO)
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,Veig,WGRONK,-1,INFO)
        NScrq=INT(WGRONK(1))
        If(Nscrq.eq.0) Then
         Nscrq=MAX(NDge,100)
@@ -329,9 +329,9 @@ C     Calculating T*T_transpose
        End If
        CALL GETMEM ('Scrq','Allo','Real',LScrq,NScrq)
 C       Diagonalizing matrices
-       CALL DSYEV_('V','U',NASHT,Umat,NASHT,WORK(LNTOUeig),
+       CALL DSYEV_('V','U',NASHT,Umat,NASHT,Ueig,
      &              WORK(LScrq),NScrq,INFO)
-       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,WORK(LNTOVeig),
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,Veig,
      &              WORK(LScrq),NScrq,INFO)
        CALL GETMEM ('Scrq','Free','Real',LScrq,NScrq)
 C     Printing some matrices
@@ -387,11 +387,11 @@ C     Printing NTOs
       CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
       NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
-     &STATENAME,Work(NTOUeig),UsetoReal,RealtoUse,Spin(I_NTO),
+     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),
      &                    iWork(LSymto),iWork(LIndto))
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
-     &STATENAME,Work(NTOVeig),UsetoReal,RealtoUse,Spin(I_NTO),
+     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),
      &                    iWork(LSymfr),iWork(LIndfr))
 C     End of Printing NTOs
 
@@ -416,10 +416,10 @@ C     Putting particle-hole pairs in the output
      &'SYMMETRY INDEX','SYMMETRY INDEX'
       WRITE(6,'(6X,A)') repeat('-',100)
       Do IOrb=NASHT,1,-1
-       IF(WORK(LNTOUeig-1+IOrb).lt.PrintThres)  EXIT
+       IF(Ueig(IOrb).lt.PrintThres)  EXIT
        write(6,'(10X,2(10X,F8.5),10X,F8.2,2(A9,I9))')
-     & SQRT(WORK(LNTOUeig-1+IOrb)),WORK(LNTOUeig-1+IOrb),
-     &WORK(LNTOUeig-1+IOrb)/SumEigVal*1.0D2,
+     & SQRT(Ueig(IOrb)),Ueig(IOrb),
+     &                  Ueig(IOrb)/SumEigVal*1.0D2,
      & lIrrep(iWORK(LSymfr-1+IOrb)),iWORK(LIndfr-1+IOrb),
      & lIrrep(iWORK(LSymto-1+IOrb)),iWORK(LIndto-1+IOrb)
       End Do
@@ -446,8 +446,8 @@ C     Putting particle-hole pairs in the output
 
       CALL mma_deallocate(VMat)
       CALL mma_deallocate(UMat)
-      CALL GETMEM ('Ueig','Free','Real',LNTOUeig,NDge)
-      CALL GETMEM ('Veig','Free','Real',LNTOVeig,NDge)
+      CALL mma_deallocate(VEig)
+      CALL mma_deallocate(UEig)
       CALL GETMEM ('TDM' ,'Free','Real',LTDM,NDge)
       CALL GETMEM ('TDMT','Free','Real',LTDMT,NDge)
       CALL mma_deallocate(CMO1)
