@@ -13,9 +13,9 @@
       use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
      &                  NRS3T, NRSPRT
 #ifdef _DMRG_
-      use rassi_global_arrays, only: HAM, SFDYS, LROOT
+      use rassi_global_arrays, only: PART, HAM, SFDYS, LROOT
 #else
-      use rassi_global_arrays, only: HAM, SFDYS
+      use rassi_global_arrays, only: PART, HAM, SFDYS
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -401,13 +401,13 @@ C---------------  For all wave functions: ---------------------
 C Define structures ('tables') pertinent all jobs.
 C (Later, move this up before the GTDMCTL calls).
 C These are at:
-C IWORK(LPART)
+C PART
 C IWORK(LORBTAB)
 C IWORK(LSSTAB)
-      LPART=NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
-      IF(IPGLOB.GE.4) CALL PRPRTTAB(IWORK(LPART))
+      Call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
+      IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 
-      LORBTAB=NEWORBTAB(IWORK(LPART))
+      LORBTAB=NEWORBTAB(PART)
       IF(IPGLOB.GE.4) CALL PRORBTAB(LORBTAB)
 
       LSSTAB=NEWSSTAB(LORBTAB)
@@ -1434,7 +1434,7 @@ C             Write density 1-matrices in AO basis to disk.
 
       Call mma_deallocate(CMO2)
       Call mma_deallocate(CMO1)
-      CALL KILLOBJ(LPART)
+      Call mma_deallocate(PART)
       CALL KILLOBJ(LORBTAB)
       CALL KILLOBJ(LSSTAB)
       if(.not.doDMRG)then

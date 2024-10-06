@@ -69,10 +69,10 @@
 !IOrb is the index  of orbitals.
       INTEGER NSUPCMO
       INTEGER NDge
-      INTEGER NScrq,LCMO1,LCMO2
+      INTEGER NScrq
       REAL*8 WGRONK(2)
       INTEGER N_NTO,INFO, I_NTO
-      REAL*8 Zero,Two,PrintThres,SumEigVal
+      REAL*8 Two,PrintThres,SumEigVal
 !     re-organizing orbitals
 !     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
@@ -105,7 +105,6 @@
 
       statename=''
       DoTest=.false.
-      Zero=0.0D0
       Two=2.0D0
       PrintThres=1.0D-5
       CALL mma_allocate(CMO1,NCMO,Label='CMO1')
@@ -114,12 +113,12 @@
       CALL RDCMO_RASSI(JOB2,CMO2)
 
       if(dotest)then
-       write(6,*) 'LCMO1 '
+       write(6,*) 'CMO1 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
      & (CMO1(I+IPrint),IPrint=1,MIN(5,NCMO-I))
        End Do
-       write(6,*) 'LCMO2 '
+       write(6,*) 'CMO2 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
      & (CMO2(I+IPrint),IPrint=1,MIN(5,NCMO-I))
@@ -379,7 +378,7 @@ C     Printing NTOs
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
      &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto)
       NTOType='HOLE'
-      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
+      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,UNTO,NTOType,
      &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr)
 C     End of Printing NTOs
 

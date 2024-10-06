@@ -11,7 +11,7 @@
       SUBROUTINE TSHinit(Energy)
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
-      use rassi_global_arrays, only: JBNUM, LROOT
+      use rassi_global_arrays, only: PART, JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -163,8 +163,8 @@ C Get wave function parameters for ISTATE2
          NHOL12=NHOLE1(JOB2)
          NELE32=NELE3(JOB2)
          WFTYP2=RASTYP(JOB2)
-         LPART=NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
-         IF(IPGLOB.GE.4) CALL PRPRTTAB(IWORK(LPART))
+         Call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
+         IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 C For the second wave function
          IF(WFTYP2.EQ.'GENERAL ') THEN
             NRSPRT=3
@@ -213,7 +213,7 @@ C     Check if the Energy gap is smaller than the threshold.
            CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
          CALL mma_deallocate(CI2)
-         CALL KILLOBJ(LPART)
+         CALL mma_deallocate(PART)
       END IF
 C
 C Check surface hopping to a root higher than the current one
@@ -238,8 +238,8 @@ C Get wave function parameters for ISTATE2
          NHOL12=NHOLE1(JOB2)
          NELE32=NELE3(JOB2)
          WFTYP2=RASTYP(JOB2)
-         LPART=NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
-         IF(IPGLOB.GE.4) CALL PRPRTTAB(IWORK(LPART))
+         Call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
+         IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 C For the second wave function
          IF(WFTYP2.EQ.'GENERAL ') THEN
             NRSPRT=3
@@ -288,7 +288,7 @@ C     Check if the Energy gap is smaller than the threshold.
            CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
          CALL mma_deallocate(CI2)
-         CALL KILLOBJ(LPART)
+         CALL mma_deallocate(PART)
       END IF
 *
       IF(WFTYP1.EQ.'GENERAL ') THEN
