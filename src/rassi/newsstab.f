@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWSSTAB(LORBTAB)
+      INTEGER FUNCTION NEWSSTAB(ORBTAB)
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-      INTEGER LORBTAB
+      INTEGER ORBTAB(*)
 
       INTEGER NTAB,ITYPE,NSSTP,NSBSTOT,KSBSMRS,KMRSSBS
       INTEGER KSBSANN,KSBSCRE
@@ -23,7 +23,7 @@
       INTEGER ISGN,ISORB,ISPART,ISSTP
       INTEGER ISYM,J,KMS2,KOINFO,KSSTANN
       INTEGER KSSTCRE,KSSTP,KSYM
-      INTEGER LOINFO,LPOS
+      INTEGER LPOS
       INTEGER LTAB,MRS,MS2
       INTEGER MXMS2,MXPOP,N
       INTEGER NEWMRS,NEWSBS,NEWSST,NO
@@ -31,15 +31,15 @@
       INTEGER IERR,ISBS1,ISBS2,ISBS3,ISBS4,ISBS5,ISBS6,ISBS7,ISBS8
       INTEGER, EXTERNAL :: MORSANN,MORSCRE,MORSPOP,MORSSPIN,MORSSYMM
       Integer, allocatable:: OSPN(:), OSYM(:), NOSUB(:), SCR(:), SCR2(:)
+      Integer, external:: ip_of_iWork
 
 C Table type ID:
       ITYPE=19
 C Pick up some data from the orbital table:
-      NASPO =IWORK(LORBTAB+3)
-      NSYM  =IWORK(LORBTAB+4)
-      NASPRT=IWORK(LORBTAB+8)
+      NASPO =ORBTAB(4)
+      NSYM  =ORBTAB(5)
+      NASPRT=ORBTAB(9)
       KOINFO=19
-      LOINFO=LORBTAB-1+KOINFO
 C Make temporary arrays for spin label and symmetry of each orbital
       CALL mma_allocate(OSPN,NASPO,Label='OSPN')
       CALL mma_allocate(OSYM,NASPO,Label='OSYM')
@@ -48,11 +48,11 @@ C each subpartition:
       CALL mma_allocate(NOSUB,NASPRT,Label='NOSUB')
       NOSUB(:)=0
       DO ISORB=1,NASPO
-        ISYM  = IWORK(LOINFO+ 1+(ISORB-1)*8)
+        ISYM  = OrbTab(KOINFO+ 1+(ISORB-1)*8)
         OSYM(ISORB)=ISYM
-        MS2   = IWORK(LOINFO+ 3+(ISORB-1)*8)
+        MS2   = OrbTab(KOINFO+ 3+(ISORB-1)*8)
         OSPN(ISORB)=MS2
-        ISPART= IWORK(LOINFO+ 6+(ISORB-1)*8)
+        ISPART= OrbTab(KOINFO+ 6+(ISORB-1)*8)
         N=1+NOSUB(ISPART)
         NOSUB(ISPART)=N
       END DO
@@ -142,7 +142,7 @@ C Size of table, and offsets:
 C The header data
       IWORK(LTAB+ 0)=NTAB
       IWORK(LTAB+ 1)=ITYPE
-      IWORK(LTAB+ 2)=LORBTAB
+      IWORK(LTAB+ 2)=ip_of_iWork(OrbTab)
       IWORK(LTAB+ 3)=NSYM
       IWORK(LTAB+ 4)=NASPRT
       IWORK(LTAB+ 5)=MORSBITS

@@ -8,19 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      CHARACTER*8 FUNCTION ORBNAM(ISORB,LORB)
+      CHARACTER(LEN=8) FUNCTION ORBNAM(ISORB,ORBTAB)
       IMPLICIT NONE
-#include "WrkSpc.fh"
-      CHARACTER*8 STRING8
-      CHARACTER*2 ORBTYP
-      INTEGER ISORB,IPART,ISMLAB,ISOIND,LORB,NPART
-      INTEGER LOINFO,KOINFO
-      NPART= IWORK(LORB+5)
+      Integer ISORB, ORBTAB(*)
+      CHARACTER(LEN=8) STRING8
+      CHARACTER(LEN=2) ORBTYP
+      INTEGER IPART,ISMLAB,ISOIND,NPART
+      INTEGER KOINFO
+      NPART= ORBTAB(6)
       KOINFO=19
-      LOINFO=LORB-1+KOINFO
-      ISMLAB= IWORK(LOINFO+ 1+(ISORB-1)*8)
-      IPART= IWORK(LOINFO+ 4+(ISORB-1)*8)
-      ISOIND= IWORK(LOINFO+ 2+(ISORB-1)*8)
+      ISMLAB= ORBTAB(KOINFO+ 1+(ISORB-1)*8)
+      IPART=  ORBTAB(KOINFO+ 4+(ISORB-1)*8)
+      ISOIND= ORBTAB(KOINFO+ 2+(ISORB-1)*8)
       ORBTYP='De'
       IF(IPART.EQ.NPART-1) ORBTYP='Fr'
       IF(IPART.EQ.NPART-2) ORBTYP='Se'

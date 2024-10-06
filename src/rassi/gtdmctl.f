@@ -408,9 +408,9 @@ C IWORK(LSSTAB)
       IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 
       LORBTAB=NEWORBTAB(PART)
-      IF(IPGLOB.GE.4) CALL PRORBTAB(LORBTAB)
+      IF(IPGLOB.GE.4) CALL PRORBTAB(iWork(LORBTAB))
 
-      LSSTAB=NEWSSTAB(LORBTAB)
+      LSSTAB=NEWSSTAB(iWork(LORBTAB))
       IF(IPGLOB.GE.4) CALL PRSSTAB(LSSTAB)
 
 C Mapping from active spin-orbital to active orbital in external order.
