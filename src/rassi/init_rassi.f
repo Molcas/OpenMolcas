@@ -138,6 +138,7 @@ C DEFAULT FLAGS:
       NONA=.FALSE.
       IFTRD1=.FALSE.
       IFTRD2=.FALSE.
+      IFWFA=.FALSE.
       RFPERT=.FALSE.
       ToFile=.false.
       PRXVR=.FALSE.
@@ -244,6 +245,7 @@ c RF - SO-NTO initialization
         WRITE(6,*)'     NATO  :',NATO
         WRITE(6,*)'     IFTRD1:',IFTRD1
         WRITE(6,*)'     IFTRD2:',IFTRD2
+        WRITE(6,*)'     IFWFA :',IFWFA
         WRITE(6,*)'     RFPERT:',RFPERT
         WRITE(6,*)'     TOFILE:',ToFile
         WRITE(6,*)'     PRXVR :',PRXVR

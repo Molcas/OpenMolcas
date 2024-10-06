@@ -708,6 +708,12 @@ C--------------------------------------------
         GOTO 100
       ENDIF
 C--------------------------------------------
+      IF(Line(1:4).eq.'WFAP') THEN
+        IFWFA=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      ENDIF
+C--------------------------------------------
 *CEH April 2015
       IF(Line(1:4).eq.'DQVD') THEN
         DQVD=.TRUE.

@@ -619,7 +619,7 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
         End Do
         LoopDivide=n
 #ifdef _HDF5_
-        If (IFTRD1.or.IFTRD2)
+        If (IFTRD1.or.IFWFA)
      &    Call UpdateIdx(IndexE,nSS,USOR,USOI,iWork(lMapSt))
 #endif
         Call mma_deAllocate(IndexE)

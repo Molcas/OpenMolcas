@@ -406,7 +406,7 @@ C within the basis formed by the states.
          End If
       End Do
 #ifdef _HDF5_
-      If (IFTRD1.or.IFTRD2) Call UpdateIdx(IndexE, 0)
+      If (IFTRD1.or.IFWFA) Call UpdateIdx(IndexE, 0)
 #endif
 *                                                                      *
 ************************************************************************

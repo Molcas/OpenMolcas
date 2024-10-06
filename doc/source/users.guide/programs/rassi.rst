@@ -1275,6 +1275,18 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`WFAPrep`
+  Prepares a run of the :program:`WFA` program by printing 1-electron (transition) densities to
+  the HDF5 file :file:`rassi.h5`.
+
+.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="WFAPREP" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: WFAPREP <advanced>
+              <HELP>
+              Preparse a run of the WFA program by printing the 1-electron (transition) densities to
+              the HDF5 file rassi.h5.
+              </HELP>
+              </KEYWORD>
+
 :kword:`DYSOn`
   Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons. Dyson amplitudes are correctly obtained from a biorthonormally transformed orbital sets as described in :cite:`Tenorio:2022molecules`.
 
