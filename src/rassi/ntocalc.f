@@ -421,8 +421,8 @@ C     Putting particle-hole pairs in the output
        write(6,'(10X,2(10X,F8.5),10X,F8.2,2(A9,I9))')
      & SQRT(WORK(LNTOUeig-1+IOrb)),WORK(LNTOUeig-1+IOrb),
      &WORK(LNTOUeig-1+IOrb)/SumEigVal*1.0D2,
-     & lIrrep(INT(WORK(LSymfr-1+IOrb))),INT(WORK(LIndfr-1+IOrb)),
-     & lIrrep(INT(WORK(LSymto-1+IOrb))),INT(WORK(LIndto-1+IOrb))
+     & lIrrep(iWORK(LSymfr-1+IOrb)),iWORK(LIndfr-1+IOrb),
+     & lIrrep(iWORK(LSymto-1+IOrb)),iWORK(LIndto-1+IOrb)
       End Do
 
       WRITE(6,'(6X,A)') repeat('-',100)
@@ -554,8 +554,8 @@ C
        End If
         NOrbinSym(IPrintSym)=NOrbinSym(IPrintSym)+1
         OrbSymIndex(IPrintSym,NOrbinSym(IPrintSym))=INTO
-      WORK(LSym-1+INTO)=UsetoReal(IPrintSym)
-      WORK(LInd-1+INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
+      iWORK(LSym-1+INTO)=UsetoReal(IPrintSym)
+      iWORK(LInd-1+INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
       End Do
 
 C     generating file in a similar way to other orbital files
