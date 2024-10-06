@@ -70,7 +70,7 @@
 !IOrb is the index  of orbitals.
       INTEGER NSUPCMO
       INTEGER NDge,LNTOVeig
-      INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
+      INTEGER LTDM,LTDMT,NScrq,LCMO1,LCMO2
       REAL*8 WGRONK(2)
       INTEGER N_NTO,INFO, I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
@@ -98,6 +98,7 @@
       Real*8, allocatable:: CMO1(:), CMO2(:)
       Real*8, allocatable:: UMAT(:), VMAT(:)
       Real*8, allocatable:: UEig(:), VEig(:)
+      Real*8, allocatable:: Scrq(:)
 
       LU=233
 
@@ -327,13 +328,11 @@ C     Calculating T*T_transpose
          write(6,*)'Size of scratch space is increased to max(NDge,100)'
         end if
        End If
-       CALL GETMEM ('Scrq','Allo','Real',LScrq,NScrq)
+       CALL mma_allocate (Scrq,NScrq,Label='Scrq')
 C       Diagonalizing matrices
-       CALL DSYEV_('V','U',NASHT,Umat,NASHT,Ueig,
-     &              WORK(LScrq),NScrq,INFO)
-       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,Veig,
-     &              WORK(LScrq),NScrq,INFO)
-       CALL GETMEM ('Scrq','Free','Real',LScrq,NScrq)
+       CALL DSYEV_('V','U',NASHT,Umat,NASHT,Ueig,Scrq,NScrq,INFO)
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,Veig,Scrq,NScrq,INFO)
+       CALL mma_deallocate (Scrq)
 C     Printing some matrices
       If (DoTest) Then
        write (FILENAME,fmt='(a,a,a)')
