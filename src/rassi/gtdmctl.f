@@ -15,10 +15,13 @@
 #ifdef _DMRG_
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT,
      &                               SSTAB, REST1, REST2,
-     &                               CnfTab1, CnfTab2
+     &                               CnfTab1, CnfTab2,
+     &                               FSBTAB1, FSBTAB2
 #else
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
      &                               REST1, REST2,
+     &                               CnfTab1, CnfTab2,
+     &                               FSBTAB1, FSBTAB2
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -488,7 +491,7 @@ C Still JOB1, define structures ('tables') pertinent to JOB1
 C These are at:
 C REST1
 C CNFTAB1
-C IWORK(LFSBTAB1)
+C FSBTAB1
 C IWORK(LSPNTAB1)
 
       NPART=3
@@ -561,9 +564,9 @@ C be removed. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM,1)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(CNFTAB1,100)
 
-        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,REST1,SSTAB)
-        IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB1))
-        NDET1=IWORK(LFSBTAB1+4)
+        Call NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,REST1,SSTAB,1)
+        IF(IPGLOB.GE.4) CALL PRFSBTAB(FSBTAB1)
+        NDET1=FSBTAB1(5)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
         LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1)
         IF (IPGLOB.GT.4) THEN
@@ -682,9 +685,9 @@ C At present, we will only annihilate. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM,2)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(CNFTAB2,100)
 
-        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,REST2,SSTAB)
-        IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB2))
-        NDET2=IWORK(LFSBTAB2+4)
+        Call NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,REST2,SSTAB,2)
+        IF(IPGLOB.GE.4) CALL PRFSBTAB(FSBTAB2)
+        NDET2=FSBTAB2(5)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
         LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2)
         IF (IPGLOB.GT.4) THEN
@@ -719,7 +722,7 @@ C         Transform to bion basis, Split-Guga format
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
      &                CNFTAB1,IWORK(LSPNTAB1),
-     &                SSTAB,IWORK(LFSBTAB1),NCONF1,CI1,
+     &                SSTAB,FSBTAB1,NCONF1,CI1,
      &                DET1,detocc,detcoeff1)
 
 C       print transformed ci expansion
@@ -802,7 +805,7 @@ C         Transform to bion basis, Split-Guga format
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                CNFTAB2,IWORK(LSPNTAB2),
-     &                SSTAB,IWORK(LFSBTAB2),NCONF2,CI2,
+     &                SSTAB,FSBTAB2,NCONF2,CI2,
      &                DET2,detocc,detcoeff2)
 
 C         print transformed ci expansion
@@ -894,8 +897,7 @@ C Dyson amplitudes:
 C DYSAMP = D_ij for states i and j
 C DYSCOF = Active orbital coefficents of the DO
       IF ((IF10.or.IF01).and.DYSO) THEN
-        CALL DYSON(IWORK(LFSBTAB1),
-     &            IWORK(LFSBTAB2),SSTAB,
+        CALL DYSON(FSBTAB1,FSBTAB2,SSTAB,
      &            DET1,DET2,
      &            IF10,IF01,
      &            DYSAMP,DYSCOF)
@@ -937,7 +939,7 @@ C     Defining the Binding energy Ei-Ej
        IF((MPLET1-MPLET2).eq.INT(1)) THEN
 C evaluate K-2V spin+1 density
         AUGSPIN=1
-        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
@@ -946,21 +948,21 @@ C evaluate K-2V spin+1 density
         ELSE IF ((MPLET1-MPLET2).eq.INT(-1)) THEN
 C evaluate K-2V spin-1 density
         AUGSPIN=-1
-        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
         ELSE ! write then both
         AUGSPIN=1
-        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
         AUGSPIN=-1
-        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
@@ -980,7 +982,7 @@ C     Defining the Binding energy Ei-Ej
       BEij=ABS(BEi-BEj)*auToEV
       Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
       DCHSM(:) = Zero
-      CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+      CALL MKDCHS(FSBTAB1,FSBTAB2,
      &            SSTAB,OMAP,DET1,DET2,
      &            IF20,IF02,NDCHSM,DCHSM)
       Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
@@ -992,8 +994,8 @@ C     Defining the Binding energy Ei-Ej
 
 C General 1-particle transition density matrix:
       IF (IF11) THEN
-        CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
-     &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),SSTAB,
+        CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,FSBTAB1,
+     &              LSYM2,MPLET2,MSPROJ2,FSBTAB2,SSTAB,
      &            OMAP,DET1,DET2,SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
      &            JSTATE,job1,job2,ist,jst)
@@ -1133,8 +1135,7 @@ C             Write density 1-matrices in AO basis to disk.
 #ifdef _DMRG_
               if(.not.doDMRG)then
 #endif
-                SIJ=OVERLAP_RASSI(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &                            DET1,DET2)
+                SIJ=OVERLAP_RASSI(FSBTAB1,FSBTAB2,DET1,DET2)
 #ifdef _DMRG_
               else
                 sij = qcmaquis_mpssi_overlap(
@@ -1155,8 +1156,8 @@ C             Write density 1-matrices in AO basis to disk.
 
           !> General 2-particle transition density matrix:
           IF (IF22) THEN
-            CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
-     &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
+            CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,FSBTAB1,
+     &                  LSYM2,MPLET2,MSPROJ2,FSBTAB2,
      &                  SSTAB,OMAP,
      &                  DET1,DET2,NTDM2,TDM2,
      &                  ISTATE,JSTATE)
@@ -1255,7 +1256,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                           LSYM2,TRA2,NCONF2,CI2)
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                CNFTAB2,IWORK(LSPNTAB2),
-     &                SSTAB,IWORK(LFSBTAB2),NCONF2,CI2,
+     &                SSTAB,FSBTAB2,NCONF2,CI2,
      &                DET2,detocc,detcoeff2)
 
           CALL mma_allocate(ThetaN,NCONF2,Label='ThetaN')
@@ -1438,8 +1439,8 @@ C             Write density 1-matrices in AO basis to disk.
         Call mma_deallocate(REST1)
         Call mma_deallocate(CNFTAB2)
         Call mma_deallocate(CNFTAB1)
-        CALL KILLOBJ(LFSBTAB1)
-        CALL KILLOBJ(LFSBTAB2)
+        Call mma_deallocate(FSBTAB2)
+        Call mma_deallocate(FSBTAB1)
       end if
       CALL mma_deallocate(OMAP)
 
