@@ -21,7 +21,6 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 #include "stdalloc.fh"
       INTEGER ISTATE, JSTATE, SYM12

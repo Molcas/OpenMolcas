@@ -16,7 +16,6 @@
       REAL*8 CISYG(*),CISD(*)
       character(len=*), intent(out) :: detocc(*)
       real(8) :: detcoeff(*), SPTRA(*)
-#include "WrkSpc.fh"
 
       INTEGER NASPRT
       INTEGER MINOP,MAXOP,NACTEL,NOPEN,NCLSD
