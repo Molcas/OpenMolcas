@@ -569,6 +569,7 @@ C be removed. This limits the possible MAXOP:
         NDET1=FSBTAB1(5)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
         LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1)
+        LTRANS1=IWORK(LSPNTAB1+6)
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
@@ -690,6 +691,7 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         NDET2=FSBTAB2(5)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
         LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2)
+        LTRANS2=IWORK(LSPNTAB2+6)
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
@@ -723,7 +725,8 @@ C         Transform to bion basis, Split-Guga format
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
      &                CNFTAB1,IWORK(LSPNTAB1),
      &                SSTAB,FSBTAB1,NCONF1,CI1,
-     &                DET1,detocc,detcoeff1)
+     &                DET1,detocc,detcoeff1,
+     &                WORK(LTRANS1))
 
 C       print transformed ci expansion
         if (JOB1 /= JOB2) then
@@ -806,7 +809,8 @@ C         Transform to bion basis, Split-Guga format
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                CNFTAB2,IWORK(LSPNTAB2),
      &                SSTAB,FSBTAB2,NCONF2,CI2,
-     &                DET2,detocc,detcoeff2)
+     &                DET2,detocc,detcoeff2,
+     &                Work(LTRANS2))
 
 C         print transformed ci expansion
           if (JOB1 /= JOB2) then
@@ -1257,7 +1261,8 @@ C             Write density 1-matrices in AO basis to disk.
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                CNFTAB2,IWORK(LSPNTAB2),
      &                SSTAB,FSBTAB2,NCONF2,CI2,
-     &                DET2,detocc,detcoeff2)
+     &                DET2,detocc,detcoeff2,
+     &                Work(LTRANS2))
 
           CALL mma_allocate(ThetaN,NCONF2,Label='ThetaN')
           ThetaN(:)=0.0D0
