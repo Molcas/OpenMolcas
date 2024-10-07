@@ -33,7 +33,6 @@
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "jobin.fh"
-#include "WrkSpc.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
