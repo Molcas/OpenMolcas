@@ -14,7 +14,6 @@
 
       INTEGER IGAS,NGAS
       INTEGER NSYM,ISYM,KORB,KREST
-#include "WrkSpc.fh"
 
 C Executable statements
       WRITE(6,*)

@@ -18,9 +18,6 @@
       DIMENSION NFRO(NSYM),NISH(NSYM),NRAS1(NSYM),NRAS2(NSYM)
       DIMENSION NRAS3(NSYM),NSSH(NSYM),NDEL(NSYM)
 
-#include "WrkSpc.fh"
-C     INTEGER I
-
 C Executable statements
       NPART=7
       NSIZE=4+(NSYM+1)*(NPART+1)

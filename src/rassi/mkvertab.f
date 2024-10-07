@@ -37,7 +37,6 @@
       INTEGER NSBS
       INTEGER NSDBLK
 #include "Morsel.fh"
-#include "WrkSpc.fh"
       INTEGER LIMARR(2,0:50)
       INTEGER ITRY(50)
       INTEGER, Allocatable::  SSTPTR(:), SSTARR(:), VIDX(:)

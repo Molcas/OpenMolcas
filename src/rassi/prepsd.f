@@ -25,7 +25,6 @@
       real(8), intent(out) :: detcoeff(*)
       real(8), intent(in) :: SPTRA(*)
       Real*8, Allocatable:: CTMP(:)
-#include "WrkSpc.fh"
 
 C Purpose: Given a RASSCF wave function in Split-GUGA format
 C and an orbital transformation matrix for the purpose of

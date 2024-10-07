@@ -39,7 +39,6 @@
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "WrkSpc.fh"
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
       Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
