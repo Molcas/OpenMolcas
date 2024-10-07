@@ -21,4 +21,6 @@
       Integer, Allocatable:: SSTAB(:)
       Integer, Allocatable, Target:: REST1(:), REST2(:)
       Integer, Pointer:: REST(:)
+      Integer, Allocatable, Target:: CNFTAB1(:), CNFTAB2(:)
+      Integer, Pointer:: CNFTAB(:)
       End Module RASSI_GLOBAL_ARRAYS
