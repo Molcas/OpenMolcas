@@ -573,7 +573,7 @@ C be removed. This limits the possible MAXOP:
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-          CALL PRSCTAB(LSPNTAB1)
+          CALL PRSCTAB(iWork(LSPNTAB1),Work(LTRANS1))
         END IF
       else
         NDET1 = 1 ! minimum to avoid runtime error
@@ -695,7 +695,7 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-          CALL PRSCTAB(LSPNTAB2)
+          CALL PRSCTAB(iWork(LSPNTAB2),Work(LTRANS2))
         END IF
       else
         NDET2 = 1 ! minimum to avoid runtime error
