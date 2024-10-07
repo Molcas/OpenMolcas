@@ -519,8 +519,8 @@ subroutine Error(code)
   call mma_deallocate(EOrb)
   call mma_deallocate(Ind)
   call mma_deallocate(BName)
-  if (allocated(MOrig)) call mma_deallocate(MOrig)
-  if (allocated(NamAct)) call mma_deallocate(NamAct)
+  call mma_deallocate(MOrig,safe='*')
+  call mma_deallocate(NamAct,safe='*')
 
   ! Print timing.
   ! -------------

@@ -50,7 +50,7 @@ call mma_deallocate(Ovrlp)
 call mma_deallocate(OneHam)
 call mma_deallocate(HDiag)
 #ifdef _FDE_
-if (allocated(embInt)) call mma_deallocate(embInt)
+call mma_deallocate(embInt,safe='*')
 #endif
 
 !----------------------------------------------------------------------*

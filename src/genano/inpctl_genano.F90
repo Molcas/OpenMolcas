@@ -76,7 +76,7 @@ do
       write(u6,*) 'Error while reading input, keyword: ',trim(Key)
       call Quit_OnUserError()
     end if
-    if (allocated(wSet)) call mma_deallocate(wSet)
+    call mma_deallocate(wSet,safe='*')
     call mma_allocate(wSet,nSets,label='wSet')
     wSet(:) = One/nSets
   else if (Key == 'center') then

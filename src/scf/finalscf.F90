@@ -433,9 +433,9 @@ if (DSCF .or. RF_On() .or. Langevin_On() .or. PCM_On() .or. Do_OFemb .or. Do_Tw 
 #   endif
     (KSDFT /= 'SCF')) call ClsSew()
 
-if (allocated(FMaux)) call mma_deallocate(FMaux)
-if (allocated(NDSD)) call mma_deallocate(NDSD)
-if (allocated(DSc)) call mma_deallocate(DSc)
+call mma_deallocate(FMaux,safe='*')
+call mma_deallocate(NDSD,safe='*')
+call mma_deallocate(DSc,safe='*')
 #ifdef _EFP_
 if (EFP_On()) call EFP_ShutDown(EFP_Instance)
 #endif

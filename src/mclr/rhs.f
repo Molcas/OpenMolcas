@@ -263,8 +263,8 @@
       End Do
 *
       Call mma_deallocate(FIX)
-      If (Allocated(MOX)) Call mma_deallocate(MOX)
-      If (Allocated(MOT)) Call mma_deallocate(MOT)
+      Call mma_deallocate(MOX,safe='*')
+      Call mma_deallocate(MOT,safe='*')
 *                                                                      *
 ************************************************************************
 *                                                                      *

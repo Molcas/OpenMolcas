@@ -982,7 +982,7 @@ call mma_Deallocate(Grad)
 call mma_deallocate(Coor)
 call mma_deallocate(Energies_Ref)
 call mma_deallocate(AtomLbl)
-if (allocated(Mltp)) call mma_deallocate(Mltp)
+call mma_deallocate(Mltp,safe='*')
 if (DoTinker) call mma_deallocate(IsMM)
 if (nAtMM > 0) call mma_deallocate(MMGrd)
 

@@ -362,9 +362,9 @@
       If (Associated(pC2)) pC2=>Null()
       If (Associated(pCJRES)) pCJRES=>Null()
       If (Associated(pSIRES)) pSIRES=>Null()
-      IF (Allocated(C2)) Call mma_deallocate(C2)
-      If (Allocated(CJRES)) Call mma_deallocate(CJRES)
-      If (Allocated(SIRES)) Call mma_deallocate(SIRES)
+      Call mma_deallocate(C2,safe='*')
+      Call mma_deallocate(CJRES,safe='*')
+      Call mma_deallocate(SIRES,safe='*')
 *
       RETURN
       END

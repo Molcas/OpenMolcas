@@ -18,8 +18,8 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (allocated(CHVBUF)) call mma_deallocate(CHVBUF)
-if (allocated(CHVBFI)) call mma_deallocate(CHVBFI)
+call mma_deallocate(CHVBUF,safe='*')
+call mma_deallocate(CHVBFI,safe='*')
 
 ip_ChVBuf_Sym(1:nSym) = 0
 l_ChVBuf_Sym(1:nSym) = 0

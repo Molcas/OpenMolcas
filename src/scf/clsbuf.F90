@@ -30,6 +30,6 @@ use stdalloc, only: mma_deallocate
 implicit none
 
 if (OnDisk) call EAFClose(LuTmp)
-if (allocated(Buffer)) call mma_deallocate(Buffer)
+call mma_deallocate(Buffer,safe='*')
 
 end subroutine ClsBuf

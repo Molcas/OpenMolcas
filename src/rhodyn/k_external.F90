@@ -163,8 +163,8 @@ do i=1,Nstate
   end do
 end do
 
-if (allocated(kab_real)) call mma_deallocate(kab_real)
-if (allocated(k_ab)) call mma_deallocate(k_ab)
-if (allocated(omega_ab)) call mma_deallocate(omega_ab)
+call mma_deallocate(kab_real,safe='*')
+call mma_deallocate(k_ab,safe='*')
+call mma_deallocate(omega_ab,safe='*')
 
 end subroutine k_external

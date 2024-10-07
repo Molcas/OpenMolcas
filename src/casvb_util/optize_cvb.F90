@@ -176,10 +176,10 @@ do iter=1,mxiter
     write(u6,*) ' Unrecognized optimization algorithm!',imethod
     call abend_cvb()
   end if
-  if (allocated(odx)) call mma_deallocate(odx)
-  if (allocated(ograd)) call mma_deallocate(ograd)
-  if (allocated(eigval)) call mma_deallocate(eigval)
-  if (allocated(eigvec)) call mma_deallocate(eigvec)
+  call mma_deallocate(odx,safe='*')
+  call mma_deallocate(ograd,safe='*')
+  call mma_deallocate(eigval,safe='*')
+  call mma_deallocate(eigvec,safe='*')
   if (ioptc <= 0) then
     done = .true.
     exit

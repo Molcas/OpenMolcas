@@ -19,15 +19,15 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (allocated(c)) call mma_deallocate(c)
-if (allocated(axc)) call mma_deallocate(axc)
-if (allocated(sxc)) call mma_deallocate(sxc)
-if (allocated(res)) call mma_deallocate(res)
-if (allocated(rhs)) call mma_deallocate(rhs)
-if (allocated(ap)) call mma_deallocate(ap)
-if (allocated(rhsp)) call mma_deallocate(rhsp)
-if (allocated(solp)) call mma_deallocate(solp)
-if (allocated(solp_res)) call mma_deallocate(solp_res)
+call mma_deallocate(c,safe='*')
+call mma_deallocate(axc,safe='*')
+call mma_deallocate(sxc,safe='*')
+call mma_deallocate(res,safe='*')
+call mma_deallocate(rhs,safe='*')
+call mma_deallocate(ap,safe='*')
+call mma_deallocate(rhsp,safe='*')
+call mma_deallocate(solp,safe='*')
+call mma_deallocate(solp_res,safe='*')
 
 return
 

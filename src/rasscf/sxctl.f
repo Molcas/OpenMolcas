@@ -278,8 +278,8 @@ c Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
       END IF
       Call mma_deallocate(FCK)
       Call mma_deallocate(QMat)
-      IF (Allocated(STRP)) call mma_deallocate(STRP)
-      If (Allocated(PUVX)) Call mma_deallocate(PUVX)
+      call mma_deallocate(STRP,safe='*')
+      Call mma_deallocate(PUVX,safe='*')
 
 * PAM 2008: Orbital files should be updated each iteration
 * for easy access in case of catastrophic failure.

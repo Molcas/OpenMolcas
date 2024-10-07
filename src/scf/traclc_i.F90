@@ -101,7 +101,7 @@ do ii=iterLw,iter
 
     ! If not in memory pick up from disk
 
-    if (.not. allocated(Aux1)) call mma_allocate(Aux1,nBT,nD,Label='Aux1')
+    call mma_allocate(Aux1,nBT,nD,Label='Aux1',safe='*')
 
     ! Pick up the density matrix and external potential
 
@@ -134,7 +134,7 @@ do iD=1,nD
   write(u6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
 end do
 #endif
-if (allocated(Aux1)) call mma_deallocate(Aux1)
+call mma_deallocate(Aux1,safe='*')
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *

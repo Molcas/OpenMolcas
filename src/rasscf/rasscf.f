@@ -1997,7 +1997,7 @@ c deallocating TUVX memory...
 !      do i=1,NTOT2
 !        write(*,*) "A,I",D1A(i),D1I(i)
 !      end do
-      If (Allocated(CleanMask)) Call mma_deallocate(CleanMask)
+      Call mma_deallocate(CleanMask,safe='*')
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on

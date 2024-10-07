@@ -398,7 +398,7 @@ end if     ! Test
 ! corruption of the memory.
 
 call ClsSew()
-if (allocated(AdCell)) call mma_deallocate(AdCell)
+call mma_deallocate(AdCell,safe='*')
 call mma_deallocate(Coor_MPM)
 call mma_deallocate(Chrg)
 call mma_deallocate(Mass)

@@ -577,9 +577,9 @@ end do outer
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
 
-if (.not. allocated(NamAct)) call mma_allocate(NamAct,nActa,label='NamAct')
-if (.not. allocated(iFro)) call mma_allocate(iFro,8,0,label='iFro')
-if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
+call mma_allocate(NamAct,nActa,label='NamAct',safe='*')
+call mma_allocate(iFro,8,0,label='iFro',safe='*')
+call mma_allocate(iDel,8,0,label='iDel',safe='*')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then

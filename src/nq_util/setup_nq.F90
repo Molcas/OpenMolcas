@@ -371,7 +371,7 @@ do iNQ=1,nNQ
   end if
 
 end do
-if (allocated(R_Min)) call mma_deallocate(R_Min)
+call mma_deallocate(R_Min,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

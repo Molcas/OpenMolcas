@@ -615,7 +615,7 @@ call mma_deallocate(dq_diis)
 call mma_deallocate(h_diis)
 call mma_deallocate(q_diis)
 call mma_deallocate(g_diis)
-if (allocated(e_diis)) call mma_deallocate(e_diis)
+call mma_deallocate(e_diis,safe='*')
 
 call mma_deallocate(g)
 call mma_deallocate(q)

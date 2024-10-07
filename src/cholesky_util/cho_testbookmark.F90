@@ -128,7 +128,7 @@ else
     if (Cho_1Center) then
       call Cho_TestBookmark_1CInit(dealloc)
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
-      if (dealloc .and. allocated(iAtomShl)) call mma_deallocate(iAtomShl)
+      if (dealloc) call mma_deallocate(iAtomShl,safe='*')
     else
       call Cho_MaxAbsDiag(BkmDiaX,1,ErrMx)
     end if

@@ -396,7 +396,7 @@
           Call mma_deallocate(FocMS)
           Call mma_deallocate(DIDA)
           Call mma_deallocate(D1AOMS)
-          if (Allocated(D1SAOMS)) Call mma_deallocate(D1SAOMS)
+          Call mma_deallocate(D1SAOMS,safe='*')
         end if
       end if
 

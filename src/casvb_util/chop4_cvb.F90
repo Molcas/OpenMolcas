@@ -30,7 +30,7 @@ release(4) = .true.
 release(5) = .false.
 
 !FIXME: This deallocation should not be needed
-if (allocated(civbvecs)) call mma_deallocate(civbvecs)
+call mma_deallocate(civbvecs,safe='*')
 ! CIVECP and CIVBH share memory
 call mma_allocate(civbvecs,[0,ndres-1],[1,nv],label='civbvecs')
 if (nv >= 1) then

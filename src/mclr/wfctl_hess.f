@@ -893,7 +893,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           Call mma_deallocate(Sc3)
           Call mma_deallocate(Sc2)
           Call mma_deallocate(Sc1)
-          If (allocated(rmoaa)) Call mma_deallocate(rmoaa)
+          Call mma_deallocate(rmoaa,safe='*')
           If (CI) Then
              Call mma_deallocate(Pens)
              Call mma_deallocate(Dens)

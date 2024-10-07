@@ -75,10 +75,10 @@ subroutine close_abdata()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(atab)) call mma_deallocate(atab)
-  if (allocated(btab)) call mma_deallocate(btab)
-  if (allocated(p0)) call mma_deallocate(p0)
-  if (allocated(tvalue)) call mma_deallocate(tvalue)
+  call mma_deallocate(atab,safe='*')
+  call mma_deallocate(btab,safe='*')
+  call mma_deallocate(p0,safe='*')
+  call mma_deallocate(tvalue,safe='*')
 
 end subroutine close_abdata
 

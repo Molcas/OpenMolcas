@@ -100,7 +100,7 @@ end if
 
 call mma_deallocate(disk_address)
 call mma_deallocate(memory_vectors)
-if (allocated(LblStk)) call mma_deallocate(LblStk)
+call mma_deallocate(LblStk,safe='*')
 
 return
 

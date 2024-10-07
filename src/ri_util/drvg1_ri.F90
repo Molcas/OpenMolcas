@@ -407,8 +407,8 @@ call GADGOP(Tmp,nGrad,'+')
 if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad,ChDisp)
 Temp(:) = Temp+Two*Tmp
 Case_3C = .false.
-if (allocated(Txy)) call mma_deallocate(Txy)
-if (allocated(DMdiag)) call mma_deallocate(DMdiag)
+call mma_deallocate(Txy,safe='*')
+call mma_deallocate(DMdiag,safe='*')
 if (allocated(AOrb)) call Deallocate_DT(AOrb)
 !                                                                      *
 !***********************************************************************
@@ -433,9 +433,9 @@ if (Chol .and. (.not. Do_RI)) then
 end if
 call CloseP()
 
-if (allocated(Z_p_k)) call mma_deallocate(Z_p_k)
-if (allocated(V_k)) call mma_deallocate(V_k)
-if (allocated(U_k)) call mma_deallocate(U_k)
+call mma_deallocate(Z_p_k,safe='*')
+call mma_deallocate(V_k,safe='*')
+call mma_deallocate(U_k,safe='*')
 
 call Cho_X_Final(irc)
 if (irc /= 0) then

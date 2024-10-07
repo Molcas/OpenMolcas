@@ -151,7 +151,7 @@ call xflush(u6)
 write(u6,910) sc2-sc0
 write(u6,*)
 call deallocate_int_memory()
-if (allocated(vcm)) call mma_deallocate(vcm)
+call mma_deallocate(vcm,safe='*')
 call mma_deallocate(vector1)
 call mma_deallocate(vector2)
 

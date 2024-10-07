@@ -179,7 +179,7 @@ else
     end do
   end if
 end if
-if (allocated(IndT)) call mma_deallocate(IndT)
+call mma_deallocate(IndT,safe='*')
 
 if (MSYMON) then
 # ifdef _MSYM_
