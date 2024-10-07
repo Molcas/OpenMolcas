@@ -16,12 +16,14 @@
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT,
      &                               SSTAB, REST1, REST2,
      &                               CnfTab1, CnfTab2,
-     &                               FSBTAB1, FSBTAB2
+     &                               FSBTAB1, FSBTAB2,
+     &                               TRANS1, TRANS2
 #else
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
      &                               REST1, REST2,
      &                               CnfTab1, CnfTab2,
-     &                               FSBTAB1, FSBTAB2
+     &                               FSBTAB1, FSBTAB2,
+     &                               TRANS1, TRANS2
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -568,12 +570,11 @@ C be removed. This limits the possible MAXOP:
         IF(IPGLOB.GE.4) CALL PRFSBTAB(FSBTAB1)
         NDET1=FSBTAB1(5)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
-        LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1)
-        LTRANS1=IWORK(LSPNTAB1+6)
+        LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1,1)
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-          CALL PRSCTAB(iWork(LSPNTAB1),Work(LTRANS1))
+          CALL PRSCTAB(iWork(LSPNTAB1),TRANS1)
         END IF
       else
         NDET1 = 1 ! minimum to avoid runtime error
@@ -690,12 +691,11 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         IF(IPGLOB.GE.4) CALL PRFSBTAB(FSBTAB2)
         NDET2=FSBTAB2(5)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
-        LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2)
-        LTRANS2=IWORK(LSPNTAB2+6)
+        LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2,2)
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-          CALL PRSCTAB(iWork(LSPNTAB2),Work(LTRANS2))
+          CALL PRSCTAB(iWork(LSPNTAB2),TRANS2)
         END IF
       else
         NDET2 = 1 ! minimum to avoid runtime error
@@ -726,7 +726,7 @@ C         Transform to bion basis, Split-Guga format
      &                CNFTAB1,IWORK(LSPNTAB1),
      &                SSTAB,FSBTAB1,NCONF1,CI1,
      &                DET1,detocc,detcoeff1,
-     &                WORK(LTRANS1))
+     &                TRANS1)
 
 C       print transformed ci expansion
         if (JOB1 /= JOB2) then
@@ -810,7 +810,7 @@ C         Transform to bion basis, Split-Guga format
      &                CNFTAB2,IWORK(LSPNTAB2),
      &                SSTAB,FSBTAB2,NCONF2,CI2,
      &                DET2,detocc,detcoeff2,
-     &                Work(LTRANS2))
+     &                TRANS2)
 
 C         print transformed ci expansion
           if (JOB1 /= JOB2) then
@@ -1262,7 +1262,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                CNFTAB2,IWORK(LSPNTAB2),
      &                SSTAB,FSBTAB2,NCONF2,CI2,
      &                DET2,detocc,detcoeff2,
-     &                Work(LTRANS2))
+     &                TRANS2)
 
           CALL mma_allocate(ThetaN,NCONF2,Label='ThetaN')
           ThetaN(:)=0.0D0
@@ -1406,6 +1406,8 @@ C             Write density 1-matrices in AO basis to disk.
       If (DoGSOR) CALL mma_deallocate(CI2_o)
       CALL mma_deallocate(CI1)
       if(.not.doDMRG)then
+        Call mma_deallocate(TRANS2)
+        Call mma_deallocate(TRANS1)
         CALL KILLSCTAB(LSPNTAB1)
         CALL KILLSCTAB(LSPNTAB2)
       end if

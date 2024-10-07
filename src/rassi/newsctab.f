@@ -8,8 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWSCTAB(MINOP,MAXOP,MLTPL,MS2)
+      INTEGER FUNCTION NEWSCTAB(MINOP,MAXOP,MLTPL,MS2,ICASE)
+      use stdalloc, only: mma_allocate
+      use rassi_global_arrays, only: TRANS1, TRANS2, TRANS
       IMPLICIT REAL*8 (A-H,O-Z)
+      INTEGER MINOP,MAXOP,MLTPL,MS2, ICASE
       INTEGER, PARAMETER :: ASPIN=1, BSPIN=0
       INTEGER, PARAMETER :: UPCPL=1,DWNCPL=0, NULLPTR=-1
 #include "WrkSpc.fh"
@@ -45,7 +48,15 @@ C spin coupling and spin determinant arrays themselves.
 C The transformation coefficients are real*8 data and stored
 C in a separate array.
       CALL GETMEM('SpnCplTb','Allo','Inte',LTAB,NTAB)
-      CALL GETMEM('SpnCplCf','Allo','Real',LTRANS,NTRANS)
+      SELECT CASE(ICASE)
+      CASE (1)
+         CALL mma_allocate(TRANS1,NTRANS,Label='TRANS1')
+         TRANS=>TRANS1(:)
+      CASE (2)
+         CALL mma_allocate(TRANS2,NTRANS,Label='TRANS2')
+         TRANS=>TRANS2(:)
+      CASE DEFAULT
+      END SELECT
       KSPCPL=9+6*NBLK
       KSPDET=KSPCPL+NSPCPL
 C Table size
@@ -60,13 +71,14 @@ C Min and max nr of open shells
       IWORK(LTAB+4)=MINOP
       IWORK(LTAB+5)=MAXOP
 C Associated workspace array for Re*8 data (transf matrices)
-      IWORK(LTAB+6)=LTRANS
+      IWORK(LTAB+6)=-1 ! not used
       IWORK(LTAB+7)=NTRANS
 C Individual information for each separate nr of open shells:
       NTAB=6
       NTRANS=0
       IBLK=0
-      LTRANS0=LTRANS
+      LTRANS0=1
+      LTRANS=1
       DO IOPEN=MINOP,MAXOP
         IBLK=IBLK+1
         NCP=NGENE(IOPEN,MLTPL)
@@ -85,7 +97,7 @@ C Compute spin determinants:
           IWORK(LTAB+12+(IBLK-1)*6)=KSPDET
 C Compute spin coupling coefficients:
           CALL PROTOT(IOPEN,ND,IWORK(LTAB-1+KSPDET),NCP,
-     &                      IWORK(LTAB-1+KSPCPL),WORK(LTRANS))
+     &                      IWORK(LTAB-1+KSPCPL),TRANS(LTRANS))
           IWORK(LTAB+13+(IBLK-1)*6)=LTRANS-LTRANS0+1
           KSPCPL=KSPCPL+IOPEN*NCP
           KSPDET=KSPDET+IOPEN*ND
@@ -100,6 +112,7 @@ C Compute spin coupling coefficients:
         END IF
       END DO
       NEWSCTAB=LTAB
+      TRANS=>Null()
       RETURN
 
  900  CONTINUE

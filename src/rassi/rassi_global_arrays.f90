@@ -26,4 +26,6 @@
       Integer, Allocatable, Target:: FSBTAB1(:), FSBTAB2(:)
       Integer, Pointer:: FSBTAB(:)
       Integer, Allocatable:: FSBARR(:)
+      Integer, Allocatable, Target:: TRANS1(:), TRANS2(:)
+      Integer, Pointer:: TRANS(:)
       End Module RASSI_GLOBAL_ARRAYS
