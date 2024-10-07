@@ -1003,7 +1003,7 @@ C General 1-particle transition density matrix:
      &              LSYM2,MPLET2,MSPROJ2,FSBTAB2,SSTAB,
      &            OMAP,DET1,DET2,SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
-     &            JSTATE,job1,job2,ist,jst)
+     &            JSTATE,job1,job2,ist,jst,OrbTab)
 C Calculate Natural Transition Orbital (NTO):
         IF (IFNTO) THEN
          IF (job1.ne.job2) THEN

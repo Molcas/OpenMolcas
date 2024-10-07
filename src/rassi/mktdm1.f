@@ -12,7 +12,7 @@
       SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,
      &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
-     &    job1,job2,ist,jst)
+     &    job1,job2,ist,jst,OrbTab)
 
       ! module dependencies
 #ifdef _DMRG_
@@ -31,9 +31,10 @@
       Real*8, Allocatable:: TDMAA(:), TDMBB(:)
 #endif
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*)
-      INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
+      INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB
       INTEGER MS2OP,NASHT,NASORB,NSPD1
       INTEGER, INTENT(IN) :: ISTATE, JSTATE,job1,job2,ist,jst
+      Integer :: OrbTab(*)
       REAL*8 DET1(*),DET2(*)
       REAL*8 SIJ,TDM1(NASHT,NASHT),TSDM1(NASHT,NASHT),WTDM1(NASHT,NASHT)
       REAL*8 S1,S2,SM,SM1,SM2,GAA,GAB,GBA,GBB
@@ -51,9 +52,8 @@ C (2) The spin-summed 1-particle transition density matrix
 C (3) The WE-reduced transition spin density matrix
 C in the biorthonormal active orbital basis.
 
-      LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
-      NASORB=IWORK(LORBTB+3)
+      NASORB=ORBTAB(4)
 
 C Overlap:
 
@@ -111,7 +111,7 @@ C General 1-particle transition density matrix:
           !> spind constructs the 1-particle transition density matrix
           !> output in SPD1
           !> main input: DET1 and DET2
-          CALL SPIND(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
+          CALL SPIND(ISYOP,MS2OP,ORBTAB,ISSTAB,
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,SPD1)
 
 #ifdef _DMRG_
