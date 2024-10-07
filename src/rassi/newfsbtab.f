@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER FUNCTION NEWFSBTAB(NACTEL,MSPIN2,LSYM,REST,SSTAB)
+      use stdalloc, only: mma_deallocate
+      use rassi_global_arrays, only: FSBARR
       IMPLICIT NONE
       INTEGER NACTEL,MSPIN2,LSYM
       INTEGER SSTAB(*), REST(*)
@@ -42,15 +44,15 @@ C an array dimensioned (NASPRT+2)*NFSB, and finally a hash map
 C with suitable capacity e.g. 2*NFSB (50% usage). Each item in a
 C hash map takes up 2 integers. Capacity must be at least NFSB+997.
       CALL mkVERTAB(NACTEL,MSPIN2,LSYM,NPART,REST(KORB),REST(KREST),
-     &              SSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LSSTARR)
+     &              SSTAB,NFSB0,NRDETS0,NFSB,NRDETS)
       NHEAD=7
       NSSTARR=(NASPRT+2)*NFSB
       NHSHMAP=997+2*NFSB
       NSIZE=NHEAD+NSSTARR+2*NHSHMAP
       CALL GETMEM('FSBTab','Allo','Inte',LFSBTAB,NSIZE)
-      CALL ICOPY((NASPRT+2)*NFSB,IWORK(LSSTARR),1,
-     &                                     IWORK(LFSBTAB+NHEAD),1)
-      CALL GETMEM('SSTArr','Free','Inte',LSSTARR,(NASPRT+2)*NFSB0)
+      CALL ICOPY((NASPRT+2)*NFSB,FSBARR,1,IWORK(LFSBTAB+NHEAD),1)
+      Call mma_deallocate(FSBARR)
+
       LSSTARR=LFSBTAB+NHEAD
 
 C Position of hash table ('Map')

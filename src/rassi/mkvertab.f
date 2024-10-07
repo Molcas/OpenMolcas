@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE mkVERTAB(NACTEL,M2SPIN,LSYM,NPART,NGASORB,NGASLIM,
-     &                   ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LFSBARR)
+     &                   ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_global_arrays, only: FSBARR
       IMPLICIT NONE
       INTEGER ISSTAB(*)
       INTEGER NASPRT,NACTEL,M2SPIN,LSYM
@@ -30,10 +31,9 @@
       INTEGER MS2MIN,MS2MAX,MSFACT,NVIDX,IVIDX,IVERT
       INTEGER LEVUP,LEVDWN,IADDR1,IADDR2,NARC
       INTEGER NARCVRT,NVERTAB,NDWNTAB,NARCLEV
-      INTEGER NFSBARR,LFSBARR,IVUP,LOWEST,ISW,NSW
+      INTEGER NFSBARR,IVUP,LOWEST,ISW,NSW
       INTEGER KPOPLIM
       INTEGER IARC,IA,ISUM,KEEP
-C     INTEGER NSBS,LDUM,NDUM
       INTEGER NSBS
       INTEGER NSDBLK
 #include "Morsel.fh"
@@ -516,7 +516,7 @@ C No more use for Level-to-Downarc array:
 * The total number of walks in the graph:
       NFSB0=WEIGHT(1)
       NFSBARR=(NASPRT+2)*NFSB0
-      CALL GETMEM('FSBARR','ALLO','INTE',LFSBARR,NFSBARR)
+      CALL mma_allocate(FSBARR,NFSBARR,Label='FSBARR')
       NRDETS0=0
       NFSB=0
       NRDETS=0
@@ -571,13 +571,11 @@ CTEST      write(*,'(1x,a,8i8)')'ISST,IVER1,IVER2:',ISST,IVER1,IVER2
       IF(KEEP.EQ.1) THEN
         NFSB=NFSB+1
         DO ISPART=1,NASPRT
-         IWORK(LFSBARR-1+ISPART+(NASPRT+2)*(NFSB-1))=ITRY(ISPART)
+         FSBARR(ISPART+(NASPRT+2)*(NFSB-1))=ITRY(ISPART)
         END DO
-        IWORK(LFSBARR+NASPRT+(NASPRT+2)*(NFSB-1))=NSDBLK
-        IWORK(LFSBARR+NASPRT+1+(NASPRT+2)*(NFSB-1))=NRDETS+1
+        FSBARR(1+NASPRT+(NASPRT+2)*(NFSB-1))=NSDBLK
+        FSBARR(1+NASPRT+1+(NASPRT+2)*(NFSB-1))=NRDETS+1
         NRDETS=NRDETS+NSDBLK
-CTEST      write(*,'(1x,i8,5x,10i5)') NFSB,(IWORK(LFSBARR-1+
-CTEST     &                  LEVUP+NASPRT*(NFSB-1)),LEVUP=1,NASPRT),NSDBLK
 
 * Next walk: Lowest increasable switch value is at level lowest.
       END IF

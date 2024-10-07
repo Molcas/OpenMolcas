@@ -23,4 +23,7 @@
       Integer, Pointer:: REST(:)
       Integer, Allocatable, Target:: CNFTAB1(:), CNFTAB2(:)
       Integer, Pointer:: CNFTAB(:)
+      Integer, Allocatable, Target:: FSBTAB1(:), FSBTAB2(:)
+      Integer, Pointer:: FSBTAB(:)
+      Integer, Allocatable:: FSBARR(:)
       End Module RASSI_GLOBAL_ARRAYS
