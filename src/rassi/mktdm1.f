@@ -42,7 +42,6 @@
 
 #include "symmul.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
       Real*8, Allocatable:: SPD1(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

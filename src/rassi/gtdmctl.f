@@ -1165,7 +1165,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                  LSYM2,MPLET2,MSPROJ2,FSBTAB2,
      &                  SSTAB,OMAP,
      &                  DET1,DET2,NTDM2,TDM2,
-     &                  ISTATE,JSTATE)
+     &                  ISTATE,JSTATE,OrbTab)
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
             IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
