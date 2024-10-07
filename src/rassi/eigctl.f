@@ -1167,7 +1167,7 @@ C                                                                      C
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
-            TOT2K(J,J) = TOT2K(J,I) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
             IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' value at distance '
              IF(QIALL) WRITE(6,33) I,J,F
