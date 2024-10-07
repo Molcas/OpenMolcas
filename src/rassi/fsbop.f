@@ -117,7 +117,8 @@ C The resulting substring type:
         if (ISST2 == 0) cycle
         IFSB2=IFSB2+1
         KPOS2=KSTARR2+(NASPRT2+2)*(IFSB2-1)
-        CALL ICOPY(NASPRT1,IFSBTAB(KPOS1:),1,FSBANN(KPOS2:),1)
+        CALL ICOPY(NASPRT1,IFSBTAB(KPOS1:KPOS1+NASPRT1-1),1,
+     &                      FSBANN(KPOS2:KPOS2+NASPRT1-1),1)
 C Replace substring type:
         FSBANN(KPOS2-1+ISPART)=ISST2
 C Old vs. new nr of substrings:

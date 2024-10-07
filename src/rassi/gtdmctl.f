@@ -989,7 +989,7 @@ C     Defining the Binding energy Ei-Ej
       DCHSM(:) = Zero
       CALL MKDCHS(FSBTAB1,FSBTAB2,
      &            SSTAB,OMAP,DET1,DET2,
-     &            IF20,IF02,NDCHSM,DCHSM)
+     &            IF20,IF02,NDCHSM,DCHSM,OrbTab)
       Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
      &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
      &      DCHSM(DCHIJ)
