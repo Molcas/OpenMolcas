@@ -23,6 +23,7 @@
       INTEGER NRDETS,NRDETS0,NFSB,NFSB0
       INTEGER KORB,KREST,IFSB,IERR
       INTEGER NHEAD,NHSHMAP,KHSHMAP,JFSB
+      INTEGER NLEN
 C Purpose: Construct an FSB table and return its address in the
 C FSBTAB1/FiSBTAB2 array.
 C ITYPE=73 is the check code for this table.
@@ -61,7 +62,9 @@ C hash map takes up 2 integers. Capacity must be at least NFSB+997.
          WRITE(6,*) 'NEWFSBTAB: Illegal ICASE value'
          WRITE(6,*) 'ICASE=',ICASE
       END SELECT
-      CALL ICOPY((NASPRT+2)*NFSB,FSBARR,1,FSBTAB(1+NHEAD),1)
+      NLEN=(NASPRT+2)*NFSB
+      CALL ICOPY(NLEN,FSBARR(1:NLEN),1,
+     &                FSBTAB(1+NHEAD:NLEN+NHEAD),1)
       Call mma_deallocate(FSBARR)
 
       LSSTARR=1+NHEAD
@@ -79,17 +82,17 @@ C Make the hash map: NULL is a null marker. Suggested value=-1.
 !     NULL=-1
 !     CALL HSHINI(NHSHMAP,FSBTAB(KHSHMAP),NULL)
 !     In conflict with the null() pointer
-      CALL HSHINI(NHSHMAP,FSBTAB(KHSHMAP),-1)
+      CALL HSHINI(NHSHMAP,FSBTAB(KHSHMAP:),-1)
 C Store values in the map:
       DO IFSB=1,NFSB
-        CALL HSHPUT(NASPRT,NASPRT+2,FSBTAB(LSSTARR),
-     &              NHSHMAP,FSBTAB(KHSHMAP),IFSB)
+        CALL HSHPUT(NASPRT,NASPRT+2,FSBTAB(LSSTARR:),
+     &              NHSHMAP,FSBTAB(KHSHMAP:),IFSB)
       END DO
 C Check that they can be obtained back:
       IERR=0
       DO IFSB=1,NFSB
-        CALL HSHGET(FSBTAB(LSSTARR+(NASPRT+2)*(IFSB-1)),NASPRT,
-     &        NASPRT+2,FSBTAB(LSSTARR),NHSHMAP,FSBTAB(KHSHMAP),JFSB)
+        CALL HSHGET(FSBTAB(LSSTARR+(NASPRT+2)*(IFSB-1):),NASPRT,
+     &        NASPRT+2,FSBTAB(LSSTARR:),NHSHMAP,FSBTAB(KHSHMAP:),JFSB)
         IF(IFSB.NE.JFSB) IERR=IERR+1
       END DO
       IF(IERR.GT.0) THEN

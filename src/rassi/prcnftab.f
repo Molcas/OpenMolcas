@@ -85,13 +85,12 @@ C header:
       LINFO=LGASLIM+2*NGAS
       WRITE(6,*)
       WRITE(6,*)' INFO table starts at LINFO=',LINFO
-      WRITE(6,*)'    i.e. KINFO=',LINFO+1-LTAB
       DO NOPN=MINOP,MAXOP
        NCLS=(NEL-NOPN)/2
        DO ISYM=1,NSYM
         NCNF   =CnfTab(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         KCNFSTA=CnfTab(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-        LENCNFi=CnfTab(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
+        LENCNF =CnfTab(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         IF(NCNF.NE.0) THEN
          WRITE(6,*)
          WRITE(6,*)'  NOPN ISYM       Nr of conf Start point'//
