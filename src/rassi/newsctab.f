@@ -100,14 +100,14 @@ C Individual information for each separate nr of open shells:
           SPNTAB(10+(IBLK-1)*6)=NCP
           SPNTAB(11+(IBLK-1)*6)=ND
 C Compute spin couplings:
-          CALL PROTOCSF(IOPEN,MLTPL,NCP,SPNTAB(KSPCPL))
+          CALL PROTOCSF(IOPEN,MLTPL,NCP,SPNTAB(KSPCPL:))
           SPNTAB(12+(IBLK-1)*6)=KSPCPL
 C Compute spin determinants:
-          CALL PROTOSD(NA,NB,ND,SPNTAB(KSPDET))
+          CALL PROTOSD(NA,NB,ND,SPNTAB(KSPDET:))
           SPNTAB(13+(IBLK-1)*6)=KSPDET
 C Compute spin coupling coefficients:
-          CALL PROTOT(IOPEN,ND,SPNTAB(KSPDET),NCP,
-     &                      SPNTAB(KSPCPL),TRANS(LTRANS))
+          CALL PROTOT(IOPEN,ND,SPNTAB(KSPDET:),NCP,
+     &                      SPNTAB(KSPCPL),TRANS(LTRANS:))
           SPNTAB(14+(IBLK-1)*6)=LTRANS-LTRANS0+1
           KSPCPL=KSPCPL+IOPEN*NCP
           KSPDET=KSPDET+IOPEN*ND

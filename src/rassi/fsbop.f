@@ -144,7 +144,7 @@ C Store this block in the PSI2 hash structure.
       END IF
 C Make the hash map: NULL is a null marker. Suggested value=-1.
       NULL=-1
-      CALL HSHINI(NHSH2,FSBANN(LHSH2),NULL)
+      CALL HSHINI(NHSH2,FSBANN(LHSH2:),NULL)
       KHSH2=1+NHEAD+NSSTARR2
 C Header data:
       FSBANN(1)=NTAB2
@@ -156,8 +156,8 @@ C Header data:
       FSBANN(7)=KHSH2
 C Store values in the map:
       DO IFSB2=1,NFSB2
-        CALL HSHPUT(NASPRT2,NASPRT2+2,FSBANN(LSSTARR2),
-     &                         NHSH2,FSBANN(LHSH2),IFSB2)
+        CALL HSHPUT(NASPRT2,NASPRT2+2,FSBANN(LSSTARR2:),
+     &                         NHSH2,FSBANN(LHSH2:),IFSB2)
       END DO
 
       IERR=0
@@ -171,7 +171,7 @@ C Store values in the map:
       IF(IERR.GT.0) THEN
         WRITE(6,*)' Bad substrings in FSBOP!'
         WRITE(6,*)' IERR=',IERR
-        CALL PRFSBTAB(FSBANN(1))
+        CALL PRFSBTAB(FSBANN(:))
         CALL ABEND()
       END IF
 
