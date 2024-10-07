@@ -22,7 +22,6 @@
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 #include "stdalloc.fh"
 ! Variables passed

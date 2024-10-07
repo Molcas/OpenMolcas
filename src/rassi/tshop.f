@@ -16,7 +16,6 @@
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "tshcntrl.fh"
       REAL*8       CI1,CI1pr,CI2,CI2pr,prdct(2,2)
       INTEGER      I,JOB1,JOB2,file,file2,maxHop,IAD3,IADR3

@@ -20,7 +20,6 @@
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
       Type (SGStruct), Target :: SGS(2)
