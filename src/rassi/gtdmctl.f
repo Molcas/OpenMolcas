@@ -24,6 +24,7 @@
      &                               REST1, REST2,
      &                               CnfTab1, CnfTab2,
      &                               FSBTAB1, FSBTAB2,
+     &                               SPNTAB1, SPNTAB2,
      &                               TRANS1, TRANS2
 #endif
       !> module dependencies
