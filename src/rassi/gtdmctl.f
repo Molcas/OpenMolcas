@@ -946,7 +946,7 @@ C evaluate K-2V spin+1 density
         AUGSPIN=1
         CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
-     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
@@ -955,21 +955,21 @@ C evaluate K-2V spin-1 density
         AUGSPIN=-1
         CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
-     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
         ELSE ! write then both
         AUGSPIN=1
         CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
-     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
         AUGSPIN=-1
         CALL MKRTDM2(FSBTAB1,FSBTAB2,
      &               SSTAB,OMAP,DET1,DET2,
-     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
        END IF
