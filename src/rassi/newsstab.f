@@ -142,7 +142,7 @@ C Size of table, and offsets:
 C The header data
       SSTAB( 1)=NTAB
       SSTAB( 2)=ITYPE
-      SSTAB( 3)=ip_of_iWork(OrbTab)
+      SSTAB( 3)=ip_of_iWork(OrbTab(1))
       SSTAB( 4)=NSYM
       SSTAB( 5)=NASPRT
       SSTAB( 6)=MORSBITS

@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWFSBTAB(NACTEL,MSPIN2,LSYM,LREST,SSTAB)
+      INTEGER FUNCTION NEWFSBTAB(NACTEL,MSPIN2,LSYM,REST,SSTAB)
       IMPLICIT NONE
-      INTEGER NACTEL,MSPIN2,LSYM,LREST
-      INTEGER SSTAB(*)
+      INTEGER NACTEL,MSPIN2,LSYM
+      INTEGER SSTAB(*), REST(*)
 
       INTEGER LFSBTAB,LSSTARR,NSIZE,ITYPE
       INTEGER NASPRT
       INTEGER NSSTARR,NPART,NSYM
-      INTEGER LGORB,LGLIM,NRDETS,NRDETS0,NFSB,NFSB0
+      INTEGER NRDETS,NRDETS0,NFSB,NFSB0
       INTEGER KORB,KREST,IFSB,IERR
       INTEGER NHEAD,NHSHMAP,KHSHMAP,LHSHMAP,NULL,JFSB
 #include "WrkSpc.fh"
@@ -28,23 +28,20 @@ C ITYPE=73 is the check code for this table.
         WRITE(6,*)' NEWFSBTAB error: Not a Substring Table.'
         CALL ABEND()
       END IF
-      IF(IWORK(LREST+1).NE.91) THEN
+      IF(REST(2).NE.91) THEN
         WRITE(6,*)' NEWFSBTAB error: Not a GAS Restriction Table.'
-        WRITE(6,*)' Address is LREST=',LREST
         CALL ABEND()
       END IF
       NSYM  =SSTAB(4)
       NASPRT=SSTAB(5)
-      NPART=IWORK(LREST+2)
+      NPART=REST(3)
       KORB=5
       KREST=KORB+(NSYM+1)*(NPART+1)
-      LGORB=LREST-1+KORB
-      LGLIM=LREST-1+KREST
 C Table consists of a 6-word header with data (see below), then
 C an array dimensioned (NASPRT+2)*NFSB, and finally a hash map
 C with suitable capacity e.g. 2*NFSB (50% usage). Each item in a
 C hash map takes up 2 integers. Capacity must be at least NFSB+997.
-      CALL mkVERTAB(NACTEL,MSPIN2,LSYM,NPART,IWORK(LGORB),IWORK(LGLIM),
+      CALL mkVERTAB(NACTEL,MSPIN2,LSYM,NPART,REST(KORB),REST(KREST),
      &              SSTAB,NFSB0,NRDETS0,NFSB,NRDETS,LSSTARR)
       NHEAD=7
       NSSTARR=(NASPRT+2)*NFSB
