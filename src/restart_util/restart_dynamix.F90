@@ -14,8 +14,8 @@
 
 subroutine Restart_Dynamix(File_H5res)
 
-use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_open_attr, mh5_get_attr, mh5_close_attr, mh5_exists_dset, mh5_fetch_dset, &
-               mh5_open_dset, mh5_get_dset_dims, mh5_close_dset, mh5_close_file
+use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_open_attr, mh5_get_attr, mh5_close_attr, mh5_fetch_dset, mh5_open_dset, &
+               mh5_get_dset_dims, mh5_close_dset, mh5_close_file
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -68,10 +68,8 @@ call mh5_fetch_dset(restart_fileid,'TIME_STEP',dt)
 call Put_dScalar('Timestep',dt)
 
 ! read max hop and save in RunFile
-if (mh5_exists_dset(restart_fileid,'MAX_HOP')) then
-  call mh5_fetch_dset(restart_fileid,'MAX_HOP',i)
-  call Put_iScalar('MaxHops',i)
-end if
+call mh5_fetch_dset(restart_fileid,'MAX_HOP',i)
+call Put_iScalar('MaxHops',i)
 
 ! read total energy and save in RunFile
 call mh5_fetch_dset(restart_fileid,'ETOT',e)
