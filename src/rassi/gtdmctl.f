@@ -14,10 +14,11 @@
      &                  NRS3T, NRSPRT
 #ifdef _DMRG_
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT,
-     &                               SSTAB, REST1, REST2
+     &                               SSTAB, REST1, REST2,
+     &                               CnfTab1, CnfTab2
 #else
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
-     &                               REST1, REST2
+     &                               REST1, REST2,
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -486,7 +487,7 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 C Still JOB1, define structures ('tables') pertinent to JOB1
 C These are at:
 C REST1
-C IWORK(LCNFTAB1)
+C CNFTAB1
 C IWORK(LFSBTAB1)
 C IWORK(LSPNTAB1)
 
@@ -556,9 +557,9 @@ C IWORK(LSPNTAB1)
 C At present, we will only annihilate, at most 2 electrons will
 C be removed. This limits the possible MAXOP:
         MAXOP=MIN(MAXOP+1,NACTE1,NASHT)
-        LCNFTAB1=NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,
-     &                     NGASORB,NGASLIM,IFORM)
-        IF(IPGLOB.GE.4) CALL PRCNFTAB(iWork(LCNFTAB1),100)
+        Call NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,
+     &                     NGASORB,NGASLIM,IFORM,1)
+        IF(IPGLOB.GE.4) CALL PRCNFTAB(CNFTAB1,100)
 
         LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,REST1,SSTAB)
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB1))
@@ -677,9 +678,9 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
         MINOP=0
 C At present, we will only annihilate. This limits the possible MAXOP:
         MAXOP=MIN(MAXOP+1,NACTE2,NASHT)
-        LCNFTAB2=NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,
-     &                     NGASORB,NGASLIM,IFORM)
-        IF(IPGLOB.GE.4) CALL PRCNFTAB(iWork(LCNFTAB2),100)
+        Call NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,
+     &                     NGASORB,NGASLIM,IFORM,2)
+        IF(IPGLOB.GE.4) CALL PRCNFTAB(CNFTAB2,100)
 
         LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,REST2,SSTAB)
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB2))
@@ -717,7 +718,7 @@ C         Transform to bion basis, Split-Guga format
      &                           LSYM1,TRA1,NCONF1,CI1)
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
-     &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
+     &                CNFTAB1,IWORK(LSPNTAB1),
      &                SSTAB,IWORK(LFSBTAB1),NCONF1,CI1,
      &                DET1,detocc,detcoeff1)
 
@@ -800,7 +801,7 @@ C         Transform to bion basis, Split-Guga format
      &                           LSYM2,TRA2,NCONF2,CI2)
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
-     &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &                CNFTAB2,IWORK(LSPNTAB2),
      &                SSTAB,IWORK(LFSBTAB2),NCONF2,CI2,
      &                DET2,detocc,detcoeff2)
 
@@ -1253,7 +1254,7 @@ C             Write density 1-matrices in AO basis to disk.
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
      &                           LSYM2,TRA2,NCONF2,CI2)
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
-     &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &                CNFTAB2,IWORK(LSPNTAB2),
      &                SSTAB,IWORK(LFSBTAB2),NCONF2,CI2,
      &                DET2,detocc,detcoeff2)
 
@@ -1435,8 +1436,8 @@ C             Write density 1-matrices in AO basis to disk.
       if(.not.doDMRG)then
         Call mma_deallocate(REST2)
         Call mma_deallocate(REST1)
-        CALL KILLOBJ(LCNFTAB1)
-        CALL KILLOBJ(LCNFTAB2)
+        Call mma_deallocate(CNFTAB2)
+        Call mma_deallocate(CNFTAB1)
         CALL KILLOBJ(LFSBTAB1)
         CALL KILLOBJ(LFSBTAB2)
       end if

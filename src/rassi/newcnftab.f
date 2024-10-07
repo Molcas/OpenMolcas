@@ -8,23 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,
-     &                           NGASORB,NGASLIM,IFORM)
+      SUBROUTINE NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,
+     &                     NGASORB,NGASLIM,IFORM,ICASE)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "symmul.fh"
       Integer NEL, NORB, MINOP, MAXOP, LSYM, NGAS
       Integer NGASORB(NSYM,NGAS)
       Integer NGASLIM(2,NGAS)
-      Integer IFORM
+      Integer IFORM, ICASE
 
       Integer, allocatable:: NCNF1(:), NCNF2(:)
 
-      NEWCNFTAB=-1
-CTEST      write(*,*)' Just entered NEWCNFTAB.'
-CTEST      write(*,'(1x,a,10i8)')'NEL,NORB,MINOP,MAXOP:',NEL,NORB,MINOP,MAXOP
-CTEST      write(*,'(1x,a,10i8)')'NSYM,LSYM,NGAS:',NSYM,LSYM,NGAS
 C Note how input parameter LSYM is used: If non-zero, only those configurations
 C with symmetry label LSYM are selected. But if LSYM=0, they are all selected.
 C We must figure out sizes before allocating the new configuration table.
@@ -45,6 +41,7 @@ C in any GAS subspace:
       CALL mma_allocate(NCNF2,NNCNF2,Label='NCNF2')
       CALL NRCNF1(NEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXO,NCNF2)
       CALL mma_deallocate(NCNF2)
+
 C NCNF1(ISYM,IPOS) contains the number of possible configurations for symmetry
 C label ISYM, nr of closed shells NCLS, and nr of open shells NOPN. The latter
 C are combined as pair index IPOS=1+NOPN+(NOCC*(NOCC+1))/2 with NOCC=NCLS+NOPN
@@ -83,47 +80,53 @@ C Configuration arrays:
   19   CONTINUE
       END DO
 C Sizes and offsets are known. Now, we can allocate the table:
-      CALL GETMEM('CnfTab','Allo','Inte',LTAB,NTAB)
-      NEWCNFTAB=LTAB
+      Select CASE (ICASE)
+      CASE(1)
+         CALL mma_allocate(CnfTab1,NTAB,Label='CnfTab1')
+         CnfTab=>CnfTab1(:)
+      CASE(2)
+         CALL mma_allocate(CnfTab2,NTAB,Label='CnfTab2')
+         CnfTab=>CnfTab2(:)
+      CASE DEFAULT
+      END SELECT
 C Enter header:
-      IWORK(LTAB+ 0)=NTAB
-      IWORK(LTAB+ 1)=37
-      IWORK(LTAB+ 2)=NEL
-      IWORK(LTAB+ 3)=NORB
-      IWORK(LTAB+ 4)=MINOP
-      IWORK(LTAB+ 5)=MAXOP
-      IWORK(LTAB+ 6)=NSYM
-      IWORK(LTAB+ 7)=LSYM
-      IWORK(LTAB+ 8)=NGAS
-      IWORK(LTAB+ 9)=IFORM
+      CnfTab( 1)=NTAB
+      CnfTab( 2)=37
+      CnfTab( 3)=NEL
+      CnfTab( 4)=NORB
+      CnfTab( 5)=MINOP
+      CnfTab( 6)=MAXOP
+      CnfTab( 7)=NSYM
+      CnfTab( 8)=LSYM
+      CnfTab( 9)=NGAS
+      CnfTab(10)=IFORM
 C Enter copy of NGASORB array:
       DO IGAS=1,NGAS
        ISUM=0
        DO ISYM=1,NSYM
-        L=LTAB+10+ISYM+(NSYM+1)*IGAS
-        IWORK(L)=NGASORB(ISYM,IGAS)
+        L=11+ISYM+(NSYM+1)*IGAS
+        CnfTab(L)=NGASORB(ISYM,IGAS)
         ISUM=ISUM+NGASORB(ISYM,IGAS)
        END DO
-       IWORK(LTAB+10+(NSYM+1)*IGAS)=ISUM
+       CnfTab(11+(NSYM+1)*IGAS)=ISUM
       END DO
       DO ISYM=0,NSYM
        ISUM=0
        DO IGAS=1,NGAS
-        L=LTAB+10+ISYM+(NSYM+1)*IGAS
-        ISUM=ISUM+IWORK(L)
+        L=11+ISYM+(NSYM+1)*IGAS
+        ISUM=ISUM+CnfTab(L)
        END DO
-       IWORK(LTAB+10+ISYM)=ISUM
+       CnfTab(11+ISYM)=ISUM
       END DO
-      L=LTAB+9+(NSYM+1)*(NGAS+1)
+      L=10+(NSYM+1)*(NGAS+1)
 C Enter copy of NGASLIM array:
       DO IGAS=1,NGAS
        L=L+1
-       IWORK(L)=NGASLIM(1,IGAS)
+       CnfTab(L)=NGASLIM(1,IGAS)
        L=L+1
-       IWORK(L)=NGASLIM(2,IGAS)
+       CnfTab(L)=NGASLIM(2,IGAS)
       END DO
 C Construct and enter INFO table.
-      LINFO=LTAB-1+KINFO
 C The INFO table has a relative pointer to configuration arrays:
       KCNFEND=KCNFSTA-1
       DO NOPN=MINOP,MAXOP
@@ -136,16 +139,11 @@ C The INFO table has a relative pointer to configuration arrays:
         DO ISYM=1,NSYM
 C No such configuration is possible.
 C INFO(1,ISYM,NOPN)=NCNF
-         IWORK(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
+         CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
 C INFO(2,ISYM,NOPN)=NTAB+1
-         IWORK(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
+         CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
 C INFO(3,ISYM,NOPN)=LENCNF
-         IWORK(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
-CTEST      write(*,'(1x,a,2I5)')' Test NOPN,ISYM:',NOPN,ISYM
-CTEST      write(*,*)' Impossible configuration.'
-CTEST      write(*,*)' Info array:'
-CTEST      write(*,'(1x,3I8)')(IWORK(LINFO+I+
-CTEST     &                   3*(ISYM-1+NSYM*(NOPN-MINOP))),I=0,2)
+         CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
         END DO
        ELSE
         NOCC=NCLS+NOPN
@@ -159,11 +157,11 @@ C those with ISYM=LSYM.
          END IF
          IF(NCNF.EQ.0) THEN
 C INFO(1,ISYM,NOPN)=NCNF
-           IWORK(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
+           CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
 C INFO(2,ISYM,NOPN)=NTAB+1
-           IWORK(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
+           CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
 C INFO(3,ISYM,NOPN)=LENCNF
-           IWORK(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
+           CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
          ELSE
            LENCNF=NOCC
            IF(IFORM.EQ.2) LENCNF=NORB
@@ -173,18 +171,13 @@ C The relative pointer into this configuration array:
            KCNFSTA=KCNFEND+1
            KCNFEND=KCNFEND+NCNF*LENCNF
 C INFO(1,ISYM,NOPN)=NCNF
-           IWORK(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=NCNF
+           CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=NCNF
 C INFO(2,ISYM,NOPN)=NTAB+1
-           IWORK(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=KCNFSTA
+           CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=KCNFSTA
 C INFO(3,ISYM,NOPN)=LENCNF
-           IWORK(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=LENCNF
-CTEST      write(*,'(1x,a,2I5)')' Test NOPN,ISYM:',NOPN,ISYM
-CTEST      write(*,*)' Possible configuration.'
-CTEST      write(*,*)' Info array:'
-CTEST      write(*,'(1x,3I8)')(IWORK(LINFO+I+
-CTEST     &                   3*(ISYM-1+NSYM*(NOPN-MINOP))),I=0,2)
+           CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=LENCNF
            DO I=1,NCNF*LENCNF
-             IWORK(LTAB-1+KCNFSTA-1+I)=0
+             CnfTab(KCNFSTA-1+I)=0
            END DO
          END IF
         END DO
@@ -195,9 +188,10 @@ C The NCNF1 array is no longer needed.
 
 C Finally, only now when we know where to store each (ISYM,NOPN) block of
 C configurations, can we compute the actual configuration arrays:
-      CALL MKCONF(IWORK(LTAB))
+      CALL MKCONF(CnfTab)
+      CnfTab=>Null()
 
-      END FUNCTION NEWCNFTAB
+      END SUBROUTINE NEWCNFTAB
 
       SUBROUTINE NRCNF1(MAXEL,NORB,NGAS,NGASLIM,
      &                  NGASORB,NCNF1,MXTMP,NCNF2)
