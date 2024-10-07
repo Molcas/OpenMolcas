@@ -24,6 +24,8 @@
       character(len=*), intent(out) :: detocc(*)
       real(8), intent(out) :: detcoeff(*)
       Real*8, Allocatable:: CTMP(:)
+      Integer LTRANS
+#include "WrkSpc.fh"
 
 C Purpose: Given a RASSCF wave function in Split-GUGA format
 C and an orbital transformation matrix for the purpose of
@@ -34,10 +36,11 @@ C in the general SD format, using transformed orbitals.
 C Transform SGUGA to SymmG:
         CALL mma_allocate(CTMP,NCONF,Label='CTMP')
         IMODE=1
+        LTRANS=ISPNTAB(7)
         CALL SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
 C Transform SymmG to Slater Dets:
         CALL SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CTMP,DET,
-     &               detocc,detcoeff)
+     &               detocc,detcoeff,Work(LTRANS))
         CALL mma_deallocate(CTMP)
       ELSE
         DET(1)=CI(1)

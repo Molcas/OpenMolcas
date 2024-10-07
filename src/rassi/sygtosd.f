@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CISYG,CISD,
-     &                   detocc,detcoeff)
+     &                   detocc,detcoeff,SPTRA)
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
       REAL*8 CISYG(*),CISD(*)
       character(len=*), intent(out) :: detocc(*)
-      real(8) :: detcoeff(*)
+      real(8) :: detcoeff(*), SPTRA(*)
 #include "WrkSpc.fh"
 
       INTEGER NASPRT
@@ -130,7 +130,7 @@ C Location of spin coupling coefficients:
         LSPTRA=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+5)
 C Matrix multiplication into temporary array:
         CALL  DGEMM_('N','N',NSPD,NCNF,NCPL,1.0D0,
-     &               WORK(LSPTRA),NSPD,
+     &               SPTRA(LSPTRA),NSPD,
      &               CISYG(ISYGSTA),NCPL,0.0D0,
      &               BLK,NSPD)
 

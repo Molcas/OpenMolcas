@@ -66,6 +66,7 @@ C Individual information for each separate nr of open shells:
       NTAB=6
       NTRANS=0
       IBLK=0
+      LTRANS0=LTRANS
       DO IOPEN=MINOP,MAXOP
         IBLK=IBLK+1
         NCP=NGENE(IOPEN,MLTPL)
@@ -85,7 +86,7 @@ C Compute spin determinants:
 C Compute spin coupling coefficients:
           CALL PROTOT(IOPEN,ND,IWORK(LTAB-1+KSPDET),NCP,
      &                      IWORK(LTAB-1+KSPCPL),WORK(LTRANS))
-          IWORK(LTAB+13+(IBLK-1)*6)=LTRANS
+          IWORK(LTAB+13+(IBLK-1)*6)=LTRANS-LTRANS0+1
           KSPCPL=KSPCPL+IOPEN*NCP
           KSPDET=KSPDET+IOPEN*ND
           LTRANS=LTRANS+ND*NCP
