@@ -19,4 +19,6 @@
       Integer, Allocatable:: PART(:)
       Integer, Allocatable:: OrbTab(:)
       Integer, Allocatable:: SSTAB(:)
+      Integer, Allocatable, Target:: REST1(:), REST2(:)
+      Integer, Pointer:: REST(:)
       End Module RASSI_GLOBAL_ARRAYS

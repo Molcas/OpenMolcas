@@ -14,9 +14,10 @@
      &                  NRS3T, NRSPRT
 #ifdef _DMRG_
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT,
-     &                               SSTAB
+     &                               SSTAB, REST1, REST2
 #else
-      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB
+      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
+     &                               REST1, REST2
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -549,8 +550,8 @@ C IWORK(LSPNTAB1)
       if(.not.doDMRG)then
         IFORM=1
         MINOP=0
-        LREST1=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
-        IF(IPGLOB.GE.4) CALL PRGASTAB(iWork(LREST1))
+        Call NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,1)
+        IF(IPGLOB.GE.4) CALL PRGASTAB(REST1)
 
 C At present, we will only annihilate, at most 2 electrons will
 C be removed. This limits the possible MAXOP:
@@ -559,7 +560,7 @@ C be removed. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB1,100)
 
-        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,iWork(LREST1),SSTAB)
+        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,REST1,SSTAB)
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB1))
         NDET1=IWORK(LFSBTAB1+4)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
@@ -669,8 +670,8 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
       NGASLIM(2,3)=NGL23
 
       if(.not.dodmrg)then
-        LREST2=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
-        IF(IPGLOB.GE.4) CALL PRGASTAB(iWork(LREST2))
+        CALL NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,2)
+        IF(IPGLOB.GE.4) CALL PRGASTAB(REST2)
 
         IFORM=1
         MINOP=0
@@ -680,7 +681,7 @@ C At present, we will only annihilate. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB2,100)
 
-        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,iwork(LREST2),SSTAB)
+        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,REST2,SSTAB)
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB2))
         NDET2=IWORK(LFSBTAB2+4)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
@@ -1432,8 +1433,8 @@ C             Write density 1-matrices in AO basis to disk.
       Call mma_deallocate(OrbTab)
       Call mma_deallocate(SSTAB)
       if(.not.doDMRG)then
-        CALL KILLOBJ(LREST1)
-        CALL KILLOBJ(LREST2)
+        Call mma_deallocate(REST2)
+        Call mma_deallocate(REST1)
         CALL KILLOBJ(LCNFTAB1)
         CALL KILLOBJ(LCNFTAB2)
         CALL KILLOBJ(LFSBTAB1)
