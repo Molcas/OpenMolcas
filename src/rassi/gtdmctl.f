@@ -904,7 +904,7 @@ C DYSCOF = Active orbital coefficents of the DO
         CALL DYSON(FSBTAB1,FSBTAB2,SSTAB,
      &            DET1,DET2,
      &            IF10,IF01,
-     &            DYSAMP,DYSCOF)
+     &            DYSAMP,DYSCOF,OrbTab)
 
 C Write Dyson orbital coefficients in AO basis to disk.
 C In full biorthonormal basis:
