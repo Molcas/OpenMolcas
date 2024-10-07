@@ -17,6 +17,7 @@
      &                               SSTAB, REST1, REST2,
      &                               CnfTab1, CnfTab2,
      &                               FSBTAB1, FSBTAB2,
+     &                               SPNTAB1, SPNTAB2,
      &                               TRANS1, TRANS2
 #else
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
@@ -51,7 +52,6 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "rassiwfn.fh"
 #include "Files.fh"
       Type (SGStruct), Target :: SGS(2)
@@ -494,7 +494,7 @@ C These are at:
 C REST1
 C CNFTAB1
 C FSBTAB1
-C IWORK(LSPNTAB1)
+C SPNTAB1
 
       NPART=3
       NGAS=NPART
@@ -570,11 +570,11 @@ C be removed. This limits the possible MAXOP:
         IF(IPGLOB.GE.4) CALL PRFSBTAB(FSBTAB1)
         NDET1=FSBTAB1(5)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
-        LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1,1)
+        Call NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1,1)
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-          CALL PRSCTAB(iWork(LSPNTAB1),TRANS1)
+          CALL PRSCTAB(SPNTAB1,TRANS1)
         END IF
       else
         NDET1 = 1 ! minimum to avoid runtime error
@@ -691,11 +691,11 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         IF(IPGLOB.GE.4) CALL PRFSBTAB(FSBTAB2)
         NDET2=FSBTAB2(5)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
-        LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2,2)
+        Call NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2,2)
         IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-          CALL PRSCTAB(iWork(LSPNTAB2),TRANS2)
+          CALL PRSCTAB(SPNTAB2,TRANS2)
         END IF
       else
         NDET2 = 1 ! minimum to avoid runtime error
@@ -723,7 +723,7 @@ C         Transform to bion basis, Split-Guga format
      &                           LSYM1,TRA1,NCONF1,CI1)
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
-     &                CNFTAB1,IWORK(LSPNTAB1),
+     &                CNFTAB1,SPNTAB1,
      &                SSTAB,FSBTAB1,NCONF1,CI1,
      &                DET1,detocc,detcoeff1,
      &                TRANS1)
@@ -807,7 +807,7 @@ C         Transform to bion basis, Split-Guga format
      &                           LSYM2,TRA2,NCONF2,CI2)
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
-     &                CNFTAB2,IWORK(LSPNTAB2),
+     &                CNFTAB2,SPNTAB2,
      &                SSTAB,FSBTAB2,NCONF2,CI2,
      &                DET2,detocc,detcoeff2,
      &                TRANS2)
@@ -1259,7 +1259,7 @@ C             Write density 1-matrices in AO basis to disk.
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
      &                           LSYM2,TRA2,NCONF2,CI2)
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
-     &                CNFTAB2,IWORK(LSPNTAB2),
+     &                CNFTAB2,SPNTAB2,
      &                SSTAB,FSBTAB2,NCONF2,CI2,
      &                DET2,detocc,detcoeff2,
      &                TRANS2)
@@ -1408,8 +1408,8 @@ C             Write density 1-matrices in AO basis to disk.
       if(.not.doDMRG)then
         Call mma_deallocate(TRANS2)
         Call mma_deallocate(TRANS1)
-        CALL KILLSCTAB(LSPNTAB1)
-        CALL KILLSCTAB(LSPNTAB2)
+        Call mma_deallocate(SPNTAB1)
+        Call mma_deallocate(SPNTAB2)
       end if
       IF ((IF10.or.IF01).and.DYSO) THEN
         Call mma_deallocate(DYSCOF)
