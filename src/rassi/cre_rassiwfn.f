@@ -25,7 +25,6 @@
 #  include "cntrl.fh"
 #  include "rassi.fh"
 #  include "symmul.fh"
-#  include "WrkSpc.fh"
 #  include "stdalloc.fh"
 #  include "rassiwfn.fh"
       integer :: ISTATE, NSS

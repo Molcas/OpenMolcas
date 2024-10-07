@@ -21,7 +21,6 @@
       REAL*8 DET1(*),DET2(*),DYSAMP,DYSCOF(*)
       LOGICAL IF10,IF01
 
-#include "symmul.fh"
 #include "WrkSpc.fh"
 
 ! +++ J.Norell 12/7 - 2018
