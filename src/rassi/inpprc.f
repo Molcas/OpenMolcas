@@ -19,7 +19,6 @@
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"

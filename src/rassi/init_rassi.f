@@ -20,7 +20,6 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "hfc_logical.fh"
       Character*256 STRING

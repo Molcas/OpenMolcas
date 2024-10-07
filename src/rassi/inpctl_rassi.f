@@ -21,7 +21,6 @@
       use cntrl_data, only: RefEne, HEff
       IMPLICIT NONE
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "centra.fh"

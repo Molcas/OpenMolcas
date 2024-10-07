@@ -21,8 +21,6 @@
       REAL*8 DET1(*),DET2(*),DYSAMP,DYSCOF(*)
       LOGICAL IF10,IF01
 
-#include "WrkSpc.fh"
-
 ! +++ J.Norell 12/7 - 2018
 C Given two CI expansions, using a biorthonormal set of SD's,
 C (assuming one state with N and one with N-1 electrons)
