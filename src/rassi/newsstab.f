@@ -8,8 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWSSTAB(ORBTAB)
+      Subroutine NEWSSTAB(ORBTAB)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_global_arrays, only: SSTAB
       IMPLICIT NONE
       INTEGER ORBTAB(*)
 
@@ -17,14 +18,13 @@
       INTEGER KSBSANN,KSBSCRE
 #include "symmul.fh"
 #include "Morsel.fh"
-#include "WrkSpc.fh"
       INTEGER I,IKMS2,IKSCR,IKSYM
       INTEGER IMS2,IPOP,ISBS,ISCR
       INTEGER ISGN,ISORB,ISPART,ISSTP
       INTEGER ISYM,J,KMS2,KOINFO,KSSTANN
       INTEGER KSSTCRE,KSSTP,KSYM
       INTEGER LPOS
-      INTEGER LTAB,MRS,MS2
+      INTEGER MRS,MS2
       INTEGER MXMS2,MXPOP,N
       INTEGER NEWMRS,NEWSBS,NEWSST,NO
       INTEGER NSBS,NSCR,NASPO,NASPRT
@@ -137,23 +137,23 @@ C Size of table, and offsets:
       KSBSANN=KMRSSBS + 2*(2**MORSBITS)*NASPRT
       KSBSCRE=KSBSANN + NSBSTOT*MORSBITS
       NTAB   =KSBSCRE + NSBSTOT*MORSBITS -1
-      CALL GETMEM('SbStrTab','Allo','Inte',LTAB,NTAB)
-      CALL ICOPY(NTAB,[0],0,IWORK(LTAB),1)
+      CALL mma_allocate(SSTAB,NTAB,Label='SSTAB')
+      SSTAB(:)=0
 C The header data
-      IWORK(LTAB+ 0)=NTAB
-      IWORK(LTAB+ 1)=ITYPE
-      IWORK(LTAB+ 2)=ip_of_iWork(OrbTab)
-      IWORK(LTAB+ 3)=NSYM
-      IWORK(LTAB+ 4)=NASPRT
-      IWORK(LTAB+ 5)=MORSBITS
-      IWORK(LTAB+ 6)=NSSTP
-      IWORK(LTAB+ 7)=NSBSTOT
-      IWORK(LTAB+ 8)=KSSTANN
-      IWORK(LTAB+ 9)=KSSTCRE
-      IWORK(LTAB+10)=KSBSMRS
-      IWORK(LTAB+11)=KMRSSBS
-      IWORK(LTAB+12)=KSBSANN
-      IWORK(LTAB+13)=KSBSCRE
+      SSTAB( 1)=NTAB
+      SSTAB( 2)=ITYPE
+      SSTAB( 3)=ip_of_iWork(OrbTab)
+      SSTAB( 4)=NSYM
+      SSTAB( 5)=NASPRT
+      SSTAB( 6)=MORSBITS
+      SSTAB( 7)=NSSTP
+      SSTAB( 8)=NSBSTOT
+      SSTAB( 9)=KSSTANN
+      SSTAB(10)=KSSTCRE
+      SSTAB(11)=KSBSMRS
+      SSTAB(12)=KMRSSBS
+      SSTAB(13)=KSBSANN
+      SSTAB(14)=KSBSCRE
 C Fill in the Substring Type table
 C Change the counter array into an array of offsets. Also allocate
 C a translation table (POP,MS2,ISYM) to Substring Type.
@@ -175,11 +175,11 @@ C a translation table (POP,MS2,ISYM) to Substring Type.
              SCR(ISCR)=ISBS
              SCR2(ISCR)=ISSTP
              ISBS=ISBS+NSBS
-             IWORK(LTAB-1+KSSTP+ 0+5*(ISSTP-1))=NSBS
-             IWORK(LTAB-1+KSSTP+ 1+5*(ISSTP-1))=IPOP
-             IWORK(LTAB-1+KSSTP+ 2+5*(ISSTP-1))=ISYM
-             IWORK(LTAB-1+KSSTP+ 3+5*(ISSTP-1))=IMS2
-             IWORK(LTAB-1+KSSTP+ 4+5*(ISSTP-1))=ISPART
+             SSTAB(KSSTP+ 0+5*(ISSTP-1))=NSBS
+             SSTAB(KSSTP+ 1+5*(ISSTP-1))=IPOP
+             SSTAB(KSSTP+ 2+5*(ISSTP-1))=ISYM
+             SSTAB(KSSTP+ 3+5*(ISSTP-1))=IMS2
+             SSTAB(KSSTP+ 4+5*(ISSTP-1))=ISPART
            END IF
           END DO
          END DO
@@ -208,12 +208,12 @@ CTEST     &                      MRS,IPOP,IMS2,ISYM,ISBS
           SCR(ISCR)=ISBS
           ISSTP=SCR2(ISCR)
 C Fill in the Substring/Morsel translation arrays:
-          LPOS=LTAB-1+KSBSMRS+2*(ISBS-1)
-          IWORK(LPOS)=MRS
-          IWORK(LPOS+1)=ISSTP
-          LPOS=LTAB-1+KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
-          IWORK(LPOS)=ISBS
-          IWORK(LPOS+1)=ISSTP
+          LPOS=KSBSMRS+2*(ISBS-1)
+          SSTAB(LPOS)=MRS
+          SSTAB(LPOS+1)=ISSTP
+          LPOS=KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
+          SSTAB(LPOS)=ISBS
+          SSTAB(LPOS+1)=ISSTP
         END DO
         ISORB=ISORB+NO
       END DO
@@ -224,9 +224,9 @@ C Fill in the Substring/Morsel translation arrays:
       DO ISPART=1,NASPRT
        NO=NOSUB(ISPART)
        DO MRS=0,2**NO-1
-        LPOS=LTAB-1+KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
-        ISBS=IWORK(LPOS)
-        ISSTP=IWORK(LPOS+1)
+        LPOS=KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
+        ISBS=SSTAB(LPOS)
+        ISSTP=SSTAB(LPOS+1)
        END DO
       END DO
 
@@ -236,9 +236,9 @@ CTEST      write(*,*)' Making annih and creat arrays:'
       DO ISPART=1,NASPRT
        NO=NOSUB(ISPART)
        DO MRS=0,2**NO-1
-        LPOS=LTAB-1+KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
-        ISBS=IWORK(LPOS)
-        ISSTP=IWORK(LPOS+1)
+        LPOS=KMRSSBS+2*(MRS+(2**MORSBITS)*(ISPART-1))
+        ISBS=SSTAB(LPOS)
+        ISSTP=SSTAB(LPOS+1)
         DO I=1,NO
          NEWMRS=MORSANN(MRS,I)
          IF(NEWMRS.NE.999999) THEN
@@ -246,16 +246,16 @@ CTEST      write(*,*)' Making annih and creat arrays:'
           IF(NEWMRS.LT.0) ISGN=-1
           NEWMRS=ISGN*NEWMRS
 C Position in Morsel-to-Substring Table
-          LPOS=LTAB-1+KMRSSBS+2*(NEWMRS+(2**MORSBITS)*(ISPART-1))
+          LPOS=KMRSSBS+2*(NEWMRS+(2**MORSBITS)*(ISPART-1))
 C New substring times sign factor
-          NEWSBS=ISGN*IWORK(LPOS)
-          NEWSST=IWORK(LPOS+1)
+          NEWSBS=ISGN*SSTAB(LPOS)
+          NEWSST=SSTAB(LPOS+1)
 C Put new substring in the table
-          LPOS=LTAB-1+KSBSANN-1+I+MORSBITS*(ISBS-1)
-          IWORK(LPOS)=NEWSBS
+          LPOS=KSBSANN-1+I+MORSBITS*(ISBS-1)
+          SSTAB(LPOS)=NEWSBS
 C Put new substring type in the Substring Type Annihil Table
-          LPOS=LTAB-1+KSSTANN-1+I+MORSBITS*(ISSTP-1)
-          IWORK(LPOS)=NEWSST
+          LPOS=KSSTANN-1+I+MORSBITS*(ISSTP-1)
+          SSTAB(LPOS)=NEWSST
          END IF
         END DO
 C Create: Very similar to the Annihilate code above.
@@ -266,16 +266,16 @@ C Create: Very similar to the Annihilate code above.
           IF(NEWMRS.LT.0) ISGN=-1
           NEWMRS=ISGN*NEWMRS
 C Position in Morsel-to-Substring Table
-          LPOS=LTAB-1+KMRSSBS+2*(NEWMRS+(2**MORSBITS)*(ISPART-1))
+          LPOS=KMRSSBS+2*(NEWMRS+(2**MORSBITS)*(ISPART-1))
 C New substring times sign factor
-          NEWSBS=ISGN*IWORK(LPOS)
-          NEWSST=IWORK(LPOS+1)
+          NEWSBS=ISGN*SSTAB(LPOS)
+          NEWSST=SSTAB(LPOS+1)
 C Put new substring in the table
-          LPOS=LTAB-1+KSBSCRE-1+I+MORSBITS*(ISBS-1)
-          IWORK(LPOS)=NEWSBS
+          LPOS=KSBSCRE-1+I+MORSBITS*(ISBS-1)
+          SSTAB(LPOS)=NEWSBS
 C Put new substring type in the Substring Type Creat Table
-          LPOS=LTAB-1+KSSTCRE-1+I+MORSBITS*(ISSTP-1)
-          IWORK(LPOS)=NEWSST
+          LPOS=KSSTCRE-1+I+MORSBITS*(ISSTP-1)
+          SSTAB(LPOS)=NEWSST
          END IF
         END DO
        END DO
@@ -287,57 +287,57 @@ C For all strings, check the anticommutation rules.
       IERR=0
       DO ISBS=1,NSBSTOT
 C Its substring type
-       LPOS=LTAB-1+KSBSMRS+2*(ISBS-1)
-       ISSTP=IWORK(LPOS+1)
+       LPOS=KSBSMRS+2*(ISBS-1)
+       ISSTP=SSTAB(LPOS+1)
 C Its subpartition
-       ISPART=IWORK(LTAB-1+KSSTP+ 4+5*(ISSTP-1))
+       ISPART=SSTAB(KSSTP+ 4+5*(ISSTP-1))
        NO=NOSUB(ISPART)
        DO I=1,NO
 C Annihilate orbital nr I in the subpartition.
-        LPOS=LTAB-1+KSBSANN-1+I+MORSBITS*(ISBS-1)
-        ISBS1=IWORK(LPOS)
+        LPOS=KSBSANN-1+I+MORSBITS*(ISBS-1)
+        ISBS1=SSTAB(LPOS)
 C Create orbital nr I in the subpartition.
-        LPOS=LTAB-1+KSBSCRE-1+I+MORSBITS*(ISBS-1)
-        ISBS2=IWORK(LPOS)
+        LPOS=KSBSCRE-1+I+MORSBITS*(ISBS-1)
+        ISBS2=SSTAB(LPOS)
         IF(ISBS1.NE.0 .AND. ISBS2.NE.0) IERR=IERR+1
         IF(ISBS1.EQ.0 .AND. ISBS2.EQ.0) IERR=IERR+1
         DO J=1,I
 C Same, for orbital J instead.
-         LPOS=LTAB-1+KSBSANN-1+J+MORSBITS*(ISBS-1)
-         ISBS3=IWORK(LPOS)
-         LPOS=LTAB-1+KSBSCRE-1+J+MORSBITS*(ISBS-1)
-         ISBS4=IWORK(LPOS)
+         LPOS=KSBSANN-1+J+MORSBITS*(ISBS-1)
+         ISBS3=SSTAB(LPOS)
+         LPOS=KSBSCRE-1+J+MORSBITS*(ISBS-1)
+         ISBS4=SSTAB(LPOS)
 C SBS5=A(I-)*SBS4:
          ISBS5=0
          IF(ISBS4.NE.0) THEN
            ISGN=1
            IF(ISBS4.LT.0) ISGN=-1
-           LPOS=LTAB-1+KSBSANN-1+I+MORSBITS*(ABS(ISBS4)-1)
-           ISBS5=ISGN*IWORK(LPOS)
+           LPOS=KSBSANN-1+I+MORSBITS*(ABS(ISBS4)-1)
+           ISBS5=ISGN*SSTAB(LPOS)
          END IF
 C SBS6=A(J+)*SBS1:
          ISBS6=0
          IF(ISBS1.NE.0) THEN
            ISGN=1
            IF(ISBS1.LT.0) ISGN=-1
-           LPOS=LTAB-1+KSBSCRE-1+J+MORSBITS*(ABS(ISBS1)-1)
-           ISBS6=ISGN*IWORK(LPOS)
+           LPOS=KSBSCRE-1+J+MORSBITS*(ABS(ISBS1)-1)
+           ISBS6=ISGN*SSTAB(LPOS)
          END IF
 C SBS7=A(I+)*SBS3:
          ISBS7=0
          IF(ISBS3.NE.0) THEN
            ISGN=1
            IF(ISBS3.LT.0) ISGN=-1
-           LPOS=LTAB-1+KSBSCRE-1+I+MORSBITS*(ABS(ISBS3)-1)
-           ISBS7=ISGN*IWORK(LPOS)
+           LPOS=KSBSCRE-1+I+MORSBITS*(ABS(ISBS3)-1)
+           ISBS7=ISGN*SSTAB(LPOS)
          END IF
 C SBS8=A(J-)*SBS2:
          ISBS8=0
          IF(ISBS2.NE.0) THEN
            ISGN=1
            IF(ISBS2.LT.0) ISGN=-1
-           LPOS=LTAB-1+KSBSANN-1+J+MORSBITS*(ABS(ISBS2)-1)
-           ISBS8=ISGN*IWORK(LPOS)
+           LPOS=KSBSANN-1+J+MORSBITS*(ABS(ISBS2)-1)
+           ISBS8=ISGN*SSTAB(LPOS)
          END IF
 C Now check:
          IF(I.NE.J) THEN
@@ -354,7 +354,6 @@ C Now check:
       END IF
 
 
-      NEWSSTAB=LTAB
       CALL mma_deallocate(NOSUB)
-      RETURN
-      END
+
+      END Subroutine NEWSSTAB

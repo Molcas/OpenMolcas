@@ -13,9 +13,10 @@
       use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
      &                  NRS3T, NRSPRT
 #ifdef _DMRG_
-      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT
+      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT,
+     &                               SSTAB
 #else
-      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS
+      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB
 #endif
       !> module dependencies
 #ifdef _DMRG_
@@ -402,16 +403,16 @@ C Define structures ('tables') pertinent all jobs.
 C (Later, move this up before the GTDMCTL calls).
 C These are at:
 C PART
-C ORBTA)
-C IWORK(LSSTAB)
+C ORBTAB
+C SSTAB
       Call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
       IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 
       Call NEWORBTAB(PART)
       IF(IPGLOB.GE.4) CALL PRORBTAB(ORBTAB)
 
-      LSSTAB=NEWSSTAB(ORBTAB)
-      IF(IPGLOB.GE.4) CALL PRSSTAB(iWork(LSSTAB))
+      Call NEWSSTAB(ORBTAB)
+      IF(IPGLOB.GE.4) CALL PRSSTAB(SSTAB)
 
 C Mapping from active spin-orbital to active orbital in external order.
 C Note that these differ, not just because of the existence of two
@@ -558,7 +559,7 @@ C be removed. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB1,100)
 
-        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,iWork(LSSTAB))
+        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,SSTAB)
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB1))
         NDET1=IWORK(LFSBTAB1+4)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
@@ -679,7 +680,7 @@ C At present, we will only annihilate. This limits the possible MAXOP:
      &                     NGASORB,NGASLIM,IFORM)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB2,100)
 
-        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,iWork(LSSTAB))
+        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,SSTAB)
         IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB2))
         NDET2=IWORK(LFSBTAB2+4)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
@@ -716,7 +717,7 @@ C         Transform to bion basis, Split-Guga format
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
      &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
-     &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,CI1,
+     &                SSTAB,IWORK(LFSBTAB1),NCONF1,CI1,
      &                DET1,detocc,detcoeff1)
 
 C       print transformed ci expansion
@@ -799,7 +800,7 @@ C         Transform to bion basis, Split-Guga format
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,CI2,
+     &                SSTAB,IWORK(LFSBTAB2),NCONF2,CI2,
      &                DET2,detocc,detcoeff2)
 
 C         print transformed ci expansion
@@ -892,7 +893,7 @@ C DYSAMP = D_ij for states i and j
 C DYSCOF = Active orbital coefficents of the DO
       IF ((IF10.or.IF01).and.DYSO) THEN
         CALL DYSON(IWORK(LFSBTAB1),
-     &            IWORK(LFSBTAB2),IWORK(LSSTAB),
+     &            IWORK(LFSBTAB2),SSTAB,
      &            DET1,DET2,
      &            IF10,IF01,
      &            DYSAMP,DYSCOF)
@@ -935,9 +936,8 @@ C     Defining the Binding energy Ei-Ej
 C evaluate K-2V spin+1 density
         AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &      IWORK(LSSTAB),
-     &      OMAP,DET1,DET2,
-     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               SSTAB,OMAP,DET1,DET2,
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
@@ -945,25 +945,22 @@ C evaluate K-2V spin+1 density
 C evaluate K-2V spin-1 density
         AUGSPIN=-1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &      IWORK(LSSTAB),
-     &      OMAP,DET1,DET2,
-     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               SSTAB,OMAP,DET1,DET2,
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
         ELSE ! write then both
         AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &      IWORK(LSSTAB),
-     &      OMAP,DET1,DET2,
-     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               SSTAB,OMAP,DET1,DET2,
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
         AUGSPIN=-1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &      IWORK(LSSTAB),
-     &      OMAP,DET1,DET2,
-     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+     &               SSTAB,OMAP,DET1,DET2,
+     &               IF21,IF12,NRT2M,RT2M,AUGSPIN)
         CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
        END IF
@@ -982,9 +979,8 @@ C     Defining the Binding energy Ei-Ej
       Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
       DCHSM(:) = Zero
       CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
-     &      IWORK(LSSTAB),
-     &      OMAP,DET1,DET2,
-     &      IF20,IF02,NDCHSM,DCHSM)
+     &            SSTAB,OMAP,DET1,DET2,
+     &            IF20,IF02,NDCHSM,DCHSM)
       Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
      &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
      &      DCHSM(DCHIJ)
@@ -995,7 +991,7 @@ C     Defining the Binding energy Ei-Ej
 C General 1-particle transition density matrix:
       IF (IF11) THEN
         CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
-     &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),IWORK(LSSTAB),
+     &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),SSTAB,
      &            OMAP,DET1,DET2,SIJ,NASHT,
      &            TRAD,TRASD,WERD,ISTATE,
      &            JSTATE,job1,job2,ist,jst)
@@ -1159,7 +1155,7 @@ C             Write density 1-matrices in AO basis to disk.
           IF (IF22) THEN
             CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
      &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
-     &                  IWORK(LSSTAB),OMAP,
+     &                  SSTAB,OMAP,
      &                  DET1,DET2,NTDM2,TDM2,
      &                  ISTATE,JSTATE)
 
@@ -1257,7 +1253,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                           LSYM2,TRA2,NCONF2,CI2)
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,CI2,
+     &                SSTAB,IWORK(LFSBTAB2),NCONF2,CI2,
      &                DET2,detocc,detcoeff2)
 
           CALL mma_allocate(ThetaN,NCONF2,Label='ThetaN')
@@ -1434,7 +1430,7 @@ C             Write density 1-matrices in AO basis to disk.
       Call mma_deallocate(CMO1)
       Call mma_deallocate(PART)
       Call mma_deallocate(OrbTab)
-      CALL KILLOBJ(LSSTAB)
+      Call mma_deallocate(SSTAB)
       if(.not.doDMRG)then
         CALL KILLOBJ(LREST1)
         CALL KILLOBJ(LREST2)
