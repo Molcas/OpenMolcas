@@ -10,6 +10,10 @@
 *           Second RASSI with NON_AO_TDM should give the same results.
 *-------------------------------------------------------------------------------
 
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 >>> FILE acrolein.xyz
 8
 
