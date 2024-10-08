@@ -1275,15 +1275,16 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`WFAPrep`
-  Prepares a run of the :program:`WFA` program by printing 1-electron (transition) densities to
-  the HDF5 file :file:`rassi.h5`.
+:kword:`TDM`
+  If this keyword is given, and if HDF5 support is enabled, the 1-electron transition
+  (spin) density matrix between every pair of states in the current calculation will be computed
+  and stored in the HDF5 file (use :kword:`SUBSets` to restrict to a subset of states).
+  Use this to prepare :program:`WFA` runs or visualisation with Pegamoid.
 
-.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="WFAPREP" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: WFAPREP <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="TDM" LEVEL="BASIC" APPEAR="Transition density matrices" KIND="SINGLE">
+              %%Keyword: TDM <basic>
               <HELP>
-              Preparse a run of the WFA program by printing the 1-electron (transition) densities to
-              the HDF5 file rassi.h5.
+              Compute and save transition density matrices. Requires HDF5.
               </HELP>
               </KEYWORD>
 

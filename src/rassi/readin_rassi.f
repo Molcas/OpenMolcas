@@ -700,8 +700,8 @@ C--------------------------------------------
         GOTO 100
       ENDIF
 C--------------------------------------------
-      IF(Line(1:4).eq.'WFAP') THEN
-        IFWFA=.TRUE.
+      IF(Line(1:3).eq.'TDM') THEN
+        IFTDM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF

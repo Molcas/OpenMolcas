@@ -73,7 +73,7 @@ Dependencies
 
 The :program:`WFA` program requires HDF5 files, which are written by either
 :program:`SCF`, :program:`RASSCF`, or :program:`RASSI`. In the case of :program:`RASSI`,
-the :kword:`WFAPREP` (or :kword:`TRD1`) keyword has to be activated.
+the :kword:`TDM` (or :kword:`TRD1`) keyword has to be activated.
 
 .. _UG\:sec\:wfa_files:
 
@@ -340,10 +340,10 @@ Input example
 
 ::
 
-  * Analysis of RASSI job, use the WFAPREP keyword
+  * Analysis of RASSI job, use the TDM keyword
   &RASSI
   EJOB
-  WFAPREP
+  TDM
 
   &WFA
   H5file = $Project.rassi.h5
@@ -366,7 +366,7 @@ Note that this only works if the reference state is the first state treated by R
 ::
 
   &RASSI
-  WFAPREP
+  TDM
   EJOB
   SUBSets = 1
 
@@ -387,7 +387,7 @@ As an extreme example, you can iterate over individual states using the followin
   >> FOREACH IST in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
   &RASSI
-  WFAPREP
+  TDM
   NROF
   2 1 1
   1
