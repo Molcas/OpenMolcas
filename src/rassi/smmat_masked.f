@@ -20,7 +20,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS

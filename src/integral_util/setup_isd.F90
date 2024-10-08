@@ -24,7 +24,7 @@ integer(kind=iwp) :: iBas, iCmp, iPrim, iS, nSkal
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (allocated(iSD)) call mma_deallocate(iSD)
+call mma_deallocate(iSD,safe='*')
 call Nr_Shells(nSkal)
 mSkal = nSkal
 nSkal_iSD = nSkal+4  ! Add four slots for future use.

@@ -72,8 +72,8 @@ subroutine Destroy_BraKet_Base()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(BraKet_Base_R)) call mma_deallocate(BraKet_Base_R)
-  if (allocated(BraKet_Base_I)) call mma_deallocate(BraKet_Base_I)
+  call mma_deallocate(BraKet_Base_R,safe='*')
+  call mma_deallocate(BraKet_Base_I,safe='*')
 
 end subroutine Destroy_BraKet_Base
 
@@ -84,7 +84,7 @@ subroutine Create_BraKet(nZeta,nEta)
   integer(kind=iwp), intent(in) :: nZeta, nEta
   integer(kind=iwp) :: iE, iS
 
-  if ((.not. allocated(BraKet_base_R)) .or. (.not. allocated(BraKet_base_I))) then
+  if (.not. (allocated(BraKet_base_R) .and. allocated(BraKet_base_I))) then
     write(u6,*) 'Braket_Base not allocated!'
     call Abend()
   end if

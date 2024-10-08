@@ -1006,7 +1006,7 @@ subroutine Free_Alloc1DArray(Array)
   integer(kind=iwp) :: i
 
   do i=lbound(Array,1),ubound(Array,1)
-    if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
+    call mma_deallocate(Array(i)%A,safe='*')
   end do
   call mma_deallocate(Array)
 
@@ -1019,7 +1019,7 @@ subroutine Free2D_Alloc1DArray(Array)
 
   do j=lbound(Array,2),ubound(Array,2)
     do i=lbound(Array,1),ubound(Array,1)
-      if (allocated(Array(i,j)%A)) call mma_deallocate(Array(i,j)%A)
+      call mma_deallocate(Array(i,j)%A,safe='*')
     end do
   end do
   call mma_deallocate(Array)
@@ -1032,7 +1032,7 @@ subroutine Free_Alloc2DArray(Array)
   integer(kind=iwp) :: i
 
   do i=lbound(Array,1),ubound(Array,1)
-    if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
+    call mma_deallocate(Array(i)%A,safe='*')
   end do
   call mma_deallocate(Array)
 

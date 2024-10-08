@@ -248,9 +248,9 @@ do iiVec=1,NumV,nFVec
 
     ! End of Transformations
 
-    if (allocated(XAj)) call mma_deallocate(XAj)
-    if (allocated(XAu)) call mma_deallocate(XAu)
-    if (allocated(XAb)) call mma_deallocate(XAb)
+    call mma_deallocate(XAj,safe='*')
+    call mma_deallocate(XAu,safe='*')
+    call mma_deallocate(XAb,safe='*')
 
   end do
   ! End Loop jVec

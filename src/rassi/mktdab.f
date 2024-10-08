@@ -24,7 +24,6 @@
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "WrkSpc.fh"
       DIMENSION IOFFA(8)
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0

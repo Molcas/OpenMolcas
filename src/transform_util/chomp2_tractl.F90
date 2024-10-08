@@ -223,7 +223,7 @@ do iSymL=1,nSym
     do iSym=1,size(TCVX,2)
       do jSym=1,size(TCVX,3)
 
-        if (allocated(TCVX(3,iSym,jSym)%A)) call mma_deallocate(TCVX(3,iSym,jSym)%A)
+        call mma_deallocate(TCVX(3,iSym,jSym)%A,safe='*')
 
       end do
     end do

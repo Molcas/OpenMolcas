@@ -548,9 +548,9 @@ subroutine Terminate()
     call mma_deallocate(RhoI)
     call mma_deallocate(RhoA)
   end if
-  if (allocated(iBfn_Index)) call mma_deAllocate(iBfn_Index)
-  if (allocated(Grid_AO)) call mma_deAllocate(Grid_AO)
-  if (allocated(Dens_AO)) call mma_deAllocate(Dens_AO)
+  call mma_deAllocate(iBfn_Index,safe='*')
+  call mma_deAllocate(Grid_AO,safe='*')
+  call mma_deAllocate(Dens_AO,safe='*')
 
 end subroutine Terminate
 

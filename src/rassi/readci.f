@@ -20,7 +20,6 @@
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "SysDef.fh"

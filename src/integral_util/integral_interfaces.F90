@@ -12,6 +12,7 @@
 module Integral_Interfaces
 
 ! Dummy modules to get correct order of compilation
+use IOBuf, only:
 use Real_Spherical, only:
 use iSD_data, only:
 use k2_arrays, only:
@@ -26,6 +27,7 @@ use Symmetry_Info, only:
 use SOAO_Info, only:
 use stdalloc, only:
 use Constants, only:
+
 use Index_Functions, only: nTri_Elem1
 use k2_structure, only: k2_type
 use Definitions, only: wp, iwp
@@ -78,13 +80,14 @@ end interface
 ! Intel 13 compiler only works with "public" here
 procedure(int_wrout), public, pointer :: Int_postprocess => null()
 
-public :: DeDe_SCF, FckAcc, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Integrals, prm_kernel, twoel_kernel
+public :: DeDe_SCF, Drv2El_dscf, FckAcc, int_kernel, int_mem, int_wrout, OneEl_ij, OneEl_Integrals, prm_kernel, twoel_kernel
 
 contains
 
 ! Subroutines that need an explicit interface (target or allocatable arguments)
 #define _IN_MODULE_
 #include "dede_scf.F90"
+#include "drv2el_dscf.F90"
 #include "fckacc.F90"
 #include "oneel_ij.F90"
 #include "oneel_integrals.F90"

@@ -16,16 +16,18 @@
       USE RASSI_AUX
       USE kVectors
       USE do_grid, only: Do_Lebedev
+      use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
 #endif
-#include "compiler_features.h"
-#ifndef POINTER_REMAP
-      USE ISO_C_Binding
-#endif
       use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      Integer NSS
+      Real*8 PROP(NSTATE,NSTATE,NPROP)
+      Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      Integer JBNUM(NSTATE)
+      Real*8 EigVec(NSTATE,NSTATE)
+
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "symmul.fh"
@@ -33,10 +35,6 @@
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP),JBNUM(NSTATE),
-     &          EigVec(NSTATE,NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       LOGICAL TMOgroup
@@ -56,6 +54,11 @@
 #endif
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
       Real*8, Allocatable:: VSOR(:,:), VSOI(:,:), TMP(:)
+      Real*8, Allocatable:: DXR(:,:,:), DXI(:,:,:)
+      Real*8, Allocatable:: DXRM(:,:,:), DXIM(:,:,:)
+      Real*8, Allocatable:: TMR(:,:,:), TMI(:,:,:)
+      Real*8, Allocatable:: IP(:), OscStr(:,:), Aux(:,:)
+      Real*8, Allocatable:: RAW(:)
 
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
@@ -224,17 +227,17 @@ C printing threshold
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
 *
-      CALL GETMEM('DXR','ALLO','REAL',LDXR,3*NSS**2)
-      CALL GETMEM('DXI','ALLO','REAL',LDXI,3*NSS**2)
-      CALL GETMEM('DXRM','ALLO','REAL',LDXRM,3*NSS**2)
-      CALL GETMEM('DXIM','ALLO','REAL',LDXIM,3*NSS**2)
+      CALL mma_allocate(DXR,NSS,NSS,3,Label='DXR')
+      CALL mma_allocate(DXI,NSS,NSS,3,Label='DXI')
+      CALL mma_allocate(DXRM,NSS,NSS,3,Label='DXRM')
+      CALL mma_allocate(DXIM,NSS,NSS,3,Label='DXIM')
       Call mma_Allocate(TMP,NSS**2,Label='TMP')
-      CALL GETMEM('TMR','ALLO','REAL',LTMR,3*NSS**2)
-      CALL GETMEM('TMI','ALLO','REAL',LTMI,3*NSS**2)
+      CALL mma_allocate(TMR,NSS,NSS,3,Label='TMR')
+      CALL mma_allocate(TMI,NSS,NSS,3,Label='TMI')
 *
 C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+      CALL mma_allocate(IP,NIP,Label='IP')
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -330,10 +333,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *     Array for printing contributions from different directions
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,2*NQUAD*6*nmax2)
-      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
-      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
-      LMAX_=0
+      CALL mma_allocate(RAW,2*NQUAD*6*nmax2,Label='RAW')
+      LRAW=1
+      CALL mma_allocate(OSCSTR,2,nmax2,Label='OSCSTR')
+      CALL mma_allocate(Aux,8,nmax2,Label='Aux')
 *
       Do iVec = 1, nVec
 *
@@ -404,7 +407,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               ENSOR2=ENSOR(jstart_)
             EndIf
             EDIFF_=ENSOR2-ENSOR1
-            n12=(iend_-istart_+1)*(jend_-jstart_+1)
 *Screening
             Call iCopy(NState,[0],0,jMask,1)
             Call iCopy(NSS,[0],0,jSSMask,1)
@@ -456,9 +458,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
-            CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
-            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
+            OscStr(:,:)=0.0D0
+            RAW(:)=0.0D0
+            Aux(:,:)=0.0D0
 *
             Do iQuad = 1, nQuad
                iVec_=(iVec-1)*nQuad+iQuad
@@ -553,20 +555,20 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                         LABEL=PNAME(IPROP)
                         Call MK_PROP(PROP,IPROP,I,J,
      &                               LABEL,ITYPE,
-     &                               WORK(LIP),NIP,SCR,nSCR,
+     &                               IP,NIP,SCR,nSCR,
      &                               MASK,ISY12,IOFF)
                      END DO
 *
                   END DO ! J
                END DO ! I
 *
-*              LDXR & LDXI hold the component that does not change from k to -k
-*              LDXRM & LDXIM hold the component that changes sign
+*              DXR & DXI hold the component that does not change from k to -k
+*              DXRM & DXIM hold the component that changes sign
 *
-               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXR),1)
-               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXI),1)
-               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXRM),1)
-               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXIM),1)
+               DXR(:,:,:)=0.0D0
+               DXI(:,:,:)=0.0D0
+               DXRM(:,:,:)=0.0D0
+               DXIM(:,:,:)=0.0D0
                DO iCar = 1, 3
 *
 *              (1) the spin-free part.
@@ -575,26 +577,23 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 as we assemble to transition momentum we have to
 *                 remember to put in a factor of -i.
 *
-                  LI_=LDXI+(iCar-1)*NSS**2
-                  LRM_=LDXRM+(iCar-1)*NSS**2
-*
 *                 The real part (symmetric and anti-symmetric) becomes imaginary
 *
                   CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(0+iCar),
      &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
-                  CALL DAXPY_(NSS**2,-1.0D0,TMP,1,WORK(LI_),1)
+                  CALL DAXPY_(NSS**2,-1.0D0,TMP,1,DXI(:,:,iCar),1)
                   CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(6+iCar),
      &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
-                  CALL DAXPY_(NSS**2,-1.0D0,TMP,1,WORK(LI_),1)
+                  CALL DAXPY_(NSS**2,-1.0D0,TMP,1,DXI(:,:,iCar),1)
 *
 *                 The imaginary part (symmetric and anti-symmetric) becomes real
 *
                   CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(3+iCar),
      &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
-                  CALL DAXPY_(NSS**2, 1.0D0,TMP,1,WORK(LRM_),1)
+                  CALL DAXPY_(NSS**2, 1.0D0,TMP,1,DXRM(:,:,iCar),1)
                   CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(9+iCar),
      &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
-                  CALL DAXPY_(NSS**2, 1.0D0,TMP,1,WORK(LRM_),1)
+                  CALL DAXPY_(NSS**2, 1.0D0,TMP,1,DXRM(:,:,iCar),1)
 *
 *              (2) the spin-dependent part, magnetic
 *
@@ -641,15 +640,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2, wavevector(2)*cst,
-     &                           TMP,1,WORK(LDXIM+2*NSS**2),1)
+     &                           TMP,1,DXIM(:,:,3),1)
                      CALL DAXPY_(NSS**2,-wavevector(3)*cst,
-     &                           TMP,1,WORK(LDXIM+1*NSS**2),1)
+     &                           TMP,1,DXIM(:,:,2),1)
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(2)*cst,
-     &                           TMP,1,WORK(LDXR+2*NSS**2),1)
+     &                           TMP,1,DXR(:,:,3),1)
                      CALL DAXPY_(NSS**2, wavevector(3)*cst,
-     &                           TMP,1,WORK(LDXR+1*NSS**2),1)
+     &                           TMP,1,DXR(:,:,2),1)
                   ELSE IF (iCar.EQ.2) THEN
 *                    For the y-component we have to interchange the real and
 *                    the imaginary components. The real component gets a
@@ -657,28 +656,28 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),
      &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(3)*cst,
-     &                           TMP,1,WORK(LDXI+0*NSS**2),1)
+     &                           TMP,1,DXI(:,:,1),1)
                      CALL DAXPY_(NSS**2, wavevector(1)*cst,
-     &                           TMP,1,WORK(LDXI+2*NSS**2),1)
+     &                           TMP,1,DXI(:,:,3),1)
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(3)*cst,
-     &                           TMP,1,WORK(LDXRM+0*NSS**2),1)
+     &                           TMP,1,DXRM(:,:,1),1)
                      CALL DAXPY_(NSS**2, wavevector(1)*cst,
-     &                           TMP,1,WORK(LDXRM+2*NSS**2),1)
+     &                           TMP,1,DXRM(:,:,3),1)
                   ELSE IF (iCar.EQ.3) THEN
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2, wavevector(1)*cst,
-     &                           TMP,1,WORK(LDXIM+1*NSS**2),1)
+     &                           TMP,1,DXIM(:,:,2),1)
                      CALL DAXPY_(NSS**2,-wavevector(2)*cst,
-     &                           TMP,1,WORK(LDXIM+0*NSS**2),1)
+     &                           TMP,1,DXIM(:,:,1),1)
                      CALL SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(1)*cst,
-     &                           TMP,1,WORK(LDXR+1*NSS**2),1)
+     &                           TMP,1,DXR(:,:,2),1)
                      CALL DAXPY_(NSS**2, wavevector(2)*cst,
-     &                           TMP,1,WORK(LDXR+0*NSS**2),1)
+     &                           TMP,1,DXR(:,:,1),1)
                   END IF
                END DO
 *
@@ -687,32 +686,28 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                DO kp = 1, 2
 *
                IF (ABS(kPhase(kp)).LT.0.5d0) CYCLE
-               CALL DCOPY_(3*NSS**2,WORK(LDXR),1,WORK(LTMR),1)
-               CALL DCOPY_(3*NSS**2,WORK(LDXI),1,WORK(LTMI),1)
+               CALL DCOPY_(3*NSS**2,DXR(:,:,:),1,TMR(:,:,:),1)
+               CALL DCOPY_(3*NSS**2,DXI(:,:,:),1,TMI(:,:,:),1)
                CALL DAXPY_(3*NSS**2,kPhase(kp),
-     &                     WORK(LDXRM),1,WORK(LTMR),1)
+     &                     DXRM(:,:,:),1,TMR(:,:,:),1)
                CALL DAXPY_(3*NSS**2,kPhase(kp),
-     &                     WORK(LDXIM),1,WORK(LTMI),1)
+     &                     DXIM(:,:,:),1,TMI(:,:,:),1)
                DO iCar=1, 3
-                  LR_=LTMR+(iCar-1)*NSS**2
-                  LI_=LTMI+(iCar-1)*NSS**2
                   CALL ZTRNSF_MASKED(NSS,VSOR,VSOI,
-     &                               WORK(LR_),WORK(LI_),
+     &                               TMR(:,:,iCar),TMI(:,:,iCar),
      &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
                END DO
 *
                IJ_=0
                Do ISO=istart_,iend_
                  Do JSO=jstart_,jend_
-                   IJ=(JSO-1)*NSS+ISO-1
                    IJ_=IJ_+1
-                   LFIJ=LF+(ij_-1)*2
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
 *
 *              Store the vectors for this direction
 *
-                   Call DCopy_(3,Work(LTMR+IJ),NSS**2,TM_R,1)
-                   Call DCopy_(3,Work(LTMI+IJ),NSS**2,TM_I,1)
+                   TM_R(:)=TMR(ISO,JSO,:)
+                   TM_I(:)=TMI(ISO,JSO,:)
 #ifdef _HDF5_
 *              Get proper triangular index
                    IJSO_=(JSO-1)*(JSO-2)/2+ISO
@@ -742,31 +737,27 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              and the corresponding polarization vectors
 *
                    If (Do_SK) Then
-                      LMAX_ = LMAX+8*(ij_-1)
                       TM3 = DDot_(3,TM_R,1,TM_I,1)
                       Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
-                      Work(LMAX_+0) = TM_2+Half*Rng
-                      Work(LMAX_+4) = TM_2-Half*Rng
+                      Aux(1,ij_) = TM_2+Half*Rng
+                      Aux(5,ij_) = TM_2-Half*Rng
 *                     The direction for the maximum
                       Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
-                      Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
-                      Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+                      Call daXpY_(3, Cos(Ang),TM_R,1,Aux(2,ij_),1)
+                      Call daXpY_(3, Sin(Ang),TM_I,1,Aux(2,ij_),1)
 *                     Normalize and compute the direction for the minimum
 *                     as a cross product with k
-                      rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                      rNorm = DDot_(3,Aux(2,ij_),1,Aux(2,ij_),1)
                       If (rNorm.gt.1.0D-12) Then
-                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
-                         Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
-     &                                 Work(LMAX_+3)*UK(2)
-                         Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
-     &                                 Work(LMAX_+1)*UK(3)
-                         Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
-     &                                 Work(LMAX_+2)*UK(1)
-                         rNorm=DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
-                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                         Call dScal_(3,1.0/Sqrt(rNorm),Aux(2,ij_),1)
+                         Aux(6,ij_)=Aux(3,ij_)*UK(3)-Aux(4,ij_)*UK(2)
+                         Aux(7,ij_)=Aux(4,ij_)*UK(1)-Aux(2,ij_)*UK(3)
+                         Aux(8,ij_)=Aux(2,ij_)*UK(2)-Aux(3,ij_)*UK(1)
+                         rNorm=DDot_(3,Aux(6,ij_),1,Aux(6,ij_),1)
+                         Call dScal_(3,1.0/Sqrt(rNorm),Aux(6,ij_),1)
                       Else
-                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
-                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                         Call dCopy_(3,[0.0D0],0,Aux(2,ij_),1)
+                         Call dCopy_(3,[0.0D0],0,Aux(6,ij_),1)
                       End If
                    End If
 *
@@ -782,8 +773,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                    F_Temp = 2.0D0*TM_2/EDIFF
                    If (Do_SK) Then
-                      Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
-                      Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+                      Aux(1,ij_) = 2.0D0*Aux(1,ij_)/EDIFF
+                      Aux(5,ij_) = 2.0D0*Aux(5,ij_)/EDIFF
                    End If
 *
 *              Compute the rotatory strength, note that it depends on kPhase
@@ -800,15 +791,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    NQUAD_=2*NQUAD
                    LRAW_=LRAW+6*NQUAD_*(ij_-1)
                    IQUAD_=2*(IQUAD-1)+(kp-1)
-                   WORK(LRAW_+IQUAD_+0*NQUAD_) = F_Temp
-                   WORK(LRAW_+IQUAD_+1*NQUAD_) = R_Temp
+                   RAW(LRAW_+IQUAD_+0*NQUAD_) = F_Temp
+                   RAW(LRAW_+IQUAD_+1*NQUAD_) = R_Temp
 *
 *              Save the direction and weight too
 *
-                   WORK(LRAW_+IQUAD_+2*NQUAD_) = UK(1)*kPhase(kp)
-                   WORK(LRAW_+IQUAD_+3*NQUAD_) = UK(2)*kPhase(kp)
-                   WORK(LRAW_+IQUAD_+4*NQUAD_) = UK(3)*kPhase(kp)
-                   WORK(LRAW_+IQUAD_+5*NQUAD_) = Weight
+                   RAW(LRAW_+IQUAD_+2*NQUAD_) = UK(1)*kPhase(kp)
+                   RAW(LRAW_+IQUAD_+3*NQUAD_) = UK(2)*kPhase(kp)
+                   RAW(LRAW_+IQUAD_+4*NQUAD_) = UK(3)*kPhase(kp)
+                   RAW(LRAW_+IQUAD_+5*NQUAD_) = Weight
 *
 *              Do not accumulate if not doing an isotropic integration
 *
@@ -816,11 +807,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Accumulate to the isotropic oscillator strength
 *
-                   Work(LFIJ  )=Work(LFIJ  ) + Weight * F_Temp
+                   OscStr(1,IJ_)=OscStr(1,IJ_) + Weight * F_Temp
 *
 *              Accumulate to the isotropic rotatory strength
 *
-                   Work(LFIJ+1)=Work(LFIJ+1) + Weight * R_Temp
+                   OscStr(2,IJ_)=OscStr(2,IJ_) + Weight * R_Temp
                  End Do
                End Do
 *
@@ -831,19 +822,16 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IJ_=0
             Do ISO=istart_,iend_
               Do JSO=jstart_,jend_
-                 IJ=(ISO-1)*NSS+JSO-1
                  IJ_=IJ_+1
-                 LFIJ=LF+(ij_-1)*2
                  EDIFF=ENSOR(JSO)-ENSOR(ISO)
-                 F=Work(LFIJ)
-                 R=Work(LFIJ+1)
+                 F=OscStr(1,IJ_)
+                 R=OscStr(2,IJ_)
 *
                  Call Add_Info('ITMS(SO)',[F],1,6)
                  Call Add_Info('ROTS(SO)',[R],1,4)
 *
                  IF (Do_Pol) THEN
-                   LMAX_=LMAX+8*(ij_-1)
-                   F_CHECK=ABS(WORK(LMAX_+0))
+                   F_CHECK=ABS(Aux(1,ij_))
                    R_CHECK=0.0D0 ! dummy assign
                  ELSE
                    F_CHECK=ABS(F)
@@ -916,12 +904,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  END IF
 
                  IF (Do_SK) THEN
-                  WRITE(6,50) 'maximum',WORK(LMAX_+0),
+                  WRITE(6,50) 'maximum',Aux(1,ij_),
      &               'for polarization direction:',
-     &                WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
-                  WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &                Aux(2,ij_),Aux(3,ij_),Aux(4,ij_)
+                  WRITE(6,50) 'minimum',Aux(5,ij_),
      &               'for polarization direction:',
-     &                WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+     &                Aux(6,ij_),Aux(7,ij_),Aux(8,ij_)
                  END IF
 *
 *
@@ -940,11 +928,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                        IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
                        IQUAD_=2*(IQUAD-1)+(kp-1)
                        WRITE(6,33) ISO,JSO,
-     &                 WORK(LRAW_+IQUAD_+0*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+1*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+2*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+3*NQUAD_),
-     &                 WORK(LRAW_+IQUAD_+4*NQUAD_)
+     &                 RAW(LRAW_+IQUAD_+0*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+1*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+2*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+3*NQUAD_),
+     &                 RAW(LRAW_+IQUAD_+4*NQUAD_)
                      END DO
                    END DO
                    WRITE(6,35)
@@ -965,13 +953,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                 DO kp=1,2
                   IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
                   IQUAD_=2*(IQUAD-1)+(kp-1)
-                  Weight=WORK(LRAW_+IQUAD_+5*NQUAD_)
+                  Weight=RAW(LRAW_+IQUAD_+5*NQUAD_)
                   WRITE(6,33) ISO,JSO,
-     &            WORK(LRAW_+IQUAD_+0*NQUAD_)*Weight,
-     &            WORK(LRAW_+IQUAD_+1*NQUAD_)*Weight,
-     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
-     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
+     &            RAW(LRAW_+IQUAD_+0*NQUAD_)*Weight,
+     &            RAW(LRAW_+IQUAD_+1*NQUAD_)*Weight,
+     &            RAW(LRAW_+IQUAD_+2*NQUAD_),
+     &            RAW(LRAW_+IQUAD_+3*NQUAD_),
+     &            RAW(LRAW_+IQUAD_+4*NQUAD_)
                 END DO
               END DO
               WRITE(6,35)
@@ -1007,11 +995,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 #endif
 *
 #ifdef _HDF5_
-#ifdef POINTER_REMAP
       flatStorage(1:SIZE(Storage)) => Storage
-#else
-      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
-#endif
       Call mh5_put_dset(wfn_sos_tm,flatStorage)
       Nullify(flatStorage)
       Call mma_deallocate(Storage)
@@ -1019,22 +1003,22 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *     Do some cleanup
 *
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
-      CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','FREE','REAL',LDXI,3*NSS**2)
-      CALL GETMEM('DXRM','FREE','REAL',LDXRM,NSS**2)
-      CALL GETMEM('DXIM','FREE','REAL',LDXIM,3*NSS**2)
+      CALL mma_deallocate(RAW)
+      CALL mma_deallocate(IP)
+      CALL mma_deallocate(DXR)
+      CALL mma_deallocate(DXI)
+      CALL mma_deallocate(DXRM)
+      CALL mma_deallocate(DXIM)
       call mma_deallocate(TMP)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
       EndIf
       If (Do_Pol) Call mma_deallocate(pol_Vector)
-      CALL GETMEM('TMR','FREE','REAL',LTMR,3*NSS**2)
-      CALL GETMEM('TMI','FREE','REAL',LTMI,3*NSS**2)
-      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
-      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
+      CALL mma_deallocate(TMR)
+      CALL mma_deallocate(TMI)
+      CALL mma_deallocate(OSCSTR)
+      CALL mma_deallocate(Aux)
 *
       Call mma_deallocate(SCR)
       Call mma_deAllocate(TDMZZ)

@@ -17,12 +17,7 @@ use stdalloc, only: mma_deallocate
 implicit none
 
 if (.not. XMem) then
-  if (allocated(Sew_Scr)) then
-    !write(u6,*) 'RlsMem_Ints: Memory released!'
-    call mma_deallocate(Sew_Scr)
-  !else
-  !  write(u6,*) 'RlsMem_Ints: No memory to release!'
-  end if
+  call mma_deallocate(Sew_Scr,safe='*')
 !else
 !  write(u6,*) 'RlsMem_Ints: External scratch handling active!'
 end if

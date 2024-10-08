@@ -16,9 +16,10 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.h"
 integer(kind=iwp) :: Columbus, iStop
 character(len=8) :: ELOOP
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

@@ -27,6 +27,7 @@ logical(kind=iwp) :: lScreen1, lScreen2, lScreen3, lScreen4, lStop1, lStop2, lSt
 character(len=60) :: UtChar
 real(kind=wp), allocatable :: Pout(:), rinvStore(:), rStore(:), xStore(:), yStore(:), zStore(:)
 real(kind=wp), external :: ElPot
+
 #include "warnings.h"
 
 ! Set iteration count to zero here at the top of the

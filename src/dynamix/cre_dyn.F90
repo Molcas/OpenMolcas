@@ -102,12 +102,13 @@ dyn_nh = mh5_create_dset_real(dyn_fileid,'NOSEHOOVER',1,[nh])
 call mh5_init_attr(dyn_nh,'DESCRIPTION','NoseHoover degrees of freedom')
 
 ! MaxHop
-! Morgane Vacher: Dataset only created if needed since its existence serves as a flag.
 call qpg_iscalar('MaxHops',Found)
 if (Found) then
   call get_iScalar('MaxHops',ii)
-  call mh5_init_dset(dyn_fileid,'MAX_HOP',ii)
+else
+  ii = 0
 end if
+call mh5_init_dset(dyn_fileid,'MAX_HOP',ii)
 
 ! Isotopes
 dyn_mass = mh5_create_dset_real(dyn_fileid,'MASSES',1,[natoms])

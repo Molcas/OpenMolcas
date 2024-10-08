@@ -24,12 +24,13 @@ real(kind=wp), intent(out) :: BUFS(NBITM3,NCHN3), FC(NBTRI)
 integer(kind=iwp), intent(out) :: INDS(NBITM3+2,NCHN3)
 real(kind=wp), intent(_OUT_) :: FIIJJ(*), FIJIJ(*)
 #include "tratoc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
                      ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOP, &
                      NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, NOTT, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, &
                      NSSM, NT, NTM, NTMP, NU, NUMAX, NUMIN, NV, NVT, NX, NXM
 real(kind=wp) :: DFINI, EFROZ, FINI, ONEHAM
+
+#include "warnings.h"
 
 IAD50 = 0
 call iDAFILE(LUTRA,2,iTraToc,nTraToc,IAD50)

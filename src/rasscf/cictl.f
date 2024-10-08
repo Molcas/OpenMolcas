@@ -906,9 +906,7 @@ C.. printout of the wave function
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
         call mma_deallocate(d1all)
         if(twordm_qcm) call mma_deallocate(d2all)
-        if(doEntanglement) then
-          if(allocated(spd1all)) call mma_deallocate(spd1all)
-        end if
+        if(doEntanglement) call mma_deallocate(spd1all,safe='*')
       end if
 #endif
 

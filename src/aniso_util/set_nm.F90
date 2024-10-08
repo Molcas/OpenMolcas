@@ -20,11 +20,12 @@ real(kind=wp), intent(in) :: hmax, W(exch), encut_rate, TempMagn(nTempMagn)
 integer(kind=iwp), intent(out) :: nM
 real(kind=wp), intent(out) :: EM
 logical(kind=iwp), intent(in) :: dbg
-#include "warnings.h"
 integer(kind=iwp) :: i
 real(kind=wp) :: diff, T_High
 real(kind=wp), parameter :: boltz_k = kBoltzmann/(cm_s*hPlanck), & ! in cm-1*K-1
                             mu_bohr = mBohr/(cm_s*hPlanck) ! in cm-1*T-1
+
+#include "warnings.h"
 
 nM = 1
 EM = Zero

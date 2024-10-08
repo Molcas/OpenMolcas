@@ -53,11 +53,11 @@ TWall_l = TWall
 TWall_l = TWall
 !mp
 
-!@@ real*8, allocatable :: wrk(:)
-!   real*8 wrk(1:40000000)
-!   real*8 wrk(1:26593281)
-!   wrksize=26593281
-!   wrksize=40000000
+!@@ real(kind=wp), allocatable :: wrk(:)
+!   real(kind=wp) :: wrk(1:40000000)
+!   real(kind=wp) :: wrk(1:26593281)
+!   wrksize = 26593281
+!   wrksize = 40000000
 
 !mp ##########################################################
 !0  info o cholesky vektoroch

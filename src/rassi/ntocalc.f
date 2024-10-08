@@ -24,7 +24,7 @@
 *        multiplied by its transpose. Vmat is the V matrix, the eigen-
 *        vector matrix of a matrix calculated by the transpose
 *        multiplied by the TDM.
-*        LNTOUeig is the eigenvalen matrix for the U matrix, LNTOVeig is
+*        Ueig is the eigenvalen matrix for the U matrix, Veig is
 *        that
 *        for the V matrix.
 *        ONTO is the hole NTO, calculated by multiplying MO matrix with
@@ -44,15 +44,17 @@
       SUBROUTINE NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 
       use fortran_strings, only : str
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 
       Integer ISpin,JOB1,JOB2
+      Integer IState, jState
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
+
       Character,DIMENSION(2) :: Spin
       INTEGER Iprint,Jprint,I,J,isym
 ! Printing or looping control
@@ -65,13 +67,12 @@
 ! and used in this symmetry (NUseBF) NSym >= NusedSym
       INTEGER   IOrb
 !IOrb is the index  of orbitals.
-      INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
-      INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
-      INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
+      INTEGER NSUPCMO
+      INTEGER NDge
+      INTEGER NScrq
       REAL*8 WGRONK(2)
-      INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
-      INTEGER LSymfr,LIndfr,LSymto,LIndto
-      REAL*8 Zero,Two,PrintThres,SumEigVal
+      INTEGER N_NTO,INFO, I_NTO
+      REAL*8 Two,PrintThres,SumEigVal
 !     re-organizing orbitals
 !     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
@@ -86,38 +87,41 @@
       CHARACTER (len=9)  STATENAME
       Character*3 lIrrep(8)
       Logical DOTEST
-      INTEGER LU,ISFREEUNIT
+      INTEGER LU
+      INTEGER, External:: ISFREEUNIT
 #include "ntocom.fh"
-      EXTERNAL ISFREEUNIT, Molden_interface
+      EXTERNAL Molden_interface
+      Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
+      Real*8, allocatable:: ONTO(:), UNTO(:)
+      Real*8, allocatable:: CMO1(:), CMO2(:)
+      Real*8, allocatable:: UMAT(:), VMAT(:)
+      Real*8, allocatable:: UEig(:), VEig(:)
+      Real*8, allocatable:: TDM(:), TDMT(:)
+      Real*8, allocatable:: Scrq(:)
+      Integer, allocatable:: Symfr(:), Symto(:)
+      Integer, allocatable:: Indfr(:), Indto(:)
 
       LU=233
 
       statename=''
       DoTest=.false.
-      Zero=0.0D0
       Two=2.0D0
       PrintThres=1.0D-5
-      CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
-      CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
-      CALL RDCMO_RASSI(JOB1,WORK(LCMO1))
-      CALL RDCMO_RASSI(JOB2,WORK(LCMO2))
+      CALL mma_allocate(CMO1,NCMO,Label='CMO1')
+      CALL mma_allocate(CMO2,NCMO,Label='CMO2')
+      CALL RDCMO_RASSI(JOB1,CMO1)
+      CALL RDCMO_RASSI(JOB2,CMO2)
 
       if(dotest)then
-C       write (6,*) 'LTRad ',LTRad,WORK(LTRAD)
-C       write(6,*) 'Transition density matrix '
-C       Do IPrint=1,NASHT
-C       write (6,'(10(2X,F10.7))')
-C     & (WORK(LTRAD+JPrint-1+NASHT*(IPrint-1)),JPrint=1,NASHT)
-C       End Do
-       write(6,*) 'LCMO1 '
+       write(6,*) 'CMO1 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
-     & (WORK(LCMO1+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
+     & (CMO1(I+IPrint),IPrint=1,MIN(5,NCMO-I))
        End Do
-       write(6,*) 'LCMO2 '
+       write(6,*) 'CMO2 '
        Do I=0,NCMO,5
        write(6,'(2X,5F10.6)')
-     & (WORK(LCMO2+I+IPrint-1),IPrint=1,MIN(5,NCMO-I))
+     & (CMO2(I+IPrint),IPrint=1,MIN(5,NCMO-I))
        End Do
       endif
 
@@ -172,12 +176,12 @@ C     Analyzing the symmetry of the wave function
 C     End of analyzing wave function
 
 C     building up a super-CMO matrix (to be C1-like)
-      CALL GETMEM ('SupCMO1','Allo','Real',LSUPCMO1,NSUPCMO)
-      CALL GETMEM ('SupCMO2','Allo','Real',LSUPCMO2,NSUPCMO)
-      CALL GETMEM ('ONTO','Allo','Real',LONTO,NSUPCMO)
-      CALL GETMEM ('UNTO','Allo','Real',LUNTO,NSUPCMO)
-      CALL DCOPY_(NSUPCMO,[Zero],0,WORK(LSUPCMO1),1)
-      CALL DCOPY_(NSUPCMO,[Zero],0,WORK(LSUPCMO2),1)
+      CALL mma_allocate (SUPCMO1,NSUPCMO,Label='SUPCMO1')
+      CALL mma_allocate (SUPCMO2,NSUPCMO,Label='SUPCMO1')
+      SUPCMO1(:)=0.0D0
+      SUPCMO2(:)=0.0D0
+      CALL mma_allocate(ONTO,NSUPCMO,Label='ONTO')
+      CALL mma_allocate(UNTO,NSUPCMO,Label='UNTO')
       icactorb=0
       I=0
       Do IOrb=1,NAISHT
@@ -186,21 +190,17 @@ C     building up a super-CMO matrix (to be C1-like)
          Do IPrint=1,(OrbBas(IOrb))
           JPrint=IPrint+NUsedBF(OrbUsedSym(IOrb))
           J=I+IPrint-1
-C          write(6,'(4X,5I4,2F10.6)') IOrb,icactorb,
-C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
-          WORK(LSUPCMO1+icactorb-1+(JPRINT-1)*NASHT)=WORK(LCMO1+J)
-          WORK(LSUPCMO2+icactorb-1+(JPRINT-1)*NASHT)=WORK(LCMO2+J)
+          SUPCMO1(icactorb+(JPRINT-1)*NASHT)=CMO1(1+J)
+          SUPCMO2(icactorb+(JPRINT-1)*NASHT)=CMO2(1+J)
         End DO
        End IF
        I=I+OrbBas(IOrb)
       End DO
       If (DoTest) Then
-      write (6,*) 'LSupCMO1=',LSupCMO1
-      write (6,*) 'LSupCMO2=',LSupCMO2
        write(6,*)'printing CMO1 in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LSUPCMO1+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(SUPCMO1(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
@@ -209,7 +209,7 @@ C     &    NUsedBF(OrbUsedSym(IOrb)),I,J,WORK(LCMO1+J),WORK(LCMO2+J)
        write(6,*)'printing CMO2 in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LSUPCMO2+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(SUPCMO2(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
@@ -218,12 +218,12 @@ C     end of building up the super-CMO matrix
 C     Start and initialize spaces
       statename = str(JSTATE)//'_'//str(ISTATE)
       NDge=NASHT**2
-      CALL GETMEM ('Umat','Allo','Real',LNTOUmat,NDge)
-      CALL GETMEM ('Vmat','Allo','Real',LNTOVmat,NDge)
-      CALL GETMEM ('Ueig','Allo','Real',LNTOUeig,NDge)
-      CALL GETMEM ('Veig','Allo','Real',LNTOVeig,NDge)
-      CALL GETMEM ('TDM' ,'Allo','Real',LTDM,NDge)
-      CALL GETMEM ('TDMT','Allo','Real',LTDMT,NDge)
+      CALL mma_allocate (Umat,NDge,Label='UMat')
+      CALL mma_allocate (Vmat,NDge,Label='VMat')
+      CALL mma_allocate (Ueig,NDge,Label='Ueig')
+      CALL mma_allocate (Veig,NDge,Label='Veig')
+      CALL mma_allocate (TDM,NDge,Label='TDM')
+      CALL mma_allocate (TDMT,NDge,Label='TDMT')
        write(6,*)
        WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
@@ -248,24 +248,22 @@ C     Start and initialize spaces
         Spin(2)='b'
       End IF
       Do I_NTO=1,N_NTO
-      CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOUeig),1)
-      CALL DCOPY_(Ndge,[Zero],0,WORK(LNTOVeig),1)
-      CALL DCOPY_(NSupCMO,[Zero],0,WORK(LONTO),1)
-      CALL DCOPY_(NSupCMO,[Zero],0,WORK(LUNTO),1)
-!      CALL DCOPY_(Ndge,WORK(LTRAD),1,WORK(LTDM),1)
+      Ueig(:)=0.0D0
+      Veig(:)=0.0D0
+      ONTO(:)=0.0D0
+      UNTO(:)=0.0D0
       If (Spin(I_NTO).eq.'a') Then
-C       WORK(LTDM-1+I)=WORK(LTRAD-1+I)
       Do I=1,Ndge
-       WORK(LTDM-1+I)=(TRAD(I)+TRASD(I))/Two
+       TDM(I)=(TRAD(I)+TRASD(I))/Two
       End DO
       else
       Do I=1,Ndge
-       WORK(LTDM-1+I)=(TRAD(I)-TRASD(I))/Two
+       TDM(I)=(TRAD(I)-TRASD(I))/Two
       End DO
       End IF
       DO I=1,NASHT
        DO J=1,NASHT
-        WORK(LTDMT+(I-1)+NASHT*(J-1))=WORK(LTDM+(J-1)+NASHT*(I-1))
+        TDMT(I+NASHT*(J-1))=TDM(J+NASHT*(I-1))
        END DO
       END DO
 C     Print out transition density matrix
@@ -290,32 +288,29 @@ C     Print out transition density matrix
 C     Generalizing transpose of TDM, TDM_T
 
 C     Calculating T_trans*T
-      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDMT),NASHT,
-     &             WORK(LTDM),NASHT,0.0D0,WORK(LNTOVmat),NASHT)
+      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,TDMT,NASHT,
+     &             TDM,NASHT,0.0D0,Vmat,NASHT)
 C     Writing Particle Matrix
       write (FILENAME,fmt='(a,a,a)')
      &"Dhole.",trim(adjustl(STATENAME)),Spin(I_NTO)
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(1X,ES11.4E2))')
-     &    (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
+        write (LU,'(10(1X,ES11.4E2))') (Vmat(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
 C     Calculating T*T_transpose
-      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,WORK(LTDM),NASHT,
-     &             WORK(LTDMT),NASHT,0.0D0,WORK(LNTOUmat),NASHT)
+      CALL DGEMM_('n','n',NASHT,NASHT,NASHT,1.0D0,TDM,NASHT,
+     &             TDMT,NASHT,0.0D0,Umat,NASHT)
       write (FILENAME,fmt='(a,a,a)')
      &"Dpart.",trim(adjustl(STATENAME)),Spin(I_NTO)
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(1X,ES11.4E2))')
-     &    (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
+        write (LU,'(10(1X,ES11.4E2))') (Umat(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
-       CALL DSYEV_('V','U',NASHT,WORK(LNTOVmat),NASHT,WORK(LNTOVeig),
-     &              WGRONK,-1,INFO)
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,Veig,WGRONK,-1,INFO)
        NScrq=INT(WGRONK(1))
        If(Nscrq.eq.0) Then
         Nscrq=MAX(NDge,100)
@@ -323,13 +318,11 @@ C     Calculating T*T_transpose
          write(6,*)'Size of scratch space is increased to max(NDge,100)'
         end if
        End If
-       CALL GETMEM ('Scrq','Allo','Real',LScrq,NScrq)
+       CALL mma_allocate (Scrq,NScrq,Label='Scrq')
 C       Diagonalizing matrices
-       CALL DSYEV_('V','U',NASHT,WORK(LNTOUmat),NASHT,WORK(LNTOUeig),
-     &              WORK(LScrq),NScrq,INFO)
-       CALL DSYEV_('V','U',NASHT,WORK(LNTOVmat),NASHT,WORK(LNTOVeig),
-     &              WORK(LScrq),NScrq,INFO)
-       CALL GETMEM ('Scrq','Free','Real',LScrq,NScrq)
+       CALL DSYEV_('V','U',NASHT,Umat,NASHT,Ueig,Scrq,NScrq,INFO)
+       CALL DSYEV_('V','U',NASHT,Vmat,NASHT,Veig,Scrq,NScrq,INFO)
+       CALL mma_deallocate (Scrq)
 C     Printing some matrices
       If (DoTest) Then
        write (FILENAME,fmt='(a,a,a)')
@@ -337,8 +330,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(1X,ES11.4E2))')
-     &     (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
+         write (LU,'(5(1X,ES11.4E2))') (Vmat(NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
        write (FILENAME,fmt='(a,a,a)')
@@ -346,8 +338,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(1X,ES11.4E2))')
-     &     (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
+         write (LU,'(5(1X,ES11.4E2))') (Umat(NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
       End IF
@@ -355,16 +346,16 @@ C     End of Diagonlazing the mataces
 
 C     Constructing hole and particle orbitals
 
-      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOUmat),
-     &      NASHT,WORK(LSupCMO1),NASHT,0.0D0,WORK(LONTO),NASHT)
-      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,WORK(LNTOVmat),
-     &      NASHT,WORK(LSupCMO2),NASHT,0.0D0,WORK(LUNTO),NASHT)
+      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,Umat,
+     &      NASHT,SupCMO1,NASHT,0.0D0,ONTO,NASHT)
+      CALL DGEMM_('t','n',NASHT,NSupBas,NASHT,1.0D0,Vmat,
+     &      NASHT,SupCMO2,NASHT,0.0D0,UNTO,NASHT)
 
       If (DoTest) Then
        write(6,*)'printing Particle NTO in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LONTO+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(ONTO(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
@@ -372,23 +363,23 @@ C     Constructing hole and particle orbitals
        write(6,*)'printing Hole     NTO in a C1-like format'
        Do I=1,NASHT
         Do J=1,NSupBas,10
-         write(6,'(4X,10F10.6)')(WORK(LUNTO+I-1+(JPrint-1)*NASHT),
+         write(6,'(4X,10F10.6)')(UNTO(I+(JPrint-1)*NASHT),
      &   JPrint=J,MIN(J+9,NSupBas))
         End DO
        End Do
       End If
 
 C     Printing NTOs
-      CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymto,NASHT)
-      CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndto,NASHT)
-      CALL GETMEM ('PartNTOSyms','Allo','Inte',LSymfr,NASHT)
-      CALL GETMEM ('PartNTOIndx','Allo','Inte',LIndfr,NASHT)
+      CALL mma_allocate (Symto,NASHT,Label='Symto')
+      CALL mma_allocate (Indto,NASHT,Label='Indto')
+      CALL mma_allocate (Symfr,NASHT,Label='Symfr')
+      CALL mma_allocate (Indfr,NASHT,Label='Indfr')
       NTOType='PART'
-      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LONTO,NTOType,
-     &STATENAME,LNTOUeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymto,LIndto)
+      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
+     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto)
       NTOType='HOLE'
-      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LUNTO,NTOType,
-     &STATENAME,LNTOVeig,UsetoReal,RealtoUse,Spin(I_NTO),LSymfr,LIndfr)
+      CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,UNTO,NTOType,
+     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr)
 C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
@@ -412,12 +403,12 @@ C     Putting particle-hole pairs in the output
      &'SYMMETRY INDEX','SYMMETRY INDEX'
       WRITE(6,'(6X,A)') repeat('-',100)
       Do IOrb=NASHT,1,-1
-       IF(WORK(LNTOUeig-1+IOrb).lt.PrintThres)  EXIT
+       IF(Ueig(IOrb).lt.PrintThres)  EXIT
        write(6,'(10X,2(10X,F8.5),10X,F8.2,2(A9,I9))')
-     & SQRT(WORK(LNTOUeig-1+IOrb)),WORK(LNTOUeig-1+IOrb),
-     &WORK(LNTOUeig-1+IOrb)/SumEigVal*1.0D2,
-     & lIrrep(INT(WORK(LSymfr-1+IOrb))),INT(WORK(LIndfr-1+IOrb)),
-     & lIrrep(INT(WORK(LSymto-1+IOrb))),INT(WORK(LIndto-1+IOrb))
+     & SQRT(Ueig(IOrb)),Ueig(IOrb),
+     &                  Ueig(IOrb)/SumEigVal*1.0D2,
+     & lIrrep(Symfr(IOrb)),Indfr(IOrb),
+     & lIrrep(Symto(IOrb)),Indto(IOrb)
       End Do
 
       WRITE(6,'(6X,A)') repeat('-',100)
@@ -425,10 +416,10 @@ C     Putting particle-hole pairs in the output
       WRITE(6,'(6X,A)') repeat('=',100)
 
 
-      CALL GETMEM ('PartNTOSyms','Free','Inte',LSymto,NASHT)
-      CALL GETMEM ('PartNTOIndx','Free','Inte',LIndto,NASHT)
-      CALL GETMEM ('PartNTOSyms','Free','Inte',LSymfr,NASHT)
-      CALL GETMEM ('PartNTOIndx','Free','Inte',LIndfr,NASHT)
+      CALL mma_deallocate (Symto)
+      CALL mma_deallocate (Indto)
+      CALL mma_deallocate (Symfr)
+      CALL mma_deallocate (Indfr)
       End DO
 ! End of loop over N_NTO (I_NTO=1 for alpha and 2 for beta)
 
@@ -440,39 +431,42 @@ C     Putting particle-hole pairs in the output
      &'*','BETWEEN STATE ',JSTATE,' AND STATE ',ISTATE,'*'
       WRITE(6,'(6X,A)') repeat('*',100)
 
-      CALL GETMEM ('Umat','Free','Real',LNTOUmat,NDge)
-      CALL GETMEM ('Vmat','Free','Real',LNTOVmat,NDge)
-      CALL GETMEM ('Ueig','Free','Real',LNTOUeig,NDge)
-      CALL GETMEM ('Veig','Free','Real',LNTOVeig,NDge)
-      CALL GETMEM ('TDM' ,'Free','Real',LTDM,NDge)
-      CALL GETMEM ('TDMT','Free','Real',LTDMT,NDge)
-      CALL GETMEM('GTDMCMO1','Free','REAL',LCMO1,NCMO)
-      CALL GETMEM('GTDMCMO2','Free','REAL',LCMO2,NCMO)
+      CALL mma_deallocate(VMat)
+      CALL mma_deallocate(UMat)
+      CALL mma_deallocate(VEig)
+      CALL mma_deallocate(UEig)
+      CALL mma_deallocate(TDMT)
+      CALL mma_deallocate(TDM)
+      CALL mma_deallocate(CMO1)
+      CALL mma_deallocate(CMO2)
 
-      CALL GETMEM ('SupCMO1','Free','Real',LSUPCMO1,NSUPCMO)
-      CALL GETMEM ('SupCMO2','Free','Real',LSUPCMO2,NSUPCMO)
-      CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
-      CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
+      CALL mma_deallocate(SUPCMO2)
+      CALL mma_deallocate(SUPCMO1)
+      CALL mma_deallocate(UNTO)
+      CALL mma_deallocate(ONTO)
 
       END SUBROUTINE NTOCalc
 
 
 
-      SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,
-     &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
+      SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
+     &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 
 C     input variables
-      INTEGER NUseSym,LNTO,LEigVal
+      INTEGER NUseSym
+      REAL*8 :: NTO(*)
       INTEGER,DIMENSION(NSym) :: NUseBF,NUsedBF,UsetoReal,RealtoUse
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
       CHARACTER (len=5)  STATENAME
+      Real*8 :: EigVal(*)
+      Integer :: Sym(*), Ind(*)
+
       CHARACTER (len=128) FILENAME, molden_name
 C     Loop control
       INTEGER I, J, ICount
@@ -494,12 +488,12 @@ C     then give a warning message and print the one with the largest SquareSum
       Real*8,DIMENSION(:),allocatable::PCMO
 C     Printing control
 C
-      INTEGER iPrintSym,OrbNum,IOrbinSym,LSym,LInd
-      INTEGER LU,ISFREEUNIT
+      INTEGER iPrintSym,OrbNum,IOrbinSym
+      INTEGER LU
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
-      External ISFREEUNIT
+      Integer, External:: ISFREEUNIT
 
       Threshold=0.0D-10
       Zero=0.0D0
@@ -523,7 +517,7 @@ C
          I=INTO
          J=ICount+NUsedBF(IUseSym)
          SquareSum(IUseSym)=SquareSum(IUseSym)
-     &   +WORK(LNTO+I-1+(J-1)*NASHT)**2
+     &   +NTO(I+(J-1)*NASHT)**2
         End DO
         If (SquareSum(IUseSym).gt.Threshold) THEN
          If (iPrintSym.eq.0) Then
@@ -548,8 +542,8 @@ C
        End If
         NOrbinSym(IPrintSym)=NOrbinSym(IPrintSym)+1
         OrbSymIndex(IPrintSym,NOrbinSym(IPrintSym))=INTO
-      WORK(LSym-1+INTO)=UsetoReal(IPrintSym)
-      WORK(LInd-1+INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
+      Sym(INTO)=UsetoReal(IPrintSym)
+      Ind(INTO)=NOrbinSym(IPrintSym)+NISH(UsetoReal(IPrintSym))
       End Do
 
 C     generating file in a similar way to other orbital files
@@ -577,13 +571,13 @@ C       write active part
         OrbNum=IOrbinSym+NISH(ISym)
         IOrb=IOrb+1
         I=OrbSymIndex(IUseSym,IOrbinSym)
-        EigValArray(IOrb)=WORK(LEigVal-1+I)
-        SumEigVal=SumEigVal+WORK(LEigVal-1+I)
+        EigValArray(IOrb)=EigVal(I)
+        SumEigVal=SumEigVal+EigVal(I)
 C Recording Printed NTO (PCMO)
         Do ICount=1,NUseBF(IUSeSym)
          IPCMO=IPCMO+1
          J=ICount+NUsedBF(IUseSym)
-         PCMO(IPCMO)=WORK(LNTO+I-1+(J-1)*NASHT)
+         PCMO(IPCMO)=NTO(I+(J-1)*NASHT)
         End Do
 C Recording Printed NTO (PCMO)
        End Do

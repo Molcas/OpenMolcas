@@ -255,8 +255,7 @@ do JRED=JRED1,JRED2
         tintg(2) = tintg(2)+(TWI2-TWI1)
 
       end if
-      nullify(pLjj)
-      nullify(pLab)
+      nullify(pLjj,pLab)
 
     end do
 

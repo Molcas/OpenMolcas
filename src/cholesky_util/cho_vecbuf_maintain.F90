@@ -188,8 +188,7 @@ do iSym=1,nSym
 
   end if
 end do
-nullify(V2)
-nullify(V3)
+nullify(V2,V3)
 
 ! Read in more vectors.
 ! =====================

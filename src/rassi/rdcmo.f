@@ -14,13 +14,13 @@
      &               mh5_close_file
 #endif
       use rassi_aux, only: ipglob
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
@@ -29,7 +29,8 @@
       INTEGER JOB
       REAL*8 CMO(NCMO)
 
-      INTEGER I, IAD, IDISK, ISY, L1, L2, LBUF, LEN, NB, NBUF
+      INTEGER I, IAD, IDISK, ISY, L1, L2, LEN, NB, NBUF
+      Real*8, Allocatable:: BUF(:)
 
       CMO(:)=0.0D0
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
@@ -46,7 +47,7 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
       DO I=1,NSYM
         NBUF=NBUF+NBASF(I)**2
       END DO
-      CALL GETMEM('BUF   ','ALLO','REAL',LBUF,NBUF)
+      CALL mma_allocate(BUF,NBUF,Label='BUF')
 
 #ifdef _HDF5_
 ************************************************************************
@@ -56,8 +57,7 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
 ************************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
         refwfn_id = mh5_open_file_r(jbname(job))
-        call mh5_fetch_dset(refwfn_id,
-     &         'MO_VECTORS', WORK(LBUF))
+        call mh5_fetch_dset(refwfn_id,'MO_VECTORS',BUF)
         call mh5_close_file(refwfn_id)
       Else
 #endif
@@ -70,7 +70,7 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
         IAD=0
         CALL IDAFILE(LUIPH,2,ITOC15,30,IAD)
         IDISK=IDCMO(JOB)
-        CALL DDAFILE(LUIPH,2,WORK(LBUF),NBUF,IDISK)
+        CALL DDAFILE(LUIPH,2,BUF,NBUF,IDISK)
         CALL DACLOS(LUIPH)
 ************************************************************************
 #ifdef _HDF5_
@@ -81,14 +81,14 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
         write(6,*)' Reading CMO'
         write(6,*)' NBUF=',NBUF
         write(6,*)' Array read in:'
-        write(6,'(1x,5f16.8)')(work(lbuf-1+i),i=1,nbuf)
+        write(6,'(1x,5f16.8)')(buf(i),i=1,nbuf)
       END IF
-      L1=LBUF
+      L1=1
       L2=1
       DO ISY=1,NSYM
         NB=NBASF(ISY)
         LEN=NOSH(ISY)*NB
-        IF(LEN.GT.0) CALL DCOPY_(LEN,WORK(L1),1,CMO(L2),1)
+        IF(LEN.GT.0) CALL DCOPY_(LEN,BUF(L1),1,CMO(L2),1)
         L2=L2+LEN
         L1=L1+NB**2
       END DO
@@ -97,7 +97,7 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
         write(6,*)' NCMO=',NCMO
         write(6,'(1x,5f16.8)')(CMO(i),i=1,ncmo)
       END IF
-      CALL GETMEM('      ','FREE','REAL',LBUF,NBUF)
+      CALL mma_deallocate(BUF)
 
       IF (IPGLOB.gt.0 .and. PRORB) THEN
         WRITE(6,*)
@@ -105,5 +105,4 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
      *               1,NBASF,NOSH,NCMO,CMO)
       END IF
 
-      RETURN
-      END
+      END SUBROUTINE RDCMO_RASSI

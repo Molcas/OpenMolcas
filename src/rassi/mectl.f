@@ -17,7 +17,6 @@
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 #include "SysDef.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),

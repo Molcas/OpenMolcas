@@ -67,7 +67,9 @@ type(Alloc1DArray_Type), allocatable :: Mult(:,:)
 integer(kind=iwp), parameter :: iX(6) = [1,1,1,2,2,3], iY(6) = [1,2,3,2,3,3]
 character(len=*), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
+
 !Jose.No Nuclear charges in Slater
 
 !----------------------------------------------------------------------*

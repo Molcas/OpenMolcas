@@ -636,9 +636,9 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       call Do_Batch(Kernel,Func,nogp,list_s,nlist_s,list_exp,list_bas,Indx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
                     TabMO,TabSO,nMOs,Do_Grad,Grad,nGrad,mdRho_dR,nGrad_Eff,iNQ,EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 
-      if (allocated(dRho_dR)) call mma_deallocate(dRho_dR)
-      if (allocated(TabAO_Short)) call mma_deallocate(TabAO_Short)
-      TabAO_Pack => null()
+      call mma_deallocate(dRho_dR,safe='*')
+      call mma_deallocate(TabAO_Short,safe='*')
+      nullify(TabAO_Pack)
       call mma_deallocate(TabAO)
 
       nTotGP = nTotGP+nogp
@@ -660,8 +660,8 @@ call mma_deallocate(iBatchInfo)
 call mma_deallocate(R2_Trial)
 call mma_deallocate(invlist)
 call mma_deallocate(Indx)
-if (allocated(TabMO)) call mma_deallocate(TabMO)
-if (allocated(TabSO)) call mma_deallocate(TabSO)
+call mma_deallocate(TabMO,safe='*')
+call mma_deallocate(TabSO,safe='*')
 if (Do_Grad .and. (Grid_Type == Moving_Grid)) then
   call mma_deallocate(dPB)
   call mma_deallocate(dW_Temp)

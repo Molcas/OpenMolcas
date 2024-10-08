@@ -34,6 +34,7 @@
       use Fock_util_global, only: Fake_CMO2
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
       use Data_Structures
+      use cntrl_data, only: SONTOSTATES, SONATNSTATE
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.
@@ -54,17 +55,16 @@ C RAS state interaction.
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
      &                      VNAT(:),OCC(:), SOENE(:)
-      integer, allocatable:: IDDET1(:), IDDET2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Prolouge
+*     Prologue
 *
       IRETURN=20
 
       Call StatusLine('RASSI:','Starting calculation')
 
-      CALL GETPRINTLEVEL
+      CALL GETPRINTLEVEL()
 
 
 C Greetings. Default settings. Initialize data sets.
@@ -130,9 +130,6 @@ C Number of basis functions
       end if
 
 C Loop over jobiphs:
-      Call mma_allocate(IDDET1,nState,Label='IDDET1')
-      Call mma_allocate(IDDET2,nState,Label='IDDET2')
-
       IDISK=0  ! Initialize disk address for TDMs.
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
@@ -140,12 +137,9 @@ C Loop over jobiphs:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,
-     &                 IDDET2,IDISK)
+          CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
         END DO
       END DO
-      Call mma_deallocate(IDDET1)
-      Call mma_deallocate(IDDET2)
 
 #ifdef _HDF5_
       CALL mh5_put_dset(wfn_overlap,OVLP,[NSTATE,NSTATE],[0,0])
@@ -278,7 +272,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
          CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       END IF
 
-      IF (Allocated(SFDYS)) Call mma_deallocate(SFDYS)
+      Call mma_deallocate(SFDYS,safe='*')
 ! +++
 
       CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
@@ -287,13 +281,9 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
-      IF(SONATNSTATE.GT.0) THEN
-        CALL DO_SONATORB(NSS,USOR,USOI)
-      END IF
+      IF(SONATNSTATE.GT.0) CALL DO_SONATORB(NSS,USOR,USOI)
 C Plot SO-Natural Transition Orbitals if requested
-      IF(SONTOSTATES.GT.0) THEN
-        CALL DO_SONTO(NSS,USOR,USOI)
-      END IF
+      IF(SONTOSTATES.GT.0) CALL DO_SONTO(NSS,USOR,USOI)
 
       Call mma_deallocate(USOR)
       Call mma_deallocate(USOI)
@@ -331,7 +321,7 @@ C Plot SO-Natural Transition Orbitals if requested
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     EPILOUGE                                                         *
+*     EPILOGUE                                                         *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -394,10 +384,10 @@ C Plot SO-Natural Transition Orbitals if requested
 *
       IF (SaveDens) Then
          Call DaClos(LuTDM)
-         If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
-         If (Allocated(CMO1)) Call mma_deallocate(CMO1)
-         If (Allocated(CMO2)) Call mma_deallocate(CMO2)
-         If (Allocated(DMAB)) Call mma_deallocate(DMAB)
+         Call mma_deallocate(JOB_INDEX,safe='*')
+         Call mma_deallocate(CMO1,safe='*')
+         Call mma_deallocate(CMO2,safe='*')
+         Call mma_deallocate(DMAB,safe='*')
       End If
       Call DaClos(LuExc)
 *                                                                      *

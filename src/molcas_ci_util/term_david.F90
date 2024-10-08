@@ -28,7 +28,7 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !               iteration count of the final result                    *
 !     nConf   : integer                                                *
 !               length of the CI vector in the CSF basis               *
-!     Vector  : array of real*8                                        *
+!     Vector  : array of real                                          *
 !               temporary vector of length nConf                       *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -100,7 +100,7 @@ end if
 
 call mma_deallocate(disk_address)
 call mma_deallocate(memory_vectors)
-if (allocated(LblStk)) call mma_deallocate(LblStk)
+call mma_deallocate(LblStk,safe='*')
 
 return
 

@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE MKRTDM2(IFSBTAB1,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,
-     &                  IF21,IF12,NRT2M,RT2M,SPIN)
+     &                  IF21,IF12,NRT2M,RT2M,SPIN,OrbTab)
 
 C The spin coupling matrix elements have the following index-code:
              !SPIN=1 means  K2V (AAB+BBB)
@@ -27,23 +27,23 @@ C Notice, SPIN here has nothing to do with the spin quantum number. It
 C is just a printing code.
 
       IMPLICIT NONE
-      INTEGER SPIN
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
       INTEGER ISSTAB(*),MAPORB(*),NRT2M
       REAL*8 DET1(*),DET2(*)
+      LOGICAL IF21,IF12
+      INTEGER NSRT2M
       REAL*8 RT2M(NRT2M)
-      INTEGER NASHT,NASORB,LORBTB
+      INTEGER SPIN, OrbTab(*)
+
+      INTEGER NASHT,NASORB
       REAL*8 GVAL,GAAA,GAAB,GABA,GBAB,GBBA,GBBB
       INTEGER IAJBLA,IBJALB
       INTEGER IAJALA,IAJALB,IBJBLA,IBJBLB
       INTEGER LORB,JORB,IORB
       INTEGER JORBA,JORBB,LORBA,LORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,LTABS,JLTABS,IJLTABS
-      INTEGER NSRT2M
-      LOGICAL IF21,IF12
 #include "symmul.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
       Real*8, Allocatable:: SRT2M(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,
@@ -51,18 +51,16 @@ C calculate the 2-particle transition density matrix
 C in the biorthonormal active orbital basis.
 C It will build the contribution from high spin (J->beta,L->beta)
 C and low spin (J->beta,L->alpha).
-      LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
 
-      NASORB=IWORK(LORBTB+3)
+      NASORB=OrbTab(4)
       NASHT=NASORB/2
       !NASGEM=(NASORB*(NASORB-1))/2
       NSRT2M=NASORB**3
       Call mma_allocate(SRT2M,nSRT2M,Label='SRT2M')
       SRT2M(:)=0.0D0
-        CALL SRTDM2(IWORK(LORBTB),ISSTAB,
-     &              IFSBTAB1,IFSBTAB2,DET1,DET2,
-     &              IF21,IF12,SRT2M)
+      CALL SRTDM2(ORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,DET1,DET2,
+     &            IF21,IF12,SRT2M)
 
 C Mapping from active spin-orbital to active orbital in external order.
 C Note that these differ, not just because of the existence of two

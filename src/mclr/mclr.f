@@ -360,10 +360,8 @@ c      idp=rtoi
          Call mma_deallocate(DFTP)
       End if
       Do i = 1, MXCNSM
-         If (Allocated(CNSM(i)%ICONF))
-     &                Call mma_deallocate(CNSM(i)%ICONF)
-         If (Allocated(CNSM(i)%ICTS))
-     &                Call mma_deallocate(CNSM(i)%ICTS)
+        Call mma_deallocate(CNSM(i)%ICONF,safe='*')
+        Call mma_deallocate(CNSM(i)%ICTS,safe='*')
       End Do
 
 *     Free arrays allocated by memstr.f
@@ -414,7 +412,7 @@ c      idp=rtoi
       Call mma_deallocate(ifpRHS)
       Call mma_deallocate(ifpS)
       Call mma_deallocate(ifpK)
-      If (Allocated(SS)) Call mma_deallocate(SS)
+      Call mma_deallocate(SS,safe='*')
 *
 *     Close files
 *

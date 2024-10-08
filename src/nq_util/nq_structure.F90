@@ -85,7 +85,7 @@ subroutine Close_Info_Ang()
   do iAngular=1,size(Info_Ang)
     Info_Ang(iAngular)%L_eff = 0
     Info_Ang(iAngular)%nPoints = 0
-    if (allocated(Info_Ang(iAngular)%R)) call mma_deallocate(Info_Ang(iAngular)%R)
+    call mma_deallocate(Info_Ang(iAngular)%R,safe='*')
   end do
 
 end subroutine Close_Info_Ang
@@ -96,8 +96,8 @@ subroutine Close_NQ_Data()
 
   ! Cleanup and close
   do iNQ=1,size(NQ_data)
-    if (allocated(NQ_data(iNQ)%R_Quad)) call mma_deallocate(NQ_data(iNQ)%R_Quad)
-    if (allocated(NQ_data(iNQ)%Angular)) call mma_deallocate(NQ_data(iNQ)%Angular)
+    call mma_deallocate(NQ_data(iNQ)%R_Quad,safe='*')
+    call mma_deallocate(NQ_data(iNQ)%Angular,safe='*')
   end do
   call mma_deallocate(NQ_Data)
 

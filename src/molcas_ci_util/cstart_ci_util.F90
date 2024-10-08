@@ -17,17 +17,17 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !     Find initial CI-vectors                                          *
 !                                                                      *
 !     calling arguments:                                               *
-!     C       : array of real*8                                        *
+!     C       : array of real                                          *
 !               CI vector                                              *
-!     h0      : array of real*8                                        *
+!     h0      : array of real                                          *
 !               one-electron integrals                                 *
-!     TUVX    : array of real*8                                        *
+!     TUVX    : array of real                                          *
 !               two-electron integrals                                 *
 !     iSel    : array of integer                                       *
 !               list of configuration included in the explicit Hamilt. *
-!     ExplE   : array of real*8                                        *
+!     ExplE   : array of real                                          *
 !               eigenvalues of the explicit Hamiltonian                *
-!     ExplV   : array of real*8                                        *
+!     ExplV   : array of real                                          *
 !               eigenvectors of the explicit Hamiltonian               *
 !     iFinal  : integer                                                *
 !               status of optimization process                         *

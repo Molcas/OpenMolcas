@@ -104,6 +104,6 @@ contains
   end subroutine
 
   subroutine cleanup()
-    if (allocated(ReOrInp)) call mma_deallocate(ReOrInp)
+    call mma_deallocate(ReOrInp,safe='*')
   end subroutine
 end module fcidump_reorder

@@ -22,7 +22,6 @@ implicit none
 real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
 real(kind=wp), intent(out) :: CI(NCONF), SGM(NCONF)
 integer(kind=iwp), intent(out) :: ICI(MBUF)
-#include "warnings.h"
 integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, NCONV, &
                      NN, NRON, NZ
 real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM1, DUM2, DUM3, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, &
@@ -33,6 +32,8 @@ real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:
                               ELAST(:), EZERO(:), FSCR1(:), FSCR2(:), FSEC(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), PSEL(:), &
                               PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), XI2(:,:)
 real(kind=wp), external :: DDOT_
+
+#include "warnings.h"
 
 call mma_allocate(CBUF,MBUF,MXVEC,label='CBUF')
 call mma_allocate(SBUF,MBUF,MXVEC,label='SBUF')

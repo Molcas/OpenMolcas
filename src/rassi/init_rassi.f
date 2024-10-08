@@ -12,6 +12,7 @@
 
       use rassi_aux, only: ipglob
       use rasscf_data, only: doDMRG
+      use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -19,7 +20,6 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "hfc_logical.fh"
       Character*256 STRING
@@ -135,7 +135,6 @@ C DEFAULT FLAGS:
       IFNTO=.FALSE.
       NATO=.FALSE.
       BINA=.FALSE.
-      NONA=.FALSE.
       IFTRD1=.FALSE.
       IFTRD2=.FALSE.
       IFWFA=.FALSE.

@@ -99,11 +99,10 @@ subroutine qcmaquis_info_deinit
 
   if (.not. allocated(qcm_group_names)) return
   do i=1,size(qcm_group_names)
-    if (.not. allocated(qcm_group_names)) return
-    if (allocated(qcm_group_names(i)%states)) call mma_deallocate(qcm_group_names(i)%states)
+    call mma_deallocate(qcm_group_names(i)%states,safe='*')
   end do
   call mma_deallocate(qcm_group_names)
-  if(allocated(qcm_prefixes)) call mma_deallocate(qcm_prefixes)
+  call mma_deallocate(qcm_prefixes,safe='*')
 
 end subroutine qcmaquis_info_deinit
 

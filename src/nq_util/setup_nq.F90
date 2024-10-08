@@ -57,7 +57,7 @@ integer(kind=iwp) :: kR
 #endif
 real(kind=wp) :: A_high, A_low, Alpha(2), C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, ValExp, &
                  x_max, XYZ(3), y_max, z_max
-logical(kind=iwp) :: Do_Rot, PMode
+logical(kind=iwp) :: Do_Rot
 real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), R_Min(:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
 logical(kind=iwp), external :: EQ
@@ -371,7 +371,7 @@ do iNQ=1,nNQ
   end if
 
 end do
-if (allocated(R_Min)) call mma_deallocate(R_Min)
+call mma_deallocate(R_Min,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -601,9 +601,8 @@ else
 end if
 
 Pck_Old = PkThrs
+call IniPkR8(T_Y,.true.)
 PMode_old = isPack
-PMode = .true.
-call IniPkR8(T_Y,PMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

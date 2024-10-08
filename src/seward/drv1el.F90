@@ -48,7 +48,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "print.fh"
 #include "wldata.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
                      iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
@@ -90,6 +89,8 @@ integer(kind=iwp) :: nAtoms, jCnt
 procedure(int_kernel) :: DumInt
 procedure(int_mem) :: DumMem
 #endif
+
+#include "warnings.h"
 
 iRout = 131
 iPrint = nPrint(iRout)

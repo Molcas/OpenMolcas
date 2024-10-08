@@ -57,7 +57,7 @@ do
   else if (istr == 2) then
     ! 'STRUC'
     !  If previous orb. permutation disable:
-    if (allocated(gsinp)) call mma_deallocate(gsinp)
+    call mma_deallocate(gsinp,safe='*')
     call mma_maxDBLE(mxread)
     mxread = mxread/2
     call mma_allocate(tmp,mxread,label='tmp')

@@ -8,34 +8,35 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRGASTAB(LREST)
+      SUBROUTINE PRGASTAB(REST)
       IMPLICIT NONE
-      INTEGER IGAS,LREST,NGAS
+      INTEGER REST(*)
+
+      INTEGER IGAS,NGAS
       INTEGER NSYM,ISYM,KORB,KREST
-#include "WrkSpc.fh"
 
 C Executable statements
       WRITE(6,*)
       WRITE(6,*)' GAS restriction table printout'
-      WRITE(6,'(A,I5)')'Table size        NSIZE=',IWORK(LREST+0)
-      WRITE(6,'(A,I5)')'Table type ID     ITYPE=',IWORK(LREST+1)
-      WRITE(6,'(A,I5)')'Nr of partitions  NGAS=',IWORK(LREST+2)
-      WRITE(6,'(A,I5)')'Nr of symm labels NSYM =',IWORK(LREST+3)
+      WRITE(6,'(A,I5)')'Table size        NSIZE=',REST(1)
+      WRITE(6,'(A,I5)')'Table type ID     ITYPE=',REST(2)
+      WRITE(6,'(A,I5)')'Nr of partitions  NGAS=',REST(3)
+      WRITE(6,'(A,I5)')'Nr of symm labels NSYM =',REST(4)
       WRITE(6,*)' Orbital partitions:'
-      NGAS=IWORK(LREST+2)
-      NSYM =IWORK(LREST+3)
+      NGAS=REST(3)
+      NSYM =REST(4)
       KORB=5
       WRITE(6,'(8X,I5,5X,8I5)')
-     &      (IWORK(LREST-1+KORB+ISYM),ISYM=0,NSYM)
+     &      (REST(KORB+ISYM),ISYM=0,NSYM-1)
       DO IGAS=1,NGAS
        WRITE(6,'(I3,5X,I5,5X,8I5)')IGAS,
-     &      (IWORK(LREST-1+KORB+ISYM+(NSYM+1)*IGAS),ISYM=0,NSYM)
+     &      (REST(KORB+ISYM+(NSYM+1)*IGAS),ISYM=0,NSYM-1)
       END DO
       WRITE(6,*)' Electron population restrictions:'
       KREST=KORB+(NGAS+1)*(NSYM+1)
       WRITE(6,'(5X,A7,5X,30I3)')'Minimum',
-     &      (IWORK(LREST-1+KREST+0+2*(IGAS-1)),IGAS=1,NGAS)
+     &      (REST(KREST+0+2*(IGAS-1)),IGAS=1,NGAS)
       WRITE(6,'(5X,A7,5X,30I3)')'Maximum',
-     &      (IWORK(LREST-1+KREST+1+2*(IGAS-1)),IGAS=1,NGAS)
-      RETURN
-      END
+     &      (REST(KREST+1+2*(IGAS-1)),IGAS=1,NGAS)
+
+      END SUBROUTINE PRGASTAB

@@ -263,7 +263,7 @@ contains
     end subroutine make_inp
 
     subroutine cleanup()
-        if (allocated(definedet)) call mma_deallocate(definedet)
+        call mma_deallocate(definedet,safe='*')
     end subroutine cleanup
 
 end module fciqmc_make_inp

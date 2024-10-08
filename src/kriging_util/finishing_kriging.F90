@@ -41,7 +41,7 @@ call mma_deallocate(cv)
 call mma_deallocate(cvMatFder)
 call mma_deallocate(cvMatSder)
 call mma_deallocate(cvMatTder)
-if (allocated(layer_U)) call mma_deallocate(layer_U)
+call mma_deallocate(layer_U,safe='*')
 
 return
 

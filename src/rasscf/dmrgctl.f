@@ -35,6 +35,9 @@
 *> @param[in]     IFINAL Calculation status switch
 *> @param[in]     IRst   DMRG restart status switch
 ************************************************************************
+
+#include "compiler_features.h"
+
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
@@ -480,9 +483,11 @@ c     End If
       Return
       End
 
-* _ENABLE_BLOCK_DMRG_
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_DMRGCtl()
-      End
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_DMRGCtl()
+      end subroutine empty_DMRGCtl
+
 #endif

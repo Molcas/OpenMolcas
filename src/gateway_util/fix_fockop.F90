@@ -550,7 +550,7 @@ do iCnttp=1,mCnttp
         Check = DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,Shells(iShll_r)%FockOp,1)
       end if
       if ((Check == Zero) .or. (dbsc(iCnttp)%Charge == Zero)) then
-        if (allocated(FockOp_t)) call mma_deallocate(FockOp_t)
+        call mma_deallocate(FockOp_t,safe='*')
         cycle
       end if
       !                                                                *
@@ -713,7 +713,7 @@ do iCnttp=1,mCnttp
           Shells(iShll_a)%FockOp(iB,jB) = Tmp/real(iCmp_a,kind=wp)
         end do
       end do
-      if (allocated(FockOp_t)) call mma_deallocate(FockOp_t)
+      call mma_deallocate(FockOp_t,safe='*')
 #     ifdef _DEBUGPRINT_
       call RecPrt('Actual Fock operator',' ',Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #     endif
@@ -730,13 +730,13 @@ do iCnttp=1,mCnttp
     ! Deallocate the memory for the reference Fock operator
 
     do iShll_r=jShll+1,iShll
-      if (allocated(Shells(iShll_r)%Exp)) call mma_deallocate(Shells(iShll_r)%Exp)
+      call mma_deallocate(Shells(iShll_r)%Exp,safe='*')
       Shells(iShll_r)%nExp = 0
-      if (allocated(Shells(iShll_r)%FockOp)) call mma_deallocate(Shells(iShll_r)%FockOp)
+      call mma_deallocate(Shells(iShll_r)%FockOp,safe='*')
       Shells(iShll_r)%nFockOp = 0
-      if (allocated(Shells(iShll_r)%pCff)) call mma_deallocate(Shells(iShll_r)%pCff)
-      if (allocated(Shells(iShll_r)%Cff_c)) call mma_deallocate(Shells(iShll_r)%Cff_c)
-      if (allocated(Shells(iShll_r)%Cff_p)) call mma_deallocate(Shells(iShll_r)%Cff_p)
+      call mma_deallocate(Shells(iShll_r)%pCff,safe='*')
+      call mma_deallocate(Shells(iShll_r)%Cff_c,safe='*')
+      call mma_deallocate(Shells(iShll_r)%Cff_p,safe='*')
       Shells(iShll_r)%nExp = 0
       Shells(iShll_r)%nBasis = 0
     end do

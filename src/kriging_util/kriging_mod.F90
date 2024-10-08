@@ -130,7 +130,7 @@ subroutine Deallocate_protected()
   call mma_Deallocate(x)
   call mma_Deallocate(y)
   call mma_Deallocate(dy)
-  if (allocated(Model_Type)) call mma_Deallocate(Model_Type)
+  call mma_Deallocate(Model_Type,safe='*')
 
 end subroutine Deallocate_protected
 

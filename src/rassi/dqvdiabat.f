@@ -34,7 +34,6 @@
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

@@ -12,14 +12,16 @@
 ************************************************************************
       SUBROUTINE MKSXY(CMO1,CMO2,SXY)
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
+      Real*8 SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
+
       character(len=8) :: LABEL
 C  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
 C  CODED 1987-02-18, P-AA M.
-#include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
+      Real*8, Allocatable:: SZZ(:), SSQ(:), PROD(:)
 C  CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
 C  IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
 C  FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
@@ -34,16 +36,16 @@ C  INTERMEDIATE MATRIX PRODUCTS.
         NSSQ=MAX(NSSQ,NB**2)
         NPROD=MAX(NPROD,NO*NB)
       end do
-      CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NSZZ)
-      CALL GETMEM('SSQ   ','ALLO','REAL',LSSQ,NSSQ)
-      CALL GETMEM('PROD  ','ALLO','REAL',LPROD,NPROD)
+      CALL mma_allocate(SZZ,NSZZ,Label='SZZ')
+      CALL mma_allocate(SSQ,NSSQ,Label='SSQ')
+      CALL mma_allocate(PROD,NPROD,Label='PROD')
 C  READ OVERLAP MATRIX SZZ:
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       LABEL='MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE MKSXY ***'
@@ -52,7 +54,7 @@ C  READ OVERLAP MATRIX SZZ:
         CALL ABEND()
       ENDIF
 C  LOOP OVER SYMMETRIES:
-      LSZZ1=LSZZ
+      LSZZ1=1
       ISXY=1
       ICMO=1
       DO ISY=1,NSYM
@@ -60,20 +62,20 @@ C  LOOP OVER SYMMETRIES:
         IF(NB.EQ.0) cycle
         NO=NOSH(ISY)
         if (NO /= 0) then
-        CALL SQUARE(WORK(LSZZ1),WORK(LSSQ),1,NB,NB)
+        CALL SQUARE(SZZ(LSZZ1),SSQ,1,NB,NB)
 C  PROD:=SSQ*CMO2
-        CALL DGEMM_('N','N',NB,NO,NB,1.0D0,WORK(LSSQ),NB,CMO2(ICMO),NB,
-     &             0.0D0,WORK(LPROD),NB)
+        CALL DGEMM_('N','N',NB,NO,NB,1.0D0,SSQ,NB,CMO2(ICMO),NB,
+     &             0.0D0,PROD,NB)
 C  SXY:=(CMO1(TRANSP))*PROD
-        CALL DGEMM_('T','N',NO,NO,NB,1.0D0,CMO1(ICMO),NB,WORK(LPROD),NB,
+        CALL DGEMM_('T','N',NO,NO,NB,1.0D0,CMO1(ICMO),NB,PROD,NB,
      &             0.0D0,SXY(ISXY),NO)
         ISXY=ISXY+NO**2
         ICMO=ICMO+NO*NB
         end if
         LSZZ1=LSZZ1+(NB*(NB+1))/2
       end do
-      CALL GETMEM('      ','FREE','REAL',LSZZ,NSZZ)
-      CALL GETMEM('      ','FREE','REAL',LSSQ,NSSQ)
-      CALL GETMEM('      ','FREE','REAL',LPROD,NPROD)
+      CALL mma_deallocate(SZZ)
+      CALL mma_deallocate(SSQ)
+      CALL mma_deallocate(PROD)
 
       END SUBROUTINE MKSXY

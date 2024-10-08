@@ -1033,7 +1033,7 @@ Keywords
               </KEYWORD>
 
 :kword:`NormalORDer`
-  If CASPT2 intermediates are computed from a time--averaged determinant set,
+  If CASPT2 intermediates are computed from a time-averaged determinant set,
   one of the 4RDM excitation operators is pre-contracted with the zeroth order
   wave function. This keyword enables the transformation back to normal order
   as required for CASPT2.

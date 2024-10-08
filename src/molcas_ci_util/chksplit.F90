@@ -27,8 +27,9 @@ use splitcas_data, only: iDimBlockA, lRootSplit, min_ThrSplit, MxDimBlockA, ThrS
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IERR
 #include "output_ras.fh"
+integer(kind=iwp) :: IERR
+
 #include "warnings.h"
 
 !if (DoSplitCAS) then

@@ -23,7 +23,7 @@ subroutine Save_tmp_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
 !               root number                                            *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
-!     Sig_vec : array of real*8                                        *
+!     Sig_vec : array of real                                          *
 !               sigma vector                                           *
 !                                                                      *
 !----------------------------------------------------------------------*

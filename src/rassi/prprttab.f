@@ -13,7 +13,6 @@
       INTEGER IPRTTAB(*)
       INTEGER IPART,NPART
       INTEGER NSYM,ISYM
-C     INTEGER MXMEM
 
 C Executable statements
       WRITE(6,*)
@@ -29,5 +28,4 @@ C Executable statements
        WRITE(6,'(I3,5X,I5,5X,8I5)')IPART,
      &      (IPRTTAB(5+ISYM+(NSYM+1)*IPART),ISYM=0,NSYM)
       END DO
-      RETURN
-      END
+      END SUBROUTINE PRPRTTAB

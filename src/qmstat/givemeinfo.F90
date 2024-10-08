@@ -35,6 +35,7 @@ integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii,
                      nACCSize, ndc, nDiff, nnaa, nshj, nSumma, nVarv
 real(kind=wp), allocatable :: TEMP1(:), TEMP2(:)
 logical(kind=iwp) :: DoRys
+
 #include "warnings.h"
 
 !----------------------------------------------------------------------*

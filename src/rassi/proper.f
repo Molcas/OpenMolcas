@@ -11,22 +11,22 @@
       SUBROUTINE PROPER (PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
       use rassi_global_arrays, only : JBNUM
       use RASSI_AUX
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-      DIMENSION TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
-      DIMENSION IOFF(8)
-      CHARACTER*8 LABEL
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
+      Real*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
+      Integer ISTATE, JSTATE
+      Integer IOFF(8)
+      CHARACTER(LEN=8) LABEL
       Save iDiskSav !(For ToFile)
-      SAVE ICALL
-      DATA ICALL /0/
+      Integer, SAVE:: ICALL=0
       Real*8, Allocatable:: SCR(:,:)
+      Real*8, Allocatable:: IP(:)
 
 C COMBINED SYMMETRY OF STATES:
       JOB1=JBNUM(ISTATE)
@@ -38,7 +38,7 @@ C THE SYMMETRY CHECK MASK:
       MASK=2**(ISY12-1)
 C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+      CALL mma_allocate(IP,NIP,Label='IP')
 C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
       Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
@@ -53,19 +53,6 @@ C DENSITY MATRICES, AND WE-REDUCED SPIN DENSITY MATRICES, HAVE BEEN
 C CALCULATED BEGINNING IN SCR.
 C LOOP OVER ALL REQUIRED ONE-ELECTRON OPERATORS:
 C
-C-------------------------------------------
-CTL2004-start
-C-------------------------------------------
-      IF (NONA.AND.(ISTATE.EQ.MAX(NONA_ISTATE,NONA_ISTATE))
-     &        .AND.(JSTATE.EQ.MIN(NONA_ISTATE,NONA_JSTATE))) THEN
-C
-C IF NONADIABATIC COUPLINGS ARE REQUIRED LET'S COMPUTE THEM RIGHT NOW!
-C
-         CALL COMP_NAC(ISTATE, JSTATE, SCR, 4*nSCR, ISY12, IOFF, LCI1)
-      END IF
-C WE CONTINUE WITH THE NORMAL CALCULATION OF PROPERTIES...
-C-------------------------------------------
-CTL2004-end
 C-------------------------------------------
 *If requested by user, put SCR in an unformatted file for later
 *use by another program. (A.Ohrn)
@@ -141,10 +128,10 @@ c O for old
         END IF
 *
         Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
-     &               WORK(LIP),NIP,SCR,NSCR,MASK,ISY12,IOFF)
+     &               IP,NIP,SCR,NSCR,MASK,ISY12,IOFF)
 *
       END DO
       Call mma_deallocate(SCR)
-      CALL GETMEM('      ','FREE','REAL',LIP,NIP)
+      Call mma_deallocate(IP)
 
       END SUBROUTINE PROPER

@@ -33,8 +33,7 @@ nvrhs = 0
 have_solved_it = .false.
 
 ! Find CIVBS & CIVBH:
-nullify(vuse_s)
-nullify(vuse_h)
+nullify(vuse_s,vuse_h)
 vuse2 => civb3
 if (nv >= 1) then
   icivb = nint(civb1(0))

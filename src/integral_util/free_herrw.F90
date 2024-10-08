@@ -16,10 +16,10 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (allocated(iHerR)) call mma_deallocate(iHerR)
-if (allocated(iHerW)) call mma_deallocate(iHerW)
-if (allocated(HerR)) call mma_deallocate(HerR)
-if (allocated(HerW)) call mma_deallocate(HerW)
+call mma_deallocate(iHerR,safe='*')
+call mma_deallocate(iHerW,safe='*')
+call mma_deallocate(HerR,safe='*')
+call mma_deallocate(HerW,safe='*')
 
 return
 

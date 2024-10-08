@@ -252,10 +252,7 @@ do iSym=1,nSym
 
   iOff = iOff+nBas(iSym)
 end do
-nullify(C)
-nullify(S2)
-nullify(X)
-nullify(Z)
+nullify(C,S2,X,Z)
 call mma_deallocate(St)
 call mma_deallocate(Qt)
 call mma_deallocate(Ct)

@@ -12,6 +12,9 @@
 !to explicitly use the irregular versions. These is a wrapper routine to
 !create horizontal (H) and vertical (V) stripes. The dimensions are
 !divided evenly, with the remainder spread over the leading stripes.
+
+#include "compiler_features.h"
+
 #ifdef _MOLCAS_MPP_
       SUBROUTINE GA_CREATE_STRIPED (ORI,NROW,NCOL,LABEL,LG_M)
       IMPLICIT NONE
@@ -68,8 +71,12 @@
         CALL AbEnd()
       END IF
       END
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      SUBROUTINE EMPTY_GA_CREATE_STRIPED ()
-      END
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_GA_CREATE_STRIPED()
+      end subroutine empty_GA_CREATE_STRIPED
+
 #endif

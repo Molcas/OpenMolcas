@@ -71,7 +71,7 @@ nthreads = omp_get_max_threads()
 nthreads = 1
 #endif
 
-! mxmem is the number of 8-byte words (real*8) we have available.
+! mxmem is the number of 8-byte words (real) we have available.
 bytes = RtoB*mxMem
 order = floor(log10(bytes))
 group = min(order/3,8)

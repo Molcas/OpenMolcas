@@ -27,8 +27,9 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: Level
 character(len=*), intent(in) :: Message
-#include "warnings.h"
 integer(kind=iwp) :: iLevel, rc
+
+#include "warnings.h"
 
 if (Level <= 1) then
   iLevel = max(Level,0)

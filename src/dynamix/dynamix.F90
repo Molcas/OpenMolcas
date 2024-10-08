@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp), parameter :: nTasks = 3
-integer(kind=iwp) :: i, irc, iRlxRoot, iseed, iTask, Itr, j, LuInput, mTasks, MxItr, natom, nFlag, nRoots, Task(nTasks)
+integer(kind=iwp) :: i, irc, iRlxRoot, iseed, iTask, Itr, j, LuInput, maxHop, mTasks, MxItr, natom, nFlag, nRoots, Task(nTasks)
 real(kind=wp) :: arg, buffer, Ekin, Epot, Etot0, Freq, mean, NHC(nh), Q1, Q2, Sigma, time, val
 logical(kind=iwp) :: Found, lHop
 character(len=16) :: StdIn
@@ -34,6 +34,7 @@ real(kind=wp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 character(len=2), allocatable :: atom(:)
 real(kind=wp), allocatable :: Mass(:), vel(:), pcoo(:,:)
 integer(kind=iwp), external :: AixRm, IsFreeUnit, IsStructure
+
 #include "warnings.h"
 
 iReturn = 99
@@ -239,6 +240,10 @@ do iTask=1,mTasks
 
       lHop = .false.
       call qpg_iScalar('MaxHops',lHop)
+      if (lHop) then
+        call get_iScalar('MaxHops',maxHop)
+        if (maxHop < 1) lHop = .false.
+      end if
       if (lHop) then
 
         ! Read the roots

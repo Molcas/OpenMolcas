@@ -41,7 +41,6 @@
       Implicit None
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer, Dimension(nState), Intent(In) :: IndexE
       Integer, Intent(In) :: nSS
@@ -124,7 +123,6 @@
 #include "cntrl.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rassiwfn.fh"
       Real*8, Intent(In) :: EigVec(nState,nState)
