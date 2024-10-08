@@ -24,7 +24,7 @@ subroutine page_out(KeyWord,nConf,Vector,LuDavid)
 !               record identifier                                      *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
-!     Vector  : array of real*8                                        *
+!     Vector  : array of real                                          *
 !               any vector of length nConf                             *
 !                                                                      *
 !----------------------------------------------------------------------*

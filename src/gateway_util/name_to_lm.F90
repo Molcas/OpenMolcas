@@ -73,7 +73,7 @@ end if
 ! Parse the label for other cases
 l = -1
 ! Find if there is an angular label
-do i=sum(lbound(AngTp)),sum(ubound(AngTp))
+do i=lbound(AngTp,1),ubound(AngTp,1)
   if (Letter == AngTp(i)) then
     l = i
     exit

@@ -23,7 +23,7 @@ subroutine Sort_Cdet(N,Idx,X)
 !               dimension of the CI-vector                             *
 !     Idx     : integer                                                *
 !               reordering indices                                     *
-!     X       : real*8                                                 *
+!     X       : real                                                   *
 !               CI-vector                                              *
 !                                                                      *
 !----------------------------------------------------------------------*

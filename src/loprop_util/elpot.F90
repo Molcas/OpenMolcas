@@ -23,6 +23,7 @@ real(kind=wp), intent(in) :: r, rinv, x, y, z, dMullig((lMax+1)*(lMax+2)*(lMax+3
 logical(kind=iwp), intent(in) :: lDOrNot1, lDOrNot2
 real(kind=wp) :: ar, dCh, dL2(6), dL3(10), dL4(15), dL5(21), dM
 real(kind=wp), external :: ElPointPot
+
 #include "warnings.h"
 
 ElPot = Zero

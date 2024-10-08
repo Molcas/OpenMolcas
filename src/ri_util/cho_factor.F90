@@ -70,10 +70,11 @@ integer(kind=iwp), intent(in) :: iD_A(*), kCol, nRow, nMem, lu_Z, lScr
 real(kind=wp), intent(in) :: Zm(nRow,*), thr
 real(kind=wp), intent(_OUT_) :: Scr(*)
 integer(kind=iwp), intent(out) :: lindep
-#include "warnings.h"
 integer(kind=iwp) :: i, j, kdone, kj, kstep, lZdone, lZread, lZrem
 real(kind=wp) :: Dmax, fac, xfac
 real(kind=wp), parameter :: thr_neg = -1.0e-8_wp
+
+#include "warnings.h"
 
 !***********************************************************************
 

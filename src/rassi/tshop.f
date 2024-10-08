@@ -180,7 +180,9 @@ C Check if the number of Hops is limited:
             CALL qpg_iScalar('MaxHops',lMaxHop)
             IF (lMaxHop) THEN
                CALL Get_iScalar('MaxHops',maxHop)
-               lHop=.FALSE.
+               IF (maxHop.LT.1) lMaxHop=.FALSE.
+            END IF
+            IF (lMaxHop) THEN
                CALL qpg_iScalar('Number of Hops',lHop)
                IF (lHop) THEN
                   CALL Get_iScalar('Number of Hops',nHop)

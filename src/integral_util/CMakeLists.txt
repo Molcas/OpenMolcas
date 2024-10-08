@@ -64,7 +64,6 @@ set (sources
      drbuf.F90
      drv1_pcm.F90
      drv1_rf.F90
-     drv2el_dscf.F90
      drv2_rf.F90
      drvefp.F90
      drvk2.F90
@@ -318,6 +317,7 @@ set (modfile_list
      getline_mod.F90
      integral_interfaces.F90
      int_options.F90
+     iobuf.F90 # dependency from integral_interfaces.F90
      isd_data.F90
      k2_arrays.F90
      k2_structure.F90

@@ -148,8 +148,8 @@ subroutine SOAO_Info_Free()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(iSOInf)) call mma_deallocate(iSOInf)
-  if (allocated(iAOtSO)) call mma_deallocate(iAOtSO)
+  call mma_deallocate(iSOInf,safe='*')
+  call mma_deallocate(iAOtSO,safe='*')
   nSOInf = 0
   nIrrep = 0
 

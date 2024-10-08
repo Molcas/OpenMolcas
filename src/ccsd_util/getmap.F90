@@ -25,9 +25,6 @@ subroutine getmap(lun,length,map,rc)
 
 use ccsd_global, only: daddr, iokey, Map_Type
 use Definitions, only: iwp
-#ifdef __INTEL_COMPILER
-use Definitions, only: u6
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: lun
@@ -42,12 +39,6 @@ rc = 0
 if (iokey == 1) then
   ! Fortran IO
   read(lun) map%d(:,:),map%i(:,:,:)
-# ifdef __INTEL_COMPILER
-  ! workaround for a bug in some Intel versions
-else if (iokey < 0) then
-  write(u6,*) 'this should never happen'
-# endif
-
 else
   ! MOLCAS IO
   call idafile(lun,2,map%d,size(map%d),daddr(lun))

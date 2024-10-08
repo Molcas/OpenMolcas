@@ -36,13 +36,13 @@ call RlsMem_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (allocated(FT)) call mma_deallocate(FT)
+call mma_deallocate(FT,safe='*')
 
 call Destroy_Braket_base()
 
-if (allocated(Aux)) call mma_deallocate(Aux)
+call mma_deallocate(Aux,safe='*')
 
-if (allocated(iSOSym)) call mma_deallocate(iSOSym)
+call mma_deallocate(iSOSym,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

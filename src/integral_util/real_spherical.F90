@@ -40,11 +40,11 @@ contains
 !                                                                      *
 subroutine Sphere_Free()
 
-  if (allocated(RSph)) call mma_deallocate(RSph)
-  if (allocated(ipSph)) call mma_deallocate(ipSph)
-  if (allocated(iSphCr)) call mma_deallocate(iSphCr)
-  if (allocated(LblCBs)) call mma_deallocate(LblCBs)
-  if (allocated(LblSBs)) call mma_deallocate(LblSBs)
+  call mma_deallocate(RSph,safe='*')
+  call mma_deallocate(ipSph,safe='*')
+  call mma_deallocate(iSphCr,safe='*')
+  call mma_deallocate(LblCBs,safe='*')
+  call mma_deallocate(LblSBs,safe='*')
   lmax_internal = -1
 
 end subroutine Sphere_Free

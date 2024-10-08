@@ -82,11 +82,11 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 !  Output:                                                             *
 !         irc : return code                                            *
 !                                                                      *
-!         V_k : array Real*8 for the Coulomb interm. Size=NumCho(1)    *
+!         V_k : array Real for the Coulomb interm. Size=NumCho(1)      *
 !                                                                      *
-!         U_k : array Real*8 for the mp2 Coulomb interm. Size=NumCho(1)*
+!         U_k : array Real for the mp2 Coulomb interm. Size=NumCho(1)  *
 !                                                                      *
-!         Z_p_k : array Real*8 for the active grad. components.        *
+!         Z_p_k : array Real for the active grad. components.          *
 !                  Must be zeroed by the calling routine. Stored       *
 !                  according to jSym and blocked after symm. blocks    *
 !                  of the active orbitals (square storage).            *

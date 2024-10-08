@@ -127,10 +127,7 @@ do iSym=1,nSym
   lOff = lOff+mOrb(iSym)
 end do
 
-nullify(CC)
-nullify(X2)
-nullify(Z)
-nullify(Scr)
+nullify(CC,X2,Z,Scr)
 
 call mma_deallocate(iD)
 call mma_deallocate(Scr1)

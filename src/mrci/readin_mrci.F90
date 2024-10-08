@@ -23,7 +23,6 @@ use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "Molcas.fh"
-#include "warnings.h"
 integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, &
                      ISYM, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, &
                      NAMSIZ, NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, &
@@ -37,6 +36,8 @@ character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:)
 character(len=*), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
                                           'PROR','REFC','SELE','NRRO','MXVE','TRAN','END ']
+
+#include "warnings.h"
 
 ! Initialize data and set defaults
 

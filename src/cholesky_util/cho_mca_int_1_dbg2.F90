@@ -137,8 +137,7 @@ end do
 
 call XRLSMEM_INTS()
 call mma_deallocate(INT1)
-nullify(pINT1)
-nullify(pINT2)
+nullify(pINT1,pINT2)
 
 write(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,' #errors: ',NERR
 

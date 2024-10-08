@@ -16,7 +16,7 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (allocated(iSD)) call mma_deallocate(iSD)
+call mma_deallocate(iSD,safe='*')
 nSkal_iSD = 0
 
 return

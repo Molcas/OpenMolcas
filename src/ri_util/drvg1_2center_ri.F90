@@ -484,8 +484,8 @@ call mma_deallocate(Sew_Scr)
 call Free_Tsk(id)
 if (Method_chk == 'CASPT2') call mma_deallocate(A_PT2)
 call mma_deallocate(Shij)
-if (allocated(TMax1)) call mma_deallocate(TMax1)
-if (allocated(TMax2)) call mma_deallocate(TMax2)
+call mma_deallocate(TMax1,safe='*')
+call mma_deallocate(TMax2,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -508,7 +508,7 @@ if (DoCholExch) then
   call mma_deallocate(CijK)
   call mma_deallocate(A)
 end if
-if (allocated(AMP2)) call mma_deallocate(AMP2)
+call mma_deallocate(AMP2,safe='*')
 
 call Free_iSD()
 !                                                                      *

@@ -24,20 +24,13 @@ integer(kind=iwp) :: iv
 
 if (release(4)) then
   call mma_deallocate(civbvecs)
-  nullify(civb1)
-  nullify(civb2)
-  nullify(civb3)
-  nullify(civb4)
-  nullify(civb5)
-  nullify(civb6)
-  nullify(civb7)
-  nullify(civb8)
+  nullify(civb1,civb2,civb3,civb4,civb5,civb6,civb7,civb8)
 end if
 release(4) = .true.
 release(5) = .false.
 
 !FIXME: This deallocation should not be needed
-if (allocated(civbvecs)) call mma_deallocate(civbvecs)
+call mma_deallocate(civbvecs,safe='*')
 ! CIVECP and CIVBH share memory
 call mma_allocate(civbvecs,[0,ndres-1],[1,nv],label='civbvecs')
 if (nv >= 1) then

@@ -26,6 +26,7 @@ real(kind=wp), intent(out) :: Colle(3)
 logical(kind=iwp), intent(in) :: lDiffA
 real(kind=wp) :: DAMP, er, Ex, Pi1, Pi2, Sigma
 real(kind=wp), parameter :: d3 = sqrt(Three)
+
 #include "warnings.h"
 
 ! The omnipresent exponential and distance-exponent product.

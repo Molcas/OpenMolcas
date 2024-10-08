@@ -615,18 +615,13 @@ C-SVC: sanity check
             DO iU=0,NI-1
                iUVX1=NASHT*(iU+iOffI+iVX1)
                iUVX2=NP   *(iU+      iVX2)
-#ifdef __INTEL_COMPILER
-*  This to avoid Intel over optimization
-               Call DaXpY_(nP,1.0D0,PIQK(1+      iUVX2),1,
-     &                             TUVX(1+iOffP+iUVX1),1)
-#else
-               DO iT=0,NP-1
+#ifdef _DEBUGPRINT_
+               DO iT=1,NP
                   iTUVX=iT+iOffP+iUVX1
                   iPIQK=iT      +iUVX2
-#ifdef _DEBUGPRINT_
 * Temporary test statements -- remove after debug!
-                  IF(ITUVX.LT.0 .or. ITUVX.gt.NTUVX) THEN
-                     ITUVX=NTUVX
+                  IF(ITUVX.LT.1 .or. ITUVX.gt.NTUVX+1) THEN
+                     ITUVX=NTUVX+1
                      NUMERR=NUMERR+1
                      IF (NUMERR.GT.100) THEN
                         WRITE(6,*)' THIS IS TOO MUCH -- STOP.'
@@ -634,12 +629,13 @@ C-SVC: sanity check
                      END IF
                   END IF
 * End of temporary test statements
-#else
-* Avoid unused argument warnings
-      IF (.FALSE.) Call Unused_integer(NUMERR)
-#endif
-                  TUVX(1+iTUVX)=TUVX(1+iTUVX)+PIQK(1+iPIQK)
+                  TUVX(iTUVX)=TUVX(iTUVX)+PIQK(iPIQK)
                END DO
+#else
+               Call DaXpY_(nP,1.0D0,PIQK(1+      iUVX2),1,
+     &                             TUVX(1+iOffP+iUVX1),1)
+* Avoid unused argument warnings
+               IF (.FALSE.) Call Unused_integer(NUMERR)
 #endif
             END DO
          END DO

@@ -217,7 +217,7 @@ do
 end do
 ! END of Input
 
-if (allocated(Line2)) call mma_deallocate(Line2)
+call mma_deallocate(Line2,safe='*')
 
 !> make sure the array is allocated for the minimal input
 !> &NEVPT2 &END

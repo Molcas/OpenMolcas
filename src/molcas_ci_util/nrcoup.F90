@@ -41,11 +41,11 @@ integer(kind=iwp), parameter :: LTAB = 1
 integer(kind=iwp) :: IS, IST, NCP
 #endif
 
-if (.not. allocated(CIS%NOW)) call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
-if (.not. allocated(CIS%IOW)) call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
-if (.not. allocated(CIS%NCSF)) call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
-if (.not. allocated(CIS%NOCSF)) call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
-if (.not. allocated(CIS%IOCSF)) call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
+call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
+call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
+call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
+call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
+call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
 
 EXS%MxEO = (SGS%nLev*(SGS%nLev+5))/2
 call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')

@@ -23,8 +23,7 @@ integer(kind=iwp), intent(in) :: nDens
 real(kind=wp), intent(inout) :: Dens(nDens), TwoHam(nDens)
 integer(kind=iwp) :: i, ij, ijQ, j, jiQ, nC
 
-nullify(pDq)
-nullify(pFq)
+nullify(pDq,pFq)
 
 if (nIrrep == 1) then
   ! symmetrize fock matrix

@@ -377,7 +377,7 @@ do iSymL=1,nSym
       do iSym=1,size(TCVX,2)
         do jSym=1,size(TCVX,3)
 
-          if (allocated(TCVX(iType,iSym,jSym)%A)) call mma_deallocate(TCVX(iType,iSym,jSym)%A)
+          call mma_deallocate(TCVX(iType,iSym,jSym)%A,safe='*')
 
         end do
       end do

@@ -34,6 +34,7 @@ character(len=80) :: filename
 real(kind=wp), allocatable :: xyz(:), force(:)
 character(len=2), allocatable :: atom(:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 if (IPRINT == INSANE) write(u6,*) ' Entering GROM'

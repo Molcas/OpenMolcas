@@ -147,12 +147,7 @@ do iSym=1,nSym
   lOff = lOff+mOrb(iSym)
 end do
 
-nullify(SQ)
-nullify(C2)
-nullify(CC)
-nullify(X2)
-nullify(Z)
-nullify(Scr)
+nullify(SQ,C2,CC,X2,Z,Scr)
 
 call mma_deallocate(iD)
 call mma_deallocate(SQt)

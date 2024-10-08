@@ -94,13 +94,13 @@ if (Iter == 1) then
 
   call qpg_dArray('Ref_Geom',Found,nData)
   if (Found) then
-    if (.not. allocated(RefGeo)) call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
+    call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo',safe='*')
     call Get_dArray('Ref_Geom',RefGeo,3*size(Coor,2))
   else
 
     ! Not defined: default reference structure to the starting structure.
 
-    if (.not. allocated(RefGeo)) call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
+    call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo',safe='*')
     RefGeo(:,:) = Cx(:,:,1)
     call Put_dArray('Ref_Geom',RefGeo,3*size(Coor,2))
   end if
@@ -108,7 +108,7 @@ else
 
   ! Pick up the reference structure.
 
-  if (.not. allocated(RefGeo)) call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo')
+  call mma_allocate(RefGeo,3,size(Coor,2),Label='RefGeo',safe='*')
   call Get_dArray('Ref_Geom',RefGeo,3*size(Coor,2))
 end if
 

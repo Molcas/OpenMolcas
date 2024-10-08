@@ -25,7 +25,6 @@ integer(kind=iwp), intent(inout) :: Task(nTasks)
 integer(kind=iwp), intent(out) :: mTasks
 integer(kind=iwp) :: maxhop
 real(kind=wp) :: TIME
-logical(kind=iwp) :: lHop
 character(len=72) :: Title
 character(len=180) :: Key, Line
 character(len=180), external :: Get_Ln
@@ -115,13 +114,9 @@ do
     !>>>>>>>>>>>>>>>>>>>> Hop    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     Line = Get_Ln(LuSpool)
     call Get_I1(1,maxHop)
-    lHop = .false.
-    call qpg_iScalar('MaxHops',lHop)
-    if (.not. lHop) then
-      call Put_iScalar('MaxHops',maxHop)
-    end if
+    call Put_iScalar('MaxHops',maxHop)
 #   ifdef _DEBUGPRINT_
-    write(u6,*) ' lHop = ',lHop,'maxHop = ',maxHop
+    write(u6,*) ' maxHop = ',maxHop
 #   endif
   else if (Line(1:4) == 'REST') then
     !>>>>>>>>>>>>>>>>>>>> Restart <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

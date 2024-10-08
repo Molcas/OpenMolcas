@@ -8,6 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
+#include "compiler_features.h"
+
 #ifdef _MOLCAS_MPP_
 
       module allgather_wrapper
@@ -177,8 +180,11 @@
       end subroutine allgather_I
       end module allgather_wrapper
 
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      SUBROUTINE EMPTY_ALLGATHER()
-      END
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_ALLGATHER()
+      end subroutine empty_ALLGATHER
+
 #endif

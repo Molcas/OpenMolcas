@@ -42,6 +42,6 @@ if (irc /= 0) return
 ! More deallocations.
 ! -------------------
 
-if (allocated(MySP)) call mma_deallocate(MySP)
+call mma_deallocate(MySP,safe='*')
 
 end subroutine TermCho_RI

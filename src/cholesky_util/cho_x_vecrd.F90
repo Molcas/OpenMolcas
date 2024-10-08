@@ -26,7 +26,7 @@
 !> reduced set stored at location ``3`` (``-1`` if none or unknown).
 !> On exit, \p jNum is the number
 !> of vectors actually read and \p mUsed is the memory
-!> (in ``real*8`` words) actually used.
+!> (in ``real`` words) actually used.
 !>
 !> @note
 !> The Cholesky module must be initialized.
@@ -38,7 +38,7 @@
 !> @param[in]     iSym  vector symmetry
 !> @param[out]    jNum  number of vectors actually read
 !> @param[in,out] iRedC reduced set stored at location ``3`` on entry as well as exit
-!> @param[out]    mUsed amount of memory actually used (in ``real*8`` words)
+!> @param[out]    mUsed amount of memory actually used (in ``real`` words)
 !***********************************************************************
 
 subroutine Cho_X_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,mUsed)

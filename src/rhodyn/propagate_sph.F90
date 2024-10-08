@@ -161,7 +161,7 @@ call mma_allocate(midk1,len_sph,d,d)
 call mma_allocate(midk2,len_sph,d,d)
 call mma_allocate(midk3,len_sph,d,d)
 call mma_allocate(midk4,len_sph,d,d)
-if (allocated(hamiltoniant)) call mma_deallocate(hamiltoniant)
+call mma_deallocate(hamiltoniant,safe='*')
 call mma_allocate(hamiltoniant,d,d,label='hamiltoniant')
 
 rho_sph_t(:,:,:) = rho_init

@@ -334,8 +334,8 @@ if (lGrad) then
     nb = nb+nBas(iS)
   end do
 
-  if (.not. allocated(DeDe)) call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
-  if (.not. allocated(DeDe2)) call mma_allocate(DeDe2,[-1,-1],label='DeDe2') ! Dummy allocation
+  call mma_allocate(DeDe,0,label='DeDe',safe='*') ! Dummy allocation
+  call mma_allocate(DeDe2,0,label='DeDe2',safe='*') ! Dummy allocation
 
 end if ! lGrad
 !                                                                      *
@@ -966,10 +966,10 @@ call mma_deallocate(Aux)
 
 call Term_Ints()
 
-if (allocated(ipDisp)) call mma_deallocate(ipDisp)
-if (allocated(ipDisp2)) call mma_deallocate(ipDisp2)
-if (allocated(ipDisp3)) call mma_deallocate(ipDisp3)
-if (allocated(ipMO)) call mma_deallocate(ipMO)
+call mma_deallocate(ipDisp,safe='*')
+call mma_deallocate(ipDisp2,safe='*')
+call mma_deallocate(ipDisp3,safe='*')
+call mma_deallocate(ipMO,safe='*')
 
 return
 

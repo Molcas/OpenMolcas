@@ -31,10 +31,11 @@ real(kind=wp), intent(in) :: Wg(*), Thr
 integer(kind=iwp), intent(in) :: n, lu_A0, lu_A, lScr
 integer(kind=iwp), intent(out) :: m, iD_A(n)
 real(kind=wp), intent(out) :: Scr(lScr)
-#include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iD_Col, ij, is, istart, js, k, kAddr, kCol, ks, kScr, lindep, lmax, nMem_Col
 real(kind=wp) :: Acc, XMax
 integer(kind=iwp), allocatable :: List(:)
+
+#include "warnings.h"
 
 Acc = min(1.0e-12_wp,thr*1.0e-2_wp)
 call mma_allocate(List,n,Label='List')

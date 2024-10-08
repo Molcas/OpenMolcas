@@ -43,10 +43,11 @@ real(kind=wp), intent(inout) :: SrtArr(lSrtA)
 integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"
-#include "warnings.h"
 integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, iOpt, iP_Storage, iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, &
                      mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)
+
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 !     as the packed integral labels add an extra 1-2 Byte              *

@@ -20,7 +20,6 @@ integer(kind=iwp), intent(in) :: nAtoms
 integer(kind=iwp), intent(inout) :: iPol, nThrs, iPrint
 logical(kind=iwp), intent(inout) :: LNearestAtom, LAllCenters, AveOrb, LLumOrb, Diffuse(3)
 real(kind=wp), intent(inout) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
-#include "warnings.h"
 integer(kind=iwp) :: i, iChrct, iStdOut, j, k, l, Last, LuRd, m, nBonds
 character(len=3) :: EndKey
 character(len=4) :: KWord
@@ -31,6 +30,8 @@ character(len=6), allocatable :: TestLabe(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
+
+#include "warnings.h"
 
 iStdOut = u6
 

@@ -17,9 +17,9 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ICB, IRB, NROW
 real(kind=wp), intent(in) :: A(*)
 real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp), intent(in) :: ICB, IRB, NROW
 integer(kind=iwp) :: IC, ICOL, II, IND, IR, IROW
 
 ! PAM Sep 06: The two special cases here account for

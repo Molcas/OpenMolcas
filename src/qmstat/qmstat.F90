@@ -29,7 +29,9 @@ integer(kind=iwp) :: iCi, iQ_Atoms, nAtomsCC, nBas(1), nBas_C(1), nCalls, NCount
 character(len=4) :: Labjhr
 integer(kind=iwp), allocatable :: natyp(:), nOcc(:)
 real(kind=wp), allocatable :: Coord(:,:), Eint(:,:), PertElcInt(:), Poli(:,:), StoreCoo(:,:,:), SumElcPot(:,:)
+
 #include "warnings.h"
+
 !******JoseMEP New variables to perform the MEP calculation
 !Eint, Poli, SumElcPot, PertElcInt, nOcc, natyp, Labjhr
 

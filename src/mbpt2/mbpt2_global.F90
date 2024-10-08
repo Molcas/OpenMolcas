@@ -42,13 +42,13 @@ contains
 
 subroutine MBPT2_Clean()
   use stdalloc, only: mma_deallocate
-  if (allocated(CMO_Internal)) call mma_deallocate(CMO_Internal)
-  if (allocated(EOcc)) call mma_deallocate(EOcc)
-  if (allocated(EOrb)) call mma_deallocate(EOrb)
-  if (allocated(EVir)) call mma_deallocate(EVir)
-  if (allocated(iDel)) call mma_deallocate(iDel)
-  if (allocated(iFro)) call mma_deallocate(iFro)
-  if (allocated(NamAct)) call mma_deallocate(NamAct)
+  call mma_deallocate(CMO_Internal,safe='*')
+  call mma_deallocate(EOcc,safe='*')
+  call mma_deallocate(EOrb,safe='*')
+  call mma_deallocate(EVir,safe='*')
+  call mma_deallocate(iDel,safe='*')
+  call mma_deallocate(iFro,safe='*')
+  call mma_deallocate(NamAct,safe='*')
   nullify(CMO)
 end subroutine MBPT2_Clean
 

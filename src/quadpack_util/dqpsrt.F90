@@ -27,7 +27,7 @@ subroutine dqpsrt(limit,last,maxerr,ermax,elist,iord,nrmax)
 !
 !           ordering routine
 !           standard fortran subroutine
-!           real*8 version
+!           real version
 !
 !           parameters (meaning at output)
 !              limit  - integer
@@ -41,11 +41,11 @@ subroutine dqpsrt(limit,last,maxerr,ermax,elist,iord,nrmax)
 !                       maxerr points to the nrmax-th largest error
 !                       estimate currently in the list
 !
-!              ermax  - real*8
+!              ermax  - real
 !                       nrmax-th largest error estimate
 !                       ermax = elist(maxerr)
 !
-!              elist  - real*8
+!              elist  - real
 !                       vector of dimension last containing
 !                       the error estimates
 !

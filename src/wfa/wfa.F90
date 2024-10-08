@@ -17,14 +17,14 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.h"
-
 #ifdef _WFA_
 integer(kind=iwp) :: iLU, ist, ien
 character(len=180), external :: Get_Ln
 character(len=180) :: Line
 character(len=900) :: Inp
 #endif
+
+#include "warnings.h"
 
 ireturn = _RC_NOT_AVAILABLE_
 

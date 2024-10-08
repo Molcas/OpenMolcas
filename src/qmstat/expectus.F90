@@ -27,6 +27,7 @@ real(kind=wp), intent(_OUT_) :: ExpVal(4,*)
 integer(kind=iwp) :: iRoot, nDTri, nRoots
 real(kind=wp), allocatable :: DTmp(:)
 real(kind=wp), external :: Ddot_
+
 #include "warnings.h"
 
 ! Take different path for different QM-method.

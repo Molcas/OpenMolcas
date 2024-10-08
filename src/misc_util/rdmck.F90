@@ -27,7 +27,7 @@ subroutine RdMCK(rc,Option,InLab,iComp,iData,iSymLab)
 !     SymLab  : symmetry label of the requested data                   *
 !                                                                      *
 !     Local data declarations:                                         *
-!     Label   : character*8, used to covert incoming names             *
+!     Label   : character(len=8), used to covert incoming names        *
 !     HldBuf  : I/O buffer                                             *
 !                                                                      *
 !----------------------------------------------------------------------*
