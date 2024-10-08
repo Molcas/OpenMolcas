@@ -107,7 +107,7 @@ C Compute spin determinants:
           SPNTAB(13+(IBLK-1)*6)=KSPDET
 C Compute spin coupling coefficients:
           CALL PROTOT(IOPEN,ND,SPNTAB(KSPDET:),NCP,
-     &                      SPNTAB(KSPCPL),TRANS(LTRANS:))
+     &                      SPNTAB(KSPCPL:),TRANS(LTRANS:))
           SPNTAB(14+(IBLK-1)*6)=LTRANS-LTRANS0+1
           KSPCPL=KSPCPL+IOPEN*NCP
           KSPDET=KSPDET+IOPEN*ND
