@@ -74,10 +74,10 @@ C Number of (non-trivial) values of IOPEN:
 
       SUBROUTINE PRPCSF(IOPEN,NCPL,ICOUP)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ICOUP(IOPEN,NCPL)
-      CHARACTER*1 CPLSMB(0:1)
-      CHARACTER*24 FORM
-      DATA CPLSMB / 'd','u' /
+      Integer IOPEN, NCPL
+      INteger ICOUP(IOPEN,NCPL)
+      CHARACTER(LEN=1) :: CPLSMB(0:1)=['d','u']
+      CHARACTER(LEN=24) FORM
       IF(IOPEN.LT.0 .OR.NCPL.LT.0) THEN
         Call WarningMessage(2,'Program bug: Erroneous call to PRPCSF.')
         WRITE(6,*)'PRPCSF error: Wrong arguments.'
@@ -95,11 +95,11 @@ C Number of (non-trivial) values of IOPEN:
        WRITE(FORM,'(A1,I2,A,I2,A4)') '(',N,'(1X,I5,1X,',IOPEN,'A1))'
        WRITE(6,FORM)(I,(CPLSMB(ICOUP(J,I)),J=1,IOPEN),I=1,NCPL)
       END IF
-      RETURN
-      END
+      END SUBROUTINE PRPCSF
+
       SUBROUTINE PRPTRA(ND,NCPL,TRA)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION TRA(ND,NCPL)
+      Real*8 TRA(ND,NCPL)
       IF(ND.LT.0 .OR.NCPL.LT.0) THEN
         Call WarningMessage(2,'Program bug: Erroneous call to PRPTRA.')
         WRITE(6,*)'PRPTRA error: Wrong arguments.'
@@ -120,14 +120,13 @@ C Number of (non-trivial) values of IOPEN:
          END DO
         END DO
       END IF
-      RETURN
-      END
+      END SUBROUTINE PRPTRA
+
       SUBROUTINE PRPDET(IOPEN,ND,IDET)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IDET(IOPEN,ND)
-      CHARACTER*1 SPNSMB(0:1)
-      DATA SPNSMB/ 'b','a' /
-      CHARACTER*24 FORM
+      Integer IDET(IOPEN,ND)
+      CHARACTER(LEN=1) :: SPNSMB(0:1)=['b','a']
+      CHARACTER(LEN=24) FORM
       IF(IOPEN.LT.0 .OR.ND.LT.0) THEN
         Call WarningMessage(2,'Program bug: Erroneous call to PRPDET.')
         WRITE(6,*)'PRPDET error: Wrong arguments.'
@@ -145,5 +144,4 @@ C Number of (non-trivial) values of IOPEN:
        WRITE(FORM,'(A1,I2,A,I2,A4)') '(',N,'(1X,I5,1X,',IOPEN,'A1))'
        WRITE(6,FORM)(I,(SPNSMB(IDET(J,I)),J=1,IOPEN),I=1,ND)
       END IF
-      RETURN
-      END
+      END SUBROUTINE PRPDET

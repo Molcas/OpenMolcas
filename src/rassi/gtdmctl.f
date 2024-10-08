@@ -12,20 +12,14 @@
 
       use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
      &                  NRS3T, NRSPRT
-#ifdef _DMRG_
-      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, LROOT,
-     &                               SSTAB, REST1, REST2,
-     &                               CnfTab1, CnfTab2,
-     &                               FSBTAB1, FSBTAB2,
-     &                               SPNTAB1, SPNTAB2,
-     &                               TRANS1, TRANS2
-#else
       use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
      &                               REST1, REST2,
      &                               CnfTab1, CnfTab2,
      &                               FSBTAB1, FSBTAB2,
      &                               SPNTAB1, SPNTAB2,
      &                               TRANS1, TRANS2
+#ifdef _DMRG_
+      use rassi_global_arrays, only: LROOT
 #endif
       !> module dependencies
 #ifdef _DMRG_
