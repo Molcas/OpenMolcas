@@ -46,6 +46,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "intgrl.fh"
+#include "trafo.fh"
 integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, L2, L2M, LATRU, LATUS, lBuf, LIADUT, &
                      LMOP1, LMOQ1, LMOR1, LMOS1, LPQRS, LPQTU, LRS, LRSmx, LRUPQM, LTARU, LTAUS, LTUPQM, LTUPQX, LTURS, LTURSM, &
                      LURPQM, LW1, LW2, LW2B, LW3, LW3B, LW4, LW4B, LW5, LW6, MaxRS, MEMLFT, MEMT, MEMX, Mxx1, Mxx2, Mxx3, &
@@ -53,10 +57,7 @@ integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, K
 real(kind=wp) :: XLPQRS, XMEMT
 logical(kind=iwp) :: DoCholesky, IFTEST, iSquar
 real(kind=wp), allocatable :: W1(:)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "intgrl.fh"
-#include "trafo.fh"
+
 #include "warnings.h"
 
 IFTEST = .false.

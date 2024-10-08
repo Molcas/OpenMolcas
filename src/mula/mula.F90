@@ -61,6 +61,7 @@ character(len=80), allocatable :: trfName1(:), trfName2(:)
 character(len=4), allocatable :: AtomLbl(:)
 integer(kind=iwp), parameter :: MB = 1048576
 integer(kind=iwp), external :: iPrintlevel, isfreeunit
+
 #include "warnings.h"
 
 ! Initialize.

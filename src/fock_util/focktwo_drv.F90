@@ -71,7 +71,7 @@ if ((.not. DoCholesky) .or. GenInt) then
     write(u6,*) ' Largest allocatable array size LBUF=',LBUF
     write(u6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
     write(u6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
-    write(u6,*) '    (All in Real*8-size words)'
+    write(u6,*) '    (All in Real words)'
     call ABEND()
   end if
 
@@ -100,8 +100,8 @@ end if
 call DaXpY_(nFlt,One,Temp,1,FLT,1)
 
 call mma_deallocate(Temp)
-if (allocated(W1)) call mma_deallocate(W1)
-if (allocated(W2)) call mma_deallocate(W2)
+call mma_deallocate(W1,safe='*')
+call mma_deallocate(W2,safe='*')
 call Deallocate_DT(WFSQ(1))
 
 return

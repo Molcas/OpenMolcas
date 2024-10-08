@@ -55,7 +55,7 @@ call Init_ave(Title,iPrint,PrOcc,PrEne,DensityBased,ThrOcc,Dummy(1),iDummy(1,1))
 
 nSet = 0
 call Get_Averd_input(Title,iPrint,nSet,DensityBased,ThrOcc)
-if (.not. allocated(Wset)) call mma_allocate(Wset,nSet,label='Wset')
+call mma_allocate(Wset,nSet,label='Wset',safe='*')
 
 !-- Read some information from RUNFILE.
 

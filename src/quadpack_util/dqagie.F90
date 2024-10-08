@@ -30,24 +30,24 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 ! integration over infinite intervals
 ! standard fortran subroutine
 !
-!            f      - real*8
+!            f      - real
 !                     function subprogram defining the integrand
 !                     function f(x). the actual name for f needs to be
 !                     declared e x t e r n a l in the driver program.
 !
-!            bound  - real*8
+!            bound  - real
 !                     finite bound of integration range
 !                     (has no meaning if interval is doubly-infinite)
 !
-!            inf    - real*8
+!            inf    - real
 !                     indicating the kind of integration range involved
 !                     inf = 1 corresponds to  (bound,+infinity),
 !                     inf = -1            to  (-infinity,bound),
 !                     inf = 2             to (-infinity,+infinity).
 !
-!            epsabs - real*8
+!            epsabs - real
 !                     absolute accuracy requested
-!            epsrel - real*8
+!            epsrel - real
 !                     relative accuracy requested
 !                     if  epsabs <= 0
 !                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
@@ -58,10 +58,10 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !                     in the partition of (a,b), limit >= 1
 !
 !         on return
-!            reslt  - real*8
+!            reslt  - real
 !                     approximation to the integral
 !
-!            abserr - real*8
+!            abserr - real
 !                     estimate of the modulus of the absolute error,
 !                     which should equal or exceed abs(i-reslt)
 !
@@ -119,24 +119,24 @@ subroutine dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,alist,b
 !                             alist(1) and blist(1) are set to 0
 !                             and 1 respectively.
 !
-!            alist  - real*8
+!            alist  - real
 !                     vector of dimension at least limit, the first
 !                      last  elements of which are the left
 !                     end points of the subintervals in the partition
 !                     of the transformed integration range (0,1).
 !
-!            blist  - real*8
+!            blist  - real
 !                     vector of dimension at least limit, the first
 !                      last  elements of which are the right
 !                     end points of the subintervals in the partition
 !                     of the transformed integration range (0,1).
 !
-!            rlist  - real*8
+!            rlist  - real
 !                     vector of dimension at least limit, the first
 !                      last  elements of which are the integral
 !                     approximations on the subintervals
 !
-!            elist  - real*8
+!            elist  - real
 !                     vector of dimension at least limit,  the first
 !                     last elements of which are the moduli of the
 !                     absolute error estimates on the subintervals

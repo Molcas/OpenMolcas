@@ -64,7 +64,6 @@ do iSym=1,nSym
   end if
 end do
 
-nullify(BVec)
-nullify(Q)
+nullify(BVec,Q)
 
 end subroutine Cho_VecBuf_GetLQ

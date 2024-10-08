@@ -65,9 +65,9 @@ call check_hermicity(V_CSF,nconftot,'V_SO in CSF basis',threshold)
 call mh5_put_dset(prep_vcsfr,REV_CSF)
 call mh5_put_dset(prep_vcsfi,IMV_CSF)
 
-if (allocated(REV_SO)) call mma_deallocate(REV_SO)
-if (allocated(IMV_SO)) call mma_deallocate(IMV_SO)
-if (allocated(REV_CSF)) call mma_deallocate(REV_CSF)
-if (allocated(IMV_CSF)) call mma_deallocate(IMV_CSF)
+call mma_deallocate(REV_SO,safe='*')
+call mma_deallocate(IMV_SO,safe='*')
+call mma_deallocate(REV_CSF,safe='*')
+call mma_deallocate(IMV_CSF,safe='*')
 
 end subroutine get_vsoc

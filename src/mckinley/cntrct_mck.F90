@@ -45,7 +45,7 @@ integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, lsize, nCache, nVec
 !if (iPrint >= 99) call RecPrt(' In Cntrct: ',' ',G1In,nt,nGr)
 !if ((iPrint >= 59) .and. (.not. First)) call RecPrt(' In Cntrct: Partial (a0|c0)',' ',G1Out,nGr,m1*m2*m3*m4)
 
-! Cache size is 32 k word (real*8)
+! Cache size is 32 k word (real)
 
 do iabcdg=1,ngr
   G1In(:,iabcdg) = G1In(:,iabcdg)*xpre(:)

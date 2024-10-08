@@ -20,6 +20,7 @@ implicit none
 character(len=3), intent(in) :: EelP
 logical(kind=iwp) :: Cl, Eq, It, Pr, Qu
 character(len=40) :: Word1, Word2, Word3
+
 #include "warnings.h"
 
 ! Enter.

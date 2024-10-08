@@ -73,6 +73,6 @@ pure function f(Eps_,l)
 
   f = (real(1+l,kind=wp)*(Eps_-One))/(real(1+l,kind=wp)*Eps_+real(l,kind=wp))
 
-end function
+end function f
 
 end subroutine AppFld_NonEq_2

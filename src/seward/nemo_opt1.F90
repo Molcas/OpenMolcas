@@ -20,7 +20,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-#include "warnings.h"
 #include "rinfo.fh"
 #include "print.fh"
 integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), i, iAngr, iBas, iCmp, icnt, &
@@ -31,6 +30,8 @@ character(len=8) :: Label
 integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
 real(kind=wp), allocatable :: P_Matrix(:), MP_Matrix(:)
 integer(kind=iwp), parameter :: MxMltPl = 10
+
+#include "warnings.h"
 
 iRout = 77
 iPrint = nPrint(iRout)

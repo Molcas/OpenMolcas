@@ -61,7 +61,6 @@ real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=64) :: Temp
 character(len=*), parameter :: TheName = 'AixRd'
-#include "warnings.h"
 interface
   function AixErr(FileName) bind(C,name='aixerr_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -75,6 +74,8 @@ interface
     integer(kind=MOLCAS_C_INT) :: FileDescriptor, Offset
   end function c_lseek
 end interface
+
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 ! Entry to AixRd                                                       *

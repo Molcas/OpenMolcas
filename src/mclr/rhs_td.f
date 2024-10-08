@@ -259,7 +259,7 @@ C
 *
       Call mma_deallocate(FIX)
       Call mma_deallocate(MOX)
-      If (Allocated(MOT)) Call mma_deallocate(MOT)
+      Call mma_deallocate(MOT,safe='*')
 
       return
 c Avoid unused argument warnings

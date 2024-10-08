@@ -18,7 +18,7 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (allocated(UpdMask)) call mma_deallocate(UpdMask)
+call mma_deallocate(UpdMask,safe='*')
 
 return
 

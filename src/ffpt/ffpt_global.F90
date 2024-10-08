@@ -116,10 +116,10 @@ contains
 
 subroutine Cleanup()
   use stdalloc, only: mma_deallocate
-  if (allocated(Coor)) call mma_deallocate(Coor)
-  if (allocated(iSelection)) call mma_deallocate(iSelection)
-  if (allocated(Atoms)) call mma_deallocate(Atoms)
-  if (allocated(Bonds)) call mma_deallocate(Bonds)
+  call mma_deallocate(Coor,safe='*')
+  call mma_deallocate(iSelection,safe='*')
+  call mma_deallocate(Atoms,safe='*')
+  call mma_deallocate(Bonds,safe='*')
 end subroutine Cleanup
 
 end module FFPT_global

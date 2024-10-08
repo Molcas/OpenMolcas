@@ -37,7 +37,7 @@
 !> - \p irc =  ``1``: \p A is estimated to be singular and no solution vectors have been computed.
 !>
 !> @note
-!> 4 * \p nDim real*8 and 2 * \p nDim integer words of memory must be available
+!> 4 * \p nDim real and 2 * \p nDim integer words of memory must be available
 !> on entry.
 !>
 !> @param[out]    irc    Return code

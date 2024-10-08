@@ -250,7 +250,7 @@ if (nTURS /= 0) call mma_deallocate(TURS)
 call mma_deallocate(PQVX)
 call mma_deallocate(Buf3)
 call mma_deallocate(Buf2)
-if (allocated(Scrt1)) call mma_deallocate(Scrt1)
+call mma_deallocate(Scrt1,safe='*')
 call Timing(Candino_2,dum1,dum2,dum3)
 Candino_2 = Candino_2-Candino_1
 Candino_3 = Candino_3+Candino_2

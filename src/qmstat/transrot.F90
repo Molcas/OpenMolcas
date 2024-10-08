@@ -24,6 +24,7 @@ integer(kind=iwp), intent(in) :: i
 real(kind=wp), intent(out) :: Rot(3,3), xt, yt, zt
 integer(kind=iwp) :: IFLAG
 real(kind=wp) :: A, ANORM, DELR, DEL(3), TAL, XA(3), XH(3), XO(3)
+
 #include "warnings.h"
 
 XO(1) = CORDST(1,1)-AX

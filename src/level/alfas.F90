@@ -39,7 +39,7 @@ subroutine ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,EPS,GV,BFCT,INNODE,INNR,
 !    INNODE specifies whether wave fx. initiation @ RMIN starts with a
 !        note (normal case: INNODE > 0) or zero slope (when INNODE <= 0)
 !    IWR    specifies the level of printing inside SCHRQ
-!           <> 0 : print error & warning descriptions.
+!           /= 0 : print error & warning descriptions.
 !           >= 1 : also print final eigenvalues & node count.
 !           >= 2 : also show end-of-range wave function amplitudes.
 !           >= 3 : print also intermediate trial eigenvalues, etc.
@@ -56,7 +56,7 @@ subroutine ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,EPS,GV,BFCT,INNODE,INNR,
 !
 !** Flags: Modify only when debugging.
 !    AWO   specifies the level of printing inside ALF
-!          <> 0 : print error & warning descriptions.
+!          /= 0 : print error & warning descriptions.
 !          >  0 : also print intermediate ALF messages.
 !    INNER specifies wave function matching (& initiation) conditions.
 !         <= 0 : Match inward & outward solutions at outermost well t.p.

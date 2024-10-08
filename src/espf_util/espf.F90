@@ -166,9 +166,9 @@ else
       if (iPL >= 2) write(u6,'(A,F16.10)') ' Nuclear energy, including Ext Pot = ',RepNuc
     else
       call StatusLine(' espf:',' Computing gradient components')
-      if (.not. allocated(GradCl%A)) call mma_allocate(GradCl%A,0,0,label='GradCl')
+      call mma_allocate(GradCl%A,0,0,label='GradCl',safe='*')
       call espf_grad(natom,nGrdPt,nAtQM,Ext,Grid%A,B,DB,IsMM,GradCl%A,DoTinker,DoGromacs)
-      if (.not. allocated(Mltp%A)) call mma_allocate(Mltp%A,nMult,label='ESPFMltp')
+      call mma_allocate(Mltp%A,nMult,label='ESPFMltp',safe='*')
       call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp%A,Grid%A,IsMM,Ext,iPL)
     end if
     Close_Seward = .true.
@@ -199,9 +199,9 @@ call mma_deallocate(Cord)
 call mma_deallocate(IsMM)
 call mma_deallocate(Ext)
 call mma_deallocate(Mltp%A)
-if (allocated(Grid%A)) call mma_deallocate(Grid%A)
-if (allocated(DGrid%A)) call mma_deallocate(DGrid%A)
-if (allocated(GradCl%A)) call mma_deallocate(GradCl%A)
+call mma_deallocate(Grid%A,safe='*')
+call mma_deallocate(DGrid%A,safe='*')
+call mma_deallocate(GradCl%A,safe='*')
 
 ! Slapaf needs to know that the gradient is NOT translational
 ! and rotational invariant.

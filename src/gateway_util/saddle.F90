@@ -35,7 +35,6 @@ use Constants, only: Zero, One, Two, Four, Half, OneHalf, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp) :: i, iAt, iAtSym, iCnt, iCnttp, iOff, iOff_Iter, iOpt, iOptExp, iProd, ipX2, ipX3, iRA1, iRA2, iReac, iRef, &
                      iRefAlign, iReturn, iRP, iSaddle, iX0, iX1, iX3, iXA0, iXA1, iXA2, iXA3, ixyz, j, jAt, jDim, jTmp, Lu_UDC, &
                      LuInput, mAt, nAt, nData, ndc, nSaddle, nSaddle_Max, nsc
@@ -49,6 +48,8 @@ real(kind=wp), allocatable :: MEP(:,:), TanVec(:), TmpA(:), Vec(:,:), W(:), XYZ(
 character(len=2), allocatable :: Elm(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: dmwdot
+
+#include "warnings.h"
 
 !***********************************************************************
 !                                                                      *

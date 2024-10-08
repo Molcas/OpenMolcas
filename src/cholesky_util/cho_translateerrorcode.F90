@@ -16,6 +16,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: iErr
 integer(kind=iwp), intent(out) :: MolcasCode
+
 #include "warnings.h"
 
 select case (iErr)

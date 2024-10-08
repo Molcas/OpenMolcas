@@ -18,12 +18,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: iRC
-#include "warnings.h"
 integer(kind=iwp) :: i, iSeed, iter, iter0, Lu
 real(kind=wp) :: DEneA, DEneB, E1, E3, EneA, EneB
 logical(kind=iwp) :: ok
 real(kind=wp), allocatable :: Ene(:,:)
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 if (ThrFThaw <= Zero) return
 

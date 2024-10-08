@@ -38,6 +38,8 @@ real(kind=wp), allocatable :: Act(:), InAct(:), rOut(:), TempX(:), TempY(:)
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 
+#include "compiler_features.h"
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -66,7 +68,7 @@ do jIrrep=0,nIrrep-1
   nnA = nnA+nAsh(jIrrep)
   ipCM(jIrrep) = ipCC
   ipCC = ipCC+nBas(jIrrep)**2
-# ifdef __INTEL_COMPILER
+# ifdef _BUGGY_INTEL_OPTIM_
   ! To avoid error in intel optimization -O3
   if (.false.) write(u6,*) ip(jIrrep)
 # endif
@@ -201,7 +203,7 @@ if (nMethod == RASSCF) then
       rOut(ipOut:ipOut+n-1) = rOut(ipOut:ipOut+n-1)+TempY(1:n)
       iii = iii+nBas(jIrrep)*nAsh(kIrrep)
     end if
-#   ifdef __INTEL_COMPILER
+#   ifdef _BUGGY_INTEL_OPTIM_
     if (.false.) write(u6,*) kIrrep,iii
 #   endif
     if (Show) then

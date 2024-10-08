@@ -140,7 +140,7 @@ end if
 
 do iSB_A=1,3
   do iSB_B=1,3
-    if (allocated(AddSB(iSB_A,iSB_B)%A)) call mma_deallocate(AddSB(iSB_A,iSB_B)%A)
+    call mma_deallocate(AddSB(iSB_A,iSB_B)%A,safe='*')
   end do
 end do
 

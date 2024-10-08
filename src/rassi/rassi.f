@@ -58,7 +58,7 @@ C RAS state interaction.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Prolouge
+*     Prologue
 *
       IRETURN=20
 
@@ -272,7 +272,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
          CALL SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       END IF
 
-      IF (Allocated(SFDYS)) Call mma_deallocate(SFDYS)
+      Call mma_deallocate(SFDYS,safe='*')
 ! +++
 
       CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
@@ -321,7 +321,7 @@ C Plot SO-Natural Transition Orbitals if requested
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     EPILOUGE                                                         *
+*     EPILOGUE                                                         *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -384,10 +384,10 @@ C Plot SO-Natural Transition Orbitals if requested
 *
       IF (SaveDens) Then
          Call DaClos(LuTDM)
-         If (Allocated(JOB_INDEX)) Call mma_deallocate(JOB_INDEX)
-         If (Allocated(CMO1)) Call mma_deallocate(CMO1)
-         If (Allocated(CMO2)) Call mma_deallocate(CMO2)
-         If (Allocated(DMAB)) Call mma_deallocate(DMAB)
+         Call mma_deallocate(JOB_INDEX,safe='*')
+         Call mma_deallocate(CMO1,safe='*')
+         Call mma_deallocate(CMO2,safe='*')
+         Call mma_deallocate(DMAB,safe='*')
       End If
       Call DaClos(LuExc)
 *                                                                      *

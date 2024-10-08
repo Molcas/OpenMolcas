@@ -26,7 +26,7 @@ call nevpt2wfn_close()
 call deinit_energies()
 call finalize_inforb_molcas()
 
-if (allocated(MultGroup%h5_file_name)) call mma_deallocate(MultGroup%h5_file_name)
+call mma_deallocate(MultGroup%h5_file_name,safe='*')
 
 !> close file LUONEM
 call DaClos(LUONEM)

@@ -107,7 +107,7 @@ if (ipglob > 2) then
     call mh5_put_dset(prep_utu,UTU)
   end if
 
-  if (allocated(UTU)) call mma_deallocate(UTU)
+  call mma_deallocate(UTU,safe='*')
 end if
 
 end subroutine uci

@@ -47,13 +47,14 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "print.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, iCnttp, iDummer, iopt, iPrint, irc, iRout, lLine, nDiff, nGrad, nHess, nsAtom
 real(kind=wp) :: dum1, dum2, dum3, TCpu1, TCpu2, Time, TWall1, TWall2
 character(len=120) :: Lines
 logical(kind=iwp) :: DoRys, Run_MCLR
 real(kind=wp), allocatable :: GradN(:), Hess(:), Temp(:)
 !integer(kind=iwp), parameter :: nLines = 12
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

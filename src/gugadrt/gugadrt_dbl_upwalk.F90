@@ -20,7 +20,7 @@ integer(kind=iwp) :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, 
 
 if (norb_dbl == 1) then
   ! v(1),d(2-9),s(18-25)             for s=0
-  ! v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
+  ! v(1),d(2-9),s(18-25),d'(26-33)   for s/=0
 
   mxnode = 17+ng_sm
   lri = norb_frz+1

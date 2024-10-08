@@ -45,7 +45,7 @@ function rand_cvb(r)
 !             X(I+1) = (A*X(I) + C) MOD M,
 ! where here M = 2**22 = 4194304, C = 1731 and several suitable values
 ! of the multiplier A are discussed below.  Both the multiplier A and
-! random number X are represented in REAL*8 as two 11-bit
+! random number X are represented in REAL(kind=wp) as two 11-bit
 ! words.  The constants are chosen so that the period is the maximum
 ! possible, 4194304.
 !      In order that the same numbers be generated from machine to

@@ -1838,7 +1838,7 @@ do
             end if
             nRP_prev = nRP
             nRP = 3*nRP
-            if (.not. allocated(RP_Centers)) call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
+            call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers',safe='*')
             KWord = Get_Ln(LuIn)
             call UpCase(KWord)
             if (index(KWord,'BOHR') /= 0) then
@@ -3059,7 +3059,7 @@ call Put_cArray('Align_Weights',Align_Weights,512)
 !                                                                      *
 ! Isotopic specifications
 
-if (.not. allocated(nIsot)) call mma_allocate(nIsot,0,2)
+call mma_allocate(nIsot,0,2,safe='*')
 
 if (Run_Mode /= S_Mode) then
   ! Loop over unique centers
@@ -3105,8 +3105,8 @@ if (Run_Mode /= S_Mode) then
 end if
 
 ! Deallocate
-if (allocated(nIsot)) call mma_deallocate(nIsot)
-if (allocated(mIsot)) call mma_deallocate(mIsot)
+call mma_deallocate(nIsot,safe='*')
+call mma_deallocate(mIsot,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

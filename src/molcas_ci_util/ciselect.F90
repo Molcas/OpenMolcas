@@ -18,9 +18,9 @@ subroutine CiSelect(S1,S2)
 !     Select CI_vector which matches best the test vectors             *
 !                                                                      *
 !     calling arguments:                                               *
-!     S1      : array of real*8, input/output                          *
+!     S1      : array of real, input/output                            *
 !               overlap matrix with test vectors                       *
-!     S2      : array of real*8, input                                 *
+!     S2      : array of real, input                                   *
 !               norm of the test configurations in the CI vector       *
 !                                                                      *
 !----------------------------------------------------------------------*

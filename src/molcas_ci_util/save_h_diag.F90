@@ -21,7 +21,7 @@ subroutine Save_H_diag(nConf,H_diag,LuDavid)
 !     calling arguments:                                               *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
-!     H_diag  : array of real*8                                        *
+!     H_diag  : array of real                                          *
 !               diagonal approximation of the CI Hamiltonian           *
 !                                                                      *
 !----------------------------------------------------------------------*

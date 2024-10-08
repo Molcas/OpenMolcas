@@ -50,6 +50,7 @@ character(len=80) :: lastline, filename, line
 real(kind=wp), allocatable :: Mass(:), vel(:), force(:), xyz(:)
 character(len=2), allocatable :: atom(:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 ! The parameter conv converts the gradients (hartree/bohr) to

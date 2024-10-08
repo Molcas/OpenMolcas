@@ -26,6 +26,7 @@ real(kind=wp) :: Element
 real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Ddot_
+
 #include "warnings.h"
 
 nBTri = nTri_Elem(nB)

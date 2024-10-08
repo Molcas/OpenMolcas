@@ -392,8 +392,7 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
 
   IntOut(:,:) = IntIn(:,:)+IntIn(:,4,:)+IntIn(:,6,:)
 
-  nullify(IntIn)
-  nullify(IntOut)
+  nullify(IntIn,IntOut)
 
 end subroutine ReSort_Int
 #endif

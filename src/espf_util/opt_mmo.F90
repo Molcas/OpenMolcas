@@ -228,9 +228,9 @@ contains
 
 function mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
   integer :: mmslave_calc_energy_wrapper
-  type(c_ptr) :: gms
-  real*8, target :: x(*), f(*), A(*), phi(*)
-  real*8 :: energy
+  type(c_ptr), intent(in) :: gms
+  real(kind=wp), target, intent(in) :: x(*), f(*), A(*), phi(*)
+  real(kind=wp), intent(out) :: energy
   interface
     function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,NAME='mmslave_calc_energy_')
       use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr

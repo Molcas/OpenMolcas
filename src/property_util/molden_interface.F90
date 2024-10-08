@@ -838,7 +838,7 @@ function Nrmlz(Expn,iAng)
   real(kind=wp), intent(in) :: Expn
   integer(kind=iwp), intent(in) :: iAng
   Nrmlz = TwoP34*(Four*Expn)**(real(2*iAng+3,kind=wp)*Quart)
-end function
+end function Nrmlz
 
 subroutine End1()
   call mma_deallocate(AtomLabel)

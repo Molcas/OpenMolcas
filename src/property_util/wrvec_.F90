@@ -83,9 +83,6 @@ if (iAppend == 1) then
     end if
   end do
   call Append_file(LU)
-!# ifdef NAGFOR
-!  backspace(LU)
-!# endif
   call WrInd()
   return
 end if

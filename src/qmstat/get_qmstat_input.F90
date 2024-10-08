@@ -29,7 +29,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms
-#include "warnings.h"
 integer(kind=iwp) :: i, iChrct, iNrExtr, iTemp, j, kaunt, Last, LuRd, NExtr_Atm, njhr, nS, nT
 real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)
 logical(kind=iwp) :: Changed, YesNo(20)
@@ -39,6 +38,8 @@ character(len=3) :: VecsQue
 integer(kind=iwp), external :: iClast, IsFreeUnit
 character(len=180), external :: Get_Ln
 real(kind=wp), allocatable :: Tmp(:), Tmp2(:,:)
+
+#include "warnings.h"
 
 ! Say what is done and set all YesNo to false; their purpose is to
 ! keep track on compulsory keywords and certain keyword combinations.

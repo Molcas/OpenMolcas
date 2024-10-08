@@ -11,7 +11,7 @@
 ! Copyright (C) 2004, Giovanni Ghigo                                   *
 !***********************************************************************
 !***********************************************************************
-! This routine checks if -string- is a Real*8 number. If it is a number*
+! This routine checks if -string- is a Real number. If it is a number  *
 ! NaN=.False. and -Number- contains the number, otherwise, NaN=.True.  *
 !----------------------------------------------------------------------*
 ! Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *

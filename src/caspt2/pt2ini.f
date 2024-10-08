@@ -189,7 +189,7 @@ C     size of idsct array
          Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Free')
 * NOT TESTED
 #if 0
-         If (Allocated(FMaux)) Call mma_deallocate(FMaux)
+         Call mma_deallocate(FMaux,safe='*')
 #endif
          ! deallocate chovec_io arrays
          call trachosz_free()

@@ -85,7 +85,6 @@ integer(kind=iwp), intent(inout) :: nneq, nT, nH, nTempMagn, nDir, nDirZee, nMul
 integer(kind=iwp), intent(in) :: neqv, nmax, exch, nLoc, nCenter, MxRank1, MxRank2
 logical(kind=iwp), intent(in) :: old_aniso_format
 integer(kind=iwp), intent(out) :: iReturn
-#include "warnings.h"
 integer(kind=iwp) :: AngPoints, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, iopt, iPrint, j, KEOPT, l, lant, LuAniso, &
                      mem, mG, multLn, nBlock, ncut, nDirTot, ngrid, nK, nM, nP, nsymm
 real(kind=wp) :: coord(3), cryst(6), dltH0, dltT0, em, encut_rate, gtens(3), hmax, hmin, maxes(3,3), thrs, tmax, tmin, tpar, upar, &
@@ -111,6 +110,8 @@ complex(kind=wp), allocatable :: dipexch(:,:,:), dipexch_tmp(:,:,:), dipso(:,:,:
 #endif
 logical(kind=iwp), parameter :: dbg = _DBG_
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 !-----------------------------------------------------------------------
 ! Constants:

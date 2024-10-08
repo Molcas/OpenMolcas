@@ -292,7 +292,7 @@ if (IPRINT >= INF_TIMING) then
   write(LUPRI,'(/,A)') '***** Starting Cholesky finalization *****'
   call XFLUSH(LUPRI)
 end if
-if (allocated(Idle)) call mma_deallocate(Idle)
+call mma_deallocate(Idle,safe='*')
 call CHO_FINAL(.true.)
 call GASYNC()
 if (IPRINT >= INF_TIMING) then
@@ -338,10 +338,9 @@ if (abs(TST) > DUMTOL) then
   IRETURN = 2
 end if
 
-if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
-if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-nullify(DIag)
-nullify(Diag_G)
+call mma_deallocate(Diag_Hidden,safe='*')
+call mma_deallocate(Diag_G_Hidden,safe='*')
+nullify(DIag,Diag_G)
 call mma_deallocate(Check)
 
 if (IPRINT >= INF_TIMING) then

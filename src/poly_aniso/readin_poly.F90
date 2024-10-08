@@ -95,7 +95,6 @@ logical(kind=iwp), intent(inout) :: ifHDF, compute_g_tensors, compute_magnetizat
                                     decompose_exchange, KE, fitCHI, fitM, compute_torque, compute_barrier, Dipol, AnisoLines1, &
                                     AnisoLines3, AnisoLines9, DM_exchange, JITO_exchange
 logical(kind=iwp), intent(out) :: tinput, hinput, check_title
-#include "warnings.h"
 integer(kind=iwp) :: ASUM, i, i1, i2, ic, icount_b_sites, inneq, iproj1, iproj2, irank1, irank2, istatus, j, jc, jproj1, jproj2, &
                      jrank1, jrank2, l, lb1, lb2, linenr, ll, lp, m, n, nst
 real(kind=wp) :: check_dir_weight, detR, rsum, t1, t2, tmp, tmpR(3,3)
@@ -107,6 +106,7 @@ integer(kind=iwp), allocatable :: duplicate_check(:), nind(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: finddetr
 
+#include "warnings.h"
 #include "macros.fh"
 
 check_title = .false.

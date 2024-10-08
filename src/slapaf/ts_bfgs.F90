@@ -25,10 +25,10 @@ subroutine ts_bfgs(dq,y,H,nH)
 !     y     :  Difference in Gradient     (nH)
 !     WorkM :  Temporary working matrix   (nH,nH)
 !     WorkV :  Temporary working vector   (nH)
-!     WorkR :  Temporary working variable (real*8)
+!     WorkR :  Temporary working variable (real)
 !     H     :  Hessian                    (nH,nH)
 !     nH    :  Hessian size               (integer)
-!     f,a,b :  Multi-used variables       (real*8)
+!     f,a,b :  Multi-used variables       (real)
 !     v,u   :  Multi-used vectors         (nH)
 
 use stdalloc, only: mma_allocate, mma_deallocate

@@ -67,7 +67,7 @@ subroutine PrgmInitC(ModName,l)
 end subroutine PrgmInitC
 
 subroutine PrgmFree()
-  if (allocated(FileTable)) call mma_deallocate(FileTable)
+  call mma_deallocate(FileTable,safe='*')
   return
 end subroutine PrgmFree
 
@@ -177,7 +177,7 @@ subroutine ReadPrgmFile(ModName)
 
 # include "macros.fh"
   unused_proc(mma_allocate(FileTable,[0,0]))
-  if (.not. allocated(FileTable)) call mma_allocate(FileTable,0,label='FileTable')
+  call mma_allocate(FileTable,0,label='FileTable',safe='*')
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'ModName: '//trim(ModName)

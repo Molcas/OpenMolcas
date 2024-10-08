@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine diagonal_loop_wyb_g()  !  for norb_act<>0
+subroutine diagonal_loop_wyb_g()  !  for norb_act/=0
 
 use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, mxnode, ndim, ng_sm, &
                          nu_ad, nu_ae

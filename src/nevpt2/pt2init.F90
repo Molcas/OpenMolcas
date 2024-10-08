@@ -283,7 +283,7 @@ write(u6,'(a/)') ' ---------------------------------------------'
 if (allocated(qcm_group_names)) then
   write(u6,'(a)') ' DMRG wavefunction data will be read from'
   write(u6,'(a)') ' ----------------------------------------'
-  if (.not. allocated(MultGroup%h5_file_name)) call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name')
+  call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name',safe='*')
   MultGroup%h5_file_name = ''
   do istate=1,nr_states
     MultGroup%h5_file_name(istate) = trim(qcm_group_names(1)%states(MultGroup%State(istate)))

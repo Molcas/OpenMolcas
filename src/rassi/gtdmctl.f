@@ -1450,12 +1450,9 @@ C             Write density 1-matrices in AO basis to disk.
       if(mstate_dens)then
         do i = 1, nstat(job1)
           do j = 1, nstat(job1)
-            if(allocated(mstate_1pdens(i,j)%rtdm))
-     &      call mma_deallocate(mstate_1pdens(i,j)%rtdm)
-            if(allocated(mstate_1pdens(i,j)%stdm))
-     &      call mma_deallocate(mstate_1pdens(i,j)%stdm)
-            if(allocated(mstate_1pdens(i,j)%wtdm))
-     &      call mma_deallocate(mstate_1pdens(i,j)%wtdm)
+            call mma_deallocate(mstate_1pdens(i,j)%rtdm,safe='*')
+            call mma_deallocate(mstate_1pdens(i,j)%stdm,safe='*')
+            call mma_deallocate(mstate_1pdens(i,j)%wtdm,safe='*')
           end do
         end do
         if(allocated(mstate_1pdens)) deallocate(mstate_1pdens)

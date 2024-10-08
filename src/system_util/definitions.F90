@@ -94,7 +94,7 @@ integer(kind=iwp), parameter :: u0 = error_unit, &
                                 u6 = output_unit
 
 ! Although the constants from `iso_fortran_env` or `selected_real_kind`
-! are preferred over non-standard `real*8` etc.
+! are preferred over non-standard `real` etc.
 ! We define some kinds to refer to the non-standard notation.
 ! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO `real*8` etc.**
 ! `wp` etc. are always preferred.

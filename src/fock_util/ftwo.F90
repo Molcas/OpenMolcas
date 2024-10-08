@@ -20,7 +20,7 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !     calling arguments:                                               *
 !     icase   : input, integer                                         *
 !               symmetry case number; (II!II)=1, (II!KK)=2, (IK!IK)=3  *
-!     ExFac   : input, real*8                                          *
+!     ExFac   : input, real                                            *
 !               coefficient of "exact exchange"                        *
 !     iSym    : input, integer                                         *
 !               symmetry species iSym                                  *
@@ -34,15 +34,15 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !               offset of one-electron integrals (squared format)      *
 !     off_ltMat : input, array of integer                              *
 !               offset of one-electron integrals (lower triangular)    *
-!     D1I     : input, array of real*8                                 *
+!     D1I     : input, array of real                                   *
 !               one-body density matrix (frozen+inactive, AO-basis)    *
-!     FI      : output, array of real*8                                *
+!     FI      : output, array of real                                  *
 !               Fock matrix (frozen+inactive, AO-basis)                *
-!     D1A     : input, array of real*8                                 *
+!     D1A     : input, array of real                                   *
 !               one-body density matrix (active, AO-basis)             *
-!     FA      : output, array of real*8                                *
+!     FA      : output, array of real                                  *
 !               Fock matrix (active, AO-basis)                         *
-!     PQRS    : input, array of real*8                                 *
+!     PQRS    : input, array of real                                   *
 !               two-electron integrals (AO-basis)                      *
 !                                                                      *
 !----------------------------------------------------------------------*

@@ -36,7 +36,6 @@ integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mAtoms, iIter, mTR, iTab
                                  nBonds, iTabBonds(3,nBonds), iRef, nWndw
 real(kind=wp), intent(in) :: TRVec(nDimBC,mTR)
 integer(kind=iwp), intent(out) :: nQQ
-#include "warnings.h"
 #include "print.fh"
 integer(kind=iwp) :: i, i_Dim, iAtom, iB, iDum(6), iEnd, iGhi, iGlow, iPrint, iq, iqA, iQD, iqO, iQQ, iqR, iqRF, iqT, iRout, iSt, &
                      iX, ixyz, jIter, LuIC, M, mIter, N, nB, nB_Tot, ndB_Tot, nK, nq, nqA, nqB, nqO, nqRF, nqT, NRHS, nX
@@ -49,6 +48,8 @@ real(kind=wp), allocatable :: Degen2(:), EVal(:), F_c(:), G(:), GRef(:), GxR(:),
                               Proj(:), qVal(:,:), Temp2(:,:)
 character(len=14), allocatable :: qLbl(:)
 integer(kind=iwp), external :: isfreeunit
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************
@@ -167,9 +168,9 @@ write(u6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
 
 ! Now allocate some arrays which depend on nq
 
-if (allocated(BM)) call mma_deallocate(BM)
-if (allocated(iBM)) call mma_deallocate(iBM)
-if (allocated(nqBM)) call mma_deallocate(nqBM)
+call mma_deallocate(BM,safe='*')
+call mma_deallocate(iBM,safe='*')
+call mma_deallocate(nqBM,safe='*')
 call mma_allocate(BM,mB_Tot,Label='BM')
 call mma_allocate(iBM,mB_Tot,Label='iBM')
 call mma_allocate(nqBM,nq,Label='nqBM')
@@ -363,13 +364,13 @@ do jIter=iSt,iEnd,-1
   Proc_dB = Proc_H .and. (Analytic_Hessian .or. Numerical .or. btest(iOptC,8))
   ! Compute and store dBQQ in the reference structure
   if (Proc_dB) then
-    if (allocated(dBM)) call mma_deallocate(dBM)
-    if (allocated(idBM)) call mma_deallocate(idBM)
+    call mma_deallocate(dBM,safe='*')
+    call mma_deallocate(idBM,safe='*')
     call mma_allocate(dBM,mdB_Tot,Label='dBM')
     call mma_allocate(idBM,mdB_Tot*2,Label='idBM')
   else
-    if (.not. allocated(dBM)) call mma_allocate(dBM,1,Label='dBM')
-    if (.not. allocated(idBM)) call mma_allocate(idBM,1*2,Label='idBM')
+    call mma_allocate(dBM,1,Label='dBM',safe='*')
+    call mma_allocate(idBM,1*2,Label='idBM',safe='*')
   end if
   !                                                                    *
   !*********************************************************************
@@ -552,7 +553,7 @@ end if
 ! Deallocate memory
 
 call mma_deallocate(KtM)
-if (allocated(GxR)) call mma_deallocate(GxR)
+call mma_deallocate(GxR,safe='*')
 call mma_deallocate(KtBu)
 call mma_deallocate(K)
 call mma_deallocate(GRef)

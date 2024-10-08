@@ -35,6 +35,6 @@ else
   call Cho_Stat()
 end if
 
-if (allocated(IntMap)) call mma_deallocate(IntMap)
+call mma_deallocate(IntMap,safe='*')
 
 end subroutine Cho_PTS_Stat
