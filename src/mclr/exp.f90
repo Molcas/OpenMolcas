@@ -20,7 +20,7 @@ Module Exp
 
       Contains
       Subroutine Exp_Close()
-#include "stdalloc.fh"
+      use stdalloc, only: mma_deallocate
       Call mma_deallocate(H0S,safe='*')
       Call mma_deallocate(H0F,safe='*')
       Call mma_deallocate(SBIDT,safe='*')

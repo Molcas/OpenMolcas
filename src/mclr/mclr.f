@@ -49,11 +49,11 @@
       use negpre, only: SS
       use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
 *     Added for CMS NACs
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Definitions, only: iwp, u6
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.h"
-#include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"
 

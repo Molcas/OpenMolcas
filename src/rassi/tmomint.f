@@ -22,6 +22,7 @@
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use Constants, only: Zero, One
       Implicit Real*8 (A-H,O-Z)
@@ -37,7 +38,6 @@
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
 #ifdef _DEBUGPRINT_
-#include "stdalloc.fh"
       Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
@@ -384,8 +384,8 @@
 *
       Contains
       Subroutine Allocate_Aux()
+      Use stdalloc, Only: mma_allocate
       Implicit None
-#include "stdalloc.fh"
 *
       Call mma_Allocate(ipList,nComp,Label='ipList')
       Call mma_Allocate(OperI,nComp,Label='OperI')
@@ -396,8 +396,8 @@
       Return
       End Subroutine Allocate_Aux
       Subroutine Deallocate_Aux()
+      Use stdalloc, Only: mma_deallocate
       Implicit None
-#include "stdalloc.fh"
 *
       Call mma_Deallocate(OperC)
       Call mma_Deallocate(OperI)

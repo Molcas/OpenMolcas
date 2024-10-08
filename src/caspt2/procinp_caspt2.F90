@@ -35,7 +35,6 @@ subroutine procinp_caspt2
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "chocaspt2.fh"
 #include "caspt2_grad.fh"

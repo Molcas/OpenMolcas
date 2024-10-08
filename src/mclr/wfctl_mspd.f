@@ -22,10 +22,10 @@
       use Exp, only: Exp_Close
       use ipPage, only: W
       use cmslag, only: ResQaaLag2
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
 *
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -482,9 +482,9 @@
       Subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,
      & ipCiOut)
       use ipPage, only: w
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One
       Implicit Real*8(a-h,o-z)
-#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
 #include "Input.fh"

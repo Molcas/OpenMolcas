@@ -19,6 +19,7 @@
       SUBROUTINE MKBMAT()
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug, verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 
@@ -28,7 +29,6 @@ C Set up B matrices for cases 1..13.
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
-#include "stdalloc.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 

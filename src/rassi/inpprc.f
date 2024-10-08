@@ -17,8 +17,8 @@
       use Lebedev_quadrature, only: order_table
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
+      use stdalloc, only: mma_allocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"

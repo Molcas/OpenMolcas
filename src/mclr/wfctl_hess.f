@@ -30,6 +30,7 @@
 #ifdef _MOLCAS_MPP_
       use Para_Info, only: Is_Real_Par
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
@@ -43,7 +44,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
 *
 #ifdef _MOLCAS_MPP_

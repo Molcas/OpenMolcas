@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
       Use Str_Info
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -31,7 +32,6 @@
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "stdalloc.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"

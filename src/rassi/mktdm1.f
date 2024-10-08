@@ -24,6 +24,7 @@
       use qcmaquis_interface_mpssi
       use rassi_global_arrays, only : LROOT
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT NONE
       INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2
@@ -41,7 +42,6 @@
       REAL*8 OVERLAP_RASSI,TMATEL,RED,FACT,CGCOEF,DCLEBS
 
 #include "symmul.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: SPD1(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

@@ -13,6 +13,7 @@
 #if 0
       use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use OneDat, only: sNoNuc, sNoOri
       Implicit real*8 (a-h,o-z)
@@ -24,7 +25,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 *
       character(len=8) :: Label
       Logical Found

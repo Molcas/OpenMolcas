@@ -15,13 +15,13 @@
       use Str_Info, only: CNSM
       use ipPage, only: W
       use negpre
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "incdia.fh"
-#include "stdalloc.fh"
 
 #include "Input.fh"
 #include "Pointers.fh"

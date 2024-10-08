@@ -25,11 +25,11 @@
       use negpre
       use ipPage, only: W
       use gugx, only: SGS, CIS, EXS
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "sa.fh"
 #include "detdim.fh"

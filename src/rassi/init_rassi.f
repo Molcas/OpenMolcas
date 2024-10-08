@@ -19,7 +19,6 @@
 #include "cntrl.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "stdalloc.fh"
 #include "rassi.fh"
 #include "hfc_logical.fh"
       Character*256 STRING

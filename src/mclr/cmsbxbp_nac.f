@@ -53,7 +53,6 @@
 ******************************************************
 
       Subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -120,7 +119,6 @@
 ******************************************************
       subroutine CalcbP_CMSNAC(bP,CSFOK,LOK,R)
       use ipPage, only: W
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

@@ -19,6 +19,7 @@
       use rasscf_data, only: doDMRG
       use qcmaquis_info
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER LSYM1,MPLET1,MSPROJ1
       INTEGER IFSBTAB1(*)
@@ -41,7 +42,6 @@
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
       INTEGER NASGEM,NSPD2
 #include "symmul.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: SPD2(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

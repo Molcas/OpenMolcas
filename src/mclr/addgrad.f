@@ -12,6 +12,7 @@
 ************************************************************************
       SubRoutine AddGrad(rKappa,rMat,idsym,fact)
       use Arrays, only: F0SQMO
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -23,7 +24,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
       Real*8 rkappa(*),rMat(*)
       Real*8, Allocatable:: Tempi(:), Tempj(:)
 

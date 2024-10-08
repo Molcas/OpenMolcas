@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine RHS_NAC(Fock,SLag)
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half, Quart
       Implicit None
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "sa.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"

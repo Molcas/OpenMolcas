@@ -26,6 +26,8 @@ C The spin coupling matrix elements have the following index-code:
 C Notice, SPIN here has nothing to do with the spin quantum number. It
 C is just a printing code.
 
+      USE stdalloc, ONLY: mma_allocate, mma_deallocate
+
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
       INTEGER ISSTAB(*),MAPORB(*),NRT2M
@@ -43,7 +45,6 @@ C is just a printing code.
       INTEGER JORBA,JORBB,LORBA,LORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,LTABS,JLTABS,IJLTABS
 #include "symmul.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: SRT2M(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

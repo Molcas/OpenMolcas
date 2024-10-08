@@ -31,7 +31,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-*#include "stdalloc.fh"
 *. Offsets for CSF information
 *
       DIMENSION H0(*)

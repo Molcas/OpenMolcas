@@ -11,11 +11,11 @@
       SUBROUTINE PRCEVC(NSS,FRAC,SOENE,MAPST,MAPSP,MAPMS,UMATR,UMATI)
 
       use rassi_aux, only: ipglob
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "stdalloc.fh"
 
       INTEGER NSS
       REAL*8 FRAC,SOENE(NSS),UMATR(NSS,NSS),UMATI(NSS,NSS)

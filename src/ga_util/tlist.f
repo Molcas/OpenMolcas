@@ -11,6 +11,7 @@
       Subroutine Init_TList(Triangular,P_Eff)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       use TList_Mod
+      use stdalloc, only: mma_allocate
       use Constants, only: Zero, One
       implicit real*8 (a-h,o-z)
       real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
@@ -22,7 +23,6 @@
       Parameter ( MinPQ    = 4 )
 * max number of tasks in tasklist per node...
       Parameter ( MxnTsk = 100 )
-#include "stdalloc.fh"
 
       fint(a)=dble(int(a))
 
@@ -105,7 +105,7 @@ c     Call RecPrt('TskM',' ',TskM,2,nTasks)
       Subroutine Free_TList()
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "stdalloc.fh"
+      use stdalloc, only: mma_deallocate
 *
       If (.Not.Allocated(TskQ)) Return
 *

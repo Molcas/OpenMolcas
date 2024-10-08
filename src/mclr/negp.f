@@ -11,12 +11,12 @@
       Subroutine negp(ipdia,ipSigma,rout)
       use ipPage, only: W
       use negpre
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       integer opout
       Real*8 rout(*)
       Real*8, Allocatable:: Tmp(:), Tmp2(:,:), Tmp3(:,:)

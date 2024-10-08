@@ -106,9 +106,9 @@
 *
 ************************************************************************
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -276,7 +276,6 @@
 
 ******************************************************
       SUBROUTINE CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

@@ -16,7 +16,6 @@
 * ****************************************************************
       subroutine RHS_CMS_NAC(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
-*#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

@@ -35,6 +35,7 @@
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
       use Data_Structures
       use cntrl_data, only: SONTOSTATES, SONATNSTATE
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.
@@ -48,7 +49,6 @@ C RAS state interaction.
 #include "jobin.fh"
 #include "symmul.fh"
 #include "rassiwfn.fh"
-#include "stdalloc.fh"
       Logical CLOSEONE
       INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),

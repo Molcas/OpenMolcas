@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine mkcipre
       use negpre
+      use stdalloc, only: mma_allocate
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "Input.fh"
 

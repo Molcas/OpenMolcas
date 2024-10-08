@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Use Constants, only: Zero, One, auTocm, uToau
       Implicit Real*8 (a-h,o-z)
       Real*8 H(*), Tmp3(nX,nX),
@@ -16,7 +17,6 @@
      &       EVal(2*nX),
      &       RedM(nX)
 
-#include "stdalloc.fh"
       Integer nrvec(*),ndeg(*)
       Logical Found
       Real*8, Allocatable :: Mass(:)

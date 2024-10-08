@@ -23,7 +23,6 @@
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
       REAL*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ

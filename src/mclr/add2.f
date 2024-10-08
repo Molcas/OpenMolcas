@@ -20,13 +20,13 @@
 *             which is just the case if E is symmetric.
 *
       use Arrays, only: SFock
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Four
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "spin_mclr.fh"
 
 #include "Input.fh"
-#include "stdalloc.fh"
       Real*8 rMat(*)
       Real*8, Allocatable:: Temp(:)
 

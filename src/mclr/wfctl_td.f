@@ -22,10 +22,10 @@
       use Exp, only: Exp_Close
       use Arrays, only: CMO, Int2, FIMO
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
 *
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

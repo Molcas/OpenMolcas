@@ -19,12 +19,12 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
       use Fockof
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "sigma.fh"
 #include "SysDef.fh"
 #include "cplcas.fh"

@@ -16,8 +16,8 @@
 ************************************************************************
       use InputData, only: Input
       use caspt2_output, only: EMP2
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
-#include "stdalloc.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
 

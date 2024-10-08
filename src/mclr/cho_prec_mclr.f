@@ -30,6 +30,7 @@
       use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
       use Data_structures, only: Allocate_DT, Deallocate_DT
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Zero
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
@@ -42,7 +43,6 @@
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
-#include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
       Logical taskleft, add

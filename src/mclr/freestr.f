@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE FREESTR()
       Use Str_Info
+      use stdalloc, only: mma_deallocate
 *
 * Free pointers for saving information about strings and
 * their mappings
@@ -36,7 +37,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "stdalloc.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
 *. Start of string information

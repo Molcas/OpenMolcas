@@ -22,6 +22,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
       IMPLICIT NONE
       INTEGER IRETURN
@@ -78,7 +79,6 @@ C
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "stdalloc.fh"
 #include "caspt2_grad.fh"
       CHARACTER(len=60) STLNE2
 * Timers

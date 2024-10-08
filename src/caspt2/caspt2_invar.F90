@@ -78,7 +78,6 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   real(kind=wp), intent(in)    :: OLag(*)

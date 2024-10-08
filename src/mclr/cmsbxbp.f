@@ -51,7 +51,6 @@
 ******************************************************
 
       Subroutine CalcbX(bX,LOK,R,H)
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -103,7 +102,6 @@
 ******************************************************
       subroutine CalcbP(bP,CSFOK,LOK,R)
       use ipPage, only: W
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -148,8 +146,8 @@
 ******************************************************
       subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

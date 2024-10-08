@@ -20,12 +20,12 @@
       SUBROUTINE MCCTL(HEFF)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-#include "stdalloc.fh"
       REAL*8 HEFF(NSTATE,NSTATE)
 
       INTEGER ISTATE

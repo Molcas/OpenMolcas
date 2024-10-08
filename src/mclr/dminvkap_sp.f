@@ -22,11 +22,11 @@
 *
 *     iSym              Symmetry of rotation
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 rMFact(*),rin(*),rout(*)
       Real*8, Allocatable:: Temp(:)
 *

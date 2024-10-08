@@ -25,12 +25,12 @@
 *> @param[in]     Symmetry  Symmetry of the transition
 ************************************************************************
       Subroutine Transpose_TDM(TDM,Symmetry)
+      Use stdalloc, Only: mma_allocate, mma_deallocate
       Implicit None
       Real*8, Intent(InOut) :: TDM(*)
       Integer, Intent(In) :: Symmetry
 #include "rassi.fh"
 #include "symmul.fh"
-#include "stdalloc.fh"
       Integer :: iSym1,iSym2,nTot,i,j
       Integer :: iBlock(0:8)
       Real*8, Allocatable :: Tmp(:)

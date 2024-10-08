@@ -19,11 +19,11 @@
       SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: terse, usual, verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
       INTEGER LAXITY
       INTEGER  Cho_X_GetTol
       EXTERNAL Cho_X_GetTol

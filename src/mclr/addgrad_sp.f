@@ -19,12 +19,12 @@
 *             a beautifull convergence of the PCG,
 *             which is just the case if E is symmetric.
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "stdalloc.fh"
       Real*8 rkappa(*),rMat(*),F(*)
       Real*8, Allocatable:: Tempi(:), Tempj(:)
       Real*8, Allocatable:: K(:), M(:)

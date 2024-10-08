@@ -129,7 +129,7 @@ c        Write (*,*) 'mTasks=',mTasks
       Subroutine Free_PPList()
       use TList_Mod
       Use Para_Info, only: nProcs, Is_Real_Par
-#include "stdalloc.fh"
+      Use stdalloc, Only: mma_deallocate
 *
       If (.NOT.Allocated(TskL)) Return
       PP_Status=.False.

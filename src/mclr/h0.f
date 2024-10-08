@@ -15,6 +15,7 @@
       use negpre
       Use Iso_C_Binding
       use Arrays, only: Int2, FIMO
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * frontend to jeppes explicit routines
 *
@@ -27,7 +28,6 @@
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "incdia.fh"
-#include "stdalloc.fh"
       Real*8 rdia(*)
       Logical TimeDep
       Real*8, Allocatable:: H0T(:), Vec2(:)

@@ -12,11 +12,11 @@
      &          (LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,
      &           itype)
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8(a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "stdalloc.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"

@@ -228,11 +228,11 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_real(r)
       End
       Subroutine ReLoad(A,idsym,NBAS1,NBAS2)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 A(*)
       Integer nbas2(nsym),nbas1(nsym)
       Real*8, Allocatable:: ATemp(:)

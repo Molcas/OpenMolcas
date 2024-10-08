@@ -724,7 +724,6 @@ C Where is the CMO data set stored?
 #include "cntrl.fh"
 #include "Files.fh"
 #include "jobin.fh"
-#include "stdalloc.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
       integer :: ref_nstates

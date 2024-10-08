@@ -33,7 +33,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "stdalloc.fh"
 #include "caspt2_grad.fh"
 
   character(len=60) :: STLNE2

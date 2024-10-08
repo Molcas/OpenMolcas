@@ -12,12 +12,12 @@
 ************************************************************************
       SUBROUTINE ZTRNSF_MASKED(N,UR,UI,AR,AI,IJ,IST,INUM,JST,JNUM)
       USE Constants, only: Zero, One
+      USE stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER :: N,INUM,JNUM
       REAL*8 :: UR(N,N),UI(N,N)
       REAL*8 :: AR(N,N),AI(N,N)
       INTEGER :: IJ(4),IST(INUM),JST(JNUM)
-#include "stdalloc.fh"
       REAL*8, ALLOCATABLE, DIMENSION(:,:) :: MR,MI,VR,VI,TR,TI
       INTEGER :: I,J,II,JJ,NI,NJ
 

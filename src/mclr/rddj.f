@@ -19,10 +19,10 @@
 * and returns them in rectangular and single triangular storage
 *
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"

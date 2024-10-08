@@ -18,13 +18,13 @@
 *--------------------------------------------*
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
       use gugx, only: SGS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 
       INTEGER IVEC, JVEC

@@ -12,13 +12,13 @@
       use Arrays, only: CMO, Int1, KAIN1
       use OneDat, only: sOpSiz
       use rctfld_module, only: lRF
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
       Integer iComp, idum(1)

@@ -20,12 +20,12 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
       use caspt2_gradient, only: LUSTD
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "sigma.fh"
 #include "SysDef.fh"
 #include "caspt2_grad.fh"

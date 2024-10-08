@@ -12,6 +12,7 @@
 ************************************************************************
        SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
        use Str_Info
+       use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Density matrices between L and R
 *
@@ -40,7 +41,6 @@
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "stdalloc.fh"
 #include "crun_mclr.fh"
 #include "cprnt_mclr.fh"
 #include "spinfo_mclr.fh"
