@@ -14,7 +14,7 @@
 ********************************************************************
       use Arrays, only: CMO
       use ipPage, only: W
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero, One, Two, Half, Quart
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"

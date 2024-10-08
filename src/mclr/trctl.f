@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE TRCTL_MCLR
       use Arrays, only: CMO
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 *
 *     Two-electron integral transformation program: control section
 *

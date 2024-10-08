@@ -18,7 +18,7 @@ use PSO_Stuff, only: Bin, G_ToC, lBin, LuGamma, SO2CI
 use iSD_data, only: iSO2Sh
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

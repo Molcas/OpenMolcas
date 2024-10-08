@@ -13,7 +13,7 @@
       Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use ipPage, only: W
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero
       Implicit Real*8(a-h,o-z)
 

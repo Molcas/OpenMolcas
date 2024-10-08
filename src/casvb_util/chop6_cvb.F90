@@ -17,7 +17,7 @@ subroutine chop6_cvb()
 use casvb_global, only: endvar, grad1, grad2, gradx, hessorb, hesst, icase6, icnt_ci, ishstruc, ivbweights, maxdav, mxdav, &
                         mxirrep, mxiter, ncivb, ndet, ndetvb, nirrep, norb, npr, nprorb, nvb, release, sstruc, sstruc2, variat, &
                         vec1, wdx
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: iwp, u6, RtoI
 
 implicit none

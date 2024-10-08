@@ -17,7 +17,7 @@ use mrci_global, only: BNAME, CISEL, CSEL, CSPCK, CTRSH, ENP, ETHRE, GFAC, ICH, 
                        NDEL, NDMO, NELEC, NFMO, NFRO, NISH, NORB, NORBT, NREF, NRROOT, NSEL, NSM, NSYM, NVIR, NVIRP, NVIRT, &
                        POTNUC, SSEL, SQNLIM, THRORB
 use guga_util_global, only: IAD10, nIOCR
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
 

@@ -95,6 +95,7 @@ module LnkLst
 
 use InfSCF, only: MxIter
 use Data_Structures, only: Alloc1DArray_Type
+use stdalloc, only: mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

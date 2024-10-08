@@ -51,13 +51,13 @@ public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data, Open_NQ_Dat
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure nqd_cptr2loff
+  module procedure :: nqd_cptr2loff
 end interface
 interface mma_allocate
-  module procedure nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
+  module procedure :: nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure nqdata_mma_free_1D
+  module procedure :: nqdata_mma_free_1D
 end interface
 
 contains

@@ -19,6 +19,7 @@ subroutine Cho_VecBuf_Init(Frac,lVec)
 use Cholesky, only: ip_CHVBFI_SYM, l_CHVBFI_SYM, nSym, RUN_INTERNAL, RUN_EXTERNAL, RUN_MODE
 #ifdef _DEBUGPRINT_
 use Cholesky, only: LuPri
+use stdalloc, only: mma_maxDBLE
 #endif
 use Definitions, only: wp, iwp
 

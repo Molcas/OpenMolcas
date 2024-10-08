@@ -16,7 +16,7 @@ subroutine Cho_Decom_A4(Diag,LstQSP,NumSP,iPass)
 use Cholesky, only: Cho_Real_Par, INF_PASS, INF_PROGRESS, IPRINT, LQ_Tot, LQ, LuPri, LuSel, nnBstR, nQual, nSym, NumCho, NumChT, &
                     nVec_in_Buf, TDECOM
 use Cholesky_procedures, only: Cho_P_GetLQ
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

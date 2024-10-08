@@ -29,7 +29,7 @@ subroutine Mula(ireturn)
 use mula_global, only: AtCoord1, AtCoord2, energy1, energy2, Hess1, Hess2, Huge_Print, inpUnit, ipow, m_plot, maxMax_n, MaxNumAt, &
                        mdim1, mdim2, n_plot, ndata, ndim1, ndim2, ngdim, NormModes, nPolyTerm, nvar, OscStr, t_dipin1, t_dipin2, &
                        TranDip, TranDipGrad, var, WriteVibLevels, yin1, yin2
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Zero, One, Half, auTocm
 use Definitions, only: wp, iwp, u5, u6, ItoB
 

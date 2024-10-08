@@ -18,6 +18,7 @@ subroutine CHO_GETINT(DIAG,DIASH,ISYSH,LSTQSP,NPOTSH,ICOUNT)
 
 use Cholesky, only: DiaMin, INF_IN2, IntMap, iOffq, IPRINT, iSP2F, LuPri, MinQual, MXSHPR, N1_Qual, N2_Qual, NCOLAB, nnBstR, &
                     nQual, nSym
+use stdalloc, only: mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

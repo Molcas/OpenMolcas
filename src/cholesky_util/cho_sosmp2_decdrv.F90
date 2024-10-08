@@ -23,7 +23,7 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 use Cholesky, only: lBuf, nSym, NumCho, Span
 use Cho_interfaces, only: cdcol_kernel, cdvec_kernel
 use ChoMP2, only: ChkDecoMP2, Incore, MxQual_Def, MxQualMP2, nMP2Vec, NowSym, nT1am, lUnit_F, OldVec, SpanMP2, ThrMP2, Verbose
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

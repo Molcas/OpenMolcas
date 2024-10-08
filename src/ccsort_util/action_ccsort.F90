@@ -15,7 +15,7 @@ use ccsort_global, only: clopkey, daddr, Escf, fullprint, iokey, ISPIN, LSYM, lu
                          lunt3, maxspace, mbas, NACTEL, noa, nob, NORB, nsize, NSYM, nva, nvb, reclen, ri, t3key, typ
 use CCT3_global, only: T3IntPos, T3Off
 use Symmetry_Info, only: Mul
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
 

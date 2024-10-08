@@ -20,7 +20,7 @@
       use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym,
      &                    NumCho
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero, One, Two, Half
       Implicit Real*8 (a-h,o-z)
 #include "warnings.h"

@@ -30,7 +30,7 @@
       use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
       use Data_structures, only: Allocate_DT, Deallocate_DT
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: One, Zero
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)

@@ -46,22 +46,22 @@ module fcidump_tables
   real*8, parameter :: cutoff_default = 1.0d-11
 
   interface mma_allocate
-    module procedure FockTable_allocate, TwoElIntTable_allocate, &
+    module procedure :: FockTable_allocate, TwoElIntTable_allocate, &
       OrbitalTable_allocate
   end interface
 
   interface mma_deallocate
-    module procedure FockTable_deallocate, TwoElIntTable_deallocate, &
+    module procedure :: FockTable_deallocate, TwoElIntTable_deallocate, &
       OrbitalTable_deallocate
   end interface
 
   interface length
-    module procedure FockTable_length, TwoElIntTable_length, &
+    module procedure :: FockTable_length, TwoElIntTable_length, &
       OrbitalTable_length
   end interface
 
   interface print
-    module procedure FockTable_print, TwoElIntTable_print, OrbitalTable_print
+    module procedure :: FockTable_print, TwoElIntTable_print, OrbitalTable_print
   end interface
 
 contains

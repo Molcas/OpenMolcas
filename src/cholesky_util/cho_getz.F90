@@ -34,7 +34,7 @@ use Cholesky, only: iiBstR, InfVec, LuPri, nnBstR, nSym, nSys_call, NumCho, TDEC
 use Cholesky, only: iPrint
 #endif
 use Cholesky_procedures, only: Cho_X_GetIP_InfVec
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

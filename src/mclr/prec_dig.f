@@ -30,7 +30,7 @@
 *     and is not coded yet (ugly bastard) (970109, AB )                *
 ************************************************************************
       use Arrays, only: FAMO, FIMO, F0SQMO
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"

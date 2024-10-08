@@ -84,7 +84,7 @@ end interface
 !> @param[in] compare A logical pure function of two integer or real arguments.
 !> @param[in] algorithm The sorting algorithm to use.
 interface argsort
-  module procedure I1D_argsort, R1D_argsort
+  module procedure :: I1D_argsort, R1D_argsort
 end interface
 
 #ifndef INTERNAL_PROC_ARG

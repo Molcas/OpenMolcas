@@ -20,7 +20,7 @@ use Cholesky, only: CHO_DECALG, CHO_FAKE_PAR, CHO_INTCHK, CHO_REORD, Cho_SScreen
                     INF_INIT, INF_TIMING, InfVec, IntMap, IPRINT, LuPri, NBAS, NBAST, nDGM_call, nDimRS, nDimRS, nnBstR, nnBstRSh, &
                     nnBstRSh, nnBstRT, nnShl, nShell, nSym, nSys_call, NumCho, NumChT, RstCho, RstDia, SSNorm, SSTau, SubScrStat, &
                     TDECDRV, TDECOM, ThrCom, TIMSEC, TINTEG, TMISC, XnPass
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half, Eight
 use Definitions, only: wp, iwp
 

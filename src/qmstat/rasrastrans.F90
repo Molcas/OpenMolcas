@@ -13,7 +13,7 @@ subroutine RasRasTrans(nB,nStatePrim,Eig2,iPrint)
 
 use qmstat_global, only: BigT, nState, RassiM
 use Index_Functions, only: iTri, nTri_Elem
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

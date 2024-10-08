@@ -15,7 +15,7 @@
 subroutine span0_cvb(nvecmx1,n)
 
 use casvb_global, only: nvecmx, nvtot, span
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp, u6
 
 implicit none

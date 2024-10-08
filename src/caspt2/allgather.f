@@ -18,7 +18,7 @@
       public :: allgather
 
       interface allgather
-        module procedure allgather_R, allgather_I
+        module procedure :: allgather_R, allgather_I
       end interface
 
 #include "mpi_interfaces.fh"

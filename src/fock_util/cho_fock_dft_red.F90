@@ -27,7 +27,7 @@ use Cholesky, only: InfVec, nDimRS, NumCho, timings
 use Cholesky, only: nBas, nSym
 #endif
 use Data_Structures, only: DSBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

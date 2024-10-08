@@ -12,7 +12,7 @@
 subroutine xsetmem_ints(mem)
 
 use k2_arrays, only: Sew_Scr, XMem
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp
 
 implicit none

@@ -58,7 +58,7 @@ use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, DMLT, DoCholExch, iAdrCVec, iBD
                    Yij, Ymnij
 use Cholesky, only: nSym, timings, ThrCom
 use Data_Structures, only: Deallocate_DT
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 

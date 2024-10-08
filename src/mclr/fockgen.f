@@ -28,7 +28,6 @@
       use Constants, only: Zero, Two
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
-#include "standard_iounits.fh"
 #include "Input.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"

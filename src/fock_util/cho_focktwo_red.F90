@@ -66,7 +66,7 @@ use Cholesky, only: nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: Deallocate_DT, DSBA_type, Integer_Pointer, SBA_type
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

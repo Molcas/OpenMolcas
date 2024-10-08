@@ -40,7 +40,7 @@
 subroutine Cho_X_ReoVec(irc)
 
 use Cholesky, only: nnBstRT
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

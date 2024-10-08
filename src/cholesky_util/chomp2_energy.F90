@@ -21,7 +21,7 @@ subroutine ChoMP2_Energy(irc,EMP2,EOcc,EVir,Sorted,DelOrig)
 !          into the sizes of the batches over occupied orbitals.
 
 use ChoMP2, only: nBatch
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

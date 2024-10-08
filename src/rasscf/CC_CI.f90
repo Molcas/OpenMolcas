@@ -58,7 +58,7 @@ module CC_CI_mod
     end type
 
     interface CC_CI_solver_t
-        module procedure construct_CC_CI_solver_t
+        module procedure :: construct_CC_CI_solver_t
     end interface
 
 contains

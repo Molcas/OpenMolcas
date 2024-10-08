@@ -26,7 +26,7 @@ use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_DecAlg, Cho_DecAlg_Def,
                     ModRst, Mx2Sh, MxShPr, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, nDecom, nDGM_call, nInteg, nMisc, &
                     nSection, nShell, nSym, nSys_call, RstCho, RstDia, ScDiag, SSTau, tDecDrv, tDecom, Thr_PreScreen, Thr_SimRI, &
                     ThrCom, ThrDiag, TimSec, tInteg, tMisc, Tol_DiaChk, Trace_Idle
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

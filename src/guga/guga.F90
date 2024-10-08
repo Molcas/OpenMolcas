@@ -24,7 +24,7 @@ subroutine GUGA(IRETURN)
 
 use guga_global, only: free_all, IADD10, IPRINT, Lu_10, Lu_11, MXVERT, NBUF
 use guga_util_global, only: IAD10
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp, u6, RtoI
 

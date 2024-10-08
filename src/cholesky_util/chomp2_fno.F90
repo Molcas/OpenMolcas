@@ -16,7 +16,7 @@ subroutine ChoMP2_FNO(irc,D_ab,D_ii,EOcc,EVir,Sorted,DelOrig)
 ! F. Aquilante, Geneva May 2008  (snick in Pedersen's code)
 
 use ChoMP2, only: nBatch
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

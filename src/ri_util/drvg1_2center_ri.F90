@@ -47,7 +47,7 @@ use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King, nProcs
 use RI_glob, only: A, AMP2, CijK, DoCholExch, iMP2prpt, MxChVInShl, nIJR, nKvec
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
 

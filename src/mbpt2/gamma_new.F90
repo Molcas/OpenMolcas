@@ -14,7 +14,7 @@ subroutine Gamma_new(Int1,Int2,Int1_2,Int2_2,Scr1)
 #include "intent.fh"
 
 use MBPT2_Global, only: CMO, EOcc, EVir, mAdOcc, mAdVir, nBas
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

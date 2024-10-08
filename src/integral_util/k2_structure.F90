@@ -88,13 +88,13 @@ public :: Allocate_k2data, Allocate_k2data_in, Free_k2data, IndK2, k2_processed,
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure k2d_cptr2loff
+  module procedure :: k2d_cptr2loff
 end interface
 interface mma_allocate
-  module procedure k2d_mma_allo_2D, k2d_mma_allo_2D_lim
+  module procedure :: k2d_mma_allo_2D, k2d_mma_allo_2D_lim
 end interface
 interface mma_deallocate
-  module procedure k2d_mma_free_2D
+  module procedure :: k2d_mma_free_2D
 end interface
 
 contains

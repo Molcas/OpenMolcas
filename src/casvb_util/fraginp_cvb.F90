@@ -15,7 +15,7 @@
 subroutine fraginp_cvb()
 
 use casvb_global, only: confsinp, i2s_fr, nalf_fr, nbet_fr, nconf, nconf_fr, nel_fr, nfrag, nMs_fr, noe, nS_fr
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 

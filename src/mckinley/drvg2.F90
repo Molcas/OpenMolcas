@@ -44,7 +44,7 @@ use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 

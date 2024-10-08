@@ -21,8 +21,8 @@
       REAL*8 CI(*),DET(*)
       INTEGER IMODE
       CHARACTER(LEN=8) WFTP
-      character(len=*), intent(out) :: detocc(*)
-      real(8), intent(out) :: detcoeff(*)
+      character(len=*), intent(out) :: detocc(NCONF)
+      real(8), intent(out) :: detcoeff(NCONF)
       real(8), intent(in) :: SPTRA(*)
       Real*8, Allocatable:: CTMP(:)
 

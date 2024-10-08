@@ -65,7 +65,7 @@
 !>    as given by orthonormalization::ON_scheme_values.
 !>    For a detailed explanation see \cite szabo_ostlund (p. 143).
         interface orthonormalize
-          module procedure orthonormalize_raw, orthonormalize_blocks
+          module procedure :: orthonormalize_raw, orthonormalize_blocks
         end interface
 
       contains

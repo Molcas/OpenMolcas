@@ -27,7 +27,7 @@ module fcidump_reorder
   integer, allocatable :: ReOrInp(:)
 
   interface reorder
-    module procedure FockTable_reorder, TwoElIntTable_reorder, &
+    module procedure :: FockTable_reorder, TwoElIntTable_reorder, &
       OrbitalTable_reorder, ALL_reorder
   end interface
 

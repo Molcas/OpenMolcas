@@ -55,7 +55,7 @@ use Breit, only: nOrdOp
 use UnixInfo, only: SuperName
 #endif
 use Constants, only: Zero
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

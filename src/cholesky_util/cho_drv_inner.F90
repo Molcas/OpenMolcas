@@ -32,7 +32,7 @@ subroutine CHO_DRV_Inner(IRETURN)
 use Para_Info, only: Is_Real_Par, nProcs
 use Cholesky, only: Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Reord, Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, &
                     Idle, INF_TIMING, IPRINT, LuPri, nnBstRT, RstCho, TIMSEC, XnPass
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

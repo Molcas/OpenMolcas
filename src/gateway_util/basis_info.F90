@@ -175,16 +175,16 @@ type(Shell_Info), allocatable :: Shells(:)
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure dbsc_cptr2loff
-  module procedure shell_cptr2loff
+  module procedure :: dbsc_cptr2loff
+  module procedure :: shell_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim
-  module procedure shell_mma_allo_1D, shell_mma_allo_1D_lim
+  module procedure :: dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim
+  module procedure :: shell_mma_allo_1D, shell_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure dbsc_mma_free_1D
-  module procedure shell_mma_free_1D
+  module procedure :: dbsc_mma_free_1D
+  module procedure :: shell_mma_free_1D
 end interface
 
 contains

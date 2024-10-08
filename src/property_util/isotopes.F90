@@ -62,7 +62,7 @@ character(len=*), parameter :: PTab(0:MaxAtomNum) = [' X', &
                                                      'Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og' &
                                                     ]
 interface Isotope
-  module procedure Isotope_sym, Isotope_num
+  module procedure :: Isotope_sym, Isotope_num
 end interface Isotope
 
 protected :: ElementList
@@ -71,16 +71,16 @@ public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes, Free_Isotopes, 
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure elm_cptr2loff
-  module procedure iso_cptr2loff
+  module procedure :: elm_cptr2loff
+  module procedure :: iso_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure element_mma_allo_1D, element_mma_allo_1D_lim
-  module procedure isotope_mma_allo_1D, isotope_mma_allo_1D_lim
+  module procedure :: element_mma_allo_1D, element_mma_allo_1D_lim
+  module procedure :: isotope_mma_allo_1D, isotope_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure element_mma_free_1D
-  module procedure isotope_mma_free_1D
+  module procedure :: element_mma_free_1D
+  module procedure :: isotope_mma_free_1D
 end interface
 
 contains

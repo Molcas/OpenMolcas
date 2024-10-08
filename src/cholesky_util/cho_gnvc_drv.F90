@@ -19,7 +19,7 @@ subroutine Cho_GnVc_Drv(irc,Diag)
 use Data_Structures, only: Alloc1DiArray_Type
 use Cholesky, only: DID_DECDRV, iiBstR, INF_PASS, InfVec, iOff_col, IPRINT, iQuAB, LuPri, nnBstR, nnShl, nQual, nSym, NumCho, &
                     NumChT, TDECDRV, XnPass
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

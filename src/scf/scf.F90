@@ -26,7 +26,7 @@ use Interfaces_SCF, only: OccDef
 use OFembed, only: Do_OFemb
 use InfSCF, only: Atom, AufB, BName, BType, CMO, DSCF, HDiag, iStatPrn, KSDFT, mOV, nBB, nCore, nD, nDisc, nnB, OccNo, OnlyProp
 use SCFFiles, only: LuInp
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

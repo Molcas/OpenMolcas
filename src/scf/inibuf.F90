@@ -25,7 +25,7 @@ subroutine IniBuf(nDisc,nCore)
 !***********************************************************************
 
 use IOBUF, only: Buffer, DiskMx_Byte, InCore, lBuf, LuTmp, nBuf, OnDisk
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Two, Ten
 use Definitions, only: wp, iwp
 

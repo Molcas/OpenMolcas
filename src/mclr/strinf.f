@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE STRINF(IPRNT)
       Use Str_Info
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 *
 * Strings for internal space.
 * Information is stored in

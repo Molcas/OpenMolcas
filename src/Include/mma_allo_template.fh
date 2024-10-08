@@ -63,6 +63,9 @@
 #elif _DIMENSIONS_==7
       subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
 #endif
+#ifndef _IN_STDALLOC_MOD_
+        use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
+#endif
         implicit none
 #if _DIMENSIONS_==0
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer
@@ -88,7 +91,6 @@
 #endif
         character(len=*), optional, intent(in) :: label
         character, optional, intent(in) :: safe
-#include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
           if (present(safe)) return
@@ -98,7 +100,7 @@
             call mma_double_allo(_DEF_LABEL_)
           end if
         end if
-        call mma_maxbytes(mma_avail)
+        call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==0
         ntot = n0
 #elif _DIMENSIONS_==1
@@ -184,6 +186,9 @@
       subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,     &
      &                           safe)
 #endif
+#ifndef _IN_STDALLOC_MOD_
+        use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
+#endif
         implicit none
 #if _DIMENSIONS_==1
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:)
@@ -206,7 +211,6 @@
 #endif
         character(len=*), optional, intent(in) :: label
         character, optional, intent(in) :: safe
-#include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
           if (present(safe)) return
@@ -216,7 +220,7 @@
             call mma_double_allo(_DEF_LABEL_)
           end if
         end if
-        call mma_maxbytes(mma_avail)
+        call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==1
         ntot = l1(2)-l1(1)+1
 #elif _DIMENSIONS_==2
@@ -286,6 +290,9 @@
 #define _FREE_NAME_ CAT(CAT(_SUBR_NAME_,_free),CAT(_,CAT(_DIMENSIONS_,D)))
 
       subroutine _FREE_NAME_(buffer,safe)
+#ifndef _IN_STDALLOC_MOD_
+        use stdalloc, only: mma_double_free
+#endif
         implicit none
 #if _DIMENSIONS_==0
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer
@@ -303,7 +310,6 @@
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
 #endif
         character, optional, intent(in) :: safe
-#include "cptr2loff.fh"
         integer :: ntot,loffset
 #ifndef _DATA_NAME_
         integer :: bufsize

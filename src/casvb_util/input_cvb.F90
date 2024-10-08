@@ -22,7 +22,7 @@ use casvb_global, only: absym, confsinp, gsinp, i2s_fr, iciweights, icrit, imeth
                         nMs_fr, noe, norb, norbrel, nort, npcf, nS_fr, nspinb, nsyme, nvb, nvbinp, nvbr_fr, nzrvb, ploc, projcas, &
                         projsym, recinp, recinp_old, recn_tmp01, recn_tmp02, savvb, savvbci, sc, service, sij, spinbkw, strtci, &
                         strtint, strtmo, strtvb, tags
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
 

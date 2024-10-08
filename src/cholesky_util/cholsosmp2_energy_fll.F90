@@ -20,6 +20,7 @@ subroutine ChoLSOSMP2_Energy_Fll(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 
 use Cholesky, only: NumCho, nSym
 use ChoMP2, only: DecoMP2, Laplace_BlockSize, nMP2Vec, nT1am
+use stdalloc, only: mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

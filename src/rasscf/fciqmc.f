@@ -74,7 +74,7 @@
       end type
 
       interface fciqmc_solver_t
-        module procedure construct_FciqmcSolver_t
+        module procedure :: construct_FciqmcSolver_t
       end interface
 
       contains

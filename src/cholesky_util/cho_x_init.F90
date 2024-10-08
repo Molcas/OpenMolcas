@@ -63,6 +63,9 @@ use Cholesky, only: BkmThr, BkmVec, Cho_AdrVec, Cho_Fake_Par, Cho_IOVec, ChoIniC
                     nnBstRT, nnShl, nnShl_SP, nnShl_Tot, nRow_BkmThr, nRow_BkmVec, nShell, nSym, nSys_call, NumCho, NumChT, &
                     RUN_EXTERNAL, RUN_MODE
 use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _DEBUGPRINT_
+use stdalloc, only: mma_maxDBLE
+#endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

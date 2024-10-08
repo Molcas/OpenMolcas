@@ -26,7 +26,6 @@
       use Constants, only: Zero, One, Two, Half
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
-#include "standard_iounits.fh"
 #include "Input.fh"
 #include "Files_mclr.fh"
       Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),

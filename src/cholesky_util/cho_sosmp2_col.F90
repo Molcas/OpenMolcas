@@ -21,7 +21,7 @@ subroutine Cho_SOSmp2_Col( &
 
 use Cholesky, only: NumCho
 use ChoMP2, only: Incore, lUnit_F, NowSym, nT1am, OldVec
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

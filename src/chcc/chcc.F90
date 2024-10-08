@@ -19,7 +19,7 @@ use Para_Info, only: MyRank, nProcs
 use chcc_global, only: NChLoc
 use Para_Info, only: Is_Real_Par
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

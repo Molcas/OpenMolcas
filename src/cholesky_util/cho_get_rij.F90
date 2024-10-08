@@ -46,7 +46,7 @@ subroutine CHO_get_Rij(irc,MO,nOcc,Rij,timings)
 
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

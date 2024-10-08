@@ -16,7 +16,7 @@ use CCT3_global, only: dp1, dp2, fk1, fk2, fk3, fk4, fk5, fk6, fullprint, h1, h2
                        m1, m2, m3, maxspace, mmul, n, noa, nob, nsym, px, rx1, rx2, rx3, symimin, symimax, symjmax, symjmin, t11, &
                        t12, t21, t22, t23, typt3, vx, w11, w12, w13, w14, w21, w22, w23, wx
 use Para_Info, only: MyRank, nProcs
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

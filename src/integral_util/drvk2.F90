@@ -39,7 +39,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
 use Sizes_of_Seward, only: S
 use UnixInfo, only: ProgName
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Gateway_Info, only: lSchw

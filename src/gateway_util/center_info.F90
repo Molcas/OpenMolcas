@@ -52,13 +52,13 @@ type(Distinct_centers), allocatable :: dc(:)
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure dc_cptr2loff
+  module procedure :: dc_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure dc_mma_allo_1D, dc_mma_allo_1D_lim
+  module procedure :: dc_mma_allo_1D, dc_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure dc_mma_free_1D
+  module procedure :: dc_mma_free_1D
 end interface
 
 contains

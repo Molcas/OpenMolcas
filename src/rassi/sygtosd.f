@@ -11,10 +11,11 @@
       SUBROUTINE SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CISYG,CISD,
      &                   detocc,detcoeff,SPTRA)
       use stdalloc, only: mma_allocate, mma_deallocate
+#     include "intent.fh"
       IMPLICIT NONE
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
       REAL*8 CISYG(*),CISD(*)
-      character(len=*), intent(out) :: detocc(*)
+      character(len=*), intent(_OUT_) :: detocc(*)
       real(8) :: detcoeff(*), SPTRA(*)
 
       INTEGER NASPRT

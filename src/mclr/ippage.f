@@ -33,6 +33,7 @@
 *                                                                      *
        Logical Function ipopen(nconf,page)
        use ipPage
+       use stdalloc, only: mma_maxDBLE
 *
 *      Initiate the whole lot.
 *

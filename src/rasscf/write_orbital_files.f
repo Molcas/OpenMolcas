@@ -21,7 +21,7 @@
         save
 
         interface get_typeidx
-          module procedure RAS_get_typeidx, GAS_get_typeidx
+          module procedure :: RAS_get_typeidx, GAS_get_typeidx
         end interface
 
         logical :: write_orb_per_iter = .false.

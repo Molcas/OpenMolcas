@@ -26,7 +26,7 @@ use Index_Functions, only: nTri_Elem
 use LnkLst, only: NodSiz
 use InfSCF, only: Aufb, CMO, CMO_Ref, Dens, DSCF, EDFT, EOrb, FockAO, FockMO, HDiag, MaxBas, MemRsv, mOV, MxIter, MxOptm, nBB, &
                   nBO, nBT, nD, nDens, nIter, nMem, nnB, nnOc, nOO, nOV, OccNo, OrbType, TrM, TwoHam, Vxc
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 

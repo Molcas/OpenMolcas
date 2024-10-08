@@ -19,7 +19,7 @@ subroutine CHO_MCA_CALCINT_1(ISHLAB)
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, INF_IN2, INF_INT, iOff_Col, iOffQ, IPRINT, iQuAB, iSP2F, nBstSh, LuPri, LuSel, &
                     nnBstR, nnBstRSh, nnShl, nQual, nSym, TINTEG
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

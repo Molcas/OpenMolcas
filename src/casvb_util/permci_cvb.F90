@@ -25,7 +25,7 @@ subroutine permci_cvb(v1,iperm)
 ! Permutes orbitals in V1 according to IPERM.
 
 use casvb_global, only: iapr, ixapr, nda, ndet, ndetvb, norb
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

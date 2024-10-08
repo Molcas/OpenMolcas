@@ -15,7 +15,7 @@ subroutine ScfH0(nBas)
 use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, MxSymQ, nExtAddOns, ScalExt, SupM, V1
 use Index_Functions, only: iTri, nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
 

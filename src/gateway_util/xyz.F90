@@ -50,13 +50,13 @@ public :: Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Read_XYZ, Symmetry, Writ
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure xyz_cptr2loff
+  module procedure :: xyz_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure xyz_mma_allo_1D, xyz_mma_allo_1D_lim
+  module procedure :: xyz_mma_allo_1D, xyz_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure xyz_mma_free_1D
+  module procedure :: xyz_mma_free_1D
 end interface
 
 contains
