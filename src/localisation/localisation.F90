@@ -79,7 +79,7 @@ LuSpool = isFreeUnit(LuSpool)
 call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
-LC_FileOrb = ' '
+LC_FileOrb = 'INPORB'
 do
   Line = Get_Ln(LuSpool)
   call UpCase(Line)
