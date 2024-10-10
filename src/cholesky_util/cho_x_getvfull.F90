@@ -72,16 +72,18 @@ integer(kind=iwp), intent(inout) :: IREDC
 type(SBA_Type), intent(inout) :: Wab
 logical(kind=iwp), intent(in) :: DoRead
 integer(kind=iwp) :: i, iOff, ipChoV(8), ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
-integer(kind=iwp), external :: ip_of_Work
+!integer(kind=iwp), external :: ip_of_Work
 
 MXUSD = 0
 MUSED = 0
 
 ipChoV(1:nSym) = -6666
-call Map_to_SBA(Wab,ipChoV)
+!call Map_to_SBA(Wab,ipChoV)
 ! Get pointers relative to Wab%A0
-iOff = ip_of_Work(Wab%A0(1))
-ipChoV(1:nSym) = ipChoV(1:nSym)-iOff+1
+!iOff = ip_of_Work(Wab%A0(1))
+!ipChoV(1:nSym) = ipChoV(1:nSym)-iOff+1
+ipChoV(1:nSym)=Wab%ipOff(1:nSym)
+
 
 ipVec(1:nSym) = ipChoV(1:nSym)
 

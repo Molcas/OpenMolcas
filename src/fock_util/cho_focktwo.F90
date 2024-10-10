@@ -232,6 +232,7 @@ do jSym=1,MaxSym
       iSymp = Mul(ksym,jSym)
 
       iS = iE+1
+      Wab%ipOff(iSymp)=iS
 
       nk = nBas(kSym)
       np = nBas(iSymp)

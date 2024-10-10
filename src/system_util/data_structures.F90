@@ -75,6 +75,7 @@ type SBA_Type
   integer(kind=iwp) :: iCase = 0
   integer(kind=iwp) :: iSym = 0
   integer(kind=iwp) :: nSym = 0
+  integer(kind=iwp) :: ipOff(1:8)=[0,0,0,0,0,0,0,0]
   real(kind=wp), allocatable :: A0(:)
   type(SB_Type) :: SB(8)
 end type SBA_Type
@@ -549,15 +550,19 @@ subroutine Map_to_SBA(Adam,ipAdam)
   integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
   integer(kind=iwp) :: iSym, jSym
 
+  Write (6,*) 'iCase=',Adam%iCase
+  Write (6,*) 'nSym=',Adam%nSym
   if (Adam%iCase < 4) then
     do iSym=1,Adam%nSym
       ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
+      Write (6,*) 'iSym,Size=',iSym,SIZE(Adam%SB(iSym)%A3)
     end do
   else
     do iSym=1,Adam%nSym
       if (.not. associated(Adam%SB(iSym)%A2)) cycle
 
       ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
+      Write (6,*) 'iSym,Size=',iSym,SIZE(Adam%SB(iSym)%A2)
     end do
   end if
 
