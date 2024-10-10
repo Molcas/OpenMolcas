@@ -40,7 +40,9 @@
  * 9/10/2024 IFG: Hopefully the tests below make it safe to enable this again */
 
 #define _HDF5_COMPRESSION_
+#ifndef _HDF5_COMPRESSION_LEVEL_
 #define _HDF5_COMPRESSION_LEVEL_ 6
+#endif
 
 /* limits */
 #define MAX_RANK 7
@@ -619,8 +621,6 @@ hid_t mh5c_create_dset_scalar(hid_t file_id, char *name, hid_t hdf5_type) {
 
 hid_t mh5c_create_dset_array(hid_t file_id, char *name, int rank, const INT *dims, const hsize_t mdim, hid_t hdf5_type) {
   herr_t status;
-  htri_t avail;
-  unsigned int filter_info;
   hid_t space_id, plist_id, dset_id;
   hsize_t hdims[MAX_RANK];
   hsize_t kdims[MAX_RANK];
@@ -639,6 +639,8 @@ hid_t mh5c_create_dset_array(hid_t file_id, char *name, int rank, const INT *dim
   status = -1;
 # ifdef _HDF5_COMPRESSION_
   /* test if deflate filter is available and configured for encoding and decoding */
+  htri_t avail;
+  unsigned int filter_info;
   avail = H5Zfilter_avail(H5Z_FILTER_DEFLATE);
   if (avail) {
     status = H5Zget_filter_info(H5Z_FILTER_DEFLATE, &filter_info);

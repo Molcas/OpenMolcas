@@ -381,7 +381,7 @@ The complete list of |molcas|-related environment variables:
 
 :variable:`MOLCAS_FIM`
   Activates the Files In Memory I/O layer. See :numref:`MT:sec:fim` for more details.
-  *Note that this setting is available only in MOLCAS compiled without Global
+  *Note that this setting is available only in |molcas| compiled without Global
   Arrays.*
 
   .. warning::
@@ -465,7 +465,7 @@ The complete list of |molcas|-related environment variables:
   An environment variable to set up a hard limit for allocated memory (in Mb).
   If is not specified, then it takes value of MOLCAS_MEM. Otherwise, the (MOLCAS_MAXMEM-MOLCAS_MEM)
   amount of RAM will be primarily used for keeping files in memory (FiM), or allocating Distributed Global Arrays.
-  *Note that this setting is available only in MOLCAS compiled without Global Arrays.*
+  *Note that this setting is available only in |molcas| compiled without Global Arrays.*
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_MAXMEM" APPEAR="Max Memory" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_MAXMEM <advanced>

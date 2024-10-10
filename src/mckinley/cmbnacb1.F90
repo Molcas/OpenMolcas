@@ -19,22 +19,22 @@ subroutine CmbnACB1(FA1,FB1,rFinal,Fact,nAlpha,nBeta,C,nC,la,lb,iang,ifgrad,tmp,
 !
 !***********************************************************************
 !
-! @parameter FA1    The first derivative of Left side. Includes no deriavtive (input)
-! @parameter FB1    The first derivative of Right side. Includes no derivative (input)
-! @parameter rFinal Result added up to (out)
-! @parameter Fact   Factor the reult is multiplied with bef. added up (input)
-! @parameter C      Coefficients for SRO (input)
-! @parameter nAlpha Number of exponents LS (input)
-! @parameter nBeta  Number of exponents RS (input)
-! @parameter nC     Number of exponents in SRO (input)
-! @parameter la     Angular monenta LS (input)
-! @parameter lb     Angular monenta RS (input)
-! @parameter iAng   Angular monenta SRO (input)
-! @parameter Tmp    Working Area nAlpha*nC (SRO case) (scratch)
-! @parameter lSRO   true for SRO false projection operator (input)
-! @parameter indx   Array storing index for derivatives in rFinal (out)
-! @parameter mvec   Number of derivatives calculated (out)
-! @parameter idcar  Cartesiam index for current derivative (input)
+! @param FA1    The first derivative of Left side. Includes no deriavtive (input)
+! @param FB1    The first derivative of Right side. Includes no derivative (input)
+! @param rFinal Result added up to (out)
+! @param Fact   Factor the reult is multiplied with bef. added up (input)
+! @param C      Coefficients for SRO (input)
+! @param nAlpha Number of exponents LS (input)
+! @param nBeta  Number of exponents RS (input)
+! @param nC     Number of exponents in SRO (input)
+! @param la     Angular monenta LS (input)
+! @param lb     Angular monenta RS (input)
+! @param iAng   Angular monenta SRO (input)
+! @param Tmp    Working Area nAlpha*nC (SRO case) (scratch)
+! @param lSRO   true for SRO false projection operator (input)
+! @param indx   Array storing index for derivatives in rFinal (out)
+! @param mvec   Number of derivatives calculated (out)
+! @param idcar  Cartesiam index for current derivative (input)
 !
 !***********************************************************************
 

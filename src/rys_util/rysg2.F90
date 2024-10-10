@@ -27,43 +27,43 @@ subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nE
 !             Anders Bernhardsson Theoretical Chemistry,               *
 !             University of Lund                                       *
 !***********************************************************************
-!   @parameter iAnga     Angular momenta for each center
-!   @parameter nRys      Order of Rys polynomia
-!   @parameter nT        Number of alpha-beta-gamma-delta multiplies
-!   @parameter Alpha     Exponents on 1st center
-!   @parameter Beta      Exponents on 2nd center
-!   @parameter Gmma      Exponents on 3rd center
-!   @parameter Delta     Exponents on 4th center
-!   @parameter Zeta      Alpha*Beta
-!   @parameter Zeta      Zeta inverse
-!   @parameter nZeta     Alpha Beta multiplies
-!   @parameter Eta       Gmma*Delta
-!   @parameter Eta       Eta inverse
-!   @parameter nEta      Gmma Delta multiplies
-!   @parameter P
-!   @parameter lP        Length of P
-!   @parameter Q
-!   @parameter lQ        Length of Q
-!   @parameter Coori     Coordinates of center just used to check AeqB CeqD etc.
-!   @parameter Coora     Coordinates of center used in hor. recursion
-!   @parameter CoorAC    Coordinates of center <max(la,lb),max(lc,ld)>
-!   @parameter Array     Scratch and output area for 1st derivatives
-!   @parameter nArray    Size of scratch area
-!   @parameter PAO       Density
-!   @parameter nPAO      Length of density
-!   @parameter Hess      Output area for Hessian (added)
-!   @parameter nHess     Size of Hessian
-!   @parameter IfGrad    True for all 1st derivatives that are needed
-!   @parameter IndGrad   Index in gradient on which integrals should be added
-!   @parameter IfHss     True for all 2nd derivatives that are needed
-!   @parameter IndHss    Index in Hess on which contracted integrals should be added
-!   @parameter nOp       Operator number for the operator that generates center
-!   @parameter iuvwx     Number of stabilizers
-!   @parameter IfG       True for all centers on which derivatives should be calculated
-!   @parameter Index_Out Index where first derivatives are stored (out)
-!   @parameter lHess     True if 2nd derivatives should be calculated
-!   @parameter lGrad     True if 1st derivatives should be calculated
-!   @parameter Tr        True for all centers on which should be calculated via translation invariance
+!   @param iAnga     Angular momenta for each center
+!   @param nRys      Order of Rys polynomia
+!   @param nT        Number of alpha-beta-gamma-delta multiplies
+!   @param Alpha     Exponents on 1st center
+!   @param Beta      Exponents on 2nd center
+!   @param Gmma      Exponents on 3rd center
+!   @param Delta     Exponents on 4th center
+!   @param Zeta      Alpha*Beta
+!   @param Zeta      Zeta inverse
+!   @param nZeta     Alpha Beta multiplies
+!   @param Eta       Gmma*Delta
+!   @param Eta       Eta inverse
+!   @param nEta      Gmma Delta multiplies
+!   @param P
+!   @param lP        Length of P
+!   @param Q
+!   @param lQ        Length of Q
+!   @param Coori     Coordinates of center just used to check AeqB CeqD etc.
+!   @param Coora     Coordinates of center used in hor. recursion
+!   @param CoorAC    Coordinates of center <max(la,lb),max(lc,ld)>
+!   @param Array     Scratch and output area for 1st derivatives
+!   @param nArray    Size of scratch area
+!   @param PAO       Density
+!   @param nPAO      Length of density
+!   @param Hess      Output area for Hessian (added)
+!   @param nHess     Size of Hessian
+!   @param IfGrad    True for all 1st derivatives that are needed
+!   @param IndGrad   Index in gradient on which integrals should be added
+!   @param IfHss     True for all 2nd derivatives that are needed
+!   @param IndHss    Index in Hess on which contracted integrals should be added
+!   @param nOp       Operator number for the operator that generates center
+!   @param iuvwx     Number of stabilizers
+!   @param IfG       True for all centers on which derivatives should be calculated
+!   @param Index_Out Index where first derivatives are stored (out)
+!   @param lHess     True if 2nd derivatives should be calculated
+!   @param lGrad     True if 1st derivatives should be calculated
+!   @param Tr        True for all centers on which should be calculated via translation invariance
 
 use vRys_RW, only: nMxRys
 use Symmetry_Info, only: nIrrep, iOper
