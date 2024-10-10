@@ -24,7 +24,7 @@ private
 public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, &
           G2_Type, Integer_Pointer, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
 ! temporary subroutines for interface with old code
-public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
+public :: Map_to_SBA
 
 type Integer_Pointer
   integer(kind=iwp), contiguous, pointer :: I1(:) => null()
@@ -342,17 +342,6 @@ subroutine Deallocate_DSBA(Adam)
 
 end subroutine Deallocate_DSBA
 
-subroutine Map_to_DSBA(Adam,ipAdam)
-
-  type(DSBA_Type), intent(in) :: Adam
-  integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
-  integer(kind=iwp) :: iSym
-
-  do iSym=1,Adam%nSym
-    ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
-  end do
-
-end subroutine Map_to_DSBA
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !
@@ -731,49 +720,6 @@ subroutine Deallocate_twxy(twxy)
   end do
 
 end subroutine Deallocate_twxy
-
-subroutine Map_to_twxy(Adam,ipAdam)
-
-  type(twxy_type), intent(in) :: Adam
-  integer(kind=iwp), intent(out) :: ipAdam(8,8)
-  integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma
-
-  ipAdam(:,:) = 0
-  select case (Adam%iCase)
-    case (0)
-      do iSymy=1,Adam%nSym
-        iSymx = Mul(iSymy,Adam%JSYM)
-        do iSymw=iSymy,Adam%nSym   ! iSymw >= iSymy (particle symmetry)
-          iSymt = Mul(isymw,Adam%JSYM)
-          ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-        end do
-      end do
-    case (1)
-      do iSymy=1,Adam%nSym
-        iSymx = Mul(iSymy,Adam%JSYM)
-        if (iSymx <= iSymy) then
-          do iSyma=1,Adam%nSym
-            iSymw = Mul(iSyma,Adam%JSYM)
-            ipAdam(iSymw,iSymx) = ip_of_Work(Adam%SB(iSymw,iSymx)%A(1,1))
-          end do
-        end if
-      end do
-    case (2)
-      do iSymy=1,Adam%nSym
-        iSymx = Mul(iSymy,Adam%JSYM)
-        if (iSymx >= iSymy) then
-          do iSymw=iSymy,Adam%nSym ! iSymw >= iSymy
-            iSymt = Mul(iSymw,Adam%JSYM)
-            if (iSymt >= iSymw) then
-              ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-              ipAdam(iSymy,iSymw) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-            end if
-          end do
-        end if
-      end do
-  end select
-
-end subroutine Map_to_twxy
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !

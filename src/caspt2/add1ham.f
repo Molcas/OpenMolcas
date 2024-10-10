@@ -101,12 +101,11 @@ c the nuclear attraction by the Rep_EN
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
          Call Get_dExcdRa(Vxc,nVxc)
-         ipVxc = ip_of_Work(Vxc(1))
-         Call DaXpY_(nTemp,1.0d0,Work(ipVxc),1,H1EFF,1)
+         Call DaXpY_(nTemp,1.0d0,Vxc,1,H1EFF,1)
          If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
-            Call DaXpY_(nTemp,1.0d0,Work(ipVxc+nTemp),1,H1EFF,1)
-            Call Get_dArray('Nuc Potential',Work(ipVxc),nTemp)
-            Call DaXpY_(nTemp,-1.0d0,Work(ipVxc),1,H1EFF,1)
+            Call DaXpY_(nTemp,1.0d0,Vxc(1+nTemp:),1,H1EFF,1)
+            Call Get_dArray('Nuc Potential',Vxc,nTemp)
+            Call DaXpY_(nTemp,-1.0d0,Vxc,1,H1EFF,1)
          EndIf
          Call mma_deallocate(Vxc)
          Call NameRun('#Pop')    ! switch back to old RUNFILE

@@ -30,23 +30,16 @@
       Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
      &                      DF1(:), DF2(:), DF3(:)
 
-      Integer, External:: ip_of_Work
       Integer :: nLev
       nLev=SGS%nLev
 
       !! reduced density matrix and fock-weighted RDM
       CALL mma_allocate(G1 ,NG1, Label='G1')
-      LG1 = ip_of_Work(G1(1))
       CALL mma_allocate(G2 ,NG2, Label='G2')
-      LG2 = ip_of_Work(G2(1))
       CALL mma_allocate(G3 ,NG3, Label='G3')
-      LG3 = ip_of_Work(G3(1))
       CALL mma_allocate(F1 ,NG1, Label='F1')
-      LF1 = ip_of_Work(F1(1))
       CALL mma_allocate(F2 ,NG2, Label='F2')
-      LF2 = ip_of_Work(F2(1))
       CALL mma_allocate(F3 ,NG3, Label='F3')
-      LF3 = ip_of_Work(F3(1))
 
       !! their derivative contributions
       CALL mma_allocate(DG1,NG1,Label='DG1')
@@ -109,8 +102,6 @@ C
      *              DF1,DF2,DF3,
      *              DEPSA,
      *              G1,G2,G3,nLev)
-!     write(6,*) "depsa after cnstclag"
-!     call sqprt(depsa,nasht)
 
       Call mma_deallocate(G1)
       Call mma_deallocate(G2)
