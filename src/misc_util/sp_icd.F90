@@ -47,10 +47,10 @@ integer(kind=iwp) :: nijb, i, j, k, kk, kkb, l
 real(kind=wp) :: Ljk
 logical(kind=iwp) :: GoOn, Sym
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
-integer(kind=iwp), external :: ip_of_Work
+integer(kind=iwp), external :: idLoc
 
 Sym = (A(n+1) > Zero)
-if (ip_of_Work(A(1)) == ip_of_Work(B(1))) then
+if (idLoc(A(1)) == idLoc(B(1))) then
   if (.not. Sym) call SysAbendMsg('Sp_ICD','In-place decomposition only allowed with symmetric-stored matrix.','')
 end if
 nijb = n+1
