@@ -17,7 +17,7 @@
 !#define _HYBRID_
 !#define _HYBRID2_
 #define _HYBRID3_
-subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
+subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 !                                                                      *
 !     Object: subspace gradient-enhanced kriging optimization.         *
@@ -42,6 +42,7 @@ real(kind=wp), intent(inout) :: dq(mOV)
 real(kind=wp), intent(out) :: dqdq
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
+logical(kind=iwp), intent(in) :: SOrange
 integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Micro, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
                      nDIIS, nExplicit
 real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Variance(1)
@@ -50,7 +51,7 @@ real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
-integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
+integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 30
 #ifdef _KRYLOV_
 integer(kind=iwp), parameter :: nKrylov = 20
 #endif
@@ -420,7 +421,7 @@ do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate 
   Iteration = Iteration+1
   if (Iteration_Micro == Max_Iter) then
     write(u6,*)
-    write(u6,*) 'S-GEK-Optimizer: Iteration_Micro==Max_Iter'
+    write(u6,*) 'S_GEK_Optimizer: Iteration_Micro==Max_Iter'
     write(u6,*) 'Abend!'
     write(u6,*)
     call Abend()
@@ -517,10 +518,16 @@ do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate 
     write(u6,*) 'Fact      =',Fact
     write(u6,*) 'StepMax   =',StepMax
 #   endif
-    if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
     if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
-    Fact = Half*Fact
-    StepMax = Half*StepMax
+    if (SOrange) then
+      if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
+      Fact = Half*Fact
+      StepMax = Half*StepMax
+    else
+      if (One-Variance(1)/Beta_Disp > 0.1_wp) exit
+      Fact = 0.75_wp*Fact
+      StepMax = 0.75_wp*StepMax
+    end if
     Step_Trunc = '*' ! This will only happen if the variance restriction kicks in
 
   end do  ! Restricted variance step

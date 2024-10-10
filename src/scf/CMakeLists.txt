@@ -105,7 +105,7 @@ set (sources
      rotmos.F90
      rs-rfo-scf.F90
      rwdtg.F90
-     s-gek-optimizer.F90
+     s_gek_optimizer.F90
      scf.F90
      scf_energy.F90
      scf_init.F90

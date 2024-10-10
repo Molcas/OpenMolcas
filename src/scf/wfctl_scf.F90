@@ -737,7 +737,7 @@ do iter_=1,nIter(nIterP)
               end if
 #             endif
 
-              call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9))
+              call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.false.)
 
           end select
           !                                                            *
