@@ -23,8 +23,6 @@ private
 
 public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, &
           G2_Type, Integer_Pointer, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
-! temporary subroutines for interface with old code
-public :: Map_to_SBA
 
 type Integer_Pointer
   integer(kind=iwp), contiguous, pointer :: I1(:) => null()
@@ -131,15 +129,6 @@ interface mma_allocate
 end interface
 interface mma_deallocate
   module procedure :: dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
-end interface
-
-! Private explicit interface to work around some compiler bugs
-interface
-  function ip_of_Work(a)
-    import wp, iwp
-    integer(kind=iwp) :: ip_of_Work
-    real(kind=wp) :: a
-  end function ip_of_work
 end interface
 
 contains
@@ -543,30 +532,6 @@ subroutine Deallocate_SBA(Adam)
   Adam%nSym = 0
 
 end subroutine Deallocate_SBA
-
-subroutine Map_to_SBA(Adam,ipAdam)
-
-  type(SBA_Type), intent(in) :: Adam
-  integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
-  integer(kind=iwp) :: iSym, jSym
-
-  Write (6,*) 'iCase=',Adam%iCase
-  Write (6,*) 'nSym=',Adam%nSym
-  if (Adam%iCase < 4) then
-    do iSym=1,Adam%nSym
-      ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
-      Write (6,*) 'iSym,Size=',iSym,SIZE(Adam%SB(iSym)%A3)
-    end do
-  else
-    do iSym=1,Adam%nSym
-      if (.not. associated(Adam%SB(iSym)%A2)) cycle
-
-      ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
-      Write (6,*) 'iSym,Size=',iSym,SIZE(Adam%SB(iSym)%A2)
-    end do
-  end if
-
-end subroutine Map_to_SBA
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !
