@@ -53,7 +53,7 @@ end if
 ! initialization:
 
 call mma_allocate(tmp1,d,d,label='tmp1')
-call mma_allocate(tmp2,d,d,label='tmp1')
+call mma_allocate(tmp2,d,d,label='tmp2')
 do ic1=1,3
   tmp1(:,:) = moment(ic1,:,:)
   do ic2=1,3

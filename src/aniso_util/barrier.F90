@@ -74,14 +74,14 @@ MM(:) = Zero
 !-----------------------------------------------------------------------
 call unitmat(maxes,3)
 ! rotate the magnetic moment to the magnetic axes of the ground multiplet ( NDIM(1) )
-if (ndim(imanifold) <= 1) then
+if (k <= 1) then
   write(u6,'(a,i2,a)') 'The manifold ',imanifold,' was chosen for determination of the quantization axis.'
   write(u6,'(a     )') 'However, the size of this manifold is:'
   write(u6,'(a,i1  )') 'size = ',ndim(imanifold)
   write(u6,'(a     )') 'in this case, quantization axis will remain the original Z axis'
 else
-  dipN3(:,:,:) = dipIn(:,:,:)
-  call atens(dipN3,ndim(imanifold),gtens,maxes,1)
+  dipN3(:,:,:) = dipIn(:,1:k,1:k)
+  call atens(dipN3,k,gtens,maxes,1)
 end if
 call rotmom2(dipIn,nBlock,maxes,dipN)
 if (iprint > 2) then
