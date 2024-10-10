@@ -195,8 +195,7 @@ subroutine Deallocate_NDSBA(Adam)
 
   do iSym=1,Adam%nSym
     do jSym=1,Adam%nSym
-      Adam%SB(iSym,jSym)%A2 => null()
-      Adam%SB(iSym,jSym)%A1 => null()
+      nullify(Adam%SB(iSym,jSym)%A2,Adam%SB(iSym,jSym)%A1)
     end do
   end do
   call mma_deallocate(Adam%A0)
@@ -273,7 +272,7 @@ subroutine Allocate_DSBA(Adam,n,m,nSym,aCase,Ref,Label)
     Adam%Fake = .true.
     Adam%A0(1:MemTot) => Ref(1:MemTot)
   else
-    Adam%A0 => null()
+    nullify(Adam%A0)
     if (present(Label)) then
       call mma_allocate(Adam%A00,MemTot,Label=Label)
     else
@@ -322,19 +321,17 @@ subroutine Deallocate_DSBA(Adam)
   select case (Adam%iCase)
     case (0,2)
       do iSym=1,Adam%nSym
-        Adam%SB(iSym)%A1 => null()
+        nullify(Adam%SB(iSym)%A1)
       end do
     case (1)
       do iSym=1,Adam%nSym
-        Adam%SB(iSym)%A2 => null()
-        Adam%SB(iSym)%A1 => null()
+        nullify(Adam%SB(iSym)%A2,Adam%SB(iSym)%A1)
       end do
   end select
+  nullify(Adam%A0)
   if (Adam%Fake) then
-    Adam%A0 => null()
     Adam%Fake = .false.
   else
-    Adam%A0 => null()
     call mma_deallocate(Adam%A00)
   end if
   Adam%nSym = 0
@@ -543,9 +540,7 @@ subroutine Deallocate_SBA(Adam)
   integer(kind=iwp) :: iSym
 
   do iSym=1,Adam%nSym
-    Adam%SB(iSym)%A1 => null()
-    Adam%SB(iSym)%A2 => null()
-    Adam%SB(iSym)%A3 => null()
+    nullify(Adam%SB(iSym)%A1,Adam%SB(iSym)%A2,Adam%SB(iSym)%A3)
   end do
   call mma_deallocate(Adam%A0)
   Adam%iCase = 0
@@ -726,7 +721,7 @@ subroutine Deallocate_twxy(twxy)
 
   do iSymy=1,8
     do iSymw=1,8
-      twxy%SB(iSymw,iSymy)%A => null()
+      nullify(twxy%SB(iSymw,iSymy)%A)
     end do
   end do
 
@@ -863,8 +858,7 @@ subroutine Deallocate_G2(Adam)
   do iSym=1,Adam%nSym
     do jSym=1,Adam%nSym
       do kSym=1,Adam%nSym
-        Adam%SB(iSym,jSym,kSym)%A4 => null()
-        Adam%SB(iSym,jSym,kSym)%A2 => null()
+        nullify(Adam%SB(iSym,jSym,kSym)%A4,Adam%SB(iSym,jSym,kSym)%A2)
       end do
     end do
   end do

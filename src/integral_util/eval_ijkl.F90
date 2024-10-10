@@ -361,8 +361,7 @@ do iBasAO=1,iBasi,iBsInc
     end do
   end do
 end do
-SOInt => null()
-AOInt => null()
+nullify(SOInt,AOInt)
 call Destroy_BraKet()
 !                                                                      *
 !***********************************************************************

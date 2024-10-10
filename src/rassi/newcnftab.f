@@ -189,7 +189,7 @@ C The NCNF1 array is no longer needed.
 C Finally, only now when we know where to store each (ISYM,NOPN) block of
 C configurations, can we compute the actual configuration arrays:
       CALL MKCONF(CnfTab)
-      CnfTab=>Null()
+      nullify(CnfTab)
 
       END SUBROUTINE NEWCNFTAB
 

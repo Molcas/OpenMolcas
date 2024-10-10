@@ -237,7 +237,7 @@ else
   ijS_req = 0
   Int_PostProcess => Integral_RICD
   call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
-  Int_PostProcess => null()
+  nullify(Int_PostProcess)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -467,7 +467,7 @@ do iBS=0,nBS-1
 
         Int_PostProcess => Integral_RICD
         call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_p,nTInt_p,In_Core,ADiag,Lu_A,ijS_Req,Keep_Shell)
-        Int_PostProcess => null()
+        nullify(Int_PostProcess)
 
         if (.not. In_Core) then
           call WarningMessage(2,'Error in Mk_RICD_Shells')

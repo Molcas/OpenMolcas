@@ -274,7 +274,7 @@ c You don't have to be beautiful to turn me on
       call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
 
       call mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 
 
       return

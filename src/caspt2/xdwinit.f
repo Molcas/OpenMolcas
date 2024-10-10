@@ -175,7 +175,7 @@ C
       call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
       call mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 
       end subroutine xdwinit
 

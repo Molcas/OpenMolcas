@@ -394,12 +394,8 @@ c Free memory
       Call mma_deallocate(SDMXI)
       Call mma_deallocate(SDMYI)
       Call mma_deallocate(SDMZI)
-      IZMR(1)%A2=>Null()
-      IZMR(2)%A2=>Null()
-      IZMR(3)%A2=>Null()
-      IZMI(1)%A2=>Null()
-      IZMI(2)%A2=>Null()
-      IZMI(3)%A2=>Null()
+      nullify(IZMR(1)%A2,IZMR(2)%A2,IZMR(3)%A2,IZMI(1)%A2,IZMI(2)%A2,
+     &        IZMI(3)%A2)
 
       Call mma_deallocate(TMPI)
       Call mma_deallocate(TMPR)
@@ -410,12 +406,8 @@ c Free memory
       Call mma_deallocate(SDMXI2)
       Call mma_deallocate(SDMYI2)
       Call mma_deallocate(SDMZI2)
-      IZMR2(1)%A2=>Null()
-      IZMR2(2)%A2=>Null()
-      IZMR2(3)%A2=>Null()
-      IZMI2(1)%A2=>Null()
-      IZMI2(2)%A2=>Null()
-      IZMI2(3)%A2=>Null()
+      nullify(IZMR2(1)%A2,IZMR2(2)%A2,IZMR2(3)%A2,IZMI2(1)%A2,
+     &        IZMI2(2)%A2,IZMI2(3)%A2)
 
       Call mma_deallocate(MAPMS)
       Call mma_deallocate(MAPSP)

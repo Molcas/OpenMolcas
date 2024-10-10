@@ -368,7 +368,7 @@ if (.not. Test) then
 
         Int_PostProcess => Integral_WrOut2
         call Drv2El(Zero)
-        Int_PostProcess => null()
+        nullify(Int_PostProcess)
 
         call Sort1B()
         call Sort2()

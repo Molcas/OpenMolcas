@@ -40,7 +40,7 @@ THRINT1 = ThrInt
 
 call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR)
 
-Int_PostProcess => null()
+nullify(Int_PostProcess)
 #ifdef _DEBUGPRINT_
 CUTINT2 = CutInt
 THRINT2 = ThrInt

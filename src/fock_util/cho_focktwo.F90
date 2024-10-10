@@ -89,7 +89,7 @@ logical(kind=iwp) :: Debug
 character(len=50) :: CFmt
 character(len=6) :: Fname
 type(SBA_Type), target :: LqJs, Wab
-real(kind=wp), pointer :: LrJs(:,:,:) => null(), VJ(:) => null(), XdJb(:) => null(), XpJs(:) => null()
+real(kind=wp), pointer :: LrJs(:,:,:), VJ(:), XdJb(:), XpJs(:)
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FOCKTWO'
 integer(kind=iwp), external :: isfreeunit
 
@@ -326,7 +326,7 @@ do jSym=1,MaxSym
           end if
         end do
 
-        VJ => null()
+        nullify(VJ)
 
         call CWTIME(TCC2,TWC2)
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
@@ -405,7 +405,7 @@ do jSym=1,MaxSym
                 texch(1) = texch(1)+(TC1X2-TC1X1)
                 texch(2) = texch(2)+(TW1X2-TW1X1)
 
-                XpJs => null()
+                nullify(XpJs)
 
               end if ! nOcc /= 0
 
@@ -415,7 +415,7 @@ do jSym=1,MaxSym
 
         end if ! nbas /= 0 & nOcc /= 0
 
-        LrJs => null()
+        nullify(LrJs)
 
       end do ! loop over Fock mat symmetries
 
@@ -532,10 +532,10 @@ do jSym=1,MaxSym
 
               end if
 
-              XdJb => null()
+              nullify(XdJb)
 
             end if
-            LqJs%SB(ISYMG)%A3 => null()
+            nullify(LqJs%SB(ISYMG)%A3)
 
           end do ! loop over iorbital symmetries
 

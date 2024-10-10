@@ -99,6 +99,6 @@ C Check that they can be obtained back:
         WRITE(6,*)'NEWFSBTAB Hash index errors. IERR=',IERR
         CALL ABEND()
       END IF
-      FSBTAB=>Null()
+      nullify(FSBTAB)
 
       END SUBROUTINE NEWFSBTAB

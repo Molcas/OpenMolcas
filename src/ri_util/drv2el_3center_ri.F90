@@ -420,7 +420,7 @@ call mma_deallocate(TMax_Valence)
 !                                                                      *
 ! Terminate integral environment.
 
-Int_PostProcess => null()
+nullify(Int_PostProcess)
 call Term_Ints()
 
 call mma_deallocate(iSSOff)

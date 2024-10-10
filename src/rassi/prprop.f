@@ -2764,12 +2764,8 @@ C square root of the G eigenvalues
       Call mma_deallocate(ZYI)
       Call mma_deallocate(ZZR)
       Call mma_deallocate(ZZI)
-      pZMR(1)%A2=>NUll()
-      pZMI(1)%A2=>NUll()
-      pZMR(2)%A2=>NUll()
-      pZMI(2)%A2=>NUll()
-      pZMR(3)%A2=>NUll()
-      pZMI(3)%A2=>NUll()
+      nullify(pZMR(1)%A2,pZMI(1)%A2,pZMR(2)%A2,pZMI(2)%A2,pZMR(3)%A2,
+     &        pZMI(3)%A2)
 
  800  CONTINUE
 
@@ -3151,12 +3147,8 @@ C backtransformation in two steps, -phi and -theta
       Call mma_deallocate(MYI)
       Call mma_deallocate(MZR)
       Call mma_deallocate(MZI)
-      pMR(1)%A2=>Null()
-      pMI(1)%A2=>Null()
-      pMR(2)%A2=>Null()
-      pMI(2)%A2=>Null()
-      pMR(3)%A2=>Null()
-      pMI(3)%A2=>Null()
+      nullify(pMR(1)%A2,pMI(1)%A2,pMR(2)%A2,pMI(2)%A2,pMR(3)%A2,
+     &        pMI(3)%A2)
 
  900  CONTINUE
 

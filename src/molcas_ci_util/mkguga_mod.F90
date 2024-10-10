@@ -76,8 +76,7 @@ subroutine MKGUGA(SGS,CIS)
 
   end if
 
-  SGS%DOWNP => null()
-  SGS%DRTP => null()
+  nullify(SGS%DOWNP,SGS%DRTP)
 
   ! CALCULATE ARC WEIGHT.
 

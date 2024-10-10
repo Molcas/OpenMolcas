@@ -301,7 +301,7 @@ call mma_deallocate(TMax)
 call Term_Ints()
 
 call Free_DeDe(Dens,TwoHam,nDens)
-Int_PostProcess => null()
+nullify(Int_PostProcess)
 
 ! Broadcast contributions to the Fock matrix
 

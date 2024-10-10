@@ -181,8 +181,7 @@ C.......... The operator is not sym --> transpose integrals! NT.ne.S
             irc=ipin(ipci2)
             Call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
 
-            KAIN1=>Null()
-            KINT2=>Null()
+            nullify(KAIN1,KINT2)
             Call mma_deallocate(TI1)
             Call mma_deallocate(TI2)
 

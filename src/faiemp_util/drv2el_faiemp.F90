@@ -310,7 +310,7 @@ call Term_Ints()
 call Free_DeDe(Dens,Fock,nBT)
 
 call mma_deallocate(Dens)
-Int_PostProcess => null()
+nullify(Int_PostProcess)
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*)

@@ -70,7 +70,7 @@ integer(kind=iwp) :: ISYM
 logical(kind=iwp) :: Debug
 #endif
 real(kind=wp), allocatable :: Lrs(:,:), Drs(:,:), Frs(:,:)
-real(kind=wp), pointer :: VJ(:) => null()
+real(kind=wp), pointer :: VJ(:)
 real(kind=wp), parameter :: FactCI = One, FactCA = One, FactXA = -Half
 character(len=*), parameter :: SECNAM = 'CHO_FMCSCF'
 
@@ -290,7 +290,7 @@ do jSym=1,nSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if  ! Coulomb (jsym=1)
 

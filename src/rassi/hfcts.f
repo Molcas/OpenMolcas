@@ -2846,12 +2846,8 @@ C square root of the G eigenvalues
       Call mma_deallocate(ZYI)
       Call mma_deallocate(ZZR)
       Call mma_deallocate(ZZI)
-      pZMR(1)%A2=>Null()
-      pZMR(2)%A2=>Null()
-      pZMR(3)%A2=>Null()
-      pZMI(1)%A2=>Null()
-      pZMI(2)%A2=>Null()
-      pZMI(3)%A2=>Null()
+      nullify(pZMR(1)%A2,pZMR(2)%A2,pZMR(3)%A2,pZMI(1)%A2,pZMI(2)%A2,
+     &        pZMI(3)%A2)
       End Subroutine Deallocate_Z
 
       END SUBROUTINE HFCTS

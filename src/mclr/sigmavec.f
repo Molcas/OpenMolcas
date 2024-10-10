@@ -359,9 +359,7 @@
         Call mma_deallocate(SB)
       End If
       Call mma_deallocate(SVST)
-      If (Associated(pC2)) pC2=>Null()
-      If (Associated(pCJRES)) pCJRES=>Null()
-      If (Associated(pSIRES)) pSIRES=>Null()
+      nullify(pC2,pCJRES,pCJRES,pSIRES)
       Call mma_deallocate(C2,safe='*')
       Call mma_deallocate(CJRES,safe='*')
       Call mma_deallocate(SIRES,safe='*')

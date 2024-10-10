@@ -121,7 +121,6 @@ C Compute spin coupling coefficients:
           SPNTAB(14+(IBLK-1)*6)=NULLPTR
         END IF
       END DO
-      TRANS=>Null()
-      SPNTAB=>Null()
+      nullify(TRANS,SPNTAB)
 
       END SUBROUTINE NEWSCTAB
