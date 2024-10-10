@@ -543,36 +543,22 @@ subroutine Deallocate_SBA(Adam)
 
 end subroutine Deallocate_SBA
 
-subroutine Map_to_SBA(Adam,ipAdam,Tweak)
+subroutine Map_to_SBA(Adam,ipAdam)
 
   type(SBA_Type), intent(in) :: Adam
   integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
-  logical(kind=iwp), optional :: Tweak
   integer(kind=iwp) :: iSym, jSym
-  logical(kind=iwp) :: Swap
 
   if (Adam%iCase < 4) then
     do iSym=1,Adam%nSym
       ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
     end do
   else
-    Swap = .false.
-    if (present(Tweak)) Swap = Tweak
-    if (Swap) then
-      do iSym=1,Adam%nSym
-        jsym = Mul(iSym,Adam%iSym)
-        if (.not. associated(Adam%SB(jSym)%A2)) cycle
+    do iSym=1,Adam%nSym
+      if (.not. associated(Adam%SB(iSym)%A2)) cycle
 
-        ipAdam(iSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
-
-      end do
-    else
-      do iSym=1,Adam%nSym
-        if (.not. associated(Adam%SB(iSym)%A2)) cycle
-
-        ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
-      end do
-    end if
+      ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
+    end do
   end if
 
 end subroutine Map_to_SBA
