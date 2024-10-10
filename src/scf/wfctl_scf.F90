@@ -17,6 +17,8 @@
 !***********************************************************************
 
 !#define _KRYLOV_
+!#define _DIIS_
+#define _BFGS_
 subroutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
 !***********************************************************************
 !                                                                      *
@@ -337,7 +339,6 @@ do iter_=1,nIter(nIterP)
     end if
 
   end if
-  iOpt = 4
   !                                                                    *
   !*********************************************************************
   !*********************************************************************
@@ -526,7 +527,7 @@ do iter_=1,nIter(nIterP)
 
       select case (iOpt)
 
-        case (2)  ! qNRC2DIIS
+        case (2) ! qNRC2DIIS
           !                                                            *
           !*************************************************************
           !*************************************************************
@@ -599,8 +600,7 @@ do iter_=1,nIter(nIterP)
           !*************************************************************
           !*************************************************************
           !                                                            *
-        case (3,4) ! RS-RFO and S-GEK
-
+        case (3) ! RS-RFO
           !                                                            *
           !*************************************************************
           !*************************************************************
@@ -611,135 +611,23 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           !*************************************************************
           !                                                            *
-          select case (iOpt)
-
-            case (3)
-
-              dqHdq = Zero
-              do
-                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-                if (DD <= Pi) exit
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim /= 1) then
-                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                else
-                  write(u6,*) 'Probably a bug.'
-                  call Abend()
-                end if
-              end do
-
-            case (4)
-#             ifdef _KRYLOV_
-              dqHdq = Zero
-              do
-                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-                if (DD <= Pi) exit
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim /= 1) then
-                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                else
-                  write(u6,*) 'Probably a bug.'
-                  call Abend()
-                end if
-              end do
-#             endif
-!#             define _DIIS_
-#             ifdef _DIIS_
-
-              ! Compute extrapolated g_x(n) and X_x(n)
-
-              iOpt = 2 !QNRDIIS
-
-              do
-                call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
-
-                call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,kOptim,kOV)
-
-                ! compute new displacement vector delta
-                ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
-
-                call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
-
-                DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-
-                if (DD > Pi) then
-                  write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
-                  write(u6,*) 'DD=',DD
-                  if (kOptim == 1) then
-                    write(u6,*) 'Scale the step to be within the threshold.'
-                    write(u6,*) 'LastStep=',LastStep
-                    Disp(:) = Disp(:)*(LastStep/DD)
-                  else
-                    write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
-                    kOptim = 1
-                    Iter_Start = Iter
-                    IterSO = 1
-                    cycle
-                  end if
-                end if
-
-                ! from this, compute new orb rot parameter X(n+1)
-                !
-                ! X(n+1) = X_x(n) - H(-1)g_x(n)
-                ! X(n+1) = X_x(n) + dX_x(n)
-
-                Xnp1(:) = Xnp1(:)-Disp(:)
-
-                ! get address of actual X(n) in corresponding LList
-
-                jpXn = LstPtr(iter,LLx)
-
-                ! and compute actual displacement dX(n)=X(n+1)-X(n)
-
-                Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
-
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-
-                if (DD <= Pi) exit
-
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim == 1) then
-                  write(u6,*) 'Scale the step to be within the threshold.'
-                  Disp(:) = Disp(:)*(LastStep/DD)
-                  DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-                  exit
-                else
-                  write(u6,*)'Reset update depth in BFGS, redo the DIIS'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                end if
-              end do
-              LastStep = min(DD,1.0e-2_wp)
-              iOpt = 4
-#             endif
-
-#             define _BFGS_
-#             ifdef _BFGS_
-              write(u6,*) 'IterSO:',IterSO
-              call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
-              Disp(:) = -Disp(:)
-              DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-              if (DD > Pi) then
-                write(u6,*) 'WfCtl_SCF: Total displacement is large.'
-                write(u6,*) 'DD=',DD
-              end if
-#             endif
-
-              call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.false.)
-
-          end select
+          dqHdq = Zero
+          do
+            call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
+            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            if (DD <= Pi) exit
+            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+            write(u6,*) 'DD=',DD
+            if (kOptim /= 1) then
+              write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
+              kOptim = 1
+              Iter_Start = Iter
+              IterSO = 1
+            else
+              write(u6,*) 'Probably a bug.'
+              call Abend()
+            end if
+          end do
           !                                                            *
           !*************************************************************
           !                                                            *
@@ -748,7 +636,131 @@ do iter_=1,nIter(nIterP)
           call GetVec(iter,LLx,inode,Xnp1,mOV)
 
           Xnp1(:) = Xnp1(:)+Disp(:)
+          !                                                            *
+          !*************************************************************
+          !*************************************************************
+          !                                                            *
+        case (4) ! S-GEK
+          !                                                            *
+          !*************************************************************
+          !*************************************************************
+          !                                                            *
+          ! Get g(n)
 
+          call GetVec(iter,LLGrad,inode,Grd1,mOV)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+#         ifdef _KRYLOV_
+          dqHdq = Zero
+          do
+            call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
+            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            if (DD <= Pi) exit
+            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+            write(u6,*) 'DD=',DD
+            if (kOptim /= 1) then
+              write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
+              kOptim = 1
+              Iter_Start = Iter
+              IterSO = 1
+            else
+              write(u6,*) 'Probably a bug.'
+              call Abend()
+            end if
+          end do
+#         elif defined(_DIIS_)
+          ! Compute extrapolated g_x(n) and X_x(n)
+
+          iOpt = 2 !QNRDIIS
+
+          do
+            call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+
+            call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,kOptim,kOV)
+
+            ! compute new displacement vector delta
+            ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+
+            call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+
+            if (DD > Pi) then
+              write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
+              write(u6,*) 'DD=',DD
+              if (kOptim == 1) then
+                write(u6,*) 'Scale the step to be within the threshold.'
+                write(u6,*) 'LastStep=',LastStep
+                Disp(:) = Disp(:)*(LastStep/DD)
+              else
+                write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+                kOptim = 1
+                Iter_Start = Iter
+                IterSO = 1
+                cycle
+              end if
+            end if
+
+            ! from this, compute new orb rot parameter X(n+1)
+            !
+            ! X(n+1) = X_x(n) - H(-1)g_x(n)
+            ! X(n+1) = X_x(n) + dX_x(n)
+
+            Xnp1(:) = Xnp1(:)-Disp(:)
+
+            ! get address of actual X(n) in corresponding LList
+
+            jpXn = LstPtr(iter,LLx)
+
+            ! and compute actual displacement dX(n)=X(n+1)-X(n)
+
+            Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
+
+            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+
+            if (DD <= Pi) exit
+
+            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+            write(u6,*) 'DD=',DD
+            if (kOptim == 1) then
+              write(u6,*) 'Scale the step to be within the threshold.'
+              Disp(:) = Disp(:)*(LastStep/DD)
+              DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+              exit
+            else
+              write(u6,*)'Reset update depth in BFGS, redo the DIIS'
+              kOptim = 1
+              Iter_Start = Iter
+              IterSO = 1
+            end if
+          end do
+          LastStep = min(DD,1.0e-2_wp)
+          iOpt = 4
+#         elif defined(_BFGS_)
+          write(u6,*) 'IterSO:',IterSO
+          call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
+          Disp(:) = -Disp(:)
+          DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+          if (DD > Pi) then
+            write(u6,*) 'WfCtl_SCF: Total displacement is large.'
+            write(u6,*) 'DD=',DD
+          end if
+#         endif
+
+          call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.false.)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Pick up X(n) and compute X(n+1)=X(n)+dX(n)
+
+          call GetVec(iter,LLx,inode,Xnp1,mOV)
+
+          Xnp1(:) = Xnp1(:)+Disp(:)
+          !                                                            *
+          !*************************************************************
+          !*************************************************************
+          !                                                            *
       end select
       !                                                                *
       !*****************************************************************
@@ -776,7 +788,7 @@ do iter_=1,nIter(nIterP)
       !*****************************************************************
       !*****************************************************************
       !                                                                *
-    case Default
+    case default
       write(u6,*) 'WfCtl_SCF: Illegal option'
       call Abend()
   end select
