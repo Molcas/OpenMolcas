@@ -314,7 +314,7 @@ write(u6,*) 'IterSO   :',IterSO
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
-write(u6,*) 'Check the ortonormality'
+write(u6,*) 'Check the orthonormality'
 do i=1,mDIIS
   do j=1,i
     write(u6,*) i,j,DDot_(mOV,e_diis(:,i),1,e_diis(:,j),1)
