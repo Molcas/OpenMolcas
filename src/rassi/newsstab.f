@@ -31,7 +31,6 @@
       INTEGER IERR,ISBS1,ISBS2,ISBS3,ISBS4,ISBS5,ISBS6,ISBS7,ISBS8
       INTEGER, EXTERNAL :: MORSANN,MORSCRE,MORSPOP,MORSSPIN,MORSSYMM
       Integer, allocatable:: OSPN(:), OSYM(:), NOSUB(:), SCR(:), SCR2(:)
-      Integer, external:: ip_of_iWork
 
 C Table type ID:
       ITYPE=19
@@ -142,7 +141,7 @@ C Size of table, and offsets:
 C The header data
       SSTAB( 1)=NTAB
       SSTAB( 2)=ITYPE
-      SSTAB( 3)=ip_of_iWork(OrbTab(1))
+      SSTAB( 3)= -1 ! Not used
       SSTAB( 4)=NSYM
       SSTAB( 5)=NASPRT
       SSTAB( 6)=MORSBITS
