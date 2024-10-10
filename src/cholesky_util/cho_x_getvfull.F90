@@ -71,7 +71,7 @@ real(kind=wp), intent(inout) :: RedVec(lRedVec)
 integer(kind=iwp), intent(inout) :: IREDC
 type(SBA_Type), intent(inout) :: Wab
 logical(kind=iwp), intent(in) :: DoRead
-integer(kind=iwp) :: i, iOff, ipChoV(8), ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
+integer(kind=iwp) :: i, ipChoV(8), ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1, jVref, MUSED, MXUSD, n2BSF(8,8), nnBSF(8,8)
 
 MXUSD = 0
 MUSED = 0
