@@ -517,12 +517,8 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
       Call mma_deallocate(FTA_Full)
       Call mma_deallocate(FAT_Full)
       Do iSym = 1, nSym
-         FIT(iSym)%A => Null()
-         FTI(iSym)%A => Null()
-         FIA(iSym)%A => Null()
-         FAI(iSym)%A => Null()
-         FTA(iSym)%A => Null()
-         FAT(iSym)%A => Null()
+         nullify(FIT(iSym)%A,FTI(iSym)%A,FIA(iSym)%A,FAI(iSym)%A,
+     &           FTA(iSym)%A,FAT(iSym)%A)
       End Do
 
 C Transform contrav C  to eigenbasis of H0(diag):

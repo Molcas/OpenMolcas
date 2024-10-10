@@ -14,7 +14,7 @@
 subroutine Distg2(g2,Hess,nHess,IndGrd,IfHss,IndHss,iuvwx,kOp,nop,Tr,IfGr)
 !***********************************************************************
 !                                                                      *
-! @parameter kOp   operators for center generator                      *
+! @param kOp   operators for center generator                          *
 !                                                                      *
 ! Object: trace the gradient of the ERI's with the second order        *
 !         density matrix                                               *

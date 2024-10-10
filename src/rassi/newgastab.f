@@ -71,5 +71,5 @@ CTEST      write(*,'(1x,20i3)')(ngaslim(2,igas),igas=1,ngas)
        LPOS=LPOS+2
       END DO
 
-      REST=>Null()
+      nullify(REST)
       END SUBROUTINE NEWGASTAB

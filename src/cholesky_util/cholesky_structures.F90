@@ -189,12 +189,8 @@ subroutine Deallocate_L_Full(Adam)
 
       do iSyma=1,Adam%nSym
 
-        Adam%SPB(iSyma,iShp,1)%A3 => null()
-        Adam%SPB(iSyma,iShp,1)%A21 => null()
-        Adam%SPB(iSyma,iShp,1)%A12 => null()
-        Adam%SPB(iSyma,iShp,2)%A3 => null()
-        Adam%SPB(iSyma,iShp,2)%A21 => null()
-        Adam%SPB(iSyma,iShp,2)%A12 => null()
+        nullify(Adam%SPB(iSyma,iShp,1)%A3,Adam%SPB(iSyma,iShp,1)%A21,Adam%SPB(iSyma,iShp,1)%A12, &
+                Adam%SPB(iSyma,iShp,2)%A3,Adam%SPB(iSyma,iShp,2)%A21,Adam%SPB(iSyma,iShp,2)%A12)
 
       end do
 
@@ -277,7 +273,7 @@ subroutine Deallocate_Lab(Lab)
     do iDen=1,Lab%nDen
       do iSh=1,Lab%nShell
 
-        Lab%SB(iSh,iSym,iDen)%A => null()
+        nullify(Lab%SB(iSh,iSym,iDen)%A)
 
       end do
     end do

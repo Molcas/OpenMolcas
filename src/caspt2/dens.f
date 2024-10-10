@@ -1461,7 +1461,7 @@ C
         call TRACTL(0)
       end if
       Call mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 C
       If (Mode.eq.1) Then
         Do jSym = 1, 8

@@ -15,12 +15,12 @@ subroutine LToCore(F,nAlpha,iShll,la,iAng,nvecac)
 ! Transformation kernel to atomic orbials in normalized spherical harmonics
 !
 !******************************************************************************
-! @parameter F  The cartesian components of <A|core>
-! @parameter nAlpha Number of exponents
-! @parameter ishll Shell number for ECP
-! @parameter la angular momenta LS
-! @parameter iAng angular momenta core
-! @parameter nVecAC Number of derivatives
+! @param F  The cartesian components of <A|core>
+! @param nAlpha Number of exponents
+! @param ishll Shell number for ECP
+! @param la angular momenta LS
+! @param iAng angular momenta core
+! @param nVecAC Number of derivatives
 
 use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph

@@ -30,7 +30,7 @@ character(len=8) :: Label
 type(DSBA_Type) :: SMat
 real(kind=wp), allocatable :: SXMat(:)
 real(kind=wp), allocatable, target :: Dmat0(:)
-real(kind=wp), pointer :: Dmat(:,:) => null()
+real(kind=wp), pointer :: Dmat(:,:)
 
 !***********************************************************************
 irc = 0
@@ -70,7 +70,7 @@ do while (iSym <= nSym)
 
   iSym = iSym+1
 
-  DMat => null()
+  nullify(DMat)
 
 end do
 
@@ -110,7 +110,7 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
     end if
 
-    DMat => null()
+    nullify(DMat)
 
   end do
 

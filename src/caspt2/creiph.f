@@ -125,7 +125,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
         CALL DDAFILE(JOBMIX,1,CMO,NCMO,IAD15)
       END IF
       CALL mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 * Copy all CI coefficients
       IDR=IADR15(4)
       IDW=IADR15(4)

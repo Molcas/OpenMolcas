@@ -1392,8 +1392,7 @@ C             Write density 1-matrices in AO basis to disk.
         Call mma_deallocate(TRA1)
         Call mma_deallocate(TRA2)
       END IF
-      DET1=>Null()
-      DET2=>Null()
+      nullify(DET1,DET2)
       call mma_deallocate(DETTOT1)
       call mma_deallocate(DETTOT2)
       call mma_deallocate(detocc)

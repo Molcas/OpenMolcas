@@ -397,5 +397,5 @@ c     LCONF = MAX(LCONF,LLCONF)
       CALL mma_deallocate(CONF_REO(ISYM)%I)
 
       CALL mma_deallocate(SDREO_I(ISYM)%I)
-      SDREO => Null()
+      nullify(SDREO)
       END

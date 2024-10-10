@@ -54,7 +54,7 @@ real(kind=wp) :: dum1, dum2, dum3
 logical(kind=iwp) :: Process_Twice
 real(kind=wp), allocatable :: Buf2(:), Buf3(:)
 real(kind=wp), allocatable, target :: InBuf(:), PQVX(:), Scrt1(:), TURS(:)
-real(kind=wp), pointer :: Buf9(:) => null(), PQRS(:) => null(), PQRS_(:) => null()
+real(kind=wp), pointer :: Buf9(:), PQRS(:), PQRS_(:)
 
 ! generate offsets
 iiOff = off_sqMat(iSym)+iFro*iBas+1
@@ -170,8 +170,7 @@ do i=1,iBas
       Candino_2 = Candino_2-Candino_1
       Candino_3 = Candino_3+Candino_2
     end if
-    PQRS => null()
-    PQRS_ => null()
+    nullify(PQRS,PQRS_)
 
     nPairs = nPairs-1
     nOff = nOff+kl_Bas_pairs
@@ -206,7 +205,7 @@ if (case2 /= 0) then
     ! (vx!ij) --> (pu!vx)
     call Tra2B(iSym,jSym,iBas,jBas,iAsh,jAsh,iOrb,jOrb,kl_pair,kl_Orb_pairs,CMO(iiOff),CMO(jjOff),CMO(iiiOff),CMO(jjjOff),Buf9, &
                Buf2,Buf3,Buf3,PUVX(1+i1),PUVX(1+i2))
-    Buf9 => null()
+    nullify(Buf9)
 
   end do
   if (IPR >= 99) then
@@ -234,7 +233,7 @@ if (case2 /= 0) then
       ! vx!ij) --> (pu!vx)
       call Tra2B(kSym,lSym,kBas,lBas,kAsh,lAsh,kOrb,lOrb,ij_pair,ij_Orb_pairs,CMO(kkOff),CMO(llOff),CMO(kkkOff),CMO(lllOff),Buf9, &
                  Buf2,Buf3,Buf3,PUVX(1+i1),PUVX(1+i2))
-      Buf9 => null()
+      nullify(Buf9)
     end do
     if (IPR >= 99) then
       call RecPrt('PUVX(k,l,i)',' ',PUVX(1+i1),kOrb,lAsh*ij_Orb_pairs)

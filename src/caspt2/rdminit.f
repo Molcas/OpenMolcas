@@ -78,7 +78,7 @@
 
 * Deallocate everything
       call mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
       call getmem('LCI','FREE','REAL',LCI,NCONF)
 
       return

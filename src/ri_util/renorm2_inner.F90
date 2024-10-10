@@ -125,7 +125,7 @@ do iAng=0,nTest
 
   Int_PostProcess => Integral_ri_2
   call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,Not_Used,Lu_A,ijS_req,Keep_Shell)
-  Int_PostProcess => null()
+  nullify(Int_PostProcess)
 # ifdef _DEBUGPRINT_
   call TriPrt('TInt_c',' ',TInt_c,nTInt_c)
 # endif

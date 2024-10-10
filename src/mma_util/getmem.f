@@ -20,7 +20,7 @@
 *> @details
 *> \p NameIn, \p KeyIn, and \p TypeIn are strings of any size. They are
 *> not case sensitive, and only the four first letters matter.
-*> If KeyIn is '``allo``' (or '``ALLO``' or ...) then ::GETMEM will return the
+*> If \p KeyIn is '``allo``' (or '``ALLO``' or ...) then ::GETMEM will return the
 *> position of a previously unused piece of workspace, capable of holding
 *> at least \p LENGTH items, and register that piece as being in use.
 *> If \p TypeIn is '``Real``', the items will be accessible in
@@ -39,7 +39,7 @@
 *>
 *> @note
 *> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
-*> containinig two arrays,
+*> containing two arrays,
 *> \c WORK and \c IWORK, which  are equivalenced.
 *> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 *>

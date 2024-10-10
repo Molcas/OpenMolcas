@@ -85,7 +85,7 @@ end if
 ! Coefficient for the individual contibutions are defaulted to 1.0
 
 Sub => libxc_functionals     ! Default
-External_Sub => null()       ! Default
+nullify(External_Sub)        ! Default
 Coeffs(:) = One              ! Default
 !                                                                      *
 !***********************************************************************
