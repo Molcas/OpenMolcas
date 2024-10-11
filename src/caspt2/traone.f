@@ -11,6 +11,7 @@
       SUBROUTINE TRAONE(CMO)
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_output, only:iPrGlb
+      use caspt2_data, only: HONE
       use PrintLevel, only: verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -239,7 +240,7 @@ c Transform one-electron effective Hamiltonian:
       IAD1M(3)=IDISK
       CALL DDAFILE(LUONEM,1,WORK(LWFMO),notri,IDISK)
       IEOF1M=IDISK
-      CALL DCOPY_(NOTRI,WORK(LWFMO),1,WORK(LHONE),1)
+      CALL DCOPY_(NOTRI,WORK(LWFMO),1,HONE,1)
       CALL GETMEM('WTMP','FREE','REAL',LWTMP,NWTMP)
       CALL GETMEM('WFMO','FREE','REAL',LWFMO,notri)
       CALL GETMEM('WFLT','FREE','REAL',LWFLT,NBTRI)

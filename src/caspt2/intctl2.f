@@ -11,7 +11,7 @@
       SUBROUTINE INTCTL2(IF_TRNSF)
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad, nStpGrd
-      use caspt2_data, only: CMO, FIMO, FAMO
+      use caspt2_data, only: CMO, FIMO, FAMO, HONE
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -52,12 +52,12 @@
         CALL DAXPY_(NBTRI,1.0D+00,WORK(LFAAO),1,WORK(ipFIFA),1)
       END IF
 * Transform them to MO basis:
-      CALL DCOPY_(notri,[0.0D0],0,WORK(LHONE),1)
+      CALL DCOPY_(notri,[0.0D0],0,HONE,1)
       FIMO(:)=0.0D0
       FAMO(:)=0.0D0
 c Compute FIMO, FAMO, ...  to workspace:
       Call FMat_Cho(CMO,Work(LFFAO),Work(LFIAO),Work(LFAAO),
-     &              Work(LHONE),FIMO,FAMO)
+     &              HONE,FIMO,FAMO)
       Call GetMem('FFAO','FREE','REAL',LFFAO,NBTRI)
       Call GetMem('FIAO','FREE','REAL',LFIAO,NBTRI)
       Call GetMem('FAAO','FREE','REAL',LFAAO,NBTRI)

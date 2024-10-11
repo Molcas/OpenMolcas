@@ -25,7 +25,8 @@ real(kind=wp), pointer:: CMO(:)
 real(kind=wp), allocatable:: FIMO(:)
 real(kind=wp), allocatable:: FAMO(:)
 real(kind=wp), allocatable:: FIFA(:)
+real(kind=wp), allocatable:: HONE(:)
 
-public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA
+public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE
 
 end module caspt2_data

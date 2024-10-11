@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use caspt2_data, only: FIMO, FAMO, FIFA
+      use caspt2_data, only: FIMO, FAMO, FIFA, HONE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -29,7 +29,7 @@
 c Purpose: Compute the standard Fock matrix which defines
 c the PT2 orbitals and the standard H0 hamiltonian.
 c Available input data are: Effective one-electron hamiltonian
-c for non-frozen space, in MO basis, at WORK(LHONE).
+c for non-frozen space, in MO basis, at HONE.
 c Two-electron integrals in MO basis, second-order transformed,
 c as the three integral sets on LUINTM.
 c To be called from ORBCTL section, after second order two-el
@@ -47,24 +47,24 @@ c NBUF=Max size of a LUINTM buffer.
       NBUF=MAX(NOMX**2,notri)
       CALL GETMEM('LBUF','ALLO','REAL',LBUF,NBUF)
 
-c One-electron Hamiltonian is in WORK(LHONE)
+c One-electron Hamiltonian is in HONE
 
       IF ( IFTEST.NE.0 ) THEN
         WRITE(6,*)'      TEST PRINTS FROM FOCK_RPT2.'
         WRITE(6,*)'      ONE-ELECTRON HAMILTONIAN IN MO BASIS'
-        ISTLT=0
+        ISTLT=1
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           IF ( NO.GT.0 ) THEN
             WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-            CALL TRIPRT(' ',' ',WORK(LHONE+ISTLT),NO)
+            CALL TRIPRT(' ',' ',HONE(ISTLT),NO)
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
         END DO
       END IF
 
 c Inactive and active Fock matrices:
-      CALL DCOPY_(notri,WORK(LHONE),1,FIMO,1)
+      CALL DCOPY_(notri,HONE,1,FIMO,1)
       CALL DCOPY_(notri,[0.0D0],0,FAMO,1)
       CALL FMAT_CASPT2(FIMO,FAMO,WORK(LDREF),NBUF,
      &                 WORK(LBUF))
