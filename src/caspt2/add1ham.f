@@ -13,8 +13,8 @@
 #if 0
       use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
-      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
       Implicit real*8 (a-h,o-z)
       Dimension H1EFF(*)
@@ -24,21 +24,24 @@
 * Also get POTNUC at the same time.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 *
       character(len=8) :: Label
       Logical Found
+      Real*8, allocatable:: ONEHAM(:), Temp(:)
+#if 0
+      Real*8, allocatable:: Coul(:)
+#endif
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
-      CALL GETMEM('ONEHAM','ALLO','REAL',LONEHAM,NBTRI)
+      CALL mma_allocate(ONEHAM,NBTRI,Label='OneHam')
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
       Label='OneHam'
-      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LONEHAM),ISYLBL)
-      CALL DAXPY_(NBTRI,1.0D0,WORK(LONEHAM),1,H1EFF,1)
-      CALL GETMEM('ONEHAM','FREE','REAL',LONEHAM,NBTRI)
+      CALL RDONE(IRC,IOPT,Label,ICOMP,ONEHAM,ISYLBL)
+      CALL DAXPY_(NBTRI,1.0D0,ONEHAM,1,H1EFF,1)
+      CALL mma_deallocate(ONEHAM)
 
 c Read nuclear repulsion energy:
       IRC=-1
@@ -57,13 +60,13 @@ c the nuclear attraction by the cavity self-energy
          End Do
          Call f_Inquire('RUNOLD',Found)
          If (Found) Call NameRun('RUNOLD')
-         Call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
+         Call mma_allocate(Temp,nTemp,Label='Temp')
          Call Get_dScalar('RF Self Energy',ERFSelf)
-         Call Get_dArray('Reaction field',Work(lTemp),nTemp)
+         Call Get_dArray('Reaction field',Temp,nTemp)
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
-         Call Daxpy_(nTemp,1.0D0,Work(lTemp),1,H1EFF,1)
-         Call GetMem('RFFLD','Free','Real',lTemp,nTemp)
+         Call Daxpy_(nTemp,1.0D0,Temp,1,H1EFF,1)
+         Call mma_deallocate(Temp)
       End If
 
 #ifdef _DEBUGPRINT_
@@ -88,15 +91,14 @@ c the nuclear attraction by the Rep_EN
          Do iSym=1,nSym
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
-         Call GetMem('DCoul','Allo','Real',ipCoul,nTemp)
-         Call FZero(Work(ipCoul),nTemp)
+         Call mma_allocate(Coul,nTemp,Label='Coul')
+         Coul(:)=0.0D=
          If (OFE_First) Then
             Call mma_allocate(FMaux,nTemp,Label='FMaux')
-            Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(ipCoul),
-     &                             Work(ipCoul),nTemp)
+            Call Coul_DMB(.true.,1,Rep_EN,FMaux,Coul,Coul,nTemp)
          EndIf
          Call DaXpY_(nTemp,1.0d0,FMaux,1,H1EFF,1)
-         Call GetMem('DCoul','Free','Real',ipCoul,nTemp) ! used as Dum
+         Call mma_deallocate(Coul)
          OFE_First=.false.
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name

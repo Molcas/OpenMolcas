@@ -1390,7 +1390,7 @@ C
 C     CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO,nBasSq)
       CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,nBasSq)
       CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2,nBasSq)
-C     Call SQUARE(Work(LFIMO),Work(ipFIMO),1,nOrbI,nOrbI)
+C     Call SQUARE(FIMO,Work(ipFIMO),1,nOrbI,nOrbI)
 C
 C     --- One-Electron Integral
 C

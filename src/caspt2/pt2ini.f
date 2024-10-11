@@ -14,6 +14,8 @@
      &                  REFWFN_CLOSE
       USE PT2WFN
       use caspt2_gradient, only: do_grad
+      use caspt2_data, only: FIMO
+      use stdalloc, only: mma_allocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -97,7 +99,7 @@ C     Cholesky
       CALL GETMEM('LHONE','ALLO','REAL',LHONE,NHONE)
 * The fock matrix with contributions from inactive orbitals, only.
       NFIMO=NOTRI
-      CALL GETMEM('LFIMO','ALLO','REAL',LFIMO,NFIMO)
+      CALL mma_allocate(FIMO,NFIMO,Label='FIMO')
 * The fock matrix with contributions from active orbitals, only.
       NFAMO=NOTRI
       CALL GETMEM('LFAMO','ALLO','REAL',LFAMO,NFAMO)
@@ -157,6 +159,8 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
+      use caspt2_data, only: FIMO
+      use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
       use OFembed, only: FMaux
@@ -203,7 +207,7 @@ C     Deallocate MAGEB, etc, superindex tables:
 * Deallocate global array for Fock matrix, etc:
       CALL GETMEM('LFIFA','FREE','REAL',LFIFA,NFIFA)
       CALL GETMEM('LHONE','FREE','REAL',LHONE,NHONE)
-      CALL GETMEM('LFIMO','FREE','REAL',LFIMO,NFIMO)
+      CALL mma_deallocate(FIMO)
       CALL GETMEM('LFAMO','FREE','REAL',LFAMO,NFAMO)
       CALL GETMEM('LDREF','FREE','REAL',LDREF,NDREF)
       CALL GETMEM('LPREF','FREE','REAL',LPREF,NPREF)

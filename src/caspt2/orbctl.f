@@ -20,7 +20,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_data, only: CMO_X => CMO
+      use caspt2_data, only: CMO_X => CMO, FIMO
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -64,7 +64,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
       if (.not. DoFCIQMC) then
           CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
-          CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
+          CALL TRANSFOCK(WORK(LTORB),FIMO,1)
 
 * When doing XMS, FAMO refers only to the last state, therefore it's wrong!
 * However, we never use it anywhere else...

@@ -20,6 +20,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -27,23 +28,18 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "sigma.fh"
-      DIMENSION DPT2(*)
-      DIMENSION IFCOUP(13,13)
+      Integer IVEC, JVEC
+      Real*8 DPT2(*), SCAL
 
-C Remove this after debugging:
-C     WRITE(*,*)' TRDNS2O Warning: Inactive-Active, Active-'//
-C    &  'Secondary and Inactive-Secondary parts'
-C     WRITE(*,*)' of CASPT2 density matrix contribution to '//
-C    & '2nd order in perturbation'
-C     WRITE(*,*)' theory are presently not properly debugged.'
-C     RETURN
+      Integer IFCOUP(13,13)
+      Real*8, Allocatable:: WEC1(:), SCR(:)
+#ifdef _MOLCAS_MPP_
+      Real*8, Allocatable:: TMP1(:), TMP2(:)
+#endif
 
 C Enter coupling cases for non-diagonal blocks:
-      DO I=1,NCASES
-       DO J=1,NCASES
-        IFCOUP(I,J)=0
-       END DO
-      END DO
+      IFCOUP(:,:)=0
+
       IFCOUP(2,1)=1
       IFCOUP(3,1)=2
       IFCOUP(5,1)=3
@@ -141,51 +137,46 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
           END IF
 C Form WEC1 from VEC1, if needed.
           NWEC1=0
-          LWEC1=1
           FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
           IF(ICASE1.EQ.1) NWEC1=NASH(ISYM1)*NISH(ISYM1)
           IF(ICASE1.EQ.4) NWEC1=NASH(ISYM1)*NSSH(ISYM1)
           IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) NWEC1=NIS1
           IF(NWEC1.GT.0) THEN
-            CALL GETMEM('WEC1','ALLO','REAL',LWEC1,NWEC1)
-            CALL DCOPY_(NWEC1,[0.0D0],0,WORK(LWEC1),1)
+            CALL mma_allocate(WEC1,NWEC1,Label='WEC1')
+            WEC1(:)=0.0D0
             IMLTOP=1
 #ifdef _MOLCAS_MPP_
             IF (IS_REAL_PAR()) THEN
-                CALL GETMEM('TMP1','ALLO','REAL',LTMP1,NVEC1)
-                CALL RHS_GET(NAS1,NIS1,LVEC1,WORK(LTMP1))
+                CALL mma_allocate(TMP1,NVEC1,Label='TMP1')
+                CALL RHS_GET(NAS1,NIS1,LVEC1,TMP1)
                 IF(ICASE1.EQ.1) THEN
-                  CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LTMP1),
-     &                    WORK(LWEC1))
+                  CALL SPEC1A(IMLTOP,FACT,ISYM1,TMP1,WEC1)
                 ELSE IF(ICASE1.EQ.4) THEN
-                  CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LTMP1),
-     &                    WORK(LWEC1))
+                  CALL SPEC1C(IMLTOP,FACT,ISYM1,TMP1,WEC1)
                 ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-                  CALL SPEC1D(IMLTOP,FACT,WORK(LTMP1),WORK(LWEC1))
+                  CALL SPEC1D(IMLTOP,FACT,TMP1,WEC1)
                 END IF
-                CALL GETMEM('TMP1','FREE','REAL',LTMP1,NVEC1)
+                CALL mma_deallocate(TMP1)
             ELSE
               IF(ICASE1.EQ.1) THEN
-                CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-     &                    WORK(LWEC1))
+                CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
               ELSE IF(ICASE1.EQ.4) THEN
-                CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-     &                    WORK(LWEC1))
+                CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
               ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-                CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WORK(LWEC1))
+                CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WEC1)
               END IF
             END IF
 #else
             IF(ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-     &                    WORK(LWEC1))
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
             ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),
-     &                    WORK(LWEC1))
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WORK(LWEC1))
+              CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WEC1)
             END IF
 #endif
+          ELSE
+            CALL mma_allocate(WEC1,1,Label='WEC1')
           END IF
 C Note: WEC1 is identical to <IBRA| E(p,q) |0> for the cases
 C (p,q)=(t,i), (a,t), and (a,i), resp.
@@ -208,31 +199,30 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               END IF
 #ifdef _MOLCAS_MPP_
               IF (IS_REAL_PAR()) THEN
-                  CALL GETMEM('TMP1','ALLO','REAL',LTMP1,NVEC1)
-                  CALL GETMEM('TMP2','ALLO','REAL',LTMP2,NVEC2)
-                  CALL RHS_GET(NAS1,NIS1,LVEC1,WORK(LTMP1))
-                  CALL RHS_GET(NAS2,NIS2,LVEC2,WORK(LTMP2))
+                  CALL mma_allocate(TMP1,NVEC1,Label='TMP1')
+                  CALL mma_allocate(TMP2,NVEC2,Label='TMP2')
+                  CALL RHS_GET(NAS1,NIS1,LVEC1,TMP1)
+                  CALL RHS_GET(NAS2,NIS2,LVEC2,TMP2)
                   CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                  WORK(LWEC1),WORK(LTMP1),DPT2,WORK(LTMP2),
+     &                        WEC1,TMP1,DPT2,TMP2,
      &                  iWORK(LLISTS))
-                  CALL GETMEM('TMP1','FREE','REAL',LTMP1,NVEC1)
-                  CALL GETMEM('TMP2','FREE','REAL',LTMP2,NVEC2)
+                  CALL mma_deallocate(TMP1)
+                  CALL mma_deallocate(TMP2)
               ELSE
                 CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                WORK(LWEC1),WORK(LVEC1),DPT2,WORK(LVEC2),
+     &                      WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),
      &                iWORK(LLISTS))
               END IF
 #else
               CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &              WORK(LWEC1),WORK(LVEC1),DPT2,WORK(LVEC2),
-     &              iWORK(LLISTS))
+     &                    WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),
+     &                    iWORK(LLISTS))
 #endif
               CALL RHS_FREE(NAS2,NIS2,LVEC2)
  200        CONTINUE
  300      CONTINUE
           CALL RHS_FREE(NAS1,NIS1,LVEC1)
-          IF(NWEC1.GT.0)
-     &         CALL GETMEM('WEC1','FREE','REAL',LWEC1,NWEC1)
+          Call mma_deallocate(WEC1)
  401    CONTINUE
  400  CONTINUE
 
@@ -240,15 +230,15 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
 
       IF(IVEC.NE.JVEC) THEN
 C Transpose the density matrix.
-        CALL GETMEM('SCR','ALLO','REAL',LSCR,NDPT2)
+        CALL mma_allocate(SCR,NDPT2,Label='SCR')
         ISTA=1
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
-          CALL TRNSPS(NO,NO,DPT2(ISTA),WORK(LSCR))
-          CALL DCOPY_(NO*NO,WORK(LSCR),1,DPT2(ISTA),1)
+          CALL TRNSPS(NO,NO,DPT2(ISTA),SCR)
+          CALL DCOPY_(NO*NO,SCR,1,DPT2(ISTA),1)
           ISTA=ISTA+NO**2
         END DO
-        CALL GETMEM('SCR','FREE','REAL',LSCR,NDPT2)
+        CALL mma_deallocate(SCR)
       END IF
  1000 CONTINUE
 

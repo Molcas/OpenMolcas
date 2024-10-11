@@ -720,6 +720,7 @@ C-----------------------------------------------------------------------
       Subroutine CnstFIFAFIMO(MODE)
 
       use caspt2_gradient, only: TraFro
+      use caspt2_data, only: FIMO
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -807,7 +808,7 @@ C
           !! FIMO
 C         If (MODE.eq.0) Then
             If (nFroT.eq.0) Then
-              Call SQUARE(Work(LFIMO+iTr),Work(ipFIMO+iSQ),
+              Call SQUARE(FIMO(1+iTr),Work(ipFIMO+iSQ),
      *                    1,nBasI,nBasI)
             Else
               Call SQUARE(Work(ipFIMO+iTr),Work(ipWRK1),1,nBasI,nBasI)
@@ -835,7 +836,7 @@ C
             nBasI = nBas(iSym)
             Call SQUARE(Work(LFIFA+iTr),Work(ipFIFA+iSQ),
      *                  1,nBasI,nBasI)
-            Call SQUARE(Work(LFIMO+iTr),Work(ipFIMO+iSQ),
+            Call SQUARE(FIMO(1+iTr),Work(ipFIMO+iSQ),
      *                  1,nBasI,nBasI)
             iSQ = iSQ + nBasI*nBasI
             iTR = iTR + nBasI*(nBasI+1)/2

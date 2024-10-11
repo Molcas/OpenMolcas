@@ -84,6 +84,7 @@
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use caspt2_data, only: FIMO
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -160,7 +161,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! A(tvx,j) = (tjvx) + FIMO(t,j)*delta(v,x)/NACTEL
             IF (ISYT.EQ.ISYJ.AND.IVABS.EQ.IXABS) THEN
               ITTOT=IT+NISH(ISYT)
-              FTJ=WORK(LFIMO+NFIMOES+(ITTOT*(ITTOT-1))/2+IJ-1)
+              FTJ=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+IJ)
               ATVXJ=TJVX+FTJ/DBLE(MAX(1,NACTEL))
             ELSE
               ATVXJ=TJVX
@@ -194,6 +195,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use caspt2_data, only: FIMO
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -277,7 +279,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
           IATOT=IA+NISH(ISYM)+NASH(ISYM)
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
-            FAT=WORK(LFIMO+NFIMOES+(IATOT*(IATOT-1))/2+ITTOT-1)
+            FAT=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+ITTOT)
             SUMU=0.0D0
             ITABS=NAES(ISYM)+IT
             DO IUABS=1,NASHT
@@ -875,6 +877,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
+      use caspt2_data, only: FIMO
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -986,7 +989,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! now, dress with FIMO(a,j), only if T==V, so ISYT==ISYV, so if ISYM==1
           IF (ISYM.EQ.1) THEN
             IATOT=IA+NISH(ISYA)+NASH(ISYA)
-            FAJ=WORK(LFIMO+NFIMOES(ISYA)+(IATOT*(IATOT-1))/2+IJ-1)
+            FAJ=FIMO(NFIMOES(ISYA)+(IATOT*(IATOT-1))/2+IJ)
             ONEADD=FAJ*ACTINV
             DO IUABS=1,NASHT
               IUU=KTU(IUABS,IUABS)

@@ -22,6 +22,7 @@
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
+      use caspt2_data, only: FIMO
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -658,7 +659,7 @@ C
           Do iSym = 1, nSym
             nOrbI = nOrb(iSym)
             Call SQUARE(Work(LFIFA+iTR),Work(ipFIFA+iSQ),1,nOrbI,nOrbI)
-            Call SQUARE(Work(LFIMO+iTR),Work(ipFIMO+iSQ),1,nOrbI,nOrbI)
+            Call SQUARE(FIMO(1+iTR),Work(ipFIMO+iSQ),1,nOrbI,nOrbI)
             iSQ = iSQ + nOrbI*nOrbI
             iTR = iTR + nOrbI*(nOrbI+1)/2
           End Do
@@ -1585,7 +1586,6 @@ C
      *          Trf(*)
       DIMENSION FPT2(*),FPT2C(*),FIFA(*),FIMO(*),RDMSA(*)
 C
-C     write (6,*) "here is eigder"
       CALL GETMEM('WRK1 ','ALLO','REAL',ipWRK1 ,nBSQT)
       CALL GETMEM('WRK2 ','ALLO','REAL',ipWRK2 ,nBSQT)
       CALL GETMEM('FPT2 ','ALLO','REAL',ipFPT2 ,nBSQT)
@@ -1594,11 +1594,6 @@ C
       !! AO -> MO transformation
       iCMO =1
       iAO = 1
-C     iMO = 1
-C     write(6,*) "fpt2ao"
-C     call sqprt(fpt2ao,nbasT)
-C     write(6,*) "fpt2cao"
-C     call sqprt(fpt2cao,nbasT)
       if (nfrot.ne.0) then
         Call DCopy_(nBsqT,FPT2,1,Work(ipFPT2),1)
         Call DCopy_(nBsqT,FPT2C,1,Work(ipFPT2C),1)
@@ -1629,49 +1624,12 @@ C       iOFF = iWTMP + nBas(iSym)*nBas(iSym)
 C       iMO  = iMO  + nBasI*nBasI
       End Do
       end if
-C     write(6,*) "fpt2"
-C     call sqprt(work(ipfpt2),nbasT)
-C     write(6,*) "fpt2c"
-C     call sqprt(work(ipfpt2c),nbasT)
 C
       Call DScal_(nBSQT,2.0D+00,Work(ipFPT2) ,1)
       Call DScal_(nBSQT,2.0D+00,Work(ipFPT2C),1)
-C     write(6,*) "fpt2mo"
-C     call sqprt(work(ipfpt2),nbasT)
-C
-C     write(6,*) "fpt2 in MO"
-C     do isym = 1, nsym
-C       nbasi = nbas(isym)
-C       write(6,*) "for symmetry :", isym,nbasi
-C       call sqprt(work(ipfpt2),nbasi)
-C     end do
-C
       !! construct Fock in MO
 C
-C     write(6,*) "ndref = ", ndref
-C     write(6,*) "nstate = ", state
-C     write(6,*) "ldref"
-C     do i = 1, ndref
-C       write(6,'(i3,f20.10)') i,Work(ldref+i-1)
-C     end do
-C     write(6,*) "ldmix"
-C     do istate = 1, nstate
-C     write(6,*) "istate = ", istate
-C     do i = 1, ndref
-C       write(6,'(i3,f20.10)') i,Work(ldmix+i-1+ndref*(istate-1))
-C     end do
-C     end do
-C     write(6,*) "average"
-C     do i = 1, ndref
-C       val = 0.0d+00
-C       do istate = 1, nstate
-C         val = val + Work(ldmix+i-1+ndref*(istate-1))/dble(nstate)
-C       end do
-C       write(6,'(i3,f20.10)') i,val
-C     end do
       iSQ = 1
-C     write(6,*) "olag before"
-C     call sqprt(work(ipolag),nbast)
       Do iSym = 1, nSym
         nOrbI = nBas(iSym)-nDel(iSym) !! nOrb(iSym)
         nFroI = nFro(iSym)
@@ -1723,8 +1681,6 @@ C         Call SQUARE(Work(LFIFA+iSQ-1),Work(ipWRK1),1,nOrbI,nOrbI)
 C       Else
 C         Call OLagFroSq(iSym,Work(LFIFA+iSQ-1),Work(ipWRK1))
 C       End If
-C       write(6,*) "fock in MO"
-C       call sqprt(FIFA(iSQ),norbi)
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              2.0D+00,Work(ipWRK1),nOrbI,DPT2(iSQ),nOrbI,
      *              2.0D+00,FIFA(iSQ),nOrbI,DPT2(iSQ),nOrbI,
@@ -1736,10 +1692,6 @@ C
         !!                       + C_{mu p} C_{nu m} U_{mq}) * f_{mu nu}
         !!         = f_{mu nu}^a + U_{mp} f_{mq} + U_{mq} f_{pm}
         !! U_{pq}  = f_{pm} df_{qm} + f_{mp} df_{mq}
-C       Call SQUARE(Work(LFIMO+iSQ-1),Work(ipWRK1),1,nOrbI,nOrbI)
-C       write(6,*) "effective fock in MO"
-C       call sqprt(FIMO(iSQ),norbi)
-C       If (nFroT.eq.0) Then
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
@@ -1754,8 +1706,6 @@ C       End If
      *              Work(ipOLAG+iSQ-1),1)
         iSQ = iSQ + nOrbI*nOrbI
       End Do
-C     write(6,*) "olag in eigder"
-C     call sqprt(work(ipolag),nbasT)
 C
 C     ----- CASSCF density derivative contribution in active space
 C
@@ -1781,8 +1731,6 @@ C           write(6,'(2i3,f20.10)') it,iu,Work(ipFPT2+iSq-1+iTU)
         iSQ = iSQ + nOrbI*nOrbI
         iSQA= iSQA+ nAshI*nAshI
       End Do
-C     write(6,*) "rdmeig"
-C     call sqprt(rdmeig,5)
 C
       CALL GETMEM('WRK1 ','FREE','REAL',ipWRK1 ,nBSQT)
       CALL GETMEM('WRK2 ','FREE','REAL',ipWRK2 ,nBSQT)

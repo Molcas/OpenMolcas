@@ -22,7 +22,8 @@ private
 
 real(kind=wp), allocatable, target:: CMO_Internal(:)
 real(kind=wp), pointer:: CMO(:)
+real(kind=wp), allocatable:: FIMO(:)
 
-public :: CMO, CMO_Internal, jState, mState, nActEl, nG3
+public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO
 
 end module caspt2_data
