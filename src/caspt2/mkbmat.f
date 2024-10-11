@@ -124,7 +124,9 @@ C looping, etc in the rest  of the routines.
       Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
       Real*8 FD(NDREF),FP(NPREF)
       INTEGER*1 idxG3(6,NG3)
+#ifdef _MOLCAS_MPP_
       Real*8 Dummy(1)
+#endif
 
       ICASE=1
 C LONG loop over superindex symmetry.
@@ -953,7 +955,9 @@ c Avoid unused argument warnings
       Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
       Real*8 FD(NDREF),FP(NPREF)
       INTEGER*1 idxG3(6,NG3)
+#ifdef _MOLCAS_MPP_
       Real*8 Dummy(1)
+#endif
 
       ICASE=4
 C LONG loop over superindex symmetry.
