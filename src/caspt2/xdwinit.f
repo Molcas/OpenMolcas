@@ -16,7 +16,7 @@
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: CMO, CMO_Internal
+      use caspt2_data, only: CMO, CMO_Internal, FIFA
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -104,7 +104,7 @@
         do I=1,Nstate
 * Compute matrix element <I|F|J> and store it into H0
           FIJ = 0.0_wp
-          call FOPAB(WORK(LFIFA),I,J,FIJ)
+          call FOPAB(FIFA,I,J,FIJ)
           H0(I,J) = FIJ
         end do
       end do

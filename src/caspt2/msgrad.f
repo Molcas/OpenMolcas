@@ -752,6 +752,7 @@ C
       Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
       use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use caspt2_data, only: FIFA
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
@@ -968,7 +969,7 @@ C    *              Work(ipWRK1),1)
 C
         nOrbI = nBas(1) - nDel(1) !! nOrb(1)
         nBasI = nBas(1)
-C       Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
+C       Call SQUARE(FIFA,Work(ipFIFA),1,nOrbI,nOrbI)
         !! ipFIFASA is in natural orbital basis
         Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
         Call CnstTrf(Work(LTOrb),Work(ipTrf))
@@ -1057,12 +1058,12 @@ C     DO ISYM=1,NSYM
         DO I=1,NISH(1) ! ISYM)
 C         II=IOFF(ISYM)+(I*(I+1))/2
           II=(I*(I+1))/2
-          TRC=TRC+WORK(LFIFA+II-1)
+          TRC=TRC+FIFA(II)
         END DO
 C     END DO
 * Contribution from inactive orbitals:
         EINACT=2.0D0*TRC
-        !! This EINACT may be wrong. Perhaps, WORK(LFIFA) has to be
+        !! This EINACT may be wrong. Perhaps, FIFA has to be
         !! back-transformed to natural orbital basis. However, this does
         !! not contribute to the final gradient as long as all the
         !! (internal) CI vectors are orthogonal.

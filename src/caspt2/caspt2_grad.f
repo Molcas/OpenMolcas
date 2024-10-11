@@ -720,7 +720,7 @@ C-----------------------------------------------------------------------
       Subroutine CnstFIFAFIMO(MODE)
 
       use caspt2_gradient, only: TraFro
-      use caspt2_data, only: FIMO
+      use caspt2_data, only: FIMO, FIFA
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -760,10 +760,10 @@ C-----------------------------------------------------------------------
           !! FIFA
           If (nFroT.eq.0) Then
             If (MODE.eq.0 .and. (IFDW.or.IFRMS)) Then
-              Call SQUARE(Work(LFIFA+iTr),Work(ipFIFASA+iSQ),
+              Call SQUARE(FIFA(1+iTr),Work(ipFIFASA+iSQ),
      *                    1,nBasI,nBasI)
             Else If (MODE.eq.1) Then
-              Call SQUARE(Work(LFIFA+iTr),Work(ipFIFA+iSQ),
+              Call SQUARE(FIFA(1+iTr),Work(ipFIFA+iSQ),
      *                    1,nBasI,nBasI)
 C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
@@ -834,7 +834,7 @@ C
           Do iSym = 1, nSym
             ! nOrbI = nOrb(iSym)
             nBasI = nBas(iSym)
-            Call SQUARE(Work(LFIFA+iTr),Work(ipFIFA+iSQ),
+            Call SQUARE(FIFA(1+iTr),Work(ipFIFA+iSQ),
      *                  1,nBasI,nBasI)
             Call SQUARE(FIMO(1+iTr),Work(ipFIMO+iSQ),
      *                  1,nBasI,nBasI)

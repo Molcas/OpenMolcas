@@ -22,7 +22,7 @@
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
-      use caspt2_data, only: FIMO
+      use caspt2_data, only: FIMO, FIFA
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -524,7 +524,7 @@ C
 C
 c
 c
-C       Call SQUARE(Work(LFIFA),Work(ipFIFA),1,12,12)
+C       Call SQUARE(FIFA,Work(ipFIFA),1,12,12)
 C       CALL DGEMM_('N','T',12,12,12,
 C    *              2.0D+00,work(ipfifa),12,work(ipdpt),12,
 C    *              1.0D+00,Work(ipOLAG),12)
@@ -658,7 +658,7 @@ C
           iTR = 0
           Do iSym = 1, nSym
             nOrbI = nOrb(iSym)
-            Call SQUARE(Work(LFIFA+iTR),Work(ipFIFA+iSQ),1,nOrbI,nOrbI)
+            Call SQUARE(FIFA(1+iTR),Work(ipFIFA+iSQ),1,nOrbI,nOrbI)
             Call SQUARE(FIMO(1+iTR),Work(ipFIMO+iSQ),1,nOrbI,nOrbI)
             iSQ = iSQ + nOrbI*nOrbI
             iTR = iTR + nOrbI*(nOrbI+1)/2
@@ -1677,9 +1677,9 @@ C       Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshI,nAshI)
         !! From the third term of U_{ij}
         !  FIFA is already in quasi-canonical basis
 C       If (nFroI.eq.0) Then
-C         Call SQUARE(Work(LFIFA+iSQ-1),Work(ipWRK1),1,nOrbI,nOrbI)
+C         Call SQUARE(FIFA(iSQ),Work(ipWRK1),1,nOrbI,nOrbI)
 C       Else
-C         Call OLagFroSq(iSym,Work(LFIFA+iSQ-1),Work(ipWRK1))
+C         Call OLagFroSq(iSym,FIFA(iSQ),Work(ipWRK1))
 C       End If
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              2.0D+00,Work(ipWRK1),nOrbI,DPT2(iSQ),nOrbI,

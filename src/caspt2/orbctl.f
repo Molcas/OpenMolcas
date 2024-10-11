@@ -20,7 +20,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_data, only: CMO_X => CMO, FIMO
+      use caspt2_data, only: CMO_X => CMO, FIMO, FIFA
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -56,7 +56,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
-      CALL MKRPTORB(WORK(LFIFA),WORK(LTORB),CMO)
+      CALL MKRPTORB(FIFA,WORK(LTORB),CMO)
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
@@ -71,7 +71,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
           ! CALL TRANSFOCK(WORK(LTORB),FAMO,1)
 *****
 
-          CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
+          CALL TRANSFOCK(WORK(LTORB),FIFA,1)
 
 * When doing XMS, DREF refers to the last state considered and it is not the
 * state average density, therefore it's wrong to transform it!
@@ -83,7 +83,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 
 * DREF is not really used for anything important in MKEPS, this is why we don't
 * care that we pass the wrong one in...
-      CALL MKEPS(WORK(LFIFA),WORK(LDREF))
+      CALL MKEPS(FIFA,WORK(LDREF))
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'

@@ -19,6 +19,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
       use Fockof
+      use caspt2_data, only: FIFA
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -132,7 +133,7 @@ C SVC: add transposed fock matrix blocks
       Call mma_allocate(FTA_Full,NFTA,Label='FTA_Full')
       Call mma_allocate(FAT_Full,NFTA,Label='FAT_Full')
 
-      IFIFA=0
+      IFIFA=1
       DO ISYM=1,NSYM
         NI=NISH(ISYM)
         NA=NASH(ISYM)
@@ -154,7 +155,7 @@ C SVC: add transposed fock matrix blocks
         FAT(ISYM)%A(1:NS*NA) =>
      &     FAT_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
 
-        CALL FBLOCK(WORK(LFIFA+IFIFA),NO,NI,NA,NS,
+        CALL FBLOCK(FIFA(IFIFA),NO,NI,NA,NS,
      &              FIT(ISYM)%A(:),FTI(ISYM)%A(:),
      &              FIA(ISYM)%A(:),FAI(ISYM)%A(:),
      &              FTA(ISYM)%A(:),FAT(ISYM)%A(:))

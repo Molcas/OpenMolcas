@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use caspt2_data, only: FIMO, FAMO
+      use caspt2_data, only: FIMO, FAMO, FIFA
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -72,7 +72,7 @@ c Inactive and active Fock matrices:
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions
 * over active orbitals and therefore are summed up together here
-      CALL DZAXPY(notri,1.0D00,FIMO,1,FAMO,1,WORK(LFIFA),1)
+      CALL DZAXPY(notri,1.0D00,FIMO,1,FAMO,1,FIFA,1)
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       IEPS=0
@@ -85,21 +85,21 @@ c   Orbital energies, EPS, EPSI,EPSA,EPSE:
         NA=NASH(ISYM)
         NO=NORB(ISYM)
         DO I=1,NI
-          E=WORK(LFIFA+ISTLT-1+(I*(I+1))/2)
+          E=FIFA(ISTLT+(I*(I+1))/2)
           IEPS=IEPS+1
           EPS(IEPS)=E
           IEPSI=IEPSI+1
           EPSI(IEPSI)=E
         END DO
         DO I=NI+1,NI+NA
-          E=WORK(LFIFA+ISTLT-1+(I*(I+1))/2)
+          E=FIFA(ISTLT+(I*(I+1))/2)
           IEPS=IEPS+1
           EPS(IEPS)=E
           IEPSA=IEPSA+1
           EPSA(IEPSA)=E
         END DO
         DO I=NI+NA+1,NO
-          E=WORK(LFIFA+ISTLT-1+(I*(I+1))/2)
+          E=FIFA(ISTLT+(I*(I+1))/2)
           IEPS=IEPS+1
           EPS(IEPS)=E
           IEPSE=IEPSE+1
@@ -146,11 +146,11 @@ C density.
         END DO
 
         WRITE(6,*)'      TOTAL FOCK MATRIX IN MO BASIS'
-        ISTLT=0
+        ISTLT=1
         DO ISYM=1,NSYM
           IF ( NORB(ISYM).GT.0 ) THEN
             WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-            CALL TRIPRT(' ',' ',WORK(LFIFA+ISTLT),NORB(ISYM))
+            CALL TRIPRT(' ',' ',FIFA(ISTLT),NORB(ISYM))
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
         END DO

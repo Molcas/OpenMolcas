@@ -14,7 +14,7 @@
      &                  REFWFN_CLOSE
       USE PT2WFN
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: FIMO, FAMO
+      use caspt2_data, only: FIMO, FAMO, FIFA
       use stdalloc, only: mma_allocate
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -93,7 +93,7 @@ C     Cholesky
 *
 * The total fock matrix (sum of inactive and active contrib.)
       NFIFA=NOTRI
-      CALL GETMEM('LFIFA','ALLO','REAL',LFIFA,NFIFA)
+      CALL mma_allocate(FIFA,NFIFA,Label='FIFA')
 * The one-electron Hamiltonian
       NHONE=NOTRI
       CALL GETMEM('LHONE','ALLO','REAL',LHONE,NHONE)
@@ -159,7 +159,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
-      use caspt2_data, only: FIMO, FAMO
+      use caspt2_data, only: FIMO, FAMO, FIFA
       use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
@@ -205,7 +205,7 @@ C     size of idsct array
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE()
 * Deallocate global array for Fock matrix, etc:
-      CALL GETMEM('LFIFA','FREE','REAL',LFIFA,NFIFA)
+      CALL mma_deallocate(FIFA)
       CALL GETMEM('LHONE','FREE','REAL',LHONE,NHONE)
       CALL mma_deallocate(FIMO)
       CALL mma_deallocate(FAMO)
