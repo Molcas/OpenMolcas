@@ -44,7 +44,6 @@
       Integer ns_O(8), ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8 CMO(*)
-      Real*8 Dummy(1)
 *
 *
       irc=0
@@ -633,6 +632,7 @@ C
       Real*8  CMO(*), OrbE(*)
 #include "WrkSpc.fh"
       Integer nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+      Real*8 Dummy(1)
 *
 *
       Call Izero(nAct,nSym)
