@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE STINI
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: DREF
+      use caspt2_data, only: DREF, PREF
       use PrintLevel, only: debug, usual
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -63,7 +63,7 @@ C     indices
       END IF
 
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
-      CALL GETDPREF(DREF,WORK(LPREF))
+      CALL GETDPREF(DREF,PREF)
 
       IFTEST = 0
       IF ( IFTEST.NE.0 ) THEN

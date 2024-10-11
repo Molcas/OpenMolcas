@@ -52,7 +52,7 @@ c To define the modified Fock matrix, a number of arrays on
 c  LUONE may be useful. In addition, the active 1- and 2-
 c electron density matrices, and the inactive Fock matrix
 c FIMO, are available in workspace at DREF,
-c WORK(LPREF),FIMO, and FIFA.
+c PREF,FIMO, and FIFA.
 c Two-electron integrals involving non-frozen, non-deleted
 c orbitals, at most two secondary, are available from
 c subroutines COUL and EXCH (See).

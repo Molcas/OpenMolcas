@@ -20,7 +20,7 @@
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_data, only: DREF
+      use caspt2_data, only: DREF, PREF
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 
@@ -65,18 +65,18 @@ C Set up B matrices for cases 1..13.
       iLUID=0
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-      CALL MKBA(DREF,WORK(LPREF),
+      CALL MKBA(DREF,PREF,
      &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
-      CALL MKBC(DREF,WORK(LPREF),
+      CALL MKBC(DREF,PREF,
      &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
 
       CALL GETMEM('DELTA3','FREE','REAL',LF3,NG3)
       CALL mma_deallocate(idxG3)
 
-      CALL MKBB(DREF,WORK(LPREF),WORK(LFD),WORK(LFP))
-      CALL MKBD(DREF,WORK(LPREF),WORK(LFD),WORK(LFP))
+      CALL MKBB(DREF,PREF,WORK(LFD),WORK(LFP))
+      CALL MKBD(DREF,PREF,WORK(LFD),WORK(LFP))
       CALL MKBE(DREF,WORK(LFD))
-      CALL MKBF(DREF,WORK(LPREF),WORK(LFP))
+      CALL MKBF(DREF,PREF,WORK(LFP))
       CALL MKBG(DREF,WORK(LFD))
       CALL GETMEM('FP','FREE','REAL',LFP,NFP)
       CALL GETMEM('FD','FREE','REAL',LFD,NFD)
