@@ -64,7 +64,7 @@
 *
 *
       Character*(*) NameIn,KeyIn,TypeIn
-      Character*8   FldNam,eopr,eoprcc,elbl,etyp
+      Character*8   FldNam,eopr,elbl,etyp
       Character*4   Key,VarTyp
 #ifdef _GARBLE_
       Character*5   xKey
@@ -116,8 +116,6 @@
       eopr(8:8)=char(0)
       etyp=VarTyp
       etyp(8:8)=char(0)
-      eoprcc='CHECK'
-      eoprcc(8:8)=char(0)
 
 *----------------------------------------------------------------------*
 *     Trace memory                                                     *
