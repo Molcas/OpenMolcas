@@ -22,7 +22,7 @@
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
-      use caspt2_data, only: FIMO, FIFA, DREF
+      use caspt2_data, only: FIMO, FIFA, DREF, DMIX
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -246,12 +246,11 @@ C
         If (IFSADREF) Then
           Do iState = 1, nState
             Wgt  = 1.0D+00/nState
-            Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-     *                  Work(ipWRK1),1)
+            Call DaXpY_(nDRef,Wgt,DMix(:,iState),1,Work(ipWRK1),1)
           End Do
         Else
-          Call DaXpY_(nDRef,1.0D+00,Work(LDMix+nDRef*(jState-1)),1,
-     *                Work(ipWRK1),1)
+          Wgt  = 1.0D+00
+          Call DaXpY_(nDRef,Wgt,DMix(:,jState),1,Work(ipWRK1),1)
         End If
         Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C       write(6,*) "state-averaged density matrix"
@@ -916,8 +915,7 @@ C
           Call GetMem('LCI','ALLO','REAL',LCI,nConf)
           Wgt  = 1.0D+00/nState
           Do iState = 1, nState
-C           Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-C    *                  Work(ipWRK1),1)
+C           Call DaXpY_(nDRef,Wgt,Work(:,iState),1,Work(ipWRK1),1)
             Call LoadCI_XMS('N',1,WORK(LCI),iState,U0)
 C           Call LoadCI(WORK(LCI),iState)
             call POLY1(WORK(LCI))
@@ -1650,8 +1648,7 @@ C       Call DCopy_(nAshI*nAshI,[0.0D+00],0,Work(ipWRK1),1)
 C       Do iState = 1, nState
 C         Wgt  = Work(LDWgt+iState-1+nState*(iState-1))
 C         Wgt  = 1.0D+00/nState
-C         Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-C    *                Work(ipWRK1),1)
+C         Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,Work(ipWRK1),1)
 C       End Do
         !  RDM of CASSCF
         !  This is likely defined by a set of natural orbitals.

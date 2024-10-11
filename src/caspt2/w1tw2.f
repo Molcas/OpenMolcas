@@ -44,7 +44,7 @@ C (1): Compute a representation of the operator PCAS*W1T*W2
       CALL mma_allocate(OP2,NOP2,Label='OP2')
       CALL mma_allocate(OP3,NOP3,Label='OP3')
 
-      CALL MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,LOP3)
+      CALL MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
 
 C Modify the coefficients, see subroutine MODOP.
 

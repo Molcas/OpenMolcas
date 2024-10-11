@@ -20,7 +20,8 @@ C Presently symmetry blocking is disregarded for OP2, OP3, but
 C index pair C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      Integer IVEC, JVEC, NOP2, NOP3
+      Real*8 OP0, OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
 
 C Given the coefficients for two excitation operators in the
 C vectors numbered IVEC and C JVEC on file, construct the

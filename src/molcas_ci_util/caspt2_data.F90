@@ -28,7 +28,8 @@ real(kind=wp), allocatable:: FIFA(:)
 real(kind=wp), allocatable:: HONE(:)
 real(kind=wp), allocatable:: DREF(:)
 real(kind=wp), allocatable:: PREF(:)
+real(kind=wp), allocatable:: DMIX(:,:)
 
-public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF
+public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX
 
 end module caspt2_data

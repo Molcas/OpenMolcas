@@ -13,7 +13,7 @@
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF
+      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, DMIX
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -86,7 +86,7 @@
       do J=1,Ngrp
         Jstate=J+JSTATE_OFF
 
-* Copy the 1-RDM of Jstate from LDMIX into DREF
+* Copy the 1-RDM of Jstate from DMIX into DREF
         ! this might be obsolete if we remove sadref
         IF (IFSADREF) Then
           !! This DREF is used only for constructing the Fock in H0.
@@ -95,11 +95,10 @@
           DREF(:)=0.0D0
           Do K = 1, Nstate
             wij = 1.0d+00/nstate
-            ioffset = NDREF*(K-1)
-            CALL DAXPY_(NDREF,wij,WORK(LDMIX+ioffset),1,DREF,1)
+            CALL DAXPY_(NDREF,wij,DMIX(:,K),1,DREF,1)
           End Do
         Else
-         CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,DREF,1)
+         CALL DCOPY_(NDREF,DMIX(:,Jstate),1,DREF,1)
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate

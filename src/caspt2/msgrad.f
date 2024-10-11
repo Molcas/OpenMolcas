@@ -957,8 +957,7 @@ C
         Call GetMem('LCI','ALLO','REAL',LCI,nConf)
         Wgt  = 1.0D+00/nState
         Do iState = 1, nState
-C       Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-C    *              Work(ipWRK1),1)
+C       Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,Work(ipWRK1),1)
           Call LoadCI(WORK(LCI),iState)
           call POLY1(WORK(LCI))
           call GETDREF(WORK(ipWRK2))

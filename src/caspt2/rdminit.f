@@ -13,7 +13,7 @@
       subroutine rdminit
 
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO, CMO_Internal, DREF
+      use caspt2_data, only: CMO, CMO_Internal, DREF, DMIX
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
       implicit real(8) (A-H,O-Z)
@@ -22,9 +22,6 @@
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-
-      integer offset
-
 
       if (IPRGLB.GE.DEBUG) then
         write(6,*)' Entered rdminit.'
@@ -40,7 +37,7 @@
       call getmem('LCI','ALLO','REAL',LCI,Nconf)
 
 * Initialize array of 1-RDMs with zeros
-      call dcopy_(Nstate*NDREF,[0.0D0],0,WORK(LDMIX),1)
+      DMIX(:,:)=0.0D0
 
 * Start long loop over all states and compute the weighted density
 * of each state using the weights in WORK(LDWGT)
@@ -64,13 +61,10 @@
 * Retrieve the weight of the contribution of state I to the density
 * of state J
           wij = WORK(LDWGT+(I-1) + NSTATE*(J-1))
-* Compute offset to access the density of state J in WORK, needed to
-* know where to store the weighted density of state I
-          offset = NDREF*(J-1)
 * Multiply density of state I with weight wij and add it to whatever
-* is already in LDMIX (contributions of other states already computed)
-* and store it in LDMIX
-          call daxpy_(NDREF,wij,DREF,1,WORK(LDMIX+offset),1)
+* is already in DMIX (contributions of other states already computed)
+* and store it in DMIX
+          call daxpy_(NDREF,wij,DREF,1,DMIX(:,J),1)
         end do
 
 * End of long loop over states
