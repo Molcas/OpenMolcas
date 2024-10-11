@@ -45,12 +45,6 @@
       MemCtl(ipQuery)  = OFF
       MemCtl(ipCheck)  = OFF
       MemCtl(ipClear)  = OFF
-#ifndef NAGFOR
-#ifdef _GARBLE_
-      MemCtl(ipCheck)  = ON
-      MemCtl(ipClear)  = ON
-#endif
-#endif
       MemCtl(ipSysOut) = 6
 
 *----------------------------------------------------------------------*
