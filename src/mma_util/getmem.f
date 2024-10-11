@@ -123,7 +123,8 @@
 *     Trace memory                                                     *
 *----------------------------------------------------------------------*
       If (MemCtl(ipCheck).eq.ON .or. MemCtl(ipTrace).eq.ON) Then
-         iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
+         Write (6,*) ' Unsupported option'
+         Call Abend()
       End If
 #ifdef _GARBLE_
 *----------------------------------------------------------------------*
@@ -149,7 +150,7 @@
         Else If ( Key.eq.'FREE' ) Then
           Write (6,'(A)')
      &         'MMA failed to release the memory block for further use.'
-          iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
+          Call abend()
         Else
           Write (6,*)
         End If

@@ -34,10 +34,8 @@
 ! for boundary checks: ./configure -compiler g95 -bound
 !     PARAMETER (IWORKLEN=552 800 000)
       Integer      iWork(1:IWORKLEN)
-      Integer      ip_Dummy,ip_iDummy
+      Integer      ip_Dummy
 
       Equivalence (Work,iWork)
 
-      Common /iWrkSpc/ ip_Dummy,ip_iDummy
-!$    Integer   MMLck
-!$    Common /MemLck/ MMLck
+      Common /iWrkSpc/ ip_Dummy
