@@ -108,7 +108,9 @@ C looping, etc in the rest  of the routines.
 
       Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
+#ifdef _MOLCAS_MPP_
       Real*8 Dummy(1)
+#endif
 
       ICASE=1
 C LONG loop over superindex symmetry.
@@ -918,7 +920,9 @@ C Add -dyu Gvzxt
 
       Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
+#ifdef _MOLCAS_MPP_
       Real*8 Dummy(1)
+#endif
 
       ICASE=4
 C LONG loop over superindex symmetry.
