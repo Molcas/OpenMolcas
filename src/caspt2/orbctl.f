@@ -68,7 +68,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 
 * When doing XMS, FAMO refers only to the last state, therefore it's wrong!
 * However, we never use it anywhere else...
-          ! CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO),1)
+          ! CALL TRANSFOCK(WORK(LTORB),FAMO,1)
 *****
 
           CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)

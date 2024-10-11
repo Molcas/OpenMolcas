@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use caspt2_data, only: FIMO
+      use caspt2_data, only: FIMO, FAMO
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -65,15 +65,14 @@ c One-electron Hamiltonian is in WORK(LHONE)
 
 c Inactive and active Fock matrices:
       CALL DCOPY_(notri,WORK(LHONE),1,FIMO,1)
-      CALL DCOPY_(notri,[0.0D0],0,WORK(LFAMO),1)
-      CALL FMAT_CASPT2(FIMO,WORK(LFAMO),WORK(LDREF),NBUF,
+      CALL DCOPY_(notri,[0.0D0],0,FAMO,1)
+      CALL FMAT_CASPT2(FIMO,FAMO,WORK(LDREF),NBUF,
      &                 WORK(LBUF))
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions
 * over active orbitals and therefore are summed up together here
-      CALL DZAXPY(notri,1.0D00,FIMO,1,WORK(LFAMO)
-     &            ,1,WORK(LFIFA),1)
+      CALL DZAXPY(notri,1.0D00,FIMO,1,FAMO,1,WORK(LFIFA),1)
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       IEPS=0
@@ -136,12 +135,12 @@ C density.
         END DO
 
         WRITE(6,*)'        ACTIVE FOCK MATRIX IN MO BASIS'
-        ISTLT=0
+        ISTLT=1
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           IF ( NO.GT.0 ) THEN
             WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-            CALL TRIPRT(' ',' ',WORK(LFAMO+ISTLT),NO)
+            CALL TRIPRT(' ',' ',FAMO(ISTLT),NO)
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
         END DO
