@@ -106,8 +106,9 @@ C looping, etc in the rest  of the routines.
 #include "mafdecls.fh"
 #endif
 
-      DIMENSION DREF(NDREF),PREF(NPREF),G3(NG3)
+      Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
+      Real*8 Dummy(1)
 
       ICASE=1
 C LONG loop over superindex symmetry.
@@ -141,7 +142,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
             CALL MKSA_DP(DREF,PREF,ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSA_G3_MPP(ISYM,WORK(IP_DUMMY),ILO,IHI,JLO,JHI,LDA,
+            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
@@ -914,8 +915,9 @@ C Add -dyu Gvzxt
 #include "mafdecls.fh"
 #endif
 
-      DIMENSION DREF(NDREF),PREF(NPREF),G3(NG3)
+      Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
+      Real*8 Dummy(1)
 
       ICASE=4
 C LONG loop over superindex symmetry.
@@ -950,7 +952,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
             CALL MKSC_DP(DREF,PREF,ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSC_G3_MPP(ISYM,WORK(IP_DUMMY),ILO,IHI,JLO,JHI,LDC,
+            CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
           END IF
         ELSE

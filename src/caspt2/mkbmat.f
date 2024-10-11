@@ -121,9 +121,10 @@ C looping, etc in the rest  of the routines.
 #include "mafdecls.fh"
 #endif
 
-      DIMENSION DREF(NDREF),PREF(NPREF),F3(NG3)
-      DIMENSION FD(NDREF),FP(NPREF)
+      Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
+      Real*8 FD(NDREF),FP(NPREF)
       INTEGER*1 idxG3(6,NG3)
+      Real*8 Dummy(1)
 
       ICASE=1
 C LONG loop over superindex symmetry.
@@ -165,7 +166,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BA,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKBA_F3_MPP(ISYM,WORK(IP_DUMMY),ILO,IHI,JLO,JHI,LDA,
+            CALL MKBA_F3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
@@ -948,9 +949,10 @@ c Avoid unused argument warnings
 #include "mafdecls.fh"
 #endif
 
-      DIMENSION DREF(NDREF),PREF(NPREF),F3(NG3)
-      DIMENSION FD(NDREF),FP(NPREF)
+      Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
+      Real*8 FD(NDREF),FP(NPREF)
       INTEGER*1 idxG3(6,NG3)
+      Real*8 Dummy(1)
 
       ICASE=4
 C LONG loop over superindex symmetry.
@@ -994,7 +996,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BC,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKBC_F3_MPP(ISYM,WORK(IP_DUMMY),ILO,IHI,JLO,JHI,LDA,
+            CALL MKBC_F3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
           END IF
         ELSE

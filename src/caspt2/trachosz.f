@@ -15,6 +15,7 @@
       USE Para_Info, ONLY: nProcs
       use Cholesky, only: InfVec
       use caspt2_gradient, only: do_grad
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -34,6 +35,7 @@
       INTEGER MXFTARR,MXHTARR
       INTEGER MXSPC
       INTEGER NVACT,NVACC,NVECS_RED
+      Real*8 Dummy(1)
 ************************************************************************
 *  Author : P. A. Malmqvist
 ************************************************************************
@@ -61,7 +63,7 @@
 * MXCHARR: Largest possible Cholesky vector.
 
 * What is largest possible array that can now be allocated?
-      CALL GETMEM('MXSPC','MAX','REAL',IP_DUMMY,MXSPC)
+      Call mma_MaxDBLE(MXSPC)
 * Subtract 7*MXCHARR (for vector V, etc, see below).
       MXSPC=MXSPC-7*MXCHARR
 
@@ -171,7 +173,7 @@ CSVC: take the global sum of the individual maxima
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
                 IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IBATCH_TOT)=IDISK
-                CALL DDAFILE(LUDRA,0,WORK(IP_DUMMY),NPQ*NVACT,IDISK)
+                CALL DDAFILE(LUDRA,0,DUMMY,NPQ*NVACT,IDISK)
               END DO
             END DO
           END DO
@@ -226,7 +228,7 @@ CSVC: take the global sum of the individual maxima
             DO ICASE=1,4
               NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
               IDGLB_CHOGROUP(ICASE,ISYQ,JSYM,IB)=IDISK
-              CALL DDAFILE(LUDRATOT,0,WORK(IP_DUMMY),NPQ*NV,IDISK)
+              CALL DDAFILE(LUDRATOT,0,DUMMY,NPQ*NV,IDISK)
             END DO
           END DO
         END DO
