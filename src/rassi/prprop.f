@@ -900,12 +900,11 @@ C printing threshold
 ! M^2 + Ms^2 + 2*MMs (three terms to be programmed)
 ! M^2 and Ms^2 can be calculated separately but the cross term not directly
 !
+        IF(IFANYM.NE.0.OR.IFANYS.NE.0) THEN
 ! Magnetic-Dipole
         Call Allocate_and_Load_Magnetic_Dipoles()
 ! Spin-Magnetic-Dipole ---- notice the S
         Call Allocate_and_Load_Spin_Magnetic_dipoles()
-
-        IF(IFANYM.NE.0.OR.IFANYS.NE.0) THEN
 !
 ! Only print the part calculated
 !
@@ -1371,13 +1370,13 @@ C printing threshold
 * New CD here with electric dipole and magnetic-dipole - velocity gauge
 
 
+        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
+
 ! Electric dipole (linear momentum, p)
          Call Allocate_and_Load_velocities()
 
 ! Magnetic-Dipole (angular momentum, l = r x p)
          Call Allocate_and_Load_Magnetic_Dipoles()
-
-        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
 ! Spin-Magnetic-Dipole
          Call Allocate_and_Load_Spin_Magnetic_Dipoles()
@@ -1554,15 +1553,16 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF
+
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
+
+        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
 ! Electric dipole (r)
         Call Allocate_and_Load_electric_dipoles()
 ! Magnetic-Dipole (angular momentum, l = r x p)
         Call Allocate_and_Load_Magnetic_dipoles()
-
-        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
 ! Spin-Magnetic-Dipole
          Call Allocate_and_Load_Spin_Magnetic_Dipoles()
@@ -1719,6 +1719,10 @@ C printing threshold
          WRITE(6,35)
          End Do
 
+         Call Deallocate_electric_dipoles()
+
+         Call Deallocate_Magnetic_Dipoles()
+
          Call Deallocate_Spin_Magnetic_Dipoles()
 
          Call Deallocate_Electric_Quadrupoles()
@@ -1728,9 +1732,6 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF
-
-        Call Deallocate_electric_dipoles()
-        Call Deallocate_Magnetic_Dipoles()
       END IF
 * CD end
 
