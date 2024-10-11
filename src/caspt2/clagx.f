@@ -1239,6 +1239,7 @@ C
       !! From poly3
       SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG,nLev)
 C
+      use caspt2_data, only: DREF
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1290,8 +1291,8 @@ C
             End If
             Call GetMem('WRK','ALLO','REAL',LWRK,nAshT**2)
             call POLY1(WORK(LCI))
-            call GETDREF(WORK(LDREF))
-            Call SQUARE(Work(LDREF),Work(LWRK),1,nAshT,nAshT)
+            call GETDREF(DREF)
+            Call SQUARE(DREF,Work(LWRK),1,nAshT,nAshT)
             !! probably it is doubled somewhere, so should half
             Scal = DDOT_(nAshT**2,RDMEIG,1,Work(LWRK),1)*0.5d+00
 C           write (*,*) "scal = ", scal

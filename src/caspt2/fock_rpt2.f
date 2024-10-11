@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use caspt2_data, only: FIMO, FAMO, FIFA, HONE
+      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -66,7 +66,7 @@ c One-electron Hamiltonian is in HONE
 c Inactive and active Fock matrices:
       CALL DCOPY_(notri,HONE,1,FIMO,1)
       CALL DCOPY_(notri,[0.0D0],0,FAMO,1)
-      CALL FMAT_CASPT2(FIMO,FAMO,WORK(LDREF),NBUF,
+      CALL FMAT_CASPT2(FIMO,FAMO,DREF,NBUF,
      &                 WORK(LBUF))
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes
@@ -118,7 +118,7 @@ C density.
       !   DO I=1,NA
       !     ITOT=NAES(ISYM)+I
       !     ID=(ITOT*(ITOT+1))/2
-      !     EASUM=EASUM+EPSA(ITOT)*WORK(LDREF-1+ID)
+      !     EASUM=EASUM+EPSA(ITOT)*DREF(ID)
       !   END DO
       ! END DO
 

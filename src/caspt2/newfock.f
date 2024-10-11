@@ -19,6 +19,7 @@
       SUBROUTINE NEWFOCK(FIFA,CMO)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: usual
+      use caspt2_data, only: DREF
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -50,7 +51,7 @@ c and returned after modification.
 c To define the modified Fock matrix, a number of arrays on
 c  LUONE may be useful. In addition, the active 1- and 2-
 c electron density matrices, and the inactive Fock matrix
-c FIMO, are available in workspace at WORK(LDREF),
+c FIMO, are available in workspace at DREF,
 c WORK(LPREF),FIMO, and FIFA.
 c Two-electron integrals involving non-frozen, non-deleted
 c orbitals, at most two secondary, are available from
@@ -132,7 +133,7 @@ C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
             DO IU=1,NA
               IUABS=IU+NAES(ISYM)
               IDREF=(ITABS*(ITABS-1))/2+IUABS
-              D=WORK(LDREF-1+IDREF)
+              D=DREF(IDREF)
               IDTU=NSQES+IT+NA*(IU-1)
               IDUT=NSQES+IU+NA*(IT-1)
               WORK(LDSQ-1+IDTU)=D
@@ -449,7 +450,7 @@ c     EASUM = contract EPSA with diagonal of active dens.
         DO 411 I=1,NA
           ITOT=NAES(ISYM)+I
           ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*WORK(LDREF-1+ID)
+          EASUM=EASUM+EPSA(ITOT)*DREF(ID)
   411   CONTINUE
   410 CONTINUE
 c

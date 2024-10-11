@@ -19,6 +19,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
 
   use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
                              NBUF1_GRAD
+  use caspt2_data, only: DREF
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -152,7 +153,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
     !! EASUM
     CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
     EASUM = WRK1(1)
-    CALL GETDPREF(WORK(LDREF),WORK(LPREF))
+    CALL GETDPREF(DREF,WORK(LPREF))
     EREF=REFENE(JSTATE)
   End If
   Call mma_deallocate(idxG3)

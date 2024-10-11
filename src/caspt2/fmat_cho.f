@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FMAT_CHO(CMO,FFAO,FIAO,FAAO,HONE,FIMO,FAMO)
-      use caspt2_data, only: FIFA
+      use caspt2_data, only: FIFA, DREF
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
@@ -162,7 +162,7 @@ C density.
         DO I=1,NA
           ITOT=NAES(ISYM)+I
           ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*WORK(LDREF-1+ID)
+          EASUM=EASUM+EPSA(ITOT)*DREF(ID)
         END DO
       END DO
 

@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE STINI
       use caspt2_output, only:iPrGlb
+      use caspt2_data, only: DREF
       use PrintLevel, only: debug, usual
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -62,13 +63,13 @@ C     indices
       END IF
 
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
-      CALL GETDPREF(WORK(LDREF),WORK(LPREF))
+      CALL GETDPREF(DREF,WORK(LPREF))
 
       IFTEST = 0
       IF ( IFTEST.NE.0 ) THEN
         WRITE(6,*)' DREF for state nr. ',MSTATE(JSTATE)
         DO I=1,NASHT
-          WRITE(6,'(1x,14f10.6)')(WORK(LDREF+(I*(I-1))/2+J-1),J=1,I)
+          WRITE(6,'(1x,14f10.6)')(DREF((I*(I-1))/2+J),J=1,I)
         END DO
         WRITE(6,*)
       END IF
@@ -77,7 +78,7 @@ C     indices
 * With new DREF, recompute EASUM:
       EASUM=0.0D0
       DO I=1,NASHT
-        EASUM=EASUM+EPSA(I)*WORK(LDREF-1+(I*(I+1))/2)
+        EASUM=EASUM+EPSA(I)*DREF((I*(I+1))/2)
       END DO
 
       IF(IPRGLB.GE.USUAL) THEN

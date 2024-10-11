@@ -20,6 +20,7 @@
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_data, only: DREF
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
 #include "rasdim.fh"
@@ -51,20 +52,20 @@ C  part of the three-electron density matrix G3:
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        CALL MKSA(WORK(LDREF),WORK(LPREF),
+        CALL MKSA(DREF,WORK(LPREF),
      &            NG3,WORK(LG3),idxG3)
-        CALL MKSC(WORK(LDREF),WORK(LPREF),
+        CALL MKSC(DREF,WORK(LPREF),
      &            NG3,WORK(LG3),idxG3)
 
         CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
-        CALL MKSB(WORK(LDREF),WORK(LPREF))
-        CALL MKSD(WORK(LDREF),WORK(LPREF))
-        CALL MKSE(WORK(LDREF))
+        CALL MKSB(DREF,WORK(LPREF))
+        CALL MKSD(DREF,WORK(LPREF))
+        CALL MKSE(DREF)
         CALL MKSF(WORK(LPREF))
-        CALL MKSG(WORK(LDREF))
+        CALL MKSG(DREF)
       END IF
 
 C For completeness, even case H has formally S and B

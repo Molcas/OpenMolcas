@@ -16,7 +16,7 @@
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: CMO, CMO_Internal, FIFA
+      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -61,10 +61,10 @@
         call POLY1(CI)
 
 * Restructure GAMMA1 as DREF array
-        call GETDREF(WORK(LDREF))
+        call GETDREF(DREF)
 
 * Average the density
-        call DAXPY_(NDREF,wgt,WORK(LDREF),1,DAVE,1)
+        call DAXPY_(NDREF,wgt,DREF,1,DAVE,1)
 
       end do
 
@@ -76,9 +76,9 @@
         write(u6,*)
       end if
 
-* Copy the state-average 1-RDM into LDREF and release memory
+* Copy the state-average 1-RDM into DREF and release memory
 * for both the CI array and DAVE
-      call dcopy_(NDREF,DAVE,1,WORK(LDREF),1)
+      call dcopy_(NDREF,DAVE,1,DREF,1)
       call mma_deallocate(CI)
       call mma_deallocate(DAVE)
 

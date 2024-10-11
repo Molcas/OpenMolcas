@@ -20,6 +20,7 @@
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2)
 
       use caspt2_output, only:iPrGlb
+      use caspt2_data, only: DREF
       use PrintLevel, only: verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -91,7 +92,7 @@ C with correct trace.
           DO IU=1,IT
             IUQ=NI+IU
             IUABS=NAES(ISYM)+IU
-            DR=WORK(LDREF-1+(ITABS*(ITABS-1))/2+IUABS)
+            DR=DREF((ITABS*(ITABS-1))/2+IUABS)
             D=COEF2*DR
             IF(IT.EQ.IU) D=D+2.0D0*COEF1
             ITU=ITQ+NO*(IUQ-1)

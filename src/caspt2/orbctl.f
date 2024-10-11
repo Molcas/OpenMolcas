@@ -20,7 +20,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE
+      use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -77,13 +77,13 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * state average density, therefore it's wrong to transform it!
 * However, it is never used again in this part, and next time it is used, it
 * is actually recomputed for the right place.
-          CALL TRANSDREF(WORK(LTORB),WORK(LDREF))
+          CALL TRANSDREF(WORK(LTORB),DREF)
 *****
       end if
 
 * DREF is not really used for anything important in MKEPS, this is why we don't
 * care that we pass the wrong one in...
-      CALL MKEPS(FIFA,WORK(LDREF))
+      CALL MKEPS(FIFA,DREF)
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'
