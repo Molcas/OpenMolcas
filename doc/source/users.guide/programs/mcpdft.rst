@@ -162,6 +162,13 @@ The :kword:`KSDFT` is the only required keyword.
   For M06-L, these numbers are ``18`` and ``28``, respectively.
   ``Parameters_In_Function1`` is a list of parameter values for the first Libxc function, and so on.
 
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="EXPM" APPEAR="Libxc EXternal ParaMeter" KIND="STRING" > LEVEL="BASIC"
+              %Keyword: EXPM <basic>
+              <HELP>
+              For changing Libxc functional parameters.
+              The file for external parameters follows.
+              </HELP>
+              </KEYWORD>
 
 :kword:`DFCF`
   Use this keyword to scale the exchange terms and/or correlation terms of the functional requested.
