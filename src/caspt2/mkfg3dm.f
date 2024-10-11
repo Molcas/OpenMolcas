@@ -42,6 +42,7 @@ C
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use gugx, only: CIS, SGS, L2ACT
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -80,7 +81,6 @@ C
 #ifdef _ENABLE_BLOCK_DMRG_
       INTEGER NLEV4,LG3TMP
 #endif
-      INTEGER LDUM,NDUM
       INTEGER NCI
 
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
@@ -147,10 +147,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
         icnj(idx)=jdx
       end do
 
-* Dummy values necessary for fooling syntax checkers:
-      ldum=1
-      ndum=1
-      call getmem('memmx','max','real',ldum,memmax)
+      call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
       memmax_safe=int(dble(memmax)*0.95D0)

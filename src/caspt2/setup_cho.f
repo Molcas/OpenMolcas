@@ -17,6 +17,7 @@
 * ipunit_f(1:nsym), each with sizes lsplit(1:nsym), and
 * ipip(1:nsym), each with sizes nsym*lsplit(1:nsym)
 * -------------------------
+      use stdalloc, only: mma_MaxDBLE
       Implicit Real*8 (a-h,o-z)
       Integer nSym,nIsh(8),nAsh(8),nSsh(8)
       Integer NumCho(8)
@@ -141,7 +142,7 @@ C *********************************************************************
       Do jSym=1,nSym
          If (NumCho(jSym).lt.1) goto 99
 
-         Call GetMem('MaxMem','Max','Real',Kdummy,MemMx)
+         Call mma_MaxDBLE(MemMx)
          xMemMx = dble(MemMx)
 * xMemMx = largest allocatable field.
 

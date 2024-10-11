@@ -19,6 +19,7 @@
       use PrintLevel, only: debug, verbose
       use caspt2_gradient, only: nbuf1_grad
       use gugx, only: CIS, L2ACT, SGS, EXS
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -59,7 +60,6 @@
       INTEGER L,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
-      INTEGER LDUM
       INTEGER NCI,ICSF
 
       REAL*8, EXTERNAL :: DDOT_
@@ -355,10 +355,7 @@ C-finished, so that GAdSUM works correctly.
 C
       Call CLagSym(nLev,DG1,DG2,DF1,DF2,2)
 C
-* Dummy values necessary for fooling syntax checkers:
-      ldum=1
-      ! ndum=1
-      call getmem('memmx','max','real',ldum,memmax)
+      call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
       memmax_safe=int(dble(memmax)*0.95D0)

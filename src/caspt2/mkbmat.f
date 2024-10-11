@@ -471,6 +471,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
      &                       NG3,F3,idxG3)
       USE MPI
       USE SUPERINDEX
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -526,7 +527,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       ! The global SA matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
-      CALL GETMEM('MAXMEM','MAX','REAL',IDUMMY,MAXMEM)
+      CALL mma_MaxDBLE(MAXMEM)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -1285,6 +1286,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
      &                       NG3,F3,idxG3)
       USE MPI
       USE SUPERINDEX
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1340,7 +1342,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       ! The global SC matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
-      CALL GETMEM('MAXMEM','MAX','REAL',IDUMMY,MAXMEM)
+      CALL mma_MaxDBLE(MAXMEM)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.

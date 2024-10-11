@@ -342,6 +342,7 @@ C
 C
       USE CHOVEC_IO
       use Constants, only: Zero
+      use stdalloc, only: mma_MaxDBLE
 C
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
@@ -366,23 +367,17 @@ C     Real*8 CMO_DUMMY(1)
       Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
       call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
 
-C     if((.not.DoCholesky).or.(GenInt)) then
       Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
-C     end if
 *
-C     Call mma_allocate(Temp,nFlt,Label='Temp')
-C     Temp(:)=0.0D0
+      Call GetMem('LWRK','Allo','Real',LWRK,nBasT*nBasT)
 *
-C     write(6,*) "lbuf = ", lbuf
-      Call GetMem('LW1','MAX','Real',LW1,LBUF)
+      Call mma_MaxDBLE(LBUF)
       If (DoCholesky) LBUF = NBMX*NBMX+1
-C     write(6,*) "lbuf = ", lbuf
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
 
-C     IF (.not.DoCholesky) THEN
-         Call GetMem('LW1','Allo','Real',LW1,LBUF)
+      Call GetMem('LW1','Allo','Real',LW1,LBUF)
 
       If (LBUF.LT.1+NBMX**2) Then
          WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
@@ -394,15 +389,11 @@ C     IF (.not.DoCholesky) THEN
          Call  ABEND()
       End If
 *
-C        write(6,*) "calling vvvox"
-      Call GetMem('LWRK','Allo','Real',LWRK,nBasT*nBasT)
       IF (DoCholesky) Then
-C       write(6,*) "calling vvvox2"
         Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,
      *              vLag,CMO,Work(LWRK),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              FIFA,FIMO)
-C       write(6,*) "finished vvvox2"
       Else
         Call VVVOX(nSym,nBas,nFro,Keep,
      *             iSymI,iSymJ,iSymK,iSymL,
@@ -411,7 +402,6 @@ C       write(6,*) "finished vvvox2"
      *             DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *             DIA,DI,FIFA,FIMO)
       End If
-C     write(6,*) "aaa"
       !! vLag must be transposed
       !! In VVVOX(2) subroutines, vLag(p,mu) is constructed.
       call dcopy_(nbast*nbast,vlag,1,Work(LWRK),1)
@@ -421,8 +411,6 @@ C     write(6,*) "aaa"
         end do
       end do
       Call GetMem('LWRK','Free','Real',LWRK,nBasT*nBasT)
-
-C     ENDIF
 
 *
 * Building of the Fock matrix directly from Cholesky vectors
@@ -441,19 +429,12 @@ C    &                 Temp,ExFac,LWFSQ,CMO_DUMMY)
 *
 
 
-C     Call DaXpY_(nFlt,One,Temp,1,FLT,1)
-*
-C     Call mma_deallocate(Temp)
 
-C     if(.not.DoCholesky)then
       Call GetMem('LW1','Free','Real',LW1,LBUF)
       Call GetMem('LW2','Free','Real',LW2,NBMX*NBMX)
-C     endif
 
       Call GetMem('LWFSQ','Free','Real',LWFSQ,NBSQT)
 *
-      Return
-C
       End SUBROUTINE VVVO_Drv2
 C
 C-----------------------------------------------------------------------

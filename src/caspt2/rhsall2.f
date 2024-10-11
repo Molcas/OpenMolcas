@@ -648,6 +648,7 @@ C-SVC: sanity check
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: verbose
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -771,7 +772,7 @@ CSVC: total number of cholesky vectors
       MINCHOL=MXNPITOT*MXBATCH
 
 CSVC: can we fit this all in memory?
-      CALL GetMem('MAXSIZE','MAX','Real',iDum,MXAVAIL)
+      CALL mma_MaxDBLE(MXAVAIL)
 
       MINNICE=MXRHS+MAXPIQK+2*MAXBUFF+2*MAXCHOL
       MINGOOD=MXRHS+MINPIQK+2*MINBUFF+2*MAXCHOL

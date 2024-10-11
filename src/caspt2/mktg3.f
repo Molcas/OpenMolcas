@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
       use gugx, only: EXS, SGS,L2ACT, CIS
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -171,7 +172,7 @@ C Allocate as many vectors as possible:
 C Wishful thinking:
       NVECS=2*NASHT**2+1
 C But what is really available?
-      CALL GETMEM('DUMMY','MAX ','REAL',L,NTG3WRK)
+      CALL mma_MaxDBLE(NTG3WRK)
       NTG3WRK=MIN(MXCI*NVECS,NTG3WRK)
       NVECS=NTG3WRK/MXCI
       NTG3WRK=NVECS*MXCI

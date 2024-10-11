@@ -20,6 +20,7 @@
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: usual
       USE SUPERINDEX
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -30,7 +31,7 @@
 
 
 C Available workspace right now:
-      CALL GETMEM('LDUM','MAX','REAL',LDUM,MXLEFT)
+      CALL mma_MaxDBLE(MXLEFT)
 C 250000 words margin, for various purposes.
       NBOTTOM=250000
 C POLY package:

@@ -648,6 +648,7 @@ C     place and transition is no longer needed.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -674,7 +675,7 @@ C     later it should be completely removed when VCUTIL and SGM are
 C     adapted for handling global + disk resident arrays then, also
 C     remove iCASE,iSYM,iVEC from the call, as they are no longer needed
 C     in that case.
-          CALL GETMEM('MAXMEM','MAX','REAL',iDummy,iMax)
+          CALL mma_MaxDBLE(iMax)
 C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           iMax=MIN(NINT(0.95D0*iMax),134217728)
           NCOL=MIN(iMAX,NAS*NIS)/NAS
@@ -717,6 +718,7 @@ C     place and transition is no longer needed.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -738,7 +740,7 @@ CSVC: be careful to only call one-sided operations
         IF (KING()) THEN
 CSVC: write the LUSOLV array to global RHS array
 C     later it should be completely removed when everything is parallel
-          CALL GETMEM('MAXMEM','MAX','REAL',iDummy,iMax)
+          CALL mma_MaxDBLE(iMax)
 C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           iMax=MIN(NINT(0.95D0*iMax),134217728)
           NCOL=MIN(iMAX,NAS*NIS)/NAS
