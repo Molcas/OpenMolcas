@@ -15,7 +15,6 @@ iCmp,iShell,iBas,jBas,kBas,lBas,kOp,Shijij,iAO,iAOst,ijkl,AOInt,SOInt,nSOint,iSO
 
 #else
 
-! TODO: unknown intents
 integer(kind=iwp), intent(in) :: iCmp(4), iShell(4), iBas, jBas, kBas, lBas, kOp(4), iAO(4), iAOst(4), ijkl, nSOint, nSOs, &
                                  iSOSym(2,nSOs), nTInt, mSym
 logical(kind=iwp), intent(in) :: Shijij

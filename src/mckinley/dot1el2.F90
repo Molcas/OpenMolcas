@@ -59,8 +59,8 @@ real(kind=wp), intent(in) :: CCoor(3), FD(*)
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iDCRR(0:7), iDCRT(0:7), ielem, iirrep, &
                      ijS, IndGrd(2,3,3,0:7), iPrim, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTmp(0:7), iuv, j, jAng, &
                      jAO, jBas, jCar, jCmp, jCnt, jCnttp, jIrrep, jj, jPrim, jS, jShell, jShll, kk, lDCRR, lloper, LmbdR, LmbdT, &
-                     mdci, mdcj, MemKer, MemKrn, nDAO, nDCRR, nDCRT, nDisp, nMax, nOp(2), nOrder, nScrt1, nScrt2, nSkal, nSO, &
-                     nStabM, nStabO, nTasks
+                     mdci, mdcj, MemKer, nDAO, nDCRR, nDCRT, nDisp, nMax, nOp(2), nOrder, nScrt1, nScrt2, nSkal, nSO, nStabM, &
+                     nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: irrfnc, MemSO1, n2Tri, NrOpr
@@ -123,8 +123,8 @@ do ijS=1,nTasks
   ! Call kernel routine to get memory requirement.
 
   call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
-  MemKrn = MemKer*S%m2Max
-  call mma_allocate(Kern,MemKrn,Label='Kern')
+  MemKer = MemKer*S%m2Max
+  call mma_allocate(Kern,MemKer,Label='Kern')
 
   ! Allocate memory for the final integrals, all in the primitive basis.
 

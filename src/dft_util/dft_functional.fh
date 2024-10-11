@@ -10,8 +10,13 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 mGrid, nD &
+
 #else
+
 integer(kind=iwp), intent(in) :: mGrid, nD
+
 #endif
+
 #undef _CALLING_

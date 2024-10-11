@@ -10,11 +10,16 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged &
+
 #else
+
 integer(kind=iwp), intent(in) :: maxdav, n, itdav
 real(kind=wp), intent(in) :: axc(n,maxdav), sxc(n,maxdav), rhs(n), solp_res(maxdav), eig_res
 real(kind=wp), intent(out) :: res(n)
 logical(kind=iwp), intent(out) :: is_converged
+
 #endif
+
 #undef _CALLING_

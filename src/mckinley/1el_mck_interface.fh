@@ -10,13 +10,18 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 Alpha,nAlpha,Beta,nBeta,Zeta,rKappa,P,rFinal,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nOp,iu,iv,nrOp,iDcar, &
 trans,kcar,ksym &
+
 #else
-! TODO: unknown intents
-integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(0:7), nOp(2), iu, iv, nrOp, iDcar, kcar, ksym
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
-                 Array(nZeta*nArr), Ccoor(3)
-logical(kind=iwp) :: ifgrad(3,2), trans(2)
+
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(0:7), nOp(2), iu, iv, nrOp, iDcar, kcar, &
+                                 ksym
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3)
+real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la)*nTri_Elem1(lb),nrOp), Array(nArr)
+logical(kind=iwp), intent(in) :: ifgrad(3,2), trans(2)
+
 #endif
+
 #undef _CALLING_

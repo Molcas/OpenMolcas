@@ -156,7 +156,7 @@ do iS=1,nSkal
     ! that kernels which will use the HRR will allocate that
     ! memory internally.
 
-    maxi = S%maxPrm(iAng)*S%maxprm(jang)
+    Maxi = S%MaxPrm(iAng)*S%MaxPrm(jAng)
     call mma_allocate(Zeta,maxi,Label='Zeta')
     call mma_allocate(ZI,maxi,Label='ZI')
     call mma_allocate(Kappa,maxi,Label='Kappa')
@@ -166,7 +166,7 @@ do iS=1,nSkal
     ! Memory requirements for contraction and symmetry
     ! adaptation of derivatives.
 
-    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIrrep
+    lFinal = Maxi*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIrrep
 
     MemKrn = max(MemKer*Maxi,lFinal)
     call mma_allocate(Kern,MemKrn,Label='Kern')

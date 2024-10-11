@@ -40,7 +40,7 @@ abstract interface
 #                             define _CALLING_
 #                             include "1el_mck_interface.fh"
                              )
-    import :: wp, iwp
+    import :: nTri_Elem1, wp, iwp
 #   include "1el_mck_interface.fh"
   end subroutine oneel_mck_kernel
 
