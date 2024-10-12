@@ -1630,15 +1630,16 @@ C
       !! Taken from grdctl.f
       SUBROUTINE CLagX_TrfCI(CI)
 C
+      use caspt2_data, only: TAT
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 C
-      DIMENSION CI(*)
+      REAL*8 CI(*)
 C
-      CALL DCOPY_(NTAT,[0.0D0],0,WORK(LTAT),1)
+      TAT(:)=0.0D0
 C
       IOFF1=0
       IOFF2=0
@@ -1655,7 +1656,7 @@ C
           DO J=1,NR1
             IJ=I+NR1*(J-1)
             JI=J+NR1*(I-1)
-            WORK(LTAT-1+IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+            TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
           END DO
         END DO
         IOFF1=IOFF1+NR1**2
@@ -1665,7 +1666,7 @@ C
           DO J=1,NR2
             IJ=I+NR2*(J-1)
             JI=J+NR2*(I-1)
-            WORK(LTAT-1+IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+            TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
           END DO
         END DO
         IOFF1=IOFF1+NR2**2
@@ -1675,7 +1676,7 @@ C
           DO J=1,NR3
             IJ=I+NR3*(J-1)
             JI=J+NR3*(I-1)
-            WORK(LTAT-1+IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+            TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
           END DO
         END DO
         IOFF1=IOFF1+NR3**2
@@ -1698,20 +1699,20 @@ C Transform SGM to use original MO:
         ITO=ITOSTA
         IF(NR1.GT.0) THEN
           ISTART=NAES(ISYM)+1
-          CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
+          CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
      &                                         NSG,CI)
         END IF
         ITO=ITO+NR1**2
         IF(NR2.GT.0) THEN
           ISTART=NAES(ISYM)+NR1+1
-          CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),STSYM,
+          CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
      &                                         NSG,CI)
         END IF
         ITO=ITO+NR2**2
         IF(NR3.GT.0) THEN
           ISTART=NAES(ISYM)+NR1+NR2+1
          !! NR1 should be NR3?
-          CALL TRACI_RPT2(ISTART,NR3,WORK(LTAT-1+ITO),STSYM,
+          CALL TRACI_RPT2(ISTART,NR3,TAT(ITO),STSYM,
      &                                         NSG,CI)
         END IF
       END DO

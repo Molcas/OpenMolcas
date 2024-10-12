@@ -20,13 +20,14 @@
 * 2006 update: Use RAS1..RAS3
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
+      use caspt2_data, only: TAT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-      DIMENSION HEFF(NSTATE,NSTATE)
+      Real*8 HEFF(NSTATE,NSTATE)
 
 C Purpose: Compute three sets of quantities, needed by MCLR, used to
 C compute forces and derivatives.
@@ -56,7 +57,7 @@ C This is an ordinary CASSCF or RASSCF calculation.
 
       IF(ORBIN.EQ.'TRANSFOR') THEN
 C Read, and transpose, the active orbital transformation matrices
-        CALL DCOPY_(NTAT,[0.0D0],0,WORK(LTAT),1)
+        TAT(:)=0.0D0
         IOFF1=0
         IOFF2=0
         DO ISYM=1,NSYM
@@ -72,7 +73,7 @@ C Read, and transpose, the active orbital transformation matrices
             DO J=1,NR1
               IJ=I+NR1*(J-1)
               JI=J+NR1*(I-1)
-              WORK(LTAT-1+IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+              TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
             END DO
           END DO
           IOFF1=IOFF1+NR1**2
@@ -82,7 +83,7 @@ C Read, and transpose, the active orbital transformation matrices
             DO J=1,NR2
               IJ=I+NR2*(J-1)
               JI=J+NR2*(I-1)
-              WORK(LTAT-1+IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+              TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
             END DO
           END DO
           IOFF1=IOFF1+NR2**2
@@ -92,7 +93,7 @@ C Read, and transpose, the active orbital transformation matrices
             DO J=1,NR3
               IJ=I+NR3*(J-1)
               JI=J+NR3*(I-1)
-              WORK(LTAT-1+IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+              TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
             END DO
           END DO
           IOFF1=IOFF1+NR3**2
@@ -143,19 +144,19 @@ C Transform SGM to use original MO:
          ITO=ITOSTA
          IF(NR1.GT.0) THEN
            ISTART=NAES(ISYM)+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
+           CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
      &                                           NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR1**2
          IF(NR2.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+1
-           CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),STSYM,
+           CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR2**2
          IF(NR3.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+NR2+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
+           CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
         END DO
@@ -210,19 +211,19 @@ C Transform SGM to use original MO:
          ITO=ITOSTA
          IF(NR1.GT.0) THEN
            ISTART=NAES(ISYM)+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
+           CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR1**2
          IF(NR2.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+1
-           CALL TRACI_RPT2(ISTART,NR2,WORK(LTAT-1+ITO),STSYM,
+           CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
          ITO=ITO+NR2**2
          IF(NR3.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+NR2+1
-           CALL TRACI_RPT2(ISTART,NR1,WORK(LTAT-1+ITO),STSYM,
+           CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
      &                                          NSG,WORK(LSGM))
          END IF
         END DO

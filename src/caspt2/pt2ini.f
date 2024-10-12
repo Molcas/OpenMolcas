@@ -15,7 +15,7 @@
       USE PT2WFN
       use caspt2_gradient, only: do_grad
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2
+     &                       DWGT, CMOPT2, TAT, NTAT
       use stdalloc, only: mma_allocate
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -146,7 +146,7 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
 * Allocate global orbital transformation arrays:
       CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
-      CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
+      CALL mma_allocate(TAT,NTAT,Label='TAT')
 
 ! initialize quantities for gradient calculation
       If (do_grad) Then
@@ -161,7 +161,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2
+     &                       DWGT, CMOPT2, TAT
       use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
@@ -217,7 +217,7 @@ C     Deallocate MAGEB, etc, superindex tables:
       CALL mma_deallocate(DWGT)
 * Deallocate global orbital transformation arrays:
       CALL GETMEM('TORB','FREE','REAL',LTORB,NTORB)
-      CALL GETMEM('TAT','FREE','REAL',LTAT,NTAT)
+      CALL mma_deallocate(TAT)
 * Deallocate global orbital arrays:
       CALL mma_deallocate(CMOPT2)
 * Deallocate global RHS disk offsets (allocated in eqctl1):

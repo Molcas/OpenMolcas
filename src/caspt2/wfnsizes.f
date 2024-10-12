@@ -14,6 +14,7 @@
 * Compute various orbital sizes
 *
 ************************************************************************
+      use caspt2_data, only: NTAT
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
