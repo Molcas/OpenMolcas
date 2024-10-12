@@ -11,7 +11,7 @@
 
 module caspt2_data
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
@@ -31,7 +31,12 @@ real(kind=wp), allocatable:: PREF(:)
 real(kind=wp), allocatable:: DMIX(:,:)
 real(kind=wp), allocatable:: DWGT(:,:)
 real(kind=wp), allocatable:: CMOPT2(:)
+real(kind=wp), allocatable:: TAT(:)
+integer(kind=iwp) :: NTAT=0
+real(kind=wp), allocatable:: TORB(:)
+integer(kind=iwp) :: NTORB=0
 
 public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX, DWGT, CMOPT2
+public :: TAT, NTAT, TORB, NTORB
 
 end module caspt2_data

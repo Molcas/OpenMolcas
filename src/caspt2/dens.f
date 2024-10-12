@@ -22,7 +22,7 @@
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
-      use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2
+      use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2, TORB
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -238,7 +238,7 @@ C
         !!   -> L(CAS) = X*L(PT2)*X^T
         !! inactive and virtual orbitals are not affected.
         Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
-        Call CnstTrf(Work(LTOrb),Work(ipTrf))
+        Call CnstTrf(TOrb,Work(ipTrf))
 C       call sqprt(work(iptrf),nbast)
 C
         !! Construct state-averaged density matrix
@@ -985,7 +985,7 @@ C       do i = 1, 5
 C         ii = 5+i
 C         do j = 1, 5
 C           jj = 5+j
-C           Work(ipWRK1+ii-1+nBasT*(jj-1)) = Work(LTORB+25+i-1+5*(j-1))
+C           Work(ipWRK1+ii-1+nBasT*(jj-1)) = TORB(25+i+5*(j-1))
 C         End Do
 C       end do
 C       do i = 11, 12

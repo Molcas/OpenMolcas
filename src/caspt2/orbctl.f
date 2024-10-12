@@ -20,7 +20,8 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF
+      use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
+     &                       TORB
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -30,8 +31,6 @@
 #include "SysDef.fh"
       REAL*8 CMO(NCMO)
       INTEGER ISYM
-* PAM Feb 2015 NTORB, LTORB are in Include/caspt2.fh!
-*      INTEGER NTORB, LTORB
       INTEGER I1,I2,LORBE
       INTEGER IDISK
       REAL*8  OCC_DUM(1)
@@ -56,28 +55,28 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
-      CALL MKRPTORB(FIFA,WORK(LTORB),CMO)
+      CALL MKRPTORB(FIFA,TORB,SIZE(TORB),CMO)
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
 
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
       if (.not. DoFCIQMC) then
-          CALL TRANSFOCK(WORK(LTORB),HONE,1)
-          CALL TRANSFOCK(WORK(LTORB),FIMO,1)
+          CALL TRANSFOCK(TORB,HONE,1)
+          CALL TRANSFOCK(TORB,FIMO,1)
 
 * When doing XMS, FAMO refers only to the last state, therefore it's wrong!
 * However, we never use it anywhere else...
-          ! CALL TRANSFOCK(WORK(LTORB),FAMO,1)
+          ! CALL TRANSFOCK(TORB,FAMO,1)
 *****
 
-          CALL TRANSFOCK(WORK(LTORB),FIFA,1)
+          CALL TRANSFOCK(TORB,FIFA,1)
 
 * When doing XMS, DREF refers to the last state considered and it is not the
 * state average density, therefore it's wrong to transform it!
 * However, it is never used again in this part, and next time it is used, it
 * is actually recomputed for the right place.
-          CALL TRANSDREF(WORK(LTORB),DREF)
+          CALL TRANSDREF(TORB,DREF)
 *****
       end if
 
@@ -95,7 +94,7 @@ C Save new MO coeffs, and the transformation matrices:
       CALL DDAFILE(LUONEM,1,CMO_X,NCMO,IDISK)
       IAD1M(4)=IEOF1M
       IDISK=IAD1M(4)
-      CALL DDAFILE(LUONEM,1,WORK(LTORB),NTORB,IDISK)
+      CALL DDAFILE(LUONEM,1,TORB,SIZE(TORB),IDISK)
       IEOF1M=IDISK
       end if
 

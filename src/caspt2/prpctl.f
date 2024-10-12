@@ -21,7 +21,7 @@
       use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
-      use caspt2_data, only: CMO, CMO_Internal, CMOPT2
+      use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -207,7 +207,7 @@ C Compute natural orbitals of CASPT2 wave function.
       CALL mma_deallocate(CMO_Internal)
       nullify(CMO)
 C Backtransform density matrix to original MO basis before storing
-      CALL TRANSFOCK(WORK(LTORB),WORK(LDMAT),-1)
+      CALL TRANSFOCK(TORB,WORK(LDMAT),-1)
       CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)
       CALL GETMEM('DMAT','FREE','REAL',LDMAT,NDMAT)
       IF (MODE.EQ.1) THEN

@@ -752,7 +752,7 @@ C
       Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
       use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
-      use caspt2_data, only: FIFA
+      use caspt2_data, only: FIFA, TORB
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
@@ -971,7 +971,7 @@ C
 C       Call SQUARE(FIFA,Work(ipFIFA),1,nOrbI,nOrbI)
         !! ipFIFASA is in natural orbital basis
         Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
-        Call CnstTrf(Work(LTOrb),Work(ipTrf))
+        Call CnstTrf(TOrb,Work(ipTrf))
 C
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then

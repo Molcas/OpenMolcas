@@ -66,12 +66,14 @@
       COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
-      INTEGER NCMO,     LCMORAS,        NTORB,LTORB,NTAT,               &
-     &    LTAT,NFIMO,          NFAMO,      NFIFA,      NHONE,           &
+
+      INTEGER NCMO,     LCMORAS,                                        &
+     &         NFIMO,          NFAMO,      NFIFA,      NHONE,           &
      &    NDREF,      NPREF,      LEIGVEC
-      COMMON/ALLOCOMM/ NCMO,     LCMORAS,        NTORB,LTORB,NTAT,      &
-     &    LTAT,NFIMO,            NFAMO,      NFIFA,      NHONE,         &
+      COMMON/ALLOCOMM/ NCMO,     LCMORAS,                               &
+     &         NFIMO,            NFAMO,      NFIFA,      NHONE,         &
      &    NDREF,      NPREF,      LEIGVEC
+
       INTEGER              LUINTA,LUONEA,LUMORB,LUCIEX,                 &
      &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &
      &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS,LUH0T

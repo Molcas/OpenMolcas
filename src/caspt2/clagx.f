@@ -20,7 +20,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
       Integer IFF
       Real*8 CLag(nConf,nState)
       Real*8 DEPSA(nAshT,nAshT),VECROT(*)
@@ -1630,7 +1629,7 @@ C
       !! Taken from grdctl.f
       SUBROUTINE CLagX_TrfCI(CI)
 C
-      use caspt2_data, only: TAT
+      use caspt2_data, only: TAT, TORB
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1656,7 +1655,7 @@ C
           DO J=1,NR1
             IJ=I+NR1*(J-1)
             JI=J+NR1*(I-1)
-            TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+            TAT(IOFF2+JI)=TORB(IOFF1+IJ)
           END DO
         END DO
         IOFF1=IOFF1+NR1**2
@@ -1666,7 +1665,7 @@ C
           DO J=1,NR2
             IJ=I+NR2*(J-1)
             JI=J+NR2*(I-1)
-            TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+            TAT(IOFF2+JI)=TORB(IOFF1+IJ)
           END DO
         END DO
         IOFF1=IOFF1+NR2**2
@@ -1676,7 +1675,7 @@ C
           DO J=1,NR3
             IJ=I+NR3*(J-1)
             JI=J+NR3*(I-1)
-            TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+            TAT(IOFF2+JI)=TORB(IOFF1+IJ)
           END DO
         END DO
         IOFF1=IOFF1+NR3**2

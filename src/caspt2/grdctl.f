@@ -20,7 +20,7 @@
 * 2006 update: Use RAS1..RAS3
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
-      use caspt2_data, only: TAT
+      use caspt2_data, only: TAT, TORB
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -73,7 +73,7 @@ C Read, and transpose, the active orbital transformation matrices
             DO J=1,NR1
               IJ=I+NR1*(J-1)
               JI=J+NR1*(I-1)
-              TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+              TAT(IOFF2+JI)=TORB(IOFF1+IJ)
             END DO
           END DO
           IOFF1=IOFF1+NR1**2
@@ -83,7 +83,7 @@ C Read, and transpose, the active orbital transformation matrices
             DO J=1,NR2
               IJ=I+NR2*(J-1)
               JI=J+NR2*(I-1)
-              TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+              TAT(IOFF2+JI)=TORB(IOFF1+IJ)
             END DO
           END DO
           IOFF1=IOFF1+NR2**2
@@ -93,7 +93,7 @@ C Read, and transpose, the active orbital transformation matrices
             DO J=1,NR3
               IJ=I+NR3*(J-1)
               JI=J+NR3*(I-1)
-              TAT(IOFF2+JI)=WORK(LTORB-1+IOFF1+IJ)
+              TAT(IOFF2+JI)=TORB(IOFF1+IJ)
             END DO
           END DO
           IOFF1=IOFF1+NR3**2
