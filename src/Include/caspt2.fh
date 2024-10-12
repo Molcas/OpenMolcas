@@ -67,12 +67,12 @@
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
-      INTEGER NCMO,     LCMORAS,                                        &
+      INTEGER NCMO,                                                     &
      &         NFIMO,          NFAMO,      NFIFA,      NHONE,           &
-     &    NDREF,      NPREF,      LEIGVEC
-      COMMON/ALLOCOMM/ NCMO,     LCMORAS,                               &
+     &    NDREF,      NPREF
+      COMMON/ALLOCOMM/ NCMO,                                            &
      &         NFIMO,            NFAMO,      NFIFA,      NHONE,         &
-     &    NDREF,      NPREF,      LEIGVEC
+     &    NDREF,      NPREF
 
       INTEGER              LUINTA,LUONEA,LUMORB,LUCIEX,                 &
      &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &
