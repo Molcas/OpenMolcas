@@ -15,6 +15,7 @@ subroutine wgtinit(H)
   use definitions,only:wp,iwp,u6
   use caspt2_output,only:iPrGlb
   use PrintLevel, only: debug, verbose
+  use caspt2_data, only: DWGT
 
   implicit none
 
@@ -28,14 +29,14 @@ subroutine wgtinit(H)
   Real(kind=wp) :: Ealpha,Ebeta,Egamma,Dab,Dag,xi_ag,xi_ab,Wtot
   Real(kind=wp) :: Hab,Hag
 
-  Integer(kind=iwp) :: I,J,K,IJ
+  Integer(kind=iwp) :: I,J,K
 
   if (IPRGLB >= DEBUG) then
     write (6,*) ' Entered wgtinit.'
   end if
 
   ! Initialize array of weights with all zeros
-  call dcopy_(nState**2, [0.0_wp],0,WORK(LDWGT),1)
+  DWGT(:,:)=00D0
 
   ! Main loop over all states to compute the weights
   do I = 1,nState
@@ -87,20 +88,19 @@ subroutine wgtinit(H)
           xi_ab = Dab/(sqrt(Hab)+tiny(Hab))
         end if
 
-        IJ = (I - 1) + nState*(J - 1)
-        WORK(LDWGT + IJ) = exp(-zeta*xi_ab)/Wtot
+        DWGT(I,J) = exp(-zeta*xi_ab)/Wtot
 
       end do
 
       ! If it is an XMS-CASPT2 calculation, all the weights are equal,
       ! i.e. they all are 1/nState
     else if (IFXMS .and. (.not. IFDW)) then
-      call dcopy_(nState**2, [1.0_wp/nState],0,WORK(LDWGT),1)
+      call dcopy_(nState**2, [1.0_wp/nState],0,DWGT,1)
 
       ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
       ! the weight vectors are the standard unit vectors e_1, e_2, ...
     else
-      WORK(LDWGT + (nState*(I - 1)) + (I - 1)) = 1.0d0
+      DWGT(I,I) = 1.0d0
     end if
 
     ! End of loop over states
@@ -109,7 +109,7 @@ subroutine wgtinit(H)
   ! In case it is a XDW calculation, print out the weights
   if (IFDW .and. (IPRGLB >= VERBOSE)) then
     write (u6,*) ' Weights calculated with <I|H|I>:'
-    call prettyprint(WORK(LDWGT),nState,nState)
+    call prettyprint(DWGT,nState,nState)
   end if
 
   return

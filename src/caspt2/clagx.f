@@ -1239,7 +1239,7 @@ C
       !! From poly3
       SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG,nLev)
 C
-      use caspt2_data, only: DREF
+      use caspt2_data, only: DREF, DWGT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1251,7 +1251,7 @@ C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
       Logical   IFSSDMloc
 C
-C     MODE=0: Either state-averaged or LDWGT matrix
+C     MODE=0: Either state-averaged or DWGT matrix
 C     MODE=1: XMS-specific term, always state-averaged DM
 C
       !! RDMEIG
@@ -1269,7 +1269,7 @@ C
           Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG,nLev)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
         Else
-          Wgt = Work(LDWgt+iState-1+nState*(jState-1))
+          Wgt = DWgt(iState,jState)
           If (abs(wgt).gt.1.0d-09) Then
             If (ISCF.EQ.0) Then
               Call LoadCI(Work(LCI),iState)
@@ -3332,7 +3332,7 @@ C     Call DaXpY_(NG1,-0.5D+00,Work(LG1T),1,G1,1)
 C     Call DaXpY_(NG2,-0.5D+00,Work(LG2T),1,G2,1)
 C
       Do kState = 1, nState
-C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
+C       Wgt = DWgt(iState,iState)
         Wgt = 1.0D+00/nState
 C
         !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant

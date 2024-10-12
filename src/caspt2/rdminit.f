@@ -13,7 +13,7 @@
       subroutine rdminit
 
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO, CMO_Internal, DREF, DMIX
+      use caspt2_data, only: CMO, CMO_Internal, DREF, DMIX, DWGT
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
       implicit real(8) (A-H,O-Z)
@@ -40,7 +40,7 @@
       DMIX(:,:)=0.0D0
 
 * Start long loop over all states and compute the weighted density
-* of each state using the weights in WORK(LDWGT)
+* of each state using the weights in DWGT
       do I=1,Nstate
 
         if (ISCF.NE.0) then
@@ -60,7 +60,7 @@
         do J=1,Nstate
 * Retrieve the weight of the contribution of state I to the density
 * of state J
-          wij = WORK(LDWGT+(I-1) + NSTATE*(J-1))
+          wij = DWGT(I,J)
 * Multiply density of state I with weight wij and add it to whatever
 * is already in DMIX (contributions of other states already computed)
 * and store it in DMIX

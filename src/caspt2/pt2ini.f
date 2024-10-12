@@ -14,7 +14,8 @@
      &                  REFWFN_CLOSE
       USE PT2WFN
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX
+      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+     &                       DWGT
       use stdalloc, only: mma_allocate
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -108,7 +109,7 @@ C     Cholesky
       CALL mma_allocate(PREF,NPREF,Label='PREF')
 * All the density matrices kept in memory
       CALL mma_allocate(DMIX,NDREF,NSTATE,Label='DMIX')
-      CALL GETMEM('LDWGT','ALLO','REAL',LDWGT,NSTATE*NSTATE)
+      CALL mma_allocate(DWGT,NSTATE,NSTATE,Label='DWGT')
 
 * Print input data
       CALL PRINP_CASPT2()
@@ -159,7 +160,8 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
-      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX
+      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+     &                       DWGT
       use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
@@ -212,7 +214,7 @@ C     Deallocate MAGEB, etc, superindex tables:
       CALL mma_deallocate(DREF)
       CALL mma_deallocate(PREF)
       CALL mma_deallocate(DMIX)
-      CALL GETMEM('LDWGT','FREE','REAL',LDWGT,NSTATE*NSTATE)
+      CALL mma_deallocate(DWGT)
 * Deallocate global orbital transformation arrays:
       CALL GETMEM('TORB','FREE','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','FREE','REAL',LTAT,NTAT)

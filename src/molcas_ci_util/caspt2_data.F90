@@ -29,7 +29,8 @@ real(kind=wp), allocatable:: HONE(:)
 real(kind=wp), allocatable:: DREF(:)
 real(kind=wp), allocatable:: PREF(:)
 real(kind=wp), allocatable:: DMIX(:,:)
+real(kind=wp), allocatable:: DWGT(:,:)
 
-public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX
+public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX, DWGT
 
 end module caspt2_data
