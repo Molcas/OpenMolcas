@@ -22,7 +22,7 @@
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
-      use caspt2_data, only: FIMO, FIFA, DREF, DMIX
+      use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -394,7 +394,7 @@ C       !! Just add DEPSA to DPT2
         Call AddDEPSA(Work(ipDPT),Work(ipDEPSA))
         !! Just transform the density in MO to AO
         CALL DPT2_Trf(Work(LDPT),Work(ipDPTAO),
-     *                Work(LCMOPT2),Work(ipDEPSA),
+     *                CMOPT2,Work(ipDEPSA),
      *                Work(LDSUM))
 C       CALL GETMEM('DEPSA ','FREE','REAL',ipDEPSA,nAshT)
         !! Save the AO density
@@ -460,9 +460,9 @@ C
           !! MO -> AO transformations for DPT2 and DPT2C
           If ((.not.IfChol.or.iALGO.ne.1)
      *       .or.(nFroT.eq.0.and.if_invaria)) Then
-            Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPT),
+            Call OLagTrf(1,iSym,CMOPT2,Work(ipDPT),
      *                   Work(ipDPTAO),Work(ipWRK1))
-            Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPTC),
+            Call OLagTrf(1,iSym,CMOPT2,Work(ipDPTC),
      *                   Work(ipDPTCAO),Work(ipWRK1))
 C           write(6,*) "dpt2"
 C           call sqprt(work(ipdpt),nbast)
@@ -504,9 +504,9 @@ C
           !! AO -> MO transformations for FPT2AO and FPT2CAO
           If ((.not.IfChol.or.iALGO.ne.1)
      *        .or.(nFroT.eq.0.and.if_invaria)) Then
-            Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPT),
+            Call OLagTrf(2,iSym,CMOPT2,Work(ipFPT),
      *                   Work(ipFPTAO),Work(ipWRK1))
-            Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPTC),
+            Call OLagTrf(2,iSym,CMOPT2,Work(ipFPTC),
      *                   Work(ipFPTCAO),Work(ipWRK1))
           End If
 C
@@ -615,9 +615,9 @@ C
           If (IfChol) Then
             iSym=1
             !! MO -> AO transformations for DPT2 and DPT2C
-            Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPT),
+            Call OLagTrf(1,iSym,CMOPT2,Work(ipDPT),
      *                   Work(ipDPTAO),Work(ipWRK1))
-            Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPTC),
+            Call OLagTrf(1,iSym,CMOPT2,Work(ipDPTC),
      *                   Work(ipDPTCAO),Work(ipWRK1))
             !! For DF-CASPT2, Fock transformation of DPT2, DPT2C, DIA,
             !! DA is done here, but not OLagVVVO
@@ -630,9 +630,9 @@ C
      *                    Work(ipDPTAO),Work(ipDPTCAO),Work(ipFPTAO),
      *                    Work(ipFPTCAO),Work(ipWRK1))
             !! AO -> MO transformations for FPT2AO and FPT2CAO
-            Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPT),
+            Call OLagTrf(2,iSym,CMOPT2,Work(ipFPT),
      *                   Work(ipFPTAO),Work(ipWRK1))
-            Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFPTC),
+            Call OLagTrf(2,iSym,CMOPT2,Work(ipFPTC),
      *                   Work(ipFPTCAO),Work(ipWRK1))
           Else
 C           write(6,*) "dpt"
@@ -686,7 +686,7 @@ C       call sqprt(Work(ipolag),nbast)
 C       write(6,*) "fpt2"
 C       call sqprt(Work(ipfpt),nbast)
         CALL EigDer(Work(ipDPT),Work(ipDPTC),Work(ipFPTAO),
-     *              Work(ipFPTCAO),Work(ipRDMEIG),Work(LCMOPT2),
+     *              Work(ipFPTCAO),Work(ipRDMEIG),CMOPT2,
      *              Work(ipTrf),Work(ipFPT),Work(ipFPTC),
      *              Work(ipFIFA),Work(ipFIMO),Work(ipRDMSA))
 C          call test2_dens(work(ipolag),work(ipdepsa))
@@ -763,12 +763,12 @@ C
           Call AddDEPSA(Work(ipDPT),Work(ipDEPSA))
           !! Just transform the density in MO to AO
           CALL DPT2_Trf(Work(LDPT),Work(ipDPTAO),
-     *                  Work(LCMOPT2),Work(ipDEPSA),
+     *                  CMOPT2,Work(ipDEPSA),
      *                  Work(LDSUM))
           !! For IPEA shift with state-dependent density
           If (IFSSDM.and.(jState.eq.iRlxRoot.or.nStLag.gt.1)) Then
             iSym = 1
-            Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDPT),
+            Call OLagTrf(1,iSym,CMOPT2,Work(ipDPT),
      *                   Work(ipDPTAO),Work(ipWRK1))
           End If
           !! Some transformations similar to EigDer
@@ -1013,10 +1013,10 @@ C
         !! W(MO) -> W(AO) using the quasi-canonical orbitals
         !! No need to back transform to natural orbital basis
         Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(LCMOPT2),nBasT,Work(ipWLagL),nBasT,
+     *              1.0D+00,CMOPT2,nBasT,Work(ipWLagL),nBasT,
      *              0.0D+00,Work(ipWRK1),nBasT)
         Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipWRK1),nBasT,Work(LCMOPT2),nBasT,
+     *              1.0D+00,Work(ipWRK1),nBasT,CMOPT2,nBasT,
      *              0.0D+00,Work(ipWLagL),nBasT)
 C
         !! square -> triangle for WLag(AO)
@@ -1430,7 +1430,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine TRAFRO(MODE)
 C
-      use caspt2_data, only: CMO, CMO_Internal
+      use caspt2_data, only: CMO, CMO_Internal, CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1453,7 +1453,7 @@ C
 C
       Call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
-      Call DCopy_(NCMO,WORK(LCMOPT2),1,CMO,1)
+      Call DCopy_(NCMO,CMOPT2,1,CMO,1)
       if (IfChol) then
         call TRACHO3(CMO)
       else
@@ -1823,6 +1823,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSATrf(DEPSA,FPT2,WRK1,WRK2)
 C
+      use caspt2_data, only: CMOPT2
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1858,7 +1859,7 @@ C     If (nFroT.ne.0.and.IfChol) Then
      *          = DEPSA(iAsh,jAsh)
             End Do
           End Do
-          Call OLagTrf(1,iSym,Work(LCMOPT2),Work(ipDMO),
+          Call OLagTrf(1,iSym,CMOPT2,Work(ipDMO),
      *                 Work(ipDAO),Work(ipWRK1))
         End Do
         !! Compute G(D)
@@ -1870,7 +1871,7 @@ C     If (nFroT.ne.0.and.IfChol) Then
      *                Work(ipWRK1),Work(ipWRK2))
         !! G(D) in AO -> G(D) in MO
         Do iSym = 1, nSym
-          Call OLagTrf(2,iSym,Work(LCMOPT2),FPT2,
+          Call OLagTrf(2,iSym,CMOPT2,FPT2,
      *                 Work(ipDMO),Work(ipWRK1))
         End Do
         Call GetMem('DAO ','FREE','REAL',ipDAO ,nBsqT)

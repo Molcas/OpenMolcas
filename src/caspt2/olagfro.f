@@ -82,6 +82,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFroD(DIA,DI,RDMSA,Trf)
 C
+      use caspt2_data, only: CMOPT2
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -118,7 +119,7 @@ C
 C
         !! inactive density matrix
         Call DGEMM_('N','T',nBasI,nBasI,nCorI,
-     *              2.0D+00,Work(LCMOPT2),nBasI,Work(LCMOPT2),nBasI,
+     *              2.0D+00,CMOPT2,nBasI,CMOPT2,nBasI,
      *              0.0D+00,DI(iAOsq),nBasI)
 C
         !! inactive+active density matrix
@@ -137,12 +138,12 @@ C
      *              0.0D+00,Work(ipWRK1),nAshI)
         ! 3) Finally, add the active part
         Call DGemm_('N','N',nBasI,nAshI,nAshI,
-     *              1.0D+00,Work(LCMOPT2+nBasI*nCorI),nBasI,
+     *              1.0D+00,CMOPT2(1+nBasI*nCorI),nBasI,
      *                      Work(ipWRK1),nAshI,
      *              0.0D+00,Work(ipWRK2),nBasI)
         Call DGemm_('N','T',nBasI,nBasI,nAshI,
      *              1.0D+00,Work(ipWRK2),nBasI,
-     *                      Work(LCMOPT2+nBasI*nCorI),nBasI,
+     *                      CMOPT2(1+nBasI*nCorI),nBasI,
      *              1.0D+00,DIA,nBasI)
 C
         iAOtr = iAOtr + nBasI*(nBasI+1)/2
@@ -276,6 +277,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFro3(FIFA,FIMO,WRK1,WRK2)
 C
+      use caspt2_data, only: CMOPT2
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -297,7 +299,7 @@ C
       !! AO -> MO transformation
       iAO   = 1
       iAOtr = 1
-      iCMO  = LCMOPT2
+      iCMO  = 1
       iMO   = 1
       DO iSym = 1, nSym
         nBasI = nBas(iSym)
@@ -310,7 +312,7 @@ C
         Call Square(Work(LWFLT+iAOtr-1),WRK2,1,nBasI,nBasI)
         Call DaXpY_(nBasI*nBasI,1.0D+00,WRK2,1,WRK1,1)
         !! AO -> MO transformation of H+G(D)
-        Call OLagTrf(2,iSym,Work(iCMO),FIFA(iMO),WRK1,WRK2)
+        Call OLagTrf(2,iSym,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
 C
         !! FIMO
         !! WRK1 = G(D)
@@ -320,7 +322,7 @@ C     call docpy_nbasI*nbasi,0.0d+00,0,wrk1,1)
         Call Square(Work(LWFLT+iAOtr-1),WRK2,1,nBasI,nBasI)
         Call DaXpY_(nBasI*nBasI,1.0D+00,WRK2,1,WRK1,1)
         !! AO -> MO transformation of H+G(D)
-        Call OLagTrf(2,iSym,Work(iCMO),FIMO(iMO),WRK1,WRK2)
+        Call OLagTrf(2,iSym,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
 C       Do iOrb = 1, nfro(1)+nish(1)
 C       scal=4.0d+00
 C         Call Coul(iSymA,iSymI,iSymB,iSymJ,

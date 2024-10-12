@@ -2982,10 +2982,10 @@ C     !! triangular -> square transformation
 C     Call Square(WRK2,WRK1,1,nBasT,nBasT)
 C     !! AO -> MO transformation
 C     Call DGemm_('T','N',nBasT,nBasT,nBasT,
-C    *            1.0D+00,Work(LCMOPT2),nBasT,WRK1,nBasT,
+C    *            1.0D+00,CMOPT2,nBasT,WRK1,nBasT,
 C    *            0.0D+00,WRK2,nBasT)
 C     Call DGemm_('N','N',nBasT,nBasT,nBasT,
-C    *            1.0D+00,WRK2,nBasT,Work(LCMOPT2),nBasT,
+C    *            1.0D+00,WRK2,nBasT,CMOPT2,nBasT,
 C    *            0.0D+00,WRK1,nBasT)
       !! Inactive energy
 C     Do iCorI = 1, nFro(iSym)+nIsh(iSym)

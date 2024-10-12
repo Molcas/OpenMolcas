@@ -638,6 +638,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFinal(OLag,Trf)
 C
+      use caspt2_data, only: CMOPT2
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -658,10 +659,10 @@ C
       !! W(MO) -> W(AO) using the quasi-canonical orbitals
       !! No need to back transform to natural orbital basis
       Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *            1.0D+00,Work(LCMOPT2),nBasT,Work(ipWLagL),nBasT,
+     *            1.0D+00,CMOPT2,nBasT,Work(ipWLagL),nBasT,
      *            0.0D+00,Work(ipWRK),nBasT)
       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *            1.0D+00,Work(ipWRK),nBasT,Work(LCMOPT2),nBasT,
+     *            1.0D+00,Work(ipWRK),nBasT,CMOPT2,nBasT,
      *            0.0D+00,Work(ipWLagL),nBasT)
 C
       !! square -> triangle for WLag(AO)
@@ -720,7 +721,7 @@ C-----------------------------------------------------------------------
       Subroutine CnstFIFAFIMO(MODE)
 
       use caspt2_gradient, only: TraFro
-      use caspt2_data, only: FIMO, FIFA
+      use caspt2_data, only: FIMO, FIFA, CMOPT2
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -775,14 +776,14 @@ C             call sqprt(work(ipwrk1),nbasi)
             If (MODE.eq.0 .and. (IFDW.or.IFRMS)) Then
               !! with the state-average
               !! FIFASA will be natural basis
-              Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFASA+iSQ),
+              Call OLagTrf(2,iSym,CMOPT2,Work(ipFIFASA+iSQ),
      *                     Work(ipWRK1),Work(ipWRK2))
 C             write (*,*) "fifasa in MO"
 C             call sqprt(work(ipfifasa+isq),nbasi)
             Else If (MODE.eq.1) Then
               !! with the state-specific or dynamically weighted
               !! FIFA will be quasi-canonical basis
-              Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFA+iSQ),
+              Call OLagTrf(2,iSym,CMOPT2,Work(ipFIFA+iSQ),
      *                     Work(ipWRK1),Work(ipWRK2))
 C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
@@ -795,11 +796,11 @@ C             call sqprt(work(ipfifa+isq),nbasi)
               If (nFroT /= 0) Then
                 CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
                 CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),
-     &                      TraFro,NBAS(ISYM),WORK(LCMOPT2),
+     &                      TraFro,NBAS(ISYM),CMOPT2,
      *                      WORK(ipWRK2))
                 CALL DCOPY_(NBAS(ISYM)*NFRO(ISYM),
-     *                      Work(ipWRK2),1,Work(LCMOPT2),1)
-                Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFA+iSQ),
+     *                      Work(ipWRK2),1,CMOPT2,1)
+                Call OLagTrf(2,iSym,CMOPT2,Work(ipFIFA+iSQ),
      *                       Work(ipWRK1),Work(ipWRK2))
               End If
             End If
@@ -812,7 +813,7 @@ C         If (MODE.eq.0) Then
      *                    1,nBasI,nBasI)
             Else
               Call SQUARE(Work(ipFIMO+iTr),Work(ipWRK1),1,nBasI,nBasI)
-              Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIMO+iSQ),
+              Call OLagTrf(2,iSym,CMOPT2,Work(ipFIMO+iSQ),
      *                     Work(ipWRK1),Work(ipOLag))
 C             write (*,*) "fimo in MO"
 C             call sqprt(work(ipfimo+isq),nbasi)

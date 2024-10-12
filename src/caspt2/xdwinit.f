@@ -16,7 +16,7 @@
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF
+      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, CMOPT2
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -171,7 +171,7 @@
         end if
       end do
 C
-      If (do_grad) call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
+      If (do_grad) call dcopy_(NCMO,CMO,1,CMOPT2,1)
 
 * Release all memory
       call mma_deallocate(CIRef)

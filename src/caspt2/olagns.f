@@ -1044,12 +1044,12 @@ C
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu} for all ij
           Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,Work(ipWRK2))
 C         Call DGEMM_('N','N',nBasT,nSshA,nSshB,
-C    *                1.0D+00,Work(LCMOPT2+nBasT*nOccB),nBasT,
+C    *                1.0D+00,CMOPT2(1+nBasT*nOccB),nBasT,
 C    *                        AmpL1,nSshA,
 C    *                0.0D+00,Work(ipWRK1),nBasT)
 C         Call DGEMM_('N','T',nBasT,nBasT,nSshB,
 C    *                1.0D+00,Work(ipWRK1),nBasT,
-C    *                        Work(LCMOPT2+nBasT*nOccA),nBasT,
+C    *                        CMOPT2(1+nBasT*nOccA),nBasT,
 C    *                0.0D+00,Work(ipWRK2),nBasT)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
           Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
@@ -1118,17 +1118,18 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_post2(nDimA,nDimB,nSkpA,nSkpB,AmpMO,AmpAO)
 C
+      use caspt2_data, only: CMOPT2
       Implicit Real*8 (A-H,O-Z)
 C
       Dimension AmpMO(nDimA,nDimB),AmpAO(nBasA,nBasB)
 C
        Call DGEMM_('N','N',nBasA,nDimB,nDimA,
-     *             1.0D+00,Work(LCMOPT2+nBasA*nSkpA),nBasA,
+     *             1.0D+00,CMOPT2(1+nBasA*nSkpA),nBasA,
      *                     AmpMO,nDimA,
      *             0.0D+00,Work(ipWRK1),nBasA)
        Call DGEMM_('N','T',nBasA,nBasB,nDimB,
      *             1.0D+00,Work(ipWRK1),nBasA,
-     *                     Work(LCMOPT2+nBasB*nSkpB),nBasA,
+     *                     CMOPT2(1+nBasB*nSkpB),nBasA,
      *             0.0D+00,AmpAO,nBasA)
 C
       End Subroutine OLagNS_post2

@@ -15,6 +15,7 @@
       USE iSD_data
       USE CHOVEC_IO
       use caspt2_gradient, only: LuGAMMA,LuCMOPT2,LuAPT2
+      use caspt2_data, only: CMOPT2
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -102,7 +103,7 @@ C     nocc = nfro(1)+nish(1)+nash(1)
      *              iSym,iSymI,iSymA,iSymJ,iSymB,
      *              T2AO,Work(ipvLag),
      *              nOcc,nBasT,nTot2,nBMX,
-     *              Work(LCMOPT2+nBasT*nFro(iSymA)),
+     *              CMOPT2(1+nBasT*nFro(iSymA)),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              DIA,DI,FIFA,FIMO)
 C
@@ -121,7 +122,7 @@ C
         !! First, CMOPT2 has to be saved. The MO coefficient matrix in
         !! grvg1.f may be different from CMOPT2.
         Do i = 1, nBasT*nBasT
-          Write (LuCMOPT2) Work(LCMOPT2+i-1)
+          Write (LuCMOPT2) CMOPT2(i)
         End Do
         write (LuCMOPT2) (nIsh(1)+nAsh(1))
         write (LuCMOPT2) (nIsh(2)+nAsh(2))
@@ -165,7 +166,7 @@ C
         Close (LuCMOPT2)
 
 C       write(6,*) "mo saved"
-C       call sqprt(Work(LCMOPT2),nbast)
+C       call sqprt(CMOPT2,nbast)
 C
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGAMMA = isFreeUnit(LuGAMMA)
@@ -239,7 +240,7 @@ C
 C
       !! 5) L_{ai} = sum_{mu} C_{mu a} L_{mu i}
 C     CALL DGEMM_('T','N',nSsh(iSym),nOcc,nBasT,
-C    *            1.0D+00,Work(LCMOPT2+nBasT*nOcc),nBasT,
+C    *            1.0D+00,CMOPT2(1+nBasT*nOcc),nBasT,
 C    *                    Work(ipvLag),nBasT,
 C    *            1.0D+00,Work(ipOLAG+nOCC),nOrb(iSymA))
 C     write(6,*) "olag before vvvo"
@@ -249,7 +250,7 @@ C     call sqprt(work(ipolag),nbast)
 C     write(6,*) "vLag"
 C     call sqprt(work(ipvLag),nbast)
       CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,
-     *            1.0D+00,Work(LCMOPT2),nBasT,
+     *            1.0D+00,CMOPT2,nBasT,
      *                    Work(ipvLag),nBasT,
      *            1.0D+00,Work(ipOLAG+nOrbA*nFro(iSymA)),nOrbA)
 C     write(6,*) "olag after vvvo"
@@ -260,17 +261,6 @@ C
 C
       END SUBROUTINE OLagVVVO
 
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      !! ftwo_drv.f
       SUBROUTINE VVVO_Drv(nSym,nBas,nAsh,nFro,nSkipX,
      *                    iSym,iSymI,iSymJ,iSymK,iSymL,
      &                    T2AO,vLag,nOcc,nBasT,nTot2,

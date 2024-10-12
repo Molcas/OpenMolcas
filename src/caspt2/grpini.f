@@ -13,7 +13,8 @@
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, DMIX
+      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
+     &                       CMOPT2
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -111,7 +112,7 @@
         else
 * INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
           call INTCTL1(CMO)
-          call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
+          call dcopy_(NCMO,CMO,1,CMOPT2,1)
         end If
 
 c Modify the Fock matrix if needed
@@ -270,11 +271,9 @@ c You don't have to be beautiful to turn me on
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0
-      call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
+      call dcopy_(NCMO,CMO,1,CMOPT2,1)
 
       call mma_deallocate(CMO_Internal)
       nullify(CMO)
 
-
-      return
-      end
+      end SUBROUTINE GRPINI

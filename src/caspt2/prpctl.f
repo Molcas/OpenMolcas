@@ -21,7 +21,7 @@
       use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
-      use caspt2_data, only: CMO, CMO_Internal
+      use caspt2_data, only: CMO, CMO_Internal, CMOPT2
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -195,7 +195,7 @@ C This density matrix may be approximated in several ways, see DENS.
 C Compute natural orbitals of CASPT2 wave function.
       CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
-      CALL DCOPY_(NCMO,WORK(LCMOPT2),1,CMO,1)
+      CALL DCOPY_(NCMO,CMOPT2,1,CMO,1)
       IF (MODE.EQ.1) THEN
         !! Read the CASSCF orbital (really?)
         IDISK=IAD1M(1)
