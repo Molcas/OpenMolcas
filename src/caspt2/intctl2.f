@@ -52,12 +52,12 @@
         CALL DAXPY_(NBTRI,1.0D+00,WORK(LFAAO),1,WORK(ipFIFA),1)
       END IF
 * Transform them to MO basis:
-      CALL DCOPY_(notri,[0.0D0],0,HONE,1)
+      HONE(:)=0.0D0
       FIMO(:)=0.0D0
       FAMO(:)=0.0D0
 c Compute FIMO, FAMO, ...  to workspace:
       Call FMat_Cho(CMO,Work(LFFAO),Work(LFIAO),Work(LFAAO),
-     &              HONE,FIMO,FAMO)
+     &              HONE,SIZE(HONE),FIMO,FAMO)
       Call GetMem('FFAO','FREE','REAL',LFFAO,NBTRI)
       Call GetMem('FIAO','FREE','REAL',LFIAO,NBTRI)
       Call GetMem('FAAO','FREE','REAL',LFAAO,NBTRI)

@@ -95,8 +95,7 @@ C     Cholesky
 * The total fock matrix (sum of inactive and active contrib.)
       CALL mma_allocate(FIFA,NOTRI,Label='FIFA')
 * The one-electron Hamiltonian
-      NHONE=NOTRI
-      CALL mma_allocate(HONE,NHONE,Label='HONE')
+      CALL mma_allocate(HONE,NOTRI,Label='HONE')
 * The fock matrix with contributions from inactive orbitals, only.
       NFIMO=NOTRI
       CALL mma_allocate(FIMO,NFIMO,Label='FIMO')

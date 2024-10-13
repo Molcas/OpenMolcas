@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FMAT_CHO(CMO,FFAO,FIAO,FAAO,HONE,FIMO,FAMO)
+      SUBROUTINE FMAT_CHO(CMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,FAMO)
       use caspt2_data, only: FIFA, DREF
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-      DIMENSION  CMO(NCMO)
-      DIMENSION FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
-      DIMENSION HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
+      Integer NHONE
+      Real*8  CMO(NCMO)
+      Real*8 FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
+      Real*8 HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
