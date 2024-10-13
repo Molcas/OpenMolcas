@@ -16,12 +16,12 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIMO,FAMO,NFAMO,DREF,NBUF,BUF)
+      SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NBUF,BUF)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-      INTEGER NFAMO, NBUF
+      INTEGER NFIMO, NFAMO, NBUF
       REAL*8 FIMO(NFIMO),FAMO(NFAMO)
       REAL*8 DREF(NDREF),BUF(NBUF)
       INTEGER IAD2M(3,36*36)

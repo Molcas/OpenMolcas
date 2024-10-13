@@ -66,9 +66,9 @@ c One-electron Hamiltonian is in HONE
       END IF
 
 c Inactive and active Fock matrices:
-      CALL DCOPY_(notri,HONE,1,FIMO,1)
-      CALL DCOPY_(notri,[0.0D0],0,FAMO,1)
-      CALL FMAT_CASPT2(FIMO,FAMO,SIZE(FAMO),DREF,NBUF,
+      FIMO(:)=HONE(:)
+      FAMO(:)=0.0D0
+      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,NBUF,
      &                 BUF)
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes

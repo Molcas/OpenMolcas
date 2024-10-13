@@ -387,7 +387,7 @@ C      as DRAs with the name RHS_XX_XX_XX with XX a number representing
 C      the case, symmetry, and rhs vector respectively.
 
 * The RHS elements of Cases A, C, D1  need a correction:
-      CALL MODRHS(IVEC,FIMO)
+      CALL MODRHS(IVEC,FIMO,SIZE(FIMO))
 
 #ifdef _DEBUGPRINT_
 * compute and print RHS fingerprints

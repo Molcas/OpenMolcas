@@ -23,13 +23,17 @@
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: FIMO
       use PrintLevel, only: verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
+
+      INTEGER NERI, NFIMO
+      REAL*8, ALLOCATABLE, TARGET:: ERI(:)
+      REAL*8, POINTER:: ERI0(:), ERI1(:), ERI2(:), SCR(:)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV. The coupling matrix elements from the
@@ -44,29 +48,33 @@ C This is the RHS vector in contravariant representation.
 
 C INTEGRAL BUFFERS:
       NERI=NOMX**2
-      CALL GETMEM('ERI','ALLO','REAL',LERI,3*NERI)
-      LERI1=LERI
-      LERI2=LERI+NERI
-      LSCR =LERI+NERI*2
+      CALL mma_allocate(ERI,3*NERI,Label='ERI')
+      ERI0(1:2*NERI)=>ERI(1:2*NERI)
+      ERI1(1:NERI)=>ERI(1:NERI)
+      ERI2(1:NERI)=>ERI(NERI+1:2*NERI)
+      SCR(1:NERI)=>ERI(2*NERI+1:3*NERI)
 
       IF(NASHT.GT.0) THEN
-        CALL MKRHSA(IVEC,FIMO,WORK(LERI),WORK(LSCR))
-        CALL MKRHSB(IVEC,WORK(LERI),WORK(LSCR))
-        CALL MKRHSC(IVEC,FIMO,WORK(LERI),WORK(LSCR))
-        CALL MKRHSD(IVEC,FIMO,WORK(LERI1),WORK(LERI2),WORK(LSCR))
-        CALL MKRHSE(IVEC,WORK(LERI1),WORK(LERI2),WORK(LSCR))
-        CALL MKRHSF(IVEC,WORK(LERI1),WORK(LERI2),WORK(LSCR))
-        CALL MKRHSG(IVEC,WORK(LERI1),WORK(LERI2),WORK(LSCR))
+        NFIMO=SIZE(FIMO)
+        CALL MKRHSA(IVEC,FIMO,NFIMO,ERI0,SCR)
+        CALL MKRHSB(IVEC,ERI0,SCR)
+        CALL MKRHSC(IVEC,FIMO,NFIMO,ERI0,SCR)
+        CALL MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
+        CALL MKRHSE(IVEC,ERI1,ERI2,SCR)
+        CALL MKRHSF(IVEC,ERI1,ERI2,SCR)
+        CALL MKRHSG(IVEC,ERI1,ERI2,SCR)
       END IF
-      CALL MKRHSH(IVEC,WORK(LERI1),WORK(LERI2),WORK(LSCR))
+      CALL MKRHSH(IVEC,ERI1,ERI2,SCR)
 
-      CALL GETMEM('ERI','FREE','REAL',LERI,2*NERI)
+      ERI0=>Null()
+      ERI1=>Null()
+      ERI2=>Null()
+      SCR=>Null()
+      CALL mma_deallocate(ERI)
 
+      END SUBROUTINE MKRHS
 
-      RETURN
-      END
-
-      SUBROUTINE MKRHSA(IVEC,FIMO,ERI,SCR)
+      SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
       USE SUPERINDEX
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -76,7 +84,8 @@ C INTEGRAL BUFFERS:
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-      DIMENSION FIMO(NFIMO), ERI(*), SCR(*)
+      INTEGER NFIMO
+      REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
@@ -267,7 +276,7 @@ C  Put WM on disk
       RETURN
       END
 
-      SUBROUTINE MKRHSC(IVEC,FIMO,ERI,SCR)
+      SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -275,7 +284,8 @@ C  Put WM on disk
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-      DIMENSION FIMO(NFIMO),ERI(*), SCR(*)
+      INTEGER NFIMO
+      REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
@@ -360,7 +370,7 @@ C   Put W on disk
       RETURN
       END
 
-      SUBROUTINE MKRHSD(IVEC,FIMO,ERI1,ERI2,SCR)
+      SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -368,8 +378,11 @@ C   Put W on disk
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-      DIMENSION IOFF(8),FIMO(NFIMO)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      INTEGER NFIMO
+      REAL*8 FIMO(NFIMO)
+      REAL*8 ERI1(*),ERI2(*), SCR(*)
+
+      INTEGER IOFF(8)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.

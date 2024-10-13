@@ -97,8 +97,7 @@ C     Cholesky
 * The one-electron Hamiltonian
       CALL mma_allocate(HONE,NOTRI,Label='HONE')
 * The fock matrix with contributions from inactive orbitals, only.
-      NFIMO=NOTRI
-      CALL mma_allocate(FIMO,NFIMO,Label='FIMO')
+      CALL mma_allocate(FIMO,NOTRI,Label='FIMO')
 * The fock matrix with contributions from active orbitals, only.
       CALL mma_allocate(FAMO,NOTRI,Label='FAMO')
 * Density matrices, active indices.
