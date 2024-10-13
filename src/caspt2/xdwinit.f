@@ -104,7 +104,7 @@
         do I=1,Nstate
 * Compute matrix element <I|F|J> and store it into H0
           FIJ = 0.0_wp
-          call FOPAB(FIFA,I,J,FIJ)
+          call FOPAB(FIFA,SIZE(FIFA),I,J,FIJ)
           H0(I,J) = FIJ
         end do
       end do

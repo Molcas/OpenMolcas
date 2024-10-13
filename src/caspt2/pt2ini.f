@@ -93,8 +93,7 @@ C     Cholesky
 * during the call to wfnsizes, so this is done here.)
 *
 * The total fock matrix (sum of inactive and active contrib.)
-      NFIFA=NOTRI
-      CALL mma_allocate(FIFA,NFIFA,Label='FIFA')
+      CALL mma_allocate(FIFA,NOTRI,Label='FIFA')
 * The one-electron Hamiltonian
       NHONE=NOTRI
       CALL mma_allocate(HONE,NHONE,Label='HONE')

@@ -117,10 +117,10 @@
 
 c Modify the Fock matrix if needed
 c You don't have to be beautiful to turn me on
-        CALL NEWFOCK(FIFA,CMO)
+        CALL NEWFOCK(FIFA,SIZE(FIFA),CMO)
 
 * NN.15, TODO:
-* MKFOP and following transformation are skipped in DMRG-CASPT2 run
+* the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
         IF (DoCumulant .or. DoFCIQMC) GoTo 100
 
@@ -128,7 +128,7 @@ c You don't have to be beautiful to turn me on
         do I=1,Ngrp
           Istate=I+JSTATE_OFF
 * Compute matrix element and put it into H0
-          call FOPAB(FIFA,Istate,Jstate,H0(Istate,Jstate))
+          call FOPAB(FIFA,SIZE(FIFA),Istate,Jstate,H0(Istate,Jstate))
         end do
 
         if (IPRGLB.ge.VERBOSE) then
@@ -144,7 +144,8 @@ c You don't have to be beautiful to turn me on
             do Istate=1,Nstate
               if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
-                call FOPAB(FIFA,Istate,Jstate,H0(Istate,Jstate))
+                call FOPAB(FIFA,SIZE(FIFA),Istate,Jstate,
+     &                     H0(Istate,Jstate))
                 write(6,'(A3,I4,A3,F16.8)')
      &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
 * Then set it to zero because we are within the diagonal approximation

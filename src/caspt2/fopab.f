@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
+      SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, EXS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -16,8 +16,8 @@
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-
-      DIMENSION FIFA(NFIFA)
+      Integer NFIFA, IBRA, IKET
+      Real*8 FIFA(NFIFA), FOPEL
 * Purely local array, offsets:
       DIMENSION IOFF(8)
       Integer :: nLev

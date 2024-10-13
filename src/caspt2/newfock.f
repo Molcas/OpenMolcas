@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWFOCK(FIFA,CMO)
+      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: usual
       use caspt2_data, only: DREF
@@ -25,6 +25,7 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+      INTEGER NFIFA
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 
       REAL*8 D,DDVX,E,EIGVAL
