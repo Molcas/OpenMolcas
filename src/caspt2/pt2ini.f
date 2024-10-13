@@ -100,8 +100,7 @@ C     Cholesky
       NFIMO=NOTRI
       CALL mma_allocate(FIMO,NFIMO,Label='FIMO')
 * The fock matrix with contributions from active orbitals, only.
-      NFAMO=NOTRI
-      CALL mma_allocate(FAMO,NFAMO,Label='FAMO')
+      CALL mma_allocate(FAMO,NOTRI,Label='FAMO')
 * Density matrices, active indices.
       CALL mma_allocate(DREF,NDREF,Label='DREF')
       CALL mma_allocate(PREF,NPREF,Label='PREF')

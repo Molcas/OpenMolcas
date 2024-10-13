@@ -18,13 +18,15 @@
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "chocaspt2.fh"
+
+      Real*8, Allocatable:: BUF(:)
 
 c Purpose: Compute the standard Fock matrix which defines
 c the PT2 orbitals and the standard H0 hamiltonian.
@@ -45,7 +47,7 @@ c notri=Size of an array with symmetry-blocked triangular
 c submatrices, using non-frozen, non-deleted MO indices.
 c NBUF=Max size of a LUINTM buffer.
       NBUF=MAX(NOMX**2,notri)
-      CALL GETMEM('LBUF','ALLO','REAL',LBUF,NBUF)
+      CALL mma_allocate(BUF,NBUF,Label='BUF')
 
 c One-electron Hamiltonian is in HONE
 
@@ -66,8 +68,8 @@ c One-electron Hamiltonian is in HONE
 c Inactive and active Fock matrices:
       CALL DCOPY_(notri,HONE,1,FIMO,1)
       CALL DCOPY_(notri,[0.0D0],0,FAMO,1)
-      CALL FMAT_CASPT2(FIMO,FAMO,DREF,NBUF,
-     &                 WORK(LBUF))
+      CALL FMAT_CASPT2(FIMO,FAMO,SIZE(FAMO),DREF,NBUF,
+     &                 BUF)
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions
@@ -169,8 +171,6 @@ C density.
         WRITE(6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
       END IF
 
-      CALL GETMEM('LBUF','FREE','REAL',LBUF,NBUF)
+      CALL mma_deallocate(BUF)
 
-
-      RETURN
-      END
+      END SUBROUTINE FOCK_RPT2
