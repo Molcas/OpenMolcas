@@ -153,7 +153,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
     !! EASUM
     CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
     EASUM = WRK1(1)
-    CALL GETDPREF(DREF,PREF)
+    CALL GETDPREF(DREF,PREF,SIZE(PREF))
     EREF=REFENE(JSTATE)
   End If
   Call mma_deallocate(idxG3)

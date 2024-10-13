@@ -68,9 +68,9 @@
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
       INTEGER NCMO,                                                     &
-     &    NDREF,      NPREF
+     &    NDREF
       COMMON/ALLOCOMM/ NCMO,                                            &
-     &    NDREF,      NPREF
+     &    NDREF
 
       INTEGER              LUINTA,LUONEA,LUMORB,LUCIEX,                 &
      &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &

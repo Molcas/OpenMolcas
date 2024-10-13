@@ -42,14 +42,14 @@ C Set up B matrices for cases 1..13.
       IF(NASHT.EQ.0) GOTO 100
 
       CALL GETMEM('DELTA1','ALLO','REAL',LF1,NG1)
-      NFD=NDREF
+      NFD=SIZE(PREF)
       CALL GETMEM('FD','ALLO','REAL',LFD,NFD)
       CALL PT2_GET(NG1,'DELTA1',WORK(LF1))
       CALL MKDREF_RPT2(NASHT,WORK(LF1),WORK(LFD))
       CALL GETMEM('DELTA1','FREE','REAL',LF1,NG1)
       CALL GETMEM('DELTA2','ALLO','REAL',LF2,NG2)
       CALL PT2_GET(NG2,'DELTA2',WORK(LF2))
-      NFP=NPREF
+      NFP=SIZE(PREF)
       CALL GETMEM('FP','ALLO','REAL',LFP,NFP)
       CALL MKPREF_RPT2(NASHT,WORK(LF2),WORK(LFP))
       CALL GETMEM('DELTA2','FREE','REAL',LF2,NG2)
@@ -65,18 +65,18 @@ C Set up B matrices for cases 1..13.
       iLUID=0
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-      CALL MKBA(DREF,PREF,
+      CALL MKBA(DREF,PREF,SIZE(PREF),
      &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
-      CALL MKBC(DREF,PREF,
+      CALL MKBC(DREF,PREF,SIZE(PREF),
      &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
 
       CALL GETMEM('DELTA3','FREE','REAL',LF3,NG3)
       CALL mma_deallocate(idxG3)
 
-      CALL MKBB(DREF,PREF,WORK(LFD),WORK(LFP))
-      CALL MKBD(DREF,PREF,WORK(LFD),WORK(LFP))
+      CALL MKBB(DREF,PREF,SIZE(PREF),WORK(LFD),WORK(LFP))
+      CALL MKBD(DREF,PREF,SIZE(PREF),WORK(LFD),WORK(LFP))
       CALL MKBE(DREF,WORK(LFD))
-      CALL MKBF(DREF,PREF,WORK(LFP))
+      CALL MKBF(DREF,PREF,SIZE(PREF),WORK(LFP))
       CALL MKBG(DREF,WORK(LFD))
       CALL GETMEM('FP','FREE','REAL',LFP,NFP)
       CALL GETMEM('FD','FREE','REAL',LFD,NFD)
@@ -97,14 +97,12 @@ C looping, etc in the rest  of the routines.
         END DO
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKBMAT
 
 ********************************************************************************
 * Case A (ICASE=1)
 ********************************************************************************
-      SUBROUTINE MKBA(DREF,PREF,FD,FP,NG3,F3,idxG3)
+      SUBROUTINE MKBA(DREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       USE SUPERINDEX
@@ -121,7 +119,7 @@ C looping, etc in the rest  of the routines.
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
+      INTEGER NPREF, NG3
       Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
       Real*8 FD(NDREF),FP(NPREF)
       INTEGER*1 idxG3(6,NG3)
@@ -163,7 +161,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_BA,ILO,IHI,JLO,JHI,MA,LDA)
-            CALL MKBA_DP(DREF,PREF,FD,FP,iSYM,
+            CALL MKBA_DP(DREF,PREF,NPREF,FD,FP,iSYM,
      &                   DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
             CALL MKBA_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
@@ -173,11 +171,13 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
-          CALL MKBA_DP(DREF,PREF,FD,FP,ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
+          CALL MKBA_DP(DREF,PREF,NPREF,FD,FP,
+     &                 ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
           CALL MKBA_F3(ISYM,WORK(LG_BA),NG3,F3,IDXG3)
         END IF
 #else
-        CALL MKBA_DP(DREF,PREF,FD,FP,ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
+        CALL MKBA_DP(DREF,PREF,NPREF,FD,FP,
+     &               ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
         call MKBA_F3(ISYM,WORK(lg_BA),NG3,F3,idxG3)
 #endif
 
@@ -193,7 +193,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 
       END
 
-      SUBROUTINE MKBA_DP (DREF,PREF,FD,FP,iSYM,
+      SUBROUTINE MKBA_DP (DREF,PREF,NPREF,FD,FP,iSYM,
      &                    BA,iLo,iHi,jLo,jHi,LDA)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
@@ -203,7 +203,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-
+      INTEGER NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
       DIMENSION DREF(NDREF),PREF(NPREF)
       DIMENSION FD(NDREF),FP(NPREF)
       DIMENSION BA(*)
@@ -935,7 +935,7 @@ c Avoid unused argument warnings
 ********************************************************************************
 * Case C (ICASE=4)
 ********************************************************************************
-      SUBROUTINE MKBC(DREF,PREF,FD,FP,NG3,F3,idxG3)
+      SUBROUTINE MKBC(DREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
       USE SUPERINDEX
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
@@ -952,7 +952,7 @@ c Avoid unused argument warnings
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
+      INTEGER NPREF, NG3
       Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
       Real*8 FD(NDREF),FP(NPREF)
       INTEGER*1 idxG3(6,NG3)
@@ -996,7 +996,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_BC,ILO,IHI,JLO,JHI,MA,LDA)
-            CALL MKBC_DP(DREF,PREF,FD,FP,iSYM,
+            CALL MKBC_DP(DREF,PREF,NPREF,FD,FP,iSYM,
      &                   DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
             CALL MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
@@ -1006,11 +1006,13 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
-          CALL MKBC_DP(DREF,PREF,FD,FP,ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
+          CALL MKBC_DP(DREF,PREF,NPREF,FD,FP,
+     &                 ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
           CALL MKBC_F3(ISYM,WORK(LG_BC),NG3,F3,IDXG3)
         END IF
 #else
-        CALL MKBC_DP(DREF,PREF,FD,FP,ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
+        CALL MKBC_DP(DREF,PREF,NPREF,FD,FP,
+     &               ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
         call MKBC_F3(ISYM,WORK(lg_BC),NG3,F3,idxG3)
 #endif
 
@@ -1026,7 +1028,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 
       END
 
-      SUBROUTINE MKBC_DP (DREF,PREF,FD,FP,iSYM,
+      SUBROUTINE MKBC_DP (DREF,PREF,NPREF,FD,FP,iSYM,
      &                    BC,iLo,iHi,jLo,jHi,LDC)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
@@ -1036,10 +1038,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION FD(NDREF),FP(NPREF)
-      DIMENSION BC(*)
+      INTEGER NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 FD(NDREF),FP(NPREF)
+      REAL*8 BC(*)
 
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
@@ -1749,7 +1751,7 @@ c Avoid unused argument warnings
       END
 #endif
 
-      SUBROUTINE MKBB(DREF,PREF,FD,FP)
+      SUBROUTINE MKBB(DREF,PREF,NPREF,FD,FP)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -1760,9 +1762,9 @@ c Avoid unused argument warnings
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION FD(NDREF),FP(NPREF)
+      INTEGER NPREF
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 FD(NDREF),FP(NPREF)
 
 C Set up the matrices BBP(tu,xy) and BBM(tu,xy)
 C Formulae used:
@@ -1968,7 +1970,7 @@ CGG End
       RETURN
       END
 
-      SUBROUTINE MKBD(DREF,PREF,FD,FP)
+      SUBROUTINE MKBD(DREF,PREF,NPREF,FD,FP)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -1979,9 +1981,9 @@ CGG End
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION FD(NDREF),FP(NPREF)
+      INTEGER NPREF
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 FD(NDREF),FP(NPREF)
 
 C Set up the matrix BD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
@@ -2173,7 +2175,7 @@ CGG End
       RETURN
       END
 
-      SUBROUTINE MKBF(DREF,PREF,FP)
+      SUBROUTINE MKBF(DREF,PREF,NPREF,FP)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -2184,8 +2186,8 @@ CGG End
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
-
-      DIMENSION PREF(NPREF),FP(NPREF),DREF(NDREF)
+      INTEGER NPREF
+      REAL*8 PREF(NPREF),FP(NPREF),DREF(NDREF)
 
 C Set up the matrices BFP(tu,xy) and BFM(tu,xy)
 C Formulae used:

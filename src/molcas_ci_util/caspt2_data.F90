@@ -28,6 +28,7 @@ real(kind=wp), allocatable:: FIFA(:)
 real(kind=wp), allocatable:: HONE(:)
 real(kind=wp), allocatable:: DREF(:)
 real(kind=wp), allocatable:: PREF(:)
+integer(kind=iwp) :: NPREF=0
 real(kind=wp), allocatable:: DMIX(:,:)
 real(kind=wp), allocatable:: DWGT(:,:)
 real(kind=wp), allocatable:: CMOPT2(:)
@@ -37,6 +38,6 @@ real(kind=wp), allocatable:: TORB(:)
 integer(kind=iwp) :: NTORB=0
 
 public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX, DWGT, CMOPT2
-public :: TAT, NTAT, TORB, NTORB
+public :: TAT, NTAT, TORB, NTORB, NPREF
 
 end module caspt2_data

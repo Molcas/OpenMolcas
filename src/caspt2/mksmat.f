@@ -52,17 +52,17 @@ C  part of the three-electron density matrix G3:
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        CALL MKSA(DREF,PREF,NG3,WORK(LG3),idxG3)
-        CALL MKSC(DREF,PREF,NG3,WORK(LG3),idxG3)
+        CALL MKSA(DREF,PREF,SIZE(PREF),NG3,WORK(LG3),idxG3)
+        CALL MKSC(DREF,PREF,SIZE(PREF),NG3,WORK(LG3),idxG3)
 
         CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
-        CALL MKSB(DREF,PREF)
-        CALL MKSD(DREF,PREF)
+        CALL MKSB(DREF,PREF,SIZE(PREF))
+        CALL MKSD(DREF,PREF,SIZE(PREF))
         CALL MKSE(DREF)
-        CALL MKSF(PREF)
+        CALL MKSF(PREF,SIZE(PREF))
         CALL MKSG(DREF)
       END IF
 
@@ -87,7 +87,7 @@ C looping, etc in the rest  of the routines.
 ********************************************************************************
 * Case A (ICASE=1)
 ********************************************************************************
-      SUBROUTINE MKSA(DREF,PREF,NG3,G3,idxG3)
+      SUBROUTINE MKSA(DREF,PREF,NPREF,NG3,G3,idxG3)
       USE SUPERINDEX
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
@@ -104,7 +104,7 @@ C looping, etc in the rest  of the routines.
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
+      INTEGER NPREF, NG3
       Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
@@ -140,7 +140,8 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
             CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
             CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,G3,IDXG3)
-            CALL MKSA_DP(DREF,PREF,ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+            CALL MKSA_DP(DREF,PREF,NPREF,
+     &                   ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
             CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
@@ -148,11 +149,12 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
         ELSE
           CALL MKSA_G3(ISYM,WORK(LG_SA),NG3,G3,IDXG3)
-          CALL MKSA_DP(DREF,PREF,ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
+          CALL MKSA_DP(DREF,PREF,NPREF,
+     &                 ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
         END IF
 #else
         call MKSA_G3(ISYM,WORK(lg_SA),NG3,G3,idxG3)
-        CALL MKSA_DP(DREF,PREF,ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
+        CALL MKSA_DP(DREF,PREF,NPREF,ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
 #endif
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SA,NAS)
@@ -802,7 +804,7 @@ c Avoid unused argument warnings
       END
 #endif
 
-      SUBROUTINE MKSA_DP (DREF,PREF,iSYM,SA,iLo,iHi,jLo,jHi,LDA)
+      SUBROUTINE MKSA_DP (DREF,PREF,NPREF,iSYM,SA,iLo,iHi,jLo,jHi,LDA)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
@@ -813,9 +815,9 @@ C storage uses a triangular scheme, and the LDA passed is zero.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION SA(*)
+      INTEGER NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 SA(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for SA
@@ -899,7 +901,7 @@ C Add -dyu Gvzxt
 ********************************************************************************
 * Case C (ICASE=4)
 ********************************************************************************
-      SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3)
+      SUBROUTINE MKSC(DREF,PREF,NPREF,NG3,G3,idxG3)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       USE SUPERINDEX
@@ -916,7 +918,7 @@ C Add -dyu Gvzxt
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
+      INTEGER NPREF, NG3
       Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
@@ -953,7 +955,8 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
             CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
-            CALL MKSC_DP(DREF,PREF,ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
+            CALL MKSC_DP(DREF,PREF,NPREF,
+     &                   ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
             CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDC,
@@ -961,11 +964,12 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
         ELSE
           CALL MKSC_G3(ISYM,WORK(LG_SC),NG3,G3,IDXG3)
-          CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
+          CALL MKSC_DP(DREF,PREF,NPREF,
+     &                 ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
         END IF
 #else
         call MKSC_G3(ISYM,WORK(lg_SC),NG3,G3,idxG3)
-        CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
+        CALL MKSC_DP(DREF,PREF,NPREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
 #endif
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SC,NAS)
@@ -1615,7 +1619,7 @@ c Avoid unused argument warnings
       END
 #endif
 
-      SUBROUTINE MKSC_DP (DREF,PREF,iSYM,SC,iLo,iHi,jLo,jHi,LDC)
+      SUBROUTINE MKSC_DP (DREF,PREF,NPREF,iSYM,SC,iLo,iHi,jLo,jHi,LDC)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
@@ -1626,9 +1630,9 @@ C storage uses a triangular scheme, and the LDC passed is zero.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION SC(*)
+      INTEGER NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 SC(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for this SC block
@@ -1696,7 +1700,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 ********************************************************************************
 * Case B (ICASE=2,3)
 ********************************************************************************
-      SUBROUTINE MKSB(DREF,PREF)
+      SUBROUTINE MKSB(DREF,PREF,NPREF)
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -1706,8 +1710,8 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
+      INTEGER NPREF
+      REAL*8 DREF(NDREF),PREF(NPREF)
 
 C Set up the matrices SBP(tu,xy) and SBM(tu,xy)
 C Formulae used:
@@ -1842,7 +1846,7 @@ C Write to disk, and save size and address.
       RETURN
       END
 
-      SUBROUTINE MKSD(DREF,PREF)
+      SUBROUTINE MKSD(DREF,PREF,NPREF)
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -1852,8 +1856,8 @@ C Write to disk, and save size and address.
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
+      INTEGER NPREF
+      REAL*8 DREF(NDREF),PREF(NPREF)
 
 C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
@@ -1986,7 +1990,7 @@ C Write to disk
       RETURN
       END
 
-      SUBROUTINE MKSF(PREF)
+      SUBROUTINE MKSF(PREF,NPREF)
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -1996,8 +2000,8 @@ C Write to disk
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
-
-      DIMENSION PREF(NPREF)
+      INTEGER NPREF
+      REAL*8 PREF(NPREF)
 
 C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
 C Formulae used:
