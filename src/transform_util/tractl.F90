@@ -40,6 +40,7 @@ subroutine TRACTL(iPart)
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
 
 use caspt2_data, only: CMO, NCMO
+use caspt2_data, only: LUINTM
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6

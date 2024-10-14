@@ -37,7 +37,7 @@ subroutine tr2NsA2(CMO,NCMO,X1,nX1,X2,nX2,pqrU,npqrU,pqTU,npqTU)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use caspt2_data, only: LUHLF2, LUHLF3
+use caspt2_data, only: LUHLF2, LUHLF3, LUINTM
 
 implicit none
 #include "rasdim.fh"

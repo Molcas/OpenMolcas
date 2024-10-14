@@ -44,6 +44,7 @@ subroutine RDINT2(IPRX,DoTCVA)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use caspt2_data, only: LUINTM
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX

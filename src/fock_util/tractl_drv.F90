@@ -50,6 +50,7 @@
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
 use caspt2_data, only: CMO, NCMO
+use caspt2_data, only: LUINTM
 use Definitions, only: iwp
 
 implicit none

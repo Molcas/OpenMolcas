@@ -41,7 +41,7 @@ subroutine tr2NsB(CMO,NCMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use caspt2_data, only: LUHLF3
+use caspt2_data, only: LUHLF3, LUINTM
 
 #include "intent.fh"
 
@@ -212,7 +212,5 @@ if (ISP > ISR) then
     end do
   end if
 end if
-
-return
 
 end subroutine tr2NsB

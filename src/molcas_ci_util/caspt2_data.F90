@@ -50,7 +50,8 @@ integer(kind=iwp) :: LUONEM
 integer(kind=iwp) :: LUHLF1
 integer(kind=iwp) :: LUHLF2
 integer(kind=iwp) :: LUHLF3
+integer(kind=iwp) :: LUINTM
 
-public :: LUINTA, LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3
+public :: LUINTA, LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM
 
 end module caspt2_data
