@@ -215,7 +215,7 @@ subroutine refwfn_data
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
-  use caspt2_data, only: NCMO, LUCIEX
+  use caspt2_data, only: NCMO, LUCIEX, LUONEM
 
 # include "rasdim.fh"
 # include "caspt2.fh"

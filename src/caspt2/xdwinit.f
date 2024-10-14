@@ -17,6 +17,7 @@
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
       use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, CMOPT2, NCMO
+      use caspt2_data, only: LUONEM
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 

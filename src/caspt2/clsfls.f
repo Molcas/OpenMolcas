@@ -22,7 +22,7 @@
 ************************************************************************
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: silent
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, LUONEM
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *

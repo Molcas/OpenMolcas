@@ -18,6 +18,7 @@
       use caspt2_output, only: EMP2
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: NCMO
+      use caspt2_data, only: LUONEM
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -220,5 +221,4 @@
 * we need to force recanonicalization of the orbitals later
       IFQCAN=0
 
-      return
-      end
+      end subroutine correlating_orbitals

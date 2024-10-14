@@ -22,6 +22,7 @@
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
       use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO
+      use caspt2_data, only: LUONEM
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par

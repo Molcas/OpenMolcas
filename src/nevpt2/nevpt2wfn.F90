@@ -171,7 +171,7 @@ subroutine nevpt2wfn_data()
   use mh5, only: mh5_put_dset
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: wp
-  use caspt2_data, only: NCMO
+  use caspt2_data, only: NCMO, LUONEM
 
 # include "rasdim.fh"
 # include "caspt2.fh"

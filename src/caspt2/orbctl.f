@@ -22,6 +22,7 @@
       use Printlevel, only: debug, verbose
       use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
      &                       TORB
+      use caspt2_data, only: LUONEM
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

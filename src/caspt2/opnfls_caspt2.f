@@ -21,7 +21,7 @@ C  written by:
 C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
-      use caspt2_data, only: LUCIEX, LUINTA
+      use caspt2_data, only: LUCIEX, LUINTA, LUONEM
       Implicit Real*8 (A-H,O-Z)
       CHARACTER(LEN=2) CVEC,CMAT
 *---------------------------------------------------------------------*
@@ -108,5 +108,4 @@ C  AO one-electron integrals
 *----------------------------------------------------------------------*
 C  Exit
 *----------------------------------------------------------------------*
-      Return
       End Subroutine OpnFls_CASPT2

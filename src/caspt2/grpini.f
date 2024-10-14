@@ -15,6 +15,7 @@
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
      &                       CMOPT2, NCMO
+      use caspt2_data, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate

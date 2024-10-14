@@ -11,6 +11,7 @@
       SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
      &                                                       FAMO,NFAMO)
       use caspt2_data, only: FIFA, DREF
+      use caspt2_data, only: LUONEM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
@@ -212,6 +213,4 @@ C density.
         WRITE(6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
       END IF
 
-
-      RETURN
-      END
+      END SUBROUTINE FMAT_CHO

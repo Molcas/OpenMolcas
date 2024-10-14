@@ -12,6 +12,7 @@
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: HONE
+      use caspt2_data, only: LUONEM
       use PrintLevel, only: verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -247,6 +248,4 @@ c Transform one-electron effective Hamiltonian:
       CALL GETMEM('WFMO','FREE','REAL',LWFMO,notri)
       CALL GETMEM('WFLT','FREE','REAL',LWFLT,NBTRI)
 
-
-      RETURN
-      End
+      End SUBROUTINE TRAONE
