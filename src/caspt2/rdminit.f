@@ -54,7 +54,7 @@
 * Compute 1-particle active density matrix GAMMA1
         call POLY1(WORK(LCI))
 * Restructure GAMMA1 as DREF array, but keep it in DMIX
-        call GETDREF(DREF)
+        call GETDREF(DREF,SIZE(DREF))
 
 * Loop over states to compute the contribution of state I to states J
         do J=1,Nstate
