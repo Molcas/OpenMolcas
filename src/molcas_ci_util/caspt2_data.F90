@@ -47,7 +47,10 @@ public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF, NCMO
 integer(kind=iwp) :: LUINTA
 integer(kind=iwp) :: LUCIEX
 integer(kind=iwp) :: LUONEM
+integer(kind=iwp) :: LUHLF1
+integer(kind=iwp) :: LUHLF2
+integer(kind=iwp) :: LUHLF3
 
-public :: LUINTA, LUCIEX, LUONEM
+public :: LUINTA, LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3
 
 end module caspt2_data

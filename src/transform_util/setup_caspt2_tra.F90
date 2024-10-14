@@ -18,6 +18,7 @@ subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO,lthCMO
 
 use Symmetry_Info, only: Mul_SI => Mul
 use caspt2_data, only: CMOp => CMO, NCMO
+use caspt2_data, only: LUHLF1, LUHLF2, LUHLF3
 use Definitions, only: wp, iwp
 
 implicit none
