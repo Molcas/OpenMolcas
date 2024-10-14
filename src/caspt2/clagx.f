@@ -2628,7 +2628,7 @@ C
       use PrintLevel, only: verbose
       use caspt2_gradient, only: ConvInvar
       use gugx, only: SGS, CIS
-      use caspt2_data, only: LUCIEX, IDCIEX
+      use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
