@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HEFVAL(IST,JST,DVALUE)
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDTCEX
       IMPLICIT NONE
 C Apart from input call parameters, we need two vectors stored on
 C LUSOLV. Vector nr IVECC (presently=2) contains the contravariant

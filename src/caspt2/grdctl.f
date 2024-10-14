@@ -21,7 +21,7 @@
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
       use caspt2_data, only: TAT, TORB
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDTCEX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

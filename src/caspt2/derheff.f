@@ -11,7 +11,7 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDTCEX
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -99,8 +99,6 @@ C
       CALL GETMEM('DTG2','FREE','REAL',LDTG2,NTG2)
       CALL GETMEM('DTG3','FREE','REAL',LDTG3,NTG3)
 C
-C
-      RETURN
 C
       End Subroutine DerHEff
 C

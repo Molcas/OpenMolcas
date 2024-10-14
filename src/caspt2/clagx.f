@@ -1115,7 +1115,7 @@ C
       use caspt2_output, only: iPrGlb
       use PrintLevel, only: verbose
       use gugx, only: L2ACT
-      use caspt2_data, only: LUCIEX, LUSOLV
+      use caspt2_data, only: LUCIEX, IDTCEX, LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -2628,7 +2628,7 @@ C
       use PrintLevel, only: verbose
       use caspt2_gradient, only: ConvInvar
       use gugx, only: SGS, CIS
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDCIEX
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

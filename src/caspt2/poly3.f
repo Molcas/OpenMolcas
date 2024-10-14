@@ -19,7 +19,7 @@
       SUBROUTINE POLY3(IFF)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only:LUCIEX, LUSOLV
+      use caspt2_data, only:LUCIEX, IDTCEX, LUSOLV
       use PrintLevel, only: verbose
       use gugx, only: SGS, L2ACT
       use stdalloc, only: mma_allocate, mma_deallocate

@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, EXS, CIS
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDCIEX
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

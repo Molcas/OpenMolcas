@@ -12,7 +12,7 @@
 ************************************************************************
 C
       Subroutine MS_Res(MODE,IST,JST,Scal)
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDTCEX
 C
 C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
@@ -707,7 +707,7 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine LoadCI_XMS(Bas,Mode,CI,Istate,U0)
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
       implicit real(8) (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

@@ -67,9 +67,6 @@
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
-      INTEGER IDCIEX,IDTCEX
-      COMMON/UNITS_caspt2/ IDCIEX,IDTCEX
-
       INTEGER       NSTUV,NSTU,NSTGEU,NSTGTU,                           &
      &    NTUV,NTU,NTGEU,NTGTU,                                         &
      &    NIGEJ,NIGTJ,NAGEB,NAGTB,NTUVES,NTUES,                         &

@@ -190,7 +190,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_data, only: NCMO, LUCIEX, LUONEM
+      use caspt2_data, only: NCMO, LUCIEX, IDCIEX, LUONEM
 #endif
       implicit none
 #include "rasdim.fh"

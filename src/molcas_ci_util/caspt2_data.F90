@@ -46,6 +46,8 @@ public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF, NCMO
 
 integer(kind=iwp) :: LUINTA
 integer(kind=iwp) :: LUCIEX
+integer(kind=iwp) :: IDCIEX
+integer(kind=iwp) :: IDTCEX
 integer(kind=iwp) :: LUONEM
 integer(kind=iwp) :: LUHLF1
 integer(kind=iwp) :: LUHLF2
@@ -60,6 +62,6 @@ integer(kind=iwp) :: LURHS(8)
 integer(kind=iwp) :: LUH0T(4)
 
 public :: LUINTA, LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT
-public :: LURHS, LUH0T, LUSOLV, LUSBT
+public :: LURHS, LUH0T, LUSOLV, LUSBT, IDCIEX, IDTCEX
 
 end module caspt2_data
