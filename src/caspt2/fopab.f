@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, EXS, CIS
+      use caspt2_data, only: LUCIEX
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -215,6 +216,5 @@
       CALL GETMEM('LBRA','FREE','REAL',LBRA,NCONF)
       CALL GETMEM('LKET','FREE','REAL',LKET,NCONF)
 
-      RETURN
-      END
+      END SUBROUTINE FOPAB
 

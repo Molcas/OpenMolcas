@@ -22,6 +22,7 @@
 ************************************************************************
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: silent
+      use caspt2_data, only: LUCIEX
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -31,7 +32,6 @@
 #include "caspt2.fh"
       Call DaClos(LUCIEX)
 * PAM08
-*      Call DaClos(LUMORB)
       Call DaClos(LUONEM)
       Call DaClos(LUINTM)
       Call DaClos(LUDRA)

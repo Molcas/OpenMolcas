@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
       use fciqmc_interface, only: DoFCIQMC, NonDiagonal
+      use caspt2_data, only: LUCIEX
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -302,7 +303,4 @@ C Finally, loop again over symmetries, transforming the CI:
         end if
       END IF
 
-
-
-      RETURN
-      END
+      END SUBROUTINE MKRPTORB

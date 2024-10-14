@@ -21,6 +21,7 @@
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
       use caspt2_data, only: TAT, TORB
+      use caspt2_data, only: LUCIEX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -240,5 +241,5 @@ C--------------------------------------------------------------------
 
       CALL GETMEM('GRDSGM','FREE','REAL',LSGM,NSG)
       CALL GETMEM('GRDCI','FREE','REAL',LCI,NCONF)
-      RETURN
-      END
+
+      END SUBROUTINE GRDCTL

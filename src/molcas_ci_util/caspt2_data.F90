@@ -42,4 +42,11 @@ integer(kind=iwp) :: NTORB=0
 public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX, DWGT, CMOPT2
 public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF, NCMO
 
+! UNIT numbers
+
+integer(kind=iwp) :: LUINTA
+integer(kind=iwp) :: LUCIEX
+
+public :: LUINTA, LUCIEX
+
 end module caspt2_data

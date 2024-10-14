@@ -19,6 +19,7 @@
       SUBROUTINE POLY3(IFF)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
+      use caspt2_data, only:LUCIEX
       use PrintLevel, only: verbose
       use gugx, only: SGS, L2ACT
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -175,4 +176,4 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         END IF
       END IF
 
-      END
+      END SUBROUTINE POLY3

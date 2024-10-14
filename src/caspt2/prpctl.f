@@ -223,7 +223,7 @@ C Backtransform density matrix to original MO basis before storing
         RETURN
       END IF
 
-C Write natural orbitals as standard orbital file on LUMORB.
+C Write natural orbitals as standard orbital file on PT2ORB
 * PAM2008: Separate PT2ORB files for each state:
       FILENAME='PT2ORB'
       MDNAME='MD_PT2'

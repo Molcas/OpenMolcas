@@ -11,6 +11,7 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
+      use caspt2_data, only: LUCIEX
 C
       Implicit Real*8 (A-H,O-Z)
 C

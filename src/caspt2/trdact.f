@@ -19,6 +19,7 @@
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_data, only: LUCIEX
       IMPLICIT NONE
 
 #include "rasdim.fh"

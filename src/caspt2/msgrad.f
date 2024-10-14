@@ -12,6 +12,7 @@
 ************************************************************************
 C
       Subroutine MS_Res(MODE,IST,JST,Scal)
+      use caspt2_data, only: LUCIEX
 C
 C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
@@ -91,7 +92,6 @@ C Read root vectors nr. IST and JST from LUCI.
       CALL GETMEM('TG2','FREE','REAL',LTG2,NTG2)
       CALL GETMEM('TG3','FREE','REAL',LTG3,NTG3)
 
-      RETURN
       End Subroutine MS_Res
 C
 C-----------------------------------------------------------------------
@@ -707,6 +707,7 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine LoadCI_XMS(Bas,Mode,CI,Istate,U0)
+      use caspt2_data, only: LUCIEX
       implicit real(8) (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

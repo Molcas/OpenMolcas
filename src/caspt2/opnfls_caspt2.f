@@ -11,7 +11,7 @@
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 *               1993, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine OpnFls_CASPT2
+      Subroutine OpnFls_CASPT2()
 ************************************************************************
 C  purpose:
 C  - initialize logical unit numbers
@@ -21,6 +21,7 @@ C  written by:
 C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
+      use caspt2_data, only: LUCIEX, LUINTA
       Implicit Real*8 (A-H,O-Z)
       CHARACTER(LEN=2) CVEC,CMAT
 *---------------------------------------------------------------------*
@@ -32,8 +33,6 @@ C  Start
 *---  define logical unit numbers ------------------------------------*
 C  AO two-electron integrals
       LUINTA=20
-C  AO one-electron integrals
-      LUONEA=9
 *
 C  Used during solution of the caspt2 eqs
       LUSOLV=40
@@ -110,4 +109,4 @@ C  AO one-electron integrals
 C  Exit
 *----------------------------------------------------------------------*
       Return
-      End
+      End Subroutine OpnFls_CASPT2
