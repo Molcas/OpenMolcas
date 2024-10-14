@@ -586,7 +586,7 @@ C printing threshold
            nVec = 1
         End If
 *
-        Call Allocate_and_Load_electric_dipoles()
+        Call Allocate_and_Load_electric_dipoles(IFANYD)
 
         IF(IFANYD.NE.0) THEN
 *
@@ -713,7 +713,7 @@ C printing threshold
            nVec = 1
         End If
 *
-        Call Allocate_and_Load_velocities()
+        Call Allocate_and_Load_velocities(IFANYD)
 
         IF(IFANYD.NE.0) THEN
 *
@@ -900,16 +900,17 @@ C printing threshold
 ! M^2 + Ms^2 + 2*MMs (three terms to be programmed)
 ! M^2 and Ms^2 can be calculated separately but the cross term not directly
 !
-        IF(IFANYM.NE.0.OR.IFANYS.NE.0) THEN
 ! Magnetic-Dipole
-        Call Allocate_and_Load_Magnetic_Dipoles()
+        Call Allocate_and_Load_Magnetic_Dipoles(IFANYM)
 ! Spin-Magnetic-Dipole ---- notice the S
-        Call Allocate_and_Load_Spin_Magnetic_dipoles()
+        Call Allocate_and_Load_Spin_Magnetic_dipoles(IFANYS)
+
+        IF(IFANYM.NE.0.OR.IFANYS.NE.0) THEN
 !
 ! Only print the part calculated
 !
          IF(QIALL) THEN
-         IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
+         IF(IFANYM.NE.0.AND.IFANYS.NE.0) THEN
           Call CollapseOutput(1,
      &                  'Magnetic-dipole - magnetic-dipole and '//
      &                  'spin-magnetic-dipole - spin-magnetic-dipole '//
@@ -918,14 +919,14 @@ C printing threshold
      &                  '--------------------------------------'//
      &                  '--------------------------------------------'//
      &                  '---------------------------------'
-         ELSE IF(IFANYD.NE.0.AND.IFANYS.EQ.0) THEN
+         ELSE IF(IFANYM.NE.0.AND.IFANYS.EQ.0) THEN
           Call CollapseOutput(1,
      &                  'Magnetic-dipole - magnetic-dipole '//
      &                  'transition strengths (SO states):')
           WRITE(6,'(3X,A)')
      &                  '----------------------------------'//
      &                  '---------------------------------'
-         ELSE IF(IFANYD.EQ.0.AND.IFANYS.NE.0) THEN
+         ELSE IF(IFANYM.EQ.0.AND.IFANYS.NE.0) THEN
           Call CollapseOutput(1,
      &                  'Spin-magnetic-dipole - spin-magnetic-dipole '//
      &                  'transition strengths (SO states):')
@@ -971,26 +972,20 @@ C printing threshold
           END DO
          END DO
 
-! Magnetic-Dipole
-         Call Deallocate_Magnetic_dipoles()
-
-! Spin-Magnetic-Dipole
-         Call Deallocate_Spin_Magnetic_dipoles()
-
        IF(QIALL) THEN
          WRITE(6,35)
-         IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
+         IF(IFANYM.NE.0.AND.IFANYS.NE.0) THEN
           Call CollapseOutput(0,
      &                  'Magnetic-dipole - magnetic-dipole and '//
      &                  'spin-magnetic-dipole - spin-magnetic-dipole '//
      &                  'transition strengths (SO states):')
           WRITE(6,*)
-         ELSE IF(IFANYD.NE.0.AND.IFANYS.EQ.0) THEN
+         ELSE IF(IFANYM.NE.0.AND.IFANYS.EQ.0) THEN
           Call CollapseOutput(0,
      &                  'Magnetic-dipole - magnetic-dipole '//
      &                  'transition strengths (SO states):')
           WRITE(6,*)
-         ELSE IF(IFANYD.EQ.0.AND.IFANYS.NE.0) THEN
+         ELSE IF(IFANYM.EQ.0.AND.IFANYS.NE.0) THEN
           Call CollapseOutput(0,
      &                  'Spin-magnetic-dipole - Spin-magnetic-dipole '//
      &                  'transition strengths (SO states):')
@@ -1000,10 +995,17 @@ C printing threshold
         SECORD(1) = 1
         END IF
 
+! Magnetic-Dipole
+        Call Deallocate_Magnetic_dipoles()
+
+! Spin-Magnetic-Dipole
+        Call Deallocate_Spin_Magnetic_dipoles()
+
 *Electric-Quadrupole Electric-Quadrupole transitions
 
+        Call Allocate_and_Load_Electric_Quadrupoles(IFANYQ)
 
-        IF(IFANYD.NE.0) THEN
+        IF(IFANYQ.NE.0) THEN
         IF(QIALL) THEN
          Call CollapseOutput(1,
      &                 'Quadrupole transition strengths (SO states):')
@@ -1016,8 +1018,6 @@ C printing threshold
          WRITE(6,31) 'From','To','Osc. strength'
          WRITE(6,35)
          END IF
-
-         Call Allocate_and_Load_Electric_Quadrupoles()
 
          ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
          ONEOVER30C=ONEOVER10C/3.0D0
@@ -1067,8 +1067,6 @@ C printing threshold
           END DO
          END DO
 
-         Call Deallocate_Electric_Quadrupoles()
-
         IF(QIALL) THEN
          WRITE(6,35)
          Call CollapseOutput(0,
@@ -1078,14 +1076,16 @@ C printing threshold
         SECORD(2) = 1
         END IF
 
+        Call Deallocate_Electric_Quadrupoles()
+
 *Electric-Dipole Electric-Octupole transitions
 
 ! Octupole
-         Call Allocate_and_Load_Octupoles()
+         Call Allocate_and_Load_Octupoles(IFANYO)
 ! Dipole
-         Call Allocate_and_Load_electric_dipoles()
+         Call Allocate_and_Load_electric_dipoles(IFANYD)
 
-        IF(IFANYD.NE.0) THEN
+        IF(IFANYD.NE.0.AND.IFANYO.NE.0) THEN
         IF(QIALL) THEN
          Call CollapseOutput(1,
      &                     'Electric-dipole - electric-octupole '//
@@ -1175,13 +1175,13 @@ C printing threshold
 ! Spin-Magnetic-Quadrupole
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
 
-! Magnetic-Quadrupole
-        Call Allocate_and_Load_Magnetic_Quadrupoles()
-! Spin-Magnetic-Quadrupole
-        Call Allocate_and_Load_Spin_Magnetic_Quadrupoles()
 ! Electric-Dipole
-        Call Allocate_and_Load_electric_dipoles()
-
+        Call Allocate_and_Load_electric_dipoles(IFANYD)
+        IF(IFANYD.NE.0) THEN
+! Magnetic-Quadrupole
+        Call Allocate_and_Load_Magnetic_Quadrupoles(IFANYD)
+! Spin-Magnetic-Quadrupole
+        Call Allocate_and_Load_Spin_Magnetic_Quadrupoles(IFANYS)
 
         IF(IFANYD.NE.0.OR.IFANYS.NE.0) THEN
         IF(QIALL) THEN
@@ -1297,6 +1297,7 @@ C printing threshold
         Call Deallocate_Magnetic_Quadrupoles()
 ! Spin-Magnetic-Quadrupole
         Call Deallocate_Spin_Magnetic_Quadrupoles()
+        END IF
 ! Electric-Dipole
         Call Deallocate_electric_dipoles()
 !
@@ -1370,20 +1371,20 @@ C printing threshold
 * New CD here with electric dipole and magnetic-dipole - velocity gauge
 
 
-        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
-
 ! Electric dipole (linear momentum, p)
-         Call Allocate_and_Load_velocities()
+        Call Allocate_and_Load_velocities(IFANYD)
 
 ! Magnetic-Dipole (angular momentum, l = r x p)
-         Call Allocate_and_Load_Magnetic_Dipoles()
+        Call Allocate_and_Load_Magnetic_Dipoles(IFANYM)
+
+        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
 ! Spin-Magnetic-Dipole
-         Call Allocate_and_Load_Spin_Magnetic_Dipoles()
+         Call Allocate_and_Load_Spin_Magnetic_Dipoles(IFANYS)
 
 ! Electric quadrupole (r:p+p:r)
 
-         Call Allocate_and_Load_Electric_Quadrupoles()
+         Call Allocate_and_Load_Electric_Quadrupoles(IFANYQ)
 !
 ! Only print the part calculated
 !
@@ -1540,10 +1541,6 @@ C printing threshold
          WRITE(6,35)
          End Do
 
-         Call Deallocate_electric_dipoles()
-
-         Call Deallocate_magnetic_dipoles()
-
          Call Deallocate_Spin_Magnetic_Dipoles()
 
          Call Deallocate_Electric_Quadrupoles()
@@ -1554,21 +1551,25 @@ C printing threshold
      &                  'rotatory strengths (SO states):')
         END IF
 
+        Call Deallocate_electric_dipoles()
+
+        Call Deallocate_magnetic_dipoles()
+
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
 
+! Electric dipole (r)
+        Call Allocate_and_Load_electric_dipoles(IFANYD)
+! Magnetic-Dipole (angular momentum, l = r x p)
+        Call Allocate_and_Load_Magnetic_dipoles(IFANYM)
+
         IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
 
-! Electric dipole (r)
-        Call Allocate_and_Load_electric_dipoles()
-! Magnetic-Dipole (angular momentum, l = r x p)
-        Call Allocate_and_Load_Magnetic_dipoles()
-
 ! Spin-Magnetic-Dipole
-         Call Allocate_and_Load_Spin_Magnetic_Dipoles()
+         Call Allocate_and_Load_Spin_Magnetic_Dipoles(IFANYS)
 
 ! Electric quadrupole (r:r)
-         Call Allocate_and_Load_Electric_Quadrupoles()
+         Call Allocate_and_Load_Electric_Quadrupoles(IFANYQ)
 !
 ! Only print the part calculated
 !
@@ -1719,10 +1720,6 @@ C printing threshold
          WRITE(6,35)
          End Do
 
-         Call Deallocate_electric_dipoles()
-
-         Call Deallocate_Magnetic_Dipoles()
-
          Call Deallocate_Spin_Magnetic_Dipoles()
 
          Call Deallocate_Electric_Quadrupoles()
@@ -1732,6 +1729,9 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF
+
+        Call Deallocate_electric_dipoles()
+        Call Deallocate_Magnetic_Dipoles()
       END IF
 * CD end
 
@@ -3169,17 +3169,17 @@ C backtransformation in two steps, -phi and -theta
 
       Contains
 
-      Subroutine Allocate_and_Load_electric_dipoles()
+      Subroutine Allocate_and_Load_electric_dipoles(IFANY)
       Integer ISOPR
       Integer IPRDX, IPRDY, IPRDZ
          IPRDX=0
          IPRDY=0
          IPRDZ=0
-         IFANYD=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
-            IFANYD=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
             IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
@@ -3211,16 +3211,16 @@ C backtransformation in two steps, -phi and -theta
          END If
       End Subroutine Allocate_and_Load_electric_dipoles
 
-      Subroutine Allocate_and_Load_velocities()
+      Subroutine Allocate_and_Load_velocities(IFANY)
       Integer ISOPR
       Integer IPRDX, IPRDY, IPRDZ
          IPRDX=0
          IPRDY=0
          IPRDZ=0
-         IFANYD=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'VELOCITY') THEN
-            IFANYD=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
             IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
@@ -3261,17 +3261,17 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(DZI)
       End Subroutine Deallocate_electric_dipoles
 
-      Subroutine Allocate_and_Load_magnetic_dipoles()
+      Subroutine Allocate_and_Load_magnetic_dipoles(IFANY)
       Integer ISOPR
       Integer IPRMDX, IPRMDY, IPRMDZ
          IPRMDX=0
          IPRMDY=0
          IPRMDZ=0
 
-         IFANYM=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
-            IFANYM=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRMDX=ISOPR
             IF(ISOCMP(ISOPR).EQ.2) IPRMDY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRMDZ=ISOPR
@@ -3312,18 +3312,18 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(MDZI)
       End Subroutine Deallocate_magnetic_dipoles
 
-      Subroutine Allocate_and_Load_Spin_Magnetic_dipoles()
+      Subroutine Allocate_and_Load_Spin_Magnetic_dipoles(IFANY)
       Integer ISOPR
       Integer IPRSX, IPRSY, IPRSZ
          IPRSX=0
          IPRSY=0
          IPRSZ=0
 
-         IFANYS=0
+         IFANY=0
          DO ISOPR=1,NSOPR
             IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
      &         SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
-            IFANYS=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
             IF(ISOCMP(ISOPR).EQ.1) IPRSY=ISOPR
             IF(ISOCMP(ISOPR).EQ.1) IPRSZ=ISOPR
@@ -3364,7 +3364,7 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(SZI)
       End Subroutine Deallocate_Spin_Magnetic_dipoles
 
-      Subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles()
+      Subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles(IFANY)
       Integer ISOPR
       Integer IPRSXY, IPRSXZ, IPRSYX, IPRSYZ, IPRSZX, IPRSZY
          IPRSXY=0
@@ -3375,11 +3375,11 @@ C backtransformation in two steps, -phi and -theta
 
          IPRSZX=0
          IPRSZY=0
-         IFANYS=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &             SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
-            IFANYS=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
             IF(ISOCMP(ISOPR).EQ.1) IPRSXZ=ISOPR
 
@@ -3462,7 +3462,7 @@ C backtransformation in two steps, -phi and -theta
          Call mma_deallocate(SXZI)
       End Subroutine Deallocate_Spin_Magnetic_Quadrupoles
 
-      Subroutine Allocate_and_Load_Electric_Quadrupoles()
+      Subroutine Allocate_and_Load_Electric_Quadrupoles(IFANY)
       Integer ISOPR
       Integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ
          IPRDXX=0
@@ -3472,10 +3472,10 @@ C backtransformation in two steps, -phi and -theta
          IPRDYZ=0
          IPRDZZ=0
 
-         IFANYQ=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
-            IFANYQ=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
             IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
@@ -3549,7 +3549,7 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(QZZI)
       End Subroutine Deallocate_Electric_Quadrupoles
 
-      Subroutine Allocate_and_Load_Magnetic_Quadrupoles()
+      Subroutine Allocate_and_Load_Magnetic_Quadrupoles(IFANY)
       Integer ISOPR
       Integer IPRDZX, IPRDYX, IPRDZY
          IPRDXY=0
@@ -3559,10 +3559,10 @@ C backtransformation in two steps, -phi and -theta
          IPRDZX=0
          IPRDZY=0
 
-         IFANYD=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
-            IFANYD=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
 
@@ -3641,7 +3641,7 @@ C backtransformation in two steps, -phi and -theta
          CALL mma_deallocate(MQZYI)
       End Subroutine Deallocate_Magnetic_Quadrupoles
 
-      Subroutine Allocate_and_Load_Octupoles()
+      Subroutine Allocate_and_Load_Octupoles(IFANY)
       Integer ISOPR
       Integer IPRDZZX, IPRDZZY, IPRDZZZ, IPRDXXX, IPRDXXY, IPRDXXZ,
      &        IPRDYYX, IPRDYYY, IPRDYYZ
@@ -3683,10 +3683,10 @@ C backtransformation in two steps, -phi and -theta
          IPRDZZY=0 ! Taking order from YZZ
          IPRDZZZ=0 !
 
-         IFANYD=0
+         IFANY=0
          DO ISOPR=1,NSOPR
            IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
-            IFANYD=1
+            IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRDXXX=ISOPR
             IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
             IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
