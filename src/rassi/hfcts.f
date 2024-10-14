@@ -1018,8 +1018,8 @@ C square root of the G eigenvalues
       CALL mma_allocate(MXI,NSS,NSS,Label='MXI')
       MXR(:,:)=0.0D0
       MXI(:,:)=0.0D0
-      CALL mma_allocate(MXR,NSS,NSS,Label='MYR')
-      CALL mma_allocate(MXI,NSS,NSS,Label='MYI')
+      CALL mma_allocate(MYR,NSS,NSS,Label='MYR')
+      CALL mma_allocate(MYI,NSS,NSS,Label='MYI')
       MYR(:,:)=0.0D0
       MYI(:,:)=0.0D0
       CALL mma_allocate(MZR,NSS,NSS,Label='MZR')
