@@ -919,7 +919,7 @@ C           Call DaXpY_(nDRef,Wgt,Work(:,iState),1,Work(ipWRK1),1)
             Call LoadCI_XMS('N',1,WORK(LCI),iState,U0)
 C           Call LoadCI(WORK(LCI),iState)
             call POLY1(WORK(LCI))
-            call GETDREF(WORK(ipWRK2))
+            call GETDREF(WORK(ipWRK2),nDRef)
             Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
           End Do
           Call GetMem('LCI','FREE','REAL',LCI,nConf)
