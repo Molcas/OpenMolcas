@@ -16,7 +16,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
+subroutine tr2NsB(CMO,NCMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -47,6 +47,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
+integer(kind=iwp), intent(in) :: NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
 real(kind=wp), intent(inout) :: PQRS(*), TURS(*)

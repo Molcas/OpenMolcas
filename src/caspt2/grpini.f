@@ -14,7 +14,7 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2
+     &                       CMOPT2, NCMO
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -111,13 +111,13 @@
           call INTCTL2(IF_TRNSF)
         else
 * INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-          call INTCTL1(CMO)
-          call dcopy_(NCMO,CMO,1,CMOPT2,1)
+          call INTCTL1(CMO,NCMO)
+          CMOPT2(:)=CMO(:)
         end If
 
 c Modify the Fock matrix if needed
 c You don't have to be beautiful to turn me on
-        CALL NEWFOCK(FIFA,SIZE(FIFA),CMO)
+        CALL NEWFOCK(FIFA,SIZE(FIFA),CMO,NCMO)
 
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
@@ -251,7 +251,7 @@ c You don't have to be beautiful to turn me on
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(CMO)
+      CALL ORBCTL(CMO,NCMO)
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
@@ -272,7 +272,7 @@ c You don't have to be beautiful to turn me on
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0
-      call dcopy_(NCMO,CMO,1,CMOPT2,1)
+      CMOPT2(:)=CMO(:)
 
       call mma_deallocate(CMO_Internal)
       nullify(CMO)

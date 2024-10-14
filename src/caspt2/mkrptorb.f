@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO)
+      SUBROUTINE MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
       use fciqmc_interface, only: DoFCIQMC, NonDiagonal
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -30,7 +30,7 @@ C transformed on file LUCIEX. Note: FIFA is unchanged
 C and is not valid for the new orbitals. It will be
 C recomputed later.
 C The transformation matrices are returned in TORB.
-      INTEGER, INTENT(IN) :: NFIFA,NTORB
+      INTEGER, INTENT(IN) :: NFIFA,NTORB,NCMO
       REAL*8, INTENT(IN) :: FIFA(NFIFA)
 * -------------------------------------------
       REAL*8, INTENT(OUT) :: TORB(NTORB)

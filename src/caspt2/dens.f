@@ -1430,7 +1430,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine TRAFRO(MODE)
 C
-      use caspt2_data, only: CMO, CMO_Internal, CMOPT2
+      use caspt2_data, only: CMO, CMO_Internal, CMOPT2, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1453,7 +1453,7 @@ C
 C
       Call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
-      Call DCopy_(NCMO,CMOPT2,1,CMO,1)
+      CMO(:)=CMOPT2(:)
       if (IfChol) then
         call TRACHO3(CMO)
       else

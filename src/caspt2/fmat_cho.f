@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FMAT_CHO(CMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
-     &                                                  FAMO,NFAMO)
+      SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
+     &                                                       FAMO,NFAMO)
       use caspt2_data, only: FIFA, DREF
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-      Integer NHONE, NFIMO, NFAMO
+      Integer NCMO, NHONE, NFIMO, NFAMO
       Real*8  CMO(NCMO)
       Real*8 FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
       Real*8 HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)

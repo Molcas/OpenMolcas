@@ -67,9 +67,6 @@
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
-      INTEGER NCMO
-      COMMON/ALLOCOMM/ NCMO
-
       INTEGER              LUINTA,LUONEA,LUMORB,LUCIEX,                 &
      &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &
      &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS,LUH0T

@@ -22,6 +22,7 @@ private
 
 real(kind=wp), allocatable, target:: CMO_Internal(:)
 real(kind=wp), pointer:: CMO(:)
+integer(kind=iwp) :: NCMO=0
 real(kind=wp), allocatable:: FIMO(:)
 real(kind=wp), allocatable:: FAMO(:)
 real(kind=wp), allocatable:: FIFA(:)
@@ -39,6 +40,6 @@ real(kind=wp), allocatable:: TORB(:)
 integer(kind=iwp) :: NTORB=0
 
 public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX, DWGT, CMOPT2
-public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF
+public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF, NCMO
 
 end module caspt2_data

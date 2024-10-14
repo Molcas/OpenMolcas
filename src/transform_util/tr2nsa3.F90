@@ -16,7 +16,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine tr2nsa3(CMO,X1,nX1,X2,nX2,pqUs,npqUS,pqrU,npqrU)
+subroutine tr2nsa3(CMO,NCMO,X1,nX1,X2,nX2,pqUs,npqUS,pqrU,npqrU)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -41,7 +41,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
-integer(kind=iwp), intent(in) :: nX1, nX2, npqUS, npqrU
+integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqUS, npqrU
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 real(kind=wp), intent(inout) :: pqUS(npqUS), pqrU(npqrU)

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine tr2NsA1(CMO,X1,nX1,X2,nX2,X3,nX3,pqUS,npqUS,pqRU,npqRU,pqTU,npqTU,lBuf)
+subroutine tr2NsA1(CMO,NCMO,X1,nX1,X2,nX2,X3,nX3,pqUS,npqUS,pqRU,npqRU,pqTU,npqTU,lBuf)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
-integer(kind=iwp), intent(in) :: nX1, nX2, nX3, npqUS, npqRU, npqTU, lBuf
+integer(kind=iwp), intent(in) :: NCMO,nX1, nX2, nX3, npqUS, npqRU, npqTU, lBuf
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2), X3(nX3)
 real(kind=wp), intent(inout) :: pqUS(npqUS), pqRU(npqRU), pqTU(npqTU)

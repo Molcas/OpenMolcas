@@ -49,7 +49,7 @@
 !***********************************************************************
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
-use caspt2_data, only: CMO
+use caspt2_data, only: CMO, NCMO
 use Definitions, only: iwp
 
 implicit none

@@ -21,6 +21,7 @@
       use PrintLevel, only: usual
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
+      use caspt2_data, only: NCMO
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

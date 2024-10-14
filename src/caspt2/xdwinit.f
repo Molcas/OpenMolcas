@@ -16,7 +16,7 @@
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, CMOPT2
+      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, CMOPT2, NCMO
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -94,7 +94,7 @@
         call INTCTL2(.false.)
       else
 * INTCTL1 uses TRAONE and FOCK_RPT2 to get the matrices in MO basis.
-        call INTCTL1(CMO)
+        call INTCTL1(CMO,SIZE(CMO))
       end if
 
 * Loop again over all states to compute H0 in the model space
@@ -172,6 +172,7 @@
       end do
 C
       If (do_grad) call dcopy_(NCMO,CMO,1,CMOPT2,1)
+      If (do_grad) CMOPT2(:)=CMO(:)
 
 * Release all memory
       call mma_deallocate(CIRef)

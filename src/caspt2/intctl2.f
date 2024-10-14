@@ -56,7 +56,7 @@
       FIMO(:)=0.0D0
       FAMO(:)=0.0D0
 c Compute FIMO, FAMO, ...  to workspace:
-      Call FMat_Cho(CMO,Work(LFFAO),Work(LFIAO),Work(LFAAO),
+      Call FMat_Cho(CMO,SIZE(CMO),Work(LFFAO),Work(LFIAO),Work(LFAAO),
      &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))
 
       Call GetMem('FFAO','FREE','REAL',LFFAO,NBTRI)

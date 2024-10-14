@@ -17,7 +17,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
+subroutine TR2Sq(CMO,NCMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -44,6 +44,7 @@ implicit none
 integer(kind=iwp), intent(in) :: lBuf
 #include "rasdim.fh"
 #include "caspt2.fh"
+integer(kind=iwp), intent(in) :: NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
 real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)

@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO)
+      SUBROUTINE ORBCTL(CMO,NCMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
@@ -29,7 +29,9 @@
 #include "chocaspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+      INTEGER NCMO
       REAL*8 CMO(NCMO)
+
       INTEGER ISYM
       INTEGER I1,I2,LORBE
       INTEGER IDISK
@@ -55,7 +57,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
-      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO)
+      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO,NCMO)
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF

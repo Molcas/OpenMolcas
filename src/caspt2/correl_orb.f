@@ -17,6 +17,7 @@
       use InputData, only: Input
       use caspt2_output, only: EMP2
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_data, only: NCMO
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -29,7 +30,7 @@
 
 * memory to store MOs
       NCMO=NBSQT
-      CALL MMA_ALLOCATE(CMO_X,NCMO)
+      CALL MMA_ALLOCATE(CMO_X,NCMO,Label='CMO_X')
 
 * Read the MOs from the LUONEM file
       IDISK=IAD1M(1)

@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO)
+      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: usual
       use caspt2_data, only: DREF
@@ -25,7 +25,7 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      INTEGER NFIFA
+      INTEGER NFIFA, NCMO
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 
       REAL*8 D,DDVX,E,EIGVAL
@@ -175,7 +175,7 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         CALL DCOPY_(NOSQT,[0.0D0],0,WORK(LXMAT),1)
         IF (IfChol) THEN
-          CALL Cho_Amatrix(WORK(LXMAT),CMO,WORK(LDDTR),NATR)
+          CALL Cho_Amatrix(WORK(LXMAT),CMO,NCMO,WORK(LDDTR),NATR)
         ELSE
           NOSQES=0
           DO ISYMPQ=1,NSYM

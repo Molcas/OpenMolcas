@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRAONE(CMO)
+      SUBROUTINE TRAONE(CMO,NCMO)
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: HONE
@@ -19,8 +19,10 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      DIMENSION CMO(NCMO)
-      DIMENSION nBasXX(8),Keep(8)
+      INTEGER NCMO
+      REAL*8 CMO(NCMO)
+
+      INTEGER nBasXX(8),Keep(8)
       Logical iSquar, Found
       character(len=8) :: Label
 
