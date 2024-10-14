@@ -30,7 +30,7 @@ use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initial
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use caspt2_data, only: NCMO
+use caspt2_data, only: NCMO, LUONEM
 
 implicit none
 character(len=*), intent(in) :: refwfn_in
