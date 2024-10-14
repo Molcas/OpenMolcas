@@ -22,7 +22,7 @@
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria
-      use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2, TORB
+      use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2, TORB, NDREF
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King

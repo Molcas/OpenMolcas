@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRANSDREF(TORB,DREF)
+      SUBROUTINE TRANSDREF(TORB,NTORB,DREF,NDREF)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION TORB(*),DREF(NDREF)
+      INTEGER NDREF
+      REAL*8 TORB(NTORB),DREF(NDREF)
 * Purpose: given an orbital transformation array
 * transform the DREF array (blocked triangular, active)
 

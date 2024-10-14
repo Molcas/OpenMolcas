@@ -68,8 +68,8 @@ c One-electron Hamiltonian is in HONE
 c Inactive and active Fock matrices:
       FIMO(:)=HONE(:)
       FAMO(:)=0.0D0
-      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,NBUF,
-     &                 BUF)
+      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF),
+     &                 NBUF,BUF)
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions

@@ -752,7 +752,7 @@ C
       Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
       use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
-      use caspt2_data, only: FIFA, TORB
+      use caspt2_data, only: FIFA, TORB, NDREF
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C

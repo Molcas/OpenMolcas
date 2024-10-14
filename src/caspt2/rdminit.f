@@ -64,7 +64,7 @@
 * Multiply density of state I with weight wij and add it to whatever
 * is already in DMIX (contributions of other states already computed)
 * and store it in DMIX
-          call daxpy_(NDREF,wij,DREF,1,DMIX(:,J),1)
+          call daxpy_(SIZE(DREF),wij,DREF,1,DMIX(:,J),1)
         end do
 
 * End of long loop over states

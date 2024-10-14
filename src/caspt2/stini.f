@@ -63,7 +63,7 @@ C     indices
       END IF
 
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
-      CALL GETDPREF(DREF,PREF)
+      CALL GETDPREF(DREF,SIZE(DREF),PREF,SIZE(PREF))
 
       IFTEST = 0
       IF ( IFTEST.NE.0 ) THEN

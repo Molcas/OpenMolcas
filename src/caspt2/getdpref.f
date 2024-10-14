@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GETDPREF(DREF,PREF,NPREF)
+      SUBROUTINE GETDPREF(DREF,NDREF,PREF,NPREF)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -17,7 +17,7 @@
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"
-      INTEGER NPREF
+      INTEGER NDREF, NPREF
       REAL*8 DREF(NDREF)
       REAL*8 PREF(NPREF)
 

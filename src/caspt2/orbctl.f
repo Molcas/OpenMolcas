@@ -76,7 +76,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * state average density, therefore it's wrong to transform it!
 * However, it is never used again in this part, and next time it is used, it
 * is actually recomputed for the right place.
-          CALL TRANSDREF(TORB,DREF)
+          CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
 *****
       end if
 

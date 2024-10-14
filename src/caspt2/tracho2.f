@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
-      SUBROUTINE TRACHO2(CMO,DREF,FFAO,FIAO,FAAO,IF_TRNSF)
+      SUBROUTINE TRACHO2(CMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
       use Cholesky, only: InfVec, nDimRS
       IMPLICIT NONE
@@ -24,6 +24,7 @@
 ************************************************************************
 *  Author : P. A. Malmqvist
 ************************************************************************
+      INTEGER NDREF
       REAL*8 CMO(NBSQT),DREF(NDREF),
      &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
       LOGICAL IF_TRNSF

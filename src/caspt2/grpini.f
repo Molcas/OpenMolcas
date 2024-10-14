@@ -96,10 +96,10 @@
           DREF(:)=0.0D0
           Do K = 1, Nstate
             wij = 1.0d+00/nstate
-            CALL DAXPY_(NDREF,wij,DMIX(:,K),1,DREF,1)
+            CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
           End Do
         Else
-         CALL DCOPY_(NDREF,DMIX(:,Jstate),1,DREF,1)
+         CALL DCOPY_(SIZE(DREF),DMIX(:,Jstate),1,DREF,1)
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate

@@ -16,7 +16,7 @@
       use caspt2_gradient, only: do_grad
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
-     &                       NPREF
+     &                       NDREF, NPREF
       use stdalloc, only: mma_allocate
       IMPLICIT NONE
 #include "rasdim.fh"

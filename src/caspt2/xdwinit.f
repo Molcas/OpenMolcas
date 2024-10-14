@@ -40,7 +40,7 @@
 
 * Allocate memory for CI array state averaged 1-RDM
       call mma_allocATE(CI,NCONF,Label='CI')
-      call mma_allocate(DAVE,NDREF,Label='DAVE')
+      call mma_allocate(DAVE,SIZE(DREF),Label='DAVE')
       DAVE(:)=0.0_wp
 
 * Set the weight for the density averaging
@@ -64,7 +64,7 @@
         call GETDREF(DREF)
 
 * Average the density
-        call DAXPY_(NDREF,wgt,DREF,1,DAVE,1)
+        call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
 
       end do
 
@@ -78,7 +78,7 @@
 
 * Copy the state-average 1-RDM into DREF and release memory
 * for both the CI array and DAVE
-      call dcopy_(NDREF,DAVE,1,DREF,1)
+      DREF(:)=DAVE(:)
       call mma_deallocate(CI)
       call mma_deallocate(DAVE)
 
