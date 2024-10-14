@@ -33,6 +33,7 @@
 !> @param[out]    JVEC   Vector position where the result is saved
 !> @param[in]     OVLAPS Array containing the overlaps
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
+      use caspt2_data, only: LUSBT
       IMPLICIT NONE
 
 #include "rasdim.fh"

@@ -836,6 +836,7 @@ C     (ITYP=1).
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1029,6 +1030,7 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

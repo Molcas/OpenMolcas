@@ -127,6 +127,7 @@ C
 ! #endif
 
       use caspt2_global, only:imag_shift, sigma_p_epsilon
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -344,7 +345,7 @@ C
       use caspt2_global, only:ipea_shift, real_shift, imag_shift,
      *                        sigma_p_epsilon
       use caspt2_gradient, only:do_lindep,LUSTD
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, LUSBT
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -3848,6 +3849,7 @@ C
       Subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
 C
       use caspt2_gradient, only: LUSTD, idBoriMat
+      use caspt2_data, only: LUSBT
 C
       Implicit Real*8 (A-H,O-Z)
 C

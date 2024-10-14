@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE EQCTL1
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.

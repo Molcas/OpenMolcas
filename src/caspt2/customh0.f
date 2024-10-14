@@ -23,6 +23,7 @@
 *--------------------------------------------*
       SUBROUTINE NEWB
 #if 0
+      use caspt2_data, only: LUSBT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -63,6 +64,7 @@ C Modify B matrix, using S matrix and some other data.
 
       SUBROUTINE NEWDIA
 #if 0
+      use caspt2_data, only: LUSBT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

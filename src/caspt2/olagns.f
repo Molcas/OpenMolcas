@@ -84,6 +84,7 @@ C
      *                       ERI1,ERI2,Amp1,Scr,DPT2C,T2AO)
       USE SUPERINDEX
       USE iSD_data
+      use caspt2_data, only: LUSBT
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"

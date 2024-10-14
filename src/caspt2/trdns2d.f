@@ -23,6 +23,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 

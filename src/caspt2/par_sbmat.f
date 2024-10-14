@@ -95,6 +95,7 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       USE Para_Info, ONLY: Is_Real_Par
       use caspt2_data, only: LUH0T
 #endif
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -167,6 +168,7 @@ C LUSBT into WORK(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

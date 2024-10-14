@@ -21,7 +21,7 @@
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: DREF, PREF
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
 #include "rasdim.fh"
@@ -1707,6 +1707,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 ********************************************************************************
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1853,6 +1854,7 @@ C Write to disk, and save size and address.
 
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1941,6 +1943,7 @@ C Write to disk
       END
 
       SUBROUTINE MKSE(DREF,NDREF)
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1997,6 +2000,7 @@ C Write to disk
 
       SUBROUTINE MKSF(PREF,NPREF)
       USE SUPERINDEX
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2110,6 +2114,7 @@ C Write to disk
       END
 
       SUBROUTINE MKSG(DREF,NDREF)
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

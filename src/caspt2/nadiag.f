@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE NADIAG
       USE SUPERINDEX
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

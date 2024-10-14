@@ -106,7 +106,7 @@ C usually print info on the total number of parameters
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                           idBoriMat
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -120,7 +120,7 @@ C usually print info on the total number of parameters
 #include "caspt2_grad.fh"
 
 * For fooling some compilers:
-      DIMENSION WGRONK(2)
+      REAL*8 WGRONK(2)
 
 C On entry, the file LUSBT contains overlap matrices SMAT at disk
 C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
@@ -530,6 +530,7 @@ C divided over processors.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: King
 #endif
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

@@ -105,14 +105,14 @@ C However, if only BMATRIX is 'YES     ', then the values
 C are the diagonal values of B divided by diagonal values
 C of S.
 
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 C Non-active part of diagonal elements of H0 are computed
 C and written to LUSBT:
-      CALL NADIAG
+      CALL NADIAG()
 C Modify diagonal elements, if requested:
       IF(HZERO.EQ.'CUSTOM') THEN
-        CALL NEWDIA
+        CALL NEWDIA()
       END IF
 C A second set of energy parameters may now have been
 C computed and written to LUSBT.

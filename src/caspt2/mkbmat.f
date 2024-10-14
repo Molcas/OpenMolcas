@@ -21,7 +21,7 @@
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: DREF, PREF
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 
@@ -1755,6 +1755,7 @@ c Avoid unused argument warnings
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1974,6 +1975,7 @@ CGG End
       SUBROUTINE MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
+      use caspt2_data, only:LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2093,6 +2095,7 @@ CGG End
 
       SUBROUTINE MKBE(DREF,NDREF,FD)
       use caspt2_global, only:ipea_shift
+      use caspt2_data, only:LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2179,6 +2182,7 @@ CGG End
       SUBROUTINE MKBF(DREF,NDREF,PREF,NPREF,FP)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
+      use caspt2_data, only:LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2344,6 +2348,7 @@ CGG End
 
       SUBROUTINE MKBG(DREF,NDREF,FD)
       use caspt2_global, only:ipea_shift
+      use caspt2_data, only:LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

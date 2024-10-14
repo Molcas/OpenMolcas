@@ -19,6 +19,7 @@
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"

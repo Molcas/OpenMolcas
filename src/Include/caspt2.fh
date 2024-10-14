@@ -67,8 +67,8 @@
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
-      INTEGER LUSBT,IDCIEX,IDTCEX
-      COMMON/UNITS_caspt2/ LUSBT,IDCIEX,IDTCEX
+      INTEGER IDCIEX,IDTCEX
+      COMMON/UNITS_caspt2/ IDCIEX,IDTCEX
 
       INTEGER       NSTUV,NSTU,NSTGEU,NSTGTU,                           &
      &    NTUV,NTU,NTGEU,NTGTU,                                         &
@@ -103,6 +103,7 @@
      &    CASES(MXCASE),HZERO,FOCKTYPE,SMATRIX,SDECOM,                  &
      &    BMATRIX,BTRANS,BSPECT,ORBIT,ORBIN,OUTFMT,                     &
      &    ORBNAM(MXORB),IINAM(MXINA),IANAM(MXACT),ISNAM(MXEXT)
+
       REAL*8                                                            &
      &    CPUGIN,CPUINT,CPUFMB,                                         &
      &    CPUSIN,CPUFG3,                                                &

@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
+      use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
