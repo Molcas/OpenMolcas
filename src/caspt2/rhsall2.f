@@ -421,6 +421,7 @@ C      the case, symmetry, and rhs vector respectively.
      &                                Array,nArray,
      &                                IBSTA,IBEND)
       USE CHOVEC_IO
+      use caspt2_data, only: LUDRA
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

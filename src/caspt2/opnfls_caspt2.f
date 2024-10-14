@@ -22,7 +22,8 @@ C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
       use caspt2_data, only: LUCIEX, LUINTA, LUONEM, LUHLF1, LUHLF2,
-     &                       LUHLF3, LUINTM, LUDMAT, LUH0T
+     &                       LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT,
+     &                       LURHS, LUH0T
       Implicit Real*8 (A-H,O-Z)
       CHARACTER(LEN=2) CVEC,CMAT
 *---------------------------------------------------------------------*

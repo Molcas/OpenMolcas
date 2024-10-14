@@ -16,6 +16,7 @@
       use Cholesky, only: InfVec
       use caspt2_gradient, only: do_grad
       use stdalloc, only: mma_MaxDBLE
+      use caspt2_data, only: LUDRA, LUDRATOT
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"

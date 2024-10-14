@@ -24,12 +24,13 @@
 ************************************************************************
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_INIT
+      SUBROUTINE RHS_INIT()
+      use caspt2_data, only: LURHS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION DUMMY(1)
+      REAL*8 DUMMY(1)
 
 C-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 C update the disk address in IOFFRHS
@@ -51,7 +52,7 @@ C update the disk address in IOFFRHS
         END DO
       END DO
 
-      END
+      END SUBROUTINE RHS_INIT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_FPRINT(CTYPE,IVEC)
@@ -483,6 +484,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_data, only: LURHS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -549,6 +551,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_data, only: LURHS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

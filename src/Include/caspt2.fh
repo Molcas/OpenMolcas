@@ -67,11 +67,8 @@
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
-      INTEGER                                                 LUSOLV,   &
-     &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS
-      COMMON/UNITS_caspt2/                                              &
-     &                                                    LUSOLV,       &
-     &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS(8)
+      INTEGER LUSOLV, LUSBT,IDCIEX,IDTCEX
+      COMMON/UNITS_caspt2/ LUSOLV, LUSBT,IDCIEX,IDTCEX
 
       INTEGER       NSTUV,NSTU,NSTGEU,NSTGTU,                           &
      &    NTUV,NTU,NTGEU,NTGTU,                                         &

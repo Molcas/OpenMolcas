@@ -106,7 +106,7 @@ C as this is how they are used to compute the integrals for RHS.
      &    'invalid case number', '')
       END SELECT
       NPQ_CHOTYPE=NP*NQ
-      END FUNCTION
+      END FUNCTION NPQ_CHOTYPE
 
 ************************************************************************
       SUBROUTINE CHOVEC_SIZE(ICASE,NCHOBUF,IOFF)
@@ -144,7 +144,9 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use caspt2_data, only: LUDRATOT
 #endif
+      use caspt2_data, only: LUDRA
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -219,6 +221,7 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 * Write Cholesky vectors to disk.
 ************************************************************************
+      use caspt2_data, only: LUDRA
       Implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
 #include "warnings.h"
@@ -250,6 +253,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 ************************************************************************
 * Read Cholesky vectors from disk.
 ************************************************************************
+      use caspt2_data, only: LUDRA
       Implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
 #include "warnings.h"
@@ -285,6 +289,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _MOLCAS_MPP_
       USE MPI
       USE Para_Info, ONLY: nProcs, Is_Real_Par
+      use caspt2_data, only: LUDRATOT
 #endif
       IMPLICIT NONE
 #include "rasdim.fh"
