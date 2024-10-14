@@ -21,6 +21,7 @@
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: DREF, PREF
+      use caspt2_data, only: LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 

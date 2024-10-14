@@ -24,7 +24,7 @@
       use PrintLevel, only: silent
       use caspt2_data, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
      &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,
-     &                       LUH0T
+     &                       LUH0T, LUSOLV
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *

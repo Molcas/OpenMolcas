@@ -344,6 +344,7 @@ C
       use caspt2_global, only:ipea_shift, real_shift, imag_shift,
      *                        sigma_p_epsilon
       use caspt2_gradient, only:do_lindep,LUSTD
+      use caspt2_data, only: LUSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1113,7 +1114,7 @@ C
       use caspt2_output, only: iPrGlb
       use PrintLevel, only: verbose
       use gugx, only: L2ACT
-      use caspt2_data, only: LUCIEX
+      use caspt2_data, only: LUCIEX, LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

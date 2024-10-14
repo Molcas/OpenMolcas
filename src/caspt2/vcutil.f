@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
+      use caspt2_data, only: LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
@@ -53,6 +54,7 @@ C Read coefficient vector from LUSOLV (C repres).
       END
 
       SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
+      use caspt2_data, only: LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
 

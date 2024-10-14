@@ -652,6 +652,7 @@ C     place and transition is no longer needed.
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE
 #endif
+      use caspt2_data, only: LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -722,6 +723,7 @@ C     place and transition is no longer needed.
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE
 #endif
+      use caspt2_data, only: LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

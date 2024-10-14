@@ -106,6 +106,7 @@ C usually print info on the total number of parameters
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                           idBoriMat
+      use caspt2_data, only: LUSOLV
       use PrintLevel, only: insane
       IMPLICIT REAL*8 (A-H,O-Z)
 

@@ -52,12 +52,13 @@ integer(kind=iwp) :: LUHLF2
 integer(kind=iwp) :: LUHLF3
 integer(kind=iwp) :: LUINTM
 integer(kind=iwp) :: LUDMAT
+integer(kind=iwp) :: LUSOLV
 integer(kind=iwp) :: LUDRA
 integer(kind=iwp) :: LUDRATOT
 integer(kind=iwp) :: LURHS(8)
 integer(kind=iwp) :: LUH0T(4)
 
 public :: LUINTA, LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT
-public :: LURHS, LUH0T
+public :: LURHS, LUH0T, LUSOLV
 
 end module caspt2_data

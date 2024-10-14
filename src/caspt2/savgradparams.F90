@@ -20,6 +20,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
                              NBUF1_GRAD
   use caspt2_data, only: DREF, PREF
+  use caspt2_data, only: LUSOLV
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
 
