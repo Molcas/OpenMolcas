@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
+      use caspt2_data, only: LUDMAT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -59,4 +60,4 @@ C FIND DISK ADDRESS:
       END DO
       WRITE(6,*)' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
       CALL ABEND()
-      END
+      END SUBROUTINE PT2_GET

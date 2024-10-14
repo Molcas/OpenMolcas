@@ -103,6 +103,4 @@
         CALL GETMEM('LG2TMP','FREE','REAL',LG2TMP,NG2)
       END IF
 
-
-      RETURN
-      END
+      END SUBROUTINE POLY2

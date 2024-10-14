@@ -93,6 +93,7 @@ CSVC20100902: write the global array lg_M to disk using DRA interface,
 C or if replicate or serial, write WORK(lg_M) to LUSBT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use caspt2_data, only: LUH0T
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
