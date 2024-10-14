@@ -1291,7 +1291,7 @@ C
             End If
             Call GetMem('WRK','ALLO','REAL',LWRK,nAshT**2)
             call POLY1(WORK(LCI))
-            call GETDREF(DREF)
+            call GETDREF(DREF,SIZE(DREF))
             Call SQUARE(DREF,Work(LWRK),1,nAshT,nAshT)
             !! probably it is doubled somewhere, so should half
             Scal = DDOT_(nAshT**2,RDMEIG,1,Work(LWRK),1)*0.5d+00

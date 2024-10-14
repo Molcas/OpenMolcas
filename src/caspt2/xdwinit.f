@@ -62,7 +62,7 @@
         call POLY1(CI)
 
 * Restructure GAMMA1 as DREF array
-        call GETDREF(DREF)
+        call GETDREF(DREF,SIZE(DREF))
 
 * Average the density
         call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
