@@ -652,6 +652,7 @@ C     place and transition is no longer needed.
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE
 #endif
+      use caspt2_data, only: IDSCT
       use caspt2_data, only: LUSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -690,7 +691,7 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           NW=NAS*NCOL
           CALL GETMEM('TMPW','ALLO','REAL',LTMPW,NW)
 CSVC: Write local array to LUSOLV
-          IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+          IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
           DO ISTA=1,NIS,NCOL
             IEND=MIN(ISTA+NCOL-1,NIS)
             CALL GA_Get (lg_W,1,NAS,ISTA,IEND,WORK(LTMPW),NAS)
@@ -702,11 +703,11 @@ CSVC: Write local array to LUSOLV
 CSVC: Destroy the global array
 *       bStat=GA_Destroy(lg_W)
       ELSE
-      IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+      IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
       CALL DDAFILE(LUSOLV,1,WORK(lg_W),NAS*NIS,IDISK)
       END IF
 #else
-      IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+      IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
       CALL DDAFILE(LUSOLV,1,WORK(lg_W),NAS*NIS,IDISK)
 #endif
 
@@ -723,7 +724,7 @@ C     place and transition is no longer needed.
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE
 #endif
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, IDSCT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -756,7 +757,7 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           NW=NAS*NCOL
           CALL GETMEM('TMPW','ALLO','REAL',LTMPW,NW)
 CSVC: Read local array from LUSOLV
-          IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+          IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
           DO ISTA=1,NIS,NCOL
             IEND=MIN(ISTA+NCOL-1,NIS)
             CALL DDAFILE(LUSOLV,2,WORK(LTMPW),NAS*(IEND-ISTA+1),IDISK)
@@ -769,12 +770,12 @@ CSVC: Destroy the global array
 *       bStat=GA_Destroy(lg_W)
       ELSE
         NW=NAS*NIS
-        IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+        IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
         CALL DDAFILE(LUSOLV,2,WORK(lg_W),NW,IDISK)
       END IF
 #else
       NW=NAS*NIS
-      IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+      IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
       CALL DDAFILE(LUSOLV,2,WORK(lg_W),NW,IDISK)
 #endif
 

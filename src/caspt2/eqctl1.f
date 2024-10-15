@@ -16,9 +16,10 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE EQCTL1
+      SUBROUTINE EQCTL1()
       use caspt2_gradient, only: do_grad
-      use caspt2_data, only: LUSOLV, LUSBT
+      use caspt2_data, only: LUSOLV, LUSBT, IDSCT
+      use stdalloc, only: mma_allocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -31,10 +32,10 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"
-      DIMENSION DUMMY(1),IDUM(1)
+      REAL*8 DUMMY(1)
+      INTEGER IDUM(1)
 
       IRHS  =1
       IVECX =2
@@ -60,7 +61,7 @@ C Module lengths for reading/writing:
         END DO
       END DO
       NIDSCT=MXSCT*8*MXCASE*MXVEC
-      CALL GETMEM('IDSCT','ALLO','INTE',LIDSCT,NIDSCT)
+      CALL mma_allocate(IDSCT,NIDSCT,Label='IDSCT')
 
 #ifdef _DEBUG
 CSVC: when using Cholesky decomposition, the actual use of the RHS
@@ -126,8 +127,8 @@ C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
             NCOEF=NAS*NIS
             MXWRT=Max(1,NAS*MODVEC(ISYM,ICASE))
             NISCT=NCOEF/MXWRT+Min(1,Mod(NCOEF,MXWRT))
-            LADDR=LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
-            IF (NISCT.eq.0) IWORK(LADDR)=IDV
+            LADDR=1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
+            IF (NISCT.eq.0) IDSCT(LADDR)=IDV
             If (NISCT.gt.MXSCT) Then
               write(6,*) 'EQCTL1 : NISCT= ',NISCT,' > MXSCT= ',MXSCT
               write(6,*) 'Please, increase MXSCT in eqsolv.fh'
@@ -137,9 +138,9 @@ C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
             DO ISCT=1,NISCT
               LSTA=MXWRT*(ISCT-1)
               LENGTH=RtoI*MIN(NCOEF-LSTA,MXWRT)
-              LADDR=LIDSCT-1+ISCT+MXSCT*(ISYM-1+8*
+              LADDR=ISCT+MXSCT*(ISYM-1+8*
      &                         (ICASE-1+MXCASE*(IVEC-1)))
-              IWORK(LADDR)=IDV
+              IDSCT(LADDR)=IDV
               CALL IDAFILE(LUSOLV,0,IDUM,LENGTH,IDV)
             END DO
           END DO
@@ -208,5 +209,4 @@ C over the excitation wave function terms.
 C IDTMAT() similarly addresses transformation matrices that
 C orthonormalize the S matrix blocks.
 
-      RETURN
-      END
+      END SUBROUTINE EQCTL1

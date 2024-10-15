@@ -13,12 +13,12 @@
       INTEGER MXVEC,MXBLK
       PARAMETER (MXVEC=6,MXBLK=40*256*256)
       INTEGER IF_SOLVER,I40DUMMY,IDSMAT,IDBMAT,IDTMAT,IDSTMAT,          &
-     &        MODVEC,NLIST,LLIST,NLSTOT,LLISTS,MXSCT,LIDSCT,            &
+     &        MODVEC,NLIST,LLIST,NLSTOT,LLISTS,MXSCT,                   &
      &        I41DUMMY,IL_SOLVER
       COMMON /SOLVER/ IF_SOLVER,I40DUMMY,                               &
      &    IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),           &
      &    IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),             &
-     &    LLIST(8,8,17),NLSTOT,LLISTS,MXSCT,LIDSCT,                     &
+     &    LLIST(8,8,17),NLSTOT,LLISTS,MXSCT,                            &
      &    I41DUMMY,IL_SOLVER
       INTEGER IF_VECNUM,I42DUMMY,I43DUMMY,IL_VECNUM,                    &
      &        IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW

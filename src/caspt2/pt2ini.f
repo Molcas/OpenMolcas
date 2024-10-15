@@ -158,7 +158,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2, TAT, TORB
+     &                       DWGT, CMOPT2, TAT, TORB, IDSCT
       use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
@@ -174,7 +174,6 @@ C Initialize sizes, offsets etc used in equation solver.
 C     Cholesky return code
       INTEGER irc
 C     size of idsct array
-      INTEGER NIDSCT
 
       If (IfChol) then
 *---  Finalize Cholesky information
@@ -218,8 +217,7 @@ C     Deallocate MAGEB, etc, superindex tables:
 * Deallocate global orbital arrays:
       CALL mma_deallocate(CMOPT2)
 * Deallocate global RHS disk offsets (allocated in eqctl1):
-      NIDSCT=MXSCT*8*MXCASE*MXVEC
-      CALL GETMEM('IDSCT','FREE','INTE',LIDSCT,NIDSCT)
+      CALL mma_deallocate(IDSCT)
 
       call pt2wfn_close()
 C     Close all files:

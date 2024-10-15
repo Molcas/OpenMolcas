@@ -17,14 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, IDSCT
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
 
@@ -41,7 +40,7 @@ C Read coefficient vector from LUSOLV (C repres).
       IF(NCOEF.EQ.0) RETURN
       MDVEC=MODVEC(ISYM,ICASE)
 *      IDS=IDSCT(ISCT,ISYM,ICASE,IVEC)
-      IDS=IWORK(LIDSCT-1+ISCT+MXSCT*(ISYM-1+8*
+      IDS=IDSCT(ISCT+MXSCT*(ISYM-1+8*
      &                         (ICASE-1+MXCASE*(IVEC-1))))
       NCOL=MIN(NIS-MDVEC*(ISCT-1),MDVEC)
       NSCT=NAS*NCOL
@@ -50,18 +49,16 @@ C Read coefficient vector from LUSOLV (C repres).
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VSCT(I),I=1,MIN(NSCT,10))
 #endif
-      RETURN
-      END
+      END SUBROUTINE RDSCTC
 
       SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
-      use caspt2_data, only: LUSOLV
+      use caspt2_data, only: LUSOLV, IDSCT
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
 
@@ -77,7 +74,7 @@ C Read coefficient vector from LUSOLV (C repres).
       IF(NCOEF.EQ.0) RETURN
       MDVEC=MODVEC(ISYM,ICASE)
 *      IDV=IDSCT(1,ISYM,ICASE,IVEC)
-      IDV=IWORK(LIDSCT+MXSCT*(ISYM-1+8*
+      IDV=IDSCT(1+MXSCT*(ISYM-1+8*
      &                         (ICASE-1+MXCASE*(IVEC-1))))
       LVEC=1
       DO 10 IISTA=1,NIS,MDVEC
@@ -90,8 +87,7 @@ C Read coefficient vector from LUSOLV (C repres).
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VEC(I),I=1,MIN(NCOEF,10))
 #endif
-      RETURN
-      END
+      END SUBROUTINE RDBLKC
 
 ************************************************************************
 * New VECTOR UTILITIES, written by Steven Vancoillie, May 2011
@@ -107,7 +103,6 @@ C Read coefficient vector from LUSOLV (C repres).
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
       REAL*8 FACT
@@ -149,18 +144,16 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
       CPUSCA=CPUSCA+(CPU1-CPU0)
       TIOSCA=TIOSCA+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PSCAVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
-      DIMENSION OVLAPS(0:8,0:MXCASE)
+      REAL*8 OVLAPS(0:8,0:MXCASE)
 
 C Compute overlaps of vectors nr IVEC and JVEC in SR format!, for each
 C individual case and symmetry block, in OVLAPS(ISYM,ICASE), summed over
@@ -206,8 +199,7 @@ C sum in OVLAPS(0,0).
       CPUOVL=CPUOVL+(CPU1-CPU0)
       TIOOVL=TIOOVL+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE POVLVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
@@ -215,7 +207,6 @@ C sum in OVLAPS(0,0).
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
 C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
@@ -264,8 +255,7 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
       CPULCS=CPULCS+(CPU1-CPU0)
       TIOLCS=TIOLCS+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PLCVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
@@ -273,7 +263,6 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
 C Transform RHS vectors from SR format to C format.
@@ -315,8 +304,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
       CPUVEC=CPUVEC+(CPU1-CPU0)
       TIOVEC=TIOVEC+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PTRTOC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
@@ -324,7 +312,6 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "eqsolv.fh"
 
 C Transform RHS vectors from SR format to C format.
@@ -366,5 +353,4 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
       CPUVEC=CPUVEC+(CPU1-CPU0)
       TIOVEC=TIOVEC+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PTRTOSR
