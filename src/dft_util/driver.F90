@@ -11,12 +11,14 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 
+#include <xc_funcs.h>
+
 subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
 use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, libxc_functionals, nFuncs, nFuncs_max, &
                             remove_libxc_functionals
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
-                        xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_GGA_K_TFVW, XC_LDA_K_TF, XC_UNPOLARIZED
+                        xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_UNPOLARIZED
 use Functionals, only: Get_Funcs
 use DFT_Functionals, only: DFT_FUNCTIONAL, NDSD_Ts, NucAtt, Overlap
 use KSDFT_Info, only: Do_PDFTPOT
@@ -25,7 +27,7 @@ use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
 use nq_Info, only: Functional_type, GGA_Type, LDA_Type
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, LibxcInt
 
 implicit none
 character(len=*), intent(in) :: KSDFA
@@ -121,7 +123,7 @@ select case (FLabel)
     Functional_type = LDA_type
 
     nFuncs = 1
-    func_id(1:nFuncs) = [XC_LDA_K_TF]
+    func_id(1:nFuncs) = [int(XC_LDA_K_TF, LibxcInt)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -131,7 +133,7 @@ select case (FLabel)
     Functional_type = GGA_type
 
     nFuncs = 1
-    func_id(1:nFuncs) = [XC_GGA_K_TFVW]
+    func_id(1:nFuncs) = [int(XC_GGA_K_TFVW, LibxcInt)]
     Only_exc = .true.
 !                                                                      *
 !***********************************************************************
@@ -173,7 +175,7 @@ else if (LDTF) then
         write(u6,*) ' Too many functionals for LDTF'
         call Abend()
       end if
-      func_id(nFuncs+1) = XC_LDA_K_TF
+      func_id(nFuncs+1) = int(XC_LDA_K_TF, LibxcInt)
       Coeffs(nFuncs+1) = Coeffs(i)
       nFuncs = nFuncs+1
     end if
