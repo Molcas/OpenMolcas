@@ -32,39 +32,11 @@
       Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL
 
-      Integer IFCOUP(13,13)
       Real*8, Allocatable:: WEC1(:), SCR(:)
 #ifdef _MOLCAS_MPP_
       Real*8, Allocatable:: TMP1(:), TMP2(:)
 #endif
 
-C Enter coupling cases for non-diagonal blocks:
-      IFCOUP(:,:)=0
-
-      IFCOUP(2,1)=1
-      IFCOUP(3,1)=2
-      IFCOUP(5,1)=3
-      IFCOUP(6,1)=4
-      IFCOUP(7,1)=5
-      IFCOUP(6,2)=6
-      IFCOUP(7,3)=7
-      IFCOUP(5,4)=8
-      IFCOUP(8,4)=9
-      IFCOUP(9,4)=10
-      IFCOUP(10,4)=11
-      IFCOUP(11,4)=12
-      IFCOUP(6,5)=13
-      IFCOUP(7,5)=14
-      IFCOUP(10,5)=15
-      IFCOUP(11,5)=16
-      IFCOUP(12,5)=23
-      IFCOUP(13,5)=24
-      IFCOUP(12,6)=17
-      IFCOUP(13,7)=18
-      IFCOUP(10,8)=19
-      IFCOUP(11,9)=20
-      IFCOUP(12,10)=21
-      IFCOUP(13,11)=22
 
 C If the G1 correction to the Fock matrix is used, then the
 C inactive/virtual coupling elements (which are non-zero for the

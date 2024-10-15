@@ -30,7 +30,6 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "caspt2_grad.fh"
-      COMMON /CPLCAS/ IFCOUP(MXCASE,MXCASE)
 C
 C     Work in the MO basis
 C     We need both explicit and implicit overlap derivatives. The latter

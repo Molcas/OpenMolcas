@@ -29,20 +29,6 @@
       DIMENSION IOFDIT(8),IOFDIA(8),IOFDTA(8)
       DIMENSION IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
      &          IOFCGM(8,8)
-      DIMENSION IFCOUP(13,13)
-      DATA IFCOUP / 0, 1, 2, 0, 3, 4, 5, 0, 0, 0, 0, 0, 0,
-     &              0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0,
-     &              0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0,
-     &              0, 0, 0, 0, 8, 0, 0, 9,10,11,12, 0, 0,
-     &              0, 0, 0, 0, 0,13,14, 0, 0,15,16,23,24,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,17, 0,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,18,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0,19, 0, 0, 0,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,20, 0, 0,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,21, 0,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     &              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 /
 C Compute off-diagonal contributions to a trans density matrix.
 C Sub-diagonal blocks only. If a density matrix is required,
 C i.e. both wave functions equal, use symmetry. Else, call
