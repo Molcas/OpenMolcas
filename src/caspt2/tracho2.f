@@ -15,6 +15,7 @@
       use Cholesky, only: InfVec, nDimRS
       use EQSOLV
       use ChoCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -42,7 +43,7 @@
       INTEGER IDFIJ,IDIIJ,IDAIJ
       INTEGER IP_LFT,IP_LHT
       INTEGER IPDA,IPDA_RED,IPDF,IPDF_RED,IPDI,IPDI_RED
-      INTEGER LC,LCNAT,LO,LOCC,LSC,LSO
+      INTEGER LC,LO,LSC,LSO
       INTEGER LFA_RED,LFF_RED,LFI_RED
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
@@ -53,6 +54,7 @@
       REAL*8 SCL
 
       REAL*8, EXTERNAL :: DDOT_
+      REAL*8, ALLOCATABLE:: OCC(:), CNAT(:)
 
 ************************************************************************
 * ======================================================================
@@ -65,18 +67,18 @@
       END DO
 
 * Compute natural orbitals for the reference wave function:
-      Call Getmem('OCC','ALLO','REAL',LOCC,NBasT)
-      Call Getmem('CNAT','ALLO','REAL',LCNAT,NBSQT)
+      Call mma_allocate(OCC,NBasT,Label='OCC')
+      Call mma_allocate(CNAT,NBSQT,Label='CNAT')
 *      write(6,*)' Active/Active density matrix, triangular'
 *      IF( NASHT.GT.0 ) THEN
 *        call TRIPRT(' ',' ',DREF,NASHT)
 *      ENDIF
-      CALL REF_NATO(DREF,CMO,WORK(LOCC),WORK(LCNAT))
+      CALL REF_NATO(DREF,CMO,OCC,CNAT)
 
 c Initialize Fock matrices in AO basis to zero:
-      CALL DCOPY_(NBTRI,[0.0D0],0,FFAO,1)
-      CALL DCOPY_(NBTRI,[0.0D0],0,FIAO,1)
-      CALL DCOPY_(NBTRI,[0.0D0],0,FAAO,1)
+      FFAO(:)=0.0D0
+      FIAO(:)=0.0D0
+      FAAO(:)=0.0D0
 * Construct density matrix for frozen orbitals
       Call Getmem('DF','ALLO','REAL',ipDF,NBTRI)
       DO ISYM=1,NSYM
@@ -84,7 +86,7 @@ c Initialize Fock matrices in AO basis to zero:
        NUSE(ISYM)=NFRO(ISYM)
       END DO
       CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          WORK(LCNAT),WORK(LOCC),WORK(IPDF))
+     &                          CNAT,OCC,WORK(IPDF))
 * Construct density matrix for inactive orbitals
       Call Getmem('DI','ALLO','REAL',ipDI,NBTRI)
       DO ISYM=1,NSYM
@@ -92,7 +94,7 @@ c Initialize Fock matrices in AO basis to zero:
        NUSE(ISYM)=NISH(ISYM)
       END DO
       CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          WORK(LCNAT),WORK(LOCC),WORK(IPDI))
+     &                          CNAT,OCC,WORK(IPDI))
 * Same, for active density:
       Call Getmem('DA ','ALLO','REAL',ipDA ,NBTRI)
       DO ISYM=1,NSYM
@@ -100,7 +102,7 @@ c Initialize Fock matrices in AO basis to zero:
        NUSE(ISYM)=NASH(ISYM)
       END DO
       CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          WORK(LCNAT),WORK(LOCC),WORK(IPDA ))
+     &                          CNAT,OCC,WORK(IPDA ))
 * The Cholesky routines want density matrices in a particular storage, and
 * also the off-diagonal elements should be doubled. Double them:
       IDFIJ=IPDF
@@ -125,8 +127,8 @@ c Initialize Fock matrices in AO basis to zero:
 * Scale natural orbitals by multiplying with square root of half the
 * occupation number -- This allows computing the exchange contribution
 * to Fock matrices using the same formula as for closed shells.
-      LSO=LOCC
-      LSC=LCNAT
+      LSO=1
+      LSC=1
       DO ISYM=1,NSYM
        NF=NFRO(ISYM)
        NI=NISH(ISYM)
@@ -135,8 +137,8 @@ c Initialize Fock matrices in AO basis to zero:
        LO=LSO+NF+NI
        LC=LSC+NB*(NF+NI)
        DO IA=1,NA
-        SCL=SQRT(0.5D0*WORK(LO))
-        CALL DSCAL_(NB,SCL,WORK(LC),1)
+        SCL=SQRT(0.5D0*OCC(LO))
+        CALL DSCAL_(NB,SCL,CNAT(LC),1)
         LO=LO+1
         LC=LC+NB
        END DO
@@ -415,7 +417,7 @@ C loop over secondary orbital index c is more efficient.
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,WORK(LCNAT),NBSQT,ISTART,NUSE,IP_HTVEC,WORK)
+     &    JSYM,JREDC,CNAT,NBSQT,ISTART,NUSE,IP_HTVEC,WORK)
 * Active (scaled) contributions to exchange:
       FactXA=-1.0D0
       ISFA=1
@@ -554,8 +556,8 @@ c (It is in fact an effective one-electron Hamiltonian).
        WRITE(6,'(6X,A,ES20.10)') '       TOTAL CORE ENERGY:',ECORE
 #endif
 
-      Call Getmem('OCC','FREE','REAL',LOCC,NBasT)
-      Call Getmem('CNAT','FREE','REAL',LCNAT,NBSQT)
+      Call mma_deallocate(OCC)
+      Call mma_deallocate(CNAT)
       Call Getmem('DF','FREE','REAL',ipDF,NBTRI)
       Call Getmem('DI','FREE','REAL',ipDI,NBTRI)
       Call Getmem('DA ','FREE','REAL',ipDA ,NBTRI)
@@ -609,5 +611,4 @@ c (It is in fact an effective one-electron Hamiltonian).
         END DO
 #endif
 
-      RETURN
-      END
+      END SUBROUTINE TRACHO2

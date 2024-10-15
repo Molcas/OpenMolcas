@@ -280,8 +280,7 @@ C loop over secondary orbital index c is more efficient.
       END IF
 
       CALL mma_deallocate(CHSPC)
-      CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
+      CALL mma_deallocate(HTSPC)
       CALL mma_deallocate(FTSPC)
 
-      RETURN
-      END
+      END SUBROUTINE TRACHO3
