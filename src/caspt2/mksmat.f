@@ -22,12 +22,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: DREF, PREF
       use caspt2_data, only: LUSOLV, LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
       REAL*8 DUM(1)
@@ -95,10 +95,10 @@ C looping, etc in the rest  of the routines.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
@@ -173,10 +173,10 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 
       SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -350,10 +350,10 @@ C  - G(xvzyut) -> SA(yvx,zut)
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -812,10 +812,10 @@ C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
@@ -911,10 +911,10 @@ C Add -dyu Gvzxt
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
@@ -990,10 +990,10 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
 
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1167,10 +1167,10 @@ C  - G(xvzyut) -> SC(zvx,yut)
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1629,10 +1629,10 @@ C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
@@ -1708,11 +1708,11 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -1855,11 +1855,11 @@ C Write to disk, and save size and address.
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -1944,11 +1944,11 @@ C Write to disk
 
       SUBROUTINE MKSE(DREF,NDREF)
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -2001,11 +2001,11 @@ C Write to disk
       SUBROUTINE MKSF(PREF,NPREF)
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -2115,11 +2115,11 @@ C Write to disk
 
       SUBROUTINE MKSG(DREF,NDREF)
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"

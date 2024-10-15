@@ -22,13 +22,13 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: DREF, PREF
       use caspt2_data, only: LUSOLV, LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
       REAL*8 DUM(1)
@@ -110,10 +110,10 @@ C looping, etc in the rest  of the routines.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
@@ -198,10 +198,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                    BA,iLo,iHi,jLo,jHi,LDA)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
@@ -299,10 +299,10 @@ CGG End
 
       SUBROUTINE MKBA_F3(ISYM,BA,NG3,F3,idxG3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -476,10 +476,10 @@ C  - F(xvzyut) -> BA(yvx,zut)
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -943,10 +943,10 @@ c Avoid unused argument warnings
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
@@ -1033,10 +1033,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                    BC,iLo,iHi,jLo,jHi,LDC)
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
@@ -1118,10 +1118,10 @@ CGG End
 
       SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1295,10 +1295,10 @@ C  - F(xvzyut) -> BC(zvx,yut)
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1756,11 +1756,11 @@ c Avoid unused argument warnings
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -1976,11 +1976,11 @@ CGG End
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -2096,11 +2096,11 @@ CGG End
       SUBROUTINE MKBE(DREF,NDREF,FD)
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -2183,11 +2183,11 @@ CGG End
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -2349,11 +2349,11 @@ CGG End
       SUBROUTINE MKBG(DREF,NDREF,FD)
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"

@@ -8,14 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER, PARAMETER :: MXVEC=6, MXBLK=40*256*256
+Module EQSOLV
+INTEGER, PARAMETER, Private:: MXCASE=13
+INTEGER, PARAMETER :: MXVEC=6, MXBLK=40*256*256
 
-      INTEGER IDSMAT,IDBMAT,IDTMAT,IDSTMAT,          &
-     &        MODVEC,NLIST,LLIST,NLSTOT,       MXSCT,                   &
-      COMMON /SOLVER/
-     &    IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),           &
-     &    IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),             &
-     &    LLIST(8,8,17),NLSTOT, MXSCT
+INTEGER IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),           &
+        IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),             &
+        LLIST(8,8,17),NLSTOT, MXSCT
 
-      INTEGER IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
-      COMMON /VECNUM/ IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
+INTEGER IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
+END Module EQSOLV

@@ -14,6 +14,7 @@
       use caspt2_data, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
@@ -23,7 +24,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
       Integer IVEC
 *

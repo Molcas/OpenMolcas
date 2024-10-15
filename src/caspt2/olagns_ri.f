@@ -73,13 +73,13 @@ C
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_csf
       use PrintLevel, only: verbose
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"

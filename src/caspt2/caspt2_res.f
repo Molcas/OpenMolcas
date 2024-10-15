@@ -13,12 +13,12 @@
       Subroutine CASPT2_Res(VECROT)
 C
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
+      use EQSOLV
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "caspt2_grad.fh"
 C
 C#include "SysDef.fh"
@@ -146,12 +146,12 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -282,11 +282,11 @@ C
       USE INPUTDATA
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: terse, usual
+      use EQSOLV
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
       INTEGER ICONV

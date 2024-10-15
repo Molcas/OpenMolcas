@@ -15,6 +15,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
@@ -22,7 +23,6 @@ C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
 #include "SysDef.fh"
@@ -55,6 +55,7 @@ C tridiagonal local array at Work(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
@@ -62,7 +63,6 @@ C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
 #include "SysDef.fh"
@@ -96,11 +96,11 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       use caspt2_data, only: LUH0T
 #endif
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
 #include "SysDef.fh"
@@ -170,11 +170,11 @@ C LUSBT into WORK(lg_M)
       use caspt2_data, only: LUH0T
 #endif
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
 #include "SysDef.fh"

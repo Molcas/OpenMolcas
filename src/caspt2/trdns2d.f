@@ -24,12 +24,12 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_data, only: LUSBT, LISTS
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
       INTEGER IVEC,JVEC,NDPT2

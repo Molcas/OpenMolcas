@@ -22,12 +22,12 @@
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use caspt2_data, only: NCMO
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
 

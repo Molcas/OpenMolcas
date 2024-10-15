@@ -18,11 +18,11 @@
 *--------------------------------------------*
       SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 #include "SysDef.fh"
       Integer IVEC, JVEC

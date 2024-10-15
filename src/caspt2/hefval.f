@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE HEFVAL(IST,JST,DVALUE)
       use caspt2_data, only: LUCIEX, IDTCEX
+      use EQSOLV
       IMPLICIT NONE
 C Apart from input call parameters, we need two vectors stored on
 C LUSOLV. Vector nr IVECC (presently=2) contains the contravariant
@@ -23,7 +24,6 @@ C the same for all the root states.
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
       INTEGER IST,JST

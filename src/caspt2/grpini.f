@@ -19,6 +19,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -34,7 +35,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
 #include "warnings.h"
       LOGICAL IF_TRNSF
       CHARACTER(LEN=27)  STLNE2

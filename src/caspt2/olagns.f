@@ -85,12 +85,12 @@ C
       USE SUPERINDEX
       USE iSD_data
       use caspt2_data, only: LUSBT
+      use EQSOLV
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "caspt2_grad.fh"
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)

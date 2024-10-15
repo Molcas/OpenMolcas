@@ -20,12 +20,12 @@
       SUBROUTINE DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LIST)
 
       use caspt2_gradient, only: do_grad
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
 

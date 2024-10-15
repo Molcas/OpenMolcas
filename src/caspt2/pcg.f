@@ -26,11 +26,11 @@
       use caspt2_data, only: LISTS
       use PrintLevel, only: terse, usual
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       INTEGER ICONV
 

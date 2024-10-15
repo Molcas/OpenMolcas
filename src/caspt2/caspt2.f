@@ -24,6 +24,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
+      use EQSOLV
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -77,7 +78,6 @@ C
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "caspt2_grad.fh"
       CHARACTER(len=60) STLNE2

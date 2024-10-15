@@ -20,6 +20,7 @@
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: nStpGrd, do_grad, iStpGrd
       use PrintLevel, only: insane, usual, verbose
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -31,7 +32,6 @@ C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
 #include "chocaspt2.fh"
 

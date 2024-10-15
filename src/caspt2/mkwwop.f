@@ -9,11 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded for OP2, OP3, but
@@ -46,10 +45,10 @@ C as operating on the CASSCF space.
       END
       SUBROUTINE MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -257,11 +256,11 @@ C Deallocate temporary space:
       END
       SUBROUTINE MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -484,10 +483,10 @@ C Deallocate matrix product
       END
       SUBROUTINE MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -652,11 +651,11 @@ C Deallocate temporary space:
       END
       SUBROUTINE MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -770,11 +769,11 @@ C Deallocate matrix product:
       RETURN
       END
       SUBROUTINE MKWWOPE(IVEC,JVEC,OP0,OP1)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -848,11 +847,11 @@ C End of loop over cases.
       END
       SUBROUTINE MKWWOPF(IVEC,JVEC,NOP2,OP2)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1033,11 +1032,11 @@ C Deallocate matrix product:
       RETURN
       END
       SUBROUTINE MKWWOPG(IVEC,JVEC,OP1)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1109,11 +1108,11 @@ C End of loop over cases.
       RETURN
       END
       SUBROUTINE MKWWOPH(IVEC,JVEC,OP0)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 

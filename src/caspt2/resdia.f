@@ -34,12 +34,12 @@
 !> @param[in]     OVLAPS Array containing the overlaps
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 #include "SysDef.fh"
 

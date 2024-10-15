@@ -485,10 +485,10 @@ CSVC: this routine reads an RHS array in SR format from disk
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_data, only: LURHS
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -552,10 +552,10 @@ CSVC: this routine reads an RHS array in SR format from disk
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_data, only: LURHS
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -654,10 +654,10 @@ C     place and transition is no longer needed.
 #endif
       use caspt2_data, only: IDSCT
       use caspt2_data, only: LUSOLV
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -725,10 +725,10 @@ C     place and transition is no longer needed.
       use stdalloc, only: mma_MaxDBLE
 #endif
       use caspt2_data, only: LUSOLV, IDSCT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -838,10 +838,10 @@ C     (ITYP=1).
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1032,10 +1032,10 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1259,12 +1259,12 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1304,12 +1304,12 @@ C-SVC: get the local vertical stripes of the lg_W vector
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array

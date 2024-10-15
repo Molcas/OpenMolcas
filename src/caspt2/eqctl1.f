@@ -20,6 +20,7 @@
       use caspt2_gradient, only: do_grad
       use caspt2_data, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -31,7 +32,6 @@ C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"
       REAL*8 DUMMY(1)
@@ -131,7 +131,7 @@ C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
             IF (NISCT.eq.0) IDSCT(LADDR)=IDV
             If (NISCT.gt.MXSCT) Then
               write(6,*) 'EQCTL1 : NISCT= ',NISCT,' > MXSCT= ',MXSCT
-              write(6,*) 'Please, increase MXSCT in eqsolv.fh'
+              write(6,*) 'Please, increase MXSCT in eqsolv.F90'
               write(6,*) 'Do not forget to recompile Molcas afterwards.'
               Call Abend()
             EndIf

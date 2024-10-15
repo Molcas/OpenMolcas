@@ -24,10 +24,10 @@
       SUBROUTINE NEWB
 #if 0
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -65,11 +65,11 @@ C Modify B matrix, using S matrix and some other data.
       SUBROUTINE NEWDIA
 #if 0
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
 
       INTEGER ICASE,ISYM,NIN,NAS,NIS,I

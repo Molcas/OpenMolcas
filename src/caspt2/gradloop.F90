@@ -23,6 +23,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use caspt2_gradient, only: do_grad, IDSAVGRD, iStpGrd
   use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
+  use EQSOLV
 
   Implicit None
 
@@ -31,7 +32,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "caspt2_grad.fh"
 

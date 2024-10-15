@@ -10,10 +10,11 @@
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
-      SUBROUTINE STINI
+      SUBROUTINE STINI()
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: DREF, PREF
       use PrintLevel, only: debug, usual
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -21,7 +22,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
       CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,

@@ -13,6 +13,7 @@
 C
       Subroutine MS_Res(MODE,IST,JST,Scal)
       use caspt2_data, only: LUCIEX, IDTCEX
+      use EQSOLV
 C
 C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
@@ -22,7 +23,6 @@ C
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
       INTEGER IST,JST
@@ -102,6 +102,7 @@ C
 #endif
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -120,7 +121,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -248,6 +248,7 @@ C
       SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
      &                         TG1,TG2,TG3,SCAL)
       USE SUPERINDEX
+      use EQSOLV
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -259,7 +260,6 @@ C calling subroutine.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "eqsolv.fh"
 
       DIMENSION V1(*), V2(*)
 

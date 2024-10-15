@@ -20,11 +20,11 @@
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION DCOM(NASHT,NASHT)
       REAL*8, ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
 

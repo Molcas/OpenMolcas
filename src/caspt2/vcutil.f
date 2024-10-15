@@ -18,12 +18,12 @@
 *--------------------------------------------*
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
       use caspt2_data, only: LUSOLV, IDSCT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 #include "SysDef.fh"
 
@@ -53,12 +53,12 @@ C Read coefficient vector from LUSOLV (C repres).
 
       SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
       use caspt2_data, only: LUSOLV, IDSCT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 #include "SysDef.fh"
 
@@ -99,11 +99,11 @@ C Read coefficient vector from LUSOLV (C repres).
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
       USE caspt2_output, ONLY: iPrGlb
       USE PrintLevel, ONLY: usual
+      use EQSOLV
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       REAL*8 FACT
       INTEGER IVEC,JVEC
@@ -148,10 +148,10 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       REAL*8 OVLAPS(0:8,0:MXCASE)
 
@@ -203,11 +203,11 @@ C sum in OVLAPS(0,0).
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
@@ -259,11 +259,11 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -308,11 +308,11 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix

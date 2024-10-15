@@ -22,10 +22,10 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: LISTS
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "sigma.fh"

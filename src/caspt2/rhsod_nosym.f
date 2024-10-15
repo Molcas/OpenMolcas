@@ -27,11 +27,11 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
@@ -89,11 +89,11 @@
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_data, only: FIMO
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -200,11 +200,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_data, only: FIMO
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -323,11 +323,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -510,11 +510,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -696,11 +696,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -837,11 +837,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_data, only: FIMO
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1002,11 +1002,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -1220,11 +1220,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_

@@ -22,10 +22,10 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       use caspt2_gradient, only: LUSTD
       use caspt2_data, only: FIFA
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "SysDef.fh"

@@ -17,12 +17,12 @@
       use allgather_wrapper, only : allgather
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

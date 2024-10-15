@@ -13,12 +13,12 @@
       SUBROUTINE TRACHO3(CMO)
       USE CHOVEC_IO
       use Cholesky, only: InfVec
+      use EQSOLV
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "WrkSpc.fh"
 ************************************************************************

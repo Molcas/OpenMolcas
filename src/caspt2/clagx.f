@@ -128,10 +128,10 @@ C
 
       use caspt2_global, only:imag_shift, sigma_p_epsilon
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "pt2_guga.fh"
@@ -346,12 +346,12 @@ C
      *                        sigma_p_epsilon
       use caspt2_gradient, only:do_lindep,LUSTD
       use caspt2_data, only: LUSOLV, LUSBT
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "pt2_guga.fh"
@@ -1864,12 +1864,12 @@ C
      *                       G2,SC,idxG3)
 C
       USE SUPERINDEX
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
@@ -2074,12 +2074,12 @@ C
 C
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 C
       Dimension BDER(*),SDER(*),
@@ -2268,12 +2268,12 @@ C
      *                       G2,SC,idxG3)
 C
       USE SUPERINDEX
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
@@ -2476,12 +2476,12 @@ C
 C
       use caspt2_global, only:ipea_shift
       USE SUPERINDEX
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 C
       Dimension BDER(*),SDER(*),
@@ -3850,12 +3850,12 @@ C
 C
       use caspt2_gradient, only: LUSTD, idBoriMat
       use caspt2_data, only: LUSBT
+      use EQSOLV
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 C

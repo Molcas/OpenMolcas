@@ -23,12 +23,12 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use caspt2_data, only: LUSOLV, LUSBT
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
+  use EQSOLV
 
   Implicit None
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
 #include "WrkSpc.fh"

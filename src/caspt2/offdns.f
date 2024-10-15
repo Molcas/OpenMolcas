@@ -17,11 +17,11 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION X1(*),X2(*),Y(*)
       DIMENSION DPT2(*)
       DIMENSION LIST(*)

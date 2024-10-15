@@ -15,12 +15,12 @@ subroutine caspt2_grad_invaria1(DPT2)
 !
   use Constants, only: Zero
   use definitions, only: iwp,wp
+  use EQSOLV
 !
   implicit none
 !
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   integer(kind=iwp) :: IOFDIJ(8),IOFDAB(8)

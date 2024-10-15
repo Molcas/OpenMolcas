@@ -11,12 +11,12 @@
       SUBROUTINE TRDTMP(DPT2)
       USE Para_Info, ONLY: King
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       Real*8 DPT2(*)
 

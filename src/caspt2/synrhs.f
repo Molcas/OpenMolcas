@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PCOLLVEC(IVEC,iTYPE)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 
 ***************************************************************
@@ -38,10 +38,10 @@
 
 #if 0
       SUBROUTINE PDISTVEC(IVEC,iTYPE)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
 
 ***************************************************************

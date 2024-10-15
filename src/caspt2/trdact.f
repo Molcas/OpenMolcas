@@ -20,11 +20,11 @@
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: LUCIEX, IDTCEX
+      use EQSOLV
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
 

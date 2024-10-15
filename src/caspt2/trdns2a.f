@@ -22,12 +22,12 @@
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: DREF
       use PrintLevel, only: verbose
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
 

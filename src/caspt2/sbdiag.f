@@ -22,10 +22,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -108,11 +108,11 @@ C usually print info on the total number of parameters
      *                           idBoriMat
       use caspt2_data, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
@@ -531,10 +531,10 @@ C divided over processors.
       USE Para_Info, ONLY: King
 #endif
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
@@ -1039,10 +1039,10 @@ C replicate array.  FIXME: Should be removed later.
       END
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       DIMENSION SCA(NAS),S(LDS,*)
@@ -1054,10 +1054,10 @@ C replicate array.  FIXME: Should be removed later.
       END
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       DIMENSION EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)

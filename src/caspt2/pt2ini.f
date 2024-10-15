@@ -18,12 +18,12 @@
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
       use stdalloc, only: mma_allocate
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "compiler_features.h"
 
@@ -164,10 +164,10 @@ C Initialize sizes, offsets etc used in equation solver.
 #if 0
       use OFembed, only: FMaux
 #endif
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "chocaspt2.fh"
 
       Integer iSym

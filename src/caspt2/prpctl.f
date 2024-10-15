@@ -29,11 +29,11 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
 #include "caspt2_grad.fh"
       Logical FullMlk,lSave,Do_ESPF

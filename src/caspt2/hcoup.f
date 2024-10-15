@@ -16,6 +16,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -34,7 +35,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -155,6 +155,7 @@ C Sum-reduce the per-process contributions
       SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,HEBLK,
      &                     TG1,TG2,TG3)
       USE SUPERINDEX
+      use EQSOLV
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -166,7 +167,6 @@ C calling subroutine.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "eqsolv.fh"
 
       DIMENSION V1(*), V2(*)
 

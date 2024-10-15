@@ -76,11 +76,11 @@ C as this is how they are used to compute the integrals for RHS.
 * the _lower_ orbital partition (e.g. inactive for active,inactive),
 * which is also the slowest varying index of the pair P,Q.
 ************************************************************************
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 
       INTEGER :: ICASE,ISYQ,JSYM
       INTEGER :: ISYP,NP,NQ
@@ -113,11 +113,11 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 * Allocate a buffer to hold all cholesky vectors of type ITK,ITQ
 ************************************************************************
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 
       INTEGER :: ICASE,NCHOBUF,IOFF(8,8)
       INTEGER :: ISYK,ISYQ,JSYM
@@ -147,11 +147,11 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_data, only: LUDRATOT
 #endif
       use caspt2_data, only: LUDRA
+      use EQSOLV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

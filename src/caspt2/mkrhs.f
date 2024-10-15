@@ -24,11 +24,11 @@
       use caspt2_data, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
 
       INTEGER NERI, NFIMO
@@ -76,13 +76,13 @@ C INTEGRAL BUFFERS:
 
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
       USE SUPERINDEX
+      use EQSOLV
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
@@ -149,11 +149,11 @@ C Put W on disk:
 
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       DIMENSION ERI(*), SCR(*)
 *#define _KIGEJ_
@@ -278,11 +278,11 @@ C  Put WM on disk
 
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
@@ -372,11 +372,11 @@ C   Put W on disk
 
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO)
@@ -458,11 +458,11 @@ C   Put W on disk.
 
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
@@ -560,11 +560,11 @@ C   Put WP and WM on disk.
 
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
@@ -658,11 +658,11 @@ C   Put WM on disk
 
       SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
@@ -760,11 +760,11 @@ C   Put WP and WM on disk.
 
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "SysDef.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_

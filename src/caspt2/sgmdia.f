@@ -18,12 +18,12 @@
 *--------------------------------------------*
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
       use caspt2_data, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 #include "SysDef.fh"
 
