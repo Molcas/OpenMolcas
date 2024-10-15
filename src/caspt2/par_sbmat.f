@@ -167,6 +167,7 @@ C interface into global array lg_M, or if replicate or serial, read from
 C LUSBT into WORK(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use caspt2_data, only: LUH0T
 #endif
       use caspt2_data, only: LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
