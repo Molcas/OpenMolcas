@@ -260,7 +260,7 @@ do jSym=1,MaxSym
 
       if (nk*np <= 0) cycle
       iS = iE+1
-      Wab%ipOff(iSymp)=iS
+      Wab%ipOff(iSymp) = iS
 
       if ((iSymp == ksym) .and. (iSkip(iSymp) /= 0)) then
         NumB = nk*(nk+1)/2

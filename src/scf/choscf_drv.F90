@@ -432,7 +432,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
 
           call CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),DLT,FactX(2),nSCReen,dmpk,dFKmat)
 
-        case Default
+        case default
 
           rc = 99
           write(u6,*) 'Illegal Input. Specified Cholesky Algorithm= ',ALGO

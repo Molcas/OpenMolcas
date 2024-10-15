@@ -105,7 +105,6 @@ real(kind=wp), external :: ddot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Write (6,*) 'it is this one'
 #ifdef _DEBUGPRINT_
 Debug = .false. ! to avoid double printing in SCF-debug
 DensityCheck = .true.
@@ -245,7 +244,7 @@ do jSym=1,MaxSym
 
       if (nq*np <= 0) cycle
       iS = iE+1
-      Wab%ipOff(iSymp)=iS
+      Wab%ipOff(iSymp) = iS
 
       if ((iSymp > iSymq) .and. (iSkip(iSymp) /= 0)) then
         iE = iE+np*nq*NumV

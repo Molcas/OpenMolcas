@@ -73,7 +73,7 @@ type SBA_Type
   integer(kind=iwp) :: iCase = 0
   integer(kind=iwp) :: iSym = 0
   integer(kind=iwp) :: nSym = 0
-  integer(kind=iwp) :: ipOff(1:8)=[0,0,0,0,0,0,0,0]
+  integer(kind=iwp) :: ipOff(8) = 0
   real(kind=wp), allocatable :: A0(:)
   type(SB_Type) :: SB(8)
 end type SBA_Type
@@ -328,7 +328,6 @@ subroutine Deallocate_DSBA(Adam)
   Adam%iCase = 0
 
 end subroutine Deallocate_DSBA
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !

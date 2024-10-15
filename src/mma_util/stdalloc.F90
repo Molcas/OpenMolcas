@@ -36,12 +36,12 @@
 ! Liviu Ungur, May 2015 (added support for COMPLEX*16)
 ! Ignacio Fdez. Galvan, November 2020 (rewrote with preprocessor templates)
 
+!#define _ENABLE_POINTERS_
 module stdalloc
 
 implicit none
 private
 
-!#define _ENABLE_POINTERS_
 integer :: MxMem
 
 interface cptr2loff
@@ -55,10 +55,9 @@ interface mma_allocate
   module procedure :: bmma_allo_1D, bmma_allo_1D_lim, cmma_allo_1D, cmma_allo_1D_lim, dmma_allo_1D, dmma_allo_1D_lim, &
                       i4mma_allo_1D, i4mma_allo_1D_lim, imma_allo_1D, imma_allo_1D_lim, lmma_allo_1D, lmma_allo_1D_lim, &
                       zmma_allo_1D, zmma_allo_1D_lim
-#ifdef _ENABLE_POINTERS_
-  module procedure :: dpmma_allo_1D, ipmma_allo_1D
-  module procedure :: dpmma_allo_1D_lim, ipmma_allo_1D_lim
-#endif
+# ifdef _ENABLE_POINTERS_
+  module procedure :: dpmma_allo_1D, dpmma_allo_1D_lim, ipmma_allo_1D, ipmma_allo_1D_lim
+# endif
   ! 2D allocate
   module procedure :: bmma_allo_2D, bmma_allo_2D_lim, cmma_allo_2D, cmma_allo_2D_lim, dmma_allo_2D, dmma_allo_2D_lim, &
                       imma_allo_2D, imma_allo_2D_lim, lmma_allo_2D, lmma_allo_2D_lim, zmma_allo_2D, zmma_allo_2D_lim

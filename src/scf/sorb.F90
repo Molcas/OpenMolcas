@@ -177,7 +177,7 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-    case Default
+    case default
 
       write(u6,*) 'Illegal inVec value:',InVec
       call Abend()

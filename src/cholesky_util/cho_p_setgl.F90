@@ -14,7 +14,7 @@ subroutine Cho_P_SetGL()
 ! Purpose: set global and local index arrays and diagonal.
 !          If a sequencial run:
 !             Diag   => Diag_Hidden
-!             Diag_G => Null()
+!             Diag_G => null()
 !          If a parallel run:
 !             Diag   => Diag_G_Hidden
 !             Diag_G => Diag_Hidden
