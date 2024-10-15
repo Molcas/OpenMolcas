@@ -26,6 +26,7 @@
       use caspt2_data, only: LUSBT, LISTS
       use EQSOLV
       use Sigma_data
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
@@ -34,6 +35,11 @@
 #include "WrkSpc.fh"
       INTEGER IVEC,JVEC,NDPT2
       REAL*8 DPT2(NDPT2), SCAL
+
+      REAL*8, ALLOCATABLE:: BD(:), ID(:)
+#ifdef _MOLCAS_MPP_
+      REAL*8, ALLOCATABLE:: VEC1(:), VEC2(:)
+#endif
 
 C Add to the diagonal blocks of transition density matrix,
 C    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
@@ -53,7 +59,6 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
           !! lg_V1: T+lambda
           !! lg_V2: T
           !! IVEC = iVecX
-          !! JVEC = iVecR
           CALL RHS_ALLO(NIN,NIS,lg_V1)
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
           IF(IVEC.EQ.JVEC) THEN
@@ -67,15 +72,14 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
               if (sigma_p_epsilon .ne. 0.0d+00) then
                 !! derivative of the numerator
                 nAS = nASUP(iSym,iCase)
-                Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
-                Call GETMEM('LID','ALLO','REAL',LID,nIS)
-                iD = iDBMat(iSym,iCase)
-                Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
-                Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
-                Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,
-     *                           Work(LBD),Work(LID))
-                Call GETMEM('LBD','FREE','REAL',LBD,nAS)
-                Call GETMEM('LID','FREE','REAL',LID,nIS)
+                Call mma_allocate(BD,nAS,Label='BD')
+                Call mma_allocate(ID,nIS,Label='ID')
+                jD = iDBMat(iSym,iCase)
+                Call dDaFile(LUSBT,2,BD,nAS,jD)
+                Call dDaFile(LUSBT,2,ID,nIS,jD)
+                Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,BD,ID)
+                Call mma_deallocate(BD)
+                Call mma_deallocate(ID)
               end if
               Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
               CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
@@ -88,88 +92,71 @@ C full array in case we are running in parallel
           IF (Is_Real_Par()) THEN
             IF (KING()) THEN
               ! copy global array to local buffer
-              CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
-              CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
+              CALL mma_allocate(VEC1,NVEC,Label='VEC1')
+              CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
               IF(IVEC.EQ.JVEC) THEN
-                LVEC2=LVEC1
+                CALL DIADNS(ISYM,ICASE,VEC1,VEC1,DPT2,LISTS)
               ELSE
-                CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
-                CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
+                CALL mma_allocate(VEC2,NVEC,Label='VEC2')
+                CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+                CALL DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LISTS)
+                CALL mma_deallocate(VEC2)
               END IF
-
-              CALL DIADNS(ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-     &                    DPT2,LISTS)
-
-              ! free local buffer
-              CALL GETMEM('VEC1','FREE','REAL',LVEC1,NVEC)
-              IF(IVEC.NE.JVEC) THEN
-                CALL GETMEM('VEC2','FREE','REAL',LVEC2,NVEC)
-              END IF
+              CALL mma_deallocate(VEC1)
             END IF
             CALL GASYNC
           ELSE
-            CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                  DPT2,LISTS)
+            CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
           END IF
 #else
-          CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                DPT2,LISTS)
+          CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
 #endif
           If (do_grad .and. (imag_shift .ne. 0.0d0
      *                  .or. sigma_p_epsilon .ne. 0.0d0)) Then
             !! for sigma-p CASPT2, derivative of the denominator
             nAS = nASUP(iSym,iCase)
-            Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
-            Call GETMEM('LID','ALLO','REAL',LID,nIS)
-            iD = iDBMat(iSym,iCase)
-            Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
-            Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
+            Call mma_allocate(BD,nAS,Label='BD')
+            Call mma_allocate(ID,nIS,Label='ID')
+            jD = iDBMat(iSym,iCase)
+            Call dDaFile(LUSBT,2,BD,nAS,jD)
+            Call dDaFile(LUSBT,2,ID,nIS,jD)
 C
             CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,Work(LBD),Work(LID))
+            Call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,BD,ID)
 C
             Call DScal_(NDPT2,-1.0D+00,DPT2,1)
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
               IF (KING()) THEN
                 ! copy global array to local buffer
-                CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
-                CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
+                CALL mma_allocate(VEC1,NVEC,Label='VEC1')
+                CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
                 IF(IVEC.EQ.JVEC) THEN
-                  LVEC2=LVEC1
+                  CALL DIADNS(ISYM,ICASE,VEC1,VEC1,DPT2,LISTS)
                 ELSE
-                  CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
-                  CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
+                  CALL mma_allocate(VEC2,NVEC,Label='VEC2')
+                  CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+                  CALL DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LISTS)
+                  CALL mma_deallocate(VEC2)
                 END IF
+                CALL mma_deallocate(VEC1)
 
-                CALL DIADNS(ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-     &                      DPT2,LISTS)
-
-                ! free local buffer
-                CALL GETMEM('VEC1','FREE','REAL',LVEC1,NVEC)
-                IF(IVEC.NE.JVEC) THEN
-                  CALL GETMEM('VEC2','FREE','REAL',LVEC2,NVEC)
-                END IF
               END IF
               CALL GASYNC
             ELSE
-              CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                    DPT2,LISTS)
+              CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
             END IF
 #else
-            CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                  DPT2,LISTS)
+            CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
 #endif
             Call DScal_(NDPT2,-1.0D+00,DPT2,1)
-            Call GETMEM('LBD','FREE','REAL',LBD,nAS)
-            Call GETMEM('LID','FREE','REAL',LID,nIS)
+            Call mma_deallocate(BD)
+            Call mma_deallocate(ID)
           End IF
 
           CALL RHS_FREE(NIN,NIS,lg_V1)
-          IF(IVEC.NE.JVEC) THEN
-            CALL RHS_FREE(NIN,NIS,lg_V2)
-          END IF
+          IF(IVEC.NE.JVEC) CALL RHS_FREE(NIN,NIS,lg_V2)
  100    CONTINUE
  101  CONTINUE
 
