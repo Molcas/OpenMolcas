@@ -281,7 +281,7 @@ c Initialize Fock matrices in AO basis to zero:
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,Work)
 * Frozen contributions to exchange:
           FactXI=-1.0D0
           ISFF=1
@@ -317,7 +317,7 @@ C ---------------------------------------------------------------------
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,Work)
 * Inactive contributions to exchange:
           FactXI=-1.0D0
           ISFI=1
@@ -415,7 +415,7 @@ C loop over secondary orbital index c is more efficient.
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,WORK(LCNAT),NBSQT,ISTART,NUSE,IP_HTVEC)
+     &    JSYM,JREDC,WORK(LCNAT),NBSQT,ISTART,NUSE,IP_HTVEC,WORK)
 * Active (scaled) contributions to exchange:
       FactXA=-1.0D0
       ISFA=1
@@ -442,7 +442,7 @@ C ---------------------------------------------------------------------
 * ---------------------------------------------------
 * Active half-transformation:
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
+     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
 
 
       IF (IF_TRNSF) THEN

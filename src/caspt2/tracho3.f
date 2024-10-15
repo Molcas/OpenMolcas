@@ -123,7 +123,7 @@
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
 
 * Inactive half-transformation:
 * Vectors of type HALF(K,J,B) = Sum(CHO(AB,J)*CMO(A,K) where
@@ -140,7 +140,7 @@
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
 
 * Loop over ISYQ
       DO ISYQ=1,NSYM
@@ -215,7 +215,7 @@ C loop over secondary orbital index c is more efficient.
 * ---------------------------------------------------
 * Active half-transformation:
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
+     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
 
 
       DO ISYQ=1,NSYM

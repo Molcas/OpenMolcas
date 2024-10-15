@@ -12,7 +12,7 @@
 *               2007, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,
-     &                     JREDC,CMO,NCMO,ISTART,NUSE,ipChoT)
+     &                     JREDC,CMO,NCMO,ISTART,NUSE,ipChoT,Work)
 *********************************************************
 *   Author: F. Aquilante as subroutine cho_vtra
 *   Modified PAM 2007: Use ordinary CMO array without restructuring
@@ -57,12 +57,11 @@
       Integer jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
       Real*8 CMO(NCMO)
       Integer ISTART(8),NUSE(8),ipChoT(8)
+      REAL*8 Work(*)
 
       Integer IOFFC(8)
 * Integer function cho_isao
       Integer, External :: cho_isao
-
-#include "WrkSpc.fh"
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
