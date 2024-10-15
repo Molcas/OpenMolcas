@@ -29,12 +29,12 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "sigma.fh"
 
 #include "caspt2_grad.fh"
 #include "pt2_guga.fh"

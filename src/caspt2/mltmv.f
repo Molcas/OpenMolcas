@@ -20,10 +20,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given

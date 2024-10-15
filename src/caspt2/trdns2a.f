@@ -23,13 +23,13 @@
       use caspt2_data, only: DREF
       use PrintLevel, only: verbose
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "sigma.fh"
 
       DIMENSION DPT2(*)
       DIMENSION NACTD(13)

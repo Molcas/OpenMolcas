@@ -129,11 +129,11 @@ C
       use caspt2_global, only:imag_shift, sigma_p_epsilon
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "sigma.fh"
 #include "pt2_guga.fh"
 
       DIMENSION G1(*),G2(*),G3(*),DG1(*),DG2(*),DG3(*),
@@ -347,13 +347,13 @@ C
       use caspt2_gradient, only:do_lindep,LUSTD
       use caspt2_data, only: LUSOLV, LUSBT
       use EQSOLV
+      use Sigma_data
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "sigma.fh"
 #include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
@@ -1610,10 +1610,10 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE MLTUNF2(LST,X)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*)
       DIMENSION LST(4,NLST1)
-#include "sigma.fh"
       DO ILST=1,NLST1
         L1=LST(1,ILST)
         L2=LST(2,ILST)

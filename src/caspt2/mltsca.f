@@ -20,10 +20,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1), LST2(4,NLST2)
-#include "sigma.fh"
 
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given
@@ -116,6 +116,7 @@ CSVC: determine outer loop properties
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
@@ -124,7 +125,6 @@ CSVC: determine outer loop properties
 #endif
       DIMENSION X(NXI,NXA),F(NFI,NFA)
       DIMENSION LST1(4,NLST1), LST2(4,NLST2)
-#include "sigma.fh"
 
 #ifdef _MOLCAS_MPP_
 C SVC: Determine the index ranges of the local chunks of lg_Y.
@@ -178,10 +178,10 @@ C always the Y array.
       SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,
      &                     X,NXI,NXA,F,NFI,NFA,
      &                     Y,NAS2,jYLo,jYHi)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(NXI,NXA),F(NFI,NFA),Y(NAS2,jYHi-jYLo+1)
       DIMENSION LST1(4,NLST1), LST2(4,NLST2)
-#include "sigma.fh"
 
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given

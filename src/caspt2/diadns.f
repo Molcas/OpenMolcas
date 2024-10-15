@@ -21,13 +21,13 @@
 
       use caspt2_gradient, only: do_grad
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "sigma.fh"
 
       DIMENSION VEC1(*),VEC2(*)
       DIMENSION DPT2(*)

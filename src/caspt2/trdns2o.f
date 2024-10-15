@@ -23,12 +23,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_data, only: LISTS
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "sigma.fh"
       Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL
 

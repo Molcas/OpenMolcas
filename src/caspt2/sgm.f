@@ -38,6 +38,7 @@ C so each chunk has all the row indices (full columns).
      &               X1,lg_X,lg_Y,LIST)
       use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -46,7 +47,6 @@ C so each chunk has all the row indices (full columns).
       DIMENSION LIST(*)
       DIMENSION IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
      &          IOFCGM(8,8)
-#include "sigma.fh"
 #include "cplcas.fh"
 C Various constants:
       SQR2=SQRT(2.0D00)

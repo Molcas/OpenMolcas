@@ -12,10 +12,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given
@@ -111,6 +111,7 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
@@ -119,7 +120,6 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 #endif
       DIMENSION F(NFI,NFJ)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 #ifdef _MOLCAS_MPP_
 C SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
@@ -184,10 +184,10 @@ C always the Y array.
      &                     X,NAS1,NIS1,JXOFF,
      &                     F,NFT,NFA,
      &                     Y,NAS2,jYLo,jYHi)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(NAS1,NIS1),F(NFT,NFA),Y(NAS2,jYHi-jYLo+1)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C this routine is adapted to use chunks of a distributed array (lg_Y)
 C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
@@ -249,10 +249,10 @@ C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
      &                     X,NAS1,NIS1,JXOFF,
      &                     F,NFT,NFI,
      &                     Y,NAS2,jYLo,jYHi)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(NAS1,NIS1),F(NFT,NFI),Y(NAS2,jYHi-jYLo+1)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C this routine is adapted to use chunks of a distributed array (lg_Y)
 C for the H case.  The chunks span all rows (NAS2) and columns jYlo to

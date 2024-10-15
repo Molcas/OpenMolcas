@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -28,7 +29,6 @@
       DIMENSION IOFDIT(8),IOFDIA(8),IOFDTA(8)
       DIMENSION IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
      &          IOFCGM(8,8)
-#include "sigma.fh"
       DIMENSION IFCOUP(13,13)
       DATA IFCOUP / 0, 1, 2, 0, 3, 4, 5, 0, 0, 0, 0, 0, 0,
      &              0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0,

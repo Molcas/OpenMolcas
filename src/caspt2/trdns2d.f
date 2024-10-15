@@ -25,13 +25,13 @@
 #endif
       use caspt2_data, only: LUSBT, LISTS
       use EQSOLV
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "sigma.fh"
       INTEGER IVEC,JVEC,NDPT2
       REAL*8 DPT2(NDPT2), SCAL
 
