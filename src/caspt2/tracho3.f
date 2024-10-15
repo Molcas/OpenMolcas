@@ -21,7 +21,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 
@@ -38,7 +37,7 @@
       INTEGER N,N1,N2
       INTEGER ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
-      REAL*8, ALLOCATABLE:: CHSPC(:), FTSPC(:)
+      REAL*8, ALLOCATABLE:: CHSPC(:), FTSPC(:), HTSPC(:)
       REAL*8, ALLOCATABLE:: BUFFY(:)
 
 ************************************************************************
@@ -53,7 +52,8 @@
 
 * ======================================================================
       CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
-      CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
+      CALL mma_allocate(HTSPC,NHTSPC,LABEL='HTSPC')
+      ip_HTSPC=1
       CALL mma_allocate(FTSPC,NFTSPC,LABEL='FTSPC')
 * ======================================================================
 
@@ -123,14 +123,14 @@
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC)
 
 * Inactive half-transformation:
 * Vectors of type HALF(K,J,B) = Sum(CHO(AB,J)*CMO(A,K) where
 * A,B are basis functions of symmetry ISYMA, ISYMB,
 * K is inactive of symmetry ISYMA, J is vector number in 1..NUMV
 * numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at WORK(IP_HTVEC(ISYMA)
+* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=MUL(ISYMA,JSYM)
@@ -140,7 +140,7 @@
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC)
 
 * Loop over ISYQ
       DO ISYQ=1,NSYM
@@ -154,7 +154,7 @@
        IP_LHT=IP_HTVEC(ISYQ)
 *   Compute fully transformed TK
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,1,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
@@ -165,7 +165,7 @@
 *   Compute fully transformed AK
        IF(N1*N2.GT.0) THEN
 
-C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
 
 C =SVC= modified for using boxed ordering of pairs, note that the boxed
 C routine is less efficient than the original one (loop over J values)
@@ -188,7 +188,7 @@ C with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
 C loop over secondary orbital index c is more efficient.
           CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
      &                          N,CMO(IC+N*(IASTA-1)),JNUM,
-     &                          WORK(IP_LHT),FTSPC,BUFFY)
+     &                          HTSPC(IP_LHT),FTSPC,BUFFY)
          ENDDO
         ENDDO
         CALL mma_deallocate(BUFFY)
@@ -203,7 +203,7 @@ C loop over secondary orbital index c is more efficient.
 * A,B are basis functions of symmetry ISYMA, ISYMB,
 * W is active of symmetry ISYMA, J is vector number in 1..NUMV
 * numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at WORK(IP_HTVEC(ISYMA)
+* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=MUL(ISYMA,JSYM)
@@ -215,7 +215,7 @@ C loop over secondary orbital index c is more efficient.
 * ---------------------------------------------------
 * Active half-transformation:
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
+     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC)
 
 
       DO ISYQ=1,NSYM
@@ -230,7 +230,7 @@ C loop over secondary orbital index c is more efficient.
        IP_LHT=IP_HTVEC(ISYQ)
 * Compute fully transformed TV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,2,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
@@ -240,7 +240,7 @@ C loop over secondary orbital index c is more efficient.
        IP_LHT=IP_HTVEC(ISYQ)
 *   Compute fully transformed AV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,3,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
