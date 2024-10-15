@@ -1136,7 +1136,7 @@ C Add the 1st and 2nd order density matrices:
 
 C The 1st order contribution to the density matrix
         CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-        CALL TRDNS1(IVEC,WORK(LDPT))
+        CALL TRDNS1(IVEC,WORK(LDPT),NDPT)
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *       WRITE(6,*)' DPT after TRDNS1.'
 *       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
