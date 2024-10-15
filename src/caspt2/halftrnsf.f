@@ -12,7 +12,7 @@
 *               2007, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,
-     &                     JREDC,CMO,ISTART,NUSE,ipChoT)
+     &                     JREDC,CMO,NCMO,ISTART,NUSE,ipChoT)
 *********************************************************
 *   Author: F. Aquilante as subroutine cho_vtra
 *   Modified PAM 2007: Use ordinary CMO array without restructuring
@@ -52,14 +52,15 @@
       use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
      &                    nDimRS, nnBstR, nSym
       Implicit Real*8 (a-h,o-z)
+      Integer irc, lscr
       Real*8  Scr(lscr)
-      Integer ipChoT(8)
-      Real*8 CMO(*)
-      Integer IOFFC(8),ISTART(8),NUSE(8)
+      Integer jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
+      Real*8 CMO(NCMO)
+      Integer ISTART(8),NUSE(8),ipChoT(8)
 
+      Integer IOFFC(8)
 * Integer function cho_isao
-      Integer  cho_isao
-      External cho_isao
+      Integer, External :: cho_isao
 
 #include "WrkSpc.fh"
 

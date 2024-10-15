@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
-      SUBROUTINE TRACHO2(CMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
+      SUBROUTINE TRACHO2(CMO,NCMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
       use Cholesky, only: InfVec, nDimRS
       use EQSOLV
@@ -21,8 +21,8 @@
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      INTEGER NDREF
-      REAL*8 CMO(NBSQT),DREF(NDREF),
+      INTEGER NCMO, NDREF
+      REAL*8 CMO(NCMO),DREF(NDREF),
      &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
       LOGICAL IF_TRNSF
 
@@ -281,7 +281,7 @@ c Initialize Fock matrices in AO basis to zero:
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
 * Frozen contributions to exchange:
           FactXI=-1.0D0
           ISFF=1
@@ -317,7 +317,7 @@ C ---------------------------------------------------------------------
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
 * Inactive contributions to exchange:
           FactXI=-1.0D0
           ISFI=1
@@ -415,7 +415,7 @@ C loop over secondary orbital index c is more efficient.
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,WORK(LCNAT),ISTART,NUSE,IP_HTVEC)
+     &    JSYM,JREDC,WORK(LCNAT),NBSQT,ISTART,NUSE,IP_HTVEC)
 * Active (scaled) contributions to exchange:
       FactXA=-1.0D0
       ISFA=1
@@ -442,7 +442,7 @@ C ---------------------------------------------------------------------
 * ---------------------------------------------------
 * Active half-transformation:
       CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
+     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC)
 
 
       IF (IF_TRNSF) THEN
