@@ -21,7 +21,8 @@
       use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
-      use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO
+      use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
+     &                       LISTS
       use caspt2_data, only: LUONEM
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
@@ -102,10 +103,10 @@ C This density matrix may be approximated in several ways, see DENS.
         END DO
         CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
         CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
-        CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
-        CALL MKLIST(iWORK(LLISTS))
+        CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
+        CALL MKLIST(LISTS)
         CALL DENS(IVECX,WORK(LDMAT),UEFF,U0)
-        CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
+        CALL mma_deallocate(LISTS)
       ELSE
         !! Density matrix for the target adiabatic state
         !! MODE = 1 is called after gradient stuff only for MS, so

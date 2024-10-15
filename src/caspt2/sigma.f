@@ -19,7 +19,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
       use Fockof
-      use caspt2_data, only: FIFA
+      use caspt2_data, only: FIFA, LISTS
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -230,7 +230,7 @@ C the SGM subroutines
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 WORK(LSGM1),LSGM2,LCX,iWORK(LLISTS))
+     &                 WORK(LSGM1),LSGM2,LCX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
@@ -460,7 +460,7 @@ CPAM Sanity check:
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 WORK(LD1),LD2,LSGMX,iWORK(LLISTS))
+     &                 WORK(LD1),LD2,LSGMX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)

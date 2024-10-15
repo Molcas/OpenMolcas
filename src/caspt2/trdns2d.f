@@ -23,7 +23,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_data, only: LUSBT
+      use caspt2_data, only: LUSBT, LISTS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
@@ -32,8 +32,8 @@
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
-
-      DIMENSION DPT2(NDPT2)
+      INTEGER IVEC,JVEC,NDPT2
+      REAL*8 DPT2(NDPT2), SCAL
 
 C Add to the diagonal blocks of transition density matrix,
 C    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
@@ -46,10 +46,10 @@ C Inact/Inact and Virt/Virt blocks:
 C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
         DO 100 ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) GOTO 100
+          IF(NIN.EQ.0) CYCLE
           NIS=NISUP(ISYM,ICASE)
           NVEC=NIN*NIS
-          IF(NVEC.EQ.0) GOTO 100
+          IF(NVEC.EQ.0) CYCLE
           !! lg_V1: T+lambda
           !! lg_V2: T
           !! IVEC = iVecX
@@ -98,7 +98,7 @@ C full array in case we are running in parallel
               END IF
 
               CALL DIADNS(ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-     &                    DPT2,iWORK(LLISTS))
+     &                    DPT2,LISTS)
 
               ! free local buffer
               CALL GETMEM('VEC1','FREE','REAL',LVEC1,NVEC)
@@ -109,11 +109,11 @@ C full array in case we are running in parallel
             CALL GASYNC
           ELSE
             CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                  DPT2,iWORK(LLISTS))
+     &                  DPT2,LISTS)
           END IF
 #else
           CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                DPT2,iWORK(LLISTS))
+     &                DPT2,LISTS)
 #endif
           If (do_grad .and. (imag_shift .ne. 0.0d0
      *                  .or. sigma_p_epsilon .ne. 0.0d0)) Then
@@ -144,7 +144,7 @@ C
                 END IF
 
                 CALL DIADNS(ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-     &                      DPT2,iWORK(LLISTS))
+     &                      DPT2,LISTS)
 
                 ! free local buffer
                 CALL GETMEM('VEC1','FREE','REAL',LVEC1,NVEC)
@@ -155,11 +155,11 @@ C
               CALL GASYNC
             ELSE
               CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                    DPT2,iWORK(LLISTS))
+     &                    DPT2,LISTS)
             END IF
 #else
             CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-     &                  DPT2,iWORK(LLISTS))
+     &                  DPT2,LISTS)
 #endif
             Call DScal_(NDPT2,-1.0D+00,DPT2,1)
             Call GETMEM('LBD','FREE','REAL',LBD,nAS)
@@ -173,5 +173,4 @@ C
  100    CONTINUE
  101  CONTINUE
 
-      RETURN
-      END
+      END SUBROUTINE TRDNS2D

@@ -140,7 +140,7 @@ C
         IF (MAXIT.NE.0) THEN
           !! off-diagonal are ignored for CASPT2-D
           CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-          CALL TRDNS2O(iVecX,iVecR,WORK(LDPT),VECROT(JSTATE))
+          CALL TRDNS2O(iVecX,iVecR,WORK(LDPT),NDPT,VECROT(JSTATE))
           CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
         END IF
 *       write(6,*)' DPT after TRDNS2O.'
@@ -1153,7 +1153,7 @@ C The approximate density matrix evaluation:
 *       WRITE(6,*)' DPT after TRDNS2D.'
 *       WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
         CALL DCOPY_(NDPT,[0.0D0],0,WORK(LDPT),1)
-        CALL TRDNS2O(IVEC,IVEC,WORK(LDPT),1.0D+00)
+        CALL TRDNS2O(IVEC,IVEC,WORK(LDPT),NDPT,1.0D+00)
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
         ! WRITE(6,*)' DPT after TRDNS2O.'
         ! WRITE(6,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)

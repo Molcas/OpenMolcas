@@ -16,11 +16,12 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,SCAL)
+      SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,NDPT2,SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_data, only: LISTS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -28,7 +29,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "sigma.fh"
-      Integer IVEC, JVEC
+      Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL
 
       Integer IFCOUP(13,13)
@@ -204,19 +205,16 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
                   CALL RHS_GET(NAS1,NIS1,LVEC1,TMP1)
                   CALL RHS_GET(NAS2,NIS2,LVEC2,TMP2)
                   CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                        WEC1,TMP1,DPT2,TMP2,
-     &                  iWORK(LLISTS))
+     &                        WEC1,TMP1,DPT2,TMP2,LISTS)
                   CALL mma_deallocate(TMP1)
                   CALL mma_deallocate(TMP2)
               ELSE
                 CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                      WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),
-     &                iWORK(LLISTS))
+     &                      WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),LISTS)
               END IF
 #else
               CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                    WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),
-     &                    iWORK(LLISTS))
+     &                    WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),LISTS)
 #endif
               CALL RHS_FREE(NAS2,NIS2,LVEC2)
  200        CONTINUE
@@ -263,5 +261,4 @@ C Fill in lower-triangular block elements by symmetry.
         END DO
       END IF
 
-      RETURN
-      END
+      END SUBROUTINE TRDNS2O

@@ -38,9 +38,11 @@ real(kind=wp), allocatable:: TAT(:)
 integer(kind=iwp) :: NTAT=0
 real(kind=wp), allocatable:: TORB(:)
 integer(kind=iwp) :: NTORB=0
+integer(kind=iwp), allocatable :: IDSCT(:)
+integer(kind=iwp), allocatable :: LISTS(:)
 
 public :: CMO, CMO_Internal, jState, mState, nActEl, nG3, FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX, DWGT, CMOPT2
-public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF, NCMO
+public :: TAT, NTAT, TORB, NTORB, NPREF, NDREF, NCMO, IDSCT, LISTS
 
 ! UNIT numbers
 

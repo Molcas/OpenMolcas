@@ -391,9 +391,10 @@ C-----------------------------------------------------------------------
 C
       Subroutine C1S1DER(SDER)
 C
+      use caspt2_data, only: LISTS
       Implicit Real*8 (A-H,O-Z)
 C
-      Dimension SDER(*)
+      REAL*8 SDER(*)
 C
 C     (T2Ct2*f)py * (T1Ct1)pz * dS1yz/da
 C     -1/2 (T2Ct2*f*S1*C1*Ct1)pt * (T1Ct1)pu * dS1tu/da
@@ -409,7 +410,7 @@ C
       !! 1. T2*Ct2*f
       IMLTOP=0
       CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &         WORK(LTMP1),LTMP2,LVEC2,iWORK(LLISTS))
+     &         WORK(LTMP1),LTMP2,LVEC2,LISTS)
 C
       IF(NWEC1.GT.0) THEN
         FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
@@ -454,9 +455,10 @@ C-----------------------------------------------------------------------
 C
       Subroutine C2DER(SDER)
 C
+      use caspt2_data, only: LISTS
       Implicit Real*8 (A-H,O-Z)
 C
-      Dimension SDER(*)
+      REAL*8 SDER(*)
 C
 C     -1/2 (T2Ct2)pu * dS2tu/da * (T1Ct1St1*f*C2*Ct2)pt
 C
@@ -467,7 +469,7 @@ C
       !! 1. T1*Ct1*St1*f
       IMLTOP=1
       CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &         WORK(LWEC1S),LVEC1S,LTMP,iWORK(LLISTS))
+     &         WORK(LWEC1S),LVEC1S,LTMP,LISTS)
 C
       !! 2. (T1Ct1St1*f) * C2 (MO -> IC)
       CALL RHS_ALLO(NIN2,NIS2,LTMP2)

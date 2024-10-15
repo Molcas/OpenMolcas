@@ -303,11 +303,6 @@ C
 C Flag to tell wether convergence was obtained
       ICONV = 0
 
-C Lists of coupling coefficients, used for sigma vector
-C generation from non-diagonal blocks of H0.
-C     CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
-C     CALL MKLIST(iWORK(LLISTS))
-
 
 C Mnemonic names for vectors stored on LUSOLV, see EQCTL.
 C Here, we use the local names IVECP, IVECT, IVECU which are thus
