@@ -208,7 +208,7 @@ C Compute natural orbitals of CASPT2 wave function.
       CALL mma_deallocate(CMO_Internal)
       nullify(CMO)
 C Backtransform density matrix to original MO basis before storing
-      CALL TRANSFOCK(TORB,WORK(LDMAT),-1)
+      CALL TRANSFOCK(TORB,SIZE(TORB),WORK(LDMAT),NDMAT,-1)
       CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)
       CALL GETMEM('DMAT','FREE','REAL',LDMAT,NDMAT)
       IF (MODE.EQ.1) THEN
