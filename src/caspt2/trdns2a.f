@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2)
+      SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: DREF
@@ -29,11 +29,9 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-
-      DIMENSION DPT2(*)
-      DIMENSION NACTD(13)
-      DATA NACTD / 1, 2, 2,-1, 0, 1, 1,-2,-2,-1,-1, 0, 0 /
+      INTEGER IVEC, JVEC, NDPT2
+      REAL*8 DPT2(NDPT2)
+      INTEGER :: NACTD(13)=[1, 2, 2,-1, 0, 1, 1,-2,-2,-1,-1, 0, 0]
 
 C Add to the diagonal blocks of transition density matrix,
 C    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
@@ -60,16 +58,11 @@ C with correct trace.
           NIS=NISUP(ISYM,ICASE)
           NVEC=NIN*NIS
           IF(NVEC.EQ.0) GOTO 100
-          !CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
-          !CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
           CALL RHS_ALLO(NIN,NIS,LVEC1)
           CALL RHS_ALLO(NIN,NIS,LVEC2)
           CALL RHS_READ_SR (LVEC1,iCASE,iSYM,IVEC)
           CALL RHS_READ_SR (LVEC2,iCASE,iSYM,JVEC)
-          !OVL=OVL+DDOT_(NVEC,WORK(LVEC1),1,WORK(LVEC2),1)
           OVL=OVL+RHS_DDOT(NIN,NIS,LVEC1,LVEC2)
-          !CALL GETMEM('VEC1','FREE','REAL',LVEC1,NVEC)
-          !CALL GETMEM('VEC2','FREE','REAL',LVEC2,NVEC)
           CALL RHS_FREE(NIN,NIS,LVEC1)
           CALL RHS_FREE(NIN,NIS,LVEC2)
  100    CONTINUE
@@ -104,5 +97,4 @@ C with correct trace.
         IOFDPT=IOFDPT+NO**2
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE TRDNS2A

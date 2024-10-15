@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRDTMP(DPT2)
+      SUBROUTINE TRDTMP(DPT2,NDPT2)
       USE Para_Info, ONLY: King
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
@@ -17,8 +17,8 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-
-      Real*8 DPT2(*)
+      Integer NDPT2
+      Real*8 DPT2(NDPT2)
 
       Real*8, Allocatable:: DTemp(:)
       if(nasht.eq.0) return

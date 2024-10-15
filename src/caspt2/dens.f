@@ -1144,10 +1144,10 @@ C The 1st order contribution to the density matrix
         CALL TRDNS2D(IVEC,IVEC,WORK(LDPT),NDPT,1.0D+00)
         IF(IFDENS) THEN
 C The exact density matrix evaluation:
-          CALL TRDTMP(WORK(LDPT))
+          CALL TRDTMP(WORK(LDPT),NDPT)
         ELSE
 C The approximate density matrix evaluation:
-          CALL TRDNS2A(IVEC,IVEC,WORK(LDPT))
+          CALL TRDNS2A(IVEC,IVEC,WORK(LDPT),NDPT)
         END IF
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
 *       WRITE(6,*)' DPT after TRDNS2D.'
