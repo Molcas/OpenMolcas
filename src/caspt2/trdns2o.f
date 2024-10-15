@@ -28,7 +28,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL
 

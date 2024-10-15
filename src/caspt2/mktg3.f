@@ -15,7 +15,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
       DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)

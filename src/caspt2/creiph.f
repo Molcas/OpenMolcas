@@ -30,7 +30,6 @@ C energies.
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       integer JOBIPH, JOBMIX
       real(8) Weight(MxRoot)
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)

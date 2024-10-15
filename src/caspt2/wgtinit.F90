@@ -22,7 +22,6 @@ subroutine wgtinit(H)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
   Real(kind=wp),intent(in) :: H(nState,nState)
 

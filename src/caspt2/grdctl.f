@@ -27,7 +27,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       Real*8 HEFF(NSTATE,NSTATE)
 
 C Purpose: Compute three sets of quantities, needed by MCLR, used to

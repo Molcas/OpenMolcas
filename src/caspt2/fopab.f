@@ -15,7 +15,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "WrkSpc.fh"
       Integer NFIFA, IBRA, IKET
       Real*8 FIFA(NFIFA), FOPEL

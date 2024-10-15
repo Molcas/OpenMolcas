@@ -25,8 +25,6 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
-
 C Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
 C If real_shift.ne.0.0d0 or imag_shift.ne.0.0d0, use a modified H0
 

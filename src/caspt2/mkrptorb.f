@@ -23,7 +23,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C Transform to orbitals that diagonalize the diagonal
 C blocks of FIFA. Affected data sets are CMO,
 C EPS, EPSI, EPSA, and EPSE. Also, the CI arrays are

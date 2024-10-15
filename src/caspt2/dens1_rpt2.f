@@ -30,7 +30,6 @@
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       LOGICAL RSV_TSK
 

@@ -26,7 +26,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       INTEGER IVEC, JVEC
       REAL*8 DTU(NASHT,NASHT)

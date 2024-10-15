@@ -37,7 +37,6 @@ subroutine procinp_caspt2
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
 
   integer(kind=iwp) :: iDummy

@@ -25,8 +25,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 
-#include "SysDef.fh"
-
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
         WRITE(6,*)' RDSCTC (Normal repres.)'
@@ -59,8 +57,6 @@ C Read coefficient vector from LUSOLV (C repres).
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-
-#include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_

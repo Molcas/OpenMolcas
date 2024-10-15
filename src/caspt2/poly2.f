@@ -30,7 +30,6 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       REAL*8, INTENT(IN) :: CI(NCONF)
 

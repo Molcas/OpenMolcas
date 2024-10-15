@@ -21,7 +21,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
       INTEGER NFIMO, NFAMO, NBUF
       REAL*8 FIMO(NFIMO),FAMO(NFAMO)
       REAL*8 DREF(NDREF),BUF(NBUF)

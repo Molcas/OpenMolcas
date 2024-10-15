@@ -41,8 +41,6 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
-
       INTEGER IVEC,JVEC
       REAL*8 OVLAPS(0:8,0:MXCASE)
 

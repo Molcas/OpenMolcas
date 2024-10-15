@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE H0SPCT
+      SUBROUTINE H0SPCT()
       use caspt2_output, only:iPrGlb
       use caspt2_output, only:dnmThr,cntThr,cmpThr
       use caspt2_data, only:LUSBT
@@ -29,7 +29,6 @@
 #include "mafdecls.fh"
 #endif
 
-#include "SysDef.fh"
       CHARACTER(LEN=80) LINE
 
 C Write pertinent warnings and statistics for the energy

@@ -33,7 +33,6 @@ module fciqmc_interface
     implicit none
 
 #include "macros.fh"
-#include "SysDef.fh"
 
     private
     public :: DoFCIQMC, NonDiagonal, TransformToNormalOrder, mkfg3fciqmc, load_fciqmc_g1

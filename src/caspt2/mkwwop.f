@@ -13,7 +13,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded for OP2, OP3, but
 C index pair C permutation symmetry is used.
@@ -50,7 +49,6 @@ C as operating on the CASSCF space.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -262,8 +260,6 @@ C Deallocate temporary space:
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -488,7 +484,6 @@ C Deallocate matrix product
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -657,7 +652,6 @@ C Deallocate temporary space:
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -775,7 +769,6 @@ C Deallocate matrix product:
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
       DIMENSION OP1(NASHT,NASHT)
@@ -853,7 +846,6 @@ C End of loop over cases.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -1038,7 +1030,6 @@ C Deallocate matrix product:
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
       DIMENSION OP1(NASHT,NASHT)
@@ -1114,7 +1105,6 @@ C End of loop over cases.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for

@@ -29,7 +29,6 @@ C     Set up S matrices for cases 1..13.
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 

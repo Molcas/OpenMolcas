@@ -33,7 +33,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "WrkSpc.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
@@ -166,7 +165,6 @@ C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 
       DIMENSION V1(*), V2(*)
 

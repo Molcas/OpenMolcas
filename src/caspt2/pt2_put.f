@@ -27,7 +27,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       I=9-LEN(LAB)
       IF(I.GE.1) THEN

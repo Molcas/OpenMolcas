@@ -25,8 +25,6 @@ C tridiagonal local array at Work(lg_M)
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-#include "SysDef.fh"
-
       CHARACTER(len=*) cNAME
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -65,8 +63,6 @@ C tridiagonal local array at Work(lg_M)
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-#include "SysDef.fh"
-
       CHARACTER(len=*) cNAME
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -103,7 +99,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-#include "SysDef.fh"
       CHARACTER cNAME
 
 #ifdef _MOLCAS_MPP_
@@ -177,7 +172,6 @@ C LUSBT into WORK(lg_M)
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-#include "SysDef.fh"
       CHARACTER cNAME
 
 #ifdef _MOLCAS_MPP_

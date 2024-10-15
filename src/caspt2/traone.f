@@ -19,7 +19,6 @@
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

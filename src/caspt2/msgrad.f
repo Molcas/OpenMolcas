@@ -21,7 +21,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
@@ -119,7 +118,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "WrkSpc.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
@@ -259,7 +257,6 @@ C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 
       DIMENSION V1(*), V2(*)
 
@@ -1132,7 +1129,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*),SLag(*)
 C
@@ -1185,7 +1181,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       REAL*8, INTENT(IN) :: CI1(NCONF),CI2(NCONF)
 
@@ -1237,7 +1232,6 @@ C
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       INTEGER, INTENT(IN):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
@@ -1718,7 +1712,6 @@ C
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       LOGICAL RSV_TSK
 

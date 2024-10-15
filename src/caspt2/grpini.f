@@ -33,7 +33,6 @@
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "intgrl.fh"
 #include "warnings.h"
       LOGICAL IF_TRNSF

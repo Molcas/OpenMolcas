@@ -25,7 +25,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
       REAL*8 HEFF(NSTATE,NSTATE)
 
       INTEGER ISTATE

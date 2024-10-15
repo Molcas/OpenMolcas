@@ -34,7 +34,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
       Logical FullMlk,lSave,Do_ESPF
 

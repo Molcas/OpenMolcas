@@ -29,7 +29,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 
       INTEGER NERI, NFIMO
       REAL*8, ALLOCATABLE, TARGET:: ERI(:)
@@ -83,7 +82,6 @@ C INTEGRAL BUFFERS:
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
 
@@ -154,7 +152,6 @@ C Put W on disk:
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION ERI(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
@@ -283,7 +280,6 @@ C  Put WM on disk
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
 
@@ -377,7 +373,6 @@ C   Put W on disk
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO)
       REAL*8 ERI1(*),ERI2(*), SCR(*)
@@ -463,7 +458,6 @@ C   Put W on disk.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
@@ -565,7 +559,6 @@ C   Put WP and WM on disk.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
@@ -663,7 +656,6 @@ C   Put WM on disk
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
@@ -765,7 +757,6 @@ C   Put WP and WM on disk.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_

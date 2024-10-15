@@ -27,7 +27,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and

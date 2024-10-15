@@ -24,7 +24,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       Real*8, Allocatable:: BUF(:)
 

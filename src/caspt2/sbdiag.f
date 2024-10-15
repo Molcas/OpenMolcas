@@ -27,7 +27,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -536,7 +535,6 @@ C divided over processors.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C-SVC20100902: global arrays header files
 #include "global.fh"
@@ -1044,7 +1042,6 @@ C replicate array.  FIXME: Should be removed later.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION SCA(NAS),S(LDS,*)
       DO J=jLo,jHi
         DO I=iLo,iHi
@@ -1059,7 +1056,6 @@ C replicate array.  FIXME: Should be removed later.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       DIMENSION EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
       jVEC=0
       DO J=1,NAS

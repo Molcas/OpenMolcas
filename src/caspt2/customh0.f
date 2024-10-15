@@ -29,7 +29,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       INTEGER ICASE,ISYM,NAS,NIS,NCOEF
       INTEGER LS,IDS,NS,LB,IDB,NB
@@ -70,7 +69,6 @@ C Modify B matrix, using S matrix and some other data.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       INTEGER ICASE,ISYM,NIN,NAS,NIS,I
       INTEGER LBD,LID,LC1,LC2,ID

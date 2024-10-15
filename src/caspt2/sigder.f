@@ -28,7 +28,6 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
 C     Work in the MO basis

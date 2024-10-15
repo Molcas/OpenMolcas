@@ -16,7 +16,6 @@
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
       Integer NCMO, NHONE, NFIMO, NFAMO
       Real*8  CMO(NCMO)
       Real*8 FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)

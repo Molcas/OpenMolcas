@@ -30,7 +30,6 @@ C Set up B matrices for cases 1..13.
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
@@ -115,7 +114,6 @@ C looping, etc in the rest  of the routines.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -203,7 +201,6 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       INTEGER NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
       DIMENSION DREF(NDREF),PREF(NPREF)
       DIMENSION FD(NDREF),FP(NPREF)
@@ -304,7 +301,6 @@ CGG End
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       DIMENSION BA(*)
       DIMENSION F3(NG3)
@@ -481,7 +477,6 @@ C  - F(xvzyut) -> BA(yvx,zut)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -948,7 +943,6 @@ c Avoid unused argument warnings
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1038,7 +1032,6 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
       INTEGER NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
@@ -1123,7 +1116,6 @@ CGG End
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       DIMENSION BC(*)
       DIMENSION F3(NG3)
@@ -1300,7 +1292,6 @@ C  - F(xvzyut) -> BC(zvx,yut)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1763,7 +1754,6 @@ c Avoid unused argument warnings
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
@@ -1983,7 +1973,6 @@ CGG End
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
@@ -2102,7 +2091,6 @@ CGG End
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF),FD(NDREF)
 
@@ -2187,7 +2175,6 @@ CGG End
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 PREF(NPREF),FP(NPREF),DREF(NDREF)
 
@@ -2352,7 +2339,6 @@ CGG End
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF),FD(NDREF)
 

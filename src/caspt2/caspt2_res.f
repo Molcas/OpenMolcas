@@ -21,8 +21,6 @@ C
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 C
-C#include "SysDef.fh"
-C
       DIMENSION VECROT(*)
 C
       !! 1) Calculate the derivative of the CASPT2 energy with respect

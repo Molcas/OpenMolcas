@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NADIAG
+      SUBROUTINE NADIAG()
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
       use EQSOLV
@@ -25,7 +25,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Set up non-active diagonal elements of H0.
 

@@ -24,7 +24,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 
-#include "SysDef.fh"
       Integer IVEC, JVEC
       Real*8 ci(*),sgm(*)
 

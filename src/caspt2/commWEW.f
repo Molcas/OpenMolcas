@@ -22,7 +22,6 @@
       use caspt2_data, only: LUSBT
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION DCOM(NASHT,NASHT)
