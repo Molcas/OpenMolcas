@@ -38,7 +38,7 @@
 
       ! Transform Cholesky vectors, this will have to be redone after
       ! the modified Fock matrix is diagonalized
-      CALL TRACHO3(CMO)
+      CALL TRACHO3(CMO,NCMO)
 
       ! Square (Dd) to simplify multiplication
       CALL Allocate_DT(HDSQ,NASH,NASH,NSYM,Label='HDSQ')

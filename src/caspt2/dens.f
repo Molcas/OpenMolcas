@@ -1456,7 +1456,7 @@ C
       CMO=>CMO_Internal
       CMO(:)=CMOPT2(:)
       if (IfChol) then
-        call TRACHO3(CMO)
+        call TRACHO3(CMO,NCMO)
       else
         call TRACTL(0)
       end if

@@ -10,18 +10,20 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
-      SUBROUTINE TRACHO3(CMO)
+      SUBROUTINE TRACHO3(CMO,NCMO)
       USE CHOVEC_IO
       use Cholesky, only: InfVec
       use EQSOLV
       use ChoCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      REAL*8 CMO(NBSQT)
+      INTEGER NCMO
+      REAL*8 CMO(NCMO)
 
       INTEGER NCES(8),ip_HTVec(8)
       INTEGER ISTART(8),NUSE(8)
@@ -34,8 +36,10 @@
       INTEGER IP_LFT,IP_LHT
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc
+      INTEGER ip_ftspc,ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
+      REAL*8, ALLOCATABLE:: CHSPC(:)
+      REAL*8, ALLOCATABLE:: BUFFY(:)
 
 ************************************************************************
 * ======================================================================
@@ -48,7 +52,7 @@
       END DO
 
 * ======================================================================
-      CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
+      CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
       CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('FTSPC','ALLO','REAL',IP_FTSPC,NFTSPC)
 * ======================================================================
@@ -92,8 +96,7 @@
 
       JREDC=JRED
 * Read a batch of reduced vectors
-      CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,JV1,JV2,JSYM,
-     &                        NUMV,JREDC,MUSED)
+      CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,JSYM,NUMV,JREDC,MUSED)
       IF(NUMV.ne.JNUM) THEN
         write(6,*)' Rats! CHO_VECRD was called, assuming it to'
         write(6,*)' read JNUM vectors. Instead it returned NUMV'
@@ -119,7 +122,7 @@
        NUSE(ISYMA)=NFRO(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &     JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
 
 * Inactive half-transformation:
@@ -136,7 +139,7 @@
        NUSE(ISYMA)=NISH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &     JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
 
 * Loop over ISYQ
@@ -172,7 +175,7 @@ C routine is less efficient than the original one (loop over J values)
         NI=N2
 C Allocate memory for small buffer used in FULLTRNSF_BOXED
         NBUFFY=NA*NI
-        CALL GETMEM('BUFFY','ALLO','REAL',IP_BUFFY,NBUFFY)
+        CALL mma_allocate(BUFFY,NBUFFY,LABEL='BUFFY')
 C Loop over boxes
         DO IASTA=1,NA,nSecBX
          IAEND=MIN(IASTA-1+nSecBX,NA)
@@ -187,11 +190,10 @@ C with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
 C loop over secondary orbital index c is more efficient.
           CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
      &                          N,CMO(IC+N*(IASTA-1)),JNUM,
-     &                          WORK(IP_LHT),WORK(IP_LFT),
-     &                          WORK(IP_BUFFY))
+     &                          WORK(IP_LHT),WORK(IP_LFT),BUFFY)
          ENDDO
         ENDDO
-        CALL GETMEM('BUFFY','FREE','REAL',IP_BUFFY,NBUFFY)
+        CALL mma_deallocate(BUFFY)
         CALL CHOVEC_SAVE(WORK(IP_LFT),4,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * End loop ISYQ
@@ -214,7 +216,7 @@ C loop over secondary orbital index c is more efficient.
       END DO
 * ---------------------------------------------------
 * Active half-transformation:
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &    JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
 
 
@@ -282,7 +284,7 @@ C loop over secondary orbital index c is more efficient.
         END DO
       END IF
 
-      CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
+      CALL mma_deallocate(CHSPC)
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
 
