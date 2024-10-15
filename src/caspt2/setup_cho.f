@@ -12,12 +12,13 @@
 * -------------------------
 * This subroutine uses the input variables to compute
 * ipsp,nisplit, nasplit,lsplit,ipnp,ipip each dimensioned (1:nsym),
-* in common /chocaspt2/,
+* in module chocaspt2.F90,
 * and allocates fields at iwork() addresses ipsp(1:nsym),ipnp(1:nsym),
 * ipunit_f(1:nsym), each with sizes lsplit(1:nsym), and
 * ipip(1:nsym), each with sizes nsym*lsplit(1:nsym)
 * -------------------------
       use stdalloc, only: mma_MaxDBLE
+      use ChoCASPT2
       Implicit Real*8 (a-h,o-z)
       Integer nSym,nIsh(8),nAsh(8),nSsh(8)
       Integer NumCho(8)
@@ -25,7 +26,6 @@
       Character(len=*) mode
       Character(len=4) modecopy
 
-#include "chocaspt2.fh"
 #include "WrkSpc.fh"
       Integer  cho_irange
       External cho_irange

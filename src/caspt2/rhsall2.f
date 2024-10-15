@@ -15,6 +15,7 @@
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
+      use ChoCASPT2
       IMPLICIT REAL*8 (A-H,O-Z)
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
@@ -24,7 +25,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "chocaspt2.fh"
       Integer IVEC
 *
       Integer, Parameter :: Inactive=1, Active=2, Virtual=3

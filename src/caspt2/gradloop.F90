@@ -24,6 +24,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
   use EQSOLV
+  use ChoCASPT2
 
   Implicit None
 
@@ -32,7 +33,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "chocaspt2.fh"
 #include "caspt2_grad.fh"
 
   character(len=60) :: STLNE2

@@ -2955,10 +2955,9 @@ C
       Subroutine CnstInt(Mode,INT1,INT2)
 C
       Use CHOVEC_IO
+      use ChoCASPT2
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "chocaspt2.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
 C

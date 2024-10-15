@@ -14,16 +14,13 @@
       USE CHOVEC_IO
       use Cholesky, only: InfVec, nDimRS
       use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "chocaspt2.fh"
 #include "WrkSpc.fh"
-************************************************************************
-*  Author : P. A. Malmqvist
-************************************************************************
       INTEGER NDREF
       REAL*8 CMO(NBSQT),DREF(NDREF),
      &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)

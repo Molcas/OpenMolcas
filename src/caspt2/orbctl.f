@@ -23,11 +23,11 @@
       use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
      &                       TORB
       use caspt2_data, only: LUONEM
+      use ChoCASPT2
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "chocaspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NCMO

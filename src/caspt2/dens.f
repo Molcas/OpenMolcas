@@ -30,6 +30,7 @@
 #endif
       use EQSOLV
       use Sigma_data
+      use ChoCASPT2
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -38,7 +39,6 @@ C
 
 #include "caspt2_grad.fh"
 #include "pt2_guga.fh"
-#include "chocaspt2.fh"
       DIMENSION DMAT(*),UEFF(nState,nState),U0(nState,nState)
       Dimension VECROT(nState)
 
@@ -1937,6 +1937,7 @@ C
       use ChoVec_io
       use Cholesky, only: InfVec, nDimRS
       use caspt2_gradient, only: LuGAMMA,LuAPT2
+      use ChoCASPT2
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1945,7 +1946,6 @@ C
 #include "WrkSpc.fh"
 C
 #include "warnings.h"
-#include "chocaspt2.fh"
 C
       Dimension DPT2AO(*),SSDM(*)
       Integer iSkip(8),ipWRK(8)

@@ -222,12 +222,12 @@ C as this is how they are used to compute the integrals for RHS.
 * Write Cholesky vectors to disk.
 ************************************************************************
       use caspt2_data, only: LUDRA
+      use ChoCASPT2
       Implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "chocaspt2.fh"
       DIMENSION CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
@@ -254,12 +254,12 @@ C always write the chunks to LUDRA, both for serial and parallel
 * Read Cholesky vectors from disk.
 ************************************************************************
       use caspt2_data, only: LUDRA
+      use ChoCASPT2
       Implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "chocaspt2.fh"
       DIMENSION CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
@@ -291,12 +291,12 @@ C always write the chunks to LUDRA, both for serial and parallel
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use caspt2_data, only: LUDRATOT
 #endif
+      use ChoCASPT2
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "chocaspt2.fh"
       REAL*8 :: CHOBUF(*)
       INTEGER :: ICASE,ISYQ,JSYM,IB
 

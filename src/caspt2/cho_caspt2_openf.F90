@@ -20,11 +20,11 @@ subroutine Cho_CASPT2_OpenF(iOpt,iTyp,iSym,nBatch)
 !                  implemented yet!)
 
 use Definitions, only: iwp, u6
+use ChoCASPT2
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt, iTyp, iSym, nBatch
 #include "WrkSpc.fh"
-#include "chocaspt2.fh"
 integer(kind=iwp) :: iaddr, iB, LuV, nSym, NCALLS = 0, NUMCHO(8)
 character(len=3) :: BaseNm
 character(len=7) :: FullNm

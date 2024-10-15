@@ -19,12 +19,12 @@
       SUBROUTINE FOCK_RPT2()
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF
       use stdalloc, only: mma_allocate, mma_deallocate
+      use ChoCASPT2
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
-#include "chocaspt2.fh"
 
       Real*8, Allocatable:: BUF(:)
 

@@ -29,6 +29,7 @@ subroutine procinp_caspt2
 #if 0
   use OFembed, only:Do_OFemb
 #endif
+  use ChoCASPT2
 
   implicit none
 
@@ -37,7 +38,6 @@ subroutine procinp_caspt2
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "chocaspt2.fh"
 #include "caspt2_grad.fh"
 
   integer(kind=iwp) :: iDummy

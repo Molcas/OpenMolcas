@@ -18,12 +18,12 @@
       use stdalloc, only: mma_MaxDBLE
       use caspt2_data, only: LUDRA, LUDRATOT
       use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "chocaspt2.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -37,10 +37,6 @@
       INTEGER MXSPC
       INTEGER NVACT,NVACC,NVECS_RED
       Real*8 Dummy(1)
-************************************************************************
-*  Author : P. A. Malmqvist
-************************************************************************
-
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
 * using Francesco's method.

@@ -719,13 +719,13 @@ C
       use Cholesky, only: InfVec, nDimRS
       use caspt2_gradient, only: LuGAMMA
       use EQSOLV
+      use ChoCASPT2
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "chocaspt2.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 

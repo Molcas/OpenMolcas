@@ -19,12 +19,12 @@
      &                       NDREF, NPREF, NCMO
       use stdalloc, only: mma_allocate
       use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "chocaspt2.fh"
 #include "compiler_features.h"
 
       INTEGER LuSpool
@@ -127,7 +127,7 @@ C Initialize sizes, offsets etc used in equation solver.
           write(6,*) 'CASPT2: Non-zero rc in Cho_X_init'
           CALL QUIT(irc)
         endif
-* import_ch transfers some values from Cholesky module to chocaspt2.fh
+* import_ch transfers some values from Cholesky module to chocaspt2.F90
         call import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
         Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Allo')
 * get unit numbers for Cholesky MO vectors
@@ -165,10 +165,10 @@ C Initialize sizes, offsets etc used in equation solver.
       use OFembed, only: FMaux
 #endif
       use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "chocaspt2.fh"
 
       Integer iSym
 C     Cholesky return code
