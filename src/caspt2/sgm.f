@@ -116,8 +116,6 @@ C ICASE1= 1
 C ICASE2= 2
 
 C  A&BP One-el
-CFUE  Call GetMem('CX','Check',' ',iDummy,iDummy)
-CTEST      WRITE(*,*) ' A&BP One-el'
         LLST1=LLIST(ISYM1,ISYM2,12)
         NLST1=NLIST(ISYM1,ISYM2,12)
         IF(NLST1.NE.0) THEN
