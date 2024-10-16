@@ -20,6 +20,7 @@
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: usual
       use caspt2_data, only: DREF
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -42,6 +43,8 @@
       INTEGER IEPS,IEPSA,IEPSI,IEPSE
       INTEGER ISYM,ISYMPQ,ISYMRS
       REAL*8 VAL,VALTU,VALUT,X
+
+      Real*8, allocatable:: INT(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
 c keyword value given as input. The experimental user modifies
@@ -112,7 +115,8 @@ c       Determine sizes of areas for memory allocation
         IF(FOCKTYPE.EQ.'G3      ') NSCR=NSCR3
 c
 c Allocate memory: Integral buffer and scratch array:
-        CALL GETMEM('FINT','ALLO','REAL',LINT,2*NINT)
+        CALL mma_allocate(INT,2*NINT,LABEL='INT')
+        LINT=1
         LSCR=LINT+NINT
         CALL GETMEM('FSCR','ALLO','REAL',LSC,NSCR)
 c Form symmetry-packed squares of density matrix DSQ, and
@@ -192,11 +196,11 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
                   DO IX=1,IV
                     IS=IX+MI
                     CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,
-     &                        WORK(LINT),WORK(LSCR))
+     &                        INT,INT(LSCR))
                     IDDVX=MTRES+(IV*(IV-1))/2+IX
                     DDVX=WORK(LDDTR-1+IDDVX)
                     IF(IR.EQ.IS) DDVX=0.5D0*DDVX
-                    CALL DAXPY_(NO**2,DDVX,WORK(LINT),1,
+                    CALL DAXPY_(NO**2,DDVX,INT,1,
      &                                    WORK(LXMAT+NOSQES),1)
                   END DO
                 END DO
@@ -401,7 +405,7 @@ c
 c
 c
         CALL GETMEM('FSCR','FREE','REAL',LSC,NSCR)
-        CALL GETMEM('FINT','FREE','REAL',LINT,NINT)
+        CALL mma_deallocate(INT)
         CALL GETMEM('DSQ','FREE','REAL',LDSQ,NASQT)
         CALL GETMEM('2MDSQ','FREE','REAL',L2MDSQ,NASQT)
         CALL GETMEM('DD','FREE','REAL',LDD,NAMX**2)
