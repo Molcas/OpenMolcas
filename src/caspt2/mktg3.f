@@ -16,7 +16,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
       INTEGER LSYM1, LSYM2
       REAL*8  CI1(MXCI),CI2(MXCI)
       REAL*8  OVL
@@ -26,6 +25,7 @@
       Integer :: nLev
 
       INTEGER, allocatable:: P2LEV(:)
+      REAL*8, allocatable:: TG3WRK(:)
 
       nLev = SGS%nLev
 
@@ -196,9 +196,9 @@ C Insufficient memory?
         WRITE(6,*)' WARNING: MKTG3 will be inefficient owing to'
         WRITE(6,*)' small memory.'
       END IF
-      CALL GETMEM('TG3WRK','ALLO','REAL',LTG3WRK,NTG3WRK)
+      CALL mma_allocate(TG3WRK,NTG3WRK,Label='TG#WRK')
 C And divide it up:
-      LSGM1=LTG3WRK
+      LSGM1=1
       LTAU=LSGM1+NTUBUF*MXCI
       LSGM2=LTAU+MXCI
 
@@ -216,12 +216,12 @@ C Translate to levels in the SGUGA coupling order:
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
+        CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &              IL,JL,1.0D00,LSYM2,CI2,WORK(LTO))
+     &              IL,JL,1.0D00,LSYM2,CI2,TG3WRK(LTO))
         IF(ISSG2.EQ.LSYM1) THEN
-          TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
+          TG1(IY,IZ)=DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
         END IF
         LTO=LTO+MXCI
        END DO
@@ -239,9 +239,9 @@ C Translate to levels:
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
+         CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &               IL,JL,1.0D00,LSYM1,CI1,WORK(LTO))
+     &               IL,JL,1.0D00,LSYM1,CI1,TG3WRK(LTO))
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -264,12 +264,12 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
           NTAU=CIS%NCSF(ISTAU)
-          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
+          CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU))
+     &                IL,JL,1.0D00,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           IF(ISTAU.EQ.LSYM1) THEN
-           TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
+           TG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           END IF
           DO IP1=MAX(IP2,IP1STA),IP1END
            IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
@@ -279,7 +279,7 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
            ISSG1=MUL(MUL(ITS,IUS),LSYM1)
            IF(ISSG1.EQ.ISTAU) THEN
             L=LSGM1+MXCI*(IP1-IP1STA)
-            VAL=DDOT_(NTAU,WORK(LTAU),1,WORK(L),1)
+            VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
             ITU=IT+NASHT*(IU-1)
 C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
 C Code to put it in correct place:
@@ -328,7 +328,7 @@ C End of IP1STA sectioning loop
        END DO
 C End of IP3STA sectioning loop
       END DO
-      CALL GETMEM('TG3WRK','FREE','REAL',LTG3WRK,NTG3WRK)
+      CALL mma_deallocate(TG3WRK)
 C Now the computed elements of TG2 contain <PSI1|E(IT1,IU1)E(IT2,IU2)|PSI2>
 C and TG3 contains <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
 C Add here the necessary Kronecker deltas times 2-body matrix
