@@ -134,7 +134,7 @@ C as this is how they are used to compute the integrals for RHS.
         END DO
       END DO
 
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_SIZE
 
 ************************************************************************
       SUBROUTINE CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
@@ -247,7 +247,7 @@ C always write the chunks to LUDRA, both for serial and parallel
      &  'JSYM ' ,JSYM, ', ',
      &  'DNRM2 ',SQFP
 #endif
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_SAVE
 
 ************************************************************************
       SUBROUTINE CHOVEC_LOAD(CHOBUF,ICASE,ISYQ,JSYM,IB)
@@ -291,6 +291,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       USE MPI
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use caspt2_data, only: LUDRATOT
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use ChoCASPT2
       IMPLICIT NONE
@@ -308,6 +309,8 @@ C always write the chunks to LUDRA, both for serial and parallel
       INTEGER*4, PARAMETER :: ONE4 = 1
       INTEGER :: LDISP,LSIZE,LRECVBUF,LTRANSP
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
+      INTEGER, ALLOCATABLE:: DISP(:), SIZE(:)
+      REAL*8, ALLOCATABLE:: TRANSP(:), RECVBUF(:)
 #ifdef _DEBUGPRINT_
       INTEGER :: MY_N,NOFF
       REAL*8 :: SQFP
@@ -325,28 +328,27 @@ C always write the chunks to LUDRA, both for serial and parallel
 C for true parallel, also communicate chunks to each process, write them
 C to LUDRATOT, so first allocate memory for the fully transformed
 C vectors, and for the per-process size and offset into LUDRATOT
-        CALL GETMEM('DISP','ALLO','INTE',LDISP,NPROCS)
-        CALL GETMEM('SIZE','ALLO','INTE',LSIZE,NPROCS)
+        CALL mma_allocate(DISP,NPROCS,Label='DISP')
+        CALL mma_allocate(SIZE,NPROCS,LABEL='SIZE')
 
 C gather sizes of local cholesky bits
         NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
         JNUM=NVLOC_CHOBATCH(IB)
         NUMSEND(1)=NPQ*JNUM
-        CALL MPI_Allgather(NUMSEND,ONE4,ITYPE,
-     &       IWORK(LSIZE:LSIZE+NPROCS-1),ONE4,ITYPE,
-     &       MPI_COMM_WORLD, IERROR4)
+        CALL MPI_Allgather(NUMSEND,ONE4,ITYPE,SIZE(1:NPROCS),ONE4,ITYPE,
+     &                     MPI_COMM_WORLD, IERROR4)
 C compute offsets into the receiving array
-        IWORK(LDISP)=0
+        DISP(1)=0
         DO I=2,NPROCS
-          IWORK(LDISP+I-1)=IWORK(LDISP+I-2)+IWORK(LSIZE+I-2)
+          DISP(I)=DISP(I-1)+SIZE(I-1)
         END DO
 
 C collect the vectors
-        CALL GETMEM('RECVBUF','ALLO','REAL',LRECVBUF,NFTSPC_TOT)
+        CALL mma_allocate(RECVBUF,NFTSPC_TOT,Label='RECVBUF')
         CALL MPI_Barrier(MPI_COMM_WORLD, IERROR4)
         CALL MPI_Allgatherv_(CHOBUF,NUMSEND(1),MPI_REAL8,
-     &       WORK(LRECVBUF),IWORK(LSIZE),IWORK(LDISP),
-     &       MPI_REAL8,MPI_COMM_WORLD, IERROR)
+     &                       RECVBUF,SIZE,DISP,
+     &                       MPI_REAL8,MPI_COMM_WORLD, IERROR)
 
         JNUMT=NVGLB_CHOBATCH(IB)
         ! disk offset is block offset + preceding block size
@@ -354,27 +356,26 @@ C collect the vectors
 
 CSVC: for RHS on demand, write transposed chovecs, else just write
         IF (RHSDIRECT) THEN
-          CALL GETMEM('TRANSP','ALLO','REAL',LTRANSP,NPQ*JNUMT)
-          CALL DTRANS(NPQ,JNUMT,WORK(LRECVBUF),NPQ,
-     &                          WORK(LTRANSP),JNUMT)
-          CALL DDAFILE(LUDRATOT,1,WORK(LTRANSP),NPQ*JNUMT,IDISKT)
-          CALL GETMEM('TRANSP','FREE','REAL',LTRANSP,NPQ*JNUMT)
+          CALL mma_allocate(TRANSP,NPQ*JNUMT,Label='TRANSP')
+          CALL DTRANS(NPQ,JNUMT,RECVBUF,NPQ,TRANSP,JNUMT)
+          CALL DDAFILE(LUDRATOT,1,TRANSP,NPQ*JNUMT,IDISKT)
+          CALL mma_deallocate(TRANSP)
         ELSE
-          CALL DDAFILE(LUDRATOT,1,WORK(LRECVBUF),NPQ*JNUMT,IDISKT)
+          CALL DDAFILE(LUDRATOT,1,RECVBUF,NPQ*JNUMT,IDISKT)
         END IF
 
 #  ifdef _DEBUGPRINT_
         WRITE(6,*) ' process block, size, offset, fingerprint'
         DO I=1,NPROCS
-          MY_N = IWORK(LSIZE+I-1)
-          NOFF = IWORK(LDISP+I-1)
-          SQFP =DDOT_(MY_N,WORK(LRECVBUF+NOFF),1,WORK(LRECVBUF+NOFF),1)
+          MY_N = SIZE(I)
+          NOFF = 1+DISP(I)
+          SQFP =DDOT_(MY_N,RECVBUF(NOFF:),1,RECVBUF(NOFF:),1)
           WRITE(6,'(A,I6,A,2I12,ES20.12)') ' [',I,'] ',MY_N,NOFF,SQFP
         END DO
 #  endif
-        CALL GETMEM('RECVBUF','FREE','REAL',LRECVBUF,NFTSPC_TOT)
-        CALL GETMEM('DISP','FREE','INTE',LDISP,NPROCS)
-        CALL GETMEM('SIZE','FREE','INTE',LSIZE,NPROCS)
+        CALL mma_deallocate(RECVBUF)
+        CALL mma_deallocate(DISP)
+        CALL mma_deallocate(SIZE)
       END IF
 #else
 C Avoid unused argument warnings
@@ -386,7 +387,7 @@ C Avoid unused argument warnings
         CALL Unused_integer(IB)
       END IF
 #endif
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_COLL
 
 #ifdef _MOLCAS_MPP_
 ************************************************************************
@@ -440,7 +441,7 @@ C Avoid unused argument warnings
      &                    MPICOMM,IERROR4)
 
       IERROR=IERROR4
-      END SUBROUTINE
+      END SUBROUTINE MPI_Allgatherv_
 #endif
 
       END MODULE CHOVEC_IO
