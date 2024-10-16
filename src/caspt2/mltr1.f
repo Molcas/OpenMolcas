@@ -105,7 +105,7 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
       RETURN
       END
       SUBROUTINE PMLTR1 (KOD,IMLTOP,LST1,
-     &                   lg_X,NAS1,NIS1,JXOFF,
+     &                   X,NAS1,NIS1,JXOFF,
      &                   F,NFI,NFJ,
      &                   lg_Y,NAS2,NIS2)
 #ifdef _MOLCAS_MPP_
@@ -118,7 +118,7 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION F(NFI,NFJ)
+      DIMENSION X(*),F(NFI,NFJ)
       DIMENSION LST1(4,NLST1)
 
 #ifdef _MOLCAS_MPP_
@@ -139,12 +139,12 @@ C always the Y array.
           CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
           IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
             CALL MLTR1_EH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
      &                  DBL_MB(mY),NAS2,jYLo,jYHi)
           ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
             CALL MLTR1_GH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
      &                  DBL_MB(mY),NAS2,jYLo,jYHi)
           END IF
@@ -154,12 +154,12 @@ C always the Y array.
       ELSE
         IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
           CALL MLTR1_EH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
      &                  WORK(lg_Y),NAS2,1,NIS2)
         ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
           CALL MLTR1_GH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
      &                  WORK(lg_Y),NAS2,1,NIS2)
         END IF
@@ -167,12 +167,12 @@ C always the Y array.
 #else
       IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
         CALL MLTR1_EH(IMLTOP,LST1,
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                X,NAS1,NIS1,JXOFF,
      &                F,NFI,NFJ,
      &                WORK(lg_Y),NAS2,1,NIS2)
       ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
         CALL MLTR1_GH(IMLTOP,LST1,
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                X,NAS1,NIS1,JXOFF,
      &                F,NFI,NFJ,
      &                WORK(lg_Y),NAS2,1,NIS2)
       END IF
