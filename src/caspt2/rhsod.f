@@ -201,11 +201,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use PrintLevel, only: debug
       use caspt2_data, only: FIMO
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOBRA(8,8), IOKET(8,8)
+      INTEGER IVEC
+
+      INTEGER IOBRA(8,8), IOKET(8,8)
+      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -228,11 +232,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_SIZE(3,NBRA,IOBRA)
       CALL CHOVEC_SIZE(2,NKET,IOKET)
 
-      CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NBRA)
-      CALL GETMEM('KETBUF','ALLO','REAL',LKET,NKET)
+      CALL mma_allocate(BRA,NBRA,LABEL='BRA')
+      CALL mma_allocate(KET,NKET,LABEL='KET')
 
-      CALL CHOVEC_READ(3,Work(LBRA),NBRA)
-      CALL CHOVEC_READ(2,Work(LKET),NKET)
+      CALL CHOVEC_READ(3,BRA,NBRA)
+      CALL CHOVEC_READ(2,KET,NKET)
 
       ICASE=4
 ************************************************************************
@@ -270,9 +274,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYT)) ! JSYM=ISYT*ISYI=ISYU*ISYV
             IAT=IA-1+NSSH(ISYA)*(IT-1)
             IVX=IV-1+NASH(ISYV)*(IX-1)
-            IOFFAT=LBRA+IOBRA(ISYA,ISYT)+NV*IAT
-            IOFFVX=LKET+IOKET(ISYV,ISYX)+NV*IVX
-            ATVX=DDOT_(NV,WORK(IOFFAT),1,WORK(IOFFVX),1)
+            IOFFAT=1+IOBRA(ISYA,ISYT)+NV*IAT
+            IOFFVX=1+IOKET(ISYV,ISYX)+NV*IVX
+            ATVX=DDOT_(NV,BRA(IOFFAT),1,KET(IOFFVX),1)
 
 ! W(tvx,a) = (at,vx) + (FIMO(a,t)-Sum_u(au,ut))*delta(v,x)/NACTEL
 ! write element W(tvx,j), only the (at,vx) part
@@ -311,8 +315,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('BRABUF','FREE','REAL',LBRA,NBRA)
-      CALL GETMEM('KETBUF','FREE','REAL',LKET,NKET)
+      CALL mma_deallocate(BRA)
+      CALL mma_deallocate(KET)
 
       RETURN
       END
@@ -324,11 +328,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOSYM(8,8)
+      INTEGER IVEC
+
+      INTEGER IOSYM(8,8)
+      REAL*8, ALLOCATABLE:: CHOBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -355,9 +363,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ************************************************************************
       CALL CHOVEC_SIZE(1,NCHOBUF,IOSYM)
 
-      CALL GETMEM('CHOBUF','ALLO','REAL',LCHOBUF,NCHOBUF)
+      CALL mma_allocate(CHOBUF,NCHOBUF,LABEL='CHOBUF')
 
-      CALL CHOVEC_READ(1,WORK(LCHOBUF),NCHOBUF)
+      CALL CHOVEC_READ(1,CHOBUF,NCHOBUF)
 
       iCASE=2
 ************************************************************************
@@ -398,16 +406,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYT,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             ITJ=IT-1+NASH(ISYT)*(IJ-1)
             IVL=IV-1+NASH(ISYV)*(IL-1)
-            IOFFTJ=LCHOBUF+IOSYM(ISYT,ISYJ)+NV*ITJ
-            IOFFVL=LCHOBUF+IOSYM(ISYV,ISYL)+NV*IVL
-            TJVL=DDOT_(NV,WORK(IOFFTJ),1,WORK(IOFFVL),1)
+            IOFFTJ=1+IOSYM(ISYT,ISYJ)+NV*ITJ
+            IOFFVL=1+IOSYM(ISYV,ISYL)+NV*IVL
+            TJVL=DDOT_(NV,CHOBUF(IOFFTJ),1,CHOBUF(IOFFVL),1)
 
             NV=NVTOT_CHOSYM(MUL(ISYT,ISYL))
             ITL=IT-1+NASH(ISYT)*(IL-1)
             IVJ=IV-1+NASH(ISYV)*(IJ-1)
-            IOFFTL=LCHOBUF+IOSYM(ISYT,ISYL)+NV*ITL
-            IOFFVJ=LCHOBUF+IOSYM(ISYV,ISYJ)+NV*IVJ
-            TLVJ=DDOT_(NV,WORK(IOFFTL),1,WORK(IOFFVJ),1)
+            IOFFTL=1+IOSYM(ISYT,ISYL)+NV*ITL
+            IOFFVJ=1+IOSYM(ISYV,ISYJ)+NV*IVJ
+            TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
             SCL=0.5D0
@@ -469,16 +477,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYT,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             ITJ=IT-1+NASH(ISYT)*(IJ-1)
             IVL=IV-1+NASH(ISYV)*(IL-1)
-            IOFFTJ=LCHOBUF+IOSYM(ISYT,ISYJ)+NV*ITJ
-            IOFFVL=LCHOBUF+IOSYM(ISYV,ISYL)+NV*IVL
-            TJVL=DDOT_(NV,WORK(IOFFTJ),1,WORK(IOFFVL),1)
+            IOFFTJ=1+IOSYM(ISYT,ISYJ)+NV*ITJ
+            IOFFVL=1+IOSYM(ISYV,ISYL)+NV*IVL
+            TJVL=DDOT_(NV,CHOBUF(IOFFTJ),1,CHOBUF(IOFFVL),1)
 
             NV=NVTOT_CHOSYM(MUL(ISYT,ISYL))
             ITL=IT-1+NASH(ISYT)*(IL-1)
             IVJ=IV-1+NASH(ISYV)*(IJ-1)
-            IOFFTL=LCHOBUF+IOSYM(ISYT,ISYL)+NV*ITL
-            IOFFVJ=LCHOBUF+IOSYM(ISYV,ISYJ)+NV*IVJ
-            TLVJ=DDOT_(NV,WORK(IOFFTL),1,WORK(IOFFVJ),1)
+            IOFFTL=1+IOSYM(ISYT,ISYL)+NV*ITL
+            IOFFVJ=1+IOSYM(ISYV,ISYJ)+NV*IVJ
+            TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
             SCL=0.5D0
@@ -499,7 +507,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('CHOBUF','FREE','REAL',LCHOBUF,NCHOBUF)
+      CALL mma_deallocate(CHOBUF)
 
       RETURN
       END
@@ -511,11 +519,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOSYM(8,8)
+      INTEGER IVEC
+
+      INTEGER IOSYM(8,8)
+      REAL*8, ALLOCATABLE:: CHOBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -541,9 +553,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ************************************************************************
       CALL CHOVEC_SIZE(3,NCHOBUF,IOSYM)
 
-      CALL GETMEM('CHOBUF','ALLO','REAL',LCHOBUF,NCHOBUF)
+      CALL mma_allocate(CHOBUF,NCHOBUF,LABEL='CHOBUF')
 
-      CALL CHOVEC_READ(3,WORK(LCHOBUF),NCHOBUF)
+      CALL CHOVEC_READ(3,CHOBUF,NCHOBUF)
 
       iCASE=8
 ************************************************************************
@@ -584,16 +596,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYT)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAT=IA-1+NSSH(ISYA)*(IT-1)
             ICV=IC-1+NSSH(ISYC)*(IV-1)
-            IOFFAT=LCHOBUF+IOSYM(ISYA,ISYT)+NV*IAT
-            IOFFCV=LCHOBUF+IOSYM(ISYC,ISYV)+NV*ICV
-            ATCV=DDOT_(NV,WORK(IOFFAT),1,WORK(IOFFCV),1)
+            IOFFAT=1+IOSYM(ISYA,ISYT)+NV*IAT
+            IOFFCV=1+IOSYM(ISYC,ISYV)+NV*ICV
+            ATCV=DDOT_(NV,CHOBUF(IOFFAT),1,CHOBUF(IOFFCV),1)
 
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYV)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAV=IA-1+NSSH(ISYA)*(IV-1)
             ICT=IC-1+NSSH(ISYC)*(IT-1)
-            IOFFAV=LCHOBUF+IOSYM(ISYA,ISYV)+NV*IAV
-            IOFFCT=LCHOBUF+IOSYM(ISYC,ISYT)+NV*ICT
-            AVCT=DDOT_(NV,WORK(IOFFAV),1,WORK(IOFFCT),1)
+            IOFFAV=1+IOSYM(ISYA,ISYV)+NV*IAV
+            IOFFCT=1+IOSYM(ISYC,ISYT)+NV*ICT
+            AVCT=DDOT_(NV,CHOBUF(IOFFAV),1,CHOBUF(IOFFCT),1)
 
 ! FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
             SCL=0.5D0
@@ -655,16 +667,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYT)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAT=IA-1+NSSH(ISYA)*(IT-1)
             ICV=IC-1+NSSH(ISYC)*(IV-1)
-            IOFFAT=LCHOBUF+IOSYM(ISYA,ISYT)+NV*IAT
-            IOFFCV=LCHOBUF+IOSYM(ISYC,ISYV)+NV*ICV
-            ATCV=DDOT_(NV,WORK(IOFFAT),1,WORK(IOFFCV),1)
+            IOFFAT=1+IOSYM(ISYA,ISYT)+NV*IAT
+            IOFFCV=1+IOSYM(ISYC,ISYV)+NV*ICV
+            ATCV=DDOT_(NV,CHOBUF(IOFFAT),1,CHOBUF(IOFFCV),1)
 
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYV)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAV=IA-1+NSSH(ISYA)*(IV-1)
             ICT=IC-1+NSSH(ISYC)*(IT-1)
-            IOFFAV=LCHOBUF+IOSYM(ISYA,ISYV)+NV*IAV
-            IOFFCT=LCHOBUF+IOSYM(ISYC,ISYT)+NV*ICT
-            AVCT=DDOT_(NV,WORK(IOFFAV),1,WORK(IOFFCT),1)
+            IOFFAV=1+IOSYM(ISYA,ISYV)+NV*IAV
+            IOFFCT=1+IOSYM(ISYC,ISYT)+NV*ICT
+            AVCT=DDOT_(NV,CHOBUF(IOFFAV),1,CHOBUF(IOFFCT),1)
 
 ! FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
             SCL=0.5D0
@@ -685,7 +697,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('CHOBUF','FREE','REAL',LCHOBUF,NCHOBUF)
+      CALL mma_deallocate(CHOBUF)
 
       RETURN
       END
@@ -697,11 +709,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOSYM(8,8)
+      INTEGER IVEC
+
+      INTEGER IOSYM(8,8)
+      REAL*8, ALLOCATABLE:: CHOBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -728,9 +744,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ************************************************************************
       CALL CHOVEC_SIZE(4,NCHOBUF,IOSYM)
 
-      CALL GETMEM('CHOBUF','ALLO','REAL',LCHOBUF,NCHOBUF)
+      CALL mma_allocate(CHOBUF,NCHOBUF,LABEL='CHOBUF')
 
-      CALL CHOVEC_READ(4,WORK(LCHOBUF),NCHOBUF)
+      CALL CHOVEC_READ(4,CHOBUF,NCHOBUF)
 
       iCASE=12
 ************************************************************************
@@ -771,16 +787,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             IAJ=IA-1+NSSH(ISYA)*(IJ-1)
             ICL=IC-1+NSSH(ISYC)*(IL-1)
-            IOFFAJ=LCHOBUF+IOSYM(ISYA,ISYJ)+NV*IAJ
-            IOFFCL=LCHOBUF+IOSYM(ISYC,ISYL)+NV*ICL
-            AJCL=DDOT_(NV,WORK(IOFFAJ),1,WORK(IOFFCL),1)
+            IOFFAJ=1+IOSYM(ISYA,ISYJ)+NV*IAJ
+            IOFFCL=1+IOSYM(ISYC,ISYL)+NV*ICL
+            AJCL=DDOT_(NV,CHOBUF(IOFFAJ),1,CHOBUF(IOFFCL),1)
 
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
             IAL=IA-1+NSSH(ISYA)*(IL-1)
             ICJ=IC-1+NSSH(ISYC)*(IJ-1)
-            IOFFAL=LCHOBUF+IOSYM(ISYA,ISYL)+NV*IAL
-            IOFFCJ=LCHOBUF+IOSYM(ISYC,ISYJ)+NV*ICJ
-            ALCJ=DDOT_(NV,WORK(IOFFAL),1,WORK(IOFFCJ),1)
+            IOFFAL=1+IOSYM(ISYA,ISYL)+NV*IAL
+            IOFFCJ=1+IOSYM(ISYC,ISYJ)+NV*ICJ
+            ALCJ=DDOT_(NV,CHOBUF(IOFFAL),1,CHOBUF(IOFFCJ),1)
 
 ! HP(ac,jl)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
             SCL=1.0D0
@@ -842,16 +858,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             IAJ=IA-1+NSSH(ISYA)*(IJ-1)
             ICL=IC-1+NSSH(ISYC)*(IL-1)
-            IOFFAJ=LCHOBUF+IOSYM(ISYA,ISYJ)+NV*IAJ
-            IOFFCL=LCHOBUF+IOSYM(ISYC,ISYL)+NV*ICL
-            AJCL=DDOT_(NV,WORK(IOFFAJ),1,WORK(IOFFCL),1)
+            IOFFAJ=1+IOSYM(ISYA,ISYJ)+NV*IAJ
+            IOFFCL=1+IOSYM(ISYC,ISYL)+NV*ICL
+            AJCL=DDOT_(NV,CHOBUF(IOFFAJ),1,CHOBUF(IOFFCL),1)
 
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
             IAL=IA-1+NSSH(ISYA)*(IL-1)
             ICJ=IC-1+NSSH(ISYC)*(IJ-1)
-            IOFFAL=LCHOBUF+IOSYM(ISYA,ISYL)+NV*IAL
-            IOFFCJ=LCHOBUF+IOSYM(ISYC,ISYJ)+NV*ICJ
-            ALCJ=DDOT_(NV,WORK(IOFFAL),1,WORK(IOFFCJ),1)
+            IOFFAL=1+IOSYM(ISYA,ISYL)+NV*IAL
+            IOFFCJ=1+IOSYM(ISYC,ISYJ)+NV*ICJ
+            ALCJ=DDOT_(NV,CHOBUF(IOFFAL),1,CHOBUF(IOFFCJ),1)
 
 ! HP(ac,jl)=((ajcl)-(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
             SCL=SQRT3
@@ -870,7 +886,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('CHOBUF','FREE','REAL',LCHOBUF,NCHOBUF)
+      CALL mma_deallocate(CHOBUF)
 
       RETURN
       END
@@ -884,11 +900,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_data, only: FIMO
       use PrintLevel, only: debug
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
+      INTEGER IVEC
+
+      INTEGER IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
+      REAL*8, ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
+     &                      BRABUF2(:), KETBUF2(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -913,20 +934,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_SIZE(4,NBRABUF1,IOBRA1)
       CALL CHOVEC_SIZE(2,NKETBUF1,IOKET1)
 
-      CALL GETMEM('BRABUF1','ALLO','REAL',LBRABUF1,NBRABUF1)
-      CALL GETMEM('KETBUF1','ALLO','REAL',LKETBUF1,NKETBUF1)
+      CALL mma_allocate(BRABUF1,NBRABUF1,LABEL='BRABUF1')
+      CALL mma_allocate(KETBUF1,NKETBUF1,LABEL='KETBUF1')
 
-      CALL CHOVEC_READ(4,WORK(LBRABUF1),NBRABUF1)
-      CALL CHOVEC_READ(2,WORK(LKETBUF1),NKETBUF1)
+      CALL CHOVEC_READ(4,BRABUF1,NBRABUF1)
+      CALL CHOVEC_READ(2,KETBUF1,NKETBUF1)
 
       CALL CHOVEC_SIZE(3,NBRABUF2,IOBRA2)
       CALL CHOVEC_SIZE(1,NKETBUF2,IOKET2)
 
-      CALL GETMEM('BRABUF2','ALLO','REAL',LBRABUF2,NBRABUF2)
-      CALL GETMEM('KETBUF2','ALLO','REAL',LKETBUF2,NKETBUF2)
+      CALL mma_allocate(BRABUF2,NBRABUF2,LABEL='BRABUF2')
+      CALL mma_allocate(KETBUF2,NKETBUF2,LABEL='KETBUF2')
 
-      CALL CHOVEC_READ(3,WORK(LBRABUF2),NBRABUF2)
-      CALL CHOVEC_READ(1,WORK(LKETBUF2),NKETBUF2)
+      CALL CHOVEC_READ(3,BRABUF2,NBRABUF2)
+      CALL CHOVEC_READ(1,KETBUF2,NKETBUF2)
 
       iCASE=5
 ************************************************************************
@@ -981,9 +1002,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ))
             IOAJ=IA-1+NSSH(ISYA)*(IJ-1)
             IOTV=IT-1+NASH(ISYT)*(IV-1)
-            IOFFAJ=LBRABUF1+IOBRA1(ISYA,ISYJ)+NV*IOAJ
-            IOFFTV=LKETBUF1+IOKET1(ISYT,ISYV)+NV*IOTV
-            AJTV=DDOT_(NV,WORK(IOFFAJ),1,WORK(IOFFTV),1)
+            IOFFAJ=1+IOBRA1(ISYA,ISYJ)+NV*IOAJ
+            IOFFTV=1+IOKET1(ISYT,ISYV)+NV*IOTV
+            AJTV=DDOT_(NV,BRABUF1(IOFFAJ),1,KETBUF1(IOFFTV),1)
 
 ! D1(tv,aj)=(aj,tv) + FIMO(a,j)*Kron(t,v)/NACTEL
 ! integrals only
@@ -1012,9 +1033,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYA,ISYV))
             IOAV=IA-1+NSSH(ISYA)*(IV-1)
             IOTJ=IT-1+NASH(ISYT)*(IJ-1)
-            IOFFAV=LBRABUF2+IOBRA2(ISYA,ISYV)+NV*IOAV
-            IOFFTJ=LKETBUF2+IOKET2(ISYT,ISYJ)+NV*IOTJ
-            AVTJ=DDOT_(NV,WORK(IOFFAV),1,WORK(IOFFTJ),1)
+            IOFFAV=1+IOBRA2(ISYA,ISYV)+NV*IOAV
+            IOFFTJ=1+IOKET2(ISYT,ISYJ)+NV*IOTJ
+            AVTJ=DDOT_(NV,BRABUF2(IOFFAV),1,KETBUF2(IOFFTJ),1)
 
 ! D2(tv,aj)=(av,tj) + FIMO(a,j)*Kron(t,v)/NACTEL
             IDX=ITV+NAS*(IAJ-IISTA)
@@ -1031,11 +1052,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('BRABUF1','FREE','REAL',LBRABUF1,NBRABUF1)
-      CALL GETMEM('KETBUF1','FREE','REAL',LKETBUF1,NKETBUF1)
+      CALL mma_deallocate(BRABUF1)
+      CALL mma_deallocate(KETBUF1)
 
-      CALL GETMEM('BRABUF2','FREE','REAL',LBRABUF2,NBRABUF2)
-      CALL GETMEM('KETBUF2','FREE','REAL',LKETBUF2,NKETBUF2)
+      CALL mma_deallocate(BRABUF2)
+      CALL mma_deallocate(KETBUF2)
 
 ************************************************************************
 
@@ -1049,11 +1070,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOBRA(8,8), IOKET(8,8)
+      INTEGER IVEC
+
+      INTEGER IOBRA(8,8), IOKET(8,8)
+      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1089,11 +1114,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_SIZE(4,NBRABUF,IOBRA)
       CALL CHOVEC_SIZE(1,NKETBUF,IOKET)
 
-      CALL GETMEM('BRABUF','ALLO','REAL',LBRABUF,NBRABUF)
-      CALL GETMEM('KETBUF','ALLO','REAL',LKETBUF,NKETBUF)
+      CALL mma_allocate(BRABUF,NBRABUF,LABEL='BRABUF')
+      CALL mma_allocate(KETBUF,NKETBUF,LABEL='KETBUF')
 
-      CALL CHOVEC_READ(4,WORK(LBRABUF),NBRABUF)
-      CALL CHOVEC_READ(1,WORK(LKETBUF),NKETBUF)
+      CALL CHOVEC_READ(4,BRABUF,NBRABUF)
+      CALL CHOVEC_READ(1,KETBUF,NKETBUF)
 
       iCASE=6
 ************************************************************************
@@ -1141,16 +1166,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ))
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
               IVL=IV-1+NASH(ISYV)*(IL-1)
-              IOFFAJ=LBRABUF+IOBRA(ISYA,ISYJ)+NV*IAJ
-              IOFFVL=LKETBUF+IOKET(ISYV,ISYL)+NV*IVL
-              AJVL=DDOT_(NV,WORK(IOFFAJ),1,WORK(IOFFVL),1)
+              IOFFAJ=1+IOBRA(ISYA,ISYJ)+NV*IAJ
+              IOFFVL=1+IOKET(ISYV,ISYL)+NV*IVL
+              AJVL=DDOT_(NV,BRABUF(IOFFAJ),1,KETBUF(IOFFVL),1)
 
               NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
               IAL=IA-1+NSSH(ISYA)*(IL-1)
               IVJ=IV-1+NASH(ISYV)*(IJ-1)
-              IOFFAL=LBRABUF+IOBRA(ISYA,ISYL)+NV*IAL
-              IOFFVJ=LKETBUF+IOKET(ISYV,ISYJ)+NV*IVJ
-              ALVJ=DDOT_(NV,WORK(IOFFAL),1,WORK(IOFFVJ),1)
+              IOFFAL=1+IOBRA(ISYA,ISYL)+NV*IAL
+              IOFFVJ=1+IOKET(ISYV,ISYJ)+NV*IVJ
+              ALVJ=DDOT_(NV,BRABUF(IOFFAL),1,KETBUF(IOFFVJ),1)
 
 ! EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
               IF (ILABS.EQ.IJABS) THEN
@@ -1224,16 +1249,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ))
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
               IVL=IV-1+NASH(ISYV)*(IL-1)
-              IOFFAJ=LBRABUF+IOBRA(ISYA,ISYJ)+NV*IAJ
-              IOFFVL=LKETBUF+IOKET(ISYV,ISYL)+NV*IVL
-              AJVL=DDOT_(NV,WORK(IOFFAJ),1,WORK(IOFFVL),1)
+              IOFFAJ=1+IOBRA(ISYA,ISYJ)+NV*IAJ
+              IOFFVL=1+IOKET(ISYV,ISYL)+NV*IVL
+              AJVL=DDOT_(NV,BRABUF(IOFFAJ),1,KETBUF(IOFFVL),1)
 
               NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
               IAL=IA-1+NSSH(ISYA)*(IL-1)
               IVJ=IV-1+NASH(ISYV)*(IJ-1)
-              IOFFAL=LBRABUF+IOBRA(ISYA,ISYL)+NV*IAL
-              IOFFVJ=LKETBUF+IOKET(ISYV,ISYJ)+NV*IVJ
-              ALVJ=DDOT_(NV,WORK(IOFFAL),1,WORK(IOFFVJ),1)
+              IOFFAL=1+IOBRA(ISYA,ISYL)+NV*IAL
+              IOFFVJ=1+IOKET(ISYV,ISYJ)+NV*IVJ
+              ALVJ=DDOT_(NV,BRABUF(IOFFAL),1,KETBUF(IOFFVJ),1)
 
 ! EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
               EM=SQRTA*(AJVL-ALVJ)
@@ -1254,8 +1279,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('BRABUF','FREE','REAL',LBRABUF,NBRABUF)
-      CALL GETMEM('KETBUF','FREE','REAL',LKETBUF,NKETBUF)
+      CALL mma_deallocate(BRABUF)
+      CALL mma_deallocate(KETBUF)
 
       RETURN
       END
@@ -1267,11 +1292,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOBRA(8,8), IOKET(8,8)
+      INTEGER IVEC
+
+      INTEGER IOBRA(8,8), IOKET(8,8)
+      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1307,8 +1336,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_SIZE(3,NBRABUF,IOBRA)
       CALL CHOVEC_SIZE(4,NKETBUF,IOKET)
 
-      CALL GETMEM('BRABUF','ALLO','REAL',LBRABUF,NBRABUF)
-      CALL GETMEM('KETBUF','ALLO','REAL',LKETBUF,NKETBUF)
+      CALL mma_allocate(BRABUF,NBRABUF,LABEL='BRABUF')
+      CALL mma_allocate(KETBUF,NKETBUF,LABEL='KETBUF')
 
       CALL CHOVEC_READ(3,WORK(LBRABUF),NBRABUF)
       CALL CHOVEC_READ(4,WORK(LKETBUF),NKETBUF)
@@ -1359,16 +1388,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               NV=NVTOT_CHOSYM(MUL(ISYA,ISYV))
               IAV=IA-1+NSSH(ISYA)*(IV-1)
               ICJ=IC-1+NSSH(ISYC)*(IJ-1)
-              IOFFAV=LBRABUF+IOBRA(ISYA,ISYV)+NV*IAV
-              IOFFCJ=LKETBUF+IOKET(ISYC,ISYJ)+NV*ICJ
-              AVCJ=DDOT_(NV,WORK(IOFFAV),1,WORK(IOFFCJ),1)
+              IOFFAV=1+IOBRA(ISYA,ISYV)+NV*IAV
+              IOFFCJ=1+IOKET(ISYC,ISYJ)+NV*ICJ
+              AVCJ=DDOT_(NV,BRABUF(IOFFAV),1,KETBUF(IOFFCJ),1)
 
               NV=NVTOT_CHOSYM(MUL(ISYC,ISYV))
               ICV=IC-1+NSSH(ISYC)*(IV-1)
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
-              IOFFCV=LBRABUF+IOBRA(ISYC,ISYV)+NV*ICV
-              IOFFAJ=LKETBUF+IOKET(ISYA,ISYJ)+NV*IAJ
-              CVAJ=DDOT_(NV,WORK(IOFFCV),1,WORK(IOFFAJ),1)
+              IOFFCV=1+IOBRA(ISYC,ISYV)+NV*ICV
+              IOFFAJ=1+IOKET(ISYA,ISYJ)+NV*IAJ
+              CVAJ=DDOT_(NV,BRABUF(IOFFCV),1,KETBUF(IOFFAJ),1)
 
 C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
               IF (IAABS.EQ.ICABS) THEN
@@ -1442,16 +1471,16 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
               NV=NVTOT_CHOSYM(MUL(ISYA,ISYV))
               IAV=IA-1+NSSH(ISYA)*(IV-1)
               ICJ=IC-1+NSSH(ISYC)*(IJ-1)
-              IOFFAV=LBRABUF+IOBRA(ISYA,ISYV)+NV*IAV
-              IOFFCJ=LKETBUF+IOKET(ISYC,ISYJ)+NV*ICJ
-              AVCJ=DDOT_(NV,WORK(IOFFAV),1,WORK(IOFFCJ),1)
+              IOFFAV=1+IOBRA(ISYA,ISYV)+NV*IAV
+              IOFFCJ=1+IOKET(ISYC,ISYJ)+NV*ICJ
+              AVCJ=DDOT_(NV,BRABUF(IOFFAV),1,KETBUF(IOFFCJ),1)
 
               NV=NVTOT_CHOSYM(MUL(ISYC,ISYV))
               ICV=IC-1+NSSH(ISYC)*(IV-1)
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
-              IOFFCV=LBRABUF+IOBRA(ISYC,ISYV)+NV*ICV
-              IOFFAJ=LKETBUF+IOKET(ISYA,ISYJ)+NV*IAJ
-              CVAJ=DDOT_(NV,WORK(IOFFCV),1,WORK(IOFFAJ),1)
+              IOFFCV=1+IOBRA(ISYC,ISYV)+NV*ICV
+              IOFFAJ=1+IOKET(ISYA,ISYJ)+NV*IAJ
+              CVAJ=DDOT_(NV,BRABUF(IOFFCV),1,KETBUF(IOFFAJ),1)
 
 C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
               GM=SQRTA*(AVCJ-CVAJ)
@@ -1472,8 +1501,8 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
       END DO
 ************************************************************************
 
-      CALL GETMEM('BRABUF','FREE','REAL',LBRABUF,NBRABUF)
-      CALL GETMEM('KETBUF','FREE','REAL',LKETBUF,NKETBUF)
+      CALL mma_deallocate(BRABUF)
+      CALL mma_deallocate(KETBUF)
 
       RETURN
       END
