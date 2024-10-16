@@ -86,11 +86,15 @@
       use PrintLevel, only: debug
       use caspt2_data, only: FIMO
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION IOBRA(8,8), IOKET(8,8)
+      INTEGER IVEC
+
+      INTEGER IOBRA(8,8), IOKET(8,8)
+      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -113,11 +117,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_SIZE(1,NBRA,IOBRA)
       CALL CHOVEC_SIZE(2,NKET,IOKET)
 
-      CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NBRA)
-      CALL GETMEM('KETBUF','ALLO','REAL',LKET,NKET)
+      CALL mma_allocate(BRA,NBRA,LABEL='BRA')
+      CALL mma_allocate(KET,NKET,LABEL='KET')
 
-      CALL CHOVEC_READ(1,Work(LBRA),NBRA)
-      CALL CHOVEC_READ(2,WORK(LKET),NKET)
+      CALL CHOVEC_READ(1,BRA,NBRA)
+      CALL CHOVEC_READ(2,KET,NKET)
 
       ICASE=1
 ************************************************************************
@@ -155,9 +159,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             NV=NVTOT_CHOSYM(MUL(ISYT,ISYJ)) ! JSYM=ISYT*ISYI=ISYU*ISYV
             ITJ=IT-1+NASH(ISYT)*(IJ-1)
             IVX=IV-1+NASH(ISYV)*(IX-1)
-            IOFFTJ=LBRA+IOBRA(ISYT,ISYJ)+NV*ITJ
-            IOFFVX=LKET+IOKET(ISYV,ISYX)+NV*IVX
-            TJVX=DDOT_(NV,WORK(IOFFTJ),1,WORK(IOFFVX),1)
+            IOFFTJ=1+IOBRA(ISYT,ISYJ)+NV*ITJ
+            IOFFVX=1+IOKET(ISYV,ISYX)+NV*IVX
+            TJVX=DDOT_(NV,BRA(IOFFTJ),1,KET(IOFFVX),1)
 ! A(tvx,j) = (tjvx) + FIMO(t,j)*delta(v,x)/NACTEL
             IF (ISYT.EQ.ISYJ.AND.IVABS.EQ.IXABS) THEN
               ITTOT=IT+NISH(ISYT)
@@ -183,8 +187,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       END DO
 ************************************************************************
 
-      CALL GETMEM('BRABUF','FREE','REAL',LBRA,NBRA)
-      CALL GETMEM('KETBUF','FREE','REAL',LKET,NKET)
+      CALL mma_deallocate(BRA)
+      CALL mma_deallocate(KET)
 
       RETURN
       END
