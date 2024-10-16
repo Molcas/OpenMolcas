@@ -64,7 +64,7 @@ C>                   to active indices
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use gugx, only: CIS, SGS, L2ACT, EXS
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -72,7 +72,6 @@ C>                   to active indices
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
-      LOGICAL RSV_TSK
 
       INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(IN) :: CI(MXCI)
@@ -80,11 +79,11 @@ C>                   to active indices
       REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: G3(*), F3(*)
       INTEGER*1, INTENT(OUT) :: idxG3(6,*)
-      INTEGER, PARAMETER :: I1=KIND(idxG3)
 
+      INTEGER, PARAMETER :: I1=KIND(idxG3)
+      LOGICAL RSV_TSK
       REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
       REAL*8 F1SUM,F2SUM
-
       INTEGER I,J,IDX,JDX
       INTEGER IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
       INTEGER IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,IP3MX,IQ1
@@ -92,7 +91,7 @@ C>                   to active indices
       INTEGER ISTU,ISVX,ISYZ
       INTEGER IT,IU,IV,IX,IY,IZ
       INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
-      INTEGER LBUF1,LBUF2,LBUFD,LBUFT
+      INTEGER LBUF2,LBUFD,LBUFT
       INTEGER NBUF1,NBUF2,NBUFD,NBUFT
       INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
       INTEGER ISSG1,ISSG2,ISP1
@@ -116,6 +115,7 @@ C>                   to active indices
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
+      REAL*8, ALLOCATABLE:: BUF1(:,:)
 
       Integer :: nMidV
       nMidV = CIS%nMidV
@@ -197,7 +197,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       nbuf2= 1
       nbuft= 1
       nbufd= 1
-      CALL GETMEM('BUF1','ALLO','REAL',LBUF1,NBUF1*MXCI)
+      CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
       CALL GETMEM('BUF2','ALLO','REAL',LBUF2,NBUF2*MXCI)
       CALL GETMEM('BUFT','ALLO','REAL',LBUFT,NBUFT*MXCI)
       CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
@@ -347,10 +347,9 @@ C-sigma vectors in the buffer.
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
           if (.not. DoFCIQMC) then
-              lto=lbuf1+mxci*(ibuf1-1)
-              call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
+              call dcopy_(nsgm1,[0.0D0],0,BUF1(:,ibuf1),1)
               CALL SIGMA1(SGS,CIS,EXS,
-     &                    IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO))
+     &                    IULEV,ITLEV,1.0D00,STSYM,CI,BUF1(:,ibuf1))
           end if
          end if
         end do
@@ -370,12 +369,11 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               iulev=idx2ij(2,idx)
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
-              lto=lbuf1+mxci*(ib-1)
-              G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
+              G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
               IF(IFF.ne.0) then
                 F1sum=0.0D0
                 do i=1,nsgm1
-                  F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
+                  F1sum=F1sum+CI(i)*BUF1(i,ib)*work(lbufd-1+i)
                 end do
                 F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
               end if
@@ -421,12 +419,12 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
               G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,
-     &             work(lbuf1+mxci*(ib-1)),1)
+     &                                    BUF1(:,ib),1)
               IF(IFF.ne.0) THEN
                 F2sum=0.0D0
                 do i=1,nsgm1
                   F2sum=F2sum+work(lto-1+i)*work(lbufd-1+i)*
-     &                 work(lbuf1-1+i+mxci*(ib-1))
+     &                 buf1(i,ib)
                 end do
                 F2(it,iu,iy,iz)=F2sum
               END IF
@@ -473,9 +471,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
-        l1=lbuf1+mxci*(ibmn-1)
         if (.not. DoFCIQMC) then
-            call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
+            call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
      &           work(lbuft),1,0.0D0,bufr,1)
 * and distribute this result into G3:
             call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
@@ -503,7 +500,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
      &                 (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
                 end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-                call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
+                call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
      &           work(lbuft),1,0.0D0,bufr,1)
                 call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
             END IF
@@ -555,7 +552,7 @@ C-SVC20100831: set correct number of elements in new G3
 
       CALL GETMEM ('TASKLIST','FREE','INTE',lTask_List,4*mxTask)
       ! free CI buffers
-      CALL GETMEM('BUF1','FREE','REAL',LBUF1,NBUF1*MXCI)
+      CALL mma_deallocate(BUF1)
       CALL GETMEM('BUF2','FREE','REAL',LBUF2,NBUF2*MXCI)
       CALL GETMEM('BUFT','FREE','REAL',LBUFT,NBUFT*MXCI)
       CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
