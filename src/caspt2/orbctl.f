@@ -24,6 +24,7 @@
      &                       TORB
       use caspt2_data, only: LUONEM
       use ChoCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -36,6 +37,7 @@
       INTEGER I1,I2,LORBE
       INTEGER IDISK
       REAL*8  OCC_DUM(1)
+      REAL*8, ALLOCATABLE:: OrbE(:)
 
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
@@ -101,21 +103,21 @@ C Save new MO coeffs, and the transformation matrices:
       end if
 
 c Print new orbitals. First, form array of orbital energies.
-      CALL GETMEM('ORBE','ALLO','REAL',LORBE,NBAST)
+      CALL mma_allocate(ORBE,NBAST,Label='ORBE')
       I1=1
       I2=1
       DO ISYM=1,NSYM
         IF(NFRO(ISYM).GT.0) THEN
-          CALL DCOPY_(NFRO(ISYM),[0.0D0],0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NFRO(ISYM),[0.0D0],0,ORBE(I2),1)
           I2=I2+NFRO(ISYM)
         END IF
         IF(NORB(ISYM).GT.0) THEN
-          CALL DCOPY_(NORB(ISYM),EPS(I1),1,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NORB(ISYM),EPS(I1),1,ORBE(I2),1)
           I1=I1+NORB(ISYM)
           I2=I2+NORB(ISYM)
         END IF
         IF(NDEL(ISYM).GT.0) THEN
-          CALL DCOPY_(NDEL(ISYM),[0.0D0],0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NDEL(ISYM),[0.0D0],0,ORBE(I2),1)
           I2=I2+NDEL(ISYM)
         END IF
       END DO
@@ -129,7 +131,8 @@ c Then call utility routine PRIMO.
         IF(.NOT. PRORB) THEN
           WRITE(6,*)' On user''s request, the quasi-canonical orbitals'
           WRITE(6,*)' will not be printed.'
-          GOTO 99
+          CALL mma_deallocate(ORBE)
+          RETURN
         END IF
       END IF
 
@@ -144,12 +147,9 @@ C Print orbitals. Different options:
         END IF
         CALL PRIMO(' Quasi-canonical orbitals',.FALSE.,.TRUE.,
      &              THROCC,THRENE,NSYM,NBAS,NBAS,NAME,
-     &              WORK(LORBE),OCC_DUM,CMO,-1)
+     &              ORBE,OCC_DUM,CMO,-1)
       END IF
 
-  99  CONTINUE
-      CALL GETMEM('ORBE','FREE','REAL',LORBE,NBAST)
+      CALL mma_deallocate(ORBE)
 
-
-      RETURN
-      END
+      END SUBROUTINE ORBCTL
