@@ -70,8 +70,12 @@ check_tests:
   stage: .post
   interruptible: true
   script:
+    - export PROJECT_DIR=${CI_PROJECT_DIR}/${CLONED_DIR}
     - |
-      ls -l
+      if ( ! which python && which python3 ) ; then
+        sed -i -e 's/env python/env python3/' ${PROJECT_DIR}/Tools/verify/check_tests.py
+      fi
+    - ${PROJECT_DIR}/Tools/verify/check_tests.py
   rules: !reference [.test-jobs, rules]
   needs:
     - !reference [.use-clone]
