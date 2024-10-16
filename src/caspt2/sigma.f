@@ -27,6 +27,10 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+      REAL*8 :: ALPHA, BETA
+      INTEGER :: IVEC, JVEC
+
+      REAL*8, ALLOCATABLE:: SGM1(:), D1(:)
 
 C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and
@@ -146,19 +150,17 @@ C Loop over types and symmetry block of sigma vector:
           CALL GETMEM('SGM2','ALLO','REAL',LSGM2,NSGM2)
           CALL DCOPY_(NSGM2,[0.0D0],0,WORK(LSGM2),1)
 
-          NSGM1=0
-          LSGM1=1
           IF(ICASE1.EQ.1) THEN
             NSGM1=NASH(ISYM1)*NISH(ISYM1)
           ELSE IF(ICASE1.EQ.4) THEN
             NSGM1=NASH(ISYM1)*NSSH(ISYM1)
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             NSGM1=NIS1
+          ELSE
+            NSGM1=0
           END IF
-          IF(NSGM1.GT.0) THEN
-            CALL GETMEM('SGM1','ALLO','REAL',LSGM1,NSGM1)
-            CALL DCOPY_(NSGM1,[0.0D0],0,WORK(LSGM1),1)
-          END IF
+          CALL mma_allocate(SGM1,MAX(1,NSGM1),LABEL='SGM1')
+          SGM1(:)=0.0D0
 
           IMLTOP=0
           DO 200 ICASE2=ICASE1+1,NCASES
@@ -198,7 +200,7 @@ C the SGM subroutines
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 WORK(LSGM1),LSGM2,LCX,LISTS)
+     &                 SGM1,LSGM2,LCX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
@@ -217,7 +219,7 @@ C Check for colossal values of SGM2 and SGM1
               END IF
 
               IF(NSGM1.GT.0) THEN
-                XTST=DDOT_(NSGM1,WORK(LSGM1),1,WORK(LSGM1),1)
+                XTST=DDOT_(NSGM1,SGM1,1,SGM1,1)
                 IF(XTST.GT.1.0D12) THEN
                   WRITE(6,'(1x,a,6i10)')' SIGMA B2. ICASE1,ISYM1:',
      &                                              ICASE1,ISYM1
@@ -238,12 +240,12 @@ C-SVC: sum the replicate arrays:
           END DO
 
           IF (NSGM1.GT.0) THEN
-            CALL GADSUM(WORK(LSGM1),NSGM1)
+            CALL GADSUM(SGM1,NSGM1)
           END IF
 
 C       XTST2=DDOT_(NSGM2,WORK(LSGM2),1,WORK(LSGM2),1)
 C       XTST1=0.0D0
-C       IF(NSGM1.GT.0)XTST1=DDOT_(NSGM1,WORK(LSGM1),1,WORK(LSGM1),1)
+C       IF(NSGM1.GT.0)XTST1=DDOT_(NSGM1,SGM1,1,SGM1,1)
 C       WRITE(6,'(1x,a,a,i2,2f16.6)')
 C    & 'Contr. SGM2, SGM1, ',cases(icase1),isym1,xtst2,xtst1
 
@@ -252,13 +254,11 @@ C part (This requires a non-empty active space.)
           IF(NSGM1.GT.0) THEN
             FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
             IF (ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LSGM2),
-     &                  WORK(LSGM1))
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LSGM2),SGM1)
             ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LSGM2),
-     &                  WORK(LSGM1))
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LSGM2),SGM1)
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,WORK(LSGM2),WORK(LSGM1))
+              CALL SPEC1D(IMLTOP,FACT,WORK(LSGM2),SGM1)
             END IF
 
             XTST=DDOT_(NSGM2,WORK(LSGM2),1,WORK(LSGM2),1)
@@ -268,8 +268,8 @@ C part (This requires a non-empty active space.)
               GOTO 999
             END IF
 
-            CALL GETMEM('SGM1','FREE','REAL',LSGM1,NSGM1)
           END IF
+          CALL mma_deallocate(SGM1)
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
           CALL RHS_ALLO (NAS1,NIS1,lg_SGM2)
@@ -354,36 +354,33 @@ CPAM Sanity check:
           CALL RHS_FREE (NAS1,NIS1,lg_D2)
 
           ND1=0
-          LD1=1
           IMLTOP=1
           FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
           IF(ICASE1.EQ.1) THEN
             ND1=NASH(ISYM1)*NISH(ISYM1)
             IF(ND1.GT.0) THEN
-              CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,[0.0D0],0,WORK(LD1),1)
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LD2),
-     &                    WORK(LD1))
+              CALL mma_allocate(D1,ND1,Label='D1')
+              D1(:)=0.0D0
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LD2),D1)
             END IF
           ELSE IF(ICASE1.EQ.4) THEN
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
-              CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,[0.0D0],0,WORK(LD1),1)
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LD2),
-     &                    WORK(LD1))
+              CALL mma_allocate(D1,ND1,Label='D1')
+              D1(:)=0.0D0
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LD2),D1)
             END IF
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             ND1=NIS1
             IF(ND1.GT.0) THEN
-              CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,[0.0D0],0,WORK(LD1),1)
-              CALL SPEC1D(IMLTOP,FACT,WORK(LD2),WORK(LD1))
+              CALL mma_allocate(D1,ND1,Label='D1')
+              D1(:)=0.0D0
+              CALL SPEC1D(IMLTOP,FACT,WORK(LD2),D1)
             END IF
           END IF
 
           IF(ND1.GT.0) THEN
-            XTST=DDOT_(ND1,WORK(LD1),1,WORK(LD1),1)
+            XTST=DDOT_(ND1,D1,1,D1,1)
             IF(XTST.GT.1.0D12) THEN
               WRITE(6,'(1x,a,6i10)')' SIGMA G2 ICASE1,ISYM1:',
      &                                         ICASE1,ISYM1
@@ -428,7 +425,7 @@ CPAM Sanity check:
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 WORK(LD1),LD2,LSGMX,LISTS)
+     &                 D1,LD2,LSGMX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)
@@ -462,7 +459,7 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
  400        CONTINUE
  500      CONTINUE
           CALL GETMEM('D2','FREE','REAL',LD2,ND2)
-          IF(ND1.GT.0) CALL GETMEM('D1','FREE','REAL',LD1,ND1)
+          IF(ND1.GT.0) CALL mma_deallocate(D1)
  601    CONTINUE
  600  CONTINUE
 
