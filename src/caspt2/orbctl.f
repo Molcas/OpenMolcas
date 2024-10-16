@@ -34,7 +34,7 @@
       REAL*8 CMO(NCMO)
 
       INTEGER ISYM
-      INTEGER I1,I2,LORBE
+      INTEGER I1,I2
       INTEGER IDISK
       REAL*8  OCC_DUM(1)
       REAL*8, ALLOCATABLE:: OrbE(:)
