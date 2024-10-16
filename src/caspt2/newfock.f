@@ -29,7 +29,7 @@
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 
       REAL*8 D,DDVX,E,EIGVAL
-      INTEGER LDD,LDDTR,LDSQ,L2MDSQ,LINT,LSC,LSC1,LSC2,LSCR,
+      INTEGER LDDTR,L2MDSQ,LINT,LSC,LSC1,LSC2,LSCR,
      &        LEV1,LEV2,LEIG,LXAI,LXMAT,LXPQ,LXQP
       INTEGER IFGFOCK
       INTEGER I,J
@@ -44,7 +44,7 @@
       INTEGER ISYM,ISYMPQ,ISYMRS
       REAL*8 VAL,VALTU,VALUT,X
 
-      Real*8, allocatable:: INT(:)
+      Real*8, allocatable:: INT(:), DSQ(:), DD(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
 c keyword value given as input. The experimental user modifies
@@ -121,12 +121,12 @@ c Allocate memory: Integral buffer and scratch array:
         CALL GETMEM('FSCR','ALLO','REAL',LSC,NSCR)
 c Form symmetry-packed squares of density matrix DSQ, and
 c similarly (2I-DSQ)
-        CALL GETMEM('DSQ','ALLO','REAL',LDSQ,NASQT)
+        CALL mma_allocate(DSQ,NASQT,Label='DSQ')
         CALL GETMEM('2MDSQ','ALLO','REAL',L2MDSQ,NASQT)
 c Symmetry-packed triangles of D*(2I-D)
         CALL GETMEM('DDTR','ALLO','REAL',LDDTR,NATR)
 c Temporary use of single square symmetry-block:
-        CALL GETMEM('DD','ALLO','REAL',LDD,NAMX**2)
+        CALL mma_allocate(DD,NAMX**2,Label='DD')
 C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NOSQT)
         NSQES=0
@@ -140,17 +140,17 @@ C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
               D=DREF(IDREF)
               IDTU=NSQES+IT+NA*(IU-1)
               IDUT=NSQES+IU+NA*(IT-1)
-              WORK(LDSQ-1+IDTU)=D
-              WORK(LDSQ-1+IDUT)=D
+              DSQ(IDTU)=D
+              DSQ(IDUT)=D
             END DO
           END DO
           DO I=1,NA*NA
             IDTU=NSQES+I
-            WORK(L2MDSQ-1+IDTU)=-WORK(LDSQ-1+IDTU)
+            WORK(L2MDSQ-1+IDTU)=-DSQ(IDTU)
           END DO
           DO I=1,NA*NA,(NA+1)
             IDTT=NSQES+I
-            WORK(L2MDSQ-1+IDTT)=2.0D0-WORK(LDSQ-1+IDTT)
+            WORK(L2MDSQ-1+IDTT)=2.0D0-DSQ(IDTT)
           END DO
           NSQES=NSQES+NA**2
         END DO
@@ -165,11 +165,11 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
             N3=(NA*(NA+1))/2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LDSQ+NSQES),NA,
+     &                  1.0d0,DSQ(1+NSQES),NA,
      &                  WORK(L2MDSQ+NSQES),NA,
-     &                  0.0d0,WORK(LDD),NA)
-            CALL TRIANG(NA,WORK(LDD))
-            CALL DCOPY_(N3,WORK(LDD),1,WORK(LDDTR+NTRES),1)
+     &                  0.0d0,DD,NA)
+            CALL TRIANG(NA,DD)
+            CALL DCOPY_(N3,DD,1,WORK(LDDTR+NTRES),1)
             NTRES=NTRES+N3
             NSQES=NSQES+NA**2
           END IF
@@ -269,7 +269,7 @@ c the active-active block
               IX=NOSQES+NI+1+NO*NI
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
-     &                    1.0d0,WORK(LDSQ+NASQES),NA,
+     &                    1.0d0,DSQ(1+NASQES),NA,
      &                    WORK(LXMAT-1+IX),NO,
      &                    0.0d0,WORK(LSC+NA*NA),NA)
               CALL DGEMM_('N','N',
@@ -295,7 +295,7 @@ c the secondary-active block
               CALL DGEMM_('N','N',
      &                    NS,NA,NA,
      &                    1.0d0,WORK(LXMAT-1+IX),NO,
-     &                    WORK(LDSQ+NASQES),NA,
+     &                    DSQ(1+NASQES),NA,
      &                    0.0d0,WORK(LSC),NS)
               DO IA=1,NS
                 IATOT=NI+NA+IA
@@ -406,9 +406,9 @@ c
 c
         CALL GETMEM('FSCR','FREE','REAL',LSC,NSCR)
         CALL mma_deallocate(INT)
-        CALL GETMEM('DSQ','FREE','REAL',LDSQ,NASQT)
+        CALL mma_deallocate(DSQ)
         CALL GETMEM('2MDSQ','FREE','REAL',L2MDSQ,NASQT)
-        CALL GETMEM('DD','FREE','REAL',LDD,NAMX**2)
+        CALL mma_deallocate(DD)
         CALL GETMEM('DDTR','FREE','REAL',LDDTR,NATR)
         CALL GETMEM('XMAT','FREE','REAL',LXMAT,NOSQT)
  300  CONTINUE
@@ -458,5 +458,4 @@ c     EASUM = contract EPSA with diagonal of active dens.
   411   CONTINUE
   410 CONTINUE
 c
-      RETURN
-      END
+      END SUBROUTINE NEWFOCK
