@@ -91,8 +91,7 @@ C>                   to active indices
       INTEGER ISTU,ISVX,ISYZ
       INTEGER IT,IU,IV,IX,IY,IZ
       INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
-      INTEGER LBUFD
-      INTEGER NBUF1,NBUFD
+      INTEGER NBUF1
       INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
@@ -115,7 +114,7 @@ C>                   to active indices
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
-      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:)
+      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
 
       Integer :: nMidV
       nMidV = CIS%nMidV
@@ -194,11 +193,10 @@ C Special pair index idx2ij allows true RAS cases to be handled:
         nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
         nbuf1_grad = nbuf1
       end if
-      nbufd= 1
       CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
       CALL mma_allocate(BUF2,MXCI,LABEL='BUF2')
       CALL mma_allocate(BUFT,MXCI,LABEL='BUFT')
-      CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
+      CALL mma_allocate(BUFD,MXCI,LABEL='BUFD')
 
 C-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
@@ -225,7 +223,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         isp1=mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=CIS%ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),CIS%NOW,CIS%IOW,NMIDV)
+          CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,NMIDV)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -371,7 +369,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               IF(IFF.ne.0) then
                 F1sum=0.0D0
                 do i=1,nsgm1
-                  F1sum=F1sum+CI(i)*BUF1(i,ib)*work(lbufd-1+i)
+                  F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
                 end do
                 F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
               end if
@@ -419,7 +417,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
               IF(IFF.ne.0) THEN
                 F2sum=0.0D0
                 do i=1,nsgm1
-                  F2sum=F2sum+BUF2(i)*work(lbufd-1+i)*buf1(i,ib)
+                  F2sum=F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
                 end do
                 F2(it,iu,iy,iz)=F2sum
               END IF
@@ -490,7 +488,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
                 do icsf=1,nsgm1
                   buft(icsf)=
-     &                 (work(lbufd-1+icsf)-epsa(iv))*buft(icsf)
+     &                 (bufd(icsf)-epsa(iv))*buft(icsf)
                 end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
                 call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
@@ -548,7 +546,7 @@ C-SVC20100831: set correct number of elements in new G3
       CALL mma_deallocate(BUF1)
       CALL mma_deallocate(BUF2)
       CALL mma_deallocate(BUFT)
-      CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
+      CALL mma_deallocate(BUFD)
 
 C-SVC20100302: Synchronized add into the densitry matrices
 C  only for the G1 and G2 replicate arrays
