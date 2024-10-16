@@ -1339,8 +1339,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_allocate(BRABUF,NBRABUF,LABEL='BRABUF')
       CALL mma_allocate(KETBUF,NKETBUF,LABEL='KETBUF')
 
-      CALL CHOVEC_READ(3,WORK(LBRABUF),NBRABUF)
-      CALL CHOVEC_READ(4,WORK(LKETBUF),NKETBUF)
+      CALL CHOVEC_READ(3,BRABUF,NBRABUF)
+      CALL CHOVEC_READ(4,KETBUF,NKETBUF)
 
       iCASE=10
 ************************************************************************
