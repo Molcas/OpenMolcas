@@ -24,7 +24,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NFIFA, NCMO
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 
@@ -45,7 +44,7 @@
       REAL*8 VAL,VALTU,VALUT,X
 
       Real*8, allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
-     &                      TWOMDSQ(:), XMAT(:)
+     &                      TWOMDSQ(:), XMAT(:), SC(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
 c keyword value given as input. The experimental user modifies
@@ -119,7 +118,8 @@ c Allocate memory: Integral buffer and scratch array:
         CALL mma_allocate(INT,2*NINT,LABEL='INT')
         LINT=1
         LSCR=LINT+NINT
-        CALL GETMEM('FSCR','ALLO','REAL',LSC,NSCR)
+        CALL mma_allocate(SC,NSCR,Label='SC')
+        LSC=1
 c Form symmetry-packed squares of density matrix DSQ, and
 c similarly (2I-DSQ)
         CALL mma_allocate(DSQ,NASQT,Label='DSQ')
@@ -242,13 +242,13 @@ c the active-inactive block
      &                    NA,NI,NA,
      &                    1.0d0,TWOMDSQ(1+NASQES),NA,
      &                    XMAT(1+NOSQES+NI),NO,
-     &                    0.0d0,WORK(LSC),NA)
+     &                    0.0d0,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
                 DO II=1,NI
                   KFIFA=NOTRES+(ITTOT*(ITTOT-1))/2+II
                   ISC=IT+NA*(II-1)
-                  FIFA(KFIFA)=FIFA(KFIFA)-WORK(LSC-1+ISC)
+                  FIFA(KFIFA)=FIFA(KFIFA)-SC(ISC)
                 END DO
               END DO
             ENDIF
@@ -272,19 +272,19 @@ c the active-active block
      &                    NA,NA,NA,
      &                    1.0d0,DSQ(1+NASQES),NA,
      &                    XMAT(IX),NO,
-     &                    0.0d0,WORK(LSC+NA*NA),NA)
+     &                    0.0d0,SC(LSC+NA*NA),NA)
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
-     &                    1.0d0,WORK(LSC+NA*NA),NA,
+     &                    1.0d0,SC(LSC+NA*NA),NA,
      &                    TWOMDSQ(1+NASQES),NA,
-     &                    0.0d0,WORK(LSC),NA)
+     &                    0.0d0,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
                 DO IU=1,IT
                   IUTOT=NI+IU
                   KFIFA=NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
-                  VALTU=WORK(LSC-1+IT+NA*(IU-1))
-                  VALUT=WORK(LSC-1+IU+NA*(IT-1))
+                  VALTU=SC(IT+NA*(IU-1))
+                  VALUT=SC(IU+NA*(IT-1))
                   FIFA(KFIFA)=FIFA(KFIFA)-0.5D0*(VALTU+VALUT)
                 END DO
               END DO
@@ -297,13 +297,13 @@ c the secondary-active block
      &                    NS,NA,NA,
      &                    1.0d0,XMAT(IX),NO,
      &                    DSQ(1+NASQES),NA,
-     &                    0.0d0,WORK(LSC),NS)
+     &                    0.0d0,SC,NS)
               DO IA=1,NS
                 IATOT=NI+NA+IA
                 DO IT=1,NA
                   ITTOT=NI+IT
                   KFIFA=NOTRES+(IATOT*(IATOT-1))/2+ITTOT
-                  FIFA(KFIFA)=FIFA(KFIFA)-WORK(LSC-1+IA+NS*(IT-1))
+                  FIFA(KFIFA)=FIFA(KFIFA)-SC(IA+NS*(IT-1))
                 END DO
               END DO
             ENDIF
@@ -336,41 +336,41 @@ C Form the selection matrix as a temporary square matrix.
 C Compute it by spectral resolution.
 C First, form a copy of the triangular D(2I-D) matrix block,
 C and diagonalize it. The DDTR copy at LSC:
-            CALL DCOPY_(NA3,DDTR(1+NATRES),1,WORK(LSC),1)
+            CALL DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
 C A unit matrix at LEV1, to become eigenvectors:
             LEV1=LSC+NA2
-            CALL DCOPY_(NA2,[0.0D0],0,WORK(LEV1),1)
-            CALL DCOPY_(NA, [1.0D0],0,WORK(LEV1),NA+1)
+            CALL DCOPY_(NA2,[0.0D0],0,SC(LEV1),1)
+            CALL DCOPY_(NA, [1.0D0],0,SC(LEV1),NA+1)
 C A call to NIDiag diagonalizes the triangular matrix:
-            CALL NIDiag(WORK(LSC),WORK(LEV1),NA,NA)
-            CALL JACORD(WORK(LSC),WORK(LEV1),NA,NA)
+            CALL NIDiag(SC,SC(LEV1),NA,NA)
+            CALL JACORD(SC,SC(LEV1),NA,NA)
 C Make a copy of the eigenvector matrix:
             LEV2=LEV1+NA2
-            CALL DCOPY_(NA2,WORK(LEV1),1,WORK(LEV2),1)
+            CALL DCOPY_(NA2,SC(LEV1),1,SC(LEV2),1)
 C Put eigenvalues at LEIG:
             LEIG=LEV2+NA2
-            CALL VEIG(NA,WORK(LSC),WORK(LEIG))
+            CALL VEIG(NA,SC,SC(LEIG))
 C Now scale the second array of eigenvectors with any required
 C function of the eigenvalues:
             DO J=1,NA
-              EIGVAL=WORK(LEIG-1+J)
+              EIGVAL=SC(LEIG-1+J)
               IF(FOCKTYPE.EQ.'G2      ') THEN
                 X=SQRT(MAX(0.0D0,EIGVAL))
               ELSE
                 X=EIGVAL
               END IF
               DO I=1,NA
-                WORK(LEV2-1+I+NA*(J-1))=X*WORK(LEV2-1+I+NA*(J-1))
+                SC(LEV2-1+I+NA*(J-1))=X*SC(LEV2-1+I+NA*(J-1))
               END DO
             END DO
 C Now the selection matrix can be formed, at LSC:
             CALL DGEMM_('N','T',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LEV1),NA,
-     &                  WORK(LEV2),NA,
-     &                  0.0d0,WORK(LSC),NA)
+     &                  1.0d0,SC(LEV1),NA,
+     &                  SC(LEV2),NA,
+     &                  0.0d0,SC(LSC),NA)
 C Obviously, the FOCKTYPE=G3 case can be obtained by just
-C squaring the DDTR block into WORK(LSC).
+C squaring the DDTR block into SC.
 
 C Focktype=g2 or g3
             IX=NOSQES+NI+1+NO*NI
@@ -378,21 +378,21 @@ C Focktype=g2 or g3
             LSC2=LSC1+NA2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LSC),NA,
+     &                  1.0d0,SC(LSC),NA,
      &                  XMAT(IX),NO,
-     &                  0.0d0,WORK(LSC1),NA)
+     &                  0.0d0,SC(LSC1),NA)
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LSC1),NA,
-     &                  WORK(LSC),NA,
-     &                  0.0d0,WORK(LSC2),NA)
+     &                  1.0d0,SC(LSC1),NA,
+     &                  SC(LSC),NA,
+     &                  0.0d0,SC(LSC2),NA)
             DO IT=1,NA
               ITTOT=NI+IT
               DO IU=1,IT
                 IUTOT=NI+IU
                 KFIFA=NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
                 ITU=IT+NA*(IU-1)
-                FIFA(KFIFA)=FIFA(KFIFA)-WORK(LSC2-1+ITU)
+                FIFA(KFIFA)=FIFA(KFIFA)-SC(LSC2-1+ITU)
               END DO
             END DO
 c
@@ -405,7 +405,7 @@ c
         ENDIF
 c
 c
-        CALL GETMEM('FSCR','FREE','REAL',LSC,NSCR)
+        CALL mma_deallocate(SC)
         CALL mma_deallocate(INT)
         CALL mma_deallocate(DSQ)
         CALL mma_deallocate(TWOMDSQ)
