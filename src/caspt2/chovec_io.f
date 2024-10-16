@@ -137,7 +137,7 @@ C as this is how they are used to compute the integrals for RHS.
       END SUBROUTINE
 
 ************************************************************************
-      SUBROUTINE CHOVEC_READ(ICASE,LCHOBUF)
+      SUBROUTINE CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
 ************************************************************************
 * Read (transposed) cholesky vectors from disk, they
 * are indexed as CHOBUF(IVEC,IQ,IK)
@@ -148,21 +148,22 @@ C as this is how they are used to compute the integrals for RHS.
 #endif
       use caspt2_data, only: LUDRA
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
-      INTEGER :: ICASE,LCHOBUF
+      INTEGER, INTENT(IN):: ICASE, nCHOBUF
+      REAL*8, INTENT(OUT):: CHOBUF(nCHOBUF)
 
       INTEGER :: I,J,IOFF,IDISK
       INTEGER :: IB,IBSTA,IBEND,IBOFF
       INTEGER :: JSYM,ISYQ
-      INTEGER :: LBUF,NBUF,NPQ,NV,NVTOT
+      INTEGER :: NBUF,NPQ,NV,NVTOT
+      REAL*8, ALLOCATABLE:: BUF(:)
 
       IOFF=0
       DO JSYM=1,NSYM
@@ -175,46 +176,46 @@ C as this is how they are used to compute the integrals for RHS.
           DO IB=IBSTA,IBEND
             NV=NVGLB_CHOBATCH(IB)
             NBUF=NPQ*NV
-            CALL GETMEM('BUF','ALLO','REAL',LBUF,NBUF)
+            CALL mma_allocate(BUF,NBUF,LABEL='BUF')
             IDISK=IDGLB_CHOGROUP(ICASE,ISYQ,JSYM,IB)
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
               ! cholesky vectors already transposed
-              CALL DDAFILE(LUDRATOT,2,WORK(LBUF),NBUF,IDISK)
+              CALL DDAFILE(LUDRATOT,2,BUF,NBUF,IDISK)
               DO J=1,NPQ
                 DO I=1,NV
-                  WORK(LCHOBUF+IOFF+IBOFF+I-1+NVTOT*(J-1))=
-     &            WORK(LBUF+I-1+NV*(J-1))
+                  CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1))=
+     &            BUF(I+NV*(J-1))
                 END DO
               END DO
             ELSE
               ! cholesky vectors not transposed
-              CALL DDAFILE(LUDRA,2,WORK(LBUF),NBUF,IDISK)
+              CALL DDAFILE(LUDRA,2,BUF,NBUF,IDISK)
               DO J=1,NPQ
                 DO I=1,NV
-                  WORK(LCHOBUF+IOFF+IBOFF+I-1+NVTOT*(J-1))=
-     &            WORK(LBUF+J-1+NPQ*(I-1))
+                  CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1))=
+     &            BUF(J+NPQ*(I-1))
                 END DO
               END DO
             ENDIF
 #else
             ! cholesky vectors not transposed
-            CALL DDAFILE(LUDRA,2,WORK(LBUF),NBUF,IDISK)
+            CALL DDAFILE(LUDRA,2,BUF,NBUF,IDISK)
             DO J=1,NPQ
               DO I=1,NV
-                WORK(LCHOBUF+IOFF+IBOFF+I-1+NVTOT*(J-1))=
-     &            WORK(LBUF+J-1+NPQ*(I-1))
+                CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1))=
+     &            BUF(J+NPQ*(I-1))
               END DO
             END DO
 #endif
-            CALL GETMEM('BUF','FREE','REAL',LBUF,NBUF)
+            CALL mma_deallocate(BUF)
             IBOFF=IBOFF+NV
           END DO
           IOFF=IOFF+NVTOT*NPQ
         END DO
       END DO
 
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_READ
 
 ************************************************************************
       SUBROUTINE CHOVEC_SAVE(CHOBUF,ICASE,ISYQ,JSYM,IB)

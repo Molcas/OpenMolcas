@@ -116,8 +116,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NBRA)
       CALL GETMEM('KETBUF','ALLO','REAL',LKET,NKET)
 
-      CALL CHOVEC_READ(1,LBRA)
-      CALL CHOVEC_READ(2,LKET)
+      CALL CHOVEC_READ(1,Work(LBRA),NBRA)
+      CALL CHOVEC_READ(2,WORK(LKET),NKET)
 
       ICASE=1
 ************************************************************************
@@ -227,8 +227,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NBRA)
       CALL GETMEM('KETBUF','ALLO','REAL',LKET,NKET)
 
-      CALL CHOVEC_READ(3,LBRA)
-      CALL CHOVEC_READ(2,LKET)
+      CALL CHOVEC_READ(3,Work(LBRA),NBRA)
+      CALL CHOVEC_READ(2,Work(LKET),NKET)
 
       ICASE=4
 ************************************************************************
@@ -353,7 +353,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL GETMEM('CHOBUF','ALLO','REAL',LCHOBUF,NCHOBUF)
 
-      CALL CHOVEC_READ(1,LCHOBUF)
+      CALL CHOVEC_READ(1,WORK(LCHOBUF),NCHOBUF)
 
       iCASE=2
 ************************************************************************
@@ -539,7 +539,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL GETMEM('CHOBUF','ALLO','REAL',LCHOBUF,NCHOBUF)
 
-      CALL CHOVEC_READ(3,LCHOBUF)
+      CALL CHOVEC_READ(3,WORK(LCHOBUF),NCHOBUF)
 
       iCASE=8
 ************************************************************************
@@ -726,7 +726,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL GETMEM('CHOBUF','ALLO','REAL',LCHOBUF,NCHOBUF)
 
-      CALL CHOVEC_READ(4,LCHOBUF)
+      CALL CHOVEC_READ(4,WORK(LCHOBUF),NCHOBUF)
 
       iCASE=12
 ************************************************************************
@@ -912,8 +912,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL GETMEM('BRABUF1','ALLO','REAL',LBRABUF1,NBRABUF1)
       CALL GETMEM('KETBUF1','ALLO','REAL',LKETBUF1,NKETBUF1)
 
-      CALL CHOVEC_READ(4,LBRABUF1)
-      CALL CHOVEC_READ(2,LKETBUF1)
+      CALL CHOVEC_READ(4,WORK(LBRABUF1),NBRABUF1)
+      CALL CHOVEC_READ(2,WORK(LKETBUF1),NKETBUF1)
 
       CALL CHOVEC_SIZE(3,NBRABUF2,IOBRA2)
       CALL CHOVEC_SIZE(1,NKETBUF2,IOKET2)
@@ -921,8 +921,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL GETMEM('BRABUF2','ALLO','REAL',LBRABUF2,NBRABUF2)
       CALL GETMEM('KETBUF2','ALLO','REAL',LKETBUF2,NKETBUF2)
 
-      CALL CHOVEC_READ(3,LBRABUF2)
-      CALL CHOVEC_READ(1,LKETBUF2)
+      CALL CHOVEC_READ(3,WORK(LBRABUF2),NBRABUF2)
+      CALL CHOVEC_READ(1,WORK(LKETBUF2),NKETBUF2)
 
       iCASE=5
 ************************************************************************
@@ -1088,8 +1088,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL GETMEM('BRABUF','ALLO','REAL',LBRABUF,NBRABUF)
       CALL GETMEM('KETBUF','ALLO','REAL',LKETBUF,NKETBUF)
 
-      CALL CHOVEC_READ(4,LBRABUF)
-      CALL CHOVEC_READ(1,LKETBUF)
+      CALL CHOVEC_READ(4,WORK(LBRABUF),NBRABUF)
+      CALL CHOVEC_READ(1,WORK(LKETBUF),NKETBUF)
 
       iCASE=6
 ************************************************************************
@@ -1306,8 +1306,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL GETMEM('BRABUF','ALLO','REAL',LBRABUF,NBRABUF)
       CALL GETMEM('KETBUF','ALLO','REAL',LKETBUF,NKETBUF)
 
-      CALL CHOVEC_READ(3,LBRABUF)
-      CALL CHOVEC_READ(4,LKETBUF)
+      CALL CHOVEC_READ(3,WORK(LBRABUF),NBRABUF)
+      CALL CHOVEC_READ(4,WORK(LKETBUF),NKETBUF)
 
       iCASE=10
 ************************************************************************

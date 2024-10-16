@@ -190,7 +190,7 @@ C the SGM subroutines
               IF(XTST.GT.1.0D12) THEN
                 WRITE(6,'(1x,a,6i10)')' SIGMA A. ICASE2,ISYM2:',
      &                                           ICASE2,ISYM2
-                GOTO 999
+                Call Crash()
               END IF
 
 #ifdef _DEBUGPRINT_
@@ -215,7 +215,7 @@ C Check for colossal values of SGM2 and SGM1
      &                                           ICASE1,ISYM1
                 WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
      &                                           ICASE2,ISYM2
-                GOTO 999
+                CALL Crash()
               END IF
 
               IF(NSGM1.GT.0) THEN
@@ -225,7 +225,7 @@ C Check for colossal values of SGM2 and SGM1
      &                                              ICASE1,ISYM1
                   WRITE(6,'(1x,a,6i10)')'           ICASE2,ISYM2:',
      &                                              ICASE2,ISYM2
-                  GOTO 999
+                  Call Crash()
                 END IF
               END IF
 
@@ -265,7 +265,7 @@ C part (This requires a non-empty active space.)
             IF(XTST.GT.1.0D12) THEN
               WRITE(6,'(1x,a,6i10)')' SIGMA C. ICASE1,ISYM1:',
      &                                         ICASE1,ISYM1
-              GOTO 999
+              Call Crash()
             END IF
 
           END IF
@@ -285,7 +285,7 @@ C Add to sigma array. Multiply by S to  lower index.
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA D. ICASE1,ISYM1:',ICASE1,ISYM1
             WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',ICASE2,ISYM2
-            GOTO 999
+            Call Crash()
           END IF
 
 *         IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
@@ -300,7 +300,7 @@ C Add to sigma array. Multiply by S to  lower index.
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA E. ICASE1,ISYM1:',ICASE1,ISYM1
             WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',ICASE2,ISYM2
-            GOTO 999
+            Call Crash()
           END IF
 
 C Write SGMX to disk.
@@ -331,7 +331,7 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           XTST=RHS_DDOT(NAS1,NIS1,lg_CX,lg_CX)
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA F. ICASE1,ISYM1:',ICASE1,ISYM1
-            GOTO 999
+            Call Crash()
           END IF
 
           IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
@@ -346,7 +346,7 @@ CPAM Sanity check:
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA G1 ICASE1,ISYM1:',ICASE1,ISYM1
             WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',ICASE2,ISYM2
-            GOTO 999
+            Call Crash()
           END IF
 
           CALL GETMEM('D2','ALLO','REAL',LD2,ND2)
@@ -378,6 +378,7 @@ CPAM Sanity check:
               CALL SPEC1D(IMLTOP,FACT,WORK(LD2),D1)
             END IF
           END IF
+          If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
 
           IF(ND1.GT.0) THEN
             XTST=DDOT_(ND1,D1,1,D1,1)
@@ -386,7 +387,7 @@ CPAM Sanity check:
      &                                         ICASE1,ISYM1
               WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
      &                                         ICASE2,ISYM2
-              GOTO 999
+              Call Crash()
             END IF
           END IF
 
@@ -415,7 +416,7 @@ CPAM Sanity check:
 *    &                                           ICASE1,ISYM1
 *               WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
 *    &                                           ICASE2,ISYM2
-*               GOTO 999
+*               Call Crash()
 *             END IF
 
 #ifdef _DEBUGPRINT_
@@ -438,7 +439,7 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
      &                                           ICASE1,ISYM1
                 WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
      &                                           ICASE2,ISYM2
-                GOTO 999
+                Call Crash()
               END IF
 
               IF (ICASE2.NE.12 .AND. ICASE2.NE.13) THEN
@@ -459,7 +460,7 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
  400        CONTINUE
  500      CONTINUE
           CALL GETMEM('D2','FREE','REAL',LD2,ND2)
-          IF(ND1.GT.0) CALL mma_deallocate(D1)
+          CALL mma_deallocate(D1)
  601    CONTINUE
  600  CONTINUE
 
@@ -495,13 +496,14 @@ C Transform covar. sigma to eigenbasis of H0(diag):
   99  CONTINUE
       RETURN
 
- 999  CONTINUE
-C Error exit.
-      WRITE(6,*)' Colossal value detected in SIGMA.'
-      WRITE(6,*)' This implies that the thresholds used for linear'
-      WRITE(6,*)' dependence removal must be increased.'
-      WRITE(6,*)' Present values, THRSHN, THRSHS:',THRSHN,THRSHS
-      WRITE(6,*)' Use keyword THRESHOLD in input to increase these'
-      WRITE(6,*)' values and then run again.'
-      CALL ABEND()
-      END
+      CONTAINS
+      Subroutine Crash()
+         WRITE(6,*)' Colossal value detected in SIGMA.'
+         WRITE(6,*)' This implies that the thresholds used for linear'
+         WRITE(6,*)' dependence removal must be increased.'
+         WRITE(6,*)' Present values, THRSHN, THRSHS:',THRSHN,THRSHS
+         WRITE(6,*)' Use keyword THRESHOLD in input to increase these'
+         WRITE(6,*)' values and then run again.'
+         CALL ABEND()
+      END Subroutine Crash
+      END SUBROUTINE SIGMA_CASPT2
