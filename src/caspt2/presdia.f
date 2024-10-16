@@ -35,6 +35,7 @@
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -47,9 +48,10 @@
       INTEGER ICASE,ISYM
       INTEGER NAS,NIS,NIN
       INTEGER LBD,LID,lg_V
-      INTEGER ID
+      INTEGER JD
 
       REAL*8 OVL,DOVL,OVLSUM,OVLTOT
+      REAL*8, ALLOCATABLE:: BD(:), ID(:)
 
 C Apply the resolvent of the diagonal part of H0 to a coefficient
 C vector in vector nr. IVEC on LUSOLV. Put the results in vector
@@ -59,6 +61,7 @@ C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
       DO ISYM=1,NSYM
         OVLAPS(ISYM,0)=0.0D0
       END DO
+
       DO 200 ICASE=1,13
         OVLSUM=0.0D0
         DO 100 ISYM=1,NSYM
@@ -69,21 +72,21 @@ C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
           NIS=NISUP(ISYM,ICASE)
 C Remember: NIN values in BDIAG, but must read NAS for correct
 C positioning.
-          CALL GETMEM('LBD','ALLO','REAL',LBD,NAS)
-          CALL GETMEM('LID','ALLO','REAL',LID,NIS)
-          ID=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LBD),NAS,ID)
-          CALL DDAFILE(LUSBT,2,WORK(LID),NIS,ID)
+          CALL mma_allocate(BD,NAS,LABEL='BD')
+          CALL mma_allocate(ID,NIS,LABEL='ID')
+          JD=IDBMAT(ISYM,ICASE)
+          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
+          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
 
           CALL RHS_ALLO(NIN,NIS,lg_V)
           CALL RHS_READ(NIN,NIS,lg_V,ICASE,ISYM,IVEC)
-          CALL RHS_RESDIA(NIN,NIS,lg_V,WORK(LBD),WORK(LID),DOVL)
+          CALL RHS_RESDIA(NIN,NIS,lg_V,BD,ID,DOVL)
           OVL=OVL+DOVL
           CALL RHS_SAVE(NIN,NIS,lg_V,ICASE,ISYM,JVEC)
           CALL RHS_FREE(NIN,NIS,lg_V)
 
-          CALL GETMEM('LBD','FREE','REAL',LBD,NAS)
-          CALL GETMEM('LID','FREE','REAL',LID,NIS)
+          CALL mma_deallocate(BD)
+          CALL mma_deallocate(ID)
   90      CONTINUE
           OVLAPS(ISYM,0)=OVLAPS(ISYM,0)+OVL
           OVLSUM=OVLSUM+OVL
@@ -93,5 +96,4 @@ C positioning.
  200  CONTINUE
       OVLAPS(0,0)=OVLTOT
 
-      RETURN
-      END
+      END SUBROUTINE PRESDIA
