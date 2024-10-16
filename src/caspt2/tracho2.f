@@ -21,7 +21,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NCMO, NDREF
       REAL*8 CMO(NCMO),DREF(NDREF),
      &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
@@ -55,7 +54,7 @@
       REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
       REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
       REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
-      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:)
+      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
 
 ************************************************************************
 * ======================================================================
@@ -145,7 +144,8 @@ c Initialize Fock matrices in AO basis to zero:
       END DO
 * ======================================================================
       CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
-      CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
+      CALL mma_allocate(HTSPC,NHTSPC,LABEL='HTSPC')
+      IP_HTSPC=1
       IF (IF_TRNSF) THEN
        CALL mma_allocate(FTSPC,NFTSPC,LABEL='FTSPC')
       END IF
@@ -280,7 +280,7 @@ c Initialize Fock matrices in AO basis to zero:
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,Work)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC)
 * Frozen contributions to exchange:
           FactXI=-1.0D0
           ISFF=1
@@ -294,8 +294,8 @@ C ---------------------------------------------------------------------
            NB = NBAS(ISYMB)
            If (NB*NK.ne.0) Then
             CALL DGEMM_TRI('T','N',NB,NB,NK*JNUM,
-     &                  FactXI,Work(ip_HTVec(iSymk)),NK*JNUM,
-     &                  Work(ip_HTVec(iSymk)),NK*JNUM,
+     &                  FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,
+     &                  HTSPC(ip_HTVec(iSymk)),NK*JNUM,
      &                  1.0D0,FFAO(ISFF),NB)
            EndIf
            ISFF = ISFF+(NB*(NB+1))/2
@@ -306,7 +306,7 @@ C ---------------------------------------------------------------------
 * A,B are basis functions of symmetry ISYMA, ISYMB,
 * K is inactive of symmetry ISYMA, J is vector number in 1..NUMV
 * numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at WORK(IP_HTVEC(ISYMA)
+* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=MUL(ISYMA,JSYM)
@@ -316,7 +316,7 @@ C ---------------------------------------------------------------------
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,Work)
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC)
 * Inactive contributions to exchange:
           FactXI=-1.0D0
           ISFI=1
@@ -330,8 +330,8 @@ C ---------------------------------------------------------------------
            NB = NBAS(ISYMB)
            If (NB*NK.ne.0) Then
            CALL DGEMM_TRI('T','N',NB,NB,NK*JNUM,
-     &                   FactXI,Work(ip_HTVec(iSymk)),NK*JNUM,
-     &                   Work(ip_HTVec(iSymk)),NK*JNUM,
+     &                   FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,
+     &                   HTSPC(ip_HTVec(iSymk)),NK*JNUM,
      &                   1.0D0,FIAO(ISFI),NB)
            EndIf
            ISFI = ISFI+(NB*(NB+1))/2
@@ -352,7 +352,7 @@ C ---------------------------------------------------------------------
        IP_LHT=IP_HTVEC(ISYQ)
 *   Compute fully transformed TK
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,1,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
@@ -363,7 +363,7 @@ C ---------------------------------------------------------------------
 *   Compute fully transformed AK
        IF(N1*N2.GT.0) THEN
 
-C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
 
 C =SVC= modified for using boxed ordering of pairs, note that the boxed
 C routine is less efficient than the original one (loop over J values)
@@ -386,7 +386,7 @@ C with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
 C loop over secondary orbital index c is more efficient.
           CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
      &                          N,CMO(IC+N*(IASTA-1)),JNUM,
-     &                          WORK(IP_LHT),FTSPC,
+     &                          HTSPC(IP_LHT),FTSPC,
      &                          BUFFY)
          ENDDO
         ENDDO
@@ -402,7 +402,7 @@ C loop over secondary orbital index c is more efficient.
 * A,B are basis functions of symmetry ISYMA, ISYMB,
 * W is active of symmetry ISYMA, J is vector number in 1..NUMV
 * numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at WORK(IP_HTVEC(ISYMA)
+* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=MUL(ISYMA,JSYM)
@@ -412,7 +412,7 @@ C loop over secondary orbital index c is more efficient.
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CNAT,NBSQT,ISTART,NUSE,IP_HTVEC,WORK)
+     &    JSYM,JREDC,CNAT,NBSQT,ISTART,NUSE,IP_HTVEC,HTSPC)
 * Active (scaled) contributions to exchange:
       FactXA=-1.0D0
       ISFA=1
@@ -426,8 +426,8 @@ C ---------------------------------------------------------------------
        NB = NBAS(ISYMB)
        If (NB*NW.ne.0) Then
        CALL DGEMM_TRI('T','N',NB,NB,NW*JNUM,
-     &               FactXA,Work(ip_HTVec(iSymw)),NW*JNUM,
-     &               Work(ip_HTVec(iSymw)),NW*JNUM,
+     &               FactXA,HTSPC(ip_HTVec(iSymw)),NW*JNUM,
+     &               HTSPC(ip_HTVec(iSymw)),NW*JNUM,
      &               1.0D0,FAAO(ISFA),NB)
        EndIf
        ISFA = ISFA+(NB*(NB+1))/2
@@ -439,7 +439,7 @@ C ---------------------------------------------------------------------
 * ---------------------------------------------------
 * Active half-transformation:
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
+     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC)
 
 
       IF (IF_TRNSF) THEN
@@ -455,7 +455,7 @@ C ---------------------------------------------------------------------
        IP_LHT=IP_HTVEC(ISYQ)
 * Compute fully transformed TV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,2,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
@@ -465,7 +465,7 @@ C ---------------------------------------------------------------------
        IP_LHT=IP_HTVEC(ISYQ)
 *   Compute fully transformed AV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,3,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
@@ -555,7 +555,7 @@ c (It is in fact an effective one-electron Hamiltonian).
       Call mma_deallocate(DA)
 
       CALL mma_deallocate(CHSPC)
-      CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
+      CALL mma_deallocate(HTSPC)
       IF (IF_TRNSF) THEN
        CALL mma_deallocate(FTSPC)
       END IF
