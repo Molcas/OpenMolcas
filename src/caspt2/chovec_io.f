@@ -307,7 +307,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 #  include "mafdecls.fh"
       INTEGER*4 IERROR4,ITYPE
       INTEGER*4, PARAMETER :: ONE4 = 1
-      INTEGER :: LDISP,LSIZE,LRECVBUF,LTRANSP
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
       INTEGER, ALLOCATABLE:: DISP(:), SIZE(:)
       REAL*8, ALLOCATABLE:: TRANSP(:), RECVBUF(:)
