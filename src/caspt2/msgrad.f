@@ -957,7 +957,7 @@ C
         Do iState = 1, nState
 C       Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,Work(ipWRK1),1)
           Call LoadCI(WORK(LCI),iState)
-          call POLY1(WORK(LCI))
+          call POLY1(WORK(LCI),nConf)
           call GETDREF(WORK(ipWRK2),nDRef)
           Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
         End Do

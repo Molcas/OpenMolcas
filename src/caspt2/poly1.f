@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE POLY1(CI)
+      SUBROUTINE POLY1(CI,NCI)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
@@ -27,7 +27,8 @@
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
-      REAL*8, INTENT(IN) :: CI(NCONF)
+      INTEGER, INTENT(IN) :: NCI
+      REAL*8, INTENT(IN) :: CI(NCI)
 
       INTEGER I
       Integer :: nLev

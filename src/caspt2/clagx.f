@@ -1292,7 +1292,7 @@ C
               Work(LCI) = 1.0D+00
             End If
             Call GetMem('WRK','ALLO','REAL',LWRK,nAshT**2)
-            call POLY1(WORK(LCI))
+            call POLY1(WORK(LCI),nConf)
             call GETDREF(DREF,SIZE(DREF))
             Call SQUARE(DREF,Work(LWRK),1,nAshT,nAshT)
             !! probably it is doubled somewhere, so should half

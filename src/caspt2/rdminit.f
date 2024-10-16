@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      subroutine rdminit
+      subroutine rdminit()
 
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
@@ -24,6 +24,8 @@
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
+      REAL*8, ALLOCATABLE:: CI(:)
+
       if (IPRGLB.GE.DEBUG) then
         write(6,*)' Entered rdminit.'
       end if
@@ -35,7 +37,7 @@
       call ddafile(LUONEM,2,CMO,NCMO,IDISK)
 
 * Allocate memory for CI vector
-      call getmem('LCI','ALLO','REAL',LCI,Nconf)
+      call mma_allocate(CI,Nconf,Label='CI')
 
 * Initialize array of 1-RDMs with zeros
       DMIX(:,:)=0.0D0
@@ -46,14 +48,14 @@
 
         if (ISCF.NE.0) then
 * Then we still need the "CI array": It is used in subroutine calls
-          WORK(LCI)=1.0D0
+          CI(1)=1.0D0
         else
 * Get the CI array
-          call loadCI(WORK(LCI),I)
+          call loadCI(CI,I)
         end if
 
 * Compute 1-particle active density matrix GAMMA1
-        call POLY1(WORK(LCI))
+        call POLY1(CI,nConf)
 * Restructure GAMMA1 as DREF array, but keep it in DMIX
         call GETDREF(DREF,SIZE(DREF))
 
@@ -74,7 +76,7 @@
 * Deallocate everything
       call mma_deallocate(CMO_Internal)
       nullify(CMO)
-      call getmem('LCI','FREE','REAL',LCI,NCONF)
+      call mma_deallocate(CI)
 
       return
       end

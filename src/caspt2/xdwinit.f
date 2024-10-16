@@ -59,7 +59,7 @@
         end if
 
 * Compute 1-particle active density matrix GAMMA1
-        call POLY1(CI)
+        call POLY1(CI,nConf)
 
 * Restructure GAMMA1 as DREF array
         call GETDREF(DREF,SIZE(DREF))
