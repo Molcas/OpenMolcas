@@ -91,8 +91,8 @@ C>                   to active indices
       INTEGER ISTU,ISVX,ISYZ
       INTEGER IT,IU,IV,IX,IY,IZ
       INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
-      INTEGER LBUFD,LBUFT
-      INTEGER NBUF1,NBUFD,NBUFT
+      INTEGER LBUFD
+      INTEGER NBUF1,NBUFD
       INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
@@ -115,7 +115,7 @@ C>                   to active indices
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
-      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:)
+      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:)
 
       Integer :: nMidV
       nMidV = CIS%nMidV
@@ -194,11 +194,10 @@ C Special pair index idx2ij allows true RAS cases to be handled:
         nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
         nbuf1_grad = nbuf1
       end if
-      nbuft= 1
       nbufd= 1
       CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
       CALL mma_allocate(BUF2,MXCI,LABEL='BUF2')
-      CALL GETMEM('BUFT','ALLO','REAL',LBUFT,NBUFT*MXCI)
+      CALL mma_allocate(BUFT,MXCI,LABEL='BUFT')
       CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
 
 C-SVC20100301: calculate maximum number of tasks possible
@@ -436,10 +435,9 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         ix=L2ACT(ixlev)
         if(isvx.ne.mul(issg1,issg2)) goto 99
         if (.not. DoFCIQMC) then
-            lto=lbuft
-            call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
+            call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
             CALL SIGMA1(SGS,CIS,EXS,
-     &                  IVLEV,IXLEV,1.0D00,ISSG2,BUF2,WORK(LTO))
+     &                  IVLEV,IXLEV,1.0D00,ISSG2,BUF2,BUFT)
         end if
 *-----------
 * Max and min values of index p1:
@@ -468,7 +466,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 * Contract the Sgm1 wave functions with the Tau wave function.
         if (.not. DoFCIQMC) then
             call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
-     &           work(lbuft),1,0.0D0,bufr,1)
+     &           buft,1,0.0D0,bufr,1)
 * and distribute this result into G3:
             call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
 * and copy the active indices into idxG3:
@@ -491,12 +489,12 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
                 do icsf=1,nsgm1
-                  work(lbuft-1+icsf)=
-     &                 (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
+                  buft(icsf)=
+     &                 (work(lbufd-1+icsf)-epsa(iv))*buft(icsf)
                 end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
                 call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
-     &           work(lbuft),1,0.0D0,bufr,1)
+     &           buft,1,0.0D0,bufr,1)
                 call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
             END IF
         end if
@@ -549,7 +547,7 @@ C-SVC20100831: set correct number of elements in new G3
       ! free CI buffers
       CALL mma_deallocate(BUF1)
       CALL mma_deallocate(BUF2)
-      CALL GETMEM('BUFT','FREE','REAL',LBUFT,NBUFT*MXCI)
+      CALL mma_deallocate(BUFT)
       CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
 
 C-SVC20100302: Synchronized add into the densitry matrices
