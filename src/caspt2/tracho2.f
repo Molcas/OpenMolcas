@@ -41,12 +41,12 @@
       INTEGER NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
       INTEGER IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NB,NBATCH
       INTEGER IDFIJ,IDIIJ,IDAIJ
-      INTEGER IP_LFT,IP_LHT
+      INTEGER IP_LHT
       INTEGER LC,LO,LSC,LSO
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_ftspc,ip_htspc
+      INTEGER ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
@@ -55,7 +55,7 @@
       REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
       REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
       REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
-      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:)
+      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:)
 
 ************************************************************************
 * ======================================================================
@@ -147,7 +147,7 @@ c Initialize Fock matrices in AO basis to zero:
       CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
       CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
       IF (IF_TRNSF) THEN
-       CALL GETMEM('FTSPC','ALLO','REAL',IP_FTSPC,NFTSPC)
+       CALL mma_allocate(FTSPC,NFTSPC,LABEL='FTSPC')
       END IF
 * ======================================================================
 
@@ -350,22 +350,20 @@ C ---------------------------------------------------------------------
        N2=NISH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 *   Compute fully transformed TK
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
-        CALL CHOVEC_SAVE(WORK(IP_LFT),1,ISYQ,JSYM,IBATCH_TOT)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL CHOVEC_SAVE(FTSPC,1,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
        N1=NSSH(ISYP)
        N2=NISH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 *   Compute fully transformed AK
        IF(N1*N2.GT.0) THEN
 
-C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
+C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
 
 C =SVC= modified for using boxed ordering of pairs, note that the boxed
 C routine is less efficient than the original one (loop over J values)
@@ -388,12 +386,12 @@ C with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
 C loop over secondary orbital index c is more efficient.
           CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
      &                          N,CMO(IC+N*(IASTA-1)),JNUM,
-     &                          WORK(IP_LHT),WORK(IP_LFT),
+     &                          WORK(IP_LHT),FTSPC,
      &                          BUFFY)
          ENDDO
         ENDDO
         CALL mma_deallocate(BUFFY)
-        CALL CHOVEC_SAVE(WORK(IP_LFT),4,ISYQ,JSYM,IBATCH_TOT)
+        CALL CHOVEC_SAVE(FTSPC,4,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
 * End loop ISYQ
@@ -455,22 +453,20 @@ C ---------------------------------------------------------------------
        N2=NASH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 * Compute fully transformed TV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
-        CALL CHOVEC_SAVE(WORK(IP_LFT),2,ISYQ,JSYM,IBATCH_TOT)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL CHOVEC_SAVE(FTSPC,2,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
        N1=NSSH(ISYP)
        N2=NASH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 *   Compute fully transformed AV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
-        CALL CHOVEC_SAVE(WORK(IP_LFT),3,ISYQ,JSYM,IBATCH_TOT)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),FTSPC)
+        CALL CHOVEC_SAVE(FTSPC,3,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
 * End loop ISYQ
@@ -510,7 +506,6 @@ C ---------------------------------------------------------------------
       ! if using the RHS on-demand, we need all cholesky vectors on each
       ! process, collect them here
       IF (IF_TRNSF.AND.RHSDIRECT) THEN
-        IP_LFT=IP_FTSPC
         DO JSYM=1,NSYM
           IBSTA=NBTCHES(JSYM)+1
           IBEND=NBTCHES(JSYM)+NBTCH(JSYM)
@@ -519,8 +514,8 @@ C ---------------------------------------------------------------------
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
                 IF (NPQ.EQ.0) CYCLE
-                CALL CHOVEC_LOAD(WORK(IP_LFT),ICASE,ISYQ,JSYM,IB)
-                CALL CHOVEC_COLL(WORK(IP_LFT),ICASE,ISYQ,JSYM,IB)
+                CALL CHOVEC_LOAD(FTSPC,ICASE,ISYQ,JSYM,IB)
+                CALL CHOVEC_COLL(FTSPC,ICASE,ISYQ,JSYM,IB)
               END DO
             END DO
           END DO
@@ -562,7 +557,7 @@ c (It is in fact an effective one-electron Hamiltonian).
       CALL mma_deallocate(CHSPC)
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       IF (IF_TRNSF) THEN
-       CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
+       CALL mma_deallocate(FTSPC)
       END IF
 
 #ifdef _DEBUGPRINT_
