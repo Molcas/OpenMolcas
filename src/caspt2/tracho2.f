@@ -46,7 +46,7 @@
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc
+      INTEGER ip_ftspc,ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
@@ -55,6 +55,7 @@
       REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
       REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
       REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
+      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:)
 
 ************************************************************************
 * ======================================================================
@@ -143,7 +144,7 @@ c Initialize Fock matrices in AO basis to zero:
        LSC=LSC+NB**2
       END DO
 * ======================================================================
-      CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
+      CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
       CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
       IF (IF_TRNSF) THEN
        CALL GETMEM('FTSPC','ALLO','REAL',IP_FTSPC,NFTSPC)
@@ -221,8 +222,7 @@ c Initialize Fock matrices in AO basis to zero:
 
       JREDC=JRED
 * Read a batch of reduced vectors
-      CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,JV1,JV2,JSYM,
-     &                        NUMV,JREDC,MUSED)
+      CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,JSYM,NUMV,JREDC,MUSED)
       IF(NUMV.ne.JNUM) THEN
         write(6,*)' Rats! CHO_VECRD was called, assuming it to'
         write(6,*)' read JNUM vectors. Instead it returned NUMV'
@@ -242,24 +242,24 @@ c Initialize Fock matrices in AO basis to zero:
       IF (JSYM.EQ.1) THEN
 * Coulomb contribution to Fock arrays.
 * V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * D(rs)
-* Starting at Work(IP_CHSPC) is now an array of vectors, conceptually
+* Starting at CHSPC is now an array of vectors, conceptually
 * L(rs,J), where temporarily we can regard J as ranging 1..JNUM, and
 * the layout of pair indices rs is unknown ('reduced storage', a secret
 * inside cholesky.) Compute array V(J) at temporary space VEC:
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
+       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
      &            DF_RED,1,0.0D0,VEC,1)
 * F(rs){#J} <- F(rs){#J} + FactC * sum_J L(rs,{#J})*V{#J}
              FactC=1.0D0
-       CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
+       CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
      &             VEC,1,1.0D0,FF_RED,1)
 * The same thing, now for the inactive and active density matrices:
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
+       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
      &            DI_RED,1,0.0D0,VEC,1)
-       CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
+       CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
      &             VEC,1,1.0D0,FI_RED,1)
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
+       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
      &             DA_RED,1,0.0D0,VEC,1)
-       CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
+       CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
      &             VEC,1,1.0D0,FA_RED,1)
 *      write(6,*)' Finished Coulomb contributions to Fock matrix.'
 *      write(6,*)' Frozen Fock mat at FF_RED'
@@ -279,7 +279,7 @@ c Initialize Fock matrices in AO basis to zero:
        NUSE(ISYMA)=NFRO(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,Work)
 * Frozen contributions to exchange:
           FactXI=-1.0D0
@@ -315,7 +315,7 @@ C ---------------------------------------------------------------------
        NUSE(ISYMA)=NISH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,Work)
 * Inactive contributions to exchange:
           FactXI=-1.0D0
@@ -373,7 +373,7 @@ C routine is less efficient than the original one (loop over J values)
         NI=N2
 C Allocate memory for small buffer used in FULLTRNSF_BOXED
         NBUFFY=NA*NI
-        CALL GETMEM('BUFFY','ALLO','REAL',IP_BUFFY,NBUFFY)
+        CALL mma_allocate(BUFFY,NBUFFY,Label='BUFFY')
 C Loop over boxes
         DO IASTA=1,NA,nSecBX
          IAEND=MIN(IASTA-1+nSecBX,NA)
@@ -389,10 +389,10 @@ C loop over secondary orbital index c is more efficient.
           CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
      &                          N,CMO(IC+N*(IASTA-1)),JNUM,
      &                          WORK(IP_LHT),WORK(IP_LFT),
-     &                          WORK(IP_BUFFY))
+     &                          BUFFY)
          ENDDO
         ENDDO
-        CALL GETMEM('BUFFY','FREE','REAL',IP_BUFFY,NBUFFY)
+        CALL mma_deallocate(BUFFY)
         CALL CHOVEC_SAVE(WORK(IP_LFT),4,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
@@ -413,7 +413,7 @@ C loop over secondary orbital index c is more efficient.
        NUSE(ISYMA)=NASH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &    JSYM,JREDC,CNAT,NBSQT,ISTART,NUSE,IP_HTVEC,WORK)
 * Active (scaled) contributions to exchange:
       FactXA=-1.0D0
@@ -440,7 +440,7 @@ C ---------------------------------------------------------------------
 
 * ---------------------------------------------------
 * Active half-transformation:
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,WORK)
 
 
@@ -559,7 +559,7 @@ c (It is in fact an effective one-electron Hamiltonian).
       Call mma_deallocate(DI)
       Call mma_deallocate(DA)
 
-      CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
+      CALL mma_deallocate(CHSPC)
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       IF (IF_TRNSF) THEN
        CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
