@@ -29,7 +29,7 @@
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 
       REAL*8 D,DDVX,E,EIGVAL
-      INTEGER LDDTR,L2MDSQ,LINT,LSC,LSC1,LSC2,LSCR,
+      INTEGER LINT,LSC,LSC1,LSC2,LSCR,
      &        LEV1,LEV2,LEIG,LXAI,LXMAT,LXPQ,LXQP
       INTEGER IFGFOCK
       INTEGER I,J
@@ -44,7 +44,8 @@
       INTEGER ISYM,ISYMPQ,ISYMRS
       REAL*8 VAL,VALTU,VALUT,X
 
-      Real*8, allocatable:: INT(:), DSQ(:), DD(:)
+      Real*8, allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
+     &                      TWOMDSQ(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
 c keyword value given as input. The experimental user modifies
@@ -122,9 +123,9 @@ c Allocate memory: Integral buffer and scratch array:
 c Form symmetry-packed squares of density matrix DSQ, and
 c similarly (2I-DSQ)
         CALL mma_allocate(DSQ,NASQT,Label='DSQ')
-        CALL GETMEM('2MDSQ','ALLO','REAL',L2MDSQ,NASQT)
+        CALL mma_allocate(TWOMDSQ,NASQT,LABEL='TWOMDSQ')
 c Symmetry-packed triangles of D*(2I-D)
-        CALL GETMEM('DDTR','ALLO','REAL',LDDTR,NATR)
+        CALL mma_allocate(DDTR,NATR,Label='DDTR')
 c Temporary use of single square symmetry-block:
         CALL mma_allocate(DD,NAMX**2,Label='DD')
 C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
@@ -146,30 +147,30 @@ C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
           END DO
           DO I=1,NA*NA
             IDTU=NSQES+I
-            WORK(L2MDSQ-1+IDTU)=-DSQ(IDTU)
+            TWOMDSQ(IDTU)=-DSQ(IDTU)
           END DO
           DO I=1,NA*NA,(NA+1)
             IDTT=NSQES+I
-            WORK(L2MDSQ-1+IDTT)=2.0D0-DSQ(IDTT)
+            TWOMDSQ(IDTT)=2.0D0-DSQ(IDTT)
           END DO
           NSQES=NSQES+NA**2
         END DO
 c
 c Create the matrix DDTR =D(2I-D) (triangular symmetry blocks)
 C Use also temporary DD, single symmetry blocks of D*(2I-D):
-        NTRES=0
-        NSQES=0
+        NTRES=1
+        NSQES=1
         DO ISYM=1,NSYM
           NA=NASH(ISYM)
           IF(NA.GT.0) THEN
             N3=(NA*(NA+1))/2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,DSQ(1+NSQES),NA,
-     &                  WORK(L2MDSQ+NSQES),NA,
+     &                  1.0d0,DSQ(NSQES),NA,
+     &                  TWOMDSQ(NSQES),NA,
      &                  0.0d0,DD,NA)
             CALL TRIANG(NA,DD)
-            CALL DCOPY_(N3,DD,1,WORK(LDDTR+NTRES),1)
+            CALL DCOPY_(N3,DD,1,DDTR(NTRES),1)
             NTRES=NTRES+N3
             NSQES=NSQES+NA**2
           END IF
@@ -178,7 +179,7 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         CALL DCOPY_(NOSQT,[0.0D0],0,WORK(LXMAT),1)
         IF (IfChol) THEN
-          CALL Cho_Amatrix(WORK(LXMAT),CMO,NCMO,WORK(LDDTR),NATR)
+          CALL Cho_Amatrix(WORK(LXMAT),CMO,NCMO,DDTR,NATR)
         ELSE
           NOSQES=0
           DO ISYMPQ=1,NSYM
@@ -198,7 +199,7 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
                     CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,
      &                        INT,INT(LSCR))
                     IDDVX=MTRES+(IV*(IV-1))/2+IX
-                    DDVX=WORK(LDDTR-1+IDDVX)
+                    DDVX=DDTR(IDDVX)
                     IF(IR.EQ.IS) DDVX=0.5D0*DDVX
                     CALL DAXPY_(NO**2,DDVX,INT,1,
      &                                    WORK(LXMAT+NOSQES),1)
@@ -239,7 +240,7 @@ c the active-inactive block
             IF(NA*NI.GT.0) THEN
               CALL DGEMM_('N','N',
      &                    NA,NI,NA,
-     &                    1.0d0,WORK(L2MDSQ+NASQES),NA,
+     &                    1.0d0,TWOMDSQ(1+NASQES),NA,
      &                    WORK(LXMAT+NOSQES+NI),NO,
      &                    0.0d0,WORK(LSC),NA)
               DO IT=1,NA
@@ -275,7 +276,7 @@ c the active-active block
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
      &                    1.0d0,WORK(LSC+NA*NA),NA,
-     &                    WORK(L2MDSQ+NASQES),NA,
+     &                    TWOMDSQ(1+NASQES),NA,
      &                    0.0d0,WORK(LSC),NA)
               DO IT=1,NA
                 ITTOT=NI+IT
@@ -335,7 +336,7 @@ C Form the selection matrix as a temporary square matrix.
 C Compute it by spectral resolution.
 C First, form a copy of the triangular D(2I-D) matrix block,
 C and diagonalize it. The DDTR copy at LSC:
-            CALL DCOPY_(NA3,WORK(LDDTR+NATRES),1,WORK(LSC),1)
+            CALL DCOPY_(NA3,DDTR(1+NATRES),1,WORK(LSC),1)
 C A unit matrix at LEV1, to become eigenvectors:
             LEV1=LSC+NA2
             CALL DCOPY_(NA2,[0.0D0],0,WORK(LEV1),1)
@@ -407,9 +408,9 @@ c
         CALL GETMEM('FSCR','FREE','REAL',LSC,NSCR)
         CALL mma_deallocate(INT)
         CALL mma_deallocate(DSQ)
-        CALL GETMEM('2MDSQ','FREE','REAL',L2MDSQ,NASQT)
+        CALL mma_deallocate(TWOMDSQ)
         CALL mma_deallocate(DD)
-        CALL GETMEM('DDTR','FREE','REAL',LDDTR,NATR)
+        CALL mma_deallocate(DDTR)
         CALL GETMEM('XMAT','FREE','REAL',LXMAT,NOSQT)
  300  CONTINUE
 c
