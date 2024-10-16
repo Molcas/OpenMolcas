@@ -70,7 +70,6 @@ C>                   to active indices
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
 
       INTEGER, INTENT(IN) :: IFF, NLEV
@@ -92,7 +91,7 @@ C>                   to active indices
       INTEGER IT,IU,IV,IX,IY,IZ
       INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
       INTEGER NBUF1
-      INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
+      INTEGER IOFFSET
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
      &        LTASK_LIST,MXTASK,MYTASK,MYBUFFER
@@ -115,6 +114,7 @@ C>                   to active indices
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
       REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
+      INTEGER, ALLOCATABLE:: TASKLIST(:,:)
 
       Integer :: nMidV
       nMidV = CIS%nMidV
@@ -200,11 +200,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
 
 C-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
-      CALL GETMEM ('TASKLIST','ALLO','INTE',lTask_List,4*mxTask)
-      lip1sta=lTask_List
-      lip1end=lTask_List+mxTask
-      libuf1=lTask_List+2*mxTask
-      lOffSet=lTask_List+3*mxTask
+      CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -237,12 +233,12 @@ C-is basically the number of buffers we fill with sigma1 vectors.
         IF (istu.EQ.isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
-          IF (ibuf1.EQ.1) iwork(lip1sta+iTask-1)=ip1
+          IF (ibuf1.EQ.1) TaskList(iTask,1)=ip1
         ENDIF
         IF (ibuf1.EQ.nbuf1.OR.(ibuf1.GT.0.AND.
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
-            iwork(lip1end+iTask-1)=ip1_buf(ibuf1)
-            iwork(libuf1+iTask-1)=ibuf1
+            TaskList(iTask,2)=ip1_buf(ibuf1)
+            TaskList(iTask,3)=ibuf1
             iTask=iTask+1
             ibuf1=0
         ENDIF
@@ -252,9 +248,9 @@ C-is basically the number of buffers we fill with sigma1 vectors.
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
-        iWork(lOffSet+iTask-1)=iOffSet
-        ip1sta=iwork(lip1sta+iTask-1)
-        ip1end=iwork(lip1end+iTask-1)
+        TaskList(iTask,4)=iOffSet
+        ip1sta=TaskList(iTask,1)
+        ip1end=TaskList(iTask,2)
         ip3mx=ntri2
         if(ip1end.le.ntri2) ip3mx=ip1end
         if(ip1sta.gt.ntri2) ip3mx=ntri1
@@ -310,7 +306,7 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
 
       myTask=nTasks
       DO iTask=1,nTasks
-        iBuf=iSubTask-iWork(lOffSet+iTask-1)
+        iBuf=iSubTask-TaskList(iTask,4)
         IF (iBuf.LE.0) THEN
           myTask=iTask-1
           goto 666
@@ -319,13 +315,13 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
 666   continue
       iTask=myTask
 
-      iOffSet=iWork(lOffSet+iTask-1)
+      iOffSet=TaskList(iTask,4)
 
 C-SVC20100310: one task handles a range of ip1 values
 C-that are in the buffer and one ip3 value, for which
 C-a loop over ip2 values is then executed.
-      ip1sta=iWork(lip1sta+iTask-1)
-      ip1end=iWork(lip1end+iTask-1)
+      ip1sta=TaskList(iTask,1)
+      ip1end=TaskList(iTask,2)
       ip3=iSubTask-iOffSet
 
 C-SVC20100301: fill the buffer with sigma vectors if they
@@ -351,7 +347,7 @@ C-sigma vectors in the buffer.
         end do
         myBuffer=iTask
       ELSE
-        ibuf1=iWork(libuf1+iTask-1)
+        ibuf1=TaskList(iTask,3)
       ENDIF
 C-SVC20100301: necessary batch of sigma vectors is now in the buffer
       if (.not. DoFCIQMC) then
@@ -541,7 +537,7 @@ C-position 12345678901234567890
 C-SVC20100831: set correct number of elements in new G3
       NG3=iG3OFF
 
-      CALL GETMEM ('TASKLIST','FREE','INTE',lTask_List,4*mxTask)
+      CALL mma_deallocate(TASKLIST)
       ! free CI buffers
       CALL mma_deallocate(BUF1)
       CALL mma_deallocate(BUF2)
