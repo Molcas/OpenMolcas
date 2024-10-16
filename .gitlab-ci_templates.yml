@@ -157,12 +157,14 @@
       if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
     - |
       cp -L ${install_path}/test/result result
+      cp -L ${install_path}/test/result result_${CI_JOB_NAME_SLUG}
       cp -Lr ${install_path}/test/failed failed
       cp -L ${install_path}/test/tmp/keylist keylist
       cp -L ${install_path}/test/timing.data timest
   artifacts:
     paths:
       - result
+      - result_${CI_JOB_NAME_SLUG}
       - failed/
       - keylist
       - timest
