@@ -42,19 +42,19 @@
       INTEGER IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NB,NBATCH
       INTEGER IDFIJ,IDIIJ,IDAIJ
       INTEGER IP_LFT,IP_LHT
-      INTEGER IPDA_RED,IPDF_RED,IPDI_RED
       INTEGER LC,LO,LSC,LSO
-      INTEGER LFA_RED,LFF_RED,LFI_RED
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v
+      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
 
       REAL*8, EXTERNAL :: DDOT_
       REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
+      REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
+      REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
 
 ************************************************************************
 * ======================================================================
@@ -164,17 +164,17 @@ c Initialize Fock matrices in AO basis to zero:
 *     write(6,*)'tracho2:  JRED1,JRED2:',JRED1,JRED2
 
       IF(JSYM.EQ.1) THEN
-* Allocate space for temporary vector 'V' used for Coulomb contrib to
+* Allocate space for temporary vector 'Vec' used for Coulomb contrib to
 * Fock matrices:
-       CALL GETMEM('V_VECTOR','ALLO','REAL',IP_V,MXCHARR)
+       CALL mma_allocate(VEC,MXCHARR,LABEL='VEC')
 * Local density matrices, which will be needed if JSYM=1. At the same time,
 * allocate Fock matrices with the same structure and initialize to zero.
-       CALL GETMEM('DF_RED','ALLO','REAL',IPDF_RED,MXCHARR)
-       CALL GETMEM('DI_RED','ALLO','REAL',IPDI_RED,MXCHARR)
-       CALL GETMEM('DA_RED','ALLO','REAL',IPDA_RED,MXCHARR)
-       CALL GETMEM('FF_RED','ALLO','REAL',LFF_RED,MXCHARR)
-       CALL GETMEM('FI_RED','ALLO','REAL',LFI_RED,MXCHARR)
-       CALL GETMEM('FA_RED','ALLO','REAL',LFA_RED,MXCHARR)
+       CALL mma_allocate(DF_RED,MXCHARR,LABEL='DF_RED')
+       CALL mma_allocate(DI_RED,MXCHARR,LABEL='DI_RED')
+       CALL mma_allocate(DA_RED,MXCHARR,LABEL='DA_RED')
+       CALL mma_allocate(FF_RED,MXCHARR,LABEL='FF_RED')
+       CALL mma_allocate(FI_RED,MXCHARR,LABEL='FI_RED')
+       CALL mma_allocate(FA_RED,MXCHARR,LABEL='FA_RED')
       END IF
 
 
@@ -195,15 +195,15 @@ c Initialize Fock matrices in AO basis to zero:
 
       IF(JSYM.EQ.1) THEN
       NRS=NDIMRS(JSYM,JRED)
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
-      CALL full2red(DF,Work(ipDF_Red))
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)
-      CALL full2red(DI,Work(ipDI_Red))
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDA_RED),1)
-      CALL full2red(DA,Work(ipDA_Red))
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFF_RED),1)
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFI_RED),1)
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFA_RED ),1)
+      CALL DCOPY_(NRS,[0.0D0],0,DF_RED,1)
+      CALL full2red(DF,DF_Red)
+      CALL DCOPY_(NRS,[0.0D0],0,DI_RED,1)
+      CALL full2red(DI,DI_Red)
+      CALL DCOPY_(NRS,[0.0D0],0,DA_RED,1)
+      CALL full2red(DA,DA_Red)
+      CALL DCOPY_(NRS,[0.0D0],0,FF_RED,1)
+      CALL DCOPY_(NRS,[0.0D0],0,FI_RED,1)
+      CALL DCOPY_(NRS,[0.0D0],0,FA_RED,1)
       END IF
 
 * Determine batch length for this reduced set.
@@ -245,29 +245,29 @@ c Initialize Fock matrices in AO basis to zero:
 * Starting at Work(IP_CHSPC) is now an array of vectors, conceptually
 * L(rs,J), where temporarily we can regard J as ranging 1..JNUM, and
 * the layout of pair indices rs is unknown ('reduced storage', a secret
-* inside cholesky.) Compute array V(J) at temporary space ip_V:
+* inside cholesky.) Compute array V(J) at temporary space VEC:
        CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
-     &            WORK(IPDF_RED),1,0.0D0,WORK(IP_V),1)
+     &            DF_RED,1,0.0D0,VEC,1)
 * F(rs){#J} <- F(rs){#J} + FactC * sum_J L(rs,{#J})*V{#J}
              FactC=1.0D0
        CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
-     &             WORK(IP_V),1,1.0D0,WORK(LFF_RED),1)
+     &             VEC,1,1.0D0,FF_RED,1)
 * The same thing, now for the inactive and active density matrices:
        CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
-     &            WORK(IPDI_RED),1,0.0D0,WORK(IP_V),1)
+     &            DI_RED,1,0.0D0,VEC,1)
        CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
-     &             WORK(IP_V),1,1.0D0,WORK(LFI_RED),1)
+     &             VEC,1,1.0D0,FI_RED,1)
        CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
-     &             WORK(IPDA_RED),1,0.0D0,WORK(IP_V),1)
+     &             DA_RED,1,0.0D0,VEC,1)
        CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
-     &             WORK(IP_V),1,1.0D0,WORK(LFA_RED),1)
+     &             VEC,1,1.0D0,FA_RED,1)
 *      write(6,*)' Finished Coulomb contributions to Fock matrix.'
-*      write(6,*)' Frozen Fock mat at Work(LFF_RED)'
-*      write(6,'(1x,8f10.4)')(Work(LFF_RED+i),i=0,nRS-1)
-*      write(6,*)' Inactive Fock mat at Work(LFI_RED)'
-*      write(6,'(1x,8f10.4)')(Work(LFI_RED+i),i=0,nRS-1)
-*      write(6,*)' Active Fock matrix at Work(LFA_RED).'
-*      write(6,'(1x,8f10.4)')(Work(LFA_RED+i),i=0,nRS-1)
+*      write(6,*)' Frozen Fock mat at FF_RED'
+*      write(6,'(1x,8f10.4)')(FF_RED(i),i=1,nRS)
+*      write(6,*)' Inactive Fock mat at FI_RED'
+*      write(6,'(1x,8f10.4)')(FI_RED(i),i=1,nRS)
+*      write(6,*)' Active Fock matrix at FA_RED.'
+*      write(6,'(1x,8f10.4)')(FA_RED(i),i=1,nRS)
       END IF
 
 * Frozen half-transformation:
@@ -485,9 +485,9 @@ C ---------------------------------------------------------------------
       IF (jSym.eq.1) THEN
 * Add Coulomb contributions in local Fock matrices (in 'reduced storage')
 * into the global ones:
-        CALL red2full(FFAO,Work(LFF_RED))
-        CALL red2full(FIAO,Work(LFI_RED))
-        CALL red2full(FAAO,Work(LFA_RED))
+        CALL red2full(FFAO,FF_RED)
+        CALL red2full(FIAO,FI_RED)
+        CALL red2full(FAAO,FA_RED)
       END IF
 * End loop JRED
   999 CONTINUE
@@ -495,13 +495,13 @@ C ---------------------------------------------------------------------
 
       IF (jSym.eq.1) THEN
 * Deallocate local density and fock matrices
-        CALL GETMEM('V_VECTOR','FREE','REAL',IP_V,MXCHARR)
-        CALL GETMEM('DF_RED','FREE','REAL',IPDF_RED,MXCHARR)
-        CALL GETMEM('DI_RED','FREE','REAL',IPDI_RED,MXCHARR)
-        CALL GETMEM('DA_RED','FREE','REAL',IPDA_RED,MXCHARR)
-        CALL GETMEM('FF_RED','FREE','REAL',LFF_RED,MXCHARR)
-        CALL GETMEM('FI_RED','FREE','REAL',LFI_RED,MXCHARR)
-        CALL GETMEM('FA_RED','FREE','REAL',LFA_RED,MXCHARR)
+        CALL mma_deallocate(VEC)
+        CALL mma_deallocate(DF_RED)
+        CALL mma_deallocate(DI_RED)
+        CALL mma_deallocate(DA_RED)
+        CALL mma_deallocate(FF_RED)
+        CALL mma_deallocate(FI_RED)
+        CALL mma_deallocate(FA_RED)
       END IF
 * End loop JSYM
  1000 CONTINUE
