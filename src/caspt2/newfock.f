@@ -30,7 +30,7 @@
 
       REAL*8 D,DDVX,E,EIGVAL
       INTEGER LINT,LSC,LSC1,LSC2,LSCR,
-     &        LEV1,LEV2,LEIG,LXAI,LXMAT,LXPQ,LXQP
+     &        LEV1,LEV2,LEIG,LXAI,LXPQ,LXQP
       INTEGER IFGFOCK
       INTEGER I,J
       INTEGER II,IP,IQ,IR,IS,IV,IX
@@ -45,7 +45,7 @@
       REAL*8 VAL,VALTU,VALUT,X
 
       Real*8, allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
-     &                      TWOMDSQ(:)
+     &                      TWOMDSQ(:), XMAT(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
 c keyword value given as input. The experimental user modifies
@@ -129,7 +129,7 @@ c Symmetry-packed triangles of D*(2I-D)
 c Temporary use of single square symmetry-block:
         CALL mma_allocate(DD,NAMX**2,Label='DD')
 C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
-        CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NOSQT)
+        CALL mma_allocate(XMAT,NOSQT,Label='XMAT')
         NSQES=0
         DO ISYM=1,NSYM
           NA=NASH(ISYM)
@@ -177,9 +177,9 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
         END DO
 
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
-        CALL DCOPY_(NOSQT,[0.0D0],0,WORK(LXMAT),1)
+        XMAT(:)=0.0D0
         IF (IfChol) THEN
-          CALL Cho_Amatrix(WORK(LXMAT),CMO,NCMO,DDTR,NATR)
+          CALL Cho_Amatrix(XMAT,CMO,NCMO,DDTR,NATR)
         ELSE
           NOSQES=0
           DO ISYMPQ=1,NSYM
@@ -202,18 +202,18 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
                     DDVX=DDTR(IDDVX)
                     IF(IR.EQ.IS) DDVX=0.5D0*DDVX
                     CALL DAXPY_(NO**2,DDVX,INT,1,
-     &                                    WORK(LXMAT+NOSQES),1)
+     &                                    XMAT(1+NOSQES),1)
                   END DO
                 END DO
                 MTRES=MTRES+(MA*(MA+1))/2
               END DO
               DO IP=2,NO
                 DO IQ=1,IP-1
-                  LXPQ=LXMAT+NOSQES-1+IP+NO*(IQ-1)
-                  LXQP=LXMAT+NOSQES-1+IQ+NO*(IP-1)
-                  VAL=0.5D0*(WORK(LXPQ)+WORK(LXQP))
-                  WORK(LXPQ)=VAL
-                  WORK(LXQP)=VAL
+                  LXPQ=NOSQES+IP+NO*(IQ-1)
+                  LXQP=NOSQES+IQ+NO*(IP-1)
+                  VAL=0.5D0*(XMAT(LXPQ)+XMAT(LXQP))
+                  XMAT(LXPQ)=VAL
+                  XMAT(LXQP)=VAL
                 END DO
               END DO
               NOSQES=NOSQES+NO**2
@@ -241,7 +241,7 @@ c the active-inactive block
               CALL DGEMM_('N','N',
      &                    NA,NI,NA,
      &                    1.0d0,TWOMDSQ(1+NASQES),NA,
-     &                    WORK(LXMAT+NOSQES+NI),NO,
+     &                    XMAT(1+NOSQES+NI),NO,
      &                    0.0d0,WORK(LSC),NA)
               DO IT=1,NA
                 ITTOT=NI+IT
@@ -259,8 +259,8 @@ c the secondary-inactive block
                 IATOT=NI+NA+IA
                 DO II=1,NI
                   KFIFA=NOTRES+(IATOT*(IATOT-1))/2+II
-                  LXAI=LXMAT+NOSQES-1+IATOT+NO*(II-1)
-                  FIFA(KFIFA)=FIFA(KFIFA)-2.0D0*WORK(LXAI)
+                  LXAI=NOSQES+IATOT+NO*(II-1)
+                  FIFA(KFIFA)=FIFA(KFIFA)-2.0D0*XMAT(LXAI)
                 END DO
               END DO
             ENDIF
@@ -271,7 +271,7 @@ c the active-active block
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
      &                    1.0d0,DSQ(1+NASQES),NA,
-     &                    WORK(LXMAT-1+IX),NO,
+     &                    XMAT(IX),NO,
      &                    0.0d0,WORK(LSC+NA*NA),NA)
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
@@ -295,7 +295,7 @@ c the secondary-active block
               IX=NOSQES+NI+NA+1+NO*NI
               CALL DGEMM_('N','N',
      &                    NS,NA,NA,
-     &                    1.0d0,WORK(LXMAT-1+IX),NO,
+     &                    1.0d0,XMAT(IX),NO,
      &                    DSQ(1+NASQES),NA,
      &                    0.0d0,WORK(LSC),NS)
               DO IA=1,NS
@@ -379,7 +379,7 @@ C Focktype=g2 or g3
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
      &                  1.0d0,WORK(LSC),NA,
-     &                  WORK(LXMAT-1+IX),NO,
+     &                  XMAT(IX),NO,
      &                  0.0d0,WORK(LSC1),NA)
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
@@ -411,7 +411,7 @@ c
         CALL mma_deallocate(TWOMDSQ)
         CALL mma_deallocate(DD)
         CALL mma_deallocate(DDTR)
-        CALL GETMEM('XMAT','FREE','REAL',LXMAT,NOSQT)
+        CALL mma_deallocate(XMAT)
  300  CONTINUE
 c
 c     Orbital energies, EPS, EPSI,EPSA,EPSE:
