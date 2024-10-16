@@ -42,7 +42,7 @@
       INTEGER IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NB,NBATCH
       INTEGER IDFIJ,IDIIJ,IDAIJ
       INTEGER IP_LFT,IP_LHT
-      INTEGER IPDA,IPDA_RED,IPDF,IPDF_RED,IPDI,IPDI_RED
+      INTEGER IPDA_RED,IPDF_RED,IPDI_RED
       INTEGER LC,LO,LSC,LSO
       INTEGER LFA_RED,LFF_RED,LFI_RED
       INTEGER ISFA,ISFF,ISFI
@@ -54,7 +54,7 @@
       REAL*8 SCL
 
       REAL*8, EXTERNAL :: DDOT_
-      REAL*8, ALLOCATABLE:: OCC(:), CNAT(:)
+      REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
 
 ************************************************************************
 * ======================================================================
@@ -80,40 +80,37 @@ c Initialize Fock matrices in AO basis to zero:
       FIAO(:)=0.0D0
       FAAO(:)=0.0D0
 * Construct density matrix for frozen orbitals
-      Call Getmem('DF','ALLO','REAL',ipDF,NBTRI)
+      Call mma_allocate(DF,NBTRI,Label='DF')
       DO ISYM=1,NSYM
        ISTART(ISYM)=1
        NUSE(ISYM)=NFRO(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          CNAT,OCC,WORK(IPDF))
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DF)
 * Construct density matrix for inactive orbitals
-      Call Getmem('DI','ALLO','REAL',ipDI,NBTRI)
+      Call mma_allocate(DI,NBTRI,Label='DI')
       DO ISYM=1,NSYM
        ISTART(ISYM)=NFRO(ISYM)+1
        NUSE(ISYM)=NISH(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          CNAT,OCC,WORK(IPDI))
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DI)
 * Same, for active density:
-      Call Getmem('DA ','ALLO','REAL',ipDA ,NBTRI)
+      Call mma_allocate(DA ,NBTRI,Label='DA')
       DO ISYM=1,NSYM
        ISTART(ISYM)=NFRO(ISYM)+NISH(ISYM)+1
        NUSE(ISYM)=NASH(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          CNAT,OCC,WORK(IPDA ))
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DA)
 * The Cholesky routines want density matrices in a particular storage, and
 * also the off-diagonal elements should be doubled. Double them:
-      IDFIJ=IPDF
-      IDIIJ=IPDI
-      IDAIJ=IPDA
+      IDFIJ=1
+      IDIIJ=1
+      IDAIJ=1
       DO ISYM=1,NSYM
        DO I=1,NBAS(ISYM)
         DO J=1,I-1
-         WORK(IDFIJ)=2.0D0*WORK(IDFIJ)
-         WORK(IDIIJ)=2.0D0*WORK(IDIIJ)
-         WORK(IDAIJ)=2.0D0*WORK(IDAIJ)
+         DF(IDFIJ)=2.0D0*DF(IDFIJ)
+         DI(IDIIJ)=2.0D0*DI(IDIIJ)
+         DA(IDAIJ)=2.0D0*DA(IDAIJ)
          IDFIJ=IDFIJ+1
          IDIIJ=IDIIJ+1
          IDAIJ=IDAIJ+1
@@ -199,11 +196,11 @@ c Initialize Fock matrices in AO basis to zero:
       IF(JSYM.EQ.1) THEN
       NRS=NDIMRS(JSYM,JRED)
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
-      CALL full2red(Work(ipDF),Work(ipDF_Red))
+      CALL full2red(DF,Work(ipDF_Red))
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)
-      CALL full2red(Work(ipDI),Work(ipDI_Red))
+      CALL full2red(DI,Work(ipDI_Red))
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDA_RED),1)
-      CALL full2red(Work(ipDA),Work(ipDA_Red))
+      CALL full2red(DA,Work(ipDA_Red))
       CALL DCOPY_(NRS,[0.0D0],0,WORK(LFF_RED),1)
       CALL DCOPY_(NRS,[0.0D0],0,WORK(LFI_RED),1)
       CALL DCOPY_(NRS,[0.0D0],0,WORK(LFA_RED ),1)
@@ -536,12 +533,12 @@ C ---------------------------------------------------------------------
       CALL GADGOP(FAAO,NBTRI,'+')
 
 * Two-electron contribution to the effective core energy
-      ECORE2=0.5D0*DDOT_(NBTRI,WORK(IPDF),1,FFAO,1)
+      ECORE2=0.5D0*DDOT_(NBTRI,DF,1,FFAO,1)
 c Add OneHam to finalize frozen Fock matrix in AO basis.
 c (It is in fact an effective one-electron Hamiltonian).
       CALL ADD1HAM(FFAO)
 * The contraction of frozen Fock matrix with frozen density:
-      E=DDOT_(NBTRI,WORK(IPDF),1,FFAO,1)
+      E=DDOT_(NBTRI,DF,1,FFAO,1)
 * Correct for double-counting two-electron part:
       E=E-ECORE2
 * One-electron part:
@@ -558,9 +555,9 @@ c (It is in fact an effective one-electron Hamiltonian).
 
       Call mma_deallocate(OCC)
       Call mma_deallocate(CNAT)
-      Call Getmem('DF','FREE','REAL',ipDF,NBTRI)
-      Call Getmem('DI','FREE','REAL',ipDI,NBTRI)
-      Call Getmem('DA ','FREE','REAL',ipDA ,NBTRI)
+      Call mma_deallocate(DF)
+      Call mma_deallocate(DI)
+      Call mma_deallocate(DA)
 
       CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
