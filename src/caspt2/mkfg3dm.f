@@ -42,7 +42,7 @@ C
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use gugx, only: CIS, SGS, L2ACT
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -90,6 +90,8 @@ C
       INTEGER IDX2IJ(2,MXLEV**2)
       INTEGER ICNJ(MXLEV**2)
       INTEGER IP1_BUF(MXLEV**2)
+
+      REAL*8, ALLOCATABLE:: BUF1(:,:)
 
 
       ! result buffer, maximum size is the largest possible ip1 range,
@@ -163,7 +165,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       nbuf2= 1
       nbuft= 1
       nbufd= 1
-      CALL GETMEM('BUF1','ALLO','REAL',LBUF1,NBUF1*MXCI)
+      CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
       CALL GETMEM('BUF2','ALLO','REAL',LBUF2,NBUF2*MXCI)
       CALL GETMEM('BUFT','ALLO','REAL',LBUFT,NBUFT*MXCI)
       CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
@@ -309,9 +311,8 @@ C-sigma vectors in the buffer.
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-*         lto=lbuf1+mxci*(ibuf1-1)
-*         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
-*         CALL SIGMA1(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO))
+*         call dcopy_(nsgm1,0.0D0,0,BUF1(:,ibuf1),1)
+*         CALL SIGMA1(IULEV,ITLEV,1.0D00,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
         myBuffer=iTask
@@ -331,11 +332,11 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 *         it=L2ACT(itlev)
 *         iu=L2ACT(iulev)
 *         lto=lbuf1+mxci*(ib-1)
-*         G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
+*         G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
 *         IF(IFF.ne.0) then
 *           F1sum=0.0D0
 *           do i=1,nsgm1
-*             F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
+*             F1sum=F1sum+CI(i)*BUF1(i,ib)*work(lbufd-1+i)
 *           end do
 *           F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
 *         end if
@@ -379,13 +380,11 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *         iulev=idx2ij(2,idx)
 *         it=L2ACT(itlev)
 *         iu=L2ACT(iulev)
-*         G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,
-*    &         work(lbuf1+mxci*(ib-1)),1)
+*         G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,BUF1(:,ib),1)
 *         IF(IFF.ne.0) THEN
 *           F2sum=0.0D0
 *           do i=1,nlev
-*             F2sum=F2sum+work(lto-1+i)*work(lbufd-1+)*
-*    &             work(lbuf1-1+i+mxci*(ib-1))
+*             F2sum=F2sum+work(lto-1+i)*work(lbufd-1+)*BUF1(i,ib)
 *           end do
 *           F2(it,iu,iy,iz)=F2sum
 *         END IF
@@ -428,8 +427,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
-*       l1=lbuf1+mxci*(ibmn-1)
-*       call DGEMV_('T',nsgm1,nb,1.0D0,work(l1),mxci,
+*       call DGEMV_('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
 *    &       work(lbuft),1,0.0D0,bufr,1)
 * and distribute this result into G3:
 *       call DCOPY_(nb,bufr,1,G3(iG3OFF+1),1)
@@ -506,7 +504,7 @@ C-SVC20100831: set correct number of elements in new G3
 
       CALL GETMEM ('TASKLIST','FREE','INTE',lTask_List,4*mxTask)
       ! free CI buffers
-      CALL GETMEM('BUF1','FREE','REAL',LBUF1,NBUF1*MXCI)
+      CALL mma_deallocate(BUF1)
       CALL GETMEM('BUF2','FREE','REAL',LBUF2,NBUF2*MXCI)
       CALL GETMEM('BUFT','FREE','REAL',LBUFT,NBUFT*MXCI)
       CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
