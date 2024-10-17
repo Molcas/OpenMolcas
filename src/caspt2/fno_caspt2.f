@@ -37,7 +37,7 @@
       Integer ns_V(8), nAct(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8  TrDP(8), TrDF(8)
-      REAL*8, allocatable:: CMOX(:)
+      REAL*8, allocatable:: CMOX(:), DMAT(:)
 *
 *
       irc=0
@@ -126,8 +126,9 @@
          joff=joff+lnOcc(iSym)
          koff=koff+nSsh(iSym)
       End Do
-      Call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
-      Call FZero(Work(ip_X),nVV+nOA)
+      Call mma_allocate(Dmat,nVV+nOA,LABEL='DMAT')
+      DMAT(:)=0.0D0
+      ip_X = 1
       ip_Y = ip_X + nVV
 *
       Call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
@@ -145,17 +146,17 @@
       Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
          Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),Work(kEOcc),Work(kEVir),
-     &                   Work(ip_X),Work(ip_Y))
+     &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
-           Call Abend
+           Call Abend()
          Endif
       Else
          write(6,*)
          write(6,*)'There are ZERO amplitudes T(ai,bj) with the given '
          write(6,*)'combinations of inactive and virtual orbitals !! '
          write(6,*)'Check your input and rerun the calculation! Bye!!'
-         Call Abend
+         Call Abend()
       Endif
 *
 *     Diagonalize the pseudodensity to get natural virtual orbitals
@@ -166,15 +167,15 @@
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
 *     Eigenvectors will be in increasing order of eigenvalues
-           Call Eigen_Molcas(nSsh(iSym),Work(jD),Work(ip_Z),Work(ip_ZZ))
+           Call Eigen_Molcas(nSsh(iSym),DMAT(jD),Work(ip_Z),Work(ip_ZZ))
 *     Reorder to get relevant eigenpairs first
            Do j=1,nSsh(iSym)/2
               Do i=1,nSsh(iSym)
                  lij=jD-1+nSsh(iSym)*(j-1)+i
                  kij=jD-1+nSsh(iSym)**2-(nSsh(iSym)*j-i)
-                 tmp=Work(lij)
-                 Work(lij)=Work(kij)
-                 Work(kij)=tmp
+                 tmp=DMAT(lij)
+                 DMAT(lij)=DMAT(kij)
+                 DMAT(kij)=tmp
               End Do
               tmp=Work(ip_Z-1+j)
               Work(ip_Z-1+j)=Work(ip_Z+nSsh(iSym)-j)
@@ -186,7 +187,7 @@
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
      &                        1.0d0,CMOX(kfr),nBas(iSym),
-     &                              Work(jD),nSsh(iSym),
+     &                              DMAT(jD),nSsh(iSym),
      &                        0.0d0,CMOX(kto),nBas(iSym))
            iOff=iOff+nSsh(iSym)**2
            TrDF(iSym)=ddot_(nSsh(iSym),Work(ip_Z),1,[1.0d0],0)
@@ -251,7 +252,7 @@
             jD=ip_X+iOff
             Call Get_Can_Lorb(Work(kEVir+lOff),Work(ipOrbE+jOff),
      &                        nSsh(iSym),lnVir(iSym),
-     &                        iWork(ip_iD),Work(jD))
+     &                        iWork(ip_iD),DMAT(jD))
 
             kfr=1+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
             kto=iCMO+kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
@@ -259,7 +260,7 @@
             nSx=Max(1,nSsh(iSym))
             Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
      &                         1.0d0,CMOX(kfr),nBx,
-     &                               Work(jD),nSx,
+     &                               DMAT(jD),nSx,
      &                         0.0d0,CMOX(kto),nBx)
 
             lOff=lOff+lnVir(iSym)
@@ -273,14 +274,14 @@
          EMP2=DeMP2
          DeMP2=0.0d0
          Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),Work(kEOcc),Work(kEVir),
-     &                   Work(ip_X),Work(ip_Y))
+     &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 in truncated virtual space failed !'
            Call Abend
          Endif
          EMP2 = -1.0d0*(EMP2-DeMP2)
       EndIf
-      Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
+      Call mma_deallocate(Dmat)
       Call GetMem('Eorb','Free','Real',ipOrbE,4*nOrb)
 *
       CALL mma_deallocate(CMOX)
