@@ -24,12 +24,12 @@
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use gugx, only: SGS, L2ACT, CIS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
 
@@ -46,11 +46,12 @@
       INTEGER IST,ISU,ISTU
       INTEGER IT,IU,LT,LU
 
-      INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
+      INTEGER ITASK,NTASKS
 
       INTEGER ISSG,NSGM
 
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
+      INTEGER, ALLOCATABLE:: TASK(:,:)
 
 * Purpose: Compute the 1-electron density matrix array G1.
 
@@ -87,16 +88,14 @@
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
       nTasks=(nLev**2+nLev)/2
 
-      CALL GETMEM ('Tasks','ALLO','INTE',lTask,2*nTasks)
-      lTask2T=lTask
-      lTask2U=lTask+nTasks
+      CALL mma_allocate (Task,nTasks,2,Label='TASK')
 
       iTask=0
       DO LT=1,nLev
         DO LU=1,LT
           iTask=iTask+1
-          iWork(lTask2T+iTask-1)=LT
-          iWork(lTask2U+iTask-1)=LU
+          TASK(iTask,1)=LT
+          TASK(iTask,2)=LU
         ENDDO
       ENDDO
       IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
@@ -108,10 +107,10 @@
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-      LT=iWork(lTask2T+iTask-1)
+      LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
-        LU=iWork(lTask2U+iTask-1)
+        LU=Task(iTask,2)
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
@@ -138,7 +137,7 @@
  501  CONTINUE
       CALL Free_Tsk(ID)
 
-      CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
+      CALL mma_deallocate(Task)
 
       CALL GAdSUM (G1,NG1)
 
@@ -165,4 +164,4 @@
 
 
       RETURN
-      END
+      END SUBROUTINE DENS1_RPT2
