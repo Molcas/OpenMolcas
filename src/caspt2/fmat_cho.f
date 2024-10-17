@@ -12,14 +12,16 @@
      &                                                       FAMO,NFAMO)
       use caspt2_data, only: FIFA, DREF
       use caspt2_data, only: LUONEM
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "caspt2.fh"
       Integer NCMO, NHONE, NFIMO, NFAMO
       Real*8  CMO(NCMO)
       Real*8 FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
       Real*8 HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
+
+      Real*8, allocatable:: SCR1(:), SCR2(:), SCR3(:)
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
@@ -46,9 +48,9 @@ C TO MO BASIS FOR USE IN CASPT2.
        NOOMX=MAX(NOOMX,NO*NO)
       END DO
 
-      CALL GETMEM('SCR1','Allocate','Real',LSCR1,NBBMX)
-      CALL GETMEM('SCR2','Allocate','Real',LSCR2,NBOMX)
-      CALL GETMEM('SCR3','Allocate','Real',LSCR3,NOOMX)
+      CALL mma_allocate(SCR1,NBBMX,LABEL='SCR1')
+      CALL mma_allocate(SCR2,NBOMX,LABEL='SCR2')
+      CALL mma_allocate(SCR3,NOOMX,LABEL='SCR3')
 
       IFAO=1
       IOFMO=0
@@ -61,42 +63,42 @@ C TO MO BASIS FOR USE IN CASPT2.
        NF=NFRO(ISYM)
        LSCI=LSC+NF*NB
 * The frozen Fock matrix:
-       CALL SQUARE(FFAO(IFAO),WORK(LSCR1),NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,WORK(LSCR1),NB,
-     &            CMO(LSCI),NB,0.0D0,WORK(LSCR2),NB)
+       CALL SQUARE(FFAO(IFAO),SCR1,NB,1,NB)
+       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,SCR1,NB,
+     &            CMO(LSCI),NB,0.0D0,SCR2,NB)
        CALL DGEMM_('T','N',NO,NO,NB, 1.0D0,CMO(LSCI),NB,
-     &            WORK(LSCR2),NB,0.0D0,WORK(LSCR3),NO_X)
+     &            SCR2,NB,0.0D0,SCR3,NO_X)
        IJ=0
        DO I=1,NO
         DO J=1,I
          IJ=IJ+1
-         HONE(IOFMO+IJ)=WORK(LSCR3+I-1+NO*(J-1))
+         HONE(IOFMO+IJ)=SCR3(I+NO*(J-1))
         END DO
        END DO
 * The inactive Fock matrix:
-       CALL SQUARE(FIAO(IFAO),WORK(LSCR1),NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,WORK(LSCR1),NB,
-     &            CMO(LSCI),NB,0.0D0,WORK(LSCR2),NB)
+       CALL SQUARE(FIAO(IFAO),SCR1,NB,1,NB)
+       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,SCR1,NB,
+     &            CMO(LSCI),NB,0.0D0,SCR2,NB)
        CALL DGEMM_('T','N',NO,NO,NB, 1.0D0,CMO(LSCI),NB,
-     &            WORK(LSCR2),NB,0.0D0,WORK(LSCR3),NO_X)
+     &            SCR2,NB,0.0D0,SCR3,NO_X)
        IJ=0
        DO I=1,NO
         DO J=1,I
          IJ=IJ+1
-         FIMO(IOFMO+IJ)=WORK(LSCR3+I-1+NO*(J-1))
+         FIMO(IOFMO+IJ)=SCR3(I+NO*(J-1))
         END DO
        END DO
 * The active Fock matrix:
-       CALL SQUARE(FAAO(IFAO),WORK(LSCR1),NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,WORK(LSCR1),NB,
-     &            CMO(LSCI),NB,0.0D0,WORK(LSCR2),NB)
+       CALL SQUARE(FAAO(IFAO),SCR1,NB,1,NB)
+       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,SCR1,NB,
+     &            CMO(LSCI),NB,0.0D0,SCR2,NB)
        CALL DGEMM_('T','N',NO,NO,NB, 1.0D0,CMO(LSCI),NB,
-     &            WORK(LSCR2),NB,0.0D0,WORK(LSCR3),NO_X)
+     &            SCR2,NB,0.0D0,SCR3,NO_X)
        IJ=0
        DO I=1,NO
         DO J=1,I
          IJ=IJ+1
-         FAMO(IOFMO+IJ)=WORK(LSCR3+I-1+NO*(J-1))
+         FAMO(IOFMO+IJ)=SCR3(I+NO*(J-1))
         END DO
        END DO
        IFAO=IFAO+(NB*(NB+1))/2
@@ -105,9 +107,9 @@ C TO MO BASIS FOR USE IN CASPT2.
  99    CONTINUE
       END DO
 
-      CALL GETMEM('SCR1','Free','Real',LSCR1,NBBMX)
-      CALL GETMEM('SCR2','Free','Real',LSCR2,NBOMX)
-      CALL GETMEM('SCR3','Free','Real',LSCR3,NOOMX)
+      CALL mma_deallocate(SCR1)
+      CALL mma_deallocate(SCR2)
+      CALL mma_deallocate(SCR3)
 
 c Transformed frozen Fock matrix = Effective one-electron
 * Hamiltonian HONE at IAD1M(3)
