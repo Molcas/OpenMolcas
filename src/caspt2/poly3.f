@@ -58,6 +58,7 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
       INTEGER IPARDIV
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
       REAL*8, ALLOCATABLE, TARGET:: G1(:), G2(:), G3(:)
+      REAL*8, ALLOCATABLE, TARGET:: F1_H(:), F2_H(:), F3_H(:)
       REAL*8, POINTER:: F1(:), F2(:), F3(:)
       REAL*8, ALLOCATABLE:: CI(:)
 
@@ -90,9 +91,12 @@ C-SVC20100831: allocate local G3 matrices
 
 C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       IF (IFF.EQ.1) THEN
-        CALL mma_allocate(F1,NG1,LABEL='F1')
-        CALL mma_allocate(F2,NG2,LABEL='F2')
-        CALL mma_allocate(F3,NG3MAX,LABEL='F3')
+        CALL mma_allocate(F1_H,NG1,LABEL='F1_H')
+        CALL mma_allocate(F2_H,NG2,LABEL='F2_H')
+        CALL mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
+        F1=>F1_H
+        F2=>F2_H
+        F3=>F3_H
       ELSE
         F1=>G1
         F2=>G2
@@ -166,14 +170,13 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
         IF(IFF.EQ.1) THEN
-          CALL mma_deallocate(F1)
-          CALL mma_deallocate(F2)
-          CALL mma_deallocate(F3)
-        ELSE
-          F1=>Null()
-          F2=>Null()
-          F3=>Null()
+          CALL mma_deallocate(F1_H)
+          CALL mma_deallocate(F2_H)
+          CALL mma_deallocate(F3_H)
         END IF
+        F1=>Null()
+        F2=>Null()
+        F3=>Null()
       END IF
 
       END SUBROUTINE POLY3
