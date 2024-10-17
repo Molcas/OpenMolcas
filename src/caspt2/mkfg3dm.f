@@ -48,7 +48,6 @@ C
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
       INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
@@ -92,6 +91,7 @@ C
 
       REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:)
       INTEGER, ALLOCATABLE:: TaskList(:,:)
+      REAL*8, ALLOCATABLE:: G3Tmp(:)
 
 
       ! result buffer, maximum size is the largest possible ip1 range,
@@ -165,11 +165,11 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
       CALL mma_allocate(BUF2,MXCI,LABEL='BUF2')
       CALL mma_allocate(BUFT,MXCI,LABEL='BUFT')
-      CALL mma_allocate(BUFD,MXCI,Label='BUFD')
+      CALL mma_allocate(BUFD,MXCI,LABEL='BUFD')
 
 C-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
-      CALL mma_allocate(TaskList,4,mxTask,Label='TaskList')
+      CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -200,12 +200,12 @@ C-is basically the number of buffers we fill with sigma1 vectors.
         IF (istu.EQ.isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
-          IF (ibuf1.EQ.1) TaskList(1,iTask)=ip1
+          IF (ibuf1.EQ.1) TaskList(iTask,1)=ip1
         ENDIF
         IF (ibuf1.EQ.nbuf1.OR.(ibuf1.GT.0.AND.
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
-            TaskList(2,iTask)=ip1_buf(ibuf1)
-            TaskList(3,iTask)=ibuf1
+            TaskList(iTask,2)=ip1_buf(ibuf1)
+            TaskList(iTask,3)=ibuf1
             iTask=iTask+1
             ibuf1=0
         ENDIF
@@ -215,9 +215,9 @@ C-is basically the number of buffers we fill with sigma1 vectors.
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
-        TaskList(4,iTask)=iOffSet
-        ip1sta=TaskList(1,iTask)
-        ip1end=TaskList(2,iTask)
+        TaskList(iTask,4)=iOffSet
+        ip1sta=TaskList(iTask,1)
+        ip1end=TaskList(iTask,2)
         ip3mx=ntri2
         if(ip1end.le.ntri2) ip3mx=ip1end
         if(ip1sta.gt.ntri2) ip3mx=ntri1
@@ -272,7 +272,7 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
 
       myTask=nTasks
       DO iTask=1,nTasks
-        iBuf=iSubTask-TaskList(4,iTask)
+        iBuf=iSubTask-TaskList(iTask,4)
         IF (iBuf.LE.0) THEN
           myTask=iTask-1
           goto 666
@@ -281,13 +281,13 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
 666   continue
       iTask=myTask
 
-      iOffSet=TaskList(4,iTask)
+      iOffSet=TaskList(iTask,4)
 
 C-SVC20100310: one task handles a range of ip1 values
 C-that are in the buffer and one ip3 value, for which
 C-a loop over ip2 values is then executed.
-      ip1sta=TaskList(1,iTask)
-      ip1end=TaskList(2,iTask)
+      ip1sta=TaskList(iTask,1)
+      ip1end=TaskList(iTask,2)
       ip3=iSubTask-iOffSet
 
 C-SVC20100301: fill the buffer with sigma vectors if they
@@ -304,13 +304,13 @@ C-sigma vectors in the buffer.
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-*         call dcopy_(nsgm1,0.0D0,0,BUF1(:,ibuf1),1)
+*         call dcopy_(nsgm1,[0.0D0],0,BUF1(:,ibuf1),1)
 *         CALL SIGMA1(IULEV,ITLEV,1.0D00,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
         myBuffer=iTask
       ELSE
-        ibuf1=TaskList(3,iTask)
+        ibuf1=TaskList(iTask,3)
       ENDIF
 C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 
@@ -366,7 +366,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *     CALL SIGMA1(IYLEV,IZLEV,1.0D00,STSYM,CI,BUF2)
 *     if(issg2.eq.issg1) then
 *       do ib=1,ibuf1
-*         idx=iwork(lip1buf-1+ib)
+*         idx=ip1_buf(ib)
 *         itlev=idx2ij(1,idx)
 *         iulev=idx2ij(2,idx)
 *         it=L2ACT(itlev)
@@ -389,7 +389,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
         if(isvx.ne.mul(issg1,issg2)) goto 99
-*       call dcopy_(nsgm1,0.0D0,0,BUFT,1)
+*       call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
 *       CALL SIGMA1(IVLEV,IXLEV,1.0D00,ISSG2,BUF2,BUFT)
 *-----------
 * Max and min values of index p1:
@@ -442,7 +442,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *    &           (bufd(icsf)-epsa(iv))*buft(icsf)
 *         end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-*         call DGEMV_('T',nsgm1,nb,1.0D0,work(l1),mxci,
+*         call DGEMV_('T',nsgm1,nb,1.0D0,BUF1(:ibmn),mxci,
 *    &         buft,1,0.0D0,bufr,1)
 *         call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
 *       END IF
@@ -491,7 +491,7 @@ C-position 12345678901234567890
 C-SVC20100831: set correct number of elements in new G3
       NG3=iG3OFF
 
-      CALL GETMEM ('TASKLIST','FREE','INTE',lTask_List,4*mxTask)
+      CALL mma_deallocate(TASKLIST)
       ! free CI buffers
       CALL mma_deallocate(BUF1)
       CALL mma_deallocate(BUF2)
@@ -510,16 +510,16 @@ C  only for the G1 and G2 replicate arrays
       NLEV4=NLEV2**2
 C
 C allocate work space to store 3RDM
-      Call GETMEM('G3TMP','ALLO','REAL',LG3TMP,NLEV4)
+      Call mma_allocate(G3TMP,NLEV4,Label='G3Tmp')
 C
 C TODO: Here, several options to compute F3.
 C Currently implemented only cu4, but cu34 and F3 from DMRG-sweep
 C will be possible. They should be implemented at this section.
 C
 C MKFG3CU4 is located under block_dmrg_util/
-      Call MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,Work(LG3TMP))
+      Call MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,G3TMP)
 C
-      Call GETMEM('G3TMP','FREE','REAL',LG3TMP,NLEV4)
+      Call mma_deallocate(G3TMP)
 #endif
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
