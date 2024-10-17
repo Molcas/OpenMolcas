@@ -145,7 +145,7 @@
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' SGM array from (lowering F)|KET>:'
-        WRITE(6,'(1x,5F16.8)')(WORK(LSGM+I),I=0,NCONF-1)
+        WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
         call XFLUSH(6)
       END IF
 
@@ -194,7 +194,7 @@
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' SGM array from (strictly lowering F)|BRA>:'
-        WRITE(6,'(1x,5F16.8)')(WORK(LSGM+I),I=0,NCONF-1)
+        WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
         call XFLUSH(6)
       END IF
 
