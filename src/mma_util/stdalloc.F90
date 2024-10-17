@@ -41,6 +41,7 @@ module stdalloc
 implicit none
 private
 
+!#define _ENABLE_POINTERS_
 integer :: MxMem
 
 interface cptr2loff
@@ -54,8 +55,10 @@ interface mma_allocate
   module procedure :: bmma_allo_1D, bmma_allo_1D_lim, cmma_allo_1D, cmma_allo_1D_lim, dmma_allo_1D, dmma_allo_1D_lim, &
                       i4mma_allo_1D, i4mma_allo_1D_lim, imma_allo_1D, imma_allo_1D_lim, lmma_allo_1D, lmma_allo_1D_lim, &
                       zmma_allo_1D, zmma_allo_1D_lim
+#ifdef _ENABLE_POINTERS_
   module procedure :: dpmma_allo_1D, ipmma_allo_1D
   module procedure :: dpmma_allo_1D_lim, ipmma_allo_1D_lim
+#endif
   ! 2D allocate
   module procedure :: bmma_allo_2D, bmma_allo_2D_lim, cmma_allo_2D, cmma_allo_2D_lim, dmma_allo_2D, dmma_allo_2D_lim, &
                       imma_allo_2D, imma_allo_2D_lim, lmma_allo_2D, lmma_allo_2D_lim, zmma_allo_2D, zmma_allo_2D_lim
@@ -74,7 +77,9 @@ interface mma_deallocate
   module procedure :: cmma_free_0D
   ! 1D deallocate
   module procedure :: bmma_free_1D, cmma_free_1D, dmma_free_1D, i4mma_free_1D, imma_free_1D, lmma_free_1D, zmma_free_1D
+# ifdef _ENABLE_POINTERS_
   module procedure :: dpmma_free_1D, ipmma_free_1D
+# endif
   ! 2D deallocate
   module procedure :: bmma_free_2D, cmma_free_2D, dmma_free_2D, imma_free_2D, lmma_free_2D, zmma_free_2D
   ! 3D deallocate
@@ -418,6 +423,7 @@ end subroutine mma_maxBYTES
 #undef _SUBR_NAME_
 #undef _TYPE_
 
+#ifdef _ENABLE_POINTERS_
 ! pointer variants
 
 #define _IS_POINTER_
@@ -451,5 +457,6 @@ end subroutine mma_maxBYTES
 #  undef _DATA_NAME_
 
 #undef _IS_POINTER_
+#endif
 
 end module stdalloc

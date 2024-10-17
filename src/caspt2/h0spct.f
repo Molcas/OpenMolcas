@@ -18,6 +18,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -30,6 +31,11 @@
 #endif
 
       CHARACTER(LEN=80) LINE
+      INTEGER, ALLOCATABLE, TARGET:: IDXBUF(:,:)
+#ifdef _MOLCAS_MPP_
+      INTEGER, ALLOCATABLE, TARGET:: IDX_H(:,:)
+#endif
+      INTEGER, POINTER:: IDX(:,:)=>Null()
 
 C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).
@@ -67,7 +73,7 @@ C denominators, i.e. the spectrum of (H0(diag)-E0).
 
 CSVC: initial buffer size, will be reallocated on the fly
       MAXBUF=1024
-      CALL GETMEM('IDXBUF','ALLO','INTE',LIDXBUF,2*MAXBUF)
+      CALL mma_allocate(IDXBUF,2,MAXBUF,LABEL='IDXBUF')
       CALL GETMEM('VALBUF','ALLO','REAL',LVALBUF,4*MAXBUF)
 
 C Very long loop over symmetry and case:
@@ -154,8 +160,8 @@ C positioning.
      &        THEN
                 IF (IBUF.LT.MAXBUF) THEN
                   IBUF=IBUF+1
-                  IWORK(LIDXBUF+0+2*(IBUF-1))=IAS
-                  IWORK(LIDXBUF+1+2*(IBUF-1))=IIS
+                  IDXBUF(1,IBUF)=IAS
+                  IDXBUF(2,IBUF)=IIS
                   WORK(LVALBUF+0+4*(IBUF-1))=DNOM
                   WORK(LVALBUF+1+4*(IBUF-1))=RHS
                   WORK(LVALBUF+2+4*(IBUF-1))=COEF
@@ -177,24 +183,24 @@ C positioning.
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             CALL GAIGOP_SCAL(NBUF,'+')
-            CALL GETMEM('IDX','ALLO','INTE',LIDX,2*NBUF)
+            CALL mma_allocatew(IDX_H,2,NBUF,LABEL='IDX_H')
+            IDX=>IDX_H
             CALL GETMEM('VAL','ALLO','REAL',LVAL,4*NBUF)
-            CALL allgather(IWORK(LIDXBUF:),2*IBUF,
-     &                         IWORK(LIDX:),2*NBUF)
+            CALL allgather(IDXBUF,2*IBUF,IDX,2*NBUF)
             CALL allgather(WORK(LVALBUF: ),4*IBUF,
      &                         WORK(LVAL: ),4*NBUF)
           ELSE
-            LIDX=LIDXBUF
+            IDX=>IDXBUF
             LVAL=LVALBUF
           END IF
 #else
-          LIDX=LIDXBUF
+          IDX=>IDXBUF
           LVAL=LVALBUF
 #endif
 
           DO IBUF=1,NBUF
-            IAS  = IWORK(LIDX+0+2*(IBUF-1))
-            IIS  = IWORK(LIDX+1+2*(IBUF-1))
+            IAS  = IDX(1,IBUF)
+            IIS  = IDX(2,IBUF)
             DNOM = WORK(LVAL+0+4*(IBUF-1))
             RHS  = WORK(LVAL+1+4*(IBUF-1))
             COEF = WORK(LVAL+2+4*(IBUF-1))
@@ -220,7 +226,7 @@ C positioning.
 
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
-            CALL GETMEM('IDX','FREE','INTE',LIDX,2*NBUF)
+            CALL mma_deallocate(IDX_H)
             CALL GETMEM('VAL','FREE','REAL',LVAL,4*NBUF)
           END IF
 #endif
@@ -237,11 +243,10 @@ C End of very long loop over symmetry and case:
         END DO
       END DO
 
-      CALL GETMEM('IDXBUF','FREE','INTE',LIDXBUF,2*MAXBUF)
+      CALL mma_deallocate(IDXBUF)
+      IDX=>Null()
       CALL GETMEM('VALBUF','FREE','REAL',LVALBUF,4*MAXBUF)
 
       Call CollapseOutput(0,'Denominators, etc.')
 
-
-      RETURN
-      END
+      END SUBROUTINE H0SPCT
