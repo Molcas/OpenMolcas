@@ -108,10 +108,11 @@ C SVC: IFCOUP is set in SIGMA_CASPT2
 
 C SVC: this is an extra check, since coupling cases that are 0 should
 C not have entered the sgm subroutine
-      IF(KOD.EQ.0) THEN
-        RETURN
+      IF(KOD.EQ.0) RETURN
+
+      SELECT CASE (KOD)
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.1) THEN
+      CASE(1)
 C ICASE1= 1
 C ICASE2= 2
 
@@ -167,7 +168,7 @@ C  A&BP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.2) THEN
+      CASE (2)
 C ICASE1= 1
 C ICASE2= 3
 
@@ -231,7 +232,7 @@ C A&BM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.3) THEN
+      CASE (3)
 C ICASE1= 1
 C ICASE2= 5
 
@@ -258,7 +259,7 @@ C  A&D  Two-el
      &               WORK(lg_Y+IY-1))
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.4) THEN
+      CASE (4)
 C ICASE1= 1
 C ICASE2= 6
 
@@ -296,7 +297,7 @@ C  A&EP One-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.5) THEN
+      CASE (5)
 C ICASE1= 1
 C ICASE2= 7
 
@@ -334,7 +335,7 @@ C  A&EM One-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.6) THEN
+      CASE (6)
 C ICASE1= 2
 C ICASE2= 6
 
@@ -364,7 +365,7 @@ C  BP&EP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.7) THEN
+      CASE (7)
 C ICASE1= 3
 C ICASE2= 7
 
@@ -398,7 +399,7 @@ C  BM&EM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.8) THEN
+      CASE (8)
 C ICASE1= 4
 C ICASE2= 5
 
@@ -454,7 +455,7 @@ C  C&D  Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.9) THEN
+      CASE (9)
 C ICASE1= 4
 C ICASE2= 8
 
@@ -510,7 +511,7 @@ C  C&FP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.10) THEN
+      CASE (10)
 C ICASE1= 4
 C ICASE2= 9
 
@@ -566,7 +567,7 @@ C  C&FM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.11) THEN
+      CASE (11)
 C ICASE1= 4
 C ICASE2= 10
 
@@ -604,7 +605,7 @@ C  C&GP One-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.12) THEN
+      CASE (12)
 C ICASE1= 4
 C ICASE2= 11
 
@@ -642,7 +643,7 @@ C  C&GM One-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.13) THEN
+      CASE (13)
 C ICASE1= 5
 C ICASE2= 6
 
@@ -725,7 +726,7 @@ C  D&EP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.14) THEN
+      CASE (14)
 C ICASE1= 5
 C ICASE2= 7
 
@@ -808,7 +809,7 @@ C  D&EM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.15) THEN
+      CASE (15)
 C ICASE1= 5
 C ICASE2= 10
 
@@ -851,7 +852,7 @@ C  D&GP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.16) THEN
+      CASE (16)
 C ICASE1= 5
 C ICASE2= 11
 
@@ -894,7 +895,7 @@ C  D&GM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.17) THEN
+      CASE (17)
 C ICASE1= 6
 C ICASE2= 12
 
@@ -917,7 +918,7 @@ C  EP&HP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.18) THEN
+      CASE (18)
 C ICASE1= 7
 C ICASE2= 13
 
@@ -940,7 +941,7 @@ C  EM&HM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.19) THEN
+      CASE (19)
 C ICASE1= 8
 C ICASE2= 10
 
@@ -970,7 +971,7 @@ C  FP&GP Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.20) THEN
+      CASE (20)
 C ICASE1= 9
 C ICASE2= 11
 
@@ -1000,7 +1001,7 @@ C  FM&GM Two-el
           END IF
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.21) THEN
+      CASE (21)
 C ICASE1= 10
 C ICASE2= 12
 
@@ -1020,7 +1021,7 @@ C  GP&HP Two-el
      &                lg_Y,NAS2,NIS2)
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.22) THEN
+      CASE (22)
 C ICASE1= 11
 C ICASE2= 13
 
@@ -1040,7 +1041,7 @@ C  GM&HM Two-el
      &                lg_Y,NAS2,NIS2)
         END IF
 C  -----------------------------------------------
-      ELSE IF (KOD.EQ.23) THEN
+      CASE (23)
 C ICASE1= 5
 C ICASE2= 12
 
@@ -1085,7 +1086,7 @@ C  D&HP One-el
           END DO
         END IF
 C ---------------------------
-      ELSE IF (KOD.EQ.24) THEN
+      CASE (24)
 C ICASE1= 5
 C ICASE2= 13
 
@@ -1130,10 +1131,9 @@ C  D&HM One-el
           END DO
         END IF
 C ---------------------------
-      ELSE
+      CASE DEFAULT
         WRITE(6,*)' INTERNAL ERROR: SGM reached invalid KOD=',KOD
         Call Abend()
-      END IF
+      END SELECT
 
-      RETURN
-      END
+      END SUBROUTINE SGM
