@@ -3368,25 +3368,6 @@ C
 C
       Call GetMem('GT1 ','FREE','REAL',LG1T,NG1)
       Call GetMem('GT2 ','FREE','REAL',LG2T,NG2)
-C     write(6,*) "finished TRDM2"
-C     call sqprt(g1,nlev)
-C     call sqprt(g2,nlev**2)
-C
-C     Call GetMem('SGM1','ALLO','REAL',LSGM1,nConf)
-C     Call GetMem('SGM2','ALLO','REAL',LSGM2,nConf)
-C     Call GetMem('G1  ','ALLO','REAL',LG1  ,nAshT**2)
-C     Call GetMem('G2  ','ALLO','REAL',LG2  ,nAshT**4)
-C     Do iState = 1, nState
-C       Call Dens2_RPT2(CI(1,iState),Work(LSGM1),Work(LSGM2),
-C    *                  Work(LG1),Work(LG2),nAshT)
-C       WGT=2.0D+00/nState
-C       Call DaXpY_(nAshT**2,WGT,Work(LG1),1,G1,1)
-C       Call DaXpY_(nAshT**4,WGT,Work(LG2),1,G2,1)
-C     end do
-C     Call GetMem('SGM1','FREE','REAL',LSGM1,nConf)
-C     Call GetMem('SGM2','FREE','REAL',LSGM2,nConf)
-C     Call GetMem('G1  ','FREE','REAL',LG1  ,nAshT**2)
-C     Call GetMem('G2  ','FREE','REAL',LG2  ,nAshT**4)
 C
       !! Finally, construct the Fock matrix only for active-active
       !! Should be equivalent to FockGen in MCLR

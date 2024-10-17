@@ -1825,7 +1825,7 @@ C     task.
 
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",A)')
-     &   "DENS2_RPT2: norms of the density matrices:"
+     &   "DENS1_RPT2: norms of the density matrices:"
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
       ENDIF
 
