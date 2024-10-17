@@ -187,7 +187,7 @@ C positioning.
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             CALL GAIGOP_SCAL(NBUF,'+')
-            CALL mma_allocatew(IDX_H,2,NBUF,LABEL='IDX_H')
+            CALL mma_allocate(IDX_H,2,NBUF,LABEL='IDX_H')
             IDX=>IDX_H
             CALL mma_allocate(VAL_H,4,NBUF,LABEL='VAL_H')
             VAL=>VAL_H
