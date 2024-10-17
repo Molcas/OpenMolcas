@@ -29,8 +29,8 @@ C the same for all the root states.
       REAL*8 DVALUE
 
       INTEGER I
-      INTEGER NTG1,NTG2,NTG3,LTG1,LTG2,LTG3
-      INTEGER IDCI,LCI1,LCI2
+      INTEGER NTG1,NTG2,NTG3
+      INTEGER IDCI
       REAL*8 OVL,DUMMY(1)
       REAL*8, ALLOCATABLE:: TG1(:), TG2(:), TG3(:), CI1(:), CI2(:)
 
