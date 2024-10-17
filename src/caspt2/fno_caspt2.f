@@ -24,7 +24,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 *
       Integer irc,nSym,IFQCAN
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
@@ -37,7 +36,7 @@
       Integer ns_V(8), nAct(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8  TrDP(8), TrDF(8)
-      REAL*8, allocatable:: CMOX(:), DMAT(:)
+      REAL*8, allocatable:: CMOX(:), DMAT(:), OrbE(:)
       Integer, allocatable:: ID(:)
 *
 *
@@ -87,13 +86,14 @@
 * This is not the best solution, but I wanted to avoid having to rewrite
 * the indexing code below just to use the CMO array directly
       call dcopy_(NCMO,CMO,1,CMOX,1)
-      Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
-      Call Get_darray('RASSCF OrbE',Work(ipOrbE),nOrb)
+      Call mma_allocate(OrbE,4*nOrb,Label='OrbE')
+      ipOrbE=1
+      Call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
       iAoff=0
       Do iSym=1,nSym
          ipOrbE_=ipOrbE+iAoff+nFro(iSym)+nIsh(iSym)
          Do k=0,nAsh(iSym)-1
-            If (Work(ipOrbE_+k).lt.0.0d0) nAct(iSym)=nAct(iSym)+1
+            If (OrbE(ipOrbE_+k).lt.0.0d0) nAct(iSym)=nAct(iSym)+1
          End Do
          iAoff=iAoff+nBas(iSym)
       End Do
@@ -119,10 +119,10 @@
       Do iSym=1,nSym
          ifr=ipOrbE+ioff+nFro(iSym)
          ito=kEOcc+joff
-         call dcopy_(lnOcc(iSym),Work(ifr),1,Work(ito),1)
+         call dcopy_(lnOcc(iSym),OrbE(ifr),1,OrbE(ito),1)
          ifr=ipOrbE+ioff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
          ito=kEVir+koff
-         call dcopy_(nSsh(iSym),Work(ifr),1,Work(ito),1)
+         call dcopy_(nSsh(iSym),OrbE(ifr),1,OrbE(ito),1)
          ioff=ioff+nBas(iSym)
          joff=joff+lnOcc(iSym)
          koff=koff+nSsh(iSym)
@@ -146,7 +146,7 @@
       End Do
       Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),Work(kEOcc),Work(kEVir),
+         Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 pseudodensity calculation failed !'
@@ -168,7 +168,7 @@
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
 *     Eigenvectors will be in increasing order of eigenvalues
-           Call Eigen_Molcas(nSsh(iSym),DMAT(jD),Work(ip_Z),Work(ip_ZZ))
+           Call Eigen_Molcas(nSsh(iSym),DMAT(jD),OrbE(ip_Z),OrbE(ip_ZZ))
 *     Reorder to get relevant eigenpairs first
            Do j=1,nSsh(iSym)/2
               Do i=1,nSsh(iSym)
@@ -178,9 +178,9 @@
                  DMAT(lij)=DMAT(kij)
                  DMAT(kij)=tmp
               End Do
-              tmp=Work(ip_Z-1+j)
-              Work(ip_Z-1+j)=Work(ip_Z+nSsh(iSym)-j)
-              Work(ip_Z+nSsh(iSym)-j)=tmp
+              tmp=OrbE(ip_Z-1+j)
+              OrbE(ip_Z-1+j)=OrbE(ip_Z+nSsh(iSym)-j)
+              OrbE(ip_Z+nSsh(iSym)-j)=tmp
            End Do
 *
 *     Compute new MO coeff. : X=C*U
@@ -191,18 +191,18 @@
      &                              DMAT(jD),nSsh(iSym),
      &                        0.0d0,CMOX(kto),nBas(iSym))
            iOff=iOff+nSsh(iSym)**2
-           TrDF(iSym)=ddot_(nSsh(iSym),Work(ip_Z),1,[1.0d0],0)
+           TrDF(iSym)=ddot_(nSsh(iSym),OrbE(ip_Z),1,[1.0d0],0)
            If (vfrac.ge.0.0d0) Then
               ns_V(iSym)=int(vfrac*dble(nSsh(iSym)))
-              TrDP(iSym)=ddot_(ns_V(iSym),Work(ip_Z),1,[1.0d0],0)
+              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
            Else
               ns_V(iSym)=nSsh(iSym)-1
-              TrDP(iSym)=ddot_(ns_V(iSym),Work(ip_Z),1,[1.0d0],0)
+              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
               Delta_TrD=TrDP(iSym)-TrDF(iSym) ! this is negative
               Delta_TrD=Delta_TrD/TrDF(iSym)
               Do While (Delta_TrD.gt.vfrac)
                  ns_V(iSym)=ns_V(iSym)-1
-                 TrDP(iSym)=ddot_(ns_V(iSym),Work(ip_Z),1,[1.0d0],0)
+                 TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
                  Delta_TrD=(TrDP(iSym)-TrDF(iSym))/TrDF(iSym)
               End Do
            End If
@@ -251,7 +251,7 @@
          iOff=0
          Do iSym=1,nSym  ! canonical orb. in the reduced virtual space
             jD=ip_X+iOff
-            Call Get_Can_Lorb(Work(kEVir+lOff),Work(ipOrbE+jOff),
+            Call Get_Can_Lorb(OrbE(kEVir+lOff),OrbE(ipOrbE+jOff),
      &                        nSsh(iSym),lnVir(iSym),
      &                        iD,DMAT(jD))
 
@@ -274,7 +274,7 @@
 *
          EMP2=DeMP2
          DeMP2=0.0d0
-         Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),Work(kEOcc),Work(kEVir),
+         Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 in truncated virtual space failed !'
@@ -283,7 +283,7 @@
          EMP2 = -1.0d0*(EMP2-DeMP2)
       EndIf
       Call mma_deallocate(Dmat)
-      Call GetMem('Eorb','Free','Real',ipOrbE,4*nOrb)
+      Call mma_deallocate(OrbE)
 *
       CALL mma_deallocate(CMOX)
 *
