@@ -32,10 +32,13 @@
 
       CHARACTER(LEN=80) LINE
       INTEGER, ALLOCATABLE, TARGET:: IDXBUF(:,:)
+      REAL*8, ALLOCATABLE, TARGET:: VALBUF(:,:)
 #ifdef _MOLCAS_MPP_
       INTEGER, ALLOCATABLE, TARGET:: IDX_H(:,:)
+      REAL*8, ALLOCATABLE, TARGET:: VAL_H(:,:)
 #endif
       INTEGER, POINTER:: IDX(:,:)=>Null()
+      REAL*8, POINTER:: VAL(:,:)=>Null()
 
 C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).
@@ -74,7 +77,7 @@ C denominators, i.e. the spectrum of (H0(diag)-E0).
 CSVC: initial buffer size, will be reallocated on the fly
       MAXBUF=1024
       CALL mma_allocate(IDXBUF,2,MAXBUF,LABEL='IDXBUF')
-      CALL GETMEM('VALBUF','ALLO','REAL',LVALBUF,4*MAXBUF)
+      CALL mma_allocate(VALBUF,4,MAXBUF,LABEL='VALBUF')
 
 C Very long loop over symmetry and case:
       DO ICASE=1,13
@@ -100,7 +103,7 @@ C positioning.
           CALL RHS_READ_SR(lg_RHS,ICASE,ISYM,IRHS)
           CALL RHS_READ_SR(lg_VEC,ICASE,ISYM,IVECX)
           IBUF=0
-#ifdef _MOLCAS_MPP_
+#ifdef _MOLCBankAS_MPP_
           IF (Is_Real_Par()) THEN
 * Get the superindex ranges of this process's block. If no elements are
 * owned by a process, then ilo=0 and ihi=-1 such that the loop further
@@ -162,10 +165,10 @@ C positioning.
                   IBUF=IBUF+1
                   IDXBUF(1,IBUF)=IAS
                   IDXBUF(2,IBUF)=IIS
-                  WORK(LVALBUF+0+4*(IBUF-1))=DNOM
-                  WORK(LVALBUF+1+4*(IBUF-1))=RHS
-                  WORK(LVALBUF+2+4*(IBUF-1))=COEF
-                  WORK(LVALBUF+3+4*(IBUF-1))=ECNT
+                  VALBUF(1,IBUF)=DNOM
+                  VALBUF(2,IBUF)=RHS
+                  VALBUF(3,IBUF)=COEF
+                  VALBUF(4,IBUF)=ECNT
                 END IF
               END IF
             END DO
@@ -185,26 +188,26 @@ C positioning.
             CALL GAIGOP_SCAL(NBUF,'+')
             CALL mma_allocatew(IDX_H,2,NBUF,LABEL='IDX_H')
             IDX=>IDX_H
-            CALL GETMEM('VAL','ALLO','REAL',LVAL,4*NBUF)
+            CALL mma_allocate(VAL_H,4,NBUF,LABEL='VAL_H')
+            VAL=>VAL_H
             CALL allgather(IDXBUF,2*IBUF,IDX,2*NBUF)
-            CALL allgather(WORK(LVALBUF: ),4*IBUF,
-     &                         WORK(LVAL: ),4*NBUF)
+            CALL allgather(VALBUF,4*IBUF,VAL,4*NBUF)
           ELSE
             IDX=>IDXBUF
-            LVAL=LVALBUF
+            VAL=>VALBUF
           END IF
 #else
           IDX=>IDXBUF
-          LVAL=LVALBUF
+          VAL=>VALBUF
 #endif
 
           DO IBUF=1,NBUF
             IAS  = IDX(1,IBUF)
             IIS  = IDX(2,IBUF)
-            DNOM = WORK(LVAL+0+4*(IBUF-1))
-            RHS  = WORK(LVAL+1+4*(IBUF-1))
-            COEF = WORK(LVAL+2+4*(IBUF-1))
-            ECNT = WORK(LVAL+3+4*(IBUF-1))
+            DNOM = VAL(1,IBUF)
+            RHS  = VAL(2,IBUF)
+            COEF = VAL(3,IBUF)
+            ECNT = VAL(4,IBUF)
             IF(ICASE.EQ.12.OR.ICASE.EQ.13) THEN
               CALL EXCIND(IAS,IIS,ISYM,ICASE,IP,IQ,IR,IS)
               LINE(13:20)=ORBNAM(IP)
@@ -227,7 +230,7 @@ C positioning.
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             CALL mma_deallocate(IDX_H)
-            CALL GETMEM('VAL','FREE','REAL',LVAL,4*NBUF)
+            CALL mma_deallocate(VAL_H)
           END IF
 #endif
 
@@ -245,7 +248,8 @@ C End of very long loop over symmetry and case:
 
       CALL mma_deallocate(IDXBUF)
       IDX=>Null()
-      CALL GETMEM('VALBUF','FREE','REAL',LVALBUF,4*MAXBUF)
+      CALL mma_deallocate(VALBUF)
+      VAL=>Null()
 
       Call CollapseOutput(0,'Denominators, etc.')
 
