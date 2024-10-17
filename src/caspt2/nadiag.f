@@ -20,11 +20,15 @@
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+
+      Real*8 Dummy(1)
+      Real*8, ALLOCATABLE:: BD(:), ID(:)
 
 C Set up non-active diagonal elements of H0.
 
@@ -35,9 +39,8 @@ C Set up non-active diagonal elements of H0.
           IF(NIN.EQ.0) GOTO 3001
           NIS=NISUP(ISYM,ICASE)
           NAS=NASUP(ISYM,ICASE)
-          IF(ICASE.GT.11)
-     &        CALL GETMEM('LBD','ALLO','REAL',LBD,NAS)
-          CALL GETMEM('LID','ALLO','REAL',LID,NIS)
+          IF(ICASE.GT.11)CALL mma_allocate(BD,NAS,LABEL='BD')
+          CALL mma_allocate(ID,NIS,LABEL='ID')
           GOTO (100,200,300,400,500,600,700,800,900,1000,
      &          1100,1200,1300) ICASE
           WRITE(6,*)'NADIAG: Fall through computed GOTO.'
@@ -47,7 +50,7 @@ C VJTU CASE:
  100  CONTINUE
       DO 110 IIS=1,NIS
         IIQ=IIS+NIES(ISYM)
-        WORK(LID-1+IIS)= -EPSI(IIQ)
+        ID(IIS)= -EPSI(IIQ)
  110  CONTINUE
       GOTO 2000
 
@@ -57,7 +60,7 @@ C VJTIP CASE:
         IIQ=IIS+NIGEJES(ISYM)
         IIABS=MIGEJ(1,IIQ)
         IJABS=MIGEJ(2,IIQ)
-        WORK(LID-1+IIS)= -EPSI(IIABS)-EPSI(IJABS)
+        ID(IIS)= -EPSI(IIABS)-EPSI(IJABS)
  210  CONTINUE
       GOTO 2000
 
@@ -67,7 +70,7 @@ C VJTIM CASE:
         IIQ=IIS+NIGTJES(ISYM)
         IIABS=MIGTJ(1,IIQ)
         IJABS=MIGTJ(2,IIQ)
-        WORK(LID-1+IIS)= -EPSI(IIABS)-EPSI(IJABS)
+        ID(IIS)= -EPSI(IIABS)-EPSI(IJABS)
  310  CONTINUE
       GOTO 2000
 
@@ -75,7 +78,7 @@ C ATVX  CASE:
  400  CONTINUE
       DO 410 IIS=1,NIS
         IIQ=IIS+NSES(ISYM)
-        WORK(LID-1+IIS)= +EPSE(IIQ)
+        ID(IIS)= +EPSE(IIQ)
  410  CONTINUE
       GOTO 2000
 
@@ -90,7 +93,7 @@ C AIVX  CASE:
             IIABS=II+NIES(ISYMI)
             IIS=IIS+1
             EDIAG= -EPSI(IIABS)+EPSE(IAABS)
-            WORK(LID-1+IIS)= EDIAG
+            ID(IIS)= EDIAG
  512      CONTINUE
  511    CONTINUE
  510  CONTINUE
@@ -109,7 +112,7 @@ C VJAIP CASE:
             IAABS=IA+NSES(ISYMA)
             IIS=IIS+1
             EDIAG= -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
-            WORK(LID-1+IIS)= EDIAG
+            ID(IIS)= EDIAG
  612      CONTINUE
  611    CONTINUE
  610  CONTINUE
@@ -128,7 +131,7 @@ C VJAIM CASE:
             IAABS=IA+NSES(ISYMA)
             IIS=IIS+1
             EDIAG= -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
-            WORK(LID-1+IIS)= EDIAG
+            ID(IIS)= EDIAG
  712      CONTINUE
  711    CONTINUE
  710  CONTINUE
@@ -140,7 +143,7 @@ C BVATP CASE:
         IIQ=IIS+NAGEBES(ISYM)
         IAABS=MAGEB(1,IIQ)
         IBABS=MAGEB(2,IIQ)
-        WORK(LID-1+IIS)= +EPSE(IAABS)+EPSE(IBABS)
+        ID(IIS)= +EPSE(IAABS)+EPSE(IBABS)
  810  CONTINUE
       GOTO 2000
 
@@ -150,7 +153,7 @@ C BVATM CASE:
         IIQ=IIS+NAGTBES(ISYM)
         IAABS=MAGTB(1,IIQ)
         IBABS=MAGTB(2,IIQ)
-        WORK(LID-1+IIS)= +EPSE(IAABS)+EPSE(IBABS)
+        ID(IIS)= +EPSE(IAABS)+EPSE(IBABS)
  910  CONTINUE
       GOTO 2000
 
@@ -167,7 +170,7 @@ C BJATP CASE:
             IIABS=II+NIES(ISYMI)
             IIS=IIS+1
             EDIAG= -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
-            WORK(LID-1+IIS)= EDIAG
+            ID(IIS)= EDIAG
  1012     CONTINUE
  1011   CONTINUE
  1010 CONTINUE
@@ -186,7 +189,7 @@ C BJATM CASE:
             IIABS=II+NIES(ISYMI)
             IIS=IIS+1
             EDIAG= -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
-            WORK(LID-1+IIS)= EDIAG
+            ID(IIS)= EDIAG
  1112     CONTINUE
  1111   CONTINUE
  1110 CONTINUE
@@ -200,14 +203,14 @@ C BJAIP CASE:
         IBABS=MAGEB(2,IABQ)
         IIS=IIS+1
         EDIAG= EPSE(IAABS)+EPSE(IBABS)
-        WORK(LBD-1+IAB)= EDIAG
+        BD(IAB)= EDIAG
  1210 CONTINUE
       DO 1220 IIJ=1,NIGEJ(ISYM)
         IIJQ=IIJ+NIGEJES(ISYM)
         IIABS=MIGEJ(1,IIJQ)
         IJABS=MIGEJ(2,IIJQ)
         EDIAG= -EPSI(IIABS)-EPSI(IJABS)
-        WORK(LID-1+IIJ)= EDIAG
+        ID(IIJ)= EDIAG
  1220 CONTINUE
       GOTO 2000
 
@@ -219,14 +222,14 @@ C BJAIM CASE:
         IBABS=MAGTB(2,IABQ)
         IIS=IIS+1
         EDIAG= EPSE(IAABS)+EPSE(IBABS)
-        WORK(LBD-1+IAB)= EDIAG
+        BD(IAB)= EDIAG
  1310 CONTINUE
       DO 1320 IIJ=1,NIGTJ(ISYM)
         IIJQ=IIJ+NIGTJES(ISYM)
         IIABS=MIGTJ(1,IIJQ)
         IJABS=MIGTJ(2,IIJQ)
         EDIAG= -EPSI(IIABS)-EPSI(IJABS)
-        WORK(LID-1+IIJ)= EDIAG
+        ID(IIJ)= EDIAG
  1320 CONTINUE
       GOTO 2000
 
@@ -234,18 +237,17 @@ C BJAIM CASE:
 C NOTE: BDIAG elements used in cases 12 & 13.
       IDID=IDBMAT(ISYM,ICASE)
       IF(ICASE.GT.11) THEN
-        CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,IDID)
-        CALL GETMEM('LBD','FREE','REAL',LBD,NAS)
+        CALL DDAFILE(LUSBT,1,BD,NAS,IDID)
+        CALL mma_deallocate(BD)
       ELSE
 C Dummy read the BDIAG elements. NOTE: NAS, not NIN.
-        CALL DDAFILE(LUSBT,0,WORK(1),NAS,IDID)
+        CALL DDAFILE(LUSBT,0,Dummy,NAS,IDID)
       END IF
-      CALL DDAFILE(LUSBT,1,WORK(LID),NIS,IDID)
-      CALL GETMEM('LID','FREE','REAL',LID,NIS)
+      CALL DDAFILE(LUSBT,1,ID,NIS,IDID)
+      CALL mma_deallocate(ID)
 
  3001   CONTINUE
  3000 CONTINUE
 
 
-      RETURN
-      END
+      END SUBROUTINE NADIAG
