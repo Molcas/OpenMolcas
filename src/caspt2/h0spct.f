@@ -104,7 +104,7 @@ C positioning.
           CALL RHS_READ_SR(lg_RHS,ICASE,ISYM,IRHS)
           CALL RHS_READ_SR(lg_VEC,ICASE,ISYM,IVECX)
           IBUF=0
-#ifdef _MOLCBankAS_MPP_
+#ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
 * Get the superindex ranges of this process's block. If no elements are
 * owned by a process, then ilo=0 and ihi=-1 such that the loop further

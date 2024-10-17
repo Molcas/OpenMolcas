@@ -89,7 +89,7 @@ C
       INTEGER ICNJ(MXLEV**2)
       INTEGER IP1_BUF(MXLEV**2)
 
-      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:)
+      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
       INTEGER, ALLOCATABLE:: TaskList(:,:)
       REAL*8, ALLOCATABLE:: G3Tmp(:)
 
