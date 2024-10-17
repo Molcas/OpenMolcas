@@ -39,6 +39,7 @@
 #endif
       INTEGER, POINTER:: IDX(:,:)=>Null()
       REAL*8, POINTER:: VAL(:,:)=>Null()
+      REAL*8, ALLOCATABLE:: BD(:), ID(:)
 
 C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).
@@ -92,11 +93,11 @@ C Very long loop over symmetry and case:
 
 C Remember: NIN values in BDIAG, but must read NAS for correct
 C positioning.
-          CALL GETMEM('LBD','ALLO','REAL',LBD,NAS)
-          CALL GETMEM('LID','ALLO','REAL',LID,NIS)
-          ID=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LBD),NAS,ID)
-          CALL DDAFILE(LUSBT,2,WORK(LID),NIS,ID)
+          CALL mma_allocate(BD,NAS,LABEL='BD')
+          CALL mma_allocate(ID,NIS,LABEL='ID')
+          JD=IDBMAT(ISYM,ICASE)
+          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
+          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
 
           CALL RHS_ALLO(NIN,NIS,lg_RHS)
           CALL RHS_ALLO(NIN,NIS,lg_VEC)
@@ -143,7 +144,7 @@ C positioning.
 ************************************************************************
           DO IIS=IISTA,IIEND
             DO IAS=IASTA,IAEND
-              DNOM=WORK(LBD-1+IAS)+WORK(LID-1+IIS)
+              DNOM=BD(IAS)+ID(IIS)
 #ifdef _MOLCAS_MPP_
               IF (Is_Real_Par()) THEN
                 RHS =DBL_MB(mRHS+IAS-1+NIN*(IIS-IISTA))
@@ -237,8 +238,8 @@ C positioning.
           CALL RHS_FREE(NIN,NIS,lg_RHS)
           CALL RHS_FREE(NIN,NIS,lg_VEC)
 
-          CALL GETMEM('LBD','FREE','REAL',LBD,NAS)
-          CALL GETMEM('LID','FREE','REAL',LID,NIS)
+          CALL mma_deallocate(BD)
+          CALL mma_deallocate(ID)
 
  100      CONTINUE
 
