@@ -38,6 +38,7 @@
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8  TrDP(8), TrDF(8)
       REAL*8, allocatable:: CMOX(:), DMAT(:)
+      Integer, allocatable:: ID(:)
 *
 *
       irc=0
@@ -240,9 +241,9 @@
 *
          Call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh)
 *
-         Call GetMem('iD_orb','Allo','Inte',ip_iD,nOrb)
+         Call mma_allocate(iD,nOrb,Label='iD')
          Do k=1,nOrb
-            iWork(ip_iD-1+k) = k
+            iD(k) = k
          End Do
          lOff=0
          kOff=0
@@ -252,7 +253,7 @@
             jD=ip_X+iOff
             Call Get_Can_Lorb(Work(kEVir+lOff),Work(ipOrbE+jOff),
      &                        nSsh(iSym),lnVir(iSym),
-     &                        iWork(ip_iD),DMAT(jD))
+     &                        iD,DMAT(jD))
 
             kfr=1+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
             kto=iCMO+kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
@@ -268,7 +269,7 @@
             jOff=jOff+nSsh(iSym)
             iOff=iOff+lnVir(iSym)**2
          End Do
-         Call GetMem('iD_orb','Free','Inte',ip_iD,nOrb)
+         Call mma_deallocate(iD)
          kEVir=ipOrbE
 *
          EMP2=DeMP2
