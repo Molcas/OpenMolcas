@@ -14,7 +14,7 @@
       use caspt2_data, only:LUSBT
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
-      use allgather_wrapper, only : allgather
+      use allgather_wrapper, only : allgather_R, allgather_I
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
@@ -188,11 +188,11 @@ C positioning.
           IF (Is_Real_Par()) THEN
             CALL GAIGOP_SCAL(NBUF,'+')
             CALL mma_allocate(IDX_H,2,NBUF,LABEL='IDX_H')
-            IDX=>IDX_H
             CALL mma_allocate(VAL_H,4,NBUF,LABEL='VAL_H')
+            CALL allgather_I(IDXBUF,2*IBUF,IDX_H,2*NBUF)
+            CALL allgather_R(VALBUF,4*IBUF,VAL_H,4*NBUF)
+            IDX=>IDX_H
             VAL=>VAL_H
-            CALL allgather(IDXBUF,2*IBUF,IDX,2*NBUF)
-            CALL allgather(VALBUF,4*IBUF,VAL,4*NBUF)
           ELSE
             IDX=>IDXBUF
             VAL=>VALBUF

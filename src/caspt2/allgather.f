@@ -16,6 +16,7 @@
       module allgather_wrapper
       private
       public :: allgather
+      public :: allgather_R, allgather_I
 
       interface allgather
         module procedure :: allgather_R, allgather_I
