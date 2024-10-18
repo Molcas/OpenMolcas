@@ -80,7 +80,6 @@ C as this is how they are used to compute the integrals for RHS.
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER :: ICASE,ISYQ,JSYM
       INTEGER :: ISYP,NP,NQ
@@ -117,7 +116,6 @@ C as this is how they are used to compute the integrals for RHS.
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER :: ICASE,NCHOBUF,IOFF(8,8)
       INTEGER :: ISYK,ISYQ,JSYM
@@ -228,7 +226,6 @@ C as this is how they are used to compute the integrals for RHS.
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
@@ -260,7 +257,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
@@ -298,7 +294,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       REAL*8 :: CHOBUF(*)
       INTEGER :: ICASE,ISYQ,JSYM,IB
 

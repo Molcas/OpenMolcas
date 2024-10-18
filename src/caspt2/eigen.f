@@ -16,7 +16,6 @@
       subroutine eigen(A,U,N)
       use stdalloc, only: mma_allocate, mma_deallocate
       implicit None
-#include "WrkSpc.fh"
 
       integer N
       real(8) A(N,N)
