@@ -26,7 +26,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
       Real(kind=wp),intent(inout) :: Heff(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: H0(Nstate,Nstate)

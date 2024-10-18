@@ -11,11 +11,12 @@
       Subroutine setup_cho(nSym,nIsh,nAsh,nSsh,NumCho,mode)
 * -------------------------
 * This subroutine uses the input variables to compute
-* ipsp,nisplit, nasplit,lsplit,ipnp,ipip each dimensioned (1:nsym),
+* Stuff(:)%Unit(:), Stuff(:)%ip(:), Stuff(:)%np(:), Stuff%sp(:)
+* nisplit, nasplit,lsplit, each dimensioned (1:nsym),
 * in module chocaspt2.F90,
-* and allocates fields at iwork() addresses ipsp(1:nsym),ipnp(1:nsym),
-* Stuff(1:nsym)%Unit, each with sizes lsplit(1:nsym), and
-* ipip(1:nsym), each with sizes nsym*lsplit(1:nsym)
+* and allocates fields %Unit(:), %np(:), and %sp(:)
+* each with sizes lsplit(1:nsym), and
+* %ip(:), with teh sizes nsym*lsplit(1:nsym)
 * -------------------------
       use stdalloc, only: mma_MaxDBLE
       use ChoCASPT2
@@ -124,9 +125,9 @@ C *********************************************************************
 * vectors with a fixed inactive orbital index (Inactive vectors), and
 * nASplit(jSym) batches with vectors with a fixed active index
 * (Active vectors). Each batch has vectors with fixed index within a
-* range of size iWork(ipsp(jSym)+i-1) where i is in 1..nISplit(jSym) or
+* range of size Stuff(jSym)%sp(i) where i is in 1..nISplit(jSym) or
 *  in nISplit(jSym)+1..nISplit(jSym)+nASplit(jSym).
-* The vectors themselves have a size of iWork(ipnp(jSym)+i-1)
+* The vectors themselves have a size of Stuff(jSym)%np(i)
 * The vectors are generally referred to as e.g. p#k, where #k stands
 * for the fixed inactive or active orbital, while p is all the orbitals
 * with a symmetry such that the compound symmetry label is JSYM.
@@ -272,7 +273,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
             lS = cho_irange(ioff+1,iIorb,nSym,.false.)
 * lS is its symmetry.
             iK = nIc(isp,jSym) + ioff
-* Note: nIc(isp,jSym)=iWork(ipsp(jSym)+isp-1)
+* Note: nIc(isp,jSym)=Stuff(jSym)%sp(isp)
 * iK is the last orbital of the partition, and kS its symmetry
             kS = cho_irange(iK,iIorb,nSym,.false.)
 

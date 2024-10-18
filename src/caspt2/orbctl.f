@@ -29,7 +29,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 
