@@ -1855,16 +1855,17 @@ C Write to disk, and save size and address.
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
 
+      REAL*8, ALLOCATABLE:: SD(:)
 C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
 C    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
@@ -1878,9 +1879,7 @@ C Loop over superindex symmetry.
         IF(NIN.EQ.0) GOTO 1000
         NAS=NTU(ISYM)
         NSD=(2*NAS*(2*NAS+1))/2
-        IF(NSD.GT.0) THEN
-          CALL GETMEM('SD','ALLO','REAL',LSD,NSD)
-        END IF
+        IF(NSD.GT.0) Call mma_allocate(SD,NSD,LABEL='SD')
         DO 100 ITU=1,NAS
         ITU2=ITU+NAS
           ITUABS=ITU+NTUES(ISYM)
@@ -1918,12 +1917,12 @@ C Loop over superindex symmetry.
               S22=S22+2.0D0*DUY
             END IF
 C    SD(tu1,xy1)=2*(Gutxy + dtx Duy)
-            WORK(LSD-1+IS11)= S11
+            SD(IS11)= S11
 C    SD(tu2,xy1)= -(Gutxy + dtx Duy)
-            WORK(LSD-1+IS21)=-0.5D0*S11
-            WORK(LSD-1+IS12)=-0.5D0*S11
+            SD(IS21)=-0.5D0*S11
+            SD(IS12)=-0.5D0*S11
 C    SD(tu2,xy2)= -Gxtuy +2*dtx Duy
-            WORK(LSD-1+IS22)= S22
+            SD(IS22)= S22
  101      CONTINUE
  100    CONTINUE
 
@@ -1931,9 +1930,9 @@ C Write to disk
         IF(NSD.GT.0) THEN
          IF(NINDEP(ISYM,5).GT.0) THEN
           IDISK=IDSMAT(ISYM,5)
-          CALL DDAFILE(LUSBT,1,WORK(LSD),NSD,IDISK)
+          CALL DDAFILE(LUSBT,1,SD,NSD,IDISK)
          END IF
-         CALL GETMEM('SD','FREE','REAL',LSD,NSD)
+         CALL mma_deallocate(SD)
         END IF
  1000 CONTINUE
 
@@ -1944,16 +1943,17 @@ C Write to disk
       SUBROUTINE MKSE(DREF,NDREF)
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF)
 
+      REAL*8, ALLOCATABLE:: SE(:)
 C Set up the matrix SE(t,x)
 C Formula used:
 C    SE(t,x)=2*dtx - Dtx
@@ -1966,7 +1966,7 @@ C    SE(t,x)=2*dtx - Dtx
         NINM=NINDEP(ISYM,7)
         NAS=NASH(ISYM)
         NSE=(NAS*(NAS+1))/2
-        IF(NSE.GT.0) CALL GETMEM('SE','ALLO','REAL',LSE,NSE)
+        IF(NSE.GT.0) CALL mma_allocate(SE,NSE,Label='SE')
         DO 100 IT=1,NAS
           ITABS=IT+NAES(ISYM)
           DO 101 IX=1,IT
@@ -1974,9 +1974,9 @@ C    SE(t,x)=2*dtx - Dtx
             ISE=(IT*(IT-1))/2+IX
             ID=(ITABS*(ITABS-1))/2+IXABS
             IF(ITABS.EQ.IXABS) THEN
-              WORK(LSE-1+ISE)=2.0D00-DREF(ID)
+              SE(ISE)=2.0D00-DREF(ID)
             ELSE
-              WORK(LSE-1+ISE)=-DREF(ID)
+              SE(ISE)=-DREF(ID)
             END IF
  101      CONTINUE
  100    CONTINUE
@@ -1984,12 +1984,12 @@ C    SE(t,x)=2*dtx - Dtx
 C Write to disk
         IF(NSE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
           IDISK=IDSMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,1,WORK(LSE),NSE,IDISK)
+          CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
           IF(NINM.GT.0.and.NINDEP(ISYM,7).GT.0) THEN
             IDISK=IDSMAT(ISYM,7)
-            CALL DDAFILE(LUSBT,1,WORK(LSE),NSE,IDISK)
+            CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
           END IF
-          CALL GETMEM('SE','FREE','REAL',LSE,NSE)
+          CALL mma_deallocate(SE)
         END IF
  1000 CONTINUE
 
