@@ -32,7 +32,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 #include "intgrl.fh"
 #include "warnings.h"
       LOGICAL IF_TRNSF
@@ -40,6 +39,8 @@
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
+
+      real(8), allocatable:: CIRef(:,:), CIXMS(:)
 
 * ---------------------------------------------------------------------
 * Number of states in this group.
@@ -212,33 +213,33 @@ c You don't have to be beautiful to turn me on
           write(6,*)
         end if
 
-        call getmem('CIREF','ALLO','REAL',LCIref,Ngrp*Nconf)
+        call mma_allocate(CIref,Nconf,Ngrp,Label='CIRef')
 * Load the CI arrays into memory
         do I=1,Ngrp
-          call loadCI(WORK(LCIref+Nconf*(I-1)),I)
+          call loadCI(CIref(:,I),I)
         end do
 
-        call getmem('CIXMS','ALLO','REAL',LCIXMS,Nconf)
+        call mma_allocate(CIXMS,Nconf,Label='CIXMS')
         do J=1,Ngrp
 * Transform the states
           call dgemm_('N','N',Nconf,1,Ngrp,
-     &               1.0D0,WORK(LCIREF),Nconf,U0(:,J),Ngrp,
-     &               0.0D0,WORK(LCIXMS),Nconf)
+     &               1.0D0,CIREF,Nconf,U0(:,J),Ngrp,
+     &               0.0D0,CIXMS,Nconf)
 
 * Write the rotated CI coefficients back into LUCIEX and REPLACE the
 * original unrotated CASSCF states. Note that the original states
 * are still available in the JobIph file
-          call writeCI(WORK(LCIXMS),J)
+          call writeCI(CIXMS,J)
 
           if (IPRGLB.ge.VERBOSE) then
             write(6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-            call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
+            call PRWF_CP2(STSYM,NCONF,CIXMS,CITHR)
           end if
         end do
 
-        call getmem('CIREF','FREE','REAL',LCIREF,Ngrp*Nconf)
-        call getmem('CIXMS','FREE','REAL',LCIXMS,Nconf)
+        call mma_deallocate(CIREF)
+        call mma_deallocate(CIXMS)
 
       end if
 
