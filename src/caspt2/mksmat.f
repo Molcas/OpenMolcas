@@ -32,6 +32,7 @@ C     Set up S matrices for cases 1..13.
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
+      REAL*8, ALLOCATABLE:: G3(:)
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -46,16 +47,16 @@ CSVC: print header for debug info
         END IF
 C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
-        CALL GETMEM('GAMMA3','ALLO','REAL',LG3,NG3)
-        CALL PT2_GET(NG3,'GAMMA3',WORK(LG3))
+        CALL mma_allocate(G3,NG3,Label='G3')
+        CALL PT2_GET(NG3,'GAMMA3',G3)
         CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,WORK(LG3),idxG3)
-        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,WORK(LG3),idxG3)
+        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
+        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
 
-        CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
+        CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
@@ -82,7 +83,7 @@ C looping, etc in the rest  of the routines.
 
 
       RETURN
-      END
+      END SUBROUTINE MKSMAT
 
 ********************************************************************************
 * Case A (ICASE=1)
@@ -168,7 +169,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
         CALL PSBMAT_FREEMEM('SA',lg_SA,NAS)
       END DO
 
-      END
+      END SUBROUTINE MKSA
 
       SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
       USE SUPERINDEX
@@ -340,8 +341,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
  500   CONTINUE
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKSA_G3
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
@@ -802,7 +802,7 @@ c Avoid unused argument warnings
       END IF
       END FUNCTION
 
-      END
+      END SUBROUTINE MKSA_G3_MPP
 #endif
 
       SUBROUTINE MKSA_DP (DREF,NDREF,PREF,NPREF,
@@ -898,7 +898,8 @@ C Add -dyu Gvzxt
           END IF
  101    CONTINUE
  100  CONTINUE
-      END
+
+      END SUBROUTINE MKSA_DP
 
 ********************************************************************************
 * Case C (ICASE=4)
@@ -985,7 +986,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
         CALL PSBMAT_FREEMEM('SC',lg_SC,NAS)
       END DO
 
-      END
+      END SUBROUTINE MKSC
 
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
       USE SUPERINDEX
@@ -1157,8 +1158,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
  500   CONTINUE
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKSC_G3
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
@@ -1619,7 +1619,7 @@ c Avoid unused argument warnings
       END IF
       END FUNCTION
 
-      END
+      END SUBROUTINE MKSC_G3_MPP
 #endif
 
       SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,
@@ -1699,7 +1699,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
           END IF
  101    CONTINUE
  100  CONTINUE
-      END
+      END SUBROUTINE MKSC_DP
 
 ********************************************************************************
 * Case B (ICASE=2,3)
@@ -1849,7 +1849,7 @@ C Write to disk, and save size and address.
 
 
       RETURN
-      END
+      END SUBROUTINE MKSB
 
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
@@ -1939,7 +1939,7 @@ C Write to disk
 
 
       RETURN
-      END
+      END SUBROUTINE MKSD
 
       SUBROUTINE MKSE(DREF,NDREF)
       use caspt2_data, only: LUSBT
@@ -1993,9 +1993,7 @@ C Write to disk
         END IF
  1000 CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKSE
 
       SUBROUTINE MKSF(PREF,NPREF)
       USE SUPERINDEX
@@ -2108,23 +2106,21 @@ C Write to disk
         END IF
  1000 CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKSF
 
       SUBROUTINE MKSG(DREF,NDREF)
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-
 #include "SysDef.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF)
 
+      REAL*8, ALLOCATABLE:: SG(:)
 C Set up the matrix SG(t,x)
 C Formula used:
 C    SG(t,x)= Dtx
@@ -2136,29 +2132,27 @@ C    SG(t,x)= Dtx
         NINM=NINDEP(ISYM,11)
         NAS=NASH(ISYM)
         NSG=(NAS*(NAS+1))/2
-        IF(NSG.GT.0) CALL GETMEM('SG','ALLO','REAL',LSG,NSG)
+        IF(NSG.GT.0) CALL mma_allocate(SG,NSG,Label='SG')
         DO 100 IT=1,NAS
           ITABS=IT+NAES(ISYM)
           DO 101 IX=1,IT
             IXABS=IX+NAES(ISYM)
             ISG=(IT*(IT-1))/2+IX
             ID=(ITABS*(ITABS-1))/2+IXABS
-            WORK(LSG-1+ISG)= DREF(ID)
+            SG(ISG)= DREF(ID)
  101      CONTINUE
  100    CONTINUE
 
 C Write to disk
         IF(NSG.GT.0.and.NINDEP(ISYM,10).GT.0) THEN
           IDISK=IDSMAT(ISYM,10)
-          CALL DDAFILE(LUSBT,1,WORK(LSG),NSG,IDISK)
+          CALL DDAFILE(LUSBT,1,SG,NSG,IDISK)
           IF(NINM.GT.0.and.NINDEP(ISYM,11).GT.0) THEN
             IDISK=IDSMAT(ISYM,11)
-            CALL DDAFILE(LUSBT,1,WORK(LSG),NSG,IDISK)
+            CALL DDAFILE(LUSBT,1,SG,NSG,IDISK)
           END IF
-          CALL GETMEM('SG','FREE','REAL',LSG,NSG)
+          CALL mma_deallocate(SG)
         END IF
  1000 CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKSG
