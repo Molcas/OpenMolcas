@@ -38,7 +38,7 @@ call Get_iArray('NumCho',NumCho,nSym)
 
 if (NCALLS == 0) then
   do iB=1,nBatch
-    iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+    iaddr = (iTyp-1)*nIsplit(iSym)+iB
     Unit_F(iSym)%IArr(iAddr) = -1
   end do
 end if
@@ -48,7 +48,7 @@ end if
 
 if (iOpt == 0) then
   do iB=1,nBatch
-    iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+    iaddr = (iTyp-1)*nIsplit(iSym)+iB
     Unit_F(iSym)%IArr(iaddr) = -1
   end do
   return
@@ -63,7 +63,7 @@ end if
 if (iOpt == 1) then
   if (NumCho(iSym) > 0) then
     do iB=1,nBatch
-      iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+      iaddr = (iTyp-1)*nIsplit(iSym)+iB
       if (Unit_F(iSym)%IArr(iaddr) < 1) then
         call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
         write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
@@ -75,13 +75,13 @@ if (iOpt == 1) then
     end do
   else
     do iB=1,nBatch
-      iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+      iaddr = (iTyp-1)*nIsplit(iSym)+iB
       Unit_F(iSym)%IArr(iaddr) = -1
     end do
   end if
 else if (iOpt == 2) then
   do iB=1,nBatch
-    iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+    iaddr = (iTyp-1)*nIsplit(iSym)+iB
     if (Unit_F(iSym)%IArr(iaddr) > 0) then
       write(u6,*) ' Closing lUnit_F=',Unit_F(iSym)%IArr(iaddr)
       call daClos(Unit_F(iSym)%IArr(iaddr))
@@ -90,7 +90,7 @@ else if (iOpt == 2) then
   end do
 else if (iOpt == 3) then
   do iB=1,nBatch
-    iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
+    iaddr = (iTyp-1)*nIsplit(iSym)+iB
     if (Unit_F(iSym)%IArr(iaddr) > 0) then
       write(u6,*) ' Erasing lUnit_F=',Unit_F(iSym)%IArr(iaddr)
       call daEras(Unit_F(iSym)%IArr(iaddr))

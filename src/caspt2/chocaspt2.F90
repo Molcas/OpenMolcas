@@ -12,7 +12,7 @@ Module ChoCASPT2
 ! Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
 ! of corresponding values in module Cholesky.
 ! Values are transferred at the beginning of caspt2.
-Integer ipUnit_F(8),ipSp(8),Lsplit(8),nIsplit(8),nAsplit(8),      &
+Integer ipSp(8),Lsplit(8),nIsplit(8),nAsplit(8),      &
         ipnP(8),ipiP(8),nksh(8),nkes(8),npsh(8),npes(8),          &
         numcho_pt2(8),iALGO,InfVec_N2_PT2,MaxVec_PT2,             &
         IF_CHO,NCHSPC,NHTSPC,NFTSPC,NFTSPC_TOT,                   &

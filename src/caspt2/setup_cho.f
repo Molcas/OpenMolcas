@@ -50,10 +50,7 @@ C *********************************************************************
       if (modecopy.eq.'FREE') then
        Do jSym=1,nSym
         If (NumCho(jSym).gt.0) then
-*        Call GetMem('Unit_F','Free','Inte',ipunit_f(jSym),
-*    &                                         lsplit(jSym))
          Call mma_deallocate(Unit_F(jSym)%IArr)
-         ipunit_f(jSym)=0
          Call GetMem('iPorb','Free','Inte',ipip(jSym),
      &                                        nSym*lsplit(jSym))
          Call GetMem('nPorb','Free','Inte',ipnp(jSym),lsplit(jSym))
@@ -64,7 +61,6 @@ C *********************************************************************
       end if
 
       do i=1,8
-       ipunit_f(i)=0
        ipsp(i)=0
        lsplit(i)=0
        nisplit(i)=0
@@ -237,9 +233,6 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          Call GetMem('nPorb','Allo','Inte',ipnp(jSym),lsplit(jSym))
          Call GetMem('iPorb','Allo','Inte',ipip(jSym),
      &                                        nSym*lsplit(jSym))
-*        Call GetMem('Unit_F','Allo','Inte',ipunit_f(jSym),
-*    &                                         lsplit(jSym))
-         ipunit_f(jSym)=1
          Call mma_allocate(Unit_F(jsym)%IArr,lsplit(jSym),
      &                     Label='Unit_F')
          do i=1,lsplit(jSym)
