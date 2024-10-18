@@ -16,8 +16,8 @@ use nevpt2_cfg, only: MultGroup
 use info_state_energy, only: deinit_energies         ! energies
 use info_orbital_space, only: finalize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_close
-use stdalloc, only: mma_deallocate
 use caspt2_data, only: LUONEM
+use stdalloc, only: mma_deallocate
 
 implicit none
 

@@ -219,7 +219,7 @@ do jSym=1,MaxSym
       if (nq*np <= 0) cycle
 
       iS = iE+1
-      Wab%ipOff(iSymp)=iS
+      Wab%ipOff(iSymp) = iS
       if ((iSymp > iSymq) .and. (iSkip(iSymp) /= 0)) then
         NumB = np*nq
         iE = iE+NumB*NumV

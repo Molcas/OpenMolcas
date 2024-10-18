@@ -35,21 +35,21 @@ subroutine tr2nsa3(CMO,NCMO,X1,nX1,X2,nX2,pqUs,npqUS,pqrU,npqrU)
 ! transformed MO integrals are stored as the same as Tr2Sq
 ! subroutine does.
 
+use caspt2_data, only: LUHLF1, LUHLF2, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use caspt2_data, only: LUHLF1, LUHLF2, LUINTM
 
 implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
 integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqUS, npqrU
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 real(kind=wp), intent(inout) :: pqUS(npqUS), pqrU(npqrU)
-integer(kind=iwp) :: IAD1S, IAD2, IAD2S, icxc3, icxc7, IPQMX1, IPQMX2, IPQST, IRU, IS, ISPQRS, IST, ITU, IUS, KKTU, LAS, LS, NA, &
-                     NAT, NORU, NOTU, NOUS, NS, NSYMP, NT, NTM, NTMAX, NU, Num, NUMAX
+#include "rasdim.fh"
+#include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"
+integer(kind=iwp) :: IAD1S, IAD2, IAD2S, icxc3, icxc7, IPQMX1, IPQMX2, IPQST, IRU, IS, ISPQRS, IST, ITU, IUS, KKTU, LAS, LS, NA, &
+                     NAT, NORU, NOTU, NOUS, NS, NSYMP, NT, NTM, NTMAX, NU, Num, NUMAX
 
 NSYMP = NSYM*(NSYM+1)/2
 NOTU = NOCR*NOCS

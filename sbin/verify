@@ -590,7 +590,7 @@ short_help = '''
 
 where: task is a group name (standard, additional, benchmark,
 grayzone, failed) followed by colon and then a comma-separated
-list of numbers and/or ranges, e.g.: standard:000,005-121,-014
+list of numbers and/or ranges, e.g.: standard:000,005-098,-014
 
 use the long option --help for a complete description!
 '''.format(DRIVER_base, thisfile)

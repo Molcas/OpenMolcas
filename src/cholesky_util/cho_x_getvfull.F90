@@ -76,7 +76,7 @@ integer(kind=iwp) :: i, ipChoV(8), ipVec(8), iSymp, iSymq, IVEC2, j, JNUM, JVEC1
 MXUSD = 0
 MUSED = 0
 
-ipChoV(1:nSym)=Wab%ipOff(1:nSym)
+ipChoV(1:nSym) = Wab%ipOff(1:nSym)
 
 ipVec(1:nSym) = ipChoV(1:nSym)
 

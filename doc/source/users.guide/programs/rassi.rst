@@ -67,8 +67,8 @@ a hundred input states, or more, there has been a demand to change
 the output. Until |molcas| 6.2, the default assumption has been to print
 all expectation values and matrix elements that can be computed from
 the selection of one-electron integrals. From 6.4, this is requested by
-keywords, see the keyword list below for XVIN, XVES, XVSO, MEIN,
-MEES, and MESO.
+keywords, see the keyword list below for :kword:`XVIN`, :kword:`XVES`, :kword:`XVSO`, :kword:`MEIN`,
+:kword:`MEES`, and :kword:`MESO`.
 
 Apart from computing oscillator strengths, overlaps and Hamiltonian
 matrix elements can be used to compute :index:`electron transfer rates <single: Electron transfer rate>`, or
