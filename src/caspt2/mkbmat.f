@@ -28,10 +28,10 @@ C Set up B matrices for cases 1..13.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
+      REAL*8, ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -41,20 +41,20 @@ C Set up B matrices for cases 1..13.
 
       IF(NASHT.EQ.0) GOTO 100
 
-      CALL GETMEM('DELTA1','ALLO','REAL',LF1,NG1)
+      CALL mma_allocate(F1,NG1,Label='F1')
       NFD=SIZE(PREF)
-      CALL GETMEM('FD','ALLO','REAL',LFD,NFD)
-      CALL PT2_GET(NG1,'DELTA1',WORK(LF1))
-      CALL MKDREF_RPT2(NASHT,WORK(LF1),WORK(LFD))
-      CALL GETMEM('DELTA1','FREE','REAL',LF1,NG1)
-      CALL GETMEM('DELTA2','ALLO','REAL',LF2,NG2)
-      CALL PT2_GET(NG2,'DELTA2',WORK(LF2))
+      CALL mma_allocate(FD,NFD,Label='FD')
+      CALL PT2_GET(NG1,'DELTA1',F1)
+      CALL MKDREF_RPT2(NASHT,F1,FD)
+      CALL mma_deallocate(F1)
+      CALL mma_allocate(F2,NG2,Label='F2')
+      CALL PT2_GET(NG2,'DELTA2',F2)
       NFP=SIZE(PREF)
-      CALL GETMEM('FP','ALLO','REAL',LFP,NFP)
-      CALL MKPREF_RPT2(NASHT,WORK(LF2),WORK(LFP))
-      CALL GETMEM('DELTA2','FREE','REAL',LF2,NG2)
-      CALL GETMEM('DELTA3','ALLO','REAL',LF3,NG3)
-      CALL PT2_GET(NG3,'DELTA3',WORK(LF3))
+      CALL mma_allocate(FP,NFP,Label='FP')
+      CALL MKPREF_RPT2(NASHT,F2,FP)
+      CALL mma_deallocate(F2)
+      CALL mma_allocate(F3,NG3,Label='F3')
+      CALL PT2_GET(NG3,'DELTA3',F3)
 
       IF(IPRGLB.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
@@ -65,21 +65,19 @@ C Set up B matrices for cases 1..13.
       iLUID=0
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-      CALL MKBA(DREF,SIZE(DREF),PREF,SIZE(PREF),
-     &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
-      CALL MKBC(DREF,SIZE(DREF),PREF,SIZE(PREF),
-     &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
+      CALL MKBA(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+      CALL MKBC(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
 
-      CALL GETMEM('DELTA3','FREE','REAL',LF3,NG3)
+      CALL mma_deallocate(F3)
       CALL mma_deallocate(idxG3)
 
-      CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),WORK(LFD),WORK(LFP))
-      CALL MKBD(DREF,SIZE(DREF),PREF,SIZE(PREF),WORK(LFD),WORK(LFP))
-      CALL MKBE(DREF,SIZE(DREF),WORK(LFD))
-      CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),WORK(LFP))
-      CALL MKBG(DREF,SIZE(DREF),WORK(LFD))
-      CALL GETMEM('FP','FREE','REAL',LFP,NFP)
-      CALL GETMEM('FD','FREE','REAL',LFD,NFD)
+      CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
+      CALL MKBD(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
+      CALL MKBE(DREF,SIZE(DREF),FD)
+      CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
+      CALL MKBG(DREF,SIZE(DREF),FD)
+      CALL mma_deallocate(FP)
+      CALL mma_deallocate(FD)
 
  100  CONTINUE
 
@@ -190,7 +188,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         CALL PSBMAT_FREEMEM('BA',lg_BA,NAS)
       END DO
 
-      END
+      END SUBROUTINE MKBA
 
       SUBROUTINE MKBA_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                    BA,iLo,iHi,jLo,jHi,LDA)
@@ -292,7 +290,7 @@ CGG End
           BA(ISADR)=VALUE
         END DO
       END DO
-      END
+      END SUBROUTINE MKBA_DP
 
       SUBROUTINE MKBA_F3(ISYM,BA,NG3,F3,idxG3)
       USE SUPERINDEX
@@ -302,8 +300,8 @@ CGG End
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-      DIMENSION BA(*)
-      DIMENSION F3(NG3)
+      REAL*8 BA(*)
+      REAL*8 F3(NG3)
       INTEGER*1 idxG3(6,NG3)
 
 C-SVC20100831: determine indices in SA where a certain F3 value will end up
@@ -463,8 +461,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
  500   CONTINUE
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKBA_F3
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,jLo,jHi,LDA,
@@ -925,7 +922,7 @@ c Avoid unused argument warnings
       END IF
       END FUNCTION
 
-      END
+      END SUBROUTINE MKBA_F3_MPP
 #endif
 
 ********************************************************************************
@@ -1021,7 +1018,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         CALL PSBMAT_FREEMEM('BC',lg_BC,NAS)
       END DO
 
-      END
+      END SUBROUTINE MKBC
 
       SUBROUTINE MKBC_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                    BC,iLo,iHi,jLo,jHi,LDC)
@@ -1107,7 +1104,7 @@ CGG End
           BC(ISADR)=VALUE
         END DO
       END DO
-      END
+      END SUBROUTINE MKBC_DP
 
       SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
       USE SUPERINDEX
@@ -1278,8 +1275,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
  500   CONTINUE
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKBC_F3
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKBC_F3_MPP(ISYM,BC,iLo,iHi,jLo,jHi,LDC,
@@ -1740,7 +1736,7 @@ c Avoid unused argument warnings
       END IF
       END FUNCTION
 
-      END
+      END SUBROUTINE MKBC_F3_MPP
 #endif
 
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
@@ -1748,6 +1744,7 @@ c Avoid unused argument warnings
       use caspt2_global, only:ipea_shift
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1757,6 +1754,9 @@ c Avoid unused argument warnings
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
+
+      REAL*8, ALLOCATABLE:: BB(:), BBP(:), SP(:), SDP(:),
+     &                             BBM(:), SM(:), SDM(:)
 
 C Set up the matrices BBP(tu,xy) and BBM(tu,xy)
 C Formulae used:
@@ -1779,7 +1779,7 @@ C Loop over superindex symmetry.
         NAS=NTU(ISYM)
         NBB=(NAS*(NAS+1))/2
         IF(NBB.GT.0) THEN
-          CALL GETMEM('BB','ALLO','REAL',LBB,NBB)
+          CALL mma_allocate(BB,NBB,Label='BB')
         END IF
         DO ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
@@ -1841,43 +1841,43 @@ C Add  - 2*dxu ( (A-Et-Eu-Ey)*Dyt - Fyt)
               ATUY=EASUM-ET-EU-EY
               VALUE=VALUE-2.0D0*(ATUY*DREF(ID)-FD(ID))
             END IF
-            WORK(LBB-1+IBADR)=VALUE
+            BB(IBADR)=VALUE
           END DO
         END DO
         NASP=NTGEU(ISYM)
         NBBP=(NASP*(NASP+1))/2
         IF(NBBP.GT.0) THEN
-          CALL GETMEM('BBP','ALLO','REAL',LBBP,NBBP)
-CGG.Nov03  Load in LSDP the diagonal elements of SBP matrix:
+          CALL mma_allocate(BBP,NBBP,Label='BBP')
+CGG.Nov03  Load in SDP the diagonal elements of SBP matrix:
           NSP=(NASP*(NASP+1))/2
-          CALL GETMEM('SP','ALLO','REAL',LSP,NSP)
-          CALL GETMEM('SDP','ALLO','REAL',LSDP,NASP)
+          CALL mma_allocate(SP,NSP,Label='SP')
+          CALL mma_allocate(SDP,NASP,Label='SDP')
           IDSP=IDSMAT(ISYM,2)
-          CALL DDAFILE(LUSBT,2,WORK(LSP),NSP,IDSP)
+          CALL DDAFILE(LUSBT,2,SP,NSP,IDSP)
           IDIAG=0
           DO I=1,NASP
             IDIAG=IDIAG+I
-            WORK(LSDP-1+I)=WORK(LSP-1+IDIAG)
+            SDP(I)=SP(IDIAG)
           END DO
-          CALL GETMEM('SP','FREE','REAL',LSP,NSP)
+          CALL mma_deallocate(SP)
 CGG End
         END IF
         NASM=NTGTU(ISYM)
         NBBM=(NASM*(NASM+1))/2
         IF(NBBM.GT.0) THEN
-          CALL GETMEM('BBM','ALLO','REAL',LBBM,NBBM)
-CGG.Nov03  Load in LSDM the diagonal elements of SBM matrix:
+          CALL mma_allocate(BBM,NBBM,Label='BBM')
+CGG.Nov03  Load in SDM the diagonal elements of SBM matrix:
           NSM=(NASM*(NASM+1))/2
-          CALL GETMEM('SM','ALLO','REAL',LSM,NSM)
-          CALL GETMEM('SDM','ALLO','REAL',LSDM,NASM)
+          CALL mma_allocate(SM,NSM,Label='SM')
+          CALL mma_allocate(SDM,NASM,Label='SDM')
           IDSM=IDSMAT(ISYM,3)
-          CALL DDAFILE(LUSBT,2,WORK(LSM),NSM,IDSM)
+          CALL DDAFILE(LUSBT,2,SM,NSM,IDSM)
           IDIAG=0
           DO I=1,NASM
             IDIAG=IDIAG+I
-            WORK(LSDM-1+I)=WORK(LSM-1+IDIAG)
+            SDM(I)=SM(IDIAG)
           END DO
-          CALL GETMEM('SM','FREE','REAL',LSM,NSM)
+          CALL mma_deallocate(SM)
 CGG End
         END IF
         INSM=1
@@ -1897,21 +1897,21 @@ CGG End
             ELSE
               IBADR=(IXY*(IXY-1))/2+ITU
             END IF
-            BTUXY=WORK(LBB-1+IBADR)
+            BTUXY=BB(IBADR)
             IF(ITU.GE.IYX) THEN
               IBADR=(ITU*(ITU-1))/2+IYX
             ELSE
               IBADR=(IYX*(IYX-1))/2+ITU
             END IF
-            BTUYX=WORK(LBB-1+IBADR)
+            BTUYX=BB(IBADR)
             IBPADR=(ITGEU*(ITGEU-1))/2+IXGEY
-            WORK(LBBP-1+IBPADR)=BTUXY+BTUYX
+            BBP(IBPADR)=BTUXY+BTUYX
 CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBBP-1+IBPADR)=WORK(LBBP-1+IBPADR)+ipea_shift*0.5d0*
-     &                          (DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
+              BBP(IBPADR)=BBP(IBPADR)+ipea_shift*0.5d0*
+     &                          (DREF(IDT)+DREF(IDU))*SDP(ITGEU)
             ENDIF
 CGG End
             IF(ITABS.EQ.IUABS) GOTO 200
@@ -1919,48 +1919,44 @@ CGG End
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             IBMADR=(ITGTU*(ITGTU-1))/2+IXGTY
-            WORK(LBBM-1+IBMADR)=BTUXY-BTUYX
+            BBM(IBMADR)=BTUXY-BTUYX
 CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBBM-1+IBMADR)=WORK(LBBM-1+IBMADR)+ipea_shift*0.5d0*
-     &                           (DREF(IDT)+DREF(IDU))*WORK(LSDM-1+INSM)
+              BBM(IBMADR)=BBM(IBMADR)+ipea_shift*0.5d0*
+     &                           (DREF(IDT)+DREF(IDU))*SDM(INSM)
               INSM=INSM+1
             ENDIF
 CGG.End
  200        CONTINUE
           END DO
         END DO
-        IF(NBB.GT.0) THEN
-          CALL GETMEM('BB','FREE','REAL',LBB,NBB)
-        END IF
+        IF(NBB.GT.0) CALL mma_deallocate(BB)
 
 C Write to disk, and save size and address.
         IF(NBBP.GT.0.and.NINDEP(ISYM,2).GT.0) THEN
           IDISK=IDBMAT(ISYM,2)
-          CALL DDAFILE(LUSBT,1,WORK(LBBP),NBBP,IDISK)
-          CALL GETMEM('BBP','FREE','REAL',LBBP,NBBP)
-CGG.Nov03 DisAlloc LSDP
-          CALL GETMEM('SDP','FREE','REAL',LSDP,NASP)
+          CALL DDAFILE(LUSBT,1,BBP,NBBP,IDISK)
+          CALL mma_deallocate(BBP)
+CGG.Nov03 DisAlloc SDP
+          CALL mma_deallocate(SDP)
 CGG End
         END IF
         IF(NBBM.GT.0) THEN
           IF(NINDEP(ISYM,3).GT.0) THEN
             IDISK=IDBMAT(ISYM,3)
-            CALL DDAFILE(LUSBT,1,WORK(LBBM),NBBM,IDISK)
+            CALL DDAFILE(LUSBT,1,BBM,NBBM,IDISK)
           END IF
-          CALL GETMEM('BBM','FREE','REAL',LBBM,NBBM)
-CGG.Nov03 DisAlloc LSDM
-          CALL GETMEM('SDM','FREE','REAL',LSDM,NASM)
+          CALL mma_deallocate(BBM)
+CGG.Nov03 DisAlloc SDM
+          CALL mma_deallocate(SDM)
 CGG End
         END IF
  1000 CONTINUE
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKBB
 
       SUBROUTINE MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
       USE SUPERINDEX
@@ -2078,8 +2074,7 @@ CGG End
       END DO
 
 
-      RETURN
-      END
+      END SUBROUTINE MKBD
 
       SUBROUTINE MKBE(DREF,NDREF,FD)
       use caspt2_global, only:ipea_shift
@@ -2160,9 +2155,7 @@ CGG End
  1000 CONTINUE
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKBE
 
       SUBROUTINE MKBF(DREF,NDREF,PREF,NPREF,FP)
       USE SUPERINDEX
@@ -2325,9 +2318,7 @@ CGG End
  1000 CONTINUE
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKBF
 
       SUBROUTINE MKBG(DREF,NDREF,FD)
       use caspt2_global, only:ipea_shift
@@ -2406,6 +2397,4 @@ CGG End
  1000 CONTINUE
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKBG
