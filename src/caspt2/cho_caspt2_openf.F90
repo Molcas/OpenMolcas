@@ -24,7 +24,6 @@ use ChoCASPT2
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt, iTyp, iSym, nBatch
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iaddr, iB, LuV, nSym, NCALLS = 0, NUMCHO(8)
 character(len=3) :: BaseNm
 character(len=7) :: FullNm
@@ -40,7 +39,7 @@ call Get_iArray('NumCho',NumCho,nSym)
 if (NCALLS == 0) then
   do iB=1,nBatch
     iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-    iWork(iaddr) = -1
+    Unit_F(iSym)%IArr(iAddr) = -1
   end do
 end if
 
@@ -50,7 +49,7 @@ end if
 if (iOpt == 0) then
   do iB=1,nBatch
     iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-    iWork(iaddr) = -1
+    Unit_F(iSym)%IArr(iaddr) = -1
   end do
   return
 end if
@@ -65,38 +64,37 @@ if (iOpt == 1) then
   if (NumCho(iSym) > 0) then
     do iB=1,nBatch
       iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-      if (iWork(iaddr) < 1) then
+      if (Unit_F(iSym)%IArr(iaddr) < 1) then
         call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
         write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
         LuV = 7 ! initial guess
         call daName_MF_WA(LuV,FullNm) ! handle inquire/free unit
-        iWork(iaddr) = LuV
-        write(u6,*) ' Opened file "',FullNm,'" as unit nr LuV=',LuV
+        Unit_F(iSym)%IArr(iaddr) = LuV
         write(u6,*) ' Unit number LuV is stored at address ',iaddr
       end if
     end do
   else
     do iB=1,nBatch
       iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-      iWork(iaddr) = -1
+      Unit_F(iSym)%IArr(iaddr) = -1
     end do
   end if
 else if (iOpt == 2) then
   do iB=1,nBatch
     iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-    if (iWork(iaddr) > 0) then
-      write(u6,*) ' Closing lUnit_F=',iWork(iaddr)
-      call daClos(iWork(iaddr))
-      iWork(iaddr) = -1
+    if (Unit_F(iSym)%IArr(iaddr) > 0) then
+      write(u6,*) ' Closing lUnit_F=',Unit_F(iSym)%IArr(iaddr)
+      call daClos(Unit_F(iSym)%IArr(iaddr))
+      Unit_F(iSym)%IArr(iaddr) = -1
     end if
   end do
 else if (iOpt == 3) then
   do iB=1,nBatch
     iaddr = ipUnit_F(iSym)+(iTyp-1)*nIsplit(iSym)+iB-1
-    if (iWork(iaddr) > 0) then
-      write(u6,*) ' Erasing lUnit_F=',iWork(iaddr)
-      call daEras(iWork(iaddr))
-      iWork(iaddr) = -1
+    if (Unit_F(iSym)%IArr(iaddr) > 0) then
+      write(u6,*) ' Erasing lUnit_F=',Unit_F(iSym)%IArr(iaddr)
+      call daEras(Unit_F(iSym)%IArr(iaddr))
+      Unit_F(iSym)%IArr(iaddr) = -1
     end if
   end do
 else
