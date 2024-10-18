@@ -1999,16 +1999,16 @@ C Write to disk
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-
 #include "SysDef.fh"
       INTEGER NPREF
       REAL*8 PREF(NPREF)
 
+      REAL*8, ALLOCATABLE:: SF(:), SFP(:), SFM(:)
 C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
 C Formulae used:
 C    SF(tu,xy)= 4 Ptxuy
@@ -2023,9 +2023,7 @@ C Loop over superindex symmetry.
         IF(NINP.EQ.0) GOTO 1000
         NAS=NTU(ISYM)
         NSF=(NAS*(NAS+1))/2
-        IF(NSF.GT.0) THEN
-          CALL GETMEM('SF','ALLO','REAL',LSF,NSF)
-        END IF
+        IF(NSF.GT.0) CALL mma_allocate(SF,NSF,Label='SF')
         DO 100 ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
@@ -2041,18 +2039,16 @@ C Loop over superindex symmetry.
             IP2=MIN(ITX,IUY)
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=4.0D0*PREF(IP)
-            WORK(LSF-1+ISADR)=VALUE
+            SF(ISADR)=VALUE
  101      CONTINUE
  100    CONTINUE
         NASP=NTGEU(ISYM)
         NSFP=(NASP*(NASP+1))/2
-        IF(NSFP.GT.0) THEN
-          CALL GETMEM('SFP','ALLO','REAL',LSFP,NSFP)
-        END IF
+        IF(NSFP.GT.0) CALL mma_allocate(SFP,NSFP,Label='SFP')
         NASM=NTGTU(ISYM)
         NSFM=(NASM*(NASM+1))/2
         IF(NSFM.GT.0) THEN
-          CALL GETMEM('SFM','ALLO','REAL',LSFM,NSFM)
+          CALL mma_allocate(SFM,NSFM,Label='SFM')
         END IF
         DO 200 ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
@@ -2070,39 +2066,37 @@ C Loop over superindex symmetry.
             ELSE
               ISADR=(IXY*(IXY-1))/2+ITU
             END IF
-            STUXY=WORK(LSF-1+ISADR)
+            STUXY=SF(ISADR)
             IF(ITU.GE.IYX) THEN
               ISADR=(ITU*(ITU-1))/2+IYX
             ELSE
               ISADR=(IYX*(IYX-1))/2+ITU
             END IF
-            STUYX=WORK(LSF-1+ISADR)
+            STUYX=SF(ISADR)
             ISPADR=(ITGEU*(ITGEU-1))/2+IXGEY
-            WORK(LSFP-1+ISPADR)=STUXY+STUYX
+            SFP(ISPADR)=STUXY+STUYX
             IF(ITABS.EQ.IUABS) GOTO 201
             IF(IXABS.EQ.IYABS) GOTO 201
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             ISMADR=(ITGTU*(ITGTU-1))/2+IXGTY
-            WORK(LSFM-1+ISMADR)=STUXY-STUYX
+            SFM(ISMADR)=STUXY-STUYX
  201      CONTINUE
  200    CONTINUE
-        IF(NSF.GT.0) THEN
-          CALL GETMEM('SF','FREE','REAL',LSF,NSF)
-        END IF
+        IF(NSF.GT.0) CALL mma_deallocate(SF)
 
 C Write to disk
         IF(NSFP.GT.0.and.NINDEP(ISYM,8).GT.0) THEN
           IDISK=IDSMAT(ISYM,8)
-          CALL DDAFILE(LUSBT,1,WORK(LSFP),NSFP,IDISK)
-          CALL GETMEM('SFP','FREE','REAL',LSFP,NSFP)
+          CALL DDAFILE(LUSBT,1,SFP,NSFP,IDISK)
+          CALL mma_deallocate(SFP)
         END IF
         IF(NSFM.GT.0) THEN
           IF(NINDEP(ISYM,9).GT.0) THEN
            IDISK=IDSMAT(ISYM,9)
-           CALL DDAFILE(LUSBT,1,WORK(LSFM),NSFM,IDISK)
+           CALL DDAFILE(LUSBT,1,SFM,NSFM,IDISK)
           END IF
-          CALL GETMEM('SFM','FREE','REAL',LSFM,NSFM)
+          CALL mma_deallocate(SFM)
         END IF
  1000 CONTINUE
 
