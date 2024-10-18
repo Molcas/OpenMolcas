@@ -27,14 +27,13 @@
       Character(len=*) mode
       Character(len=4) modecopy
 
-#include "WrkSpc.fh"
       Integer  cho_irange
       External cho_irange
 
 C *********************************************************************
-      nIc(i,j) = iWork(ipsp(j)+i-1)
+      nIc(i,j) = Stuff(j)%sp(i)
 ******
-      nAc(i,j) = iWork(ipsp(j)+nisplit(j)+i-1)
+      nAc(i,j) = Stuff(j)%sp(nisplit(j)+i)
 ******
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C *********************************************************************
@@ -53,14 +52,13 @@ C *********************************************************************
          Call mma_deallocate(Stuff(jSym)%Unit)
          Call mma_deallocate(Stuff(jSym)%ip)
          Call mma_deallocate(Stuff(jSym)%np)
-         Call GetMem('Split','Free','Inte',ipsp(jSym),lsplit(jSym))
+         Call mma_deallocate(Stuff(jSym)%sp)
         End If
        End Do
        Return
       end if
 
       do i=1,8
-       ipsp(i)=0
        lsplit(i)=0
        nisplit(i)=0
        nasplit(i)=0
@@ -226,12 +224,12 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
 *         xmNeedNow = xmNeed + dble((3+nSym)*lsplit(jSym))
 
 * Allocate arrays, in all (3+nSym)*lsplit(jSym) elements:
-         Call GetMem('Split','Allo','Inte',ipsp(jSym),lsplit(jSym))
+         Call mma_allocate(Stuff(jsym)%sp,lsplit(jSym),Label='%sp')
          Call mma_allocate(Stuff(jsym)%np,lsplit(jSym),Label='%np')
          Call mma_allocate(Stuff(jsym)%ip,nSym*lsplit(jSym),Label='%ip')
          Call mma_allocate(Stuff(jsym)%Unit,lsplit(jSym),Label='%Unit')
          do i=1,lsplit(jSym)
-          iwork(ipsp(jSym)-1+i)=0
+          Stuff(jSym)%sp(i)=0
           Stuff(jSym)%np(i)=0
           Stuff(jSym)%Unit(i)=0
           do j=1,nsym
@@ -243,11 +241,11 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          jS=0
          if(nmin.gt.0) jS=nIO/nmin
          Do i=0,jS-1
-           iWork(ipsp(jSym)+i) = nmin
+           Stuff(jSym)%sp(1+i) = nMin
          End Do
          mDiff = jS*nmin - nIO
          If (mDiff .gt. 0) Then
-            iWork(ipsp(jSym)+jS) = mDiff
+            Stuff(jSym)%sp(1+jS) = mDiff
             jS = jS + 1
          Endif
          nisplit(jSym) = jS
@@ -256,11 +254,11 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          jS=0
          if(nmin.gt.0) jS=nAO/nmin
          Do i=0,jS-1
-           iWork(ipsp(jSym)+nisplit(jSym)+i) = nmin
+           Stuff(jSym)%sp(1+nisplit(jSym)+i) = nmin
          End Do
          mDiff = jS*nmin - nAO
          If (mDiff .gt. 0) Then
-            iWork(ipsp(jSym)+nisplit(jSym)+jS) = mDiff
+            Stuff(jSym)%sp(1+nisplit(jSym)+jS) = mDiff
             jS = jS + 1
          Endif
          nasplit(jSym) = jS
@@ -335,7 +333,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
        kend=0
        do isp=1,nisplit(jsym)
         ksta=kend+1
-        kend=kend+iWork(ipsp(jSym)+isp-1)
+        kend=kend+Stuff(jSym)%sp(isp)
         kstasym=cho_irange(ksta,iIorb,nSym,.false.)
         kendsym=cho_irange(kend,iIorb,nSym,.false.)
         nPorb=Stuff(jSym)%np(isp)
@@ -348,7 +346,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
        kend=0
        do isp=1,nasplit(jsym)
         ksta=kend+1
-        kend=kend+iWork(ipsp(jSym)+nisplit(jSym)+isp-1)
+        kend=kend+Stuff(jSym)%sp(nisplit(jSym)+isp)
         kstasym=cho_irange(ksta,iAorb,nSym,.false.)
         kendsym=cho_irange(kend,iAorb,nSym,.false.)
         nPorb=Stuff(jSym)%np(nisplit(jSym)+isp)
