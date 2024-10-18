@@ -2080,14 +2080,16 @@ CGG End
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER NDREF
       REAL*8 DREF(NDREF),FD(NDREF)
+
+      Real*8, ALLOCATABLE:: BE(:), S(:), SD(:)
 
 C Set up the matrix BE(t,x)
 C Formula used:
@@ -2102,19 +2104,19 @@ C            + 2dtx Ex
         NAS=NASH(ISYM)
         NBE=(NAS*(NAS+1))/2
         IF(NBE.GT.0) THEN
-          CALL GETMEM('BE','ALLO','REAL',LBE,NBE)
-CGG.Nov03  Load in LSD the diagonal elements of SE matrix:
+          CALL mma_allocate(BE,NBE,LABEL='BE')
+CGG.Nov03  Load in SD the diagonal elements of SE matrix:
           NS=(NAS*(NAS+1))/2
-          CALL GETMEM('S','ALLO','REAL',LS,NS)
-          CALL GETMEM('SD','ALLO','REAL',LSD,NAS)
+          CALL mma_allocate(S,NS,Label='S')
+          CALL mma_allocate(SD,NAS,Label='SD')
           IDS=IDSMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
+          CALL DDAFILE(LUSBT,2,S,NS,IDS)
           IDIAG=0
           DO I=1,NAS
             IDIAG=IDIAG+I
-            WORK(LSD-1+I)=WORK(LS-1+IDIAG)
+            SD(I)=S(IDIAG)
           END DO
-          CALL GETMEM('S','FREE','REAL',LS,NS)
+          CALL mma_deallocate(S)
         ENDIF
 CGG End
         DO IT=1,NAS
@@ -2132,24 +2134,24 @@ CGG End
 CGG.Nov03
             IF (IT.eq.IX) THEN
               IDT=(ITABS*(ITABS+1))/2
-              VALUE=VALUE+ipea_shift*0.5d0*DREF(IDT)*WORK(LSD-1+IT)
+              VALUE=VALUE+ipea_shift*0.5d0*DREF(IDT)*SD(IT)
             ENDIF
 CGG End
-            WORK(LBE-1+IBE)=VALUE
+            BE(IBE)=VALUE
           END DO
         END DO
 
 C Write to disk
         IF(NBE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
           IDISK=IDBMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,1,WORK(LBE),NBE,IDISK)
+          CALL DDAFILE(LUSBT,1,BE,NBE,IDISK)
           IF(NINM.GT.0.and.NINDEP(ISYM,7).GT.0) THEN
             IDISK=IDBMAT(ISYM,7)
-            CALL DDAFILE(LUSBT,1,WORK(LBE),NBE,IDISK)
+            CALL DDAFILE(LUSBT,1,BE,NBE,IDISK)
           END IF
-          CALL GETMEM('BE','FREE','REAL',LBE,NBE)
-CGG.Nov03 DisAlloc LSD
-          CALL GETMEM('SD','FREE','REAL',LSD,NAS)
+          CALL mma_deallocate(BE)
+CGG.Nov03 DisAlloc SD
+          CALL mma_deallocate(SD)
 CGG End
         END IF
  1000 CONTINUE
