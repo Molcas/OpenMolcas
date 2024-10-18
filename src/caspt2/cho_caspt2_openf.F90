@@ -39,7 +39,7 @@ call Get_iArray('NumCho',NumCho,nSym)
 if (NCALLS == 0) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    Unit_F(iSym)%IArr(iAddr) = -1
+    Stuff(iSym)%Unit(iAddr) = -1
   end do
 end if
 
@@ -49,7 +49,7 @@ end if
 if (iOpt == 0) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    Unit_F(iSym)%IArr(iaddr) = -1
+    Stuff(iSym)%Unit(iaddr) = -1
   end do
   return
 end if
@@ -64,37 +64,37 @@ if (iOpt == 1) then
   if (NumCho(iSym) > 0) then
     do iB=1,nBatch
       iaddr = (iTyp-1)*nIsplit(iSym)+iB
-      if (Unit_F(iSym)%IArr(iaddr) < 1) then
+      if (Stuff(iSym)%Unit(iaddr) < 1) then
         call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
         write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
         LuV = 7 ! initial guess
         call daName_MF_WA(LuV,FullNm) ! handle inquire/free unit
-        Unit_F(iSym)%IArr(iaddr) = LuV
+        Stuff(iSym)%Unit(iaddr) = LuV
         write(u6,*) ' Unit number LuV is stored at address ',iaddr
       end if
     end do
   else
     do iB=1,nBatch
       iaddr = (iTyp-1)*nIsplit(iSym)+iB
-      Unit_F(iSym)%IArr(iaddr) = -1
+      Stuff(iSym)%Unit(iaddr) = -1
     end do
   end if
 else if (iOpt == 2) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    if (Unit_F(iSym)%IArr(iaddr) > 0) then
-      write(u6,*) ' Closing lUnit_F=',Unit_F(iSym)%IArr(iaddr)
-      call daClos(Unit_F(iSym)%IArr(iaddr))
-      Unit_F(iSym)%IArr(iaddr) = -1
+    if (Stuff(iSym)%Unit(iaddr) > 0) then
+      write(u6,*) ' Closing lStuff=',Stuff(iSym)%Unit(iaddr)
+      call daClos(Stuff(iSym)%Unit(iaddr))
+      Stuff(iSym)%Unit(iaddr) = -1
     end if
   end do
 else if (iOpt == 3) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    if (Unit_F(iSym)%IArr(iaddr) > 0) then
-      write(u6,*) ' Erasing lUnit_F=',Unit_F(iSym)%IArr(iaddr)
-      call daEras(Unit_F(iSym)%IArr(iaddr))
-      Unit_F(iSym)%IArr(iaddr) = -1
+    if (Stuff(iSym)%Unit(iaddr) > 0) then
+      write(u6,*) ' Erasing lStuff=',Stuff(iSym)%Unit(iaddr)
+      call daEras(Stuff(iSym)%Unit(iaddr))
+      Stuff(iSym)%Unit(iaddr) = -1
     end if
   end do
 else

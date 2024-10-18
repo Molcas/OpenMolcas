@@ -14,7 +14,7 @@
 * ipsp,nisplit, nasplit,lsplit,ipnp,ipip each dimensioned (1:nsym),
 * in module chocaspt2.F90,
 * and allocates fields at iwork() addresses ipsp(1:nsym),ipnp(1:nsym),
-* unit_f(1:nsym)%IArr, each with sizes lsplit(1:nsym), and
+* Stuff(1:nsym)%Unit, each with sizes lsplit(1:nsym), and
 * ipip(1:nsym), each with sizes nsym*lsplit(1:nsym)
 * -------------------------
       use stdalloc, only: mma_MaxDBLE
@@ -50,7 +50,7 @@ C *********************************************************************
       if (modecopy.eq.'FREE') then
        Do jSym=1,nSym
         If (NumCho(jSym).gt.0) then
-         Call mma_deallocate(Unit_F(jSym)%IArr)
+         Call mma_deallocate(Stuff(jSym)%Unit)
          Call GetMem('iPorb','Free','Inte',ipip(jSym),
      &                                        nSym*lsplit(jSym))
          Call GetMem('nPorb','Free','Inte',ipnp(jSym),lsplit(jSym))
@@ -233,12 +233,12 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          Call GetMem('nPorb','Allo','Inte',ipnp(jSym),lsplit(jSym))
          Call GetMem('iPorb','Allo','Inte',ipip(jSym),
      &                                        nSym*lsplit(jSym))
-         Call mma_allocate(Unit_F(jsym)%IArr,lsplit(jSym),
-     &                     Label='Unit_F')
+         Call mma_allocate(Stuff(jsym)%Unit,lsplit(jSym),
+     &                     Label='Stuff')
          do i=1,lsplit(jSym)
           iwork(ipsp(jSym)-1+i)=0
           iwork(ipnp(jSym)-1+i)=0
-          Unit_F(jSym)%IArr(i)=0
+          Stuff(jSym)%Unit(i)=0
           do j=1,nsym
            iwork(ipip(jSym)-1+j+nsym*(i-1))=0
           end do

@@ -18,9 +18,10 @@ Integer ipSp(8),Lsplit(8),nIsplit(8),nAsplit(8),      &
         IF_CHO,NCHSPC,NHTSPC,NFTSPC,NFTSPC_TOT,                   &
         MXNVC,MXCHARR
 
-Type IArr
-   Integer, Allocatable:: IArr(:)
-End Type IArr
-Type (IArr) Unit_F(8)
+Type CHOType
+   Integer, Allocatable:: Unit(:)
+End Type ChoType
+
+Type (ChoType) Stuff(8)
 
 END Module ChoCASPT2
