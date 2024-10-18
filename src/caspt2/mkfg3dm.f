@@ -77,7 +77,8 @@ C
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
 #ifdef _ENABLE_BLOCK_DMRG_
-      INTEGER NLEV4,LG3TMP
+      INTEGER NLEV4
+      REAL*8, ALLOCATABLE:: G3Tmp(:)
 #endif
       INTEGER NCI
 
@@ -91,7 +92,6 @@ C
 
       REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
       INTEGER, ALLOCATABLE:: TaskList(:,:)
-      REAL*8, ALLOCATABLE:: G3Tmp(:)
 
 
       ! result buffer, maximum size is the largest possible ip1 range,
