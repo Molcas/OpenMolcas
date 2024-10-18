@@ -2164,14 +2164,18 @@ CGG End
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 PREF(NPREF),FP(NPREF),DREF(NDREF)
+
+      REAL*8, ALLOCATABLE:: BF(:), BFP(:), SDP(:),
+     &                      SP(:), BFM(:), SDM(:),
+     &                      SM(:)
 
 C Set up the matrices BFP(tu,xy) and BFM(tu,xy)
 C Formulae used:
@@ -2187,7 +2191,7 @@ C Loop over superindex symmetry.
         NAS=NTU(ISYM)
         NBF=(NAS*(NAS+1))/2
         IF(NBF.GT.0) THEN
-          CALL GETMEM('BF','ALLO','REAL',LBF,NBF)
+          CALL mma_allocate(BF,NBF,LABEL='BF')
         END IF
         DO ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
@@ -2203,43 +2207,43 @@ C Loop over superindex symmetry.
             IP1=MAX(ITX,IUY)
             IP2=MIN(ITX,IUY)
             IP=(IP1*(IP1-1))/2+IP2
-            WORK(LBF-1+IBADR)=4.0D0*(FP(IP)-EASUM*PREF(IP))
+            BF(IBADR)=4.0D0*(FP(IP)-EASUM*PREF(IP))
           END DO
         END DO
         NASP=NTGEU(ISYM)
         NBFP=(NASP*(NASP+1))/2
         IF(NBFP.GT.0) THEN
-          CALL GETMEM('BFP','ALLO','REAL',LBFP,NBFP)
-CGG.Nov03  Load in LSDP the diagonal elements of SFP matrix:
+          CALL mma_allocate(BFP,NBFP,Label='BFP')
+CGG.Nov03  Load in SDP the diagonal elements of SFP matrix:
           NSP=(NASP*(NASP+1))/2
-          CALL GETMEM('SP','ALLO','REAL',LSP,NSP)
-          CALL GETMEM('SDP','ALLO','REAL',LSDP,NASP)
+          CALL mma_allocate(SP,NSP,Label='SP')
+          CALL mma_allocate(SDP,NASP,Label='SDP')
           IDSP=IDSMAT(ISYM,8)
-          CALL DDAFILE(LUSBT,2,WORK(LSP),NSP,IDSP)
+          CALL DDAFILE(LUSBT,2,SP,NSP,IDSP)
           IDIAG=0
           DO I=1,NASP
             IDIAG=IDIAG+I
-            WORK(LSDP-1+I)=WORK(LSP-1+IDIAG)
+            SDP(I)=SP(IDIAG)
           END DO
-          CALL GETMEM('SP','FREE','REAL',LSP,NSP)
+          CALL mma_deallocate(SP)
 CGG End
         END IF
         NASM=NTGTU(ISYM)
         NBFM=(NASM*(NASM+1))/2
         IF(NBFM.GT.0) THEN
-          CALL GETMEM('BFM','ALLO','REAL',LBFM,NBFM)
-CGG.Nov03  Load in LSDM the diagonal elements of SFM matrix:
+          CALL mma_allocate(BFM,NBFM,Label='BFM')
+CGG.Nov03  Load in SDM the diagonal elements of SFM matrix:
           NSM=(NASM*(NASM+1))/2
-          CALL GETMEM('SM','ALLO','REAL',LSM,NSM)
-          CALL GETMEM('SDM','ALLO','REAL',LSDM,NASM)
+          CALL mma_allocate(SM,NSM,Label='SM')
+          CALL mma_allocate(SDM,NASM,Label='SDM')
           IDSM=IDSMAT(ISYM,9)
-          CALL DDAFILE(LUSBT,2,WORK(LSM),NSM,IDSM)
+          CALL DDAFILE(LUSBT,2,SM,NSM,IDSM)
           IDIAG=0
           DO I=1,NASM
             IDIAG=IDIAG+I
-            WORK(LSDM-1+I)=WORK(LSM-1+IDIAG)
+            SDM(I)=SM(IDIAG)
           END DO
-          CALL GETMEM('SM','FREE','REAL',LSM,NSM)
+          CALL mma_deallocate(SM)
 CGG End
         END IF
         INSM=1
@@ -2259,21 +2263,21 @@ CGG End
             ELSE
               IBADR=(IXY*(IXY-1))/2+ITU
             END IF
-            BTUXY=WORK(LBF-1+IBADR)
+            BTUXY=BF(IBADR)
             IF(ITU.GE.IYX) THEN
               IBADR=(ITU*(ITU-1))/2+IYX
             ELSE
               IBADR=(IYX*(IYX-1))/2+ITU
             END IF
-            BTUYX=WORK(LBF-1+IBADR)
+            BTUYX=BF(IBADR)
             IBPADR=(ITGEU*(ITGEU-1))/2+IXGEY
-            WORK(LBFP-1+IBPADR)=BTUXY+BTUYX
+            BFP(IBPADR)=BTUXY+BTUYX
 CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBFP-1+IBPADR)=WORK(LBFP-1+IBPADR)+ipea_shift*0.5d0*
-     &                    (4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
+              BFP(IBPADR)=BFP(IBPADR)+ipea_shift*0.5d0*
+     &                    (4.0d0-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
             ENDIF
 CGG End
             IF(ITABS.EQ.IUABS) GOTO 200
@@ -2281,40 +2285,38 @@ CGG End
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             IBMADR=(ITGTU*(ITGTU-1))/2+IXGTY
-            WORK(LBFM-1+IBMADR)=BTUXY-BTUYX
+            BFM(IBMADR)=BTUXY-BTUYX
 CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBFM-1+IBMADR)=WORK(LBFM-1+IBMADR)+ipea_shift*0.5d0*
-     &                    (4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDM-1+INSM)
+              BFM(IBMADR)=BFM(IBMADR)+ipea_shift*0.5d0*
+     &                    (4.0d0-DREF(IDT)-DREF(IDU))*SDM(INSM)
               INSM=INSM+1
             ENDIF
 
  200        CONTINUE
           END DO
         END DO
-        IF(NBF.GT.0) THEN
-          CALL GETMEM('BF','FREE','REAL',LBF,NBF)
-        END IF
+        IF(NBF.GT.0) CALL mma_deallocate(BF)
 
 C Write to disk
         IF(NBFP.GT.0.and.NINDEP(ISYM,8).GT.0) THEN
           IDISK=IDBMAT(ISYM,8)
-          CALL DDAFILE(LUSBT,1,WORK(LBFP),NBFP,IDISK)
-          CALL GETMEM('BFP','FREE','REAL',LBFP,NBFP)
-CGG.Nov03 DisAlloc LSDP
-          CALL GETMEM('SDP','FREE','REAL',LSDP,NASP)
+          CALL DDAFILE(LUSBT,1,BFP,NBFP,IDISK)
+          CALL mma_deallocate(BFP)
+CGG.Nov03 DisAlloc SDP
+          CALL mma_deallocate(SDP)
 CGG End
         END IF
         IF(NBFM.GT.0) THEN
          IF(NINDEP(ISYM,9).GT.0) THEN
           IDISK=IDBMAT(ISYM,9)
-          CALL DDAFILE(LUSBT,1,WORK(LBFM),NBFM,IDISK)
+          CALL DDAFILE(LUSBT,1,BFM,NBFM,IDISK)
          END IF
-         CALL GETMEM('BFM','FREE','REAL',LBFM,NBFM)
-CGG.Nov03 DisAlloc LSDM
-         CALL GETMEM('SDM','FREE','REAL',LSDM,NASM)
+         CALL mma_deallocate(BFM)
+CGG.Nov03 DisAlloc SDM
+         CALL mma_deallocate(SDM)
 CGG End
         END IF
  1000 CONTINUE
