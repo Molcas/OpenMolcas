@@ -52,7 +52,7 @@ C *********************************************************************
         If (NumCho(jSym).gt.0) then
          Call mma_deallocate(Stuff(jSym)%Unit)
          Call mma_deallocate(Stuff(jSym)%ip)
-         Call GetMem('nPorb','Free','Inte',ipnp(jSym),lsplit(jSym))
+         Call mma_deallocate(Stuff(jSym)%np)
          Call GetMem('Split','Free','Inte',ipsp(jSym),lsplit(jSym))
         End If
        End Do
@@ -64,7 +64,6 @@ C *********************************************************************
        lsplit(i)=0
        nisplit(i)=0
        nasplit(i)=0
-       ipnp(i)=0
        nksh(i)=0
        nkes(i)=0
        npsh(i)=0
@@ -228,12 +227,12 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
 
 * Allocate arrays, in all (3+nSym)*lsplit(jSym) elements:
          Call GetMem('Split','Allo','Inte',ipsp(jSym),lsplit(jSym))
-         Call GetMem('nPorb','Allo','Inte',ipnp(jSym),lsplit(jSym))
+         Call mma_allocate(Stuff(jsym)%np,lsplit(jSym),Label='%np')
          Call mma_allocate(Stuff(jsym)%ip,nSym*lsplit(jSym),Label='%ip')
          Call mma_allocate(Stuff(jsym)%Unit,lsplit(jSym),Label='%Unit')
          do i=1,lsplit(jSym)
           iwork(ipsp(jSym)-1+i)=0
-          iwork(ipnp(jSym)-1+i)=0
+          Stuff(jSym)%np(i)=0
           Stuff(jSym)%Unit(i)=0
           do j=1,nsym
            Stuff(jsym)%ip(j+nsym*(i-1))=0
@@ -294,7 +293,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
 
 * ipnp(jSym) is pointer to an array dimensioned nP(nisplit(jSym))
 * It gives the total size for the items mentioned above.
-            iWork(ipnp(jSym)+isp-1) = nPorb
+            Stuff(jSym)%np(isp) = nPorb
             ioff = ioff + nIc(isp,jSym)
          End Do
 
@@ -312,7 +311,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
               Stuff(jSym)%ip(jS+nsym*(nisplit(jSym)+isp-1))=nPorb
               nPorb = nPorb + nAsh(jS) + nSsh(jS)
             End Do
-            iWork(ipnp(jSym)+nisplit(jSym)+isp-1) = nPorb
+            Stuff(jSym)%np(nisplit(jSym)+isp) = nPorb
             ioff = ioff + nAc(isp,jSym)
          End Do
 
@@ -339,7 +338,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
         kend=kend+iWork(ipsp(jSym)+isp-1)
         kstasym=cho_irange(ksta,iIorb,nSym,.false.)
         kendsym=cho_irange(kend,iIorb,nSym,.false.)
-        nPorb=iWork(ipnp(jSym)+isp-1)
+        nPorb=Stuff(jSym)%np(isp)
         write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
         write(6,'(1x,a,8i8)')' iP Offsets:',(Stuff(jSym)%ip(
@@ -352,7 +351,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
         kend=kend+iWork(ipsp(jSym)+nisplit(jSym)+isp-1)
         kstasym=cho_irange(ksta,iAorb,nSym,.false.)
         kendsym=cho_irange(kend,iAorb,nSym,.false.)
-        nPorb=iWork(ipnp(jSym)+nisplit(jSym)+isp-1)
+        nPorb=Stuff(jSym)%np(nisplit(jSym)+isp)
         write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
         write(6,'(1x,a,8i8)')' iP Offsets:',
