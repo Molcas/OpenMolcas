@@ -1287,7 +1287,6 @@ C  - F(xvzyut) -> BC(zvx,yut)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1749,7 +1748,6 @@ c Avoid unused argument warnings
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -1963,15 +1961,17 @@ CGG End
       use caspt2_global, only:ipea_shift
       use caspt2_data, only:LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
+
+      REAL*8, ALLOCATABLE:: BD(:), S(:), SD(:)
 
 C Set up the matrix BD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
@@ -1990,20 +1990,20 @@ C Loop over superindex symmetry.
         NAS=NTU(ISYM)
         NBD=(2*NAS*(2*NAS+1))/2
         IF(NBD.GT.0) THEN
-          CALL GETMEM('BD','ALLO','REAL',LBD,NBD)
-CGG.Nov03  Load in LSD the diagonal elements of SD matrix:
+          CALL mma_allocate(BD,NBD,Label='BD')
+CGG.Nov03  Load in SD the diagonal elements of SD matrix:
           NS2=(2*NAS*(2*NAS+1))/2
           NAS2=2*NAS
-          CALL GETMEM('S','ALLO','REAL',LS,NS2)
-          CALL GETMEM('SD','ALLO','REAL',LSD,NAS2)
+          CALL mma_allocate(S,NS2,Label='S')
+          CALL mma_allocate(SD,NAS2,Label='SD')
           IDS=IDSMAT(ISYM,5)
-          CALL DDAFILE(LUSBT,2,WORK(LS),NS2,IDS)
+          CALL DDAFILE(LUSBT,2,S,NS2,IDS)
           IDIAG=0
           DO I=1,NAS2
             IDIAG=IDIAG+I
-            WORK(LSD-1+I)=WORK(LS-1+IDIAG)
+            SD(I)=S(IDIAG)
           END DO
-          CALL GETMEM('S','FREE','REAL',LS,NS2)
+          CALL mma_deallocate(S)
 CGG End
         END IF
         DO ITU=1,NAS
@@ -2044,18 +2044,18 @@ CGG End
               B11=B11+2.0D0*(FUY+(ET-EASUM)*DUY)
               B22=B22+2.0D0*(FUY+(EX-EASUM)*DUY)
             END IF
-            WORK(LBD-1+IB11)= B11
-            WORK(LBD-1+IB21)=-0.5D0*B11
-            WORK(LBD-1+IB12)=-0.5D0*B11
-            WORK(LBD-1+IB22)= B22
+            BD(IB11)= B11
+            BD(IB21)=-0.5D0*B11
+            BD(IB12)=-0.5D0*B11
+            BD(IB22)= B22
 CGG.Nov03
             IF (ITU.eq.IXY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBD-1+IB11)=WORK(LBD-1+IB11)+ipea_shift*0.5d0*
-     &                       (2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
-              WORK(LBD-1+IB22)=WORK(LBD-1+IB22)+ipea_shift*0.5d0*
-     &                   (2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU+NAS)
+              BD(IB11)=BD(IB11)+ipea_shift*0.5d0*
+     &                       (2.0d0-DREF(IDU)+DREF(IDT))*SD(ITU)
+              BD(IB22)=BD(IB22)+ipea_shift*0.5d0*
+     &                   (2.0d0-DREF(IDU)+DREF(IDT))*SD(ITU+NAS)
             ENDIF
 CGG End
           END DO
@@ -2064,10 +2064,10 @@ CGG End
 C Write to disk
         IF(NBD.GT.0.and.NINDEP(ISYM,5).GT.0) THEN
           IDISK=IDBMAT(ISYM,5)
-          CALL DDAFILE(LUSBT,1,WORK(LBD),NBD,IDISK)
-          CALL GETMEM('BD','FREE','REAL',LBD,NBD)
-CGG.Nov03 DisAlloc LSD
-          CALL GETMEM('SD','FREE','REAL',LSD,NAS2)
+          CALL DDAFILE(LUSBT,1,BD,NBD,IDISK)
+          CALL mma_deallocate(BD)
+CGG.Nov03 DisAlloc SD
+          CALL mma_deallocate(SD)
 CGG End
         END IF
  1000 CONTINUE
