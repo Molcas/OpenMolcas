@@ -1708,16 +1708,17 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       USE SUPERINDEX
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
 
+      REAL*8, ALLOCATABLE:: SB(:), SBP(:), SBM(:)
 C Set up the matrices SBP(tu,xy) and SBM(tu,xy)
 C Formulae used:
 C    SB(tu,xy)=
@@ -1733,9 +1734,7 @@ C Loop over superindex symmetry.
         IF(NINP.EQ.0) GOTO 1000
         NAS=NTU(ISYM)
         NSB=(NAS*(NAS+1))/2
-        IF(NSB.GT.0) THEN
-          CALL GETMEM('SB','ALLO','REAL',LSB,NSB)
-        END IF
+        IF(NSB.GT.0) CALL mma_allocate(SB,NSB,Label='SB')
         DO 100 ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
@@ -1782,19 +1781,15 @@ C Add  -4dxu dyt + 2dxu Dyt
               IF(IYABS.EQ.ITABS) VALUE=VALUE-4.0D00
             END IF
             ISADR=(ITU*(ITU-1))/2+IXY
-            WORK(LSB-1+ISADR)=VALUE
+            SB(ISADR)=VALUE
  101      CONTINUE
  100    CONTINUE
         NASP=NTGEU(ISYM)
         NSBP=(NASP*(NASP+1))/2
-        IF(NSBP.GT.0) THEN
-          CALL GETMEM('SBP','ALLO','REAL',LSBP,NSBP)
-        END IF
+        IF(NSBP.GT.0) CALL mma_allocate(SBP,NSBP,Label='SBP')
         NASM=NTGTU(ISYM)
         NSBM=(NASM*(NASM+1))/2
-        IF(NSBM.GT.0) THEN
-          CALL GETMEM('SBM','ALLO','REAL',LSBM,NSBM)
-        END IF
+        IF(NSBM.GT.0) CALL mma_allocate(SBM,NSBM,Label='SBM')
         DO 200 ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
           ITABS=MTGEU(1,ITGEUABS)
@@ -1811,39 +1806,37 @@ C Add  -4dxu dyt + 2dxu Dyt
             ELSE
               ISADR=(IXY*(IXY-1))/2+ITU
             END IF
-            STUXY=WORK(LSB-1+ISADR)
+            STUXY=SB(ISADR)
             IF(ITU.GE.IYX) THEN
               ISADR=(ITU*(ITU-1))/2+IYX
             ELSE
               ISADR=(IYX*(IYX-1))/2+ITU
             END IF
-            STUYX=WORK(LSB-1+ISADR)
+            STUYX=SB(ISADR)
             ISPADR=(ITGEU*(ITGEU-1))/2+IXGEY
-            WORK(LSBP-1+ISPADR)=STUXY+STUYX
+            SBP(ISPADR)=STUXY+STUYX
             IF(ITABS.EQ.IUABS) GOTO 201
             IF(IXABS.EQ.IYABS) GOTO 201
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             ISMADR=(ITGTU*(ITGTU-1))/2+IXGTY
-            WORK(LSBM-1+ISMADR)=STUXY-STUYX
+            SBM(ISMADR)=STUXY-STUYX
  201      CONTINUE
  200    CONTINUE
-        IF(NSB.GT.0) THEN
-          CALL GETMEM('SB','FREE','REAL',LSB,NSB)
-        END IF
+        IF(NSB.GT.0) CALL mma_deallocate(SB)
 
 C Write to disk, and save size and address.
         IF(NSBP.GT.0) THEN
           IDISK=IDSMAT(ISYM,2)
-          CALL DDAFILE(LUSBT,1,WORK(LSBP),NSBP,IDISK)
-          CALL GETMEM('SBP','FREE','REAL',LSBP,NSBP)
+          CALL DDAFILE(LUSBT,1,SBP,NSBP,IDISK)
+          CALL mma_deallocate(SBP)
         END IF
         IF(NSBM.GT.0) THEN
           IF(NINDEP(ISYM,3).GT.0) THEN
             IDISK=IDSMAT(ISYM,3)
-            CALL DDAFILE(LUSBT,1,WORK(LSBM),NSBM,IDISK)
+            CALL DDAFILE(LUSBT,1,SBM,NSBM,IDISK)
           END IF
-          CALL GETMEM('SBM','FREE','REAL',LSBM,NSBM)
+          CALL mma_deallocate(SBM)
         END IF
  1000 CONTINUE
 
