@@ -747,9 +747,11 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
+      Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 C
-      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2,
+     *                           CLag,CLagFull,OLag,DPT2_tot,
+     *                           FIFA_all,FIFASA_all
       use caspt2_data, only: FIFA, TORB, NDREF
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
@@ -757,10 +759,8 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
-      Dimension CLag(nConf,nState),H0(nState,nState),U0(nState,nState),
-     *          UEFF(nState,nState)
+      Dimension H0(nState,nState),U0(nState,nState),UEFF(nState,nState)
       Dimension SLag(nState*nState)
       Dimension OMGDER(nState,nState)
       Integer :: nLev
@@ -794,7 +794,7 @@ C
         Call DCopy_(nState**2,SLag,1,UEFF,1)
 C
         !! Then actual calculation
-        Call DCopy_(nCLag ,[0.0D+00],0,Work(ipCLag),1)
+        CLag = 0.0d+00
         Do iStat = 1, nState
           Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
           Do jStat = 1, nState
@@ -833,8 +833,7 @@ C
             OVL=0.0D+00
             CALL DERTG3(.False.,STSYM,STSYM,WORK(ipCI1),WORK(ipCI2),OVL,
      &                  WORK(ipDG1),WORK(ipDG2),NTG3,WORK(ipDG3),
-     &                  Work(ipCLag+nConf*(iStat-1)),
-     &                  Work(ipCLag+nConf*(jStat-1)))
+     &                  CLag(1,iStat),CLag(1,jStat))
             Call GetMem('DG3   ','FREE','REAL',ipDG3 ,nAshT**6)
           End Do
         End Do
@@ -852,14 +851,14 @@ C
         Call GetMem('DG2   ','FREE','REAL',ipDG2 ,nAshT**4)
 C
       !! Add to the full CI Lagrangian
-      !! Work(ipCLag) is in quasi-canonical basis, so transformation
+      !! CLag is in quasi-canonical basis, so transformation
       !! to natural basis is required.
         IF(ORBIN.EQ.'TRANSFOR') Then
           Do iState = 1, nState
-            Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
+            Call CLagX_TrfCI(CLag(1,iState))
           End Do
         End If
-        Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,CLag,1)
+        CLagFull = CLagFull + CLag
 C
         !! Compute the Lagrange multiplier for XMS
         !! The diagonal element is always zero.
@@ -877,8 +876,8 @@ C     write (*,*) "istat,jstat,scal"
               Call LoadCI_XMS('N',0,Work(ipCI2),jStat,U0)
               EEJ = H0(jStat,jStat)
 C
-              Scal = DDOT_(nConf,Work(ipCI1),1,CLag(1,jStat),1)
-     *             - DDOT_(nConf,Work(ipCI2),1,CLag(1,iStat),1)
+              Scal = DDOT_(nConf,Work(ipCI1),1,CLagFull(1,jStat),1)
+     *             - DDOT_(nConf,Work(ipCI2),1,CLagFull(1,iStat),1)
 C      write (*,*) "original scal = ", scal
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
@@ -907,7 +906,7 @@ C           write (*,*) istat,jstat,scal
 C
       !! Either subtract the CI derivative of Heff(1)
       !! or add off-diagonal couplings in rhs_sa (Z-vector)
-      !Call DaXpY_(nCLag,-1.0D+00,Work(ipCLag),1,CLag,1)
+      !CLagFull = CLagFull - CLag
 C
         !! Finally, construct the pseudo-density matrix
         !! d = \sum_{ST} w_{ST} * d_{ST}
@@ -940,14 +939,14 @@ C
 C       ----- Calculate orbital derivatives -----
 C
         Call GetMem('RDMEIG','ALLO','REAL',ipRDMEIG,nAshT**2)
-        Call GetMem('DPT   ','ALLO','REAL',ipDPT  ,nBasSq)
+        Call GetMem('DPT   ','ALLO','REAL',ipDPT  ,NBSQT)
 C
-        Call DCopy_(nBasSq,[0.0D+00],0,Work(ipDPT),1)
+        Call DCopy_(NBSQT,[0.0D+00],0,Work(ipDPT),1)
 
-        Call GetMem('TRFMAT','ALLO','REAL',ipTrf   ,nBasSq)
+        Call GetMem('TRFMAT','ALLO','REAL',ipTrf   ,NBSQT)
         Call GetMem('RDMSA ','ALLO','REAL',ipRDMSA ,nAshT**2)
-        Call GetMem('WRK1  ','ALLO','REAL',ipWRK1  ,nBasSq)
-        Call GetMem('WRK2  ','ALLO','REAL',ipWRK2  ,nBasSq)
+        Call GetMem('WRK1  ','ALLO','REAL',ipWRK1  ,NBSQT)
+        Call GetMem('WRK2  ','ALLO','REAL',ipWRK2  ,NBSQT)
 C
         !! Construct always state-averaged density; XMS basis is always
         !! generated with the state-averaged density.
@@ -966,27 +965,27 @@ C       Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,Work(ipWRK1),1)
 C
         nOrbI = nBas(1) - nDel(1) !! nOrb(1)
         nBasI = nBas(1)
-C       Call SQUARE(FIFA,Work(ipFIFA),1,nOrbI,nOrbI)
-        !! ipFIFASA is in natural orbital basis
+C       Call SQUARE(FIFA,FIFA_all,1,nOrbI,nOrbI)
+        !! FIFASA_all is in natural orbital basis
         Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
         Call CnstTrf(TOrb,Work(ipTrf))
 C
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then
           Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
-     *                1.0D+00,Work(ipTrf),nBasI,Work(ipFIFASA),nOrbI,
+     *                1.0D+00,Work(ipTrf),nBasI,FIFASA_all,nOrbI,
      *                0.0D+00,Work(ipWRK1),nOrbI)
           Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
      *                1.0D+00,Work(ipWRK1),nOrbI,Work(ipTrf),nBasI,
-     *                0.0D+00,Work(ipFIFASA),nOrbI)
+     *                0.0D+00,FIFASA_all,nOrbI)
         End If
-        Call DCopy_(nBasSq,Work(ipFIFASA),1,Work(ipFIFA),1)
+        Call DCopy_(NBSQT,FIFASA_all,1,FIFA_all,1)
 C
         !! Orbital derivatives of FIFA
         !! Both explicit and implicit orbital derivatives are computed
         !! Also, compute G(D) and put the active contribution to RDMEIG
-        Call DCopy_(nOLag ,[0.0D+00],0,Work(ipOLag),1)
-        Call EigDer2(Work(ipRDMEIG),Work(ipTrf),Work(ipFIFA),
+        OLag = 0.0d+00
+        Call EigDer2(Work(ipRDMEIG),Work(ipTrf),FIFA_all,
      *               Work(ipRDMSA),Work(ipG1),
      *               Work(ipWRK1),Work(ipWRK2))
 C
@@ -994,33 +993,33 @@ C
         !! No inactive contributions. Correct as long as CASSCF CI
         !! vector are orthogonal.
         Call AddDEPSA(Work(ipDPT),Work(ipG1))
-        Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
+        Call DPT2_TrfStore(1.0D+00,Work(ipDPT),DPT2_tot,
      *                   Work(ipTrf),Work(ipWRK1))
 C
         !! Finalize OLag (anti-symetrize) and construct WLag
-        Call OLagFinal(Work(ipOLag),Work(ipTrf))
+        Call OLagFinal(OLag,Work(ipTrf))
 C
         Call GetMem('RDMSA ','FREE','REAL',ipRDMSA ,nAshT**2)
-        Call GetMem('WRK1  ','FREE','REAL',ipWRK1 ,nBasSq)
-        Call GetMem('WRK2  ','FREE','REAL',ipWRK2 ,nBasSq)
+        Call GetMem('WRK1  ','FREE','REAL',ipWRK1 ,NBSQT)
+        Call GetMem('WRK2  ','FREE','REAL',ipWRK2 ,NBSQT)
 C
-        Call GetMem('DPT   ','FREE','REAL',ipDPT  ,nBasSq)
+        Call GetMem('DPT   ','FREE','REAL',ipDPT  ,NBSQT)
 C
 C       ----- Calculate CI derivatives -----
 C
         !! use quasi-canonical CSF rather than natural CSF
 C     ISAV = IDCIEX
 C     IDCIEX = IDTCEX
-        Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
+        CLag(:,:) = 0.0D+00
 C
         !! 1) Explicit CI derivative
         !! a: Extract FIFA in the AS for explicit CI derivative
         !!    Note that this FIFA uses state-averaged density matrix
-C       call sqprt(work(ipfifa),nbast)
+C       call sqprt(fifa_all,nbast)
         Do iAsh = 1, nAshT
           Do jAsh = 1, nAshT
-            Work(ipG1+iAsh-1+nAshT*(jAsh-1)) = Work(ipFIFA + nFro(1)
-     &          + nIsh(1) + iAsh-1 + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
+            Work(ipG1+iAsh-1+nAshT*(jAsh-1)) = FIFA_all( nFro(1)
+     &          + nIsh(1) + iAsh + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
           End Do
         End Do
 C       call sqprt(work(ipg1),nasht)
@@ -1031,23 +1030,22 @@ C     call sqprt(work(iptrf),nbast)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
      *              1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
      *                      Work(ipG1),nAshT,
-     *              0.0D+00,Work(ipFIFA),nAshT)
-C     call sqprt(work(ipfifa),nasht)
+     *              0.0D+00,FIFA_all,nAshT)
+C     call sqprt(FIFA_all,nasht)
         Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipFIFA),nAshT,
+     *              1.0D+00,FIFA_all,nAshT,
      *                      Work(ipTrf+nBasT*nCor+nCor),nBasT,
      *              0.0D+00,Work(ipG1),nAshT)
 C     call sqprt(work(ipg1),nasht)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
      *              1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
      *                      Work(ipRDMEIG),nAshT,
-     *              0.0D+00,Work(ipFIFA),nAshT)
+     *              0.0D+00,FIFA_all,nAshT)
         Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipFIFA),nAshT,
+     *              1.0D+00,FIFA_all,nAshT,
      *                      Work(ipTrf+nBasT*nCor+nCor),nBasT,
      *              0.0D+00,Work(ipRDMEIG),nAshT)
-        Call GetMem('TRFMAT','FREE','REAL',ipTrf   ,nBasSq)
-C     Call GetMem('FIFA  ','FREE','REAL',ipFIFA ,nBasSq)
+        Call GetMem('TRFMAT','FREE','REAL',ipTrf   ,NBSQT)
 C
         !! b: FIFA in the inactive space
         TRC=0.0D0
@@ -1068,10 +1066,10 @@ C
         !! c: Finally, compute explicit CI derivative
         !! y_{I,T} = w_{ST} <I|f|S>
         !! Here, ipG1 is FIFA = ftu
-        Call CLagEigT(Work(ipCLag),Work(ipG1),SLag,EINACT)
+        Call CLagEigT(CLag,Work(ipG1),SLag,EINACT)
 C
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,Work(ipCLag),Work(ipRDMEIG),nLev)
+        Call CLagEig(.False.,CLag,Work(ipRDMEIG),nLev)
 C
         Call GetMem('RDMEIG','FREE','REAL',ipRDMEIG,nAshT**2)
         Call GetMem('G1    ','FREE','REAL',ipG1    ,nAshT**2)
@@ -1085,7 +1083,7 @@ C
         !! from BAGEL.
         Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
         !! Do in the natural orbital in the XMS basis
-        !! because ipCLag is like that
+        !! because CLag is like that
         !! CASSCF -> XMS
         Call DGEMM_('T','N',nState,nState,nState,
      *              1.0D+00,U0,nState,UEFF,nState,
@@ -1099,8 +1097,7 @@ C
             Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
      *           -  UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*0.5d+00
             Scal = Scal * EDIFF
-            Call DaXpY_(nConf,Scal,Work(ipCI1),1,
-     *                  Work(ipCLag+nConf*(jStat-1)),1)
+            Call DaXpY_(nConf,Scal,Work(ipCI1),1,CLag(1,jStat),1)
           End Do
         End Do
 C
@@ -1114,7 +1111,7 @@ C
       End If
 C
       !! Finally, add to the total CI derivative array
-      Call DaXpY_(nConf*nState,1.0D+00,Work(ipCLag),1,CLag,1)
+      CLagFull = CLagFull + CLag
 C     IDCIEX = ISAV
 C
       End Subroutine XMS_Grad
@@ -1358,13 +1355,13 @@ C
 C
       Use CHOVEC_IO
       use ChoCASPT2
+      use caspt2_gradient, only: FIMO_all
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
 C
@@ -1382,10 +1379,8 @@ C
       nBasI = nBas(iSym)
       ! nOrbI = nOrb(iSym)
 
-C     CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO,nBasSq)
-      CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,nBasSq)
-      CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2,nBasSq)
-C     Call SQUARE(FIMO,Work(ipFIMO),1,nOrbI,nOrbI)
+      CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,NBSQT)
+      CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2,NBSQT)
 C
 C     --- One-Electron Integral
 C
@@ -1417,8 +1412,7 @@ C       End Do
 C     End Do
       Do iAshI = 1, nAsh(iSym)
         Do jAshI = 1, nAsh(iSym)
-C         Val = FIMO(nCorI+iAshI+nBasI*(nCorI+jAshI-1))
-          Val = Work(ipFIMO+nCorI+iAshI-1+nBasI*(nCorI+jAshI-1))
+          Val = FIMO_all(nCorI+iAshI+nBasI*(nCorI+jAshI-1))
           INT1(iAshI,jAshI) = INT1(iAshI,jAshI) + Val
         End Do
       End Do
@@ -1530,9 +1524,8 @@ C           End Do
           End Do
         End Do
       End If
-C     CALL GETMEM('FIMO  ','FREE','REAL',ipFIMO,nBasSq)
-      CALL GETMEM('WRK1  ','FREE','REAL',ipWRK1,nBasSq)
-      CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasSq)
+      CALL GETMEM('WRK1  ','FREE','REAL',ipWRK1,NBSQT)
+      CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,NBSQT)
 C     write(6,*) "int2"
 C     call sqprt(int2,25)
 C     call sqprt(int1,5)
@@ -1570,14 +1563,13 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 C
-      use caspt2_gradient, only: iRoot1, iRoot2
+      use caspt2_gradient, only: iRoot1, iRoot2, OLagFull
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension DPT2Canti(*),UEFF(nState,nState),U0(*)
       Integer ::nLev
@@ -1670,7 +1662,7 @@ C
       !! (see JCP 2004, 120, 7322), but not in off-diagonal blocks.
       !! The way MOLCAS computes adds more than the one BAGEL does, so
       !! the orbital response has to be subtracted?
-      Call DaXpY_(nBasT**2,-1.0d+00,Work(ipWRK1),1,Work(ipOLagFull),1)
+      Call DaXpY_(nBasT**2,-1.0d+00,Work(ipWRK1),1,OLagFull,1)
 C
       Call GetMem('WRK1  ','FREE','REAL',ipWRK1,nBasT**2)
       Call GetMem('WRK2  ','FREE','REAL',ipWRK2,nBasT**2)
@@ -1688,7 +1680,7 @@ C
 C     write (*,*) "dpt2anti sym"
 C     call sqprt(dpt2canti,nbast)
 C     write (*,*) "dpt2c"
-C     call sqprt(work(ipdpt2c),nbast)
+C     call sqprt(dpt2c_tot,nbast)
 C
       Return
 C
@@ -1844,7 +1836,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension OMGDER(nState,nState),HEFF(nState,nState),
      *          SLag(nState,nState)

@@ -128,6 +128,7 @@ C
 
       use caspt2_global, only:imag_shift, sigma_p_epsilon
       use caspt2_data, only: LUSBT
+      use caspt2_gradient, only: iVecL
       use EQSOLV
       use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -189,7 +190,7 @@ C
             !! lg_V5 = RHS2 (in IC basis)
             If (IFMSCOUP) Then
               Call RHS_ALLO(nIN,nIS,lg_V5)
-              Call RHS_READ_SR(lg_V5,iCase,iSym,7)
+              Call RHS_READ_SR(lg_V5,iCase,iSym,iVecL) ! 7
             Else
               lg_V5 = lg_V3
             End If
@@ -344,7 +345,7 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only:ipea_shift, real_shift, imag_shift,
      *                        sigma_p_epsilon
-      use caspt2_gradient, only:do_lindep,LUSTD
+      use caspt2_gradient, only:do_lindep,LUSTD,idSDMat
       use caspt2_data, only: LUSOLV, LUSBT
       use EQSOLV
       use Sigma_data
@@ -355,7 +356,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
       DIMENSION G1(nAshT,nAshT),G2(nAshT,nAshT,nAshT,nAshT),G3(*),
@@ -1239,19 +1239,19 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG,nLev)
+      SUBROUTINE CLagEig(if_SSDMloc,CLag,RDMEIG,nLev)
 C
       use caspt2_data, only: DREF, DWGT
+      use caspt2_gradient, only: OMGDER
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "caspt2_grad.fh"
 C
       Integer, Intent(In)::nLev
       DIMENSION CLag(nConf,nState),RDMEIG(*)
-      Logical   IFSSDMloc
+      Logical   if_SSDMloc
 C
 C     MODE=0: Either state-averaged or DWGT matrix
 C     MODE=1: XMS-specific term, always state-averaged DM
@@ -1260,7 +1260,7 @@ C
       Call GetMem('LCI','ALLO','REAL',LCI,nConf)
 
       Do iState = 1, nState
-        If (.not.IFSSDMloc) Then
+        If (.not.if_SSDMloc) Then
           If (ISCF.EQ.0) Then
             Call LoadCI(Work(LCI),iState)
           Else
@@ -1299,8 +1299,7 @@ C
             Scal = DDOT_(nAshT**2,RDMEIG,1,Work(LWRK),1)*0.5d+00
 C           write (*,*) "scal = ", scal
             Call GetMem('WRK','FREE','REAL',LWRK,nAshT**2)
-            WORK(ipOMGDER+iState-1+nState*(jState-1))
-     *      = WORK(ipOMGDER+iState-1+nState*(jState-1)) + Scal
+            OMGDER(iState,jState) = OMGDER(iState,jState) + Scal
           End If
 
         End If
@@ -2626,7 +2625,7 @@ C
 C
       use caspt2_output, only:IPrGlb
       use PrintLevel, only: verbose
-      use caspt2_gradient, only: ConvInvar
+      use caspt2_gradient, only: ConvInvar,SLag
       use gugx, only: SGS, CIS
       use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
       Implicit Real*8 (A-H,O-Z)
@@ -2635,7 +2634,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "caspt2_grad.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
@@ -2670,7 +2668,7 @@ C     CLag corresponds to the RHS in Eq. (71).
 C
       !! Some post-processing of CI derivative
       !! Somehow, this has to be done in the XMS basis
-      Call CLagFinalOffC(Work(ipSLag))
+      Call CLagFinalOffC(SLag)
 C
 C     ----- Solve the linear equation -----
 C     A_{IS,JR}*X_{JR} = CLag_{IS}, where A_{IS,JR} is the CI-CI Hessian
@@ -3288,7 +3286,6 @@ C
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2_grad.fh"
 #include "pt2_guga.fh"
 C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
@@ -3350,8 +3347,7 @@ C
         ilState = kState
         Do jlState = 1, ilState-1
 C         If (ilState.eq.jlState) Cycle
-          iSLag = ilState + nState*(jlState-1)
-          vSLag = -0.5D+00*Work(ipSLag+iSLag-1)
+          vSLag = -0.5D+00*SLag(ilState,jlState)
           If (abs(vSLag).le.1.0D-08) Cycle
           Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
      *                     Work(LSGM1),Work(LSGM2),
@@ -3837,7 +3833,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION WGRONK(2)
       Dimension BDer(*),SDer(*)

@@ -10,10 +10,21 @@
 !***********************************************************************
 
 ! Variables related to CASPT2 gradients
-! TODO: move here everything that is in caspt2_grad.fh
 module caspt2_gradient
 
   use definitions, only: iwp,wp
+
+  ! some gradient stuff
+  integer(kind=iwp) :: iVecL           = 7_iwp ! Solution of the Lambda equation
+  ! iVecG (G is probably gradient stuff) is used in
+  ! caspt2_res.f to temporarily store residual vectors in solving the lambda equation
+  ! sigder.f and clagx.f to temporarily store derivatives of overlap
+  integer(kind=iwp) :: iVecG           = 8_iwp
+  integer(kind=iwp) :: idSDMat(8,13)   = 0_iwp  ! offset of overlap derivative; can be defined with 11
+  logical(kind=iwp) :: if_SSDM         = .false. ! State-dependent DM is used in Fock or not
+  ! The state for which derivatives of the Lagrangian is computed.
+  ! This is equivalent to jState
+  integer(kind=iwp) :: jStLag          = 0_iwp
 
   ! unit numbers
   integer(kind=iwp) :: LuPT2           = 0_iwp
@@ -31,6 +42,7 @@ module caspt2_gradient
   integer(kind=iwp) :: iRoot2          = 0_iwp
   integer(kind=iwp) :: nStpGrd         = 1_iwp
 
+
   ! for removing the weired loop
   integer(kind=iwp) :: iStpGrd         = 1_iwp
   integer(kind=iwp) :: LUGRAD          = 0_iwp
@@ -46,8 +58,35 @@ module caspt2_gradient
   ! and secondary orbitals
   logical(kind=iwp) :: if_invaria      = .true.
 
+  ! some derivatives of Lagrangian etc.
+  real(kind=wp),allocatable :: CLag(:,:)
+  real(kind=wp),allocatable :: CLagFull(:,:)
+  real(kind=wp),allocatable :: OLag(:)
+  real(kind=wp),allocatable :: OLagFull(:)
+  real(kind=wp),allocatable :: SLag(:,:)
+  real(kind=wp),allocatable :: WLag(:)
+  integer(kind=iwp) :: nCLag           = 0_iwp
+  integer(kind=iwp) :: nOLag           = 0_iwp
+  integer(kind=iwp) :: nSLag           = 0_iwp
+  integer(kind=iwp) :: nWLag           = 0_iwp
+
+  ! some correlated density matrices
+  real(kind=wp),allocatable :: DPT2_tot(:)
+  real(kind=wp),allocatable :: DPT2C_tot(:)
+  real(kind=wp),allocatable :: DPT2_AO_tot(:)
+  real(kind=wp),allocatable :: DPT2C_AO_tot(:)
+  real(kind=wp),allocatable :: DPT2Canti(:)
+
+  ! Fock-related matrices
+  real(kind=wp),allocatable :: FIMO_all(:)
+  real(kind=wp),allocatable :: FIFA_all(:)
+  real(kind=wp),allocatable :: FIFASA_all(:)
+
   ! natural <-> quasi-canonical transformation of frozen orbitals
   real(kind=wp),allocatable :: TraFro(:)
+
+  ! derivative of the weight factor for XDW-CASPT2
+  real(kind=wp),allocatable :: OMGDER(:,:)
 
   ! number of CI vectors per batch in mkfg3.f and derfg3.f
   integer(kind=iwp) :: nbuf1_grad      = 0_iwp

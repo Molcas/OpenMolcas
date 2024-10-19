@@ -116,7 +116,6 @@ C usually print info on the total number of parameters
 
 #include "SysDef.fh"
 #include "pt2_guga.fh"
-#include "caspt2_grad.fh"
 
 * For fooling some compilers:
       REAL*8 WGRONK(2)

@@ -82,7 +82,6 @@ C
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
@@ -440,8 +439,8 @@ C
       Call DScal_(nChoVec**2,2.0D+00,A_PT2,1)
 C
       If (NBGRP.ne.0) SCLNEL = SCLNEL/DBLE(NBGRP)
-      Call DScal_(nBasSq,SCLNEL,DPT2C,1)
-      If (do_csf) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
+      Call DScal_(NBSQT,SCLNEL,DPT2C,1)
+      If (do_csf) Call DScal_(NBSQT,SCLNEL,DPT2Canti,1)
 C
 C
       Return

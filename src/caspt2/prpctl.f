@@ -20,7 +20,8 @@
       USE PT2WFN
       use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_gradient, only: do_nac,iRoot1,iRoot2
+      use caspt2_gradient, only: do_nac,iRoot1,iRoot2,SLag,DPT2_tot,
+     *                           DPT2C_tot
       use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
      &                       LISTS
       use caspt2_data, only: LUONEM
@@ -34,7 +35,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
       Logical FullMlk,lSave,Do_ESPF
 
       Character(Len=8) Label
@@ -120,7 +120,7 @@ C This density matrix may be approximated in several ways, see DENS.
         CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
         CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
         !! Copy the unrelaxed density matrix to triangular
-        !! The basis of ipDPT2 is natural (CASSCF)
+        !! The basis of DPT2_tot is natural (CASSCF)
         IDMAT = 0
         IDMOFF = 0
         DO ISYM=1,NSYM
@@ -128,8 +128,8 @@ C This density matrix may be approximated in several ways, see DENS.
           DO II = 1, NO
             DO IJ = 1, II
               !! second-order (DPT2) and first-order (DPT2C)
-              WORK(LDMAT+IDMAT) = WORK(IPDPT2 +IDMOFF+II-1+NO*(IJ-1))
-     *                 + WORK(IPDPT2C+IDMOFF+II-1+NO*(IJ-1))*0.25d+00
+              WORK(LDMAT+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))
+     *                 + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25d+00
               IF (.NOT.DO_NAC) THEN
                 !! Add the reference density matrix (inactive)
                 IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
@@ -152,7 +152,7 @@ C This density matrix may be approximated in several ways, see DENS.
             CALL LOADCI_XMS('N',1,WORK(LCI1),ISTATE,U0)
           END IF
           DO KSTATE = 1, NSTATE
-            SCAL = WORK(IPSLAG+ISTATE-1+NSTATE*(KSTATE-1))
+            SCAL = SLag(ISTATE,KSTATE)
             IF (.NOT.DO_NAC) THEN
               IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
      *          SCAL = SCAL + 1.0D+00

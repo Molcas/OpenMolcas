@@ -79,7 +79,6 @@ C
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "caspt2_grad.fh"
       CHARACTER(len=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,

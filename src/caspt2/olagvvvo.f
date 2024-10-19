@@ -14,14 +14,14 @@
      *                    DIA,DI,FIFA,FIMO,A_PT2,NumCho)
       USE iSD_data
       USE CHOVEC_IO
-      use caspt2_gradient, only: LuGAMMA,LuCMOPT2,LuAPT2
+      use caspt2_gradient, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
       use caspt2_data, only: CMOPT2
 C
       IMPLICIT REAL*8 (A-H,O-Z)
+C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*),A_PT2(*)
@@ -69,7 +69,7 @@ C
 
         ! For SS-CASPT2 I should write A_PT2 on disk only
         ! for the correct iRlxRoot
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+        if (jState.eq.iRlxRoot .or. IFMSCOUP) then
           ! write A_PT2 in LUAPT2
           id = 0
           call ddafile(LUAPT2,1,A_PT2,NumCho**2,id)
@@ -242,9 +242,9 @@ C
 C     CALL DGEMM_('T','N',nSsh(iSym),nOcc,nBasT,
 C    *            1.0D+00,CMOPT2(1+nBasT*nOcc),nBasT,
 C    *                    Work(ipvLag),nBasT,
-C    *            1.0D+00,Work(ipOLAG+nOCC),nOrb(iSymA))
+C    *            1.0D+00,OLAG(nOCC+1),nOrb(iSymA))
 C     write(6,*) "olag before vvvo"
-C     call sqprt(work(ipolag),nbast)
+C     call sqprt(olag,nbast)
       nOrbA = nFro(iSymA)+nIsh(iSymA)+nAsh(iSymA)+nSsh(iSymA)
       If (DoCholesky) nOcc = nOrbA-nFro(iSymA)
 C     write(6,*) "vLag"
@@ -252,9 +252,9 @@ C     call sqprt(work(ipvLag),nbast)
       CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,
      *            1.0D+00,CMOPT2,nBasT,
      *                    Work(ipvLag),nBasT,
-     *            1.0D+00,Work(ipOLAG+nOrbA*nFro(iSymA)),nOrbA)
+     *            1.0D+00,OLAG(nOrbA*nFro(iSymA)+1),nOrbA)
 C     write(6,*) "olag after vvvo"
-C     call sqprt(work(ipolag),nbast)
+C     call sqprt(olag,nbast)
 C
       Call GetMem('WRK1','Free','Real',ipWRK1,nBasT*nBasT)
       Call GetMem('WRK2','Free','Real',ipWRK2,nBasT*nBasT)
@@ -727,7 +727,6 @@ C
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
@@ -935,7 +934,7 @@ C
               Write (LuGamma,Rec=iVec+JV1-1)
      *          Work(ipHTVec:ipHTVec+nBasI**2-1)
             Else
-             if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+             if (jState.eq.iRlxRoot .or. IFMSCOUP) then
               Write (LuGamma,Rec=iVec+JV1-1)
      *        Work(ip_CHSPC+nBasI**2*(iVec-1):ip_CHSPC+nBasI**2*iVec-1)
              end if

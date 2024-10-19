@@ -16,7 +16,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION DPT2C(*),T2AO(*)
 C
@@ -64,10 +63,8 @@ C               if (icase.ne.12.and.icase.ne.13) cycle
           End Do
         End Do
       End Do
-C     write(6,*) "olag before VVVO"
-C     call sqprt(work(ipolag),12)
 C
-      Call DScal_(nBasSq,1.0D+00/DBLE(MAX(1,NACTEL)),DPT2C,1)
+      Call DScal_(NBSQT,1.0D+00/DBLE(MAX(1,NACTEL)),DPT2C,1)
 C
 C
       Call GetMem('Int1','Free','Real',ipInt1,lInt)
@@ -85,13 +82,13 @@ C
       USE SUPERINDEX
       USE iSD_data
       use caspt2_data, only: LUSBT
+      use caspt2_gradient, only: OLag
       use EQSOLV
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)
@@ -940,11 +937,11 @@ C
 C         Call DGEMM_('N','T',nOrbA,nSshA,nSshB,
 C    *                1.0D+00,ERI1(1+nOrbA*nOccB),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,Work(ipOLAG+nOrbA*nOccB),nOrbA)
+C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
 C         Call DGEMM_('T','N',nOrbA,nSshA,nSshB,
 C    *                1.0D+00,ERI1(nOccA+1),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,Work(ipOLAG+nOrbA*nOccB),nOrbA)
+C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
 C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
@@ -1034,11 +1031,11 @@ C
 C         Call DGEMM_('N','T',nOrbA,nSshA,nSshB,
 C    *                1.0D+00,ERI1(1+nOrbA*nOccB),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,Work(ipOLAG+nOrbA*nOccB),nOrbA)
+C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
 C         Call DGEMM_('T','N',nOrbA,nSshA,nSshB,
 C    *                1.0D+00,ERI1(nOccA+1),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,Work(ipOLAG+nOrbA*nOccB),nOrbA)
+C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
 C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
@@ -1107,11 +1104,11 @@ C
       Call DGEMM_('N','T',nOrbA,nDimA,nDimB,
      *            1.0D+00,ERI(1+nOrbA*nSkpB),nOrbA,
      *                    AmpMO,nDimA,
-     *            1.0D+00,Work(ipOLAG+nOrbA*nSkpB),nOrbA)
+     *            1.0D+00,OLAG(nOrbA*nSkpB+1),nOrbA)
       Call DGEMM_('T','N',nOrbA,nDimA,nDimB,
      *            1.0D+00,ERI(nSkpA+1),nOrbA,
      *                    AmpMO,nDimA,
-     *            1.0D+00,Work(ipOLAG+nOrbA*nSkpB),nOrbA)
+     *            1.0D+00,OLAG(nOrbA*nSkpB+1),nOrbA)
 C
       End Subroutine OLagNS_post1
 C

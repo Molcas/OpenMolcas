@@ -88,14 +88,12 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension DIA(*),DI(*)
       Dimension RDMSA(*),Trf(*)
 C
-      Call GetMem('WRK1','Allo','Real',ipWRK1,nBasSq)
-      Call GetMem('WRK2','Allo','Real',ipWRK2,nBasSq)
-C     Call Get_D1ao(ipWRK1,nBasTr)
+      Call GetMem('WRK1','Allo','Real',ipWRK1,NBSQT)
+      Call GetMem('WRK2','Allo','Real',ipWRK2,NBSQT)
 C
       iAOtr = 0
       iAOsq = 1
@@ -150,8 +148,8 @@ C
         iAOsq = iAOsq + nBasI*nBasI
       End Do
 C
-      Call GetMem('WRK1','Free','Real',ipWRK1,nBasSq)
-      Call GetMem('WRK2','Free','Real',ipWRK2,nBasSq)
+      Call GetMem('WRK1','Free','Real',ipWRK1,NBSQT)
+      Call GetMem('WRK2','Free','Real',ipWRK2,NBSQT)
 C
       Return
 C
@@ -161,12 +159,12 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFro1(DPT2,OLag)
 C
+      use caspt2_gradient, only: FIFA_all
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension DPT2(*),OLag(*)
 C
@@ -181,8 +179,6 @@ C     do i = 1, nbast
 C       write(6,'(i3,f20.10)') i,work(ipeps+i-1)
 C     end do
       iMO  = 1
-C     write (*,*) "now using the fifa energies"
-C     call sqprt(work(ipfifa),nbast)
       DO iSym = 1, nSym
         nOrbI = nBas(iSym)-nDel(iSym)
         nFroI = nFro(iSym)
@@ -199,9 +195,8 @@ C         write(6,*) work(ipeps+iorb-1),work(ipeps+jorb-1)
               Tmp = -0.5D+00*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
      *                       -OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))
 C    *            /(Work(ipEPS+iOrb-1)-Work(ipEPS+jOrb-1))
-C    *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))-EPSI(jOrb-nFroI))
-     *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))
-     *             -Work(ipFIFA+jOrb-1+nBasI*(jOrb-1)))
+     *            /(FIFA_all(iOrb+nBasI*(iOrb-1))
+     *             -FIFA_all(jOrb+nBasI*(jOrb-1)))
 C         write(6,*) tmp
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
      *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp
@@ -405,7 +400,6 @@ C
 #include "warnings.h"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK(*)
       Integer ISTLT(8),ISTSQ(8),iSkip(8),ipWRK(8)

@@ -21,7 +21,12 @@
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
-     *                           iRoot2, if_invaria
+     *                           iRoot2, if_invaria, if_SSDM,
+     *                           CLag,CLagFull,OLag,SLag,
+     *                           nCLag,
+     *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
+     *                           DPT2C_AO_tot,DPT2Canti,FIMO_all,
+     *                           FIFA_all,OMGDER,jStLag
       use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2, TORB, NDREF
       use caspt2_data, only: IDCIEX, IDTCEX
       use PrintLevel, only: debug, verbose
@@ -37,7 +42,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "caspt2_grad.fh"
 #include "pt2_guga.fh"
       DIMENSION DMAT(*),UEFF(nState,nState),U0(nState,nState)
       Dimension VECROT(nState)
@@ -177,15 +181,12 @@ C
         If (IfChol) nch=nvloc_chobatch(1)
         CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1  ,Max(nBasT**2,nch))
         CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2  ,Max(nBasT**2,nch))
-        !! FIFA and FIMO (due to frozen orbitals)
-C       CALL GETMEM('FIFA  ','ALLO','REAL',ipFIFA  ,nBsqT)
-C       CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO  ,nBsqT)
         !! state-averaged density
         CALL GETMEM('RDMSA ','ALLO','REAL',ipRDMSA ,nAshT*nAshT)
         !! Derivative of state-averaged density
         CALL GETMEM('RDMEIG','ALLO','REAL',ipRDMEIG,nAshT*nAshT)
 C       write(6,*) "olag before"
-C       call sqprt(Work(ipolag),nbast)
+C       call sqprt(olag,nbast)
 C
         Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPT),1)
         Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPTC),1)
@@ -196,14 +197,14 @@ C
         Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTAO),1)
         Call DCopy_(nDPTAO,[0.0D+00],0,Work(ipFPTCAO),1)
         If (.not.IfChol) Then
-        Call DCopy_(nBsqT ,[0.0D+00],0,Work(ipFIFA),1)
-        Call DCopy_(nBsqT ,[0.0D+00],0,Work(ipFIMO),1)
+          FIMO_all = 0.0d+00
+          FIFA_all = 0.0d+00
         End If
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipRDMSA),1)
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipRDMEIG),1)
 C
-        Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
-        Call DCopy_(nOLag,[0.0D+00],0,Work(ipOLag),1)
+        CLag(:,:) = 0.0d+00
+        OLag(:) = 0.0d+00
 C
         If (nFroT.ne.0 .or. .not.if_invaria) Then
           CALL GETMEM('DIA   ','ALLO','REAL',ipDIA ,nBsqT)
@@ -220,8 +221,8 @@ C
           ipDPTCanti = ipDPTC !! not used
         End If
 C
-        !! Work(LDPT) -> Work(ipDPT2)
-        !! Note that Work(ipDPT2) has the index of frozen orbitals.
+        !! Work(LDPT) -> Work(ipDPT)
+        !! Note that Work(ipDPT) has the index of frozen orbitals.
         !! Note also that unrelaxed (w/o Z-vector) dipole moments with
         !! frozen orbitals must be wrong.
 C       call dcopy_(ndpt,[0.0d+00],0,work(ldpt),1)
@@ -266,8 +267,8 @@ C
         Call DCopy_(nAshT*nAshT,[0.0D+00],0,Work(ipDEPSA),1)
         !! Derivative of off-diagonal H0 of <Psi1|H0|Psi1>
         IF (MAXIT.NE.0) Call SIGDER(iVecX,iVecR,VECROT(jState))
-        Call CLagX(1,Work(ipCLag),Work(ipDEPSA),VECROT)
-C       call test3_dens(work(ipclag))
+        Call CLagX(1,CLag,Work(ipDEPSA),VECROT)
+C       call test3_dens(clag)
 C       write(6,*) "original depsa"
 C       call sqprt(work(ipdepsa),nasht)
 C       write(6,*) "original depsa (sym)"
@@ -315,7 +316,7 @@ C
         !! density matrices
         If (IFMSCOUP) Then
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          Call DerHEff(Work(ipCLag),VECROT)
+          Call DerHEff(CLag,VECROT)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB.GE.verbose) THEN
             CPUT =CPTF10-CPTF0
@@ -355,7 +356,7 @@ C
             CALL PLCVEC(VECROT(jState),0.50d+00,IVECX,IVECR)
             CALL PTRTOC(1,IVECR,IVECC2)
             !! T-amplitude
-            Do iStLag = 1, nStLag
+            Do iStLag = 1, nState
               If (iStLag.eq.jState) Cycle
               Scal = VECROT(iStLag)
               If (ABS(Scal).LE.1.0D-12) Cycle
@@ -366,7 +367,7 @@ C
               Call RHS_ZERO(7)
               ibk = ivecc2
               ivecc2 = 7
-              Do iStLag = 1, nStLag
+              Do iStLag = 1, nState
                 If (iStLag.eq.jState) Cycle
                 Scal = UEFF(iStLag,iRoot1)*UEFF(jStLag,iRoot2)
      *               - UEFF(jStLag,iRoot1)*UEFF(iStLag,iRoot2)
@@ -478,16 +479,16 @@ C
           !! The way implemented (what?) is just a shit. I cannot find
           !! FIFA and FIMO for frozen orbitals, so I have to construct
           !! them. Here is the transformation of G(D^inact) and G(D).
-          !! Work(ipFIFA) and Work(ipFIMO) computed in this subroutine
+          !! FIFA_all and FIMO_all computed in this subroutine
           !! is not yet correct. They are just two-electron after this
           !! subroutine.
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           CALL OLagVVVO(iSym,Work(ipDPTAO),Work(ipDPTCAO),
      *                  Work(ipFPTAO),Work(ipFPTCAO),Work(ipT2AO),
-     *                  Work(ipDIA),Work(ipDI),Work(ipFIFA),
-     *                  Work(ipFIMO),Work(ipA_PT2),NumChoTot)
+     *                  Work(ipDIA),Work(ipDI),FIFA_all,FIMO_all,
+     *                  Work(ipA_PT2),NumChoTot)
         !   write(6,*) "olag after vvvo"
-        !   call sqprt(work(ipolag),nbast)
+        !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB.GE.verbose) THEN
             CPUT =CPTF10-CPTF0
@@ -496,7 +497,7 @@ C
           END IF
 C     write(6,*) "OLag"
 C     do i = 1, 144
-C       write(6,'(i3,f20.10)') i,work(ipolag+i-1)
+C       write(6,'(i3,f20.10)') i,olag(i)
 C     end do
 C      write(6,*) "fpt2ao"
 C     call sqprt(work(ipfptao),12)
@@ -523,21 +524,12 @@ C
         Call AddDPTC(Work(ipDPTC),Work(LDSUM))
 C
 c
-c
-C       Call SQUARE(FIFA,Work(ipFIFA),1,12,12)
-C       CALL DGEMM_('N','T',12,12,12,
-C    *              2.0D+00,work(ipfifa),12,work(ipdpt),12,
-C    *              1.0D+00,Work(ipOLAG),12)
-C          call test2_dens(work(ipolag),work(ipdepsa))
-C
-c
-c
 C       write(6,*) "fptao after olagns"
 C       call sqprt(Work(ipfptao),nbast)
 C       write(6,*) "fptcao after olagns"
 C       call sqprt(Work(ipfptcao),nbast)
 C       write(6,*) "olag after olagns"
-C       call sqprt(Work(ipolag),nbast)
+C       call sqprt(olag,nbast)
 C
         !! If frozen orbitals exist, frozen-inactive part of the
         !! unrelaxed PT2 density matrix is computed using the orbital
@@ -549,8 +541,7 @@ C         write(6,*) "dpt before frozen"
 C         call sqprt(work(ipdpt),nbast)
           if (.not.ifchol) then
             !! Construct FIFA and FIMO
-            Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
-     *                    Work(ipWRK2))
+            Call OLagFro3(FIFA_all,FIMO_all,Work(ipWRK1),Work(ipWRK2))
             !! if possible, canonicalize frozen orbitals, and update
             !! FIMO and Trf
           end if
@@ -560,32 +551,32 @@ C         call sqprt(work(ipdpt),nbast)
           !! contributions are all symmetric in frozen + inactive
           !! orbitals, so they do not contribute to frozen density
           CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *                1.0D+00,FIMO_all,nBasT,Work(ipDPTC),nBasT,
+     *                1.0D+00,OLAG,nBasT)
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *                1.0D+00,FIMO_all,nBasT,Work(ipDPTC),nBasT,
+     *                1.0D+00,OLAG,nBasT)
           CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *                1.0D+00,FIFA_all,nBasT,Work(ipDPT),nBasT,
+     *                1.0D+00,OLAG,nBasT)
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
-     *                1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *                1.0D+00,FIFA_all,nBasT,Work(ipDPT),nBasT,
+     *                1.0D+00,OLAG,nBasT)
 C
           !! non-invariant in inactive and secondary
           if(.not.if_invaria) then
             !! Construct the density from orbital Lagrangian
-            call caspt2_grad_invaria2(Work(ipDPT),Work(ipOLag))
+            call caspt2_grad_invaria2(Work(ipDPT),OLag)
             !! FIFA contributions from the non-invariant density
             call DaXpY_(nDPTAO,-1.0D+00,Work(ipWRK1),1,Work(ipDPT),1)
             !! Add the non-invariant contribution to unrelaxed density
             Call AddDPTC(Work(ipDPT),Work(LDSUM))
             CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
-     *                  1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
-     *                  1.0D+00,Work(ipOLAG),nBasT)
+     *                  1.0D+00,FIFA_all,nBasT,Work(ipDPT),nBasT,
+     *                  1.0D+00,OLAG,nBasT)
             CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
-     *                  1.0D+00,Work(ipFIFA),nBasT,Work(ipDPT),nBasT,
-     *                  1.0D+00,Work(ipOLAG),nBasT)
+     *                  1.0D+00,FIFA_all,nBasT,Work(ipDPT),nBasT,
+     *                  1.0D+00,OLAG,nBasT)
             !! Restore the second-order correlated density
             call DaXpY_(nDPTAO,+1.0D+00,Work(ipWRK1),1,Work(ipDPT),1)
             Call DCopy_(nDPTAO,Work(ipDPT),1,Work(ipWRK1),1)
@@ -593,22 +584,22 @@ C
           !! Now, compute pseudo-density using orbital Lagrangian
           !! LDSUM does not contain frozen orbitals,
           !! so the properties using this density may be inaccurate
-          If(nFroT.ne.0) Call OLagFro1(Work(ipDPT),Work(ipOLag))
+          If(nFroT.ne.0) Call OLagFro1(Work(ipDPT),OLag)
 C
           !! Subtract the orbital Lagrangian added above.
           !! It is computed again in EigDer
           CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
-     *               -1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *               -1.0D+00,FIMO_all,nBasT,Work(ipDPTC),nBasT,
+     *                1.0D+00,OLAG,nBasT)
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
-     *               -1.0D+00,Work(ipFIMO),nBasT,Work(ipDPTC),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *               -1.0D+00,FIMO_all,nBasT,Work(ipDPTC),nBasT,
+     *                1.0D+00,OLAG,nBasT)
           CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
-     *               -1.0D+00,Work(ipFIFA),nBasT,Work(ipWRK1),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *               -1.0D+00,FIFA_all,nBasT,Work(ipWRK1),nBasT,
+     *                1.0D+00,OLAG,nBasT)
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
-     *               -1.0D+00,Work(ipFIFA),nBasT,Work(ipWRK1),nBasT,
-     *                1.0D+00,Work(ipOLAG),nBasT)
+     *               -1.0D+00,FIFA_all,nBasT,Work(ipWRK1),nBasT,
+     *                1.0D+00,OLAG,nBasT)
 C         write(6,*) "dpt after frozen"
 C         call sqprt(work(ipdpt),nbast)
 C
@@ -643,13 +634,12 @@ C           call sqprt(work(ipdpt),nbast)
 C         write(6,*) "fpt"
 C           call sqprt(work(ipdpt),nbast)
           End If
-C         write(6,*) "ipfifa"
-C         call sqprt(work(ipfifa),12)
-C         write(6,*) "ipfimo"
-C         call sqprt(work(ipfimo),12)
+C         write(6,*) "fifa_all"
+C         call sqprt(fifa_all,12)
+C         write(6,*) "fimo_all"
+C         call sqprt(fimo_all,12)
       !   !! Construct FIFA and FIMO
-      !   Call OLagFro3(Work(ipFIFA),Work(ipFIMO),Work(ipWRK1),
-     *!                 Work(ipWRK2))
+      !   Call OLagFro3(FIFA_all,FIMO_all,Work(ipWRK1),Work(ipWRK2))
 C
           CALL GETMEM('DIA   ','FREE','REAL',ipDIA ,nBsqT)
           CALL GETMEM('DI    ','FREE','REAL',ipDI  ,nBsqT)
@@ -658,21 +648,19 @@ C
           iTR = 0
           Do iSym = 1, nSym
             nOrbI = nOrb(iSym)
-            Call SQUARE(FIFA(1+iTR),Work(ipFIFA+iSQ),1,nOrbI,nOrbI)
-            Call SQUARE(FIMO(1+iTR),Work(ipFIMO+iSQ),1,nOrbI,nOrbI)
+            Call SQUARE(FIFA(1+iTR),FIFA_all(1+iSQ),1,nOrbI,nOrbI)
+            Call SQUARE(FIMO(1+iTR),FIMO_all(1+iSQ),1,nOrbI,nOrbI)
             iSQ = iSQ + nOrbI*nOrbI
             iTR = iTR + nOrbI*(nOrbI+1)/2
           End Do
         End If
-C         write(6,*) "ipfifa in dens"
-C         call sqprt(work(ipfifa),nbast)
-C         write(6,*) "ipfimo in dens"
-C         call sqprt(work(ipfimo),nbast)
-C        write(6,*) "FIFA in quasi-canonical"
-C         call sqprt(work(ipfifa),12)
+C         write(6,*) "fifa_all in dens"
+C         call sqprt(fifa_all,nbast)
+C         write(6,*) "fimo_all in dens"
+C         call sqprt(fimo_all,nbast)
 C        write(6,*) "FIFA in natural"
 C         Call DGemm_('N','N',nBasT,nBasT,nBasT,
-C    *                1.0D+00,Work(ipTrf),nBasT,Work(ipFIFA),nBasT,
+C    *                1.0D+00,Work(ipTrf),nBasT,fifa_all,nBasT,
 C    *                0.0D+00,Work(ipWRK1),nBasT)
 C         Call DGemm_('N','T',nBasT,nBasT,nBasT,
 C    *                1.0D+00,Work(ipWRK1),nBasT,Work(ipTrf),nBasT,
@@ -683,18 +671,18 @@ C
         !! the above two densities.
 C       CALL EigDer(Work(LDPT),Work(ipDPTC),Work(ipFPTAO),
 C       write(6,*) "olag before eigder"
-C       call sqprt(Work(ipolag),nbast)
+C       call sqprt(olag,nbast)
 C       write(6,*) "fpt2"
 C       call sqprt(Work(ipfpt),nbast)
         CALL EigDer(Work(ipDPT),Work(ipDPTC),Work(ipFPTAO),
      *              Work(ipFPTCAO),Work(ipRDMEIG),CMOPT2,
      *              Work(ipTrf),Work(ipFPT),Work(ipFPTC),
-     *              Work(ipFIFA),Work(ipFIMO),Work(ipRDMSA))
-C          call test2_dens(work(ipolag),work(ipdepsa))
+     *              FIFA_all,FIMO_all,Work(ipRDMSA))
+C          call test2_dens(olag,work(ipdepsa))
 C       write(6,*) "olag after eigder"
-C       call sqprt(Work(ipolag),nbast)
+C       call sqprt(olag,nbast)
 C       write(6,*) "Wlag after eigder"
-C       call sqprt(work(ipwlag),nbast)
+C       call sqprt(wlag,nbast)
 C       write(6,*) "rdmeig"
 C       call sqprt(work(iprdmeig),nasht)
 C       call abend
@@ -713,28 +701,28 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
         If (.not.if_invar) Then !test
           CALL GETMEM('CLagT','ALLO','REAL',ipCLagT,nConf*nState)
           CALL GETMEM('EigT ','ALLO','REAL',ipEigT ,nAshT**2)
-          Call DCopy_(nConf*nState,Work(ipCLag),1,Work(ipCLagT),1)
+          Call DCopy_(nConf*nState,CLag,1,Work(ipCLagT),1)
           Call DCopy_(nAshT**2,Work(ipRDMEIG),1,Work(ipEigT),1)
           If (IFDW .and. zeta >= 0.0d+00) then
             CALL GETMEM('OMGT ','ALLO','REAL',ipOMGT ,nState*nState)
-            Call DCopy_(nState**2,Work(ipOMGDER),1,Work(ipOMGT),1)
+            Call DCopy_(nState**2,OMGDER,1,Work(ipOMGT),1)
           end if
         End If
         !! Use canonical CSFs rather than natural CSFs in CLagEig
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG),nAshT)
+        Call CLagEig(if_SSDM,CLag,Work(ipRDMEIG),nAshT)
 C
         !! Now, here is the best place to compute the true off-diagonal
         !! active density for non-invariant CASPT2
         If (.not.if_invar) Then
-          Call DCopy_(nSLag,[0.0d+00],0,Work(ipSLag),1)
+          SLag = 0.0d+00
           !! Add the density that comes from CI Lagrangian
-          Call DEPSAOffC(Work(ipCLag),Work(ipDEPSA),Work(ipFIFA),
-     *                   Work(ipFIMO),Work(ipWRK1),Work(ipWRK2),U0)
+          Call DEPSAOffC(CLag,Work(ipDEPSA),FIFA_all,FIMO_all,
+     *                   Work(ipWRK1),Work(ipWRK2),U0)
           !! Add the density that comes from orbital Lagrangian
-          Call DEPSAOffO(Work(ipOLag),Work(ipDEPSA),Work(ipFIFA))
+          Call DEPSAOffO(OLag,Work(ipDEPSA),FIFA_all)
           !! Restore the diagonal elements
           Call DCopy_(nAshT,Work(ipDEPSAD),1,Work(ipDEPSA),nAshT+1)
           CALL GETMEM('DEPSAD','FREE','REAL',ipDEPSAD,nAshT)
@@ -767,32 +755,32 @@ C
      *                  CMOPT2,Work(ipDEPSA),
      *                  Work(LDSUM))
           !! For IPEA shift with state-dependent density
-          If (IFSSDM.and.(jState.eq.iRlxRoot.or.nStLag.gt.1)) Then
+          If (if_SSDM.and.(jState.eq.iRlxRoot.or.IFMSCOUP)) Then
             iSym = 1
             Call OLagTrf(1,iSym,CMOPT2,Work(ipDPT),
      *                   Work(ipDPTAO),Work(ipWRK1))
           End If
           !! Some transformations similar to EigDer
-          Call EigDer2(Work(ipRDMEIG),Work(ipTrf),Work(ipFIFA),
+          Call EigDer2(Work(ipRDMEIG),Work(ipTrf),FIFA_all,
      *                 Work(ipRDMSA),Work(ipDEPSA),
      *                 Work(ipWRK1),Work(ipWRK2))
 C
-          Call DCopy_(nConf*nState,Work(ipCLagT),1,Work(ipCLag),1) !test
+          Call DCopy_(nConf*nState,Work(ipCLagT),1,CLag,1) !test
          !test
           Call DaXpY_(nAshT**2,1.0D+00,Work(ipEigT),1,Work(ipRDMEIG),1)
-          call DCopy_(nState*nState,[0.0D+00],0,Work(ipSLag),1)
+          SLag = 0.0d+00
           CALL GETMEM('CLagT','FREE','REAL',ipCLagT,nConf*nState)
           CALL GETMEM('EigT ','FREE','REAL',ipEigT ,nAshT**2)
           if (IFDW .and. zeta >= 0.0d+00) then
-            Call DCopy_(nState*nState,Work(ipOMGT),1,Work(ipOMGDER),1)
+            Call DCopy_(nState*nState,Work(ipOMGT),1,OMGDER,1)
             CALL GETMEM('OMGT ','FREE','REAL',ipOMGT ,nState*nState)
           end if
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG),nAshT)
+          Call CLagEig(if_SSDM,CLag,Work(ipRDMEIG),nAshT)
           !! Now, compute the state Lagrangian and do some projections
-C         Call CLagFinal(Work(ipCLag),Work(ipSLag))
+C         Call CLagFinal(CLag,SLag)
         End If
 C
         !! Restore integrals without frozen orbitals, although not sure
@@ -804,32 +792,33 @@ C
         !! Canonical -> natural transformation
         IF(ORBIN.EQ.'TRANSFOR') Then
           Do iState = 1, nState
-            Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
+C           Call CLagX_TrfCI(CLag(1+nConf*(iState-1)))
+            Call CLagX_TrfCI(CLag(1,iState))
           End Do
         End If
         ! accumulate configuration Lagrangian only for MS,XMS,XDW,RMS,
         ! but not for SS-CASPT2
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-          Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,Work(ipCLagFull),1)
+        if (jState.eq.iRlxRoot .or. IFMSCOUP) then
+          Call DaXpY_(nCLag,1.0D+00,CLag,1,CLagFull,1)
         end if
-C       Call CLagFinal(Work(ipCLag),Work(ipSLag))
+C       Call CLagFinal(CLag,SLag)
 C
         !! Transformations of DPT2 in quasi-canonical to natural orbital
         !! basis and store the transformed density so that the MCLR
         !! module can use them.
         ! accumulate only if MS,XMS,XDW or RMS calculation
-        ! call RecPrt('DPT2 before', '', work(ipDPT2), nBast, nBast)
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-          Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
+        ! call RecPrt('DPT2 before', '', DPT2_tot, nBast, nBast)
+        if (jState.eq.iRlxRoot .or. IFMSCOUP) then
+          Call DPT2_TrfStore(1.0D+00,Work(ipDPT),DPT2_tot,
      *                       Work(ipTrf),Work(ipWRK1))
-          Call DPT2_TrfStore(2.0D+00,Work(ipDPTC),Work(ipDPT2C),
+          Call DPT2_TrfStore(2.0D+00,Work(ipDPTC),DPT2C_tot,
      *                       Work(ipTrf),Work(ipWRK1))
           If (do_csf) Then
             Call DPT2_TrfStore(1.0D+00,Work(ipDPTCanti),
-     *      Work(ipDPT2Canti),Work(ipTrf),Work(ipWRK1))
+     *      DPT2Canti,Work(ipTrf),Work(ipWRK1))
           End If
         end if
-        ! call RecPrt('DPT2 after', '', work(ipDPT2), nBast, nBast)
+        ! call RecPrt('DPT2 after', '', DPT2_tot, nBast, nBast)
 C       !! Save MO densities for post MCLR
 C       Call DGemm_('N','N',nBasT,nBasT,nBasT,
 C    *              1.0D+00,Work(ipTrf),nBasT,Work(LDPT),nBasT,
@@ -841,7 +830,7 @@ C       iSQ = 0
 C       Do iSym = 1, nSym
 C         nOrbI = nBas(iSym)-nDel(iSym)
 C         nSQ = nOrbI*nOrbI
-C         Call DaXpY_(nSQ,1.0D+00,Work(ipWRK2+iSQ),1,Work(ipDPT2+iSQ),1)
+C         Call DaXpY_(nSQ,1.0D+00,Work(ipWRK2+iSQ),1,DPT2_tot(1+iSQ),1)
 C         iSQ = iSQ + nSQ
 C       End Do
 C
@@ -856,7 +845,7 @@ C       iSQ = 0
 C       Do iSym = 1, nSym
 C         nOrbI = nBas(iSym)-nDel(iSym)
 C         nSQ = nOrbI*nOrbI
-C        Call DaXpY_(nSQ,2.0D+00,Work(ipWRK2+iSQ),1,Work(ipDPT2C+iSQ),1)
+C        Call DaXpY_(nSQ,2.0D+00,Work(ipWRK2+iSQ),1,DPT2C_tot(1+iSQ),1)
 C         iSQ = iSQ + nSQ
 C       End Do
 C       call abend()
@@ -866,7 +855,7 @@ C
         !! densities. Do this for DPT2AO and DPT2CAO (defined in
         !! caspt2_grad.f and caspt2_grad.h).
         ! accumulate only if MS,XMS,XDW or RMS calculation
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
+        if (jState.eq.iRlxRoot .or. IFMSCOUP) then
           iBasTr = 1
           iBasSq = 1
           Do iSym = 1, nSym
@@ -877,13 +866,13 @@ C
               Do jBasI = 1, iBasI
                 liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
                 If (iBasI.eq.jBasI) Then
-                  Work(ipDPT2AO +liBasTr-1) = Work(ipDPTAO +liBasSq-1)
-                  Work(ipDPT2CAO+liBasTr-1) = Work(ipDPTCAO+liBasSq-1)
+                  DPT2_AO_tot(liBasTr)  = Work(ipDPTAO+liBasSq-1)
+                  DPT2C_AO_tot(liBasTr) = Work(ipDPTCAO+liBasSq-1)
                 Else
-                  Work(ipDPT2AO +liBasTr-1)
-     *            = Work(ipDPTAO +liBasSq-1)*2.0D+00
-                  Work(ipDPT2CAO+liBasTr-1)
-     *            = Work(ipDPTCAO+liBasSq-1)*2.0D+00
+                  DPT2_AO_tot(liBasTr)
+     *              = Work(ipDPTAO+liBasSq-1)*2.0D+00
+                  DPT2C_AO_tot(liBasTr)
+     *              = Work(ipDPTCAO+liBasSq-1)*2.0D+00
                 End If
                 liBasTr = liBasTr + 1
               End Do
@@ -902,7 +891,7 @@ C
         !! SA density-contribution will be added and should be
         !! subtracted
         ! This should be done only for iRlxRoot
-        If (IFSSDM.and.(jState.eq.iRlxRoot.or.nStLag.gt.1)) Then
+        If (if_SSDM.and.(jState.eq.iRlxRoot.or.IFMSCOUP)) Then
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 !         If (.not.if_invar) Then
 !           write(6,*) "SS density matrix with IPEA not implemented"
@@ -956,7 +945,7 @@ C           Call LoadCI(WORK(LCI),iState)
         End If
 C       write(6,*) "pt2ao"
 C       call sqprt(Work(ipDPTAO),12)
-C       call prtril(Work(ipDPT2AO),12)
+C       call prtril(DPT2_AO_tot,12)
         CALL GETMEM('DEPSA ','FREE','REAL',ipDEPSA,nAshT)
 C
         CALL GETMEM('DPT   ','FREE','REAL',ipDPT   ,nDPTAO)
@@ -967,13 +956,11 @@ C
         CALL GETMEM('FPTC  ','FREE','REAL',ipFPTC  ,nDPTAO)
         CALL GETMEM('FPTAO ','FREE','REAL',ipFPTAO ,nDPTAO)
         CALL GETMEM('FPTCAO','FREE','REAL',ipFPTCAO,nDPTAO)
-C       CALL GETMEM('FIFA  ','FREE','REAL',ipFIFA  ,nBsqT)
-C       CALL GETMEM('FIMO  ','FREE','REAL',ipFIMO  ,nBsqT)
         If (do_csf) Then
           CALL GETMEM('DPTCanti','FREE','REAL',ipDPTCanti,nDPTAO)
         End If
 C
-C       call test_dens(work(ipolag),work(ipclag),work(iptrf),
+C       call test_dens(olag,clag,work(iptrf),
 C    *                 work(ipwrk1),work(ipwrk2))
 C
 C       CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,nBasT*nBasT)
@@ -995,96 +982,15 @@ C       end do
 C       write(6,*) "square transformation matrix"
 C       call sqprt(work(ipwrk1),12)
 C       write(6,*) "OLag before transformation"
-C       call sqprt(work(ipolag),12)
+C       call sqprt(olag,12)
 C       Do iSym = 1, nSym
 C       write(6,*) "olag before"
-C       call sqprt(work(ipolag),nbast)
-      if (.false.) then
+C       call sqprt(olag,nbast)
 
-        Call OLagFinal(Work(ipOLag),Work(ipTrf))
-
-      else
+        !! Finalize OLag (anti-symetrize) and construct WLag
+        Call OLagFinal(OLag,Work(ipTrf))
 C
-        CALL GETMEM('WLAGL  ','ALLO','REAL',ipWLagL  ,nWLag)
-        Call DCopy_(nWLag,[0.0d+00],0,Work(ipWLagL),1)
-        Call DaXpY_(nWLag,0.5D+00,Work(ipOLag),1,Work(ipWLagL),1)
-C       write(6,*) "Wlag square"
-C       call sqprt(work(ipwlag),nbast)
-C
-        !! W(MO) -> W(AO) using the quasi-canonical orbitals
-        !! No need to back transform to natural orbital basis
-        Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,CMOPT2,nBasT,Work(ipWLagL),nBasT,
-     *              0.0D+00,Work(ipWRK1),nBasT)
-        Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipWRK1),nBasT,CMOPT2,nBasT,
-     *              0.0D+00,Work(ipWLagL),nBasT)
-C
-        !! square -> triangle for WLag(AO)
-        Call DCopy_(nBasT*nBasT,Work(ipWLagL),1,Work(ipWRK1),1)
-        iBasTr = 1
-        iBasSq = 1
-        Do iSym = 1, nSym
-          nBasI = nBas(iSym)
-          liBasTr = iBasTr
-          liBasSq = iBasSq
-          Do iBasI = 1, nBasI
-            Do jBasI = 1, iBasI
-              liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
-              If (iBasI.eq.jBasI) Then
-                Work(ipWLagL  +liBasTr-1) = Work(ipWRK1  +liBasSq-1)
-              Else
-              liBasSq2 = iBasSq + jBasI-1 + nBasI*(iBasI-1)
-                Work(ipWLagL  +liBasTr-1)
-     *            = Work(ipWRK1  +liBasSq-1)
-     *            + Work(ipWRK1  +liBasSq2-1)
-              End If
-              liBasTr = liBasTr + 1
-            End Do
-          End Do
-          iBasTr = iBasTr + nBasI*(nBasI+1)/2
-          iBasSq = iBasSq + nBasI*nBasI
-        End Do
-        ! accumulate W Lagrangian only for MS,XMS,XDW,RMS,
-        ! but not for SS-CASPT2
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-            Call DaXpY_(nBasSq,1.0D+00,Work(ipWLagL),1,Work(ipWLag),1)
-        end if
-        CALL GETMEM('WLAGL  ','FREE','REAL',ipWLagL  ,nWLag)
-C
-C
-C
-        !! Transform quasi-canonical -> natural MO basis
-        !! orbital Lagrangian
-C       write(6,*) "OLag before transformation"
-C       call sqprt(work(ipolag),12)
-C       write(6,*) "OLag after antisymmetrization"
-C       call sqprt(work(ipolag),12)
-        Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipTrf),nBasT,Work(ipOLag),nBasT,
-     *              0.0D+00,Work(ipWRK1),nBasT)
-        Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *              1.0D+00,Work(ipWRK1),nBasT,Work(ipTrf),nBasT,
-     *              0.0D+00,Work(ipOLag),nBasT)
-C       write(6,*) "OLag after transformation (pre)"
-C       call sqprt(work(ipolag),12)
-        !! sufficient only for active
-        nBasI = nBas(1)
-        Call DCopy_(nBasI**2,Work(ipOLag),1,Work(ipWRK1),1)
-        Call DGeSub(Work(ipWRK1),nBas(1),'N',
-     &              Work(ipWRK1),nBas(1),'T',
-     &              Work(ipOLag),nBas(1),
-     &              nBas(1),nBas(1))
-        ! accumulate orbital Lagrangian only for MS,XMS,XDW,RMS,
-        ! but not for SS-CASPT2
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-          Call DaXpY_(nOLag,1.0D+00,Work(ipOLag),1,Work(ipOLagFull),1)
-        end if
-        ! call RecPrt('OLag    ','',work(ipOLag)    ,nBasT,nBasT)
-        ! call RecPrt('OLagFull','',work(ipOLagFull),nBasT,nBasT)
-      end if
-C
-        CALL GETMEM('TRFMAT','FREE','REAL',ipTRF   ,nBsqT)
+        CALL GETMEM('TRFMAT','FREE','REAL',ipTRF   ,NBSQT)
         CALL GETMEM('WRK1  ','FREE','REAL',ipWRK1,nBasT*nBasT)
         CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasT*nBasT)
         CALL GETMEM('RDMSA ','FREE','REAL',ipRDMSA ,nAshT*nAshT)
@@ -1575,11 +1481,12 @@ C
       SUBROUTINE EigDer(DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,
      *                  FPT2,FPT2C,FIFA,FIMO,RDMSA)
 C
+      use caspt2_gradient, only: OLag
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION DPT2(*),DPT2C(*),FPT2AO(*),FPT2CAO(*),RDMEIG(*),CMO(*),
      *          Trf(*)
@@ -1639,7 +1546,7 @@ C
         nCor  = nFroI + nIshI
         !! Inactive orbital contributions: (p,q) = (all,inact)
         CALL DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2+iSQ-1),1,
-     *              Work(ipOLAG+iSQ-1),1)
+     *              OLAG(iSQ),1)
         !! Active orbital contributions: (p,q) = (all,act)
         CALL GETMEM('RDMSA ','ALLO','REAL',ipRDMSA,nAshI*nAshI)
         !  Construct the active density of the orbital energy
@@ -1670,7 +1577,7 @@ C       Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshI,nAshI)
         CALL DGEMM_('N','N',nOrbI,nAshI,nAshI,
      *              1.0D+00,Work(ipFPT2+iSQ-1+nOrbI*nCor),nOrbI,
      *                      Work(ipRDMSA),nAshI,
-     *              1.0D+00,Work(ipOLAG+iSQ-1+nOrbI*nCor),nOrbI)
+     *              1.0D+00,OLAG(iSQ+nOrbI*nCor),nOrbI)
         CALL GETMEM('RDMSA ','FREE','REAL',ipRDMSA,nAshI*nAshI)
         !! From the third term of U_{ij}
         !  FIFA is already in quasi-canonical basis
@@ -1682,7 +1589,7 @@ C       End If
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              2.0D+00,Work(ipWRK1),nOrbI,DPT2(iSQ),nOrbI,
      *              2.0D+00,FIFA(iSQ),nOrbI,DPT2(iSQ),nOrbI,
-     *              1.0D+00,Work(ipOLAG),nOrbI)
+     *              1.0D+00,OLAG,nOrbI)
 C
         !! explicit derivative of the effective Hamiltonian
         !! dfpq/da = d/da(C_{mu p} C_{nu q} f_{mu nu})
@@ -1693,15 +1600,15 @@ C
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
-     *              1.0D+00,Work(ipOLAG),nOrbI)
+     *              1.0D+00,OLAG,nOrbI)
         CALL DGEMM_('T','N',nOrbI,nOrbI,nOrbI,
 !    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
-     *              1.0D+00,Work(ipOLAG),nOrbI)
+     *              1.0D+00,OLAG,nOrbI)
 C       End If
         !! Implicit derivative of inactive orbitals (DPT2C)
         Call DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2C+iSQ-1),1,
-     *              Work(ipOLAG+iSQ-1),1)
+     *              OLAG(iSQ),1)
         iSQ = iSQ + nOrbI*nOrbI
       End Do
 C
@@ -1741,11 +1648,12 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE EigDer2(RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
 C
+      use caspt2_gradient, only: OLag
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION RDMEIG(*),Trf(*)
       DIMENSION FIFA(*),RDMSA(*),DEPSA(*),WRK1(*),WRK2(*)
@@ -1767,7 +1675,7 @@ C
         nCor  = nFroI + nIshI
         !! Inactive orbital contributions: (p,q) = (all,inact)
         CALL DaXpY_(nOrbI*nCor,2.0D+00,Work(ipFPT2+iSQ-1),1,
-     *              Work(ipOLAG+iSQ-1),1)
+     *              OLAG(iSQ),1)
         !! Active orbital contributions: (p,q) = (all,act)
         CALL GETMEM('RDMSA ','ALLO','REAL',ipRDMSA,nAshI*nAshI)
         Call DCopy_(nAshT**2,RDMSA,1,Work(ipRDMSA),1)
@@ -1783,13 +1691,13 @@ C
         CALL DGEMM_('N','N',nOrbI,nAshI,nAshI,
      *              1.0D+00,Work(ipFPT2+iSQ-1+nOrbI*nCor),nOrbI,
      *                      Work(ipRDMSA),nAshI,
-     *              1.0D+00,Work(ipOLAG+iSQ-1+nOrbI*nCor),nOrbI)
+     *              1.0D+00,OLAG(iSQ+nOrbI*nCor),nOrbI)
         CALL GETMEM('RDMSA ','FREE','REAL',ipRDMSA,nAshI*nAshI)
         !! From the third term of U_{ij}
         !  FIFA is already in quasi-canonical basis
         CALL DGEMM_('N','T',nOrbI,nAshI,nAshI,
      *              2.0D+00,FIFA(1+nOrbI*nCor),nOrbI,DEPSA,nAshI,
-     *              1.0D+00,Work(ipOLAG+iSQ-1+nOrbI*nCor),nOrbI)
+     *              1.0D+00,OLAG(iSQ+nOrbI*nCor),nOrbI)
         iSQ = iSQ + nOrbI*nOrbI
       End Do
 C

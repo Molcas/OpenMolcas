@@ -19,7 +19,7 @@
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
-      use caspt2_gradient, only: LUSTD
+      use caspt2_gradient, only: LUSTD,idSDMat
       use caspt2_data, only: FIFA
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
@@ -28,7 +28,6 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
 C     Work in the MO basis
 C     We need both explicit and implicit overlap derivatives. The latter
