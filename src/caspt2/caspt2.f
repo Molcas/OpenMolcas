@@ -316,31 +316,31 @@ C       Call EQCTL2(ICONV)
 * Note: Quantities computed in gradients section can also
 * be used efficiently for computing Multi-State HEFF.
 * NOTE: atm the MS-CASPT2 couplings computed here are wrong!
-         IF (IFDENS.AND..NOT.IFGRDT0) THEN
-           IF (IPRGLB.GE.VERBOSE) THEN
-              WRITE(6,*)
-              WRITE(6,'(20A4)')('****',I=1,20)
-              IF(NSTATE.GT.1) THEN
-              WRITE(6,*)' CASPT2 GRADIENT/MULTI-STATE COUPLINGS SECTION'
-              ELSE
-                 WRITE(6,*)' CASPT2 GRADIENT SECTION'
-              END IF
-           END IF
-           Call StatusLine('CASPT2: ','Multi-State couplings')
+        !IF (IFDENS.AND..NOT.IFGRDT0) THEN
+        !  IF (IPRGLB.GE.VERBOSE) THEN
+        !     WRITE(6,*)
+        !     WRITE(6,'(20A4)')('****',I=1,20)
+        !     IF(NSTATE.GT.1) THEN
+        !     WRITE(6,*)' CASPT2 GRADIENT/MULTI-STATE COUPLINGS SECTION'
+        !     ELSE
+        !        WRITE(6,*)' CASPT2 GRADIENT SECTION'
+        !     END IF
+        !  END IF
+        !  Call StatusLine('CASPT2: ','Multi-State couplings')
 * SVC: for now, this part is only performed on the master node
-#ifdef _MOLCAS_MPP_
-           IF (Is_Real_Par()) THEN
-             Call Set_Do_Parallel(.False.)
-             IF (KING()) CALL GRDCTL(HEFF)
-             Call Set_Do_Parallel(.True.)
-             CALL GASync
-           ELSE
-             CALL GRDCTL(HEFF)
-           END IF
-#else
-           CALL GRDCTL(HEFF)
-#endif
-         END IF
+!#ifdef _MOLCAS_MPP_
+        !  IF (Is_Real_Par()) THEN
+        !    Call Set_Do_Parallel(.False.)
+        !    IF (KING()) CALL GRDCTL(HEFF)
+        !    Call Set_Do_Parallel(.True.)
+        !    CALL GASync
+        !  ELSE
+        !    CALL GRDCTL(HEFF)
+        !  END IF
+!#else
+        !  CALL GRDCTL(HEFF)
+!#endif
+        !END IF
 
          IF ((.NOT.IFDENS.OR.IFGRDT0).AND.IFMSCOUP) THEN
 C     If this was NOT a gradient, calculation, then the multi-state

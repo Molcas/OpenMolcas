@@ -698,4 +698,10 @@ subroutine procinp_caspt2
     if_SSDM = .true.
   end if
 
+  !! issue #448
+  if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then
+    call warningMessage(2,'DENS keyword cannot be combined with RAS.')
+    call quit_onUserError
+  end if
+
 end subroutine procinp_caspt2
