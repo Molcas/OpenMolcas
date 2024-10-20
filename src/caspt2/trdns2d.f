@@ -106,10 +106,10 @@ C full array in case we are running in parallel
             END IF
             CALL GASYNC
           ELSE
+#endif
             CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
 #endif
           If (do_grad .and. (imag_shift .ne. 0.0d0
      *                  .or. sigma_p_epsilon .ne. 0.0d0)) Then
@@ -145,10 +145,10 @@ C
               END IF
               CALL GASYNC
             ELSE
+#endif
               CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
+#ifdef _MOLCAS_MPP_
             END IF
-#else
-            CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),DPT2,LISTS)
 #endif
             Call DScal_(NDPT2,-1.0D+00,DPT2,1)
             Call mma_deallocate(BD)

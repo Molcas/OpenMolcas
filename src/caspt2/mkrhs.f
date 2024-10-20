@@ -882,4 +882,4 @@ C global array and then save that to disk in a distributed fashion.
         CALL RHS_FREE(NAS,NIS,lg_W)
       END IF
 #endif
-      END
+      END SUBROUTINE MKRHS_SAVE

@@ -66,10 +66,10 @@ C modest array sizes.
      &          (ICASE.EQ.1.OR.ICASE.EQ.4)) THEN
               CALL SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
             ELSE
+#endif
               CALL SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
+#ifdef _MOLCAS_MPP_
             END IF
-#else
-            CALL SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
 #endif
             IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,'(3X,A6,A1,I1,A1,1X,3I12,G11.2,I9)')

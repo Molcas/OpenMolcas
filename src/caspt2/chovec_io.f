@@ -187,6 +187,7 @@ C as this is how they are used to compute the integrals for RHS.
                 END DO
               END DO
             ELSE
+#endif
               ! cholesky vectors not transposed
               CALL DDAFILE(LUDRA,2,BUF,NBUF,IDISK)
               DO J=1,NPQ
@@ -195,16 +196,8 @@ C as this is how they are used to compute the integrals for RHS.
      &            BUF(J+NPQ*(I-1))
                 END DO
               END DO
+#ifdef _MOLCAS_MPP_
             ENDIF
-#else
-            ! cholesky vectors not transposed
-            CALL DDAFILE(LUDRA,2,BUF,NBUF,IDISK)
-            DO J=1,NPQ
-              DO I=1,NV
-                CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1))=
-     &            BUF(J+NPQ*(I-1))
-              END DO
-            END DO
 #endif
             CALL mma_deallocate(BUF)
             IBOFF=IBOFF+NV

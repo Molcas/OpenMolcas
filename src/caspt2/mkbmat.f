@@ -168,14 +168,12 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
+#endif
           CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,
      &                 ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
-          CALL MKBA_F3(ISYM,WORK(LG_BA),NG3,F3,IDXG3)
+          CALL MKBA_F3(ISYM,WORK(lg_BA),NG3,F3,IDXG3)
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &               ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
-        call MKBA_F3(ISYM,WORK(lg_BA),NG3,F3,idxG3)
 #endif
 
         CALL PSBMAT_WRITE('B',iCase,iSYM,lg_BA,NAS)
@@ -998,14 +996,13 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
+#endif
           CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,
      &                 ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
           CALL MKBC_F3(ISYM,WORK(LG_BC),NG3,F3,IDXG3)
+
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &               ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
-        call MKBC_F3(ISYM,WORK(lg_BC),NG3,F3,idxG3)
 #endif
 
         CALL PSBMAT_WRITE('B',iCase,iSYM,lg_BC,NAS)

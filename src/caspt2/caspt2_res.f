@@ -175,14 +175,12 @@ C-SVC: get the local vertical stripes of the lg_W vector
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
-C       CALL GAdSUM_SCAL(DOVL)
       ELSE
+#endif
         CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W1),WORK(lg_W2),
      *                    NIN,DIN,DIS)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W1),WORK(lg_W2),
-     *                  NIN,DIN,DIS)
 #endif
 
       END

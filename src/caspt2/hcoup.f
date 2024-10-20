@@ -93,14 +93,12 @@ C  End of loop.
      &                     DBL_MB(MV1),DBL_MB(MV2),OVL,HEBLK,
      &                     TG1,TG2,TG3)
           ELSE
+#endif
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
      &                     WORK(MV1),WORK(MV2),OVL,HEBLK,
      &                     TG1,TG2,TG3)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                   WORK(MV1),WORK(MV2),OVL,HEBLK,
-     &                   TG1,TG2,TG3)
 #endif
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
           CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
