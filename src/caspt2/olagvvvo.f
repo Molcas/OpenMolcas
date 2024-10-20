@@ -16,6 +16,8 @@
       USE CHOVEC_IO
       use caspt2_gradient, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
       use caspt2_data, only: CMOPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -31,6 +33,7 @@ C
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
       Character*4096 RealName
       Logical DoCholesky,is_error,Square
+      real(kind=wp),allocatable :: vLag(:),WRK1(:),WRK2(:)
 C
 C     ----- (VV|VO)
 C
@@ -43,28 +46,27 @@ C     In principle, the algorithm is to avoid (VV|VO) integrals,
 C     i.e. U_{pq} for (p,q) = (vir, inact+act), but can also be applied
 C     to U_{pq} for (p,q) = (all, inact+act).
 C
-      Call GetMem('WRK1','Allo','Real',ipWRK1,nBasT*nBasT)
-      Call GetMem('WRK2','Allo','Real',ipWRK2,nBasT*nBasT)
+      call mma_allocate(vLag,nBasT*nBasT,Label='vLag')
+      call mma_allocate(WRK1,nBasT*nBasT,Label='WRK1')
       Call GetOrd(IRC,Square,nSymX,nBasX,KEEP)
 C
       ! nTot1 = nBasT*(nBasT+1)/2
       nTot2 = nBast*nBasT
-      ipvLag = ipWRK1
-      Call DCopy_(nBasT*nBasT,[0.0D+00],0,Work(ipvLag),1)
+      vLag(:) = 0.0d+00
 C
       Call DecideOncholesky(DoCholesky)
       If (DoCholesky) Then
         !! No need to save CMOPT2. Just save A_PT2 and B_PT2.
         !! First, save A_PT2 in LuCMOPT2
         If (IFMSCOUP.and.jState.ne.1) Then
-          Call GetMem('WRK3','ALLO','Real',ipWRK3,NumCho*NumCho)
+          call mma_allocate(WRK2,NumCho*NumCho,Label='WRK2')
 
           ! read A_PT2 from LUAPT2
           id = 0
-          call ddafile(LUAPT2, 2, Work(ipWRK3), NumCho**2, id)
+          call ddafile(LUAPT2, 2, WRK2, NumCho**2, id)
 
-          Call DaXpY_(NumCho*NumCho,1.0D+00,Work(ipWRK3),1,A_PT2,1)
-          Call GetMem('WRK3','FREE','Real',ipWRK3,NumCho*NumCho)
+          Call DaXpY_(NumCho*NumCho,1.0D+00,WRK2,1,A_PT2,1)
+          call mma_deallocate(WRK2)
         End If
 
         ! For SS-CASPT2 I should write A_PT2 on disk only
@@ -101,8 +103,8 @@ C     nocc = nfro(1)+nish(1)+nash(1)
       nocc = nish(1)+nash(1)
       Call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,
      *              iSym,iSymI,iSymA,iSymJ,iSymB,
-     *              T2AO,Work(ipvLag),
-     *              nOcc,nBasT,nTot2,nBMX,
+     *              T2AO,vLag,
+     *              nOcc,nBasT,nBMX,
      *              CMOPT2(1+nBasT*nFro(iSymA)),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              DIA,DI,FIFA,FIMO)
@@ -221,8 +223,8 @@ C
                 End Do
                 iRec = iBas+nBasT*(jBas-1)
         if (ifmscoup.and.jstate.ne.1) then
-          read (lugamma,rec=irec) (work(ipwrk2+i-1),i=1,nocc*nocc)
-          call daxpy_(nocc*nocc,1.0d+00,work(ipwrk2),1,
+          read (lugamma,rec=irec) (wrk1(i),i=1,nocc*nocc)
+          call daxpy_(nocc*nocc,1.0d+00,wrk2,1,
      *                                t_hbf(1,1,ibas0,jbas0),1)
         end if
                 Write (LuGamma,Rec=iRec)
@@ -241,29 +243,28 @@ C
       !! 5) L_{ai} = sum_{mu} C_{mu a} L_{mu i}
 C     CALL DGEMM_('T','N',nSsh(iSym),nOcc,nBasT,
 C    *            1.0D+00,CMOPT2(1+nBasT*nOcc),nBasT,
-C    *                    Work(ipvLag),nBasT,
+C    *                    vLag,nBasT,
 C    *            1.0D+00,OLAG(nOCC+1),nOrb(iSymA))
 C     write(6,*) "olag before vvvo"
 C     call sqprt(olag,nbast)
       nOrbA = nFro(iSymA)+nIsh(iSymA)+nAsh(iSymA)+nSsh(iSymA)
       If (DoCholesky) nOcc = nOrbA-nFro(iSymA)
 C     write(6,*) "vLag"
-C     call sqprt(work(ipvLag),nbast)
+C     call sqprt(vLag,nbast)
       CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,
-     *            1.0D+00,CMOPT2,nBasT,
-     *                    Work(ipvLag),nBasT,
+     *            1.0D+00,CMOPT2,nBasT,vLag,nBasT,
      *            1.0D+00,OLAG(nOrbA*nFro(iSymA)+1),nOrbA)
 C     write(6,*) "olag after vvvo"
 C     call sqprt(olag,nbast)
 C
-      Call GetMem('WRK1','Free','Real',ipWRK1,nBasT*nBasT)
-      Call GetMem('WRK2','Free','Real',ipWRK2,nBasT*nBasT)
+      call mma_deallocate(vLag)
+      call mma_deallocate(WRK1)
 C
       END SUBROUTINE OLagVVVO
 
       SUBROUTINE VVVO_Drv(nSym,nBas,nAsh,nFro,nSkipX,
      *                    iSym,iSymI,iSymJ,iSymK,iSymL,
-     &                    T2AO,vLag,nOcc,nBasT,nTot2,
+     &                    T2AO,vLag,nOcc,nBasT,
      &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                    DIA,DI,FIFA,FIMO)
 
@@ -311,7 +312,7 @@ C        write(6,*) "calling drv2"
          Call VVVO_Drv2(nSym,nBas,nAsh,nFro,nSkipX,
      *                  iSym,iSymI,iSymJ,iSymK,iSymL,
      &                  T2AO,vLag,nOcc,nBasT,
-     &                  nTot2,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+     &                  nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                  DIA,DI,FIFA,FIMO)
 
 C     ENDIF
@@ -327,12 +328,13 @@ C
       Subroutine VVVO_Drv2(nSym,nBas,nAux,nFro,Keep,
      *                     iSym,iSymI,iSymJ,iSymK,iSymL,
      &                     T2AO,vLag,nOcc,nBasT,
-     &                     nBSQT,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+     &                     nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                     DIA,DI,FIFA,FIMO)
 C
       USE CHOVEC_IO
       use Constants, only: Zero
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use definitions, only: wp
 C
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
@@ -344,6 +346,8 @@ C
       Integer ALGO
       Logical REORD,DECO
 C     Real*8 CMO_DUMMY(1)
+C     real(kind=wp),allocatable :: WFSQ(:)
+      real(kind=wp),allocatable :: W1(:),W2(:),WRK(:)
 
       Common /CHORAS / REORD,DECO,ALGO
 *
@@ -354,12 +358,12 @@ C     Real*8 CMO_DUMMY(1)
 
       Call DecideOnCholesky(DoCholesky)
 
-      Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
-      call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
+C     call mma_allocate(WFSQ,NBSQT,Label='WFSQ')
+C     call dcopy_(NBSQT,[Zero],0,WFSQ,1)
 
-      Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
+      call mma_allocate(W2,NBMX*NBMX,Label='W2')
 *
-      Call GetMem('LWRK','Allo','Real',LWRK,nBasT*nBasT)
+      call mma_allocate(WRK,nBasT*nBasT,Label='WRK')
 *
       Call mma_MaxDBLE(LBUF)
       If (DoCholesky) LBUF = NBMX*NBMX+1
@@ -367,7 +371,7 @@ C     Real*8 CMO_DUMMY(1)
 * Standard building of the Fock matrix from Two-el integrals
 *
 
-      Call GetMem('LW1','Allo','Real',LW1,LBUF)
+      call mma_allocate(W1,LBUF,Label='W1')
 
       If (LBUF.LT.1+NBMX**2) Then
          WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
@@ -381,26 +385,26 @@ C     Real*8 CMO_DUMMY(1)
 *
       IF (DoCholesky) Then
         Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,
-     *              vLag,CMO,Work(LWRK),
+     *              vLag,CMO,WRK,
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              FIFA,FIMO)
       Else
         Call VVVOX(nSym,nBas,nFro,Keep,
      *             iSymI,iSymJ,iSymK,iSymL,
      *             T2AO,vLag,CMO,nOcc,nBasT,
-     *             LBUF,Work(LW1),Work(LW2),Work(LWRK),
+     *             LBUF,W1,W2,WRK,
      *             DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *             DIA,DI,FIFA,FIMO)
       End If
       !! vLag must be transposed
       !! In VVVOX(2) subroutines, vLag(p,mu) is constructed.
-      call dcopy_(nbast*nbast,vlag,1,Work(LWRK),1)
+      call dcopy_(nbast*nbast,vlag,1,WRK,1)
       do i = 1, nbast
         do j = 1, nbast
-          vlag(i+nbast*(j-1)) = Work(LWRK+j-1+nbast*(i-1))
+          vlag(i+nbast*(j-1)) = WRK(j+nbast*(i-1))
         end do
       end do
-      Call GetMem('LWRK','Free','Real',LWRK,nBasT*nBasT)
+      call mma_deallocate(WRK)
 
 *
 * Building of the Fock matrix directly from Cholesky vectors
@@ -417,13 +421,8 @@ C    &                 Temp,ExFac,LWFSQ,CMO_DUMMY)
 *
       ENDIF
 *
-
-
-
-      Call GetMem('LW1','Free','Real',LW1,LBUF)
-      Call GetMem('LW2','Free','Real',LW2,NBMX*NBMX)
-
-      Call GetMem('LWFSQ','Free','Real',LWFSQ,NBSQT)
+      call mma_deallocate(W1)
+      call mma_deallocate(W2)
 *
       End SUBROUTINE VVVO_Drv2
 C
@@ -720,6 +719,8 @@ C
       use caspt2_gradient, only: LuGAMMA
       use EQSOLV
       use ChoCASPT2
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -731,6 +732,7 @@ C
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension FIFA(*),FIMO(*)
+      real(kind=wp),allocatable :: CHSPC(:),HTSPC(:),HTVec(:)
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
 
       Integer iSkip(8)
@@ -739,6 +741,7 @@ C
 
       Do jSym = 1, nSym
         iSkip(jSym) = 1
+        ipWRK(jSym) = 1
       End Do
 
       ISTSQ(1)=0
@@ -807,10 +810,9 @@ C
       nOrbI = nIshI+nAshI+nSshI
 C
 C     write(6,*) "nchspc = ", nchspc
-      CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
-      CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
+      call mma_allocate(CHSPC,NCHSPC,Label='CHSPC')
+      call mma_allocate(HTSPC,NCHSPC,Label='HISPC')
+      call mma_allocate(HTVec,nBasT*nBasT,Label='HTVEC')
 C
       IBATCH_TOT=NBTCHES(iSym)
 
@@ -853,9 +855,9 @@ C         write(6,*) "ibatch,nbatch = ", ibatch,nbatch
 C
 C         ----- Construct orbital Lagrangian -----
 C
-          !! Work(ip_CHSPC) :: (mu nu|P)
-          !! Work(ip_HTSPC) :: ( q nu|P)
-          !! Bra and Ket    :: (ia|P) = T_{ij}^{ab}*(jb|P)
+          !! CHSPC       :: (mu nu|P)
+          !! HTSPC       :: ( q nu|P)
+          !! Bra and Ket :: (ia|P) = T_{ij}^{ab}*(jb|P)
           !! In 1), HT_{i mu,P} = C_{mu a}*(ia|P)
           !!        (ia|P) read from disk
           !! In 3), L_{i mu} = HT_{i nu,P} * (mu nu|P)
@@ -865,14 +867,14 @@ C
 C
           !! 1) Half back-transformation of Bra and Ket density
           !! Read the 3c-2e pseudo-density (in MO), and half transform
-          CALL VVVOTRA_RI(CMO,WORK(IP_CHSPC),WORK(IP_HTSPC),
+          CALL VVVOTRA_RI(CMO,CHSPC,HTSPC,
      *                    JNUM,IBATCH_TOT,IBATCH_TOT,nOrbI)
 C
           !! 2) read AO Cholesky vectors,
           !!    then, (strange) reduced form -> squared AO (mu nu|iVec)
           JREDC=JRED
 * Read a batch of reduced vectors
-          CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,JV1,JV2,iSym,
+          CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,
      &                            NUMV,JREDC,MUSED)
           IF(NUMV.ne.JNUM) THEN
             write(6,*)' Rats! CHO_VECRD was called, assuming it to'
@@ -893,7 +895,7 @@ C
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
       ! choptr.fh
-          Call R2FIP(Work(ip_CHSPC),Work(ipWRK(iSym)),ipWRK(iSym),NUMV,
+          Call R2FIP(CHSPC,WRK,ipWRK(iSym),NUMV,
      *               size(nDimRS),infVec,nDimRS,
      *               nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
@@ -901,17 +903,17 @@ C           ----- Fock-like transformations (if needed) -----
 C
           If (nFroT.eq.0) Then
             Do iVec = 1, NUMV
-              Call FDGTRF(Work(ip_CHSPC+nBasT**2*(iVec-1)),
+              Call FDGTRF(CHSPC(1+nBasT**2*(iVec-1)),
      *                    DPT2AO,FPT2AO)
-              Call FDGTRF(Work(ip_CHSPC+nBasT**2*(iVec-1)),
+              Call FDGTRF(CHSPC(1+nBasT**2*(iVec-1)),
      *                    DPT2CAO,FPT2CAO)
             End Do
           End If
 C
           !! 3) Contract with Cholesky vectors
           Call DGemm_('N','T',nOrbI,nBasI,nBasI*JNUM,
-     *                2.0D+00,Work(ip_HTSPC),nOrbI,
-     *                        Work(ip_CHSPC),nBasI,
+     *                2.0D+00,HTSPC,nOrbI,
+     *                        CHSPC,nBasI,
      *                1.0D+00,vLag,nBasI)
 C
           !! 4) Construct the 3c-2e pseudo-density in AO
@@ -919,24 +921,22 @@ C
           !! i.e., construct B_PT2, used in ALASKA
           Call DGemm_('N','N',nBasI,nBasI*JNUM,nOrbI,
      *                1.0D+00,CMO(1,1),nBasI,
-     *                        Work(ip_HTSPC),nOrbI,
-     *                0.0D+00,Work(ip_CHSPC),nBasI)
+     *                        HTSPC,nOrbI,
+     *                0.0D+00,CHSPC,nBasI)
 C
           !! 5) Save the 3c-2e pseudo-density in the disk
           !! it may be replaced with ddafile
           Do iVec = 1, NUMV
             If (IFMSCOUP.and.jState.ne.1) Then
-              Read (LuGamma,Rec=iVec+JV1-1)
-     *          (Work(ipHTVec+i-1),i=1,nBasI**2)
+              Read (LuGamma,Rec=iVec+JV1-1) HTVec(1:nBasI**2)
               Call DaXpY_(nBasI**2,1.0D+00,
-     *                    Work(ip_CHSPC+nBasI**2*(iVec-1)),1,
-     *                    Work(ipHTVec),1)
-              Write (LuGamma,Rec=iVec+JV1-1)
-     *          Work(ipHTVec:ipHTVec+nBasI**2-1)
+     *                    CHSPC(1+nBasI**2*(iVec-1)),1,
+     *                    HTVec,1)
+              Write (LuGamma,Rec=iVec+JV1-1) HTVec(1:nBasI**2)
             Else
              if (jState.eq.iRlxRoot .or. IFMSCOUP) then
               Write (LuGamma,Rec=iVec+JV1-1)
-     *        Work(ip_CHSPC+nBasI**2*(iVec-1):ip_CHSPC+nBasI**2*iVec-1)
+     *        CHSPC(1+nBasI**2*(iVec-1):nBasI**2*iVec)
              end if
             End If
           End Do
@@ -945,10 +945,9 @@ C
         End Do
       End Do
 C
-      CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
-      CALL GETMEM('HTVEC','FREE','REAL',ipHTVec,nBasT*nBasT)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
+      call mma_deallocate(CHSPC)
+      call mma_deallocate(HTSPC)
+      call mma_deallocate(HTVec)
 C
       !! Have to (?) symmetrize Fock-transformed matrices
       If (nFroT.eq.0) Then
@@ -996,7 +995,7 @@ C
 C
       End Subroutine FDGTRF
 C
-      Subroutine VVVOTRA_RI(CMO,CHSPC,HTSPC,NVEC,IBSTA,IBEND,nOrbI)
+      Subroutine VVVOTRA_RI(CMO,CHSPC_,HTSPC_,NVEC,IBSTA,IBEND,nOrbI)
 C
       Implicit Real*8(A-H,O-Z)
 C
@@ -1004,74 +1003,74 @@ C
       Parameter (Inactive=1, Active=2, Virtual=3)
 C
       !! CHSPC is used as a temporary array
-      Dimension CMO(nBasI,nOrbI),CHSPC(*),HTSPC(nOrbI,nBasT,*)
+      Dimension CMO(nBasI,nOrbI),CHSPC_(*),HTSPC_(nOrbI,nBasT,*)
 C
       !! BraAI
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC,nBra,
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC_,nBra,
      *                      IBSTA,IBEND)
       IPQ = nAshI*nIshI
       Do jVec = 1, NVEC
         ! a. AI -> mu I
         Call DGemm_('T','T',nIshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              0.0D+00,HTSPC(1,1,jVec),nOrbI)
+     *              0.0D+00,HTSPC_(1,1,jVec),nOrbI)
         ! a. AI -> A mu
         Call DGemm_('N','T',nAshI,nBasI,nIshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1),nBasI,
-     *              0.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
+     *              0.0D+00,HTSPC_(1+nIshI,1,jVec),nOrbI)
       End Do
 C
       !! BraSI
-      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC,nBra,
+      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC_,nBra,
      *                      IBSTA,IBEND)
       IPQ = nIshI*nSshI
       Do jVec = 1, NVEC
         ! b. SI -> mu I
         Call DGemm_('T','T',nIshI,nBasI,nSshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1+nIshI+nAshI),nBasI,
-     *              1.0D+00,HTSPC(1,1,jVec),nOrbI)
+     *              1.0D+00,HTSPC_(1,1,jVec),nOrbI)
         ! a. SI -> S mu
         Call DGemm_('N','T',nSshI,nBasI,nIshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1),nBasI,
-     *              0.0D+00,HTSPC(1+nIshI+nAshI,1,jVec),nOrbI)
+     *              0.0D+00,HTSPC_(1+nIshI+nAshI,1,jVec),nOrbI)
       End Do
 C
       !! BraSA
-      Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC,nBra,
+      Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC_,nBra,
      *                      IBSTA,IBEND)
       IPQ = nAshI*nSshI
       Do jVec = 1, NVEC
         ! d. SA -> mu A
         Call DGemm_('T','T',nAshI,nBasI,nSshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1+nIshI+nAshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
+     *              1.0D+00,HTSPC_(1+nIshI,1,jVec),nOrbI)
         ! b. SA -> S mu
         Call DGemm_('N','T',nSshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nSshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nSshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI+nAshI,1,jVec),nOrbI)
+     *              1.0D+00,HTSPC_(1+nIshI+nAshI,1,jVec),nOrbI)
       End Do
 C
       !! BraAA
-      Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC,nBra,
+      Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC_,nBra,
      *                      IBSTA,IBEND)
       IPQ = nAshI*nAshI
       Do jVec = 1, NVEC
         ! b. AA -> mu A
         Call DGemm_('T','T',nAshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
+     *              1.0D+00,HTSPC_(1+nIshI,1,jVec),nOrbI)
         ! c. AA -> A mu
         Call DGemm_('N','T',nAshI,nBasI,nAshI,
-     *              1.0D+00,CHSPC(1+IPQ*(jVec-1)),nAshI,
+     *              1.0D+00,CHSPC_(1+IPQ*(jVec-1)),nAshI,
      *                      CMO(1,1+nIshI),nBasI,
-     *              1.0D+00,HTSPC(1+nIshI,1,jVec),nOrbI)
+     *              1.0D+00,HTSPC_(1+nIshI,1,jVec),nOrbI)
       End Do
 C
       End Subroutine VVVOTRA_RI
@@ -1126,7 +1125,7 @@ C
         ipVecL = ipVecL - lscr
         Call DCopy_(nBasT**2,[0.0D+00],0,WRK,1)
         Call Cho_ReOrdr(irc,CHSPC(ipVecL,1),lscr,1,
-     *                  1,1,1,iSym,JREDC,2,ipWRK,Work,
+     *                  1,1,1,iSym,JREDC,2,ipWRK,WRK,
      *                  iSkip)
         Call DCopy_(nBasT**2,WRK,1,CHSPC(1,jloc),1)
         jloc = jloc-1

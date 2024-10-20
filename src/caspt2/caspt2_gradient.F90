@@ -75,7 +75,7 @@ module caspt2_gradient
   real(kind=wp),allocatable :: DPT2C_tot(:)
   real(kind=wp),allocatable :: DPT2_AO_tot(:)
   real(kind=wp),allocatable :: DPT2C_AO_tot(:)
-  real(kind=wp),allocatable :: DPT2Canti(:)
+  real(kind=wp),allocatable :: DPT2Canti_tot(:)
 
   ! Fock-related matrices
   real(kind=wp),allocatable :: FIMO_all(:)

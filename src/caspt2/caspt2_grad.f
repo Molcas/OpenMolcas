@@ -18,22 +18,24 @@ C
      *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
      *                           nCLag,nOLag,nSLag,nWLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     *                           DPT2C_AO_tot,DPT2Canti,
+     *                           DPT2C_AO_tot,DPT2Canti_tot,
      *                           FIMO_all,FIFA_all,FIFASA_all,idSDMat,
      *                           OMGDER
-      use stdalloc, only: mma_allocate
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
 C
 C     use gugx, only: CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
 C
       character(len=128) :: FileName
       character(len=4096) :: RealName
       Logical is_error,Exists
+
+      real(kind=wp),allocatable :: WRK(:)
 
       iStpGrd = 1
 
@@ -148,8 +150,8 @@ C
       End If
 C
       If (do_nac) Then
-        call mma_allocate(DPT2Canti,NBSQT,Label='DPT2Canti')
-        DPT2Canti = 0.0d+00
+        call mma_allocate(DPT2Canti_tot,NBSQT,Label='DPT2Canti_tot')
+        DPT2Canti_tot = 0.0d+00
       End If
 C
       MaxLen = 0
@@ -160,8 +162,8 @@ C
         End Do
       End Do
 C
-      Call GETMEM('WRK','ALLO','REAL',ipWRK,MaxLen)
-      Call DCopy_(MaxLen,[0.0D+00],0,Work(ipWRK),1)
+      call mma_allocate(WRK,MaxLen,Label='WRK')
+      WRK(:) = 0.0d+00
 C
       idSD = 1
 C     write (*,*) "iflindep = ", iflindeplag
@@ -171,9 +173,9 @@ C     write (*,*) "iflindep = ", iflindeplag
             idBoriMat(iSym,iCase) = idSD
             NAS=NASUP(ISYM,ICASE)
             NS=(NAS*(NAS+1))/2
-            CALL DDAFILE(LuSTD,0,Work(ipWRK),NS,idSD)
+            CALL DDAFILE(LuSTD,0,WRK,NS,idSD)
             idSD_ = idBoriMat(iSym,iCase)
-            CALL DDAFILE(LuSTD,1,Work(ipWRK),NS,idSD_)
+            CALL DDAFILE(LuSTD,1,WRK,NS,idSD_)
           End Do
         End Do
       End If
@@ -183,14 +185,14 @@ C
           Do iSym = 1, nSym
             idSDMat(iSym,iCase) = idSD
             nAS = nASUP(iSym,iCase)
-            CALL DDAFILE(LuSTD,0,Work(ipWRK),nAS*nAS,idSD)
+            CALL DDAFILE(LuSTD,0,WRK,nAS*nAS,idSD)
             idSDer = idSDMat(iSym,iCase)
             ! idSDMat(iSym,iCase))
-            CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer)
+            CALL DDAFILE(LuSTD,1,WRK,nAS*nAS,idSDer)
           End Do
         End Do
       End If
-      Call GETMEM('WRK','FREE','REAL',ipWRK,MaxLen)
+      call mma_deallocate(WRK)
 C
       if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
 C
@@ -209,35 +211,40 @@ C
      *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
      *                           nCLag,nOLag,nSLag,nWLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     *                           DPT2C_AO_tot,DPT2Canti,
+     *                           DPT2C_AO_tot,DPT2Canti_tot,
      *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER
       use PrintLevel, only: verbose
-      use stdalloc, only: mma_deallocate
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
       LOGICAL DEB,Found
 C
-      Dimension HEFF1(nState,nState),WRK1(nState,nState),
-     *          WRK2(nState,nState)
+      real(kind=wp),allocatable :: HEFF1(:,:),WRK1(:,:),WRK2(:,:),
+     *                             CI1(:,:)
 C
       !! In case convergence of CASPT2 equation failed
       !! Call this subroutine just deallocate memory
       If (IRETURN.NE.0) GO TO 9000
 C
+      call mma_allocate(HEFF1,nState,nState,Label='HEFF1')
+      call mma_allocate(WRK1,nState,nState,Label='WRK1')
+      call mma_allocate(WRK2,nState,nState,Label='WRK2')
+C
       !! Add XMS specific terms
       !! Note that CLagFull is in natural CSF basis,
       !! so everything in this subroutine has to be done in natural
-      SLag = 0.0d+00
-      Call DCopy_(nState*nState,[0.0D+00],0,WRK2,1)
+      SLag(:,:) = 0.0d+00
+      WRK2(:,:) = 0.0d+00
       If (IFDW .and. zeta >= 0.0d0) Then
         !! Construct Heff[1] in XMS basis
-        Call DCopy_(nState*nState,[0.0D+00],0,HEFF1,1)
+        HEFF1(:,:) = 0.0d+00
         Do ilStat = 1, nState
          HEFF1(ilStat,ilStat) = REFENE(ilStat)
         End Do
@@ -260,7 +267,7 @@ C
      *              1.0D+00,WRK2,nState,U0,nState,
      *              0.0D+00,WRK1,nState)
 
-        Call DCopy_(nState*nState,[0.0D+00],0,WRK2,1)
+        WRK2(:,:) = 0.0D+00
         Do ilStat = 1, nState
           iloc = ilStat+nState*(ilStat-1)
           If (DWTYPE.EQ.1) Then
@@ -277,14 +284,14 @@ C
             End Do
           End If
         End Do
-        SLag = WRK1
+        SLag(:,:) = WRK1(:,:)
       End If
 
       IF (IFXMS.or.IFRMS.or.(IFMSCOUP.and.do_nac.and.do_csf)) Then
 
         If (.not.IFXMS .and. .not.IFRMS) Then
           !! For MS-CASPT2, only the second term in eq.(68)
-          Call DCopy_(nState**2,[0.0D+00],0,U0,1)
+          U0(:,:) = 0.0D+00
           Call DCopy_(nState,[1.0D+00],0,U0,nState+1)
         End If
 
@@ -350,10 +357,10 @@ C
       !! for the CSF derivative term
       If (do_nac) Then
         If (do_csf) Then
-          Call CnstAntiC(DPT2Canti,UEFF,U0)
+          Call CnstAntiC(DPT2Canti_tot,UEFF,U0)
         Else
           !! Clear just in case
-          DPT2Canti = 0.0d+00
+          DPT2Canti_tot = 0.0d+00
         End If
       End If
 C
@@ -362,12 +369,12 @@ C
       !! CASSCF basis to be used in Z-vector
       !! No need to do this for SLag.
       If (IFXMS .or. IFRMS) Then
-        Call GetMem('CI1','ALLO','REAL',LCI1,nConf*nState)
+        call mma_allocate(CI1,nConf,nState,Label='CI1')
         Call DGEMM_('N','T',nConf,nState,nState,
      &              1.0D+00,CLagFull,nConf,U0,nState,
-     &              0.0D+00,Work(LCI1),nConf)
-        Call DCopy_(nConf*nState,Work(LCI1),1,CLagFull,1)
-        Call GetMem('CI1','FREE','REAL',LCI1,nConf*nState)
+     &              0.0D+00,CI1,nConf)
+        CLagFull(:,:) = CI1(:,:)
+        call mma_deallocate(CI1)
       End If
 C
       !! Compute true unrelaxed properties for MS-CASPT2
@@ -416,7 +423,7 @@ C
       !! NAC
       If (do_nac) Then
         Do i = 1, NBSQT
-          Write (LuPT2,*) DPT2Canti(i)
+          Write (LuPT2,*) DPT2Canti_tot(i)
         End Do
       End If
 
@@ -434,6 +441,10 @@ C
 
       ! close gradient files
       Close (LuPT2)
+C
+      call mma_deallocate(HEFF1)
+      call mma_deallocate(WRK1)
+      call mma_deallocate(WRK2)
 C
  9000 CONTINUE
 C
@@ -454,7 +465,7 @@ C
 C
       If (IFXMS .or. IFRMS)         call mma_deallocate(FIFASA_all)
       If (IFDW .and. zeta >= 0.0d0) call mma_deallocate(OMGDER)
-      If (do_nac)                   call mma_deallocate(DPT2Canti)
+      If (do_nac)                   call mma_deallocate(DPT2Canti_tot)
 C
       !! Prepare for MCLR
       iGo = 3
@@ -502,23 +513,27 @@ C-----------------------------------------------------------------------
 C
       Subroutine ModDip
 C
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
-      CALL GETMEM('DMs1   ','ALLO','REAL',ipDMs1,3*nRoots)
-      CALL GETMEM('DMs2   ','ALLO','REAL',ipDMs2,3*lRoots)
-      Call Get_dArray('Last Dipole Moments',Work(ipDMs2),3*LROOTS)
+      real(kind=wp),allocatable :: DMs1(:,:),DMs2(:,:)
+C
+      call mma_allocate(DMs1,3,nRoots,Label='DMs1')
+      call mma_allocate(DMs2,3,lRoots,Label='DMs2')
+      Call Get_dArray('Last Dipole Moments',DMs2,3*LROOTS)
       Do i = 1, lRoots
         j = Root2State(i)
         If (j.eq.0) Cycle
-        Call DCopy_(3,Work(ipDMs2+3*(i-1)),1,Work(ipDMs1+3*(j-1)),1)
+        DMs1(:,j) = DMs2(:,i)
       End Do
-      Call Put_dArray('Last Dipole Moments',Work(ipDMs1),3*nROOTS)
-      CALL GETMEM('DMs1   ','FREE','REAL',ipDMs1,3*nRoots)
-      CALL GETMEM('DMs2   ','FREE','REAL',ipDMs2,3*lRoots)
+      Call Put_dArray('Last Dipole Moments',DMs1,3*nROOTS)
+      call mma_deallocate(DMs1)
+      call mma_deallocate(DMs2)
 C
       Return
 C
@@ -626,34 +641,35 @@ C
       Subroutine OLagFinal(OLagLoc,Trf)
 C
       use caspt2_data, only: CMOPT2
-      use caspt2_gradient, only: OLagFull,WLag,nOLag,nWLag
+      use caspt2_gradient, only: OLagFull,WLag,nOLag
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Dimension OLagLoc(*),Trf(*)
+      real(kind=wp),allocatable :: WRK(:),WLagLoc(:)
 C
-      CALL GETMEM('WRK    ','ALLO','REAL',ipWRK    ,NBSQT)
-      CALL GETMEM('WLAGL  ','ALLO','REAL',ipWLagL  ,NBSQT)
+      call mma_allocate(WRK,NBSQT,Label='WRK')
+      call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')
 C
-      Call DCopy_(NBSQT,[0.0d+00],0,Work(ipWLagL),1)
-      Call DaXpY_(NBSQT,0.5D+00,OLagLoc,1,Work(ipWLagL),1)
+      WLagLoc(1:NBSQT) = 0.5D+00*OLagLoc(1:NBSQT)
 C     write(6,*) "Wlag square"
 C     call sqprt(wlag,nbast)
 C
       !! W(MO) -> W(AO) using the quasi-canonical orbitals
       !! No need to back transform to natural orbital basis
       Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *            1.0D+00,CMOPT2,nBasT,Work(ipWLagL),nBasT,
-     *            0.0D+00,Work(ipWRK),nBasT)
+     *            1.0D+00,CMOPT2,nBasT,WLagLoc,nBasT,
+     *            0.0D+00,WRK,nBasT)
       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *            1.0D+00,Work(ipWRK),nBasT,CMOPT2,nBasT,
-     *            0.0D+00,Work(ipWLagL),nBasT)
+     *            1.0D+00,WRK,nBasT,CMOPT2,nBasT,
+     *            0.0D+00,WLagLoc,nBasT)
 C
       !! square -> triangle for WLag(AO)
-      Call DCopy_(NBSQT,Work(ipWLagL),1,Work(ipWRK),1)
+      WRK(:) = WLagLoc(:)
       iBasTr = 1
       iBasSq = 1
       Do iSym = 1, nSym
@@ -664,12 +680,10 @@ C
           Do jBasI = 1, iBasI
             liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
             If (iBasI.eq.jBasI) Then
-              Work(ipWLagL  +liBasTr-1) = Work(ipWRK  +liBasSq-1)
+              WLagLoc(liBasTr) = WRK(liBasSq)
             Else
             liBasSq2 = iBasSq + jBasI-1 + nBasI*(iBasI-1)
-              Work(ipWLagL  +liBasTr-1)
-     *          = Work(ipWRK  +liBasSq-1)
-     *          + Work(ipWRK  +liBasSq2-1)
+            WLagLoc(liBasTr) = WRK(liBasSq)+WRK(liBasSq2)
             End If
             liBasTr = liBasTr + 1
           End Do
@@ -680,9 +694,9 @@ C
       ! accumulate W Lagrangian only for MS,XMS,XDW,RMS,
       ! but not for SS-CASPT2
       if (jState.eq.iRlxRoot .or. IFMSCOUP) then
-        Call DaXpY_(NBTRI,1.0D+00,Work(ipWLagL),1,WLag,1)
+        WLag(1:NBTRI) = WLag(1:NBTRI) + WLagLoc(1:NBTRI)
       end if
-      CALL GETMEM('WLAGL  ','FREE','REAL',ipWLagL  ,nWLag)
+      call mma_deallocate(WLagLoc)
 C
 C
 C
@@ -690,15 +704,15 @@ C
       !! orbital Lagrangian
       Call DGemm_('N','N',nBasT,nBasT,nBasT,
      *            1.0D+00,Trf,nBasT,OLagLoc,nBasT,
-     *            0.0D+00,Work(ipWRK),nBasT)
+     *            0.0D+00,WRK,nBasT)
       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *            1.0D+00,Work(ipWRK),nBasT,Trf,nBasT,
+     *            1.0D+00,WRK,nBasT,Trf,nBasT,
      *            0.0D+00,OLagLoc,nBasT)
       !! sufficient only for active
       nBasI = nBas(1)
-      Call DCopy_(nBasI**2,OLagLoc,1,Work(ipWRK),1)
-      Call DGeSub(Work(ipWRK),nBas(1),'N',
-     &            Work(ipWRK),nBas(1),'T',
+      WRK(1:nBasI**2) = OLagLoc(1:nBasI**2)
+      Call DGeSub(WRK,nBas(1),'N',
+     &            WRK,nBas(1),'T',
      &            OLagLoc,nBas(1),
      &            nBas(1),nBas(1))
       ! accumulate orbital Lagrangian only for MS,XMS,XDW,RMS,
@@ -707,7 +721,7 @@ C
         Call DaXpY_(nOLag,1.0D+00,OLagLoc,1,OLagFull,1)
       end if
 C
-      CALL GETMEM('WRK    ','FREE','REAL',ipWRK    ,NBSQT)
+      call mma_deallocate(WRK)
 C
       End Subroutine OLagFinal
 C
@@ -718,20 +732,23 @@ C-----------------------------------------------------------------------
       use caspt2_gradient, only: TraFro, OLag,
      *                           FIMO_all, FIFA_all, FIFASA_all
       use caspt2_data, only: FIMO, FIFA, CMOPT2
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
+
+      real(kind=wp),allocatable :: WRK1(:),WRK2(:)
 
       If (IfChol) Then
         !! For DF or CD, we already have FIFA and FIMO in AO,
         !! so just do AO -> MO transformation
-        CALL GETMEM('WRK1   ','ALLO','REAL',ipWRK1   ,NBSQT)
-        CALL GETMEM('WRK2   ','ALLO','REAL',ipWRK2   ,NBSQT)
-        Call DCopy_(NBSQT ,[0.0D+0],0,Work(ipWRK1)  ,1)
-        Call DCopy_(NBSQT ,[0.0D+0],0,Work(ipWRK2)  ,1)
+        call mma_allocate(WRK1,NBSQT,Label='WRK1')
+        call mma_allocate(WRK2,NBSQT,Label='WRK2')
+        WRK1(:) = 0.0d+00
+        WRK2(:) = 0.0d+00
 
 !           write (*,*) "fifa_all,fimo_all"
 !           do i = 1, 10
@@ -752,21 +769,19 @@ C             write (*,*) "fifa in MO"
 C             call sqprt(fifa_all(1+isq),nbasi)
             End If
           Else
-            Call SQUARE(FIFA_all(1+iTr),Work(ipWRK1),1,nBasI,nBasI)
+            Call SQUARE(FIFA_all(1+iTr),WRK1,1,nBasI,nBasI)
 C             write (*,*) "fifasa in AO"
-C             call sqprt(work(ipwrk1),nbasi)
+C             call sqprt(wrk1,nbasi)
             If (MODE.eq.0 .and. (IFDW.or.IFRMS)) Then
               !! with the state-average
               !! FIFASA_all will be natural basis
-              Call OLagTrf(2,iSym,CMOPT2,FIFASA_all(1+iSQ),
-     *                     Work(ipWRK1),Work(ipWRK2))
+              Call OLagTrf(2,iSym,CMOPT2,FIFASA_all(1+iSQ),WRK1,WRK2)
 C             write (*,*) "fifasa in MO"
 C             call sqprt(fifasa_all(1+isq),nbasi)
             Else If (MODE.eq.1) Then
               !! with the state-specific or dynamically weighted
               !! FIFA will be quasi-canonical basis
-              Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),
-     *                     Work(ipWRK1),Work(ipWRK2))
+              Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),WRK1,WRK2)
 C             write (*,*) "fifa in MO"
 C             call sqprt(fifa_all(1+isq),nbasi)
               !! canonicalize frozen orbitals
@@ -776,14 +791,11 @@ C             call sqprt(fifa_all(1+isq),nbasi)
               !! We actually need to canonicalize frozen and inactive
               !! orbitals simultaneously?
               If (nFroT /= 0) Then
-                CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
+                CALL DCOPY_(nBasI*nBasI,WRK1,1,WRK2,1)
                 CALL DIAFCK(NBAS(ISYM),FIFA_all,1,NFRO(ISYM),
-     &                      TraFro,NBAS(ISYM),CMOPT2,
-     *                      WORK(ipWRK2))
-                CALL DCOPY_(NBAS(ISYM)*NFRO(ISYM),
-     *                      Work(ipWRK2),1,CMOPT2,1)
-                Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),
-     *                       Work(ipWRK1),Work(ipWRK2))
+     &                      TraFro,NBAS(ISYM),CMOPT2,WRK2)
+                CALL DCOPY_(NBAS(ISYM)*NFRO(ISYM),WRK2,1,CMOPT2,1)
+                Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),WRK1,WRK2)
               End If
             End If
           End If
@@ -793,9 +805,8 @@ C         If (MODE.eq.0) Then
             If (nFroT.eq.0) Then
               Call SQUARE(FIMO(1+iTr),FIMO_all(1+iSQ),1,nBasI,nBasI)
             Else
-              Call SQUARE(FIMO_all(1+iTr),Work(ipWRK1),1,nBasI,nBasI)
-              Call OLagTrf(2,iSym,CMOPT2,FIMO_all(1+iSQ),
-     *                     Work(ipWRK1),OLag)
+              Call SQUARE(FIMO_all(1+iTr),WRK1,1,nBasI,nBasI)
+              Call OLagTrf(2,iSym,CMOPT2,FIMO_all(1+iSQ),WRK1,OLag)
 C             write (*,*) "fimo in MO"
 C             call sqprt(fimo_all(1+isq),nbasi)
             End If
@@ -803,8 +814,8 @@ C         End If
           iSQ = iSQ + nBasI*nBasI
           iTR = iTR + nBasI*(nBasI+1)/2
         End Do
-        CALL GETMEM('WRK1   ','FREE','REAL',ipWRK1   ,NBSQT)
-        CALL GETMEM('WRK2   ','FREE','REAL',ipWRK2   ,NBSQT)
+        call mma_deallocate(WRK1)
+        call mma_deallocate(WRK2)
 C
         If (IFXMS.and..not.IFDW)
      *    Call DCopy_(NBSQT,FIFA_all,1,FIFASA_all,1)

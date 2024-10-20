@@ -12,12 +12,15 @@
 ************************************************************************
       SUBROUTINE OLagNS2(iSym,DPT2C,T2AO)
 C
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       DIMENSION DPT2C(*),T2AO(*)
+      real(kind=wp),allocatable :: Int1(:),Int2(:),Scr1(:),Amp1(:)
 C
       !! orbital Lagrangian from the T-amplitude
       !! See the loop structure in rhs_mp2.f
@@ -31,11 +34,10 @@ C     write(6,*) "nmaxorb = ", nmaxorb
 C
       lInt = nMaxOrb*nMaxOrb
 C
-      Call GetMem('Int1','Allo','Real',ipInt1,lInt) !! for (ia|jb)
-      Call GetMem('Int2','Allo','Real',ipInt2,lInt) !! for (ib|ja)
-      Call GetMem('Scr1','Allo','Real',ipScr1,lInt) !! work space
-
-      Call GetMem('Amp1','Allo','Real',ipAmp1,lInt) !! for amplitude
+      call mma_allocate(Int1,lInt,Label='Int1') !! for (ia|jb)
+      call mma_allocate(Int2,lInt,Label='Int2') !! for (ib|ja)
+      call mma_allocate(Scr1,lInt,Label='Scr1') !! work space
+      call mma_allocate(Amp1,lInt,Label='Amp1') !! for amplitude
 C
 
       !! (ia|jb)
@@ -55,9 +57,7 @@ C
               Do iCase = 1, 13
 C               if (icase.ne.12.and.icase.ne.13) cycle
                 Call OLagNs_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,
-     *                           nMaxOrb,Work(ipInt1),Work(ipInt2),
-     *                           Work(ipAmp1),Work(ipScr1),
-     *                           DPT2C,T2AO)
+     *                           nMaxOrb,Int1,Int2,Amp1,Scr1,DPT2C,T2AO)
               End Do
             End Do
           End Do
@@ -66,12 +66,10 @@ C               if (icase.ne.12.and.icase.ne.13) cycle
 C
       Call DScal_(NBSQT,1.0D+00/DBLE(MAX(1,NACTEL)),DPT2C,1)
 C
-C
-      Call GetMem('Int1','Free','Real',ipInt1,lInt)
-      Call GetMem('Int2','Free','Real',ipInt2,lInt)
-      Call GetMem('Scr1','Free','Real',ipScr1,lInt)
-
-      Call GetMem('Amp1','Free','Real',ipAmp1,lInt)
+      call mma_deallocate(Int1)
+      call mma_deallocate(Int2)
+      call mma_deallocate(Scr1)
+      call mma_deallocate(Amp1)
 C
       END SUBROUTINE OLagNS2
 C
@@ -81,9 +79,10 @@ C
      *                       ERI1,ERI2,Amp1,Scr,DPT2C,T2AO)
       USE SUPERINDEX
       USE iSD_data
-      use caspt2_data, only: LUSBT
       use caspt2_gradient, only: OLag
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -92,6 +91,7 @@ C
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)
+      real(kind=wp),allocatable :: WRK1(:),WRK2(:)
 C
       INTEGER   nAshA,nAshB,nSshA,nSshB
       LOGICAL   PM
@@ -184,35 +184,14 @@ C
         End If
       End If
 C
-      If (iCase.ne.12.and.iCase.ne.13) Then
-        If (PM) Then
-          If (nASP*nISP.ne.0) Then
-            CALL GETMEM('LSTP','ALLO','REAL',LSTP,nASP*nINP)
-            idST = idSTMAT(iSym,iCase)
-            CALL dDaFile(LUSBT,2,Work(LSTP),nASP*nINP,idST)
-          End If
-          If (nASM*nISM.ne.0) Then
-            CALL GETMEM('LSTM','ALLO','REAL',LSTM,nASM*nINM)
-            idST = idSTMAT(iSym,iCase+1)
-            CALL dDaFile(LUSBT,2,Work(LSTM),nASM*nINM,idST)
-          End If
-        Else
-          If (nAS*nIN.ne.0) Then
-            CALL GETMEM('LST','ALLO','REAL',LST,nAS*nIN)
-            idST = idSTMAT(iSym,iCase)
-            CALL dDaFile(LUSBT,2,Work(LST),nAS*nIN,idST)
-          End If
-        End If
-      End If
-C
 C     If (PM) Then
 C       If (nINP*nISP.eq.0.and.nINM*nISM.eq.0) GO TO 1
 C     Else
 C       If (nIN*nIS) GO TO 1
 C     End If
 C
-      Call GetMem('WRK1','Allo','Real',ipWRK1,nBasT*nBasT)
-      Call GetMem('WRK2','Allo','Real',ipWRK2,nBasT*nBasT)
+      call mma_allocate(WRK1,nBasT*nBasT,Label='WRK1')
+      call mma_allocate(WRK2,nBasT*nBasT,Label='WRK2')
 C
       nFroI = nFro(iSymI)
       nFroJ = nFro(iSymJ)
@@ -266,8 +245,8 @@ C
         Call OLagNS_H(Amp1)
       End If
 C
-      Call GetMem('WRK1','Free','Real',ipWRK1,nBasT*nBasT)
-      Call GetMem('WRK2','Free','Real',ipWRK2,nBasT*nBasT)
+      call mma_deallocate(WRK1)
+      call mma_deallocate(WRK2)
 C
 C   1 CONTINUE
       If (PM) Then
@@ -275,17 +254,6 @@ C   1 CONTINUE
         If (nASM*nISM.ne.0) Call RHS_FREE(nASM,nISM,ipTCM)
       Else
         If (nAS*nIS.ne.0) Call RHS_FREE(nAS,nIS,ipTC)
-      End If
-C
-      If (iCase.ne.12.and.iCase.ne.13) Then
-        If (PM) Then
-          If (nASP*nISP.ne.0)
-     *      CALL GETMEM('LSTP','FREE','REAL',LSTP,nASP*nINP)
-          If (nASM*nISM.ne.0)
-     *      CALL GETMEM('LSTM','FREE','REAL',LSTM,nASM*nINM)
-        Else
-          If (nAS*nIN.ne.0) CALL GETMEM('LST','FREE','REAL',LST,nAS*nIN)
-        End If
       End If
 C
       Return
@@ -367,10 +335,9 @@ C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
-          Call OLagNS_post2(nAshA,nAshB,nCorA,nCorB,
-     *                      AmpL1,Work(ipWRK2))
+          Call OLagNS_post2(nAshA,nAshB,nCorA,nCorB,AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -469,10 +436,9 @@ C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
-          Call OLagNS_post2(nAshA,nAshB,nCorA,nCorB,
-     *                      AmpL1,Work(ipWRK2))
+          Call OLagNS_post2(nAshA,nAshB,nCorA,nCorB,AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -608,9 +574,9 @@ C
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
           Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,
-     *                      AmpL1,Work(ipWRK2))
+     *                      AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -701,9 +667,9 @@ C
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
           Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,
-     *                      AmpL1,Work(ipWRK2))
+     *                      AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -779,9 +745,9 @@ C
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
           Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,
-     *                      AmpL1,Work(ipWRK2))
+     *                      AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -861,9 +827,9 @@ C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
-          Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,Work(ipWRK2))
+          Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -946,9 +912,9 @@ C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu} for all ij
-          Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,Work(ipWRK2))
+          Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
         End Do
       End Do
 C
@@ -1040,17 +1006,17 @@ C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu} for all ij
-          Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,Work(ipWRK2))
+          Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,WRK2)
 C         Call DGEMM_('N','N',nBasT,nSshA,nSshB,
 C    *                1.0D+00,CMOPT2(1+nBasT*nOccB),nBasT,
 C    *                        AmpL1,nSshA,
-C    *                0.0D+00,Work(ipWRK1),nBasT)
+C    *                0.0D+00,WRK1,nBasT)
 C         Call DGEMM_('N','T',nBasT,nBasT,nSshB,
-C    *                1.0D+00,Work(ipWRK1),nBasT,
+C    *                1.0D+00,WRK1,nBasT,
 C    *                        CMOPT2(1+nBasT*nOccA),nBasT,
-C    *                0.0D+00,Work(ipWRK2),nBasT)
+C    *                0.0D+00,WRK2,nBasT)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
-          Call OLagNS_post3(iIabs,iJabs,T2AO,Work(ipWRK2))
+          Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
 C         Do iBas = 1, nBasT
 C           Do jBas = 1, nBasT
 C             loc1 = iJ-1 + (jBas-1)*nOccA2
@@ -1059,8 +1025,8 @@ C             loc2 = iI-1 + (jBas-1)*nOccA2
 C    *             + (iJ-1)*nOccA2*nBasT + (iBas-1)*nOccA2*nBasT*nOccA2
 C             loc3 = iBas-1 + (jBas-1)*nBasT
 C             loc4 = jBas-1 + (iBas-1)*nBasT
-C             T2AO(1+loc1) = T2AO(1+loc1) + Work(ipWRK2+loc3)
-C             T2AO(1+loc2) = T2AO(1+loc2) + Work(ipWRK2+loc4)
+C             T2AO(1+loc1) = T2AO(1+loc1) + WRK2(1+loc3)
+C             T2AO(1+loc2) = T2AO(1+loc2) + WRK2(1+loc4)
 C           End Do
 C         End Do
         End Do
@@ -1124,9 +1090,9 @@ C
        Call DGEMM_('N','N',nBasA,nDimB,nDimA,
      *             1.0D+00,CMOPT2(1+nBasA*nSkpA),nBasA,
      *                     AmpMO,nDimA,
-     *             0.0D+00,Work(ipWRK1),nBasA)
+     *             0.0D+00,WRK1,nBasA)
        Call DGEMM_('N','T',nBasA,nBasB,nDimB,
-     *             1.0D+00,Work(ipWRK1),nBasA,
+     *             1.0D+00,WRK1,nBasA,
      *                     CMOPT2(1+nBasB*nSkpB),nBasA,
      *             0.0D+00,AmpAO,nBasA)
 C
@@ -1156,8 +1122,8 @@ C         loc2 = iI-1 + (jBas-1)*nOccA2
 C    *         + (iJ-1)*nOccA2*nBasT + (iBas-1)*nOccA2*nBasT*nOccA2
 C         loc3 = iBas-1 + (jBas-1)*nBasT
 C         loc4 = jBas-1 + (iBas-1)*nBasT
-C         T2AO(1+loc1) = T2AO(1+loc1) + Work(ipWRK2+loc3)
-C         T2AO(1+loc2) = T2AO(1+loc2) + Work(ipWRK2+loc4)
+C         T2AO(1+loc1) = T2AO(1+loc1) + WRK2(1+loc3)
+C         T2AO(1+loc2) = T2AO(1+loc2) + WRK2(1+loc4)
 C       End Do
 C     End Do
 C
