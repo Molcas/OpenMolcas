@@ -3787,9 +3787,9 @@ C
       call mma_deallocate(SCRATCH)
 C
       DO I=1,NAS
-        SCA=SCA(I)
+        SCAL=SCA(I)
 C       CALL DSCAL_(NIN,SCA,VEC(1,I),NAS)
-        CALL DSCAL_(NAS,SCA,VEC(1,I),NAS)
+        CALL DSCAL_(NAS,SCAL,VEC(1,I),NAS)
       END DO
       call mma_deallocate(SCA)
       call mma_deallocate(S)

@@ -861,7 +861,7 @@ C
             Call CLagX_TrfCI(CLag(1,iState))
           End Do
         End If
-        CLagFull = CLagFull + CLag
+        CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
 C
         !! Compute the Lagrange multiplier for XMS
         !! The diagonal element is always zero.
