@@ -50,8 +50,9 @@
       Real*8  TrA(8), TrF(8), TrX(8)
       Integer ns_O(8), ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:)
+      Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:), ID_A(:)
       Real*8, allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
+      Real*8, allocatable:: Saa(:)
 *
 *
       irc=0
@@ -200,16 +201,16 @@ C     -----------------------------------------------------------
 
 *     We have now completed the definition of the active site
 *----------------------------------------------------------------------*
-      Call GetMem('ID_A','Allo','Inte',iD,nUniqAt)
+      Call mma_allocate(ID_A,nUniqAt,Label='ID_A')
       nActa=0
       Do iAt=1,nUniqAt
          If (NamAct(iAt).ne.blank) Then
-            iWork(iD+nActa)=iAt
             nActa=nActa+1
+            ID_A(nActa)=iAt
          EndIf
       End Do
       Do iAt=1,nActa
-         jAt=iWork(iD+iAt-1)
+         jAt=iD_A(iAt)
          NamAct(iAt)=NamAct(jAt)
       End Do
       Do iAt=nActa+1,nUniqAt
@@ -230,7 +231,7 @@ C     -----------------------------------------------------------
          Write(6,'(A,18A4)') ' Selected atoms: *** None *** '
       EndIf
 
-      Call GetMem('ID_A','Free','Inte',iD,nUniqAt)
+      Call mma_deallocate(ID_A)
 *----------------------------------------------------------------------*
 
       Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
@@ -266,8 +267,8 @@ C     -----------------------------------------------------------
       kEVir=kEOcc+nOrb
       Call GetMem('XMO','Allo','Real',ipXmo,2*NCMO)
       iCMO=ipXmo+NCMO
-      Call GetMem('Saa','Allo','Real',ipSaa,nOrb)
-      call dcopy_(nOrb,[One],0,Work(ipSaa),1)
+      Call mma_allocate(Saa,nOrb,Label='Saa')
+      Saa(:)=One
 
 
 *     Inactive orbital selection                                       *
@@ -293,7 +294,7 @@ C     -----------------------------------------------------------
       ortho=.true.
 *
       Call get_Orb_select(irc,Work(iCMO),Work(ipXMO),Work(ipEorb),
-     &                        SQ,Work(ipSaa),Name,NamAct,
+     &                        SQ,Saa,Name,NamAct,
      &                        nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
       If(irc.ne.0) Return
       iOff=0
@@ -359,7 +360,7 @@ C     -----------------------------------------------------------
          mOff=mOff+nSsh(iSym)
       End Do
       ortho=.false.
-      Call get_Saa(nSym,nBas,nSsh,SQ,Work(ipXMO),Work(ipSaa))
+      Call get_Saa(nSym,nBas,nSsh,SQ,Work(ipXMO),Saa)
 *
       Call get_Vir_select(irc,Work(iCMO),Work(ipXMO),Work(ipEorb),
      &                        SQ,Name,NamAct,iWork(iD_vir),
@@ -466,7 +467,7 @@ C     -----------------------------------------------------------
 *                                                                      *
 *----------------------------------------------------------------------*
 
-      Call GetMem('Saa','Free','Real',ipSaa,nOrb)
+      Call mma_deallocate(Saa)
       Call GetMem('XMO','Free','Real',ipXmo,2*NCMO)
 *
 *     Update the nFro, nIsh, nSsh, nDel for the Active site CASPT2
