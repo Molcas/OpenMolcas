@@ -390,7 +390,6 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*SVC  Call GetMem('ADDRHS','Free','Real',ipAdd,nAdd)
       call mma_deallocate(BRA)
       call mma_deallocate(KET)
       call mma_deallocate(BRAD)

@@ -1349,7 +1349,7 @@ C
       use ChoCASPT2
       use caspt2_gradient, only: FIMO_all
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
+      use definitions, only: iwp,wp
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1358,7 +1358,8 @@ C
 #include "WrkSpc.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
-      real(kind=wp),allocatable :: WRK1(:),WRK2(:)
+      integer(kind=iwp),allocatable :: BGRP(:,:)
+      real(kind=wp),allocatable :: WRK1(:),WRK2(:),KET(:)
 C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
@@ -1443,25 +1444,25 @@ C
 C
           MXBGRP=IB2-IB1+1
           IF (MXBGRP.LE.0) CYCLE
-          CALL GETMEM('BGRP','ALLO','INTE',LBGRP,2*MXBGRP)
+          call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
           IBGRP=1
           DO IB=IB1,IB2
-           IWORK(LBGRP  +2*(IBGRP-1))=IB
-           IWORK(LBGRP+1+2*(IBGRP-1))=IB
+           BGRP(1,IBGRP) = IB
+           BGRP(2,IBGRP) = IB
            IBGRP=IBGRP+1
           END DO
           NBGRP=MXBGRP
 C
-          CALL MEMORY_ESTIMATE(JSYM,IWORK(LBGRP),NBGRP,
+          CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
      &                         NCHOBUF,MXPIQK,NADDBUF)
-          CALL GETMEM('KETBUF','ALLO','REAL',LKET,NCHOBUF)
+          call mma_allocate(KET,NCHOBUF,Label='KETBUF')
 C         write(6,*) "nchobuf= ", nchobuf
 C         write(6,*) "nbgrp= ", nbgrp
 C         write(6,*) "nbtch= ", nbtch(jsym)
           Do IBGRP=1,NBGRP
 C
-            IBSTA=IWORK(LBGRP  +2*(IBGRP-1))
-            IBEND=IWORK(LBGRP+1+2*(IBGRP-1))
+            IBSTA=BGRP(1,IBGRP)
+            IBEND=BGRP(2,IBGRP)
 C           write(6,*) ibsta,ibend
 C
             NV=0
@@ -1472,21 +1473,17 @@ C
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
             Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                                Work(LKET),nKet,
+     &                                KET,nKet,
      &                                IBSTA,IBEND)
 C
-C           CALL GETMEM('WRKCHO','ALLO','REAL',LWRKCHO,NV)
-C           Call DCopy_(NV,[0.0D+00],0,Work(LWRKCHO),1)
             If (IBGRP.EQ.1) SCAL = 0.0D+00
             If (IBGRP.NE.1) SCAL = 1.0D+00
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
-     *                  0.5D+00,Work(LKET),NASH(JSYM)**2,
-     *                          Work(LKET),NASH(JSYM)**2,
+     *                  0.5D+00,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,
      *                  SCAL   ,INT2,NASH(JSYM)**2)
-C           CALL GETMEM('WRKCHO','FREE','REAL',LWRKCHO,NV)
           End Do
-          CALL GETMEM('KETBUF','FREE','REAL',LKET,NCHOBUF)
-          CALL GETMEM('BGRP','FREE','INTE',LBGRP,2*MXBGRP)
+          call mma_deallocate(KET)
+          call mma_deallocate(BGRP)
         End Do
       Else
         Do iAshI = 1, nAsh(iSym)

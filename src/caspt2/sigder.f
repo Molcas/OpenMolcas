@@ -493,40 +493,12 @@ C-----------------------------------------------------------------------
 C
       Subroutine C1S1DER(SDER)
 C
-C     use caspt2_data, only: LISTS
       Implicit Real*8 (A-H,O-Z)
 C
       REAL*8 SDER(*)
 C
 C     (T2Ct2*f)py * (T1Ct1)pz * dS1yz/da
 C     -1/2 (T2Ct2*f*S1*C1*Ct1)pt * (T1Ct1)pu * dS1tu/da
-C
-      !! initialize
-C     CALL GETMEM('TMP2','ALLO','REAL',LTMP2,NVEC1)
-C     CALL DCOPY_(NVEC1,[0.0D0],0,WORK(LTMP2),1)
-C     CALL GETMEM('TMP1','ALLO','REAL',LTMP1,MAX(1,NWEC1))
-C     IF(NWEC1.GT.0) THEN
-C       CALL DCOPY_(NWEC1,[0.0D0],0,WORK(LTMP1),1)
-C     END IF
-C
-      !! 1. T2*Ct2*f
-C     IMLTOP=0
-C     CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-C    &         WORK(LTMP1),LTMP2,LVEC2,iWORK(LLISTS))
-C
-C     IF(NWEC1.GT.0) THEN
-C       FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
-C       IF (ICASE1.EQ.1) THEN
-C         CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LTMP2),
-C    &              WORK(LTMP1))
-C       ELSE IF(ICASE1.EQ.4) THEN
-C         CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LTMP2),
-C    &              WORK(LTMP1))
-C       ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-C         CALL SPEC1D(IMLTOP,FACT,WORK(LTMP2),WORK(LTMP1))
-C       END IF
-C     END IF
-C     CALL GETMEM('TMP1','FREE','REAL',LTMP1,MAX(1,NWEC1))
 C
       !! Finalize the derivative of S1
       !! 2S. (T2Ct2*f) * T1Ct1
@@ -577,29 +549,18 @@ C
       end if
 #endif
 C
-C     CALL GETMEM('TMP2','FREE','REAL',LTMP2,NVEC1)
-C
       End Subroutine C1S1DER
 C
 C-----------------------------------------------------------------------
 C
       Subroutine C2DER(SDER)
 C
-C     use caspt2_data, only: LISTS
       Implicit Real*8 (A-H,O-Z)
 C
       REAL*8 SDER(*)
 C
 C     -1/2 (T2Ct2)pu * dS2tu/da * (T1Ct1St1*f*C2*Ct2)pt
 C
-      !! initialize
-C     CALL RHS_ALLO(NAS2,NIS2,LTMP)
-C     CALL RHS_SCAL(NAS2,NIS2,LTMP,0.0D+00)
-C
-      !! 1. T1*Ct1*St1*f
-C     IMLTOP=1
-C     CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-C    &         WORK(LWEC1S),LVEC1S,LTMP,LISTS)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       if (is_real_par()) then
         CALL GA_CREATE_STRIPED ('V',NAS2,NIS2,'SDER',lg_SGMX)

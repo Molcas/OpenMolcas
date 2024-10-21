@@ -261,13 +261,14 @@ C
       call mma_deallocate(WRK1)
 C
       END SUBROUTINE OLagVVVO
-
+C
+C-----------------------------------------------------------------------
+C
       SUBROUTINE VVVO_Drv(nSym,nBas,nAsh,nFro,nSkipX,
      *                    iSym,iSymI,iSymJ,iSymK,iSymL,
      &                    T2AO,vLag,nOcc,nBasT,
      &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                    DIA,DI,FIFA,FIMO)
-
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -277,34 +278,19 @@ C
       Dimension CMO(*),T2AO(*),vLag(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
-      Logical DoCholesky,REORD,DECO
-      Integer ALGO
-      COMMON /CHORAS/ REORD,DECO,ALGO
-
+      Logical DoCholesky!!,REORD,DECO
+C     Integer ALGO
+C     COMMON /CHORAS/ REORD,DECO,ALGO
 
       Call DecideOncholesky(DoCholesky)
 
 C     IF (DoCholesky.and.ALGO.eq.2)THEN
+      !! I assume ALGO=2 does not exist (it is not documented and under
+      !! debugging, according to rasscf/cho_rasscf_rdinp.f)
 *
 * Building of the Fock matrix directly from Cholesky
 * vectors
-*
-C        Call GetMem('LWFSQ','Allo','Real',LWFSQ,nTot2)
-C        call dcopy_(nTot2,[Zero],0,Work(LWFSQ),1)
-
-C        Call mma_allocate(Temp,nTot1,Label='Temp')
-C        Temp(:)=0.0D0
-C
-C        CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Temp,
-C    &                   ExFac,LWFSQ,CMO)
-
-C        Call DaXpY_(nTot1,One,Temp,1,FA,1)
-*
-C        Call mma_deallocate(Temp)
-C        Call GetMem('LWFSQ','Free','Real',LWFSQ,nTot2)
-
 C     ELSE
-
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
@@ -316,8 +302,7 @@ C        write(6,*) "calling drv2"
      *                  DIA,DI,FIFA,FIMO)
 
 C     ENDIF
-
-
+C
       RETURN
 C
       END SUBROUTINE VVVO_Drv
@@ -342,27 +327,14 @@ C
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       DImension DIA(*),DI(*),FIFA(*),FIMO(*)
       Integer nBas(8), nAux(8), Keep(8), nfro(8)
-      Logical DoCholesky,GenInt
-      Integer ALGO
-      Logical REORD,DECO
-C     Real*8 CMO_DUMMY(1)
-C     real(kind=wp),allocatable :: WFSQ(:)
+      Logical DoCholesky
       real(kind=wp),allocatable :: W1(:),W2(:),WRK(:)
-
-      Common /CHORAS / REORD,DECO,ALGO
 *
 * nAux is the number of occupied orbitals
-      GenInt=.false.
       DoCholesky=.false.
-      if(ALGO.eq.0) GenInt=.true. !use GenInt to regenerate integrals
-
       Call DecideOnCholesky(DoCholesky)
 
-C     call mma_allocate(WFSQ,NBSQT,Label='WFSQ')
-C     call dcopy_(NBSQT,[Zero],0,WFSQ,1)
-
       call mma_allocate(W2,NBMX*NBMX,Label='W2')
-*
       call mma_allocate(WRK,nBasT*nBasT,Label='WRK')
 *
       Call mma_MaxDBLE(LBUF)
@@ -370,7 +342,6 @@ C     call dcopy_(NBSQT,[Zero],0,WFSQ,1)
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
-
       call mma_allocate(W1,LBUF,Label='W1')
 
       If (LBUF.LT.1+NBMX**2) Then
@@ -405,22 +376,6 @@ C     call dcopy_(NBSQT,[Zero],0,WFSQ,1)
         end do
       end do
       call mma_deallocate(WRK)
-
-*
-* Building of the Fock matrix directly from Cholesky vectors
-*
-      IF (DoCholesky .and. .not.GenInt) THEN
-
-*
-* CMO_DUMMY is required call argument of choras_drv:
-* (Not used, see logical flags in choras_drv)
-*      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,
-*     &                      ExFac,LWFSQ,CMO)
-C      CALL CHOras_drv(nSym,nBas,nAux,DSQ,DLT,
-C    &                 Temp,ExFac,LWFSQ,CMO_DUMMY)
-*
-      ENDIF
-*
       call mma_deallocate(W1)
       call mma_deallocate(W2)
 *
