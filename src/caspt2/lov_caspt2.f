@@ -50,9 +50,10 @@
       Real*8  TrA(8), TrF(8), TrX(8)
       Integer ns_O(8), ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:), ID_A(:)
+      Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:), D_A(:),
+     &                       D_Vir(:)
       Real*8, allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
-      Real*8, allocatable:: Saa(:), XMO(:)
+      Real*8, allocatable:: Saa(:), XMO(:), DMat(:)
 *
 *
       irc=0
@@ -201,16 +202,16 @@ C     -----------------------------------------------------------
 
 *     We have now completed the definition of the active site
 *----------------------------------------------------------------------*
-      Call mma_allocate(ID_A,nUniqAt,Label='ID_A')
+      Call mma_allocate(D_A,nUniqAt,Label='D_A')
       nActa=0
       Do iAt=1,nUniqAt
          If (NamAct(iAt).ne.blank) Then
             nActa=nActa+1
-            ID_A(nActa)=iAt
+            D_A(nActa)=iAt
          EndIf
       End Do
       Do iAt=1,nActa
-         jAt=iD_A(iAt)
+         jAt=D_A(iAt)
          NamAct(iAt)=NamAct(jAt)
       End Do
       Do iAt=nActa+1,nUniqAt
@@ -231,7 +232,7 @@ C     -----------------------------------------------------------
          Write(6,'(A,18A4)') ' Selected atoms: *** None *** '
       EndIf
 
-      Call mma_deallocate(ID_A)
+      Call mma_deallocate(D_A)
 *----------------------------------------------------------------------*
 
       Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
@@ -252,14 +253,14 @@ C     -----------------------------------------------------------
 *                                                                      *
 *----------------------------------------------------------------------*
       Thrd=1.d-06
-      Call GetMem('ID_vir','Allo','Inte',iD_vir,nBasT)
+      Call mma_allocate(D_vir,nBasT,Label='D_Vir')
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,
      &                    nAsh,nSsh,CMOX(ipCMO),SQ,
-     &                    iWork(iD_vir))
+     &                    D_vir)
 
       If(irc.ne.0) then
        write(6,*) 'Localization failed in LovCASPT2'
-       Call Abend
+       Call Abend()
       Endif
 
       ipEorb=ipOrbE+nOrb
@@ -363,10 +364,10 @@ C     -----------------------------------------------------------
       Call get_Saa(nSym,nBas,nSsh,SQ,XMO,Saa)
 *
       Call get_Vir_select(irc,XMO(iCMO),XMO,Work(ipEorb),
-     &                        SQ,Name,NamAct,iWork(iD_vir),
+     &                        SQ,Name,NamAct,D_vir,
      &                        nSym,nActa,nSsh,nBas,ortho,ns_V)
       If(irc.ne.0) Return
-      Call GetMem('ID_vir','Free','Inte',iD_vir,nBasT)
+      Call mma_deallocate(D_vir)
       iOff=0
       kOff=0
       Do iSym=1,nSym
@@ -421,9 +422,10 @@ C     -----------------------------------------------------------
          End Do
          If (Min(iDo,jDo).eq.0) goto 1000
 *
-         Call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
+         Call mma_allocate(Dmat,nVV+nOA,Label='DMat')
+         ip_X=1
          ip_Y=ip_X+nVV
-         Call FZero(Work(ip_X),nVV+nOA)
+         DMat(:)=0.0D0
          Call FZero(XMO(iCMO),NCMO)
          iOff=0
          Do iSym=1,nSym
@@ -441,22 +443,22 @@ C     -----------------------------------------------------------
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            .true.)
             Call ChoMP2_Drv(irc,Dumm,XMO(iCMO),Work(kEOcc),Work(kEVir),
-     &                      Work(ip_X),Work(ip_Y))
+     &                      DMAT(ip_X),DMAT(ip_Y))
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            .false.)
             Call ChoMP2_Drv(irc,EMP2,XMO(iCMO),Work(kEOcc),Work(kEVir),
-     &                      Work(ip_X),Work(ip_Y))
+     &                      DMAT(ip_X),DMAT(ip_Y))
             If(irc.ne.0) then
               write(6,*) 'Frozen region MP2 failed'
               Call Abend
             Endif
             iV=ip_X
             Do iSym=1,nSym
-             TrF(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[One],0)
+             TrF(iSym)=ddot_(lnVir(iSym),DMAT(iV),1+lnVir(iSym),[One],0)
               iV=iV+lnVir(iSym)**2
             End Do
          EndIf
-         Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
+         Call mma_deallocate(Dmat)
 1000     Write(6,*)
 
          If (nActa.eq.0) Then
