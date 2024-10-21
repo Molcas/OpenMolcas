@@ -110,7 +110,6 @@ C usually print info on the total number of parameters
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
 #include "pt2_guga.fh"
@@ -120,7 +119,8 @@ C usually print info on the total number of parameters
 
       REAL*8, allocatable:: S(:), SD(:), SCA(:)
       REAL*8, allocatable:: VEC(:), EIG(:), SCRATCH(:)
-      REAL*8, allocatable:: B(:), BD(:)
+      REAL*8, allocatable:: B(:), BD(:), BX(:), XBX(:)
+      REAL*8, allocatable:: TRANS(:), AUX(:), ST(:)
 
 C On entry, the file LUSBT contains overlap matrices SMAT at disk
 C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
@@ -367,33 +367,33 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
       END IF
 
-      CALL GETMEM('LBX','ALLO','REAL',LBX,NAS)
-      CALL GETMEM('LXBX','ALLO','REAL',LXBX,NAS)
+      CALL mma_allocate(BX,NAS,Label='BX')
+      CALL mma_allocate(XBX,NAS,Label='XBX')
       DO J=NIN,1,-1
         LVSTA=1+NAS*(J-1)
-        CALL DCOPY_(NAS,[0.0D0],0,WORK(LBX),1)
+        BX(:)=0.0D0
 #ifdef _CRAY_C90_
         CALL SSPMV('U',NAS,1.0D+00,B,VEC(LVSTA),1,
-     &                           1.0D+00,WORK(LBX),1)
+     &                           1.0D+00,BX,1)
 #else
-*        CALL DSLMX(NAS,1.0D+00,B,WORK(LVSTA),1,
-*     &                                   WORK(LBX),1)
+*        CALL DSLMX(NAS,1.0D+00,B,VEC(LVSTA),1,
+*     &                                   BX,1)
         CALL DSPMV_('U',NAS,1.0D+00,B,VEC(LVSTA),1,
-     &                           1.0D+00,WORK(LBX),1)
+     &                           1.0D+00,BX,1)
 #endif
-C WORK(LBX): B * Vector number J.
-        CALL DCOPY_(J,[0.0D0],0,WORK(LXBX),1)
+C BX: B * Vector number J.
+        CALL DCOPY_(J,[0.0D0],0,XBX,1)
         CALL DGEMM_('T','N',
      &              J,1,NAS,
      &              1.0d0,VEC,NAS,
-     &              WORK(LBX),NAS,
-     &              0.0d0,WORK(LXBX),J)
-C WORK(LXBX) CONTAINS NOW THE UPPERTRIANGULAR
+     &              BX,NAS,
+     &              0.0d0,XBX,J)
+C XBX CONTAINS NOW THE UPPERTRIANGULAR
 C ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
-        CALL DCOPY_(J,WORK(LXBX),1,VEC(LVSTA),1)
+        CALL DCOPY_(J,XBX,1,VEC(LVSTA),1)
       END DO
-      CALL GETMEM('LBX','FREE','REAL',LBX,NAS)
-      CALL GETMEM('LXBX','FREE','REAL',LXBX,NAS)
+      CALL mma_deallocate(BX)
+      CALL mma_deallocate(XBX)
       CALL mma_deallocate(B)
 C VEC HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
 C COPY TO TRIANGULAR STORAGE.
@@ -457,60 +457,59 @@ C Assume enough space since we got rid of S/B matrices.
 C Specifically, assume we have enough space for the two
 C full matrices, plus an additional 19 columns of results.
       NAUX=MIN(19,NIN)
-      CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
-      CALL GETMEM('LAUX'  ,'ALLO','REAL',LAUX  ,NAS*NAUX)
+      CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
+      CALL mma_allocate(AUX  ,NAS*NAUX,Label='AUX')
       IDTMP=IDTMP0
-      CALL DDAFILE(LUSOLV,2,WORK(LAUX),NAS*NAUX,IDTMP)
+      CALL DDAFILE(LUSOLV,2,AUX,NAS*NAUX,IDTMP)
       IF(BTRANS.EQ.'YES') THEN
         CALL DGEMM_('N','N',
      &              NAS,NIN,NAUX,
-     &              1.0d0,WORK(LAUX),NAS,
+     &              1.0d0,AUX,NAS,
      &              VEC,NIN,
-     &              0.0d0,WORK(LTRANS),NAS)
+     &              0.0d0,TRANS,NAS)
       ELSE
-        CALL DCOPY_(NAS*NAUX,WORK(LAUX),1,WORK(LTRANS),1)
+        CALL DCOPY_(NAS*NAUX,AUX,1,TRANS,1)
       END IF
       DO KSTA=NAUX+1,NIN,NAUX
         KEND=MIN(KSTA-1+NAUX,NIN)
         NCOL=1+KEND-KSTA
-        CALL DDAFILE(LUSOLV,2,WORK(LAUX),NAS*NCOL,IDTMP)
+        CALL DDAFILE(LUSOLV,2,AUX,NAS*NCOL,IDTMP)
         IF(BTRANS.EQ.'YES') THEN
           CALL DGEMM_('N','N',NAS,NIN,NCOL,1.0D00,
-     &              WORK(LAUX),NAS,VEC(KSTA),NIN,
-     &              1.0D00,WORK(LTRANS),NAS)
+     &              AUX,NAS,VEC(KSTA),NIN,
+     &              1.0D00,TRANS,NAS)
         ELSE
-          LTRANS1=LTRANS+NAS*(KSTA-1)
-          CALL DCOPY_(NAS*NCOL,WORK(LAUX),1,WORK(LTRANS1),1)
+          LTRANS1=1+NAS*(KSTA-1)
+          CALL DCOPY_(NAS*NCOL,AUX,1,TRANS(LTRANS1),1)
         END IF
       END DO
-      CALL GETMEM('LAUX'  ,'FREE','REAL',LAUX  ,NAS*NAUX)
+      CALL mma_deallocate(AUX)
       CALL mma_deallocate(VEC)
       IDT=IDTMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,1,WORK(LTRANS),NAS*NIN,IDT)
+      CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NAS*NIN,WORK(LTRANS),1)
+        FP=DNRM2_(NAS*NIN,TRANS,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', FP
       END IF
 
 C-SVC: compute S*T and store on disk for later use by RHS vector
 C      utilities.
       NS=(NAS*(NAS+1))/2
-      CALL GETMEM('LS','ALLO','REAL',LS,NS)
+      CALL mma_allocate(S,NS,Label='S')
       IDS=IDSMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
-      CALL GETMEM('LST','ALLO','REAL',LST,NAS*NIN)
-      CALL DCOPY_(NAS*NIN,[0.0D0],0,WORK(LST),1)
-      CALL TRIMUL(NAS,NIN,1.0D00,WORK(LS),WORK(LTRANS),
-     &            NAS,WORK(LST),NAS)
-      CALL GETMEM('LS','FREE','REAL',LS,NS)
-      CALL GETMEM('LTRANS','FREE','REAL',LTRANS,NAS*NIN)
+      CALL DDAFILE(LUSBT,2,S,NS,IDS)
+      CALL mma_allocate(ST,NAS*NIN,Label='ST')
+      ST(:)=0.0D0
+      CALL TRIMUL(NAS,NIN,1.0D00,S,TRANS,NAS,ST,NAS)
+      CALL mma_deallocate(S)
+      CALL mma_deallocate(TRANS)
       IDST=IDSTMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,1,WORK(LST),NAS*NIN,IDST)
+      CALL DDAFILE(LUSBT,1,ST,NAS*NIN,IDST)
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NAS*NIN,WORK(LST),1)
+        FP=DNRM2_(NAS*NIN,ST,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'STMAT NORM: ', FP
       END IF
-      CALL GETMEM('LST','FREE','REAL',LST,NAS*NIN)
+      CALL mma_deallocate(ST)
 
       END SUBROUTINE SBDIAG_SER
 
