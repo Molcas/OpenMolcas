@@ -51,6 +51,7 @@
       Integer ns_O(8), ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:)
+      Real*8, allocatable:: SQ(:), SLT(:), CMOX(:)
 *
 *
       irc=0
@@ -120,30 +121,30 @@ C     -----------------------------------------------------------
 *----------------------------------------------------------------------*
 *     Read the overlap matrix                                          *
 *----------------------------------------------------------------------*
-      CALL GetMem('SMAT','ALLO','REAL',ipSQ,nSQ)
-      CALL GetMem('SLT','ALLO','REAL',ipS,nTri)
+      CALL mma_allocate(SQ,nSQ,Label='SQ')
+      CALL mma_allocate(SLT,nTri,Label='SLT')
       isymlbl=1
       iopt=ibset(ibset(0,sNoOri),sNoNuc)
       Label='Mltpl  0'
       iComp=1
-      Call RdOne(irc,iopt,Label,iComp,Work(ipS),isymlbl)
+      Call RdOne(irc,iopt,Label,iComp,SLT,isymlbl)
       If(irc.ne.0) return
-      ltri=0
-      lsq=0
+      ltri=1
+      lsq=1
       Do iSym=1,nSym
-         Call Square(Work(ipS+ltri),Work(ipSQ+lsq),1,nBas(iSym),
+         Call Square(SLT(ltri),SQ(lsq),1,nBas(iSym),
      &                                               nBas(iSym))
          ltri=ltri+nBas(iSym)*(nBAs(iSym)+1)/2
          lsq=lsq+nBas(iSym)**2
       End Do
-      CALL GetMem('SLT','FREE','REAL',ipS,nTri)
+      CALL mma_deallocate(SLT)
 *
-      CALL GETMEM('LCMO','ALLO','REAL',LCMO,2*NCMO)
-      ipCMO=LCMO+NCMO
+      CALL mma_allocate(CMOX,2*NCMO,Label='CMOX')
+      ipCMO=1+NCMO
 * This is not the best solution, but I wanted to avoid having to rewrite
 * the indexing code below just to use the CMO array directly
-      call dcopy_(NCMO,CMO,1,WORK(LCMO),1)
-      call dcopy_(NCMO,WORK(LCMO),1,WORK(ipCMO),1)
+      call dcopy_(NCMO,CMO,1,CMOX,1)
+      call dcopy_(NCMO,CMOX,1,WORK(ipCMO),1)
 
 *----------------------------------------------------------------------*
 *     Compute Mulliken atomic charges of each active orbital           *
@@ -156,12 +157,12 @@ C     -----------------------------------------------------------
       lBas=0
       iOff=0
       Do iSym=1,nSym
-         iSQ=ipSQ+iOff
-         ipAsh=LCMO+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
+         iSQ=1+iOff
+         ipAsh=1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
          nBx=Max(1,nBas(iSym))
          Call DGEMM_('N','N',nBas(iSym),nAsh(iSym),nBas(iSym),
-     &                      One,Work(iSQ),nBx,
-     &                          Work(ipAsh),nBx,
+     &                      One,SQ(iSQ),nBx,
+     &                          CMOX(ipAsh),nBx,
      &                      Zero,Work(ipZ),nBx)
          jBas=lBas+1
          kBas=lBas+nBas(iSym)
@@ -178,7 +179,7 @@ C     -----------------------------------------------------------
                jjZ=jZ+iBat
                nBat=nBas_per_Atom(1+iAt)
                iQ=ipQ+nAk+iAt
-               Work(iQ)=ddot_(nBat,Work(jjCMO),1,Work(jjZ),1)
+               Work(iQ)=ddot_(nBat,CMOX(jjCMO),1,Work(jjZ),1)
             End Do
          End Do
          Do iAt=0,nUniqAt-1
@@ -253,7 +254,7 @@ C     -----------------------------------------------------------
       Thrd=1.d-06
       Call GetMem('ID_vir','Allo','Inte',iD_vir,nBasT)
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,
-     &                    nAsh,nSsh,Work(ipCMO),Work(ipSQ),
+     &                    nAsh,nSsh,Work(ipCMO),SQ,
      &                    iWork(iD_vir))
 
       If(irc.ne.0) then
@@ -280,7 +281,7 @@ C     -----------------------------------------------------------
          jOff=iOff+nBas(iSym)*nFro(iSym)
          call dcopy_(nBas(iSym)*nIsh(iSym),Work(ipCMO+jOff),1,
      &                                    Work(ipXMO+kOff),1)
-         call dcopy_(nBas(iSym)*nIsh(iSym),Work(LCMO+jOff),1,
+         call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(1+jOff),1,
      &                                    Work(iCMO+kOff),1)
          jOff=lOff+nFro(iSym)
          call dcopy_(nIsh(iSym),Work(ipOrbE+jOff),1,
@@ -293,7 +294,7 @@ C     -----------------------------------------------------------
       ortho=.true.
 *
       Call get_Orb_select(irc,Work(iCMO),Work(ipXMO),Work(ipEorb),
-     &                        Work(ipSQ),Work(ipSaa),Name,NamAct,
+     &                        SQ,Work(ipSaa),Name,NamAct,
      &                        nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
       If(irc.ne.0) Return
       iOff=0
@@ -303,7 +304,7 @@ C     -----------------------------------------------------------
          Do ik=nIsh(iSym),1,-1
             jOff=kOff+nBas(iSym)*(ik-1)
             call dcopy_(nBas(iSym),Work(iCMO+jOff),1,
-     &                            Work(LCMO+lOff),1)
+     &                            CMOX(1+lOff),1)
             lOff=lOff+nBas(iSym)
          End Do
          iOff=iOff+nBas(iSym)**2
@@ -348,7 +349,7 @@ C     -----------------------------------------------------------
          jOff=iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
          call dcopy_(nBas(iSym)*nSsh(iSym),Work(ipCMO+jOff),1,
      &                                    Work(ipXMO+kOff),1)
-         call dcopy_(nBas(iSym)*nSsh(iSym),Work(LCMO+jOff),1,
+         call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(1+jOff),1,
      &                                    Work(iCMO+kOff),1)
          jOff=lOff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
          call dcopy_(nSsh(iSym),Work(ipOrbE+jOff),1,
@@ -359,10 +360,10 @@ C     -----------------------------------------------------------
          mOff=mOff+nSsh(iSym)
       End Do
       ortho=.false.
-      Call get_Saa(nSym,nBas,nSsh,Work(ipSQ),Work(ipXMO),Work(ipSaa))
+      Call get_Saa(nSym,nBas,nSsh,SQ,Work(ipXMO),Work(ipSaa))
 *
       Call get_Vir_select(irc,Work(iCMO),Work(ipXMO),Work(ipEorb),
-     &                        Work(ipSQ),Name,NamAct,iWork(iD_vir),
+     &                        SQ,Name,NamAct,iWork(iD_vir),
      &                        nSym,nActa,nSsh,nBas,ortho,ns_V)
       If(irc.ne.0) Return
       Call GetMem('ID_vir','Free','Inte',iD_vir,nBasT)
@@ -371,7 +372,7 @@ C     -----------------------------------------------------------
       Do iSym=1,nSym
          jOff=iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
          call dcopy_(nBas(iSym)*nSsh(iSym),Work(iCMO+kOff),1,
-     &                                    Work(LCMO+jOff),1)
+     &                                    CMOX(1+jOff),1)
          iOff=iOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*nSsh(iSym)
       End Do
@@ -426,13 +427,13 @@ C     -----------------------------------------------------------
          Call FZero(Work(iCMO),NCMO)
          iOff=0
          Do iSym=1,nSym
-            kfr=LCMO+iOff+nBas(iSym)*nFro(iSym)
+            kfr=1   +iOff+nBas(iSym)*nFro(iSym)
             kto=iCMO+iOff+nBas(iSym)*lnFro(iSym)
-            call dcopy_(nBas(iSym)*lnOcc(iSym),Work(kfr),1,Work(kto),1)
-            kfr=LCMO+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym)
+            call dcopy_(nBas(iSym)*lnOcc(iSym),CMOX(kfr),1,Work(kto),1)
+            kfr=1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym)
      &                                                     +ns_V(iSym))
             kto=kto+nBas(iSym)*lnOcc(iSym)
-            call dcopy_(nBas(iSym)*lnVir(iSym),Work(kfr),1,Work(kto),1)
+            call dcopy_(nBas(iSym)*lnVir(iSym),CMOX(kfr),1,Work(kto),1)
             iOff=iOff+nBas(iSym)**2
          End Do
          Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
@@ -480,7 +481,7 @@ C     -----------------------------------------------------------
       End Do
 
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                    Work(LCMO),Work(ipOrbE),TrA)
+     &                    CMOX,Work(ipOrbE),TrA)
 
       write(6,*)'------------------------------------------------------'
       write(6,*)' Symm.  Tr(D):  Active        Frozen        Full      '
@@ -504,7 +505,7 @@ C     -----------------------------------------------------------
 *
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           Work(LCMO),Work(ipOrbE),E2_Aonly)
+     &                           CMOX,Work(ipOrbE),E2_Aonly)
          EMP2 = E2_ab - E2_Aonly
 c         Write(6,'(A,F18.10)')' MP2 correction (environment): ',EMP2
 c         Write(6,*)
@@ -524,10 +525,10 @@ c         Write(6,*)
       EndIf
 *
       IF (IFQCAN.NE.0) IFQCAN=0 ! MOs to be recanonicalized on exit
-      call dcopy_(NCMO,WORK(LCMO),1,CMO,1)
+      call dcopy_(NCMO,CMOX,1,CMO,1)
 
-      CALL GETMEM('LCMO','FREE','REAL',LCMO,2*NCMO)
-      CALL GetMem('SMAT','FREE','REAL',ipSQ,nSQ)
+      Call mma_deallocate(CMOX)
+      Call mma_deallocate(SQ)
       Call mma_deallocate(nBas_per_Atom)
       Call mma_deallocate(nBas_Start)
       Return
