@@ -55,7 +55,7 @@
      &        MXTASK,MYTASK,MYBUFFER
       INTEGER NSGM1,NSGM2
       INTEGER NTRI1,NTRI2
-      INTEGER MEMMAX, MEMMAX_SAFE
+      INTEGER MEMMAX !, MEMMAX_SAFE
       INTEGER NLEV2
       INTEGER NCI,ICSF
 
@@ -258,7 +258,7 @@ C
       call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
-      memmax_safe=int(dble(memmax)*0.95D0)
+C     memmax_safe=int(dble(memmax)*0.95D0)
 
 * Buffers to compute CI expansion vectors into:
 * <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>

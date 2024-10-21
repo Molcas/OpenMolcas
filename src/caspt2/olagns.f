@@ -147,17 +147,17 @@ C
 C
       !! Some setup
       !! Read T-amplitude, hopefully in contravariant form
-      nINP = 0
-      nINM = 0
-      nIN  = 0
+C     nINP = 0
+C     nINM = 0
+C     nIN  = 0
       If (PM) Then
-        nINP = nINDEP(iSym,iCase)
+C       nINP = nINDEP(iSym,iCase)
         nASP = nASup(iSym,iCase)
         nISP = nISup(iSym,iCase)
         ! If (nINP.ne.0) Then
         !   nVec = nINP*nISP
         ! End If
-        nINM = nINDEP(iSym,iCase+1)
+C       nINM = nINDEP(iSym,iCase+1)
         nASM = nASup(iSym,iCase+1)
         nISM = nISup(iSym,iCase+1)
         ! If (nINM.ne.0) Then
@@ -172,7 +172,7 @@ C
           CALL RHS_READ_C(ipTCM,iCase+1,iSym,iVecC2)
         End If
       Else
-        nIN = nINDEP(iSym,iCase)
+C       nIN = nINDEP(iSym,iCase)
         nAS = nASup(iSym,iCase)
         nIS = nISup(iSym,iCase)
         ! If (nIN.ne.0) Then

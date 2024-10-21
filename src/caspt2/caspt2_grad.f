@@ -269,7 +269,6 @@ C
 
         WRK2(:,:) = 0.0D+00
         Do ilStat = 1, nState
-          iloc = ilStat+nState*(ilStat-1)
           If (DWTYPE.EQ.1) Then
             WRK2(ilStat,ilStat) = SLag(ilStat,ilStat)
           Else If (DWTYPE.EQ.2.OR.DWTYPE.EQ.3) Then
@@ -312,7 +311,6 @@ C
       If (IFMSCOUP) Then
         Do ilStat = 1, nState
           Do jlStat = 1, ilStat
-            iloc = ilStat + nState*(jlStat-1)
             If (do_nac) Then
               If (.not.IFXMS .and. .not.IFRMS .and. ilstat.ne.jlstat)
      &          Cycle
@@ -323,7 +321,6 @@ C
               SLag(ilStat,jlStat) = SLag(ilStat,jlStat) + Scal
 C
               If (ilStat.ne.jlStat) Then
-                jloc = jlStat + nState*(ilStat-1)
                 SLag(jlStat,ilStat) = SLag(jlStat,ilStat) + Scal
               End If
             Else
@@ -345,9 +342,6 @@ C
       !! Subtract the original rhs_sa.f or rhs_nac.f contribution
       !! For MS-type CASPT2, CASSCF part has to be determined by UEFF
       If (IFMSCOUP.and.iRoot1.eq.iRoot2) Then
-C       iloc = MAX(iRoot1,iRoot2)*(MAX(iRoot1,iRoot2)-1)/2
-C    *       + MIN(iRoot1,iRoot2) !! iRlxRoot*(iRlxRoot+1)/2
-C       iloc = MAX(iRoot1,iRoot2)+nState*(MIN(iRoot1,iRoot2)-1)
         ilStat = MAX(iRoot1,iRoot2)
         jlStat = MIN(iRoot1,iRoot2)
         SLag(ilStat,jlStat) = SLag(ilStat,jlStat) - 1.0D+00

@@ -189,7 +189,7 @@ C Loop over types and symmetry block of sigma vector:
           CALL DCOPY_(NSGM2,[0.0D0],0,WORK(LSGM2),1)
 
           NSGM1=0
-          LSGM1=1
+C         LSGM1=1
           IF(ICASE1.EQ.1) THEN
             NSGM1=NASH(ISYM1)*NISH(ISYM1)
           ELSE IF(ICASE1.EQ.4) THEN
@@ -227,12 +227,12 @@ C SVC: for case H (12,13) we can now pass the distributed array ID to
 C the SGM subroutines
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 LCX=lg_CX
-                XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
+C               XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
                 CALL GETMEM('CX','ALLO','REAL',LCX,NCX)
                 CALL RHS_GET(NAS2,NIS2,lg_CX,WORK(LCX))
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
-                XTST=DDOT_(NCX,WORK(LCX),1,WORK(LCX),1)
+C               XTST=DDOT_(NCX,WORK(LCX),1,WORK(LCX),1)
               END IF
 
 #ifdef _DEBUGPRINT_
@@ -367,7 +367,7 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           CALL RHS_FREE (NAS1,NIS1,lg_D2)
 
           ND1=0
-          LD1=1
+C         LD1=1
           IMLTOP=1
           FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
           IF(ICASE1.EQ.1) THEN

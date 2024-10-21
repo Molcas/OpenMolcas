@@ -1789,7 +1789,7 @@ C
       use caspt2_gradient, only: LuGAMMA,LuAPT2
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
-      use definitions, only: iwp,wp
+      use definitions, only: wp
 C
       Implicit Real*8 (A-H,O-Z)
 C

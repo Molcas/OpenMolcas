@@ -50,8 +50,6 @@ C
       call mma_allocate(WRK1,nBasT*nBasT,Label='WRK1')
       Call GetOrd(IRC,Square,nSymX,nBasX,KEEP)
 C
-      ! nTot1 = nBasT*(nBasT+1)/2
-      nTot2 = nBast*nBasT
       vLag(:) = 0.0d+00
 C
       Call DecideOncholesky(DoCholesky)
@@ -317,7 +315,6 @@ C
      *                     DIA,DI,FIFA,FIMO)
 C
       USE CHOVEC_IO
-      use Constants, only: Zero
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: wp
 C

@@ -720,7 +720,6 @@ C
      *                   WRK2,idxG3)
         call mma_deallocate(idxG3)
       Else If (iCase.eq. 5) Then !! D
-        LS=0
         If (ipea_shift.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           call mma_allocate(S,NS,Label='S')
@@ -884,7 +883,6 @@ C     !!        = 2*f_{tu} - D_{tv}*f_{vu} + del(tu)*EASUM - F_{ut}
       Else If (iCase.eq. 8.or.iCase.eq. 9) Then !! F
 C     write(6,*) "Clear B derivative for F"
 C     call docpy_nas*nas,0.0d+00,0,wrk3,1)
-        LS=0
         If (ipea_shift.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           call mma_allocate(S,NS,Label='S')
