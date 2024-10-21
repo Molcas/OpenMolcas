@@ -1105,12 +1105,12 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
       ELSE
 #endif
         NS=(NAS*(NAS+1))/2
-        CALL GETMEM('LS','ALLO','REAL',LS,NS)
+        CALL mma_allocate(S,NS,Label='S')
         IDS=IDSMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
-        CALL TRIMUL(NAS,NIS,ALPHA,WORK(LS),
+        CALL DDAFILE(LUSBT,2,S,NS,IDS)
+        CALL TRIMUL(NAS,NIS,ALPHA,S,
      &              WORK(lg_V1),NAS,WORK(lg_V2),NAS)
-        CALL GETMEM('LS','FREE','REAL',LS,NS)
+        CALL mma_deallocate(S)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

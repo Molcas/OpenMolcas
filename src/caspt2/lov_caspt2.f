@@ -28,22 +28,29 @@
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
+      Integer irc, nSym
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
      &        nDel(nSym)
-      Integer irc,nUniqAt,IFQCAN
-      Real*8  Thrs, EMP2
-      Logical DoMP2, DoEnv, all_Vir
       Character(Len=LENIN8) NAME(*)
+      Integer nUniqAt
+      Real*8  Thrs
+      Integer IFQCAN
+      Logical DoMP2, DoEnv, all_Vir
+      Real*8  EMP2
+      Integer NCMO
+      Real*8 CMO(nCMO)
+
       Character(Len=LENIN) blank, NamAct(mxAtom)
       character(len=8) :: Label
       Logical ortho
       Real*8  TrA(8), TrF(8), TrX(8)
       Integer ns_O(8), ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8 CMO(*)
+      Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:)
 *
 *
       irc=0
@@ -107,10 +114,8 @@ C     -----------------------------------------------------------
 
       l_nBas_per_Atom = nUniqAt
       l_nBas_Start    = nUniqAt
-      Call GetMem('nB_per_Atom','Allo','Inte',
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',
-     &            ip_nBas_Start,l_nBas_Start)
+      Call mma_allocate(nBas_per_Atom,l_nBas_per_Atom,Label='nB/A')
+      Call mma_allocate(nBas_Start,l_nBas_Start,Label='nBStart')
 *
 *----------------------------------------------------------------------*
 *     Read the overlap matrix                                          *
@@ -160,8 +165,7 @@ C     -----------------------------------------------------------
      &                      Zero,Work(ipZ),nBx)
          jBas=lBas+1
          kBas=lBas+nBas(iSym)
-         Call BasFun_Atom_Sym(iWork(ip_nBas_per_Atom),
-     &                        iWork(ip_nBas_Start),
+         Call BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,
      &                        Name,jBas,kBas,nUniqAt,.false.)
          Do ik=0,nAsh(iSym)-1
             nAk=nUniqAt*ik
@@ -169,10 +173,10 @@ C     -----------------------------------------------------------
             jCMO=ipAsh+nBk-1
             jZ=ipZ+nBk-1
             Do iAt=0,nUniqAt-1
-               iBat=iWork(ip_nBas_Start+iAt)
+               iBat=nBas_Start(1+iAt)
                jjCMO=jCMO+iBat
                jjZ=jZ+iBat
-               nBat=iWork(ip_nBas_per_Atom+iAt)
+               nBat=nBas_per_Atom(1+iAt)
                iQ=ipQ+nAk+iAt
                Work(iQ)=ddot_(nBat,Work(jjCMO),1,Work(jjZ),1)
             End Do
@@ -184,7 +188,7 @@ C     -----------------------------------------------------------
      &                + ddot_(nAsh(iSym),Work(jQ),nUniqAt,
      &                                  Work(jQ),nUniqAt)
             If (sqrt(Work(iQa)).ge.Thrs) Then
-               jBat=iWork(ip_nBas_Start+iAt)+lBas
+               jBat=nBas_Start(1+iAt)+lBas
                NamAct(iAt+1)=Name(jBat)(1:LENIN)
             EndIf
          End Do
@@ -524,27 +528,27 @@ c         Write(6,*)
 
       CALL GETMEM('LCMO','FREE','REAL',LCMO,2*NCMO)
       CALL GetMem('SMAT','FREE','REAL',ipSQ,nSQ)
-      Call GetMem('nB_per_Atom','Free','Inte',
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Free','Inte',
-     &            ip_nBas_Start,l_nBas_Start)
+      Call mma_deallocate(nBas_per_Atom)
+      Call mma_deallocate(nBas_Start)
       Return
       End
 ************************************************************************
 *                                                                      *
 ************************************************************************
       Subroutine get_Saa(nSym,nBas,nOrb,Smn,Xmo,Saa)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
       Integer nSym, nBas(nSym), nOrb(nSym)
       Real*8  Smn(*), Xmo(*), Saa(*)
-#include "WrkSpc.fh"
+
+      Real*8, Allocatable:: Z(:)
 *
 *
       mOb=nBas(1)*nOrb(1)
       Do iSym=2,nSym
          mOb=Max(mOb,nBas(iSym)*nOrb(iSym))
       End Do
-      Call GetMem('Z','Allo','Real',ipZ,mOb)
+      Call mma_allocate(Z,mOb,Label='Z')
 
       iX=1
       kX=1
@@ -554,19 +558,19 @@ c         Write(6,*)
          Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym),
      &                      1.0d0,Smn(iX),nBx,
      &                            Xmo(kX),nBx,
-     &                      0.0d0,Work(ipZ),nBx)
+     &                      0.0d0,Z,nBx)
          Do j=0,nOrb(iSym)-1
             jK=nBas(iSym)*j
             lk=kX+jK
-            jZ=ipZ+jK
+            jZ=1+jK
             jX=lX+j
-            Saa(jX)=ddot_(nBas(iSym),Xmo(lk),1,Work(jZ),1)
+            Saa(jX)=ddot_(nBas(iSym),Xmo(lk),1,Z(jZ),1)
          End Do
          iX=iX+nBas(iSym)**2
          kX=kX+nBas(iSym)*nOrb(iSym)
          lX=lX+nOrb(iSym)
       End Do
-      Call GetMem('Z','Free','Real',ipZ,mOb)
+      Call mma_deallocate(Z)
 *
       Return
       End
@@ -582,7 +586,7 @@ C
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, shf, SOS_mp2,
      &                  Span_Def, SpanMP2, ThrMP2, Verbose
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Logical isFNO
 C
@@ -620,19 +624,21 @@ C
          l_Dii=l_Dii+nOcc(iSym)
       End Do
 C
-      Return
-      End
+      End SubRoutine LovCASPT2_putInf
 
       Subroutine Energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
      &                              CMO,OrbE,E2_ab)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
       Integer nSym, nBas(nSym), nFro(nSym), nIsh(nSym)
       Integer nAsh(nSym), nSsh(nSym), nDel(nSym)
-      Real*8  CMO(*), OrbE(*)
+      Real*8  CMO(*), OrbE(*), E2_ab
 #include "WrkSpc.fh"
+
       Integer nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8 Dummy(1)
+      Real*8, Allocatable:: Eorb(:), CMOX(:)
 *
 *
       Call Izero(nAct,nSym)
@@ -659,8 +665,8 @@ C
          nOA=nOA+lnOcc(iSym)
       End Do
 *
-      Call GetMem('EOV','Allo','Real',ipEorb,2*nOrb)
-      kEOcc=ipEorb
+      Call mma_allocate(Eorb,2*nOrb,Label='Eorb')
+      kEOcc=1
       kEVir=kEOcc+nOrb
       ioff=0
       joff=0
@@ -668,32 +674,32 @@ C
       Do iSym=1,nSym
          ifr=1+ioff+nFro(iSym)
          ito=kEOcc+joff
-         call dcopy_(lnOcc(iSym),OrbE(ifr),1,Work(ito),1)
+         call dcopy_(lnOcc(iSym),OrbE(ifr),1,Eorb(ito),1)
          ifr=1+ioff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
          ito=kEVir+koff
-         call dcopy_(nSsh(iSym),OrbE(ifr),1,Work(ito),1)
+         call dcopy_(nSsh(iSym),OrbE(ifr),1,Eorb(ito),1)
          ioff=ioff+nBas(iSym)
          joff=joff+lnOcc(iSym)
          koff=koff+nSsh(iSym)
       End Do
 *
       Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.false.)
-      Call GetMem('CMON','Allo','Real',iCMO,nBB)
-      Call FZero(Work(iCMO),nBB)
+      Call mma_allocate(CMOX,nBB,Label='CMOX')
+      CMOX(:)=0.0D0
       iOff=0
       Do iSym=1,nSym
          kfr=1+iOff+nBas(iSym)*nFro(iSym)
-         kto=iCMO+iOff+nBas(iSym)*lnFro(iSym)
-         call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,Work(kto),1)
+         kto=1+iOff+nBas(iSym)*lnFro(iSym)
+         call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,CMOX(kto),1)
          kfr=1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
          kto=kto+nBas(iSym)*lnOcc(iSym)
-         call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,Work(kto),1)
+         call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,CMOX(kto),1)
          iOff=iOff+nBas(iSym)**2
       End Do
 *
       Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,E2_ab,Work(iCMO),Work(kEOcc),Work(kEVir),
+         Call ChoMP2_Drv(irc,E2_ab,CMOX,Eorb(kEOcc),Eorb(kEVir),
      &                   Dummy,Dummy)
          If(irc.ne.0) then
            write(6,*) 'MP2 calculation failed in energy_AplusB !'
@@ -706,9 +712,9 @@ C
          write(6,*)'Check your input and rerun the calculation! Bye!!'
          Call Abend
       Endif
-      Call GetMem('CMON','Free','Real',iCMO,nBB)
+      Call mma_deallocate(CMOX)
 *
-      Call GetMem('EOV ','Free','Real',ipEorb,2*nOrb)
+      Call mma_deallocate(Eorb)
 *
       Return
       End
