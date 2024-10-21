@@ -18,7 +18,7 @@ subroutine procinp_caspt2
                            ipea_shift, imag_shift, real_shift
   use caspt2_gradient, only: do_grad, do_nac, do_csf, do_lindep, &
                              if_invar, iRoot1, iRoot2, if_invaria, &
-                             ConvInvar
+                             ConvInvar, if_SSDM
   use caspt2_data, only: IDCIEX
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
@@ -36,7 +36,6 @@ subroutine procinp_caspt2
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "caspt2_grad.fh"
 
   integer(kind=iwp) :: iDummy
 
@@ -694,9 +693,15 @@ subroutine procinp_caspt2
   !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
   !! option) and XMS-CASPT2.
   if (IFSADREF .or. (nRoots == 1) .or. (IFXMS .and. (.not.IFDW))) then
-    IFSSDM = .false.
+    if_SSDM = .false.
   else
-    IFSSDM = .true.
+    if_SSDM = .true.
+  end if
+
+  !! issue #448
+  if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then
+    call warningMessage(2,'DENS keyword cannot be combined with RAS.')
+    call quit_onUserError
   end if
 
 end subroutine procinp_caspt2

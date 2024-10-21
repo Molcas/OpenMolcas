@@ -83,19 +83,19 @@ C
       Subroutine OLagFroD(DIA,DI,RDMSA,Trf)
 C
       use caspt2_data, only: CMOPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension DIA(*),DI(*)
       Dimension RDMSA(*),Trf(*)
+      real(kind=wp),allocatable :: WRK1(:),WRK2(:)
 C
-      Call GetMem('WRK1','Allo','Real',ipWRK1,nBasSq)
-      Call GetMem('WRK2','Allo','Real',ipWRK2,nBasSq)
-C     Call Get_D1ao(ipWRK1,nBasTr)
+      call mma_allocate(WRK1,NBSQT,Label='WRK1')
+      call mma_allocate(WRK2,NBSQT,Label='WRK2')
 C
       iAOtr = 0
       iAOsq = 1
@@ -107,7 +107,7 @@ C
         nCorI = nFroI + nIshI
 C
         !! full density matrix
-      ! Call SQUARE(Work(ipWRK1+iAOtr),DIA(iAOsq),1,nBasI,nBasI)
+      ! Call SQUARE(WRK1(1+iAOtr),DIA(iAOsq),1,nBasI,nBasI)
       ! !! off-diagonal elements have to be halved
       ! Do Mu = 1, nBasI
       !   Do Nu = 1, nBasI
@@ -131,18 +131,18 @@ C
         !     CASPT2 orbital basis
         Call DGemm_('T','N',nAshI,nAshI,nAshI,
      *              1.0D+00,Trf(1+nCorI+nBasI*nCorI),nBasI,RDMSA,nAshI,
-     *              0.0D+00,Work(ipWRK2),nAshI)
+     *              0.0D+00,WRK2,nAshI)
         Call DGemm_('N','N',nAshI,nAshI,nAshI,
-     *              1.0D+00,Work(ipWRK2),nAshI,
+     *              1.0D+00,WRK2,nAshI,
      *                      Trf(1+nCorI+nBasI*nCorI),nBasI,
-     *              0.0D+00,Work(ipWRK1),nAshI)
+     *              0.0D+00,WRK1,nAshI)
         ! 3) Finally, add the active part
         Call DGemm_('N','N',nBasI,nAshI,nAshI,
      *              1.0D+00,CMOPT2(1+nBasI*nCorI),nBasI,
-     *                      Work(ipWRK1),nAshI,
-     *              0.0D+00,Work(ipWRK2),nBasI)
+     *                      WRK1,nAshI,
+     *              0.0D+00,WRK2,nBasI)
         Call DGemm_('N','T',nBasI,nBasI,nAshI,
-     *              1.0D+00,Work(ipWRK2),nBasI,
+     *              1.0D+00,WRK2,nBasI,
      *                      CMOPT2(1+nBasI*nCorI),nBasI,
      *              1.0D+00,DIA,nBasI)
 C
@@ -150,8 +150,8 @@ C
         iAOsq = iAOsq + nBasI*nBasI
       End Do
 C
-      Call GetMem('WRK1','Free','Real',ipWRK1,nBasSq)
-      Call GetMem('WRK2','Free','Real',ipWRK2,nBasSq)
+      call mma_deallocate(WRK1)
+      call mma_deallocate(WRK2)
 C
       Return
 C
@@ -161,28 +161,15 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFro1(DPT2,OLag)
 C
+      use caspt2_gradient, only: FIFA_all
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension DPT2(*),OLag(*)
 C
-C     Call GetMem('EPS','Allo','Real',ipEPS,nBasT)
-C     Call Get_dArray('RASSCF OrbE',Work(ipEPS),nBasT)
-C
-C     write(6,*) "DPT2 before frozen orbital"
-C     call sqprt(dpt2,nbast)
-C     write(6,*) "OLag"
-C     call sqprt(olag,nbast)
-C     do i = 1, nbast
-C       write(6,'(i3,f20.10)') i,work(ipeps+i-1)
-C     end do
       iMO  = 1
-C     write (*,*) "now using the fifa energies"
-C     call sqprt(work(ipfifa),nbast)
       DO iSym = 1, nSym
         nOrbI = nBas(iSym)-nDel(iSym)
         nFroI = nFro(iSym)
@@ -195,13 +182,10 @@ C     call sqprt(work(ipfifa),nbast)
           Do iOrb = 1, nFroI
             Do jOrb = nFroI+1, nFroI+nIshI
 C         write(6,*) iorb,jorb,OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
-C         write(6,*) work(ipeps+iorb-1),work(ipeps+jorb-1)
               Tmp = -0.5D+00*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
      *                       -OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))
-C    *            /(Work(ipEPS+iOrb-1)-Work(ipEPS+jOrb-1))
-C    *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))-EPSI(jOrb-nFroI))
-     *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))
-     *             -Work(ipFIFA+jOrb-1+nBasI*(jOrb-1)))
+     *            /(FIFA_all(iOrb+nBasI*(iOrb-1))
+     *             -FIFA_all(jOrb+nBasI*(jOrb-1)))
 C         write(6,*) tmp
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
      *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp
@@ -214,8 +198,6 @@ C         write(6,*) tmp
       End Do
 C     write(6,*) "DPT2 after frozen orbital"
 C     call sqprt(dpt2,nbast)
-C
-C     Call GetMem('EPS','Free','Real',ipEPS,nBasT)
 C
       End Subroutine OLagFro1
 C
@@ -278,23 +260,25 @@ C
       Subroutine OLagFro3(FIFA,FIMO,WRK1,WRK2)
 C
       use caspt2_data, only: CMOPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Dimension FIFA(*),FIMO(*),WRK1(*),WRK2(*)
       Character(Len=8) Label
+      real(kind=wp),allocatable :: WFLT(:)
 C
       !! Read H_{\mu \nu}
-      CALL GETMEM('WFLT','ALLO','REAL',LWFLT,NBTRI)
+      call mma_allocate(WFLT,NBTRI,Label='WFLT')
       IRC=-1
       IOPT=6
       ICOMP=1
       ISYLBL=1
       Label='OneHam  '
-      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WFLT,ISYLBL)
 C
       !! AO -> MO transformation
       iAO   = 1
@@ -309,7 +293,7 @@ C
         !! WRK1 = G(D)
         Call DCopy_(nBasI*nBasI,FIFA(iAO),1,WRK1,1)
         !! WRK1 = H+G(D)
-        Call Square(Work(LWFLT+iAOtr-1),WRK2,1,nBasI,nBasI)
+        Call Square(WFLT(iAOtr),WRK2,1,nBasI,nBasI)
         Call DaXpY_(nBasI*nBasI,1.0D+00,WRK2,1,WRK1,1)
         !! AO -> MO transformation of H+G(D)
         Call OLagTrf(2,iSym,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
@@ -319,7 +303,7 @@ C
         Call DCopy_(nBasI*nBasI,FIMO(iAO),1,WRK1,1)
 C     call docpy_nbasI*nbasi,0.0d+00,0,wrk1,1)
         !! WRK1 = H+G(D)
-        Call Square(Work(LWFLT+iAOtr-1),WRK2,1,nBasI,nBasI)
+        Call Square(WFLT(iAOtr),WRK2,1,nBasI,nBasI)
         Call DaXpY_(nBasI*nBasI,1.0D+00,WRK2,1,WRK1,1)
         !! AO -> MO transformation of H+G(D)
         Call OLagTrf(2,iSym,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
@@ -346,7 +330,7 @@ C     call sqprt(fifa,nbast)
 C     write(6,*) "FIMO"
 C     call sqprt(fimo,nbast)
 C
-      CALL GETMEM('WFLT','FREE','REAL',LWFLT,NBTRI)
+      call mma_deallocate(WFLT)
 C
       End Subroutine OLagFro3
 C
@@ -354,16 +338,19 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFroSq(iSym,Ftr,Fsq)
 C
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
+C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Dimension Ftr(*),Fsq(*)
+      real(kind=wp),allocatable :: EPS_loc(:)
 C
-      Call GetMem('EPS','Allo','Real',ipEPS,nBasT)
-      Call Get_dArray('RASSCF OrbE',Work(ipEPS),nBasT)
+      call mma_allocate(EPS_loc,nBasT,Label='EPS_loc')
+      Call Get_dArray('RASSCF OrbE',EPS_loc,nBasT)
 C
       nOrbI = nBas(iSym)-nDel(iSym)
       nFroI = nFro(iSym)
@@ -371,7 +358,7 @@ C
 C
       !! Frozen orbital
       Do iOrb = 1, nFroI
-        Fsq(iOrb+nOrbI*(iOrb-1)) = Work(ipEPS+iOrb-1)
+        Fsq(iOrb+nOrbI*(iOrb-1)) = EPS_loc(iOrb)
       End Do
 C
       !! Other orbitals
@@ -384,7 +371,7 @@ C
         End Do
       End Do
 C
-      Call GetMem('EPS','Free','Real',ipEPS,nBasT)
+      call mma_deallocate(EPS_loc)
 C
       End Subroutine OLagFroSq
 C
@@ -392,22 +379,23 @@ C-----------------------------------------------------------------------
 C
       !! focktwo.f
       SUBROUTINE OLagFro4(iSym0,iSymI,iSymJ,iSymK,iSymL0,
-     *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK)
+     *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
 
       USE CHOVEC_IO
       use Cholesky, only: InfVec, nDimRS
       use EQSOLV
       use ChoCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 
-      Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK(*)
+      Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),WRK1(*)
+      real(kind=wp),allocatable :: CHSPC(:),WRK2(:)
       Integer ISTLT(8),ISTSQ(8),iSkip(8),ipWRK(8)
 
       integer nnbstr(8,3)
@@ -428,6 +416,7 @@ C
       End Do
       Do jSym = 1, nSym
         iSkip(jSym) = 1
+        ipWRK(jSym) = 1
       End Do
 
       nBasI  = nBas(iSymI)
@@ -447,8 +436,8 @@ C
       IF (iSymK.EQ.iSymL0) nBasKL = (nBasK*(nBasK+1))/2
       If (nBasKL.eq.0) Return
 
-      CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('WRK  ','ALLO','REAL',ipWRK(iSym),nBasT*nBasT)
+      call mma_allocate(CHSPC,NCHSPC,Label='CHSPC')
+      call mma_allocate(WRK2,NBSQT,Label='WRK2')
 
       IBATCH_TOT=NBTCHES(iSym)
 
@@ -491,7 +480,7 @@ C         write(6,*) "ibatch,nbatch = ", ibatch,nbatch
 
           JREDC=JRED
 * Read a batch of reduced vectors
-          CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,JV1,JV2,iSym,
+          CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,
      &                            NUMV,JREDC,MUSED)
 C
           IF(NUMV.ne.JNUM) THEN
@@ -510,7 +499,7 @@ C
             write(6,*)' Let the program continue and see what happens.'
           END IF
 C
-          ipVecL = ip_CHSPC
+          ipVecL = 1
           Do iVec = 1, NUMV
             !! (strange) reduced form -> squared AO vector (mu nu|iVec)
             jVref = 1 !! only for iSwap=1
@@ -525,26 +514,23 @@ C           lscr  = nBasI*(nBasI+1)/2
             End If
             JVEC1 = 1
             iSwap = 2
-C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
-C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
-C    *                      Work,iSkip)
-            Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
-            Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
-     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,Work,
+            WRK2(:) = 0.0d+00
+            Call Cho_ReOrdr(irc,CHSPC(ipVecL),lscr,jVref,
+     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,WRK2,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C
 C           ----- Fock-like transformations -----
 C
-            Call FDGTRF_RI(Work(ipWRK(iSym)),DPT2AO ,FPT2AO )
-            Call FDGTRF_RI(Work(ipWRK(iSym)),DPT2CAO,FPT2CAO)
+            Call FDGTRF_RI(WRK2,DPT2AO ,FPT2AO )
+            Call FDGTRF_RI(WRK2,DPT2CAO,FPT2CAO)
           End Do
           JV1=JV1+JNUM
         End Do
       End Do
 C
-      CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('WRK  ','FREE','REAL',ipWRK(iSym),nBasT*nBasT)
+      call mma_deallocate(CHSPC)
+      call mma_deallocate(WRK2)
 C
       !! Have to symmetrize Fock-transformed matrices
       Do i = 1, nBasI
@@ -575,9 +561,9 @@ C
       !! Exchange
       Call DGEMM_('T','N',nBasI,nBasI,nBasI,
      *            1.0D+00,ChoVec,nBasI,DD,nBasI,
-     *            0.0D+00,WRK,nBasI)
+     *            0.0D+00,WRK1,nBasI)
       Call DGEMM_('T','T',nBasI,nBasI,nBasI,
-     *           -0.5D+00,ChoVec,nBasI,WRK,nBasI,
+     *           -0.5D+00,ChoVec,nBasI,WRK1,nBasI,
      *            1.0D+00,FF,nBasI)
 C
       End Subroutine FDGTRF_RI
