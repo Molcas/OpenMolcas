@@ -119,6 +119,7 @@ C usually print info on the total number of parameters
       REAL*8 WGRONK(2)
 
       REAL*8, allocatable:: S(:), SD(:), SCA(:)
+      REAL*8, allocatable:: VEC(:), EIG(:), SCRATCH(:)
 
 C On entry, the file LUSBT contains overlap matrices SMAT at disk
 C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
@@ -216,54 +217,53 @@ C End of addition.
       END IF
 
 C DIAGONALIZE THE SCALED S MATRIX:
-      CALL GETMEM('LVEC','ALLO','REAL',LVEC,NAS**2)
-      CALL GETMEM('LEIG','ALLO','REAL',LEIG,NAS)
+      CALL mma_allocate(VEC,NAS**2,Label='VEC')
+      CALL mma_allocate(EIG,NAS,Label='EIG')
 
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
       IJ=0
       DO J=1,NAS
         DO I=1,J
           IJ=IJ+1
-          WORK(LVEC-1+NAS*(J-1)+I)=S(IJ)
+          VEC(NAS*(J-1)+I)=S(IJ)
         END DO
       END DO
       INFO=0
-      call dsyev_('V','L',NAS,WORK(LVEC),NAS,WORK(LEIG),WGRONK,-1,INFO)
+      call dsyev_('V','L',NAS,VEC,NAS,EIG,WGRONK,-1,INFO)
       NSCRATCH=INT(WGRONK(1))
-      CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-      call dsyev_('V','U',NAS,WORK(LVEC),NAS,WORK(LEIG),WORK(LSCRATCH),
-     &            NSCRATCH,INFO)
-      CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
+      CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
+      call dsyev_('V','U',NAS,VEC,NAS,EIG,SCRATCH,NSCRATCH,INFO)
+      CALL mma_deallocate(SCRATCH)
       CALL mma_deallocate(S)
 
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
       ! fingerprint eigenvalues
       if (iprglb >= insane) then
-        fp = dnrm2_(nas,work(leig),1)
+        fp = dnrm2_(nas,eig,1)
         write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
       end if
 
 C Form orthonormal vectors by scaling eigenvectors
       NIN=0
       DO I=1,NAS
-        EVAL=WORK(LEIG-1+I)
+        EVAL=EIG(I)
         IF(EVAL.LT.THRSHS) CYCLE
         FACT=1.0D00/SQRT(EVAL)
         NIN=NIN+1
-        LVSTA=LVEC+NAS*(I-1)
+        LVSTA=1+NAS*(I-1)
         IF(NIN.EQ.I) THEN
-          CALL DSCAL_(NAS,FACT,WORK(LVSTA),1)
+          CALL DSCAL_(NAS,FACT,VEC(LVSTA:),1)
         ELSE
-          LVNEW=LVEC+NAS*(NIN-1)
-          CALL DYAX(NAS,FACT,WORK(LVSTA),1,WORK(LVNEW),1)
+          LVNEW=1+NAS*(NIN-1)
+          CALL DYAX(NAS,FACT,VEC(LVSTA:),1,VEC(LVNEW:),1)
         END IF
       END DO
       NINDEP(ISYM,ICASE)=NIN
-      CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
+      CALL mma_deallocate(EIG)
 C Addition, for the scaled symmetric ON.
       DO I=1,NAS
-        CALL DSCAL_(NIN,SCA(I),WORK(LVEC-1+I),NAS)
+        CALL DSCAL_(NIN,SCA(I),VEC(I:),NAS)
       END DO
 
       CALL mma_deallocate(SCA)
@@ -272,7 +272,7 @@ C The condition number, after scaling, disregarding linear dep.
         SZMIN=1.0D99
         SZMAX=0.0D0
         DO I=1,NIN
-          SZ=DNRM2_(NAS,WORK(LVEC+NAS*(I-1)),1)
+          SZ=DNRM2_(NAS,VEC(1+NAS*(I-1):),1)
           SZMIN=MIN(SZMIN,SZ)
           SZMAX=MAX(SZMAX,SZ)
         END DO
@@ -280,7 +280,7 @@ C The condition number, after scaling, disregarding linear dep.
       END IF
 C End of addition.
       IF(NIN.EQ.0) THEN
-        CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
+        CALL mma_deallocate(VEC)
         RETURN
       END IF
 
@@ -288,8 +288,8 @@ C End of addition.
 C In some calculations, we do not use B matrices.
 C Just write the transformation matrix and branch out:
         IDT=IDTMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WORK(LVEC),NAS*NIN,IDT)
-        CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
+        CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
+        CALL mma_deallocate(VEC)
         IF (IPRGLB.GE.INSANE) THEN
           WRITE(6,'("DEBUG> ",A)') 'SBDIAG: skip B matrix'
         END IF
@@ -315,8 +315,8 @@ C extracted before the transformation matrix is written.
         CALL GETMEM('LB','FREE','REAL',LB,NB)
 C Now, the transformation matrix can be written out.
         IDT=IDTMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WORK(LVEC),NAS*NIN,IDT)
-        CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
+        CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
+        CALL mma_deallocate(VEC)
         DO I=1,NAS
           SDiag=SD(I)+1.0d-15
           WORK(LBD-1+I)=WORK(LBD-1+I)/SDiag
@@ -338,20 +338,20 @@ C NOTE: SECTIONING MUST BE  PRECISELY THE SAME AS WHEN LATER
 C READ BACK (SEE BELOW).
       NAUX=MIN(19,NIN)
       IDTMP=IDTMP0
-      CALL DDAFILE(LUSOLV,1,WORK(LVEC),NAS*NAUX,IDTMP)
+      CALL DDAFILE(LUSOLV,1,VEC,NAS*NAUX,IDTMP)
       DO KSTA=NAUX+1,NIN,NAUX
         KEND=MIN(KSTA-1+NAUX,NIN)
         NCOL=1+KEND-KSTA
-        LVSTA=LVEC+NAS*(KSTA-1)
-        CALL DDAFILE(LUSOLV,1,WORK(LVSTA),NAS*NCOL,IDTMP)
+        LVSTA=1+NAS*(KSTA-1)
+        CALL DDAFILE(LUSOLV,1,VEC(LVSTA),NAS*NCOL,IDTMP)
       END DO
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NAS**2,WORK(LVEC),1)
+        FP=DNRM2_(NAS**2,VEC,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)')
      &   'EIGENVECTOR NORM BEFORE B TRANS: ', FP
       END IF
 
-C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY WORK(LVEC)
+C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
       IDB=IDBMAT(ISYM,ICASE)
       NB=NS
       CALL GETMEM('LB','ALLO','REAL',LB,NB)
@@ -369,40 +369,40 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY WORK(LVEC)
       CALL GETMEM('LBX','ALLO','REAL',LBX,NAS)
       CALL GETMEM('LXBX','ALLO','REAL',LXBX,NAS)
       DO J=NIN,1,-1
-        LVSTA=LVEC+NAS*(J-1)
+        LVSTA=1+NAS*(J-1)
         CALL DCOPY_(NAS,[0.0D0],0,WORK(LBX),1)
 #ifdef _CRAY_C90_
-        CALL SSPMV('U',NAS,1.0D+00,WORK(LB),WORK(LVSTA),1,
+        CALL SSPMV('U',NAS,1.0D+00,WORK(LB),VEC(LVSTA),1,
      &                           1.0D+00,WORK(LBX),1)
 #else
 *        CALL DSLMX(NAS,1.0D+00,WORK(LB),WORK(LVSTA),1,
 *     &                                   WORK(LBX),1)
-        CALL DSPMV_('U',NAS,1.0D+00,WORK(LB),WORK(LVSTA),1,
+        CALL DSPMV_('U',NAS,1.0D+00,WORK(LB),VEC(LVSTA),1,
      &                           1.0D+00,WORK(LBX),1)
 #endif
 C WORK(LBX): B * Vector number J.
         CALL DCOPY_(J,[0.0D0],0,WORK(LXBX),1)
         CALL DGEMM_('T','N',
      &              J,1,NAS,
-     &              1.0d0,WORK(LVEC),NAS,
+     &              1.0d0,VEC,NAS,
      &              WORK(LBX),NAS,
      &              0.0d0,WORK(LXBX),J)
 C WORK(LXBX) CONTAINS NOW THE UPPERTRIANGULAR
 C ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
-        CALL DCOPY_(J,WORK(LXBX),1,WORK(LVSTA),1)
+        CALL DCOPY_(J,WORK(LXBX),1,VEC(LVSTA),1)
       END DO
       CALL GETMEM('LBX','FREE','REAL',LBX,NAS)
       CALL GETMEM('LXBX','FREE','REAL',LXBX,NAS)
       CALL GETMEM('LB','FREE','REAL',LB,NB)
-C WORK(LVEC) HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
+C VEC HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
 C COPY TO TRIANGULAR STORAGE.
       NBNEW=(NIN*(NIN+1))/2
       CALL GETMEM('LB','ALLO','REAL',LB,NBNEW)
       DO J=1,NIN
         JOFF=(J*(J-1))/2
-        CALL DCOPY_(J,WORK(LVEC+NAS*(J-1)),1,WORK(LB+JOFF),1)
+        CALL DCOPY_(J,VEC(1+NAS*(J-1):),1,WORK(LB+JOFF),1)
       END DO
-      CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
+      CALL mma_deallocate(VEC)
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NBNEW,WORK(LB),1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
