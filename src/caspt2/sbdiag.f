@@ -529,6 +529,7 @@ C divided over processors.
 #endif
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -542,6 +543,7 @@ C-SVC20100902: global arrays header files
 #endif
       LOGICAL bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
+      Real*8, allocatable:: COL(:), TMP(:), SD(:)
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -590,24 +592,24 @@ C full parallelization of use of S matrices is achieved.
       IF (KING()) THEN
         NCOL=NAS
         NTMP=(NAS*(NAS+1))/2
-        CALL GETMEM('COL','ALLO','REAL',LCOL,NCOL)
-        CALL GETMEM('TMP','ALLO','REAL',LTMP,NTMP)
+        CALL mma_allocate(COL,NCOL,Label='COL')
+        CALL mma_allocate(TMP,NTMP,Label='TMP')
         iOFF=0
         DO J=1,NAS
-          call GA_Get (lg_S, 1, J, J, J, WORK(LCOL), NAS)
-          CALL DCOPY_(J,WORK(LCOL),1,WORK(LTMP+iOFF),1)
+          call GA_Get (lg_S, 1, J, J, J, COL, NAS)
+          CALL DCOPY_(J,COL,1,TMP(1+iOFF),1)
           iOFF=iOFF+J
         END DO
-        CALL GETMEM('COL','FREE','REAL',LCOL,NCOL)
+        CALL mma_deallocate(COL)
         IDS=IDSMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WORK(LTMP),NTMP,IDS)
-        CALL GETMEM('TMP','FREE','REAL',LTMP,NTMP)
+        CALL DDAFILE(LUSBT,1,TMP,NTMP,IDS)
+        CALL mma_deallocate(TMP)
       END IF
 
 C Save the diagonal elements from the S matrix for easy access later on.
 C FIXME: nicer way to do this?
-      CALL GETMEM('SD','ALLO','REAL',LSD,NAS)
-      CALL DCOPY_(NAS,[0.0D0],0,WORK(LSD),1)
+      CALL mma_allocate(SD,NAS,Label='SD')
+      SD(:)=0.0D0
       myRank = GA_NodeID()
       call GA_Distribution (lg_S, myRank, iLo, iHi, jLo, jHi)
       ISTA=MAX(ILO,JLO)
@@ -615,18 +617,18 @@ C FIXME: nicer way to do this?
       IF (ISTA.NE.0) THEN
         call GA_Access (lg_S, iLo, iHi, jLo, jHi, mS, LDS)
         DO I=ISTA,IEND
-          WORK(LSD+I-1)=DBL_MB(mS+I-ILO+LDS*(I-JLO))
+          SD(I)=DBL_MB(mS+I-ILO+LDS*(I-JLO))
         END DO
         call GA_Release (lg_S, iLo, iHi, jLo, jHi)
       END IF
-      CALL GADSUM (WORK(LSD),NAS)
+      CALL GADSUM (SD,NAS)
 
 C Calculate the scaling factors and store them in array LSCA.
       CALL GETMEM('SCA','ALLO','REAL',LSCA,NAS)
       DO I=1,NAS
-        SD=WORK(LSD+I-1)
-        IF(SD.GT.THRSHN) THEN
-          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
+        SDiag=SD(I)
+        IF(SDiag.GT.THRSHN) THEN
+          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
         ELSE
           WORK(LSCA-1+I)=0.0D0
         END IF
@@ -698,7 +700,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
       IF (NIN.EQ.0) THEN
         CALL GETMEM('SCA','FREE','REAL',LSCA,NAS)
         CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
-        CALL GETMEM('SD','FREE','REAL',LSD,NAS)
+        CALL mma_deallocate(SD)
         bSTAT = GA_Destroy (lg_V)
         RETURN
       END IF
@@ -790,8 +792,8 @@ C eigenvalues would go in ordinary CASPT2.
         CALL GADSUM (WORK(LBD),NAS)
         bStat = GA_Destroy (lg_B)
         DO I=1,NAS
-          SD=WORK(LSD-1+I)+1.0d-15
-          WORK(LBD-1+I)=WORK(LBD-1+I)/SD
+          SDiag=SD(I)+1.0d-15
+          WORK(LBD-1+I)=WORK(LBD-1+I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,IDB)
@@ -813,7 +815,7 @@ C stored as disk resident arrays only.
         bStat = GA_Destroy (lg_T)
         RETURN
       END IF
-      CALL GETMEM('SD','FREE','REAL',LSD,NAS)
+      CALL mma_deallocate(SD)
 
 C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
       CALL PSBMAT_WRITE ('T',iCase,iSym,lg_T,NAS*NIN)

@@ -37,14 +37,12 @@ C tridiagonal local array at Work(lg_M)
         CALL GA_CREATE_STRIPED ('H',nSize,nSize,cNAME,LG_M)
         CALL GA_ZERO (LG_M)
       ELSE
+#endif
         nTri=(nSize*(nSize+1))/2
         CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
         CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      nTri=(nSize*(nSize+1))/2
-      CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
-      CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
 #endif
 
       END
@@ -75,12 +73,11 @@ C tridiagonal local array at Work(lg_M)
       IF (Is_Real_Par()) THEN
         bStat = GA_Destroy(lg_M)
       ELSE
+#endif
         nTri=(nSize*(nSize+1))/2
         CALL GETMEM(cNAME,'FREE','REAL',lg_M,nTri)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      nTri=(nSize*(nSize+1))/2
-      CALL GETMEM(cNAME,'FREE','REAL',lg_M,nTri)
 #endif
       END
 
@@ -146,12 +143,11 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
         END IF
         CALL GA_Sync()
       ELSE
+#endif
 *       nTri=(nSize*(nSize+1))/2
         CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-*     nTri=(nSize*(nSize+1))/2
-      CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
 #endif
 
       END
@@ -219,14 +215,12 @@ C LUSBT into WORK(lg_M)
         END IF
         CALL GA_Sync()
       ELSE
+#endif
 *       nTri=(nSize*(nSize+1))/2
         CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-*     nTri=(nSize*(nSize+1))/2
-      CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
 #endif
-
 
       END
 
@@ -246,11 +240,10 @@ C LUSBT into WORK(lg_M)
       IF (Is_Real_Par()) THEN
         PSBMAT_FPRINT=SQRT(GA_DDOT(lg_M,lg_M))
       ELSE
+#endif
         nTri=(NM*(NM+1))/2
         PSBMAT_FPRINT=DNRM2_(nTri,WORK(lg_M),1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      nTri=(NM*(NM+1))/2
-      PSBMAT_FPRINT=DNRM2_(nTri,WORK(lg_M),1)
 #endif
       END
