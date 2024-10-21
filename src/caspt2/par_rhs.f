@@ -587,27 +587,29 @@ CSVC: this routine scatters + adds values of a buffer array into the RHS
 C     array at positions given by the buffer index array.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-      DIMENSION Buff(nBuff),idxW(nBuff)
+      Real*8 Buff(nBuff)
+      Integer idxW(nBuff)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      Integer, allocatable:: TMPW1(:), TMPW2(:)
 #endif
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
 CSVC: global array RHS matrix expects 2 index buffers
-        CALL GETMEM('TMPW1','ALLO','INTE',LTMPW1,nBuff)
-        CALL GETMEM('TMPW2','ALLO','INTE',LTMPW2,nBuff)
+        CALL mma_allocate(TMPW1,nBuff,Label='TMPW1')
+        CALL mma_allocate(TMPW2,nBuff,Label='TMPW2')
         DO I=1,nBuff
-          IWORK(LTMPW2+I-1)=(idxW(I)-1)/LDW+1
-          IWORK(LTMPW1+I-1)=idxW(I)-LDW*(IWORK(LTMPW2+I-1)-1)
+          TMPW2(I)=(idxW(I)-1)/LDW+1
+          TMPW1(I)=idxW(I)-LDW*(TMPW2(I)-1)
         END DO
 #ifdef _GA_
-        CALL GA_Scatter_Acc (lg_W,Buff,
-     &     IWORK(LTMPW1),IWORK(LTMPW2),nBuff,1.0D0)
+        CALL GA_Scatter_Acc (lg_W,Buff,TMPW1,TMPW2,nBuff,1.0D0)
 #else
         WRITE(6,'(1X,A)') 'RHS_SCATTER: Fatal Error: no GA support!'
         WRITE(6,'(1X,A)') 'Either build Molcas with Global Arrays or'
@@ -615,8 +617,8 @@ CSVC: global array RHS matrix expects 2 index buffers
         WRITE(6,'(1X,A)') 'Aborting...'
         CALL AbEnd()
 #endif
-        CALL GETMEM('TMPW1','FREE','INTE',LTMPW1,nBuff)
-        CALL GETMEM('TMPW2','FREE','INTE',LTMPW2,nBuff)
+        CALL mma_deallocate(TMPW1)
+        CALL mma_deallocate(TMPW2)
       ELSE
 #endif
         DO I=1,nBuff
@@ -631,7 +633,7 @@ C Avoid unused argument warnings
       IF (.FALSE.) Call Unused_integer(LDW)
 #endif
 
-      END
+      END SUBROUTINE RHS_SCATTER
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE DRA2SOLV (NAS,NIS,iCASE,iSYM,iVEC)
@@ -640,7 +642,7 @@ C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
       use caspt2_data, only: IDSCT
       use caspt2_data, only: LUSOLV
@@ -653,6 +655,7 @@ C     place and transition is no longer needed.
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
+      Integer, allocatable:: TMPW(:)
 #endif
 
 CSVC: Read the global array from disk
@@ -679,17 +682,17 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
             CALL AbEnd()
           END IF
           NW=NAS*NCOL
-          CALL GETMEM('TMPW','ALLO','REAL',LTMPW,NW)
+          CALL mma_allocate(TMPW,NW,LABEL='TMPW')
 CSVC: Write local array to LUSOLV
           IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
           DO ISTA=1,NIS,NCOL
             IEND=MIN(ISTA+NCOL-1,NIS)
-            CALL GA_Get (lg_W,1,NAS,ISTA,IEND,WORK(LTMPW),NAS)
-            CALL DDAFILE(LUSOLV,1,WORK(LTMPW),NAS*(IEND-ISTA+1),IDISK)
+            CALL GA_Get (lg_W,1,NAS,ISTA,IEND,TMPW,NAS)
+            CALL DDAFILE(LUSOLV,1,TMPW,NAS*(IEND-ISTA+1),IDISK)
           END DO
-          CALL GETMEM('TMPW','FREE','REAL',LTMPW,NW)
+          CALL mma_deallocate(TMPW)
         END IF
-        CALL GASync
+        CALL GASync()
 CSVC: Destroy the global array
 *       bStat=GA_Destroy(lg_W)
       ELSE
@@ -702,7 +705,7 @@ CSVC: Destroy the global array
 
       CALL RHS_FREE (NAS,NIS,lg_W)
 
-      END
+      END SUBROUTINE DRA2SOLV
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE SOLV2DRA (NAS,NIS,iCASE,iSYM,iVEC)
@@ -711,7 +714,7 @@ C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
       use caspt2_data, only: LUSOLV, IDSCT
       use EQSOLV
@@ -723,6 +726,7 @@ C     place and transition is no longer needed.
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
+      Integer, allocatable:: TMPW(:)
 #endif
 
       CALL RHS_ALLO (NAS,NIS,lg_W)
@@ -744,17 +748,17 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
             CALL AbEnd()
           END IF
           NW=NAS*NCOL
-          CALL GETMEM('TMPW','ALLO','REAL',LTMPW,NW)
+          CALL mma_allocate(TMPW,NW,Label='TMPW')
 CSVC: Read local array from LUSOLV
           IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
           DO ISTA=1,NIS,NCOL
             IEND=MIN(ISTA+NCOL-1,NIS)
-            CALL DDAFILE(LUSOLV,2,WORK(LTMPW),NAS*(IEND-ISTA+1),IDISK)
-            CALL GA_Put (lg_W,1,NAS,ISTA,IEND,WORK(LTMPW),NAS)
+            CALL DDAFILE(LUSOLV,2,TMPW,NAS*(IEND-ISTA+1),IDISK)
+            CALL GA_Put (lg_W,1,NAS,ISTA,IEND,TMPW,NAS)
           END DO
-          CALL GETMEM('TMPW','FREE','REAL',LTMPW,NW)
+          CALL mma_deallocate(TMPW)
         END IF
-        CALL GASync
+        CALL GASync()
 CSVC: Destroy the global array
 *       bStat=GA_Destroy(lg_W)
       ELSE
@@ -769,7 +773,7 @@ CSVC: Destroy the global array
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
       CALL RHS_FREE (NAS,NIS,lg_W)
 
-      END
+      END SUBROUTINE SOLV2DRA
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SCAL (NAS,NIS,lg_W,FACT)
