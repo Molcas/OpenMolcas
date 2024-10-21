@@ -869,10 +869,10 @@ C global array and then save that to disk in a distributed fashion.
         CALL RHS_ALLO(NAS,NIS,lg_W)
         CALL RHS_PUT(NAS,NIS,lg_W,WORK(LW))
       ELSE
+#endif
         lg_W=LW
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      lg_W=LW
 #endif
 
       CALL RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)

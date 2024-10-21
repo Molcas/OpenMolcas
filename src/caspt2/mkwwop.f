@@ -40,21 +40,24 @@ C as operating on the CASSCF space.
       CALL MKWWOPG(IVEC,JVEC,OP1)
       CALL MKWWOPH(IVEC,JVEC,OP0)
 
-      RETURN
-      END
+      END SUBROUTINE MKWWOP
+
       SUBROUTINE MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
       USE SUPERINDEX
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      INTEGER IVEC, JVEC, NOP2, NOP3
+      REAL*8 OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+
+      REAL*8, Allocatable:: W1(:), W2(:), WPROD(:)
 
 C Given the coefficients for two excitation operators of the
 C type VJTU = Case A, available in vectors numbered IVEC and
@@ -82,51 +85,51 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for this block of excitation amplitudes:
 * Sectioning sizes instead. Replaced code:
-*        CALL GETMEM('WWW1','ALLO','REAL',LW1,NW)
-*        CALL GETMEM('WWW2','ALLO','REAL',LW2,NW)
+*        CALL mma_allocate(W1,NW,Label='W1')
+*        CALL mma_allocate(W2,NW,Label='W2')
 * replace with:
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,LABEL='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
 C Pick up a symmetry block of W1 and W2
-*        CALL RDBLKC(ISYM,ICASE,IVEC,WORK(LW1))
-*        CALL RDBLKC(ISYM,ICASE,JVEC,WORK(LW2))
+*        CALL RDBLKC(ISYM,ICASE,IVEC,W1)
+*        CALL RDBLKC(ISYM,ICASE,JVEC,W2)
 C Allocate space for the contraction:
         NWSCT=MIN(NAS,1000)
         NWPROD=NWSCT**2
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 * End of addition
 C Loop over sections of WW1 and WW2:
         DO ITUVSTA=1,NAS,NWSCT
-          LW1A=LW1-1+ITUVSTA
+          LW1A=ITUVSTA
           ITUVEND=MIN(ITUVSTA-1+NWSCT,NAS)
           MWS1=ITUVEND+1-ITUVSTA
           DO IXYZSTA=1,NAS,NWSCT
-            LW2A=LW2-1+IXYZSTA
+            LW2A=IXYZSTA
             IXYZEND=MIN(IXYZSTA-1+NWSCT,NAS)
             MWS2=IXYZEND+1-IXYZSTA
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
 *            CALL DGEMM_('N','T',
 *     &                  MWS1,MWS2,NIS,
-*     &                  1.0d0,WORK(LW1A),NAS,
-*     &                  WORK(LW2A),NAS,
-*     &                  0.0d0,WORK(LWPROD),NWSCT)
+*     &                  1.0d0,W1(LW1A),NAS,
+*     &                  W2(LW2A),NAS,
+*     &                  0.0d0,WPROD,NWSCT)
 * Replaced, due to sectioning over inactives:
-            CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+            WPROD(:)=0.0D0
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
-     &                  1.0d0,WORK(LW1A),NAS,
-     &                  WORK(LW2A),NAS,
-     &                  1.0d0,WORK(LWPROD),NWSCT)
+     &                  1.0d0,W1(LW1A),NAS,
+     &                  W2(LW2A),NAS,
+     &                  1.0d0,WPROD,NWSCT)
 * End of replacement
 
 C Loop over (TUV) in its section
@@ -147,7 +150,7 @@ C Loop over (XYZ) in its section
             IXT=IXABS+NASHT*(ITABS-1)
             IYZ=IYABS+NASHT*(IZABS-1)
             IWPROD=IW1+NWSCT*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember:
 C  W1(tuv,i)(conj)*W2(xyz,j) = dij * (  -Evuxtyz -dyu Evzxt
 C                     - dyt Evuxz - dxu Evtyz - dxu dyt Evz
@@ -183,7 +186,7 @@ C Contrib to 3-particle operator:
               END IF
             END IF
             JVUXTYZ=((JVU+1)*JVU*(JVU-1))/6+(JXT*(JXT-1))/2+JYZ
-            OP3(JVUXTYZ)=OP3(JVUXTYZ)-WPROD
+            OP3(JVUXTYZ)=OP3(JVUXTYZ)-W_PROD
 C Contrib to 2-particle operator, from -dyu Evzxt:
             IF(IYABS.EQ.IUABS) THEN
               IVZ=IVABS+NASHT*(IZABS-1)
@@ -193,7 +196,7 @@ C Contrib to 2-particle operator, from -dyu Evzxt:
               ELSE
                 JVZXT=(IXT*(IXT-1))/2+IVZ
               END IF
-              OP2(JVZXT)=OP2(JVZXT)-WPROD
+              OP2(JVZXT)=OP2(JVZXT)-W_PROD
             END IF
 C Contrib to 2-particle operator, from -dyt Evuxz:
             IF(IYABS.EQ.ITABS) THEN
@@ -204,10 +207,10 @@ C Contrib to 2-particle operator, from -dyt Evuxz:
               ELSE
                 JVUXZ=(IXZ*(IXZ-1))/2+IVU
               END IF
-              OP2(JVUXZ)=OP2(JVUXZ)-WPROD
+              OP2(JVUXZ)=OP2(JVUXZ)-W_PROD
 C Contrib to 1-particle operator, from -dxu dyt Evz:
               IF(IXABS.EQ.IUABS) THEN
-                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)-WPROD
+                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)-W_PROD
               END IF
             END IF
 C Contrib to 2-particle operator, from -dxu Evtyz:
@@ -219,7 +222,7 @@ C Contrib to 2-particle operator, from -dxu Evtyz:
               ELSE
                 JVTYZ=(IYZ*(IYZ-1))/2+IVT
               END IF
-              OP2(JVTYZ)=OP2(JVTYZ)-WPROD
+              OP2(JVTYZ)=OP2(JVTYZ)-W_PROD
             END IF
 C Contrib to 2-particle operator, from +2 dtx Evuyz:
             IF(ITABS.EQ.IXABS) THEN
@@ -230,10 +233,10 @@ C Contrib to 2-particle operator, from +2 dtx Evuyz:
               ELSE
                 JVUYZ=(IYZ*(IYZ-1))/2+IVU
               END IF
-              OP2(JVUYZ)=OP2(JVUYZ)+2.0D0*WPROD
+              OP2(JVUYZ)=OP2(JVUYZ)+2.0D0*W_PROD
 C Contrib to 1-particle operator, from +2 dtx dyu Evz:
               IF(IYABS.EQ.IUABS) THEN
-                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+2.0D0*WPROD
+                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+2.0D0*W_PROD
               END IF
             END IF
            END DO
@@ -243,15 +246,13 @@ C Contrib to 1-particle operator, from +2 dtx dyu Evz:
 * PAM2008, an added sectioning loop
         END DO
 C Deallocate temporary space:
-*        CALL GETMEM('WWW1','FREE','REAL',LW1,NW)
-*        CALL GETMEM('WWW2','FREE','REAL',LW2,NW)
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPA
+
       SUBROUTINE MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
       USE SUPERINDEX
       use EQSOLV

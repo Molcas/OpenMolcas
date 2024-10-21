@@ -533,7 +533,6 @@ C divided over processors.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 C-SVC20100902: global arrays header files
 #include "global.fh"
@@ -544,7 +543,8 @@ C-SVC20100902: global arrays header files
       LOGICAL bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
       Real*8, allocatable:: COL(:), TMP(:), SD(:), SCA(:), EIG(:),
-     &                      VEC(:), SCRATCH(:), COND(:), TRANS(:)
+     &                      VEC(:), SCRATCH(:), COND(:), TRANS(:),
+    &                       BD(:)
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -776,8 +776,8 @@ C divided by the diagonal values of S. These are placed where the
 C eigenvalues would go in ordinary CASPT2.
         CALL PSBMAT_GETMEM ('B',lg_B,NAS)
         CALL PSBMAT_READ ('B',iCase,iSym,lg_B,NAS)
-        CALL GETMEM('BD','ALLO','REAL',LBD,NAS)
-        CALL DCOPY_(NAS,[0.0D0],0,WORK(LBD),1)
+        CALL mma_allocate(BD,NAS,Label='BD')
+        BD(:)=0.0D0
         myRank = GA_NodeID()
         call GA_Distribution (lg_B, myRank, iLo, iHi, jLo, jHi)
         ISTA=MAX(ILO,JLO)
@@ -785,19 +785,19 @@ C eigenvalues would go in ordinary CASPT2.
         IF (ISTA.NE.0) THEN
           call GA_Access (lg_B, iLo, iHi, jLo, jHi, mB, LDB)
           DO I=ISTA,IEND
-            WORK(LBD+I-1)=DBL_MB(mB+I-ILO+LDB*(I-JLO))
+            BD(I)=DBL_MB(mB+I-ILO+LDB*(I-JLO))
           END DO
           call GA_Release (lg_B, iLo, iHi, jLo, jHi)
         END IF
-        CALL GADSUM (WORK(LBD),NAS)
+        CALL GADSUM (BD,NAS)
         bStat = GA_Destroy (lg_B)
         DO I=1,NAS
           SDiag=SD(I)+1.0d-15
-          WORK(LBD-1+I)=WORK(LBD-1+I)/SDiag
+          BD(I)=BD(I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,IDB)
-        CALL GETMEM('BD','FREE','REAL',LBD,NAS)
+        CALL DDAFILE(LUSBT,1,BD,NAS,IDB)
+        CALL mma_deallocate(BD)
 C Write the transformation matrices after the diagonal values of B.
 C FIXME: This should be removed when the transformation matrices are
 C stored as disk resident arrays only.
@@ -865,7 +865,7 @@ C        call GA_Fill (lg_V, 0.0D0)
 C FIXME: this original code seemed wrong, using uninitialized SD?
 *       IDIAG=1
 *       DO I=1,NIN
-*         EIG(I)=WORK(LB-1+IDIAG)/SD
+*         EIG(I)=B(IDIAG)/SD
 *         IDIAG=IDIAG+1+NIN-I
 *       END DO
         WRITE(6,*) 'GLOB_SBDIAG: option not implemented'
