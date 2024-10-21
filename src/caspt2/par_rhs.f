@@ -608,15 +608,7 @@ CSVC: global array RHS matrix expects 2 index buffers
           TMPW2(I)=(idxW(I)-1)/LDW+1
           TMPW1(I)=idxW(I)-LDW*(TMPW2(I)-1)
         END DO
-#ifdef _GA_
         CALL GA_Scatter_Acc (lg_W,Buff,TMPW1,TMPW2,nBuff,1.0D0)
-#else
-        WRITE(6,'(1X,A)') 'RHS_SCATTER: Fatal Error: no GA support!'
-        WRITE(6,'(1X,A)') 'Either build Molcas with Global Arrays or'
-        WRITE(6,'(1X,A)') 'use the RHSD keyword to enable on-demand.'
-        WRITE(6,'(1X,A)') 'Aborting...'
-        CALL AbEnd()
-#endif
         CALL mma_deallocate(TMPW1)
         CALL mma_deallocate(TMPW2)
       ELSE
@@ -851,7 +843,6 @@ C      then use the dgemm from GA to operate.
             CALL AbEnd()
           END IF
 
-#ifdef _GA_
           IF (IREV.EQ.0) THEN
             CALL GA_DGEMM ('N','N',NAS,NIS,NIN,
      &                     1.0D0,lg_T,lg_V1,0.0D0,lg_V2)
@@ -859,59 +850,6 @@ C      then use the dgemm from GA to operate.
             CALL GA_DGEMM ('T','N',NIN,NIS,NAS,
      &                     1.0D0,lg_T,lg_V2,0.0D0,lg_V1)
           END IF
-#else
-          MYRANK=GA_NODEID()
-          NPROCS=GA_NNODES()
-          ! zero the receiving array to be able to perform the matrix
-          ! multiplication in a block-wise fashion, adding contributions
-          IF (IREV.EQ.0) THEN
-            CALL GA_Zero (lg_V2)
-          ELSE
-            CALL GA_Zero (lg_V1)
-          END IF
-          ! get local stripes of RHS vectors
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NIN .OR. NROW2.NE.NAS) THEN
-              WRITE(6,*) 'RHS_SR2C: inconsistent stripe size'
-              WRITE(6,'(A,I3)') 'ICASE = ', ICASE
-              WRITE(6,'(A,I3)') 'ISYM  = ', ISYM
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NIN   = ', NROW1, NIN
-              WRITE(6,'(A,2I6)') 'NROW2, NAS   = ', NROW2, NAS
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            ! loop over processes and obtain blocks of the T matrix
-            DO IRANK=0,NPROCS-1
-              CALL GA_Distribution (lg_T,IRANK,iLoT,iHiT,jLoT,jHiT)
-              IF (iLoT.NE.0 .AND. jLoT.NE.0) THEN
-                NROWT=iHiT-iLoT+1
-                NCOLT=jHiT-jLoT+1
-                CALL mma_allocate(T,NROWT*NCOLT,Label='T')
-                CALL GA_Get (lg_T,iLoT,iHiT,jLoT,jHiT,T,NROWT)
-                IF (IREV.EQ.0) THEN
-                  CALL DGEMM_('N','N',NROWT,NCOL1,NCOLT,
-     &                    1.0d0,T,NROWT,DBL_MB(mV1+jLoT-1),LDV1,
-     &                    1.0d0,DBL_MB(mV2+iLoT-1),LDV2)
-                ELSE
-                  CALL DGEMM_('T','N',NCOLT,NCOL1,NROWT,
-     &                    1.0d0,T,NROWT,DBL_MB(mV2+iLoT-1),LDV2,
-     &                    1.0d0,DBL_MB(mV1+jLoT-1),LDV1)
-                END IF
-                CALL mma_deallocate(T)
-              END IF
-            END DO
-            CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-#endif
           bStat = GA_Destroy(lg_T)
         ELSE
 C-SVC: if case is not A or C, the S/ST matrices are stored in replicate
@@ -1020,49 +958,8 @@ C-SVC: if case is A or C, the S/ST matrices are loaded as global arrays,
 C      then use the dgemm from GA to operate.
           CALL PSBMAT_GETMEM('S',lg_S,NAS)
           CALL PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
-#ifdef _GA_
           CALL GA_DGEMM ('N','N',NAS,NIS,NAS,
      &                   ALPHA,lg_S,lg_V1,1.0D0,lg_V2)
-#else
-          MYRANK=GA_NODEID()
-          NPROCS=GA_NNODES()
-          ! get local stripes of RHS vectors
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NAS .OR. NROW2.NE.NAS) THEN
-              WRITE(6,*) 'RHS_STRANS: inconsistent stripe size'
-              WRITE(6,'(A,I3)') 'ICASE = ', ICASE
-              WRITE(6,'(A,I3)') 'ISYM  = ', ISYM
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NAS   = ', NROW1, NIN
-              WRITE(6,'(A,2I6)') 'NROW2, NAS   = ', NROW2, NAS
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            ! loop over processes and obtain blocks of the T matrix
-            DO IRANK=0,NPROCS-1
-              CALL GA_Distribution (lg_S,IRANK,iLoS,iHiS,jLoS,jHiS)
-              IF (iLoS.NE.0 .AND. jLoS.NE.0) THEN
-                NROWS=iHiS-iLoS+1
-                NCOLS=jHiS-jLoS+1
-                CALL mma_allocate(S,NROWS*NCOLS,Label='S')
-                CALL GA_Get (lg_S,iLoS,iHiS,jLoS,jHiS,WORK(LS),NROWS)
-                CALL DGEMM_('N','N',NROWS,NCOL1,NCOLS,
-     &                    ALPHA,S,NROWS,DBL_MB(mV1+jLoS-1),LDV1,
-     &                    1.0d0,DBL_MB(mV2+iLoS-1),LDV2)
-                CALL mma_deallocate(S)
-              END IF
-            END DO
-            CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-#endif
           bStat = GA_Destroy(lg_S)
         ELSE
 C-SVC: if case is not A or C, the S/ST matrices are stored in replicate
@@ -1132,44 +1029,7 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
-#ifdef _GA_
         RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
-#else
-        RHS_DDOT=0.0D0
-        MYRANK=GA_NODEID()
-        NPROCS=GA_NNODES()
-        IF (lg_V1.NE.lg_V2) THEN
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NROW2) THEN
-              WRITE(6,*) 'RHS_DDOT: inconsistent stripe size'
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NROW2 = ', NROW1, NROW2
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            RHS_DDOT=DDOT_(NROW1*NCOL1,DBL_MB(mV1),1,DBL_MB(mV2),1)
-            CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-        ELSE
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          IF (jLoV1.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NCOL1=jHiV1-jLoV1+1
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            RHS_DDOT=DDOT_(NROW1*NCOL1,DBL_MB(mV1),1,DBL_MB(mV1),1)
-            CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-          END IF
-        END IF
-        CALL GADSUM_SCAL(RHS_DDOT)
-#endif
       ELSE
 #endif
         RHS_DDOT = DDOT_(NAS*NIS,WORK(lg_V1),1,WORK(lg_V2),1)

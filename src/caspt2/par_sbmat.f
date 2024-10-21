@@ -244,24 +244,7 @@ C LUSBT into WORK(lg_M)
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
-#ifdef _GA_
         PSBMAT_FPRINT=SQRT(GA_DDOT(lg_M,lg_M))
-#else
-        MYRANK=GA_NODEID()
-        NPROCS=GA_NNODES()
-        ! get local stripes of RHS vectors
-        CALL GA_Distribution (lg_M,myRank,iLo,iHi,jLo,jHi)
-        DOTP=0.0D0
-        IF (iLo.NE.0) THEN
-          CALL GA_Access (lg_M,iLo,iHi,jLo,jHi,mM,LDM)
-          NROW=iHi-iLo+1
-          NCOL=jHi-jLo+1
-          DOTP=DDOT_(NROW*NCOL,DBL_MB(mM),1,DBL_MB(mM),1)
-          CALL GA_Release (lg_M,iLo,iHi,jLo,jHi)
-        END IF
-        CALL GADSUM_SCAL(DOTP)
-        PSBMAT_FPRINT=SQRT(DOTP)
-#endif
       ELSE
         nTri=(NM*(NM+1))/2
         PSBMAT_FPRINT=DNRM2_(nTri,WORK(lg_M),1)

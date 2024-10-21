@@ -141,18 +141,10 @@ subroutine procinp_caspt2
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_
-#ifdef _GA_
   ! The RHS on-demand algorithm doesn't handle serial calculations
   ! because it's not adapted for use with regular Work arrays, only
   ! global arrays, and needs to be switched off (using rhsall instead)
   RHSDIRECT = (Is_Real_Par() .AND. Input%RHSD)
-#else
-  ! Without the Global Arrays library, we can't use the RHSALL2
-  ! and ADDRHS algorithms in parallel. Here we force the use of
-  ! RHS on-demand instead, depending on if the calculation is
-  ! really parallel or not.
-  RHSDIRECT = Is_Real_Par()
-#endif
 #else
   RHSDIRECT = .False.
 #endif

@@ -60,9 +60,6 @@ C>                   to active indices
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_gradient, only: do_grad, nbuf1_grad, nStpGrd
       use PrintLevel, only: debug, verbose
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      USE Para_Info, ONLY: nProcs, Is_Real_Par, King
-#endif
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       IMPLICIT NONE
@@ -506,9 +503,6 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
 C-SVC20100301: end of the task
       GOTO 500
