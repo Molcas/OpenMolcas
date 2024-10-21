@@ -26,7 +26,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -97,9 +96,7 @@ C usually print info on the total number of parameters
         WRITE(6,'(a,i12)')'   After  reduction:',IPAR1
       ENDIF
 
-
-      RETURN
-      END
+      END SUBROUTINE SBDIAG
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
       use caspt2_output, only: iPrGlb
@@ -139,7 +136,7 @@ C reserved on LUSBT to allow this overlay.
 C LUSOLV is assumed not to be in use yet, so we use it
 C for temporary storage.
 
-      SD = 0.0D0 ! dummy initialize
+      SDiag = 0.0D0 ! dummy initialize
 
       CPU=0.0D0
       CONDNR=0.0D0
@@ -190,13 +187,13 @@ C Extremely small values give scale factor exactly zero.
       IDIAG=0
       DO I=1,NAS
         IDIAG=IDIAG+I
-        SD=WORK(LS-1+IDIAG)
+        SDiag=WORK(LS-1+IDIAG)
         If (IFDORTHO) then
           WORK(LSCA-1+I)=1.0D+00
         Else
-          IF(SD.GT.THRSHN) THEN
+          IF(SDiag.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
+              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
           ELSE
             WORK(LSCA-1+I)=0.0D0
           END IF
@@ -320,8 +317,8 @@ C Now, the transformation matrix can be written out.
         CALL DDAFILE(LUSBT,1,WORK(LVEC),NAS*NIN,IDT)
         CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
         DO I=1,NAS
-          SD=WORK(LSD-1+I)+1.0d-15
-          WORK(LBD-1+I)=WORK(LBD-1+I)/SD
+          SDiag=WORK(LSD-1+I)+1.0d-15
+          WORK(LBD-1+I)=WORK(LBD-1+I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,IDB)
@@ -417,9 +414,12 @@ C DIAGONALIZE THE TRANSFORMED B MATRIX.
 C - Alt 0: Use diagonal approxim., if allowed:
       IF(BSPECT.NE.'YES')  THEN
         IDIAG=0
+        Write (6,*) 'Sbdiag: THis code does not make sense!'
+        Write (6,*) '        SDiag is not properly defined!'
+        Call Abend()
         DO I=1,NIN
           IDIAG=IDIAG+I
-          WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SD
+          WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SDiag
         END DO
       ELSE
         IJ=0
@@ -512,7 +512,7 @@ C      utilities.
       END IF
       CALL GETMEM('LST','FREE','REAL',LST,NAS*NIN)
 
-      END
+      END SUBROUTINE SBDIAG_SER
 
 C SVC2010: The following subroutine computes the transformation
 C matrices using global arrays rather than replicate arrays.  Currently,
@@ -1033,29 +1033,27 @@ C replicate array.  FIXME: Should be removed later.
       call ga_sync()
       bStat = GA_Destroy (lg_T)
 
-      END
+      END SUBROUTINE SBDIAG_MPP
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION SCA(NAS),S(LDS,*)
+      REAL*8 SCA(NAS),S(LDS,*)
       DO J=jLo,jHi
         DO I=iLo,iHi
         S(I-iLo+1,J-jLo+1)=SCA(I)*SCA(J)*S(I-iLo+1,J-jLo+1)
         END DO
       END DO
-      END
+      END SUBROUTINE S_SCALE
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
+      REAL*8 EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
       jVEC=0
       DO J=1,NAS
         EVAL=EIG(J)
@@ -1088,5 +1086,5 @@ C The condition number, after scaling, disregarding linear dep.
           COND(jVEC)=SZ
         END DO
       END IF
-      END
+      END SUBROUTINE V_SCALE
 #endif
