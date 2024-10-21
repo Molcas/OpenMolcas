@@ -824,6 +824,7 @@ C     (ITYP=1).
 #endif
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -833,6 +834,7 @@ C     (ITYP=1).
 #include "mafdecls.fh"
       LOGICAL bStat
 #endif
+      Real*8, Allocatable:: T(:)
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -892,18 +894,18 @@ C      then use the dgemm from GA to operate.
               IF (iLoT.NE.0 .AND. jLoT.NE.0) THEN
                 NROWT=iHiT-iLoT+1
                 NCOLT=jHiT-jLoT+1
-                CALL GETMEM('LT','ALLO','REAL',LT,NROWT*NCOLT)
-                CALL GA_Get (lg_T,iLoT,iHiT,jLoT,jHiT,WORK(LT),NROWT)
+                CALL mma_allocate(T,NROWT*NCOLT,Label='T')
+                CALL GA_Get (lg_T,iLoT,iHiT,jLoT,jHiT,T,NROWT)
                 IF (IREV.EQ.0) THEN
                   CALL DGEMM_('N','N',NROWT,NCOL1,NCOLT,
-     &                    1.0d0,WORK(LT),NROWT,DBL_MB(mV1+jLoT-1),LDV1,
+     &                    1.0d0,T,NROWT,DBL_MB(mV1+jLoT-1),LDV1,
      &                    1.0d0,DBL_MB(mV2+iLoT-1),LDV2)
                 ELSE
                   CALL DGEMM_('T','N',NCOLT,NCOL1,NROWT,
-     &                    1.0d0,WORK(LT),NROWT,DBL_MB(mV2+iLoT-1),LDV2,
+     &                    1.0d0,T,NROWT,DBL_MB(mV2+iLoT-1),LDV2,
      &                    1.0d0,DBL_MB(mV1+jLoT-1),LDV1)
                 END IF
-                CALL GETMEM('LT','FREE','REAL',LT,NROWT*NCOLT)
+                CALL mma_deallocate(T)
               END IF
             END DO
             CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
@@ -915,7 +917,7 @@ C      then use the dgemm from GA to operate.
 C-SVC: if case is not A or C, the S/ST matrices are stored in replicate
 C      fashion, and the RHS are stored as vertical stripes, so use dgemm
 C      on local memory, after accessing the local patch of the vector.
-          CALL GETMEM('LT','ALLO','REAL',LT,NAS*NIN)
+          CALL mma_allocate(T,NAS*NIN,Label='T')
           IF (ITYP.EQ.0) THEN
             IDT=IDTMAT(ISYM,ICASE)
           ELSE IF (ITYP.EQ.1) THEN
@@ -924,7 +926,7 @@ C      on local memory, after accessing the local patch of the vector.
             WRITE(6,*) 'RHS_SR2C: invalid type = ', ITYP
             CALL AbEnd()
           END IF
-          CALL DDAFILE(LUSBT,2,WORK(LT),NAS*NIN,IDT)
+          CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
 C-SVC: get the local vertical stripes of the V1 and V2 vectors
           CALL GA_Sync()
           myRank = GA_NodeID()
@@ -948,23 +950,23 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
             CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
             IF (IREV.EQ.0) THEN
               CALL DGEMM_('N','N',NAS,NCOL1,NIN,
-     &                    1.0d0,WORK(LT),NAS,DBL_MB(mV1),LDV1,
+     &                    1.0d0,T,NAS,DBL_MB(mV1),LDV1,
      &                    0.0d0,DBL_MB(mV2),LDV2)
             ELSE
               CALL DGEMM_('T','N',NIN,NCOL1,NAS,
-     &                    1.0d0,WORK(LT),NAS,DBL_MB(mV2),LDV2,
+     &                    1.0d0,T,NAS,DBL_MB(mV2),LDV2,
      &                    0.0d0,DBL_MB(mV1),LDV1)
 *             WRITE(6,*) 'Fingerprint =', RHS_DDOT(NAS,NIN,lg_V1,lg_V1)
             END IF
             CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
             CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
           END IF
-          CALL GETMEM('LT','FREE','REAL',LT,NAS*NIN)
+          CALL mma_deallocate(T)
           CALL GA_Sync()
         END IF
       ELSE
 #endif
-        CALL GETMEM('LT','ALLO','REAL',LT,NAS*NIN)
+        CALL mma_allocate(T,NAS*NIN,Label='T')
         IF (ITYP.EQ.0) THEN
           IDT=IDTMAT(ISYM,ICASE)
         ELSE IF (ITYP.EQ.1) THEN
@@ -973,22 +975,22 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
           WRITE(6,*) 'RHS_SR2C: invalid type = ', ITYP
           CALL AbEnd()
         END IF
-        CALL DDAFILE(LUSBT,2,WORK(LT),NAS*NIN,IDT)
+        CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
         IF (IREV.EQ.0) THEN
           CALL DGEMM_('N','N',NAS,NIS,NIN,
-     &                1.0d0,WORK(LT),NAS,WORK(lg_V1),NIN,
+     &                1.0d0,T,NAS,WORK(lg_V1),NIN,
      &                0.0d0,WORK(lg_V2),NAS)
         ELSE
           CALL DGEMM_('T','N',NIN,NIS,NAS,
-     &                1.0d0,WORK(LT),NAS,WORK(lg_V2),NAS,
+     &                1.0d0,T,NAS,WORK(lg_V2),NAS,
      &                0.0d0,WORK(lg_V1),NIN)
         END IF
-        CALL GETMEM('LT','FREE','REAL',LT,NAS*NIN)
+        CALL mma_deallocate(T)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_SR2C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_STRANS (NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
@@ -999,6 +1001,7 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 #endif
       use caspt2_data, only: LUSBT
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1008,6 +1011,7 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 #include "mafdecls.fh"
       LOGICAL bStat
 #endif
+      Real*8, Allocatable:: S(:)
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -1047,12 +1051,12 @@ C      then use the dgemm from GA to operate.
               IF (iLoS.NE.0 .AND. jLoS.NE.0) THEN
                 NROWS=iHiS-iLoS+1
                 NCOLS=jHiS-jLoS+1
-                CALL GETMEM('LS','ALLO','REAL',LS,NROWS*NCOLS)
+                CALL mma_allocate(S,NROWS*NCOLS,Label='S')
                 CALL GA_Get (lg_S,iLoS,iHiS,jLoS,jHiS,WORK(LS),NROWS)
                 CALL DGEMM_('N','N',NROWS,NCOL1,NCOLS,
-     &                    ALPHA,WORK(LS),NROWS,DBL_MB(mV1+jLoS-1),LDV1,
+     &                    ALPHA,S,NROWS,DBL_MB(mV1+jLoS-1),LDV1,
      &                    1.0d0,DBL_MB(mV2+iLoS-1),LDV2)
-                CALL GETMEM('LS','FREE','REAL',LS,NROWS*NCOLS)
+                CALL mma_deallocate(S)
               END IF
             END DO
             CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
@@ -1066,9 +1070,9 @@ C      fashion, and the RHS are stored as vertical stripes, so use
 C      trimul on local memory, after accessing the local patch of the
 C      vector.
           NS=(NAS*(NAS+1))/2
-          CALL GETMEM('LS','ALLO','REAL',LS,NS)
+          CALL mma_allocate(S,NS,Label='S')
           IDS=IDSMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
+          CALL DDAFILE(LUSBT,2,S,NS,IDS)
 C-SVC: get the local vertical stripes of the V1 and V2 vectors
           CALL GA_Sync()
           myRank = GA_NodeID()
@@ -1090,13 +1094,13 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
             END IF
             CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
             CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            CALL TRIMUL(NAS,NCOL1,ALPHA,WORK(LS),
+            CALL TRIMUL(NAS,NCOL1,ALPHA,S,
      &                  DBL_MB(mV1),LDV1,DBL_MB(mV2),LDV2)
             CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
             CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
           END IF
           CALL GA_Sync()
-          CALL GETMEM('LS','FREE','REAL',LS,NS)
+          CALL mma_deallocate(S)
         END IF
       ELSE
 #endif
@@ -1111,7 +1115,7 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_STRANS
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       REAL*8 FUNCTION RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
@@ -1173,8 +1177,7 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
       END IF
 #endif
 
-      RETURN
-      END
+      END FUNCTION RHS_DDOT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_DAXPY (NAS,NIS,ALPHA,lg_V1,lg_V2)
@@ -1212,7 +1215,7 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_DAXPY
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
@@ -1257,7 +1260,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_RESDIA
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SGMDIA(NIN,NIS,lg_W,DIN,DIS)
@@ -1300,7 +1303,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_SGMDIA
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)

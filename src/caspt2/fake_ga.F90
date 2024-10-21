@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module fake_ga
+use stdalloc, only: mma_allocate, mma_deallocate
 
 Real*8 DBL_MB(2)
 
@@ -24,8 +25,36 @@ Type ga_type
 End Type ga_type
 
 Integer, parameter :: max_ga_arrays=10
-Integer :: iga_arrays_=0
+Integer :: iga_arrays=0
 
 Type (ga_type) :: GA_arrays(max_ga_arrays)
 
+Contains
+Integer Function Allocate_GA_Array(nSize,Label) result(lg_A)
+Implicit None
+Integer, Intent(In):: nSize
+Character(LEN=*), Intent(In):: Label
+
+Integer i
+
+lg_A=0
+Do i = 1, max_ga_arrays
+   If (.Not.Allocated(GA_arrays(i)%Array)) Then
+      iga_arrays=iga_arrays+1
+      Call mma_allocate(GA_arrays(i)%Array,nSize,Label=Label)
+      lg_a=i
+      Return
+   End If
+End Do
+Write (6,*) 'To many GA_arrys, increase max_ga_arrays.'
+Call abend()
+End Function Allocate_GA_Array
+
+Integer Function Deallocate_GA_Array(lg_A) result(irc)
+Integer, Intent(InOut):: lg_A
+Call mma_deallocate(GA_Arrays(lg_A)%Array)
+iga_arrays=iga_arrays-1
+lg_A=0
+irc=0
+End Function Deallocate_GA_Array
 End Module fake_ga
