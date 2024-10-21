@@ -145,7 +145,7 @@ C     -----------------------------------------------------------
 * This is not the best solution, but I wanted to avoid having to rewrite
 * the indexing code below just to use the CMO array directly
       call dcopy_(NCMO,CMO,1,CMOX,1)
-      call dcopy_(NCMO,CMOX,1,WORK(ipCMO),1)
+      call dcopy_(NCMO,CMOX,1,CMOX(ipCMO),1)
 
 *----------------------------------------------------------------------*
 *     Compute Mulliken atomic charges of each active orbital           *
@@ -237,12 +237,12 @@ C     -----------------------------------------------------------
       Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
       Call Get_darray('RASSCF OrbE',Work(ipOrbE),nOrb)
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                    Work(ipCMO),Work(ipOrbE),TrX)
+     &                    CMOX(ipCMO),Work(ipOrbE),TrX)
 *
 *---  MP2 calculation on the whole system (incompatible with DoMP2)
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           Work(ipCMO),Work(ipOrbE),E2_ab)
+     &                           CMOX(ipCMO),Work(ipOrbE),E2_ab)
       EndIf
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
@@ -254,7 +254,7 @@ C     -----------------------------------------------------------
       Thrd=1.d-06
       Call GetMem('ID_vir','Allo','Inte',iD_vir,nBasT)
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,
-     &                    nAsh,nSsh,Work(ipCMO),SQ,
+     &                    nAsh,nSsh,CMOX(ipCMO),SQ,
      &                    iWork(iD_vir))
 
       If(irc.ne.0) then
@@ -279,7 +279,7 @@ C     -----------------------------------------------------------
       mOff=0
       Do iSym=1,nSym
          jOff=iOff+nBas(iSym)*nFro(iSym)
-         call dcopy_(nBas(iSym)*nIsh(iSym),Work(ipCMO+jOff),1,
+         call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(ipCMO+jOff),1,
      &                                    Work(ipXMO+kOff),1)
          call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(1+jOff),1,
      &                                    Work(iCMO+kOff),1)
@@ -347,7 +347,7 @@ C     -----------------------------------------------------------
       mOff=0
       Do iSym=1,nSym
          jOff=iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-         call dcopy_(nBas(iSym)*nSsh(iSym),Work(ipCMO+jOff),1,
+         call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(ipCMO+jOff),1,
      &                                    Work(ipXMO+kOff),1)
          call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(1+jOff),1,
      &                                    Work(iCMO+kOff),1)
