@@ -543,7 +543,7 @@ C-SVC20100902: global arrays header files
 #endif
       LOGICAL bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
-      Real*8, allocatable:: COL(:), TMP(:), SD(:)
+      Real*8, allocatable:: COL(:), TMP(:), SD(:), SCA(:), EIG(:)
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -623,14 +623,14 @@ C FIXME: nicer way to do this?
       END IF
       CALL GADSUM (SD,NAS)
 
-C Calculate the scaling factors and store them in array LSCA.
-      CALL GETMEM('SCA','ALLO','REAL',LSCA,NAS)
+C Calculate the scaling factors and store them in array SCA.
+      CALL mma_allocate(SCA,NAS,Label='SCA')
       DO I=1,NAS
         SDiag=SD(I)
         IF(SDiag.GT.THRSHN) THEN
-          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
+          SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
         ELSE
-          WORK(LSCA-1+I)=0.0D0
+          SCA(I)=0.0D0
         END IF
       END DO
 
@@ -639,7 +639,7 @@ C Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
       call GA_Distribution (lg_S, myRank, iLo, iHi, jLo, jHi)
       IF (iLo.NE.0) THEN
         call GA_Access (lg_S, iLo, iHi, jLo, jHi, mS, LDS)
-        call S_SCALE (NAS,WORK(LSCA),DBL_MB(mS),iLo,iHi,jLo,jHi,LDS)
+        call S_SCALE (NAS,SCA,DBL_MB(mS),iLo,iHi,jLo,jHi,LDS)
         call GA_Release_Update (lg_S, iLo, iHi, jLo, jHi)
       END IF
       call GA_Sync()
@@ -650,8 +650,8 @@ C Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ', FP
       END IF
 
-      CALL GETMEM('LEIG','ALLO','REAL',LEIG,NAS)
-      CALL DCOPY_(NAS,[0.0D0],0,WORK(LEIG),1)
+      CALL mma_allocate(EIG,NAS,Label='EIG')
+      EIG(:)=0.0D0
 C Diagonalize the global array S.  Some (old) reports about parallel
 C performance recommend PDSYEVX or PDSYEVR as fastest methods if
 C eigenvectors are needed (FIXME: should time this).  For the linear
@@ -659,7 +659,7 @@ C dependence removal, split eigenvectors in horizontal stripes so that
 C each processor has a row window of all column vectors
 #ifdef _SCALAPACK_
       CALL PSBMAT_GETMEM('VMAT',lg_V,NAS)
-      CALL GA_PDSYEVX_ (lg_S, lg_V, WORK(LEIG), 0)
+      CALL GA_PDSYEVX_ (lg_S, lg_V, EIG, 0)
       bSTAT = GA_Destroy (lg_S)
 #else
 C here for the non-ScaLAPACK version: copy matrix to master process,
@@ -671,11 +671,10 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
       END IF
       bSTAT = GA_Destroy (lg_S)
       IF (myRank.EQ.0) THEN
-        CALL DSYEV_('V','L',NAS,WORK(LVEC),NAS,WORK(LEIG),
-     &              WGRONK,-1,INFO)
+        CALL DSYEV_('V','L',NAS,WORK(LVEC),NAS,EIG,WGRONK,-1,INFO)
         NSCRATCH=INT(WGRONK(1))
         CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-        CALL DSYEV_('V','L',NAS,WORK(LVEC),NAS,WORK(LEIG),
+        CALL DSYEV_('V','L',NAS,WORK(LVEC),NAS,EIG,
      &              WORK(LSCRATCH),NSCRATCH,INFO)
         CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
       END IF
@@ -684,22 +683,22 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
         CALL GA_Put (lg_V, 1, NAS, 1, NAS, WORK(LVEC), NAS)
         CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
       END IF
-      CALL GADSUM(WORK(LEIG),NAS)
+      CALL GADSUM(EIG,NAS)
 #endif
 
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NAS,WORK(LEIG),1)
+        FP=DNRM2_(NAS,EIG,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT EIGENVALUE NORM: ', FP
       END IF
 
       NIN=0
       DO J=1,NAS
-        IF(WORK(LEIG+J-1).GE.THRSHS) NIN=NIN+1
+        IF(EIG(J).GE.THRSHS) NIN=NIN+1
       END DO
       NINDEP(ISYM,ICASE)=NIN
       IF (NIN.EQ.0) THEN
-        CALL GETMEM('SCA','FREE','REAL',LSCA,NAS)
-        CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
+        CALL mma_deallocate(SCA)
+        CALL mma_deallocate(EIG)
         CALL mma_deallocate(SD)
         bSTAT = GA_Destroy (lg_V)
         RETURN
@@ -720,14 +719,14 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
           WRITE(6,*) 'SBDIAG_MPP: error in striping of lg_V, ABORT'
           CALL ABEND()
         END IF
-        call V_SCALE (WORK(LEIG),WORK(LSCA+iLo-1),DBL_MB(mV),
+        call V_SCALE (EIG,SCA(iLo),DBL_MB(mV),
      &              iHi-iLo+1,jHi-jLo+1,LDV,NIN,WORK(LCOND))
         call GA_Release_Update (lg_V, iLo, iHi, jLo, jHi)
       END IF
       call GA_Sync()
 
-      CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
-      CALL GETMEM('LSCA','FREE','REAL',LSCA,NAS)
+      CALL mma_deallocate(EIG)
+      CALL mma_deallocate(SCA)
 
 C The condition number, after scaling, disregarding linear dep.
 C FIXME: adapt to local subroutine for global array lg_V
@@ -856,8 +855,8 @@ C by the available memory, which is now scaling as approx. 3*(NAS**2).
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
 
 C Diagonalize the transformed B matrix.
-      CALL GETMEM('LEIG','ALLO','REAL',LEIG,NIN)
-      CALL DCOPY_(NIN,[0.0D0],0,WORK(LEIG),1)
+      CALL mma_allocate(EIG,NIN,Label='EIG')
+      EIG(:)=0.0D0
       IF(BSPECT.NE.'YES')  THEN
 C Use diagonal approxim., if allowed.
 C        call GA_Fill (lg_V, 0.0D0)
@@ -865,7 +864,7 @@ C        call GA_Fill (lg_V, 0.0D0)
 C FIXME: this original code seemed wrong, using uninitialized SD?
 *       IDIAG=1
 *       DO I=1,NIN
-*         WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SD
+*         EIG(I)=WORK(LB-1+IDIAG)/SD
 *         IDIAG=IDIAG+1+NIN-I
 *       END DO
         WRITE(6,*) 'GLOB_SBDIAG: option not implemented'
@@ -873,7 +872,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
       ELSE
 #ifdef _SCALAPACK_
         CALL GA_CREATE_STRIPED ('H',NIN,NIN,'VMAT',lg_V)
-        CALL GA_PDSYEVX_ (lg_B, lg_V, WORK(LEIG), 0)
+        CALL GA_PDSYEVX_ (lg_B, lg_V, EIG, 0)
         bStat = GA_Destroy (lg_B)
 #else
         IF (myRank.EQ.0) THEN
@@ -882,11 +881,10 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
         END IF
         bSTAT = GA_Destroy (lg_B)
         IF (myRank.EQ.0) THEN
-          call dsyev_('V','L',NIN,WORK(LVEC),NIN,WORK(LEIG),
-     &               WGRONK,-1,INFO)
+          call dsyev_('V','L',NIN,WORK(LVEC),NIN,EIG,WGRONK,-1,INFO)
           NSCRATCH=INT(WGRONK(1))
           CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-          call dsyev_('V','L',NIN,WORK(LVEC),NIN,WORK(LEIG),
+          call dsyev_('V','L',NIN,WORK(LVEC),NIN,EIG,
      &               WORK(LSCRATCH),NSCRATCH,INFO)
           CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
         END IF
@@ -896,20 +894,20 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
           CALL GA_Put (lg_V, 1, NIN, 1, NIN, WORK(LVEC), NIN)
           CALL GETMEM('LVEC','FREE','REAL',LVEC,NIN**2)
         END IF
-        CALL GADSUM(WORK(LEIG),NIN)
+        CALL GADSUM(EIG,NIN)
 #endif
       END IF
 
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NIN,WORK(LEIG),1)
+        FP=DNRM2_(NIN,EIG,1)
         WRITE(6,'(1X,A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
       END IF
 
 C The eigenvalues are written back at same position as the
 C original B matrix, which is destroyed:
       IDB=IDBMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,1,WORK(LEIG),NIN,IDB)
-      CALL GETMEM('LEIG','FREE','REAL',LEIG,NIN)
+      CALL DDAFILE(LUSBT,1,EIG,NIN,IDB)
+      CALL mma_deallocate(EIG)
 
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
