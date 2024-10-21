@@ -51,7 +51,7 @@
       Integer ns_O(8), ns_V(8)
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:)
-      Real*8, allocatable:: SQ(:), SLT(:), CMOX(:)
+      Real*8, allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
 *
 *
       irc=0
@@ -150,10 +150,10 @@ C     -----------------------------------------------------------
 *     Compute Mulliken atomic charges of each active orbital           *
 *             on each center to define the Active Site                 *
 *----------------------------------------------------------------------*
-      Call GetMem('Qai','Allo','Real',ipQ,nUniqAt*(mAsh+1))
-      ipQa=ipQ+nUniqAt*mAsh
-      Call Fzero(Work(ipQa),nUniqAt)
-      Call GetMem('Zm','Allo','Real',ipZ,nBmx*mAsh)
+      Call mma_allocate(Q,nUniqAt*(mAsh+1),Label='Q')
+      ipQa=1+nUniqAt*mAsh
+      Call Fzero(Q(ipQa),nUniqAt)
+      Call mma_allocate(Z,nBmx*mAsh,Label='Z')
       lBas=0
       iOff=0
       Do iSym=1,nSym
@@ -163,7 +163,7 @@ C     -----------------------------------------------------------
          Call DGEMM_('N','N',nBas(iSym),nAsh(iSym),nBas(iSym),
      &                      One,SQ(iSQ),nBx,
      &                          CMOX(ipAsh),nBx,
-     &                      Zero,Work(ipZ),nBx)
+     &                      Zero,Z,nBx)
          jBas=lBas+1
          kBas=lBas+nBas(iSym)
          Call BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,
@@ -172,23 +172,22 @@ C     -----------------------------------------------------------
             nAk=nUniqAt*ik
             nBk=nBas(iSym)*ik
             jCMO=ipAsh+nBk-1
-            jZ=ipZ+nBk-1
+            jZ=nBk
             Do iAt=0,nUniqAt-1
                iBat=nBas_Start(1+iAt)
                jjCMO=jCMO+iBat
                jjZ=jZ+iBat
                nBat=nBas_per_Atom(1+iAt)
-               iQ=ipQ+nAk+iAt
-               Work(iQ)=ddot_(nBat,CMOX(jjCMO),1,Work(jjZ),1)
+               iQ=1+nAk+iAt
+               Q(iQ)=ddot_(nBat,CMOX(jjCMO),1,Z(jjZ),1)
             End Do
          End Do
          Do iAt=0,nUniqAt-1
-            jQ=ipQ+iAt
+            jQ=1+iAt
             iQa=ipQa+iAt
-            Work(iQa) = Work(iQa)
-     &                + ddot_(nAsh(iSym),Work(jQ),nUniqAt,
-     &                                  Work(jQ),nUniqAt)
-            If (sqrt(Work(iQa)).ge.Thrs) Then
+            Q(iQa) = Q(iQa)
+     &             + ddot_(nAsh(iSym),Q(jQ),nUniqAt,Q(jQ),nUniqAt)
+            If (sqrt(Q(iQa)).ge.Thrs) Then
                jBat=nBas_Start(1+iAt)+lBas
                NamAct(iAt+1)=Name(jBat)(1:LENIN)
             EndIf
@@ -196,8 +195,8 @@ C     -----------------------------------------------------------
          lBas=lBas+nBas(iSym)
          iOff=iOff+nBas(iSym)**2
       End Do
-      Call GetMem('Zm','Free','Real',ipZ,nBmx*mAsh)
-      Call GetMem('Qai','Free','Real',ipQ,nUniqAt*(mAsh+1))
+      Call mma_deallocate(Z)
+      Call mma_deallocate(Q)
 
 *     We have now completed the definition of the active site
 *----------------------------------------------------------------------*
