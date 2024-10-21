@@ -120,6 +120,7 @@ C usually print info on the total number of parameters
 
       REAL*8, allocatable:: S(:), SD(:), SCA(:)
       REAL*8, allocatable:: VEC(:), EIG(:), SCRATCH(:)
+      REAL*8, allocatable:: B(:), BD(:)
 
 C On entry, the file LUSBT contains overlap matrices SMAT at disk
 C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
@@ -302,29 +303,29 @@ C the eigenvalues would go in ordinary CASPT2.
 C NOTE: On LUSBT, the transformation matrices partly overwrite
 C and destroy the B matrices. The diagonal elements of B must be
 C extracted before the transformation matrix is written.
-        CALL GETMEM('LBD','ALLO','REAL',LBD,NAS)
+        CALL mma_allocate(BD,NAS,Label='BD')
         NB=(NAS*(NAS+1))/2
-        CALL GETMEM('LB','ALLO','REAL',LB,NB)
+        CALL mma_allocate(B,NB,Label='B')
         IDB=IDBMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,2,WORK(LB),NB,IDB)
+        CALL DDAFILE(LUSBT,2,B,NB,IDB)
         IDIAG=0
         DO I=1,NAS
           IDIAG=IDIAG+I
-          WORK(LBD-1+I)=WORK(LB-1+IDIAG)
+          BD(I)=B(IDIAG)
         END DO
-        CALL GETMEM('LB','FREE','REAL',LB,NB)
+        CALL mma_deallocate(B)
 C Now, the transformation matrix can be written out.
         IDT=IDTMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
         CALL mma_deallocate(VEC)
         DO I=1,NAS
           SDiag=SD(I)+1.0d-15
-          WORK(LBD-1+I)=WORK(LBD-1+I)/SDiag
+          BD(I)=BD(I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,IDB)
+        CALL DDAFILE(LUSBT,1,BD,NAS,IDB)
         CALL mma_deallocate(SD)
-        CALL GETMEM('LBD','FREE','REAL',LBD,NAS)
+        CALL mma_deallocate(BD)
         IF (IPRGLB.GE.INSANE) THEN
           WRITE(6,'("DEBUG> ",A)')'SBDIAG: skip B matrix transformation'
           WRITE(6,'("DEBUG> ",A)')'        but keep B_ii/S_ii values'
@@ -354,15 +355,15 @@ C READ BACK (SEE BELOW).
 C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
       IDB=IDBMAT(ISYM,ICASE)
       NB=NS
-      CALL GETMEM('LB','ALLO','REAL',LB,NB)
-      CALL DDAFILE(LUSBT,2,WORK(LB),NB,IDB)
+      CALL mma_allocate(B,NB,Label='B')
+      CALL DDAFILE(LUSBT,2,B,NB,IDB)
       If ((do_grad.or.nStpGrd.eq.2).and.do_lindep) Then
         !! The original B matrix is needed in the LinDepLag subroutine
         IDB2 = idBoriMat(ISYM,ICASE)
-        CALL DDAFILE(LUSTD,1,WORK(LB),NB,IDB2)
+        CALL DDAFILE(LUSTD,1,B,NB,IDB2)
       End If
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NB,WORK(LB),1)
+        FP=DNRM2_(NB,B,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
       END IF
 
@@ -372,12 +373,12 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
         LVSTA=1+NAS*(J-1)
         CALL DCOPY_(NAS,[0.0D0],0,WORK(LBX),1)
 #ifdef _CRAY_C90_
-        CALL SSPMV('U',NAS,1.0D+00,WORK(LB),VEC(LVSTA),1,
+        CALL SSPMV('U',NAS,1.0D+00,B,VEC(LVSTA),1,
      &                           1.0D+00,WORK(LBX),1)
 #else
-*        CALL DSLMX(NAS,1.0D+00,WORK(LB),WORK(LVSTA),1,
+*        CALL DSLMX(NAS,1.0D+00,B,WORK(LVSTA),1,
 *     &                                   WORK(LBX),1)
-        CALL DSPMV_('U',NAS,1.0D+00,WORK(LB),VEC(LVSTA),1,
+        CALL DSPMV_('U',NAS,1.0D+00,B,VEC(LVSTA),1,
      &                           1.0D+00,WORK(LBX),1)
 #endif
 C WORK(LBX): B * Vector number J.
@@ -393,18 +394,18 @@ C ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
       END DO
       CALL GETMEM('LBX','FREE','REAL',LBX,NAS)
       CALL GETMEM('LXBX','FREE','REAL',LXBX,NAS)
-      CALL GETMEM('LB','FREE','REAL',LB,NB)
+      CALL mma_deallocate(B)
 C VEC HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
 C COPY TO TRIANGULAR STORAGE.
       NBNEW=(NIN*(NIN+1))/2
-      CALL GETMEM('LB','ALLO','REAL',LB,NBNEW)
+      CALL mma_allocate(B,NBNEW,Label='B')
       DO J=1,NIN
         JOFF=(J*(J-1))/2
-        CALL DCOPY_(J,VEC(1+NAS*(J-1):),1,WORK(LB+JOFF),1)
+        CALL DCOPY_(J,VEC(1+NAS*(J-1):),1,B(1+JOFF:),1)
       END DO
       CALL mma_deallocate(VEC)
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NBNEW,WORK(LB),1)
+        FP=DNRM2_(NBNEW,B,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
       END IF
 
@@ -420,14 +421,14 @@ C - Alt 0: Use diagonal approxim., if allowed:
         Call Abend()
         DO I=1,NIN
           IDIAG=IDIAG+I
-          EIG(I)=WORK(LB-1+IDIAG)/SDiag
+          EIG(I)=B(IDIAG)/SDiag
         END DO
       ELSE
         IJ=0
         DO J=1,NIN
           DO I=1,J
             IJ=IJ+1
-            VEC(NIN*(J-1)+I)=WORK(LB-1+IJ)
+            VEC(NIN*(J-1)+I)=B(IJ)
           END DO
         END DO
         CALL DSYEV_('V','U',NIN,VEC,NIN,EIG,WGRONK,-1,INFO)
@@ -435,7 +436,7 @@ C - Alt 0: Use diagonal approxim., if allowed:
         CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
         CALL DSYEV_('V','U',NIN,VEC,NIN,EIG,SCRATCH,NSCRATCH,INFO)
         CALL mma_deallocate(SCRATCH)
-        CALL GETMEM('LB','FREE','REAL',LB,NB)
+        CALL mma_deallocate(B)
       END IF
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
