@@ -160,7 +160,6 @@ C *********************************************************************
             Write(6,*)
      &            ' If this seems odd, please tell Molcas programmers.'
             Write(6,*)' Right now, the allocated memory is:'
-            call getmem('list','list','real',kdummy,ndummy)
             Call Cho_x_Quit('setup_cho',
      &                          ': Sorry! Too little memory!!',' ')
          EndIf

@@ -31,7 +31,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
       Integer irc, nSym
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
      &        nDel(nSym)
@@ -53,7 +52,7 @@
       Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:), D_A(:),
      &                       D_Vir(:)
       Real*8, allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
-      Real*8, allocatable:: Saa(:), XMO(:), DMat(:)
+      Real*8, allocatable:: Saa(:), XMO(:), DMat(:), OrbE(:)
 *
 *
       irc=0
@@ -235,15 +234,16 @@ C     -----------------------------------------------------------
       Call mma_deallocate(D_A)
 *----------------------------------------------------------------------*
 
-      Call GetMem('Eorb','Allo','Real',ipOrbE,4*nOrb)
-      Call Get_darray('RASSCF OrbE',Work(ipOrbE),nOrb)
+      Call mma_allocate(OrbE,4*nOrb,Label='OrbE')
+      ipOrbE=1
+      Call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                    CMOX(ipCMO),Work(ipOrbE),TrX)
+     &                    CMOX(ipCMO),OrbE(ipOrbE),TrX)
 *
 *---  MP2 calculation on the whole system (incompatible with DoMP2)
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           CMOX(ipCMO),Work(ipOrbE),E2_ab)
+     &                           CMOX(ipCMO),OrbE(ipOrbE),E2_ab)
       EndIf
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
@@ -285,8 +285,8 @@ C     -----------------------------------------------------------
          call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(1+jOff),1,
      &                                    XMO(iCMO+kOff),1)
          jOff=lOff+nFro(iSym)
-         call dcopy_(nIsh(iSym),Work(ipOrbE+jOff),1,
-     &                         Work(ipEorb+mOff),1)
+         call dcopy_(nIsh(iSym),OrbE(ipOrbE+jOff),1,
+     &                         OrbE(ipEorb+mOff),1)
          iOff=iOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*nIsh(iSym)
          lOff=lOff+nBas(iSym)
@@ -294,7 +294,7 @@ C     -----------------------------------------------------------
       End Do
       ortho=.true.
 *
-      Call get_Orb_select(irc,XMO(iCMO),XMO,Work(ipEorb),
+      Call get_Orb_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),
      &                        SQ,Saa,Name,NamAct,
      &                        nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
       If(irc.ne.0) Return
@@ -316,7 +316,7 @@ C     -----------------------------------------------------------
       Do iSym=1,nSym
          Do ik=nIsh(iSym),ns_O(iSym)+1,-1
             ie=ipEorb+loff+ik-1
-            Work(kEOcc+iloc)=Work(ie)
+            OrbE(kEOcc+iloc)=OrbE(ie)
             iloc=iloc+1
          End Do
          loff=loff+nIsh(iSym)
@@ -327,7 +327,7 @@ C     -----------------------------------------------------------
          koff=joff+nFro(iSym)+nIsh(iSym)-ns_O(iSym)
          Do ik=0,ns_O(iSym)-1
             ie=ipEorb+loff+ik
-            Work(ipOrbE+koff+ik)=Work(ie)
+            OrbE(ipOrbE+koff+ik)=OrbE(ie)
          End Do
          loff=loff+nIsh(iSym)
          joff=joff+nBas(iSym)
@@ -353,8 +353,8 @@ C     -----------------------------------------------------------
          call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(1+jOff),1,
      &                                    XMO(iCMO+kOff),1)
          jOff=lOff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
-         call dcopy_(nSsh(iSym),Work(ipOrbE+jOff),1,
-     &                         Work(ipEorb+mOff),1)
+         call dcopy_(nSsh(iSym),OrbE(ipOrbE+jOff),1,
+     &                         OrbE(ipEorb+mOff),1)
          iOff=iOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*nSsh(iSym)
          lOff=lOff+nBas(iSym)
@@ -363,7 +363,7 @@ C     -----------------------------------------------------------
       ortho=.false.
       Call get_Saa(nSym,nBas,nSsh,SQ,XMO,Saa)
 *
-      Call get_Vir_select(irc,XMO(iCMO),XMO,Work(ipEorb),
+      Call get_Vir_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),
      &                        SQ,Name,NamAct,D_vir,
      &                        nSym,nActa,nSsh,nBas,ortho,ns_V)
       If(irc.ne.0) Return
@@ -382,7 +382,7 @@ C     -----------------------------------------------------------
       Do iSym=1,nSym
          Do ik=ns_V(iSym)+1,nSsh(iSym)
             ie=ipEorb+loff+ik-1
-            Work(kEVir+iloc)=Work(ie)
+            OrbE(kEVir+iloc)=OrbE(ie)
             iloc=iloc+1
          End Do
          loff=loff+nSsh(iSym)
@@ -393,7 +393,7 @@ C     -----------------------------------------------------------
          koff=joff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
          Do ik=0,ns_V(iSym)-1
             ie=ipEorb+loff+ik
-            Work(ipOrbE+koff+ik)=Work(ie)
+            OrbE(ipOrbE+koff+ik)=OrbE(ie)
          End Do
          joff=joff+nBas(iSym)
          loff=loff+nSsh(iSym)
@@ -442,11 +442,11 @@ C     -----------------------------------------------------------
          If (iSkip.gt.0) Then
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            .true.)
-            Call ChoMP2_Drv(irc,Dumm,XMO(iCMO),Work(kEOcc),Work(kEVir),
+            Call ChoMP2_Drv(irc,Dumm,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                      DMAT(ip_X),DMAT(ip_Y))
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            .false.)
-            Call ChoMP2_Drv(irc,EMP2,XMO(iCMO),Work(kEOcc),Work(kEVir),
+            Call ChoMP2_Drv(irc,EMP2,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                      DMAT(ip_X),DMAT(ip_Y))
             If(irc.ne.0) then
               write(6,*) 'Frozen region MP2 failed'
@@ -483,7 +483,7 @@ C     -----------------------------------------------------------
       End Do
 
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                    CMOX,Work(ipOrbE),TrA)
+     &                    CMOX,OrbE(ipOrbE),TrA)
 
       write(6,*)'------------------------------------------------------'
       write(6,*)' Symm.  Tr(D):  Active        Frozen        Full      '
@@ -507,13 +507,13 @@ C     -----------------------------------------------------------
 *
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           CMOX,Work(ipOrbE),E2_Aonly)
+     &                           CMOX,OrbE(ipOrbE),E2_Aonly)
          EMP2 = E2_ab - E2_Aonly
 c         Write(6,'(A,F18.10)')' MP2 correction (environment): ',EMP2
 c         Write(6,*)
       EndIf
 
-      Call GetMem('Eorb','Free','Real',ipOrbE,4*nOrb)
+      Call mma_deallocate(OrbE)
 
 2000  Continue
       If (Min(iDo,jDo).eq.0) Then
