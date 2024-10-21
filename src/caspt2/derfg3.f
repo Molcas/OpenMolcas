@@ -27,7 +27,7 @@
 #include "SysDef.fh"
 #include "pt2_guga.fh"
 
-      LOGICAL RSV_TSK
+      LOGICAL, External:: RSV_TSK
 
       INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(MXCI)
@@ -667,9 +667,6 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 C
       !! Complete the left derivative and DEPSA contribution
       If ((ip1end.le.ntri2.and.ip3.eq.ip1end).or.
@@ -882,9 +879,6 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
       GO TO 500
  501  CONTINUE
