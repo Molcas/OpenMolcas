@@ -1108,7 +1108,7 @@ C
       End If
 C
       !! Finally, add to the total CI derivative array
-      CLagFull = CLagFull + CLag
+      CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
 C     IDCIEX = ISAV
 C
       End Subroutine XMS_Grad
