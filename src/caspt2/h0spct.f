@@ -127,16 +127,13 @@ C positioning.
               NA=NAS*(IIEND-IISTA+1)
             END IF
           ELSE
+#endif
             IASTA=1
             IAEND=NIN
             IISTA=1
             IIEND=NIS
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          IASTA=1
-          IAEND=NIN
-          IISTA=1
-          IIEND=NIS
 #endif
 
 ************************************************************************
@@ -150,12 +147,11 @@ C positioning.
                 RHS =DBL_MB(mRHS+IAS-1+NIN*(IIS-IISTA))
                 COEF=DBL_MB(mVEC+IAS-1+NIN*(IIS-IISTA))
               ELSE
+#endif
                 RHS =WORK(lg_RHS+IAS-1+NIN*(IIS-IISTA))
                 COEF=WORK(lg_VEC+IAS-1+NIN*(IIS-IISTA))
+#ifdef _MOLCAS_MPP_
               END IF
-#else
-              RHS =WORK(lg_RHS+IAS-1+NIN*(IIS-IISTA))
-              COEF=WORK(lg_VEC+IAS-1+NIN*(IIS-IISTA))
 #endif
               ECNT=COEF*RHS
               IF (ABS(DNOM).LT.DNMTHR .OR.
@@ -194,12 +190,11 @@ C positioning.
             IDX=>IDX_H
             VAL=>VAL_H
           ELSE
+#endif
             IDX=>IDXBUF
             VAL=>VALBUF
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          IDX=>IDXBUF
-          VAL=>VALBUF
 #endif
 
           DO IBUF=1,NBUF

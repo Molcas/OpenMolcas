@@ -88,12 +88,11 @@ C Transform to standard representation, covariant form.
             CALL mma_deallocate(TMP)
           END IF
         ELSE
+#endif
           CALL SPEC1A(IMLTOP,FACT,ISYM,WORK(LVEC),
      &                                 WTI(IWOFF))
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        CALL SPEC1A(IMLTOP,FACT,ISYM,WORK(LVEC),
-     &                               WTI(IWOFF))
 #endif
         CALL RHS_FREE(NAS,NIS,LVEC)
         IWOFF=IWOFF+NASH(ISYM)*NISH(ISYM)
@@ -123,10 +122,10 @@ C Transform to standard representation, covariant form.
             CALL mma_deallocate(TMP)
           END IF
         ELSE
+#endif
           CALL SPEC1C(IMLTOP,FACT,ISYM,WORK(LVEC),WAT(IWOFF))
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        CALL SPEC1C(IMLTOP,FACT,ISYM,WORK(LVEC),WAT(IWOFF))
 #endif
         CALL RHS_FREE(NAS,NIS,LVEC)
         IWOFF=IWOFF+NSSH(ISYM)*NASH(ISYM)
@@ -155,10 +154,10 @@ C Transform to standard representation, covariant form.
           CALL mma_deallocate(TMP)
         END IF
       ELSE
+#endif
         CALL SPEC1D(IMLTOP,FACT,WORK(LVEC),WAI)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL SPEC1D(IMLTOP,FACT,WORK(LVEC),WAI)
 #endif
       CALL RHS_FREE(NAS,NIS,LVEC)
  300  CONTINUE

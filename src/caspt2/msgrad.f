@@ -178,14 +178,12 @@ C     if (icase.ne.10.and.icase.ne.11) cycle ! G
      &                      DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                      TG1,TG2,TG3,SCAL)
           ELSE
+#endif
             CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
      &                      WORK(MV1),WORK(MV2),OVL,
      &                      TG1,TG2,TG3,SCAL)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                    WORK(MV1),WORK(MV2),OVL,
-     &                    TG1,TG2,TG3,SCAL)
 #endif
           !! Save T*S
           CALL RHS_SAVE (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)

@@ -184,14 +184,12 @@ C     HECOMP=0.0D0
      &                      DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                      DTG1,DTG2,DTG3)
           ELSE
+#endif
             CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
      &                      WORK(MV1),WORK(MV2),OVL,
      &                      DTG1,DTG2,DTG3)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                    WORK(MV1),WORK(MV2),OVL,
-     &                    DTG1,DTG2,DTG3)
 #endif
 C
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)

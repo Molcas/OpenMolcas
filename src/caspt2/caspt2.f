@@ -333,12 +333,12 @@ C       Call EQCTL2(ICONV)
         !    Call Set_Do_Parallel(.False.)
         !    IF (KING()) CALL GRDCTL(HEFF)
         !    Call Set_Do_Parallel(.True.)
-        !    CALL GASync
+        !    CALL GASync()
         !  ELSE
+!#endif
         !    CALL GRDCTL(HEFF)
+!#ifdef _MOLCAS_MPP_
         !  END IF
-!#else
-        !  CALL GRDCTL(HEFF)
 !#endif
         !END IF
 

@@ -149,14 +149,12 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
-          CALL MKSA_G3(ISYM,WORK(LG_SA),NG3,G3,IDXG3)
+#endif
+          CALL MKSA_G3(ISYM,WORK(lg_SA),NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
      &                 ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        call MKSA_G3(ISYM,WORK(lg_SA),NG3,G3,idxG3)
-        CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &               ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
 #endif
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SA,NAS)
@@ -966,14 +964,12 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
-          CALL MKSC_G3(ISYM,WORK(LG_SC),NG3,G3,IDXG3)
+#endif
+          CALL MKSC_G3(ISYM,WORK(lg_SC),NG3,G3,IDXG3)
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
      &                 ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        call MKSC_G3(ISYM,WORK(lg_SC),NG3,G3,idxG3)
-        CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &               ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
 #endif
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SC,NAS)

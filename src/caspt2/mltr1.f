@@ -39,12 +39,11 @@ CSVC: determine outer loop properties
         ILST1_IOFF=MYRANK+1
         ILST1_SKIP=NPROCS
       ELSE
+#endif
         ILST1_IOFF=1
         ILST1_SKIP=1
+#ifdef _MOLCAS_MPP_
       ENDIF
-#else
-      ILST1_IOFF=1
-      ILST1_SKIP=1
 #endif
 
       IF(IMLTOP.EQ.0) THEN
@@ -152,6 +151,7 @@ C always the Y array.
         END IF
         CALL GA_Sync()
       ELSE
+#endif
         IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
           CALL MLTR1_EH(IMLTOP,LST1,
      &                  X,NAS1,NIS1,JXOFF,
@@ -163,18 +163,7 @@ C always the Y array.
      &                  F,NFI,NFJ,
      &                  WORK(lg_Y),NAS2,1,NIS2)
         END IF
-      END IF
-#else
-      IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-        CALL MLTR1_EH(IMLTOP,LST1,
-     &                X,NAS1,NIS1,JXOFF,
-     &                F,NFI,NFJ,
-     &                WORK(lg_Y),NAS2,1,NIS2)
-      ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-        CALL MLTR1_GH(IMLTOP,LST1,
-     &                X,NAS1,NIS1,JXOFF,
-     &                F,NFI,NFJ,
-     &                WORK(lg_Y),NAS2,1,NIS2)
+#ifdef _MOLCAS_MPP_
       END IF
 #endif
       RETURN

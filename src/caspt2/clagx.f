@@ -122,9 +122,6 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                 VECROT)
-! #ifdef _MOLCAS_MPP_
-!       USE Para_Info, ONLY: Is_Real_Par, King
-! #endif
 
       use caspt2_global, only:imag_shift, sigma_p_epsilon
       use caspt2_data, only: LUSBT
@@ -211,41 +208,12 @@ C           write(6,'(i4,2f20.10)') i,work(lg_v5+i-1),work(lg_v6+i-1)
 C         end do
 C         call abend
 C
-! #ifdef _MOLCAS_MPP_
-    !       IF (Is_Real_Par()) THEN
-    !         IF (KING()) THEN
-    !           ! copy global array to local buffer
-    !           call mma_allocate(VEC1,NVEC,Label='VEC1')
-    !           CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-    !           call mma_allocate(VEC2,NVEC,Label='VEC2')
-    !           CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-
-    !           CALL CLagDX(0,ISYM,ICASE,VEC1,VEC2,
-    !  *                    WORK(LVEC3),WORK(LVEC4),
-    !  *                    nIN,nIS,nAS,G1,G2,G3,
-    !  *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-    !  *                    VECROT,Work(lg_V5),lg_V2)
-
-    !           ! free local buffer
-    !           call mma_deallocate(VEC1)
-    !           call mma_deallocate(VEC2)
-    !         END IF
-    !         CALL GASYNC
-    !       ELSE
-    !         CALL CLagDX(0,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-    !  *                  Work(lg_V3),Work(lg_V4),
-    !  *                  nIN,nIS,nAS,G1,G2,G3,
-    !  *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-    !  *                  VECROT,Work(lg_V5),lg_V2)
-    !       END IF
-! #else
 C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(0,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
      *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                VECROT,Work(lg_V5),lg_V2)
-! #endif
 
           If (imag_shift .ne. 0.0d0 .or. sigma_p_epsilon.ne.0.0d0) Then
             nAS = nASUP(iSym,iCase)
@@ -268,41 +236,11 @@ C          write(6,*) "calling clagdx for icase = ", icase
             DEASUM = -DEASUM
             Call DScal_(NG1,-1.0D+00,DEPSA,1)
 
-! #ifdef _MOLCAS_MPP_
-!           IF (Is_Real_Par()) THEN
-!             IF (KING()) THEN
-!               ! copy global array to local buffer
-!               call mma_allocate(VEC1,NVEC,Label='VEC1')
-!               CALL GA_GET(lg_V1,1,NIN,1,NIS,WORK(LVEC1),NIN)
-!               call mma_allocate(VEC2,NVEC,Label='VEC2')
-!               CALL GA_GET(lg_V2,1,NIN,1,NIS,WORK(LVEC2),NIN)
-
-!               CALL CLagDX(1,ISYM,ICASE,WORK(LVEC1),WORK(LVEC2),
-!      *                    WORK(LVEC3),WORK(LVEC4),
-!      *                    nIN,nIS,nAS,G1,G2,G3,
-!      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-!      *                    VECROT,Work(lg_V5),lg_V2)
-
-!               ! free local buffer
-!               call mma_deallocate(VEC1)
-!               call mma_deallocate(VEC2)
-!             END IF
-!             CALL GASYNC
-!           ELSE
-!             CALL CLagDX(1,ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
-!      *                  Work(lg_V3),Work(lg_V4),
-!      *                  nIN,nIS,nAS,G1,G2,G3,
-!      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-!      *                  VECROT,Work(lg_V5),lg_V2)
-!           END IF
-! #else
-C          write(6,*) "calling clagdx for icase = ", icase
             CALL CLagDX(1,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                  Work(lg_V3),Work(lg_V4),
      *                  nIN,nIS,nAS,G1,G2,G3,
      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                  VECROT,Work(lg_V5),lg_V2)
-! #endif
 
             Call DScal_(NG1,-1.0D+00,DG1,1)
             Call DScal_(NG2,-1.0D+00,DG2,1)
@@ -1462,9 +1400,6 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
-! #ifdef _MOLCAS_MPP_
-!       USE Para_Info, ONLY: Is_Real_Par, King
-! #endif
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
@@ -1572,39 +1507,13 @@ C           G1(IU,IT)=GTU
 *     needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
-! #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-!       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-! #endif
 
       GOTO 500
  501  CONTINUE
-C      write(6,*) "clag1"
-C      do itask = 1, nsgm
-C        write(6,'(i3,f20.10)') itask,clag(itask,1)
-C        clag(itask,1) = 0.0d+00
-C       end do
-C           write(6,*) "nsgm = ", nsgm
-C          do lu = 1, nlev
-C          do lt = 1, nlev
-C         CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
-C         write(6,*) "lu,lt = ", lu,lt
-C           write(6,'(5f15.10)') (sgm1(itask),itask=1,nsgm)
-C         Call DaXpY_(NSGM,2.0d+00*RDMEIG(lT,lU),SGM1,1,CLag,1)
-C           GTU=DDOT_(NSGM,CI,1,SGM1,1)
-C           write(6,'(2i3,f20.10)') lu,lt,gtu
-C          end do
-C          end do
-C      write(6,*) "clag2"
-C      do itask = 1, nsgm
-C        write(6,'(i3,f20.10)') itask,clag(itask,1)
-C       end do
 
       CALL Free_Tsk(ID)
 
       CALL mma_deallocate(Task)
-
-C 99  CONTINUE
-
 
       RETURN
       END
@@ -3150,9 +3059,6 @@ C-----------------------------------------------------------------------
 C
       !! dens2_rpt2.f
       Subroutine TimesE2(Mode,CIin,CIout,INT1,INT2)
-! #ifdef _MOLCAS_MPP_
-!       USE Para_Info, ONLY: Is_Real_Par, King
-! #endif
       use gugx, only: SGS, L2ACT, CIS
       Implicit Real*8 (A-H,O-Z)
 
@@ -3235,10 +3141,6 @@ C               if (vras.and.xras) go to 110
               END DO
             END DO
 
-C
-! #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-!         IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-! #endif
 C
         GOTO 500
  501    CONTINUE

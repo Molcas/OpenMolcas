@@ -130,6 +130,7 @@ C Form WEC1 from VEC1, if needed.
                 END IF
                 CALL mma_deallocate(TMP1)
             ELSE
+#endif
               IF(ICASE1.EQ.1) THEN
                 CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
               ELSE IF(ICASE1.EQ.4) THEN
@@ -137,14 +138,7 @@ C Form WEC1 from VEC1, if needed.
               ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
                 CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WEC1)
               END IF
-            END IF
-#else
-            IF(ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
-            ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
-            ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WEC1)
+#ifdef _MOLCAS_MPP_
             END IF
 #endif
           ELSE
@@ -180,12 +174,11 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
                   CALL mma_deallocate(TMP1)
                   CALL mma_deallocate(TMP2)
               ELSE
+#endif
                 CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
      &                      WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),LISTS)
+#ifdef _MOLCAS_MPP_
               END IF
-#else
-              CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                    WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),LISTS)
 #endif
               CALL RHS_FREE(NAS2,NIS2,LVEC2)
  200        CONTINUE

@@ -40,12 +40,11 @@ CSVC: determine outer loop properties
         ILST1_IOFF=MYRANK+1
         ILST1_SKIP=NPROCS
       ELSE
+#endif
         ILST1_IOFF=1
         ILST1_SKIP=1
+#ifdef _MOLCAS_MPP_
       ENDIF
-#else
-      ILST1_IOFF=1
-      ILST1_SKIP=1
 #endif
 
       IF(IMLTOP.EQ.0) THEN
@@ -154,6 +153,7 @@ C always the Y array.
         END IF
         CALL GA_Sync()
       ELSE
+#endif
         IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
           CALL MLTSCA_DH(IMLTOP,LST1,LST2,
      &                   X,NXI,NXA,F,NFI,NFA,
@@ -162,15 +162,7 @@ C always the Y array.
           WRITE(6,*) 'PMLTSCA: not supposed to be here'
           CALL AbEnd()
         END IF
-      END IF
-#else
-      IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
-        CALL MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                 X,NXI,NXA,F,NFI,NFA,
-     &                 WORK(lg_Y),NAS2,1,NIS2)
-      ELSE
-        WRITE(6,*) 'PMLTSCA: not supposed to be here'
-        CALL AbEnd()
+#ifdef _MOLCAS_MPP_
       END IF
 #endif
       RETURN
