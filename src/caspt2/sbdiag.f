@@ -746,25 +746,8 @@ C FIXME: adapt to local subroutine for global array lg_V
 C Copy the NIN non-linear dependent eigenvectors to the transformation
 C matrix T(NAS,NIN).
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-#ifdef _GA_
       call GA_Copy_Patch ('N', lg_V, 1, NAS, 1, NIN,
      &                         lg_T, 1, NAS, 1, NIN)
-#else
-      call GA_Distribution (lg_V, myRank, iLoV, iHiV, jLoV, jHiV)
-      call GA_Distribution (lg_T, myRank, iLoT, iHiT, jLoT, jHiT)
-      IF (iLoV.NE.0 .AND. iLoT.NE.0) THEN
-        NROW=iHiT-iLoT+1
-        NCOL=jHiT-jLoT+1
-        call GA_Access (lg_V, iLoV, iHiV, jLoV, jHiV, mV, LDV)
-        call GA_Access (lg_T, iLoT, iHiT, jLoT, jHiT, mT, LDT)
-        IF (LDV.NE.LDT) THEN
-          WRITE(6,'(1X,A)') 'SBDIAG_MPP: LDV != LDT, abort!'
-        END IF
-        CALL DCOPY_(NROW*NCOL,DBL_MB(mV),1,DBL_MB(mT),1)
-        call GA_Release_Update (lg_T, iLoT, iHiT, jLoT, jHiT)
-        call GA_Release (lg_V, iLoV, iHiV, jLoV, jHiV)
-      END IF
-#endif
       bStat = GA_Destroy (lg_V)
 
       IF(BMATRIX.EQ.'NO      ') THEN
@@ -853,7 +836,6 @@ C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
 C FIXME: Perform transformation of B using horizontal stripes of B or
 C vertical stripes of T to reduce memory usage if necessary as indicated
 C by the available memory, which is now scaling as approx. 3*(NAS**2).
-#ifdef _GA_
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'XMAT',lg_X)
       call GA_DGEMM ('N', 'N', NAS, NIN, NAS, 1.0D0,
      &               lg_B, lg_T, 0.0D0, lg_X )
@@ -863,32 +845,6 @@ C by the available memory, which is now scaling as approx. 3*(NAS**2).
       call GA_DGEMM ('T', 'N', NIN, NIN, NAS, 1.0D0,
      &               lg_T, lg_X, 0.0D0, lg_B )
       bStat = GA_Destroy (lg_X)
-#else
-C FIXME: Remove second part if DGA supports DGEMM.
-      IF (KING()) THEN
-        CALL GETMEM('TMAT','ALLO','REAL',LT,NAS*NIN)
-        CALL GA_GET (LG_T, 1, NAS, 1, NIN, WORK(LT), NAS)
-        CALL GETMEM('BMAT','ALLO','REAL',LB,NAS*NAS)
-        CALL GA_Get (lg_B, 1, NAS, 1, NAS, WORK(LB), NAS)
-        CALL GETMEM('XMAT','ALLO','REAL',LX,NAS*NIN)
-        CALL DGEMM_ ('N', 'N', NAS, NIN, NAS, 1.0D0,
-     &               WORK(LB), NAS, WORK(LT), NAS,
-     &               0.0D0, WORK(LX), NAS)
-        CALL GETMEM('BMAT','FREE','REAL',LB,NAS*NAS)
-      END IF
-      bStat = GA_Destroy (lg_B)
-      CALL PSBMAT_GETMEM ('B',lg_B,NIN)
-      IF (KING()) THEN
-        CALL GETMEM('BMAT','ALLO','REAL',LB,NIN*NIN)
-        CALL DGEMM_ ('T', 'N', NIN, NIN, NAS, 1.0D0,
-     &               WORK(LT), NAS, WORK(LX), NAS,
-     &               0.0D0, WORK(LB), NIN)
-        CALL GA_Put (lg_B, 1, NIN, 1, NIN, WORK(LB), NIN)
-        CALL GETMEM('BMAT','FREE','REAL',LB,NIN*NIN)
-        CALL GETMEM('XMAT','FREE','REAL',LX,NAS*NIN)
-        CALL GETMEM('TMAT','FREE','REAL',LT,NAS*NIN)
-      END IF
-#endif
       bStat = GA_Destroy (lg_T)
 
       IF (IPRGLB.GE.INSANE) THEN
@@ -964,24 +920,8 @@ C approx. 3*(NAS**2).  Should be determined by the available memory.
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'XMAT',lg_X)
       CALL PSBMAT_READ ('T',iCase,iSym,lg_X,NAS*NIN)
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-#ifdef _GA_
       call GA_DGEMM ('N', 'N', NAS, NIN, NIN, 1.0D0,
      &               lg_X, lg_V, 0.0D0, lg_T )
-#else
-      IF (KING()) THEN
-        CALL GETMEM('XMAT','ALLO','REAL',LX,NAS*NIN)
-        CALL GA_GET (LG_X, 1, NAS, 1, NIN, WORK(LX), NAS)
-        CALL GETMEM('VMAT','ALLO','REAL',LV,NIN*NIN)
-        CALL GA_Get (lg_V, 1, NIN, 1, NIN, WORK(LV), NIN)
-        CALL GETMEM('TMAT','ALLO','REAL',LT,NAS*NIN)
-        CALL DGEMM_ ('N', 'N', NAS, NIN, NIN, 1.0D0,
-     &               WORK(LX), NAS, WORK(LV), NIN,
-     &               0.0D0, WORK(LT), NAS)
-        CALL GA_Put (lg_T, 1, NAS, 1, NIN, WORK(LT), NAS)
-        CALL GETMEM('XMAT','FREE','REAL',LX,NAS*NIN)
-        CALL GETMEM('VMAT','FREE','REAL',LV,NIN*NIN)
-      END IF
-#endif
       bStat = GA_Destroy (lg_X)
       bStat = GA_Destroy (lg_V)
 
@@ -994,23 +934,8 @@ C vector utitlities
       CALL PSBMAT_READ ('S',iCase,iSym,lg_S,NAS)
 
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
-#ifdef _GA_
       call GA_DGEMM ('N', 'N', NAS, NIN, NAS, 1.0D0,
      &               lg_S, lg_T, 0.0D0, lg_ST )
-#else
-      IF (KING()) THEN
-        CALL GETMEM('SMAT','ALLO','REAL',LS,NAS*NAS)
-        CALL GA_GET (LG_S, 1, NAS, 1, NAS, WORK(LS), NAS)
-        CALL GETMEM('STMAT','ALLO','REAL',LST,NAS*NIN)
-        CALL DGEMM_ ('N', 'N', NAS, NIN, NAS, 1.0D0,
-     &               WORK(LS), NAS, WORK(LT), NAS,
-     &               0.0D0, WORK(LST), NAS)
-        CALL GA_Put (lg_ST, 1, NAS, 1, NIN, WORK(LST), NAS)
-        CALL GETMEM('STMAT','FREE','REAL',LST,NAS*NIN)
-        CALL GETMEM('SMAT','FREE','REAL',LS,NAS*NAS)
-        CALL GETMEM('TMAT','FREE','REAL',LT,NAS*NIN)
-      END IF
-#endif
       bStat = GA_Destroy (lg_S)
 
       CALL PSBMAT_WRITE ('M',iCase,iSym,lg_ST,NAS*NIN)
