@@ -543,7 +543,8 @@ C-SVC20100902: global arrays header files
 #endif
       LOGICAL bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
-      Real*8, allocatable:: COL(:), TMP(:), SD(:), SCA(:), EIG(:)
+      Real*8, allocatable:: COL(:), TMP(:), SD(:), SCA(:), EIG(:),
+     &                      VEC(:), SCRATCH(:), COND(:), TRANS(:)
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -666,22 +667,22 @@ C here for the non-ScaLAPACK version: copy matrix to master process,
 C diagonalize using the serial DSYEV routine, and copy the resulting
 C eigenvectors back to a global array.  Then distribute the eigenvalues.
       IF (myRank.EQ.0) THEN
-        CALL GETMEM('LVEC','ALLO','REAL',LVEC,NAS**2)
-        CALL GA_Get (lg_S, 1, NAS, 1, NAS, WORK(LVEC), NAS)
+        CALL mma_allocate(VEC,NAS**2,Label='VEC')
+        CALL GA_Get (lg_S, 1, NAS, 1, NAS, VEC, NAS)
       END IF
       bSTAT = GA_Destroy (lg_S)
       IF (myRank.EQ.0) THEN
-        CALL DSYEV_('V','L',NAS,WORK(LVEC),NAS,EIG,WGRONK,-1,INFO)
+        CALL DSYEV_('V','L',NAS,VEC,NAS,EIG,WGRONK,-1,INFO)
         NSCRATCH=INT(WGRONK(1))
-        CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-        CALL DSYEV_('V','L',NAS,WORK(LVEC),NAS,EIG,
-     &              WORK(LSCRATCH),NSCRATCH,INFO)
-        CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
+        CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
+        CALL DSYEV_('V','L',NAS,VEC,NAS,EIG,
+     &              SCRATCH,NSCRATCH,INFO)
+        CALL mma_deallocate(SCRATCH)
       END IF
       CALL PSBMAT_GETMEM('VMAT',lg_V,NAS)
       IF (myRank.EQ.0) THEN
-        CALL GA_Put (lg_V, 1, NAS, 1, NAS, WORK(LVEC), NAS)
-        CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
+        CALL GA_Put (lg_V, 1, NAS, 1, NAS, VEC, NAS)
+        CALL mma_deallocate(VEC)
       END IF
       CALL GADSUM(EIG,NAS)
 #endif
@@ -707,8 +708,8 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
 
-      CALL GETMEM('COND','ALLO','REAL',LCOND,NIN)
-      CALL DCOPY_(NIN,[0.0D0],0,WORK(LCOND),1)
+      CALL mma_allocate(COND,NIN,Label='COND')
+      COND(:)=0.0D0
 C Form orthonormal transformation vectors by scaling the eigenvectors.
       call GA_Sync()
       myRank = GA_NodeID()
@@ -720,7 +721,7 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
           CALL ABEND()
         END IF
         call V_SCALE (EIG,SCA(iLo),DBL_MB(mV),
-     &              iHi-iLo+1,jHi-jLo+1,LDV,NIN,WORK(LCOND))
+     &              iHi-iLo+1,jHi-jLo+1,LDV,NIN,COND)
         call GA_Release_Update (lg_V, iLo, iHi, jLo, jHi)
       END IF
       call GA_Sync()
@@ -731,17 +732,17 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
 C The condition number, after scaling, disregarding linear dep.
 C FIXME: adapt to local subroutine for global array lg_V
       IF(NIN.GE.2) THEN
-        CALL GADSUM (WORK(LCOND),NIN)
+        CALL GADSUM (COND,NIN)
         SZMIN=1.0D99
         SZMAX=0.0D0
         DO I=1,NIN
-          SZ=WORK(LCOND+I-1)
+          SZ=COND(I)
           SZMIN=MIN(SZMIN,SZ)
           SZMAX=MAX(SZMAX,SZ)
         END DO
         CONDNR=SZMAX/SZMIN
       END IF
-      CALL GETMEM('COND','FREE','REAL',LCOND,NIN)
+      CALL mma_deallocate(COND)
 
 C Copy the NIN non-linear dependent eigenvectors to the transformation
 C matrix T(NAS,NIN).
@@ -756,15 +757,15 @@ C Write the T matrix to disk and exit.  FIXME: This
 C should be removed when the transformation matrices are stored as disk
 C resident arrays only.
         IF (KING()) THEN
-          CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
-          call GA_Get (lg_T, 1, NAS, 1, NIN, WORK(LTRANS), NAS)
+          CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
+          call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
           IF (iPrGlb.GE.INSANE) THEN
-            dTRANS=dNRM2_(NAS*NIN,WORK(LTRANS),1)
+            dTRANS=dNRM2_(NAS*NIN,TRANS,1)
             WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
           END IF
           IDT=IDTMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,1,WORK(LTRANS),NAS*NIN,IDT)
-          CALL GETMEM('LTRANS','FREE','REAL',LTRANS,NAS*NIN)
+          CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
+          CALL mma_deallocate(TRANS)
         END IF
         bStat = GA_Destroy (lg_T)
         RETURN
@@ -801,15 +802,15 @@ C Write the transformation matrices after the diagonal values of B.
 C FIXME: This should be removed when the transformation matrices are
 C stored as disk resident arrays only.
         IF (KING()) THEN
-          CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
-          call GA_Get (lg_T, 1, NAS, 1, NIN, WORK(LTRANS), NAS)
+          CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
+          call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
           IF (iPrGlb.GE.INSANE) THEN
-            dTRANS=dNRM2_(NAS*NIN,WORK(LTRANS),1)
+            dTRANS=dNRM2_(NAS*NIN,TRANS,1)
             WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
           END IF
           IDT=IDTMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,1,WORK(LTRANS),NAS*NIN,IDT)
-          CALL GETMEM('LTRANS','FREE','REAL',LTRANS,NAS*NIN)
+          CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
+          CALL mma_deallocate(TRANS)
         END IF
         bStat = GA_Destroy (lg_T)
         RETURN
@@ -876,23 +877,23 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
         bStat = GA_Destroy (lg_B)
 #else
         IF (myRank.EQ.0) THEN
-          CALL GETMEM('LVEC','ALLO','REAL',LVEC,NIN**2)
-          CALL GA_Get (lg_B, 1, NIN, 1, NIN, WORK(LVEC), NIN)
+          CALL mma_allocate(VEC,NIN**2,Label='VEC')
+          CALL GA_Get (lg_B, 1, NIN, 1, NIN, VEC, NIN)
         END IF
         bSTAT = GA_Destroy (lg_B)
         IF (myRank.EQ.0) THEN
-          call dsyev_('V','L',NIN,WORK(LVEC),NIN,EIG,WGRONK,-1,INFO)
+          call dsyev_('V','L',NIN,VEC,NIN,EIG,WGRONK,-1,INFO)
           NSCRATCH=INT(WGRONK(1))
-          CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-          call dsyev_('V','L',NIN,WORK(LVEC),NIN,EIG,
-     &               WORK(LSCRATCH),NSCRATCH,INFO)
-          CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
+          CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
+          call dsyev_('V','L',NIN,VEC,NIN,EIG,
+     &               SCRATC),NSCRATCH,INFO)
+          CALL mma_deallocate(SCRATCH)
         END IF
         call GA_Sync()
         CALL GA_CREATE_STRIPED ('H',NIN,NIN,'VMAT',lg_V)
         IF (myRank.EQ.0) THEN
-          CALL GA_Put (lg_V, 1, NIN, 1, NIN, WORK(LVEC), NIN)
-          CALL GETMEM('LVEC','FREE','REAL',LVEC,NIN**2)
+          CALL GA_Put (lg_V, 1, NIN, 1, NIN, VEC, NIN)
+          CALL mma_deallocate(VEC)
         END IF
         CALL GADSUM(EIG,NIN)
 #endif
@@ -943,15 +944,15 @@ C vector utitlities
 C For now, also keep the transformation matrix on disk as a
 C replicate array.  FIXME: Should be removed later.
       IF (KING()) THEN
-        CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
-        call GA_Get (lg_T, 1, NAS, 1, NIN, WORK(LTRANS), NAS)
-        dTRANS=dNRM2_(NAS*NIN,WORK(LTRANS),1)
+        CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
+        call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
+        dTRANS=dNRM2_(NAS*NIN,TRANS,1)
         IF (iPrGlb.GE.INSANE) THEN
           WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
         END IF
         IDT=IDTMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WORK(LTRANS),NAS*NIN,IDT)
-        CALL GETMEM('LTRANS','FREE','REAL',LTRANS,NAS*NIN)
+        CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
+        CALL mma_deallocate(TRANS)
       END IF
 
       call ga_sync()
