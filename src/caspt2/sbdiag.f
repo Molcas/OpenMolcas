@@ -409,8 +409,8 @@ C COPY TO TRIANGULAR STORAGE.
       END IF
 
 C DIAGONALIZE THE TRANSFORMED B MATRIX.
-      CALL GETMEM('LEIG','ALLO','REAL',LEIG,NIN)
-      CALL GETMEM('LVEC','ALLO','REAL',LVEC,NIN**2)
+      CALL mma_allocate(EIG,NIN,Label='EIG')
+      CALL mma_allocate(VEC,NIN**2,Label='VEC')
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
 C - Alt 0: Use diagonal approxim., if allowed:
       IF(BSPECT.NE.'YES')  THEN
@@ -420,37 +420,35 @@ C - Alt 0: Use diagonal approxim., if allowed:
         Call Abend()
         DO I=1,NIN
           IDIAG=IDIAG+I
-          WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SDiag
+          EIG(I)=WORK(LB-1+IDIAG)/SDiag
         END DO
       ELSE
         IJ=0
         DO J=1,NIN
           DO I=1,J
             IJ=IJ+1
-            WORK(LVEC-1+NIN*(J-1)+I)=WORK(LB-1+IJ)
+            VEC(NIN*(J-1)+I)=WORK(LB-1+IJ)
           END DO
         END DO
-        CALL DSYEV_('V','U',NIN,WORK(LVEC),NIN,WORK(LEIG),
-     &              WGRONK,-1,INFO)
+        CALL DSYEV_('V','U',NIN,VEC,NIN,EIG,WGRONK,-1,INFO)
         NSCRATCH=INT(WGRONK(1))
-        CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
-        CALL DSYEV_('V','U',NIN,WORK(LVEC),NIN,WORK(LEIG),
-     &              WORK(LSCRATCH),NSCRATCH,INFO)
-        CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
+        CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
+        CALL DSYEV_('V','U',NIN,VEC,NIN,EIG,SCRATCH,NSCRATCH,INFO)
+        CALL mma_deallocate(SCRATCH)
         CALL GETMEM('LB','FREE','REAL',LB,NB)
       END IF
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NIN,WORK(LEIG),1)
+        FP=DNRM2_(NIN,EIG,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
       END IF
 
 C The eigenvalues are written back at same position as the
 C original B matrix, which is destroyed:
       IDB=IDBMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,1,WORK(LEIG),NIN,IDB)
-      CALL GETMEM('LEIG','FREE','REAL',LEIG,NIN)
+      CALL DDAFILE(LUSBT,1,EIG,NIN,IDB)
+      CALL mma_deallocate(EIG)
 
 C Finally, we must form the composite transformation matrix,
 C  = (NAS*NIN matrix on disk) * (NIN*NIN matrix in core).
@@ -466,7 +464,7 @@ C full matrices, plus an additional 19 columns of results.
         CALL DGEMM_('N','N',
      &              NAS,NIN,NAUX,
      &              1.0d0,WORK(LAUX),NAS,
-     &              WORK(LVEC),NIN,
+     &              VEC,NIN,
      &              0.0d0,WORK(LTRANS),NAS)
       ELSE
         CALL DCOPY_(NAS*NAUX,WORK(LAUX),1,WORK(LTRANS),1)
@@ -477,7 +475,7 @@ C full matrices, plus an additional 19 columns of results.
         CALL DDAFILE(LUSOLV,2,WORK(LAUX),NAS*NCOL,IDTMP)
         IF(BTRANS.EQ.'YES') THEN
           CALL DGEMM_('N','N',NAS,NIN,NCOL,1.0D00,
-     &              WORK(LAUX),NAS,WORK(LVEC-1+KSTA),NIN,
+     &              WORK(LAUX),NAS,VEC(KSTA),NIN,
      &              1.0D00,WORK(LTRANS),NAS)
         ELSE
           LTRANS1=LTRANS+NAS*(KSTA-1)
@@ -485,7 +483,7 @@ C full matrices, plus an additional 19 columns of results.
         END IF
       END DO
       CALL GETMEM('LAUX'  ,'FREE','REAL',LAUX  ,NAS*NAUX)
-      CALL GETMEM('LVEC','FREE','REAL',LVEC,NIN**2)
+      CALL mma_deallocate(VEC)
       IDT=IDTMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,1,WORK(LTRANS),NAS*NIN,IDT)
       IF (IPRGLB.GE.INSANE) THEN
