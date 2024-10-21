@@ -52,7 +52,7 @@
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:), ID_A(:)
       Real*8, allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
-      Real*8, allocatable:: Saa(:)
+      Real*8, allocatable:: Saa(:), XMO(:)
 *
 *
       irc=0
@@ -265,8 +265,8 @@ C     -----------------------------------------------------------
       ipEorb=ipOrbE+nOrb
       kEOcc=ipEorb+nOrb
       kEVir=kEOcc+nOrb
-      Call GetMem('XMO','Allo','Real',ipXmo,2*NCMO)
-      iCMO=ipXmo+NCMO
+      Call mma_allocate(Xmo,2*NCMO,Label='XMO')
+      iCMO=1+NCMO
       Call mma_allocate(Saa,nOrb,Label='Saa')
       Saa(:)=One
 
@@ -280,9 +280,9 @@ C     -----------------------------------------------------------
       Do iSym=1,nSym
          jOff=iOff+nBas(iSym)*nFro(iSym)
          call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(ipCMO+jOff),1,
-     &                                    Work(ipXMO+kOff),1)
+     &                                    XMO(1+kOff),1)
          call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(1+jOff),1,
-     &                                    Work(iCMO+kOff),1)
+     &                                    XMO(iCMO+kOff),1)
          jOff=lOff+nFro(iSym)
          call dcopy_(nIsh(iSym),Work(ipOrbE+jOff),1,
      &                         Work(ipEorb+mOff),1)
@@ -293,7 +293,7 @@ C     -----------------------------------------------------------
       End Do
       ortho=.true.
 *
-      Call get_Orb_select(irc,Work(iCMO),Work(ipXMO),Work(ipEorb),
+      Call get_Orb_select(irc,XMO(iCMO),XMO,Work(ipEorb),
      &                        SQ,Saa,Name,NamAct,
      &                        nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
       If(irc.ne.0) Return
@@ -303,7 +303,7 @@ C     -----------------------------------------------------------
          lOff=iOff+nBas(iSym)*nFro(iSym)
          Do ik=nIsh(iSym),1,-1
             jOff=kOff+nBas(iSym)*(ik-1)
-            call dcopy_(nBas(iSym),Work(iCMO+jOff),1,
+            call dcopy_(nBas(iSym),XMO(iCMO+jOff),1,
      &                            CMOX(1+lOff),1)
             lOff=lOff+nBas(iSym)
          End Do
@@ -348,9 +348,9 @@ C     -----------------------------------------------------------
       Do iSym=1,nSym
          jOff=iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
          call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(ipCMO+jOff),1,
-     &                                    Work(ipXMO+kOff),1)
+     &                                    XMO(1+kOff),1)
          call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(1+jOff),1,
-     &                                    Work(iCMO+kOff),1)
+     &                                    XMO(iCMO+kOff),1)
          jOff=lOff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
          call dcopy_(nSsh(iSym),Work(ipOrbE+jOff),1,
      &                         Work(ipEorb+mOff),1)
@@ -360,9 +360,9 @@ C     -----------------------------------------------------------
          mOff=mOff+nSsh(iSym)
       End Do
       ortho=.false.
-      Call get_Saa(nSym,nBas,nSsh,SQ,Work(ipXMO),Saa)
+      Call get_Saa(nSym,nBas,nSsh,SQ,XMO,Saa)
 *
-      Call get_Vir_select(irc,Work(iCMO),Work(ipXMO),Work(ipEorb),
+      Call get_Vir_select(irc,XMO(iCMO),XMO,Work(ipEorb),
      &                        SQ,Name,NamAct,iWork(iD_vir),
      &                        nSym,nActa,nSsh,nBas,ortho,ns_V)
       If(irc.ne.0) Return
@@ -371,7 +371,7 @@ C     -----------------------------------------------------------
       kOff=0
       Do iSym=1,nSym
          jOff=iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-         call dcopy_(nBas(iSym)*nSsh(iSym),Work(iCMO+kOff),1,
+         call dcopy_(nBas(iSym)*nSsh(iSym),XMO(iCMO+kOff),1,
      &                                    CMOX(1+jOff),1)
          iOff=iOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*nSsh(iSym)
@@ -424,27 +424,27 @@ C     -----------------------------------------------------------
          Call GetMem('Dmat','Allo','Real',ip_X,nVV+nOA)
          ip_Y=ip_X+nVV
          Call FZero(Work(ip_X),nVV+nOA)
-         Call FZero(Work(iCMO),NCMO)
+         Call FZero(XMO(iCMO),NCMO)
          iOff=0
          Do iSym=1,nSym
             kfr=1   +iOff+nBas(iSym)*nFro(iSym)
             kto=iCMO+iOff+nBas(iSym)*lnFro(iSym)
-            call dcopy_(nBas(iSym)*lnOcc(iSym),CMOX(kfr),1,Work(kto),1)
+            call dcopy_(nBas(iSym)*lnOcc(iSym),CMOX(kfr),1,XMO(kto),1)
             kfr=1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym)
      &                                                     +ns_V(iSym))
             kto=kto+nBas(iSym)*lnOcc(iSym)
-            call dcopy_(nBas(iSym)*lnVir(iSym),CMOX(kfr),1,Work(kto),1)
+            call dcopy_(nBas(iSym)*lnVir(iSym),CMOX(kfr),1,XMO(kto),1)
             iOff=iOff+nBas(iSym)**2
          End Do
          Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
          If (iSkip.gt.0) Then
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            .true.)
-            Call ChoMP2_Drv(irc,Dumm,Work(iCMO),Work(kEOcc),Work(kEVir),
+            Call ChoMP2_Drv(irc,Dumm,XMO(iCMO),Work(kEOcc),Work(kEVir),
      &                      Work(ip_X),Work(ip_Y))
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                            .false.)
-            Call ChoMP2_Drv(irc,EMP2,Work(iCMO),Work(kEOcc),Work(kEVir),
+            Call ChoMP2_Drv(irc,EMP2,XMO(iCMO),Work(kEOcc),Work(kEVir),
      &                      Work(ip_X),Work(ip_Y))
             If(irc.ne.0) then
               write(6,*) 'Frozen region MP2 failed'
@@ -468,7 +468,7 @@ C     -----------------------------------------------------------
 *----------------------------------------------------------------------*
 
       Call mma_deallocate(Saa)
-      Call GetMem('XMO','Free','Real',ipXmo,2*NCMO)
+      Call mma_deallocate(XMO)
 *
 *     Update the nFro, nIsh, nSsh, nDel for the Active site CASPT2
       Do iSym=1,nSym
