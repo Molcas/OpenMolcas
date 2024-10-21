@@ -435,6 +435,8 @@ C
           !! to be replaced with MaxVec_PT2 for GA parallel
           call mma_allocate(A_PT2,NumChoTot**2,Label='A_PT2')
           A_PT2(:) = 0.0d+00
+        Else
+          call mma_allocate(A_PT2,1,Label='A_PT2')
         End If
         Do iSym = 1, nSym
           nOcc  = nIsh(iSym)+nAsh(iSym)
@@ -442,6 +444,8 @@ C
             lT2AO = nOcc*nOcc*nBasT*nBasT
             call mma_allocate(T2AO,lT2AO,Label='T2AO')
             T2AO(:) = 0.0d+00
+          Else
+            CALL mma_allocate(T2AO,1,Label='T2AO')
           End If
 C
           !! Orbital Lagrangian that comes from the derivative of ERIs.
@@ -511,9 +515,9 @@ C
             Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           End If
 C
-          If (.not.IfChol.or.iALGO.ne.1) call mma_deallocate(T2AO)
+          call mma_deallocate(T2AO)
         End Do
-        If (IfChol) call mma_deallocate(A_PT2)
+        call mma_deallocate(A_PT2)
         !! Add DPTC to DSUM for the correct unrelaxed density
         !! Also, symmetrize DSUM
         Call AddDPTC(DPT2C,DSUM)

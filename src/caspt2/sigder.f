@@ -197,10 +197,8 @@ C         LSGM1=1
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             NSGM1=NIS1
           END IF
-          IF(NSGM1.GT.0) THEN
-            CALL mma_allocate(SGM1,NSGM1,Label='SGM1')
-            SGM1(:) = 0.0d+00
-          END IF
+          CALL mma_allocate(SGM1,MAX(1,NSGM1),Label='SGM1')
+          SGM1(:) = 0.0d+00
 
           IMLTOP=0
           DO 200 ICASE2=ICASE1+1,NCASES
@@ -274,9 +272,8 @@ C part (This requires a non-empty active space.)
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
               CALL SPEC1D(IMLTOP,FACT,WORK(LSGM2),SGM1)
             END IF
-
-            call mma_deallocate(SGM1)
           END IF
+          call mma_deallocate(SGM1)
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
           CALL RHS_ALLO (NAS1,NIS1,lg_SGM2)
@@ -392,6 +389,7 @@ C         LD1=1
               CALL SPEC1D(IMLTOP,FACT,WORK(LD2),D1)
             END IF
           END IF
+          If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
 
           !! No need to compute for ICASE2 = 12 and 13
           DO 500 ICASE2=ICASE1+1,11 !! NCASES
@@ -457,7 +455,7 @@ C             CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
  400        CONTINUE
  500      CONTINUE
           CALL GETMEM('D2','FREE','REAL',LD2,ND2)
-          IF(ND1.GT.0) call mma_deallocate(D1)
+          call mma_deallocate(D1)
  601    CONTINUE
  600  CONTINUE
 
