@@ -105,6 +105,7 @@ C usually print info on the total number of parameters
       use caspt2_data, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
       use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -116,6 +117,8 @@ C usually print info on the total number of parameters
 
 * For fooling some compilers:
       REAL*8 WGRONK(2)
+
+      REAL*8, allocatable:: S(:), SD(:), SCA(:)
 
 C On entry, the file LUSBT contains overlap matrices SMAT at disk
 C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
@@ -159,22 +162,22 @@ C for temporary storage.
       End If
 
       NS=(NAS*(NAS+1))/2
-      CALL GETMEM('LS','ALLO','REAL',LS,NS)
+      CALL mma_allocate(S,NS,Label='S')
       IDS=IDSMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
+      CALL DDAFILE(LUSBT,2,S,NS,IDS)
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NS,WORK(LS),1)
+        FP=DNRM2_(NS,S,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ', FP
       END IF
 
 C For some purposes, we need to save the diagonal elements:
       IF(BMATRIX.EQ.'YES') THEN
         IF(BTRANS.NE.'YES') THEN
-          CALL GETMEM('LSD','ALLO','REAL',LSD,NAS)
+          CALL mma_allocate(SD,NAS,Label='SD')
           IDIAG=0
           DO I=1,NAS
             IDIAG=IDIAG+I
-            WORK(LSD-1+I)=WORK(LS-1+IDIAG)
+            SD(I)=S(IDIAG)
           END DO
         END IF
       END IF
@@ -183,19 +186,19 @@ C FIRST, FIND NIN ORTHONORMAL VECTORS BY SCALED SYMMETRIC ON.
 C Addition, for the scaled symmetric ON: the S matrix is scaled
 C to make the diagonal elements close to 1.
 C Extremely small values give scale factor exactly zero.
-      CALL GETMEM('LSCA','ALLO','REAL',LSCA,NAS)
+      CALL mma_allocate(SCA,NAS,Label='SCA')
       IDIAG=0
       DO I=1,NAS
         IDIAG=IDIAG+I
-        SDiag=WORK(LS-1+IDIAG)
+        SDiag=S(IDIAG)
         If (IFDORTHO) then
-          WORK(LSCA-1+I)=1.0D+00
+          SCA(I)=1.0D+00
         Else
           IF(SDiag.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
           ELSE
-            WORK(LSCA-1+I)=0.0D0
+            SCA(I)=0.0D0
           END IF
         End If
       END DO
@@ -203,13 +206,12 @@ C Extremely small values give scale factor exactly zero.
       DO J=1,NAS
         DO I=1,J
           IJ=IJ+1
-          WORK(LS-1+IJ)=WORK(LS-1+IJ)*
-     &        WORK(LSCA-1+I)*WORK(LSCA-1+J)
+          S(IJ)=S(IJ)*SCA(I)*SCA(J)
         END DO
       END DO
 C End of addition.
       IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NS,WORK(LS),1)
+        FP=DNRM2_(NS,S,1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ', FP
       END IF
 
@@ -222,7 +224,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
       DO J=1,NAS
         DO I=1,J
           IJ=IJ+1
-          WORK(LVEC-1+NAS*(J-1)+I)=WORK(LS-1+IJ)
+          WORK(LVEC-1+NAS*(J-1)+I)=S(IJ)
         END DO
       END DO
       INFO=0
@@ -232,7 +234,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
       call dsyev_('V','U',NAS,WORK(LVEC),NAS,WORK(LEIG),WORK(LSCRATCH),
      &            NSCRATCH,INFO)
       CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
-      CALL GETMEM('LS','FREE','REAL',LS,NS)
+      CALL mma_deallocate(S)
 
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
@@ -261,11 +263,10 @@ C Form orthonormal vectors by scaling eigenvectors
       CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
 C Addition, for the scaled symmetric ON.
       DO I=1,NAS
-        SCA=WORK(LSCA-1+I)
-        CALL DSCAL_(NIN,SCA,WORK(LVEC-1+I),NAS)
+        CALL DSCAL_(NIN,SCA(I),WORK(LVEC-1+I),NAS)
       END DO
 
-      CALL GETMEM('LSCA','FREE','REAL',LSCA,NAS)
+      CALL mma_deallocate(SCA)
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
         SZMIN=1.0D99
@@ -317,12 +318,12 @@ C Now, the transformation matrix can be written out.
         CALL DDAFILE(LUSBT,1,WORK(LVEC),NAS*NIN,IDT)
         CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
         DO I=1,NAS
-          SDiag=WORK(LSD-1+I)+1.0d-15
+          SDiag=SD(I)+1.0d-15
           WORK(LBD-1+I)=WORK(LBD-1+I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,IDB)
-        CALL GETMEM('LSD','FREE','REAL',LSD,NAS)
+        CALL mma_deallocate(SD)
         CALL GETMEM('LBD','FREE','REAL',LBD,NAS)
         IF (IPRGLB.GE.INSANE) THEN
           WRITE(6,'("DEBUG> ",A)')'SBDIAG: skip B matrix transformation'
