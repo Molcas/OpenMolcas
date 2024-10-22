@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
+#include "xrhs.fh"
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
@@ -17,6 +18,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -33,7 +35,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -95,7 +96,8 @@ C  End of loop.
           ELSE
 #endif
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     WORK(MV1),WORK(MV2),OVL,HEBLK,
+     &                     GA_Arrays(MV1)%Array,
+     &                     GA_Arrays(MV2)%Array,OVL,HEBLK,
      &                     TG1,TG2,TG3)
 #ifdef _MOLCAS_MPP_
           END IF
