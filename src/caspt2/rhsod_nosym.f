@@ -21,6 +21,7 @@
 * this allows for convenient sub-blocking of cholesky vectors.
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+#include "xrhs.fh"
       SUBROUTINE RHSOD_NOSYM(IVEC)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: verbose
@@ -31,7 +32,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
@@ -91,10 +91,12 @@
       use caspt2_data, only: FIMO
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -102,8 +104,6 @@
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -176,7 +176,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             END IF
 ! write element A(tvx,j)
             IDX=ITVX+NAS*(IJ-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=ATVXJ
+#else
+            GA_Arrays(lg_W)%Array(IDX)=ATVXJ
+#endif
           END DO
         END DO
 ************************************************************************
@@ -206,10 +210,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_data, only: FIMO
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -217,8 +223,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -285,7 +289,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! W(tvx,a) = (at,vx) + (FIMO(a,t)-Sum_u(au,ut))*delta(v,x)/NACTEL
 ! write element W(tvx,j), only the (at,vx) part
             IDX=ITVX+NAS*(IA-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=ATVX
+#else
+            GA_Arrays(lg_W)%Array(IDX)=ATVX
+#endif
           END DO
 ! now, add in the part with corrections to the integrals
           IATOT=IA+NISH(ISYM)+NASH(ISYM)
@@ -297,13 +305,22 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             DO IUABS=1,NASHT
               IUUT=KTUV(IUABS,IUABS,ITABS)-NTUVES(ISYM)
               IDX=IUUT+NAS*(IA-IISTA)
+#ifdef _MOLCAS_MPP_
               SUMU=SUMU+DBL_MB(MW+IDX-1)
+#else
+              SUMU=SUMU+GA_Arrays(lg_w)%Array(IDX)
+#endif
             END DO
             ADDONE=(FAT-SUMU)/DBLE(MAX(1,NACTEL))
             DO IVABS=1,NASHT
               ITVV=KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
               IDX=ITVV+NAS*(IA-IISTA)
+#ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=DBL_MB(MW+IDX-1)+ADDONE
+#else
+              GA_Arrays(lg_w)%Array(IDX)=GA_Arrays(lg_w)%Array(IDX)
+     &                                  +ADDONE
+#endif
             END DO
           END DO
         END DO
@@ -333,10 +350,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOSYM(8,8)
@@ -345,8 +364,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -428,7 +445,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             BPTVJL=SCL*(TJVL+TLVJ)
 ! write element HP(ac,jl)
             IDX=ITGEU+NAS*(IJGEL-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=BPTVJL
+#else
+            GA_Arrays(lg_w)%Array(IDX)=BPTVJL
+#endif
           END DO
         END DO
 ************************************************************************
@@ -499,7 +520,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             BMTVJL=SCL*(TJVL-TLVJ)
 ! write element BM(tv,jl)
             IDX=ITGTU+NAS*(IJGTL-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=BMTVJL
+#else
+            GA_Arrays(lg_w)%Array(IDX)=BMTVJL
+#endif
           END DO
         END DO
 ************************************************************************
@@ -524,10 +549,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOSYM(8,8)
@@ -536,8 +563,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -618,7 +643,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             FPTVAC=SCL*(ATCV+AVCT)
 ! write element FP(tv,ac)
             IDX=ITGEU+NAS*(IAGEB-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=FPTVAC
+#else
+            GA_Arrays(lg_W)%Array(IDX)=FPTVAC
+#endif
           END DO
         END DO
 ************************************************************************
@@ -689,7 +718,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             FMTVAC=SCL*(AVCT-ATCV)
 ! write element FM(tv,ac)
             IDX=ITGTU+NAS*(IAGTB-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=FMTVAC
+#else
+            GA_Arrays(lg_w)%Array(IDX)=FMTVAC
+#endif
           END DO
         END DO
 ************************************************************************
@@ -714,10 +747,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOSYM(8,8)
@@ -726,8 +761,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
       INTEGER, PARAMETER :: NOSYM = 1
       REAL*8, ALLOCATABLE :: AIBJ(:,:)
@@ -791,7 +824,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
           HPACJL=SCL*(AJCL+ALCJ)
 ! write element HP(ac,jl)
           IDX=IAGEB+NAS*(IJGEL-IISTA)
+#ifdef _MOLCAS_MPP_
           DBL_MB(MW+IDX-1)=HPACJL
+#else
+          GA_Arrays(lg_w)%Array(IDX)=HPACJL
+#endif
         END DO
       END DO
 ************************************************************************
@@ -832,7 +869,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
           HMACJL=SCL*(AJCL-ALCJ)
 ! write element HM(ac,jl)
           IDX=IAGTB+NAS*(IJGTL-IISTA)
+#ifdef _MOLCAS_MPP_
           DBL_MB(MW+IDX-1)=HMACJL
+#else
+          GA_Arrays(lg_W)%Array(IDX)=HMACJL
+#endif
         END DO
       END DO
 ************************************************************************
@@ -859,10 +900,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use caspt2_data, only: FIMO
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
@@ -871,8 +914,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
       INTEGER NFIMOES(8)
 
@@ -967,7 +1008,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! D1(tv,aj)=(aj,tv) + FIMO(a,j)*Kron(t,v)/NACTEL
 ! integrals only
             IDX=ITV+NAS*(IAJ-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=AJTV
+#else
+            GA_Arrays(lg_w)%Array(IDX)=AJTV
+#endif
           END DO
 ! now, dress with FIMO(a,j), only if T==V, so ISYT==ISYV, so if ISYM==1
           IF (ISYM.EQ.1) THEN
@@ -977,7 +1022,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             DO IUABS=1,NASHT
               IUU=KTU(IUABS,IUABS)
               IDX=IUU+NAS*(IAJ-IISTA)
+#ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=DBL_MB(MW+IDX-1)+ONEADD
+#else
+              GA_Arrays(lg_w)%Array(IDX)=GA_Arrays(lg_w)%Array(IDX)
+     &                                  +ONEADD
+#endif
             END DO
           END IF
           DO ITV=IASTA2,IAEND2 ! these are always all elements
@@ -997,7 +1047,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! D2(tv,aj)=(av,tj) + FIMO(a,j)*Kron(t,v)/NACTEL
             IDX=ITV+NAS*(IAJ-IISTA)
+#ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=AVTJ
+#else
+            GA_Arrays(lg_W)%Array(IDX)=AVTJ
+#endif
           END DO
         END DO
 ************************************************************************
@@ -1029,10 +1083,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -1041,8 +1097,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -1144,7 +1198,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               EP=SCL*(AJVL+ALVJ)
 ! write element EP
               IDX=IV+NAS*(IAJGEL+IOFF-IISTA)
+#ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=EP
+#else
+              GA_Arrays(lg_w)%Array(IDX)=EP
+#endif
             END DO
           END DO
 
@@ -1222,7 +1280,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               EM=SQRTA*(AJVL-ALVJ)
 ! write element EM
               IDX=IV+NAS*(IAJGTL+IOFF-IISTA)
+#ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=EM
+#else
+              GA_Arrays(lg_w)%Array(IDX)=EM
+#endif
             END DO
           END DO
 
@@ -1251,10 +1313,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifndef _MOLCAS_MPP_
+      use fake_GA, only: GA_Arrays
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -1263,8 +1327,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#else
-#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -1366,7 +1428,11 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
               GP=SCL*(AVCJ+CVAJ)
 ! write element EP
               IDX=IV+NAS*(IJAGEC+IOFF-IISTA)
+#ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=GP
+#else
+              GA_Arrays(lg_w)%Array(IDX)=GP
+#endif
             END DO
           END DO
 
@@ -1444,7 +1510,11 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
               GM=SQRTA*(AVCJ-CVAJ)
 ! write element GM
               IDX=IV+NAS*(IJAGTC+IOFF-IISTA)
+#ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=GM
+#else
+              GA_Arrays(lg_w)%Array(IDX)=GM
+#endif
             END DO
           END DO
 
