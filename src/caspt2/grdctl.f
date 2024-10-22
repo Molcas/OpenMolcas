@@ -23,11 +23,12 @@
       use caspt2_data, only: TAT, TORB
       use caspt2_data, only: LUCIEX, IDTCEX
       use EQSOLV
+      use stdalloc, only: mma_allocate,mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Real*8 HEFF(NSTATE,NSTATE)
+      Real*8, Allocatable :: CI(:),SGM(:),BRACI(:)
 
 C Purpose: Compute three sets of quantities, needed by MCLR, used to
 C compute forces and derivatives.
@@ -43,16 +44,16 @@ C (B):
 C Compute also (Proj_CAS)*(Ham)*(Wave op) | Psi_0 >
 C and (Proj_CAS)*((Wave op)**(dagger))*(Ham) | Psi_0 >.
 C Read the Psi_0 wave function:
-      CALL GETMEM('GRDCI','ALLO','REAL',LCI,NCONF)
+      call mma_allocate(CI,NCONF,Label='GRDCI')
       IF(ISCF.EQ.0) THEN
 C This is an ordinary CASSCF or RASSCF calculation.
        ID=IDTCEX
        DO I=1,JSTATE-1
-         CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,ID)
+         CALL DDAFILE(LUCIEX,0,CI,NCONF,ID)
        END DO
-       CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
+       CALL DDAFILE(LUCIEX,2,CI,NCONF,ID)
       ELSE
-       WORK(LCI)=1.0D0
+       CI(1)=1.0D0
       END IF
 
       IF(ORBIN.EQ.'TRANSFOR') THEN
@@ -104,28 +105,28 @@ C Read, and transpose, the active orbital transformation matrices
       END IF
 
       NSG=NCONF
-      CALL GETMEM('GRDSGM','ALLO','REAL',LSGM,NSG)
+      call mma_allocate(SGM,NSG,Label='GRDSGM')
 C Compute (Proj_CAS)*(Ham)*(Wave op) acting on Psi_0:
-      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
       IF(ISCF.EQ.0) THEN
-       CALL W1TW2(IVECW,IVECC,WORK(LCI),WORK(LSGM))
+       CALL W1TW2(IVECW,IVECC,CI,SGM)
       ELSE
-       WORK(LSGM)=E2TOT*WORK(LCI)
+       SGM(1)=E2TOT*CI(1)
       END IF
       IF(IFMSCOUP) THEN
 C Multi-State HEFF:
 C Loop over all the other root states, and compute off-diagonal
 C effective Hamiltonian matrix elements.
-        CALL GETMEM('BRACI','ALLO','REAL',LBRACI,NCONF)
+        call mma_allocate(BRACI,NCONF,Label='BRACI')
         ID=IDTCEX
         DO ISTATE=1,NSTATE
           IF(ISTATE.NE.JSTATE) THEN
-            CALL DDAFILE(LUCIEX,2,WORK(LBRACI),NCONF,ID)
+            CALL DDAFILE(LUCIEX,2,BRACI,NCONF,ID)
           ELSE
-            CALL DDAFILE(LUCIEX,0,WORK(LBRACI),NCONF,ID)
+            CALL DDAFILE(LUCIEX,0,BRACI,NCONF,ID)
           END IF
         END DO
-        CALL GETMEM('BRACI','FREE','REAL',LBRACI,NCONF)
+        call mma_deallocate(BRACI)
       END IF
 C-End of Multi-State insert -----------------------------------------
 
@@ -145,19 +146,19 @@ C Transform SGM to use original MO:
          IF(NR1.GT.0) THEN
            ISTART=NAES(ISYM)+1
            CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
-     &                                           NSG,WORK(LSGM))
+     &                                           NSG,SGM)
          END IF
          ITO=ITO+NR1**2
          IF(NR2.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+1
            CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
-     &                                          NSG,WORK(LSGM))
+     &                                          NSG,SGM)
          END IF
          ITO=ITO+NR2**2
          IF(NR3.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+NR2+1
            CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
-     &                                          NSG,WORK(LSGM))
+     &                                          NSG,SGM)
          END IF
         END DO
       END IF
@@ -172,28 +173,28 @@ C Loop over all the other root states, and compute off-diagonal
 C effective Hamiltonian matrix elements. Given that the SGM
 C wave function is available, this is a very efficient way of
 C computing the multi-state coupling elements.
-        CALL GETMEM('BRACI','ALLO','REAL',LBRACI,NCONF)
+        call mma_allocate(BRACI,NCONF,Label='BRACI')
         ID=IDTCEX
         DO ISTATE=1,NSTATE
           IF(ISTATE.NE.JSTATE) THEN
-            CALL DDAFILE(LUCIEX,2,WORK(LBRACI),NCONF,ID)
+            CALL DDAFILE(LUCIEX,2,BRACI,NCONF,ID)
             HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE) +
-     &      DDOT_(NCONF,WORK(LBRACI),1,WORK(LSGM),1)
+     &      DDOT_(NCONF,BRACI,1,SGM,1)
           ELSE
-            CALL DDAFILE(LUCIEX,0,WORK(LBRACI),NCONF,ID)
+            CALL DDAFILE(LUCIEX,0,BRACI,NCONF,ID)
             HEFF(JSTATE,JSTATE)=HEFF(JSTATE,JSTATE)+E2CORR
           END IF
         END DO
-        CALL GETMEM('BRACI','FREE','REAL',LBRACI,NCONF)
+        call mma_deallocate(BRACI)
       END IF
 C-End of Multi-State insert -----------------------------------------
 
 C Similar, but (Proj_CAS)*((Wave op)**(dagger))*(Ham) | Psi_0 >.
-      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
       IF(ISCF.EQ.0) THEN
-       CALL W1TW2(IVECC,IVECW,WORK(LCI),WORK(LSGM))
+       CALL W1TW2(IVECC,IVECW,CI,SGM)
       ELSE
-       WORK(LSGM)=E2TOT*WORK(LCI)
+       SGM(1)=E2TOT*CI(1)
       END IF
 
       IF(ORBIN.EQ.'TRANSFOR') THEN
@@ -212,19 +213,19 @@ C Transform SGM to use original MO:
          IF(NR1.GT.0) THEN
            ISTART=NAES(ISYM)+1
            CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
-     &                                          NSG,WORK(LSGM))
+     &                                          NSG,SGM)
          END IF
          ITO=ITO+NR1**2
          IF(NR2.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+1
            CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
-     &                                          NSG,WORK(LSGM))
+     &                                          NSG,SGM)
          END IF
          ITO=ITO+NR2**2
          IF(NR3.GT.0) THEN
            ISTART=NAES(ISYM)+NR1+NR2+1
            CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
-     &                                          NSG,WORK(LSGM))
+     &                                          NSG,SGM)
          END IF
         END DO
       END IF
@@ -238,7 +239,7 @@ C Actually, the first was already computed in PRPCTL.
 C ... Unfinished code.
 C--------------------------------------------------------------------
 
-      CALL GETMEM('GRDSGM','FREE','REAL',LSGM,NSG)
-      CALL GETMEM('GRDCI','FREE','REAL',LCI,NCONF)
+      call mma_deallocate(SGM)
+      call mma_deallocate(CI)
 
       END SUBROUTINE GRDCTL

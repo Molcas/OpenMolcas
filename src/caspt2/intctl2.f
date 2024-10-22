@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE INTCTL2(IF_TRNSF)
       use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_grad, nStpGrd
+      use caspt2_gradient, only: do_grad, nStpGrd, FIMO_all, FIFA_all
       use caspt2_data, only: CMO, FIMO, FAMO, HONE, DREF
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -20,7 +20,6 @@
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"
-#include "caspt2_grad.fh"
       LOGICAL IF_TRNSF
 
       Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)
@@ -48,10 +47,10 @@
 * For gradient calculation, it is good to have FIAO and FAAO
       IF (do_grad.or.nStpGrd.eq.2) THEN
         !! FFAO has one-electron Hamiltonian
-        CALL DCOPY_(NBTRI,FFAO,1,WORK(ipFIMO),1)
-        CALL DAXPY_(NBTRI,1.0D+00,FIAO,1,WORK(ipFIMO),1)
-        CALL DCOPY_(NBTRI,WORK(ipFIMO),1,WORK(ipFIFA),1)
-        CALL DAXPY_(NBTRI,1.0D+00,FAAO,1,WORK(ipFIFA),1)
+        CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
+        CALL DAXPY_(NBTRI,1.0D+00,FIAO,1,FIMO_all,1)
+        CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
+        CALL DAXPY_(NBTRI,1.0D+00,FAAO,1,FIFA_all,1)
       END IF
 * Transform them to MO basis:
       HONE(:)=0.0D0

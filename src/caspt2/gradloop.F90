@@ -33,7 +33,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "caspt2_grad.fh"
 
   character(len=60) :: STLNE2
 

@@ -13,13 +13,13 @@
       Subroutine CASPT2_Res(VECROT)
 C
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
+      use caspt2_gradient, only: jStLag,iVecL,iVecG
       use EQSOLV
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       DIMENSION VECROT(*)
 C
@@ -33,11 +33,10 @@ C
       !!     + <lambda|H|\Psi0> + <lambda|H0-E0+Eshift|\Psi_S>
 C
 C     write(6,*) "in CASPT2_res"
-      IRHS2  = 7
-      CALL PSCAVEC(1.0D+00,IRHS,IRHS2)
+      CALL PSCAVEC(1.0D+00,IRHS,iVecL)
 C
       !! Construct the partial derivative of the target state
-      !! The derivative is constructed in IRHS2
+      !! The derivative is constructed in iVecL
       !! The shift parameters are set to zero, because the actual energy
       !! is computed without them. The reference state has to be
       !! multiplied by two, from the above equation for L_S.
@@ -48,7 +47,7 @@ C
       real_shift=0.0d0
       imag_shift=0.0d0
       sigma_p_epsilon=0.0d0
-      CALL SIGMA_CASPT2(2.0D+00,2.0D+00,IVECX,IRHS2)
+      CALL SIGMA_CASPT2(2.0D+00,2.0D+00,IVECX,iVecL)
       real_shift=SAV
       imag_shift=SAVI
       sigma_p_epsilon=savreg
@@ -56,11 +55,11 @@ C
       !! Add the partial derivative contribution for MS-CASPT2
       !! (off-diagonal elements). The derivative is taken with IVECW
       !! and put in IVECC.
-C     write (*,*) "Ifmscoup = ", ifmscoup, nstlag
+C     write (*,*) "Ifmscoup = ", ifmscoup, nstate
       IF (IFMSCOUP) Then
         Call RHS_ZERO(IVECC)
-        Call PSCAVEC(VECROT(jStLag),IRHS2,IRHS2)
-        Do iStLag = 1, nStLag
+        Call PSCAVEC(VECROT(jStLag),iVecL,iVecL)
+        Do iStLag = 1, nState
           Scal = VECROT(iStLag)
           If (iStLag.eq.jStLag) Scal = 0.0d+00
           If (ABS(VECROT(iStLag)).le.1.0d-12) Cycle
@@ -68,8 +67,8 @@ C     write (*,*) "Ifmscoup = ", ifmscoup, nstlag
         End Do
         !! Transform to SR representatin (IRHS).
         CALL PTRTOSR(0,IVECC,IRHS)
-        !! Add to IRHS2
-        Call PLCVEC(1.0D+00,1.0D+00,IRHS,IRHS2)
+        !! Add to iVecL
+        Call PLCVEC(1.0D+00,1.0D+00,IRHS,iVecL)
       End If
 C
       !! Finally, solve the lambda equation.
@@ -83,8 +82,8 @@ C
       iVecRbk = iVecR
       iRHSbk  = iRHS
       iVecX   = iVecR
-      iRHS    = 7
-      iVecR   = 8
+      iRHS    = iVecL !! = 7
+      iVecR   = iVecG !! = 8
 C
       Call PCG_RES(ICONV)
       IF (ICONV .NE. 0) THEN
@@ -100,13 +99,13 @@ C
       IF (IFMSCOUP) THEN
         CALL PTRTOSR(1,IVECW,IRHS)
         Call RHS_ZERO(IVECC)
-        Do iStLag = 1, nStLag
+        Do iStLag = 1, nState
           Scal = VECROT(iStLag)*0.5d+00
           If (iStLag.eq.jStLag) Scal = Scal*2.0d+00
           If (ABS(VECROT(iStLag)).le.1.0d-12) Cycle
           Call MS_Res(1,iStLag,jStLag,Scal)
         End Do
-        CALL PTRTOSR(0,IVECC,IRHS2)
+        CALL PTRTOSR(0,IVECC,iVecL)
       END IF
 C
       !! Restore contravariant and covariant representations of the
