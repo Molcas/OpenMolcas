@@ -544,7 +544,7 @@ C-SVC20100902: global arrays header files
       CHARACTER(LEN=2) cSYM,cCASE
       Real*8, allocatable:: COL(:), TMP(:), SD(:), SCA(:), EIG(:),
      &                      VEC(:), SCRATCH(:), COND(:), TRANS(:),
-    &                       BD(:)
+     &                       BD(:)
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk

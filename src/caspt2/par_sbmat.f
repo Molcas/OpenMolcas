@@ -16,7 +16,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
@@ -24,13 +24,10 @@ C tridiagonal local array at Work(lg_M)
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-
+      Integer lg_M, nSize
       CHARACTER(len=*) cNAME
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
+      Integer nTri
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -45,14 +42,14 @@ C tridiagonal local array at Work(lg_M)
       END IF
 #endif
 
-      END
+      END SUBROUTINE PSBMAT_GETMEM
 
       SUBROUTINE PSBMAT_FREEMEM(cNAME,lg_M,nSize)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
@@ -60,8 +57,10 @@ C tridiagonal local array at Work(lg_M)
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-
+      Integer lg_M, nSize
       CHARACTER(len=*) cNAME
+
+      Integer nTri
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -90,18 +89,21 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 #endif
       use caspt2_data, only: LUSBT
       use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
+      Integer iCase, iSym, lg_M, nSize
+      CHARACTER(LEN=*) cNAME
 
-      CHARACTER cNAME
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      Integer LU, myRank, ISTA,IEND,JSTA,JEND, mpt_M, LDM
 #endif
+      Integer IDISK, nBlock
 
 
       IF (CNAME.EQ.'S') THEN
@@ -144,7 +146,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
         CALL GA_Sync()
       ELSE
 #endif
-*       nTri=(nSize*(nSize+1))/2
         CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
