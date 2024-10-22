@@ -30,7 +30,7 @@ Integer :: iga_arrays=0
 
 Type (ga_type) :: GA_arrays(max_ga_arrays)
 
-Public :: GA_arrays, Allocate_GA_Array, Deallocate_GA_Array
+Public :: GA_arrays, Allocate_GA_Array, Deallocate_GA_Array, DBL_MB
 
 Contains
 Integer Function Allocate_GA_Array(nSize,Label) result(lg_A)
@@ -45,7 +45,7 @@ Do i = 1, max_ga_arrays
    If (.Not.Allocated(GA_arrays(i)%Array)) Then
       iga_arrays=iga_arrays+1
       Call mma_allocate(GA_arrays(i)%Array,nSize,Label=Label)
-      lg_a=i
+      lg_A=i
       Return
    End If
 End Do

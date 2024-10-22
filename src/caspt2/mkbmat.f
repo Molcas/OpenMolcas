@@ -107,11 +107,11 @@ C looping, etc in the rest  of the routines.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -170,8 +170,8 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         ELSE
 #endif
           CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,WORK(lg_BA),1,NAS,1,NAS,0)
-          CALL MKBA_F3(ISYM,WORK(lg_BA),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BA)%Array(:),1,NAS,1,NAS,0)
+          CALL MKBA_F3(ISYM,GA_Arrays(lg_BA)%Array(:),NG3,F3,IDXG3)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -183,7 +183,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A', ISYM, DBA
         END IF
 
-        CALL PSBMAT_FREEMEM('BA',lg_BA,NAS)
+        CALL PSBMAT_FREEMEM(lg_BA)
       END DO
 
       END SUBROUTINE MKBA
@@ -196,7 +196,6 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
       DIMENSION DREF(NDREF),PREF(NPREF)
       DIMENSION FD(NDREF),FP(NPREF)
@@ -296,7 +295,6 @@ CGG End
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       REAL*8 BA(*)
       REAL*8 F3(NG3)
@@ -471,7 +469,6 @@ C  - F(xvzyut) -> BA(yvx,zut)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -933,11 +930,11 @@ c Avoid unused argument warnings
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -998,8 +995,8 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         ELSE
 #endif
           CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,WORK(lg_BC),1,NAS,1,NAS,0)
-          CALL MKBC_F3(ISYM,WORK(LG_BC),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BC)%Array(:),1,NAS,1,NAS,0)
+          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%Array(:),NG3,F3,IDXG3)
 
 #ifdef _MOLCAS_MPP_
         END IF
@@ -1012,7 +1009,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C', ISYM, DBC
         END IF
 
-        CALL PSBMAT_FREEMEM('BC',lg_BC,NAS)
+        CALL PSBMAT_FREEMEM(lg_BC)
       END DO
 
       END SUBROUTINE MKBC
@@ -1025,7 +1022,6 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
@@ -1109,7 +1105,6 @@ CGG End
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       DIMENSION BC(*)
       DIMENSION F3(NG3)

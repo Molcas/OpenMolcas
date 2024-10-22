@@ -96,10 +96,10 @@ C looping, etc in the rest  of the routines.
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -150,9 +150,9 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
         ELSE
 #endif
-          CALL MKSA_G3(ISYM,WORK(lg_SA),NG3,G3,IDXG3)
+          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%Array(:),NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SA)%Array(:),1,NAS,1,NAS,0)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -164,7 +164,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A', ISYM, DSA
         END IF
 
-        CALL PSBMAT_FREEMEM('SA',lg_SA,NAS)
+        CALL PSBMAT_FREEMEM(lg_SA)
       END DO
 
       END SUBROUTINE MKSA
@@ -910,10 +910,10 @@ C Add -dyu Gvzxt
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -965,9 +965,9 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
         ELSE
 #endif
-          CALL MKSC_G3(ISYM,WORK(lg_SC),NG3,G3,IDXG3)
+          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%Array(:),NG3,G3,IDXG3)
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SC)%Array(:),1,NAS,1,NAS,0)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -979,7 +979,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C', ISYM, DSC
         END IF
 
-        CALL PSBMAT_FREEMEM('SC',lg_SC,NAS)
+        CALL PSBMAT_FREEMEM(lg_SC)
       END DO
 
       END SUBROUTINE MKSC

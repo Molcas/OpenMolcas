@@ -15,13 +15,13 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_ga, only: GA_arrays, Allocate_GA_Array
       IMPLICIT None
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
       Integer lg_M, nSize
       CHARACTER(len=*) cNAME
@@ -35,30 +35,29 @@ C tridiagonal local array at Work(lg_M)
       ELSE
 #endif
         nTri=(nSize*(nSize+1))/2
-        CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
-        CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
+        lg_M=Allocate_GA_Array(nTri,cName)
+        GA_Arrays(lg_M)%Array(:)=0.0D0
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
 
       END SUBROUTINE PSBMAT_GETMEM
 
-      SUBROUTINE PSBMAT_FREEMEM(cNAME,lg_M,nSize)
+      SUBROUTINE PSBMAT_FREEMEM(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_ga, only: Deallocate_GA_Array
       IMPLICIT NONE
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-      Integer lg_M, nSize
-      CHARACTER(len=*) cNAME
+      Integer lg_M
 
-      Integer nTri
+      Integer irc
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -71,8 +70,7 @@ C tridiagonal local array at Work(lg_M)
         bStat = GA_Destroy(lg_M)
       ELSE
 #endif
-        nTri=(nSize*(nSize+1))/2
-        CALL GETMEM(cNAME,'FREE','REAL',lg_M,nTri)
+        irc=Deallocate_GA_Array(lg_M)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -87,6 +85,7 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 #endif
       use caspt2_data, only: LUSBT
       use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
+      use fake_ga, only: GA_arrays
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -144,7 +143,7 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
         CALL GA_Sync()
       ELSE
 #endif
-        CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
+        CALL DDAFILE(LUSBT,1,GA_Arrays(lg_M)%Array(:),nBlock,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -161,10 +160,10 @@ C LUSBT into WORK(lg_M)
 #endif
       use caspt2_data, only: LUSBT
       use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
+      use fake_ga, only: GA_arrays
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
       INTEGER iCASE,iSym,lg_M,nSize
       CHARACTER(LEN=*) cNAME
@@ -217,7 +216,7 @@ C LUSBT into WORK(lg_M)
         CALL GA_Sync()
       ELSE
 #endif
-        CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
+        CALL DDAFILE(LUSBT,2,GA_Arrays(lg_M)%Array(:),nBlock,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -228,8 +227,8 @@ C LUSBT into WORK(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_ga, only: GA_arrays
       IMPLICIT NONE
-#include "WrkSpc.fh"
       INTEGER lg_M, NM
 
       INTEGER nTri
@@ -245,7 +244,7 @@ C LUSBT into WORK(lg_M)
       ELSE
 #endif
         nTri=(NM*(NM+1))/2
-        PSBMAT_FPRINT=DNRM2_(nTri,WORK(lg_M),1)
+        PSBMAT_FPRINT=DNRM2_(nTri,GA_Arrays(lg_M)%Array(:),1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

@@ -524,9 +524,7 @@ C divided over processors.
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: insane
-#ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: King
-#endif
       use caspt2_data, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -830,7 +828,6 @@ C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
       CALL PSBMAT_READ ('B',iCase,iSym,lg_B,NAS)
 
       IF (IPRGLB.GE.INSANE) THEN
-        FP=PSBMAT_FPRINT(lg_B,NAS)
         WRITE(6,'(1X,A,ES21.14)') 'BMAT NORM: ', FP
       END IF
 
