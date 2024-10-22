@@ -23,6 +23,7 @@
 * and are loaded onto a global array when needed.
 ************************************************************************
 
+#include "xrhs.fh"
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_INIT()
       use caspt2_data, only: LURHS
@@ -92,7 +93,7 @@ C-SVC: print out DNRM2 of the all RHS components
         WRITE(6,'(1X,I2,1X,8F21.14)') ICASE, FP(1:NSYM)
       END DO
 
-      END
+      END SUBROUTINE RHS_FPRINT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ZERO(IVEC)
@@ -117,13 +118,14 @@ C-SVC: zero out the entire RHS vector on IVEC
         END DO
       END DO
 
-      END
+      END SUBROUTINE RHS_ZERO
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ALLO (NAS,NIS,lg_W)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: Allocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -136,7 +138,7 @@ C-SVC: zero out the entire RHS vector on IVEC
       ELSE
 #endif
         NW=NAS*NIS
-        CALL GETMEM('RHS','ALLO','REAL',lg_W,NW)
+        lg_W=Allocate_GA_Array(NW,'RHS')
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -149,12 +151,14 @@ CSVC: this routine writes the RHS array to disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
       LOGICAL bStat
 #endif
+      Integer irc
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -163,7 +167,7 @@ CSVC: Destroy the global array
       ELSE
 #endif
         NW=NAS*NIS
-        CALL GETMEM('RHS','FREE','REAL',lg_W,NW)
+        irc=Deallocate_GA_Array(lg_W)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -322,8 +326,8 @@ CSVC: this routine copies a global array to a local buffer
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
       DIMENSION W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -354,7 +358,7 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
         END IF
       ELSE
 #endif
-        CALL DCOPY_(NAS*NIS,WORK(lg_W),1,W,1)
+        CALL DCOPY_(NAS*NIS,GA_Arrays(lg_W)%Array,1,W,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -366,8 +370,8 @@ CSVC: this routine copies a local buffer to a global array
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
       DIMENSION W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -401,7 +405,7 @@ C which is 2**30 bytes).
         END IF
       ELSE
 #endif
-        CALL DCOPY_(NAS*NIS,W,1,WORK(lg_W),1)
+        CALL DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%Array,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -415,9 +419,10 @@ Cmatching part of a replicate array.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-      DIMENSION W(NAS,*)
+      INTEGER NAS, NIS, lg_W
+      REAL*8 W(NAS,*)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -435,7 +440,7 @@ Cmatching part of a replicate array.
         END IF
       ELSE
 #endif
-        CALL DAXPY_(NAS*NIS,1.0D0,W,1,WORK(lg_W),1)
+        CALL DAXPY_(NAS*NIS,1.0D0,W,1,GA_Arrays(lg_W)%Array,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -470,10 +475,10 @@ CSVC: this routine reads an RHS array in SR format from disk
 #endif
       use caspt2_data, only: LURHS
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -500,7 +505,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #endif
         NW=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),2,WORK(lg_W),NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%Array,NW,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -535,10 +540,10 @@ CSVC: this routine reads an RHS array in SR format from disk
 #endif
       use caspt2_data, only: LURHS
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -565,7 +570,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #endif
         NW=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),1,WORK(lg_W),NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),1,GA_Arrays(lg_W)%Array,NW,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -580,6 +585,7 @@ C     array at positions given by the buffer index array.
       USE Para_Info, ONLY: Is_Real_Par
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
       Real*8 Buff(nBuff)
@@ -605,7 +611,8 @@ CSVC: global array RHS matrix expects 2 index buffers
       ELSE
 #endif
         DO I=1,nBuff
-          WORK(lg_W+idxW(I)-1)=WORK(lg_W+idxW(I)-1)+Buff(I)
+          GA_Arrays(lg_W)%Array(idxW(I)) =
+     &      GA_Arrays(lg_W)%Array(idxW(I)) + BUFF(I)
         END DO
 #ifdef _MOLCAS_MPP_
       END IF
@@ -630,10 +637,10 @@ C     place and transition is no longer needed.
       use caspt2_data, only: IDSCT
       use caspt2_data, only: LUSOLV
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -681,7 +688,7 @@ CSVC: Destroy the global array
       ELSE
 #endif
       IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-      CALL DDAFILE(LUSOLV,1,WORK(lg_W),NAS*NIS,IDISK)
+      CALL DDAFILE(LUSOLV,1,GA_Arrays(lg_W)%Array,NAS*NIS,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -701,10 +708,10 @@ C     place and transition is no longer needed.
 #endif
       use caspt2_data, only: LUSOLV, IDSCT
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -748,7 +755,7 @@ CSVC: Destroy the global array
 #endif
         NW=NAS*NIS
         IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-        CALL DDAFILE(LUSOLV,2,WORK(lg_W),NW,IDISK)
+        CALL DDAFILE(LUSOLV,2,GA_Arrays(lg_W)%Array,NW,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -764,8 +771,8 @@ CSVC: this routine multiplies the RHS array with FACT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -784,10 +791,10 @@ C          CALL GA_Fill (lg_W,0.0D0)
       ELSE
 #endif
         IF(FACT.EQ.0.0D0) THEN
-            CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
+            CALL DCOPY_(NAS*NIS,[0.0D0],0,GA_Arrays(lg_W)%Array,1)
         ELSE
           IF(FACT.NE.1.0D00) THEN
-            CALL DSCAL_(NAS*NIS,FACT,WORK(lg_W),1)
+            CALL DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%Array,1)
           END IF
         END IF
 #ifdef _MOLCAS_MPP_
@@ -797,7 +804,8 @@ C          CALL GA_Fill (lg_W,0.0D0)
       END SUBROUTINE RHS_SCAL
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_SR2C (ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
+      SUBROUTINE RHS_SR2C (ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,
+     &                     ICASE,ISYM)
 CSVC: this routine transforms the RHS arrays from SR format (V1) to C
 C     format (V2) (IREV=0) and back (IREV=1), with ITYP specifying if
 C     only the T matrix is used (ITYP=0) or the product of S and T
@@ -808,10 +816,10 @@ C     (ITYP=1).
       use caspt2_data, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -907,12 +915,12 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
         CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
         IF (IREV.EQ.0) THEN
           CALL DGEMM_('N','N',NAS,NIS,NIN,
-     &                1.0d0,T,NAS,WORK(lg_V1),NIN,
-     &                0.0d0,WORK(lg_V2),NAS)
+     &                1.0d0,T,NAS,GA_Arrays(lg_V1)%Array,NIN,
+     &                0.0d0,GA_Arrays(lg_V2)%Array,NAS)
         ELSE
           CALL DGEMM_('T','N',NIN,NIS,NAS,
-     &                1.0d0,T,NAS,WORK(lg_V2),NAS,
-     &                0.0d0,WORK(lg_V1),NIN)
+     &                1.0d0,T,NAS,GA_Arrays(lg_V2)%Array,NAS,
+     &                0.0d0,GA_Arrays(lg_V1)%Array,NIN)
         END IF
         CALL mma_deallocate(T)
 #ifdef _MOLCAS_MPP_
@@ -931,10 +939,10 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
       use caspt2_data, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -997,7 +1005,8 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
         IDS=IDSMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,2,S,NS,IDS)
         CALL TRIMUL(NAS,NIS,ALPHA,S,
-     &              WORK(lg_V1),NAS,WORK(lg_V2),NAS)
+     &              GA_Arrays(lg_V1)%Array,NAS,
+     &              GA_Arrays(lg_V2)%Array,NAS)
         CALL mma_deallocate(S)
 #ifdef _MOLCAS_MPP_
       END IF
@@ -1011,8 +1020,8 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1023,7 +1032,8 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
         RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
       ELSE
 #endif
-        RHS_DDOT = DDOT_(NAS*NIS,WORK(lg_V1),1,WORK(lg_V2),1)
+        RHS_DDOT = DDOT_(NAS*NIS,GA_Arrays(lg_V1)%Array,1,
+     &                           GA_Arrays(lg_V2)%Array,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -1036,8 +1046,11 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+      INTEGER NAS, NIS
+      REAL*8 ALPHA
+      INTEGER lg_V1, lg_V2
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1061,7 +1074,8 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
         END IF
       ELSE
 #endif
-        CALL DAXPY_(NAS*NIS,ALPHA,WORK(lg_V1),1,WORK(lg_V2),1)
+        CALL DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%Array,1,
+     &                            GA_Arrays(lg_V2)%Array,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -1074,11 +1088,11 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1106,7 +1120,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GAdSUM_SCAL(DOVL)
       ELSE
 #endif
-        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,DOVL)
+        CALL RESDIA(NIN,NIS,GA_Arrays(lg_W)%Array,NIN,DIN,DIS,DOVL)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -1119,11 +1133,11 @@ C-SVC: get the local vertical stripes of the lg_W vector
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1149,84 +1163,9 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GA_Sync()
       ELSE
 #endif
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
+        CALL SGMDIA(NIN,NIS,GA_Arrays(lg_W)%Array,NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
 
       END SUBROUTINE RHS_SGMDIA
-
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
-
-      use definitions, only: wp, iwp
-      use caspt2_global, only: imag_shift, real_shift,
-     &                         sigma_p_epsilon, sigma_p_exponent
-
-      implicit none
-
-      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,*), dOvl
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
-
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: delta, delta_inv, tmp,
-     &                                    sigma, epsilon
-
-      dOvl = 0.0_wp
-      do j = 1,nCol
-        do i = 1,nRow
-          ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + real_shift
-          ! inverse denominator plus imaginary shift
-          delta_inv = delta/(delta**2 + imag_shift**2)
-          ! multiply by (inverse) sigma-p regularizer
-          epsilon = sigma_p_epsilon
-          p = sigma_p_exponent
-          if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**p
-            delta_inv = delta_inv * (1.0_wp - exp(-sigma*abs(delta)**p))
-          end if
-          tmp = delta_inv * W(i,j)
-          dOvl = dOvl + tmp * W(i,j)
-          W(i,j) = tmp
-        end do
-      end do
-
-      end subroutine resdia
-
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
-
-      use definitions, only: wp, iwp
-      use caspt2_global, only: imag_shift, real_shift,
-     &                         sigma_p_epsilon, sigma_p_exponent
-
-      implicit none
-
-      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,*)
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
-
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: delta, sigma, epsilon
-
-      do j = 1,nCol
-        do i = 1,nRow
-          ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + real_shift
-          ! add the imaginary shift
-          delta = delta + imag_shift**2/delta
-          ! multiply by sigma-p regularizer
-          epsilon = sigma_p_epsilon
-          p = sigma_p_exponent
-          if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**p
-            delta = delta/(1.0_wp - exp(-sigma * abs(delta)**p))
-          end if
-
-          W(i,j) = delta * W(i,j)
-        end do
-      end do
-
-      end subroutine sgmdia

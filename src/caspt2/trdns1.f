@@ -16,6 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+#include "xrhs.fh"
       SUBROUTINE TRDNS1(IVEC,DPT1,NDPT1)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -23,11 +24,13 @@
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
+#define RHS_ X_RHS_
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
+!#include "WrkSpc.fh"
       Integer IVEC, NDPT1
       REAL*8 DPT1(NDPT1)
 #ifdef _MOLCAS_MPP_
@@ -89,7 +92,7 @@ C Transform to standard representation, covariant form.
           END IF
         ELSE
 #endif
-          CALL SPEC1A(IMLTOP,FACT,ISYM,WORK(LVEC),
+          CALL SPEC1A(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%Array,
      &                                 WTI(IWOFF))
 #ifdef _MOLCAS_MPP_
         END IF
@@ -123,7 +126,7 @@ C Transform to standard representation, covariant form.
           END IF
         ELSE
 #endif
-          CALL SPEC1C(IMLTOP,FACT,ISYM,WORK(LVEC),WAT(IWOFF))
+          CALL SPEC1C(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%Array,WAT(IWOFF))
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -155,7 +158,7 @@ C Transform to standard representation, covariant form.
         END IF
       ELSE
 #endif
-        CALL SPEC1D(IMLTOP,FACT,WORK(LVEC),WAI)
+        CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC)%Array,WAI)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

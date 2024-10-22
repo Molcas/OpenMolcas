@@ -117,8 +117,11 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION X(*),F(NFI,NFJ)
-      DIMENSION LST1(4,NLST1)
+      INTEGER KOD, IMLTOP
+      INTEGER LST1(4,NLST1)
+      REAL*8 X(*)
+      INTEGER NAS1,NIS1,JXOFF, NFI,NFJ, lg_Y, NAS2, NIS2
+      REAL*8 F(NFI,NFJ)
 
 #ifdef _MOLCAS_MPP_
 C SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
