@@ -17,9 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 C SVC-20120305: This is a new parallel version of the SGM subroutine.
-C Instead of the full arrays X2 and Y, distributed array indices lg_X
-C and lg_Y are passed, they can be either indices into the WORK array or
-C they can refer to distributed arrays.
+C Instead of the full array Y, distributed array indices lg_Y is passed,
+C which can be either indices into the WORK array or
+C can refer to distributed arrays.
 
 C Currently, only case H will be passed as a distributed array, since
 C this is the largest array (about a factor of NI larger than case G)
@@ -35,7 +35,7 @@ C so each chunk has all the row indices (full columns).
 
 
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &               X1,lg_X,lg_Y,LIST)
+     &               X1,X2,lg_Y,LIST)
       use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
       use EQSOLV
       use Sigma_data
@@ -43,9 +43,9 @@ C so each chunk has all the row indices (full columns).
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-      DIMENSION X1(*)
-      DIMENSION LIST(*)
-      DIMENSION IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
+      REAL*8 X1(*), X2(*)
+      INTEGER LIST(*)
+      INTEGER IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
      &          IOFCGM(8,8)
 C Various constants:
       SQR2=SQRT(2.0D00)
@@ -162,7 +162,7 @@ C  A&BP Two-el
             INCY1=1
             INCY2=NTGEU(ISYM2)
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  WORK(lg_X+IX-1),
+     &                  X2(IX),
      &                  FIT(ISYM12)%A,
      &                  WORK(lg_Y+IY-1))
           END IF
@@ -226,7 +226,7 @@ C A&BM Two-el
             INCY1=1
             INCY2=NTGTU(ISYM2)
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  WORK(lg_X+IX-1),
+     &                  X2(IX),
      &                  FIT(ISYM12)%A,
      &                  WORK(lg_Y+IY-1))
           END IF
@@ -254,7 +254,7 @@ C  A&D  Two-el
           LEN1=NISH(ISYM1)
           LEN2=NSSH(ISYM12)
           CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               WORK(lg_X+IX-1),
+     &               X2(IX),
      &               FAT(ISYM12)%A,
      &               WORK(lg_Y+IY-1))
         END IF
@@ -359,7 +359,7 @@ C  BP&EP Two-el
             LEN1=NIS1
             LEN2=NA
             CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 WORK(lg_X+IX-1),
+     &                 X2(IX),
      &                 FAT(ISYM12)%A,
      &                 WORK(lg_Y+IY-1))
           END IF
@@ -393,7 +393,7 @@ C  BM&EM Two-el
             LEN1=NIS1
             LEN2=NA
             CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 WORK(lg_X+IX-1),
+     &                 X2(IX),
      &                 FAT(ISYM12)%A,
      &                 WORK(lg_Y+IY-1))
           END IF
@@ -449,7 +449,7 @@ C  C&D  Two-el
             LEN1=NSSH(ISYM1)
             LEN2=NI
             CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 WORK(lg_X+IX-1),
+     &                 X2(IX),
      &                 FIT(ISYM12)%A,
      &                 WORK(lg_Y+IY-1))
           END IF
@@ -505,7 +505,7 @@ C  C&FP Two-el
             INCY1=1
             INCY2=NTGEU(ISYM2)
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  WORK(lg_X+IX-1),
+     &                  X2(IX),
      &                  FTA(ISYM12)%A,
      &                  WORK(lg_Y+IY-1))
           END IF
@@ -561,7 +561,7 @@ C  C&FM Two-el
             INCY1=1
             INCY2=NTGTU(ISYM2)
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  WORK(lg_X+IX-1),
+     &                  X2(IX),
      &                  FTA(ISYM12)%A,
      &                  WORK(lg_Y+IY-1))
           END IF
@@ -716,7 +716,7 @@ C  D&EP Two-el
                   INCY3=NU
                   LEN1=NA
                   CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                        WORK(lg_X+IX-1),
+     &                        X2(IX),
      &                        FIT(ISYM12)%A,
      &                        WORK(lg_Y+IY-1))
                 END IF
@@ -799,7 +799,7 @@ C  D&EM Two-el
                   INCY3=NU
                   LEN1=NA
                   CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                              WORK(lg_X+IX-1),
+     &                              X2(IX),
      &                              FIT(ISYM12)%A,
      &                              WORK(lg_Y+IY-1))
                 END IF
@@ -843,7 +843,7 @@ C  D&GP Two-el
                 INCY3=NU
                 LEN1=NI
                 CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                      WORK(lg_X+IX-1),
+     &                      X2(IX),
      &                      FTA(ISYM12)%A,
      &                      WORK(lg_Y+IY-1))
               END IF
@@ -886,7 +886,7 @@ C  D&GM Two-el
                 INCY3=NU
                 LEN1=NI
                 CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                      WORK(lg_X+IX-1),
+     &                      X2(IX),
      &                      FTA(ISYM12)%A,
      &                      WORK(lg_Y+IY-1))
               END IF
@@ -912,7 +912,7 @@ C  EP&HP Two-el
             NFT=NASH(ISYM1)
             NFA=NSSH(ISYM1)
             CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X2,NAS1,NIS1,JXOFF,
      &                  FTA(ISYM1)%A,NFT,NFA,
      &                  lg_Y,NAS2,NIS2)
           END IF
@@ -935,7 +935,7 @@ C  EM&HM Two-el
             NFT=NASH(ISYM1)
             NFA=NSSH(ISYM1)
             CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X2,NAS1,NIS1,JXOFF,
      &                  FTA(ISYM1)%A,NFT,NFA,
      &                  lg_Y,NAS2,NIS2)
           END IF
@@ -965,7 +965,7 @@ C  FP&GP Two-el
             LEN1=NIS1
             LEN2=NI
             CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 WORK(lg_X+IX-1),
+     &                 X2(IX),
      &                 FIT(ISYM12)%A,
      &                 WORK(lg_Y+IY-1))
           END IF
@@ -995,7 +995,7 @@ C  FM&GM Two-el
             LEN1=NIS1
             LEN2=NI
             CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 WORK(lg_X+IX-1),
+     &                 X2(IX),
      &                 FIT(ISYM12)%A,
      &                 WORK(lg_Y+IY-1))
           END IF
@@ -1016,7 +1016,7 @@ C  GP&HP Two-el
           NFT=NASH(ISYM1)
           NFI=NISH(ISYM1)
           CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                X2,NAS1,NIS1,JXOFF,
      &                FTI(ISYM1)%A,NFT,NFI,
      &                lg_Y,NAS2,NIS2)
         END IF
@@ -1036,7 +1036,7 @@ C  GM&HM Two-el
           NFT=NASH(ISYM1)
           NFI=NISH(ISYM1)
           CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                X2,NAS1,NIS1,JXOFF,
      &                FTI(ISYM1)%A,NFT,NFI,
      &                lg_Y,NAS2,NIS2)
         END IF

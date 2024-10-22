@@ -200,7 +200,7 @@ C the SGM subroutines
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 SGM1,LSGM2,LCX,LISTS)
+     &                 SGM1,WORK(LSGM2),LCX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
@@ -426,7 +426,7 @@ CPAM Sanity check:
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 D1,LD2,LSGMX,LISTS)
+     &                 D1,WORK(LD2),LSGMX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)

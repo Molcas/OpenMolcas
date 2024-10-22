@@ -534,12 +534,12 @@ C Allocate space for the contraction:
          CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Loop over sections of WW1 and WW2:
         DO ITUVSTA=1,NAS,NWSCT
-          LW1A=LW1-1+ITUVSTA
+          LW1A=ITUVSTA
           ITUVEND=MIN(ITUVSTA-1+NWSCT,NAS)
           MWS1=ITUVEND+1-ITUVSTA
           DO IXYZSTA=1,NAS,NWSCT
             IXYZEND=MIN(IXYZSTA-1+NWSCT,NAS)
-            LW2A=LW2-1+IXYZSTA
+            LW2A=IXYZSTA
             MWS2=IXYZEND+1-IXYZSTA
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
             WPROD(:)=0.0D0
