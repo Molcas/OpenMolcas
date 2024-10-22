@@ -10,6 +10,7 @@
 !***********************************************************************
 Module fake_ga
 use stdalloc, only: mma_allocate, mma_deallocate
+Private
 
 Real*8 DBL_MB(2)
 
@@ -28,6 +29,8 @@ Integer, parameter :: max_ga_arrays=10
 Integer :: iga_arrays=0
 
 Type (ga_type) :: GA_arrays(max_ga_arrays)
+
+Public :: GA_arrays, Allocate_GA_Array, Deallocate_GA_Array
 
 Contains
 Integer Function Allocate_GA_Array(nSize,Label) result(lg_A)
