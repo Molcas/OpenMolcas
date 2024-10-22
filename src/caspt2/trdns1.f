@@ -30,7 +30,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-!#include "WrkSpc.fh"
       Integer IVEC, NDPT1
       REAL*8 DPT1(NDPT1)
 #ifdef _MOLCAS_MPP_
