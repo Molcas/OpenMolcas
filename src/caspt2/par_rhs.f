@@ -145,7 +145,7 @@ C-SVC: zero out the entire RHS vector on IVEC
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_ALLO
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_FREE (NAS,NIS,lg_W)
@@ -173,7 +173,7 @@ CSVC: Destroy the global array
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_FREE
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_DISTRIBUTION (NAS,NIS,iLo,iHi,jLo,jHi)
@@ -210,7 +210,7 @@ CSVC: Destroy the global array
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
-      END
+      END SUBROUTINE RHS_DISTRIBUTION
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ACCESS (NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
@@ -261,7 +261,7 @@ C     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_ACCESS
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RELEASE (lg_W,iLo,iHi,jLo,jHi)
 CSVC: this routine releases a local block back to the global array
@@ -292,7 +292,7 @@ C Avoid unused argument warnings
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_RELEASE
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RELEASE_UPDATE (lg_W,iLo,iHi,jLo,jHi)
 CSVC: this routine releases a local block that was written to back to
@@ -324,7 +324,7 @@ C Avoid unused argument warnings
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_RELEASE_UPDATE
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_GET (NAS,NIS,lg_W,W)
 CSVC: this routine copies a global array to a local buffer
@@ -368,7 +368,7 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_GET
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_PUT (NAS,NIS,lg_W,W)
 CSVC: this routine copies a local buffer to a global array
@@ -415,7 +415,7 @@ C which is 2**30 bytes).
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_PUT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ADD (NAS,NIS,lg_W,W)
@@ -449,7 +449,7 @@ Cmatching part of a replicate array.
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_ADD
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_C (lg_W,iCASE,iSYM,iVEC)
@@ -459,7 +459,7 @@ Cmatching part of a replicate array.
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_READ_C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_SR (lg_W,iCASE,iSYM,iVEC)
@@ -469,7 +469,7 @@ Cmatching part of a replicate array.
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_READ_SR
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
@@ -514,7 +514,7 @@ CSVC: this routine reads an RHS array in SR format from disk
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_READ
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_C (lg_W,iCASE,iSYM,iVEC)
@@ -524,7 +524,7 @@ CSVC: this routine reads an RHS array in SR format from disk
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_SAVE_C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_SR (lg_W,iCASE,iSYM,iVEC)
@@ -534,7 +534,7 @@ CSVC: this routine reads an RHS array in SR format from disk
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_SAVE_SR
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
@@ -579,7 +579,7 @@ CSVC: this routine reads an RHS array in SR format from disk
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_SAVE
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SCATTER (LDW,lg_W,Buff,idxW,nBuff)
@@ -803,7 +803,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_SCAL
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SR2C (ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)

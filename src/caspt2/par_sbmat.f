@@ -15,7 +15,6 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       IMPLICIT None
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
@@ -48,7 +47,6 @@ C tridiagonal local array at Work(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       IMPLICIT NONE
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
@@ -78,7 +76,7 @@ C tridiagonal local array at Work(lg_M)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
-      END
+      END SUBROUTINE PSBMAT_FREEMEM
 
       SUBROUTINE PSBMAT_WRITE(cNAME,iCase,iSym,lg_M,nSize)
 CSVC20100902: write the global array lg_M to disk using DRA interface,
@@ -88,7 +86,7 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       use caspt2_data, only: LUH0T
 #endif
       use caspt2_data, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -151,7 +149,7 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       END IF
 #endif
 
-      END
+      END SUBROUTINE PSBMAT_WRITE
 
       SUBROUTINE PSBMAT_READ(cNAME,iCase,iSym,lg_M,nSize)
 CSVC20100902: read the disk array stored as cName+iSym using DRA
@@ -162,19 +160,21 @@ C LUSBT into WORK(lg_M)
       use caspt2_data, only: LUH0T
 #endif
       use caspt2_data, only: LUSBT
-      use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
+      IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-
-      CHARACTER cNAME
+      INTEGER iCASE,iSym,lg_M,nSize
+      CHARACTER(LEN=*) cNAME
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      INTEGER LU, myRank, iSTA, IEND, JSTA, JEND, mpt_M, LDM
 #endif
+      INTEGER IDISK, nBlock
 
 
       IF (CNAME.EQ.'S') THEN
@@ -217,21 +217,23 @@ C LUSBT into WORK(lg_M)
         CALL GA_Sync()
       ELSE
 #endif
-*       nTri=(nSize*(nSize+1))/2
         CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
 
-      END
+      END SUBROUTINE PSBMAT_READ
 
       REAL*8 FUNCTION PSBMAT_FPRINT(lg_M,NM)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 #include "WrkSpc.fh"
+      INTEGER lg_M, NM
 
+      INTEGER nTri
+      REAL*8, External::DNRM2_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -247,4 +249,4 @@ C LUSBT into WORK(lg_M)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
-      END
+      END FUNCTION PSBMAT_FPRINT
