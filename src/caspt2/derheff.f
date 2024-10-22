@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
+#include "xrhs.fh"
       Subroutine DerHEff(CLag,VECROT)
       use caspt2_data, only: LUCIEX, IDTCEX
       use EQSOLV
@@ -110,6 +111,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -126,7 +128,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Dimension DTG1(NASHT,NASHT)
       Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -186,8 +187,9 @@ C     HECOMP=0.0D0
           ELSE
 #endif
             CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                      WORK(MV1),WORK(MV2),OVL,
-     &                      DTG1,DTG2,DTG3)
+     &                        GA_Arrays(MV1)%Array,
+     &                        GA_Arrays(MV2)%Array,OVL,
+     &                        DTG1,DTG2,DTG3)
 #ifdef _MOLCAS_MPP_
           END IF
 #endif
@@ -258,12 +260,12 @@ C calling subroutine.
 #include "rasdim.fh"
 #include "caspt2.fh"
 
-      DIMENSION V1(*), V2(*)
+      REAL*8 V1(*), V2(*)
 
-      Dimension DTG1(NASHT,NASHT)
-      Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
+      REAL*8 DTG1(NASHT,NASHT)
+      REAL*8 DTG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      Dimension DTG3(*)
+      REAL*8 DTG3(*)
 
 
       ! HEBLK=0.0D0
@@ -820,7 +822,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
       Real*8 DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
       Real*8 DTG3(NTG3)
       Real*8 CI1(MXCI),CI2(MXCI)
