@@ -67,6 +67,7 @@ C     For 2c-2e ERI derivatives,
 C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 C     then saved.
 C
+#include "xrhs.fh"
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
@@ -77,13 +78,13 @@ C
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
+      use fake_GA, only: GA_Arrays
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
@@ -198,7 +199,7 @@ C
 ************************************************************************
 *                                                                      *
 * Read bra (Cholesky vectors) in the form L(AJ), form <D1|0>
-* We still have L(VX) vectors in core, at WORK(LKETS).
+* We still have L(VX) vectors in core, at KETS.
 *
       Call Cholesky_Vectors(1,Inactive,Active,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
@@ -436,7 +437,6 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C     DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION Cho_Bra(*), Cho_Ket(*)
       DIMENSION Cho_BraD(*), Cho_KetD(*)
@@ -615,11 +615,11 @@ C
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
 C
-              ValAF = Work(ipT+IW-1)*2.0D+00
+              ValAF = GA_Arrays(ipT)%Array(IW)*2.0D+00
               DPT2C(iTtot+nOrbT*(iJtot-1))
      *          = DPT2C(iTtot+nOrbT*(iJtot-1)) + ValAF
               If (do_csf) Then
-                ValAFanti = Work(ipTanti+IW-1)*2.0D+00
+                ValAFanti = GA_Arrays(ipTanti)%Array(IW)*2.0D+00
                 DPT2Canti(iTtot+nOrbT*(iJtot-1))
      *            = DPT2Canti(iTtot+nOrbT*(iJtot-1)) + ValAFanti
               End If
@@ -629,7 +629,7 @@ C
               IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
-              TJVX(IT,IJ,IV,IX) = Work(ipT+IW-1)
+              TJVX(IT,IJ,IV,IX) = GA_Arrays(ipT)%Array(IW)
             END DO
           END DO
         END DO
@@ -728,7 +728,7 @@ C
                  IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-                TJVL(IT,IJ,IV,IL) = SCL*Work(ipTP+IW-1)
+                TJVL(IT,IJ,IV,IL) = SCL*GA_Arrays(ipTP)%Array(IW)
               END DO
             END DO
           END DO
@@ -773,7 +773,7 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)
-     *            + SCL*Work(ipTM+IW-1)
+     *            + SCL*GA_Arrays(ipTM)%Array(IW)
               END DO
             END DO
           END DO
@@ -855,11 +855,11 @@ C
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValCF = Work(ipT+IW-1)*2.0D+00
+              ValCF = GA_Arrays(ipT)%Array(IW)*2.0D+00
               DPT2C(iAtot+nOrbA*(iUtot-1))
      *          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
               If (do_csf) Then
-                ValCFanti = Work(ipTanti+IW-1)*2.0D+00
+                ValCFanti = GA_Arrays(ipTanti)%Array(IW)*2.0D+00
                 DPT2Canti(iAtot+nOrbA*(iUtot-1))
      *            = DPT2Canti(iAtot+nOrbA*(iUtot-1)) + ValCFanti
               End If
@@ -871,7 +871,7 @@ C
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValC = Work(ipT+IW-1)
+              ValC = GA_Arrays(ipT)%Array(IW)
               AUVX(IA,IU,IV,IX) = AUVX(IA,IU,IV,IX) + ValC
               AUVX(IA,IX,IU,IX) = AUVX(IA,IX,IU,IX) - ValCF*0.5D+00
             END DO
@@ -980,17 +980,17 @@ C
               IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW=IW1+NAS*(IW2-1)
 C
-              ValD = Work(ipT+IW-1)
+              ValD = GA_Arrays(ipT)%Array(IW)
               If (iVtot.eq.iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
      *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD*2.0d+00
                 If (do_csf) Then
-                  ValDanti = Work(ipTanti+IW-1)*2.0D+00
+                  ValDanti = GA_Arrays(ipTanti)%Array(IW)*2.0D+00
                   DPT2Canti(iAtot+nOrbA*(iJtot-1))
      *              = DPT2Canti(iAtot+nOrbA*(iJtot-1)) + ValDanti
                 End If
               End If
-              AJVX(IV,IX,IAJ) = Work(ipT+IW-1)
+              AJVX(IV,IX,IAJ) = GA_Arrays(ipT)%Array(IW)
             END DO
           END DO
         END DO
@@ -1076,7 +1076,7 @@ C
               IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
               IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
               IW=IW1+NAS*(IW2-1)
-              AUVL(IA,IU,IV,IL) = Work(ipT+IW-1)
+              AUVL(IA,IU,IV,IL) = GA_Arrays(ipT)%Array(IW)
             END DO
           END DO
         END DO
@@ -1190,7 +1190,7 @@ C
                 IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
                 IW=IW1+NAS*(IW2-1)
 C
-                AJVL(IV,IL,IAJ) = SCL*Work(ipTP+IW-1)
+                AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%Array(IW)
               END DO
             END DO
           END DO
@@ -1261,7 +1261,7 @@ C
                   IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
                   IW=IW1+NAS*(IW2-1)
 C
-                  AJVL(IV,IL,IAJ) = SCL*Work(ipTM+IW-1)
+                  AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%Array(IW)
                 END IF
               END DO
             END DO
@@ -1365,7 +1365,7 @@ C
                   IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-                AUCX(IA,IU,IC,IX) = SCL*Work(ipTP+IW-1)
+                AUCX(IA,IU,IC,IX) = SCL*GA_Arrays(ipTP)%Array(IW)
               END DO
             END DO
           END DO
@@ -1412,7 +1412,7 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)
-     *            + SCL*Work(ipTM+IW-1)
+     *            + SCL*GA_Arrays(ipTM)%Array(IW)
               END DO
             END DO
           END DO
@@ -1537,7 +1537,7 @@ C
                 IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGP = SCL*Work(ipTP+IW-1)
+                ValGP = SCL*GA_Arrays(ipTP)%Array(IW)
                 AUCL(IA,IU,ICL) = ValGP
               END DO
             END DO
@@ -1619,7 +1619,7 @@ C
                 IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGM = SCL*Work(ipTM+IW-1)
+                ValGM = SCL*GA_Arrays(ipTM)%Array(IW)
                 AUCL(IA,IU,ICL) = ValGM
               END DO
             END DO
@@ -1757,7 +1757,7 @@ C
               END IF
               IW=IAGEC+NAGEB(ISYM)*(IJGEL-1)
 C
-              ValHP = SCL*Work(ipTP+IW-1)
+              ValHP = SCL*GA_Arrays(ipTP)%Array(IW)
               AJCL(ICLSTA+ICL-1,IAJ) = ValHP
             END DO
           END DO
@@ -1852,7 +1852,7 @@ C
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
 C
-              ValHM = SCL*Work(ipTM+IW-1)
+              ValHM = SCL*GA_Arrays(ipTM)%Array(IW)
               AJCL(ICLSTA+ICL-1,IAJ) = ValHM
             END DO
           END DO
@@ -1914,5 +1914,4 @@ C
       END DO
       nArray=LKETSM-1
 *
-      Return
-      End
+      End Subroutine Cholesky_Vectors
