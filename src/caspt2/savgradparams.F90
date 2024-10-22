@@ -15,6 +15,7 @@
 ! calculations using disk at present (hopefully)
 ! Save with Mode = 1, and restore with Mode = 2
 !
+#include "xrhs.fh"
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
   use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
@@ -24,14 +25,13 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
   use EQSOLV
+  use fake_GA, only: GA_Arrays
 
   Implicit None
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-
-#include "WrkSpc.fh"
 
   integer(kind=iwp), intent(in) :: Mode
   integer(kind=iwp), intent(inout) :: IDSAVGRD
@@ -260,9 +260,9 @@ Contains
           Call RHS_ALLO(NAS,NIS,lg_V1)
           If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NAS*NIS,IDSAVGRD)
           Else If (IORW == 2) Then
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NAS*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(NAS,NIS,lg_V1)
@@ -270,9 +270,9 @@ Contains
           Call RHS_ALLO(NIN,NIS,lg_V1)
           If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NIN*NIS,IDSAVGRD)
           Else If (IORW == 2) Then
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NIN*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(NIN,NIS,lg_V1)
