@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
+#include "xrhs.fh"
       SUBROUTINE OLagNS2(iSym,DPT2C,T2AO)
 C
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -83,11 +84,11 @@ C
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use fake_GA, only: GA_Arrays
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)
@@ -314,7 +315,7 @@ C             End Do
 C             ValA = ValA*2.0D+00
               iIS = iJabs
               iAS = IW1
-              ValA = Work(ipTC+iAS-1+nAS*(iIS-1))*2.0D+00
+              ValA = GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))*2.0D+00
 C
               If (iUabs.eq.iVabs) Then
                 !! For FIMO derivative
@@ -406,7 +407,7 @@ C    *        + Work(ipTP+iVP-1)*Work(LSTP+iVaP-1+nASP*(iICB-1))
 C             End Do
               iIS = iViP
               iAS = iVaP
-              ValBP = Work(ipTCP+iAS-1+nASP*(iIS-1))
+              ValBP = GA_Arrays(ipTCP)%Array(iAS+nASP*(iIS-1))
               If (iAabs.ne.iBabs.and.iIabs.ne.iJabs) Then
                 If (iIabs.ne.iJabs) Then
 C                 Do iICB = 1, nINM
@@ -416,7 +417,7 @@ C    *          + Work(ipTM+iVM-1)*Work(LSTM+iVaM-1+nASM*(iICB-1))
 C                 End Do
                   iIS = iViM
                   iAS = iVaM
-                  ValBM = Work(ipTCM+iAS-1+nASM*(iIS-1))
+                  ValBM = GA_Arrays(ipTCM)%Array(iAS+nASM*(iIS-1))
                 End If
                 !! permutated
                 If (iAabs.lt.iBabs) ValBM = -ValBM
@@ -512,10 +513,10 @@ C             ValC2 = ValC2*2.0D+00
 C
               iIS = iAabs
               iAS = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
-              ValC1 = Work(ipTC+iAS-1+nAS*(iIS-1))*2.0D+00
+              ValC1 = GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))*2.0D+00
               If (iIabs.ne.iJabs) Then
                 iAS = kTUV(iVabs,iUabs,iTabs) - nTUVes(iSym)
-                ValC2 = Work(ipTC+iAS-1+nAS*(iIS-1))*2.0D+00
+                ValC2 = GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))*2.0D+00
               End If
 C
               iTabs = iBabs
@@ -532,7 +533,7 @@ C    *          + Work(ipT+iV-1)*Work(LST+IW1-1+nAS*(iICB-1))
 C               End Do
 C               ONEADD = ONEADD*2.0D+00
                 iAS = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
-                ONEADD = Work(ipTC+iAS-1+nAS*(iIS-1))*2.0D+00
+                ONEADD = GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))*2.0D+00
                 DPT2C(iAtot+nOrbA*(iBtot-1))
      *            = DPT2C(iAtot+nOrbA*(iBtot-1)) + ONEADD
 C
@@ -551,7 +552,8 @@ C               ONEADD = 2.0D+00*ONEADD/DBLE(MAX(1,NACTEL))
                 ONEADD = 0.0D+00
                 Do iXabs = 1, nAshI !?
                   iAS = kTUV(iTabs,iXabs,iXabs) - nTUVes(iSym)
-                  ONEADD = ONEADD + Work(ipTC+iAS-1+nAS*(iIS-1))
+                  ONEADD = ONEADD
+     &                   + GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))
                 End Do
                 ONEADD = 2.0D+00*ONEADD/DBLE(MAX(1,NACTEL))
                 AmpL1(iAtot-nCorA,iBtot-nCorA)
@@ -642,9 +644,9 @@ C             ValD1 = ValD1*2.0D+00
 C             ValD2 = ValD2*2.0D+00
               iIS = iJabs + nIshA*(iAabs-1)+iOFF1(iSymA)
               iAS = kTU(iB,iI)-nTUes(iSymA)
-              ValD1 = Work(ipTC+iAS-1+nAS*(iIS-1))*2.0D+00
+              ValD1 = GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))*2.0D+00
               iAS = iAS + nTU(iSymA)
-              ValD2 = Work(ipTC+iAS-1+nAS*(iIS-1))*2.0D+00
+              ValD2 = GA_Arrays(ipTC)%Array(iAS+nAS*(iIS-1))*2.0D+00
 C
               !! Fock contributions from the inactive density
               If (iItot.eq.iBtot) Then
@@ -720,13 +722,14 @@ C
 C
               iASP  = iBabs
               iISP  = iAabs + nSshA*(IgeJ-1)+iOFF1(iSymA)
-              ValEP = Work(ipTCP+iASP-1+nASP*(iISP-1))
+              ValEP = GA_Arrays(ipTCP)%Array(iASP+nASP*(iISP-1))
               ValEM = 0.0D+00
               If (iIabs.gt.iJabs) Then
                 ValEP = ValEP * SQ2
                 iASM  = iBabs
                 iISM  = iAabs + nSshA*(IgtJ-1)+iOFF1(iSymA)
-                ValEM = Work(ipTCM+iASM-1+nASM*(iISM-1))*SQ2*SQ3
+                ValEM = GA_Arrays(ipTCM)%Array(iASM+nASM*(iISM-1))
+     &                *SQ2*SQ3
               Else
               End If
 C
@@ -799,14 +802,14 @@ C
 C
               iASP  = kTgeU(iTabs,iUabs)-nTgeUes(iSym)
               iISP  = kAgeB(iAabs,iBabs)-nAgeBes(iSym)
-              ValFP = Work(ipTCP+iASP-1+nASP*(iISP-1))
+              ValFP = GA_Arrays(ipTCP)%Array(iASP+nASP*(iISP-1))
               If (iIabs.eq.iJabs) ValFP = ValFP*0.5D+00
               ValFM = 0.0D+00
               If (iAabs.ne.iBabs) Then
                 If (iTabs.ne.iUabs) Then
                   iASM  = kTgtU(iTabs,iUabs)-nTgtUes(iSym)
                   iISM  = kAgtB(iAabs,iBabs)-nAgtBes(iSym)
-                  ValFM = Work(ipTCM+iASM-1+nASM*(iISM-1))
+                  ValFM = GA_Arrays(ipTCM)%Array(iASM+nASM*(iISM-1))
                 End If
               Else
                 ValFP = ValFP * SQI2
@@ -881,13 +884,13 @@ C
 C
               iAgeB = kAgeB(iAabs,iBabs)-nAgeBes(iSym) !! iSymAB
               iVjP  = iJ + nIsh(iSymJ)*(iAgeB-1)+IOFF1(iSymJ)
-              ValGP = Work(ipTCP+iI-1+nASP*(iVjP-1))
+              ValGP = GA_Arrays(ipTCP)%Array(iI+nASP*(iVjP-1))
               ValGM = 0.0D+00
               If (iAabs.ne.iBabs) Then
                 ValGP = ValGP * SQ2
                 iAgtB = kAgtB(iAabs,iBabs) - nAgtBes(iSym) !! iSymAB
                 iVjM  = iJ + nIsh(iSymJ)*(iAgtB-1)+IOFF2(iSymJ)
-                ValGM = Work(ipTCM+iI-1+nASM*(iVjM-1))*SQ2*SQ3
+                ValGM = GA_Arrays(ipTCM)%Array(iI+nASM*(iVjM-1))*SQ2*SQ3
               End If
 C
               AmpL1(iA,iB) = AmpL1(iA,iB) + ValGP + ValGM
@@ -968,14 +971,14 @@ C
               iVaHP = kAgeB(iAabs,iBabs) - nAgeBes(iSym)
               iVHP  = iVaHP + iViHP !! nAgeB(iSym)*(iViP-1)
 C
-              ValHP = Work(ipTCP+iVHP-1)
+              ValHP = GA_Arrays(ipTCP)%Array(iVHP)
               ValHM = 0.0D+00
               If (iIabs.ne.iJabs) Then
                 If (iAabs.ne.iBabs) Then
                   ValHP = ValHP * 2.0D+00
                   iVaHM = kAgtB(iAabs,iBabs) - nAgtBes(iSym)
                   iVHM  = iVaHM + iViHM !! nAgtB(iSym)*(iViM-1)
-                  ValHM = Work(ipTCM+iVHM-1) * 2.0D+00*SQ3
+                  ValHM = GA_Arrays(ipTCM)%Array(iVHM) * 2.0D+00*SQ3
                 Else
                   ValHP = ValHP * SQ2
                 End If
