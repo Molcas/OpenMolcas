@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "xrhs.fh"
       SUBROUTINE H0SPCT()
       use caspt2_output, only:iPrGlb
       use caspt2_output, only:dnmThr,cntThr,cmpThr
@@ -19,11 +20,11 @@
 #endif
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -148,8 +149,8 @@ C positioning.
                 COEF=DBL_MB(mVEC+IAS-1+NIN*(IIS-IISTA))
               ELSE
 #endif
-                RHS =WORK(lg_RHS+IAS-1+NIN*(IIS-IISTA))
-                COEF=WORK(lg_VEC+IAS-1+NIN*(IIS-IISTA))
+                RHS =GA_Arrays(lg_RHS)%Array(IAS+NIN*(IIS-IISTA))
+                COEF=GA_Arrays(lg_VEC)%Array(IAS+NIN*(IIS-IISTA))
 #ifdef _MOLCAS_MPP_
               END IF
 #endif
