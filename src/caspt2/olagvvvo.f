@@ -319,7 +319,6 @@ C
       use definitions, only: wp
 C
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Real*8 T2AO(*),vLag(*),CMO(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
       DImension DIA(*),DI(*),FIFA(*),FIMO(*)
@@ -688,8 +687,6 @@ C
       Integer ISTLT(8),ISTSQ(8),nAux(8),KEEP(8),ipWRK(8)
 
       Integer iSkip(8)
-
-!     INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
       Do jSym = 1, nSym
         iSkip(jSym) = 1

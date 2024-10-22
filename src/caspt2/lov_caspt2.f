@@ -637,7 +637,6 @@ C
       Integer nSym, nBas(nSym), nFro(nSym), nIsh(nSym)
       Integer nAsh(nSym), nSsh(nSym), nDel(nSym)
       Real*8  CMO(*), OrbE(*), E2_ab
-#include "WrkSpc.fh"
 
       Integer nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8 Dummy(1)

@@ -29,7 +29,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       REAL*8 DUMMY(1)
 
 C-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
@@ -101,7 +100,6 @@ C-SVC: print out DNRM2 of the all RHS components
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 C-SVC: zero out the entire RHS vector on IVEC
       DO ICASE=1,13
@@ -128,7 +126,6 @@ C-SVC: zero out the entire RHS vector on IVEC
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -154,7 +151,6 @@ CSVC: this routine writes the RHS array to disk
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -181,7 +177,6 @@ CSVC: Destroy the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -221,7 +216,6 @@ C     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -269,7 +263,6 @@ CSVC: this routine releases a local block back to the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -301,7 +294,6 @@ C the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

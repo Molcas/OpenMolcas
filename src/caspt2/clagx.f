@@ -197,18 +197,6 @@ C
           Else
             Go To 100
           End If
-C         write(6,*) "vec1-4"
-C         do i = 1, nin*nis
-C           write(6,'(i4,4f20.10)') i,work(lg_v1+i-1),work(lg_v2+i-1),
-C    *                                 work(lg_v3+i-1),work(lg_v4+i-1)
-C         end do
-C         write(6,*) "vec5-6"
-C         do i = 1, nas*nis
-C           write(6,'(i4,2f20.10)') i,work(lg_v5+i-1),work(lg_v6+i-1)
-C         end do
-C         call abend
-C
-C          write(6,*) "calling clagdx for icase = ", icase
           CALL CLagDX(0,iSym,iCase,Work(lg_V1),WORK(lg_V2),
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
@@ -259,8 +247,6 @@ C
           !! for non-separable density/derivative
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
           CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-C         Call DaXpY_(nIN*nIS,0.5D+00,Work(lg_V2),1,Work(lg_V1),1)
-C         Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iVecX)
 
           CALL RHS_FREE(nIN,nIS,lg_V1)
           CALL RHS_FREE(nIN,nIS,lg_V2)
@@ -1135,36 +1121,6 @@ C
         write(6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt
       END IF
 C
-C     write(6,*) "clag after DERFG3"
-C     do i = 1, min(50,nconf)
-C       write(6,'(i3,2f20.10)') i,clag(i),ci(i)
-C     end do
-
-C     call abend
-C     ovl = ddot_(nconf,ci1,1,clag,1)
-C     write(6,*) "ovl = ", ovl
-C     call daxpy_(nconf,-ovl,ci1,1,clag,1)
-C     write(6,*) "clag after projection"
-C     do i = 1, nconf
-C       write(6,'(i3,f20.10)') i,clag(i)
-C     end do
-C     call abend
-
-C     CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
-C     IF(ORBIN.EQ.'TRANSFOR') Call CLagX_TrfCI(CLAG)
-
-C     write(6,*) "clag after rotation"
-C     do i = 1, nconf
-C       write(6,'(i3,f20.10)') i,clag(i)
-C     end do
-C     write(6,*) "after projection"
-C     ovl = ddot_(nconf,ci1,1,clag,1)
-C     call daxpy_(nconf,-ovl,ci1,1,clag,1)
-C     do i = 1, nconf
-C       write(6,'(i3,2f20.10)') i,clag(i),
-C    *    clag(i)*2.0d+00
-C     end do
-C
       call mma_deallocate(CI1)
       call mma_deallocate(idxG3)
 C
@@ -1439,13 +1395,6 @@ C     REAL*8 GTU
       CALL mma_allocate (Task,nTasks,2,Label='TASK')
 
       iTask=0
-C     DO LT=1,nLev
-C       DO LU=1,LT
-C         iTask=iTask+1
-C         iWork(lTask2T+iTask-1)=LT
-C         iWork(lTask2U+iTask-1)=LU
-C       ENDDO
-C     ENDDO
       ! First, IL < JL pairs.
       Do LT = 1, nLev-1
         Do LU = LT+1, nLev
@@ -2647,7 +2596,6 @@ C
       Call DCopy_(nConf*nState,CLag,1,VecST,1)
 C
       !! z0 = M^{-1}*r0
-C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       Call DCopy_(nConf*nState,VecST,1,VecS2,1)
       Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
       !! p0 = z0
@@ -2693,7 +2641,6 @@ C
         Call DaXpY_(nConf*nState,-Alpha,VecS1,1,VecST,1)
         ResCI=sqrt(DDot_(nConf*nState,VecST,1,VecST,1))
         !! z = M^{-1}*r
-C       Call DMinvCI_SA(ipST,Work(ipS2),rdum,isym,work(ipS))
         Call DCopy_(nConf*nState,VecST,1,VecS2,1)
         Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
 C
@@ -3287,33 +3234,16 @@ C
                 kAA=kAsh+nFro(kS)+nIsh(kS)
                 Do lAsh=1,nAsh(lS)
                   lAA=lAsh+nFro(lS)+nIsh(lS)
-C                 ikl=nna*(lAsh+nA(lS)-1)+kAsh+nA(kS)
 *
 *                 Pick up (pj|kl)
 *
                   Call Coul(ipS,jS,kS,lS,kAA,lAA,WRK1,WRK2)
-C    *                      Work(ipWRK1),Work(ipWRK2))
 *
                   Do iAsh=1,nAsh(iS)
-C                   iAA=iAsh+nIsh(iS)
-C                   ipQ=ipMat(ipS,iS)+nOrb(ipS)*(iAA-1)
                     ipQ=nAsh(ipS)*(iAsh-1)
-C                   ipM=1+nIsh(jS)*nOrb(ipS)
                     Do jAsh=1,nAsh(jS)
-                      ! jAA=jAsh+nFro(jS)+nIsh(jS)
                       ipM=nFro(ipS)+nIsh(ipS)
      *                   +(nFro(jS)+nIsh(jS)+jAsh-1)*nBas(ipS)
-C                     iij=nna*(jAsh+nA(jS)-1)+iAsh+nA(iS)
-C                     ipG=itri(iij,ikl)
-C                     P_ijkl=G2(ipG)
-*
-C                     Call DaXpY_(nOrb(ipS),P_ijkl,MO(ipM),1,
-C    &                            Q(ipQ),1)
-                      !! Fpi = Gijkl*(pj|kl)
-C                     Call DaXpY_(nAsh(ipS),G2(iAsh,jAsh,kAsh,lAsh),
-C    &                            Work(ipWRK1+ipM),1,Fock(1+ipQ),1)
-C                     Call DaXpY_(nAsh(ipS),G2(iAsh,jAsh,kAsh,lAsh),
-C    &                            WRK1(ipM+1,1),1,Fock(1+ipQ),1)
                       Call DaXpY_(nAsh(ipS),G2(iAsh,jAsh,kAsh,lAsh)*2,
      &                            INT2(1,jAsh,kAsh,lAsh),1,
      *                            Fock(1+ipQ),1)
@@ -3331,8 +3261,6 @@ C    &                            WRK1(ipM+1,1),1,Fock(1+ipQ),1)
           End Do     ! jS
         End If
       End Do           ! iS
-C     write(6,*) "after 2"
-C     call sqprt(work(ipfock),nasht)
 C
       !! 3) anti-symmetrize
       !! 4) Divide by the difference of orbital energies
@@ -3341,16 +3269,10 @@ C
         jS=iEOR(iS-1,iSym-1)+1
         If (nAsh(is)*nAsh(jS).ne.0) Then
           !! Anti-symmetrize
-C         Call DGeSub(Fock(ipMat(iS,jS)),nAsh(iS),'N',
-C    &                Fock(ipMat(jS,iS)),nAsh(jS),'T',
-C    &                FockOut(ipMat(iS,jS)),nAsh(iS),
-C    &                nAsh(iS),nAsh(jS))
           Call DGeSub(Fock,nAsh(iS),'N',
      &                Fock,nAsh(jS),'T',
      &                FockOut,nAsh(iS),
      &                nAsh(iS),nAsh(jS))
-C         write(6,*) "after 3"
-C         call sqprt(work(ipfockout),nasht)
 
 
           !! Divide
@@ -3367,8 +3289,6 @@ C         call sqprt(work(ipfockout),nasht)
               DEPSA(jAsh,iAsh) = DEPSA(jAsh,iAsh) + Tmp
             End Do
           End Do
-C         write(6,*) "DEPSA in OffC"
-C         call sqprt(depsa,nasht)
         End If
       End Do
 C
@@ -3392,17 +3312,13 @@ C
       DIMENSION PRE(*)
       dimension ci(*)
       REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
-C     CHARACTER(LEN=256) LINE
-C     CHARACTER(LEN=1) CODE(0:3)
       REAL*8 Fancy(nRoots,nRoots,nRoots)
-C     integer(kind=iwp),allocatable :: LEX(*)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
-C     DATA CODE /'0','u','d','2'/
       Integer :: nIpWlk
       nIpWlk = CIS%nIpWlk
 C
@@ -3428,18 +3344,6 @@ C     LINE=' '
       LENCSF=MIN(LENCSF,256)
       LENCSF=MAX(LENCSF,10)
 
-C100  FORMAT(2X,A10,2X,A16,2X,A,2(2X,A13))
-C200  FORMAT(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',
-C    &       2X,A,2(2X,F13.6))
-
-C Size of occup/spin coupling part of line:
-C     WRITE(6,*)' Occupation of active orbitals, and spin coupling'
-C     WRITE(6,*)' of open shells. (u,d: Spin up or down).'
-C     WRITE(6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
-C     LINE(1:10)='Occupation'
-C     WRITE(6,100)
-C    & 'Conf','SGUGA info      ',LINE(1:LENCSF),
-C    & 'Coefficient','Weight'
 
 C     SVC2010:
 C     allocate scratch memory for determinant expansion
@@ -3535,7 +3439,6 @@ C                 JSY=0
                     END IF
                   END DO
                 ELSE
-C       write (*,*) "singly occupied"
                   VAL = INT1(LEV,LEV)
 C                 L=0
 C                 JSY=0
@@ -3559,10 +3462,6 @@ C      val = val + val2*0.5d+00
                 END IF
                 PRE(ICONF) = PRE(ICONF) + VAL
               END DO
-C             COEF=CI(ICONF)
-C             WRITE(6,200)
-C    &               ICONF,MV,ISYUP,IUP,IDWN,
-C    &               LINE(1:LENCSF),COEF,COEF**2
 C     SVC2010 experimental: add determinant expansion
 C             IF (PRSD) THEN
 c     Specify projected spin in half integer units

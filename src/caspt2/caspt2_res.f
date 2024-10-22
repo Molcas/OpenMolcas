@@ -19,7 +19,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       DIMENSION VECROT(*)
 C
@@ -112,25 +111,6 @@ C
       !! non-variational T-amplitude
       CALL PTRTOC(0,IVECX,IVECC)
       CALL PTRTOC(1,IVECX,IVECC2)
-C     Do iCase = 1, 13
-C       write(6,*) "icase=",icase
-C       Do iSym = 1, nSym
-C         nIN = nINDEP(iSym,iCase)
-C         IF(NIN.EQ.0) Cycle
-C         nAS = nASUP(iSym,iCase)
-C         nIS = nISUP(iSym,iCase)
-
-C         Call RHS_ALLO(nIN,nIS,lg_V1)
-C         !! Read the solution vector
-C         Call RHS_Read(nIN,nIS,lg_V1,iCase,iSym,iVecR)
-C         do i = 1, nin*nis
-C           write(6,'(i3,f20.10)') i,work(lg_v1+i-1)
-C         end do
-C         Call RHS_Free(nIN,nIS,lg_V1)
-C       End Do
-C     End Do
-C
-C
 C
       RETURN
 C
@@ -282,7 +262,6 @@ C
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       INTEGER ICONV
 

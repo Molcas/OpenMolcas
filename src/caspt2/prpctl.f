@@ -34,7 +34,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Logical FullMlk,lSave,Do_ESPF
 
       Character(Len=8) Label
