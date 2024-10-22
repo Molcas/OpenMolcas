@@ -23,7 +23,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*),A_PT2(*)
@@ -270,7 +269,6 @@ C
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 
       Integer nBas(8), nAsh(8), nSkipX(8), nfro(8)
       Dimension CMO(*),T2AO(*),vLag(*)
@@ -678,7 +676,6 @@ C
 #include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
@@ -1045,7 +1042,6 @@ C
       Use Cholesky, only: INFVEC_N2, MaxVec, nnBstR
       Implicit Real*8 (A-H,O-Z)
 C
-#include "WrkSpc.fh"
       Dimension CHSPC(nBasT**2,*),WRK(*),ipWRK(*)
       Dimension INFVEC(MAXVEC,INFVEC_N2,*),nDimRS(nSym0,*),iSkip(8)
 C

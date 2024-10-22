@@ -11,6 +11,7 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
 C
+#include "xrhs.fh"
       Subroutine MS_Res(MODE,IST,JST,Scal)
       use caspt2_data, only: LUCIEX, IDTCEX
       use EQSOLV
@@ -100,6 +101,7 @@ C
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -116,7 +118,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -180,7 +181,8 @@ C     if (icase.ne.10.and.icase.ne.11) cycle ! G
           ELSE
 #endif
             CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                      WORK(MV1),WORK(MV2),OVL,
+     &                      GA_Arrays(MV1)%Array,
+     &                      GA_Arrays(MV2)%Array,OVL,
      &                      TG1,TG2,TG3,SCAL)
 #ifdef _MOLCAS_MPP_
           END IF
@@ -1352,7 +1354,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
       integer(kind=iwp),allocatable :: BGRP(:,:)
@@ -1559,7 +1560,6 @@ C
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C
       Dimension DPT2Canti(*),UEFF(nState,nState),U0(*)
       real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
@@ -1696,7 +1696,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
 
