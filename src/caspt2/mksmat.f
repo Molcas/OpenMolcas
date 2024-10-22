@@ -27,7 +27,6 @@
 C     Set up S matrices for cases 1..13.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
@@ -175,7 +174,6 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
       DIMENSION SA(*)
@@ -351,7 +349,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
 #include "global.fh"
@@ -813,7 +810,6 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -990,7 +986,6 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
       DIMENSION SC(*)
@@ -1166,7 +1161,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
 #include "global.fh"
@@ -1628,7 +1622,6 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)

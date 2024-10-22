@@ -89,7 +89,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
       Integer iCase, iSym, lg_M, nSize
       CHARACTER(LEN=*) cNAME
