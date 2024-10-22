@@ -16,6 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+#include "xrhs.fh"
       SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,NDPT2,SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -24,10 +25,10 @@
       use caspt2_data, only: LISTS
       use EQSOLV
       use Sigma_data
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL
 
@@ -89,10 +90,12 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
            CALL RHS_ALLO(NAS1,NIS1,LSCR)
            CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
-            IF (SCAL.ne.1.0D+00) CALL DSCAL_(NVEC1,SCAL,WORK(LSCR),1)
+            IF (SCAL.ne.1.0D+00)
+     &         CALL DSCAL_(NVEC1,SCAL,GA_Arrays(LSCR)%Array,1)
             CALL RHS_ALLO(NAS1,NIS1,LSCR2)
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            Call DaXpY_(NAS1*NIS1,1.0D+00,Work(LSCR2),1,Work(LSCR),1)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%Array,1,
+     &                                    GA_Arrays(LSCR)%Array,1)
             CALL RHS_FREE(NAS1,NIS1,LSCR2)
            END IF
            CALL RHS_STRANS (NAS1,NIS1,1.0D0,LSCR,LVEC1,ICASE1,ISYM1)
@@ -100,10 +103,12 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
           ELSE
            CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
-            IF (SCAL.ne.1.0D+00) CALL DSCAL_(NVEC1,SCAL,WORK(LVEC1),1)
+            IF (SCAL.ne.1.0D+00)
+     &         CALL DSCAL_(NVEC1,SCAL,GA_Arrays(LVEC1)%Array,1)
             CALL RHS_ALLO(NAS1,NIS1,LSCR2)
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            Call DaXpY_(NAS1*NIS1,1.0D+00,Work(LSCR2),1,Work(LVEC1),1)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%Array,1,
+     &                                    GA_Arrays(LVEC1)%Array,1)
             CALL RHS_FREE(NAS1,NIS1,LSCR2)
            END IF
           END IF
@@ -132,11 +137,13 @@ C Form WEC1 from VEC1, if needed.
             ELSE
 #endif
               IF(ICASE1.EQ.1) THEN
-                CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
+                CALL SPEC1A(IMLTOP,FACT,ISYM1,
+     &                      GA_Arrays(LVEC1)%Array,WEC1)
               ELSE IF(ICASE1.EQ.4) THEN
-                CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LVEC1),WEC1)
+                CALL SPEC1C(IMLTOP,FACT,ISYM1,
+     &                      GA_Arrays(LVEC1)%Array,WEC1)
               ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-                CALL SPEC1D(IMLTOP,FACT,WORK(LVEC1),WEC1)
+                CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC1)%Array,WEC1)
               END IF
 #ifdef _MOLCAS_MPP_
             END IF
@@ -157,10 +164,12 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               CALL RHS_ALLO(NAS2,NIS2,LVEC2)
               CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
               IF (IVEC.NE.JVEC.AND.ILOOP.EQ.2) THEN
-              IF (SCAL.ne.1.0D+00) CALL DSCAL_(NVEC2,SCAL,WORK(LVEC2),1)
+              IF (SCAL.ne.1.0D+00)
+     &          CALL DSCAL_(NVEC2,SCAL,GA_Arrays(LVEC2)%Array,1)
                CALL RHS_ALLO(NAS2,NIS2,LSCR2)
                CALL RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
-              Call DaXpY_(NAS2*NIS2,1.0D+00,Work(LSCR2),1,Work(LVEC2),1)
+              Call DaXpY_(NAS2*NIS2,1.0D+00,GA_Arrays(LSCR2)%Array,1,
+     &                                     GA_Arrays(LVEC2)%Array,1)
                CALL RHS_FREE(NAS2,NIS2,LSCR2)
               END IF
 #ifdef _MOLCAS_MPP_
@@ -176,7 +185,8 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               ELSE
 #endif
                 CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                      WEC1,WORK(LVEC1),DPT2,WORK(LVEC2),LISTS)
+     &                      WEC1,GA_Arrays(LVEC1)%Array,DPT2,
+     &                           GA_Arrays(LVEC2)%Array,LISTS)
 #ifdef _MOLCAS_MPP_
               END IF
 #endif
