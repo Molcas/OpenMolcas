@@ -27,3 +27,4 @@
 #define RHS_DDOT X_RHS_DDOT
 #define RHS_FPRINT X_RHS_FPRINT
 #define CASPT2_ResD X_CASPT2_ResD
+#define PMLTR1 X_PMLTR1
