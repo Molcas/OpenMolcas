@@ -57,7 +57,6 @@ C tridiagonal local array at Work(lg_M)
 #include "pt2_guga.fh"
       Integer lg_M
 
-      Integer irc
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

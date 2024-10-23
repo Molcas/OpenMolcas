@@ -157,7 +157,6 @@ CSVC: this routine writes the RHS array to disk
 #include "mafdecls.fh"
       LOGICAL bStat
 #endif
-      Integer irc
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
