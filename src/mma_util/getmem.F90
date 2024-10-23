@@ -57,19 +57,23 @@
 !                                                                      *
 !***********************************************************************
 
+Implicit None
 #include "SysCtl.fh"
 #include "warnings.h"
 #include "WrkSpc.fh"
 #include "mama.fh"
 !
 !
-      Character*(*) NameIn,KeyIn,TypeIn
-      Character*8   FldNam,eopr,elbl,etyp
-      Character*4   Key,VarTyp
+      Character(LEN=*) NameIn,KeyIn,TypeIn
+      Character(LEN=8) FldNam,eopr,elbl,etyp
+      Character(LEN=4) Key,VarTyp
 #ifdef _GARBLE_
-      Character*5   xKey
+      Character(LEN=5)   xKey
       Logical       SkipGarble
 #endif
+      Integer iPos, Length, irc, iW
+      Integer, external:: kind2goff
+
       Interface
         Function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
           Use, Intrinsic :: iso_c_binding, only: c_char
@@ -178,15 +182,15 @@
 
 
 
-      function kind2goff(var)
+      Integer function kind2goff(var)
 #include "mama.fh"
-      character*(4) var
+      character(LEN=4) var
       kind2goff=0
       if(var.eq.'INTE') kind2goff=iofint
       if(var.eq.'REAL') kind2goff=iofdbl
       if(var.eq.'CHAR') kind2goff=iofchr
       return
-      end
+      end function kind2goff
 
 #ifdef _GARBLE_
       subroutine garble(ipos,length,vartyp)
