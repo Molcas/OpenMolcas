@@ -46,6 +46,7 @@ Do i = 1, max_ga_arrays
       iga_arrays=iga_arrays+1
       Call mma_allocate(GA_arrays(i)%Array,nSize,Label=Label)
       lg_A=i
+      GA_Arrays(lg_A)%Array(:)=0.0D0
       Return
    End If
 End Do

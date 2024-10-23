@@ -76,12 +76,13 @@ C INTEGRAL BUFFERS:
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
 
@@ -101,7 +102,7 @@ C Set up a matrix FWI(w,i)=FIMO(wi)
           NI=NISH(ISYM)
 
 C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
-          CALL GETMEM('WA','ALLO','REAL',LW,NV)
+          LW=Allocate_GA_Array(NV,'WA')
           DO 130 ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
             DO 131 ISYMU=1,NSYM
@@ -128,7 +129,7 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
                       IBUF=IUTOT+NORB(ISYMU)*(IVTOT-1)
                       WTUVI=ERI(IBUF)
                       IF(IVABS.EQ.IUABS) WTUVI=WTUVI+ONEADD
-                      WORK(LW-1+IW)=WTUVI
+                      GA_Arrays(LW)%Array(IW)=WTUVI
                     END DO
  134              CONTINUE
  133            CONTINUE
@@ -138,7 +139,7 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
 C Put W on disk:
           ICASE=1
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
-          CALL GETMEM('WA','FREE','REAL',LW,NV)
+          irc=Deallocate_GA_Array(LW)
  190    CONTINUE
 
 
@@ -148,10 +149,11 @@ C Put W on disk:
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION ERI(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
@@ -175,11 +177,8 @@ C VJTI CASE:
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
 C   Allocate WP,WM
-          NV=NVP+NVM
-          CALL GETMEM('WB','ALLO','REAL',LW,NV)
-          CALL DCOPY_(NV,[0.0D0],0,WORK(LW),1)
-          LWP=LW
-          LWM=LW+NVP
+          LWP=Allocate_GA_Array(NVP,'WBP')
+          LWM=Allocate_GA_Array(NVM,'WBM')
 C   Let  W(tu,i,j)=(it,ju):
 C   WP(tu,ij)=(W(tu,i,j)+W(tu,j,i))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ij))
@@ -213,20 +212,25 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
                         IF(IIABS.GT.IJABS) THEN
-                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
+                          GA_Arrays(LWP)%Array(JWP)=
+     &                       GA_Arrays(LWP)%Array(JWP)+VALUE
                           IIJM=KIGTJ(IIABS,IJABS)-NIGTJES(ISYM)
                           IWM=ITUM+NASM*(IIJM-1)
-                          WORK(LWM-1+IWM)=WORK(LWM-1+IWM)+VALUE
+                          GA_Arrays(LWM)%Array(IWM)=
+     &                       GA_Arrays(LWM)%Array(IWM)+VALUE
                         ELSE
-                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+SQ2*VALUE
+                          GA_Arrays(LWP)%Array(JWP)=
+     &                       GA_Arrays(LWP)%Array(JWP)+SQ2*VALUE
                         END IF
                       ELSE
                         IIJP=KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
-                        WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
+                        GA_Arrays(LWP)%Array(JWP)=
+     &                     GA_Arrays(LWP)%Array(JWP)+VALUE
                         IIJM=KIGTJ(IJABS,IIABS)-NIGTJES(ISYM)
                         IWM=ITUM+NASM*(IIJM-1)
-                        WORK(LWM-1+IWM)=WORK(LWM-1+IWM)-VALUE
+                        GA_Arrays(LWM)%Array(IWM)=
+     &                     GA_Arrays(LWM)%Array(IWM)-VALUE
                       END IF
  206                CONTINUE
  205               CONTINUE
@@ -241,14 +245,17 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
                         IF(IIABS.GT.IJABS) THEN
-                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
+                          GA_Arrays(LWP)%Array(JWP)=
+     &                       GA_Arrays(LWP)%Array(JWP)+VALUE
                         ELSE
-                          WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+SQ2*VALUE
+                          GA_Arrays(LWP)%Array(JWP)=
+     &                       GA_Arrays(LWP)%Array(JWP)+SQ2*VALUE
                         END IF
                       ELSE
                         IIJP=KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
-                        WORK(LWP-1+JWP)=WORK(LWP-1+JWP)+VALUE
+                        GA_Arrays(LWP)%Array(JWP)=
+     &                     GA_Arrays(LWP)%Array(JWP)+VALUE
                       END IF
  216                CONTINUE
  215               CONTINUE
@@ -265,8 +272,8 @@ C  Put WM on disk
             ICASE=3
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-
-          CALL GETMEM('WB','FREE','REAL',LW,NV)
+          irc=Deallocate_GA_Array(LWM)
+          irc=Deallocate_GA_Array(LWP)
  290    CONTINUE
 
 
@@ -276,10 +283,11 @@ C  Put WM on disk
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
 
@@ -300,7 +308,7 @@ C   Allocate W. Put in W(tuv,a)=(at,uv) +
 C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 C First, just the two-electron integrals. Later, add correction.
 
-          CALL GETMEM('WC','ALLO','REAL',LW,NV)
+          LW=Allocate_GA_Array(NV,'WC')
           DO 310 ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
             DO 311 ISYMU=1,NSYM
@@ -322,7 +330,7 @@ C First, just the two-electron integrals. Later, add correction.
                       IW2=IA
                       IW=IW1+NAS*(IW2-1)
                       IBUF=IATOT+NORB(ISYM)*(ITTOT-1)
-                      WORK(LW-1+IW)=ERI(IBUF)
+                      GA_Arrays(LW)%Array(IW)=ERI(IBUF)
  315                CONTINUE
  314              CONTINUE
  313            CONTINUE
@@ -340,7 +348,7 @@ C First, just the two-electron integrals. Later, add correction.
               DO IYABS=1,NASHT
                 IYYW=KTUV(IYABS,IYABS,ITABS)-NTUVES(ISYM)
                 IYYWA=IYYW+NAS*(IA-1)
-                SUM=SUM-WORK(LW-1+IYYWA)
+                SUM=SUM-GA_Arrays(LW)%Array(IYYWA)
               END DO
               ONEADD=SUM/DBLE(MAX(1,NACTEL))
               DO ISYMU=1,NSYM
@@ -349,7 +357,7 @@ C First, just the two-electron integrals. Later, add correction.
                   IW1=KTUV(ITABS,IUABS,IUABS)-NTUVES(ISYM)
                   IW2=IA
                   IW=IW1+NAS*(IW2-1)
-                  WORK(LW-1+IW)=WORK(LW-1+IW)+ONEADD
+                  GA_Arrays(LW)%Array(IW)=GA_Arrays(LW)%Array(IW)+ONEADD
                 END DO
               END DO
             END DO
@@ -359,7 +367,7 @@ C   Put W on disk
           ICASE=4
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 
-          CALL GETMEM('WC','FREE','REAL',LW,NV)
+          irc=Deallocate_GA_Array(LW)
  390    CONTINUE
 
 
@@ -369,10 +377,11 @@ C   Put W on disk
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO)
       REAL*8 ERI1(*),ERI2(*), SCR(*)
@@ -399,7 +408,7 @@ C   Allocate W; W subdivided into W1,W2.
           IF(NV.EQ.0) GOTO 490
 C Compute W1(tu,ai)=(ai,tu) + FIMO(a,i)*delta(t,u)/NACTEL
 C Compute W2(tu,ai)=(ti,au)
-          CALL GETMEM('WD','ALLO','REAL',LW,NV)
+          LW=Allocate_GA_Array(NV,'WD')
           NFSUM=0
           DO 410 ISYMI=1,NSYM
             NFIMOES=NFSUM
@@ -433,8 +442,8 @@ C Compute W2(tu,ai)=(ti,au)
                       IBUF2=ITTOT+NORB(ISYMT)*(IATOT-1)
                       WAITU=ERI1(IBUF1)
                       IF(ITABS.EQ.IUABS) WAITU=WAITU+ONEADD
-                      WORK(LW-1+IW1)=WAITU
-                      WORK(LW-1+IW2)=ERI2(IBUF2)
+                      GA_Arrays(LW)%Array(IW1)=WAITU
+                      GA_Arrays(LW)%Array(IW2)=ERI2(IBUF2)
  415                CONTINUE
  414              CONTINUE
  413            CONTINUE
@@ -444,7 +453,7 @@ C Compute W2(tu,ai)=(ti,au)
 C   Put W on disk.
           ICASE=5
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
-          CALL GETMEM('WD','FREE','REAL',LW,NV)
+          irc=Deallocate_GA_Array(LW)
  490    CONTINUE
 
 
@@ -454,10 +463,11 @@ C   Put W on disk.
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
@@ -491,10 +501,8 @@ C   Allocate W with parts WP,WM
           NVP=NAS*NISP
           IF(NVP.EQ.0) GOTO 590
           NVM=NAS*NISM
-          NV=NVP+NVM
-          CALL GETMEM('WE','ALLO','REAL',LW,NV)
-          LWP=LW
-          LWM=LW+NVP
+          LWP=Allocate_GA_Array(NVP,'WEP')
+          LWM=Allocate_GA_Array(NVM,'WEM')
 C  Let W(t,i,j,a)=(aitj)
 C   WP(t,ij,a)=  (W(t,i,j,a)+W(t,j,i,a))
 C With new normalisation, divide by /SQRT(2+2*Kron(ij))
@@ -524,13 +532,13 @@ C With new normalisation, divide by /SQRT(6)
                       IWIP=IA+NSSH(ISYMA)*(IGEJ-1)+IOFF1(ISYMA)
                       JWP=IWA+NAS*(IWIP-1)
                       IF(IIABS.GT.IJABS) THEN
-                        WORK(LWP-1+JWP)=SQI2*A
+                        GA_Arrays(LWP)%Array(JWP)=SQI2*A
                         B=ERI1(IBUF)-ERI2(IBUF)
                         IWIM=IA+NSSH(ISYMA)*(IGTJ-1)+IOFF2(ISYMA)
                         IWM=IWA+NAS*(IWIM-1)
-                        WORK(LWM-1+IWM)=SQ32*B
+                        GA_Arrays(LWM)%Array(IWM)=SQ32*B
                       ELSE
-                        WORK(LWP-1+JWP)=0.5D0*A
+                        GA_Arrays(LWP)%Array(JWP)=0.5D0*A
                       END IF
  512                CONTINUE
  511              CONTINUE
@@ -545,7 +553,8 @@ C   Put WP and WM on disk.
             ICASE=7
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          CALL GETMEM('WE','FREE','REAL',LW,NV)
+          irc=Deallocate_GA_Array(LWP)
+          irc=Deallocate_GA_Array(LWM)
  590    CONTINUE
 
 
@@ -555,10 +564,11 @@ C   Put WP and WM on disk.
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
@@ -579,8 +589,8 @@ C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
           NVP=NASP*NISP
           IF(NVP.EQ.0)GOTO 690
           NVM=NASM*NISM
-          CALL GETMEM('WFP','ALLO','REAL',LWP,NVP)
-          IF(NVM.GT.0) CALL GETMEM('WFM','ALLO','REAL',LWM,NVM)
+          LWP=Allocate_GA_Array(NVP,'WFP')
+          IF(NVM.GT.0) LWM=Allocate_GA_Array(NVM,'WFM')
 C   Let W(t,u,ab)=(aubt)
 C   WP(tu,ab)=(W(t,u,ab)+W(u,t,ab))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ab))
@@ -616,16 +626,16 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                       IWIP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
                       JWP=IWAP+NASP*(IWIP-1)
                       IF(IAABS.NE.IBABS) THEN
-                        WORK(LWP-1+JWP)=A
+                        GA_Arrays(LWP)%Array(JWP)=A
                         IF(ITABS.NE.IUABS) THEN
                           B=0.5D0*(ERI1(IBUF)-ERI2(IBUF))
                           IWAM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
                           IWIM=KAGTB(IAABS,IBABS)-NAGTBES(ISYM)
                           IWM=IWAM+NASM*(IWIM-1)
-                          WORK(LWM-1+IWM)=B
+                          GA_Arrays(LWM)%Array(IWM)=B
                         END IF
                       ELSE
-                        WORK(LWP-1+JWP)=SQI2*A
+                        GA_Arrays(LWP)%Array(JWP)=SQI2*A
                       END IF
  600                CONTINUE
  611              CONTINUE
@@ -636,13 +646,13 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
 C   Put WP on disk
           ICASE=8
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
-          CALL GETMEM('WFP','FREE','REAL',LWP,NVP)
+          irc=Deallocate_GA_Array(LWP)
           IF(NINM.GT.0) THEN
 C   Put WM on disk
             ICASE=9
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          IF(NVM.GT.0) CALL GETMEM('WFM','FREE','REAL',LWM,NVM)
+          IF(NVM.GT.0) irc=Deallocate_GA_Array(LWM)
  690    CONTINUE
 
 
@@ -652,10 +662,11 @@ C   Put WM on disk
       SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
@@ -686,11 +697,8 @@ C   Allocate W with parts WP,WM
           NVP=NAS*NISP
           IF(NVP.EQ.0) GOTO 790
           NVM=NAS*NISM
-          NV=NVP+NVM
-          CALL GETMEM('WG','ALLO','REAL',LW,NV)
-          CALL DCOPY_(NV,[0.0D0],0,WORK(LW),1)
-          LWP=LW
-          LWM=LW+NVP
+          LWP=Allocate_GA_Array(NVP,'WGP')
+          LWM=Allocate_GA_Array(NVM,'WGM')
 C   Let  W(t,i,a,b)=(atbi)
 C   WP(t,i,ab)=  (W(t,i,a,b)+W(t,i,b,a))
 C With new normalisation, divide by /SQRT(2+2*Kron(ab))
@@ -721,14 +729,14 @@ C With new normalisation, divide by /SQRT(6)
                       JWP=IWA+NAS*(IWIP-1)
                       A=ERI1(IBUF)+ERI2(IBUF)
                       IF(IAABS.NE.IBABS) THEN
-                        WORK(LWP-1+JWP)=SQI2*A
+                        GA_Arrays(LWP)%Array(JWP)=SQI2*A
                         IAGTB=KAGTB(IAABS,IBABS)-NAGTBES(ISYMAB)
                         IWIM=II+NISH(ISYMI)*(IAGTB-1)+IOFF2(ISYMI)
                         IWM=IWA+NAS*(IWIM-1)
                         B=ERI1(IBUF)-ERI2(IBUF)
-                        WORK(LWM-1+IWM)=SQ32*B
+                        GA_Arrays(LWM)%Array(IWM)=SQ32*B
                       ELSE
-                        WORK(LWP-1+JWP)=0.5D0*A
+                        GA_Arrays(LWP)%Array(JWP)=0.5D0*A
                       END IF
  710                CONTINUE
  720              CONTINUE
@@ -743,7 +751,8 @@ C   Put WP and WM on disk.
            ICASE=11
            CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          CALL GETMEM('WG','FREE','REAL',LW,NV)
+          irc=Deallocate_GA_Array(LWP)
+          irc=Deallocate_GA_Array(LWM)
  790    CONTINUE
 
 
@@ -753,10 +762,11 @@ C   Put WP and WM on disk.
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
       USE SUPERINDEX
       use EQSOLV
+      use fake_GA, only: GA_Arrays, Allocate_GA_Array,
+     &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
@@ -778,8 +788,8 @@ C number IVEC of LUSOLV, for cases 12 and 13 (BJAI).
           NASM=NAGTB(ISYM)
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
-          CALL GETMEM('VP','ALLO','REAL',LVP,NVP)
-          IF(NVM.GT.0) CALL GETMEM('VM','ALLO','REAL',LVM,NVM)
+          LVP=Allocate_GA_Array(NVP,'WHP')
+          IF(NVM.GT.0) LVM=Allocate_GA_Array(NVM,'WHM')
 C   VP(ij,ab)=2*((aibj)+(ajbi))
 C With new norm., divide by /SQRT(4*(1+Kron(ij))*(1+Kron(ab))
 C   VM(ij,ab)=6*((aibj)-(ajbi))
@@ -811,20 +821,20 @@ C With new norm., divide by /SQRT(12)
                       A=ERI1(IBUF)+ERI2(IBUF)
                       IF(IIABS.NE.IJABS) THEN
                         IF(IAABS.NE.IBABS) THEN
-                          WORK(LVP-1+IVP)=A
+                          GA_Arrays(LVP)%Array(IVP)=A
                           IVAM=KAGTB(IAABS,IBABS)-NAGTBES(ISYM)
                           IVIM=KIGTJ(IIABS,IJABS)-NIGTJES(ISYM)
                           IVM=IVAM+NAGTB(ISYM)*(IVIM-1)
                           B=ERI1(IBUF)-ERI2(IBUF)
-                          WORK(LVM-1+IVM)=SQ3*B
+                          GA_Arrays(LVM)%Array(IVM)=SQ3*B
                         ELSE
-                          WORK(LVP-1+IVP)=SQI2*A
+                          GA_Arrays(LVP)%Array(IVP)=SQI2*A
                         END IF
                       ELSE
                         IF(IAABS.NE.IBABS) THEN
-                          WORK(LVP-1+IVP)=SQI2*A
+                          GA_Arrays(LVP)%Array(IVP)=SQI2*A
                         ELSE
-                          WORK(LVP-1+IVP)=0.5D0*A
+                          GA_Arrays(LVP)%Array(IVP)=0.5D0*A
                         END IF
                       END IF
  800                CONTINUE
@@ -836,11 +846,11 @@ C With new norm., divide by /SQRT(12)
 
           ICASE=12
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVP)
-          CALL GETMEM('VP','FREE','REAL',LVP,NVP)
+          irc=Deallocate_GA_Array(LVP)
           IF(NVM.GT.0) THEN
            ICASE=13
            CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVM)
-           CALL GETMEM('VM','FREE','REAL',LVM,NVM)
+           irc=Deallocate_GA_Array(LVM)
           END IF
  890    CONTINUE
 
@@ -848,17 +858,18 @@ C With new norm., divide by /SQRT(12)
       RETURN
       END
 
+#include "xrhs.fh"
       SUBROUTINE MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 CSVC: special routine to save the RHS array. MKRHS works in serial, so
 C in case of a true parallel run we need to put the local array in a
 C global array and then save that to disk in a distributed fashion.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "caspt2.fh"
 
       NAS=NASUP(ISYM,ICASE)
@@ -867,7 +878,7 @@ C global array and then save that to disk in a distributed fashion.
 #ifdef _MOLCAS_MPP_
       IF (IS_REAL_PAR()) THEN
         CALL RHS_ALLO(NAS,NIS,lg_W)
-        CALL RHS_PUT(NAS,NIS,lg_W,WORK(LW))
+        CALL RHS_PUT(NAS,NIS,lg_W,GA_Arrays(LW)%Array)
       ELSE
 #endif
         lg_W=LW
