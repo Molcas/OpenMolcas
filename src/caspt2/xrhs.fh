@@ -29,3 +29,4 @@
 #define CASPT2_ResD X_CASPT2_ResD
 #define PMLTR1 X_PMLTR1
 #define PMLTSCA X_PMLTSCA
+#define RHS_Release_Update X_RHS_Release_Update
