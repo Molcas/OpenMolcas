@@ -16,6 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+#include "xrhs.fh"
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
       use caspt2_data, only: LUSBT
       use EQSOLV
