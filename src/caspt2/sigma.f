@@ -17,16 +17,18 @@
 * SWEDEN                                     *
 * 1999: GEMINAL R12 ENABLED                  *
 *--------------------------------------------*
+#include "xrhs.fh"
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
       use Fockof
       use caspt2_data, only: FIFA, LISTS
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
       use Sigma_data
+      use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
+     &                   GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       REAL*8 :: ALPHA, BETA
       INTEGER :: IVEC, JVEC
 
@@ -181,10 +183,11 @@ C the SGM subroutines
                 LCX=lg_CX
                 XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
-                CALL GETMEM('CX','ALLO','REAL',LCX,NCX)
-                CALL RHS_GET(NAS2,NIS2,lg_CX,WORK(LCX))
+                LCX=Allocate_GA_Array(NCX,'CX')
+                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%Array)
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
-                XTST=DDOT_(NCX,WORK(LCX),1,WORK(LCX),1)
+                XTST=DDOT_(NCX,GA_Arrays(LCX)%Array,1,
+     &                         GA_Arrays(LCX)%Array,1)
               END IF
 
               IF(XTST.GT.1.0D12) THEN
@@ -205,7 +208,7 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
               ELSE
-                CALL GETMEM('CX','FREE','REAL',LCX,NCX)
+                irc=Deallocate_GA_Array(LCX)
               END IF
 
 C Check for colossal values of SGM2 and SGM1
@@ -405,12 +408,12 @@ CPAM Sanity check:
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
                 LSGMX=lg_SGMX
               ELSE
-                CALL GETMEM('SGMX','ALLO','REAL',LSGMX,NSGMX)
-                CALL DCOPY_(NSGMX,[0.0D0],0,WORK(LSGMX),1)
+                LSGMX=Allocate_GA_Array(NSGMX,'SGMX')
               END IF
 
 * SVC: this array is just zero....
-*             XTST=DDOT_(NSGMX,WORK(LSGMX),1,WORK(LSGMX),1)
+*             XTST=DDOT_(NSGMX,GA_Array(LSGMX)%Array,1,
+*    &                         GA_Array(LSGMX)%Array,1)
 *             IF(XTST.GT.1.0D12) THEN
 *               WRITE(6,'(1x,a,6i10)')' SIGMA H. ICASE1,ISYM1:',
 *    &                                           ICASE1,ISYM1
@@ -431,7 +434,8 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)
               ELSE
-                XTST=DDOT_(NSGMX,WORK(LSGMX),1,WORK(LSGMX),1)
+                XTST=DDOT_(NSGMX,GA_Arrays(LSGMX)%Array,1,
+     &                           GA_Arrays(LSGMX)%Array,1)
               END IF
 
               IF(XTST.GT.1.0D12) THEN
@@ -446,12 +450,13 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
                 MAX_MESG_SIZE = 2**27
                 DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
                   NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADSUM(WORK(LSGMX+LSGMX_STA-1),NSGMX_BLK)
+                  CALL GADSUM(GA_Arrays(LSGMX)%Array(LSGMX_STA),
+     &                        NSGMX_BLK)
                 END DO
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-                CALL RHS_ADD(NAS2,NIS2,lg_SGMX,WORK(LSGMX))
-                CALL GETMEM('SGMX','FREE','REAL',LSGMX,NSGMX)
+                CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Arrays(LSGMX)%Array)
+                irc=Deallocate_GA_Array(LSGMX)
               END IF
 
 C-SVC: no need for the replicate arrays any more, fall back to one array

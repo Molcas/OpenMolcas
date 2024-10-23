@@ -18,8 +18,7 @@
 *--------------------------------------------*
 C SVC-20120305: This is a new parallel version of the SGM subroutine.
 C Instead of the full array Y, distributed array indices lg_Y is passed,
-C which can be either indices into the WORK array or
-C can refer to distributed arrays.
+C which refer to distributed arrays.
 
 C Currently, only case H will be passed as a distributed array, since
 C this is the largest array (about a factor of NI larger than case G)
@@ -34,15 +33,16 @@ C RHS_ALLO in file par_rhs.f). The chunks are along the column indices,
 C so each chunk has all the row indices (full columns).
 
 
+#include "xrhs.fh"
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
      &               X1,X2,lg_Y,LIST)
       use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
       use EQSOLV
       use Sigma_data
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       REAL*8 X1(*), X2(*)
       INTEGER LIST(*)
       INTEGER IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
@@ -138,7 +138,7 @@ C  A&BP One-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X1(IXTI),
      &                  FIT(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 
@@ -164,7 +164,7 @@ C  A&BP Two-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X2(IX),
      &                  FIT(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -198,7 +198,7 @@ C A&BM One-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X1(IXTI),
      &                  FIT(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 
@@ -228,7 +228,7 @@ C A&BM Two-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X2(IX),
      &                  FIT(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -256,7 +256,7 @@ C  A&D  Two-el
           CALL MLTMV(IMLTOP,LIST(LLST1),
      &               X2(IX),
      &               FAT(ISYM12)%A,
-     &               WORK(lg_Y+IY-1))
+     &               GA_Arrays(lg_Y)%Array(IY))
         END IF
 C  -----------------------------------------------
       CASE (4)
@@ -290,7 +290,7 @@ C  A&EP One-el
                 CALL MLTMV(IMLTOP,LIST(LLST1),
      &                     X1(IXTI),
      &                     FAI(ISYMA)%A,
-     &                     WORK(lg_Y+IY-1))
+     &                     GA_Arrays(lg_Y)%Array(IY))
               END IF
             END IF
             END DO
@@ -328,7 +328,7 @@ C  A&EM One-el
                 CALL MLTMV(IMLTOP,LIST(LLST1),
      &                     X1(IXTI),
      &                     FAI(ISYMA)%A,
-     &                     WORK(lg_Y+IY-1))
+     &                     GA_Arrays(lg_Y)%Array(IY))
               END IF
             END IF
             END DO
@@ -361,7 +361,7 @@ C  BP&EP Two-el
             CALL MLTMV(IMLTOP,LIST(LLST1),
      &                 X2(IX),
      &                 FAT(ISYM12)%A,
-     &                 WORK(lg_Y+IY-1))
+     &                 GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -395,7 +395,7 @@ C  BM&EM Two-el
             CALL MLTMV(IMLTOP,LIST(LLST1),
      &                 X2(IX),
      &                 FAT(ISYM12)%A,
-     &                 WORK(lg_Y+IY-1))
+     &                 GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -425,7 +425,7 @@ C  C&D  One-el
             CALL MLTMV(IMLTOP,LIST(LLST1),
      &                 X1(IXTA),
      &                 FIT(ISYM12)%A,
-     &                 WORK(lg_Y+IY-1))
+     &                 GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 
@@ -451,7 +451,7 @@ C  C&D  Two-el
             CALL MLTMV(IMLTOP,LIST(LLST1),
      &                 X2(IX),
      &                 FIT(ISYM12)%A,
-     &                 WORK(lg_Y+IY-1))
+     &                 GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -481,7 +481,7 @@ C  C&FP One-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X1(IXTA),
      &                  FTA(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 
@@ -507,7 +507,7 @@ C  C&FP Two-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X2(IX),
      &                  FTA(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -537,7 +537,7 @@ C  C&FM One-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X1(IXTA),
      &                  FTA(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 
@@ -563,7 +563,7 @@ C  C&FM Two-el
             CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                  X2(IX),
      &                  FTA(ISYM12)%A,
-     &                  WORK(lg_Y+IY-1))
+     &                  GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -598,7 +598,7 @@ C  C&GP One-el
                 CALL MLTMV(IMLTOP,LIST(LLST1),
      &                     X1(IXTA),
      &                     FIA(ISYMI)%A,
-     &                     WORK(lg_Y+IY-1))
+     &                     GA_Arrays(lg_Y)%Array(IY))
               END IF
             END IF
             END DO
@@ -636,7 +636,7 @@ C  C&GM One-el
                 CALL MLTMV(IMLTOP,LIST(LLST1),
      &                     X1(IXTA),
      &                     FIA(ISYMI)%A,
-     &                     WORK(lg_Y+IY-1))
+     &                     GA_Arrays(lg_Y)%Array(IY))
               END IF
             END IF
             END DO
@@ -676,7 +676,7 @@ C  D&EP One-el
                   CALL MLTMV(IMLTOP,LIST(LLST1),
      &                       X1(IXIA),
      &                       FTI(ISYM2)%A,
-     &                       WORK(lg_Y+IY-1))
+     &                       GA_Arrays(lg_Y)%Array(IY))
                 END IF
               END IF
             END IF
@@ -718,7 +718,7 @@ C  D&EP Two-el
                   CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                        X2(IX),
      &                        FIT(ISYM12)%A,
-     &                        WORK(lg_Y+IY-1))
+     &                        GA_Arrays(lg_Y)%Array(IY))
                 END IF
               END IF
             END IF
@@ -759,7 +759,7 @@ C  D&EM One-el
                   CALL MLTMV(IMLTOP,LIST(LLST1),
      &                       X1(IXIA),
      &                       FTI(ISYM2)%A,
-     &                       WORK(lg_Y+IY-1))
+     &                       GA_Arrays(lg_Y)%Array(IY))
                 END IF
               END IF
             END IF
@@ -801,7 +801,7 @@ C  D&EM Two-el
                   CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                              X2(IX),
      &                              FIT(ISYM12)%A,
-     &                              WORK(lg_Y+IY-1))
+     &                              GA_Arrays(lg_Y)%Array(IY))
                 END IF
               END IF
             END IF
@@ -845,7 +845,7 @@ C  D&GP Two-el
                 CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                      X2(IX),
      &                      FTA(ISYM12)%A,
-     &                      WORK(lg_Y+IY-1))
+     &                      GA_Arrays(lg_Y)%Array(IY))
               END IF
             END IF
             END DO
@@ -888,7 +888,7 @@ C  D&GM Two-el
                 CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
      &                      X2(IX),
      &                      FTA(ISYM12)%A,
-     &                      WORK(lg_Y+IY-1))
+     &                      GA_Arrays(lg_Y)%Array(IY))
               END IF
             END IF
             END DO
@@ -967,7 +967,7 @@ C  FP&GP Two-el
             CALL MLTMV(IMLTOP,LIST(LLST1),
      &                 X2(IX),
      &                 FIT(ISYM12)%A,
-     &                 WORK(lg_Y+IY-1))
+     &                 GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------
@@ -997,7 +997,7 @@ C  FM&GM Two-el
             CALL MLTMV(IMLTOP,LIST(LLST1),
      &                 X2(IX),
      &                 FIT(ISYM12)%A,
-     &                 WORK(lg_Y+IY-1))
+     &                 GA_Arrays(lg_Y)%Array(IY))
           END IF
         END IF
 C  -----------------------------------------------

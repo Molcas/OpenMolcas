@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
+#include "xrhs.fh"
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
       use caspt2_gradient, only: LUSTD,idSDMat
@@ -27,10 +28,11 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
+     &                   GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 #include "global.fh"
 #endif
@@ -216,7 +218,8 @@ C         LSGM1=1
               CALL RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
               IF (IVEC.NE.JVEC .AND. ILOOP.EQ.2) THEN
                 !! T = T + \lambda
-                If (SCAL.ne.1.0D+00) CALL RHS_SCAL(NAS2,NIS2,lg_CX,SCAL)
+                If (SCAL.ne.1.0D+00)
+     &             CALL RHS_SCAL(NAS2,NIS2,lg_CX,SCAL)
                 CALL RHS_ALLO(NAS2,NIS2,lg_V1)
                 CALL RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
                 CALL RHS_DAXPY(NAS2,NIS2,1.0D+00,lg_V1,lg_CX)
@@ -228,10 +231,11 @@ C the SGM subroutines
                 LCX=lg_CX
 C               XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
-                CALL GETMEM('CX','ALLO','REAL',LCX,NCX)
-                CALL RHS_GET(NAS2,NIS2,lg_CX,WORK(LCX))
+                LCX=Allocate_GA_Array(NCX,'CX')
+                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%Array)
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
-C               XTST=DDOT_(NCX,WORK(LCX),1,WORK(LCX),1)
+C               XTST=DDOT_(NCX,GA_Arrays(LCX)%Array,1,
+C    &                         GA_Arrays(LCX)%Array,1)
               END IF
 
 #ifdef _DEBUGPRINT_
@@ -246,7 +250,7 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
               ELSE
-                CALL GETMEM('CX','FREE','REAL',LCX,NCX)
+                irc=Deallocate_GA_Array(LCX)
               END IF
  100        CONTINUE
  200      CONTINUE
@@ -352,7 +356,8 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           END IF
 
           IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
-           CALL RHS_STRANS (NAS1,NIS1,1.0D+00,lg_CX,lg_D2,ICASE1,ISYM1)
+           CALL RHS_STRANS(NAS1,NIS1,1.0D+00,lg_CX,lg_D2,
+     &                     ICASE1,ISYM1)
           ELSE
            CALL RHS_DAXPY(NAS1,NIS1,1.0D+00,lg_CX,lg_D2)
           END IF
@@ -406,8 +411,7 @@ C         LD1=1
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
                 LSGMX=lg_SGMX
               ELSE
-                CALL GETMEM('SGMX','ALLO','REAL',LSGMX,NSGMX)
-                CALL DCOPY_(NSGMX,[0.0D0],0,WORK(LSGMX),1)
+                LSGMX=Allocate_GA_Array(NSGMX,'SGMX')
               END IF
 
 #ifdef _DEBUGPRINT_
@@ -425,11 +429,12 @@ C             End If
                 MAX_MESG_SIZE = 2**27
                 DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
                   NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADSUM(WORK(LSGMX+LSGMX_STA-1),NSGMX_BLK)
+                  CALL GADSUM(GA_Arrays(LSGMX)%Array(LSGMX_STA),
+     &                        NSGMX_BLK)
                 END DO
 C               CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
 C               CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,WORK(LSGMX))
+C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%Array)
                 !! do C2DER
                 call mma_allocate(SDER2,NAS2*NAS2,Label='SDER2')
                 idSDer = idSDMat(iSym2,iCase2)
@@ -441,7 +446,7 @@ C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,WORK(LSGMX))
                 CALL DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
                 call mma_deallocate(SDER2)
                 !!
-C               CALL GETMEM('SGMX','FREE','REAL',LSGMX,NSGMX)
+C               irc=Deallocate_GA_Array(LSGMX)
               END IF
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
@@ -449,7 +454,7 @@ C             CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
               IF (ICASE2.EQ.12 .OR.ICASE2.EQ.13) THEN
                 CALL RHS_FREE (NAS2,NIS2,lg_SGMX)
               ELSE
-                CALL GETMEM('SGMX','FREE','REAL',LSGMX,NSGMX)
+                irc=Deallocate_GA_Array(LSGMX)
               END IF
  400        CONTINUE
  500      CONTINUE
@@ -477,7 +482,7 @@ C
      &           FTA(iSym)%A,FAT(iSym)%A)
       End Do
 
-C Transform contrav C  to eigenbasis of H0(diag):
+C Transform contrav C  to ei%Arraygenbasis of H0(diag):
       CALL PTRTOSR(1,IVEC,IVEC)
       IF(IVEC.NE.JVEC) CALL PTRTOSR(1,JVEC,JVEC)
 
@@ -508,13 +513,15 @@ C
       else
 #endif
         Call DGEMM_('N','T',NAS1,NAS1,NIS1,
-     *              2.0D+00,WORK(lg_CX),NAS1,WORK(lg_SGM2),NAS1,
+     *              2.0D+00,GA_Arrays(lg_CX)%Array,NAS1,
+     &                      GA_Arrays(lg_SGM2)%Array,NAS1,
      *              1.0D+00,SDER,NAS1)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if
 #endif
 C     do i = 1, nas1*nis1
-C       write (*,'(i4,2f20.10)') ,i,work(lg_cx+i-1),work(lg_sgm2+i-1)
+C       write (*,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%Array(i),
+C    &                              GA_Arrays(lg_sgm2)%Array(i)
 C     end do
 C
       !! Next, the derivative of C1
@@ -523,11 +530,13 @@ C
       CALL RHS_ALLO(NIN1,NIS1,lg_V1)
       ITYPE=1
       !! SGM2 is local quantity, so put this in GA?
-      CALL RHS_SR2C (ITYPE,1,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,ICASE1,ISYM1)
+      CALL RHS_SR2C (ITYPE,1,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,
+     &               ICASE1,ISYM1)
       !! 3C. (T2Ct2*f) * S1*C1 * Ct1 (IC -> MO)
       !!     lg_T * lg_V1 -> lg_V2
       ITYPE=0
-      CALL RHS_SR2C (ITYPE,0,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,ICASE1,ISYM1)
+      CALL RHS_SR2C (ITYPE,0,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,
+     &               ICASE1,ISYM1)
       CALL RHS_FREE(NIN1,NIS1,lg_V1)
 C
       !! 4C. (T1Ct1*f) * (T2Ct2St2*f*C1*Ct1)
@@ -540,7 +549,8 @@ C
       else
 #endif
         Call DGEMM_('N','T',NAS1,NAS1,NIS1,
-     *             -1.0D+00,WORK(lg_CX),NAS1,WORK(lg_SGM2),NAS1,
+     *             -1.0D+00,GA_Arrays(lg_CX)%Array,NAS1,
+     &                      GA_Arrays(lg_SGM2)%Array,NAS1,
      *              1.0D+00,SDER,NAS1)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if
@@ -561,7 +571,7 @@ C
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       if (is_real_par()) then
         CALL GA_CREATE_STRIPED ('V',NAS2,NIS2,'SDER',lg_SGMX)
-        CALL GA_PUT(lg_SGMX,1,NAS2,1,NIS2,WORK(LSGMX),NAS2)
+        CALL GA_PUT(lg_SGMX,1,NAS2,1,NIS2,GA_Arrays(LSGMX)%Array,NAS2)
       else
 #endif
        lg_SGMX = LSGMX
@@ -575,9 +585,11 @@ C
       CALL RHS_ALLO(NIN2,NIS2,lg_V2)
       !! 2. (T1Ct1St1*f) * C2 (MO -> IC; LTMP -> LTMP2)
       ITYPE=0
-      CALL RHS_SR2C (ITYPE,1,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,ICASE2,ISYM2)
+      CALL RHS_SR2C (ITYPE,1,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,
+     &               ICASE2,ISYM2)
       !! 3. (T1Ct1St1*f) * C2 * Ct2 (IC -> MO; LTMP2 -> LTMP)
-      CALL RHS_SR2C (ITYPE,0,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,ICASE2,ISYM2)
+      CALL RHS_SR2C (ITYPE,0,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,
+     &               ICASE2,ISYM2)
       CALL RHS_FREE(NIN2,NIS2,lg_V2)
 C
       !! 4. (T2Ct2*f) * (T1Ct1St1*f*C2*Ct2)
@@ -603,7 +615,8 @@ C
       else
 #endif
         Call DGEMM_('N','T',NAS2,NAS2,NIS2,
-     *             -1.0D+00,WORK(lg_SGM),NAS2,WORK(LSGMX),NAS2,
+     *             -1.0D+00,GA_Arrays(lg_SGM)%Array,NAS2,
+     &                      GA_Arrays(LSGMX)%Array,NAS2,
      *              1.0D+00,SDER,NAS2)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if
