@@ -19,6 +19,7 @@
 * NOTE: This new MKRHS code produces ONLY the
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
+#include "xrhs.fh"
       SUBROUTINE MKRHS(IVEC)
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: FIMO
@@ -858,7 +859,6 @@ C With new norm., divide by /SQRT(12)
       RETURN
       END
 
-#include "xrhs.fh"
       SUBROUTINE MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 CSVC: special routine to save the RHS array. MKRHS works in serial, so
 C in case of a true parallel run we need to put the local array in a
