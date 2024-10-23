@@ -883,7 +883,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
           NSCRATCH=INT(WGRONK(1))
           CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
           call dsyev_('V','L',NIN,VEC,NIN,EIG,
-     &               SCRATC),NSCRATCH,INFO)
+     &               SCRATCH,NSCRATCH,INFO)
           CALL mma_deallocate(SCRATCH)
         END IF
         call GA_Sync()

@@ -75,9 +75,9 @@ C Read root vectors nr. IST and JST from LUCI.
       call mma_deallocate(CI1)
       call mma_deallocate(CI2)
 
-      !! Do similar to RHS_STRANS. Multiply the solution vector (T) with
-      !! the overlap-like term constructe with transition density
-      !! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
+!! Do similar to RHS_STRANS. Multiply the solution vector (T) with
+!! the overlap-like term constructe with transition density
+!! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
       IF (MODE.EQ.1) THEN
         CALL MS_STRANS(IVECW,IVECC,OVL,TG1,TG2,TG3,DVALUE,SCAL)
       ELSE IF (MODE.EQ.2) THEN
