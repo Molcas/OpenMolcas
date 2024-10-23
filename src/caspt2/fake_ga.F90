@@ -54,11 +54,10 @@ Write (6,*) 'To many GA_arrys, increase max_ga_arrays.'
 Call abend()
 End Function Allocate_GA_Array
 
-Integer Function Deallocate_GA_Array(lg_A) result(irc)
+Subroutine Deallocate_GA_Array(lg_A)
 Integer, Intent(InOut):: lg_A
 Call mma_deallocate(GA_Arrays(lg_A)%Array)
 iga_arrays=iga_arrays-1
 lg_A=0
-irc=0
-End Function Deallocate_GA_Array
+End Subroutine Deallocate_GA_Array
 End Module fake_ga

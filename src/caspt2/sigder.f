@@ -250,7 +250,7 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
               ELSE
-                irc=Deallocate_GA_Array(LCX)
+                Call Deallocate_GA_Array(LCX)
               END IF
  100        CONTINUE
  200      CONTINUE
@@ -446,7 +446,7 @@ C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%Array)
                 CALL DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
                 call mma_deallocate(SDER2)
                 !!
-C               irc=Deallocate_GA_Array(LSGMX)
+C               Call Deallocate_GA_Array(LSGMX)
               END IF
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
@@ -454,7 +454,7 @@ C             CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
               IF (ICASE2.EQ.12 .OR.ICASE2.EQ.13) THEN
                 CALL RHS_FREE (NAS2,NIS2,lg_SGMX)
               ELSE
-                irc=Deallocate_GA_Array(LSGMX)
+                Call Deallocate_GA_Array(LSGMX)
               END IF
  400        CONTINUE
  500      CONTINUE

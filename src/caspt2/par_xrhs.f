@@ -167,7 +167,7 @@ CSVC: Destroy the global array
       ELSE
 #endif
         NW=NAS*NIS
-        irc=Deallocate_GA_Array(lg_W)
+        Call Deallocate_GA_Array(lg_W)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

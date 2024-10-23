@@ -208,7 +208,7 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(NAS2,NIS2,lg_CX)
               ELSE
-                irc=Deallocate_GA_Array(LCX)
+                Call Deallocate_GA_Array(LCX)
               END IF
 
 C Check for colossal values of SGM2 and SGM1
@@ -456,7 +456,7 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
                 CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Arrays(LSGMX)%Array)
-                irc=Deallocate_GA_Array(LSGMX)
+                Call Deallocate_GA_Array(LSGMX)
               END IF
 
 C-SVC: no need for the replicate arrays any more, fall back to one array

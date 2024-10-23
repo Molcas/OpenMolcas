@@ -140,7 +140,7 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
 C Put W on disk:
           ICASE=1
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
-          irc=Deallocate_GA_Array(LW)
+          Call Deallocate_GA_Array(LW)
  190    CONTINUE
 
 
@@ -273,8 +273,8 @@ C  Put WM on disk
             ICASE=3
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          irc=Deallocate_GA_Array(LWM)
-          irc=Deallocate_GA_Array(LWP)
+          Call Deallocate_GA_Array(LWM)
+          Call Deallocate_GA_Array(LWP)
  290    CONTINUE
 
 
@@ -368,7 +368,7 @@ C   Put W on disk
           ICASE=4
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 
-          irc=Deallocate_GA_Array(LW)
+          Call Deallocate_GA_Array(LW)
  390    CONTINUE
 
 
@@ -454,7 +454,7 @@ C Compute W2(tu,ai)=(ti,au)
 C   Put W on disk.
           ICASE=5
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
-          irc=Deallocate_GA_Array(LW)
+          Call Deallocate_GA_Array(LW)
  490    CONTINUE
 
 
@@ -554,8 +554,8 @@ C   Put WP and WM on disk.
             ICASE=7
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          irc=Deallocate_GA_Array(LWP)
-          irc=Deallocate_GA_Array(LWM)
+          Call Deallocate_GA_Array(LWP)
+          Call Deallocate_GA_Array(LWM)
  590    CONTINUE
 
 
@@ -647,13 +647,13 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
 C   Put WP on disk
           ICASE=8
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
-          irc=Deallocate_GA_Array(LWP)
+          Call Deallocate_GA_Array(LWP)
           IF(NINM.GT.0) THEN
 C   Put WM on disk
             ICASE=9
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          IF(NVM.GT.0) irc=Deallocate_GA_Array(LWM)
+          IF(NVM.GT.0) Call Deallocate_GA_Array(LWM)
  690    CONTINUE
 
 
@@ -752,8 +752,8 @@ C   Put WP and WM on disk.
            ICASE=11
            CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
-          irc=Deallocate_GA_Array(LWP)
-          irc=Deallocate_GA_Array(LWM)
+          Call Deallocate_GA_Array(LWP)
+          Call Deallocate_GA_Array(LWM)
  790    CONTINUE
 
 
@@ -847,11 +847,11 @@ C With new norm., divide by /SQRT(12)
 
           ICASE=12
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVP)
-          irc=Deallocate_GA_Array(LVP)
+          Call Deallocate_GA_Array(LVP)
           IF(NVM.GT.0) THEN
            ICASE=13
            CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVM)
-           irc=Deallocate_GA_Array(LVM)
+           Call Deallocate_GA_Array(LVM)
           END IF
  890    CONTINUE
 

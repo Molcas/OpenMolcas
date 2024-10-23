@@ -70,7 +70,7 @@ C tridiagonal local array at Work(lg_M)
         bStat = GA_Destroy(lg_M)
       ELSE
 #endif
-        irc=Deallocate_GA_Array(lg_M)
+        Call Deallocate_GA_Array(lg_M)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
