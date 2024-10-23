@@ -231,10 +231,10 @@ C the SGM subroutines
 C               XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
                 LCX=Allocate_GA_Array(NCX,'CX')
-                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%Array)
+                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%A)
                 CALL RHS_FREE(lg_CX)
-C               XTST=DDOT_(NCX,GA_Arrays(LCX)%Array,1,
-C    &                         GA_Arrays(LCX)%Array,1)
+C               XTST=DDOT_(NCX,GA_Arrays(LCX)%A,1,
+C    &                         GA_Arrays(LCX)%A,1)
               END IF
 
 #ifdef _DEBUGPRINT_
@@ -428,12 +428,12 @@ C             End If
                 MAX_MESG_SIZE = 2**27
                 DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
                   NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADSUM(GA_Arrays(LSGMX)%Array(LSGMX_STA),
+                  CALL GADSUM(GA_Arrays(LSGMX)%A(LSGMX_STA),
      &                        NSGMX_BLK)
                 END DO
 C               CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
 C               CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%Array)
+C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%A)
                 !! do C2DER
                 call mma_allocate(SDER2,NAS2*NAS2,Label='SDER2')
                 idSDer = idSDMat(iSym2,iCase2)
@@ -481,7 +481,7 @@ C
      &           FTA(iSym)%A,FAT(iSym)%A)
       End Do
 
-C Transform contrav C  to ei%Arraygenbasis of H0(diag):
+C Transform contrav C  to ei%Agenbasis of H0(diag):
       CALL PTRTOSR(1,IVEC,IVEC)
       IF(IVEC.NE.JVEC) CALL PTRTOSR(1,JVEC,JVEC)
 
@@ -512,15 +512,15 @@ C
       else
 #endif
         Call DGEMM_('N','T',NAS1,NAS1,NIS1,
-     *              2.0D+00,GA_Arrays(lg_CX)%Array,NAS1,
-     &                      GA_Arrays(lg_SGM2)%Array,NAS1,
+     *              2.0D+00,GA_Arrays(lg_CX)%A,NAS1,
+     &                      GA_Arrays(lg_SGM2)%A,NAS1,
      *              1.0D+00,SDER,NAS1)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if
 #endif
 C     do i = 1, nas1*nis1
-C       write (*,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%Array(i),
-C    &                              GA_Arrays(lg_sgm2)%Array(i)
+C       write (*,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),
+C    &                              GA_Arrays(lg_sgm2)%A(i)
 C     end do
 C
       !! Next, the derivative of C1
@@ -548,8 +548,8 @@ C
       else
 #endif
         Call DGEMM_('N','T',NAS1,NAS1,NIS1,
-     *             -1.0D+00,GA_Arrays(lg_CX)%Array,NAS1,
-     &                      GA_Arrays(lg_SGM2)%Array,NAS1,
+     *             -1.0D+00,GA_Arrays(lg_CX)%A,NAS1,
+     &                      GA_Arrays(lg_SGM2)%A,NAS1,
      *              1.0D+00,SDER,NAS1)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if
@@ -570,7 +570,7 @@ C
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       if (is_real_par()) then
         CALL GA_CREATE_STRIPED ('V',NAS2,NIS2,'SDER',lg_SGMX)
-        CALL GA_PUT(lg_SGMX,1,NAS2,1,NIS2,GA_Arrays(LSGMX)%Array,NAS2)
+        CALL GA_PUT(lg_SGMX,1,NAS2,1,NIS2,GA_Arrays(LSGMX)%A,NAS2)
       else
 #endif
        lg_SGMX = LSGMX
@@ -614,8 +614,8 @@ C
       else
 #endif
         Call DGEMM_('N','T',NAS2,NAS2,NIS2,
-     *             -1.0D+00,GA_Arrays(lg_SGM)%Array,NAS2,
-     &                      GA_Arrays(LSGMX)%Array,NAS2,
+     *             -1.0D+00,GA_Arrays(lg_SGM)%A,NAS2,
+     &                      GA_Arrays(LSGMX)%A,NAS2,
      *              1.0D+00,SDER,NAS2)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if

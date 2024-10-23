@@ -197,13 +197,13 @@ C
           Else
             Go To 100
           End If
-          CALL CLagDX(0,iSym,iCase,GA_Arrays(lg_V1)%Array,
-     &                             GA_Arrays(lg_V2)%Array,
-     *                             GA_Arrays(lg_V3)%Array,
-     &                             GA_Arrays(lg_V4)%Array,
+          CALL CLagDX(0,iSym,iCase,GA_Arrays(lg_V1)%A,
+     &                             GA_Arrays(lg_V2)%A,
+     *                             GA_Arrays(lg_V3)%A,
+     &                             GA_Arrays(lg_V4)%A,
      *                nIN,nIS,nAS,G1,G2,G3,
      *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                VECROT,      GA_Arrays(lg_V5)%Array,lg_V2)
+     *                VECROT,      GA_Arrays(lg_V5)%A,lg_V2)
 
           If (imag_shift .ne. 0.0d0 .or. sigma_p_epsilon.ne.0.0d0) Then
             nAS = nASUP(iSym,iCase)
@@ -226,13 +226,13 @@ C
             DEASUM = -DEASUM
             Call DScal_(NG1,-1.0D+00,DEPSA,1)
 
-            CALL CLagDX(1,iSym,iCase,GA_Arrays(lg_V1)%Array,
-     &                               GA_Arrays(lg_V2)%Array,
-     *                               GA_Arrays(lg_V3)%Array,
-     &                               GA_Arrays(lg_V4)%Array,
+            CALL CLagDX(1,iSym,iCase,GA_Arrays(lg_V1)%A,
+     &                               GA_Arrays(lg_V2)%A,
+     *                               GA_Arrays(lg_V3)%A,
+     &                               GA_Arrays(lg_V4)%A,
      *                  nIN,nIS,nAS,G1,G2,G3,
      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  VECROT,      GA_Arrays(lg_V5)%Array,lg_V2)
+     *                  VECROT,      GA_Arrays(lg_V5)%A,lg_V2)
 
             Call DScal_(NG1,-1.0D+00,DG1,1)
             Call DScal_(NG2,-1.0D+00,DG2,1)

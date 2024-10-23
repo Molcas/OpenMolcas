@@ -129,7 +129,7 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
                       IBUF=IUTOT+NORB(ISYMU)*(IVTOT-1)
                       WTUVI=ERI(IBUF)
                       IF(IVABS.EQ.IUABS) WTUVI=WTUVI+ONEADD
-                      GA_Arrays(LW)%Array(IW)=WTUVI
+                      GA_Arrays(LW)%A(IW)=WTUVI
                     END DO
  134              CONTINUE
  133            CONTINUE
@@ -212,25 +212,25 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
                         IF(IIABS.GT.IJABS) THEN
-                          GA_Arrays(LWP)%Array(JWP)=
-     &                       GA_Arrays(LWP)%Array(JWP)+VALUE
+                          GA_Arrays(LWP)%A(JWP)=
+     &                       GA_Arrays(LWP)%A(JWP)+VALUE
                           IIJM=KIGTJ(IIABS,IJABS)-NIGTJES(ISYM)
                           IWM=ITUM+NASM*(IIJM-1)
-                          GA_Arrays(LWM)%Array(IWM)=
-     &                       GA_Arrays(LWM)%Array(IWM)+VALUE
+                          GA_Arrays(LWM)%A(IWM)=
+     &                       GA_Arrays(LWM)%A(IWM)+VALUE
                         ELSE
-                          GA_Arrays(LWP)%Array(JWP)=
-     &                       GA_Arrays(LWP)%Array(JWP)+SQ2*VALUE
+                          GA_Arrays(LWP)%A(JWP)=
+     &                       GA_Arrays(LWP)%A(JWP)+SQ2*VALUE
                         END IF
                       ELSE
                         IIJP=KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
-                        GA_Arrays(LWP)%Array(JWP)=
-     &                     GA_Arrays(LWP)%Array(JWP)+VALUE
+                        GA_Arrays(LWP)%A(JWP)=
+     &                     GA_Arrays(LWP)%A(JWP)+VALUE
                         IIJM=KIGTJ(IJABS,IIABS)-NIGTJES(ISYM)
                         IWM=ITUM+NASM*(IIJM-1)
-                        GA_Arrays(LWM)%Array(IWM)=
-     &                     GA_Arrays(LWM)%Array(IWM)-VALUE
+                        GA_Arrays(LWM)%A(IWM)=
+     &                     GA_Arrays(LWM)%A(IWM)-VALUE
                       END IF
  206                CONTINUE
  205               CONTINUE
@@ -245,17 +245,17 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
                         IF(IIABS.GT.IJABS) THEN
-                          GA_Arrays(LWP)%Array(JWP)=
-     &                       GA_Arrays(LWP)%Array(JWP)+VALUE
+                          GA_Arrays(LWP)%A(JWP)=
+     &                       GA_Arrays(LWP)%A(JWP)+VALUE
                         ELSE
-                          GA_Arrays(LWP)%Array(JWP)=
-     &                       GA_Arrays(LWP)%Array(JWP)+SQ2*VALUE
+                          GA_Arrays(LWP)%A(JWP)=
+     &                       GA_Arrays(LWP)%A(JWP)+SQ2*VALUE
                         END IF
                       ELSE
                         IIJP=KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
-                        GA_Arrays(LWP)%Array(JWP)=
-     &                     GA_Arrays(LWP)%Array(JWP)+VALUE
+                        GA_Arrays(LWP)%A(JWP)=
+     &                     GA_Arrays(LWP)%A(JWP)+VALUE
                       END IF
  216                CONTINUE
  215               CONTINUE
@@ -330,7 +330,7 @@ C First, just the two-electron integrals. Later, add correction.
                       IW2=IA
                       IW=IW1+NAS*(IW2-1)
                       IBUF=IATOT+NORB(ISYM)*(ITTOT-1)
-                      GA_Arrays(LW)%Array(IW)=ERI(IBUF)
+                      GA_Arrays(LW)%A(IW)=ERI(IBUF)
  315                CONTINUE
  314              CONTINUE
  313            CONTINUE
@@ -348,7 +348,7 @@ C First, just the two-electron integrals. Later, add correction.
               DO IYABS=1,NASHT
                 IYYW=KTUV(IYABS,IYABS,ITABS)-NTUVES(ISYM)
                 IYYWA=IYYW+NAS*(IA-1)
-                SUM=SUM-GA_Arrays(LW)%Array(IYYWA)
+                SUM=SUM-GA_Arrays(LW)%A(IYYWA)
               END DO
               ONEADD=SUM/DBLE(MAX(1,NACTEL))
               DO ISYMU=1,NSYM
@@ -357,7 +357,7 @@ C First, just the two-electron integrals. Later, add correction.
                   IW1=KTUV(ITABS,IUABS,IUABS)-NTUVES(ISYM)
                   IW2=IA
                   IW=IW1+NAS*(IW2-1)
-                  GA_Arrays(LW)%Array(IW)=GA_Arrays(LW)%Array(IW)+ONEADD
+                  GA_Arrays(LW)%A(IW)=GA_Arrays(LW)%A(IW)+ONEADD
                 END DO
               END DO
             END DO
@@ -442,8 +442,8 @@ C Compute W2(tu,ai)=(ti,au)
                       IBUF2=ITTOT+NORB(ISYMT)*(IATOT-1)
                       WAITU=ERI1(IBUF1)
                       IF(ITABS.EQ.IUABS) WAITU=WAITU+ONEADD
-                      GA_Arrays(LW)%Array(IW1)=WAITU
-                      GA_Arrays(LW)%Array(IW2)=ERI2(IBUF2)
+                      GA_Arrays(LW)%A(IW1)=WAITU
+                      GA_Arrays(LW)%A(IW2)=ERI2(IBUF2)
  415                CONTINUE
  414              CONTINUE
  413            CONTINUE
@@ -532,13 +532,13 @@ C With new normalisation, divide by /SQRT(6)
                       IWIP=IA+NSSH(ISYMA)*(IGEJ-1)+IOFF1(ISYMA)
                       JWP=IWA+NAS*(IWIP-1)
                       IF(IIABS.GT.IJABS) THEN
-                        GA_Arrays(LWP)%Array(JWP)=SQI2*A
+                        GA_Arrays(LWP)%A(JWP)=SQI2*A
                         B=ERI1(IBUF)-ERI2(IBUF)
                         IWIM=IA+NSSH(ISYMA)*(IGTJ-1)+IOFF2(ISYMA)
                         IWM=IWA+NAS*(IWIM-1)
-                        GA_Arrays(LWM)%Array(IWM)=SQ32*B
+                        GA_Arrays(LWM)%A(IWM)=SQ32*B
                       ELSE
-                        GA_Arrays(LWP)%Array(JWP)=0.5D0*A
+                        GA_Arrays(LWP)%A(JWP)=0.5D0*A
                       END IF
  512                CONTINUE
  511              CONTINUE
@@ -626,16 +626,16 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                       IWIP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
                       JWP=IWAP+NASP*(IWIP-1)
                       IF(IAABS.NE.IBABS) THEN
-                        GA_Arrays(LWP)%Array(JWP)=A
+                        GA_Arrays(LWP)%A(JWP)=A
                         IF(ITABS.NE.IUABS) THEN
                           B=0.5D0*(ERI1(IBUF)-ERI2(IBUF))
                           IWAM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
                           IWIM=KAGTB(IAABS,IBABS)-NAGTBES(ISYM)
                           IWM=IWAM+NASM*(IWIM-1)
-                          GA_Arrays(LWM)%Array(IWM)=B
+                          GA_Arrays(LWM)%A(IWM)=B
                         END IF
                       ELSE
-                        GA_Arrays(LWP)%Array(JWP)=SQI2*A
+                        GA_Arrays(LWP)%A(JWP)=SQI2*A
                       END IF
  600                CONTINUE
  611              CONTINUE
@@ -729,14 +729,14 @@ C With new normalisation, divide by /SQRT(6)
                       JWP=IWA+NAS*(IWIP-1)
                       A=ERI1(IBUF)+ERI2(IBUF)
                       IF(IAABS.NE.IBABS) THEN
-                        GA_Arrays(LWP)%Array(JWP)=SQI2*A
+                        GA_Arrays(LWP)%A(JWP)=SQI2*A
                         IAGTB=KAGTB(IAABS,IBABS)-NAGTBES(ISYMAB)
                         IWIM=II+NISH(ISYMI)*(IAGTB-1)+IOFF2(ISYMI)
                         IWM=IWA+NAS*(IWIM-1)
                         B=ERI1(IBUF)-ERI2(IBUF)
-                        GA_Arrays(LWM)%Array(IWM)=SQ32*B
+                        GA_Arrays(LWM)%A(IWM)=SQ32*B
                       ELSE
-                        GA_Arrays(LWP)%Array(JWP)=0.5D0*A
+                        GA_Arrays(LWP)%A(JWP)=0.5D0*A
                       END IF
  710                CONTINUE
  720              CONTINUE
@@ -821,20 +821,20 @@ C With new norm., divide by /SQRT(12)
                       A=ERI1(IBUF)+ERI2(IBUF)
                       IF(IIABS.NE.IJABS) THEN
                         IF(IAABS.NE.IBABS) THEN
-                          GA_Arrays(LVP)%Array(IVP)=A
+                          GA_Arrays(LVP)%A(IVP)=A
                           IVAM=KAGTB(IAABS,IBABS)-NAGTBES(ISYM)
                           IVIM=KIGTJ(IIABS,IJABS)-NIGTJES(ISYM)
                           IVM=IVAM+NAGTB(ISYM)*(IVIM-1)
                           B=ERI1(IBUF)-ERI2(IBUF)
-                          GA_Arrays(LVM)%Array(IVM)=SQ3*B
+                          GA_Arrays(LVM)%A(IVM)=SQ3*B
                         ELSE
-                          GA_Arrays(LVP)%Array(IVP)=SQI2*A
+                          GA_Arrays(LVP)%A(IVP)=SQI2*A
                         END IF
                       ELSE
                         IF(IAABS.NE.IBABS) THEN
-                          GA_Arrays(LVP)%Array(IVP)=SQI2*A
+                          GA_Arrays(LVP)%A(IVP)=SQI2*A
                         ELSE
-                          GA_Arrays(LVP)%Array(IVP)=0.5D0*A
+                          GA_Arrays(LVP)%A(IVP)=0.5D0*A
                         END IF
                       END IF
  800                CONTINUE
@@ -877,7 +877,7 @@ C global array and then save that to disk in a distributed fashion.
 #ifdef _MOLCAS_MPP_
       IF (IS_REAL_PAR()) THEN
         CALL RHS_ALLO(NAS,NIS,lg_W)
-        CALL RHS_PUT(NAS,NIS,lg_W,GA_Arrays(LW)%Array)
+        CALL RHS_PUT(NAS,NIS,lg_W,GA_Arrays(LW)%A)
       ELSE
 #endif
         lg_W=LW

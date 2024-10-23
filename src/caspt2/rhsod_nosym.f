@@ -178,7 +178,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=ATVXJ
 #else
-            GA_Arrays(lg_W)%Array(IDX)=ATVXJ
+            GA_Arrays(lg_W)%A(IDX)=ATVXJ
 #endif
           END DO
         END DO
@@ -291,7 +291,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=ATVX
 #else
-            GA_Arrays(lg_W)%Array(IDX)=ATVX
+            GA_Arrays(lg_W)%A(IDX)=ATVX
 #endif
           END DO
 ! now, add in the part with corrections to the integrals
@@ -307,7 +307,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               SUMU=SUMU+DBL_MB(MW+IDX-1)
 #else
-              SUMU=SUMU+GA_Arrays(lg_w)%Array(IDX)
+              SUMU=SUMU+GA_Arrays(lg_w)%A(IDX)
 #endif
             END DO
             ADDONE=(FAT-SUMU)/DBLE(MAX(1,NACTEL))
@@ -317,7 +317,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=DBL_MB(MW+IDX-1)+ADDONE
 #else
-              GA_Arrays(lg_w)%Array(IDX)=GA_Arrays(lg_w)%Array(IDX)
+              GA_Arrays(lg_w)%A(IDX)=GA_Arrays(lg_w)%A(IDX)
      &                                  +ADDONE
 #endif
             END DO
@@ -447,7 +447,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=BPTVJL
 #else
-            GA_Arrays(lg_w)%Array(IDX)=BPTVJL
+            GA_Arrays(lg_w)%A(IDX)=BPTVJL
 #endif
           END DO
         END DO
@@ -522,7 +522,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=BMTVJL
 #else
-            GA_Arrays(lg_w)%Array(IDX)=BMTVJL
+            GA_Arrays(lg_w)%A(IDX)=BMTVJL
 #endif
           END DO
         END DO
@@ -645,7 +645,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=FPTVAC
 #else
-            GA_Arrays(lg_W)%Array(IDX)=FPTVAC
+            GA_Arrays(lg_W)%A(IDX)=FPTVAC
 #endif
           END DO
         END DO
@@ -720,7 +720,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=FMTVAC
 #else
-            GA_Arrays(lg_w)%Array(IDX)=FMTVAC
+            GA_Arrays(lg_w)%A(IDX)=FMTVAC
 #endif
           END DO
         END DO
@@ -826,7 +826,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
           DBL_MB(MW+IDX-1)=HPACJL
 #else
-          GA_Arrays(lg_w)%Array(IDX)=HPACJL
+          GA_Arrays(lg_w)%A(IDX)=HPACJL
 #endif
         END DO
       END DO
@@ -871,7 +871,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
           DBL_MB(MW+IDX-1)=HMACJL
 #else
-          GA_Arrays(lg_W)%Array(IDX)=HMACJL
+          GA_Arrays(lg_W)%A(IDX)=HMACJL
 #endif
         END DO
       END DO
@@ -1010,7 +1010,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=AJTV
 #else
-            GA_Arrays(lg_w)%Array(IDX)=AJTV
+            GA_Arrays(lg_w)%A(IDX)=AJTV
 #endif
           END DO
 ! now, dress with FIMO(a,j), only if T==V, so ISYT==ISYV, so if ISYM==1
@@ -1024,7 +1024,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=DBL_MB(MW+IDX-1)+ONEADD
 #else
-              GA_Arrays(lg_w)%Array(IDX)=GA_Arrays(lg_w)%Array(IDX)
+              GA_Arrays(lg_w)%A(IDX)=GA_Arrays(lg_w)%A(IDX)
      &                                  +ONEADD
 #endif
             END DO
@@ -1049,7 +1049,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
             DBL_MB(MW+IDX-1)=AVTJ
 #else
-            GA_Arrays(lg_W)%Array(IDX)=AVTJ
+            GA_Arrays(lg_W)%A(IDX)=AVTJ
 #endif
           END DO
         END DO
@@ -1200,7 +1200,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=EP
 #else
-              GA_Arrays(lg_w)%Array(IDX)=EP
+              GA_Arrays(lg_w)%A(IDX)=EP
 #endif
             END DO
           END DO
@@ -1282,7 +1282,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=EM
 #else
-              GA_Arrays(lg_w)%Array(IDX)=EM
+              GA_Arrays(lg_w)%A(IDX)=EM
 #endif
             END DO
           END DO
@@ -1430,7 +1430,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=GP
 #else
-              GA_Arrays(lg_w)%Array(IDX)=GP
+              GA_Arrays(lg_w)%A(IDX)=GP
 #endif
             END DO
           END DO
@@ -1512,7 +1512,7 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=GM
 #else
-              GA_Arrays(lg_w)%Array(IDX)=GM
+              GA_Arrays(lg_w)%A(IDX)=GM
 #endif
             END DO
           END DO

@@ -180,8 +180,8 @@ C     if (icase.ne.10.and.icase.ne.11) cycle ! G
           ELSE
 #endif
             CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                      GA_Arrays(MV1)%Array,
-     &                      GA_Arrays(MV2)%Array,OVL,
+     &                      GA_Arrays(MV1)%A,
+     &                      GA_Arrays(MV2)%A,OVL,
      &                      TG1,TG2,TG3,SCAL)
 #ifdef _MOLCAS_MPP_
           END IF

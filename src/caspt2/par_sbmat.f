@@ -36,7 +36,7 @@ C tridiagonal local array at Work(lg_M)
 #endif
         nTri=(nSize*(nSize+1))/2
         lg_M=Allocate_GA_Array(nTri,cName)
-        GA_Arrays(lg_M)%Array(:)=0.0D0
+        GA_Arrays(lg_M)%A(:)=0.0D0
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -142,7 +142,7 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
         CALL GA_Sync()
       ELSE
 #endif
-        CALL DDAFILE(LUSBT,1,GA_Arrays(lg_M)%Array(:),nBlock,IDISK)
+        CALL DDAFILE(LUSBT,1,GA_Arrays(lg_M)%A(:),nBlock,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -215,7 +215,7 @@ C LUSBT into WORK(lg_M)
         CALL GA_Sync()
       ELSE
 #endif
-        CALL DDAFILE(LUSBT,2,GA_Arrays(lg_M)%Array(:),nBlock,IDISK)
+        CALL DDAFILE(LUSBT,2,GA_Arrays(lg_M)%A(:),nBlock,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -243,7 +243,7 @@ C LUSBT into WORK(lg_M)
       ELSE
 #endif
         nTri=(NM*(NM+1))/2
-        PSBMAT_FPRINT=DNRM2_(nTri,GA_Arrays(lg_M)%Array(:),1)
+        PSBMAT_FPRINT=DNRM2_(nTri,GA_Arrays(lg_M)%A(:),1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

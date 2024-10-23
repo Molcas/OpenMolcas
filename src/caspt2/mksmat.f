@@ -149,9 +149,9 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
         ELSE
 #endif
-          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%Array(:),NG3,G3,IDXG3)
+          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SA)%Array(:),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SA)%A(:),1,NAS,1,NAS,0)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -961,9 +961,9 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
         ELSE
 #endif
-          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%Array(:),NG3,G3,IDXG3)
+          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),NG3,G3,IDXG3)
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SC)%Array(:),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SC)%A(:),1,NAS,1,NAS,0)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif

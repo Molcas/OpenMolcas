@@ -614,11 +614,11 @@ C
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
 C
-              ValAF = GA_Arrays(ipT)%Array(IW)*2.0D+00
+              ValAF = GA_Arrays(ipT)%A(IW)*2.0D+00
               DPT2C(iTtot+nOrbT*(iJtot-1))
      *          = DPT2C(iTtot+nOrbT*(iJtot-1)) + ValAF
               If (do_csf) Then
-                ValAFanti = GA_Arrays(ipTanti)%Array(IW)*2.0D+00
+                ValAFanti = GA_Arrays(ipTanti)%A(IW)*2.0D+00
                 DPT2Canti(iTtot+nOrbT*(iJtot-1))
      *            = DPT2Canti(iTtot+nOrbT*(iJtot-1)) + ValAFanti
               End If
@@ -628,7 +628,7 @@ C
               IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
-              TJVX(IT,IJ,IV,IX) = GA_Arrays(ipT)%Array(IW)
+              TJVX(IT,IJ,IV,IX) = GA_Arrays(ipT)%A(IW)
             END DO
           END DO
         END DO
@@ -727,7 +727,7 @@ C
                  IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-                TJVL(IT,IJ,IV,IL) = SCL*GA_Arrays(ipTP)%Array(IW)
+                TJVL(IT,IJ,IV,IL) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
@@ -772,7 +772,7 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)
-     *            + SCL*GA_Arrays(ipTM)%Array(IW)
+     *            + SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
@@ -854,11 +854,11 @@ C
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValCF = GA_Arrays(ipT)%Array(IW)*2.0D+00
+              ValCF = GA_Arrays(ipT)%A(IW)*2.0D+00
               DPT2C(iAtot+nOrbA*(iUtot-1))
      *          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
               If (do_csf) Then
-                ValCFanti = GA_Arrays(ipTanti)%Array(IW)*2.0D+00
+                ValCFanti = GA_Arrays(ipTanti)%A(IW)*2.0D+00
                 DPT2Canti(iAtot+nOrbA*(iUtot-1))
      *            = DPT2Canti(iAtot+nOrbA*(iUtot-1)) + ValCFanti
               End If
@@ -870,7 +870,7 @@ C
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValC = GA_Arrays(ipT)%Array(IW)
+              ValC = GA_Arrays(ipT)%A(IW)
               AUVX(IA,IU,IV,IX) = AUVX(IA,IU,IV,IX) + ValC
               AUVX(IA,IX,IU,IX) = AUVX(IA,IX,IU,IX) - ValCF*0.5D+00
             END DO
@@ -979,17 +979,17 @@ C
               IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW=IW1+NAS*(IW2-1)
 C
-              ValD = GA_Arrays(ipT)%Array(IW)
+              ValD = GA_Arrays(ipT)%A(IW)
               If (iVtot.eq.iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
      *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD*2.0d+00
                 If (do_csf) Then
-                  ValDanti = GA_Arrays(ipTanti)%Array(IW)*2.0D+00
+                  ValDanti = GA_Arrays(ipTanti)%A(IW)*2.0D+00
                   DPT2Canti(iAtot+nOrbA*(iJtot-1))
      *              = DPT2Canti(iAtot+nOrbA*(iJtot-1)) + ValDanti
                 End If
               End If
-              AJVX(IV,IX,IAJ) = GA_Arrays(ipT)%Array(IW)
+              AJVX(IV,IX,IAJ) = GA_Arrays(ipT)%A(IW)
             END DO
           END DO
         END DO
@@ -1075,7 +1075,7 @@ C
               IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
               IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
               IW=IW1+NAS*(IW2-1)
-              AUVL(IA,IU,IV,IL) = GA_Arrays(ipT)%Array(IW)
+              AUVL(IA,IU,IV,IL) = GA_Arrays(ipT)%A(IW)
             END DO
           END DO
         END DO
@@ -1189,7 +1189,7 @@ C
                 IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
                 IW=IW1+NAS*(IW2-1)
 C
-                AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%Array(IW)
+                AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
@@ -1260,7 +1260,7 @@ C
                   IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
                   IW=IW1+NAS*(IW2-1)
 C
-                  AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%Array(IW)
+                  AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%A(IW)
                 END IF
               END DO
             END DO
@@ -1364,7 +1364,7 @@ C
                   IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-                AUCX(IA,IU,IC,IX) = SCL*GA_Arrays(ipTP)%Array(IW)
+                AUCX(IA,IU,IC,IX) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
@@ -1411,7 +1411,7 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)
-     *            + SCL*GA_Arrays(ipTM)%Array(IW)
+     *            + SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
@@ -1536,7 +1536,7 @@ C
                 IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGP = SCL*GA_Arrays(ipTP)%Array(IW)
+                ValGP = SCL*GA_Arrays(ipTP)%A(IW)
                 AUCL(IA,IU,ICL) = ValGP
               END DO
             END DO
@@ -1618,7 +1618,7 @@ C
                 IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGM = SCL*GA_Arrays(ipTM)%Array(IW)
+                ValGM = SCL*GA_Arrays(ipTM)%A(IW)
                 AUCL(IA,IU,ICL) = ValGM
               END DO
             END DO
@@ -1756,7 +1756,7 @@ C
               END IF
               IW=IAGEC+NAGEB(ISYM)*(IJGEL-1)
 C
-              ValHP = SCL*GA_Arrays(ipTP)%Array(IW)
+              ValHP = SCL*GA_Arrays(ipTP)%A(IW)
               AJCL(ICLSTA+ICL-1,IAJ) = ValHP
             END DO
           END DO
@@ -1851,7 +1851,7 @@ C
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
 C
-              ValHM = SCL*GA_Arrays(ipTM)%Array(IW)
+              ValHM = SCL*GA_Arrays(ipTM)%A(IW)
               AJCL(ICLSTA+ICL-1,IAJ) = ValHM
             END DO
           END DO

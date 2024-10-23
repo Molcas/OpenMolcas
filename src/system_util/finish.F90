@@ -27,7 +27,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: rc
 integer(kind=iwp) :: idum
-#include "WrkSpc.fh"
 
 call Symmetry_Info_Free()
 call Free_Isotopes()

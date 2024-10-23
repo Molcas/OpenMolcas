@@ -183,10 +183,10 @@ C the SGM subroutines
                 XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
                 LCX=Allocate_GA_Array(NCX,'CX')
-                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%Array)
+                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%A)
                 CALL RHS_FREE(lg_CX)
-                XTST=DDOT_(NCX,GA_Arrays(LCX)%Array,1,
-     &                         GA_Arrays(LCX)%Array,1)
+                XTST=DDOT_(NCX,GA_Arrays(LCX)%A,1,
+     &                         GA_Arrays(LCX)%A,1)
               END IF
 
               IF(XTST.GT.1.0D12) THEN
@@ -411,8 +411,8 @@ CPAM Sanity check:
               END IF
 
 * SVC: this array is just zero....
-*             XTST=DDOT_(NSGMX,GA_Array(LSGMX)%Array,1,
-*    &                         GA_Array(LSGMX)%Array,1)
+*             XTST=DDOT_(NSGMX,GA_Array(LSGMX)%A,1,
+*    &                         GA_Array(LSGMX)%A,1)
 *             IF(XTST.GT.1.0D12) THEN
 *               WRITE(6,'(1x,a,6i10)')' SIGMA H. ICASE1,ISYM1:',
 *    &                                           ICASE1,ISYM1
@@ -433,8 +433,8 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)
               ELSE
-                XTST=DDOT_(NSGMX,GA_Arrays(LSGMX)%Array,1,
-     &                           GA_Arrays(LSGMX)%Array,1)
+                XTST=DDOT_(NSGMX,GA_Arrays(LSGMX)%A,1,
+     &                           GA_Arrays(LSGMX)%A,1)
               END IF
 
               IF(XTST.GT.1.0D12) THEN
@@ -449,12 +449,12 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
                 MAX_MESG_SIZE = 2**27
                 DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
                   NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADSUM(GA_Arrays(LSGMX)%Array(LSGMX_STA),
+                  CALL GADSUM(GA_Arrays(LSGMX)%A(LSGMX_STA),
      &                        NSGMX_BLK)
                 END DO
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-                CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Arrays(LSGMX)%Array)
+                CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Arrays(LSGMX)%A)
                 Call Deallocate_GA_Array(LSGMX)
               END IF
 

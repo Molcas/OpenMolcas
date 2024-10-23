@@ -356,7 +356,7 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
         END IF
       ELSE
 #endif
-        CALL DCOPY_(NAS*NIS,GA_Arrays(lg_W)%Array,1,W,1)
+        CALL DCOPY_(NAS*NIS,GA_Arrays(lg_W)%A,1,W,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -403,7 +403,7 @@ C which is 2**30 bytes).
         END IF
       ELSE
 #endif
-        CALL DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%Array,1)
+        CALL DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%A,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -438,7 +438,7 @@ Cmatching part of a replicate array.
         END IF
       ELSE
 #endif
-        CALL DAXPY_(NAS*NIS,1.0D0,W,1,GA_Arrays(lg_W)%Array,1)
+        CALL DAXPY_(NAS*NIS,1.0D0,W,1,GA_Arrays(lg_W)%A,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -503,7 +503,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #endif
         NW=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%Array,NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%A,NW,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -568,7 +568,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #endif
         NW=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),1,GA_Arrays(lg_W)%Array,NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),1,GA_Arrays(lg_W)%A,NW,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -608,8 +608,8 @@ CSVC: global array RHS matrix expects 2 index buffers
       ELSE
 #endif
         DO I=1,nBuff
-          GA_Arrays(lg_W)%Array(idxW(I)) =
-     &      GA_Arrays(lg_W)%Array(idxW(I)) + BUFF(I)
+          GA_Arrays(lg_W)%A(idxW(I)) =
+     &      GA_Arrays(lg_W)%A(idxW(I)) + BUFF(I)
         END DO
 #ifdef _MOLCAS_MPP_
       END IF
@@ -685,7 +685,7 @@ CSVC: Destroy the global array
       ELSE
 #endif
       IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-      CALL DDAFILE(LUSOLV,1,GA_Arrays(lg_W)%Array,NAS*NIS,IDISK)
+      CALL DDAFILE(LUSOLV,1,GA_Arrays(lg_W)%A,NAS*NIS,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -752,7 +752,7 @@ CSVC: Destroy the global array
 #endif
         NW=NAS*NIS
         IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-        CALL DDAFILE(LUSOLV,2,GA_Arrays(lg_W)%Array,NW,IDISK)
+        CALL DDAFILE(LUSOLV,2,GA_Arrays(lg_W)%A,NW,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -788,10 +788,10 @@ C          CALL GA_Fill (lg_W,0.0D0)
       ELSE
 #endif
         IF(FACT.EQ.0.0D0) THEN
-            CALL DCOPY_(NAS*NIS,[0.0D0],0,GA_Arrays(lg_W)%Array,1)
+            CALL DCOPY_(NAS*NIS,[0.0D0],0,GA_Arrays(lg_W)%A,1)
         ELSE
           IF(FACT.NE.1.0D00) THEN
-            CALL DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%Array,1)
+            CALL DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%A,1)
           END IF
         END IF
 #ifdef _MOLCAS_MPP_
@@ -912,12 +912,12 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
         CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
         IF (IREV.EQ.0) THEN
           CALL DGEMM_('N','N',NAS,NIS,NIN,
-     &                1.0d0,T,NAS,GA_Arrays(lg_V1)%Array,NIN,
-     &                0.0d0,GA_Arrays(lg_V2)%Array,NAS)
+     &                1.0d0,T,NAS,GA_Arrays(lg_V1)%A,NIN,
+     &                0.0d0,GA_Arrays(lg_V2)%A,NAS)
         ELSE
           CALL DGEMM_('T','N',NIN,NIS,NAS,
-     &                1.0d0,T,NAS,GA_Arrays(lg_V2)%Array,NAS,
-     &                0.0d0,GA_Arrays(lg_V1)%Array,NIN)
+     &                1.0d0,T,NAS,GA_Arrays(lg_V2)%A,NAS,
+     &                0.0d0,GA_Arrays(lg_V1)%A,NIN)
         END IF
         CALL mma_deallocate(T)
 #ifdef _MOLCAS_MPP_
@@ -1002,8 +1002,8 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
         IDS=IDSMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,2,S,NS,IDS)
         CALL TRIMUL(NAS,NIS,ALPHA,S,
-     &              GA_Arrays(lg_V1)%Array,NAS,
-     &              GA_Arrays(lg_V2)%Array,NAS)
+     &              GA_Arrays(lg_V1)%A,NAS,
+     &              GA_Arrays(lg_V2)%A,NAS)
         CALL mma_deallocate(S)
 #ifdef _MOLCAS_MPP_
       END IF
@@ -1029,8 +1029,8 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
         RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
       ELSE
 #endif
-        RHS_DDOT = DDOT_(NAS*NIS,GA_Arrays(lg_V1)%Array,1,
-     &                           GA_Arrays(lg_V2)%Array,1)
+        RHS_DDOT = DDOT_(NAS*NIS,GA_Arrays(lg_V1)%A,1,
+     &                           GA_Arrays(lg_V2)%A,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -1071,8 +1071,8 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
         END IF
       ELSE
 #endif
-        CALL DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%Array,1,
-     &                            GA_Arrays(lg_V2)%Array,1)
+        CALL DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%A,1,
+     &                            GA_Arrays(lg_V2)%A,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -1117,7 +1117,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GAdSUM_SCAL(DOVL)
       ELSE
 #endif
-        CALL RESDIA(NIN,NIS,GA_Arrays(lg_W)%Array,NIN,DIN,DIS,DOVL)
+        CALL RESDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS,DOVL)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -1160,7 +1160,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GA_Sync()
       ELSE
 #endif
-        CALL SGMDIA(NIN,NIS,GA_Arrays(lg_W)%Array,NIN,DIN,DIS)
+        CALL SGMDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

@@ -90,7 +90,7 @@ C Transform to standard representation, covariant form.
           END IF
         ELSE
 #endif
-          CALL SPEC1A(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%Array,
+          CALL SPEC1A(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,
      &                                 WTI(IWOFF))
 #ifdef _MOLCAS_MPP_
         END IF
@@ -124,7 +124,7 @@ C Transform to standard representation, covariant form.
           END IF
         ELSE
 #endif
-          CALL SPEC1C(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%Array,WAT(IWOFF))
+          CALL SPEC1C(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,WAT(IWOFF))
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -156,7 +156,7 @@ C Transform to standard representation, covariant form.
         END IF
       ELSE
 #endif
-        CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC)%Array,WAI)
+        CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC)%A,WAI)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

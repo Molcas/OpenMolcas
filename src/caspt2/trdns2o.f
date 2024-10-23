@@ -90,11 +90,11 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
            CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
             IF (SCAL.ne.1.0D+00)
-     &         CALL DSCAL_(NVEC1,SCAL,GA_Arrays(LSCR)%Array,1)
+     &         CALL DSCAL_(NVEC1,SCAL,GA_Arrays(LSCR)%A,1)
             CALL RHS_ALLO(NAS1,NIS1,LSCR2)
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%Array,1,
-     &                                    GA_Arrays(LSCR)%Array,1)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%A,1,
+     &                                    GA_Arrays(LSCR)%A,1)
             CALL RHS_FREE(LSCR2)
            END IF
            CALL RHS_STRANS (NAS1,NIS1,1.0D0,LSCR,LVEC1,ICASE1,ISYM1)
@@ -103,11 +103,11 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
            CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
             IF (SCAL.ne.1.0D+00)
-     &         CALL DSCAL_(NVEC1,SCAL,GA_Arrays(LVEC1)%Array,1)
+     &         CALL DSCAL_(NVEC1,SCAL,GA_Arrays(LVEC1)%A,1)
             CALL RHS_ALLO(NAS1,NIS1,LSCR2)
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%Array,1,
-     &                                    GA_Arrays(LVEC1)%Array,1)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%A,1,
+     &                                    GA_Arrays(LVEC1)%A,1)
             CALL RHS_FREE(LSCR2)
            END IF
           END IF
@@ -137,12 +137,12 @@ C Form WEC1 from VEC1, if needed.
 #endif
               IF(ICASE1.EQ.1) THEN
                 CALL SPEC1A(IMLTOP,FACT,ISYM1,
-     &                      GA_Arrays(LVEC1)%Array,WEC1)
+     &                      GA_Arrays(LVEC1)%A,WEC1)
               ELSE IF(ICASE1.EQ.4) THEN
                 CALL SPEC1C(IMLTOP,FACT,ISYM1,
-     &                      GA_Arrays(LVEC1)%Array,WEC1)
+     &                      GA_Arrays(LVEC1)%A,WEC1)
               ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-                CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC1)%Array,WEC1)
+                CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC1)%A,WEC1)
               END IF
 #ifdef _MOLCAS_MPP_
             END IF
@@ -164,11 +164,11 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
               IF (IVEC.NE.JVEC.AND.ILOOP.EQ.2) THEN
               IF (SCAL.ne.1.0D+00)
-     &          CALL DSCAL_(NVEC2,SCAL,GA_Arrays(LVEC2)%Array,1)
+     &          CALL DSCAL_(NVEC2,SCAL,GA_Arrays(LVEC2)%A,1)
                CALL RHS_ALLO(NAS2,NIS2,LSCR2)
                CALL RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
-              Call DaXpY_(NAS2*NIS2,1.0D+00,GA_Arrays(LSCR2)%Array,1,
-     &                                     GA_Arrays(LVEC2)%Array,1)
+              Call DaXpY_(NAS2*NIS2,1.0D+00,GA_Arrays(LSCR2)%A,1,
+     &                                     GA_Arrays(LVEC2)%A,1)
                CALL RHS_FREE(LSCR2)
               END IF
 #ifdef _MOLCAS_MPP_
@@ -184,8 +184,8 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               ELSE
 #endif
                 CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                      WEC1,GA_Arrays(LVEC1)%Array,DPT2,
-     &                           GA_Arrays(LVEC2)%Array,LISTS)
+     &                      WEC1,GA_Arrays(LVEC1)%A,DPT2,
+     &                           GA_Arrays(LVEC2)%A,LISTS)
 #ifdef _MOLCAS_MPP_
               END IF
 #endif

@@ -170,8 +170,8 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         ELSE
 #endif
           CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,GA_Arrays(lg_BA)%Array(:),1,NAS,1,NAS,0)
-          CALL MKBA_F3(ISYM,GA_Arrays(lg_BA)%Array(:),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BA)%A(:),1,NAS,1,NAS,0)
+          CALL MKBA_F3(ISYM,GA_Arrays(lg_BA)%A(:),NG3,F3,IDXG3)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -995,8 +995,8 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
         ELSE
 #endif
           CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,GA_Arrays(lg_BC)%Array(:),1,NAS,1,NAS,0)
-          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%Array(:),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BC)%A(:),1,NAS,1,NAS,0)
+          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),NG3,F3,IDXG3)
 
 #ifdef _MOLCAS_MPP_
         END IF

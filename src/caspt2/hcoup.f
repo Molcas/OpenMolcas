@@ -95,8 +95,8 @@ C  End of loop.
           ELSE
 #endif
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     GA_Arrays(MV1)%Array,
-     &                     GA_Arrays(MV2)%Array,OVL,HEBLK,
+     &                     GA_Arrays(MV1)%A,
+     &                     GA_Arrays(MV2)%A,OVL,HEBLK,
      &                     TG1,TG2,TG3)
 #ifdef _MOLCAS_MPP_
           END IF

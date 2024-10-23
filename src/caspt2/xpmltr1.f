@@ -64,12 +64,12 @@ C always the Y array.
           CALL MLTR1_EH(IMLTOP,LST1,
      &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
-     &                  GA_Arrays(lg_Y)%Array,NAS2,1,NIS2)
+     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
         ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
           CALL MLTR1_GH(IMLTOP,LST1,
      &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
-     &                  GA_Arrays(lg_Y)%Array,NAS2,1,NIS2)
+     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
         END IF
 #ifdef _MOLCAS_MPP_
       END IF

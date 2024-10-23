@@ -67,7 +67,7 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
             If (do_grad) Then
               If (Scal.ne.1.0D+00)
-     *          Call DScal_(NIN*NIS,Scal,GA_Arrays(lg_V1)%Array,1)
+     *          Call DScal_(NIN*NIS,Scal,GA_Arrays(lg_V1)%A,1)
               if (sigma_p_epsilon .ne. 0.0d+00) then
                 !! derivative of the numerator
                 nAS = nASUP(iSym,iCase)
@@ -80,8 +80,8 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
                 Call mma_deallocate(BD)
                 Call mma_deallocate(ID)
               end if
-              Call DaXpY_(nIN*nIS,1.0D+00,GA_Arrays(lg_V2)%Array,1,
-     &                                    GA_Arrays(lg_V1)%Array,1)
+              Call DaXpY_(nIN*nIS,1.0D+00,GA_Arrays(lg_V2)%A,1,
+     &                                    GA_Arrays(lg_V1)%A,1)
               CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
             End If
           END IF
@@ -107,8 +107,8 @@ C full array in case we are running in parallel
             CALL GASYNC
           ELSE
 #endif
-            CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%Array,
-     &                             GA_Arrays(lg_V2)%Array,DPT2,LISTS)
+            CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,
+     &                             GA_Arrays(lg_V2)%A,DPT2,LISTS)
 #ifdef _MOLCAS_MPP_
           END IF
 #endif
@@ -147,8 +147,8 @@ C
               CALL GASYNC
             ELSE
 #endif
-              CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%Array,
-     &                               GA_Arrays(lg_V2)%Array,DPT2,LISTS)
+              CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,
+     &                               GA_Arrays(lg_V2)%A,DPT2,LISTS)
 #ifdef _MOLCAS_MPP_
             END IF
 #endif

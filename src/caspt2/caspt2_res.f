@@ -156,8 +156,8 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GA_Sync()
       ELSE
 #endif
-        CALL CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%Array,
-     &                                 GA_Arrays(lg_W2)%Array,
+        CALL CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%A,
+     &                                 GA_Arrays(lg_W2)%A,
      *                                 NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       END IF

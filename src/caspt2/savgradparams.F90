@@ -259,9 +259,9 @@ Contains
           Call RHS_ALLO(NAS,NIS,lg_V1)
           If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NAS*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
           Else If (IORW == 2) Then
-            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NAS*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(lg_V1)
@@ -269,9 +269,9 @@ Contains
           Call RHS_ALLO(NIN,NIS,lg_V1)
           If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NIN*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
           Else If (IORW == 2) Then
-            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NIN*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(lg_V1)

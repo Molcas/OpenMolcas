@@ -148,8 +148,8 @@ C positioning.
                 COEF=DBL_MB(mVEC+IAS-1+NIN*(IIS-IISTA))
               ELSE
 #endif
-                RHS =GA_Arrays(lg_RHS)%Array(IAS+NIN*(IIS-IISTA))
-                COEF=GA_Arrays(lg_VEC)%Array(IAS+NIN*(IIS-IISTA))
+                RHS =GA_Arrays(lg_RHS)%A(IAS+NIN*(IIS-IISTA))
+                COEF=GA_Arrays(lg_VEC)%A(IAS+NIN*(IIS-IISTA))
 #ifdef _MOLCAS_MPP_
               END IF
 #endif

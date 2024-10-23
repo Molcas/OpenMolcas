@@ -16,7 +16,7 @@ Real*8 DBL_MB(2)
 
 Type ga_type
      Integer :: g_a           ! global array handler
-     Real*8, allocatable  :: Array(:)      ! local array
+     Real*8, allocatable  :: A(:)      ! local array
      Integer :: index         ! Array(1)=DBL_MB(index)
      Integer :: iLow = 1
      Integer :: iHi
@@ -42,11 +42,11 @@ Integer i
 
 lg_A=0
 Do i = 1, max_ga_arrays
-   If (.Not.Allocated(GA_arrays(i)%Array)) Then
+   If (.Not.Allocated(GA_arrays(i)%A)) Then
       iga_arrays=iga_arrays+1
-      Call mma_allocate(GA_arrays(i)%Array,nSize,Label=Label)
+      Call mma_allocate(GA_arrays(i)%A,nSize,Label=Label)
       lg_A=i
-      GA_Arrays(lg_A)%Array(:)=0.0D0
+      GA_Arrays(lg_A)%A(:)=0.0D0
       Return
    End If
 End Do
@@ -56,7 +56,7 @@ End Function Allocate_GA_Array
 
 Subroutine Deallocate_GA_Array(lg_A)
 Integer, Intent(InOut):: lg_A
-Call mma_deallocate(GA_Arrays(lg_A)%Array)
+Call mma_deallocate(GA_Arrays(lg_A)%A)
 iga_arrays=iga_arrays-1
 lg_A=0
 End Subroutine Deallocate_GA_Array

@@ -58,7 +58,7 @@ C always the Y array.
         IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
           CALL MLTSCA_DH(IMLTOP,LST1,LST2,
      &                   X,NXI,NXA,F,NFI,NFA,
-     &                   GA_Arrays(lg_Y)%Array,NAS2,1,NIS2)
+     &                   GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
         ELSE
           WRITE(6,*) 'PMLTSCA: not supposed to be here'
           CALL AbEnd()
