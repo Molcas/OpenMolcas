@@ -16,6 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+#include "xrhs.fh"
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
       use caspt2_data, only: LUSOLV, IDSCT
       use EQSOLV
@@ -125,7 +126,8 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
             CALL RHS_ALLO (NIN,NIS,lg_V)
             CALL RHS_READ (NIN,NIS,lg_V,ICASE,ISYM,IVEC)
             CALL RHS_SCAL (NIN,NIS,lg_V,FACT)
-            IF(FACT.EQ.-1.0D00)SIGMA2=SIGMA2+RHS_DDOT(NIN,NIS,lg_V,lg_V)
+            IF(FACT.EQ.-1.0D00)SIGMA2=SIGMA2
+     &                               +RHS_DDOT(NIN,NIS,lg_V,lg_V)
             CALL RHS_SAVE (NIN,NIS,lg_V,ICASE,ISYM,JVEC)
             CALL RHS_FREE (NIN,NIS,lg_V)
           END IF
@@ -280,7 +282,8 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
             IF(NIN.GT.0) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
+              CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,
+     &                       lg_V1,lg_V2,ICASE,ISYM)
               CALL RHS_FREE (NIN,NIS,lg_V1)
             ELSE
               CALL RHS_SCAL (NAS,NIS,lg_V2,0.0D0)
@@ -329,7 +332,8 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
             IF(NAS.GT.0) THEN
               CALL RHS_ALLO (NAS,NIS,lg_V2)
               CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
-              CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
+              CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,
+     &                       lg_V1,lg_V2,ICASE,ISYM)
               CALL RHS_FREE (NAS,NIS,lg_V2)
             ELSE
               CALL RHS_SCAL (NIN,NIS,lg_V1,0.0D0)
