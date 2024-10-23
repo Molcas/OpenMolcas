@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-
+#include "xrhs.fh"
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 
       use caspt2_output, only:iPrGlb
@@ -63,8 +63,8 @@ C with correct trace.
           CALL RHS_READ_SR (LVEC1,iCASE,iSYM,IVEC)
           CALL RHS_READ_SR (LVEC2,iCASE,iSYM,JVEC)
           OVL=OVL+RHS_DDOT(NIN,NIS,LVEC1,LVEC2)
-          CALL RHS_FREE(NIN,NIS,LVEC1)
-          CALL RHS_FREE(NIN,NIS,LVEC2)
+          CALL RHS_FREE(LVEC1)
+          CALL RHS_FREE(LVEC2)
  100    CONTINUE
         IF(NADIFF.GT.0) THEN
           COEF1=COEF1+OVL*DBLE(NADIFF)/DBLE(MAX(1,NAHOLE))

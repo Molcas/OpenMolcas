@@ -65,7 +65,7 @@ C positioning.
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V1,BD,ID)
               CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (NIN,NIS,lg_V1)
+              CALL RHS_FREE (lg_V1)
             ELSE
               CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
               CALL RHS_SGMDIA (NIN,NIS,lg_V2,BD,ID)
@@ -74,7 +74,7 @@ C positioning.
           END IF
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (NIN,NIS,lg_V2)
+          CALL RHS_FREE (lg_V2)
           CALL mma_deallocate(BD)
           CALL mma_deallocate(ID)
  101    CONTINUE

@@ -96,7 +96,7 @@ C Transform to standard representation, covariant form.
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
-        CALL RHS_FREE(NAS,NIS,LVEC)
+        CALL RHS_FREE(LVEC)
         IWOFF=IWOFF+NASH(ISYM)*NISH(ISYM)
  100  CONTINUE
  110  CONTINUE
@@ -129,7 +129,7 @@ C Transform to standard representation, covariant form.
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
-        CALL RHS_FREE(NAS,NIS,LVEC)
+        CALL RHS_FREE(LVEC)
         IWOFF=IWOFF+NSSH(ISYM)*NASH(ISYM)
  200  CONTINUE
  210  CONTINUE
@@ -161,7 +161,7 @@ C Transform to standard representation, covariant form.
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
-      CALL RHS_FREE(NAS,NIS,LVEC)
+      CALL RHS_FREE(LVEC)
  300  CONTINUE
 
 C Transform vectors back to eigenbasis of H0(diag).

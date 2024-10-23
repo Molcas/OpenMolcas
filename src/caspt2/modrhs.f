@@ -59,7 +59,7 @@ C Read W from disk:
        CALL RHS_PUT (NAS,NIS,lg_A,WA)
 C Put W on disk:
        CALL RHS_SAVE (NAS,NIS,lg_A,ICASE,ISYM,IVEC)
-       CALL RHS_FREE (NAS,NIS,lg_A)
+       CALL RHS_FREE (lg_A)
        CALL mma_deallocate(WA)
 
  100   CONTINUE
@@ -110,7 +110,7 @@ C Read W from disk:
        CALL RHS_PUT (NAS,NIS,lg_C,WC)
 C Put W on disk:
        CALL RHS_SAVE (NAS,NIS,lg_C,ICASE,ISYM,IVEC)
-       CALL RHS_FREE (NAS,NIS,lg_C)
+       CALL RHS_FREE (lg_C)
        CALL mma_deallocate(WC)
 
  200   CONTINUE
@@ -165,7 +165,7 @@ C Read W from disk:
 
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,ICASE,ISYM,IVEC)
-      CALL RHS_FREE (NAS,NIS,lg_D)
+      CALL RHS_FREE (lg_D)
       CALL mma_deallocate(WD)
 
       END SUBROUTINE MODRHS

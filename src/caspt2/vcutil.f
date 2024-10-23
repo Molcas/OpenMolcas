@@ -129,7 +129,7 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
             IF(FACT.EQ.-1.0D00)SIGMA2=SIGMA2
      &                               +RHS_DDOT(NIN,NIS,lg_V,lg_V)
             CALL RHS_SAVE (NIN,NIS,lg_V,ICASE,ISYM,JVEC)
-            CALL RHS_FREE (NIN,NIS,lg_V)
+            CALL RHS_FREE (lg_V)
           END IF
         END DO
       END DO
@@ -179,9 +179,9 @@ C sum in OVLAPS(0,0).
               lg_V2=lg_V1
             END IF
             OVL=RHS_DDOT(NIN,NIS,lg_V1,lg_V2)
-            CALL RHS_FREE (NIN,NIS,lg_V1)
+            CALL RHS_FREE (lg_V1)
             IF (IVEC.NE.JVEC) THEN
-              CALL RHS_FREE (NIN,NIS,lg_V2)
+              CALL RHS_FREE (lg_V2)
             END IF
           END IF
           OVLAPS(ISYM,ICASE)=OVL
@@ -242,9 +242,9 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (NIN,NIS,lg_V2)
+          CALL RHS_FREE (lg_V2)
           IF(BETA.NE.0.0D0.AND.ALPHA.NE.0.0D0) THEN
-            CALL RHS_FREE (NIN,NIS,lg_V1)
+            CALL RHS_FREE (lg_V1)
           END IF
  101    CONTINUE
  100  CONTINUE
@@ -284,7 +284,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
               CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,
      &                       lg_V1,lg_V2,ICASE,ISYM)
-              CALL RHS_FREE (NIN,NIS,lg_V1)
+              CALL RHS_FREE (lg_V1)
             ELSE
               CALL RHS_SCAL (NAS,NIS,lg_V2,0.0D0)
             END IF
@@ -294,7 +294,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
           CALL RHS_SAVE (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V2)
 
  100    CONTINUE
  200  CONTINUE
@@ -334,7 +334,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
               CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
               CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,
      &                       lg_V1,lg_V2,ICASE,ISYM)
-              CALL RHS_FREE (NAS,NIS,lg_V2)
+              CALL RHS_FREE (lg_V2)
             ELSE
               CALL RHS_SCAL (NIN,NIS,lg_V1,0.0D0)
             END IF
@@ -344,7 +344,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
           CALL RHS_SAVE (NIN,NIS,lg_V1,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (NIN,NIS,lg_V1)
+          CALL RHS_FREE (lg_V1)
 
  100    CONTINUE
  200  CONTINUE

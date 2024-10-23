@@ -265,7 +265,7 @@ Contains
             CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NAS*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
-          CALL RHS_FREE(NAS,NIS,lg_V1)
+          CALL RHS_FREE(lg_V1)
         Else
           Call RHS_ALLO(NIN,NIS,lg_V1)
           If (IORW == 1) Then
@@ -275,7 +275,7 @@ Contains
             CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%Array,NIN*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
-          CALL RHS_FREE(NIN,NIS,lg_V1)
+          CALL RHS_FREE(lg_V1)
         End If
       End Do
     End Do

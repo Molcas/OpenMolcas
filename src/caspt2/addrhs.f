@@ -88,7 +88,7 @@ C Read W:
       END IF
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_A,iCASE,iSYM,iVEC)
-      CALL RHS_FREE(NAS,NIS,lg_A)
+      CALL RHS_FREE(lg_A)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -218,7 +218,7 @@ C Read WP:
        END IF
 C Put WBP on disk:
        CALL RHS_SAVE (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE(NASP,NISP,lg_BP)
+       CALL RHS_FREE(lg_BP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -276,7 +276,7 @@ C Read WM:
        END IF
 C Put WBM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_BM,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASM,NISM,lg_BM)
+       CALL RHS_FREE (lg_BM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -367,7 +367,7 @@ C Read W:
       END IF
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_C,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NIS,lg_C)
+      CALL RHS_FREE (lg_C)
 
 *                                                                      *
 ************************************************************************
@@ -495,7 +495,7 @@ C Read W:
 
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NIS,lg_D)
+      CALL RHS_FREE (lg_D)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -598,7 +598,7 @@ C Read W:
 *
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NIS,lg_D)
+      CALL RHS_FREE (lg_D)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -738,7 +738,7 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
        ENDDO
 
       CALL RHS_SAVE (NAS,NISP,lg_EP,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NISP,lg_EP)
+      CALL RHS_FREE (lg_EP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -808,7 +808,7 @@ C Read WM:
        ENDDO
 
       CALL RHS_SAVE (NAS,NISM,lg_EM,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NISM,lg_EM)
+      CALL RHS_FREE (lg_EM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -933,7 +933,7 @@ C Read WP:
          CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
        END IF
        CALL RHS_SAVE (NASP,NISP,lg_FP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASP,NISP,lg_FP)
+       CALL RHS_FREE (lg_FP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -992,7 +992,7 @@ C Read WM:
        END IF
 C Put WFM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASM,NISM,lg_FM)
+       CALL RHS_FREE (lg_FM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1142,7 +1142,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
        CALL RHS_SAVE (NAS,NISP,lg_GP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NAS,NISP,lg_GP)
+       CALL RHS_FREE (lg_GP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1232,7 +1232,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
        CALL RHS_SAVE (NAS,NISM,lg_GM,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NAS,NISM,lg_GM)
+       CALL RHS_FREE (lg_GM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1403,7 +1403,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
        CALL RHS_SAVE (NASP,NISP,lg_HP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASP,NISP,lg_HP)
+       CALL RHS_FREE (lg_HP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1500,7 +1500,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
       CALL RHS_SAVE (NASM,NISM,lg_HM,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NASM,NISM,lg_HM)
+      CALL RHS_FREE (lg_HM)
 *                                                                      *
 ************************************************************************
 *                                                                      *

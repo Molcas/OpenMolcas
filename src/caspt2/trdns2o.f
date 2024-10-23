@@ -96,10 +96,10 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
             Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%Array,1,
      &                                    GA_Arrays(LSCR)%Array,1)
-            CALL RHS_FREE(NAS1,NIS1,LSCR2)
+            CALL RHS_FREE(LSCR2)
            END IF
            CALL RHS_STRANS (NAS1,NIS1,1.0D0,LSCR,LVEC1,ICASE1,ISYM1)
-           CALL RHS_FREE(NAS1,NIS1,LSCR)
+           CALL RHS_FREE(LSCR)
           ELSE
            CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
@@ -109,7 +109,7 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
             Call DaXpY_(NAS1*NIS1,1.0D+00,GA_Arrays(LSCR2)%Array,1,
      &                                    GA_Arrays(LVEC1)%Array,1)
-            CALL RHS_FREE(NAS1,NIS1,LSCR2)
+            CALL RHS_FREE(LSCR2)
            END IF
           END IF
 C Form WEC1 from VEC1, if needed.
@@ -170,7 +170,7 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
                CALL RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
               Call DaXpY_(NAS2*NIS2,1.0D+00,GA_Arrays(LSCR2)%Array,1,
      &                                     GA_Arrays(LVEC2)%Array,1)
-               CALL RHS_FREE(NAS2,NIS2,LSCR2)
+               CALL RHS_FREE(LSCR2)
               END IF
 #ifdef _MOLCAS_MPP_
               IF (IS_REAL_PAR()) THEN
@@ -190,10 +190,10 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
 #ifdef _MOLCAS_MPP_
               END IF
 #endif
-              CALL RHS_FREE(NAS2,NIS2,LVEC2)
+              CALL RHS_FREE(LVEC2)
  200        CONTINUE
  300      CONTINUE
-          CALL RHS_FREE(NAS1,NIS1,LVEC1)
+          CALL RHS_FREE(LVEC1)
           Call mma_deallocate(WEC1)
  401    CONTINUE
  400  CONTINUE

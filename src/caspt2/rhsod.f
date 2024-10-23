@@ -183,7 +183,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  1      CONTINUE
 
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
@@ -324,7 +324,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  4      CONTINUE
 
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
@@ -452,7 +452,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  2      CONTINUE
       END DO
 ************************************************************************
@@ -527,7 +527,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  3      CONTINUE
       END DO
 ************************************************************************
@@ -650,7 +650,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  8      CONTINUE
       END DO
 ************************************************************************
@@ -725,7 +725,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  9      CONTINUE
       END DO
 ************************************************************************
@@ -849,7 +849,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  12     CONTINUE
       END DO
 ************************************************************************
@@ -922,7 +922,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  13     CONTINUE
       END DO
 ************************************************************************
@@ -1100,7 +1100,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  8      CONTINUE
 
       END DO
@@ -1254,7 +1254,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  6      CONTINUE
       END DO
 ************************************************************************
@@ -1336,7 +1336,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  7      CONTINUE
       END DO
 ************************************************************************
@@ -1484,7 +1484,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  10     CONTINUE
       END DO
 ************************************************************************
@@ -1566,7 +1566,7 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
 
         CALL RHS_Release_Update (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-        CALL RHS_FREE (NAS,NIS,lg_W)
+        CALL RHS_FREE (lg_W)
  11     CONTINUE
       END DO
 ************************************************************************

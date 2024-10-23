@@ -642,8 +642,8 @@ C
      *            1.0D+00,TJVX(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NX,
      *            1.0D+00,Cho_BraD(1,1,1),NT*NJ)
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
-      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+      CALL RHS_FREE(ipT)
+      If (do_csf) CALL RHS_FREE(ipTanti)
 C
       RETURN
 C
@@ -734,7 +734,7 @@ C
           END DO
         END DO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
       IF(NINDEP(ISYM,3).GT.0) THEN
@@ -779,7 +779,7 @@ C
           END DO
         END DO
 C
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       Call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,
@@ -886,8 +886,8 @@ C
      *            1.0D+00,AUVX(1,1,1,1),NA*NU,Cho_Ket(1,1,1),NV*NX,
      *            1.0D+00,Cho_BraD(1,1,1),NA*NU)
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
-      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+      CALL RHS_FREE(ipT)
+      If (do_csf) CALL RHS_FREE(ipTanti)
 C
       RETURN
 C
@@ -1006,8 +1006,8 @@ C
         ENDDO
       ENDDO
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
-      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+      CALL RHS_FREE(ipT)
+      If (do_csf) CALL RHS_FREE(ipTanti)
 C
       RETURN
 C
@@ -1089,7 +1089,7 @@ C
      *            1.0D+00,AUVL,NA*NU,Cho_Ket,NV*NL,
      *            1.0D+00,Cho_BraD,NA*NU)
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
+      CALL RHS_FREE(ipT)
 C
       RETURN
 C
@@ -1206,7 +1206,7 @@ C
           ENDDO
         ENDDO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
 C     ---- EM
@@ -1278,7 +1278,7 @@ C
           ENDDO
         ENDDO
 C
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       RETURN
@@ -1371,7 +1371,7 @@ C
           END DO
         END DO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
 C     ---- FM
@@ -1418,7 +1418,7 @@ C
           END DO
         END DO
 C
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       Call DGEMM_('T','N',NC*NX,NCHO,NA*NU,
@@ -1556,7 +1556,7 @@ C
           ENDDO
         ENDDO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
 C     ---- GM
@@ -1638,7 +1638,7 @@ C
           ENDDO
         ENDDO
 
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       RETURN
@@ -1776,7 +1776,7 @@ C
         ENDDO
       ENDDO
 C
-      IF (nVec.ne.0) CALL RHS_FREE(nINP,nISP,ipTP)
+      IF (nVec.ne.0) CALL RHS_FREE(ipTP)
 C
 C     ---- HM
 C
@@ -1870,7 +1870,7 @@ C
         ENDDO
       ENDDO
 C
-      If (nVec.ne.0) CALL RHS_FREE(nINM,nISM,ipTM)
+      If (nVec.ne.0) CALL RHS_FREE(ipTM)
 C
       Return
 C

@@ -251,10 +251,10 @@ C
 C
 C   1 CONTINUE
       If (PM) Then
-        If (nASP*nISP.ne.0) Call RHS_FREE(nASP,nISP,ipTCP)
-        If (nASM*nISM.ne.0) Call RHS_FREE(nASM,nISM,ipTCM)
+        If (nASP*nISP.ne.0) Call RHS_FREE(ipTCP)
+        If (nASM*nISM.ne.0) Call RHS_FREE(ipTCM)
       Else
-        If (nAS*nIS.ne.0) Call RHS_FREE(nAS,nIS,ipTC)
+        If (nAS*nIS.ne.0) Call RHS_FREE(ipTC)
       End If
 C
       Return

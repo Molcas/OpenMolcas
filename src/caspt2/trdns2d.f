@@ -159,8 +159,8 @@ C
             Call mma_deallocate(ID)
           End IF
 
-          CALL RHS_FREE(NIN,NIS,lg_V1)
-          IF(IVEC.NE.JVEC) CALL RHS_FREE(NIN,NIS,lg_V2)
+          CALL RHS_FREE(lg_V1)
+          IF(IVEC.NE.JVEC) CALL RHS_FREE(lg_V2)
  100    CONTINUE
  101  CONTINUE
 

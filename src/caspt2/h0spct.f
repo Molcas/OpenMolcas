@@ -231,8 +231,8 @@ C positioning.
           END IF
 #endif
 
-          CALL RHS_FREE(NIN,NIS,lg_RHS)
-          CALL RHS_FREE(NIN,NIS,lg_VEC)
+          CALL RHS_FREE(lg_RHS)
+          CALL RHS_FREE(lg_VEC)
 
           CALL mma_deallocate(BD)
           CALL mma_deallocate(ID)

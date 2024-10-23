@@ -185,7 +185,7 @@ C the SGM subroutines
               ELSE
                 LCX=Allocate_GA_Array(NCX,'CX')
                 CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%Array)
-                CALL RHS_FREE(NAS2,NIS2,lg_CX)
+                CALL RHS_FREE(lg_CX)
                 XTST=DDOT_(NCX,GA_Arrays(LCX)%Array,1,
      &                         GA_Arrays(LCX)%Array,1)
               END IF
@@ -206,7 +206,7 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
      &                 SGM1,SGM2,LCX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
-                CALL RHS_FREE(NAS2,NIS2,lg_CX)
+                CALL RHS_FREE(lg_CX)
               ELSE
                 Call Deallocate_GA_Array(LCX)
               END IF
@@ -297,7 +297,7 @@ C Add to sigma array. Multiply by S to  lower index.
 *         ELSE
 *           CALL RHS_DAXPY(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX)
 *         END IF
-          CALL RHS_FREE (NAS1,NIS1,lg_SGM2)
+          CALL RHS_FREE (lg_SGM2)
 
           XTST=RHS_DDOT(NAS1,NIS1,lg_SGMX,lg_SGMX)
           IF(XTST.GT.1.0D12) THEN
@@ -308,7 +308,7 @@ C Add to sigma array. Multiply by S to  lower index.
 
 C Write SGMX to disk.
           CALL RHS_SAVE (NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
-          CALL RHS_FREE (NAS1,NIS1,lg_SGMX)
+          CALL RHS_FREE (lg_SGMX)
  301    CONTINUE
  300  CONTINUE
 
@@ -342,7 +342,7 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           ELSE
            CALL RHS_DAXPY(NAS1,NIS1,ALPHA,lg_CX,lg_D2)
           END IF
-          CALL RHS_FREE (NAS1,NIS1,lg_CX)
+          CALL RHS_FREE (lg_CX)
 
 CPAM Sanity check:
           XTST=RHS_DDOT(NAS1,NIS1,lg_D2,lg_D2)
@@ -354,7 +354,7 @@ CPAM Sanity check:
 
           CALL mma_allocate(D2,ND2,Label='D2')
           CALL RHS_GET (NAS1,NIS1,lg_D2,D2)
-          CALL RHS_FREE (NAS1,NIS1,lg_D2)
+          CALL RHS_FREE (lg_D2)
 
           ND1=0
           IMLTOP=1
@@ -461,7 +461,7 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
               CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-              CALL RHS_FREE (NAS2,NIS2,lg_SGMX)
+              CALL RHS_FREE (lg_SGMX)
  400        CONTINUE
  500      CONTINUE
           CALL mma_deallocate(D2)

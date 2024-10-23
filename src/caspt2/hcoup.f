@@ -104,8 +104,8 @@ C  End of loop.
 #endif
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
           CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
-          CALL RHS_FREE (NAS,NIS,lg_V1)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V1)
+          CALL RHS_FREE (lg_V2)
 
  1        CONTINUE
           HECOMP(ICASE,ISYM)=HEBLK

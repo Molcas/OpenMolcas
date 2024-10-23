@@ -83,7 +83,7 @@ C positioning.
           CALL RHS_RESDIA(NIN,NIS,lg_V,BD,ID,DOVL)
           OVL=OVL+DOVL
           CALL RHS_SAVE(NIN,NIS,lg_V,ICASE,ISYM,JVEC)
-          CALL RHS_FREE(NIN,NIS,lg_V)
+          CALL RHS_FREE(lg_V)
 
           CALL mma_deallocate(BD)
           CALL mma_deallocate(ID)

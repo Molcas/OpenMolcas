@@ -253,12 +253,12 @@ C
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
           CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
 
-          CALL RHS_FREE(nIN,nIS,lg_V1)
-          CALL RHS_FREE(nIN,nIS,lg_V2)
+          CALL RHS_FREE(lg_V1)
+          CALL RHS_FREE(lg_V2)
           If (iCase.ne.12.and.iCase.ne.13) Then
-            CALL RHS_FREE(nIN,nIS,lg_V3)
-            CALL RHS_FREE(nAS,nIS,lg_V4)
-            If (IFMSCOUP) CALL RHS_FREE(nIN,nIS,lg_V5)
+            CALL RHS_FREE(lg_V3)
+            CALL RHS_FREE(lg_V4)
+            If (IFMSCOUP) CALL RHS_FREE(lg_V5)
           End If
         End Do
       End Do

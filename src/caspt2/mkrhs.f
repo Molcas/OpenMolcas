@@ -890,7 +890,7 @@ C global array and then save that to disk in a distributed fashion.
 
 #ifdef _MOLCAS_MPP_
       IF (IS_REAL_PAR()) THEN
-        CALL RHS_FREE(NAS,NIS,lg_W)
+        CALL RHS_FREE(lg_W)
       END IF
 #endif
       END SUBROUTINE MKRHS_SAVE

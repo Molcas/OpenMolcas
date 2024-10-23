@@ -223,7 +223,7 @@ C         LSGM1=1
                 CALL RHS_ALLO(NAS2,NIS2,lg_V1)
                 CALL RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
                 CALL RHS_DAXPY(NAS2,NIS2,1.0D+00,lg_V1,lg_CX)
-                CALL RHS_FREE(NAS2,NIS2,lg_V1)
+                CALL RHS_FREE(lg_V1)
               END IF
 C SVC: for case H (12,13) we can now pass the distributed array ID to
 C the SGM subroutines
@@ -233,7 +233,7 @@ C               XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
                 LCX=Allocate_GA_Array(NCX,'CX')
                 CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%Array)
-                CALL RHS_FREE(NAS2,NIS2,lg_CX)
+                CALL RHS_FREE(lg_CX)
 C               XTST=DDOT_(NCX,GA_Arrays(LCX)%Array,1,
 C    &                         GA_Arrays(LCX)%Array,1)
               END IF
@@ -248,7 +248,7 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
      &                 SGM1,SGM2,LCX,LISTS)
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
-                CALL RHS_FREE(NAS2,NIS2,lg_CX)
+                CALL RHS_FREE(lg_CX)
               ELSE
                 Call Deallocate_GA_Array(LCX)
               END IF
@@ -297,7 +297,7 @@ C         CALL RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
               CALL RHS_ALLO(NAS1,NIS1,lg_V1)
               CALL RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
               CALL RHS_DAXPY(NAS1,NIS1,1.0D+00,lg_V1,lg_CX)
-              CALL RHS_FREE(NAS1,NIS1,lg_V1)
+              CALL RHS_FREE(lg_V1)
             End If
 
             call mma_allocate(SDER1,NAS1*NAS1,Label='SDER1')
@@ -310,7 +310,7 @@ C         CALL RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
             CALL DDAFILE(LuSTD,1,SDER1,nAS1*nAS1,idSDer)
             call mma_deallocate(SDER1)
 
-            CALL RHS_FREE(NAS1,NIS1,lg_CX)
+            CALL RHS_FREE(lg_CX)
           END IF
 
 *         IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
@@ -319,11 +319,11 @@ C    &                      ICASE1,ISYM1)
 *         ELSE
 *           CALL RHS_DAXPY(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX)
 *         END IF
-          CALL RHS_FREE (NAS1,NIS1,lg_SGM2)
+          CALL RHS_FREE (lg_SGM2)
 
 C Write SGMX to disk.
 C         CALL RHS_SAVE (NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
-C         CALL RHS_FREE (NAS1,NIS1,lg_SGMX)
+C         CALL RHS_FREE (lg_SGMX)
  301    CONTINUE
  300  CONTINUE
 
@@ -352,7 +352,7 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
             CALL RHS_ALLO(NAS1,NIS1,lg_V1)
             CALL RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
             CALL RHS_DAXPY(NAS1,NIS1,1.0D+00,lg_V1,lg_CX)
-            CALL RHS_FREE(NAS1,NIS1,lg_V1)
+            CALL RHS_FREE(lg_V1)
           END IF
 
           IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
@@ -361,11 +361,11 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           ELSE
            CALL RHS_DAXPY(NAS1,NIS1,1.0D+00,lg_CX,lg_D2)
           END IF
-          CALL RHS_FREE (NAS1,NIS1,lg_CX)
+          CALL RHS_FREE (lg_CX)
 
           CALL mma_allocate(D2,ND2,Label='D2')
           CALL RHS_GET (NAS1,NIS1,lg_D2,D2)
-          CALL RHS_FREE (NAS1,NIS1,lg_D2)
+          CALL RHS_FREE (lg_D2)
 
           ND1=0
 C         LD1=1
@@ -452,7 +452,7 @@ C               Call Deallocate_GA_Array(LSGMX)
 C-SVC: no need for the replicate arrays any more, fall back to one array
 C             CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
               IF (ICASE2.EQ.12 .OR.ICASE2.EQ.13) THEN
-                CALL RHS_FREE (NAS2,NIS2,lg_SGMX)
+                CALL RHS_FREE (lg_SGMX)
               ELSE
                 Call Deallocate_GA_Array(LSGMX)
               END IF
@@ -537,7 +537,7 @@ C
       ITYPE=0
       CALL RHS_SR2C (ITYPE,0,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,
      &               ICASE1,ISYM1)
-      CALL RHS_FREE(NIN1,NIS1,lg_V1)
+      CALL RHS_FREE(lg_V1)
 C
       !! 4C. (T1Ct1*f) * (T2Ct2St2*f*C1*Ct1)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
@@ -590,7 +590,7 @@ C
       !! 3. (T1Ct1St1*f) * C2 * Ct2 (IC -> MO; LTMP2 -> LTMP)
       CALL RHS_SR2C (ITYPE,0,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,
      &               ICASE2,ISYM2)
-      CALL RHS_FREE(NIN2,NIS2,lg_V2)
+      CALL RHS_FREE(lg_V2)
 C
       !! 4. (T2Ct2*f) * (T1Ct1St1*f*C2*Ct2)
       CALL RHS_ALLO(NAS2,NIS2,lg_SGM)
@@ -601,7 +601,7 @@ C
             CALL RHS_ALLO(NAS2,NIS2,lg_V1)
             CALL RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
             CALL RHS_DAXPY(NAS2,NIS2,1.0D+00,lg_V1,lg_SGM)
-            CALL RHS_FREE(NAS2,NIS2,lg_V1)
+            CALL RHS_FREE(lg_V1)
           END IF
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       if (is_real_par()) then
@@ -621,9 +621,9 @@ C
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       end if
 #endif
-      CALL RHS_FREE(NAS2,NIS2,lg_SGM)
+      CALL RHS_FREE(lg_SGM)
 C
-C     CALL RHS_FREE(NAS2,NIS2,LTMP)
+C     CALL RHS_FREE(LTMP)
 C
       End Subroutine C2DER
 C

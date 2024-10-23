@@ -85,7 +85,7 @@ C-SVC: print out DNRM2 of the all RHS components
             CALL RHS_ALLO(NROW,NIS,lg_W)
             CALL RHS_READ(NROW,NIS,lg_W,iCASE,iSYM,iVEC)
             FP(ISYM)=SQRT(RHS_DDOT(NROW,NIS,lg_W,lg_W))
-            CALL RHS_FREE(NROW,NIS,lg_W)
+            CALL RHS_FREE(lg_W)
           ELSE
             FP(ISYM)=0.0D0
           END IF
@@ -113,7 +113,7 @@ C-SVC: zero out the entire RHS vector on IVEC
             CALL RHS_ALLO(NAS,NIS,lg_W)
             CALL RHS_SCAL(NAS,NIS,lg_W,0.0D0)
             CALL RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-            CALL RHS_FREE(NAS,NIS,lg_W)
+            CALL RHS_FREE(lg_W)
           END IF
         END DO
       END DO
@@ -146,7 +146,7 @@ C-SVC: zero out the entire RHS vector on IVEC
       END SUBROUTINE RHS_ALLO
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_FREE (NAS,NIS,lg_W)
+      SUBROUTINE RHS_FREE (lg_W)
 CSVC: this routine writes the RHS array to disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -166,7 +166,6 @@ CSVC: Destroy the global array
         bStat=GA_Destroy(lg_W)
       ELSE
 #endif
-        NW=NAS*NIS
         Call Deallocate_GA_Array(lg_W)
 #ifdef _MOLCAS_MPP_
       END IF
@@ -693,7 +692,7 @@ CSVC: Destroy the global array
       END IF
 #endif
 
-      CALL RHS_FREE (NAS,NIS,lg_W)
+      CALL RHS_FREE (lg_W)
 
       END SUBROUTINE DRA2SOLV
 
@@ -761,7 +760,7 @@ CSVC: Destroy the global array
 #endif
 
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      CALL RHS_FREE (NAS,NIS,lg_W)
+      CALL RHS_FREE (lg_W)
 
       END SUBROUTINE SOLV2DRA
 
