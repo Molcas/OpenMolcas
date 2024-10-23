@@ -586,7 +586,6 @@ C     array at positions given by the buffer index array.
 #endif
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
       Real*8 Buff(nBuff)
       Integer idxW(nBuff)
 #ifdef _MOLCAS_MPP_
