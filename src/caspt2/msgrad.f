@@ -11,7 +11,6 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
 C
-#include "xrhs.fh"
       Subroutine MS_Res(MODE,IST,JST,Scal)
       use caspt2_data, only: LUCIEX, IDTCEX
       use EQSOLV

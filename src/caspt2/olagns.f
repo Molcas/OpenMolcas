@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE OLagNS2(iSym,DPT2C,T2AO)
 C
       use stdalloc, only: mma_allocate, mma_deallocate

@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-#include "xrhs.fh"
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use caspt2_output, only:iPrGlb

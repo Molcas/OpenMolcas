@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
-#include "xrhs.fh"
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
       use caspt2_gradient, only: LUSTD,idSDMat

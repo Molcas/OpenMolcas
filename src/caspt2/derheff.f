@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-#include "xrhs.fh"
       Subroutine DerHEff(CLag,VECROT)
       use caspt2_data, only: LUCIEX, IDTCEX
       use EQSOLV

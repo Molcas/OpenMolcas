@@ -16,7 +16,6 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-#include "xrhs.fh"
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 
       use caspt2_output, only:iPrGlb

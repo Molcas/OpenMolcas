@@ -19,7 +19,6 @@
 * NOTE: This new MKRHS code produces ONLY the
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
-#include "xrhs.fh"
       SUBROUTINE MKRHS(IVEC)
       use caspt2_output, only:iPrGlb
       use caspt2_data, only: FIMO

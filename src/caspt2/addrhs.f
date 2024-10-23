@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)

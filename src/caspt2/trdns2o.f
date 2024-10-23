@@ -16,7 +16,6 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-#include "xrhs.fh"
       SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,NDPT2,SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par

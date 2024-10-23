@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE RHSALL2(IVEC)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb

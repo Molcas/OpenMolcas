@@ -23,7 +23,6 @@
 * and are loaded onto a global array when needed.
 ************************************************************************
 
-#include "xrhs.fh"
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_INIT()
       use caspt2_data, only: LURHS

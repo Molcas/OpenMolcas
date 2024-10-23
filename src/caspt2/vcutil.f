@@ -16,7 +16,6 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-#include "xrhs.fh"
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
       use caspt2_data, only: LUSOLV, IDSCT
       use EQSOLV

@@ -10,8 +10,6 @@
 *                                                                      *
 * Copyright (C) 1994, Per Ake Malmqvist                                *
 ************************************************************************
-#include "xrhs.fh"
-*--------------------------------------------*
 * 1994  PER-AAKE MALMQUIST                   *
 * DEPARTMENT OF THEORETICAL CHEMISTRY        *
 * UNIVERSITY OF LUND                         *

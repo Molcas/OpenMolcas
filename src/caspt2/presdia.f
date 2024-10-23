@@ -32,7 +32,6 @@
 !> @param[in]     IVEC   Vector position to which the res is applied
 !> @param[out]    JVEC   Vector position where the result is saved
 !> @param[in]     OVLAPS Array containing the overlaps
-#include "xrhs.fh"
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
       use caspt2_data, only: LUSBT
       use EQSOLV

@@ -16,7 +16,6 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-#include "xrhs.fh"
       SUBROUTINE EQCTL2(ICONV)
       use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: nStpGrd, do_grad, iStpGrd

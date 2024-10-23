@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug

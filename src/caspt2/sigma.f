@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 * 1999: GEMINAL R12 ENABLED                  *
 *--------------------------------------------*
-#include "xrhs.fh"
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
       use Fockof
       use caspt2_data, only: FIFA, LISTS

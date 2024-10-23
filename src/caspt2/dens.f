@@ -16,7 +16,6 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-#include "xrhs.fh"
       SUBROUTINE DENS(IVEC,DMAT,UEFF,U0)
       USE CHOVEC_IO
       use caspt2_output, only: iPrGlb

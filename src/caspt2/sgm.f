@@ -33,7 +33,6 @@ C RHS_ALLO in file par_rhs.f). The chunks are along the column indices,
 C so each chunk has all the row indices (full columns).
 
 
-#include "xrhs.fh"
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
      &               X1,X2,lg_Y,LIST)
       use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT

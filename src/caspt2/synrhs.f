@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE PCOLLVEC(IVEC,iTYPE)
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)

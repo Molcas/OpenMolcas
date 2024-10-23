@@ -15,7 +15,6 @@
 ! calculations using disk at present (hopefully)
 ! Save with Mode = 1, and restore with Mode = 2
 !
-#include "xrhs.fh"
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
   use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &

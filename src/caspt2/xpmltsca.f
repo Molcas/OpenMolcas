@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 1994, Per Ake Malmqvist                                *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE PMLTSCA(KOD,IMLTOP,LST1,LST2,
      &                   X,NXI,NXA,F,NFI,NFA,
      &                   lg_Y,NAS2,NIS2)

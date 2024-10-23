@@ -67,7 +67,6 @@ C     For 2c-2e ERI derivatives,
 C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 C     then saved.
 C
-#include "xrhs.fh"
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO

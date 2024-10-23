@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-#include "xrhs.fh"
       Subroutine CASPT2_Res(VECROT)
 C
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon

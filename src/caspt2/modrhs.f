@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#include "xrhs.fh"
       SUBROUTINE MODRHS(IVEC,FIMO,NFIMO)
       USE SUPERINDEX
       use EQSOLV

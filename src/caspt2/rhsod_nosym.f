@@ -21,7 +21,6 @@
 * this allows for convenient sub-blocking of cholesky vectors.
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-#include "xrhs.fh"
       SUBROUTINE RHSOD_NOSYM(IVEC)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: verbose

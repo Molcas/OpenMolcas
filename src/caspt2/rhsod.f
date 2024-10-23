@@ -19,7 +19,6 @@
 * FIXME: optimizations needed, remove double computation of integrals
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-#include "xrhs.fh"
       SUBROUTINE RHSOD(IVEC)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: verbose

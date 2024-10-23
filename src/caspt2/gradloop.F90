@@ -11,7 +11,6 @@
 ! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-#include "xrhs.fh"
 Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 !
 ! Gradient loop for MS-CASPT2 variants
