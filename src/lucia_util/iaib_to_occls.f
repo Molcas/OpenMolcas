@@ -18,7 +18,7 @@
 *
 * Jeppe Olsen, December 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "cgas.fh"

@@ -16,7 +16,7 @@
 *
 * Giovanni Li Manni 7Nov2011, for BK implementation
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER IOCC(NGAS)
       INTEGER IMINMAX(MXPNGAS,2)

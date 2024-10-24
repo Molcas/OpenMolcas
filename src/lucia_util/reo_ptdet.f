@@ -26,7 +26,7 @@
 *
 *. Jeppe Olsen, December 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER ILIST_PTDET(NOPEN,*)
 *. Output

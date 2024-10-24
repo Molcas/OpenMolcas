@@ -32,7 +32,7 @@ Contains
                             SIGMA_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
 
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
       Character(LEN=*) Module
       Integer, Optional:: iSym
       Integer, Optional:: iDisk

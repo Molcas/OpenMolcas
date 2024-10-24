@@ -17,7 +17,7 @@
 * Jeppe Olsen, November 2001
 *
       USE csfbas, only: maxop_lucia
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER IOCLS(NGAS,NOCLS)
       INTEGER NOBPT(NGAS)

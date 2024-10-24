@@ -45,7 +45,7 @@
 *
 * Jeppe Olsen, Nov. 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 *
 *.. Input

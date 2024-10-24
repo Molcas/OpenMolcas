@@ -18,7 +18,7 @@
 *
 * Jeppe Olsen, October 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER IVERTEXW(NORB+1,NEL+1)
       INTEGER IOCC_MIN(NORB),IOCC_MAX(NORB)

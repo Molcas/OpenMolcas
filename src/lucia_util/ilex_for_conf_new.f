@@ -22,7 +22,7 @@
 * IF IDOREO .ne. 0, IREO is used to reorder lexical number
 * Jeppe Olsen, November 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Arcweights for single and doubly occupied arcs
       INTEGER IARCW(NORB,NEL,2)
 *. Reorder array

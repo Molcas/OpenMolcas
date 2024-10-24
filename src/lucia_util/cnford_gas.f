@@ -26,7 +26,7 @@
 * Jeppe Olsen Dec. 2001 from CNFORD
 *
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
 #include "orbinp.fh"
