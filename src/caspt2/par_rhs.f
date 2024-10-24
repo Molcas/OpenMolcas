@@ -641,7 +641,7 @@ C     place and transition is no longer needed.
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
-      Integer, allocatable:: TMPW(:)
+      Real*8, allocatable:: TMPW(:)
 #endif
 
 CSVC: Read the global array from disk
@@ -712,7 +712,7 @@ C     place and transition is no longer needed.
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
-      Integer, allocatable:: TMPW(:)
+      Real*8, allocatable:: TMPW(:)
 #endif
 
       CALL RHS_ALLO (NAS,NIS,lg_W)
