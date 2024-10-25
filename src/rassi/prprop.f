@@ -685,6 +685,7 @@ C printing threshold
 
             END IF
             Call Add_Info('TMS(SO,Len)',[F],1,6)
+            IF(PRDIPCOM) Call Add_Info('TVC(SO,Len)',[DX2+DY2+DZ2],1,6)
 
            END IF
           END DO
