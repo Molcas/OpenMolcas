@@ -104,7 +104,6 @@
 #include "warnings.h"
 #include "input_ras.fh"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
 #include "gas.fh"
 #include "splitcas.fh"
