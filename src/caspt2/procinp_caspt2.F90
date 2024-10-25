@@ -597,7 +597,7 @@ subroutine procinp_caspt2
   ! check if the calculation is inside a loop and make analytical
   ! gradients default in this case, unless the user specifically
   ! requested numerical gradients in GATEWAY
-  if ((isStructure() == 1)) then
+  if (isStructure() == 1) then
     ! if MPI is enabled, analytic gradients only with one process
 #ifdef _MOLCAS_MPP_
     if (nProcs == 1) then

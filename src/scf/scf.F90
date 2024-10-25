@@ -34,7 +34,7 @@ integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: iTerm, LthH, LUOrb, MemLow, MemSew
 real(kind=wp) :: SIntTh, TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: FstItr, Semi_Direct
-character(len=8) :: EMILOOP
+integer(kind=iwp), external :: isStructure
 
 #include "warnings.h"
 
@@ -112,9 +112,7 @@ if (iStatPRN > 0) call FastIO('STATUS')
 iReturn = iTerm
 
 if (Do_OFemb) then
-  call GetEnvF('EMIL_InLoop',EMILOOP)
-  if (EMILOOP == ' ') EMILOOP = '0'
-  if (EMILOOP(1:1) /= '0') then
+  if (isStructure() == 1) then
     if (iReturn /= _RC_ALL_IS_WELL_) call WarningMessage(1,'SCF: non-zero return code.')
     iReturn = _RC_CONTINUE_LOOP_
     call Check_FThaw(iReturn)

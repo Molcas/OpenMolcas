@@ -490,10 +490,10 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
 end if
 
 call Put_dScalar('PotNuc',PotNuc)
-if (isstructure() == 1) then
-  call Add_Info('PotNuc',[PotNuc],1,6)
-else
+if (isstructure() == 0) then
   call Add_Info('PotNuc',[PotNuc],1,12)
+else
+  call Add_Info('PotNuc',[PotNuc],1,6)
 end if
 
 return

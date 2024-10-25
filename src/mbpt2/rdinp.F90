@@ -56,7 +56,6 @@ integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, i
 logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb, &
                      Skip
 character(len=4) :: Command
-character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: SQ(:)
@@ -65,7 +64,7 @@ character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL',
                                              'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
-integer(kind=iwp), external :: iPrintLevel
+integer(kind=iwp), external :: iPrintLevel, isStructure
 logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
 
@@ -633,10 +632,7 @@ if (SuperName(1:18) == 'numerical_gradient') then
 end if
 
 if (nSym == 1) then
-  call GetEnvF('EMIL_InLoop',emiloop)
-  if (emiloop == ' ') emiloop = '0'
-  call GetEnvF('MOLCAS_IN_GEO',inGeo)
-  if ((emiloop(1:1) /= '0') .and. (inGeo(1:1) /= 'Y') .and. (.not. DNG)) then
+  if ((isStructure() == 1) .and. (.not. DNG)) then
     call Put_iScalar('mp2prpt',2)
     DoDens = .true.
     DoGrdt = .true.

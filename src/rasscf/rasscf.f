@@ -132,7 +132,6 @@
 * --------- Cholesky stuff:
 #include "qmat.fh"
 * --------- End Cholesky stuff
-      Character*8 EMILOOP
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
@@ -163,6 +162,7 @@
      &                      OCCX(:), Scr1(:), Scr2(:), SMat(:),
      &                      QMat(:), EDUM(:), Tmp1(:), Fock(:),
      &                      TmpDS(:), TmpD1S(:)
+      Integer, External :: isStructure
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -2035,9 +2035,7 @@ c      End If
       End If
 *
       If (Do_OFemb) Then
-         Call GetEnvF('EMIL_InLoop',EMILOOP)
-         If (EMILOOP.eq.' ') EMILOOP='0'
-         If (EMILOOP(1:1).ne.'0') Then
+         If (isStructure().eq.1) Then
             If (iReturn.ne._RC_ALL_IS_WELL_) Then
                Call WarningMessage(1,'RASSCF: non-zero return code.')
             EndIf

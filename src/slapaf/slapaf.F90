@@ -17,7 +17,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: Columbus, iStop
-character(len=8) :: ELOOP
+integer(kind=iwp), external :: isStructure
 
 #include "warnings.h"
 
@@ -91,9 +91,7 @@ else if (iStop == 1) then
 
   ! Continue looping!
 
-  call GetEnvF('EMIL_InLoop',ELOOP)
-  if (ELOOP == ' ') ELOOP = '0'
-  if (ELOOP(1:1) /= '0') then
+  if (isStructure() == 1) then
     iReturn = _RC_CONTINUE_LOOP_
   else
     iReturn = _RC_ALL_IS_WELL_

@@ -60,13 +60,12 @@
 
       INTEGER :: iDNG,IPRLEV
       Logical :: DNG
-      Character*8 emiloop
-      Character*8 inGeo
       logical :: keyJOBI
 
       integer irc, i, iad19
       integer iorbdata, isym
       integer nisht, nasht, ndiff
+      integer, external :: isStructure
 
       Call StatusLine('MCPDFT:','Processing Input')
 
@@ -412,11 +411,7 @@ c      end do
       End If
 *
 *     Check to see if we are in a Do While loop
-      Call GetEnvF('EMIL_InLoop',emiloop)
-      If (emiloop.eq.' ') emiloop='0'
-      Call GetEnvF('MOLCAS_IN_GEO',inGeo)
-      If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
-     &    .and. .not.DNG) Then
+      If ((isStructure().eq.1).and.(.not.DNG)) Then
         mcpdft_options%grad = .true.
       End If
 
