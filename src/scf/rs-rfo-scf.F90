@@ -141,7 +141,7 @@ do
   !write(u6,*) 'iRoot,dqdq=',iRoot,dqdq
   if (iRoot /= 1) Vec(:,1) = Vec(:,iRoot)
   Tmp(:) = Vec(:,1)
-  Vec(:,1) = Vec(:,1)/sqrt(A_RFO)
+  Vec(1:nInter,1) = Vec(1:nInter,1)/sqrt(A_RFO)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
