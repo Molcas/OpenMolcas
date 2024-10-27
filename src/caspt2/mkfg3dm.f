@@ -41,7 +41,6 @@ C
       use gugx, only: CIS, SGS, L2ACT
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"

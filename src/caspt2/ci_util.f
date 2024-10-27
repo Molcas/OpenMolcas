@@ -15,7 +15,6 @@
       subroutine loadCI(CI, Istate)
       use caspt2_data, only: LUCIEX,IDCIEX
       implicit real(8) (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       real(8) CI(Nconf)
       integer ID, Istate
@@ -39,7 +38,6 @@
       subroutine writeCI(CI, Istate)
       use caspt2_data, only: LUCIEX, IDCIEX
       implicit real(8) (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       real(8) CI(Nconf)
       integer ID, Istate

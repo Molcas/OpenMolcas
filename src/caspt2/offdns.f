@@ -21,7 +21,6 @@
       use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION X1(*),X2(*),Y(*)
       DIMENSION DPT2(*)

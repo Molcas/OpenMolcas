@@ -46,7 +46,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "intgrl.fh"
 #include "trafo.fh"

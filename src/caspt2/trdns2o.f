@@ -26,7 +26,6 @@
       use Sigma_data
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL

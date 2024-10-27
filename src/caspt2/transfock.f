@@ -11,7 +11,6 @@
       SUBROUTINE TRANSFOCK(TORB,NTORB,F,NF,IDIR)
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NTORB, NF, IDIR
       REAL*8 TORB(NTORB),F(NF)

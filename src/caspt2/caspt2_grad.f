@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine GrdIni
 C
-      use caspt2_gradient, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,LuPT2GRD,
+      use caspt2_global, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,LuPT2GRD,
      *                           do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
      *                           idBoriMat,TraFro,
      *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
@@ -27,7 +27,6 @@ C
 C     use gugx, only: CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 C
@@ -205,7 +204,7 @@ C-----------------------------------------------------------------------
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: LuPT2,LuAPT2,
+      use caspt2_global, only: LuPT2,LuAPT2,
      *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
      *                           LUSTD,TraFro,
      *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
@@ -219,7 +218,6 @@ C
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
@@ -512,7 +510,6 @@ C
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       real(kind=wp),allocatable :: DMs1(:,:),DMs2(:,:)
@@ -539,11 +536,10 @@ C
 C
       use caspt2_output, only:iPrGlb
       use caspt2_global, only:ipea_shift
-      use caspt2_gradient, only: if_invar
+      use caspt2_global, only: if_invar
       use PrintLevel, only: usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       If ((.not.if_invar) .and. (IPRGLB >= USUAL)) Then
@@ -578,10 +574,9 @@ C-----------------------------------------------------------------------
 C
       Subroutine GradPrep(UEFF,VECROT)
 C
-      use caspt2_gradient, only: iRoot1, iRoot2, jStLag
+      use caspt2_global, only: iRoot1, iRoot2, jStLag
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
 C#include "nadc.fh"
@@ -635,12 +630,11 @@ C
       Subroutine OLagFinal(OLagLoc,Trf)
 C
       use caspt2_data, only: CMOPT2
-      use caspt2_gradient, only: OLagFull,WLag,nOLag
+      use caspt2_global, only: OLagFull,WLag,nOLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension OLagLoc(*),Trf(*)
@@ -723,7 +717,7 @@ C-----------------------------------------------------------------------
 
       Subroutine CnstFIFAFIMO(MODE)
 
-      use caspt2_gradient, only: TraFro, OLag,
+      use caspt2_global, only: TraFro, OLag,
      *                           FIMO_all, FIFA_all, FIFASA_all
       use caspt2_data, only: FIMO, FIFA, CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
@@ -731,7 +725,6 @@ C-----------------------------------------------------------------------
 
       Implicit Real*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       real(kind=wp),allocatable :: WRK1(:),WRK2(:)

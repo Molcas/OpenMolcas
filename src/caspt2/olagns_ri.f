@@ -71,7 +71,7 @@ C
 C
       Use CHOVEC_IO
       use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
       use PrintLevel, only: verbose
       use EQSOLV
       use ChoCASPT2
@@ -81,7 +81,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 C
@@ -434,7 +433,6 @@ C
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C     DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION Cho_Bra(*), Cho_Ket(*)
@@ -557,7 +555,7 @@ C
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -798,7 +796,7 @@ C
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -898,7 +896,7 @@ C
      &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -1883,7 +1881,6 @@ C
      *                            IBSTA,IBEND)
       USE CHOVEC_IO
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       Real*8  Array(*)
 

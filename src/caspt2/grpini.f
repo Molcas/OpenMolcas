@@ -29,7 +29,6 @@
 * group such that they diagonalize the H0 matrix.
 * The states in the group can be obtained from the ordered MSTATE array,
 * for which a group offset JSTATE_OFF is passed in.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"

@@ -16,7 +16,6 @@
       use PrintLevel, only: debug, usual
       use EQSOLV
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"

@@ -22,7 +22,6 @@
       USE Constants, ONLY: Zero, One, Half
 
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER :: NCMO, NATR
       REAL*8 :: XMAT(NOSQT), CMO(NCMO), DDTR(NATR)

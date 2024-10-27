@@ -16,7 +16,6 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

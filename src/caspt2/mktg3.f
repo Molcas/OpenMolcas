@@ -13,7 +13,6 @@
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (a-h,o-z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER LSYM1, LSYM2

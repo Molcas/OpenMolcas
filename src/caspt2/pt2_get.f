@@ -19,7 +19,6 @@
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
       use caspt2_data, only: LUDMAT
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

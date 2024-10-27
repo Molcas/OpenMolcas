@@ -22,7 +22,6 @@
       use caspt2_data, only: DREF
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NFIFA, NCMO
       REAL*8 FIFA(NFIFA),CMO(NCMO)

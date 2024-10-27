@@ -18,7 +18,6 @@
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -125,7 +124,6 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       Dimension DTG1(NASHT,NASHT)
       Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
@@ -256,7 +254,6 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       REAL*8 V1(*), V2(*)
@@ -818,7 +815,6 @@ C
       use definitions, only: iwp,wp
       IMPLICIT REAL*8 (a-h,o-z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       Real*8 DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)

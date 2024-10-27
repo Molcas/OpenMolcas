@@ -19,7 +19,6 @@ subroutine MKXMAT(TORB,XMAT)
 use Definitions, only: wp, iwp
 
 implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
 real(kind=wp), intent(in) :: TORB(NTORB)
 real(kind=wp), intent(out) :: XMAT(NASHT,NASHT)

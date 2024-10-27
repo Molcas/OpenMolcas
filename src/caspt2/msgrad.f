@@ -21,7 +21,6 @@ C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -115,7 +114,6 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
@@ -252,7 +250,6 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       DIMENSION V1(*), V2(*)
@@ -705,7 +702,6 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       implicit real(8) (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       character(len=1) Bas
       real(8) CI(Nconf),U0(nState,nState)
@@ -748,7 +744,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 C
-      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2,
+      use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
      *                           CLag,CLagFull,OLag,DPT2_tot,
      *                           FIFA_all,FIFASA_all
       use caspt2_data, only: FIFA, TORB, NDREF
@@ -757,7 +753,6 @@ C
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension H0(nState,nState),U0(nState,nState),UEFF(nState,nState)
@@ -1123,7 +1118,6 @@ C
       use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 C
@@ -1177,7 +1171,6 @@ C
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -1228,7 +1221,6 @@ C
       use definitions, only: iwp
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -1345,13 +1337,12 @@ C
 C
       Use CHOVEC_IO
       use ChoCASPT2
-      use caspt2_gradient, only: FIMO_all
+      use caspt2_global, only: FIMO_all
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
@@ -1551,13 +1542,12 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 C
-      use caspt2_gradient, only: iRoot1, iRoot2, OLagFull
+      use caspt2_global, only: iRoot1, iRoot2, OLagFull
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DPT2Canti(*),UEFF(nState,nState),U0(*)
@@ -1692,7 +1682,6 @@ C
       use definitions, only: iwp
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -1819,7 +1808,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension OMGDER(nState,nState),HEFF(nState,nState),

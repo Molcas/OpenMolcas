@@ -20,7 +20,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 ! below (by calling SavGradParams)
 !
   use caspt2_output, only: iPrGlb
-  use caspt2_gradient, only: do_grad, IDSAVGRD, iStpGrd
+  use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
   use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
   use EQSOLV
@@ -28,7 +28,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 
   Implicit None
 
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #include "pt2_guga.fh"

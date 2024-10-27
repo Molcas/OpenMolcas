@@ -26,7 +26,6 @@ C using coefficients taken from the eigenvectors of the effective
 C Hamiltonian.
 C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)

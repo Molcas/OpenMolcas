@@ -172,7 +172,6 @@ contains
     use fciqmc_interface, only: DoFCIQMC
     use gugx, only: L2ACT, LEVEL
 
-#   include "rasdim.fh"
 #   include "caspt2.fh"
 #   include "pt2_guga.fh"
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, ITABS, nLev

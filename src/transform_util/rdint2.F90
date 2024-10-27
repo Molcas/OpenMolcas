@@ -54,7 +54,6 @@ integer(kind=iwp) :: i, IAD131, IAD132, IAD13C, IAD2M(3,36*36), IADC, IADX1, IAD
                      nOccB, nOccI, nOccJ, nOrbA, nOrbB, nOrbI, nOrbJ, NUM
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: Tmp(:)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 

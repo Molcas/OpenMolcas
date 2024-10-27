@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
       use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: nStpGrd, do_grad, iStpGrd
+      use caspt2_global, only: nStpGrd, do_grad, iStpGrd
       use PrintLevel, only: insane, usual, verbose
       use EQSOLV
       use ChoCASPT2
@@ -31,7 +31,6 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER, EXTERNAL :: Cho_X_GetTol

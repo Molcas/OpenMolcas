@@ -18,7 +18,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 * ----------------------------------------------------------------
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
       INTEGER NCMO, NDREF

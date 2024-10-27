@@ -22,14 +22,13 @@
       use caspt2_output, only: EMP2
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
-      use caspt2_gradient, only: do_grad, nStpGrd
+      use caspt2_global, only: do_grad, nStpGrd
       use caspt2_data, only: LISTS
       use PrintLevel, only: terse, usual
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER ICONV

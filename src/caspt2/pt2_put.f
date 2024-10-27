@@ -24,7 +24,6 @@
       REAL*8 VEC(*)
 
       CHARACTER(len=8) LAB1
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

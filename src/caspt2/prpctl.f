@@ -20,7 +20,7 @@
       USE PT2WFN
       use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_gradient, only: do_nac,iRoot1,iRoot2,SLag,DPT2_tot,
+      use caspt2_global, only: do_nac,iRoot1,iRoot2,SLag,DPT2_tot,
      *                           DPT2C_tot
       use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
      &                       LISTS
@@ -32,7 +32,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       Logical FullMlk,lSave,Do_ESPF
 

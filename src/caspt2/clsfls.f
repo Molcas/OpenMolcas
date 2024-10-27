@@ -30,7 +30,6 @@
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       Call DaClos(LUCIEX)
 * PAM08

@@ -19,7 +19,7 @@
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
-      use caspt2_gradient, only: LUSTD,idSDMat
+      use caspt2_global, only: LUSTD,idSDMat
       use caspt2_data, only: FIFA,LISTS
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
@@ -30,7 +30,6 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
      &                   GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 #include "global.fh"

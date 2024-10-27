@@ -14,14 +14,13 @@
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
       use Cholesky, only: InfVec
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
       use stdalloc, only: mma_MaxDBLE
       use caspt2_data, only: LUDRA, LUDRATOT
       use EQSOLV
       use ChoCASPT2
       IMPLICIT NONE
 * ----------------------------------------------------------------
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #ifdef _MOLCAS_MPP_

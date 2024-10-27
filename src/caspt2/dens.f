@@ -20,7 +20,7 @@
       USE CHOVEC_IO
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-      use caspt2_gradient, only: do_grad, do_csf, if_invar, iRoot1,
+      use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria, if_SSDM,
      *                           CLag,CLagFull,OLag,SLag,
      *                           nCLag,
@@ -40,7 +40,6 @@
       use definitions, only: wp
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "pt2_guga.fh"
@@ -1053,11 +1052,10 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstTrf(Trf0,Trf)
 C
-      use caspt2_gradient, only: TraFro
+      use caspt2_global, only: TraFro
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       Dimension Trf0(*),Trf(*)
@@ -1194,7 +1192,6 @@ C
       SUBROUTINE AddDEPSA(DPT2,DEPSA)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION DPT2(*),DEPSA(nAshT,nAshT)
@@ -1244,7 +1241,6 @@ C
       SUBROUTINE AddDPTC(DPTC,DSUM)
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION DPTC(*),DSUM(*)
@@ -1291,7 +1287,6 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION nFroTmp(8),nOshTmp(8),nOrbTmp(8)
@@ -1336,7 +1331,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DPT2q(*),DPT2n(*),Trf(*),WRK(*)
@@ -1368,7 +1362,6 @@ C
       use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION DPT2(*),DPT2AO(*),CMO(*),DEPSA(nAshT,nAshT),DSUM(*)
@@ -1433,12 +1426,11 @@ C
       SUBROUTINE EigDer(DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,
      *                  FPT2,FPT2C,FIFA,FIMO,RDMSA)
 C
-      use caspt2_gradient, only: OLag
+      use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION DPT2(*),DPT2C(*),FPT2AO(*),FPT2CAO(*),RDMEIG(*),CMO(*),
@@ -1596,12 +1588,11 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE EigDer2(RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
 C
-      use caspt2_gradient, only: OLag
+      use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION RDMEIG(*),Trf(*)
@@ -1688,7 +1679,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DEPSA(nAshT,nAshT),FPT2(*),WRK1(*),WRk2(*)
@@ -1790,14 +1780,13 @@ C
 C
       use ChoVec_io
       use Cholesky, only: InfVec, nDimRS
-      use caspt2_gradient, only: LuGAMMA,LuAPT2
+      use caspt2_global, only: LuGAMMA,LuAPT2
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
 #include "warnings.h"

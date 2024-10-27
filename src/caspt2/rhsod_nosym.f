@@ -29,7 +29,6 @@
 #endif
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 
@@ -94,7 +93,6 @@
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -213,7 +211,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -353,7 +350,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -552,7 +548,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -750,7 +745,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -903,7 +897,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -1086,7 +1079,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 
@@ -1316,7 +1308,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC
 

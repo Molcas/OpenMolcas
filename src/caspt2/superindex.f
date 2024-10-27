@@ -33,7 +33,6 @@
       SUBROUTINE SUPINI
       use stdalloc, only: mma_allocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',

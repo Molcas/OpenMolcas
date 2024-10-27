@@ -19,7 +19,6 @@
       SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,NBUF,BUF)
       use caspt2_data, only: LUINTM
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NFIMO, NFAMO, NBUF
       REAL*8 FIMO(NFIMO),FAMO(NFAMO)

@@ -16,7 +16,6 @@
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
       INTEGER NCMO

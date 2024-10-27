@@ -19,7 +19,6 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       Real*8 :: EigVec(nState,nState)

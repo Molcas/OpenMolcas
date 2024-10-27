@@ -19,7 +19,6 @@ subroutine wgtinit(H)
 
   implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
   Real(kind=wp),intent(in) :: H(nState,nState)

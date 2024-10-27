@@ -40,7 +40,6 @@ C so each chunk has all the row indices (full columns).
       use Sigma_data
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 X1(*), X2(*)
       INTEGER LIST(*)

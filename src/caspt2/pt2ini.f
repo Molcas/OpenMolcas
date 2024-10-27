@@ -13,7 +13,7 @@
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       USE PT2WFN
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
       use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
@@ -21,7 +21,6 @@
       use EQSOLV
       use ChoCASPT2
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
@@ -167,7 +166,6 @@ C Initialize sizes, offsets etc used in equation solver.
       use EQSOLV
       use ChoCASPT2
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       Integer iSym

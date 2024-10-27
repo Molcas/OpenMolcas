@@ -33,7 +33,6 @@ integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, nX3, npqUS, npqRU, npqTU, lBuf
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2), X3(nX3)
 real(kind=wp), intent(inout) :: pqUS(npqUS), pqRU(npqRU), pqTU(npqTU)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, icc, icxc1, icxc3, icxc5, icxc7, iOpt, IOUT1, IOUT2, IOUT3, IP, &

@@ -38,7 +38,6 @@ character(len=:), allocatable :: refwfnfile
 integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
 integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 ! Save current directory into the CurrDir string

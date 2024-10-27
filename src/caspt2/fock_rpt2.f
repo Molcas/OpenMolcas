@@ -21,7 +21,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use ChoCASPT2
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

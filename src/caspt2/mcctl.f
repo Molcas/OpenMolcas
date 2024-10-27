@@ -23,7 +23,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 HEFF(NSTATE,NSTATE)
 

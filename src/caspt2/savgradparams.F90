@@ -17,7 +17,7 @@
 !
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
-  use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
+  use caspt2_global, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
                              NBUF1_GRAD
   use caspt2_data, only: DREF, PREF
   use caspt2_data, only: LUSOLV, LUSBT
@@ -28,7 +28,6 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
 
   Implicit None
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -290,12 +289,11 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
 ! If this subroutine is updated, the shift at the beginning of
 ! the SavGradParams subroutine should also be updated
 !
-  use caspt2_gradient, only: LUGRAD
+  use caspt2_global, only: LUGRAD
   use definitions, only: iwp,wp
 
   Implicit None
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
   integer(kind=iwp), intent(in) :: Mode

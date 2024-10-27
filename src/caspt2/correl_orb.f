@@ -20,7 +20,6 @@
       use caspt2_data, only: NCMO
       use caspt2_data, only: LUONEM
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       Real*8, Allocatable :: CMO_X(:), DPQ(:)

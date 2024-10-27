@@ -26,7 +26,6 @@
       PARAMETER (I1=KIND(idxG3))
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

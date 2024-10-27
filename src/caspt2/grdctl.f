@@ -25,7 +25,6 @@
       use EQSOLV
       use stdalloc, only: mma_allocate,mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       Real*8 HEFF(NSTATE,NSTATE)
       Real*8, Allocatable :: CI(:),SGM(:),BRACI(:)

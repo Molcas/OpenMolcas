@@ -14,7 +14,6 @@
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION TJVX(NT,NJ,NV,NX)
       DIMENSION Buff(nBuff)
@@ -102,7 +101,6 @@ C Put W on disk:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 Case B:
 * t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
@@ -291,7 +289,6 @@ C Put WBM on disk:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION AUVX(NA,NU,NV,NX)
       DIMENSION Buff(nBuff)
@@ -382,7 +379,6 @@ C Put W on disk:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION AJVX(NV,NX,*)
       DIMENSION Buff(nBuff)
@@ -509,7 +505,6 @@ C Put W on disk:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION AUVL(NA,NU,NV,NL)
       DIMENSION Buff(nBuff)
@@ -612,7 +607,6 @@ C Put W on disk:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       DIMENSION AJVL(NV,NL,*)
@@ -823,7 +817,6 @@ C Read WM:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION AUCX(NA,NU,NC,NX)
       DIMENSION Buff(nBuff)
@@ -1007,7 +1000,6 @@ C Put WFM on disk:
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       DIMENSION AUCL(NA,NU,*)
@@ -1246,7 +1238,6 @@ C      NBXSZJ=NINABX
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION AJCL(NC*NL,*)
       DIMENSION Buff(nBuff)

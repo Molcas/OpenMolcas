@@ -46,7 +46,6 @@ integer(kind=iwp), intent(in) :: NCMO, lBuf
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
 real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "intgrl.fh"
 #include "trafo.fh"

@@ -28,7 +28,6 @@
       CHARACTER(LEN=1) CODE(0:3)
       DATA CODE /'0','u','d','2'/
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER ICS(MXLEV)

@@ -22,7 +22,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
@@ -55,7 +54,6 @@ C Read coefficient vector from LUSOLV (C repres).
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
@@ -98,7 +96,6 @@ C Read coefficient vector from LUSOLV (C repres).
       use EQSOLV
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       REAL*8 FACT
@@ -147,7 +144,6 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       REAL*8 OVLAPS(0:8,0:MXCASE)
@@ -203,7 +199,6 @@ C sum in OVLAPS(0,0).
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
@@ -259,7 +254,6 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Transform RHS vectors from SR format to C format.
@@ -309,7 +303,6 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Transform RHS vectors from SR format to C format.

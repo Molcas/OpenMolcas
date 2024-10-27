@@ -14,14 +14,13 @@
      *                    DIA,DI,FIFA,FIMO,A_PT2,NumCho)
       USE iSD_data
       USE CHOVEC_IO
-      use caspt2_gradient, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
+      use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
       use caspt2_data, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
@@ -665,7 +664,7 @@ C
 
       use ChoVec_io
       use Cholesky, only: InfVec, nDimRS
-      use caspt2_gradient, only: LuGAMMA
+      use caspt2_global, only: LuGAMMA
       use EQSOLV
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
@@ -673,7 +672,6 @@ C
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 

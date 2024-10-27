@@ -16,7 +16,6 @@ C
       use definitions, only: wp
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION DPT2C(*),T2AO(*)
@@ -79,14 +78,13 @@ C
      *                       ERI1,ERI2,Amp1,Scr,DPT2C,T2AO)
       USE SUPERINDEX
       USE iSD_data
-      use caspt2_gradient, only: OLag
+      use caspt2_global, only: OLag
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use fake_GA, only: GA_Arrays
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
@@ -1140,7 +1138,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension CMO(*),DPT2(*),DPT2AO(*),WRK(*)

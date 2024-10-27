@@ -26,7 +26,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       REAL*8 DUM(1)
@@ -110,7 +109,6 @@ C looping, etc in the rest  of the routines.
       use fake_GA, only: GA_Arrays
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -194,7 +192,6 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       use caspt2_global, only:ipea_shift
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
       DIMENSION DREF(NDREF),PREF(NPREF)
@@ -293,7 +290,6 @@ CGG End
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       REAL*8 BA(*)
@@ -467,7 +463,6 @@ C  - F(xvzyut) -> BA(yvx,zut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "global.fh"
@@ -933,7 +928,6 @@ c Avoid unused argument warnings
       use fake_GA, only: GA_Arrays
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1020,7 +1014,6 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       use caspt2_global, only:ipea_shift
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -1103,7 +1096,6 @@ CGG End
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       DIMENSION BC(*)
@@ -1277,7 +1269,6 @@ C  - F(xvzyut) -> BC(zvx,yut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "global.fh"
@@ -1738,7 +1729,6 @@ c Avoid unused argument warnings
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER NDREF,NPREF
@@ -1956,7 +1946,6 @@ CGG End
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER NDREF,NPREF
@@ -2075,7 +2064,6 @@ CGG End
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER NDREF
@@ -2159,7 +2147,6 @@ CGG End
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER NDREF,NPREF
@@ -2323,7 +2310,6 @@ CGG End
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER NDREF

@@ -50,7 +50,6 @@ integer(kind=iwp), intent(in) :: NCMO, lBuf, MAXRS
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
 real(kind=wp), intent(inout) :: PQRS(*), TURS(*)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"

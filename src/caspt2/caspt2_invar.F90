@@ -19,7 +19,6 @@ subroutine caspt2_grad_invaria1(DPT2)
 !
   implicit none
 !
-#include "rasdim.fh"
 #include "caspt2.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
@@ -75,7 +74,6 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
 !
   implicit none
 !
-#include "rasdim.fh"
 #include "caspt2.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)

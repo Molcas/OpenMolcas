@@ -22,7 +22,6 @@
 * Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
 * Dress it with reaction field (if any).
 * Also get POTNUC at the same time.
-#include "rasdim.fh"
 #include "caspt2.fh"
 *
       character(len=8) :: Label

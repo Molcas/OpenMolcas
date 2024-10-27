@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL1()
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
       use caspt2_data, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
       use EQSOLV
@@ -30,7 +30,6 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"

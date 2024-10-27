@@ -14,7 +14,6 @@
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DPT2_ori(*),DPT2(*)
@@ -87,7 +86,6 @@ C
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DIA(*),DI(*)
@@ -161,10 +159,9 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFro1(DPT2,OLag)
 C
-      use caspt2_gradient, only: FIFA_all
+      use caspt2_global, only: FIFA_all
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DPT2(*),OLag(*)
@@ -207,7 +204,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension DPT2(*),FPT2(*),ERI(*),Scr(*)
@@ -264,7 +260,6 @@ C
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension FIFA(*),FIMO(*),WRK1(*),WRK2(*)
@@ -343,7 +338,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension Ftr(*),Fsq(*)
@@ -390,7 +384,6 @@ C
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 

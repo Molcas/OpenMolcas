@@ -11,7 +11,6 @@
       SUBROUTINE MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded for OP2, OP3, but
@@ -47,7 +46,6 @@ C as operating on the CASSCF space.
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -259,7 +257,6 @@ C Deallocate temporary space:
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -490,7 +487,6 @@ C Deallocate matrix product
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -660,7 +656,6 @@ C Deallocate temporary space:
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -779,7 +774,6 @@ C Deallocate matrix product:
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded.
@@ -859,7 +853,6 @@ C End of loop over cases.
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -1053,7 +1046,6 @@ C Deallocate matrix product:
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded.
@@ -1131,7 +1123,6 @@ C End of loop over cases.
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC, JVEC
       REAL*8 OP0

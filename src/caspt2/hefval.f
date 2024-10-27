@@ -21,7 +21,6 @@ C where a contravariant representation of the CASPT2 Right-Hand Side
 C vector is stored. This depends on the MOs used, but is actually
 C the same for all the root states.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

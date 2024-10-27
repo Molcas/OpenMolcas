@@ -11,7 +11,6 @@
       SUBROUTINE REF_NATO(DREF,CMO,OCC,CNAT)
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 DREF(*),CMO(*),OCC(*),CNAT(*)
 

@@ -18,7 +18,7 @@
       SUBROUTINE TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 
       use caspt2_global, only: imag_shift, sigma_p_epsilon
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -30,7 +30,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC,JVEC,NDPT2
       REAL*8 DPT2(NDPT2), SCAL

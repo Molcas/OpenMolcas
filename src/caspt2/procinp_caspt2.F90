@@ -16,7 +16,7 @@ subroutine procinp_caspt2
   use caspt2_output, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
-  use caspt2_gradient, only: do_grad, do_nac, do_csf, do_lindep, &
+  use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
                              if_invar, iRoot1, iRoot2, if_invaria, &
                              ConvInvar, if_SSDM
   use caspt2_data, only: IDCIEX
@@ -33,7 +33,6 @@ subroutine procinp_caspt2
 
   implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

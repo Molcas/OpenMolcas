@@ -14,7 +14,6 @@
       use caspt2_data, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       Integer NCMO, NHONE, NFIMO, NFAMO
       Real*8  CMO(NCMO)

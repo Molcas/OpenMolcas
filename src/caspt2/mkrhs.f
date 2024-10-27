@@ -27,7 +27,6 @@
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER NERI, NFIMO
@@ -81,7 +80,6 @@ C INTEGRAL BUFFERS:
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
@@ -152,7 +150,6 @@ C Put W on disk:
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION ERI(*), SCR(*)
 *#define _KIGEJ_
@@ -286,7 +283,6 @@ C  Put WM on disk
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
@@ -380,7 +376,6 @@ C   Put W on disk
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO)
@@ -466,7 +461,6 @@ C   Put W on disk.
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
@@ -567,7 +561,6 @@ C   Put WP and WM on disk.
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
@@ -665,7 +658,6 @@ C   Put WM on disk
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
@@ -765,7 +757,6 @@ C   Put WP and WM on disk.
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
@@ -868,7 +859,6 @@ C global array and then save that to disk in a distributed fashion.
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       NAS=NASUP(ISYM,ICASE)

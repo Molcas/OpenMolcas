@@ -27,7 +27,6 @@
 #define RHS_ X_RHS_
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       Integer IVEC, NDPT1
       REAL*8 DPT1(NDPT1)

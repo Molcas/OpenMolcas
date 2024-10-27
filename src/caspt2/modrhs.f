@@ -13,7 +13,6 @@
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IVEC, NFIMO
       REAL*8 FIMO(NFIMO)

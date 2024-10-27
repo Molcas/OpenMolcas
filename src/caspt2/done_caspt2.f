@@ -41,7 +41,6 @@
       Dimension CMO(*) , OCC(*) , D(*)
 
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       iOff1 = 0

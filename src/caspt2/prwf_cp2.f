@@ -21,7 +21,6 @@
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: ISYCI, NCO
       REAL*8, INTENT(IN) :: CI(NCO), THR
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER I, nMidV

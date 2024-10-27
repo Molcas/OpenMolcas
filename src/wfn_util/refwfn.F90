@@ -116,7 +116,6 @@ subroutine refwfn_info
   use stdalloc, only: mma_allocate, mma_deallocate
 # endif
 
-# include "rasdim.fh"
 # include "caspt2.fh"
 
 # ifdef _HDF5_
@@ -217,7 +216,6 @@ subroutine refwfn_data
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
 
-# include "rasdim.fh"
 # include "caspt2.fh"
 # include "pt2_guga.fh"
 

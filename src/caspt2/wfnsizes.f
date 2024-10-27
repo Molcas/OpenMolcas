@@ -16,7 +16,6 @@
 ************************************************************************
       use caspt2_data, only: NTAT, NTORB, NPREF, NDREF
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

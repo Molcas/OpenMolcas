@@ -27,7 +27,6 @@
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER ICASE,ISYM,NAS,NIS,NCOEF
@@ -66,7 +65,6 @@ C Modify B matrix, using S matrix and some other data.
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER ICASE,ISYM,NIN,NAS,NIS,I

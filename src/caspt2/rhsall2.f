@@ -22,7 +22,6 @@
 * in construction of caspt2 right-hand-side array
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
       Integer IVEC
@@ -423,7 +422,6 @@ C      the case, symmetry, and rhs vector respectively.
       USE CHOVEC_IO
       use caspt2_data, only: LUDRA
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       Real*8  Array(*)
 
@@ -462,7 +460,6 @@ C      the case, symmetry, and rhs vector respectively.
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION BUFF(nBuff),idxBuff(nBuff),PIQK(mxPIQK)
@@ -643,7 +640,6 @@ C-SVC: sanity check
       use PrintLevel, only: verbose
       use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION LBGRP(2,NBGRP)
       Integer Active, Inactive, Virtual

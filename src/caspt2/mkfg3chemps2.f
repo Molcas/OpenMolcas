@@ -19,7 +19,6 @@
       use gugx, only: SGS
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

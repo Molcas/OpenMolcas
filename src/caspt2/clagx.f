@@ -17,7 +17,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       Integer IFF
@@ -125,14 +124,13 @@ C
 
       use caspt2_global, only:imag_shift, sigma_p_epsilon
       use caspt2_data, only: LUSBT
-      use caspt2_gradient, only: iVecL
+      use caspt2_global, only: iVecL
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -276,7 +274,7 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only:ipea_shift, real_shift, imag_shift,
      *                        sigma_p_epsilon
-      use caspt2_gradient, only:do_lindep,LUSTD,idSDMat
+      use caspt2_global, only:do_lindep,LUSTD,idSDMat
       use caspt2_data, only: LUSOLV, LUSBT
       use EQSOLV
       use Sigma_data
@@ -284,7 +282,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 C
@@ -1043,7 +1040,6 @@ C
       use caspt2_data, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -1138,11 +1134,10 @@ C
       SUBROUTINE CLagEig(if_SSDMloc,CLag,RDMEIG,nLev)
 C
       use caspt2_data, only: DREF, DWGT
-      use caspt2_gradient, only: OMGDER
+      use caspt2_global, only: OMGDER
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 C
@@ -1243,7 +1238,6 @@ C
       Dimension CLag(nConf,nState),SLag(*)
       real(kind=wp),allocatable :: CI1(:),CI2(:)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       call mma_allocate(CI1,nConf,Label='CI1')
@@ -1318,7 +1312,6 @@ C
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER, INTENT(IN) :: nLev
@@ -1363,7 +1356,6 @@ C
       use definitions, only: iwp
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -1497,7 +1489,6 @@ C
       use caspt2_data, only: TAT, TORB
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       REAL*8 CI(*)
@@ -1729,7 +1720,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
@@ -1938,7 +1928,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension BDER(*),SDER(*),
@@ -2131,7 +2120,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
@@ -2338,7 +2326,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension BDER(*),SDER(*),
@@ -2483,14 +2470,13 @@ C
 C
       use caspt2_output, only:IPrGlb
       use PrintLevel, only: verbose
-      use caspt2_gradient, only: ConvInvar,SLag
+      use caspt2_global, only: ConvInvar,SLag
       use gugx, only: SGS, CIS
       use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
@@ -3314,7 +3300,6 @@ C
       REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
       REAL*8 Fancy(nRoots,nRoots,nRoots)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
@@ -3562,7 +3547,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       Dimension OLag(*),DEPSA(nAshT,nAshT),FIFA(*)
@@ -3604,7 +3588,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
 C
-      use caspt2_gradient, only: LUSTD, idBoriMat
+      use caspt2_global, only: LUSTD, idBoriMat
       use caspt2_data, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -3612,7 +3596,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION WGRONK(2)

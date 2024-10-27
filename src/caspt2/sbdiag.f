@@ -24,7 +24,6 @@
 #endif
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 
@@ -100,7 +99,7 @@ C usually print info on the total number of parameters
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
       use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_grad, do_lindep, nStpGrd, LUSTD,
+      use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                           idBoriMat
       use caspt2_data, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
@@ -108,7 +107,6 @@ C usually print info on the total number of parameters
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "SysDef.fh"
@@ -529,7 +527,6 @@ C divided over processors.
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 C-SVC20100902: global arrays header files
@@ -960,7 +957,6 @@ C replicate array.  FIXME: Should be removed later.
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 SCA(NAS),S(LDS,*)
       DO J=jLo,jHi

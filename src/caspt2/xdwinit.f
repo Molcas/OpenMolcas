@@ -15,7 +15,7 @@
 
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
       use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, CMOPT2, NCMO
       use caspt2_data, only: LUONEM
       use PrintLevel, only: debug, insane, usual, verbose
@@ -23,7 +23,6 @@
 
       implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

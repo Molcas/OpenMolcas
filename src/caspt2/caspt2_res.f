@@ -13,11 +13,10 @@
       Subroutine CASPT2_Res(VECROT)
 C
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-      use caspt2_gradient, only: jStLag,iVecL,iVecG
+      use caspt2_global, only: jStLag,iVecL,iVecG
       use EQSOLV
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
 C
       DIMENSION VECROT(*)
@@ -127,7 +126,6 @@ C
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 DIN(*),DIS(*)
 
@@ -261,7 +259,6 @@ C
       use EQSOLV
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER ICONV

@@ -21,7 +21,6 @@
       use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 C Transform to orbitals that diagonalize the diagonal
 C blocks of FIFA. Affected data sets are CMO,

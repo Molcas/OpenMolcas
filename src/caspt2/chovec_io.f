@@ -78,7 +78,6 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
       use EQSOLV
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER :: ICASE,ISYQ,JSYM
@@ -114,7 +113,6 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
       use EQSOLV
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER :: ICASE,NCHOBUF,IOFF(8,8)
@@ -148,7 +146,6 @@ C as this is how they are used to compute the integrals for RHS.
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -216,7 +213,6 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_data, only: LUDRA
       use ChoCASPT2
       Implicit real*8 (a-h,o-z)
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
       DIMENSION CHOBUF(*)
@@ -247,7 +243,6 @@ C always write the chunks to LUDRA, both for serial and parallel
       use caspt2_data, only: LUDRA
       use ChoCASPT2
       Implicit real*8 (a-h,o-z)
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
       DIMENSION CHOBUF(*)
@@ -284,7 +279,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       use ChoCASPT2
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
       REAL*8 :: CHOBUF(*)

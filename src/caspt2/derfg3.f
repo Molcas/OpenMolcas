@@ -17,12 +17,11 @@
 #endif
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug, verbose
-      use caspt2_gradient, only: nbuf1_grad
+      use caspt2_global, only: nbuf1_grad
       use gugx, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"
@@ -766,7 +765,6 @@ C
       PARAMETER (I1=KIND(idxG3))
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
-#include "rasdim.fh"
 #include "pt2_guga.fh"
 #include "caspt2.fh"
 

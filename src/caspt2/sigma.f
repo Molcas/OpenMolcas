@@ -26,7 +26,6 @@
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
      &                   GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 :: ALPHA, BETA
       INTEGER :: IVEC, JVEC

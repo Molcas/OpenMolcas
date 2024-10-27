@@ -25,7 +25,6 @@
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       REAL*8 DUM(1)
@@ -97,7 +96,6 @@ C looping, etc in the rest  of the routines.
       use EQSOLV
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
@@ -172,7 +170,6 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 
@@ -347,7 +344,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 
@@ -808,7 +804,6 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
@@ -908,7 +903,6 @@ C Add -dyu Gvzxt
       use EQSOLV
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
@@ -984,7 +978,6 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 
@@ -1159,7 +1152,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 
@@ -1620,7 +1612,6 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
@@ -1700,7 +1691,6 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "SysDef.fh"
@@ -1840,7 +1830,6 @@ C Write to disk, and save size and address.
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "SysDef.fh"
@@ -1928,7 +1917,6 @@ C Write to disk
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 #include "SysDef.fh"
@@ -1984,7 +1972,6 @@ C Write to disk
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
       INTEGER NPREF
@@ -2090,7 +2077,6 @@ C Write to disk
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
       INTEGER NDREF

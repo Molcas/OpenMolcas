@@ -10,7 +10,6 @@
 ************************************************************************
       SUBROUTINE MKEPS(FIFA,DREF)
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER I, ID, IEPS, IEPSA, IEPSE, IEPSI, ISTLT, ISYM
       INTEGER ITOT, NA, NI, NO

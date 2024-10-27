@@ -44,7 +44,6 @@ integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqrU, npqTU
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 real(kind=wp), intent(inout) :: pqrU(npqrU), pqTU(npqTU)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"

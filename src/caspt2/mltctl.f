@@ -21,7 +21,6 @@
       use PrintLevel, only: terse, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       REAL*8 HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
       real(8) U0(Nstate,Nstate)

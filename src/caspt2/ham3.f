@@ -13,7 +13,6 @@
       use gugx, only: SGS, CIS, EXS
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)

@@ -19,13 +19,12 @@
 
       SUBROUTINE DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LIST)
 
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       INTEGER ISYM, ICASE

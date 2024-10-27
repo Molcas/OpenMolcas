@@ -24,7 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8), nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
 real(kind=wp), target, intent(in) :: CMO(lthCMO)
 integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 !                                                                      *

@@ -26,7 +26,6 @@
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER NCMO
