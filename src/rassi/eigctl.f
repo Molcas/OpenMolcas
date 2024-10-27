@@ -829,10 +829,12 @@ C                                                                      C
 *
         LNCNT=0
         DMAX=0.0D0
-        DO K_=1,NSTATE-1
+        DO K_=1,IEND
            I=IndexE(K_)
-         DO L_=I+1,NSTATE
+         DO L_=JSTART,NSTATE
            J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
+           IF(EDIFF.GT.0.0D0) THEN
            DX=0.0D0
            DY=0.0D0
            DZ=0.0D0
@@ -866,6 +868,8 @@ C                                                                      C
             LNCNT=LNCNT+1
             WRITE(6,33) I,J,DX,DY,DZ,DSZ
             write(LuT1,222) I,J,DX,DY,DZ
+           END IF
+           Call Add_Info('TVC(SF,Len)',[DSZ],1,6)
            END IF
          END DO
         END DO
