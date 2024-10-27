@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIZES()
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: usual
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE

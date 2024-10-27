@@ -20,7 +20,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate

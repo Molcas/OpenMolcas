@@ -13,7 +13,7 @@ subroutine procinp_caspt2
   ! initialize global common-block variables appropriately.
   use inputData, only: input
   use definitions, only: iwp,wp
-  use caspt2_output, only: iPrGlb, cmpThr, cntThr, dnmThr
+  use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &

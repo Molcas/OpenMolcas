@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKBMAT()
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: DREF, PREF
@@ -100,7 +100,7 @@ C looping, etc in the rest  of the routines.
 * Case A (ICASE=1)
 ********************************************************************************
       SUBROUTINE MKBA(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       USE SUPERINDEX
 #ifdef _MOLCAS_MPP_
@@ -920,7 +920,7 @@ c Avoid unused argument warnings
 ********************************************************************************
       SUBROUTINE MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
       USE SUPERINDEX
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par

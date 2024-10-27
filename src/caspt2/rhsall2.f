@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -457,7 +457,7 @@ C      the case, symmetry, and rhs vector respectively.
      &                             BUFF,idxBuff,nBUFF,
      &                             nSh,JSYM,
      &                             IVEC,NV)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
@@ -636,7 +636,7 @@ C-SVC: sanity check
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
      &                           NCHOBUF,NPIQK,NADDBUF)
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_MaxDBLE
       IMPLICIT REAL*8 (A-H,O-Z)

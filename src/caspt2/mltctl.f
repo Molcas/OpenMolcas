@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: terse, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

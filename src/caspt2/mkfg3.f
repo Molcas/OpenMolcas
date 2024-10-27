@@ -56,7 +56,7 @@ C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd
       use PrintLevel, only: debug, verbose

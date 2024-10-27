@@ -203,7 +203,7 @@ C-----------------------------------------------------------------------
 
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: LuPT2,LuAPT2,
      *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
      *                           LUSTD,TraFro,
@@ -534,7 +534,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine GradStart
 C
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only:ipea_shift
       use caspt2_global, only: if_invar
       use PrintLevel, only: usual

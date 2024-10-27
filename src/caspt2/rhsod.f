@@ -20,7 +20,7 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD(IVEC)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -80,7 +80,7 @@
       SUBROUTINE RHSOD_A(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
       use EQSOLV
@@ -198,7 +198,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_C(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
       use EQSOLV
@@ -338,7 +338,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_B(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -536,7 +536,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_F(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -733,7 +733,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_H(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -930,7 +930,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: debug
       use EQSOLV
@@ -1113,7 +1113,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_E(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -1342,7 +1342,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_G(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate

@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -98,7 +98,7 @@ C usually print info on the total number of parameters
       END SUBROUTINE SBDIAG
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                           idBoriMat
       use caspt2_global, only: LUSOLV, LUSBT
@@ -520,7 +520,7 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: insane
       USE Para_Info, ONLY: King
       use caspt2_global, only: LUSBT

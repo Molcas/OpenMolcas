@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE TRAONE(CMO,NCMO)
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: HONE
       use caspt2_global, only: LUONEM
       use PrintLevel, only: verbose

@@ -15,7 +15,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use caspt2_global, only: nbuf1_grad
       use gugx, only: CIS, L2ACT, SGS, EXS

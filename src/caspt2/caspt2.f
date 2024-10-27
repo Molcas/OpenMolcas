@@ -16,7 +16,7 @@
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
       use PrintLevel, only: terse, usual, verbose
 #ifdef _MOLCAS_MPP_

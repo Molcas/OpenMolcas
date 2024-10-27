@@ -11,7 +11,7 @@
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE STINI()
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
       use EQSOLV

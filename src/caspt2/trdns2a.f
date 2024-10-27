@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF
       use PrintLevel, only: verbose
       use EQSOLV

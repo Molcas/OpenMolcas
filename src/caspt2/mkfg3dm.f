@@ -36,7 +36,7 @@ C
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use gugx, only: CIS, SGS, L2ACT
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate

@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: nStpGrd, do_grad, iStpGrd
       use PrintLevel, only: insane, usual, verbose
       use EQSOLV

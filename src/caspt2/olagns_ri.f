@@ -70,7 +70,7 @@ C
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_csf
       use PrintLevel, only: verbose
       use EQSOLV
@@ -430,7 +430,7 @@ C
       Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
      &                      Cho_BraD,Cho_KetD)
 C
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"

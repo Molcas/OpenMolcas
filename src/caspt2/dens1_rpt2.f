@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS

@@ -12,7 +12,7 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
      &                       CMOPT2, NCMO
       use caspt2_global, only: LUONEM

@@ -18,7 +18,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MCCTL(HEFF)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV

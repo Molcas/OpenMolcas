@@ -96,7 +96,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
       use fake_GA, only: GA_Arrays
@@ -1672,7 +1672,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_

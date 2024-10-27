@@ -15,7 +15,7 @@
 *
 ************************************************************************
       use InputData, only: Input
-      use caspt2_output, only: EMP2
+      use caspt2_global, only: EMP2
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO
       use caspt2_global, only: LUONEM

@@ -254,7 +254,7 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE PCG_RES(ICONV)
       USE INPUTDATA
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: terse, usual
       use EQSOLV
       IMPLICIT NONE

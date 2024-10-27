@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
@@ -1034,7 +1034,7 @@ C
      *                    G1,G2,G3,nLev)
 
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use PrintLevel, only: verbose
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
@@ -1229,7 +1229,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
 C
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
@@ -2468,7 +2468,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 C
-      use caspt2_output, only:IPrGlb
+      use caspt2_global, only:IPrGlb
       use PrintLevel, only: verbose
       use caspt2_global, only: ConvInvar,SLag
       use gugx, only: SGS, CIS

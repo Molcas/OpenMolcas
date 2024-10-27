@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF,U0)
       USE CHOVEC_IO
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria, if_SSDM,

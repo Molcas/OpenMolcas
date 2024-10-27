@@ -31,7 +31,7 @@ subroutine prinp_caspt2()
 !                                                                      *
 !***********************************************************************
   use definitions, only: iwp, wp
-  use caspt2_output, only: iPrGlb
+  use caspt2_global, only: iPrGlb
   use PrintLevel, only: terse, usual, verbose
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift

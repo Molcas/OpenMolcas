@@ -20,7 +20,7 @@
 *     University of Lund, Sweden, 1993                                 *
 *                                                                      *
 ************************************************************************
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: silent
       use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
      &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,

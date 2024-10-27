@@ -12,7 +12,7 @@
 ************************************************************************
       subroutine rdminit()
 
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
       use caspt2_global, only: LUONEM
       use PrintLevel, only: debug

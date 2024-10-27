@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0)
       USE PT2WFN
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only: do_nac,iRoot1,iRoot2,SLag,DPT2_tot,
      *                           DPT2C_tot

@@ -20,7 +20,7 @@
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate

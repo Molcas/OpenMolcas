@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE ORBCTL(CMO,NCMO)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
       use caspt2_global, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
      &                       TORB
