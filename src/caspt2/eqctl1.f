@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE EQCTL1()
       use caspt2_global, only: do_grad
-      use caspt2_data, only: LUSOLV, LUSBT, IDSCT
+      use caspt2_global, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -23,7 +23,7 @@ module fciqmc_interface
     use linalg_mod, only: verify_
     use fortran_strings, only: str
     use stdalloc, only: mma_allocate, mma_deallocate
-    use caspt2_data, only: nG3, nActel, mstate, jstate
+    use caspt2_global, only: nG3, nActel, mstate, jstate
 #ifdef _HDF5_
     use mh5, only: mh5_open_file_r, mh5_close_file, &
                    mh5_open_group, mh5_close_group, &

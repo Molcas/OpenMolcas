@@ -25,7 +25,7 @@ use mh5, only: mh5_is_hdf5
 #endif
 use refwfn, only: refwfn_init, refwfn_info, refwfn_data, refwfn_close
 use nevpt2_cfg, only: curr_dir, do_cholesky, igelo, molcas_project, MultGroup, nr_active_electrons, nr_frozen_orb, nr_states, nspin
-use caspt2_data, only: LUONEM, NCMO
+use caspt2_global, only: LUONEM, NCMO
 use info_state_energy, only: e, init_energies                                                     ! energies
 use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initialize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data

@@ -14,7 +14,7 @@
      &                  REFWFN_CLOSE
       USE PT2WFN
       use caspt2_global, only: do_grad
-      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
       use stdalloc, only: mma_allocate
@@ -156,7 +156,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
-      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, TORB, IDSCT
       use stdalloc, only: mma_deallocate
 * NOT TESTED

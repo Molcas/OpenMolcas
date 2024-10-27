@@ -33,7 +33,7 @@
 !> @param[out]    JVEC   Vector position where the result is saved
 !> @param[in]     OVLAPS Array containing the overlaps
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE

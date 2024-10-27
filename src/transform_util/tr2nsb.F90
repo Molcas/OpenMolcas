@@ -39,7 +39,7 @@ subroutine tr2NsB(CMO,NCMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! transformed MO integrals are stored as the same as Tr2Sq
 ! subroutine does.
 
-use caspt2_data, only: LUHLF3, LUINTM
+use caspt2_global, only: LUHLF3, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

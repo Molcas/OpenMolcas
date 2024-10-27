@@ -20,8 +20,8 @@
 * 2006 update: Use RAS1..RAS3
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
-      use caspt2_data, only: TAT, TORB
-      use caspt2_data, only: LUCIEX, IDTCEX
+      use caspt2_global, only: TAT, TORB
+      use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate,mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

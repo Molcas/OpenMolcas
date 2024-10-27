@@ -13,8 +13,8 @@
       subroutine rdminit()
 
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
-      use caspt2_data, only: LUONEM
+      use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
+      use caspt2_global, only: LUONEM
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
       implicit real(8) (A-H,O-Z)

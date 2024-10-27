@@ -19,8 +19,8 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
 
   use caspt2_global, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
                              NBUF1_GRAD
-  use caspt2_data, only: DREF, PREF
-  use caspt2_data, only: LUSOLV, LUSBT
+  use caspt2_global, only: DREF, PREF
+  use caspt2_global, only: LUSOLV, LUSBT
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
   use EQSOLV

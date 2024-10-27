@@ -86,7 +86,7 @@
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
-      use caspt2_data, only: FIMO
+      use caspt2_global, only: FIMO
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
@@ -204,7 +204,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
-      use caspt2_data, only: FIMO
+      use caspt2_global, only: FIMO
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
@@ -890,7 +890,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: debug
-      use caspt2_data, only: FIMO
+      use caspt2_global, only: FIMO
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_

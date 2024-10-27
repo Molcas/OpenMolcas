@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE NADIAG()
       USE SUPERINDEX
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

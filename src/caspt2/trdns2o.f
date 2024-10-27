@@ -21,7 +21,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_data, only: LISTS
+      use caspt2_global, only: LISTS
       use EQSOLV
       use Sigma_data
       use fake_GA, only: GA_Arrays

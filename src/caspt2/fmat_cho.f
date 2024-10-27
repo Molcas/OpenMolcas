@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
      &                                                       FAMO,NFAMO)
-      use caspt2_data, only: FIFA, DREF
-      use caspt2_data, only: LUONEM
+      use caspt2_global, only: FIFA, DREF
+      use caspt2_global, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"

@@ -123,7 +123,7 @@ C
      *                 VECROT)
 
       use caspt2_global, only:imag_shift, sigma_p_epsilon
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use caspt2_global, only: iVecL
       use EQSOLV
       use Sigma_data
@@ -275,7 +275,7 @@ C
       use caspt2_global, only:ipea_shift, real_shift, imag_shift,
      *                        sigma_p_epsilon
       use caspt2_global, only:do_lindep,LUSTD,idSDMat
-      use caspt2_data, only: LUSOLV, LUSBT
+      use caspt2_global, only: LUSOLV, LUSBT
       use EQSOLV
       use Sigma_data
       use definitions, only: wp
@@ -1037,7 +1037,7 @@ C
       use caspt2_output, only: iPrGlb
       use PrintLevel, only: verbose
       use gugx, only: L2ACT
-      use caspt2_data, only: LUCIEX, IDTCEX, LUSOLV
+      use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
@@ -1133,7 +1133,7 @@ C
       !! From poly3
       SUBROUTINE CLagEig(if_SSDMloc,CLag,RDMEIG,nLev)
 C
-      use caspt2_data, only: DREF, DWGT
+      use caspt2_global, only: DREF, DWGT
       use caspt2_global, only: OMGDER
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
@@ -1486,7 +1486,7 @@ C
       !! Taken from grdctl.f
       SUBROUTINE CLagX_TrfCI(CI)
 C
-      use caspt2_data, only: TAT, TORB
+      use caspt2_global, only: TAT, TORB
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "caspt2.fh"
@@ -2472,7 +2472,7 @@ C
       use PrintLevel, only: verbose
       use caspt2_global, only: ConvInvar,SLag
       use gugx, only: SGS, CIS
-      use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
       Implicit Real*8 (A-H,O-Z)
@@ -3589,7 +3589,7 @@ C
       Subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
 C
       use caspt2_global, only: LUSTD, idBoriMat
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp

@@ -140,9 +140,9 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
-      use caspt2_data, only: LUDRATOT
+      use caspt2_global, only: LUDRATOT
 #endif
-      use caspt2_data, only: LUDRA
+      use caspt2_global, only: LUDRA
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
@@ -210,7 +210,7 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 * Write Cholesky vectors to disk.
 ************************************************************************
-      use caspt2_data, only: LUDRA
+      use caspt2_global, only: LUDRA
       use ChoCASPT2
       Implicit real*8 (a-h,o-z)
 #include "warnings.h"
@@ -240,7 +240,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 ************************************************************************
 * Read Cholesky vectors from disk.
 ************************************************************************
-      use caspt2_data, only: LUDRA
+      use caspt2_global, only: LUDRA
       use ChoCASPT2
       Implicit real*8 (a-h,o-z)
 #include "warnings.h"
@@ -274,7 +274,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _MOLCAS_MPP_
       USE MPI
       USE Para_Info, ONLY: nProcs, Is_Real_Par
-      use caspt2_data, only: LUDRATOT
+      use caspt2_global, only: LUDRATOT
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use ChoCASPT2

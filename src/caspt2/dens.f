@@ -27,8 +27,9 @@
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
      *                           FIFA_all,OMGDER,jStLag
-      use caspt2_data, only: FIMO, FIFA, DREF, DMIX, CMOPT2, TORB, NDREF
-      use caspt2_data, only: IDCIEX, IDTCEX
+      use caspt2_global, only: FIMO, FIFA
+      use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
+      use caspt2_global, only: IDCIEX, IDTCEX
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -1283,7 +1284,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine TRAFRO(MODE)
 C
-      use caspt2_data, only: CMO, CMO_Internal, CMOPT2, NCMO
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1673,7 +1674,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSATrf(DEPSA,FPT2,WRK1,WRK2)
 C
-      use caspt2_data, only: CMOPT2
+      use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
 C

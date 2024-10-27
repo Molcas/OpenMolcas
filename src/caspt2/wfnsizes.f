@@ -14,7 +14,7 @@
 * Compute various orbital sizes
 *
 ************************************************************************
-      use caspt2_data, only: NTAT, NTORB, NPREF, NDREF
+      use caspt2_global, only: NTAT, NTORB, NPREF, NDREF
       implicit none
 #include "caspt2.fh"
 #include "pt2_guga.fh"

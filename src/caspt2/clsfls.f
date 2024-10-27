@@ -22,7 +22,7 @@
 ************************************************************************
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: silent
-      use caspt2_data, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
+      use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
      &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,
      &                       LUH0T, LUSOLV, LUSBT
       Implicit real*8 (a-h,o-z)

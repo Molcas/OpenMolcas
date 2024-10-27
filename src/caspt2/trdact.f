@@ -19,7 +19,7 @@
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_data, only: LUCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       IMPLICIT NONE
 

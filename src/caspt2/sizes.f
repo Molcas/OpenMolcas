@@ -21,7 +21,7 @@
       use PrintLevel, only: usual
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
-      use caspt2_data, only: NCMO
+      use caspt2_global, only: NCMO
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 

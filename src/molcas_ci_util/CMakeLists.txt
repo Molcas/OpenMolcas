@@ -11,7 +11,7 @@
 
 set (sources
      alloc.F90
-     caspt2_data.F90
+     caspt2_global.F90
      check_invec.F90
      chksplit.F90
      cidia_ci_util.F90
@@ -127,7 +127,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     caspt2_data.F90
+     caspt2_global.F90
      csfbas.F90
      gugx.F90
      wadr.F90

@@ -22,9 +22,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only: do_nac,iRoot1,iRoot2,SLag,DPT2_tot,
      *                           DPT2C_tot
-      use caspt2_data, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
      &                       LISTS
-      use caspt2_data, only: LUONEM
+      use caspt2_global, only: LUONEM
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par

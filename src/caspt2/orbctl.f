@@ -20,9 +20,9 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_data, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
+      use caspt2_global, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
      &                       TORB
-      use caspt2_data, only: LUONEM
+      use caspt2_global, only: LUONEM
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE

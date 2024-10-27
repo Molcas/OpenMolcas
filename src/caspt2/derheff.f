@@ -11,7 +11,7 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
-      use caspt2_data, only: LUCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp

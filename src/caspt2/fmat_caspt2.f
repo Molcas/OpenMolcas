@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,NBUF,BUF)
-      use caspt2_data, only: LUINTM
+      use caspt2_global, only: LUINTM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
       INTEGER NFIMO, NFAMO, NBUF

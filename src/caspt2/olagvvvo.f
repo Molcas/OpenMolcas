@@ -15,7 +15,7 @@
       USE iSD_data
       USE CHOVEC_IO
       use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
-      use caspt2_data, only: CMOPT2
+      use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 C

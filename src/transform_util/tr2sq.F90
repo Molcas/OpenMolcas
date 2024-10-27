@@ -35,7 +35,7 @@ subroutine TR2Sq(CMO,NCMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! ********** IBM-3090 RELEASE 87 09 14 **********
 ! Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
 
-use caspt2_data, only: LUHLF1, LUHLF2, LUHLF3, LUINTM
+use caspt2_global, only: LUHLF1, LUHLF2, LUHLF3, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

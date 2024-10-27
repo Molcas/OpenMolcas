@@ -101,7 +101,7 @@ C usually print info on the total number of parameters
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                           idBoriMat
-      use caspt2_data, only: LUSOLV, LUSBT
+      use caspt2_global, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -523,7 +523,7 @@ C divided over processors.
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: insane
       USE Para_Info, ONLY: King
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

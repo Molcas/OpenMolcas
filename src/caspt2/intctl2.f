@@ -11,7 +11,7 @@
       SUBROUTINE INTCTL2(IF_TRNSF)
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
-      use caspt2_data, only: CMO, FIMO, FAMO, HONE, DREF
+      use caspt2_global, only: CMO, FIMO, FAMO, HONE, DREF
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

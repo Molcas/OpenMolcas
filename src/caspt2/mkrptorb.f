@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
       use fciqmc_interface, only: DoFCIQMC, NonDiagonal
-      use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "caspt2.fh"

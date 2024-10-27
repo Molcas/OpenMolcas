@@ -81,7 +81,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFroD(DIA,DI,RDMSA,Trf)
 C
-      use caspt2_data, only: CMOPT2
+      use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
@@ -255,7 +255,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFro3(FIFA,FIMO,WRK1,WRK2)
 C
-      use caspt2_data, only: CMOPT2
+      use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)

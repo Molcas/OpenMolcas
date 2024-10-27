@@ -19,7 +19,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
       use Fockof
-      use caspt2_data, only: FIFA, LISTS
+      use caspt2_global, only: FIFA, LISTS
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
       use Sigma_data

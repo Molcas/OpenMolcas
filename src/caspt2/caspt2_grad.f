@@ -629,7 +629,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagFinal(OLagLoc,Trf)
 C
-      use caspt2_data, only: CMOPT2
+      use caspt2_global, only: CMOPT2
       use caspt2_global, only: OLagFull,WLag,nOLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
@@ -719,7 +719,7 @@ C-----------------------------------------------------------------------
 
       use caspt2_global, only: TraFro, OLag,
      *                           FIMO_all, FIFA_all, FIFASA_all
-      use caspt2_data, only: FIMO, FIFA, CMOPT2
+      use caspt2_global, only: FIMO, FIFA, CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
 

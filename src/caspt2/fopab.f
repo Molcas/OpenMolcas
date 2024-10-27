@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, EXS, CIS
-      use caspt2_data, only: LUCIEX, IDCIEX
+      use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 

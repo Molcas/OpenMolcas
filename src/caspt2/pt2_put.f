@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
-      use caspt2_data, only: LUDMAT
+      use caspt2_global, only: LUDMAT
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER NSIZE
       CHARACTER(len=*) LAB

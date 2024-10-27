@@ -25,7 +25,7 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_INIT()
-      use caspt2_data, only: LURHS
+      use caspt2_global, only: LURHS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
       REAL*8 DUMMY(1)
@@ -465,7 +465,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_data, only: LURHS
+      use caspt2_global, only: LURHS
       use EQSOLV
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -527,7 +527,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_data, only: LURHS
+      use caspt2_global, only: LURHS
       use EQSOLV
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -621,8 +621,8 @@ C     place and transition is no longer needed.
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
-      use caspt2_data, only: IDSCT
-      use caspt2_data, only: LUSOLV
+      use caspt2_global, only: IDSCT
+      use caspt2_global, only: LUSOLV
       use EQSOLV
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -692,7 +692,7 @@ C     place and transition is no longer needed.
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
-      use caspt2_data, only: LUSOLV, IDSCT
+      use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -798,7 +798,7 @@ C     (ITYP=1).
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
@@ -920,7 +920,7 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_data, only: LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays

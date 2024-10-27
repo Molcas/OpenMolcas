@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use caspt2_data, only: FIMO, FAMO, FIFA, HONE, DREF
+      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF
       use stdalloc, only: mma_allocate, mma_deallocate
       use ChoCASPT2
       IMPLICIT REAL*8 (A-H,O-Z)

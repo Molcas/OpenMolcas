@@ -15,7 +15,7 @@ subroutine wgtinit(H)
   use definitions,only:wp,iwp,u6
   use caspt2_output,only:iPrGlb
   use PrintLevel, only: debug, verbose
-  use caspt2_data, only: DWGT
+  use caspt2_global, only: DWGT
 
   implicit none
 

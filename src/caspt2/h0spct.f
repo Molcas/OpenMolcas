@@ -11,7 +11,7 @@
       SUBROUTINE H0SPCT()
       use caspt2_output, only:iPrGlb
       use caspt2_output, only:dnmThr,cntThr,cmpThr
-      use caspt2_data, only:LUSBT
+      use caspt2_global, only:LUSBT
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather_R, allgather_I

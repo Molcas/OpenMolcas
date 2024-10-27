@@ -12,7 +12,7 @@
 ************************************************************************
 C
       Subroutine MS_Res(MODE,IST,JST,Scal)
-      use caspt2_data, only: LUCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
@@ -698,7 +698,7 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine LoadCI_XMS(Bas,Mode,CI,Istate,U0)
-      use caspt2_data, only: LUCIEX, IDCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       implicit real(8) (A-H,O-Z)
@@ -747,7 +747,7 @@ C
       use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
      *                           CLag,CLagFull,OLag,DPT2_tot,
      *                           FIFA_all,FIFASA_all
-      use caspt2_data, only: FIFA, TORB, NDREF
+      use caspt2_global, only: FIFA, TORB, NDREF
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp

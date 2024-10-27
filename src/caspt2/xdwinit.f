@@ -16,8 +16,9 @@
       use definitions, only: wp, iwp, u6
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: do_grad
-      use caspt2_data, only: CMO, CMO_Internal, FIFA, DREF, CMOPT2, NCMO
-      use caspt2_data, only: LUONEM
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
+      use caspt2_global, only: FIFA, DREF
+      use caspt2_global, only: LUONEM
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 

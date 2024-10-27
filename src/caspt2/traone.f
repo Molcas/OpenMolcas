@@ -11,8 +11,8 @@
       SUBROUTINE TRAONE(CMO,NCMO)
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: HONE
-      use caspt2_data, only: LUONEM
+      use caspt2_global, only: HONE
+      use caspt2_global, only: LUONEM
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

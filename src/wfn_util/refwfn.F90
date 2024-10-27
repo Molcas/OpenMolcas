@@ -210,7 +210,7 @@ subroutine refwfn_data
 !SVC: initialize the reference wavefunction data
 
   use gugx, only: L2ACT, LEVEL
-  use caspt2_data, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
+  use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif

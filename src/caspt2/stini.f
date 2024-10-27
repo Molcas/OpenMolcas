@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE STINI()
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: DREF, PREF
+      use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
       use EQSOLV
       IMPLICIT NONE

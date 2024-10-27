@@ -51,7 +51,7 @@ contains
 subroutine load_fciqmc_g1(nLev,g1,iroot)
 
   use filesystem, only: getcwd_
-  use caspt2_data, only: mState, jState
+  use caspt2_global, only: mState, jState
 
   integer(kind=iwp), intent(in) :: nLev, iroot
   real(kind=wp), intent(inout) :: g1(nLev,nLev)
@@ -174,7 +174,7 @@ end subroutine load_fciqmc_g1
 subroutine mkfg3fciqmc(g1,g2,g3,f1,f2,f3,idxG3,nLev)
 
 # ifdef _HDF5_
-  use caspt2_data, only: jState, mState, nG3
+  use caspt2_global, only: jState, mState, nG3
 # endif
 
   integer(kind=iwp), intent(in) :: nLev
@@ -212,7 +212,7 @@ end subroutine mkfg3fciqmc
 !>  @param[in]     iroot      MCSCF root number.
 subroutine load_fciqmc_mats(nLev,idxG3,nG3,g3,g2,g1,f3,f2,f1,iroot)
 
-  use caspt2_data, only: nActEl
+  use caspt2_global, only: nActEl
 
   integer(kind=iwp), intent(in) :: nLev, nG3, iroot
   integer(kind=int8), intent(in) :: idxG3(6,nG3)

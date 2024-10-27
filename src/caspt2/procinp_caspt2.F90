@@ -19,7 +19,7 @@ subroutine procinp_caspt2
   use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
                              if_invar, iRoot1, iRoot2, if_invaria, &
                              ConvInvar, if_SSDM
-  use caspt2_data, only: IDCIEX
+  use caspt2_global, only: IDCIEX
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_

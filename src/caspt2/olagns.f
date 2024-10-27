@@ -1082,7 +1082,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_post2(nDimA,nDimB,nSkpA,nSkpB,AmpMO,AmpAO)
 C
-      use caspt2_data, only: CMOPT2
+      use caspt2_global, only: CMOPT2
       Implicit Real*8 (A-H,O-Z)
 C
       Dimension AmpMO(nDimA,nDimB),AmpAO(nBasA,nBasB)

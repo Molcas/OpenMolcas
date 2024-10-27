@@ -23,7 +23,7 @@
       use caspt2_output, only: iPrGlb
       use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
       use caspt2_global, only: do_grad, nStpGrd
-      use caspt2_data, only: LISTS
+      use caspt2_global, only: LISTS
       use PrintLevel, only: terse, usual
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV

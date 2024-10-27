@@ -16,7 +16,7 @@
       use PrintLevel, only: usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
-      use caspt2_data, only: CMO, CMO_Internal, NCMO
+      use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the

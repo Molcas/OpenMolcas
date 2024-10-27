@@ -11,7 +11,7 @@
       SUBROUTINE RHSALL2(IVEC)
       USE CHOVEC_IO
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: FIMO
+      use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
@@ -420,7 +420,7 @@ C      the case, symmetry, and rhs vector respectively.
      &                                Array,nArray,
      &                                IBSTA,IBEND)
       USE CHOVEC_IO
-      use caspt2_data, only: LUDRA
+      use caspt2_global, only: LUDRA
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
       Real*8  Array(*)

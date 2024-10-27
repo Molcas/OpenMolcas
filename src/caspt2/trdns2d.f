@@ -22,7 +22,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_data, only: LUSBT, LISTS
+      use caspt2_global, only: LUSBT, LISTS
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HEFVAL(IST,JST,DVALUE)
-      use caspt2_data, only: LUCIEX, IDTCEX
+      use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE

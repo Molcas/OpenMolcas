@@ -19,7 +19,7 @@
       SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO)
       use caspt2_output, only:iPrGlb
       use PrintLevel, only: usual
-      use caspt2_data, only: DREF
+      use caspt2_global, only: DREF
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "caspt2.fh"

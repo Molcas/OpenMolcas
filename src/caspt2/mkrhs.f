@@ -21,7 +21,7 @@
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
       use caspt2_output, only:iPrGlb
-      use caspt2_data, only: FIMO
+      use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
