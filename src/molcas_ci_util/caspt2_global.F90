@@ -13,10 +13,19 @@
 ! TODO: move here all variables from CASPT2 common blocks defined in caspt2.fh
 module caspt2_global
 
-  use definitions, only: iwp,wp
+  use definitions, only: wp,iwp
 
-implicit none
+  implicit none
   private
+
+  Integer(kind=iwp), public :: iPrGlb
+
+  ! thresholds for printing denominators
+  Real(kind=wp), public :: dnmThr,cmpThr,cntThr
+
+  Real(kind=wp), public :: EMP2
+  Real(kind=wp), public :: STrA, STrF, STrX
+
 
   real(kind=wp)     , public:: ipea_shift = 0.0_wp
   real(kind=wp)     , public:: imag_shift = 0.0_wp
