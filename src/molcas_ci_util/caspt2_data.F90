@@ -22,15 +22,13 @@ private
 ! UNIT numbers:
 ! IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTA, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
 
-integer(kind=iwp) :: IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T(4), LUHLF1, LUHLF2, LUHLF3, LUINTA, LUINTM, LUONEM, &
+integer(kind=iwp) ,public :: IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T(4), LUHLF1, LUHLF2, LUHLF3, LUINTA, LUINTM, LUONEM, &
                      LURHS(8), LUSBT, LUSOLV, NCMO = 0, NDREF = 0, NPREF = 0, NTAT = 0, NTORB = 0
-integer(kind=iwp), allocatable :: IDSCT(:), LISTS(:)
-real(kind=wp), allocatable:: CMOPT2(:), DMIX(:,:), DREF(:), DWGT(:,:), FAMO(:), FIFA(:), FIMO(:), HONE(:), PREF(:), TAT(:), TORB(:)
-real(kind=wp), allocatable, target:: CMO_Internal(:)
-real(kind=wp), pointer:: CMO(:)
+integer(kind=iwp), allocatable ,public :: IDSCT(:), LISTS(:)
+real(kind=wp), allocatable,public :: CMOPT2(:), DMIX(:,:), DREF(:), DWGT(:,:), FAMO(:), FIFA(:), FIMO(:), HONE(:), PREF(:), TAT(:), TORB(:)
+real(kind=wp), allocatable, target,public :: CMO_Internal(:)
+real(kind=wp), pointer,public :: CMO(:)
 
-public :: CMO, CMO_Internal, CMOPT2, DMIX, DREF, DWGT, FAMO, FIFA, FIMO, HONE, IDCIEX, IDSCT, IDTCEX, jState, LISTS, LUCIEX, &
-          LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTA, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV, mState, nActEl, &
-          NCMO, NDREF, nG3, NPREF, NTAT, NTORB, PREF, TAT, TORB
+public :: jState, mState, nActEl, nG3
 
 end module caspt2_data
