@@ -32,12 +32,11 @@
       use gas_data, only: NGAS, NGSSH, IGSOCCX
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
+#include "general.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
-#include "general_mul.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "orthonormalize.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
@@ -75,20 +74,6 @@ C        ICIRST=1 ! to be activated!
       END DO
 * Set print levels, and adjust them if needed:
       call setprlev(LF,IPRGLB_IN,IPRLOC_IN)
-*
-* SET UP SYMMETRY MULTIPLICATION TABLE:
-      MUL(1,1)=1
-      M=1
-      DO  N=1,3
-        DO  I=1,M
-          DO  J=1,M
-            MUL(I+M,J)=M+MUL(I,J)
-            MUL(I,J+M)=MUL(I+M,J)
-            MUL(I+M,J+M)=MUL(I,J)
-          END DO
-         END DO
-        M=2*M
-      END DO
 
 * Cholesky-related settings:
       Call DecideOnCholesky(DoCholesky)

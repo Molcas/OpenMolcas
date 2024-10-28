@@ -41,7 +41,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
 *
       Dimension Smat(*),SCRATCH(*),CMO(*),Temp(*)
       character(len=8) :: Label

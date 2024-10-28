@@ -112,7 +112,6 @@
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "qnctl.fh"
-#include "orthonormalize.fh"
 #include "ciinfo.fh"
 #include "raswfn.fh"
 

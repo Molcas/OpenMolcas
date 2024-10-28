@@ -58,17 +58,17 @@
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
       use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
+      use Symmetry_info, only: Mul
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
+#include "general.fh"
 #include "warnings.h"
 #include "rasscf.fh"
 #include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
-#include "general_mul.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"

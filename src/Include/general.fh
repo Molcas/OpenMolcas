@@ -61,3 +61,5 @@
       COMMON/UNITS/   LUStartOrb,JOBIPH,JOBOLD,LUDAVID,                 &
      &                LUONEL,LUINTA,LUINTM,                             &
      &                LURLX,LUCOM,LUEXT,LUQUNE,ITERFILE
+      Logical Lowdin_ON
+      Common /LON/ Lowdin_ON
