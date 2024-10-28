@@ -15,6 +15,7 @@ subroutine MKNSM()
 use gugx, only: SGS
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
+use gas_data, only: NGAS, NGSSH
 
 implicit none
 ! to get some dimensions
@@ -24,7 +25,6 @@ implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
 NLEV = 0
