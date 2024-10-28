@@ -9,5 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Logical iDoGas
-      INTEGER NGAS,NGASRAS(3),NGSSH(mxGAS,mxSym),IGSOCCX(mxGAS,2)
-      COMMON/Gas_log/iDoGas,NGAS,NGASRAS,NGSSH,IGSOCCX
+      INTEGER NGAS,NGSSH(mxGAS,mxSym),IGSOCCX(mxGAS,2)
+      COMMON/Gas_log/iDoGas,NGAS,NGSSH,IGSOCCX

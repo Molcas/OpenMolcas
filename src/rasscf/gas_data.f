@@ -17,7 +17,8 @@
       module gas_data
       implicit none
 ! Order of inclusion matters!
-#include "rasdim.fh"
+#include "Molcas.fh"
 #include "gas.fh"
       save
+      public :: NGAS, NGSSH, IGSOCCX, mxGAS
       end module gas_data
