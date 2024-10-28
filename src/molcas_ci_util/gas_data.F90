@@ -14,9 +14,9 @@ module gas_data
   implicit none
   Private
 # include "Molcas.fh"
-  Logical(kind=iwp), Public:: iDoGas
-  INTEGER(kind=iwp), Public:: NGAS,NGSSH(mxGAS,mxSym),IGSOCCX(mxGAS,2)
-  COMMON/Gas_log/iDoGas,NGAS,NGSSH,IGSOCCX
-  SAVE
+  Logical(kind=iwp), Public:: iDoGas=.FALSE.
+  INTEGER(kind=iwp), Public:: NGAS=0
+  INTEGER(kind=iwp), Public:: NGSSH(mxGAS,mxSym)=0
+  INTEGER(kind=iwp), Public:: IGSOCCX(mxGAS,2)=0
 
 end module gas_data
