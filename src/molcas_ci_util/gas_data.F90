@@ -16,4 +16,7 @@ module gas_data
 # include "Molcas.fh"
   Logical(kind=iwp), Public:: iDoGas
   INTEGER(kind=iwp), Public:: NGAS,NGSSH(mxGAS,mxSym),IGSOCCX(mxGAS,2)
+  COMMON/Gas_log/iDoGas,NGAS,NGSSH,IGSOCCX
+  SAVE
+
 end module gas_data

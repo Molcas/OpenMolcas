@@ -204,15 +204,14 @@ contains
   ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
     use gugx, only: SGS
+    use gas_data, only: NGAS, NGSSH
 
     ! to get some dimensions
     ! NSM form rasscf,fh
     ! NSYM from general.fh
-    ! NGAS and NGSSH from gas.fh
 #   include "rasdim.fh"
 #   include "rasscf.fh"
 #   include "general.fh"
-#   include "gas.fh"
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
     NLEV = 0
