@@ -45,7 +45,6 @@ C
 #include "warnings.h"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='SXHAM   ')

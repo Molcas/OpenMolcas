@@ -20,7 +20,6 @@
 #include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
 #include "SysDef.fh"
 #include "timers.fh"
