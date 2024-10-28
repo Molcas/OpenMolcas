@@ -24,7 +24,6 @@
 #include "output_ras.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "pamint.fh"
 #include "input_ras.fh"
 
 

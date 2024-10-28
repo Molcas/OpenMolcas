@@ -103,7 +103,6 @@
       Parameter (ROUTINE='CICTL   ')
 #include "SysDef.fh"
 #include "timers.fh"
-#include "pamint.fh"
 #include "input_ras.fh"
 #ifdef _HDF5_
 #include "raswfn.fh"
@@ -160,7 +159,6 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*) ' iteration count =',ITER
       End If
-      if(ifinal.ne.0) PamGen1=.True.
 
 !      do i=1,NTOT2  ! yma
 !        write(*,*)"ifinal CMO",ifinal,i,CMO(i)

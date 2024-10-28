@@ -32,6 +32,7 @@ Module Spool
 Private
 
 Logical, public :: Spool_On=.True.
+Integer, public :: LuRd=5, LuWr=6
 
 Public:: SpoolInp, Set_Spool, Disable_Spool, Close_LuSpool
 
@@ -43,7 +44,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: LuSpool
-#include "standard_iounits.fh"
 integer(kind=iwp) :: iEnd
 logical(kind=iwp) :: Exists
 character(len=len(ProgName)) :: PName

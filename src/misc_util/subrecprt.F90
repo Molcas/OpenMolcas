@@ -63,12 +63,12 @@ subroutine SubRecPrt(Title,FmtIn,A,nRow,nCol,nRowSub)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Spool, only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn
 integer(kind=iwp), intent(in) :: nRow, nCol, nRowSub
 real(kind=wp), intent(in) :: A(nRow,nCol)
-#include "standard_iounits.fh"
 integer(kind=iwp), parameter :: lMaxTitle = 60, lPaper = 120
 integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
 real(kind=wp) :: Amax, Amin, Pmax, Pmin
@@ -160,6 +160,5 @@ end do
 !----------------------------------------------------------------------*
 ! End procedure                                                        *
 !----------------------------------------------------------------------*
-return
 
 end subroutine SubRecPrt

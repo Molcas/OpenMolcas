@@ -111,7 +111,6 @@
 #include "output_ras.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "pamint.fh"
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"

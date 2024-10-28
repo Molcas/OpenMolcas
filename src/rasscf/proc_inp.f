@@ -69,7 +69,6 @@
 #include "general_mul.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
-#include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
@@ -765,8 +764,6 @@ C   No changing about read in orbital information from INPORB yet.
       If (DBG) Write(6,*) ' Check if KSDFT was requested.'
       If (KeyKSDF) Then
        If (DBG) Write(6,*) ' KSDFT command was given.'
-       PamGen=.False.
-       PamGen1=.False.
        DFTFOCK='CAS '
        Call SetPos(LUInput,'KSDF',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -798,30 +795,6 @@ C   No changing about read in orbital information from INPORB yet.
        Call ChkIfKey()
       End If
 *
-*******
-*
-* Read numbers, and coefficients for rasscf potential calculations:
-* nPAM  - number of potentials
-* ipPAM - list of potentials
-* CPAM  - coeffcients of potentials
-* PamGen - switch to generate grid of Rho, grad ....., ......
-*
-*******
-       If ( KSDFT(1:3).eq.'PAM') Then
-        If ( KSDFT(4:4).eq.'G') PamGen =.True.
-        If ( KSDFT(4:4).eq.'G') PamGen1=.False.
-        call dcopy_(nPAMintg,[0.0d0],0,CPAM,1)
-        ReadStatus=' Failure reading data following KSDF=PAM.'
-        Read(LUInput,*,End=9910,Err=9920) nPAM
-        ReadStatus=' O.K. after reading data following KSDF=PAM.'
-*        Write(LF,*) ' Number included exponent in PAM=',nPAM
-        Do iPAM=1,nPAM
-          ReadStatus=' Failure reading data following KSDF=PAM.'
-          Read(LUInput,*,End=9910,Err=9920) Line
-          ReadStatus=' O.K.after reading data following KSDF=PAM.'
-          Call RdPAM(Line,ipPAM(iPAM),CPAM(iPAM))
-        End Do
-       End If
        Call ChkIfKey()
       End If
 *---  Process CION command --------------------------------------------*

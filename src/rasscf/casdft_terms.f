@@ -38,7 +38,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
-#include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *

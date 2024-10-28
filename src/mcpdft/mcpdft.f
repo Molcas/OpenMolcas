@@ -71,7 +71,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "timers.fh"
-#include "pamint.fh"
       CHARACTER(Len=18)::MatInfo
       INTEGER LUMS
       Integer, External:: IsFreeUnit

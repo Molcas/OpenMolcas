@@ -21,12 +21,11 @@ use Para_Info, only: King
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
-use spool, only: disable_spool
+use spool, only: disable_spool, LuWr
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "LenIn.fh"
-#include "standard_iounits.fh"
 real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
 integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &

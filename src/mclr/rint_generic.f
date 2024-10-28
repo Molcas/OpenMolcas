@@ -22,11 +22,13 @@
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
+#ifdef _DEBUGPRINT_
+      use Spool, only: LuWr
+#endif
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "standard_iounits.fh"
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct

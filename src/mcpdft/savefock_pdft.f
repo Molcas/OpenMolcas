@@ -35,7 +35,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 

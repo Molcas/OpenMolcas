@@ -66,7 +66,6 @@ c     Logical Exist
 #include "SysDef.fh"
 #include "timers.fh"
 #include "gas.fh"
-#include "pamint.fh"
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 *
 C Local print level (if any)
@@ -87,7 +86,6 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*) ' iteration count =',ITER
       End If
-      if(ifinal.ne.0) PamGen1=.True.
 *
 * SOME DIRTY SETUPS
 *
