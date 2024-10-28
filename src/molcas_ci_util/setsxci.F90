@@ -21,7 +21,6 @@ use gas_data, only: NGAS, NGSSH
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
-!#include "gas.fh"
 integer(kind=iwp) :: I, IGAS, IGSSH, IOFF_GSSH(mxgas), ISTOT, ISYM, NGSSHT
 
 !---------------------------------------------------------
