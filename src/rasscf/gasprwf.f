@@ -49,15 +49,14 @@
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "gas.fh"
 #include "output_ras.fh"
 C
-      DIMENSION ICONF(*),ISPIN(*)
-      DIMENSION CICOEF(*)
-      DIMENSION KCNF(NEL)
+      Integer ICONF(*),ISPIN(*)
+      Real*8 CICOEF(*)
+      Integer KCNF(NEL)
 C
       DIMENSION IWALK(mxAct)
-      character*120 Line
+      character(LEN=120) Line
 C
 C     print headline
 C

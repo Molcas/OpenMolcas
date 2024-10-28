@@ -40,12 +40,12 @@
       use KSDFT_Info, only: CoefR, CoefX
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use rctfld_module, only: lRF
+      use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
 #include "ciinfo.fh"
 #include "splitcas.fh"

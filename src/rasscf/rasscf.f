@@ -97,6 +97,7 @@
       use sxci
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
+      use gas_data, only: iDOGAS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -105,7 +106,6 @@
 #include "input_ras.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"

@@ -53,12 +53,12 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use gas_data, only: NGAS,NGSSH
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='NEWORB  ')
