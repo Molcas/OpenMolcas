@@ -14,6 +14,8 @@
 module mcpdft_input
   use definitions,only:iwp,wp
   use ontop_functional,only:OTFNAL_t
+  use spool, only: Spoolinp, Close_LuSpool
+
 
   implicit none
   private

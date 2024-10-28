@@ -26,6 +26,8 @@ use qmstat_global, only: AddExt, Anal, ATitle, CAFieldG, CBFieldG, cDumpForm, CF
 use Index_Functions, only: nTri3_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms

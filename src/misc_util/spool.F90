@@ -12,16 +12,10 @@
 !               2002, Roland Lindh                                     *
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
-
-subroutine SpoolInp(LuSpool)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
 !     Copy all input to a local scratch file                           *
-!                                                                      *
-!     calling arguments:                                               *
-!     LuSpool   : integer                                              *
-!               logical unit number of the temporary file              *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -33,11 +27,16 @@ subroutine SpoolInp(LuSpool)
 !                   Tokyo, Japan, June 2002.                           *
 !                   J.W. Krogh to make auto.plx create the old input   *
 !                   file. Lund, Sweden, October 2005.                  *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!                                                                      *
 !***********************************************************************
+Module Spool
+Private
+
+Logical, public :: Spool_On=.True.
+
+Public:: SpoolInp, Set_Spool, Disable_Spool, Close_LuSpool
+
+contains
+subroutine SpoolInp(LuSpool)
 
 use UnixInfo, only: ProgName
 use Definitions, only: iwp
@@ -64,11 +63,11 @@ end do
 iEnd = min(iEnd-1,5)
 FileName = PName(1:iend)//'INP'
 
-! If Spool is true, then the input in StdIn is just used.
+! If Spool_on is true, then the input in StdIn is just used.
 ! Else we'll use the latest input. This is created by auto.plx
 
 LuSpool = 17
-if (Spool) then
+if (Spool_On) then
   LuSpool = LuRd
 else
   call f_inquire('LASTEN',Exists) ! customized Last_Energy input
@@ -84,6 +83,33 @@ else
   end if
 end if
 
-return
-
 end subroutine SpoolInp
+
+subroutine Set_Spool()
+
+implicit none
+
+Spool_on = .True.
+
+end subroutine Set_Spool
+
+subroutine Disable_Spool()
+
+implicit none
+
+Spool_on = .false.
+
+end subroutine Disable_Spool
+
+subroutine Close_LuSpool(LuSpool)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool
+
+if (.not. Spool_On) close(LuSpool)
+
+end subroutine Close_LuSpool
+
+End Module Spool

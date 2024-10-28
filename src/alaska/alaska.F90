@@ -42,6 +42,7 @@ use NAC, only: DoCSF, EDiff, isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use spool, only: Close_LuSpool
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

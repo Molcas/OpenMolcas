@@ -20,6 +20,7 @@
       use stdalloc, only: mma_allocate
       use EQSOLV
       use ChoCASPT2
+      use spool, only: SpoolInp, Close_LuSpool
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"

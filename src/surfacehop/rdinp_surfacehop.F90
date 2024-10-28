@@ -18,6 +18,8 @@ use Surfacehop_globals, only: lH5Restart, File_H5Res
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 character(len=180) :: Key, Line

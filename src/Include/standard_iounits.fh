@@ -13,6 +13,3 @@
 !
       Integer                   LuRd, LuWr
       Common /Standard_IOUnits/ LuRd, LuWr
-!
-      Logical Spool
-      Common /Spl/ Spool

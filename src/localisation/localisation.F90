@@ -35,6 +35,8 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn

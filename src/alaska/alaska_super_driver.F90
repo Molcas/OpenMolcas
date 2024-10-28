@@ -16,6 +16,7 @@ use Para_Info, only: nProcs
 use NAC, only: isNAC, NACStates
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use spool, only: SpoolInp
 
 implicit none
 integer(kind=iwp), intent(out) :: iRC

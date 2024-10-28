@@ -21,6 +21,7 @@ use Para_Info, only: King
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
+use spool, only: disable_spool
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

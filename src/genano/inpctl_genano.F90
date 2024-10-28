@@ -26,6 +26,8 @@ use Genano_globals, only: nSets, iProj, kRfSet, nPrim, nCore, kSet, isUHF, thr, 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp) :: LuIn, i, err

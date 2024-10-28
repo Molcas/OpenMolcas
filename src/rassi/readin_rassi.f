@@ -27,6 +27,8 @@
       use cntrl_data, only: SONTO, SONTOSTATES,
      &                      SONAT, SONATNSTATE,
      &                      SODIAG,SODIAGNSTATE
+      use spool, only: Spoolinp, Close_LuSpool
+
 
       IMPLICIT NONE
 #include "rasdim.fh"

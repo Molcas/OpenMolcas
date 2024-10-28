@@ -23,6 +23,8 @@ use rhodyn_utils, only: dashes
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 integer(kind=iwp) :: i, istatus, j, luin

@@ -14,6 +14,8 @@
 subroutine wfa(ireturn)
 
 use Definitions, only: iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

@@ -20,6 +20,8 @@ subroutine RPA_RdInp()
 use RPA_globals, only: dRPA, iPrint, LumOrb, nFreeze, nFro, mTitle, nTitle, SOSEX, Title
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 integer(kind=iwp) :: l_Integer, Lu, iLine, iUHF, i

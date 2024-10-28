@@ -23,6 +23,7 @@ use Definitions, only: iwp
 use Para_Info, only: nProcs
 #endif
 use Definitions, only: u5, u6
+use spool, only: Set_Spool
 
 implicit none
 character(len=*), intent(in) :: ModuleName
@@ -157,7 +158,7 @@ write(u6,*) ' XML initialized '
 
 ! Initiate spool mode to read from standard input
 
-Spool = .true.
+Call set_Spool()
 
 ! Initiate I/O
 

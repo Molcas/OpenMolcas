@@ -10,6 +10,7 @@
 ************************************************************************
       subroutine cpinp(LUnit,iRc)
       use UnixInfo, only: ProgName
+      use spool, only: SpoolInp, Disable_Spool, Close_LuSpool
       implicit integer (a-z)
       character*180 line
       character*1 ch

@@ -44,6 +44,8 @@ use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 real(kind=wp), intent(_OUT_) :: CMO(*), Eall(*), Eocc(*), Eext(*)

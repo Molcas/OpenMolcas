@@ -14,6 +14,8 @@ subroutine ReadIn_Polar(NoField,Delta,MpProp_Level,Bond_Threshold,iPlot,iPrint,S
 
 use Constants, only: One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 logical(kind=iwp), intent(inout) :: NoField

@@ -57,6 +57,8 @@ use InfSCF, only: FileOrb_ID
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 #include "hfc_logical.fh"

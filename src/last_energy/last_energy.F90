@@ -12,6 +12,7 @@
 subroutine Last_Energy(iReturn)
 
 use Definitions, only: iwp, u6
+use spool, only: disable_spool
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn

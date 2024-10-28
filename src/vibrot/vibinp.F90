@@ -22,6 +22,8 @@ use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallro
                           Titobs, Vibwvs, Vibwvs1, Vibwvs2, DistUnit, EnerUnit
 use Constants, only: Zero, One, Five, UTOAU, Angstrom, auToeV, auTokcalmol, auToHz, auTocm, cal_to_J
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(out) :: ncase, ngrid, nvib

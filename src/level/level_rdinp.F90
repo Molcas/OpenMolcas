@@ -23,6 +23,8 @@ subroutine level_rdinp(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP
 !***********************************************************************
 
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(out) :: IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT, NTP, LPPOT, IOMEG1, IPOTL, PPAR, QPAR, NSR, NLR, IBOB, &

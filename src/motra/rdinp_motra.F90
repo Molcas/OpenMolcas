@@ -25,6 +25,8 @@ use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOn
 use Cholesky, only: tv2disk
 use Constants, only: Zero
 use Definitions, only: iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, mxTit, nDel2(nSym)
