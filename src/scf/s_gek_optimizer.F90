@@ -51,7 +51,7 @@ real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
-integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 30
+integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
 #ifdef _KRYLOV_
 integer(kind=iwp), parameter :: nKrylov = 20
 #endif

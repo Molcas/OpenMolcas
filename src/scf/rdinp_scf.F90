@@ -42,9 +42,9 @@ use IOBuf, only: lDaRec, nSect
 use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 use SpinAV, only: Do_SpinAV
 use InfSCF, only: Addc_KSDFT, AddFragments, ALGO, Aufb, C1DIIS, Cho_Aufb, Damping, dmpk, DDnOff, DelThr, DIIS, DIISTh, DltnTh, &
-                  Do_addc, Do_Tw, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, Falcon, FckAuf, FckAuf, FlipThr, FThr, HLgap, &
-                  iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, isHDF5, iStatPRN, Iter2run, IterPrlv, jPrint, &
-                  jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, MiniDn, MSYMON, MxConstr, MxIter, MxOptm, nAufb, &
+                  Do_addc, Do_Tw, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, Expand, Falcon, FckAuf, FckAuf, FlipThr, FThr, &
+                  HLgap, iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, isHDF5, iStatPRN, Iter2run, IterPrlv, &
+                  jPrint, jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, MiniDn, MSYMON, MxConstr, MxIter, &
                   nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, NoExchange, NoFerm, NoProp, nOrb, &
                   nScreen, nSym, nTit, OccSet_e, OccSet_m, One_Grid, OnlyProp, PmTime, PreSch, QNRTh, QudThr, ReOrd, RFPert, RGEK, &
                   RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, Title, &
@@ -179,6 +179,11 @@ iAu_ab = 0
 iStatPRN = 0
 
 IfAufChg = .false.
+
+! Optimization method
+RSRFO = .false.
+RGEK = .false.
+Expand = -1
 
 Falcon = .false.
 MSYMON = .false.
@@ -575,12 +580,15 @@ do
     case ('RS-R')
       !>>>>>>>>>>>>> RS-R <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       RSRFO = .true.
-      RGEK = .false.
 
     case ('S-GE')
       !>>>>>>>>>>>>> S-GE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       RGEK = .true.
-      RSRFO = .false.
+
+    case ('EXPA')
+      !>>>>>>>>>>>>> EXPA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      Line = Get_Ln(LuSpool)
+      call Get_I1(1,Expand)
 
     case ('SCRA')
       !>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1195,6 +1203,16 @@ else
     call WarningMessage(0,' HF/OFE may require DFMD=1 for correlation potential!')
     write(u6,*) ' dFMD = ',dFMD
   end if
+end if
+
+! Check optimization methods
+if (RSRFO .and. RGEK) then
+  call WarningMessage(2,'Only one of RS-RFO and S-GEK can be specified!')
+  call Abend()
+end if
+if (RGEK) then
+  ! Default subspace expansion method
+  if (Expand < 0) Expand = 3 ! RS-RFO
 end if
 
 call Put_iScalar('SCF mode',nD-1)

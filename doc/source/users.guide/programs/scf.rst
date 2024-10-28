@@ -325,16 +325,30 @@ Below is a list of keywords that should cover the needs of most users.
               </KEYWORD>
 
 :kword:`RS-Rfo`
-  Use this keyword to optimize te SCF orbitals using the restricted step
+  Use this keyword to optimize the SCF orbitals using the restricted step
   rational function optimization (RS-RFO) procedure. Default is the use
   of the quasi-Newton-Raphson C2-DIIS procedure.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" EXCLUSIVE="S-GEK" LEVEL="BASIC">
               %%Keyword: RS-RFO <basic>
               <HELP>
-              Use this keyword to optimize te SCF orbitals using the restricted step
+              Use this keyword to optimize the SCF orbitals using the restricted step
               rational function optimization (RS-RFO) procedure. Default is the use
               of the quasi-Newton-Raphson C2-DIIS procedure.
+              </HELP>
+              </KEYWORD>
+
+:kword:`S-GEk`
+  Use this keyword to optimize the SCF orbitals using the restricted variance
+  optimization (RVO) procedure, based on a subspace gradient-enhanced Kriging (S-GEK)
+  surrogate model. Default is the use of the quasi-Newton-Raphson C2-DIIS procedure.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="S-GEK" KIND="SINGLE" EXCLUSIVE="RS-RFO" LEVEL="BASIC">
+              %%Keyword: S-GEK <basic>
+              <HELP>
+              Use this keyword to optimize the SCF orbitals using the restricted variance
+              optimization (RVO) procedure, based on a subspace gradient-enhanced Kriging (S-GEK)
+              surrogate model. Default is the use of the quasi-Newton-Raphson C2-DIIS procedure.
               </HELP>
               </KEYWORD>
 

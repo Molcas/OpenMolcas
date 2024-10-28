@@ -16,9 +16,6 @@
 !               2016,2017,2022, Roland Lindh                           *
 !***********************************************************************
 
-!#define _KRYLOV_
-!#define _DIIS_
-#define _BFGS_
 subroutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
 !***********************************************************************
 !                                                                      *
@@ -44,9 +41,9 @@ use InfSCF, only: nBO
 use Interfaces_SCF, only: OptClc_X, TraClc_i
 use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
 use InfSCF, only: AccCon, Aufb, CMO, CMO_Ref, CPUItr, Damping, DIIS, DIISTh, DltNrm, DltnTh, DMOMax, DoCholesky, DSCF, DThr, E1V, &
-                  E2V, EDiff, Energy, EneV, EOrb, EThr, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, iterSO, &
-                  iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, MxOptm, nAufb, nBas, &
-                  nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, Ovrlp, qNRTh, RGEK, &
+                  E2V, EDiff, Energy, EneV, EOrb, EThr, Expand, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, &
+                  iterSO, iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, MxOptm, nAufb, &
+                  nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, Ovrlp, qNRTh, &
                   RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
 use SCFFiles, only: LuOut
@@ -535,7 +532,7 @@ do iter_=1,nIter(nIterP)
           ! Compute extrapolated g_x(n) and X_x(n)
 
           do
-            call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+            call DIIS_x(nD,CInter,nCI,.true.,Ind)
 
             call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
             call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
@@ -651,104 +648,104 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           !*************************************************************
           !                                                            *
-#         ifdef _KRYLOV_
-          dqHdq = Zero
-          do
-            call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-            if (DD <= Pi) exit
-            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-            write(u6,*) 'DD=',DD
-            if (kOptim /= 1) then
-              write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
-              kOptim = 1
-              Iter_Start = Iter
-              IterSO = 1
-            else
-              write(u6,*) 'Probably a bug.'
-              call Abend()
-            end if
-          end do
-#         elif defined(_DIIS_)
-          ! Compute extrapolated g_x(n) and X_x(n)
+          ! Expand the subspace for GEK
+          select case (Expand)
+            case (1) ! Use DIIS
+              ! Compute extrapolated g_x(n) and X_x(n)
 
-          iOpt = 2 !QNRDIIS
+              do
+                call DIIS_x(nD,CInter,nCI,.true.,Ind)
 
-          do
-            call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+                call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
+                call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
 
-            call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,kOptim,kOV)
+                ! compute new displacement vector delta
+                ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
-            ! compute new displacement vector delta
-            ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+                call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
 
-            call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+                DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
-            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+                if (DD > Pi) then
+                  write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
+                  write(u6,*) 'DD=',DD
+                  if (kOptim == 1) then
+                    write(u6,*) 'Scale the step to be within the threshold.'
+                    write(u6,*) 'LastStep=',LastStep
+                    Disp(:) = Disp(:)*(LastStep/DD)
+                  else
+                    write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+                    kOptim = 1
+                    Iter_Start = Iter
+                    IterSO = 1
+                    cycle
+                  end if
+                end if
 
-            if (DD > Pi) then
-              write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
-              write(u6,*) 'DD=',DD
-              if (kOptim == 1) then
-                write(u6,*) 'Scale the step to be within the threshold.'
-                write(u6,*) 'LastStep=',LastStep
-                Disp(:) = Disp(:)*(LastStep/DD)
-              else
-                write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
-                kOptim = 1
-                Iter_Start = Iter
-                IterSO = 1
-                cycle
-              end if
-            end if
+                ! from this, compute new orb rot parameter X(n+1)
+                !
+                ! X(n+1) = X_x(n) - H(-1)g_x(n)
+                ! X(n+1) = X_x(n) + dX_x(n)
 
-            ! from this, compute new orb rot parameter X(n+1)
-            !
-            ! X(n+1) = X_x(n) - H(-1)g_x(n)
-            ! X(n+1) = X_x(n) + dX_x(n)
+                Xnp1(:) = Xnp1(:)-Disp(:)
 
-            Xnp1(:) = Xnp1(:)-Disp(:)
+                ! get address of actual X(n) in corresponding LList
 
-            ! get address of actual X(n) in corresponding LList
+                jpXn = LstPtr(iter,LLx)
 
-            jpXn = LstPtr(iter,LLx)
+                ! and compute actual displacement dX(n)=X(n+1)-X(n)
 
-            ! and compute actual displacement dX(n)=X(n+1)-X(n)
+                Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
 
-            Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
+                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+                if (DD <= Pi) exit
 
-            if (DD <= Pi) exit
-
-            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-            write(u6,*) 'DD=',DD
-            if (kOptim == 1) then
-              write(u6,*) 'Scale the step to be within the threshold.'
-              Disp(:) = Disp(:)*(LastStep/DD)
+                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+                write(u6,*) 'DD=',DD
+                if (kOptim == 1) then
+                  write(u6,*) 'Scale the step to be within the threshold.'
+                  Disp(:) = Disp(:)*(LastStep/DD)
+                  DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+                  exit
+                else
+                  write(u6,*)'Reset update depth in BFGS, redo the DIIS'
+                  kOptim = 1
+                  Iter_Start = Iter
+                  IterSO = 1
+                end if
+              end do
+              LastStep = min(DD,1.0e-2_wp)
+            case (2) ! Use BFGS
+              call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
+              Disp(:) = -Disp(:)
               DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-              exit
-            else
-              write(u6,*)'Reset update depth in BFGS, redo the DIIS'
-              kOptim = 1
-              Iter_Start = Iter
-              IterSO = 1
-            end if
-          end do
-          LastStep = min(DD,1.0e-2_wp)
-          iOpt = 4
-#         elif defined(_BFGS_)
-          write(u6,*) 'IterSO:',IterSO
-          call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
-          Disp(:) = -Disp(:)
-          DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-          if (DD > Pi) then
-            write(u6,*) 'WfCtl_SCF: Total displacement is large.'
-            write(u6,*) 'DD=',DD
-          end if
-#         endif
+              if (DD > Pi) then
+                write(u6,*) 'WfCtl_SCF: Total displacement is large.'
+                write(u6,*) 'DD=',DD
+              end if
+              AccCon(1:6) = 'BFGS'
+            case (3) ! Use RS-RFO
+              dqHdq = Zero
+              do
+                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
+                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+                if (DD <= Pi) exit
+                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+                write(u6,*) 'DD=',DD
+                if (kOptim /= 1) then
+                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
+                  kOptim = 1
+                  Iter_Start = Iter
+                  IterSO = 1
+                else
+                  write(u6,*) 'Probably a bug.'
+                  call Abend()
+                end if
+              end do
+          end select
 
-          call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.false.)
+          call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.true.)
           !                                                            *
           !*************************************************************
           !                                                            *
@@ -849,13 +846,13 @@ do iter_=1,nIter(nIterP)
       call Put_iarray('SCF nOcc_ab',nOcc(:,2),nSym)
     end if
   end if
-# ifdef _BFGS_
-  if ((DltNrm <= BFGS_reset_Thr) .and. BFGS_reset) then
-    IterSO = 0
-    call TraFck(.true.,FMOMax)
-    BFGS_reset = .false.
-  end if
-# endif
+  !if ((iOpt == 4) .and. (Expand == 2)) then
+  !  if ((DltNrm <= BFGS_reset_Thr) .and. BFGS_reset) then
+  !    IterSO = 0
+  !    call TraFck(.true.,FMOMax)
+  !    BFGS_reset = .false.
+  !  end if
+  !end if
   !                                                                    *
   !*********************************************************************
   !*********************************************************************
