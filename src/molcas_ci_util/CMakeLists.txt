@@ -47,6 +47,7 @@ set (sources
      fciqmc_interface.F90
      fndmnx.F90
      fockoc.F90
+     gas_data.F90
      gatvcs.F90
      general_data.F90
      get_cm.F90
@@ -129,6 +130,7 @@ set (sources
 set (modfile_list
      caspt2_global.F90
      csfbas.F90
+     gas_data.F90
      gugx.F90
      wadr.F90
 )

@@ -9,15 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This is just an encapsulation of the common block in
+! src/Include/rasdim.fh
+! src/Include/gas.fh
+! into a data module
+
 module gas_data
-
-  use definitions, only: iwp
-
   implicit none
-  private
-
+! Order of inclusion matters!
 # include "Molcas.fh"
-  Logical(kind=iwp), Public:: iDoGas
-  INTEGER(kind=iwp), Public::  NGAS,NGSSH(mxGAS,mxSym),IGSOCCX(mxGAS,2)
-
+# include "gas.fh"
+  save
+  public :: NGAS, NGSSH, IGSOCCX, mxGAS
 end module gas_data
