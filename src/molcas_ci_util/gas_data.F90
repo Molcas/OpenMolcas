@@ -20,5 +20,5 @@ module gas_data
 # include "Molcas.fh"
 # include "gas.fh"
   save
-  public :: NGAS, NGSSH, IGSOCCX, mxGAS
+  public :: NGAS, NGSSH, IGSOCCX, iDoGAS
 end module gas_data
