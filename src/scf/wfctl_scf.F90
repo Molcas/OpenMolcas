@@ -65,6 +65,7 @@ logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, BFGS_Reset, Converged,
 character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
+character(len=9) :: StrSave
 #ifdef _MSYM_
 integer(kind=iwp) :: iD
 real(kind=wp) :: Whatever
@@ -653,6 +654,7 @@ do iter_=1,nIter(nIterP)
             case (1) ! Use DIIS
               ! Compute extrapolated g_x(n) and X_x(n)
 
+              StrSave = AccCon
               do
                 call DIIS_x(nD,CInter,nCI,.true.,Ind)
 
@@ -715,6 +717,7 @@ do iter_=1,nIter(nIterP)
                   IterSO = 1
                 end if
               end do
+              AccCon = StrSave
               LastStep = min(DD,1.0e-2_wp)
             case (2) ! Use BFGS
               call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')

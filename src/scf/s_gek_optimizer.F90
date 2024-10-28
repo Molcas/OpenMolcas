@@ -30,7 +30,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
-use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
+use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Six, Ten, Half
@@ -90,14 +90,14 @@ end do
 
 nDIIS = iter-iFirst+1
 
-if (nDIIS == 1) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Exit S-GEK Optimizer'
-# endif
-  call mma_deallocate(g)
-  call mma_deallocate(q)
-  return
-end if
+!if (nDIIS == 1) then
+!# ifdef _DEBUGPRINT_
+!  write(u6,*) 'Exit S-GEK Optimizer'
+!# endif
+!  call mma_deallocate(g)
+!  call mma_deallocate(q)
+!  return
+!end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
@@ -390,7 +390,6 @@ call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 blavAI = Ten
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
 !call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag_diis)
-if (.false.) write(u6,*) blAI,mblAI,blaAI,blavAI
 call mma_deallocate(HDiag_diis)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -414,7 +413,7 @@ write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
 write(u6,*) 'Beta_Disp=',Beta_Disp
 #endif
 
-do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate model
+do while (.not. Converged) ! Micro iterate on the surrogate model
 
   Iteration_Micro = Iteration_Micro+1
   Iteration_Total = Iteration_Total+1
