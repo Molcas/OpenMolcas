@@ -77,6 +77,7 @@
       use sxci, only: IDXSX
       use stdalloc, only: mma_allocate, mma_deallocate
       use general_data, only: CRVec
+      use gas_data, only: iDoGAS
 
       Implicit Real* 8 (A-H,O-Z)
 
@@ -97,10 +98,8 @@
 #include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='CICTL   ')
+      Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
 #include "timers.fh"
 #include "input_ras.fh"

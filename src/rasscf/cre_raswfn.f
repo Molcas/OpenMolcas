@@ -22,6 +22,7 @@
       use gugx, only: SGS
       use sxci, only: IDXCI, IDXSX
       use stdalloc, only: mma_allocate, mma_deallocate
+      use gas_data, only: iDoGAS, NGAS, NGSSH
       implicit none
 
 #  include "rasdim.fh"
@@ -29,7 +30,6 @@
 #  include "general.fh"
 #  include "ciinfo.fh"
 #  include "raswfn.fh"
-#  include "gas.fh"
 #  include "input_ras.fh"
 
       integer :: dsetid

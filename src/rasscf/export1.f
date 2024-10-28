@@ -40,11 +40,11 @@
       use qcmaquis_interface_cfg
 #endif
 *
+      use gas_data, only: iDoGAS
       Implicit Real*8 (a-h,o-z)
 *...  Define global variables .........................................*
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "gas.fh"
 #include "general.fh"
 #include "SysDef.fh"
       Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)

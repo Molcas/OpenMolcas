@@ -46,7 +46,7 @@
       use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
-!     use sxci, only: IDXSX
+      use gas_data, only: iDoGAS
 
       Implicit Real* 8 (A-H,O-Z)
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
@@ -65,9 +65,6 @@ c     Logical Exist
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
 #include "SysDef.fh"
 #include "timers.fh"
-#include "gas.fh"
-*PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-*
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
