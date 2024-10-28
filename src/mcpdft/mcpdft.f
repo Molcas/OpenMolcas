@@ -69,7 +69,6 @@
 #include "warnings.h"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "timers.fh"
       CHARACTER(Len=18)::MatInfo
       INTEGER LUMS

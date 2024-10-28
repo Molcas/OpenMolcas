@@ -23,13 +23,13 @@ subroutine mcpdft_init()
   Use Cholesky,only:ChFracMem
   Use KSDFT_Info,Only:CoefR,CoefX
   use mcpdft_output,only:set_print_level
+  use gas_data, only: NGAS, NGSSH, IGSOCCX
 
   implicit none
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "timers.fh"
 
   integer i
