@@ -29,12 +29,12 @@
       use Cholesky, only: ChFracMem, timings
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
+      use gas_data, only: NGAS, NGSSH, IGSOCCX
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
 #include "general_mul.fh"
-#include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "orthonormalize.fh"

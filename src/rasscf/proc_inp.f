@@ -57,11 +57,11 @@
       use Lucia_Interface, only: Lucia_Util
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
+      use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "gas.fh"
 #include "rasscf.fh"
 #include "input_ras.fh"
 #include "splitcas.fh"

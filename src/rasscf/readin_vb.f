@@ -26,13 +26,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use gas_data, only: NGAS, NGSSH, IGSOCCX
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
 #include "general.fh"
 #include "jobiph_j.fh"
-#include "gas.fh"
 *
 *---  set INVEC -> get MOs from JOBIPH file ----------------------------*
       INVEC=3
