@@ -227,7 +227,7 @@ if ((iFoundOrb > 0) .and. (TotElecCount <= 0.1_wp)) then
     write(u6,*) 'Vector euclidean norm = ',EigenNorm
 #   endif
 
-    call DScal_(nBasAtoms,1/EigenNorm,ScrV,1)
+    call DScal_(nBasAtoms,One/EigenNorm,ScrV,1)
 
 #   ifdef _DEBUGPRINT_
     write(u6,*)

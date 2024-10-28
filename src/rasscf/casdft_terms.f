@@ -27,7 +27,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
-      use rctfld_module
+      use rctfld_module, only: lRF
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
@@ -233,8 +233,8 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
 c Tmp5 and Tmp6 are not updated in DrvXV...
       Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             KSDFT_TEMP,ExFac,iCharge,iSpin,D1I,D1A,
-     &             nTot1,DFTFOCK,Do_DFT)
+     &             KSDFT_TEMP,ExFac,iCharge,iSpin,
+     &             DFTFOCK,Do_DFT)
 
       Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
       Call Daxpy_(nTot1,1.0d0,Tmp6,1,FI,1)

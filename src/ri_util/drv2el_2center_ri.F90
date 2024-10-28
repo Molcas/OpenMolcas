@@ -42,8 +42,8 @@ use RI_glob, only: iOffA, Lu_A, SO2Ind
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
-use Integral_interfaces, only: Int_PostProcess, Integral_RI_2
-use stdalloc, only: mma_allocate, mma_deallocate
+use Integral_interfaces, only: Int_PostProcess, int_wrout
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -57,6 +57,7 @@ real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:)
+procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
 
 !                                                                      *
@@ -227,7 +228,7 @@ call xRlsMem_Ints()
 call mma_deallocate(TInt)
 call mma_deallocate(TMax)
 call mma_deallocate(SO2Ind)
-Int_PostProcess => null()
+nullify(Int_PostProcess)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

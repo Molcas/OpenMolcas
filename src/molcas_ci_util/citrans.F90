@@ -96,13 +96,13 @@ public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, 
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure spt_cptr2loff
+  module procedure :: spt_cptr2loff
 end interface
 interface mma_allocate
-  module procedure spt_mma_allo_1D, spt_mma_allo_1D_lim
+  module procedure :: spt_mma_allo_1D, spt_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure spt_mma_free_1D
+  module procedure :: spt_mma_free_1D
 end interface
 
 contains

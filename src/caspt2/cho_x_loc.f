@@ -11,42 +11,44 @@
       Subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,
      &                                        nAsh,nSsh,CMO)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
       Integer nSym, nBas(nSym), nFro(nSym), nAsh(nSym)
       Integer nIsh(nSym), nSsh(nSym)
       Real*8  Thrs, CMO(*)
-#include "WrkSpc.fh"
+
+      REAL*8, allocatable:: Dens(:)
 
       irc=0
       l_Dens = 0
       Do iSym = 1,nSym
          l_Dens = max(l_Dens,nBas(iSym)**2)
       End Do
-      Call GetMem('Density','Allo','Real',ip_Dens,l_Dens)
+      Call mma_allocate(Dens,l_Dens,Label='Dens')
       kOffC = 0
       Do iSym = 1,nSym
          If (nIsh(iSym) .gt. 0) Then
             kOff1 = 1 + kOffC + nBas(iSym)*nFro(iSym)
-            Call GetDens_Localisation(Work(ip_Dens),CMO(kOff1),
+            Call GetDens_Localisation(Dens,CMO(kOff1),
      &                                nBas(iSym),nIsh(iSym))
             Call FZero(CMO(kOff1),nBas(iSym)*nIsh(iSym))
-            Call ChoLoc(irc,Work(ip_Dens),CMO(kOff1),Thrs,yNrm,
+            Call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,
      &                  nBas(iSym),nIsh(iSym))
             If (irc .ne. 0) Then
-               Call GetMem('Density','Free','Real',ip_Dens,l_Dens)
+               Call mma_deallocate(Dens)
                irc  = 1
                Return
             End If
          End If
          If (nSsh(iSym) .gt. 0) Then
             kOff1= 1+kOffC+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-            Call GetDens_Localisation(Work(ip_Dens),CMO(kOff1),
+            Call GetDens_Localisation(Dens,CMO(kOff1),
      &                                nBas(iSym),nSsh(iSym))
             Call FZero(CMO(kOff1),nBas(iSym)*nSsh(iSym))
-            Call ChoLoc(irc,Work(ip_Dens),CMO(kOff1),Thrs,yNrm,
+            Call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,
      &                  nBas(iSym),nSsh(iSym))
             If (irc .ne. 0) Then
-               Call GetMem('Density','Free','Real',ip_Dens,l_Dens)
+               Call mma_deallocate(Dens)
                irc  = 1
                Return
             End If
@@ -54,6 +56,5 @@
          kOffC = kOffC + nBas(iSym)**2
       End Do
 
-      Call GetMem('Density','Free','Real',ip_Dens,l_Dens)
-      Return
-      End
+      Call mma_deallocate(Dens)
+      End Subroutine Cho_x_Loc

@@ -96,11 +96,13 @@
 
 subroutine ChoDec_MxVec(CD_Col,CD_Vec,MxVec,Restart,Thr,Span,MxQual,Diag,Qual,Buf,iPivot,iQual,nDim,lBuf,ErrStat,NumCho,irc)
 
+use Cho_interfaces, only: cdcol_kernel, cdvec_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-external :: CD_Col, CD_Vec
+procedure(cdcol_kernel) :: CD_Col
+procedure(cdvec_kernel) :: CD_Vec
 integer(kind=iwp), intent(in) :: MxVec, MxQual, nDim, lBuf
 logical(kind=iwp), intent(in) :: Restart
 real(kind=wp), intent(inout) :: Thr, Span, Buf(lBuf)

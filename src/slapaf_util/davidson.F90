@@ -61,8 +61,6 @@ real(kind=wp), external :: ddot_
 #define DAV_DPR 1
 ! Inverse-iteration generalized Davidson (Olsen et al.)
 #define DAV_IIGD 2
-! Generalized Jacobi-Davidson (Sleijpen et al.) (DO NOT USE IT)
-#define DAV_GJD 3
 
 #ifdef _DEBUGPRINT_
 call TriPrt('Initial matrix','',A,n)
@@ -385,34 +383,6 @@ do while (.not. Last)
       Alpha = DDot_(n,TVec,1,Tmp,1)/Alpha
       ! subtract
       Tmp(:) = Tmp(:)-Alpha*TVec(:)*Diag(:)
-#     elif DAV_METH == DAV_GJD
-      ! DO NOT USE THIS VARIANT!
-      ! This is not practical as it stands, the equation should be
-      ! solved only approximately, and it is not efficient to do this
-      ! for each of the possibly many eigenpairs
-      block
-        integer(kind=iwp) :: iDum(1)
-        real(kind=wp), allocatable :: P1(:)
-        call mma_allocate(P1,n*n,Label='P1')
-        ! project: (I-|v><v|) (A-e*I) (I-|v><v|) =
-        !          A - e*I + (<v|P>+e)*|v><v| - |v><P| - |P><v|
-        ! e = Val(i); |P> = A|v>
-        Aux = DDot_(n,TVec,1,TAV,1)
-        do kk=0,n-1
-          ll = nTri_Elem(kk)
-          do ii=0,kk
-            P1(1+ii*n+kk) = A(ll+ii+1)+(Aux+EVal(1+i))*TVec(1+ii)*TVec(1+kk)-TAV(1+ii)*TVec(1+kk)-TAV(1+kk)*TVec(1+ii)
-          end do
-          P1(1+kk*n+kk) = P1(1+kk*n+kk)-EVal(1+i)
-        end do
-        iDum(1) = 0
-        ! solve the equation
-        call CG_Solver(n,n*n,P1,iDum,TRes,Tmp,info,5)
-#       ifdef _DEBUGPRINT_
-        write(u6,*) 'CG iterations',info
-#       endif
-        call mma_deallocate(P1)
-      end block
 #     endif
       if (mk+jj <= n-1) then
         jj = mk+jj

@@ -36,6 +36,7 @@ subroutine Mem_Est(iSymL,nVec,nFVec)
 
 use Cho_Tra, only: IfTest, nAsh, nBas, nIsh, nOrb, nSsh, nSym, NumCho, TCVXist
 use Symmetry_Info, only: Mul
+use stdalloc, only: mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

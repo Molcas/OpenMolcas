@@ -23,10 +23,10 @@
 *                                                                  *
 ********************************************************************
       use Arrays, only: FIMO
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
       Real*8 Fock(nDens2),
      &       rdens2(*),rDens1(nna,nna)
       Real*8, Allocatable:: MO(:), Scr(:), TQ(:)

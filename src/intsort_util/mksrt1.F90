@@ -32,12 +32,11 @@ subroutine MkSrt1()
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
 use sort_data, only: iDIBin, iDVBin, iStBin, lBin, lSll, mInt, mSyBlk, mxSyP, n_Int, nBin, nBs, nSkip, nSln, nSyOp, nRec, Square
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
 #include "print.fh"
-#include "warnings.h"
 integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
                      kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, lSyml, lSymMx, MaxMem, mnBin, MxSrtA1, MxSrtA2, nij, &
                      nSlice, nSym
@@ -46,6 +45,8 @@ integer(kind=iwp) :: ix
 integer(kind=iwp), parameter :: lim_32 = 2**30
 #endif
 logical(kind=iwp), external:: Reduce_Prt
+
+#include "warnings.h"
 
 iRout = 80
 iPrint = nPrint(iRout)
@@ -180,8 +181,8 @@ MxSrtA1 = ((1+RtoI)*nBin*lBin)/RtoI
 
 if ((.not. Reduce_Prt()) .and. (iPrint > 5)) then
   write(u6,*)
-  write(u6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real*8) in the first phase (=',nBin,' bins).'
-  write(u6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real*8) in the second phase.'
+  write(u6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real) in the first phase (=',nBin,' bins).'
+  write(u6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real) in the second phase.'
   write(u6,*)
 end if
 

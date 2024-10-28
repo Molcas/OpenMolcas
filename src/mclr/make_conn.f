@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Make_Conn(F,Kappa,P,D)
       use Arrays, only: F0SQMO
+      use stdalloc, only: mma_allocate, mma_deallocate
 c
 c kappa=\bar{kappa}
 c P = \bar{d}
@@ -19,7 +20,6 @@ c
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 P(*),D(*),F(*),Kappa(*)
       Real*8 dum(1)
       Real*8, Allocatable:: T1(:), T2(:), T3(:), T4(:)

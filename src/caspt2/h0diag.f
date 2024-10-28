@@ -21,7 +21,6 @@
       IMPLICIT None
 C INPUT ARRAYS:
 
-#include "rasdim.fh"
 ! Pick up nSym
 #include "caspt2.fh"
 ! Pick up MXCI

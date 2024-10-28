@@ -84,7 +84,7 @@
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lRF
       use Lucia_Interface, only: Lucia_Util
 #ifdef _HDF5_
       use rasscf_lucia, only: DStmp, Dtmp
@@ -104,7 +104,6 @@
 #include "warnings.h"
 #include "input_ras.fh"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
 #include "gas.fh"
 #include "splitcas.fh"
@@ -133,7 +132,6 @@
 * --------- Cholesky stuff:
 #include "qmat.fh"
 * --------- End Cholesky stuff
-      Character*8 EMILOOP
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
@@ -164,6 +162,7 @@
      &                      OCCX(:), Scr1(:), Scr2(:), SMat(:),
      &                      QMat(:), EDUM(:), Tmp1(:), Fock(:),
      &                      TmpDS(:), TmpD1S(:)
+      Integer, External :: isStructure
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -1997,7 +1996,7 @@ c deallocating TUVX memory...
 !      do i=1,NTOT2
 !        write(*,*) "A,I",D1A(i),D1I(i)
 !      end do
-      If (Allocated(CleanMask)) Call mma_deallocate(CleanMask)
+      Call mma_deallocate(CleanMask,safe='*')
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
@@ -2036,9 +2035,7 @@ c      End If
       End If
 *
       If (Do_OFemb) Then
-         Call GetEnvF('EMIL_InLoop',EMILOOP)
-         If (EMILOOP.eq.' ') EMILOOP='0'
-         If (EMILOOP(1:1).ne.'0') Then
+         If (isStructure().eq.1) Then
             If (iReturn.ne._RC_ALL_IS_WELL_) Then
                Call WarningMessage(1,'RASSCF: non-zero return code.')
             EndIf

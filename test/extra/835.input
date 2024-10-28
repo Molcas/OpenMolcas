@@ -61,7 +61,7 @@ NROFJOBIPHS
 2 2 2
 1 2
 1 2
-TRD1
+TDM
 
 &WFA
 H5file = $Project.rassi.h5

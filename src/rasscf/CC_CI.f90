@@ -58,7 +58,7 @@ module CC_CI_mod
     end type
 
     interface CC_CI_solver_t
-        module procedure construct_CC_CI_solver_t
+        module procedure :: construct_CC_CI_solver_t
     end interface
 
 contains
@@ -84,12 +84,10 @@ contains
             ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
         unused_var(this)
+        unused_var(ifinal)
+        unused_var(weight)
 
-        if (size(iroot) >= 2) then
-            call abort_('SA-CC-CASSCF yet to be implemented.')
-            write(6,*) 'ifinal, weight have to be printed to compile NAGFOR.', &
-                ifinal, weight
-        end if
+        if (size(iroot) >= 2) call abort_('SA-CC-CASSCF yet to be implemented.')
 
         ! SOME DIRTY SETUPS
         S = 0.5_wp * dble(iSpin - 1)
@@ -269,7 +267,7 @@ contains
         ASSERT(size(PSMAT) == triangular_number(size(DMAT)))
 
         DMAT(:) = 0.0_wp
-        do pq = lbound(DMAT, 1), ubound(DMAT, 1)
+        do pq = 1, size(DMAT)
             call one_el_idx(pq, p, q)
             do r = 1, inv_triang_number(size(DMAT))
                 DMAT(pq) = DMAT(pq) + PSMAT(two_el_idx_flatten(p, q, r, r))

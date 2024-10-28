@@ -25,10 +25,10 @@
 ************************************************************************
 *
       use Arrays, only: CMO, FIMO
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "spin_mclr.fh"
       Logical lFI,lFA,lMo
       Parameter ( One = 1.0d0 )

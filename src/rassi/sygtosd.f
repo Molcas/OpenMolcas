@@ -9,25 +9,26 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CISYG,CISD,
-     &                   detocc,detcoeff)
+     &                   detocc,detcoeff,SPTRA)
+      use stdalloc, only: mma_allocate, mma_deallocate
+#     include "intent.fh"
       IMPLICIT NONE
-      REAL*8 CISYG(*),CISD(*)
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
+      REAL*8 CISYG(*),CISD(*)
+      character(len=*), intent(_OUT_) :: detocc(*)
+      real(8) :: detcoeff(*), SPTRA(*)
+
       INTEGER NASPRT
       INTEGER MINOP,MAXOP,NACTEL,NOPEN,NCLSD
       INTEGER NCNF,NSPD,NCPL,ISPART,ISST
 C     INTEGER KFSB,IBLK,ISPD,I,IPOS,IORB,ISYM
       INTEGER KFSB,IBLK,ISPD,I,IPOS,IORB
       INTEGER ISPN,NO,IOSTA,IOEND,IMORS,ISBSTR
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
       INTEGER ICNF,IEL,IEL1,IEL2,IFORM,IFSB,IOCC
       INTEGER IPART,IREST
-C     INTEGER ISTARR,LDIM,LOCARR,LORBARR,LSBSET,LSSARR,LSTARR
-      INTEGER        LDIM,LOCARR,LORBARR,LSBSET,LSSARR,LSTARR
       INTEGER ISORB,ISPEND,ISPSTA,ISUM,ISYGEND,ISYGSTA,NWRD
       INTEGER IWORD,IWRD,JSST,KCNF,KCNFINF,KGSLIM,KGSORB,KHSHMAP
-      INTEGER KMRSSBS,KSPNINF,KSSTARR,KSSTTB,LBLK,KSPN,LSPTRA
+      INTEGER KMRSSBS,KSPNINF,KSSTARR,KSSTTB,KSPN,LSPTRA
       INTEGER LSYM,MORSBITS,MXBLK,NAPART,NBLK,NHEAD
       INTEGER NHSHMAP,NOCC,NOP,NORB,NSP,NSSTP,NSYM
 C     INTEGER IERR,ICPL,KSBSMRS,JMORS,NFSB
@@ -36,9 +37,11 @@ C     INTEGER IERR,ICPL,KSBSMRS,JMORS,NFSB
       EXTERNAL OCC2MRS
 CC add an occupation array in the usual 0,u,d,2 format
       character(len=1), allocatable :: occ(:)
-      character(len=*), intent(out) :: detocc(*)
-      real(8) :: detcoeff(*)
       integer :: idet
+
+      Real*8, Allocatable:: BLK(:)
+      Integer, Allocatable:: OrbArr(:), OccArr(:), STArr(:), DIM(:),
+     &                       SSArr(:), SBSET(:)
 CC CC
 
 C Unbutton the configuration table:
@@ -87,19 +90,19 @@ C MXBLK=Largest individual SYG block of determinants:
         MXBLK=MAX(NCNF*NCPL,MXBLK)
       END DO
 C A variety of small temporary arrays used:
-      CALL GETMEM('TmpArr','Allo','Real',LBLK,MXBLK)
-      CALL GETMEM('OrbArr','Allo','Inte',LORBARR,NACTEL)
-      CALL GETMEM('OccArr','Allo','Inte',LOCARR,2*NORB)
-      CALL GETMEM('STArr','Allo','Inte',LSTARR,NASPRT)
-      CALL GETMEM('Dims','Allo','Inte',LDIM,NASPRT)
-      CALL GETMEM('SSArr','Allo','Inte',LSSARR,NASPRT)
-      CALL GETMEM('NSBSET','Allo','Inte',LSBSET,NSSTP)
+      CALL mma_allocate(BLK,MXBLK,Label='BLK')
+      CALL mma_allocate(ORBARR,NACTEL,Label='OrbArr')
+      CALL mma_allocate(OCCARR,2*NORB,Label='OccArr')
+      CALL mma_allocate(STARR,NASPRT,Label='STArr')
+      CALL mma_allocate(DIM,NASPRT,Label='Dim')
+      CALL mma_allocate(SSARR,NASPRT,Label='SSArr')
+      CALL mma_allocate(SBSET,NSSTP,Label='SBSet')
       call mma_allocate(occ,norb,label='occ')
 C We will need later the accumulated number of substrings of
 C earlier substring types:
       ISUM=0
       DO ISST=1,NSSTP
-        IWORK(LSBSET-1+ISST)=ISUM
+        SBSET(ISST)=ISUM
         ISUM=ISUM+ISSTAB(KSSTTB+5*(ISST-1))
       END DO
 C Loop over nr of open shells.
@@ -127,9 +130,9 @@ C Location of spin coupling coefficients:
         LSPTRA=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+5)
 C Matrix multiplication into temporary array:
         CALL  DGEMM_('N','N',NSPD,NCNF,NCPL,1.0D0,
-     &               WORK(LSPTRA),NSPD,
+     &               SPTRA(LSPTRA),NSPD,
      &               CISYG(ISYGSTA),NCPL,0.0D0,
-     &               WORK(LBLK),NSPD)
+     &               BLK,NSPD)
 
 C There is no phase factor in the reorder of orbitals from SYG
 C to SD. But there is a fairly lengthy procedure for finding the
@@ -140,7 +143,7 @@ C Loop over configurations
         DO ICNF=1,NCNF
           IF(IFORM.EQ.1) THEN
             DO IEL=1,NOCC
-              IWORK(LORBARR-1+IEL)=ICNFTAB(KCNF-1+IEL+NWRD*(ICNF-1))
+              ORBARR(+IEL)=ICNFTAB(KCNF-1+IEL+NWRD*(ICNF-1))
             END DO
           ELSE IF(IFORM.EQ.2) THEN
             IEL2=0
@@ -149,10 +152,10 @@ C Loop over configurations
               IOCC=ICNFTAB(KCNF-1+IORB+NWRD*(ICNF-1))
               IF(IOCC.EQ.1) THEN
                 IEL1=IEL1+1
-                IWORK(LORBARR-1+IEL1)=IORB
+                ORBARR(+IEL1)=IORB
               ELSE
                 IEL2=IEL2+1
-                IWORK(LORBARR-1+IEL2)=IORB
+                ORBARR(+IEL2)=IORB
               END IF
             END DO
           ELSE IF(IFORM.EQ.3) THEN
@@ -164,7 +167,7 @@ C Loop over configurations
               END IF
               IORB=MOD(IWORD,256)
               IWORD=IWORD/256
-              IWORK(LORBARR-1+IEL)=IORB
+              ORBARR(+IEL)=IORB
             END DO
           ELSE IF(IFORM.EQ.4) THEN
             IEL2=0
@@ -179,16 +182,16 @@ C Loop over configurations
               IWORD=IWORD/4
               IF(IOCC.EQ.1) THEN
                 IEL1=IEL1+1
-                IWORK(LORBARR-1+IEL1)=IORB
+                ORBARR(+IEL1)=IORB
               ELSE
                 IEL2=IEL2+1
-                IWORK(LORBARR-1+IEL2)=IORB
+                ORBARR(+IEL2)=IORB
               END IF
             END DO
           END IF
 
 CTEST      write(*,'(1x,a,10i5)')'Configuration:',
-CTEST     &                          (iwork(lorbarr-1+iel),iel=1,nocc)
+CTEST     &                          (ORBARR(+iel),iel=1,nocc)
 CTEST      write(*,*)' Loop over spin determinants.'
 C Loop over spin determinants
           DO ISPD=1,NSPD
@@ -198,37 +201,37 @@ CTEST     &                    (ISPNTAB(KSPN-1+I+NOPEN*(ISPD-1)),I=1,nopen)
 C count the determinants
             idet=idet+1
 C Construct occupation number array:
-            CALL ICOPY(2*NORB,[0],0,IWORK(LOCARR),1)
+            CALL ICOPY(2*NORB,[0],0,OCCARR,1)
             DO IEL=1,NCLSD
-              IORB=IWORK(LORBARR-1+IEL)
-              IWORK(LOCARR-1+2*IORB-1)=1
-              IWORK(LOCARR-1+2*IORB  )=1
+              IORB=ORBARR(+IEL)
+              OCCARR(+2*IORB-1)=1
+              OCCARR(+2*IORB  )=1
             END DO
             DO I=1,NOPEN
 C Spin of each electron is coded as 1 for alpha, 0 for beta.
               ISPN=ISPNTAB(KSPN-1+I+NOPEN*(ISPD-1))
               IEL=NCLSD+I
-              ISORB=2*IWORK(LORBARR-1+IEL)-ISPN
-              IWORK(LOCARR-1+ISORB)=1
+              ISORB=2*ORBARR(+IEL)-ISPN
+              OCCARR(+ISORB)=1
             END DO
 C Identify substrings:
 C Loop over active partitions. Subdivide as needed into subpartitions.
 CTEST      write(*,*)' Identify substrings.'
 CTEST      write(*,'(1x,a,10i5)')'Occupation array:',
-CTEST     &                          (iwork(locarr-1+isorb),isorb=1,2*norb)
+CTEST     &                          (OCCARR(+isorb),isorb=1,2*norb)
 CC construct occupation array in 0,u,d,2 format
             do IORB=1,2*norb-1,2
-              if ((IWORK(LOCARR-1+IORB) == 1)
-     &            .and. (IWORK(LOCARR+IORB) == 1)) then
+              if ((OCCARR(IORB) == 1)
+     &            .and. (OCCARR(1+IORB) == 1)) then
                 occ((IORB+1)/2)='2'
-              else if ((IWORK(LOCARR-1+IORB) == 1)
-     &                 .and. (IWORK(LOCARR+IORB) == 0)) then
+              else if ((OCCARR(IORB) == 1)
+     &                 .and. (OCCARR(1+IORB) == 0)) then
                 occ((IORB+1)/2)='u'
-              else if ((IWORK(LOCARR-1+IORB) == 0)
-     &                 .and. (IWORK(LOCARR+IORB) == 1)) then
+              else if ((OCCARR(IORB) == 0)
+     &                 .and. (OCCARR(1+IORB) == 1)) then
                 occ((IORB+1)/2)='d'
-              else if((IWORK(LOCARR-1+IORB) == 0)
-     &                .and. (IWORK(LOCARR+IORB) == 0)) then
+              else if((OCCARR(IORB) == 0)
+     &                .and. (OCCARR(1+IORB) == 0)) then
                 occ((IORB+1)/2)='0'
               end if
             end do
@@ -254,8 +257,8 @@ CTEST      write(*,'(1x,a,10i5)')'Loop lims ISPSTA,ISPEND:',ISPSTA,ISPEND
               IOEND=IOEND+NO
 CTEST      write(*,'(1x,a,10i5)')'IOSTA,IOEND:',IOSTA,IOEND
 CTEST      write(*,'(1x,a,10i5)')'Occ array:',
-CTEST     &                     (IWORK(LOCARR-1+ISORB),ISORB=IOSTA,IOEND)
-              IMORS=OCC2MRS(NO,IWORK(LOCARR-1+IOSTA))
+CTEST     &                     (OCCARR(+ISORB),ISORB=IOSTA,IOEND)
+              IMORS=OCC2MRS(NO,OCCARR(+IOSTA))
 CTEST      write(*,'(1x,a,10i5)')'IMORS=',IMORS
 C Position in Morsel-to-Substring table:
               IPOS=KMRSSBS+2*(IMORS+(2**MORSBITS)*(ISPART-1))
@@ -275,34 +278,34 @@ CTEST      write(*,'(1x,a,10i5)')'ISBSTR:',ISBSTR
 C Substring type ISST, nr of such substrings is NDIM
               ISST=ISSTAB(IPOS+1)
 CTEST      write(*,'(1x,a,10i5)')'ISST  :',ISST
-              IWORK(LSTARR-1+ISPART)=ISST
-              IWORK(LDIM-1+ISPART)=ISSTAB(KSSTTB+5*(ISST-1))
-              IWORK(LSSARR-1+ISPART)=ISBSTR-IWORK(LSBSET-1+ISST)
+              STARR(+ISPART)=ISST
+              DIM(ISPART)=ISSTAB(KSSTTB+5*(ISST-1))
+              SSARR(ISPART)=ISBSTR-SBSET(ISST)
              END DO
             END DO
 CTEST      write(*,*)' Finally, substring types and substrings:'
 CTEST      write(*,'(1x,a,10i5)')'Substr types:',
-CTEST     &                   (IWORK(LSTARR-1+ISPART),ISPART=1,NASPRT)
+CTEST     &                   (STARR(+ISPART),ISPART=1,NASPRT)
 CTEST      write(*,'(1x,a,10i5)')'Substrings  :',
-CTEST     &                    (IWORK(LSSARR-1+ISPART),ISPART=1,NASPRT)
+CTEST     &                    (SSARR(ISPART),ISPART=1,NASPRT)
 CTEST      write(*,'(1x,a,10i5)')'Dimensions  :',
-CTEST     &                    (IWORK(LDIM  -1+ISPART),ISPART=1,NASPRT)
+CTEST     &                    (DIM(ISPART),ISPART=1,NASPRT)
 C Position within FS block:
-            IPOS=(IWORK(LSSARR-1+NASPRT)-1)
+            IPOS=(SSARR(NASPRT)-1)
             DO ISPART=NASPRT-1,1,-1
-              IPOS=IWORK(LDIM-1+ISPART)*IPOS+(IWORK(LSSARR-1+ISPART)-1)
+              IPOS=DIM(ISPART)*IPOS+(SSARR(ISPART)-1)
             END DO
             IPOS=IPOS+1
 C Identify Fock Sector Block:
 CTEST      write(*,*)' Arguments in HSHGET call:'
 CTEST      write(*,'(1x,a,10i5)')'Key:',
-CTEST     &                   (IWORK(LSTARR-1+ISPART),ISPART=1,NASPRT)
+CTEST     &                   (STARR(+ISPART),ISPART=1,NASPRT)
 CTEST      write(*,'(1x,a,10i5)')'Size of key:',NASPRT
 CTEST      write(*,'(1x,a,10i5)')'Size of items stored:',NASPRT+2
 CTEST      write(*,'(1x,a,10i5)')'Items stored at KSSTARR=',KSSTARR
 CTEST      write(*,'(1x,a,10i5)')'      Map size  NHSHMAP=',NHSHMAP
 CTEST      write(*,'(1x,a,10i5)')'  Map stored at KHSHMAP=',KHSHMAP
-            CALL HSHGET(IWORK(LSTARR),NASPRT,NASPRT+2,IFSBTAB(KSSTARR),
+            CALL HSHGET(STARR,NASPRT,NASPRT+2,IFSBTAB(KSSTARR),
      &                            NHSHMAP,IFSBTAB(KHSHMAP),IFSB)
 CTEST      write(*,'(1x,a,10i5)')' Map returns index IFSB=',IFSB
 CTEST      write(*,'(1x,a,10i5)')' Item stored there is  =',
@@ -315,7 +318,7 @@ C the correct FS block.
             IERR=0
             DO ISPART=1,NASPRT
               JSST=IFSBTAB(KSSTARR-1+ISPART+(NASPRT+2)*(IFSB-1))
-              ISST=IWORK(LSTARR-1+ISPART)
+              ISST=STARR(+ISPART)
               IF(ISST.NE.JSST) IERR=1
             END DO
             IF(IERR.NE.0) THEN
@@ -323,13 +326,13 @@ C the correct FS block.
      &                     ' Hash map returned the wrong FS block!'
               WRITE(6,'(1x,a,8I8)')'NOPEN,ICNF,ISPN:',NOPEN,ICNF,ISPN
               WRITE(6,'(1x,a,20I3)')'Configuration:',
-     &                               (IWORK(LORBARR-1+IEL),IEL=1,NACTEL)
+     &                               (ORBARR(+IEL),IEL=1,NACTEL)
               WRITE(6,'(1x,a,20I3)')'Determinant:',
-     &                            (IWORK(LOCARR-1+ISORB),ISORB=1,2*NORB)
+     &                            (OCCARR(+ISORB),ISORB=1,2*NORB)
               WRITE(6,'(1x,a,10I5)')'Substring type combination:',
-     &                         (IWORK(LSTARR-1+ISPART),ISPART=1,NASPRT)
+     &                         (STARR(+ISPART),ISPART=1,NASPRT)
               WRITE(6,'(1x,a,10I5)')'Substring combination:',
-     &                         (IWORK(LSSARR-1+ISPART),ISPART=1,NASPRT)
+     &                         (SSARR(ISPART),ISPART=1,NASPRT)
               WRITE(6,'(1x,a,8I8)')'Hash table says IFSB=',IFSB
               IF(IFSB.GT.0 .AND. IFSB.LE.NFSB) THEN
               WRITE(6,'(1x,a,8I8)')'but that FS block would contain',
@@ -342,7 +345,7 @@ C the correct FS block.
               CALL ABEND()
             END IF
 C Finally:
-            CISD(KFSB-1+IPOS)=WORK(LBLK-1+IBLK)
+            CISD(KFSB-1+IPOS)=BLK(IBLK)
             detcoeff(idet)=CISD(KFSB-1+IPOS)
             write(detocc(idet),*) occ
 C End of spin-determinant loop
@@ -351,13 +354,13 @@ C End of loop over configurations
         END DO
 C End of loop over nr of open shells
       END DO
-      CALL GETMEM('TmpArr','Free','Real',LBLK,MXBLK)
-      CALL GETMEM('OrbArr','Free','Inte',LORBARR,NACTEL)
-      CALL GETMEM('OccArr','Free','Inte',LOCARR,NORB)
-      CALL GETMEM('STArr','Free','Inte',LSTARR,NASPRT)
-      CALL GETMEM('Dims','Free','Inte',LDIM,NASPRT)
-      CALL GETMEM('SSArr','Free','Inte',LSSARR,NASPRT)
-      CALL GETMEM('NSBSET','Free','Inte',LSBSET,NSSTP)
+      CALL mma_deallocate(BLK)
+      CALL mma_deallocate(ORBARR)
+      CALL mma_deallocate(OCCARR)
+      CALL mma_deallocate(STARR)
+      CALL mma_deallocate(DIM)
+      CALL mma_deallocate(SSARR)
+      CALL mma_deallocate(SBSET)
       call mma_deallocate(occ)
       RETURN
       END

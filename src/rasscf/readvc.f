@@ -190,7 +190,7 @@ C Local print level (if any)
 * other orbital indices -- what about ALTER??) must be done HERE
 * immediately togather with the VecSort, but not *inside* VecSort.
 
-* But VecSort does not return any indicing information -- how are
+* But VecSort does not return any indexing information -- how are
 * we to know how to change IXSYM?
 * VecSort changed to include a reindexing array!
         NNwOrd=0

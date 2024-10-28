@@ -8,16 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INTCTL1(CMO)
-      use caspt2_output, only:iPrGlb
+      SUBROUTINE INTCTL1(CMO,NCMO)
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-
-      DIMENSION CMO(NCMO)
+      INTEGER NCMO
+      REAL*8 CMO(NCMO)
 
 * Compute using conventional integral file:
       IF(IPRGLB.GE.DEBUG) THEN
@@ -25,13 +24,12 @@
         CALL XFLUSH(6)
       END IF
       Call TRACTL(0)
-      CALL TRAONE(CMO)
+      CALL TRAONE(CMO,NCMO)
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL1 back from TRAONE.'
         CALL XFLUSH(6)
       END IF
 c Compute FIMO, FAMO, ...  to workspace:
-      CALL FOCK_RPT2
+      CALL FOCK_RPT2()
 
-      RETURN
-      END
+      END SUBROUTINE INTCTL1

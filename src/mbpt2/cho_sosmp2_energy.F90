@@ -20,7 +20,7 @@ subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 use Symmetry_Info, only: Mul
 use Cholesky, only: nSym
 use ChoMP2, only: lUnit_F, nMP2Vec, nOcc, nT1am, nVir, OED_Thr, Verbose
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

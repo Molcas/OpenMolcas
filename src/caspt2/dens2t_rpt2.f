@@ -20,16 +20,14 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
       LOGICAL RSV_TSK
       Integer, Intent(In):: nLev
@@ -43,11 +41,12 @@
       INTEGER IT,IU,IV,IX,LT,LU,LV,LX,LVX
       integer itu,ivx
 
-      INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
+      INTEGER ITASK,NTASKS
 
       INTEGER ISSG,NSGM
 
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
+      INTEGER, ALLOCATABLE:: Task(:,:)
 
 c Purpose: Compute the 1- and 2-electron density matrix
 c arrays G1 and G2.
@@ -95,16 +94,14 @@ C-SVC20100311: set up a task table with LT,LU
       nTasks=(nLev**2+nLev)/2
       nTasks= nLev**2
 
-      CALL GETMEM ('Tasks','ALLO','INTE',lTask,2*nTasks)
-      lTask2T=lTask
-      lTask2U=lTask+nTasks
+      CALL mma_allocate (Task,nTasks,2,Label='Task')
 
       iTask=0
       DO LT=1,nLev
         DO LU=1,nLev!LT
           iTask=iTask+1
-          iWork(lTask2T+iTask-1)=LT
-          iWork(lTask2U+iTask-1)=LU
+          Task(iTask,1)=LT
+          Task(iTask,2)=LU
         ENDDO
       ENDDO
       IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
@@ -118,11 +115,11 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
 * i.e., lowering operations. These are allowed in RAS.
 C     LTU=0
 C     DO 140 LT=1,NLEV
-      LT=iWork(lTask2T+iTask-1)
+      LT=Task(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
 C       DO 130 LU=1,LT
-        LU=iWork(lTask2U+iTask-1)
+        LU=Task(iTask,2)
 C         LTU=LTU+1
           ! LTU=iTask
           ISU=SGS%ISM(LU)
@@ -205,15 +202,12 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
       GOTO 500
  501  CONTINUE
       CALL Free_Tsk(ID)
 
-      CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
+      CALL mma_deallocate(Task)
 
       CALL GAdSUM (G1,NG1)
       CALL GAdSUM (G2,NG2)

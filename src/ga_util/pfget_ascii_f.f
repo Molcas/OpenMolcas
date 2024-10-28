@@ -11,6 +11,8 @@
 * Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
+#include "compiler_features.h"
+
 #ifndef _HAVE_EXTRA_
 
 * Broadcast a file from the master to the slaves
@@ -101,8 +103,11 @@
 
       End Subroutine PFGet_ASCII
 
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine Empty_PFGet_ASCII
-      End Subroutine Empty_PFGet_ASCII
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_PFGet_ASCII()
+      end subroutine empty_PFGet_ASCII
+
 #endif

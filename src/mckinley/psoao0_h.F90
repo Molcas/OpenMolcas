@@ -22,7 +22,7 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 !          the AO block this will affect the vectorization. Hence, at  *
 !          some point it will actually be better to recompute the      *
 !          primitives.                                                 *
-!          Current stratergy:                                          *
+!          Current strategy:                                           *
 !          1. Start reducing the length of the primitives in the order *
 !             lPrim,jPrim.                                             *
 !          2. Reduce the size of the SO block by reducing the number of*
@@ -44,10 +44,11 @@ integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), 
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
                                   Mem2, Mem3, Mem4, Mend
 #include "Molcas.fh"
-#include "warnings.h"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
                      Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+
+#include "warnings.h"
 
 !iQ = 1
 la = iAnga(1)

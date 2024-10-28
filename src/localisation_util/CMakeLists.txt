@@ -73,7 +73,6 @@ set (sources
      sq2tri.F90
      sqrtmt.F90
      tri2rec.F90
-     unfold.F90
      updateb.F90
      updatep.F90
      wavelet_transform.F90

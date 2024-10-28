@@ -17,7 +17,7 @@
 *
 * Jeppe Olsen, Dec. 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
       INTEGER Z(NOPEN,NALPHA)
       DIMENSION IAB(*),NEWORD(*)
 *

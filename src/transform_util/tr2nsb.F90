@@ -16,7 +16,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
+subroutine tr2NsB(CMO,NCMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -39,22 +39,22 @@ subroutine tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! transformed MO integrals are stored as the same as Tr2Sq
 ! subroutine does.
 
+use caspt2_global, only: LUHLF3, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
+integer(kind=iwp), intent(in) :: NCMO, lBuf, MAXRS
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
 real(kind=wp), intent(inout) :: PQRS(*), TURS(*)
-integer(kind=iwp), intent(in) :: lBuf, MAXRS
-integer(kind=iwp) :: IAD3, IAD3S, icc, iOpt, IPQ, IPQMX3, IPQST, iRc, IRS, IRSST, ISPQRS, ITU, IX2, Kread, Length, LPQ, LRS, NOTU, &
-                     NP, NQ, NR, Nread, Nrest, NRS, NS, NSYMP, NT, NU, Num, NumPQ, NumRS
+#include "caspt2.fh"
 #include "trafo.fh"
 #include "intgrl.fh"
+integer(kind=iwp) :: IAD3, IAD3S, icc, iOpt, IPQ, IPQMX3, IPQST, iRc, IRS, IRSST, ISPQRS, ITU, IX2, Kread, Length, LPQ, LRS, NOTU, &
+                     NP, NQ, NR, Nread, Nrest, NRS, NS, NSYMP, NT, NU, Num, NumPQ, NumRS
 
 icc = NOCP*NOCQ*NOR*NOS
 
@@ -210,7 +210,5 @@ if (ISP > ISR) then
     end do
   end if
 end if
-
-return
 
 end subroutine tr2NsB

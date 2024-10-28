@@ -34,83 +34,71 @@ irc = 0
 ! Deallocate.
 ! -----------
 
-if (allocated(InfRed_Hidden)) call mma_deallocate(InfRed_Hidden)
-nullify(InfRed)
+call mma_deallocate(InfRed_Hidden,safe='*')
 
-if (allocated(InfVec_Hidden)) call mma_deallocate(InfVec_Hidden)
-nullify(InfVec)
+call mma_deallocate(InfVec_Hidden,safe='*')
 
-if (allocated(IndRed_Hidden)) call mma_deallocate(IndRed_Hidden)
-nullify(IndRed)
+call mma_deallocate(IndRed_Hidden,safe='*')
 
-if (allocated(IndRSh_Hidden)) call mma_deallocate(IndRSh_Hidden)
-nullify(IndRSh)
+call mma_deallocate(IndRSh_Hidden,safe='*')
 
-if (allocated(iScr)) call mma_deallocate(iScr)
+call mma_deallocate(iScr,safe='*')
 
-if (allocated(iiBstRSh_Hidden)) call mma_deallocate(iiBstRSh_Hidden)
-nullify(iiBstRSh)
+call mma_deallocate(iiBstRSh_Hidden,safe='*')
 
-if (allocated(nnBstRSh_Hidden)) call mma_deallocate(nnBstRSh_Hidden)
-nullify(nnBstRSh)
+call mma_deallocate(nnBstRSh_Hidden,safe='*')
 
-if (allocated(IntMap)) call mma_deallocate(IntMap)
+call mma_deallocate(IntMap,safe='*')
 
-if (allocated(nDimRS)) call mma_deallocate(nDimRS)
+call mma_deallocate(nDimRS,safe='*')
 
-if (allocated(iRS2F)) call mma_deallocate(iRS2F)
+call mma_deallocate(iRS2F,safe='*')
 
-if (allocated(iSOShl)) call mma_deallocate(iSOShl)
+call mma_deallocate(iSOShl,safe='*')
 
-if (allocated(iShlSO)) call mma_deallocate(iShlSO)
+call mma_deallocate(iShlSO,safe='*')
 
-if (allocated(iQuAB_Hidden)) call mma_deallocate(iQuAB_Hidden)
-nullify(iQuAB)
+call mma_deallocate(iQuAB_Hidden,safe='*')
 
-if (allocated(iBasSh)) call mma_deallocate(iBasSh)
+call mma_deallocate(iBasSh,safe='*')
 
-if (allocated(nBasSh)) call mma_deallocate(nBasSh)
+call mma_deallocate(nBasSh,safe='*')
 
-if (allocated(nBstSh)) call mma_deallocate(nBstSh)
+call mma_deallocate(nBstSh,safe='*')
 
-if (allocated(iAtomShl)) call mma_deallocate(iAtomShl)
+call mma_deallocate(iAtomShl,safe='*')
 
-if (allocated(iSP2F)) call mma_deallocate(iSP2F)
+call mma_deallocate(iSP2F,safe='*')
 
-if (allocated(iShP2RS)) call mma_deallocate(iShP2RS)
+call mma_deallocate(iShP2RS,safe='*')
 
-if (allocated(iShP2Q)) call mma_deallocate(iShP2Q)
+call mma_deallocate(iShP2Q,safe='*')
 
-if (allocated(iQuAB_L_Hidden)) call mma_deallocate(iQuAB_L_Hidden)
-nullify(iQuAB_L)
+call mma_deallocate(iQuAB_L_Hidden,safe='*')
 
-if (allocated(iQL2G)) call mma_deallocate(iQL2G)
+call mma_deallocate(iQL2G,safe='*')
 
-if (allocated(LQ_Tot)) call mma_deallocate(LQ_Tot)
+call mma_deallocate(LQ_Tot,safe='*')
 
-if (allocated(InfVec_Bak)) call mma_deallocate(InfVec_Bak)
+call mma_deallocate(InfVec_Bak,safe='*')
 
-if (allocated(iSimRI)) call mma_deallocate(iSimRI)
+call mma_deallocate(iSimRI,safe='*')
 
-if (allocated(InfVec_G_Hidden)) call mma_deallocate(InfVec_G_Hidden)
-nullify(InfVec_G)
+call mma_deallocate(InfVec_G_Hidden,safe='*')
 
-if (allocated(IndRed_G_Hidden)) call mma_deallocate(IndRed_G_Hidden)
-nullify(IndRed_G)
+call mma_deallocate(IndRed_G_Hidden,safe='*')
 
-if (allocated(InfRed_G_Hidden)) call mma_deallocate(InfRed_G_Hidden)
-nullify(InfRed_G)
+call mma_deallocate(InfRed_G_Hidden,safe='*')
 
-if (allocated(IndRSh_G_Hidden)) call mma_deallocate(IndRSh_G_Hidden)
-nullify(IndRSh_G)
+call mma_deallocate(IndRSh_G_Hidden,safe='*')
 
-if (allocated(iiBstRSh_L_Hidden)) call mma_deallocate(iiBstRSh_L_Hidden)
-nullify(iiBstRSh_G)
+call mma_deallocate(iiBstRSh_L_Hidden,safe='*')
 
-if (allocated(nnBstRSh_L_Hidden)) call mma_deallocate(nnBstRSh_L_Hidden)
-nullify(nnBstRSh_G)
+call mma_deallocate(nnBstRSh_L_Hidden,safe='*')
 
-if (allocated(iL2G)) call mma_deallocate(iL2G)
+call mma_deallocate(iL2G,safe='*')
+
+nullify(InfRed,InfVec,IndRed,IndRSh,iiBstRSh,nnBstRSh,iQuAB,iQuAB_L,InfVec_G,IndRed_G,InfRed_G,IndRSh_G,iiBstRSh_G,nnBstRSh_G)
 
 return
 

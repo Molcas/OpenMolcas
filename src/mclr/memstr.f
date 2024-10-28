@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE MEMSTR()
       Use Str_Info
+      use stdalloc, only: mma_allocate
 *
 *
 * Construct pointers for saving information about strings and
@@ -36,7 +37,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "stdalloc.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
       LENGTH=100

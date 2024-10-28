@@ -10,27 +10,28 @@
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
       use gugx, only: LEVEL, SGS, CIS, EXS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer stSym
-      DIMENSION XMAT(NDIM,NDIM),CI(*)
-#include "WrkSpc.fh"
+      Integer ISTART, NDIM, stSym, NCI
+      REAL*8 XMAT(NDIM,NDIM),CI(NCI)
 
-      IF (NDIM.LE.0) GOTO 999
-      NDIM2=NDIM**2
+      REAL*8, ALLOCATABLE:: XSAV(:,:), TVEC(:), SGM(:)
 
-      CALL GETMEM('XSAV','ALLO','REAL',LXSAV,NDIM2)
-      CALL DCOPY_(NDIM2,XMAT,1,WORK(LXSAV),1)
-      CALL GETMEM('TVEC','ALLO','REAL',LTVEC,NDIM)
-      CALL GETMEM('SGM','ALLO','REAL',LSGM,NCI)
-      CALL DCOPY_(NCI,[0.0D0],0,WORK(LSGM),1)
+      IF (NDIM.LE.0) RETURN
+
+      CALL mma_allocate(XSAV,NDIM,NDIM,Label='XSAV')
+      XSAV(:,:)=XMAT(:,:)
+      CALL mma_allocate(TVEC,NDIM,LABEL='TVEC')
+      CALL mma_allocate(SGM,NCI,LABEL='SGM')
+      SGM(:)=0.0D0
 
       DO 100 J=1,NDIM
         FACT=1.0D0/XMAT(J,J)
         DO I=1,NDIM
-          WORK(LTVEC-1+I)=-FACT*XMAT(I,J)
+          TVEC(I)=-FACT*XMAT(I,J)
           XMAT(I,J)=0.0D0
         END DO
-        WORK(LTVEC-1+J)=FACT
+        TVEC(J)=FACT
         XMAT(J,J)=1.0D00
 C Array T now contains a factor of XMAT of the form
 C (e(1),..e(k-1),T,..,e(n)), where e(i) is the standard
@@ -39,42 +40,37 @@ C Apply its inverse to XMAT.
         DO M=J+1,NDIM
           XJM=XMAT(J,M)
           DO I=1,NDIM
-            XMAT(I,M)=XMAT(I,M)+WORK(LTVEC-1+I)*XJM
+            XMAT(I,M)=XMAT(I,M)+TVEC(I)*XJM
           END DO
-          XMAT(J,M)=WORK(LTVEC-1+J)*XJM
+          XMAT(J,M)=TVEC(J)*XJM
         END DO
 C Transform CI array:
 C CI:=( 1 + Sum(U(I)E(IJ)) + (1/2)Sum(U(I)U(M)E(IJ,MJ)) ) CI,
 C where U(I) = T(I)-Kronecker(I,J).
         JORB=ISTART-1+J
         LJ=LEVEL(JORB)
-        CALL DYAX(NCI,(1.5D0-0.5D0*WORK(LTVEC-1+J)),CI,1,WORK(LSGM),1)
+        CALL DYAX(NCI,(1.5D0-0.5D0*TVEC(J)),CI,1,SGM,1)
         DO I=1,NDIM
           IORB=ISTART-1+I
           LI=LEVEL(IORB)
-          SCL=0.5D0*WORK(LTVEC-1+I)
+          SCL=0.5D0*TVEC(I)
           IF(I.EQ.J) SCL=SCL-0.5D00
-          CALL SIGMA1(SGS,CIS,EXS,
-     &                LI,LJ,SCL,STSYM,CI,WORK(LSGM))
+          CALL SIGMA1(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
           LI=LEVEL(IORB)
-          SCL=WORK(LTVEC-1+I)
+          SCL=TVEC(I)
           IF(I.EQ.J) SCL=SCL-1.0D00
-          CALL SIGMA1(SGS,CIS,EXS,
-     &                LI,LJ,SCL,STSYM,WORK(LSGM),CI)
+          CALL SIGMA1(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
         END DO
 
  100  CONTINUE
 
 
-      CALL GETMEM('SGM','FREE','REAL',LSGM,NCI)
-      CALL GETMEM('TVEC','FREE','REAL',LTVEC,NDIM)
-      CALL DCOPY_(NDIM2,WORK(LXSAV),1,XMAT,1)
-      CALL GETMEM('XSAV','FREE','REAL',LXSAV,NDIM2)
+      CALL mma_deallocate(SGM)
+      CALL mma_deallocate(TVEC)
+      XMAT(:,:)=XSAV(:,:)
+      CALL mma_deallocate(XSAV)
 
- 999  CONTINUE
-
-      RETURN
-      END
+      END SUBROUTINE TRACI_RPT2

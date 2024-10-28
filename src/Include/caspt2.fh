@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "rasdim.fh"
       Integer    MxState,       MxExt
       Parameter (MxState=MxRoot,MxExt=MxBas-MxAct)
       REAL*8         ENERGY, REFENE
@@ -66,18 +67,7 @@
       COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
-      INTEGER NCMO,     LCMORAS,LCMOPT2,NTORB,LTORB,NTAT,               &
-     &    LTAT,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,NHONE,LHONE,         &
-     &    NDREF,LDREF,NPREF,LPREF,LEIGVEC,LDMIX,LDWGT
-      COMMON/ALLOCOMM/ NCMO,     LCMORAS,LCMOPT2,NTORB,LTORB,NTAT,      &
-     &    LTAT,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,NHONE,LHONE,         &
-     &    NDREF,LDREF,NPREF,LPREF,LEIGVEC,LDMIX,LDWGT
-      INTEGER              LUINTA,LUONEA,LUMORB,LUCIEX,                 &
-     &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &
-     &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS,LUH0T
-      COMMON/UNITS_caspt2/ LUINTA,LUONEA,LUMORB,LUCIEX,                 &
-     &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &
-     &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS(8),LUH0T(4)
+
       INTEGER       NSTUV,NSTU,NSTGEU,NSTGTU,                           &
      &    NTUV,NTU,NTGEU,NTGTU,                                         &
      &    NIGEJ,NIGTJ,NAGEB,NAGTB,NTUVES,NTUES,                         &
@@ -104,13 +94,14 @@
       CHARACTER*8 FOCKTYPE,ORBIT,ORBIN,ORBNAM,IINAM,IANAM,ISNAM,        &
      &       CASES,OUTFMT,SMATRIX,SDECOM,BMATRIX,BTRANS,BSPECT
       CHARACTER*32 HZERO
-      CHARACTER*4 TITLE
+      CHARACTER(LEN=4) TITLE
       CHARACTER(LENIN8) NAME
       CHARACTER*2 HEADER
       COMMON/STRING/ NAME(2*MXORB),HEADER(72),TITLE(18,MxTIT),          &
      &    CASES(MXCASE),HZERO,FOCKTYPE,SMATRIX,SDECOM,                  &
      &    BMATRIX,BTRANS,BSPECT,ORBIT,ORBIN,OUTFMT,                     &
      &    ORBNAM(MXORB),IINAM(MXINA),IANAM(MXACT),ISNAM(MXEXT)
+
       REAL*8                                                            &
      &    CPUGIN,CPUINT,CPUFMB,                                         &
      &    CPUSIN,CPUFG3,                                                &

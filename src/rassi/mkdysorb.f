@@ -14,23 +14,27 @@
      &                 PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)
 
       use Constants, only: One, Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_global_arrays, only: FSBANN1, FSBANN2
 
       IMPLICIT NONE
-      REAL*8 PSI1(*),PSI2(*),DYSCOF(*)
-      REAL*8 COEFF,OVERLAP_RASSI,OVLP,DYSAMP
-      INTEGER IORBTAB(*),NASORB
+      INTEGER IORBTAB(*)
       INTEGER ISSTAB(*)
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
-      INTEGER FSBOP,IMODE,ISORB
-      INTEGER NDETS1,NDETS2
-      INTEGER LFSBANN1,LFSBANN2
-      INTEGER JSORB,LANN1,LANN2
+      REAL*8 PSI1(*),PSI2(*)
       LOGICAL IF10,IF01
+      REAL*8 DYSAMP, DYSCOF(*)
 
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "symmul.fh"
-      EXTERNAL OVERLAP_RASSI
+
+      REAL*8 COEFF,OVLP
+      Real*8, EXTERNAL :: OVERLAP_RASSI
+      INTEGER NASORB
+      INTEGER IMODE,ISORB
+      INTEGER NDETS1,NDETS2
+      INTEGER JSORB
+      Real*8, Allocatable:: ANN1(:), ANN2(:)
 
 ! +++ J. Norell 12/7 - 2018
 C Calculates the Dyson orbital between two states with
@@ -55,18 +59,18 @@ C Loop over all spin orbitals ISORB:
 C Annihilate a single orbital:
         COEFF=One
         IMODE=-1
-        LFSBANN1=FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1)
-        NDETS1=IWORK(LFSBANN1+4)
-        CALL GETMEM('ANN1','Allo','Real',LANN1,NDETS1)
-        CALL DCOPY_(NDETS1,[Zero],0,WORK(LANN1),1)
-        CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,IWORK(LFSBANN1),
-     &                   IFSBTAB1,COEFF,WORK(LANN1),PSI1)
+        Call FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1,1)
+        NDETS1=FSBANN1(5)
+        CALL mma_allocate(ANN1,NDETS1,Label='ANN1')
+        ANN1(:)=0.0D0
+        CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,FSBANN1,
+     &                   IFSBTAB1,COEFF,ANN1,PSI1)
 
 C Compute the coefficient as the overlap between the N-1 electron w.f.s
-        OVLP=OVERLAP_RASSI(IWORK(LFSBANN1),
-     &                  IFSBTAB2,WORK(LANN1),PSI2)
-        CALL GETMEM('ANN1','Free','Real',LANN1,NDETS1)
-        CALL KILLOBJ(LFSBANN1)
+        OVLP=OVERLAP_RASSI(FSBANN1,
+     &                  IFSBTAB2,ANN1,PSI2)
+        Call mma_deallocate(ANN1)
+        Call mma_deallocate(FSBANN1)
         DYSCOF(ISORB)=OVLP
 
 C Collect the squared norm of the Dyson orbital
@@ -84,23 +88,23 @@ C Loop over all spin orbitals JSORB:
 C Annihilate a single orbital:
          COEFF=One
          IMODE=-1
-         LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2)
-         NDETS2=IWORK(LFSBANN2+4)
+         Call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
+         NDETS2=FSBANN2(5)
 C BRN
-         CALL GETMEM('ANN2','Allo','Real',LANN2,NDETS2)
-         CALL DCOPY_(NDETS2,[Zero],0,WORK(LANN2),1)
-         CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN2),
-     &                   IFSBTAB2,COEFF,WORK(LANN2),PSI2)
+         CALL mma_allocate(ANN2,NDETS2,Label='ANN2')
+         ANN2(:)=0.0D0
+         CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,
+     &                   IFSBTAB2,COEFF,ANN2,PSI2)
 
 C Compute the coefficient as the overlap between the N-1 electron w.f.s
          OVLP=OVERLAP_RASSI(IFSBTAB1,
-     &                  IWORK(LFSBANN2),PSI1,WORK(LANN2))
-        CALL GETMEM('ANN2','Free','Real',LANN2,NDETS2)
-        CALL KILLOBJ(LFSBANN2)
-        DYSCOF(JSORB)=OVLP
+     &                  FSBANN2,PSI1,ANN2)
+         Call mma_deallocate(ANN2)
+         Call mma_deallocate(FSBANN2)
+         DYSCOF(JSORB)=OVLP
 
 C Collect the squared norm of the Dyson orbital
-        DYSAMP=DYSAMP+OVLP*OVLP
+         DYSAMP=DYSAMP+OVLP*OVLP
 
        END DO ! JSORB LOOP
 

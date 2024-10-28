@@ -20,9 +20,9 @@ Module Exp
 
       Contains
       Subroutine Exp_Close()
-#include "stdalloc.fh"
-      If (Allocated(H0S)) Call mma_deallocate(H0S)
-      If (Allocated(H0F)) Call mma_deallocate(H0F)
-      If (Allocated(SBIDT)) Call mma_deallocate(SBIDT)
+      use stdalloc, only: mma_deallocate
+      Call mma_deallocate(H0S,safe='*')
+      Call mma_deallocate(H0F,safe='*')
+      Call mma_deallocate(SBIDT,safe='*')
       End Subroutine Exp_Close
 End Module Exp

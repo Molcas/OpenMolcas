@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine DetCtl
       use Arrays, only: pINT1, pINT2
+      use stdalloc, only: mma_allocate
 *
       Implicit Real*8 (A-H,O-Z)
 
@@ -20,7 +21,6 @@
 #include "genop.fh"
 #include "cprnt_mclr.fh"
 #include "cstate_mclr.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cicisp_mclr.fh"

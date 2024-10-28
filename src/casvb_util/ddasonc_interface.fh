@@ -10,11 +10,16 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 c,axc,sxc,nvec,nprm &
+
 #else
+
 #include "intent.fh"
 integer(kind=iwp) :: nvec, nprm
 real(kind=wp), intent(_IN_) :: c(nprm,nvec)
 real(kind=wp), intent(_OUT_) :: axc(nprm,nvec), sxc(nprm,nvec)
+
 #endif
+
 #undef _CALLING_

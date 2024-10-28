@@ -36,6 +36,7 @@ use Gateway_Info, only: UnNorm, Do_FckInt, FNMC
 use Isotopes, only: PTab
 use Index_Functions, only: nTri_Elem1
 use define_af, only: iTabMx
+use Integral_interfaces, only: prm_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
@@ -51,7 +52,7 @@ integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, i
                      List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, nBF, nCntrc_a, &
                      nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, nScr1, &
                      nScr2, nScr3, nSRR
-real(kind=wp) :: A(4), C_ik, C_jk, Charge_Actual, Charge_Effective, Check, D, e, e12i, qTest, Test_Charge, Tmp, xFactor, xMass
+real(kind=wp) :: A(3), C_ik, C_jk, Charge_Actual, Charge_Effective, Check, D, e, e12i, qTest, Test_Charge, Tmp, xFactor, xMass
 logical(kind=iwp) :: Do_Cycle, lPP, Try_Again
 character(len=256) :: Basis_lib, Fname
 character(len=180) :: Ref(2)
@@ -61,8 +62,8 @@ real(kind=wp), allocatable :: C(:,:), E_R(:), EVal(:), EVec(:,:), FockOp_t(:,:),
                               Tmp1(:), Tmp2(:), Tmp3(:)
 character(len=180), allocatable :: STDINP(:) ! CGGn
 character(len=*), parameter :: DefNm = 'basis_library'
+procedure(prm_kernel) :: KnEPrm, MltPrm, NAPrm
 real(kind=wp), external :: DDot_
-external :: KnEPrm, MltPrm, NAPrm
 
 !                                                                      *
 !***********************************************************************
@@ -171,7 +172,7 @@ do iCnttp=1,mCnttp
       call mma_Allocate(KnE,NSAA,Label='KnE')
       call One_Int(KnEPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,KnE,nSAA,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
                    nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 #     ifdef _DEBUGPRINT_
       call DScal_(nCntrc_a**2*iCmp_a**2,xFactor,KnE,1)
@@ -184,7 +185,6 @@ do iCnttp=1,mCnttp
       ! Compute the nuclear-attraction integrals
 
       nOrdOp = 0
-      A(4) = real(iCnttp,kind=wp) ! Dirty tweak
       nSBB = nCntrc_a**2*naa
       call mma_Allocate(NAE,nSBB,Label='NAE')
 
@@ -194,7 +194,7 @@ do iCnttp=1,mCnttp
 
       call One_Int(NAPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,NAE,nSBB,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
                    nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 #     ifdef _DEBUGPRINT_
       call RecPrt('Nuclear-attraction Integrals',' ',NAE,nCntrc_a**2,iCmp_a**2)
@@ -226,7 +226,7 @@ do iCnttp=1,mCnttp
 
       call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,Ovrlp,nSCC,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
                    nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 #     ifdef _DEBUGPRINT_
       call RecPrt('Overlap Integrals',' ',Ovrlp,nCntrc_a**2,iCmp_a**2)
@@ -550,7 +550,7 @@ do iCnttp=1,mCnttp
         Check = DDot_(nCntrc_r**2,Shells(iShll_r)%FockOp,1,Shells(iShll_r)%FockOp,1)
       end if
       if ((Check == Zero) .or. (dbsc(iCnttp)%Charge == Zero)) then
-        if (allocated(FockOp_t)) call mma_deallocate(FockOp_t)
+        call mma_deallocate(FockOp_t,safe='*')
         cycle
       end if
       !                                                                *
@@ -576,7 +576,7 @@ do iCnttp=1,mCnttp
 
       call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,SAA,nSAA,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
                    nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
+                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
       !                                                                *
       !*****************************************************************
@@ -593,7 +593,7 @@ do iCnttp=1,mCnttp
 
       call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,SCr2,nScr2,naa,SAR,nSAR,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
                    nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_r,nPrim_r,Shells(iShll_r)%Exp,nCntrc_r, &
-                   Shells(iShll_r)%Cff_c(1,1+nRemove,1),iCmp_a)
+                   Shells(iShll_r)%Cff_c(1,1+nRemove,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 
       nSRR = nCntrc_r**2*naa
@@ -713,7 +713,7 @@ do iCnttp=1,mCnttp
           Shells(iShll_a)%FockOp(iB,jB) = Tmp/real(iCmp_a,kind=wp)
         end do
       end do
-      if (allocated(FockOp_t)) call mma_deallocate(FockOp_t)
+      call mma_deallocate(FockOp_t,safe='*')
 #     ifdef _DEBUGPRINT_
       call RecPrt('Actual Fock operator',' ',Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #     endif
@@ -730,13 +730,13 @@ do iCnttp=1,mCnttp
     ! Deallocate the memory for the reference Fock operator
 
     do iShll_r=jShll+1,iShll
-      if (allocated(Shells(iShll_r)%Exp)) call mma_deallocate(Shells(iShll_r)%Exp)
+      call mma_deallocate(Shells(iShll_r)%Exp,safe='*')
       Shells(iShll_r)%nExp = 0
-      if (allocated(Shells(iShll_r)%FockOp)) call mma_deallocate(Shells(iShll_r)%FockOp)
+      call mma_deallocate(Shells(iShll_r)%FockOp,safe='*')
       Shells(iShll_r)%nFockOp = 0
-      if (allocated(Shells(iShll_r)%pCff)) call mma_deallocate(Shells(iShll_r)%pCff)
-      if (allocated(Shells(iShll_r)%Cff_c)) call mma_deallocate(Shells(iShll_r)%Cff_c)
-      if (allocated(Shells(iShll_r)%Cff_p)) call mma_deallocate(Shells(iShll_r)%Cff_p)
+      call mma_deallocate(Shells(iShll_r)%pCff,safe='*')
+      call mma_deallocate(Shells(iShll_r)%Cff_c,safe='*')
+      call mma_deallocate(Shells(iShll_r)%Cff_p,safe='*')
       Shells(iShll_r)%nExp = 0
       Shells(iShll_r)%nBasis = 0
     end do

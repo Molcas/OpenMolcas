@@ -43,10 +43,11 @@ real(kind=wp), intent(inout) :: SrtArr(lSrtA)
 integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"
-#include "warnings.h"
 integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, iOpt, iP_Storage, iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, &
                      mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)
+
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 !     as the packed integral labels add an extra 1-2 Byte              *
@@ -89,7 +90,7 @@ write(u6,*)
 write(u6,*) 'Processing slice                   :',iBin
 write(u6,*) 'Actual number of non-zero integrals:',mInt(1,iBin)
 write(u6,*) 'Effective number of integrals      :',mInt(2,iBin)
-write(u6,*) 'Effective number of indicies       :',mInt(3,iBin)
+write(u6,*) 'Effective number of indices        :',mInt(3,iBin)
 write(u6,*) 'Total number of integrals          :',lSrtA
 write(u6,*) 'Packed storage                     :',iP_Storage
 write(u6,*) 'Indexed storage                    :',iI_Storage

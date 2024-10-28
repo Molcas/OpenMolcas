@@ -13,7 +13,7 @@ subroutine RasRasTrans(nB,nStatePrim,Eig2,iPrint)
 
 use qmstat_global, only: BigT, nState, RassiM
 use Index_Functions, only: iTri, nTri_Elem
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -25,6 +25,7 @@ integer(kind=iwp) :: i, iB, iBas, iDisk, iiS, indx, indypop, iS, j, jB, jBas, jj
 character(len=30) :: OutLine
 integer(kind=iwp), allocatable :: iTocBig(:)
 real(kind=wp), allocatable :: AOG(:), BigV(:,:), Int1(:), Int2(:), Snt1(:,:), Snt2(:,:), Snt3(:,:)
+
 #include "warnings.h"
 
 !Guten Tag.

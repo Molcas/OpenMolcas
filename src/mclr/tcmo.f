@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine TCMO(A,isym,ictl)
       use Arrays, only: CMO
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Integer ip(8), iip(8)
       Real*8 A(*)
       Real*8, Allocatable:: Temp(:)

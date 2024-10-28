@@ -70,19 +70,19 @@ C
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
-      use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: iPrGlb
+      use caspt2_global, only: do_csf
       use PrintLevel, only: verbose
+      use EQSOLV
+      use ChoCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp,wp
+      use fake_GA, only: GA_Arrays
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
@@ -94,12 +94,14 @@ C
 #endif
 C
       Dimension DPT2C(*),DPT2Canti(*),A_PT2(nChoVec,nChoVec)
+      integer(kind=iwp),allocatable :: BGRP(:,:)
+      real(kind=wp),allocatable :: BRA(:),KET(:),BRAD(:),KETD(:),
+     *                             PIQK(:)
 C
       Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
       Call ICopy(NSYM,NSSH,1,nSh(1,Virtual ),1)
 C
-
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
       END IF
@@ -117,16 +119,16 @@ C
 *
       MXBGRP=IB2-IB1+1
       IF (MXBGRP.LE.0) CYCLE
-      CALL GETMEM('BGRP','ALLO','INTE',LBGRP,2*MXBGRP)
+      call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
       IBGRP=1
       DO IB=IB1,IB2
-       IWORK(LBGRP  +2*(IBGRP-1))=IB
-       IWORK(LBGRP+1+2*(IBGRP-1))=IB
+       BGRP(1,IBGRP) = IB
+       BGRP(2,IBGRP) = IB
        IBGRP=IBGRP+1
       END DO
       NBGRP=MXBGRP
 
-      CALL MEMORY_ESTIMATE(JSYM,IWORK(LBGRP),NBGRP,
+      CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
      &                     NCHOBUF,MXPIQK,NADDBUF)
       IF (IPRGLB.GT.VERBOSE) THEN
         WRITE(6,*)
@@ -135,21 +137,19 @@ C
         WRITE(6,*)
       END IF
 * buffers are kept allocated until the end of JSYM loop.
-      CALL GetMem('PIQK','ALLO','REAL',LPIQK,MXPIQK)
-      CALL GetMem('BUFF','ALLO','REAL',LBUFF,NADDBUF)
-      CALL GetMem('IDXB','ALLO','INTE',LIDXB,NADDBUF)
-      CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NCHOBUF)
-      CALL GETMEM('KETBUF','ALLO','REAL',LKET,NCHOBUF)
-      CALL GETMEM('BRAD','ALLO','REAL',LBRAD,NCHOBUF)
-      CALL GETMEM('KETD','ALLO','REAL',LKETD,NCHOBUF)
+      call mma_allocate(PIQK,MXPIQK,Label='PIQK')
+      call mma_allocate(BRA,NCHOBUF,Label='BRABUF')
+      call mma_allocate(KET,NCHOBUF,Label='KETBUF')
+      call mma_allocate(BRAD,NCHOBUF,Label='BRAD')
+      call mma_allocate(KETD,NCHOBUF,Label='KETD')
 C
 C     Loop over groups of batches of Cholesky vectors
 C
       IOFFCV = 1
       DO IBGRP=1,NBGRP
 C
-      IBSTA=IWORK(LBGRP  +2*(IBGRP-1))
-      IBEND=IWORK(LBGRP+1+2*(IBGRP-1))
+      IBSTA=BGRP(1,IBGRP)
+      IBEND=BGRP(2,IBGRP)
 
       NV=0
       DO IB=IBSTA,IBEND
@@ -165,19 +165,17 @@ C
 *                                                                      *
 *     Read kets (Cholesky vectors) in the form L(VX), all symmetries:
 *
-      Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                          Work(LKET),nKet,
+      Call Get_Cholesky_Vectors(Active,Active,JSYM,KET,nKet,
      &                          IBSTA,IBEND)
-      Call DCopy_(nKet,[0.0D+00],0,Work(LKETD),1)
+      Call DCopy_(nKet,[0.0D+00],0,KETD,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *       Read bra (Cholesky vectors) in the form L(TJ): All symmetries
 *
-      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                          Work(LBRA),nBra,
+      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,BRA,nBra,
      &                          IBSTA,IBEND)
-      Call DCopy_(nBra,[0.0D+00],0,Work(LBRAD),1)
+      Call DCopy_(nBra,[0.0D+00],0,BRAD,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -185,8 +183,7 @@ C
 *      Loop over the bras and kets, form <A|0>
 *
       Call OLagNS_RI2(Inactive,Active,Active,Active,
-     &                'A ',Work(LBRA),Work(LKET),
-     &                Work(LBRAD),Work(LKETD))
+     &                'A ',BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -195,20 +192,18 @@ C
 *
       nKet = nBra
       Call OLagNS_RI2(Inactive,Active,Inactive,Active,
-     &                'B ',Work(LBRA),Work(LBRA),
-     &                Work(LBRAD),Work(LBRAD))
+     &                'B ',BRA,BRA,BRAD,BRAD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra (Cholesky vectors) in the form L(AJ), form <D1|0>
-* We still have L(VX) vectors in core, at WORK(LKETS).
+* We still have L(VX) vectors in core, at KETS.
 *
-      Call Cholesky_Vectors(1,Inactive,Active,JSYM,Work(LBRAD),nBra,
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                          Work(LBRA),nBra,
+      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,BRA,nBra,
      &                          IBSTA,IBEND)
-      Call DCopy_(nBra,[0.0D+00],0,Work(LBRAD),1)
+      Call DCopy_(nBra,[0.0D+00],0,BRAD,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -216,8 +211,7 @@ C
 * Loop over the bra and ket vectors.
 *
       Call OLagNS_RI2(Inactive,Virtual,Active,Active,
-     &                'D1',Work(LBRA),Work(LKET),
-     &                Work(LBRAD),Work(LKETD))
+     &                'D1',BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -226,19 +220,17 @@ C
 *
       nKet = nBra
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Virtual,
-     &                'H ',Work(LBRA),Work(LBRA),
-     &                Work(LBRAD),Work(LBRAD))
+     &                'H ',BRA,BRA,BRAD,BRAD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read Bra (Cholesky vectors)= L(AU)
 *
-      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,Work(LBRAD),nBra,
+      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
-     &                          Work(LBRA),nBra,
+      Call Get_Cholesky_Vectors(Active,Virtual,JSYM,BRA,nBra,
      &                          IBSTA,IBEND)
-      Call DCopy_(nBra,[0.0D+00],0,Work(LBRAD),1)
+      Call DCopy_(nBra,[0.0D+00],0,BRAD,1)
 C                                                                      *
 ************************************************************************
 *                                                                      *
@@ -246,8 +238,7 @@ C                                                                      *
 * AUVX: Loop over the bras and kets
 *
       Call OLagNS_RI2(Active,Virtual,Active,Active,
-     &                'C ',Work(LBRA),Work(LKET),
-     &                Work(LBRAD),Work(LKETD))
+     &                'C ',BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -256,19 +247,17 @@ C                                                                      *
 *
       nKet = nBra
       Call OLagNS_RI2(Active,Virtual,Active,Virtual,
-     &                'F ',Work(LBRA),Work(LBRA),
-     &                Work(LBRAD),Work(LBRAD))
+     &                'F ',BRA,BRA,BRAD,BRAD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(VL), all symmetries:
 *
-      Call Cholesky_Vectors(1,Active,Active,JSYM,Work(LKETD),nKet,
+      Call Cholesky_Vectors(1,Active,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                          Work(LKET),nKet,
+      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,KET,nKet,
      &                          IBSTA,IBEND)
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,Work(LKETD),nKet,
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -277,19 +266,17 @@ C                                                                      *
 * Loop over bras and kets, form <D2|0>.
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Active,
-     &                'D2',Work(LBRA),Work(LKET),
-     &                Work(LBRAD),Work(LKETD))
+     &                'D2',BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(CL), all symmetries:
 *
-      Call Cholesky_Vectors(1,Inactive,Active,JSYM,Work(LKETD),nKet,
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                          Work(LKET),nKet,
+      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,KET,nKet,
      &                          IBSTA,IBEND)
-      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,Work(LKETD),nKet,
+      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -298,28 +285,26 @@ C                                                                      *
 * Loop over bras and kets, form  <G|0>
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Virtual,
-     &                'G ',Work(LBRA),Work(LKET),
-     &                Work(LBRAD),Work(LKETD))
+     &                'G ',BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra vectors AJ
 *
-      Call Cholesky_Vectors(1,Active,Virtual,JSYM,Work(LBRAD),nBra,
+      Call Cholesky_Vectors(1,Active,Virtual,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                          Work(LBRA),nBra,
+      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,BRA,nBra,
      &                          IBSTA,IBEND)
-      Call DCopy_(nBra,Work(LKETD),1,Work(LBRAD),1)
+      Call DCopy_(nBra,KETD,1,BRAD,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets in the form L(VL)
 *
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                          Work(LKET),nKet,
+     &                          KET,nKet,
      &                          IBSTA,IBEND)
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,Work(LKETD),nKet,
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -328,23 +313,22 @@ C                                                                      *
 * AJVL: Loop over bras and kets. Form <E|0>
 *
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Active,
-     &                'E ',Work(LBRA),Work(LKET),
-     &                Work(LBRAD),Work(LKETD))
+     &                'E ',BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * End of loop over batches, IB
-      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,Work(LBRAD),nBra,
+      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Cholesky_Vectors(1,Inactive,Active,JSYM,Work(LKETD),nKet,
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
       !! Construct A_PT2
       NVI = NV
       JOFFCV = 1
       DO JBGRP=1,NBGRP
 C
-        JBSTA=IWORK(LBGRP  +2*(JBGRP-1))
-        JBEND=IWORK(LBGRP+1+2*(JBGRP-1))
+        JBSTA=BGRP(1,JBGRP)
+        JBEND=BGRP(2,JBGRP)
 C
         NVJ=0
         DO JB=JBSTA,JBEND
@@ -353,53 +337,49 @@ C
 C
         !! BraAI
         If (nIsh(iSym0)*nAsh(iSym0).ne.0) Then
-        Call Cholesky_Vectors(2,Inactive,Active,JSYM,Work(LBRA),nBra,
+        Call Cholesky_Vectors(2,Inactive,Active,JSYM,BRA,nBra,
      &                        IBSTA,IBEND)
-        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                            Work(LKET),nKet,
+        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,KET,nKet,
      &                            JBSTA,JBEND)
         Call DGEMM_('T','N',NVI,NVJ,nIsh(iSym0)*nAsh(iSym0),
-     &              1.0D+00,Work(LBRA),nIsh(iSym0)*nAsh(iSym0),
-     &                      Work(LKET),nIsh(iSym0)*nAsh(iSym0),
+     &              1.0D+00,BRA,nIsh(iSym0)*nAsh(iSym0),
+     &                      KET,nIsh(iSym0)*nAsh(iSym0),
      &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
         End If
 C
         !! BraSI
         If (nIsh(iSym0)*nSsh(iSym0).ne.0) Then
-        Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,Work(LBRA),nBra,
+        Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,BRA,nBra,
      &                        IBSTA,IBEND)
-        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                            Work(LKET),nKet,
+        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,KET,nKet,
      &                            JBSTA,JBEND)
         Call DGEMM_('T','N',NVI,NVJ,nIsh(iSym0)*nSsh(iSym0),
-     &              1.0D+00,Work(LBRA),nIsh(iSym0)*nSsh(iSym0),
-     &                      Work(LKET),nIsh(iSym0)*nSsh(iSym0),
+     &              1.0D+00,BRA,nIsh(iSym0)*nSsh(iSym0),
+     &                      KET,nIsh(iSym0)*nSsh(iSym0),
      &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
         End If
 C
         !! BraSA
         If (nAsh(iSym0)*nSsh(iSym0).ne.0) Then
-        Call Cholesky_Vectors(2,Active,Virtual,JSYM,Work(LBRA),nBra,
+        Call Cholesky_Vectors(2,Active,Virtual,JSYM,BRA,nBra,
      &                        IBSTA,IBEND)
-        Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
-     &                            Work(LKET),nKet,
+        Call Get_Cholesky_Vectors(Active,Virtual,JSYM,KET,nKet,
      &                            JBSTA,JBEND)
         Call DGEMM_('T','N',NVI,NVJ,nAsh(iSym0)*nSsh(iSym0),
-     &              1.0D+00,Work(LBRA),nAsh(iSym0)*nSsh(iSym0),
-     &                      Work(LKET),nAsh(iSym0)*nSsh(iSym0),
+     &              1.0D+00,BRA,nAsh(iSym0)*nSsh(iSym0),
+     &                      KET,nAsh(iSym0)*nSsh(iSym0),
      &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
         End If
 C
         !! BraAA
         If (nAsh(iSym0)*nAsh(iSym0).ne.0) Then
-        Call Cholesky_Vectors(2,Active,Active,JSYM,Work(LBRA),nBra,
+        Call Cholesky_Vectors(2,Active,Active,JSYM,BRA,nBra,
      &                        IBSTA,IBEND)
-        Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                            Work(LKET),nKet,
+        Call Get_Cholesky_Vectors(Active,Active,JSYM,KET,nKet,
      &                            JBSTA,JBEND)
         Call DGEMM_('T','N',NVI,NVJ,nAsh(iSym0)*nAsh(iSym0),
-     &              1.0D+00,Work(LBRA),nAsh(iSym0)*nAsh(iSym0),
-     &                      Work(LKET),nAsh(iSym0)*nAsh(iSym0),
+     &              1.0D+00,BRA,nAsh(iSym0)*nAsh(iSym0),
+     &                      KET,nAsh(iSym0)*nAsh(iSym0),
      &              1.0D+00,A_PT2(IOFFCV,JOFFCV),nChoVec)
         End If
         JOFFCV = JOFFCV + NVJ
@@ -409,15 +389,12 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*SVC  Call GetMem('ADDRHS','Free','Real',ipAdd,nAdd)
-      CALL GETMEM('BRABUF','FREE','REAL',LBRA,NCHOBUF)
-      CALL GETMEM('KETBUF','FREE','REAL',LKET,NCHOBUF)
-      CALL GETMEM('BRAD','FREE','REAL',LBRAD,NCHOBUF)
-      CALL GETMEM('KETD','FREE','REAL',LKETD,NCHOBUF)
-      CALL GetMem('PIQK','FREE','REAL',LPIQK,MXPIQK)
-      CALL GetMem('BUFF','FREE','REAL',LBUFF,NADDBUF)
-      CALL GetMem('IDXB','FREE','INTE',LIDXB,NADDBUF)
-      CALL GETMEM('BGRP','FREE','INTE',LBGRP,2*MXBGRP)
+      call mma_deallocate(BRA)
+      call mma_deallocate(KET)
+      call mma_deallocate(BRAD)
+      call mma_deallocate(KETD)
+      call mma_deallocate(PIQK)
+      call mma_deallocate(BGRP)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -440,8 +417,8 @@ C
       Call DScal_(nChoVec**2,2.0D+00,A_PT2,1)
 C
       If (NBGRP.ne.0) SCLNEL = SCLNEL/DBLE(NBGRP)
-      Call DScal_(nBasSq,SCLNEL,DPT2C,1)
-      If (do_csf) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
+      Call DScal_(NBSQT,SCLNEL,DPT2C,1)
+      If (do_csf) Call DScal_(NBSQT,SCLNEL,DPT2Canti,1)
 C
 C
       Return
@@ -453,12 +430,10 @@ C
       Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
      &                      Cho_BraD,Cho_KetD)
 C
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 C     DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION Cho_Bra(*), Cho_Ket(*)
       DIMENSION Cho_BraD(*), Cho_KetD(*)
@@ -521,39 +496,39 @@ C
 *
           !! NBUFF(=nAddBuf) is removed
           If (Case.eq.'A ') Then
-             CALL OLagNS_RI_A(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_A(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'B ') Then
-             CALL OLagNS_RI_B(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_B(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'D1') Then
-             CALL OLagNS_RI_D1(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_D1(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'H ') Then
-             CALL OLagNS_RI_H(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_H(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'C ') Then
-             CALL OLagNS_RI_C(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_C(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'F ') Then
-             CALL OLagNS_RI_F(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_F(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'D2') Then
-             CALL OLagNS_RI_D2(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_D2(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'G ') Then
-             CALL OLagNS_RI_G(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_G(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else If (Case.eq.'E ') Then
-             CALL OLagNS_RI_E(ISYI,ISYK,NP,NI,NQ,NK,Work(LPIQK),NPIQK,
+             CALL OLagNS_RI_E(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,
      &                        Cho_Bra(LBRASM),Cho_Ket(LKETSM),
      &                        Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
           Else
@@ -580,7 +555,7 @@ C
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -637,11 +612,11 @@ C
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
 C
-              ValAF = Work(ipT+IW-1)*2.0D+00
+              ValAF = GA_Arrays(ipT)%A(IW)*2.0D+00
               DPT2C(iTtot+nOrbT*(iJtot-1))
      *          = DPT2C(iTtot+nOrbT*(iJtot-1)) + ValAF
               If (do_csf) Then
-                ValAFanti = Work(ipTanti+IW-1)*2.0D+00
+                ValAFanti = GA_Arrays(ipTanti)%A(IW)*2.0D+00
                 DPT2Canti(iTtot+nOrbT*(iJtot-1))
      *            = DPT2Canti(iTtot+nOrbT*(iJtot-1)) + ValAFanti
               End If
@@ -651,7 +626,7 @@ C
               IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
-              TJVX(IT,IJ,IV,IX) = Work(ipT+IW-1)
+              TJVX(IT,IJ,IV,IX) = GA_Arrays(ipT)%A(IW)
             END DO
           END DO
         END DO
@@ -664,8 +639,8 @@ C
      *            1.0D+00,TJVX(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NX,
      *            1.0D+00,Cho_BraD(1,1,1),NT*NJ)
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
-      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+      CALL RHS_FREE(ipT)
+      If (do_csf) CALL RHS_FREE(ipTanti)
 C
       RETURN
 C
@@ -750,13 +725,13 @@ C
                  IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-                TJVL(IT,IJ,IV,IL) = SCL*Work(ipTP+IW-1)
+                TJVL(IT,IJ,IV,IL) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
         END DO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
       IF(NINDEP(ISYM,3).GT.0) THEN
@@ -795,13 +770,13 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)
-     *            + SCL*Work(ipTM+IW-1)
+     *            + SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
         END DO
 C
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       Call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,
@@ -821,7 +796,7 @@ C
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -877,11 +852,11 @@ C
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValCF = Work(ipT+IW-1)*2.0D+00
+              ValCF = GA_Arrays(ipT)%A(IW)*2.0D+00
               DPT2C(iAtot+nOrbA*(iUtot-1))
      *          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
               If (do_csf) Then
-                ValCFanti = Work(ipTanti+IW-1)*2.0D+00
+                ValCFanti = GA_Arrays(ipTanti)%A(IW)*2.0D+00
                 DPT2Canti(iAtot+nOrbA*(iUtot-1))
      *            = DPT2Canti(iAtot+nOrbA*(iUtot-1)) + ValCFanti
               End If
@@ -893,7 +868,7 @@ C
               IW2=IA
               IW=IW1+NAS*(IW2-1)
 C
-              ValC = Work(ipT+IW-1)
+              ValC = GA_Arrays(ipT)%A(IW)
               AUVX(IA,IU,IV,IX) = AUVX(IA,IU,IV,IX) + ValC
               AUVX(IA,IX,IU,IX) = AUVX(IA,IX,IU,IX) - ValCF*0.5D+00
             END DO
@@ -908,8 +883,8 @@ C
      *            1.0D+00,AUVX(1,1,1,1),NA*NU,Cho_Ket(1,1,1),NV*NX,
      *            1.0D+00,Cho_BraD(1,1,1),NA*NU)
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
-      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+      CALL RHS_FREE(ipT)
+      If (do_csf) CALL RHS_FREE(ipTanti)
 C
       RETURN
 C
@@ -921,7 +896,7 @@ C
      &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
-      use caspt2_gradient, only: do_csf
+      use caspt2_global, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -1002,17 +977,17 @@ C
               IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW=IW1+NAS*(IW2-1)
 C
-              ValD = Work(ipT+IW-1)
+              ValD = GA_Arrays(ipT)%A(IW)
               If (iVtot.eq.iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
      *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD*2.0d+00
                 If (do_csf) Then
-                  ValDanti = Work(ipTanti+IW-1)*2.0D+00
+                  ValDanti = GA_Arrays(ipTanti)%A(IW)*2.0D+00
                   DPT2Canti(iAtot+nOrbA*(iJtot-1))
      *              = DPT2Canti(iAtot+nOrbA*(iJtot-1)) + ValDanti
                 End If
               End If
-              AJVX(IV,IX,IAJ) = Work(ipT+IW-1)
+              AJVX(IV,IX,IAJ) = GA_Arrays(ipT)%A(IW)
             END DO
           END DO
         END DO
@@ -1028,8 +1003,8 @@ C
         ENDDO
       ENDDO
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
-      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+      CALL RHS_FREE(ipT)
+      If (do_csf) CALL RHS_FREE(ipTanti)
 C
       RETURN
 C
@@ -1098,7 +1073,7 @@ C
               IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
               IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
               IW=IW1+NAS*(IW2-1)
-              AUVL(IA,IU,IV,IL) = Work(ipT+IW-1)
+              AUVL(IA,IU,IV,IL) = GA_Arrays(ipT)%A(IW)
             END DO
           END DO
         END DO
@@ -1111,7 +1086,7 @@ C
      *            1.0D+00,AUVL,NA*NU,Cho_Ket,NV*NL,
      *            1.0D+00,Cho_BraD,NA*NU)
 C
-      CALL RHS_FREE(nAS,nIS,ipT)
+      CALL RHS_FREE(ipT)
 C
       RETURN
 C
@@ -1212,7 +1187,7 @@ C
                 IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
                 IW=IW1+NAS*(IW2-1)
 C
-                AJVL(IV,IL,IAJ) = SCL*Work(ipTP+IW-1)
+                AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
@@ -1228,7 +1203,7 @@ C
           ENDDO
         ENDDO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
 C     ---- EM
@@ -1283,7 +1258,7 @@ C
                   IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
                   IW=IW1+NAS*(IW2-1)
 C
-                  AJVL(IV,IL,IAJ) = SCL*Work(ipTM+IW-1)
+                  AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%A(IW)
                 END IF
               END DO
             END DO
@@ -1300,7 +1275,7 @@ C
           ENDDO
         ENDDO
 C
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       RETURN
@@ -1387,13 +1362,13 @@ C
                   IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
                 END IF
                 IW=IW1+NASP*(IW2-1)
-                AUCX(IA,IU,IC,IX) = SCL*Work(ipTP+IW-1)
+                AUCX(IA,IU,IC,IX) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
         END DO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
 C     ---- FM
@@ -1434,13 +1409,13 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)
-     *            + SCL*Work(ipTM+IW-1)
+     *            + SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
         END DO
 C
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       Call DGEMM_('T','N',NC*NX,NCHO,NA*NU,
@@ -1559,7 +1534,7 @@ C
                 IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGP = SCL*Work(ipTP+IW-1)
+                ValGP = SCL*GA_Arrays(ipTP)%A(IW)
                 AUCL(IA,IU,ICL) = ValGP
               END DO
             END DO
@@ -1578,7 +1553,7 @@ C
           ENDDO
         ENDDO
 C
-        CALL RHS_FREE(nASP,nISP,ipTP)
+        CALL RHS_FREE(ipTP)
       END IF
 C
 C     ---- GM
@@ -1641,7 +1616,7 @@ C
                 IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
                 IW=IW1+NAS*(IW2-1)
 C
-                ValGM = SCL*Work(ipTM+IW-1)
+                ValGM = SCL*GA_Arrays(ipTM)%A(IW)
                 AUCL(IA,IU,ICL) = ValGM
               END DO
             END DO
@@ -1660,7 +1635,7 @@ C
           ENDDO
         ENDDO
 
-        CALL RHS_FREE(nASM,nISM,ipTM)
+        CALL RHS_FREE(ipTM)
       END IF
 C
       RETURN
@@ -1779,7 +1754,7 @@ C
               END IF
               IW=IAGEC+NAGEB(ISYM)*(IJGEL-1)
 C
-              ValHP = SCL*Work(ipTP+IW-1)
+              ValHP = SCL*GA_Arrays(ipTP)%A(IW)
               AJCL(ICLSTA+ICL-1,IAJ) = ValHP
             END DO
           END DO
@@ -1798,7 +1773,7 @@ C
         ENDDO
       ENDDO
 C
-      IF (nVec.ne.0) CALL RHS_FREE(nINP,nISP,ipTP)
+      IF (nVec.ne.0) CALL RHS_FREE(ipTP)
 C
 C     ---- HM
 C
@@ -1874,7 +1849,7 @@ C
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
 C
-              ValHM = SCL*Work(ipTM+IW-1)
+              ValHM = SCL*GA_Arrays(ipTM)%A(IW)
               AJCL(ICLSTA+ICL-1,IAJ) = ValHM
             END DO
           END DO
@@ -1892,7 +1867,7 @@ C
         ENDDO
       ENDDO
 C
-      If (nVec.ne.0) CALL RHS_FREE(nINM,nISM,ipTM)
+      If (nVec.ne.0) CALL RHS_FREE(ipTM)
 C
       Return
 C
@@ -1906,9 +1881,7 @@ C
      *                            IBSTA,IBEND)
       USE CHOVEC_IO
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       Real*8  Array(*)
 
       ! ugly hack to convert separate k/q orbital types into a specific
@@ -1937,5 +1910,4 @@ C
       END DO
       nArray=LKETSM-1
 *
-      Return
-      End
+      End Subroutine Cholesky_Vectors

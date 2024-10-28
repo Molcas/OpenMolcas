@@ -1185,7 +1185,7 @@ else ()
   set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
 
   set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
-  set (Libxc_HASH 0a19bedb) # Release 6.2.2
+  set (Libxc_HASH 7bd5bb41) # Release 7.0.0
 
   if (";Debug;Release;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};")
     set (LIBXC_BUILD_TYPE ${CMAKE_BUILD_TYPE})
@@ -2707,6 +2707,7 @@ if (DEBUG_DEFS)
       string (REGEX MATCH ${def} result "${contents}")
       if (NOT ${result} STREQUAL "")
         set_property (SOURCE ${file} DIRECTORY ${subdirs} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
+        set_property (SOURCE ${file} TARGET mods_obj APPEND PROPERTY COMPILE_DEFINITIONS ${def})
       endif ()
     endforeach ()
   endforeach ()

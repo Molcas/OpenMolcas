@@ -15,10 +15,11 @@
 *
 ************************************************************************
       use InputData, only: Input
-      use caspt2_output, only: EMP2
+      use caspt2_global, only: EMP2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only: NCMO
+      use caspt2_global, only: LUONEM
       implicit none
-#include "stdalloc.fh"
-#include "rasdim.fh"
 #include "caspt2.fh"
 
       Real*8, Allocatable :: CMO_X(:), DPQ(:)
@@ -29,7 +30,7 @@
 
 * memory to store MOs
       NCMO=NBSQT
-      CALL MMA_ALLOCATE(CMO_X,NCMO)
+      CALL MMA_ALLOCATE(CMO_X,NCMO,Label='CMO_X')
 
 * Read the MOs from the LUONEM file
       IDISK=IAD1M(1)
@@ -219,5 +220,4 @@
 * we need to force recanonicalization of the orbitals later
       IFQCAN=0
 
-      return
-      end
+      end subroutine correlating_orbitals

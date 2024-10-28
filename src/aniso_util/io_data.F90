@@ -1080,7 +1080,7 @@ end subroutine read_eigen
 !=!=
 subroutine read_gtens(DATA_FILE,nmult,gtens,axes,dbg)
 
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: DATA_FILE, nmult
@@ -3417,7 +3417,7 @@ end subroutine write_4d_INTEGER_array
 subroutine write_1d_real_array(LU,key,n,array,dbg)
 
 use Constants, only: Ten
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LU, n

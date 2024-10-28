@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE STRINF(IPRNT)
       Use Str_Info
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 *
 * Strings for internal space.
 * Information is stored in
@@ -25,7 +26,6 @@
 *     (and /LUCINP/ not occuring here )
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "stdalloc.fh"
 *
 * ======
 * Output

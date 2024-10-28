@@ -17,12 +17,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nFLT
-! TODO: fix intent of these arrays after removing "ip_of_Work"
-real(kind=wp), intent(inout) :: W_DLT(*), W_DSQ(*), W_FLT(nFLT), W_FSQ(*)
-real(kind=wp), intent(in) :: ExFac
+real(kind=wp), intent(in) :: W_DLT(*), ExFac
+real(kind=wp), intent(inout) :: W_DSQ(*), W_FLT(nFLT), W_FSQ(*)
 integer(kind=iwp) :: i, irc, ja, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
-type (DSBA_Type) FLT(1), KLT(1), MOs, DLT, DSQ
+type (DSBA_Type) FLT(1), KLT(1), MOs(1), DLT(1), DSQ
 
 !****************************************************************
 ! CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
@@ -42,9 +41,9 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
 call Allocate_DT(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
-call Allocate_DT(MOs,nBas,nBas,nSym)
+call Allocate_DT(MOs(1),nBas,nBas,nSym)
 
 do i=1,nSym
   if (nBas(i) > 0) then
@@ -53,7 +52,7 @@ do i=1,nSym
       Ymax = max(Ymax,DSQ%SB(i)%A2(ja,ja))
     end do
     Thr = 1.0e-8_wp*Ymax
-    call CD_InCore(DSQ%SB(i)%A2,nBas(i),MOs%SB(i)%A2,nBas(i),NumV,Thr,irc)
+    call CD_InCore(DSQ%SB(i)%A2,nBas(i),MOs(1)%SB(i)%A2,nBas(i),NumV,Thr,irc)
     if (irc /= 0) then
       write(u6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
       call AbEnd()
@@ -73,7 +72,7 @@ nDen = 1
 call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
 call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
 
-call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
+call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,MOs,DLT,Half*ExFac,NScreen,dmpk,dFKmat)
 
 if (irc /= 0) then
   write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
@@ -85,9 +84,9 @@ call Deallocate_DT(FLT(1))
 
 call GADSUM(W_FLT,nFLT)
 
-call deallocate_DT(MOs)
+call deallocate_DT(MOs(1))
 call deallocate_DT(DSQ)
-call deallocate_DT(DLT)
+call deallocate_DT(DLT(1))
 
 ! Finalize Cholesky information
 

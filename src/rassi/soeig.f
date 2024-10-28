@@ -23,6 +23,7 @@
       use qcmaquis_interface_cfg
 #endif
       use Constants, only: auTocm, auToeV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -30,23 +31,19 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "rassiwfn.fh"
 
       INTEGER NSS
+      REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-      REAL*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
+      REAL*8 ENERGY(NSTATE)
 
       INTEGER I,N
       INTEGER ITOL,IDX
       INTEGER JOB
       INTEGER IPROP
       INTEGER IAMFIX,IAMFIY,IAMFIZ,IAMX,IAMY,IAMZ
-      INTEGER ISS,JSS,IJSS,ISTATE,JSTATE
-      INTEGER LHTOTI,LHTOTR
-      INTEGER LJ2I,LJ2R,LJXI,LJXR,LJYI,LJYR,LJZI,LJZR,LLXI,LLYI,LLZI
-      INTEGER LMAPMS,LMAPSP,LMAPST,LOMGI,LOMGR
+      INTEGER ISS,JSS,ISTATE,JSTATE
       INTEGER MAGN
       INTEGER MPLET,MPLET1,MPLET2,MSPROJ,MSPROJ1,MSPROJ2
 
@@ -70,11 +67,15 @@
       REAL*8, EXTERNAL :: DCLEBS
 
       Logical lOMG, lJ2
-      Integer  cho_x_gettol
-      External cho_x_gettol
+      Integer, External :: cho_x_gettol
       LOGICAL :: debug_dmrg_rassi_code = .false.
-
-
+      Integer, allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
+      Real*8, allocatable:: HTOTR(:,:), HTOTI(:,:)
+      Real*8, allocatable:: LXI(:), LYI(:), LZI(:)
+      Real*8, allocatable:: JXR(:), JYR(:), JZR(:)
+      Real*8, allocatable:: JXI(:), JYI(:), JZI(:)
+      Real*8, allocatable:: OMGR(:,:), OMGI(:,:)
+      Real*8, allocatable:: J2R(:,:), J2I(:,:)
 
 
 C CONSTANTS:
@@ -98,25 +99,25 @@ C Identify AMFI and ANGMOM matrix elements:
       END DO
 
 C Mapping from spin states to spin-free state and to spin:
-      CALL GETMEM('MAPST','ALLO','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','ALLO','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
+      CALL mma_allocate(MAPST,NSS,Label='MAPST')
+      CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
+      CALL mma_allocate(MAPMS,NSS,Label='MAPMS')
       ISS=0
       DO ISTATE=1,NSTATE
        JOB=JBNUM(ISTATE)
        MPLET=MLTPLT(JOB)
        DO MSPROJ=-MPLET+1,MPLET-1,2
         ISS=ISS+1
-        IWORK(LMAPST-1+ISS)=ISTATE
-        IWORK(LMAPSP-1+ISS)=MPLET
-        IWORK(LMAPMS-1+ISS)=MSPROJ
+        MAPST(ISS)=ISTATE
+        MAPSP(ISS)=MPLET
+        MAPMS(ISS)=MSPROJ
        END DO
       END DO
 C Complex hamiltonian matrix elements over spin states:
-      CALL GETMEM('HTOTR','ALLO','REAL',LHTOTR,NSS**2)
-      CALL GETMEM('HTOTI','ALLO','REAL',LHTOTI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTI),1)
+      CALL mma_allocate(HTOTR,NSS,NSS,Label='HTOTR')
+      CALL mma_allocate(HTOTI,NSS,NSS,Label='HTOTI')
+      HTOTR(:,:)=0.0D0
+      HTOTI(:,:)=0.0D0
 
       IF(IPGLOB.GE.1) THEN
        WRITE(6,*)
@@ -145,15 +146,15 @@ C Complex hamiltonian matrix elements over spin states:
       end if
 
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,NSS
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
           AMFIX=0.0D0
@@ -164,7 +165,6 @@ C Complex hamiltonian matrix elements over spin states:
           IF(IAMFIZ.NE.0) AMFIZ=PROP(ISTATE,JSTATE,IAMFIZ)
 * PAM07          HSCAL=0.0D0
 * PAM07          IF(ISS.EQ.JSS) HSCAL=ENERGY(ISTATE)
-          IJSS=ISS+NSS*(JSS-1)
 C WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
@@ -181,9 +181,8 @@ C  is multiplied by imaginary unit to keep its hermicity
           HSOR=CGY*AMFIY
           HSOI=CGX*AMFIX+CG0*AMFIZ
 * PAM07: Delay addition of diagonal scalar part until later, see below:
-*          WORK(LHTOTR-1+IJSS)=HSCAL+HSOR
-          WORK(LHTOTR-1+IJSS)=HSOR
-          WORK(LHTOTI-1+IJSS)=HSOI
+          HTOTR(ISS,JSS)=HSOR
+          HTOTI(ISS,JSS)=HSOI
 
         END DO
       END DO
@@ -191,8 +190,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 * VKochetov 2021 put SOC matrix elements to hdf5:
 #ifdef _HDF5_
       if (rhodyn) then
-        call mh5_put_dset(wfn_sos_vsor, work(LHTOTR))
-        call mh5_put_dset(wfn_sos_vsoi, work(LHTOTI))
+        call mh5_put_dset(wfn_sos_vsor, HTOTR)
+        call mh5_put_dset(wfn_sos_vsoi, HTOTI)
       endif
 #endif
 
@@ -206,9 +205,8 @@ C  is multiplied by imaginary unit to keep its hermicity
        N=0
        DO ISS=1,NSS
         DO JSS=1,ISS
-         IJSS=ISS+NSS*(JSS-1)
-         HSOR=WORK(LHTOTR-1+IJSS)
-         HSOI=WORK(LHTOTI-1+IJSS)
+         HSOR=HTOTR(ISS,JSS)
+         HSOI=HTOTI(ISS,JSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
          IF(HSOTOT*auTocm.GT.SOTHR_PRT) N=N+1
         END DO
@@ -234,20 +232,19 @@ C  is multiplied by imaginary unit to keep its hermicity
          WRITE(6,'(A)')'  I1  S1  MS1    I2  S2  MS2 '//
      &            '   Real part    Imag part      Absolute'
        DO  ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        MPLET1=IWORK(LMAPSP-1+ISS)
-        MSPROJ1=IWORK(LMAPMS-1+ISS)
+        ISTATE=MAPST(ISS)
+        MPLET1=MAPSP(ISS)
+        MSPROJ1=MAPMS(ISS)
         S1=0.5D0*DBLE(MPLET1-1)
         SM1=0.5D0*DBLE(MSPROJ1)
         DO JSS=1,ISS
-         IJSS=ISS+NSS*(JSS-1)
-         HSOR=WORK(LHTOTR-1+IJSS)
-         HSOI=WORK(LHTOTI-1+IJSS)
+         HSOR=HTOTR(ISS,JSS)
+         HSOI=HTOTI(ISS,JSS)
          HSOTOT=SQRT(HSOR**2+HSOI**2)
          IF(HSOTOT*auTocm.GE.SOTHR_PRT) THEN
-          JSTATE=IWORK(LMAPST-1+JSS)
-          MPLET2=IWORK(LMAPSP-1+JSS)
-          MSPROJ2=IWORK(LMAPMS-1+JSS)
+          JSTATE=MAPST(JSS)
+          MPLET2=MAPSP(JSS)
+          MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
          WRITE(6,'(1X,I5,F5.1,F5.1,I5,F5.1,F5.1,3F14.3)') ISS,S1,SM1,
@@ -262,10 +259,9 @@ C  is multiplied by imaginary unit to keep its hermicity
 
 * PAM07: Addition of scalar diagonal part was delayed until here, see above.
       DO ISS=1,NSS
-        ISTATE=IWORK(LMAPST-1+ISS)
-        IJSS=ISS+NSS*(ISS-1)
-        HSOR=WORK(LHTOTR-1+IJSS)
-        WORK(LHTOTR-1+IJSS)=HSOR+ENERGY(ISTATE)
+        ISTATE=MAPST(ISS)
+        HSOR=HTOTR(ISS,ISS)
+        HTOTR(ISS,ISS)=HSOR+ENERGY(ISTATE)
       END DO
 
 
@@ -275,7 +271,7 @@ C  is multiplied by imaginary unit to keep its hermicity
        WRITE(6,*)'Complex Hamiltonian matrix including SO-coupling'
        WRITE(6,*)'over spin components of spin-free eigenstates (SFS):'
        WRITE(6,'(1X,11A7)')('-------',I=1,11)
-       CALL PRCHAM(NSS,WORK(LHTOTR),WORK(LHTOTI))
+       CALL PRCHAM(NSS,HTOTR,HTOTI)
        WRITE(6,'(1X,11A7)')('-------',I=1,11)
       ENDIF
       ! save the Hamiltonian
@@ -283,8 +279,8 @@ C  is multiplied by imaginary unit to keep its hermicity
       call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
       call dcopy_(NSS*NSS,[0.d0],0,HAMSOR,1)
       call dcopy_(NSS*NSS,[0.d0],0,HAMSOI,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
+      call dcopy_(NSS*NSS,HTOTR,1,HAMSOR,1)
+      call dcopy_(NSS*NSS,HTOTI,1,HAMSOI,1)
       call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
       call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
 #ifdef _HDF5_
@@ -302,8 +298,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 
         DO jss = 1, nss
           DO iss = 1, nss
-            hso_tmp(iss,jss) = cmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
-     &                               WORK(LHTOTI-1+ISS+NSS*(JSS-1)),
+            hso_tmp(iss,jss) = cmplx(HTOTR(ISS,JSS),
+     &                               HTOTI(ISS,JSS),
      &                               kind=8)
 !         write(6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
           END DO
@@ -342,10 +338,9 @@ C  is multiplied by imaginary unit to keep its hermicity
       else
 #endif
         !> diagonalize H_SO and get array of eigenvalues/eigenvectors
-        CALL ZJAC(NSS,WORK(LHTOTR),WORK(LHTOTI),
-     &          NSS,USOR,USOI)
+        CALL ZJAC(NSS,HTOTR,HTOTI,NSS,USOR,USOI)
         DO ISS=1,NSS
-         ENSOR(ISS)=WORK(LHTOTR-1+ISS+NSS*(ISS-1))
+         ENSOR(ISS)=HTOTR(ISS,ISS)
         END DO
 #ifdef _DMRG_
       end if
@@ -371,8 +366,8 @@ C  is multiplied by imaginary unit to keep its hermicity
 #endif
       !> free memory for H_SO - do not use it below!
       !> eigenvalues are stored in ENSOR!
-      CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
-      CALL GETMEM('HTOTI','FREE','REAL',LHTOTI,NSS**2)
+      CALL mma_deallocate(HTOTR)
+      CALL mma_deallocate(HTOTI)
 C
 C     BOR in Krapperup 070227
 C     Compute J-values and Omega here instead of in subroutine PRPROP
@@ -398,88 +393,89 @@ C
 * The following matrix elements  require angular moment integrals:
 C     IF(IAMX.eq.0 .or. IAMY.eq.0 .or. IAMZ.eq.0) GOTO 910
 C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
-      CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
-      CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
-      CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
-      IF(IAMX.GT.0) CALL SMMAT(PROP,WORK(LLXI),NSS,IAMX,0)
-      IF(IAMY.GT.0) CALL SMMAT(PROP,WORK(LLYI),NSS,IAMY,0)
-      IF(IAMZ.GT.0) CALL SMMAT(PROP,WORK(LLZI),NSS,IAMZ,0)
+      CALL mma_allocate(LXI,NSS**2,Label='LXI')
+      LXI(:)=0.0D0
+      CALL mma_allocate(LYI,NSS**2,Label='LYI')
+      LYI(:)=0.0D0
+      CALL mma_allocate(LZI,NSS**2,Label='LZI')
+      LZI(:)=0.0D0
 
-      CALL GETMEM('JXR','ALLO','REAL',LJXR,NSS**2)
-      CALL GETMEM('JXI','ALLO','REAL',LJXI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJXR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJXI),1)
-      CALL GETMEM('JYR','ALLO','REAL',LJYR,NSS**2)
-      CALL GETMEM('JYI','ALLO','REAL',LJYI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJYR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJYI),1)
-      CALL GETMEM('JZR','ALLO','REAL',LJZR,NSS**2)
-      CALL GETMEM('JZI','ALLO','REAL',LJZI,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJZR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJZI),1)
+      IF(IAMX.GT.0) CALL SMMAT(PROP,LXI,NSS,IAMX,0)
+      IF(IAMY.GT.0) CALL SMMAT(PROP,LYI,NSS,IAMY,0)
+      IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,0)
 
-      CALL SMMAT(PROP,WORK(LJXR),NSS,0,1)
-      CALL SMMAT(PROP,WORK(LJYI),NSS,0,2)
-      CALL SMMAT(PROP,WORK(LJZR),NSS,0,3)
+      CALL mma_allocate(JXR,NSS**2,Label='JXR')
+      CALL mma_allocate(JXI,NSS**2,Label='JIR')
+      JXR(:)=0.0D0
+      JXI(:)=0.0D0
+      CALL mma_allocate(JYR,NSS**2,Label='JYR')
+      CALL mma_allocate(JYI,NSS**2,Label='JYR')
+      JYR(:)=0.0D0
+      JYI(:)=0.0D0
+      CALL mma_allocate(JZR,NSS**2,Label='JZR')
+      CALL mma_allocate(JZI,NSS**2,Label='JZR')
+      JZR(:)=0.0D0
+      JZI(:)=0.0D0
 
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LJXI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLYI),1,WORK(LJYI),1)
-      CALL DAXPY_(NSS**2,1.0D0,WORK(LLZI),1,WORK(LJZI),1)
+      CALL SMMAT(PROP,JXR,NSS,0,1)
+      CALL SMMAT(PROP,JYI,NSS,0,2)
+      CALL SMMAT(PROP,JZR,NSS,0,3)
 
-      CALL GETMEM('LXI','FREE','REAL',LLXI,NSS**2)
-      CALL GETMEM('LYI','FREE','REAL',LLYI,NSS**2)
-      CALL GETMEM('LZI','FREE','REAL',LLZI,NSS**2)
+      CALL DAXPY_(NSS**2,1.0D0,LXI,1,JXI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LYI,1,JYI,1)
+      CALL DAXPY_(NSS**2,1.0D0,LZI,1,JZI,1)
 
-      CALL GETMEM('OMGR','ALLO','REAL',LOMGR,NSS**2)
-      CALL GETMEM('OMGI','ALLO','REAL',LOMGI,NSS**2)
+      CALL mma_deallocate(LXI)
+      CALL mma_deallocate(LYI)
+      CALL mma_deallocate(LZI)
+
+      CALL mma_allocate(OMGR,NSS,NSS,Label='OMGR')
+      CALL mma_allocate(OMGI,NSS,NSS,Label='OMGI')
       lOMG=.True.
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LOMGR),1)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LOMGI),1)
+      OMGR(:,:)=0.0D0
+      OMGI(:,:)=0.0D0
 
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJZR),NSS,
-     &     WORK(LJZR),NSS,0.0D0,WORK(LOMGR),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,WORK(LJZI),NSS,
-     &     WORK(LJZI),NSS,1.0D0,WORK(LOMGR),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJZR),NSS,
-     &     WORK(LJZI),NSS,0.0D0,WORK(LOMGI),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJZI),NSS,
-     &     WORK(LJZR),NSS,1.0D0,WORK(LOMGI),NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,
+     &     JZR,NSS,0.0D0,OMGR,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JZI,NSS,
+     &     JZI,NSS,1.0D0,OMGR,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,
+     &     JZI,NSS,0.0D0,OMGI,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZI,NSS,
+     &     JZR,NSS,1.0D0,OMGI,NSS)
 
-      CALL GETMEM('JZR','FREE','REAL',LJZR,NSS**2)
-      CALL GETMEM('JZI','FREE','REAL',LJZI,NSS**2)
+      CALL mma_deallocate(JZR)
+      CALL mma_deallocate(JZI)
 
       lJ2 =.True.
-      CALL GETMEM('J2R','ALLO','REAL',LJ2R,NSS**2)
-      CALL GETMEM('J2I','ALLO','REAL',LJ2I,NSS**2)
-      CALL DCOPY_(NSS**2,WORK(LOMGR),1,WORK(LJ2R),1)
-      CALL DCOPY_(NSS**2,WORK(LOMGI),1,WORK(LJ2I),1)
+      CALL mma_allocate(J2R,NSS,NSS,Label='J2R')
+      CALL mma_allocate(J2I,NSS,NSS,Label='J2I')
+      J2R(:,:)=0.0D0
+      J2I(:,:)=0.0D0
 
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJXR),NSS,
-     &     WORK(LJXR),NSS,1.0D0,WORK(LJ2R),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,WORK(LJXI),NSS,
-     &     WORK(LJXI),NSS,1.0D0,WORK(LJ2R),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJYR),NSS,
-     &     WORK(LJYR),NSS,1.0D0,WORK(LJ2R),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,WORK(LJYI),NSS,
-     &     WORK(LJYI),NSS,1.0D0,WORK(LJ2R),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJXR),NSS,
-     &     WORK(LJXI),NSS,1.0D0,WORK(LJ2I),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJXI),NSS,
-     &     WORK(LJXR),NSS,1.0D0,WORK(LJ2I),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJYR),NSS,
-     &     WORK(LJYI),NSS,1.0D0,WORK(LJ2I),NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJYI),NSS,
-     &     WORK(LJYR),NSS,1.0D0,WORK(LJ2I),NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,
+     &     JXR,NSS,1.0D0,J2R,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JXI,NSS,
+     &     JXI,NSS,1.0D0,J2R,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,
+     &     JYR,NSS,1.0D0,J2R,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JYI,NSS,
+     &     JYI,NSS,1.0D0,J2R,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,
+     &     JXI,NSS,1.0D0,J2I,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXI,NSS,
+     &     JXR,NSS,1.0D0,J2I,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,
+     &     JYI,NSS,1.0D0,J2I,NSS)
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYI,NSS,
+     &     JYR,NSS,1.0D0,J2I,NSS)
 
-      CALL GETMEM('JXR','FREE','REAL',LJXR,NSS**2)
-      CALL GETMEM('JXI','FREE','REAL',LJXI,NSS**2)
-      CALL GETMEM('JYR','FREE','REAL',LJYR,NSS**2)
-      CALL GETMEM('JYI','FREE','REAL',LJYI,NSS**2)
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LOMGR),WORK(LOMGI))
-      CALL ZTRNSF(NSS,USOR,USOI,WORK(LJ2R),WORK(LJ2I))
+      CALL mma_deallocate(JXR)
+      CALL mma_deallocate(JXI)
+      CALL mma_deallocate(JYR)
+      CALL mma_deallocate(JYI)
+      CALL ZTRNSF(NSS,USOR,USOI,OMGR,OMGI)
+      CALL ZTRNSF(NSS,USOR,USOI,J2R,J2I)
 
 * Jump here to skip computing omega and/or J:
 C910  CONTINUE
@@ -535,10 +531,10 @@ C910  CONTINUE
         E2=auToeV*(E1-E0)
         E3=auTocm*(E1-E0)
         IF (IFJ2.gt.0) THEN
-         XJEFF=SQRT(0.25D0+WORK(LJ2R-1+ISS+NSS*(ISS-1)))-0.5D0
+         XJEFF=SQRT(0.25D0+J2R(ISS,ISS))-0.5D0
         END IF
         IF (IFJZ.gt.0) THEN
-        OMEGA=SQRT(1.0D-12+WORK(LOMGR-1+ISS+NSS*(ISS-1)))
+        OMEGA=SQRT(1.0D-12+OMGR(ISS,ISS))
         END IF
 
 C Added by Ungur Liviu on 04.11.2009
@@ -568,12 +564,12 @@ C Saving the ESO array in the RunFile.
       END IF
 
       IF(lOMG) THEN
-       CALL GETMEM('OMGR','FREE','REAL',LOMGR,NSS**2)
-       CALL GETMEM('OMGI','FREE','REAL',LOMGI,NSS**2)
+       CALL mma_deallocate(OMGR)
+       CALL mma_deallocate(OMGI)
       END IF
       IF(lJ2) THEN
-       CALL GETMEM('J2R','FREE','REAL',LJ2R,NSS**2)
-       CALL GETMEM('J2I','FREE','REAL',LJ2I,NSS**2)
+       CALL mma_deallocate(J2R)
+       CALL mma_deallocate(J2I)
       END IF
 
 C Put energy onto info file for automatic verification runs:
@@ -604,8 +600,7 @@ C Put energy onto info file for automatic verification runs:
          WRITE(6,*)'    (A selection of the largest components)'
        END IF
       END IF
-       CALL PRCEVC(NSS,FRAC,ENSOR,IWORK(LMAPST),IWORK(LMAPSP),
-     &            IWORK(LMAPMS),USOR,USOI)
+       CALL PRCEVC(NSS,FRAC,ENSOR,MAPST,MAPSP,MAPMS,USOR,USOI)
 
 C Update LoopDivide (SUBSets keyword)
 C Assume the SO "ground states" are mostly formed by the SF "ground states"
@@ -619,15 +614,15 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
         End Do
         LoopDivide=n
 #ifdef _HDF5_
-        If (IFTRD1.or.IFTRD2)
-     &    Call UpdateIdx(IndexE,nSS,USOR,USOI,iWork(lMapSt))
+        If (IFTRD1.or.IFTDM)
+     &    Call UpdateIdx(IndexE,nSS,USOR,USOI,MapSt)
 #endif
         Call mma_deAllocate(IndexE)
       End If
 
-      CALL GETMEM('MAPST','FREE','INTE',LMAPST,NSS)
-      CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
-      CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
+      CALL mma_deallocate(MAPST)
+      CALL mma_deallocate(MAPSP)
+      CALL mma_deallocate(MAPMS)
 
       call mma_deallocate(HAMSOR)
       call mma_deallocate(HAMSOI)

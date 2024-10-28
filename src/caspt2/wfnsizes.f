@@ -1,4 +1,4 @@
-************************************************************************
+*ERI0***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -14,8 +14,8 @@
 * Compute various orbital sizes
 *
 ************************************************************************
+      use caspt2_global, only: NTAT, NTORB, NPREF, NDREF
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

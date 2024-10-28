@@ -64,6 +64,34 @@ tinker:
   needs:
     - !reference [.use-clone]
 
+# A special job to check that all the tests have been run somewhere
+
+check_tests:
+  stage: .post
+  interruptible: true
+  script:
+    - export PROJECT_DIR=${CI_PROJECT_DIR}/${CLONED_DIR}
+    - |
+      if ( ! which python && which python3 ) ; then
+        sed -i -e 's/env python/env python3/' ${PROJECT_DIR}/Tools/verify/check_tests.py
+      fi
+    - ${PROJECT_DIR}/Tools/verify/check_tests.py
+  rules: !reference [.test-jobs, rules]
+  needs:
+    - !reference [.use-clone]
+    - test:bounds
+    - test:garble
+    - test:intel13
+    - test:intel
+    - test:intel_llvm
+    - test:linalg
+    - test:mpi
+    - test:nag
+    - test:options
+    - test:pgi
+    - test:plain
+    - test:qcmaquis
+
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
 

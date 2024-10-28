@@ -17,15 +17,12 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
+      use caspt2_global, only: LUSOLV, IDSCT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-
-#include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -40,7 +37,7 @@ C Read coefficient vector from LUSOLV (C repres).
       IF(NCOEF.EQ.0) RETURN
       MDVEC=MODVEC(ISYM,ICASE)
 *      IDS=IDSCT(ISCT,ISYM,ICASE,IVEC)
-      IDS=IWORK(LIDSCT-1+ISCT+MXSCT*(ISYM-1+8*
+      IDS=IDSCT(ISCT+MXSCT*(ISYM-1+8*
      &                         (ICASE-1+MXCASE*(IVEC-1))))
       NCOL=MIN(NIS-MDVEC*(ISCT-1),MDVEC)
       NSCT=NAS*NCOL
@@ -49,19 +46,15 @@ C Read coefficient vector from LUSOLV (C repres).
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VSCT(I),I=1,MIN(NSCT,10))
 #endif
-      RETURN
-      END
+      END SUBROUTINE RDSCTC
 
       SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
+      use caspt2_global, only: LUSOLV, IDSCT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-
-#include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -75,7 +68,7 @@ C Read coefficient vector from LUSOLV (C repres).
       IF(NCOEF.EQ.0) RETURN
       MDVEC=MODVEC(ISYM,ICASE)
 *      IDV=IDSCT(1,ISYM,ICASE,IVEC)
-      IDV=IWORK(LIDSCT+MXSCT*(ISYM-1+8*
+      IDV=IDSCT(1+MXSCT*(ISYM-1+8*
      &                         (ICASE-1+MXCASE*(IVEC-1))))
       LVEC=1
       DO 10 IISTA=1,NIS,MDVEC
@@ -88,8 +81,7 @@ C Read coefficient vector from LUSOLV (C repres).
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VEC(I),I=1,MIN(NCOEF,10))
 #endif
-      RETURN
-      END
+      END SUBROUTINE RDBLKC
 
 ************************************************************************
 * New VECTOR UTILITIES, written by Steven Vancoillie, May 2011
@@ -99,14 +91,12 @@ C Read coefficient vector from LUSOLV (C repres).
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
-      USE caspt2_output, ONLY: iPrGlb
+      use caspt2_global, ONLY: iPrGlb
       USE PrintLevel, ONLY: usual
+      use EQSOLV
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
       REAL*8 FACT
       INTEGER IVEC,JVEC
@@ -132,9 +122,10 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
             CALL RHS_ALLO (NIN,NIS,lg_V)
             CALL RHS_READ (NIN,NIS,lg_V,ICASE,ISYM,IVEC)
             CALL RHS_SCAL (NIN,NIS,lg_V,FACT)
-            IF(FACT.EQ.-1.0D00)SIGMA2=SIGMA2+RHS_DDOT(NIN,NIS,lg_V,lg_V)
+            IF(FACT.EQ.-1.0D00)SIGMA2=SIGMA2
+     &                               +RHS_DDOT(NIN,NIS,lg_V,lg_V)
             CALL RHS_SAVE (NIN,NIS,lg_V,ICASE,ISYM,JVEC)
-            CALL RHS_FREE (NIN,NIS,lg_V)
+            CALL RHS_FREE (lg_V)
           END IF
         END DO
       END DO
@@ -147,18 +138,15 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
       CPUSCA=CPUSCA+(CPU1-CPU0)
       TIOSCA=TIOSCA+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PSCAVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
-      DIMENSION OVLAPS(0:8,0:MXCASE)
+      REAL*8 OVLAPS(0:8,0:MXCASE)
 
 C Compute overlaps of vectors nr IVEC and JVEC in SR format!, for each
 C individual case and symmetry block, in OVLAPS(ISYM,ICASE), summed over
@@ -186,9 +174,9 @@ C sum in OVLAPS(0,0).
               lg_V2=lg_V1
             END IF
             OVL=RHS_DDOT(NIN,NIS,lg_V1,lg_V2)
-            CALL RHS_FREE (NIN,NIS,lg_V1)
+            CALL RHS_FREE (lg_V1)
             IF (IVEC.NE.JVEC) THEN
-              CALL RHS_FREE (NIN,NIS,lg_V2)
+              CALL RHS_FREE (lg_V2)
             END IF
           END IF
           OVLAPS(ISYM,ICASE)=OVL
@@ -204,17 +192,14 @@ C sum in OVLAPS(0,0).
       CPUOVL=CPUOVL+(CPU1-CPU0)
       TIOOVL=TIOOVL+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE POVLVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
@@ -251,9 +236,9 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (NIN,NIS,lg_V2)
+          CALL RHS_FREE (lg_V2)
           IF(BETA.NE.0.0D0.AND.ALPHA.NE.0.0D0) THEN
-            CALL RHS_FREE (NIN,NIS,lg_V1)
+            CALL RHS_FREE (lg_V1)
           END IF
  101    CONTINUE
  100  CONTINUE
@@ -262,17 +247,14 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
       CPULCS=CPULCS+(CPU1-CPU0)
       TIOLCS=TIOLCS+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PLCVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -293,8 +275,9 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
             IF(NIN.GT.0) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
-              CALL RHS_FREE (NIN,NIS,lg_V1)
+              CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,
+     &                       lg_V1,lg_V2,ICASE,ISYM)
+              CALL RHS_FREE (lg_V1)
             ELSE
               CALL RHS_SCAL (NAS,NIS,lg_V2,0.0D0)
             END IF
@@ -304,7 +287,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
           CALL RHS_SAVE (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V2)
 
  100    CONTINUE
  200  CONTINUE
@@ -313,17 +296,14 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
       CPUVEC=CPUVEC+(CPU1-CPU0)
       TIOVEC=TIOVEC+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PTRTOC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -344,8 +324,9 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
             IF(NAS.GT.0) THEN
               CALL RHS_ALLO (NAS,NIS,lg_V2)
               CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
-              CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
-              CALL RHS_FREE (NAS,NIS,lg_V2)
+              CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,
+     &                       lg_V1,lg_V2,ICASE,ISYM)
+              CALL RHS_FREE (lg_V2)
             ELSE
               CALL RHS_SCAL (NIN,NIS,lg_V1,0.0D0)
             END IF
@@ -355,7 +336,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
           CALL RHS_SAVE (NIN,NIS,lg_V1,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (NIN,NIS,lg_V1)
+          CALL RHS_FREE (lg_V1)
 
  100    CONTINUE
  200  CONTINUE
@@ -364,5 +345,4 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
       CPUVEC=CPUVEC+(CPU1-CPU0)
       TIOVEC=TIOVEC+(TIO1-TIO0)
 
-      RETURN
-      END
+      END SUBROUTINE PTRTOSR

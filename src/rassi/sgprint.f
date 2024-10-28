@@ -12,7 +12,6 @@
       use gugx, only: SGStruct
       implicit real*8 (a-h,o-z)
       Type (SGStruct) SGS
-#include "WrkSpc.fh"
 
 C Unpack structure SGS:
       nLev   =SGS%nLev

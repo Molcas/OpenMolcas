@@ -12,11 +12,14 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
-      use caspt2_output, only:iPrGlb
-      use caspt2_data, only: CMO, CMO_Internal
+      use caspt2_global, only:iPrGlb
+      use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
+     &                       CMOPT2, NCMO
+      use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -26,19 +29,17 @@
 * group such that they diagonalize the H0 matrix.
 * The states in the group can be obtained from the ordered MSTATE array,
 * for which a group offset JSTATE_OFF is passed in.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
 #include "warnings.h"
       LOGICAL IF_TRNSF
       CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
+
+      real(8), allocatable:: CIRef(:,:), CIXMS(:)
 
 * ---------------------------------------------------------------------
 * Number of states in this group.
@@ -86,20 +87,19 @@
       do J=1,Ngrp
         Jstate=J+JSTATE_OFF
 
-* Copy the 1-RDM of Jstate from LDMIX into LDREF
+* Copy the 1-RDM of Jstate from DMIX into DREF
         ! this might be obsolete if we remove sadref
         IF (IFSADREF) Then
           !! This DREF is used only for constructing the Fock in H0.
           !! DREF used in other places will be constructed in elsewhere
           !! (STINI).
-          Call DCopy_(NDREF,[0.0D+00],0,WORK(LDREF),1)
+          DREF(:)=0.0D0
           Do K = 1, Nstate
             wij = 1.0d+00/nstate
-            ioffset = NDREF*(K-1)
-            CALL DAXPY_(NDREF,wij,WORK(LDMIX+ioffset),1,WORK(LDREF),1)
+            CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
           End Do
         Else
-         CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+         CALL DCOPY_(SIZE(DREF),DMIX(:,Jstate),1,DREF,1)
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate
@@ -111,16 +111,16 @@
           call INTCTL2(IF_TRNSF)
         else
 * INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-          call INTCTL1(CMO)
-          call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
+          call INTCTL1(CMO,NCMO)
+          CMOPT2(:)=CMO(:)
         end If
 
 c Modify the Fock matrix if needed
 c You don't have to be beautiful to turn me on
-        CALL NEWFOCK(WORK(LFIFA),CMO)
+        CALL NEWFOCK(FIFA,SIZE(FIFA),CMO,NCMO)
 
 * NN.15, TODO:
-* MKFOP and following transformation are skipped in DMRG-CASPT2 run
+* the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
         IF (DoCumulant .or. DoFCIQMC) GoTo 100
 
@@ -128,7 +128,7 @@ c You don't have to be beautiful to turn me on
         do I=1,Ngrp
           Istate=I+JSTATE_OFF
 * Compute matrix element and put it into H0
-          call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
+          call FOPAB(FIFA,SIZE(FIFA),Istate,Jstate,H0(Istate,Jstate))
         end do
 
         if (IPRGLB.ge.VERBOSE) then
@@ -144,7 +144,8 @@ c You don't have to be beautiful to turn me on
             do Istate=1,Nstate
               if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
-                call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
+                call FOPAB(FIFA,SIZE(FIFA),Istate,Jstate,
+     &                     H0(Istate,Jstate))
                 write(6,'(A3,I4,A3,F16.8)')
      &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
 * Then set it to zero because we are within the diagonal approximation
@@ -211,33 +212,33 @@ c You don't have to be beautiful to turn me on
           write(6,*)
         end if
 
-        call getmem('CIREF','ALLO','REAL',LCIref,Ngrp*Nconf)
+        call mma_allocate(CIref,Nconf,Ngrp,Label='CIRef')
 * Load the CI arrays into memory
         do I=1,Ngrp
-          call loadCI(WORK(LCIref+Nconf*(I-1)),I)
+          call loadCI(CIref(:,I),I)
         end do
 
-        call getmem('CIXMS','ALLO','REAL',LCIXMS,Nconf)
+        call mma_allocate(CIXMS,Nconf,Label='CIXMS')
         do J=1,Ngrp
 * Transform the states
           call dgemm_('N','N',Nconf,1,Ngrp,
-     &               1.0D0,WORK(LCIREF),Nconf,U0(:,J),Ngrp,
-     &               0.0D0,WORK(LCIXMS),Nconf)
+     &               1.0D0,CIREF,Nconf,U0(:,J),Ngrp,
+     &               0.0D0,CIXMS,Nconf)
 
 * Write the rotated CI coefficients back into LUCIEX and REPLACE the
 * original unrotated CASSCF states. Note that the original states
 * are still available in the JobIph file
-          call writeCI(WORK(LCIXMS),J)
+          call writeCI(CIXMS,J)
 
           if (IPRGLB.ge.VERBOSE) then
             write(6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-            call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
+            call PRWF_CP2(STSYM,NCONF,CIXMS,CITHR)
           end if
         end do
 
-        call getmem('CIREF','FREE','REAL',LCIREF,Ngrp*Nconf)
-        call getmem('CIXMS','FREE','REAL',LCIXMS,Nconf)
+        call mma_deallocate(CIREF)
+        call mma_deallocate(CIXMS)
 
       end if
 
@@ -250,7 +251,7 @@ c You don't have to be beautiful to turn me on
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(CMO)
+      CALL ORBCTL(CMO,NCMO)
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
@@ -259,24 +260,21 @@ c You don't have to be beautiful to turn me on
 * transformed Cholesky vectors (if IfChol), so these are computed here
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
-      if (.not. DoFCIQMC) then
-          if (IfChol) then
+
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
-              call TRACHO3(CMO)
-          else
 * TRACTL(0) computes transformed 2-body MO integrals
-              call TRACTL(0)
-          end if
+      if (IfChol) then
+          call TRACHO3(CMO,NCMO)
+      else
+          if (.not. DoFCIQMC) call TRACTL(0)
       end if
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0
-      call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
+      CMOPT2(:)=CMO(:)
 
       call mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 
-
-      return
-      end
+      end SUBROUTINE GRPINI

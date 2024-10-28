@@ -33,10 +33,10 @@ c     wKtD   As above but different order
 c
 c
       use Arrays, only: G1t
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Two
       Implicit Real*8 (a-h,o-z)
 c
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "Pointers.fh"
       Real*8 ekappa(ndens2),mkappa(ndens2)

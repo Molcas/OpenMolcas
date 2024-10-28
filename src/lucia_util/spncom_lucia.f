@@ -14,7 +14,7 @@
 * Combinations of nopen unpaired electrons.Required
 * spin projection MS2/2.
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. MXPDIM is included to have access to MXPORB
 #include "mxpdim.fh"
       INTEGER ADD

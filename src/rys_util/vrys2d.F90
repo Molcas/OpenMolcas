@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine vRys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
+subroutine vRys2D( &
+#                 define _CALLING_
+#                 include "rys2d_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the 2-dimensional integrals of the Rys            *
@@ -32,9 +35,7 @@ use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
-real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
-real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys), B00(nArg*lRys), B01(nArg*lRys)
+#include "rys2d_interface.fh"
 integer(kind=iwp) :: iab, icd
 real(kind=wp) :: Fac1, Fac2, Fact
 logical(kind=iwp) :: lPAWP, lQCWQ
@@ -45,9 +46,9 @@ character(len=30) :: Label
 #ifdef _DEBUGPRINT_
 if (nabMax > 0) call RecPrt('vRys2D: PAWP',' ',PAWP,lRys,nArg*3)
 if (ncdMax > 0) call RecPrt('vRys2D: QCWQ',' ',QCWQ,lRys,nArg*3)
-call RecPrt('vRys2D:  B10',' ',B10,lRys,nArg)
-call RecPrt('vRys2D:  B00',' ',B00,lRys,nArg)
-call RecPrt('vRys2D:  B01',' ',B01,lRys,nArg)
+call RecPrt('vRys2D:  B10',' ',B10(:,1),lRys,nArg)
+call RecPrt('vRys2D:  B00',' ',B00(:,1),lRys,nArg)
+call RecPrt('vRys2D:  B01',' ',B01(:,1),lRys,nArg)
 #endif
 
 if ((nabMax /= 0) .or. (ncdMax /= 0)) then
@@ -75,16 +76,16 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
   else if (nabMax == 1) then
     xyz2D(:,3,1,0) = xyz2D(:,3,1,0)*xyz2D(:,3,0,0)
   else if (nabMax >= 2) then
-    xyz2D(:,1,2,0) = xyz2D(:,1,1,0)**2+B10(:)
-    xyz2D(:,2,2,0) = xyz2D(:,2,1,0)**2+B10(:)
-    xyz2D(:,3,2,0) = (xyz2D(:,3,1,0)**2+B10(:))*xyz2D(:,3,0,0)
+    xyz2D(:,1,2,0) = xyz2D(:,1,1,0)**2+B10(:,1)
+    xyz2D(:,2,2,0) = xyz2D(:,2,1,0)**2+B10(:,1)
+    xyz2D(:,3,2,0) = (xyz2D(:,3,1,0)**2+B10(:,1))*xyz2D(:,3,0,0)
     xyz2D(:,3,1,0) = xyz2D(:,3,1,0)*xyz2D(:,3,0,0)
     if (nabMax > 2) then
       Fact = Two
       do iab=2,nabMax-1
-        xyz2D(:,1,iab+1,0) = xyz2D(:,1,1,0)*xyz2D(:,1,iab,0)+Fact*B10(:)*xyz2D(:,1,iab-1,0)
-        xyz2D(:,2,iab+1,0) = xyz2D(:,2,1,0)*xyz2D(:,2,iab,0)+Fact*B10(:)*xyz2D(:,2,iab-1,0)
-        xyz2D(:,3,iab+1,0) = xyz2D(:,1,0,0)*xyz2D(:,3,iab,0)+Fact*B10(:)*xyz2D(:,3,iab-1,0)
+        xyz2D(:,1,iab+1,0) = xyz2D(:,1,1,0)*xyz2D(:,1,iab,0)+Fact*B10(:,1)*xyz2D(:,1,iab-1,0)
+        xyz2D(:,2,iab+1,0) = xyz2D(:,2,1,0)*xyz2D(:,2,iab,0)+Fact*B10(:,1)*xyz2D(:,2,iab-1,0)
+        xyz2D(:,3,iab+1,0) = xyz2D(:,1,0,0)*xyz2D(:,3,iab,0)+Fact*B10(:,1)*xyz2D(:,3,iab-1,0)
         Fact = Fact+One
       end do
     end if
@@ -95,16 +96,16 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
   if (ncdMax == 1) then
     xyz2D(:,3,0,1) = xyz2D(:,3,0,1)*xyz2D(:,3,0,0)
   else if (ncdMax >= 2) then
-    xyz2D(:,1,0,2) = xyz2D(:,1,0,1)**2+B01(:)
-    xyz2D(:,2,0,2) = xyz2D(:,2,0,1)**2+B01(:)
-    xyz2D(:,3,0,2) = (xyz2D(:,3,0,1)**2+B01(:))*xyz2D(:,3,0,0)
+    xyz2D(:,1,0,2) = xyz2D(:,1,0,1)**2+B01(:,1)
+    xyz2D(:,2,0,2) = xyz2D(:,2,0,1)**2+B01(:,1)
+    xyz2D(:,3,0,2) = (xyz2D(:,3,0,1)**2+B01(:,1))*xyz2D(:,3,0,0)
     xyz2D(:,3,0,1) = xyz2D(:,3,0,1)*xyz2D(:,3,0,0)
     if (ncdMax > 2) then
       Fact = Two
       do icd=2,ncdMax-1
-        xyz2D(:,1,0,icd+1) = xyz2D(:,1,0,1)*xyz2D(:,1,0,icd)+Fact*B01(:)*xyz2D(:,1,0,icd-1)
-        xyz2D(:,2,0,icd+1) = xyz2D(:,2,0,1)*xyz2D(:,2,0,icd)+Fact*B01(:)*xyz2D(:,2,0,icd-1)
-        xyz2D(:,3,0,icd+1) = xyz2D(:,2,0,0)*xyz2D(:,3,0,icd)+Fact*B01(:)*xyz2D(:,3,0,icd-1)
+        xyz2D(:,1,0,icd+1) = xyz2D(:,1,0,1)*xyz2D(:,1,0,icd)+Fact*B01(:,1)*xyz2D(:,1,0,icd-1)
+        xyz2D(:,2,0,icd+1) = xyz2D(:,2,0,1)*xyz2D(:,2,0,icd)+Fact*B01(:,1)*xyz2D(:,2,0,icd-1)
+        xyz2D(:,3,0,icd+1) = xyz2D(:,2,0,0)*xyz2D(:,3,0,icd)+Fact*B01(:,1)*xyz2D(:,3,0,icd-1)
         Fact = Fact+One
       end do
     end if
@@ -116,24 +117,27 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
     Fac1 = One
     do icd=1,ncdMax
       if (icd == 1) then
-        xyz2D(:,1,1,1) = xyz2D(:,1,1,0)*xyz2D(:,1,0,1)+B00(:)
-        xyz2D(:,2,1,1) = xyz2D(:,2,1,0)*xyz2D(:,2,0,1)+B00(:)
-        xyz2D(:,3,1,1) = xyz2D(:,1,0,0)*xyz2D(:,3,0,1)+B00(:)*xyz2D(:,3,0,0)
+        xyz2D(:,1,1,1) = xyz2D(:,1,1,0)*xyz2D(:,1,0,1)+B00(:,1)
+        xyz2D(:,2,1,1) = xyz2D(:,2,1,0)*xyz2D(:,2,0,1)+B00(:,1)
+        xyz2D(:,3,1,1) = xyz2D(:,1,0,0)*xyz2D(:,3,0,1)+B00(:,1)*xyz2D(:,3,0,0)
       else
-        xyz2D(:,1,1,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,0,icd)+Fac1*B00(:)*xyz2D(:,1,0,icd-1)
-        xyz2D(:,2,1,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,0,icd)+Fac1*B00(:)*xyz2D(:,2,0,icd-1)
-        xyz2D(:,3,1,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,0,icd)+Fac1*B00(:)*xyz2D(:,3,0,icd-1)
+        xyz2D(:,1,1,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,0,icd)+Fac1*B00(:,1)*xyz2D(:,1,0,icd-1)
+        xyz2D(:,2,1,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,0,icd)+Fac1*B00(:,1)*xyz2D(:,2,0,icd-1)
+        xyz2D(:,3,1,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,0,icd)+Fac1*B00(:,1)*xyz2D(:,3,0,icd-1)
       end if
       if (nabMax == 2) then
-        xyz2D(:,1,2,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,1,icd)+B10(:)*xyz2D(:,1,0,icd)+Fac1*B00(:)*xyz2D(:,1,1,icd-1)
-        xyz2D(:,2,2,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,1,icd)+B10(:)*xyz2D(:,2,0,icd)+Fac1*B00(:)*xyz2D(:,2,1,icd-1)
-        xyz2D(:,3,2,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,1,icd)+B10(:)*xyz2D(:,3,0,icd)+Fac1*B00(:)*xyz2D(:,3,1,icd-1)
+        xyz2D(:,1,2,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,1,icd)+B10(:,1)*xyz2D(:,1,0,icd)+Fac1*B00(:,1)*xyz2D(:,1,1,icd-1)
+        xyz2D(:,2,2,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,1,icd)+B10(:,1)*xyz2D(:,2,0,icd)+Fac1*B00(:,1)*xyz2D(:,2,1,icd-1)
+        xyz2D(:,3,2,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,1,icd)+B10(:,1)*xyz2D(:,3,0,icd)+Fac1*B00(:,1)*xyz2D(:,3,1,icd-1)
       else if (nabMax > 2) then
         Fac2 = One
         do iab=1,nabMax-1
-          xyz2D(:,1,iab+1,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,iab,icd)+Fac2*B10(:)*xyz2D(:,1,iab-1,icd)+Fac1*B00(:)*xyz2D(:,1,iab,icd-1)
-          xyz2D(:,2,iab+1,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,iab,icd)+Fac2*B10(:)*xyz2D(:,2,iab-1,icd)+Fac1*B00(:)*xyz2D(:,2,iab,icd-1)
-          xyz2D(:,3,iab+1,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,iab,icd)+Fac2*B10(:)*xyz2D(:,3,iab-1,icd)+Fac1*B00(:)*xyz2D(:,3,iab,icd-1)
+          xyz2D(:,1,iab+1,icd) = xyz2D(:,1,1,0)*xyz2D(:,1,iab,icd)+Fac2*B10(:,1)*xyz2D(:,1,iab-1,icd)+ &
+                                 Fac1*B00(:,1)*xyz2D(:,1,iab,icd-1)
+          xyz2D(:,2,iab+1,icd) = xyz2D(:,2,1,0)*xyz2D(:,2,iab,icd)+Fac2*B10(:,1)*xyz2D(:,2,iab-1,icd)+ &
+                                 Fac1*B00(:,1)*xyz2D(:,2,iab,icd-1)
+          xyz2D(:,3,iab+1,icd) = xyz2D(:,1,0,0)*xyz2D(:,3,iab,icd)+Fac2*B10(:,1)*xyz2D(:,3,iab-1,icd)+ &
+                                 Fac1*B00(:,1)*xyz2D(:,3,iab,icd-1)
           Fac2 = Fac2+One
         end do
       end if
@@ -143,24 +147,27 @@ if ((nabMax /= 0) .or. (ncdMax /= 0)) then
     Fac1 = One
     do iab=1,nabMax
       if (iab == 1) then
-        xyz2D(:,1,1,1) = xyz2D(:,1,0,1)*xyz2D(:,1,1,0)+B00(:)
-        xyz2D(:,2,1,1) = xyz2D(:,2,0,1)*xyz2D(:,2,1,0)+B00(:)
-        xyz2D(:,3,1,1) = xyz2D(:,2,0,0)*xyz2D(:,3,1,0)+B00(:)*xyz2D(:,3,0,0)
+        xyz2D(:,1,1,1) = xyz2D(:,1,0,1)*xyz2D(:,1,1,0)+B00(:,1)
+        xyz2D(:,2,1,1) = xyz2D(:,2,0,1)*xyz2D(:,2,1,0)+B00(:,1)
+        xyz2D(:,3,1,1) = xyz2D(:,2,0,0)*xyz2D(:,3,1,0)+B00(:,1)*xyz2D(:,3,0,0)
       else
-        xyz2D(:,1,iab,1) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,0)+Fac1*B00(:)*xyz2D(:,1,iab-1,0)
-        xyz2D(:,2,iab,1) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,0)+Fac1*B00(:)*xyz2D(:,2,iab-1,0)
-        xyz2D(:,3,iab,1) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,0)+Fac1*B00(:)*xyz2D(:,3,iab-1,0)
+        xyz2D(:,1,iab,1) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,0)+Fac1*B00(:,1)*xyz2D(:,1,iab-1,0)
+        xyz2D(:,2,iab,1) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,0)+Fac1*B00(:,1)*xyz2D(:,2,iab-1,0)
+        xyz2D(:,3,iab,1) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,0)+Fac1*B00(:,1)*xyz2D(:,3,iab-1,0)
       end if
       if (ncdMax == 2) then
-        xyz2D(:,1,iab,2) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,1)+B01(:)*xyz2D(:,1,iab,0)+Fac1*B00(:)*xyz2D(:,1,iab-1,1)
-        xyz2D(:,2,iab,2) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,1)+B01(:)*xyz2D(:,2,iab,0)+Fac1*B00(:)*xyz2D(:,2,iab-1,1)
-        xyz2D(:,3,iab,2) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,1)+B01(:)*xyz2D(:,3,iab,0)+Fac1*B00(:)*xyz2D(:,3,iab-1,1)
+        xyz2D(:,1,iab,2) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,1)+B01(:,1)*xyz2D(:,1,iab,0)+Fac1*B00(:,1)*xyz2D(:,1,iab-1,1)
+        xyz2D(:,2,iab,2) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,1)+B01(:,1)*xyz2D(:,2,iab,0)+Fac1*B00(:,1)*xyz2D(:,2,iab-1,1)
+        xyz2D(:,3,iab,2) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,1)+B01(:,1)*xyz2D(:,3,iab,0)+Fac1*B00(:,1)*xyz2D(:,3,iab-1,1)
       else if (ncdMax > 2) then
         Fac2 = One
         do icd=1,ncdmax-1
-          xyz2D(:,1,iab,icd+1) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,icd)+Fac2*B01(:)*xyz2D(:,1,iab,icd-1)+Fac1*B00(:)*xyz2D(:,1,iab-1,icd)
-          xyz2D(:,2,iab,icd+1) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,icd)+Fac2*B01(:)*xyz2D(:,2,iab,icd-1)+Fac1*B00(:)*xyz2D(:,2,iab-1,icd)
-          xyz2D(:,3,iab,icd+1) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,icd)+Fac2*B01(:)*xyz2D(:,3,iab,icd-1)+Fac1*B00(:)*xyz2D(:,3,iab-1,icd)
+          xyz2D(:,1,iab,icd+1) = xyz2D(:,1,0,1)*xyz2D(:,1,iab,icd)+Fac2*B01(:,1)*xyz2D(:,1,iab,icd-1)+ &
+                                 Fac1*B00(:,1)*xyz2D(:,1,iab-1,icd)
+          xyz2D(:,2,iab,icd+1) = xyz2D(:,2,0,1)*xyz2D(:,2,iab,icd)+Fac2*B01(:,1)*xyz2D(:,2,iab,icd-1)+ &
+                                 Fac1*B00(:,1)*xyz2D(:,2,iab-1,icd)
+          xyz2D(:,3,iab,icd+1) = xyz2D(:,2,0,0)*xyz2D(:,3,iab,icd)+Fac2*B01(:,1)*xyz2D(:,3,iab,icd-1)+ &
+                                 Fac1*B00(:,1)*xyz2D(:,3,iab-1,icd)
           Fac2 = Fac2+One
         end do
       end if

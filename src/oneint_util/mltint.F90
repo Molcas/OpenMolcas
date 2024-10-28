@@ -30,12 +30,12 @@ use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: ChOper
 use rmat, only: RMat_Type_Integrals
+use NDDO, only: oneel_NDDO
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "oneswi.fh"
 #include "print.fh"
 integer(kind=iwp) :: iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, ipQxyz, iPrint, ipRnr, ipRxyz, iRout, iStabO(0:7), lDCRT, &
                      llOper, LmbdT, lsum, nDCRT, nip, nOp, nStabO
@@ -60,7 +60,7 @@ rFinal(:,:,:,:) = Zero
 
 ABeq(:) = A == RB
 ! switch (only single center overlap matrix...)
-if (NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) return
+if (oneel_NDDO .and. (.not.(ABeq(1)) .and. ABeq(2) .and. ABeq(3))) return
 ! switch
 nip = 1
 ipAxyz = nip

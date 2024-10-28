@@ -18,9 +18,11 @@
 *--------------------------------------------*
       SUBROUTINE POLY3(IFF)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
+      use caspt2_global, only:LUCIEX, IDTCEX, LUSOLV
       use PrintLevel, only: verbose
       use gugx, only: SGS, L2ACT
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
@@ -40,12 +42,8 @@ C MIGHT TAKE ADVANTAGE OF ALL INDEX PERMUTATION SYMMETRIES.
 C THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
-#include "stdalloc.fh"
 
       INTEGER IFF
 
@@ -58,6 +56,10 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
       INTEGER IPARDIV
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
+      REAL*8, ALLOCATABLE, TARGET:: G1(:), G2(:), G3(:)
+      REAL*8, ALLOCATABLE, TARGET:: F1_H(:), F2_H(:), F3_H(:)
+      REAL*8, POINTER:: F1(:), F2(:), F3(:)
+      REAL*8, ALLOCATABLE:: CI(:)
 
       Integer :: nLev
       nLev = SGS%nLev
@@ -70,31 +72,34 @@ C ORBITAL ENERGIES IN CI-COUPLING ORDER:
         END DO
       END IF
 
-      CALL GETMEM('G1','ALLO','REAL',LG1,NG1)
-      CALL GETMEM('G2','ALLO','REAL',LG2,NG2)
+      CALL mma_allocate(G1,NG1,LABEL='G1')
+      CALL mma_allocate(G2,NG2,LABEL='G2')
 
 C-SVC20100831: recompute approximate max NG3 size needed
       NG3MAX=iPARDIV(NG3TOT,NG2)
 
 C-SVC20100831: allocate local G3 matrices
-      CALL GETMEM('G3','ALLO','REAL',LG3,NG3MAX)
+      CALL mma_allocate(G3,NG3MAX,LABEL='G3')
 
       CALL mma_allocate(idxG3,6,NG3MAX,label='idxG3')
       idxG3(:,:)=0
 
-      WORK(LG1)=0.0D0
-      WORK(LG2)=0.0D0
-      WORK(LG3)=0.0D0
+      G1(1)=0.0D0
+      G2(1)=0.0D0
+      G3(1)=0.0D0
 
 C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       IF (IFF.EQ.1) THEN
-        CALL GETMEM('LF1','ALLO','REAL',LF1,NG1)
-        CALL GETMEM('LF2','ALLO','REAL',LF2,NG2)
-        CALL GETMEM('LF3','ALLO','REAL',LF3,NG3MAX)
+        CALL mma_allocate(F1_H,NG1,LABEL='F1_H')
+        CALL mma_allocate(F2_H,NG2,LABEL='F2_H')
+        CALL mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
+        F1=>F1_H
+        F2=>F2_H
+        F3=>F3_H
       ELSE
-        LF1=LG1
-        LF2=LG2
-        LF3=LG3
+        F1=>G1
+        F2=>G2
+        F3=>G3
       END IF
 
 * NG3 will change inside subroutine MKFG3 to the actual
@@ -104,14 +109,14 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       NG3=NG3MAX
 
       if (.not. DoFCIQMC) then
-        CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
+        CALL mma_allocate(CI,NCONF,Label='CI')
 
         IF (.NOT. DoCumulant .AND. ISCF.EQ.0) THEN
           IDCI=IDTCEX
           DO J=1,JSTATE-1
-            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
+            CALL DDAFILE(LUCIEX,0,CI,NCONF,IDCI)
           END DO
-          CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
+          CALL DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
           IF (IPRGLB.GE.VERBOSE) THEN
             WRITE(6,*)
             IF (NSTATE.GT.1) THEN
@@ -120,59 +125,57 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
             ELSE
               WRITE(6,*)' With new orbitals, the CI array is:'
             END IF
-            CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
+            CALL PRWF_CP2(STSYM,NCONF,CI,CITHR)
           END IF
         ELSE
-          WORK(LCI)=1.0D0
+          CI(1)=1.0D0
         END IF
       end if
 
       IF (ISCF.NE.0.AND.NACTEL.NE.0) THEN
-        CALL SPECIAL( WORK(LG1),WORK(LG2),WORK(LG3),
-     &                WORK(LF1),WORK(LF2),WORK(LF3),
-     &                idxG3)
+        CALL SPECIAL( G1,G2,G3,F1,F2,F3,idxG3)
       ELSE IF (ISCF.EQ.0) THEN
 C-SVC20100903: during mkfg3, NG3 is set to the actual value
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         IF (.NOT. DoCumulant) THEN
 #endif
-          CALL MKFG3(IFF,WORK(LCI),WORK(LG1),WORK(LF1),WORK(LG2),
-     &               WORK(LF2),WORK(LG3),WORK(LF3),idxG3,nLev)
+          If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
+          CALL MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         ELSE
-          CALL MKFG3DM(IFF,WORK(LG1),WORK(LF1),WORK(LG2),WORK(LF2),
-     &                       WORK(LG3),WORK(LF3),idxG3,nLev)
+          CALL MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
         END IF
 #endif
       END IF
 
-      if (.not. DoFCIQMC) then
-        CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
-      end if
+      if (ALLOCATED(CI)) CALL mma_deallocate(CI)
 
       IF(NLEV.GT.0) THEN
-        CALL PT2_PUT(NG1,' GAMMA1',WORK(LG1))
-        CALL PT2_PUT(NG2,' GAMMA2',WORK(LG2))
-        CALL PT2_PUT(NG3,' GAMMA3',WORK(LG3))
+        CALL PT2_PUT(NG1,' GAMMA1',G1)
+        CALL PT2_PUT(NG2,' GAMMA2',G2)
+        CALL PT2_PUT(NG3,' GAMMA3',G3)
         iLUID=0
         CALL I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
         IF(IFF.EQ.1) THEN
-          CALL PT2_PUT(NG1,' DELTA1',WORK(LF1))
-          CALL PT2_PUT(NG2,' DELTA2',WORK(LF2))
-          CALL PT2_PUT(NG3,' DELTA3',WORK(LF3))
+          CALL PT2_PUT(NG1,' DELTA1',F1)
+          CALL PT2_PUT(NG2,' DELTA2',F2)
+          CALL PT2_PUT(NG3,' DELTA3',F3)
         END IF
       END IF
 
       IF(NLEV.GT.0) THEN
-        CALL GETMEM('LG1','FREE','REAL',LG1,NG1)
-        CALL GETMEM('LG2','FREE','REAL',LG2,NG2)
-        CALL GETMEM('LG3','FREE','REAL',LG3,NG3MAX)
+        CALL mma_deallocate(G1)
+        CALL mma_deallocate(G2)
+        CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
         IF(IFF.EQ.1) THEN
-          CALL GETMEM('LF1','FREE','REAL',LF1,NG1)
-          CALL GETMEM('LF2','FREE','REAL',LF2,NG2)
-          CALL GETMEM('LF3','FREE','REAL',LF3,NG3MAX)
+          CALL mma_deallocate(F1_H)
+          CALL mma_deallocate(F2_H)
+          CALL mma_deallocate(F3_H)
         END IF
+        F1=>Null()
+        F2=>Null()
+        F3=>Null()
       END IF
 
-      END
+      END SUBROUTINE POLY3

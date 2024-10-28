@@ -31,6 +31,7 @@
 * by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
 * is zero if test fails
 * IGENSG .ne. 0 assumes general signs of strings given in ISGNA,ISGNB
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 *.Specific input
       DIMENSION ISGNA(*),ISGNB(*)
@@ -41,7 +42,6 @@
 *.Output
       DIMENSION ICTSDT(*)
 *.Scratch
-#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: KL1(:), KL2(:), KL3(:)
 * NOTE : NCNFTP IS COLUMN FOR SYMMETRY GIVEN , NOT COMPLETE MATRIX.
@@ -106,6 +106,7 @@
 * should be checked  (IS = 0 )
 * by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
 * is zero if test fails
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION ICONF(*),IPRODT(*)
@@ -120,7 +121,6 @@ C
 *./SPINFO/
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: LDTBL(:), LIA(:), LIB(:), SCR23(:)
 *
@@ -349,6 +349,7 @@ C?    END IF
 *
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
       use Str_Info
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
       Implicit Real*8 (A-H,O-Z)
 *
@@ -359,7 +360,6 @@ C?    END IF
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
       integer idum(1)
       Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
@@ -479,8 +479,8 @@ c Avoid unused argument warnings
 * The terms are not mutiplied with any sqrt(2), so the transformation is to
 * the determinant normalization
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "stdalloc.fh"
       DIMENSION IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
       DIMENSION CDC(NDET,NCSF)
       Real*8, Allocatable:: LMDET(:), lSCSF(:)
@@ -656,10 +656,10 @@ c Avoid unused argument warnings
 * prototype combinations in DTOC
 *
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "stdalloc.fh"
       DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
       Integer, Allocatable:: SCR7(:)
 *./SPINFO/
@@ -756,10 +756,10 @@ c Avoid unused argument warnings
 *
 * If PSSIGN .ne. 0, spin combinations are used !!
       Use Str_Info, only: DFTP, CFTP, DTOC, CNSM
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)
 *
@@ -1881,6 +1881,7 @@ C
 *
       SUBROUTINE ICISPS(IPRNT)
       Use Str_Info
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1897,7 +1898,6 @@ C
 #include "cstate_mclr.fh"
 #include "csm.fh"
 *
-#include "stdalloc.fh"
       Integer, Allocatable:: LBLTP(:), LCVST(:)
 * ====================
 *. Output common block : XISPSM is calculated

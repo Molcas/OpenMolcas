@@ -28,6 +28,7 @@ subroutine Cho_ZMem(irc,l_Z,NVT,l_NVT,DoPrint,DoCheck)
 ! irc=999: Insufficient memory for Z vectors (only if DoCheck)
 
 use Cholesky, only: LuPri, nSym
+use stdalloc, only: mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 

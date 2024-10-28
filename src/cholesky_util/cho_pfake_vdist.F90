@@ -18,7 +18,7 @@ subroutine Cho_PFake_VDist()
 
 use Para_Info, only: Is_Real_Par, nProcs
 use Cholesky, only: Cho_Fake_Par, InfVec, MaxVec, nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

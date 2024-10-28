@@ -33,12 +33,11 @@
      &               mh5_create_dset_str, mh5_create_dset_real,
      &               mh5_put_dset, mh5_close_dset
       use gugx, only: L2ACT, LEVEL
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "stdalloc.fh"
 #include "pt2_guga.fh"
 #ifdef _HDF5_
 
@@ -189,11 +188,11 @@
       subroutine pt2wfn_data
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only: NCMO, LUCIEX, IDCIEX, LUONEM
 #endif
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "stdalloc.fh"
 #ifdef _HDF5_
       real*8, allocatable :: BUF(:)
       integer :: ISTATE, IDISK
@@ -221,7 +220,6 @@
       use mh5, only: mh5_put_dset
 #endif
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
       real*8 :: Heff(nstate,nstate)
 #ifdef _HDF5_
@@ -244,7 +242,6 @@ c Avoid unused argument warnings
       use mh5, only: mh5_put_dset
 #endif
       implicit none
-#include "rasdim.fh"
 #include "caspt2.fh"
       integer :: nDmat
       real*8 :: Dmat(nDmat)

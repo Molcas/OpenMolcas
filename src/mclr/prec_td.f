@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine Prec_td(pre2,DigPrec,isym)
       use Arrays, only: G1t
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 *     pre2      Preconditioner from Prec
 *     DigPrec Output - Diagonal of prec2
@@ -18,7 +19,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 nonzero
       Real*8 DigPrec(*),pre2(*)
       Logical jump

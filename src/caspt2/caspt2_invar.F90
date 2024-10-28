@@ -15,12 +15,11 @@ subroutine caspt2_grad_invaria1(DPT2)
 !
   use Constants, only: Zero
   use definitions, only: iwp,wp
+  use EQSOLV
 !
   implicit none
 !
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   integer(kind=iwp) :: IOFDIJ(8),IOFDAB(8)
@@ -75,10 +74,7 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
 !
   implicit none
 !
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   real(kind=wp), intent(in)    :: OLag(*)

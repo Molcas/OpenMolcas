@@ -13,14 +13,17 @@
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       USE PT2WFN
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
+      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+     &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
+     &                       NDREF, NPREF, NCMO
+      use stdalloc, only: mma_allocate
+      use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
 #include "compiler_features.h"
 
       INTEGER LuSpool
@@ -90,23 +93,19 @@ C     Cholesky
 * during the call to wfnsizes, so this is done here.)
 *
 * The total fock matrix (sum of inactive and active contrib.)
-      NFIFA=NOTRI
-      CALL GETMEM('LFIFA','ALLO','REAL',LFIFA,NFIFA)
+      CALL mma_allocate(FIFA,NOTRI,Label='FIFA')
 * The one-electron Hamiltonian
-      NHONE=NOTRI
-      CALL GETMEM('LHONE','ALLO','REAL',LHONE,NHONE)
+      CALL mma_allocate(HONE,NOTRI,Label='HONE')
 * The fock matrix with contributions from inactive orbitals, only.
-      NFIMO=NOTRI
-      CALL GETMEM('LFIMO','ALLO','REAL',LFIMO,NFIMO)
+      CALL mma_allocate(FIMO,NOTRI,Label='FIMO')
 * The fock matrix with contributions from active orbitals, only.
-      NFAMO=NOTRI
-      CALL GETMEM('LFAMO','ALLO','REAL',LFAMO,NFAMO)
+      CALL mma_allocate(FAMO,NOTRI,Label='FAMO')
 * Density matrices, active indices.
-      CALL GETMEM('LDREF','ALLO','REAL',LDREF,NDREF)
-      CALL GETMEM('LPREF','ALLO','REAL',LPREF,NPREF)
+      CALL mma_allocate(DREF,NDREF,Label='DREF')
+      CALL mma_allocate(PREF,NPREF,Label='PREF')
 * All the density matrices kept in memory
-      CALL GETMEM('LDMIX','ALLO','REAL',LDMIX,NDREF*NSTATE)
-      CALL GETMEM('LDWGT','ALLO','REAL',LDWGT,NSTATE*NSTATE)
+      CALL mma_allocate(DMIX,NDREF,NSTATE,Label='DMIX')
+      CALL mma_allocate(DWGT,NSTATE,NSTATE,Label='DWGT')
 
 * Print input data
       CALL PRINP_CASPT2()
@@ -127,7 +126,7 @@ C Initialize sizes, offsets etc used in equation solver.
           write(6,*) 'CASPT2: Non-zero rc in Cho_X_init'
           CALL QUIT(irc)
         endif
-* import_ch transfers some values from Cholesky module to chocaspt2.fh
+* import_ch transfers some values from Cholesky module to chocaspt2.F90
         call import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
         Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Allo')
 * get unit numbers for Cholesky MO vectors
@@ -140,10 +139,10 @@ C Initialize sizes, offsets etc used in equation solver.
       End If
 
 * Allocate global orbital arrays:
-      CALL GETMEM('LCMOPT2','ALLO','REAL',LCMOPT2,NCMO)
+      CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
 * Allocate global orbital transformation arrays:
-      CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
-      CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
+      CALL mma_allocate(TORB,NTORB,Label='TORB')
+      CALL mma_allocate(TAT,NTAT,Label='TAT')
 
 ! initialize quantities for gradient calculation
       If (do_grad) Then
@@ -157,21 +156,22 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE PT2WFN
       use gugx, only: SGS, CIS, EXS
+      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+     &                       DWGT, CMOPT2, TAT, TORB, IDSCT
+      use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
       use OFembed, only: FMaux
 #endif
+      use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
 
       Integer iSym
 C     Cholesky return code
       INTEGER irc
 C     size of idsct array
-      INTEGER NIDSCT
 
       If (IfChol) then
 *---  Finalize Cholesky information
@@ -189,7 +189,7 @@ C     size of idsct array
          Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Free')
 * NOT TESTED
 #if 0
-         If (Allocated(FMaux)) Call mma_deallocate(FMaux)
+         Call mma_deallocate(FMaux,safe='*')
 #endif
          ! deallocate chovec_io arrays
          call trachosz_free()
@@ -201,22 +201,21 @@ C     size of idsct array
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE()
 * Deallocate global array for Fock matrix, etc:
-      CALL GETMEM('LFIFA','FREE','REAL',LFIFA,NFIFA)
-      CALL GETMEM('LHONE','FREE','REAL',LHONE,NHONE)
-      CALL GETMEM('LFIMO','FREE','REAL',LFIMO,NFIMO)
-      CALL GETMEM('LFAMO','FREE','REAL',LFAMO,NFAMO)
-      CALL GETMEM('LDREF','FREE','REAL',LDREF,NDREF)
-      CALL GETMEM('LPREF','FREE','REAL',LPREF,NPREF)
-      CALL GETMEM('LDMIX','FREE','REAL',LDMIX,NDREF*NSTATE)
-      CALL GETMEM('LDWGT','FREE','REAL',LDWGT,NSTATE*NSTATE)
+      CALL mma_deallocate(FIFA)
+      CALL mma_deallocate(HONE)
+      CALL mma_deallocate(FIMO)
+      CALL mma_deallocate(FAMO)
+      CALL mma_deallocate(DREF)
+      CALL mma_deallocate(PREF)
+      CALL mma_deallocate(DMIX)
+      CALL mma_deallocate(DWGT)
 * Deallocate global orbital transformation arrays:
-      CALL GETMEM('TORB','FREE','REAL',LTORB,NTORB)
-      CALL GETMEM('TAT','FREE','REAL',LTAT,NTAT)
+      CALL mma_deallocate(TORB)
+      CALL mma_deallocate(TAT)
 * Deallocate global orbital arrays:
-      CALL GETMEM('LCMOPT2','FREE','REAL',LCMOPT2,NCMO)
+      CALL mma_deallocate(CMOPT2)
 * Deallocate global RHS disk offsets (allocated in eqctl1):
-      NIDSCT=MXSCT*8*MXCASE*MXVEC
-      CALL GETMEM('IDSCT','FREE','INTE',LIDSCT,NIDSCT)
+      CALL mma_deallocate(IDSCT)
 
       call pt2wfn_close()
 C     Close all files:

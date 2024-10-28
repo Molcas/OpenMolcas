@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine CI_KAP(ipcid,fock,fockOut,isym)
 *     use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
       Real*8 Fock(*),FockOut(*)
       Real*8, Allocatable:: De(:), Pe(:)
@@ -149,11 +149,11 @@
 
 #ifdef _NOTUSED_
       Subroutine Projecter(CID,CI,D,P)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 CI(*),CID(*),P(*),D(*)
       Real*8, Allocatable:: De(:), Pe(:)
 

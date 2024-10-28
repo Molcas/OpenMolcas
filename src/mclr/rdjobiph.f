@@ -24,13 +24,13 @@
       use MckDat, only: sNew
       use Arrays, only: CMO, G2t, G1t
       use gugx, only: SGS, CIS, EXS
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"

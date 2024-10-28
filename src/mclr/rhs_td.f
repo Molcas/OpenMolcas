@@ -35,12 +35,12 @@
 ********************************************************************
       use ipPage, only: W
       use Arrays, only: G2sq, G1t
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "stdalloc.fh"
       Character(LEN=8) Label
       Logical CI
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
@@ -259,7 +259,7 @@ C
 *
       Call mma_deallocate(FIX)
       Call mma_deallocate(MOX)
-      If (Allocated(MOT)) Call mma_deallocate(MOT)
+      Call mma_deallocate(MOT,safe='*')
 
       return
 c Avoid unused argument warnings

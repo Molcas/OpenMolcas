@@ -49,19 +49,22 @@
 #define _ALLO_NAME_ CAT(CAT(_SUBR_NAME_,_allo),CAT(_,CAT(_DIMENSIONS_,D)))
 
 #if _DIMENSIONS_==0
-      subroutine _ALLO_NAME_(buffer,n0,label)
+      subroutine _ALLO_NAME_(buffer,n0,label,safe)
 #elif _DIMENSIONS_==1
-      subroutine _ALLO_NAME_(buffer,n1,label)
+      subroutine _ALLO_NAME_(buffer,n1,label,safe)
 #elif _DIMENSIONS_==2
-      subroutine _ALLO_NAME_(buffer,n1,n2,label)
+      subroutine _ALLO_NAME_(buffer,n1,n2,label,safe)
 #elif _DIMENSIONS_==3
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,label)
+      subroutine _ALLO_NAME_(buffer,n1,n2,n3,label,safe)
 #elif _DIMENSIONS_==4
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,label)
+      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,label,safe)
 #elif _DIMENSIONS_==5
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,label)
+      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,label,safe)
 #elif _DIMENSIONS_==7
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label)
+      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
+#endif
+#ifndef _IN_STDALLOC_MOD_
+        use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
 #endif
         implicit none
 #if _DIMENSIONS_==0
@@ -87,16 +90,17 @@
         integer, intent(in) :: n1,n2,n3,n4,n5,n6,n7
 #endif
         character(len=*), optional, intent(in) :: label
-#include "cptr2loff.fh"
+        character, optional, intent(in) :: safe
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
+          if (present(safe)) return
           if (present(label)) then
             call mma_double_allo(label)
           else
             call mma_double_allo(_DEF_LABEL_)
           end if
         end if
-        call mma_maxbytes(mma_avail)
+        call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==0
         ntot = n0
 #elif _DIMENSIONS_==1
@@ -169,17 +173,21 @@
 #define _ALLO_NAME_LIM_ CAT(_ALLO_NAME_,_lim)
 
 #if _DIMENSIONS_==1
-      subroutine _ALLO_NAME_LIM_(buffer,l1,label)
+      subroutine _ALLO_NAME_LIM_(buffer,l1,label,safe)
 #elif _DIMENSIONS_==2
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,label)
+      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,label,safe)
 #elif _DIMENSIONS_==3
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,label)
+      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,label,safe)
 #elif _DIMENSIONS_==4
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,label)
+      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,label,safe)
 #elif _DIMENSIONS_==5
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,label)
+      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,label,safe)
 #elif _DIMENSIONS_==7
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label)
+      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,     &
+     &                           safe)
+#endif
+#ifndef _IN_STDALLOC_MOD_
+        use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
 #endif
         implicit none
 #if _DIMENSIONS_==1
@@ -202,16 +210,17 @@
         integer, intent(in) :: l1(2),l2(2),l3(2),l4(2),l5(2),l6(2),l7(2)
 #endif
         character(len=*), optional, intent(in) :: label
-#include "cptr2loff.fh"
+        character, optional, intent(in) :: safe
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
+          if (present(safe)) return
           if (present(label)) then
             call mma_double_allo(label)
           else
             call mma_double_allo(_DEF_LABEL_)
           end if
         end if
-        call mma_maxbytes(mma_avail)
+        call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==1
         ntot = l1(2)-l1(1)+1
 #elif _DIMENSIONS_==2
@@ -280,7 +289,10 @@
 
 #define _FREE_NAME_ CAT(CAT(_SUBR_NAME_,_free),CAT(_,CAT(_DIMENSIONS_,D)))
 
-      subroutine _FREE_NAME_(buffer)
+      subroutine _FREE_NAME_(buffer,safe)
+#ifndef _IN_STDALLOC_MOD_
+        use stdalloc, only: mma_double_free
+#endif
         implicit none
 #if _DIMENSIONS_==0
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer
@@ -297,20 +309,20 @@
 #elif _DIMENSIONS_==7
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
 #endif
-#include "cptr2loff.fh"
+        character, optional, intent(in) :: safe
         integer :: ntot,loffset
 #ifndef _DATA_NAME_
         integer :: bufsize
 #endif
+        if (_MMA_FUNC_(buffer)) then
 #if _DIMENSIONS_==0
-        ntot = 1
+          ntot = 1
 #else
-        ntot = size(buffer)
+          ntot = size(buffer)
 #endif
 #ifndef _DATA_NAME_
-        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
+          bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
 #endif
-        if (_MMA_FUNC_(buffer)) then
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
             loffset = cptr2loff(buffer(1:1))
@@ -349,7 +361,7 @@
 #ifdef _IS_POINTER_
           nullify(buffer)
 #endif
-        else
+        else if (.not. present(safe)) then
           call mma_double_free(_DEF_LABEL_)
         end if
       end subroutine _FREE_NAME_

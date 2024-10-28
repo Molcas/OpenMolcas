@@ -201,7 +201,7 @@ subroutine FreeMem()
 
   call Deallocate_DT(R)
   call Deallocate_DT(P)
-  if (allocated(D)) call mma_deallocate(D)
+  call mma_deallocate(D,safe='*')
 
 end subroutine FreeMem
 

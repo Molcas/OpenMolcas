@@ -21,13 +21,13 @@
      &               mh5_put_dset, mh5_close_dset
       use gugx, only: SGS
       use sxci, only: IDXCI, IDXSX
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
 
 #  include "rasdim.fh"
 #  include "rasscf.fh"
 #  include "general.fh"
 #  include "ciinfo.fh"
-#  include "stdalloc.fh"
 #  include "raswfn.fh"
 #  include "gas.fh"
 #  include "input_ras.fh"

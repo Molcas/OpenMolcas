@@ -17,6 +17,7 @@ subroutine BdVGrd( &
 use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: ChOper
 use Center_Info, only: dc
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -28,9 +29,11 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7),
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3), ZFdx, ZFdy, ZFdz
 logical(kind=iwp) :: ESPFexist, JfGrad(3,4), NoLoop
 character(len=180) :: Key
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: iChAtm, IsFreeUnit, NrOpr
 character(len=180), external :: Get_Ln
-external :: Fake, TNAI1, XCff2D
 #include "macros.fh"
 unused_var(rFinal(1,1,1,1,1))
 unused_var(nHer)

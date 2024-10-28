@@ -26,7 +26,7 @@ use ChoMP2, only: ChoAlg, ChoMP2_allocated, DecoMP2, DoDens, ForceBatch, iAOVir,
 #ifdef _DISABLED_
 use ChoMP2, only: iPQ_prod, L_Mp2Lagr, nPQ_prod, nPQ_prodab, nPQ_prodia, nPQ_prodij
 #endif
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 

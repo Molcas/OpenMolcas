@@ -18,7 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE FBLOCK(FIFA,NO,NI,NA,NS,FIT,FTI,FIA,FAI,FTA,FAT)
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER NO,NI,NA,NS
       REAL*8 FIFA((NO*(NO+1))/2)

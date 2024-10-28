@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Two
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable :: R(:,:)
       Real*8 h1(nh1), h2(nh2)
       Real*8 rDum(1)

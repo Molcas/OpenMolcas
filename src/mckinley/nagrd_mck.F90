@@ -31,6 +31,7 @@ use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -42,9 +43,11 @@ integer(kind=iwp) :: iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, indi, Indx(3,4), 
                      nDCRT, nGr, nip, nRys
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Hess(nHess), PAO(nPAO), TC(3)
 logical(kind=iwp) :: DiffCnt, jfg(4), JfGrd(3,4), JfHss(4,3,4,3), kfgrd(3,4), Tr(4)
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-external :: Cff2D, Fake, TNAI1
 
 #include "macros.fh"
 unused_var(Ccoor)

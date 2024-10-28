@@ -22,6 +22,7 @@ subroutine PotIntd(Zeta,ZInv,rKappa,P,nZeta,la,lb,A,RB,Array,nArr,rFinal,lFinal,
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -34,9 +35,12 @@ integer(kind=iwp) :: i, iAnga(4), icmp, igeo, ip1, ipc, ipIn, kab, lab, labcd, l
                      nFLOP, nMem, nT
 real(kind=wp) :: CoorAC(3,2), Coori(3,4), TC(3)
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 real(kind=wp), external :: ddot_
 logical(kind=iwp), external :: EQ
-external :: Fake, TNAI, XCff2D, XRys2D
 
 nComp = nTri_Elem1(nOrdOp)
 

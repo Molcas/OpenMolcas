@@ -20,23 +20,25 @@
 *****************************************************************
       SUBROUTINE GETH1_RASSI(HONEAO)
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION HONEAO(NBSQ)
+      Real*8 HONEAO(NBSQ)
+
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "WrkSpc.fh"
-      Character*8 OneLbl
+      Character(LEN=8) OneLbl
       Logical Found
+      Real*8, Allocatable:: H1(:), Tmp(:)
 *
-      CALL GETMEM('H1    ','ALLO','REAL',LH1,NBTRI)
+      CALL mma_allocate(H1,NBTRI,Label='H1')
       iRc=-1
       iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iCmp=1
       iSyLab=1
       OneLbl='OneHam  '
-      Call RdOne(iRc,iOpt,OneLbl,iCmp,Work(LH1),iSyLab)
+      Call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  GETH1 ***'
@@ -48,14 +50,14 @@
       If ( RFpert ) then
          Call f_Inquire('RUNOLD',Found)
          If (Found) Call NameRun('RUNOLD')
-         Call GetMem('RFFLD','Allo','Real',ipTmp,nBtri)
+         Call mma_allocate(Tmp,nBtri,Label='Tmp')
          Call Get_dScalar('RF Self Energy',ERFNuc)
-         Call Get_dArray('Reaction field',Work(ipTmp),nBtri)
+         Call Get_dArray('Reaction field',Tmp,nBtri)
          If (Found) Call NameRun('#Pop')
-         Call Daxpy_(nBtri,1.0D0,Work(ipTmp),1,WORK(LH1),1)
-         Call GetMem('RFFLD','Free','Real',ipTmp,nBtri)
+         Call Daxpy_(nBtri,1.0D0,Tmp,1,H1,1)
+         Call mma_deallocate(Tmp)
       End If
-      IBUF=LH1
+      IBUF=1
       ISTQ=0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
@@ -64,13 +66,13 @@
           DO IQ=1,IP
             IPQ=NB*(IP-1)+IQ+ISTQ
             IQP=NB*(IQ-1)+IP+ISTQ
-            HONEAO(IPQ)=WORK(IBUF)
-            HONEAO(IQP)=WORK(IBUF)
+            HONEAO(IPQ)=H1(IBUF)
+            HONEAO(IQP)=H1(IBUF)
             IBUF=IBUF+1
           END DO
         END DO
        ISTQ=ISTQ+NB**2
       END DO
-      CALL GETMEM('      ','FREE','REAL',LH1,NBTRI)
-      RETURN
-      END
+      Call mma_deallocate(H1)
+
+      END SUBROUTINE GETH1_RASSI

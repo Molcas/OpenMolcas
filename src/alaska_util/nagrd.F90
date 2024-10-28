@@ -28,6 +28,7 @@ use Basis_Info, only: dbsc, Gaussian_Type, iCnttp_Dummy, nCnttp, Nuclear_Model, 
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Disp, only: Dirct, IndDsp
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
 
@@ -40,10 +41,11 @@ real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappab, rKappc
 logical(kind=iwp) :: JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: TF
-! For normal nuclear attraction
-external :: Cff2D, Fake, TNAI1
-! Finite nuclei
-external :: ModU2, TERI1, vCff2D
+! For normal nuclear attraction: Cff2D, Fake, TNAI1
+! Finite nuclei: ModU2, TERI1, vCff2D
+procedure(cff2d_kernel) :: Cff2D, vCff2D
+procedure(modu2_kernel) :: Fake, ModU2
+procedure(tval1_kernel) :: TERI1, TNAI1
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 #include "print.fh"

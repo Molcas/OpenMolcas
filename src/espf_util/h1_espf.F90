@@ -120,7 +120,7 @@ if (DoTinker) then
   close(ITkQMMM)
 end if
 if (.not. DynExtPot) then
-  if (allocated(OldMltp)) call mma_deallocate(OldMltp)
+  call mma_deallocate(OldMltp,safe='*')
   return
 end if
 
@@ -260,7 +260,7 @@ call mma_deallocate(IsMM)
 call mma_deallocate(Ext)
 call mma_deallocate(Mltp)
 call mma_deallocate(Grid%A)
-if (allocated(DGrid%A)) call mma_deallocate(DGrid%A)
+call mma_deallocate(DGrid%A,safe='*')
 
 return
 

@@ -15,6 +15,7 @@
       USE Para_Info, ONLY: nProcs
 #endif
       use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
@@ -27,7 +28,6 @@
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "stdalloc.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
       Real*8, Dimension(:), Allocatable:: Prod

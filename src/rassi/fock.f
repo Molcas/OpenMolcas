@@ -9,14 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOCK_RASSI(DINAO,FOCKAO)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
-#include "WrkSpc.fh"
 #include "symmul.fh"
-      DIMENSION FOCKAO(NBSQ),DINAO(NBSQ)
-      DIMENSION KEEP(8),NBSX(8)
-      DIMENSION NBTRPR(8)
+      Real*8 FOCKAO(NBSQ),DINAO(NBSQ)
+
+      Integer KEEP(8),NBSX(8)
+      Integer NBTRPR(8)
       LOGICAL   ISQARX
+      Real*8, Allocatable:: PQRS(:), DTRI(:), SQBUF(:), FTRI(:)
 * Purpose:
 *  ADD THE TWO-ELECTRON PART OF A FOCK MATRIX USING THE
 *  INACTIVE DENSITY MATRIX. THE FOCK MATRIX SHOULD CONTAIN THE
@@ -32,9 +34,9 @@ C FOR AN INTEGRAL BUFFER, AND FOR EXPANDING TRIANGULAR INTEGRAL
 C MATRICES INTO SQUARE FORMAT:
       NSQBUF=NBMX**2
       INTBUF=MAX(NSQBUF,256*256)
-      CALL GETMEM('PQRS  ','ALLO','REAL',LPQRS,INTBUF)
-      CALL GETMEM('DTRI  ','ALLO','REAL',LDTRI,NBTRI)
-      CALL GETMEM('SQBUF ','ALLO','REAL',LSQBUF,NSQBUF)
+      CALL mma_allocate(PQRS,INTBUF,Label='PQRS')
+      CALL mma_allocate(DTRI,NBTRI,Label='DTRI')
+      CALL mma_allocate(SQBUF,NSQBUF,Label='SQBUF')
 CPAM00 Nr of triangular matrices in previous symmetry blocks
       NBTR=0
       DO ISYM=1,NSYM
@@ -43,10 +45,10 @@ CPAM00 Nr of triangular matrices in previous symmetry blocks
         NBTR=NBTR+(NB*(NB+1))/2
       END DO
       NFTRI=NBTR
-      CALL GETMEM('FTRI  ','ALLO','REAL',LFTRI,NFTRI)
-      CALL DCOPY_(NFTRI,[0.0D0],0,WORK(LFTRI),1)
+      CALL mma_allocate(FTRI,NFTRI,Label='FTRI')
+      FTRI(:)=0.0D0
 C FOLD THE D MATRIX:
-      IDF=LDTRI
+      IDF=1
       DO ISYM=1,NSYM
        NB=NBASF(ISYM)
        NPQ=NBSQPR(ISYM)
@@ -54,7 +56,7 @@ C FOLD THE D MATRIX:
          DO NQ=1,NP
            DF=DINAO(NPQ+NB*(NP-1)+NQ)+DINAO(NPQ+NB*(NQ-1)+NP)
            IF(NP.EQ.NQ) DF=0.5D0*DF
-           WORK(IDF)=DF
+           DTRI(IDF)=DF
            IDF=IDF+1
          END DO
        END DO
@@ -100,15 +102,15 @@ C SIZES OF INTEGRAL MATRICES:
           IF(ISP.EQ.ISQ) NBPQ=(NBP**2+NBP)/2
           NBRS=NBR*NBS
           IF(ISR.EQ.ISS) NBRS=(NBR**2+NBR)/2
-C READ THE AO INTEGRALS INTO WORK(LPQRS) WHENEVER NEEDED.
-C ACCUMULATE CONTRIBUTIONS TO FOCK MATRIX INTO WORK(LFTRI), OR
+C READ THE AO INTEGRALS INTO PQRS WHENEVER NEEDED.
+C ACCUMULATE CONTRIBUTIONS TO FOCK MATRIX INTO FTRI, OR
 C DIRECTLY INTO FOCKAO.
           IRC=0
           IOPT=1
           IPQ=0
           LPQ=0
           NPQ=0
-          IRSST=LPQRS-NBRS
+          IRSST=1-NBRS
           DO NP=1,NBP
             NQM=NBQ
             IF(ISP.EQ.ISQ) NQM=NP
@@ -117,26 +119,26 @@ C DIRECTLY INTO FOCKAO.
 C READ A NEW BUFFER OF INTEGRALS
               IF(LPQ.EQ.NPQ) THEN
                 CALL RDORD(IRC,IOPT,ISP,ISQ,ISR,ISS,
-     *                     WORK(LPQRS),INTBUF,NPQ)
+     *                     PQRS,INTBUF,NPQ)
                 IOPT=2
                 LPQ=0
-                IRSST=LPQRS-NBRS
+                IRSST=1-NBRS
 C COULOMB CONTRIBUTION:
                 IF(ISP.EQ.ISQ) THEN
                  IF(NIR.GT.0) THEN
                   IFPQ=NBTRPR(ISP)+IPQ
                   IDRS=NBTRPR(ISR)+1
                   NPQM=MIN(NPQ,NBPQ-IPQ+1)
-                  CALL DGEMV_('T',NBRS,NPQM,1.0D0,WORK(LPQRS),NBRS,
-     *                  WORK(LDTRI-1+IDRS),1,1.0D0,WORK(LFTRI-1+IFPQ),1)
+                  CALL DGEMV_('T',NBRS,NPQM,1.0D0,PQRS,NBRS,
+     *                  DTRI(IDRS),1,1.0D0,FTRI(IFPQ),1)
                  ENDIF
 CPAM00 Added code, to obtain RSPQ contributions from the PQRS integrals
                  IF(ISP.GT.ISR .AND. NIP.GT.0) THEN
                   IFRS=NBTRPR(ISR)+1
                   IDPQ=NBTRPR(ISP)+IPQ
                   NPQM=MIN(NPQ,NBPQ-IPQ+1)
-                  CALL DGEMV_('N',NBRS,NPQM,1.0D0,WORK(LPQRS),NBRS,
-     *                  WORK(LDTRI-1+IDPQ),1,1.0D0,WORK(LFTRI-1+IFRS),1)
+                  CALL DGEMV_('N',NBRS,NPQM,1.0D0,PQRS,NBRS,
+     *                  DTRI(IDPQ),1,1.0D0,FTRI(IFRS),1)
                  END IF
                 ENDIF
               ENDIF
@@ -145,27 +147,27 @@ CPAM00 Added code, to obtain RSPQ contributions from the PQRS integrals
 C EXCHANGE CONTRIBUTIONS:
               IF(ISP.EQ.ISR) THEN
                 IF(ISR.EQ.ISS)
-     *              CALL SQUARE(WORK(IRSST),WORK(LSQBUF),1,NBR,NBR)
+     *              CALL SQUARE(PQRS(IRSST),SQBUF,1,NBR,NBR)
                 IF((ISP.NE.ISQ.OR.NP.NE.NQ).AND.(NIR.GT.0)) THEN
                   IF(ISR.EQ.ISS) THEN
-                    CALL DGEMV_('N',NBS,NBR,-0.5D0,WORK(LSQBUF),NBS,
+                    CALL DGEMV_('N',NBS,NBR,-0.5D0,SQBUF,NBS,
      *                   DINAO(NBSQPR(ISP)+NBR*(NP-1)+1),1,
      *                   1.0D0,FOCKAO(NBSQPR(ISQ)+NQ),NBQ)
                   ELSE
-                    CALL DGEMV_('N',NBS,NBR,-0.5D0,WORK(IRSST),NBS,
+                    CALL DGEMV_('N',NBS,NBR,-0.5D0,PQRS(IRSST),NBS,
      *                   DINAO(NBSQPR(ISP)+NBR*(NP-1)+1),1,
      *                   1.0D0,FOCKAO(NBSQPR(ISQ)+NQ),NBQ)
                   ENDIF
                 ENDIF
                 IF(ISP.EQ.ISS) THEN
                   IF(NIR.GT.0) THEN
-                    CALL DGEMV_('N',NBS,NBR,-0.5D0,WORK(LSQBUF),NBS,
+                    CALL DGEMV_('N',NBS,NBR,-0.5D0,SQBUF,NBS,
      *                    DINAO(NBSQPR(ISQ)+NBR*(NQ-1)+1),1,
      *                    1.0D0,FOCKAO(NBSQPR(ISP)+NP),NBP)
                   END IF
                 ELSE
                   IF(NIS.GT.0) THEN
-                    CALL DGEMV_('T',NBS,NBR,-0.5D0,WORK(IRSST),NBS,
+                    CALL DGEMV_('T',NBS,NBR,-0.5D0,PQRS(IRSST),NBS,
      *                     DINAO(NBSQPR(ISQ)+NBS*(NQ-1)+1),1,
      *                     1.0D0,FOCKAO(NBSQPR(ISP)+NP),NBP)
                    END IF
@@ -187,7 +189,7 @@ CPAM00 OK -- Now add Coulomb contributions:
           DO NP=1,NBP
             DO NQ=1,NP
               IFPQ=IFPQ+1
-              FPQ=WORK(LFTRI-1+IFPQ)
+              FPQ=FTRI(IFPQ)
               II=NBSQPR(ISP)+NBP*(NP-1)+NQ
               FOCKAO(II)=FOCKAO(II)+FPQ
               IF(NQ.NE.NP) THEN
@@ -197,10 +199,10 @@ CPAM00 OK -- Now add Coulomb contributions:
             END DO
           END DO
         END DO
-      CALL GETMEM('      ','FREE','REAL',LPQRS,INTBUF)
-      CALL GETMEM('      ','FREE','REAL',LDTRI,NBTRI)
-      CALL GETMEM('      ','FREE','REAL',LFTRI,NFTRI)
-      CALL GETMEM('      ','FREE','REAL',LSQBUF,NSQBUF)
+      CALL mma_deallocate(PQRS)
+      CALL mma_deallocate(DTRI)
+      CALL mma_deallocate(SQBUF)
+      CALL mma_deallocate(FTRI)
 *
       Call GADSum(FOCKAO,NBSQ)
 

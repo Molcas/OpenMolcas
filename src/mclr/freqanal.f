@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine Freqanal(nDeg,nrvec,H,converged,
      &                    ELEC,iel,elout,ldisp,Lu_10)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "stdalloc.fh"
       Logical converged(8)
       Real*8 H(*),elec(*),elout(*)
       logical Do_Molden

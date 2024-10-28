@@ -45,7 +45,6 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0
                      jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, loper, mdci, &
                      mdcj, MemKer, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
 real(kind=wp) :: A(3), B(3), FactNd, RB(3), TA(3), TRB(3), XX, YY, ZZ
-logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Kappa(:), Kern(:), PCoor(:,:), rFinal(:), Scrt1(:), Scrt2(:), Zeta(:), &
                               ZInv(:)
 real(kind=wp), parameter :: ThreeI = One/Three
@@ -140,8 +139,6 @@ do iS=1,nSkal
 
     call ZXia(Zeta,ZInv,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
 
-    AeqB = iS == jS
-
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
@@ -159,7 +156,7 @@ do iS=1,nSkal
 
     ! Gather the elements from 1st order density / Fock matrix.
 
-    call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+    call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 
     ! Project the Fock/1st order density matrix in AO
     ! basis on to the primitive basis.

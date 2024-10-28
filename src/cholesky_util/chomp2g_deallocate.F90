@@ -36,10 +36,7 @@ if (ChoMP2g_allocated) then
   call mma_deallocate(MP2D_e_full)
   call mma_deallocate(MP2W_e_full)
   do iSym=1,8
-    nullify(MP2D(iSym)%A)
-    nullify(MP2W(iSym)%A)
-    nullify(MP2D_e(iSym)%A)
-    nullify(MP2W_e(iSym)%A)
+    nullify(MP2D(iSym)%A,MP2W(iSym)%A,MP2D_e(iSym)%A,MP2W_e(iSym)%A)
   end do
   call mma_deallocate(AdrR2)
   call mma_deallocate(AdrR1)

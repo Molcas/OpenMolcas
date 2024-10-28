@@ -22,11 +22,11 @@
 *                                                                      *
 ************************************************************************
       Use Arrays, only: CMO, G2t, G2sq, G1t
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
       Character*72 Line
       Real*8 rdum(1)

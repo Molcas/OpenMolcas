@@ -16,31 +16,29 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE POLY1(CI)
+      SUBROUTINE POLY1(CI,NCI)
       use gugx, only: SGS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
-      REAL*8, INTENT(IN) :: CI(NCONF)
-
-      INTEGER LSGM1,LG1TMP
+      INTEGER, INTENT(IN) :: NCI
+      REAL*8, INTENT(IN) :: CI(NCI)
 
       INTEGER I
       Integer :: nLev
+      Real*8, Allocatable:: SGM1(:), G1TMP(:)
+
       nLev = SGS%nLev
 
-
       IF(NLEV.GT.0) THEN
-        CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
-        CALL GETMEM('LG1TMP','ALLO','REAL',LG1TMP,NG1)
-        CALL DENS1_RPT2(CI,WORK(LSGM1),WORK(LG1TMP),nLev)
+        CALL mma_allocate(SGM1 ,MXCI,LABEL='SGM1')
+        CALL mma_allocate(G1TMP,NG1,LABEL='G1TMP')
+        CALL DENS1_RPT2(CI,SGM1,G1TMP,nLev)
       END IF
 
 * REINITIALIZE USE OF DMAT.
@@ -55,10 +53,10 @@
 * HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 * ARRAY ON LUDMAT AND UPDATE THE TOC.
       IF(NLEV.GT.0) THEN
-        CALL PT2_PUT(NG1,' GAMMA1',WORK(LG1TMP))
+        CALL PT2_PUT(NG1,' GAMMA1',G1TMP)
 
-        CALL GETMEM('LSGM1','FREE','REAL',LSGM1 ,MXCI)
-        CALL GETMEM('LG1TMP','FREE','REAL',LG1TMP,NG1)
+        CALL mma_deallocate(SGM1)
+        CALL mma_deallocate(G1TMP)
       END IF
 
       END SUBROUTINE POLY1

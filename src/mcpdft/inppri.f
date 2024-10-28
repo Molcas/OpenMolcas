@@ -32,7 +32,7 @@
       use printlevel, only: silent, usual
       use mcpdft_output, only: lf, iPrLoc
       use Fock_util_global, only: docholesky
-      use rctfld_module
+      use rctfld_module, only: lRF
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
 

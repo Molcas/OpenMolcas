@@ -36,9 +36,13 @@
 
 /* 12/12/2016 Leon: Compression can be enabled only if underlying HDF5 library
  * supports compression! This will lead to strange effects otherwise!
- * TODO: Check this in CMAKE and set the flag accordingly! */
+ * TODO: Check this in CMAKE and set the flag accordingly!
+ * 9/10/2024 IFG: Hopefully the tests below make it safe to enable this again */
 
-/* #define _HDF5_COMPRESSION_ */
+#define _HDF5_COMPRESSION_
+#ifndef _HDF5_COMPRESSION_LEVEL_
+#define _HDF5_COMPRESSION_LEVEL_ 6
+#endif
 
 /* limits */
 #define MAX_RANK 7
@@ -632,16 +636,31 @@ hid_t mh5c_create_dset_array(hid_t file_id, char *name, int rank, const INT *dim
     space_id = H5Screate_simple(rank, hdims, kdims);
   }
   plist_id = H5Pcreate(H5P_DATASET_CREATE);
+  status = -1;
 # ifdef _HDF5_COMPRESSION_
-  chunk_dimensions(rank, hdims, cdims);
-  status = H5Pset_chunk(plist_id, rank, cdims);
-  status = H5Pset_deflate(plist_id, 6);
-# else
-  if ((INT)mdim < 0) {
-    chunk_dimensions(rank, hdims, cdims);
-    status = H5Pset_chunk(plist_id, rank, cdims);
+  /* test if deflate filter is available and configured for encoding and decoding */
+  htri_t avail;
+  unsigned int filter_info;
+  avail = H5Zfilter_avail(H5Z_FILTER_DEFLATE);
+  if (avail) {
+    status = H5Zget_filter_info(H5Z_FILTER_DEFLATE, &filter_info);
+    if (status >= 0) {
+      if (!(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) || !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED)) {
+        status = -1;
+      }
+    }
   }
 # endif
+  if (status < 0) {
+    if ((INT)mdim < 0) {
+      chunk_dimensions(rank, hdims, cdims);
+      status = H5Pset_chunk(plist_id, rank, cdims);
+    }
+  } else {
+    chunk_dimensions(rank, hdims, cdims);
+    status = H5Pset_chunk(plist_id, rank, cdims);
+    status = H5Pset_deflate(plist_id, _HDF5_COMPRESSION_LEVEL_);
+  }
   dset_id = H5Dcreate(file_id, name, hdf5_type, space_id, H5P_DEFAULT, plist_id, H5P_DEFAULT);
   status = H5Sclose(space_id);
   /* "use" the variable to avoid warning */

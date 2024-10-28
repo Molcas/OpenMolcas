@@ -12,25 +12,26 @@
 ************************************************************************
 C
       Subroutine MS_Res(MODE,IST,JST,Scal)
+      use caspt2_global, only: LUCIEX, IDTCEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
 C
 C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
 
       INTEGER IST,JST
       REAL*8 DVALUE
 
       INTEGER I
-      INTEGER NTG1,NTG2,NTG3,LTG1,LTG2,LTG3
-      INTEGER IDCI,LCI1,LCI2
+      INTEGER NTG1,NTG2,NTG3
+      INTEGER IDCI
       REAL*8 OVL,DUMMY(1)
+      real(kind=wp),allocatable :: TG1(:),TG2(:),TG3(:),CI1(:),CI2(:)
 
 C We evaluate the effective Hamiltonian matrix element in two steps.
 
@@ -42,56 +43,51 @@ C arrays are in subroutine parameter lists of MKTG3, HCOUP.
       NTG1=MAX(1,NTG1)
       NTG2=MAX(1,NTG2)
       NTG3=MAX(1,NTG3)
-      CALL GETMEM('TG1','ALLO','REAL',LTG1,NTG1)
-      CALL GETMEM('TG2','ALLO','REAL',LTG2,NTG2)
-      CALL GETMEM('TG3','ALLO','REAL',LTG3,NTG3)
-      WORK(LTG1)=0.0D0
-      WORK(LTG2)=0.0D0
-      WORK(LTG3)=0.0D0
+      call mma_allocate(TG1,NTG1,Label='TG1')
+      call mma_allocate(TG2,NTG2,Label='TG2')
+      call mma_allocate(TG3,NTG3,Label='TG3')
+      TG1(:) = 0.0d+00
+      TG2(:) = 0.0d+00
+      TG3(:) = 0.0d+00
 
-      CALL GETMEM('MCCI1','ALLO','REAL',LCI1,MXCI)
-      CALL GETMEM('MCCI2','ALLO','REAL',LCI2,MXCI)
+      call mma_allocate(CI1,MXCI,Label='MCCI1')
+      call mma_allocate(CI2,MXCI,Label='MCCI2')
       IF(ISCF.EQ.0) THEN
 C Read root vectors nr. IST and JST from LUCI.
         IDCI=IDTCEX
         DO I=1,NSTATE
           IF(I.EQ.IST) THEN
-            CALL DDAFILE(LUCIEX,2,WORK(LCI1),NCONF,IDCI)
+            CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
             IF(I.EQ.JST) THEN
-              CALL DCOPY_(NCONF,WORK(LCI1),1,WORK(LCI2),1)
+              CALL DCOPY_(NCONF,CI1,1,CI2,1)
             END IF
           ELSE IF(I.EQ.JST) THEN
-            CALL DDAFILE(LUCIEX,2,WORK(LCI2),NCONF,IDCI)
+            CALL DDAFILE(LUCIEX,2,CI2,NCONF,IDCI)
           ELSE
             CALL DDAFILE(LUCIEX,0,DUMMY,NCONF,IDCI)
           END IF
         END DO
       END IF
 
-      CALL MKTG3(STSYM,STSYM,WORK(LCI1),WORK(LCI2),OVL,
-     &           WORK(LTG1),WORK(LTG2),NTG3,WORK(LTG3))
-      CALL GETMEM('MCCI1','FREE','REAL',LCI1,MXCI)
-      CALL GETMEM('MCCI2','FREE','REAL',LCI2,MXCI)
+      CALL MKTG3(STSYM,STSYM,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
+      call mma_deallocate(CI1)
+      call mma_deallocate(CI2)
 
-      !! Do similar to RHS_STRANS. Multiply the solution vector (T) with
-      !! the overlap-like term constructe with transition density
-      !! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
+!! Do similar to RHS_STRANS. Multiply the solution vector (T) with
+!! the overlap-like term constructe with transition density
+!! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
       IF (MODE.EQ.1) THEN
-        CALL MS_STRANS(IVECW,IVECC,OVL,WORK(LTG1),WORK(LTG2),
-     &                 WORK(LTG3),DVALUE,SCAL)
+        CALL MS_STRANS(IVECW,IVECC,OVL,TG1,TG2,TG3,DVALUE,SCAL)
       ELSE IF (MODE.EQ.2) THEN
-        CALL MS_STRANS(IVECC,IVECC2,OVL,WORK(LTG1),WORK(LTG2),
-     &                 WORK(LTG3),DVALUE,SCAL)
+        CALL MS_STRANS(IVECC,IVECC2,OVL,TG1,TG2,TG3,DVALUE,SCAL)
       ELSE IF (MODE.EQ.3) THEN
-        CALL MS_STRANS(IVECW,IVECC,OVL,WORK(LTG1),WORK(LTG2),
-     &                 WORK(LTG3),DVALUE,SCAL)
+        CALL MS_STRANS(IVECW,IVECC,OVL,TG1,TG2,TG3,DVALUE,SCAL)
       END IF
 
-      CALL GETMEM('TG1','FREE','REAL',LTG1,NTG1)
-      CALL GETMEM('TG2','FREE','REAL',LTG2,NTG2)
-      CALL GETMEM('TG3','FREE','REAL',LTG3,NTG3)
+      call mma_deallocate(TG1)
+      call mma_deallocate(TG2)
+      call mma_deallocate(TG3)
 
-      RETURN
       End Subroutine MS_Res
 C
 C-----------------------------------------------------------------------
@@ -100,8 +96,10 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -116,11 +114,7 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -182,22 +176,21 @@ C     if (icase.ne.10.and.icase.ne.11) cycle ! G
      &                      DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                      TG1,TG2,TG3,SCAL)
           ELSE
+#endif
             CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                      WORK(MV1),WORK(MV2),OVL,
+     &                      GA_Arrays(MV1)%A,
+     &                      GA_Arrays(MV2)%A,OVL,
      &                      TG1,TG2,TG3,SCAL)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                    WORK(MV1),WORK(MV2),OVL,
-     &                    TG1,TG2,TG3,SCAL)
 #endif
           !! Save T*S
           CALL RHS_SAVE (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
 C
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
           CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
-          CALL RHS_FREE (NAS,NIS,lg_V1)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V1)
+          CALL RHS_FREE (lg_V2)
 
  1        CONTINUE
           HECOMP(ICASE,ISYM)=HEBLK
@@ -248,6 +241,7 @@ C
       SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
      &                         TG1,TG2,TG3,SCAL)
       USE SUPERINDEX
+      use EQSOLV
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -256,10 +250,7 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "eqsolv.fh"
 
       DIMENSION V1(*), V2(*)
 
@@ -707,13 +698,15 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine LoadCI_XMS(Bas,Mode,CI,Istate,U0)
+      use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
       implicit real(8) (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       character(len=1) Bas
       real(8) CI(Nconf),U0(nState,nState)
       integer ID, Istate
+      real(kind=wp),allocatable :: WRK(:)
 C
 C     MODE=0 is equivalent to LoadCI (XMS basis)
 C     MODE=1 constructs the CI vector in CASSCF basis (back-transformed)
@@ -736,12 +729,12 @@ C
         call ddafile(LUCIEX,2,CI,Nconf,ID)
       Else If (Mode.eq.1) Then
         Call DCopy_(Nconf,[0.0D+00],0,CI,1)
-        Call GetMem('WRK','ALLO','REAL',ipWRK,Nconf)
+        call mma_allocate(WRK,nconf,Label='WRK')
         do I=1,Nstate
-          call ddafile(LUCIEX,2,Work(ipWRK),Nconf,ID)
-          Call DaXpY_(Nconf,U0(Istate,I),Work(ipWRK),1,CI,1)
+          call ddafile(LUCIEX,2,WRK,Nconf,ID)
+          Call DaXpY_(Nconf,U0(Istate,I),WRK,1,CI,1)
         end do
-        Call GetMem('WRK','FREE','REAL',ipWRK,Nconf)
+        call mma_deallocate(WRK)
       End If
 
       return
@@ -749,21 +742,26 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
+      Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 C
-      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
+     *                           CLag,CLagFull,OLag,DPT2_tot,
+     *                           FIFA_all,FIFASA_all
+      use caspt2_global, only: FIFA, TORB, NDREF
       use gugx, only: SGS
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
-      Dimension CLag(nConf,nState),H0(nState,nState),U0(nState,nState),
-     *          UEFF(nState,nState)
+      Dimension H0(nState,nState),U0(nState,nState),UEFF(nState,nState)
       Dimension SLag(nState*nState)
       Dimension OMGDER(nState,nState)
+      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
+     *                             TG2(:),DG1(:),DG2(:),DG3(:),G1(:,:),
+     *                             RDMEIG(:,:),DPT2(:),Trf(:),
+     *                             RDMSA(:,:),WRK1(:),WRK2(:)
       Integer :: nLev
       nLev = SGS%nLev
 C
@@ -772,15 +770,15 @@ C     and RMS-CASPT2.
 C
       If (IFXMS .or. IFRMS) Then
 C
-        Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
-        Call GetMem('CI2   ','ALLO','REAL',ipCI2 ,nConf)
-        Call GetMem('SGM1  ','ALLO','REAL',ipSGM1,nConf)
-        Call GetMem('SGM2  ','ALLO','REAL',ipSGM2,nConf)
-        Call GetMem('TG1   ','ALLO','REAL',ipTG1 ,nAshT**2)
-        Call GetMem('TG2   ','ALLO','REAL',ipTG2 ,nAshT**4)
+        call mma_allocate(CI1,nConf,Label='CI1')
+        call mma_allocate(CI2,nConf,Label='CI2')
+        call mma_allocate(SGM1,nConf,Label='SGM1')
+        call mma_allocate(SGM2,nConf,Label='SGM2')
+        call mma_allocate(TG1,nAshT**2,Label='TG1')
+        call mma_allocate(TG2,nAshT**4,Label='TG2')
 C
-        Call GetMem('DG1   ','ALLO','REAL',ipDG1 ,nAshT**2)
-        Call GetMem('DG2   ','ALLO','REAL',ipDG2 ,nAshT**4)
+        call mma_allocate(DG1,nAshT**2,Label='DG1')
+        call mma_allocate(DG2,nAshT**4,Label='DG2')
 C
 !       ----- Construct pseudo-density matrix -----
 
@@ -795,21 +793,20 @@ C
         Call DCopy_(nState**2,SLag,1,UEFF,1)
 C
         !! Then actual calculation
-        Call DCopy_(nCLag ,[0.0D+00],0,Work(ipCLag),1)
+        CLag = 0.0d+00
         Do iStat = 1, nState
-          Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
+          Call LoadCI_XMS('C',0,CI1,iStat,U0)
           Do jStat = 1, nState
-            Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
+            Call LoadCI_XMS('C',0,CI2,jStat,U0)
 C
-            Call Dens2T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                       Work(ipSGM1),Work(ipSGM2),
-     *                       Work(ipTG1),Work(ipTG2),nAshT)
-            Call DScal_(nAshT**2,0.5D+00,Work(ipTG1),1)
-            Call DScal_(nAshT**4,0.5D+00,Work(ipTG2),1)
+            Call Dens2T_RPT2(CI1,CI2,SGM1,SGM2,
+     *                       TG1,TG2,nAshT)
+            Call DScal_(nAshT**2,0.5D+00,TG1,1)
+            Call DScal_(nAshT**4,0.5D+00,TG2,1)
 C
-            Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipDG1),1)
-            Call DCopy_(nAshT**4,[0.0D+00],0,Work(ipDG2),1)
-            Call CnstInt(1,Work(ipDG1),Work(ipDG2))
+            Call DCopy_(nAshT**2,[0.0D+00],0,DG1,1)
+            Call DCopy_(nAshT**4,[0.0D+00],0,DG2,1)
+            Call CnstInt(1,DG1,DG2)
 C
             If (do_nac) Then
               Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
@@ -822,23 +819,23 @@ C       write (*,*) istat,jstat,scal
             if (IFDW .and. zeta >= 0.0d0) then
               scal = scal + OMGDER(iStat,jStat)
             end if
-            Call DScal_(nAshT**2,Scal,Work(ipDG1),1)
-            Call DScal_(nAshT**4,Scal,Work(ipDG2),1)
+            Call DScal_(nAshT**2,Scal,DG1,1)
+            Call DScal_(nAshT**4,Scal,DG2,1)
 C
-            Call GetMem('DG3   ','ALLO','REAL',ipDG3 ,nAshT**6)
-            Call DCopy_(nAshT**6,[0.0D+00],0,Work(ipDG3),1)
+            call mma_allocate(DG3,nAshT**6,Label='DG3')
+            Call DCopy_(nAshT**6,[0.0D+00],0,DG3,1)
 C
             STSYM=1
             NTG1=NASHT**2
             NTG3=(NTG1*(NTG1+1)*(NTG1+2))/6
             OVL=0.0D+00
-            CALL DERTG3(.False.,STSYM,STSYM,WORK(ipCI1),WORK(ipCI2),OVL,
-     &                  WORK(ipDG1),WORK(ipDG2),NTG3,WORK(ipDG3),
-     &                  Work(ipCLag+nConf*(iStat-1)),
-     &                  Work(ipCLag+nConf*(jStat-1)))
-            Call GetMem('DG3   ','FREE','REAL',ipDG3 ,nAshT**6)
+            CALL DERTG3(.False.,STSYM,STSYM,CI1,CI2,OVL,
+     &                  DG1,DG2,NTG3,DG3,CLag(1,iStat),CLag(1,jStat))
+            call mma_deallocate(DG3)
           End Do
         End Do
+        call mma_deallocate(SGM2)
+        call mma_deallocate(TG2)
 C
         !! Back transformation of UEFF (XMS basis to CASSCF basis)
         !! SLag is used as a working array
@@ -849,18 +846,18 @@ C
 C     write (6,*) "ueff in casscf basis"
 C     call sqprt(ueff,nstate)
 C
-        Call GetMem('DG1   ','FREE','REAL',ipDG1 ,nAshT**2)
-        Call GetMem('DG2   ','FREE','REAL',ipDG2 ,nAshT**4)
+        call mma_deallocate(DG1)
+        call mma_deallocate(DG2)
 C
       !! Add to the full CI Lagrangian
-      !! Work(ipCLag) is in quasi-canonical basis, so transformation
+      !! CLag is in quasi-canonical basis, so transformation
       !! to natural basis is required.
         IF(ORBIN.EQ.'TRANSFOR') Then
           Do iState = 1, nState
-            Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
+            Call CLagX_TrfCI(CLag(1,iState))
           End Do
         End If
-        Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,CLag,1)
+        CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
 C
         !! Compute the Lagrange multiplier for XMS
         !! The diagonal element is always zero.
@@ -869,17 +866,17 @@ C
 C     write (*,*) "istat,jstat,scal"
         Call DCopy_(nState*nState,[0.0d+00],0,SLag,1)
         Do iStat = 1, nState
-          Call LoadCI_XMS('N',0,Work(ipCI1),iStat,U0)
+          Call LoadCI_XMS('N',0,CI1,iStat,U0)
           EEI = H0(iStat,iStat)
           Do jStat = 1, iStat
             If (iStat.eq.jStat) Then
               SLag(iStat+nState*(jStat-1)) = 0.0D+00
             Else
-              Call LoadCI_XMS('N',0,Work(ipCI2),jStat,U0)
+              Call LoadCI_XMS('N',0,CI2,jStat,U0)
               EEJ = H0(jStat,jStat)
 C
-              Scal = DDOT_(nConf,Work(ipCI1),1,CLag(1,jStat),1)
-     *             - DDOT_(nConf,Work(ipCI2),1,CLag(1,iStat),1)
+              Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
+     *             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
 C      write (*,*) "original scal = ", scal
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
@@ -908,148 +905,140 @@ C           write (*,*) istat,jstat,scal
 C
       !! Either subtract the CI derivative of Heff(1)
       !! or add off-diagonal couplings in rhs_sa (Z-vector)
-      !Call DaXpY_(nCLag,-1.0D+00,Work(ipCLag),1,CLag,1)
+      !CLagFull = CLagFull - CLag
 C
         !! Finally, construct the pseudo-density matrix
         !! d = \sum_{ST} w_{ST} * d_{ST}
-        Call GetMem('G1    ','ALLO','REAL',ipG1  ,nAshT**2)
-        Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipG1),1)
+        call mma_allocate(G1,nAshT,nAshT,Label='G1')
+        G1(:,:) = 0.0d+00
         Do iStat = 1, nState
-          Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
+          Call LoadCI_XMS('C',0,CI1,iStat,U0)
           Do jStat = 1, nState
             If (ABS(SLag(iStat+nState*(jStat-1))).le.1.0d-10) Cycle
-            Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
+            Call LoadCI_XMS('C',0,CI2,jStat,U0)
 C
-            Call Dens1T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                       Work(ipSGM1),Work(ipTG1),nLev)
+            Call Dens1T_RPT2(CI1,CI2,
+     *                       SGM1,TG1,nLev)
             Scal = SLag(iStat+nState*(jStat-1))*2.0d+00
 C         write (*,*) "istat,jstat=",istat,jstat
 C         write (*,*) "scal = ", scal
-            Call DaXpY_(nAshT**2,Scal,Work(ipTG1),1,Work(ipG1),1)
+            Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
           End Do
         End Do
-C     write (*,*) "ipG1"
-C     call sqprt(work(ipG1),nasht)
+C     write (*,*) "G1"
+C     call sqprt(G1,nasht)
 C
-        Call GetMem('CI1   ','FREE','REAL',ipCI1 ,nConf)
-        Call GetMem('CI2   ','FREE','REAL',ipCI2 ,nConf)
-        Call GetMem('SGM1  ','FREE','REAL',ipSGM1,nConf)
-        Call GetMem('SGM2  ','FREE','REAL',ipSGM2,nConf)
-        Call GetMem('TG1   ','FREE','REAL',ipTG1 ,nAshT**2)
-        Call GetMem('TG2   ','FREE','REAL',ipTG2 ,nAshT**4)
+        call mma_deallocate(CI1)
+        call mma_deallocate(CI2)
+        call mma_deallocate(SGM1)
+        call mma_deallocate(TG1)
 C
 C       ----- Calculate orbital derivatives -----
 C
-        Call GetMem('RDMEIG','ALLO','REAL',ipRDMEIG,nAshT**2)
-        Call GetMem('DPT   ','ALLO','REAL',ipDPT  ,nBasSq)
+        call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
+        call mma_allocate(DPT2,NBSQT,Label='DPT2')
+        DPT2(:) = 0.0d+00
 C
-        Call DCopy_(nBasSq,[0.0D+00],0,Work(ipDPT),1)
-
-        Call GetMem('TRFMAT','ALLO','REAL',ipTrf   ,nBasSq)
-        Call GetMem('RDMSA ','ALLO','REAL',ipRDMSA ,nAshT**2)
-        Call GetMem('WRK1  ','ALLO','REAL',ipWRK1  ,nBasSq)
-        Call GetMem('WRK2  ','ALLO','REAL',ipWRK2  ,nBasSq)
+        call mma_allocate(Trf,NBSQT,Label='TRFMAT')
+        call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
+        call mma_allocate(WRK1,NBSQT,Label='WRK1')
+        call mma_allocate(WRK2,NBSQT,Label='WRK2')
 C
         !! Construct always state-averaged density; XMS basis is always
         !! generated with the state-averaged density.
-        Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
-        Call GetMem('LCI','ALLO','REAL',LCI,nConf)
+        Call DCopy_(nDRef,[0.0D+00],0,WRK1,1)
+        call mma_allocate(CI1,nConf,Label='CI1')
         Wgt  = 1.0D+00/nState
         Do iState = 1, nState
-C       Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-C    *              Work(ipWRK1),1)
-          Call LoadCI(WORK(LCI),iState)
-          call POLY1(WORK(LCI))
-          call GETDREF(WORK(ipWRK2))
-          Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
+C       Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,WRK1,1)
+          Call LoadCI(CI1,iState)
+          call POLY1(CI1,nConf)
+          call GETDREF(WRK2,nDRef)
+          Call DaXpY_(nDRef,Wgt,WRK2,1,WRK1,1)
         End Do
-        Call GetMem('LCI','FREE','REAL',LCI,nConf)
-        Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
+        call mma_deallocate(CI1)
+        Call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
 C
         nOrbI = nBas(1) - nDel(1) !! nOrb(1)
         nBasI = nBas(1)
-C       Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
-        !! ipFIFASA is in natural orbital basis
-        Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
-        Call CnstTrf(Work(LTOrb),Work(ipTrf))
+C       Call SQUARE(FIFA,FIFA_all,1,nOrbI,nOrbI)
+        !! FIFASA_all is in natural orbital basis
+        Call DCopy_(nBsqT,[0.0D+0],0,Trf,1)
+        Call CnstTrf(TOrb,Trf)
 C
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then
           Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
-     *                1.0D+00,Work(ipTrf),nBasI,Work(ipFIFASA),nOrbI,
-     *                0.0D+00,Work(ipWRK1),nOrbI)
+     *                1.0D+00,Trf,nBasI,FIFASA_all,nOrbI,
+     *                0.0D+00,WRK1,nOrbI)
           Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
-     *                1.0D+00,Work(ipWRK1),nOrbI,Work(ipTrf),nBasI,
-     *                0.0D+00,Work(ipFIFASA),nOrbI)
+     *                1.0D+00,WRK1,nOrbI,Trf,nBasI,
+     *                0.0D+00,FIFASA_all,nOrbI)
         End If
-        Call DCopy_(nBasSq,Work(ipFIFASA),1,Work(ipFIFA),1)
+        Call DCopy_(NBSQT,FIFASA_all,1,FIFA_all,1)
 C
         !! Orbital derivatives of FIFA
         !! Both explicit and implicit orbital derivatives are computed
         !! Also, compute G(D) and put the active contribution to RDMEIG
-        Call DCopy_(nOLag ,[0.0D+00],0,Work(ipOLag),1)
-        Call EigDer2(Work(ipRDMEIG),Work(ipTrf),Work(ipFIFA),
-     *               Work(ipRDMSA),Work(ipG1),
-     *               Work(ipWRK1),Work(ipWRK2))
+        OLag = 0.0d+00
+        Call EigDer2(RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
 C
         !! Add to PT2 density
         !! No inactive contributions. Correct as long as CASSCF CI
         !! vector are orthogonal.
-        Call AddDEPSA(Work(ipDPT),Work(ipG1))
-        Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
-     *                   Work(ipTrf),Work(ipWRK1))
+        Call AddDEPSA(DPT2,G1)
+        Call DPT2_TrfStore(1.0D+00,DPT2,DPT2_tot,Trf,WRK1)
 C
         !! Finalize OLag (anti-symetrize) and construct WLag
-        Call OLagFinal(Work(ipOLag),Work(ipTrf))
+        Call OLagFinal(OLag,Trf)
 C
-        Call GetMem('RDMSA ','FREE','REAL',ipRDMSA ,nAshT**2)
-        Call GetMem('WRK1  ','FREE','REAL',ipWRK1 ,nBasSq)
-        Call GetMem('WRK2  ','FREE','REAL',ipWRK2 ,nBasSq)
+        call mma_deallocate(RDMSA)
+        call mma_deallocate(WRK1)
+        call mma_deallocate(WRK2)
 C
-        Call GetMem('DPT   ','FREE','REAL',ipDPT  ,nBasSq)
+        call mma_deallocate(DPT2)
 C
 C       ----- Calculate CI derivatives -----
 C
         !! use quasi-canonical CSF rather than natural CSF
 C     ISAV = IDCIEX
 C     IDCIEX = IDTCEX
-        Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
+        CLag(:,:) = 0.0D+00
 C
         !! 1) Explicit CI derivative
         !! a: Extract FIFA in the AS for explicit CI derivative
         !!    Note that this FIFA uses state-averaged density matrix
-C       call sqprt(work(ipfifa),nbast)
+C       call sqprt(fifa_all,nbast)
         Do iAsh = 1, nAshT
           Do jAsh = 1, nAshT
-            Work(ipG1+iAsh-1+nAshT*(jAsh-1)) = Work(ipFIFA + nFro(1)
-     &          + nIsh(1) + iAsh-1 + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
+            G1(iAsh,jAsh) = FIFA_all( nFro(1)
+     &          + nIsh(1) + iAsh + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
           End Do
         End Do
-C       call sqprt(work(ipg1),nasht)
+C       call sqprt(g1),nasht)
         !! Transform quasi-canonical to natural
         nCor = nFro(1)+nIsh(1)
 C     write (*,*) nfro(1),nish(1)
-C     call sqprt(work(iptrf),nbast)
+C     call sqprt(trf,nbast)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *                      Work(ipG1),nAshT,
-     *              0.0D+00,Work(ipFIFA),nAshT)
-C     call sqprt(work(ipfifa),nasht)
+     *              1.0D+00,Trf(1+nBasT*nCor+nCor),nBasT,
+     *                      G1,nAshT,
+     *              0.0D+00,FIFA_all,nAshT)
+C     call sqprt(FIFA_all,nasht)
         Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipFIFA),nAshT,
-     *                      Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *              0.0D+00,Work(ipG1),nAshT)
-C     call sqprt(work(ipg1),nasht)
+     *              1.0D+00,FIFA_all,nAshT,
+     *                      Trf(1+nBasT*nCor+nCor),nBasT,
+     *              0.0D+00,G1,nAshT)
+C     call sqprt(g1,nasht)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *                      Work(ipRDMEIG),nAshT,
-     *              0.0D+00,Work(ipFIFA),nAshT)
+     *              1.0D+00,Trf(1+nBasT*nCor+nCor),nBasT,
+     *                      RDMEIG,nAshT,
+     *              0.0D+00,FIFA_all,nAshT)
         Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              1.0D+00,Work(ipFIFA),nAshT,
-     *                      Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *              0.0D+00,Work(ipRDMEIG),nAshT)
-        Call GetMem('TRFMAT','FREE','REAL',ipTrf   ,nBasSq)
-C     Call GetMem('FIFA  ','FREE','REAL',ipFIFA ,nBasSq)
+     *              1.0D+00,FIFA_all,nAshT,
+     *                      Trf(1+nBasT*nCor+nCor),nBasT,
+     *              0.0D+00,RDMEIG,nAshT)
+        call mma_deallocate(Trf)
 C
         !! b: FIFA in the inactive space
         TRC=0.0D0
@@ -1057,26 +1046,26 @@ C     DO ISYM=1,NSYM
         DO I=1,NISH(1) ! ISYM)
 C         II=IOFF(ISYM)+(I*(I+1))/2
           II=(I*(I+1))/2
-          TRC=TRC+WORK(LFIFA+II-1)
+          TRC=TRC+FIFA(II)
         END DO
 C     END DO
 * Contribution from inactive orbitals:
         EINACT=2.0D0*TRC
-        !! This EINACT may be wrong. Perhaps, WORK(LFIFA) has to be
+        !! This EINACT may be wrong. Perhaps, FIFA has to be
         !! back-transformed to natural orbital basis. However, this does
         !! not contribute to the final gradient as long as all the
         !! (internal) CI vectors are orthogonal.
 C
         !! c: Finally, compute explicit CI derivative
         !! y_{I,T} = w_{ST} <I|f|S>
-        !! Here, ipG1 is FIFA = ftu
-        Call CLagEigT(Work(ipCLag),Work(ipG1),SLag,EINACT)
+        !! Here, G1 is FIFA = ftu
+        Call CLagEigT(CLag,G1,SLag,EINACT)
 C
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,Work(ipCLag),Work(ipRDMEIG),nLev)
+        Call CLagEig(.False.,CLag,RDMEIG,nLev)
 C
-        Call GetMem('RDMEIG','FREE','REAL',ipRDMEIG,nAshT**2)
-        Call GetMem('G1    ','FREE','REAL',ipG1    ,nAshT**2)
+        call mma_deallocate(RDMEIG)
+        call mma_deallocate(G1)
 C
       End If
 C
@@ -1085,9 +1074,9 @@ C
         !! I think this contributes even in XMS-CASPT2.
         !! However, maybe I implemented other terms in a different way
         !! from BAGEL.
-        Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
+        call mma_allocate(CI1,nConf,Label='CI1')
         !! Do in the natural orbital in the XMS basis
-        !! because ipCLag is like that
+        !! because CLag is like that
         !! CASSCF -> XMS
         Call DGEMM_('T','N',nState,nState,nState,
      *              1.0D+00,U0,nState,UEFF,nState,
@@ -1096,13 +1085,12 @@ C
 C
         EDIFF = ENERGY(iRoot2)-ENERGY(iRoot1)
         Do iStat = 1, nState
-          Call LoadCI_XMS('N',0,Work(ipCI1),iStat,U0)
+          Call LoadCI_XMS('N',0,CI1,iStat,U0)
           Do jStat = 1, nState
             Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
      *           -  UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*0.5d+00
             Scal = Scal * EDIFF
-            Call DaXpY_(nConf,Scal,Work(ipCI1),1,
-     *                  Work(ipCLag+nConf*(jStat-1)),1)
+            Call DaXpY_(nConf,Scal,CI1,1,CLag(1,jStat),1)
           End Do
         End Do
 C
@@ -1112,11 +1100,11 @@ C
      *              0.0D+00,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
 C
-        Call GetMem('CI1   ','FREE','REAL',ipCI1 ,nConf)
+        call mma_deallocate(CI1)
       End If
 C
       !! Finally, add to the total CI derivative array
-      Call DaXpY_(nConf*nState,1.0D+00,Work(ipCLag),1,CLag,1)
+      CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
 C     IDCIEX = ISAV
 C
       End Subroutine XMS_Grad
@@ -1126,30 +1114,31 @@ C
       !! From poly3
       SUBROUTINE CLagEigT(CLag,RDMEIG,SLag,EINACT)
 C
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
+C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*),SLag(*)
+      real(kind=wp),allocatable :: CI1(:),CI2(:)
 C
       !! RDMEIG
-      Call GetMem('LCI1','ALLO','REAL',LCI1,nConf)
-      Call GetMem('LCI2','ALLO','REAL',LCI2,nConf)
+      call mma_allocate(CI1,nConf,Label='CI1')
+      call mma_allocate(CI2,nConf,Label='CI2')
       Do iStat = 1, nState
         If (ISCF.EQ.0) Then
-          Call LoadCI(Work(LCI1),iStat)
+          Call LoadCI(CI1,iStat)
         Else
-          Work(LCI1) = 1.0D+00
+          CI1(1) = 1.0D+00
         End If
         !! Skip iStat = jStat because SLag is zero
         Do jStat = 1, nState !! iStat-1
           If (ISCF.EQ.0) Then
-            Call LoadCI(Work(LCI2),jStat)
+            Call LoadCI(CI2,jStat)
           Else
-            Work(LCI2) = 1.0D+00
+            CI2(1) = 1.0D+00
           End If
           !! One of doubling is due to the scaling factor
           !! One of doubling is due to the symmetry of iStat and jStat
@@ -1157,16 +1146,16 @@ C         Scal = SLag(iStat+nState*(jStat-1))*4.0d+00
           Scal = SLag(iStat+nState*(jStat-1))*2.0d+00
           If (ABS(Scal).le.1.0D-09) Cycle
 C
-          Call Poly1_CLagT(Work(LCI1),Work(LCI2),
+          Call Poly1_CLagT(CI1,CI2,
      *                     CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
           !! Inactive terms
-          Call DaXpY_(nConf,Scal*EINACT,Work(LCI1),1,CLag(1,jStat),1)
-          Call DaXpY_(nConf,Scal*EINACT,Work(LCI2),1,CLag(1,iStat),1)
+          Call DaXpY_(nConf,Scal*EINACT,CI1,1,CLag(1,jStat),1)
+          Call DaXpY_(nConf,Scal*EINACT,CI2,1,CLag(1,iStat),1)
         End Do
       End Do
 C
-      Call GetMem('LCI1','FREE','REAL',LCI1,nConf)
-      Call GetMem('LCI2','FREE','REAL',LCI2,nConf)
+      call mma_deallocate(CI1)
+      call mma_deallocate(CI2)
 C
       Return
 C
@@ -1176,30 +1165,28 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
       use gugx, only: SGS
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       REAL*8, INTENT(IN) :: CI1(NCONF),CI2(NCONF)
 
-      INTEGER LSGM1
-
       INTEGER I
       REAL*8 :: CLag1(*), CLag2(*), RDMEIG(*),Scal
+      real(kind=wp),allocatable :: SGM1(:)
 
       Integer :: nLev
       nLev = SGS%nLev
 
 
       IF(NLEV.GT.0) THEN
-        CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
-        CALL DENS1T_RPT2_CLag(CI1,CI2,WORK(LSGM1),
+        call mma_allocate(SGM1,MXCI,Label='SGM1')
+        CALL DENS1T_RPT2_CLag(CI1,CI2,SGM1,
      *                        CLag1,CLag2,RDMEIG,Scal,nLev)
       END IF
 
@@ -1215,7 +1202,7 @@ C
 * HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 * ARRAY ON LUDMAT AND UPDATE THE TOC.
       IF(NLEV.GT.0) THEN
-        CALL GETMEM('LSGM1','FREE','REAL',LSGM1 ,MXCI)
+        call mma_deallocate(SGM1)
       END IF
 
 
@@ -1230,18 +1217,18 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use gugx, only: SGS, L2ACT, CIS
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
       INTEGER, INTENT(IN):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
       !! Symmetry?
       REAL*8 CLag1(nConf),CLag2(nConf),RDMEIG(NLEV,NLEV),Scal
+      integer(kind=iwp),allocatable :: TASK(:,:)
 
       LOGICAL RSV_TSK
 C     REAL*8 GTU
@@ -1250,7 +1237,7 @@ C     REAL*8 GTU
       INTEGER IST,ISU,ISTU
       INTEGER IT,IU,LT,LU
 
-      INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
+      INTEGER ITASK,NTASKS
 
       INTEGER ISSG,NSGM
 
@@ -1266,40 +1253,30 @@ C     REAL*8 GTU
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
       nTasks=(nLev**2+nLev)/2
-
       nTasks = nLev**2
-      CALL GETMEM ('Tasks','ALLO','INTE',lTask,2*nTasks)
-      lTask2T=lTask
-      lTask2U=lTask+nTasks
+      CALL mma_allocate (Task,nTasks,2,Label='TASK')
 
       iTask=0
-C     DO LT=1,nLev
-C       DO LU=1,LT
-C         iTask=iTask+1
-C         iWork(lTask2T+iTask-1)=LT
-C         iWork(lTask2U+iTask-1)=LU
-C       ENDDO
-C     ENDDO
       ! First, IL < JL pairs.
       Do LT = 1, nLev-1
         Do LU = LT+1, nLev
           iTask = iTask + 1
-          iWork(lTask2T+iTask-1) = LT
-          iWork(lTask2U+iTask-1) = LU
+          TASK(iTask,1)=LT
+          TASK(iTask,2)=LU
         End Do
       End Do
       ! Then, IL = JL pairs.
       Do LT = 1, nLev
         iTask = iTask + 1
-        iWork(lTask2T+iTask-1) = LT
-        iWork(lTask2U+iTask-1) = LT
+        TASK(iTask,1)=LT
+        TASK(iTask,2)=LT
       End Do
       ! Last, IL > JL pairs.
       Do LT = 2, nLev
         Do LU = 1, LT-1
           iTask = iTask + 1
-          iWork(lTask2T+iTask-1) = LT
-          iWork(lTask2U+iTask-1) = LU
+          TASK(iTask,1)=LT
+          TASK(iTask,2)=LU
         End Do
       End Do
       IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
@@ -1311,10 +1288,10 @@ C     ENDDO
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-      LT=iWork(lTask2T+iTask-1)
+      LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
-        LU=iWork(lTask2U+iTask-1)
+        LU=Task(iTask,2)
           ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
@@ -1340,16 +1317,13 @@ C    *        Call DaXpY_(NSGM,2.0d+00*RDMEIG(IT,IU),SGM1,1,CLag,1)
 *      needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
       GOTO 500
  501  CONTINUE
 
       CALL Free_Tsk(ID)
 
-      CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
+      CALL mma_deallocate(Task)
 
 C 99  CONTINUE
 
@@ -1362,16 +1336,18 @@ C
       Subroutine CnstInt(Mode,INT1,INT2)
 C
       Use CHOVEC_IO
+      use ChoCASPT2
+      use caspt2_global, only: FIMO_all
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp,wp
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "chocaspt2.fh"
-#include "caspt2_grad.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
+      integer(kind=iwp),allocatable :: BGRP(:,:)
+      real(kind=wp),allocatable :: WRK1(:),WRK2(:),KET(:)
 C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
@@ -1387,10 +1363,8 @@ C
       nBasI = nBas(iSym)
       ! nOrbI = nOrb(iSym)
 
-C     CALL GETMEM('FIMO  ','ALLO','REAL',ipFIMO,nBasSq)
-      CALL GETMEM('WRK1  ','ALLO','REAL',ipWRK1,nBasSq)
-      CALL GETMEM('WRK2  ','ALLO','REAL',ipWRK2,nBasSq)
-C     Call SQUARE(Work(LFIMO),Work(ipFIMO),1,nOrbI,nOrbI)
+      call mma_allocate(WRK1,NBSQT,Label='WRK1')
+      call mma_allocate(WRK2,NBSQT,Label='WRK2')
 C
 C     --- One-Electron Integral
 C
@@ -1404,10 +1378,10 @@ C     !! triangular -> square transformation
 C     Call Square(WRK2,WRK1,1,nBasT,nBasT)
 C     !! AO -> MO transformation
 C     Call DGemm_('T','N',nBasT,nBasT,nBasT,
-C    *            1.0D+00,Work(LCMOPT2),nBasT,WRK1,nBasT,
+C    *            1.0D+00,CMOPT2,nBasT,WRK1,nBasT,
 C    *            0.0D+00,WRK2,nBasT)
 C     Call DGemm_('N','N',nBasT,nBasT,nBasT,
-C    *            1.0D+00,WRK2,nBasT,Work(LCMOPT2),nBasT,
+C    *            1.0D+00,WRK2,nBasT,CMOPT2,nBasT,
 C    *            0.0D+00,WRK1,nBasT)
       !! Inactive energy
 C     Do iCorI = 1, nFro(iSym)+nIsh(iSym)
@@ -1422,8 +1396,7 @@ C       End Do
 C     End Do
       Do iAshI = 1, nAsh(iSym)
         Do jAshI = 1, nAsh(iSym)
-C         Val = FIMO(nCorI+iAshI+nBasI*(nCorI+jAshI-1))
-          Val = Work(ipFIMO+nCorI+iAshI-1+nBasI*(nCorI+jAshI-1))
+          Val = FIMO_all(nCorI+iAshI+nBasI*(nCorI+jAshI-1))
           INT1(iAshI,jAshI) = INT1(iAshI,jAshI) + Val
         End Do
       End Do
@@ -1459,25 +1432,25 @@ C
 C
           MXBGRP=IB2-IB1+1
           IF (MXBGRP.LE.0) CYCLE
-          CALL GETMEM('BGRP','ALLO','INTE',LBGRP,2*MXBGRP)
+          call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
           IBGRP=1
           DO IB=IB1,IB2
-           IWORK(LBGRP  +2*(IBGRP-1))=IB
-           IWORK(LBGRP+1+2*(IBGRP-1))=IB
+           BGRP(1,IBGRP) = IB
+           BGRP(2,IBGRP) = IB
            IBGRP=IBGRP+1
           END DO
           NBGRP=MXBGRP
 C
-          CALL MEMORY_ESTIMATE(JSYM,IWORK(LBGRP),NBGRP,
+          CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
      &                         NCHOBUF,MXPIQK,NADDBUF)
-          CALL GETMEM('KETBUF','ALLO','REAL',LKET,NCHOBUF)
+          call mma_allocate(KET,NCHOBUF,Label='KETBUF')
 C         write(6,*) "nchobuf= ", nchobuf
 C         write(6,*) "nbgrp= ", nbgrp
 C         write(6,*) "nbtch= ", nbtch(jsym)
           Do IBGRP=1,NBGRP
 C
-            IBSTA=IWORK(LBGRP  +2*(IBGRP-1))
-            IBEND=IWORK(LBGRP+1+2*(IBGRP-1))
+            IBSTA=BGRP(1,IBGRP)
+            IBEND=BGRP(2,IBGRP)
 C           write(6,*) ibsta,ibend
 C
             NV=0
@@ -1488,21 +1461,17 @@ C
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
             Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                                Work(LKET),nKet,
+     &                                KET,nKet,
      &                                IBSTA,IBEND)
 C
-C           CALL GETMEM('WRKCHO','ALLO','REAL',LWRKCHO,NV)
-C           Call DCopy_(NV,[0.0D+00],0,Work(LWRKCHO),1)
             If (IBGRP.EQ.1) SCAL = 0.0D+00
             If (IBGRP.NE.1) SCAL = 1.0D+00
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
-     *                  0.5D+00,Work(LKET),NASH(JSYM)**2,
-     *                          Work(LKET),NASH(JSYM)**2,
+     *                  0.5D+00,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,
      *                  SCAL   ,INT2,NASH(JSYM)**2)
-C           CALL GETMEM('WRKCHO','FREE','REAL',LWRKCHO,NV)
           End Do
-          CALL GETMEM('KETBUF','FREE','REAL',LKET,NCHOBUF)
-          CALL GETMEM('BGRP','FREE','INTE',LBGRP,2*MXBGRP)
+          call mma_deallocate(KET)
+          call mma_deallocate(BGRP)
         End Do
       Else
         Do iAshI = 1, nAsh(iSym)
@@ -1510,8 +1479,7 @@ C           CALL GETMEM('WRKCHO','FREE','REAL',LWRKCHO,NV)
           Do jAshI = 1, nAsh(iSym)
             jOrb = nCorI+jAshI
 C
-            Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,
-     *                Work(ipWRK1),Work(ipWRK2))
+            Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
             !! Put in INT1
 C           Do iCorI = 1, nFro(iSym)+nIsh(iSym)
 C             INT1(iAshI,jAshI) = INT1(iAshI,jAshI)
@@ -1523,7 +1491,7 @@ C           End Do
                 INT2(iAshI,jAshI,kAshI,lAshI)
      *        = INT2(iAshI,jAshI,kAshI,lAshI)
 C    *        + WRK1(nCorI+kAshI,nCorI+lAshI)*0.5d+00
-     *        + Work(ipWRK1+nCorI+kAshI-1+nBasT*(nCorI+lAshI-1))*0.5d+00
+     *        + WRK1(nCorI+kAshI+nBasT*(nCorI+lAshI-1))*0.5d+00
               End Do
             End Do
 C
@@ -1535,9 +1503,8 @@ C           End Do
           End Do
         End Do
       End If
-C     CALL GETMEM('FIMO  ','FREE','REAL',ipFIMO,nBasSq)
-      CALL GETMEM('WRK1  ','FREE','REAL',ipWRK1,nBasSq)
-      CALL GETMEM('WRK2  ','FREE','REAL',ipWRK2,nBasSq)
+      call mma_deallocate(WRK1)
+      call mma_deallocate(WRK2)
 C     write(6,*) "int2"
 C     call sqprt(int2,25)
 C     call sqprt(int1,5)
@@ -1575,52 +1542,52 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 C
-      use caspt2_gradient, only: iRoot1, iRoot2
+      use caspt2_global, only: iRoot1, iRoot2, OLagFull
       use gugx, only: SGS
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension DPT2Canti(*),UEFF(nState,nState),U0(*)
+      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
+     *                             G1(:,:),WRK1(:),WRK2(:)
       Integer ::nLev
       nLev = SGS%nLev
 C
-      Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
-      Call GetMem('CI2   ','ALLO','REAL',ipCI2 ,nConf)
-      Call GetMem('SGM1  ','ALLO','REAL',ipSGM1,nConf)
-      Call GetMem('SGM2  ','ALLO','REAL',ipSGM2,nConf)
-      Call GetMem('TG1   ','ALLO','REAL',ipTG1 ,nAshT**2)
-      Call GetMem('G1    ','ALLO','REAL',ipG1  ,nAshT**2)
+      call mma_allocate(CI1,nConf,Label='CI1')
+      call mma_allocate(CI2,nConf,Label='CI2')
+      call mma_allocate(SGM1,nConf,Label='SGM1')
+      call mma_allocate(SGM2,nConf,Label='SGM2')
+      call mma_allocate(TG1,nAshT**2,Label='TG1')
+      call mma_allocate(G1,nAshT,nAshT,Label='G1')
 C
-      Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipG1),1)
+      G1(:,:) = 0.0d+00
       Do iStat = 1, nState
         !! UEFF is in the CASSCF basis, so the CI coefficient
         !! has to be transformed(-back) accordingly
-        Call LoadCI_XMS('N',1,Work(ipCI1),iStat,U0)
+        Call LoadCI_XMS('N',1,CI1,iStat,U0)
         Do jStat = 1, nState
           If (iStat.eq.jStat) Cycle
-          Call LoadCI_XMS('N',1,Work(ipCI2),jStat,U0)
+          Call LoadCI_XMS('N',1,CI2,jStat,U0)
 C
-          Call Dens1T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                     Work(ipSGM1),Work(ipTG1),nLev)
+          Call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
           Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
      *         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
           Scal = Scal*0.5d+00
 C         write (*,*) istat,jstat,scal
-C         call sqprt(work(iptg1),5)
-          Call DaXpY_(nAshT**2,Scal,Work(ipTG1),1,Work(ipG1),1)
+C         call sqprt(tg1,5)
+          Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
         End Do
       End Do
-C     call sqprt(work(ipg1),5)
+C     call sqprt(g1,5)
 C
-      Call GetMem('CI1   ','FREE','REAL',ipCI1 ,nConf)
-      Call GetMem('CI2   ','FREE','REAL',ipCI2 ,nConf)
-      Call GetMem('SGM1  ','FREE','REAL',ipSGM1,nConf)
-      Call GetMem('SGM2  ','FREE','REAL',ipSGM2,nConf)
-      Call GetMem('TG1   ','FREE','REAL',ipTG1 ,nAshT**2)
+      call mma_deallocate(CI1)
+      call mma_deallocate(CI2)
+      call mma_deallocate(SGM1)
+      call mma_deallocate(SGM2)
+      call mma_deallocate(TG1)
 C
       !! The DPT2Canti computed so far has been doubled
       Call DScal_(nBasT**2,0.5d+00,DPT2Canti,1)
@@ -1641,7 +1608,7 @@ C
               jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
               DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
      *          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
-     *          + Work(ipG1+iOrb0-1+nAsh(iSym)*(jOrb0-1))
+     *          + G1(iOrb0,jOrb0)
             End Do
           End Do
         END IF
@@ -1651,23 +1618,23 @@ C
 C     write (*,*) "dpt2anti after"
 C     call sqprt(dpt2canti,nbast)
 C
-      Call GetMem('G1    ','FREE','REAL',ipG1  ,nAshT**2)
+      call mma_deallocate(G1)
 C
       !! Add orbital response
-      Call GetMem('WRK1  ','ALLO','REAL',ipWRK1,nBasT**2)
-      Call GetMem('WRK2  ','ALLO','REAL',ipWRK2,nBasT**2)
+      call mma_allocate(WRK1,NBSQT,Label='WRK1')
+      call mma_allocate(WRK2,NBSQT,Label='WRK2')
 C
-      Call DCopy_(nBasT**2,DPT2Canti,1,Work(ipWRK1),1)
+      Call DCopy_(nBasT**2,DPT2Canti,1,WRK1,1)
       !! Scale with the CASPT2 energy difference
       Scal = ENERGY(iRoot2)-ENERGY(iRoot1)
-      Call DScal_(nBasT**2,Scal,Work(ipWRK1),1)
+      Call DScal_(nBasT**2,Scal,WRK1,1)
       !! anti-symmetrize the orbital response
-      Call DGeSub(Work(ipWRK1),nBas(1),'N',
-     &            Work(ipWRK1),nBas(1),'T',
-     &            Work(ipWRK2),nBas(1),
+      Call DGeSub(WRK1,nBas(1),'N',
+     &            WRK1,nBas(1),'T',
+     &            WRK2,nBas(1),
      &            nBas(1),nBas(1))
-C      write (*,*) "ipwrk1"
-C      call sqprt(work(ipwrk1),nbast)
+C      write (*,*) "wrk1"
+C      call sqprt(wrk),nbast)
 C
       !! Probably, the way CSF term is computed in MOLCAS is different
       !! from in BAGEL; see Eqs.(51)--(53). In the active space, i.e.
@@ -1675,10 +1642,10 @@ C
       !! (see JCP 2004, 120, 7322), but not in off-diagonal blocks.
       !! The way MOLCAS computes adds more than the one BAGEL does, so
       !! the orbital response has to be subtracted?
-      Call DaXpY_(nBasT**2,-1.0d+00,Work(ipWRK1),1,Work(ipOLagFull),1)
+      Call DaXpY_(nBasT**2,-1.0d+00,WRK1,1,OLagFull,1)
 C
-      Call GetMem('WRK1  ','FREE','REAL',ipWRK1,nBasT**2)
-      Call GetMem('WRK2  ','FREE','REAL',ipWRK2,nBasT**2)
+      call mma_deallocate(WRK1)
+      call mma_deallocate(WRK2)
 C
       !! S[x]^A:D = S[x]:D^A, according to alaska_util/csfgrad.f
       !! so antisymmetrize D
@@ -1693,7 +1660,7 @@ C
 C     write (*,*) "dpt2anti sym"
 C     call sqprt(dpt2canti,nbast)
 C     write (*,*) "dpt2c"
-C     call sqprt(work(ipdpt2c),nbast)
+C     call sqprt(dpt2c_tot,nbast)
 C
       Return
 C
@@ -1705,25 +1672,25 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
       LOGICAL RSV_TSK
 
       INTEGER, INTENT(IN):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
       REAL*8 G1(NLEV,NLEV)
+      integer(kind=iwp),allocatable :: TASK(:,:)
 
       REAL*8 GTU
 
@@ -1731,7 +1698,7 @@ C
       INTEGER IST,ISU,ISTU
       INTEGER IT,IU,LT,LU
 
-      INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
+      INTEGER ITASK,NTASKS
 
       INTEGER ISSG,NSGM
 
@@ -1768,17 +1735,14 @@ c Special code for closed-shell:
 C-SVC20100311: set up a task table with LT,LU
       nTasks=(nLev**2+nLev)/2
       nTasks= nLev**2
-
-      CALL GETMEM ('Tasks','ALLO','INTE',lTask,2*nTasks)
-      lTask2T=lTask
-      lTask2U=lTask+nTasks
+      CALL mma_allocate (Task,nTasks,2,Label='TASK')
 
       iTask=0
       DO LT=1,nLev
         DO LU=1,nLev!LT
           iTask=iTask+1
-          iWork(lTask2T+iTask-1)=LT
-          iWork(lTask2U+iTask-1)=LU
+          TASK(iTask,1)=LT
+          TASK(iTask,2)=LU
         ENDDO
       ENDDO
       IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
@@ -1792,11 +1756,11 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
 * i.e., lowering operations. These are allowed in RAS.
 C     LTU=0
 C     DO 140 LT=1,NLEV
-      LT=iWork(lTask2T+iTask-1)
+      LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
 C       DO 130 LU=1,LT
-        LU=iWork(lTask2U+iTask-1)
+        LU=Task(iTask,2)
 C         LTU=LTU+1
           ! LTU=iTask
           ISU=SGS%ISM(LU)
@@ -1815,15 +1779,12 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
       GOTO 500
  501  CONTINUE
       CALL Free_Tsk(ID)
 
-      CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
+      CALL mma_deallocate(Task)
 
       CALL GAdSUM (G1,NG1)
 
@@ -1831,7 +1792,7 @@ C     task.
 
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",A)')
-     &   "DENS2_RPT2: norms of the density matrices:"
+     &   "DENS1_RPT2: norms of the density matrices:"
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
       ENDIF
 
@@ -1847,10 +1808,7 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
       Dimension OMGDER(nState,nState),HEFF(nState,nState),
      *          SLag(nState,nState)

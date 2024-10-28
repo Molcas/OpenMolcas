@@ -17,21 +17,20 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: terse, usual, verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
+      REAL*8 HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
+      real(8) U0(Nstate,Nstate)
+
       INTEGER LAXITY
       INTEGER  Cho_X_GetTol
       EXTERNAL Cho_X_GetTol
       CHARACTER(LEN=8) INLAB
       character(len=3) variant
-      DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
-      real(8) U0(Nstate,Nstate)
-      real(8),allocatable :: Utmp(:,:)
+      real(8),allocatable :: Utmp(:,:), UMAT(:,:), HTRI(:)
 
 
       IF(IPRGLB.GE.TERSE) THEN
@@ -79,13 +78,13 @@ C Diagonalize:
 C Use a symmetrized matrix, in triangular storage:
       NUMAT=NSTATE**2
       NHTRI=(NUMAT+NSTATE)/2
-      CALL GETMEM('UMAT','ALLO','REAL',LUMAT,NUMAT)
-      CALL GETMEM('HTRI','ALLO','REAL',LHTRI,NHTRI)
+      CALL mma_allocate(UMAT,NSTATE,NSTATE,LABEL='UMAT')
+      CALL mma_allocate(HTRI,NHTRI,LABEL='HTRI')
       IJ=0
       DO I=1,NSTATE
         DO J=1,I
           IJ=IJ+1
-          WORK(LHTRI-1+IJ)=0.5D0*(HEFF(I,J)+HEFF(J,I))
+          HTRI(IJ)=0.5D0*(HEFF(I,J)+HEFF(J,I))
         END DO
       END DO
       IF(IPRGLB.GE.USUAL) THEN
@@ -98,22 +97,20 @@ C Use a symmetrized matrix, in triangular storage:
           DO I=ISTA,NSTATE
             II0=(I*(I-1))/2
             WRITE(6,'(1x,I3,3X,5F16.8)')
-     &            MSTATE(I),(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
+     &            MSTATE(I),(HTRI(II0+J),J=ISTA,MIN(I,IEND))
           END DO
         END DO
       END IF
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LUMAT),1)
-      CALL DCOPY_(NSTATE,[1.0D0],0,WORK(LUMAT),NSTATE+1)
-      CALL NIDiag(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE)
-      CALL JACORD(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE)
+      UMAT(:,:)=0.0D0
+      CALL DCOPY_(NSTATE,[1.0D0],0,UMAT,NSTATE+1)
+      CALL NIDiag(HTRI,UMAT,NSTATE,NSTATE)
+      CALL JACORD(HTRI,UMAT,NSTATE,NSTATE)
       DO I=1,NSTATE
-        ENERGY(I)=DSHIFT+WORK(LHTRI-1+(I*(I+1))/2)
-        DO J=1,NSTATE
-          EIGVEC(J,I)=WORK(LUMAT-1+J+NSTATE*(I-1))
-        END DO
+        ENERGY(I)=DSHIFT+HTRI((I*(I+1))/2)
+        EIGVEC(:,I)=UMAT(:,I)
       END DO
-      CALL GETMEM('UMAT','FREE','REAL',LUMAT,NUMAT)
-      CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
+      CALL mma_deallocate(UMAT)
+      CALL mma_deallocate(HTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
         If (IFRMS) Then
@@ -177,5 +174,4 @@ C Use a symmetrized matrix, in triangular storage:
       IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
 
-      RETURN
-      END
+      END SUBROUTINE MLTCTL

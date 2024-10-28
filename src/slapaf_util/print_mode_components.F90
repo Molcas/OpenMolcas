@@ -649,13 +649,13 @@ if (allocated(Bk_Coor)) then
   Coor(:,:) = Bk_Coor(:,:)
   call mma_deallocate(Bk_Coor)
 else
-  if (allocated(Coor)) call mma_deallocate(Coor)
+  call mma_deallocate(Coor,safe='*')
 end if
 if (allocated(Bk_Grd)) then
   Grd(:,:) = Bk_Grd(:,:)
   call mma_deallocate(Bk_Grd)
 else
-  if (allocated(Grd)) call mma_deallocate(Grd)
+  call mma_deallocate(Grd,safe='*')
 end if
 if (allocated(Bk_ANr)) then
   ANr(:) = Bk_ANr(:)
@@ -708,161 +708,127 @@ if (allocated(Bk_DipM)) then
   DipM(:,:) = Bk_DipM(:,:)
   call mma_deallocate(Bk_DipM)
 else
-  if (allocated(DipM)) call mma_deallocate(DipM)
+  call mma_deallocate(DipM,safe='*')
 end if
 if (allocated(Bk_RefGeo)) then
   RefGeo(:,:) = Bk_RefGeo(:,:)
   call mma_deallocate(Bk_RefGeo)
 else
-  if (allocated(RefGeo)) call mma_deallocate(RefGeo)
+  call mma_deallocate(RefGeo,safe='*')
 end if
 
 ! Process arrays that are allocated optionally.
 
 if (allocated(Bk_Lambda)) then
-  if (.not. allocated(Lambda)) call mma_allocate(Lambda,size(Bk_Lambda,1),MaxItr+1,Label='Lambda')
+  call mma_allocate(Lambda,size(Bk_Lambda,1),MaxItr+1,Label='Lambda',safe='*')
   Lambda(:,:) = Bk_Lambda(:,:)
   call mma_deallocate(Bk_Lambda)
 else
-  if (allocated(Lambda)) call mma_deallocate(Lambda)
+  call mma_deallocate(Lambda,safe='*')
 end if
 
+call mma_deallocate(qInt,safe='*')
 if (allocated(Bk_qInt)) then
-  if (allocated(qInt)) call mma_deallocate(qInt)
   call mma_allocate(qInt,size(Bk_qInt,1),MaxItr,Label='qInt')
   qInt(:,:) = Bk_qInt(:,:)
   call mma_deallocate(Bk_qInt)
-else
-  if (allocated(qInt)) call mma_deallocate(qInt)
 end if
+call mma_deallocate(dqInt,safe='*')
 if (allocated(Bk_dqInt)) then
-  if (allocated(dqInt)) call mma_deallocate(dqInt)
   call mma_allocate(dqInt,size(Bk_dqInt,1),MaxItr,Label='dqInt')
   dqInt(:,:) = Bk_dqInt(:,:)
   call mma_deallocate(Bk_dqInt)
-else
-  if (allocated(dqInt)) call mma_deallocate(dqInt)
 end if
 
+call mma_deallocate(BM,safe='*')
 if (allocated(Bk_BM)) then
-  if (allocated(BM)) call mma_deallocate(BM)
   call mma_allocate(BM,size(Bk_BM),Label='BM')
   BM(:) = Bk_BM(:)
   call mma_deallocate(Bk_BM)
-else
-  if (allocated(BM)) call mma_deallocate(BM)
 end if
+call mma_deallocate(dBM,safe='*')
 if (allocated(Bk_dBM)) then
-  if (allocated(dBM)) call mma_deallocate(dBM)
   call mma_allocate(dBM,size(Bk_dBM),Label='dBM')
   dBM(:) = Bk_dBM(:)
   call mma_deallocate(Bk_dBM)
-else
-  if (allocated(dBM)) call mma_deallocate(dBM)
 end if
+call mma_deallocate(iBM,safe='*')
 if (allocated(Bk_iBM)) then
-  if (allocated(iBM)) call mma_deallocate(iBM)
   call mma_allocate(iBM,size(Bk_iBM),Label='iBM')
   iBM(:) = Bk_iBM(:)
   call mma_deallocate(Bk_iBM)
-else
-  if (allocated(iBM)) call mma_deallocate(iBM)
 end if
+call mma_deallocate(idBM,safe='*')
 if (allocated(Bk_idBM)) then
-  if (allocated(idBM)) call mma_deallocate(idBM)
   call mma_allocate(idBM,size(Bk_idBM),Label='idBM')
   idBM(:) = Bk_idBM(:)
   call mma_deallocate(Bk_idBM)
-else
-  if (allocated(idBM)) call mma_deallocate(idBM)
 end if
+call mma_deallocate(nqBM,safe='*')
 if (allocated(Bk_nqBM)) then
-  if (allocated(nqBM)) call mma_deallocate(nqBM)
   call mma_allocate(nqBM,size(Bk_nqBM),Label='nqBM')
   nqBM(:) = Bk_nqBM(:)
   call mma_deallocate(Bk_nqBM)
-else
-  if (allocated(nqBM)) call mma_deallocate(nqBM)
 end if
+call mma_deallocate(BMx,safe='*')
 if (allocated(Bk_BMx)) then
-  if (allocated(BMx)) call mma_deallocate(BMx)
   call mma_allocate(BMx,size(Bk_BMx,1),size(Bk_BMx,2),Label='BMx')
   BMx(:,:) = Bk_BMx(:,:)
   call mma_deallocate(Bk_BMx)
-else
-  if (allocated(BMx)) call mma_deallocate(BMx)
 end if
+call mma_deallocate(Degen,safe='*')
 if (allocated(Bk_Degen)) then
-  if (allocated(Degen)) call mma_deallocate(Degen)
   call mma_allocate(Degen,size(Bk_Degen,1),size(Bk_Degen,2),Label='Degen')
   Degen(:,:) = Bk_Degen(:,:)
   call mma_deallocate(Bk_Degen)
-else
-  if (allocated(Degen)) call mma_deallocate(Degen)
 end if
+call mma_deallocate(jStab,safe='*')
 if (allocated(Bk_jStab)) then
-  if (allocated(jStab)) call mma_deallocate(jStab)
   call mma_allocate(jStab,[0,7],[1,size(Bk_jStab,2)],Label='jStab')
   jStab(:,:) = Bk_jStab(:,:)
   call mma_deallocate(Bk_jStab)
-else
-  if (allocated(jStab)) call mma_deallocate(jStab)
 end if
+call mma_deallocate(iCoSet,safe='*')
 if (allocated(Bk_iCoSet)) then
-  if (allocated(iCoSet)) call mma_deallocate(iCoSet)
   call mma_allocate(iCoSet,[0,7],[1,size(Bk_iCoSet,2)],Label='iCoSet')
   iCoSet(:,:) = Bk_iCoSet(:,:)
   call mma_deallocate(Bk_iCoSet)
-else
-  if (allocated(iCoSet)) call mma_deallocate(iCoSet)
 end if
+call mma_deallocate(nStab,safe='*')
 if (allocated(Bk_nStab)) then
-  if (allocated(nStab)) call mma_deallocate(nStab)
   call mma_allocate(nStab,size(Bk_nStab,1),Label='nStab')
   nStab(:) = Bk_nStab(:)
   call mma_deallocate(Bk_nStab)
-else
-  if (allocated(nStab)) call mma_deallocate(nStab)
 end if
+call mma_deallocate(AtomLbl,safe='*')
 if (allocated(Bk_AtomLbl)) then
-  if (allocated(AtomLbl)) call mma_deallocate(AtomLbl)
   call mma_allocate(AtomLbl,size(Bk_AtomLbl,1),Label='AtomLbl')
   AtomLbl(:) = Bk_AtomLbl(:)
   call mma_deallocate(Bk_AtomLbl)
-else
-  if (allocated(AtomLbl)) call mma_deallocate(AtomLbl)
 end if
+call mma_deallocate(Smmtrc,safe='*')
 if (allocated(Bk_Smmtrc)) then
-  if (allocated(Smmtrc)) call mma_deallocate(Smmtrc)
   call mma_allocate(Smmtrc,3,size(Bk_Smmtrc,2),Label='Smmtrc')
   Smmtrc(:,:) = Bk_Smmtrc(:,:)
   call mma_deallocate(Bk_Smmtrc)
-else
-  if (allocated(Smmtrc)) call mma_deallocate(Smmtrc)
 end if
+call mma_deallocate(Lbl,safe='*')
 if (allocated(Bk_Lbl)) then
-  if (allocated(Lbl)) call mma_deallocate(Lbl)
   call mma_allocate(Lbl,size(Bk_Lbl),Label='Lbl')
   Lbl(:) = Bk_Lbl(:)
   call mma_deallocate(Bk_Lbl)
-else
-  if (allocated(Lbl)) call mma_deallocate(Lbl)
 end if
+call mma_deallocate(mRowH,safe='*')
 if (allocated(Bk_mRowH)) then
-  if (allocated(mRowH)) call mma_deallocate(mRowH)
   call mma_allocate(mRowH,size(Bk_mRowH),Label='mRowH')
   mRowH(:) = Bk_mRowH(:)
   call mma_deallocate(Bk_mRowH)
-else
-  if (allocated(mRowH)) call mma_deallocate(mRowH)
 end if
+call mma_deallocate(RootMap,safe='*')
 if (allocated(Bk_RootMap)) then
-  if (allocated(RootMap)) call mma_deallocate(RootMap)
   call mma_allocate(RootMap,size(Bk_RootMap),Label='RootMap')
   RootMap(:) = Bk_RootMap(:)
   call mma_deallocate(Bk_RootMap)
-else
-  if (allocated(RootMap)) call mma_deallocate(RootMap)
 end if
 
 end subroutine Print_Mode_Components

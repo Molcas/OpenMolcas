@@ -18,26 +18,23 @@
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
 #endif
-#include "compiler_features.h"
-#ifndef POINTER_REMAP
-      USE ISO_C_Binding
-#endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "stdalloc.fh"
 #include "rassiwfn.fh"
 
-      character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE), DYSAMPS2(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE),
+     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
+
+      REAL*8 DYSAMPS2(NSTATE,NSTATE)
+      character(LEN=100) line
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
@@ -45,9 +42,9 @@
       Integer  cho_x_gettol
       External cho_x_gettol
       INTEGER IOFF(8), SECORD(4), IPRTMOM(12)
-      CHARACTER*8 LABEL
+      CHARACTER(LEN=8) LABEL
       Real*8 TM_R(3), TM_I(3), TM_C(3)
-      Character*60 FMTLINE
+      Character(LEN=60) FMTLINE
       Real*8 Wavevector(3), UK(3)
       Real*8, Allocatable :: pol_Vector(:,:), Rquad(:,:)
       Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
@@ -64,6 +61,11 @@
       logical TMOgroup
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
+      Integer, Allocatable:: LIST(:), STACK(:), ILST(:)
+      Real*8, allocatable:: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
+      Real*8, Allocatable:: L2(:), M2DIA(:), L2DIA(:), VLST(:)
+      Real*8, Allocatable:: DV(:), DL(:), Aux(:,:)
+      Real*8, Allocatable:: TOT2K(:,:), IP(:), OscStr(:,:), RAW(:,:,:)
 
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
@@ -106,21 +108,19 @@ C listed in various tables in common /CNTRL/.
 C So it is worth the extra inconvenience to construct an outer
 C loop over sets of interacting wave functions.
 C Make a list of interacting sets of states:
-      CALL GETMEM('LIST','ALLO','INTE',LLIST,NSTATE)
-      DO I=1,NSTATE
-        IWORK(LLIST-1+I)=0
-      END DO
+      CALL mma_allocate(LIST,NSTATE,Label='LIST')
+      LIST(:)=0
       ISET=0
       DO I=1,NSTATE
-        IF(IWORK(LLIST-1+I).GT.0) cycle
+        IF(LIST(I).GT.0) cycle
         ISET=ISET+1
-        IWORK(LLIST-1+I)=ISET
+        LIST(I)=ISET
         JOB1=JBNUM(I)
         NACTE1=NACTE(JOB1)
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
-          IF(IWORK(LLIST-1+J).GT.0) cycle
+          IF(LIST(J).GT.0) cycle
           JOB2=JBNUM(J)
           NACTE2=NACTE(JOB2)
           IF(NACTE2.NE.NACTE1) cycle
@@ -128,32 +128,32 @@ C Make a list of interacting sets of states:
           IF(MPLET2.NE.MPLET1) cycle
           LSYM2=IRREP(JOB2)
           IF(LSYM2.NE.LSYM1) cycle
-          IWORK(LLIST-1+J)=ISET
+          LIST(J)=ISET
         END DO
       END DO
       NSETS=ISET
 CTEST      write(*,*)' EIGCTL. There are NSETS sets of interacting states.'
 CTEST      write(*,'(1x,a,i3)')' where NSETS=',NSETS
 CTEST      write(*,*)' The LIST array:'
-CTEST      write(*,'(1x,20i3)')(IWORK(LLIST-1+I),I=1,NSTATE)
+CTEST      write(*,'(1x,20i3)')(LIST(I),I=1,NSTATE)
 
       NHH=(NSTATE*(NSTATE+1))/2
-      CALL GETMEM('HH','ALLO','REAL',LHH,NHH)
-      CALL GETMEM('HSQ','ALLO','REAL',LHSQ,NSTATE**2)
-      CALL GETMEM('SS','ALLO','REAL',LSS,NHH)
-      CALL GETMEM('UU','ALLO','REAL',LUU,NSTATE**2)
-      CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LSCR),1)
-      CALL GETMEM('STACK','ALLO','INTE',LSTK,NSTATE)
+      CALL mma_allocate(HH,NHH,Label='HH')
+      CALL mma_allocate(HSQ,NSTATE**2,Label='HSQ')
+      CALL mma_allocate(SS,NHH,Label='SS')
+      CALL mma_allocate(UU,NSTATE**2,Label='UU')
+      CALL mma_allocate(SCR1,NSTATE**2,Label='SCR1')
+      SCR1(:)=0.0D0
+      CALL mma_allocate(STACK,NSTATE,Label='STACK')
 C Loop over the sets:
       DO ISET=1,NSETS
 C Stack up the states belonging to this set:
        MSTATE=0
        DO I=1,NSTATE
-        JSET=IWORK(LLIST-1+I)
+        JSET=LIST(I)
         IF(JSET.EQ.ISET) THEN
          MSTATE=MSTATE+1
-         IWORK(LSTK-1+MSTATE)=I
+         STACK(MSTATE)=I
         END IF
        END DO
 
@@ -162,16 +162,16 @@ C Stack up the states belonging to this set:
        end if
 
 C 1. PUT UNIT MATRIX INTO UU
-      CALL DCOPY_(MSTATE**2,[0.0D0],0,WORK(LUU),1)
-      CALL DCOPY_(MSTATE   ,[1.0D0],0,WORK(LUU),MSTATE+1)
+      UU(:)=0.0D0
+      CALL DCOPY_(MSTATE   ,[1.0D0],0,UU,MSTATE+1)
 C 2. COPY OVERLAP MATRIX INTO TRIANGULAR STORAGE,
 C    and Hamiltonian into square storage:
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LHSQ),1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,HSQ,1)
       IJ=0
       DO II=1,MSTATE
-        I=IWORK(LSTK-1+II)
+        I=STACK(II)
         DO JJ=1,II
-          J=IWORK(LSTK-1+JJ)
+          J=STACK(JJ)
           IJ=IJ+1
           If (I.NE.J .AND.
      &    (ABS(ovlp(i,j)).gt.1.0D-9.or.ABS(ham(i,j)).gt.1.0D-9)) Then
@@ -181,61 +181,61 @@ C    and Hamiltonian into square storage:
             write(6,*) 'overlap     for i,j',i,j,ovlp(i,j)
             write(6,*) 'Hamiltonian for i,j',i,j,HAM(i,j)
           end if
-          WORK(LSS-1+IJ)=OVLP(I,J)
-          WORK(LHSQ-1+II+MSTATE*(JJ-1))=HAM(I,J)
-          WORK(LHSQ-1+JJ+MSTATE*(II-1))=HAM(I,J)
+          SS(IJ)=OVLP(I,J)
+          HSQ(II+MSTATE*(JJ-1))=HAM(I,J)
+          HSQ(JJ+MSTATE*(II-1))=HAM(I,J)
         END DO
       END DO
 C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
-      CALL Jacob(WORK(LSS),WORK(LUU),MSTATE,MSTATE)
+      CALL Jacob(SS,UU,MSTATE,MSTATE)
       II=0
       DO I=1,MSTATE
         II=II+I
-        X=1.0D00/SQRT(MAX(0.5D-14,WORK(LSS-1+II)))
+        X=1.0D00/SQRT(MAX(0.5D-14,SS(II)))
         DO K=1,MSTATE
-          LPOS=LUU-1+K+MSTATE*(I-1)
-          WORK(LPOS)=X*WORK(LPOS)
+          LPOS=K+MSTATE*(I-1)
+          UU(LPOS)=X*UU(LPOS)
         END DO
       END DO
 
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
         CALL DGEMM_('N','N',MSTATE,MSTATE,MSTATE,1.0D0,
-     &             WORK(LHSQ),MSTATE,WORK(LUU),MSTATE,
-     &             0.0D0,WORK(LSCR),MSTATE)
+     &             HSQ,MSTATE,UU,MSTATE,
+     &             0.0D0,SCR1,MSTATE)
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
-     &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
-     &             0.0D0,WORK(LHSQ),MSTATE)
+     &             UU,MSTATE,SCR1,MSTATE,
+     &             0.0D0,HSQ,MSTATE)
 
 C 5. DIAGONALIZE HAMILTONIAN.
       IJ=0
       DO I=1,MSTATE
         DO J=1,I
           IJ=IJ+1
-          WORK(LHH-1+IJ)=WORK(LHSQ-1+I+MSTATE*(J-1))
+          HH(IJ)=HSQ(I+MSTATE*(J-1))
         END DO
       END DO
 
-      CALL Jacob (WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      CALL SortDiag(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+      CALL Jacob (HH,UU,MSTATE,MSTATE)
+      CALL SortDiag(HH,UU,MSTATE,MSTATE)
 
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
-        I=IWORK(LSTK-1+II)
-        ENERGY(I)=WORK(LHH-1+IDIAG)
+        I=STACK(II)
+        ENERGY(I)=HH(IDIAG)
         DO JJ=1,MSTATE
-          J=IWORK(LSTK-1+JJ)
-          EIGVEC(I,J)=WORK(LUU-1+II+MSTATE*(JJ-1))
+          J=STACK(JJ)
+          EIGVEC(I,J)=UU(II+MSTATE*(JJ-1))
         END DO
       END DO
 *if diagonal
       Else
         DO II=1,MSTATE
-          I=IWORK(LSTK-1+II)
+          I=STACK(II)
           ENERGY(I)=HAM(I,I)
           Do JJ=1,MSTATE
-            J=IWORK(LSTK-1+JJ)
+            J=STACK(JJ)
             EIGVEC(I,J)=0.0d0
           End Do
           EIGVEC(I,I)=1.0d0
@@ -251,10 +251,10 @@ c               lower than 1.0D-4 cm-1
       DLT=0.d0
       IDIAG=0
       DO II=1,MSTATE
-        I=IWORK(LSTK-1+II)
+        I=STACK(II)
         TMP=ENERGY(I)
         Do JJ=1,MSTATE
-          J=IWORK(LSTK-1+JJ)
+          J=STACK(JJ)
           IF(I==J) CYCLE
           DLT=ABS(ENERGY(J)-TMP)*auTocm
           If(DLT<1.0D-4) THEN
@@ -266,8 +266,8 @@ c               lower than 1.0D-4 cm-1
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
-        I=IWORK(LSTK-1+II)
-        WORK(LHH-1+IDIAG)=ENERGY(I)
+        I=STACK(II)
+        HH(IDIAG)=ENERGY(I)
       END DO
 C End of loop over sets.
       END DO
@@ -282,12 +282,12 @@ C especially for already diagonal Hamiltonian matrix.
            eigvec(:,i) = -eigvec(:,i)
          endif
       enddo
-      CALL GETMEM('HH','FREE','REAL',LHH,NHH)
-      CALL GETMEM('SS','FREE','REAL',LSS,NHH)
-      CALL GETMEM('UU','FREE','REAL',LUU,NSTATE**2)
-      CALL GETMEM('HSQ','FREE','REAL',LHSQ,NSTATE**2)
-      CALL GETMEM('STACK','FREE','INTE',LSTK,NSTATE)
-      CALL GETMEM('LIST','FREE','INTE',LLIST,NSTATE)
+      CALL mma_deallocate(HH)
+      CALL mma_deallocate(SS)
+      CALL mma_deallocate(UU)
+      CALL mma_deallocate(HSQ)
+      CALL mma_deallocate(STACK)
+      CALL mma_deallocate(LIST)
 
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sfs_energy, ENERGY)
@@ -361,24 +361,24 @@ C i.e. assume L**2 = -(iLx)*(iLx)-(iLy)*(iLy)-(iLz)*(iLz)
 C within the basis formed by the states.
       IAMXYZ=0
       IF (IAMZ.GT.0) THEN
-         CALL GETMEM('L2','ALLO','REAL',LL2,NSTATE**2)
-         CALL GETMEM('M2DIA','ALLO','REAL',LM2DIA,NSTATE)
+         CALL mma_allocate(L2,NSTATE**2,Label='L2')
+         CALL mma_allocate(M2DIA,NSTATE,Label='M2DIA')
          CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,-1.0D0,
      &             PROP(1,1,IAMZ),NSTATE,PROP(1,1,IAMZ),NSTATE,
-     &             0.0D0,WORK(LL2),NSTATE)
-         CALL DCOPY_(NSTATE,WORK(LL2),(NSTATE+1),WORK(LM2DIA),1)
+     &             0.0D0,L2,NSTATE)
+         CALL DCOPY_(NSTATE,L2,(NSTATE+1),M2DIA,1)
          IF (IAMX.GT.0.and.IAMY.gt.0) THEN
             IAMXYZ=1
             CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,-1.0D0,
      &               PROP(1,1,IAMX),NSTATE,PROP(1,1,IAMX),NSTATE,
-     &               1.0D0,WORK(LL2),NSTATE)
+     &               1.0D0,L2,NSTATE)
             CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,-1.0D0,
      &               PROP(1,1,IAMY),NSTATE,PROP(1,1,IAMY),NSTATE,
-     &               1.0D0,WORK(LL2),NSTATE)
-            CALL GETMEM('L2DIA','ALLO','REAL',LL2DIA,NSTATE)
-            CALL DCOPY_(NSTATE,WORK(LL2),(NSTATE+1),WORK(LL2DIA),1)
+     &               1.0D0,L2,NSTATE)
+            CALL mma_allocate(L2DIA,NSTATE,Label='L2DIA')
+            CALL DCOPY_(NSTATE,L2,(NSTATE+1),L2DIA,1)
          END IF
-         CALL GETMEM('L2','FREE','REAL',LL2,NSTATE**2)
+         CALL mma_deallocate(L2)
       END IF
 *                                                                      *
 ************************************************************************
@@ -406,7 +406,7 @@ C within the basis formed by the states.
          End If
       End Do
 #ifdef _HDF5_
-      If (IFTRD1.or.IFTRD2) Call UpdateIdx(IndexE, 0)
+      If (IFTRD1.or.IFTDM) Call UpdateIdx(IndexE, 0)
 #endif
 *                                                                      *
 ************************************************************************
@@ -461,19 +461,19 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
          IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-Half
-           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+L2DIA(ISTATE)))-Half
+           EFFM=SQRT(MAX(0.5D-12,M2DIA(ISTATE)))
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1,2X,'//
      &             'F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
-           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-Half
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+L2DIA(ISTATE)))-Half
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL
           END IF
          ELSE
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           EFFM=SQRT(MAX(0.5D-12,M2DIA(ISTATE)))
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFM
           ELSE
@@ -487,10 +487,10 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
       END IF
       IF(IAMZ.GT.0) THEN
-       CALL GETMEM('M2DIA','FREE','REAL',LM2DIA,NSTATE)
+       CALL mma_deallocate(M2DIA)
       END IF
       IF(IAMXYZ.GT.0) THEN
-       CALL GETMEM('L2DIA','FREE','REAL',LL2DIA,NSTATE)
+       CALL mma_deallocate(L2DIA)
       END IF
 c LU: save esfs array
        CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
@@ -512,8 +512,8 @@ c
           WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
         END DO
        END IF
-       CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
-       CALL GETMEM('VLST','ALLO','REAL',LVLST,NSTATE)
+       CALL mma_allocate(ILST,NSTATE,Label='ILST')
+       CALL mma_allocate(VLST,NSTATE,Label='VLST')
        DO L=1,NSTATE
           I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
@@ -528,21 +528,21 @@ c
          EV=EIGVEC(IndexE(K),I)
          IF(ABS(EV).GE.EVLIM) THEN
            NLST=NLST+1
-           WORK(LVLST-1+NLST)=EV
-           IWORK(LILST-1+NLST)=IndexE(K)
+           VLST(NLST)=EV
+           ILST(NLST)=IndexE(K)
          END IF
         END DO
         DO KSTA=1,NLST,6
          KEND=MIN(NLST,KSTA+4)
          WRITE(Line,'(5X,5(I5,F12.6))')
-     &    (IWORK(LILST-1+K),WORK(LVLST-1+K),K=KSTA,KEND)
+     &    (ILST(K),VLST(K),K=KSTA,KEND)
          CALL NORMAL(Line)
          WRITE(6,*) Line
         END DO
         WRITE(6,*)
        END DO
-       CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
-       CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
+       CALL mma_deallocate(ILST)
+       CALL mma_deallocate(VLST)
        IF(IPGLOB.ge.3) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
@@ -551,10 +551,10 @@ c
            I=IndexE(L)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,OVLP,NSTATE,
-     &             0.0D0,WORK(LSCR),NSTATE)
+     &             0.0D0,SCR1,NSTATE)
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
-         WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+IndexE(K)+NSTATE*(I-1)),
+         WRITE(6,'(5(1X,F15.7))')(SCR1(IndexE(K)+NSTATE*(I-1)),
      &          K=1,NSTATE)
          WRITE(6,*)
         END DO
@@ -574,29 +574,29 @@ C     fly. To account for this transformation we will have to transformC
 C     the coefficients of the SO states from a basis of the SF eigen-  C
 C     states to the basis of the original SF states.                   C
 C
-      DO IP=1,NPROP
+      DO IPRP=1,NPROP
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
-     &             0.0D0,WORK(LSCR),NSTATE)
+     &             PROP(1,1,IPRP),NSTATE,EIGVEC,NSTATE,
+     &             0.0D0,SCR1,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
-     &             0.0D0,PROP(1,1,IP),NSTATE)
+     &             EIGVEC,NSTATE,SCR1,NSTATE,
+     &             0.0D0,PROP(1,1,IPRP),NSTATE)
       END DO
 
 C And the same for the Dyson amplitudes
       IF (DYSO) THEN
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
-     &             0.0D0,WORK(LSCR),NSTATE)
+     &             0.0D0,SCR1,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
+     &             EIGVEC,NSTATE,SCR1,NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
       END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
 
-      CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
+      CALL mma_deallocate(SCR1)
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
 *
@@ -665,10 +665,10 @@ C                                                                      C
 !     These stores all dipole oscillator strengths in
 !     length and velocity gauge for a later comparison.
 !
-      CALL GETMEM('DL   ','ALLO','REAL',LDL,NSTATE**2)
-      CALL GETMEM('DV   ','ALLO','REAL',LDV,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDL),1)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDV),1)
+      CALL mma_allocate(DL,NSTATE**2,Label='DL')
+      CALL mma_allocate(DV,NSTATE**2,Label='DV')
+      DL(:)=0.0D0
+      DV(:)=0.0D0
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 !
@@ -776,7 +776,7 @@ C                                                                      C
               write(losc_strength,33) I,J,F,Fx,Fy,Fz
            END IF
 ! Store dipole oscillator strength
-            WORK(LDL-1+IJ) = F
+            DL(IJ) = F
 *
            If (F.gt.1.0D0) Then
               k=INT(LOG10(F))+1
@@ -829,10 +829,12 @@ C                                                                      C
 *
         LNCNT=0
         DMAX=0.0D0
-        DO K_=1,NSTATE-1
+        DO K_=1,IEND
            I=IndexE(K_)
-         DO L_=I+1,NSTATE
+         DO L_=JSTART,NSTATE
            J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
+           IF(EDIFF.GT.0.0D0) THEN
            DX=0.0D0
            DY=0.0D0
            DZ=0.0D0
@@ -866,6 +868,8 @@ C                                                                      C
             LNCNT=LNCNT+1
             WRITE(6,33) I,J,DX,DY,DZ,DSZ
             write(LuT1,222) I,J,DX,DY,DZ
+           END IF
+           Call Add_Info('TVC(SF,Len)',[DSZ],1,6)
            END IF
          END DO
         END DO
@@ -976,7 +980,7 @@ C                                                                      C
                   LNCNT=1
                   WRITE(6,33) I,J,F,AX,AY,AZ,A
 ! Store dipole oscillator strength
-                  WORK(LDV-1+IJ) = F
+                  DV(IJ) = F
                END IF
                Call Add_Info('TMS(SF,Vel)',[F],1,6)
                END IF
@@ -1036,14 +1040,14 @@ C                                                                      C
 *
              COMPARE=0.0D0
              dlt=1.0D-18 ! Add small value to avoid zero divide.
-             IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
-     &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
-               COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR+dlt).AND.
-     &               (WORK(LDL-1+IJ).GT.0.0D0)) THEN
+             IF(DL(IJ).GE.OSTHR+dlt .AND.
+     &          DV(IJ).GE.OSTHR+dlt) THEN
+               COMPARE = ABS(1-DL(IJ)/DV(IJ))
+             ELSE IF((DL(IJ).GE.OSTHR+dlt).AND.
+     &               (DL(IJ).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR+dlt).AND.
-     &               (WORK(LDV-1+IJ).GT.0.0D0)) THEN
+             ELSE IF((DV(IJ).GE.OSTHR+dlt).AND.
+     &               (DV(IJ).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
 
@@ -1059,11 +1063,11 @@ C                                                                      C
                END IF
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,38) I,J,COMPARE*100D0,
-     &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
+     &                      DL(IJ),DV(IJ)
                ELSE IF (COMPARE.GE.-2.0D0) THEN
-                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+                 WRITE(6,36) I,J,DL(IJ),"below threshold"
                ELSE
-                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+                 WRITE(6,37) I,J,"below threshold",DV(IJ)
                END IF
              END IF
 *
@@ -1088,8 +1092,8 @@ C                                                                      C
 *
 * Free the memory
 *
-      CALL GETMEM('DV   ','FREE','REAL',LDV,NSTATE**2)
-      CALL GETMEM('DL   ','FREE','REAL',LDL,NSTATE**2)
+      CALL mma_deallocate(DV)
+      CALL mma_deallocate(DL)
 *
 * CALCULATION OF THE QUADRUPOLE TRANSITION STRENGTHS
 *
@@ -1097,8 +1101,8 @@ C                                                                      C
 !
 ! We will first allocate a matrix for the total of the second order wave vector
 !
-      CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LTOT2K),1)
+      CALL mma_allocate(TOT2K,NSTATE,NSTATE,Label='TOT2K')
+      TOT2K(:,:)=0.0D0
 
 * Magnetic-Dipole - Magnetic-Dipole transitions
 !
@@ -1152,7 +1156,6 @@ C                                                                      C
              J=IndexE(L_)
            EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
-            IJ=J+NSTATE*(I-1)
 
             DX2=0.0D0
             DY2=0.0D0
@@ -1164,7 +1167,7 @@ C                                                                      C
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
             IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' value at distance '
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1259,7 +1262,6 @@ C                                                                      C
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJ=J+NSTATE*(I-1)
 
             DXX=0.0D0
             DYY=0.0D0
@@ -1297,7 +1299,7 @@ C                                                                      C
 
             F =FXX+FXY+FXZ+FYY+FYZ+FZZ+FXXFYY+FXXFZZ+FYYFZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1460,7 +1462,6 @@ C                                                                      C
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJ=J+NSTATE*(I-1)
 
             DXXXDX=0.0D0
             DYYXDX=0.0D0
@@ -1503,7 +1504,7 @@ C                                                                      C
 
             F =FXXX+FYYX+FZZX+FXXY+FYYY+FZZY+FXXZ+FYYZ+FZZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1645,7 +1646,6 @@ C                                                                      C
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJ=J+NSTATE*(I-1)
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
@@ -1676,7 +1676,7 @@ C                                                                      C
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
 ! Add it to the total
-            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
+            TOT2K(J,I) = TOT2K(J,I) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
              IF(QIALL) WRITE(6,33) I,J,F
@@ -1770,8 +1770,7 @@ C                                                                      C
            EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJ=J+NSTATE*(I-1)
-            F = WORK(LTOT2K-1+IJ)
+            F = TOT2K(J,I)
             IF(ABS(F).GE.OSTHR2) THEN
             If (iPrint.eq.0) Then
          WRITE(6,*)
@@ -1804,7 +1803,7 @@ C                                                                      C
          End If
        END IF
 ! release the memory again
-       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSTATE**2)
+       CALL mma_deallocate(TOT2K)
 !
 !
       IF(DOCD) THEN
@@ -2012,7 +2011,7 @@ C                                                                      C
              Rtensor(4) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY + (RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR/EDIFF,Rtensor,1)
+             CALL DSCAL_(6,AU2REDR/EDIFF,Rtensor,1)
              IF (Do_SK) THEN
               ! k^T R k
               R = k_vector(1,iVec)**2*Rtensor(1)+
@@ -2253,7 +2252,7 @@ C                                                                      C
              Rtensor(4) =  0.75D0 *(RXX+RZZ+EDIFF*(RYZX-RXYZ))
              Rtensor(5) = -0.375D0*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
              Rtensor(6) =  0.75D0 *(RXX+RYY+EDIFF*(RXZY-RYZX))
-             CALL DSCAL_(9,AU2REDR,Rtensor,1)
+             CALL DSCAL_(6,AU2REDR,Rtensor,1)
              IF (Do_SK) THEN
               ! k^T R k
               R = k_vector(1,iVec)**2*Rtensor(1)+
@@ -2409,7 +2408,7 @@ C                                                                      C
 *     Scratch for one-electron integrals
 *
       NIP=4+(NBST*(NBST+1))/2
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
+      CALL mma_allocate(IP,NIP,Label='IP')
 #ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
@@ -2512,10 +2511,9 @@ C                                                                      C
 *
 *     Array for printing contributions from different directions
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*6*nmax2)
-      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
-      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
-      LMAX_=0
+      CALL mma_allocate(RAW,NQUAD,6,nmax2,Label='RAW')
+      CALL mma_allocate(OSCSTR,2,nmax2,Label='OscStr')
+      CALL mma_allocate(Aux,8,nmax2,Label='Aux')
 *
       Do iVec = 1, nVec
          If (Do_SK) Then
@@ -2543,7 +2541,6 @@ C                                                                      C
               jend_=jgrp+jstart-1
               EDIFF_=ENERGY(IndexE(jstart_))-ENERGY(IndexE(istart_))
             EndIf
-            n12=(iend_-istart_+1)*(jend_-jstart_+1)
             If (ABS(EDIFF_).le.1.0D-8) CYCLE
 *
             If (JSTART.eq.1 .AND.  EDIFF_.LT.0.0D0) CYCLE
@@ -2557,12 +2554,12 @@ C                                                                      C
 *
 *           Iterate over the quadrature points.
 *
-            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
+            OscStr(:,:)=0.0D0
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
-            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
+            RAW(:,:,:)=0.0D0
+            Aux(:,:)=0.0D0
 *
             Do iQuad = 1, nQuad
                iVec_=(iVec-1)*nQuad+iQuad
@@ -2611,7 +2608,6 @@ C                                                                      C
                      J=IndexE(J_)
                      EDIFF=ENERGY(J)-ENERGY(I)
                      ij_=ij_+1
-                     LFIJ=LF+(ij_-1)*2
 C COMBINED SYMMETRY OF STATES:
                      JOB1=JBNUM(I)
                      JOB2=JBNUM(J)
@@ -2650,7 +2646,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                            IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                            LABEL=PNAME(IPROP)
                            Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
-     &                                  WORK(LIP),NIP,SCR,nSCR,
+     &                                  IP,NIP,SCR,nSCR,
      &                                  MASK,ISY12,IOFF)
                         END DO ! IPRP
                      Else
@@ -2695,7 +2691,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                                  IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                                  LABEL=PNAME(IPROP)
                                  Call MK_PROP(PROP,IPROP,K,L,LABEL,ITYPE
-     &                                       ,WORK(LIP),NIP,SCR,nSCR,
+     &                                       ,IP,NIP,SCR,nSCR,
      &                                        MASK34,ISY34,IOFF)
                               END DO ! IPRP
                            End Do
@@ -2704,18 +2700,18 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *                       Transform to the new basis. Do it just for the
 *                       elements we will use.
 *
-                        CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE)
-                        Call FZero(Work(lSCR),nState)
-                        DO IP=1,12
-                           IPROP=IPRTMOM(IP)
+                        CALL mma_allocate(SCR1,NSTATE,Label='SCR1')
+                        SCR1(:)=0.0D0
+                        DO IPRP=1,12
+                           IPROP=IPRTMOM(IPRP)
                            CALL DGEMM_('N','N',NSTATE,1,NSTATE,
      &                                 1.0D0,PROP(1,1,IPROP),NSTATE,
      &                                       EIGVEC(1,J),NSTATE,
-     &                                 0.0D0,WORK(LSCR),NSTATE)
-                           PROP(I,J,IPROP)=DDot_(NSTATE,WORK(LSCR),1,
+     &                                 0.0D0,SCR1,NSTATE)
+                           PROP(I,J,IPROP)=DDot_(NSTATE,SCR1,1,
      &                                                  EIGVEC(1,I),1)
                         END DO
-                        CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE)
+                        CALL mma_deallocate(SCR1)
 *
                      End If
 *
@@ -2766,31 +2762,30 @@ C                 Why do it when we don't do the L.S-term!
 *              and the corresponding polarization vectors
 *
                If (Do_SK) Then
-                  LMAX_ = LMAX+8*(ij_-1)
                   TM3 = DDot_(3,TM_R,1,TM_I,1)
                   Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
-                  Work(LMAX_+0) = TM_2+Half*Rng
-                  Work(LMAX_+4) = TM_2-Half*Rng
+                  Aux(1,ij_) = TM_2+Half*Rng
+                  Aux(5,ij_) = TM_2-Half*Rng
 *                 The direction for the maximum
                   Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
-                  Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
-                  Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+                  Call daXpY_(3, Cos(Ang),TM_R,1,Aux(2,ij_),1)
+                  Call daXpY_(3, Sin(Ang),TM_I,1,Aux(2,ij_),1)
 *                 Normalize and compute the direction for the minimum
 *                 as a cross product with k
-                  rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                  rNorm = DDot_(3,Aux(2,ij_),1,Aux(2,ij_),1)
                   If (rNorm.gt.1.0D-12) Then
-                     Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
-                     Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
-     &                             Work(LMAX_+3)*UK(2)
-                     Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
-     &                             Work(LMAX_+1)*UK(3)
-                     Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
-     &                             Work(LMAX_+2)*UK(1)
-                     rNorm = DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
-                     Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                     Call dScal_(3,1.0/Sqrt(rNorm),Aux(2,ij_),1)
+                     Aux(6,ij_)=Aux(3,ij_)*UK(3)-
+     &                             Aux(4,ij_)*UK(2)
+                     Aux(7,ij_)=Aux(4,ij_)*UK(1)-
+     &                             Aux(2,ij_)*UK(3)
+                     Aux(8,ij_)=Aux(2,ij_)*UK(2)-
+     &                             Aux(3,ij_)*UK(1)
+                     rNorm = DDot_(3,Aux(6,ij_),1,Aux(6,ij_),1)
+                     Call dScal_(3,1.0/Sqrt(rNorm),Aux(6,ij_),1)
                   Else
-                     Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
-                     Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                     Call dCopy_(3,[0.0D0],0,Aux(2,ij_),1)
+                     Call dCopy_(3,[0.0D0],0,Aux(6,ij_),1)
                   End If
                End If
 *
@@ -2806,8 +2801,8 @@ C                 Why do it when we don't do the L.S-term!
 *
                F_Temp = 2.0D0*TM_2/EDIFF
                If (Do_SK) Then
-                  Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
-                  Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+                  Aux(1,ij_) = 2.0D0*Aux(1,ij_)/EDIFF
+                  Aux(5,ij_) = 2.0D0*Aux(5,ij_)/EDIFF
                End If
 *
 *              Compute the rotatory strength
@@ -2828,21 +2823,20 @@ C                 Why do it when we don't do the L.S-term!
 *
 *              Save the raw oscillator and rotatory strengths in a given direction
 *
-               LRAW_=LRAW+6*NQUAD*(ij_-1)
-               WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_Temp
-               WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_Temp
+               RAW(IQUAD,1,ij_) = F_Temp
+               RAW(IQUAD,2,ij_) = R_Temp
 *
 *              Save the direction and weight too
 *
-               WORK(LRAW_+(IQUAD-1)+2*NQUAD) = UK(1)
-               WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
-               WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
-               WORK(LRAW_+(IQUAD-1)+5*NQUAD) = Weight
+               RAW(IQUAD,3,ij_) = UK(1)
+               RAW(IQUAD,4,ij_) = UK(2)
+               RAW(IQUAD,5,ij_) = UK(3)
+               RAW(IQUAD,6,ij_) = Weight
 *
 *              Compute the oscillator and rotatory strength
 *
-               Work(LFIJ  ) = Work(LFIJ  ) + Weight * F_Temp
-               Work(LFIJ+1) = Work(LFIJ+1) + Weight * R_Temp
+               OscStr(1,ij_) = OscStr(1,ij_) + Weight * F_Temp
+               OscStr(2,ij_) = OscStr(2,ij_) + Weight * R_Temp
                   End Do ! j_
                End Do ! i_
 *
@@ -2854,17 +2848,15 @@ C                 Why do it when we don't do the L.S-term!
               Do j_=jstart_,jend_
                 J=IndexE(J_)
                 ij_=ij_+1
-                LFIJ=LF+(ij_-1)*2
 *
-                F=Work(LFIJ)
-                R=Work(LFIJ+1)
+                F=OscStr(1,ij_)
+                R=OscStr(2,ij_)
 *
                 Call Add_Info('ITMS(SF)',[F],1,6)
                 Call Add_Info('ROTS(SF)',[R],1,4)
 *
                 IF (Do_Pol) THEN
-                   LMAX_=LMAX+8*(ij_-1)
-                   F_CHECK=ABS(WORK(LMAX_+0))
+                   F_CHECK=ABS(Aux(1,ij_))
                    R_CHECK=0.0D0 ! dummy assign
                 ELSE
                    F_CHECK=ABS(F)
@@ -2940,12 +2932,12 @@ C                 Why do it when we don't do the L.S-term!
 
 *
                 IF (Do_SK) THEN
-                   WRITE(6,50) 'maximum',WORK(LMAX_+0),
+                   WRITE(6,50) 'maximum',Aux(1,ij_),
      &                'for polarization direction:',
-     &                WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
-                   WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &                Aux(2,ij_),Aux(3,ij_),Aux(4,ij_)
+                   WRITE(6,50) 'minimum',Aux(5,ij_),
      &                'for polarization direction:',
-     &                WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+     &                Aux(6,ij_),Aux(7,ij_),Aux(8,ij_)
                 END IF
 *
 *     Printing raw (unweighted) and direction for every transition
@@ -2956,14 +2948,13 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,41) 'From', 'To', 'Raw osc. str.',
      &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LRAW_=LRAW+6*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
                     WRITE(6,33) I,J,
-     &              WORK(LRAW_+(IQUAD-1)+0*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+1*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+2*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+3*NQUAD),
-     &              WORK(LRAW_+(IQUAD-1)+4*NQUAD)
+     &              RAW(IQUAD,1,ij_),
+     &              RAW(IQUAD,2,ij_),
+     &              RAW(IQUAD,3,ij_),
+     &              RAW(IQUAD,4,ij_),
+     &              RAW(IQUAD,5,ij_)
                   END DO
                   WRITE(6,32)
                   WRITE(6,*)
@@ -2977,15 +2968,14 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,41) 'From', 'To', 'Weig. osc. str.',
      &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LRAW_=LRAW+5*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
-                    Weight=WORK(LRAW+(IQUAD-1)+5*NQUAD)
+                    Weight=RAW(IQUAD,6,ij_)
                     WRITE(6,33) I,J,
-     &                WORK(LRAW+(IQUAD-1)+0*NQUAD)*Weight,
-     &                WORK(LRAW+(IQUAD-1)+1*NQUAD)*Weight,
-     &                WORK(LRAW+(IQUAD-1)+2*NQUAD),
-     &                WORK(LRAW+(IQUAD-1)+3*NQUAD),
-     &                WORK(LRAW+(IQUAD-1)+4*NQUAD)
+     &              RAW(IQUAD,1,ij_)*Weight,
+     &              RAW(IQUAD,2,ij_)*Weight,
+     &              RAW(IQUAD,3,ij_),
+     &              RAW(IQUAD,4,ij_),
+     &              RAW(IQUAD,5,ij_)
                   END DO
                   WRITE(6,32)
                   WRITE(6,*)
@@ -3011,11 +3001,7 @@ C                 Why do it when we don't do the L.S-term!
       End Do ! iVec
 *
 #ifdef _HDF5_
-#ifdef POINTER_REMAP
       flatStorage(1:SIZE(Storage)) => Storage
-#else
-      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
-#endif
       Call mh5_put_dset(wfn_sfs_tm,flatStorage)
       Nullify(flatStorage)
       Call mma_deallocate(Storage)
@@ -3023,10 +3009,10 @@ C                 Why do it when we don't do the L.S-term!
 *
 *     Deallocate some arrays.
 *
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
-      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
-      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
+      CALL mma_deallocate(RAW)
+      Call mma_deallocate(IP)
+      Call mma_deallocate(OscStr)
+      Call mma_deallocate(Aux)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)

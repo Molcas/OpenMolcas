@@ -19,7 +19,6 @@
       SUBROUTINE SPEC1A(IFC,FACT,ISYM,X,Y)
       USE SUPERINDEX
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
       INTEGER IFC,ISYM
       REAL*8 FACT,X(*),Y(*)

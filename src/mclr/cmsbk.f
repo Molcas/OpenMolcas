@@ -341,13 +341,13 @@
 ******************************************************
       Subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
       use Arrays, only: CMO
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "detdim.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "stdalloc.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"

@@ -11,7 +11,6 @@
 * Copyright (C) 2020, Jie J. Bao                                       *
 ************************************************************************
       Subroutine RotState()
-      use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
 * ****************************************************************
 * history:                                                       *

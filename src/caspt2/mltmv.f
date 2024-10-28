@@ -20,10 +20,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given
@@ -46,12 +46,11 @@ CSVC: determine outer loop properties
         ILST1_IOFF=MYRANK+1
         ILST1_SKIP=NPROCS
       ELSE
+#endif
         ILST1_IOFF=1
         ILST1_SKIP=1
+#ifdef _MOLCAS_MPP_
       ENDIF
-#else
-      ILST1_IOFF=1
-      ILST1_SKIP=1
 #endif
 
       IF(IMLTOP.EQ.0) THEN

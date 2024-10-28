@@ -20,17 +20,17 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !     several degenerate diagonal matrix elements.                     *
 !                                                                      *
 !     calling arguments:                                               *
-!     DIAG    : array of Real*8                                        *
+!     DIAG    : array of Real                                          *
 !               diagonal Hamiltonian                                   *
-!     ONEINT  : array of Real*8                                        *
+!     ONEINT  : array of Real                                          *
 !               one-electron integrals                                 *
-!     TUVX    : array of Real*8                                        *
+!     TUVX    : array of Real                                          *
 !               two-electron integrals                                 *
 !     ISEL    : array of integer                                       *
 !               index array                                            *
-!     EXPLE   : array of Real*8                                        *
+!     EXPLE   : array of Real                                          *
 !               eigenvalues of the explicit Hamiltonian                *
-!     EXPLV   : array of Real*8                                        *
+!     EXPLV   : array of Real                                          *
 !               eigenvectors of the explicit Hamiltonian               *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -49,7 +49,7 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 
 use csfbas, only: CONF
 use glbbas, only: DFTP, DTOC
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

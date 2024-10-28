@@ -10,22 +10,27 @@
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
-      DIMENSION DENS(6,NBTRI)
-      CHARACTER*25 FNAME
+      Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
-      CHARACTER*16 KNUM
-      CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE,LABEL
-      CHARACTER CDIR
+      CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS,BSS
-      DIMENSION Dummy(1),iDummy(7,8)
+
+      CHARACTER(LEN=25) FNAME
+      CHARACTER(LEN=16) KNUM
+      CHARACTER(LEN=16) FNUM,XNUM
+      CHARACTER(LEN=8) LABEL
+      CHARACTER CDIR
+      Real*8 Dummy(1)
+      Integer iDummy(7,8)
+      Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:), SCR(:)
+      Real*8, allocatable:: VNAT(:), EIG(:), OCC(:)
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -44,29 +49,29 @@ C Get the proper type of the property
 
       NBMX2=NBMX**2
 
-c LSZZ  - AO Overlap integral
-c LVEC  - AO Overlap eigenvectors
-c LEIG  - AO Overlap eigenvalues
-c LVEC2 - Eigenvectors of density matrix
-c LSCR  - Temporary for matrix multiplication
-C NOTE: LSCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
+c SZZ  - AO Overlap integral
+c VEC  - AO Overlap eigenvectors
+c EIG  - AO Overlap eigenvalues
+c VEC2 - Eigenvectors of density matrix
+c SCR  - Temporary for matrix multiplication
+C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
-      CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NBTRI)
-      CALL GETMEM('VEC   ','ALLO','REAL',LVEC,NBSQ)
-      CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NBMX2)
-      CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NBMX2)
-      CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSZZ),1)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVEC),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
+      CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
+      CALL mma_allocate(VEC,NBSQ,Label='VEC')
+      CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
+      CALL mma_allocate(SCR,NBMX2,Label='SCR')
+      CALL mma_allocate(EIG,NBST,Label='EIG')
+      SZZ(:)=0.0D0
+      VEC(:)=0.0D0
+      VEC2(:)=0.0D0
+      SCR(:)=0.0D0
+      EIG(:)=0.0D0
 
-      CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-      CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVNAT),1)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LOCC),1)
+      CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
+      VNAT(:)=0.0D0
+      CALL mma_allocate(OCC,NBST,Label='OCC')
+      OCC(:)=0.0D0
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -76,7 +81,7 @@ c IOPT=6, origin and nuclear contrib not read
       ICMP=1
       ISYLAB=1
       LABEL='MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -87,25 +92,24 @@ c IOPT=6, origin and nuclear contrib not read
 
 
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
-      LS=LSZZ
-      LV=LVEC
-      LE=LEIG
-      CALL FZERO(WORK(LVEC),NBSQ)
+      LS=1
+      LV=1
+      LE=1
+      VEC(:)=0.0D0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          WORK(LV-1+I)=1.0D00
+          VEC(LV-1+I)=1.0D00
         END DO
-        CALL JACOB(WORK(LS),WORK(LV),NB,NB)
+        CALL JACOB(SZZ(LS),VEC,NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
         DO I=1,NB
-          EIG=WORK(LS1)
-          WORK(LE1)=EIG
-          X=1.0D00/SQRT(MAX(EIG,1.0D-14))
-          CALL DSCAL_(NB,X,WORK(LV1),1)
+          EIG(LE1)=SZZ(LS1)
+          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
@@ -115,9 +119,9 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE=LE+NB
       END DO
 
-      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NBTRI)
+      CALL mma_deallocate(SZZ)
 
-      CALL GETMEM('TDMAT ','ALLO','REAL',LDMAT,NBMX2)
+      CALL mma_allocate(DMAT,NBMX2,Label='DMAT')
 
       IF(ITYPE.LE.2) THEN
         ISTART=3
@@ -137,8 +141,8 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         INV=1
         II2=0
         IOCC=0
-        LV=LVEC
-        LE=LEIG
+        LV=1
+        LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
           IF(NB.EQ.0) GOTO 1750
@@ -148,81 +152,80 @@ C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMAT),1)
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
+          DMAT(:)=0.0D0
+          CALL DCOPY_(NBMX2,[0.0D00],0,SCR,1)
           DO J=1,NB
           DO I=1,J
             II2=II2+1
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)/2.0d0
-              WORK(LDMAT-1+JI)=DENS(IDIR,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
+              DMAT(JI)=DENS(IDIR,II2)/2.0d0
             ELSE
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)
-              WORK(LDMAT-1+JI)=DENS(IDIR,II2)
+              DMAT(IJ)=DENS(IDIR,II2)
+              DMAT(JI)=DENS(IDIR,II2)
             END IF
           END DO
           END DO
 
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMAT),NB,WORK(LV),NB,
-     &                 0.0D0,WORK(LSCR),NB)
+     &                 DMAT,NB,VEC(LV),NB,
+     &                 0.0D0,SCR,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCR),NB,
-     &                 0.0D0,WORK(LDMAT),NB)
+     &                 VEC(LV),NB,SCR,NB,
+     &                 0.0D0,DMAT,NB)
 
           ID1=1
           ID2=1
           DO I=1,NB
-            EIG=WORK(LE-1+I)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID1),NB)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
 
 
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
-          ISCR=LSCR
+          SCR(:)=0.0D0
+          ISCR=1
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              WORK(ISCR)=(WORK(LDMAT-1+IJ)+WORK(LDMAT-1+JI))/2.0d0
+              SCR(ISCR)=(DMAT(IJ)+DMAT(JI))/2.0d0
 
 c add a factor of two to convert spin -> sigma
-              IF(ITYPE.GE.3) WORK(ISCR)=WORK(ISCR)*2.0d0
+              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
               ISCR=ISCR+1
             END DO
           END DO
 
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LVEC2),1)
-          CALL DCOPY_(NB,[1.0D0],0,WORK(LVEC2),NB+1)
+          CALL DCOPY_(NBMX2,[0.0D0],0,VEC2,1)
+          CALL DCOPY_(NB,[1.0D0],0,VEC2,NB+1)
 
-          CALL JACOB(WORK(LSCR),WORK(LVEC2),NB,NB)
-          CALL JACORD(WORK(LSCR),WORK(LVEC2),NB,NB)
+          CALL JACOB(SCR,VEC2,NB,NB)
+          CALL JACORD(SCR,VEC2,NB,NB)
 
 C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
-          II=LSCR-1
+          II=0
           DO I=1,NB
             II=II+I
-            WORK(LOCC-1+IOCC+NB+1-I)=WORK(II)
+            OCC(IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
 
 C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2),NB,
-     &                 0.0D0,WORK(LSCR),NB)
-          I1=LSCR
+     &                 VEC(LV),NB,VEC2,NB,
+     &                 0.0D0,SCR,NB)
+          I1=1
           I2=INV+NB**2
           DO I=1,NB
             I2=I2-NB
-            CALL DCOPY_(NB,WORK(I1),1,WORK(LVNAT-1+I2),1)
+            CALL DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
             I1=I1+NB
           END DO
           INV=INV+NB**2
@@ -261,52 +264,57 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
         LuxxVec=isfreeunit(LuxxVec)
 
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LVNAT), WORK(LOCC), Dummy, iDummy,
+     &             VNAT, OCC, Dummy, iDummy,
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
 c       Test a few values
-C        CALL ADD_INFO("SONATORB_PLOT", WORK(LVNAT), 1, 4)
+C        CALL ADD_INFO("SONATORB_PLOT", VNAT, 1, 4)
 
 c    ONLYFOR NATURAL ORBITALS
       if(ITYPE.EQ.1)
-     &       CALL ADD_INFO("SONATORB_NO_OCC", WORK(LOCC), SUM(NBASF), 4)
+     &       CALL ADD_INFO("SONATORB_NO_OCC", OCC, SUM(NBASF), 4)
 
       END DO
 
-      CALL GETMEM('TDMAT ','FREE','REAL',LDMAT,NBMX2)
-      CALL GETMEM('VEC   ','FREE','REAL',LVEC,NBSQ)
-      CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NBMX2)
-      CALL GETMEM('SCR   ','FREE','REAL',LSCR,NBMX2)
-      CALL GETMEM('EIG   ','FREE','REAL',LEIG,NBST)
-      CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-      CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
+      CALL mma_deallocate(DMAT)
+      CALL mma_deallocate(VEC)
+      CALL mma_deallocate(VEC2)
+      CALL mma_deallocate(SCR)
+      CALL mma_deallocate(EIG)
+      CALL mma_deallocate(VNAT)
+      CALL mma_deallocate(OCC)
 
       END SUBROUTINE SONATORB_PLOT
-
-
-
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
-      DIMENSION DENS(6,NBTRI)
-      CHARACTER*25 FNAME
+      Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
-      CHARACTER*16 KNUM
-      CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE,LABEL
-      CHARACTER CDIR
+      CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS,BSS
-      DIMENSION IDUM(1),Dummy(1),iDummy(7,8)
 
-
+      CHARACTER(LEN=25) FNAME
+      CHARACTER(LEN=16) KNUM
+      CHARACTER(LEN=16) FNUM,XNUM
+      CHARACTER(LEN=8) LABEL
+      CHARACTER CDIR
+      Real*8 Dummy(1)
+      Integer IDUM(1),iDummy(7,8)
+      Real*8, Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:), SCR(:)
+      Real*8, Allocatable:: SCRI(:), EIG(:)
+      Real*8, Allocatable:: VNAT(:), VNATI(:), OCC(:)
+      Real*8, Allocatable:: DMAT(:), DMATI(:)
+      Real*8, Allocatable:: SANG(:)
+      Real*8, Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
+      Real*8, Allocatable:: SANGTR2(:), SANGTI2(:)
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -326,35 +334,35 @@ C Get the proper type of the property
 
       NBMX2=NBMX**2
 
-c LSZZ  - AO Overlap integral
-c LVEC  - AO Overlap eigenvectors
-c LEIG  - AO Overlap eigenvalues
-c LVEC2 - Eigenvectors of density matrix
-c LSCR  - Temporary for matrix multiplication
-C NOTE: LSCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
+c SZZ  - AO Overlap integral
+c VEC  - AO Overlap eigenvectors
+c EIG  - AO Overlap eigenvalues
+c VEC2 - Eigenvectors of density matrix
+c SCR  - Temporary for matrix multiplication
+C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
-      CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NBTRI)
-      CALL GETMEM('VEC   ','ALLO','REAL',LVEC,NBSQ)
-      CALL GETMEM('VEC2  ','ALLO','REAL',LVEC2,NBMX2)
-      CALL GETMEM('VEC2I  ','ALLO','REAL',LVEC2I,NBMX2)
-      CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NBMX2)
-      CALL GETMEM('SCRI   ','ALLO','REAL',LSCRI,NBMX2)
-      CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NBST)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSZZ),1)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVEC),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LVEC2I),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
-      CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCRI),1)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LEIG),1)
+      CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
+      SZZ(:)=0.0D0
+      CALL mma_allocate(VEC,NBSQ,Label='VEC')
+      VEC(:)=0.0D0
+      CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
+      VEC2(:)=0.0D0
+      CALL mma_allocate(VEC2I,NBMX2,Label='VEC2I')
+      VEC2I(:)=0.0D0
+      CALL mma_allocate(SCR,NBMX2,Label='SCR')
+      SCR(:)=0.0D0
+      CALL mma_allocate(SCRI,NBMX2,Label='SCRI')
+      SCRI(:)=0.0D0
+      CALL mma_allocate(EIG,NBST,Label='EIG')
+      EIG(:)=0.0D0
 
-      CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-      CALL GETMEM('VNATI  ','ALLO','REAL',LVNATI,NBSQ)
-      CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVNAT),1)
-      CALL DCOPY_(NBSQ,[0.0D00],0,WORK(LVNATI),1)
-      CALL DCOPY_(NBST,[0.0D00],0,WORK(LOCC),1)
+      CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
+      VNAT(:)=0.0D0
+      CALL mma_allocate(VNATI,NBSQ,Label='VNATI')
+      VNATI(:)=0.0D0
+      CALL mma_allocate(OCC,NBST,Label='OCC')
+      OCC(:)=0.0D0
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -364,7 +372,7 @@ c IOPT=6, origin and nuclear contrib not read
       ICMP=1
       ISYLAB=1
       LABEL='MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -375,25 +383,24 @@ c IOPT=6, origin and nuclear contrib not read
 
 
 C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
-      LS=LSZZ
-      LV=LVEC
-      LE=LEIG
-      CALL FZERO(WORK(LVEC),NBSQ)
+      LS=1
+      LV=1
+      LE=1
+      VEC(:)=0.0D0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          WORK(LV-1+I)=1.0D00
+          VEC(LV-1+I)=1.0D00
         END DO
-        CALL JACOB(WORK(LS),WORK(LV),NB,NB)
+        CALL JACOB(SZZ(LS),VEC(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
         DO I=1,NB
-          EIG=WORK(LS1)
-          WORK(LE1)=EIG
-          X=1.0D00/SQRT(MAX(EIG,1.0D-14))
-          CALL DSCAL_(NB,X,WORK(LV1),1)
+          EIG(LE1)=SZZ(LS1)
+          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
@@ -403,10 +410,10 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE=LE+NB
       END DO
 
-      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NBTRI)
+      CALL mma_deallocate(SZZ)
 
-      CALL GETMEM('TDMAT ','ALLO','REAL',LDMAT,NBMX2)
-      CALL GETMEM('TDMATI ','ALLO','REAL',LDMATI,NBMX2)
+      CALL mma_allocate(DMAT,NBMX2,Label='DMAT')
+      CALL mma_allocate(DMATI,NBMX2,Label='DMATI')
 
       IF(ITYPE.LE.2) THEN
         ISTART=3
@@ -429,8 +436,8 @@ cccccccccccccccccccccccc
 cccccccccccccccccccccccc
 cccccccccccccccccccccccc
 C read in ao matrix for angmom or mltpl
-      CALL GETMEM('SANG  ','ALLO','REAL',LSANG,NBTRI)
-      CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSANG),1)
+      CALL mma_allocate(SANG,NBTRI,Label='SANG')
+      SANG(:)=0.0D0
 
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
@@ -439,8 +446,8 @@ C read in ao matrix for angmom or mltpl
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         ICMP=1
         LABEL='MLTPL  0'
-        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -454,8 +461,8 @@ C read in ao matrix for angmom or mltpl
       ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
         ICMP=3
         LABEL='ANGMOM'
-        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -475,8 +482,8 @@ cccccccccccccccccccccccc
         INV=1
         II2=0
         IOCC=0
-        LV=LVEC
-        LE=LEIG
+        LV=1
+        LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
           IF(NB.EQ.0) cycle
@@ -486,10 +493,10 @@ C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMAT),1)
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LDMATI),1)
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCRI),1)
+          DMAT(:)=0.0D0
+          DMATI(:)=0.0D0
+          SCR(:)=0.0D0
+          SCRI(:)=0.0D0
 
           DO J=1,NB
           DO I=1,J
@@ -497,97 +504,95 @@ C expand the triangular matrix for this symmetry to a square matrix
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)/2.0d0
-              WORK(LDMAT-1+JI)=DENS(IDIR,II2)/2.0d0
-              WORK(LDMATI-1+IJ)=-1.0d0*DENS(IDIR+3,II2)/2.0d0
-              WORK(LDMATI-1+JI)=DENS(IDIR+3,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
+              DMAT(JI)=DENS(IDIR,II2)/2.0d0
+              DMATI(IJ)=-DENS(IDIR+3,II2)/2.0d0
+              DMATI(JI)= DENS(IDIR+3,II2)/2.0d0
             ELSE
-              WORK(LDMAT-1+IJ)=DENS(IDIR,II2)
-              WORK(LDMATI-1+JI)=DENS(IDIR+3,II2)
+              DMAT(IJ)=DENS(IDIR,II2)
+              DMATI(JI)=DENS(IDIR+3,II2)
             END IF
           END DO
           END DO
 
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMAT),NB,WORK(LV),NB,
-     &                 0.0D0,WORK(LSCR),NB)
+     &                 DMAT,NB,VEC(LV),NB,
+     &                 0.0D0,SCR,NB)
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LDMATI),NB,WORK(LV),NB,
-     &                 0.0D0,WORK(LSCRI),NB)
+     &                 DMATI,NB,VEC(LV),NB,
+     &                 0.0D0,SCRI,NB)
 
 
 
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCR),NB,
-     &                 0.0D0,WORK(LDMAT),NB)
+     &                 VEC(LV),NB,SCR,NB,
+     &                 0.0D0,DMAT,NB)
           CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LSCRI),NB,
-     &                 0.0D0,WORK(LDMATI),NB)
+     &                 VEC(LV),NB,SCRI,NB,
+     &                 0.0D0,DMATI,NB)
 
           ID1=1
           ID2=1
           DO I=1,NB
-            EIG=WORK(LE-1+I)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID1),NB)
-            CALL DSCAL_(NB,EIG,WORK(LDMAT-1+ID2),1)
-            CALL DSCAL_(NB,EIG,WORK(LDMATI-1+ID1),NB)
-            CALL DSCAL_(NB,EIG,WORK(LDMATI-1+ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMATI(ID1),NB)
+            CALL DSCAL_(NB,EIG(LE-1+I),DMATI(ID2),1)
             ID1=ID1+1
             ID2=ID2+NB
           END DO
 
 
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCR),1)
-          CALL DCOPY_(NBMX2,[0.0D00],0,WORK(LSCRI),1)
+          SCR(:)=0.0D0
+          SCRI(:)=0.0D0
 
-          ISCR=LSCR
-          ISCRI=LSCRI
+          ISCR=1
+          ISCRI=1
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              WORK(ISCR)=(WORK(LDMAT-1+JI)+WORK(LDMAT-1+IJ))/2.0d0
-              WORK(ISCRI)=(WORK(LDMATI-1+JI)-WORK(LDMATI-1+IJ))/2.0d0
+              SCR(ISCR)=(DMAT(JI)+DMAT(IJ))/2.0d0
+              SCRI(ISCRI)=(DMATI(JI)-DMATI(IJ))/2.0d0
 c add a factor of two to convert spin -> sigma
-              IF(ITYPE.GE.3) WORK(ISCR)=WORK(ISCR)*2.0d0
-              IF(ITYPE.GE.3) WORK(ISCRI)=WORK(ISCRI)*2.0d0
+              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
+              IF(ITYPE.GE.3) SCRI(ISCRI)=SCRI(ISCRI)*2.0d0
               ISCR=ISCR+1
               ISCRI=ISCRI+1
             END DO
           END DO
 
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LVEC2),1)
-          CALL DCOPY_(NBMX2,[0.0D0],0,WORK(LVEC2I),1)
+          VEC2(:)=0.0D0
+          VEC2I(:)=0.0D0
 
-          CALL CPLOT_DIAG(WORK(LSCR),WORK(LSCRI), NB,
-     &                    WORK(LVEC2),WORK(LVEC2I))
+          CALL CPLOT_DIAG(SCR,SCRI, NB,VEC2,VEC2I)
 
 C LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
-          II=LSCR-1
+          II=0
           DO I=1,NB
             II=II+I
-            WORK(LOCC-1+IOCC+NB+1-I)=WORK(II)
+            OCC(IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
 
 C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2),NB,
-     &                 0.0D0,WORK(LSCR),NB)
+     &                 VEC(LV),NB,VEC2,NB,
+     &                 0.0D0,SCR,NB)
           CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 WORK(LV),NB,WORK(LVEC2I),NB,
-     &                 0.0D0,WORK(LSCRI),NB)
+     &                 VEC(LV),NB,VEC2I,NB,
+     &                 0.0D0,SCRI,NB)
 
-          I1=LSCR
-          I1I=LSCRI
+          I1=1
+          I1I=1
           I2=INV+NB**2
           DO I=1,NB
             I2=I2-NB
-            CALL DCOPY_(NB,WORK(I1),1,WORK(LVNAT-1+I2),1)
-            CALL DCOPY_(NB,WORK(I1I),1,WORK(LVNATI-1+I2),1)
+            CALL DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
+            CALL DCOPY_(NB,SCRI(I1I),1,VNATI(I2),1)
             I1=I1+NB
             I1I=I1I+NB
           END DO
@@ -601,16 +606,16 @@ CCCCCCCC TESTING
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IF(IPGLOB.GE.4) THEN
 
-      CALL GETMEM('SANGF ','ALLO','REAL',LSANGF,NBMX**2)
-      CALL GETMEM('SANGTR  ','ALLO','REAL',LSANGTR,NBMX**2)
-      CALL GETMEM('SANGTI  ','ALLO','REAL',LSANGTI,NBMX**2)
-      CALL GETMEM('SANGTR2  ','ALLO','REAL',LSANGTR2,NBMX**2)
-      CALL GETMEM('SANGTI2  ','ALLO','REAL',LSANGTI2,NBMX**2)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGF),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTR),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTI),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTR2),1)
-      CALL DCOPY_(NBMX**2,[0.0D00],0,WORK(LSANGTI2),1)
+      CALL mma_allocate(SANGF,NBMX**2,Label='SANGF')
+      SANGF(:)=0.0D0
+      CALL mma_allocate(SANGTR,NBMX**2,Label='SANGTR')
+      CALL mma_allocate(SANGTI,NBMX**2,Label='SANGTI')
+      SANGTR(:)=0.0D0
+      SANGTI(:)=0.0D0
+      CALL mma_allocate(SANGTR2,NBMX**2,Label='SANGTR2')
+      CALL mma_allocate(SANGTI2,NBMX**2,Label='SANGTI2')
+      SANGTR2(:)=0.0D0
+      SANGTI2(:)=0.0D0
 
       INV=0
       INV2=0
@@ -623,20 +628,20 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         IF(NB.EQ.0) GOTO 1860
 
 c       Expand integrals for this symmetry to full storage
-        CALL DCOPY_(NBMX**2,[0.0d0],0,WORK(LSANGF),1)
+        SANGF(:)=0.0D0
 
         DO J=1,NB
         DO I=1,J
           IJ=NB*(J-1)+I-1
           JI=NB*(I-1)+J-1
 
-          WORK(LSANGF+JI) = WORK(LSANG+II)
+          SANGF(1+JI) = SANG(1+II)
 
           IF(I.NE.J) THEN
             IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
-              WORK(LSANGF+IJ) = 1.0d0 * WORK(LSANG+II)
+              SANGF(1+IJ) = -SANG(1+II)
             ELSE
-              WORK(LSANGF+IJ) = WORK(LSANG+II)
+              SANGF(1+IJ) =  SANG(1+II)
             END IF
           END IF
 
@@ -646,45 +651,45 @@ c       Expand integrals for this symmetry to full storage
         END DO
 
         IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &             WORK(LVNAT+INV),NB,0.0d0,WORK(LSANGTR),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &              WORK(LVNATI+INV),NB,0.0d0,WORK(LSANGTI),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
+     &             VNAT(1+INV),NB,0.0d0,SANGTR,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
+     &              VNATI(1+INV),NB,0.0d0,SANGTI,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTR2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNATI+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTR2),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
+     &             SANGTR,NB,0.0d0,SANGTR2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
+     &             SANGTI,NB,1.0d0,SANGTR2,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LVNATI+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTI2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTI2),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
+     &             SANGTR,NB,0.0d0,SANGTI2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
+     &             SANGTI,NB,1.0d0,SANGTI,NB)
 
         ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LSANGF),NB,
-     &             WORK(LVNAT+INV),NB,0.0d0,WORK(LSANGTI),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LSANGF),NB,
-     &             WORK(LVNATI+INV),NB,0.0d0,WORK(LSANGTR),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
+     &             VNAT(1+INV),NB,0.0d0,SANGTI,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,SANGF,NB,
+     &             VNATI(1+INV),NB,0.0d0,SANGTR,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTR2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNATI+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTR2),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
+     &             SANGTR,NB,0.0d0,SANGTR2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
+     &             SANGTI,NB,1.0d0,SANGTR2,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,WORK(LVNATI+INV),NB,
-     &             WORK(LSANGTR),NB,0.0d0,WORK(LSANGTI2),NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,WORK(LVNAT+INV),NB,
-     &             WORK(LSANGTI),NB,1.0d0,WORK(LSANGTI2),NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
+     &             SANGTR,NB,0.0d0,SANGTI2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
+     &             SANGTI,NB,1.0d0,SANGTI2,NB)
 
         END IF
 
 c Sum over the trace
         DO I = 1,NB
           IJ = I+(I-1)*NB-1
-          SUM  = SUM  + WORK(LOCC-1+I+INV2) * WORK(LSANGTR2+IJ)
-          SUMI = SUMI + WORK(LOCC-1+I+INV2) * WORK(LSANGTI2+IJ)
+          SUM  = SUM  + OCC(I+INV2) * SANGTR2(1+IJ)
+          SUMI = SUMI + OCC(I+INV2) * SANGTI2(1+IJ)
         END DO
 
 1860    CONTINUE
@@ -698,14 +703,14 @@ c Sum over the trace
         WRITE(6,*) "REAL: ",SUM
         WRITE(6,*) "IMAG: ",SUMI
 
-        CALL GETMEM('SANGF ','FREE','REAL',LSANGF,NBMX**2)
-        CALL GETMEM('SANGTR  ','FREE','REAL',LSANGTR,NBMX**2)
-        CALL GETMEM('SANGTI  ','FREE','REAL',LSANGTI,NBMX**2)
-        CALL GETMEM('SANGTR2  ','FREE','REAL',LSANGTR2,NBMX**2)
-        CALL GETMEM('SANGTI2  ','FREE','REAL',LSANGTI2,NBMX**2)
+        CALL mma_deallocate(SANGF)
+        CALL mma_deallocate(SANGTR)
+        CALL mma_deallocate(SANGTI)
+        CALL mma_deallocate(SANGTR2)
+        CALL mma_deallocate(SANGTI2)
       END IF ! IPGLOB >= 4
 
-      CALL GETMEM('SANG  ','FREE','REAL',LSANG,NBTRI)
+      CALL mma_deallocate(SANG)
 
 C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
 C REAL PART
@@ -738,7 +743,7 @@ C REAL PART
         LuxxVec=isfreeunit(LuxxVec)
 
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LVNAT), WORK(LOCC), Dummy, iDummy,
+     &             VNAT, OCC, Dummy, iDummy,
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
 C IMAGINARY PART
@@ -764,30 +769,28 @@ C IMAGINARY PART
         LuxxVec=isfreeunit(LuxxVec)
 
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LVNATI), WORK(LOCC), Dummy, iDummy,
+     &             VNATI, OCC, Dummy, iDummy,
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
 c       Test a few values
-C        CALL ADD_INFO("SONATORB_CPLOTR", WORK(LVNAT), 1, 4)
-C        CALL ADD_INFO("SONATORB_CPLOTI", WORK(LVNATI), 1, 4)
-C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
+C        CALL ADD_INFO("SONATORB_CPLOTR", VNAT, 1, 4)
+C        CALL ADD_INFO("SONATORB_CPLOTI", VNATI, 1, 4)
+C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
 
       END DO
 
-      CALL GETMEM('TDMAT ','FREE','REAL',LDMAT,NBMX2)
-      CALL GETMEM('TDMATI ','FREE','REAL',LDMATI,NBMX2)
-      CALL GETMEM('VEC   ','FREE','REAL',LVEC,NBSQ)
-      CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NBMX2)
-      CALL GETMEM('VEC2I  ','FREE','REAL',LVEC2I,NBMX2)
-      CALL GETMEM('SCR   ','FREE','REAL',LSCR,NBMX2)
-      CALL GETMEM('SCRI   ','FREE','REAL',LSCRI,NBMX2)
-      CALL GETMEM('EIG   ','FREE','REAL',LEIG,NBST)
-      CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-      CALL GETMEM('VNATI  ','FREE','REAL',LVNATI,NBSQ)
-      CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
+      CALL mma_deallocate(DMAT)
+      CALL mma_deallocate(DMATI)
+      CALL mma_deallocate(VEC)
+      CALL mma_deallocate(VEC2)
+      CALL mma_deallocate(VEC2I)
+      CALL mma_deallocate(SCR)
+      CALL mma_deallocate(SCRI)
+      CALL mma_deallocate(VNAT)
+      CALL mma_deallocate(VNATI)
+      CALL mma_deallocate(OCC)
 
       END SUBROUTINE SONATORB_CPLOT
-
 
 
 
@@ -797,6 +800,7 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
       INTEGER DIM
       REAL*8 MATR(DIM*(DIM+1)/2),MATI(DIM*(DIM+1)/2)
       REAL*8 EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
+
       REAL*8 CEIGVAL(DIM)
       COMPLEX*16 MATFULL((DIM*(DIM+1)/2))
       COMPLEX*16 CEIGVEC(DIM,DIM)

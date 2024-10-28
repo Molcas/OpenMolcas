@@ -28,11 +28,11 @@ c Fock is E*d/dx(lambda)
 c rkappa is d/dx(lambda)
 c
       use Arrays, only: G2sq, G1t
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 Fock(nDens2),rkappa(nDens2),
      &       Focki(ndens2),rMO(*)
       Real*8, Allocatable:: FA(:), MT1(:), MT2(:), QA(:), QB(:)

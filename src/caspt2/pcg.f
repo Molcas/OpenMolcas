@@ -19,17 +19,17 @@
 *--------------------------------------------*
       SUBROUTINE PCG(ICONV)
       USE INPUTDATA, ONLY: INPUT
-      use caspt2_output, only: EMP2
-      use caspt2_output, only: iPrGlb
+      use caspt2_global, only: EMP2
+      use caspt2_global, only: iPrGlb
       use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
-      use caspt2_gradient, only: do_grad, nStpGrd
+      use caspt2_global, only: do_grad, nStpGrd
+      use caspt2_global, only: LISTS
       use PrintLevel, only: terse, usual
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 
       INTEGER ICONV
 
@@ -50,8 +50,8 @@ C Flag to tell whether convergence was obtained
 
 C Lists of coupling coefficients, used for sigma vector
 C generation from non-diagonal blocks of H0.
-      CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
-      CALL MKLIST(iWORK(LLISTS))
+      CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
+      CALL MKLIST(LISTS)
 
 
 C Mnemonic names for vectors stored on LUSOLV, see EQCTL.
@@ -259,6 +259,6 @@ CPAM End of insert.
        WRITE(6,*)
       END IF
       end if
-      CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
-      RETURN
-      END
+      CALL mma_deallocate(LISTS)
+
+      END SUBROUTINE PCG

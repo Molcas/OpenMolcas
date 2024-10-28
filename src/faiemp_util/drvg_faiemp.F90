@@ -35,7 +35,7 @@ use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
 
@@ -299,7 +299,7 @@ do
               !--Get the 2nd order density matrix in SO basis.
 
               nijkl = iBasn*jBasn*kBasn*lBasn
-              call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+              call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax >= CutInt) then
 

@@ -11,6 +11,7 @@
 
       SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
       Use Str_Info
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -39,7 +40,6 @@
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "stdalloc.fh"
 #include "cprnt_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"

@@ -91,7 +91,6 @@ set (sources
      print_nq_info.F90
      process_coor.F90
      reset_nq_grid.F90
-     resortd.F90
      rotgrd.F90
      setup_nq.F90
      subblock.F90

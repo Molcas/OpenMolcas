@@ -23,10 +23,11 @@ integer(kind=iwp), intent(in) :: M, N, NRHS
 real(kind=wp), intent(in) :: B(M,N), Degen(M), dSS(*)
 logical(kind=iwp), intent(in) :: Curvilinear
 real(kind=wp), intent(_OUT_) :: DFC(*)
-#include "warnings.h"
 integer(kind=iwp) :: i, ij, INFO, iRHS, LDA, LDB, LWork
 real(kind=wp) :: Temp(1)
 real(kind=wp), allocatable :: A(:,:), Btmp(:,:), Work(:)
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

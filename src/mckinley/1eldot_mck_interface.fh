@@ -10,11 +10,17 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 Alpha,nAlpha,Beta,nBeta,Zeta,rKappa,P,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,rout,IndGrd,DAO,mdc,ndc,nOp &
+
 #else
-! TODO: unknown intents
-integer (kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), mdc, ndc, nOp(2)
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Array(nZeta*nArr), Ccoor(3), &
-                 rout(*), DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
+
+integer (kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(2,3,3,0:7), mdc, ndc, nOp(2)
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), A(3), B(3), Ccoor(3), &
+                             DAO(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
+real(kind=wp), intent(out) :: Array(nArr)
+real(kind=wp), intent(inout) :: rout(*)
+
 #endif
+
 #undef _CALLING_

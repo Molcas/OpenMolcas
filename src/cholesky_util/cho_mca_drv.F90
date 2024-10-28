@@ -87,7 +87,7 @@ end if
 call GASYNC()
 call Free_iSD()
 
-if (allocated(MySP)) call mma_deallocate(MySP)
+call mma_deallocate(MySP,safe='*')
 call Cho_X_dealloc(irc)
 
 end subroutine CHO_MCA_DRV

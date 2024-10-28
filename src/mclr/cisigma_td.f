@@ -12,6 +12,7 @@
      &                       Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
        use ipPage, only: W
        use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
+       use stdalloc, only: mma_allocate, mma_deallocate
        Implicit Real*8(a-h,o-z)
 c
 c For the timeindep case ipS1 and ipS2 will be half as long
@@ -20,7 +21,6 @@ c
 *
 #include "Pointers.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "genop.fh"
 #include "cands.fh"
 #include "detdim.fh"
@@ -181,8 +181,7 @@ C.......... The operator is not sym --> transpose integrals! NT.ne.S
             irc=ipin(ipci2)
             Call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
 
-            KAIN1=>Null()
-            KINT2=>Null()
+            nullify(KAIN1,KINT2)
             Call mma_deallocate(TI1)
             Call mma_deallocate(TI2)
 

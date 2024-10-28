@@ -16,7 +16,7 @@
 *
 * Jeppe Olsen, October 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER IOCC_MIN(NORB),IOCC_MAX(NORB)
 *. Output

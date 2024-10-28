@@ -16,7 +16,6 @@
       IMPLICIT Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
       Integer NSS, MSTATE
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
       Real*8 VSOR(NSS,NSS), VSOI(NSS,NSS)

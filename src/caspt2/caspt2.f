@@ -16,13 +16,16 @@
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
+      use caspt2_global, only: iPrGlb
+      use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
       use PrintLevel, only: terse, usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
+      use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -71,15 +74,10 @@ C     MAJOR REFACTORING OF INITIALIZATION PHASE AND ADDITION OF
 C     HDF5 SUPPORT BY S. VANCOILLIE (2016)
 C
 ************************************************************************
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
-#include "stdalloc.fh"
-#include "caspt2_grad.fh"
       CHARACTER(len=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
@@ -247,7 +245,7 @@ C       Call EQCTL2(ICONV)
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-         CALL STINI
+         CALL STINI()
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
          CPUSIN=CPTF11-CPTF0
          TIOSIN=TIOTF11-TIOTF0
@@ -334,12 +332,12 @@ C       Call EQCTL2(ICONV)
              Call Set_Do_Parallel(.False.)
              IF (KING()) CALL GRDCTL(HEFF)
              Call Set_Do_Parallel(.True.)
-             CALL GASync
+             CALL GASync()
            ELSE
+#endif
              CALL GRDCTL(HEFF)
+#ifdef _MOLCAS_MPP_
            END IF
-#else
-           CALL GRDCTL(HEFF)
 #endif
          END IF
 

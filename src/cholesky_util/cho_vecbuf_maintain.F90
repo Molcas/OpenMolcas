@@ -34,7 +34,7 @@ subroutine Cho_VecBuf_Maintain(irc,iRed,DoTime,DoStat)
 
 use Cholesky, only: CHVBUF, InfVec, ip_CHVBUF_SYM, iScr, l_CHVBUF_SYM, LuPri, nnBstR, nSym, nSys_call, NumCho, NumChT, &
                     nVec_in_Buf, TDECOM
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none
@@ -188,8 +188,7 @@ do iSym=1,nSym
 
   end if
 end do
-nullify(V2)
-nullify(V3)
+nullify(V2,V3)
 
 ! Read in more vectors.
 ! =====================

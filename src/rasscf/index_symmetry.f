@@ -18,19 +18,20 @@
         save
 
         interface one_el_idx
-          module procedure array_one_el_idx, tuple_one_el_idx
+          module procedure :: array_one_el_idx, tuple_one_el_idx
         end interface
 
         interface two_el_idx
-          module procedure array_two_el_idx, tuple_two_el_idx
+          module procedure :: array_two_el_idx, tuple_two_el_idx
         end interface
 
         interface one_el_idx_flatten
-          module procedure array_1el_idx_flatten, tuple_1el_idx_flatten
+          module procedure :: array_1el_idx_flatten,
+     &                        tuple_1el_idx_flatten
         end interface
 
         interface two_el_idx_flatten
-          module procedure array_2el_idx_flatten,
+          module procedure :: array_2el_idx_flatten,
      &        tuple_2el_idx_flatten, tuple_2el_idx_flatten_2
         end interface
 

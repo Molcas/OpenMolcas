@@ -17,7 +17,7 @@
 !  Contains:
 !    Cholesky    : Performs a Cholesky factorization of a positive definite matrix A.
 !    Dool_MULA   : Solves the system of linear equations A*X = B.
-!    SolveSecEq  : Solves the seqular equation A*C = S*C*D.
+!    SolveSecEq  : Solves the secular equation A*C = S*C*D.
 !    Polfit      : Fit a polynomial of requested dimension to the input data.
 !    factor      : Calculate coefficient for n'th derivative.
 !

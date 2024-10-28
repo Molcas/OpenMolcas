@@ -32,7 +32,7 @@
       use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
       use OneDat, only: sNoOri, sOpSiz
-      use rctfld_module
+      use rctfld_module, only: lRF
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
 

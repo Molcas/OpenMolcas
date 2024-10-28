@@ -19,7 +19,7 @@ subroutine ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType1,iMoType2)
 
 use Cholesky, only: nSym
 use ChoMP2, only: nMoMo, nMoType
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

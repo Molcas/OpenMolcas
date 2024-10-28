@@ -31,7 +31,7 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

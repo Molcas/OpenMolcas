@@ -67,8 +67,8 @@ a hundred input states, or more, there has been a demand to change
 the output. Until |molcas| 6.2, the default assumption has been to print
 all expectation values and matrix elements that can be computed from
 the selection of one-electron integrals. From 6.4, this is requested by
-keywords, see the keyword list below for XVIN, XVES, XVSO, MEIN,
-MEES, and MESO.
+keywords, see the keyword list below for :kword:`XVIN`, :kword:`XVES`, :kword:`XVSO`, :kword:`MEIN`,
+:kword:`MEES`, and :kword:`MESO`.
 
 Apart from computing oscillator strengths, overlaps and Hamiltonian
 matrix elements can be used to compute :index:`electron transfer rates <single: Electron transfer rate>`, or
@@ -629,6 +629,7 @@ Keywords
   a set of initial states (for example the ground state) and a set of final states.
   This keyword allows to restrict the computation of transition moments between the two sets
   and not within each set, thus saving time and reducing the output size.
+  This also affects data written to :file:`rassi.h5`.
   The keyword is followed by the index where the two sets split (assuming energy ordering).
   For a calculation between one ground state and several excited states, :kword:`SUBSets` should be 1.
   Default is to compute the transition moments between all states.
@@ -984,6 +985,8 @@ Keywords
   a multi-state calculation using :program:`CASPT2`. In the future, other programs may add
   dynamic correlation estimates in a similar way. This keyword is not needed if the input
   file is in HDF5 format.
+  Note that using :kword:`HEFF` or :kword:`EJOB` can significantly speed up the RASSI job by
+  avoiding the explicit computation of the Hamiltonian.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEFF" APPEAR="Effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HEff <advanced>
@@ -1003,6 +1006,8 @@ Keywords
   The off-diagonal elements are approximated as :math:`H_{ij} \approx \frac{1}{2} S_{ij}(H_{ii}+H_{ij})`,
   where :math:`S_{ij}` is the overlap between two states; so if the input states
   are orthogonal, the effective Hamiltonian will be diagonal.
+  Note that using :kword:`HEFF` or :kword:`EJOB` can significantly speed up the RASSI job by
+  avoiding the explicit computation of the Hamiltonian.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="Read energies from file" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: EJob <advanced>
@@ -1267,6 +1272,19 @@ Keywords
               %%Keyword: TRD2 <advanced>
               <HELP>
               Prints the 1-/2-electron (transition) densities to ASCII files.
+              </HELP>
+              </KEYWORD>
+
+:kword:`TDM`
+  If this keyword is given, and if HDF5 support is enabled, the 1-electron transition
+  (spin) density matrix between every pair of states in the current calculation will be computed
+  and stored in the HDF5 file (use :kword:`SUBSets` to restrict to a subset of states).
+  Use this to prepare :program:`WFA` runs or visualisation with Pegamoid.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="TDM" LEVEL="BASIC" APPEAR="Transition density matrices" KIND="SINGLE">
+              %%Keyword: TDM <basic>
+              <HELP>
+              Compute and save transition density matrices. Requires HDF5.
               </HELP>
               </KEYWORD>
 

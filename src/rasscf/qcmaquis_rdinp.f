@@ -8,6 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
+#include "compiler_features.h"
+
 #ifdef _DMRG_
 !***********************************************************************
 !                                                                      *
@@ -177,8 +180,12 @@
       end select
 
       end subroutine qcmaquis_rdinp
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
       subroutine empty_qcmaquis_rdinp()
       end subroutine empty_qcmaquis_rdinp
+
 #endif

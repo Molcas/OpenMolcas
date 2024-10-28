@@ -15,7 +15,7 @@
 subroutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
 
 use Cholesky, only: iiBstRSh, INF_PROGRESS, IPRINT, LuCho, LuPri, LuTmp, nnBstR, nnBstRSh, nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

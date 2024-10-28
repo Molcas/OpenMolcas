@@ -11,14 +11,16 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
+subroutine CD_Tester_Vec( &
+#                        define _CALLING_
+#                        include "cdvec_interface.fh"
+                        )
 
 use CD_Tester_mod, only: Vec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iVec1, nVec, lBuf, nDim, iOpt
-real(kind=wp), intent(inout) :: Buf(lBuf)
+#include "cdvec_interface.fh"
 integer(kind=iwp) :: kOff, lTot
 character(len=*), parameter :: SecNam = 'CD_Tester_Vec'
 

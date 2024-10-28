@@ -21,7 +21,7 @@ use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings, tv2disk
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

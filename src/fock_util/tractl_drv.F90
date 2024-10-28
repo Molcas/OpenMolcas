@@ -49,15 +49,13 @@
 !***********************************************************************
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
+use caspt2_global, only: CMO, LUINTM, NCMO
 use Definitions, only: iwp
-use caspt2_data, only: CMO
 
 implicit none
 integer(kind=iwp), intent(in) :: iType, iPart
 logical(kind=iwp), intent(in) :: DoExch2
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 logical(kind=iwp) :: DoCholesky
 character(len=*), parameter :: SECNAM = 'TraCtl_Drv'
 

@@ -19,8 +19,8 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-if (allocated(DSPNm)) call mma_deallocate(DSPNm)
+call mma_deallocate(DSPNm,safe='*')
 
-if (allocated(DSubScr)) call mma_deallocate(DSubScr)
+call mma_deallocate(DSubScr,safe='*')
 
 end subroutine Cho_SubScr_Final

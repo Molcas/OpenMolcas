@@ -13,13 +13,13 @@
       Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
 #include "disp_mclr.fh"
-#include "stdalloc.fh"
 #include "spin_mclr.fh"
 #include "cstate_mclr.fh"
 #include "Files_mclr.fh"

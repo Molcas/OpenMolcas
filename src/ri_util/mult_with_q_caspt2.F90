@@ -22,7 +22,7 @@ subroutine Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,SubAux)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

@@ -30,6 +30,7 @@
       use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
       use Data_structures, only: Allocate_DT, Deallocate_DT
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: One, Zero
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
@@ -42,7 +43,6 @@
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
-#include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
       Logical taskleft, add
@@ -50,13 +50,14 @@
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), tupq(:), Lrs(:,:), Integral(:)
       Real*8, Allocatable, Target:: iirs(:), turs(:)
-      Real*8, Pointer :: piirs(:,:)=>Null(), pturs(:,:)=>Null()
+      Real*8, Pointer :: piirs(:,:), pturs(:,:)
+      Real*8, Target :: Dum(1)
 
       Type (DSBA_Type) CMOt, Tmp(1)
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
-      Real*8, Pointer :: pLii(:,:)=>Null(), pLij(:,:)=>Null()
+      Real*8, Pointer :: pLii(:,:), pLij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -77,6 +78,10 @@
       end do
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
       iLoc = 3
+*
+      ! dummy association to keep the compiler happy
+      piirs(0:0,0:0) => Dum(:)
+      pturs(0:0,0:0) => Dum(:)
 *
       ISTSQ(1)=0
       DO ISYM=2,NSYM
@@ -331,14 +336,10 @@ c         !set index arrays at iLoc
           nRS = nDimRS(JSYM,JRED)
 
           If (jSym.eq.1) Then
-            If (ntotie.gt.0) Then
-               piirs(1:nRS,1:ntotie) => iirs(1:nRS*ntotie)
-               piirs(:,:)=Zero
-            End If
-            If (ntue.gt.0) Then
-               pturs(1:nRS,1:ntue) => turs(1:nRS*ntue)
-               pturs(:,:)=Zero
-            End If
+            piirs(1:nRS,1:ntotie) => iirs(1:nRS*ntotie)
+            piirs(:,:)=Zero
+            pturs(1:nRS,1:ntue) => turs(1:nRS*ntue)
+            pturs(:,:)=Zero
           EndIf
 
           Call mma_MaxDBLE(LWORKe)
@@ -454,7 +455,7 @@ c         !set index arrays at iLoc
      &                            CMO(ipMOi),1,
      &                       0.0d0,pLii(:,ii),1)
                 End Do
-                pLii => Null()
+                nullify(pLii)
               End Do
 
               CALL CWTIME(TCR1,TWR1)
@@ -470,7 +471,7 @@ c         !set index arrays at iLoc
      &                    1.0d0,Lrs,nRS,
      &                          pLii,JNUM,
      &                    1.0d0,piirs,nRS)
-              pLii => Null()
+              nullify(pLii)
 
               CALL CWTIME(TCR2,TWR2)
               tform2(1) = tform2(1) + (TCR2 - TCR1)
@@ -576,6 +577,7 @@ c         !set index arrays at iLoc
      &                           pLij,na2,
      &                     1.0d0,turs(ipInt),nRS)
                ipInt=ipInt+nRS*na2
+               nullify(pLij)
              End Do
             CALL CWTIME(TCR1,TWR1)
             tforma2(1) = tforma2(1) + (TCR1 - TCR2)
@@ -620,12 +622,11 @@ c         !set index arrays at iLoc
         If (jsym.eq.1) Then
           If (ntotie.gt.0) Then
              Call mma_deallocate(iirs)
-             piirs=>Null()
           End If
           If (ntue.gt.0) Then
              Call mma_deallocate(turs)
-             pturs=>Null()
           End If
+          nullify(piirs,pturs)
         EndIf
 *
 ** MGD  Gather integrals from parallel runs

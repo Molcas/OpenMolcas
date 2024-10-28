@@ -36,7 +36,7 @@ subroutine T3AMPL_BTI(OEH,OEP)
 use ChT3_global, only: gen_files, ICH, IOPT, IT, NOAB, NUAB, printkey, run_triples, t3_starta, t3_startb, t3_stopa, t3_stopb, &
                        TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
 use Para_Info, only: MyRank, nProcs
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 

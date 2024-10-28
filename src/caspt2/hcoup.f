@@ -11,11 +11,13 @@
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -30,11 +32,7 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -94,19 +92,18 @@ C  End of loop.
      &                     DBL_MB(MV1),DBL_MB(MV2),OVL,HEBLK,
      &                     TG1,TG2,TG3)
           ELSE
+#endif
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     WORK(MV1),WORK(MV2),OVL,HEBLK,
+     &                     GA_Arrays(MV1)%A,
+     &                     GA_Arrays(MV2)%A,OVL,HEBLK,
      &                     TG1,TG2,TG3)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                   WORK(MV1),WORK(MV2),OVL,HEBLK,
-     &                   TG1,TG2,TG3)
 #endif
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
           CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
-          CALL RHS_FREE (NAS,NIS,lg_V1)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V1)
+          CALL RHS_FREE (lg_V2)
 
  1        CONTINUE
           HECOMP(ICASE,ISYM)=HEBLK
@@ -155,6 +152,7 @@ C Sum-reduce the per-process contributions
       SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,HEBLK,
      &                     TG1,TG2,TG3)
       USE SUPERINDEX
+      use EQSOLV
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -163,10 +161,7 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "eqsolv.fh"
 
       DIMENSION V1(*), V2(*)
 

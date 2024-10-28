@@ -22,7 +22,7 @@ use Index_Functions, only: nTri_Elem
 use GetInt_mod, only: LuCVec, mNeed, nBas, nPQ, nRS, NumCho, nVec, pq1, Vec2
 use RICD_Info, only: Do_DCCD
 use TwoDat, only: rcTwo
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp, u6
 
 implicit none

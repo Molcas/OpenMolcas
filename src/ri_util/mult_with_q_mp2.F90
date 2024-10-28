@@ -22,7 +22,7 @@ subroutine Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
 use Symmetry_Info, only: Mul
 use RI_glob, only: nAuxVe
 use Cholesky, only: nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

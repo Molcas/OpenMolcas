@@ -8,19 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
+      SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, EXS, CIS
+      use caspt2_global, only: LUCIEX, IDCIEX
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
+      Integer NFIFA, IBRA, IKET
+      Real*8 FIFA(NFIFA), FOPEL
 
-      DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
-      DIMENSION IOFF(8)
+      INTEGER IOFF(8)
       Integer :: nLev
+      REAL*8, allocatable:: BRA(:), KET(:), SGM(:)
+
       nLev = SGS%nLev
 
 * Procedure for computing one matrix element of the Fock matrix in the
@@ -93,29 +95,29 @@
       END IF
 
 * Allocate arrays for ket and bra wave functions
-      CALL GETMEM('LBRA','ALLO','REAL',LBRA,NCONF)
-      CALL GETMEM('LKET','ALLO','REAL',LKET,NCONF)
+      CALL mma_allocate(BRA,NCONF,Label='BRA')
+      CALL mma_allocate(KET,NCONF,Label='KET')
 * Allocate array for sigma = Fock operator acting on ket:
-      CALL GETMEM('SGM','ALLO','REAL',LSGM,NCONF)
+      CALL mma_allocate(SGM,NCONF,LABEL='SGM')
 
 * Load ket wave function
       ID=IDCIEX
       DO I=1,IKET-1
-        CALL DDAFILE(LUCIEX,0,WORK(LKET),NCONF,ID)
+        CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
       END DO
-      CALL DDAFILE(LUCIEX,2,WORK(LKET),NCONF,ID)
+      CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' IKET:',IKET
         WRITE(6,*)' Ket CI array:'
         ISCR=MIN(NCONF,20)
-        WRITE(6,'(1x,5F16.8)')(WORK(LKET+I),I=0,ISCR-1)
+        WRITE(6,'(1x,5F16.8)')(KET(I),I=1,ISCR)
         call XFLUSH(6)
       END IF
 
 * Compute (lowering part of) FIFA operator acting on
 * the ket wave function.
-      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
       DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
         ISU=SGS%ISM(LEVU)
@@ -133,28 +135,28 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1(SGS,CIS,EXS,
-     &                LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM))
+     &                LEVT,LEVU,FTU,STSYM,KET,SGM)
   10      CONTINUE
         END DO
       END DO
 * Add contribution from inactive part:
-      CALL DAXPY_(NCONF,EINACT,WORK(LKET),1,WORK(LSGM),1)
+      CALL DAXPY_(NCONF,EINACT,KET,1,SGM,1)
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' SGM array from (lowering F)|KET>:'
-        WRITE(6,'(1x,5F16.8)')(WORK(LSGM+I),I=0,NCONF-1)
+        WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
         call XFLUSH(6)
       END IF
 
 * Load bra wave function
       ID=IDCIEX
       DO I=1,IBRA-1
-        CALL DDAFILE(LUCIEX,0,WORK(LBRA),NCONF,ID)
+        CALL DDAFILE(LUCIEX,0,BRA,NCONF,ID)
       END DO
-      CALL DDAFILE(LUCIEX,2,WORK(LBRA),NCONF,ID)
+      CALL DDAFILE(LUCIEX,2,BRA,NCONF,ID)
 
 * Put matrix element into FOPEL:
-      FOPEL=DDOT_(NCONF,WORK(LBRA),1,WORK(LSGM),1)
+      FOPEL=DDOT_(NCONF,BRA,1,SGM,1)
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' FOPEL is now:'
@@ -166,7 +168,7 @@
 * We are computing contributions <KET|Etu|BRA> with t<u, then
 * using them as <BRA|Eut|KET>
 * Note that I already have BRA in memory
-      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
       DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
         ISU=SGS%ISM(LEVU)
@@ -184,26 +186,26 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
           CALL SIGMA1(SGS,CIS,EXS,
-     &                LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM))
+     &                LEVT,LEVU,FTU,STSYM,BRA,SGM)
   20      CONTINUE
         END DO
       END DO
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' SGM array from (strictly lowering F)|BRA>:'
-        WRITE(6,'(1x,5F16.8)')(WORK(LSGM+I),I=0,NCONF-1)
+        WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
         call XFLUSH(6)
       END IF
 
 * Load ket wave function
       ID=IDCIEX
       DO I=1,IKET-1
-        CALL DDAFILE(LUCIEX,0,WORK(LKET),NCONF,ID)
+        CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
       END DO
-      CALL DDAFILE(LUCIEX,2,WORK(LKET),NCONF,ID)
+      CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
 * Add contribution to matrix element FOPEL
-      FOPEL=FOPEL+DDOT_(NCONF,WORK(LKET),1,WORK(LSGM),1)
+      FOPEL=FOPEL+DDOT_(NCONF,KET,1,SGM,1)
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' FOPEL is now:'
@@ -211,10 +213,9 @@
         call XFLUSH(6)
       END IF
 
-      CALL GETMEM('SGM','FREE','REAL',LSGM,NCONF)
-      CALL GETMEM('LBRA','FREE','REAL',LBRA,NCONF)
-      CALL GETMEM('LKET','FREE','REAL',LKET,NCONF)
+      CALL mma_deallocate(SGM)
+      CALL mma_deallocate(BRA)
+      CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE FOPAB
 

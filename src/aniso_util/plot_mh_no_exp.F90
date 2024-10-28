@@ -111,14 +111,10 @@ end if
 write(u6,'(A)') 'inquire which GNUPLOT'
 #endif
 
-!#ifdef __INTEL_COMPILER
 call systemf('which gnuplot >> lineOUT',iErr)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'iErr = ',iErr
 #endif
-!#else
-!call execute_command_line('which gnuplot >> lineOUT')
-!#endif
 
 inquire(file='lineOUT',exist=file_exist,opened=is_file_open,number=file_number,size=file_size)
 
@@ -180,14 +176,10 @@ if (execute_gnuplot_cmd) then
 # ifdef _DEBUGPRINT_
   write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
 # endif
-!# ifdef __INTEL_COMPILER
   call systemf(gnuplot_CMD,iErr)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'iErr = ',iErr
 # endif
-!# else
-!  call execute_command_line(gnuplot_CMD)
-!# endif
   file_number = IsFreeUnit(102)
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
@@ -389,14 +381,10 @@ if (execute_gnuplot_cmd) then
   write(u6,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 # endif
 
-!# ifdef __INTEL_COMPILER
   call systemf(gnuplot_CMD,iErr)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'iErr = ',iErr
 # endif
-!# else
-!  call execute_command_line(gnuplot_CMD)
-!# endif
 
   if (gnuplot_version < Five) then
     file_exist = .false.

@@ -35,12 +35,15 @@
 *> @param[in]     IFINAL Calculation status switch
 *> @param[in]     IRst   DMRG restart status switch
 ************************************************************************
+
+#include "compiler_features.h"
+
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
       use wadr, only: FMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
 !     use sxci, only: IDXSX
@@ -98,7 +101,7 @@ C Local print level (if any)
 *
       CALL mma_allocate(FMO,NACPAR,Label='FMO')
       Call DecideOnESPF(Do_ESPF)
-      If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
+      If ( lRF .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
 *
 * In case of a reaction field in combination with an average CAS
 * select the potential of the appropriate state.
@@ -480,9 +483,11 @@ c     End If
       Return
       End
 
-* _ENABLE_BLOCK_DMRG_
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_DMRGCtl()
-      End
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_DMRGCtl()
+      end subroutine empty_DMRGCtl
+
 #endif

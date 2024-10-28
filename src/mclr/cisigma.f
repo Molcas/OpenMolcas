@@ -12,12 +12,12 @@
      &                    Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
        use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
+       use stdalloc, only: mma_allocate, mma_deallocate
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "genop.fh"
 #include "cands.fh"
 #include "detdim.fh"

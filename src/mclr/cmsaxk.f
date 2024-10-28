@@ -15,9 +15,9 @@
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
       subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 
 ******Input
       Integer NPUVX
@@ -82,9 +82,9 @@
 
       subroutine CalcAXk2(AXk,D1,D2,PUVX,
      & NPUVX,IndPUVX,Off_Act,Off_Orb)
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Integer NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX

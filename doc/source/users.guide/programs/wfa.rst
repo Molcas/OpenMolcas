@@ -73,7 +73,7 @@ Dependencies
 
 The :program:`WFA` program requires HDF5 files, which are written by either
 :program:`SCF`, :program:`RASSCF`, or :program:`RASSI`. In the case of :program:`RASSI`,
-the :kword:`TRD1` keyword has to be activated.
+the :kword:`TDM` (or :kword:`TRD1`) keyword has to be activated.
 
 .. _UG\:sec\:wfa_files:
 
@@ -340,9 +340,10 @@ Input example
 
 ::
 
-  * Analysis of RASSI job, use the TRD1 keyword
+  * Analysis of RASSI job, use the TDM keyword
   &RASSI
-  TRD1
+  EJOB
+  TDM
 
   &WFA
   H5file = $Project.rassi.h5
@@ -350,6 +351,55 @@ Input example
   2
   1 2 4 *
   3 *
+
+Large jobs
+..........
+
+The computational effort spent in :program:`RASSI` and the size of the file :file:`$Project.rassi.h5` scale with the square of the number of states included in the computation.
+This can be a severe bottleneck.
+To reduce the time spent in :program:`RASSI` use the :kword:`HEFF` or :kword:`EJOB` keywords;
+these will cause RASSI to read in the Hamiltonian rather than recomputing it.
+To reduce the output to the file :file:`$Project.rassi.h5` use :kword:`SUBSets = 1`.
+Note that this only works if the reference state is the first state treated by RASSI
+(and that is always possible if the states are reordered appropriately via :kword:`NROF`).
+
+::
+
+  &RASSI
+  TDM
+  EJOB
+  SUBSets = 1
+
+  &WFA
+  H5file = $Project.rassi.h5
+  REFState = 1
+
+Subsequently you may reduce the file size by repacking the HDF5 file: ::
+
+  h5repack -f GZIP=5 $Project.rassi.h5 $Project.rassi-repack.h5 && rm $Project.rassi.h5
+
+Alternatively, you can avoid the quadratic scaling in :program:`RASSI` by processing states in batches specified via the :kword:`NROF` keyword.
+As an extreme example, you can iterate over individual states using the following input
+(here the 10 states of `JOB002` are analysed using the first state of `JOB001` as reference):
+
+::
+  
+  >> FOREACH IST in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+  &RASSI
+  TDM
+  NROF
+  2 1 1
+  1
+  $IST
+
+  >> COPY $Project.rassi.h5 $Project.rassi.$IST.h5
+
+  &WFA
+  h5file=$Project.rassi.$IST.h5
+
+  >> ENDDO
+
 
 .. _UG\:sec\:wfa_output:
 
@@ -367,31 +417,33 @@ State/difference density matrix analysis (:program:`SCF`/:program:`RASSCF`/:prog
 
   or ::
 
-    RASSI analysis for state R_2
+    RASSI analysis for state S1
 
 .. _tab\:wfa_dm:
 
-======================= ===================================================================================================
-Descriptor              Explanation
-======================= ===================================================================================================
-``n_u``                 Number of unpaired electrons :math:`n_u=\sum_i\min(n_i, 2-n_i)` :cite:`Head-Gordon2003,Plasser2014`
-``n_u,nl``              Number of unpaired electrons :math:`n_{u,nl}=\sum_i n_i^2(2-n_i)^2`
-``PR_NO``               NO participation ratio :math:`\text{PR}_{\text{NO}}`
-``p_D`` and ``p_A``     Promotion number :math:`p_D` and :math:`p_A`
-``PR_D`` and ``PR_A``   D/A participation ratio :math:`\text{PR}_D` and :math:`\text{PR}_A`
-``<r_h> [Ang]``         Mean position of detachment density :math:`\vec{d}_D` :cite:`Plasser2015`
-``<r_e> [Ang]``         Mean position of attachment density :math:`\vec{d}_A`
-``|<r_e - r_h>| [Ang]`` Linear D/A distance :math:`\vec{d}_{D\rightarrow A} = \vec{d}_A - \vec{d}_D`
-``Hole size [Ang]``     RMS size of detachment density :math:`\sigma_D`
-``Electron size [Ang]`` RMS size of attachment density :math:`\sigma_A`
-======================= ===================================================================================================
+================================= =========================================================================================
+Descriptor                        Explanation
+================================= =========================================================================================
+``n_u``                           Number of unpaired electrons :math:`n_u=\sum_i\min(n_i, 2-n_i)` :cite:`Head-Gordon2003,Plasser2014`
+``n_u,nl``                        Number of unpaired electrons :math:`n_{u,nl}=\sum_i n_i^2(2-n_i)^2`
+``PR_NO``                         NO participation ratio :math:`\text{PR}_{\text{NO}}`
+``p_D`` and ``p_A``               Promotion number :math:`p_D` and :math:`p_A`
+``PR_D`` and ``PR_A``             D/A participation ratio :math:`\text{PR}_D` and :math:`\text{PR}_A`
+``Dipole moment [D]``             Dipole moment (and its Cartesian components)
+``RMS size of the density [Ang]`` Root-mean-square size of the overall electron density
+``<r_h> [Ang]``                   Mean position of detachment density :math:`\vec{d}_D` :cite:`Plasser2015`
+``<r_e> [Ang]``                   Mean position of attachment density :math:`\vec{d}_A`
+``|<r_e - r_h>| [Ang]``           Linear D/A distance :math:`\vec{d}_{D\rightarrow A} = \vec{d}_A - \vec{d}_D`
+``Hole size [Ang]``               RMS size of detachment density :math:`\sigma_D`
+``Electron size [Ang]``           RMS size of attachment density :math:`\sigma_A`
+================================= =========================================================================================
 
 Transition density matrix analysis (:program:`RASSI`)
 .....................................................
 
 ::
 
-  RASSI analysis for transiton from state 1 to 2 (Tr_1-2)
+  RASSI analysis for transition from state 1 to 2 (S0-S1)
 
 .. _tab\:wfa_tdm:
 
@@ -405,9 +457,11 @@ Output listing                         Explanation
 ``Nr of entangled states (Z_HE)``      :math:`Z_{HE}=2^{S_{H|E}}`
 ``Renormalized S_HE/Z_HE``             Replace :math:`\lambda_i\rightarrow \lambda_i/\Omega`
 ``omega``                              Norm of the 1TDM :math:`\Omega`, single-exc. character
-``QTa`` / ``QT2``                      Sum over absolute (:math:`Q^t_a`) or squared (:math:`Q^t_2`) transition charges
+``QTa`` / ``QT2``                      Sum over absolute (:math:`Q^t_a`) or squared (:math:`Q^t_2`) transition charges as measure for ionic character :cite:`Monte2023`
 ``LOC`` / ``LOCa``                     Local contributions: Trace of the :math:`\Omega` matrix with respect to basis functions (LOC) or squareroots of the values (LOCa)
-``<Phe>``                              Exp. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
+``<Phe>``                              Expec. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
+``Trans. dipole moment [D]``           Transition dipole moment (and its Cartesian components)
+``Transition <r^2> [a.u.]``            Transition matrix element of :math:`x^2+y^2+z^2` (and its Cartesian components)
 ``<r_h> [Ang]``                        Mean position of hole :math:`\langle\vec{x}_h\rangle_{\text{exc}}` :cite:`Plasser2015`
 ``<r_e> [Ang]``                        Mean position of electron :math:`\langle\vec{x}_e\rangle_{\text{exc}}`
 ``|<r_e - r_h>| [Ang]``                Linear e/h distance :math:`\vec{d}_{h\rightarrow e} = \langle\vec{x}_e - \vec{x}_h\rangle_{\text{exc}}`

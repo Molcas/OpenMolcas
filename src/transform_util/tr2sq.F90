@@ -17,7 +17,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
+subroutine TR2Sq(CMO,NCMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -35,23 +35,23 @@ subroutine TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! ********** IBM-3090 RELEASE 87 09 14 **********
 ! Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
 
+use caspt2_global, only: LUHLF1, LUHLF2, LUHLF3, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: lBuf
-#include "rasdim.fh"
-#include "caspt2.fh"
+integer(kind=iwp), intent(in) :: NCMO, lBuf
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
 real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)
+#include "caspt2.fh"
+#include "intgrl.fh"
+#include "trafo.fh"
 integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, iOpt, IOUT1, IOUT2, IOUT3, IPQ, IPQMX1, IPQMX2, IPQMX3, IPQST, IR, &
                      iRc, IRSST, IRU, ISPQRS, IST, ITU, IX2, KKTU, LAR, LPQ, LR, NA, NAT, NORU, NOTU, NOUR, NP, NQ, NQM, NR, &
                      NSYMP, NT, NTM, NTMAX, NU, NUM, NUMAX
-#include "intgrl.fh"
-#include "trafo.fh"
 
 NSYMP = (NSYM**2+NSYM)/2
 NORU = NBR*NOCS

@@ -22,7 +22,7 @@ use casvb_global, only: absym, confsinp, gsinp, i2s_fr, iciweights, icrit, imeth
                         nMs_fr, noe, norb, norbrel, nort, npcf, nS_fr, nspinb, nsyme, nvb, nvbinp, nvbr_fr, nzrvb, ploc, projcas, &
                         projsym, recinp, recinp_old, recn_tmp01, recn_tmp02, savvb, savvbci, sc, service, sij, spinbkw, strtci, &
                         strtint, strtmo, strtvb, tags
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
 
@@ -251,7 +251,7 @@ else
       call mma_allocate(tmp,mxorb_cvb*mxorb_cvb*nsyme,label='symelm')
       if (allocated(symelm)) then
         tmp(1:mxorb_cvb*mxorb_cvb*(nsyme-1)) = symelm(:)
-        if (allocated(symelm)) call mma_deallocate(symelm)
+        call mma_deallocate(symelm)
       end if
       call move_alloc(tmp,symelm)
       call symelminp_cvb(symelm,nsyme,tags,izeta,mxirrep,mxorb_cvb,mxsyme,ityp)
@@ -480,11 +480,11 @@ else
 
 end if
 
-if (.not. allocated(ifxstr)) call mma_allocate(ifxstr,0,label='ifxstr')
-if (.not. allocated(idelstr)) call mma_allocate(idelstr,0,label='ifxstr')
-if (.not. allocated(symelm)) call mma_allocate(symelm,0,label='symelm')
-if (.not. allocated(gsinp)) call mma_allocate(gsinp,0,label='gsinp')
-if (.not. allocated(confsinp)) call mma_allocate(confsinp,0,0,label='confsinp')
+call mma_allocate(ifxstr,0,label='ifxstr',safe='*')
+call mma_allocate(idelstr,0,label='ifxstr',safe='*')
+call mma_allocate(symelm,0,label='symelm',safe='*')
+call mma_allocate(gsinp,0,label='gsinp',safe='*')
+call mma_allocate(confsinp,0,0,label='confsinp',safe='*')
 
 if (inputmode == 2) then
   ! Input parsing complete for this step ...

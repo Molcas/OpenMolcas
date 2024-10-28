@@ -16,7 +16,6 @@
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "Files.fh"
-#include "WrkSpc.fh"
 #include "tshcntrl.fh"
       REAL*8       CI1,CI1pr,CI2,CI2pr,prdct(2,2)
       INTEGER      I,JOB1,JOB2,file,file2,maxHop,IAD3,IADR3
@@ -181,7 +180,9 @@ C Check if the number of Hops is limited:
             CALL qpg_iScalar('MaxHops',lMaxHop)
             IF (lMaxHop) THEN
                CALL Get_iScalar('MaxHops',maxHop)
-               lHop=.FALSE.
+               IF (maxHop.LT.1) lMaxHop=.FALSE.
+            END IF
+            IF (lMaxHop) THEN
                CALL qpg_iScalar('Number of Hops',lHop)
                IF (lHop) THEN
                   CALL Get_iScalar('Number of Hops',nHop)

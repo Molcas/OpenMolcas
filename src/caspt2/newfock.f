@@ -16,19 +16,19 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWFOCK(FIFA,CMO)
-      use caspt2_output, only:iPrGlb
+      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO)
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: usual
+      use caspt2_global, only: DREF
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
+      INTEGER NFIFA, NCMO
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 
       REAL*8 D,DDVX,E,EIGVAL
-      INTEGER LDD,LDDTR,LDSQ,L2MDSQ,LINT,LSC,LSC1,LSC2,LSCR,
-     &        LEV1,LEV2,LEIG,LXAI,LXMAT,LXPQ,LXQP
+      INTEGER LINT,LSC,LSC1,LSC2,LSCR,
+     &        LEV1,LEV2,LEIG,LXAI,LXPQ,LXQP
       INTEGER IFGFOCK
       INTEGER I,J
       INTEGER II,IP,IQ,IR,IS,IV,IX
@@ -41,6 +41,9 @@
       INTEGER IEPS,IEPSA,IEPSI,IEPSE
       INTEGER ISYM,ISYMPQ,ISYMRS
       REAL*8 VAL,VALTU,VALUT,X
+
+      Real*8, allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
+     &                      TWOMDSQ(:), XMAT(:), SC(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
 c keyword value given as input. The experimental user modifies
@@ -50,8 +53,8 @@ c and returned after modification.
 c To define the modified Fock matrix, a number of arrays on
 c  LUONE may be useful. In addition, the active 1- and 2-
 c electron density matrices, and the inactive Fock matrix
-c FIMO, are available in workspace at WORK(LDREF),
-c WORK(LPREF),WORK(LFIMO), and WORK(LFIFA).
+c FIMO, are available in workspace at DREF,
+c PREF,FIMO, and FIFA.
 c Two-electron integrals involving non-frozen, non-deleted
 c orbitals, at most two secondary, are available from
 c subroutines COUL and EXCH (See).
@@ -111,19 +114,21 @@ c       Determine sizes of areas for memory allocation
         IF(FOCKTYPE.EQ.'G3      ') NSCR=NSCR3
 c
 c Allocate memory: Integral buffer and scratch array:
-        CALL GETMEM('FINT','ALLO','REAL',LINT,2*NINT)
+        CALL mma_allocate(INT,2*NINT,LABEL='INT')
+        LINT=1
         LSCR=LINT+NINT
-        CALL GETMEM('FSCR','ALLO','REAL',LSC,NSCR)
+        CALL mma_allocate(SC,NSCR,Label='SC')
+        LSC=1
 c Form symmetry-packed squares of density matrix DSQ, and
 c similarly (2I-DSQ)
-        CALL GETMEM('DSQ','ALLO','REAL',LDSQ,NASQT)
-        CALL GETMEM('2MDSQ','ALLO','REAL',L2MDSQ,NASQT)
+        CALL mma_allocate(DSQ,NASQT,Label='DSQ')
+        CALL mma_allocate(TWOMDSQ,NASQT,LABEL='TWOMDSQ')
 c Symmetry-packed triangles of D*(2I-D)
-        CALL GETMEM('DDTR','ALLO','REAL',LDDTR,NATR)
+        CALL mma_allocate(DDTR,NATR,Label='DDTR')
 c Temporary use of single square symmetry-block:
-        CALL GETMEM('DD','ALLO','REAL',LDD,NAMX**2)
+        CALL mma_allocate(DD,NAMX**2,Label='DD')
 C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
-        CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NOSQT)
+        CALL mma_allocate(XMAT,NOSQT,Label='XMAT')
         NSQES=0
         DO ISYM=1,NSYM
           NA=NASH(ISYM)
@@ -132,48 +137,48 @@ C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
             DO IU=1,NA
               IUABS=IU+NAES(ISYM)
               IDREF=(ITABS*(ITABS-1))/2+IUABS
-              D=WORK(LDREF-1+IDREF)
+              D=DREF(IDREF)
               IDTU=NSQES+IT+NA*(IU-1)
               IDUT=NSQES+IU+NA*(IT-1)
-              WORK(LDSQ-1+IDTU)=D
-              WORK(LDSQ-1+IDUT)=D
+              DSQ(IDTU)=D
+              DSQ(IDUT)=D
             END DO
           END DO
           DO I=1,NA*NA
             IDTU=NSQES+I
-            WORK(L2MDSQ-1+IDTU)=-WORK(LDSQ-1+IDTU)
+            TWOMDSQ(IDTU)=-DSQ(IDTU)
           END DO
           DO I=1,NA*NA,(NA+1)
             IDTT=NSQES+I
-            WORK(L2MDSQ-1+IDTT)=2.0D0-WORK(LDSQ-1+IDTT)
+            TWOMDSQ(IDTT)=2.0D0-DSQ(IDTT)
           END DO
           NSQES=NSQES+NA**2
         END DO
 c
 c Create the matrix DDTR =D(2I-D) (triangular symmetry blocks)
 C Use also temporary DD, single symmetry blocks of D*(2I-D):
-        NTRES=0
-        NSQES=0
+        NTRES=1
+        NSQES=1
         DO ISYM=1,NSYM
           NA=NASH(ISYM)
           IF(NA.GT.0) THEN
             N3=(NA*(NA+1))/2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LDSQ+NSQES),NA,
-     &                  WORK(L2MDSQ+NSQES),NA,
-     &                  0.0d0,WORK(LDD),NA)
-            CALL TRIANG(NA,WORK(LDD))
-            CALL DCOPY_(N3,WORK(LDD),1,WORK(LDDTR+NTRES),1)
+     &                  1.0d0,DSQ(NSQES),NA,
+     &                  TWOMDSQ(NSQES),NA,
+     &                  0.0d0,DD,NA)
+            CALL TRIANG(NA,DD)
+            CALL DCOPY_(N3,DD,1,DDTR(NTRES),1)
             NTRES=NTRES+N3
             NSQES=NSQES+NA**2
           END IF
         END DO
 
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
-        CALL DCOPY_(NOSQT,[0.0D0],0,WORK(LXMAT),1)
+        XMAT(:)=0.0D0
         IF (IfChol) THEN
-          CALL Cho_Amatrix(WORK(LXMAT),CMO,WORK(LDDTR),NATR)
+          CALL Cho_Amatrix(XMAT,CMO,NCMO,DDTR,NATR)
         ELSE
           NOSQES=0
           DO ISYMPQ=1,NSYM
@@ -191,23 +196,23 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
                   DO IX=1,IV
                     IS=IX+MI
                     CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,
-     &                        WORK(LINT),WORK(LSCR))
+     &                        INT,INT(LSCR))
                     IDDVX=MTRES+(IV*(IV-1))/2+IX
-                    DDVX=WORK(LDDTR-1+IDDVX)
+                    DDVX=DDTR(IDDVX)
                     IF(IR.EQ.IS) DDVX=0.5D0*DDVX
-                    CALL DAXPY_(NO**2,DDVX,WORK(LINT),1,
-     &                                    WORK(LXMAT+NOSQES),1)
+                    CALL DAXPY_(NO**2,DDVX,INT,1,
+     &                                    XMAT(1+NOSQES),1)
                   END DO
                 END DO
                 MTRES=MTRES+(MA*(MA+1))/2
               END DO
               DO IP=2,NO
                 DO IQ=1,IP-1
-                  LXPQ=LXMAT+NOSQES-1+IP+NO*(IQ-1)
-                  LXQP=LXMAT+NOSQES-1+IQ+NO*(IP-1)
-                  VAL=0.5D0*(WORK(LXPQ)+WORK(LXQP))
-                  WORK(LXPQ)=VAL
-                  WORK(LXQP)=VAL
+                  LXPQ=NOSQES+IP+NO*(IQ-1)
+                  LXQP=NOSQES+IQ+NO*(IP-1)
+                  VAL=0.5D0*(XMAT(LXPQ)+XMAT(LXQP))
+                  XMAT(LXPQ)=VAL
+                  XMAT(LXQP)=VAL
                 END DO
               END DO
               NOSQES=NOSQES+NO**2
@@ -234,15 +239,15 @@ c the active-inactive block
             IF(NA*NI.GT.0) THEN
               CALL DGEMM_('N','N',
      &                    NA,NI,NA,
-     &                    1.0d0,WORK(L2MDSQ+NASQES),NA,
-     &                    WORK(LXMAT+NOSQES+NI),NO,
-     &                    0.0d0,WORK(LSC),NA)
+     &                    1.0d0,TWOMDSQ(1+NASQES),NA,
+     &                    XMAT(1+NOSQES+NI),NO,
+     &                    0.0d0,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
                 DO II=1,NI
                   KFIFA=NOTRES+(ITTOT*(ITTOT-1))/2+II
                   ISC=IT+NA*(II-1)
-                  FIFA(KFIFA)=FIFA(KFIFA)-WORK(LSC-1+ISC)
+                  FIFA(KFIFA)=FIFA(KFIFA)-SC(ISC)
                 END DO
               END DO
             ENDIF
@@ -253,8 +258,8 @@ c the secondary-inactive block
                 IATOT=NI+NA+IA
                 DO II=1,NI
                   KFIFA=NOTRES+(IATOT*(IATOT-1))/2+II
-                  LXAI=LXMAT+NOSQES-1+IATOT+NO*(II-1)
-                  FIFA(KFIFA)=FIFA(KFIFA)-2.0D0*WORK(LXAI)
+                  LXAI=NOSQES+IATOT+NO*(II-1)
+                  FIFA(KFIFA)=FIFA(KFIFA)-2.0D0*XMAT(LXAI)
                 END DO
               END DO
             ENDIF
@@ -264,21 +269,21 @@ c the active-active block
               IX=NOSQES+NI+1+NO*NI
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
-     &                    1.0d0,WORK(LDSQ+NASQES),NA,
-     &                    WORK(LXMAT-1+IX),NO,
-     &                    0.0d0,WORK(LSC+NA*NA),NA)
+     &                    1.0d0,DSQ(1+NASQES),NA,
+     &                    XMAT(IX),NO,
+     &                    0.0d0,SC(LSC+NA*NA),NA)
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
-     &                    1.0d0,WORK(LSC+NA*NA),NA,
-     &                    WORK(L2MDSQ+NASQES),NA,
-     &                    0.0d0,WORK(LSC),NA)
+     &                    1.0d0,SC(LSC+NA*NA),NA,
+     &                    TWOMDSQ(1+NASQES),NA,
+     &                    0.0d0,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
                 DO IU=1,IT
                   IUTOT=NI+IU
                   KFIFA=NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
-                  VALTU=WORK(LSC-1+IT+NA*(IU-1))
-                  VALUT=WORK(LSC-1+IU+NA*(IT-1))
+                  VALTU=SC(IT+NA*(IU-1))
+                  VALUT=SC(IU+NA*(IT-1))
                   FIFA(KFIFA)=FIFA(KFIFA)-0.5D0*(VALTU+VALUT)
                 END DO
               END DO
@@ -289,15 +294,15 @@ c the secondary-active block
               IX=NOSQES+NI+NA+1+NO*NI
               CALL DGEMM_('N','N',
      &                    NS,NA,NA,
-     &                    1.0d0,WORK(LXMAT-1+IX),NO,
-     &                    WORK(LDSQ+NASQES),NA,
-     &                    0.0d0,WORK(LSC),NS)
+     &                    1.0d0,XMAT(IX),NO,
+     &                    DSQ(1+NASQES),NA,
+     &                    0.0d0,SC,NS)
               DO IA=1,NS
                 IATOT=NI+NA+IA
                 DO IT=1,NA
                   ITTOT=NI+IT
                   KFIFA=NOTRES+(IATOT*(IATOT-1))/2+ITTOT
-                  FIFA(KFIFA)=FIFA(KFIFA)-WORK(LSC-1+IA+NS*(IT-1))
+                  FIFA(KFIFA)=FIFA(KFIFA)-SC(IA+NS*(IT-1))
                 END DO
               END DO
             ENDIF
@@ -330,41 +335,41 @@ C Form the selection matrix as a temporary square matrix.
 C Compute it by spectral resolution.
 C First, form a copy of the triangular D(2I-D) matrix block,
 C and diagonalize it. The DDTR copy at LSC:
-            CALL DCOPY_(NA3,WORK(LDDTR+NATRES),1,WORK(LSC),1)
+            CALL DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
 C A unit matrix at LEV1, to become eigenvectors:
             LEV1=LSC+NA2
-            CALL DCOPY_(NA2,[0.0D0],0,WORK(LEV1),1)
-            CALL DCOPY_(NA, [1.0D0],0,WORK(LEV1),NA+1)
+            CALL DCOPY_(NA2,[0.0D0],0,SC(LEV1),1)
+            CALL DCOPY_(NA, [1.0D0],0,SC(LEV1),NA+1)
 C A call to NIDiag diagonalizes the triangular matrix:
-            CALL NIDiag(WORK(LSC),WORK(LEV1),NA,NA)
-            CALL JACORD(WORK(LSC),WORK(LEV1),NA,NA)
+            CALL NIDiag(SC,SC(LEV1),NA,NA)
+            CALL JACORD(SC,SC(LEV1),NA,NA)
 C Make a copy of the eigenvector matrix:
             LEV2=LEV1+NA2
-            CALL DCOPY_(NA2,WORK(LEV1),1,WORK(LEV2),1)
+            CALL DCOPY_(NA2,SC(LEV1),1,SC(LEV2),1)
 C Put eigenvalues at LEIG:
             LEIG=LEV2+NA2
-            CALL VEIG(NA,WORK(LSC),WORK(LEIG))
+            CALL VEIG(NA,SC,SC(LEIG))
 C Now scale the second array of eigenvectors with any required
 C function of the eigenvalues:
             DO J=1,NA
-              EIGVAL=WORK(LEIG-1+J)
+              EIGVAL=SC(LEIG-1+J)
               IF(FOCKTYPE.EQ.'G2      ') THEN
                 X=SQRT(MAX(0.0D0,EIGVAL))
               ELSE
                 X=EIGVAL
               END IF
               DO I=1,NA
-                WORK(LEV2-1+I+NA*(J-1))=X*WORK(LEV2-1+I+NA*(J-1))
+                SC(LEV2-1+I+NA*(J-1))=X*SC(LEV2-1+I+NA*(J-1))
               END DO
             END DO
 C Now the selection matrix can be formed, at LSC:
             CALL DGEMM_('N','T',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LEV1),NA,
-     &                  WORK(LEV2),NA,
-     &                  0.0d0,WORK(LSC),NA)
+     &                  1.0d0,SC(LEV1),NA,
+     &                  SC(LEV2),NA,
+     &                  0.0d0,SC(LSC),NA)
 C Obviously, the FOCKTYPE=G3 case can be obtained by just
-C squaring the DDTR block into WORK(LSC).
+C squaring the DDTR block into SC.
 
 C Focktype=g2 or g3
             IX=NOSQES+NI+1+NO*NI
@@ -372,21 +377,21 @@ C Focktype=g2 or g3
             LSC2=LSC1+NA2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LSC),NA,
-     &                  WORK(LXMAT-1+IX),NO,
-     &                  0.0d0,WORK(LSC1),NA)
+     &                  1.0d0,SC(LSC),NA,
+     &                  XMAT(IX),NO,
+     &                  0.0d0,SC(LSC1),NA)
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,WORK(LSC1),NA,
-     &                  WORK(LSC),NA,
-     &                  0.0d0,WORK(LSC2),NA)
+     &                  1.0d0,SC(LSC1),NA,
+     &                  SC(LSC),NA,
+     &                  0.0d0,SC(LSC2),NA)
             DO IT=1,NA
               ITTOT=NI+IT
               DO IU=1,IT
                 IUTOT=NI+IU
                 KFIFA=NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
                 ITU=IT+NA*(IU-1)
-                FIFA(KFIFA)=FIFA(KFIFA)-WORK(LSC2-1+ITU)
+                FIFA(KFIFA)=FIFA(KFIFA)-SC(LSC2-1+ITU)
               END DO
             END DO
 c
@@ -399,13 +404,13 @@ c
         ENDIF
 c
 c
-        CALL GETMEM('FSCR','FREE','REAL',LSC,NSCR)
-        CALL GETMEM('FINT','FREE','REAL',LINT,NINT)
-        CALL GETMEM('DSQ','FREE','REAL',LDSQ,NASQT)
-        CALL GETMEM('2MDSQ','FREE','REAL',L2MDSQ,NASQT)
-        CALL GETMEM('DD','FREE','REAL',LDD,NAMX**2)
-        CALL GETMEM('DDTR','FREE','REAL',LDDTR,NATR)
-        CALL GETMEM('XMAT','FREE','REAL',LXMAT,NOSQT)
+        CALL mma_deallocate(SC)
+        CALL mma_deallocate(INT)
+        CALL mma_deallocate(DSQ)
+        CALL mma_deallocate(TWOMDSQ)
+        CALL mma_deallocate(DD)
+        CALL mma_deallocate(DDTR)
+        CALL mma_deallocate(XMAT)
  300  CONTINUE
 c
 c     Orbital energies, EPS, EPSI,EPSA,EPSE:
@@ -449,9 +454,8 @@ c     EASUM = contract EPSA with diagonal of active dens.
         DO 411 I=1,NA
           ITOT=NAES(ISYM)+I
           ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*WORK(LDREF-1+ID)
+          EASUM=EASUM+EPSA(ITOT)*DREF(ID)
   411   CONTINUE
   410 CONTINUE
 c
-      RETURN
-      END
+      END SUBROUTINE NEWFOCK

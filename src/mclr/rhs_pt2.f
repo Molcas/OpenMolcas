@@ -20,7 +20,6 @@
 
 #include "Pointers.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
 
 !     Read in a and b part of effective gradient from CASPT2

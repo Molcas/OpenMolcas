@@ -118,10 +118,10 @@ call mma_deallocate(IntOnGrid)
 
 EQC = ExtNuc(Ext,natom)
 RepNuc = RepNuc+EQC
-if (IsStructure() == 1) then
-  call Add_Info('PotNuc',[RepNuc],1,6)
-else
+if (IsStructure() == 0) then
   call Add_Info('PotNuc',[RepNuc],1,12)
+else
+  call Add_Info('PotNuc',[RepNuc],1,6)
 end if
 
 return

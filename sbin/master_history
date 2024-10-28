@@ -51,4 +51,4 @@ for MR in sorted(MR_list, key=lambda i: get_stamp(i['merged_at']))[::-1]:
     date = '?'
   else:
     date = get_stamp(MR['merged_at']).strftime('%Y-%m-%d %H:%M')
-  print('!{:<4} {:7.7} ({}) {}'.format(MR['iid'], sha, date, MR['title']))
+  print('!{:<4} {:8.8} ({}) {}'.format(MR['iid'], sha, date, MR['title']))

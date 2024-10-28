@@ -32,18 +32,17 @@ implicit none
 #include "int_interface.fh"
 #include "print.fh"
 integer(kind=iwp) :: iComp, iDCRT(0:7), ipArr, ipRes, iPrint, ipS1, ipS2, iRout, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nComp_, &
-                     nDCRT, nip, nOp, nRys, nStabO
+                     nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
 
 #include "macros.fh"
+unused_var(nHer)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
 iRout = 230
 iPrint = nPrint(iRout)
-
-nRys = nHer
 
 if (iPrint >= 99) then
   call RecPrt(' In DMSInt: Alpha',' ',Alpha,nAlpha,1)
@@ -83,11 +82,11 @@ do lDCRT=0,nDCRT-1
   ! Compute contribution from a,b+1
 
   nComp_ = 1
-  call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp_,la,lb+1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp-1)
+  call EFPrm(Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp_,la,lb+1,A,RB,Array(ipArr),mArr,TC,nOrdOp-1)
 
   ! Compute contribution from a,b
 
-  call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp_,la,lb,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp-1)
+  call EFPrm(Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp_,la,lb,A,RB,Array(ipArr),mArr,TC,nOrdOp-1)
 
   ! Assemble final integral from the derivative integrals
 

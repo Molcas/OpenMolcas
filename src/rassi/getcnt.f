@@ -11,7 +11,6 @@
       Subroutine GetCnt(NGROUP,IGROUP,NATOMS,ATLBL)
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
       Dimension IGROUP(8)
       Character*(LENIN) ATLBL(*)
 C Purpose: Read data from ONEINT

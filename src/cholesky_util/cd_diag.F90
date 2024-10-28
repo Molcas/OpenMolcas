@@ -33,11 +33,12 @@ subroutine CD_Diag(CD_Vec,Restart,Converged,Thr,ThrNeg,ThrFail,DiaInp,Diag,Buf,n
 !
 ! CD_Vec : external routine for vectors
 
+use Cho_interfaces, only: cdvec_kernel
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-external :: CD_Vec
+procedure(cdvec_kernel) :: CD_Vec
 logical(kind=iwp), intent(in) :: Restart
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp), intent(in) :: nDim, lBuf, NumCho

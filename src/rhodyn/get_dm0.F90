@@ -267,7 +267,7 @@ if (p_style == 'FROMFILE') then
   call mma_deallocate(temp_dm)
 end if
 
-if (allocated(DM0_bas)) call mma_deallocate(DM0_bas)
+call mma_deallocate(DM0_bas,safe='*')
 
 ! Printout the initial density matrix to SDPREP in CSF basis
 ! not CM case

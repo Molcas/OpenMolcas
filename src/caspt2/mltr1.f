@@ -12,10 +12,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given
@@ -39,12 +39,11 @@ CSVC: determine outer loop properties
         ILST1_IOFF=MYRANK+1
         ILST1_SKIP=NPROCS
       ELSE
+#endif
         ILST1_IOFF=1
         ILST1_SKIP=1
+#ifdef _MOLCAS_MPP_
       ENDIF
-#else
-      ILST1_IOFF=1
-      ILST1_SKIP=1
 #endif
 
       IF(IMLTOP.EQ.0) THEN
@@ -104,90 +103,15 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 
       RETURN
       END
-      SUBROUTINE PMLTR1 (KOD,IMLTOP,LST1,
-     &                   lg_X,NAS1,NIS1,JXOFF,
-     &                   F,NFI,NFJ,
-     &                   lg_Y,NAS2,NIS2)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
-      DIMENSION F(NFI,NFJ)
-      DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
-
-#ifdef _MOLCAS_MPP_
-C SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
-C The boundaries and leading dimension are stored in a common block for
-C access inside the lower-level routines.
-C For now, only case H is handled as a distributed array, which is
-C always the Y array.
-      IF (Is_Real_Par()) THEN
-        CALL GA_Sync()
-        myRank = GA_NodeID()
-*     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
-*     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
-*       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
-*     END IF
-        CALL GA_Distribution (lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
-        IF (iYLo.NE.0.AND.jYLo.NE.0) THEN
-          CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
-          IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-            CALL MLTR1_EH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                  F,NFI,NFJ,
-     &                  DBL_MB(mY),NAS2,jYLo,jYHi)
-          ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-            CALL MLTR1_GH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                  F,NFI,NFJ,
-     &                  DBL_MB(mY),NAS2,jYLo,jYHi)
-          END IF
-          CALL GA_Release_Update (lg_Y,iYLo,iYHi,jYLo,jYHi)
-        END IF
-        CALL GA_Sync()
-      ELSE
-        IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-          CALL MLTR1_EH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                  F,NFI,NFJ,
-     &                  WORK(lg_Y),NAS2,1,NIS2)
-        ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-          CALL MLTR1_GH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                  F,NFI,NFJ,
-     &                  WORK(lg_Y),NAS2,1,NIS2)
-        END IF
-      END IF
-#else
-      IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-        CALL MLTR1_EH(IMLTOP,LST1,
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                F,NFI,NFJ,
-     &                WORK(lg_Y),NAS2,1,NIS2)
-      ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-        CALL MLTR1_GH(IMLTOP,LST1,
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                F,NFI,NFJ,
-     &                WORK(lg_Y),NAS2,1,NIS2)
-      END IF
-#endif
-      RETURN
-      END
 
       SUBROUTINE MLTR1_EH (IMLTOP,LST1,
      &                     X,NAS1,NIS1,JXOFF,
      &                     F,NFT,NFA,
      &                     Y,NAS2,jYLo,jYHi)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(NAS1,NIS1),F(NFT,NFA),Y(NAS2,jYHi-jYLo+1)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C this routine is adapted to use chunks of a distributed array (lg_Y)
 C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
@@ -249,10 +173,10 @@ C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
      &                     X,NAS1,NIS1,JXOFF,
      &                     F,NFT,NFI,
      &                     Y,NAS2,jYLo,jYHi)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(NAS1,NIS1),F(NFT,NFI),Y(NAS2,jYHi-jYLo+1)
       DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
 
 C this routine is adapted to use chunks of a distributed array (lg_Y)
 C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
@@ -317,3 +241,71 @@ C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 
       RETURN
       END
+
+      SUBROUTINE PMLTR1 (KOD,IMLTOP,LST1,
+     &                   X,NAS1,NIS1,JXOFF,
+     &                   F,NFI,NFJ,
+     &                   lg_Y,NAS2,NIS2)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
+      use Sigma_data
+      use fake_GA, only: GA_Arrays
+      IMPLICIT REAL*8 (A-H,O-Z)
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
+      INTEGER KOD, IMLTOP
+      INTEGER LST1(4,NLST1)
+      REAL*8 X(*)
+      INTEGER NAS1,NIS1,JXOFF, NFI,NFJ, lg_Y, NAS2, NIS2
+      REAL*8 F(NFI,NFJ)
+
+#ifdef _MOLCAS_MPP_
+C SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
+C The boundaries and leading dimension are stored in a common block for
+C access inside the lower-level routines.
+C For now, only case H is handled as a distributed array, which is
+C always the Y array.
+      IF (Is_Real_Par()) THEN
+        CALL GA_Sync()
+        myRank = GA_NodeID()
+*     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
+*     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
+*       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
+*     END IF
+        CALL GA_Distribution (lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
+        IF (iYLo.NE.0.AND.jYLo.NE.0) THEN
+          CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
+          IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
+            CALL MLTR1_EH(IMLTOP,LST1,
+     &                  X,NAS1,NIS1,JXOFF,
+     &                  F,NFI,NFJ,
+     &                  DBL_MB(mY),NAS2,jYLo,jYHi)
+          ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
+            CALL MLTR1_GH(IMLTOP,LST1,
+     &                  X,NAS1,NIS1,JXOFF,
+     &                  F,NFI,NFJ,
+     &                  DBL_MB(mY),NAS2,jYLo,jYHi)
+          END IF
+          CALL GA_Release_Update (lg_Y,iYLo,iYHi,jYLo,jYHi)
+        END IF
+        CALL GA_Sync()
+      ELSE
+#endif
+        IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
+          CALL MLTR1_EH(IMLTOP,LST1,
+     &                  X,NAS1,NIS1,JXOFF,
+     &                  F,NFI,NFJ,
+     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
+        ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
+          CALL MLTR1_GH(IMLTOP,LST1,
+     &                  X,NAS1,NIS1,JXOFF,
+     &                  F,NFI,NFJ,
+     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
+        END IF
+#ifdef _MOLCAS_MPP_
+      END IF
+#endif
+      END SUBROUTINE PMLTR1

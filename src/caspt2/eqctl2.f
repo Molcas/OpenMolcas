@@ -17,9 +17,11 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: nStpGrd, do_grad, iStpGrd
+      use caspt2_global, only: iPrGlb
+      use caspt2_global, only: nStpGrd, do_grad, iStpGrd
       use PrintLevel, only: insane, usual, verbose
+      use EQSOLV
+      use ChoCASPT2
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -29,14 +31,9 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "SysDef.fh"
-#include "chocaspt2.fh"
 
-      INTEGER Cho_X_GetTol
-      EXTERNAL Cho_X_GetTol
+      INTEGER, EXTERNAL :: Cho_X_GetTol
 
 
       If (iStpGrd.EQ.1) Then
@@ -49,7 +46,7 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 C Compute S and (possibly) B matrices and write them on LUSBT
 C this uses previously stored data on LUSOLV!!
 CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
-        CALL GASync
+        CALL GASync()
         CALL TIMING(CPU0,CPU,TIO0,TIO)
 * PAM14 Necessary to reset NINDEP to conservative estimate. It gets its
 * final value after SBDIAG call, but must have its original value when
@@ -61,26 +58,26 @@ CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
          END DO
         END DO
         IF(SMATRIX.NE.'NO      ') THEN
-          CALL MKSMAT
-          CALL MKBMAT
+          CALL MKSMAT()
+          CALL MKBMAT()
         END IF
 C Modify B matrices, if necessary:
         IF(HZERO.EQ.'CUSTOM') THEN
-          CALL NEWB
+          CALL NEWB()
         END IF
-        CALL GASync
+        CALL GASync()
         CALL TIMING(CPU1,CPU,TIO1,TIO)
         CPUSBM=CPU1-CPU0
         TIOSBM=TIO1-TIO0
 
 C Linear dependence removal, ON transformation of S matrix,
 C and spectral resolution of H0:
-        CALL GASync
+        CALL GASync()
         CALL TIMING(CPU0,CPU,TIO0,TIO)
         IF(SDECOM.NE.'NO      ') THEN
-          CALL SBDIAG
+          CALL SBDIAG()
         END IF
-        CALL GASync
+        CALL GASync()
         CALL TIMING(CPU1,CPU,TIO1,TIO)
         CPUEIG=CPU1-CPU0
         TIOEIG=TIO1-TIO0
@@ -105,18 +102,18 @@ C However, if only BMATRIX is 'YES     ', then the values
 C are the diagonal values of B divided by diagonal values
 C of S.
 
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 C Non-active part of diagonal elements of H0 are computed
 C and written to LUSBT:
-      CALL NADIAG
+      CALL NADIAG()
 C Modify diagonal elements, if requested:
       IF(HZERO.EQ.'CUSTOM') THEN
-        CALL NEWDIA
+        CALL NEWDIA()
       END IF
 C A second set of energy parameters may now have been
 C computed and written to LUSBT.
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUNAD=CPU1-CPU0
       TIONAD=TIO1-TIO0
@@ -134,10 +131,10 @@ C computed and written to LUSBT.
       IVECC2=5
       IVECW =6
 
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 C-SVC: initialize the RHS array offsets
-      CALL RHS_INIT
+      CALL RHS_INIT()
 C at this point LUSOLV is not used as a temporary disk anymore, so it's
 C safe to initialize it (safe to write zeros to LUSOLV or delete it)
 
@@ -156,7 +153,7 @@ C Set up right-hand side matrix elements.
       ELSE
         CALL MKRHS(IVECW)
       END IF
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPURHS=CPU1-CPU0
       TIORHS=TIO1-TIO0
@@ -169,7 +166,7 @@ C Set up right-hand side matrix elements.
       END IF
 
 C-SVC: start PCG routine, set timers.
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
       CPUSCA=0
       CPULCS=0
@@ -202,7 +199,7 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
       CALL PTRTOC(1,IVECX,IVECC2)
 
 C-SVC: end of PCG routine, compute total time.
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUPCG=CPU1-CPU0
       TIOPCG=TIO1-TIO0
@@ -210,13 +207,13 @@ C-SVC: end of PCG routine, compute total time.
 C-SVC: collect and print information on coefficients/denominators
       if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
         IF(IPRGLB.GE.USUAL) THEN
-          CALL H0SPCT
+          CALL H0SPCT()
         END IF
       end if
 
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
-      CALL GASync
+      CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUSER=CPU1-CPU0
       TIOSER=TIO1-TIO0

@@ -18,6 +18,7 @@
 ************************************************************************
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
       Use Cholesky, only: timings
+      use ChoCASPT2
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
       Character(Len=180) KWord, Key, Get_Ln
@@ -25,9 +26,6 @@
       Logical  DFonly
       character(len=16) SECNAM
       parameter (SECNAM = 'CHO_CASPT2_RDINP')
-*
-#include "chocaspt2.fh"
-
 *
       iRout=1
       iPrint=nPrint(iRout)

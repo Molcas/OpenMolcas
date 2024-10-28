@@ -17,38 +17,45 @@
       use rassi_global_arrays, only: SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI, JBNUM
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
 
+      Integer NSS, NZ
       REAL*8 USOR(NSS,NSS), USOI(NSS,NSS)
+      ! Array for calculation of amplitudes
+      Real*8 DYSAMPS(NSTATE,NSTATE)
+      ! Arrays for orbital export
+      Real*8 SOENE(NSS)
+
       ! Arrays, bounds, and indices
-      INTEGER   MSPROJS
       REAL*8    MSPROJI,MSPROJJ
-      INTEGER   SOTOT,SFTOT,SO2SFNUM
-      INTEGER   NZ,LSZZ,ORBNUM
+      INTEGER   SOTOT,SFTOT
+      INTEGER   ORBNUM
       INTEGER   SODYSCIND
       INTEGER   SFI,SFJ,ZI,ZJ,NSZZ,NDUM
 
       ! Arrays for calculation of amplitudes
-      DIMENSION DYSAMPS(NSTATE,NSTATE)
-      DIMENSION SODYSCOFSR(NZ),SODYSCOFSI(NZ)
-      DIMENSION SZZFULL(NZ,NZ)
+      Real*8 SODYSCOFSR(NZ),SODYSCOFSI(NZ)
+      Real*8 SZZFULL(NZ,NZ)
 
       ! Arrays for orbital export
-      DIMENSION SODYSCMOR(NZ*NSS)
-      DIMENSION SODYSCMOI(NZ*NSS)
-      DIMENSION SOENE(NSS)
-      DIMENSION DYSEN(NSS)
-      DIMENSION AMPS(NSS)
-      Character*30 Filename
-      Character*80 TITLE
+      Real*8 SODYSCMOR(NZ*NSS)
+      Real*8 SODYSCMOI(NZ*NSS)
+      Real*8 DYSEN(NSS)
+      Real*8 AMPS(NSS)
+      Character(LEN=30) Filename
+      Character(LEN=80) TITLE
       character(len=8) :: Label
+
+
+      Integer, Allocatable:: SO2SF(:)
+      Real*8, Allocatable:: MSPROJS(:), SZZ(:)
 
 ! +++ J.Norell 2018
 
@@ -67,14 +74,12 @@ C    are correctly calculated for these states.
 
 ! ****************************************************************
 
-C Setup SO2SFNUM list which contains the original SF state numbers
+C Setup SO2SF list which contains the original SF state numbers
 C as a function of the SO state number
 C And MSPROJS which saves their ms projections for later use
 
-      SO2SFNUM=0
-      CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
-      MSPROJS=0
-      CALL GETMEM('MSPROJS','ALLO','REAL',MSPROJS,NSS)
+      CALL mma_allocate(SO2SF,NSS,Label='SO2SF')
+      CALL mma_allocate(MSPROJS,NSS,Label='MSPROJS')
       SOTOT=0
       SFTOT=0
       DO ISTATE=1,NSTATE
@@ -84,8 +89,8 @@ C And MSPROJS which saves their ms projections for later use
 
        DO MSPROJ=-MPLET1+1,MPLET1-1,2
         SOTOT=SOTOT+1
-        IWORK(SO2SFNUM+SOTOT-1)=SFTOT
-        WORK(MSPROJS+SOTOT-1)=MSPROJ
+        SO2SF(SOTOT)=SFTOT
+        MSPROJS(SOTOT)=MSPROJ
 
        END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
       END DO ! DO ISTATE=1,NSTATE
@@ -98,8 +103,8 @@ C (initially all real, therefore put into SODYSAMPSR)
       SODYSAMPSI(:,:)=0.0D0
       DO JSTATE=1,NSS
          DO ISTATE=JSTATE+1,NSS
-          SFJ=IWORK(SO2SFNUM+JSTATE-1)
-          SFI=IWORK(SO2SFNUM+ISTATE-1)
+          SFJ=SO2SF(JSTATE)
+          SFI=SO2SF(ISTATE)
           SODYSAMPSR(JSTATE,ISTATE)=DYSAMPS(SFJ,SFI)
           SODYSAMPSR(ISTATE,JSTATE)=DYSAMPS(SFJ,SFI)
          END DO
@@ -138,13 +143,13 @@ C Compute the magnitude of the complex amplitudes as an approximation
         NSSQ=MAX(NSSQ,NB**2)
         NPROD=MAX(NPROD,NO*NB)
       END DO
-      CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NSZZ)
+      CALL mma_allocate(SZZ,NSZZ,Label='SZZ')
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       Label='MLTPL  0'
-      CALL RDONE(IRC,IOPT,Label,ICMP,WORK(LSZZ),ISYLAB)
+      CALL RDONE(IRC,IOPT,Label,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE SODYSORB ***'
@@ -156,20 +161,20 @@ C Compute the magnitude of the complex amplitudes as an approximation
 ! SZZ is originally given in symmetry-blocked triangular form,
 ! lets make it a full matrix for convenience
       SZZFULL=0.0D0
-      NDUM=0
+      NDUM=1
       NOFF=0
       DO ISY=1,NSYM
        NB=NBASF(ISY)
        DO ZJ=1,NB
         DO ZI=1,ZJ
-         SZZFULL(ZJ+NOFF,ZI+NOFF)=WORK(LSZZ+NDUM)
-         SZZFULL(ZI+NOFF,ZJ+NOFF)=WORK(LSZZ+NDUM)
+         SZZFULL(ZJ+NOFF,ZI+NOFF)=SZZ(NDUM)
+         SZZFULL(ZI+NOFF,ZJ+NOFF)=SZZ(NDUM)
          NDUM=NDUM+1
         END DO
        END DO
        NOFF=NOFF+NB
       END DO
-      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NSZZ)
+      CALL mma_deallocate(SZZ)
 
 ! ****************************************************************
 
@@ -208,7 +213,7 @@ C SO Dyson orbitals
            CJR=USOR(JEIG,JSTATE)
            CJI=USOI(JEIG,JSTATE)
            ! Find the corresponding SF states
-           SFJ=IWORK(SO2SFNUM+JEIG-1)
+           SFJ=SO2SF(JEIG)
 
            DO IEIG=1,NSS
 
@@ -216,11 +221,11 @@ C SO Dyson orbitals
             CIR=USOR(IEIG,ISTATE)
             CII=USOI(IEIG,ISTATE)
             ! Find the corresponding SF states
-            SFI=IWORK(SO2SFNUM+IEIG-1)
+            SFI=SO2SF(IEIG)
 
             ! Check change in ms projection
-            MSPROJJ=WORK(MSPROJS+JEIG-1)
-            MSPROJI=WORK(MSPROJS+IEIG-1)
+            MSPROJJ=MSPROJS(JEIG)
+            MSPROJI=MSPROJS(IEIG)
             ! Check |delta ms|=0.5 selection rule
             IF(ABS(MSPROJJ-MSPROJI).NE.1) THEN
              CYCLE
@@ -304,7 +309,7 @@ C SO Dyson orbitals
 
 C Free all the allocated memory
 
-      CALL GETMEM('SO2SF','FREE','INTE',SO2SFNUM,NSS)
-      CALL GETMEM('MSPROJS','FREE','REAL',MSPROJS,NSS)
+      Call mma_deallocate(SO2SF)
+      Call mma_deallocate(MSPROJS)
 
       END SUBROUTINE SODYSORB

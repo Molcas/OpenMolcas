@@ -11,12 +11,12 @@
        Subroutine rhs_sa(Fock,SLag)
        use Arrays, only: Int1
        use ipPage, only: W
+       use stdalloc, only: mma_allocate, mma_deallocate
        use Constants, only: Zero, One, Two, Half, Quart
        Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"

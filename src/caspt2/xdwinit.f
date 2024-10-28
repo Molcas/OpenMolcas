@@ -14,18 +14,18 @@
       subroutine xdwinit(Heff,H0,U0)
 
       use definitions, only: wp, iwp, u6
-      use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_grad
-      use caspt2_data, only: CMO, CMO_Internal
+      use caspt2_global, only: iPrGlb
+      use caspt2_global, only: do_grad
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
+      use caspt2_global, only: FIFA, DREF
+      use caspt2_global, only: LUONEM
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
 
       implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
       Real(kind=wp),intent(inout) :: Heff(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: H0(Nstate,Nstate)
@@ -33,13 +33,15 @@
 
       Real(kind=wp) :: wgt,FIJ
 
-      Integer(kind=iwp) :: LCIRef,LCIXMS,LDAVE,iState,iDisk,I,J
+      Integer(kind=iwp) :: iState,iDisk,I,J
+      Real(kind=wp), allocatable:: CI(:), DAVE(:), CIRef(:,:),
+     &                              CIXMS(:)
 
 
 * Allocate memory for CI array state averaged 1-RDM
-      call getmem('LCI','ALLO','REAL',LCI,NCONF)
-      call getmem('LDAVE','ALLO','REAL',LDAVE,NDREF)
-      call dcopy_(NDREF,[0.0_wp],0,WORK(LDAVE),1)
+      call mma_allocATE(CI,NCONF,Label='CI')
+      call mma_allocate(DAVE,SIZE(DREF),Label='DAVE')
+      DAVE(:)=0.0_wp
 
 * Set the weight for the density averaging
       wgt = 1.0_wp/real(Nstate,kind=wp)
@@ -49,36 +51,36 @@
 
         if (ISCF.NE.0) then
 * Special case for a single Slater determinant
-          WORK(LCI)=1.0_wp
+          CI(1)=1.0_wp
         else
 * Get the CI array
-          call loadCI(WORK(LCI), Istate)
+          call loadCI(CI, Istate)
         end if
 
 * Compute 1-particle active density matrix GAMMA1
-        call POLY1(WORK(LCI))
+        call POLY1(CI,nConf)
 
 * Restructure GAMMA1 as DREF array
-        call GETDREF(WORK(LDREF))
+        call GETDREF(DREF,SIZE(DREF))
 
 * Average the density
-        call DAXPY_(NDREF,wgt,WORK(LDREF),1,WORK(LDAVE),1)
+        call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
 
       end do
 
       if (IPRGLB.GE.INSANE) then
         write(u6,*)' State-average 1-RDM'
         do I=1,NASHT
-          write(u6,'(1x,14f10.6)')(WORK(LDAVE+(I*(I-1))/2+J-1),J=1,I)
+          write(u6,'(1x,14f10.6)')(DAVE((I*(I-1))/2+J),J=1,I)
         end do
         write(u6,*)
       end if
 
-* Copy the state-average 1-RDM into LDREF and release memory
-* for both the CI array and LDAVE
-      call dcopy_(NDREF,WORK(LDAVE),1,WORK(LDREF),1)
-      call getmem('LCI','FREE','REAL',LCI,NCONF)
-      call getmem('LDAVE','FREE','REAL',LDAVE,NDREF)
+* Copy the state-average 1-RDM into DREF and release memory
+* for both the CI array and DAVE
+      DREF(:)=DAVE(:)
+      call mma_deallocate(CI)
+      call mma_deallocate(DAVE)
 
 * Load CASSCF MO coefficients
       call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
@@ -92,7 +94,7 @@
         call INTCTL2(.false.)
       else
 * INTCTL1 uses TRAONE and FOCK_RPT2 to get the matrices in MO basis.
-        call INTCTL1(CMO)
+        call INTCTL1(CMO,SIZE(CMO))
       end if
 
 * Loop again over all states to compute H0 in the model space
@@ -102,7 +104,7 @@
         do I=1,Nstate
 * Compute matrix element <I|F|J> and store it into H0
           FIJ = 0.0_wp
-          call FOPAB(WORK(LFIFA),I,J,FIJ)
+          call FOPAB(FIFA,SIZE(FIFA),I,J,FIJ)
           H0(I,J) = FIJ
         end do
       end do
@@ -144,38 +146,39 @@
           write(u6,*)
         end if
 
-      call getmem('CIREF','ALLO','REAL',LCIref,Nstate*Nconf)
+      call mma_allocate(CIref,nConf,Nstate,Label='CIRef')
 * Load the CI arrays into memory
       do I=1,Nstate
-        call loadCI(WORK(LCIref+Nconf*(I-1)),I)
+        call loadCI(CIref(:,I),I)
       end do
 
-      call getmem('CIXMS','ALLO','REAL',LCIXMS,Nconf)
+      call mma_allocate(CIXMS,Nconf,Label='CIXMS')
       do J=1,Nstate
 * Transform the states
         call dgemm_('N','N',Nconf,1,Nstate,
-     &              1.0_wp,WORK(LCIREF),Nconf,U0(:,J),Nstate,
-     &              0.0_wp,WORK(LCIXMS),Nconf)
+     &              1.0_wp,CIREF,Nconf,U0(:,J),Nstate,
+     &              0.0_wp,CIXMS,Nconf)
 
 * Write the rotated CI coefficients back into LUCIEX and REPLACE the
 * original unrotated CASSCF states. Note that the original states
 * are still available in the JobIph file
-        call writeCI(WORK(LCIXMS),J)
+        call writeCI(CIXMS,J)
 
         if (IPRGLB.ge.VERBOSE) then
           write(u6,'(1x,a,i3)')
      &    ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-          call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
+          call PRWF_CP2(STSYM,NCONF,CIXMS,CITHR)
         end if
       end do
 C
-      If (do_grad) call dcopy_(NCMO,CMO,1,WORK(LCMOPT2),1)
+      If (do_grad) call dcopy_(NCMO,CMO,1,CMOPT2,1)
+      If (do_grad) CMOPT2(:)=CMO(:)
 
 * Release all memory
-      call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)
-      call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
+      call mma_deallocate(CIRef)
+      call mma_deallocate(CIXMS)
       call mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 
       end subroutine xdwinit
 

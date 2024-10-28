@@ -27,13 +27,14 @@ integer(kind=iwp), intent(out) :: INDS(NBITM2+2,NCHN2)
 real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BFACBD(*)
 integer(kind=iwp), intent(in) :: ISAB(*)
 #include "tratoc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
                      INS, INSB, INSOUT, INUMB, IOUT, IPOS, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, M1, M2, &
                      M3, M4, N1, N2, N3, N4, NA, NAC, NB, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, NOS, &
                      NOVM, NOVST, NSAC, NSACL, NSC, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, NVT, NX, &
                      NXM
 real(kind=wp) :: FINI
+
+#include "warnings.h"
 
 NVT = IROW(NVIRT+1)
 NOVST = LN*NVIRT+1

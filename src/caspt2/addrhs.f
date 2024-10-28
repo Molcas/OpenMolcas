@@ -12,10 +12,9 @@
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION TJVX(NT,NJ,NV,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -87,7 +86,7 @@ C Read W:
       END IF
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_A,iCASE,iSYM,iVEC)
-      CALL RHS_FREE(NAS,NIS,lg_A)
+      CALL RHS_FREE(lg_A)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -100,10 +99,9 @@ C Put W on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 Case B:
 * t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
 * t>v j=l WP(tv,jl)=add ((tj,vl))*(1/2)*(SQRT(2))
@@ -217,7 +215,7 @@ C Read WP:
        END IF
 C Put WBP on disk:
        CALL RHS_SAVE (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE(NASP,NISP,lg_BP)
+       CALL RHS_FREE(lg_BP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -275,7 +273,7 @@ C Read WM:
        END IF
 C Put WBM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_BM,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASM,NISM,lg_BM)
+       CALL RHS_FREE (lg_BM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -289,10 +287,9 @@ C Put WBM on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION AUVX(NA,NU,NV,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -366,7 +363,7 @@ C Read W:
       END IF
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_C,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NIS,lg_C)
+      CALL RHS_FREE (lg_C)
 
 *                                                                      *
 ************************************************************************
@@ -380,10 +377,9 @@ C Put W on disk:
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION AJVX(NV,NX,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -494,7 +490,7 @@ C Read W:
 
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NIS,lg_D)
+      CALL RHS_FREE (lg_D)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -507,10 +503,9 @@ C Put W on disk:
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION AUVL(NA,NU,NV,NL)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -597,7 +592,7 @@ C Read W:
 *
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NIS,lg_D)
+      CALL RHS_FREE (lg_D)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -610,10 +605,9 @@ C Put W on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       DIMENSION AJVL(NV,NL,*)
       DIMENSION Buff(nBuff)
@@ -737,7 +731,7 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
        ENDDO
 
       CALL RHS_SAVE (NAS,NISP,lg_EP,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NISP,lg_EP)
+      CALL RHS_FREE (lg_EP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -807,7 +801,7 @@ C Read WM:
        ENDDO
 
       CALL RHS_SAVE (NAS,NISM,lg_EM,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NAS,NISM,lg_EM)
+      CALL RHS_FREE (lg_EM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -821,10 +815,9 @@ C Read WM:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION AUCX(NA,NU,NC,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -932,7 +925,7 @@ C Read WP:
          CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
        END IF
        CALL RHS_SAVE (NASP,NISP,lg_FP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASP,NISP,lg_FP)
+       CALL RHS_FREE (lg_FP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -991,7 +984,7 @@ C Read WM:
        END IF
 C Put WFM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASM,NISM,lg_FM)
+       CALL RHS_FREE (lg_FM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1005,10 +998,9 @@ C Put WFM on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       DIMENSION AUCL(NA,NU,*)
       DIMENSION Buff(nBuff)
@@ -1141,7 +1133,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
        CALL RHS_SAVE (NAS,NISP,lg_GP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NAS,NISP,lg_GP)
+       CALL RHS_FREE (lg_GP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1231,7 +1223,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
        CALL RHS_SAVE (NAS,NISM,lg_GM,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NAS,NISM,lg_GM)
+       CALL RHS_FREE (lg_GM)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1244,10 +1236,9 @@ C      NBXSZJ=NINABX
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
       DIMENSION AJCL(NC*NL,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -1402,7 +1393,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
        CALL RHS_SAVE (NASP,NISP,lg_HP,iCASE,iSYM,iVEC)
-       CALL RHS_FREE (NASP,NISP,lg_HP)
+       CALL RHS_FREE (lg_HP)
       END IF
 *                                                                      *
 ************************************************************************
@@ -1499,7 +1490,7 @@ C      NBXSZJ=NINABX
        ENDDO
 
       CALL RHS_SAVE (NASM,NISM,lg_HM,iCASE,iSYM,iVEC)
-      CALL RHS_FREE (NASM,NISM,lg_HM)
+      CALL RHS_FREE (lg_HM)
 *                                                                      *
 ************************************************************************
 *                                                                      *

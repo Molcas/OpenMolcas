@@ -23,12 +23,12 @@
 * which estimates the error in the SA.
 *---------------------------------------------------
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Two
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "SysDef.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"
       Real*8 kappa(*)

@@ -17,20 +17,20 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKSMAT()
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only: DREF, PREF
+      use caspt2_global, only: LUSOLV, LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
-#include "stdalloc.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
+      REAL*8, ALLOCATABLE:: G3(:)
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -45,26 +45,24 @@ CSVC: print header for debug info
         END IF
 C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
-        CALL GETMEM('GAMMA3','ALLO','REAL',LG3,NG3)
-        CALL PT2_GET(NG3,'GAMMA3',WORK(LG3))
+        CALL mma_allocate(G3,NG3,Label='G3')
+        CALL PT2_GET(NG3,'GAMMA3',G3)
         CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        CALL MKSA(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),idxG3)
-        CALL MKSC(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),idxG3)
+        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
+        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
 
-        CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
+        CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
-        CALL MKSB(WORK(LDREF),WORK(LPREF))
-        CALL MKSD(WORK(LDREF),WORK(LPREF))
-        CALL MKSE(WORK(LDREF))
-        CALL MKSF(WORK(LPREF))
-        CALL MKSG(WORK(LDREF))
+        CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKSE(DREF,SIZE(DREF))
+        CALL MKSF(PREF,SIZE(PREF))
+        CALL MKSG(DREF,SIZE(DREF))
       END IF
 
 C For completeness, even case H has formally S and B
@@ -83,31 +81,33 @@ C looping, etc in the rest  of the routines.
 
 
       RETURN
-      END
+      END SUBROUTINE MKSMAT
 
 ********************************************************************************
 * Case A (ICASE=1)
 ********************************************************************************
-      SUBROUTINE MKSA(DREF,PREF,NG3,G3,idxG3)
+      SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
       USE SUPERINDEX
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
-      DIMENSION DREF(NDREF),PREF(NPREF),G3(NG3)
+      INTEGER NDREF,NPREF, NG3
+      Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
+#ifdef _MOLCAS_MPP_
+      Real*8 Dummy(1)
+#endif
 
       ICASE=1
 C LONG loop over superindex symmetry.
@@ -138,19 +138,20 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
             CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
             CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,G3,IDXG3)
-            CALL MKSA_DP(DREF,PREF,ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+            CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
+     &                   ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSA_G3_MPP(ISYM,WORK(IP_DUMMY),ILO,IHI,JLO,JHI,LDA,
+            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
-          CALL MKSA_G3(ISYM,WORK(LG_SA),NG3,G3,IDXG3)
-          CALL MKSA_DP(DREF,PREF,ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
+#endif
+          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),NG3,G3,IDXG3)
+          CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
+     &                 ISYM,GA_Arrays(lg_SA)%A(:),1,NAS,1,NAS,0)
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        call MKSA_G3(ISYM,WORK(lg_SA),NG3,G3,idxG3)
-        CALL MKSA_DP(DREF,PREF,ISYM,WORK(lg_SA),1,NAS,1,NAS,0)
 #endif
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SA,NAS)
@@ -160,18 +161,16 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A', ISYM, DSA
         END IF
 
-        CALL PSBMAT_FREEMEM('SA',lg_SA,NAS)
+        CALL PSBMAT_FREEMEM(lg_SA)
       END DO
 
-      END
+      END SUBROUTINE MKSA
 
       SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
       DIMENSION SA(*)
@@ -335,19 +334,17 @@ C  - G(xvzyut) -> SA(yvx,zut)
  500   CONTINUE
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKSA_G3
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,G3,idxG3)
       USE MPI
       USE SUPERINDEX
+      use stdalloc, only: mma_MaxDBLE
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
 #include "global.fh"
@@ -398,7 +395,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       ! The global SA matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
-      CALL GETMEM('MAXMEM','MAX','REAL',IDUMMY,MAXMEM)
+      CALL mma_MaxDBLE(MAXMEM)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -796,23 +793,22 @@ c Avoid unused argument warnings
       END IF
       END FUNCTION
 
-      END
+      END SUBROUTINE MKSA_G3_MPP
 #endif
 
-      SUBROUTINE MKSA_DP (DREF,PREF,iSYM,SA,iLo,iHi,jLo,jHi,LDA)
+      SUBROUTINE MKSA_DP (DREF,NDREF,PREF,NPREF,
+     &                    iSYM,SA,iLo,iHi,jLo,jHi,LDA)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION SA(*)
+      INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 SA(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for SA
@@ -891,31 +887,34 @@ C Add -dyu Gvzxt
           END IF
  101    CONTINUE
  100  CONTINUE
-      END
+
+      END SUBROUTINE MKSA_DP
 
 ********************************************************************************
 * Case C (ICASE=4)
 ********************************************************************************
-      SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3)
-      use caspt2_output, only:iPrGlb
+      SUBROUTINE MKSC(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       USE SUPERINDEX
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
-      DIMENSION DREF(NDREF),PREF(NPREF),G3(NG3)
+      INTEGER NDREF,NPREF, NG3
+      Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
+#ifdef _MOLCAS_MPP_
+      Real*8 Dummy(1)
+#endif
 
       ICASE=4
 C LONG loop over superindex symmetry.
@@ -947,19 +946,20 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
             CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
-            CALL MKSC_DP(DREF,PREF,ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
+            CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
+     &                   ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSC_G3_MPP(ISYM,WORK(IP_DUMMY),ILO,IHI,JLO,JHI,LDC,
+            CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
-          CALL MKSC_G3(ISYM,WORK(LG_SC),NG3,G3,IDXG3)
-          CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
+#endif
+          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),NG3,G3,IDXG3)
+          CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
+     &                 ISYM,GA_Arrays(lg_SC)%A(:),1,NAS,1,NAS,0)
+#ifdef _MOLCAS_MPP_
         END IF
-#else
-        call MKSC_G3(ISYM,WORK(lg_SC),NG3,G3,idxG3)
-        CALL MKSC_DP(DREF,PREF,ISYM,WORK(lg_SC),1,NAS,1,NAS,0)
 #endif
 
         CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SC,NAS)
@@ -969,18 +969,16 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C', ISYM, DSC
         END IF
 
-        CALL PSBMAT_FREEMEM('SC',lg_SC,NAS)
+        CALL PSBMAT_FREEMEM(lg_SC)
       END DO
 
-      END
+      END SUBROUTINE MKSC
 
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
       DIMENSION SC(*)
@@ -1144,19 +1142,17 @@ C  - G(xvzyut) -> SC(zvx,yut)
  500   CONTINUE
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKSC_G3
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,G3,idxG3)
       USE MPI
       USE SUPERINDEX
+      use stdalloc, only: mma_MaxDBLE
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
 #include "global.fh"
@@ -1207,7 +1203,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       ! The global SC matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
-      CALL GETMEM('MAXMEM','MAX','REAL',IDUMMY,MAXMEM)
+      CALL mma_MaxDBLE(MAXMEM)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -1605,23 +1601,22 @@ c Avoid unused argument warnings
       END IF
       END FUNCTION
 
-      END
+      END SUBROUTINE MKSC_G3_MPP
 #endif
 
-      SUBROUTINE MKSC_DP (DREF,PREF,iSYM,SC,iLo,iHi,jLo,jHi,LDC)
+      SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,
+     &                    iSYM,SC,iLo,iHi,jLo,jHi,LDC)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
-
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION SC(*)
+      INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
+      REAL*8 DREF(NDREF),PREF(NPREF)
+      REAL*8 SC(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for this SC block
@@ -1684,24 +1679,25 @@ C Add  dtu Gvxyz + dtu dyx Gvz
           END IF
  101    CONTINUE
  100  CONTINUE
-      END
+      END SUBROUTINE MKSC_DP
 
 ********************************************************************************
 * Case B (ICASE=2,3)
 ********************************************************************************
-      SUBROUTINE MKSB(DREF,PREF)
+      SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
+      INTEGER NDREF,NPREF
+      REAL*8 DREF(NDREF),PREF(NPREF)
 
-      DIMENSION DREF(NDREF),PREF(NPREF)
-
+      REAL*8, ALLOCATABLE:: SB(:), SBP(:), SBM(:)
 C Set up the matrices SBP(tu,xy) and SBM(tu,xy)
 C Formulae used:
 C    SB(tu,xy)=
@@ -1717,9 +1713,7 @@ C Loop over superindex symmetry.
         IF(NINP.EQ.0) GOTO 1000
         NAS=NTU(ISYM)
         NSB=(NAS*(NAS+1))/2
-        IF(NSB.GT.0) THEN
-          CALL GETMEM('SB','ALLO','REAL',LSB,NSB)
-        END IF
+        IF(NSB.GT.0) CALL mma_allocate(SB,NSB,Label='SB')
         DO 100 ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
@@ -1766,19 +1760,15 @@ C Add  -4dxu dyt + 2dxu Dyt
               IF(IYABS.EQ.ITABS) VALUE=VALUE-4.0D00
             END IF
             ISADR=(ITU*(ITU-1))/2+IXY
-            WORK(LSB-1+ISADR)=VALUE
+            SB(ISADR)=VALUE
  101      CONTINUE
  100    CONTINUE
         NASP=NTGEU(ISYM)
         NSBP=(NASP*(NASP+1))/2
-        IF(NSBP.GT.0) THEN
-          CALL GETMEM('SBP','ALLO','REAL',LSBP,NSBP)
-        END IF
+        IF(NSBP.GT.0) CALL mma_allocate(SBP,NSBP,Label='SBP')
         NASM=NTGTU(ISYM)
         NSBM=(NASM*(NASM+1))/2
-        IF(NSBM.GT.0) THEN
-          CALL GETMEM('SBM','ALLO','REAL',LSBM,NSBM)
-        END IF
+        IF(NSBM.GT.0) CALL mma_allocate(SBM,NSBM,Label='SBM')
         DO 200 ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
           ITABS=MTGEU(1,ITGEUABS)
@@ -1795,59 +1785,58 @@ C Add  -4dxu dyt + 2dxu Dyt
             ELSE
               ISADR=(IXY*(IXY-1))/2+ITU
             END IF
-            STUXY=WORK(LSB-1+ISADR)
+            STUXY=SB(ISADR)
             IF(ITU.GE.IYX) THEN
               ISADR=(ITU*(ITU-1))/2+IYX
             ELSE
               ISADR=(IYX*(IYX-1))/2+ITU
             END IF
-            STUYX=WORK(LSB-1+ISADR)
+            STUYX=SB(ISADR)
             ISPADR=(ITGEU*(ITGEU-1))/2+IXGEY
-            WORK(LSBP-1+ISPADR)=STUXY+STUYX
+            SBP(ISPADR)=STUXY+STUYX
             IF(ITABS.EQ.IUABS) GOTO 201
             IF(IXABS.EQ.IYABS) GOTO 201
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             ISMADR=(ITGTU*(ITGTU-1))/2+IXGTY
-            WORK(LSBM-1+ISMADR)=STUXY-STUYX
+            SBM(ISMADR)=STUXY-STUYX
  201      CONTINUE
  200    CONTINUE
-        IF(NSB.GT.0) THEN
-          CALL GETMEM('SB','FREE','REAL',LSB,NSB)
-        END IF
+        IF(NSB.GT.0) CALL mma_deallocate(SB)
 
 C Write to disk, and save size and address.
         IF(NSBP.GT.0) THEN
           IDISK=IDSMAT(ISYM,2)
-          CALL DDAFILE(LUSBT,1,WORK(LSBP),NSBP,IDISK)
-          CALL GETMEM('SBP','FREE','REAL',LSBP,NSBP)
+          CALL DDAFILE(LUSBT,1,SBP,NSBP,IDISK)
+          CALL mma_deallocate(SBP)
         END IF
         IF(NSBM.GT.0) THEN
           IF(NINDEP(ISYM,3).GT.0) THEN
             IDISK=IDSMAT(ISYM,3)
-            CALL DDAFILE(LUSBT,1,WORK(LSBM),NSBM,IDISK)
+            CALL DDAFILE(LUSBT,1,SBM,NSBM,IDISK)
           END IF
-          CALL GETMEM('SBM','FREE','REAL',LSBM,NSBM)
+          CALL mma_deallocate(SBM)
         END IF
  1000 CONTINUE
 
 
       RETURN
-      END
+      END SUBROUTINE MKSB
 
-      SUBROUTINE MKSD(DREF,PREF)
+      SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
       USE SUPERINDEX
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
+      INTEGER NDREF,NPREF
+      REAL*8 DREF(NDREF),PREF(NPREF)
 
-      DIMENSION DREF(NDREF),PREF(NPREF)
-
+      REAL*8, ALLOCATABLE:: SD(:)
 C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
 C    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
@@ -1861,9 +1850,7 @@ C Loop over superindex symmetry.
         IF(NIN.EQ.0) GOTO 1000
         NAS=NTU(ISYM)
         NSD=(2*NAS*(2*NAS+1))/2
-        IF(NSD.GT.0) THEN
-          CALL GETMEM('SD','ALLO','REAL',LSD,NSD)
-        END IF
+        IF(NSD.GT.0) Call mma_allocate(SD,NSD,LABEL='SD')
         DO 100 ITU=1,NAS
         ITU2=ITU+NAS
           ITUABS=ITU+NTUES(ISYM)
@@ -1901,12 +1888,12 @@ C Loop over superindex symmetry.
               S22=S22+2.0D0*DUY
             END IF
 C    SD(tu1,xy1)=2*(Gutxy + dtx Duy)
-            WORK(LSD-1+IS11)= S11
+            SD(IS11)= S11
 C    SD(tu2,xy1)= -(Gutxy + dtx Duy)
-            WORK(LSD-1+IS21)=-0.5D0*S11
-            WORK(LSD-1+IS12)=-0.5D0*S11
+            SD(IS21)=-0.5D0*S11
+            SD(IS12)=-0.5D0*S11
 C    SD(tu2,xy2)= -Gxtuy +2*dtx Duy
-            WORK(LSD-1+IS22)= S22
+            SD(IS22)= S22
  101      CONTINUE
  100    CONTINUE
 
@@ -1914,28 +1901,29 @@ C Write to disk
         IF(NSD.GT.0) THEN
          IF(NINDEP(ISYM,5).GT.0) THEN
           IDISK=IDSMAT(ISYM,5)
-          CALL DDAFILE(LUSBT,1,WORK(LSD),NSD,IDISK)
+          CALL DDAFILE(LUSBT,1,SD,NSD,IDISK)
          END IF
-         CALL GETMEM('SD','FREE','REAL',LSD,NSD)
+         CALL mma_deallocate(SD)
         END IF
  1000 CONTINUE
 
 
       RETURN
-      END
+      END SUBROUTINE MKSD
 
-      SUBROUTINE MKSE(DREF)
+      SUBROUTINE MKSE(DREF,NDREF)
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
+      INTEGER NDREF
+      REAL*8 DREF(NDREF)
 
-      DIMENSION DREF(NDREF)
-
+      REAL*8, ALLOCATABLE:: SE(:)
 C Set up the matrix SE(t,x)
 C Formula used:
 C    SE(t,x)=2*dtx - Dtx
@@ -1948,7 +1936,7 @@ C    SE(t,x)=2*dtx - Dtx
         NINM=NINDEP(ISYM,7)
         NAS=NASH(ISYM)
         NSE=(NAS*(NAS+1))/2
-        IF(NSE.GT.0) CALL GETMEM('SE','ALLO','REAL',LSE,NSE)
+        IF(NSE.GT.0) CALL mma_allocate(SE,NSE,Label='SE')
         DO 100 IT=1,NAS
           ITABS=IT+NAES(ISYM)
           DO 101 IX=1,IT
@@ -1956,9 +1944,9 @@ C    SE(t,x)=2*dtx - Dtx
             ISE=(IT*(IT-1))/2+IX
             ID=(ITABS*(ITABS-1))/2+IXABS
             IF(ITABS.EQ.IXABS) THEN
-              WORK(LSE-1+ISE)=2.0D00-DREF(ID)
+              SE(ISE)=2.0D00-DREF(ID)
             ELSE
-              WORK(LSE-1+ISE)=-DREF(ID)
+              SE(ISE)=-DREF(ID)
             END IF
  101      CONTINUE
  100    CONTINUE
@@ -1966,32 +1954,30 @@ C    SE(t,x)=2*dtx - Dtx
 C Write to disk
         IF(NSE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
           IDISK=IDSMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,1,WORK(LSE),NSE,IDISK)
+          CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
           IF(NINM.GT.0.and.NINDEP(ISYM,7).GT.0) THEN
             IDISK=IDSMAT(ISYM,7)
-            CALL DDAFILE(LUSBT,1,WORK(LSE),NSE,IDISK)
+            CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
           END IF
-          CALL GETMEM('SE','FREE','REAL',LSE,NSE)
+          CALL mma_deallocate(SE)
         END IF
  1000 CONTINUE
 
+      END SUBROUTINE MKSE
 
-      RETURN
-      END
-
-      SUBROUTINE MKSF(PREF)
+      SUBROUTINE MKSF(PREF,NPREF)
       USE SUPERINDEX
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-
 #include "SysDef.fh"
+      INTEGER NPREF
+      REAL*8 PREF(NPREF)
 
-      DIMENSION PREF(NPREF)
-
+      REAL*8, ALLOCATABLE:: SF(:), SFP(:), SFM(:)
 C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
 C Formulae used:
 C    SF(tu,xy)= 4 Ptxuy
@@ -2006,9 +1992,7 @@ C Loop over superindex symmetry.
         IF(NINP.EQ.0) GOTO 1000
         NAS=NTU(ISYM)
         NSF=(NAS*(NAS+1))/2
-        IF(NSF.GT.0) THEN
-          CALL GETMEM('SF','ALLO','REAL',LSF,NSF)
-        END IF
+        IF(NSF.GT.0) CALL mma_allocate(SF,NSF,Label='SF')
         DO 100 ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
@@ -2024,18 +2008,16 @@ C Loop over superindex symmetry.
             IP2=MIN(ITX,IUY)
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=4.0D0*PREF(IP)
-            WORK(LSF-1+ISADR)=VALUE
+            SF(ISADR)=VALUE
  101      CONTINUE
  100    CONTINUE
         NASP=NTGEU(ISYM)
         NSFP=(NASP*(NASP+1))/2
-        IF(NSFP.GT.0) THEN
-          CALL GETMEM('SFP','ALLO','REAL',LSFP,NSFP)
-        END IF
+        IF(NSFP.GT.0) CALL mma_allocate(SFP,NSFP,Label='SFP')
         NASM=NTGTU(ISYM)
         NSFM=(NASM*(NASM+1))/2
         IF(NSFM.GT.0) THEN
-          CALL GETMEM('SFM','ALLO','REAL',LSFM,NSFM)
+          CALL mma_allocate(SFM,NSFM,Label='SFM')
         END IF
         DO 200 ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
@@ -2053,58 +2035,54 @@ C Loop over superindex symmetry.
             ELSE
               ISADR=(IXY*(IXY-1))/2+ITU
             END IF
-            STUXY=WORK(LSF-1+ISADR)
+            STUXY=SF(ISADR)
             IF(ITU.GE.IYX) THEN
               ISADR=(ITU*(ITU-1))/2+IYX
             ELSE
               ISADR=(IYX*(IYX-1))/2+ITU
             END IF
-            STUYX=WORK(LSF-1+ISADR)
+            STUYX=SF(ISADR)
             ISPADR=(ITGEU*(ITGEU-1))/2+IXGEY
-            WORK(LSFP-1+ISPADR)=STUXY+STUYX
+            SFP(ISPADR)=STUXY+STUYX
             IF(ITABS.EQ.IUABS) GOTO 201
             IF(IXABS.EQ.IYABS) GOTO 201
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             ISMADR=(ITGTU*(ITGTU-1))/2+IXGTY
-            WORK(LSFM-1+ISMADR)=STUXY-STUYX
+            SFM(ISMADR)=STUXY-STUYX
  201      CONTINUE
  200    CONTINUE
-        IF(NSF.GT.0) THEN
-          CALL GETMEM('SF','FREE','REAL',LSF,NSF)
-        END IF
+        IF(NSF.GT.0) CALL mma_deallocate(SF)
 
 C Write to disk
         IF(NSFP.GT.0.and.NINDEP(ISYM,8).GT.0) THEN
           IDISK=IDSMAT(ISYM,8)
-          CALL DDAFILE(LUSBT,1,WORK(LSFP),NSFP,IDISK)
-          CALL GETMEM('SFP','FREE','REAL',LSFP,NSFP)
+          CALL DDAFILE(LUSBT,1,SFP,NSFP,IDISK)
+          CALL mma_deallocate(SFP)
         END IF
         IF(NSFM.GT.0) THEN
           IF(NINDEP(ISYM,9).GT.0) THEN
            IDISK=IDSMAT(ISYM,9)
-           CALL DDAFILE(LUSBT,1,WORK(LSFM),NSFM,IDISK)
+           CALL DDAFILE(LUSBT,1,SFM,NSFM,IDISK)
           END IF
-          CALL GETMEM('SFM','FREE','REAL',LSFM,NSFM)
+          CALL mma_deallocate(SFM)
         END IF
  1000 CONTINUE
 
+      END SUBROUTINE MKSF
 
-      RETURN
-      END
-
-      SUBROUTINE MKSG(DREF)
+      SUBROUTINE MKSG(DREF,NDREF)
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-
 #include "SysDef.fh"
+      INTEGER NDREF
+      REAL*8 DREF(NDREF)
 
-      DIMENSION DREF(NDREF)
-
+      REAL*8, ALLOCATABLE:: SG(:)
 C Set up the matrix SG(t,x)
 C Formula used:
 C    SG(t,x)= Dtx
@@ -2116,29 +2094,27 @@ C    SG(t,x)= Dtx
         NINM=NINDEP(ISYM,11)
         NAS=NASH(ISYM)
         NSG=(NAS*(NAS+1))/2
-        IF(NSG.GT.0) CALL GETMEM('SG','ALLO','REAL',LSG,NSG)
+        IF(NSG.GT.0) CALL mma_allocate(SG,NSG,Label='SG')
         DO 100 IT=1,NAS
           ITABS=IT+NAES(ISYM)
           DO 101 IX=1,IT
             IXABS=IX+NAES(ISYM)
             ISG=(IT*(IT-1))/2+IX
             ID=(ITABS*(ITABS-1))/2+IXABS
-            WORK(LSG-1+ISG)= DREF(ID)
+            SG(ISG)= DREF(ID)
  101      CONTINUE
  100    CONTINUE
 
 C Write to disk
         IF(NSG.GT.0.and.NINDEP(ISYM,10).GT.0) THEN
           IDISK=IDSMAT(ISYM,10)
-          CALL DDAFILE(LUSBT,1,WORK(LSG),NSG,IDISK)
+          CALL DDAFILE(LUSBT,1,SG,NSG,IDISK)
           IF(NINM.GT.0.and.NINDEP(ISYM,11).GT.0) THEN
             IDISK=IDSMAT(ISYM,11)
-            CALL DDAFILE(LUSBT,1,WORK(LSG),NSG,IDISK)
+            CALL DDAFILE(LUSBT,1,SG,NSG,IDISK)
           END IF
-          CALL GETMEM('SG','FREE','REAL',LSG,NSG)
+          CALL mma_deallocate(SG)
         END IF
  1000 CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKSG

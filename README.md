@@ -69,14 +69,14 @@ up and running is the following:
 5.  Run the verification suite (failures in "grayzone" tests are expected):
 
     ```
-    pymolcas verify
+    ./pymolcas verify
     ```
 
 For running other calculations you should define the `MOLCAS` environment
-variable to point to the `build` directory. Run `pymolcas --help` to see the
+variable to point to the `build` directory. Run `./pymolcas --help` to see the
 available options of the script. In particular it is recommended to run:
 ```
-pymolcas -setup
+./pymolcas -setup
 ```
 for your first installation.
 

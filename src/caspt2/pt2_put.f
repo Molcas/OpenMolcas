@@ -17,14 +17,15 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
+      use caspt2_global, only: LUDMAT
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION VEC(*)
-      CHARACTER(len=8) LAB1
+      INTEGER NSIZE
       CHARACTER(len=*) LAB
-#include "rasdim.fh"
+      REAL*8 VEC(*)
+
+      CHARACTER(len=8) LAB1
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 
       I=9-LEN(LAB)
       IF(I.GE.1) THEN

@@ -63,6 +63,7 @@ real(kind=wp) :: Ctemp1, Ctemp2, Ctemp3, Ctemp4, Ctemp5, DBlock(5,5), Dxmin(6), 
 logical(kind=iwp) :: NewIq
 real(kind=wp), parameter :: dUnit(6) = [-One,Zero,Zero,-One,Zero,-One], Px(3) = [One,Zero,Zero], Py(3) = [Zero,One,Zero], &
                             Pz(3) = [Zero,Zero,One]
+
 #include "warnings.h"
 
 ! Dgemv multiply the matrix Rot on the vector Px. For details about

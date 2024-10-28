@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TNAI1(Zeta,Eta,P,Q,nT,T,ZEInv,IsChi,ChiI2)
+subroutine TNAI1( &
+#                define _CALLING_
+#                include "tval1_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute entities for the nuclear attraction integrals     *
@@ -29,9 +32,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nT, IsChi
-real(kind=wp), intent(in) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), ChiI2
-real(kind=wp), intent(out) :: T(nT), ZEInv(nT)
+#include "tval1_interface.fh"
 integer(kind=iwp) :: iT
 real(kind=wp) :: PQ2
 

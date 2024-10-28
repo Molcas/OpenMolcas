@@ -8,20 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRAONE(CMO)
+      SUBROUTINE TRAONE(CMO,NCMO)
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
+      use caspt2_global, only: HONE
+      use caspt2_global, only: LUONEM
       use PrintLevel, only: verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-      DIMENSION CMO(NCMO)
-      DIMENSION nBasXX(8),Keep(8)
+      INTEGER NCMO
+      REAL*8 CMO(NCMO)
+
+      INTEGER nBasXX(8),Keep(8)
       Logical iSquar, Found
       character(len=8) :: Label
+      Real*8, allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),
+     &                      WFMO(:), WTMP(:)
 
 c Objective: Transformation of one-electron integrals
 c (effective one electron Hamiltonian) for CASPT2.
@@ -55,7 +59,7 @@ c (effective one electron Hamiltonian) for CASPT2.
         CALL ABEND()
       END IF
 c Allocate FLT,DLT, and DSQ.
-      CALL GETMEM('WFLT','ALLO','REAL',LWFLT,NBTRI)
+      CALL mma_allocate(WFLT,NBTRI,Label='WFLT')
 c Read nuclear repulsion energy:
       IRC=-1
       IOPT=0
@@ -71,7 +75,7 @@ c Read one-electron hamiltonian matrix into FLT.
       ISYLBL=1
       Label='OneHam'
       IF ( IFTEST.NE.0 ) WRITE(6,*)' CALLING RDONE (ONEHAM)'
-      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WFLT,ISYLBL)
       IF ( IFTEST.NE.0 ) WRITE(6,*)' BACK FROM RDONE'
       IF(IRC.NE.0) THEN
         WRITE(6,*)'TRAONE Error: RDONE failed reading OneHam.'
@@ -81,11 +85,11 @@ c Read one-electron hamiltonian matrix into FLT.
       IF ( IFTEST.NE.0 ) THEN
         WRITE(6,*)'     TEST PRINTS FROM TRAONE.'
         WRITE(6,*)'     NAKED 1-EL HAMILTONIAN IN AO BASIS'
-        ISTLT=0
+        ISTLT=1
         DO ISYM=1,NSYM
           IF ( NBAS(ISYM).GT.0 ) THEN
             WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-            CALL TRIPRT(' ',' ',WORK(LWFLT+ISTLT),NBAS(ISYM))
+            CALL TRIPRT(' ',' ',WFLT(ISTLT),NBAS(ISYM))
             ISTLT=ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
           END IF
         END DO
@@ -100,24 +104,24 @@ c the nuclear attraction by the cavity self-energy
          Do iSym=1,nSym
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
-         Call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
+         Call mma_allocate(Temp,nTemp,Label='Temp')
 *
          Call f_Inquire('RUNOLD',Found)
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFSelf)
-         Call Get_dArray('Reaction field',Work(lTemp),nTemp)
+         Call Get_dArray('Reaction field',Temp,nTemp)
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
-         Call Daxpy_(nTemp,1.0D0,Work(lTemp),1,WORK(LWFLT),1)
+         Call Daxpy_(nTemp,1.0D0,Temp,1,WFLT,1)
 *
-         Call GetMem('RFFLD','Free','Real',lTemp,nTemp)
+         Call mma_deallocate(Temp)
          IF ( IFTEST.NE.0 ) THEN
            WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING REACTION FIELD'
-           ISTLT=0
+           ISTLT=1
            DO ISYM=1,NSYM
              IF ( NBAS(ISYM).GT.0 ) THEN
                WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-               CALL TRIPRT(' ',' ',WORK(LWFLT+ISTLT),NBAS(ISYM))
+               CALL TRIPRT(' ',' ',WFLT(ISTLT),NBAS(ISYM))
                ISTLT=ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
              END IF
            END DO
@@ -128,31 +132,31 @@ c the nuclear attraction by the cavity self-energy
       ETWO=0.0d0
 c The following section is needed for frozen orbitals:
       IF(NFROT.EQ.0) GOTO 300
-      CALL GETMEM('WDLT','ALLO','REAL',LWDLT,NBTRI)
-      CALL GETMEM('WDSQ','ALLO','REAL',LWDSQ,NBSQT)
+      CALL mma_allocate(WDLT,NBTRI,LABEL='WDLT')
+      CALL mma_allocate(WDSQ,NBSQT,LABEL='WDSQ')
 c Compute the density matrix of the frozen orbitals
 c The DLT matrix contains the same data as DSQ, but
 c with symmetry blocks in lower triangular format, and
 c with non-diagonal elements doubled.
-      CALL DCOPY_(NBTRI,[0.0D0],0,WORK(LWDLT),1)
-      CALL DCOPY_(NBSQT,[0.0D0],0,WORK(LWDSQ),1)
+      WDLT(:)=0.0D0
+      WDSQ(:)=0.0D0
       ISTMO=1
-      ISTSQ=LWDSQ
-      ISTLT=LWDLT
+      ISTSQ=1
+      ISTLT=1
       DO 100 ISYM=1,NSYM
         NF=NFRO(ISYM)
         NB=NBAS(ISYM)
         IF(NB.EQ.0) GOTO 100
         IF(NF.EQ.0) GOTO 110
         CALL DGEMM_('N','T',NB,NB,NF,2.0D0,CMO(ISTMO),NB,
-     &             CMO(ISTMO),NB,0.0D0,WORK(ISTSQ),NB)
+     &             CMO(ISTMO),NB,0.0D0,WDSQ(ISTSQ),NB)
         IJ=ISTLT-1
         DO 130 IB=1,NB
           DO 140 JB=1,IB
             IJ=IJ+1
-            WORK(IJ)=2.0D0*WORK(ISTSQ+JB-1+(IB-1)*NB)
+            WDLT(IJ)=2.0D0*WDSQ(ISTSQ+JB-1+(IB-1)*NB)
 140       CONTINUE
-          WORK(IJ)=0.5D0*WORK(IJ)
+          WDLT(IJ)=0.5D0*WDLT(IJ)
 130     CONTINUE
 110     CONTINUE
         ISTMO=ISTMO+NB*NB
@@ -163,7 +167,7 @@ c with non-diagonal elements doubled.
 c One-electron contribution to the core energy.
 c Note that FLT still contains only the naked
 c  one-electron hamiltonian.
-      EONE=DDOT_(NBTRI,WORK(LWDLT),1,WORK(LWFLT),1)
+      EONE=DDOT_(NBTRI,WDLT,1,WFLT,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -173,16 +177,16 @@ c  one-electron hamiltonian.
 *
       ExFac=1.0D0
          Call FTwo_Drv(nSym,nBas,nFro,KEEP,
-     &                 WORK(LWDLT),WORK(LWDSQ),WORK(LWFLT),NBTRI,
+     &                 WDLT,WDSQ,WFLT,NBTRI,
      &                 ExFac,nBMX,CMO)
 
 *                                                                      *
 ************************************************************************
 *                                                                      *
 c Compute the two-electron contribution to the core energy
-      ETWO=0.5D0*(DDOT_(NBTRI,WORK(LWDLT),1,WORK(LWFLT),1)-EONE)
-      CALL GETMEM('WDSQ','FREE','REAL',LWDSQ,NBSQT)
-      CALL GETMEM('WDLT','FREE','REAL',LWDLT,NBTRI)
+      ETWO=0.5D0*(DDOT_(NBTRI,WDLT,1,WFLT,1)-EONE)
+      CALL mma_deallocate(WDSQ)
+      CALL mma_deallocate(WDLT)
 c Previous section was bypassed if NFROT.EQ.0.
  300  CONTINUE
       ECORE=POTNUC+EONE+ETWO
@@ -195,29 +199,29 @@ c Previous section was bypassed if NFROT.EQ.0.
 
 c Allocate FMO, TMP:
       NWTMP=2*NBMX**2
-      CALL GETMEM('WFMO','ALLO','REAL',LWFMO,notri)
-      CALL GETMEM('WTMP','ALLO','REAL',LWTMP,NWTMP)
+      CALL mma_allocate(WFMO,notri,LABEL='WFMO')
+      CALL mma_allocate(WTMP,NWTMP,LABEL='WTMP')
 
 c Transform one-electron effective Hamiltonian:
-      CALL DCOPY_(notri,[0.0D0],0,WORK(LWFMO),1)
-      CALL DCOPY_(NWTMP,[0.0D0],0,WORK(LWTMP),1)
+      WFMO(:)=0.0D0
+      WTMP(:)=0.0D0
       ICMO=1
-      IAO =LWFLT
-      IMO =LWFMO
+      IAO =1
+      IMO =1
       DO 200 ISYM=1,NSYM
          ICMO=ICMO+NBAS(ISYM)*NFRO(ISYM)
-         IOFF=LWTMP+NBAS(ISYM)*NBAS(ISYM)
+         IOFF=1+NBAS(ISYM)*NBAS(ISYM)
          IF(NORB(ISYM).GT.0) THEN
-           CALL SQUARE(WORK(IAO),WORK(LWTMP),1,NBAS(ISYM),NBAS(ISYM))
+           CALL SQUARE(WFLT(IAO),WTMP,1,NBAS(ISYM),NBAS(ISYM))
 
            CALL DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),
-     &                  1.0d0,CMO(ICMO),NBAS(ISYM),WORK(LWTMP),
-     &                  NBAS(ISYM),0.0d0,WORK(IOFF),NORB(ISYM))
+     &                  1.0d0,CMO(ICMO),NBAS(ISYM),WTMP,
+     &                  NBAS(ISYM),0.0d0,WTMP(IOFF),NORB(ISYM))
 
            Call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),
-     &                    1.0D0,WORK(IOFF),NORB(ISYM),
+     &                    1.0D0,WTMP(IOFF),NORB(ISYM),
      &                          CMO(ICMO),NBAS(ISYM),
-     &                    0.0D0,WORK(IMO),NORB(ISYM))
+     &                    0.0D0,WFMO(IMO),NORB(ISYM))
          END IF
          ICMO=ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))
          IAO =IAO +NBAS(ISYM)*(NBAS(ISYM)+1)/2
@@ -226,24 +230,22 @@ c Transform one-electron effective Hamiltonian:
 
       IF ( IFTEST.NE.0 ) THEN
         WRITE(6,*)'      EFFECTIVE 1-EL HAMILTONIAN IN MO BASIS'
-        ISTLT=0
+        ISTLT=1
         DO ISYM=1,NSYM
           IF ( NORB(ISYM).GT.0 ) THEN
             WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-            CALL TRIPRT(' ',' ',WORK(LWFMO+ISTLT),NORB(ISYM))
+            CALL TRIPRT(' ',' ',WFMO(ISTLT),NORB(ISYM))
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
         END DO
       END IF
       IDISK=IEOF1M
       IAD1M(3)=IDISK
-      CALL DDAFILE(LUONEM,1,WORK(LWFMO),notri,IDISK)
+      CALL DDAFILE(LUONEM,1,WFMO,notri,IDISK)
       IEOF1M=IDISK
-      CALL DCOPY_(NOTRI,WORK(LWFMO),1,WORK(LHONE),1)
-      CALL GETMEM('WTMP','FREE','REAL',LWTMP,NWTMP)
-      CALL GETMEM('WFMO','FREE','REAL',LWFMO,notri)
-      CALL GETMEM('WFLT','FREE','REAL',LWFLT,NBTRI)
+      CALL DCOPY_(NOTRI,WFMO,1,HONE,1)
+      CALL mma_deallocate(WTMP)
+      CALL mma_deallocate(WFMO)
+      CALL mma_deallocate(WFLT)
 
-
-      RETURN
-      End
+      End SUBROUTINE TRAONE

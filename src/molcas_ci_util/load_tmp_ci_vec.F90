@@ -23,7 +23,7 @@ subroutine Load_tmp_CI_vec(iRoot,nConf,CI_vec,LuDavid)
 !               root number                                            *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
-!     CI_vec  : array of real*8                                        *
+!     CI_vec  : array of real                                          *
 !               CI vector                                              *
 !                                                                      *
 !----------------------------------------------------------------------*

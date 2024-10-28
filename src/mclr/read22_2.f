@@ -22,12 +22,11 @@
 ********************************************************************
       use Arrays, only: W_CMO=>CMO, W_CMO_Inv=>CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
-#include "standard_iounits.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
       Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),

@@ -22,7 +22,7 @@ subroutine CHO_MCA_DBGINT_S(ISHLQ,NSHLQ,PRTLAB)
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, LuPri, Mx2Sh, nBas, nBstSh, nSym
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 

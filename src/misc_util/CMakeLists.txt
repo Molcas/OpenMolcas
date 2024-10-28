@@ -13,7 +13,6 @@ set (sources
      blas_wrappers.F90
      breakpoint.F90
      c2r8.F90
-     cg_solver.F90
      check_parallel_data.F90
      chk4nan.F90
      close_luspool.F90
@@ -43,6 +42,7 @@ set (sources
      expand_coor.F90
      fcidump_output.F90
      fix_symmetry.F90
+     fold.F90
      full_svd.F90
      gen_int.F90
      gen_int_dccd.F90
@@ -132,15 +132,7 @@ set (sources
      sorteig.F90
      sorting.F90
      sorting_funcs.F90
-     sparse.dox
-     sp_icd.F90
-     sp_mv.F90
      spoolinp.F90
-     sp_pack.F90
-     sp_symmetrize.F90
-     sp_transpose.F90
-     sp_trisolve.F90
-     sp_unpack.F90
      sqprt.F90
      square.F90
      stdfmt.F90
@@ -158,6 +150,7 @@ set (sources
      triprt.F90
      trnsps.F90
      twodat.F90
+     unfold.F90
      unused.F90
      upki4.F90
      upkr8.F90

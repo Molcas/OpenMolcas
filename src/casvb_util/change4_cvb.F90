@@ -16,6 +16,7 @@ subroutine change4_cvb()
 
 use casvb_global, only: endvar, iciweights, icrit, ifhamil, ifinish, imethod, lcalccivbs, lcalcevb, lcalcsvb, lciweights, &
                         memplenty, nalf, nbet, nda, ndb, ndet, ndres, ndres_ok, norb, npcf, nv, variat
+use stdalloc, only: mma_maxDBLE
 use Constants, only: Ten
 use Definitions, only: wp, iwp
 

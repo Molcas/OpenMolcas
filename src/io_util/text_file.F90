@@ -67,7 +67,7 @@ integer(kind=iwp), intent(out) :: stat
 integer(kind=iwp) :: readl
 character(len=128) :: buf
 
-if (allocated(line)) call mma_deallocate(line)
+call mma_deallocate(line,safe='*')
 do
   read(lu,'(A)',iostat=stat,advance='no',size=readl) buf
   if (is_iostat_eor(stat)) then

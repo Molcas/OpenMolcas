@@ -45,7 +45,6 @@ set (sources
      focktwo.F90
      fock_util_global.F90
      fock_util_interface.F90
-     fold.F90
      fold_mat.F90
      fold_tmat.F90
      ftwo_drv.F90

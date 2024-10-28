@@ -18,7 +18,7 @@ subroutine ChoMP2g_DensDrv(irc,EOcc,EVir,EFro,CMO)
 ! Purpose: To Compute MP2 density from Cholesky MO-vectors and
 !          decomposed MP2 amplitudes.
 
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

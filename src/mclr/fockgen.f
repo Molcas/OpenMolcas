@@ -24,12 +24,11 @@
 ************************************************************************
       use Arrays, only: CMO, FIMO
       use Data_structures, Only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Two
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
-#include "standard_iounits.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
       Real*8 Fock(nDens2),FockOut(*), rDens2(*),rDens1(nna,nna)

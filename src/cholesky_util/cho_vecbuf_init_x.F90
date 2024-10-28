@@ -15,7 +15,7 @@ subroutine Cho_VecBuf_Init_X(Frac,LocDbg)
 !          (External run mode.)
 
 use Cholesky, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM, LuPri, nSym, NumCho
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

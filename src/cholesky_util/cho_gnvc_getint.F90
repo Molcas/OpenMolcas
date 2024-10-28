@@ -15,7 +15,7 @@ subroutine Cho_GnVc_GetInt(xInt,lInt,nVecRS,iVecRS,ListSp,mSym,mPass,mmShl,iPass
 !          pass iPass1.
 
 use Cholesky, only: InfVec, IndRSh, nnShl, nSym
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

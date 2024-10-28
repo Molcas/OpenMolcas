@@ -17,12 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NATORB_CASPT2(DMAT,CMO,OCC,CNAT)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION DMAT(*),CMO(*),OCC(*),CNAT(*)
+      REAL*8 DMAT(*),CMO(*),OCC(*),CNAT(*)
+
+      Real*8, allocatable:: TMP(:)
 C Given DMAT, symmetry-blocked array of triangular
 C density matrices in MO basis, and symmetry-blocked
 C array CMO of MO coefficients, return array of
@@ -48,19 +49,19 @@ C  Frozen orbitals:
 C Inactive, active, and secondary orbitals:
         IF(NO.GT.0) THEN
           NTMP=(NO*(NO+1))/2
-          CALL GETMEM('TMP','ALLO','REAL',LTMP,NTMP)
+          CALL mma_allocate(TMP,NTMP,Label='TMP')
           CALL DCOPY_(NB*NO,CMO(ICMO+1),1,CNAT(ICMO+1),1)
 C For correct order, change sign.
-          CALL DYAX(NTMP,-1.0D0,DMAT(IDMAT+1),1,WORK(LTMP),1)
-          CALL NIDiag(WORK(LTMP),CNAT(ICMO+1),NO,NB)
-          CALL JACORD(WORK(LTMP),CNAT(ICMO+1),NO,NB)
-          CALL VEIG(NO,WORK(LTMP),OCC(IOCC+1))
+          CALL DYAX(NTMP,-1.0D0,DMAT(IDMAT+1),1,TMP,1)
+          CALL NIDiag(TMP,CNAT(ICMO+1),NO,NB)
+          CALL JACORD(TMP,CNAT(ICMO+1),NO,NB)
+          CALL VEIG(NO,TMP,OCC(IOCC+1))
 C Change back to positive sign.
           CALL DSCAL_(NO,-1.0D0,OCC(IOCC+1),1)
           IDMAT=IDMAT+NTMP
           IOCC=IOCC+NO
           ICMO=ICMO+NB*NO
-          CALL GETMEM('TMP','FREE','REAL',LTMP,NTMP)
+          CALL mma_deallocate(TMP)
         END IF
 C Deleted orbitals:
         IF(ND.GT.0) THEN
@@ -71,6 +72,4 @@ C Deleted orbitals:
         END IF
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE NATORB_CASPT2

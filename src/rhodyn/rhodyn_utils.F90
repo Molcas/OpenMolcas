@@ -33,13 +33,13 @@ public :: check_hermicity, compare_matrices, dashes, get_kq_order, print_c_matri
           transform, W3J, W6J, WERDM, WERDM_back, WERSO, WERSO_back
 
 interface removeLineAndColumn
-  module procedure removeLineAndColumnR, removeLineAndColumnZ
+  module procedure :: removeLineAndColumnR, removeLineAndColumnZ
 end interface
 interface removeColumn
-  module procedure removeColumnR, removeColumnZ
+  module procedure :: removeColumnR, removeColumnZ
 end interface
 interface transform
-  module procedure transformR, transformZ
+  module procedure :: transformR, transformZ
 end interface
 
 contains

@@ -10,10 +10,15 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 res,c,n &
+
 #else
+
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: res(n)
 real(kind=wp), intent(out) :: c(n)
+
 #endif
+
 #undef _CALLING_

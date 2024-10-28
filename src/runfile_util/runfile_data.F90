@@ -84,7 +84,7 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
                                 'BirthCertificate','LastEnergyMethod','MMO Labels      ','MCLR Root       ', & ! 17-20
                                 'Frag_Type       ','ABC             ','Un_cen Names    ','cDmp            ', & ! 21-24
                                 'dc: cDmp        ','SymmetryCInfo   ','SewardXTitle    ','Align_Weights   ', & ! 25-28
-                                'Quad_c          ','                ','                ','                ']   ! 29-32
+                                'Quad_c          ','RFcInfo         ','                ','                ']   ! 29-32
 
 !> List of known real array labels:
 !>
@@ -289,7 +289,7 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
                                 'Center Index    ','nAsh            ','nBas            ','nDel            ', & !   1-  4
                                 'nFro            ','nIsh            ','nIsh beta       ','nOrb            ', & !   5-  8
                                 'Orbital Type    ','Slapaf Info 1   ','Symmetry operati','nIsh_ab         ', & !   9- 12
-                                'nStab           ','Quad_i          ','RFcInfo         ','RFiInfo         ', & !  13- 16
+                                'nStab           ','Quad_i          ','                ','RFiInfo         ', & !  13- 16
                                 'RFlInfo         ','SCFInfoI        ','Misc            ','SewIInfo        ', & !  17- 20
                                 'SCFInfoI_ab     ','icDmp           ','Symmetry Info   ','Sizes           ', & !  21- 24
                                 'IndS            ','LP_A            ','NumCho          ','nFroPT          ', & !  25- 28

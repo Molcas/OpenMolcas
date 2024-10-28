@@ -43,7 +43,7 @@ use Cholesky, only: iSP2F
 use Cholesky, only: IndRSh, INF_PASS, iOff_Batch, IPRINT, iQuAB, iQuAB_here, LuPri, LuTmp, MaxQual, nDGM_call, nDim_Batch, &
                     nnBstRSh, nnShl, nQual, nSym, pTemp, TDECOM
 use Cholesky_procedures, only: Cho_X_GetIP_InfVec
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, OneHalf
 use Definitions, only: wp, iwp
 

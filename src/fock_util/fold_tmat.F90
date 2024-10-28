@@ -23,9 +23,9 @@ subroutine Fold_tMat(nSym,nBas,A,B)
 !               number of symmetry blocks                              *
 !     nBas    : input, array of integers                               *
 !               matrix dimension per symmetry block                    *
-!     A       : input, array of real*8                                 *
+!     A       : input, array of real                                   *
 !               Unfolded input matrix (UT-storage)                     *
-!     B       : output, array of real*8                                *
+!     B       : output, array of real                                  *
 !               Folded output matrix  (UT-storage)                     *
 !                                                                      *
 !----------------------------------------------------------------------*

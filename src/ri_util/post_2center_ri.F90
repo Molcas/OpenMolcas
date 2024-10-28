@@ -34,7 +34,7 @@ use Basis_Info, only: nBas_Aux
 use RI_glob, only: Lu_A, Lu_Q, nChV
 use Gateway_global, only: force_out_of_core
 use Symmetry_Info, only: nIrrep
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 

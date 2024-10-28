@@ -47,7 +47,7 @@ call mma_deallocate(Coor)
 
 ! Stash away this B-matrix for later us with EDiff constraints
 
-if (allocated(BMx_kriging)) call mma_deallocate(BMx_kriging)
+call mma_deallocate(BMx_kriging,safe='*')
 call mma_allocate(BMx_kriging,size(BMx,1),size(BMx,2),Label='BMx_kriging')
 BMx_kriging(:,:) = BMx(:,:)
 

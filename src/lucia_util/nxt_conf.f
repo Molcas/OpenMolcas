@@ -24,7 +24,7 @@
 *
 * Jeppe Olsen, November 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
       INTEGER ICONF(NEL)
 *
       NTEST = 00

@@ -23,14 +23,16 @@
 #endif
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       use Cholesky, only: timings
+      use stdalloc, only: mma_allocate
+      use cntrl_data, only: SONTO, SONTOSTATES,
+     &                      SONAT, SONATNSTATE,
+     &                      SODIAG,SODIAGNSTATE
 
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "jobin.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
@@ -130,17 +132,6 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C-------------------------------------------
-CTL2004-start
-C-------------------------------------------
-      IF (LINE(1:4).EQ.'NONA') THEN
-         NONA=.TRUE.
-        Read(LuIn,*,ERR=997)NONA_ISTATE, NONA_JSTATE
-        LINENR=LINENR+1
-        GOTO 100
-      END IF
-C-------------------------------------------
-CTL2004-end
 C-------------------------------------------
       IF(LINE(1:4).EQ.'RFPE') THEN
         RFPERT=.TRUE.
@@ -326,6 +317,7 @@ C ------------------------------------------
         IFSO=.TRUE.
         GOTO 100
       END IF
+C ------------------------------------------
       IF(LINE(1:4).EQ.'NTOC') THEN
         IFNTO=.TRUE.
         GOTO 100
@@ -573,20 +565,20 @@ c Kamal Sharkas end - PSO Hyperfine calculations
 c BP Natural orbitals options
       If(Line(1:4).eq.'SONO') then
         Read(LuIn,*,ERR=997) SONATNSTATE
-        CALL GETMEM('SONATS','ALLO','INTE',LSONAT,SONATNSTATE)
+        CALL mma_allocate(SONAT,SONATNSTATE,Label='SONAT')
         Linenr=Linenr+1
         DO ILINE=1,SONATNSTATE
-          Read(LuIn,*,ERR=997) IWORK(LSONAT-1+ILINE)
+          Read(LuIn,*,ERR=997) SONAT(ILINE)
           Linenr=Linenr+1
         END DO
         GoTo 100
       Endif
       If(Line(1:4).eq.'SODI') then
         Read(LuIn,*,ERR=997) SODIAGNSTATE
-        CALL GETMEM('SODIAG','ALLO','INTE',LSODIAG,SODIAGNSTATE)
+        CALL mma_allocate(SODIAG,SODIAGNSTATE,Label='SODIAG')
         Linenr=Linenr+1
         DO ILINE=1,SODIAGNSTATE
-          Read(LuIn,*,ERR=997) IWORK(LSODIAG-1+ILINE)
+          Read(LuIn,*,ERR=997) SODIAG(ILINE)
           Linenr=Linenr+1
         END DO
         GoTo 100
@@ -605,10 +597,10 @@ c END BP OPTIONS
 c RF SO-NTO
       If(line(1:4).eq.'SONT') then
         read(LuIn,*,ERR=997) SONTOSTATES
-        CALL GETMEM('SONTO','ALLO','INTE',LSONTO,2*SONTOSTATES)
+        CALL mma_allocate(SONTO,2,SONTOSTATES,Label='SONTO')
         linenr=linenr+1
         do ILINE=1,SONTOSTATES
-          read(LuIn,*,ERR=997) (iwork(LSONTO+J-1),J=ILINE*2-1,ILINE*2)
+          read(LuIn,*,ERR=997) SONTO(1,ILINE),SONTO(2,ILINE)
           linenr=linenr+1
         enddo
         goto 100
@@ -704,6 +696,12 @@ C--------------------------------------------
       IF(Line(1:4).eq.'TRD2') THEN
         IFTRD1=.TRUE.
         IFTRD2=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      ENDIF
+C--------------------------------------------
+      IF(Line(1:3).eq.'TDM') THEN
+        IFTDM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF

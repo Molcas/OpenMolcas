@@ -24,7 +24,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "rasdim.fh"
-#include "rasrc.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "timers.fh"

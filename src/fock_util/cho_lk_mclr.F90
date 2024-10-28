@@ -42,7 +42,7 @@ use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -56,7 +56,6 @@ type(DSBA_Type), intent(_OUT_) :: FkI, FkA, QVec
 real(kind=wp), intent(inout) :: MO_Int(*)
 integer(kind=iwp), intent(in) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
 logical(kind=iwp), intent(in) :: DoAct, Fake_CMO2
-#include "warnings.h"
 integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
                      iCase, iE, iij, ijS, ijsym, ik, ikl, iLoc, iml, Inc, ioff, ioffa, iOffAB, ioffb, iOffShb, ipG, irc, ired1, &
                      IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, isymx, iSymy, iTmp, IVEC2, iVrs, jab, jAsh, jaSkip, &
@@ -94,6 +93,8 @@ logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
+
+#include "warnings.h"
 
 !***********************************************************************
 #ifdef _DEBUGPRINT_

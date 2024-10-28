@@ -18,12 +18,12 @@
 *
       use Arrays, only: FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Half
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "spin_mclr.fh"
       Real*8 rkappa(nDensC),Sigma(nDensC), Focki(ndens2),rMOs(*),rmoa(*)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)

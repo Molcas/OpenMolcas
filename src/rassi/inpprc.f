@@ -16,9 +16,9 @@
       use kVectors
       use Lebedev_quadrature, only: order_table
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
+      use cntrl_data, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
+      use stdalloc, only: mma_allocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -89,7 +89,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMS=(NTDMZZ+NBST)/2
       NTDMA=NTDMS
       NTDMAB=NTRA
-      SaveDens=(IFTRD1.OR.IFTRD2).OR.
+      SaveDens=(IFTRD1.OR.IFTDM).OR.
      &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)
      &         .OR.NATO.OR.Do_TMOM
       IF(SaveDens) THEN
@@ -837,10 +837,7 @@ C Write out various input data:
         if (have_heff) then
           DO J=1,NSTATE
             DO I=1,NSTATE
-              iadr=(j-1)*nstate+i-1
-              iadr2=(i-1)*nstate+j-1
-              HAM(i,j)=0.5D0*(Work(L_HEFF+iadr)+
-     &                               Work(L_HEFF+iadr2))
+              HAM(i,j)=0.5D0*(HEFF(i,j)+HEFF(j,i))
             END DO
           END DO
           if (jobmatch) then
@@ -858,11 +855,11 @@ C Write out various input data:
         end if
         if (have_diag) then
           DO I=1,NSTATE
-           HAM(i,i)=Work(LREFENE+i-1)
+           HAM(i,i)=REFENE(i)
           END DO
         else if (have_heff) then
           DO I=1,NSTATE
-            HAM(i,i)=Work(L_HEFF+(i-1)*nstate+i-1)
+            HAM(i,i)=HEFF(i,i)
           END DO
         else
           call WarningMessage(2,'EJOB used but no energies available!')
@@ -878,16 +875,13 @@ C Write out various input data:
           ifheff=.true.
           DO J=1,NSTATE
             DO I=1,NSTATE
-              iadr=(j-1)*nstate+i-1
-              iadr2=(i-1)*nstate+j-1
-              HAM(i,j)=0.5D0*(Work(L_HEFF+iadr)+
-     &                               Work(L_HEFF+iadr2))
+              HAM(i,j)=0.5D0*(HEff(i,j)+HEff(j,i))
             END DO
           END DO
         else if (have_diag) then
           ifhdia=.true.
           DO I=1,NSTATE
-            HDIAG(I)=Work(LREFENE+i-1)
+            HDIAG(I)=REFENE(i)
           END DO
         end if
       end if

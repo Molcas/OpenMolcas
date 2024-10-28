@@ -50,7 +50,7 @@ subroutine SORT2()
 
 use TwoDat, only: lStRec, nBatch, RAMD
 use sort_data, only: IndBin, lSll, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp, Square, ValBin
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

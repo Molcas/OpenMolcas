@@ -18,16 +18,18 @@
 *  THE SAME FORMAT AS THE 2-EL TRANSITION DENSITY MATRICES.
 *****************************************************************
       SUBROUTINE TRAINT(CMO1,CMO2,NGAM2,TUVX)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CMO1(NCMO),CMO2(NCMO),TUVX(NGAM2)
+      Real*8 CMO1(NCMO),CMO2(NCMO),TUVX(NGAM2)
 #include "rassi.fh"
 #include "symmul.fh"
-#include "WrkSpc.fh"
 #include "trnsfrm.fh"
-      DIMENSION KEEP(8),NBSX(8)
+      INTEGER KEEP(8),NBSX(8)
       LOGICAL   ISQARX
+      Real*8, Allocatable:: X1(:), X2(:), X3(:), VXPQ(:)
+
 C CLEAR THE ARRAY OF TRANSFORMED INTEGRALS.
-      CALL FZERO(TUVX,NGAM2)
+      TUVX(:)=0.0D0
 C RETRIEVE STRUCTURE DATA FOR THE ORDERED INTEGRAL FILE.
 C KEEP(IS) IS POSITIVE TO INDICATE THAT BASIS FUNCTIONS WITH
 C SYMMETRY LABEL IS SHOULD BE SKIPPED. KEEP(2)=0 OR 1 TO SHOW
@@ -110,16 +112,16 @@ C ALLOCATE WORK AREAS FOR IN-CORE TRANSFORMATION ROUTINE TRACR:
           NX2MX=MAX(NBR*NBS,NAP*NAQ)
           NX3MX=MAX(NBR*NAS,NAR*NBS,NBP*NBQ)
           NVXPQ=NAVX*NBPQ
-          CALL GETMEM('X1    ','ALLO','REAL',LX1,NX1MX)
-          CALL GETMEM('X2    ','ALLO','REAL',LX2,NX2MX)
-          CALL GETMEM('X3    ','ALLO','REAL',LX3,NX3MX)
-          CALL GETMEM('VXPQ  ','ALLO','REAL',LVXPQ,NVXPQ)
+          CALL mma_allocate(X1,NX1MX,Label='X1')
+          CALL mma_allocate(X2,NX2MX,Label='X2')
+          CALL mma_allocate(X3,NX3MX,Label='X3')
+          CALL mma_allocate(VXPQ,NVXPQ,Label='VXPQ')
           CALL TRACR( INTBUF,CMO1,CMO2,NGAM2,TUVX,
-     *                WORK(LX1),WORK(LX2),WORK(LX3),WORK(LVXPQ))
-          CALL GETMEM('      ','FREE','REAL',LX1,NX1MX)
-          CALL GETMEM('      ','FREE','REAL',LX2,NX2MX)
-          CALL GETMEM('      ','FREE','REAL',LX3,NX3MX)
-          CALL GETMEM('      ','FREE','REAL',LVXPQ,NVXPQ)
+     *                X1,X2,X3,VXPQ)
+          CALL mma_deallocate(X1)
+          CALL mma_deallocate(X2)
+          CALL mma_deallocate(X3)
+          CALL mma_deallocate(VXPQ)
 101      CONTINUE
 102     CONTINUE
 103    CONTINUE

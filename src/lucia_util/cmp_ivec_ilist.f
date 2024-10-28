@@ -19,7 +19,7 @@
 *
 *  Jeppe Olsen, December 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. General input
       INTEGER ILIST(LLIST,NLIST)
 *. Specific input

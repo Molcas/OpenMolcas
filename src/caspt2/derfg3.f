@@ -15,18 +15,18 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
-      use caspt2_gradient, only: nbuf1_grad
+      use caspt2_global, only: nbuf1_grad
       use gugx, only: CIS, L2ACT, SGS, EXS
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use definitions, only: iwp,wp
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
-      LOGICAL RSV_TSK
+      LOGICAL, External:: RSV_TSK
 
       INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(MXCI)
@@ -46,20 +46,16 @@
       INTEGER ISTU,ISVX,ISYZ
       INTEGER IT,IU,IV,IX,IY,IZ
       INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV,IXLEV0
-      INTEGER LBUF1,LBUF2,LBUFD,LBUFT,LBUF3,LBUF4,LBUFX,
-     *        LDTU,LDYZ,LDAB
-      INTEGER NBUF1,NBUF2,NBUFD,NBUFT,NBUF3,NBUF4,NBUFX,
-     *        NDTU,NDYZ,NDAB
-      INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
+      INTEGER NBUF1,NBUFX,
+     *        NDTU,NDAB
+      INTEGER IOFFSET
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
-     &        LTASK_LIST,MXTASK,MYTASK,MYBUFFER
+     &        MXTASK,MYTASK,MYBUFFER
       INTEGER NSGM1,NSGM2
       INTEGER NTRI1,NTRI2
-      INTEGER L,LTO,LFROM
-      INTEGER MEMMAX, MEMMAX_SAFE
+      INTEGER MEMMAX !, MEMMAX_SAFE
       INTEGER NLEV2
-      INTEGER LDUM
       INTEGER NCI,ICSF
 
       REAL*8, EXTERNAL :: DDOT_
@@ -69,6 +65,10 @@
       INTEGER IDX2IJ(2,MXLEV**2)
       INTEGER ICNJ(MXLEV**2)
       INTEGER IP1_BUF(MXLEV**2)
+
+      REAL(KIND=WP),ALLOCATABLE:: BUF1(:,:),BUF2(:),BUFT(:),BUFD(:),
+     *  DTU(:,:),DYZ(:),DAB(:,:),BUF3(:),BUF4(:),BUFX(:,:)
+      INTEGER(KIND=IWP),ALLOCATABLE:: TASKLIST(:,:)
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
@@ -126,107 +126,6 @@ C
 * Similar for F3 values.
 * These corrections are already done in CLagDXA_FG3 and CLagDXC_FG3
 C
-      !! Some preparations
-      !! For DF1
-      !! F_{tu}
-      !! = D_{tu,vw}*f_{vw}
-      !! = <0|E_{tu,vw}|0>*f_{vw}
-      !! = <0|E_{tu}E_{vw} - \delta_{uv}E_{tw}|0>*f_{vw}
-      !! = <0|E_{tu}E_{vw}|0>*f_{vw} - delta_{uv}<0|E_{tw}|0>*f_{vw}
-      !! = <0|E_{tu}E_{vv}|0>*f_{vv} - <0|E_{tu}|0>*f_{uu}
-
-      !!  <0|E_{tu}E_{yz}|0>
-      !!= <0|t+ u y+ z|0>
-      !!= <0|t+ (delta(uy) - y+ u) z|0>
-      !!= delta(uy) <0|t+ z|0> - <0|t+ y+ u z|0>
-      !! G2(y,t,u,z) = EX2(t,u,y,z) - delta(uy) G1(t,z)
-      !! -> G2(u,t,u,z) = EX2(t,u,u,z) - G1(t,z)
-
-      !!   r+ i s+ j - del(is) r+ j
-      !! = r+ (i s+ - del(is)) j
-      !! = r+ (-s+ i) j
-      !! = -r+ s+ i j
-      !! = D_{rs,ij}
-C     write(6,*) "EPSA"
-C     do i = 1, 5
-C       write(6,'(i3,f20.10)') i,epsa(i)
-C     end do
-
-C     !! F2_{tuvw}
-C     !! = <0|E_{tu,vw,xy}|0>*f_{xy}
-C     !! = <0|t+ v+ x+ y w u|0> * f_{xy}
-C     !!   t+ v+ x+ y w u
-C     !! = t+ x+ v+ w y u
-C     !! = t+ x+ (del(vw) - w v+) y u
-C     !! = del(vw) t+ x+ y u - t+ x+ w v+ y u
-C     !! = del(vw)*F1(tu) - t+ (del(xw)-w x+)*(del(vy)-y v+) u
-C     !! = del(vw)*F1(tu) - del(xw)*del(vy)*t+ u
-C     !!   + del(xw)* t+ y v+ u + del(vy)*t+ w x+ u - t+ w x+ y v+ u
-C     !! = del(vw)*F1(tu) - del(xw)*del(vy)*G1_{tu}*f_{xy}
-C     !!   + del(xw)*<0|E_{ty}E_{vu}|0>*f_{xy} + del(vy)*<0|E_{tw}E_{xu}|0>*f_{xy}
-C     !!   - <0|E_{tw}E_{xy}E_{vu}|0>*f_{xy}
-C     !! (if canonical)
-C     !! = F1(tu) - G1{tu}*f_{wv} + <0|E_{tw}E_{vu}|0*f_{ww}
-C     !!   + <0|E_{tw}E_{vu}|0>*f_{vv} - <0|E_{tw}tE_{xy}E_{vu}|0>
-C     !!
-C     !!   E_{tu}E_{vw}E_{yz}*f_{vw}
-C     !! = t+ u v+ w y+ z * f_{vw}
-C     !! = t+ (del(uv) - v+ u)*(del(wy) - y+ w) z * f_{vw}
-C     !! = del(uv)*del(wy)*t+ z f_{vw}
-C     !!   - del(uv)* t+ y+ w z * f_{vw}
-C     !!   - del(wy)* t+ v+ u z * f_{vw}
-C     !!   + t+ v+ u y+ w z * f_{vw}
-C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-C     !!   - del(uv)*E_{ty,zw}*f_{vw}
-C     !!   - del(wy)*E_{tv,zu}*f_{vw}
-C     !!   + t+ v+ (del(uy)-y+ u) w z * f_{vw}
-C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-C     !!   - del(uv)*E_{ty,zw}*f_{vw}
-C     !!   - del(wy)*E_{tv,zu}*f_{vw}
-C     !!   + del(uy) t+ v+ w z * f_{vw}
-C     !!   - t+ v+ y+ u w z * f_{vw}
-C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-C     !!   - del(uv)*E_{ty,zw}*f_{vw}
-C     !!   - del(wy)*E_{tv,zu}*f_{vw}
-C     !!   + del(uy)*F1_{tz}
-C     !!   + t+ y+ v+ w z u * f_{vw}
-C     !! = del(uv)*del(wy)*G1(tz)*f_{vw}
-C     !!   - del(uv)*E_{ty,zw}*f_{vw}
-C     !!   - del(wy)*E_{tv,zu}*f_{vw}
-C     !!   + del(uy)*F1_{tz}
-C     !!   + F2_{tuyz}
-
-C     !! F2_{tuvw}
-C     !! = <0|E_{tu,vw,xy}|0>*f_{xy}
-C     !! = <0|t+ v+ x+ y w u|0> * f_{xy}
-C     !!   t+ v+ x+ y w u
-C     !! =-t+ v+ x+ y u w
-C     !! =-t+ x+ v+ u y w * f_{xy}
-C     !! =-t+ x+ (del(vu) - u v+) y w * f_{xy}
-C     !! =-del(vu) E_{tx,wy}*f_{xy} + t+ x+ u v+ y w * f_{xy}
-C     !! =-del(vu) E_{tx,wy}*f_{xy}
-C     !!  + t+ (del(ux) - u x+) (del(vy) - y v+) w * f_{xy}
-C     !! =-del(vu) E_{tx,wy}*f_{xy}
-C     !!  + del(ux)del(vy) G(t,w)*f_{xy} - del(ux) E_{ty}E_{vw}*f_{xy}
-C     !!  - del(vy) E_{tu}E_{xw}*f_{xy} + E_{tu}E_{xy}E_{vw}*f_{xy}
-C     !! = -del(vu) E_{tx,wy}*f_{xy} + del(ux)del(vy) G1(t,w)*f_{xy}
-C     !!   -del(ux) E_{ty}E_{vw}*f_{xy}
-
-C     !! = G1(tz)*f_{uy}
-C     !!   + E_{ty,wz}*f_{uw} (in the code, E(it,iw(iu),iy,iz))*e(u))
-C     !!   + E_{tv,uz}*f_{vy} (E(it,iu,iv(iy),iz)*e(y))
-C     !!   + del(uy)*F1_{tz}
-C     !!   + F2_{tuyz}
-* Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-C     !! Etu H0Diag Eyz
-C     !! = t+ u w+ w y+ z fww
-C     !! = del(uw) t+ w y+ z fww - t+ w+ u w y+ z fww
-C     !! = t+ u y+ z fuu - del(wy) t+ w+ u z fww + t+ w+ u y+ w z fww
-C     !! = t+ u y+ z fuu - t+ y+ u z fyy + del(uy) t+ w+ w z fww  - t+ w+ y+ u w z fww
-C     !! = t+ u y+ z fuu - t+ y+ u z fyy + del(uy) Ftz - t+ y+ w+ w u z fww
-C     !! = del(uy) Gtz fuu - Gty,zu fuu - Gty,zu fyy + del(uy) Ftz - Fty,zu
-C     !! = del(uy) (Ftz+Gtz fuu) + Gty,uz (fuu+fyy) + Fty,uz
-C     !!-> del(uy) (F1(tz)+G1(tz) fuu) + G2(tuyz) (fuu+fyy) + F2(tuyz)
 * Correction to F2: Some values not computed follow from symmetry
       do ip1=1,nlev2-1
        itlev=idx2ij(1,ip1)
@@ -355,13 +254,10 @@ C-finished, so that GAdSUM works correctly.
 C
       Call CLagSym(nLev,DG1,DG2,DF1,DF2,2)
 C
-* Dummy values necessary for fooling syntax checkers:
-      ldum=1
-      ! ndum=1
-      call getmem('memmx','max','real',ldum,memmax)
+      call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
-      memmax_safe=int(dble(memmax)*0.95D0)
+C     memmax_safe=int(dble(memmax)*0.95D0)
 
 * Buffers to compute CI expansion vectors into:
 * <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
@@ -370,40 +266,26 @@ C
 * buf2: ket buffer for an E_ip3 excitation of Psi0
 * buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
 * bufd: diagonal matrix elements to compute the F matrix
-      nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
       nbuf1= nbuf1_grad
-      nbuf2= 1
-      nbuft= 1
-      nbufd= 1
-C
-      ndtu =max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
       ndtu = nbuf1
-      ndyz = 1
-      ndab =max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
       ndab = nbuf1
-      nbuf3= 1
-      nbuf4= 1
       nbufx= nlev
-      CALL GETMEM('BUF1','ALLO','REAL',LBUF1,NBUF1*MXCI)
-      CALL GETMEM('BUF2','ALLO','REAL',LBUF2,NBUF2*MXCI)
-      CALL GETMEM('BUFT','ALLO','REAL',LBUFT,NBUFT*MXCI)
-      CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
+      call mma_allocate(BUF1,MXCI,NBUF1,Label='BUF1')
+      call mma_allocate(BUF2,MXCI,Label='BUF2')
+      call mma_allocate(BUFT,MXCI,Label='BUFT')
+      call mma_allocate(BUFD,MXCI,Label='BUFD')
 C
-      CALL GETMEM('DTU ','ALLO','REAL',LDTU ,NDTU *MXCI)
-      CALL GETMEM('DYZ ','ALLO','REAL',LDYZ ,NDYZ *MXCI)
-      CALL GETMEM('DAB ','ALLO','REAL',LDAB ,NDAB *MXCI)
-      CALL GETMEM('BUF3','ALLO','REAL',LBUF3,NBUF3*MXCI)
-      CALL GETMEM('BUF4','ALLO','REAL',LBUF4,NBUF4*MXCI)
+      call mma_allocate(DTU,MXCI,NDTU,Label='DTU')
+      call mma_allocate(DYZ,MXCI,Label='DYZ')
+      call mma_allocate(DAB,MXCI,NDAB,Label='DAB')
+      call mma_allocate(BUF3,MXCI,Label='BUF3')
+      call mma_allocate(BUF4,MXCI,Label='BUF4')
 C
-      CALL GETMEM('BUFX','ALLO','REAL',LBUFX,NBUFX*MXCI)
+      call mma_allocate(BUFX,MXCI,NBUFX,Label='BUFX')
 
 C-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
-      CALL GETMEM ('TASKLIST','ALLO','INTE',lTask_List,4*mxTask)
-      lip1sta=lTask_List
-      lip1end=lTask_List+mxTask
-      libuf1=lTask_List+2*mxTask
-      lOffSet=lTask_List+3*mxTask
+      CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -426,7 +308,7 @@ C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
        isp1=mul(issg1,STSYM)
        nsgm1=CIS%ncsf(issg1)
        !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
-       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),CIS%NOW,CIS%IOW,nMidV)
+       CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,nMidV)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
@@ -439,12 +321,12 @@ C-is basically the number of buffers we fill with sigma1 vectors.
         IF (istu.EQ.isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
-          IF (ibuf1.EQ.1) iwork(lip1sta+iTask-1)=ip1
+          IF (ibuf1.EQ.1) TaskList(iTask,1)=ip1
         ENDIF
         IF (ibuf1.EQ.nbuf1.OR.(ibuf1.GT.0.AND.
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
-            iwork(lip1end+iTask-1)=ip1_buf(ibuf1)
-            iwork(libuf1+iTask-1)=ibuf1
+            TaskList(iTask,2)=ip1_buf(ibuf1)
+            TaskList(iTask,3)=ibuf1
             iTask=iTask+1
             ibuf1=0
         ENDIF
@@ -455,9 +337,9 @@ C     write(6,*) "nTasks = ", nTasks
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
-        iWork(lOffSet+iTask-1)=iOffSet
-        ip1sta=iwork(lip1sta+iTask-1)
-        ip1end=iwork(lip1end+iTask-1)
+        TaskList(iTask,4)=iOffSet
+        ip1sta=TaskList(iTask,1)
+        ip1end=TaskList(iTask,2)
         ip3mx=ntri2
         if(ip1end.le.ntri2) ip3mx=ip1end
         if(ip1sta.gt.ntri2) ip3mx=ntri1
@@ -518,7 +400,7 @@ C     write(6,*) rsv_tsk(id,isubtask)
 
       myTask=nTasks
       DO iTask=1,nTasks
-        iBuf=iSubTask-iWork(lOffSet+iTask-1)
+        iBuf=iSubTask-TaskList(iTask,4)
         IF (iBuf.LE.0) THEN
           myTask=iTask-1
           goto 666
@@ -527,13 +409,13 @@ C     write(6,*) rsv_tsk(id,isubtask)
 666   continue
       iTask=myTask
 
-      iOffSet=iWork(lOffSet+iTask-1)
+      iOffSet=TaskList(iTask,4)
 
 C-SVC20100310: one task handles a range of ip1 values
 C-that are in the buffer and one ip3 value, for which
 C-a loop over ip2 values is then executed.
-      ip1sta=iWork(lip1sta+iTask-1)
-      ip1end=iWork(lip1end+iTask-1)
+      ip1sta=TaskList(iTask,1)
+      ip1end=TaskList(iTask,2)
       ip3=iSubTask-iOffSet
 
 C-SVC20100301: fill the buffer with sigma vectors if they
@@ -551,17 +433,16 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-          lto=lbuf1+mxci*(ibuf1-1)
-          call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
+          call dcopy_(nsgm1,[0.0D0],0,BUF1(:,ibuf1),1)
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO))
+     &                IULEV,ITLEV,1.0D00,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
         myBuffer=iTask
-        Call DCopy_(MXCI*ibuf1,[0.0D+00],0,Work(LDTU),1)
-        Call DCopy_(MXCI*ibuf1,[0.0D+00],0,Work(LDAB),1)
+        Call DCopy_(MXCI*ibuf1,[0.0D+00],0,DTU,1)
+        Call DCopy_(MXCI*ibuf1,[0.0D+00],0,DAB,1)
       ELSE
-        ibuf1=iWork(libuf1+iTask-1)
+        ibuf1=TaskList(iTask,3)
       ENDIF
 C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 
@@ -569,7 +450,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
       ! so only compute the G1 contribution when ip3 is 1, as
       ! this will only be one task per buffer.
       if (issg1.eq.STSYM.AND.ip3.eq.1) then
-        !! lbuf1 = <Psi0|E_ip1|I>
+        !! buf1 = <Psi0|E_ip1|I>
         !! <0|E_{tu}I> = <I|E_{ut}|0>
 C       write(6,*) "ib loop"
         do ib=1,ibuf1
@@ -579,30 +460,25 @@ C       write(6,*) "ib loop"
           it=L2ACT(itlev)
           iu=L2ACT(iulev)
 C         write(6,'("itlev,iulev,it,iu = ",4i3)') itlev,iulev,it,iu
-          lto=lbuf1+mxci*(ib-1)
-C         write(6,'(5f20.10)') (work(lto+i-1),i=1,nsgm1)
-C         write(6,'(f20.10)') ddot_(nsgm1,work(lto),1,ci,1)
           !! DG1 contribution
           SCAL = DG1(iT,iU) + DG1(iT,iU)
-          Call DaXpY_(nsgm1,SCAL,Work(lto),1,CLag,1)
+          Call DaXpY_(nsgm1,SCAL,BUF1(:,ib),1,CLag,1)
 C
           !! left derivative of DF1
-          ibuf = ldtu + mxci*(ib-1)
           Do icsf = 1, nsgm1
-            Work(ibuf+icsf-1) = Work(ibuf+icsf-1)
-     *        + DF1(it,iu)*Work(LBUFD+icsf-1)*CI(icsf)
+            DTU(icsf,ib) = DTU(icsf,ib) + DF1(it,iu)*BUFD(icsf)*CI(icsf)
           End Do
           !! right derivative of DF1
           Do icsf = 1, nsgm1
             CLag(icsf) = CLag(icsf)
-     *        + DF1(it,iu)*Work(lto+icsf-1)*Work(LBUFD+icsf-1)
+     *        + DF1(it,iu)*BUF1(icsf,ib)*BUFD(icsf)
           End Do
 
 C         G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
 C         IF(IFF.ne.0) then
 C           F1sum=0.0D0
 C           do i=1,nsgm1
-C             F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
+C             F1sum=F1sum+CI(i)*work(lto-1+i)*bufd(i)
 C           end do
 C           F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
 C         end if
@@ -634,13 +510,11 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       nsgm2=CIS%ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
-      lto=lbuf2
-      call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-      CALL SIGMA1(SGS,CIS,EXS,
-     &            IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO))
-      Call Dcopy_(nsgm1,[0.0D+00],0,Work(LDYZ),1)
+      call dcopy_(nsgm2,[0.0D0],0,buf2,1)
+      CALL SIGMA1(SGS,CIS,EXS,IYLEV,IZLEV,1.0D00,STSYM,CI,BUF2)
+      Call Dcopy_(nsgm1,[0.0D+00],0,DYZ,1)
       if(issg2.eq.issg1) then
-        call dcopy_(nsgm2,[0.0D0],0,work(lbuf3),1)
+        call dcopy_(nsgm2,[0.0D0],0,buf3,1)
         do ib=1,ibuf1
           idx=ip1_buf(ib)
           itlev=idx2ij(1,idx)
@@ -654,42 +528,34 @@ C
 C
           !! left derivative
           Do icsf = 1, nsgm1
-            Work(LBUFT+icsf-1)
-     *        = ScalG*Work(LTO+icsf-1)
-     *        + ScalF*Work(LTO+icsf-1)*Work(LBUFD+icsf-1)
+            BUFT(icsf) = ScalG*BUF2(icsf) + ScalF*BUF2(icsf)*BUFD(icsf)
           End Do
-          ibuf = ldtu + mxci*(ib-1)
-          Call DaXpY_(nsgm1,1.0d+00,Work(LBUFT),1,Work(ibuf),1)
+          Call DaXpY_(nsgm1,1.0d+00,BUFT,1,DTU(1,ib),1)
 C
           !! right derivative
-          call dcopy_(mxci,work(lbuf1+mxci*(ib-1)),1,work(lbuft),1)
+          call dcopy_(mxci,buf1(1,ib),1,buft,1)
           Do icsf = 1, nsgm1
-            Work(LBUF3+icsf-1) = Work(LBUF3+icsf-1)
-     *        + ScalG*Work(LBUFT+icsf-1)
-     *        + ScalF*Work(LBUFT+icsf-1)*Work(LBUFD+icsf-1)
+            BUF3(icsf) = BUF3(icsf)
+     *        + ScalG*BUFT(icsf) + ScalF*BUFT(icsf)*BUFD(icsf)
           End Do
 C
           !! For DEPSA
-          ibuf = ldab + mxci*(ib-1)
-          Call DaXpY_(nsgm1,ScalF,Work(LTO),1,Work(IBUF),1)
+          Call DaXpY_(nsgm1,ScalF,BUF2,1,DAB(1,ib),1)
         end do
         !! Save for Eyz
-        Call DaXpY_(nsgm2,1.0d+00,Work(LBUF3),1,Work(LDYZ),1)
+        Call DaXpY_(nsgm2,1.0d+00,BUF3,1,DYZ,1)
       end if
       nbtot=0
 C
 C
 C
       !! Prepare for DEPSA for the -epsa(iv) term with square
-      lfrom=lbuf2
       iG3bk = iG3OFF
       Do ixlev0 = 1, nlev
-        lfrom=lbuf2
         Do ivlev = 1, nlev
-          L = LBUFX + MXCI*(ivlev-1)
-          Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
+          Call DCopy_(nsgm1,[0.0D0],0,BUFX(1,ivlev),1)
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L))
+     &                IVLEV,IXLEV0,1.0D+0,STSYM,BUF2,BUFX(1,ivlev))
         End Do
         iG3OFF = iG3bk
       do ip2=ip3,ntri2
@@ -699,12 +565,9 @@ C
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
         if(isvx.ne.mul(issg1,issg2)) goto 99
-C       lfrom=lbuf2
         !! <I|EvxEyz|0>
-        lto=lbuft
         If (IXLEV.EQ.IXLEV0) THEN
-        L = LBUFX + MXCI*(IVLEV-1)
-        Call DCopy_(nsgm1,Work(L),1,Work(LBUFT),1)
+        Call DCopy_(nsgm1,BUFX(1,IVLEV),1,BUFT,1)
         END IF
 *-----------
 * Max and min values of index p1:
@@ -738,59 +601,49 @@ C       ----- left derivative
 C
         do icsf = 1, nsgm1
           ! BUF3 = (<I|Ett|I>-EPSA(V))*<I|EvxEyz|0> = <I|fEvxEyz|0>
-          work(lbuf3-1+icsf)
-     *      = (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
+          buf3(icsf) = (bufd(icsf)-epsa(iv))*buft(icsf)
         end do
         do ib=1,nb
           iG3=iG3OFF+ib
           idx=ip1_buf(ibmn-1+ib)
 C
-C         ibuf = ldtu + mxci*(idx-ip1sta)
-          ibuf = ldtu + mxci*(ibmn+ib-2)
           !! <I|EvxEyz|0>*Dtuvxyz
-          Call DaXpY_(nsgm1,DG3(iG3),Work(LBUFT),1,Work(ibuf),1)
+          Call DaXpY_(nsgm1,DG3(iG3),BUFT,1,DTU(1,ibmn+ib-1),1)
           !! <I|fEvxEyz|0>*Ftuvxyz
-          Call DaXpY_(nsgm1,DF3(iG3),Work(LBUF3),1,Work(ibuf),1)
-          !! DEPSA of the Work(LBUFD) term
-C         ibuf = ldab + mxci*(idx-ip1sta)
-          ibuf = ldab + mxci*(ibmn+ib-2)
-          Call DaXpY_(nsgm1,DF3(iG3),Work(LBUFT),1,Work(ibuf),1)
+          Call DaXpY_(nsgm1,DF3(iG3),BUF3,1,DTU(1,ibmn+ib-1),1)
+          !! DEPSA of the BUFD term
+          Call DaXpY_(nsgm1,DF3(iG3),BUFT,1,DAB(1,ibmn+ib-1),1)
         end do
 C
 C       ----- right derivative
 C
-        Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF3),1)
-        Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF4),1)
+        Call DCopy_(nsgm1,[0.0D0],0,BUF3,1)
+        Call DCopy_(nsgm1,[0.0D0],0,BUF4,1)
         !! right derivative (1): <0|Etu|I>*Dtuvxyz and <0|Etu|I>*Ftuvxyz
         !! <0|EtuEvxEyz|I> -> <I|EzyExvEut|0>
         do ib=1,nb
           iG3=iG3OFF+ib
           idx=ip1_buf(ibmn-1+ib)
 C
-C         ibuf = lbuf1+mxci*(idx-ip1sta)
-          ibuf = lbuf1+mxci*(ibmn+ib-2)
           !! BUF3 = <0|Etu|I>*Dtuvxyz
-          Call DaXpY_(nsgm1,DG3(iG3),Work(IBUF),1,Work(LBUF3),1)
+          Call DaXpY_(nsgm1,DG3(iG3),BUF1(1,ibmn+ib-1),1,BUF3,1)
           !! BUFC = <0|Etu|I>*Ftuvxyz
-          Call DaXpY_(nsgm1,DF3(iG3),Work(IBUF),1,Work(LBUF4),1)
+          Call DaXpY_(nsgm1,DF3(iG3),BUF1(1,ibmn+ib-1),1,BUF4,1)
         end do
 C
         !! DEPSA of the -EPSA(iv) term
         Call DGEMV_('T',nsgm1,NLEV,
-     *             -1.0d+00,Work(lbufx),mxci,
-C    *             -1.0d+00,Work(lbufx+mxci*nlev*(ixlev-1)),mxci,
-     *                      Work(lbuf4),1,
+     *             -1.0d+00,BUFX,mxci,buf4,1,
      *              1.0d+00,DEPSA(1,IVLEV),1)
 C
         !! Scale the DF3 contribution with the diagonal Fock
         !! and add to the DG3 contribution
         do icsf = 1, nsgm1
-          work(lbuf3-1+icsf) = work(lbuf3-1+icsf)
-     *      + work(lbuf4+icsf-1)*(work(lbufd+icsf-1)-epsa(iv))
+          buf3(icsf) = buf3(icsf) + buf4(icsf)*(bufd(icsf)-epsa(iv))
         end do
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
        CALL SIGMA1(SGS,CIS,EXS,
-     &             IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ))
+     &             IXLEV,IVLEV,1.0D+00,STSYM,BUF3,DYZ)
 C
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
@@ -801,7 +654,7 @@ C
       !! Complete the right derivative contribution:
       !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
       CALL SIGMA1(SGS,CIS,EXS,
-     &            IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG)
+     &            IZLEV,IYLEV,1.0D+00,STSYM,DYZ,CLAG)
 C
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
@@ -813,9 +666,6 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 C
       !! Complete the left derivative and DEPSA contribution
       If ((ip1end.le.ntri2.and.ip3.eq.ip1end).or.
@@ -824,19 +674,17 @@ C
           idx=ip1_buf(ib)
           itlev=idx2ij(1,idx)
           iulev=idx2ij(2,idx)
-          lto=ldtu+mxci*(ib-1)
           !! left derivative
           CALL SIGMA1(SGS,CIS,EXS,
-     &                ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG)
+     &                ITLEV,IULEV,1.0D00,STSYM,DTU(1,ib),CLAG)
           !! the rest is DEPSA contribution
-          IBUF = LDAB + MXCI*(ib-1)
           Do IALEV = 1, NLEV
             Do IBLEV = 1, NLEV
-              Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF2),1)
+              Call DCopy_(nsgm1,[0.0D0],0,BUF2,1)
        CALL SIGMA1(SGS,CIS,EXS,
-     &             IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2))
+     &             IALEV,IBLEV,1.0D+00,STSYM,DAB(1,ib),BUF2)
               DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)
-     *          + DDot_(nsgm1,Work(LBUF1+MXCI*(IB-1)),1,Work(LBUF2),1)
+     *          + DDot_(nsgm1,BUF1(1,IB),1,BUF2,1)
             End Do
           End Do
         end do
@@ -866,20 +714,20 @@ C-position 12345678901234567890
 * End of sectioning loop over symmetry of Sgm1 wave functions.
       END DO
 C
-      CALL GETMEM ('TASKLIST','FREE','INTE',lTask_List,4*mxTask)
+      CALL mma_deallocate(TASKLIST)
       ! free CI buffers
-      CALL GETMEM('BUF1','FREE','REAL',LBUF1,NBUF1*MXCI)
-      CALL GETMEM('BUF2','FREE','REAL',LBUF2,NBUF2*MXCI)
-      CALL GETMEM('BUFT','FREE','REAL',LBUFT,NBUFT*MXCI)
-      CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
+      call mma_deallocate(BUF1)
+      call mma_deallocate(BUF2)
+      call mma_deallocate(BUFT)
+      call mma_deallocate(BUFD)
 C
-      CALL GETMEM('DTU ','FREE','REAL',LDTU ,NDTU *MXCI)
-      CALL GETMEM('DYZ ','FREE','REAL',LDYZ ,NDYZ *MXCI)
-      CALL GETMEM('DAB ','FREE','REAL',LDAB ,NDAB *MXCI)
+      call mma_deallocate(DTU)
+      call mma_deallocate(DYZ)
+      call mma_deallocate(DAB)
+      call mma_deallocate(BUF3)
+      call mma_deallocate(BUF4)
 C
-      CALL GETMEM('BUF3','FREE','REAL',LBUF3,NBUF3*MXCI)
-      CALL GETMEM('BUF4','FREE','REAL',LBUF4,NBUF4*MXCI)
-      CALL GETMEM('BUFX','FREE','REAL',LBUFX,NBUFX*MXCI)
+      call mma_deallocate(BUFX)
 C
  999  continue
       RETURN
@@ -917,7 +765,6 @@ C
       PARAMETER (I1=KIND(idxG3))
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
-#include "rasdim.fh"
 #include "pt2_guga.fh"
 #include "caspt2.fh"
 
@@ -1030,9 +877,6 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
       GO TO 500
  501  CONTINUE

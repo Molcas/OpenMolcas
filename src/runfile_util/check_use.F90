@@ -40,6 +40,6 @@ do i=1,nToc
     call WarningMessage(1,Line)
   end if
 end do
-if (allocated(RecLab)) call mma_deallocate(RecLab)
+call mma_deallocate(RecLab,safe='*')
 
 end subroutine check_use

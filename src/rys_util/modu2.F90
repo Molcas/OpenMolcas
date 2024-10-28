@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ModU2(U2,mT,nRys,ZEInv)
+subroutine ModU2( &
+#                define _CALLING_
+#                include "modu2_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: precompute u2/(zeta+eta)                                     *
@@ -24,9 +27,7 @@ subroutine ModU2(U2,mT,nRys,ZEInv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mT, nRys
-real(kind=wp), intent(inout) :: U2(nRys,mT)
-real(kind=wp), intent(in) :: ZEInv(mT)
+#include "modu2_interface.fh"
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, iT
 

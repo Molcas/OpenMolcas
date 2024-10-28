@@ -356,7 +356,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(INSCR2)
       call mma_deallocate(CIOIO)
       call mma_deallocate(SIOIO)
-      SCIOIO => Null()
+      nullify(SCIOIO)
       Call Deallocate_Local_Arrays()
       call mma_deallocate(I1)
       call mma_deallocate(I2)

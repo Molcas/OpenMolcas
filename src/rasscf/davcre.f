@@ -45,7 +45,6 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasrc.fh"
 #include "output_ras.fh"
       Character(LEN=16):: ROUTINE='DAVCRE  '
       CHARACTER(LEN=4) IOUTW,IOUTX

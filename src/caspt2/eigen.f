@@ -14,21 +14,26 @@
 * the Jacobi algorithm
 **
       subroutine eigen(A,U,N)
-      implicit real(8) (A-H,O-Z)
-#include "WrkSpc.fh"
+      use stdalloc, only: mma_allocate, mma_deallocate
+      implicit None
 
+      integer N
       real(8) A(N,N)
       real(8) U(N,N)
 
+      integer:: NSCR, IJ, I, J
+      real(8), allocatable:: SCR(:)
+
+
+
       NSCR=(N*(N+1))/2
-      call getmem('SCR','ALLO','REAL',LSCR,NSCR)
-      ! call getmem('EVEC','ALLO','REAL',LEVEC,Nstate**2)
+      call mma_allocate(SCR,NSCR,LABEL='SCR')
 
       IJ=0
       do I=1,N
         do J=1,I
           IJ=IJ+1
-          WORK(LSCR+IJ-1)=A(I,J)
+          SCR(IJ)=A(I,J)
         end do
       end do
 
@@ -37,9 +42,8 @@
       call dcopy_(N,[1.0D0],0,U,N+1)
 
 * Call Jacobi algorithm
-      call JACOB(WORK(LSCR),U,N,N)
+      call JACOB(SCR,U,N,N)
 
-      call getmem('SCR','FREE','REAL',LSCR,N)
+      call mma_deallocate(SCR)
 
-      return
-      end
+      end subroutine eigen

@@ -9,34 +9,33 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INTCTL2(IF_TRNSF)
-      use caspt2_output, only: iPrGlb
-      use caspt2_gradient, only: do_grad, nStpGrd
-      use caspt2_data, only: CMO
+      use caspt2_global, only: iPrGlb
+      use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
+      use caspt2_global, only: CMO, FIMO, FAMO, HONE, DREF
       use PrintLevel, only: debug
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 #include "intgrl.fh"
-#include "caspt2_grad.fh"
-
       LOGICAL IF_TRNSF
+
+      Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)
 
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:
-      Call GetMem('FFAO','ALLO','REAL',LFFAO,NBTRI)
-      Call GetMem('FIAO','ALLO','REAL',LFIAO,NBTRI)
-      Call GetMem('FAAO','ALLO','REAL',LFAAO,NBTRI)
+      Call mma_allocate(FFAO,NBTRI,LABEL='FFAO')
+      Call mma_allocate(FIAO,NBTRI,LABEL='FIAO')
+      Call mma_allocate(FAAO,NBTRI,LABEL='FAAO')
 * tracho2 makes many allocations but should deallocate everything
 * before its return.
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 calling TRACHO2...'
         CALL XFLUSH(6)
       END IF
-      Call TraCho2(CMO,Work(LDREF),
-     &             Work(LFFAO),Work(LFIAO),Work(LFAAO),IF_TRNSF)
+      Call TraCho2(CMO,SIZE(CMO),DREF,SIZE(DREF),FFAO,FIAO,FAAO,
+     &             IF_TRNSF)
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
         CALL XFLUSH(6)
@@ -46,21 +45,21 @@
 * For gradient calculation, it is good to have FIAO and FAAO
       IF (do_grad.or.nStpGrd.eq.2) THEN
         !! FFAO has one-electron Hamiltonian
-        CALL DCOPY_(NBTRI,WORK(LFFAO),1,WORK(ipFIMO),1)
-        CALL DAXPY_(NBTRI,1.0D+00,WORK(LFIAO),1,WORK(ipFIMO),1)
-        CALL DCOPY_(NBTRI,WORK(ipFIMO),1,WORK(ipFIFA),1)
-        CALL DAXPY_(NBTRI,1.0D+00,WORK(LFAAO),1,WORK(ipFIFA),1)
+        CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
+        CALL DAXPY_(NBTRI,1.0D+00,FIAO,1,FIMO_all,1)
+        CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
+        CALL DAXPY_(NBTRI,1.0D+00,FAAO,1,FIFA_all,1)
       END IF
 * Transform them to MO basis:
-      CALL DCOPY_(notri,[0.0D0],0,WORK(LHONE),1)
-      CALL DCOPY_(notri,[0.0D0],0,WORK(LFIMO),1)
-      CALL DCOPY_(notri,[0.0D0],0,WORK(LFAMO),1)
+      HONE(:)=0.0D0
+      FIMO(:)=0.0D0
+      FAMO(:)=0.0D0
 c Compute FIMO, FAMO, ...  to workspace:
-      Call FMat_Cho(CMO,Work(LFFAO),Work(LFIAO),Work(LFAAO),
-     &              Work(LHONE),Work(LFIMO),Work(LFAMO))
-      Call GetMem('FFAO','FREE','REAL',LFFAO,NBTRI)
-      Call GetMem('FIAO','FREE','REAL',LFIAO,NBTRI)
-      Call GetMem('FAAO','FREE','REAL',LFAAO,NBTRI)
+      Call FMat_Cho(CMO,SIZE(CMO),FFAO,FIAO,FAAO,
+     &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))
 
-      RETURN
-      END
+      Call mma_deallocate(FFAO)
+      Call mma_deallocate(FIAO)
+      Call mma_deallocate(FAAO)
+
+      END SUBROUTINE INTCTL2

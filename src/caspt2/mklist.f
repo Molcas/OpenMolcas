@@ -18,12 +18,11 @@
 *--------------------------------------------*
       SUBROUTINE MKLIST(LIST)
       USE SUPERINDEX
+      use EQSOLV
       IMPLICIT NONE
 C Subroutine for setting up the 17 lists of coupling
 C  coefficients -- See sgm.f and sgm.ol for usage.
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 
       INTEGER LIST(*)
 

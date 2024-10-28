@@ -12,11 +12,11 @@
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb
+      use caspt2_global, only:iPrGlb
       use PrintLevel, only: usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
-      use caspt2_data, only: CMO, CMO_Internal
+      use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
@@ -26,14 +26,14 @@ C using coefficients taken from the eigenvectors of the effective
 C Hamiltonian.
 C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
+      real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
+
       integer JOBIPH, JOBMIX
       real(8) Weight(MxRoot)
-      real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
+      real(8), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
+      integer, allocatable:: JROOT(:), IDIST(:)
 
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
@@ -71,8 +71,8 @@ C printed, no JOBMIX file is created.
 * If NoMulti was specified, the original state indexing is
 * maintained, otherwise the new states are just 1, 2, 3...
 
-      CALL GETMEM('LCI1','ALLO','REAL',LCI1,MXCI)
-      CALL GETMEM('LCI2','ALLO','REAL',LCI2,MXCI)
+      CALL mma_allocate(CI1,MXCI,Label='CI1')
+      CALL mma_allocate(CI2,MXCI,Label='CI2')
       JOBIPH=15
       CALL DANAME(JOBIPH,refwfn_filename)
       JOBMIX=11
@@ -86,15 +86,15 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL IDAFILE(JOBMIX,1,IADR15,30,IAD15)
       IAD15=IADR15(1)
 * Modify root index in case of MS
-      CALL GETMEM('JROOT','ALLO','INTE',LJROOT,MXROOT)
+      CALL mma_allocate(JROOT,MXROOT,LABEL='JROOT')
       IF (IFMSCOUP) THEN
-        CALL ICOPY(MXROOT,[0],0,IWORK(LJROOT),1)
+        CALL ICOPY(MXROOT,[0],0,JROOT,1)
         DO ISTATE=1,NSTATE
-          IWORK(LJROOT+ISTATE-1)=ISTATE
+          JROOT(ISTATE)=ISTATE
         END DO
         MROOTS=NSTATE
       ELSE
-        CALL ICOPY(MXROOT,IROOT,1,IWORK(LJROOT),1)
+        CALL ICOPY(MXROOT,IROOT,1,JROOT,1)
         MROOTS=NROOTS
       END IF
 * Initialize WEIGHT() (which is unused) just so detection
@@ -105,10 +105,10 @@ C to JOBMIX, we use the same TOC array, IADR15.
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,
      &                    NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                    TITLE,4*18*MXTIT,POTNUC,
-     &                    LROOTS,MROOTS,IWORK(LJROOT),MXROOT,NRAS1,
+     &                    LROOTS,MROOTS,JROOT,MXROOT,NRAS1,
      &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,
      &                    Weight)
-      CALL GETMEM('JROOT','FREE','INTE',LJROOT,MXROOT)
+      CALL mma_deallocate(JROOT)
 * Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT
       CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
@@ -125,29 +125,29 @@ C to JOBMIX, we use the same TOC array, IADR15.
         CALL DDAFILE(JOBMIX,1,CMO,NCMO,IAD15)
       END IF
       CALL mma_deallocate(CMO_Internal)
-      CMO=>Null()
+      nullify(CMO)
 * Copy all CI coefficients
       IDR=IADR15(4)
       IDW=IADR15(4)
       DO I=1,LROOTS
-      CALL DDAFILE(JOBIPH,2,WORK(LCI1),NCONF,IDR)
-      CALL DDAFILE(JOBMIX,1,WORK(LCI1),NCONF,IDW)
+      CALL DDAFILE(JOBIPH,2,CI1,NCONF,IDR)
+      CALL DDAFILE(JOBMIX,1,CI1,NCONF,IDW)
       END DO
 * Replace old energy array with (MS-)CASPT2 energy values:
       NOLDE=MXROOT*MXITER
-      CALL GETMEM('OLDE','ALLO','REAL',LOLDE,NOLDE)
-      CALL DCOPY_(NOLDE,[0.0D0],0,WORK(LOLDE),1)
+      CALL mma_allocate(OLDE,NOLDE,LABEL='OLDE')
+      OLDE(:)=0.0D0
       IF (IFMSCOUP) THEN
-        CALL DCOPY_(NSTATE,ENERGY,1,WORK(LOLDE),1)
+        CALL DCOPY_(NSTATE,ENERGY,1,OLDE,1)
       ELSE
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)
-          WORK(LOLDE-1+ISNUM)=ENERGY(ISTATE)
+          OLDE(ISNUM)=ENERGY(ISTATE)
         END DO
       END IF
       IAD15=IADR15(6)
-      CALL DDAFILE(JOBMIX,1,WORK(LOLDE),NOLDE,IAD15)
-      CALL GETMEM('OLDE','Free','REAL',LOLDE,NOLDE)
+      CALL DDAFILE(JOBMIX,1,OLDE,NOLDE,IAD15)
+      CALL mma_deallocate(OLDE)
       IAD15=IADR15(18)
 CSVC: translates levels to orbital index
       CALL IDAFILE(JOBMIX,1,L2ACT,mxAct,IAD15)
@@ -161,12 +161,12 @@ CSVC: translates orbital index to levels
         JSNUM=MSTATE(ISTATE)
         NIDIST=MAX(NIDIST,JSNUM)
       END DO
-      CALL GETMEM('DIST','ALLO','INTE',LIDIST,NIDIST)
+      CALL mma_allocate(IDIST,NIDIST,Label='IDIST')
       ID=IADR15(4)
       DO JSNUM=1,NIDIST
-        IWORK(LIDIST-1+JSNUM)=ID
+        IDIST(JSNUM)=ID
 * This dummy operation does nothing, merely updates file pointer ID
-        CALL DDAFILE(JOBIPH,0,WORK(LCI1),NCONF,ID)
+        CALL DDAFILE(JOBIPH,0,CI1,NCONF,ID)
       END DO
 * PAM07: Now IDIST() is used, instead of IPOSFILE, below!
 
@@ -175,52 +175,52 @@ C a JOBMIX file also when NOMULT was ordered. Then the energies
 C will be state-specific, of course. But no mixing of CI vectors.
       IF (IFMSCOUP) THEN
 C Also write effective Hamiltonian on Jobiph file:
-        CALL GETMEM('EFFCP','ALLO','REAL',LEFFCP,LROOTS**2)
+        CALL mma_allocate(EFFCP,LROOTS**2,Label='EFFCP')
 C Read the effective Hamiltonian on JobIph file:
         IAD15=IADR15(17)
-        CALL DDAFILE(JOBIPH,2,WORK(LEFFCP),LROOTS**2,IAD15)
+        CALL DDAFILE(JOBIPH,2,EFFCP,LROOTS**2,IAD15)
 C Replace the relevant elements:
         DO I=1,NSTATE
           ISNUM=MSTATE(I)
           DO J=1,NSTATE
             JSNUM=MSTATE(J)
-            WORK(LEFFCP-1+ISNUM+LROOTS*(JSNUM-1))=HEFF(I,J)
+            EFFCP(ISNUM+LROOTS*(JSNUM-1))=HEFF(I,J)
           END DO
         END DO
 C Write the present effective Hamiltonian:
         IAD15=IADR15(17)
-        CALL DDAFILE(JOBIPH,1,WORK(LEFFCP),LROOTS**2,IAD15)
+        CALL DDAFILE(JOBIPH,1,EFFCP,LROOTS**2,IAD15)
 C Write a diagonal Hamiltonian in the JOBMIX:
         IAD15=IADR15(17)
-        CALL DCOPY_(LROOTS**2,[0.0D0],0,WORK(LEFFCP),1)
+        CALL DCOPY_(LROOTS**2,[0.0D0],0,EFFCP,1)
         DO ISTATE=1,NSTATE
-          WORK(LEFFCP+(ISTATE-1)*LROOTS+ISTATE-1)=ENERGY(ISTATE)
+          EFFCP((ISTATE-1)*LROOTS+ISTATE)=ENERGY(ISTATE)
         END DO
-        CALL DDAFILE(JOBMIX,1,WORK(LEFFCP),LROOTS**2,IAD15)
-        CALL GETMEM('EFFCP','FREE','REAL',LEFFCP,LROOTS**2)
+        CALL DDAFILE(JOBMIX,1,EFFCP,LROOTS**2,IAD15)
+        CALL mma_deallocate(EFFCP)
 * Now 'mix' those states that were treated in the multi-state CASPT2
         IF (IPRGLB.GE.USUAL) THEN
           WRITE(6,*)
           CALL CollapseOutput(1,'Mixed CI coefficients:')
         END IF
         DO ISTATE=1,NSTATE
-          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)
+          CALL DCOPY_(MXCI,[0.0D0],0,CI2,1)
           DO IISTATE=1,NSTATE
             JSNUM=MSTATE(IISTATE)
-            IDISK=IWORK(LIDIST-1+JSNUM)
-            CALL DDAFILE(JOBIPH,2,WORK(LCI1),NCONF,IDISK)
+            IDISK=IDIST(JSNUM)
+            CALL DDAFILE(JOBIPH,2,CI1,NCONF,IDISK)
             X=Ueff(IISTATE,ISTATE)
-            CALL DAXPY_(NCONF,X,WORK(LCI1),1,WORK(LCI2),1)
+            CALL DAXPY_(NCONF,X,CI1,1,CI2,1)
           END DO
           IF(ISCF.EQ.0) THEN
             IF(IPRGLB.GE.USUAL) THEN
               WRITE(6,'(1x,a,i3)')
      &        ' The CI coefficients for the MIXED state nr. ',ISTATE
-              CALL PRWF_CP2(STSYM,NCONF,WORK(LCI2),CITHR)
+              CALL PRWF_CP2(STSYM,NCONF,CI2,CITHR)
             END IF
           END IF
-          IDISK=IWORK(LIDIST-1+ISTATE)
-          CALL DDAFILE(JOBMIX,1,WORK(LCI2),NCONF,IDISK)
+          IDISK=IDIST(ISTATE)
+          CALL DDAFILE(JOBMIX,1,CI2,NCONF,IDISK)
         END DO
         IF(IPRGLB.GE.USUAL) THEN
           CALL CollapseOutput(0,'Mixed CI coefficients:')
@@ -232,21 +232,21 @@ C in grpini)
       ELSE IF (IFXMS.or.IFRMS) THEN
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)
-          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)
+          CALL DCOPY_(MXCI,[0.0D0],0,CI2,1)
           DO IISTATE=1,NSTATE
             JSNUM=MSTATE(IISTATE)
-            IDISK=IWORK(LIDIST-1+JSNUM)
-            CALL DDAFILE(JOBIPH,2,WORK(LCI1),NCONF,IDISK)
+            IDISK=IDIST(JSNUM)
+            CALL DDAFILE(JOBIPH,2,CI1,NCONF,IDISK)
             X=U0(IISTATE,ISTATE)
-            CALL DAXPY_(NCONF,X,WORK(LCI1),1,WORK(LCI2),1)
+            CALL DAXPY_(NCONF,X,CI1,1,CI2,1)
           END DO
-          IDISK=IWORK(LIDIST-1+ISNUM)
-          CALL DDAFILE(JOBMIX,1,WORK(LCI2),NCONF,IDISK)
+          IDISK=IDIST(ISNUM)
+          CALL DDAFILE(JOBMIX,1,CI2,NCONF,IDISK)
         END DO
       END IF
-      CALL GETMEM('DIST','FREE','INTE',LIDIST,NIDIST)
-      CALL GETMEM('LCI1','FREE','REAL',LCI1,MXCI)
-      CALL GETMEM('LCI2','FREE','REAL',LCI2,MXCI)
+      CALL mma_deallocate(IDIST)
+      CALL mma_deallocate(CI1)
+      CALL mma_deallocate(CI2)
 
       CALL DACLOS(JOBIPH)
       CALL DACLOS(JOBMIX)

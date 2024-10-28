@@ -49,12 +49,13 @@ implicit none
 real(kind=wp), intent(_OUT_) :: CMO(*), Eall(*), Eocc(*), Eext(*)
 integer(kind=iwp), intent(out) :: iTst
 real(kind=wp), intent(out) :: ESCF
+#include "corbinf.fh"
+#include "Molcas.fh"
 integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, iostatus, iPrt, iSym, iUpp, j, jCom, jDel, &
                      jFro, jOcc, l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
 logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb, &
                      Skip
 character(len=4) :: Command
-character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: SQ(:)
@@ -63,12 +64,11 @@ character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL',
                                              'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
-integer(kind=iwp), external :: iPrintLevel
+integer(kind=iwp), external :: iPrintLevel, isStructure
 logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
-#include "corbinf.fh"
+
 #include "warnings.h"
-#include "Molcas.fh"
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -576,9 +576,9 @@ end do outer
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
 
-if (.not. allocated(NamAct)) call mma_allocate(NamAct,nActa,label='NamAct')
-if (.not. allocated(iFro)) call mma_allocate(iFro,8,0,label='iFro')
-if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
+call mma_allocate(NamAct,nActa,label='NamAct',safe='*')
+call mma_allocate(iFro,8,0,label='iFro',safe='*')
+call mma_allocate(iDel,8,0,label='iDel',safe='*')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then
@@ -632,10 +632,7 @@ if (SuperName(1:18) == 'numerical_gradient') then
 end if
 
 if (nSym == 1) then
-  call GetEnvF('EMIL_InLoop',emiloop)
-  if (emiloop == ' ') emiloop = '0'
-  call GetEnvF('MOLCAS_IN_GEO',inGeo)
-  if ((emiloop(1:1) /= '0') .and. (inGeo(1:1) /= 'Y') .and. (.not. DNG)) then
+  if ((isStructure() == 1) .and. (.not. DNG)) then
     call Put_iScalar('mp2prpt',2)
     DoDens = .true.
     DoGrdt = .true.

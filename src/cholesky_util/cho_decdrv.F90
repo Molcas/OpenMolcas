@@ -17,7 +17,7 @@ subroutine CHO_DECDRV(DIAG)
 use Cholesky, only: CHO_DECALG, Cho_Real_Par, CHO_SIMP, DIAMIN, DID_DECDRV, FRAC_CHVBUF, INF_PASS, INF_VECBUF, InfRed, IPRINT, &
                     LuPri, LuSel, MaxRed, nDimRS, nnBstR, nnBstRT, nnBstRT_G, nnShl, nnShl_G, nSym, NumCho, TDECDRV, ThrCom, &
                     Trace_Idle, Span, XnPass
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

@@ -14,9 +14,9 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl
+      use stdalloc, only: mma_allocate, mma_deallocate
 * eaw 970909
       Implicit Real*8(a-h,o-z)
-#include "stdalloc.fh"
 #include "SysDef.fh"
       Real*8 H(*)
       Character*40 Label

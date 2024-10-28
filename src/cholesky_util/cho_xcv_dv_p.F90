@@ -19,7 +19,7 @@ subroutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP,NVT,l_NVT)
 use Para_Info, only: nProcs
 #endif
 use Cholesky, only: iiBstRSh, INF_PROGRESS, IPRINT, LuCho, LuPri, LuTmp, nnBstR, nnBstRSh, nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp
 #endif
 use Definitions, only: iwp
@@ -174,22 +174,11 @@ do iSym=1,nSym
       ! Get vectors from global array
       J0 = J1-1
       kV = 1
-#     ifdef _GA_
       do i=1,my_nV
         J = GADIST(i)-J0
         call ga_get(g_a,1,nnBstR(iSym,2),J,J,GAVEC(kV),nnBstR(iSym,2))
         kV = kV+nnBstR(iSym,2)
       end do
-#     else
-      if (my_nV > 0) then
-        Jst = GADIST(1)-J0
-        Jen = GADIST(my_nV)-J0
-        call ga_get_striped(g_a,1,nnBstR(iSym,2),Jst,Jen,GAVEC(kV),nnBstR(iSym,2),nProcs)
-        kV = kV+nnBstR(iSym,2)*my_nV
-      end if
-      ! VVP: First performs RMA and only then I/O
-      call GASync()
-#     endif
       ! Write vectors to disk
       lTot = nnBstR(iSym,2)*my_nV
       if (lTot > 0) then

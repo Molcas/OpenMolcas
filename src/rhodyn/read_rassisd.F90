@@ -52,8 +52,8 @@ if (runmode == 4) then
       call abend()
     end if
     HSOCX(:,:) = cmplx(tmpr,tmpi,kind=wp)
-    if (allocated(tmpr)) call mma_deallocate(tmpr)
-    if (allocated(tmpi)) call mma_deallocate(tmpi)
+    call mma_deallocate(tmpr,safe='*')
+    call mma_deallocate(tmpi,safe='*')
     ! filling in energies
     do i=1,Nstate
       E_SO(i) = HSOCX(i,i)
@@ -87,8 +87,8 @@ if ((runmode /= 4) .and. flag_so) then
     call abend()
   end if
   V_SO(:,:) = cmplx(tmpr,tmpi,kind=wp)
-  if (allocated(tmpr)) call mma_deallocate(tmpr)
-  if (allocated(tmpi)) call mma_deallocate(tmpi)
+  call mma_deallocate(tmpr,safe='*')
+  call mma_deallocate(tmpi,safe='*')
 end if
 
 ! reading SOC coefficients
@@ -107,8 +107,8 @@ if (flag_so) then
     call abend()
   end if
   SO_CI(:,:) = cmplx(tmpr,tmpi,kind=wp)
-  if (allocated(tmpr)) call mma_deallocate(tmpr)
-  if (allocated(tmpi)) call mma_deallocate(tmpi)
+  call mma_deallocate(tmpr,safe='*')
+  call mma_deallocate(tmpi,safe='*')
 end if
 
 ! matrices of dipole moments
@@ -173,8 +173,8 @@ if (basis == 'SPH') then
 end if
 
 dipole(:,:,:) = cmplx(DIPR,DIPI,kind=wp)
-if (allocated(DIPR)) call mma_deallocate(DIPR)
-if (allocated(DIPI)) call mma_deallocate(DIPI)
+call mma_deallocate(DIPR,safe='*')
+call mma_deallocate(DIPI,safe='*')
 call mh5_close_file(fileid)
 
 end subroutine read_rassisd

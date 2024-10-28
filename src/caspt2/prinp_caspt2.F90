@@ -31,15 +31,14 @@ subroutine prinp_caspt2()
 !                                                                      *
 !***********************************************************************
   use definitions, only: iwp, wp
-  use caspt2_output, only: iPrGlb
+  use caspt2_global, only: iPrGlb
   use PrintLevel, only: terse, usual, verbose
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
-  use caspt2_gradient, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
+  use caspt2_global, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
 
   implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 

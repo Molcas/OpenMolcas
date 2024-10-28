@@ -14,6 +14,7 @@
 ********************************************************************
       use Arrays, only: CMO
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero, One, Two, Half, Quart
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
@@ -22,7 +23,6 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "stdalloc.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
@@ -787,12 +787,12 @@ c
       Return
       End
       Subroutine NatOrb(Dens,CMOO,CMON,OCCN)
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 Dens(*),CMOO(*),CMON(*),OCCN(*)
       Real*8, Allocatable:: EVal(:), EVec(:)
 

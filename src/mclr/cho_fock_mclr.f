@@ -20,6 +20,7 @@
       use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym,
      &                    NumCho
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero, One, Two, Half
       Implicit Real*8 (a-h,o-z)
 #include "warnings.h"
@@ -27,7 +28,6 @@
       Integer   ipLpq(8,3)
       Integer   LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
-#include "stdalloc.fh"
       Type (DSBA_type) CVa, JA(1), KA, Fka, CMO, Scr
       Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half

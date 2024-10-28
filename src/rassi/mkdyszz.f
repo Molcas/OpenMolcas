@@ -27,7 +27,6 @@
       INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 

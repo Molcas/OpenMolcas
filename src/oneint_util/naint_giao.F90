@@ -31,6 +31,8 @@ subroutine NAInt_GIAO( &
 use Basis_Info, only: dbsc, Gaussian_Type, nCnttp, Nuclear_Model, Point_Charge
 use Center_Info, only: dc
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, OneHalf, Pi, TwoP54
 use Definitions, only: wp, iwp
 
@@ -42,9 +44,13 @@ integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, 
                      mcdMax_EF, mcdMax_NA, mcdMin_EF, mcdMin_NA, nDCRT, nFLOP, nHRR, nMem, nOp, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappcd, TC(3)
 logical(kind=iwp) :: NoSpecial
+real(kind=wp), allocatable :: rKappa_mod(:)
+procedure(cff2d_kernel) :: vCff2D, XCff2D
+procedure(modu2_kernel) :: Fake, ModU2
+procedure(rys2d_kernel) :: vRys2D, XRys2D
+procedure(tval_kernel) :: TERI, TNAI
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-external :: Fake, MODU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -115,8 +121,11 @@ end do
 
 ! Modify Zeta if the two-electron code will be used!
 
+call mma_allocate(rKappa_mod,nZeta,label='rKappa_mod')
 if (Nuclear_Model == Gaussian_Type) then
-  rKappa = rKappa*(TwoP54/Zeta)
+  rKappa_mod(:) = rKappa(:)*(TwoP54/Zeta)
+else
+  rKappa_mod(:) = rKappa(:)
 end if
 !                                                                      *
 !***********************************************************************
@@ -158,12 +167,12 @@ do kCnttp=1,nCnttp
         rKappcd = TwoP54/Eta
         ! Tag on the normalization
         rKappcd = rKappcd*(Eta/Pi)**OneHalf
-        call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coori,CoorAC,mabMin,mabMax, &
+        call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa_mod,[rKappcd],Coori,Coori,CoorAC,mabMin,mabMax, &
                  mcdMin_EF,mcdMax_EF,Array(ipRys),mArr*nZeta,TERI,MODU2,vCff2D,vRys2D,NoSpecial)
       else if (Nuclear_Model == Point_Charge) then
         NoSpecial = .true.
-        call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,rKappa,[One],Coori,Coori,CoorAC,mabMin,mabMax,mcdMin_EF, &
-                 mcdMax_EF,Array(ipRys),mArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
+        call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,rKappa_mod,[One],Coori,Coori,CoorAC,mabMin,mabMax, &
+                 mcdMin_EF,mcdMax_EF,Array(ipRys),mArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
       else
         ! ...more to come...
       end if
@@ -200,11 +209,11 @@ do kCnttp=1,nCnttp
         rKappcd = TwoP54/Eta
         ! Tag on the normalization
         rKappcd = rKappcd*(Eta/Pi)**OneHalf
-        call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coori,CoorAC,mabMin,mabMax,0,0, &
-                 Array(ipRys),mArr*nZeta,TERI,MODU2,vCff2D,vRys2D,NoSpecial)
+        call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa_mod,[rKappcd],Coori,Coori,CoorAC,mabMin,mabMax,0, &
+                 0,Array(ipRys),mArr*nZeta,TERI,MODU2,vCff2D,vRys2D,NoSpecial)
       else if (Nuclear_Model == Point_Charge) then
         NoSpecial = .true.
-        call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,rKappa,[One],Coori,Coori,CoorAC,mabMin,mabMax,0,0, &
+        call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,rKappa_mod,[One],Coori,Coori,CoorAC,mabMin,mabMax,0,0, &
                  Array(ipRys),mArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
       else
         ! ...more to come...
@@ -234,9 +243,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Nuclear_Model == Gaussian_Type) then
-  rKappa = rKappa*(TwoP54/Zeta)
-end if
+call mma_deallocate(rKappa_mod)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

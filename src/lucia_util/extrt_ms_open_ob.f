@@ -17,7 +17,7 @@
 *
 * Jeppe Olsen, December 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *.input
       INTEGER IDET_OC(NEL),IDET_MS(NEL)
 *. Output

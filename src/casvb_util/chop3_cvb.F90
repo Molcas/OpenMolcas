@@ -25,7 +25,7 @@ integer(kind=iwp) :: iretval1, iretval2, kmost, mxdetvb, mxfns, need
 if (release(3)) then
   call mma_deallocate(aikcof)
   nullify(bikcof)
-  if (allocated(cikcof)) call mma_deallocate(cikcof)
+  call mma_deallocate(cikcof,safe='*')
   call mma_deallocate(ikcoff)
   call mma_deallocate(ifnss1)
   call mma_deallocate(ifnss2)

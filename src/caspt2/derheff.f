@@ -11,24 +11,26 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
+      use caspt2_global, only: LUCIEX, IDTCEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "eqsolv.fh"
 
       INTEGER IST,JST
 
       INTEGER I
       INTEGER NTG1,NTG2,NTG3
-      INTEGER IDCI,LCI1,LCI2
+      INTEGER IDCI
       REAL*8 OVL,DUMMY(1)
 C
       Dimension CLag(nConf,nState),VECROT(*)
+      real(kind=wp),allocatable :: DTG1(:),DTG2(:),DTG3(:),CI1(:),
+     *  CI2(:),CI3(:)
 C     return
 
 C We evaluate the effective Hamiltonian matrix element in two steps.
@@ -41,42 +43,41 @@ C arrays are in subroutine parameter lists of MKTG3, HCOUP.
       NTG1=MAX(1,NTG1)
       NTG2=MAX(1,NTG2)
       NTG3=MAX(1,NTG3)
-      CALL GETMEM('DTG1','ALLO','REAL',LDTG1,NTG1)
-      CALL GETMEM('DTG2','ALLO','REAL',LDTG2,NTG2)
-      CALL GETMEM('DTG3','ALLO','REAL',LDTG3,NTG3)
-      CALL DCOPY_(NTG1,[0.0D+00],0,WORK(LDTG1),1)
-      CALL DCOPY_(NTG2,[0.0D+00],0,WORK(LDTG2),1)
-      CALL DCOPY_(NTG3,[0.0D+00],0,WORK(LDTG3),1)
+      call mma_allocate(DTG1,NTG1,Label='DTG1')
+      call mma_allocate(DTG2,NTG2,Label='DTG2')
+      call mma_allocate(DTG3,NTG3,Label='DTG3')
+      DTG1(:) = 0.0d+00
+      DTG2(:) = 0.0d+00
+      DTG3(:) = 0.0d+00
 C
       !! OVL will contain the derivative contribution?
       !! It should be ignored
       OVL = 0.0D+00
-      CALL DerHeffX(IVECW,IVECC,OVL,WORK(LDTG1),WORK(LDTG2),WORK(LDTG3))
+      CALL DerHeffX(IVECW,IVECC,OVL,DTG1,DTG2,DTG3)
 C
-      CALL GETMEM('MCCI1','ALLO','REAL',LCI1,MXCI)
-      CALL GETMEM('MCCI2','ALLO','REAL',LCI2,MXCI)
-      CALL GETMEM('MCCI3','ALLO','REAL',LCI3,MXCI)
+      call mma_allocate(CI1,MXCI,Label='MCCI1')
+      call mma_allocate(CI2,MXCI,Label='MCCI2')
+      call mma_allocate(CI3,MXCI,Label='MCCI3')
 C
       IF(ISCF.EQ.0) THEN
         IDCI=IDTCEX
         JST = jState
-        CALL DCOPY_(NCONF,[0.0D+00],0,WORK(LCI1),1)
+        CALL DCOPY_(NCONF,[0.0D+00],0,CI1,1)
         DO I=1,NSTATE
           IST = I
           IF (IST.EQ.JST) THEN
-            CALL DDAFILE(LUCIEX,2,WORK(LCI2),NCONF,IDCI)
+            CALL DDAFILE(LUCIEX,2,CI2,NCONF,IDCI)
           Else If (ABS(VECROT(IST)).le.1.0d-12) Then
             CALL DDAFILE(LUCIEX,0,DUMMY,NCONF,IDCI)
           ELSE
-            CALL DDAFILE(LUCIEX,2,WORK(LCI3),NCONF,IDCI)
-            CALL DAXPY_(NCONF,VECROT(IST),WORK(LCI3),1,WORK(LCI1),1)
+            CALL DDAFILE(LUCIEX,2,CI3,NCONF,IDCI)
+            CALL DAXPY_(NCONF,VECROT(IST),CI3,1,CI1,1)
           END IF
         END DO
 C
-        CALL DCOPY_(NCONF,[0.0D+00],0,WORK(LCI3),1)
-        CALL DERTG3(.TRUE.,STSYM,STSYM,WORK(LCI1),WORK(LCI2),OVL,
-     &              WORK(LDTG1),WORK(LDTG2),NTG3,WORK(LDTG3),
-     &              WORK(LCI3),CLag(1,JST))
+        CALL DCOPY_(NCONF,[0.0D+00],0,CI3,1)
+        CALL DERTG3(.TRUE.,STSYM,STSYM,CI1,CI2,OVL,
+     &              DTG1,DTG2,NTG3,DTG3,CI3,CLag(1,JST))
 C
         DO I=1,NSTATE
           IST = I
@@ -85,21 +86,19 @@ C
           Else If (ABS(VECROT(IST)).le.1.0d-12) Then
             CYCLE
           ELSE
-            CALL DAXPY_(NCONF,VECROT(IST),WORK(LCI3),1,CLag(1,IST),1)
+            CALL DAXPY_(NCONF,VECROT(IST),CI3,1,CLag(1,IST),1)
           END IF
         END DO
       END IF
 C
-      CALL GETMEM('MCCI1','FREE','REAL',LCI1,MXCI)
-      CALL GETMEM('MCCI2','FREE','REAL',LCI2,MXCI)
-      CALL GETMEM('MCCI3','FREE','REAL',LCI3,MXCI)
+      call mma_deallocate(CI1)
+      call mma_deallocate(CI2)
+      call mma_deallocate(CI3)
 C
-      CALL GETMEM('DTG1','FREE','REAL',LDTG1,NTG1)
-      CALL GETMEM('DTG2','FREE','REAL',LDTG2,NTG2)
-      CALL GETMEM('DTG3','FREE','REAL',LDTG3,NTG3)
+      call mma_deallocate(DTG1)
+      call mma_deallocate(DTG2)
+      call mma_deallocate(DTG3)
 C
-C
-      RETURN
 C
       End Subroutine DerHEff
 C
@@ -109,6 +108,8 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -123,11 +124,7 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
       Dimension DTG1(NASHT,NASHT)
       Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -185,20 +182,19 @@ C     HECOMP=0.0D0
      &                      DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                      DTG1,DTG2,DTG3)
           ELSE
+#endif
             CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                      WORK(MV1),WORK(MV2),OVL,
-     &                      DTG1,DTG2,DTG3)
+     &                        GA_Arrays(MV1)%A,
+     &                        GA_Arrays(MV2)%A,OVL,
+     &                        DTG1,DTG2,DTG3)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                    WORK(MV1),WORK(MV2),OVL,
-     &                    DTG1,DTG2,DTG3)
 #endif
 C
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
           CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
-          CALL RHS_FREE (NAS,NIS,lg_V1)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V1)
+          CALL RHS_FREE (lg_V2)
 
  1        CONTINUE
 C         HECOMP(ICASE,ISYM)=HEBLK
@@ -249,6 +245,7 @@ C
       SUBROUTINE DerHEffX_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
      &                        DTG1,DTG2,DTG3)
       USE SUPERINDEX
+      use EQSOLV
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -257,17 +254,14 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "eqsolv.fh"
 
-      DIMENSION V1(*), V2(*)
+      REAL*8 V1(*), V2(*)
 
-      Dimension DTG1(NASHT,NASHT)
-      Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
+      REAL*8 DTG1(NASHT,NASHT)
+      REAL*8 DTG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      Dimension DTG3(*)
+      REAL*8 DTG3(*)
 
 
       ! HEBLK=0.0D0
@@ -817,17 +811,18 @@ C
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      *                  DTG3,CLAG1,CLAG2)
       use gugx, only: SGS, L2ACT, CIS, EXS
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use definitions, only: iwp,wp
       IMPLICIT REAL*8 (a-h,o-z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
       Real*8 DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
       Real*8 DTG3(NTG3)
       Real*8 CI1(MXCI),CI2(MXCI)
       Real*8 CLAG1(MXCI),CLAG2(MXCI)
+      REAL(KIND=WP),ALLOCATABLE :: TG3WRK(:),BUF1(:),DTU(:,:),DYZ(:,:)
+      INTEGER(KIND=IWP),ALLOCATABLE:: P2LEV(:)
       LOGICAL   DOG3
       Integer :: nLev
       nLev = SGS%nLev
@@ -942,30 +937,30 @@ C     TG3(ITG3)=VAL
 C Here, for regular CAS or RAS cases.
 
 C Special pair index allows true RAS cases to be handled:
-      CALL GETMEM('IPTOLEV','ALLO','INTE',LP2LEV,2*NASHT**2)
-      LP2LEV1=LP2LEV
-      LP2LEV2=LP2LEV+NASHT**2
+      CALL mma_allocate(P2LEV,2*NASHT**2,Label='P2LEV')
+      LP2LEV1=1
+      LP2LEV2=1+NASHT**2
       IP=0
 C First, IL < JL pairs.
       DO IL=1,NLEV-1
        DO JL=IL+1,NLEV
         IP=IP+1
-        IWORK(LP2LEV1-1+IP)=IL
-        IWORK(LP2LEV2-1+IP)=JL
+        P2LEV(LP2LEV1-1+IP)=IL
+        P2LEV(LP2LEV2-1+IP)=JL
        END DO
       END DO
 C Then, IL = JL pairs.
       DO IL=1,NLEV
         IP=IP+1
-        IWORK(LP2LEV1-1+IP)=IL
-        IWORK(LP2LEV2-1+IP)=IL
+        P2LEV(LP2LEV1-1+IP)=IL
+        P2LEV(LP2LEV2-1+IP)=IL
       END DO
 C Last, IL > JL pairs.
       DO IL=2,NLEV
        DO JL=1,IL-1
         IP=IP+1
-        IWORK(LP2LEV1-1+IP)=IL
-        IWORK(LP2LEV2-1+IP)=JL
+        P2LEV(LP2LEV1-1+IP)=IL
+        P2LEV(LP2LEV2-1+IP)=JL
        END DO
       END DO
 
@@ -975,22 +970,22 @@ C -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
 C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
       IF (DOG3) THEN
       DO IP1=1,NASHT**2
-       IT=L2ACT(IWORK(LP2LEV1-1+IP1))
-       IU=L2ACT(IWORK(LP2LEV2-1+IP1))
+       IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+       IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
        ITU=IT+NASHT*(IU-1)
        ITS=IASYM(IT)
        IUS=IASYM(IU)
        IS1=MUL(MUL(ITS,IUS),LSYM1)
        DO IP2=1,IP1
-        IV=L2ACT(IWORK(LP2LEV1-1+IP2))
-        IX=L2ACT(IWORK(LP2LEV2-1+IP2))
+        IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
+        IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
         IVX=IV+NASHT*(IX-1)
         IVS=IASYM(IV)
         IXS=IASYM(IX)
         IS2=MUL(MUL(IVS,IXS),IS1)
         DO IP3=1,IP2
-         IY=L2ACT(IWORK(LP2LEV1-1+IP3))
-         IZ=L2ACT(IWORK(LP2LEV2-1+IP3))
+         IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
+         IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
          IYS=IASYM(IY)
          IZS=IASYM(IZ)
          IS3=MUL(MUL(IYS,IZS),IS2)
@@ -1048,11 +1043,11 @@ C
 C Then, the 2-particle density matrix:
 C <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
       DO IP1=1,NASHT**2
-       IT=L2ACT(IWORK(LP2LEV1-1+IP1))
-       IU=L2ACT(IWORK(LP2LEV2-1+IP1))
+       IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+       IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
        DO IP2=1,IP1
-        IV=L2ACT(IWORK(LP2LEV1-1+IP2))
-        IX=L2ACT(IWORK(LP2LEV2-1+IP2))
+        IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
+        IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
         IF (IP1.ne.IP2) Then
           DTG2(IT,IU,IV,IX)=DTG2(IT,IU,IV,IX)+DTG2(IV,IX,IT,IU)
           DTG2(IV,IX,IT,IU) = 0.0D+00
@@ -1080,7 +1075,7 @@ C Allocate as many vectors as possible:
 C Wishful thinking:
       NVECS=2*NASHT**2+1
 C But what is really available?
-      CALL GETMEM('DUMMY','MAX ','REAL',L,NTG3WRK)
+      CALL mma_MaxDBLE(NTG3WRK)
       NTG3WRK=NTG3WRK/2
       NTG3WRK=MIN(MXCI*NVECS,NTG3WRK)
       NVECS=NTG3WRK/MXCI
@@ -1100,17 +1095,17 @@ C Insufficient memory?
         WRITE(6,*)' WARNING: MKTG3 will be inefficient owing to'
         WRITE(6,*)' small memory.'
       END IF
-      CALL GETMEM('TG3WRK','ALLO','REAL',LTG3WRK,NTG3WRK)
-      CALL GETMEM('BUF1','ALLO','REAL',LBUF1,MXCI)
+      CALL mma_allocate(TG3WRK,NTG3WRK,Label='TG3WRK')
+      CALL mma_allocate(BUF1,MXCI,Label='BUF1')
 C
-      CALL GETMEM('DTU','ALLO','REAL',LDTU,MXCI*NTUBUF)
-      CALL GETMEM('DYZ','ALLO','REAL',LDYZ,MXCI*NYZBUF)
+      call mma_allocate(DTU,MXCI,NTUBUF,Label='DTU')
+      call mma_allocate(DYZ,MXCI,NYZBUF,Label='DYZ')
 C
 C And divide it up:
       !! LSGM1: NTUBUF vectors
       !! LTAU : 1 vector
       !! LSGM2: NYZBUF vectors
-      LSGM1=LTG3WRK
+      LSGM1=1
       LTAU=LSGM1+NTUBUF*MXCI
       LSGM2=LTAU+MXCI
 
@@ -1121,26 +1116,26 @@ C Compute a section of sigma vectors E(YZ)*PSI2 to memory:
        LTO=LSGM2
        DO IP3=IP3STA,IP3END
 C Translate to levels in the SGUGA coupling order:
-        IL=IWORK(LP2LEV1-1+IP3)
-        JL=IWORK(LP2LEV2-1+IP3)
+        IL=P2LEV(LP2LEV1-1+IP3)
+        JL=P2LEV(LP2LEV2-1+IP3)
         IY=L2ACT(IL)
         IZ=L2ACT(JL)
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
+        CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &              IL,JL,1.0D00,LSYM2,CI2,WORK(LTO))
+     &              IL,JL,1.0D00,LSYM2,CI2,TG3WRK(LTO))
         IF(ISSG2.EQ.LSYM1.AND.DTG1(IY,IZ).NE.0.0D+00) THEN
           !! It is possible to calculate the contribution using
           !! DGEMV, but DAXPY seems to be faster than DGEMV
-          Call DaXpY_(NCI1,DTG1(IY,IZ),WORK(LTO),1,CLAG1,1)
+          Call DaXpY_(NCI1,DTG1(IY,IZ),TG3WRK(LTO),1,CLAG1,1)
         END IF
         LTO=LTO+MXCI
        END DO
 C
-       CALL DCopy_(MXCI*NYZBUF,[0.0D+00],0,WORK(LDYZ),1)
+       CALL DCopy_(MXCI*NYZBUF,[0.0D+00],0,DYZ,1)
 C Sectioning loops over pair indices IP1 (bra side):
        DO IP1STA=IP3STA,NASHT**2,NTUBUF
         IP1END=MIN(NASHT**2,IP1STA-1+NTUBUF)
@@ -1149,40 +1144,40 @@ C Compute a section of sigma vectors E(UT)*PSI1 to memory:
         !! <Psi1|E(TU)
         DO IP1=IP1STA,IP1END
 C Translate to levels:
-         JL=IWORK(LP2LEV1-1+IP1)
-         IL=IWORK(LP2LEV2-1+IP1)
+         JL=P2LEV(LP2LEV1-1+IP1)
+         IL=P2LEV(LP2LEV2-1+IP1)
          IT=L2ACT(IL)
          IU=L2ACT(JL)
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
+         CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &               IL,JL,1.0D00,LSYM1,CI1,WORK(LTO))
+     &               IL,JL,1.0D00,LSYM1,CI1,TG3WRK(LTO))
          IF (ISSG1.EQ.LSYM1.AND.DTG1(IU,IT).NE.0.0D+00
      &       .AND.IP3STA.EQ.1) THEN
-          Call DaXpY_(NCI1,DTG1(IU,IT),WORK(LTO),1,CLAG2,1)
+          Call DaXpY_(NCI1,DTG1(IU,IT),TG3WRK(LTO),1,CLAG2,1)
          END IF
          LTO=LTO+MXCI
         END DO
 C
-        CALL DCopy_(MXCI*NTUBUF,[0.0D+00],0,WORK(LDTU),1)
+        CALL DCopy_(MXCI*NTUBUF,[0.0D+00],0,DTU,1)
 C Now compute as many elements as possible:
         LFROM=LSGM2
-        LFROMD=LDYZ
+        LFROMD=1
         DO IP3=IP3STA,IP3END
-         IY=L2ACT(IWORK(LP2LEV1-1+IP3))
-         IZ=L2ACT(IWORK(LP2LEV2-1+IP3))
+         IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
+         IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
 C LFROM will be start element of Sigma2=E(YZ) Psi2
          IYZ=IY+NASHT*(IZ-1)
          IYS=IASYM(IY)
          IZS=IASYM(IZ)
          ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-         IM=IWORK(LP2LEV1-1+IP3)
-         JM=IWORK(LP2LEV2-1+IP3)
+         IM=P2LEV(LP2LEV1-1+IP3)
+         JM=P2LEV(LP2LEV2-1+IP3)
          DO IP2=IP3,IP1END
-          IL=IWORK(LP2LEV1-1+IP2)
-          JL=IWORK(LP2LEV2-1+IP2)
+          IL=P2LEV(LP2LEV1-1+IP2)
+          JL=P2LEV(LP2LEV2-1+IP2)
           IV=L2ACT(IL)
           IX=L2ACT(JL)
           IVX=IV+NASHT*(IX-1)
@@ -1190,37 +1185,37 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
           NTAU=CIS%NCSF(ISTAU)
-          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
+          CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           !! LTAU = EvxEyz|Psi2>
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU))
+     &                IL,JL,1.0D00,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           IF(ISTAU.EQ.LSYM1.AND.DTG2(IV,IX,IY,IZ).NE.0.0D+00) THEN
-C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
+C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
            !! For left derivative: <I|Evx Eyz|Psi2>
-           Call DaXpY_(NTAU,DTG2(IV,IX,IY,IZ),WORK(LTAU),1,CLAG1,1)
+           Call DaXpY_(NTAU,DTG2(IV,IX,IY,IZ),TG3WRK(LTAU),1,CLAG1,1)
            !! For right derivative: <Psi1|Evx Eyz|I>
            IF (IP2.GE.IP1STA.AND.IP2.LE.IP1END) THEN
               ibuf = lsgm1+mxci*(ip2-ip1sta)
-              Call DaXpY_(MXCI,DTG2(IV,IX,IY,IZ),WORK(IBUF),1,
-     *                    WORK(LFROMD),1)
+              Call DaXpY_(MXCI,DTG2(IV,IX,IY,IZ),TG3WRK(IBUF),1,
+     *                    DYZ(1,LFROMD),1)
            ELSE
          CALL SIGMA1(SGS,CIS,EXS,
-     &               JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,WORK(LFROMD))
+     &               JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
            END IF
            DTG2(IV,IX,IY,IZ) = 0.0D+00
           END IF
           IF (DOG3) THEN
-          CALL DCopy_(MXCI,[0.0D+00],0,WORK(LBUF1),1)
+          CALL DCopy_(MXCI,[0.0D+00],0,BUF1,1)
           DO IP1=MAX(IP2,IP1STA),IP1END
-           IT=L2ACT(IWORK(LP2LEV1-1+IP1))
-           IU=L2ACT(IWORK(LP2LEV2-1+IP1))
+           IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+           IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
            ITS=IASYM(IT)
            IUS=IASYM(IU)
            ISSG1=MUL(MUL(ITS,IUS),LSYM1)
            IF(ISSG1.EQ.ISTAU) THEN
 C           L=LSGM1+MXCI*(IP1-IP1STA)
-C           VAL=DDOT_(NTAU,WORK(LTAU),1,WORK(L),1)
+C           VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
             ITU=IT+NASHT*(IU-1)
 C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
 C Code to put it in correct place:
@@ -1260,83 +1255,68 @@ C Code to put it in correct place:
               !! processing all possible vectors at once with DGEMM
               !! (and DGER) after finishing the IP1 loop below
               Call DaXpY_(MXCI,DTG3(JTUVXYZ),
-     *                    WORK(LTAU),1,WORK(LDTU+MXCI*(IP1-IP1STA)),1)
+     *                    TG3WRK(LTAU),1,DTU(1,1+IP1-IP1STA),1)
               !! For right derivative: <Psi1|Etu|I> * Dtuvxyz
               !! This is also (slightly) faster than DGEMV, apparently
               Call DaXpY_(MXCI,DTG3(JTUVXYZ),
-     *                    WORK(LSGM1+MXCI*(IP1-IP1STA)),1,
-     *                    WORK(LBUF1),1)
-              !! Prepare for the right derivative
-C             WORK(LBUF2+IP1-MAX(IP2,IP1STA)) = DTG3(JTUVXYZ)
+     *                    TG3WRK(LSGM1+MXCI*(IP1-IP1STA)),1,BUF1,1)
              END IF
 C End of symmetry requirement IF-clause:
            END IF
 C End of IP1 loop.
           END DO
-C         !! For left derivative: <I|Evx Eyz|Psi2> * Dtuvxyz
-C         CALL DGEMM_('N','T',MXCI,IP1END-MAX(IP2,IP1STA)+1,1,
-C    &                1.0D+00,WORK(LTAU),MXCI,
-C    &                        WORK(LBUF2),IP1END-MAX(IP2,IP1STA)+1,
-C    &                1.0D+00,WORK(LDTU+MXCI*(MAX(IP2,IP1STA)-1)),MXCI)
-C         !! For right derivative: <Psi1|Etu|I> * Dtuvxyz
-C         CALL DGEMV_('N',MXCI,IP1END-MAX(IP2,IP1STA)+1,
-C    &                1.0D+00,WORK(LSGM1+MXCI*(MAX(IP2,IP1STA)-1)),MXCI,
-C    &                        WORK(LBUF2),1,
-C    &                0.0D+00,WORK(LBUF1),1)
           !! Second operator for the right derivative:
           !! <Psi1|Etu Evx|I> * Dtuvxyz
           CALL SIGMA1(SGS,CIS,EXS,
-     &                JL,IL,1.0D+00,ISTAU,WORK(LBUF1),WORK(LFROMD))
+     &                JL,IL,1.0D+00,ISTAU,BUF1,DYZ(1,LFROMD))
           END IF !! End of DOG3 clause
 C End of IP2 loop.
          END DO
          LFROM=LFROM+MXCI
-         LFROMD=LFROMD+MXCI
+         LFROMD=LFROMD+1
 C End of IP3 loop.
         END DO
 C
-        LTO=LDTU
+        LTO=1
         !! <I|Etu Evx Eyz|Psi2> * Dtuvxyz
         DO IP1=IP1STA,IP1END
 C Translate to levels:
-         IL=IWORK(LP2LEV1-1+IP1)
-         JL=IWORK(LP2LEV2-1+IP1)
+         IL=P2LEV(LP2LEV1-1+IP1)
+         JL=P2LEV(LP2LEV2-1+IP1)
          IT=L2ACT(IL)
          IU=L2ACT(JL)
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL SIGMA1(SGS,CIS,EXS,
-     &               IL,JL,1.0D00,LSYM1,WORK(LTO),CLAG1)
-         LTO=LTO+MXCI
+         CALL SIGMA1(SGS,CIS,EXS,IL,JL,1.0D00,LSYM1,DTU(1,LTO),CLAG1)
+         LTO=LTO+1
         END DO
 C End of IP1STA sectioning loop
        END DO
 C
-       LTO=LDYZ
+       LTO=1
        DO IP3=IP3STA,IP3END
-        IY=L2ACT(IWORK(LP2LEV1-1+IP3))
-        IZ=L2ACT(IWORK(LP2LEV2-1+IP3))
+        IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
+        IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
 C LFROM will be start element of Sigma2=E(YZ) Psi2
         IYZ=IY+NASHT*(IZ-1)
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        IM=IWORK(LP2LEV1-1+IP3)
-        JM=IWORK(LP2LEV2-1+IP3)
+        IM=P2LEV(LP2LEV1-1+IP3)
+        JM=P2LEV(LP2LEV2-1+IP3)
 C LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL SIGMA1(SGS,CIS,EXS,
-     &              JM,IM,1.0D00,LSYM2,WORK(LTO),CLAG2)
-        LTO=LTO+MXCI
+        CALL SIGMA1(SGS,CIS,EXS,JM,IM,1.0D00,LSYM2,DYZ(1,LTO),CLAG2)
+        LTO=LTO+1
        END DO
 C End of IP3STA sectioning loop
       END DO
 C
-      CALL GETMEM('TG3WRK','FREE','REAL',LTG3WRK,NTG3WRK)
-      CALL GETMEM('BUF1','FREE','REAL',LBUF1,MXCI)
-      CALL GETMEM('DTU','FREE','REAL',LDTU,MXCI*NTUBUF)
-      CALL GETMEM('DYZ','FREE','REAL',LDYZ,MXCI*NYZBUF)
-      CALL GETMEM('IPTOLEV','FREE','INTE',LP2LEV,2*NASHT**2)
+      call mma_deallocate(TG3WRK)
+      call mma_deallocate(BUF1)
+      call mma_deallocate(DTU)
+      call mma_deallocate(DYZ)
+      call mma_deallocate(P2LEV)
 
  999  CONTINUE
       RETURN

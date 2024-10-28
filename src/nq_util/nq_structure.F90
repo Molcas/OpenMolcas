@@ -51,13 +51,13 @@ public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data, Open_NQ_Dat
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure nqd_cptr2loff
+  module procedure :: nqd_cptr2loff
 end interface
 interface mma_allocate
-  module procedure nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
+  module procedure :: nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure nqdata_mma_free_1D
+  module procedure :: nqdata_mma_free_1D
 end interface
 
 contains
@@ -85,7 +85,7 @@ subroutine Close_Info_Ang()
   do iAngular=1,size(Info_Ang)
     Info_Ang(iAngular)%L_eff = 0
     Info_Ang(iAngular)%nPoints = 0
-    if (allocated(Info_Ang(iAngular)%R)) call mma_deallocate(Info_Ang(iAngular)%R)
+    call mma_deallocate(Info_Ang(iAngular)%R,safe='*')
   end do
 
 end subroutine Close_Info_Ang
@@ -96,8 +96,8 @@ subroutine Close_NQ_Data()
 
   ! Cleanup and close
   do iNQ=1,size(NQ_data)
-    if (allocated(NQ_data(iNQ)%R_Quad)) call mma_deallocate(NQ_data(iNQ)%R_Quad)
-    if (allocated(NQ_data(iNQ)%Angular)) call mma_deallocate(NQ_data(iNQ)%Angular)
+    call mma_deallocate(NQ_data(iNQ)%R_Quad,safe='*')
+    call mma_deallocate(NQ_data(iNQ)%Angular,safe='*')
   end do
   call mma_deallocate(NQ_Data)
 

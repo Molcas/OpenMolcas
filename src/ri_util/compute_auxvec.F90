@@ -21,7 +21,7 @@ use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use RI_glob, only: DMLT, DoCholExch, iMP2prpt, nAdens, nAvec, nChOrb, nJdens, nKdens, nKvec
 use Cholesky, only: nSym, NumCho, timings
 use Etwas, only: ExFac, nASh
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 

@@ -16,7 +16,7 @@ subroutine Cho_GnVc_GenVec(Diag,xInt,lInt,nVecRS,iVecRS,RS2RS,mSym,mPass,iPass1,
 use Data_Structures, only: Alloc1DiArray_Type
 use Cholesky, only: iiBstR, IndRed, INF_PASS, INF_PROGRESS, InfVec, iOff_Col, IPRINT, LuPri, MaxRed, nDimRS, nnBstR, nnZTot, &
                     nQual, nSym, NumCho, NumChT, tDecom, XnPass
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

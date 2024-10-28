@@ -33,12 +33,12 @@
 *                                                                      *
        Logical Function ipopen(nconf,page)
        use ipPage
+       use stdalloc, only: mma_maxDBLE
 *
 *      Initiate the whole lot.
 *
        Implicit Real*8(a-h,o-z)
        Logical page
-#include "stdalloc.fh"
 *
 *      Ask how much memory is available
 *
@@ -89,11 +89,11 @@
 *                                                                      *
        Integer Function ipclose(ia)
        use ipPage
+       use stdalloc, only: mma_deallocate
 *
 *      Object: release all vectors above and including the vector
 *              indexed ia.
 *
-#include "stdalloc.fh"
        Real*8 rdum(1)
 *
        If (ia.gt.Max_CI_Vectors) Then
@@ -151,9 +151,9 @@
 *      Memory or disk space is allocated.
 *
        use ipPage
+       use stdalloc, only: mma_allocate, mma_deallocate
        use Constants, only: Zero
        Implicit Integer (a-h,o-z)
-#include "stdalloc.fh"
        Character*4 Label
 *
 *      Take the next memory slot.
@@ -229,9 +229,9 @@
 *              make the vector available in memory as W(ii)%Vec
 *
        use ipPage
+       use stdalloc, only: mma_allocate, mma_deallocate
        use Constants, only: Zero
        Implicit Integer (a-h,o-z)
-#include "stdalloc.fh"
        Real*8, Allocatable:: Tmp(:)
 *
        If (ii.gt.Max_CI_Vectors) Then
@@ -303,11 +303,11 @@
 *                                                                      *
        Integer Function ipnout(iii)
        use ipPage
+       use stdalloc, only: mma_deallocate
 *
 *      Object: write all vectors in memory on disk but vector iii
 *
        Implicit Integer (a-h,o-z)
-#include "stdalloc.fh"
 *
        If (iii.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipout: iii.gt.Max_CI_Vectors'
@@ -341,8 +341,8 @@
 *      the disk
 *
        use ipPage
+       use stdalloc, only: mma_deallocate
        Implicit Integer (a-h,o-z)
-#include "stdalloc.fh"
 *
        If (ii.gt.Max_CI_Vectors) Then
           Write (6,*) 'opout: ii.gt.Max_CI_Vectors'
@@ -370,8 +370,8 @@
 *      ipout will page out vector ii to disk and free the memory area
 *
        use ipPage
+       use stdalloc, only: mma_deallocate
        Implicit Integer (a-h,o-z)
-#include "stdalloc.fh"
 *
        ipout=0
        If (.not.diskbased) Return

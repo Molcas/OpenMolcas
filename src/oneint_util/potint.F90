@@ -25,6 +25,7 @@ subroutine PotInt( &
 
 use Phase_Info, only: iPhase
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -34,9 +35,12 @@ integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), iGrid, iPh(3), ipIn, iStabO(0:7), 
                      nFLOP, nMem, nOp, nStabO, nT
 real(kind=wp) :: Chrg, Coora(3,4), CoorAC(3,2), Coori(3,4), FACT, TC(3)
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-external :: Fake, TNAI, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)

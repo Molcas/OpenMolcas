@@ -14,7 +14,6 @@
 * This subroutine pretty prints the NxM matrix A
       implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 * Input arguments

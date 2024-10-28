@@ -271,7 +271,7 @@ if (irc /= 0) then
   call Abend()
 end if
 if (n_Int /= nSize) then
-  write(u6,*) 'MPProp: n_Int.ne.nSize'
+  write(u6,*) 'MPProp: n_Int /= nSize'
   write(u6,*) 'n_Int=',n_Int
   write(u6,*) 'nSize=',nSize
   call Abend()

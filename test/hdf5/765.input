@@ -31,13 +31,16 @@
   Title = CO, cc-pVDZ basis set
   Occupied = 7
 
+> copy $Project.scf.h5 INPORB
+
 * Default localisation, canonical orbitals
 &LOCALISATION
   NOrb = 7
   LocCanOrb
     2 0.1
     O C
-  FileOrb = $Project.scf.h5
+
+> rm INPORB
 
 * Default localisation occupied/virtual orbitals
 &LOCALISATION

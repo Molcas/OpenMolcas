@@ -10,6 +10,9 @@
 *                                                                      *
 * Copyright (C) 2014, Naoki Nakatani                                   *
 ************************************************************************
+
+#include "compiler_features.h"
+
 #ifdef _ENABLE_BLOCK_DMRG_
       Subroutine MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,W3)
 *
@@ -21,9 +24,7 @@
 *
       IMPLICIT NONE
 *
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
 *
       INTEGER, INTENT(IN) :: IFF
@@ -158,8 +159,12 @@
 
  999  Return
       End
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_MKFG3CU4()
-      End
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_MKFG3CU4()
+      end subroutine empty_MKFG3CU4
+
 #endif
