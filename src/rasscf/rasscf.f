@@ -83,7 +83,7 @@
       use csfbas, only: CONF
       use glbbas, only: CFTP
       use rasscf_lucia, only: DStmp, Dtmp
-      use raswfn, only: cre_raswfn, wfn_iter, wfn_energy, wfn_transdens,
+      use raswfn, only: wfn_iter, wfn_energy, wfn_transdens,
      &                  wfn_transsdens
 #endif
       use OFembed, only: Do_OFemb, FMaux
@@ -99,6 +99,7 @@
       use gas_data, only: iDOGAS
       use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
      &                     KeySSCR, LuInput
+      use raswfn, only: cre_raswfn
 
 
       Implicit Real*8 (A-H,O-Z)
