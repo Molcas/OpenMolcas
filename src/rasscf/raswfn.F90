@@ -37,13 +37,14 @@ use gugx, only: SGS
 use sxci, only: IDXCI, IDXSX
 use stdalloc, only: mma_allocate, mma_deallocate
 use gas_data, only: iDoGAS, NGAS, NGSSH
+use input_ras
+
 implicit none
 
 #  include "rasdim.fh"
 #  include "rasscf.fh"
 #  include "general.fh"
 #  include "ciinfo.fh"
-#  include "input_ras.fh"
 
 integer :: dsetid
 integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3

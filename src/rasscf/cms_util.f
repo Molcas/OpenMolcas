@@ -62,11 +62,12 @@ C       End If
 ************************************************************************
 
       Subroutine UnzipTUVX(TUVX,gtuvx,nTUVX)
+      use input_ras
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       INTEGER nTUVX
       Real*8 gtuvx(nTUVX),TUVX(NACPR2)
@@ -122,11 +123,12 @@ C       End If
 
       Subroutine CMSHeader(CMSSFile,LenCMSS)
       use CMS, only: iCMSOpt, CMSGuessFile
+      use input_ras
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       INTEGER LenCMSS
       CHARACTER(len=LenCMSS)::CMSSFile

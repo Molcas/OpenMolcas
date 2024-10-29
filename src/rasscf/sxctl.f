@@ -67,6 +67,8 @@
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
+      use input_ras
+
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -75,7 +77,6 @@
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "input_ras.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SXCTL   '
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec

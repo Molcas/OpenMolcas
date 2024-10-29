@@ -80,6 +80,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
+      use input_ras
 
       Implicit Real* 8 (A-H,O-Z)
 
@@ -104,7 +105,6 @@
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
 #include "timers.fh"
-#include "input_ras.fh"
 #ifdef _HDF5_
       real*8, allocatable :: density_square(:,:)
 #endif

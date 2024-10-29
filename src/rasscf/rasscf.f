@@ -97,12 +97,13 @@
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
       use gas_data, only: iDOGAS
+      use input_ras
+
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "splitcas.fh"
@@ -200,7 +201,7 @@
 * with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 * substring beginning with '!' with blanks.
 * That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras.fh) by the following call:
+* as LUInput in common (module file input_ras.F90) by the following call:
       Call cpinp(LUInput,iRc)
 * If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then

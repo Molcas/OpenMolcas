@@ -12,6 +12,8 @@
 ************************************************************************
       Subroutine RotState()
       use stdalloc, only: mma_allocate, mma_deallocate
+      use input_ras
+
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
@@ -23,7 +25,6 @@
 #include "output_ras.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "input_ras.fh"
 
 
 

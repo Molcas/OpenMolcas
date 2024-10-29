@@ -36,6 +36,7 @@
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
+      use input_ras
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -47,7 +48,6 @@
       Parameter (ROUTINE='OUTCTL  ')
 #include "ciinfo.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 
       Character*8  Fmt2, Label
       Character*3 lIrrep(8)

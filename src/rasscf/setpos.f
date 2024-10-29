@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPos(LUnit,KeyIn,Line,iRc)
+      use input_ras
+
       Implicit Real*8 (A-H,O-Z)
       Character*(*) KeyIn
       Character*(*) Line
@@ -16,7 +18,6 @@
       Character*16 Key
 #include "warnings.h"
 #include "rasdim.fh"
-#include "input_ras.fh"
 #include "output_ras.fh"
       Intrinsic len, min
 

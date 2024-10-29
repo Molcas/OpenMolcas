@@ -9,16 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !------------------------------------------------------
+Module Input_RAS
+use definitions, only: wp, iwp
+Private
+#include "rasdim.fh"
 ! Logical unit number for reading input:
-      Integer LuInput
+      Integer(kind=iwp), Public:: LuInput
 ! Used for input processing
-      Integer NKeys
-      Parameter (NKeys=151)
+      Integer(kind=iwp), Parameter, Public :: NKeys=151
 !------------------------------------------------------
 ! Logical flags, to check whether a keyword has been used
 ! in the input:
-      Logical KeyFlags(0:NKeys)
-      Logical KeyAAAA,                                                  &
+      Logical(kind=iwp), Public:: KeyFlags(0:NKeys)
+      Logical(kind=iwp), Public:: KeyAAAA,                              &
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,                 &
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,                 &
      &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,                  &
@@ -51,6 +54,7 @@
      &     KeyDIRE, KeyDIOC, KeyPPT2, KeyNDPT, KeyRGRA,                 &
      &     KeySTAV
 
+! we need the common block for the equivalence statement below to make sense.
       Common /InputFlags/ KeyAAAA,                                      &
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,                 &
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,                 &
@@ -87,8 +91,8 @@
       Equivalence(KeyAAAA,KeyFlags(0))
 !------------------------------------------------------
 ! Actual keywords, note: Order matters!
-      Character*4 CMD(nKeys)
-      Parameter (CMD = ['ALTE','ATOM','AVER','CHAR','CHOI',             &
+      Character(LEN=4), Parameter, Public::                             &
+     &    CMD(nKeys) = ['ALTE','ATOM','AVER','CHAR','CHOI',             &
      &                  'CHOL','CIMX','CION','CIRE','CIRO',             &
      &                  'CISE','CLEA','CORE','DELE','END ',             &
      &                  'FILE','FROZ','HOME','INAC','INPO',             &
@@ -118,18 +122,15 @@
      &                  'CMSO','PERI','SSCR','MCM7','WRMA',             &
      &                  'DICE','STOC','EPSI','SAMP','DITE',             &
      &                  'DIRE','DIOC','PPT2','NDPT','RGRA',             &
-     &                  'STAV'])
+     &                  'STAV']
 !------------------------------------------------------
 ! Input data sets:
-      Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,  &
-     &        ISPIN_I,LSYM_I,NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I, &
-     &        LROOTS_I,IRLXROOT_I
-      Common /InputInt/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),    &
+      Integer(kind=iwp), Public ::                                      &
+     &                   iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),           &
      &           NFRO_I(8),NISH_I(8),NRS1_I(8),NRS2_I(8),               &
      &           NRS3_I(8),NDEL_I(8),ISPIN_I,LSYM_I,                    &
      &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,             &
      &           LROOTS_I,IRLXROOT_I
-      Real*8 cCI_I,WEIGHT_I
-      Common /InputReal/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
-      Integer :: LuVecDet
-      Common /GronOR/ LuVecDet
+      Real(kind=wp), Public ::cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
+      Integer(kind=iwp), Public :: LuVecDet
+ENd Module Input_RAS

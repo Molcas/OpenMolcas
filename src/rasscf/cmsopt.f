@@ -17,11 +17,12 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged,RGD
+      use input_ras
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX

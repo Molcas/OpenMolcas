@@ -115,11 +115,11 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
      &                     GDstate,GDOrbit,Dgstate,DgOrbit,DDg,
      &                     nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
       use CMS, only: NCMSScale
+      use input_ras
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       INTEGER nSPair,lRoots2,nGD,NAC2,nDDg
       Real*8 X(nSPair),R(lRoots2),DeltaR(lRoots2),RCopy(lRoots2),

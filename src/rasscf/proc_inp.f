@@ -60,13 +60,14 @@
       use general_data, only: CRVec, CleanMask, CRPROJ
       use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
       use Symmetry_info, only: Mul
+      use input_ras
+
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "general.fh"
 #include "warnings.h"
 #include "rasscf.fh"
-#include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
