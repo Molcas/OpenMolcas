@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine ChkIfKey()
       use definitions, only: iwp
-      use input_ras
+      use input_ras, only: LUInput, nKeys, CMD
       Implicit None
 * ------------------------------------------------------------
 * Check if the next item on luinput is a string that starts with

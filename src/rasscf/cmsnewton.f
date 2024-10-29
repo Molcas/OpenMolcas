@@ -20,7 +20,6 @@
       use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,
      &              nPosHess,LargestQaaGrad,NCMSScale
       use stdalloc, only : mma_allocate, mma_deallocate
-      use input_ras
 
 #include "rasdim.fh"
 #include "rasscf.fh"

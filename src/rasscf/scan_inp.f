@@ -12,7 +12,7 @@
 #ifdef _DMRG_
       use UnixInfo, only: ProgName
 #endif
-      use input_ras
+      use input_ras, only: nKeys, CMD, KeyFlags, KeyEND, LuInput
 
       Implicit Real*8 (A-H,O-Z)
 * ------------------------------------------------------------
@@ -26,8 +26,8 @@
 #include "warnings.h"
 #include "output_ras.fh"
 *
-      Character*4 Command
-      Character*180  Line
+      Character(LEN=4) Command
+      Character(LEN=180)  Line
 
 #ifdef _DMRG_
       logical qcmaquis_input

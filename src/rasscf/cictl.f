@@ -80,7 +80,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
-      use input_ras
+      use input_ras, only: KeyCION, KeyPRSD, KeyCISE, KeyCIRF
 
       Implicit Real* 8 (A-H,O-Z)
 
@@ -126,6 +126,7 @@
      &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
      &                      RF(:), Temp(:)
       Integer, Allocatable:: kCnf(:)
+      Integer LuVecDet
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)

@@ -103,7 +103,6 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: DStmp, Dtmp
       use Lucia_Interface, only: Lucia_Util
-      use input_ras
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

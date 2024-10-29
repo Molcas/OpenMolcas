@@ -17,7 +17,6 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged,RGD
-      use input_ras
 
 #include "rasdim.fh"
 #include "rasscf.fh"

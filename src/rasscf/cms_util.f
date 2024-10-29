@@ -62,7 +62,6 @@ C       End If
 ************************************************************************
 
       Subroutine UnzipTUVX(TUVX,gtuvx,nTUVX)
-      use input_ras
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -123,7 +122,6 @@ C       End If
 
       Subroutine CMSHeader(CMSSFile,LenCMSS)
       use CMS, only: iCMSOpt, CMSGuessFile
-      use input_ras
 
 #include "rasdim.fh"
 #include "rasscf.fh"

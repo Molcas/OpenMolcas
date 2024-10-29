@@ -115,7 +115,6 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
      &                     GDstate,GDOrbit,Dgstate,DgOrbit,DDg,
      &                     nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
       use CMS, only: NCMSScale
-      use input_ras
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

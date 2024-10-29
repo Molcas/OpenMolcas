@@ -60,7 +60,8 @@
       use general_data, only: CRVec, CleanMask, CRPROJ
       use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
       use Symmetry_info, only: Mul
-      use input_ras
+      use input_ras   ! It should be without the only option!
+      use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"

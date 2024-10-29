@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!------------------------------------------------------
 Module Input_RAS
-use definitions, only: wp, iwp
+use definitions, only: iwp
 Private
 #include "rasdim.fh"
 ! Logical unit number for reading input:
@@ -123,14 +122,4 @@ Private
      &                  'DICE','STOC','EPSI','SAMP','DITE',             &
      &                  'DIRE','DIOC','PPT2','NDPT','RGRA',             &
      &                  'STAV']
-!------------------------------------------------------
-! Input data sets:
-      Integer(kind=iwp), Public ::                                      &
-     &                   iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),           &
-     &           NFRO_I(8),NISH_I(8),NRS1_I(8),NRS2_I(8),               &
-     &           NRS3_I(8),NDEL_I(8),ISPIN_I,LSYM_I,                    &
-     &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,             &
-     &           LROOTS_I,IRLXROOT_I
-      Real(kind=wp), Public ::cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
-      Integer(kind=iwp), Public :: LuVecDet
 ENd Module Input_RAS

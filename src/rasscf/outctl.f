@@ -36,7 +36,7 @@
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
-      use input_ras
+      use input_ras, only: KeyCION
 
       Implicit Real*8 (A-H,O-Z)
 

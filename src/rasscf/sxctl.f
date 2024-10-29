@@ -67,8 +67,7 @@
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
-      use input_ras
-
+      use input_ras, only: KeyHEUR
 
       Implicit Real*8 (A-H,O-Z)
 

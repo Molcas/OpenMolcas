@@ -12,7 +12,6 @@
 ************************************************************************
       Subroutine RotState()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use input_ras
 
 * ****************************************************************
 * history:                                                       *

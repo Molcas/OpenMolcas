@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPos(LUnit,KeyIn,Line,iRc)
-      use input_ras
 
       Implicit Real*8 (A-H,O-Z)
-      Character*(*) KeyIn
-      Character*(*) Line
-      Character*16 Command
-      Character*16 Key
+      Character(LEN=*) KeyIn
+      Character(LEN=*) Line
+      Character(LEN=16) Command
+      Character(LEN=16) Key
 #include "warnings.h"
 #include "rasdim.fh"
 #include "output_ras.fh"
@@ -60,5 +59,4 @@
       End If
 *      Call Quit(_RC_INPUT_ERROR_)
       iRc=_RC_INPUT_ERROR_
-      Return
-      End
+      End Subroutine SetPos

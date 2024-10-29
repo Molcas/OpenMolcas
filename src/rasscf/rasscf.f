@@ -97,7 +97,8 @@
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
       use gas_data, only: iDOGAS
-      use input_ras
+      use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
+     &                     KeySSCR, LuInput
 
 
       Implicit Real*8 (A-H,O-Z)
@@ -233,8 +234,8 @@
       Call OpnFls_RASSCF(DSCF,DoCholesky)
 
 * Some preliminary input data:
-      Call Rd1Int
-      If ( .not.DSCF ) Call Rd2Int_RASSCF
+      Call Rd1Int()
+      If ( .not.DSCF ) Call Rd2Int_RASSCF()
 
 * Printed program header:
 
