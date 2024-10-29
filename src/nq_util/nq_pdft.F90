@@ -37,6 +37,7 @@ logical(kind=iwp), allocatable :: Pass1(:), Pass2(:), Pass3(:)
 public :: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoamb, &
           dF_dRhoapb, dF_dRhoxamb, dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhodX, dRhodY, &
           dRhodZ, dZdR, dZdRho, fta, ftb, ftc, GdEdPiMO, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, lmGGA1, lmGGA2, MOas,&
-          MOax, MOay, MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, ThrsRho, ZetaA,TauAB, LaplAB, tmpTau
+          MOax, MOay, MOaz, OneMZ, OnePZ, Pass1, Pass2, Pass3, RatioA, RhoAB, ThrsFT, ThrsNT, ThrsOMR, ThrsRho, ZetaA,TauAB,LaplAB,&
+          tmpTau
 
 end module nq_pdft
