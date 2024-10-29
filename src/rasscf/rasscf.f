@@ -127,9 +127,6 @@
       Logical, External :: PCM_On
 #endif
 
-* --------- Cholesky stuff:
-#include "qmat.fh"
-* --------- End Cholesky stuff
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
@@ -174,7 +171,6 @@
 
 * Set some Cholesky stuff
       DoActive=.true.
-      DoQmat=.false.
       lOPTO=.False.
 * Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
@@ -672,8 +668,6 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 
         End If
 
-        DoQmat=.false.
-
         IPR=0
         IF(IPRLOC(2).EQ.4) IPR=5
         IF(IPRLOC(2).EQ.5) IPR=10
@@ -994,7 +988,6 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       DoActive = .true.
 
       If (DoCholesky.and.ALGO.eq.2) Then
-         DoQmat=.true. ! to be used in the subsequent SX-section
          NTav=0
          do iSym=1,nSym
             NTav = NTav + nBas(iSym)*nAsh(iSym)
