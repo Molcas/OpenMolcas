@@ -46,7 +46,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "qmat.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 C
