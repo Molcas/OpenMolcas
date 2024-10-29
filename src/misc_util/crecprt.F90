@@ -32,9 +32,9 @@
 
 subroutine CRecPrt(Title,FmtIn,A,nRow,nCol,tp)
 
+use Spool, Only: LuWr
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Spool, Only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn

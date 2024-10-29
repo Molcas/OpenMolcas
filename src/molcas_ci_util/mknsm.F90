@@ -13,9 +13,9 @@ subroutine MKNSM()
 ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
 use gugx, only: SGS
+use gas_data, only: NGAS, NGSSH
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
-use gas_data, only: NGAS, NGSSH
 use rasscf_global, only: NSM
 
 

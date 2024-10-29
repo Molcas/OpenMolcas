@@ -10,13 +10,17 @@
 !***********************************************************************
 
 module gas_data
-  use definitions, only: iwp
-  implicit none
-  Private
-# include "Molcas.fh"
-  Logical(kind=iwp), Public:: iDoGas=.FALSE.
-  INTEGER(kind=iwp), Public:: NGAS=0
-  INTEGER(kind=iwp), Public:: NGSSH(mxGAS,mxSym)=0
-  INTEGER(kind=iwp), Public:: IGSOCCX(mxGAS,2)=0
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+#include "Molcas.fh"
+
+integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
+logical(kind=iwp) :: iDoGas = .false.
+
+public :: iDoGas, IGSOCCX, NGAS, NGSSH
 
 end module gas_data

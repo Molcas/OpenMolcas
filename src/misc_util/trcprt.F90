@@ -37,9 +37,9 @@ subroutine TrcPrt(Title,FmtIn,A,nRow,nCol)
 !                                                                      *
 !***********************************************************************
 
+use Spool, only: LuWr
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Spool, only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn

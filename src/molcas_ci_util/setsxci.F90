@@ -12,11 +12,11 @@
 subroutine SETSXCI()
 
 use sxci, only: IDXCI, IDXSX
+use gas_data, only: NGAS, NGSSH
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use gas_data, only: NGAS, NGSSH
 
 implicit none
 #include "rasdim.fh"

@@ -32,9 +32,9 @@
 !#define _DEBUGPRINT_
 subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
 
+use Spool, only: LuWr
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Spool, only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn

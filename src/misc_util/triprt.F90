@@ -28,9 +28,9 @@
 subroutine TriPrt(Title,FmtIn,A,N)
 
 use Index_Functions, only: nTri_Elem
+use Spool, only: LuWr
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Spool, only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn

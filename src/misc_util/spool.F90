@@ -12,6 +12,22 @@
 !               2002, Roland Lindh                                     *
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
+
+module Spool
+
+use Definitions, only: iwp, u5, u6
+
+implicit none
+private
+
+logical(kind=iwp) :: Spool_On = .true.
+integer(kind=iwp) :: LuRd = u5, LuWr = u6
+
+public :: Close_LuSpool, Disable_Spool, LuRd, LuWr, Set_Spool, SpoolInp
+
+contains
+
+subroutine SpoolInp(LuSpool)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -28,88 +44,71 @@
 !                   J.W. Krogh to make auto.plx create the old input   *
 !                   file. Lund, Sweden, October 2005.                  *
 !***********************************************************************
-Module Spool
-Private
 
-Logical, public :: Spool_On=.True.
-Integer, public :: LuRd=5, LuWr=6
+  use UnixInfo, only: ProgName
+  use Definitions, only: iwp
 
-Public:: SpoolInp, Set_Spool, Disable_Spool, Close_LuSpool
+  implicit none
+  integer(kind=iwp), intent(out) :: LuSpool
+  integer(kind=iwp) :: iEnd
+  logical(kind=iwp) :: Exists
+  character(len=len(ProgName)) :: PName
+  character(len=128) :: FileName
+  integer(kind=iwp) :: IsFreeUnit
 
-contains
-subroutine SpoolInp(LuSpool)
+  ! Get the name of the module
 
-use UnixInfo, only: ProgName
-use Definitions, only: iwp
+  PName = ProgName
+  call Upcase(PName)
+  PName = adjustl(PName)
 
-implicit none
-integer(kind=iwp), intent(out) :: LuSpool
-integer(kind=iwp) :: iEnd
-logical(kind=iwp) :: Exists
-character(len=len(ProgName)) :: PName
-character(len=128) :: FileName
-integer(kind=iwp) :: IsFreeUnit
+  iEnd = 1
+  do while (PName(iEnd:iEnd) /= ' ')
+    iEnd = iEnd+1
+  end do
+  iEnd = min(iEnd-1,5)
+  FileName = PName(1:iend)//'INP'
 
-! Get the name of the module
+  ! If Spool_on is true, then the input in StdIn is just used.
+  ! Else we'll use the latest input. This is created by auto.plx
 
-PName = ProgName
-call Upcase(PName)
-PName = adjustl(PName)
-
-iEnd = 1
-do while (PName(iEnd:iEnd) /= ' ')
-  iEnd = iEnd+1
-end do
-iEnd = min(iEnd-1,5)
-FileName = PName(1:iend)//'INP'
-
-! If Spool_on is true, then the input in StdIn is just used.
-! Else we'll use the latest input. This is created by auto.plx
-
-LuSpool = 17
-if (Spool_On) then
-  LuSpool = LuRd
-else
-  call f_inquire('LASTEN',Exists) ! customized Last_Energy input
-  if (Exists) then
-    LuSpool = IsFreeUnit(LuSpool)
-    call Molcas_Open(LuSpool,'LASTEN')
+  LuSpool = 17
+  if (Spool_On) then
+    LuSpool = LuRd
   else
-    call f_inquire(Filename,Exists)
+    call f_inquire('LASTEN',Exists) ! customized Last_Energy input
     if (Exists) then
       LuSpool = IsFreeUnit(LuSpool)
-      call Molcas_Open(LuSpool,Filename)
+      call Molcas_Open(LuSpool,'LASTEN')
+    else
+      call f_inquire(Filename,Exists)
+      if (Exists) then
+        LuSpool = IsFreeUnit(LuSpool)
+        call Molcas_Open(LuSpool,Filename)
+      end if
     end if
   end if
-end if
 
 end subroutine SpoolInp
 
 subroutine Set_Spool()
 
-implicit none
-
-Spool_on = .True.
+  Spool_on = .true.
 
 end subroutine Set_Spool
 
 subroutine Disable_Spool()
 
-implicit none
-
-Spool_on = .false.
+  Spool_on = .false.
 
 end subroutine Disable_Spool
 
 subroutine Close_LuSpool(LuSpool)
 
-use Definitions, only: iwp
+  integer(kind=iwp), intent(in) :: LuSpool
 
-implicit none
-integer(kind=iwp), intent(in) :: LuSpool
-
-if (.not. Spool_On) close(LuSpool)
+  if (.not. Spool_On) close(LuSpool)
 
 end subroutine Close_LuSpool
 
-End Module Spool
+end module Spool

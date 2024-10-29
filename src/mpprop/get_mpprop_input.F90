@@ -12,10 +12,9 @@
 subroutine Get_Mpprop_input(nAtoms,iPol,LNearestAtom,LAllCenters,AveOrb,LLumOrb,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,iPrint)
 
 use MPProp_globals, only: BondMat, iAtomPar, Labe, Title
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use spool, only: Spoolinp
-
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms
