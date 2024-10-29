@@ -14,6 +14,8 @@
 !               1995,1996, Martin Schuetz                              *
 !               2003, Valera Veryazov                                  *
 !               2016,2017,2022, Roland Lindh                           *
+!               2024, Daniel Wessling                                  *
+!               2024, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 subroutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
@@ -541,9 +543,9 @@ do iter_=1,nIter(nIterP)
             ! compute new displacement vector delta
             ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
-            call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+            call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
 
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
             if (DD > Pi) then
               write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
@@ -576,7 +578,7 @@ do iter_=1,nIter(nIterP)
 
             Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
 
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
             if (DD <= Pi) exit
             write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
@@ -589,7 +591,7 @@ do iter_=1,nIter(nIterP)
             else
               write(u6,*) 'Scale the step to be within the threshold.'
               Disp(:) = Disp(:)*(LastStep/DD)
-              DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+              DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
               exit
             end if
           end do
@@ -611,8 +613,8 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           dqHdq = Zero
           do
-            call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),3)
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
             if (DD <= Pi) exit
             write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
             write(u6,*) 'DD=',DD
@@ -663,7 +665,7 @@ do iter_=1,nIter(nIterP)
               ! compute new displacement vector delta
               ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
-              call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+              call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
 
               ! from this, compute new orb rot parameter X(n+1)
               !
@@ -681,10 +683,9 @@ do iter_=1,nIter(nIterP)
               Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
             case (2) ! Use BFGS
               call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
-              Disp(:) = -Disp(:)
             case (3) ! Use RS-RFO
               dqHdq = Zero
-              call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
+              call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),1)
           end select
           AccCon = StrSave
 

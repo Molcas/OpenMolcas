@@ -9,11 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
-!               2014,2018, Ignacio Fdez. Galvan                        *
+!               2014,2018,2024, Ignacio Fdez. Galvan                   *
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc)
+subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc,ValMin)
 !***********************************************************************
 !                                                                      *
 !     Object: Automatic restricted-step rational functional            *
@@ -37,7 +37,7 @@ use Constants, only: Zero, Half, One, Three, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nInter
+integer(kind=iwp), intent(in) :: nInter, ValMin
 real(kind=wp), intent(in) :: g(nInter), StepMax_Seed
 real(kind=wp), intent(out) :: dq(nInter), dqdq
 character(len=6), intent(out) :: UpMeth
@@ -48,7 +48,7 @@ real(kind=wp) :: A_RFO, A_RFO_Long, A_RFO_Short, DqDq_Long, DqDq_Short, EigVal, 
                  ZZ
 logical(kind=iwp) :: Iterate, Restart
 real(kind=wp), allocatable :: Tmp(:), Val(:), Vec(:,:)
-integer, parameter :: IterMx = 50
+integer(kind=iwp), parameter :: IterMx = 20
 real(kind=wp), parameter :: Step_Factor = Three, StepMax_Min = 1.0e-2_wp, Thr = 1.0e-4_wp
 real(kind=wp), external :: DDot_
 
@@ -87,7 +87,7 @@ A_RFO = One   ! Initial seed of alpha
 Iter_i = 0
 Iterate = .false.
 Restart = .false.
-NumVal = min(3,nInter+1)
+NumVal = min(ValMin,nInter+1)
 !NumVal = min(nInter+1,nInter+1)
 call mma_allocate(Vec,nInter+1,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')

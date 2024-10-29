@@ -103,7 +103,7 @@ set (sources
      reset_thresholds.F90
      rmldep.F90
      rotmos.F90
-     rs-rfo-scf.F90
+     rs_rfo_scf.F90
      rwdtg.F90
      s_gek_optimizer.F90
      scf.F90
