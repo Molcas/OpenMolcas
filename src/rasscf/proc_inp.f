@@ -21,6 +21,7 @@
      &        remove_comment, qcmaquis_interface_set_param,
      &        qcmaquis_interface_stdout
       use active_space_solver_cfg, only: as_solver_inp_proc
+      use rasscf_data, only: MPSCompressM, DoNEVPT2Prep
 #ifdef _MOLCAS_MPP_
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
@@ -88,10 +89,6 @@
       Dimension iMAlter(MaxAlter,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
-#ifdef _DMRG_
-* DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
-#include "nevptp.fh"
-#endif
       Logical DBG, exist
 
       Integer IScratch(10)
@@ -145,7 +142,7 @@ C   No changing about read in orbital information from INPORB yet.
 
       DoFaro = .FALSE.
 
-#ifdef _DMRG
+#ifdef _DMRG_
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
 !     If this is set to 0, MPS compression is disabled

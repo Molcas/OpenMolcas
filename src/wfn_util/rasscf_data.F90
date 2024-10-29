@@ -14,13 +14,21 @@
 ! src/Include/rasscf.fh
 ! src/Include/output_ras.fh
 ! into a data module
+! this should eventually be developed to the module where these are defined.
 
 module rasscf_data
 
+use definitions, only: iwp
 implicit none
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "output_ras.fh"
+
+#ifdef _DMRG_
+!DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
+Integer(kind=iwp), Public :: MPSCompressM
+Logical(kind=iwp), Public :: DoNEVPT2Prep, DoDelChk
+#endif
 
 end module rasscf_data

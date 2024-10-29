@@ -38,7 +38,7 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
       real*8 ECAS0
 
@@ -46,8 +46,7 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FOCK    ')
+      Character(LEN=16), Parameter :: ROUTINE='FOCK    '
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -306,5 +305,4 @@ C
          Write(LF,*)
       End If
 C
-      RETURN
-      END
+      END SUBROUTINE FOCK

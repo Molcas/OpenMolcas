@@ -120,7 +120,6 @@
 
       ! arrays for 1- and 2-RDMs and spin-1-RDMs, size: nrdm x nroots
       real*8, allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
-c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
       Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),

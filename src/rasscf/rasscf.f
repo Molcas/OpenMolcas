@@ -55,6 +55,8 @@
      &  qcmaquis_interface_deinit, qcmaquis_param,
      &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
+      use rasscf_lucia, only: RF1, RF2
+      use rasscf_data, only: DoNEVPT2Prep, DoDelChk
 #endif
       use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
@@ -89,9 +91,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
       use Lucia_Interface, only: Lucia_Util
-#ifdef _DMRG_
-      use rasscf_lucia, only: RF1, RF2
-#endif
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
@@ -142,7 +141,6 @@
 #ifdef _DMRG_
       integer :: maxtrR
       real*8  :: maxtrW
-#include "nevptp.fh"
 #endif
       Integer IndType(56)
       Character(len=80) ::  VecTyp
@@ -1685,8 +1683,6 @@ c Clean-close as much as you can the CASDFT stuff...
       EndIf
 
       Call Get_D1I_RASSCF(CMO,D1I)
-
-       DoQmat=.false.
 
        IPR=0
        IF(IPRLOC(2).EQ.4) IPR=5
