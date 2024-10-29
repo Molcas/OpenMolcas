@@ -72,6 +72,7 @@
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2
       use RASWfn, only: wfn_dmrg_checkpoint
+      use input_ras, only: KeyCION
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
@@ -80,7 +81,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
-      use input_ras, only: KeyCION, KeyPRSD, KeyCISE, KeyCIRF
+      use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
 
       Implicit Real* 8 (A-H,O-Z)
 

@@ -99,7 +99,7 @@
       use gas_data, only: iDOGAS
       use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
      &                     KeySSCR, LuInput
-      use raswfn, only: cre_raswfn
+      use raswfn, only: cre_raswfn, Wfn_FileID
 
 
       Implicit Real*8 (A-H,O-Z)
