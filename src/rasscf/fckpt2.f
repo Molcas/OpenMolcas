@@ -38,12 +38,13 @@
       use fciqmc, only: tPrepStochCASPT2, tNonDiagStochPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use RASWfn, only: wfn_mocoef
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
-      Character*3 Label
+      Character(LEN=3) Label
       Integer, Allocatable:: OrbSym(:)
 #endif
 
@@ -58,9 +59,7 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "raswfn.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FCKPT2  ')
+      Character(LEN=16), Parameter :: ROUTINE='FCKPT2  '
 
       Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
      &          WO(*),SQ(*),CMOX(*)

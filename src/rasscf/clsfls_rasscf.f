@@ -28,6 +28,7 @@
 ************************************************************************
 #ifdef _HDF5_
       use mh5, only: mh5_close_file
+      use RASWfn, only: wfn_fileid
 #endif
       Implicit Real*8 (A-H,O-Z)
       Logical DoCholesky
@@ -36,7 +37,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 
-#include "raswfn.fh"
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*

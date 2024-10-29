@@ -61,6 +61,7 @@
       use fciqmc, only : DoNECI
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use raswfn, only: wfn_mocoef, wfn_occnum
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
@@ -69,19 +70,17 @@
 
       Implicit Real*8 (A-H,O-Z)
 
-      Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
+      Real*8 CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SXCTL   ')
-#include "raswfn.fh"
+      Character(LEN=16), Parameter :: ROUTINE='SXCTL   '
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec
       Integer IndType(56)
-      Character*80 VecTyp
+      Character(LEN=80) VecTyp
       Save nCall
       Logical TraOnly
       Real*8 P2act(1),CIDUMMY(1)

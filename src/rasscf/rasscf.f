@@ -80,15 +80,15 @@
       use mh5, only: mh5_put_attr, mh5_put_dset
       use csfbas, only: CONF
       use glbbas, only: CFTP
+      use rasscf_lucia, only: DStmp, Dtmp
+      use raswfn, only: cre_raswfn, wfn_iter, wfn_energy, wfn_transdens,
+     &                  wfn_transsdens
 #endif
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
       use Lucia_Interface, only: Lucia_Util
-#ifdef _HDF5_
-      use rasscf_lucia, only: DStmp, Dtmp
-#endif
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2
 #endif
@@ -112,7 +112,6 @@
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "ciinfo.fh"
-#include "raswfn.fh"
 
       Logical DSCF
       Logical lTemp, lOPTO

@@ -61,6 +61,7 @@
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use RASWfn, only: wfn_dens, wfn_spindens, wfn_cicoef
 #endif
       use csfbas, only: CONF
       use glbbas, only: CFTP
@@ -70,6 +71,7 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2
+      use RASWfn, only: wfn_dmrg_checkpoint
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
@@ -104,7 +106,6 @@
 #include "timers.fh"
 #include "input_ras.fh"
 #ifdef _HDF5_
-#include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
 #endif
 

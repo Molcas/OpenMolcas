@@ -21,6 +21,7 @@
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
      &               mh5_get_dset_dims
       use index_symmetry, only : one_el_idx
+      use RASWFn, only: wfn_dens, wfn_spindens
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
@@ -35,7 +36,6 @@
 
       implicit none
 
-#include "raswfn.fh"
 #include "intent.fh"
 
       private

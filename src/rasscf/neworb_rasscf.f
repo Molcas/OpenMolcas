@@ -52,6 +52,7 @@
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
       use gas_data, only: NGAS,NGSSH
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -63,7 +64,6 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='NEWORB  ')
 #include "SysDef.fh"
-#include "raswfn.fh"
 
       Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
      *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
