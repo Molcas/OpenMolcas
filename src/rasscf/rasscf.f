@@ -111,7 +111,6 @@
 #include "output_ras.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "qnctl.fh"
 #include "ciinfo.fh"
 #include "raswfn.fh"
 
