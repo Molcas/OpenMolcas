@@ -43,11 +43,12 @@ real(kind=wp), intent(out) :: dq(nInter), dqdq
 character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(inout) :: dqHdq
 character, intent(out) :: Step_Trunc
-integer(kind=iwp) :: I, iRoot, iStatus, Iter_i, IterMx, NumVal
+integer(kind=iwp) :: I, iRoot, iStatus, Iter_i, NumVal
 real(kind=wp) :: A_RFO, A_RFO_Long, A_RFO_Short, DqDq_Long, DqDq_Short, EigVal, Fact, GG, Step_Lasttime = Pi, StepMax = One, Test, &
                  ZZ
 logical(kind=iwp) :: Iterate, Restart
 real(kind=wp), allocatable :: Tmp(:), Val(:), Vec(:,:)
+integer, parameter :: IterMx = 50
 real(kind=wp), parameter :: Step_Factor = Three, StepMax_Min = 1.0e-2_wp, Thr = 1.0e-4_wp
 real(kind=wp), external :: DDot_
 
@@ -83,7 +84,6 @@ write(u6,*) ' Iter    alpha    Sqrt(dqdq)  StepMax    EigVal'
 #endif
 
 A_RFO = One   ! Initial seed of alpha
-IterMx = 50
 Iter_i = 0
 Iterate = .false.
 Restart = .false.
@@ -249,6 +249,7 @@ do
   if ((.not. Iterate) .or. (abs(StepMax-sqrt(dqdq)) <= Thr)) exit
 
 end do
+write(6,*) 'IFG Iter_i',Iter_i
 
 call mma_deallocate(Tmp)
 dqHdq = dqHdq+EigVal*Half

@@ -650,103 +650,43 @@ do iter_=1,nIter(nIterP)
           !*************************************************************
           !                                                            *
           ! Expand the subspace for GEK
+          StrSave = AccCon
           select case (Expand)
             case (1) ! Use DIIS
               ! Compute extrapolated g_x(n) and X_x(n)
 
-              StrSave = AccCon
-              do
-                call DIIS_x(nD,CInter,nCI,.true.,Ind)
+              call DIIS_x(nD,CInter,nCI,.true.,Ind)
 
-                call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
-                call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
+              call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
+              call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
 
-                ! compute new displacement vector delta
-                ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+              ! compute new displacement vector delta
+              ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
-                call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+              call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
 
-                DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+              ! from this, compute new orb rot parameter X(n+1)
+              !
+              ! X(n+1) = X_x(n) - H(-1)g_x(n)
+              ! X(n+1) = X_x(n) + dX_x(n)
 
-                if (DD > Pi) then
-                  write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
-                  write(u6,*) 'DD=',DD
-                  if (kOptim == 1) then
-                    write(u6,*) 'Scale the step to be within the threshold.'
-                    write(u6,*) 'LastStep=',LastStep
-                    Disp(:) = Disp(:)*(LastStep/DD)
-                  else
-                    write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
-                    kOptim = 1
-                    Iter_Start = Iter
-                    IterSO = 1
-                    cycle
-                  end if
-                end if
+              Xnp1(:) = Xnp1(:)-Disp(:)
 
-                ! from this, compute new orb rot parameter X(n+1)
-                !
-                ! X(n+1) = X_x(n) - H(-1)g_x(n)
-                ! X(n+1) = X_x(n) + dX_x(n)
+              ! get address of actual X(n) in corresponding LList
 
-                Xnp1(:) = Xnp1(:)-Disp(:)
+              jpXn = LstPtr(iter,LLx)
 
-                ! get address of actual X(n) in corresponding LList
+              ! and compute actual displacement dX(n)=X(n+1)-X(n)
 
-                jpXn = LstPtr(iter,LLx)
-
-                ! and compute actual displacement dX(n)=X(n+1)-X(n)
-
-                Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
-
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-
-                if (DD <= Pi) exit
-
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim == 1) then
-                  write(u6,*) 'Scale the step to be within the threshold.'
-                  Disp(:) = Disp(:)*(LastStep/DD)
-                  DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-                  exit
-                else
-                  write(u6,*)'Reset update depth in BFGS, redo the DIIS'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                end if
-              end do
-              AccCon = StrSave
-              LastStep = min(DD,1.0e-2_wp)
+              Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
             case (2) ! Use BFGS
               call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
               Disp(:) = -Disp(:)
-              DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
-              if (DD > Pi) then
-                write(u6,*) 'WfCtl_SCF: Total displacement is large.'
-                write(u6,*) 'DD=',DD
-              end if
-              AccCon(1:6) = 'BFGS'
             case (3) ! Use RS-RFO
               dqHdq = Zero
-              do
-                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-                if (DD <= Pi) exit
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim /= 1) then
-                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                else
-                  write(u6,*) 'Probably a bug.'
-                  call Abend()
-                end if
-              end do
+              call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
           end select
+          AccCon = StrSave
 
           call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.true.)
           !                                                            *
