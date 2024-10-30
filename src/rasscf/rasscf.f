@@ -100,9 +100,24 @@
       use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
      &                     KeySSCR, LuInput
       use raswfn, only: cre_raswfn, Wfn_FileID
-      use rasscf_global
+      use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG,
+     &                         DoFaro, DoFCIDump, DoMcpdftDMRG, ECAS,
+     &                         ESX, EVAC, ExFac, FDIAG, HalfQ, iBLBM,
+     &                         ICICH, iCIOnly, iExpand, IfCrPr,
+     &                         InOCalc, iPr, iPT2, iRLXRoot, iSave_Exp,
+     &                         iSymBB, ITER, ITERCI, ITERSX, JBLBM,
+     &                         l_casdft, lRoots, lSquare, MaxIt, NAC,
+     &                         NACPAR, NACPR2, NewFock, nFint, no2m,
+     &                         nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax,
+     &                         Start_Vectors, SXShft, Thre, ThrSX,
+     &                         THRTE, TMin, Tot_Charge, EMY,
+     &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
+     &                         Conv, DODMRG, ECAS1, iCIRST, KSDFT_Temp
+#ifdef _DMRG_
+      use rasscf_global, only: Twordm_qcm
+#endif
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
@@ -114,17 +129,26 @@
 #include "lucia_ini.fh"
 #include "ciinfo.fh"
 
+      Integer IReturn
       Logical DSCF
       Logical lTemp, lOPTO
-      Character*80 Line
-      Character*8 Label
-      Character*1 CTHRE, CTHRSX, CTHRTE
+      Character(LEN=80) Line
+      Character(LEN=8) Label
+      Character(LEN=1) CTHRE, CTHRSX, CTHRTE
       Logical IfOpened
 #ifdef _DMRG_
       Logical Do_ESPF
       ! function defined in misc_util/pcm_on.f
       Logical, External :: PCM_On
 #endif
+      Real*8 CASDFT_E, CASDFT_FUNCT, Certina_1, Certina_2, Certina_3,
+     &       DiffE, DiffETol, dum1, dum2, dum3, EAv, ThMax, TMXTOT
+      Real*8, External:: Get_ExFac
+      Integer i, i_ROOT, iAd, iAd15, iBas, iDX, iComp, iFinal, ihh,
+     &        imm, Ind, IndT, iOff, iOpt, iPrLev, iRC, iRot, iShift,
+     &        iss, iSyLbl, iSym, iTerm, j, jDisk, jRoot, kau, kDisk,
+     &        kRoot, LuOne, LuvvVec, mRoots, nTav, iFlags, NoScr1
+      Integer, External:: IsFreeUnit
 
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
@@ -136,7 +160,7 @@
       integer :: actual_iter
 
 
-      Character*15 STLNE2
+      Character(LEN=15) STLNE2
       External RasScf_Init
       External Scan_Inp
       External Proc_Inp
