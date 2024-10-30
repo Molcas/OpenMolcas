@@ -66,10 +66,32 @@
 #else
       use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
 #endif
-      use rasscf_global
+      use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI, KAVER,
+     &                         KSYM, HFOCC, CMSStartMat, CMSThreshold,
+     &                         CoreShift, DFTFOCK, DoBLOCKDMRG, DODMRG,
+     &                         ExFac, hRoots, iAlphaBeta, ICICH,
+     &                         iCIonly, iCIRFROOT, iCMSITERMAX,
+     &                         iCMSITERMin, iCMSP, iExpand, JCJ,
+     &                         iFORDE, iOrbOnly, iOrbTyp, iOrdEM,
+     &                         iOverWr, iPCMRoot, iPhName, iPR, iPT2,
+     &                         iRotPsi, iSave_Exp, iSCF, iSPDEN,
+     &                         iSupSM, ITCORE, ITMAX, IXMSP,      kivo,
+     &                         kTight, l_CASDFT, LowMS, LvShft, MaxIt,
+     &                         MaxJt, MaxOrbOut, n_keep, NAC, NACPAR,
+     &                         NACPR2, NFR, NIN, NO2M, NonEq, NQUNE,
+     &                         NORBT, NROOTS, NSEC, NTOT3, NTOT4,
+     &                         OutFmt1, OutFmt2, PotNuc, PreThr, ProThr,
+     &                         PreThr, Purify, RFPert, S, SXSEL, ThFact,
+     &                         ThrE, ThrEn, ThrSX, ThrTE, HFOcc, Title,
+     &                         Weight, DoFaro, DoFCIDump, iCIRST,
+     &                         IfCRPR, LROOTS, PrwThr, InOCalc, ixSym,
+     &                         iZRot
+#ifdef _DMRG_
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
+#endif
 
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "general.fh"
@@ -83,24 +105,26 @@
 #include "lucia_ini.fh"
 *
 *
-      Character*180  Line
-      Character*8 NewJobIphName
-      logical lExists, RunFile_Exists, RlxRCheck
-* Some strange extra logical variables...
       logical lOPTO
       logical DSCF
+      Integer iRC
+
+      Character(LEN=180) Line
+      Character(LEN=8) NewJobIphName
+      logical lExists, RunFile_Exists, RlxRCheck
+* Some strange extra logical variables...
       logical RF_On
       logical Langevin_On
       logical PCM_On
 * (SVC) added for treatment of alter and supsym
-      Dimension iMAlter(MaxAlter,2)
+      Integer iMAlter(MaxAlter,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
       Logical DBG, exist
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.
-      Character*8 InfoLbl
+      Character(LEN=8) InfoLbl
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
       Integer NBAS_L(8),NORB_L(8)
       Integer NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
@@ -111,18 +135,18 @@
 * TOC on JOBOLD (or JOBIPH)
       Integer IADR19(15)
 
-      Character*180 Get_LN
+      Character(LEN=180) Get_LN
       External Get_LN
       Real*8   Get_ExFac
       External Get_ExFac
-      Character*72 ReadStatus
-      Character*72 JobTit(mxTit)
-      Character*256 myTitle
-      Character*8 MaxLab
+      Character(LEN=72) ReadStatus
+      Character(LEN=72) JobTit(mxTit)
+      Character(LEN=256) myTitle
+      Character(LEN=8) MaxLab
       Logical, External :: Is_First_Iter
-      Dimension Dummy(1)
-      Character*(LENIN8*mxOrb) lJobH1
-      Character*(2*72) lJobH2
+      Real*8 Dummy(1)
+      Character(LEN=LENIN8*mxOrb) lJobH1
+      Character(LEN=2*72) lJobH2
 
       integer :: start, step, length
 
@@ -131,8 +155,8 @@
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
-      Character*256 CurrDir
-      Character*72 ProjectName
+      Character(LEN=256) CurrDir
+      Character(LEN=72) ProjectName
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
       character(len=20)    :: guess_dmrg
@@ -143,6 +167,21 @@
       Integer, Allocatable:: Temp1(:), Temp2(:), Temp3(:), Type(:),
      &                       Stab(:), UG2SG_X(:)
       Real*8, Allocatable:: ENC(:), RF(:)
+
+      Real*8 dSum, dum1, dum2,dum3, Eterna_2, POTNUCDUMMY, PRO, SUHF,
+     &       TEffNChrg, TotChrg, Eterna_1
+      Integer, External:: IsFreeUnit
+      Integer i, i1, i2, iad19, iChng1, iChng2, iDisk, iEnd, iErr,
+     &        iGAS, iGrp, ii, ij, iJOB, inporb_version, iod_save,
+     &        iOffSet, iOrb, iOrbData, iPrLev, iR, iRC1, iRef, iReturn,
+     &        is_in_group, iStart, iSum, iSym, itu, j, jpcmroot, k,
+     &        korb, kref, lRoots_l, mBas, mCof, mConf, mm, mOrb, N, NA,
+     &        NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI,
+     &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs, nr_lines,
+     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
+#ifdef _HDF5_
+      Integer mh5id
+#endif
 
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
