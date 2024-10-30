@@ -17,7 +17,8 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged,RGD
-      use rasscf_global
+      use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+      Implicit None
 
 
 #include "rasdim.fh"
@@ -119,6 +120,5 @@ C      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
        Call Quit(_RC_NOT_CONVERGED_)
       END IF
 
-      RETURN
       End Subroutine
 
