@@ -27,13 +27,17 @@
 *                                                                      *
 ************************************************************************
       use gas_data, only: NGAS, NGSSH, IGSOCCX
-      use rasscf_global
+      use rasscf_global, only: iRlxRoot, NAC, NACPAR, NACPR2, NIN, NO2M,
+     &                         NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4,
+     &                         Title, iZROT, iROOT
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
 #include "jobiph_j.fh"
+      Integer IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
+
 *
 *---  set INVEC -> get MOs from JOBIPH file ----------------------------*
       INVEC=3
@@ -197,4 +201,5 @@ c
  20   continue
       Write(LF,*) 'RdPAM: end of file while reading input file'
       call quit(_RC_INPUT_ERROR_)
-      End
+
+      End Subroutine Readin_vb
