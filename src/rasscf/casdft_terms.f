@@ -32,12 +32,13 @@
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *

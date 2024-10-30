@@ -24,6 +24,8 @@
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc
+      use rasscf_global
+
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -34,7 +36,6 @@
       INTEGER NQ,istate
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 

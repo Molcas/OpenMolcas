@@ -23,15 +23,15 @@ C
 C          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 C
 
+      use rasscf_global
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "splitcas.fh"
 
-      DIMENSION CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
+      REAL*8 CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
 
       IPRLEV=IPRLOC(7)
       iDisk=IADR15(12)

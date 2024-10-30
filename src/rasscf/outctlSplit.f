@@ -31,10 +31,11 @@
       use rctfld_module, only: lRF
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '

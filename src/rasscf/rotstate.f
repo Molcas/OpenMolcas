@@ -12,13 +12,14 @@
 ************************************************************************
       Subroutine RotState()
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
 
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
 #include "output_ras.fh"

@@ -52,6 +52,8 @@ use glbbas, only: DFTP, DTOC
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use rasscf_global
+
 
 #include "intent.fh"
 
@@ -64,7 +66,6 @@ real(kind=wp) :: dum1, dum2, dum3, ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "strnum.fh"

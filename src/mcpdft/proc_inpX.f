@@ -15,6 +15,7 @@
       use mcpdft_input, only: mcpdft_options
       use printlevel, only: terse, debug, insane
       use mcpdft_output, only: lf, iPrLoc
+      use rasscf_global
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
@@ -26,7 +27,6 @@
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 
       Real*8 potnucdummy

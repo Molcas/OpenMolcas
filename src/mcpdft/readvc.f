@@ -55,11 +55,12 @@
       use mcpdft_output, only: lf, iPrGlb, iPrLoc
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
 
       implicit none
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"

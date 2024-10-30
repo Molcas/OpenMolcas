@@ -17,10 +17,10 @@ subroutine molden_cvb()
 use rctfld_module,only: lRF
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rasscf_global
 
 implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 
 integer(kind=iwp) :: iDisk

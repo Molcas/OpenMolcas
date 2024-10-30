@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 C RASSCF program version IBM-3090: SX section
@@ -21,9 +23,8 @@ C ********** IBM-3090 Release 89 01 25 **********
 CPAM01 Added: replace correct overlap by adding a diagonal
 CPAM01 quantity to the overlap of brillouin states.
 C
-      DIMENSION C1IN(*),C2IN(*),DIA(*),SXN(*),X(*),C1(*),C2(*),PA(*)
+      REAL*8 C1IN(*),C2IN(*),DIA(*),SXN(*),X(*),C1(*),C2(*),PA(*)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE

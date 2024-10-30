@@ -38,10 +38,11 @@ subroutine CiSelect(S1,S2)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
+use rasscf_global
+
 
 implicit none
-#include "rasdim.fh"
-#include "rasscf.fh"
+#include "Molcas.fh"
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots)
 real(kind=wp), intent(in) :: S2(lRoots,lRoots)
 integer(kind=iwp) :: istop, jRoot, kRoot, maxS1

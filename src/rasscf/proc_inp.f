@@ -66,13 +66,14 @@
 #else
       use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
 #endif
+      use rasscf_global
+
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "general.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"

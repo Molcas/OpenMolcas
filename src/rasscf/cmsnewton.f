@@ -20,9 +20,10 @@
       use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,
      &              nPosHess,LargestQaaGrad,NCMSScale
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "output_ras.fh"

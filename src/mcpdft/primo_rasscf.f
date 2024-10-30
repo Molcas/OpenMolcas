@@ -17,6 +17,7 @@
 
       use mcpdft_output, only: lf
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -25,7 +26,6 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 
       Integer NSLCT(8)
       Character(LEN=3) lIrrep(8)
@@ -61,7 +61,7 @@
       Write(LF,Fmt2//'A)') trim(VecTit)
       Write(LF,*)
 
-* Flag ipt2 in common in src/Include/rasscf.fh
+* Flag ipt2 in nodule rasscf_global.F90
 *   ipt2=0 means usual MO's, quasicanonical for
 ! In MC-PDFT, ipt2 is always 0
 * inactives and virtuals, natural for active.

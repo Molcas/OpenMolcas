@@ -51,6 +51,8 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
+use rasscf_global
+
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -60,7 +62,6 @@ real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
 real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "lucia_ini.fh"

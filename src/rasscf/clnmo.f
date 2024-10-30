@@ -35,11 +35,12 @@
 *                                                                      *
 ************************************************************************
       use general_data, only: CleanMask
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 
       Real*8 CMO(*)
 

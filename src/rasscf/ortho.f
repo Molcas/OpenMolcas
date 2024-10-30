@@ -34,11 +34,12 @@
 ************************************************************************
 *
       use OneDat, only: sNoNuc, sNoOri
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 *

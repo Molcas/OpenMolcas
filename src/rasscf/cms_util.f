@@ -62,9 +62,10 @@ C       End If
 ************************************************************************
 
       Subroutine UnzipTUVX(TUVX,gtuvx,nTUVX)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -122,9 +123,10 @@ C       End If
 
       Subroutine CMSHeader(CMSSFile,LenCMSS)
       use CMS, only: iCMSOpt, CMSGuessFile
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"

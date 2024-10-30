@@ -205,12 +205,12 @@ contains
 
     use gugx, only: SGS
     use gas_data, only: NGAS, NGSSH
+    use rasscf_global
 
     ! to get some dimensions
     ! NSM form rasscf,fh
     ! NSYM from general.fh
 #   include "rasdim.fh"
-#   include "rasscf.fh"
 #   include "general.fh"
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 

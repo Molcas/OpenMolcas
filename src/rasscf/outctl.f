@@ -37,11 +37,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
       use input_ras, only: KeyCION
+      use rasscf_global
+
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE

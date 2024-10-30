@@ -35,10 +35,10 @@
       use rctfld_module, only: lRF
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       Character(LEN=8)   Fmt1,Fmt2, Label
       Character(LEN=120)  Line,BlLine,StLine

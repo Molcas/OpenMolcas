@@ -30,10 +30,11 @@
       use mh5, only: mh5_close_file
       use RASWfn, only: wfn_fileid
 #endif
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
       Logical DoCholesky
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 

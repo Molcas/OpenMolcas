@@ -19,11 +19,12 @@ C ********** IBM-3090 Release 88 09 08 **********
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION C(*),HC(*),HH(*)
-      DIMENSION HD(NDIM)
+      REAL*8 C(*),HC(*),HH(*)
+      REAL*8 HD(NDIM)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       Real*8, Allocatable:: XX(:), XC(:)
 C

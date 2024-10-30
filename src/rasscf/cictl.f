@@ -27,7 +27,7 @@
 *> there has been no orbital optimization, or the calculation is
 *> converged. \p IFINAL = ``2`` means this is a final CI calculation, using the
 *> final orbitals. For meaning of global variables \c NTOT1, \c NTOT2, \c NACPAR
-*> and \c NACPR2, see src/Include/general.fh and src/Include/rasscf.fh.
+*> and \c NACPR2, see src/Include/general.fh and rasscf_global.F90.
 *>
 *> @param[in]     CMO    MO coefficients
 *> @param[out]    D      Average 1-dens matrix
@@ -82,6 +82,8 @@
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
+      use rasscf_global
+
 
       Implicit Real* 8 (A-H,O-Z)
 
@@ -99,7 +101,6 @@
       integer, external :: IsFreeUnit
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
 #include "output_ras.fh"

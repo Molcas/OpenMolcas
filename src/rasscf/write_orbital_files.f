@@ -70,9 +70,9 @@
 * PAM 2008: Before this subroutine replaced RASREAD, the orbital energies
 * were sent as subroutine argument when rasread was called from rasscf.
 * But the real argument, in rasscf, was FDIAG, which turns out to be a
-* fixed array FDIAG(mxorb) in rasscf.fh.
+* fixed array FDIAG(mxorb) in rasscf_global.F90.
 * Rather than checking why that array is there, and how the values are
-* put there, I simply use the array FDIAG in rasscf.fh, when needing
+* put there, I simply use the array FDIAG in rasscf_global.F90, when needing
 * orbital energies to WrVec calls. This may need checking later...
 *----------------------------------------------------------------------*
 *     Read the JobIph file to get the required information             *

@@ -17,9 +17,10 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "output_ras.fh"
@@ -88,9 +89,10 @@ C     Deallocating Memory
       Subroutine NStateOpt(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "output_ras.fh"
@@ -168,9 +170,10 @@ C     Deallocating Memory
 
 ************************************************************************
       Subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -301,9 +304,9 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 ************************************************************************
       Function CalcNSumVee(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -391,9 +394,10 @@ C      write(6,*)a,b,c,x(4),y(4)
 
 ************************************************************************
       Subroutine CalcVee(Vee,RMat,DDg)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -422,9 +426,10 @@ C     & IState,' is ',Vee(IState)
 ************************************************************************
 ************************************************************************
       Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -477,9 +482,10 @@ C     & IState,' is ',Vee(IState)
 * Loading TUVX array to a 4-D tensor.                            *
 * Copyied from src/molcas_ci_util/david5.f                       *
 * ****************************************************************
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -513,9 +519,10 @@ C     & IState,' is ',Vee(IState)
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "output_ras.fh"
@@ -611,10 +618,10 @@ C     & IState,' is ',Vee(IState)
 
       SubRoutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global
 
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -697,9 +704,10 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 ************************************************************************
       Subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -862,9 +870,10 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 
       Subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -911,9 +920,10 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 ************************************************************************
       Subroutine CalcVee2(Vee,GD,Gtuvx)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -941,9 +951,10 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 ************************************************************************
       Subroutine RotGDMat(R,GD)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"

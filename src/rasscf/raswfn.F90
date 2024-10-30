@@ -38,11 +38,12 @@ use sxci, only: IDXCI, IDXSX
 use stdalloc, only: mma_allocate, mma_deallocate
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: KeyTDM
+use rasscf_global
+
 
 implicit none
 
 #  include "rasdim.fh"
-#  include "rasscf.fh"
 #  include "general.fh"
 #  include "ciinfo.fh"
 

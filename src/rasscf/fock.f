@@ -37,13 +37,14 @@ c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
       real*8 ECAS0
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='FOCK    '

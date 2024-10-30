@@ -11,7 +11,9 @@
       SUBROUTINE INIT_RASSI
 
       use rassi_aux, only: ipglob
+#ifndef _DMRG_
       use rasscf_data, only: doDMRG
+#endif
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
 
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -27,10 +27,11 @@
 *                                                                      *
 ************************************************************************
       use gas_data, only: NGAS, NGSSH, IGSOCCX
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "jobiph_j.fh"
 *

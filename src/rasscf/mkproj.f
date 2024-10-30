@@ -12,9 +12,10 @@
 ************************************************************************
       SUBROUTINE MKPROJ(CRVEC,CMO,TUVX)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
       implicit real*8 (a-h,o-z)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
       Real*8 CRVEC(NCRVEC), CMO(NTOT2)

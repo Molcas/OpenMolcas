@@ -17,9 +17,10 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged,RGD
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"

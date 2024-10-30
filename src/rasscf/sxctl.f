@@ -68,13 +68,14 @@
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
       use input_ras, only: KeyHEUR
+      use rasscf_global
+
 
       Implicit Real*8 (A-H,O-Z)
 
       Real*8 CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SXCTL   '

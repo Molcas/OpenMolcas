@@ -26,13 +26,13 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
+      use rasscf_global
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
       real*8 ECAS0
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
 
@@ -275,6 +275,7 @@ C
       use mcpdft_output, only: lf, iPrLoc
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
 
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
@@ -283,7 +284,6 @@ C
       Real*8, Allocatable:: TF(:)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
 

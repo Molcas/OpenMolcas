@@ -23,6 +23,8 @@ c          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 c
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
+      use rasscf_global
+
 
       IMPLICIT REAL*8 (a-h,o-z)
 
@@ -30,7 +32,6 @@ c
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='ROTORB  '
-#include "rasscf.fh"
 
       Real*8 cmoo(*), cmon(*), c(*), x(*), x2(*)
       Real*8 y(*), FA(*)

@@ -52,6 +52,8 @@ use glbbas, only: CFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rasscf_global
+
 
 #include "intent.fh"
 
@@ -70,7 +72,6 @@ integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
 
 IPRLEV = IPRLOC(3)

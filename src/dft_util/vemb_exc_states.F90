@@ -20,6 +20,7 @@ subroutine VEMB_Exc_states(Vemb,nVemb,xKSDFT,Func_Bx)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+use rasscf_global
 
 implicit none
 integer(kind=iwp), intent(in) :: nVemb
@@ -27,7 +28,6 @@ real(kind=wp), intent(inout) :: Vemb(nVemb)
 character(len=*), intent(in) :: xKSDFT
 real(kind=wp), intent(in) :: Func_Bx
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 integer(kind=iwp) :: IAD12, KROOT, nDummy
 real(kind=wp) :: DFT_NAD, Dummy(1), Func_A, Func_AB, Vemb_Xstate

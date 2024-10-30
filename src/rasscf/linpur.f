@@ -10,6 +10,9 @@
 ************************************************************************
       SUBROUTINE LINPUR(CMO)
       use stdalloc, only: mma_allocate, mma_deallocate
+* rasscf_global.F90 defines NAME:
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 CMO(*)
       CHARACTER(LEN=2) LCHAR
@@ -19,8 +22,6 @@
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:
 #include "general.fh"
-* rasscf.fh defines NAME:
-#include "rasscf.fh"
       Integer, Allocatable:: LMB(:)
 
 * Set IFTEST=.true. to get supsym input generated in the output

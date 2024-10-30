@@ -13,10 +13,11 @@
       Subroutine PutRlx(D,DS,P,DAO,C)
       use spin_correlation, only: tRootGrad
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
       Implicit Real*8 (a-h,o-z)
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)

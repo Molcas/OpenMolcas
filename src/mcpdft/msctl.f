@@ -38,6 +38,7 @@
       use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc, TUVX
+      use rasscf_global
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -45,7 +46,6 @@
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 !      Logical TraOnly
@@ -1189,6 +1189,8 @@ c      call xflush(6)
 
       Subroutine P2_contraction(D1MO,P2MO)
       use definitions, only: wp
+      use rasscf_global
+
       implicit none
 
       real(kind=wp), dimension(*), intent(in) :: d1mo
@@ -1196,7 +1198,6 @@ c      call xflush(6)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
       integer :: i, j, k, l, ij, kl, ijkl, lmax
       real(kind=wp) :: fact
 

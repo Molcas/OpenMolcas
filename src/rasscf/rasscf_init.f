@@ -18,7 +18,8 @@
 *> @author  P. &Aring;. Malmqvist
 *>
 *> @details
-*> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
+*> Sets values in common blocks in general.fh, timers.fh and module
+*> rasscf_global.F90.
 ************************************************************************
 
       Subroutine RasScf_Init()
@@ -30,11 +31,12 @@
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
       use gas_data, only: NGAS, NGSSH, IGSOCCX
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)

@@ -28,6 +28,8 @@ use wadr, only: FockOcc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rasscf_global
+
 
 #include "intent.fh"
 
@@ -35,7 +37,6 @@ implicit none
 real(kind=wp), intent(_OUT_) :: FOCC(*)
 real(kind=wp), intent(in) :: F(*), CMO(*)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 real(kind=wp), allocatable :: SCR1(:), SCR2(:)
 integer(kind=iwp) :: IAD15, iBas, iCMO, ij, IPQ, ISTFCK, ISYM, jBas, jFock, kl, lk, NAO, NIO, NO, NOO, NP, NQ

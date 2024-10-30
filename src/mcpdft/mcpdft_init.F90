@@ -15,7 +15,8 @@
 !>   Determine whether orbital files should be read, etc.
 !>
 !> @details
-!> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
+!> Sets values in common blocks in general.fh, timers.fh and the module
+!> rasscf_global.F90
 !***********************************************************************
 
 subroutine mcpdft_init()
@@ -24,11 +25,12 @@ subroutine mcpdft_init()
   Use KSDFT_Info,Only:CoefR,CoefX
   use mcpdft_output,only:set_print_level
   use gas_data, only: NGAS, NGSSH, IGSOCCX
+  use rasscf_global
+
 
   implicit none
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "timers.fh"
 

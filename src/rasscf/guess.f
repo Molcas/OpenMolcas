@@ -34,6 +34,8 @@
 *
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
 
       Implicit Real*8 (a-h,o-z)
 
@@ -43,7 +45,6 @@
 #include "warnings.h"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
 
 *     calling arguments
 

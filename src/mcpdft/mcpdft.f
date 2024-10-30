@@ -62,12 +62,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
+      use rasscf_global
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "timers.fh"
       CHARACTER(Len=18)::MatInfo

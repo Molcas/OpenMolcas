@@ -19,12 +19,13 @@ CPAM01 Added miniscule constant times CIN to HC.
 C
 C ********** IBM-3090 Release 88 09 01 **********
 C
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
+      REAL*8 CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
      &          X(*),C(*)
-      DIMENSION HD(*)
+      REAL*8 HD(*)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE

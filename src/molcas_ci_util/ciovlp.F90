@@ -42,11 +42,12 @@ subroutine CiOvlp(jRoot,S1,S2,CI_vec)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rasscf_global
+
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 integer(kind=iwp), intent(in) :: jRoot
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots), S2(lRoots,lRoots)
 real(kind=wp), intent(in) :: CI_vec(nConf)

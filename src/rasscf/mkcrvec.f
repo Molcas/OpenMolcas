@@ -13,9 +13,10 @@
       SUBROUTINE MKCRVEC(CMO_0,CRVEC)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
       Real*8 CRVEC(NTOT), CMO_0(NTOT2)

@@ -47,6 +47,7 @@
       Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
       use gas_data, only: iDoGAS
+      use rasscf_global
 
       Implicit Real* 8 (A-H,O-Z)
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
@@ -59,7 +60,6 @@ c     Logical Exist
      &                      TmpPUVX(:), TmpTUVX(:)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '

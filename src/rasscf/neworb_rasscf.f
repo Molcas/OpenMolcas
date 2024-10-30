@@ -55,10 +55,11 @@
       use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
       use gas_data, only: NGAS,NGSSH
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE

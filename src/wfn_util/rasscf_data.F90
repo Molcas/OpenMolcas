@@ -14,15 +14,15 @@
 ! src/Include/rasscf.fh
 ! src/Include/output_ras.fh
 ! into a data module
-! this should eventually be developed to the module where these are defined.
+! this should eventually be merged into the module rasscf_global.F90
 
 module rasscf_data
 
 use definitions, only: iwp
+use rasscf_global
 implicit none
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
 
 #ifdef _DMRG_

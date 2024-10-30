@@ -16,9 +16,10 @@
 * Jie J. Bao, on May. 21, 2020, created this file.               *
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -61,9 +62,10 @@ C     Deallocating Memory
 
       Subroutine CalcFckO(CMO,FI,FA,FckO)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -138,9 +140,10 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
       use rasscf_lucia, only: DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use Lucia_Interface, only: Lucia_Util
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -195,9 +198,10 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 ******************************************************
 
       Subroutine CalcFckS(FckO,GDMat,FckS)
+      use rasscf_global
+
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"

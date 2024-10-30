@@ -14,12 +14,13 @@ subroutine CISX(IDX,D,DS,PS,PA,SCR)
 use Index_Functions, only: i_Tri => iTri, nTri_Elem
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
+use rasscf_global
+
 
 #include "intent.fh"
 
 implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 integer(kind=iwp), intent(in) :: IDX(NAC)
 real(kind=wp), intent(inout) :: D(*), DS(*), PS(*), PA(*)

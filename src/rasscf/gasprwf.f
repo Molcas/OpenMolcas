@@ -41,11 +41,12 @@
 *                                                                      *
 ************************************************************************
 
+      use rasscf_global
+
       Implicit Real*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"

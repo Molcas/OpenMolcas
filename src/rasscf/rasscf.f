@@ -100,13 +100,12 @@
       use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
      &                     KeySSCR, LuInput
       use raswfn, only: cre_raswfn, Wfn_FileID
-
+      use rasscf_global
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"

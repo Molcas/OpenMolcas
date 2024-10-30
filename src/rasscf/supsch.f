@@ -24,10 +24,11 @@ C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
       Real*8, Allocatable:: Temp1(:), Temp2(:)
@@ -69,11 +70,12 @@ C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use OneDat, only: sNoNuc, sNoOri
+      use rasscf_global
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='SUPSCH_ ')

@@ -31,17 +31,19 @@ contains
     !
     !   e_mspdft: ndarray of length lroots (optional)
     !       Array containin final MS-PDFT energies.
-    !       Expected to be of length lroots (defined in rasscf.fh)
+    !       Expected to be of length lroots (defined in
+    !       rasscf_global.F90)
     !
     !   si_pdft: ndarray of length lroots*lroots (optional)
     !       Orthonormal eigenvectors of MS-PDFT in the intermediate
     !       state basis. Expected to be of length lroots*lroots.
 
     use definitions,only:wp
+    use rasscf_global
+
     implicit none
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 
     integer,intent(in) :: adr19(15)
@@ -142,7 +144,6 @@ contains
     use mcpdft_input,only:mcpdft_options
     implicit none
 
-    ! for rasscf.fh ...
 #include "rasdim.fh"
     ! for jobiph
 #include "general.fh"

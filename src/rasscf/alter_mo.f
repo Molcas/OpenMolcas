@@ -34,13 +34,13 @@
 *                                                                      *
 ************************************************************************
 
+      use rasscf_global
       Implicit Real*8 (A-H,O-Z)
-      Dimension       CMO(*)
+      REAL*8       CMO(*)
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
 
 C Local print level (if any)
       Write(LF,*)

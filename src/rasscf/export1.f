@@ -41,10 +41,11 @@
 #endif
 *
       use gas_data, only: iDoGAS
+      use rasscf_global
+
       Implicit Real*8 (a-h,o-z)
 *...  Define global variables .........................................*
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
       Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)

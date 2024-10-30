@@ -27,6 +27,8 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: i_Tri => iTri, nTri_Elem
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
+use rasscf_global
+
 
 #include "intent.fh"
 
@@ -34,7 +36,6 @@ implicit none
 real(kind=wp), intent(in) :: Dmat(*)
 real(kind=wp), intent(_OUT_) :: DDarray(*)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 integer(kind=iwp) :: indx1, indx2, indxDpq, indxDrs, iOffOrb(nSym), iOrbP, iOrbQ, iOrbR, iOrbS, iorp, iPsm, iQsm, iRsm, iSmPQ, &
                      iSsm, iSym, nRS

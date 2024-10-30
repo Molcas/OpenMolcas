@@ -95,6 +95,7 @@ set (sources
      pmat_rasscf.F90
      prttim.F90
      rasdef.F90
+     rasscf_global.F90
      rd1int.F90
      rd2int_rasscf.F90
      recno.F90
@@ -132,6 +133,7 @@ set (modfile_list
      csfbas.F90
      gas_data.F90
      gugx.F90
+     rasscf_global.F90
      wadr.F90
 )
 

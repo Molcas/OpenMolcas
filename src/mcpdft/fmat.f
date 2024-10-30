@@ -55,11 +55,11 @@
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FMAT    '
 

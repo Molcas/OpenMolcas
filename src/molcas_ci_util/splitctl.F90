@@ -38,6 +38,8 @@ use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, i
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
+use rasscf_global
+
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -53,7 +55,6 @@ real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:)
                               Tmp1(:), Tmp2(:), TotSplitV(:)
 real(kind=wp), external :: ddot_
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "output_ras.fh"
