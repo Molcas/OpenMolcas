@@ -20,6 +20,7 @@
 
       Subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
       use CMS, only: iCMSOpt,NPosHess,LargestQaaGrad,NCMSScale
+      Implicit None
       INTEGER iStep,lRoots
       Real*8 Qnew,Qold,Diff
       Real*8 RMat(lRoots**2)
@@ -62,7 +63,8 @@ C       End If
 ************************************************************************
 
       Subroutine UnzipTUVX(TUVX,gtuvx,nTUVX)
-      use rasscf_global
+      use rasscf_global, only: NACPR2, NAC
+      Implicit None
 
 
 #include "rasdim.fh"
@@ -114,8 +116,8 @@ C       End If
 
 
       Subroutine CMSTail()
+      Implicit None
       write(6,*) repeat('=',71)
-      RETURN
       End Subroutine
 ************************************************************************
 
@@ -123,7 +125,9 @@ C       End If
 
       Subroutine CMSHeader(CMSSFile,LenCMSS)
       use CMS, only: iCMSOpt, CMSGuessFile
-      use rasscf_global
+      use rasscf_global, only: CMSThreshold, iCMSIterMin, iCMSIterMax,
+     &                         lRoots
+      Implicit None
 
 
 #include "rasdim.fh"
