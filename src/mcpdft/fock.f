@@ -26,15 +26,26 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rasscf_global
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      use rasscf_global, only: CBLBM, E2act, ECAS, HALFQ1, IBLBM,
+     &                         ISYMBB, JBLBM, NTOT3, VIA_DFT, ISTORP,
+     &                         ISTORD, ITRI, IZROT, ixSYM, CBLB, iBLB,
+     &                         jBLB
+      IMPLICIT None
+
+      INTEGER IFINAL
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
       real*8 ECAS0
 
 #include "rasdim.fh"
 #include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
+      Integer iPrLev
+      REAL*8 CASDFT_En, CSX, QNTM
+      Integer ipBM, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
+     &        ISYM, IX, IX1, JSTF, N1, N2, NAO, NAS, NEO, NI, NIA, NIO,
+     &        NIS, NM, NO, NO2, NOR, NP, NPQ, NQ, NSS, NT, NTM, NTT,
+     &        NTU, NTV, NU, NUVX, NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
@@ -275,10 +286,12 @@ C
       use mcpdft_output, only: lf, iPrLoc
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global
+      use rasscf_global, only: E2act, nTot3, nTot4, ISTORP, ISTORD,
+     &                         iTri, CBLB, IBLB, JBLB
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      IMPLICIT None
+      INTEGER IFINAL
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
 
       Real*8, Allocatable:: TF(:)
@@ -286,6 +299,11 @@ C
 #include "rasdim.fh"
 #include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
+      Integer iPrLev
+      Real*8 CSX, E2eP, QNTM
+      Integer i, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
+     &        iSym, IX1, JSTF, N1, N2, NAO, NEO, NI, NIO, NM, NO, NO2,
+     &        NOR, NP, NT, NTM, NTT, NTV, NUVX, NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
