@@ -11,11 +11,11 @@
       SUBROUTINE SPHPUR(CMO)
       use define_af, only: iTabMx, AngTp
       use stdalloc, only: mma_allocate, mma_deallocate
-* rasscf_global.F90 defines NAME:
-      use rasscf_global
+      use rasscf_global, only: NAME, IXSYM
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Real*8 CMO(*)
+
       CHARACTER(LEN=1) LCHAR
       Real*8 WGTLQN(0:9)
       LOGICAL IFTEST
@@ -24,6 +24,10 @@
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:
 #include "general.fh"
+      Integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
+     &        ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT,
+     &        NO, NONZ
+      REAL*8 WGT, WMX
 
 * Set IFTEST=.true. to get supsym input generated in the output
 * for further use, or for testing.
