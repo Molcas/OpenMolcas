@@ -101,7 +101,7 @@
      &                     KeySSCR, LuInput
       use raswfn, only: cre_raswfn, Wfn_FileID
       use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG,
-     &                         DoFaro, DoFCIDump, DoMcpdftDMRG, ECAS,
+     &                         DoFaro, DoFCIDump,               ECAS,
      &                         ESX, EVAC, ExFac, FDIAG, HalfQ, iBLBM,
      &                         ICICH, iCIOnly, iExpand, IfCrPr,
      &                         InOCalc, iPr, iPT2, iRLXRoot, iSave_Exp,
@@ -114,7 +114,7 @@
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
      &                         Conv, DODMRG, ECAS1, iCIRST, KSDFT_Temp
 #ifdef _DMRG_
-      use rasscf_global, only: Twordm_qcm
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
 #endif
 
       Implicit None

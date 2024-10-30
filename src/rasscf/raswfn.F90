@@ -38,7 +38,10 @@ use sxci, only: IDXCI, IDXSX
 use stdalloc, only: mma_allocate, mma_deallocate
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: KeyTDM
-use rasscf_global, only: DoDMRG, IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
+use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
+#ifdef _DMRG_
+use rasscf_global, only: DoDMRG
+#endif
 
 
 implicit none
