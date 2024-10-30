@@ -31,9 +31,24 @@
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
       use gas_data, only: NGAS, NGSSH, IGSOCCX
-      use rasscf_global
+      use rasscf_global, only: IROOT, CMSStartMat, CMSThreshold,
+     &                         CORESHIFT, Ener, ExFac, hRoots,
+     &                         iAlphaBeta, ICICH, ICICP, iCIonly,
+     &                         ICIRST, ICMSIterMax, ICMSIterMin, iCMSP,
+     &                         iExpand, IfCRPR, IfOrde, InOCalc,
+     &                         iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot,
+     &                         iPhName, iPT2, iRLXRoot, iRoot, irotPsi,
+     &                         iSave_Exp, iSPDen, iSupSM, itCore,
+     &                         ITMAX, ITRIM, iXMSP, kAver, KSDFT,
+     &                         kTight, LowMS, LRoots, LvShft, MaxIt,
+     &                         MaxJT, MaxOrbOut, n_keep, NewFock,
+     &                         NonEq, NQUNE, NROOTS, OutFmt1, OutFmt2,
+     &                         PreThr, ProThr, PrwThr, Purify, QNSTEP,
+     &                         QNUPDT, RFPert, SXSel, ThFact, Thre,
+     &                         ThrEn, ThrSX, TMin, Weight, Title,
+     &                         ixSym, iTri, ThrTE
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
@@ -42,6 +57,8 @@
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
+      Integer I
+      Integer, External:: iPrintLevel
 
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
