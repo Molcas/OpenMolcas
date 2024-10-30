@@ -165,8 +165,9 @@ CSVC: check if NU<NT are included in the same gas space
       Call Put_iArray('nAsh',nAsh,nSym)
 
 *---  Exit, end -------------------------------------------------------*
-      Return
-      End
+      End Subroutine Readin_vb
+
+
       Subroutine RdPAM(Line,iNumber,rNumber)
       Implicit Real*8 (A-H,O-Z)
 #include "output_ras.fh"
@@ -202,4 +203,4 @@ c
       Write(LF,*) 'RdPAM: end of file while reading input file'
       call quit(_RC_INPUT_ERROR_)
 
-      End Subroutine Readin_vb
+      End Subroutine RdPAM
