@@ -68,12 +68,19 @@
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
       use input_ras, only: KeyHEUR
-      use rasscf_global
+      use rasscf_global, only: ExFac, KSDFT, DoBlockDMRG, DoDMRG, ECAS,
+     &                         ESX, iCIOnly, iPT2, ITER, ITERSX, ITMAX,
+     &                         l_casdft, NAC, nDimSX, nFint, NO2M,
+     &                         nQune, NROOT, NSXS, NTOT4, QNSTEP,
+     &                         QNUPDT, SXSEL, TMIN, VIA, ISTORP,
+     &                         IADR15, EMY
 
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
       Real*8 CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
+      Real*8 THMAX
+      INTEGER IFINAL
 
 #include "rasdim.fh"
 #include "general.fh"
@@ -82,7 +89,7 @@
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec
       Integer IndType(56)
       Character(LEN=80) VecTyp
-      Save nCall
+      Integer, Save ::nCall
       Logical TraOnly
       Real*8 P2act(1),CIDUMMY(1)
       Real*8, Allocatable:: SXHD(:)
@@ -94,7 +101,15 @@
      &                      ENER_X(:), SC(:), QQ(:), OVL(:), VT(:),
      &                      VL(:), XQN(:), SCR(:), V1(:), V2(:),
      &                      XMAT(:), X2(:)
-      Real*8 :: Dummy(1)
+      Real*8 :: Dummy(1), CASDFT_En, CPES, CPTS, P2reo_size, TIOES,
+     &          TIOS, XSXMAX
+      Real*8, External :: DDot_
+      Integer :: i, iBas, IC, iDisk, IndT, iOff, iOrb, iPrLev, iRC,
+     &           iRef, iShift, iSym, iWay, j, kMax, LCSXI, LuvvVec,
+     &           MIAAE, MNO, NA, NAEAE, NAOAE, NB, NCR, NCR1, NE, NI,
+     &           NIA, NIAIA, NLCC, NLHH, NLOVL, NLQ, NLX1, NLX2, NO,
+     &           nP2Act, NQ, NAE
+      Integer, External:: IsFreeUnit
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
