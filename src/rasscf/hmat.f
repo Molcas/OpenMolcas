@@ -19,14 +19,17 @@ C ********** IBM-3090 Release 88 09 08 **********
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
-      use rasscf_global
+      use rasscf_global, only: NSXS
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      Integer NDIM, NDIMH, NTRIAL
       REAL*8 C(*),HC(*),HH(*)
       REAL*8 HD(NDIM)
 #include "rasdim.fh"
 #include "general.fh"
       Real*8, Allocatable:: XX(:), XC(:)
+      Integer IST, IJ, L1, I, JST, J
+      REAL*8, External :: DDot_
 C
 C
 C COMPUTE SIGMA VECTORS
