@@ -28,7 +28,7 @@ use wadr, only: FockOcc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rasscf_global
+use rasscf_global, only: NO2M, IADR15
 
 
 #include "intent.fh"
