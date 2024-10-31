@@ -17,7 +17,7 @@ use csfbas, only: CONF, CTS, maxop_lucia
 use splitcas_data, only: iDimBlockA
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
-use rasscf_global
+use rasscf_global, only: NAC
 
 
 implicit none
