@@ -52,7 +52,7 @@ use glbbas, only: DFTP, DTOC
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: ExFac, NAC
 
 
 #include "intent.fh"
@@ -61,7 +61,7 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
-integer(kind=iwp) :: I, II, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
+integer(kind=iwp) :: I, II, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF, IPRINT
 real(kind=wp) :: dum1, dum2, dum3, ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
