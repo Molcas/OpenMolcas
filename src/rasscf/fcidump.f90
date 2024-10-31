@@ -16,7 +16,7 @@
 !>  @brief
 !>    Master module for fcidump.
 module fcidump
-  use rasscf_data, only : nacpar
+  use rasscf_global, only : nacpar
   use general_data, only : nTot, nTot1, nTot2
   use fcidump_tables, only : OrbitalTable, FockTable, TwoElIntTable,&
     mma_allocate, mma_deallocate, fill_orbitals, fill_fock, fill_2ElInt

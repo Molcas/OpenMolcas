@@ -72,7 +72,7 @@
 
       subroutine orthonormalize_blocks(basis, scheme, ONB)
         use general_data, only : nSym, nBAs, nDel, nDelt, nSSH, nOrb
-        use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
+        use rasscf_global, only : nSec, nOrbt, nTot3, nTot4
         type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
         type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
@@ -259,7 +259,7 @@
 
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
-        use rasscf_data, only : nFr, nIn, Tot_Nuc_Charge
+        use rasscf_global, only : nFr, nIn, Tot_Nuc_Charge
 #include "warnings.h"
 #include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)

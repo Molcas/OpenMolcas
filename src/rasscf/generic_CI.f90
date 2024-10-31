@@ -18,7 +18,7 @@
 !> your initialization and cleanup will be automatically called.
 module generic_CI
     use general_data, only : ntot, ntot1, ntot2
-    use rasscf_data, only : nAcPar, nAcpr2, nroots
+    use rasscf_global, only : nAcPar, nAcpr2, nroots
     use definitions, only: wp
     implicit none
     private

@@ -21,7 +21,7 @@
      &        remove_comment, qcmaquis_interface_set_param,
      &        qcmaquis_interface_stdout
       use active_space_solver_cfg, only: as_solver_inp_proc
-      use rasscf_data, only: MPSCompressM, DoNEVPT2Prep
+      use rasscf_global, only: MPSCompressM, DoNEVPT2Prep
 #ifdef _MOLCAS_MPP_
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif

@@ -12,7 +12,7 @@
 
       use rassi_aux, only: ipglob
 #ifndef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
 #endif
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
 

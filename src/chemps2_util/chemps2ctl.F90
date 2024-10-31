@@ -23,7 +23,7 @@ use MPI, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
-use rasscf_data, only: CBLBM, chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, Do3RDM, ENER, iCIonly, &
+use rasscf_global, only: CBLBM, chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, Do3RDM, ENER, iCIonly, &
                        iOrbTyp, ITER, lroots, max_canonical, max_sweep, mxSym, MxDMRG, NAC, THRE, hfocc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half

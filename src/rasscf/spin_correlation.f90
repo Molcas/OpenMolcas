@@ -15,7 +15,7 @@ module spin_correlation
   use definitions, only: wp, u6
   use stdalloc, only: mma_allocate, mma_deallocate
   use CI_solver_util, only: rdm_from_runfile
-  use rasscf_data, only : LRoots, iAdr15, nacpar, nacpr2
+  use rasscf_global, only : LRoots, iAdr15, nacpar, nacpr2
   use index_symmetry, only : one_el_idx_flatten, two_el_idx_flatten
   use general_data, only: JobIPH
 

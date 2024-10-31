@@ -39,16 +39,18 @@
 #endif
       use fortran_strings, only : str
 
-      use rasscf_data, only : iToc, name, header, title, lRoots, nRoots,
-     &  iRoot, LENIN8, mXORB, mxTit, mXroot, iPt2, Weight, iOrbTyp,
-     &  FDiag, E2Act, mxiter, maxorbout
-      use general_data, only : nActel, iSpin, stSym, mXSym,
+      use rasscf_global, only : iToc, name, header, title, lRoots,
+     & nRoots,
+     &  iRoot, iPt2, Weight, iOrbTyp,
+     &  FDiag, E2Act, maxorbout
+      use general_data, only : nActel, iSpin, stSym,
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
       use gas_data, only : nGssh
       use stdalloc, only: mma_allocate, mma_deallocate
 
 #include "output_ras.fh"
+#include "rasdim.fh"
       integer, intent(in) :: JobIph, iPrlev
 
       integer :: iDisk, iRt, iNDType(7, 8), lUVVVec

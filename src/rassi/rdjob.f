@@ -17,7 +17,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
      &    qcm_prefixes
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
 #endif
       use mspt2_eigenvectors
 #ifdef _HDF5_

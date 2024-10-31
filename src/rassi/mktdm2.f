@@ -16,7 +16,7 @@
 
       ! module dependencies
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_info
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate

@@ -52,7 +52,7 @@
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
 
-      use rasscf_data, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
+      use rasscf_global, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge,
      &    doBlockDMRG, doDMRG

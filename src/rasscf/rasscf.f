@@ -56,7 +56,7 @@
      &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
       use rasscf_lucia, only: RF1, RF2
-      use rasscf_data, only: DoNEVPT2Prep, DoDelChk
+      use rasscf_global, only: DoNEVPT2Prep, DoDelChk
 #endif
       use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky

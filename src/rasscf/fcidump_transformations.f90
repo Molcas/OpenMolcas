@@ -13,7 +13,7 @@
 !***********************************************************************
 module fcidump_transformations
   use general_data, only : nActEl, nAsh, ntot1, ntot2, nBas, nSym
-  use rasscf_data, only : nAcPar, core_energy => Emy, nAc
+  use rasscf_global, only : nAcPar, core_energy => Emy, nAc
   use index_symmetry, only : one_el_idx_flatten
   implicit none
   private

@@ -19,7 +19,7 @@ use active_space_solver_cfg, only: as_solver
 use qcmaquis_interface_cfg, only: dmrg_warmup
 #endif
 use Definitions, only: iwp, u6
-use rasscf_data, only: doDMRG
+use rasscf_global, only: doDMRG
 use spool, only: Spoolinp, Close_LuSpool
 
 

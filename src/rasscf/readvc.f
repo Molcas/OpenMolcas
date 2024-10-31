@@ -59,15 +59,15 @@
 ************************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
 
-      use rasscf_data, only : lRoots, nRoots,
-     &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
+      use rasscf_global, only : lRoots, nRoots,
+     &  iRoot, Weight,
      &  nAcPar, iXsym, iAlphaBeta,
      &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT,
      &  purify, iAdr15
-      use general_data, only : nSym, mXSym,
+      use general_data, only : nSym,
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
-     &  JobIph, nSSH, maxbfn
+     &  JobIph, nSSH
       use casvb_global, only: ifvb
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
@@ -85,8 +85,8 @@
 
 *     global data declarations
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='READVC  ')
+#include "rasdim.fh"
+      Character(LEN=16), Parameter :: ROUTINE='READVC  '
 #include "SysDef.fh"
 #include "warnings.h"
 

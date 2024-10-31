@@ -27,7 +27,7 @@
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-      use rasscf_data, only : NRoots, iAdr15, NAc
+      use rasscf_global, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
      &                           one_el_idx_flatten

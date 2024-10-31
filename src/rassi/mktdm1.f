@@ -16,7 +16,7 @@
 
       ! module dependencies
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util

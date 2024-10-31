@@ -30,7 +30,7 @@
       use qcmaquis_interface_mpssi
 #endif
       use mspt2_eigenvectors
-      use rasscf_data, only: DoDMRG
+      use rasscf_global, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate

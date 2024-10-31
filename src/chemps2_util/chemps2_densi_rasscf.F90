@@ -17,7 +17,7 @@
 
 subroutine CHEMPS2_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
 
-use rasscf_data, only: NACPAR, NACPR2, NAC, mxSym
+use rasscf_global, only: NACPAR, NACPR2, NAC, mxSym
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 

@@ -18,7 +18,7 @@
       use kVectors
       use Lebedev_quadrature, only: available_table, rule_max
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update

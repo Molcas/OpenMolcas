@@ -22,7 +22,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_utility_routines, only:
      &    lower_to_upper, find_qcmaquis_keyword
-      use rasscf_data, only: MPSCompressM, DoDelChk
+      use rasscf_global, only: MPSCompressM, DoDelChk
 
       implicit none
 

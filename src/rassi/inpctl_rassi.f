@@ -11,7 +11,7 @@
       SUBROUTINE INPCTL_RASSI()
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
