@@ -74,13 +74,16 @@ C     ********** IBM 3090 MOLCAS Release 90 02 22 **********
 C
       use sxci, only: IDXCI, IDXSX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global
+      use rasscf_global, only: header, IPT2, iRoot, lRoots, NACPAR,
+     &                         NACPR2, NAME, nOrbT, nRoots, NTOT3,
+     &                         POTNUC, Title, Weight, IADR15
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "rasdim.fh"
 #include "general.fh"
       Real*8 Dum(1)
       Real*8, Allocatable:: HEFF(:,:)
+      Integer I, IAD15, ISYM, J, NFOCK, NOO
 
       DO I=1,15
        IADR15(I)=0
