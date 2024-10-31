@@ -17,7 +17,6 @@
       implicit None
 #include "rasdim.fh"
 #include "general.fh"
-#include "warnings.h"
       Real*8 CRVEC(NCRVEC), CMO(NTOT2)
       Real*8 TUVX(*)
 
