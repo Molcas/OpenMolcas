@@ -12,7 +12,6 @@
 set (sources
      active_space_solver_cfg.F90
      qcmaquis_info.F90
-     rasscf_data.F90
      refwfn.F90
 )
 
@@ -20,7 +19,6 @@ set (sources
 set (modfile_list
      active_space_solver_cfg.F90
      qcmaquis_info.F90
-     rasscf_data.F90
      refwfn.F90
 )
 
