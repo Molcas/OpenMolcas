@@ -39,7 +39,7 @@ contains
     !       state basis. Expected to be of length lroots*lroots.
 
     use definitions,only:wp
-    use rasscf_global
+    use rasscf_global, only: lRoots, Ener
 
     implicit none
 
