@@ -33,9 +33,12 @@
       use qcmaquis_interface_cfg
 #endif
       use Constants, only: Zero, One
-      use rasscf_global, only: DFTFOCK, DoDMRG, Emy, ExFac, KSDFT_temp,
+      use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp,
      &                         NAC, NACPAR, NONEQ, PotNuc, Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge
+#ifdef _DMRG_
+      use rasscf_global, only: DoDMRG
+#endif
 
       Implicit None
 *

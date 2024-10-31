@@ -428,6 +428,9 @@ Contains
 #include "general.fh"
 #include "io_util.fh"
       Integer nRec
+#ifdef _DEBUGPRINT_
+      Integer iOff, iRec
+#endif
 !
 !   ========================
 !      Find nrec and lrec

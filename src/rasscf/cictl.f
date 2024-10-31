@@ -82,14 +82,14 @@
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
-      use rasscf_global, only: CMSStartMat, DoDMRG, DoFCIDump, Emy,
+      use rasscf_global, only: CMSStartMat, DoDMRG,
      &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
      &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
      &                         l_casdft, lroots, n_Det, NAC, NACPAR,
      &                         NACPR2, nRoots, PrwThr, RotMax, S,
      &                         IADR15, iRoot, Weight, Ener
 #ifdef _DMRG_
-      use rasscf_global, only: TwoRDM_qcm
+      use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
 #endif
 
 
@@ -131,7 +131,7 @@
 
       ! arrays for 1- and 2-RDMs and spin-1-RDMs, size: nrdm x nroots
       real*8, allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
-      integer ilen
+      integer ilen, iErr
 #endif
       real*8 rdum(1)
       Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
@@ -141,7 +141,7 @@
       Integer LuVecDet
       Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
       Real*8, External:: DDot_
-      Integer i, iDisk, iErr, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
+      Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
      &        jRoot, kRoot, mconf
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
