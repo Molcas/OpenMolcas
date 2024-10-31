@@ -35,9 +35,13 @@
       use rctfld_module, only: lRF
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global
+      use Constants, only: Zero
+      use rasscf_global, only: iRLXRoot, lRoots, lSquare, NAC, NFR,
+     &                         NIN, NONEQ, nRoots, NSEC, nTIT,
+     &                         Tot_Charge, Tot_El_Charge,
+     &                         Tot_Nuc_Charge, Title, Header
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
       Character(LEN=8)   Fmt1,Fmt2, Label
@@ -45,6 +49,8 @@
       Character(LEN=3) lIrrep(8)
 
       Real*8, Allocatable:: Tmp0(:)
+      Integer iPrLev, lPaper, lLine, left, i, iCharge, iComp, iDoRI,
+     &        iRC, iSyLbl, iSym, nLine, iOpt
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -52,7 +58,6 @@
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
       lPaper=132
-      Zero = 0.0D0
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
@@ -280,5 +285,4 @@ C.. for RAS
   900 CONTINUE
       Call XFlush(LF)
 
-      Return
-      End
+      End Subroutine InpPri_m
