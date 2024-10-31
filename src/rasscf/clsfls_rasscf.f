@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine ClsFls_RASSCF
+      Subroutine ClsFls_RASSCF()
 ************************************************************************
 *                                                                      *
 *     Close files.                                                     *
@@ -30,13 +30,13 @@
       use mh5, only: mh5_close_file
       use RASWfn, only: wfn_fileid
 #endif
-      use rasscf_global
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Logical DoCholesky
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Integer iRC
 
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -80,5 +80,4 @@ C Local print level (if any)
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine ClsFls_RASSCF
