@@ -25,7 +25,8 @@ subroutine mcpdft_init()
   Use KSDFT_Info,Only:CoefR,CoefX
   use mcpdft_output,only:set_print_level
   use gas_data, only: NGAS, NGSSH, IGSOCCX
-  use rasscf_global
+  use rasscf_global, only: iRoot, DFTFOCK, ENER, ExFac, IPT2, iTriM, lRoots, NonEq, nRoots, &
+                           PreThr, Weight, Title, ixSym, iTri
 
 
   implicit none
