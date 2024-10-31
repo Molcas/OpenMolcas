@@ -24,13 +24,13 @@
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc
-      use rasscf_global
+      use rasscf_global, only: NACPR2, nFint, NSXS, ISTORP
 
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Real*8 CMO(*), FockI(*), FockA(*), D1Act(*), Fock(*), P(*),
      &       PUVX(*), P2D(*)
       INTEGER NQ,istate
@@ -41,7 +41,7 @@
 
 
 ******Auxiliary Variables
-      INTEGER i_off1,isym
+      INTEGER i_off1,isym, I, IBAS, IFINAL, ISA, J
       INTEGER iPrLev
       CHARACTER(len=64) FILENAME
       CHARACTER(len=8) STATENAME
