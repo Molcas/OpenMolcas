@@ -68,7 +68,7 @@
 #endif
       use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI, KAVER,
      &                         KSYM, HFOCC, CMSStartMat, CMSThreshold,
-     &                         CoreShift, DFTFOCK, DoBLOCKDMRG, DODMRG,
+     &                         CoreShift, DFTFOCK, DoBLOCKDMRG,
      &                         ExFac, hRoots, iAlphaBeta, ICICH,
      &                         iCIonly, iCIRFROOT, iCMSITERMAX,
      &                         iCMSITERMin, iCMSP, iExpand, JCJ,
@@ -87,7 +87,7 @@
      &                         IfCRPR, LROOTS, PrwThr, InOCalc, ixSym,
      &                         iZRot
 #ifdef _DMRG_
-      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG, DoDMRG,
 #endif
 
 
@@ -175,12 +175,12 @@
      &        iGAS, iGrp, ii, ij, iJOB, inporb_version, iod_save,
      &        iOffSet, iOrb, iOrbData, iPrLev, iR, iRC1, iRef, iReturn,
      &        is_in_group, iStart, iSum, iSym, itu, j, jpcmroot, k,
-     &        korb, kref, lRoots_l, mBas, mCof, mConf, mm, mOrb, N, NA,
+     &        korb, kref,           mBas, mCof, mConf, mm, mOrb, N, NA,
      &        NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI,
-     &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs, nr_lines,
+     &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs,
      &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
 #ifdef _HDF5_
-      Integer mh5id
+      Integer mh5id, lRoots_l
 #endif
 
 C...Dongxia note for GAS:
@@ -189,6 +189,7 @@ C   No changing about read in orbital information from INPORB yet.
       DoFaro = .FALSE.
 
 #ifdef _DMRG_
+      Integer nr_lines
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
 !     If this is set to 0, MPS compression is disabled
