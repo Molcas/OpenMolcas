@@ -243,7 +243,7 @@ do
     Iterate = .false.
   end if
   if (Iter > IterMx) then
-    write(u6,*) ' Too many iterations in RF'
+    write(u6,*) ' Too many iterations in RS'
     exit
   end if
 end do

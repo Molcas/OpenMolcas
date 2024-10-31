@@ -133,6 +133,7 @@ set (sources
      tw_corr.F90
      tw_corr_drv.F90
      vecfind.F90
+     voo2ov.F90
      wfctl_scf.F90
      wrinp_scf.F90
      xclc.F90

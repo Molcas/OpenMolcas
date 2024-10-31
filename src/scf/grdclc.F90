@@ -30,7 +30,6 @@ subroutine GrdClc(Do_All)
 !                                                                      *
 !***********************************************************************
 
-use Interfaces_SCF, only: vOO2OV
 use InfSCF, only: CMO_Ref, FockMO, Iter, Iter_Start, kOV, mOV, nBO, nBT, nD, nOO, OneHam, Ovrlp
 use LnkLst, only: LLGrad, PutVec
 use stdalloc, only: mma_allocate, mma_deallocate
