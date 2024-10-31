@@ -22,7 +22,7 @@ use casvb_global, only: ifvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: iOrbTyp, NAC, NACPAR, NACPR2, iADR15
 
 
 #include "intent.fh"
