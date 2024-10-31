@@ -112,7 +112,7 @@
      &                         Start_Vectors, SXShft, Thre, ThrSX,
      &                         THRTE, TMin, Tot_Charge, EMY,
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
-     &                         Conv, DODMRG, ECAS1, iCIRST, KSDFT_Temp
+     &                         Conv, DoDMRG, ECAS1, iCIRST, KSDFT_Temp
 #ifdef _DMRG_
       use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
 #endif
@@ -1747,7 +1747,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(dum1,dum2,Zenith_1,dum3)
 
-
+      if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
      &                    iroot=iroot,
@@ -1772,7 +1772,7 @@ c Clean-close as much as you can the CASDFT stuff...
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
 ! (to exclude potential side effects)
 ! but consider extending it to other cases!
-      else if (doDMRG .and. (ICIONLY.NE.0)) then
+      else if (doDMRG .and. ICIONLY/=0) then
         continue
 #endif
       else

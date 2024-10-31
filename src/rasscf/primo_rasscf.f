@@ -15,11 +15,11 @@
 *
 ************************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global
+      use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, Name
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
-      Character*(*) VecTit
+      Character(LEN=*) VecTit
       Real*8 CMO(*),Occ(*),Ene(*)
 
 #include "rasdim.fh"
@@ -36,6 +36,10 @@
 * PAM Nov 05: Non-valence orbitals
       Integer NVSH(8)
       Integer, Allocatable:: MrkIt(:), Slct(:)
+      Real*8 CC
+      Integer I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND,
+     &        ISOFF, ISStart, IST, ISYM, left, lPaper, NB, NBTOT,
+     &        nCols, ND, NFIA, NO, NS, NSKIP, NSLCTT, lLine
 
       Call Get_cArray('Irreps',lIrrep,24)
 
