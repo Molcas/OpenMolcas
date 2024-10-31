@@ -30,7 +30,7 @@ subroutine Rd2Int_RASSCF()
 
 use UnixInfo, only: ProgName
 use Definitions, only: iwp, u6
-use rasscf_global
+use rasscf_global, only: lSquare
 
 
 implicit none
