@@ -40,7 +40,7 @@
       use definitions, only: wp
       use RASWfn, only: wfn_mocoef
 #endif
-      use rasscf_global
+      use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
 
       IMPLICIT None
 
