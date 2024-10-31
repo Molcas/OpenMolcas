@@ -27,7 +27,7 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: i_Tri => iTri, nTri_Elem
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: ISTORP
 
 
 #include "intent.fh"
