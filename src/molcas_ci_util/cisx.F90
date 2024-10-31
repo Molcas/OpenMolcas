@@ -14,7 +14,7 @@ subroutine CISX(IDX,D,DS,PS,PA,SCR)
 use Index_Functions, only: i_Tri => iTri, nTri_Elem
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: NAC, NACPR2
 
 
 #include "intent.fh"
