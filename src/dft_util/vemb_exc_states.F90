@@ -20,7 +20,6 @@ subroutine VEMB_Exc_states(Vemb,nVemb,xKSDFT,Func_Bx)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use rasscf_global
 
 implicit none
 integer(kind=iwp), intent(in) :: nVemb
