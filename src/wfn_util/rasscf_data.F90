@@ -23,7 +23,6 @@ use rasscf_global
 implicit none
 
 #include "rasdim.fh"
-#include "output_ras.fh"
 
 #ifdef _DMRG_
 !DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
