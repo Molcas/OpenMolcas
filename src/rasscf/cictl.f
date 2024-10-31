@@ -82,11 +82,20 @@
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
-      use rasscf_global
+      use rasscf_global, only: CMSStartMat, DoDMRG, DoFCIDump, Emy,
+     &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
+     &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
+     &                         l_casdft, lroots, n_Det, NAC, NACPAR,
+     &                         NACPR2, nRoots, PrwThr, RotMax, S,
+     &                         IADR15, iRoot, Weight, Ener
+#ifdef _DMRG_
+      use rasscf_global, only: TwoRDM_qcm
+#endif
 
 
-      Implicit Real* 8 (A-H,O-Z)
+      Implicit None
 
+      Integer iFinal
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
       Logical Exist,Do_ESPF
@@ -122,13 +131,18 @@
 
       ! arrays for 1- and 2-RDMs and spin-1-RDMs, size: nrdm x nroots
       real*8, allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
+      integer ilen
 #endif
-      Dimension rdum(1)
+      real*8 rdum(1)
       Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
      &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
      &                      RF(:), Temp(:)
       Integer, Allocatable:: kCnf(:)
       Integer LuVecDet
+      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
+      Real*8, External:: DDot_
+      Integer i, iDisk, iErr, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
+     &        jRoot, kRoot, mconf
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
@@ -1055,5 +1069,4 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         Call mma_deallocate(RF)
       End If
 
-      Return
-      End
+      End Subroutine CICtl
