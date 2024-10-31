@@ -96,4 +96,9 @@ Module rasscf_global
   LOGICAL(kind=iwp), Public:: dice_stoc,dice_restart
   CHARACTER(LEN=500), Public:: diceocc(20)
 #endif
+#ifdef _DMRG_
+!DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
+Integer(kind=iwp), Public :: MPSCompressM
+Logical(kind=iwp), Public :: DoNEVPT2Prep, DoDelChk
+#endif
 End Module rasscf_global

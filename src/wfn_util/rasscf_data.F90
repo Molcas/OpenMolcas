@@ -24,10 +24,4 @@ implicit none
 
 #include "rasdim.fh"
 
-#ifdef _DMRG_
-!DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
-Integer(kind=iwp), Public :: MPSCompressM
-Logical(kind=iwp), Public :: DoNEVPT2Prep, DoDelChk
-#endif
-
 end module rasscf_data
