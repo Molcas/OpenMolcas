@@ -55,20 +55,27 @@
       use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
       use gas_data, only: NGAS,NGSSH
-      use rasscf_global
+      use rasscf_global, only: DoDMRG, iFORDE, iOrbTyp, iOrdEM, iSupSM,
+     &                         FDIAG, ixSym, iTRI, iADR15
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='NEWORB  ')
+      Character(LEN=16), Parameter :: ROUTINE='NEWORB  '
 #include "SysDef.fh"
 
       Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
-     *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
+     &          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 
+      Real*8 AVij, AVMx, Fact, FMin, Swap, VIJ
+      Integer iPrLev, i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iST,
+     &        iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM,
+     &        ixSymT, j, jSel, k, Min, NA, NA1, NAB, NABT, NAO, NAO2,
+     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF,
+     &        NFI_, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1,
+     &        NOO, NOT, NT, NTTR, NTU, NTUD, NU, NUT
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
