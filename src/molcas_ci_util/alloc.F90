@@ -24,7 +24,7 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use rasscf_global
+use rasscf_global, only: nFint, ISTORD, ISTORP
 
 
 implicit none
