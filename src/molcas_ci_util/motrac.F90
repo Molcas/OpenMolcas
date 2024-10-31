@@ -23,7 +23,7 @@ subroutine MOTRAC(CMO,F,X1,X2)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: iTRI
 
 
 implicit none
@@ -51,7 +51,5 @@ do ISYM=1,NSYM
   LMOP = LMOP+NB**2
   ISTFP = ISTFP+ITRI(NB+1)
 end do
-
-return
 
 end subroutine MOTRAC

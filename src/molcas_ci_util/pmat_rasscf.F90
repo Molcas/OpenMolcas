@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use rasscf_global
+use rasscf_global, only: ISTORP, iTri
 
 
 #include "intent.fh"
