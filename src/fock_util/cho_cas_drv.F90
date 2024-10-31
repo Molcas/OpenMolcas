@@ -16,7 +16,7 @@ use Fock_util_global, only: ALGO, Deco, dmpk, DoActive, DoLocK, Nscreen
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use rasscf_global
+use rasscf_global, only: CBLBM, ExFac
 
 #include "intent.fh"
 
