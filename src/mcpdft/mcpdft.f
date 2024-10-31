@@ -62,10 +62,14 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use rasscf_global
+      use rasscf_global, only: ECAS, ExFac, IPR, iRLXRoot, ITER,
+     &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
+     &                         nFint, nRoots, nTot4, iRoot, Weight,
+     &                         Ener
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
+      Integer iReturn
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
@@ -86,6 +90,8 @@
       Real*8, allocatable :: TmpDMat(:), Ref_E(:), EList(:,:),
      &                       HRot(:,:), PUVX(:)
       Logical DSCF
+      Real*8 AEMAX, dum1, dum2, dum3, E
+      Integer I, iJOB, iPrLev, iRC, IT, jDisk, jRoot
 
       Call StatusLine('MCPDFT:',' Just started.')
       IRETURN=_RC_ALL_IS_WELL_
