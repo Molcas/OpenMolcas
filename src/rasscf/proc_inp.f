@@ -87,7 +87,7 @@
      &                         IfCRPR, LROOTS, PrwThr, InOCalc, ixSym,
      &                         iZRot
 #ifdef _DMRG_
-      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG, DoDMRG,
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG, DoDMRG
 #endif
 
 
@@ -160,6 +160,7 @@
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
       character(len=20)    :: guess_dmrg
+      Integer nr_lines
 !     dmrg(QCMaquis)-stuff
 #endif
 
@@ -189,7 +190,6 @@ C   No changing about read in orbital information from INPORB yet.
       DoFaro = .FALSE.
 
 #ifdef _DMRG_
-      Integer nr_lines
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
 !     If this is set to 0, MPS compression is disabled
