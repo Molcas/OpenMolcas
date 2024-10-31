@@ -14,7 +14,6 @@
 subroutine close_files_mcpdft()
   use Fock_util_global,only:docholesky
   use mcpdft_output,only:lf
-  use rasscf_global
 
   implicit none
 
