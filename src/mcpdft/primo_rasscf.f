@@ -17,9 +17,9 @@
 
       use mcpdft_output, only: lf
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global
+      use rasscf_global, only: OutFmt2, PreThr, NAME
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
       Character(LEN=*) VecTit
       Real*8 CMO(*),Occ(*),Ene(*)
@@ -35,6 +35,11 @@
       Character(LEN=LENIN8), External:: Clean_BName
 
       Integer, Allocatable:: MrkIt(:), SLCT(:)
+
+      Real*8 CC
+      Integer I, IB, IBAS, IBOFF, ICOFF, ICOL, IO, IORB, IS, ISEND,
+     &        ISOFF, ISSTART, IST, ISYM, left, lLine, lPaper, NB, NBTOT,
+     &        nCols, ND, NFIA, NO, NS, NSLCTT
 
       Call Get_cArray('Irreps',lIrrep,24)
 
