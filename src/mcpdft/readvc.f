@@ -55,7 +55,8 @@
       use mcpdft_output, only: lf, iPrGlb, iPrLoc
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global
+      use rasscf_global, only: lRoots, NACPAR, NACPR2, nRoots, iRoot,
+     &                         Weight
 
 
       implicit none
