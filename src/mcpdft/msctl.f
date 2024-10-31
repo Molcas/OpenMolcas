@@ -1199,7 +1199,7 @@ c      call xflush(6)
 
       Subroutine P2_contraction(D1MO,P2MO)
       use definitions, only: wp
-      use rasscf_global
+      use rasscf_global, only: NAC
 
       implicit none
 
