@@ -20,7 +20,7 @@ use csfbas, only: conf
 use glbbas, only: cftp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: NAC
 
 #include "intent.fh"
 
