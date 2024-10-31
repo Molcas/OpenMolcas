@@ -52,7 +52,7 @@ use glbbas, only: CFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rasscf_global
+use rasscf_global, only: hRoots, ICIRST, lRoots, NAC, Start_Vectors, IADR15, iTOC
 
 
 #include "intent.fh"
