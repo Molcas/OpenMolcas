@@ -17,7 +17,7 @@ subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
 use csfbas, only: cts
 use glbbas, only: dtoc
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: NAC
 
 implicit none
 real(kind=wp), intent(inout) :: vec(*), detvec(*)
