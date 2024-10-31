@@ -29,7 +29,7 @@ subroutine Rd1Int()
 !***********************************************************************
 
 use Definitions, only: iwp
-use rasscf_global
+use rasscf_global, only: header, NAME, PotNuc
 
 
 implicit none
