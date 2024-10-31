@@ -11,10 +11,11 @@
       SUBROUTINE LINPUR(CMO)
       use stdalloc, only: mma_allocate, mma_deallocate
 * rasscf_global.F90 defines NAME:
-      use rasscf_global
+      use rasscf_global, only: NAME, IXSYM
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Real*8 CMO(*)
+
       CHARACTER(LEN=2) LCHAR
       Real*8 WGTLMB(0:9)
       LOGICAL IFTEST
@@ -23,6 +24,10 @@
 * general.fh defines NSYM,NBAS,NORB:
 #include "general.fh"
       Integer, Allocatable:: LMB(:)
+      Integer i, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
+     &        ISYM, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT, NO,
+     &        NONZ
+      REAL*8 WGT, WMX
 
 * Set IFTEST=.true. to get supsym input generated in the output
 * for further use, or for testing.
