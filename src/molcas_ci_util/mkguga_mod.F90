@@ -205,7 +205,7 @@ contains
 
     use gugx, only: SGS
     use gas_data, only: NGAS, NGSSH
-    use rasscf_global
+    use rasscf_global, only: NSM
 
     ! to get some dimensions
     ! NSM form rasscf,fh
