@@ -106,7 +106,7 @@
      &                         ICICH, iCIOnly, iExpand, IfCrPr,
      &                         InOCalc, iPr, iPT2, iRLXRoot, iSave_Exp,
      &                         iSymBB, ITER, ITERCI, ITERSX, JBLBM,
-     &                         l_casdft, lRoots, lSquare, MaxIt, NAC,
+     &                         l_casdft,         lSquare, MaxIt, NAC,
      &                         NACPAR, NACPR2, NewFock, nFint, no2m,
      &                         nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax,
      &                         Start_Vectors, SXShft, Thre, ThrSX,
@@ -115,6 +115,9 @@
      &                         Conv, DODMRG, ECAS1, iCIRST, KSDFT_Temp
 #ifdef _DMRG_
       use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
+#endif
+#ifdef _HDF5_
+      use rasscf_global, only: lRoots
 #endif
 
       Implicit None
@@ -144,11 +147,18 @@
       Real*8 CASDFT_E, CASDFT_FUNCT, Certina_1, Certina_2, Certina_3,
      &       DiffE, DiffETol, dum1, dum2, dum3, EAv, ThMax, TMXTOT
       Real*8, External:: Get_ExFac
-      Integer i, i_ROOT, iAd, iAd15, iBas, iDX, iComp, iFinal, ihh,
+      Integer i, i_ROOT, iAd, iAd15, iBas,      iComp, iFinal, ihh,
      &        imm, Ind, IndT, iOff, iOpt, iPrLev, iRC, iRot, iShift,
-     &        iss, iSyLbl, iSym, iTerm, j, jDisk, jRoot, kau, kDisk,
+     &        iss, iSyLbl, iSym, iTerm, j,               kau,
      &        kRoot, LuOne, LuvvVec, mRoots, nTav, iFlags, NoScr1
       Integer, External:: IsFreeUnit
+#ifdef _HDF5_
+      Integer iDX, jDisk, jRoot, kDisk
+#endif
+#ifdef _FDE_
+      Integer iDummyEmb, iEmb, iUnit, nNuc
+      Real*8, External:: EmbPotEneMODensities
+#endif
 
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
@@ -1737,7 +1747,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(dum1,dum2,Zenith_1,dum3)
 
-      if (allocated(CI_solver)) then
+
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
      &                    iroot=iroot,
