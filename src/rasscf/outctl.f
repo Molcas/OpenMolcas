@@ -37,29 +37,38 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
       use input_ras, only: KeyCION
-      use rasscf_global
+      use rasscf_global, only: CBLBM, CMAX, DE, DoDMRG, ECAS, ESX,
+     &                         FDIAG, HalfQ, IBLBM, ICICH, iPCMRoot,
+     &                         iPT2, iRLXRoot, iSPDen, iSupSM, iSymBB,
+     &                         ITER, JBLBM, kIVO, KSDFT, lRoots,
+     &                         MaxOrbOut, NAC, NACPAR, NACPR2, NAME,
+     &                         NIN, NONEQ, nRoots, NSEC, OutFmt1,
+     &                         RFPert, RLXGrd, RotMax, ThrE, Tot_Charge,
+     &                         Tot_El_Charge, Tot_Nuc_Charge, via_DFT,
+     &                         iRoot, Weight, iCI, cCI, ixSym, iADR15,
+     &                         Ener
 
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
+      Real*8 CMO(*),OCCN(*),SMAT(*)
+      Logical lOPTO
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='OUTCTL  ')
+      Character(LEN=16), Parameter :: ROUTINE='OUTCTL  '
 #include "ciinfo.fh"
 #include "SysDef.fh"
 
-      Character*8  Fmt2, Label
-      Character*3 lIrrep(8)
-      Character*80 Note
-      Character*120 Line
+      Character(LEN=8)  Fmt2, Label
+      Character(LEN=3) lIrrep(8)
+      Character(LEN=80) Note
+      Character(LEN=120) Line
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Character*3 SNAC
+      Character(LEN=3) SNAC
 #endif
       Logical FullMlk, get_BasisType
-      Logical Do_ESPF,lSave, lOPTO, Do_DM
-      Real*8 CMO(*),OCCN(*),SMAT(*)
+      Logical Do_ESPF,lSave, Do_DM
       Real*8 Temp(2,mxRoot)
       Real*8, Allocatable:: DSave(:), Tmp0(:), X1(:), X2(:), X3(:),
      &                      X4(:), HEFF(:,:), CMON(:), DM(:), DMs(:,:),
@@ -68,13 +77,19 @@
 ** (SVC) added for new supsym vector input
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
 
-      Integer  Cho_X_GetTol
-      External Cho_X_GetTol
+      Integer, External :: Cho_X_GetTol
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
       Real*8 Dum(1)
       Integer iDum(56)
+
+      REAL*8 CASDFT_Funct, EAV, EDC, Emv, Erel, vNentropy, xnu
+      Integer i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN,
+     &        iDimO, iDimV, iEnd, iGAS, Ind, iOpt, iPrLev, iRC, iRC1,
+     &        iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot,
+     &        left, luTmp, NAO, nDCInt, nMVInt, NO
+      Integer, External:: IsFreeUnit
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
