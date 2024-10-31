@@ -19,7 +19,9 @@
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
       use mcpdft_input, only: mcpdft_options
-      use rasscf_global
+      use rasscf_global, only: lRoots, iRLXRoot, NACPR2, nRoots,
+     &                         nTot4
+      Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
