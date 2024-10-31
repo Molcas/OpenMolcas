@@ -88,7 +88,7 @@ Iter_i = 0
 Iterate = .false.
 Restart = .false.
 NumVal = min(ValMin,nInter+1)
-!NumVal = min(nInter+1,nInter+1)
+!NumVal = nInter+1
 call mma_allocate(Vec,nInter+1,NumVal,Label='Vec')
 call mma_allocate(Val,NumVal,Label='Val')
 call mma_allocate(Tmp,nInter+1,Label='Tmp')
@@ -115,7 +115,10 @@ do
   ! Hessian based on a diagonal approximation and a BFGS update.
 
   call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
-  if (iStatus > 0) call SysWarnMsg('RS_RFO SCF','Davidson procedure did not converge','')
+  if (iStatus > 0) then
+    write(u6,*) 'rs_rfo_SCF: Davidson procedure did not converge.'
+    call resetBFGS()
+  end if
   !write(u6,*) 'Val(:)=',Val(:)
   !write(u6,*) 'Vec(:,1)=',Vec(:,1)
   !write(u6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
@@ -180,22 +183,9 @@ do
 
   dqdq = DDot_(nInter,dq,1,dq,1)
 
-  if (sqrt(dqdq) > Pi) then
-    !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
-    if (kOptim /= 1) then
-      write(u6,*) 'rs_rfo_SCF: Total displacement is too large.'
-      write(u6,*) 'DD=',sqrt(dqdq)
-      write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO'
-      Iter_i = Iter_i-1
-      kOptim = 1
-      Iter_Start = Iter
-      IterSO = 1
-      cycle
-    end if
-  end if
-# ifdef _DEBUGPRINT_
+!# ifdef _DEBUGPRINT_
   write(u6,'(I5,4ES11.3)') Iter_i,A_RFO,sqrt(dqdq),StepMax,EigVal
-# endif
+!# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -217,39 +207,52 @@ do
 
   if (((Iter_i == 1) .or. Restart) .and. (dqdq > StepMax**2)) then
     Iterate = .true.
-    Restart = .false.
+    if (dqdq < 1.0e2_wp) Restart = .false.
   end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Procedure if the step length is not equal to the trust radius
 
-  Step_Trunc = '*'
-  !write(u6,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+  if (sqrt(dqdq) > Pi) then
+    !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
+    write(u6,*) 'rs_rfo_SCF: Total displacement is too large.'
+    call resetBFGS()
+    if (Iter_i <= IterMx) cycle
+  else
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Procedure if the step length is not equal to the trust radius
 
-  ! Converge if small interval
+    Step_Trunc = '*'
+    !write(u6,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
 
-  if ((dqdq < StepMax**2) .and. (abs(A_RFO_long-A_RFO_short) < Thr)) exit
-  call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
-  !write(u6,*) 'A_RFO_Short=',A_RFO_Short
-  !write(u6,*) 'A_RFO_Long=',A_RFO_Long
-  !write(u6,*) 'dqdq_long=',dqdq_long
-  !write(u6,*) 'dqdq_short=',dqdq_short
-  if (A_RFO == -One) then
-    A_RFO = One
-    Step_Trunc = ' '
-    Restart = .true.
-    Iterate = .false.
+    ! Converge if small interval
+    if ((dqdq < StepMax**2) .and. (abs(A_RFO_long-A_RFO_short) < Thr)) exit
+
+    call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
+    write(u6,*) 'A_RFO_Short,A_RFO_Long,A_RFO=',A_RFO_Short,A_RFO_Long,A_RFO
+    write(u6,*) 'dqdq_short,dqdq_long,StepMax=',dqdq_short,dqdq_long,StepMax
+    if (A_RFO == -One) then
+      A_RFO = One
+      Step_Trunc = ' '
+      Restart = .true.
+      Iterate = .false.
+    end if
   end if
   if (Iter_i > IterMx) then
-    write(u6,*) ' Too many iterations in RF'
+    write(u6,*) ' Too many iterations in RS'
     exit
   end if
 
+  if (abs(StepMax-sqrt(dqdq)) <= Thr) write(6,*) 'Converged'
   if ((.not. Iterate) .or. (abs(StepMax-sqrt(dqdq)) <= Thr)) exit
 
 end do
 write(6,*) 'IFG Iter_i',Iter_i
+
+! Safety net: truncate if the step was still too large
+if (sqrt(dqdq)-StepMax > Thr) then
+  dq(:) = dq(:)/sqrt(dqdq)
+  dqdq = DDot_(nInter,dq,1,dq,1)
+end if
 
 call mma_deallocate(Tmp)
 dqHdq = dqHdq+EigVal*Half
@@ -268,5 +271,21 @@ write(u6,*)
 #endif
 call mma_deallocate(Vec)
 call mma_deallocate(Val)
+
+contains
+
+subroutine resetBFGS()
+
+  if (kOptim /= 1) then
+    write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO'
+    kOptim = 1
+    Iter_Start = Iter
+    IterSO = 1
+    A_RFO = One
+  end if
+  Restart = .true.
+  Iterate = .false.
+
+end subroutine
 
 end subroutine RS_RFO_SCF

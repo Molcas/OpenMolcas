@@ -204,8 +204,8 @@ private
 integer(kind=iwp), parameter :: IterSO_Max = 30, MxIter = 400, MxOptm = 20, nFld = 16, nStOpt = 8
 
 integer(kind=iwp) :: ALGO, Expand, fileorb_id, iAu_ab, iCoCo, iDisk(MxIter,2), iDKeep, iDMin, iDummy_run, indxC(16,2,8), InVec, &
-                     iPrForm, iPrint, iPrOrb, iPsLst, iStatPRN, iter, Iter2run, Iter_Ref = 1, Iter_Start = 1, iterprlv, &
-                     IterSO = 0, jPrint, jVOut, kIvo, klockan, kOptim, kOptim_Max = 5, kOV(2), lPaper, LstVec(nStOpt), &
+                     iPrForm, iPrint, iPrOrb, iPsLst, iStatPRN, iter, Iter2run, Iter_Ref = 1, Iter_Start = 1, IterGEK = 0, &
+                     iterprlv, IterSO = 0, jPrint, jVOut, kIvo, klockan, kOptim, kOptim_Max = 5, kOV(2), lPaper, LstVec(nStOpt), &
                      MapDns(MxIter), MaxBas, MaxBOF, MaxBOO, MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv = 0, mOV, MxConstr, &
                      nAtoms, nAufb(2), nBas(MxSym), nBB, nBO, nBT, nConstr(8), nCore, nD, nDel(MxSym), nDens, nDisc, nFro(MxSym), &
                      nFrz(MxSym), nIter(0:1), nIterP, nMem, nnB, nnFr, nnO, nnOc, nOcc(MxSym,2), nOFS, nOO, nOrb(MxSym), nOV, &
@@ -240,14 +240,14 @@ public :: AccCon, ADDC_KSDFT, AddFragments, ALGO, Atom, Aufb, BName, BType, c1Di
           Do_Addc, Do_Tw, DoCholesky, DoFMM, DoHLgap, DSCF, DThr, DThr_Old, E1V, E2V, E_nondyn, EDFT, EDiff, EKin, Elst, EmConv, &
           Energy, EneV, EOrb, Erest_xc, EThr, EThr_old, ExFac, Expand, Falcon, FckAuf, fileorb_id, FlipThr, FMOMax, FockAO, &
           FockMO, FThr, FThr_Old, HDiag, Header, HLgap, iAu_ab, iCoCo, iDisk, iDKeep, iDMin, iDummy_run, indxC, InVec, iPrForm, &
-          iPrint, iPrOrb, iPsLst, isHDF5, iStatPRN, iter, Iter2run, Iter_Ref, Iter_Start, iterprlv, IterSO, IterSO_Max, jPrint, &
-          jVOut, kIvo, klockan, KntE, kOptim, kOptim_Max, kOV, KSDFT, LKon, lPaper, lRel, LstVec, MapDns, MaxBas, MaxBOF, MaxBOO, &
-          MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv, MiniDn, mOV, MssVlc, MSYMON, MxConstr, MxIter, MxOptm, NamFld, nAtoms, &
-          nAufb, nBas, nBB, nBO, nBT, nConstr, nCore, nD, nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, nIter, nIterP, nMem, &
-          nnFr, nnO, nnOc, nOcc, NoExchange, NoFerm, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, nStOpt, nSym, nTit, OccNo, &
-          OccSet_e, OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, QNRTh, QudThr, REORD, RFpert, &
-          RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, Teee, TemFac, Thize, &
-          ThrEne, ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, TrDh, TrDP, TrM, TStop, &
-          Two_Thresholds, TwoHam, VTitle, Vxc, WarnCfg, WarnPocc, WarnSlow, WrOutD
+          iPrint, iPrOrb, iPsLst, isHDF5, iStatPRN, iter, Iter2run, Iter_Ref, Iter_Start, IterGEK, iterprlv, IterSO, IterSO_Max, &
+          jPrint, jVOut, kIvo, klockan, KntE, kOptim, kOptim_Max, kOV, KSDFT, LKon, lPaper, lRel, LstVec, MapDns, MaxBas, MaxBOF, &
+          MaxBOO, MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv, MiniDn, mOV, MssVlc, MSYMON, MxConstr, MxIter, MxOptm, NamFld, &
+          nAtoms, nAufb, nBas, nBB, nBO, nBT, nConstr, nCore, nD, nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, nIter, &
+          nIterP, nMem, nnB, nnFr, nnO, nnOc, nOcc, NoExchange, NoFerm, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, nStOpt, &
+          nSym, nTit, OccNo, OccSet_e, OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, QNRTh, &
+          QudThr, REORD, RFpert, RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, &
+          Teee, TemFac, Thize, ThrEne, ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, TrDh, &
+          TrDP, TrM, TStop, Two_Thresholds, TwoHam, VTitle, Vxc, WarnCfg, WarnPocc, WarnSlow, WrOutD
 
 end module InfSCF

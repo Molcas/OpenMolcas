@@ -44,9 +44,10 @@ use Interfaces_SCF, only: OptClc_X, TraClc_i
 use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
 use InfSCF, only: AccCon, Aufb, CMO, CMO_Ref, CPUItr, Damping, DIIS, DIISTh, DltNrm, DltnTh, DMOMax, DoCholesky, DSCF, DThr, E1V, &
                   E2V, EDiff, Energy, EneV, EOrb, EThr, Expand, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, &
-                  iterSO, iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, MxOptm, nAufb, &
-                  nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, Ovrlp, qNRTh, &
-                  RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, WarnCfg, WarnPocc
+                  iterGEK, iterSO, iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, &
+                  MxOptm, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, &
+                  Ovrlp, QNRTh, RGEK, RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, &
+                  WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
 use SCFFiles, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -59,11 +60,10 @@ character(len=*), intent(in) :: Meth
 logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
-                     Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+                     Iter_no_DIIS, IterDif, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
                  TWall2
-logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, BFGS_Reset, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, &
-                     Reset_Thresh
+logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
 character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
@@ -74,7 +74,7 @@ real(kind=wp) :: Whatever
 type(c_ptr) :: msym_ctx
 #endif
 real(kind=wp), allocatable :: CInter(:,:), D1Sao(:), Disp(:), Grd1(:), Xn(:), Xnp1(:)
-real(kind=wp), parameter :: BFGS_reset_Thr = 1.0e-2_wp, E2VTolerance = -1.0e-8_wp, StepMax = Ten
+real(kind=wp), parameter :: E2VTolerance = -1.0e-8_wp, StepMax = Ten
 real(kind=wp), external :: DDot_, Seconds
 
 #include "warnings.h"
@@ -123,7 +123,6 @@ if (MiniDn) MinDMx = max(0,nIter(nIterP)-1)
 iOpt = 0
 QNR1st = .true.
 FrstDs = .true.
-BFGS_Reset = .true.
 
 ! START INITIALIZATION
 
@@ -141,6 +140,7 @@ end if
 !----------------------------------------------------------------------*
 !                                                                      *
 IterSO = 0        ! number of second order steps.
+IterGEK = 0       ! number of data points in S-GEK
 kOptim = 1
 Iter_no_Diis = 2
 Converged = .false.
@@ -226,6 +226,7 @@ end if
 
 AllowFlip = .true.
 iAufOK = 0
+IterDif = 0
 Iter_DIIS = 0
 EDiff = Zero
 DMOMax = Zero
@@ -683,11 +684,20 @@ do iter_=1,nIter(nIterP)
               Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
             case (2) ! Use BFGS
               call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
+              DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+              if (DD > Pi) then
+                write(u6,*) 'WfCtl_SCF: Total displacement is large.'
+                write(u6,*) 'DD=',DD
+              end if
             case (3) ! Use RS-RFO
               dqHdq = Zero
               call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),1)
           end select
           AccCon = StrSave
+
+          ! update the S-GEK iteration counter
+          IterGEK = min(IterGEK+1,IterSO_Max)
+          Iter_Start = min(Iter_Start,Iter-IterGEK+1)
 
           call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.true.)
           !                                                            *
@@ -790,13 +800,6 @@ do iter_=1,nIter(nIterP)
       call Put_iarray('SCF nOcc_ab',nOcc(:,2),nSym)
     end if
   end if
-  !if ((iOpt == 4) .and. (Expand == 2)) then
-  !  if ((DltNrm <= BFGS_reset_Thr) .and. BFGS_reset) then
-  !    IterSO = 0
-  !    call TraFck(.true.,FMOMax)
-  !    BFGS_reset = .false.
-  !  end if
-  !end if
   !                                                                    *
   !*********************************************************************
   !*********************************************************************

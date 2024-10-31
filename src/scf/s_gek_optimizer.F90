@@ -28,7 +28,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use InfSCF, only: Energy, HDiag, iter, iterso
+use InfSCF, only: Energy, HDiag, iter, IterGEK, iterSO
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
@@ -51,7 +51,7 @@ real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
-integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
+integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 20
 #ifdef _KRYLOV_
 integer(kind=iwp), parameter :: nKrylov = 20
 #endif
@@ -68,11 +68,11 @@ if (.not. Init_LLs) then
   call Abend()
 end if
 
-call mma_allocate(q,mOV,iterso,Label='q')
-call mma_allocate(g,mOV,iterso,Label='g')
+call mma_allocate(q,mOV,iterGEK,Label='q')
+call mma_allocate(g,mOV,iterGEK,Label='g')
 
 !Pick up coordinates and gradients in full space
-iFirst = iter-min(iterso,nWindow)+1
+iFirst = iter-min(iterGEK,nWindow)+1
 j = 0
 do i=iFirst,iter
   j = i-iFirst+1
@@ -93,7 +93,7 @@ nDIIS = iter-iFirst+1
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
 write(u6,*) 'nDIIS=',nDIIS
-write(u6,*) 'IterSO=',IterSO
+write(u6,*) 'IterGEK=',IterGEK
 call RecPrt('q',' ',q,mOV,nDIIS)
 call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
@@ -302,7 +302,7 @@ write(u6,*) 'nExplicit:',nExplicit,'=',2*nDIIS-1,'+',nKrylov
 #else
 write(u6,*) 'nExplicit:',nExplicit
 #endif
-write(u6,*) 'IterSO   :',IterSO
+write(u6,*) 'IterGEK   :',IterGEK
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
@@ -375,6 +375,8 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
+
+write(6,*) 'IFG setup Kriging nPoints,nDim:',nDiis,mDiis
 
 !We need to set the bias
 
