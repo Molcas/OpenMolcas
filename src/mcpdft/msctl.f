@@ -38,9 +38,14 @@
       use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc, TUVX
-      use rasscf_global
+      use Constants, only: Zero, One
+      use rasscf_global, only: DFTFOCK, ECAS, EMY, nRoots, ExFac,
+     &                         IADR15, IPR, iRLXRoot, lRoots, lSquare,
+     &                         NAC, NACPAR, NACPR2, nFint, NonEq, NSXS,
+     &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
+     &                         Tot_Nuc_Charge, ISTORP, ENER
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
       Real*8 CMO(*), FI(*), FA(*), Ref_Ener(*)
 *
@@ -53,7 +58,6 @@
 *
       Character(LEN=8) Label
       Logical First, Dff, Do_DFT,Found
-      Parameter ( Zero=0.0d0 , One=1.0d0 )
       integer IAD19
       integer iJOB,dmDisk
       integer IADR19(1:30)
@@ -75,6 +79,12 @@
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
      &                      FOne(:), FA_t(:)
+      Real*8 CASDFT_E, CASDFT_Funct, EactK, EactN, Ekin, ENuc, EOne,
+     &       ETwo, PotNuc_Ref
+      Integer i, IADD, iBas, iCharge, iComp, iDisk, iFinal, iOff, iOpt,
+     &        iPrLev, iRC, iSA, iSyLbl, itsDisk, ITU, j, LUTMP, NIAIA,
+     &        NT, NTU, NU
+      Real*8, External:: DDot_
 
 ***********************************************************
 C Local print level (if any)
