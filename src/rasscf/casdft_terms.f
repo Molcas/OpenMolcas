@@ -32,9 +32,12 @@
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
-      use rasscf_global
+      use Constants, only: Zero, One
+      use rasscf_global, only: DFTFOCK, DoDMRG, Emy, ExFac, KSDFT_temp,
+     &                         NAC, NACPAR, NONEQ, PotNuc, Tot_Charge,
+     &                         Tot_El_Charge, Tot_Nuc_Charge
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 *
 #include "rasdim.fh"
 #include "general.fh"
@@ -43,12 +46,15 @@
 #include "SysDef.fh"
 *
       Real*8 CMO(*) ,F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
-      Character*8 Label
+      Character(LEN=8) Label
       Logical First, Dff, Do_DFT
-      Parameter ( Zero=0.0d0 , One=1.0d0 )
       Real*8, Allocatable:: X0(:), X1(:), X2(:), X3(:)
       Real*8, Allocatable:: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:),
      &                      Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:)
+      Real*8 CASDFT_Funct, Emyn, Eone, ETwo, PotNuc_Ref
+      Real*8, External:: DDot_
+      Integer i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC,
+     &        iSyLbl, iSym, ITU, j, MXNA, MXNB, NAT, NST, NT, NTU, NU
 
 
 ***********************************************************

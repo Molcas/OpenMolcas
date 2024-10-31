@@ -21,6 +21,7 @@ C     Commented lines are options under development and may be used in
 C     future
       use CMS, only:CMSThres,PosHess,BigQaaGrad,nPosHess,LargestQaaGrad,
      &              NeedMoreStep
+      Implicit None
       INTEGER nSPair,INFO,iPair,nScr
       Real*8 X(nSPair),G(nSPair),XScr(nSPair)
       Real*8 H(nSPair**2),ScrDiag(nScr),GScr(nSPair)
@@ -115,7 +116,8 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
      &                     GDstate,GDOrbit,Dgstate,DgOrbit,DDg,
      &                     nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
       use CMS, only: NCMSScale
-      use rasscf_global
+      use rasscf_global, only: CMSThreshold, lRoots
+      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
 #include "SysDef.fh"
