@@ -27,12 +27,14 @@
 *                                                                      *
 ************************************************************************
       use mcpdft_output, only: lf
-      use rasscf_global
+      use rasscf_global, only: lRoots, NAC, NIN, nRoots, OutFmt1,
+     &                         OutFmt2, iRoot
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
 #include "warnings.h"
+      Integer i, IA0, IB0, IC0, IERR, IERR1, IERR2, iSym
 *----------------------------------------------------------------------*
 C Local print level (if any)
       IERR=0
