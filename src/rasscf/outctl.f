@@ -43,10 +43,22 @@
      &                         ITER, JBLBM, kIVO, KSDFT, lRoots,
      &                         MaxOrbOut, NAC, NACPAR, NACPR2, NAME,
      &                         NIN, NONEQ, nRoots, NSEC, OutFmt1,
-     &                         RFPert, RLXGrd, RotMax, ThrE, Tot_Charge,
+     &                         RFPert, RLXGrd, RotMax,       Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge, via_DFT,
      &                         iRoot, Weight, iCI, cCI, ixSym, iADR15,
      &                         Ener
+#if defined (_ENABLE_CHEMPS2_DMRG_) || defined (_DMRG_)
+      use rasscf_global, only: ThrE
+#endif
+
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: dice_eps1, dice_eps2, dice_iter,
+     &                         dice_restart, dice_SampleN, dice_stoc,
+     &                         nRef_dice, diceOcc
+#endif
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
+      use rasscf_global, only: DoBlockDMRG, MxDMRG
+#endif
 
 
       Implicit None
@@ -89,6 +101,9 @@
      &        iDimO, iDimV, iEnd, iGAS, Ind, iOpt, iPrLev, iRC, iRC1,
      &        iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot,
      &        left, luTmp, NAO, nDCInt, nMVInt, NO
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iref_dice
+#endif
       Integer, External:: IsFreeUnit
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *

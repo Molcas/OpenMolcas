@@ -89,6 +89,11 @@
 #ifdef _DMRG_
       use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG, DoDMRG
 #endif
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: diceOcc, dice_eps1, dice_eps2, dice_iter,
+     &                         dice_restart, dice_sampleN, dice_stoc,
+     &                         nRef_dice
+#endif
 
 
       Implicit None
@@ -182,6 +187,9 @@
      &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
 #ifdef _HDF5_
       Integer mh5id, lRoots_l
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iref_dice
 #endif
 
 C...Dongxia note for GAS:

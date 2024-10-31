@@ -50,6 +50,14 @@
      &                         ThrTE, Tot_Charge, Tot_El_Charge,
      &                         Tot_Nuc_Charge, Title, Header, iRoot,
      &                         Weight, iCI, cCI, ixSym, NQUNE
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: dice_eps1, dice_eps2, dice_iter,
+     &                         dice_Restart, dice_SampleN,
+     &                         Dice_Stoc, nRef_Dice, diceocc
+#endif
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
+      use rasscf_global, only: MXDMRG
+#endif
 
 
       Implicit None
@@ -71,6 +79,9 @@
       Logical DoCholesky
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iRef_Dice
 #endif
       Real*8, Allocatable:: Tmp0(:)
       Real*8 AvailMB, WillNeedMB

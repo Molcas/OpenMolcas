@@ -55,8 +55,13 @@
       use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
       use gas_data, only: NGAS,NGSSH
-      use rasscf_global, only: DoDMRG, iFORDE, iOrbTyp, iOrdEM, iSupSM,
+      use rasscf_global, only: iFORDE, iOrbTyp, iOrdEM, iSupSM,
      &                         FDIAG, ixSym, iTRI, iADR15
+#ifdef _DMRG_
+      use rasscf_global, only: DoDMRG
+#else
+      use rasscf_global, only: DoBLOCKDMRG
+#endif
 
       IMPLICIT None
 
