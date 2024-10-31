@@ -51,7 +51,8 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
-use rasscf_global
+use rasscf_global, only: Emy, hRoots, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, &
+                         n_Keep, NAC, ThFact, ThrEn, IADR15, Conv, Ener
 
 
 implicit none
