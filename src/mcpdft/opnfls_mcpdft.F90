@@ -14,7 +14,6 @@
 subroutine open_files_mcpdft(DSCF)
   use mcpdft_output,only:lf
   use Fock_util_global,only:docholesky
-  use rasscf_global
 
   implicit none
 #include "rasdim.fh"
