@@ -56,9 +56,9 @@
      &                         Dice_Stoc, nRef_Dice, diceocc
 #endif
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-      use rasscf_global, only: MXDMRG, ChemPS2_blb, ChemPS2_lStart,
+      use rasscf_global, only: MXDMRG, ChemPS2_blb, ChemPS2_lreStart,
      &                         ChemPS2_Noise, ChemPS2_Restart,
-     &                         Davidson_tol, Do3RDM,
+     &                         Davidson_tol, Do3RDM, HFOcc,
      &                         Max_canonical, Max_Sweep
 #endif
 
