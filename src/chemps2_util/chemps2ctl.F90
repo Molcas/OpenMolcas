@@ -24,7 +24,7 @@ use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
 use rasscf_global, only: CBLBM, chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, Do3RDM, ENER, &
-                         iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, mxSym, MxDMRG, NAC, THRE, hfocc
+                         iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, MxDMRG, NAC, THRE, hfocc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
 use Definitions, only: wp, iwp, u6
@@ -36,7 +36,7 @@ integer(kind=iwp), intent(in) :: IFINAL, IRST
 #include "general.fh"
 integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4, conversion(8), activesize(8), chemroot, &
                      chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lSymMolpro, LUCHEMIN, LUCONV, LUTOTE, &
-                     nIrrep, NRDM_ORDER
+                     nIrrep
 integer(kind=iwp), allocatable :: OrbSym(:)
 #ifdef _MOLCAS_MPP_
 integer(kind=MPIInt) :: IERROR
@@ -69,8 +69,6 @@ do iSym=1,nSym
 end do
 lSymMolpro = iChMolpro(stSym)
 
-NRDM_ORDER = 2
-if (NACTEL == 1) NRDM_ORDER = 1
 
 !*********************
 !  WRITEOUT FCIDUMP  *
