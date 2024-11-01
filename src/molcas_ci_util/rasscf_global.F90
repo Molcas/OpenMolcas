@@ -27,7 +27,7 @@ Module rasscf_global
   Character(LEN=4), Public:: DFTFOCK
 !
   REAL(kind=wp), Public:: ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),FDIAG(mxOrb),THRE,THRTE,THRSX,ROTMAX,       &
-                          ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM=0.0D0,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
+                          ECAS=0.0D0,CMAX,WEIGHT(mxRoot),DE,CBLBM=0.0D0,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
                           Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,ExFac,E2act,      &
                           CoreShift
   REAL(kind=wp), Public:: VIA_DFT=0.0D0, HALFQ=0.0D0, VIA=0.0D0, HALFQ1=0.0D0
@@ -49,7 +49,7 @@ Module rasscf_global
                               DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 
 !
-  REAL(kind=wp), Public:: PRWTHR,POTNUC,CCI(mxRoot,mxRef),ECAS1=0.0D0,RLXGRD,EVAC
+  REAL(kind=wp), Public:: PRWTHR,POTNUC,CCI(mxRoot,mxRef),ECAS1=0.0D0,RLXGRD,EVAC=0.0D0
   CHARACTER(LEN=80), Public:: TITLE(18)
 !
   Character(LEN=8), Public:: IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
@@ -65,7 +65,7 @@ Module rasscf_global
 !
   INTEGER(kind=iwp), Public:: IBLB(8),JBLB(8),NSXS,NROOT,NDIMSX,IZROT(ITRIM),NewFock
 !
-  REAL(kind=wp), Public:: CBLB(8),LVSHFT,ESX,SXSHFT
+  REAL(kind=wp), Public:: CBLB(8),LVSHFT,ESX,SXSHFT=0.0D0
 !
   INTEGER(kind=iwp), Public:: iOrbTyp,iOrbOnly,iOrbRoot
 !
