@@ -27,7 +27,7 @@ Module rasscf_global
   Character(LEN=4), Public:: DFTFOCK
 !
   REAL(kind=wp), Public:: ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),FDIAG(mxOrb),THRE,THRTE,THRSX,ROTMAX,       &
-                          ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
+                          ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM=0.0D0,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
                           Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,ExFac,E2act,      &
                           CoreShift
   REAL(kind=wp), Public:: VIA_DFT=0.0D0, HALFQ=0.0D0, VIA=0.0D0, HALFQ1=0.0D0
