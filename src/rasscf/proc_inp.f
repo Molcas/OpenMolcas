@@ -94,6 +94,12 @@
      &                         dice_restart, dice_sampleN, dice_stoc,
      &                         nRef_dice
 #endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: ChemPS2_Restart, ChemPS2_lRestart,
+     &                         Davidson_Tol, ChemPS2_BLB, Max_Sweep,
+     &                         ChemPS2_Noise, Max_Canonical, MxDMRG,
+     &                         Do3RDM
+#endif
 
 
       Implicit None

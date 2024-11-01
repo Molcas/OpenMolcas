@@ -74,7 +74,7 @@
      &        NOT, NP, NPQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31,
      &        NR32, NT, NT1, NTT, NTU, NTUT, NU, NUT, NAB, NEO2, NQ
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Integer ifock, iiash, iOrb, jOrb, lSymMolpro, LuFck, nOrbTot
+      Integer ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
       Integer, External:: IsFreeUnit
 #endif
 
@@ -132,7 +132,6 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(stSym)
 
       LuFCK=isFreeUnit(27)
 *      open ( unit = LuFCK, file = "FOCK_CHEMPS2",

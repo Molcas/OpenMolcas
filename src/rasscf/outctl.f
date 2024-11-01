@@ -59,6 +59,12 @@
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       use rasscf_global, only: DoBlockDMRG, MxDMRG
 #endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart,
+     &                         ChemPS2_Noise, ChemPS2_restart,
+     &                         Davidson_Tol, Do3RDM, HFOcc,
+     &                         Max_canonical, Max_Sweep
+#endif
 
 
       Implicit None
@@ -78,6 +84,7 @@
       Character(LEN=120) Line
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Character(LEN=3) SNAC
+      Integer iHFOcc
 #endif
       Logical FullMlk, get_BasisType
       Logical Do_ESPF,lSave, Do_DM
