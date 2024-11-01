@@ -85,6 +85,7 @@ C
       IX1=0
       ISTZ=0
       E2act=0.0d0
+      HalfQ1=0.0d0
 
       DO ISYM=1,NSYM
        IX=IX1+NFRO(ISYM)

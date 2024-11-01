@@ -28,8 +28,9 @@ Module rasscf_global
 !
   REAL(kind=wp), Public:: ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),FDIAG(mxOrb),THRE,THRTE,THRSX,ROTMAX,       &
                           ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
-                          Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,      &
+                          Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,ExFac,E2act,      &
                           CoreShift
+  REAL(kind=wp), Public:: VIA_DFT=0.0D0, HALFQ=0.0D0, VIA=0.0D0, HALFQ1=0.0D0
 !
   INTEGER(kind=iwp), Public:: LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM(4),MAXJT,    &
                               IXSYM(mxOrb),IPRSEC(7),MAXORBOUT,                 &
@@ -48,7 +49,7 @@ Module rasscf_global
                               DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 
 !
-  REAL(kind=wp), Public:: PRWTHR,POTNUC,CCI(mxRoot,mxRef),ECAS1,RLXGRD,EVAC
+  REAL(kind=wp), Public:: PRWTHR,POTNUC,CCI(mxRoot,mxRef),ECAS1=0.0D0,RLXGRD,EVAC
   CHARACTER(LEN=80), Public:: TITLE(18)
 !
   Character(LEN=8), Public:: IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY

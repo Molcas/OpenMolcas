@@ -74,6 +74,7 @@ C
       IX1=0
       ISTZ=0
       E2act=0.0d0
+      HALFQ1=0.0D0
 C
 * A long loop over symmetry
       DO ISYM=1,NSYM
