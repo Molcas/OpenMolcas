@@ -33,7 +33,7 @@ subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc,ValM
 
 use InfSCF, only: Iter, Iter_Start, IterSO, kOptim
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One, Three, Pi
+use Constants, only: Zero, Half, One, Two, Three, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -46,7 +46,7 @@ character, intent(out) :: Step_Trunc
 integer(kind=iwp) :: I, iRoot, iStatus, Iter_i, NumVal
 real(kind=wp) :: A_RFO, A_RFO_Long, A_RFO_Short, DqDq_Long, DqDq_Short, EigVal, Fact, GG, Step_Lasttime = Pi, StepMax = One, Test, &
                  ZZ
-logical(kind=iwp) :: Iterate, Restart
+logical(kind=iwp) :: Iterate, Restart, Unreliable
 real(kind=wp), allocatable :: Tmp(:), Val(:), Vec(:,:)
 integer(kind=iwp), parameter :: IterMx = 20
 real(kind=wp), parameter :: Step_Factor = Three, StepMax_Min = 1.0e-2_wp, Thr = 1.0e-4_wp
@@ -87,6 +87,7 @@ A_RFO = One   ! Initial seed of alpha
 Iter_i = 0
 Iterate = .false.
 Restart = .false.
+Unreliable = .false.
 NumVal = min(ValMin,nInter+1)
 !NumVal = nInter+1
 call mma_allocate(Vec,nInter+1,NumVal,Label='Vec')
@@ -207,49 +208,52 @@ do
 
   if (((Iter_i == 1) .or. Restart) .and. (dqdq > StepMax**2)) then
     Iterate = .true.
-    if (dqdq < 1.0e2_wp) Restart = .false.
+    Restart = .false.
   end if
 
-  if (sqrt(dqdq) > Pi) then
+  if (sqrt(dqdq) > Two*max(StepMax,Pi)) then
     !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
     write(u6,*) 'rs_rfo_SCF: Total displacement is too large.'
     call resetBFGS()
-    if (Iter_i <= IterMx) cycle
-  else
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Procedure if the step length is not equal to the trust radius
-
-    Step_Trunc = '*'
-    !write(u6,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
-
-    ! Converge if small interval
-    if ((dqdq < StepMax**2) .and. (abs(A_RFO_long-A_RFO_short) < Thr)) exit
-
-    call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
-    write(u6,*) 'A_RFO_Short,A_RFO_Long,A_RFO=',A_RFO_Short,A_RFO_Long,A_RFO
-    write(u6,*) 'dqdq_short,dqdq_long,StepMax=',dqdq_short,dqdq_long,StepMax
-    if (A_RFO == -One) then
-      A_RFO = One
-      Step_Trunc = ' '
-      Restart = .true.
-      Iterate = .false.
-    end if
+    if (Restart) cycle
   end if
-  if (Iter_i > IterMx) then
-    write(u6,*) ' Too many iterations in RS'
-    exit
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Procedure if the step length is not equal to the trust radius
+
+  Step_Trunc = '*'
+  !write(u6,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+
+  ! Converge if small interval
+
+  if (dqdq < StepMax**2) then
+    ! Converge if we can't trust this
+    if (Unreliable) exit
+    ! Converge if small interval
+    if (abs(A_RFO_long-A_RFO_short) < Thr) exit
+  end if
+
+  call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
+  write(u6,*) 'A_RFO_Short,A_RFO_Long,A_RFO=',A_RFO_Short,A_RFO_Long,A_RFO
+  write(u6,*) 'dqdq_short,dqdq_long,StepMax=',dqdq_short,dqdq_long,StepMax
+  if (A_RFO == -One) then
+    A_RFO = One
+    Step_Trunc = ' '
+    Restart = .true.
+    Iterate = .false.
   end if
 
   if (abs(StepMax-sqrt(dqdq)) <= Thr) write(6,*) 'Converged'
   if ((.not. Iterate) .or. (abs(StepMax-sqrt(dqdq)) <= Thr)) exit
+  if (Iter_i > IterMx) exit
 
 end do
 write(6,*) 'IFG Iter_i',Iter_i
 
 ! Safety net: truncate if the step was still too large
 if (sqrt(dqdq)-StepMax > Thr) then
+  write(u6,*) ' Too many iterations in RS'
   dq(:) = dq(:)/sqrt(dqdq)
   dqdq = DDot_(nInter,dq,1,dq,1)
 end if
@@ -282,9 +286,12 @@ subroutine resetBFGS()
     Iter_Start = Iter
     IterSO = 1
     A_RFO = One
+    Restart = .true.
+    Iterate = .false.
+  else
+    ! Something bad is going on
+    Unreliable = .true.
   end if
-  Restart = .true.
-  Iterate = .false.
 
 end subroutine
 
