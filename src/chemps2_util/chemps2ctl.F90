@@ -32,6 +32,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: W1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
+#include "Molcas.fh"
 #include "general.fh"
 integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4, conversion(8), activesize(8), chemroot, &
                      chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lSymMolpro, LUCHEMIN, LUCONV, LUTOTE, &
