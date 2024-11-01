@@ -41,6 +41,9 @@
       use RASWfn, only: wfn_mocoef
 #endif
       use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: NAC
+#endif
 
       IMPLICIT None
 
@@ -56,7 +59,7 @@
 #ifdef _HDF5_
       integer, allocatable :: indices(:,:)
       real(wp), allocatable :: vals(:), fockmat(:,:), vecs(:,:)
-      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index
+      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index, k
 #endif
 
 #include "rasdim.fh"
@@ -65,11 +68,15 @@
       Character(LEN=16), Parameter :: ROUTINE='FCKPT2  '
       REAL*8 FMIN
       Integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD,
-     &        II, ioff, IST, ISTMO, iSym, j, k, MIN, NA, NA1, NABT, NAO,
+     &        II, ioff, IST, ISTMO, iSym, j, MIN, NA, NA1, NABT, NAO,
      &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NF, NFNB,
      &        NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOC, NOO,
      &        NOT, NP, NPQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31,
      &        NR32, NT, NT1, NTT, NTU, NTUT, NU, NUT, NAB, NEO2, NQ
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Integer ifock, iiash, iOrb, jOrb, lSymMolpro, LuFck, nOrbTot
+      Integer, External:: IsFreeUnit
+#endif
 
 
 * Local print level (if any)
