@@ -117,7 +117,9 @@ do
 
   call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
   if (iStatus > 0) then
+#   ifdef _DEBUGPRINT_
     write(u6,*) 'rs_rfo_SCF: Davidson procedure did not converge.'
+#   endif
     call resetBFGS()
   end if
   !write(u6,*) 'Val(:)=',Val(:)
@@ -184,9 +186,9 @@ do
 
   dqdq = DDot_(nInter,dq,1,dq,1)
 
-!# ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   write(u6,'(I5,4ES11.3)') Iter_i,A_RFO,sqrt(dqdq),StepMax,EigVal
-!# endif
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -213,7 +215,9 @@ do
 
   if (sqrt(dqdq) > Two*max(StepMax,Pi)) then
     !if ((sqrt(dqdq) > Pi) .or. (sqrt(dqdq) > StepMax) .and. (kOptim > 1)) then
+#   ifdef _DEBUGPRINT_
     write(u6,*) 'rs_rfo_SCF: Total displacement is too large.'
+#   endif
     call resetBFGS()
     if (Restart) cycle
   end if
@@ -235,8 +239,8 @@ do
   end if
 
   call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,sqrt(dqdq),StepMax)
-  write(u6,*) 'A_RFO_Short,A_RFO_Long,A_RFO=',A_RFO_Short,A_RFO_Long,A_RFO
-  write(u6,*) 'dqdq_short,dqdq_long,StepMax=',dqdq_short,dqdq_long,StepMax
+  !write(u6,*) 'A_RFO_Short,A_RFO_Long,A_RFO=',A_RFO_Short,A_RFO_Long,A_RFO
+  !write(u6,*) 'dqdq_short,dqdq_long,StepMax=',dqdq_short,dqdq_long,StepMax
   if (A_RFO == -One) then
     A_RFO = One
     Step_Trunc = ' '
@@ -244,12 +248,11 @@ do
     Iterate = .false.
   end if
 
-  if (abs(StepMax-sqrt(dqdq)) <= Thr) write(6,*) 'Converged'
+  !if (abs(StepMax-sqrt(dqdq)) <= Thr) write(6,*) 'Converged'
   if ((.not. Iterate) .or. (abs(StepMax-sqrt(dqdq)) <= Thr)) exit
   if (Iter_i > IterMx) exit
 
 end do
-write(6,*) 'IFG Iter_i',Iter_i
 
 ! Safety net: truncate if the step was still too large
 if (sqrt(dqdq)-StepMax > Thr) then
@@ -281,7 +284,9 @@ contains
 subroutine resetBFGS()
 
   if (kOptim /= 1) then
+#   ifdef _DEBUGPRINT_
     write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO'
+#   endif
     kOptim = 1
     Iter_Start = Iter
     IterSO = 1

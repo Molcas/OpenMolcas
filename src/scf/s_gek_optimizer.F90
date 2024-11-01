@@ -376,8 +376,6 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
-write(6,*) 'IFG setup Kriging nPoints,nDim:',nDiis,mDiis
-
 !We need to set the bias
 
 blavAI = Ten

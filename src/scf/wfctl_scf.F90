@@ -18,6 +18,7 @@
 !               2024, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
 !***********************************************************************
 !                                                                      *
@@ -60,7 +61,7 @@ character(len=*), intent(in) :: Meth
 logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
-                     Iter_DIIS, Iter_no_DIIS, IterDif, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+                     Iter_DIIS, Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
                  TWall2
 logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
@@ -226,7 +227,6 @@ end if
 
 AllowFlip = .true.
 iAufOK = 0
-IterDif = 0
 Iter_DIIS = 0
 EDiff = Zero
 DMOMax = Zero
@@ -667,25 +667,26 @@ do iter_=1,nIter(nIterP)
               ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
               ! Reduce the BFGS update depth until the step is reasonable
-              do i=1,kOptim
+              do i=1,IterSO
                 call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
                 DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
                 if (DD <= Pi) exit
+#               ifdef _DEBUGPRINT_
                 if (i == 1) then
                   write(u6,*) 'WfCtl_SCF: Total displacement is large.'
                   write(u6,*) 'DD=',DD
                 end if
-                if (kOptim > 1) then
+#               endif
+                if (IterSO > 1) then
                   if (i == 1) write(u6,*) 'Reset update depth in BFGS'
-                  kOptim = kOptim-1
-                  Iter_Start = Iter-kOptim+1
-                  ! Restart the diagonal approximation
-                  IterSO = 1
-                  call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
-                  IterSO = kOptim
+                  IterSO = IterSO-1
+                  Iter_Start = Iter-IterSO+1
+                  kOptim = min(kOptim,IterSO)
                 end if
               end do
-              if (i > 1) write(u6,*) 'kOptim=',kOptim
+#             ifdef _DEBUGPRINT_
+              if (i > 1) write(u6,*) 'IterSO=',IterSO
+#             endif
 
               ! from this, compute new orb rot parameter X(n+1)
               !
@@ -703,25 +704,28 @@ do iter_=1,nIter(nIterP)
               Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
             case (2) ! Use BFGS
               ! Reduce the BFGS update depth until the step is reasonable
-              do i=1,kOptim
+              do i=1,IterSO
                 call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
                 DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
                 if (DD <= Pi) exit
+#               ifdef _DEBUGPRINT_
                 if (i == 1) then
                   write(u6,*) 'WfCtl_SCF: Total displacement is large.'
                   write(u6,*) 'DD=',DD
                 end if
-                if (kOptim > 1) then
+#               endif
+                if (IterSO > 1) then
+#                 ifdef _DEBUGPRINT_
                   if (i == 1) write(u6,*) 'Reset update depth in BFGS'
-                  kOptim = kOptim-1
-                  Iter_Start = Iter-kOptim+1
-                  ! Restart the diagonal approximation
-                  IterSO = 1
-                  call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
-                  IterSO = kOptim
+#                 endif
+                  IterSO = IterSO-1
+                  Iter_Start = Iter-IterSO+1
+                  kOptim = min(kOptim,IterSO)
                 end if
               end do
-              if (i > 1) write(u6,*) 'kOptim=',kOptim
+#             ifdef _DEBUGPRINT_
+              if (i > 1) write(u6,*) 'IterSO=',IterSO
+#             endif
             case (3) ! Use RS-RFO
               dqHdq = Zero
               call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),1)
