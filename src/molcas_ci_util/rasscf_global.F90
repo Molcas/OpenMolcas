@@ -26,7 +26,7 @@ Module rasscf_global
   Character(LEN=80), Public:: KSDFT, KSDFT_TEMP
   Character(LEN=4), Public:: DFTFOCK
 !
-  REAL(kind=wp), Public:: ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),FDIAG(mxOrb),THRE,THRTE,THRSX,ROTMAX,       &
+  REAL(kind=wp), Public:: ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),FDIAG(mxOrb)=0.0D0,THRE,THRTE,THRSX,ROTMAX,       &
                           ECAS=0.0D0,CMAX,WEIGHT(mxRoot),DE,CBLBM=0.0D0,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
                           Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,ExFac,E2act,      &
                           CoreShift
