@@ -18,12 +18,11 @@
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Zero
-      use Cntrl
 
-      Implicit Integer (A-Z)
+      Implicit None
 
       integer :: isym
-      real*8 NORM,NORMSCR,DDOT_
+      real*8 NORM,NORMSCR
       integer :: nb, nbast, nbast1, nbast2
       real*8, allocatable :: SAO(:),IAO(:),Scr(:),Scr2(:)
       real*8, allocatable :: Dysab(:),Dysab2(:)
@@ -34,7 +33,7 @@
       REAL*8 DYSCMO(*),CMOA(*)
       integer :: istcmo(8), istao(8), istacc(8)
       Integer no1,nb1,nscr,isy1
-      EXTERNAL DDOT_
+      Real*8, EXTERNAL :: DDOT_
 #include "symmul.fh"
 #include "rassi.fh"
 

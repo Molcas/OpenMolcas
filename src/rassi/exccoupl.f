@@ -15,8 +15,8 @@
       use frenkel_global_vars, only: iTyp, jTyp, valst, nestla,
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      implicit real(kind=wp) (A-H,O-Z)
+      use Cntrl, only: MXJOB
+      implicit none
 #include "rasdim.fh"
 #include "Files.fh"
 #include "SysDef.fh"
@@ -39,6 +39,11 @@
 #else
       logical :: debug_rassi_code = .false.
 #endif
+      integer LuT_, LuT, LuTX4, iAddr, nijkl, iState, jState, LuT1,
+     &        LWK1, I, LuTX1, lState, LuT2, LWK2, LuTX2, N, nAtoms,
+     &        kState
+      Real*8, External:: DDot_
+      Real*8 Vnn_AB, AB_Nuc, EBNucA, EANucB, Discrim, EECoupl
 
       call StatusLine('RASSI:','Starting Excitonic Coupling Section')
       LuT_ = 10
