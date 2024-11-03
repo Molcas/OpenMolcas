@@ -11,9 +11,9 @@
       Subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
       use rassi_aux, only: ipglob
       use Constants, only: Zero
-      use Cntrl
+      use Cntrl, only: NSTATE, NPROP, ICOMP, PNAME
 
-      Implicit Real*8(A-H,O-Z)
+      Implicit None
 *
 *     Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
 *                                        f_IJ =  ----------------------
@@ -26,7 +26,10 @@
       Integer natom,nST
       Real*8 ChgNuc(natom),Prop(nState,nState,NProp),
      &          DerCpl(nST,3,natom),Ham(Nstate,Nstate)
+
       Character(LEN=3), Save :: Label='EF1'
+      Real*8 EI, EJ, SumX, SumY, SumZ
+      Integer ISTA, JSTA, IST, KPROP, LAT, KXYZ
 *
 *
       nST = nState*(nState+1)/2
