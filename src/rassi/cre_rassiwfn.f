@@ -21,7 +21,8 @@
       use mh5, only: mh5_create_file, mh5_init_attr,
      &               mh5_create_dset_real, mh5_create_dset_str
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: NSTATE, CIH5, NJOB, DO_TMOM, NQUAD, IFSO, RhoDyn,
+     &                 DYSO, IFSO, IRREP, MLTPLT, NDET
       implicit none
 #  include "rassi.fh"
 #  include "symmul.fh"
