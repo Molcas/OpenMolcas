@@ -27,6 +27,9 @@ RAS2 = 6
 SPIN = 1
 CHAR = 0
 
+>>>COPY extparam.txt extparam.txt
+>>>COPY mc23.txt mc23.txt
+
 &MCPDFT
 KSDF = t:M06L
 
