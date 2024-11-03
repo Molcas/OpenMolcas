@@ -45,6 +45,7 @@
 
       use fortran_strings, only : str
       use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -89,7 +90,6 @@
       Logical DOTEST
       INTEGER LU
       INTEGER, External:: ISFREEUNIT
-#include "ntocom.fh"
       EXTERNAL Molden_interface
       Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
       Real*8, allocatable:: ONTO(:), UNTO(:)
@@ -376,10 +376,12 @@ C     Printing NTOs
       CALL mma_allocate (Indfr,NASHT,Label='Indfr')
       NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
-     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto)
+     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto,
+     &SumEigVal)
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,UNTO,NTOType,
-     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr)
+     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr,
+     &SumEigVal)
 C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
@@ -450,7 +452,9 @@ C     Putting particle-hole pairs in the output
 
 
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
-     &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind)
+     &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind,
+     &SumEigVal)
+      Implicit None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -483,7 +487,6 @@ C     OrbSymIndex gives the original orbital index for a orbital in iusesym
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
-#include "ntocom.fh"
       INTEGER NPCMO,IPCMO
       Real*8,DIMENSION(:),allocatable::PCMO
 C     Printing control
