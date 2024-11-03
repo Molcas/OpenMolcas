@@ -13,7 +13,7 @@
       use rassi_aux, only : iDisk_TDM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: MXJOB, NBINA, NSTATE, IRREP, IBINA
       IMPLICIT NONE
 
 #include "SysDef.fh"
