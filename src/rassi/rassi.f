@@ -43,7 +43,6 @@ C RAS state interaction.
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "Morsel.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "jobin.fh"
