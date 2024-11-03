@@ -14,14 +14,19 @@
       use cntrl_data, only: SONAT, SONATNSTATE,
      &                      SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: NSTATE, NOSO, IfCurd, MLTPLT
+      IMPLICIT None
       INTEGER NSS
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
+
 #include "rassi.fh"
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
       Real*8, Allocatable:: DMATTMP(:)
+      Integer ISS, ISTATE, JOB1, MPLET1, MSPROJ1,
+     &        JSS, JSTATE, JOB2, MPLET2, MSPROJ2,
+     &        I, INATSTATE, IOPT, IC
+      REAL*8 DUM1, DUM2, DUM3, DUM4, DUM5, DUM6
 
 c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*)
