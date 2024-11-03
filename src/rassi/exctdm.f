@@ -18,8 +18,8 @@
       use frenkel_global_vars, only: iTyp, labb, doexch, VNucB, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nIrrep
-      use Cntrl
-      IMPLICIT REAL(kind=wp) (A-H,O-Z)
+      use Cntrl, only: MXJOB, NSTATE, MLTPLT
+      IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -30,18 +30,20 @@
      &        iRC, NNLTD, istate, jstate, run,
      &        m(1), n(1), a
       integer(kind=iwp), external :: isFreeUnit
-      DIMENSION TDMAB(NTDMAB)
-      DIMENSION TRAD(NASHT,NASHT)
-      DIMENSION TRASD(NASHT,NASHT)
-      DIMENSION TSDMAB(NTDMAB)
-      DIMENSION TDMZZ(NTDMZZ)
-      DIMENSION TSDMZZ(NTDMZZ)
-      DIMENSION CMO1(NCMO)
-      DIMENSION CMO2(NCMO)
+      real(kind=wp) TDMAB(NTDMAB)
+      real(kind=wp) TRAD(NASHT,NASHT)
+      real(kind=wp) TRASD(NASHT,NASHT)
+      real(kind=wp) TSDMAB(NTDMAB)
+      real(kind=wp) TDMZZ(NTDMZZ)
+      real(kind=wp) TSDMZZ(NTDMZZ)
+      real(kind=wp) CMO1(NCMO)
+      real(kind=wp) CMO2(NCMO)
       character(len=13) :: filnam
       real(kind=wp)  :: SIJ
       real(kind=wp), Allocatable:: TDMZZ_mtx(:,:), TDMZZ_new(:),
      &                            STDMZZ_mtx(:,:), STDMZZ_new(:)
+      integer(kind=iwp) LuT, LuT_, I, J, K, INTEG, IPNB
+      real(kind=wp), External :: DDot_
 #ifdef _DEBUGPRINT_RASSI_
       logical :: debug_rassi_code = .true.
 #else
