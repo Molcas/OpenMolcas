@@ -10,15 +10,22 @@
 ************************************************************************
       SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
       use rassi_global_arrays, only: JBNUM
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION PRMAT(NSS,NSS)
+      use Cntrl, only: MXJOB, NSTATE, NPROP, PNAME, ICOMP, ISOCMP,
+     &                 MLTPLT, PTYPE, SOPRNM, SOPRTP
+      IMPLICIT NONE
+      INTEGER NSS, ISONUM, ISPINCMP
+      REAL*8 PRMAT(NSS,NSS)
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS
+      INTEGER IPRNUM, IPRCMP, IFSPIN, IPROP,
+     &        ISS, ISTATE, JOB1, MPLET1, MSPROJ1,
+     &        JSS, JSTATE, JOB2, MPLET2, MSPROJ2
+      REAL*8 SXMER, SYMEI, SZMER, SMINUS, SPLUS, CGM, CG0, CGP, CGX,
+     &       CGY, EXPKR, FACT, SM1, SM2, S1, S2
 *
       IPRNUM=-1
       IPRCMP=0
@@ -173,5 +180,4 @@ C
          END DO !MSPROJ1
       END DO !ISTATE
 
-      RETURN
-      END
+      END SUBROUTINE SMMAT

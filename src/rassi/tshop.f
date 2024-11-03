@@ -16,12 +16,12 @@
 #include "rassi.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
-      REAL*8       CI1,CI1pr,CI2,CI2pr,prdct(2,2)
-      INTEGER      I,JOB1,JOB2,file,file2,maxHop,IAD3,IADR3
-      CHARACTER    filnam*80,filother*80
-      DIMENSION    CI1(NCI1),CI1pr(NCI1),CI2(NCI2),CI2pr(NCI2)
-      DIMENSION    IADR3(3)
-      LOGICAL      lMaxHop,lAllowHop,fexist,lHopped
+      REAL*8    prdct(2,2)
+      INTEGER   I,JOB1,JOB2,file,file2,maxHop,IAD3
+      CHARACTER filnam*80,filother*80
+      REAL*8    CI1(NCI1),CI1pr(NCI1),CI2(NCI2),CI2pr(NCI2)
+      INTEGER   IADR3(3)
+      LOGICAL   lMaxHop,lAllowHop,fexist,lHopped
 *
 *
 C Skip the test if a hop has occurred
