@@ -31,7 +31,7 @@
       SUBROUTINE DO_AOTDMNTO(TDMZZ,TSDMZZ,ANTSIN,ISTATE,JSTATE,nb,nb2)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: MXJOB, IfArgu
       IMPLICIT None
 #include "rassi.fh"
 #include "symmul.fh"
