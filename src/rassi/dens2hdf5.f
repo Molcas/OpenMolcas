@@ -39,7 +39,7 @@
 ************************************************************************
       Subroutine UpdateIdx(IndexE, nSS, USOR, USOI, MapSt)
       Use stdalloc, Only: mma_allocate
-      use Cntrl
+      use Cntrl, only: NSTATE, REDUCELOOP, LOOPDIVIDE
       Implicit None
       Integer, Dimension(nState), Intent(In) :: IndexE
       Integer, Intent(In) :: nSS
