@@ -13,9 +13,8 @@
       Subroutine USOTRANS(USOR,USOI,NSS,EigVec,MSTATE,VSOR,VSOI)
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT Real*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
       Integer NSS, MSTATE
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
       Real*8 VSOR(NSS,NSS), VSOI(NSS,NSS)

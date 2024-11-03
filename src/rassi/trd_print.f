@@ -17,11 +17,11 @@
 ! - F. Plasser
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE

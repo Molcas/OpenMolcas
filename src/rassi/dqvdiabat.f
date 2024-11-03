@@ -29,11 +29,10 @@
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
       USE Constants, ONLY: Pi
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

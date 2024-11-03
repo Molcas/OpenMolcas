@@ -16,11 +16,11 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
       SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,
      &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
 #include "Files.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN

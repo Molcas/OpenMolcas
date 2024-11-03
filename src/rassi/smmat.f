@@ -10,11 +10,10 @@
 ************************************************************************
       SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
       use rassi_global_arrays, only: JBNUM
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PRMAT(NSS,NSS)
 #include "SysDef.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

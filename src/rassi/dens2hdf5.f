@@ -39,9 +39,8 @@
 ************************************************************************
       Subroutine UpdateIdx(IndexE, nSS, USOR, USOI, MapSt)
       Use stdalloc, Only: mma_allocate
+      use Cntrl
       Implicit None
-#include "Molcas.fh"
-#include "cntrl.fh"
       Integer, Dimension(nState), Intent(In) :: IndexE
       Integer, Intent(In) :: nSS
       Real*8, Intent(In), Optional :: USOR(nSS,nSS),USOI(nSS,nSS)
@@ -118,10 +117,9 @@
       Use rassi_global_arrays, Only : JbNum
       Use mh5, Only: mh5_put_dset
       Use stdalloc, Only: mma_allocate, mma_deallocate
+      use Cntrl
       Implicit None
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "Files.fh"
 #include "rassiwfn.fh"

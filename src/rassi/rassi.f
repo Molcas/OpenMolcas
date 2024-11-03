@@ -36,12 +36,12 @@
       use Data_Structures
       use cntrl_data, only: SONTOSTATES, SONATNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.
 C RAS state interaction.
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"

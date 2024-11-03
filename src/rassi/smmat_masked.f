@@ -10,13 +10,12 @@
 ************************************************************************
       SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,
      &                        IST,INUM,JST,JNUM)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PRMAT(NSS,NSS)
       Integer INUM, JNUM
       Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
 #include "SysDef.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

@@ -14,6 +14,7 @@
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
       use OneDat, only: sOpSiz
       use Constants, only: Zero, Two
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
 *     Objective: to compute the transition property between state      *
@@ -23,8 +24,6 @@
 *                                                                      *
 *     Author: Roland Lindh, Uppsala University, 23 Dec. 2015           *
 ************************************************************************
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
       CHARACTER*8 LABEL

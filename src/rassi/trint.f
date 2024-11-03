@@ -17,6 +17,7 @@
       use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
@@ -25,8 +26,6 @@
      &                 FAO, Temp_SQ, DInAO
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "Files.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 

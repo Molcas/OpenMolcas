@@ -28,12 +28,12 @@
      &                      SONAT, SONATNSTATE,
      &                      SODIAG,SODIAGNSTATE
       use spool, only: Spoolinp, Close_LuSpool
+      use Cntrl
 
 
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
 #include "jobin.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST

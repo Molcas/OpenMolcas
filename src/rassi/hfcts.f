@@ -21,6 +21,7 @@
       use rassi_aux, only: ipglob
       use Constants, only: One, auTocm, c_in_au, gElectron
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NSS
@@ -31,8 +32,6 @@
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "hfc_logical.fh"
       Character(LEN=1) xyzchr(3)
       Character(LEN=8) SDPROP

@@ -53,7 +53,7 @@
      &     NSOTHR_PRT,ICOMP(MXPROP),ISOCMP(MXPROP),                     &
      &     IPUSED(MXPROP),NDISP,LDISP(8),ISMGRD(MXDISP),                &
      &     NTDISP(MXDISP),NTSTEP,NBSTEP,LOOPDIVIDE,L_Eff,nQuad
-      COMMON /CNTRL/ TDIPMIN,CITHR,EPRTHR,EPRATHR,                      &
+      COMMON /CNTRL_COMMON/ TDIPMIN,CITHR,EPRTHR,EPRATHR,               &
      &     ALPHZ,BETAE,NSTAT(MXJOB),ISTAT(MXJOB),                       &
      &     NROOTS(MXJOB),                                               &
      &     NACTE(MXJOB),MLTPLT(MXJOB),IRREP(MXJOB),NHOLE1(MXJOB),       &

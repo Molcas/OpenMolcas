@@ -11,9 +11,8 @@
       SUBROUTINE TSHop(CI1,CI2)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"

@@ -18,6 +18,7 @@
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Zero
+      use Cntrl
 
       Implicit Integer (A-Z)
 
@@ -34,8 +35,6 @@
       integer :: istcmo(8), istao(8), istacc(8)
       Integer no1,nb1,nscr,isy1
       EXTERNAL DDOT_
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 

@@ -17,11 +17,10 @@
 *  BIORTHONORMAL ORBITAL BASES A AND B.
 *****************************************************************
       SUBROUTINE MKTDAB(OVER,GAMMA1,TDMAB,iRC)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION TDMAB(NTDMAB)
       DIMENSION GAMMA1(NASHT,NASHT)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
       DIMENSION IOFFA(8)

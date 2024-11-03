@@ -10,14 +10,13 @@
 ************************************************************************
       SUBROUTINE MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ,iRC)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 CMOA(NCMO),CMOB(NCMO)
       Real*8 TDMAB(NTDMAB),TDMZZ(NTDMZZ)
       Integer iRC
 
       Integer ISTCMO(8)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "rassi.fh"
       Real*8, Allocatable:: SCR(:)

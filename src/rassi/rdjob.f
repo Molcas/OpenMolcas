@@ -27,9 +27,9 @@
 #endif
       use cntrl_data, only: RefEne, HEff
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -719,9 +719,9 @@ C Where is the CMO data set stored?
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
      &               mh5_close_file
 #endif
+      use Cntrl
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "jobin.fh"
 #ifdef _HDF5_

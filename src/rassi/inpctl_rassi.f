@@ -19,12 +19,12 @@
       use mspt2_eigenvectors
       use stdalloc, only: mma_allocate, mma_deallocate
       use cntrl_data, only: RefEne, HEff
+      use Cntrl
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "centra.fh"
-#include "cntrl.fh"
 
       LOGICAL READ_STATES
       INTEGER JOB, i

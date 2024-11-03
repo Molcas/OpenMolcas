@@ -20,11 +20,11 @@
 *****************************************************************
       SUBROUTINE FINDT (CMO1,CMO2,TRA1,TRA2)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 CMO1(NCMO),CMO2(NCMO)
       Real*8 TRA1(NTRA),TRA2(NTRA)
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 

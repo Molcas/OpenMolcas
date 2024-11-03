@@ -15,10 +15,9 @@
       use rasscf_global, only: doDMRG
 #endif
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
+      use Cntrl
 
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "Files.fh"
 #include "rassi.fh"

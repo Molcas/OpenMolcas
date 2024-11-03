@@ -16,9 +16,9 @@
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
 #endif
+      use Cntrl
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "rassi.fh"
 #include "jobin.fh"

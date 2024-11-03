@@ -22,9 +22,8 @@
 *                                                      -RF 8/24,2021
       SUBROUTINE DESYM_SONTO(A,SIZA,B,SYMLAB)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "rassi.fh"
       INTEGER SIZA,SYMLAB

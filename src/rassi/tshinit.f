@@ -14,12 +14,11 @@
       use rassi_global_arrays, only: PART, JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 :: Energy(nState)
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
       Type (SGStruct), Target :: SGS(2)

@@ -24,11 +24,10 @@
       use rassi_global_arrays, only: JBNUM, EIGVEC
       use stdalloc, only: mma_allocate, mma_deallocate
       use cntrl_data, only: SONTOSTATES, SONTO
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NSS
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)

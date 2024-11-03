@@ -19,9 +19,8 @@
 !     IFG: Added DysOrb export, not sure it's correct
 
       SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

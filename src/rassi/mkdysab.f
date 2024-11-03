@@ -28,6 +28,7 @@
 
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
 
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSCOF(*),DYSAB(*)
@@ -35,8 +36,6 @@
       REAL*8 GAA,GBB,OVLP
       INTEGER IORB,ISORB
       real*8, Allocatable:: DYSCOF2(:)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2

@@ -31,9 +31,8 @@
       SUBROUTINE DO_AOTDMNTO(TDMZZ,TSDMZZ,ANTSIN,ISTATE,JSTATE,nb,nb2)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT None
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

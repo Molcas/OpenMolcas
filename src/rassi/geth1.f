@@ -21,11 +21,10 @@
       SUBROUTINE GETH1_RASSI(HONEAO)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 HONEAO(NBSQ)
 
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
       Character(LEN=8) OneLbl

@@ -21,6 +21,7 @@
      &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
      &                     rNAVO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NSS, JBNUM(NSTATE)
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
@@ -30,8 +31,6 @@
       Real*8, parameter:: THRSH=1.0D-10, ZERO=0.0D0
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"

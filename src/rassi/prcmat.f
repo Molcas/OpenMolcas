@@ -27,10 +27,9 @@ C in square format
       END
 
       SUBROUTINE PRCMAT2(INPUT,NSS,XMATR,XMATI)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
-#include "Molcas.fh"
-#include "cntrl.fh"
       CHARACTER(LEN=8) PROPERTY
       CHARACTER(LEN=1) DIRECTION
       CHARACTER(LEN=200) FILENAME
@@ -82,11 +81,10 @@ C in parsable format
       END
 
       SUBROUTINE PRCMAT3(NSS,SMATR,SMATI,DIR)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 SMATR(NSS,NSS), SMATI(NSS,NSS)
       INTEGER DIR
-#include "Molcas.fh"
-#include "cntrl.fh"
       CHARACTER(LEN=1) DIRECTION
       CHARACTER(LEN=200) FILENAME
 C Write out spin matrix elements in parsable format

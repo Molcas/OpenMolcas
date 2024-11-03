@@ -12,10 +12,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use rassi_aux, only : iDisk_TDM
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

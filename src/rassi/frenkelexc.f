@@ -15,9 +15,9 @@
       use frenkel_global_vars, only: iTyp, jTyp, nestla, nestlb,
      &                               valst, excl
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL(kind=wp) (A-H,O-Z)
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"

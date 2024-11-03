@@ -20,11 +20,10 @@
 #endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"

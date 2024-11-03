@@ -18,19 +18,18 @@
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
       use stdalloc, only: mma_allocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "centra.fh"
-      CHARACTER*8 LABEL
-      CHARACTER*8 LABEL2
-      !CHARACTER*8 LABEL3
-      CHARACTER*8 PRPLST(MXPROP)
-      Character*3 lIrrep(8)
+      CHARACTER(LEN=8) LABEL
+      CHARACTER(LEN=8) LABEL2
+      CHARACTER(LEN=8) PRPLST(MXPROP)
+      Character(LEN=3) lIrrep(8)
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH,IsAvail(MXPROP),IsAvailSO(MXPROP)
       DIMENSION IDUM(1)

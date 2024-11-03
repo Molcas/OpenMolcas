@@ -42,11 +42,11 @@ C      use para_info, only: nProcs, is_real_par, king
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
       use cntrl_data, only: sonatnstate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
 #include "rassiwfn.fh"
 #include "Files.fh"
       Type (SGStruct), Target :: SGS(2)

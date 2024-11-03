@@ -21,12 +21,11 @@
 *  SEPTEMBER 2020
 *****************************************************************
       SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSAB(*),DYSZZ(*)
       DIMENSION CMOA(NCMO)
       INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 

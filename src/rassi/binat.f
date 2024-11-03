@@ -13,11 +13,10 @@
       use rassi_aux, only : iDisk_TDM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT NONE
 
 #include "SysDef.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

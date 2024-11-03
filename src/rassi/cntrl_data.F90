@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Cntrl_Data
+!TODO Merge with the Cntrl.F90 Module.
 Private
 #include "Molcas.fh"
 #include "cntrl.fh"

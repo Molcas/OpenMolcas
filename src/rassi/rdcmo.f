@@ -15,9 +15,9 @@
 #endif
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "symmul.fh"
 #include "rassi.fh"

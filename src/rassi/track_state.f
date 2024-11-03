@@ -11,9 +11,8 @@
       SUBROUTINE Track_State(OVLP)
       use rassi_aux, only: ipglob
       use Constants, only: Zero
+      use Cntrl
       IMPLICIT NONE
-#include "Molcas.fh"
-#include "cntrl.fh"
       INTEGER iState,initState,newState
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_

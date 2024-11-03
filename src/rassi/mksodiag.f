@@ -13,9 +13,9 @@
       use Constants, only: cm_s, hPlanck, gElectron, mBohr
       use cntrl_data, only: SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"

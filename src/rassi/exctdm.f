@@ -18,11 +18,11 @@
       use frenkel_global_vars, only: iTyp, labb, doexch, VNucB, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nIrrep
+      use Cntrl
       IMPLICIT REAL(kind=wp) (A-H,O-Z)
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)

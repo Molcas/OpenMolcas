@@ -21,6 +21,7 @@
       USE mh5, ONLY: mh5_put_dset
 #endif
       use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NSS
       Real*8 PROP(NSTATE,NSTATE,NPROP)
@@ -32,8 +33,6 @@
       parameter (ZERO=0.0D0)
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"

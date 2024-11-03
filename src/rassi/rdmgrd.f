@@ -11,13 +11,13 @@
       SUBROUTINE RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl
       IMPLICIT REAL*8 (A-H,O-Z)
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
 #include "rasdim.fh"
 #include "SysDef.fh"
-#include "cntrl.fh"
 #include "Files.fh"
 #include "rassi.fh"
 #include "jobin.fh"
