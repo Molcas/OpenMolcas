@@ -38,12 +38,13 @@
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use Cntrl, only: CIH5
 #endif
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
       use cntrl_data, only: sonatnstate
       use Cntrl, only: MXJOB, NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
-     &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR, CIH5,
+     &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR,
      &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,
      &                 IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET,
      &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
