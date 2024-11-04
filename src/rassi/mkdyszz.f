@@ -21,13 +21,14 @@
 *  SEPTEMBER 2020
 *****************************************************************
       SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 DYSAB(*),DYSZZ(*)
-      DIMENSION CMOA(NCMO)
-      INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF
-#include "symmul.fh"
+      IMPLICIT None
 #include "rassi.fh"
+      Real*8 CMOA(NCMO)
+      REAL*8 DYSAB(*),DYSZZ(*)
+
+      INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF,IZZOFF,ISY1,NO1,NA1,NB1
+      REAL*8 COEFF
+#include "symmul.fh"
 
 C *** Re-express the DO coefficients in biorth basis DYSAB
 C *** into atomic basis DYSZZ with help of CMOA that contains
