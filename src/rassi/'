@@ -49,9 +49,7 @@ C RAS state interaction.
 #include "symmul.fh"
 #include "rassiwfn.fh"
       Logical CLOSEONE
-      INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
-     &        ISTATE, J, NSS, JOB, MPLET, I
-      INTEGER, External :: IPRINTLEVEL
+      INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
