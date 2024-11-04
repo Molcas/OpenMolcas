@@ -34,7 +34,6 @@ integer(kind=iwp), allocatable :: kcnf(:)
 
 ! NACTEL   general.fh
 ! STSYM    general.fh
-! IPR      rasscf.fh
 call mma_allocate(kcnf,nactel,label='kcnf')
 call reord2(nac,nactel,stsym,imode,conf,cftp,cfrom,cto,kcnf)
 call mma_deallocate(kcnf)

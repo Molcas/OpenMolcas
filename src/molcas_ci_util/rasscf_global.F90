@@ -22,19 +22,17 @@ private
 integer(kind=iwp), parameter :: ITRIM = mxAct*(mxAct+1)/2
 
 integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLBM, ICI(mxRoot,mxRef), ICICH, ICICP, iCIonly, &
-                     ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IFORDE, INOCALC, iOrbOnly, &
-                     iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPR, IPT2, iRlxRoot, IROOT(mxRoot), IRotPsi, &
-                     ISAVE_EXP, ISCF, ISPDEN, ISTORD(9), ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), &
-                     ITRI(ITRIM), IXMSP, IXSYM(mxOrb), IZROT(ITRIM), JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KAVER, KSYM(4), &
-                     KTIGHT, LOWMS, LROOTS, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, NAC, NACPAR, NACPR2, &
-                     NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSM(mxOrb), NSXS, NTIT, NTOT3, NTOT4
-real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), &
-                 CoreShift, DE, E2act, ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, &
-                 ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, &
-                 S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, &
-                 VIA_DFT = Zero, WEIGHT(mxRoot)
-logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, &
-                     RFpert, Start_Vectors
+                     ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IFORDE, INOCALC, iOrbOnly, iOrbTyp, IORDEM, &
+                     iOverwr, IPCMROOT, IPR, IPT2, iRlxRoot, IROOT(mxRoot), IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD(9), &
+                     ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), ITRI(ITRIM), IXMSP, IXSYM(mxOrb), &
+                     IZROT(ITRIM), JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MAXIT, MAXJT, MAXORBOUT, MxDMRG, &
+                     n_Det, n_keep, NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, &
+                     NSEC, NSM(mxOrb), NSXS, NTIT, NTOT3, NTOT4
+real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
+                 ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
+                 POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
+                 Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
+logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors
 character(len=LenIn8) :: NAME(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
@@ -48,11 +46,11 @@ public :: CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreShift, DE
           ICICH, ICICP, iCIonly, ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IfCRPR, IFORDE, INOCALC, iOrbOnly, &
           iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPHNAME, IPR, IPT2, iRlxRoot, IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD, &
           ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, ITRI, ITRIM, IXMSP, IXSYM, IZROT, JBLB, JBLBM, JCJ, &
-          KAVER, kIvo, KSDFT, KSDFT_TEMP, KSYM, KTIGHT, l_casdft, LOWMS, LROOTS, lSquare, LVSHFT, MAXIT, MAXJT, MAXORBOUT, MxDMRG, &
-          n_Det, n_keep, NAC, NACPAR, NACPR2, NAME, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, &
-          NSEC, NSM, NSXS, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, &
-          RLXGRD, ROTMAX, S, Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, &
-          Tot_El_Charge, Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
+          kIvo, KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, LOWMS, LROOTS, lSquare, LVSHFT, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, &
+          n_keep, NAC, NACPAR, NACPR2, NAME, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
+          NSM, NSXS, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, &
+          ROTMAX, S, Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, &
+          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
 
 #ifdef _DMRG_
 integer(kind=iwp) :: MPSCompressM

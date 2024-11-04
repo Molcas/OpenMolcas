@@ -15,13 +15,13 @@ Private
 ! Logical unit number for reading input:
       Integer(kind=iwp), Public:: LuInput
 ! Used for input processing
-      Integer(kind=iwp), Parameter, Public :: NKeys=151
+      Integer(kind=iwp), Parameter, Public :: NKeys=150
 !------------------------------------------------------
 ! Logical flags, to check whether a keyword has been used
 ! in the input:
       Logical(kind=iwp), Public:: KeyFlags(0:NKeys)
       Logical(kind=iwp), Public:: KeyAAAA,                              &
-     &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,                 &
+     &     KeyALTE, KeyATOM,          KeyCHAR, KeyCHOI,                 &
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,                 &
      &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,                  &
      &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,                 &
@@ -55,7 +55,7 @@ Private
 
 ! we need the common block for the equivalence statement below to make sense.
       Common /InputFlags/ KeyAAAA,                                      &
-     &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,                 &
+     &     KeyALTE, KeyATOM,          KeyCHAR, KeyCHOI,                 &
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,                 &
      &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,                  &
      &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,                 &
@@ -91,7 +91,7 @@ Private
 !------------------------------------------------------
 ! Actual keywords, note: Order matters!
       Character(LEN=4), Parameter, Public::                             &
-     &    CMD(nKeys) = ['ALTE','ATOM','AVER','CHAR','CHOI',             &
+     &    CMD(nKeys) = ['ALTE','ATOM',       'CHAR','CHOI',             &
      &                  'CHOL','CIMX','CION','CIRE','CIRO',             &
      &                  'CISE','CLEA','CORE','DELE','END ',             &
      &                  'FILE','FROZ','HOME','INAC','INPO',             &
