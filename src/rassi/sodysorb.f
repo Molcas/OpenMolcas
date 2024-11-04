@@ -18,12 +18,10 @@
      &                               SODYSAMPSR, SODYSAMPSI, JBNUM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: NSTATE, MXJOB, DYSEXPORT, DYSEXPSO, MLTPLT
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
 
       Integer NSS, NZ
       REAL*8 USOR(NSS,NSS), USOI(NSS,NSS)
@@ -31,13 +29,19 @@
       Real*8 DYSAMPS(NSTATE,NSTATE)
       ! Arrays for orbital export
       Real*8 SOENE(NSS)
+#include "symmul.fh"
+#include "Files.fh"
 
       ! Arrays, bounds, and indices
-      REAL*8    MSPROJI,MSPROJJ
+      REAL*8    MSPROJI,MSPROJJ, CJR, CJI, CIR, CII, CREAL, CIMAG,
+     &          AMPLITUDE, AMPR, AMPI
       INTEGER   SOTOT,SFTOT
       INTEGER   ORBNUM
       INTEGER   SODYSCIND
       INTEGER   SFI,SFJ,ZI,ZJ,NSZZ,NDUM
+      INTEGER   ISTATE, JOB1, MPLET1, MSPROJ, JSTATE, NSSQ, NPROD, ISY,
+     &          NO, NB, IRC, IOPT, ICMP, ISYLAB, NOFF, JEIG, IEIG, LUNIT
+      INTEGER, EXTERNAL:: IsFreeUnit
 
       ! Arrays for calculation of amplitudes
       Real*8 SODYSCOFSR(NZ),SODYSCOFSI(NZ)
