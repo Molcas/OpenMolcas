@@ -28,7 +28,29 @@
      &                      SONAT, SONATNSTATE,
      &                      SODIAG,SODIAGNSTATE
       use spool, only: Spoolinp, Close_LuSpool
-      use Cntrl
+      use Cntrl, only: QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY,
+     &                 PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO,
+     &                 RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN,
+     &                 NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt,
+     &                 nSOThr_Prt, nState, IfHEXT, IfHEff, IfHCOM,
+     &                 IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ,
+     &                 IFGCAL, EPraThr, IFACALSD, IFACALFC, IFACALSDON,
+     &                 IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP,
+     &                 IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP,
+     &                 TMAXP, NTP, IFSONCIFC, TMINF, TMAXF, NTF, NOSO,
+     &                 IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE,
+     &                 BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR,
+     &                 PRXVE, PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK,
+     &                 NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM,
+     &                 DQVD, ALPHZ, BETAE, DIPR, OSTHR_DIPR, QIPR,
+     &                 OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO,
+     &                 DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO,
+     &                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE,
+     &                 REDUCELOOP, LOOPDIVIDE, l_Eff, Do_SK, Do_Pol,
+     &                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM,
+     &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
+     &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
+     &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
 
 
       IMPLICIT NONE
