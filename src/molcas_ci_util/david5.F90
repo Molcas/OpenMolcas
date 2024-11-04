@@ -13,6 +13,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_lucia, only: Sigma_on_disk
+use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use csfbas, only: CONF, CTS
 use glbbas, only: CFTP, DTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
@@ -21,15 +22,12 @@ use Lucia_Interface, only: Lucia_Util
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rasscf_global, only: lRoots, DE, DoFaro, hRoots, ICIRST, MAXJT
-
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "timers.fh"
 #include "output_ras.fh"
-! lroots, maxjt in module rasscf_global.F90
 ! nsel in general.fh
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr

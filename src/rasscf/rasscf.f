@@ -102,7 +102,7 @@
       use raswfn, only: cre_raswfn, Wfn_FileID
       use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG,
      &                         DoFaro, DoFCIDump,               ECAS,
-     &                         ESX, EVAC, ExFac, FDIAG, HalfQ, iBLBM,
+     &                         ESX, ExFac, FDIAG, HalfQ, iBLBM,
      &                         ICICH, iCIOnly, iExpand, IfCrPr,
      &                         InOCalc, iPr, iPT2, iRLXRoot, iSave_Exp,
      &                         iSymBB, ITER, ITERCI, ITERSX, JBLBM,
@@ -112,7 +112,7 @@
      &                         Start_Vectors, SXShft, Thre, ThrSX,
      &                         THRTE, TMin, Tot_Charge, EMY,
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
-     &                         Conv, DoDMRG, ECAS1, iCIRST, KSDFT_Temp
+     &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
 #ifdef _DMRG_
       use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
 #endif
@@ -139,6 +139,7 @@
       Character(LEN=8) Label
       Character(LEN=1) CTHRE, CTHRSX, CTHRTE
       Logical IfOpened
+      Real*8 ECAS1, EVAC
 #ifdef _DMRG_
       Logical Do_ESPF
       ! function defined in misc_util/pcm_on.f
@@ -355,6 +356,8 @@
       FI(:)=0.0D0
       FA(:)=0.0D0
       DIAF(:)=0.0D0
+      ECAS1=0.0D0
+      EVAC=0.0D0
 *
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'

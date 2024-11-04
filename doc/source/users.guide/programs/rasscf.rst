@@ -203,7 +203,7 @@ roots --- up to the tenth, named now, e.g., :file:`Project.RasOrb.5`. There is a
 to produce more (or fewer) such files.
 
 The :program:`RASSCF` program has special input options, which will limit the degrees of
-freedoms used in the orbital rotations. It is, for example, possible to impose
+freedom used in the orbital rotations. It is, for example, possible to impose
 averaging of the orbital densities in :math:`\pi` symmetries for linear molecules.
 Use the keyword :kword:`Average` for this purpose. It is also
 possible to prevent specific orbitals from rotating with each other. The

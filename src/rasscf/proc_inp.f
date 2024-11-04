@@ -67,7 +67,7 @@
       use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
 #endif
       use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI, KAVER,
-     &                         KSYM, HFOCC, CMSStartMat, CMSThreshold,
+     &                         HFOCC, CMSStartMat, CMSThreshold,
      &                         CoreShift, DFTFOCK, DoBLOCKDMRG,
      &                         ExFac, hRoots, iAlphaBeta, ICICH,
      &                         iCIonly, iCIRFROOT, iCMSITERMAX,
@@ -190,7 +190,7 @@
      &        korb, kref,           mBas, mCof, mConf, mm, mOrb, N, NA,
      &        NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI,
      &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs,
-     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
+     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old, KSYM(4)
 #ifdef _HDF5_
       Integer mh5id, lRoots_l
 #endif
@@ -2652,6 +2652,8 @@ C orbitals accordingly
 *
 *---  Process AVER command --------------------------------------------*
       If (KeyAVER) Then
+       Write(6,*) 'AVER keyword is broken.'
+       Call Abend()
        If (DBG) Write(6,*) ' AVER (Symmetry averaging) is used.'
        If (DBG) Write(6,*) ' This is probably becoming obsolete.'
        Call SetPos(LUInput,'AVER',Line,iRc)

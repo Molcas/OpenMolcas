@@ -14,16 +14,13 @@ subroutine MKNSM()
 
 use gugx, only: SGS
 use gas_data, only: NGAS, NGSSH
+use rasscf_global, only: NSM
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
-use rasscf_global, only: NSM
-
 
 implicit none
 ! to get some dimensions
-! NSM from rasscf_global.F90
 ! NSYM from general.fh
-! NGAS and NGSSH from gas.fh
 #include "rasdim.fh"
 #include "general.fh"
 integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA

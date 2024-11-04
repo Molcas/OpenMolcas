@@ -15,9 +15,9 @@
 subroutine molden_cvb()
 
 use rctfld_module,only: lRF
+use rasscf_global, only: iADR15
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use rasscf_global, only: iADR15
 
 implicit none
 #include "rasdim.fh"
