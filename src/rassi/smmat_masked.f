@@ -10,17 +10,24 @@
 ************************************************************************
       SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,
      &                        IST,INUM,JST,JNUM)
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION PRMAT(NSS,NSS)
+      use Cntrl, only: NSTATE, MXJOB, NPROP, ICOMP, ISOCMP, PNAME,
+     &                 PTYPE, SOPRNM, SOPRTP
+      IMPLICIT None
+      Integer NSS, ISONUM, ISPINCMP
+      Real*8 PRMAT(NSS,NSS)
       Integer INUM, JNUM
       Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      Real*8 PROP(NSTATE,NSTATE,NPROP)
+
       REAL*8, EXTERNAL :: DCLEBS
+      INTEGER IPRNUM, IPRCMP, IPROP, I, ISTATE, ISS, MPLET1, MSPROJ1,
+     &        IFSPIN,                J, JSTATE, JSS, MPLET2, MSPROJ2
+      REAL*8 S1, S2, SM1, SM2, SXMER, SYMEI, SZMER, SMINUS, SPLUS, FACT,
+     &       CGM, CG0, CGP, CGX, CGY, EXPKR
 *
       IPRNUM=-1
       IPRCMP=0
