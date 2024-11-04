@@ -12,8 +12,8 @@
       use rassi_aux, only : iDisk_TDM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, nState, NrNATO
+      IMPLICIT None
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
@@ -28,6 +28,11 @@
       Real*8 Dummy(1)
       Integer iDummy(7,8)
       Real*8, Allocatable:: SZZ(:), VEC(:), VEC2(:), SCR(:), EIG(:)
+      Integer NSZZ, NVEC, NVEC2, NSCR, NEIG, IRC, IOPT, ICMP, ISYLAB,
+     &        LS, LV, LE, ISYM, NB, LS1, LV1, LE1, I, KEIG, J, IEMPTY,
+     &        IDISK, IGO, ID, INV, IOCC, ID1, ID2, ISCR, IJ, JI, I1,
+     &        I2, ISTOCC, LUXXVEC, II
+      REAL*8 X, SumOcc
 
 C ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI
