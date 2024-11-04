@@ -13,8 +13,8 @@
       use Constants, only: cm_s, hPlanck, gElectron, mBohr
       use cntrl_data, only: SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, IFCURD
+      IMPLICIT None
 #include "rasdim.fh"
 #include "Files.fh"
 #include "SysDef.fh"
@@ -57,6 +57,12 @@ C subroutine arguments
 C For creating the filename of the ORB file
       CHARACTER(LEN=11) FILEBASE
       CHARACTER(LEN=11) FILEBASEL
+
+      REAL*8 GE, AXR, SXR, AXI, SXI, AYR, SYR, AYI, SYI, AZR, SZR,
+     &           AZI, SZI
+      INTEGER N, I, J, ISTATE, JSTATE, IOPT, IC, L, K, IDIR, LCWORK,
+     &        INFO, I2, J2, IJ, LUMAXES
+      INTEGER, External:: IsFreeUnit
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Matrices
@@ -504,6 +510,7 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
 
 
       SUBROUTINE SPIN_PHASE_RASSI(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
+      IMPLICIT NONE
 C
 C     The RASSI program gives a random phase to the spin-orbit functions.
 C
@@ -530,16 +537,10 @@ C Determine the Parity:
 C  Change the basis of the magnetic moment matrices from the RASSI functions to the
 C  effective spin eigenfunctions-- eigenfunctions of the Mu_Z
 C
-      do L=1,3
-       do I=1,DIM
-        do J=1,DIM
-      PHS(L,I,J)  =(0.d0,0.d0)
-      SPIN2(L,I,J)=(0.d0,0.d0)
-      PHSA(I,J)   =(0.d0,0.d0)
-      PHSA2(I,J)  =(0.d0,0.d0)
-        enddo
-       enddo
-      enddo
+      PHS(:,:,:)  =(0.d0,0.d0)
+      SPIN2(:,:,:)=(0.d0,0.d0)
+      PHSA(:,:)   =(0.d0,0.d0)
+      PHSA2(:,:)  =(0.d0,0.d0)
 
       do l=1,3
         do i=1,DIM
