@@ -21,15 +21,16 @@
       SUBROUTINE GETH1_RASSI(HONEAO)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 HONEAO(NBSQ)
-
+      use Cntrl, only: ERFNuc, RFPert
+      IMPLICIT None
 #include "rassi.fh"
+      Real*8 HONEAO(NBSQ)
 #include "symmul.fh"
       Character(LEN=8) OneLbl
       Logical Found
       Real*8, Allocatable:: H1(:), Tmp(:)
+      Integer IRC, IOPT, ICMP, iSyLab, iBuf, ISTQ, ISYM, NB, IP, IQ,
+     &        IPQ, IQP
 *
       CALL mma_allocate(H1,NBTRI,Label='H1')
       iRc=-1
