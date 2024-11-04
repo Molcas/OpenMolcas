@@ -42,8 +42,14 @@ C      use para_info, only: nProcs, is_real_par, king
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
       use cntrl_data, only: sonatnstate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
+     &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR, CIH5,
+     &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,
+     &                 IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET,
+     &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
+     &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
+     &                 RASTYP
+      IMPLICIT NONE
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -79,7 +85,6 @@ CC CC
 CC    NTO section
       Logical DoNTO
 CC    NTO section
-      External IsFreeUnit
 
       type mixed_1pdensities
         real*8              :: overlap
@@ -108,6 +113,20 @@ CC    NTO section
       real*8, pointer:: DET1(:), DET2(:)
       real*8, allocatable, target:: DETTOT1(:,:), DETTOT2(:,:)
       real*8, allocatable:: Theta1(:), ThetaN(:), ThetaM(:)
+
+      Integer nActE1, JOB1, MPLET1, NHOL11, NELE31, NACTE2, JOB2,
+     &        MPLET2, NHOL12, NASORB, NTDM1, NTDM2, ISY12, NDYSAB,
+     &        NDYSZZ, NZ, NTRAD, I, J, MSPROJ1, MSPROJ2, NASPRT, KSPART,
+     &        KOINFO, ISUM, ISYM, ISORB, NO, IO, ISOIND, IT, ITABS,
+     &        NPART, NGAS, IE1MN, IE1MX, IE3MN, IE3MX, IE2MN, IE2MX,
+     &        NGL11, NGL21, NGL12, NGL22, NGL13, NGL23, MAXOP, IE1,
+     &        IOP1, IE3, IOP3, IE2, IOP2, IFORM, MINOP, NDET1, NDET2,
+     &        IST, ISTATE, JST, JSTATE, IRC, IJ, IDISK, IOPT, IGO, IERR,
+     &        NELE32, ISPART, IEMPTY
+      REAL*8 ECORE, Dot_Prod, HZERO, HONE, HTWO, SIJ, DYSAMP, DYNORM,
+     &       HII, HJJ, HIJ, OVERLAP_RASSI
+      REAL*8, External:: DDot_
+      Integer, External:: IsFreeUnit
 #include "SysDef.fh"
 
       Interface
