@@ -14,8 +14,9 @@
       use rassi_global_arrays, only: PART, JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: NSTATE, MXJOB, LSYM1, LSYM2, IRREP, MLTPLT,
+     &                 NACTE, NELE3, NHOLE1, RASTYP
+      IMPLICIT None
       Real*8 :: Energy(nState)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -28,6 +29,9 @@
       CHARACTER(LEN=8) WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
       Real*8, Allocatable:: CI1(:), CI2(:)
+      Integer NACTE1, MPLET1, NHOL11, NELE31, NACTE2, MPLET2, NHOL12,
+     &        NELE32
+      REAL*8 EDIFF, EThr
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
