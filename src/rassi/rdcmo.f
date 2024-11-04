@@ -15,7 +15,7 @@
 #endif
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: MXJOB, NJOB, PRORB, JBNAME
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
