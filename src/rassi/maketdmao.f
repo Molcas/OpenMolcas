@@ -25,8 +25,8 @@
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
+      IMPLICIT NONE
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"
@@ -51,6 +51,13 @@
       Type (A2_array)  :: pZMR(3), pZMI(3)
       Type (A2_array)  :: pZMR2(3), pZMI2(3)
       Real*8, allocatable:: TMPR(:), TMPI(:), SCR(:), TDMZZ(:)
+
+      REAL*8 CGY, CGX, CG0, TDM, S1, S2, SM1, SM2, FACT, CGM, CGP,
+     &       URR, UIR, URL, UIL, DCLEBS
+      Integer NBSTS, ITYPE, ISS, ISF, JOB, MPLET, MSPROJ, KSS, KSF,
+     &        MPLETK, MSPROJK, LSS, LSF, MPLETL, MSPROJL, JOB1, JOB2,
+     &        ISY12, IEMPTY, IDISK, IGO, ITD, NB1_I, NB1_F, ISY1,
+     &        NB2_I, NB2_F, NB1, ISY2, ISY12_MA, NB2, J, I, IJ, IDIR
 
       nbsts=nbst**2
 
