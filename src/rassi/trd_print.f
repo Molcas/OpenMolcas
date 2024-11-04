@@ -17,8 +17,8 @@
 ! - F. Plasser
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, LSYM1, LSYM2
+      IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -27,10 +27,17 @@
       INTEGER ISTATE, JSTATE
       REAL*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
       LOGICAL DO22
+
 ! Other variables
-      CHARACTER*3 NUM1,NUM2
-      CHARACTER*12 FNM
-      DIMENSION WBUF(5)
+      CHARACTER(LEN=3) NUM1,NUM2
+      CHARACTER(LEN=12) FNM
+      REAL*8 WBUF(5)
+      Integer LU, LPOS, ISYM, NO, NB, IO, I, LSYM12, ISYM1, NO1, ISYM2,
+     &        NO2, NA1, NA2, NI1, NI2, II, JJ, ISYT, ISYU, ISYV, LIMX,
+     &        ISYX, IWBUF, IT, ITABS, IU, IUABS, ITU, IV, IVABS, IX,
+     &        IXABS, IVX, ITUVX
+      Integer, External:: IsFreeUnit
+
 ! Subroutine starts
       LU=50
       LU=IsFreeUnit(LU)
