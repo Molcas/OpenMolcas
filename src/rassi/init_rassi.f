@@ -8,22 +8,39 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INIT_RASSI
+      SUBROUTINE INIT_RASSI()
 
       use rassi_aux, only: ipglob
 #ifndef _DMRG_
       use rasscf_global, only: doDMRG
 #endif
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
-      use Cntrl
+      use Cntrl, only: MXJOB, NJOB, NSTATE, NPROP, NSOPR, CITHR,
+     &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,
+     &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT,
+     &                 IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF,
+     &                 HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA,
+     &                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR,
+     &                 PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr,
+     &                 EPRAThr, IFXCAL, IFMCAL, HOP, TRACK,
+     &                 ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR,
+     &                 OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN,
+     &                 DCHS, DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE,
+     &                 REDUCELOOP, LOOPDIVIDE, TMGR_Thrs, Do_SK, Do_Pol,
+     &                 L_Eff, DoCD, RSThr, RSPR, FORCE_NON_AO_TDM,
+     &                 IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA,
+     &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
+     &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,
+     &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "symmul.fh"
 #include "Files.fh"
 #include "rassi.fh"
 #include "hfc_logical.fh"
-      Character*256 STRING
+      Character(LEN=256) STRING
       Logical FoundTwoEls,DoCholesky
+      Integer I, J, M, N, IPROP
 
 
 * Initialise doDMRG if compiled without QCMaquis
