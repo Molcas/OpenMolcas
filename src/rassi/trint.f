@@ -37,6 +37,9 @@
      &        NI, NO, NB, ISTA, IERR
       Real*8 ECORE1, ECORE2, ECORE
       Real*8, External:: DDot_
+#ifdef _MOLCAS_MPP_
+      Real*8 SCX
+#endif
 
 #include "chorassi.fh"
 
