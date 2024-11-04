@@ -11,16 +11,18 @@
       SUBROUTINE TSHop(CI1,CI2)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, JBNAME
+      IMPLICIT NONE
 #include "rassi.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
+      REAL*8    CI1(NCI1),CI2(NCI2)
+
       REAL*8    prdct(2,2)
       INTEGER   I,JOB1,JOB2,file,file2,maxHop,IAD3
       CHARACTER filnam*80,filother*80
-      REAL*8    CI1(NCI1),CI1pr(NCI1),CI2(NCI2),CI2pr(NCI2)
-      INTEGER   IADR3(3)
+      REAL*8    CI1pr(NCI1),CI2pr(NCI2)
+      INTEGER   IADR3(3), IAD, IDISK, LROOT1
       LOGICAL   lMaxHop,lAllowHop,fexist,lHopped
 *
 *
@@ -35,12 +37,8 @@ C  right after a hop to state n-1)
       ENDIF
 *
 C Initialization
-      DO i=1, NCI1
-         CI1pr(I)=0.0d0
-      END DO
-      DO i=1, NCI2
-         CI2pr(I)=0.0d0
-      END DO
+      CI1pr(:)=0.0d0
+      CI2pr(:)=0.0d0
       file=83
       file2=83
       lHopped=.FALSE.
