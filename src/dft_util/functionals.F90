@@ -31,7 +31,7 @@ character(len=80) :: Def_Label = ''
 character(len=*), parameter :: Custom_File = 'CUSTFUNC', Custom_Func = '-999_CUSTOM_FUNCTIONAL'
 
 public :: Custom_File, Custom_Func, Get_Func_ExFac, Get_Funcs, Init_Funcs, Print_Info, &
-          Check_N_Ext_Params
+          Check_N_Ext_Params, Get_Func_Type
 
 contains
 
@@ -56,6 +56,15 @@ function Get_Func_ExFac(Label)
   Get_Func_ExFac = Def_ExFac
 
 end function Get_Func_ExFac
+
+function Get_Func_Type(Label)
+  character(len=*), intent(in) :: Label
+  integer(kind=iwp) :: Get_Func_Type
+
+  call Init_Funcs(Label)
+  Get_Func_Type=Def_Functional_Type
+
+end function Get_Func_Type
 
 subroutine Get_Funcs(Label)
 
@@ -142,7 +151,6 @@ subroutine Find_Functional(Label)
   else
 
     ! If not, we have to read the database file, or the custom functional file
-    write(6,*) 'doing Custom_Func in Find_Functional'
     Lu = IsFreeUnit(11)
     if (Label == Custom_Func) then
       call molcas_open(Lu,Custom_File)

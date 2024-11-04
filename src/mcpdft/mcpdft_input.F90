@@ -13,7 +13,7 @@
 
 module mcpdft_input
   use definitions,only:iwp,wp
-  use ontop_functional,only:OTFNAL_t
+  use ontop_functional,only:OTFNAL_t, get_base
 
   implicit none
   private
@@ -161,6 +161,8 @@ contains
 
   subroutine verify_input()
     ! Validates mcpdft_options object. Ensures that the options provided from the user are valid.
+    use nq_Info, only: meta_GGA_Type1
+    use Functionals, only: Get_Func_Type
     use definitions,only:u6
     use Fock_util_global,only:DoCholesky
     implicit none
@@ -181,6 +183,17 @@ contains
         write(u6,*) ' **********************************'
       endif
     endif
+
+    if(mcpdft_options%grad) then
+     if(Get_Func_Type(get_base(mcpdft_options%otfnal%otxc))==meta_GGA_Type1) then
+        call WarningMessage(2,"MC-PDFT gradients with translated meta-GGA not supported")
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MC-PDFT gradients are not         '
+        write(u6,*) ' implemented with meta-GGAs        '
+        write(u6,*) ' **********************************'
+        call Quit_OnUserError()
+     end if
+    end if
 
     if(mcpdft_options%nac) then
       if(.not. mcpdft_options%mspdft) then
