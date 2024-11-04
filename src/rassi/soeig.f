@@ -24,7 +24,10 @@
 #endif
       use Constants, only: auTocm, auToeV
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: MXJOB, NSTATE, NPROP, RHODYN, NSOThr_PRT,
+     &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
+     &                 LOOPDIVIDE, IFTRD1, IFTDM, ICOMP, MLTPLT,
+     &                 PNAME
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "rassi.fh"
