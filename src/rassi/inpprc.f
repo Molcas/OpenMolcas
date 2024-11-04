@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INPPRC
+      SUBROUTINE INPPRC()
       use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
@@ -18,8 +18,18 @@
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
       use cntrl_data, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
       use stdalloc, only: mma_allocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM,
+     &                 PNAME, MXJOB, MXPROP, nState, SOThr_PRT,
+     &                 nSOThr_PRT, SAVEDENS, IFTRD1, IFTDM, NATO,
+     &                 DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO,
+     &                 DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM,
+     &                 IFSHFT, IFHDIA, IFMCAL, NJOB, IFHEFF, HAVE_HEFF,
+     &                 IFEJOB, HAVE_DIAG, IFHEXT, IFHCOM, NOHAM, TRACK,
+     &                 ONLY_OVERLAPS, PRSXY, PRORB, PRTRA, PRCI,
+     &                 RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER,
+     &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
+     &                 L_Eff, IBINA, IRREP, MLTPLT
+      IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
@@ -32,7 +42,12 @@
       Character(LEN=3) lIrrep(8)
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH,IsAvail(MXPROP),IsAvailSO(MXPROP)
-      DIMENSION IDUM(1)
+      Integer IDUM(1), IPRP, I, NBI, NLEV, IS, IBYTE, IPROP, ISOPR, IRC,
+     &        IOPT, ICMP, NPRPLST, IATOM, MISSAMX, MISSAMY, MISSAMZ,
+     &        IMISS, IERR, NATOM, IADD, MPROP, N, JPROP, MSOPR, JSOPR,
+     &        ISYM, JOB1, JOB2, J, I1, I2, II, III, ISYLAB
+      Integer, External:: IsFreeUnit
+      REAL*8 XAXIS, ZAXIS
 * Analysing and post-processing the input that was read in readin_rassi.
 
 
@@ -1061,4 +1076,4 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
 *
       CALL XFLUSH(6)
 
-      END
+      END SUBROUTINE INPPRC
