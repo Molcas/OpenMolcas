@@ -16,7 +16,8 @@
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
 #endif
-      use Cntrl
+      use Cntrl, only: MXJOB, NSTATE, PRCI, CITHR, IRREP, JBNAME,
+     &                 MLTPLT, NROOTS
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
