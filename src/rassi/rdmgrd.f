@@ -11,8 +11,8 @@
       SUBROUTINE RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, NJOB, MINAME
+      IMPLICIT None
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
@@ -24,10 +24,13 @@ C ISYMP is the symmetry irrep label of the derivatives.
 #include "symmul.fh"
       Integer JOB,IDISP,ISYMP,NARRAY
       Real*8 ARRAY(NARRAY)
-      Integer ITOFF(8),IAOFF(8)
       CHARACTER(LEN=8) LABEL,STYPE
 
+      Integer ITOFF(8),IAOFF(8)
       Real*8, Allocatable:: TEMP(:)
+      INTEGER IRC, IOPT, ISUM, IS, JS, NBI, NBJ, NBIJ, NTEMP, ISCODE,
+     &        LT, IA1, J, I, IA2
+      REAL*8 F
 
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
         WRITE(6,*)' RASSI/RDMGRD: Invalid JOB parameter.'
