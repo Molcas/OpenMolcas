@@ -15,18 +15,20 @@
       use frenkel_global_vars, only: iTyp, jTyp, nestla, nestlb,
      &                               valst, excl
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL(kind=wp) (A-H,O-Z)
+      use Cntrl, only: MXJOB
+      IMPLICIT None
 #include "rasdim.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "symmul.fh"
-
-      integer(kind=iwp) :: d1lines, d2lines, dim, a, b,
-     &                     nst1, nst2, ntrans, tri, iPL, run
+      integer(kind=iwp) :: dim, nst1, nst2
       real(kind=wp), intent(inout) :: Frenkeltri(dim*(dim+1)/2)
+
+      integer(kind=iwp) :: d1lines, d2lines, a, b, ntrans, tri, iPL,
+     &                     run, LUT3, LUT1, I, J, IO, K, L, iPrintLevel
+      real(kind=wp) :: GS, DIPNORM
       real(kind=wp), allocatable :: Frenkelsq(:), Frenkelquad(:,:),
      &                              Freninterm(:,:), Freninterm2(:,:)
       real(kind=wp), allocatable :: D1X(:), D1Y(:), D1Z(:), D2X(:),
