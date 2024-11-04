@@ -33,7 +33,7 @@ real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, C
                  POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
                  Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
 logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors
-character(len=LenIn8) :: NAME(mxOrb)
+character(len=LenIn8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
 character(len=8) :: IPHNAME, OutFmt1, OutFmt2, PURIFY, SXSEL
@@ -41,13 +41,13 @@ character(len=4) :: DFTFOCK
 character(len=3) :: QNUPDT
 character(len=2) :: HEADER(72), QNSTEP
 
-public :: CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreShift, DE, DFTFOCK, DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, &
-          E2act, ECAS, EMY, ENER, ESX, ExFac, FDIAG, HALFQ, HALFQ1, HEADER, hfocc, hRoots, IADR15, iAlphaBeta, IBLB, IBLBM, ICI, &
-          ICICH, ICICP, iCIonly, ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IfCRPR, IFORDE, INOCALC, iOrbOnly, &
-          iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPHNAME, IPR, IPT2, iRlxRoot, IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD, &
-          ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, ITRI, ITRIM, IXMSP, IXSYM, IZROT, JBLB, JBLBM, JCJ, &
-          kIvo, KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, LOWMS, LROOTS, lSquare, LVSHFT, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, &
-          n_keep, NAC, NACPAR, NACPR2, NAME, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
+public :: BName, CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreShift, DE, DFTFOCK, DoBlockDMRG, doDMRG, DoFaro, &
+          DOFCIDUMP, E2act, ECAS, EMY, ENER, ESX, ExFac, FDIAG, HALFQ, HALFQ1, HEADER, hfocc, hRoots, IADR15, iAlphaBeta, IBLB, &
+          IBLBM, ICI, ICICH, ICICP, iCIonly, ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IfCRPR, IFORDE, INOCALC, &
+          iOrbOnly, iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPHNAME, IPR, IPT2, iRlxRoot, IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, &
+          ISTORD, ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, ITRI, ITRIM, IXMSP, IXSYM, IZROT, JBLB, &
+          JBLBM, JCJ, kIvo, KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, LOWMS, LROOTS, lSquare, LVSHFT, MAXIT, MAXJT, MAXORBOUT, MxDMRG, &
+          n_Det, n_keep, NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
           NSM, NSXS, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, &
           ROTMAX, S, Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, &
           Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT

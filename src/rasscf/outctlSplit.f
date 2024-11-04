@@ -34,7 +34,7 @@
       use rasscf_global, only: CBLBM, CMax, DE, ECAS, ESX, FDIAG,
      &                         HALFQ, IBLBM, iPCMRoot, iSPDen, iSupSM,
      &                         iSymBB, ITER, jBLBM, KSDFT, NAC, NACPAR,
-     &                         NACPR2, NAME, NIN, NONEQ, NSEC, OutFmt1,
+     &                         NACPR2, BName, NIN, NONEQ, NSEC, OutFmt1,
      &                         RFPert, RlxGrd, RotMax, Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge, Via_DFT,
      &                         ixSym, iADR15, IPT2, iRLXRoot, Ener
@@ -464,7 +464,7 @@ C Local print level (if any)
      *  '-----------------------------------------------'
         Write(LF,*)
         lSave = lRootSplit.eq.iRlxRoot
-        CALL CHARGE(nsym,nbas,name,CMO,OCCN,SMAT,2,FullMlk,lSave)
+        CALL CHARGE(nsym,nbas,BName,CMO,OCCN,SMAT,2,FullMlk,lSave)
         Write(LF,*)
 *
 *       Compute properties
@@ -551,7 +551,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
-          CALL CHARGE(nsym,nbas,name,cmoso,OCCN,SMAT,3,FullMlk,.False.)
+          CALL CHARGE(nsym,nbas,BName,cmoso,OCCN,SMAT,3,FullMlk,.False.)
           Write(LF,*)
         ENDIF
 
@@ -576,7 +576,7 @@ C Local print level (if any)
           Write(LF,*)
           Write(LF,'(6X,A,I2)')
      &    'Natural Bond Order Analysis for root number:',lRootSplit
-          Call Nat_Bond_Order(nSym,nBas,Name,2)
+          Call Nat_Bond_Order(nSym,nBas,BName,2)
           Call CollapseOutput(0,'LoProp Analysis:')
           Write(6,*)
         End If

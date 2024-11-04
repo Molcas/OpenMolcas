@@ -12,12 +12,16 @@
 C SVC 20071004
 C convert JOBIPH to a formatted file FMTIPH
 C with some additional explanation.
+      use rasscf_global, only: BName, Header, IADR15, IPT2, iRoot,
+     &                         LROOTS, NACPAR, NACPR2, NORBT, NROOTS,
+     &                         NTOT3, POTNUC, Title, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER FMTIPH
+      IMPLICIT NONE
+      INTEGER FMTIPH, I, IAD15, ISYM, J, LSYM, NASHT, NFOCK, nHeader,
+     &        nName, nTitle
+      INTEGER, EXTERNAL :: isFreeUnit
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       REAL*8, ALLOCATABLE:: ADR1(:), ADR2(:), ADR(:)
 
@@ -44,7 +48,7 @@ C with some additional explanation.
       IAD15=IADR15(1)
       CALL WR_RASSCF_Info(JOBIPH,2,IAD15,NACTEL,ISPIN,NSYM,LSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            NAME,nName,NCONF,HEADER,nHeader,
+     &            BName,nName,NCONF,HEADER,nHeader,
      &            TITLE,nTitle,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)
@@ -119,7 +123,7 @@ C with some additional explanation.
       NACPR2=NACPAR*(NACPAR+1)/2
 
       WRITE(FMTIPH,*) 'basis function labels and type'
-      WRITE(FMTIPH,300) (Name(I), I=1,NTOT)
+      WRITE(FMTIPH,300) (BName(I), I=1,NTOT)
 
       IAD15=IADR15(2)
       Call mma_allocate(ADR1,NTOT2,LABEL='ADR1')
