@@ -27,7 +27,10 @@
 #endif
       use cntrl_data, only: RefEne, HEff
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: MXJOB, QDPT2SC, HAVE_HEFF, IFEJOB, HAVE_DIAG,
+     &                 IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP,
+     &                 NHOLE1, MLTPLT, NACTE, NDET, NELE3, ISTAT,
+     &                 JBNAME, NROOTS, NSTATE, NSTAT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
@@ -719,7 +722,8 @@ C Where is the CMO data set stored?
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
      &               mh5_close_file
 #endif
-      use Cntrl
+      use Cntrl, only: MXJOB, NSTATE, ISTAT, NSTAT, JBNAME, LSYM1,
+     &                 NCONF1
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
