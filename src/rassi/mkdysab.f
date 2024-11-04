@@ -28,13 +28,14 @@
 
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       REAL*8 DYSCOF(*),DYSAB(*)
+
       INTEGER :: IOFFA(8)
       REAL*8 GAA,GBB,OVLP
-      INTEGER IORB,ISORB
+      INTEGER IORB,ISORB, I, IOFFTD, ISY, II, IPOS, ICOFF, ISY1, NO1,
+     &        NA1, NI1
       real*8, Allocatable:: DYSCOF2(:)
 #include "rassi.fh"
 #include "symmul.fh"
