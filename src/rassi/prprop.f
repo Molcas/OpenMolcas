@@ -19,22 +19,32 @@
 #endif
       use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,
      &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
-     &                     rNAVO
+     &                     rNAVO, Half, Two, Three, Zero, One, Six, Ten,
+     &                     Nine
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: NSTATE, NPROP, MXJOB, NTS, PRXVE, PRMEE, LPRPR,
+     &                 PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR,
+     &                 OSthr_QIPR, QIALL, RSPR, RSThr, ReduceLoop,
+     &                 LoopDivide, Do_SK, PRDIPCOM, Tolerance, DoCD,
+     &                 DYSO, RHODYN, Do_TMom, IfGCAL, EPrThr,
+     &                 IfvanVleck, TMins, TMaxs, IfGTCALSA, IfGTSHSA,
+     &                 MULTIP, IfACAL, IfXCal, BStart, NBSTep, BIncre,
+     &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
+     &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,
+     &                 PTYPE, SOPRNM, SOPRTP
+      IMPLICIT NONE
       Integer NSS, JBNUM(NSTATE)
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
       Real*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
 
-      Real*8, parameter:: THRSH=1.0D-10, ZERO=0.0D0
+      Real*8, parameter:: THRSH=1.0D-10
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
-      Character(LEN=1) xyzchr(3)
+      Character(LEN=1), Parameter :: xyzchr(3)=['x','y','z']
       Integer IPAMFI(3),IPAM(3)
       Real*8 DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
       Real*8 TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
@@ -48,11 +58,10 @@
       Real*8 curit(3,3),paramt(3,3)
       Real*8 chiT_tens(NTS,3,3)!,PNMRT(NTP,3,3),PNMR(NTP,3,3)
       Real*8 chicuriT_tens(NTS,3,3),chiparamT_tens(NTS,3,3)
-      REAL*8 DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi!,DLTTA
+      REAL*8 DLTT,Zstat,p_Boltz!,DLTTA
       LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
       Real*8 RMAGM(3),Chi(3)
       INTEGER IFUNCT, SECORD(4)
-      REAL*8 J2CM
       Complex*16 T0(3), TM1
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
@@ -121,22 +130,50 @@
 
       Real*8, allocatable:: MAGM(:)
 
+      Real*8, Parameter:: AU2J=auTokJ*1.0D3
+      Real*8, Parameter:: J2CM=auTocm/AU2J
+      Real*8, Parameter:: AU2JTM=(AU2J/auToT)*rNAVO
+      Real*8, Parameter:: AU2REDR=2.0D2*Debye
 
-      AU2J=auTokJ*1.0D3
-      J2CM=auTocm/AU2J
-      AU2JTM=(AU2J/auToT)*rNAVO
-      AU2REDR=2.0D2*Debye
-      HALF=0.5D0
+      Real*8, Parameter:: BOLTZ_K=kBoltzmann*J2CM
+      Real*8, Parameter:: coeff_chi=0.1D0*rNAVO/kBoltzmann*mBohr**2
+      Real*8, Parameter:: FEGVAL=-gElectron
+      Real*8, Parameter:: BOLTZ=kBoltzmann/AU2J
+      Real*8, Parameter:: Rmu0=4.0D-7*Pi
+      Real*8, Parameter:: Two3rds=Two/Three
+      Real*8, Parameter:: ONEOVER6C2=One/(Six*c_in_au**2)
+      Real*8, Parameter:: ONEOVER10C=One/(Ten*c_in_au**2)
+      Real*8, Parameter:: ONEOVER30C=ONEOVER10C/Three
+      Real*8, Parameter:: TWOOVERM45C=-Two/(45.0D0*c_in_au**2)
+      REAL*8, Parameter:: ONEOVER9C2=One/(Nine*c_in_au**2)
 
-      BOLTZ_K=kBoltzmann*J2CM
-      coeff_chi=0.1D0*rNAVO/kBoltzmann*mBohr**2
-      FEGVAL=-gElectron
-      BOLTZ=kBoltzmann/AU2J
-      Rmu0=4.0D-7*Pi
-
-      xyzchr(1)='x'
-      xyzchr(2)='y'
-      xyzchr(3)='z'
+      Integer nCol, iProp,               I, ISTA, IEND, J, ICMP, NPMSIZ,
+     &        nMiss, iSOPr, JSTART, I_Have_DL, I_Have_DV, nVec, i_print,
+     &        ISS, JSS, K, I_Print_Header, IfAnyM, IfAnyS, IfAnyQ,
+     &        IfAnyO, I2Tot, iAMFIx, iAMFIy, iAMFIz, iXYZ, jXYZ, iState,
+     &        MPLET1, jState, MPLET2, iAMx, iAMy, iAMz, MPLET, kXYZ,
+     &        iERR, iMLTPL, iStart, iFinal, ijXYZ, IT, IC, JC, KDGN,
+     &        ISO, JSO, LMStep, IBStep, ITStep, nPhiStep, nTheStep,
+     &        NORIENT, ITHE, iPhiStep, iPhi, IfAnyD, iPrDXY, iPrDXZ,
+     &        iPrDYZ, iVec
+      Real*8 AFactor, OSthr, OSThr2, EDiff, DX2, DY2, DZ2, FX, FY, FZ,
+     &       A, DLT, EDIFF3, DXX2, DYY2, DZZ2, FXX, FYY, FYZ, DXXDYY,
+     &       DXXDZZ, DYYDZZ, FXXFYY, FXXFZZ, FYYFZZ, G, DXXXDX, DYYXDX,
+     &       DZZXDX, FXXX, FYYY, FZZZ, DXXYDY, DYYYDY, DZZYDY, FXXY,
+     &       FZZY, DXXZDZ, DYYZDZ, DZZZDZ, EDIFF2, DXYDZ, DYXDZ,
+     &       FYX, DZXDY, DXZDY, FZX, DYZDX, DZYDX, FZY, D_XR, D_YR,
+     &       D_ZR, D_XI, D_YI, D_ZI, D_MXR, D_MYR, D_MZR, D_MXI, D_MYI,
+     &       D_MZI, RXX, RYY, RZZ, R, PLIMIT, PMAX,
+     &       Q_XXR, Q_XYR, Q_XZR, Q_YYR, Q_YZR, Q_ZZR,
+     &       Q_XXI, Q_XYI, Q_XZI, Q_YYI, Q_YZI, Q_ZZI,
+     &       RXY, RXZ, RYX, RYZ, RZX, RZY,
+     &       RXXY, RXXZ, RXYX, RXYZ, RXZX, RXZY, RXYY, RYYX, RYYZ,
+     &       RYZX, RYZY, RXZZ, RZZX, RZZY, DysThr, S1, FACT0, FACTP,
+     &       FACTM, DTIJ, S2, DELTA, CONTRIB, S, Factor, GTij, GSEnergy,
+     &       DLT_E, BFinal, TFinal, B, HZer, T, RKT, RPart, Fact,
+     &       rMagm2, rMagMO, GTR, bPhiRes, Phi, Bx, By, Bz, DIPSOM_SA,
+     &       EEX, EEY, EEZ, ThreEJ, AX, AY, AZ, F, FZZ, DXY2, DXZ2,
+     &       FXY, FXZ, FYYX, FZZX, FXXZ, FYYZ, DYZ2, RYZZ, THE
 
 ******************************************************
 * printout of properties over the spin-free states
@@ -593,7 +630,6 @@ C printing threshold
 *
          i_Print=0
 
-         Two3rds=2.0D0/3.0D0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -721,7 +757,6 @@ C printing threshold
 *
          i_Print=0
 
-         Two3rds=2.0D0/3.0D0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -947,7 +982,6 @@ C printing threshold
 
 ! Spin-Magnetic-Dipole
 
-         ONEOVER6C2=1.0D0/(6.0D0*c_in_au**2)
          g = FEGVAL
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
@@ -1019,8 +1053,6 @@ C printing threshold
          WRITE(6,35)
          END IF
 
-         ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
-         ONEOVER30C=ONEOVER10C/3.0D0
 
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
@@ -1100,7 +1132,6 @@ C printing threshold
          WRITE(6,35)
          END IF
 
-         TWOOVERM45C=-2.0D0/(45.0D0*c_in_au**2)
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -1218,8 +1249,7 @@ C printing threshold
          WRITE(6,35)
          END IF
 
-         ONEOVER9C2=1.0D0/(9.0D0*c_in_au**2)
-         g = FEGVAL*3.0D0/2.0D0 ! To remove the 2/3 factor in ONEOVER9C2
+         g = FEGVAL*Three/Two ! To remove the 2/3 factor in ONEOVER9C2
          g = g*2.0d0 ! Seem to be needed to agree with the exact term,
                      ! needs to be looked further into!
          DO ISS=1,IEND
@@ -3171,7 +3201,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_electric_dipoles(IFANY)
       Integer ISOPR
-      Integer IPRDX, IPRDY, IPRDZ
+      Integer IPRDX, IPRDY, IPRDZ, IFANY
          IPRDX=0
          IPRDY=0
          IPRDZ=0
@@ -3213,7 +3243,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_velocities(IFANY)
       Integer ISOPR
-      Integer IPRDX, IPRDY, IPRDZ
+      Integer IPRDX, IPRDY, IPRDZ, IFANY
          IPRDX=0
          IPRDY=0
          IPRDZ=0
@@ -3263,7 +3293,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_magnetic_dipoles(IFANY)
       Integer ISOPR
-      Integer IPRMDX, IPRMDY, IPRMDZ
+      Integer IPRMDX, IPRMDY, IPRMDZ, IFANY
          IPRMDX=0
          IPRMDY=0
          IPRMDZ=0
@@ -3314,7 +3344,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_Spin_Magnetic_dipoles(IFANY)
       Integer ISOPR
-      Integer IPRSX, IPRSY, IPRSZ
+      Integer IPRSX, IPRSY, IPRSZ, IFANY
          IPRSX=0
          IPRSY=0
          IPRSZ=0
@@ -3366,7 +3396,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles(IFANY)
       Integer ISOPR
-      Integer IPRSXY, IPRSXZ, IPRSYX, IPRSYZ, IPRSZX, IPRSZY
+      Integer IPRSXY, IPRSXZ, IPRSYX, IPRSYZ, IPRSZX, IPRSZY, IFANY
          IPRSXY=0
          IPRSXZ=0
 
@@ -3464,7 +3494,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_Electric_Quadrupoles(IFANY)
       Integer ISOPR
-      Integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ
+      Integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ, IFANY
          IPRDXX=0
          IPRDXY=0
          IPRDXZ=0
@@ -3551,7 +3581,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_Magnetic_Quadrupoles(IFANY)
       Integer ISOPR
-      Integer IPRDZX, IPRDYX, IPRDZY
+      Integer IPRDZX, IPRDYX, IPRDZY, IFANY
          IPRDXY=0
          IPRDXZ=0
          IPRDYX=0
@@ -3644,7 +3674,7 @@ C backtransformation in two steps, -phi and -theta
       Subroutine Allocate_and_Load_Octupoles(IFANY)
       Integer ISOPR
       Integer IPRDZZX, IPRDZZY, IPRDZZZ, IPRDXXX, IPRDXXY, IPRDXXZ,
-     &        IPRDYYX, IPRDYYY, IPRDYYZ
+     &        IPRDYYX, IPRDYYY, IPRDYYZ, IFANY
 ! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
 ! The order which comes in
          IPRDXXX=0 !
@@ -3808,7 +3838,7 @@ C backtransformation in two steps, -phi and -theta
       COMPLEX*16 Z(NSS,NSS),MATL(NSS,NSS),FINL(NSS,NSS)
       COMPLEX*16 SPNSO(3,NSS,NSS),SPNSFS(3,NSS,NSS)
       real*8 UMATR(NSS,NSS),UMATI(NSS,NSS),gtens(3),maxes(3,3)
-      CHARACTER*1 angm
+      CHARACTER(LEN=1) angm
 
       if(.FALSE.) then
       write(6,'(/)')
