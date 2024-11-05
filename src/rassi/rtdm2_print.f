@@ -16,8 +16,7 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
       SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,
      &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
-      use Cntrl, only: MXJOB, OCAN, LSYM1, LSYM2, OCAA
-      use Files
+      use Cntrl, only: OCAN, LSYM1, LSYM2, OCAA
 
       IMPLICIT None
 #include "rasdim.fh"
