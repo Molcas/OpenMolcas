@@ -16,7 +16,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, MXJOB, LSYM1, LSYM2, IRREP, MLTPLT,
      &                 NACTE, NELE3, NHOLE1, RASTYP
-      use tshcntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
+      use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
       IMPLICIT None
       Real*8 :: Energy(nState)
 #include "symmul.fh"

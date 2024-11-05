@@ -12,7 +12,7 @@
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
       use Cntrl, only: MXJOB, JBNAME
-      use tshcntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop, lHop,
+      use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop, lHop,
      &                    nHop
 
       IMPLICIT NONE

@@ -207,5 +207,17 @@ CHARACTER(LEN=4) TITLE1(18,mxTit)
 Integer ALGO,Nscreen
 Real*8 dmpk
 
+
+! This preserves the values of the variables for the
+! trajectory surface hopping algorithm.
+INTEGER  ISTATE1,ISTATE2,NCI1,NCI2,nHop
+LOGICAL  ChkHop,lHop
+! ISTATE1 - Number of the current relaxed state
+! ISTATE2 - Number of the state that interacts with the current state
+! NCI1    - Configuration's number of state 1
+! ChkHop  - If .TRUE. switches on the TSH algorithm
+! lHop    - Is .TRUE. if nHop is set in the RunFile
+! nHop    - Number of transitions (Hops) already occured
+
 End Module Cntrl
 !
