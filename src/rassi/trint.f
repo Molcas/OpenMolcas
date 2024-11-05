@@ -17,9 +17,9 @@
       use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      use Cntrl, only: MXJOB, ERFNUC, RFPert
+      use Cntrl, only: ERFNUC, RFPert
       use cntrl, only: ALGO, Nscreen, dmpk
-      use Files
+      use Files, only: LuOrd
 
       IMPLICIT None
 #include "rassi.fh"
