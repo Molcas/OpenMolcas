@@ -22,12 +22,12 @@
 #endif
       use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron, Zero,
      &                     Half, Two
-      use Cntrl, only: NSTATE, NPROP, MXJOB, DIPR, OSThr_Dipr, QIPR,
+      use Cntrl, only: NSTATE, NPROP, DIPR, OSThr_Dipr, QIPR,
      &                 OSThr_QIPR, RSPR, RSThr, REDUCELOOP, LOOPDIVIDE,
      &                 Do_SK, nQuad, PrRaw, PrWeight, Do_Pol, TMGR_Thrs,
      &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
      &                 PTYPE
-      use Files
+      use Files, only: LuTDM
 
       IMPLICIT None
       Integer NSS
