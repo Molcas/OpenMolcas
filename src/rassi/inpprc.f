@@ -29,13 +29,13 @@
      &                 RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER,
      &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
      &                 L_Eff, IBINA, IRREP, MLTPLT
+      use Centra, only: nAtoms, Coor
       IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Files.fh"
 #include "SysDef.fh"
-#include "centra.fh"
       CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=8) LABEL2
       CHARACTER(LEN=8) PRPLST(MXPROP)

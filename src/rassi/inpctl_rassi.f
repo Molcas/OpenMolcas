@@ -21,11 +21,11 @@
       use cntrl, only: RefEne, HEff
       use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
      &                  MLTPLT, NSTAT, MXJOB
+      use Centra, only: ATLBL, IGROUP, nAtoms, nGroup
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "centra.fh"
 
       LOGICAL READ_STATES
       INTEGER JOB, i

@@ -8,9 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module Centra
+# include "Molcas.fh"
+! The paramaters defined in Molcas should be private
+Private MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
+        mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
+
 ! Note: MXATOM to be taken from Molcas.fh
-      INTEGER               NGROUP,IGROUP,NATOMS,COOR
-      COMMON /STRUCT_RASSI/ NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
+INTEGER               NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
 ! Atom labels, 4 bytes each.
-      CHARACTER(LEN=LENIN) ATLBL
-      COMMON /ATOMS / ATLBL(MXATOM)
+CHARACTER(LEN=LENIN) ATLBL(MXATOM)
+End Module Centra
