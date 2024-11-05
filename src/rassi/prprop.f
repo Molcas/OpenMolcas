@@ -22,7 +22,7 @@
      &                     rNAVO, Half, Two, Three, Zero, One, Six, Ten,
      &                     Nine
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, MXJOB, NTS, PRXVE, PRMEE, LPRPR,
+      use Cntrl, only: NSTATE, NPROP, NTS, PRXVE, PRMEE, LPRPR,
      &                 PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR,
      &                 OSthr_QIPR, QIALL, RSPR, RSThr, ReduceLoop,
      &                 LoopDivide, Do_SK, PRDIPCOM, Tolerance, DoCD,
@@ -32,7 +32,6 @@
      &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
      &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,
      &                 PTYPE, SOPRNM, SOPRTP
-      use Files
 
       IMPLICIT NONE
       Integer NSS, JBNUM(NSTATE)
