@@ -32,8 +32,8 @@
      &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
      &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,
      &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
-      use Files, only: LuOne, FnOne, LuOrd, FnOrd, LuCom, FnCom, LuIph,
-     &                 LuExc, FnExc, LuExt, FnExt, LuMck, LuTOM, FnTOM,
+      use Files, only: LuOne, FnOne, LuOrd, FnOrd, LuIph,
+     &                 LuExc, FnExc, LuMck, LuTOM, FnTOM,
      &                 LuEig, FnEig
 
 
@@ -70,13 +70,9 @@ C UNIT NUMBERS AND NAMES
       FNONE='ONEINT'
       LUORD=30
       FNORD='ORDINT'
-      LUCOM=33
-      FNCOM='COMFILE'
       LUIPH=15
       LUEXC=22
       FNEXC='ANNI'
-      LUEXT=21
-      FNEXT='EXTRACT'
       LUMCK=33
       LuToM=26
       FnToM='TOFILE'
