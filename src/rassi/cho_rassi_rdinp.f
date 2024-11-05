@@ -18,7 +18,7 @@
 ************************************************************************
       Use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       Use Cholesky, only: timings
-      use ChoRassi, only: ALGO, Nscreen, dmpk
+      use cntrl, only: ALGO, Nscreen, dmpk
 
       Implicit Real*8 (A-H,O-Z)
 #include "rassi.fh"

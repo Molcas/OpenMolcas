@@ -203,5 +203,9 @@ CHARACTER(LEN=LENIN8) NAME(mxOrb)
 CHARACTER(LEN=2) HEAD1(72)
 CHARACTER(LEN=4) TITLE1(18,mxTit)
 
+! Cholesky/RI stuff
+Integer ALGO,Nscreen
+Real*8 dmpk
+
 End Module Cntrl
 !

@@ -51,7 +51,7 @@
      &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
-      use ChoRassi, only: ALGO, Nscreen, dmpk
+      use cntrl, only: ALGO, Nscreen, dmpk
 
       IMPLICIT NONE
 #include "rasdim.fh"

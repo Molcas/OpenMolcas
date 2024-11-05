@@ -18,7 +18,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use Cntrl, only: MXJOB, ERFNUC, RFPert
-      use ChoRassi, only: ALGO, Nscreen, dmpk
+      use cntrl, only: ALGO, Nscreen, dmpk
       IMPLICIT None
 #include "rassi.fh"
       Integer NGAM1, NGAM2
