@@ -14,7 +14,7 @@
       use Cntrl, only: JBNAME
       use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop, lHop,
      &                    nHop
-      use Files
+      use Files, only: iTOC15, LuIph
 
 
       IMPLICIT NONE
