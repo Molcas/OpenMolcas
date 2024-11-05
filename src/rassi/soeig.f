@@ -28,7 +28,6 @@
      &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
      &                 LOOPDIVIDE, IFTRD1, IFTDM, ICOMP, MLTPLT,
      &                 PNAME
-      use Files
 
       IMPLICIT NONE
 #include "SysDef.fh"
