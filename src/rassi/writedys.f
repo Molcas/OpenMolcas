@@ -20,7 +20,6 @@
 
       SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       use Cntrl, only: NSTATE, DYSEXPSF
-      use Files
 
       IMPLICIT None
 #include "rassi.fh"
