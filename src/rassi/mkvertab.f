@@ -12,6 +12,7 @@
      &                   ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: FSBARR
+      use Morsel, only: MORSBITS
       IMPLICIT NONE
       INTEGER ISSTAB(*)
       INTEGER NASPRT,NACTEL,M2SPIN,LSYM
@@ -36,7 +37,6 @@
       INTEGER IARC,IA,ISUM,KEEP
       INTEGER NSBS
       INTEGER NSDBLK
-#include "Morsel.fh"
       INTEGER LIMARR(2,0:50)
       INTEGER ITRY(50)
       INTEGER, Allocatable::  SSTPTR(:), SSTARR(:), VIDX(:)
