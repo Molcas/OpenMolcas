@@ -10,9 +10,8 @@
 ************************************************************************
       SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
       use rassi_global_arrays, only: JBNUM
-      use Cntrl, only: MXJOB, NSTATE, NPROP, PNAME, ICOMP, ISOCMP,
+      use Cntrl, only: NSTATE, NPROP, PNAME, ICOMP, ISOCMP,
      &                 MLTPLT, PTYPE, SOPRNM, SOPRTP
-      use Files
 
       IMPLICIT NONE
       INTEGER NSS, ISONUM, ISPINCMP
