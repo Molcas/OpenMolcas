@@ -10,9 +10,8 @@
 ************************************************************************
       SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,
      &                        IST,INUM,JST,JNUM)
-      use Cntrl, only: NSTATE, MXJOB, NPROP, ICOMP, ISOCMP, PNAME,
+      use Cntrl, only: NSTATE, NPROP, ICOMP, ISOCMP, PNAME,
      &                 PTYPE, SOPRNM, SOPRTP
-      use Files
 
       IMPLICIT None
       Integer NSS, ISONUM, ISPINCMP
