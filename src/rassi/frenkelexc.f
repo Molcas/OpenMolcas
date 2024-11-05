@@ -16,12 +16,12 @@
      &                               valst, excl
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB
+      use JobIn
       IMPLICIT None
 #include "rasdim.fh"
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "jobin.fh"
 #include "symmul.fh"
       integer(kind=iwp) :: dim, nst1, nst2
       real(kind=wp), intent(inout) :: Frenkeltri(dim*(dim+1)/2)

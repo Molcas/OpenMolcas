@@ -39,6 +39,7 @@
       use Cntrl, only: MXJOB, NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
+      use JobIn
 
       IMPLICIT None
 C Matrix elements over RAS wave functions.
@@ -47,7 +48,6 @@ C RAS state interaction.
 #include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "jobin.fh"
 #include "symmul.fh"
 #include "rassiwfn.fh"
       Logical CLOSEONE

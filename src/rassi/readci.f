@@ -18,11 +18,11 @@
 #endif
       use Cntrl, only: MXJOB, NSTATE, PRCI, CITHR, IRREP, JBNAME,
      &                 MLTPLT, NROOTS
+      use JobIn
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
 #include "rassi.fh"
-#include "jobin.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id

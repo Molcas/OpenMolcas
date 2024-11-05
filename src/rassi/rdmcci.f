@@ -12,6 +12,7 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NJOB, NCONF1, MINAME
+      use JobIn
       IMPLICIT None
 C Purpose: Read in the derivatives of CI array derivatives
 C from MCKINT file, with respect to some displacement IDISP.
@@ -20,7 +21,6 @@ C ISYMP is the symmetry irrep label of the derivatives.
 #include "SysDef.fh"
 #include "Files.fh"
 #include "rassi.fh"
-#include "jobin.fh"
 #include "symmul.fh"
       Integer JOB, IDISP, ISYMP, nArray
       CHARACTER(LEN=8) LABEL

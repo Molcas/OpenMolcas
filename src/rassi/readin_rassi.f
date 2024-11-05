@@ -51,15 +51,14 @@
      &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
+      use JobIn
 
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "rassi.fh"
-#include "jobin.fh"
-      CHARACTER*80 LINE
-      INTEGER MXPLST
-      PARAMETER (MXPLST=50)
-      CHARACTER*8 TRYNAME
+      CHARACTER(LEN=80) LINE
+      INTEGER, PARAMETER :: MXPLST=50
+      CHARACTER(LEN=8) TRYNAME
       Real*8 tmp
       Logical lExists
 #include "chorassi.fh"

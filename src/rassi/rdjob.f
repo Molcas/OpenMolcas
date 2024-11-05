@@ -31,12 +31,12 @@
      &                 IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP,
      &                 NHOLE1, MLTPLT, NACTE, NDET, NELE3, ISTAT,
      &                 JBNAME, NROOTS, NSTATE, NSTAT
+      use JobIn
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "jobin.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
@@ -724,10 +724,10 @@ C Where is the CMO data set stored?
 #endif
       use Cntrl, only: MXJOB, NSTATE, ISTAT, NSTAT, JBNAME, LSYM1,
      &                 NCONF1
+      use JobIn
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
-#include "jobin.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
       integer :: ref_nstates
