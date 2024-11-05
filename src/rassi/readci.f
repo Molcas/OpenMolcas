@@ -18,7 +18,7 @@
 #endif
       use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME,
      &                 MLTPLT, NROOTS
-      use Files, only: iTOC15, LuIph
+      use cntrl, only: iTOC15, LuIph
 
       IMPLICIT NONE
 #include "rasdim.fh"

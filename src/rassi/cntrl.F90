@@ -219,5 +219,20 @@ LOGICAL  ChkHop,lHop
 ! lHop    - Is .TRUE. if nHop is set in the RunFile
 ! nHop    - Number of transitions (Hops) already occured
 
+
+!----------------------------------------------------------------------*
+!     Define files ( file names and unit numbers )                     *
+!----------------------------------------------------------------------*
+!
+! LUIPH  - UNIT NUMBER OF JOBIPHS
+! LUMCK  - UNIT NUMBER OF MCKINT FILES
+! LUONE  - D:O, ONE-ELECTRON INTEGRAL FILE
+! LUORD  - D:O, ORDERED TWO-ELECTRON INTEGRAL FILE
+! IADR15 - TABLE OF CONTENTS, DISK ADDRESSES ON LUIPH.
+! IDCMO  - Adresses to the CMO arrays on each JOBIPH
+Character(LEN=8) FnOne,FnIph,FnMck,FnOrd,FnTDM,FnExc,FnToM,FnEig
+INTEGER LUIPH, LUMCK, LUONE, LUORD, LUEIG
+INTEGER LUEXC, LUTDM, LUTOM, IDCMO(MXJOB), ITOC15(30)
+
 End Module Cntrl
 !

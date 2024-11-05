@@ -28,7 +28,7 @@
      &                 DoCD, nQUad, Do_Pol, TMGR_Thrs, PrRaw, PrWeight,
      &                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE,
      &                 PNAME, PTYPE, Do_TMom
-      use Files, only: LuTDM
+      use cntrl, only: LuTDM
 
       IMPLICIT None
 #include "symmul.fh"

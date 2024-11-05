@@ -19,7 +19,7 @@
       use Constants, only: Zero
       use Cntrl, only: ERFNUC, RFPert
       use cntrl, only: ALGO, Nscreen, dmpk
-      use Files, only: LuOrd
+      use cntrl, only: LuOrd
 
       IMPLICIT None
 #include "rassi.fh"

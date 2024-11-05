@@ -27,7 +27,7 @@
      &                 Do_SK, nQuad, PrRaw, PrWeight, Do_Pol, TMGR_Thrs,
      &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
      &                 PTYPE
-      use Files, only: LuTDM
+      use cntrl, only: LuTDM
 
       IMPLICIT None
       Integer NSS

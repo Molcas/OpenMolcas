@@ -118,7 +118,7 @@
       Use mh5, Only: mh5_put_dset
       Use stdalloc, Only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, IFSO, IRREP
-      use Files, only: LuTDM
+      use cntrl, only: LuTDM
 
       Implicit None
 #include "rassi.fh"

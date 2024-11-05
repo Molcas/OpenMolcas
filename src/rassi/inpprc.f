@@ -30,7 +30,7 @@
      &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
      &                 L_Eff, IBINA, IRREP, MLTPLT
       use cntrl, only: nAtoms, Coor
-      use Files, only: LuTDM, FnTDM
+      use cntrl, only: LuTDM, FnTDM
 
       IMPLICIT None
 #include "rasdim.fh"

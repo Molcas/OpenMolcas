@@ -14,7 +14,7 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NBINA, NSTATE, IRREP, IBINA
-      use Files, only: LuTDM
+      use cntrl, only: LuTDM
       IMPLICIT NONE
 
 #include "SysDef.fh"

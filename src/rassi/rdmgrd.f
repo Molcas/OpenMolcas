@@ -12,7 +12,7 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NJOB, MINAME
-      use Files, only: LuMck
+      use cntrl, only: LuMck
 
       IMPLICIT None
 C Purpose: Read in the derivatives of 1-electron integrals

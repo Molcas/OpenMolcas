@@ -14,7 +14,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, ToFile,
      &                 IRREP, PNAME, PTYPE
-      use Files, only: FnTOM, LuTOM
+      use cntrl, only: FnTOM, LuTOM
 
       IMPLICIT None
 #include "rassi.fh"

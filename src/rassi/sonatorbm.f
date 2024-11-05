@@ -15,7 +15,7 @@
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
-      use Files, Only: LuTDM
+      use cntrl, Only: LuTDM
 
       IMPLICIT None
       CHARACTER(LEN=8) CHARTYPE

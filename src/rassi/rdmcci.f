@@ -12,7 +12,7 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NJOB, NCONF1, MINAME
-      use Files, only: LuMck
+      use cntrl, only: LuMck
 
       IMPLICIT None
 C Purpose: Read in the derivatives of CI array derivatives

@@ -34,7 +34,7 @@
       use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
-      use Files, only: iTOC15, LuIPH, IDCMO
+      use cntrl, only: iTOC15, LuIPH, IDCMO
 
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -729,7 +729,7 @@ C Where is the CMO data set stored?
       use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
-      use Files, only: iTOC15, LuIph
+      use cntrl, only: iTOC15, LuIph
 
       IMPLICIT NONE
 #include "rasdim.fh"

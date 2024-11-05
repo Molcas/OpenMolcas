@@ -50,7 +50,7 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
      &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
      &                 RASTYP
-      use Files, only: iToc15, LuIph, LuTDM
+      use cntrl, only: iToc15, LuIph, LuTDM
 
       IMPLICIT NONE
 #include "rasdim.fh"

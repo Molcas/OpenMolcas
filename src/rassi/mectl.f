@@ -15,7 +15,7 @@
       use Cntrl, only: NSTATE, NPROP, PRXVR, IFHAM, ToFile,
      &                 IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED,
      &                 PNAME, PNUC, PORIG
-      use Files, only: FnEig, LuEig
+      use cntrl, only: FnEig, LuEig
 
       IMPLICIT None
 #include "rassi.fh"
