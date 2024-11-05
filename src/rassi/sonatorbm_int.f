@@ -14,8 +14,6 @@
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
       use OneDat, only: sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB
-      use Files
 
       IMPLICIT None
 #include "rassi.fh"
