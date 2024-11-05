@@ -11,8 +11,8 @@
       SUBROUTINE RDMCCI(JOB,IDISP,LABEL,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NJOB, NCONF1, MINAME
-      use Files
+      use Cntrl, only: NJOB, NCONF1, MINAME
+      use Files, only: LuMck
 
       IMPLICIT None
 C Purpose: Read in the derivatives of CI array derivatives
