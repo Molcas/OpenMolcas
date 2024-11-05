@@ -36,7 +36,9 @@
       use Data_Structures
       use cntrl_data, only: SONTOSTATES, SONATNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
+      use Cntrl, only: MXJOB, NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,
+     &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
+     &                 Do_SK, SaveDens, MLTPLT, NPROP
 
       IMPLICIT None
 C Matrix elements over RAS wave functions.
