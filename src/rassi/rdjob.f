@@ -25,7 +25,7 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
 #endif
-      use cntrl_data, only: RefEne, HEff
+      use cntrl, only: RefEne, HEff
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, QDPT2SC, HAVE_HEFF, IFEJOB, HAVE_DIAG,
      &                 IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP,

@@ -18,7 +18,7 @@
 #endif
       use mspt2_eigenvectors
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cntrl_data, only: RefEne, HEff
+      use cntrl, only: RefEne, HEff
       use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
      &                  MLTPLT, NSTAT, MXJOB
       IMPLICIT NONE

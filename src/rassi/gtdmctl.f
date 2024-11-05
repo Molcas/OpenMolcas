@@ -42,7 +42,7 @@ C      use para_info, only: nProcs, is_real_par, king
 #endif
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
-      use cntrl_data, only: sonatnstate
+      use cntrl, only: sonatnstate
       use Cntrl, only: MXJOB, NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
      &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR,
      &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,

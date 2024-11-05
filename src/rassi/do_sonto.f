@@ -23,7 +23,7 @@
       SUBROUTINE DO_SONTO(NSS, USOR, USOI)
       use rassi_global_arrays, only: JBNUM, EIGVEC
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cntrl_data, only: SONTOSTATES, SONTO
+      use cntrl, only: SONTOSTATES, SONTO
       use Cntrl, only: NSTATE, NOSO, MLTPLT
       IMPLICIT None
       Integer NSS

@@ -11,7 +11,7 @@
       SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, EIGVEC
-      use cntrl_data, only: SONAT, SONATNSTATE,
+      use cntrl, only: SONAT, SONATNSTATE,
      &                      SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, NOSO, IfCurd, MLTPLT

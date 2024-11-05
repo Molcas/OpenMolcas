@@ -14,7 +14,7 @@
 #ifndef _DMRG_
       use rasscf_global, only: doDMRG
 #endif
-      use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
+      use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
       use Cntrl, only: MXJOB, NJOB, NSTATE, NPROP, NSOPR, CITHR,
      &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,
      &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT,

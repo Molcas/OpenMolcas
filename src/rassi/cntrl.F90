@@ -165,5 +165,22 @@ Private MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxa
 !           instead we mix the TDMs)
 !      NTO Calculation Section /// Jie Bao
   Logical IfNTO
+
+!    SONTO            Array of SO state pairs
+Integer, Allocatable, Public:: SONTO(:,:)
+!    SONTOSTATES      Number of state pairs to calculate
+Integer, Public:: SONTOSTATES=0
+
+!    SONAT            Array of SO state to compute
+Integer, Allocatable, Public:: SONAT(:)
+!    SONATNSTATE      Number of states to calculate
+Integer, Public:: SONATNSTATE=0
+
+Integer, Allocatable, Public:: SODIAG(:)
+!    SODIAGNSTATE     Number of states to diagonalize
+INTEGER, Public::  SODIAGNSTATE=0
+
+Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
+
 End Module Cntrl
 !

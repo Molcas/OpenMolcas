@@ -24,7 +24,7 @@
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       use Cholesky, only: timings
       use stdalloc, only: mma_allocate
-      use cntrl_data, only: SONTO, SONTOSTATES,
+      use cntrl, only: SONTO, SONTOSTATES,
      &                      SONAT, SONATNSTATE,
      &                      SODIAG,SODIAGNSTATE
       use spool, only: Spoolinp, Close_LuSpool

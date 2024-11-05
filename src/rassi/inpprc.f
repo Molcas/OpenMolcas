@@ -16,7 +16,7 @@
       use kVectors
       use Lebedev_quadrature, only: order_table
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
-      use cntrl_data, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
+      use cntrl, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
       use stdalloc, only: mma_allocate
       use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM,
      &                 PNAME, MXJOB, MXPROP, nState, SOThr_PRT,
