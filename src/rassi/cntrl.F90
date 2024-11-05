@@ -9,10 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Cntrl
-# include "Molcas.fh"
-! The paramaters defined in Molcas should be private
+# include "rasdim.fh"   ! note this also includes implicitly Molcas.fh
+! The paramaters defined in Molcas.fh should be private
 Private MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
         mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
+! The paramaters defined in rasdim.fh should be private
+Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
 
   INTEGER, PARAMETER :: MXJOB=100,MXPROP=30000
   INTEGER, PARAMETER :: MXDISP=500
@@ -190,6 +192,15 @@ INTEGER, Parameter:: MORSBITS=8
 INTEGER               NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
 ! Atom labels, 4 bytes each.
 CHARACTER(LEN=LENIN) ATLBL(MXATOM)
+
+
+! TEMPORARY DATA FROM JOBIPHS
+REAL*8 POTNU1
+Integer NACTE1,MPLET1,NSYM1,NFRO1(8),NISH1(8),NASH1(8),NDEL1(8),NBAS1(8),NRS11(8),NRS21(8), &
+        NRS31(8),LROT1,NROOT1,IROOT1(mxRoot),NHOL11,NELE31
+CHARACTER(LEN=LENIN8) NAME(mxOrb)
+CHARACTER(LEN=2) HEAD1(72)
+CHARACTER(LEN=4) TITLE1(18,mxTit)
 
 End Module Cntrl
 !
