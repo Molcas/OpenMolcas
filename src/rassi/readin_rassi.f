@@ -51,6 +51,7 @@
      &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
+      use ChoRassi, only: ALGO, Nscreen, dmpk
 
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -60,7 +61,6 @@
       CHARACTER(LEN=8) TRYNAME
       Real*8 tmp
       Logical lExists
-#include "chorassi.fh"
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
