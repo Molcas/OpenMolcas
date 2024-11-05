@@ -182,5 +182,7 @@ INTEGER, Public::  SODIAGNSTATE=0
 
 Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
 
+INTEGER, Parameter:: MORSBITS=8
+
 End Module Cntrl
 !

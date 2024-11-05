@@ -11,7 +11,7 @@
       Subroutine NEWORBTAB(IPRTTAB)
       use rassi_global_arrays, only: OrbTab
       use stdalloc, only: mma_allocate
-      use Morsel, only: MORSBITS
+      use cntrl, only: MORSBITS
       IMPLICIT NONE
       INTEGER IPRTTAB(*)
       INTEGER I,N,IEXTNUM,INPART,INSBP,ISORB,IPART,ISMLAB,ISOIND

@@ -12,7 +12,7 @@
      &                   ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: FSBARR
-      use Morsel, only: MORSBITS
+      use cntrl, only: MORSBITS
       IMPLICIT NONE
       INTEGER ISSTAB(*)
       INTEGER NASPRT,NACTEL,M2SPIN,LSYM

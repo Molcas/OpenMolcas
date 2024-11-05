@@ -11,7 +11,7 @@
       Subroutine NEWSSTAB(ORBTAB)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: SSTAB
-      use Morsel, only: MORSBITS
+      use cntrl, only: MORSBITS
       IMPLICIT NONE
       INTEGER ORBTAB(*)
 

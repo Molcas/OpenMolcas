@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PrSSTab(SSTAB)
-      use Morsel, only: MORSBITS
+      use cntrl, only: MORSBITS
       IMPLICIT NONE
       INTEGER SSTAB(*)
 
