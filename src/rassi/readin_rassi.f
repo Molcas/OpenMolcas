@@ -51,7 +51,6 @@
      &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
-      use JobIn
 
       IMPLICIT NONE
 #include "rasdim.fh"

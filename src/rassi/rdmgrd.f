@@ -12,7 +12,6 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NJOB, MINAME
-      use JobIn
       IMPLICIT None
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.

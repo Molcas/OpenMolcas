@@ -14,7 +14,6 @@
       use cntrl, only: SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, IFCURD
-      use JobIn
       IMPLICIT None
 #include "rasdim.fh"
 #include "Files.fh"

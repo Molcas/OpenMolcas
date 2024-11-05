@@ -39,7 +39,6 @@
       use Cntrl, only: MXJOB, NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
-      use JobIn
 
       IMPLICIT None
 C Matrix elements over RAS wave functions.

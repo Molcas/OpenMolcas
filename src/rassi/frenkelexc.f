@@ -16,7 +16,6 @@
      &                               valst, excl
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB
-      use JobIn
       IMPLICIT None
 #include "rasdim.fh"
 #include "Files.fh"

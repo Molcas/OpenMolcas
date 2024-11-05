@@ -31,7 +31,9 @@
      &                 IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP,
      &                 NHOLE1, MLTPLT, NACTE, NDET, NELE3, ISTAT,
      &                 JBNAME, NROOTS, NSTATE, NSTAT
-      use JobIn
+      use JobIn, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
+     &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
+     &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"
@@ -724,7 +726,9 @@ C Where is the CMO data set stored?
 #endif
       use Cntrl, only: MXJOB, NSTATE, ISTAT, NSTAT, JBNAME, LSYM1,
      &                 NCONF1
-      use JobIn
+      use JobIn, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
+     &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
+     &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"

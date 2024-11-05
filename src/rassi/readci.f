@@ -18,7 +18,6 @@
 #endif
       use Cntrl, only: MXJOB, NSTATE, PRCI, CITHR, IRREP, JBNAME,
      &                 MLTPLT, NROOTS
-      use JobIn
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "Files.fh"

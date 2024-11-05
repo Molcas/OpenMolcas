@@ -12,7 +12,6 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NJOB, NCONF1, MINAME
-      use JobIn
       IMPLICIT None
 C Purpose: Read in the derivatives of CI array derivatives
 C from MCKINT file, with respect to some displacement IDISP.
