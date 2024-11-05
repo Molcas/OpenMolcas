@@ -18,10 +18,17 @@
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
 #endif
-      USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye
+      USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye,
+     &                     Half, Zero, One, Two, Three, Six, Nine, Ten
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: MXJOB, NSTATE, NPROP, lSYm1, lSym2, EMin, IfTrD1,
+     &                 IfTDM, IfJ2, IfJz, DySO, DIPR, OSThr_DiPr, QIPR,
+     &                 OSThr_QIPR, QIAll, RSPR, RSThr, ReduceLoop,
+     &                 LoopDivide, Do_SK, PrDipVec, TDipMin, Tolerance,
+     &                 DoCD, nQUad, Do_Pol, TMGR_Thrs, PrRaw, PrWeight,
+     &                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE,
+     &                 PNAME, PTYPE, Do_TMom
+      IMPLICIT None
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Files.fh"
@@ -66,15 +73,56 @@
       Real*8, Allocatable:: DV(:), DL(:), Aux(:,:)
       Real*8, Allocatable:: TOT2K(:,:), IP(:), OscStr(:,:), RAW(:,:,:)
 
+      Real*8, Parameter :: AU2REDR=2.0D2*Debye
+      Real*8, Parameter :: Two3rds=Two/Three
+      Real*8, Parameter :: ONEOVER6C2=One/(Six*c_in_au**2)
+      Real*8, Parameter :: ONEOVER10C=One/(Ten*c_in_au**2)
+      Real*8, Parameter :: ONEOVER30C=ONEOVER10C/Three
+      Real*8, Parameter :: TWOOVERM45C=-Two/(45.0D0*c_in_au**2)
+      real*8, Parameter :: ONEOVER9C2=One/(Nine*c_in_au**2)
+
+      Integer I, J, iSet, Job1, nActe1, MPLET1, Job2, MPLET2, nSets,
+     &        nHH, mState, jSet, ij, ii, jj, k, lPos, iDiag, LuT2, LuT1,
+     &        iState, idx, iTol, iAMx, iAMy, iAMz, iProp, iAMxyz,
+     &        kState, jState, lState, L, nLST, kSTA, kEnd, iPrp, iEnd,
+     &        jSTart, I_Have_DL, I_Have_DV, iPrDX, iPRDY, iPRDZ, IfAnyD,
+     &        lOsc_Strength, nVec, iVec, K_, L_, nActe2, LNCNT,
+     &        I_Print_Header, iPrDxx, iPrDxy, iPrDxz, iPrDyy, iPrDyz,
+     &        iPrDzz, iPrDxxx, iPrDxxy, iPrDxxz, iPrDyyx, iPrDyyy,
+     &        iPrDyyz, iPrDzzx, iPrDzzy, iPrDzzz, iPrDyx, iPrDzx,
+     &        iPrDzy, I2Tot, iPrint, iPrDxD, iPrDyD, iPrDzD, iPrDxM,
+     &        iPrDyM, iPrDzM, iPrQxx, iPrQxy, iPrQxz, iPrQyy, iPrQyz,
+     &        iPrQzz, IfAnyM, IfAnyQ, I_, J_, nScr, nDiff, NIP, nGroup1,
+     &        nGroup2, nMax2, nTmp, MaxGrp1, MaxGrp2, ijSO, iGrp, jGrp,
+     &        iStart_, iEnd_, jStart_, jEnd_, iQuad, iVec_, iOpt, ij_,
+     &        iSy12, Mask, iDisk, iEmpty, iGo, iType, Job3, lSym3, Job4,
+     &        lSym4, iSy34, Mask34, iCar, ijSF
+      Integer, External:: IsFreeUnit
+      Real*8 X, Tmp, Dlt, epsS, epsH, EI, V2Sum, eRMS, Ex, E0, E1, E2,
+     &       E3, EffL, EffM, EVMax, EVLim, EV, OSthr, OSthr2, AFactor,
+     &       FMax, EDiff, Dx, Dy, Dz, Dx2, Dy2, Dz2, Fx, Fy, Fz, F,
+     &       Ax, Ay, Az, DMax, DSZ, EDiff3, Dxx, Dyy, Dzz, Dxy, Dxz,
+     &       Dyz, Dxx2, Dyy2, Dzz2, Fxx, Fyy, Fzz, Dxy2, Dxz2, Dyz2,
+     &       Fxy, Fxz, Fyz, DxxDyy, DxxDzz, FxxFyy, FxxFzz, FyyFzz,
+     &       A, DyyDzz, DxxxDx, DyyxDx, DzzxDx, Fxxx, Fyyx, Fzzx,
+     &       DxxyDy, DyyyDy, DzzyDy, Fxxy, Fyyy, Fzzy, DxxzDz, DyyzDz,
+     &       DzzzDz, Fxxz, Fyyz, Fzzz, EDiff2, DxyDz, DyxDz, Fyx,
+     &       DzxDy, DxzDy, Fzx, DyzDx, DzyDx, Rxx, Ryy, Rzz, R, Rxy,
+     &       Rxz, Ryx, Ryz, Rzx, Rzy, Rxxy, Rxxz, Rxyx, Rxyz, Rxzx,
+     &       Rxzy, Rxyy, Ryyx, Ryyz, Ryzx, Ryzy, Rxzz, Rzzx, Rzzy,
+     &       DysThr, ThrS, RefEne, Tau, EDiff_, RKNorm, Weight, RNorm,
+     &       TM1, TM2, TM_2, TM3, RNG, ANG, F_Temp, R_Temp, F_Check,
+     &       R_Check, TCPU1, TCPU2, TWall1, TWall2, FZY, RYZZ
+#ifdef _HDF5_
+      Integer nIJ, ip_W, ip_kVector, ip_TMR, ip_TMI, nData
+#endif
+      Real*8, External:: DDOt_
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
       ! of the Dyson vectors.
       ! DYSAMPS remains basis of the SF eigen-states to the basis
       ! of the original SF states.
       DYSAMPS2=DYSAMPS
 
-C CONSTANTS:
-      AU2REDR=2.0D2*Debye
-      HALF=0.5D0
 *
       DIAGONAL=.TRUE.
 
@@ -94,11 +142,7 @@ C CONSTANTS:
 C DIAGONALIZE SCALAR HAMILTONIAN.
 
 C Initialize eigenvector array.
-      DO J=1,NSTATE
-        DO I=1,NSTATE
-          EIGVEC(I,J)=0.0D0
-        END DO
-      END DO
+      EIGVEC(:,:)=Zero
 C NOTE: It is imperative that we do not mix, or change order, of
 C states with different nr of electrons, spin, or symmetry. It is
 C assumed in some subsequent parts of the program that these
@@ -246,8 +290,8 @@ CUNGUR
 c   Correct for diagonal energies in case of orbital degeneracy:
 c   Convention: two energies are considered degenerate if their energy difference is
 c               lower than 1.0D-4 cm-1
-      TMP=0.d0
-      DLT=0.d0
+      TMP=Zero
+      DLT=Zero
       IDIAG=0
       DO II=1,MSTATE
         I=STACK(II)
@@ -716,7 +760,6 @@ C                                                                      C
 *
         LNCNT=0
         FMAX=0.0D0
-        Two3rds=2.0D0/3.0D0
         DO K_=1,IEND
            I=IndexE(K_)
          DO L_=JSTART,NSTATE
@@ -926,7 +969,6 @@ C                                                                      C
 *
          LNCNT=0
          FMAX=0.0D0
-         Two3rds=2.0D0/3.0D0
          DO K_=1,IEND
             I=IndexE(K_)
             DO L_=JSTART,NSTATE
@@ -1147,7 +1189,6 @@ C                                                                      C
          WRITE(6,35)
         END IF
 
-         ONEOVER6C2=1.0D0/(6.0D0*c_in_au**2)
 
          DO K_=1,IEND
             I=IndexE(K_)
@@ -1250,8 +1291,6 @@ C                                                                      C
          WRITE(6,35)
         END IF
 
-         ONEOVER10C=1.0D0/(10.0D0*c_in_au**2)
-         ONEOVER30C=ONEOVER10C/3.0D0
 
          DO K_=1,IEND
             I=IndexE(K_)
@@ -1452,7 +1491,6 @@ C                                                                      C
          WRITE(6,35)
         END IF
 
-         TWOOVERM45C=-2.0D0/(45.0D0*c_in_au**2)
          DO K_=1,IEND
             I=IndexE(K_)
           DO L_=JSTART,NSTATE
@@ -1636,7 +1674,6 @@ C                                                                      C
          WRITE(6,35)
          END IF
 
-         ONEOVER9C2=1.0D0/(9.0D0*c_in_au**2)
          DO K_=1,IEND
             I=IndexE(K_)
           DO L_=JSTART,NSTATE
