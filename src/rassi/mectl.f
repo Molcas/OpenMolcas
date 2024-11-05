@@ -12,10 +12,10 @@
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HDIAG
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, MXJOB, PRXVR, IFHAM, ToFile,
+      use Cntrl, only: NSTATE, NPROP, PRXVR, IFHAM, ToFile,
      &                 IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED,
      &                 PNAME, PNUC, PORIG
-      use Files
+      use Files, only: FnEig, LuEig
 
       IMPLICIT None
 #include "rassi.fh"
