@@ -19,7 +19,8 @@
       use mspt2_eigenvectors
       use stdalloc, only: mma_allocate, mma_deallocate
       use cntrl_data, only: RefEne, HEff
-      use Cntrl
+      use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
+     &                  MLTPLT, NSTAT, MXJOB
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "rassi.fh"
