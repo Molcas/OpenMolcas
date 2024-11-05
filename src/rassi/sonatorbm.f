@@ -14,8 +14,8 @@
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
-      use Files
+      use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
+      use Files, Only: LuTDM
 
       IMPLICIT None
       CHARACTER(LEN=8) CHARTYPE
