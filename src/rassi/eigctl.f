@@ -17,12 +17,13 @@
 #ifdef _HDF5_
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
+      use Cntrl, only: IfTDM. IfTrD1
 #endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye,
      &                     Half, Zero, One, Two, Three, Six, Nine, Ten
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, EMin, IfTrD1,
-     &                 IfTDM, IfJ2, IfJz, DySO, DIPR, OSThr_DiPr, QIPR,
+      use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, EMin,
+     &                 IfJ2, IfJz, DySO, DIPR, OSThr_DiPr, QIPR,
      &                 OSThr_QIPR, QIAll, RSPR, RSThr, ReduceLoop,
      &                 LoopDivide, Do_SK, PrDipVec, TDipMin, Tolerance,
      &                 DoCD, nQUad, Do_Pol, TMGR_Thrs, PrRaw, PrWeight,
@@ -97,7 +98,7 @@
      &        nGroup2, nMax2, nTmp, MaxGrp1, MaxGrp2, ijSO, iGrp, jGrp,
      &        iStart_, iEnd_, jStart_, jEnd_, iQuad, iVec_, iOpt, ij_,
      &        iSy12, Mask, iDisk, iEmpty, iGo, iType, Job3, lSym3, Job4,
-     &        lSym4, iSy34, Mask34, iCar, ijSF
+     &        lSym4, iSy34, Mask34, iCar
       Integer, External:: IsFreeUnit
       Real*8 X, Tmp, Dlt, epsS, epsH, EI, V2Sum, eRMS, Ex, E0, E1, E2,
      &       E3, EffL, EffM, EVMax, EVLim, EV, OSthr, OSthr2, AFactor,
@@ -115,7 +116,7 @@
      &       TM1, TM2, TM_2, TM3, RNG, ANG, F_Temp, R_Temp, F_Check,
      &       R_Check, TCPU1, TCPU2, TWall1, TWall2, FZY, RYZZ
 #ifdef _HDF5_
-      Integer nIJ, ip_W, ip_kVector, ip_TMR, ip_TMI, nData
+      Integer nIJ, ip_W, ip_kVector, ip_TMR, ip_TMI, nData, ijSF
 #endif
       Real*8, External:: DDOt_
       ! Bruno, DYSAMPS2 is used for printing out the pure norm
