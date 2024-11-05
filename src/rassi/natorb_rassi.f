@@ -12,8 +12,8 @@
       use rassi_aux, only : iDisk_TDM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, nState, NrNATO
-      use Files
+      use Cntrl, only: nState, NrNATO
+      use Files, only: LuTDM
 
       IMPLICIT None
 #include "SysDef.fh"
