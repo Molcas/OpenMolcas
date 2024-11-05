@@ -117,8 +117,8 @@
       Use rassi_global_arrays, Only : JbNum
       Use mh5, Only: mh5_put_dset
       Use stdalloc, Only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NSTATE, IFSO, IRREP
-      use Files
+      use Cntrl, only: NSTATE, IFSO, IRREP
+      use Files, only: LuTDM
 
       Implicit None
 #include "rassi.fh"
