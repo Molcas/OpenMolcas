@@ -39,7 +39,7 @@
       use Cntrl, only: NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
-      use Files
+      use Files, only: LuExc, LuOne, LuTDM
 
 
       IMPLICIT None
