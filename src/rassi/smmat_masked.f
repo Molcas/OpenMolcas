@@ -12,6 +12,8 @@
      &                        IST,INUM,JST,JNUM)
       use Cntrl, only: NSTATE, MXJOB, NPROP, ICOMP, ISOCMP, PNAME,
      &                 PTYPE, SOPRNM, SOPRTP
+      use Files
+
       IMPLICIT None
       Integer NSS, ISONUM, ISPINCMP
       Real*8 PRMAT(NSS,NSS)
@@ -20,7 +22,6 @@
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       Real*8 PROP(NSTATE,NSTATE,NPROP)
 
       REAL*8, EXTERNAL :: DCLEBS

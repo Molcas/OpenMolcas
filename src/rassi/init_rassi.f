@@ -32,10 +32,11 @@
      &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
      &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,
      &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
+      use Files
+
 
       IMPLICIT None
 #include "symmul.fh"
-#include "Files.fh"
 #include "rassi.fh"
 #include "hfc_logical.fh"
       Character(LEN=256) STRING

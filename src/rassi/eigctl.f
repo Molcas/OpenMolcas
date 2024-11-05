@@ -21,17 +21,18 @@
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye,
      &                     Half, Zero, One, Two, Three, Six, Nine, Ten
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NSTATE, NPROP, lSYm1, lSym2, EMin, IfTrD1,
+      use Cntrl, only: NSTATE, NPROP, lSYm1, lSym2, EMin, IfTrD1,
      &                 IfTDM, IfJ2, IfJz, DySO, DIPR, OSThr_DiPr, QIPR,
      &                 OSThr_QIPR, QIAll, RSPR, RSThr, ReduceLoop,
      &                 LoopDivide, Do_SK, PrDipVec, TDipMin, Tolerance,
      &                 DoCD, nQUad, Do_Pol, TMGR_Thrs, PrRaw, PrWeight,
      &                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE,
      &                 PNAME, PTYPE, Do_TMom
+      use Files
+
       IMPLICIT None
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
 

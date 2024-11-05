@@ -15,12 +15,13 @@
       use Cntrl, only: NSTATE, NPROP, MXJOB, PRXVR, IFHAM, ToFile,
      &                 IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED,
      &                 PNAME, PNUC, PORIG
+      use Files
+
       IMPLICIT None
 #include "rassi.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 #include "symmul.fh"
-#include "Files.fh"
 #include "SysDef.fh"
 
       Real*8, Allocatable:: DerCpl(:), NucChg(:)

@@ -12,13 +12,14 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NJOB, MINAME
+      use Files
+
       IMPLICIT None
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
 #include "rasdim.fh"
 #include "SysDef.fh"
-#include "Files.fh"
 #include "rassi.fh"
 #include "symmul.fh"
       Integer JOB,IDISP,ISYMP,NARRAY

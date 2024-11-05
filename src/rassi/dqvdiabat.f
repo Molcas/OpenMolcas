@@ -30,10 +30,11 @@
       SUBROUTINE DQVDiabat(PROP,HAM)
       USE Constants, ONLY: Pi
       use Cntrl, only: MXJOB, NSTATE, NPROP, AlphZ, BetaE, PNAME, ICOMP
+      use Files
+
       IMPLICIT None
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8 HAM(NSTATE,NSTATE)
 

@@ -17,11 +17,12 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
      &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
       use Cntrl, only: MXJOB, OCAN, LSYM1, LSYM2, OCAA
+      use Files
+
       IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN
       Real*8  EIJ

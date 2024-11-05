@@ -18,9 +18,10 @@
 #endif
       use Cntrl, only: MXJOB, NSTATE, PRCI, CITHR, IRREP, JBNAME,
      &                 MLTPLT, NROOTS
+      use Files
+
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "Files.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_

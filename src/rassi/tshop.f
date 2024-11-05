@@ -11,13 +11,14 @@
       SUBROUTINE TSHop(CI1,CI2)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Cntrl, only: MXJOB, JBNAME
+      use Cntrl, only: JBNAME
       use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop, lHop,
      &                    nHop
+      use Files
+
 
       IMPLICIT NONE
 #include "rassi.fh"
-#include "Files.fh"
       REAL*8    CI1(NCI1),CI2(NCI2)
 
       REAL*8    prdct(2,2)

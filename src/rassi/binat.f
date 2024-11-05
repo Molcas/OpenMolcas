@@ -14,12 +14,12 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NBINA, NSTATE, IRREP, IBINA
+      use Files
       IMPLICIT NONE
 
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       INTEGER IOFF_SEV, IOFF_VEC, IOFF_TDM, IOFF_ISV
       INTEGER IOPT, ICMP, ISYLAB, LS, LV, LV1
       INTEGER LE, I, LS1, ISEL, LS2, J, K, L, LE1

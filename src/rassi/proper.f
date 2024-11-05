@@ -14,10 +14,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NSTATE, NPROP, lSym1, lSym2, ToFile,
      &                 IRREP, PNAME, PTYPE
+      use Files
+
       IMPLICIT None
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       Real*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
       Integer ISTATE, JSTATE

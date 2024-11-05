@@ -19,6 +19,8 @@
       use Constants, only: Zero
       use Cntrl, only: MXJOB, ERFNUC, RFPert
       use cntrl, only: ALGO, Nscreen, dmpk
+      use Files
+
       IMPLICIT None
 #include "rassi.fh"
       Integer NGAM1, NGAM2
@@ -29,7 +31,6 @@
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT(1), FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
 #include "symmul.fh"
-#include "Files.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
       Real*8, Allocatable:: Prod(:)

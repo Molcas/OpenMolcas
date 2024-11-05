@@ -16,9 +16,10 @@
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB
+      use Files
+
       implicit none
 #include "rasdim.fh"
-#include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"

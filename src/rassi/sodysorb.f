@@ -19,6 +19,8 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, MXJOB, DYSEXPORT, DYSEXPSO, MLTPLT
+      use Files
+
 
       IMPLICIT None
 #include "rassi.fh"
@@ -30,7 +32,6 @@
       ! Arrays for orbital export
       Real*8 SOENE(NSS)
 #include "symmul.fh"
-#include "Files.fh"
 
       ! Arrays, bounds, and indices
       REAL*8    MSPROJI,MSPROJJ, CJR, CJI, CIR, CII, CREAL, CIMAG,

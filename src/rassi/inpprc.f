@@ -30,11 +30,12 @@
      &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
      &                 L_Eff, IBINA, IRREP, MLTPLT
       use cntrl, only: nAtoms, Coor
+      use Files
+
       IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 #include "SysDef.fh"
       CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=8) LABEL2

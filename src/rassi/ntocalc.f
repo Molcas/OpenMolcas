@@ -46,11 +46,12 @@
       use fortran_strings, only : str
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB
+      use Files
+
       Implicit None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 
       Integer ISpin,JOB1,JOB2
       Integer IState, jState
@@ -455,11 +456,12 @@ C     Putting particle-hole pairs in the output
      &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind,
      &SumEigVal)
       use Cntrl, Only: MXJOB
+      use Files
+
       Implicit None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 
 C     input variables
       INTEGER NUseSym

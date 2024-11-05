@@ -14,14 +14,15 @@
       use rassi_global_arrays, only: PART, JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, MXJOB, LSYM1, LSYM2, IRREP, MLTPLT,
+      use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT,
      &                 NACTE, NELE3, NHOLE1, RASTYP
       use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
+      use Files
+
       IMPLICIT None
       Real*8 :: Energy(nState)
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)

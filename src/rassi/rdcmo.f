@@ -16,9 +16,10 @@
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NJOB, PRORB, JBNAME
+      use Files
+
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "Files.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"

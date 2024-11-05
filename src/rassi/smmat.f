@@ -12,13 +12,14 @@
       use rassi_global_arrays, only: JBNUM
       use Cntrl, only: MXJOB, NSTATE, NPROP, PNAME, ICOMP, ISOCMP,
      &                 MLTPLT, PTYPE, SOPRNM, SOPRTP
+      use Files
+
       IMPLICIT NONE
       INTEGER NSS, ISONUM, ISPINCMP
       REAL*8 PRMAT(NSS,NSS)
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS
       INTEGER IPRNUM, IPRCMP, IFSPIN, IPROP,

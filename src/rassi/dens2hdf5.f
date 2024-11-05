@@ -118,10 +118,11 @@
       Use mh5, Only: mh5_put_dset
       Use stdalloc, Only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NSTATE, IFSO, IRREP
+      use Files
+
       Implicit None
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
 #include "rassiwfn.fh"
       Real*8, Intent(In) :: EigVec(nState,nState)
       Integer :: iState,jState,k,l,nThisTDMZZ

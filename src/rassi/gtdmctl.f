@@ -50,12 +50,13 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
      &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
      &                 RASTYP
+      use Files
+
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "rassiwfn.fh"
-#include "Files.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)

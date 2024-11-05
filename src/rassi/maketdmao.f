@@ -26,10 +26,11 @@
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
+      use Files
+
       IMPLICIT NONE
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       CHARACTER(LEN=8) CHARTYPE!,LABEL
       Integer NSS
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS)

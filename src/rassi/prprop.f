@@ -32,6 +32,8 @@
      &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
      &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,
      &                 PTYPE, SOPRNM, SOPRTP
+      use Files
+
       IMPLICIT NONE
       Integer NSS, JBNUM(NSTATE)
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
@@ -41,7 +43,6 @@
       Real*8, parameter:: THRSH=1.0D-10
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character(LEN=1), Parameter :: xyzchr(3)=['x','y','z']

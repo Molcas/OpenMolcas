@@ -18,11 +18,12 @@
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
       use Cntrl, only: MXJOB, LSYM1, LSYM2
+      use Files
+
       IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
       REAL*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ

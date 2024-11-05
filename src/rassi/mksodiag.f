@@ -14,9 +14,10 @@
       use cntrl, only: SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, IFCURD
+      use Files
+
       IMPLICIT None
 #include "rasdim.fh"
-#include "Files.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"

@@ -15,6 +15,8 @@
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB, NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
+      use Files
+
       IMPLICIT None
       CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS,BSS,NSS
@@ -23,7 +25,6 @@
       Real*8 ROTMAT(3,3)
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       Real*8 DENSOUT(6,NBTRI)
 
       Integer IOFF(8)

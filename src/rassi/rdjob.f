@@ -34,9 +34,10 @@
       use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
+      use Files
+
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "Files.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
@@ -729,9 +730,10 @@ C Where is the CMO data set stored?
       use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
+      use Files
+
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "Files.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
       integer :: ref_nstates

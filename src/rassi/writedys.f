@@ -19,11 +19,12 @@
 !     IFG: Added DysOrb export, not sure it's correct
 
       SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
-      use Cntrl, only: MXJOB, NSTATE, DYSEXPSF
+      use Cntrl, only: NSTATE, DYSEXPSF
+      use Files
+
       IMPLICIT None
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
 
       INTEGER   NZ
       REAL*8 DYSAMPS(NSTATE,NSTATE)

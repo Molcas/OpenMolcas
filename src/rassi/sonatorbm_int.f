@@ -15,10 +15,11 @@
       use OneDat, only: sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: MXJOB
+      use Files
+
       IMPLICIT None
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=8) CHARPROP
       INTEGER IC_

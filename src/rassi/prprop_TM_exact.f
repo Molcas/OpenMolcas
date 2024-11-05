@@ -27,6 +27,8 @@
      &                 Do_SK, nQuad, PrRaw, PrWeight, Do_Pol, TMGR_Thrs,
      &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
      &                 PTYPE
+      use Files
+
       IMPLICIT None
       Integer NSS
       Real*8 PROP(NSTATE,NSTATE,NPROP)
@@ -37,7 +39,6 @@
       Real*8, parameter ::THRSH=1.0D-10
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       LOGICAL TMOgroup

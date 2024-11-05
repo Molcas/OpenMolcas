@@ -24,15 +24,16 @@
 #endif
       use Constants, only: auTocm, auToeV
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NSTATE, NPROP, RHODYN, NSOThr_PRT,
+      use Cntrl, only: NSTATE, NPROP, RHODYN, NSOThr_PRT,
      &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
      &                 LOOPDIVIDE, IFTRD1, IFTDM, ICOMP, MLTPLT,
      &                 PNAME
+      use Files
+
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Files.fh"
 #include "rassiwfn.fh"
 
       INTEGER NSS

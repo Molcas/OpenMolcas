@@ -19,11 +19,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nIrrep
       use Cntrl, only: MXJOB, NSTATE, MLTPLT
+      use Files
+
       IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "Files.fh"
 #include "SysDef.fh"
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
