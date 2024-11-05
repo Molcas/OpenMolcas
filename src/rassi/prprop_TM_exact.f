@@ -78,10 +78,9 @@
      &        ISS, ISO, IMSS, jGrp, jStart_, jEnd_, JSM, JSSM, JSF, JSS,
      &        JSO, JMSS, iQuad, iVec_, iOpt, iPrP, Job1, Job2, iSy12,
      &        MASK, IDISK, IEMPTY, IGO, ITYPE, iCar, KP, IJ_,
-     &        nQuad_, lRaw_, K
+     &        nQuad_, iQuad_, lRaw_, K
 #ifdef _HDF5_
-      Integer ijSO_, iQuad_, ip_kVector, ip_TMr, ip_TMi, ip_W, nData,
-     &        nij
+      Integer ijSO_, ip_kVector, ip_TMr, ip_TMi, ip_W, nData, nij
 #endif
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
