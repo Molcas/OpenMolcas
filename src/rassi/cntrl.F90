@@ -182,7 +182,14 @@ INTEGER, Public::  SODIAGNSTATE=0
 
 Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
 
+
 INTEGER, Parameter:: MORSBITS=8
+
+
+! Note: MXATOM to be taken from Molcas.fh
+INTEGER               NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
+! Atom labels, 4 bytes each.
+CHARACTER(LEN=LENIN) ATLBL(MXATOM)
 
 End Module Cntrl
 !

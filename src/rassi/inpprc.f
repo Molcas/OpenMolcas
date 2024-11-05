@@ -29,7 +29,7 @@
      &                 RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER,
      &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
      &                 L_Eff, IBINA, IRREP, MLTPLT
-      use Centra, only: nAtoms, Coor
+      use cntrl, only: nAtoms, Coor
       IMPLICIT None
 #include "rasdim.fh"
 #include "symmul.fh"

@@ -21,7 +21,7 @@
       use cntrl, only: RefEne, HEff
       use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
      &                  MLTPLT, NSTAT, MXJOB
-      use Centra, only: ATLBL, IGROUP, nAtoms, nGroup
+      use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "rassi.fh"
