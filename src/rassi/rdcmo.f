@@ -15,8 +15,8 @@
 #endif
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NJOB, PRORB, JBNAME
-      use Files
+      use Cntrl, only: NJOB, PRORB, JBNAME
+      use Files, only: IDCMO, iTOC15, LuIph
 
       IMPLICIT NONE
 #include "rasdim.fh"
