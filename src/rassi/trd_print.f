@@ -17,8 +17,7 @@
 ! - F. Plasser
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
-      use Cntrl, only: MXJOB, LSYM1, LSYM2
-      use Files
+      use Cntrl, only: LSYM1, LSYM2
 
       IMPLICIT None
 #include "rasdim.fh"
