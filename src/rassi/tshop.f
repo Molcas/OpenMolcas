@@ -12,10 +12,12 @@
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
       use Cntrl, only: MXJOB, JBNAME
+      use tshcntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop, lHop,
+     &                    nHop
+
       IMPLICIT NONE
 #include "rassi.fh"
 #include "Files.fh"
-#include "tshcntrl.fh"
       REAL*8    CI1(NCI1),CI2(NCI2)
 
       REAL*8    prdct(2,2)
@@ -269,4 +271,4 @@ C Write the CI-vectors normally if no hop occurred
       RETURN
 3000  FORMAT(6X,A,F7.2)
 *
-      END
+      END SUBROUTINE TSHop

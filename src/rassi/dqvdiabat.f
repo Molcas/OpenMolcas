@@ -34,7 +34,6 @@
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Files.fh"
-#include "tshcntrl.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8 HAM(NSTATE,NSTATE)
 
