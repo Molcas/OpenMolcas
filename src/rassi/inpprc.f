@@ -19,7 +19,7 @@
       use cntrl, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
       use stdalloc, only: mma_allocate
       use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM,
-     &                 PNAME, MXJOB, MXPROP, nState, SOThr_PRT,
+     &                 PNAME, MXPROP, nState, SOThr_PRT,
      &                 nSOThr_PRT, SAVEDENS, IFTRD1, IFTDM, NATO,
      &                 DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO,
      &                 DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM,
@@ -30,7 +30,7 @@
      &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
      &                 L_Eff, IBINA, IRREP, MLTPLT
       use cntrl, only: nAtoms, Coor
-      use Files
+      use Files, only: LuTDM, FnTDM
 
       IMPLICIT None
 #include "rasdim.fh"
