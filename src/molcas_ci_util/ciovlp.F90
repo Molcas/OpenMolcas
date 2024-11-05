@@ -40,10 +40,9 @@ subroutine CiOvlp(jRoot,S1,S2,CI_vec)
 !                                                                      *
 !***********************************************************************
 
+use rasscf_global, only: cCI, ITER, jCj, lRoots, nRoots
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use rasscf_global, only: lRoots, ITER, nRoots, jCj, cCI
-
 
 implicit none
 #include "rasdim.fh"

@@ -15,7 +15,7 @@
 *
 ************************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, Name
+      use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
 
       Implicit None
 
@@ -219,7 +219,7 @@
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I4,1X,A,10F10.4)') IB,
-     &        Clean_BName(NAME(IBOFF+IB),LENIN),
+     &        Clean_BName(BName(IBOFF+IB),LENIN),
      &        (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
            END DO
@@ -280,7 +280,7 @@
                 CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
                 IF ( ABS(CC).GE.0.1D0 ) THEN
                   Write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)')
-     &              IBAS,Clean_BName(NAME(IBOFF+IBAS),LENIN),
+     &              IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),
      &              '(',CC,')'
                   IST = IST+28
                   IF ( IST.GT.(132-LEFT-28) ) THEN

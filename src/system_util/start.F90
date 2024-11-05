@@ -22,8 +22,8 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Para_Info, only: nProcs
 #endif
+use spool, only: LuWr, LuRd, LuWr, Set_Spool
 use Definitions, only: u5, u6
-use spool, only: Set_Spool, LuWr, LuRd
 
 implicit none
 character(len=*), intent(in) :: ModuleName

@@ -11,8 +11,8 @@
 
 subroutine ccsdt(ireturn)
 
-use Definitions, only: iwp
 use spool, only: disable_spool
+use Definitions, only: iwp
 
 integer(kind=iwp), intent(out) :: ireturn
 logical(kind=iwp) :: run_triples

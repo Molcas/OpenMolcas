@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine GrdIni
 C
-      use caspt2_global, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,LuPT2GRD,
+      use caspt2_global, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,
      *                           do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
      *                           idBoriMat,TraFro,
      *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
@@ -44,7 +44,7 @@ C
       LUCMOPT2 = 66 ! Back-transform ALASKA
       LUSTD    = 67 ! S and T derivatives in CASPT2
       LUAPT2   = 68 ! A_PT2, 2-center derivatives for RI/CD
-      LUPT2GRD = 69 ! CASPT2 gradient and property
+      LUGRAD   = 69 ! CASPT2 gradient and property
 
       Call PrgmTranslate('GAMMA',RealName,lRealName)
       LuGAMMA  = isFreeUnit(LuGAMMA)
@@ -71,9 +71,6 @@ C
       CALL DANAME_MF_wa(LUSTD,'LUSTD')
       If (IfChol) CALL DANAME_MF_wa(LUAPT2,'LUAPT2')
 
-      !! LUPT2GRD is the global name (in Include/caspt2.fh)
-      !! LUGRAD is the local name in the CASPT2 module
-      LUGRAD = LUPT2GRD
       !! Check if this is not the first (MS-)CASPT2 call
       !! If this is the first call, compute CASPT2 energies;
       !! otherwise read many things from the PT2GRD file.

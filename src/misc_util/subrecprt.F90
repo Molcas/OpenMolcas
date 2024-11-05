@@ -61,9 +61,9 @@ subroutine SubRecPrt(Title,FmtIn,A,nRow,nCol,nRowSub)
 !                                                                      *
 !***********************************************************************
 
+use Spool, only: LuWr
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Spool, only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn

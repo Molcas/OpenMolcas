@@ -75,7 +75,7 @@ C
       use sxci, only: IDXCI, IDXSX
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: header, IPT2, iRoot, lRoots, NACPAR,
-     &                         NACPR2, NAME, nOrbT, nRoots, NTOT3,
+     &                         NACPR2, BName, nOrbT, nRoots, NTOT3,
      &                         POTNUC, Title, Weight, IADR15
 
       IMPLICIT None
@@ -98,7 +98,7 @@ C     DUMMY WRITE THE REMAINING RECORDS TO OBTAIN ADDRESSES
 C
       CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,STSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            NAME,LENIN8*mxOrb,NCONF,HEADER,144,
+     &            BName,LENIN8*mxOrb,NCONF,HEADER,144,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)

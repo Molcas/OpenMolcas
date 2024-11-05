@@ -9,12 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       PROGRAM ASC2JOB
+      use rasscf_global, only: BName, Header, IADR15, iPT2, iRoot,
+     &                         IROOT, lRoots, NACPAR, NACPR2, NORBT,
+     &                         nRoots, NTOT3, PotNuc, Title, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER FMTIPH
+      IMPLICIT NONE
+      INTEGER FMTIPH, I, IAD15, ISYM, J, lSym, NASHT, NFOCK, nHeader,
+     &        nName, nTitle
+      INTEGER, EXTERNAL :: isFreeUnit
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
       REAL*8, ALLOCATABLE:: ADR1(:), ADR2(:), ADR(:)
 
@@ -108,12 +112,12 @@
       NACPR2=NACPAR*(NACPAR+1)/2
 
       READ(FMTIPH,*)
-      READ(FMTIPH,300) (Name(I), I=1,NTOT)
+      READ(FMTIPH,300) (BName(I), I=1,NTOT)
 
       IAD15=IADR15(1)
       CALL WR_RASSCF_Info(JOBIPH,1,IAD15,NACTEL,ISPIN,NSYM,LSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            NAME,nName,NCONF,HEADER,nHeader,
+     &            BName,nName,NCONF,HEADER,nHeader,
      &            TITLE,nTitle,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)

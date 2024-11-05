@@ -21,13 +21,12 @@ subroutine PMAT_RASSCF(P,X)
 ! ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use Symmetry_Info, only: Mul
+use rasscf_global, only: ISTORP, iTri
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use rasscf_global, only: ISTORP, iTri
-
 
 #include "intent.fh"
 

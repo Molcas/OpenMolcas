@@ -11,11 +11,10 @@
 
 subroutine CISX(IDX,D,DS,PS,PA,SCR)
 
-use Index_Functions, only: i_Tri => iTri, nTri_Elem
+use Index_Functions, only: iTri, nTri_Elem
+use rasscf_global, only: NAC, NACPR2
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
-use rasscf_global, only: NAC, NACPR2
-
 
 #include "intent.fh"
 
@@ -37,7 +36,7 @@ NIJ = nTri_Elem(NAC)
 NIJKL = nTri_Elem(NIJ)
 do I=1,NAC
   do J=1,I
-    IJNEW = i_Tri(IDX(I),IDX(J))
+    IJNEW = iTri(IDX(I),IDX(J))
     IJO = IJO+1
     SCR(IJNEW) = D(IJO)
   end do
@@ -50,7 +49,7 @@ NIJ = nTri_Elem(NAC)
 NIJKL = nTri_Elem(NIJ)
 do I=1,NAC
   do J=1,I
-    IJNEW = i_Tri(IDX(I),IDX(J))
+    IJNEW = iTri(IDX(I),IDX(J))
     IJO = IJO+1
     SCR(IJNEW) = DS(IJO)
   end do
@@ -68,7 +67,7 @@ do ICASE=1,2
       else
         SGN0 = One
       end if
-      IJNEW = i_Tri(IDX(I),IDX(J))
+      IJNEW = iTri(IDX(I),IDX(J))
       do K=1,I
         LLIM = K
         if (K == I) LLIM = J
@@ -79,8 +78,8 @@ do ICASE=1,2
           else
             SGN = SGN0
           end if
-          KLNEW = i_Tri(IDX(K),IDX(L))
-          IJKLN = i_Tri(IJNEW,KLNEW)
+          KLNEW = iTri(IDX(K),IDX(L))
+          IJKLN = iTri(IJNEW,KLNEW)
           if (ICASE == 1) then
             if (KLNEW > IJNEW) then
               if ((K == L) .and. (I /= J)) then

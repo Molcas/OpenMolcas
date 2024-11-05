@@ -20,12 +20,11 @@ subroutine ALLOC()
 
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
+use rasscf_global, only: ISTORD, ISTORP, nFint
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use rasscf_global, only: nFint, ISTORD, ISTORP
-
 
 implicit none
 #include "rasdim.fh"

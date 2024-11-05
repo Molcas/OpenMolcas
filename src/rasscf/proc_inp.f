@@ -66,8 +66,8 @@
 #else
       use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
 #endif
-      use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI, KAVER,
-     &                         KSYM, HFOCC, CMSStartMat, CMSThreshold,
+      use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI,
+     &                         HFOCC, CMSStartMat, CMSThreshold,
      &                         CoreShift, DFTFOCK, DoBLOCKDMRG,
      &                         ExFac, hRoots, iAlphaBeta, ICICH,
      &                         iCIonly, iCIRFROOT, iCMSITERMAX,
@@ -2648,33 +2648,6 @@ C orbitals accordingly
          NQUNE=1
          If (DBG) Write(6,*) ' QUNE is enabled by default.'
        End If
-      End If
-*
-*---  Process AVER command --------------------------------------------*
-      If (KeyAVER) Then
-       If (DBG) Write(6,*) ' AVER (Symmetry averaging) is used.'
-       If (DBG) Write(6,*) ' This is probably becoming obsolete.'
-       Call SetPos(LUInput,'AVER',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure reading data after KAVER keyword.'
-       Read(LUInput,*,End=9910,Err=9920) KAVER,(KSYM(I),I=1,2*KAVER)
-       ReadStatus=' O.K. after reading data after KAVER keyword.'
-       If (KAVER.ne.1 .and. KAVER.ne.2) Then
-        If (IPRLEV.GE.TERSE) Then
-         write(6,*)' AVER keyword used with inappropriate numbers'
-         write(6,*)' and is ignored.'
-        End If
-        KAVER=0
-        KeyAVER=.FALSE.
-       End if
-       If (DBG) Then
-        Write(6,*) ' Averaging (blindly) density matrices of symmetry'
-        Write(6,*) ' labels ',KSYM(1),' and ',KSYM(2)
-        If (KAVER.eq.2) Then
-         Write(6,*) ' and also labels ',KSYM(3),' and ',KSYM(4)
-        End If
-       End If
-       Call ChkIfKey()
       End If
 *
 *---  Process CIMX command --------------------------------------------*

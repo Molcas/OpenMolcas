@@ -39,7 +39,7 @@
      &                         iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot,
      &                         iPhName, iPT2, iRLXRoot, iRoot, irotPsi,
      &                         iSave_Exp, iSPDen, iSupSM, itCore,
-     &                         ITMAX, ITRIM, iXMSP, kAver, KSDFT,
+     &                         ITMAX, ITRIM, iXMSP, KSDFT,
      &                         kTight, LowMS, LRoots, LvShft, MaxIt,
      &                         MaxJT, MaxOrbOut, n_keep, NewFock,
      &                         NonEq, NQUNE, NROOTS, OutFmt1, OutFmt2,
@@ -209,11 +209,6 @@ C        ICIRST=1 ! to be activated!
 *             ICI(NROOTS,NREF)    CSF number for each root
 *             CCI(NROOTS,NREF)    corresponding CI coefficient
 *             maximum number is five csf's.
-*
-      KAVER=0
-* not zero if density matrices are to be averaged.
-*     KAVER=1 symmetries KSYM(1) and KSYM(2) averaged
-*     KAVER=2 also symmetries KSYM(3) and KSYM(4) averaged
 *
       ISUPSM=0
 * make no use of supersymmetry

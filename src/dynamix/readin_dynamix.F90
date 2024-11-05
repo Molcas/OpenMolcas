@@ -11,12 +11,11 @@
 
 subroutine ReadIn_Dynamix(Task,nTasks,mTasks)
 
+use spool, only: Spoolinp
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use spool, only: Spoolinp
-
 
 implicit none
 integer(kind=iwp), intent(in) :: nTasks

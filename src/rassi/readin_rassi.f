@@ -52,7 +52,6 @@
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
 
-
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "rassi.fh"
@@ -69,7 +68,6 @@
       Integer NFLS
 
       character(len=7) :: input_id = '&RASSI '
-
 
       Call SpoolInp(LuIn)
 

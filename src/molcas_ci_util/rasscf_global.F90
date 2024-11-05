@@ -8,98 +8,78 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-! (TODO) the rasscf_data module should be merge into this module
-Module rasscf_global
-  use definitions, only: wp, iwp
-  Private
+
+module rasscf_global
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
 #include "rasdim.fh"
-  REAL(kind=wp), Public::D0,D1,D2,D4
-!
-  INTEGER(kind=iwp), PARAMETER, Public :: ITRIM=mxAct*(mxAct+1)/2
-  INTEGER(kind=iwp), Public::  IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,ITER,MAXIT,NROOTS,IROOT(mxRoot),NAC,       &
-                               ITRI(ITRIM),IADR15(30), IBLBM,JBLBM,ISYMBB,ISCF,NQUNE
-  CHARACTER(LEN=LENIN8), Public:: NAME(mxOrb)
-  CHARACTER(LEN=2), Public:: HEADER(72)
-  CHARACTER(LEN=2), Public:: QNSTEP
-  CHARACTER(LEN=3), Public:: QNUPDT
-  Character(LEN=80), Public:: KSDFT, KSDFT_TEMP
-  Character(LEN=4), Public:: DFTFOCK
-!
-  REAL(kind=wp), Public:: ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),FDIAG(mxOrb)=0.0D0,THRE,THRTE,THRSX,ROTMAX,       &
-                          ECAS=0.0D0,CMAX,WEIGHT(mxRoot),DE,CBLBM=0.0D0,THREN,THFACT,TMIN,PRETHR,PROTHR,                 &
-                          Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,ExFac,E2act,      &
-                          CoreShift
-  REAL(kind=wp), Public:: VIA_DFT=0.0D0, HALFQ=0.0D0, VIA=0.0D0, HALFQ1=0.0D0
-!
-  INTEGER(kind=iwp), Public:: LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM(4),MAXJT,    &
-                              IXSYM(mxOrb),IPRSEC(7),MAXORBOUT,                 &
-                              ICI(mxRoot,mxRef),JCJ(mxRoot,mxRef),              &
-                              NFR,NIN,NSEC,NTIT,NO2M,                           &
-                              NACPAR,NACPR2,ISTORD(9),NFINT,                    &
-                              NORBT,NTOT3,ISTORP(9),NTOT4,ICICP,                &
-                              ITMAX,IPT2,ISPDEN,LOWMS,                          &
-                              ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,          &
-                              iRlxRoot,n_Det,iAlphaBeta,                        &
-                              MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,          &
-                              hRoots,n_keep,hfocc(mxact)
-!
-  Logical(kind=iwp), Public:: RFpert,lSquare, Start_Vectors, NonEq, DoFaro,     &
-                              DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,        &
-                              DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 
-!
-  REAL(kind=wp), Public:: PRWTHR,POTNUC,CCI(mxRoot,mxRef),ECAS1=0.0D0,RLXGRD,EVAC=0.0D0
-  CHARACTER(LEN=80), Public:: TITLE(18)
-!
-  Character(LEN=8), Public:: IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
+integer(kind=iwp), parameter :: ITRIM = mxAct*(mxAct+1)/2
 
-!
-  INTEGER(kind=iwp), Public:: iCIonly,NSM(mxOrb),KTIGHT
-!
-  INTEGER(kind=iwp), Public:: IRotPsi,IXMSP,ICMSP,ICMSIterMax,ICMSIterMin
-  REAL(kind=wp), Public:: CMSThreshold
-  CHARACTER(LEN=256),Public::  CMSStartMat
-!
-  REAL(kind=wp), Public::          EMY,S
-!
-  INTEGER(kind=iwp), Public:: IBLB(8),JBLB(8),NSXS,NROOT,NDIMSX,IZROT(ITRIM),NewFock
-!
-  REAL(kind=wp), Public:: CBLB(8),LVSHFT,ESX,SXSHFT=0.0D0
-!
-  INTEGER(kind=iwp), Public:: iOrbTyp,iOrbOnly,iOrbRoot
-!
-  Character(LEN=8), Public:: FnJob,FnOrb
-  Integer(kind=iwp), Public:: LuJob,LuOrb
-!
-  INTEGER(kind=iwp), Public:: iToc(64)
-!
-  INTEGER(kind=iwp), Public:: iOverwr
-!
-  REAL(kind=wp), Public:: Acc,Bcc,Aoo,Boo,Avv,Bvv
-!
+integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLBM, ICI(mxRoot,mxRef), ICICH, ICICP, iCIonly, &
+                     ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IFORDE, INOCALC, iOrbOnly, iOrbTyp, IORDEM, &
+                     iOverwr, IPCMROOT, IPR, IPT2, iRlxRoot, IROOT(mxRoot), IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD(9), &
+                     ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), ITRI(ITRIM), IXMSP, IXSYM(mxOrb), &
+                     IZROT(ITRIM), JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MAXIT, MAXJT, MAXORBOUT, MxDMRG, &
+                     n_Det, n_keep, NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, &
+                     NSEC, NSM(mxOrb), NSXS, NTIT, NTOT3, NTOT4
+real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
+                 ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
+                 POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
+                 Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
+logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors
+character(len=LenIn8) :: BName(mxOrb)
+character(len=256) :: CMSStartMat
+character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
+character(len=8) :: IPHNAME, OutFmt1, OutFmt2, PURIFY, SXSEL
+character(len=4) :: DFTFOCK
+character(len=3) :: QNUPDT
+character(len=2) :: HEADER(72), QNSTEP
+
+public :: BName, CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreShift, DE, DFTFOCK, DoBlockDMRG, doDMRG, DoFaro, &
+          DOFCIDUMP, E2act, ECAS, EMY, ENER, ESX, ExFac, FDIAG, HALFQ, HALFQ1, HEADER, hfocc, hRoots, IADR15, iAlphaBeta, IBLB, &
+          IBLBM, ICI, ICICH, ICICP, iCIonly, ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IfCRPR, IFORDE, INOCALC, &
+          iOrbOnly, iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPHNAME, IPR, IPT2, iRlxRoot, IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, &
+          ISTORD, ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, ITRI, ITRIM, IXMSP, IXSYM, IZROT, JBLB, &
+          JBLBM, JCJ, kIvo, KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, LOWMS, LROOTS, lSquare, LVSHFT, MAXIT, MAXJT, MAXORBOUT, MxDMRG, &
+          n_Det, n_keep, NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
+          NSM, NSXS, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, &
+          ROTMAX, S, Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, &
+          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
 
 #ifdef _DMRG_
-  Logical(kind=iwp), Public:: domcpdftDMRG, twordm_qcm
+integer(kind=iwp) :: MPSCompressM
+logical(kind=iwp) :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, twordm_qcm
+
+public :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, MPSCompressM, twordm_qcm
 #endif
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
-  REAL(kind=wp), Public:: davidson_tol,chemps2_blb,chemps2_noise
-  INTEGER(kind=iwp), Public:: max_sweep,chemps2_lrestart,max_canonical
-  LOGICAL(kind=iwp), Public:: chemps2_restart
+integer(kind=iwp) :: chemps2_lrestart, max_canonical, max_sweep
+real(kind=wp) :: chemps2_blb, chemps2_noise, davidson_tol
+logical(kind=iwp) :: chemps2_restart
+
+public :: chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, max_canonical, max_sweep
 #endif
+
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
-  LOGICAL(kind=iwp), Public:: Do3RDM
+logical(kind=iwp) :: Do3RDM
+
+public :: Do3RDM
 #endif
+
 #ifdef _ENABLE_DICE_SHCI_
-  REAL(kind=wp), Public:: dice_eps1,dice_eps2
-  INTEGER(kind=iwp), Public:: nref_dice,dice_sampleN,dice_iter
-  LOGICAL(kind=iwp), Public:: dice_stoc,dice_restart
-  CHARACTER(LEN=500), Public:: diceocc(20)
+integer(kind=iwp) :: dice_iter, dice_sampleN, nref_dice
+real(kind=wp) :: dice_eps1, dice_eps2
+logical(kind=iwp) :: dice_restart, dice_stoc
+character(LEN=500) :: diceocc(20)
+
+public :: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, nref_dice
 #endif
-#ifdef _DMRG_
-!DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
-Integer(kind=iwp), Public :: MPSCompressM
-Logical(kind=iwp), Public :: DoNEVPT2Prep, DoDelChk
-#endif
-End Module rasscf_global
+
+end module rasscf_global

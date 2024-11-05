@@ -49,11 +49,10 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
 use csfbas, only: CONF
 use glbbas, only: CFTP
+use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rasscf_global, only: hRoots, ICIRST, lRoots, NAC, Start_Vectors, IADR15, iTOC
-
 
 #include "intent.fh"
 
