@@ -33,7 +33,7 @@ module ontop_functional
     module procedure :: new
   endinterface
 
-  public :: OTFNAL_t, Invalid_OTF, Translated, FullyTranslated, get_base
+  public :: OTFNAL_t, Invalid_OTF, Translated, FullyTranslated, get_base, func_type
 
 contains
 
@@ -123,6 +123,13 @@ contains
     is_hybrid = self%lambda > 0.0d0
   endfunction
 
+  function func_type(xc_base)
+    implicit none
+    character(len=80),intent(in) :: xc_base
+    integer(kind=iwp) :: func_type
+    func_type=Get_Func_Type(xc_base)
+  endfunction
+
   function get_base(otxc)
     implicit none
     character(len=80) :: get_base
@@ -132,12 +139,9 @@ contains
 
   function is_ft_meta(otxc)
     implicit none
-    integer(kind=iwp) :: func_type, ontop_type
     character(len=80),intent(in) :: otxc
     logical :: is_ft_meta
-    func_type=Get_Func_Type(get_base(otxc))
-    ontop_type=get_ontop_type(otxc)
-    is_ft_meta = func_type==meta_GGA_type1.and.ontop_type==FullyTranslated
+    is_ft_meta = func_type(get_base(otxc))==meta_GGA_type1.and.get_ontop_type(otxc)==FullyTranslated
   endfunction
 
   function supported_functional(base_func)
