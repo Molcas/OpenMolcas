@@ -45,8 +45,6 @@
 
       use fortran_strings, only : str
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB
-      use Files
 
       Implicit None
 #include "rasdim.fh"
@@ -455,8 +453,6 @@ C     Putting particle-hole pairs in the output
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
      &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind,
      &SumEigVal)
-      use Cntrl, Only: MXJOB
-      use Files
 
       Implicit None
 #include "rasdim.fh"
