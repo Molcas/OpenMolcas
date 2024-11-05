@@ -15,7 +15,7 @@
       use rasscf_global, only: doDMRG
 #endif
       use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
-      use Cntrl, only: MXJOB, NJOB, NSTATE, NPROP, NSOPR, CITHR,
+      use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR,
      &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,
      &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT,
      &                 IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF,
@@ -32,7 +32,9 @@
      &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
      &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,
      &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
-      use Files
+      use Files, only: LuOne, FnOne, LuOrd, FnOrd, LuCom, FnCom, LuIph,
+     &                 LuExc, FnExc, LuExt, FnExt, LuMck, LuTOM, FnTOM,
+     &                 LuEig, FnEig
 
 
       IMPLICIT None
@@ -80,10 +82,8 @@ C UNIT NUMBERS AND NAMES
       FnToM='TOFILE'
       LuEig=27
       FnEig='EIGV'
-      DO  I=1,MXJOB
-        JBNAME(I)='UNDEFINE'
-      END DO
-      DO  I=1,MXJOB
+      JBNAME(:)='UNDEFINE'
+      DO  I=1,SIZE(JBNAME)
         WRITE(MINAME(I),'(''MCK'',I3.3)') I
       END DO
       IF(IPGLOB.GT.3) THEN
