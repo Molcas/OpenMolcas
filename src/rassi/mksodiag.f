@@ -509,6 +509,7 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
 
 
       SUBROUTINE SPIN_PHASE_RASSI(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
+      use spin_constants, only: Setup_Spin_Moment_Matrix, Spin
       IMPLICIT NONE
 C
 C     The RASSI program gives a random phase to the spin-orbit functions.
@@ -528,8 +529,7 @@ C
      & Spin2(3,DIM,DIM), PHSA(DIM,DIM), PHSA2(DIM,DIM),
      & ZOUT(DIM,DIM)
 
-#include "spin.fh"
-
+      Call Setup_Spin_Moment_Matrix()
 C Determine the Parity:
       NPAR=MOD(DIM,2)
 

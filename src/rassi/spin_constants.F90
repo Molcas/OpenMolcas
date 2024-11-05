@@ -1,63 +1,66 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C  ********************************************************************
-C  *             Constants used in the program                        *
-C  ********************************************************************
-C
-      INTEGER  L9, I9, J9, IMULT9, IPAR9
-      REAL*8 f2,f3,f5,f7,f11,f13
-      COMPLEX*16 SPIN(3,17,-8:8,-8:8)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+Module Spin_Constants
+!  ********************************************************************
+!  *             Constants used in the program                        *
+!  ********************************************************************
+!
+Implicit None
+COMPLEX*16 SPIN(3,17,-8:8,-8:8)
 
-C       g_e, mu_Bohr,coeff_chi,
-C     & Boltz_k, Avogadro_mu_Bohr, Pi
+!       g_e, mu_Bohr,coeff_chi,
+!     & Boltz_k, Avogadro_mu_Bohr, Pi
 
-      f2=1.41421356237310d0      ! sqrt(2)
-      f3=1.73205080756888d0      ! sqrt(3)
-      f5=2.23606797749979d0      ! sqrt(5)
-      f7=2.64575131106459d0      ! sqrt(7)
-      f11= 3.3166247903554d0     ! sqrt(11)
-      f13= 3.60555127546399d0    ! sqrt(13)
+REAL*8, Parameter::f2=1.41421356237310d0,   & ! sqrt(2)
+                   f3=1.73205080756888d0,   & ! sqrt(3)
+                   f5=2.23606797749979d0,   & ! sqrt(5)
+                   f7=2.64575131106459d0,   & ! sqrt(7)
+                   f11= 3.3166247903554d0,  & ! sqrt(11)
+                   f13= 3.60555127546399d0    ! sqrt(13)
 
-C
-C                     Magnetic susceptibility
-C
-C      g_e=2.0023193043718d0
-C      mu_Bohr=0.466864374d0
-C      coeff_chi=0.125048612d0*3
-C      Boltz_k=0.6950356d0
-C      conv=8.0655444569d0
-C      Avogadro_mu_Bohr=0.5584939756d0
-C      Pi=3.14159265358979d0
-C
-C  mu_Bohr=     ! * in cm-1*T-1
-C  coeff_chi=   ! = N_A*mu_Bohr^2/(k_Boltz) in cm^3*K/mol
-C  Boltz_k=     !   in cm^-1*K-1
-C  conv=        !   1 meV in cm-1
-C  Avogadro_mu_Bohr  !   in cm^3*mol^-1*T
-C  Pi=          !   3.1415926535897932384626433832795028841971693993
+!
+!                     Magnetic susceptibility
+!
+!      g_e=2.0023193043718d0
+!      mu_Bohr=0.466864374d0
+!      coeff_chi=0.125048612d0*3
+!      Boltz_k=0.6950356d0
+!      conv=8.0655444569d0
+!      Avogadro_mu_Bohr=0.5584939756d0
+!      Pi=3.14159265358979d0
+!
+!  mu_Bohr=     ! * in cm-1*T-1
+!  coeff_chi=   ! = N_A*mu_Bohr^2/(k_Boltz) in cm^3*K/mol
+!  Boltz_k=     !   in cm^-1*K-1
+!  conv=        !   1 meV in cm-1
+!  Avogadro_mu_Bohr  !   in cm^3*mol^-1*T
+!  Pi=          !   3.1415926535897932384626433832795028841971693993
 
-C
-C   *************************************************
-C   *          SPIN moment matrix elements          *
-C   *************************************************
-C
-C
-C    Multiplicity 1 (singlet)
-C
+Contains
+Subroutine Setup_Spin_Moment_Matrix()
+INTEGER  L9, I9, J9, IMULT9, IPAR9
+!
+!   *************************************************
+!   *          SPIN moment matrix elements          *
+!   *************************************************
+!
+!
+!    Multiplicity 1 (singlet)
+!
       DO L9=1,3
        DO IMULT9=1,17
        IPAR9=MOD(IMULT9,2)
         DO I9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
          DO J9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
-      SPIN(L9,IMULT9,I9,J9)=(0.0d0,0.0d0)
+            SPIN(L9,IMULT9,I9,J9)=(0.0d0,0.0d0)
          ENDDO
         ENDDO
        ENDDO
@@ -66,18 +69,18 @@ C
       SPIN(1,1,0,0)=(0.0d0,0.0d0)
       SPIN(2,1,0,0)=(0.0d0,0.0d0)
       SPIN(3,1,0,0)=(0.0d0,0.0d0)
-C
-C    Multiplicity 2 (doublet)   S=1/2
-c
+!
+!    Multiplicity 2 (doublet)   S=1/2
+!
       SPIN(1,2,-1,1)  = ( 0.5d0, 0.0d0)
       SPIN(1,2,1,-1)  = ( 0.5d0, 0.0d0)
       SPIN(2,2,-1,1)  = ( 0.0d0, 0.5d0)
       SPIN(2,2,1,-1)  = ( 0.0d0,-0.5d0)
       SPIN(3,2,-1,-1) = (-0.5d0, 0.0d0)
       SPIN(3,2,1,1)   = ( 0.5d0, 0.0d0)
-C
-C    Multiplicity 3 (triplet)   S=1
-c
+!
+!    Multiplicity 3 (triplet)   S=1
+!
       SPIN(1,3,-1,0)  = CMPLX(0.5d0*f2,0.0d0,kind=8)
       SPIN(1,3,0,-1)  = CMPLX(0.5d0*f2,0.0d0,kind=8)
       SPIN(1,3,0,1)   = CMPLX(0.5d0*f2,0.0d0,kind=8)
@@ -88,9 +91,9 @@ c
       SPIN(2,3,1,0)   = CMPLX(0.0d0,-0.5d0*f2,kind=8)
       SPIN(3,3,-1,-1) = (-1.0d0,0.0d0)
       SPIN(3,3,1,1)   = ( 1.0d0,0.0d0)
-C
-C    Multiplicity 4 (quartet)    S=3/2
-c
+!
+!    Multiplicity 4 (quartet)    S=3/2
+!
       SPIN(1,4,-2,-1) = CMPLX(0.5d0*f3,0.0d0,kind=8)
       SPIN(1,4,-1,-2) = CMPLX(0.5d0*f3,0.0d0,kind=8)
       SPIN(1,4,-1,1)  = (1.0d0,0.0d0)
@@ -107,9 +110,9 @@ c
       SPIN(3,4,-1,-1) = (-0.5d0,0.0d0)
       SPIN(3,4,1,1)   = ( 0.5d0,0.0d0)
       SPIN(3,4,2,2)   = ( 1.5d0,0.0d0)
-C
-C    Multiplicity 5 (quintet)   S=2
-c
+!
+!    Multiplicity 5 (quintet)   S=2
+!
       SPIN(1,5,-2,-1) = (1.d0,0.0d0)
       SPIN(1,5,-1,-2) = (1.d0,0.0d0)
       SPIN(1,5,-1,0)  = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
@@ -130,9 +133,9 @@ c
       SPIN(3,5,-1,-1) = (-1.0d0, 0.0d0)
       SPIN(3,5,1,1)   = ( 1.0d0, 0.0d0)
       SPIN(3,5,2,2)   = ( 2.0d0, 0.0d0)
-C
-C    Multiplicity 6 (sextet)   S=5/2
-c
+!
+!    Multiplicity 6 (sextet)   S=5/2
+!
       SPIN(1,6,-3,-2) = CMPLX(0.5d0*f5,0.0d0,kind=8)
       SPIN(1,6,-2,-3) = CMPLX(0.5d0*f5,0.0d0,kind=8)
       SPIN(1,6,-2,-1) = CMPLX(f2,0.0d0,kind=8)
@@ -159,9 +162,9 @@ c
       SPIN(3,6,1,1)   = (0.5d0,0.0d0)
       SPIN(3,6,2,2)   = (1.5d0,0.0d0)
       SPIN(3,6,3,3)   = (2.5d0,0.0d0)
-C
-C   Multiplicity 7 (septet)   S=3
-C
+!
+!   Multiplicity 7 (septet)   S=3
+!
       SPIN(1,7,-3,-2) = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
       SPIN(1,7,-2,-3) = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
       SPIN(1,7,-2,-1) = CMPLX(0.5d0*f2*f5,0.0d0,kind=8)
@@ -193,9 +196,9 @@ C
       SPIN(3,7,1,1)   = (1.0d0,0.0d0)
       SPIN(3,7,2,2)   = (2.0d0,0.0d0)
       SPIN(3,7,3,3)   = (3.0d0,0.0d0)
-C
-C   Multiplicity 8 (octet)   S=7/2
-C
+!
+!   Multiplicity 8 (octet)   S=7/2
+!
       SPIN(1,8,-4,-3) = CMPLX(0.5d0*f7,0.0d0,kind=8)
       SPIN(1,8,-3,-4) = CMPLX(0.5d0*f7,0.0d0,kind=8)
       SPIN(1,8,-3,-2) = CMPLX(f3,0.0d0,kind=8)
@@ -234,9 +237,9 @@ C
       SPIN(3,8,4,4)   = ( 3.5d0,0.0d0)
 
 
-C
-C   Multiplicity 9 (???)   S=4
-C
+!
+!   Multiplicity 9 (???)   S=4
+!
 
       SPIN(1,9,-4,-3) = CMPLX(f2,0.d0,kind=8)
       SPIN(1,9,-3,-4) = CMPLX(f2,0.d0,kind=8)
@@ -281,9 +284,9 @@ C
       SPIN(3,9,4,4)   = (4.0d0,0.d0)
 
 
-C
-C   Multiplicity 10 (???)   S=9/2
-C
+!
+!   Multiplicity 10 (???)   S=9/2
+!
 
       SPIN(1,10,-5,-4) = (1.5d0,0.d0)
       SPIN(1,10,-4,-5) = (1.5d0,0.d0)
@@ -331,9 +334,9 @@ C
       SPIN(3,10,3,3)   = (2.5d0,0.d0)
       SPIN(3,10,4,4)   = (3.5d0,0.d0)
       SPIN(3,10,5,5)   = (4.5d0,0.d0)
-C
-C   Multiplicity 11 (???)   S=5
-C
+!
+!   Multiplicity 11 (???)   S=5
+!
       SPIN(1,11,-5,-4) =  CMPLX(0.5d0*f2*f5,0.d0,kind=8)
       SPIN(1,11,-4,-5) =  CMPLX(0.5d0*f2*f5,0.d0,kind=8)
       SPIN(1,11,-4,-3) =  CMPLX(1.5d0*f2,0.d0,kind=8)
@@ -386,9 +389,9 @@ C
       SPIN(3,11,4,4)   = (4.0d0,0.d0)
       SPIN(3,11,5,5)   = (5.0d0,0.d0)
 
-C
-C   Multiplicity 12 (???)   S=11/2
-C
+!
+!   Multiplicity 12 (???)   S=11/2
+!
 
       SPIN(1,12,-6,-5) = CMPLX(0.5d0*f11,0.d0,kind=8)
       SPIN(1,12,-5,-6) = CMPLX(0.5d0*f11,0.d0,kind=8)
@@ -448,9 +451,9 @@ C
       SPIN(3,12,6,6)   = (5.5d0,0.d0)
 
 
-C
-C   Multiplicity 13 (???)   S=6
-C
+!
+!   Multiplicity 13 (???)   S=6
+!
 
       SPIN(1,13,-6,-5) =  CMPLX(f3,0.d0,kind=8)
       SPIN(1,13,-5,-6) =  CMPLX(f3,0.d0,kind=8)
@@ -515,9 +518,9 @@ C
       SPIN(3,13,6,6)   = (6.0d0,0.d0)
 
 
-C
-C   Multiplicity 14 (???)   S=13/2
-C
+!
+!   Multiplicity 14 (???)   S=13/2
+!
 
       SPIN(1,14,-7,-6) =  CMPLX(0.5d0*f13,0.d0,kind=8)
       SPIN(1,14,-6,-7) =  CMPLX(0.5d0*f13,0.d0,kind=8)
@@ -586,9 +589,9 @@ C
       SPIN(3,14,6,6)   = (5.5d0,0.d0)
       SPIN(3,14,7,7)   = (6.5d0,0.d0)
 
-C
-C   Multiplicity 15 (???)   S=7
-C
+!
+!   Multiplicity 15 (???)   S=7
+!
 
       SPIN(1,15,-7,-6) =  CMPLX(0.5d0*f2*f7,0.d0,kind=8)
       SPIN(1,15,-6,-7) =  CMPLX(0.5d0*f2*f7,0.d0,kind=8)
@@ -662,9 +665,9 @@ C
       SPIN(3,15,6,6)   = ( 6.0d0,0.0d0)
       SPIN(3,15,7,7)   = ( 7.0d0,0.0d0)
 
-C
-C   Multiplicity 16 (???)   S=15/2
-C
+!
+!   Multiplicity 16 (???)   S=15/2
+!
 
       SPIN(1,16,-8,-7) =  CMPLX(0.5d0*f3*f5,0.d0,kind=8)
       SPIN(1,16,-7,-8) =  CMPLX(0.5d0*f3*f5,0.d0,kind=8)
@@ -743,9 +746,9 @@ C
       SPIN(3,16,7,7)   = (6.5d0,0.d0)
       SPIN(3,16,8,8)   = (7.5d0,0.d0)
 
-C
-C   Multiplicity 17 (???)   S=8
-C
+!
+!   Multiplicity 17 (???)   S=8
+!
 
       SPIN(1,17,-8,-7) =  (2.0d0,0.d0)
       SPIN(1,17,-7,-8) =  (2.0d0,0.d0)
@@ -828,3 +831,5 @@ C
       SPIN(3,17,6,6)   = (6.0d0,0.d0)
       SPIN(3,17,7,7)   = (7.0d0,0.d0)
       SPIN(3,17,8,8)   = (8.0d0,0.d0)
+End Subroutine Setup_Spin_Moment_Matrix
+End Module Spin_Constants

@@ -15,6 +15,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
+      use cntrl, only: NACTE
 #endif
       use mspt2_eigenvectors
       use stdalloc, only: mma_allocate, mma_deallocate
