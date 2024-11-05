@@ -15,8 +15,6 @@
       use frenkel_global_vars, only: iTyp, jTyp, valst, nestla,
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB
-      use Files
 
       implicit none
 #include "rasdim.fh"

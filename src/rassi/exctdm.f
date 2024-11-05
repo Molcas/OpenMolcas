@@ -18,8 +18,7 @@
       use frenkel_global_vars, only: iTyp, labb, doexch, VNucB, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nIrrep
-      use Cntrl, only: MXJOB, NSTATE, MLTPLT
-      use Files
+      use Cntrl, only: NSTATE, MLTPLT
 
       IMPLICIT None
 #include "rasdim.fh"
