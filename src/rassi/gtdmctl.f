@@ -43,14 +43,14 @@ C      use para_info, only: nProcs, is_real_par, king
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
       use cntrl, only: sonatnstate
-      use Cntrl, only: MXJOB, NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
+      use Cntrl, only: NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
      &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR,
      &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,
      &                 IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET,
      &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
      &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
      &                 RASTYP
-      use Files
+      use Files, only: iToc15, LuIph, LuTDM
 
       IMPLICIT NONE
 #include "rasdim.fh"
