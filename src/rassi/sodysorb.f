@@ -18,8 +18,7 @@
      &                               SODYSAMPSR, SODYSAMPSI, JBNUM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, MXJOB, DYSEXPORT, DYSEXPSO, MLTPLT
-      use Files
+      use Cntrl, only: NSTATE, DYSEXPORT, DYSEXPSO, MLTPLT
 
 
       IMPLICIT None
