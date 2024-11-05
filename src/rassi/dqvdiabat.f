@@ -29,8 +29,7 @@
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
       USE Constants, ONLY: Pi
-      use Cntrl, only: MXJOB, NSTATE, NPROP, AlphZ, BetaE, PNAME, ICOMP
-      use Files
+      use Cntrl, only: NSTATE, NPROP, AlphZ, BetaE, PNAME, ICOMP
 
       IMPLICIT None
 #include "symmul.fh"
