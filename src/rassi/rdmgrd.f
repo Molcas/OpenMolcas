@@ -11,8 +11,8 @@
       SUBROUTINE RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MXJOB, NJOB, MINAME
-      use Files
+      use Cntrl, only: NJOB, MINAME
+      use Files, only: LuMck
 
       IMPLICIT None
 C Purpose: Read in the derivatives of 1-electron integrals
