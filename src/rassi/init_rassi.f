@@ -39,12 +39,11 @@
 
 
       IMPLICIT None
-#include "symmul.fh"
 #include "rassi.fh"
 #include "hfc_logical.fh"
       Character(LEN=256) STRING
       Logical FoundTwoEls,DoCholesky
-      Integer I, J, M, N, IPROP
+      Integer I, IPROP
 
 
 * Initialise doDMRG if compiled without QCMaquis
@@ -53,20 +52,6 @@
 #endif
 
       Call symmetry_info_get()
-
-C SET UP SYMMETRY MULTIPLICATION TABLE:
-      MUL(1,1)=1
-      M=1
-      DO  N=1,3
-        DO  I=1,M
-          DO J=1,M
-            MUL(I+M,J)=M+MUL(I,J)
-            MUL(I,J+M)=MUL(I+M,J)
-            MUL(I+M,J+M)=MUL(I,J)
-          END DO
-        END DO
-        M=2*M
-      END DO
 
 C UNIT NUMBERS AND NAMES
       LUONE=2
