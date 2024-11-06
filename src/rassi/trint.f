@@ -20,6 +20,7 @@
       use Cntrl, only: ERFNUC, RFPert
       use cntrl, only: ALGO, Nscreen, dmpk
       use cntrl, only: LuOrd
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
 #include "rassi.fh"
@@ -30,7 +31,6 @@
       LOGICAL   ISQARX
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT(1), FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
-#include "symmul.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
       Real*8, Allocatable:: Prod(:)

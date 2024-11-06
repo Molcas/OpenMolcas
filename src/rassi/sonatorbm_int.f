@@ -17,7 +17,6 @@
 
       IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=8) CHARPROP
       INTEGER IC_

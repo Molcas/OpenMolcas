@@ -17,10 +17,10 @@
       use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT,
      &                 NACTE, NELE3, NHOLE1, RASTYP
       use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
       Real*8 :: Energy(nState)
-#include "symmul.fh"
 #include "rassi.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)

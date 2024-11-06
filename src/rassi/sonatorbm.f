@@ -16,6 +16,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
       use cntrl, Only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT None
       CHARACTER(LEN=8) CHARTYPE
@@ -24,7 +25,6 @@
       INTEGER iOpt
       Real*8 ROTMAT(3,3)
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 DENSOUT(6,NBTRI)
 
       Integer IOFF(8)

@@ -12,9 +12,9 @@
      &                 PSI1,PSI2,SPD12)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: FSBANN1, FSBANN2
+      use Symmetry_Info, only: MUL
       IMPLICIT NONE
       REAL*8 PSI1(*),PSI2(*),SPD12(*)
-C     REAL*8 COEFF,OVERLAP,OVLP,PRTHR
       REAL*8 COEFF,OVERLAP_RASSI,OVLP
       INTEGER IORBTAB(*),NASORB
       INTEGER ISSTAB(*)
@@ -25,7 +25,6 @@ C     REAL*8 COEFF,OVERLAP,OVLP,PRTHR
       INTEGER ISYOP,MS2OP,KOINFO
       INTEGER ISMLAB,ISPLAB,JSYM,JMS2,JSMLAB,JSPLAB
 #include "SysDef.fh"
-#include "symmul.fh"
       EXTERNAL OVERLAP_RASSI
       Real*8, Allocatable:: ANN1(:), ANN2(:)
 

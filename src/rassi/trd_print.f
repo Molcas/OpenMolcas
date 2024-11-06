@@ -18,10 +18,10 @@
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
       use Cntrl, only: LSYM1, LSYM2
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT None
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
