@@ -15,9 +15,9 @@
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
+      use Cntrl, only: NROOTS
 #endif
-      use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME,
-     &                 MLTPLT, NROOTS
+      use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME, MLTPLT
       use cntrl, only: iTOC15, LuIph
 
       IMPLICIT NONE
