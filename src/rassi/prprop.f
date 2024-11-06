@@ -45,7 +45,6 @@
      &       ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
 
       Real*8, parameter:: THRSH=1.0D-10
-#include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
       Character(LEN=1), Parameter :: xyzchr(3)=['x','y','z']

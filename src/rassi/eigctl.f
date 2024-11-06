@@ -31,9 +31,9 @@
      &                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE,
      &                 PNAME, PTYPE, Do_TMom
       use cntrl, only: LuTDM
+      use Symmetry_Info, only: MUL, nSym=>nIrrep
 
       IMPLICIT None
-#include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
 

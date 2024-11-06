@@ -15,10 +15,10 @@
       use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, ToFile,
      &                 IRREP, PNAME, PTYPE
       use cntrl, only: FnTOM, LuTOM
+      use Symmetry_Info, only: Mul, nSym=>nIrrep
 
       IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       Real*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
       Integer ISTATE, JSTATE
