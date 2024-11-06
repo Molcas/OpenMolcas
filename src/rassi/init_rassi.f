@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE INIT_RASSI()
 
+      use symmetry_Info, only: symmetry_info_get
       use rassi_aux, only: ipglob
 #ifndef _DMRG_
       use rasscf_global, only: doDMRG
@@ -50,6 +51,8 @@
 #ifndef _DMRG_
       DoDMRG = .false.
 #endif
+
+      Call symmetry_info_get()
 
 C SET UP SYMMETRY MULTIPLICATION TABLE:
       MUL(1,1)=1

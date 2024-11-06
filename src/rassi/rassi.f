@@ -19,7 +19,7 @@
       use kVectors
       use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,
      &                               doExcitonics
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: nIrrep, Symmetry_Info_Free
       use Basis_Info, only: nBas
 #ifdef _HDF5_
       use Dens2HDF5
@@ -393,6 +393,7 @@ C Plot SO-Natural Transition Orbitals if requested
          Call mma_deallocate(DMAB,safe='*')
       End If
       Call DaClos(LuExc)
+      Call Symmetry_Info_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *
