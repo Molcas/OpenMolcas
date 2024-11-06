@@ -17,7 +17,7 @@
 #ifdef _HDF5_
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
-      use Cntrl, only: IfTDM. IfTrD1
+      use Cntrl, only: IfTDM, IfTrD1
 #endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye,
      &                     Half, Zero, One, Two, Three, Six, Nine, Ten
