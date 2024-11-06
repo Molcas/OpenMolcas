@@ -17,6 +17,9 @@
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
+      use RASSIWfn, only: wfn_SOS_CoefI, wfn_SOS_CoefR, wfn_SOS_Energy,
+     &                    wfn_SOS_HSOI, wfn_SOS_HSOR,
+     &                    wfn_SOS_VSOI, wfn_SOS_VSOR
 #endif
 #ifdef _DMRG_
       use rasscf_global, only: doDMRG
@@ -28,7 +31,6 @@
      &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
      &                 LOOPDIVIDE, IFTRD1, IFTDM, ICOMP, MLTPLT,
      &                 PNAME
-      use RASSIWfn
 
       IMPLICIT NONE
 #include "SysDef.fh"
