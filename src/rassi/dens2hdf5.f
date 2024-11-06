@@ -119,7 +119,7 @@
       Use stdalloc, Only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, IFSO, IRREP
       use cntrl, only: LuTDM
-      use RASSIWfn
+      use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
 
       Implicit None
 #include "rassi.fh"
