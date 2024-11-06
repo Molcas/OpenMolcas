@@ -24,6 +24,7 @@
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
+      use RASSIWfn, only: wfn_overlap
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -40,7 +41,6 @@
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
       use cntrl, only: LuExc, LuOne, LuTDM
-      use RASSIWfn
 
 
       IMPLICIT None
