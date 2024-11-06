@@ -31,7 +31,6 @@
       INTEGER LSORB,KSORB
       INTEGER KLSORB,KLSYM,KLMS2,LSMLAB,LSPLAB,KSMLAB
       INTEGER KSPLAB,IJKL
-#include "SysDef.fh"
       Real*8, EXTERNAL:: OVERLAP_RASSI
       Real*8, Allocatable:: ANN1(:), ANN2(:), ANN3(:), ANN4(:)
 

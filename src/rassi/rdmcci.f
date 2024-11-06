@@ -19,9 +19,7 @@ C Purpose: Read in the derivatives of CI array derivatives
 C from MCKINT file, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
 #include "rasdim.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       Integer JOB, IDISP, ISYMP, nArray
       CHARACTER(LEN=8) LABEL
       Real*8 ARRAY(NARRAY)

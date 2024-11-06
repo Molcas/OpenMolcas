@@ -29,7 +29,6 @@
       INTEGER ND1,ND2
       Real*8, Allocatable:: ANN1(:), ANN2(:)
 
-#include "SysDef.fh"
       REAL*8, EXTERNAL:: OVERLAP_RASSI
 
 C Calculates the DCH  matrix elements between two states with

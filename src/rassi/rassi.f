@@ -19,7 +19,7 @@
       use kVectors
       use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,
      &                               doExcitonics
-      use Symmetry_Info, only: nIrrep, Symmetry_Info_Free
+      use Symmetry_Info, only: nSym=>nIrrep, Symmetry_Info_Free
       use Basis_Info, only: nBas
 #ifdef _HDF5_
       use Dens2HDF5
@@ -47,9 +47,7 @@
 C Matrix elements over RAS wave functions.
 C RAS state interaction.
 #include "rasdim.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       Logical CLOSEONE
       INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
      &        ISTATE, J, NSS, JOB, MPLET, I
@@ -124,7 +122,7 @@ C Number of basis functions
         else
           call NameRun('AUXRFIL1')
         end if
-        call get_iArray('nBas', nBas, nIrrep)
+        call get_iArray('nBas', nBas, nSym)
         NZcoul = nBas(0)
         nh1 = NZcoul*(NZcoul+1)/2
         call mma_allocate(vNucB, nh1, Label='Attr PotB')

@@ -35,12 +35,11 @@
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
       use cntrl, only: iTOC15, LuIPH, IDCMO
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
-#include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
 

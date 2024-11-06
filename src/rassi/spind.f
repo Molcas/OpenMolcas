@@ -24,7 +24,6 @@
       INTEGER JSORB
       INTEGER ISYOP,MS2OP,KOINFO
       INTEGER ISMLAB,ISPLAB,JSYM,JMS2,JSMLAB,JSPLAB
-#include "SysDef.fh"
       EXTERNAL OVERLAP_RASSI
       Real*8, Allocatable:: ANN1(:), ANN2(:)
 

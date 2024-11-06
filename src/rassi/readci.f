@@ -23,7 +23,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "rassi.fh"
-#include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
       integer :: root2state(mxroot), IDXCI

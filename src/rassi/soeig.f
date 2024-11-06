@@ -33,7 +33,6 @@
      &                 PNAME
 
       IMPLICIT NONE
-#include "SysDef.fh"
 #include "rassi.fh"
 
       INTEGER NSS
