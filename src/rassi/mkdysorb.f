@@ -25,9 +25,6 @@
       LOGICAL IF10,IF01
       REAL*8 DYSAMP, DYSCOF(*)
 
-#include "SysDef.fh"
-#include "symmul.fh"
-
       REAL*8 COEFF,OVLP
       Real*8, EXTERNAL :: OVERLAP_RASSI
       INTEGER NASORB

@@ -21,8 +21,6 @@
 #include "rassi.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
-#include "symmul.fh"
-#include "SysDef.fh"
 
       Real*8, Allocatable:: DerCpl(:), NucChg(:)
       Integer nCol, iProp, i, ISTA, IFON, j, iState, iDisk, jState,

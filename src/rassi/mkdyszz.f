@@ -21,6 +21,7 @@
 *  SEPTEMBER 2020
 *****************************************************************
       SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT None
 #include "rassi.fh"
       Real*8 CMOA(NCMO)
@@ -28,7 +29,6 @@
 
       INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF,IZZOFF,ISY1,NO1,NA1,NB1
       REAL*8 COEFF
-#include "symmul.fh"
 
 C *** Re-express the DO coefficients in biorth basis DYSAB
 C *** into atomic basis DYSZZ with help of CMOA that contains
