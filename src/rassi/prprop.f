@@ -16,6 +16,11 @@
       USE kVectors
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
+      use RASSIWfn, only: wfn_sfs_angmom, wfn_sos_angmomr,
+     &                    wfn_sos_angmomi, wfn_sos_spinr, wfn_sos_spini,
+     &                    wfn_sfs_edipmom, wfn_sfs_amfi,
+     &                    wfn_sos_edipmomr, wfn_sos_edipmomi,
+     &                    wfn_sos_dys
 #endif
       use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,
      &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
@@ -32,7 +37,6 @@
      &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
      &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,
      &                 PTYPE, SOPRNM, SOPRTP
-      use RASSIWfn
 
       IMPLICIT NONE
       Integer NSS, JBNUM(NSTATE)
