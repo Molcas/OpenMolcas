@@ -23,17 +23,16 @@
       use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
      &                  MLTPLT, NSTAT, MXJOB
       use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "rassi.fh"
-#include "symmul.fh"
 
       LOGICAL READ_STATES
       INTEGER JOB, i
 
 
 * get basic info from runfile
-      Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBasF,nSym)
       Call Get_dscalar('PotNuc',ENUC)
 
