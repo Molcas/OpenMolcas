@@ -20,6 +20,7 @@
       use RASSIWfn, only: wfn_SOS_CoefI, wfn_SOS_CoefR, wfn_SOS_Energy,
      &                    wfn_SOS_HSOI, wfn_SOS_HSOR,
      &                    wfn_SOS_VSOI, wfn_SOS_VSOR
+      use Cntrl, only: IFTDM, IFTRD1, RHODYN
 #endif
 #ifdef _DMRG_
       use rasscf_global, only: doDMRG
@@ -27,10 +28,9 @@
 #endif
       use Constants, only: auTocm, auToeV
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, RHODYN, NSOThr_PRT,
+      use Cntrl, only: NSTATE, NPROP, NSOThr_PRT,
      &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
-     &                 LOOPDIVIDE, IFTRD1, IFTDM, ICOMP, MLTPLT,
-     &                 PNAME
+     &                 LOOPDIVIDE, ICOMP, MLTPLT, PNAME
 
       IMPLICIT NONE
 #include "rassi.fh"
