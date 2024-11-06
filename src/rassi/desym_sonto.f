@@ -22,8 +22,8 @@
 *                                                      -RF 8/24,2021
       SUBROUTINE DESYM_SONTO(A,SIZA,B,SYMLAB)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT None
-#include "symmul.fh"
 #include "rassi.fh"
       INTEGER SIZA,SYMLAB
       REAL*8 A(SIZA)

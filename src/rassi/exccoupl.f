@@ -15,12 +15,11 @@
       use frenkel_global_vars, only: iTyp, jTyp, valst, nestla,
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep
 
       implicit none
 #include "rasdim.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       integer(kind=iwp) :: nstat1, nstat2,
      &                     run, lWKX, dimn, a, b
       integer(kind=iwp), external :: isFreeUnit

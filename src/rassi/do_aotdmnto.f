@@ -35,7 +35,6 @@
 
       IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
       Integer ISTATE,JSTATE,nb,nb2
       REAL*8 TDMZZ(6,nb2)
       REAL*8 TSDMZZ(6,nb2)

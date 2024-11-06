@@ -35,9 +35,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, CIH5, NJOB, DO_TMOM, NQUAD, IFSO, RhoDyn,
      &                 DYSO, IFSO, IRREP, MLTPLT, NDET
+      use Symmetry_Info, only: nSym=>nIrrep
       implicit none
 #  include "rassi.fh"
-#  include "symmul.fh"
       integer :: ISTATE, NSS
       integer :: nData, nIJ
       integer, allocatable :: state_irreps(:), state_mult(:)

@@ -35,7 +35,6 @@
 
       IMPLICIT None
 #include "rassi.fh"
-#include "SysDef.fh"
 
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       DYSAMPS(NSTATE,NSTATE),

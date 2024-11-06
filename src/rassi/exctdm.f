@@ -17,14 +17,12 @@
       use Definitions, only: wp, iwp, u6
       use frenkel_global_vars, only: iTyp, labb, doexch, VNucB, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nIrrep
       use Cntrl, only: NSTATE, MLTPLT
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
-#include "SysDef.fh"
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
      &        iRC, NNLTD, istate, jstate, run,
@@ -68,7 +66,7 @@
           write(u6,*) 'basis functions of mon B', nbas_B
         end if
         call NameRun('AUXRFIL1')
-        call get_iArray('nBas',nBas,nIrrep)
+        call get_iArray('nBas',nBas,nSym)
         nbas_tot = nBas(0)
         call NameRun('#Pop')    ! switch back to old RUNFILE
         if (debug_rassi_code) then
@@ -86,7 +84,7 @@
           write(u6,*) 'basis functions of mon A', nbas_A
         end if
         call NameRun('AUXRFIL1')
-        call get_iArray('nBas',nBas,nIrrep)
+        call get_iArray('nBas',nBas,nSym)
         nbas_tot = nBas(0)
         call NameRun('#Pop')    ! switch back to old RUNFILE
         if (debug_rassi_code) then

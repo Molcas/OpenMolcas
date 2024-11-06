@@ -43,10 +43,10 @@
       SUBROUTINE CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 TRA(NTRA),CI(NCO)
 #include "rassi.fh"
-#include "symmul.fh"
       CHARACTER(LEN=8) WFTP
       Type (SGStruct) SGS
       Type (CIStruct) CIS
