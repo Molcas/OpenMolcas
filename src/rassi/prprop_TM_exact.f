@@ -19,6 +19,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
+      use RASSIWfn, only: wfn_SOS_TM
 #endif
       use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron, Zero,
      &                     Half, Two
@@ -28,7 +29,6 @@
      &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
      &                 PTYPE
       use cntrl, only: LuTDM
-      use RASSIWfn
 
       IMPLICIT None
       Integer NSS
