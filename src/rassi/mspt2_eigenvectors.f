@@ -70,7 +70,9 @@
      &                                         put_so_data,
      &                                         put_h5_data
      &                                       )
-      use RASSIWfn
+#ifdef _HDF5_
+      use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
+#endif
 
         integer, intent(in)    :: nprop
         integer, intent(in)    :: nstate
