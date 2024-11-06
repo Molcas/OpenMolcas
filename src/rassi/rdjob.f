@@ -24,13 +24,14 @@
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
+      use Cntrl, only: NDET, NROOTS, QDPT2SC
 #endif
       use cntrl, only: RefEne, HEff
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: QDPT2SC, HAVE_HEFF, IFEJOB, HAVE_DIAG,
+      use Cntrl, only: HAVE_HEFF, IFEJOB, HAVE_DIAG,
      &                 IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP,
-     &                 NHOLE1, MLTPLT, NACTE, NDET, NELE3, ISTAT,
-     &                 JBNAME, NROOTS, NSTATE, NSTAT
+     &                 NHOLE1, MLTPLT, NACTE, NELE3, ISTAT,
+     &                 JBNAME, NSTATE, NSTAT
       use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
