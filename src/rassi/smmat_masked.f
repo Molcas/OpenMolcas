@@ -20,7 +20,6 @@
       Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 PROP(NSTATE,NSTATE,NPROP)
 
       REAL*8, EXTERNAL :: DCLEBS

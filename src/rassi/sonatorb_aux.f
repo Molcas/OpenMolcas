@@ -11,10 +11,10 @@
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
@@ -293,9 +293,9 @@ c    ONLYFOR NATURAL ORBITALS
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT NONE
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE

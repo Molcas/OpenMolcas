@@ -18,7 +18,6 @@
       REAL*8 PRMAT(NSS,NSS)
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS
       INTEGER IPRNUM, IPRCMP, IFSPIN, IPROP,

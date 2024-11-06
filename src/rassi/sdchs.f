@@ -22,17 +22,15 @@
       REAL*8 PSI1(*),PSI2(*),SDCHSM(*)
       LOGICAL IF20,IF02
 
-      REAL*8 COEFF,OVERLAP_RASSI,OVLP
+      REAL*8 COEFF,OVLP
       INTEGER NASORB
       INTEGER IMODE
       INTEGER ISORB,JSORB,IJ
       INTEGER ND1,ND2
-      !INTEGER JSMLAB,JSPLAB
       Real*8, Allocatable:: ANN1(:), ANN2(:)
 
 #include "SysDef.fh"
-#include "symmul.fh"
-      EXTERNAL OVERLAP_RASSI
+      REAL*8, EXTERNAL:: OVERLAP_RASSI
 
 C Calculates the DCH  matrix elements between two states with
 C N and N-1 electrons, defined as:
@@ -98,5 +96,4 @@ C IF02 = Eliminate to the right (state 2)
        WRITE(6,*)'Invalid state combination in DCH states'
       END IF
 
-      RETURN
-      END
+      END SUBROUTINE SDCHS

@@ -19,6 +19,7 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, DYSEXPORT, DYSEXPSO, MLTPLT
+      use Symmetry_Info, only: nSym=>nIrrep
 
 
       IMPLICIT None
@@ -30,7 +31,6 @@
       Real*8 DYSAMPS(NSTATE,NSTATE)
       ! Arrays for orbital export
       Real*8 SOENE(NSS)
-#include "symmul.fh"
 
       ! Arrays, bounds, and indices
       REAL*8    MSPROJI,MSPROJJ, CJR, CJI, CIR, CII, CREAL, CIMAG,

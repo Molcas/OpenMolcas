@@ -35,7 +35,6 @@
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
 
       INTEGER NSS
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

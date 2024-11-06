@@ -26,11 +26,11 @@
 ************************************************************************
       Subroutine Transpose_TDM(TDM,Symmetry)
       Use stdalloc, Only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep, Mul
       Implicit None
       Real*8, Intent(InOut) :: TDM(*)
       Integer, Intent(In) :: Symmetry
 #include "rassi.fh"
-#include "symmul.fh"
       Integer :: iSym1,iSym2,nTot,i,j
       Integer :: iBlock(0:8)
       Real*8, Allocatable :: Tmp(:)
@@ -56,4 +56,4 @@
         End Do
       End Do
       Call mma_deAllocate(Tmp)
-      End Subroutine
+      End Subroutine Transpose_TDM
