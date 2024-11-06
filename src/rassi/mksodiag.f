@@ -16,7 +16,6 @@
       use Cntrl, only: IFCURD
 
       IMPLICIT None
-#include "rasdim.fh"
 #include "rassi.fh"
 
 C subroutine arguments

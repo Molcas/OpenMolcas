@@ -57,7 +57,6 @@ C      use para_info, only: nProcs, is_real_par, king
       use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "rassi.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)

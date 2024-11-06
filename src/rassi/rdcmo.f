@@ -20,7 +20,6 @@
       use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "rassi.fh"
 #ifdef _HDF5_
       integer :: refwfn_id

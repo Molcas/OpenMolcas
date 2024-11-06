@@ -34,7 +34,6 @@
       use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
-#include "rasdim.fh"
 #include "rassi.fh"
       CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=8) LABEL2

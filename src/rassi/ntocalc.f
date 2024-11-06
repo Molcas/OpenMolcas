@@ -46,9 +46,9 @@
       use fortran_strings, only : str
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
+      use Constants, only: Two
 
       Implicit None
-#include "rasdim.fh"
 #include "rassi.fh"
 
       Integer ISpin,JOB1,JOB2
@@ -72,7 +72,7 @@
       INTEGER NScrq
       REAL*8 WGRONK(2)
       INTEGER N_NTO,INFO, I_NTO
-      REAL*8 Two,PrintThres,SumEigVal
+      REAL*8 PrintThres,SumEigVal
 !     re-organizing orbitals
 !     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
@@ -104,7 +104,6 @@
 
       statename=''
       DoTest=.false.
-      Two=2.0D0
       PrintThres=1.0D-5
       CALL mma_allocate(CMO1,NCMO,Label='CMO1')
       CALL mma_allocate(CMO2,NCMO,Label='CMO2')
@@ -454,9 +453,9 @@ C     Putting particle-hole pairs in the output
      &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind,
      &SumEigVal)
       use Symmetry_Info, only: nSym=>nIrrep
+      use Constants, only: Zero
 
       Implicit None
-#include "rasdim.fh"
 #include "rassi.fh"
 
 C     input variables
@@ -481,7 +480,7 @@ C     SquareSum=Sum over square of coefficients for certain symmetry
 C     Total number of orbitals in IUseSym
       INTEGER,DIMENSION(NUseSym,NASHT) :: OrbSymIndex
 C     OrbSymIndex gives the original orbital index for a orbital in iusesym
-      REAL*8 Threshold,Zero,SumEigVal
+      REAL*8 Threshold,SumEigVal
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
@@ -497,7 +496,6 @@ C
       Integer, External:: ISFREEUNIT
 
       Threshold=0.0D-10
-      Zero=0.0D0
 
       Do IUseSym=1,NUseSym
        NOrbinSym(IUseSym)=0

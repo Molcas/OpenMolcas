@@ -38,6 +38,7 @@
       use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT NONE
+! pick up MxSym, MxRoot, LENIN8, MxOrb, MxTit, MxIter
 #include "rasdim.fh"
 #include "rassi.fh"
 #ifdef _HDF5_
@@ -731,6 +732,7 @@ C Where is the CMO data set stored?
       use cntrl, only: iTOC15, LuIph
 
       IMPLICIT NONE
+!pick up MxRoot, LenIn8, MxOrb, MxTit
 #include "rasdim.fh"
 #ifdef _HDF5_
       integer :: refwfn_id

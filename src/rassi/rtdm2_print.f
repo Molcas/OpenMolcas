@@ -20,7 +20,6 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
       use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT None
-#include "rasdim.fh"
 #include "rassi.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN

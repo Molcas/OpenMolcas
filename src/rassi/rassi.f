@@ -46,6 +46,7 @@
       IMPLICIT None
 C Matrix elements over RAS wave functions.
 C RAS state interaction.
+! pick up MxRoot
 #include "rasdim.fh"
 #include "rassi.fh"
       Logical CLOSEONE

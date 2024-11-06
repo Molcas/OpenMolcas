@@ -23,7 +23,6 @@
       use Cntrl, only: PRSXY, PRTRA, PRORB
       use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT None
-#include "rasdim.fh"
 #include "rassi.fh"
       Real*8 CMO1(NCMO),CMO2(NCMO)
       Real*8 TRA1(NTRA),TRA2(NTRA)

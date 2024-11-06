@@ -21,7 +21,6 @@
       use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
-#include "rasdim.fh"
 #include "rassi.fh"
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),

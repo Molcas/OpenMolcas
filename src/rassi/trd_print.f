@@ -21,7 +21,6 @@
       use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT None
-#include "rasdim.fh"
 #include "rassi.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE

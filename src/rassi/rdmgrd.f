@@ -19,7 +19,6 @@
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
-#include "rasdim.fh"
 #include "rassi.fh"
       Integer JOB,IDISP,ISYMP,NARRAY
       Real*8 ARRAY(NARRAY)

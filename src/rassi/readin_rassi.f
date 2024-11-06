@@ -54,7 +54,6 @@
       use cntrl, only: ALGO, Nscreen, dmpk
 
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "rassi.fh"
       CHARACTER(LEN=80) LINE
       INTEGER, PARAMETER :: MXPLST=50
