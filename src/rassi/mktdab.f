@@ -19,6 +19,7 @@
       SUBROUTINE MKTDAB(OVER,GAMMA1,TDMAB,iRC)
       use Constants, only: Zero, Two
       use Cntrl, only: LSYM1, LSYM2
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT NONE
       REAL*8 OVER
 #include "rassi.fh"
@@ -26,7 +27,6 @@
       REAL*8 TDMAB(NTDMAB)
       INTEGER iRC
 
-#include "symmul.fh"
       INTEGER IOFFA(8)
       INTEGER I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2,
      &        NA1, NA2, NI1, NI2, IA, J, JA, JJ

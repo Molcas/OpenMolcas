@@ -12,12 +12,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: SSTAB
       use cntrl, only: MORSBITS
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT NONE
       INTEGER ORBTAB(*)
 
       INTEGER NTAB,ITYPE,NSSTP,NSBSTOT,KSBSMRS,KMRSSBS
       INTEGER KSBSANN,KSBSCRE
-#include "symmul.fh"
       INTEGER I,IKMS2,IKSCR,IKSYM
       INTEGER IMS2,IPOP,ISBS,ISCR
       INTEGER ISGN,ISORB,ISPART,ISSTP

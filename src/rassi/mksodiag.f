@@ -17,9 +17,7 @@
 
       IMPLICIT None
 #include "rasdim.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
 
 C subroutine arguments
       Integer NSS

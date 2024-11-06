@@ -13,11 +13,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: FSBARR
       use cntrl, only: MORSBITS
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT NONE
       INTEGER ISSTAB(*)
       INTEGER NASPRT,NACTEL,M2SPIN,LSYM
       INTEGER NPART
-#include "symmul.fh"
       INTEGER NGASORB(0:NSYM,0:NPART)
       INTEGER NGASLIM(2,NPART)
       INTEGER NFSB,NFSB0,NRDETS,NRDETS0
