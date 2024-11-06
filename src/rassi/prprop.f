@@ -32,6 +32,7 @@
      &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
      &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,
      &                 PTYPE, SOPRNM, SOPRTP
+      use RASSIWfn
 
       IMPLICIT NONE
       Integer NSS, JBNUM(NSTATE)
@@ -43,7 +44,6 @@
 #include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
-#include "rassiwfn.fh"
       Character(LEN=1), Parameter :: xyzchr(3)=['x','y','z']
       Integer IPAMFI(3),IPAM(3)
       Real*8 DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)

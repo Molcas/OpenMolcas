@@ -28,12 +28,12 @@
      &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
      &                 LOOPDIVIDE, IFTRD1, IFTDM, ICOMP, MLTPLT,
      &                 PNAME
+      use RASSIWfn
 
       IMPLICIT NONE
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "rassiwfn.fh"
 
       INTEGER NSS
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

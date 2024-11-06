@@ -28,6 +28,7 @@
      &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
      &                 PTYPE
       use cntrl, only: LuTDM
+      use RASSIWfn
 
       IMPLICIT None
       Integer NSS
@@ -40,7 +41,6 @@
 #include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
-#include "rassiwfn.fh"
       LOGICAL TMOgroup
       INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER(LEN=8) LABEL

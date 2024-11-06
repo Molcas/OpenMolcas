@@ -51,12 +51,12 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
      &                 RASTYP
       use cntrl, only: iToc15, LuIph, LuTDM
+      use RASSIWfn
 
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "rassiwfn.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)

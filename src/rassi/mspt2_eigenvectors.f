@@ -70,6 +70,7 @@
      &                                         put_so_data,
      &                                         put_h5_data
      &                                       )
+      use RASSIWfn
 
         integer, intent(in)    :: nprop
         integer, intent(in)    :: nstate
@@ -88,7 +89,6 @@
         integer                   iOpt
         integer                   iGo
         integer                   iaddr
-#include "rassiwfn.fh"
 
 
           !> calculate property matrix elements

@@ -30,12 +30,12 @@
      &                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE,
      &                 PNAME, PTYPE, Do_TMom
       use cntrl, only: LuTDM
+      use RASSIWfn
 
       IMPLICIT None
 #include "symmul.fh"
 #include "rassi.fh"
 #include "SysDef.fh"
-#include "rassiwfn.fh"
 
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       DYSAMPS(NSTATE,NSTATE),

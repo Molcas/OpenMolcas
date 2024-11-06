@@ -119,11 +119,11 @@
       Use stdalloc, Only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, IFSO, IRREP
       use cntrl, only: LuTDM
+      use RASSIWfn
 
       Implicit None
 #include "rassi.fh"
 #include "symmul.fh"
-#include "rassiwfn.fh"
       Real*8, Intent(In) :: EigVec(nState,nState)
       Integer :: iState,jState,k,l,nThisTDMZZ
       Integer :: Job1,Job2,iSym1,iSym2,iSy12,iDisk,iEmpty,iOpt,iGo

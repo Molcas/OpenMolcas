@@ -40,6 +40,7 @@
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
       use cntrl, only: LuExc, LuOne, LuTDM
+      use RASSIWfn
 
 
       IMPLICIT None
@@ -49,7 +50,6 @@ C RAS state interaction.
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "rassiwfn.fh"
       Logical CLOSEONE
       INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
      &        ISTATE, J, NSS, JOB, MPLET, I
@@ -87,7 +87,7 @@ C Read and check keywords etc. from stdin. Print out.
       CALL INPCTL_RASSI()
 
 CSVC: prepare HDF5 wavefunction file
-      CALL CRE_RASSIWFN
+      CALL CRE_RASSIWFN()
 
 C--------  RAS wave function section --------------------------
 C First, in a double loop over the states, compute any matrix
