@@ -14,11 +14,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: nState, NrNATO
       use cntrl, only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       REAL*8 EIGVEC(NSTATE,NSTATE)
 

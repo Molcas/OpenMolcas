@@ -29,6 +29,7 @@
      &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
      &                 PTYPE
       use cntrl, only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT None
       Integer NSS
@@ -38,9 +39,7 @@
       Real*8 EigVec(NSTATE,NSTATE)
 
       Real*8, parameter ::THRSH=1.0D-10
-#include "symmul.fh"
 #include "rassi.fh"
-#include "SysDef.fh"
       LOGICAL TMOgroup
       INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER(LEN=8) LABEL

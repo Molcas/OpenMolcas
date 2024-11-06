@@ -45,10 +45,10 @@
 
       use fortran_strings, only : str
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep
 
       Implicit None
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
 
       Integer ISpin,JOB1,JOB2
@@ -453,10 +453,10 @@ C     Putting particle-hole pairs in the output
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
      &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind,
      &SumEigVal)
+      use Symmetry_Info, only: nSym=>nIrrep
 
       Implicit None
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
 
 C     input variables
