@@ -54,10 +54,10 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
      &                 RASTYP
       use cntrl, only: iToc15, LuIph, LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
 
       IMPLICIT NONE
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
@@ -131,7 +131,6 @@ CC    NTO section
      &       HII, HJJ, HIJ, OVERLAP_RASSI
       REAL*8, External:: DDot_
       Integer, External:: IsFreeUnit
-#include "SysDef.fh"
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)

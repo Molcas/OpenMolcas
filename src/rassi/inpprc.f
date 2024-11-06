@@ -31,12 +31,11 @@
      &                 L_Eff, IBINA, IRREP, MLTPLT
       use cntrl, only: nAtoms, Coor
       use cntrl, only: LuTDM, FnTDM
+      use Symmetry_Info, only: nSym=>nIrrep
 
       IMPLICIT None
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
-#include "SysDef.fh"
       CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=8) LABEL2
       CHARACTER(LEN=8) PRPLST(MXPROP)

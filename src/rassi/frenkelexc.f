@@ -18,9 +18,7 @@
 
       IMPLICIT None
 #include "rasdim.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "symmul.fh"
       integer(kind=iwp) :: dim, nst1, nst2
       real(kind=wp), intent(inout) :: Frenkeltri(dim*(dim+1)/2)
 

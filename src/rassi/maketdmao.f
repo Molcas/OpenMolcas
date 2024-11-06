@@ -27,10 +27,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
       use cntrl, only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+
 
       IMPLICIT NONE
 #include "rassi.fh"
-#include "symmul.fh"
       CHARACTER(LEN=8) CHARTYPE!,LABEL
       Integer NSS
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS)

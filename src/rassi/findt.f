@@ -21,9 +21,9 @@
       SUBROUTINE FINDT (CMO1,CMO2,TRA1,TRA2)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: PRSXY, PRTRA, PRORB
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT None
 #include "rasdim.fh"
-#include "symmul.fh"
 #include "rassi.fh"
       Real*8 CMO1(NCMO),CMO2(NCMO)
       Real*8 TRA1(NTRA),TRA2(NTRA)

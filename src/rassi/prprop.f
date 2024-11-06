@@ -21,6 +21,7 @@
      &                    wfn_sfs_edipmom, wfn_sfs_amfi,
      &                    wfn_sos_edipmomr, wfn_sos_edipmomi,
      &                    wfn_sos_dys
+      use Cntrl, only: RhoDyn
 #endif
       use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,
      &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
@@ -31,7 +32,7 @@
      &                 PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR,
      &                 OSthr_QIPR, QIALL, RSPR, RSThr, ReduceLoop,
      &                 LoopDivide, Do_SK, PRDIPCOM, Tolerance, DoCD,
-     &                 DYSO, RHODYN, Do_TMom, IfGCAL, EPrThr,
+     &                 DYSO, Do_TMom, IfGCAL, EPrThr,
      &                 IfvanVleck, TMins, TMaxs, IfGTCALSA, IfGTSHSA,
      &                 MULTIP, IfACAL, IfXCal, BStart, NBSTep, BIncre,
      &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,

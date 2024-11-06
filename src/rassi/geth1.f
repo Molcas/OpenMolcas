@@ -22,10 +22,10 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: ERFNuc, RFPert
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT None
 #include "rassi.fh"
       Real*8 HONEAO(NBSQ)
-#include "symmul.fh"
       Character(LEN=8) OneLbl
       Logical Found
       Real*8, Allocatable:: H1(:), Tmp(:)
