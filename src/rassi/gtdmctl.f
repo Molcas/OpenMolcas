@@ -39,6 +39,9 @@ C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
       use Cntrl, only: CIH5
+      use RASSIWfn, only: wfn_CMO, wfn_CMO_OR, wfn_DetCoeff,
+     &                    wfn_DetCoeff_OR, wfn_DetOcc,
+     &                    wfn_DetOcc_OR
 #endif
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
@@ -51,7 +54,6 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
      &                 RASTYP
       use cntrl, only: iToc15, LuIph, LuTDM
-      use RASSIWfn
 
       IMPLICIT NONE
 #include "rasdim.fh"
