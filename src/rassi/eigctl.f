@@ -18,6 +18,7 @@
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
       use Cntrl, only: IfTDM, IfTrD1
+      use RASSIWfn, only: wfn_SFS_Coef, wfn_SFS_Energy, WFN_SFS_TM
 #endif
       USE Constants, ONLY: Pi, auTocm, auToeV, auTofs, c_in_au, Debye,
      &                     Half, Zero, One, Two, Three, Six, Nine, Ten
@@ -30,7 +31,6 @@
      &                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE,
      &                 PNAME, PTYPE, Do_TMom
       use cntrl, only: LuTDM
-      use RASSIWfn
 
       IMPLICIT None
 #include "symmul.fh"
