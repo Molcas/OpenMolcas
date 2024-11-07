@@ -21,14 +21,11 @@ module write_pdft_job
   public :: writejob
 
 contains
-  subroutine writejob(adr19,e_pdft,si_pdft)
+  subroutine writejob(e_pdft,si_pdft)
     ! Writes energy and rotation matrix (to final states) to
     ! either the jobiph or the h5 file.
     !
     ! Args:
-    !   adr19: integer ndarray of shape (15)
-    !       Holds info on location of where data is stored in jobiph
-    !
     !   e_pdft: ndarray of length lroots (optional)
     !       Array containin final MS-PDFT energies.
     !       Expected to be of length lroots (defined in
@@ -40,14 +37,13 @@ contains
 
     use definitions,only:wp
     use constants,only:zero
-    use rasscf_global, only: lRoots
+    use rasscf_global,only:lRoots
 
     implicit none
 
 #include "rasdim.fh"
 #include "general.fh"
 
-    integer,intent(in) :: adr19(15)
     real(kind=wp),dimension(lroots),intent(in) :: e_pdft
     real(kind=wp),dimension(lroots**2),optional,intent(in) :: si_pdft
     real(kind=wp),dimension(mxroot*mxiter) :: energy
@@ -63,7 +59,7 @@ contains
       Enddo
     Enddo
 
-    call save_energies(adr19,energy)
+    call save_energies(energy)
 
     if(present(si_pdft)) then
       ! Move the rotated matrix into U variable
@@ -72,15 +68,13 @@ contains
           U(j,i) = si_pdft(lroots*(i-1)+j)
         enddo
       enddo
-      call save_ci(adr19,u)
+      call save_ci(u)
     endif
   endsubroutine writejob
 
-  subroutine save_energies(adr19,energy)
+  subroutine save_energies(energy)
     ! Save the energies in the appropriate place (jobIPH or .h5 file)
     ! Args:
-    !   adr19:
-    !
     !   energy: ndarray of len mxroot*mxiter
     !     Final PDFT energies with zeros in the rest of the array.
 
@@ -91,19 +85,23 @@ contains
     use mcpdft_input,only:mcpdft_options
     implicit none
 
+    real(kind=wp),dimension(:),intent(inout) :: energy
+
     !for general.fh (needs mxSym)
 #include "rasdim.fh"
     ! for jobiph
 #include "general.fh"
 
-    integer,dimension(15),intent(in) :: adr19
-    integer :: disk
-    real(kind=wp),dimension(:),intent(inout) :: energy
+    integer,dimension(15) :: adr19
+    integer :: disk,ad19
 #ifdef _HDF5_
     integer :: refwfn_id,wfn_energy
 #endif
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
+      adr19(:) = 0
+      ad19 = 0
+      call iDaFile(JOBIPH,2,adr19,15,ad19)
       disk = adr19(6)
       call DDaFile(jobiph,1,energy,size(energy),disk)
 #ifdef _HDF5_
@@ -117,13 +115,11 @@ contains
 
   endsubroutine save_energies
 
-  subroutine save_ci(adr19,U)
+  subroutine save_ci(U)
     ! Save the MS-PDFT final eigenvectors to either the jobIPH or .h5
     ! file.
     !
     ! Args:
-    !   adr19:
-    !
     !   U: ndarray of shape (lroots, lroots)
     !     Rotation matrix from intermediate state basis to final
     !     MS-PDFT eigenstate basis
@@ -141,10 +137,10 @@ contains
 #include "rasdim.fh"
     ! for jobiph
 #include "general.fh"
-    integer(kind=iwp),dimension(15),intent(in) :: adr19
+    integer(kind=iwp),dimension(15) :: adr19
     real(kind=wp),dimension(:,:),intent(in) :: U
 
-    integer(kind=iwp) :: disk,ncon = 0,i
+    integer(kind=iwp) :: disk,ncon = 0,i,ad19
     integer(kind=iwp),dimension(1) :: dum
     real(kind=wp),allocatable :: ci_rot(:,:),tCI(:,:)
     integer(kind=iwp) :: roots
@@ -171,6 +167,9 @@ contains
     call mma_allocate(ci_rot,roots,ncon,label='CI Rot')
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
+      adr19(:) = 0
+      ad19 = 0
+      call iDaFile(JOBIPH,2,adr19,15,ad19)
       disk = adr19(4)
     endif
 

@@ -77,7 +77,7 @@ contains
 
   endsubroutine
 
-  subroutine mspdft_finalize(nroots,iadr19)
+  subroutine mspdft_finalize(nroots)
     ! Performs the final parts of MS-PDFT, namely:
     !   1. diagonalize heff
     !   2. print out the final results
@@ -91,8 +91,6 @@ contains
     !   nroots: integer
     !     number of roots, or dimension of heff
     !
-    !   iadr19: integer list of length 15
-    !     Holds some information when writing out
 
     use definitions,only:iwp,wp,u6
     use stdalloc,only:mma_allocate,mma_deallocate
@@ -106,7 +104,6 @@ contains
     implicit none
 
     integer(kind=iwp),intent(in) :: nroots
-    integer(kind=iwp),dimension(15),intent(in) :: IADR19
 
     real(kind=wp),dimension(nroots) :: e_mspdft
     real(kind=wp),dimension(nroots,nroots) :: si_pdft
@@ -170,7 +167,7 @@ contains
     endif
 
     ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
-    if(mcpdft_options%wjob) call writejob(iadr19,e_mspdft,si_pdft=si_pdft)
+    if(mcpdft_options%wjob) call writejob(e_mspdft,si_pdft=si_pdft)
 
     if(iprlev >= usual) then
       call CollapseOutput(0,Line)

@@ -58,17 +58,12 @@
 #include "timers.fh"
 
       Logical IfOpened
-      Logical Found
 
-      integer IAD19
-      integer IADR19(1:15)
-      integer NMAYBE
-
-      real(kind=wp), allocatable :: Ref_E(:), EList(:,:), PUVX(:)
+      real(kind=wp), allocatable :: Ref_E(:), PUVX(:)
 
       Logical DSCF
-      Real*8 AEMAX, dum1, dum2, dum3, E
-      Integer I, iJOB, iPrLev, iRC, IT, jDisk
+      Real*8 dum1, dum2, dum3
+      Integer iPrLev, iRC
 
       Call StatusLine('MCPDFT:',' Just started.')
       IRETURN=_RC_ALL_IS_WELL_
@@ -162,47 +157,9 @@
 ! - Read in the CASSCF Energy from JOBIPH file.  These values are not
 ! used in calculations, but are merely reprinted as the reference energy
 ! for each calculated MC-PDFT energy.
-      iJOB=0
       Call mma_allocate(Ref_E,lroots,Label='Ref_E')
       Ref_E(:)=0.0D0
-        Call f_Inquire('JOBOLD',Found)
-        if (.not.found) then
-          Call f_Inquire('JOBIPH',Found)
-          if(Found) JOBOLD=JOBIPH
-        end if
-        If (Found) iJOB=1
-        If (iJOB.eq.1) Then
-           if(JOBOLD.le.0) Then
-             JOBOLD=20
-             Call DaName(JOBOLD,'JOBOLD')
-           end if
-        end if
-       IADR19(:)=0
-       IAD19=0
-      Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-      jdisk = IADR19(6)
-!I must read from the 'old' JOBIPH file.
-      Call mma_allocate(EList,MXROOT,MXITER,Label='EList')
-      Call DDaFile(JOBOLD,2,EList,MXROOT*MXITER,jdisk)
-      NMAYBE=0
-      DO IT=1,MXITER
-        AEMAX=0.0D0
-        DO I=1,MXROOT
-          E=EList(I,IT)
-          AEMAX=MAX(AEMAX,ABS(E))
-        END DO
-        IF(ABS(AEMAX).LE.1.0D-12) GOTO 11
-        NMAYBE=IT
-      END DO
-  11  CONTINUE
-
       call ref_energy(ref_e,lroots)
-
-      call mma_deallocate(elist)
-      If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
-        Call DaClos(JOBOLD)
-        JOBOLD=-1
-      End if
 
 ! Transform two-electron integrals and compute at the same time
 ! the Fock matrices FI and FA
@@ -257,12 +214,12 @@
       ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
       If(mcpdft_options%wjob .and.(.not.mcpdft_options%mspdft)) then
-        Call writejob(iadr19,ref_e)
+        Call writejob(ref_e)
       end if
 
         If (mcpdft_options%mspdft) Then
           call replace_diag(heff, ref_e, lroots)
-          call mspdft_finalize(lroots, iadr19)
+          call mspdft_finalize(lroots)
         End If
 
 *****************************************************************************************
