@@ -216,9 +216,9 @@ real(kind=wp) :: CpuItr, DE_KSDFT_c, DelThr, dFKmat, DiisTh, DltNrm = Zero, DltN
                  RotFac, RotLev, RotMax, RTemp, s2CNO, s2uhf, ScrFac, TemFac, Thize, ThrEne, ThrInt_old, TimFld(nFld), TNorm, &
                  Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop
 logical(kind=iwp) :: AddFragments, Aufb, c1Diis, Cho_Aufb, Damping, DDnOFF, Diis, Do_Addc, Do_Tw, DoCholesky, DoFMM, DoHLgap, &
-                     DSCF, EmConv, Falcon, FckAuf, isHDF5, LKon, lRel, MiniDn, MSYMON, NoExchange, NoProp, One_Grid, OnlyProp, &
-                     PmTime, PreSch, REORD, RFpert, RGEK = .false., RSRFO = .false., Scrmbl, Teee, Two_Thresholds, WarnCfg, &
-                     WarnPocc, WarnSlow, WrOutD
+                     DSCF, EmConv, Falcon, FckAuf, isHDF5, LKon, lRel, MiniDn, MSYMON, NoExchange, NoFerm, NoProp, One_Grid, &
+                     OnlyProp, PmTime, PreSch, REORD, RFpert, RGEK = .false., RSRFO = .false., Scrmbl, Teee, Two_Thresholds, &
+                     WarnCfg, WarnPocc, WarnSlow, WrOutD
 character(len=512) :: SCF_FileOrb
 character(len=80) :: ADDC_KSDFT, KSDFT, StVec
 character(len=72) :: Header(2), Title(1)
@@ -244,10 +244,10 @@ public :: AccCon, ADDC_KSDFT, AddFragments, ALGO, Atom, Aufb, BName, BType, c1Di
           klockan, KntE, kOptim, kOptim_Max, kOV, KSDFT, LKon, lPaper, lRel, LstVec, MapDns, MaxBas, MaxBOF, MaxBOO, MaxBxO, &
           MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv, MiniDn, mOV, MssVlc, MSYMON, MxConstr, MxIter, MxOptm, NamFld, nAtoms, nAufb, &
           nBas, nBB, nBO, nBT, nConstr, nCore, nD, nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, nIter, nIterP, nMem, nnB, &
-          nnFr, nnO, nnOc, nOcc, NoExchange, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, nStOpt, nSym, nTit, OccNo, OccSet_e, &
-          OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, QNRTh, QudThr, REORD, RFpert, RGEK, &
-          RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, Teee, TemFac, Thize, ThrEne, &
-          ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, TrDh, TrDP, TrM, TStop, &
+          nnFr, nnO, nnOc, nOcc, NoExchange, NoFerm, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, nStOpt, nSym, nTit, OccNo, &
+          OccSet_e, OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, QNRTh, QudThr, REORD, RFpert, &
+          RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, Teee, TemFac, Thize, &
+          ThrEne, ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, TrDh, TrDP, TrM, TStop, &
           Two_Thresholds, TwoHam, VTitle, Vxc, WarnCfg, WarnPocc, WarnSlow, WrOutD
 
 end module InfSCF
