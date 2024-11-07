@@ -17,24 +17,31 @@
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
      &    qcm_prefixes
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
 #endif
       use mspt2_eigenvectors
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
+      use Cntrl, only: NDET, NROOTS, QDPT2SC
 #endif
-      use cntrl_data, only: RefEne, HEff
+      use cntrl, only: RefEne, HEff
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl, only: HAVE_HEFF, IFEJOB, HAVE_DIAG,
+     &                 IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP,
+     &                 NHOLE1, MLTPLT, NACTE, NELE3, ISTAT,
+     &                 JBNAME, NSTATE, NSTAT
+      use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
+     &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
+     &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
+      use cntrl, only: iTOC15, LuIPH, IDCMO
+      use Symmetry_Info, only: nSym=>nIrrep
+
       IMPLICIT NONE
+! pick up MxSym, MxRoot, LENIN8, MxOrb, MxTit, MxIter
 #include "rasdim.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "symmul.fh"
 #include "rassi.fh"
-#include "jobin.fh"
-#include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
 
@@ -719,11 +726,15 @@ C Where is the CMO data set stored?
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
      &               mh5_close_file
 #endif
+      use Cntrl, only: NSTATE, ISTAT, NSTAT, JBNAME, LSYM1, NCONF1
+      use cntrl, only: NACTE1,MPLET1,NSYM1,NFRO1,NISH1,NASH1,NDEL1,
+     &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
+     &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
+      use cntrl, only: iTOC15, LuIph
+
       IMPLICIT NONE
+!pick up MxRoot, LenIn8, MxOrb, MxTit
 #include "rasdim.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "jobin.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
       integer :: ref_nstates

@@ -13,6 +13,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_lucia, only: Sigma_on_disk
+use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use csfbas, only: CONF, CTS
 use glbbas, only: CFTP, DTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
@@ -24,11 +25,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "timers.fh"
 #include "output_ras.fh"
-! lroots, maxjt in rasscf.fh
 ! nsel in general.fh
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr

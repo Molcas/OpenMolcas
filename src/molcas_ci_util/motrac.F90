@@ -21,6 +21,7 @@ subroutine MOTRAC(CMO,F,X1,X2)
 !
 ! ********** IBM-3090 RELEASE 86 12 05 **********
 
+use rasscf_global, only: iTRI
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -30,7 +31,6 @@ real(kind=wp), intent(inout) :: F(*)
 real(kind=wp), intent(out) :: X1(*), X2(*)
 integer(kind=iwp) :: ISTFA, ISTFP, ISYM, LMOP, LMOP1, NA, NB
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 
 LMOP = 1
@@ -50,7 +50,5 @@ do ISYM=1,NSYM
   LMOP = LMOP+NB**2
   ISTFP = ISTFP+ITRI(NB+1)
 end do
-
-return
 
 end subroutine MOTRAC

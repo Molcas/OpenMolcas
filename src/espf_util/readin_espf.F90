@@ -16,6 +16,7 @@ use espf_global, only: ConvF, MMIterMax, MxExtPotComp
 use Index_Functions, only: nTri_Elem1
 use external_centers, only: iXPolType, nData_XF, nOrd_XF, nXF, nXMolnr, XF
 use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Nine, Angstrom, auTokJmolnm
 use Definitions, only: wp, iwp, u6

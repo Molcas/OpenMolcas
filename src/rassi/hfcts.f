@@ -19,20 +19,21 @@
       SUBROUTINE HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,
      &                 ESO,XYZCHR,BOLTZ_K)
       use rassi_aux, only: ipglob
-      use Constants, only: One, auTocm, c_in_au, gElectron
+      use Constants, only: Zero, One, auTocm, c_in_au, gElectron
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl, only: NSTATE, NPROP, NTP, IFSONCINI, IFACALFC,
+     &                 IFACALSD, TMINP, TMAXP, EPRATHR, IFATCALSA,
+     &                 IFGTSHSA, MULTIP, IFACALFCON, IFACALFCSDON,
+     &                 ICOMP, IFACALPSO, MLTPLT, PNAME, IFACALSDON
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Integer NSS
       Real*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
       Integer JBNUM(NSTATE)
 
-      parameter (THRSH=1.0D-10)
-      parameter (ZERO=0.0D0)
+      Real*8, parameter :: THRSH=1.0D-10
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "hfc_logical.fh"
       Character(LEN=1) xyzchr(3)
       Character(LEN=8) SDPROP
@@ -68,6 +69,16 @@
       Real*8, Allocatable, Target:: MXR(:,:), MXI(:,:),
      &                              MYR(:,:), MYI(:,:),
      &                              MZR(:,:), MZI(:,:)
+
+      REAL*8 Alpha, Alpha2, FEGVAL, S1, S2, SM1, SM2,
+     &       AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, ACNT, FACT,
+     &       CGM, CG0, CGP, CGX, CGY, GSENERGY, DLT_E, EDIFF, GTIJ,
+     &       CONTRIB, DIPSOM_SA, EEX, EEY, EEZ, DCLEBS
+      Integer ISS, ISTATE, JOB, MPLET, MSPROJ, IPROP, ICEN,
+     &        IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6,
+     &        KPROP, MPLET1, MSPROJ1, JSS, JSTATE, MPLET2,
+     &        MSPROJ2, I, IMLTPL, J, IStart, iFinal, IJXYZ, L, IC, JC,
+     &        IT, K, KDGN, ISO, JSO, KXYZ, ICOUNT, IERR, IXYZ, JXYZ
 
 !     AU2J=auTokJ*1.0D3
 !     J2CM=auTocm/AU2J

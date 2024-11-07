@@ -32,10 +32,10 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
+      use Spool, only: LuWr
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
-#include "standard_iounits.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

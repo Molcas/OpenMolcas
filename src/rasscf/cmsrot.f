@@ -17,11 +17,12 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+      Implicit None
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "output_ras.fh"
 #include "warnings.h"
 
@@ -31,6 +32,8 @@
       Real*8,DIMENSION(:,:,:,:),Allocatable::DDG
       Real*8,DIMENSION(:,:,:),Allocatable::GDMat
       Real*8,DIMENSION(:,:),Allocatable::RotMat
+      Integer iPrLev
+
 C     Allocating Memory
       CALL mma_allocate(GDMat,LRoots*(LRoots+1)/2,NAC,NAC)
       CALL mma_allocate(RotMat,lRoots,lRoots)
@@ -88,11 +91,14 @@ C     Deallocating Memory
       Subroutine NStateOpt(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
+     &                         iCMSIterMin
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "output_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
@@ -106,6 +112,7 @@ C     Deallocating Memory
       Logical Converged
       Real*8 CalcNSumVee
       External CalcNSumVee
+      Integer iPrLev
 
       IPRLEV=IPRLOC(6)
 
@@ -168,11 +175,13 @@ C     Deallocating Memory
 
 ************************************************************************
       Subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
+      use rasscf_global, only: lRoots
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       INTEGER NPairs
       Real*8 SumVee
@@ -202,6 +211,7 @@ C      Real*8,DIMENSION(NPairs)::thetanew
 ************************************************************************
       SUBROUTINE OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
       use stdalloc, only : mma_allocate, mma_deallocate
+      Implicit None
       real*8 Angle,SumVee
       INTEGER I1,I2,lRoots
       Real*8,DIMENSION(lRoots,lRoots)::RotMat
@@ -214,10 +224,8 @@ C      Real*8,DIMENSION(NPairs)::thetanew
       Real*8,DIMENSION(:),Allocatable::ScanA,ScanS
       Real*8,DIMENSION(:,:),Allocatable::RTmp
 
-      Real*8 CalcNSumVee
-      External CalcNSumVee
-      INTEGER RMax
-      External RMax
+      Real*8, External ::CalcNSumVee
+      INTEGER, External ::RMax
 
       CALL mma_allocate(Angles,4)
       CALL mma_allocate(Sums,4)
@@ -288,6 +296,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 ************************************************************************
 ************************************************************************
       Function RMax(A,N)
+      Implicit None
        INTEGER N,RMax
        Real*8,DIMENSION(N)::A
        INTEGER I
@@ -301,11 +310,12 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 ************************************************************************
       Function CalcNSumVee(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global, only: lRoots
+      Implicit None
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
@@ -325,6 +335,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 ************************************************************************
 ************************************************************************
       Subroutine Copy2DMat(A,B,NRow,NCol)
+      Implicit None
       INTEGER NRow,NCol,IRow,ICol
       Real*8,DIMENSION(NRow,NCol)::A,B
       DO ICol=1,NCol
@@ -337,9 +348,11 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 ************************************************************************
 ************************************************************************
       Subroutine CMSMatRot(Mat,A,I,J,N)
+      Implicit None
       INTEGER I,J,N
       Real*8 A
       Real*8,DIMENSION(N,N)::Mat,TM
+      INTEGER K
       DO K=1,N
        TM(I,K)=Mat(I,K)
        TM(J,K)=Mat(J,K)
@@ -353,6 +366,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
 ************************************************************************
 ************************************************************************
       Subroutine CMSFitTrigonometric(x,y)
+      Implicit None
       real*8,DIMENSION(4)::x,y
       real*8 s12,s23,c12,c23,d12,d23,k,a,b,c,phi,psi1,psi2,val1,val2
       real*8 atan1
@@ -391,11 +405,13 @@ C      write(6,*)a,b,c,x(4),y(4)
 
 ************************************************************************
       Subroutine CalcVee(Vee,RMat,DDg)
+      use rasscf_global, only: lRoots
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RMat
@@ -422,11 +438,13 @@ C     & IState,' is ',Vee(IState)
 ************************************************************************
 ************************************************************************
       Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
+      use rasscf_global, only: lRoots, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
@@ -477,11 +495,13 @@ C     & IState,' is ',Vee(IState)
 * Loading TUVX array to a 4-D tensor.                            *
 * Copyied from src/molcas_ci_util/david5.f                       *
 * ****************************************************************
+      use rasscf_global, only: NACPR2, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -513,11 +533,14 @@ C     & IState,' is ',Vee(IState)
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax,
+     &                         iCMSIterMin
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "output_ras.fh"
 #include "warnings.h"
 
@@ -532,8 +555,8 @@ C     & IState,' is ',Vee(IState)
       Real*8,DIMENSION(:),Allocatable::Vee
       Real*8,DIMENSION(:,:),Allocatable::FRot
       Logical Converged
-      Real*8 SumArray
-      External SumArray
+      Real*8, External :: SumArray
+      Integer iPrLev
 
       IPRLEV=IPRLOC(6)
 
@@ -611,11 +634,13 @@ C     & IState,' is ',Vee(IState)
 
       SubRoutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global, only: lRoots, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       Real*8 ang,change
       Integer I1,I2
@@ -630,8 +655,7 @@ C     & IState,' is ',Vee(IState)
       Real*8,DIMENSION(:),Allocatable::Angles,Sums
       Real*8,DIMENSION(:),Allocatable::ScanA,ScanS
 
-      INTEGER RMax
-      External RMax
+      INTEGER, External :: RMax
 
       CALL mma_allocate(Angles,4)
       CALL mma_allocate(Sums,4)
@@ -696,11 +720,12 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 ************************************************************************
       Subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global, only: lRoots, NAC
+      Implicit None
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
       Real*8 SV,A,V1,V2
@@ -861,11 +886,13 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 
       Subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
+      use rasscf_global, only: lRoots, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       INTEGER NP
       Real*8,DIMENSION(NP)::theta
@@ -897,6 +924,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 ************************************************************************
       Function SumArray(A,N)
+      Implicit None
       INTEGER N,I
       Real*8,DIMENSION(N)::A
       Real*8 SumArray
@@ -910,11 +938,13 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 ************************************************************************
       Subroutine CalcVee2(Vee,GD,Gtuvx)
+      use rasscf_global, only: lRoots, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
       Real*8,DIMENSION(lRoots)::Vee
@@ -940,11 +970,13 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
 ************************************************************************
       Subroutine RotGDMat(R,GD)
+      use rasscf_global, only: lRoots, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD,GD2

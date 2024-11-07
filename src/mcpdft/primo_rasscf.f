@@ -17,15 +17,15 @@
 
       use mcpdft_output, only: lf
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: BName, OutFmt2, PreThr
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
       Character(LEN=*) VecTit
       Real*8 CMO(*),Occ(*),Ene(*)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 
       Integer NSLCT(8)
       Character(LEN=3) lIrrep(8)
@@ -35,6 +35,11 @@
       Character(LEN=LENIN8), External:: Clean_BName
 
       Integer, Allocatable:: MrkIt(:), SLCT(:)
+
+      Real*8 CC
+      Integer I, IB, IBAS, IBOFF, ICOFF, ICOL, IO, IORB, IS, ISEND,
+     &        ISOFF, ISSTART, IST, ISYM, left, lLine, lPaper, NB, NBTOT,
+     &        nCols, ND, NFIA, NO, NS, NSLCTT
 
       Call Get_cArray('Irreps',lIrrep,24)
 
@@ -61,7 +66,7 @@
       Write(LF,Fmt2//'A)') trim(VecTit)
       Write(LF,*)
 
-* Flag ipt2 in common in src/Include/rasscf.fh
+* Flag ipt2 in nodule rasscf_global.F90
 *   ipt2=0 means usual MO's, quasicanonical for
 ! In MC-PDFT, ipt2 is always 0
 * inactives and virtuals, natural for active.
@@ -194,7 +199,7 @@
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I3,1X,A,10F10.4)') IB,
-     &        Clean_BName(NAME(IBOFF+IB),LENIN),
+     &        Clean_BName(BName(IBOFF+IB),LENIN),
      &        (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
            END DO
@@ -241,7 +246,7 @@
                 CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
                 IF ( ABS(CC).GE.0.1D0 ) THEN
                   Write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)')
-     &              IBAS,Clean_BName(NAME(IBOFF+IBAS),LENIN),
+     &              IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),
      &              '(',CC,')'
                   IST = IST+28
                   IF ( IST.GT.(132-LEFT-28) ) THEN

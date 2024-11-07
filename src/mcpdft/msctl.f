@@ -41,14 +41,19 @@
       use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      use rasscf_global, only: DFTFOCK, ECAS, EMY, nRoots, ExFac,
+     &                         IADR15, IPR, iRLXRoot, lRoots, lSquare,
+     &                         NAC, NACPAR, NACPR2, nFint, NonEq, NSXS,
+     &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
+     &                         Tot_Nuc_Charge, ISTORP, ENER
+
+      Implicit None
 
       Real*8 CMO(*), FI(*), FA(*), Ref_Ener(*)
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
-#include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 !      Logical TraOnly
@@ -56,7 +61,6 @@
 *
       Character(LEN=8) Label
       Logical First, Dff, Do_DFT,Found
-      Parameter ( Zero=0.0d0 , One=1.0d0 )
       integer IAD19
       integer iJOB,dmDisk
       integer IADR19(1:30)
@@ -78,6 +82,12 @@
      &                      FockI_Save(:), TUVX_tmp(:), PUVX_tmp(:),
      &                      P(:), P1(:), FOCK(:), Q(:), BM(:),
      &                      FOne(:), FA_t(:)
+      Real*8 CASDFT_E, CASDFT_Funct, EactK, EactN, Ekin, ENuc, EOne,
+     &       ETwo, PotNuc_Ref
+      Integer i, IADD, iBas, iCharge, iComp, iDisk, iFinal, iOff, iOpt,
+     &        iPrLev, iRC, iSA, iSyLbl, itsDisk, ITU, j, LUTMP, NIAIA,
+     &        NT, NTU, NU
+      Real*8, External:: DDot_
 
 ***********************************************************
 C Local print level (if any)
@@ -1201,6 +1211,8 @@ c      call xflush(6)
 
       Subroutine P2_contraction(D1MO,P2MO)
       use definitions, only: wp
+      use rasscf_global, only: NAC
+
       implicit none
 
       real(kind=wp), dimension(*), intent(in) :: d1mo
@@ -1208,7 +1220,6 @@ c      call xflush(6)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
       integer :: i, j, k, l, ij, kl, ijkl, lmax
       real(kind=wp) :: fact
 

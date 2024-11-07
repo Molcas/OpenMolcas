@@ -12,13 +12,12 @@
       use OneDat, only: sNoNuc, sNoOri
       use rassi_aux, only : iDisk_TDM
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "SysDef.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
+      use Cntrl, only: nState, NrNATO
+      use cntrl, only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
       Real*8 DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       REAL*8 EIGVEC(NSTATE,NSTATE)
 
@@ -31,6 +30,12 @@
       Real*8 Dummy(1)
       Integer iDummy(7,8)
       Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), SCR(:), EIG(:)
+
+      Integer NSZZ, NVEC, NVEC2, NSCR, NEIG, IRC, IOPT, ICMP, ISYLAB,
+     &        LS, LV, LE, ISYM, NB, LS1, LV1, LE1, I, KEIG, J, IEMPTY,
+     &        IDISK, IGO, ID, INV, IOCC, ID1, ID2, ISCR, IJ, JI, I1,
+     &        I2, ISTOCC, LUXXVEC, II
+      REAL*8 X, SumOcc
 
 C ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI

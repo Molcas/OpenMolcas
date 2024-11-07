@@ -23,7 +23,7 @@
       use Para_Info, only: MyRank
       use stdalloc, only: mma_allocate, mma_deallocate
       use linalg_mod, only: verify_
-      use rasscf_data, only: nAc, nAcPar, nAcpr2, nroots
+      use rasscf_global, only: nAc, nAcPar, nAcpr2, nroots
       use general_data, only: JobIPH
       implicit none
       private

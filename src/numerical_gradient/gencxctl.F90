@@ -23,6 +23,7 @@ subroutine genCxCTL(iStop,Cartesian,rDelta)
 
 use Slapaf_Info, only: BMx, BSet, Coor, Curvilinear, Free_Slapaf, HSet, iRef, iter, mTROld, mTtAtm, nDimBC, nLambda, Numerical, &
                        nWndw, PrQ, qInt, Shift
+use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

@@ -35,13 +35,15 @@
 *                                                                      *
 ************************************************************************
       use general_data, only: CleanMask
-      Implicit Real*8 (A-H,O-Z)
+
+      Implicit None
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 
       Real*8 CMO(*)
+
+      Integer ij, iSym, mBas, i, j
 
 * Prelude
 

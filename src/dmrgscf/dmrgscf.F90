@@ -13,7 +13,7 @@
 
 subroutine dmrgscf(iReturn)
 
-use rasscf_data, only: doDMRG
+use rasscf_global, only: doDMRG
 use Definitions, only: iwp
 
 implicit none

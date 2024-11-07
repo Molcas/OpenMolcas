@@ -31,7 +31,6 @@
       INTEGER ITABS,JTABS,IJTABS
       INTEGER NSDCHSM
       LOGICAL IF20,IF02
-#include "symmul.fh"
       Real*8, Allocatable:: SDCHSM(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

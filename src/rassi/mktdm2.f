@@ -16,10 +16,11 @@
 
       ! module dependencies
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_info
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: MUL
       IMPLICIT NONE
       INTEGER LSYM1,MPLET1,MSPROJ1
       INTEGER IFSBTAB1(*)
@@ -41,7 +42,6 @@
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
       INTEGER NASGEM,NSPD2
-#include "symmul.fh"
       Real*8, Allocatable:: SPD2(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

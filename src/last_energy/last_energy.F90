@@ -11,6 +11,7 @@
 
 subroutine Last_Energy(iReturn)
 
+use spool, only: disable_spool
 use Definitions, only: iwp, u6
 
 implicit none

@@ -11,8 +11,8 @@
       subroutine wfnsizes_rassi
       use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
       use rassi_aux, only : nasht_save
+      use Symmetry_Info, only: nSym=>nIrrep
       implicit none
-#include "symmul.fh"
 #include "rassi.fh"
       integer :: isym
 C The structure of the orbital space:

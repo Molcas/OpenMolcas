@@ -44,7 +44,6 @@ C is just a printing code.
       INTEGER LORB,JORB,IORB
       INTEGER JORBA,JORBB,LORBA,LORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,LTABS,JLTABS,IJLTABS
-#include "symmul.fh"
       Real*8, Allocatable:: SRT2M(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,

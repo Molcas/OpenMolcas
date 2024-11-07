@@ -28,6 +28,7 @@
 subroutine RdInput_Quater(U1,U2,V1,V2)
 
 use Quater_globals, only: debug, rotate, translate, ngeoms, list, XYZ1, XYZ2
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 

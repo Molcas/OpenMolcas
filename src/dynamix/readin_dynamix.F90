@@ -11,6 +11,7 @@
 
 subroutine ReadIn_Dynamix(Task,nTasks,mTasks)
 
+use spool, only: Spoolinp
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

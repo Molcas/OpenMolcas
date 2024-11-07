@@ -16,11 +16,13 @@
 * Jie J. Bao, on May. 21, 2020, created this file.               *
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global, only: LROOTS, NAC
+
+      Implicit None
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
 ******Input
@@ -61,11 +63,13 @@ C     Deallocating Memory
 
       Subroutine CalcFckO(CMO,FI,FA,FckO)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global, only: NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 ******Input
       Real*8,DIMENSION(NTOT1)::FI,FA
@@ -138,17 +142,20 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
       use rasscf_lucia, only: DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use Lucia_Interface, only: Lucia_Util
+      use rasscf_global, only: lRoots, nAc, iAdr15
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+
 *     Auxiliary qunatities
       INTEGER CIDisk1,CIDisk2
-      INTEGER NIJ2
+      INTEGER NIJ2, jRoot, kRoot, iOrb, jOrb
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
       Real*8, Allocatable:: VecL(:), VecR(:)
 
@@ -195,11 +202,13 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 ******************************************************
 
       Subroutine CalcFckS(FckO,GDMat,FckS)
+      use rasscf_global, only: lRoots, nAc
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
 ******Input
@@ -208,7 +217,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 ******Output
       Real*8,DIMENSION(lRoots,lRoots)::FckS
 ******Auxiliary variables
-      INTEGER IState,JState
+      INTEGER IState,JState, iOrb, jOrb
 
       FckS(:,:)=0.0d0
 
@@ -232,6 +241,7 @@ C      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
 
       Subroutine CalcEigVec(Matrix,NDIM,EigVec)
       use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 
 ******Input
       INTEGER NDim
@@ -243,7 +253,7 @@ C      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
       Real*8,DIMENSION(2)::WGRONK
 ******Auxiliary quantities
       INTEGER NElem ! NElem=NDim**2
-      INTEGER IRow,ICol,IRIC
+      INTEGER IRow,ICol,IRIC,NI
       LOGICAL UseJacob
 
       UseJacob=.true.
@@ -311,9 +321,10 @@ C       END DO
 ******************************************************
 
       Subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,
-     &LenName,LenInfo,Trans)
+     &                    LenName,LenInfo,Trans)
+      Implicit None
 
-      INTEGER NRow,NCol,LenName
+      INTEGER NRow,NCol,LenName,LenInfo
       CHARACTER(Len=LenName)::FileName
       CHARACTER(Len=LenInfo)::MatInfo
       CHARACTER(Len=1)::Trans
@@ -356,9 +367,10 @@ C       END DO
 ******************************************************
 
       Subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,
-     &LenName,LenInfo,Trans)
+     &                   LenName,LenInfo,Trans)
+      Implicit None
 
-      INTEGER NRow,NCol,LenName
+      INTEGER NRow,NCol,LenName,LenInfo
       CHARACTER(Len=LenName)::FileName
       CHARACTER(Len=LenInfo)::MatInfo
       CHARACTER(Len=1)::Trans

@@ -21,9 +21,12 @@
       use mspdft, only: F1MS, F2MS, FxyMS, FocMS, DIDA, P2MOt,
      &                  D1AOMS, D1SAOMS
       use wadr, only: FockOcc
+      use rasscf_global, only: lroots, iRLXRoot, NACPR2, nRoots,
+     &                         nTot4
+      Implicit None
+
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 
       INTEGER ij,iS,jRoot,iBas,jBas

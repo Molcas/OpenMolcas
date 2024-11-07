@@ -12,17 +12,20 @@
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HDIAG
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "symmul.fh"
+      use Cntrl, only: NSTATE, NPROP, PRXVR, IFHAM, ToFile,
+     &                 IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED,
+     &                 PNAME, PNUC, PORIG
+      use cntrl, only: FnEig, LuEig
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "SysDef.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 
       Real*8, Allocatable:: DerCpl(:), NucChg(:)
+      Integer nCol, iProp, i, ISTA, IFON, j, iState, iDisk, jState,
+     &        NST, nAtom, IEND, IfHD
+      REAL*8 X, PLIMIT, PMAX
 *
 
 C Print results:

@@ -15,15 +15,12 @@
       use frenkel_global_vars, only: iTyp, jTyp, valst, nestla,
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
-      implicit real(kind=wp) (A-H,O-Z)
+      use Symmetry_Info, only: nSym=>nIrrep
+
+      implicit none
+! pick up MxRoot
 #include "rasdim.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "Morsel.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "jobin.fh"
-#include "symmul.fh"
       integer(kind=iwp) :: nstat1, nstat2,
      &                     run, lWKX, dimn, a, b
       integer(kind=iwp), external :: isFreeUnit
@@ -40,6 +37,11 @@
 #else
       logical :: debug_rassi_code = .false.
 #endif
+      integer LuT_, LuT, LuTX4, iAddr, nijkl, iState, jState, LuT1,
+     &        LWK1, I, LuTX1, lState, LuT2, LWK2, LuTX2, N, nAtoms,
+     &        kState
+      Real*8, External:: DDot_
+      Real*8 Vnn_AB, AB_Nuc, EBNucA, EANucB, Discrim, EECoupl
 
       call StatusLine('RASSI:','Starting Excitonic Coupling Section')
       LuT_ = 10

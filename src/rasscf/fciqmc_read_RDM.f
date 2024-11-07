@@ -21,12 +21,13 @@
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
      &               mh5_get_dset_dims
       use index_symmetry, only : one_el_idx
+      use RASWFn, only: wfn_dens, wfn_spindens
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use para_info, only: myRank
-      use rasscf_data, only : NRoots, iAdr15, NAc
+      use rasscf_global, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
      &                           one_el_idx_flatten
@@ -35,7 +36,6 @@
 
       implicit none
 
-#include "raswfn.fh"
 #include "intent.fh"
 
       private

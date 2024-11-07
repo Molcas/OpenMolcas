@@ -40,29 +40,58 @@
       use KSDFT_Info, only: CoefR, CoefX
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use rctfld_module, only: lRF
+      use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
+      use Constants, only: Zero
+      use rasscf_global, only: KSDFT, DoBlockDMRG, DoDMRG, ICICH,
+     &                         ICIRST, iPCMRoot, iRLXRoot, iSupSM,
+     &                         ITMAX, l_casdft, lRoots, lSquare, LvShft,
+     &                         MAXIT, n_Det, NAC, NFR, NIN, NONEQ,
+     &                         NROOTS, NSEC, nTit, RFPert, ThrE, ThrSX,
+     &                         ThrTE, Tot_Charge, Tot_El_Charge,
+     &                         Tot_Nuc_Charge, Title, Header, iRoot,
+     &                         Weight, iCI, cCI, ixSym, NQUNE
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: dice_eps1, dice_eps2, dice_iter,
+     &                         dice_Restart, dice_SampleN,
+     &                         Dice_Stoc, nRef_Dice, diceocc
+#endif
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
+      use rasscf_global, only: MXDMRG, ChemPS2_blb, ChemPS2_lreStart,
+     &                         ChemPS2_Noise, ChemPS2_Restart,
+     &                         Davidson_tol, Do3RDM, HFOcc,
+     &                         Max_canonical, Max_Sweep
+#endif
 
-      Implicit Real*8 (A-H,O-Z)
+
+      Implicit None
+      Logical lOPTO
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
 #include "ciinfo.fh"
 #include "splitcas.fh"
 #include "lucia_ini.fh"
-      Character*8   Fmt1,Fmt2,Label
-      Character*120  Line,BlLine,StLine
-      Character*3 lIrrep(8)
-      Character*80 KSDFT2
+      Character(LEN=8)   Fmt1,Fmt2,Label
+      Character(LEN=120)  Line,BlLine,StLine
+      Character(LEN=3) lIrrep(8)
+      Character(LEN=80) KSDFT2
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Character*3 SNAC
+      Character(LEN=3) SNAC
+      Integer iHFOcc
 #endif
       Logical DoCholesky
-      Logical lOPTO
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iRef_Dice
+#endif
       Real*8, Allocatable:: Tmp0(:)
+      Real*8 AvailMB, WillNeedMB
+      Integer i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC,
+     &        iRef, iStart, iSyLbl, iSym, iTemp, left, lLine, lPaper,
+     &        MaxRem, n_paired_elec, n_unpaired_elec, nLine
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -70,7 +99,6 @@
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
       lPaper=132
-      Zero = 0.0D0
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
@@ -631,5 +659,4 @@ C.. for GAS
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine InpPri

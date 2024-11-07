@@ -18,6 +18,7 @@ subroutine RPA_RdInp()
 ! Parse and process RPA input.
 
 use RPA_globals, only: dRPA, iPrint, LumOrb, nFreeze, nFro, mTitle, nTitle, SOSEX, Title
+use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 

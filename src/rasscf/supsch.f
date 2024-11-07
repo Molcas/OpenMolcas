@@ -24,14 +24,16 @@ C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+      IMPLICIT None
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
+
       Real*8, Allocatable:: Temp1(:), Temp2(:)
       Integer, Allocatable:: IxSym2(:)
+      Integer :: iSym, nOrb_Tot, nOrbMx
 *
 *
       nOrbMX=0
@@ -52,8 +54,7 @@ C
       Call mma_deallocate(Temp1)
 *
 *
-      Return
-      End
+      End SUBROUTINE SUPSCH
       SUBROUTINE SUPSCH_(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,
      &                   nOrb_tot)
 C
@@ -69,22 +70,26 @@ C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use OneDat, only: sNoNuc, sNoOri
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
+
+      IMPLICIT None
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SUPSCH_ ')
-
-      DIMENSION CMOO(*),CMON(*),SMAT(*)
-
-      DIMENSION Temp1(nOrbMX*nOrbMX),Temp2(nOrbMX*nOrbMX)
+      Integer nOrbMX, nOrb_Tot
+      Real*8 CMOO(*),CMON(*),SMAT(*)
+      Real*8 Temp1(nOrbMX*nOrbMX),Temp2(nOrbMX*nOrbMX)
       INTEGER IxSym2(nOrb_tot)
+
+      Character(LEN=16), Parameter ::  ROUTINE='SUPSCH_ '
       Integer pSij
-      DIMENSION DUM(1)
+      Real*8 DUM(1)
       character(len=8) :: Label
+      Integer :: i_Component, i_Opt, i_RC, i_SymLbl, iGroup, iLabel,
+     &           iOrb, iOrder, iPrLev, iSafe, jOrb, kCof, kGroup, kOrb,
+     &           nBs, nnOrb, nOGr1, nOGr2, iSym
+      Real*8 :: OldOvlp, Ovlp1, Ovlp2, xOvlp
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -210,6 +215,4 @@ C
        End do
       End if
 C
-C
-      RETURN
-      END
+      END SUBROUTINE SUPSCH_

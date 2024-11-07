@@ -15,15 +15,16 @@
 *
 ************************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
 
-      Character*(*) VecTit
+      Implicit None
+
+      Character(LEN=*) VecTit
       Real*8 CMO(*),Occ(*),Ene(*)
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
 
       Integer NSLCT(8)
       Logical   PrOcc,PrEne
@@ -35,6 +36,10 @@
 * PAM Nov 05: Non-valence orbitals
       Integer NVSH(8)
       Integer, Allocatable:: MrkIt(:), Slct(:)
+      Real*8 CC
+      Integer I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND,
+     &        ISOFF, ISStart, IST, ISYM, left, lPaper, NB, NBTOT,
+     &        nCols, ND, NFIA, NO, NS, NSKIP, NSLCTT, lLine
 
       Call Get_cArray('Irreps',lIrrep,24)
 
@@ -63,7 +68,7 @@
       Write(LF,Fmt2//'A)') trim(VecTit)
       Write(LF,*)
 
-* Flag ipt2 in common in src/Include/rasscf.fh
+* Flag ipt2 in common in module rasscf_global.F90.
 *   ipt2=0 means usual MO's, quasicanonical for
 * inactives and virtuals, natural for active.
 *   ipt2=1 means quasicanonical for actives also.
@@ -214,7 +219,7 @@
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I4,1X,A,10F10.4)') IB,
-     &        Clean_BName(NAME(IBOFF+IB),LENIN),
+     &        Clean_BName(BName(IBOFF+IB),LENIN),
      &        (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
            END DO
@@ -275,7 +280,7 @@
                 CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
                 IF ( ABS(CC).GE.0.1D0 ) THEN
                   Write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)')
-     &              IBAS,Clean_BName(NAME(IBOFF+IBAS),LENIN),
+     &              IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),
      &              '(',CC,')'
                   IST = IST+28
                   IF ( IST.GT.(132-LEFT-28) ) THEN

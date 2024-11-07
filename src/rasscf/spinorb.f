@@ -10,20 +10,24 @@
 ************************************************************************
       SUBROUTINE SPINORB(D,CMO,OCC,kroot)
       use stdalloc, only: mma_allocate, mma_deallocate
+
 C
 C     Purpose: diagonalize the spin density matrix (D) to
 C     obtain the eigenvectors (EVEC) and the eigenvalues (EVAL).
 C     Then the natural spinorbitals (CMONSO) are computed
 C     (only active).
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character(LEN=16):: ROUTINE='SPINORB '
       Real*8 D(*),CMO(*),OCC(*)
+      Integer :: KROOT
+
+      Character(LEN=16):: ROUTINE='SPINORB '
       Real*8, Allocatable:: W1(:,:), W2(:,:)
+      Integer :: I, IPCMO, IPDEN, IPOCC, iPrLev, iSym, NA, NB, NF, NI
+      Integer :: IDIAG
 C
 C
 C Local print level (if any)

@@ -55,17 +55,20 @@
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: ECAS, EMY, ExFac, NAC, nFint, VIA
 
-      Implicit Real*8 (A-H,O-Z)
-
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
-      Character(LEN=16), Parameter:: ROUTINE='FMAT    '
+      Implicit None
 
       Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
+#include "rasdim.fh"
+#include "general.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FMAT    '
+
+
       Real*8, allocatable:: Tmp1(:), Tmp2(:)
+      Integer iBas, iFro, iOff, iOff1, iOff2, iOff3, iOrb, iPrLev, iSym
+      Real*8, External:: DDot_
 
 
 C Local print level (if any)

@@ -15,6 +15,7 @@ subroutine Readinp_expbas()
 ! Author: G. Li Manni (University of Geneva)
 
 use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
+use spool, only: Spoolinp
 use Definitions, only: iwp, u6
 
 implicit none

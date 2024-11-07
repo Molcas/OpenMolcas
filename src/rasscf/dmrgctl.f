@@ -46,9 +46,15 @@
       use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
-!     use sxci, only: IDXSX
+      use gas_data, only: iDoGAS
+      use Constants, only: Zero
+      use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots,
+     &                         n_Det, NAC, NACPAR, NACPR2, nFint,
+     &                         nRoots, S, iAdr15, iRoot, Weight,
+     &                         DFTFOCK
 
-      Implicit Real* 8 (A-H,O-Z)
+      Implicit None
+      Integer iFinal, IRst
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
 c     Logical Exist
@@ -59,17 +65,15 @@ c     Logical Exist
      &                      TmpPUVX(:), TmpTUVX(:)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
 #include "SysDef.fh"
 #include "timers.fh"
-#include "gas.fh"
-#include "pamint.fh"
-*PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-*
 C Local print level (if any)
+      Integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
+      Real*8 dum1, dum2, dum3, Scal
+
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
@@ -87,7 +91,6 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*) ' iteration count =',ITER
       End If
-      if(ifinal.ne.0) PamGen1=.True.
 *
 * SOME DIRTY SETUPS
 *
@@ -299,7 +302,6 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
       Call Timing(Rado_1,dum1,dum2,dum3)
-      Zero = 0.0d0
       Call dCopy_(NACPAR,[Zero],0,D,1)
       Call dCopy_(NACPAR,[Zero],0,DS,1)
       Call dCopy_(NACPR2,[Zero],0,P,1)
@@ -480,8 +482,7 @@ c       Call Put_dArray("RF CASSCF Vector",RF,nConf)
 c       Call mma_deallocate(RF)
 c     End If
 *
-      Return
-      End
+      End Subroutine DMRGCtl
 
 #elif ! defined (EMPTY_FILES)
 

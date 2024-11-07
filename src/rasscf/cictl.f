@@ -27,7 +27,7 @@
 *> there has been no orbital optimization, or the calculation is
 *> converged. \p IFINAL = ``2`` means this is a final CI calculation, using the
 *> final orbitals. For meaning of global variables \c NTOT1, \c NTOT2, \c NACPAR
-*> and \c NACPR2, see src/Include/general.fh and src/Include/rasscf.fh.
+*> and \c NACPR2, see src/Include/general.fh and rasscf_global.F90.
 *>
 *> @param[in]     CMO    MO coefficients
 *> @param[out]    D      Average 1-dens matrix
@@ -61,6 +61,7 @@
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use RASWfn, only: wfn_dens, wfn_spindens, wfn_cicoef
 #endif
       use csfbas, only: CONF
       use glbbas, only: CFTP
@@ -70,6 +71,8 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2
+      use RASWfn, only: wfn_dmrg_checkpoint
+      use input_ras, only: KeyCION
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
@@ -77,9 +80,22 @@
       use sxci, only: IDXSX
       use stdalloc, only: mma_allocate, mma_deallocate
       use general_data, only: CRVec
+      use gas_data, only: iDoGAS
+      use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
+      use rasscf_global, only: CMSStartMat, DoDMRG,
+     &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
+     &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
+     &                         l_casdft, lroots, n_Det, NAC, NACPAR,
+     &                         NACPR2, nRoots, PrwThr, RotMax, S,
+     &                         IADR15, iRoot, Weight, Ener
+#ifdef _DMRG_
+      use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
+#endif
 
-      Implicit Real* 8 (A-H,O-Z)
 
+      Implicit None
+
+      Integer iFinal
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
       Logical Exist,Do_ESPF
@@ -94,19 +110,13 @@
       integer, external :: IsFreeUnit
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='CICTL   ')
+      Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
 #include "timers.fh"
-#include "pamint.fh"
-#include "input_ras.fh"
 #ifdef _HDF5_
-#include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
 #endif
 
@@ -121,13 +131,18 @@
 
       ! arrays for 1- and 2-RDMs and spin-1-RDMs, size: nrdm x nroots
       real*8, allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
-c #include "nevptp.fh"
+      integer ilen, iErr
 #endif
-      Dimension rdum(1)
+      real*8 rdum(1)
       Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
      &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
      &                      RF(:), Temp(:)
       Integer, Allocatable:: kCnf(:)
+      Integer LuVecDet
+      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
+      Real*8, External:: DDot_
+      Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
+     &        jRoot, kRoot, mconf
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
@@ -160,7 +175,6 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*) ' iteration count =',ITER
       End If
-      if(ifinal.ne.0) PamGen1=.True.
 
 !      do i=1,NTOT2  ! yma
 !        write(*,*)"ifinal CMO",ifinal,i,CMO(i)
@@ -1055,5 +1069,4 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         Call mma_deallocate(RF)
       End If
 
-      Return
-      End
+      End Subroutine CICtl

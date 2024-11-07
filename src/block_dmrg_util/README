@@ -19,7 +19,7 @@ src/block_dmrg_util/block_densi_rasscf.f
 src/rasscf/dmrgctl.f
 
 Modified:
-src/Include/rasscf.fh
+src/molcas_ci_util/rasscf_global.F90
 src/rasscf/rasscf.f
 src/rasscf/input_ras.fh
 src/rasscf/inppri.f

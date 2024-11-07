@@ -10,8 +10,11 @@
 ************************************************************************
       SUBROUTINE LINPUR(CMO)
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: BName, IXSYM
+
+      IMPLICIT None
       Real*8 CMO(*)
+
       CHARACTER(LEN=2) LCHAR
       Real*8 WGTLMB(0:9)
       LOGICAL IFTEST
@@ -19,9 +22,11 @@
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:
 #include "general.fh"
-* rasscf.fh defines NAME:
-#include "rasscf.fh"
       Integer, Allocatable:: LMB(:)
+      Integer i, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
+     &        ISYM, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT, NO,
+     &        NONZ
+      REAL*8 WGT, WMX
 
 * Set IFTEST=.true. to get supsym input generated in the output
 * for further use, or for testing.
@@ -36,7 +41,7 @@
       END DO
       CALL mma_allocate(LMB,NBTOT,Label='LMB')
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN4:LENIN5)
+       LCHAR=BName(IBAS)(LENIN4:LENIN5)
        IF(LCHAR.EQ.'  ') THEN
          L=0
        ELSE IF(LCHAR.EQ.'x ') THEN
@@ -47,7 +52,7 @@
          L=0
        ELSE
          READ(LCHAR,'(I2)') L
-         IF (NAME(IBAS)(LENIN5:LENIN5).EQ.'-') THEN
+         IF (BName(IBAS)(LENIN5:LENIN5).EQ.'-') THEN
            L=-L
          END IF
        END IF

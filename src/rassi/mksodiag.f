@@ -11,17 +11,12 @@
       SUBROUTINE mkSODIAG(UMATR, UMATI, NSS)
       use rassi_aux, only: ipglob
       use Constants, only: cm_s, hPlanck, gElectron, mBohr
-      use cntrl_data, only: SODIAG, SODIAGNSTATE
+      use cntrl, only: SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "Morsel.fh"
-#include "SysDef.fh"
+      use Cntrl, only: IFCURD
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "jobin.fh"
-#include "symmul.fh"
 
 C subroutine arguments
       Integer NSS
@@ -58,6 +53,12 @@ C subroutine arguments
 C For creating the filename of the ORB file
       CHARACTER(LEN=11) FILEBASE
       CHARACTER(LEN=11) FILEBASEL
+
+      REAL*8 GE, AXR, SXR, AXI, SXI, AYR, SYR, AYI, SYI, AZR, SZR,
+     &           AZI, SZI
+      INTEGER N, I, J, ISTATE, JSTATE, IOPT, IC, L, K, IDIR, LCWORK,
+     &        INFO, I2, J2, IJ, LUMAXES
+      INTEGER, External:: IsFreeUnit
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Matrices
@@ -505,6 +506,8 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
 
 
       SUBROUTINE SPIN_PHASE_RASSI(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
+      use spin_constants, only: Setup_Spin_Moment_Matrix, Spin
+      IMPLICIT NONE
 C
 C     The RASSI program gives a random phase to the spin-orbit functions.
 C
@@ -523,24 +526,17 @@ C
      & Spin2(3,DIM,DIM), PHSA(DIM,DIM), PHSA2(DIM,DIM),
      & ZOUT(DIM,DIM)
 
-#include "spin.fh"
-
+      Call Setup_Spin_Moment_Matrix()
 C Determine the Parity:
       NPAR=MOD(DIM,2)
 
 C  Change the basis of the magnetic moment matrices from the RASSI functions to the
 C  effective spin eigenfunctions-- eigenfunctions of the Mu_Z
 C
-      do L=1,3
-       do I=1,DIM
-        do J=1,DIM
-      PHS(L,I,J)  =(0.d0,0.d0)
-      SPIN2(L,I,J)=(0.d0,0.d0)
-      PHSA(I,J)   =(0.d0,0.d0)
-      PHSA2(I,J)  =(0.d0,0.d0)
-        enddo
-       enddo
-      enddo
+      PHS(:,:,:)  =(0.d0,0.d0)
+      SPIN2(:,:,:)=(0.d0,0.d0)
+      PHSA(:,:)   =(0.d0,0.d0)
+      PHSA2(:,:)  =(0.d0,0.d0)
 
       do l=1,3
         do i=1,DIM

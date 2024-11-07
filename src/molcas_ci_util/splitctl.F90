@@ -35,6 +35,7 @@ use csfbas, only: CONF
 use GLBBAS, only: DFTP, DTOC, CFTP
 use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
                          NumSplit, percSpli, PerSplit, ThrSplit
+use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER, ITERCI, iTOC, n_Keep, NAC
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
@@ -43,7 +44,7 @@ implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp), intent(out) :: iErrSplit
-integer(kind=iwp) :: iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
+integer(kind=iwp) :: iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, iPrint, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
 real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSplitTot2, diffSplit, ECORE, EnFinSplit, SpliNor, &
                  W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
 character(len=80) :: String
@@ -53,7 +54,6 @@ real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:)
                               Tmp1(:), Tmp2(:), TotSplitV(:)
 real(kind=wp), external :: ddot_
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "output_ras.fh"
@@ -64,6 +64,7 @@ real(kind=wp), external :: ddot_
 unused_var(IFINAL)
 
 IPRLEV = IPRLOC(3)
+IPRINT = IPRLEV
 
 DBG = IPRLEV >= DEBUG
 

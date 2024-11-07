@@ -20,7 +20,6 @@ subroutine close_files_mcpdft()
   integer :: return_code,iOpt
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
 

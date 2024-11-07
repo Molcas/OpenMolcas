@@ -22,24 +22,32 @@ c
 c          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 c
       use stdalloc, only: mma_allocate, mma_deallocate
+      use gas_data, only: iDoGAS, NGAS, NGSSH
+      use rasscf_global, only: PURIFY, CMAX, ROTMAX, iXSym
 
-      IMPLICIT REAL*8 (a-h,o-z)
+
+      IMPLICIT None
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "gas.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='ROTORB  ')
-#include "rasscf.fh"
+      Character(LEN=16), Parameter :: ROUTINE='ROTORB  '
 
       Real*8 cmoo(*), cmon(*), c(*), x(*), x2(*)
-      Real*8 y(*), FA(*)
+      Real*8 y(*), FA(*), THMAX
+
       Real*8 DAMPGAS(10),COREGAS(10)
       INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
       LOGICAL iFrzAct
-      PARAMETER (Thrs=1.0D-14)
+      REAL*8, PARAMETER  :: Thrs=1.0D-14
       Real*8, Allocatable:: Unit(:), SqFA(:)
+      INTEGER I, IB, ICORE, IDAMP, IGAS, II, IJ, IO, iOff, iOrb,
+     &        iPrLev, iSpace, IST, ISTBM, ISTMO, ISTMO1, ISUM, ISYM,
+     &        jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND,
+     &        NDB, NEO, NF, NFB, NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1,
+     &        NP, NR
+      REAL*8 TERM, THM, Xn, XX
+      REAL*8, Parameter :: ACC=1.0D-13
 c
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -59,7 +67,6 @@ c
 
       END IF
 
-      Acc=1.0D-13
       istbm=1
       istmo1=0
       ib=0

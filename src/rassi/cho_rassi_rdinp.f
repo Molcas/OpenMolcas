@@ -18,14 +18,14 @@
 ************************************************************************
       Use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       Use Cholesky, only: timings
+      use cntrl, only: ALGO, Nscreen, dmpk
+
       Implicit Real*8 (A-H,O-Z)
 #include "rassi.fh"
 #include "print.fh"
       Character(len=180) KWord, Key, Get_Ln
       External Get_Ln
       Logical  DFonly
-*
-#include "chorassi.fh"
 *
       iRout=1
       iPrint=nPrint(iRout)

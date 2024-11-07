@@ -14,6 +14,7 @@
 module mcpdft_input
   use definitions,only:iwp,wp
   use ontop_functional,only:OTFNAL_t, func_type, get_base
+  use spool,only:Spoolinp,Close_LuSpool
 
   implicit none
   private
@@ -173,6 +174,7 @@ contains
         write(u6,*) ' MS-PDFT gradients are not         '
         write(u6,*) ' implemented LAMBDA keyword        '
         write(u6,*) ' **********************************'
+        call Quit_OnUserError()
       endif
       if(DoCholesky) then
         call WarningMessage(2,"MS-PDFT gradients with density fitting not implemented")
@@ -180,6 +182,7 @@ contains
         write(u6,*) ' MS-PDFT gradients are not         '
         write(u6,*) ' implemented density fitting       '
         write(u6,*) ' **********************************'
+        call Quit_OnUserError()
       endif
     endif
 

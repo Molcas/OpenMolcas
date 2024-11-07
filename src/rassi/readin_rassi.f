@@ -18,34 +18,53 @@
       use kVectors
       use Lebedev_quadrature, only: available_table, rule_max
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       use Cholesky, only: timings
       use stdalloc, only: mma_allocate
-      use cntrl_data, only: SONTO, SONTOSTATES,
+      use cntrl, only: SONTO, SONTOSTATES,
      &                      SONAT, SONATNSTATE,
      &                      SODIAG,SODIAGNSTATE
+      use spool, only: Spoolinp, Close_LuSpool
+      use Cntrl, only: QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY,
+     &                 PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO,
+     &                 RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN,
+     &                 NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt,
+     &                 nSOThr_Prt, nState, IfHEXT, IfHEff, IfHCOM,
+     &                 IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ,
+     &                 IFGCAL, EPraThr, IFACALSD, IFACALFC, IFACALSDON,
+     &                 IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP,
+     &                 IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP,
+     &                 TMAXP, NTP, IFSONCIFC, TMINF, TMAXF, NTF, NOSO,
+     &                 IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE,
+     &                 BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR,
+     &                 PRXVE, PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK,
+     &                 NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM,
+     &                 DQVD, ALPHZ, BETAE, DIPR, OSTHR_DIPR, QIPR,
+     &                 OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO,
+     &                 DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO,
+     &                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE,
+     &                 REDUCELOOP, LOOPDIVIDE, l_Eff, Do_SK, Do_Pol,
+     &                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM,
+     &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
+     &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
+     &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
+      use cntrl, only: ALGO, Nscreen, dmpk
 
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "rassi.fh"
-#include "cntrl.fh"
-#include "jobin.fh"
-      CHARACTER*80 LINE
-      INTEGER MXPLST
-      PARAMETER (MXPLST=50)
-      CHARACTER*8 TRYNAME
+      CHARACTER(LEN=80) LINE
+      INTEGER, PARAMETER :: MXPLST=50
+      CHARACTER(LEN=8) TRYNAME
       Real*8 tmp
       Logical lExists
-#include "chorassi.fh"
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
 
       character(len=7) :: input_id = '&RASSI '
-
 
       Call SpoolInp(LuIn)
 

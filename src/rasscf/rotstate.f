@@ -12,20 +12,21 @@
 ************************************************************************
       Subroutine RotState()
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,
+     &                         Ener
+      Implicit None
+
+
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "pamint.fh"
-#include "input_ras.fh"
 
 
 
@@ -36,6 +37,7 @@
       CHARACTER(Len=18)::MatInfo
       Real*8, Allocatable:: CIVEC(:,:), CIScr(:,:), HScr(:), State(:),
      &                      HRot(:,:)
+      Integer i, iad15
 
       IPRLEV=IPRLOC(3)
 
@@ -88,7 +90,7 @@
      &              7,18,'T')
       if(IPRLEV.GE.DEBUG) Then
        write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
-       Call RecPrt('HRot',' ',hRot,lRoot,lRoot)
+       Call RecPrt('HRot',' ',hRot,lRoots,lRoots)
       End if
 
 *JB   read CI vector from jobiph
@@ -128,5 +130,4 @@ C     updating final energies as those for rotated states
       write(LF,*) repeat('=',71)
       END IF
 
-      Return
-      End Subroutine
+      End Subroutine RotState

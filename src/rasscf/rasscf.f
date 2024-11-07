@@ -55,6 +55,8 @@
      &  qcmaquis_interface_deinit, qcmaquis_param,
      &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
+      use rasscf_lucia, only: RF1, RF2
+      use rasscf_global, only: DoNEVPT2Prep, DoDelChk
 #endif
       use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
@@ -80,58 +82,85 @@
       use mh5, only: mh5_put_attr, mh5_put_dset
       use csfbas, only: CONF
       use glbbas, only: CFTP
+      use rasscf_lucia, only: DStmp, Dtmp
+      use raswfn, only: wfn_iter, wfn_energy, wfn_transdens,
+     &                  wfn_transsdens
 #endif
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
       use Lucia_Interface, only: Lucia_Util
-#ifdef _HDF5_
-      use rasscf_lucia, only: DStmp, Dtmp
-#endif
-#ifdef _DMRG_
-      use rasscf_lucia, only: RF1, RF2
-#endif
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
+      use gas_data, only: iDOGAS
+      use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
+     &                     KeySSCR, LuInput
+      use raswfn, only: cre_raswfn, Wfn_FileID
+      use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG,
+     &                         DoFaro, DoFCIDump,               ECAS,
+     &                         ESX, ExFac, FDIAG, HalfQ, iBLBM,
+     &                         ICICH, iCIOnly, iExpand, IfCrPr,
+     &                         InOCalc, iPr, iPT2, iRLXRoot, iSave_Exp,
+     &                         iSymBB, ITER, ITERCI, ITERSX, JBLBM,
+     &                         l_casdft,         lSquare, MaxIt, NAC,
+     &                         NACPAR, NACPR2, NewFock, nFint, no2m,
+     &                         nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax,
+     &                         Start_Vectors, SXShft, Thre, ThrSX,
+     &                         THRTE, TMin, Tot_Charge, EMY,
+     &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
+     &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
+#ifdef _DMRG_
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
+#endif
+#ifdef _HDF5_
+      use rasscf_global, only: lRoots
+#endif
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "pamint.fh"
-#include "qnctl.fh"
-#include "orthonormalize.fh"
 #include "ciinfo.fh"
-#include "raswfn.fh"
 
+      Integer IReturn
       Logical DSCF
       Logical lTemp, lOPTO
-      Character*80 Line
-      Character*8 Label
-      Character*1 CTHRE, CTHRSX, CTHRTE
+      Character(LEN=80) Line
+      Character(LEN=8) Label
+      Character(LEN=1) CTHRE, CTHRSX, CTHRTE
       Logical IfOpened
+      Real*8 ECAS1, EVAC
 #ifdef _DMRG_
       Logical Do_ESPF
       ! function defined in misc_util/pcm_on.f
       Logical, External :: PCM_On
 #endif
+      Real*8 CASDFT_E, CASDFT_FUNCT, Certina_1, Certina_2, Certina_3,
+     &       DiffE, DiffETol, dum1, dum2, dum3, EAv, ThMax, TMXTOT
+      Real*8, External:: Get_ExFac
+      Integer i, i_ROOT, iAd, iAd15, iBas,      iComp, iFinal, ihh,
+     &        imm, Ind, IndT, iOff, iOpt, iPrLev, iRC, iRot, iShift,
+     &        iss, iSyLbl, iSym, iTerm, j,               kau,
+     &        kRoot, LuOne, LuvvVec, mRoots, nTav, iFlags, NoScr1
+      Integer, External:: IsFreeUnit
+#ifdef _HDF5_
+      Integer iDX, jDisk, jRoot, kDisk
+#endif
+#ifdef _FDE_
+      Integer iDummyEmb, iEmb, iUnit, nNuc
+      Real*8, External:: EmbPotEneMODensities
+#endif
 
-* --------- Cholesky stuff:
-#include "qmat.fh"
-* --------- End Cholesky stuff
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
@@ -142,14 +171,13 @@
       integer :: actual_iter
 
 
-      Character*15 STLNE2
+      Character(LEN=15) STLNE2
       External RasScf_Init
       External Scan_Inp
       External Proc_Inp
 #ifdef _DMRG_
       integer :: maxtrR
       real*8  :: maxtrW
-#include "nevptp.fh"
 #endif
       Integer IndType(56)
       Character(len=80) ::  VecTyp
@@ -176,7 +204,6 @@
 
 * Set some Cholesky stuff
       DoActive=.true.
-      DoQmat=.false.
       lOPTO=.False.
 * Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
@@ -210,7 +237,7 @@
 * with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 * substring beginning with '!' with blanks.
 * That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras.fh) by the following call:
+* as LUInput in common (module file input_ras.F90) by the following call:
       Call cpinp(LUInput,iRc)
 * If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
@@ -242,8 +269,8 @@
       Call OpnFls_RASSCF(DSCF,DoCholesky)
 
 * Some preliminary input data:
-      Call Rd1Int
-      If ( .not.DSCF ) Call Rd2Int_RASSCF
+      Call Rd1Int()
+      If ( .not.DSCF ) Call Rd2Int_RASSCF()
 
 * Printed program header:
 
@@ -329,6 +356,8 @@
       FI(:)=0.0D0
       FA(:)=0.0D0
       DIAF(:)=0.0D0
+      ECAS1=0.0D0
+      EVAC=0.0D0
 *
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
@@ -674,8 +703,6 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 
         End If
 
-        DoQmat=.false.
-
         IPR=0
         IF(IPRLOC(2).EQ.4) IPR=5
         IF(IPRLOC(2).EQ.5) IPR=10
@@ -996,7 +1023,6 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       DoActive = .true.
 
       If (DoCholesky.and.ALGO.eq.2) Then
-         DoQmat=.true. ! to be used in the subsequent SX-section
          NTav=0
          do iSym=1,nSym
             NTav = NTav + nBas(iSym)*nAsh(iSym)
@@ -1697,8 +1723,6 @@ c Clean-close as much as you can the CASDFT stuff...
 
       Call Get_D1I_RASSCF(CMO,D1I)
 
-       DoQmat=.false.
-
        IPR=0
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
@@ -1751,7 +1775,7 @@ c Clean-close as much as you can the CASDFT stuff...
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
 ! (to exclude potential side effects)
 ! but consider extending it to other cases!
-      else if (doDMRG .and. (ICIONLY.NE.0)) then
+      else if (doDMRG .and. ICIONLY/=0) then
         continue
 #endif
       else

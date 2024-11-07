@@ -15,13 +15,12 @@
 #endif
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl, only: NJOB, PRORB, JBNAME
+      use cntrl, only: IDCMO, iTOC15, LuIph
+      use Symmetry_Info, only: nSym=>nIrrep
+
       IMPLICIT NONE
-#include "rasdim.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "symmul.fh"
 #include "rassi.fh"
-#include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
 #endif

@@ -22,6 +22,7 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Para_Info, only: nProcs
 #endif
+use spool, only: LuWr, LuRd, LuWr, Set_Spool
 use Definitions, only: u5, u6
 
 implicit none
@@ -30,7 +31,6 @@ character(len=8) :: Prin
 #ifdef _MOLCAS_MPP_
 logical(kind=iwp) :: parallelized
 #endif
-#include "standard_iounits.fh"
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Start.'
@@ -157,7 +157,7 @@ write(u6,*) ' XML initialized '
 
 ! Initiate spool mode to read from standard input
 
-Spool = .true.
+Call Set_Spool()
 
 ! Initiate I/O
 

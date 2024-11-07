@@ -11,8 +11,11 @@
       SUBROUTINE SPHPUR(CMO)
       use define_af, only: iTabMx, AngTp
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: BName, IXSYM
+
+      IMPLICIT None
       Real*8 CMO(*)
+
       CHARACTER(LEN=1) LCHAR
       Real*8 WGTLQN(0:9)
       LOGICAL IFTEST
@@ -21,8 +24,10 @@
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:
 #include "general.fh"
-* rasscf.fh defines NAME:
-#include "rasscf.fh"
+      Integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
+     &        ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT,
+     &        NO, NONZ
+      REAL*8 WGT, WMX
 
 * Set IFTEST=.true. to get supsym input generated in the output
 * for further use, or for testing.
@@ -36,7 +41,7 @@
       END DO
       CALL mma_allocate(LQN,NBTOT,Label='LQN')
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN3:LENIN3)
+       LCHAR=BName(IBAS)(LENIN3:LENIN3)
        L=-999999
        DO ITP=0,ITABMX
          IF(LCHAR.EQ.ANGTP(ITP)) L=ITP

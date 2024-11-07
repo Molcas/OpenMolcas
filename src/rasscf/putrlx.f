@@ -13,14 +13,23 @@
       Subroutine PutRlx(D,DS,P,DAO,C)
       use spin_correlation, only: tRootGrad
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      use rasscf_global, only: CBLBM, ExFac, iBLBM, iPr, iRLXRoot,
+     &                         iSymBB, lRoots, lSquare, NACPAR,
+     &                         NACPR2, NewFock, nFint, NSXS, NTOT4,
+     &                         RlxGrd, iAdr15, ISTORP, JBLBM
+
+      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
-      Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
+
+      Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '
       Real*8 rdum(1)
+      Integer i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk,
+     &        NFSize, NZ
+      Real*8 rTmp
+      Real*8, External:: DNRM2_
 
       Real*8, Allocatable:: DA(:), DI(:), DSX(:), DX(:), F(:), B(:),
      &                      Q(:), FA(:), FI(:), PUVX(:), TUVX(:), PX(:)

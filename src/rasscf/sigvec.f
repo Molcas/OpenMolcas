@@ -19,16 +19,22 @@ CPAM01 Added miniscule constant times CIN to HC.
 C
 C ********** IBM-3090 Release 88 09 01 **********
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
+      use rasscf_global, only: ICICP, ITER, NDIMSX, NROOT, NSXS,
+     &                         SXSHFT, IROOT, ENER
+
+      IMPLICIT NONE
+      REAL*8 CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
      &          X(*),C(*)
-      DIMENSION HD(*)
+      INTEGER NTRIAL
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SIGVEC  ')
+      Character(LEN=16), Parameter :: ROUTINE='SIGVEC  '
+      REAL*8 HD(*)
+      INTEGER :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM,
+     &           ITRIAL, NAE, NAO, NEO, NIA, NIO, NNST, NST
+
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN

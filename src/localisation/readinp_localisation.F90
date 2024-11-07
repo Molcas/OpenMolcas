@@ -22,6 +22,7 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, An
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate
 use Constants, only: Ten
 use Definitions, only: wp, iwp, u6

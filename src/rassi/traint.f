@@ -19,11 +19,11 @@
 *****************************************************************
       SUBROUTINE TRAINT(CMO1,CMO2,NGAM2,TUVX)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use TRNSFRM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 CMO1(NCMO),CMO2(NCMO),TUVX(NGAM2)
 #include "rassi.fh"
-#include "symmul.fh"
-#include "trnsfrm.fh"
       INTEGER KEEP(8),NBSX(8)
       LOGICAL   ISQARX
       Real*8, Allocatable:: X1(:), X2(:), X3(:), VXPQ(:)

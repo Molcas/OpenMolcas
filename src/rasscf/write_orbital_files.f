@@ -39,16 +39,18 @@
 #endif
       use fortran_strings, only : str
 
-      use rasscf_data, only : iToc, name, header, title, lRoots, nRoots,
-     &  iRoot, LENIN8, mXORB, mxTit, mXroot, iPt2, Weight, iOrbTyp,
-     &  FDiag, E2Act, mxiter, maxorbout
-      use general_data, only : nActel, iSpin, stSym, mXSym,
+      use rasscf_global, only : iToc, BName, header, title, lRoots,
+     & nRoots,
+     &  iRoot, iPt2, Weight, iOrbTyp,
+     &  FDiag, E2Act, maxorbout
+      use general_data, only : nActel, iSpin, stSym,
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
       use gas_data, only : nGssh
       use stdalloc, only: mma_allocate, mma_deallocate
 
 #include "output_ras.fh"
+#include "rasdim.fh"
       integer, intent(in) :: JobIph, iPrlev
 
       integer :: iDisk, iRt, iNDType(7, 8), lUVVVec
@@ -70,9 +72,9 @@
 * PAM 2008: Before this subroutine replaced RASREAD, the orbital energies
 * were sent as subroutine argument when rasread was called from rasscf.
 * But the real argument, in rasscf, was FDIAG, which turns out to be a
-* fixed array FDIAG(mxorb) in rasscf.fh.
+* fixed array FDIAG(mxorb) in rasscf_global.F90.
 * Rather than checking why that array is there, and how the values are
-* put there, I simply use the array FDIAG in rasscf.fh, when needing
+* put there, I simply use the array FDIAG in rasscf_global.F90, when needing
 * orbital energies to WrVec calls. This may need checking later...
 *----------------------------------------------------------------------*
 *     Read the JobIph file to get the required information             *
@@ -85,7 +87,7 @@
       Call WR_RASSCF_Info(JobIph,2,iDisk,
      &                    nActEl,iSpin,nSym,stSym,
      &                    nFro,nIsh,nAsh,nDel,
-     &                    nBas,mxSym,Name,LENIN8*mxOrb,nConf,
+     &                    nBas,mxSym,BName,LENIN8*mxOrb,nConf,
      &                    Header,144,Title,4*18*mxTit,PotNucDummy,
      &                    lRoots,nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,

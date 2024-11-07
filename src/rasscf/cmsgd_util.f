@@ -28,6 +28,7 @@
 
       Subroutine RotGD(GD,R,nGD,lRoots,NAC2)
       use CMS, only: RGD
+      Implicit None
       INTEGER nGD,lRoots,NAC2
       Real*8 GD(nGD),R(lRoots**2)
 
@@ -62,6 +63,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 
 
       Subroutine TransposeMat(Matout,Matin,nElem,nRow_in,nCol_in)
+      Implicit None
       INTEGER nElem,nRow_in,nCol_in,iRow,iCol,iOff1,iOff2
       Real*8 Matin(nElem),Matout(nElem)
 
@@ -83,6 +85,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 ************************************************************************
 
       Subroutine CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
+      Implicit None
       INTEGER nGD,nTUVX,NAC,lRoots
       Real*8 Dgorbit(nGD),GDorbit(nGD),Gtuvx(nTUVX)
 
@@ -103,16 +106,18 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: DStmp, Dtmp
       use Lucia_Interface, only: Lucia_Util
+      use rasscf_global, only: lRoots, NAC, iADR15
+      Implicit None
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
       INTEGER nGD
       Real*8 GD(nGD)
+
       INTEGER CIDisk1,CIDisk2
-      INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
+      INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2, jRoot, kRoot
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
       Real*8, Allocatable, Target:: VecL(:), VecR(:)
 
@@ -163,6 +168,5 @@ C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
       END Subroutine
-************************************************************************
 
 

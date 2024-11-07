@@ -20,7 +20,7 @@ use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
 use Index_Functions, only: nTri_Elem
-use rasscf_data, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, mxSym, &
+use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, mxSym, &
                        NAC, nref_dice
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten

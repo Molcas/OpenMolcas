@@ -52,22 +52,35 @@
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use gas_data, only: NGAS,NGSSH
+      use rasscf_global, only: iFORDE, iOrbTyp, iOrdEM, iSupSM,
+     &                         FDIAG, ixSym, iTRI, iADR15
+#ifdef _DMRG_
+      use rasscf_global, only: DoDMRG
+#else
+      use rasscf_global, only: DoBLOCKDMRG
+#endif
+
+      IMPLICIT None
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='NEWORB  ')
+      Character(LEN=16), Parameter :: ROUTINE='NEWORB  '
 #include "SysDef.fh"
-#include "raswfn.fh"
 
       Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
-     *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
+     &          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 
+      Real*8 AVij, AVMx, Fact, FMin, Swap, VIJ
+      Integer iPrLev, i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iST,
+     &        iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM,
+     &        ixSymT, j, jSel, k, Min, NA, NA1, NAB, NABT, NAO, NAO2,
+     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF,
+     &        NFI_, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1,
+     &        NOO, NOT, NT, NTTR, NTU, NTUD, NU, NUT
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN

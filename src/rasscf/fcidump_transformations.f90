@@ -13,7 +13,7 @@
 !***********************************************************************
 module fcidump_transformations
   use general_data, only : nActEl, nAsh, ntot1, ntot2, nBas, nSym
-  use rasscf_data, only : nAcPar, core_energy => Emy, nAc
+  use rasscf_global, only : nAcPar, Emy, nAc
   use index_symmetry, only : one_el_idx_flatten
   implicit none
   private
@@ -113,7 +113,7 @@ contains
 
 ! Remove the core energy in the diagonal elements.
     if (nActEl /= 0) then
-      core_E_per_act_el = core_energy / dble(nActEl)
+      core_E_per_act_el = Emy / dble(nActEl)
     else
       core_E_per_act_el = 0.0d0
     end if

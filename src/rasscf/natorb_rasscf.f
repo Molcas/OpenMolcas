@@ -22,16 +22,20 @@ C              Called from MAIN before OUTCTL
 C
 C          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 C
-
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15,
+     &                         iTri
+      IMPLICIT None
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "splitcas.fh"
 
-      DIMENSION CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
+      REAL*8 CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
+
+      Integer iPrLev, iDisk, jDisk, kRoot, I, IA, IB, IBAS, ID, IEND,
+     &        II, IO, iOff, IST, iSTMO, ISYM, J, JA, jOff, NA1, NAO, NB,
+     &        NB2, NFI, ISTMO1
 
       IPRLEV=IPRLOC(7)
       iDisk=IADR15(12)
@@ -230,5 +234,4 @@ C
 
       end if
 
-      RETURN
-      END
+      END Subroutine NatOrb_RASSCF

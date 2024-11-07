@@ -14,6 +14,7 @@ subroutine Alaska_Super_Driver(iRC)
 use Alaska_Info, only: Auto, DefRoot, ForceNAC, iRlxRoot
 use Para_Info, only: nProcs
 use NAC, only: isNAC, NACStates
+use spool, only: SpoolInp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

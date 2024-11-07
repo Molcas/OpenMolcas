@@ -30,7 +30,7 @@
       use qcmaquis_interface_mpssi
 #endif
       use mspt2_eigenvectors
-      use rasscf_data, only: DoDMRG
+      use rasscf_global, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,17 +38,26 @@
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use Cntrl, only: CIH5
+      use RASSIWfn, only: wfn_CMO, wfn_CMO_OR, wfn_DetCoeff,
+     &                    wfn_DetCoeff_OR, wfn_DetOcc,
+     &                    wfn_DetOcc_OR
 #endif
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
-      use cntrl_data, only: sonatnstate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "symmul.fh"
+      use cntrl, only: sonatnstate
+      use Cntrl, only: NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
+     &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR,
+     &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,
+     &                 IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET,
+     &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
+     &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
+     &                 RASTYP
+      use cntrl, only: iToc15, LuIph, LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+
+      IMPLICIT NONE
 #include "rassi.fh"
-#include "cntrl.fh"
-#include "rassiwfn.fh"
-#include "Files.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
@@ -79,7 +88,6 @@ CC CC
 CC    NTO section
       Logical DoNTO
 CC    NTO section
-      External IsFreeUnit
 
       type mixed_1pdensities
         real*8              :: overlap
@@ -108,7 +116,20 @@ CC    NTO section
       real*8, pointer:: DET1(:), DET2(:)
       real*8, allocatable, target:: DETTOT1(:,:), DETTOT2(:,:)
       real*8, allocatable:: Theta1(:), ThetaN(:), ThetaM(:)
-#include "SysDef.fh"
+
+      Integer nActE1, JOB1, MPLET1, NHOL11, NELE31, NACTE2, JOB2,
+     &        MPLET2, NHOL12, NASORB, NTDM1, NTDM2, ISY12, NDYSAB,
+     &        NDYSZZ, NZ, NTRAD, I, J, MSPROJ1, MSPROJ2, NASPRT, KSPART,
+     &        KOINFO, ISUM, ISYM, ISORB, NO, IO, ISOIND, IT, ITABS,
+     &        NPART, NGAS, IE1MN, IE1MX, IE3MN, IE3MX, IE2MN, IE2MX,
+     &        NGL11, NGL21, NGL12, NGL22, NGL13, NGL23, MAXOP, IE1,
+     &        IOP1, IE3, IOP3, IE2, IOP2, IFORM, MINOP, NDET1, NDET2,
+     &        IST, ISTATE, JST, JSTATE, IRC, IJ, IDISK, IOPT, IGO, IERR,
+     &        NELE32, ISPART, IEMPTY
+      REAL*8 ECORE, Dot_Prod, HZERO, HONE, HTWO, SIJ, DYSAMP, DYNORM,
+     &       HII, HJJ, HIJ, OVERLAP_RASSI
+      REAL*8, External:: DDot_
+      Integer, External:: IsFreeUnit
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)

@@ -39,7 +39,7 @@ subroutine BlockCtl(LW1,TUVX,IFINAL,IRST)
 !                                                                      *
 !***********************************************************************
 
-use rasscf_data, only: Do3RDM, ENER, HFOCC, iOrbTyp, ITER, lRoots, mxSym, MxDMRG, NAC, ROTMAX, THRE
+use rasscf_global, only: Do3RDM, ENER, HFOCC, iOrbTyp, ITER, lRoots, mxSym, MxDMRG, NAC, ROTMAX, THRE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten
 use Definitions, only: wp, iwp

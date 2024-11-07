@@ -34,8 +34,10 @@
 *
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
 
-      Implicit Real*8 (a-h,o-z)
+
+      Implicit None
 
 *     global definitions
 
@@ -43,7 +45,6 @@
 #include "warnings.h"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
 
 *     calling arguments
 
@@ -53,7 +54,7 @@
 
       Character(LEN=8) Label
       Real*8, Allocatable:: Tmp1(:)
-      Parameter ( zero = 0.0d0 , one = 1.0d0 )
+      Integer iRC, i1, i2, iBas, iComp, iOpt, iSyLbl, iSym
 
 *----------------------------------------------------------------------*
 *     Start                                                            *

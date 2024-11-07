@@ -9,20 +9,21 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ChkIfKey()
-      Implicit Real*8 (A-H,O-Z)
+      use definitions, only: iwp
+      use input_ras, only: LUInput, nKeys, CMD
+      Implicit None
 * ------------------------------------------------------------
 * Check if the next item on luinput is a string that starts with
 * a keyword. Print warning else.
 * ------------------------------------------------------------
-#include "rasdim.fh"
-#include "input_ras.fh"
-      Character*4 Command
-      Character*(180)  Line
+      Character(LEN=4) Command
+      Character(LEN=180)  Line
+      Integer(kind=iwp) iCmd
       Read(LUInput,*) Line
       Command=Line(1:4)
       Call UpCase(Command)
       Do iCmd=1,NKeys
-        If ( Command.eq.Cmd(iCmd) ) GoTo 900
+        If ( Command.eq.Cmd(iCmd) ) Return
       End Do
       write(6,*)' ****************************************************'
       write(6,*)' ChkIfKey Warning: The following line seems intended'
@@ -30,6 +31,4 @@
       write(6,*)' '''//line(1:32)//''''
       write(6,*)' Spelling or syntactic mistake? Ignored!'
       write(6,*)' ****************************************************'
- 900  Continue
-      Return
-      End
+      End Subroutine ChkIfKey

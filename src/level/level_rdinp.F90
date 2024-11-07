@@ -22,6 +22,7 @@ subroutine level_rdinp(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP
 !  written by Nike Dattani in November 2022                            *
 !***********************************************************************
 
+use spool, only: Spoolinp
 use Definitions, only: wp, iwp, u6
 
 implicit none

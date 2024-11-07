@@ -29,10 +29,10 @@ subroutine Rd1Int()
 !***********************************************************************
 
 use Definitions, only: iwp
+use rasscf_global, only: BName, header, PotNuc
 
 implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 integer(kind=iwp) :: nBas_tot
 
@@ -51,7 +51,7 @@ call Get_iArray('nBas',nBas,nSym)
 call Get_dScalar('potNuc',PotNuc)
 !---  read basis function labels --------------------------------------*
 nBas_tot = sum(nBas(1:nSym))
-call Get_cArray('Unique Basis Names',Name,LenIn8*nBas_tot)
+call Get_cArray('Unique Basis Names',BName,LenIn8*nBas_tot)
 !----------------------------------------------------------------------*
 ! Exit                                                                 *
 !----------------------------------------------------------------------*

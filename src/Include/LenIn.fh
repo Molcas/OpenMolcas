@@ -8,5 +8,4 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Integer LenIn
-       parameter (LenIn=6)
+       Integer, Parameter :: LenIn=6

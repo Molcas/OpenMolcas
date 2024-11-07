@@ -44,24 +44,28 @@
 
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
+      use rasscf_global, only: NAC
 
-      Implicit Real*8 (A-H,O-Z)
+
+      Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 
+      Integer iWay
       Real*8 C1(*),C2(*),Smat(*)
 
       Character(LEN=8) Label
       Real*8, Allocatable:: OAO(:), Scr1(:), Scr2(:)
+      Integer iRC, iOpt, iComp, iSyLbl, ipC, ipO, ipSMat, nAcO, iSym,
+     &        nBs, nIs, nAs, iiOrb, ij, iOrb, jjOrb, jOrb
 
 * prologue
 
 
-      zero = 0.0d0
       Call dCopy_(nAc*nAc,[zero],0,Smat,1)
       Call mma_allocate(OAO,nTot1,Label='OAO')
 

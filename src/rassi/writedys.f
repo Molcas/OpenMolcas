@@ -19,26 +19,29 @@
 !     IFG: Added DysOrb export, not sure it's correct
 
       SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
+      use Cntrl, only: NSTATE, DYSEXPSF
+      use Symmetry_Info, only: nSym=>nIrrep
 
-      INTEGER   NZ,ORBNUM
+      IMPLICIT None
+#include "rassi.fh"
+
+      INTEGER   NZ
+      REAL*8 DYSAMPS(NSTATE,NSTATE)
+      REAL*8 SFDYS(NZ,NSTATE,NSTATE)
+      REAL*8 ENERGY(NSTATE)
+
       INTEGER   DYSCIND
       INTEGER   NDUM
+      INTEGER   ORBNUM
 
-      DIMENSION DYSAMPS(NSTATE,NSTATE)
-      DIMENSION SFDYS(NZ,NSTATE,NSTATE)
-      DIMENSION ENERGY(NSTATE)
-      DIMENSION DYSEN(NSTATE)
-      DIMENSION AMPS(NSTATE)
-      DIMENSION CMO(NZ*NSTATE)
+      REAL*8 DYSEN(NSTATE)
+      REAL*8 AMPS(NSTATE)
+      REAL*8 CMO(NZ*NSTATE)
 
-      Character*30 Filename
-      Character*80 TITLE
+      Character(LEN=30) Filename
+      Character(LEN=80) TITLE
+      INTEGER ISTATE, JSTATE, LUNIT
+      INTEGER, EXTERNAL:: IsFreeUnit
 
 !+++  J. Creutzberg, J. Norell  - 2018 (.molden export )
 

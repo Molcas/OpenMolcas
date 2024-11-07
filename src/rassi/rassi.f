@@ -19,38 +19,40 @@
       use kVectors
       use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,
      &                               doExcitonics
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: nSym=>nIrrep, Symmetry_Info_Free
       use Basis_Info, only: nBas
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
+      use RASSIWfn, only: wfn_overlap
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface, only: qcmaquis_interface_deinit
       use qcmaquis_info, only : qcmaquis_info_deinit
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
 #endif
       use Fock_util_global, only: Fake_CMO2
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
       use Data_Structures
-      use cntrl_data, only: SONTOSTATES, SONATNSTATE
+      use cntrl, only: SONTOSTATES, SONATNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl, only: NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,
+     &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
+     &                 Do_SK, SaveDens, MLTPLT, NPROP
+      use cntrl, only: LuExc, LuOne, LuTDM
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+      IMPLICIT None
 C Matrix elements over RAS wave functions.
 C RAS state interaction.
+! pick up MxRoot
 #include "rasdim.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "Morsel.fh"
-#include "SysDef.fh"
 #include "rassi.fh"
-#include "jobin.fh"
-#include "symmul.fh"
-#include "rassiwfn.fh"
       Logical CLOSEONE
-      INTEGER IRC
+      INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
+     &        ISTATE, J, NSS, JOB, MPLET, I
+      INTEGER, External :: IPRINTLEVEL
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
@@ -84,7 +86,7 @@ C Read and check keywords etc. from stdin. Print out.
       CALL INPCTL_RASSI()
 
 CSVC: prepare HDF5 wavefunction file
-      CALL CRE_RASSIWFN
+      CALL CRE_RASSIWFN()
 
 C--------  RAS wave function section --------------------------
 C First, in a double loop over the states, compute any matrix
@@ -121,7 +123,7 @@ C Number of basis functions
         else
           call NameRun('AUXRFIL1')
         end if
-        call get_iArray('nBas', nBas, nIrrep)
+        call get_iArray('nBas', nBas, nSym)
         NZcoul = nBas(0)
         nh1 = NZcoul*(NZcoul+1)/2
         call mma_allocate(vNucB, nh1, Label='Attr PotB')
@@ -390,6 +392,7 @@ C Plot SO-Natural Transition Orbitals if requested
          Call mma_deallocate(DMAB,safe='*')
       End If
       Call DaClos(LuExc)
+      Call Symmetry_Info_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *

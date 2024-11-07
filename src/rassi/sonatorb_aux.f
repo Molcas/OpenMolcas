@@ -11,12 +11,10 @@
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
+      use Symmetry_Info, only: nSym=>nIrrep
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
@@ -31,6 +29,11 @@
       Integer iDummy(7,8)
       Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:), SCR(:)
       Real*8, allocatable:: VNAT(:), EIG(:), OCC(:)
+      Integer ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM,
+     &        NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, IOCC,
+     &        J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC
+      Integer, External:: IsFreeUnit
+      REAL*8 X
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -290,12 +293,9 @@ c    ONLYFOR NATURAL ORBITALS
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
+      use Symmetry_Info, only: nSym=>nIrrep
+      IMPLICIT NONE
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
@@ -315,6 +315,13 @@ c    ONLYFOR NATURAL ORBITALS
       Real*8, Allocatable:: SANG(:)
       Real*8, Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
       Real*8, Allocatable:: SANGTR2(:), SANGTI2(:)
+
+      Integer ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM,
+     &        NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, IOCC,
+     &        J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC, JOPT,
+     &        I1I, INV2, ISCRI
+      Integer, External:: IsFreeUnit
+      REAL*8 X, SUM, SUMI
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

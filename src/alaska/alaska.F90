@@ -39,6 +39,7 @@ use rctfld_module, only: iCharge_Ref, lLangevin, lMax, lRF, MM, NonEQ_Ref, PCM
 use pso_stuff, only: No_Nuc
 use Disp, only: ChDisp, HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
 use NAC, only: DoCSF, EDiff, isNAC
+use spool, only: Close_LuSpool
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6

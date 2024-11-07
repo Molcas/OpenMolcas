@@ -16,6 +16,7 @@ use Tully_variables, only: tullyL, DECO, decoherence, NSUBSTEPS, Ethreshold, Ran
 #ifdef _HDF5_
 use Surfacehop_globals, only: lH5Restart, File_H5Res
 #endif
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

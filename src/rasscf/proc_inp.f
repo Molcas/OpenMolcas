@@ -21,6 +21,7 @@
      &        remove_comment, qcmaquis_interface_set_param,
      &        qcmaquis_interface_stdout
       use active_space_solver_cfg, only: as_solver_inp_proc
+      use rasscf_global, only: MPSCompressM, DoNEVPT2Prep
 #ifdef _MOLCAS_MPP_
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
@@ -57,47 +58,84 @@
       use Lucia_Interface, only: Lucia_Util
       use gugx, only: SGS, CIS, EXS
       use general_data, only: CRVec, CleanMask, CRPROJ
-      Implicit Real*8 (A-H,O-Z)
+      use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
+      use Symmetry_info, only: Mul
+      use input_ras   ! It should be without the only option!
+#ifdef _WARNING_WORKAROUND_
+      use input_ras
+#else
+      use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
+#endif
+      use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI,
+     &                         HFOCC, CMSStartMat, CMSThreshold,
+     &                         CoreShift, DFTFOCK, DoBLOCKDMRG,
+     &                         ExFac, hRoots, iAlphaBeta, ICICH,
+     &                         iCIonly, iCIRFROOT, iCMSITERMAX,
+     &                         iCMSITERMin, iCMSP, iExpand, JCJ,
+     &                         iFORDE, iOrbOnly, iOrbTyp, iOrdEM,
+     &                         iOverWr, iPCMRoot, iPhName, iPR, iPT2,
+     &                         iRotPsi, iSave_Exp, iSCF, iSPDEN,
+     &                         iSupSM, ITCORE, ITMAX, IXMSP,      kivo,
+     &                         kTight, l_CASDFT, LowMS, LvShft, MaxIt,
+     &                         MaxJt, MaxOrbOut, n_keep, NAC, NACPAR,
+     &                         NACPR2, NFR, NIN, NO2M, NonEq, NQUNE,
+     &                         NORBT, NROOTS, NSEC, NTOT3, NTOT4,
+     &                         OutFmt1, OutFmt2, PotNuc, PreThr, ProThr,
+     &                         PreThr, Purify, RFPert, S, SXSEL, ThFact,
+     &                         ThrE, ThrEn, ThrSX, ThrTE, HFOcc, Title,
+     &                         Weight, DoFaro, DoFCIDump, iCIRST,
+     &                         IfCRPR, LROOTS, PrwThr, InOCalc, ixSym,
+     &                         iZRot
+#ifdef _DMRG_
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG, DoDMRG
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: diceOcc, dice_eps1, dice_eps2, dice_iter,
+     &                         dice_restart, dice_sampleN, dice_stoc,
+     &                         nRef_dice
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: ChemPS2_Restart, ChemPS2_lRestart,
+     &                         Davidson_Tol, ChemPS2_BLB, Max_Sweep,
+     &                         ChemPS2_Noise, Max_Canonical, MxDMRG,
+     &                         Do3RDM
+#endif
+
+
+      Implicit None
 #include "SysDef.fh"
 #include "rasdim.fh"
+#include "general.fh"
 #include "warnings.h"
-#include "gas.fh"
-#include "rasscf.fh"
-#include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
-#include "general_mul.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
-#include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 *
 *
-      Character*180  Line
-      Character*8 NewJobIphName
-      logical lExists, RunFile_Exists, RlxRCheck
-* Some strange extra logical variables...
       logical lOPTO
       logical DSCF
+      Integer iRC
+
+      Character(LEN=180) Line
+      Character(LEN=8) NewJobIphName
+      logical lExists, RunFile_Exists, RlxRCheck
+* Some strange extra logical variables...
       logical RF_On
       logical Langevin_On
       logical PCM_On
 * (SVC) added for treatment of alter and supsym
-      Dimension iMAlter(MaxAlter,2)
+      Integer iMAlter(MaxAlter,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
-#ifdef _DMRG_
-* DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
-#include "nevptp.fh"
-#endif
       Logical DBG, exist
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.
-      Character*8 InfoLbl
+      Character(LEN=8) InfoLbl
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
       Integer NBAS_L(8),NORB_L(8)
       Integer NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
@@ -108,18 +146,18 @@
 * TOC on JOBOLD (or JOBIPH)
       Integer IADR19(15)
 
-      Character*180 Get_LN
+      Character(LEN=180) Get_LN
       External Get_LN
       Real*8   Get_ExFac
       External Get_ExFac
-      Character*72 ReadStatus
-      Character*72 JobTit(mxTit)
-      Character*256 myTitle
-      Character*8 MaxLab
+      Character(LEN=72) ReadStatus
+      Character(LEN=72) JobTit(mxTit)
+      Character(LEN=256) myTitle
+      Character(LEN=8) MaxLab
       Logical, External :: Is_First_Iter
-      Dimension Dummy(1)
-      Character*(LENIN8*mxOrb) lJobH1
-      Character*(2*72) lJobH2
+      Real*8 Dummy(1)
+      Character(LEN=LENIN8*mxOrb) lJobH1
+      Character(LEN=2*72) lJobH2
 
       integer :: start, step, length
 
@@ -128,11 +166,12 @@
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
-      Character*256 CurrDir
-      Character*72 ProjectName
+      Character(LEN=256) CurrDir
+      Character(LEN=72) ProjectName
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
       character(len=20)    :: guess_dmrg
+      Integer nr_lines
 !     dmrg(QCMaquis)-stuff
 #endif
 
@@ -141,12 +180,30 @@
      &                       Stab(:), UG2SG_X(:)
       Real*8, Allocatable:: ENC(:), RF(:)
 
+      Real*8 dSum, dum1, dum2,dum3, Eterna_2, POTNUCDUMMY, PRO, SUHF,
+     &       TEffNChrg, TotChrg, Eterna_1
+      Integer, External:: IsFreeUnit
+      Integer i, i1, i2, iad19, iChng1, iChng2, iDisk, iEnd, iErr,
+     &        iGAS, iGrp, ii, ij, iJOB, inporb_version, iod_save,
+     &        iOffSet, iOrb, iOrbData, iPrLev, iR, iRC1, iRef, iReturn,
+     &        is_in_group, iStart, iSum, iSym, itu, j, jpcmroot, k,
+     &        korb, kref,           mBas, mCof, mConf, mm, mOrb, N, NA,
+     &        NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI,
+     &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs,
+     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
+#ifdef _HDF5_
+      Integer mh5id, lRoots_l
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iref_dice
+#endif
+
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
 
       DoFaro = .FALSE.
 
-#ifdef _DMRG
+#ifdef _DMRG_
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
 !     If this is set to 0, MPS compression is disabled
@@ -765,8 +822,6 @@ C   No changing about read in orbital information from INPORB yet.
       If (DBG) Write(6,*) ' Check if KSDFT was requested.'
       If (KeyKSDF) Then
        If (DBG) Write(6,*) ' KSDFT command was given.'
-       PamGen=.False.
-       PamGen1=.False.
        DFTFOCK='CAS '
        Call SetPos(LUInput,'KSDF',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -798,30 +853,6 @@ C   No changing about read in orbital information from INPORB yet.
        Call ChkIfKey()
       End If
 *
-*******
-*
-* Read numbers, and coefficients for rasscf potential calculations:
-* nPAM  - number of potentials
-* ipPAM - list of potentials
-* CPAM  - coeffcients of potentials
-* PamGen - switch to generate grid of Rho, grad ....., ......
-*
-*******
-       If ( KSDFT(1:3).eq.'PAM') Then
-        If ( KSDFT(4:4).eq.'G') PamGen =.True.
-        If ( KSDFT(4:4).eq.'G') PamGen1=.False.
-        call dcopy_(nPAMintg,[0.0d0],0,CPAM,1)
-        ReadStatus=' Failure reading data following KSDF=PAM.'
-        Read(LUInput,*,End=9910,Err=9920) nPAM
-        ReadStatus=' O.K. after reading data following KSDF=PAM.'
-*        Write(LF,*) ' Number included exponent in PAM=',nPAM
-        Do iPAM=1,nPAM
-          ReadStatus=' Failure reading data following KSDF=PAM.'
-          Read(LUInput,*,End=9910,Err=9920) Line
-          ReadStatus=' O.K.after reading data following KSDF=PAM.'
-          Call RdPAM(Line,ipPAM(iPAM),CPAM(iPAM))
-        End Do
-       End If
        Call ChkIfKey()
       End If
 *---  Process CION command --------------------------------------------*
@@ -2617,33 +2648,6 @@ C orbitals accordingly
          NQUNE=1
          If (DBG) Write(6,*) ' QUNE is enabled by default.'
        End If
-      End If
-*
-*---  Process AVER command --------------------------------------------*
-      If (KeyAVER) Then
-       If (DBG) Write(6,*) ' AVER (Symmetry averaging) is used.'
-       If (DBG) Write(6,*) ' This is probably becoming obsolete.'
-       Call SetPos(LUInput,'AVER',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure reading data after KAVER keyword.'
-       Read(LUInput,*,End=9910,Err=9920) KAVER,(KSYM(I),I=1,2*KAVER)
-       ReadStatus=' O.K. after reading data after KAVER keyword.'
-       If (KAVER.ne.1 .and. KAVER.ne.2) Then
-        If (IPRLEV.GE.TERSE) Then
-         write(6,*)' AVER keyword used with inappropriate numbers'
-         write(6,*)' and is ignored.'
-        End If
-        KAVER=0
-        KeyAVER=.FALSE.
-       End if
-       If (DBG) Then
-        Write(6,*) ' Averaging (blindly) density matrices of symmetry'
-        Write(6,*) ' labels ',KSYM(1),' and ',KSYM(2)
-        If (KAVER.eq.2) Then
-         Write(6,*) ' and also labels ',KSYM(3),' and ',KSYM(4)
-        End If
-       End If
-       Call ChkIfKey()
       End If
 *
 *---  Process CIMX command --------------------------------------------*

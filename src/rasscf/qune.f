@@ -219,8 +219,13 @@ C METHOD: BFGS
         CALL DCOPY_(NDIM,  VM,1,V2,1)
         X=DDOT_(NDIM,V1,1,VL,1)
         Y=DDOT_(NDIM,V2,1,VL,1)
+        If (X==0.0D0) Then
+        ALPHA(NVEC)=1.0D99
+        BETA(NVEC)=-1.0D49
+        ELSE
         ALPHA(NVEC)=(1.0D00+Y/X)/X
         BETA(NVEC)=-1.0D00/X
+        ENDIF
 C METHOD: SYMMETRIZED POWELL 1-RANK:
 *        CALL DCOPY_(NDIM,VL,1,V1,1)
 *        CALL DCOPY_(NDIM,XOLD,1,V2,1)

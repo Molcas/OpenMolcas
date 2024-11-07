@@ -13,6 +13,7 @@
 
 subroutine wfa(ireturn)
 
+use spool, only: Spoolinp
 use Definitions, only: iwp, u6
 
 implicit none

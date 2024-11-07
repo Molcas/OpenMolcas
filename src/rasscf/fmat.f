@@ -57,18 +57,23 @@
 
       Use RunFile_procedures, Only: Get_dExcdRa
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: KSDFT, DFTFOCK, ECAS, EMY, ExFac, NAC,
+     &                         NewFock, nFint, VIA, VIA_DFT, l_casdft
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FMAT    ')
+      Character(LEN=16), Parameter :: ROUTINE='FMAT    '
 
-      Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
       Real*8, Allocatable :: TmpFck(:), Tmp1(:), Tmp2(:), TmpD1A(:)
+      Integer iPrLev, iOff, iSym, iBas, i, iFro, ij, iOff1, iOff2,
+     &        iOff3, iOrb, ipTmpFck, ipTmpFckA, ipTmpFckI, j, jOrb,
+     &        nTmpFck
+      Real*8, External:: DDot_
+
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN

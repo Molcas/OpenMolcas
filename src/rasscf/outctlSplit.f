@@ -31,10 +31,17 @@
       use rctfld_module, only: lRF
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      use rasscf_global, only: CBLBM, CMax, DE, ECAS, ESX, FDIAG,
+     &                         HALFQ, IBLBM, iPCMRoot, iSPDen, iSupSM,
+     &                         iSymBB, ITER, jBLBM, KSDFT, NAC, NACPAR,
+     &                         NACPR2, BName, NIN, NONEQ, NSEC, OutFmt1,
+     &                         RFPert, RlxGrd, RotMax, Tot_Charge,
+     &                         Tot_El_Charge, Tot_Nuc_Charge, Via_DFT,
+     &                         ixSym, iADR15, IPT2, iRLXRoot, Ener
+
+      Implicit None
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '
@@ -61,6 +68,13 @@ cnf
       Integer, External::  Cho_X_GetTol
       Real*8, Allocatable:: Tmp0(:), X1(:), X2(:), X3(:), X4(:),
      &                      CMON(:), D(:), X6(:), CMOSO(:)
+
+      Real*8 CASDFT_Funct, EAV, Edc, Emv, EneTmp, Erel, percent
+      Integer i, IAD03, IAD12, IAD14, IAD15, iCharge, iComp, iDimN,
+     &        iDimO, iDImV, iEnd, Ind, iOpt, iPrLev, iRC, iRC1, iRC2,
+     &        iStart, iSyLbl, iSym, iTemp, iTol, kRoot, left, LuTmp,
+     &        NAO, nDCInt, nMVInt, NO
+      Integer, External:: IsFreeUnit
 
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
@@ -450,7 +464,7 @@ C Local print level (if any)
      *  '-----------------------------------------------'
         Write(LF,*)
         lSave = lRootSplit.eq.iRlxRoot
-        CALL CHARGE(nsym,nbas,name,CMO,OCCN,SMAT,2,FullMlk,lSave)
+        CALL CHARGE(nsym,nbas,BName,CMO,OCCN,SMAT,2,FullMlk,lSave)
         Write(LF,*)
 *
 *       Compute properties
@@ -537,7 +551,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
-          CALL CHARGE(nsym,nbas,name,cmoso,OCCN,SMAT,3,FullMlk,.False.)
+          CALL CHARGE(nsym,nbas,BName,cmoso,OCCN,SMAT,3,FullMlk,.False.)
           Write(LF,*)
         ENDIF
 
@@ -562,7 +576,7 @@ C Local print level (if any)
           Write(LF,*)
           Write(LF,'(6X,A,I2)')
      &    'Natural Bond Order Analysis for root number:',lRootSplit
-          Call Nat_Bond_Order(nSym,nBas,Name,2)
+          Call Nat_Bond_Order(nSym,nBas,BName,2)
           Call CollapseOutput(0,'LoProp Analysis:')
           Write(6,*)
         End If

@@ -38,32 +38,46 @@
       use fciqmc, only: tPrepStochCASPT2, tNonDiagStochPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use RASWfn, only: wfn_mocoef
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: NAC
+#endif
+
+      IMPLICIT None
+
+      Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
+     &          WO(*),SQ(*),CMOX(*)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
-      Character*3 Label
+      Character(LEN=3) Label
       Integer, Allocatable:: OrbSym(:)
 #endif
 
 #ifdef _HDF5_
       integer, allocatable :: indices(:,:)
       real(wp), allocatable :: vals(:), fockmat(:,:), vecs(:,:)
-      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index
+      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index, k
 #endif
 
-
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "raswfn.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FCKPT2  ')
+      Character(LEN=16), Parameter :: ROUTINE='FCKPT2  '
+      REAL*8 FMIN
+      Integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD,
+     &        II, ioff, IST, ISTMO, iSym, j, MIN, NA, NA1, NABT, NAO,
+     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NF, NFNB,
+     &        NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOC, NOO,
+     &        NOT, NP, NPQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31,
+     &        NR32, NT, NT1, NTT, NTU, NTUT, NU, NUT, NAB, NEO2, NQ
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Integer ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
+      Integer, External:: IsFreeUnit
+#endif
 
-      Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
-     &          WO(*),SQ(*),CMOX(*)
 
 * Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -118,7 +132,6 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(stSym)
 
       LuFCK=isFreeUnit(27)
 *      open ( unit = LuFCK, file = "FOCK_CHEMPS2",

@@ -19,6 +19,7 @@ use chcc_global, only: conv, generkey, intkey, JoinLkey, maxiter, maxGrp, maxSGr
 use chcc_global, only: NChLoc
 use Para_Info, only: nProcs
 #endif
+use spool, only: Close_LuSpool, Spoolinp
 use Definitions, only: wp, iwp, u6
 
 implicit none

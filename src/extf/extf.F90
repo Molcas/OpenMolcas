@@ -17,6 +17,7 @@
 
 subroutine extf(ireturn)
 
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, auToN
 use Definitions, only: wp, iwp, u6

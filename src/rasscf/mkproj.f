@@ -12,25 +12,26 @@
 ************************************************************************
       SUBROUTINE MKPROJ(CRVEC,CMO,TUVX)
       use stdalloc, only: mma_allocate, mma_deallocate
-      implicit real*8 (a-h,o-z)
+      use rasscf_global, only: CORESHIFT
+
+      implicit None
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "warnings.h"
       Real*8 CRVEC(NCRVEC), CMO(NTOT2)
       Real*8 TUVX(*)
+
       Real*8, Allocatable:: CS_TMP(:)
+      REAL*8 CS_TU, CS_TUV, COREPROJ
+      Integer NA, NB, IPOS, ITU, IT, IU, IVX, IV, IXMX, IX
+      Real*8, External:: DDot_
 
       NA=NASH(1)
       NB=NBAS(1)
 
       CALL mma_allocate(CS_TMP,NB,Label='CS_TMP')
-*      write(6,*) 'MKPROJ test: Overlaps active/core :'
       DO IT=1,NA
         CS_TMP(IT)=DDOT_(NB,CMO((IT-1)*NB+1),1,CRVEC,1)
-*        write(6,'(1x,i5,f16.8)') it,CS_TMP(IT)
       END DO
-*      write(6,*)' Before shift TUVX(1):',TUVX(1)
 
       IPOS=0
       ITU=0
@@ -54,8 +55,5 @@
       END DO
 
       CALL mma_deallocate(CS_TMP)
-*      write(6,*)' IPOS, NCRVEC:',IPOS, NTOT, NCRVEC
-*      write(6,*)'  After shift TUVX(1):',TUVX(1)
-*      call xflush(6)
 
       END SUBROUTINE MKPROJ

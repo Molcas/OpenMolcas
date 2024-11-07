@@ -21,6 +21,7 @@ subroutine PMAT_RASSCF(P,X)
 ! ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use Symmetry_Info, only: Mul
+use rasscf_global, only: ISTORP, iTri
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -34,7 +35,6 @@ real(kind=wp), intent(in) :: P(*)
 real(kind=wp), intent(_OUT_) :: X(*)
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 integer(kind=iwp) :: IAT, IAU, IAV, IAX, INDF, INDX, LAT, LAT1, LAU, LAU1, LAV, LAX, LPMAT, LROW, NAP, NAQ, NAR, NAS, NAT, NAU, &
                      NAV, NAX, NAXE, NSP, NSPQ, NSQ, NSR, NSS, NSS1, NSSM, NTU, NTUVX, NUVX, NVX
 real(kind=wp) :: FAC

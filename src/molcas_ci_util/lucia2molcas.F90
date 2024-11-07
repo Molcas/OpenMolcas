@@ -15,6 +15,7 @@ subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM
 
 use csfbas, only: CONF, CTS, maxop_lucia
 use splitcas_data, only: iDimBlockA
+use rasscf_global, only: NAC
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
@@ -25,7 +26,6 @@ integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, M
 #include "rasdim.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "strnum.fh"
 #include "lucia_ini.fh"

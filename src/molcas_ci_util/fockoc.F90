@@ -25,6 +25,7 @@ subroutine FOCKOC(FOCC,F,CMO)
 
 use Index_Functions, only: nTri_Elem
 use wadr, only: FockOcc
+use rasscf_global, only: IADR15, NO2M
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -35,7 +36,6 @@ implicit none
 real(kind=wp), intent(_OUT_) :: FOCC(*)
 real(kind=wp), intent(in) :: F(*), CMO(*)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 real(kind=wp), allocatable :: SCR1(:), SCR2(:)
 integer(kind=iwp) :: IAD15, iBas, iCMO, ij, IPQ, ISTFCK, ISYM, jBas, jFock, kl, lk, NAO, NIO, NO, NOO, NP, NQ

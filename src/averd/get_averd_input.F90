@@ -24,6 +24,7 @@
 subroutine Get_Averd_input(Title,iPrint,nSet,DensityBased,ThrOcc)
 
 use Averd_global, only: Wset
+use spool, only: SpoolInp
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 

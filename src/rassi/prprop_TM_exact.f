@@ -19,29 +19,32 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
+      use RASSIWfn, only: wfn_SOS_TM
 #endif
-      use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron, Zero,
+     &                     Half, Two
+      use Cntrl, only: NSTATE, NPROP, DIPR, OSThr_Dipr, QIPR,
+     &                 OSThr_QIPR, RSPR, RSThr, REDUCELOOP, LOOPDIVIDE,
+     &                 Do_SK, nQuad, PrRaw, PrWeight, Do_Pol, TMGR_Thrs,
+     &                 lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME,
+     &                 PTYPE
+      use cntrl, only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+
+      IMPLICIT None
       Integer NSS
       Real*8 PROP(NSTATE,NSTATE,NPROP)
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
       Integer JBNUM(NSTATE)
       Real*8 EigVec(NSTATE,NSTATE)
 
-      parameter (THRSH=1.0D-10)
-      parameter (ZERO=0.0D0)
-#include "symmul.fh"
+      Real*8, parameter ::THRSH=1.0D-10
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "SysDef.fh"
-#include "rassiwfn.fh"
       LOGICAL TMOgroup
       INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
-      CHARACTER*8 LABEL
-      CHARACTER*6 STLNE1
-      CHARACTER*52 STLNE2
+      CHARACTER(LEN=8) LABEL
+      CHARACTER(LEN=6) STLNE1
+      CHARACTER(LEN=52) STLNE2
       Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2,ISS_INDEX,
      &   iMask,jMask,iSSMask,jSSMask
       Real*8 TM_R(3), TM_I(3), TM_C(3)
@@ -60,6 +63,25 @@
       Real*8, Allocatable:: IP(:), OscStr(:,:), Aux(:,:)
       Real*8, Allocatable:: RAW(:)
 
+      Real*8, Parameter:: AU2REDR=2.0D2*Debye
+      Real*8, Parameter:: AFACTOR = Two/c_in_au**3/(auTofs*1.0D-15)
+
+      Real*8 OSThr, Thrs, RefEne, Tau, EDiff, ThrsParse, EnSOR1, TEMP,
+     &       EnSOR2, EDiff_, RKNorm, CST, Weight, RNorm, TM1, TM2,
+     &       TM_2, TM3, RNG, ANG, F_temp, R_temp, F, R, F_Check,
+     &       R_Check, A, TCPU1, TCPU2, TWALL1, TWALL2
+      REAL*8, External:: DDot_
+      Integer IEND, JSTart, IPROP, NDIFF, NVEC, NSCR, NIP,
+     &                                           NGROUP1, NGROUP2,
+     &        NMAX2, I, J, nTmp, MaxGrp1, MaxGrp2, lRaw, iVec, iPrint,
+     &        ijSO, iState, Job, iGrp, iStart_, iEnd_, ISM, ISSM, ISF,
+     &        ISS, ISO, IMSS, jGrp, jStart_, jEnd_, JSM, JSSM, JSF, JSS,
+     &        JSO, JMSS, iQuad, iVec_, iOpt, iPrP, Job1, Job2, iSy12,
+     &        MASK, IDISK, IEMPTY, IGO, ITYPE, iCar, KP, IJ_,
+     &        nQuad_, iQuad_, lRaw_, K
+#ifdef _HDF5_
+      Integer ijSO_, ip_kVector, ip_TMr, ip_TMi, ip_W, nData, nij
+#endif
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
@@ -83,12 +105,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      AU2REDR=2.0D2*Debye
-      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-      ! 1/c^3 (in a.u. of time ^ -1)
-      AFACTOR = 2.0D0/c_in_au**3/(auTofs*1.0D-15)
-      HALF=0.5D0
-
 *define _TIME_TMOM_
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
@@ -506,7 +522,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                Do IPRP = 1,14
                   IPROP = IPRTMOM(IPRP)
-                  Call FZero(PROP(1,1,IPROP),NSTATE**2)
+                  PROP(:,:,IPROP)=Zero
                End Do
 
                DO ISS=1,ISM

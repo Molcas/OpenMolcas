@@ -49,6 +49,7 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 
 use csfbas, only: CONF
 use glbbas, only: DFTP, DTOC
+use rasscf_global, only: ExFac, NAC
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -59,12 +60,11 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
-integer(kind=iwp) :: I, II, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
+integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: dum1, dum2, dum3, ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "strnum.fh"

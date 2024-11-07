@@ -48,6 +48,8 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 !                                                                      *
 !***********************************************************************
 
+use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, n_Keep, NAC, &
+                         ThFact, ThrEn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
@@ -60,7 +62,6 @@ real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
 real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "lucia_ini.fh"

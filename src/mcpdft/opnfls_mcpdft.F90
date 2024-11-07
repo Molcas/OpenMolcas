@@ -17,7 +17,6 @@ subroutine open_files_mcpdft(DSCF)
 
   implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
 

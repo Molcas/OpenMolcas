@@ -15,7 +15,6 @@ set (sources
      c2r8.F90
      check_parallel_data.F90
      chk4nan.F90
-     close_luspool.F90
      clsmck.F90
      clsone.F90
      clsord.F90
@@ -32,7 +31,6 @@ set (sources
      decideonespf.F90
      dgemm_tri.F90
      diag_driver.F90
-     disable_spool.F90
      dmpone.F90
      drdmck.F90
      dsq.F90
@@ -132,7 +130,7 @@ set (sources
      sorteig.F90
      sorting.F90
      sorting_funcs.F90
-     spoolinp.F90
+     spool.F90
      sqprt.F90
      square.F90
      stdfmt.F90
@@ -171,6 +169,7 @@ set (modfile_list
      pack_mod.F90
      sorting.F90
      sorting_funcs.F90
+     spool.F90
      twodat.F90
 )
 

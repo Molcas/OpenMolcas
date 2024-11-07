@@ -14,17 +14,17 @@
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
+      use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
+      use cntrl, Only: LuTDM
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+
+      IMPLICIT None
       CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS,BSS,NSS
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS)
       INTEGER iOpt
       Real*8 ROTMAT(3,3)
+#include "rassi.fh"
       Real*8 DENSOUT(6,NBTRI)
 
       Integer IOFF(8)
@@ -41,6 +41,12 @@
       Type (A2_array):: IZMI(3)
       Type (A2_array):: IZMR2(3)
       Type (A2_array):: IZMI2(3)
+      REAL*8 CGY, CGX, CG0, TDM, S1, SM1, S2, SM2, FACT, CGM, CGP, URR,
+     &       UIR, URL, UIL, DCLEBS
+      INTEGER ITYPE, ISS, ISF, JOB, MPLET, MSPROJ, KSS, KSF, MPLETK,
+     &        MSPROJK, LSS, LSF, MPLETL, MSPROJL, JOB1, JOB2, ISY12,
+     &        IEMPTY, IDISK, IGO, IOF, ITD, ISY, NB, J, I, IJ, ISY1,
+     &        NB1, ISY2, NB2, IDIR
 
 c VV: dummy initialization
       CGY=-1

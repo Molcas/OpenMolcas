@@ -40,20 +40,25 @@
       use qcmaquis_interface_cfg
 #endif
 *
-      Implicit Real*8 (a-h,o-z)
+      use gas_data, only: iDoGAS
+      use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR,
+     &                         NACPR2, nRoots, ThrTE, ThrSX, Weight
+
+      Implicit None
+      Integer iFinal
+      Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)
+
 *...  Define global variables .........................................*
 #include "rasdim.fh"
-#include "rasscf.fh"
-#include "gas.fh"
 #include "general.fh"
 #include "SysDef.fh"
-      Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)
 *...  Define local variables ..........................................*
       Character(LEN=8) RlxLbl,Method
       Logical SCF, Found
       Integer nTemp(8)
       Character(Len=16) mstate
-      Real*8 Dum(1)
+      Real*8 Dum(1), Tmp
+      Integer i, iR, iRLXRoot1, iRLXRoot2, iS, iSA, nW
 *
 *----------------------------------------------------------------------*
 *     Prologue                                                         *
@@ -174,5 +179,4 @@
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine Export1

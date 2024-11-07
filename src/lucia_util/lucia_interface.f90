@@ -420,14 +420,17 @@ Contains
 ! IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
 ! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
 !
-      implicit real*8 (a-h,o-z)
+      implicit None
       integer nCIVEC, ifile, mxrec, isym, iway
       integer lrec(mxrec)
       real*8 CIVec(nCIVec)
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "io_util.fh"
+      Integer nRec
+#ifdef _DEBUGPRINT_
+      Integer iOff, iRec
+#endif
 !
 !   ========================
 !      Find nrec and lrec

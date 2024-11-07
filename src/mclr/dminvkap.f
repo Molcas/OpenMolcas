@@ -25,10 +25,9 @@
 *     iSym              Symmetry of rotation                           *
 *                                                                      *
 ************************************************************************
-
+      use Spool, only: LuWr
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
-#include "standard_iounits.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
 #include "sa.fh"
@@ -151,7 +150,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
       End Subroutine DMInvKap_Internal
 *
-      end
+      end SubRoutine DMInvKap

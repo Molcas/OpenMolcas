@@ -20,15 +20,14 @@
 *****************************************************************
       SUBROUTINE FINDT (CMO1,CMO2,TRA1,TRA2)
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: PRSXY, PRTRA, PRORB
+      use Symmetry_Info, only: nSym=>nIrrep
+      IMPLICIT None
+#include "rassi.fh"
       Real*8 CMO1(NCMO),CMO2(NCMO)
       Real*8 TRA1(NTRA),TRA2(NTRA)
-#include "rasdim.fh"
-#include "cntrl.fh"
-#include "symmul.fh"
-#include "rassi.fh"
-
       Real*8, allocatable:: SXY(:), CXA(:), CYB(:)
+      Integer NCYB
 
 C BEGIN BY COMPUTING MO OVERLAPS, SXY.
 C MO OVERLAP MATRIX HAS SAME STRUCTURE AS TRA1,TRA2:

@@ -12,21 +12,22 @@
 #ifdef _DMRG_
       use UnixInfo, only: ProgName
 #endif
+      use input_ras, only: nKeys, CMD, KeyFlags, KeyEND, LuInput
+
       Implicit Real*8 (A-H,O-Z)
 * ------------------------------------------------------------
 * Scan input lines after the '&RASSCF' marker and until
 * finding keyword 'END ' or the end of file.
-* Keywords are identified according to file 'input_ras.fh'
-* Logical flags in 'input_ras.fh' are set according to input.
+* Keywords are identified according to file 'input_ras.F90'
+* Logical flags in 'input_ras.F90' are set according to input.
 * Return codes are _RC_ALL_IS_WELL_ or _RC_INPUT_ERROR_
 * ------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras.fh"
 #include "output_ras.fh"
 *
-      Character*4 Command
-      Character*180  Line
+      Character(LEN=4) Command
+      Character(LEN=180)  Line
 
 #ifdef _DMRG_
       logical qcmaquis_input

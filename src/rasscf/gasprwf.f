@@ -41,23 +41,28 @@
 *                                                                      *
 ************************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
+      use rasscf_global, only: PrwThr, nSm
+
+      Implicit None
 
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "gas.fh"
 #include "output_ras.fh"
 C
-      DIMENSION ICONF(*),ISPIN(*)
-      DIMENSION CICOEF(*)
-      DIMENSION KCNF(NEL)
+      Integer nOrb, nEl
+      Integer ICONF(*),ISPIN(*)
+      Real*8 CICOEF(*)
+      Integer KCNF(NEL)
 C
-      DIMENSION IWALK(mxAct)
-      character*120 Line
+      Integer IWALK(mxAct)
+      character(LEN=120) Line
+      Integer iRefSM, IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL,
+     &        IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp,
+     &        jOCC, kOCC, kOrb
+      REAL*8 COEF
 C
 C     print headline
 C
@@ -152,4 +157,4 @@ C     PRINT IT
 900     CONTINUE
 1000  CONTINUE
 
-      END
+      END Subroutine gasprwf

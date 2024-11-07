@@ -13,14 +13,17 @@
       SUBROUTINE MKCRVEC(CMO_0,CRVEC)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: ITCORE
+
+      IMPLICIT None
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "warnings.h"
       Real*8 CRVEC(NTOT), CMO_0(NTOT2)
+
       CHARACTER(LEN=8) LABEL
       Real*8, Allocatable:: STRI(:), SAO(:,:)
+      Integer IRC, IOPT, ICOMP, ISYMLBL, NB, NFI
 *
 * Note: Nbas,etc are in included common. So is ITCORE.
 * CMO_0 is the starting CMO vectors. Active orbital nr ITCORE in

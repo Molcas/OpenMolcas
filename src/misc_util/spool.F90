@@ -13,15 +13,25 @@
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
+module Spool
+
+use Definitions, only: iwp, u5, u6
+
+implicit none
+private
+
+logical(kind=iwp) :: Spool_On = .true.
+integer(kind=iwp) :: LuRd = u5, LuWr = u6
+
+public :: Close_LuSpool, Disable_Spool, LuRd, LuWr, Set_Spool, SpoolInp
+
+contains
+
 subroutine SpoolInp(LuSpool)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
 !     Copy all input to a local scratch file                           *
-!                                                                      *
-!     calling arguments:                                               *
-!     LuSpool   : integer                                              *
-!               logical unit number of the temporary file              *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -33,57 +43,72 @@ subroutine SpoolInp(LuSpool)
 !                   Tokyo, Japan, June 2002.                           *
 !                   J.W. Krogh to make auto.plx create the old input   *
 !                   file. Lund, Sweden, October 2005.                  *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!                                                                      *
 !***********************************************************************
 
-use UnixInfo, only: ProgName
-use Definitions, only: iwp
+  use UnixInfo, only: ProgName
+  use Definitions, only: iwp
 
-implicit none
-integer(kind=iwp), intent(out) :: LuSpool
-#include "standard_iounits.fh"
-integer(kind=iwp) :: iEnd
-logical(kind=iwp) :: Exists
-character(len=len(ProgName)) :: PName
-character(len=128) :: FileName
-integer(kind=iwp) :: IsFreeUnit
+  implicit none
+  integer(kind=iwp), intent(out) :: LuSpool
+  integer(kind=iwp) :: iEnd
+  logical(kind=iwp) :: Exists
+  character(len=len(ProgName)) :: PName
+  character(len=128) :: FileName
+  integer(kind=iwp) :: IsFreeUnit
 
-! Get the name of the module
+  ! Get the name of the module
 
-PName = ProgName
-call Upcase(PName)
-PName = adjustl(PName)
+  PName = ProgName
+  call Upcase(PName)
+  PName = adjustl(PName)
 
-iEnd = 1
-do while (PName(iEnd:iEnd) /= ' ')
-  iEnd = iEnd+1
-end do
-iEnd = min(iEnd-1,5)
-FileName = PName(1:iend)//'INP'
+  iEnd = 1
+  do while (PName(iEnd:iEnd) /= ' ')
+    iEnd = iEnd+1
+  end do
+  iEnd = min(iEnd-1,5)
+  FileName = PName(1:iend)//'INP'
 
-! If Spool is true, then the input in StdIn is just used.
-! Else we'll use the latest input. This is created by auto.plx
+  ! If Spool_on is true, then the input in StdIn is just used.
+  ! Else we'll use the latest input. This is created by auto.plx
 
-LuSpool = 17
-if (Spool) then
-  LuSpool = LuRd
-else
-  call f_inquire('LASTEN',Exists) ! customized Last_Energy input
-  if (Exists) then
-    LuSpool = IsFreeUnit(LuSpool)
-    call Molcas_Open(LuSpool,'LASTEN')
+  LuSpool = 17
+  if (Spool_On) then
+    LuSpool = LuRd
   else
-    call f_inquire(Filename,Exists)
+    call f_inquire('LASTEN',Exists) ! customized Last_Energy input
     if (Exists) then
       LuSpool = IsFreeUnit(LuSpool)
-      call Molcas_Open(LuSpool,Filename)
+      call Molcas_Open(LuSpool,'LASTEN')
+    else
+      call f_inquire(Filename,Exists)
+      if (Exists) then
+        LuSpool = IsFreeUnit(LuSpool)
+        call Molcas_Open(LuSpool,Filename)
+      end if
     end if
   end if
-end if
-
-return
 
 end subroutine SpoolInp
+
+subroutine Set_Spool()
+
+  Spool_on = .true.
+
+end subroutine Set_Spool
+
+subroutine Disable_Spool()
+
+  Spool_on = .false.
+
+end subroutine Disable_Spool
+
+subroutine Close_LuSpool(LuSpool)
+
+  integer(kind=iwp), intent(in) :: LuSpool
+
+  if (.not. Spool_On) close(LuSpool)
+
+end subroutine Close_LuSpool
+
+end module Spool

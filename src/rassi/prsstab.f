@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PrSSTab(SSTAB)
+      use cntrl, only: MORSBITS
       IMPLICIT NONE
       INTEGER SSTAB(*)
 
@@ -17,7 +18,6 @@
       INTEGER KSSTANN,KSSTCRE,KSBSMRS,KMRSSBS,KSBSANN,KSBSCRE
       INTEGER I,ISBS,NSBSTOT,NMORS,IMRS,NASPRT
       INTEGER NRSBST,ISBSSTA,ISBSEND,IMRSSTA,IMRSEND
-#include "Morsel.fh"
       WRITE(6,*)
       WRITE(6,*)'============================================='
       WRITE(6,*)' Substring table printout.'

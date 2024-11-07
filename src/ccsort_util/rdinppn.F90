@@ -38,6 +38,7 @@ subroutine RdInpPN(run_triples,run_sort)
 use ccsort_global, only: cckey, clopkey, fullprint, IADR15, iokey, IPT2, ISCF, ISPIN, JOBIPH, LROOT, LSYM, luna1, luna2, luna3, &
                          luna4, lunab, lunda1, lunda2, lunpublic, lunt3, NACTEL, NASH, NASHT, NBAS, NCONF, NDEL, ndelr, nDelX, &
                          NELE3, NFRO, nfror, nFroX, NHOLE1, NISH, NISHT, noop, NORB, NROOTS, NSSH, NSSHT, NSYM, t3key, zrkey
+use spool, only: SpoolInp, Close_LuSpool
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

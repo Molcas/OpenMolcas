@@ -8,5 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER MUL,NSYM
-      COMMON /SYMMUL/ MUL(8,8),NSYM
+
+module gas_data
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+#include "Molcas.fh"
+
+integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
+logical(kind=iwp) :: iDoGas = .false.
+
+public :: iDoGas, IGSOCCX, NGAS, NGSSH
+
+end module gas_data

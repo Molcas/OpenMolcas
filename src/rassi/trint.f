@@ -17,22 +17,31 @@
       use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: ERFNUC, RFPert
+      use cntrl, only: ALGO, Nscreen, dmpk
+      use cntrl, only: LuOrd
+      use Symmetry_Info, only: nSym=>nIrrep
+
+      IMPLICIT None
+#include "rassi.fh"
+      Integer NGAM1, NGAM2
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
+
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT(1), FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
-#include "rassi.fh"
-#include "symmul.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "Files.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
-      Real*8, Dimension(:), Allocatable:: Prod
-
-#include "chorassi.fh"
+      Real*8, Allocatable:: Prod(:)
+      Integer iOpt, IRC, nSymX, iSym, NB1, NB2, I, nDINAO, NFAO, IOFF,
+     &        IKK, IOFF1, IOFF2, IOFF3, JKK, NPROD, ISTFMO, ISTC, NA,
+     &        NI, NO, NB, ISTA, IERR
+      Real*8 ECORE1, ECORE2, ECORE
+      Real*8, External:: DDot_
+#ifdef _MOLCAS_MPP_
+      Real*8 SCX
+#endif
 
 *****************************************************************
 *  CALCULATE AND RETURN ECORE, FOCKMO, AND TUVX. ECORE IS THE

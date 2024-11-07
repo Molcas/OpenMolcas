@@ -14,6 +14,7 @@
 subroutine Read_Input()
 
 use False_Global, only: Mode, Run_Command
+use spool, only: Spoolinp
 use Definitions, only: iwp
 
 implicit none

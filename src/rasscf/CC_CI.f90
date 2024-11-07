@@ -24,7 +24,7 @@ module CC_CI_mod
     use filesystem, only: getcwd_, get_errno_, strerror_, real_path
     use linalg_mod, only: verify_, abort_
 
-    use rasscf_data, only: iter, lRoots, EMY, &
+    use rasscf_global, only: iter, lRoots, EMY, &
          S, KSDFT, Ener, nAc, nAcPar, nAcPr2, nroots
     use general_data, only: iSpin, nSym, nConf, &
          ntot, ntot1, ntot2, nAsh, nActEl

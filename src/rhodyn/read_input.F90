@@ -20,6 +20,7 @@ use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, f
                        nconf, ndet, Nmode, Nstate, Nval, omega, p_style, phi, power_shape, pulse_type, pulse_vector, q_max, &
                        runmode, safety, scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
+use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
 use Definitions, only: wp, iwp, u6

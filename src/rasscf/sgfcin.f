@@ -52,7 +52,7 @@
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
 
-      use rasscf_data, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
+      use rasscf_global, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge,
      &    doBlockDMRG, doDMRG
@@ -67,16 +67,13 @@
       implicit none
 #include "rasdim.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SGFCIN  ')
-#include "pamint.fh"
+      Character(LEN=16), Parameter :: ROUTINE='SGFCIN  '
 #include "timers.fh"
 #include "SysDef.fh"
 *
       real*8, intent(in) :: CMO(*), D1I(*), D1A(*)
       real*8, intent(inout) :: FI(*), D1S(*), F(*)
-      Character*8 Label
-      Character*8 PAMlbl
+      Character(LEN=8) Label
       Logical First, Dff, Do_DFT, Found
       Logical Do_ESPF
 *
@@ -84,13 +81,13 @@
       real*8 :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone,
      &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
-     &  ioff, iopt, ipam, iprlev, ntmpfck,
+     &  ioff, iopt, iprlev, ntmpfck,
      &  irc, iSyLbl, iSym, iTu, j,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
       real*8, allocatable :: TmpFckI(:), Tmpx(:)
       real*8, allocatable:: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:),
      &                      Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:),
-     &                      Tmp8(:), Tmpz(:), X0(:), X1(:), X2(:),
+     &                      Tmpz(:), X0(:), X1(:), X2(:),
      &                      X3(:)
 
 C Local print level (if any)
@@ -279,19 +276,6 @@ C Local print level (if any)
 
         Call Daxpy_(nTot1,1.0d0,Tmp6,1,FI,1)
 *
-*       Insert PAM integrals to one electron Hamiltonian
-*
-        If(KSDFT(1:3).eq.'PAM') Then
-          Call mma_allocate(Tmp8,nTot1,Label='Tmp8')
-          Do iPAM=1,nPAM
-             Write(PAMlbl,'(A,I3.3)') 'PAM  ',ipPam(iPAM)
-             Call dCopy_(nTot1,[Zero],0,Tmp8,1)
-             iComp=1
-             Call RdOne(iRc,iOpt,PAMlbl,iComp,Tmp8,iSyLbl)
-             Call Daxpy_(nTot1,CPAM(iPAM),Tmp8,1,Tmp1,1)
-          End Do
-          Call mma_deallocate(Tmp8)
-        End If
         Call mma_deallocate(Tmp6)
         Call mma_deallocate(Tmp5)
       End If

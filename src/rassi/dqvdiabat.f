@@ -29,21 +29,19 @@
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
       USE Constants, ONLY: Pi
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "symmul.fh"
+      use Cntrl, only: NSTATE, NPROP, AlphZ, BetaE, PNAME, ICOMP
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "tshcntrl.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
+      REAL*8 HAM(NSTATE,NSTATE)
+
       REAL*8 TROT(NSTATE,NSTATE)
       REAL*8 TRQ(NSTATE,NSTATE)
       REAL*8 TROTT(NSTATE,NSTATE)
       REAL*8 HDIA(NSTATE,NSTATE)
       REAL*8 HDIAI(NSTATE,NSTATE)
       REAL*8 HAMT(NSTATE,NSTATE)
-      REAL*8 HAM(NSTATE,NSTATE)
 
 *  These are the blocks of parameters
       INTEGER, PARAMETER :: MAX=50
@@ -51,6 +49,9 @@
       REAL*8, PARAMETER :: THRS=1.0D-8
       INTEGER :: PNUM(7)
 
+      INTEGER IPROP, ISTA, JSTA, K, I
+      REAL*8 ThrSch, ATerm, BTerm, CTerm, RotAngF, RotAngO, CosO, SinO,
+     &       T1, T2, TII, TJJ, TIJ, Chng
 *
 
 

@@ -45,11 +45,11 @@
 
       use fortran_strings, only : str
       use stdalloc, only: mma_allocate, mma_deallocate
-#include "rasdim.fh"
-#include "symmul.fh"
+      use Symmetry_Info, only: nSym=>nIrrep
+      use Constants, only: Two
+
+      Implicit None
 #include "rassi.fh"
-#include "cntrl.fh"
-#include "Files.fh"
 
       Integer ISpin,JOB1,JOB2
       Integer IState, jState
@@ -72,7 +72,7 @@
       INTEGER NScrq
       REAL*8 WGRONK(2)
       INTEGER N_NTO,INFO, I_NTO
-      REAL*8 Two,PrintThres,SumEigVal
+      REAL*8 PrintThres,SumEigVal
 !     re-organizing orbitals
 !     This is to convert active MO sets in any symmetry into a C1 symmetry
       INTEGER NAISHT
@@ -89,7 +89,6 @@
       Logical DOTEST
       INTEGER LU
       INTEGER, External:: ISFREEUNIT
-#include "ntocom.fh"
       EXTERNAL Molden_interface
       Real*8, allocatable:: SUPCMO1(:), SUPCMO2(:)
       Real*8, allocatable:: ONTO(:), UNTO(:)
@@ -105,7 +104,6 @@
 
       statename=''
       DoTest=.false.
-      Two=2.0D0
       PrintThres=1.0D-5
       CALL mma_allocate(CMO1,NCMO,Label='CMO1')
       CALL mma_allocate(CMO2,NCMO,Label='CMO2')
@@ -376,10 +374,12 @@ C     Printing NTOs
       CALL mma_allocate (Indfr,NASHT,Label='Indfr')
       NTOType='PART'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,ONTO,NTOType,
-     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto)
+     &STATENAME,Ueig,UsetoReal,RealtoUse,Spin(I_NTO),Symto,Indto,
+     &SumEigVal)
       NTOType='HOLE'
       CALL NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,UNTO,NTOType,
-     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr)
+     &STATENAME,Veig,UsetoReal,RealtoUse,Spin(I_NTO),Symfr,Indfr,
+     &SumEigVal)
 C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
@@ -450,12 +450,13 @@ C     Putting particle-hole pairs in the output
 
 
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,NTO,
-     &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind)
-#include "rasdim.fh"
-#include "symmul.fh"
+     &NTOType,STATENAME,EigVal,UsetoReal,RealtoUse,Spin,Sym,Ind,
+     &SumEigVal)
+      use Symmetry_Info, only: nSym=>nIrrep
+      use Constants, only: Zero
+
+      Implicit None
 #include "rassi.fh"
-#include "cntrl.fh"
-#include "Files.fh"
 
 C     input variables
       INTEGER NUseSym
@@ -479,11 +480,10 @@ C     SquareSum=Sum over square of coefficients for certain symmetry
 C     Total number of orbitals in IUseSym
       INTEGER,DIMENSION(NUseSym,NASHT) :: OrbSymIndex
 C     OrbSymIndex gives the original orbital index for a orbital in iusesym
-      REAL*8 Threshold,Zero,SumEigVal
+      REAL*8 Threshold,SumEigVal
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
-#include "ntocom.fh"
       INTEGER NPCMO,IPCMO
       Real*8,DIMENSION(:),allocatable::PCMO
 C     Printing control
@@ -496,7 +496,6 @@ C
       Integer, External:: ISFREEUNIT
 
       Threshold=0.0D-10
-      Zero=0.0D0
 
       Do IUseSym=1,NUseSym
        NOrbinSym(IUseSym)=0

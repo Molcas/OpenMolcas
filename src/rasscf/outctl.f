@@ -35,30 +35,59 @@
       use rctfld_module, only: lRF
       use general_data, only: CleanMask
       use stdalloc, only: mma_allocate, mma_deallocate
+      use gas_data, only: iDoGAS, NGAS, NGSSH
+      use input_ras, only: KeyCION
+      use rasscf_global, only: CBLBM, CMAX, DE, DoDMRG, ECAS, ESX,
+     &                         FDIAG, HalfQ, IBLBM, ICICH, iPCMRoot,
+     &                         iPT2, iRLXRoot, iSPDen, iSupSM, iSymBB,
+     &                         ITER, JBLBM, kIVO, KSDFT, lRoots,
+     &                         MaxOrbOut, NAC, NACPAR, NACPR2, BName,
+     &                         NIN, NONEQ, nRoots, NSEC, OutFmt1,
+     &                         RFPert, RLXGrd, RotMax,       Tot_Charge,
+     &                         Tot_El_Charge, Tot_Nuc_Charge, via_DFT,
+     &                         iRoot, Weight, iCI, cCI, ixSym, iADR15,
+     &                         Ener
+#if defined (_ENABLE_CHEMPS2_DMRG_) || defined (_DMRG_)
+      use rasscf_global, only: ThrE
+#endif
 
-      Implicit Real*8 (A-H,O-Z)
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: dice_eps1, dice_eps2, dice_iter,
+     &                         dice_restart, dice_SampleN, dice_stoc,
+     &                         nRef_dice, diceOcc
+#endif
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
+      use rasscf_global, only: DoBlockDMRG, MxDMRG
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart,
+     &                         ChemPS2_Noise, ChemPS2_restart,
+     &                         Davidson_Tol, Do3RDM, HFOcc,
+     &                         Max_canonical, Max_Sweep
+#endif
 
+
+      Implicit None
+
+      Real*8 CMO(*),OCCN(*),SMAT(*)
+      Logical lOPTO
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='OUTCTL  ')
+      Character(LEN=16), Parameter :: ROUTINE='OUTCTL  '
 #include "ciinfo.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 
-      Character*8  Fmt2, Label
-      Character*3 lIrrep(8)
-      Character*80 Note
-      Character*120 Line
+      Character(LEN=8)  Fmt2, Label
+      Character(LEN=3) lIrrep(8)
+      Character(LEN=80) Note
+      Character(LEN=120) Line
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Character*3 SNAC
+      Character(LEN=3) SNAC
+      Integer iHFOcc
 #endif
       Logical FullMlk, get_BasisType
-      Logical Do_ESPF,lSave, lOPTO, Do_DM
-      Real*8 CMO(*),OCCN(*),SMAT(*)
+      Logical Do_ESPF,lSave, Do_DM
       Real*8 Temp(2,mxRoot)
       Real*8, Allocatable:: DSave(:), Tmp0(:), X1(:), X2(:), X3(:),
      &                      X4(:), HEFF(:,:), CMON(:), DM(:), DMs(:,:),
@@ -67,13 +96,22 @@
 ** (SVC) added for new supsym vector input
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
 
-      Integer  Cho_X_GetTol
-      External Cho_X_GetTol
+      Integer, External :: Cho_X_GetTol
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
       Real*8 Dum(1)
       Integer iDum(56)
+
+      REAL*8 CASDFT_Funct, EAV, EDC, Emv, Erel, vNentropy, xnu
+      Integer i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN,
+     &        iDimO, iDimV, iEnd, iGAS, Ind, iOpt, iPrLev, iRC, iRC1,
+     &        iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot,
+     &        left, luTmp, NAO, nDCInt, nMVInt, NO
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iref_dice
+#endif
+      Integer, External:: IsFreeUnit
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
@@ -699,7 +737,7 @@ C Local print level (if any)
      *  '-----------------------------------------------'
         Write(LF,*)
         lSave = KRoot.eq.iRlxRoot
-        CALL CHARGE(nsym,nbas,name,CMO,OCCN,SMAT,2,FullMlk,lSave)
+        CALL CHARGE(nsym,nbas,BName,CMO,OCCN,SMAT,2,FullMlk,lSave)
         Write(LF,*)
 *
 *       Compute properties
@@ -804,7 +842,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
-          CALL CHARGE(nsym,nbas,name,cmoso,OCCN,SMAT,3,FullMlk,
+          CALL CHARGE(nsym,nbas,BName,cmoso,OCCN,SMAT,3,FullMlk,
      &                .False.)
           Write(LF,*)
          ENDIF
@@ -834,7 +872,7 @@ C Local print level (if any)
            Write(LF,*)
            Write(LF,'(6X,A,I3)')
      &     'Natural Bond Order analysis for root number:',KROOT
-           Call Nat_Bond_Order(nSym,nBas,Name,2)
+           Call Nat_Bond_Order(nSym,nBas,BName,2)
            Call CollapseOutput(0,'LoProp analysis:')
            Write(6,*)
          End If

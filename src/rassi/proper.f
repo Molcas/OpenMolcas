@@ -12,12 +12,13 @@
       use rassi_global_arrays, only : JBNUM
       use RASSI_AUX
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
+      use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, ToFile,
+     &                 IRREP, PNAME, PTYPE
+      use cntrl, only: FnTOM, LuTOM
+      use Symmetry_Info, only: Mul, nSym=>nIrrep
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       Real*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
       Integer ISTATE, JSTATE
@@ -27,6 +28,8 @@
       Integer, SAVE:: ICALL=0
       Real*8, Allocatable:: SCR(:,:)
       Real*8, Allocatable:: IP(:)
+      Integer JOB1, JOB2, iSy12, Mask, NIP, nScr, iDisk, iDIskSav, I, J,
+     &        IndCall, iProp, iType
 
 C COMBINED SYMMETRY OF STATES:
       JOB1=JBNUM(ISTATE)

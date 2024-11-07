@@ -23,6 +23,7 @@ subroutine RdInp_Motra()
 use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iortho, iPrint, iRFpert, iVecTyp, nBas, &
                         nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, nTit, Title
 use Cholesky, only: tv2disk
+use spool, only: Spoolinp
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 

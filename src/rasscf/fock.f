@@ -37,18 +37,26 @@ c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      use rasscf_global, only: KSDFT, CBLBM, E2act, ECAS, HalfQ1, IBLBM,
+     &                         iSymBB, JBLBM, NTOT3, via_DFT, ISTORD,
+     &                         ISTORP, iTri, iZROT, ixSym, CBLB, IBLB,
+     &                         JBLB
+
+      IMPLICIT None
+      Integer iFinal
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+
       integer ISTSQ(8),ISTAV(8)
-      real*8 ECAS0
+      real*8 ECAS0, CASDFT_En, CSX, QNTM
+      Integer iPrLev, ipBM, ipFMCSCF, ipMOs, ipQs, ISTBM, ISTD, ISTFCK,
+     &        ISTFP, ISTP, ISTZ, iSym, IX, IX1, JSTF, N1, N2, NAO, NAS,
+     &        NEO, NI, NIA, NIO, NIS, NM, NO, NO2, nOr, NP, NPQ, NQ,
+     &        nSs, NT, NTM, NTT, NTU, NTV, NU, NUVX, NV, NVI, NVM
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "qmat.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FOCK    ')
+      Character(LEN=16), Parameter :: ROUTINE='FOCK    '
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -77,6 +85,7 @@ C
       IX1=0
       ISTZ=0
       E2act=0.0d0
+      HalfQ1=0.0d0
 
       DO ISYM=1,NSYM
        IX=IX1+NFRO(ISYM)
@@ -307,5 +316,4 @@ C
          Write(LF,*)
       End If
 C
-      RETURN
-      END
+      END SUBROUTINE FOCK

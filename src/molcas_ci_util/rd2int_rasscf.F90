@@ -29,12 +29,12 @@ subroutine Rd2Int_RASSCF()
 !***********************************************************************
 
 use UnixInfo, only: ProgName
+use rasscf_global, only: lSquare
 use Definitions, only: iwp, u6
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 integer(kind=iwp) :: i, IERR, iRc, iSym, nBasX(8), nSymX
 
 !----------------------------------------------------------------------*

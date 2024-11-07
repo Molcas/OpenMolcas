@@ -10,10 +10,9 @@
 ************************************************************************
       INTEGER FUNCTION MorsPop(IMORS)
       IMPLICIT NONE
-      DIMENSION NUM(0:15)
+      Integer:: NUM(0:15)=[0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4]
       INTEGER I1,I2,I3,IMORS
-      INTEGER J,NUM
-      DATA NUM / 0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4 /
+      INTEGER J
       MorsPop=0 ! dummy initialize
       IF(IMORS.LT.0) GOTO 99
       I1=IMORS/16
@@ -76,12 +75,12 @@
       CALL ABEND()
       END
       INTEGER FUNCTION MorsSymm(IMORS,ISMARR)
+      use Symmetry_Info, only: MUL
       IMPLICIT NONE
       INTEGER MORSBITS
       PARAMETER (MORSBITS=8)
       DIMENSION ISMARR(*)
       INTEGER I,IB,IBIT,IMORS,ISMARR
-#include "symmul.fh"
       MorsSymm=1
       IF(IMORS.LT.0) GOTO 99
       IB=IMORS
@@ -97,7 +96,7 @@
       END
       SUBROUTINE MorsWrite(IMORS,STRING)
       IMPLICIT NONE
-      CHARACTER*(*) STRING
+      CHARACTER(LEN=*) STRING
       INTEGER I,IB,IBIT,IMORS
       IF(IMORS.LT.0) GOTO 99
       IB=IMORS
