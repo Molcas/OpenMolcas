@@ -15,6 +15,10 @@ subroutine ref_energy(mcscf_energy,nroots)
   use stdalloc,only:mma_allocate,mma_deallocate
   use mcpdft_input,only:mcpdft_options
   use mspdft,only:heff
+#ifdef _HDF5_
+  use mh5,only:mh5_open_file_r,mh5_close_file,mh5_fetch_dset,mh5_exists_dset
+#endif
+
   implicit none
 
   integer(kind=iwp),intent(in) :: nroots
@@ -24,7 +28,7 @@ subroutine ref_energy(mcscf_energy,nroots)
 #include "general.fh"
 
   integer(kind=iwp),dimension(15) :: iadr19
-  integer(kind=iwp) :: root
+  integer(kind=iwp) :: root,refwfn_id
   integer(kind=iwp) :: iad19,disk,nmaybe,i,it
   real(kind=wp) :: e,aemax
 
@@ -38,36 +42,45 @@ subroutine ref_energy(mcscf_energy,nroots)
       mcscf_energy(root) = heff(root,root)
     enddo
   else
-    if(mcpdft_options%is_hdf5_wfn) then
-      write(u6,*) 'cannot load energy from hdf5 file...'
-      call abend()
-    else
+    call mma_allocate(elist,mxroot,mxiter,label='EList')
+    elist = zero
+    if(.not. mcpdft_options%is_hdf5_wfn) then
       call iDaFile(JOBIPH,2,iadr19,15,iad19)
       disk = iadr19(6)
 
-      call mma_allocate(elist,mxroot,mxiter,label='EList')
       call DDaFile(JOBIPH,2,elist,mxroot*mxiter,disk)
-
-      nmaybe = 0
-      do it = 1,mxiter
-        aemax = zero
-        do i = 1,mxroot
-          e = elist(i,it)
-          aemax = max(aemax,abs(e))
-        enddo
-        if(abs(aemax) <= 1.0D-12) then
-          goto 11
-        endif
-        nmaybe = it
-      enddo
-11    continue
-
-      do root = 1,nroots
-        mcscf_energy(root) = elist(root,nmaybe)
-      enddo
-
-      call mma_deallocate(elist)
+#ifdef _HDF5_
+    else
+      refwfn_id = mh5_open_file_r(mcpdft_options%wfn_file)
+      if(.not. mh5_exists_dset(refwfn_id,'ROOT_ENERGIES')) then
+        write(u6,*) 'The HDF5 ref file does not contain ROOT_ENERGIES'
+        write(u6,*) 'Fatal error, the calculation will stop now.'
+        call Abend()
+      endif
+      call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',elist(:,1))
+      call mh5_close_file(refwfn_id)
+#endif
     endif
+
+    nmaybe = 0
+    do it = 1,mxiter
+      aemax = zero
+      do i = 1,mxroot
+        e = elist(i,it)
+        aemax = max(aemax,abs(e))
+      enddo
+      if(abs(aemax) <= 1.0D-12) then
+        goto 11
+      endif
+      nmaybe = it
+    enddo
+11  continue
+
+    do root = 1,nroots
+      mcscf_energy(root) = elist(root,nmaybe)
+    enddo
+
+    call mma_deallocate(elist)
   endif
 
 endsubroutine

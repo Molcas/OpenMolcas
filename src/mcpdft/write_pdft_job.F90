@@ -35,7 +35,7 @@ contains
     !       Orthonormal eigenvectors of MS-PDFT in the intermediate
     !       state basis. Expected to be of length lroots*lroots.
 
-    use definitions,only:wp
+    use definitions,only:iwp,wp
     use constants,only:zero
     use rasscf_global,only:lRoots
 
@@ -49,7 +49,7 @@ contains
     real(kind=wp),dimension(mxroot*mxiter) :: energy
     real(kind=wp),dimension(lroots,lroots) :: U
 
-    integer :: i,j ! Dummy index variables for loops
+    integer(kind=iwp) :: i,j ! Dummy index variables for loops
 
     ! get energies
     energy = zero
@@ -108,7 +108,7 @@ contains
     else
       refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
       wfn_energy = mh5_open_dset(refwfn_id,'ROOT_ENERGIES')
-      call mh5_put_dset(wfn_energy,energy(1))
+      call mh5_put_dset(wfn_energy,energy)
       call mh5_close_file(refwfn_id)
 #endif
     endif
