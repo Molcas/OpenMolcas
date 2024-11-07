@@ -171,7 +171,7 @@ Delete = Delete_def
 call Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_SOSmp2_Energy returned ',irc
-  call finalize
+  call finalize()
   return
 end if
 if (Verbose) then

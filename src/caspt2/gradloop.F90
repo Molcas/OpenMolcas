@@ -90,8 +90,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       JSTATE = JSTATE_OFF + ISTATE
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-      !CALL STINI
-      CALL RHS_INIT !! somehow
+      !CALL STINI()
+      CALL RHS_INIT() !! somehow
       Call SavGradParams(2,IDSAVGRD)
       Call SavGradParams2(2,UEFF,U0,H0)
       If ((IFXMS .and. IFDW) .OR. IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)

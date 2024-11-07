@@ -14,7 +14,7 @@
 subroutine prepare_decay()
 !***********************************************************************
 ! construct the decay matrix in SOC states basis
-! energy and time should fullfill relation delta_E*delta_t=h
+! energy and time should fulfill relation delta_E*delta_t=h
 !***********************************************************************
 
 use rhodyn_data, only: basis, CSF2SO, decay, flag_decay, flag_dyson, ion_diss, ipglob, ispin, N, N_L3, nconf, Nstate, Nval, SO_CI, &

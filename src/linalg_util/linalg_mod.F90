@@ -312,7 +312,7 @@ end subroutine mult_2D_raw
 !>  Diagonalize symmetric A.
 !>
 !>  @details
-!>  Diagonalize A to fullfill `A V(:, j) = lambda(j) V(:, j)`.
+!>  Diagonalize A to fulfill `A V(:, j) = lambda(j) V(:, j)`.
 !>  Wrapper around BLAS DSYEV.
 !>
 !>  @param[in] A Symmetric 2D matrix to be diagonalized.

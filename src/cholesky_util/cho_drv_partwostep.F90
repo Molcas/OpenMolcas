@@ -439,7 +439,7 @@ if (Err(2) > ThrCom) then
   write(LuPri,'(3X,A,ES15.6)') 'Decomposition threshold....',ThrCom
   irc = 1
   ! release memory and return
-  call Finish_this
+  call Finish_this()
   return
 end if
 call mma_deallocate(Err)

@@ -11,7 +11,7 @@
       FUNCTION NUMST3(NEL,NORB1,NEL1MN,NEL1MX,NORB2,
      &                NORB3,NEL3MN,NEL3MX)
 *
-* Number of strings with NEL electrons that fullfills
+* Number of strings with NEL electrons that fulfill
 *
 * Between NEL1MN AND NEL1MX electrons in the first NORB1 orbitals
 * Between NEL3MN AND NEL3MX electrons in the last  NORB3 orbitals
