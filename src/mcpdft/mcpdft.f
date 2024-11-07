@@ -47,8 +47,7 @@
      &                D1I, D1A, OccN, CMO
       use rasscf_global, only: ExFac, IPR,
      &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
-     &                         nFint, iRoot,
-     &                         Ener
+     &                         nFint
 
       Implicit None
 
@@ -201,8 +200,7 @@
         call ref_energy(ref_e,lroots)
       Else
         do KROOT=1,lROOTS
-          ENER(IROOT(KROOT),1)=EList(KRoot,NMAYBE)
-           Ref_E(KROOT) = ENER(IROOT(KROOT),1)
+           ref_e(kroot) = EList(KRoot,NMAYBE)
         end do
       End IF
 
@@ -265,7 +263,7 @@
       ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
       If(mcpdft_options%wjob .and.(.not.mcpdft_options%mspdft)) then
-        Call writejob(iadr19)
+        Call writejob(iadr19,ref_e)
       end if
 
         If (mcpdft_options%mspdft) Then

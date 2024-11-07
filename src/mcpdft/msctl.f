@@ -32,7 +32,7 @@
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
      &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
-     &                         Tot_Nuc_Charge, ISTORP, ENER
+     &                         Tot_Nuc_Charge, ISTORP
       implicit none
 
       real(kind=wp) :: Ref_Ener(*)
@@ -381,14 +381,9 @@
      &         jroot,Ref_Ener)
 
 
-         IF(mcpdft_options%mspdft) Then
 !JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
-            Energies(jroot)=CASDFT_E
-            Ref_Ener(jroot)=CASDFT_E
-         ELSE
-            Energies(jroot)=CASDFT_E
-            ener(jroot,1)=CASDFT_E
-         END IF
+          Energies(jroot)=CASDFT_E
+          Ref_Ener(jroot)=CASDFT_E
 
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
@@ -402,7 +397,7 @@
         IF(ISTORP(NSYM+1).GT.0) THEN
            call mma_allocate(P,ISTORP(NSYM+1),Label='P')
            call DmatDmat(D1Act,P)
-        else 
+        else
           call mma_allocate(P,1,Label='P')
          END IF
 
@@ -421,7 +416,7 @@
         ! This computes the 2-body interaction term (and updates)
         ! ECAS will have the correct value...
          CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
-          
+
          call mma_deallocate(Q)
 
        if((.not. mcpdft_options%mspdft)

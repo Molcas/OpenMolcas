@@ -21,7 +21,7 @@ module write_pdft_job
   public :: writejob
 
 contains
-  subroutine writejob(adr19,e_mspdft,si_pdft)
+  subroutine writejob(adr19,e_pdft,si_pdft)
     ! Writes energy and rotation matrix (to final states) to
     ! either the jobiph or the h5 file.
     !
@@ -29,7 +29,7 @@ contains
     !   adr19: integer ndarray of shape (15)
     !       Holds info on location of where data is stored in jobiph
     !
-    !   e_mspdft: ndarray of length lroots (optional)
+    !   e_pdft: ndarray of length lroots (optional)
     !       Array containin final MS-PDFT energies.
     !       Expected to be of length lroots (defined in
     !       rasscf_global.F90)
@@ -39,7 +39,8 @@ contains
     !       state basis. Expected to be of length lroots*lroots.
 
     use definitions,only:wp
-    use rasscf_global, only: lRoots, Ener
+    use constants,only:zero
+    use rasscf_global, only: lRoots
 
     implicit none
 
@@ -47,7 +48,7 @@ contains
 #include "general.fh"
 
     integer,intent(in) :: adr19(15)
-    real(kind=wp),dimension(lroots),optional,intent(in) :: e_mspdft
+    real(kind=wp),dimension(lroots),intent(in) :: e_pdft
     real(kind=wp),dimension(lroots**2),optional,intent(in) :: si_pdft
     real(kind=wp),dimension(mxroot*mxiter) :: energy
     real(kind=wp),dimension(lroots,lroots) :: U
@@ -55,20 +56,12 @@ contains
     integer :: i,j ! Dummy index variables for loops
 
     ! get energies
-    call dcopy_(mxRoot*mxIter,[0.0d0],0,energy,1)
-    if(present(e_mspdft)) then
-      Do i = 1,mxIter
-        Do j = 1,lroots
-          energy(mxRoot*(i-1)+j) = e_mspdft(j)
-        Enddo
+    energy = zero
+    Do i = 1,mxIter
+      Do j = 1,lroots
+        energy(mxRoot*(i-1)+j) = e_pdft(j)
       Enddo
-    else
-      do i = 1,mxIter
-        do j = 1,lroots
-          energy(mxroot*(i-1)+j) = ener(j,1)
-        enddo
-      enddo
-    endif
+    Enddo
 
     call save_energies(adr19,energy)
 

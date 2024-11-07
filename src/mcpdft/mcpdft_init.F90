@@ -25,7 +25,7 @@ subroutine mcpdft_init()
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
   use mcpdft_output,only:set_print_level
-  use rasscf_global,only:iroot,weight,DFTFOCK,ENER,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,PreThr,TITLE, &
+  use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,PreThr,TITLE, &
                         iXSym,iTRI
 
   implicit none
@@ -62,8 +62,6 @@ subroutine mcpdft_init()
 ! weights used for average energy calculations
   WEIGHT = zero
   WEIGHT(1) = one
-! iteration energies
-  ENER = zero
 ! prethr: energy threshold for printout of orbitals
   prethr = 0.15d0
 

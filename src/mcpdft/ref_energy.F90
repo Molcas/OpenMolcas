@@ -12,7 +12,6 @@
 subroutine ref_energy(mcscf_energy,nroots)
   use definitions,only:iwp,wp
   use mcpdft_input,only:mcpdft_options
-  use rasscf_global,only:ener,iroot
   use mspdft,only:heff
   implicit none
 
@@ -23,7 +22,6 @@ subroutine ref_energy(mcscf_energy,nroots)
 
   if(mcpdft_options%mspdft) then
     do root = 1,nroots
-      ener(iroot(root),1) = heff(root,root)
       mcscf_energy(root) = heff(root,root)
     enddo
   endif
