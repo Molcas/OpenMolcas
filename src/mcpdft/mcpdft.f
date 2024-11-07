@@ -34,7 +34,7 @@
 *                                                                      *
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
-      use definitions,only:wp
+      use definitions,only:iwp,wp
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
@@ -43,27 +43,25 @@
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: FockOcc, TUVX, FI, FA,
-     &                CMO
+      use wadr, only: FockOcc, TUVX, FI, FA
       use rasscf_global, only: ExFac, IPR,
      &                         lRoots, lSquare, NACPR2,
      &                         nFint
 
       Implicit None
 
-      Integer iReturn
+      integer(kind=iwp), intent(out) :: iReturn
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
 #include "timers.fh"
 
-      Logical IfOpened
 
+      logical :: dscf
       real(kind=wp), allocatable :: Ref_E(:), PUVX(:), D1I(:), D1A(:)
-
-      Logical DSCF
-      Real*8 dum1, dum2, dum3
-      Integer iPrLev, iRC
+      real(kind=wp), allocatable :: cmo(:)
+      Real(kind=wp) :: dum1, dum2, dum3
+      integer(kind=iwp) :: iPrLev, iRC
 
       Call StatusLine('MCPDFT:',' Just started.')
       IRETURN=_RC_ALL_IS_WELL_
@@ -98,7 +96,6 @@
           write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
         End If
         IRETURN=iRc
-        call close_files()
         Return
       End If
 
@@ -112,14 +109,8 @@
 
       Call InpPri_m()
 
-! Allocate various matrices
+! Get start orbitals
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-*
-* Get start orbitals
-
-* PAM03: Note that removal of linear dependence may change the nr
-* of secondary/deleted orbitals, affecting some of the global
-* variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc_m(CMO)
 
 ! Allocate core space for dynamic storage of data
@@ -132,10 +123,7 @@
       Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
 
-!AMS start-
-! - Read in the CASSCF Energy from JOBIPH file.  These values are not
-! used in calculations, but are merely reprinted as the reference energy
-! for each calculated MC-PDFT energy.
+! - Read in the CASSCF Energy from JOBIPH file.
       Call mma_allocate(Ref_E,lroots,Label='Ref_E')
       Ref_E(:)=0.0D0
       call ref_energy(ref_e,lroots)
@@ -166,12 +154,12 @@
       CALL TRACTL2(CMO,PUVX,TUVX,D1I,
      &             FI,D1A,FA,IPR,lSquare,ExFac)
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
-      call mma_deallocate(PUVX)
-      Call mma_deallocate(FI)
-      Call mma_deallocate(FA)
-      Call mma_deallocate(TUVX)
-      Call mma_deallocate(D1I)
-      Call mma_deallocate(D1A)
+        call mma_deallocate(PUVX)
+        Call mma_deallocate(FI)
+        Call mma_deallocate(FA)
+        Call mma_deallocate(TUVX)
+        Call mma_deallocate(D1I)
+        Call mma_deallocate(D1A)
       end if
 
       Call Timing(dum1,dum2,Fortis_2,dum3)
@@ -195,19 +183,14 @@
           call mspdft_finalize(lroots)
         End If
 
-*****************************************************************************************
-***************************           Closing up MC-PDFT      ***************************
-*****************************************************************************************
+!***********************************************************************
+!**************************           Closing up MC-PDFT      **********
+!***********************************************************************
 
-************************************************************************
-*^follow closing up MC-PDFT
-*
-* release SEWARD
-*
+! release SEWARD
       Call ClsSew()
-* ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
 
-*---  Finalize Cholesky information if initialized
+! Finalize Cholesky information if initialized
       if (DoCholesky)then
          Call Cho_X_Final(irc)
          if (irc.ne.0) then
@@ -216,7 +199,7 @@
          endif
       endif
 
-*  Release  some memory allocations
+! Release  some memory allocations
       Call mma_deallocate(FockOcc)
       call mma_deallocate(Ref_E)
 
@@ -230,17 +213,7 @@
        Call FastIO('STATUS')
       END IF
 
-      Call close_files()
-
-      Contains
-      subroutine close_files()
-      Integer I
       call close_files_mcpdft()
-      DO I=10,99
-        INQUIRE(UNIT=I,OPENED=IfOpened)
-        IF (IfOpened.and.I.ne.19) CLOSE (I)
-      END DO
-      End subroutine close_files
 
       End SUBROUTINE MCPDFT
 
