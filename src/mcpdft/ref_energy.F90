@@ -13,6 +13,8 @@ subroutine ref_energy(mcscf_energy,nroots)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use stdalloc,only:mma_allocate,mma_deallocate
+  use printlevel,only:terse
+  use mcpdft_output,only:iprglb
   use mcpdft_input,only:mcpdft_options
   use mspdft,only:heff
 #ifdef _HDF5_
@@ -34,21 +36,48 @@ subroutine ref_energy(mcscf_energy,nroots)
 
   real(kind=wp),allocatable :: elist(:,:)
 
-  iadr19(:) = 0
-  iad19 = 0
-
   if(mcpdft_options%mspdft) then
+    if(iprglb >= terse) then
+      write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
+      write(u6,*) 'effective Hamiltonian'
+    endif
     do root = 1,nroots
       mcscf_energy(root) = heff(root,root)
     enddo
   else
-    call mma_allocate(elist,mxroot,mxiter,label='EList')
-    elist = zero
+    if(iprglb >= terse) then
+      write(u6,*) 'Reference MC-SCF energies taken from ',mcpdft_options%wfn_file
+    endif
     if(.not. mcpdft_options%is_hdf5_wfn) then
+      iadr19(:) = 0
+      iad19 = 0
       call iDaFile(JOBIPH,2,iadr19,15,iad19)
       disk = iadr19(6)
 
+      call mma_allocate(elist,mxroot,mxiter,label='EList')
+      elist = zero
       call DDaFile(JOBIPH,2,elist,mxroot*mxiter,disk)
+
+      nmaybe = 0
+      do it = 1,mxiter
+        aemax = zero
+        do i = 1,mxroot
+          e = elist(i,it)
+          aemax = max(aemax,abs(e))
+        enddo
+        if(abs(aemax) <= 1.0D-12) then
+          exit
+        endif
+        nmaybe = it
+      enddo
+
+      mcscf_energy = elist(:,nmaybe)
+      do root = 1,nroots
+        mcscf_energy(root) = elist(root,nmaybe)
+      enddo
+
+      call mma_deallocate(elist)
+
 #ifdef _HDF5_
     else
       refwfn_id = mh5_open_file_r(mcpdft_options%wfn_file)
@@ -57,30 +86,11 @@ subroutine ref_energy(mcscf_energy,nroots)
         write(u6,*) 'Fatal error, the calculation will stop now.'
         call Abend()
       endif
-      call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',elist(:,1))
+      write(u6,*) 'Loading mcscf energy from hdf5 file!'
+      call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',mcscf_energy)
       call mh5_close_file(refwfn_id)
 #endif
     endif
-
-    nmaybe = 0
-    do it = 1,mxiter
-      aemax = zero
-      do i = 1,mxroot
-        e = elist(i,it)
-        aemax = max(aemax,abs(e))
-      enddo
-      if(abs(aemax) <= 1.0D-12) then
-        goto 11
-      endif
-      nmaybe = it
-    enddo
-11  continue
-
-    do root = 1,nroots
-      mcscf_energy(root) = elist(root,nmaybe)
-    enddo
-
-    call mma_deallocate(elist)
   endif
 
 endsubroutine
