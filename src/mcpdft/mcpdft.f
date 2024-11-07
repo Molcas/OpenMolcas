@@ -45,9 +45,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use rasscf_global, only: ExFac, IPR, ITER,
+      use rasscf_global, only: ExFac, IPR,
      &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
-     &                         nFint, iRoot, Weight,
+     &                         nFint, iRoot,
      &                         Ener
 
       Implicit None
@@ -64,7 +64,6 @@
       integer IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
-      real*8 EAV
 
       real(kind=wp), allocatable :: Ref_E(:), EList(:,:), PUVX(:)
 
@@ -79,7 +78,6 @@
       IPRLEV=IPRLOC(1)
 
 ! Default option switches and values, and initial data.
-      EAV = 0.0d0
       call mcpdft_init()
 
       call parse_input()
@@ -200,15 +198,10 @@
   11  CONTINUE
 
       IF(mcpdft_options%mspdft) Then
-        do KROOT=1,lROOTS
-           ener(iroot(kroot),1)=heff(kroot,kroot)
-           EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
-           Ref_E(KROOT) = ENER(IROOT(KROOT),1)
-        end do
+        call ref_energy(ref_e,lroots)
       Else
         do KROOT=1,lROOTS
           ENER(IROOT(KROOT),1)=EList(KRoot,NMAYBE)
-           EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
            Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
       End IF
