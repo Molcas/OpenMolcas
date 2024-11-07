@@ -62,7 +62,7 @@
 
       integer IAD19
       integer IADR19(1:15)
-      integer NMAYBE,KROOT
+      integer NMAYBE
 
       real(kind=wp), allocatable :: Ref_E(:), EList(:,:), PUVX(:)
 
@@ -196,13 +196,7 @@
       END DO
   11  CONTINUE
 
-      IF(mcpdft_options%mspdft) Then
-        call ref_energy(ref_e,lroots)
-      Else
-        do KROOT=1,lROOTS
-           ref_e(kroot) = EList(KRoot,NMAYBE)
-        end do
-      End IF
+      call ref_energy(ref_e,lroots)
 
       call mma_deallocate(elist)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then

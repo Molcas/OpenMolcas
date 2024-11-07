@@ -25,7 +25,7 @@ subroutine ref_energy(mcscf_energy,nroots)
 
   integer(kind=iwp),dimension(15) :: iadr19
   integer(kind=iwp) :: root
-  integer(kind=iwp) :: jobiph_lu,iad19,disk,nmaybe,i,it
+  integer(kind=iwp) :: iad19,disk,nmaybe,i,it
   real(kind=wp) :: e,aemax
 
   real(kind=wp),allocatable :: elist(:,:)
@@ -42,12 +42,11 @@ subroutine ref_energy(mcscf_energy,nroots)
       write(u6,*) 'cannot load energy from hdf5 file...'
       call abend()
     else
-      call DaName(jobiph_lu,mcpdft_options%wfn_file)
-      call iDaFile(mcpdft_options%wfn_file,2,iadr19,15,iad19)
+      call iDaFile(JOBIPH,2,iadr19,15,iad19)
       disk = iadr19(6)
 
       call mma_allocate(elist,mxroot,mxiter,label='EList')
-      call DDaFile(jobiph_lu,2,elist,mxroot*mxiter,disk)
+      call DDaFile(JOBIPH,2,elist,mxroot*mxiter,disk)
 
       nmaybe = 0
       do it = 1,mxiter
@@ -68,7 +67,6 @@ subroutine ref_energy(mcscf_energy,nroots)
       enddo
 
       call mma_deallocate(elist)
-      call DaClos(jobiph_lu)
     endif
   endif
 
