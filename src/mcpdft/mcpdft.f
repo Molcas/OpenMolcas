@@ -43,10 +43,10 @@
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
-     &                D1I, D1A, OccN, CMO
+      use wadr, only: FockOcc, TUVX, FI, FA,
+     &                CMO
       use rasscf_global, only: ExFac, IPR,
-     &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
+     &                         lRoots, lSquare, NACPR2,
      &                         nFint
 
       Implicit None
@@ -59,7 +59,7 @@
 
       Logical IfOpened
 
-      real(kind=wp), allocatable :: Ref_E(:), PUVX(:)
+      real(kind=wp), allocatable :: Ref_E(:), PUVX(:), D1I(:), D1A(:)
 
       Logical DSCF
       Real*8 dum1, dum2, dum3
@@ -113,35 +113,14 @@
       Call InpPri_m()
 
 ! Allocate various matrices
-      Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-      Call mma_allocate(DSPN,NACPAR,Label='DSPN')
-      Call mma_allocate(DMAT,NACPAR,Label='DMAT')
-      DMAT(:)=0.0D0
-      Call mma_allocate(PMAT,NACPR2,Label='PMAT')
-      Call mma_allocate(PA,NACPR2,Label='PA')
 *
 * Get start orbitals
-
-* Initialize OCCN array, to prevent false alarms later from
-* automated detection of using uninitialized variables:
-      OccN(:)=0.0D0
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
-      Call ReadVc_m(CMO,OCCN,DMAT,DSPN,PMAT,PA)
-* Only now are such variables finally known.
-      If (IPRLOC(1).GE.DEBUG) Then
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',DMAT,NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-     &              ' ',DSPN,NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',PMAT,NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',PA,NACPAR)
-      END IF
+      Call ReadVc_m(CMO)
 
 ! Allocate core space for dynamic storage of data
 ! Really just determine size of 2-e integrals
@@ -169,37 +148,31 @@
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      Call mma_allocate(D1I,NTOT2,Label='D1I')
-      Call Get_D1I_RASSCF(CMO,D1I)
 
-      If (NASH(1).ne.NAC) then
-        Call DBLOCK(DMAT)
-      end if
-      Call mma_allocate(D1A,NTOT2,Label='D1A')
-      Call Get_D1A_RASSCF(CMO,DMAT,D1A)
-
-      Call mma_allocate(FI,NTOT1,Label='FI')
-      Call mma_allocate(FA,NTOT1,Label='FA')
-      call mma_allocate(puvx,nfint,label='PUVX')
-      Call mma_allocate(TUVX,NACPR2,Label='TUVX')
 
       ! so this does 2 things, first it puts the integrals
       ! into the file LUINTM, the second is that we write
       ! the integrals to the runfile anyways for mspdft grad
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
+        Call mma_allocate(D1I,NTOT2,Label='D1I')
+        Call mma_allocate(D1A,NTOT2,Label='D1A')
+        Call mma_allocate(FI,NTOT1,Label='FI')
+        Call mma_allocate(FA,NTOT1,Label='FA')
+        call mma_allocate(puvx,nfint,label='PUVX')
+        Call mma_allocate(TUVX,NACPR2,Label='TUVX')
       ! This TRACTL2 call has some side affects that I
       ! don't know of..
       CALL TRACTL2(CMO,PUVX,TUVX,D1I,
      &             FI,D1A,FA,IPR,lSquare,ExFac)
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
-      end if
       call mma_deallocate(PUVX)
       Call mma_deallocate(FI)
       Call mma_deallocate(FA)
       Call mma_deallocate(TUVX)
       Call mma_deallocate(D1I)
       Call mma_deallocate(D1A)
+      end if
 
       Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
@@ -245,13 +218,8 @@
 
 *  Release  some memory allocations
       Call mma_deallocate(FockOcc)
-      Call mma_deallocate(OccN)
       call mma_deallocate(Ref_E)
 
-      Call mma_deallocate(DMAT)
-      Call mma_deallocate(DSPN)
-      Call mma_deallocate(PMAT)
-      Call mma_deallocate(PA)
 
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)

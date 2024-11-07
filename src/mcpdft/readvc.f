@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1998, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine ReadVC_m(CMO,OCC,D,DS,P,PA)
+      Subroutine ReadVC_m(CMO)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -21,18 +21,8 @@
 *     calling arguments:                                               *
 *     CMO     : array of real*8                                        *
 *               MO-coefficients                                        *
-*     OCC     : array of real*8                                        *
-*               occupation numbers                                     *
 *     INVEC   : integer                                                *
 *               flag indicating orbital type                           *
-*     D       : array of real*8                                        *
-*               averaged one-body density matrix                       *
-*     DS      : array of real*8                                        *
-*               averaged one-body spin density matrix                  *
-*     P       : array of real*8                                        *
-*               averaged two body density matrix                       *
-*     PA      : array of real*8                                        *
-*               averaged antisymmetric twobody density matrix          *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -51,13 +41,11 @@
       use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
       use definitions, only: wp, iwp
+      use constants,only:zero
       use printlevel, only: terse, verbose, debug
       use mcpdft_output, only: lf, iPrGlb, iPrLoc
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: lRoots, NACPAR, NACPR2, nRoots, iRoot,
-     &                         Weight
-
 
       implicit none
 
@@ -66,16 +54,14 @@
 #include "SysDef.fh"
 #include "warnings.h"
 
-      real(kind=wp), Dimension(*) :: CMO,OCC,D,DS,P,PA
-
+      real(kind=wp), Dimension(*) :: CMO
+      real(kind=wp), dimension(ntot) :: occ
 !     local data declarations
       integer(kind=iwp), dimension(30) :: IADR19
       logical :: Found
-      integer(kind=iwp) :: i, iad19, idisk, ijob, iprlev
-      integer(kind=iwp) :: jroot, kroot
+      integer(kind=iwp) :: i, iad19, ijob, iprlev
 
-      real(kind=wp) :: scal
-      real(kind=wp), Allocatable :: Scr(:), Ene(:)
+      real(kind=wp), dimension(ntot) :: ene
 
 #ifdef _HDF5_
       integer mh5id
@@ -145,37 +131,6 @@
         iAd19=iAdr19(2)
         Call DDaFile(JobOld,2,CMO,NTOT2,iAd19)
         Call DDaFile(JobOld,2,OCC,nTot,iAd19)
-        If ( IPRLEV >= VERBOSE) then
-          If (iJOB == 1) Then
-             Write(LF,'(6X,A)')
-     &       'The active density matrices (D,DS,P,PA) are read from'//
-     &       ' file JOBOLD and weighted together.'
-          Else
-             Write(LF,'(6X,A)')
-     &       'The active density matrices (D,DS,P,PA) are read from'//
-     &       ' file '//trim(mcpdft_options%wfn_file)//
-     &       ' and weighted together.'
-          End If
-        End If
-        Call mma_allocate(scr,NACPR2,Label='Scr')
-        iDisk = IADR19(3)
-        Do jRoot = 1,lRoots
-          scal = 0.0d0
-          Do kRoot = 1,nRoots
-            If ( iRoot(kRoot).eq.jRoot ) then
-              scal = Weight(kRoot)
-            End If
-          End Do
-          Call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
-          call daxpy_(NACPAR,Scal,scr,1,D,1)
-          Call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
-          call daxpy_(NACPAR,Scal,scr,1,DS,1)
-          Call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
-          call daxpy_(NACPR2,Scal,scr,1,P,1)
-          Call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
-          call daxpy_(NACPR2,Scal,scr,1,PA,1)
-        End Do
-        Call mma_deallocate(Scr)
 
         If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
           Call DaClos(JOBOLD)
@@ -184,6 +139,7 @@
           JOBOLD=-1
         End If
 
+        ene(:) = zero
 
 !     read from a HDF5 wavefunction file
       Else If (InVec.eq.4) then
@@ -196,6 +152,8 @@
 
         mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
         call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
+        call mh5_fetch_dset(mh5id, 'MO_OCCUPATIONS', occ)
+        call mh5_fetch_dset(mh5id, 'MO_ENERGIES', ene)
         call mh5_close_file(mh5id)
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'
@@ -213,10 +171,7 @@
       IF(IPRLEV >= DEBUG) THEN
         ! This lene can actually be removed since it is not needed..
         ! Also, it will override the orbital energies in the runfile.
-        CALL mma_allocate(ene,nTot,Label='Ene')
-        CALL DCOPY_(nTot,[0.0D0],0,ene,1)
         CALL PRIMO_RASSCF_m('Input orbitals',ene,OCC,CMO)
-        CALL mma_deallocate(ene)
       END IF
 
       END Subroutine ReadVC_m
