@@ -25,12 +25,12 @@ subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: FileOrb_ID, iAU_AB, isHDF5, nBas, nD, nOcc, nOrb, nSym, nSym, SCF_FileOrb, Tot_EL_Charge, vTitle
+use InfSCF, only: FileOrb_ID, iAU_AB, isHDF5, nBas, nD, nOcc, NoFerm, nOrb, nSym, nSym, SCF_FileOrb, Tot_EL_Charge, vTitle
 #ifdef _HDF5_
 use mh5, only: mh5_exists_dset
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half, Quart
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use InfSCF, only: Tot_Charge, Tot_Nuc_Charge
@@ -40,10 +40,11 @@ use Definitions, only: u6
 implicit none
 logical(kind=iwp), intent(inout) :: OccSet, FermSet
 logical(kind=iwp), intent(in) :: SpinSet
-integer(kind=iwp) :: I, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, LU, LU_, N, nVec
+integer(kind=iwp) :: I, iD, iDiff, iDummy(1), iErr, iOff, isUHF, iSym, iWFType, J, LU, LU_, N, ntmp, nVec
 real(kind=wp) :: Dummy(1), qA, qB, Tmp, Tmp1
 logical(kind=iwp) :: Idem, Skip
 character(len=512) :: FNAME
+integer(kind=iwp), allocatable :: Ind(:,:)
 real(kind=wp), allocatable :: EpsVec(:,:), OccVec(:,:)
 
 !----------------------------------------------------------------------*
@@ -129,19 +130,27 @@ if (nD == 1) then
         qa = qa+Two
         tmp1 = tmp1-Two
         OccVec(i,1) = Two
+      else if (tmp1 >= One) then
+        qa = qa+One
+        tmp1 = tmp1-One
+        OccVec(i,1) = One
       else
         OccVec(i,1) = Zero
       end if
     end do
   else
-    tmp1 = sum(OccVec(:,1))
+    ntmp = nint(sum(OccVec(:,1)))
     OccVec(:,:) = Zero
-    tmp1 = real(nint(tmp1),kind=wp)
-    do i=1,(nint(tmp1)+1)/2
+    tmp1 = real(ntmp,kind=wp)
+    do i=1,(ntmp+1)/2
       if (tmp1 >= Two) then
         qa = qa+Two
         OccVec(i,1) = Two
         tmp1 = tmp1-Two
+      else if (tmp1 >= One) then
+        qa = qa+One
+        OccVec(i,1) = One
+        tmp1 = tmp1-One
       end if
     end do
   end if
@@ -170,10 +179,10 @@ else
       end if
     end do
   else
-    tmp1 = sum(OccVec(:,1:2))
+    ntmp = nint(sum(OccVec(:,1:2)))
     OccVec(:,:) = Zero
-    tmp1 = real(nint(tmp1),kind=wp)
-    do i=1,(nint(tmp1)+1)/2
+    tmp1 = real(ntmp,kind=wp)
+    do i=1,(ntmp+1)/2
       if (tmp1 >= Two) then
         qa = qa+One
         qb = qb+One
@@ -252,7 +261,7 @@ if (.not. Skip) then
     Idem = .true.
     do i=1,nVec
       tmp = half*OccVec(i,1)*(One-half*OccVec(i,1))
-      if (abs(tmp) > Quart) Idem = .false.
+      if (abs(tmp) > 0.1_wp) Idem = .false.
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'chklumo: Idempotency'
@@ -262,7 +271,7 @@ if (.not. Skip) then
     Idem = .true.
     do i=1,nVec
       tmp = OccVec(i,1)*(One-OccVec(i,1))
-      if (abs(tmp) > Quart) Idem = .false.
+      if (abs(tmp) > 0.1_wp) Idem = .false.
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'chklumo: Alpha idempotency'
@@ -270,7 +279,7 @@ if (.not. Skip) then
 #   endif
     do i=1,nVec
       tmp = OccVec(i,2)*(One-OccVec(i,2))
-      if (abs(tmp) > Quart) Idem = .false.
+      if (abs(tmp) > 0.1_wp) Idem = .false.
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'chklumo: Beta idempotency'
@@ -321,6 +330,87 @@ if (.not. Skip) then
     Occset = .false.
     FermSet = .true.
   end if
+end if
+! If Fermi aufbau is explicitly disabled, force the plain occupation
+if (FermSet .and. NoFerm) then
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Fermi aufbau disabled by the user'
+# endif
+  call mma_allocate(Ind,nVec,nD,label='Ind')
+  Ind(:,:) = -1
+  ! Sort orbital energies
+  do iD=1,nD
+    do i=1,nVec
+      Tmp = huge(Tmp)
+      ntmp = -1
+      do j=1,nVec
+        if (EpsVec(j,iD) < Tmp) then
+          ntmp = j
+          Tmp = EpsVec(j,iD)
+        end if
+      end do
+      if (ntmp < 0) exit
+      Ind(i,iD) = ntmp
+      EpsVec(ntmp,iD) = huge(Tmp)
+    end do
+  end do
+  OccVec(:,:) = Zero
+  if (nD == 1) then
+    ntmp = nint(-Tot_el_charge)/2
+    do i=1,ntmp
+      if (Ind(i,1) < 0) then
+        call WarningMessage(2,'chklumo: Cannot find meaningful occupations')
+        call Abend()
+      end if
+      OccVec(Ind(i,1),1) = Two
+    end do
+    iOff = 0
+    do iSym=1,nSym
+      n = sum(int(OccVec(iOff+1:iOff+nBas(iSym),1)))
+      nOcc(iSym,1) = n/2
+      iOff = iOff+nBas(iSym)
+    end do
+#   ifdef _DEBUGPRINT_
+    write(u6,'(a,8i5)') 'Forced occupation       ',(nOcc(i,1),i=1,nSym)
+    write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+#   endif
+  else
+    ntmp = (nint(-Tot_el_charge)-iAU_AB)/2
+    do i=1,ntmp+iAU_AB
+      if (Ind(i,1) < 0) then
+        call WarningMessage(2,'chklumo: Cannot find meaningful occupations')
+        call Abend()
+      end if
+      OccVec(Ind(i,1),1) = One
+      if (i > ntmp) cycle
+      if (Ind(i,2) < 0) then
+        call WarningMessage(2,'chklumo: Cannot find meaningful occupations')
+        call Abend()
+      end if
+      OccVec(Ind(i,2),2) = One
+    end do
+    iOff = 0
+    do iSym=1,nSym
+      n = sum(int(OccVec(iOff+1:iOff+nBas(iSym),1)))
+      nOcc(iSym,1) = n
+      iOff = iOff+nBas(iSym)
+    end do
+    iOff = 0
+    do iSym=1,nSym
+      n = sum(int(OccVec(iOff+1:iOff+nBas(iSym),2)))
+      nOcc(iSym,2) = n
+      iOff = iOff+nBas(iSym)
+    end do
+#   ifdef _DEBUGPRINT_
+    write(u6,'(a,8i5)') 'Forced alpha occupation ',(nOcc(i,1),i=1,nSym)
+    write(u6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+    write(u6,'(a,8i5)') 'Forced beta occupation  ',(nOcc(i,2),i=1,nSym)
+    write(u6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+#   endif
+  end if
+  call mma_deallocate(Ind)
+  OccSet = .true.
+  FermSet = .false.
 end if
 !----------------------------------------------------------------------*
 ! Deallocate fields                                                    *

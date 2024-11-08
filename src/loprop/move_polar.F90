@@ -11,7 +11,7 @@
 
 subroutine Move_Polar(Polar,EC,nAtoms,nij,iANr,Bond_Threshold)
 
-! Distributes the contributions from the bonds that doesn't fullfill the requiremen
+! Distributes the contributions from the bonds that don't fulfill the requirement
 ! Bond_Length <= Bond_Threshold*(Bragg_Slater(iAtom)+Bragg_Slater(jAtom)) to the
 ! two atoms involved in the bond.
 !

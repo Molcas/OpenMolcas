@@ -283,7 +283,7 @@ do Iter=1,500
   end if
 # ifdef _DEBUGPRINT_
 
-  ! Check that the constraint is fullfilled.
+  ! Check that the constraint is fulfilled.
 
   rSum = sum(C(:))
   write(u6,*) 'optim: rSum-1',rSum-One

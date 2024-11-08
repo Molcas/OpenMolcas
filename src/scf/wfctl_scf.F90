@@ -45,7 +45,7 @@ use InfSCF, only: AccCon, Aufb, CMO, CMO_Ref, CPUItr, Damping, DIIS, DIISTh, Dlt
                   E2V, EDiff, Energy, EneV, EOrb, EThr, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, iterSO, &
                   iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, MxOptm, nAufb, nBas, &
                   nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, Ovrlp, qNRTh, RGEK, &
-                  RSRFO, rTemp, S2Uhf, Scrmbl, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, WarnCfg, WarnPocc
+                  RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
 use SCFFiles, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -58,7 +58,7 @@ character(len=*), intent(in) :: Meth
 logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
-                     Iter_no_DIIS, IterX, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+                     Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
                  TWall2
 logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
@@ -222,8 +222,6 @@ end if
 
 AllowFlip = .true.
 iAufOK = 0
-IterX = 0
-if (Scrmbl) IterX = -2
 Iter_DIIS = 0
 EDiff = Zero
 DMOMax = Zero
@@ -249,7 +247,6 @@ end if
 !                                                                      *
 do iter_=1,nIter(nIterP)
   iter = iter_
-  IterX = IterX+1
   WarnCfg = .false.
 
   if ((.not. Aufb) .and. (iter > MaxFlip)) AllowFlip = .false.
@@ -310,7 +307,7 @@ do iter_=1,nIter(nIterP)
   ! 2017-02-03: add energy criterion to make sure that the DIIS
   !             gets some decent to work with.
 
-  if ((DMOMax < DiisTh) .and. (IterX > Iter_no_Diis) .and. (EDiff < 0.1_wp)) then
+  if ((DMOMax < DiisTh) .and. (Iter > Iter_no_Diis) .and. (EDiff < 0.1_wp)) then
 
     if (iOpt == 0) kOptim = 2
     iOpt = max(1,iOpt)
@@ -867,11 +864,7 @@ do iter_=1,nIter(nIterP)
       IterSO = 0
       if (Reset_Thresh) call Reset_Thresholds()
       if (KSDFT /= 'SCF') then
-        if (.not. One_Grid) then
-          iterX = 0
-          call Reset_NQ_grid()
-          !call PrBeg(Meth_)
-        end if
+        if (.not. One_Grid) call Reset_NQ_grid()
         if (iOpt == 0) kOptim = 1
       end if
       cycle
@@ -898,7 +891,6 @@ do iter_=1,nIter(nIterP)
       write(u6,*)
       write(u6,'(6X,A)') ' Fermi aufbau procedure completed!'
     end if
-    IterX = -2
     if (nD == 1) then
       iOffOcc = 0
       do iSym=1,nSym
