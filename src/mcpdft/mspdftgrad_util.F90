@@ -34,7 +34,9 @@ subroutine MSPDFTGrad_Misc(si_pdft)
   integer(kind=iwp) :: ij,iS,jRoot,iBas,jBas
   integer(kind=iwp) :: NACstatesOpt(2)
   logical(kind=iwp) :: CalcNAC_Opt,MECI_via_SLAPAF
-  real(kind=wp) :: RIK2,fock_occ(ntot1)
+  ! rotated (ie, in final MS-PDFT) eigenbasis quantities
+  real(kind=wp) :: r_fock_occ(ntot1),r_active_dm1(ntot1),r_Fxy(ntot4),r_casdm2(nacpr2)
+  real(kind=wp) :: u_rlx_sq(lroots)
 
 ! Functions added by Paul Calio for MECI Opt *****
 ! Original calls are in slapaf_util/start_alasaks.f
@@ -57,8 +59,9 @@ subroutine MSPDFTGrad_Misc(si_pdft)
     CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*lRoots)
   endif
 
-  call dgemm_('n','n',ntot1,1,lroots,one,FocMS(:,:),ntot1,si_pdft(:,mcpdft_options%rlxroot)**2,lroots,zero,fock_occ,ntot1)
-  Call Put_dArray('FockOcc',fock_occ,ntot1)
+  ! Takes the rlxroot column of the rotation matrix and squares it
+  u_rlx_sq = si_pdft(:,mcpdft_options%rlxroot)**2
+
 ! Now storing the density matrix needed for computing 1RDM
 ! First rescale the off-diagonal elements as done in
 ! integral_util/prep.f
@@ -74,29 +77,29 @@ subroutine MSPDFTGrad_Misc(si_pdft)
       ij = ij+1
     enddo
   EndDo
-! Then add the matrix for each state to the ground state
-! add put the ground state one in the runfile. Do not
-! forget to multiply the (R_IK)^2, where K is "jRoot" below
-  RIK2 = si_pdft(1,mcpdft_options%rlxroot)**2
-  CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
-  CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
-  CALL DScal_(NACPR2,RIK2,P2MOt(:,1),1)
-! si_pdft(1,RlxRoot) should give me R_I1
-  Do jRoot = 2,lRoots
-    RIK2 = si_pdft(jroot,mcpdft_options%rlxroot)**2
-! DIDA for prepp
-    CALL DaXpY_(nTot1,-RIK2,DIDA(:,jRoot),1,DIDA(:,1),1)
-! FT99 for bk
-    CALL DaXpY_(nTot4,RIK2,FxyMS(:,jRoot),1,FxyMS(:,1),1)
-! P2MOt for active 2RDM
-    CALL DaXpY_(NACPR2,RIK2,P2MOt(:,jRoot),1,P2MOt(:,1),1)
-  EndDo
-! DIDA is currently DA over intermediate states
-  CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
-! DIDA(:,lRoots+1) is currently DI
+
+  ! Then add the matrix for each state to the ground state
+  ! add put the ground state one in the runfile. Do not
+  ! forget to multiply the (R_IK)^2, where K is "jRoot" below
+
+  ! DIDA(:,lRoots+1) is currently DI
   CALL Put_DArray('MSPDFTD5        ',DIDA(:,lRoots+1),nTot1)
-  CALL Put_DArray('FxyMS           ',FxyMS(:,1),nTot4)
-  Call Put_dArray('P2MOt',P2MOt(:,1),NACPR2)
+
+  call dgemm_('n','n',ntot1,1,lroots,one,FocMS(:,:),ntot1,u_rlx_sq,lroots,zero,r_fock_occ,ntot1)
+  Call Put_dArray('FockOcc',r_fock_occ,ntot1)
+
+  ! DIDA is currently DA over intermediate states
+  ! DIDA for prepp
+  call dgemm_('n','n',ntot1,1,lroots,one,DIDA(:,:lroots),ntot1,-u_rlx_sq,lroots,zero,r_active_dm1,ntot1)
+  CALL Put_DArray('MSPDFTD6        ',r_active_dm1,nTot1)
+
+  ! FT99 for bk
+  call dgemm_('n','n',ntot4,1,lroots,one,FxyMS(:,:),ntot4,u_rlx_sq,lroots,zero,r_Fxy,ntot4)
+  CALL Put_DArray('FxyMS           ',r_Fxy,nTot4)
+
+  ! P2MOt for active 2RDM
+  call dgemm_('n','n',nacpr2,1,lroots,one,P2MOt(:,:),nacpr2,u_rlx_sq,lroots,zero,r_casdm2,nacpr2)
+  Call Put_dArray('P2MOt',r_casdm2,NACPR2)
 
   Call Put_cArray('Relax Method','MSPDFT  ',8)
   Call Put_cArray('MCLR Root','****************',16)
