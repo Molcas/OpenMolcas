@@ -1,40 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine ChkInp_m()
-************************************************************************
-*                                                                      *
-*     Check the input for obvious errors or violation of limits        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Check the input for obvious errors or violation of limits        *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use mcpdft_output, only: lf
       use rasscf_global, only: lRoots, NAC, NIN, nRoots,
-     &                         OutFmt2, iRoot
+     &                         iRoot
       use definitions,only:iwp
       implicit none
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "warnings.h"
 
       integer(kind=iwp) :: ierr, i, ia0, ib0, ic0, ierr1
       integer(kind=iwp) :: ierr2, iSym
@@ -271,14 +270,4 @@
         Write(LF,*)          '*****************************************'
         call Quit_OnUserError()
       End If
-
-
-! Second question: How should they be printed?
-! No user selection, so fall back on default choice.
-      IF(NTOT.LT.256) THEN
-         OutFmt2='FULL    '
-      ELSE
-         OutFmt2='COMPACT '
-      END IF
-
       End

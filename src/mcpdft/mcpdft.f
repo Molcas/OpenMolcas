@@ -149,8 +149,6 @@
         Call mma_allocate(FA,NTOT1,Label='FA')
         call mma_allocate(puvx,nfint,label='PUVX')
         Call mma_allocate(TUVX,NACPR2,Label='TUVX')
-      ! This TRACTL2 call has some side affects that I
-      ! don't know of..
       CALL TRACTL2(CMO,PUVX,TUVX,D1I,
      &             FI,D1A,FA,IPR,lSquare,ExFac)
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)

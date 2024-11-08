@@ -1,23 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
 !                                                                      *
 ! 2023, Matthew R. Hennefarth - modified lhrot -> si_pdft              *
 !***********************************************************************
 
         Subroutine MSPDFTGrad_Misc(si_pdft)
-********This subroutine does miscellaneous things needed
-********in MS-PDFT gradient calculation.
-      use definitions, only: wp
+! This subroutine does miscellaneous things needed
+! in MS-PDFT gradient calculation.
+      use definitions, only:iwp,wp
+      use constants,only:zero
       use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,
      &                    D1aoMS,DIDA,D1SAOMS
       use wadr, only: FockOcc
@@ -30,44 +31,45 @@
 #include "warnings.h"
 #include "general.fh"
 
-      INTEGER ij,iS,jRoot,iBas,jBas
-      Real*8 RIK2
+      INTEGER(kind=iwp) :: ij,iS,jRoot,iBas,jBas
+      Real(kind=wp) RIK2
       real(kind=wp), dimension(lroots,lroots), intent(in) :: si_pdft
 
-******* Functions added by Paul Calio for MECI Opt *****
-******* Original calls are in slapaf_util/start_alasaks.f
-      Logical :: CalcNAC_Opt = .False.
-      Logical :: MECI_via_SLAPAF = .False.
+! Functions added by Paul Calio for MECI Opt *****
+! Original calls are in slapaf_util/start_alasaks.f
+      Logical :: CalcNAC_Opt, MECI_via_SLAPAF
       INTEGER NACstatesOpt(2)
 
+      calcnac_opt = .false.
+      meci_via_slapaf = .false.
       NACstatesOpt(1)=mcpdft_options%rlxroot
       NACstatesOpt(2)=0
 
       Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
       Call Put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
       call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
-****** End of stuff added by Paul
+! End of stuff added by Paul
 
 
       Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:,:),   lRoots**2)
       CALL Put_DArray('F1MS            ',F1MS(:,:),  nTot1*nRoots)
       CALL Put_DArray('F2MS            ',F2MS(:,:), NACPR2*nRoots)
       CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:), nTot1*nRoots)
-      if (ispin.ne.1)
-     &CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*nRoots)
+      if (ispin.ne.1) then
+        CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*nRoots)
+      endif
 
-
-**********Fock_Occ Part
-      FockOcc(:)=0.0D0
+! Fock_Occ Part
+      FockOcc(:)=zero
       DO JRoot=1,lRoots
       call daXpY_(ntot1,
      &           si_pdft(jroot,mcpdft_options%rlxroot)**2,
      &           FocMS(:,JRoot),1,FockOcc,1)
       END DO
       Call Put_dArray('FockOcc',FockOcc,ntot1)
-**********Now storing the density matrix needed for computing 1RDM
-**********First rescale the off-diagonal elements as done in
-**********integral_util/prep.f
+! Now storing the density matrix needed for computing 1RDM
+! First rescale the off-diagonal elements as done in
+! integral_util/prep.f
       ij=0
       Do iS=1,nSym
        do iBas=1,nBas(iS)
@@ -80,9 +82,9 @@
        ij=ij+1
        end do
       End Do
-**********Then add the matrix for each state to the ground state
-**********add put the ground state one in the runfile. Do not
-**********forget to multiply the (R_IK)^2, where K is "jRoot" below
+! Then add the matrix for each state to the ground state
+! add put the ground state one in the runfile. Do not
+! forget to multiply the (R_IK)^2, where K is "jRoot" below
       RIK2=si_pdft(1,mcpdft_options%rlxroot)**2
       CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
       CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
@@ -90,28 +92,26 @@
       ij=0
       jRoot=1
       ! for the comment below, lhrot -> si_pdft
-********LHRot(1,RlxRoot) should give me R_I1
+! LHRot(1,RlxRoot) should give me R_I1
       Do jRoot=2,lRoots
       ij=0
        RIK2=si_pdft(jroot,mcpdft_options%rlxroot)**2
-*******DIDA for prepp
+! DIDA for prepp
        CALL DaXpY_(nTot1,-RIK2,DIDA(:,jRoot),1,DIDA(:,1),1)
-*******FT99 for bk
+! FT99 for bk
        CALL DaXpY_(nTot4,RIK2,FxyMS(:,jRoot),1,FxyMS(:,1),1)
-*******P2MOt for active 2RDM
+! P2MOt for active 2RDM
        CALL DaXpY_(NACPR2,RIK2,P2MOt(:,jRoot),1,P2MOt(:,1),1)
       End Do
-********DIDA is currently DA over intermediate states
+! DIDA is currently DA over intermediate states
       CALL Put_DArray('MSPDFTD6        ',DIDA(:,1),nTot1)
-********DIDA(:,lRoots+1) is currently DI
+! DIDA(:,lRoots+1) is currently DI
       CALL Put_DArray('MSPDFTD5        ',DIDA(:,lRoots+1),nTot1)
       CALL Put_DArray('FxyMS           ',FxyMS(:,1), nTot4)
       Call Put_dArray('P2MOt',P2MOt(:,1),NACPR2)
 
-      ! Some other things that were initially in mcpdft.f
       Call Put_cArray('Relax Method','MSPDFT  ',8)
       Call Put_cArray('MCLR Root','****************',16)
       Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
-      RETURN
       End Subroutine
 
