@@ -19,24 +19,25 @@ subroutine MSPDFTGrad_Misc(si_pdft)
 ! This subroutine does miscellaneous things needed
 ! in MS-PDFT gradient calculation.
   use definitions,only:iwp,wp
-  use constants,only:zero
+  use constants,only:zero,one
   use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,D1aoMS,DIDA,D1SAOMS
-  use wadr,only:FockOcc
-  use rasscf_global,only:lroots,NACPR2,nRoots,nTot4
+  use rasscf_global,only:lroots,NACPR2,nTot4
   use mcpdft_input,only:mcpdft_options
-  Implicit None
+
+  implicit none
 
 #include "rasdim.fh"
 #include "general.fh"
 
-  INTEGER(kind=iwp) :: ij,iS,jRoot,iBas,jBas
-  Real(kind=wp) RIK2
-  real(kind=wp),dimension(lroots,lroots),intent(in) :: si_pdft
+  real(kind=wp),intent(in) :: si_pdft(lroots,lroots)
+
+  integer(kind=iwp) :: ij,iS,jRoot,iBas,jBas
+  integer(kind=iwp) :: NACstatesOpt(2)
+  logical(kind=iwp) :: CalcNAC_Opt,MECI_via_SLAPAF
+  real(kind=wp) :: RIK2,fock_occ(ntot1)
 
 ! Functions added by Paul Calio for MECI Opt *****
 ! Original calls are in slapaf_util/start_alasaks.f
-  Logical :: CalcNAC_Opt,MECI_via_SLAPAF
-  INTEGER NACstatesOpt(2)
 
   calcnac_opt = .false.
   meci_via_slapaf = .false.
@@ -44,25 +45,20 @@ subroutine MSPDFTGrad_Misc(si_pdft)
   NACstatesOpt(2) = 0
 
   Call put_iArray('NACstatesOpt    ',NACstatesOpt,2)
-  Call Put_lscalar('CalcNAC_Opt     ',CalcNAC_Opt)
+  Call Put_lscalar('CalcNAC_Opt     ',calcnac_opt)
   call put_lscalar('MECI_via_SLAPAF ',MECI_via_SLAPAF)
 ! End of stuff added by Paul
 
   Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:,:),lRoots**2)
-  CALL Put_DArray('F1MS            ',F1MS(:,:),nTot1*nRoots)
-  CALL Put_DArray('F2MS            ',F2MS(:,:),NACPR2*nRoots)
-  CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:),nTot1*nRoots)
+  CALL Put_DArray('F1MS            ',F1MS(:,:),nTot1*lRoots)
+  CALL Put_DArray('F2MS            ',F2MS(:,:),NACPR2*lRoots)
+  CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:),nTot1*lRoots)
   if(ispin /= 1) then
-    CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*nRoots)
+    CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*lRoots)
   endif
 
-! Fock_Occ Part
-  FockOcc(:) = zero
-  DO JRoot = 1,lRoots
-    call daXpY_(ntot1,si_pdft(jroot,mcpdft_options%rlxroot)**2, &
-                FocMS(:,JRoot),1,FockOcc,1)
-  ENDDO
-  Call Put_dArray('FockOcc',FockOcc,ntot1)
+  call dgemm_('n','n',ntot1,1,lroots,one,FocMS(:,:),ntot1,si_pdft(:,mcpdft_options%rlxroot)**2,lroots,zero,fock_occ,ntot1)
+  Call Put_dArray('FockOcc',fock_occ,ntot1)
 ! Now storing the density matrix needed for computing 1RDM
 ! First rescale the off-diagonal elements as done in
 ! integral_util/prep.f
@@ -71,7 +67,7 @@ subroutine MSPDFTGrad_Misc(si_pdft)
     do iBas = 1,nBas(iS)
       do jBas = 1,iBas-1
         ij = ij+1
-        do jRoot = 1,nRoots+1
+        do jRoot = 1,lRoots+1
           DIDA(ij,jRoot) = 0.5D0*DIDA(ij,jRoot)
         enddo
       enddo
@@ -85,12 +81,8 @@ subroutine MSPDFTGrad_Misc(si_pdft)
   CALL DScal_(nTot1,-RIK2,DIDA(:,1),1)
   CALL DScal_(nTot4,RIK2,FxyMS(:,1),1)
   CALL DScal_(NACPR2,RIK2,P2MOt(:,1),1)
-  ij = 0
-  jRoot = 1
-  ! for the comment below, lhrot -> si_pdft
-! LHRot(1,RlxRoot) should give me R_I1
+! si_pdft(1,RlxRoot) should give me R_I1
   Do jRoot = 2,lRoots
-    ij = 0
     RIK2 = si_pdft(jroot,mcpdft_options%rlxroot)**2
 ! DIDA for prepp
     CALL DaXpY_(nTot1,-RIK2,DIDA(:,jRoot),1,DIDA(:,1),1)
