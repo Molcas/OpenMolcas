@@ -27,7 +27,7 @@
 *                                                                      *
 ************************************************************************
       use mcpdft_output, only: lf
-      use rasscf_global, only: lRoots, NAC, NIN, nRoots, OutFmt1,
+      use rasscf_global, only: lRoots, NAC, NIN, nRoots,
      &                         OutFmt2, iRoot
       use definitions,only:iwp
       implicit none
@@ -273,10 +273,6 @@
       End If
 
 
-! PAM Krapperup Nov 05: Orbital print format.
-! First question: Which orbital spaces are eligible for printing?
-      ! orbital spaces are eligible for printing?
-      OutFmt1='FEW     '
 ! Second question: How should they be printed?
 ! No user selection, so fall back on default choice.
       IF(NTOT.LT.256) THEN

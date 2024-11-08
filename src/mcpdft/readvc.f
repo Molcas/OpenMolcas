@@ -54,13 +54,11 @@
 #include "warnings.h"
 
       real(kind=wp), Dimension(*) :: CMO
-      real(kind=wp), dimension(ntot) :: occ
 !     local data declarations
       integer(kind=iwp), dimension(30) :: IADR19
       logical :: Found
       integer(kind=iwp) :: i, iad19, ijob, iprlev
 
-      real(kind=wp), dimension(ntot) :: ene
 
 #ifdef _HDF5_
       integer mh5id
@@ -129,7 +127,6 @@
 
         iAd19=iAdr19(2)
         Call DDaFile(JobOld,2,CMO,NTOT2,iAd19)
-        Call DDaFile(JobOld,2,OCC,nTot,iAd19)
 
         If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
           Call DaClos(JOBOLD)
@@ -137,8 +134,6 @@
         Else If(JOBOLD.gt.0) Then
           JOBOLD=-1
         End If
-
-        ene(:) = zero
 
 !     read from a HDF5 wavefunction file
       Else If (InVec.eq.4) then
@@ -151,8 +146,6 @@
 
         mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
         call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
-        call mh5_fetch_dset(mh5id, 'MO_OCCUPATIONS', occ)
-        call mh5_fetch_dset(mh5id, 'MO_ENERGIES', ene)
         call mh5_close_file(mh5id)
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'
@@ -164,13 +157,5 @@
         write(lf,*) "This has not been implemented, aborting"
         call abend
       End If
-
-! Should we ever need to do this????
-!     print start orbitals
-      IF(IPRLEV >= DEBUG) THEN
-        ! This lene can actually be removed since it is not needed..
-        ! Also, it will override the orbital energies in the runfile.
-        CALL PRIMO_RASSCF_m('Input orbitals',ene,OCC,CMO)
-      END IF
 
       END Subroutine ReadVC_m
