@@ -13,7 +13,7 @@ subroutine ref_energy(mcscf_energy,nroots)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use stdalloc,only:mma_allocate,mma_deallocate
-  use printlevel,only:terse
+  use printlevel,only:usual
   use mcpdft_output,only:iprglb
   use mcpdft_input,only:mcpdft_options
   use mspdft,only:heff
@@ -30,14 +30,17 @@ subroutine ref_energy(mcscf_energy,nroots)
 #include "general.fh"
 
   integer(kind=iwp),dimension(15) :: iadr19
-  integer(kind=iwp) :: root,refwfn_id
+  integer(kind=iwp) :: root
   integer(kind=iwp) :: iad19,disk,nmaybe,i,it
   real(kind=wp) :: e,aemax
-
   real(kind=wp),allocatable :: elist(:,:)
 
+#ifdef _HDF5_
+  integer(kind=iwp) :: refwfn_id
+#endif
+
   if(mcpdft_options%mspdft) then
-    if(iprglb >= terse) then
+    if(iprglb >= usual) then
       write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
       write(u6,*) 'effective Hamiltonian'
     endif
@@ -45,7 +48,7 @@ subroutine ref_energy(mcscf_energy,nroots)
       mcscf_energy(root) = heff(root,root)
     enddo
   else
-    if(iprglb >= terse) then
+    if(iprglb >= usual) then
       write(u6,*) 'Reference MC-SCF energies taken from ',mcpdft_options%wfn_file
     endif
     if(.not. mcpdft_options%is_hdf5_wfn) then

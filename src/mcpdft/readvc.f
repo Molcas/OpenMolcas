@@ -45,7 +45,6 @@
       use printlevel, only: terse, verbose, debug
       use mcpdft_output, only: lf, iPrGlb, iPrLoc
       use mcpdft_input, only: mcpdft_options
-      use stdalloc, only: mma_allocate, mma_deallocate
 
       implicit none
 

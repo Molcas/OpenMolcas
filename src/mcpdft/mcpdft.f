@@ -39,7 +39,7 @@
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
       use mspdft, only: mspdft_finalize, heff, mspdft_init
-      use printlevel, only: terse, debug, insane, usual
+      use printlevel, only: terse, debug, insane
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
       use stdalloc, only: mma_allocate, mma_deallocate
