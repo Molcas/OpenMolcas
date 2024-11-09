@@ -62,9 +62,9 @@ subroutine MSPDFTGrad_Misc(si_pdft)
   ! Takes the rlxroot column of the rotation matrix and squares it
   u_rlx_sq = si_pdft(:,mcpdft_options%rlxroot)**2
 
-! Now storing the density matrix needed for computing 1RDM
-! First rescale the off-diagonal elements as done in
-! integral_util/prep.f
+  ! Now storing the density matrix needed for computing 1RDM
+  ! First rescale the off-diagonal elements as done in
+  ! integral_util/prep.f
   ij = 0
   Do iS = 1,nSym
     do iBas = 1,nBas(iS)
