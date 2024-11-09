@@ -560,7 +560,7 @@
 !      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 !      Hopefully this code will be neater.
        call savefock_pdft(CMO,FockI,FockA,D1Act,Fock,
-     &                    P,NQ,PUVX,p2d,jroot)
+     &                    P,NQ,PUVX,p2d)
       end if
 
       call mma_deallocate(fock)
