@@ -21,7 +21,7 @@
      &                         nTot4
       use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,
      &                    D1aoMS,DIDA,D1SAOMS
-      
+
       Implicit None
 
 #include "rasdim.fh"
@@ -34,18 +34,12 @@
 
 ******* Functions added by Paul Calio for MECI Opt *****
 ******* Original calls are in slapaf_util/start_alasaks.f
-      Logical :: CalcNAC_Opt = .False.
-      Logical :: MECI_via_SLAPAF = .False.
 
       bra_state = mcpdft_options%nac_states(1)
       ket_state = mcpdft_options%nac_states(2)
 
-
-      call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
       Call put_iArray('NACstatesOpt    ', mcpdft_options%nac_states,2)
-      Call Put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
 ****** End of stuff added by Paul
-
 
       Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:),lRoots**2)
       CALL Put_DArray('F1MS            ',F1MS(:,:),  nTot1*nRoots)
@@ -108,9 +102,6 @@
       Call Put_dArray('P2MOt',P2MOt(:,1),NACPR2)
 
       ! Some other things that were initially in mcpdft.f
-      Call Put_cArray('Relax Method','MSPDFT  ',8)
-      Call Put_cArray('MCLR Root','****************',16)
-      Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
       RETURN
       End Subroutine
 

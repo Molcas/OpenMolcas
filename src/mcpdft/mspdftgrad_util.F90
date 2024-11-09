@@ -15,14 +15,13 @@
 ! 2024, Matthew R. Henenfarth - upgraded to F90                        *
 !***********************************************************************
 
-subroutine MSPDFTGrad_Misc(si_pdft)
+subroutine MSPDFTGrad_Misc(si_pdft,states)
 ! This subroutine does miscellaneous things needed
 ! in MS-PDFT gradient calculation.
   use definitions,only:iwp,wp
   use constants,only:zero,one
   use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,D1aoMS,DIDA,D1SAOMS
   use rasscf_global,only:lroots,NACPR2,nTot4
-  use mcpdft_input,only:mcpdft_options
 
   implicit none
 
@@ -30,10 +29,9 @@ subroutine MSPDFTGrad_Misc(si_pdft)
 #include "general.fh"
 
   real(kind=wp),intent(in) :: si_pdft(lroots,lroots)
+  integer(kind=iwp),intent(in) :: states(2)
 
   integer(kind=iwp) :: ij,iS,jRoot,iBas,jBas
-  integer(kind=iwp) :: NACstatesOpt(2)
-  logical(kind=iwp) :: CalcNAC_Opt,MECI_via_SLAPAF
   ! rotated (ie, in final MS-PDFT) eigenbasis quantities
   real(kind=wp) :: r_fock_occ(ntot1),r_active_dm1(ntot1),r_Fxy(ntot4),r_casdm2(nacpr2)
   real(kind=wp) :: u_rlx_sq(lroots)
@@ -41,14 +39,7 @@ subroutine MSPDFTGrad_Misc(si_pdft)
 ! Functions added by Paul Calio for MECI Opt *****
 ! Original calls are in slapaf_util/start_alasaks.f
 
-  calcnac_opt = .false.
-  meci_via_slapaf = .false.
-  NACstatesOpt(1) = mcpdft_options%rlxroot
-  NACstatesOpt(2) = 0
-
-  Call put_iArray('NACstatesOpt    ',NACstatesOpt,2)
-  Call Put_lscalar('CalcNAC_Opt     ',calcnac_opt)
-  call put_lscalar('MECI_via_SLAPAF ',MECI_via_SLAPAF)
+  Call put_iArray('NACstatesOpt    ',states,2)
 ! End of stuff added by Paul
 
   Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:,:),lRoots**2)
@@ -60,7 +51,8 @@ subroutine MSPDFTGrad_Misc(si_pdft)
   endif
 
   ! Takes the rlxroot column of the rotation matrix and squares it
-  u_rlx_sq = si_pdft(:,mcpdft_options%rlxroot)**2
+  u_rlx_sq = si_pdft(:,states(1))*si_pdft(:,states(2))
+  !u_rlx_sq = si_pdft(:,mcpdft_options%rlxroot)**2
 
   ! Now storing the density matrix needed for computing 1RDM
   ! First rescale the off-diagonal elements as done in
@@ -101,8 +93,5 @@ subroutine MSPDFTGrad_Misc(si_pdft)
   call dgemm_('n','n',nacpr2,1,lroots,one,P2MOt(:,:),nacpr2,u_rlx_sq,lroots,zero,r_casdm2,nacpr2)
   Call Put_dArray('P2MOt',r_casdm2,NACPR2)
 
-  Call Put_cArray('Relax Method','MSPDFT  ',8)
-  Call Put_cArray('MCLR Root','****************',16)
-  Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
 EndSubroutine
 
