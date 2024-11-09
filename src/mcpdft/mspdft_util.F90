@@ -25,7 +25,7 @@ module mspdft_util
   public :: replace_diag
 
 contains
-  subroutine print_final_energies(e_mspdft,nroots,method)
+  subroutine print_final_energies(e_mspdft,nroots)
     ! Prints the Final MS-PDFT Energies
     !
     ! Args:
@@ -34,30 +34,19 @@ contains
     !
     !   nroots: integer
     !     Number of roots in the calculation
-    !
-    !   method: character(len=8)
-    !     MS-PDFT method string
     use definitions,only:iwp,wp,u6
-    use mcpdft_input,only:mcpdft_options
     implicit none
 
     integer(kind=iwp),intent(in) :: nroots
     real(kind=wp),dimension(nroots),intent(in) :: e_mspdft
-    character(len=8),intent(in) :: method
 
-    integer :: root
+    integer(kind=iwp) :: state
 
-    if(.not. mcpdft_options%otfnal%is_hybrid()) then
-      write(u6,'(6X,2A)') method,' Energies:'
-      do root = 1,nroots
-        call PrintResult(u6,'(6X,A,1X,I4,3X,A13,F18.8)',method//' Root',root,'Total energy:',e_mspdft(root),1)
-      enddo
-    else
-      write(u6,'(6X,3A)') 'Hybrid ',method,' Energies:'
-      do root = 1,nroots
-        call PrintResult(u6,'(6X,A,1X,I4,3X,A13,F18.8)','Hybrid '//method//' Root',root,'Total energy:',e_mspdft(root),1)
-      enddo
-    endif
+    do state = 1,nroots
+      call printresult(u6,'(6X,A,I3,A,F16.8)','MSPDFT root number',state,' Total energy:',e_mspdft(state),1)
+    enddo
+    write(u6,*)
+
   endsubroutine print_final_energies
 
   subroutine print_mspdft_vectors(si_pdft,nroots)
@@ -97,10 +86,11 @@ contains
 
     write(u6,*)
 
-    write(u6,'(7X,A)') 'Intermediate-state Basis'
+    write(u6,'(6X,A)') 'Intermediate-state Basis'
     write(mspdftfmt,'(A4,I5,A9)') '(6X,',nroots,'(A10,5X))'
     write(u6,mspdftfmt)((VecStat(root)),root=1,nroots)
     Call RecPrt(' ','(7X,10(F9.6,6X))',si_pdft,size(si_pdft,1),size(si_pdft,2))
+    write(u6,*)
 
     call f_inquire('ROT_VEC',refbas)
     if(refbas) then
@@ -109,7 +99,7 @@ contains
       call readmat2('ROT_VEC',MatInfo,reference_vectors,nroots,nroots,7,18,'T')
       call dgemm_('n','n',nroots,nroots,nroots,1.0d0,reference_vectors, &
                   nroots,si_pdft,nroots,0.0d0,eig_vecs_in_ref,nroots)
-      write(u6,'(7X,A)') 'Reference-state Basis'
+      write(u6,'(6X,A)') 'Reference-state Basis'
       write(u6,mspdftfmt)((VecStat(root)),root=1,nroots)
       call RecPrt(' ','(7X,10(F9.6,6X))',eig_vecs_in_ref,nroots,nroots)
       call PrintMat2('FIN_VEC',MatInfo,eig_vecs_in_ref,nroots,nroots,7,18,'T')

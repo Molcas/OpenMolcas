@@ -101,7 +101,7 @@ contains
     use mspdft_util,only:print_effective_ham,print_final_energies,print_mspdft_vectors
     use mcpdft_input,only:mcpdft_options
     use write_pdft_job,only:writejob
-    use printlevel,only:usual
+    use printlevel,only:usual,terse
     use mspdftgrad,only:mspdftgrad_free
 
     integer(kind=iwp),intent(in) :: nroots
@@ -145,7 +145,7 @@ contains
     call dsyev_('V','U',nroots,si_pdft,nroots,e_mspdft,scratch,dim_scratch,info)
     call mma_deallocate(scratch)
 
-    if(iprlev >= usual) call print_final_energies(e_mspdft,nroots,mspdftmethod)
+    if(iprlev >= terse) call print_final_energies(e_mspdft,nroots)
 
     ! Update information on the runfile for possible gradient calculations.
     call put_dArray('Last energies',e_mspdft,nroots)

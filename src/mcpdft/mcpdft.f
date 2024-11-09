@@ -61,7 +61,7 @@
       real(kind=wp), allocatable :: Ref_E(:), PUVX(:), D1I(:), D1A(:)
       real(kind=wp), allocatable :: cmo(:)
       Real(kind=wp) :: dum1, dum2, dum3
-      integer(kind=iwp) :: iPrLev, iRC
+      integer(kind=iwp) :: iPrLev, iRC, state
 
       Call StatusLine('MCPDFT:',' Just started.')
       IRETURN=_RC_ALL_IS_WELL_
@@ -176,10 +176,18 @@
         Call writejob(ref_e)
       end if
 
-        If (mcpdft_options%mspdft) Then
-          call replace_diag(heff, ref_e, lroots)
-          call mspdft_finalize(lroots)
-        End If
+      If (mcpdft_options%mspdft) Then
+        call replace_diag(heff, ref_e, lroots)
+        call mspdft_finalize(lroots)
+      else
+        if(iprlev >= terse) then
+        do state=1,lroots
+          call PrintResult(lf,'(6X,A,I3,A,F16.8)',
+     &          'MCPDFT root number',state,
+     &          ' Total energy:',[ref_e(state)],1)
+        enddo
+      endif
+      End If
 
 !***********************************************************************
 !**************************           Closing up MC-PDFT      **********
