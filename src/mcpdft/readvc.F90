@@ -31,8 +31,6 @@ Subroutine ReadVC_m(CMO)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "SysDef.fh"
-#include "warnings.h"
 
   real(kind=wp),Dimension(*) :: CMO
   integer(kind=iwp),dimension(30) :: IADR19
