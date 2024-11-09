@@ -559,8 +559,7 @@
 !      doing exactly the same thing as done in the previous chunck
 !      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 !      Hopefully this code will be neater.
-       call savefock_pdft(CMO,FockI,FockA,D1Act,Fock,
-     &                    P,NQ,PUVX,p2d)
+       call savefock_pdft(CMO,FockA,D1Act,Fock,NQ,p2d,jroot)
       end if
 
       call mma_deallocate(fock)
