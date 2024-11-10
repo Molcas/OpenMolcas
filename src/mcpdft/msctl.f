@@ -345,11 +345,6 @@
 !
 !***********************************************************************
       if(mcpdft_options%grad) then
-        IF(ISTORP(NSYM+1).GT.0) THEN
-           call mma_allocate(P,ISTORP(NSYM+1),Label='P')
-        else
-          call mma_allocate(P,1,Label='P')
-         END IF
 
       ! This computes the initial (MC-SCF) fock matrix (FOCK)
          NQ=0
@@ -361,20 +356,23 @@
          if(NQ.lt.NIAIA) NQ=NIAIA
 
         ! transform Fock elements from AO to MO basis
-         call mma_allocate(fock,ntot4,label='Fock')
 
         focki(:) = focki(:) + hcore(:)
         call ao2mo_1particle(cmo,focki,focki,nsym,nbas,norb,nfro)
         call ao2mo_1particle(cmo,focka,focka,nsym,nbas,norb,nfro)
 
-        ! Compute the generalized Fock matrix (1e + Coul term)
-        ! Stored in Fock
-         CALL FOCK_m(FOCK,FockI,FockA,casdm1)
+        fockA(:) = focki(:) + focka(:)
 
        if((.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
          Write(LF,*) 'Calculating potentials for analytic gradients...'
+
+        IF(ISTORP(NSYM+1).GT.0) THEN
+           call mma_allocate(P,ISTORP(NSYM+1),Label='P')
+        else
+          call mma_allocate(P,1,Label='P')
+         END IF
 !MCLR requires two sets of things:
 !1. The effective one-body Fock matrix and the effective two-body fock
 !matrix.  These are used to generate the CI gradient inside of MCLR
@@ -408,9 +406,9 @@
       CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
       Call Get_dArray('FI_V',FI_V,NTOT1)
 
-      !FI + FA + V_oe
-      Call daxpy_(ntot1,1.0d0,FI_V,1,FockA,1)
-      Call daxpy_(ntot1,1.0d0,OnTopO,1,FockA,1)
+      call ao2mo_1particle(cmo,hcore(:)+coul(:),
+     &       focki,nsym,nbas,norb,nfro)
+      fi_v(:) = fi_v(:) + ontopo(:) + focki(:)
 
       !Add the V_kktu contribution to Fone_tu?
 !STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -421,7 +419,7 @@
       LUTMP=IsFreeUnit(LUTMP)
       Call Molcas_Open(LUTMP,'TmpFock')
       do i=1,ntot1
-        write(LUTMP,*) FockA(i)
+        write(LUTMP,*) fi_v(i)
       end do
 
       Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
@@ -455,10 +453,6 @@
       end do
         end if
 
-      call ao2mo_1particle(cmo,hcore(:)+coul(:),
-     &       focki,nsym,nbas,norb,nfro)
-      fi_v(:) = fi_v(:) + ontopo(:) + focki(:)
-        fock(:) = zero
 !Reordering of the two-body density matrix.
 
        IF(ISTORP(NSYM+1).GT.0) THEN
@@ -468,6 +462,8 @@
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
+         call mma_allocate(fock,ntot4,label='Fock')
+        fock(:) = zero
          CALL FOCK_update(FOCK,fi_v,fa_v,casdm1,P,
      &                    Q,OnTopT,CMO)
 
@@ -478,6 +474,8 @@
       Call mma_deallocate(ONTOPT)
       CALL mma_deallocate(FI_V)
       CALL mma_deallocate(FA_V)
+      call mma_deallocate(P)
+      call mma_deallocate(fock)
 
 
 !Put some information on the runfile for possible gradient calculations.
@@ -500,11 +498,9 @@
 !      doing exactly the same thing as done in the previous chunck
 !      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 !      Hopefully this code will be neater.
-       call savefock_pdft(CMO,FockA,casdm1,Fock,NQ,p2d,jroot)
+       call savefock_pdft(CMO,hcore,coul,casdm1,NQ,p2d,jroot)
       end if
 
-      call mma_deallocate(fock)
-      call mma_deallocate(P)
 
       endif
 

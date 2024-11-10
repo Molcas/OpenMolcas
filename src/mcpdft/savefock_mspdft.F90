@@ -17,14 +17,14 @@
 ! 2024, Matthew R. Hennefarth - upgraded to F90                        *
 !***********************************************************************
 
-Subroutine SaveFock_PDFT(CMO,focka,D1Act,Fock,NQ,p2d,state)
+Subroutine SaveFock_PDFT(CMO,hcore,coul,D1Act,NQ,p2d,state)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use printlevel,only:debug
   use mcpdft_output,only:iPrLoc
   use stdalloc,only:mma_allocate,mma_deallocate
   use wadr,only:fockocc
-  use rasscf_global,only:nFint,ISTORP
+  use rasscf_global,only:nFint,ISTORP,ntot4
   use mspdftgrad,only:F1MS,F2MS,FocMS
 
 ! Notes: Two references will be referred to in the comments.
@@ -32,7 +32,7 @@ Subroutine SaveFock_PDFT(CMO,focka,D1Act,Fock,NQ,p2d,state)
 ! Ref2: Scott, et al. JCP,  2020, 153, 014106.
   Implicit None
 
-  real(kind=wp) :: CMO(*),focka(*),D1Act(*),Fock(*)
+  real(kind=wp) :: CMO(*),D1Act(*),hcore(*),coul(*)
   real(kind=wp) :: P2D(*)
 
   integer(kind=iwp) :: NQ,state
@@ -44,10 +44,16 @@ Subroutine SaveFock_PDFT(CMO,focka,D1Act,Fock,NQ,p2d,state)
   real(kind=wp),allocatable :: ONTOPT(:),ONTOPO(:)
   real(kind=wp),allocatable :: FA_V(:),FI_V(:)
   real(kind=wp),allocatable :: fa_t(:),Q(:),focki(:),dm2(:)
+  real(kind=wp) :: fock(ntot4)
+
+  fock(:) = zero
 
   write(u6,'(2X,A)') 'Calculating potentials for analytic gradients for MS-PDFT'
 
   IPRLEV = IPRLOC(3)
+
+  call mma_allocate(focki,ntot1,label='focki')
+  call ao2mo_1particle(cmo,hcore(:ntot1)+coul(:ntot1),focki,nsym,nbas,norb,nfro)
 
 ! loading one-electron potential and two-electron potential
 ! Used as F1 and F2 in equations 58 and 59 in Ref1.
@@ -70,14 +76,12 @@ Subroutine SaveFock_PDFT(CMO,focka,D1Act,Fock,NQ,p2d,state)
   CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
   Call Get_dArray('FI_V',FI_V,NTOT1)
 
-  F1MS(:,state) = focka(:ntot1)+fi_v(:)+ontopo(:)
+  F1MS(:,state) = focki(:)+fi_v(:)+ontopo(:)
 
   Call Get_TUVX(OnTopT,f2ms(:,state))
 
 ! ____________________________________________________________
 ! This next part is to generate the MC-PDFT generalized fock operator.
-
-  focka(:ntot1) = zero
 
 ! The corrections (from the potentials) to FI and FA are built in the NQ
 ! part of the code, for efficiency's sake.  It still needs to be
@@ -101,12 +105,8 @@ Subroutine SaveFock_PDFT(CMO,focka,D1Act,Fock,NQ,p2d,state)
     CALL mma_deallocate(FA_t)
   ENDIF
 
-  call mma_allocate(focki,ntot1,label='focki')
-  focki(:) = OnTopO(:)+FI_V(:)
-  focka(:ntot1) = FA_V
+  fi_v(:) = focki(:)+OnTopO(:)+FI_V(:)
 
-  CALL mma_deallocate(FI_V)
-  CALL mma_deallocate(FA_V)
   Call mma_deallocate(OnTopO)
 
 !Reordering of the two-body density matrix.
@@ -119,11 +119,13 @@ Subroutine SaveFock_PDFT(CMO,focka,D1Act,Fock,NQ,p2d,state)
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
   CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-  CALL FOCK_update(FOCK,focki,focka,D1Act,dm2,Q,OnTopT,CMO)
+  CALL FOCK_update(FOCK,fi_v,fa_v,D1Act,dm2,Q,OnTopT,CMO)
   Call mma_deallocate(Q)
   Call mma_deallocate(OnTopT)
   call mma_deallocate(focki)
   call mma_deallocate(dm2)
+  CALL mma_deallocate(FI_V)
+  CALL mma_deallocate(FA_V)
 
   focms(:,state) = fockocc(:)
   IF(IPRLEV >= DEBUG) THEN
