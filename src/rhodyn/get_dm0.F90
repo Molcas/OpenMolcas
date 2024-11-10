@@ -29,9 +29,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii, jj, kk, lu !temporary io unit
+real(kind=wp), allocatable :: temp_dm(:)
 complex(kind=wp) :: Z
-complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:), temp_dm(:)
+complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:)
 integer(kind=iwp), external :: isFreeUnit
+character(len=16) :: fmt_line
 
 if ((p_style == 'SO_THERMAL') .and. (T == 0)) then
   p_style = 'SO'
@@ -84,6 +86,7 @@ if (flag_so) then
       if (runmode /= 4) then
         DM0(N_Populated,N_Populated) = cOne
       else
+        ! prepare DM directly in SO basis in runmode=4
         call mma_allocate(DM0_bas,nconftot,nconftot)
         DM0_bas = cZero
         DM0_bas(N_Populated,N_Populated) = cOne
@@ -161,6 +164,20 @@ if (flag_so) then
       else
         DM0(:,:) = DM0_bas
       end if
+
+    case('FROMFILE')
+      ! DM is read from file supposed to be in CSF basis
+      call mma_allocate(temp_dm,nconftot)
+      lu = isFreeUnit(11)
+      call molcas_open(lu,'INDENS')
+      write(fmt_line, '(A, I0, A)') '(', nconftot, 'ES16.8)'
+      do i=1,nconftot
+        read(lu,fmt_line) temp_dm ! read matrix line from file
+        DM0(i,:) = cmplx(temp_dm, kind=wp)
+      end do
+      close(lu) ! close INDENS file
+      call mma_deallocate(temp_dm)
+
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
@@ -245,27 +262,25 @@ else
       end do
       ! transform DM to CSF basis by default
       if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+
+    case('FROMFILE')
+      ! DM is read from file supposed to be in CSF basis
+      call mma_allocate(temp_dm,nconftot)
+      lu = isFreeUnit(11)
+      call molcas_open(lu,'INDENS')
+      write(fmt_line, '(A, I0, A)') '(', nconftot, 'ES16.8)'
+      do i=1,nconftot
+        read(lu,fmt_line) temp_dm ! read matrix line from file
+        DM0(i,:) = cmplx(temp_dm, kind=wp)
+      end do
+      close(lu) ! close INDENS file
+      call mma_deallocate(temp_dm)
+
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
   end select
 end if !ifso
-
-! it will be transformed as usual further
-if (p_style == 'FROMFILE') then
-  call mma_allocate(temp_dm,NState)
-  lu = isFreeUnit(11)
-  call molcas_open(lu,'INDENS')
-  do i=1,NState
-    do j=1,Nstate
-      read(lu,'(ES16.8)',advance='no') temp_dm(j)
-    end do
-    DM0(i,:) = temp_dm
-    read(lu,*)
-  end do
-  close(lu) ! close INDENS file
-  call mma_deallocate(temp_dm)
-end if
 
 call mma_deallocate(DM0_bas,safe='*')
 
