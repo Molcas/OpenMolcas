@@ -52,7 +52,7 @@
      &                      casdm1s(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
-     &                      P(:), FOCK(:), Q(:)
+     &                      P(:), FOCK(:), Q(:), Coul(:)
       integer(kind=iwp) :: IAD19
       integer(kind=iwp) :: iJOB,dmDisk
       integer(kind=iwp) :: IADR19(1:30)
@@ -150,6 +150,7 @@
 
       Call mma_allocate(FockI,ntot1,Label='FockI')
       Call mma_allocate(FockA,ntot1,Label='FockA')
+      Call mma_allocate(coul,ntot1,Label='coul')
 
 !This iSA is used to control gradient calculations.  Analytic gradients
 !(in ALASKA) will only run if iSA=1, and iSA will only be set to one if
@@ -303,6 +304,7 @@
       puvx(:) = zero
       focka(:) = zero
       focki(:) = zero
+      coul(:) = zero
 
     ! This constructs focki and focka for us. Technically,
     ! focki is a constant but, if we have to recalculate it,
@@ -314,8 +316,9 @@
 
       call mma_deallocate(tuvx_tmp)
 
+      coul(:) = focki(:) + focka(:)
 
-      e_mcscf = energy_mcwfn(tmp3,hcore,focki+focka,PotNuc,ntot1)
+      e_mcscf = energy_mcwfn(tmp3,hcore,coul,PotNuc,ntot1)
 
          CASDFT_E = e_mcscf+CASDFT_Funct
 
@@ -344,7 +347,6 @@
       if(mcpdft_options%grad) then
         IF(ISTORP(NSYM+1).GT.0) THEN
            call mma_allocate(P,ISTORP(NSYM+1),Label='P')
-           call DmatDmat(casdm1,P)
         else
           call mma_allocate(P,1,Label='P')
          END IF
@@ -360,17 +362,14 @@
 
         ! transform Fock elements from AO to MO basis
          call mma_allocate(fock,ntot4,label='Fock')
-         call mma_allocate(Q,nq,label='Q')
 
         focki(:) = focki(:) + hcore(:)
         call ao2mo_1particle(cmo,focki,focki,nsym,nbas,norb,nfro)
         call ao2mo_1particle(cmo,focka,focka,nsym,nbas,norb,nfro)
 
-        ! This computes the 2-body interaction term (and updates)
-        ! ECAS will have the correct value...
-         CALL FOCK_m(FOCK,FockI,FockA,casdm1,P,Q,PUVX)
-
-         call mma_deallocate(Q)
+        ! Compute the generalized Fock matrix (1e + Coul term)
+        ! Stored in Fock
+         CALL FOCK_m(FOCK,FockI,FockA,casdm1)
 
        if((.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
@@ -393,11 +392,7 @@
 !I will read in the one- and two-electron potentials here
 
       Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
-      OnTopT(:)=0.0D0
       Call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
-      OnTopO(:)=0.0D0
-
-
       Call Get_dArray('ONTOPT',OnTopT,NFINT)
       Call Get_dArray('ONTOPO',OnTopO,NTOT1)
 
@@ -443,11 +438,6 @@
 !____________________________________________________________
 !This next part is to generate the MC-PDFT generalized fock operator.
 
-!Zero out the matrices.  We will be adding the potential-containing
-!terms as a correction to the Focc component already on the runfile.
-      CALL DCOPY_(ntot1,[0.0D0],0,FockA,1)
-      CALL DCOPY_(ntot1,[0.0D0],0,FockI,1)
-
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
 !debugged.
@@ -465,24 +455,20 @@
       end do
         end if
 
-      !Add one e potential, too.
-      call dcopy_(ntot1,OnTopO,1,FockI,1)
-      !Add two e potentials
-      Call daxpy_(NTOT1,1.0D0,FI_V,1,FockI,1)
-      Call daxpy_(NTOT1,1.0D0,FA_V,1,FockA,1)
-
-      CALL mma_deallocate(FI_V)
-      CALL mma_deallocate(FA_V)
+      call ao2mo_1particle(cmo,hcore(:)+coul(:),
+     &       focki,nsym,nbas,norb,nfro)
+      fi_v(:) = fi_v(:) + ontopo(:) + focki(:)
+        fock(:) = zero
 !Reordering of the two-body density matrix.
 
        IF(ISTORP(NSYM+1).GT.0) THEN
-         P(:)=0.0D0
+         P(:)=zero
          CALL PMAT_RASSCF(P2d,P)
       END IF
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-         CALL FOCK_update(FOCK,FockI,FockA,casdm1,P,
+         CALL FOCK_update(FOCK,fi_v,fa_v,casdm1,P,
      &                    Q,OnTopT,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
@@ -490,6 +476,8 @@
          Call mma_deallocate(Q)
       Call mma_deallocate(ONTOPO)
       Call mma_deallocate(ONTOPT)
+      CALL mma_deallocate(FI_V)
+      CALL mma_deallocate(FA_V)
 
 
 !Put some information on the runfile for possible gradient calculations.
@@ -560,9 +548,6 @@
          Call Put_dArray('D1Sao',folded_dm1s_cas,nTot1)
          Call mma_deallocate(folded_dm1s_cas)
 
-
-
-
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
       end if
 
@@ -576,6 +561,7 @@
       Call mma_deallocate(dm1s_cas)
       call mma_deallocate(hcore)
       Call mma_deallocate(FockI)
+      Call mma_deallocate(coul)
       Call mma_deallocate(FockA)
       Call mma_deallocate(P2D)
       Call mma_deallocate(dm1_core)

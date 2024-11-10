@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOCK_m(F,FI,FP,D,P,Q,FINT)
+      SUBROUTINE FOCK_m(F,FI,FP,D)
 C
 C     RASSCF program version IBM-3090: SX section
 c
@@ -26,13 +26,11 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use printlevel, only: debug
       use mcpdft_output, only: lf, iPrLoc
-      use rasscf_global, only: E2act, HALFQ1,
-     &                         NTOT3, ISTORP,
-     &                         ISTORD, ITRI, CBLB, iBLB,
+      use rasscf_global, only: NTOT3,ITRI, CBLB, iBLB,
      &                         jBLB
       IMPLICIT None
 
-      REAL*8 F(*),FP(*),D(*),P(*),Q(*),FINT(*),FI(*)
+      REAL*8 F(*),FP(*),D(*),FI(*)
       integer ISTSQ(8),ISTAV(8)
 
 #include "rasdim.fh"
@@ -40,10 +38,10 @@ C
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
       Integer iPrLev
       REAL*8  CSX, QNTM
-      Integer ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
-     &        ISYM, IX1, JSTF, N1, N2, NAO, NEO, NI, NIO,
+      Integer ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP,
+     &        ISYM, N1, N2, NAO, NEO, NI, NIO,
      &        NM, NO, NO2, NOR, NP, NT, NTM,
-     &        NTV, NUVX, NV, NVI, NVM
+     &        NTV,NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
@@ -69,10 +67,6 @@ C
       ISTFP=0
       ISTD=0
       ISTBM=0
-      IX1=0
-      ISTZ=0
-      E2act=0.0d0
-      HALFQ1=0.0D0
 C
 * A long loop over symmetry
       DO ISYM=1,NSYM
@@ -102,37 +96,17 @@ c
 c      first index in F active
 c
        IF(NAO.NE.0) THEN
-
-        ISTP=ISTORP(ISYM)+1
-        JSTF=ISTORD(ISYM)+1
-        NUVX=(ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
-
-
-c
-c          first compute the Q-matrix (equation (19))
-c
-c          Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
-c
-c          P is packed in xy and pre-multiplied by 2
-c                            and reordered
-c
-        CALL DGEMM_('N','N',
-     &              NO,NAO,NUVX,
-     &              1.0d0,FINT(JSTF),NO,
-     &              P(ISTP),NUVX,
-     &              0.0d0,Q,NO)
-
 !       Fock matrix
         NTM=0
         DO NT=1,NAO
          DO NM=1,NO
           NTM=NTM+1
-          QNTM=Q(NTM)
+          QNTM=0.0d0
           DO NV=1,NAO
            NVI=NV+NIO
            NTV=ITRI(MAX(NT,NV))+MIN(NT,NV)+ISTD
            NVM=ITRI(MAX(NVI,NM))+MIN(NVI,NM)+ISTFP
-           QNTM=QNTM+D(NTV)*FI(NVM)
+           QNTM=QNTM+D(NTV)*FP(NVM)
           END DO
           F(ISTFCK+NO*(NM-1)+NT+NIO)=QNTM
          END DO
@@ -146,8 +120,6 @@ c
        ISTFP=ISTFP+NO2
        ISTD=ISTD+(NAO**2+NAO)/2
        ISTBM=ISTBM+(NIO+NAO)*(NAO+NEO)
-       IX1=IX1+NBAS(ISYM)
-       ISTZ=ISTZ+(NAO**2-NAO)/2
        CBLB(ISYM)=CSX
        IBLB(ISYM)=N1
        JBLB(ISYM)=N2
@@ -193,8 +165,8 @@ C
       use mspdftgrad,only:FxyMS
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: E2act, nTot3, nTot4, ISTORP, ISTORD,
-     &                         iTri, CBLB, IBLB, JBLB
+      use rasscf_global, only: nTot3, nTot4, ISTORP,
+     &                         iTri, CBLB, IBLB, JBLB,ISTORD
 
       IMPLICIT None
       REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),CMO(*)
@@ -208,7 +180,7 @@ C
       Integer iPrLev
       Real*8 CSX, E2eP, QNTM
       Integer i, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
-     &        iSym, IX1, JSTF, N1, N2, NAO, NEO, NI, NIO, NM, NO, NO2,
+     &        iSym, JSTF, N1, N2, NAO, NEO, NI, NIO, NM, NO, NO2,
      &        NOR, NP, NT, NTM, NTT, NTV, NUVX, NV, NVI, NVM
 
 C
@@ -238,9 +210,7 @@ C
       ISTFP=0
       ISTD=0
       ISTBM=0
-      IX1=0
       ISTZ=0
-      E2act=0.0d0
 
 ! A long loop over symmetry
       DO ISYM=1,NSYM
@@ -334,8 +304,6 @@ c
        ISTFP=ISTFP+NO2
        ISTD=ISTD+(NAO**2+NAO)/2
        ISTBM=ISTBM+(NIO+NAO)*(NAO+NEO)
-       IX1=IX1+NBAS(ISYM)
-       ISTZ=ISTZ+(NAO**2-NAO)/2
        CBLB(ISYM)=CSX
        IBLB(ISYM)=N1
        JBLB(ISYM)=N2
