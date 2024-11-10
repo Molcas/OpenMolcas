@@ -13,21 +13,19 @@
 !matrix to the Fock matrix pieces that have already been built for the
 !CASSCF portion.
 
-C
-C     RASSCF program version IBM-3090: SX section
-c
-c     Calculation of the MCSCF fock matrix F(eq.(7) in I.J.Q.C.S14,175)
-c     FP is the matrix FI+FA (FP is FA at entrance)
-c     F is stored as a symmetry blocked square matrix, by columns.
-c     Note that F contains all elements, also the zero elements
-c     occurring when the first index is secondary.
-c     F is used to construct the Brillouin elements and the first row
-c     of the super-CI Hamiltonian, while FP is used as the effective
-c     one-electron operator in the construction of the super-CI
-c     interaction matrix.
-c
-C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
-C
+! RASSCF program version IBM-3090: SX section
+!
+! Calculation of the MCSCF fock matrix F(eq.(7) in I.J.Q.C.S14,175)
+! FP is the matrix FI+FA (FP is FA at entrance)
+! F is stored as a symmetry blocked square matrix, by columns.
+! Note that F contains all elements, also the zero elements
+! occurring when the first index is secondary.
+! F is used to construct the Brillouin elements and the first row
+! of the super-CI Hamiltonian, while FP is used as the effective
+! one-electron operator in the construction of the super-CI
+! interaction matrix.
+!
+!      ********** IBM-3090 MOLCASs Release: 90 02 22 **********
       use printlevel, only: debug
       use mspdft, only: iIntS
       use mcpdft_output, only: lf, iPrLoc
@@ -36,6 +34,7 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: nTot3, nTot4, ISTORP,
      &                         iTri, CBLB, IBLB, JBLB,ISTORD
+      use general_data,only:nsym,nbas,nash,nish,nssh,norb
 
       IMPLICIT None
       REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),CMO(*)
@@ -43,8 +42,6 @@ C
 
       Real*8, Allocatable:: TF(:)
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
       Integer iPrLev
       Real*8 CSX, E2eP, QNTM

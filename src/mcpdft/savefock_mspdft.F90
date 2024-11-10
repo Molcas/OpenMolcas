@@ -23,15 +23,14 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   use wadr,only:fockocc
   use rasscf_global,only:nFint,ISTORP,ntot4
   use mspdftgrad,only:F1MS,F2MS,FocMS
+  use general_data,only:ntot1,nbas,nfro,norb,nsym
   implicit none
 
-  real(kind=wp) :: CMO(*),D1Act(*),hcore(*),coul(*)
+  real(kind=wp) :: cmo(*)
+  real(kind=wp) :: D1Act(*),hcore(*),coul(*)
   real(kind=wp) :: P2D(*)
 
-  integer(kind=iwp) :: NQ,state
-
-#include "rasdim.fh"
-#include "general.fh"
+  integer(kind=iwp), intent(in) :: NQ,state
 
   integer(kind=iwp) :: iSA,iprlev
   real(kind=wp),allocatable :: ONTOPT(:),ONTOPO(:)

@@ -12,17 +12,15 @@
 !               2024, Matthew R Hennefarth                             *
 !***********************************************************************
 subroutine open_files_mcpdft(DSCF)
-  use mcpdft_output,only:lf
+  use definitions,only:iwp,u6
   use Fock_util_global,only:docholesky
-
+  use general_data,only:jobiph,jobold,luinta,luintm,luonel
   implicit none
-#include "rasdim.fh"
-#include "general.fh"
 #include "warnings.h"
 
-  logical,intent(out) :: DSCF
-  logical :: file_exists
-  integer :: iOpt,return_code
+  logical(kind=iwp),intent(out) :: DSCF
+  logical(kind=iwp) :: file_exists
+  integer(kind=iwp) :: iOpt,return_code
 
 !---  define logical unit numbers -------------------------------------*
 !...  Job interface unit (-1 shows it has not been opened!)
@@ -44,11 +42,11 @@ subroutine open_files_mcpdft(DSCF)
   iOpt = 0
   call OpnOne(return_code,iOpt,'ONEINT',LUONEL)
   if(return_code /= _RC_ALL_IS_WELL_) then
-    write(lf,*) "MC-PDFT tried to open a file (ONEINT) containing"
-    write(lf,*) "one-electron integrals, but failed. Something is"
-    write(lf,*) "wrong with the file. Most probably it is simply"
-    write(lf,*) "missing: please check. It should have been created"
-    write(lf,*) "by SEWARD. Perhaps it is in the wrong directory?"
+    write(u6,*) "MC-PDFT tried to open a file (ONEINT) containing"
+    write(u6,*) "one-electron integrals, but failed. Something is"
+    write(u6,*) "wrong with the file. Most probably it is simply"
+    write(u6,*) "missing: please check. It should have been created"
+    write(u6,*) "by SEWARD. Perhaps it is in the wrong directory?"
     call abend()
   endif
 
@@ -60,22 +58,22 @@ subroutine open_files_mcpdft(DSCF)
     iOpt = 0
     Call OpnOrd(return_code,iOpt,'ORDINT',LUINTA)
     If(return_code /= _RC_ALL_IS_WELL_) Then
-      Write(lf,*) 'MC-PDFT tried to open a file (ORDINT) containing'
-      Write(lf,*) 'two-electron integrals, but failed. Something'
-      Write(lf,*) 'is wrong with the file. Most probably it is'
-      Write(lf,*) 'simply missing: Please check. It should have'
-      Write(lf,*) 'been created by SEWARD. Perhaps it is in the'
-      Write(lf,*) 'wrong directory?'
+      Write(u6,*) 'MC-PDFT tried to open a file (ORDINT) containing'
+      Write(u6,*) 'two-electron integrals, but failed. Something'
+      Write(u6,*) 'is wrong with the file. Most probably it is'
+      Write(u6,*) 'simply missing: Please check. It should have'
+      Write(u6,*) 'been created by SEWARD. Perhaps it is in the'
+      Write(u6,*) 'wrong directory?'
       Call Abend()
     EndIf
   Else
     call f_Inquire('RUNFILE',file_exists)
     If(.not. file_exists) Then
-      Write(LF,*) 'MC-PDFT tried to open a file (RUNFILE) containing'
-      Write(LF,*) 'data from previous program steps. Something'
-      Write(LF,*) 'is wrong with the file. Most probably it is'
-      Write(LF,*) 'simply missing: Please check. It should have'
-      Write(LF,*) 'been created by SEWARD.'
+      Write(u6,*) 'MC-PDFT tried to open a file (RUNFILE) containing'
+      Write(u6,*) 'data from previous program steps. Something'
+      Write(u6,*) 'is wrong with the file. Most probably it is'
+      Write(u6,*) 'simply missing: Please check. It should have'
+      Write(u6,*) 'been created by SEWARD.'
       Call Abend()
     EndIf
   EndIf

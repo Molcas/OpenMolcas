@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ref_energy(mcscf_energy,nroots)
+subroutine ref_energy(mcscf_energy,nstates)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use stdalloc,only:mma_allocate,mma_deallocate
@@ -17,21 +17,17 @@ subroutine ref_energy(mcscf_energy,nroots)
   use mcpdft_output,only:iprglb
   use mcpdft_input,only:mcpdft_options
   use mspdft,only:heff
+  use general_data,only:jobiph,mxiter,mxroot
 #ifdef _HDF5_
   use mh5,only:mh5_open_file_r,mh5_close_file,mh5_fetch_dset,mh5_exists_dset
 #endif
 
   implicit none
 
-  integer(kind=iwp),intent(in) :: nroots
-  real(kind=wp),dimension(nroots),intent(out) :: mcscf_energy
+  integer(kind=iwp),intent(in) :: nstates
+  real(kind=wp),intent(out) :: mcscf_energy(nstates)
 
-#include "rasdim.fh"
-#include "general.fh"
-
-  integer(kind=iwp),dimension(15) :: iadr19
-  integer(kind=iwp) :: root
-  integer(kind=iwp) :: iad19,disk,nmaybe,i,it
+  integer(kind=iwp) :: state,iad19,disk,nmaybe,i,it,iadr19(15)
   real(kind=wp) :: e,aemax
   real(kind=wp),allocatable :: elist(:,:)
 
@@ -44,8 +40,8 @@ subroutine ref_energy(mcscf_energy,nroots)
       write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
       write(u6,*) 'effective Hamiltonian'
     endif
-    do root = 1,nroots
-      mcscf_energy(root) = heff(root,root)
+    do state = 1,nstates
+      mcscf_energy(state) = heff(state,state)
     enddo
   else
     if(iprglb >= usual) then
@@ -75,8 +71,8 @@ subroutine ref_energy(mcscf_energy,nroots)
       enddo
 
       mcscf_energy = elist(:,nmaybe)
-      do root = 1,nroots
-        mcscf_energy(root) = elist(root,nmaybe)
+      do state = 1,nstates
+        mcscf_energy(state) = elist(state,nmaybe)
       enddo
 
       call mma_deallocate(elist)

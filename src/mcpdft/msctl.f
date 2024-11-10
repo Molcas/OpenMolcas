@@ -33,13 +33,12 @@
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
      &                         nTot4, PotNuc,
      &                         Tot_Nuc_Charge, ISTORP
+      use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,
+     &              jobold,nactel,nbas,nish,nfro
       implicit none
 
-      real(kind=wp) :: Ref_Ener(*)
+      real(kind=wp),intent(inout) :: Ref_Ener(*)
       real(kind=wp),intent(in) :: CMO(*)
-
-#include "rasdim.fh"
-#include "general.fh"
 
       character(len=8) Label
       Logical First, Dff, Do_DFT,Found
@@ -53,22 +52,14 @@
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
      &                      P(:), FOCK(:), Q(:), Coul(:)
-      integer(kind=iwp) :: IAD19
-      integer(kind=iwp) :: iJOB,dmDisk
-      integer(kind=iwp) :: IADR19(1:30)
-      integer(kind=iwp) :: jroot,NQ
-      integer(kind=iwp) :: isym
-      integer(kind=iwp) :: i, iCharge, iComp
-      integer(kind=iwp) :: iOpt,  iPrLev
-      integer(kind=iwp) :: irc, iSA, iSyLbl
-      integer(kind=iwp) :: niaia, tot_el_charge
-
-      real(kind=wp), external :: energy_mcwfn
-
-      real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
-
-      real(kind=wp) :: Energies(nroots)
       real(kind=wp),allocatable :: int1e_ovlp(:), hcore(:)
+      integer(kind=iwp) :: IAD19,iJOB,dmDisk, IADR19(1:30)
+      integer(kind=iwp) :: jroot,NQ, isym,i, iCharge, iComp
+      integer(kind=iwp) :: iOpt,  iPrLev,irc, iSA, iSyLbl
+      integer(kind=iwp) :: niaia, tot_el_charge
+      real(kind=wp), external :: energy_mcwfn
+      real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
+      real(kind=wp) :: Energies(nroots)
 
       IPRLEV=IPRLOC(3)
 
@@ -553,8 +544,6 @@
       real(kind=wp), dimension(*), intent(in) :: d1mo
       real(kind=wp), dimension(*), intent(out) :: p2mo
 
-#include "rasdim.fh"
-#include "general.fh"
       integer(kind=iwp) :: i, j, k, l, ij, kl, ijkl, lmax
       real(kind=wp) :: fact
 

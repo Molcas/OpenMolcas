@@ -29,15 +29,13 @@ subroutine ao2mo_1particle(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
   use stdalloc,only:mma_allocate,mma_deallocate
   implicit none
 
-  integer(kind=iwp),intent(in) :: nsym
-  integer(kind=iwp),intent(in) :: nbas(nsym),norb(nsym),nfro(nsym)
+  integer(kind=iwp),intent(in) :: nsym, nbas(*),norb(*),nfro(*)
   real(kind=wp),intent(in) :: cmo(*),d_ao(*)
   real(kind=wp),intent(out) :: d_mo(*)
 
   integer(kind=iwp) :: ioff1,ioff2,ioff3,isym,ibas,iorb,ifro
   real(kind=wp),allocatable :: tmp1(:),tmp2(:)
 
-  ! transform FA from AO to MO basis
   iOff1 = 1
   iOff2 = 1
   iOff3 = 1

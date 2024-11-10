@@ -18,23 +18,19 @@
 !>
 !> @param[out] cmo mo coefficients
 Subroutine ReadVC_m(CMO)
-#ifdef _HDF5_
-  use mh5,only:mh5_open_file_r,mh5_fetch_dset,mh5_close_file
-#endif
   use definitions,only:wp,iwp,u6
   use printlevel,only:terse,verbose,debug
   use mcpdft_output,only:iPrGlb,iPrLoc
   use mcpdft_input,only:mcpdft_options
-
+  use general_data,only:invec,jobiph,jobold,ntot2
+#ifdef _HDF5_
+  use mh5,only:mh5_open_file_r,mh5_fetch_dset,mh5_close_file
+#endif
   implicit none
 
-#include "rasdim.fh"
-#include "general.fh"
-
-  real(kind=wp),Dimension(*) :: CMO
-  integer(kind=iwp),dimension(30) :: IADR19
+  real(kind=wp),intent(out) :: CMO(*)
   logical(kind=iwp) :: Found
-  integer(kind=iwp) :: i,iad19,ijob,iprlev
+  integer(kind=iwp) :: IADR19(30),i,iad19,ijob,iprlev
 
 #ifdef _HDF5_
   integer(kind=iwp) mh5id

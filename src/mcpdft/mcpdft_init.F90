@@ -15,8 +15,8 @@
 !>   Determine whether orbital files should be read, etc.
 !>
 !> @details
-!> Sets values in common blocks in general.fh, timers.fh and the module
-!> rasscf_global.F90
+!> Sets values in common blocks in timers.fh and the modules
+!> rasscf_global.F90 and general_data.F90
 !***********************************************************************
 
 subroutine mcpdft_init()
@@ -25,13 +25,11 @@ subroutine mcpdft_init()
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
   use mcpdft_output,only:set_print_level
-  use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,PreThr,TITLE, &
-                        iXSym,iTRI
+  use general_data,only:ispin,mxorb,mxsym,nactel,nelec3,nhole1,stsym,nfro,nish,nash,nrs1,nrs2,nrs3,nssh,ndel,nbas
+  use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,TITLE,iXSym,iTRI
 
   implicit none
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "timers.fh"
 
   integer(kind=iwp) :: i
@@ -62,8 +60,6 @@ subroutine mcpdft_init()
 ! weights used for average energy calculations
   WEIGHT = zero
   WEIGHT(1) = one
-! prethr: energy threshold for printout of orbitals
-  prethr = 0.15d0
 
 ! Default value for type of CASSCF (used for DFT)
   DFTFOCK = "ROKS"
@@ -90,21 +86,16 @@ subroutine mcpdft_init()
   NonEq = .False.
 
 ! set default values for orbitals
-  DO I = 1,mxSym
-    NFRO(I) = 0
-    NISH(I) = 0
-    NASH(I) = 0
-    NRS1(I) = 0
-    NRS2(I) = 0
-    NRS3(I) = 0
-    NSSH(I) = 0
-    NDEL(I) = 0
-    NBAS(I) = 0
-  ENDDO
-
-  do I = 1,mxOrb
-    IXSYM(I) = 0
-  enddo
+  nFro(:) = 0
+  nIsh(:) = 0
+  nAsh(:) = 0
+  nRs1(:) = 0
+  NRS2(:) = 0
+  NRS3(:) = 0
+  NSSH(:) = 0
+  NDEL(:) = 0
+  NBAS(:) = 0
+  ixsym(:) = 0
 
 !     Auxiliary vector ITRI(I)=I*(I-1)/2
   do I = 2,ITRIM

@@ -22,11 +22,9 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
   use constants,only:zero,one
   use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,D1aoMS,DIDA,D1SAOMS
   use rasscf_global,only:lroots,NACPR2,nTot4
+  use general_data,only:ispin,nsym,ntot1,nbas
 
   implicit none
-
-#include "rasdim.fh"
-#include "general.fh"
 
   real(kind=wp),intent(in) :: si_pdft(lroots,lroots)
   integer(kind=iwp),intent(in) :: states(2)

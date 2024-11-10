@@ -12,16 +12,15 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 subroutine close_files_mcpdft()
+  use definitions,only:iwp,u6
   use Fock_util_global,only:docholesky
-  use mcpdft_output,only:lf
+  use general_data,only:jobiph,jobold,luintm
 
   implicit none
 
-  integer :: return_code,iOpt
-
-#include "rasdim.fh"
-#include "general.fh"
 #include "warnings.h"
+
+  integer(kind=iwp) :: return_code,iOpt
 
   !---  close the JOBOLD file -------------------------------------------*
   If(JOBOLD > 0 .and. JOBOLD /= JOBIPH) Then
@@ -51,8 +50,8 @@ subroutine close_files_mcpdft()
   iOpt = 0
   call clsone(return_code,iOpt)
   if(return_code /= _RC_ALL_IS_WELL_) then
-    write(lf,*) "Error when trying to close the one-electron"
-    write(lf,*) "integral file."
+    write(u6,*) "Error when trying to close the one-electron"
+    write(u6,*) "integral file."
     call abend()
   endif
   Return

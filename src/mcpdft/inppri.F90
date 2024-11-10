@@ -25,10 +25,9 @@ subroutine InpPri_m()
   use definitions,only:iwp,wp,u6
   use rasscf_global,only:NAC,NFR,NIN,NONEQ,NROOTS,NSEC,Tot_Charge,tot_el_charge, &
                           tot_nuc_charge,header
+  use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,ntot1,stsym,nssh
   implicit none
 
-#include "rasdim.fh"
-#include "general.fh"
   Character(len=8) :: Fmt1,Fmt2,Label
   Character(len=120) :: Line
   Character(len=3),dimension(8) :: lIrrep

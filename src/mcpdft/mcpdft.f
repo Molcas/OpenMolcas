@@ -43,7 +43,8 @@
       use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: FockOcc, TUVX, FI, FA
+      use wadr, only: FockOcc
+      use general_data,only:ntot1,ntot2
       use rasscf_global, only: ExFac, IPR,
      &                         lRoots, lSquare, NACPR2,
      &                         nFint
@@ -51,15 +52,12 @@
       Implicit None
 
       integer(kind=iwp), intent(out) :: iReturn
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
 #include "timers.fh"
 
-
-      logical :: dscf
-      real(kind=wp), allocatable :: Ref_E(:), PUVX(:), D1I(:), D1A(:)
-      real(kind=wp), allocatable :: cmo(:)
+      logical(kind=iwp) :: dscf
+      real(kind=wp), allocatable :: ref_e(:), PUVX(:), D1I(:), D1A(:)
+      real(kind=wp), allocatable :: cmo(:), FI(:), FA(:), tuvx(:)
       Real(kind=wp) :: dum1, dum2, dum3
       integer(kind=iwp) :: iPrLev, iRC, state
 
@@ -124,8 +122,8 @@
 
 
 ! - Read in the CASSCF Energy from JOBIPH file.
-      Call mma_allocate(Ref_E,lroots,Label='Ref_E')
-      Ref_E(:)=0.0D0
+      Call mma_allocate(ref_e,lroots,Label='Ref_E')
+      ref_e(:)=0.0D0
       call ref_energy(ref_e,lroots)
 
 ! Transform two-electron integrals and compute at the same time
@@ -167,10 +165,10 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(CMO,Ref_E)
+      Call MSCtl(CMO,ref_e)
       Call mma_deallocate(CMO)
 
-      ! I guess Ref_E now holds the MC-PDFT energy for each state??
+      ! I guess ref_e now holds the MC-PDFT energy for each state??
 
       If(mcpdft_options%wjob .and.(.not.mcpdft_options%mspdft)) then
         Call writejob(ref_e)
@@ -209,7 +207,7 @@
 
 ! Release  some memory allocations
       Call mma_deallocate(FockOcc)
-      call mma_deallocate(Ref_E)
+      call mma_deallocate(ref_e)
 
 
       Call StatusLine('MCPDFT:','Finished.')

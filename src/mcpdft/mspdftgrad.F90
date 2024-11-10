@@ -19,7 +19,6 @@ module mspdftgrad
   real(kind=wp),allocatable :: F1MS(:,:),F2MS(:,:),FocMS(:,:),FxyMS(:,:),P2Mot(:,:),D1AOMS(:,:),DiDa(:,:),D1SaoMS(:,:)
 
   public :: F1MS,F2MS,FocMS,FxyMS,P2Mot,D1AOMS,DiDa,D1SAoMS
-
   public :: mspdftgrad_init,mspdftgrad_free
 
 contains
@@ -29,10 +28,8 @@ contains
     use stdalloc,only:mma_allocate
     use rasscf_global,only:nroots,nacpr2,nTot4
     use mcpdft_input,only:mcpdft_options
+    use general_data,only:ispin,ntot1
     implicit none
-
-#include "rasdim.fh"
-#include "general.fh"
 
     call mma_allocate(F1MS,nTot1,nRoots,label="F1MS")
     call mma_allocate(F2MS,NacPR2,nRoots,label="F2MS")

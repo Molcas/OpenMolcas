@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
+      use definitions,only:wp
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use UnixInfo, only: SuperName
@@ -18,6 +19,12 @@
       use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2,
      &                         NFR, NIN, NO2M, NORBT, NROOTS, NSEC,
      &                         nTot3, nTot4, Weight
+      use general_data,only:norb,nash,nssh,ndel,nish,nfro,nrs3,
+     &                      nrs2,nrs1,nbas,nconf,nelec3,nhole1,
+     &                      nactel,stsym,ispin,ntotsp,ntot2,ntot1,nsym,
+     &                      ndelt,mxsym,mxorb,lenin8,invec,jobiph,
+     &                      mxtit,jobold,mxroot,nfrot,nrs1t,nrs2t,nrs3t,
+     &                      ntot
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
@@ -27,11 +34,9 @@
 #endif
       implicit none
 
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
 
-      Real*8 potnucdummy
+      Real(kind=wp) potnucdummy
       logical lExists, RunFile_Exists
       integer, external :: isFreeUnit
       logical, external :: Langevin_On, PCM_On
