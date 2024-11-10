@@ -11,7 +11,16 @@
 ! Copyright (C) 2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 
-subroutine ao2mo(cmo,d_ao,d_mo)
+!> @brief transforms 1 particle matrix from AO to MO
+!>
+!> @author Matthew R. Hennefarth
+!>
+!> @param[in] cmo MO coefficients
+!>
+!> @param[in] d_ao unscaled, folded 1 particle matrix in AO basis
+!>
+!> @param[out] d_mo unscaled, folded 1 particle matrix in MO basis
+subroutine ao2mo_1particle(cmo,d_ao,d_mo)
   use definitions,only:iwp,wp
   use constants,only:one,zero
   use stdalloc,only:mma_allocate,mma_deallocate
@@ -26,7 +35,7 @@ subroutine ao2mo(cmo,d_ao,d_mo)
   integer(kind=iwp) :: ioff1,ioff2,ioff3,isym,ibas,iorb,ifro
   real(kind=wp),allocatable :: tmp1(:),tmp2(:)
 
-!     transform FA from AO to MO basis
+  ! transform FA from AO to MO basis
   iOff1 = 1
   iOff2 = 1
   iOff3 = 1
@@ -41,13 +50,13 @@ subroutine ao2mo(cmo,d_ao,d_mo)
     Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
     Call Square(d_ao(iOff1),Tmp1,1,iBas,iBas)
     Call DGEMM_('N','N',iBas,iOrb,iBas, &
-                1.0d0,Tmp1,iBas, &
+                one,Tmp1,iBas, &
                 CMO(iOff2+(iFro*iBas)),iBas, &
-                0.0d0,Tmp2,iBas)
+                zero,Tmp2,iBas)
     Call DGEMM_Tri('T','N',iOrb,iOrb,iBas, &
-                   1.0D0,Tmp2,iBas, &
+                   one,Tmp2,iBas, &
                    CMO(iOff2+(iFro*iBas)),iBas, &
-                   0.0D0,d_mo(iOff3),iOrb)
+                   zero,d_mo(iOff3),iOrb)
     Call mma_deallocate(Tmp2)
     Call mma_deallocate(Tmp1)
     iOff1 = iOff1+(iBas*iBas+iBas)/2

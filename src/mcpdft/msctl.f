@@ -367,7 +367,7 @@
 
 ! Sets ECAS to VIA + VAA + EMY
 ! Also transforms FockI and FockA to MO basis
-         Call Fmat_m(CMO,D1ActAO,Focki,FockA)
+         Call Fmat_m(D1ActAO,Focki,FockA)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
@@ -410,8 +410,12 @@
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
 
+        ! transform Fock elements from AO to MO basis
          call mma_allocate(fock,ntot4,label='Fock')
          call mma_allocate(Q,nq,label='Q')
+
+        call ao2mo_1particle(cmo,focki,focki)
+        call ao2mo_1particle(cmo,focka,focka)
 
         ! This computes the 2-body interaction term (and updates)
         ! ECAS will have the correct value...
