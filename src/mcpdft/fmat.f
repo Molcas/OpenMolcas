@@ -122,33 +122,8 @@ C Local print level (if any)
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
-!     transform FA from AO to MO basis
-      iOff1 = 1
-      iOff2 = 1
-      iOff3 = 1
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        If (iBas==0) Cycle
-        iOrb = nOrb(iSym)
-        If (iOrb==0) Cycle
-        iFro = nFro(iSym)
-        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
-        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
-        Call Square(FA(iOff1),Tmp1,1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Tmp1,iBas,
-     &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Tmp2,iBas)
-        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                 1.0D0,Tmp2,iBas,
-     &                       CMO(iOff2+(iFro*iBas)),iBas,
-     &                 0.0D0,FA(iOff3),iOrb)
-        Call mma_deallocate(Tmp2)
-        Call mma_deallocate(Tmp1)
-        iOff1 = iOff1 + (iBas*iBas+iBas)/2
-        iOff2 = iOff2 + iBas*iBas
-        iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
-      End Do
+! transform FA from AO to MO basis
+      call ao2mo(cmo,fa,fa)
 
 !     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
