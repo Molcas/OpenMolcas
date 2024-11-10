@@ -28,7 +28,7 @@
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
       use wadr, only: FockOcc
-      use rasscf_global, only: DFTFOCK, ECAS, EMY, nRoots, ExFac,
+      use rasscf_global, only: DFTFOCK, ECAS, nRoots, ExFac,
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
      &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
@@ -45,7 +45,7 @@
       Logical First, Dff, Do_DFT,Found
 
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
-     &                      Tmp2(:), Tmp3(:), Tmp4(:),
+     &                      Tmp3(:), Tmp4(:),
      &                      Tmp5(:), Tmp6(:), Tmp7(:),
      &                      core_dm1(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
@@ -58,8 +58,8 @@
       integer(kind=iwp) :: IADR19(1:30)
       integer(kind=iwp) :: jroot,NQ
       integer(kind=iwp) :: isym
-      integer(kind=iwp) :: i, iBas, iCharge, iComp
-      integer(kind=iwp) :: iOff, iOpt,  iPrLev
+      integer(kind=iwp) :: i, iCharge, iComp
+      integer(kind=iwp) :: iOpt,  iPrLev
       integer(kind=iwp) :: irc, iSA, iSyLbl
       integer(kind=iwp) :: lutmp, niaia
 
@@ -67,7 +67,6 @@
       real(kind=wp), external :: ddot_
 
       real(kind=wp) :: casdft_e, casdft_funct
-      real(kind=wp) :: Eone, Etwo
 
       real(kind=wp) :: Energies(nroots)
       real(kind=wp),allocatable :: int1e_ovlp(:), hcore(:)
@@ -316,41 +315,8 @@
 
       call mma_deallocate(tuvx_tmp)
 
-      If ( IPRLEV.ge.DEBUG ) then
-        Write(LF,*)
-        Write(LF,*) ' FI matrix in CASDFT_Terms only 2-electron terms'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
-        iOff=1
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',FockI(iOff),iBas)
-          iOff = iOff + (iBas*iBas+iBas)/2
-        End Do
-      End If
-
-!**********************************************************
-!     Compute energy contributions
-!**********************************************************
-      call mma_allocate(tmp2,ntot1,Label="Tmp2")
-      Call Fold(nSym,nBas,core_dm1,Tmp2)
-
-      Eone = dDot_(nTot1,Tmp2,1,hcore,1)
-      Eone = Eone + PotNuc
-      Etwo = dDot_(nTot1,Tmp2,1,FockI,1)
-
-      EMY  = Eone+0.5d0*Etwo
-
-      If ( IPRLEV.ge.DEBUG ) then
-       Write(LF,'(4X,A35,F18.8)')
-     &  'Nuclear repulsion energy :',PotNuc
-       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
-       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
-       Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
-      End If
 
          call energy_mcwfn(tmp3,hcore,focki+focka,PotNuc,ecas)
-        focki(:) = focki(:) + hcore(:)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
@@ -397,6 +363,7 @@
          call mma_allocate(fock,ntot4,label='Fock')
          call mma_allocate(Q,nq,label='Q')
 
+        focki(:) = focki(:) + hcore(:)
         call ao2mo_1particle(cmo,focki,focki)
         call ao2mo_1particle(cmo,focka,focka)
 
@@ -557,7 +524,6 @@
     ! this allocation/deallocation could be done outside the root loop
       call mma_deallocate(puvx)
 
-      Call mma_deallocate(Tmp2)
       end do !loop over roots
 
       if(mcpdft_options%grad) then
