@@ -31,7 +31,7 @@
       use rasscf_global, only: DFTFOCK, nRoots, ExFac,
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
-     &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
+     &                         nTot4, PotNuc,
      &                         Tot_Nuc_Charge, ISTORP
       implicit none
 
@@ -61,7 +61,7 @@
       integer(kind=iwp) :: i, iCharge, iComp
       integer(kind=iwp) :: iOpt,  iPrLev
       integer(kind=iwp) :: irc, iSA, iSyLbl
-      integer(kind=iwp) :: lutmp, niaia
+      integer(kind=iwp) :: lutmp, niaia, tot_el_charge
 
       integer(kind=iwp), External:: IsFreeUnit
       real(kind=wp), external :: ddot_, energy_mcwfn
@@ -94,7 +94,7 @@
       Tot_Nuc_Charge=int1e_ovlp(size(int1e_ovlp))
       call mma_deallocate(int1e_ovlp)
       Tot_El_Charge=-2*sum(nFro+nIsh)-nActEl
-      Tot_Charge=Tot_Nuc_Charge+dble(Tot_El_Charge)
+      icharge = nint(Tot_Nuc_Charge)+Tot_El_Charge
 
 
 !**********************************************************
@@ -271,7 +271,6 @@
         Call Put_iArray('nAsh',nAsh,nSym)
         Call Put_iArray('nIsh',nIsh,nSym)
 
-        iCharge=Int(Tot_Charge)
 
       do_pdftPot=.false.
       if (mcpdft_options%grad .and.
