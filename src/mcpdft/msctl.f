@@ -28,7 +28,7 @@
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
       use wadr, only: FockOcc
-      use rasscf_global, only: DFTFOCK, ECAS, nRoots, ExFac,
+      use rasscf_global, only: DFTFOCK, nRoots, ExFac,
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
      &                         nTot4, PotNuc, Tot_Charge, Tot_El_Charge,
@@ -47,8 +47,8 @@
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
      &                      Tmp3(:), Tmp4(:),
      &                      Tmp5(:), Tmp6(:), Tmp7(:),
-     &                      core_dm1(:), D1Act(:),
-     &                      FockA(:), D1ActAO(:), D1SpinAO(:),
+     &                      dm1_core(:), casdm1(:),
+     &                      FockA(:), dm1_cas(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
@@ -64,9 +64,9 @@
       integer(kind=iwp) :: lutmp, niaia
 
       integer(kind=iwp), External:: IsFreeUnit
-      real(kind=wp), external :: ddot_
+      real(kind=wp), external :: ddot_, energy_mcwfn
 
-      real(kind=wp) :: casdft_e, casdft_funct
+      real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
 
       real(kind=wp) :: Energies(nroots)
       real(kind=wp),allocatable :: int1e_ovlp(:), hcore(:)
@@ -116,8 +116,8 @@
       Endif
 
 !Here we calculate the D1 Inactive matrix (AO).
-      call mma_allocate(core_dm1,ntot2,label="D1Inact")
-      Call Get_D1I_RASSCF(CMO,core_dm1)
+      call mma_allocate(dm1_core,ntot2,label="dm1_core")
+      Call Get_D1I_RASSCF(CMO,dm1_core)
 
       iJOB=0
       IAD19=0
@@ -138,8 +138,8 @@
       IADR15 = IADR19
       dmDisk = IADR19(3)
 
-      Call mma_allocate(D1Act,NACPAR,Label='D1Act')
-      Call mma_allocate(D1ActAO,NTOT2,Label='D1ActAO')
+      Call mma_allocate(casdm1,NACPAR,Label='casdm1')
+      Call mma_allocate(dm1_cas,NTOT2,Label='dm1_cas')
       Call mma_allocate(D1Spin,NACPAR,Label='D1Spin')
       Call mma_allocate(D1SpinAO,NTOT2,Label='D1SpinAO')
 
@@ -172,8 +172,8 @@
         Lapl_b2 = Zero
 
 !Read in the density matrices for <jroot>.
-        D1Act(:)=0.0D0
-        D1ActAO(:)=0.0D0
+        casdm1(:)=0.0D0
+        dm1_cas(:)=0.0D0
         D1Spin(:)=0.0D0
         D1SpinAO(:)=0.0D0
         Tmp3(:)=0.0D0
@@ -184,21 +184,21 @@
 !most easily read from the previous JOBIPH file.  Then, convert D1A from
 !the MO to the AO basis.
 
-        Call DDaFile(JOBOLD,2,D1Act,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,casdm1,NACPAR,dmDisk)
 
         if(mcpdft_options%grad) then
           if(mcpdft_options%mspdft) then
-            Call P2_contraction(D1Act,P2MOt(:,jroot))
+            Call P2_contraction(casdm1,P2MOt(:,jroot))
           else if (jroot .eq. mcpdft_options%rlxroot) then
             Call mma_allocate(P2t,NACPR2,Label='P2t')
             P2t(:)=0.0D0
-            Call P2_contraction(D1Act,P2t)
+            Call P2_contraction(casdm1,P2t)
             Call Put_dArray('P2MOt',P2t,NACPR2)
             Call mma_deallocate(P2t)
           end if
         end if
 
-        Call Put_dArray('D1mo',D1Act,NACPAR)
+        Call Put_dArray('D1mo',casdm1,NACPAR)
         Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
         Call Put_dArray('P2mo',P2d,NACPR2)
@@ -212,11 +212,11 @@
 ! Generate total density
 !**********************************************************
 
-         If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
-         Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
+         If(NASH(1).ne.NAC) Call DBLOCK(casdm1)
+         Call Get_D1A_RASSCF(CMO,casdm1,dm1_cas)
 
-         Call Fold(nSym,nBas,core_dm1,Tmp3)
-         Call Fold(nSym,nBas,D1ActAO,Tmp4)
+         Call Fold(nSym,nBas,dm1_core,Tmp3)
+         Call Fold(nSym,nBas,dm1_cas,Tmp4)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
          Call Dcopy_(nTot1,Tmp4,1,DIDA(:,iIntS),1)
@@ -309,16 +309,16 @@
     ! focki is a constant but, if we have to recalculate it,
     ! why store it in memory.
          CALL TRACTL2(cmo,PUVX,TUVX_tmp,
-     &                core_dm1,focki,
-     &                D1ActAO,focka,
+     &                dm1_core,focki,
+     &                dm1_cas,focka,
      &                IPR,lSquare,ExFac)
 
       call mma_deallocate(tuvx_tmp)
 
 
-         call energy_mcwfn(tmp3,hcore,focki+focka,PotNuc,ecas)
+      e_mcscf = energy_mcwfn(tmp3,hcore,focki+focka,PotNuc)
 
-         CASDFT_E = ECAS+CASDFT_Funct
+         CASDFT_E = e_mcscf+CASDFT_Funct
 
         IF(mcpdft_options%otfnal%is_hybrid()) THEN
             E_NoHyb=CASDFT_E
@@ -326,7 +326,7 @@
      &            (1.0-mcpdft_options%otfnal%lambda) * E_NoHyb
         END IF
 
-        Call Print_MCPDFT_2(CASDFT_E,PotNuc,ECAS,CASDFT_Funct,
+        Call Print_MCPDFT_2(CASDFT_E,PotNuc,e_mcscf,CASDFT_Funct,
      &         jroot,Ref_Ener)
 
 
@@ -345,7 +345,7 @@
       if(mcpdft_options%grad) then
         IF(ISTORP(NSYM+1).GT.0) THEN
            call mma_allocate(P,ISTORP(NSYM+1),Label='P')
-           call DmatDmat(D1Act,P)
+           call DmatDmat(casdm1,P)
         else
           call mma_allocate(P,1,Label='P')
          END IF
@@ -369,7 +369,7 @@
 
         ! This computes the 2-body interaction term (and updates)
         ! ECAS will have the correct value...
-         CALL FOCK_m(FOCK,FockI,FockA,D1Act,P,Q,PUVX)
+         CALL FOCK_m(FOCK,FockI,FockA,casdm1,P,Q,PUVX)
 
          call mma_deallocate(Q)
 
@@ -483,7 +483,7 @@
 
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-         CALL FOCK_update(FOCK,FockI,FockA,D1Act,P,
+         CALL FOCK_update(FOCK,FockI,FockA,casdm1,P,
      &                    Q,OnTopT,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
@@ -513,7 +513,7 @@
 !      doing exactly the same thing as done in the previous chunck
 !      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 !      Hopefully this code will be neater.
-       call savefock_pdft(CMO,FockA,D1Act,Fock,NQ,p2d,jroot)
+       call savefock_pdft(CMO,FockA,casdm1,Fock,NQ,p2d,jroot)
       end if
 
       call mma_deallocate(fock)
@@ -529,23 +529,23 @@
       if(mcpdft_options%grad) then
         dmDisk = IADR19(3)
         do jroot=1,mcpdft_options%rlxroot-1
-          Call DDaFile(JOBOLD,0,D1Act,NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,casdm1,NACPAR,dmDisk)
           Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
         end do
-        Call DDaFile(JOBOLD,2,D1Act,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,casdm1,NACPAR,dmDisk)
 !        Andrew added this line to fix heh2plus
         Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
-        Call Put_dArray('D1mo',D1Act,NACPAR)
+        Call Put_dArray('D1mo',casdm1,NACPAR)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
         Call Put_dArray('P2mo',P2d,NACPR2)
 
-         If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
-         Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
+         If(NASH(1).ne.NAC) Call DBLOCK(casdm1)
+         Call Get_D1A_RASSCF(CMO,casdm1,dm1_cas)
 
-         Call Fold(nSym,nBas,core_dm1,Tmp3)
-         Call Fold(nSym,nBas,D1ActAO,Tmp4)
+         Call Fold(nSym,nBas,dm1_core,Tmp3)
+         Call Fold(nSym,nBas,dm1_cas,Tmp4)
          Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
          Call Put_dArray('D1ao',Tmp3,nTot1)
 
@@ -571,15 +571,15 @@
       Call mma_deallocate(Tmp4)
       Call mma_deallocate(Tmp3)
 
-      Call mma_deallocate(D1Act)
-      Call mma_deallocate(D1ActAO)
+      Call mma_deallocate(casdm1)
+      Call mma_deallocate(dm1_cas)
       Call mma_deallocate(D1Spin)
       Call mma_deallocate(D1SpinAO)
       call mma_deallocate(hcore)
       Call mma_deallocate(FockI)
       Call mma_deallocate(FockA)
       Call mma_deallocate(P2D)
-      Call mma_deallocate(core_dm1)
+      Call mma_deallocate(dm1_core)
 
       If (Allocated(FuncExtParams)) Call mma_deallocate(FuncExtParams)
 

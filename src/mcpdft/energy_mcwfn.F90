@@ -9,7 +9,7 @@
 !                                                                      *
 ! Copyright (C) 2024, Matthew R. Hennefarth                            *
 !***********************************************************************
-subroutine energy_mcwfn(dm1,h1e,vj,energy_nuc,e_mcwfn)
+function energy_mcwfn(dm1,h1e,vj,energy_nuc)
   use definitions,only:wp,u6
   use printlevel,only:debug
   use constants,only:half
@@ -20,7 +20,7 @@ subroutine energy_mcwfn(dm1,h1e,vj,energy_nuc,e_mcwfn)
 #include "general.fh"
 
   real(kind=wp),intent(in) :: dm1(*),h1e(*),vj(*),energy_nuc
-  real(kind=wp),intent(out) :: e_mcwfn
+  real(kind=wp) :: energy_mcwfn
 
   real(kind=wp),external :: ddot_
 
@@ -35,6 +35,6 @@ subroutine energy_mcwfn(dm1,h1e,vj,energy_nuc,e_mcwfn)
     write(u6,*) 'E_j',e_j
   endif
 
-  e_mcwfn = energy_nuc+te_vne+e_j
+  energy_mcwfn = energy_nuc+te_vne+e_j
 
-endsubroutine
+end function
