@@ -21,7 +21,7 @@
       use mspdftgrad,only:P2MOT,D1aoMS,DIDA,D1SaoMS
       use mspdft, only: iIntS
       use printlevel, only: debug
-      use mcpdft_output, only: lf, iPrLoc
+      use mcpdft_output, only:iPrLoc
       use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
@@ -346,7 +346,7 @@
        if((.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
-         Write(LF,*) 'Calculating potentials for analytic gradients...'
+         Write(u6,*) 'Calculating potentials for analytic gradients...'
 
         IF(ISTORP(NSYM+1).GT.0) THEN
            call mma_allocate(P,ISTORP(NSYM+1),Label='P')
@@ -386,7 +386,7 @@
       CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
       Call Get_dArray('FI_V',FI_V,NTOT1)
 
-      call ao2mo_1particle(cmo,hcore(:)+coul(:),
+      call ao2mo_1e(cmo,hcore(:)+coul(:),
      &       focki,nsym,nbas,norb,nfro)
       fi_v(:) = fi_v(:) + ontopo(:) + focki(:)
 
@@ -412,13 +412,13 @@
       Call Get_dArray('FA_V',FA_V,NTOT1)
 
       If ( IPRLEV.ge.DEBUG ) then
-      write(6,*) "extra terms to update FI"
+      write(u6,*) "extra terms to update FI"
       do i=1,ntot1
-        write(6,*) FI_V(i)
+        write(u6,*) FI_V(i)
       end do
-      write(6,*) "extra terms to update FA"
+      write(u6,*) "extra terms to update FA"
       do i=1,ntot1
-        write(6,*) FA_V(i)
+        write(u6,*) FA_V(i)
       end do
         end if
 

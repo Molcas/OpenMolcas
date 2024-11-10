@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
 !This subroutine is supposed to add the dft portions of the mcpdft fock
 !matrix to the Fock matrix pieces that have already been built for the
@@ -26,9 +26,10 @@
 ! interaction matrix.
 !
 !      ********** IBM-3090 MOLCASs Release: 90 02 22 **********
+      use definitions,only:u6
       use printlevel, only: debug
       use mspdft, only: iIntS
-      use mcpdft_output, only: lf, iPrLoc
+      use mcpdft_output, only:iPrLoc
       use mspdftgrad,only:FxyMS
       use mcpdft_input, only: mcpdft_options
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -45,14 +46,14 @@
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
       Integer iPrLev
       Real*8 CSX, E2eP, QNTM
-      Integer i, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP,
+      Integer ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP,
      &        iSym, JSTF, N1, N2, NAO, NEO, NI, NIO, NM, NO, NO2,
      &        NOR, NP, NT, NTM, NTT, NTV, NUVX, NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
+        WRITE(u6,*)' Entering ',ROUTINE
       END IF
 
       Call mma_allocate(TF,NTOT4,Label='TF')
@@ -175,28 +176,13 @@ c
       END DO
 
 
-c
-C
-c     Calculate Fock matrix for occupied orbitals.
-C
+! Calculate Fock matrix for occupied orbitals.
 
-      If ( iPrLev.ge.DEBUG ) then
-      write(6,*) 'old fock terms:'
-      do i=1,Ntot4
-        write(6,*) F(i)
-      end do
-      write(6,*) 'new fock terms to add:'
-      do i=1,Ntot4
-        write(6,*) TF(i)
-      end do
-      call xflush(6)
-      end if
       Call DAXPY_(NTOT4,1.0d0,TF,1,F,1)
-!      write(*,*) 'added new fock terms to old fock matrix'
 !I am going to add the Fock matrix temporarily to the Runfile.  I don't
 !want to construct it again in MCLR in the case of gradients.
       If ( iPrLev.ge.DEBUG ) then
-        Write(LF,'(A)')' MCSCF Fock-matrix in MO-basis'
+        Write(u6,'(A)')' MCSCF Fock-matrix in MO-basis'
         ipFMCSCF=1
         Do iSym=1,nSym
            nOr=nOrb(iSym)

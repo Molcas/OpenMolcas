@@ -38,7 +38,7 @@ module ontop_functional
 contains
 
   type(OTFNAL_t) function new(otxc,lambda)
-    use mcpdft_output,only:lf
+    use definitions,only:u6
     implicit none
 
     real(kind=wp),intent(in) :: lambda
@@ -50,12 +50,12 @@ contains
 
     if(.not. valid_otxc(new%otxc)) then
       call warningmessage(2,"Wrong on-top functional for MC-PDFT")
-      write(lf,*) ' ************* ERROR **************'
-      write(lf,*) ' Current on-top functionals are:   '
-      write(lf,*) ' T :  translated functionals       '
-      write(lf,*) ' FT:  fully translated functionals '
-      write(lf,*) ' e.g. T:PBE for tPBE functional    '
-      write(lf,*) ' **********************************'
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' Current on-top functionals are:   '
+      write(u6,*) ' T :  translated functionals       '
+      write(u6,*) ' FT:  fully translated functionals '
+      write(u6,*) ' e.g. T:PBE for tPBE functional    '
+      write(u6,*) ' **********************************'
       call abend()
     endif
 
@@ -63,39 +63,39 @@ contains
 
     if(.not.supported_functional(new%xc)) then
       call warningmessage(2,"functional type not supported")
-      write(lf,*) ' ************* ERROR **************'
-      write(lf,*) ' Type-2 meta-GGA (functionals with '
-      write(lf,*) ' orbital Laplacians as ingredients)'
-      write(lf,*) ' are not supported in MC-PDFT.     '
-      write(lf,*) ' **********************************'
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' Type-2 meta-GGA (functionals with '
+      write(u6,*) ' orbital Laplacians as ingredients)'
+      write(u6,*) ' are not supported in MC-PDFT.     '
+      write(u6,*) ' **********************************'
       call abend()
     endif
 
     if(is_hybrid_xc(new%xc)) then
       call warningmessage(2,"Hybrid functionals not supported")
-      write(lf,*) ' ************* ERROR **************'
-      write(lf,*) ' MC-PDFT does not translate hybrid '
-      write(lf,*) ' functionals. If you want to run   '
-      write(lf,*) ' hybrid MC-PDFT, use the LAMBda    '
-      write(lf,*) ' keyword instead.                  '
-      write(lf,*) '                                   '
-      write(lf,*) ' EXAMPLE:                          '
-      write(lf,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
-      write(lf,*) ' Usage:                            '
-      write(lf,*) '  KSDFT=T:PBE                      '
-      write(lf,*) '  LAMB =0.25                       '
-      write(lf,*) ' **********************************'
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' MC-PDFT does not translate hybrid '
+      write(u6,*) ' functionals. If you want to run   '
+      write(u6,*) ' hybrid MC-PDFT, use the LAMBda    '
+      write(u6,*) ' keyword instead.                  '
+      write(u6,*) '                                   '
+      write(u6,*) ' EXAMPLE:                          '
+      write(u6,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
+      write(u6,*) ' Usage:                            '
+      write(u6,*) '  KSDFT=T:PBE                      '
+      write(u6,*) '  LAMB =0.25                       '
+      write(u6,*) ' **********************************'
       call abend()
     endif
 
     if (is_ft_meta(new%otxc)) then
       call warningmessage(2,"fully translated meta-GGA not supported")
-      write(lf,*) ' ************* ERROR **************'
-      write(lf,*) ' meta-GGA functional is currently  '
-      write(lf,*) ' not compatible with full transla- '
-      write(lf,*) ' tion as the full translation of   '
-      write(lf,*) ' kinetic energy is not developed   '
-      write(lf,*) ' **********************************'
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' meta-GGA functional is currently  '
+      write(u6,*) ' not compatible with full transla- '
+      write(u6,*) ' tion as the full translation of   '
+      write(u6,*) ' kinetic energy is not developed   '
+      write(u6,*) ' **********************************'
       call abend()
     endif
 

@@ -34,13 +34,13 @@
 *                                                                      *
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
-      use definitions,only:iwp,wp
+      use definitions,only:iwp,wp,u6
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
       use mspdft, only: mspdft_finalize, heff, mspdft_init
       use printlevel, only: terse, debug, insane
-      use mcpdft_output, only: lf, iPrLoc
+      use mcpdft_output, only: iPrLoc
       use mspdft_util, only: replace_diag
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: FockOcc
@@ -91,7 +91,7 @@
       If (iRc.ne._RC_ALL_IS_WELL_) Then
         If (IPRLEV.ge.TERSE) Then
           Call WarningMessage(2,'Input processing failed.')
-          write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
+          write(u6,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
         End If
         IRETURN=iRc
         Return
@@ -182,7 +182,7 @@
         Call Put_cArray('Relax Method','MCPDFT  ',8)
         if(iprlev >= terse) then
         do state=1,lroots
-          call PrintResult(lf,'(6X,A,I3,A,F16.8)',
+          call PrintResult(u6,'(6X,A,I3,A,F16.8)',
      &          'MCPDFT root number',state,
      &          ' Total energy:',[ref_e(state)],1)
         enddo
@@ -200,8 +200,8 @@
       if (DoCholesky)then
          Call Cho_X_Final(irc)
          if (irc.ne.0) then
-           Write(LF,*)'MC-PDFT: Cho_X_Final fails with return code ',irc
-           Write(LF,*)' Try to recover. Calculation continues.'
+           Write(u6,*)'MC-PDFT: Cho_X_Final fails with return code ',irc
+           Write(u6,*)' Try to recover. Calculation continues.'
          endif
       endif
 
@@ -211,7 +211,7 @@
 
 
       Call StatusLine('MCPDFT:','Finished.')
-      If (IPRLEV.GE.2) Write(LF,*)
+      If (IPRLEV.GE.2) Write(u6,*)
 
       Call Timing(dum1,dum2,Ebel_3,dum3)
       IF (IPRLEV.GE.3) THEN

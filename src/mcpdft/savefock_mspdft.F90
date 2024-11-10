@@ -45,7 +45,7 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   IPRLEV = IPRLOC(3)
 
   h1e(:) = hcore(:ntot1)+coul(:ntot1)
-  call ao2mo_1particle(cmo,h1e,h1e,nsym,nbas,norb,nfro)
+  call ao2mo_1e(cmo,h1e,h1e,nsym,nbas,norb,nfro)
 
   ! loading one-electron potential and two-electron potential
   ! Used as F1 and F2 in equations 58 and 59 in Ref1.

@@ -23,7 +23,7 @@
 !> @param[in] nFro number of frozen orbitals per symmetry group
 !>
 !> @param[out] d_mo unscaled, folded 1 particle integral matrix in MO basis
-subroutine ao2mo_1particle(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
+subroutine ao2mo_1e(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
   use definitions,only:iwp,wp
   use constants,only:one,zero
   use stdalloc,only:mma_allocate,mma_deallocate
