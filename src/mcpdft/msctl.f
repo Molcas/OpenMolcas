@@ -36,7 +36,7 @@
       implicit none
 
       real(kind=wp) :: Ref_Ener(*)
-      real(kind=wp) :: CMO(*)
+      real(kind=wp),intent(in) :: CMO(*)
 
 #include "rasdim.fh"
 #include "general.fh"
@@ -45,11 +45,11 @@
       Logical First, Dff, Do_DFT,Found
 
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
-     &                      Tmp3(:), Tmp4(:),
-     &                      Tmp5(:), Tmp6(:), Tmp7(:),
+     &                      Tmp3(:), folded_dm1_cas(:),
+     &                      dummy1(:), dummy2(:), Tmp7(:),
      &                      dm1_core(:), casdm1(:),
-     &                      FockA(:), dm1_cas(:), D1SpinAO(:),
-     &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
+     &                      FockA(:), dm1_cas(:), dm1s_cas(:),
+     &                      casdm1s(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
      &                      P(:), FOCK(:), Q(:)
@@ -140,11 +140,11 @@
 
       Call mma_allocate(casdm1,NACPAR,Label='casdm1')
       Call mma_allocate(dm1_cas,NTOT2,Label='dm1_cas')
-      Call mma_allocate(D1Spin,NACPAR,Label='D1Spin')
-      Call mma_allocate(D1SpinAO,NTOT2,Label='D1SpinAO')
+      Call mma_allocate(casdm1s,NACPAR,Label='casdm1s')
+      Call mma_allocate(dm1s_cas,NTOT2,Label='dm1s_cas')
 
       Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
-      Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
+      Call mma_allocate(folded_dm1_cas,nTot1,Label='folded_dm1_cas')
       Call mma_allocate(P2d,NACPR2,Label='P2D')
 
 
@@ -174,10 +174,10 @@
 !Read in the density matrices for <jroot>.
         casdm1(:)=0.0D0
         dm1_cas(:)=0.0D0
-        D1Spin(:)=0.0D0
-        D1SpinAO(:)=0.0D0
+        casdm1s(:)=0.0D0
+        dm1s_cas(:)=0.0D0
         Tmp3(:)=0.0D0
-        Tmp4(:)=0.0D0
+        folded_dm1_cas(:)=0.0D0
         P2D(:)=0.0D0
 
 !Get the D1 Active matrix for this state.  These should probably be
@@ -199,7 +199,7 @@
         end if
 
         Call Put_dArray('D1mo',casdm1,NACPAR)
-        Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,casdm1s,NACPAR,dmDisk)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
         Call Put_dArray('P2mo',P2d,NACPR2)
 
@@ -216,14 +216,14 @@
          Call Get_D1A_RASSCF(CMO,casdm1,dm1_cas)
 
          Call Fold(nSym,nBas,dm1_core,Tmp3)
-         Call Fold(nSym,nBas,dm1_cas,Tmp4)
+         Call Fold(nSym,nBas,dm1_cas,folded_dm1_cas)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
-         Call Dcopy_(nTot1,Tmp4,1,DIDA(:,iIntS),1)
+         Call Dcopy_(nTot1,folded_dm1_cas,1,DIDA(:,iIntS),1)
          if (iIntS.eq.lRoots)
      &   Call Dcopy_(ntot1,Tmp3,1,DIDA(:,lRoots+1),1)
       end if
-         Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
+         Call Daxpy_(nTot1,1.0D0,folded_dm1_cas,1,Tmp3,1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
@@ -237,12 +237,12 @@
 ! Generate spin-density
 !**********************************************************
          if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,[0.0d0],0,D1SpinAO,1)
+            dm1s_cas(:) = zero
          end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
-         Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(casdm1s)
+         Call Get_D1A_RASSCF(CMO,casdm1s,dm1s_cas)
          Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
-         Call Fold(nSym,nBas,D1SpinAO,Tmp7)
+         Call Fold(nSym,nBas,dm1s_cas,Tmp7)
          Call Put_dArray('D1sao',Tmp7,nTot1)
          IF(iSpin.ne.1.and. mcpdft_options%grad
      &      .and.mcpdft_options%mspdft) THEN
@@ -258,11 +258,11 @@
 !the AO to MO transformation on the grid.  It seems like perhaps we are
 !doing redundant transformations by retransforming AOs (which may have
 !been included in a previous batch) into MOs.
-! iTmp5 and iTmp6 are not updated in DrvXV...
-        Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
-        Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
-        Tmp5(:)=0.0D0
-        Tmp6(:)=0.0D0
+! dummy1 and dummy2 are not updated in DrvXV...
+        Call mma_allocate(dummy1,nTot1,Label='dummy1')
+        Call mma_allocate(dummy2,nTot1,Label='dummy2')
+        dummy1(:)=0.0D0
+        dummy2(:)=0.0D0
         First=.True.
         Dff=.False.
         Do_DFT=.True.
@@ -282,13 +282,13 @@
 
       end if
 
-        Call DrvXV(Tmp5,Tmp6,Tmp3,
+        Call DrvXV(dummy1,dummy2,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
      &             DFTFOCK,Do_DFT)
 
-        Call mma_deallocate(Tmp6)
-        Call mma_deallocate(Tmp5)
+        Call mma_deallocate(dummy1)
+        Call mma_deallocate(dummy2)
 
         CASDFT_Funct = 0.0D0
         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
@@ -530,13 +530,13 @@
         dmDisk = IADR19(3)
         do jroot=1,mcpdft_options%rlxroot-1
           Call DDaFile(JOBOLD,0,casdm1,NACPAR,dmDisk)
-          Call DDaFile(JOBOLD,0,D1Spin,NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,casdm1s,NACPAR,dmDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
           Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
         end do
         Call DDaFile(JOBOLD,2,casdm1,NACPAR,dmDisk)
 !        Andrew added this line to fix heh2plus
-        Call DDaFile(JOBOLD,2,D1Spin,NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,casdm1s,NACPAR,dmDisk)
         Call Put_dArray('D1mo',casdm1,NACPAR)
         Call DDaFile(JOBOLD,2,P2d,NACPR2,dmDisk)
         Call Put_dArray('P2mo',P2d,NACPR2)
@@ -545,19 +545,19 @@
          Call Get_D1A_RASSCF(CMO,casdm1,dm1_cas)
 
          Call Fold(nSym,nBas,dm1_core,Tmp3)
-         Call Fold(nSym,nBas,dm1_cas,Tmp4)
-         Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
+         Call Fold(nSym,nBas,dm1_cas,folded_dm1_cas)
+         Call Daxpy_(nTot1,1.0D0,folded_dm1_cas,1,Tmp3,1)
          Call Put_dArray('D1ao',Tmp3,nTot1)
 
 !Get the spin density matrix for open shell cases
 !**********************************************************
 ! Generate spin-density
 !**********************************************************
-           Call dcopy_(NACPAR,[Zero],0,D1SpinAO,1)
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK(D1Spin)
-         Call Get_D1A_RASSCF(CMO,D1Spin,D1SpinAO)
+           dm1s_cas(:) = zero
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(casdm1s)
+         Call Get_D1A_RASSCF(CMO,casdm1s,dm1s_cas)
          Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
-         Call Fold(nSym,nBas,D1SpinAO,Tmp7)
+         Call Fold(nSym,nBas,dm1s_cas,Tmp7)
          Call Put_dArray('D1Sao',Tmp7,nTot1)
          Call mma_deallocate(Tmp7)
 
@@ -568,13 +568,13 @@
       end if
 
 !Free up all the memory we can here, eh?
-      Call mma_deallocate(Tmp4)
+      Call mma_deallocate(folded_dm1_cas)
       Call mma_deallocate(Tmp3)
 
       Call mma_deallocate(casdm1)
       Call mma_deallocate(dm1_cas)
-      Call mma_deallocate(D1Spin)
-      Call mma_deallocate(D1SpinAO)
+      Call mma_deallocate(casdm1s)
+      Call mma_deallocate(dm1s_cas)
       call mma_deallocate(hcore)
       Call mma_deallocate(FockI)
       Call mma_deallocate(FockA)
