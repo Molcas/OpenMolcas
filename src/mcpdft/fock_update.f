@@ -48,7 +48,7 @@ C
       Character(LEN=16), Parameter:: ROUTINE='FOCK    '
       Integer iPrLev
       Real*8 CSX, E2eP, QNTM
-      Integer i, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
+      Integer i, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP,
      &        iSym, JSTF, N1, N2, NAO, NEO, NI, NIO, NM, NO, NO2,
      &        NOR, NP, NT, NTM, NTT, NTV, NUVX, NV, NVI, NVM
 
@@ -79,7 +79,6 @@ C
       ISTFP=0
       ISTD=0
       ISTBM=0
-      ISTZ=0
 
 ! A long loop over symmetry
       DO ISYM=1,NSYM

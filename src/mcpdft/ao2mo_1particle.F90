@@ -11,18 +11,18 @@
 ! Copyright (C) 2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 
-!> @brief transforms 1 particle matrix from AO to MO
+!> @brief transforms 1 particle integrals from AO to MO
 !>
 !> @author Matthew R. Hennefarth
 !>
 !> @param[in] cmo MO coefficients
-!> @param[in] d_ao unscaled, folded 1 particle matrix in AO basis
+!> @param[in] d_ao unscaled, folded 1 particle integral matrix in AO basis
 !> @param[in] nSym number of symmetry groups
 !> @param[in] nBas number of basis functions per symmetry group
 !> @param[in] nOrb number of orbitals per symmetry group
 !> @param[in] nFro number of frozen orbitals per symmetry group
 !>
-!> @param[out] d_mo unscaled, folded 1 particle matrix in MO basis
+!> @param[out] d_mo unscaled, folded 1 particle integral matrix in MO basis
 subroutine ao2mo_1particle(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
   use definitions,only:iwp,wp
   use constants,only:one,zero

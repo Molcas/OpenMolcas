@@ -22,7 +22,6 @@ Subroutine ReadVC_m(CMO)
   use mh5,only:mh5_open_file_r,mh5_fetch_dset,mh5_close_file
 #endif
   use definitions,only:wp,iwp,u6
-  use constants,only:zero
   use printlevel,only:terse,verbose,debug
   use mcpdft_output,only:iPrGlb,iPrLoc
   use mcpdft_input,only:mcpdft_options

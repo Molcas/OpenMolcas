@@ -168,12 +168,10 @@ contains
     call mma_deallocate(buffer)
     mcpdft_options%otfnal = OTFNAL_t(otxc,lambda)
 
-    if(mcpdft_options%grad .and. mcpdft_options%rlxroot == 0 .and. .not. mcpdft_options%nac) then
+    if(mcpdft_options%rlxroot == 0) then
       call get_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
     endif
-    if(mcpdft_options%rlxroot > 0) then
-      call put_iScalar('NumGradRoot',mcpdft_options%rlxroot)
-    endif
+    call put_iScalar('NumGradRoot',mcpdft_options%rlxroot)
 
     call verify_input()
 
@@ -200,7 +198,7 @@ contains
       endif
     endif
 
-    if(mcpdft_options%grad .and. .not. mcpdft_options%nac .and. mcpdft_options%rlxroot < 1) then
+    if(mcpdft_options%rlxroot < 1) then
       call WarningMessage(2,"Invalid RLXRoot specified")
       write(u6,*) ' ************* ERROR **************'
       write(u6,*) ' RLXRoot keyword must specify a    '
@@ -222,7 +220,7 @@ contains
         call WarningMessage(2,"MS-PDFT gradients with density fitting not implemented")
         write(u6,*) ' ************* ERROR **************'
         write(u6,*) ' MS-PDFT gradients are not         '
-        write(u6,*) ' implemented density fitting       '
+        write(u6,*) ' implemented with density fitting  '
         write(u6,*) ' **********************************'
         call Quit_OnUserError()
       endif

@@ -177,9 +177,11 @@
       end if
 
       If (mcpdft_options%mspdft) Then
+        Call Put_cArray('Relax Method','MSPDFT  ',8)
         call replace_diag(heff, ref_e, lroots)
         call mspdft_finalize(lroots)
       else
+        Call Put_cArray('Relax Method','MCPDFT  ',8)
         if(iprlev >= terse) then
         do state=1,lroots
           call PrintResult(lf,'(6X,A,I3,A,F16.8)',

@@ -13,7 +13,7 @@
 !***********************************************************************
       Subroutine MSCtl(CMO,Ref_Ener)
       use definitions,only:iwp,wp,u6
-      use constants,only:zero,one
+      use constants,only:zero
       use OneDat, only: sNoNuc, sNoOri
       use mcpdft_input, only: mcpdft_options
       Use KSDFT_Info, only: do_pdftpot
@@ -63,8 +63,7 @@
       integer(kind=iwp) :: irc, iSA, iSyLbl
       integer(kind=iwp) :: niaia, tot_el_charge
 
-      integer(kind=iwp), External:: IsFreeUnit
-      real(kind=wp), external :: ddot_, energy_mcwfn
+      real(kind=wp), external :: energy_mcwfn
 
       real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
 
@@ -460,7 +459,6 @@
 !Put some information on the runfile for possible gradient calculations.
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',Energies,nroots)
-      Call Put_cArray('Relax Method','MCPDFT  ',8)
       Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
 
 

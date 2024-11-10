@@ -20,11 +20,11 @@ subroutine InpPri_m()
   use printlevel,only:silent,terse,usual,verbose
   use mcpdft_output,only:iPrLoc
   use Fock_util_global,only:docholesky
-  use rctfld_module, only: lRF
+  use rctfld_module,only:lRF
   use mcpdft_input,only:mcpdft_options
   use definitions,only:iwp,wp,u6
   use rasscf_global,only:NAC,NFR,NIN,NONEQ,NROOTS,NSEC,Tot_Charge,tot_el_charge, &
-                        tot_nuc_charge,header
+                          tot_nuc_charge,header
   implicit none
 
 #include "rasdim.fh"
@@ -45,7 +45,7 @@ subroutine InpPri_m()
   Call Put_dScalar('DFT exch coeff',CoefX)
   Call Put_dScalar('DFT corr coeff',CoefR)
 
-  if(mcpdft_options%extparam) then 
+  if(mcpdft_options%extparam) then
     call CheckFuncParam(mcpdft_options%extparamfile)
   endif
 

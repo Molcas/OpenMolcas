@@ -176,7 +176,6 @@ contains
     if(mcpdft_options%grad) then
       call put_lscalar('CalcNAC_Opt     ',.false.)
       call put_lscalar('MECI_via_SLAPAF',.false.)
-      call put_carray('Relax Method','MSPDFT  ',8)
       if(mcpdft_options%nac) then
         call mspdftgrad_misc(si_pdft,mcpdft_options%nac_states)
       else
