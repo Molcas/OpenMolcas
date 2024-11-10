@@ -46,7 +46,7 @@
 
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
      &                      Tmp3(:), folded_dm1_cas(:),
-     &                      dummy1(:), dummy2(:), Tmp7(:),
+     &                      dummy1(:), dummy2(:), folded_dm1s_cas(:),
      &                      dm1_core(:), casdm1(:),
      &                      FockA(:), dm1_cas(:), dm1s_cas(:),
      &                      casdm1s(:), P2D(:), PUVX(:), P2t(:),
@@ -241,14 +241,14 @@
          end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(casdm1s)
          Call Get_D1A_RASSCF(CMO,casdm1s,dm1s_cas)
-         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
-         Call Fold(nSym,nBas,dm1s_cas,Tmp7)
-         Call Put_dArray('D1sao',Tmp7,nTot1)
+      Call mma_allocate(folded_dm1s_cas,nTot1,Label='folded_dm1s_cas')
+         Call Fold(nSym,nBas,dm1s_cas,folded_dm1s_cas)
+         Call Put_dArray('D1sao',folded_dm1s_cas,nTot1)
          IF(iSpin.ne.1.and. mcpdft_options%grad
      &      .and.mcpdft_options%mspdft) THEN
-         Call DCopy_(nTot1,Tmp7,1,D1SAOMS(:,jRoot),1)
+         Call DCopy_(nTot1,folded_dm1s_cas,1,D1SAOMS(:,jRoot),1)
          END IF
-         Call mma_deallocate(Tmp7)
+         Call mma_deallocate(folded_dm1s_cas)
 
 
 !**********************************************************
@@ -556,10 +556,10 @@
            dm1s_cas(:) = zero
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(casdm1s)
          Call Get_D1A_RASSCF(CMO,casdm1s,dm1s_cas)
-         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
-         Call Fold(nSym,nBas,dm1s_cas,Tmp7)
-         Call Put_dArray('D1Sao',Tmp7,nTot1)
-         Call mma_deallocate(Tmp7)
+      Call mma_allocate(folded_dm1s_cas,nTot1,Label='folded_dm1s_cas')
+         Call Fold(nSym,nBas,dm1s_cas,folded_dm1s_cas)
+         Call Put_dArray('D1Sao',folded_dm1s_cas,nTot1)
+         Call mma_deallocate(folded_dm1s_cas)
 
 
 
