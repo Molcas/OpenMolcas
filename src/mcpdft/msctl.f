@@ -47,7 +47,7 @@
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
      &                      Tmp2(:), Tmp3(:), Tmp4(:),
      &                      Tmp5(:), Tmp6(:), Tmp7(:),
-     &                      inactive_dm(:), D1Act(:),
+     &                      core_dm1(:), D1Act(:),
      &                      FockA(:), D1ActAO(:), D1SpinAO(:),
      &                      D1Spin(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
@@ -117,8 +117,8 @@
       Endif
 
 !Here we calculate the D1 Inactive matrix (AO).
-      call mma_allocate(inactive_dm,ntot2,label="D1Inact")
-      Call Get_D1I_RASSCF(CMO,inactive_dm)
+      call mma_allocate(core_dm1,ntot2,label="D1Inact")
+      Call Get_D1I_RASSCF(CMO,core_dm1)
 
       iJOB=0
       IAD19=0
@@ -216,7 +216,7 @@
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
-         Call Fold(nSym,nBas,inactive_dm,Tmp3)
+         Call Fold(nSym,nBas,core_dm1,Tmp3)
          Call Fold(nSym,nBas,D1ActAO,Tmp4)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
@@ -310,7 +310,7 @@
     ! focki is a constant but, if we have to recalculate it,
     ! why store it in memory.
          CALL TRACTL2(cmo,PUVX,TUVX_tmp,
-     &                inactive_dm,focki,
+     &                core_dm1,focki,
      &                D1ActAO,focka,
      &                IPR,lSquare,ExFac)
 
@@ -333,7 +333,7 @@
 !     Compute energy contributions
 !**********************************************************
       call mma_allocate(tmp2,ntot1,Label="Tmp2")
-      Call Fold(nSym,nBas,inactive_dm,Tmp2)
+      Call Fold(nSym,nBas,core_dm1,Tmp2)
 
       Eone = dDot_(nTot1,Tmp2,1,hcore,1)
       Eone = Eone + PotNuc
@@ -349,25 +349,8 @@
        Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
       End If
 
-      Call DaXpY_(nTot1,One,hcore,1,FockI,1)
-
-      If ( IPRLEV.ge.DEBUG ) then
-        Write(LF,*)
-        Write(LF,*) ' Inactive Fock matrix in AO basis in CASDFT_terms'
-        write(LF,*) '(it already contains OneHam and TwoEl contrib.)'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
-        iOff=1
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',FockI(iOff),iBas)
-          iOff = iOff + (iBas*iBas+iBas)/2
-        End Do
-      End If
-
-! Sets ECAS to VIA + VAA + EMY
-! Also transforms FockI and FockA to MO basis
-         Call Fmat_m(D1ActAO,Focki,FockA)
+         call energy_mcwfn(tmp3,hcore,focki+focka,PotNuc,ecas)
+        focki(:) = focki(:) + hcore(:)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
@@ -377,7 +360,7 @@
      &            (1.0-mcpdft_options%otfnal%lambda) * E_NoHyb
         END IF
 
-        Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
+        Call Print_MCPDFT_2(CASDFT_E,PotNuc,ECAS,CASDFT_Funct,
      &         jroot,Ref_Ener)
 
 
@@ -595,7 +578,7 @@
          If(NASH(1).ne.NAC) Call DBLOCK(D1Act)
          Call Get_D1A_RASSCF(CMO,D1Act,D1ActAO)
 
-         Call Fold(nSym,nBas,inactive_dm,Tmp3)
+         Call Fold(nSym,nBas,core_dm1,Tmp3)
          Call Fold(nSym,nBas,D1ActAO,Tmp4)
          Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
          Call Put_dArray('D1ao',Tmp3,nTot1)
@@ -630,7 +613,7 @@
       Call mma_deallocate(FockI)
       Call mma_deallocate(FockA)
       Call mma_deallocate(P2D)
-      Call mma_deallocate(inactive_dm)
+      Call mma_deallocate(core_dm1)
 
       If (Allocated(FuncExtParams)) Call mma_deallocate(FuncExtParams)
 

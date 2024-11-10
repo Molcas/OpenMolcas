@@ -13,7 +13,7 @@
 ! History:                                                             *
 !   2018 S Dong - added print outs related to scaling                  *
 !***********************************************************************
-subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cor,E_cas,E_ot,jroot,Ref_Ener)
+subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cas,E_ot,jroot,Ref_Ener)
   use definitions,only:wp,iwp,u6
   use KSDFT_Info,only:CoefR,CoefX,Funcaa,Funcbb,Funccc
   use nq_Info,only:Dens_a1,Dens_a2,Dens_b1,Dens_b2,Dens_I,Tau_a1,Tau_b1,Tau_a2,Tau_b2
@@ -25,7 +25,7 @@ subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cor,E_cas,E_ot,jroot,Ref_Ener)
 
   implicit none
 
-  real(kind=wp) :: CASDFT_E,E_nuc,E_cor,E_cas,E_ot
+  real(kind=wp) :: CASDFT_E,E_nuc,E_cas,E_ot
   real(kind=wp) :: CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
   real(kind=wp) :: Ref_Ener(*)
   integer(kind=iwp) :: jroot,left
@@ -72,7 +72,6 @@ subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cor,E_cas,E_ot,jroot,Ref_Ener)
     write(u6,*)
 
     write(u6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',E_nuc
-    write(u6,'(6X,A,51X,F18.8)') 'Core energy',E_cor
     write(u6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
     write(u6,'(6X,A,49X,F18.8)') 'On-top energy',E_ot
     write(u6,*)
