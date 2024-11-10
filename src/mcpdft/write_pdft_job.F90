@@ -10,7 +10,6 @@
 !                                                                      *
 ! Copyright (C) 2020, Chen Zhou                                        *
 !***********************************************************************
-!                                                                      *
 ! 2023, Matthew R. Hennefarth - modified to modern fortran             *
 !***********************************************************************
 
@@ -21,135 +20,106 @@ module write_pdft_job
   public :: writejob
 
 contains
-  subroutine writejob(e_pdft,si_pdft)
-    ! Writes energy and rotation matrix (to final states) to
-    ! either the jobiph or the h5 file.
-    !
-    ! Args:
-    !   e_pdft: ndarray of length lroots (optional)
-    !       Array containin final MS-PDFT energies.
-    !       Expected to be of length lroots (defined in
-    !       rasscf_global.F90)
-    !
-    !   si_pdft: ndarray of length lroots*lroots (optional)
-    !       Orthonormal eigenvectors of MS-PDFT in the intermediate
-    !       state basis. Expected to be of length lroots*lroots.
-
+  !> @brief Write energy and rotation matrix to JobIph or h5
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in] e_states final PDFT energy for each state
+  !> @param[in] si_pdft Optional orthonormal eigenvectors to diagonalize effective Hamiltonian
+  subroutine writejob(e_states,si_pdft)
     use definitions,only:iwp,wp
     use constants,only:zero
-    use rasscf_global,only:lRoots
+    use general_data,only:mxroot,mxiter
 
-    implicit none
-
-#include "rasdim.fh"
-#include "general.fh"
-
-    real(kind=wp),dimension(lroots),intent(in) :: e_pdft
-    real(kind=wp),dimension(lroots**2),optional,intent(in) :: si_pdft
-    real(kind=wp),dimension(mxroot*mxiter) :: energy
-    real(kind=wp),dimension(lroots,lroots) :: U
-
+    real(kind=wp),intent(in) :: e_states(:)
+    real(kind=wp),optional,intent(in) :: si_pdft(:,:)
+    real(kind=wp) :: energy(mxroot*mxiter)
+    integer(kind=iwp) :: nstates
     integer(kind=iwp) :: i,j ! Dummy index variables for loops
+
+    nstates = size(e_states)
 
     ! get energies
     energy = zero
     Do i = 1,mxIter
-      Do j = 1,lroots
-        energy(mxRoot*(i-1)+j) = e_pdft(j)
+      Do j = 1,nstates
+        energy(mxRoot*(i-1)+j) = e_states(j)
       Enddo
     Enddo
 
     call save_energies(energy)
 
     if(present(si_pdft)) then
-      ! Move the rotated matrix into U variable
-      do i = 1,lroots
-        do j = 1,lroots
-          U(j,i) = si_pdft(lroots*(i-1)+j)
-        enddo
-      enddo
-      call save_ci(u)
+      call save_ci(si_pdft)
     endif
   endsubroutine writejob
 
-  subroutine save_energies(energy)
-    ! Save the energies in the appropriate place (jobIPH or .h5 file)
-    ! Args:
-    !   energy: ndarray of len mxroot*mxiter
-    !     Final PDFT energies with zeros in the rest of the array.
-
-    use definitions,only:wp
+  !> @brief Save energies to wavefunction file
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in] e_states state energies
+  subroutine save_energies(e_states)
+    use definitions,only:iwp,wp
+    use general_data,only:jobiph
+    use mcpdft_input,only:mcpdft_options
 #ifdef _HDF5_
     use mh5,only:mh5_open_file_rw,mh5_open_dset,mh5_put_dset,mh5_close_file
 #endif
-    use mcpdft_input,only:mcpdft_options
-    implicit none
 
-    real(kind=wp),dimension(:),intent(inout) :: energy
+#include "intent.fh"
 
-    !for general.fh (needs mxSym)
-#include "rasdim.fh"
-    ! for jobiph
-#include "general.fh"
+    real(kind=wp),intent(_IN_) :: e_states(:)
 
-    integer,dimension(15) :: adr19
-    integer :: disk,ad19
+    integer(kind=iwp) :: disk,adr19(15)
 #ifdef _HDF5_
-    integer :: refwfn_id,wfn_energy
+    integer(kind=iwp) :: refwfn_id,wfn_energy
 #endif
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       adr19(:) = 0
-      ad19 = 0
-      call iDaFile(JOBIPH,2,adr19,15,ad19)
+      disk = 0
+      call iDaFile(JOBIPH,2,adr19,15,disk)
       disk = adr19(6)
-      call DDaFile(jobiph,1,energy,size(energy),disk)
+      call DDaFile(jobiph,1,e_states,size(e_states),disk)
 #ifdef _HDF5_
     else
       refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
       wfn_energy = mh5_open_dset(refwfn_id,'ROOT_ENERGIES')
-      call mh5_put_dset(wfn_energy,energy)
+      call mh5_put_dset(wfn_energy,e_states)
       call mh5_close_file(refwfn_id)
 #endif
     endif
 
   endsubroutine save_energies
 
-  subroutine save_ci(U)
-    ! Save the MS-PDFT final eigenvectors to either the jobIPH or .h5
-    ! file.
-    !
-    ! Args:
-    !   U: ndarray of shape (lroots, lroots)
-    !     Rotation matrix from intermediate state basis to final
-    !     MS-PDFT eigenstate basis
-
+  !> @brief Save MSPDFT final eigenvectors to wavefunction file
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in] si_pdft Rotation matrix to final eigenstate basis
+  subroutine save_ci(si_pdft)
     use constants,only:zero,one
     use definitions,only:iwp,wp
+    use general_data,only:jobiph
     use stdalloc,only:mma_allocate,mma_deallocate
+    use mcpdft_input,only:mcpdft_options
 #ifdef _HDF5_
     use mh5,only:mh5_open_file_rw,mh5_open_dset,mh5_put_dset, &
                   mh5_close_file,mh5_fetch_attr,mh5_fetch_dset
 #endif
-    use mcpdft_input,only:mcpdft_options
-    implicit none
 
-#include "rasdim.fh"
-    ! for jobiph
-#include "general.fh"
-    integer(kind=iwp),dimension(15) :: adr19
-    real(kind=wp),dimension(:,:),intent(in) :: U
+    real(kind=wp),intent(in) :: si_pdft(:,:)
 
-    integer(kind=iwp) :: disk,ncon = 0,i,ad19
-    integer(kind=iwp),dimension(1) :: dum
+    integer(kind=iwp) :: disk,ncon,state,ad19,nstates,dum(1),adr19(15)
     real(kind=wp),allocatable :: ci_rot(:,:),tCI(:,:)
-    integer(kind=iwp) :: roots
 
 #ifdef _HDF5_
     integer(kind=iwp) :: refwfn_id,wfn_cicoef
 #endif
 
-    roots = size(U,dim=1)
+    ncon = 0
+    nstates = size(si_pdft,dim=1)
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = 284 ! where does this number come from?
@@ -163,8 +133,8 @@ contains
 #endif
     endif
 
-    call mma_allocate(tCI,roots,ncon,label="tCI")
-    call mma_allocate(ci_rot,roots,ncon,label='CI Rot')
+    call mma_allocate(tCI,nstates,ncon,label="tCI")
+    call mma_allocate(ci_rot,nstates,ncon,label='CI Rot')
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       adr19(:) = 0
@@ -173,28 +143,28 @@ contains
       disk = adr19(4)
     endif
 
-    do i = 1,roots
+    do state = 1,nstates
       if(.not. mcpdft_options%is_hdf5_wfn) then
-        call DDafile(jobiph,2,tCI(i,:),ncon,disk)
+        call DDafile(jobiph,2,tCI(:,state),ncon,disk)
 #ifdef _HDF5_
       else
-        call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI(i,:),[ncon,1],[0,i-1])
+        call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI(:,state),[ncon,1],[0,state-1])
 #endif
       endif
     enddo
 
-    call dgemm_('n','n',roots,ncon,roots,one,U,roots,tCI,ncon,zero,ci_rot,roots)
+    call dgemm_('n','n',nstates,ncon,nstates,one,si_pdft,nstates,tCI,ncon,zero,ci_rot,nstates)
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = adr19(4)
-      do i = 1,roots
-        call DDafile(jobiph,1,ci_rot(i,:),ncon,disk)
+      do state = 1,nstates
+        call DDafile(jobiph,1,ci_rot(:,state),ncon,disk)
       enddo
 #ifdef _HDF5_
     else
       wfn_cicoef = mh5_open_dset(refwfn_id,'CI_VECTORS')
-      do i = 1,roots
-        call mh5_put_dset(wfn_cicoef,ci_rot(i,:),[ncon,1],[0,i-1])
+      do state = 1,nstates
+        call mh5_put_dset(wfn_cicoef,ci_rot(:,state),[ncon,1],[0,state-1])
       enddo
       call mh5_close_file(refwfn_id)
 #endif
