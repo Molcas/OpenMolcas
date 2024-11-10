@@ -61,7 +61,7 @@
       integer(kind=iwp) :: i, iCharge, iComp
       integer(kind=iwp) :: iOpt,  iPrLev
       integer(kind=iwp) :: irc, iSA, iSyLbl
-      integer(kind=iwp) :: lutmp, niaia, tot_el_charge
+      integer(kind=iwp) :: niaia, tot_el_charge
 
       integer(kind=iwp), External:: IsFreeUnit
       real(kind=wp), external :: ddot_, energy_mcwfn
@@ -355,13 +355,6 @@
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
 
-        ! transform Fock elements from AO to MO basis
-
-        focki(:) = focki(:) + hcore(:)
-        call ao2mo_1particle(cmo,focki,focki,nsym,nbas,norb,nfro)
-        call ao2mo_1particle(cmo,focka,focka,nsym,nbas,norb,nfro)
-
-        fockA(:) = focki(:) + focka(:)
 
        if((.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
@@ -410,27 +403,16 @@
      &       focki,nsym,nbas,norb,nfro)
       fi_v(:) = fi_v(:) + ontopo(:) + focki(:)
 
+      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
+      Call Get_TUVX(OnTopT,TUVX_tmp)
+
       !Add the V_kktu contribution to Fone_tu?
 !STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !This should be addressed in the upd_FI routine.
 
-      !Write to file.
-      LUTMP=87
-      LUTMP=IsFreeUnit(LUTMP)
-      Call Molcas_Open(LUTMP,'TmpFock')
-      do i=1,ntot1
-        write(LUTMP,*) fi_v(i)
-      end do
+      call put_darray('F1_PDFT         ',fi_v(:),ntot1)
+      call put_darray('F2_PDFT         ',tuvx_tmp,nacpr2)
 
-      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
-      TUVX_tmp(:)=0.0D0
-      Call Get_TUVX(OnTopT,TUVX_tmp)
-
-      !Unpack TUVX to size
-      do i=1,nacpr2
-        write(LUTMP,*) TUVX_tmp(i)
-      end do
-      Close(LUTMP)
       Call mma_deallocate(TUVX_tmp)
 
 !____________________________________________________________

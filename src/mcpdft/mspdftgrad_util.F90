@@ -43,8 +43,8 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
 ! End of stuff added by Paul
 
   Call Put_DArray('MS_FINAL_ROT    ',si_pdft(:,:),lRoots**2)
-  CALL Put_DArray('F1MS            ',F1MS(:,:),nTot1*lRoots)
-  CALL Put_DArray('F2MS            ',F2MS(:,:),NACPR2*lRoots)
+  CALL Put_DArray('F1_PDFT         ',F1MS(:,:),nTot1*lRoots)
+  CALL Put_DArray('F2_PDFT         ',F2MS(:,:),NACPR2*lRoots)
   CALL Put_DArray('D1AO_MS         ',D1AOMS(:,:),nTot1*lRoots)
   if(ispin /= 1) then
     CALL Put_DArray('D1SAO_MS        ',D1SAOMS(:,:),nTot1*lRoots)

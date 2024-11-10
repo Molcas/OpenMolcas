@@ -228,8 +228,6 @@
 !AMS _____________________________________________________
 !Read in the Fock operator for the calculation of the CI part of the RHS
 !ipF1 and ipF2.
-      LUTMP=87
-      Call Molcas_Open(LUTMP,'TmpFock')
       nTri = 0
       nOrbAct = 0
       do ksym=1,nsym
@@ -242,9 +240,8 @@
       nacpar=(nnA+1)*nnA/2
       nacpr2=(nacpar+1)*nacpar/2
       Call mma_allocate(FMO2t,nacpr2,Label='FMO2t')
-      do i=1,nTri
-        read(LUTMP,*) FMO1t(i)
-      end do
+
+      call get_darray('F1_PDFT         ',FMO1t,nTri)
 
       ioff = 0
       do iS=1,nSym
@@ -275,11 +272,8 @@
       end do
 
 
+      call get_darray('F2_PDFT         ',FMO2t,nacpr2)
 
-      do i=1,nacpr2
-        read(LUTMP,*) FMO2t(i)
-      end do
-      Close(LUTMP)
 
       Call CISigma_sa(0,State_sym,State_sym,FMO1,nDens2,FMO2t,
      &                SIZE(FMO2t),rdum,1,ipci,ipST,.True.)
