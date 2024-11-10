@@ -191,7 +191,7 @@
             Call P2_contraction(casdm1,P2MOt(:,jroot))
           else if (jroot .eq. mcpdft_options%rlxroot) then
             Call mma_allocate(P2t,NACPR2,Label='P2t')
-            P2t(:)=0.0D0
+            P2t(:)=zero
             Call P2_contraction(casdm1,P2t)
             Call Put_dArray('P2MOt',P2t,NACPR2)
             Call mma_deallocate(P2t)
@@ -315,7 +315,7 @@
       call mma_deallocate(tuvx_tmp)
 
 
-      e_mcscf = energy_mcwfn(tmp3,hcore,focki+focka,PotNuc)
+      e_mcscf = energy_mcwfn(tmp3,hcore,focki+focka,PotNuc,ntot1)
 
          CASDFT_E = e_mcscf+CASDFT_Funct
 
@@ -363,8 +363,8 @@
          call mma_allocate(Q,nq,label='Q')
 
         focki(:) = focki(:) + hcore(:)
-        call ao2mo_1particle(cmo,focki,focki)
-        call ao2mo_1particle(cmo,focka,focka)
+        call ao2mo_1particle(cmo,focki,focki,nsym,nbas,norb,nfro)
+        call ao2mo_1particle(cmo,focka,focka,nsym,nbas,norb,nfro)
 
         ! This computes the 2-body interaction term (and updates)
         ! ECAS will have the correct value...

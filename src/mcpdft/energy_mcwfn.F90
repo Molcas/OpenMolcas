@@ -9,25 +9,23 @@
 !                                                                      *
 ! Copyright (C) 2024, Matthew R. Hennefarth                            *
 !***********************************************************************
-function energy_mcwfn(dm1,h1e,vj,energy_nuc)
-  use definitions,only:wp,u6
+function energy_mcwfn(dm1,h1e,vj,energy_nuc,dim)
+  use definitions,only:iwp,wp,u6
   use printlevel,only:debug
   use constants,only:half
   use mcpdft_output,only:iPrGlb
   implicit none
 
-#include "rasdim.fh"
-#include "general.fh"
-
-  real(kind=wp),intent(in) :: dm1(*),h1e(*),vj(*),energy_nuc
+  integer(kind=iwp),intent(in) :: dim
+  real(kind=wp),intent(in) :: dm1(dim),h1e(dim),vj(dim),energy_nuc
   real(kind=wp) :: energy_mcwfn
 
   real(kind=wp),external :: ddot_
 
   real(kind=wp) :: te_vne,e_j
 
-  te_vne = dDot_(ntot1,h1e,1,dm1,1)
-  e_j = half*dDot_(ntot1,vj,1,dm1,1)
+  te_vne = dDot_(dim,h1e,1,dm1,1)
+  e_j = half*dDot_(dim,vj,1,dm1,1)
 
   if(iPrGlb >= debug) then
     write(u6,*) 'Nuclear Repulsion energy',energy_nuc
@@ -37,4 +35,4 @@ function energy_mcwfn(dm1,h1e,vj,energy_nuc)
 
   energy_mcwfn = energy_nuc+te_vne+e_j
 
-end function
+endfunction

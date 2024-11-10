@@ -1,4 +1,4 @@
-!**********************************************************************
+!***********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -16,21 +16,23 @@
 !> @author Matthew R. Hennefarth
 !>
 !> @param[in] cmo MO coefficients
-!>
 !> @param[in] d_ao unscaled, folded 1 particle matrix in AO basis
+!> @param[in] nSym number of symmetry groups
+!> @param[in] nBas number of basis functions per symmetry group
+!> @param[in] nOrb number of orbitals per symmetry group
+!> @param[in] nFro number of frozen orbitals per symmetry group
 !>
 !> @param[out] d_mo unscaled, folded 1 particle matrix in MO basis
-subroutine ao2mo_1particle(cmo,d_ao,d_mo)
+subroutine ao2mo_1particle(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
   use definitions,only:iwp,wp
   use constants,only:one,zero
   use stdalloc,only:mma_allocate,mma_deallocate
   implicit none
 
+  integer(kind=iwp),intent(in) :: nsym
+  integer(kind=iwp),intent(in) :: nbas(nsym),norb(nsym),nfro(nsym)
   real(kind=wp),intent(in) :: cmo(*),d_ao(*)
   real(kind=wp),intent(out) :: d_mo(*)
-
-#include "rasdim.fh"
-#include "general.fh"
 
   integer(kind=iwp) :: ioff1,ioff2,ioff3,isym,ibas,iorb,ifro
   real(kind=wp),allocatable :: tmp1(:),tmp2(:)
