@@ -294,10 +294,6 @@
         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
 
-!***********************************************************************
-! update and transform the Fock matrices FI and FA ----> FMAT routine
-!***********************************************************************
-
       call mma_allocate(tuvx_tmp,nacpr2,Label='tuvx_tmp')
       call mma_allocate(puvx,nfint,Label='puvx')
       tuvx_tmp(:) = zero
@@ -316,6 +312,8 @@
 
       call mma_deallocate(tuvx_tmp)
 
+    ! Note that because ExFac should be 0, we get back
+    ! just Coulomb integrals!
       coul(:) = focki(:) + focka(:)
 
       e_mcscf = energy_mcwfn(tmp3,hcore,coul,PotNuc,ntot1)
@@ -345,8 +343,7 @@
 !
 !***********************************************************************
       if(mcpdft_options%grad) then
-
-      ! This computes the initial (MC-SCF) fock matrix (FOCK)
+        ! Determine size of Q matrix
          NQ=0
          NIAIA=0
          do ISYM=1,NSYM
@@ -550,6 +547,7 @@
 
       Subroutine P2_contraction(D1MO,P2MO)
       use definitions, only: iwp,wp
+      use constants,only:one,half
       use rasscf_global, only: NAC
 
       implicit none
@@ -575,8 +573,8 @@
             do l=1,lmax
               kl = iTrii(k,l)
               ijkl = ijkl + 1
-              fact=1.0d0
-              if(k == l) fact=0.5d0
+              fact=one
+              if(k == l) fact=half
               p2MO(ijkl) = fact*D1MO(ij)*D1MO(kl)
             end do
           end do
