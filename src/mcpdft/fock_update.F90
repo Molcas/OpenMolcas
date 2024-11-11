@@ -38,7 +38,7 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
 
   real(kind=wp) :: QNTM
   integer(kind=iwp) :: ipFMCSCF,ISTD,ISTFCK,ISTFP,ISTP,iprlev
-  integer(kind=iwp) :: iSym,JSTF,N1,N2,NAO,NEO,NI,NIO,NM,NO,NO2
+  integer(kind=iwp) :: iSym,JSTF,N1,N2,NAO,NI,NIO,NM,NO,NO2
   integer(kind=iwp) :: NOR,NP,NT,NTM,NTV,NUVX,NV,NVI,NVM
 
   IPRLEV = IPRLOC(4)
@@ -63,7 +63,6 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
   DO ISYM = 1,NSYM
     NIO = NISH(ISYM)
     NAO = NASH(ISYM)
-    NEO = NSSH(ISYM)
     NO = NORB(ISYM)
     NO2 = (NO**2+NO)/2
     IF(NO == 0) then

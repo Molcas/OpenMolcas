@@ -25,7 +25,7 @@ subroutine mcpdft_init()
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
   use mcpdft_output,only:set_print_level
-  use general_data,only:ispin,mxorb,mxsym,nactel,nelec3,nhole1,stsym,nfro,nish,nash,nrs1,nrs2,nrs3,nssh,ndel,nbas
+  use general_data,only:ispin,nactel,nelec3,nhole1,stsym,nfro,nish,nash,nrs1,nrs2,nrs3,nssh,ndel,nbas
   use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,TITLE,iXSym,iTRI
 
   implicit none
