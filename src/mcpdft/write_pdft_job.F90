@@ -25,19 +25,19 @@ contains
   !> @author Matthew R. Hennefarth
   !>
   !> @param[in] e_states final PDFT energy for each state
+  !> @param[in] nstates number of states
   !> @param[in] si_pdft Optional orthonormal eigenvectors to diagonalize effective Hamiltonian
-  subroutine writejob(e_states,si_pdft)
+  subroutine writejob(e_states,nstates,si_pdft)
     use definitions,only:iwp,wp
     use constants,only:zero
     use general_data,only:mxroot,mxiter
 
-    real(kind=wp),intent(in) :: e_states(:)
-    real(kind=wp),optional,intent(in) :: si_pdft(:,:)
-    real(kind=wp) :: energy(mxroot*mxiter)
-    integer(kind=iwp) :: nstates
-    integer(kind=iwp) :: i,j ! Dummy index variables for loops
+    integer(kind=iwp),intent(in) :: nstates
+    real(kind=wp),intent(in) :: e_states(nstates)
+    real(kind=wp),optional,intent(in) :: si_pdft(nstates,nstates)
 
-    nstates = size(e_states)
+    real(kind=wp) :: energy(mxroot*mxiter)
+    integer(kind=iwp) :: i,j ! Dummy index variables for loops
 
     ! get energies
     energy = zero
@@ -50,7 +50,7 @@ contains
     call save_energies(energy)
 
     if(present(si_pdft)) then
-      call save_ci(si_pdft)
+      call save_ci(si_pdft,nstates)
     endif
   endsubroutine writejob
 
@@ -98,7 +98,8 @@ contains
   !> @author Matthew R. Hennefarth
   !>
   !> @param[in] si_pdft Rotation matrix to final eigenstate basis
-  subroutine save_ci(si_pdft)
+  !> @param[in] nstates number of states
+  subroutine save_ci(si_pdft,nstates)
     use constants,only:zero,one
     use definitions,only:iwp,wp
     use general_data,only:jobiph
@@ -109,9 +110,10 @@ contains
                   mh5_close_file,mh5_fetch_attr,mh5_fetch_dset
 #endif
 
-    real(kind=wp),intent(in) :: si_pdft(:,:)
+    integer(kind=iwp),intent(in) :: nstates
+    real(kind=wp),intent(in) :: si_pdft(nstates,nstates)
 
-    integer(kind=iwp) :: disk,ncon,state,ad19,nstates,dum(1),adr19(15)
+    integer(kind=iwp) :: disk,ncon,state,ad19,dum(1),adr19(15)
     real(kind=wp),allocatable :: ci_rot(:,:),tCI(:,:)
 
 #ifdef _HDF5_
@@ -119,7 +121,6 @@ contains
 #endif
 
     ncon = 0
-    nstates = size(si_pdft,dim=1)
 
     if(.not. mcpdft_options%is_hdf5_wfn) then
       disk = 284 ! where does this number come from?

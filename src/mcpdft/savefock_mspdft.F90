@@ -26,17 +26,16 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   use general_data,only:ntot1,nbas,nfro,norb,nsym
   implicit none
 
-  real(kind=wp) :: cmo(*)
-  real(kind=wp) :: D1Act(*),hcore(*),coul(*)
-  real(kind=wp) :: P2D(*)
-
-  integer(kind=iwp), intent(in) :: NQ,state
+  real(kind=wp),intent(in) :: cmo(*),D1Act(*),hcore(*),coul(*),P2D(*)
+  integer(kind=iwp),intent(in) :: NQ,state
 
   integer(kind=iwp) :: iSA,iprlev
   real(kind=wp),allocatable :: ONTOPT(:),ONTOPO(:)
   real(kind=wp),allocatable :: FA_V(:),FI_V(:)
-  real(kind=wp),allocatable :: Q(:),dm2(:)
-  real(kind=wp) :: fock(ntot4),h1e(ntot1)
+  real(kind=wp),allocatable :: Q(:),dm2(:),fock(:),h1e(:)
+
+  call mma_allocate(fock,ntot4,label='fock')
+  call mma_allocate(h1e,ntot1,label='h1e')
 
   fock(:) = zero
 
@@ -66,13 +65,13 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   fi_v(:) = h1e(:)+OnTopO(:)+FI_V(:)
   F1MS(:,state) = fi_v(:)
 
-! ____________________________________________________________
-! This next part is to generate the MC-PDFT generalized fock operator.
-! The corrections (from the potentials) to FI and FA are built in the NQ
-! part of the code, for efficiency's sake.  It still needs to be
-! debugged.
+  ! ____________________________________________________________
+  ! This next part is to generate the MC-PDFT generalized fock operator.
+  ! The corrections (from the potentials) to FI and FA are built in the NQ
+  ! part of the code, for efficiency's sake.  It still needs to be
+  ! debugged.
 
-!Reordering of the two-body density matrix.
+  !Reordering of the two-body density matrix.
   IF(ISTORP(NSYM+1) > 0) THEN
     call mma_allocate(dm2,ISTORP(NSYM+1),label="dm2")
     CALL PMAT_RASSCF(P2d,dm2)
@@ -100,5 +99,8 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
 
   iSA = 1
   Call Put_iScalar('SA ready',iSA)
+
+  call mma_deallocate(fock)
+  call mma_deallocate(h1e)
 
 EndSubroutine SaveFock_PDFT

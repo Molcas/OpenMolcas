@@ -60,7 +60,7 @@ subroutine ao2mo_1e(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
     Call mma_deallocate(Tmp2)
     Call mma_deallocate(Tmp1)
     iOff1 = iOff1+(iBas*iBas+iBas)/2
-    iOff2 = iOff2+iBas*iBas
+    iOff2 = iOff2+iBas**2
     iOff3 = iOff3+(iOrb*iOrb+iOrb)/2
   EndDo
 endsubroutine

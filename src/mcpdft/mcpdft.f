@@ -171,7 +171,7 @@
       ! I guess ref_e now holds the MC-PDFT energy for each state??
 
       If(mcpdft_options%wjob .and.(.not.mcpdft_options%mspdft)) then
-        Call writejob(ref_e)
+        Call writejob(ref_e,lroots)
       end if
 
       If (mcpdft_options%mspdft) Then

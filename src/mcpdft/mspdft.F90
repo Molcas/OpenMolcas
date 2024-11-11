@@ -166,7 +166,7 @@ contains
     endif
 
     ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
-    if(mcpdft_options%wjob) call writejob(e_mspdft,si_pdft=si_pdft)
+    if(mcpdft_options%wjob) call writejob(e_mspdft,nroots,si_pdft=si_pdft)
 
     if(iprlev >= usual) then
       call CollapseOutput(0,Line)

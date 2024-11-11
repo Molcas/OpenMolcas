@@ -8,26 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
-!This subroutine is supposed to add the dft portions of the mcpdft fock
-!matrix to the Fock matrix pieces that have already been built for the
-!CASSCF portion.
 
-! RASSCF program version IBM-3090: SX section
-!
+!> @brief construct PDFT generalized fock matrix
+SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
+! This subroutine is supposed to add the dft portions of the mcpdft fock
+! matrix to the Fock matrix pieces that have already been built for the
+! CASSCF portion.
+
 ! Calculation of the MCSCF fock matrix F(eq.(7) in I.J.Q.C.S14,175)
 ! FP is the matrix FI+FA (FP is FA at entrance)
 ! F is stored as a symmetry blocked square matrix, by columns.
 ! Note that F contains all elements, also the zero elements
 ! occurring when the first index is secondary.
-! F is used to construct the Brillouin elements and the first row
-! of the super-CI Hamiltonian, while FP is used as the effective
-! one-electron operator in the construction of the super-CI
-! interaction matrix.
 !
-!      ********** IBM-3090 MOLCASs Release: 90 02 22 **********
+! FockOcc is further constructed as well
   use definitions,only:iwp,wp,u6
-  use constants,only:zero
+  use constants,only:zero,one,two
   use stdalloc,only:mma_allocate,mma_deallocate
   use printlevel,only:debug
   use mcpdft_output,only:iPrLoc
@@ -40,7 +36,7 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
 
   real(kind=wp),allocatable :: TF(:)
 
-  real(kind=wp) :: CSX,QNTM
+  real(kind=wp) :: QNTM
   integer(kind=iwp) :: ipFMCSCF,ISTD,ISTFCK,ISTFP,ISTP,iprlev
   integer(kind=iwp) :: iSym,JSTF,N1,N2,NAO,NEO,NI,NIO,NM,NO,NO2
   integer(kind=iwp) :: NOR,NP,NT,NTM,NTV,NUVX,NV,NVI,NVM
@@ -60,11 +56,9 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
   ! add FI to FA to obtain FP
   FP(:ntot3) = FP(:ntot3)+FI(:ntot3)
 
-  ! LOOP OVER ALL SYMMETRY BLOCKS
   ISTFCK = 0
   ISTFP = 0
   ISTD = 0
-
   ! A long loop over symmetry
   DO ISYM = 1,NSYM
     NIO = NISH(ISYM)
@@ -72,11 +66,9 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
     NEO = NSSH(ISYM)
     NO = NORB(ISYM)
     NO2 = (NO**2+NO)/2
-    CSX = 0.0D0
-    N1 = 0
-    N2 = 0
-    IF(NO == 0) GO TO 90
-    CALL FZERO(TF(ISTFCK+1),NO**2)
+    IF(NO == 0) then
+      cycle
+    endif
 
     ! First index in F is inactive
     IF(NIO /= 0) THEN
@@ -84,7 +76,7 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
         DO NI = 1,NIO
           N1 = MAX(NP,NI)
           N2 = MIN(NP,NI)
-          TF(ISTFCK+NO*(NP-1)+NI) = 2*FP(ISTFP+(N1**2-N1)/2+N2)
+          TF(ISTFCK+NO*(NP-1)+NI) = two*FP(ISTFP+(N1**2-N1)/2+N2)
         ENDDO
       ENDDO
     ENDIF
@@ -104,9 +96,9 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
       !                   and reordered
       CALL DGEMM_('N','N', &
                   NO,NAO,NUVX, &
-                  1.0d0,FINT(JSTF),NO, &
+                  one,FINT(JSTF),NO, &
                   P(ISTP),NUVX, &
-                  0.0d0,Q,NO)
+                  zero,Q,NO)
 
       ! Now Q should contain the additional 2-electron part of the fock matrix
       ! for mcpdft, for the active region, at least.
@@ -134,7 +126,6 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
     ENDIF
 
     ! End of long loop over symmetry
-90  CONTINUE
     ISTFCK = ISTFCK+NO**2
     ISTFP = ISTFP+NO2
     ISTD = ISTD+(NAO**2+NAO)/2
