@@ -63,7 +63,8 @@ contains
 
     ! Resets the input options on subsequent calls
     ! such as in numerical gradients...
-    mcpdft_options = mcpdftinputoptions_t()
+    mcpdft_options = mcpdftinputoptions_t(otfnal=OTFNAL_t())
+
     ierror = 0
     lambda = zero
     otxc = ""
