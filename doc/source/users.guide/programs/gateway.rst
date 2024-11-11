@@ -2368,7 +2368,7 @@ fragments. (See documentation for :program:`GEO` for more details)
 
 :kword:`ROT`
   This keyword should be followed by nine real numbers defining the rotation for the fragment defined by
-  the preceeding :kword:`frgm`. The numbers should be the nine elements of a rotation matrix
+  the preceding :kword:`frgm`. The numbers should be the nine elements of a rotation matrix
   listed with one full row at the time.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ROT" APPEAR="rotation" KIND="REALS" SIZE="9" LEVEL="ADVANCED" REQUIRE="FRGM">
@@ -2382,7 +2382,7 @@ fragments. (See documentation for :program:`GEO` for more details)
 
 :kword:`TRANS`
   This keyword should be followed by three real numbers defining the translation for the fragment defined
-  by the preceeding :kword:`frgm`. The numbers should be the x, y and z coordinates of the translation
+  by the preceding :kword:`frgm`. The numbers should be the x, y and z coordinates of the translation
   in that order.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="TRANS" APPEAR="translation" KIND="REALS" SIZE="3" LEVEL="ADVANCED" REQUIRE="FRGM">

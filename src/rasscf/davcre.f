@@ -357,7 +357,7 @@ C
       DO I=1,NTOTDC
        IF(I.NE.1.AND.NTRIAL.NE.0) THEN
 C
-C  Orthogonalize this vector to the preceeding Q's of this iteration
+C  Orthogonalize this vector to the preceding Q's of this iteration
 C
         JST=1
         DO J=1,NTRIAL
@@ -369,7 +369,7 @@ C
 *        CALL DGEMX(NDIM,NTRIAL,1.D0,Q,NDIM,S,1,Q(IST),1)
         CALL DGEMV_('N',NDIM,NTRIAL,1.D0,Q,NDIM,S,1,1.0D0,Q(IST),1)
        IF(IPRLEV.GE.INSANE) THEN
-          Write(LF,*)'  Q vector orthogonal to preceeding Q vectors:'
+          Write(LF,*)'  Q vector orthogonal to preceding Q vectors:'
           Write(LF,'(1x,8F14.10)')(Q(k),k=1,NDIM)
        END IF
        ENDIF
