@@ -47,7 +47,7 @@
      &                      Tmp3(:), folded_dm1_cas(:),
      &                      dummy1(:), dummy2(:), folded_dm1s_cas(:),
      &                      dm1_core(:), casdm1(:),
-     &                      FockA(:), dm1_cas(:), dm1s_cas(:),
+     &                      focka(:), dm1_cas(:), dm1s_cas(:),
      &                      casdm1s(:), P2D(:), PUVX(:), P2t(:),
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
@@ -139,7 +139,7 @@
 
 
       Call mma_allocate(FockI,ntot1,Label='FockI')
-      Call mma_allocate(FockA,ntot1,Label='FockA')
+      Call mma_allocate(focka,ntot1,Label='focka')
       Call mma_allocate(coul,ntot1,Label='coul')
 
 !This iSA is used to control gradient calculations.  Analytic gradients
@@ -526,7 +526,7 @@
       call mma_deallocate(hcore)
       Call mma_deallocate(FockI)
       Call mma_deallocate(coul)
-      Call mma_deallocate(FockA)
+      Call mma_deallocate(focka)
       Call mma_deallocate(P2D)
       Call mma_deallocate(dm1_core)
 

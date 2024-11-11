@@ -30,9 +30,8 @@ contains
     ! this module all together
     use printlevel,only:debug,usual,silent
 
-    logical,external :: reduce_prt
+    logical(kind=iwp),external :: reduce_prt
     integer(kind=iwp),external :: iPrintLevel
-
     integer(kind=iwp) :: i ! dummy loop variable
 
     iPrGlb = iPrintLevel(-1)
