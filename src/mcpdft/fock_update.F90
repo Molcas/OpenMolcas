@@ -1,0 +1,189 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
+!This subroutine is supposed to add the dft portions of the mcpdft fock
+!matrix to the Fock matrix pieces that have already been built for the
+!CASSCF portion.
+
+! RASSCF program version IBM-3090: SX section
+!
+! Calculation of the MCSCF fock matrix F(eq.(7) in I.J.Q.C.S14,175)
+! FP is the matrix FI+FA (FP is FA at entrance)
+! F is stored as a symmetry blocked square matrix, by columns.
+! Note that F contains all elements, also the zero elements
+! occurring when the first index is secondary.
+! F is used to construct the Brillouin elements and the first row
+! of the super-CI Hamiltonian, while FP is used as the effective
+! one-electron operator in the construction of the super-CI
+! interaction matrix.
+!
+!      ********** IBM-3090 MOLCASs Release: 90 02 22 **********
+  use definitions,only:iwp,u6
+  use printlevel,only:debug
+  use mspdft,only:iIntS
+  use mcpdft_output,only:iPrLoc
+  use mspdftgrad,only:FxyMS
+  use mcpdft_input,only:mcpdft_options
+  use stdalloc,only:mma_allocate,mma_deallocate
+  use rasscf_global,only:nTot3,nTot4,ISTORP,iTri,CBLB,IBLB,JBLB,ISTORD
+  use general_data,only:nsym,nbas,nash,nish,nssh,norb
+
+  IMPLICIT None
+  REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),CMO(*)
+  integer ISTSQ(8),ISTAV(8)
+
+  Real*8,Allocatable :: TF(:)
+
+  Character(LEN=16),Parameter :: ROUTINE = 'FOCK    '
+  Integer iPrLev
+  Real*8 CSX,E2eP,QNTM
+  Integer ipFMCSCF,ISTBM,ISTD,ISTFCK,ISTFP,ISTP
+  integer(kind=iwp) :: iSym,JSTF,N1,N2,NAO,NEO,NI,NIO,NM,NO,NO2
+  integer(kind=iwp) :: NOR,NP,NT,NTM,NTT,NTV,NUVX,NV,NVI,NVM
+
+  IPRLEV = IPRLOC(4)
+  IF(IPRLEV >= DEBUG) THEN
+    WRITE(u6,*) ' Entering ',ROUTINE
+  ENDIF
+
+  Call mma_allocate(TF,NTOT4,Label='TF')
+  TF(:) = 0.0D0
+
+  ISTSQ(1) = 0
+  ISTAV(1) = 0
+  DO iSym = 2,nSym
+    ISTSQ(iSym) = ISTSQ(iSym-1)+nBas(iSym-1)**2
+    ISTAV(iSym) = ISTAV(iSym-1)+nBas(iSym-1)*nAsh(iSym-1)
+  EndDo
+! *****************************************
+
+!     add FI to FA to obtain FP
+  CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
+!     LOOP OVER ALL SYMMETRY BLOCKS
+
+  ISTFCK = 0
+  ISTFP = 0
+  ISTD = 0
+  ISTBM = 0
+
+! A long loop over symmetry
+  DO ISYM = 1,NSYM
+    NIO = NISH(ISYM)
+    NAO = NASH(ISYM)
+    NEO = NSSH(ISYM)
+    NO = NORB(ISYM)
+    NO2 = (NO**2+NO)/2
+    CSX = 0.0D0
+    N1 = 0
+    N2 = 0
+    IF(NO == 0) GO TO 90
+    CALL FZERO(TF(ISTFCK+1),NO**2)
+
+!    First index in F is inactive
+    IF(NIO /= 0) THEN
+      DO NP = 1,NO
+        DO NI = 1,NIO
+          N1 = MAX(NP,NI)
+          N2 = MIN(NP,NI)
+          TF(ISTFCK+NO*(NP-1)+NI) = 2*FP(ISTFP+(N1**2-N1)/2+N2)
+        ENDDO
+      ENDDO
+    ENDIF
+
+!      first index in F active
+    IF(NAO /= 0) THEN
+
+      ISTP = ISTORP(ISYM)+1
+      JSTF = ISTORD(ISYM)+1
+      NUVX = (ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
+
+!
+!          first compute the Q-matrix (equation (19))
+!
+!          Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
+!
+!          P is packed in xy and pre-multiplied by 2
+!                            and reordered
+      CALL DGEMM_('N','N', &
+                  NO,NAO,NUVX, &
+                  1.0d0,FINT(JSTF),NO, &
+                  P(ISTP),NUVX, &
+                  0.0d0,Q,NO)
+
+!Now Q should contain the additional 2-electron part of the fock matrix
+!for mcpdft, for the active region, at least.
+
+!We should also have contributions from terms like FI and FA, too.
+!FA takes care of the 1-RDM/2e- integral terms?
+!FI takes care of the one-body hamiltonian and the occ/occ and occ/act
+!contributions.
+
+      E2eP = 0d0
+      DO NT = 1,NAO
+        NTT = (NT-1)*NO+NIO+NT
+        E2eP = E2eP+0.5D0*Q(NTT)
+      ENDDO
+
+!       Fock matrix
+      NTM = 0
+      DO NT = 1,NAO
+        DO NM = 1,NO
+          NTM = NTM+1
+          QNTM = Q(NTM)
+          DO NV = 1,NAO
+            NVI = NV+NIO
+            NTV = ITRI(MAX(NT,NV))+MIN(NT,NV)+ISTD
+            NVM = ITRI(MAX(NVI,NM))+MIN(NVI,NM)+ISTFP
+            QNTM = QNTM+D(NTV)*FI(NVM)
+          ENDDO
+          TF(ISTFCK+NO*(NM-1)+NT+NIO) = QNTM
+        ENDDO
+      ENDDO
+    ENDIF
+
+! End of long loop over symmetry
+90  CONTINUE
+    ISTFCK = ISTFCK+NO**2
+    ISTFP = ISTFP+NO2
+    ISTD = ISTD+(NAO**2+NAO)/2
+    ISTBM = ISTBM+(NIO+NAO)*(NAO+NEO)
+    CBLB(ISYM) = CSX
+    IBLB(ISYM) = N1
+    JBLB(ISYM) = N2
+  ENDDO
+
+! Calculate Fock matrix for occupied orbitals.
+
+  Call DAXPY_(NTOT4,1.0d0,TF,1,F,1)
+!I am going to add the Fock matrix temporarily to the Runfile.  I don't
+!want to construct it again in MCLR in the case of gradients.
+  If(iPrLev >= DEBUG) then
+    Write(u6,'(A)') ' MCSCF Fock-matrix in MO-basis'
+    ipFMCSCF = 1
+    Do iSym = 1,nSym
+      nOr = nOrb(iSym)
+      Call RecPrt(' ',' ',F(ipFMCSCF),nOr,nOr)
+      ipFMCSCF = ipFMCSCF+nOr*nOr
+    EndDo
+  EndIf
+
+!For MCLR
+  IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
+    FxyMS(:,iIntS) = F(:nTot4)
+  ELSE
+    Call put_dArray('Fock_PDFT',F,ntot4)
+  ENDIF
+
+  CALL FOCKOC(Q,F,CMO)
+
+  Call mma_deallocate(TF)
+
+ENDSUBROUTINE FOCK_update

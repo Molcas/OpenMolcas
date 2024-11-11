@@ -14,7 +14,7 @@ set (sources
      chkinp.f
      clsfls_mcpdft.F90
      energy_mcwfn.F90
-     fock_update.f
+     fock_update.F90
      hybridpdft.F90
      inppri.F90
      main.F90
