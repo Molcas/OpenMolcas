@@ -28,7 +28,7 @@ SUBROUTINE FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
   use printlevel,only:debug
   use mcpdft_output,only:iPrLoc
   use rasscf_global,only:nTot3,nTot4,ISTORP,iTri,ISTORD
-  use general_data,only:nsym,nbas,nash,nish,nssh,norb
+  use general_data,only:nsym,nbas,nash,nish,norb
 
   implicit none
   real(kind=wp) :: FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),CMO(*)

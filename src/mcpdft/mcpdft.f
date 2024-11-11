@@ -35,6 +35,7 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
       use definitions,only:iwp,wp,u6
+      use constants,only:zero
       use Fock_util_global, only: DoCholesky
       use mcpdft_input, only: mcpdft_options, parse_input
       use write_pdft_job, only: writejob
@@ -147,6 +148,8 @@
         Call mma_allocate(FA,NTOT1,Label='FA')
         call mma_allocate(puvx,nfint,label='PUVX')
         Call mma_allocate(TUVX,NACPR2,Label='TUVX')
+        D1I(:) = zero
+        D1A(:) = zero
       CALL TRACTL2(CMO,PUVX,TUVX,D1I,
      &             FI,D1A,FA,IPR,lSquare,ExFac)
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
