@@ -11,6 +11,7 @@
 
 set (sources
      check_fthaw.F90
+     checkfuncparam.F90
      cwrap_drvnq.F90
      driver.F90
      drvdft.F90
@@ -27,7 +28,6 @@ set (sources
      vt_lim.F90
      wrap_drvnq.F90
      xlambda.F90
-     checkfuncparam.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
