@@ -13,7 +13,7 @@
 
 module mcpdft_input
   use definitions,only:iwp,wp
-  use ontop_functional,only:OTFNAL_t, func_type, get_base
+  use ontop_functional,only:OTFNAL_t,func_type,get_base
   use spool,only:Spoolinp,Close_LuSpool
 
   implicit none
@@ -27,8 +27,8 @@ module mcpdft_input
     logical :: nac = .false.
     logical :: is_hdf5_wfn = .false.
     logical :: extparam = .false.
-    character(len=256) :: wfn_file = ""
-    character(len=256) :: extparamfile = ""
+    character(len=256) :: wfn_file = ''
+    character(len=256) :: extparamfile = ''
 
     integer(kind=iwp) :: rlxroot = 0
     integer(kind=iwp),dimension(2) :: nac_states = 0
@@ -47,6 +47,7 @@ contains
     use constants,only:zero
     use stdalloc,only:mma_deallocate
     use text_file,only:next_non_comment
+    use unixinfo,only:supername
     use KSDFT_Info,only:CoefR,CoefX
 #ifdef _HDF5_
     use mh5,only:mh5_is_hdf5
@@ -60,6 +61,9 @@ contains
     character(len=:),allocatable :: buffer
     character(len=4) :: command
 
+    ! Resets the input options on subsequent calls
+    ! such as in numerical gradients...
+    mcpdft_options = mcpdftinputoptions_t()
     ierror = 0
     lambda = zero
     otxc = ""
@@ -81,15 +85,19 @@ contains
 
       select case(command)
       case("FILE")
+        ! Comsume the following line
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        ! This will abort if the file does not exist.
-        call fileorb(buffer,mcpdft_options%wfn_file)
+        if(supername(1:18) == 'numerical_gradient') then
+          call WarningMessage(1,'Ignoring FILE keyword during numerical gradients')
+        else
+          ! This will abort if the file does not exist.
+          call fileorb(buffer,mcpdft_options%wfn_file)
 #ifdef _HDF5_
-        mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
+          mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
 #endif
-
+        endif
       case("KSDF")
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
@@ -140,9 +148,9 @@ contains
           call EOFError(buffer)
         endif
         read(buffer,*,IOStat=iError) mcpdft_options%extparamfile
-        call f_inquire(mcpdft_options%extparamfile, mcpdft_options%extparam)
-        if (.not. mcpdft_options%extparam) then
-          call FileLocatingError(buffer, mcpdft_options%extparamfile)
+        call f_inquire(mcpdft_options%extparamfile,mcpdft_options%extparam)
+        if(.not. mcpdft_options%extparam) then
+          call FileLocatingError(buffer,mcpdft_options%extparamfile)
         endif
 
       case("RLXR")
@@ -179,7 +187,7 @@ contains
 
   subroutine verify_input()
     ! Validates mcpdft_options object. Ensures that the options provided from the user are valid.
-    use nq_Info, only: meta_GGA_Type1
+    use nq_Info,only:meta_GGA_Type1
     use definitions,only:u6
     use Fock_util_global,only:DoCholesky
     implicit none
@@ -227,15 +235,15 @@ contains
     endif
 
     if(mcpdft_options%grad) then
-     if(func_type(get_base(mcpdft_options%otfnal%otxc))==meta_GGA_Type1) then
+      if(func_type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) then
         call WarningMessage(2,"MC-PDFT gradients with translated meta-GGA not supported")
         write(u6,*) ' ************* ERROR **************'
         write(u6,*) ' MC-PDFT gradients are not         '
         write(u6,*) ' implemented with meta-GGAs        '
         write(u6,*) ' **********************************'
         call Quit_OnUserError()
-     end if
-    end if
+      endif
+    endif
 
     if(mcpdft_options%nac) then
       if(.not. mcpdft_options%mspdft) then
@@ -309,12 +317,12 @@ contains
     call Quit_OnUserError()
   endsubroutine
 
-  subroutine FileLocatingError(buffer, filename)
+  subroutine FileLocatingError(buffer,filename)
     use definitions,only:u6
     implicit none
-    character(len=*),intent(in) :: buffer, filename
+    character(len=*),intent(in) :: buffer,filename
 
-    call WarningMessage(2,"Error in locating file " // filename)
+    call WarningMessage(2,"Error in locating file "//filename)
     write(u6,*) "Last line read from input: ",buffer
     call Quit_OnUserError()
   endsubroutine

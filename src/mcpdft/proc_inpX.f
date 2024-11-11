@@ -82,15 +82,6 @@
 
       iRc=_RC_ALL_IS_WELL_
 
-
-      ! If we are called from numerical gradients, then the
-      ! wave function file that we should read from cannot
-      ! have been set by the user, we need to read explicitly
-      ! from the &RASSCF module
-      If (SuperName(1:18).eq.'numerical_gradient') Then
-        mcpdft_options%wfn_file = ""
-      End If
-
       !> Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
