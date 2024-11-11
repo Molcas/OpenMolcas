@@ -433,10 +433,11 @@
          CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
          call mma_allocate(fock,ntot4,label='Fock')
         fock(:) = zero
-         CALL FOCK_update(FOCK,fi_v,fa_v,casdm1,P,
+         CALL fock_update(fock,fi_v,fa_v,casdm1,P,
      &                    Q,OnTopT,CMO)
 
          Call Put_dArray('FockOcc',FockOcc,ntot1)
+         call put_darray('Fock_PDFT',fock,ntot4)
 
          Call mma_deallocate(Q)
       Call mma_deallocate(ONTOPO)

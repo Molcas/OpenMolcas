@@ -22,7 +22,7 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   use stdalloc,only:mma_allocate,mma_deallocate
   use wadr,only:fockocc
   use rasscf_global,only:nFint,ISTORP,ntot4
-  use mspdftgrad,only:F1MS,F2MS,FocMS
+  use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS
   use general_data,only:ntot1,nbas,nfro,norb,nsym
   implicit none
 
@@ -81,18 +81,18 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
     dm2(:) = zero
   ENDIF
 
-  !Must add to existing FOCK operator (occ/act).
+  !Must add to existing fock operator (occ/act).
   CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-  CALL FOCK_update(FOCK,fi_v,fa_v,D1Act,dm2,Q,OnTopT,CMO)
+  CALL fock_update(fock,fi_v,fa_v,D1Act,dm2,Q,OnTopT,CMO)
   Call mma_deallocate(Q)
   call mma_deallocate(dm2)
-
   Call mma_deallocate(OnTopO)
   Call mma_deallocate(OnTopT)
   CALL mma_deallocate(FI_V)
   CALL mma_deallocate(FA_V)
 
   focms(:,state) = fockocc(:)
+  FxyMS(:,state) = fock(:)
   IF(IPRLEV >= DEBUG) THEN
     write(u6,*) 'FOCC_OCC'
     call wrtmat(fockocc,1,ntot1,1,ntot1)
