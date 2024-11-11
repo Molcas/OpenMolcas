@@ -387,7 +387,7 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|. ::
    KSDFT=T:PBE
    MSPDft
 
-The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` in :program:`RASSCF` and :kword:`GRAD` in :program:`MCPDFT`. The additional modules include :program:`MCLR`, :program:`ALASKA` and :program:`SLAPAF`. ::
+The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` and :kword:`GRAD` in :program:`MCPDFT`. The additional modules include :program:`MCLR`, :program:`ALASKA` and :program:`SLAPAF`. ::
 
    &GATEWAY
     Coord
@@ -409,12 +409,12 @@ The following example shows a part of the input to run CMS-PDFT geometry optimiz
     Ras2=4 1 0 1
     Nactel=8 0 0
     CMSI
-    RLXRoot=2
 
     &MCPDFT
     KSDFT=T:PBE
     Grad
     MSPDft
+    RLXRoot=2
 
     &MCLR
 
