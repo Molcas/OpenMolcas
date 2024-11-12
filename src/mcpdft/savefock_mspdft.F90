@@ -14,7 +14,7 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 
-Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
+Subroutine SaveFock_msPDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use printlevel,only:debug
@@ -103,4 +103,4 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   call mma_deallocate(fock)
   call mma_deallocate(h1e)
 
-EndSubroutine SaveFock_PDFT
+EndSubroutine SaveFock_msPDFT

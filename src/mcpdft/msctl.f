@@ -434,7 +434,7 @@
 !      doing exactly the same thing as done in the previous chunck
 !      starting from 'BUILDING OF THE NEW FOCK MATRIX'
 !      Hopefully this code will be neater.
-       call savefock_pdft(CMO,hcore,coul,casdm1,NQ,p2d,jroot)
+       call savefock_mspdft(CMO,hcore,coul,casdm1,NQ,p2d,jroot)
       end if
 
 
