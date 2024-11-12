@@ -281,7 +281,7 @@ c You don't have to be beautiful to turn me on
         ! set to compute 2-, 3- and 4-rdm
         call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
         call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
-        call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
+        ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
       end if
 #endif
       return
