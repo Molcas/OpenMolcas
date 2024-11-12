@@ -32,7 +32,8 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   Real(kind=wp),     intent(out) :: F1(nasht,nasht),F2(nasht,nasht,nasht,nasht)
   Real(kind=wp),     intent(out) :: G3(*), F3(*)
   Integer(kind=i1),  intent(in)  :: idxG3(6,*)
-  Real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:),TG3tmp(:,:,:,:,:,:),G4(:,:,:,:,:)
+  Real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:),TG3tmp(:,:,:,:,:,:)
+  ! Real(kind=wp), allocatable :: G4(:,:,:,:,:)
   Real(kind=wp) :: val
   Integer(kind=iwp) :: t,u,v,w,x,y,z,tu,vx
   Integer(kind=iwp) :: i,n4
@@ -45,13 +46,14 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   ! call mma_allocate(G3tmp,nasht,nasht,nasht,nasht,nasht,nasht,Label='G3tmp')
   allocate(G3tmp(nasht,nasht,nasht,nasht,nasht,nasht))
   allocate(TG3tmp(nasht,nasht,nasht,nasht,nasht,nasht))
-  call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
+  ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
 
 
   call qcmaquis_interface_get_1rdm_full(G1)
   call qcmaquis_interface_get_2rdm_full(G2)
   call qcmaquis_interface_get_3rdm_full(G3tmp)
   call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp,epsa)
+  write(*, *) "ng3 = ", ng3
 
 
   if (iff > 0)then
@@ -85,6 +87,7 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   end if
 
 
+
   do i = 1,ng3
     t = idxG3(1,i)
     u = idxG3(2,i)
@@ -92,6 +95,7 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
     x = idxG3(4,i)
     y = idxG3(5,i)
     z = idxG3(6,i)
+    write(*,*) t, u, v, x, y, z
 
     G3(i) = G3tmp(t,v,y,u,x,z)
     ! F_tvyuxz = <| e_{tv,yu,xz} E_ww f_ww |> - <| e_{tv,yu,xz} |> (f_uu + f_xx + f_zz)
@@ -106,7 +110,7 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
 
   if (allocated(G3tmp)) deallocate(G3tmp)
   if (allocated(TG3tmp)) deallocate(TG3tmp)
-  call mma_deallocate(G4)
+  ! call mma_deallocate(G4)
 
 end subroutine mkfg3qcm
 #elif defined (NAGFOR)
