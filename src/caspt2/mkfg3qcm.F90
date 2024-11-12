@@ -16,6 +16,8 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
 
   use stdalloc, only:mma_allocate,mma_deallocate
   use qcmaquis_interface
+  use qcmaquis_interface_caspt2
+  use qcmaquis_interface_mpssi
   use definitions, only:wp,iwp,i1
   use gugx, only:SGS
 
@@ -30,7 +32,7 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   Real(kind=wp),     intent(out) :: F1(nasht,nasht),F2(nasht,nasht,nasht,nasht)
   Real(kind=wp),     intent(out) :: G3(*), F3(*)
   Integer(kind=i1),  intent(in)  :: idxG3(6,*)
-  Real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:),G4(:,:,:,:,:)
+  Real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:),TG3tmp(:,:,:,:,:,:),G4(:,:,:,:,:)
   Real(kind=wp) :: val
   Integer(kind=iwp) :: t,u,v,w,x,y,z,tu,vx
   Integer(kind=iwp) :: i,n4
@@ -42,13 +44,14 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   ! This might be memory hungry
   ! call mma_allocate(G3tmp,nasht,nasht,nasht,nasht,nasht,nasht,Label='G3tmp')
   allocate(G3tmp(nasht,nasht,nasht,nasht,nasht,nasht))
+  allocate(TG3tmp(nasht,nasht,nasht,nasht,nasht,nasht))
   call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
 
 
   call qcmaquis_interface_get_1rdm_full(G1)
   call qcmaquis_interface_get_2rdm_full(G2)
   call qcmaquis_interface_get_3rdm_full(G3tmp)
-  call qcmaquis_interface_get_4rdm_full(G4)
+  call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp,epsa)
 
 
   if (iff > 0)then
@@ -91,14 +94,18 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
     z = idxG3(6,i)
 
     G3(i) = G3tmp(t,v,y,u,x,z)
+    ! F_tvyuxz = <| e_{tv,yu,xz} E_ww f_ww |> - <| e_{tv,yu,xz} |> (f_uu + f_xx + f_zz)
+    ! Compute first term using transition RDM between <| and |'> = E_ww f_ww |>: <| e_{tv,yu,xz} |'>
+    F3(i) = TG3tmp(t,v,y,u,x,z) - G3(i) * (epsa(u) + epsa(x) + epsa(z))
 
-    do w = 1,nasht
-      val = get_p4_element(G4,w,t,v,y,w,u,x,z,nasht)
-      F3(i) = F3(i) + val * epsa(w)
-    end do
+    ! do w = 1,nasht
+    !   val = get_p4_element(G4,w,t,v,y,w,u,x,z,nasht)
+    !   F3(i) = F3(i) + val * epsa(w)
+    ! end do
   end do
 
   if (allocated(G3tmp)) deallocate(G3tmp)
+  if (allocated(TG3tmp)) deallocate(TG3tmp)
   call mma_deallocate(G4)
 
 end subroutine mkfg3qcm
