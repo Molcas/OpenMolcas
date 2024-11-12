@@ -321,8 +321,8 @@ The :kword:`KSDFT` is the only required keyword.
   or MS-PDFT wave function. Defaults to the highest root or root defined by the
   same keyword in the :program:`RASSCF` module.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" LEVEL="ADVANCED" MIN_VALUE="1">
-              %%Keyword: RLXRoot <advanced>
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" MIN_VALUE="1" LEVEL="BASIC">
+              %%Keyword: RLXRoot <basic>
               <HELP>
               Which root to use in a geometry optimization of a SA-MC-PDFT or
               MS-PDFT wave function. Default: root defined by RLXROOT in the
