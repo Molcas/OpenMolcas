@@ -40,7 +40,6 @@
       real(kind=wp),intent(inout) :: Ref_Ener(*)
       real(kind=wp),intent(in) :: CMO(*)
 
-      character(len=8) Label
       Logical First, Dff, Do_DFT,Found
 
       real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
@@ -55,8 +54,8 @@
       real(kind=wp),allocatable :: hcore(:)
       integer(kind=iwp), external :: get_charge
       integer(kind=iwp) :: IAD19,iJOB,dmDisk, IADR19(1:30)
-      integer(kind=iwp) :: jroot,NQ, isym,i, charge, iComp
-      integer(kind=iwp) :: iOpt,  iPrLev,irc, iSA, iSyLbl
+      integer(kind=iwp) :: jroot,NQ, isym,i, charge
+      integer(kind=iwp) :: iPrLev,iSA
       integer(kind=iwp) :: niaia
       real(kind=wp), external :: energy_mcwfn
       real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
@@ -67,26 +66,11 @@
       ! Molecular charge
       charge = get_charge()
 
-
-!**********************************************************
-! Load bare nuclei Hamiltonian
-! This is h_pq but in the AO basis (so h_{mu, nu})
-!**********************************************************
+      ! Load h_mu,nu (1e in AO basis)
       call mma_allocate(hcore,nTot1,label='hcore')
-      iComp  =  1
-      iSyLbl =  1
-      iRc    = -1
-      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
-      Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,hcore,iSyLbl)
-      If ( iRc.ne.0 ) then
-        Write(u6,*) 'msctl: iRc from Call RdOne not 0'
-        Write(u6,*) 'Label = ',Label
-        Write(u6,*) 'iRc = ',iRc
-        Call Abend()
-      Endif
+      call get_hcore(hcore)
 
-!Here we calculate the D1 Inactive matrix (AO).
+      ! Here we calculate the D1 Inactive matrix (in AO basis).
       call mma_allocate(dm1_core,ntot2,label="dm1_core")
       Call Get_D1I_RASSCF(CMO,dm1_core)
 
@@ -144,13 +128,13 @@
         Lapl_b2 = Zero
 
 !Read in the density matrices for <jroot>.
-        casdm1(:)=0.0D0
-        dm1_cas(:)=0.0D0
-        casdm1s(:)=0.0D0
-        dm1s_cas(:)=0.0D0
-        Tmp3(:)=0.0D0
-        folded_dm1_cas(:)=0.0D0
-        P2D(:)=0.0D0
+        casdm1(:)=zero
+        dm1_cas(:)=zero
+        casdm1s(:)=zero
+        dm1s_cas(:)=zero
+        Tmp3(:)=zero
+        folded_dm1_cas(:)=zero
+        P2D(:)=zero
 
 !Get the D1 Active matrix for this state.  These should probably be
 !most easily read from the previous JOBIPH file.  Then, convert D1A from
@@ -191,11 +175,13 @@
          Call Fold(nSym,nBas,dm1_cas,folded_dm1_cas)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
-         Call Dcopy_(nTot1,folded_dm1_cas,1,DIDA(:,iIntS),1)
-         if (iIntS.eq.lRoots)
-     &   Call Dcopy_(ntot1,Tmp3,1,DIDA(:,lRoots+1),1)
+         DIDA(:,iIntS) = folded_dm1_cas(:)
+         if (iIntS.eq.lRoots) then
+           Call Dcopy_(ntot1,Tmp3,1,DIDA(:,lRoots+1),1)
+         endif
       end if
-         Call Daxpy_(nTot1,1.0D0,folded_dm1_cas,1,Tmp3,1)
+      tmp3(:) = tmp3(:) + folded_dm1_cas
+
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
