@@ -27,12 +27,10 @@
       use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
-      use wadr, only: FockOcc
       use rasscf_global, only: DFTFOCK, nRoots, ExFac,
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
-     &                         nTot4, PotNuc,
-     &                         ISTORP
+     &                         PotNuc
       use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,
      &              jobold,nactel,nbas,nish,nfro
       implicit none
@@ -42,19 +40,17 @@
 
       Logical First, Dff, Do_DFT,Found
 
-      real*8, allocatable:: FI_V(:), FA_V(:), FockI(:),
+      real*8, allocatable:: FockI(:),
      &                      Tmp3(:), folded_dm1_cas(:),
      &                      dummy1(:), dummy2(:), folded_dm1s_cas(:),
      &                      dm1_core(:), casdm1(:),
      &                      focka(:), dm1_cas(:), dm1s_cas(:),
      &                      casdm1s(:), P2D(:), PUVX(:), P2t(:),
-     &                      OnTopT(:), OnTopO(:),
-     &                      TUVX_tmp(:),
-     &                      P(:), FOCK(:), Q(:), Coul(:)
+     &                      Coul(:),tuvx_tmp(:)
       real(kind=wp),allocatable :: hcore(:)
       integer(kind=iwp), external :: get_charge
       integer(kind=iwp) :: IAD19,iJOB,dmDisk, IADR19(1:30)
-      integer(kind=iwp) :: jroot,NQ, isym,i, charge
+      integer(kind=iwp) :: jroot,NQ, isym, charge
       integer(kind=iwp) :: iPrLev,iSA
       integer(kind=iwp) :: niaia
       real(kind=wp), external :: energy_mcwfn
@@ -313,107 +309,8 @@
        if((.not. mcpdft_options%mspdft)
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
-         Write(u6,*) 'Calculating potentials for analytic gradients...'
 
-        IF(ISTORP(NSYM+1).GT.0) THEN
-           call mma_allocate(P,ISTORP(NSYM+1),Label='P')
-        else
-          call mma_allocate(P,1,Label='P')
-         END IF
-!MCLR requires two sets of things:
-!1. The effective one-body Fock matrix and the effective two-body fock
-!matrix.  These are used to generate the CI gradient inside of MCLR
-!2. The effective generalized fock matrix.  This is used to calculate
-!the orbital gradient inside of MCLR and is also used in the
-!renormalization/effective lagrangian part of the final gradient
-!evalutation.
-
-!I think the plan should be to add on the missing pieces (to Fock_occ)
-!which come from the one- and two-electron potentials.  These pieces are
-!given by
-! F_{xy} = \sum_{p} V_{py} D_{px} + \sum_{pqr} 2v_{pqry}d_{pqrx}.
-
-
-!I will read in the one- and two-electron potentials here
-
-      Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
-      Call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
-      Call Get_dArray('ONTOPT',OnTopT,NFINT)
-      Call Get_dArray('ONTOPO',OnTopO,NTOT1)
-
-!Grab the active-active part of the FI+FA matrix (currently held in the
-!FA matrix) and place it in an array of size NACPAR.  Add the oeotp to
-!it.  Write to file.
-
-!I think I need to generate FI, which will contain both the one-electron
-!potential contribution and the V_kkpu contribution.
-
-
-
-      CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
-      Call Get_dArray('FI_V',FI_V,NTOT1)
-
-      call ao2mo_1e(cmo,hcore(:)+coul(:),
-     &       focki,nsym,nbas,norb,nfro)
-      fi_v(:) = fi_v(:) + ontopo(:) + focki(:)
-
-      Call mma_allocate(TUVX_tmp,NACPR2,Label='TUVX_tmp')
-      Call Get_TUVX(OnTopT,TUVX_tmp)
-
-      !Add the V_kktu contribution to Fone_tu?
-!STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!This should be addressed in the upd_FI routine.
-
-      call put_darray('F1_PDFT         ',fi_v(:),ntot1)
-      call put_darray('F2_PDFT         ',tuvx_tmp,nacpr2)
-
-      Call mma_deallocate(TUVX_tmp)
-
-!____________________________________________________________
-!This next part is to generate the MC-PDFT generalized fock operator.
-
-!The corrections (from the potentials) to FI and FA are built in the NQ
-!part of the code, for efficiency's sake.  It still needs to be
-!debugged.
-      CALL mma_allocate(FA_V,Ntot1,Label='FA_V')
-      Call Get_dArray('FA_V',FA_V,NTOT1)
-
-      If ( IPRLEV.ge.DEBUG ) then
-      write(u6,*) "extra terms to update FI"
-      do i=1,ntot1
-        write(u6,*) FI_V(i)
-      end do
-      write(u6,*) "extra terms to update FA"
-      do i=1,ntot1
-        write(u6,*) FA_V(i)
-      end do
-        end if
-
-!Reordering of the two-body density matrix.
-
-       IF(ISTORP(NSYM+1).GT.0) THEN
-         P(:)=zero
-         CALL PMAT_RASSCF(P2d,P)
-      END IF
-
-!Must add to existing FOCK operator (occ/act). FOCK is not empty.
-         CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-         call mma_allocate(fock,ntot4,label='Fock')
-        fock(:) = zero
-         CALL fock_update(fock,fi_v,fa_v,casdm1,P,
-     &                    Q,OnTopT,CMO)
-
-         Call Put_dArray('FockOcc',FockOcc,ntot1)
-         call put_darray('Fock_PDFT',fock,ntot4)
-
-         Call mma_deallocate(Q)
-      Call mma_deallocate(ONTOPO)
-      Call mma_deallocate(ONTOPT)
-      CALL mma_deallocate(FI_V)
-      CALL mma_deallocate(FA_V)
-      call mma_deallocate(P)
-      call mma_deallocate(fock)
-
+          call savefock_pdft(cmo,hcore,coul,casdm1,nq,p2d)
 
 !Put some information on the runfile for possible gradient calculations.
       Call Put_iScalar('Number of roots',nroots)
@@ -423,8 +320,6 @@
 
 !Put information needed for geometry optimizations.
 !need to do MCLR for gradient runs. (1 to run, 2 to skip)
-      iSA = 1
-      Call Put_iScalar('SA ready',iSA)
       Call Put_cArray('MCLR Root','****************',16)
       Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
 
