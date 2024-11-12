@@ -77,8 +77,8 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      Call StatusLine(' MCLR:',
-     &                ' Computing Lagrangian multipliers for SA-CASSCF')
+      Call StatusLine('MCLR: ',
+     &                'Computing Lagrangian multipliers for SA-CASSCF')
 *
 
       lPaper=132

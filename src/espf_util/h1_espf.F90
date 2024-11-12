@@ -137,7 +137,7 @@ nMult = MltOrd*nAtQM
 ! Compute the grid around the molecule
 
 nGrdPt = 0
-call StatusLine(' espf:',' Making the grid')
+call StatusLine('espf: ','Making the grid')
 if (iGrdTyp == 1) call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,.false.,IsMM,-iGrdTyp,DGrid,nAtQM)
 call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,.false.,IsMM,iGrdTyp,DGrid,nAtQM)
 
@@ -233,7 +233,7 @@ call InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,B,IsMM)
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
-call StatusLine(' espf:',' Computing energy components')
+call StatusLine('espf: ','Computing energy components')
 call espf_energy(nBas(0),natom,nGrdPt,Ext,Grid%A,B,h1,nh1,RepNuc,RealDummy,DoTinker,DoGromacs,DynExtPot)
 
 ! Save the modified h1 matrix

@@ -76,7 +76,7 @@ procedure(grd_mem) :: MltMmG
 iRout = 131
 iPrint = nPrint(iRout)
 call CWTime(TCpu1,TWall1)
-call StatusLine(' Alaska:',' Computing 1-electron gradients')
+call StatusLine('Alaska: ','Computing 1-electron gradients')
 
 ! Allocate memory for density and Fock matrices
 

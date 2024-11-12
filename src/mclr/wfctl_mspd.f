@@ -69,8 +69,8 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      Call StatusLine(' MCLR:',
-     &                ' Computing Lagrangian multipliers for MS-PDFT')
+      Call StatusLine('MCLR: ',
+     &                'Computing Lagrangian multipliers for MS-PDFT')
 *
 
       lPaper=132

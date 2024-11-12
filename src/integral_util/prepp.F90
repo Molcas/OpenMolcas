@@ -71,7 +71,7 @@ real(kind=wp), external :: Get_ExFac
 call CWTIME(PreppCPU1,PreppWall1)
 #endif
 
-call StatusLine(' Alaska:',' Prepare the 2-particle matrix')
+call StatusLine('Alaska: ','Prepare the 2-particle matrix')
 
 iD0Lbl = 1
 

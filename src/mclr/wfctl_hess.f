@@ -104,8 +104,8 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
-      SLine=' Solving CP(CAS)HF equations'
-      Call StatusLine(' MCLR:',SLine)
+      SLine='Solving CP(CAS)HF equations'
+      Call StatusLine('MCLR: ',SLine)
 *
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
@@ -199,9 +199,9 @@
         jDisp=List(2,iDisp)
 *
         Write (SLine,'(A,I3,A)')
-     &        ' Solving CP(CAS)HF equations for perturbation ',
+     &        'Solving CP(CAS)HF equations for perturbation ',
      &        iDisp,'.'
-        Call StatusLine(' MCLR:',SLine)
+        Call StatusLine('MCLR: ',SLine)
 *
 C     Do iSym=kksym,kkksym
 *

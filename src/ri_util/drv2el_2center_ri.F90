@@ -63,7 +63,7 @@ integer(kind=iwp), external :: IsFreeUnit, nMemAm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call StatusLine(' Seward:',' Computing 2-center RI integrals')
+call StatusLine('Seward: ','Computing 2-center RI integrals')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

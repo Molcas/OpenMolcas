@@ -63,7 +63,7 @@ iRout = 131
 iPrint = nPrint(iRout)
 LuWr = u6
 
-call StatusLine(' Alaska:',' Computing OFembedding gradients')
+call StatusLine('Alaska: ','Computing OFembedding gradients')
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()

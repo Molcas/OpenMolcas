@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: i, fileid
 real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpe(:), tmpi(:,:), tmpr(:,:)
 
-call StatusLine('RhoDyn:','Read RASSI H5 file')
+call StatusLine('RhoDyn: ','Read RASSI H5 file')
 
 fileid = mh5_open_file_r('RASSISD')
 

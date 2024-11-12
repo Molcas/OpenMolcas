@@ -3602,7 +3602,7 @@ C Test read failed. JOBOLD cannot be used.
         if(.not.doDMRG)then
 #endif
 * Initialize LUCIA and determinant control
-          Call StatusLine('RASSCF:','Initializing Lucia...')
+          Call StatusLine('RASSCF: ','Initializing Lucia...')
           CALL Lucia_Util('Ini')
 * to get number of CSFs for GAS
 * and number of determinants to store

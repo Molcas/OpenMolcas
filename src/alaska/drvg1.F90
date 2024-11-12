@@ -96,7 +96,7 @@ Pget_Wall = Zero
 #endif
 Temp(:) = Zero
 
-call StatusLine(' Alaska:',' Computing 2-electron gradients')
+call StatusLine('Alaska: ','Computing 2-electron gradients')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

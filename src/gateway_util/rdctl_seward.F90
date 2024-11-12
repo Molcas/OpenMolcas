@@ -2374,7 +2374,7 @@ do
           Project = Project(1:index(Project,' ')-1)
           Key = trim(Key)//'/tkr2qm_s '//trim(Project)//'.xyz>'//trim(Project)//'.Tinker.log'
           write(u6,*) 'TINKER keyword found, run ',trim(Key)
-          call StatusLine(' Gateway:',' Read input from Tinker')
+          call StatusLine('Gateway: ','Read input from Tinker')
           RC = 0
           call Systemf(trim(Key),RC)
           if (RC /= 0) then
