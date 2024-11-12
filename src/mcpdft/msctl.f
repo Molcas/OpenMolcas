@@ -177,7 +177,7 @@
       if(mcpdft_options%grad .and. mcpdft_options%mspdft)then
          DIDA(:,iIntS) = folded_dm1_cas(:)
          if (iIntS.eq.lRoots) then
-           Call Dcopy_(ntot1,Tmp3,1,DIDA(:,lRoots+1),1)
+           DIDA(:,lroots+1) = Tmp3(:)
          endif
       end if
       tmp3(:) = tmp3(:) + folded_dm1_cas
@@ -187,7 +187,7 @@
 !replace the next call with something that supports multistates.
          Call Put_dArray('D1ao',Tmp3,nTot1)
          IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
-          Call DCopy_(nTot1,Tmp3,1,D1AOMS(:,jRoot),1)
+          d1aoms(:,jroot) = tmp3(:)
          END IF
 
 !Get the spin density matrix for open shell cases
@@ -204,7 +204,7 @@
          Call Put_dArray('D1sao',folded_dm1s_cas,nTot1)
          IF(iSpin.ne.1.and. mcpdft_options%grad
      &      .and.mcpdft_options%mspdft) THEN
-         Call DCopy_(nTot1,folded_dm1s_cas,1,D1SAOMS(:,jRoot),1)
+           d1saoms(:,jroot) = folded_dm1s_cas(:)
          END IF
          Call mma_deallocate(folded_dm1s_cas)
 
@@ -465,7 +465,7 @@
 
          Call Fold(nSym,nBas,dm1_core,Tmp3)
          Call Fold(nSym,nBas,dm1_cas,folded_dm1_cas)
-         Call Daxpy_(nTot1,1.0D0,folded_dm1_cas,1,Tmp3,1)
+         tmp3(:) = tmp3(:) + folded_dm1_cas(:)
          Call Put_dArray('D1ao',Tmp3,nTot1)
 
 !Get the spin density matrix for open shell cases
