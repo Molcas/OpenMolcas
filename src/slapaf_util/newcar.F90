@@ -30,12 +30,13 @@ integer(kind=iwp), intent(in) :: Iter, nAtom, mTtAtm
 real(kind=wp), intent(inout) :: Coor(3,nAtom)
 logical(kind=iwp), intent(inout) :: Error
 #include "print.fh"
-#include "warnings.h"
 logical(kind=iwp) :: BSet_Save, Converged, HSet_Save, lOld_Save
 integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, jter, M, N, nQQ, nWndw
 real(kind=wp) :: denom, dx2, dx_RMS, rMax
 real(kind=wp), allocatable :: DFC(:,:), dss(:), rInt(:)
 integer(kind=iwp), parameter :: NRHS = 1
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************
@@ -152,7 +153,7 @@ do jter=1,iterMx
   end do
 
   Cx(:,:,Iter+1) = Coor(:,:)
-  if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',AtomLbl,nAtom,Coor,3,nAtom)
+  if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,nAtom,Coor,3,nAtom)
 
   ! Compute new values q and the Wilson B-matrix for the new
   ! geometry with the current new set of Cartesian coordinates.

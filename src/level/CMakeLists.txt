@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     main.F90
      af3x3lev.F90
      alfas.F90
      cdjoelas.F90
@@ -21,7 +22,6 @@ set (sources
      level_spline.F90
      levqad.F90
      levxpc.F90
-     main.F90
      masses.F90
      matxel.F90
      plyintrp.F90

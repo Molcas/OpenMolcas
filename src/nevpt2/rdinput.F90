@@ -22,6 +22,8 @@ use nevpt2_cfg, only: igelo, MultGroup, no_pc, nr_frozen_orb, nr_states, rdm_dis
 use text_file, only: extend_line, next_non_comment
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 character(len=*), intent(out) :: refwfnfile
@@ -217,7 +219,7 @@ do
 end do
 ! END of Input
 
-if (allocated(Line2)) call mma_deallocate(Line2)
+call mma_deallocate(Line2,safe='*')
 
 !> make sure the array is allocated for the minimal input
 !> &NEVPT2 &END

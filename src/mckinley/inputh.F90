@@ -55,7 +55,7 @@ real(kind=wp), allocatable :: AM(:,:), C(:,:), Scr(:,:), Tmp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
 real(kind=wp), external :: DDot_
-logical(kind=iwp), external :: TstFnc
+logical(kind=iwp), external :: TF
 
 !call DecideOnCholesky(DoCholesky)
 !if (DoCholesky) then
@@ -391,7 +391,7 @@ do iIrrep=0,nIrrep-1
       ! Loop over the cartesian components
       do iCar=0,2
         iComp = 2**iCar
-        if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
+        if (TF(mdc,iIrrep,iComp)) then
           nDisp = nDisp+1
           if (nDisp > mDisp) then
             write(u6,*) 'nDisp > mDisp'
@@ -535,13 +535,11 @@ if (TRSymm) then
         if (dbsc(iCnttp)%Coor(2,iCnt) /= Zero) iComp = ibset(iComp,1)
         if (dbsc(iCnttp)%Coor(3,iCnt) /= Zero) iComp = ibset(iComp,2)
         do jIrrep=0,nIrrep-1
-          if (TstFnc(dc(mdc)%iCoSet,jIrrep,iComp,dc(mdc)%nStab)) then
-            Fact = Fact+One
-          end if
+          if (TF(mdc,jIrrep,iComp)) Fact = Fact+One
         end do
         do iCar=0,2
           iComp = 2**iCar
-          if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
+          if (TF(mdc,iIrrep,iComp)) then
             ldsp = ldsp+1
             ! Transfer the coordinates
             C(1:3,ldsp) = dbsc(iCnttp)%Coor(:,iCnt)

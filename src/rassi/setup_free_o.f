@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Setup_O()
       use nq_Grid, only: Pax
-#include "stdalloc.fh"
+      use stdalloc, only: mma_allocate
       Call mma_allocate(Pax,3,3,Label='Pax')
       Pax(:,:)=0.0D0
       Call DCOPY_(3,[1.0D0],0,Pax,4)
@@ -19,7 +19,7 @@
 *
       Subroutine Free_O()
       use nq_Grid, only: Pax
-#include "stdalloc.fh"
+      use stdalloc, only: mma_deallocate
       Call mma_deallocate(Pax)
       Return
       End

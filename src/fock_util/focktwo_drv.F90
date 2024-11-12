@@ -14,7 +14,7 @@ subroutine FockTwo_Drv(nSym,nBas,nAux,Keep,DLT,DSQ,FLT,nFLT,ExFac,nBMX)
 use Fock_util_interface, only: CHOras_drv
 use Fock_util_global, only: ALGO
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -71,7 +71,7 @@ if ((.not. DoCholesky) .or. GenInt) then
     write(u6,*) ' Largest allocatable array size LBUF=',LBUF
     write(u6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
     write(u6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
-    write(u6,*) '    (All in Real*8-size words)'
+    write(u6,*) '    (All in Real words)'
     call ABEND()
   end if
 
@@ -100,8 +100,8 @@ end if
 call DaXpY_(nFlt,One,Temp,1,FLT,1)
 
 call mma_deallocate(Temp)
-if (allocated(W1)) call mma_deallocate(W1)
-if (allocated(W2)) call mma_deallocate(W2)
+call mma_deallocate(W1,safe='*')
+call mma_deallocate(W2,safe='*')
 call Deallocate_DT(WFSQ(1))
 
 return

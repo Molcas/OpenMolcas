@@ -11,15 +11,15 @@
 
 set (sources
      abdata.F90
+     ass1.F90
      ass1a.F90
      ass1b.F90
-     ass1.F90
+     ass2.F90
      ass2a.F90
      ass2b.F90
-     ass2.F90
+     ass3.F90
      ass3a.F90
      ass3b.F90
-     ass3.F90
      assg1.F90
      assg1_mck.F90
      assg2.F90
@@ -57,12 +57,13 @@ set (sources
      rs2dgh.F90
      rs2dmm.F90
      rtswgh.F90
+     rys.F90
      rys01.F90
      rys11.F90
      rys22.F90
      rys2d.F90
-     rys2dn.F90
      rys2dg.F90
+     rys2dn.F90
      rys33.F90
      rys44.F90
      rys55.F90
@@ -70,33 +71,33 @@ set (sources
      rys77.F90
      rys88.F90
      rys99.F90
-     rysefn.F90
-     rysefx.F90
+     rys_interfaces.F90
+     rysef.F90
      rysef0.F90
      rysef1.F90
      rysef2.F90
      rysef3.F90
      rysef4.F90
-     rysef.F90
-     rys.F90
+     rysefn.F90
+     rysefx.F90
      rysg1.F90
      rysg2.F90
      rysscratch.F90
      set_breit.F90
      sether.F90
-     setupr.F90
      setup_rw.F90
+     setupr.F90
      sppp.F90
      spsp.F90
      sspp.F90
      sssp.F90
      ssss.F90
-     teri1.F90
      teri.F90
+     teri1.F90
      teris.F90
      terisq.F90
-     tnai1.F90
      tnai.F90
+     tnai1.F90
      vcff2d.F90
      vrys2d.F90
      vrys2dm.F90
@@ -110,6 +111,7 @@ set (sources
 set (modfile_list
      her_rw.F90
      breit.F90
+     rys_interfaces.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

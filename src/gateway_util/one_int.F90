@@ -10,18 +10,19 @@
 !***********************************************************************
 
 subroutine One_Int(Kernel,Array,nArray,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,SAR,nSAR,iShll_a,nPrim_a,Exp_a,nCntrc_a, &
-                   Cff_a,iCmp_a,iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,iCmp_r)
+                   Cff_a,iCmp_a,iShll_r,nPrim_r,Exp_r,nCntrc_r,Cff_r,iCmp_r,iCnttp)
 
 use Basis_Info, only: Shells
 use Real_Spherical, only: ipSph, RSph
+use Integral_interfaces, only: prm_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-external :: Kernel
+procedure(prm_kernel) :: Kernel
 integer(kind=iwp), intent(in) :: nArray, iAng, iComp, nOrdOp, nScr1, nScr2, naa, nSAR, iShll_a, nPrim_a, nCntrc_a, iCmp_a, &
-                                 iShll_r, nPrim_r, nCntrc_r, iCmp_r
+                                 iShll_r, nPrim_r, nCntrc_r, iCmp_r, iCnttp
 real(kind=wp), intent(out) :: Array(nArray), Scr1(nScr1), Scr2(nScr2), SAR(nSAR)
 real(kind=wp), intent(in) :: A(3), Exp_a(nPrim_a), Cff_a(nPrim_a,nCntrc_a), Exp_r(nPrim_r), Cff_r(nPrim_r,nCntrc_r)
 integer(kind=iwp) :: mArr, mSar, nHer
@@ -40,7 +41,7 @@ call ZXia(ZAR,ZIAR,nPrim_a,nPrim_r,Exp_a,Exp_r)
 call SetUp1(Exp_a,nPrim_a,Exp_r,nPrim_r,A,A,KAR,PAR,ZIAR)
 
 nHer = (2*iAng+2+nOrdOp)/2
-call Kernel(Exp_a,nPrim_a,Exp_r,nPrim_r,ZAR,ZIAR,KAR,PAR,pSAR,nPrim_a*nPrim_r,iComp,iAng,iAng,A,A,nHer,Array,mArr,A,nOrdOp)
+call Kernel(Exp_a,nPrim_a,Exp_r,nPrim_r,ZAR,ZIAR,KAR,PAR,pSAR,nPrim_a*nPrim_r,iComp,iAng,iAng,A,A,nHer,Array,mArr,A,nOrdOp,iCnttp)
 
 call mma_deallocate(ZAR)
 call mma_deallocate(ZIAR)

@@ -23,6 +23,7 @@ use Definitions, only: iwp
 use Para_Info, only: nProcs
 #endif
 use Definitions, only: u5, u6
+use spool, only: Set_Spool, LuWr, LuRd
 
 implicit none
 character(len=*), intent(in) :: ModuleName
@@ -30,7 +31,6 @@ character(len=8) :: Prin
 #ifdef _MOLCAS_MPP_
 logical(kind=iwp) :: parallelized
 #endif
-#include "standard_iounits.fh"
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Start.'
@@ -157,7 +157,7 @@ write(u6,*) ' XML initialized '
 
 ! Initiate spool mode to read from standard input
 
-Spool = .true.
+Call Set_Spool()
 
 ! Initiate I/O
 

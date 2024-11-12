@@ -15,6 +15,7 @@ subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,r
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc
 use Symmetry_Info, only: nIrrep
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -31,8 +32,10 @@ integer(kind=iwp) :: iDAO, iElem, iM1xp, indi, Indx(3,4), ip, ipDAO, ipDAOt, ipK
                      jndgrd(3,4,0:7), jndhss(3,4,3,4,0:7), nb, nGr
 real(kind=wp) :: coori(3,4), FactECP, Gmma, PTC2, Tmp0, Tmp1
 logical(kind=iwp) :: jfg(4), jfgrd(3,4), jfhss(3,4,3,4), lGrad, lHess
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 logical(kind=iwp), external :: EQ
-external :: Cff2D, Fake, TNAI1
 
 lGrad = idcar /= 0
 lHess = nHess /= 0

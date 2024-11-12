@@ -194,7 +194,7 @@ def init3(nbasft,symmetry):
     element=h['CENTER_LABELS']
     n_elements=len(element)
     element=np.reshape(element,(n_elements))
-    element=np.array(element, dtype =np.str)
+    element=np.array(element, dtype =str)
     element=np.char.strip(element)
     h.close()
     #print(basis_id_hd5)

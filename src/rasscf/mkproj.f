@@ -11,51 +11,49 @@
 * Copyright (C) 2019, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE MKPROJ(CRVEC,CMO,TUVX)
-      implicit real*8 (a-h,o-z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: CORESHIFT
+
+      implicit None
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "warnings.h"
-#include "WrkSpc.fh"
-      DIMENSION CRVEC(NCRVEC), CMO(NTOT2)
-      dimension TUVX(*)
+      Real*8 CRVEC(NCRVEC), CMO(NTOT2)
+      Real*8 TUVX(*)
+
+      Real*8, Allocatable:: CS_TMP(:)
+      REAL*8 CS_TU, CS_TUV, COREPROJ
+      Integer NA, NB, IPOS, ITU, IT, IU, IVX, IV, IXMX, IX
+      Real*8, External:: DDot_
 
       NA=NASH(1)
       NB=NBAS(1)
 
-      CALL GETMEM('CS_TMP','ALLO','REAL',LCS_TMP,NB)
-*      write(6,*) 'MKPROJ test: Overlaps active/core :'
+      CALL mma_allocate(CS_TMP,NB,Label='CS_TMP')
       DO IT=1,NA
-        WORK(LCS_TMP-1+IT)=DDOT_(NB,CMO((IT-1)*NB+1),1,CRVEC,1)
-*        write(6,'(1x,i5,f16.8)') it,WORK(LCS_TMP-1+IT)
+        CS_TMP(IT)=DDOT_(NB,CMO((IT-1)*NB+1),1,CRVEC,1)
       END DO
-*      write(6,*)' Before shift TUVX(1):',TUVX(1)
 
       IPOS=0
       ITU=0
       DO IT=1,NA
         DO IU=1,IT
-          CS_TU=WORK(LCS_TMP-1+IT)*WORK(LCS_TMP-1+IU)
+          CS_TU=CS_TMP(IT)*CS_TMP(IU)
           ITU=ITU+1
           IVX=0
           DO IV=1,IT
-            CS_TUV=CS_TU*WORK(LCS_TMP-1+IV)
+            CS_TUV=CS_TU*CS_TMP(IV)
             IXMX=IV
             IF(IT.eq.IV) IXMX=IU
             DO IX=1,IXMX
               IVX=IVX+1
               IPOS=IPOS+1
-              COREPROJ=CS_TUV*WORK(LCS_TMP-1+IX)
+              COREPROJ=CS_TUV*CS_TMP(IX)
               TUVX(IPOS)=TUVX(IPOS)+CORESHIFT*COREPROJ
             END DO
           END DO
         END DO
       END DO
 
-      CALL GETMEM('CS_TMP','FREE','REAL',LCS_TMP,NB)
-*      write(6,*)' IPOS, NCRVEC:',IPOS, NTOT, NCRVEC
-*      write(6,*)'  After shift TUVX(1):',TUVX(1)
-*      call xflush(6)
+      CALL mma_deallocate(CS_TMP)
 
-      RETURN
-      END
+      END SUBROUTINE MKPROJ

@@ -8,91 +8,97 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWFSBTAB(NACTEL,MSPIN2,LSYM,LREST,LSSTAB)
+      SUBROUTINE NEWFSBTAB(NACTEL,MSPIN2,LSYM,REST,SSTAB,ICASE)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_global_arrays, only: FSBARR
+      use rassi_global_arrays, only: FSBTAB1, FSBTAB2, FSBTAB
       IMPLICIT NONE
-C     INTEGER LFSBTAB,LSSTARR,NSIZE,ITYPE,NFSBTMP
-      INTEGER LFSBTAB,LSSTARR,NSIZE,ITYPE
-      INTEGER LSSTAB,NASPRT,LNSST,LISST1
-      INTEGER LTRY,NSSTARR,NPART
-      INTEGER LGORB,LGLIM,NRDETS,NRDETS0,NFSB,NFSB0
-      INTEGER NACTEL,MSPIN2,LSYM,NSYM
-C     INTEGER KORB,KREST,LREST,IFSB,ISPART,IERR
-      INTEGER KORB,KREST,LREST,IFSB,       IERR
-      INTEGER NHEAD,NHSHMAP,KHSHMAP,LHSHMAP,NULL,JFSB
-C     INTEGER KSSTARR,I
-#include "WrkSpc.fh"
+      INTEGER NACTEL,MSPIN2,LSYM
+      INTEGER REST(*), SSTAB(*)
+      INTEGER ICASE
+
+      INTEGER LSSTARR,NSIZE,ITYPE
+      INTEGER NASPRT
+      INTEGER NSSTARR,NPART,NSYM
+      INTEGER NRDETS,NRDETS0,NFSB,NFSB0
+      INTEGER KORB,KREST,IFSB,IERR
+      INTEGER NHEAD,NHSHMAP,KHSHMAP,JFSB
+      INTEGER NLEN
 C Purpose: Construct an FSB table and return its address in the
-C IWORK array.
+C FSBTAB1/FiSBTAB2 array.
 C ITYPE=73 is the check code for this table.
       ITYPE=73
-      IF(IWORK(LSSTAB+1).NE.19) THEN
+      IF(SSTAB(2).NE.19) THEN
         WRITE(6,*)' NEWFSBTAB error: Not a Substring Table.'
-        WRITE(6,*)' Address is LSSTAB=',LSSTAB
         CALL ABEND()
       END IF
-      IF(IWORK(LREST+1).NE.91) THEN
+      IF(REST(2).NE.91) THEN
         WRITE(6,*)' NEWFSBTAB error: Not a GAS Restriction Table.'
-        WRITE(6,*)' Address is LREST=',LREST
         CALL ABEND()
       END IF
-      NSYM  =IWORK(LSSTAB+3)
-      NASPRT=IWORK(LSSTAB+4)
-      CALL GETMEM('NrSST','Allo','Inte',LNSST,NASPRT)
-      CALL GETMEM('ISST1','Allo','Inte',LISST1,NASPRT)
-      CALL GETMEM('Try' ,'Allo','Inte',LTRY  ,NASPRT)
-      NPART=IWORK(LREST+2)
+      NSYM  =SSTAB(4)
+      NASPRT=SSTAB(5)
+      NPART=REST(3)
       KORB=5
       KREST=KORB+(NSYM+1)*(NPART+1)
-      LGORB=LREST-1+KORB
-      LGLIM=LREST-1+KREST
 C Table consists of a 6-word header with data (see below), then
 C an array dimensioned (NASPRT+2)*NFSB, and finally a hash map
 C with suitable capacity e.g. 2*NFSB (50% usage). Each item in a
 C hash map takes up 2 integers. Capacity must be at least NFSB+997.
-      CALL VERTAB(NACTEL,MSPIN2,LSYM,NPART,IWORK(LGORB),IWORK(LGLIM),
-     &            IWORK(LSSTAB),NFSB0,NRDETS0,NFSB,NRDETS,LSSTARR)
+      CALL mkVERTAB(NACTEL,MSPIN2,LSYM,NPART,REST(KORB),REST(KREST),
+     &              SSTAB,NFSB0,NRDETS0,NFSB,NRDETS)
       NHEAD=7
       NSSTARR=(NASPRT+2)*NFSB
       NHSHMAP=997+2*NFSB
       NSIZE=NHEAD+NSSTARR+2*NHSHMAP
-      CALL GETMEM('FSBTab','Allo','Inte',LFSBTAB,NSIZE)
-      CALL ICOPY((NASPRT+2)*NFSB,IWORK(LSSTARR),1,
-     &                                     IWORK(LFSBTAB+NHEAD),1)
-      CALL GETMEM('SSTArr','Free','Inte',LSSTARR,(NASPRT+2)*NFSB0)
-      LSSTARR=LFSBTAB+NHEAD
+      SELECT CASE (iCase)
+      CASE (1)
+         CALL mma_allocate(FSBTAB1,NSIZE,Label='FSBTAB1')
+         FSBTAB=>FSBTAB1(:)
+      CASE (2)
+         CALL mma_allocate(FSBTAB2,NSIZE,Label='FSBTAB2')
+         FSBTAB=>FSBTAB2(:)
+      CASE DEFAULT
+         WRITE(6,*) 'NEWFSBTAB: Illegal ICASE value'
+         WRITE(6,*) 'ICASE=',ICASE
+      END SELECT
+      NLEN=(NASPRT+2)*NFSB
+      CALL ICOPY(NLEN,FSBARR(1:NLEN),1,
+     &                FSBTAB(1+NHEAD:NLEN+NHEAD),1)
+      Call mma_deallocate(FSBARR)
+
+      LSSTARR=1+NHEAD
 
 C Position of hash table ('Map')
       KHSHMAP=1+NHEAD+NSSTARR
-      LHSHMAP=LFSBTAB-1+KHSHMAP
-      IWORK(LFSBTAB)=NSIZE
-      IWORK(LFSBTAB+1)=ITYPE
-      IWORK(LFSBTAB+2)=NFSB
-      IWORK(LFSBTAB+3)=NASPRT
-      IWORK(LFSBTAB+4)=NRDETS
-      IWORK(LFSBTAB+5)=NHSHMAP
-      IWORK(LFSBTAB+6)=KHSHMAP
+      FSBTAB(1)=NSIZE
+      FSBTAB(2)=ITYPE
+      FSBTAB(3)=NFSB
+      FSBTAB(4)=NASPRT
+      FSBTAB(5)=NRDETS
+      FSBTAB(6)=NHSHMAP
+      FSBTAB(7)=KHSHMAP
 C Make the hash map: NULL is a null marker. Suggested value=-1.
-      NULL=-1
-      CALL HSHINI(NHSHMAP,IWORK(LHSHMAP),NULL)
+!     NULL=-1
+!     CALL HSHINI(NHSHMAP,FSBTAB(KHSHMAP),NULL)
+!     In conflict with the null() pointer
+      CALL HSHINI(NHSHMAP,FSBTAB(KHSHMAP:),-1)
 C Store values in the map:
       DO IFSB=1,NFSB
-        CALL HSHPUT(NASPRT,NASPRT+2,IWORK(LSSTARR),
-     &                              NHSHMAP,IWORK(LHSHMAP),IFSB)
+        CALL HSHPUT(NASPRT,NASPRT+2,FSBTAB(LSSTARR:),
+     &              NHSHMAP,FSBTAB(KHSHMAP:),IFSB)
       END DO
 C Check that they can be obtained back:
       IERR=0
       DO IFSB=1,NFSB
-        CALL HSHGET(IWORK(LSSTARR+(NASPRT+2)*(IFSB-1)),NASPRT,
-     &        NASPRT+2,IWORK(LSSTARR),NHSHMAP,IWORK(LHSHMAP),JFSB)
+        CALL HSHGET(FSBTAB(LSSTARR+(NASPRT+2)*(IFSB-1):),NASPRT,
+     &        NASPRT+2,FSBTAB(LSSTARR:),NHSHMAP,FSBTAB(KHSHMAP:),JFSB)
         IF(IFSB.NE.JFSB) IERR=IERR+1
       END DO
       IF(IERR.GT.0) THEN
         WRITE(6,*)'NEWFSBTAB Hash index errors. IERR=',IERR
         CALL ABEND()
       END IF
-      CALL GETMEM('NrSST','Free','Inte',LNSST,NASPRT)
-      CALL GETMEM('ISST1','Free','Inte',LISST1,NASPRT)
-      CALL GETMEM('Try' ,'Free','Inte',LTRY  ,NASPRT)
-      NEWFSBTAB=LFSBTAB
-      RETURN
-      END
+      nullify(FSBTAB)
+
+      END SUBROUTINE NEWFSBTAB

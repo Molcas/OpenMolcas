@@ -76,8 +76,7 @@ subroutine MKGUGA(SGS,CIS)
 
   end if
 
-  SGS%DOWNP => null()
-  SGS%DRTP => null()
+  nullify(SGS%DOWNP,SGS%DRTP)
 
   ! CALCULATE ARC WEIGHT.
 
@@ -173,7 +172,6 @@ contains
     use fciqmc_interface, only: DoFCIQMC
     use gugx, only: L2ACT, LEVEL
 
-#   include "rasdim.fh"
 #   include "caspt2.fh"
 #   include "pt2_guga.fh"
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, ITABS, nLev
@@ -206,15 +204,14 @@ contains
   ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
     use gugx, only: SGS
+    use gas_data, only: NGAS, NGSSH
+    use rasscf_global, only: NSM
 
     ! to get some dimensions
     ! NSM form rasscf,fh
     ! NSYM from general.fh
-    ! NGAS and NGSSH from gas.fh
 #   include "rasdim.fh"
-#   include "rasscf.fh"
 #   include "general.fh"
-#   include "gas.fh"
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
     NLEV = 0

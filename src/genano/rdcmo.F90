@@ -68,7 +68,7 @@ do iSym=1,nSym
   nDim = nDim+nBas(iSym)
   nCmo = nCmo+nBas(iSym)**2
 end do
-if (allocated(BasName)) call mma_deallocate(BasName)
+call mma_deallocate(BasName,safe='*')
 call mma_allocate(BasName,nDim,label='BaName')
 call Get_cArray('Unique Basis Names',BasName,len(BasName)*nDim)
 call ClsOne(irc,0)
@@ -99,7 +99,7 @@ if (kSet == kRfSet) then
   Lu_One = 2
   iOpt = 0
   call OpnOne(irc,iOpt,OneInt,Lu_One)
-  if (allocated(Cmo)) call mma_deallocate(Cmo)
+  call mma_deallocate(Cmo,safe='*')
   call mma_allocate(Cmo,nCmo,label='Cmo')
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   Label = 'Mltpl  0'
@@ -113,15 +113,15 @@ write(u6,*)
 write(u6,*) 'Reading orbital file: ',NatOrb
 Lu_ = 17
 call chk_vec_UHF(NatOrb,Lu_,isUHF)
-if (allocated(Occ)) call mma_deallocate(Occ)
+call mma_deallocate(Occ,safe='*')
 call mma_allocate(Occ,nDim,label='Occ')
-if (allocated(Eps)) call mma_deallocate(Eps)
+call mma_deallocate(Eps,safe='*')
 call mma_allocate(Eps,nDim,label='Eps')
 Eps(:) = Zero
 if (isUHF == 1) then
-  if (allocated(Cmo2)) call mma_deallocate(Cmo2)
+  call mma_deallocate(Cmo2,safe='*')
   call mma_allocate(Cmo2,nCmo,label='Cmo2')
-  if (allocated(Occ2)) call mma_deallocate(Occ2)
+  call mma_deallocate(Occ2,safe='*')
   call mma_allocate(Occ2,nDim,label='Occ2')
   call RdVec_(NatOrb,Lu_,'CO',1,nSym,nBas,nBas,Cmo,Cmo2,Occ,Occ2,Dummy,Dummy,iDummy,line,0,iErr,iWFtype)
   write(u6,'(a)') '***'

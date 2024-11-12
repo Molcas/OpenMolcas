@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine InCSFSD(iState,State_sym,GUGA)
       use Str_Info, only: CNSM
+      use stdalloc, only: mma_allocate
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "stdalloc.fh"
       Logical GUGA
       Integer State_sym
       Dimension idum(1)

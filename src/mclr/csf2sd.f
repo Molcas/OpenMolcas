@@ -11,15 +11,15 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       Subroutine CSF2SD(CSF,SD,is)
-      use ipPage, only: Diskbased
-      Use Str_Info, only: DTOC, CNSM
 *
 *  Transforms a CSF vector to slater determinants
 *
+      use ipPage, only: Diskbased
+      Use Str_Info, only: DTOC, CNSM
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
       implicit Real*8(a-h,o-z)
 #include "detdim.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "cicisp_mclr.fh"
 #include "Input.fh"
 #include "spinfo_mclr.fh"

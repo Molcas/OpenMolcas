@@ -25,10 +25,10 @@
 ************************************************************************
 *
       use Arrays, only: CMO, G1t, FAMO, FIMO
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "stdalloc.fh"
       Logical lFI,lFA,lMo
       Parameter ( One = 1.0d0 )
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),

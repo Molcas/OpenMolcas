@@ -25,6 +25,8 @@ use Localisation_globals, only: nBas
 use stdalloc, only: mma_allocate
 use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb

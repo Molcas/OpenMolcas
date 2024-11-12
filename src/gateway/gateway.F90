@@ -38,6 +38,8 @@ use Symmetry_Info, only: nIrrep, VarR, VarT
 use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
@@ -254,7 +256,7 @@ call Put_iScalar('Saddle Iter',iter_S)
 !***********************************************************************
 !                                                                      *
 call ClsSew()
-if (allocated(AdCell)) call mma_deallocate(AdCell)
+call mma_deallocate(AdCell,safe='*')
 call mma_deallocate(Coor_MPM)
 call mma_deallocate(Chrg)
 call mma_deallocate(Mass)

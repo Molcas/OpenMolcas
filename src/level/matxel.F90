@@ -17,7 +17,7 @@ subroutine MATXEL(KV1,JROT1,IOMEG1,EO1,KV2,JROT2,IOMEG2,IRFN,EO2,NBEG,NEND,LXPCT
 ! coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
 ! potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
 
-use Constants, only: Zero, One, Two, Three, Half, Pi, cLight, rPlanck, diel
+use Constants, only: Zero, One, Two, Three, Half, Pi, cLight, hPlanck, diel
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -26,7 +26,7 @@ real(kind=wp), intent(in) :: EO1, EO2, DM(0:MORDR), RH, DRDY2(NDIMR), WF1(NEND),
 integer(kind=iwp) :: I, IOMLW, IOMUP, J, JLW, JUP, KVLW, KVUP
 real(kind=wp) :: AEINST, DEG, DME, DSM, ELW, FCF, FREQ, OMUP, RI, SJ, ZJUP, ZMAT(0:20)
 ! This is 16*pi^2/(3*eps0*h), in cm^3/(D^2*s)
-real(kind=wp), parameter :: Fact = 16.0e-36_wp/Three*Pi**3/(diel*rPlanck*cLight**2)
+real(kind=wp), parameter :: Fact = 16.0e-36_wp/Three*Pi**3/(diel*hPlanck*cLight**2)
 character(len=*), parameter :: DJ(-3:3) = ['N','O','P','Q','R','S','T']
 
 ZMAT(0) = Zero

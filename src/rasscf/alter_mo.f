@@ -34,13 +34,14 @@
 *                                                                      *
 ************************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
-      Dimension       CMO(*)
+      Implicit None
+      REAL*8       CMO(*)
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
+      Real*8 CMOex
+      Integer iAlter, iAlteri, iAlterj, iCMO, iSym
 
 C Local print level (if any)
       Write(LF,*)
@@ -67,5 +68,4 @@ C Local print level (if any)
       EndDo
       Write(LF,*)
 
-      Return
-      End
+      End Subroutine Alter_MO

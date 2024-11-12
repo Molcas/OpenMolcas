@@ -32,7 +32,7 @@ subroutine CHO_DRV_Inner(IRETURN)
 use Para_Info, only: Is_Real_Par, nProcs
 use Cholesky, only: Cho_DecAlg, Cho_Fake_Par, Cho_IntChk, Cho_Reord, Cho_SScreen, Diag, Diag_G, Diag_G_Hidden, Diag_Hidden, &
                     Idle, INF_TIMING, IPRINT, LuPri, nnBstRT, RstCho, TIMSEC, XnPass
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -292,7 +292,7 @@ if (IPRINT >= INF_TIMING) then
   write(LUPRI,'(/,A)') '***** Starting Cholesky finalization *****'
   call XFLUSH(LUPRI)
 end if
-if (allocated(Idle)) call mma_deallocate(Idle)
+call mma_deallocate(Idle,safe='*')
 call CHO_FINAL(.true.)
 call GASYNC()
 if (IPRINT >= INF_TIMING) then
@@ -338,10 +338,9 @@ if (abs(TST) > DUMTOL) then
   IRETURN = 2
 end if
 
-if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
-if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-nullify(DIag)
-nullify(Diag_G)
+call mma_deallocate(Diag_Hidden,safe='*')
+call mma_deallocate(Diag_G_Hidden,safe='*')
+nullify(DIag,Diag_G)
 call mma_deallocate(Check)
 
 if (IPRINT >= INF_TIMING) then

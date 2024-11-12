@@ -17,11 +17,11 @@
 *     Constructs  F  = <0|[Q  ,H]|0>
 *                  pq       pq
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
       Real*8 rkappa(nDensC), sigma(ndensC),FA(ndens2),D(*),
      &       p12(*),p11(*),rm1(*),rm2(*),Focki(*)
       Real*8, Allocatable:: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)

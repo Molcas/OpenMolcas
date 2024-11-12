@@ -19,7 +19,7 @@ use Para_Info, only: MyRank, nProcs
 use chcc_global, only: NChLoc
 use Para_Info, only: Is_Real_Par
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -53,11 +53,11 @@ TWall_l = TWall
 TWall_l = TWall
 !mp
 
-!@@ real*8, allocatable :: wrk(:)
-!   real*8 wrk(1:40000000)
-!   real*8 wrk(1:26593281)
-!   wrksize=26593281
-!   wrksize=40000000
+!@@ real(kind=wp), allocatable :: wrk(:)
+!   real(kind=wp) :: wrk(1:40000000)
+!   real(kind=wp) :: wrk(1:26593281)
+!   wrksize = 26593281
+!   wrksize = 40000000
 
 !mp ##########################################################
 !0  info o cholesky vektoroch

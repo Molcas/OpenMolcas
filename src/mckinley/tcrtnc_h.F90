@@ -38,7 +38,7 @@ implicit none
 integer(kind=iwp), intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, mabcd, nScr, lZeta, IndZet(lZeta), lEta, IndEta(lEta)
 real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), ACInt(m1*m2*m3*m4,mabcd)
 real(kind=wp), intent(out) :: Scrtch(nScr)
-! This should be intent(out), but the aliasing/overlap (see above) prevents it
+! FIXME: This should be intent(out), but the aliasing/overlap (see above) prevents it
 real(kind=wp), intent(_OUT_) :: ACOut(n1*n2*n3*n4,mabcd)
 #include "print.fh"
 #include "Molcas.fh"

@@ -20,7 +20,7 @@ subroutine ChoMP2_IntCol(Col,nDim,iCol,nCol,Buf,l_Buf)
 
 use Cholesky, only: NumCho
 use ChoMP2, only: InCore, lUnit_F, NowSym, OldVec
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

@@ -12,40 +12,44 @@
       SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,NTDM2,TDM2,
-     &                  ISTATE,JSTATE)
+     &                  ISTATE,JSTATE,OrbTab)
 
       ! module dependencies
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_info
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-      INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*),NTDM2
+      INTEGER LSYM1,MPLET1,MSPROJ1
+      INTEGER IFSBTAB1(*)
+      INTEGER LSYM2,MPLET2,MSPROJ2
+      INTEGER IFSBTAB2(*)
+      INTEGER ISSTAB(*),MAPORB(*),NTDM2
       REAL*8 DET1(*),DET2(*)
       REAL*8 TDM2(NTDM2)
-      INTEGER IORB,ITABS,IUABS,JORB,LORBTB
+      INTEGER ISTATE,JSTATE
+      INTEGER OrbTab(*)
+
+      INTEGER IORB,ITABS,IUABS,JORB
       INTEGER NASHT,NASORB
       REAL*8 SGNJL,SGNIK
       REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
-      INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
-      INTEGER MPLET1,MPLET2
+      INTEGER ISYOP,MS2OP
       INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
-      INTEGER NASGEM,NSPD2,ISTATE,JSTATE
+      INTEGER NASGEM,NSPD2
 #include "symmul.fh"
-#include "stdalloc.fh"
-#include "WrkSpc.fh"
       Real*8, Allocatable:: SPD2(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,
 C calculate the spin-summed 2-particle transition density matrix
 C in the biorthonormal active orbital basis.
 
-      LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
-      NASORB=IWORK(LORBTB+3)
+      NASORB=ORBTAB(4)
       NASHT=NASORB/2
       NASGEM=(NASORB*(NASORB-1))/2
       NSPD2=NASGEM**2
@@ -57,7 +61,7 @@ C Pick out nr of active orbitals from orbital table:
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
-        CALL SPIND2(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
+        CALL SPIND2(ISYOP,MS2OP,ORBTAB,ISSTAB,
      &              IFSBTAB1,IFSBTAB2,DET1,DET2,SPD2)
 #ifdef _DMRG_
       else

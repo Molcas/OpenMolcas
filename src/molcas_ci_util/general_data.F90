@@ -16,9 +16,14 @@
 
 module general_data
 
+use Definitions, only: wp, iwp
+
 implicit none
 
 #include "rasdim.fh"
 #include "general.fh"
+
+integer(kind=iwp), allocatable :: CleanMask(:)
+real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
 
 end module general_data

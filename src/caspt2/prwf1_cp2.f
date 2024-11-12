@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
       use gugx, only: SGS, CIS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In):: nMidV
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -27,12 +28,11 @@
       CHARACTER(LEN=1) CODE(0:3)
       DATA CODE /'0','u','d','2'/
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-      DIMENSION ICS(MXLEV)
+      INTEGER ICS(MXLEV)
       Integer :: nLev, nIpWlk
+      INTEGER, ALLOCATABLE:: LEX(:)
       nLev  = SGS%nLev
       nIpWlk= CIS%nIpWlk
 
@@ -70,7 +70,7 @@ C Size of occup/spin coupling part of line:
 C     SVC2010:
 C     allocate scratch memory for determinant expansion
       IF (PRSD) THEN
-        CALL GETMEM ('LEX','ALLO','INTEGER',LLEX,NLEV)
+        CALL mma_allocate(LEX,NLEV,LABEL='LEX')
       END IF
 
       LINE=' '
@@ -148,7 +148,7 @@ c     Specify projected spin in half integer units
 C     Default: use maximum spin projection
                IMS = ISPIN-1
                WRITE(6,*)
-               CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX), coef, 0)
+               CALL EXPCSF (ICS, NLEV, IMS, LEX, coef, 0)
                WRITE(6,*)
               ENDIF
   31        CONTINUE
@@ -156,9 +156,7 @@ C     Default: use maximum spin projection
   41    CONTINUE
   40  CONTINUE
 C     SVC2010: free scratch for determinant expansion
-      IF (PRSD) THEN
-        CALL GETMEM ('LEX','FREE','INTEGER',LLEX,NLEV)
-      END IF
+      IF (PRSD) CALL mma_deallocate(LEX)
       WRITE(6,*)
-      RETURN
-      END
+
+      END SUBROUTINE PRWF1_CP2

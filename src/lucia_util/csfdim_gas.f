@@ -35,7 +35,7 @@
 *                        CONFIGURATION EXPANSIONS
 * ( Spin signaled by PSSIGN in CIINFO)
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
@@ -361,7 +361,7 @@ C
      &                  Z_PTDT, REO_PTDT, SDREO
 * Free resources allocated by CSFDIM_GAS
 
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
@@ -397,5 +397,5 @@ c     LCONF = MAX(LCONF,LLCONF)
       CALL mma_deallocate(CONF_REO(ISYM)%I)
 
       CALL mma_deallocate(SDREO_I(ISYM)%I)
-      SDREO => Null()
+      nullify(SDREO)
       END

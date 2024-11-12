@@ -64,7 +64,7 @@ if (ChoIsIni == ChoIniCheck) then
   call Cho_X_Dealloc(irc)
   if (irc == 0) then
 
-    if (allocated(MySP)) call mma_deallocate(MySP)
+    call mma_deallocate(MySP,safe='*')
     if (allocated(BkmVec)) then
       call mma_deallocate(BkmVec)
       nRow_BkmVec = 0

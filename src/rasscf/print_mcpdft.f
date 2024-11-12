@@ -27,7 +27,6 @@
       character*6 Fmt2
       character*120 Line
 #include "output_ras.fh"
-#include "WrkSpc.fh"
 
       IPRLEV=IPRLOC(6)
       IF(IPRLEV.ge.USUAL) THEN

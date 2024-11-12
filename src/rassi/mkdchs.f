@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,
-     &                  IF20,IF02,NDCHSM,DCHSM)
+     &                  IF20,IF02,NDCHSM,DCHSM,OrbTab)
 
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,7 +22,8 @@
       INTEGER ISSTAB(*),MAPORB(*),NDCHSM
       REAL*8 DET1(*),DET2(*)
       REAL*8 DCHSM(NDCHSM)
-      INTEGER NASHT,NASORB,LORBTB
+      Integer OrbTab(*)
+      INTEGER NASHT,NASORB
       REAL*8 GVAL,GAB,GBA
       INTEGER IAJB,IBJA
       INTEGER JORB,IORB
@@ -31,7 +32,6 @@
       INTEGER NSDCHSM
       LOGICAL IF20,IF02
 #include "symmul.fh"
-#include "WrkSpc.fh"
       Real*8, Allocatable:: SDCHSM(:)
 
 C Given two CI expansions, using a biorthonormal set of SD''s,
@@ -40,15 +40,14 @@ C in the biorthonormal active orbital basis.
 C
 C  'I,J,|< N-2 | anni_right anni_right | N >|**2'
 
-      LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
-      NASORB=IWORK(LORBTB+3)
+      NASORB=ORBTAB(4)
       NASHT=NASORB/2
       NSDCHSM= NASORB*(NASORB-1)/2
       Call mma_allocate(SDCHSM,nSDCHSM,Label='SDCHSM')
       SDCHSM(:)=Zero
 
-        CALL SDCHS(IWORK(LORBTB),ISSTAB,
+        CALL SDCHS(ORBTAB,ISSTAB,
      &              IFSBTAB1,IFSBTAB2,DET1,DET2,
      &              IF20,IF02,SDCHSM)
 

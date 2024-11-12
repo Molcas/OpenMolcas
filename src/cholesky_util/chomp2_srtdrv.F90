@@ -24,7 +24,7 @@ subroutine ChoMP2_SrtDrv(irc,DelOrig)
 
 use Cholesky, only: nSym, NumCho
 use ChoMP2, only: DecoMP2, LnT1am, lUnit, lUnit_F, nBatch, nMP2Vec, nT1am
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

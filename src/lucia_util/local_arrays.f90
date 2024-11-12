@@ -27,19 +27,19 @@ Contains
 
 Subroutine Allocate_Local_Arrays(MXNTTS,NSMST)
 Integer :: MXNTTS,NSMST
-If (Allocated(CLBT)) Stop 678
-If (.NOT.Allocated(CLBT)) CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
-If (.NOT.Allocated(CLEBT)) CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
-If (.NOT.Allocated(CI1BT)) CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')
-If (.NOT.Allocated(CIBT)) CALL mma_allocate(CIBT ,8*MXNTTS,Label='CIBT')
-If (.NOT.Allocated(CBLTP)) CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
+If (Allocated(CLBT)) Call Abend()
+CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT',safe='*')
+CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT',safe='*')
+CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT',safe='*')
+CALL mma_allocate(CIBT ,8*MXNTTS,Label='CIBT',safe='*')
+CALL mma_allocate(CBLTP,NSMST,Label='CBLTP',safe='*')
 End Subroutine Allocate_Local_Arrays
 
 Subroutine Deallocate_Local_Arrays()
-If(Allocated(CLBT))      CALL mma_deallocate(CLBT)
-If(Allocated(CLEBT))     CALL mma_deallocate(CLEBT)
-If(Allocated(CI1BT))      CALL mma_deallocate(CI1BT)
-If(Allocated(CIBT))      CALL mma_deallocate(CIBT)
-If(Allocated(CBLTP))      CALL mma_deallocate(CBLTP)
+CALL mma_deallocate(CLBT,safe='*')
+CALL mma_deallocate(CLEBT,safe='*')
+CALL mma_deallocate(CI1BT,safe='*')
+CALL mma_deallocate(CIBT,safe='*')
+CALL mma_deallocate(CBLTP,safe='*')
 End Subroutine Deallocate_Local_Arrays
 End Module Local_Arrays

@@ -20,6 +20,7 @@ use csfbas, only: conf
 use glbbas, only: cftp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use rasscf_global, only: NAC
 
 #include "intent.fh"
 
@@ -28,11 +29,10 @@ real(kind=wp), intent(in) :: cfrom(*)
 real(kind=wp), intent(_OUT_) :: cto(*)
 integer(kind=iwp), intent(in) :: imode
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 integer(kind=iwp), allocatable :: kcnf(:)
 
-! NAC      rasscf.fh
+! NAC      rasscf_global.F90
 ! NACTEL   general.fh
 ! STSYM    general.fh
 ! IPR      rasscf.fh

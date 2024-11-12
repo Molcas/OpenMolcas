@@ -31,9 +31,13 @@
 #endif
       use linalg_mod, only: abort_
       use gas_data, only: iDoGAS, nGAS, iGSOCCX, nGSSH
+      use rasscf_global, only: ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN,
+     &                         nRoots, OutFmt1, OutFmt2, PreThr, ProThr,
+     &                         ThFact, ThrE, ThrEn, ThrSX, ThrTE,
+     &                         iRoot
+
       implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "warnings.h"

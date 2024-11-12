@@ -46,7 +46,6 @@ subroutine nevpt2wfn_init(create_h5)
 # include "macros.fh"
   unused_var(create_h5)
 # else
-# include "rasdim.fh"
 # include "caspt2.fh"
 # include "pt2_guga.fh"
   integer(kind=iwp) :: dsetid, i
@@ -168,11 +167,11 @@ subroutine nevpt2wfn_data()
   use qcmaquis_info, only: qcm_group_names
 # endif
   use nevpt2_cfg, only: MultGroup
+  use caspt2_global, only: LUONEM, NCMO
   use mh5, only: mh5_put_dset
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: wp
 
-# include "rasdim.fh"
 # include "caspt2.fh"
   real(kind=wp), allocatable :: BUF(:)
   integer(kind=iwp) :: IDISK

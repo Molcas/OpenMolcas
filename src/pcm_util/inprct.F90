@@ -22,8 +22,7 @@ subroutine InpRct(LuSpool)
 use rctfld_module, only: aFac, CLim, Conductor, CORDSI, DampIter, DieDel, DipCutOff, DipSI, DistSparse, Eps, Eps_USER, EpsInf, &
                          EpsInf_USER, gAtom, iSLPar, lAmberPol, LATATO, lDamping, lDipRestart, lGridAverage, lLangevin, lMax, lRF, &
                          lRFCav, lSparse, MXA, nExpo, nGridAverage, nGridSeed, nOrdInp, nSparse, PCM, PolSI, PreFac, RadInp, &
-                         RadLat, rDS, RF_Basis, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, &
-                         Solvent, TK, TK5
+                         RadLat, rDS, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, Solvent, TK
 use CovRad_Data, only: CovRadT_
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
@@ -53,7 +52,7 @@ rds = Zero
 lMax = -1
 lRF = .false.
 lRFCav = .false.
-RF_Basis = .false.
+!RF_Basis = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -486,7 +485,7 @@ if (lLangevin) then
   epscm = (One+Two*tal)/(One-tal)
   if (Eps < One) Eps = epscm
 
-  tk5 = Half*tk
+  !tk5 = Half*tk
 
 end if
 !                                                                      *

@@ -22,7 +22,9 @@
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+      use Constants, only: Zero, One
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: EMFInt
       Procedure(int_mem) :: EMFMem
@@ -36,20 +38,18 @@
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
 #ifdef _DEBUGPRINT_
-#include "stdalloc.fh"
       Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
 #endif
 #include "print.fh"
-#include "real.fh"
 #include "wldata.fh"
-#include "oneswi.fh"
 #include "warnings.h"
       Character*8 Label
-      Dimension dum(1),idum(1)
+      Dimension dum(1)
 *
 #ifdef _DEBUGPRINT_
+      Dimension idum(1)
       MulTab(i,j)=iEor(i-1,j-1)+1
 #endif
 *
@@ -90,7 +90,6 @@
          Call dcopy_(nComp,[Zero],0,Nuc,1)
          Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &              dum,1,dum,idum,0,0,
      &              dum,1,0)
 *
          Call Deallocate_Aux()
@@ -342,7 +341,6 @@
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call Deallocate_Aux()
@@ -371,7 +369,6 @@
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
-     &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call Deallocate_Aux()
@@ -387,8 +384,8 @@
 *
       Contains
       Subroutine Allocate_Aux()
+      Use stdalloc, Only: mma_allocate
       Implicit None
-#include "stdalloc.fh"
 *
       Call mma_Allocate(ipList,nComp,Label='ipList')
       Call mma_Allocate(OperI,nComp,Label='OperI')
@@ -399,8 +396,8 @@
       Return
       End Subroutine Allocate_Aux
       Subroutine Deallocate_Aux()
+      Use stdalloc, Only: mma_deallocate
       Implicit None
-#include "stdalloc.fh"
 *
       Call mma_Deallocate(OperC)
       Call mma_Deallocate(OperI)

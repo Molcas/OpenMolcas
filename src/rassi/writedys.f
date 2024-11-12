@@ -22,7 +22,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Files.fh"

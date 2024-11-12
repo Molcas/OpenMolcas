@@ -10,23 +10,27 @@
 ************************************************************************
       SUBROUTINE SGMOP(IMODE,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
      &                   COEFF,SGM,PSI)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-      REAL*8 COEFF(*),PSI(*),SGM(*)
-      REAL*8 CFFPHS,SCALE
-      INTEGER IORBTAB(*),NASPRT,NASORB
+      INTEGER IMODE
+      INTEGER IORBTAB(*)
       INTEGER ISSTAB(*)
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
+      REAL*8 COEFF(*),PSI(*),SGM(*)
+
+      REAL*8 CFFPHS,SCALE
+      INTEGER NASPRT,NASORB
       INTEGER IFSB1,IBLKPOS1,ISST1,KSTARR1,NSBS1
       INTEGER IFSB2,IBLKPOS2,ISST2,KSTARR2,NSBS2
       INTEGER NSSTP,NHSH2,KHSH2,NFSB1,ISST,NSBS
-      INTEGER IPH,NPOP1,IMODE,KSSTOP,KSBSOP
+      INTEGER IPH,NPOP1,KSSTOP,KSBSOP
       INTEGER NDI,NDJ,KPOS,ISPART,KSSTTB
-      INTEGER I,J,IPOS1,IPOS2,ISUM,LSBSET
+      INTEGER I,J,IPOS1,IPOS2,ISUM
       INTEGER ISSTARR(50),NDIARR(50),NDJARR(50),IPHARR(50)
       INTEGER ISBS1,ISBS2,ISORB,KOINFO,KSBSCR,KSBSAN
       INTEGER KSBS1,KSBS2,KSORB,KSSTCR,KSSTAN,MORSBITS
       INTEGER NDETS1,NDETS2,IERR
-#include "WrkSpc.fh"
+      Integer, allocatable:: SBSET(:)
 
 C Purpose: Add to the wave function SGM the result of applying
 C an operator to PSI. The operator is a sum of creators (IMODE=1)
@@ -62,10 +66,10 @@ C The FS blocks of the PSI wave function:
       KSTARR2=8
 C Make an array with nr of earlier substrings for each
 C substring type:
-      CALL GETMEM('NSBSET','Allo','Inte',LSBSET,NSSTP)
+      CALL mma_allocate(SBSET,NSSTP,Label='SBSET')
       ISUM=0
       DO ISST=1,NSSTP
-        IWORK(LSBSET-1+ISST)=ISUM
+        SBSET(ISST)=ISUM
         NSBS=ISSTAB(KSSTTB+5*(ISST-1))
         ISUM=ISUM+NSBS
       END DO
@@ -135,7 +139,7 @@ CTEST      write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
           IBLKPOS2 =IFSBTAB2(KPOS+NASPRT+1)
 C Now loop over ket substrings in this subpartition
           DO KSBS1=1,NSBS1
-            ISBS1=KSBS1+IWORK(LSBSET-1+ISST1)
+            ISBS1=KSBS1+SBSET(ISST1)
             ISBS2=ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
             IF(ISBS2.EQ.0) GOTO 100
             IF(ISBS2.GT.0) THEN
@@ -145,7 +149,7 @@ C Now loop over ket substrings in this subpartition
               SCALE=-CFFPHS
               ISBS2=-ISBS2
             END IF
-            KSBS2=ISBS2-IWORK(LSBSET-1+ISST2)
+            KSBS2=ISBS2-SBSET(ISST2)
 
 C CALL some multiple daxpy...
             DO I=0,NDI-1
@@ -187,6 +191,5 @@ C End of loop over orbitals
         END DO
 C End of loop over FS blocks
       END DO
-      CALL GETMEM('NSBSET','Free','Inte',LSBSET,NSSTP)
-      RETURN
-      END
+      CALL mma_deallocate(SBSET)
+      END SUBROUTINE SGMOP

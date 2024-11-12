@@ -56,6 +56,7 @@ set (sources
      srommg.F90
      store_grad.F90
      store_not_grad.F90
+     trgrd_alaska.F90
      twoel_g.F90
      welgrd.F90
      welmmg.F90

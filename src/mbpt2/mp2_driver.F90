@@ -45,6 +45,7 @@ use MBPT2_Global, only: CMO, DoCholesky, DoDF, EOcc, EOrb, EVir, FnIntA, FnIntM,
                         MBPT2_Clean, NamAct, nBas
 use ChoMP2, only: all_Vir, C_os, ChoAlg, DoDens, DoMP2, DoT1amp, EOSMP2, FNOMP2, iOffT1, Laplace, Laplace_nGridPoints, LovMP2, &
                   nActa, pEOcc => EOcc, pEVir => EVir, SOS_mp2, T1amp, ThrLov, vkept, Wref, XEMP2
+use transform_procedures, only: SetUp_CASPT2_Tra
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -459,10 +460,7 @@ contains
 subroutine finalize()
   call MBPT2_Clean()
   if (DoT1amp) call mma_deallocate(T1amp)
-  if (DoCholesky) then
-    nullify(pEOcc)
-    nullify(pEVir)
-  end if
+  if (DoCholesky) nullify(pEOcc,pEVir)
   ireturn = 0
 end subroutine finalize
 

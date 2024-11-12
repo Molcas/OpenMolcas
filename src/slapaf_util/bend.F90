@@ -70,7 +70,7 @@ else if (abs(Fir-Pi) < 1.0e-13_wp) then
 end if
 dFir = Fir/deg2rad
 if (((abs(dFir) > 177.5_wp) .or. (abs(dFir) < 2.5_wp)) .and. lWarn) write(u6,*) ' Valence angle close to end in range of definition'
-if (lWrite) write(u6,'(1X,A,A,F10.4,A,F10.6,A)') Label,' : Angle=    ',dFir,'   / Degree  ',Fir,' / rad'
+if (lWrite) write(u6,'(1X,A,A,F10.4,A,F10.6,A)') Label,' : Angle=    ',dFir,'   / degree  ',Fir,' / rad'
 
 ! Compute the WDC B-matrix
 

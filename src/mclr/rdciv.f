@@ -23,10 +23,10 @@
 ************************************************************************
       use negpre
       use gugx, only: SGS, CIS, EXS
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
 

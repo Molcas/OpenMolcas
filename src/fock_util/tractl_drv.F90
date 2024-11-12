@@ -49,14 +49,13 @@
 !***********************************************************************
 subroutine TraCtl_Drv(iType,DoExch2,iPart)
 
+use caspt2_global, only: CMO, LUINTM, NCMO
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iType, iPart
 logical(kind=iwp), intent(in) :: DoExch2
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 logical(kind=iwp) :: DoCholesky
 character(len=*), parameter :: SECNAM = 'TraCtl_Drv'
 
@@ -66,17 +65,17 @@ if (DoCholesky) then
 
   if (iType == 1) then
 
-    call ChoMP2_TraCtl(LUINTM,Work(LCMO),NCMO)
+    call ChoMP2_TraCtl(LUINTM,CMO,NCMO)
 
   ! caspt2 with cholesky does no longer use call to tractl_drv/cho_caspt2_drv
   !else if (iALGO == 0) then
   else
 
-    call Cho_TraCtl(iType,LUINTM,Work(LCMO),NCMO,DoExch2)
+    call Cho_TraCtl(iType,LUINTM,CMO,NCMO,DoExch2)
 
   !else if (iALGO == 1) then
   !
-  !  call Cho_caspt2_drv(Work(LCMO))
+  !  call Cho_caspt2_drv(CMO)
   !
   !else
   !

@@ -23,13 +23,17 @@ C     Luis Serrano-Andres
 C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+
+      IMPLICIT None
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
+
+      Real*8, Allocatable:: Temp1(:), Temp2(:)
+      Integer, Allocatable:: IxSym2(:)
+      Integer :: iSym, nOrb_Tot, nOrbMx
 *
 *
       nOrbMX=0
@@ -39,20 +43,18 @@ C
          nOrb_tot=nOrb_tot+nBas(iSym)
       End Do
 *
-      Call GetMem('Temp1','Allo','Real',ipTemp1,nOrbMX*nOrbMX)
-      Call GetMem('Temp2','Allo','Real',ipTemp2,nOrbMX*nOrbMX)
-      Call GetMem('IxSym2','Allo','Inte',ipIxSym2,nOrb_tot)
+      Call mma_allocate(Temp1,nOrbMX*nOrbMX,Label='Temp1')
+      Call mma_allocate(Temp2,nOrbMX*nOrbMX,Label='Temp2')
+      Call mma_allocate(IxSym2,nOrb_tot,Label='IxSym2')
 *
-      Call SUPSCH_(SMAT,CMOO,CMON,Work(ipTemp1),Work(ipTemp2),nOrbMX,
-     &             iWork(ipIxSym2),nOrb_tot)
+      Call SUPSCH_(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,nOrb_tot)
 *
-      Call GetMem('IxSym2','Free','Inte',ipIxSym2,nOrb_tot)
-      Call GetMem('Temp2','Free','Real',ipTemp2,nOrbMX*nOrbMX)
-      Call GetMem('Temp1','Free','Real',ipTemp1,nOrbMX*nOrbMX)
+      Call mma_deallocate(IxSym2)
+      Call mma_deallocate(Temp2)
+      Call mma_deallocate(Temp1)
 *
 *
-      Return
-      End
+      End SUBROUTINE SUPSCH
       SUBROUTINE SUPSCH_(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,
      &                   nOrb_tot)
 C
@@ -68,22 +70,26 @@ C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use OneDat, only: sNoNuc, sNoOri
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
+
+      IMPLICIT None
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SUPSCH_ ')
-
-      DIMENSION CMOO(*),CMON(*),SMAT(*)
-
-      DIMENSION Temp1(nOrbMX*nOrbMX),Temp2(nOrbMX*nOrbMX)
+      Integer nOrbMX, nOrb_Tot
+      Real*8 CMOO(*),CMON(*),SMAT(*)
+      Real*8 Temp1(nOrbMX*nOrbMX),Temp2(nOrbMX*nOrbMX)
       INTEGER IxSym2(nOrb_tot)
+
+      Character(LEN=16), Parameter ::  ROUTINE='SUPSCH_ '
       Integer pSij
-      DIMENSION DUM(1)
+      Real*8 DUM(1)
       character(len=8) :: Label
+      Integer :: i_Component, i_Opt, i_RC, i_SymLbl, iGroup, iLabel,
+     &           iOrb, iOrder, iPrLev, iSafe, jOrb, kCof, kGroup, kOrb,
+     &           nBs, nnOrb, nOGr1, nOGr2, iSym
+      Real*8 :: OldOvlp, Ovlp1, Ovlp2, xOvlp
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -209,6 +215,4 @@ C
        End do
       End if
 C
-C
-      RETURN
-      END
+      END SUBROUTINE SUPSCH_

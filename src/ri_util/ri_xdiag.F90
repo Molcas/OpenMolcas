@@ -18,7 +18,7 @@ subroutine RI_XDiag(Diag,nDiag)
 
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, iSP2F, Mx2Sh, nBstSh, nnBstRSh, nnBstRT, nnShl, nSym, ShA, ShB
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

@@ -26,8 +26,9 @@ implicit none
 integer(kind=iwp), intent(in) :: n, m, lu_A0, lu_A, iD_A(n), lScr
 real(kind=wp), intent(out) :: Scr(lScr)
 logical(kind=iwp) :: Add0s
-#include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iCol, ij, iOff, iScr, jCol, kAddr, kCol, lmax, mNeed, nMem_Col
+
+#include "warnings.h"
 
 lmax = lScr-n
 if (lmax < n) then

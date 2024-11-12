@@ -27,7 +27,7 @@ subroutine WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
 !     SymLab  : symmetry label of the provided data                    *
 !                                                                      *
 !     Local data declarations:                                         *
-!     Label   : character*8, used to covert incoming names             *
+!     Label   : character(len=8), used to covert incoming names        *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *

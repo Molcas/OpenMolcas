@@ -22,6 +22,8 @@ use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallro
                           Titobs, Vibwvs, Vibwvs1, Vibwvs2, DistUnit, EnerUnit
 use Constants, only: Zero, One, Five, UTOAU, Angstrom, auToeV, auTokcalmol, auToHz, auTocm, cal_to_J
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(out) :: ncase, ngrid, nvib
@@ -418,9 +420,9 @@ input: do
           write(u6,*) 'No conversion.'
 
         case ('ANGSTROM')
-          ! Distance units of Angstroms, convert to Bohr radii
+          ! Distance units of angstroms, convert to Bohr radii
           write(u6,*)
-          write(u6,*) 'Distance provided in units of Angstroms.'
+          write(u6,*) 'Distance provided in units of angstroms.'
           write(u6,*) 'Converting to Bohr radii.'
 
           if (ipot /= 0) then

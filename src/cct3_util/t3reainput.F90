@@ -76,6 +76,7 @@ use CCT3_global, only: dimm, eps, filerst, fullprint, ijsegkey, imax, imin, ioke
                        symimin, symjmax, symjmin, typden, typt3
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
 
 implicit none
 integer(kind=iwp) :: Lu, LuSpool, nactel, nhelp

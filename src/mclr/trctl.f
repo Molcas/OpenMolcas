@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE TRCTL_MCLR
       use Arrays, only: CMO
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 *
 *     Two-electron integral transformation program: control section
 *
@@ -24,7 +25,6 @@
 #include "Input.fh"
       PARAMETER (LIOTAB=512*512)
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
       integer toca(8,8,8),tocb(36,8),tocc(5,36,8)
       Save toca,tocB,tocc

@@ -24,7 +24,7 @@ subroutine GUGA(IRETURN)
 
 use guga_global, only: free_all, IADD10, IPRINT, Lu_10, Lu_11, MXVERT, NBUF
 use guga_util_global, only: IAD10
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp, u6, RtoI
 
@@ -75,7 +75,7 @@ call INPUT_GUGA(L0,L1,L2,L3,ISPAC)
 
 ! SORT ALLOCATION , ISPAC WORDS TO BE SORTED IN NCOR CORE SPACE
 ! TWO BUFFERS OF LENGTH NBINS NEEDED
-! NCOR IS IN UNITS OF FLOATING-POINT WORDS, e.g. REAL*8
+! NCOR IS IN UNITS OF FLOATING-POINT WORDS, e.g. REAL
 ! NBINS=ISPAC/(NCORX-2*NBINS)+1
 NCORX = NCOR-(MCOP+1)
 A = Two

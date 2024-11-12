@@ -157,7 +157,7 @@ call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
 if (rc /= 0) call Error(rc)
 
-pNocc(1)%I1 => null()
+nullify(pNocc(1)%I1)
 call Deallocate_DT(MSQ(1))
 if (DECO) then
   call Deallocate_DT(Vec)

@@ -11,7 +11,7 @@
 * Copyright (C) 2023, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
-      SUBROUTINE Cho_Amatrix(XMAT,CMO,DDTR,NATR)
+      SUBROUTINE Cho_Amatrix(XMAT,CMO,NCMO,DDTR,NATR)
 ! Calculation of the "exchange" matrix for the G1,G2,G3 Fock operators
 ! from Cholesky vectors
 
@@ -22,9 +22,8 @@
       USE Constants, ONLY: Zero, One, Half
 
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
-      INTEGER :: NATR
+      INTEGER :: NCMO, NATR
       REAL*8 :: XMAT(NOSQT), CMO(NCMO), DDTR(NATR)
       INTEGER :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP, MXCHOBUF,
      &           MXINT, MXPIQK, NADDBUFF, NBUF, NCHOBUF, NINTS, NLB,
@@ -38,7 +37,7 @@
 
       ! Transform Cholesky vectors, this will have to be redone after
       ! the modified Fock matrix is diagonalized
-      CALL TRACHO3(CMO)
+      CALL TRACHO3(CMO,NCMO)
 
       ! Square (Dd) to simplify multiplication
       CALL Allocate_DT(HDSQ,NASH,NASH,NSYM,Label='HDSQ')

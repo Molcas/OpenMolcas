@@ -34,7 +34,6 @@ C
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "sa.fh"
 #include "warnings.h"

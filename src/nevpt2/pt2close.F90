@@ -16,17 +16,16 @@ use nevpt2_cfg, only: MultGroup
 use info_state_energy, only: deinit_energies         ! energies
 use info_orbital_space, only: finalize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_close
+use caspt2_global, only: LUONEM
 use stdalloc, only: mma_deallocate
 
 implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
 
 call nevpt2wfn_close()
 call deinit_energies()
 call finalize_inforb_molcas()
 
-if (allocated(MultGroup%h5_file_name)) call mma_deallocate(MultGroup%h5_file_name)
+call mma_deallocate(MultGroup%h5_file_name,safe='*')
 
 !> close file LUONEM
 call DaClos(LUONEM)

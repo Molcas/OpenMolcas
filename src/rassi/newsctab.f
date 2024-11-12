@@ -8,19 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWSCTAB(MINOP,MAXOP,MLTPL,MS2)
+      SUBROUTINE NEWSCTAB(MINOP,MAXOP,MLTPL,MS2,ICASE)
+      use stdalloc, only: mma_allocate
+      use rassi_global_arrays, only: TRANS1, TRANS2, TRANS
+      use rassi_global_arrays, only: SPNTAB1, SPNTAB2, SPNTAB
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER ASPIN,BSPIN
-C     INTEGER ID,ICP
-      PARAMETER(ASPIN=1, BSPIN=0)
-      INTEGER UPCPL, DWNCPL
-      PARAMETER (UPCPL=1,DWNCPL=0)
-      PARAMETER (NULLPTR=-1)
-#include "WrkSpc.fh"
+      INTEGER MINOP,MAXOP,MLTPL,MS2, ICASE
+      INTEGER, PARAMETER :: ASPIN=1, BSPIN=0
+      INTEGER, PARAMETER :: UPCPL=1,DWNCPL=0, NULLPTR=-1
 
-      NEWSCTAB=0 ! dummy initialize
-      IF(MLTPL-MS2.LT.1) GOTO 900
-      IF(MLTPL+MS2.LT.1) GOTO 900
+      IF(MLTPL-MS2.LT.1 .OR. MLTPL+MS2.LT.1) THEN
+      WRITE(6,*)'NewSCTab: Contradictory values of MLTPL vs. MS2.'
+      WRITE(6,*)'The function was invoked with the following arguments:'
+      WRITE(6,'(1X,A,I9)')' MINOP:',MINOP
+      WRITE(6,'(1X,A,I9)')' MAXOP:',MAXOP
+      WRITE(6,'(1X,A,I9)')' MLTPL:',MLTPL
+      WRITE(6,'(1X,A,I9)')' MS2  :',MS2
+      CALL ABEND()
+      END IF
+
 C Run through construction loop twice. First get size of table
 C and total nr of transformation coefficients:
       NSPCPL=0
@@ -48,101 +54,73 @@ C and spin-coupling coefficient arrays, and finally the
 C spin coupling and spin determinant arrays themselves.
 C The transformation coefficients are real*8 data and stored
 C in a separate array.
-      CALL GETMEM('SpnCplTb','Allo','Inte',LTAB,NTAB)
-      CALL GETMEM('SpnCplCf','Allo','Real',LTRANS,NTRANS)
+      SELECT CASE(ICASE)
+      CASE (1)
+         CALL mma_allocate(SPNTAB1,NTAB,Label='SPNTAB1')
+         SPNTAB=>SPNTAB1(:)
+         CALL mma_allocate(TRANS1,NTRANS,Label='TRANS1')
+         TRANS=>TRANS1(:)
+      CASE (2)
+         CALL mma_allocate(SPNTAB2,NTAB,Label='SPNTAB2')
+         SPNTAB=>SPNTAB2(:)
+         CALL mma_allocate(TRANS2,NTRANS,Label='TRANS2')
+         TRANS=>TRANS2(:)
+      CASE DEFAULT
+      END SELECT
       KSPCPL=9+6*NBLK
       KSPDET=KSPCPL+NSPCPL
 C Table size
-      IWORK(LTAB+0)=NTAB
+      SPNTAB(1)=NTAB
 C Table type identifier
-      IWORK(LTAB+1)=47
+      SPNTAB(2)=47
 C Spin multiplicity
-      IWORK(LTAB+2)=MLTPL
+      SPNTAB(3)=MLTPL
 C Spin projection
-      IWORK(LTAB+3)=MS2
+      SPNTAB(4)=MS2
 C Min and max nr of open shells
-      IWORK(LTAB+4)=MINOP
-      IWORK(LTAB+5)=MAXOP
+      SPNTAB(5)=MINOP
+      SPNTAB(6)=MAXOP
 C Associated workspace array for Re*8 data (transf matrices)
-      IWORK(LTAB+6)=LTRANS
-      IWORK(LTAB+7)=NTRANS
+      SPNTAB(7)=-1 ! not used
+      SPNTAB(8)=NTRANS
 C Individual information for each separate nr of open shells:
       NTAB=6
       NTRANS=0
       IBLK=0
+      LTRANS0=1
+      LTRANS=1
       DO IOPEN=MINOP,MAXOP
         IBLK=IBLK+1
         NCP=NGENE(IOPEN,MLTPL)
         NA=(IOPEN+MS2)/2
         NB= IOPEN-NA
-CTEST      write(*,*)' In the loop. IOPEN=',IOPEN
-CTEST      write(*,*)'              MLTPL=',MLTPL
-CTEST      write(*,*)'                NCP=',NCP
-CTEST      write(*,*)'                MS2=',MS2
-CTEST      write(*,*)'                 NA=',NA
-CTEST      write(*,*)'                 NB=',NB
         IF(NCP.GT.0) THEN
-CPAM        CALL GETMEM('A','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call NOVERM for ND.'
           ND=NOVERM(IOPEN,NA)
-CTEST        write(*,*)' Back from NOVERM. ND=',ND
-CPAM        CALL GETMEM('A','Chec','Dummy',LDUM,NDUM)
-          IWORK(LTAB+ 8+(IBLK-1)*6)=IOPEN
-          IWORK(LTAB+ 9+(IBLK-1)*6)=NCP
-          IWORK(LTAB+10+(IBLK-1)*6)=ND
+          SPNTAB(9+(IBLK-1)*6)=IOPEN
+          SPNTAB(10+(IBLK-1)*6)=NCP
+          SPNTAB(11+(IBLK-1)*6)=ND
 C Compute spin couplings:
-CPAM        CALL GETMEM('B','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call PROTOCSF. KSPCPL=',KSPCPL
-          CALL PROTOCSF(IOPEN,MLTPL,NCP,IWORK(LTAB-1+KSPCPL))
-CTEST        write(*,*)' Back from PROTOCSF.'
-CPAM        CALL GETMEM('B','Chec','Dummy',LDUM,NDUM)
-          IWORK(LTAB+11+(IBLK-1)*6)=KSPCPL
+          CALL PROTOCSF(IOPEN,MLTPL,NCP,SPNTAB(KSPCPL:))
+          SPNTAB(12+(IBLK-1)*6)=KSPCPL
 C Compute spin determinants:
-CPAM        CALL GETMEM('C','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call PROTOSD.'
-CTEST        write(*,*)' Assumed available start:',KSPDET
-CTEST        write(*,*)'                     end:',
-CTEST     &                                     KSPDET+IOPEN*ND-1
-          CALL PROTOSD(NA,NB,ND,IWORK(LTAB-1+KSPDET))
-CTEST        write(*,*)' Back from PROTOSD.'
-CPAM        CALL GETMEM('C','Chec','Dummy',LDUM,NDUM)
-          IWORK(LTAB+12+(IBLK-1)*6)=KSPDET
+          CALL PROTOSD(NA,NB,ND,SPNTAB(KSPDET:))
+          SPNTAB(13+(IBLK-1)*6)=KSPDET
 C Compute spin coupling coefficients:
-CPAM        CALL GETMEM('D','Chec','Dummy',LDUM,NDUM)
-CTEST        write(*,*)' Call PROTOT.'
-          CALL PROTOT(IOPEN,ND,IWORK(LTAB-1+KSPDET),NCP,
-     &                      IWORK(LTAB-1+KSPCPL),WORK(LTRANS))
-CTEST        write(*,*)' Back from PROTOT.'
-CTEST        write(*,*)' Spin transformation matrix at LTRANS=',LTRANS
-CTEST        do id=1,nd
-CTEST          write(*,'(1x,5f16.8)')
-CTEST     &                (work(ltrans-1+id+nd*(icp-1)),icp=1,ncp)
-CTEST        end do
-CPAM        CALL GETMEM('D','Chec','Dummy',LDUM,NDUM)
-          IWORK(LTAB+13+(IBLK-1)*6)=LTRANS
+          CALL PROTOT(IOPEN,ND,SPNTAB(KSPDET:),NCP,
+     &                      SPNTAB(KSPCPL:),TRANS(LTRANS:))
+          SPNTAB(14+(IBLK-1)*6)=LTRANS-LTRANS0+1
           KSPCPL=KSPCPL+IOPEN*NCP
           KSPDET=KSPDET+IOPEN*ND
           LTRANS=LTRANS+ND*NCP
         ELSE
-CTEST        write(*,*)' ELSE clause'
-          IWORK(LTAB+ 8+(IBLK-1)*6)=IOPEN
-          IWORK(LTAB+ 9+(IBLK-1)*6)=0
-          IWORK(LTAB+10+(IBLK-1)*6)=0
-          IWORK(LTAB+11+(IBLK-1)*6)=NULLPTR
-          IWORK(LTAB+12+(IBLK-1)*6)=NULLPTR
-          IWORK(LTAB+13+(IBLK-1)*6)=NULLPTR
+          SPNTAB(9+(IBLK-1)*6)=IOPEN
+          SPNTAB(10+(IBLK-1)*6)=0
+          SPNTAB(11+(IBLK-1)*6)=0
+          SPNTAB(12+(IBLK-1)*6)=NULLPTR
+          SPNTAB(13+(IBLK-1)*6)=NULLPTR
+          SPNTAB(14+(IBLK-1)*6)=NULLPTR
         END IF
-CPAM        write(*,*)' Checking memory now...'
-CPAM        CALL GETMEM('LoopEnd','Chec','Dummy',LDUM,NDUM)
       END DO
-      NEWSCTAB=LTAB
-      RETURN
- 900  CONTINUE
-      WRITE(6,*)'NewSCTab: Contradictory values of MLTPL vs. MS2.'
-      WRITE(6,*)'The function was invoked with the following arguments:'
-      WRITE(6,'(1X,A,I9)')' MINOP:',MINOP
-      WRITE(6,'(1X,A,I9)')' MAXOP:',MAXOP
-      WRITE(6,'(1X,A,I9)')' MLTPL:',MLTPL
-      WRITE(6,'(1X,A,I9)')' MS2  :',MS2
-      CALL ABEND()
-      END
+      nullify(TRANS,SPNTAB)
+
+      END SUBROUTINE NEWSCTAB

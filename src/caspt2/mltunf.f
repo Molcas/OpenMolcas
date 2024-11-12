@@ -17,10 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTUNF(LST,X,Y)
+      use Sigma_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),Y(*)
       DIMENSION LST(4,NLST1)
-#include "sigma.fh"
 
 C Given a list with entries LST(4,ITEM), ITEM=1,NLST1,
 C with entries called L1,L2,L3,L4 for given ITEM, and

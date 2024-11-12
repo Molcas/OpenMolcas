@@ -288,7 +288,7 @@ is given below:
 
   >>> EndDo
 
-The initial coordinates were chosen in units of Bohr, to illustrare that this is the
+The initial coordinates were chosen in units of bohr, to illustrare that this is the
 default case. The optimal geometry for ground state of water is a structure with :math:`C_{2v}` symmetry.
 A transition state has been found with a linear H--O--H angle of 180\ |o|.
 In many cases, there may be a clue along the energy pathway for a chemical reaction about the nature of the transition state structure,
@@ -392,11 +392,11 @@ class of orbitals and it can be used as a learning tool.
   Symmetry= X Z
   Basis set
   O.ANO-S...2s1p.
-  O        0.000000  0.000000  0.000000 Angstrom
+  O        0.000000  0.000000  0.000000 angstrom
   End of basis
   Basis set
   H.ANO-S...1s.
-  H1       0.000000  0.758602  0.504284 Angstrom
+  H1       0.000000  0.758602  0.504284 angstrom
   End of basis
 
   >>> EXPORT MOLCAS_MAXITER=100

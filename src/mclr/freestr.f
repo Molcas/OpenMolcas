@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE FREESTR()
       Use Str_Info
+      use stdalloc, only: mma_deallocate
 *
 * Free pointers for saving information about strings and
 * their mappings
@@ -36,7 +37,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "stdalloc.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
 *. Start of string information
@@ -49,55 +49,37 @@
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
 *.  Offsets for occupation of strings and reordering array
-          Str(ITYP)%OCSTR => Null()
           Call mma_deallocate(Str(ITYP)%OCSTR_Hidden)
-          Str(ITYP)%STREO => Null()
           Call mma_deallocate(Str(ITYP)%STREO_Hidden)
 *. Symmetry and class of each string
-          Str(ITYP)%STSM => Null()
           Call mma_deallocate(Str(ITYP)%STSM_Hidden)
-          Str(ITYP)%STCL => Null()
           Call mma_deallocate(Str(ITYP)%STCL_Hidden)
-        ELSE
-          Str(ITYP)%OCSTR => Null()
-          Str(ITYP)%STREO => Null()
-          Str(ITYP)%STSM => Null()
-          Str(ITYP)%STCL => Null()
         END IF
+        nullify(Str(ITYP)%OCSTR,Str(ITYP)%STREO,Str(ITYP)%STSM,
+     &          Str(ITYP)%STCL)
       END DO
 
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-          Str(ITYP)%NSTSO=> Null()
           Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
 *. Offset of strings per symmetry and occupation
-          Str(ITYP)%ISTSO=> Null()
           Call mma_deallocate(Str(ITYP)%ISTSO_Hidden)
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
-          Str(ITYP)%EL1  => Null()
           Call mma_deallocate(Str(ITYP)%EL1_Hidden)
-          Str(ITYP)%EL3  => Null()
           Call mma_deallocate(Str(ITYP)%EL3_Hidden)
-          Str(ITYP)%ACTP => Null()
           Call mma_deallocate(Str(ITYP)%ACTP_Hidden)
 CMS: New array introduced according to Jeppes new strinfo representation
-          Str(ITYP)%EL123=> Null()
           Call mma_deallocate(Str(ITYP)%EL123_Hidden)
 **. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
-          Str(ITYP)%Z    => Null()
           Call mma_deallocate(Str(ITYP)%Z_Hidden)
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
-          Str(ITYP)%NSTSO => Null()
-          Str(ITYP)%ISTSO => Null()
-          Str(ITYP)%EL1   => Null()
-          Str(ITYP)%EL3   => Null()
-          Str(ITYP)%ACTP  => Null()
-          Str(ITYP)%EL123 => Null()
-          Str(ITYP)%Z     => Null()
         END IF
+        nullify(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,Str(ITYP)%EL1,
+     &          Str(ITYP)%EL3,Str(ITYP)%ACTP,Str(ITYP)%EL123,
+     &          Str(ITYP)%Z)
       END DO
 
 *. Mappings between different string types
@@ -159,12 +141,8 @@ CMS: New else block
             IUNIQMP(ITYP) = ITYP
  1211       CONTINUE
           END IF
-          IF(IMNEW.EQ.1) THEN
-            Call mma_deallocate(Str(ITYP)%STSTM_Hidden)
-            Str(ITYP)%STSTM => Null()
-          ELSE
-            Str(ITYP)%STSTM => Null()
-          END IF
+          IF(IMNEW.EQ.1) Call mma_deallocate(Str(ITYP)%STSTM_Hidden)
+          nullify(Str(ITYP)%STSTM)
       END DO
 *. Symmetry of conjugated orbitals and orbital excitations
 *     COBSM,NIFSJ,IFSJ,IFSJO
@@ -186,12 +164,10 @@ CMS: New else block
 *     Some dummy dallocations
 *
       ITYP=ITYP_Dummy
-      Str(ITYP)%NSTSO => Null()
       Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
-      Str(ITYP)%EL1  => Null()
       Call mma_deallocate(Str(ITYP)%EL1_Hidden)
-      Str(ITYP)%EL3  => Null()
       Call mma_deallocate(Str(ITYP)%EL3_Hidden)
+      nullify(Str(ITYP)%NSTSO,Str(ITYP)%EL1,Str(ITYP)%EL3)
 
 
       RETURN

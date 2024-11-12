@@ -40,20 +40,30 @@ C Subroutine calls: none
 C
 C ********** IBM-3090 RELEASE 89 01 23 **********
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT,
+     &                         NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT,
+     &                         Ener
+
+      IMPLICIT None
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='SXHAM   ')
-      DIMENSION D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),
+      Character(LEN=16), Parameter :: ROUTINE='SXHAM   '
+      REAL*8 D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),
      *          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)
 C -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
-      DATA THRA/1.D-06/
-      DIMENSION P2Act(1)
+      REAL*8, Parameter :: THRA=1.D-06
+      REAL*8 P2Act(1)
+
+      REAL*8 :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, PRPR,
+     &          SXNRM2, XLEV
+      Integer :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE,
+     &           ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ,
+     &           ISYM, IX, IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO,
+     &           NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR,
+     &           NT, NTT, NTU, NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT,
+     &           NVX, NVXF, NVXT, NX, NXT
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN

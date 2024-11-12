@@ -33,6 +33,7 @@ use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, me
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -42,7 +43,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: nFckDim, nFckInt, nD, nGrad
 real(kind=wp), intent(inout) :: FckInt(nFckInt,nFckDim), Funct, Grad(nGrad)
 real(kind=wp), intent(in) :: Density(nFckInt,nD)
@@ -408,9 +409,9 @@ call mma_deallocate(List_Bas)
 call mma_deallocate(List_Exp)
 call mma_deallocate(List_S)
 ! Do_TwoEl
-if (allocated(D1MO)) call mma_deallocate(D1MO)
-if (allocated(P2MO)) call mma_deallocate(P2MO)
-if (allocated(CMO)) call mma_deallocate(CMO)
+call mma_deallocate(D1MO,safe='*')
+call mma_deallocate(P2MO,safe='*')
+call mma_deallocate(CMO,safe='*')
 if (l_casdft) then
   call mma_deallocate(F_xcb)
   call mma_deallocate(F_xca)
@@ -428,7 +429,7 @@ if (allocated(Tau)) then
   call mma_deallocate(vTau)
   call mma_deallocate(Tau)
 end if
-if (allocated(GradRho)) call mma_deallocate(GradRho)
+call mma_deallocate(GradRho,safe='*')
 if (allocated(Sigma)) then
   call mma_deallocate(dfunc_dSigma)
   call mma_deallocate(vSigma)
@@ -445,7 +446,7 @@ call mma_deallocate(Grid)
 write(u6,*) 'l_casdft value at drvnq:',l_casdft
 if (l_casdft) write(u6,*) 'MCPDFT with functional:',KSDFA
 #endif
-if (allocated(P2_ontop)) call mma_deallocate(P2_ontop)
+call mma_deallocate(P2_ontop,safe='*')
 
 call mma_deallocate(nR_Eff)
 call mma_deallocate(Coor)

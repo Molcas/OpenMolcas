@@ -70,7 +70,7 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck
 use Data_structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -96,8 +96,7 @@ integer(kind=iwp) :: NB
 logical(kind=iwp) :: Debug
 #endif
 real(kind=wp), allocatable :: DChk(:)
-real(kind=wp), pointer :: LrJs(:,:,:) => null(), Scr(:) => null(), VJ(:) => null(), XgJk(:) => null(), XkJb(:) => null(), &
-                          XkJs(:) => null()
+real(kind=wp), pointer :: LrJs(:,:,:), Scr(:), VJ(:), XgJk(:), XkJb(:), XkJs(:)
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 logical(kind=iwp), parameter :: DoRead = .true.
 character(len=*), parameter :: SECNAM = 'CHO_FMO_RED'
@@ -245,6 +244,7 @@ do jSym=1,MaxSym
 
       if (nq*np <= 0) cycle
       iS = iE+1
+      Wab%ipOff(iSymp) = iS
 
       if ((iSymp > iSymq) .and. (iSkip(iSymp) /= 0)) then
         iE = iE+np*nq*NumV
@@ -279,7 +279,7 @@ do jSym=1,MaxSym
     tread(1) = tread(1)+(TCR2-TCR1)
     tread(2) = tread(2)+(TWR2-TWR1)
 
-    Scr => null()
+    nullify(Scr)
 
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
@@ -343,7 +343,7 @@ do jSym=1,MaxSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if ! jSym=1 & DoCoulomb
 
@@ -433,14 +433,14 @@ do jSym=1,MaxSym
                 texch(1) = texch(1)+(TC1X2-TC1X1)
                 texch(2) = texch(2)+(TW1X2-TW1X1)
 
-                XkJs => null()
+                nullify(XkJs)
 
               end if ! if kocc /= 0
 
             end if ! DoExchange(jDen)
 
           end do ! end of the loop over densities
-          LrJs => null()
+          nullify(LrJs)
 
         end if ! if nbas /= 0 & iSymr_nOcc /= 0
 
@@ -510,7 +510,7 @@ do jSym=1,MaxSym
                   end do
                   ! ******************************************************************
 
-                  XkJb => null()
+                  nullify(XkJb)
 
                 end if
 
@@ -547,7 +547,7 @@ do jSym=1,MaxSym
                   end do
                   ! ******************************************************************
 
-                  XgJk => null()
+                  nullify(XgJk)
 
                 end if
 

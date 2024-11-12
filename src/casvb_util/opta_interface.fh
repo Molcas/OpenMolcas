@@ -10,8 +10,13 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 nparam &
+
 #else
+
 integer(kind=iwp), intent(in) :: nparam
+
 #endif
+
 #undef _CALLING_

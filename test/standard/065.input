@@ -30,7 +30,6 @@
   LocCanOrb
     2 0.1
     O C
-  FileOrb = SCFORB
 
 > EXPORT MOLCAS_INPORB_VERSION=foo
 

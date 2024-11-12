@@ -30,6 +30,7 @@
 
 module Isotopes
 
+use Constants, only: Zero, One, uToau
 use stdalloc, only: mma_Allocate, mma_Deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -60,10 +61,8 @@ character(len=*), parameter :: PTab(0:MaxAtomNum) = [' X', &
                                                      'Md','No','Lr','Rf','Db','Sg','Bh','Hs','Mt','Ds', &
                                                      'Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og' &
                                                     ]
-#include "constants2.fh"
-
 interface Isotope
-  module procedure Isotope_sym, Isotope_num
+  module procedure :: Isotope_sym, Isotope_num
 end interface Isotope
 
 protected :: ElementList
@@ -72,16 +71,16 @@ public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes, Free_Isotopes, 
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure elm_cptr2loff
-  module procedure iso_cptr2loff
+  module procedure :: elm_cptr2loff
+  module procedure :: iso_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure element_mma_allo_1D, element_mma_allo_1D_lim
-  module procedure isotope_mma_allo_1D, isotope_mma_allo_1D_lim
+  module procedure :: element_mma_allo_1D, element_mma_allo_1D_lim
+  module procedure :: isotope_mma_allo_1D, isotope_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure element_mma_free_1D
-  module procedure isotope_mma_free_1D
+  module procedure :: element_mma_free_1D
+  module procedure :: isotope_mma_free_1D
 end interface
 
 contains
@@ -90,7 +89,6 @@ contains
 ! Since each array has a different size, it has to be done dynamically
 
 subroutine Initialize_Isotopes()
-  use Constants, only: Zero, One
   use Definitions, only: u6
   integer(kind=iwp) :: Err, i, Lu_iso, Most, NumElem, NumIso, NumNat, n1, n2
   logical(kind=iwp) :: Found
@@ -356,7 +354,6 @@ end subroutine Isotope_num
 ! is unknown.
 
 function NuclideMass(Z,A)
-  use Constants, only: One
   real(kind=wp) :: NuclideMass
   integer(kind=iwp), intent(in) :: Z, A
   integer(kind=iwp) :: i

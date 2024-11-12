@@ -35,11 +35,11 @@
 ********************************************************************
       use ipPage, only: W
       use Arrays, only: G2t, G1t
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "stdalloc.fh"
       Character(LEN=8) Label
       Logical CI
       Real*8 E2
@@ -263,8 +263,8 @@
       End Do
 *
       Call mma_deallocate(FIX)
-      If (Allocated(MOX)) Call mma_deallocate(MOX)
-      If (Allocated(MOT)) Call mma_deallocate(MOT)
+      Call mma_deallocate(MOX,safe='*')
+      Call mma_deallocate(MOT,safe='*')
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -16,7 +16,7 @@ use ccsd_global, only: ccconv, cycext, daddr, dp1, dp2, Escf, fk1, fk2, fk3, fk4
                        idabba, idbaab, idbbaa, idbbbb, ideffab, ididle, idfin, idtmab, iokey, keyrst, keysa, maxiter, maxspace, n, &
                        noccsd, nprocab, p, t11, t12, t13, t14, t21, t22, t23, v1, v2, v3, v4, yesext
 use Para_Info, only: MyRank, nProcs
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

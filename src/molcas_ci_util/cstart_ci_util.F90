@@ -17,17 +17,17 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !     Find initial CI-vectors                                          *
 !                                                                      *
 !     calling arguments:                                               *
-!     C       : array of real*8                                        *
+!     C       : array of real                                          *
 !               CI vector                                              *
-!     h0      : array of real*8                                        *
+!     h0      : array of real                                          *
 !               one-electron integrals                                 *
-!     TUVX    : array of real*8                                        *
+!     TUVX    : array of real                                          *
 !               two-electron integrals                                 *
 !     iSel    : array of integer                                       *
 !               list of configuration included in the explicit Hamilt. *
-!     ExplE   : array of real*8                                        *
+!     ExplE   : array of real                                          *
 !               eigenvalues of the explicit Hamiltonian                *
-!     ExplV   : array of real*8                                        *
+!     ExplV   : array of real                                          *
 !               eigenvectors of the explicit Hamiltonian               *
 !     iFinal  : integer                                                *
 !               status of optimization process                         *
@@ -52,6 +52,8 @@ use glbbas, only: CFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rasscf_global, only: hRoots, ICIRST, lRoots, NAC, Start_Vectors, IADR15, iTOC
+
 
 #include "intent.fh"
 
@@ -70,7 +72,6 @@ integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 #include "output_ras.fh"
 
 IPRLEV = IPRLOC(3)

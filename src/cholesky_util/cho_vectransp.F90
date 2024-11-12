@@ -37,13 +37,6 @@ logical(kind=iwp) :: ok
 integer(kind=iwp), allocatable :: iAdrLG(:,:), iVecR(:), Map(:), MapRS2RS(:), nRSL(:)
 real(kind=wp), allocatable :: VecR(:,:)
 logical(kind=iwp), external :: ga_create_irreg, ga_destroy
-#ifndef _GA_
-!VVP:2014 DGA is here
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iGAL, nelm
-integer(kind=iwp), external :: ga_local_woff
-logical(kind=iwp), external :: ga_create_local
-#endif
 
 if (.not. Cho_Real_Par) then
 # ifdef _DEBUGPRINT_
@@ -107,39 +100,18 @@ write(LuPri,*) 'Number of global vectors: ',nVR
 write(Lupri,*) 'MAP:'
 write(LuPri,*) (map(i),i=1,nProcs_eff)
 #endif
-!VVP:2014 Local rather than Global
-#ifdef _GA_
 ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,nProcs_eff,1,1,g_a)
-#else
-ok = ga_create_local(mt_dbl,nRS_g,nV,'Ga_Vec',g_a)
-#endif
 if (.not. ok) call Cho_Quit(SecNam//': ga_create_irreg error',101)
 
 if (nRS_l > 0) then
   myEnd = myStart+nRS_l-1
-# ifdef _GA_
   call ga_put(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
-# else
-  !VVP:2014 the minimal latency and scalable putC call
-  call ga_putc(g_a,myStart,myEnd,1,nV,Vec,nRS_l)
-# endif
 end if
-#ifndef _GA_
-nelm = nRS_g*nV
-iGAL = ga_local_woff(g_a)
-call Cho_GAdGOP(Work(iGAL),nelm,'+')
-#else
 call GASync()
-#endif
 Jin0 = Jin-1
 do i=1,nVR
   jv = iVecR(i)-Jin0
-# ifdef _GA_
   call ga_get(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
-# else
-  !VVP:2014 the minimal latency and scalable getC call
-  call ga_getc(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
-# endif
 end do
 
 ok = ga_destroy(g_a)

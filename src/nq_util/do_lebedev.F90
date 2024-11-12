@@ -14,7 +14,7 @@
 #error "This file must be compiled inside a module"
 #endif
 
-subroutine Do_Lebedev(L_Eff,mPt,R)
+subroutine Do_Lebedev(L_Eff,mPt,R,Sym)
 !***********************************************************************
 !                                                                      *
 !     Computes data useful for the angular quadrature.                 *
@@ -22,17 +22,16 @@ subroutine Do_Lebedev(L_Eff,mPt,R)
 !***********************************************************************
 
 use nq_Grid, only: Pax
+use Lebedev_quadrature, only: available_table, ld_by_rule, order_table
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: L_Eff
+integer(kind=iwp), intent(in) :: L_Eff, Sym
 integer(kind=iwp), intent(out) :: mPt
 real(kind=wp), allocatable, intent(out) :: R(:,:)
-integer(kind=iwp) :: iSet, nPt
-integer(kind=iwp), parameter :: nSet = 11, Lebedev_order(nSet) = [5,7,11,17,23,29,35,41,47,53,59], &
-                                Lebedev_npoints(nSet) = [14,26,50,110,194,302,434,590,770,974,1202]
+integer(kind=iwp) :: iSet
 real(kind=wp), allocatable :: TempR(:,:), TempW(:)
 
 !                                                                      *
@@ -40,35 +39,27 @@ real(kind=wp), allocatable :: TempR(:,:), TempW(:)
 !                                                                      *
 ! Generate angular grid a la Lebedev
 
-do iSet=1,nSet
-  if (Lebedev_order(iSet) == L_Eff) then
-    mPt = Lebedev_npoints(iSet)
-    call mma_allocate(R,4,mPt,Label='R')
-    call mma_allocate(TempR,3,mPt,Label='TempR')
-    call mma_allocate(TempW,mPt,Label='TempW')
+iSet = (L_Eff-1)/2
+if (available_table(iSet) /= 1) then
+  write(u6,'(A,I3)') 'Failed to find a Lebedev grid of order',L_EFF
+  call Abend()
+end if
+if ((Sym < 0) .or. (Sym > 4)) then
+  write(u6,'(A,I3)') 'Symmetry of a Lebedev grid must be 0, 1, 2, 3 or 4'
+  call Abend()
+end if
 
-    call Lebedev(TempR,TempW,nPt,mPt,L_Eff)
-    if (nPt /= mPt) then
-      call WarningMessage(2,'Lebedev_Grid: nPt /= mPt')
-      write(u6,*) 'nPt=',nPt
-      write(u6,*) 'mPt=',mPt
-      call Abend()
-    end if
+mPt = order_table(Sym,iSet)
+call mma_allocate(R,4,mPt,Label='R')
+call mma_allocate(TempR,mPt,3,Label='TempR')
+call mma_allocate(TempW,mPt,Label='TempW')
 
-    call DGEMM_('N','N',3,nPt,3,One,Pax,3,TempR,3,Zero,R,4)
-    R(4,:) = Four*Pi*TempW
+call ld_by_rule(Sym,iSet,TempR(:,1),TempR(:,2),TempR(:,3),TempW)
+call DGEMM_('N','T',3,mPt,3,One,Pax,3,TempR,mPt,Zero,R,4)
+R(4,:) = Four*Pi*TempW
 
-    call mma_deallocate(TempW)
-    call mma_deallocate(TempR)
-
-    return
-
-  end if
-end do
-write(u6,'(A,I3)') 'Failed to find a Lebedev grid of order',L_EFF
-write(u6,'(A)') 'Available orders are:'
-write(u6,'(11(1X,I3))') Lebedev_order(:)
-call Abend()
+call mma_deallocate(TempW)
+call mma_deallocate(TempR)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

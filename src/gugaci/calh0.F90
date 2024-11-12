@@ -87,7 +87,7 @@ else
 
   call formh0()   ! for log_mr, ndim_h0 changed to irf in this subroutine
   !=====================================================================
-  if (allocated(vcm)) call mma_deallocate(vcm)
+  call mma_deallocate(vcm,safe='*')
   call mma_allocate(vcm,ndim_h0*mroot,label='vcm')
 
   if (ndim_h0 <= 30) then

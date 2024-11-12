@@ -50,13 +50,13 @@ public :: Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Read_XYZ, Symmetry, Writ
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure xyz_cptr2loff
+  module procedure :: xyz_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure xyz_mma_allo_1D, xyz_mma_allo_1D_lim
+  module procedure :: xyz_mma_allo_1D, xyz_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure xyz_mma_free_1D
+  module procedure :: xyz_mma_free_1D
 end interface
 
 contains
@@ -258,13 +258,9 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   Idx = index(' '//Line,' TRANS ')
   if (Idx > 0) read(Line(Idx+5:),*,iostat=Error) Mat(:,5)
   ! If Rot and Trans are given in the input, they override the inline transformations
-  if (allocated(Rot)) then
-    Mat(:,2:4) = Rot(:,:,FileNum)
-  end if
+  if (allocated(Rot)) Mat(:,2:4) = Rot(:,:,FileNum)
   Mat(:,2:4) = transpose(Mat(:,2:4))
-  if (allocated(Trans)) then
-    Mat(:,5) = Trans(:,FileNum)
-  end if
+  if (allocated(Trans)) Mat(:,5) = Trans(:,FileNum)
   Mat(:,5) = Mat(:,5)*Factor
   call TransformGeom(ThisGeom,Mat)
 
@@ -302,8 +298,8 @@ subroutine Clear_XYZ()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(Geom)) call mma_deallocate(Geom)
-  if (allocated(BasisSets)) call mma_deallocate(BasisSets)
+  call mma_deallocate(Geom,safe='*')
+  call mma_deallocate(BasisSets,safe='*')
   FileNum = 0
 
 end subroutine Clear_XYZ
@@ -390,7 +386,7 @@ subroutine Parse_Basis(Basis)
   ! Count number of commas
   Num = count(char_array(trim(Basis)) == ',')+1
   BasisAll = ''
-  if (allocated(BasisSets)) call mma_deallocate(BasisSets)
+  call mma_deallocate(BasisSets,safe='*')
   call mma_allocate(BasisSets,2,Num,label='BasisSets')
   ! For each comma-separated word, split it at the first dot
   ! If the first part is empty, use it as a general basis set

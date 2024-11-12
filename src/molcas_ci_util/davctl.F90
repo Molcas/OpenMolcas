@@ -22,8 +22,8 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 !                                                                      *
 !     calling arguments:                                               *
 !     LW1     : active Fock matrix                                     *
-!               array of real*8                                        *
-!     TUVX    : array of real*8                                        *
+!               array of real                                          *
+!     TUVX    : array of real                                          *
 !               two-electron integrals (tu|vx)                         *
 !     IFINAL  : integer                                                *
 !               termination flag                                       *
@@ -51,6 +51,9 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
+use rasscf_global, only: Emy, hRoots, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, &
+                         n_Keep, NAC, ThFact, ThrEn, IADR15, Conv, Ener
+
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -60,7 +63,6 @@ real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
 real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "lucia_ini.fh"

@@ -97,11 +97,6 @@ call open_molcas_info()
 !  do iLine=1,nLines
 !    read(Lu_Info,'(A)') Line
 !  end do
-!# ifdef NAGFOR
-!  ! FIXME: ugly hack to make NAG compiler happy
-!  close(Lu_Info)
-!  open(Lu_Info,file=file_name,position='append')
-!# endif
 !----------------------------------------------------------------------*
 ! Open new file                                                        *
 !----------------------------------------------------------------------*

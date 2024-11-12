@@ -81,7 +81,7 @@ CTOBE * N_CLS_TO_SPSP  : Number of supergroup combinations for class
 CTOBE * IB_CLS_TO_SPSP : Base  for supergroup combinations of given class
 CTOBE * I_CLS_TO_SPSP  : supergroup combinations of given class
 CTOBE *
-CTOBE       INCLUDE 'implicit.fh'
+CTOBE       Implicit REAL*8 (A-H,O-Z)
 CTOBE       INCLUDE 'mxpdim.fh'
 CTOBE       INCLUDE 'gasstr.fh'
 CTOBE       INCLUDE 'cgas.fh'

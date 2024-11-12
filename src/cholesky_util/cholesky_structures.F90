@@ -17,6 +17,7 @@ module Cholesky_Structures
 ! This is in a separate module because it needs the Cholesky module,
 ! which needs Data_Structures, so there would be a circular dependency.
 
+use Index_Functions, only: iTri, nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, V1
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -82,7 +83,6 @@ contains
 
 subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
-  use Index_Functions, only: iTri, nTri_Elem
   use Cholesky, only: nBasSh, nnBstRSh
   use Constants, only: Zero
 
@@ -180,8 +180,6 @@ end subroutine Allocate_L_Full
 
 subroutine Deallocate_L_Full(Adam)
 
-  use Index_Functions, only: iTri
-
   type(L_Full_Type), intent(inout) :: Adam
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma
 
@@ -191,12 +189,8 @@ subroutine Deallocate_L_Full(Adam)
 
       do iSyma=1,Adam%nSym
 
-        Adam%SPB(iSyma,iShp,1)%A3 => null()
-        Adam%SPB(iSyma,iShp,1)%A21 => null()
-        Adam%SPB(iSyma,iShp,1)%A12 => null()
-        Adam%SPB(iSyma,iShp,2)%A3 => null()
-        Adam%SPB(iSyma,iShp,2)%A21 => null()
-        Adam%SPB(iSyma,iShp,2)%A12 => null()
+        nullify(Adam%SPB(iSyma,iShp,1)%A3,Adam%SPB(iSyma,iShp,1)%A21,Adam%SPB(iSyma,iShp,1)%A12, &
+                Adam%SPB(iSyma,iShp,2)%A3,Adam%SPB(iSyma,iShp,2)%A21,Adam%SPB(iSyma,iShp,2)%A12)
 
       end do
 
@@ -279,7 +273,7 @@ subroutine Deallocate_Lab(Lab)
     do iDen=1,Lab%nDen
       do iSh=1,Lab%nShell
 
-        Lab%SB(iSh,iSym,iDen)%A => null()
+        nullify(Lab%SB(iSh,iSym,iDen)%A)
 
       end do
     end do

@@ -9,18 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded for OP2, OP3, but
 C index pair C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      Integer IVEC, JVEC, NOP2, NOP3
+      Real*8 OP0, OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
 
 C Given the coefficients for two excitation operators in the
 C vectors numbered IVEC and C JVEC on file, construct the
@@ -41,22 +39,23 @@ C as operating on the CASSCF space.
       CALL MKWWOPG(IVEC,JVEC,OP1)
       CALL MKWWOPH(IVEC,JVEC,OP0)
 
-      RETURN
-      END
+      END SUBROUTINE MKWWOP
+
       SUBROUTINE MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
       USE SUPERINDEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      INTEGER IVEC, JVEC, NOP2, NOP3
+      REAL*8 OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+
+      REAL*8, Allocatable:: W1(:), W2(:), WPROD(:)
 
 C Given the coefficients for two excitation operators of the
 C type VJTU = Case A, available in vectors numbered IVEC and
@@ -84,51 +83,51 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for this block of excitation amplitudes:
 * Sectioning sizes instead. Replaced code:
-*        CALL GETMEM('WWW1','ALLO','REAL',LW1,NW)
-*        CALL GETMEM('WWW2','ALLO','REAL',LW2,NW)
+*        CALL mma_allocate(W1,NW,Label='W1')
+*        CALL mma_allocate(W2,NW,Label='W2')
 * replace with:
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,LABEL='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
 C Pick up a symmetry block of W1 and W2
-*        CALL RDBLKC(ISYM,ICASE,IVEC,WORK(LW1))
-*        CALL RDBLKC(ISYM,ICASE,JVEC,WORK(LW2))
+*        CALL RDBLKC(ISYM,ICASE,IVEC,W1)
+*        CALL RDBLKC(ISYM,ICASE,JVEC,W2)
 C Allocate space for the contraction:
         NWSCT=MIN(NAS,1000)
         NWPROD=NWSCT**2
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 * End of addition
 C Loop over sections of WW1 and WW2:
         DO ITUVSTA=1,NAS,NWSCT
-          LW1A=LW1-1+ITUVSTA
+          LW1A=ITUVSTA
           ITUVEND=MIN(ITUVSTA-1+NWSCT,NAS)
           MWS1=ITUVEND+1-ITUVSTA
           DO IXYZSTA=1,NAS,NWSCT
-            LW2A=LW2-1+IXYZSTA
+            LW2A=IXYZSTA
             IXYZEND=MIN(IXYZSTA-1+NWSCT,NAS)
             MWS2=IXYZEND+1-IXYZSTA
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
 *            CALL DGEMM_('N','T',
 *     &                  MWS1,MWS2,NIS,
-*     &                  1.0d0,WORK(LW1A),NAS,
-*     &                  WORK(LW2A),NAS,
-*     &                  0.0d0,WORK(LWPROD),NWSCT)
+*     &                  1.0d0,W1(LW1A),NAS,
+*     &                  W2(LW2A),NAS,
+*     &                  0.0d0,WPROD,NWSCT)
 * Replaced, due to sectioning over inactives:
-            CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+            WPROD(:)=0.0D0
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
-     &                  1.0d0,WORK(LW1A),NAS,
-     &                  WORK(LW2A),NAS,
-     &                  1.0d0,WORK(LWPROD),NWSCT)
+     &                  1.0d0,W1(LW1A),NAS,
+     &                  W2(LW2A),NAS,
+     &                  1.0d0,WPROD,NWSCT)
 * End of replacement
 
 C Loop over (TUV) in its section
@@ -149,7 +148,7 @@ C Loop over (XYZ) in its section
             IXT=IXABS+NASHT*(ITABS-1)
             IYZ=IYABS+NASHT*(IZABS-1)
             IWPROD=IW1+NWSCT*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember:
 C  W1(tuv,i)(conj)*W2(xyz,j) = dij * (  -Evuxtyz -dyu Evzxt
 C                     - dyt Evuxz - dxu Evtyz - dxu dyt Evz
@@ -185,7 +184,7 @@ C Contrib to 3-particle operator:
               END IF
             END IF
             JVUXTYZ=((JVU+1)*JVU*(JVU-1))/6+(JXT*(JXT-1))/2+JYZ
-            OP3(JVUXTYZ)=OP3(JVUXTYZ)-WPROD
+            OP3(JVUXTYZ)=OP3(JVUXTYZ)-W_PROD
 C Contrib to 2-particle operator, from -dyu Evzxt:
             IF(IYABS.EQ.IUABS) THEN
               IVZ=IVABS+NASHT*(IZABS-1)
@@ -195,7 +194,7 @@ C Contrib to 2-particle operator, from -dyu Evzxt:
               ELSE
                 JVZXT=(IXT*(IXT-1))/2+IVZ
               END IF
-              OP2(JVZXT)=OP2(JVZXT)-WPROD
+              OP2(JVZXT)=OP2(JVZXT)-W_PROD
             END IF
 C Contrib to 2-particle operator, from -dyt Evuxz:
             IF(IYABS.EQ.ITABS) THEN
@@ -206,10 +205,10 @@ C Contrib to 2-particle operator, from -dyt Evuxz:
               ELSE
                 JVUXZ=(IXZ*(IXZ-1))/2+IVU
               END IF
-              OP2(JVUXZ)=OP2(JVUXZ)-WPROD
+              OP2(JVUXZ)=OP2(JVUXZ)-W_PROD
 C Contrib to 1-particle operator, from -dxu dyt Evz:
               IF(IXABS.EQ.IUABS) THEN
-                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)-WPROD
+                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)-W_PROD
               END IF
             END IF
 C Contrib to 2-particle operator, from -dxu Evtyz:
@@ -221,7 +220,7 @@ C Contrib to 2-particle operator, from -dxu Evtyz:
               ELSE
                 JVTYZ=(IYZ*(IYZ-1))/2+IVT
               END IF
-              OP2(JVTYZ)=OP2(JVTYZ)-WPROD
+              OP2(JVTYZ)=OP2(JVTYZ)-W_PROD
             END IF
 C Contrib to 2-particle operator, from +2 dtx Evuyz:
             IF(ITABS.EQ.IXABS) THEN
@@ -232,10 +231,10 @@ C Contrib to 2-particle operator, from +2 dtx Evuyz:
               ELSE
                 JVUYZ=(IYZ*(IYZ-1))/2+IVU
               END IF
-              OP2(JVUYZ)=OP2(JVUYZ)+2.0D0*WPROD
+              OP2(JVUYZ)=OP2(JVUYZ)+2.0D0*W_PROD
 C Contrib to 1-particle operator, from +2 dtx dyu Evz:
               IF(IYABS.EQ.IUABS) THEN
-                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+2.0D0*WPROD
+                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+2.0D0*W_PROD
               END IF
             END IF
            END DO
@@ -245,31 +244,29 @@ C Contrib to 1-particle operator, from +2 dtx dyu Evz:
 * PAM2008, an added sectioning loop
         END DO
 C Deallocate temporary space:
-*        CALL GETMEM('WWW1','FREE','REAL',LW1,NW)
-*        CALL GETMEM('WWW2','FREE','REAL',LW2,NW)
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPA
+
       SUBROUTINE MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
       USE SUPERINDEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2)
+      INTEGER IVEC, JVEC, NOP2
+      REAL*8 OP1(NASHT,NASHT),OP2(NOP2)
 
+      REAL*8, Allocatable, TARGET:: W1(:), W2_H(:), WPROD(:)
+      REAL*8, POINTER::  W2(:)
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
 C excitation cases VJTI(+) and VJTI(-), i.e. cases 2 and 3, to
@@ -294,34 +291,36 @@ C Loop over symmetry ISYM
 C Allocate space for one section of excitation amplitudes:
 C Pick up a symmetry block of W1 and W2
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
         IF(IVEC.EQ.JVEC) THEN
-          LW2=LW1
+          W2=>W1
         ELSE
-          CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+          CALL mma_allocate(W2_H,NAS*MDVEC,Label='W2_H')
+          W2=>W2_H
         END IF
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Loop over sections:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA+MDVEC-1,MDVEC)
          NCOL=IIEND-IISTA+1
-        CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-        IF (IVEC.NE.JVEC) CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+        CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+        IF (IVEC.NE.JVEC) CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
         CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
         END DO
 C Deallocate W1 and W2
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        IF(IVEC.NE.JVEC) CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        IF(IVEC.NE.JVEC) CALL mma_deallocate(W2_H)
+        W2=>Null()
 
 C Loop over (TU)
         DO ITU=1,NAS
@@ -340,7 +339,7 @@ C Loop over (XY)
             IYT=IYABS+NASHT*(ITABS-1)
             IXU=IXABS+NASHT*(IUABS-1)
             IWPROD=IW1+NAS*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember:
 C W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Extyu + 2 Eytxu -2dxt Eyu
 C           -2dyu Ext -2dyt Exu -2dxu Eyt + 4 dxt dyu + 4 dxu dyt)
@@ -350,16 +349,16 @@ C Contrib to 2-particle operator, from 2 Extyu:
             ELSE
               JXTYU=(IYU*(IYU-1))/2+IXT
             END IF
-            OP2(JXTYU)=OP2(JXTYU)+2.0D0*WPROD
+            OP2(JXTYU)=OP2(JXTYU)+2.0D0*W_PROD
 C Contrib to 1-particle operator, from -2dxt Eyu
             IF(IXABS.EQ.ITABS) THEN
-              OP1(IYABS,IUABS)=OP1(IYABS,IUABS)-2.0D0*WPROD
+              OP1(IYABS,IUABS)=OP1(IYABS,IUABS)-2.0D0*W_PROD
             END IF
 C Contrib to 1-particle operator, from -2dyu Ext
             IF(IYABS.EQ.IUABS) THEN
-              OP1(IXABS,ITABS)=OP1(IXABS,ITABS)-2.0D0*WPROD
+              OP1(IXABS,ITABS)=OP1(IXABS,ITABS)-2.0D0*W_PROD
 C Contrib to 0-particle operator, from +4 dxt dyu
-              IF(IXABS.EQ.ITABS) OP0=OP0 + 4.0D0*WPROD
+              IF(IXABS.EQ.ITABS) OP0=OP0 + 4.0D0*W_PROD
             END IF
 C Contrib to 2-particle operator, from 2 Eytxu:
             IF(IYT.GT.IXU) THEN
@@ -367,21 +366,21 @@ C Contrib to 2-particle operator, from 2 Eytxu:
             ELSE
               JYTXU=(IXU*(IXU-1))/2+IYT
             END IF
-            OP2(JYTXU)=OP2(JYTXU)+2.0D0*WPROD
+            OP2(JYTXU)=OP2(JYTXU)+2.0D0*W_PROD
 C Contrib to 1-particle operator, from -2dyt Exu
             IF(IYABS.EQ.ITABS) THEN
-              OP1(IXABS,IUABS)=OP1(IXABS,IUABS)-2.0D0*WPROD
+              OP1(IXABS,IUABS)=OP1(IXABS,IUABS)-2.0D0*W_PROD
             END IF
 C Contrib to 1-particle operator, from -2dxu Eyt
             IF(IXABS.EQ.IUABS) THEN
-              OP1(IYABS,ITABS)=OP1(IYABS,ITABS)-2.0D0*WPROD
+              OP1(IYABS,ITABS)=OP1(IYABS,ITABS)-2.0D0*W_PROD
 C Contrib to 0-particle operator, from +4 dyt dxu
-              IF(IYABS.EQ.ITABS) OP0=OP0 + 4.0D0*WPROD
+              IF(IYABS.EQ.ITABS) OP0=OP0 + 4.0D0*W_PROD
             END IF
           END DO
         END DO
 C Deallocate matrix product:
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
  888    CONTINUE
       END DO
 C Then THE B- i.e. VJTI- i.e. CASE 3 -----------------------------
@@ -393,30 +392,32 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
+        CALL mma_allocate(W2_H,NAS*MDVEC,Label='W2_H')
+        W2=>W2_H
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
         CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
         END DO
 C Deallocate W1, W2
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2_H)
+        W2=>Null()
 
 C Loop over (TU)
           DO ITU=1,NAS
@@ -435,7 +436,7 @@ C Loop over (XY)
             IYT=IYABS+NASHT*(ITABS-1)
             IXU=IXABS+NASHT*(IUABS-1)
             IWPROD=IW1+NAS*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember:
 C W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Extyu - 2 Eytxu -6dxt Eyu
 C           -6dyu Ext +6dyt Exu +6dxu Eyt +12 dxt dyu -12 dxu dyt)
@@ -445,16 +446,16 @@ C Contrib to 2-particle operator, from 2 Extyu:
             ELSE
               JXTYU=(IYU*(IYU-1))/2+IXT
             END IF
-            OP2(JXTYU)=OP2(JXTYU)+2.0D0*WPROD
+            OP2(JXTYU)=OP2(JXTYU)+2.0D0*W_PROD
 C Contrib to 1-particle operator, from -6dxt Eyu
             IF(IXABS.EQ.ITABS) THEN
-              OP1(IYABS,IUABS)=OP1(IYABS,IUABS)-6.0D0*WPROD
+              OP1(IYABS,IUABS)=OP1(IYABS,IUABS)-6.0D0*W_PROD
             END IF
 C Contrib to 1-particle operator, from -6dyu Ext
             IF(IYABS.EQ.IUABS) THEN
-              OP1(IXABS,ITABS)=OP1(IXABS,ITABS)-6.0D0*WPROD
+              OP1(IXABS,ITABS)=OP1(IXABS,ITABS)-6.0D0*W_PROD
 C Contrib to 0-particle operator, from +12 dxt dyu
-              IF(IXABS.EQ.ITABS) OP0=OP0 + 12.0D0*WPROD
+              IF(IXABS.EQ.ITABS) OP0=OP0 + 12.0D0*W_PROD
             END IF
 C Contrib to 2-particle operator, from -2 Eytxu:
             IF(IYT.GE.IXU) THEN
@@ -462,40 +463,40 @@ C Contrib to 2-particle operator, from -2 Eytxu:
             ELSE
               JYTXU=(IXU*(IXU-1))/2+IYT
             END IF
-            OP2(JYTXU)=OP2(JYTXU)-2.0D0*WPROD
+            OP2(JYTXU)=OP2(JYTXU)-2.0D0*W_PROD
 C Contrib to 1-particle operator, from +6dyt Exu
             IF(IYABS.EQ.ITABS) THEN
-              OP1(IXABS,IUABS)=OP1(IXABS,IUABS)+6.0D0*WPROD
+              OP1(IXABS,IUABS)=OP1(IXABS,IUABS)+6.0D0*W_PROD
             END IF
 C Contrib to 1-particle operator, from +6dxu Eyt
             IF(IXABS.EQ.IUABS) THEN
-              OP1(IYABS,ITABS)=OP1(IYABS,ITABS)+6.0D0*WPROD
+              OP1(IYABS,ITABS)=OP1(IYABS,ITABS)+6.0D0*W_PROD
 C Contrib to 0-particle operator, from -12 dyt dxu
-              IF(IYABS.EQ.ITABS) OP0=OP0 -12.0D0*WPROD
+              IF(IYABS.EQ.ITABS) OP0=OP0 -12.0D0*W_PROD
             END IF
           END DO
         END DO
 C Deallocate matrix product
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPB
+
       SUBROUTINE MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
       USE SUPERINDEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      INTEGER IVEC, JVEC, NOP2, NOP3
+      REAL*8 OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
 
+      REAL*8, ALLOCATABLE:: W1(:), W2(:), WPROD(:)
 C Given the coefficients for two excitation operators of the
 C type ATVX = Case C, available in vectors numbered IVEC and
 C JVEC on file, construct the zero-, one-, two-, and three-body
@@ -513,36 +514,36 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
         NWSCT=MIN(NAS,1000)
         NWPROD=NWSCT**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Loop over sections of WW1 and WW2:
         DO ITUVSTA=1,NAS,NWSCT
-          LW1A=LW1-1+ITUVSTA
+          LW1A=ITUVSTA
           ITUVEND=MIN(ITUVSTA-1+NWSCT,NAS)
           MWS1=ITUVEND+1-ITUVSTA
           DO IXYZSTA=1,NAS,NWSCT
             IXYZEND=MIN(IXYZSTA-1+NWSCT,NAS)
-            LW2A=LW2-1+IXYZSTA
+            LW2A=IXYZSTA
             MWS2=IXYZEND+1-IXYZSTA
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
-            CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+            WPROD(:)=0.0D0
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
-     &                  1.0d0,WORK(LW1A),NAS,
-     &                  WORK(LW2A),NAS,
-     &                  1.0d0,WORK(LWPROD),NWSCT)
+     &                  1.0d0,W1(LW1A),NAS,
+     &                  W2(LW2A),NAS,
+     &                  1.0d0,WPROD,NWSCT)
 
 C Loop over (TUV) in its section
           DO ITUV=ITUVSTA,ITUVEND
@@ -562,7 +563,7 @@ C Loop over (XYZ) in its section
             ITX=ITABS+NASHT*(IXABS-1)
             IYZ=IYABS+NASHT*(IZABS-1)
             IWPROD=IW1+NWSCT*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember:
 C  W1(tuv,a)(conj)*W2(xyz,b) = dab * ( Evutxyz +dyu Evztx
 C                       + dyx Evutz + dtu Evxyz + dtu dyx Evz )
@@ -597,7 +598,7 @@ C Contrib to 3-particle operator:
               END IF
             END IF
             JVUTXYZ=((JVU+1)*JVU*(JVU-1))/6+(JTX*(JTX-1))/2+JYZ
-            OP3(JVUTXYZ)=OP3(JVUTXYZ)+WORK(LWPROD-1+IWPROD)
+            OP3(JVUTXYZ)=OP3(JVUTXYZ)+WPROD(IWPROD)
 C Contrib to 2-particle operator, from  dyu Evztx:
             IF(IYABS.EQ.IUABS) THEN
               IVZ=IVABS+NASHT*(IZABS-1)
@@ -607,7 +608,7 @@ C Contrib to 2-particle operator, from  dyu Evztx:
               ELSE
                 JVZTX=(ITX*(ITX-1))/2+IVZ
               END IF
-              OP2(JVZTX)=OP2(JVZTX)+WPROD
+              OP2(JVZTX)=OP2(JVZTX)+W_PROD
             END IF
 C Contrib to 2-particle operator, from  dyx Evutz:
             IF(IYABS.EQ.IXABS) THEN
@@ -618,7 +619,7 @@ C Contrib to 2-particle operator, from  dyx Evutz:
               ELSE
                 JVUTZ=(ITZ*(ITZ-1))/2+IVU
               END IF
-              OP2(JVUTZ)=OP2(JVUTZ)+WPROD
+              OP2(JVUTZ)=OP2(JVUTZ)+W_PROD
             END IF
 C Contrib to 2-particle operator, from  dtu Evxyz:
             IF(ITABS.EQ.IUABS) THEN
@@ -629,10 +630,10 @@ C Contrib to 2-particle operator, from  dtu Evxyz:
               ELSE
                 JVXYZ=(IYZ*(IYZ-1))/2+IVX
               END IF
-              OP2(JVXYZ)=OP2(JVXYZ)+WPROD
+              OP2(JVXYZ)=OP2(JVXYZ)+W_PROD
 C Contrib to 1-particle operator, from  dtu dyx Evz:
               IF(IYABS.EQ.IXABS) THEN
-                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+WPROD
+                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+W_PROD
               END IF
             END IF
            END DO
@@ -642,28 +643,28 @@ C Contrib to 1-particle operator, from  dtu dyx Evz:
 * Extra sectioning loop added...
         END DO
 C Deallocate temporary space:
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPC
+
       SUBROUTINE MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
       USE SUPERINDEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2)
+      INTEGER IVEC, JVEC, NOP2
+      REAL*8 OP1(NASHT,NASHT),OP2(NOP2)
 
+      REAL*8, ALLOCATABLE:: W1(:), W2(:), WPROD(:)
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
 C excitation case AIVX, i.e. case 5, to
@@ -685,30 +686,30 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
         END DO
 C Deallocate space for this block of excitation amplitudes:
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
 
 C Loop over (TU)
           DO JTU=1,NAS1
@@ -732,10 +733,10 @@ C Loop over (XY)
             IWPRAB=IW1A+NAS*(IW2B-1)
             IWPRBA=IW1B+NAS*(IW2A-1)
             IWPRBB=IW1B+NAS*(IW2B-1)
-            WPRAA=WORK(LWPROD-1+IWPRAA)
-            WPRAB=WORK(LWPROD-1+IWPRAB)
-            WPRBA=WORK(LWPROD-1+IWPRBA)
-            WPRBB=WORK(LWPROD-1+IWPRBB)
+            WPRAA=WPROD(IWPRAA)
+            WPRAB=WPROD(IWPRAB)
+            WPRBA=WPROD(IWPRBA)
+            WPRBB=WPROD(IWPRBB)
 C Remember:
 C (W1A(tu,ai) conj)*(W2A(tu,ai)) = 2*(Eutxy + dtx Euy)
 C (W1A(tu,ai) conj)*(W2B(tu,ai)) =  -(Eutxy + dtx Euy)
@@ -763,22 +764,23 @@ C Contrib to 2-particle operator, from Extuy:
           END DO
         END DO
 C Deallocate matrix product:
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPD
+
       SUBROUTINE MKWWOPE(IVEC,JVEC,OP0,OP1)
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
-      DIMENSION OP1(NASHT,NASHT)
+      Integer IVEC, JVEC
+      Real*8 OP1(NASHT,NASHT)
+
+      REAL*8, ALLOCATABLE:: W1(:), W2(:), WPROD(:)
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
@@ -798,30 +800,30 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
          END DO
 C Deallocate space for this block of excitation amplitudes:
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
 
 C Loop over (T)
           DO IT=1,NAS
@@ -832,33 +834,37 @@ C Loop over (X)
             IW2=IX
             IXABS=IX+NAES(ISYM)
             IWPROD=IW1+NAS*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
-            OP1(ITABS,IXABS)=OP1(ITABS,IXABS)-WPROD
-            IF(ITABS.EQ.IXABS) OP0=OP0+2.0D0*WPROD
+            W_PROD=WPROD(IWPROD)
+            OP1(ITABS,IXABS)=OP1(ITABS,IXABS)-W_PROD
+            IF(ITABS.EQ.IXABS) OP0=OP0+2.0D0*W_PROD
           END DO
         END DO
 C Deallocate matrix product
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
 C End of loop over cases.
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPE
+
       SUBROUTINE MKWWOPF(IVEC,JVEC,NOP2,OP2)
       USE SUPERINDEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
-      DIMENSION OP2(NOP2)
+      INTEGER IVEC, JVEC, NOP2
+      REAL*8 OP2(NOP2)
+
+      REAL*8, ALLOCATABLE, TARGET:: W1(:), W2_H(:)
+      REAL*8, ALLOCATABLE:: WPROD(:)
+      REAL*8, POINTER:: W2(:)
+
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
 C excitation cases BVAT(+) and BVAT(-), i.e. cases 8 and 9, to
@@ -881,34 +887,36 @@ C Loop over symmetry ISYM
 C Allocate space for one section of excitation amplitudes:
 C Pick up a symmetry block of W1 and W2
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
         IF(JVEC.EQ.IVEC) THEN
-          LW2=LW1
+          W2=>W1
         ELSE
-          CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+          CALL mma_allocate(W2_H,NAS*MDVEC,Label='W2_H')
+          W2=>W2_H
         END IF
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
          END DO
 C Deallocate W1 and W2
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        IF(JVEC.NE.IVEC) CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        IF(JVEC.NE.IVEC) CALL mma_deallocate(W2_H)
+        W2=>Null()
 
 C Loop over (TU)
         DO ITU=1,NAS
@@ -927,7 +935,7 @@ C Loop over (XY)
             ITY=ITABS+NASHT*(IYABS-1)
             IUX=IUABS+NASHT*(IXABS-1)
             IWPROD=IW1+NAS*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember: C For the F+ case (i.e. case 8)
 C W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Etxuy + 2 Etyux)
 C Contrib to 2-particle operator, from 2 Etxuy:
@@ -936,18 +944,18 @@ C Contrib to 2-particle operator, from 2 Etxuy:
             ELSE
               JTXUY=(IUY*(IUY-1))/2+ITX
             END IF
-            OP2(JTXUY)=OP2(JTXUY)+2.0D0*WPROD
+            OP2(JTXUY)=OP2(JTXUY)+2.0D0*W_PROD
 C Contrib to 2-particle operator, from 2 Etyux:
             IF(ITY.GE.IUX) THEN
               JTYUX=(ITY*(ITY-1))/2+IUX
             ELSE
               JTYUX=(IUX*(IUX-1))/2+ITY
             END IF
-            OP2(JTYUX)=OP2(JTYUX)+2.0D0*WPROD
+            OP2(JTYUX)=OP2(JTYUX)+2.0D0*W_PROD
           END DO
         END DO
 C Deallocate matrix product:
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
 888     CONTINUE
       END DO
 C THEN THE F- i.e. BVAT- i.e. CASE 9 -----------------------------
@@ -960,34 +968,36 @@ C Loop over symmetry ISYM
 C Allocate space for one section of excitation amplitudes:
 C Pick up a symmetry block of W1 and W2
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
         IF(JVEC.EQ.IVEC) THEN
-          LW2=LW1
+          W2=>W1
         ELSE
-          CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+          CALL mma_allocate(W2_H,NAS*MDVEC,Label='W2_H')
+          W2=>W2_H
         END IF
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
         END DO
 C Deallocate W1 and W2
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        IF(JVEC.NE.IVEC) CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        IF(JVEC.NE.IVEC) CALL mma_deallocate(W2_H)
+        W2=>Null()
 
 C Loop over (TU)
         DO ITU=1,NAS
@@ -1006,7 +1016,7 @@ C Loop over (XY)
             ITY=ITABS+NASHT*(IYABS-1)
             IUX=IUABS+NASHT*(IXABS-1)
             IWPROD=IW1+NAS*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
+            W_PROD=WPROD(IWPROD)
 C Remember: C For the F- case (i.e. case 9)
 C W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Etxuy - 2 Etyux)
 C Contrib to 2-particle operator, from 2 Etxuy:
@@ -1015,33 +1025,34 @@ C Contrib to 2-particle operator, from 2 Etxuy:
             ELSE
               JTXUY=(IUY*(IUY-1))/2+ITX
             END IF
-            OP2(JTXUY)=OP2(JTXUY)+2.0D0*WPROD
+            OP2(JTXUY)=OP2(JTXUY)+2.0D0*W_PROD
 C Contrib to 2-particle operator, from -2 Etyux:
             IF(ITY.GE.IUX) THEN
               JTYUX=(ITY*(ITY-1))/2+IUX
             ELSE
               JTYUX=(IUX*(IUX-1))/2+ITY
             END IF
-            OP2(JTYUX)=OP2(JTYUX)-2.0D0*WPROD
+            OP2(JTYUX)=OP2(JTYUX)-2.0D0*W_PROD
           END DO
         END DO
 C Deallocate matrix product:
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPF
+
       SUBROUTINE MKWWOPG(IVEC,JVEC,OP1)
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
+      INTEGER IVEC, JVEC
       DIMENSION OP1(NASHT,NASHT)
+
+      REAL*8, ALLOCATABLE:: W1(:), W2(:), WPROD(:)
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
@@ -1061,30 +1072,30 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,LABEL='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,LABEL='W2')
         NWPROD=NAS**2
 C Allocate space for the contraction:
-        CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
+        CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
+        WPROD(:)=0.0D0
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,WORK(LW1),NAS,
-     &              WORK(LW2),NAS,
-     &              1.0d0,WORK(LWPROD),NAS)
+     &              1.0d0,W1,NAS,
+     &              W2,NAS,
+     &              1.0d0,WPROD,NAS)
         END DO
 C Deallocate space for this block of excitation amplitudes:
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
 
 C Loop over (T)
           DO IT=1,NAS
@@ -1095,26 +1106,28 @@ C Loop over (X)
             IW2=IX
             IXABS=IX+NAES(ISYM)
             IWPROD=IW1+NAS*(IW2-1)
-            WPROD=WORK(LWPROD-1+IWPROD)
-            OP1(ITABS,IXABS)=OP1(ITABS,IXABS)+WPROD
+            W_PROD=WPROD(IWPROD)
+            OP1(ITABS,IXABS)=OP1(ITABS,IXABS)+W_PROD
           END DO
         END DO
 C Deallocate matrix product
-        CALL GETMEM('WWPROD','FREE','REAL',LWPROD,NWPROD)
+        CALL mma_deallocate(WPROD)
  999    CONTINUE
       END DO
 C End of loop over cases.
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPG
+
       SUBROUTINE MKWWOPH(IVEC,JVEC,OP0)
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
+      INTEGER IVEC, JVEC
+      REAL*8 OP0
+
+      REAL*8, ALLOCATABLE:: W1(:), W2(:)
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
@@ -1134,8 +1147,8 @@ C Loop over symmetry ISYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
-        CALL GETMEM('WWW1','ALLO','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','ALLO','REAL',LW2,NAS*MDVEC)
+        CALL mma_allocate(W1,NAS*MDVEC,Label='W1')
+        CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -1143,16 +1156,15 @@ C Allocate space for one section of excitation amplitudes:
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
          NSCT=NAS*NCOL
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
 C Pick up a symmetry block of W1 and W2
-         OP0=OP0+DDOT_(NSCT,WORK(LW1),1,WORK(LW2),1)
+         OP0=OP0+DDOT_(NSCT,W1,1,W2,1)
         END DO
-        CALL GETMEM('WWW1','FREE','REAL',LW1,NAS*MDVEC)
-        CALL GETMEM('WWW2','FREE','REAL',LW2,NAS*MDVEC)
+        CALL mma_deallocate(W1)
+        CALL mma_deallocate(W2)
  999    CONTINUE
       END DO
 C End of loop over cases.
       END DO
-      RETURN
-      END
+      END SUBROUTINE MKWWOPH

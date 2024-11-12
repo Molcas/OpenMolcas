@@ -15,18 +15,17 @@
       use kVectors
       use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       use mh5, only: mh5_create_file, mh5_init_attr,
      &               mh5_create_dset_real, mh5_create_dset_str
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
 #  include "Molcas.fh"
 #  include "cntrl.fh"
 #  include "rassi.fh"
 #  include "symmul.fh"
-#  include "WrkSpc.fh"
-#  include "stdalloc.fh"
 #  include "rassiwfn.fh"
       integer :: ISTATE, NSS
       integer :: nData, nIJ

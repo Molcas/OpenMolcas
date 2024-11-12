@@ -20,7 +20,7 @@ subroutine CHO_CC_drv(rc,CMO)
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -37,7 +37,7 @@ character(len=50) :: CFmt
 type(SBA_Type) :: Laq(1)
 real(kind=wp), allocatable :: Lrs(:,:)
 real(kind=wp), allocatable, target :: Lpq(:)
-real(kind=wp), pointer :: pLpq(:,:,:) => null()
+real(kind=wp), pointer :: pLpq(:,:,:)
 character(len=*), parameter :: SECNAM = 'CHO_CC_drv'
 integer(kind=iwp), external :: isFreeUnit
 
@@ -231,7 +231,7 @@ do jSym=1,nSym
         tread(1) = tread(1)+(TCR4-TCR3)
         tread(2) = tread(2)+(TWR4-TWR3)
 
-        pLpq => null()
+        nullify(pLpq)
 
       end do
 

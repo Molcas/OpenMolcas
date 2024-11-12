@@ -42,6 +42,7 @@ subroutine RDINT2(IPRX,DoTCVA)
 ! IAD2M(3,iSymIJAB)   EXCHANGE INTEGRALS <AB|TU> FOR SYM T < SYM U
 ! THE LAST ADRESS IS ZERO IF SYM T = SYM U
 
+use caspt2_global, only: LUINTM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -53,7 +54,6 @@ integer(kind=iwp) :: i, IAD131, IAD132, IAD13C, IAD2M(3,36*36), IADC, IADX1, IAD
                      nOccB, nOccI, nOccJ, nOrbA, nOrbB, nOrbI, nOrbJ, NUM
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: Tmp(:)
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
 

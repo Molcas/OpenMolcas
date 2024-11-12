@@ -29,10 +29,11 @@ subroutine Rd1Int()
 !***********************************************************************
 
 use Definitions, only: iwp
+use rasscf_global, only: header, NAME, PotNuc
+
 
 implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 integer(kind=iwp) :: nBas_tot
 

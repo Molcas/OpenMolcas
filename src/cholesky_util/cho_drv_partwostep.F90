@@ -26,7 +26,7 @@ use Cholesky, only: BlockSize, ChkOnly, Cho_1Center, Cho_DecAlg, Cho_DecAlg_Def,
                     ModRst, Mx2Sh, MxShPr, N1_Qual, N1_VecRd, N2_Qual, N2_VecRd, N_Subtr, nDecom, nDGM_call, nInteg, nMisc, &
                     nSection, nShell, nSym, nSys_call, RstCho, RstDia, ScDiag, SSTau, tDecDrv, tDecom, Thr_PreScreen, Thr_SimRI, &
                     ThrCom, ThrDiag, TimSec, tInteg, tMisc, Tol_DiaChk, Trace_Idle
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -460,7 +460,7 @@ if (iPrint >= Inf_Timing) then
   write(LuPri,'(/,A)') '***** Starting Cholesky finalization *****'
   call XFlush(LuPri)
 end if
-if (allocated(Idle)) call mma_deallocate(Idle)
+call mma_deallocate(Idle,safe='*')
 call Cho_PTS_Final(NVT,size(NVT))
 if (iPrint >= Inf_Timing) then
   call CWTime(TimSec(2,iSec),TimSec(4,iSec))
@@ -516,10 +516,9 @@ subroutine Finish_this()
     irc = 2
   end if
 
-  if (allocated(Diag_Hidden)) call mma_deallocate(Diag_Hidden)
-  if (allocated(Diag_G_Hidden)) call mma_deallocate(Diag_G_Hidden)
-  nullify(Diag)
-  nullify(Diag_G)
+  call mma_deallocate(Diag_Hidden,safe='*')
+  call mma_deallocate(Diag_G_Hidden,safe='*')
+  nullify(Diag,Diag_G)
   call mma_deallocate(Check)
 
   ! Print total timing

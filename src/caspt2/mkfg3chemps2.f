@@ -11,15 +11,15 @@
 * Copyright (C) 2016, Sebastian Wouters                                *
 *               2016, Quan Phung                                       *
 ************************************************************************
+
+#include "compiler_features.h"
+
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Subroutine mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
       use gugx, only: SGS
       IMPLICIT NONE
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
       INTEGER, INTENT(IN) :: IFF, NLEV
@@ -66,8 +66,12 @@
 
       Return
       End
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_mkfg3chemps2()
-      End
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_mkfg3chemps2()
+      end subroutine empty_mkfg3chemps2
+
 #endif

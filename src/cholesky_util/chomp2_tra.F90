@@ -19,7 +19,7 @@ subroutine ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
 
 use Cholesky, only: nSym
 use ChoMP2, only: nT1am
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

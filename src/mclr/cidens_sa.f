@@ -10,10 +10,10 @@
 ************************************************************************
       SubRoutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "stdalloc.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"

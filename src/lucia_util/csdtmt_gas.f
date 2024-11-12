@@ -29,7 +29,7 @@
 * Changed to Combination form, June 92
 * Adapted to LUCIA December 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
 #include "cstate.fh"

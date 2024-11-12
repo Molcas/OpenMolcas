@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine HssPrt_MCLR(ideg,Hess,ldisp)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
 #include "Input.fh"
       Integer  kDisp(8),ldisp(nsym)
       Character Title*39

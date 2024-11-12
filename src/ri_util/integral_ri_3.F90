@@ -9,11 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This subroutine should be in a module
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
-
 subroutine Integral_RI_3( &
 #                        define _CALLING_
 #                        include "int_wrout_interface.fh"
@@ -24,6 +19,7 @@ subroutine Integral_RI_3( &
 
 use RI_glob, only: iSSOff, nBasSh, klS, nSkal_Valence, nSO, SOShl, ShlSO
 use Int_Options, only: iTOffs
+use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"

@@ -58,7 +58,7 @@ if (iRc /= 0) then
   call Abend()
 end if
 if (nInts+4 /= nSize) then
-  write(u6,*) 'PtAdd: nInts+4.ne.nSize',nInts+4,nSize
+  write(u6,*) 'PtAdd: nInts+4 /= nSize',nInts+4,nSize
   call Abend()
 end if
 iRc = -1

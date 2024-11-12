@@ -38,7 +38,6 @@
       Implicit Real*8 (a-h,o-z)
       Real*8 TwoHam(nDens)
 #ifdef _MOLCAS_MPP_
-#include "real.fh"
 *
 #include "global.fh"
 *

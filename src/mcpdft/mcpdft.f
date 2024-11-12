@@ -50,143 +50,85 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use csfbas, only: CONF
-      use glbbas, only: CFTP
       use Fock_util_global, only: DoCholesky
-      use write_pdft_job, only: iwjob, writejob
-      use sxci, only: idxsx
-      use mspdft_grad, only: dogradmspd
-      use mspdft, only: mspdftmethod, do_rotate, iF1MS,
-     &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
-     &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD,
-     &                  mspdft_finalize
-      use mcpdft_output, only: terse, debug, insane, usual, lf, iPrLoc
+      use mcpdft_input, only: mcpdft_options, parse_input
+      use write_pdft_job, only: writejob
+      use mspdft, only: mspdftmethod, do_rotate, F1MS,
+     &                  F2MS, FxyMS, FocMS, DIDA, P2MOt, D1AOMS,
+     &                  D1SAOMS, mspdft_finalize
+      use printlevel, only: terse, debug, insane, usual
+      use mcpdft_output, only: lf, iPrLoc
       use mspdft_util, only: replace_diag
-      use rctfld_module
-      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
-      use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use gugx, only: SGS,CIS,EXS
+      use rasscf_global, only: ECAS, ExFac, IPR, iRLXRoot, ITER,
+     &                         lRoots, lSquare, NAC, NACPAR, NACPR2,
+     &                         nFint, nRoots, nTot4, iRoot, Weight,
+     &                         Ener
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
-#include "WrkSpc.fh"
+      Integer iReturn
 #include "rasdim.fh"
 #include "warnings.h"
-#include "input_ras_mcpdft.fh"
-#include "rasscf.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "timers.fh"
-#include "lucia_ini.fh"
-#include "pamint.fh"
-#include "ciinfo.fh"
-      Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
-
       CHARACTER(Len=18)::MatInfo
-      INTEGER LUMS,IsFreeUnit
-      External IsFreeUnit
+      INTEGER LUMS
+      Integer, External:: IsFreeUnit
 
-      Logical DSCF
-      Character*80 Line
       Logical IfOpened
       Logical Found
 
-      External RasScf_Init_m
-      External Scan_Inp_m
-      integer iRef_E,IAD19
+      external :: mcpdft_init
+      integer IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      real*8, allocatable :: PLWO(:), CIV(:)
-      integer ivkcnf
+      Real*8, allocatable :: TmpDMat(:), Ref_E(:), EList(:,:),
+     &                       HRot(:,:), PUVX(:)
+      Logical DSCF
+      Real*8 AEMAX, dum1, dum2, dum3, E
+      Integer I, iJOB, iPrLev, iRC, IT, jDisk, jRoot
 
-* Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
-* Set the return code(s)
       IRETURN=_RC_ALL_IS_WELL_
-
-* Local print level in this routine:
-      IPRLEV=IPRLOC(1)
-
-* Default option switches and values, and initial data.
-      EAV = 0.0d0
-      Call RasScf_Init_m()
-      Call Seward_Init()
-* Open the one-olectron integral file:
-      LuOne=77
-      LuOne=isFreeUnit(LuOne)
-      iRC=-1
-      iOpt=0
-      Call OpnOne(iRC,iOpt,'ONEINT',LuOne)
-      If (iRC.ne.0) Then
-        Write (6,*) 'Error when trying to open the one-electron'
-        Write (6,*) 'integral file.'
-        Call Quit(_RC_INTERNAL_ERROR_)
-      End If
-
-* Make a copy, upper-cased, left-adjusted, of the input between and including
-* the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
-* with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
-* substring beginning with '!' with blanks.
-* That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
-      Call cpinp_(LUInput,iRc)
-* If something wrong with input file:
-      If (iRc.ne._RC_ALL_IS_WELL_) Then
-       Call WarningMessage(2,'Input file is unusable.')
-       write(lf,*)' MCPDFT Error: Could not make a clean copy of'
-       write(lf,*)' the input file. This is an unexpected bug.'
-       IRETURN=_RC_INTERNAL_ERROR_
-       GOTO 9990
-      End If
-
-
-! Scan the input file for keywords:
-      Call Scan_Inp_m(iRc)
-! If something wrong with input file:
-      If (iRc.ne._RC_ALL_IS_WELL_) Then
-       If (IPRLOC(1).GE.TERSE) Then
-        Call WarningMessage(2,'Scanning input file failed.')
-! Calling again, now with iRc indicating an error,
-! will echo the keywords:
-        Call Scan_Inp_m(iRc)
-       End If
-       IRETURN=_RC_INPUT_ERROR_
-       GOTO 9990
-      End If
 
 ! Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
-* Open files
-      Call OpnFls_RASSCF_m(DSCF)
+! Default option switches and values, and initial data.
+      EAV = 0.0d0
+      call mcpdft_init()
 
-* Some preliminary input data:
+      call parse_input()
+
+
+! Local print level in this routine:
+      IPRLEV=IPRLOC(1)
+
+      Call open_files_mcpdft(DSCF)
+
+! Some preliminary input data:
       Call Rd1Int()
-      If ( .not.DSCF ) Call Rd2Int_RASSCF()
+      If ( .not. DSCF ) then
+        Call Rd2Int_RASSCF()
+      end if
 
-* Process the input:
+! Process the input:
       Call Proc_InpX(DSCF,iRc)
-* If something goes wrong in proc_inp:
+
+! If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
         If (IPRLEV.ge.TERSE) Then
           Call WarningMessage(2,'Input processing failed.')
           write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
-          write(lf,*)' Here is a printing of the input file that'
-          write(lf,*)' was processed:'
-          Rewind(LUInput)
-  15      Continue
-          Read(LuInput,'(A80)',End=16,Err=16) Line
-          write(lf,*) Line
-          Go To 15
-  16      Continue
         End If
         IRETURN=iRc
-        GOTO 9990
+        call close_files()
+        Return
       End If
 
 
@@ -206,8 +148,6 @@
       Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-      allocate(PLWO(1:NACPAR))
-      PLWO(:) = 0
 !
 *
       Call mma_allocate(TUVX,NACPR2,Label='TUVX')
@@ -249,30 +189,21 @@
       ECAS   = 0.0d0
       Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
-      ! I guess we spoof for the 2-electron part? Im not sure..
-        KSDFT_TEMP=KSDFT
-        KSDFT='SCF'
-        ExFac=1.0D0
-
-      Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
-      call dcopy_(NACPAR,DMAT,1,Work(ipTmpDMAT),1)
+      Call mma_allocate(TmpDMAT,NACPAR,Label='TmpDMat')
+      call dcopy_(NACPAR,DMAT,1,TmpDMAT,1)
       If (NASH(1).ne.NAC) then
-        Call DBLOCK(Work(ipTmpDMAT))
+        Call DBLOCK(TmpDMAT)
       end if
-      Call Get_D1A_RASSCF(CMO,Work(ipTmpDMAT),D1A)
-      Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
-
-! 413 Continue
+      Call Get_D1A_RASSCF(CMO,TmpDMAT,D1A)
+      Call mma_deallocate(TmpDMAT)
 
 !AMS start-
 ! - Read in the CASSCF Energy from JOBIPH file.  These values are not
 ! used in calculations, but are merely reprinted as the reference energy
 ! for each calculated MC-PDFT energy.
-!
-
       iJOB=0
-      Call GetMem('REF_E','ALLO','REAL',iRef_E,lroots)
-      Call Fzero(Work(iRef_E),lroots)
+      Call mma_allocate(Ref_E,lroots,Label='Ref_E')
+      Ref_E(:)=0.0D0
         Call f_Inquire('JOBOLD',Found)
         if (.not.found) then
           Call f_Inquire('JOBIPH',Found)
@@ -290,13 +221,13 @@
       Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
       jdisk = IADR19(6)
 !I must read from the 'old' JOBIPH file.
-      Call GetMem('ELIST','ALLO','REAL',iEList,MXROOT*MXITER)
-      Call DDaFile(JOBOLD,2,Work(iEList),MXROOT*MXITER,jdisk)
+      Call mma_allocate(EList,MXROOT,MXITER,Label='EList')
+      Call DDaFile(JOBOLD,2,EList,MXROOT*MXITER,jdisk)
       NMAYBE=0
       DO IT=1,MXITER
         AEMAX=0.0D0
         DO I=1,MXROOT
-          E=WORK(iEList+MXROOT*(IT-1)+(I-1))
+          E=EList(I,IT)
           AEMAX=MAX(AEMAX,ABS(E))
         END DO
         IF(ABS(AEMAX).LE.1.0D-12) GOTO 11
@@ -304,7 +235,8 @@
       END DO
   11  CONTINUE
 
-      IF(iMSPDFT==1) Then
+      IF(mcpdft_options%mspdft) Then
+       ! TODO: this should be checked immediately!!
        call f_inquire('ROT_HAM',Do_Rotate)
        IF(IPRLEV.ge.USUAL) THEN
        If(.not.Do_Rotate) Then
@@ -312,6 +244,7 @@
      &  'the file of rotated Hamiltonian is not found.'
         write(lf,'(6X,2a)')'Performing regular (state-',
      &   'specific) MC-PDFT calculation'
+        mcpdft_options%mspdft = .false.
        End If
        END IF
       End IF
@@ -328,14 +261,12 @@
         write(lf,'(6X,A)')'calculation.'
         write(lf,*)
         END IF
-        NHRot=lroots**2
-        CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
+        CALL mma_allocate(HRot,lroots,lroots,Label='HRot')
         LUMS=12
         LUMS=IsFreeUnit(LUMS)
         CALL Molcas_Open(LUMS,'ROT_HAM')
         Do Jroot=1,lroots
-          read(LUMS,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-     &                 ,kroot=1,lroots)
+          read(LUMS,*) (HRot(Jroot,kroot), kroot=1,lroots)
         End Do
         Read(LUMS,'(A18)') MatInfo
         MSPDFTMethod=' MS-PDFT'
@@ -357,192 +288,119 @@
         END IF
         Close(LUMS)
         do KROOT=1,lROOTS
-          ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+
-     &                                     (KROOT-1)))
+           ENER(IROOT(KROOT),1)=HRot(Kroot,Kroot)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
-           Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
+           Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
       Else
         do KROOT=1,lROOTS
-          ENER(IROOT(KROOT),1)=Work(iEList+MXROOT*(NMAYBE-1) +
-     &                                     (KROOT-1))
+          ENER(IROOT(KROOT),1)=EList(KRoot,NMAYBE)
            EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
-           Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
+           Ref_E(KROOT) = ENER(IROOT(KROOT),1)
         end do
       End IF!End IF for Do_Rotate=.true.
 
-      IF(doNACMSPD) Then
+      IF(mcpdft_options%nac) Then
         IF(IPRLEV.ge.USUAL) THEN
         write(6,'(6X,A)') repeat('=',80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
-     & cmsNACstates(1), cmsNACstates(2)
+     &         mcpdft_options%nac_states(1),
+     &         mcpdft_options%nac_states(2)
         write(6,*)
         write(6,'(6X,A)') repeat('=',80)
         END IF
-        call Put_lScalar('isCMSNAC        ', doNACMSPD)
-        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
       ELSE
-        cmsNACstates(1) = iRlxRoot
-        cmsNACstates(2) = 0
-        call Put_lScalar('isCMSNAC        ', doNACMSPD)
-        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
-      End IF!End IF for doNACMSPD=.true.
-
-      IF(doMECIMSPD) Then
-        IF(IPRLEV.ge.USUAL) THEN
-        write(6,'(6X,A)') repeat('=',80)
-        write(6,*)
-        write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
-        write(6,*)
-        write(6,'(6X,A)') repeat('=',80)
-        END IF
-        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
-      ELSE
-        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+        mcpdft_options%nac_states(1) = iRlxRoot
+        mcpdft_options%nac_states(2) = 0
       End IF
+      call Put_lScalar('isCMSNAC        ', mcpdft_options%nac)
+      call Put_iArray('cmsNACstates    ', mcpdft_options%nac_states, 2)
 
-      Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
+      IF(mcpdft_options%meci .and. iprlev .ge. usual) Then
+        write(lf,'(6X,A)') repeat('=',80)
+        write(lf,*)
+        write(lf,'(6X,A,I3,I3)')'keyword MECI is used for states:'
+        write(lf,*)
+        write(lf,'(6X,A)') repeat('=',80)
+      End IF
+      call Put_lScalar('isMECIMSPD      ', mcpdft_options%meci)
+
+      Call mma_deallocate(EList)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
         JOBOLD=-1
       End if
 
-      ! now we reset..
-        KSDFT=KSDFT_TEMP
-        ExFac=0.0d0
 *
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
       Call Timing(dum1,dum2,Fortis_1,dum3)
-      Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-      Call FZero(Work(LPUVX),NFINT)
+      Call mma_allocate(PUVX,NFINT,Label='PUVX')
+      PUVX(:)=0.0D0
       Call Get_D1I_RASSCF(CMO,D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      CALL TRACTL2(CMO,WORK(LPUVX),TUVX,D1I,
-     &             FI,D1A,FA,IPR,lSquare,ExFac)
+      CALL TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 
       Call Put_dArray('Last orbitals',CMO,ntot2)
 
-      if (doGSOR) then
-        Call f_Inquire('JOBOLD',Found)
-        if (.not.found) then
-          Call f_Inquire('JOBIPH',Found)
-          if(Found) JOBOLD=JOBIPH
-        end if
-        If (Found) iJOB=1
-        If (iJOB.eq.1) Then
-           if(JOBOLD.le.0) Then
-             JOBOLD=20
-             Call DaName(JOBOLD,'JOBOLD')
-           end if
-        end if
-        IADR19(:)=0
-        IAD19=0
-        LUCT=87
-        LUCT=IsFreeUnit(LUCT)
-        CALL Molcas_Open(LUCT,'CI_THETA')
-
-        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-        CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
-        CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-        CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
-        CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-        CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        CALL mma_allocate(Pscr,NACPR2,Label='Pscr')
-
-        Dtmp(:)=0.0D0
-        DStmp(:)=0.0D0
-        Ptmp(:)=0.0D0
-        CIVEC(:)=0.0D0
-        iDisk = IADR19(4)
-        jDisk = IADR19(3)
-
-        Call mma_allocate(CIV,nConf,Label='CIV')
-        DO jRoot=1,lroots
-          do i=1,nconf
-            read(LUCT,*) CIVEC(i)
-          end do
-          Call DDafile(JOBOLD,1,CIVEC,nConf,iDisk)
-          call getmem('kcnf','allo','inte',ivkcnf,nactel)
-          Call Reord2(NAC,NACTEL,STSYM,1,
-     &                CONF,CFTP,CIVEC,CIV,iWork(ivkcnf))
-          Call dcopy_(nconf,CIV,1,CIVEC,1)
-          call getmem('kcnf','free','inte',ivkcnf,nactel)
-          CALL Lucia_Util('Densi',
-     &                    CI_Vector=CIVEC(:))
-          If (SGS%IFRAS > 2) Then
-            Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
-          End If
-
-          Call DDafile(JOBOLD,1,Dtmp,NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,DStmp,NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,Ptmp,NACPR2,jDisk)
-          Call DDafile(JOBOLD,1,PAtmp,NACPR2,jDisk)
-        end do
-        Close(LUCT)
-        Call fCopy('JOBIPH','JOBGS',ierr)
-
-       end if!DoGSOR
-
-      if(dogradmspd) then
-        CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
+      if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
+        CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
       end if
-      Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
+      Call mma_deallocate(PUVX)
 
       Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
-      IF(DoGradMSPD) THEN
-        Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
-        Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
-        Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
-        Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
-        Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
-        Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
-        Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
+      IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
+        Call mma_allocate(F1MS ,nTot1,nRoots,Label='F1MS')
+        Call mma_allocate(FocMS,nTot1,nRoots,Label='FocMS')
+        Call mma_allocate(FxyMS,nTot4,nRoots,Label='FxyMS')
+        Call mma_allocate(F2MS ,nACPR2,nRoots,Label='F2MS')
+        Call mma_allocate(P2MOt,nACPR2,nRoots,Label='P2MOt')
+        Call mma_allocate(DIDA ,nTot1,(nRoots+1),Label='DIDA')
+        Call mma_allocate(D1AOMS,nTot1,nRoots,Label='D1AOMS')
         if (ispin.ne.1) then
-          Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
+          Call mma_allocate(D1SAOMS,nTot1,nRoots,Label='D1SAOMS')
         end if
-        Call FZero(Work(iP2MOt),lRoots*NACPR2)
+        P2MOt(:,:)=0.0D0
       END IF
-      CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(CMO,FI,FA,Work(iRef_E))
+      Call MSCtl(CMO,FI,FA,Ref_E)
 
-      ! I guess iRef_E now holds the MC-PDFT energy for each state??
+      ! I guess Ref_E now holds the MC-PDFT energy for each state??
 
-        If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
+      If(mcpdft_options%wjob .and.(.not.Do_Rotate)) then
+        Call writejob(iadr19)
+      end if
 
         If (Do_Rotate) Then
-          call replace_diag(work(lhrot), work(iref_e), lroots)
-          call mspdft_finalize(work(lhrot), lroots, irlxroot, iadr19)
+          call replace_diag(hrot, ref_e, lroots)
+          call mspdft_finalize(hrot, lroots, irlxroot, iadr19)
         End If
 
       ! Free up some space
-      CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
 
       if (do_rotate) then
-        CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
-        if(DoGradMSPD) then
-          Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
-          Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
-          Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
-          Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
-          Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
-          Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
-          Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
-          if (ispin.ne.1)
-     &       Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
+        CALL mma_deallocate(HRot)
+        if(mcpdft_options%grad) then
+          Call mma_deallocate(F1MS)
+          Call mma_deallocate(F2MS)
+          Call mma_deallocate(FxyMS)
+          Call mma_deallocate(P2MOt)
+          Call mma_deallocate(FocMS)
+          Call mma_deallocate(DIDA)
+          Call mma_deallocate(D1AOMS)
+          Call mma_deallocate(D1SAOMS,safe='*')
         end if
       end if
 
@@ -575,7 +433,7 @@
       Call mma_deallocate(D1A)
       Call mma_deallocate(OccN)
       Call mma_deallocate(CMO)
-      Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
+      Call mma_deallocate(REF_E)
 
       Call mma_deallocate(DMAT)
       Call mma_deallocate(DSPN)
@@ -583,21 +441,6 @@
       Call mma_deallocate(PA)
       Call mma_deallocate(TUVX)
 
-*
-*
-       if (doGSOR) then
-          CALL mma_deallocate(CIVEC)
-          CALL mma_deallocate(Dtmp)
-          CALL mma_deallocate(DStmp)
-          CALL mma_deallocate(Ptmp)
-          CALL mma_deallocate(PAtmp)
-          CALL mma_deallocate(Pscr)
-          CALL mma_deallocate(CIV)
-          Call Lucia_Util('CLOSE')
-          Call MKGUGA_FREE(SGS,CIS,EXS)
-       end if
-
-*
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
 
@@ -606,25 +449,18 @@
        Call PrtTim()
        Call FastIO('STATUS')
       END IF
-      Call ClsFls_RASSCF_m()
 
- 9990 Continue
+      Call close_files()
 
-C Close the one-electron integral file:
-      iRC=-1
-      iOpt=0
-      Call ClsOne(iRC,iOpt)
-      If (iRC.ne.0) Then
-         Write (6,*) 'Error when trying to close the one-electron'
-         Write (6,*) 'integral file.'
-         Call Quit(_RC_INTERNAL_ERROR_)
-      End If
-
+      Contains
+      subroutine close_files()
+      Integer I
+      call close_files_mcpdft()
       DO I=10,99
         INQUIRE(UNIT=I,OPENED=IfOpened)
         IF (IfOpened.and.I.ne.19) CLOSE (I)
       END DO
-      Close(LUInput)
+      End subroutine close_files
 
-      End
+      End SUBROUTINE MCPDFT
 

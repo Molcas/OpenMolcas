@@ -26,13 +26,15 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "qnctl.fh"
-      Logical DSCF,test,DoCholesky
+      Logical DSCF,DoCholesky
+
+      Logical test
+      Integer iOpt, iRC
+      Integer, External:: IsFreeUnit
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
@@ -99,10 +101,7 @@
 *
       IterFile = IsFreeUnit(10)
       call molcas_open(IterFile,'CIITER')
-c      Open(Unit=IterFile,Status='Unknown',Form='Formatted',
-c     &     File='CIITER')
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine OpnFls_RASSCF

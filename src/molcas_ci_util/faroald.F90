@@ -53,13 +53,13 @@ public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2
 ! Extensions to mma interfaces
 
 interface cptr2loff
-  module procedure ex1_cptr2loff
+  module procedure :: ex1_cptr2loff
 end interface
 interface mma_allocate
-  module procedure ex1_mma_allo_2D, ex1_mma_allo_2D_lim
+  module procedure :: ex1_mma_allo_2D, ex1_mma_allo_2D_lim
 end interface
 interface mma_deallocate
-  module procedure ex1_mma_free_2D
+  module procedure :: ex1_mma_free_2D
 end interface
 
 public :: mma_allocate, mma_deallocate

@@ -13,23 +13,22 @@ subroutine DataSol(IDSolv)
 ! Database of optical and physical data for various solvent.
 
 use Solvent_Data, only: Init_Solvent_Data, SolvData
-use rctfld_module, only: DerEPS, Eps, EPS_USER, EpsInf, EpsInf_USER, kT, MXA, nTT, rDiff, rSolv, rWT, TCE, vMol
+use rctfld_module, only: Eps, EPS_USER, EpsInf, EpsInf_USER, MXA, rSolv, vMol
 use Constants, only: Zero, One
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IDSolv
-integer(kind=iwp) :: i
 
 call Init_Solvent_Data()
 
 !Tabs = SolvData(IDSolv)%Tabs
 Eps = SolvData(IDSolv)%Eps
 EpsInf = SolvData(IDSolv)%EpsInf
-DerEps = SolvData(IDSolv)%DerEps
+!DerEps = SolvData(IDSolv)%DerEps
 RSolv = SolvData(IDSolv)%RSolv
 VMol = SolvData(IDSolv)%VMol
-TCE = SolvData(IDSolv)%TCE
+!TCE = SolvData(IDSolv)%TCE
 !STen = SolvData(IDSolv)%STen
 !DSTen = SolvData(IDSolv)%DSTen
 !CMF = SolvData(IDSolv)%CMF
@@ -39,16 +38,16 @@ if (size(SolvData(IDSolv)%Atoms) > MxA) then
   call WarningMessage(2,'DataSol: num. solv. atoms > MxA')
   call Abend()
 end if
-do i=1,size(SolvData(IDSolv)%Atoms)
-  if (SolvData(IDSolv)%Atoms(i)%NTT == 0) then
-    !NATyp = i-1
-    exit
-  end if
-  NTT(i) = SolvData(IDSolv)%Atoms(i)%NTT
-  RDiff(i) = SolvData(IDSolv)%Atoms(i)%RDiff
-  KT(i) = SolvData(IDSolv)%Atoms(i)%KT
-  RWT(i) = SolvData(IDSolv)%Atoms(i)%RWT
-end do
+!do i=1,size(SolvData(IDSolv)%Atoms)
+!  if (SolvData(IDSolv)%Atoms(i)%NTT == 0) then
+!    NATyp = i-1
+!    exit
+!  end if
+!  NTT(i) = SolvData(IDSolv)%Atoms(i)%NTT
+!  RDiff(i) = SolvData(IDSolv)%Atoms(i)%RDiff
+!  KT(i) = SolvData(IDSolv)%Atoms(i)%KT
+!  RWT(i) = SolvData(IDSolv)%Atoms(i)%RWT
+!end do
 
 ! Use user specified value of the dielectric constant
 

@@ -23,6 +23,8 @@ use rhodyn_utils, only: dashes
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 integer(kind=iwp) :: i, istatus, j, luin
@@ -269,7 +271,7 @@ if (ipglob > 1) then
   if (flag_diss) then
     !write(u6,sdbl) 'DeltaE:',         deltaE
     !write(u6,sdbl) 'Coupling (cm-1):',V
-    write(u6,sdbl) 'Gamma (Hartree):',cgamma
+    write(u6,sdbl) 'Gamma (hartree):',cgamma
   end if
   call dashes()
   write(u6,*) 'Pulse characteristics:'

@@ -12,22 +12,22 @@
 subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,Alpha,nalpha,fa1,fa2,jfgrad,jfhess,ld,debug)
 ! Calculates <A'|core> and <A"|core>
 !
-! @parameter iang Angular momenta for core
-! @parameter la Angular momenta for bra
-! @parameter ishll identification for core shell
-! @parameter nordop order for operator
-! @parameter TC Cartesian coordinates for core
-! @parameter A Cartesian coordinates for bra
-! @parameter Array Scratch
-! @parameter narr size for scratch
-! @parameter Alpha Bra exponents
-! @parameter nalpha number of exponents
-! @parameter FA1 First derivatives (out)
-! @parameter FA2 2nd derivatives (out)
-! @parameter jfgrad true for all 1-derivatives that are needed
-! @parameter jfhess true for all 2-derivatives that are needed
-! @parameter ld Order of derivatives
-! @parameter debug guess
+! @param iang Angular momenta for core
+! @param la Angular momenta for bra
+! @param ishll identification for core shell
+! @param nordop order for operator
+! @param TC Cartesian coordinates for core
+! @param A Cartesian coordinates for bra
+! @param Array Scratch
+! @param narr size for scratch
+! @param Alpha Bra exponents
+! @param nalpha number of exponents
+! @param FA1 First derivatives (out)
+! @param FA2 2nd derivatives (out)
+! @param jfgrad true for all 1-derivatives that are needed
+! @param jfhess true for all 2-derivatives that are needed
+! @param ld Order of derivatives
+! @param debug guess
 
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells

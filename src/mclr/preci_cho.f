@@ -30,7 +30,6 @@
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "standard_iounits.fh"
       Real*8 focki(nbaj,nbaj),fock(nbaj,nbaj),focka(nbaj,nbaj),
      &       rout(*), A_J(nScr), A_K(nScr), Scr(nScr)
 *                                                                      *

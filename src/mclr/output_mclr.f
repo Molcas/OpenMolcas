@@ -35,6 +35,7 @@
       use MckDat, only: sLength
       Use Arrays, only: Hss
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
@@ -42,7 +43,6 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "stdalloc.fh"
       Character(LEN=8) Label
 #ifdef _DEBUGPRINT_
       Character(LEN=20) Label2

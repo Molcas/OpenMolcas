@@ -24,36 +24,36 @@ subroutine dqk21(f,a,b,reslt,abserr,resabs,resasc)
 !
 !           integration rules
 !           standard fortran subroutine
-!           real*8 version
+!           real version
 !
 !           parameters
 !            on entry
-!              f      - real*8
+!              f      - real
 !                       function subprogram defining the integrand
 !                       function f(x). the actual name for f needs to be
 !                       declared e x t e r n a l in the calling program.
 !
-!              a      - real*8
+!              a      - real
 !                       lower limit of integration
 !
-!              b      - real*8
+!              b      - real
 !                       upper limit of integration
 !
 !            on return
-!              reslt  - real*8
+!              reslt  - real
 !                       approximation to the integral i
 !                       result is computed by applying the 21-point
 !                       kronrod rule (resk) obtained by optimal addition
 !                       of abscissae to the 10-point gauss rule (resg).
 !
-!              abserr - real*8
+!              abserr - real
 !                       estimate of the modulus of the absolute error,
 !                       which should not exceed abs(i-reslt)
 !
-!              resabs - real*8
+!              resabs - real
 !                       approximation to the integral j
 !
-!              resasc - real*8
+!              resasc - real
 !                       approximation to the integral of abs(f-i/(b-a))
 !                       over (a,b)
 !

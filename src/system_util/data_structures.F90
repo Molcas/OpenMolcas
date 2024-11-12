@@ -23,8 +23,6 @@ private
 
 public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, &
           G2_Type, Integer_Pointer, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
-! temporary subroutines for interface with old code
-public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
 
 type Integer_Pointer
   integer(kind=iwp), contiguous, pointer :: I1(:) => null()
@@ -75,6 +73,7 @@ type SBA_Type
   integer(kind=iwp) :: iCase = 0
   integer(kind=iwp) :: iSym = 0
   integer(kind=iwp) :: nSym = 0
+  integer(kind=iwp) :: ipOff(8) = 0
   real(kind=wp), allocatable :: A0(:)
   type(SB_Type) :: SB(8)
 end type SBA_Type
@@ -132,15 +131,6 @@ interface mma_deallocate
   module procedure :: dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
 end interface
 
-! Private explicit interface to work around some compiler bugs
-interface
-  function ip_of_Work(a)
-    import wp, iwp
-    integer(kind=iwp) :: ip_of_Work
-    real(kind=wp) :: a
-  end function ip_of_work
-end interface
-
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -195,8 +185,7 @@ subroutine Deallocate_NDSBA(Adam)
 
   do iSym=1,Adam%nSym
     do jSym=1,Adam%nSym
-      Adam%SB(iSym,jSym)%A2 => null()
-      Adam%SB(iSym,jSym)%A1 => null()
+      nullify(Adam%SB(iSym,jSym)%A2,Adam%SB(iSym,jSym)%A1)
     end do
   end do
   call mma_deallocate(Adam%A0)
@@ -273,7 +262,7 @@ subroutine Allocate_DSBA(Adam,n,m,nSym,aCase,Ref,Label)
     Adam%Fake = .true.
     Adam%A0(1:MemTot) => Ref(1:MemTot)
   else
-    Adam%A0 => null()
+    nullify(Adam%A0)
     if (present(Label)) then
       call mma_allocate(Adam%A00,MemTot,Label=Label)
     else
@@ -322,37 +311,23 @@ subroutine Deallocate_DSBA(Adam)
   select case (Adam%iCase)
     case (0,2)
       do iSym=1,Adam%nSym
-        Adam%SB(iSym)%A1 => null()
+        nullify(Adam%SB(iSym)%A1)
       end do
     case (1)
       do iSym=1,Adam%nSym
-        Adam%SB(iSym)%A2 => null()
-        Adam%SB(iSym)%A1 => null()
+        nullify(Adam%SB(iSym)%A2,Adam%SB(iSym)%A1)
       end do
   end select
+  nullify(Adam%A0)
   if (Adam%Fake) then
-    Adam%A0 => null()
     Adam%Fake = .false.
   else
-    Adam%A0 => null()
     call mma_deallocate(Adam%A00)
   end if
   Adam%nSym = 0
   Adam%iCase = 0
 
 end subroutine Deallocate_DSBA
-
-subroutine Map_to_DSBA(Adam,ipAdam)
-
-  type(DSBA_Type), intent(in) :: Adam
-  integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
-  integer(kind=iwp) :: iSym
-
-  do iSym=1,Adam%nSym
-    ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
-  end do
-
-end subroutine Map_to_DSBA
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !
@@ -543,9 +518,7 @@ subroutine Deallocate_SBA(Adam)
   integer(kind=iwp) :: iSym
 
   do iSym=1,Adam%nSym
-    Adam%SB(iSym)%A1 => null()
-    Adam%SB(iSym)%A2 => null()
-    Adam%SB(iSym)%A3 => null()
+    nullify(Adam%SB(iSym)%A1,Adam%SB(iSym)%A2,Adam%SB(iSym)%A3)
   end do
   call mma_deallocate(Adam%A0)
   Adam%iCase = 0
@@ -553,40 +526,6 @@ subroutine Deallocate_SBA(Adam)
   Adam%nSym = 0
 
 end subroutine Deallocate_SBA
-
-subroutine Map_to_SBA(Adam,ipAdam,Tweak)
-
-  type(SBA_Type), intent(in) :: Adam
-  integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
-  logical(kind=iwp), optional :: Tweak
-  integer(kind=iwp) :: iSym, jSym
-  logical(kind=iwp) :: Swap
-
-  if (Adam%iCase < 4) then
-    do iSym=1,Adam%nSym
-      ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
-    end do
-  else
-    Swap = .false.
-    if (present(Tweak)) Swap = Tweak
-    if (Swap) then
-      do iSym=1,Adam%nSym
-        jsym = Mul(iSym,Adam%iSym)
-        if (.not. associated(Adam%SB(jSym)%A2)) cycle
-
-        ipAdam(iSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
-
-      end do
-    else
-      do iSym=1,Adam%nSym
-        if (.not. associated(Adam%SB(iSym)%A2)) cycle
-
-        ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
-      end do
-    end if
-  end if
-
-end subroutine Map_to_SBA
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !
@@ -726,54 +665,11 @@ subroutine Deallocate_twxy(twxy)
 
   do iSymy=1,8
     do iSymw=1,8
-      twxy%SB(iSymw,iSymy)%A => null()
+      nullify(twxy%SB(iSymw,iSymy)%A)
     end do
   end do
 
 end subroutine Deallocate_twxy
-
-subroutine Map_to_twxy(Adam,ipAdam)
-
-  type(twxy_type), intent(in) :: Adam
-  integer(kind=iwp), intent(out) :: ipAdam(8,8)
-  integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma
-
-  ipAdam(:,:) = 0
-  select case (Adam%iCase)
-    case (0)
-      do iSymy=1,Adam%nSym
-        iSymx = Mul(iSymy,Adam%JSYM)
-        do iSymw=iSymy,Adam%nSym   ! iSymw >= iSymy (particle symmetry)
-          iSymt = Mul(isymw,Adam%JSYM)
-          ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-        end do
-      end do
-    case (1)
-      do iSymy=1,Adam%nSym
-        iSymx = Mul(iSymy,Adam%JSYM)
-        if (iSymx <= iSymy) then
-          do iSyma=1,Adam%nSym
-            iSymw = Mul(iSyma,Adam%JSYM)
-            ipAdam(iSymw,iSymx) = ip_of_Work(Adam%SB(iSymw,iSymx)%A(1,1))
-          end do
-        end if
-      end do
-    case (2)
-      do iSymy=1,Adam%nSym
-        iSymx = Mul(iSymy,Adam%JSYM)
-        if (iSymx >= iSymy) then
-          do iSymw=iSymy,Adam%nSym ! iSymw >= iSymy
-            iSymt = Mul(iSymw,Adam%JSYM)
-            if (iSymt >= iSymw) then
-              ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-              ipAdam(iSymy,iSymw) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
-            end if
-          end do
-        end if
-      end do
-  end select
-
-end subroutine Map_to_twxy
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !
@@ -863,8 +759,7 @@ subroutine Deallocate_G2(Adam)
   do iSym=1,Adam%nSym
     do jSym=1,Adam%nSym
       do kSym=1,Adam%nSym
-        Adam%SB(iSym,jSym,kSym)%A4 => null()
-        Adam%SB(iSym,jSym,kSym)%A2 => null()
+        nullify(Adam%SB(iSym,jSym,kSym)%A4,Adam%SB(iSym,jSym,kSym)%A2)
       end do
     end do
   end do
@@ -1006,7 +901,7 @@ subroutine Free_Alloc1DArray(Array)
   integer(kind=iwp) :: i
 
   do i=lbound(Array,1),ubound(Array,1)
-    if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
+    call mma_deallocate(Array(i)%A,safe='*')
   end do
   call mma_deallocate(Array)
 
@@ -1019,7 +914,7 @@ subroutine Free2D_Alloc1DArray(Array)
 
   do j=lbound(Array,2),ubound(Array,2)
     do i=lbound(Array,1),ubound(Array,1)
-      if (allocated(Array(i,j)%A)) call mma_deallocate(Array(i,j)%A)
+      call mma_deallocate(Array(i,j)%A,safe='*')
     end do
   end do
   call mma_deallocate(Array)
@@ -1032,7 +927,7 @@ subroutine Free_Alloc2DArray(Array)
   integer(kind=iwp) :: i
 
   do i=lbound(Array,1),ubound(Array,1)
-    if (allocated(Array(i)%A)) call mma_deallocate(Array(i)%A)
+    call mma_deallocate(Array(i)%A,safe='*')
   end do
   call mma_deallocate(Array)
 

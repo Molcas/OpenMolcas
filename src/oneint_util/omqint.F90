@@ -89,18 +89,19 @@ do lDCRT=0,nDCRT-1
   iComp = 6 ! Why are these here ncomp is passed down?
 
   nHer = (la+(lb+1)+(nOrdOp-1)+2)/2
-  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-1)
+  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,iComp,la,lb+1,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-1,0)
 
   if (lb > 0) then
     nHer = (la+(lb-1)+(nOrdOp-1)+2)/2
-    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-1)
+    call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC, &
+                nOrdOp-1,0)
   end if
 
   iComp = 3 ! Why are these here ncomp is passed down?
 
   nHer = (la+lb+(nOrdOp-2)+2)/2
   ! check to see dipole integral sure looks a lot like dipole integrals
-  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS3),nZeta,iComp,la,lb,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-2)
+  call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS3),nZeta,iComp,la,lb,A,RB,nHer,Array(ipArr),mArr,TC,nOrdOp-2,0)
 
   ! Combine derivatives of dipole integrals to generate the
   ! orbital angular momentum integrals.

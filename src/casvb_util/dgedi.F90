@@ -21,7 +21,7 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !
 ! ON ENTRY
 !
-!    A       real*8(LDA, N)
+!    A       real(LDA, N)
 !            THE OUTPUT FROM DGECO OR DGEFA.
 !
 !    LDA     INTEGER
@@ -33,7 +33,7 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !    IPVT    INTEGER(N)
 !            THE PIVOT VECTOR FROM DGECO OR DGEFA.
 !
-!    W       real*8(N)
+!    W       real(N)
 !            WORK VECTOR.  CONTENTS DESTROYED.
 !
 !    JOB     INTEGER
@@ -46,7 +46,7 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !    A       INVERSE OF ORIGINAL MATRIX IF REQUESTED.
 !            OTHERWISE UNCHANGED.
 !
-!    DET     real*8(2)
+!    DET     real(2)
 !            DETERMINANT OF ORIGINAL MATRIX IF REQUESTED.
 !            OTHERWISE NOT REFERENCED.
 !            DETERMINANT = DET(1) * 10.0**DET(2)

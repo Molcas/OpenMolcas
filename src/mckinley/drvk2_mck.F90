@@ -34,7 +34,7 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -166,7 +166,7 @@ do iS=1,nSkal
     ! entities) for all possible unique pairs of centers generated
     ! for the symmetry unique centers A and B.
 
-    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,k2Data(:,ik2), &
+    call k2Loop_mck(Coor,iAngV,iDCRR,nDCRR,k2Data(:,ik2), &
                     ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp,jPrimj, &
                     Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 

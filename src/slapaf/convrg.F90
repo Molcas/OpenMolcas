@@ -25,7 +25,6 @@ integer(kind=iwp), intent(out) :: iStop
 logical(kind=iwp), intent(in) :: GoOn, Just_Frequencies
 character, intent(in) :: Step_Trunc
 #include "print.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, &
                      LuInput, nAtom, nBackward, nConst, nForward, nIRC, nSaddle, nSaddle_Max
 real(kind=wp) :: CumLen, E, E0, E1, E2, E_Prod, E_Reac, echng, eDiffMEP, Fabs, Maxed, MaxErr, prevDist, rDum(1,1,1,1), refDist, &
@@ -40,6 +39,8 @@ real(kind=wp), allocatable :: C_IRC(:,:,:), C_P(:,:), C_R(:,:), C_S(:,:,:), Coor
                               E_P(:), E_R(:), E_S(:), G_IRC(:,:,:), G_MEP(:,:,:), G_P(:,:), G_R(:,:), G_S(:,:,:), L_MEP(:), Tmp(:)
 real(kind=wp), allocatable, target :: C_MEP(:,:,:), OfRef(:,:)
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************

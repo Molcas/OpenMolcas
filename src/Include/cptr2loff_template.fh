@@ -12,8 +12,6 @@
 !               2015,2020, Ignacio Fdez. Galvan                        *
 !***********************************************************************
 
-#include "molcastypes.fh"
-
 #ifdef _CAPITALS_
 #define cptr2woff_name 'CPTR2WOFF'
 #else
@@ -30,6 +28,7 @@
 
       function _FUNC_NAME_(buffer) result(res)
         use, intrinsic :: iso_c_binding
+        use Definitions, only: MOLCAS_C_INT
         implicit none
         integer :: res
         _TYPE_, target, intent(in) :: buffer

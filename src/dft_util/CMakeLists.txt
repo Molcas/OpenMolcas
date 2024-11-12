@@ -12,7 +12,6 @@
 set (sources
      check_fthaw.F90
      cwrap_drvnq.F90
-     dft_functionals.F90
      driver.F90
      drvdft.F90
      drvemb.F90
@@ -32,6 +31,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     dft_functionals.F90
      ksdft_info.F90
      ofembed.F90
 )

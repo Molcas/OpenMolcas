@@ -16,6 +16,7 @@
      &                        KFRST,    KACT,  SCLFAC,     IAC)
       use strbas
       use distsym
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 *
 * Obtain creation or annihilation mapping
@@ -64,7 +65,6 @@
 #include "csm.fh"
 #include "lucinp.fh"
 #include "loff.fh"
-#include "stdalloc.fh"
 *. Input
       INTEGER IGRP(NIGRP)
 *. Local scratch

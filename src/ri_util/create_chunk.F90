@@ -18,7 +18,7 @@ use Para_Info, only: Is_Real_Par, MyRank, nProcs
 use Constants, only: Zero
 use Definitions, only: wp, u6
 #endif
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp
 
 implicit none

@@ -12,9 +12,9 @@
       use Exp, only: NewPre
       use ipPage, only: W
       use negpre
+      use Constants, only: Zero, One, Half
       Implicit Real*8(a-h,o-z)
 
-#include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "incdia.fh"

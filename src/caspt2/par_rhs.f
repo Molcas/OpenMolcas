@@ -24,12 +24,11 @@
 ************************************************************************
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_INIT
+      SUBROUTINE RHS_INIT()
+      use caspt2_global, only: LURHS
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION DUMMY(1)
+      REAL*8 DUMMY(1)
 
 C-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 C update the disk address in IOFFRHS
@@ -51,14 +50,12 @@ C update the disk address in IOFFRHS
         END DO
       END DO
 
-      END
+      END SUBROUTINE RHS_INIT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_FPRINT(CTYPE,IVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
       REAL*8 :: FP(8)
       CHARACTER(LEN=*) :: CTYPE
@@ -85,7 +82,7 @@ C-SVC: print out DNRM2 of the all RHS components
             CALL RHS_ALLO(NROW,NIS,lg_W)
             CALL RHS_READ(NROW,NIS,lg_W,iCASE,iSYM,iVEC)
             FP(ISYM)=SQRT(RHS_DDOT(NROW,NIS,lg_W,lg_W))
-            CALL RHS_FREE(NROW,NIS,lg_W)
+            CALL RHS_FREE(lg_W)
           ELSE
             FP(ISYM)=0.0D0
           END IF
@@ -93,14 +90,12 @@ C-SVC: print out DNRM2 of the all RHS components
         WRITE(6,'(1X,I2,1X,8F21.14)') ICASE, FP(1:NSYM)
       END DO
 
-      END
+      END SUBROUTINE RHS_FPRINT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ZERO(IVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 
 C-SVC: zero out the entire RHS vector on IVEC
       DO ICASE=1,13
@@ -114,20 +109,20 @@ C-SVC: zero out the entire RHS vector on IVEC
             CALL RHS_ALLO(NAS,NIS,lg_W)
             CALL RHS_SCAL(NAS,NIS,lg_W,0.0D0)
             CALL RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-            CALL RHS_FREE(NAS,NIS,lg_W)
+            CALL RHS_FREE(lg_W)
           END IF
         END DO
       END DO
 
-      END
+      END SUBROUTINE RHS_ZERO
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ALLO (NAS,NIS,lg_W)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: Allocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -137,24 +132,23 @@ C-SVC: zero out the entire RHS vector on IVEC
       IF (Is_Real_Par()) THEN
         CALL GA_CREATE_STRIPED ('V',NAS,NIS,'RHS',LG_W)
       ELSE
+#endif
         NW=NAS*NIS
-        CALL GETMEM('RHS','ALLO','REAL',lg_W,NW)
+        lg_W=Allocate_GA_Array(NW,'RHS')
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      NW=NAS*NIS
-      CALL GETMEM('RHS','ALLO','REAL',lg_W,NW)
 #endif
 
-      END
+      END SUBROUTINE RHS_ALLO
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_FREE (NAS,NIS,lg_W)
+      SUBROUTINE RHS_FREE (lg_W)
 CSVC: this routine writes the RHS array to disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: Deallocate_GA_Array
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -166,15 +160,13 @@ CSVC: this routine writes the RHS array to disk
 CSVC: Destroy the global array
         bStat=GA_Destroy(lg_W)
       ELSE
-        NW=NAS*NIS
-        CALL GETMEM('RHS','FREE','REAL',lg_W,NW)
+#endif
+        Call Deallocate_GA_Array(lg_W)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      NW=NAS*NIS
-      CALL GETMEM('RHS','FREE','REAL',lg_W,NW)
 #endif
 
-      END
+      END SUBROUTINE RHS_FREE
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_DISTRIBUTION (NAS,NIS,iLo,iHi,jLo,jHi)
@@ -182,7 +174,6 @@ CSVC: Destroy the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -205,14 +196,13 @@ CSVC: Destroy the global array
           jHi=jLo+NBASE-1
         END IF
       ELSE
+#endif
         jLo=1
         jHi=NIS
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      jLo=1
-      jHi=NIS
 #endif
-      END
+      END SUBROUTINE RHS_DISTRIBUTION
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ACCESS (NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
@@ -223,7 +213,6 @@ C     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -253,21 +242,17 @@ C     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
           END IF
         END IF
       ELSE
+#endif
         iLo=1
         iHi=NAS
         jLo=1
         jHi=NIS
         MW=lg_W
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      iLo=1
-      iHi=NAS
-      jLo=1
-      jHi=NIS
-      MW=lg_W
 #endif
 
-      END
+      END SUBROUTINE RHS_ACCESS
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RELEASE (lg_W,iLo,iHi,jLo,jHi)
 CSVC: this routine releases a local block back to the global array
@@ -275,7 +260,6 @@ CSVC: this routine releases a local block back to the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -298,7 +282,7 @@ C Avoid unused argument warnings
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_RELEASE
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RELEASE_UPDATE (lg_W,iLo,iHi,jLo,jHi)
 CSVC: this routine releases a local block that was written to back to
@@ -307,7 +291,6 @@ C the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -330,15 +313,15 @@ C Avoid unused argument warnings
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_RELEASE_UPDATE
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_GET (NAS,NIS,lg_W,W)
 CSVC: this routine copies a global array to a local buffer
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
       DIMENSION W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -368,21 +351,21 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
           CALL GA_Get (lg_W,1,NAS,1,NIS,W,NAS)
         END IF
       ELSE
-        CALL DCOPY_(NAS*NIS,WORK(lg_W),1,W,1)
+#endif
+        CALL DCOPY_(NAS*NIS,GA_Arrays(lg_W)%A,1,W,1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL DCOPY_(NAS*NIS,WORK(lg_W),1,W,1)
 #endif
 
-      END
+      END SUBROUTINE RHS_GET
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_PUT (NAS,NIS,lg_W,W)
 CSVC: this routine copies a local buffer to a global array
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
       DIMENSION W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -415,13 +398,13 @@ C which is 2**30 bytes).
           END IF
         END IF
       ELSE
-        CALL DCOPY_(NAS*NIS,W,1,WORK(lg_W),1)
+#endif
+        CALL DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%A,1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL DCOPY_(NAS*NIS,W,1,WORK(lg_W),1)
 #endif
 
-      END
+      END SUBROUTINE RHS_PUT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ADD (NAS,NIS,lg_W,W)
@@ -430,9 +413,10 @@ Cmatching part of a replicate array.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-      DIMENSION W(NAS,*)
+      INTEGER NAS, NIS, lg_W
+      REAL*8 W(NAS,*)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -449,33 +433,31 @@ Cmatching part of a replicate array.
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
       ELSE
-        CALL DAXPY_(NAS*NIS,1.0D0,W,1,WORK(lg_W),1)
+#endif
+        CALL DAXPY_(NAS*NIS,1.0D0,W,1,GA_Arrays(lg_W)%A,1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL DAXPY_(NAS*NIS,1.0D0,W,1,WORK(lg_W),1)
 #endif
 
-      END
+      END SUBROUTINE RHS_ADD
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_C (lg_W,iCASE,iSYM,iVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_READ_C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_SR (lg_W,iCASE,iSYM,iVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_READ_SR
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
@@ -483,11 +465,11 @@ CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_global, only: LURHS
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -511,37 +493,33 @@ CSVC: this routine reads an RHS array in SR format from disk
         END IF
         CALL GA_Sync()
       ELSE
+#endif
         NW=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),2,WORK(lg_W),NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%A,NW,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      NW=NIN*NIS
-      IDISK=IOFFRHS(ISYM,ICASE)
-      CALL DDAFILE(LURHS(IVEC),2,WORK(lg_W),NW,IDISK)
 #endif
 
-      END
+      END SUBROUTINE RHS_READ
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_C (lg_W,iCASE,iSYM,iVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_SAVE_C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_SR (lg_W,iCASE,iSYM,iVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
-      END
+      END SUBROUTINE RHS_SAVE_SR
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
@@ -549,11 +527,11 @@ CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_global, only: LURHS
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -577,17 +555,15 @@ CSVC: this routine reads an RHS array in SR format from disk
         END IF
         CALL GA_Sync()
       ELSE
+#endif
         NW=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),1,WORK(lg_W),NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),1,GA_Arrays(lg_W)%A,NW,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      NW=NIN*NIS
-      IDISK=IOFFRHS(ISYM,ICASE)
-      CALL DDAFILE(LURHS(IVEC),1,WORK(lg_W),NW,IDISK)
 #endif
 
-      END
+      END SUBROUTINE RHS_SAVE
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SCATTER (LDW,lg_W,Buff,idxW,nBuff)
@@ -595,50 +571,46 @@ CSVC: this routine scatters + adds values of a buffer array into the RHS
 C     array at positions given by the buffer index array.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-      DIMENSION Buff(nBuff),idxW(nBuff)
+      Real*8 Buff(nBuff)
+      Integer idxW(nBuff)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      Integer, allocatable:: TMPW1(:), TMPW2(:)
 #endif
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
 CSVC: global array RHS matrix expects 2 index buffers
-        CALL GETMEM('TMPW1','ALLO','INTE',LTMPW1,nBuff)
-        CALL GETMEM('TMPW2','ALLO','INTE',LTMPW2,nBuff)
+        CALL mma_allocate(TMPW1,nBuff,Label='TMPW1')
+        CALL mma_allocate(TMPW2,nBuff,Label='TMPW2')
         DO I=1,nBuff
-          IWORK(LTMPW2+I-1)=(idxW(I)-1)/LDW+1
-          IWORK(LTMPW1+I-1)=idxW(I)-LDW*(IWORK(LTMPW2+I-1)-1)
+          TMPW2(I)=(idxW(I)-1)/LDW+1
+          TMPW1(I)=idxW(I)-LDW*(TMPW2(I)-1)
         END DO
-#ifdef _GA_
-        CALL GA_Scatter_Acc (lg_W,Buff,
-     &     IWORK(LTMPW1),IWORK(LTMPW2),nBuff,1.0D0)
-#else
-        WRITE(6,'(1X,A)') 'RHS_SCATTER: Fatal Error: no GA support!'
-        WRITE(6,'(1X,A)') 'Either build Molcas with Global Arrays or'
-        WRITE(6,'(1X,A)') 'use the RHSD keyword to enable on-demand.'
-        WRITE(6,'(1X,A)') 'Aborting...'
-        CALL AbEnd()
-#endif
-        CALL GETMEM('TMPW1','FREE','INTE',LTMPW1,nBuff)
-        CALL GETMEM('TMPW2','FREE','INTE',LTMPW2,nBuff)
+        CALL GA_Scatter_Acc (lg_W,Buff,TMPW1,TMPW2,nBuff,1.0D0)
+        CALL mma_deallocate(TMPW1)
+        CALL mma_deallocate(TMPW2)
       ELSE
+#endif
         DO I=1,nBuff
-          WORK(lg_W+idxW(I)-1)=WORK(lg_W+idxW(I)-1)+Buff(I)
+          GA_Arrays(lg_W)%A(idxW(I)) =
+     &      GA_Arrays(lg_W)%A(idxW(I)) + BUFF(I)
         END DO
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      DO I=1,nBuff
-        WORK(lg_W+idxW(I)-1)=WORK(lg_W+idxW(I)-1)+Buff(I)
-      END DO
+#endif
+
+#ifndef _MOLCAS_MPP_
 C Avoid unused argument warnings
       IF (.FALSE.) Call Unused_integer(LDW)
 #endif
 
-      END
+      END SUBROUTINE RHS_SCATTER
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE DRA2SOLV (NAS,NIS,iCASE,iSYM,iVEC)
@@ -647,16 +619,19 @@ C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
+      use caspt2_global, only: IDSCT
+      use caspt2_global, only: LUSOLV
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
+      Real*8, allocatable:: TMPW(:)
 #endif
 
 CSVC: Read the global array from disk
@@ -674,7 +649,7 @@ C     later it should be completely removed when VCUTIL and SGM are
 C     adapted for handling global + disk resident arrays then, also
 C     remove iCASE,iSYM,iVEC from the call, as they are no longer needed
 C     in that case.
-          CALL GETMEM('MAXMEM','MAX','REAL',iDummy,iMax)
+          CALL mma_MaxDBLE(iMax)
 C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           iMax=MIN(NINT(0.95D0*iMax),134217728)
           NCOL=MIN(iMAX,NAS*NIS)/NAS
@@ -683,31 +658,30 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
             CALL AbEnd()
           END IF
           NW=NAS*NCOL
-          CALL GETMEM('TMPW','ALLO','REAL',LTMPW,NW)
+          CALL mma_allocate(TMPW,NW,LABEL='TMPW')
 CSVC: Write local array to LUSOLV
-          IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+          IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
           DO ISTA=1,NIS,NCOL
             IEND=MIN(ISTA+NCOL-1,NIS)
-            CALL GA_Get (lg_W,1,NAS,ISTA,IEND,WORK(LTMPW),NAS)
-            CALL DDAFILE(LUSOLV,1,WORK(LTMPW),NAS*(IEND-ISTA+1),IDISK)
+            CALL GA_Get (lg_W,1,NAS,ISTA,IEND,TMPW,NAS)
+            CALL DDAFILE(LUSOLV,1,TMPW,NAS*(IEND-ISTA+1),IDISK)
           END DO
-          CALL GETMEM('TMPW','FREE','REAL',LTMPW,NW)
+          CALL mma_deallocate(TMPW)
         END IF
-        CALL GASync
+        CALL GASync()
 CSVC: Destroy the global array
 *       bStat=GA_Destroy(lg_W)
       ELSE
-      IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-      CALL DDAFILE(LUSOLV,1,WORK(lg_W),NAS*NIS,IDISK)
+#endif
+      IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+      CALL DDAFILE(LUSOLV,1,GA_Arrays(lg_W)%A,NAS*NIS,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-      CALL DDAFILE(LUSOLV,1,WORK(lg_W),NAS*NIS,IDISK)
 #endif
 
-      CALL RHS_FREE (NAS,NIS,lg_W)
+      CALL RHS_FREE (lg_W)
 
-      END
+      END SUBROUTINE DRA2SOLV
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE SOLV2DRA (NAS,NIS,iCASE,iSYM,iVEC)
@@ -716,16 +690,18 @@ C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
+      use caspt2_global, only: LUSOLV, IDSCT
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
+      Real*8, allocatable:: TMPW(:)
 #endif
 
       CALL RHS_ALLO (NAS,NIS,lg_W)
@@ -738,7 +714,7 @@ CSVC: be careful to only call one-sided operations
         IF (KING()) THEN
 CSVC: write the LUSOLV array to global RHS array
 C     later it should be completely removed when everything is parallel
-          CALL GETMEM('MAXMEM','MAX','REAL',iDummy,iMax)
+          CALL mma_MaxDBLE(iMax)
 C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           iMax=MIN(NINT(0.95D0*iMax),134217728)
           NCOL=MIN(iMAX,NAS*NIS)/NAS
@@ -747,34 +723,32 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
             CALL AbEnd()
           END IF
           NW=NAS*NCOL
-          CALL GETMEM('TMPW','ALLO','REAL',LTMPW,NW)
+          CALL mma_allocate(TMPW,NW,Label='TMPW')
 CSVC: Read local array from LUSOLV
-          IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+          IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
           DO ISTA=1,NIS,NCOL
             IEND=MIN(ISTA+NCOL-1,NIS)
-            CALL DDAFILE(LUSOLV,2,WORK(LTMPW),NAS*(IEND-ISTA+1),IDISK)
-            CALL GA_Put (lg_W,1,NAS,ISTA,IEND,WORK(LTMPW),NAS)
+            CALL DDAFILE(LUSOLV,2,TMPW,NAS*(IEND-ISTA+1),IDISK)
+            CALL GA_Put (lg_W,1,NAS,ISTA,IEND,TMPW,NAS)
           END DO
-          CALL GETMEM('TMPW','FREE','REAL',LTMPW,NW)
+          CALL mma_deallocate(TMPW)
         END IF
-        CALL GASync
+        CALL GASync()
 CSVC: Destroy the global array
 *       bStat=GA_Destroy(lg_W)
       ELSE
+#endif
         NW=NAS*NIS
-        IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-        CALL DDAFILE(LUSOLV,2,WORK(lg_W),NW,IDISK)
+        IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+        CALL DDAFILE(LUSOLV,2,GA_Arrays(lg_W)%A,NW,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      NW=NAS*NIS
-      IDISK=IWORK(LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-      CALL DDAFILE(LUSOLV,2,WORK(lg_W),NW,IDISK)
 #endif
 
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      CALL RHS_FREE (NAS,NIS,lg_W)
+      CALL RHS_FREE (lg_W)
 
-      END
+      END SUBROUTINE SOLV2DRA
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SCAL (NAS,NIS,lg_W,FACT)
@@ -782,8 +756,8 @@ CSVC: this routine multiplies the RHS array with FACT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -800,28 +774,23 @@ C          CALL GA_Fill (lg_W,0.0D0)
           END IF
         END IF
       ELSE
+#endif
         IF(FACT.EQ.0.0D0) THEN
-            CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
+            CALL DCOPY_(NAS*NIS,[0.0D0],0,GA_Arrays(lg_W)%A,1)
         ELSE
           IF(FACT.NE.1.0D00) THEN
-            CALL DSCAL_(NAS*NIS,FACT,WORK(lg_W),1)
+            CALL DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%A,1)
           END IF
         END IF
-      END IF
-#else
-      IF(FACT.EQ.0.0D0) THEN
-          CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
-      ELSE
-        IF(FACT.NE.1.0D00) THEN
-          CALL DSCAL_(NAS*NIS,FACT,WORK(lg_W),1)
-        END IF
+#ifdef _MOLCAS_MPP_
       END IF
 #endif
 
-      END
+      END SUBROUTINE RHS_SCAL
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_SR2C (ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
+      SUBROUTINE RHS_SR2C (ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,
+     &                     ICASE,ISYM)
 CSVC: this routine transforms the RHS arrays from SR format (V1) to C
 C     format (V2) (IREV=0) and back (IREV=1), with ITYP specifying if
 C     only the T matrix is used (ITYP=0) or the product of S and T
@@ -829,16 +798,18 @@ C     (ITYP=1).
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
       LOGICAL bStat
 #endif
+      Real*8, Allocatable:: T(:)
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -855,7 +826,6 @@ C      then use the dgemm from GA to operate.
             CALL AbEnd()
           END IF
 
-#ifdef _GA_
           IF (IREV.EQ.0) THEN
             CALL GA_DGEMM ('N','N',NAS,NIS,NIN,
      &                     1.0D0,lg_T,lg_V1,0.0D0,lg_V2)
@@ -863,65 +833,12 @@ C      then use the dgemm from GA to operate.
             CALL GA_DGEMM ('T','N',NIN,NIS,NAS,
      &                     1.0D0,lg_T,lg_V2,0.0D0,lg_V1)
           END IF
-#else
-          MYRANK=GA_NODEID()
-          NPROCS=GA_NNODES()
-          ! zero the receiving array to be able to perform the matrix
-          ! multiplication in a block-wise fashion, adding contributions
-          IF (IREV.EQ.0) THEN
-            CALL GA_Zero (lg_V2)
-          ELSE
-            CALL GA_Zero (lg_V1)
-          END IF
-          ! get local stripes of RHS vectors
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NIN .OR. NROW2.NE.NAS) THEN
-              WRITE(6,*) 'RHS_SR2C: inconsistent stripe size'
-              WRITE(6,'(A,I3)') 'ICASE = ', ICASE
-              WRITE(6,'(A,I3)') 'ISYM  = ', ISYM
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NIN   = ', NROW1, NIN
-              WRITE(6,'(A,2I6)') 'NROW2, NAS   = ', NROW2, NAS
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            ! loop over processes and obtain blocks of the T matrix
-            DO IRANK=0,NPROCS-1
-              CALL GA_Distribution (lg_T,IRANK,iLoT,iHiT,jLoT,jHiT)
-              IF (iLoT.NE.0 .AND. jLoT.NE.0) THEN
-                NROWT=iHiT-iLoT+1
-                NCOLT=jHiT-jLoT+1
-                CALL GETMEM('LT','ALLO','REAL',LT,NROWT*NCOLT)
-                CALL GA_Get (lg_T,iLoT,iHiT,jLoT,jHiT,WORK(LT),NROWT)
-                IF (IREV.EQ.0) THEN
-                  CALL DGEMM_('N','N',NROWT,NCOL1,NCOLT,
-     &                    1.0d0,WORK(LT),NROWT,DBL_MB(mV1+jLoT-1),LDV1,
-     &                    1.0d0,DBL_MB(mV2+iLoT-1),LDV2)
-                ELSE
-                  CALL DGEMM_('T','N',NCOLT,NCOL1,NROWT,
-     &                    1.0d0,WORK(LT),NROWT,DBL_MB(mV2+iLoT-1),LDV2,
-     &                    1.0d0,DBL_MB(mV1+jLoT-1),LDV1)
-                END IF
-                CALL GETMEM('LT','FREE','REAL',LT,NROWT*NCOLT)
-              END IF
-            END DO
-            CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-#endif
           bStat = GA_Destroy(lg_T)
         ELSE
 C-SVC: if case is not A or C, the S/ST matrices are stored in replicate
 C      fashion, and the RHS are stored as vertical stripes, so use dgemm
 C      on local memory, after accessing the local patch of the vector.
-          CALL GETMEM('LT','ALLO','REAL',LT,NAS*NIN)
+          CALL mma_allocate(T,NAS*NIN,Label='T')
           IF (ITYP.EQ.0) THEN
             IDT=IDTMAT(ISYM,ICASE)
           ELSE IF (ITYP.EQ.1) THEN
@@ -930,7 +847,7 @@ C      on local memory, after accessing the local patch of the vector.
             WRITE(6,*) 'RHS_SR2C: invalid type = ', ITYP
             CALL AbEnd()
           END IF
-          CALL DDAFILE(LUSBT,2,WORK(LT),NAS*NIN,IDT)
+          CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
 C-SVC: get the local vertical stripes of the V1 and V2 vectors
           CALL GA_Sync()
           myRank = GA_NodeID()
@@ -954,22 +871,23 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
             CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
             IF (IREV.EQ.0) THEN
               CALL DGEMM_('N','N',NAS,NCOL1,NIN,
-     &                    1.0d0,WORK(LT),NAS,DBL_MB(mV1),LDV1,
+     &                    1.0d0,T,NAS,DBL_MB(mV1),LDV1,
      &                    0.0d0,DBL_MB(mV2),LDV2)
             ELSE
               CALL DGEMM_('T','N',NIN,NCOL1,NAS,
-     &                    1.0d0,WORK(LT),NAS,DBL_MB(mV2),LDV2,
+     &                    1.0d0,T,NAS,DBL_MB(mV2),LDV2,
      &                    0.0d0,DBL_MB(mV1),LDV1)
 *             WRITE(6,*) 'Fingerprint =', RHS_DDOT(NAS,NIN,lg_V1,lg_V1)
             END IF
             CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
             CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
           END IF
-          CALL GETMEM('LT','FREE','REAL',LT,NAS*NIN)
+          CALL mma_deallocate(T)
           CALL GA_Sync()
         END IF
       ELSE
-        CALL GETMEM('LT','ALLO','REAL',LT,NAS*NIN)
+#endif
+        CALL mma_allocate(T,NAS*NIN,Label='T')
         IF (ITYP.EQ.0) THEN
           IDT=IDTMAT(ISYM,ICASE)
         ELSE IF (ITYP.EQ.1) THEN
@@ -978,42 +896,22 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
           WRITE(6,*) 'RHS_SR2C: invalid type = ', ITYP
           CALL AbEnd()
         END IF
-        CALL DDAFILE(LUSBT,2,WORK(LT),NAS*NIN,IDT)
+        CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
         IF (IREV.EQ.0) THEN
           CALL DGEMM_('N','N',NAS,NIS,NIN,
-     &                1.0d0,WORK(LT),NAS,WORK(lg_V1),NIN,
-     &                0.0d0,WORK(lg_V2),NAS)
+     &                1.0d0,T,NAS,GA_Arrays(lg_V1)%A,NIN,
+     &                0.0d0,GA_Arrays(lg_V2)%A,NAS)
         ELSE
           CALL DGEMM_('T','N',NIN,NIS,NAS,
-     &                1.0d0,WORK(LT),NAS,WORK(lg_V2),NAS,
-     &                0.0d0,WORK(lg_V1),NIN)
+     &                1.0d0,T,NAS,GA_Arrays(lg_V2)%A,NAS,
+     &                0.0d0,GA_Arrays(lg_V1)%A,NIN)
         END IF
-        CALL GETMEM('LT','FREE','REAL',LT,NAS*NIN)
+        CALL mma_deallocate(T)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL GETMEM('LT','ALLO','REAL',LT,NAS*NIN)
-      IF (ITYP.EQ.0) THEN
-        IDT=IDTMAT(ISYM,ICASE)
-      ELSE IF (ITYP.EQ.1) THEN
-        IDT=IDSTMAT(ISYM,ICASE)
-      ELSE
-        WRITE(6,*) 'RHS_SR2C: invalid type = ', ITYP
-        CALL AbEnd()
-      END IF
-      CALL DDAFILE(LUSBT,2,WORK(LT),NAS*NIN,IDT)
-      IF (IREV.EQ.0) THEN
-        CALL DGEMM_('N','N',NAS,NIS,NIN,
-     &              1.0d0,WORK(LT),NAS,WORK(lg_V1),NIN,
-     &              0.0d0,WORK(lg_V2),NAS)
-      ELSE
-        CALL DGEMM_('T','N',NIN,NIS,NAS,
-     &              1.0d0,WORK(LT),NAS,WORK(lg_V2),NAS,
-     &              0.0d0,WORK(lg_V1),NIN)
-      END IF
-      CALL GETMEM('LT','FREE','REAL',LT,NAS*NIN)
 #endif
 
-      END
+      END SUBROUTINE RHS_SR2C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_STRANS (NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
@@ -1022,16 +920,18 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
       LOGICAL bStat
 #endif
+      Real*8, Allocatable:: S(:)
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -1040,49 +940,8 @@ C-SVC: if case is A or C, the S/ST matrices are loaded as global arrays,
 C      then use the dgemm from GA to operate.
           CALL PSBMAT_GETMEM('S',lg_S,NAS)
           CALL PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
-#ifdef _GA_
           CALL GA_DGEMM ('N','N',NAS,NIS,NAS,
      &                   ALPHA,lg_S,lg_V1,1.0D0,lg_V2)
-#else
-          MYRANK=GA_NODEID()
-          NPROCS=GA_NNODES()
-          ! get local stripes of RHS vectors
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NAS .OR. NROW2.NE.NAS) THEN
-              WRITE(6,*) 'RHS_STRANS: inconsistent stripe size'
-              WRITE(6,'(A,I3)') 'ICASE = ', ICASE
-              WRITE(6,'(A,I3)') 'ISYM  = ', ISYM
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NAS   = ', NROW1, NIN
-              WRITE(6,'(A,2I6)') 'NROW2, NAS   = ', NROW2, NAS
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            ! loop over processes and obtain blocks of the T matrix
-            DO IRANK=0,NPROCS-1
-              CALL GA_Distribution (lg_S,IRANK,iLoS,iHiS,jLoS,jHiS)
-              IF (iLoS.NE.0 .AND. jLoS.NE.0) THEN
-                NROWS=iHiS-iLoS+1
-                NCOLS=jHiS-jLoS+1
-                CALL GETMEM('LS','ALLO','REAL',LS,NROWS*NCOLS)
-                CALL GA_Get (lg_S,iLoS,iHiS,jLoS,jHiS,WORK(LS),NROWS)
-                CALL DGEMM_('N','N',NROWS,NCOL1,NCOLS,
-     &                    ALPHA,WORK(LS),NROWS,DBL_MB(mV1+jLoS-1),LDV1,
-     &                    1.0d0,DBL_MB(mV2+iLoS-1),LDV2)
-                CALL GETMEM('LS','FREE','REAL',LS,NROWS*NCOLS)
-              END IF
-            END DO
-            CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-#endif
           bStat = GA_Destroy(lg_S)
         ELSE
 C-SVC: if case is not A or C, the S/ST matrices are stored in replicate
@@ -1090,9 +949,9 @@ C      fashion, and the RHS are stored as vertical stripes, so use
 C      trimul on local memory, after accessing the local patch of the
 C      vector.
           NS=(NAS*(NAS+1))/2
-          CALL GETMEM('LS','ALLO','REAL',LS,NS)
+          CALL mma_allocate(S,NS,Label='S')
           IDS=IDSMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
+          CALL DDAFILE(LUSBT,2,S,NS,IDS)
 C-SVC: get the local vertical stripes of the V1 and V2 vectors
           CALL GA_Sync()
           myRank = GA_NodeID()
@@ -1114,34 +973,29 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
             END IF
             CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
             CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            CALL TRIMUL(NAS,NCOL1,ALPHA,WORK(LS),
+            CALL TRIMUL(NAS,NCOL1,ALPHA,S,
      &                  DBL_MB(mV1),LDV1,DBL_MB(mV2),LDV2)
             CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
             CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
           END IF
           CALL GA_Sync()
-          CALL GETMEM('LS','FREE','REAL',LS,NS)
+          CALL mma_deallocate(S)
         END IF
       ELSE
+#endif
         NS=(NAS*(NAS+1))/2
-        CALL GETMEM('LS','ALLO','REAL',LS,NS)
+        CALL mma_allocate(S,NS,Label='S')
         IDS=IDSMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
-        CALL TRIMUL(NAS,NIS,ALPHA,WORK(LS),
-     &              WORK(lg_V1),NAS,WORK(lg_V2),NAS)
-        CALL GETMEM('LS','FREE','REAL',LS,NS)
+        CALL DDAFILE(LUSBT,2,S,NS,IDS)
+        CALL TRIMUL(NAS,NIS,ALPHA,S,
+     &              GA_Arrays(lg_V1)%A,NAS,
+     &              GA_Arrays(lg_V2)%A,NAS)
+        CALL mma_deallocate(S)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      NS=(NAS*(NAS+1))/2
-      CALL GETMEM('LS','ALLO','REAL',LS,NS)
-      IDS=IDSMAT(ISYM,ICASE)
-      CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
-      CALL TRIMUL(NAS,NIS,ALPHA,WORK(LS),
-     &            WORK(lg_V1),NAS,WORK(lg_V2),NAS)
-      CALL GETMEM('LS','FREE','REAL',LS,NS)
 #endif
 
-      END
+      END SUBROUTINE RHS_STRANS
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       REAL*8 FUNCTION RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
@@ -1149,8 +1003,8 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1158,53 +1012,16 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
-#ifdef _GA_
         RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
-#else
-        RHS_DDOT=0.0D0
-        MYRANK=GA_NODEID()
-        NPROCS=GA_NNODES()
-        IF (lg_V1.NE.lg_V2) THEN
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NROW2) THEN
-              WRITE(6,*) 'RHS_DDOT: inconsistent stripe size'
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NROW2 = ', NROW1, NROW2
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            RHS_DDOT=DDOT_(NROW1*NCOL1,DBL_MB(mV1),1,DBL_MB(mV2),1)
-            CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-        ELSE
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          IF (jLoV1.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NCOL1=jHiV1-jLoV1+1
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            RHS_DDOT=DDOT_(NROW1*NCOL1,DBL_MB(mV1),1,DBL_MB(mV1),1)
-            CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-          END IF
-        END IF
-        CALL GADSUM_SCAL(RHS_DDOT)
-#endif
       ELSE
-        RHS_DDOT = DDOT_(NAS*NIS,WORK(lg_V1),1,WORK(lg_V2),1)
+#endif
+        RHS_DDOT = DDOT_(NAS*NIS,GA_Arrays(lg_V1)%A,1,
+     &                           GA_Arrays(lg_V2)%A,1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      RHS_DDOT = DDOT_(NAS*NIS,WORK(lg_V1),1,WORK(lg_V2),1)
 #endif
 
-      RETURN
-      END
+      END FUNCTION RHS_DDOT
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_DAXPY (NAS,NIS,ALPHA,lg_V1,lg_V2)
@@ -1212,8 +1029,11 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+      INTEGER NAS, NIS
+      REAL*8 ALPHA
+      INTEGER lg_V1, lg_V2
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1236,25 +1056,25 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
           CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
         END IF
       ELSE
-        CALL DAXPY_(NAS*NIS,ALPHA,WORK(lg_V1),1,WORK(lg_V2),1)
+#endif
+        CALL DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%A,1,
+     &                            GA_Arrays(lg_V2)%A,1)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL DAXPY_(NAS*NIS,ALPHA,WORK(lg_V1),1,WORK(lg_V2),1)
 #endif
 
-      END
+      END SUBROUTINE RHS_DAXPY
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1281,25 +1101,24 @@ C-SVC: get the local vertical stripes of the lg_W vector
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,DOVL)
+#endif
+        CALL RESDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS,DOVL)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,DOVL)
 #endif
 
-      END
+      END SUBROUTINE RHS_RESDIA
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SGMDIA(NIN,NIS,lg_W,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use EQSOLV
+      use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1324,85 +1143,10 @@ C-SVC: get the local vertical stripes of the lg_W vector
         END IF
         CALL GA_Sync()
       ELSE
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
+#endif
+        CALL SGMDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
 #endif
 
-      END
-
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
-
-      use definitions, only: wp, iwp
-      use caspt2_global, only: imag_shift, real_shift,
-     &                         sigma_p_epsilon, sigma_p_exponent
-
-      implicit none
-
-      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,*), dOvl
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
-
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: delta, delta_inv, tmp,
-     &                                    sigma, epsilon
-
-      dOvl = 0.0_wp
-      do j = 1,nCol
-        do i = 1,nRow
-          ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + real_shift
-          ! inverse denominator plus imaginary shift
-          delta_inv = delta/(delta**2 + imag_shift**2)
-          ! multiply by (inverse) sigma-p regularizer
-          epsilon = sigma_p_epsilon
-          p = sigma_p_exponent
-          if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**p
-            delta_inv = delta_inv * (1.0_wp - exp(-sigma*abs(delta)**p))
-          end if
-          tmp = delta_inv * W(i,j)
-          dOvl = dOvl + tmp * W(i,j)
-          W(i,j) = tmp
-        end do
-      end do
-
-      end subroutine resdia
-
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
-
-      use definitions, only: wp, iwp
-      use caspt2_global, only: imag_shift, real_shift,
-     &                         sigma_p_epsilon, sigma_p_exponent
-
-      implicit none
-
-      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,*)
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
-
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: delta, sigma, epsilon
-
-      do j = 1,nCol
-        do i = 1,nRow
-          ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + real_shift
-          ! add the imaginary shift
-          delta = delta + imag_shift**2/delta
-          ! multiply by sigma-p regularizer
-          epsilon = sigma_p_epsilon
-          p = sigma_p_exponent
-          if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**p
-            delta = delta/(1.0_wp - exp(-sigma * abs(delta)**p))
-          end if
-
-          W(i,j) = delta * W(i,j)
-        end do
-      end do
-
-      end subroutine sgmdia
+      END SUBROUTINE RHS_SGMDIA

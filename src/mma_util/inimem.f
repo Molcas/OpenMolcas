@@ -45,12 +45,6 @@
       MemCtl(ipQuery)  = OFF
       MemCtl(ipCheck)  = OFF
       MemCtl(ipClear)  = OFF
-#ifndef NAGFOR
-#ifdef _GARBLE_
-      MemCtl(ipCheck)  = ON
-      MemCtl(ipClear)  = ON
-#endif
-#endif
       MemCtl(ipSysOut) = 6
 
 *----------------------------------------------------------------------*
@@ -63,12 +57,6 @@
          Call Quit(_RC_MEMORY_ERROR_)
       End If
 *----------------------------------------------------------------------*
-*     Allocate "dummy" pointers                                        *
-*----------------------------------------------------------------------*
-      Call GetMem('ip_Dum', 'Allo','REAL',ip_Dummy,  1)
-      Call GetMem('ip_iDum','Allo','INTE',ip_iDummy, 1)
-*----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine

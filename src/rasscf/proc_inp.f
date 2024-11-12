@@ -21,6 +21,7 @@
      &        remove_comment, qcmaquis_interface_set_param,
      &        qcmaquis_interface_stdout
       use active_space_solver_cfg, only: as_solver_inp_proc
+      use rasscf_global, only: MPSCompressM, DoNEVPT2Prep
 #ifdef _MOLCAS_MPP_
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
@@ -56,71 +57,107 @@
       use UnixInfo, only: SuperName
       use Lucia_Interface, only: Lucia_Util
       use gugx, only: SGS, CIS, EXS
-      Implicit Real*8 (A-H,O-Z)
+      use general_data, only: CRVec, CleanMask, CRPROJ
+      use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
+      use Symmetry_info, only: Mul
+      use input_ras   ! It should be without the only option!
+#ifdef _WARNING_WORKAROUND_
+      use input_ras
+#else
+      use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
+#endif
+      use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI, KAVER,
+     &                         KSYM, HFOCC, CMSStartMat, CMSThreshold,
+     &                         CoreShift, DFTFOCK, DoBLOCKDMRG,
+     &                         ExFac, hRoots, iAlphaBeta, ICICH,
+     &                         iCIonly, iCIRFROOT, iCMSITERMAX,
+     &                         iCMSITERMin, iCMSP, iExpand, JCJ,
+     &                         iFORDE, iOrbOnly, iOrbTyp, iOrdEM,
+     &                         iOverWr, iPCMRoot, iPhName, iPR, iPT2,
+     &                         iRotPsi, iSave_Exp, iSCF, iSPDEN,
+     &                         iSupSM, ITCORE, ITMAX, IXMSP,      kivo,
+     &                         kTight, l_CASDFT, LowMS, LvShft, MaxIt,
+     &                         MaxJt, MaxOrbOut, n_keep, NAC, NACPAR,
+     &                         NACPR2, NFR, NIN, NO2M, NonEq, NQUNE,
+     &                         NORBT, NROOTS, NSEC, NTOT3, NTOT4,
+     &                         OutFmt1, OutFmt2, PotNuc, PreThr, ProThr,
+     &                         PreThr, Purify, RFPert, S, SXSEL, ThFact,
+     &                         ThrE, ThrEn, ThrSX, ThrTE, HFOcc, Title,
+     &                         Weight, DoFaro, DoFCIDump, iCIRST,
+     &                         IfCRPR, LROOTS, PrwThr, InOCalc, ixSym,
+     &                         iZRot
+#ifdef _DMRG_
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG, DoDMRG
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      use rasscf_global, only: diceOcc, dice_eps1, dice_eps2, dice_iter,
+     &                         dice_restart, dice_sampleN, dice_stoc,
+     &                         nRef_dice
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: ChemPS2_Restart, ChemPS2_lRestart,
+     &                         Davidson_Tol, ChemPS2_BLB, Max_Sweep,
+     &                         ChemPS2_Noise, Max_Canonical, MxDMRG,
+     &                         Do3RDM
+#endif
+
+
+      Implicit None
 #include "SysDef.fh"
 #include "rasdim.fh"
+#include "general.fh"
 #include "warnings.h"
-#include "WrkSpc.fh"
-#include "gas.fh"
-#include "rasscf.fh"
-#include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
-#include "general_mul.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
-#include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 *
 *
-      Character*180  Line
-      Character*8 NewJobIphName
-      logical lExists, RunFile_Exists, RlxRCheck
-* Some strange extra logical variables...
       logical lOPTO
       logical DSCF
+      Integer iRC
+
+      Character(LEN=180) Line
+      Character(LEN=8) NewJobIphName
+      logical lExists, RunFile_Exists, RlxRCheck
+* Some strange extra logical variables...
       logical RF_On
       logical Langevin_On
       logical PCM_On
-      Integer ipTemp1,ipTemp2,ipTemp3
 * (SVC) added for treatment of alter and supsym
-      Dimension iMAlter(MaxAlter,2)
+      Integer iMAlter(MaxAlter,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
-#ifdef _DMRG_
-* DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
-#include "nevptp.fh"
-#endif
       Logical DBG, exist
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.
-      Character*8 InfoLbl
+      Character(LEN=8) InfoLbl
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
-      DIMENSION NBAS_L(8),NORB_L(8)
-      DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
-      DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
+      Integer NBAS_L(8),NORB_L(8)
+      Integer NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
+      Integer NRS3_L(8),NSSH_L(8),NDEL_L(8)
 #ifdef _HDF5_
       character(len=1), allocatable :: typestring(:)
 #endif
 * TOC on JOBOLD (or JOBIPH)
-      DIMENSION IADR19(15)
+      Integer IADR19(15)
 
-      Character*180 Get_LN
+      Character(LEN=180) Get_LN
       External Get_LN
       Real*8   Get_ExFac
       External Get_ExFac
-      Character*72 ReadStatus
-      Character*72 JobTit(mxTit)
-      Character*256 myTitle
-      Character*8 MaxLab
+      Character(LEN=72) ReadStatus
+      Character(LEN=72) JobTit(mxTit)
+      Character(LEN=256) myTitle
+      Character(LEN=8) MaxLab
       Logical, External :: Is_First_Iter
-      Dimension Dummy(1)
-      Character*(LENIN8*mxOrb) lJobH1
-      Character*(2*72) lJobH2
+      Real*8 Dummy(1)
+      Character(LEN=LENIN8*mxOrb) lJobH1
+      Character(LEN=2*72) lJobH2
 
       integer :: start, step, length
 
@@ -129,22 +166,44 @@
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
-      Character*256 CurrDir
-      Character*72 ProjectName
+      Character(LEN=256) CurrDir
+      Character(LEN=72) ProjectName
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
       character(len=20)    :: guess_dmrg
+      Integer nr_lines
 !     dmrg(QCMaquis)-stuff
 #endif
 
       Intrinsic INDEX,NINT,DBLE,SQRT
+      Integer, Allocatable:: Temp1(:), Temp2(:), Temp3(:), Type(:),
+     &                       Stab(:), UG2SG_X(:)
+      Real*8, Allocatable:: ENC(:), RF(:)
+
+      Real*8 dSum, dum1, dum2,dum3, Eterna_2, POTNUCDUMMY, PRO, SUHF,
+     &       TEffNChrg, TotChrg, Eterna_1
+      Integer, External:: IsFreeUnit
+      Integer i, i1, i2, iad19, iChng1, iChng2, iDisk, iEnd, iErr,
+     &        iGAS, iGrp, ii, ij, iJOB, inporb_version, iod_save,
+     &        iOffSet, iOrb, iOrbData, iPrLev, iR, iRC1, iRef, iReturn,
+     &        is_in_group, iStart, iSum, iSym, itu, j, jpcmroot, k,
+     &        korb, kref,           mBas, mCof, mConf, mm, mOrb, N, NA,
+     &        NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI,
+     &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs,
+     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
+#ifdef _HDF5_
+      Integer mh5id, lRoots_l
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      Integer iref_dice
+#endif
 
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
 
       DoFaro = .FALSE.
 
-#ifdef _DMRG
+#ifdef _DMRG_
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
 !     If this is set to 0, MPS compression is disabled
@@ -763,8 +822,6 @@ C   No changing about read in orbital information from INPORB yet.
       If (DBG) Write(6,*) ' Check if KSDFT was requested.'
       If (KeyKSDF) Then
        If (DBG) Write(6,*) ' KSDFT command was given.'
-       PamGen=.False.
-       PamGen1=.False.
        DFTFOCK='CAS '
        Call SetPos(LUInput,'KSDF',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -796,30 +853,6 @@ C   No changing about read in orbital information from INPORB yet.
        Call ChkIfKey()
       End If
 *
-*******
-*
-* Read numbers, and coefficients for rasscf potential calculations:
-* nPAM  - number of potentials
-* ipPAM - list of potentials
-* CPAM  - coeffcients of potentials
-* PamGen - switch to generate grid of Rho, grad ....., ......
-*
-*******
-       If ( KSDFT(1:3).eq.'PAM') Then
-        If ( KSDFT(4:4).eq.'G') PamGen =.True.
-        If ( KSDFT(4:4).eq.'G') PamGen1=.False.
-        call dcopy_(nPAMintg,[0.0d0],0,CPAM,1)
-        ReadStatus=' Failure reading data following KSDF=PAM.'
-        Read(LUInput,*,End=9910,Err=9920) nPAM
-        ReadStatus=' O.K. after reading data following KSDF=PAM.'
-*        Write(LF,*) ' Number included exponent in PAM=',nPAM
-        Do iPAM=1,nPAM
-          ReadStatus=' Failure reading data following KSDF=PAM.'
-          Read(LUInput,*,End=9910,Err=9920) Line
-          ReadStatus=' O.K.after reading data following KSDF=PAM.'
-          Call RdPAM(Line,ipPAM(iPAM),CPAM(iPAM))
-        End Do
-       End If
        Call ChkIfKey()
       End If
 *---  Process CION command --------------------------------------------*
@@ -987,10 +1020,10 @@ C         call fileorb(Line,CMSStartMat)
           CALL Put_iScalar('RF0CASSCF root',iPCMRoot)
           Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
           If (Exist) Then
-             Call Allocate_Work(ipRF,mConf)
-             Call FZero(Work(ipRF),mConf)
-             Call Put_dArray("RF CASSCF Vector",Work(ipRF),mConf)
-             Call Free_Work(ipRF)
+             Call mma_allocate(RF,mConf,Label='RF')
+             RF(:)=0.0D0
+             Call Put_dArray("RF CASSCF Vector",RF,mConf)
+             Call mma_deallocate(RF)
           End If
 *
        Else
@@ -1213,19 +1246,19 @@ CBOR.. End modification 001011
          If ( NROOTS.eq.1 ) then
            WEIGHT(1)=1.0D0
          Else
-           Call GetMem('Temp1','Allo','Inte',ipTemp1,NROOTS)
+           Call mma_allocate(Temp1,NROOTS,Label='Temp1')
            Line=Get_Ln(LUInput)
            ReadStatus=' Failure reading after CIROOTS keyword.'
-           Read(Line,*,Err=9920) (iWork(ipTemp1+i-1),i=1,NROOTS)
+           Read(Line,*,Err=9920) (Temp1(i),i=1,NROOTS)
            ReadStatus=' O.K.after CIROOTS keyword.'
            iSum=0
            Do i=1,NROOTS
-              iSum=iSum+iWork(ipTemp1+i-1)
+              iSum=iSum+Temp1(i)
            End Do
            Do i=1,NROOTS
-              WEIGHT(i)=DBLE(iWork(ipTemp1+i-1))/DBLE(iSum)
+              WEIGHT(i)=DBLE(Temp1(i))/DBLE(iSum)
            End Do
-           Call GetMem('Temp1','Free','Inte',ipTemp1,NROOTS)
+           Call mma_deallocate(Temp1)
          End If
         End If
         If (DBG) Then
@@ -1574,14 +1607,13 @@ CIgorS End
           End If
 * We will also take the opportunity to find the orbital spaces size
 * according to typeindex, for possible need below:
-          Call GetMem('TypeIdx','Allo','Inte',ipType,mxOrb)
+          Call mma_allocate(Type,mxOrb,Label='Type')
           LuStartOrb=19
           Call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,
-     &            Dummy,Dummy,Dummy,iWork(ipType),myTitle,0,iErr)
-          call tpidx2orb(NSYM_L,NBAS_L,
-     $            iWork(ipType),
+     &            Dummy,Dummy,Dummy,Type,myTitle,0,iErr)
+          call tpidx2orb(NSYM_L,NBAS_L,Type,
      $            NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
-          Call GetMem('TypeIdx','Free','Inte',ipType,mxOrb)
+          Call mma_deallocate(Type)
           If (DBG) Then
            Write(6,*)' From RDTPIDX, we get:'
            Write(6,'(1x,A16,8I4)')' NBAS_L:',(NBAS_L(I),I=1,NSYM_L)
@@ -1621,14 +1653,13 @@ CIgorS End
          IF(IPRLEV.ge.VERBOSE)
      &    Write(LF,*)' Orbital specification will be taken '//
      &               'from orbital file'
-         Call GetMem('TypeIdx','Allo','Inte',ipType,mxOrb)
+         Call mma_allocate(Type,mxOrb,Label='Type')
          LuStartOrb=19
          Call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,
-     &           Dummy,Dummy,Dummy,iWork(ipType),myTitle,0,iErr)
-         call tpidx2orb(NSYM_L,NBAS_L,
-     $           iWork(ipType),
+     &           Dummy,Dummy,Dummy,Type,myTitle,0,iErr)
+         call tpidx2orb(NSYM_L,NBAS_L,Type,
      $           NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
-         Call GetMem('TypeIdx','Free','Inte',ipType,mxOrb)
+         Call mma_deallocate(Type)
          IERR=0
          IF (NSYM_L.ne.NSYM) IERR=1
          IF(IERR.eq.0) THEN
@@ -1964,16 +1995,16 @@ c      end if
 * Compute effective nuclear charge.
 * Identical to nr of protons for conventional basis sets only, not ECP.
       Call Get_iScalar('Unique atoms',nNuc)
-      Call GetMem('EffNChrg','Allo','Real',ipENC,nNuc)
-      Call Get_dArray('Effective nuclear Charge',Work(ipENC),nNuc)
+      Call mma_allocate(ENC,nNuc,Label='ENC')
+      Call Get_dArray('Effective nuclear Charge',ENC,nNuc)
       TEffNChrg=0.0D0
-      Call GetMem('nStab','Allo','Inte',ipStab,nNuc)
-      Call Get_iArray('nStab',iWork(ipStab),nNuc)
+      Call mma_allocate(Stab,nNuc,Label='Stab')
+      Call Get_iArray('nStab',Stab,nNuc)
       do i=1,nNuc
-       TEffNChrg=TEffNChrg+Work(ipENC-1+i)*DBLE(nSym/iWork(ipStab-1+i))
+       TEffNChrg=TEffNChrg+ENC(i)*DBLE(nSym/Stab(i))
       end do
-      Call GetMem('nStab','Free','Inte',ipStab,nNuc)
-      Call GetMem('EffNChrg','Free','Real',ipENC,nNuc)
+      Call mma_deallocate(Stab)
+      Call mma_deallocate(ENC)
       If (DBG) Write(6,*)
      &             ' Effective nuclear charge is TEffNChrg=',TEffNChrg
       TotChrg=0.0D0
@@ -2341,7 +2372,7 @@ C orbitals accordingly
        If (DBG) Write(6,*) ' SUPS (Supersymmetry) keyword was given.'
        Call SetPos(LUInput,'SUPS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxOrb)
+       Call mma_allocate(Temp1,mxOrb,Label='Temp1')
        ISUPSM=1
        iOffset=0
        Do iSym=1,nSym
@@ -2349,14 +2380,14 @@ C orbitals accordingly
           Read(LUInput,*,End=9910,Err=9920) nGrp
           ReadStatus=' O.K. after reading data following SUPS keyword.'
           Do iGrp=1,nGrp
-             Call RdSups(LUInput,kOrb,iWork(ipTemp1))
+             Call RdSups(LUInput,kOrb,Temp1)
              Do iOrb=1,kOrb
-                IXSYM(iWork(ipTemp1+iOrb-1)+iOffset)=iGrp
+                IXSYM(Temp1(iOrb)+iOffset)=iGrp
              End Do
           End Do
           iOffset=iOffset+nBas(iSym)
        End Do
-       Call GetMem('Temp1','Free','Inte',ipTemp1,mxOrb)
+       Call mma_deallocate(Temp1)
 * (SVC) If both ALTER and SUPS keyword has been used, then change the IXSYM
 * arrays according to the changed orbital ordering given in ALTER.
        Do iAlter=1,NAlter
@@ -2441,56 +2472,55 @@ C orbitals accordingly
        If (DBG) Write(6,*) ' (Awkward input -- replace??).'
        Call SetPos(LUInput,'CLEA',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxOrb)
-       Call GetMem('Temp2','Allo','Inte',ipTemp2,mxOrb)
-       Call GetMem('Temp3','Allo','Inte',ipTemp3,mxOrb)
-       ICLEAN=1
+       Call mma_allocate(Temp1,mxOrb,Label='Temp1')
+       Call mma_allocate(Temp2,mxOrb,Label='Temp2')
+       Call mma_allocate(Temp3,mxOrb,Label='Temp3')
        nClean=0
        Do iSym = 1, nSym
           nClean=nClean+nBas(iSym)**2
        End Do
-       Call GetMem('CleanMask','Allo','INTE',ipCleanmask,nClean)
-       iOffset = ipCleanMask-1
+       Call mma_allocate(Cleanmask,nClean,Label='CleanMask')
+       iOffset = 0
        Do iSym=1,nSym
          mBas = nBas(iSym)
          Do i = 1,mBas
            ii = (i-1)*mBas
            Do j = 1,mBas
              ij = j+ii+iOffset
-             iWork(ij) = 0
+             CleanMask(ij) = 0
            End Do
          End Do
          ReadStatus=' Failure reading data following CLEAN keyword.'
          Read(LUInput,*,End=9910,Err=9920) nGrp
          ReadStatus=' O.K. after reading data following CLEAN keyword.'
          Do iGrp = 1,nGrp
-          Call RdSups(LUInput,mOrb,iWork(ipTemp1))
-          Call RdSups(LUInput,nCof,iWork(ipTemp2))
-          Call RdSups(LUInput,mCof,iWork(ipTemp3))
+          Call RdSups(LUInput,mOrb,Temp1)
+          Call RdSups(LUInput,nCof,Temp2)
+          Call RdSups(LUInput,mCof,Temp3)
           Do i = 1,mBas
             ii = (i-1)*mBas
             is_in_Group = 0
             Do j = 1,mOrb
-              If ( iWork(ipTemp1+j-1).eq.i ) is_in_Group = 1
+              If ( Temp1(j).eq.i ) is_in_Group = 1
             End Do
             If ( is_in_Group.eq.1 ) then
               Do k = 1,nCof
-                ij = iWork(ipTemp2+k-1)+ii+iOffset
-                iWork(ij) = 1
+                ij = Temp2(k)+ii+iOffset
+                CleanMask(ij) = 1
               End Do
             Else
               Do k = 1,mCof
-                ij = iWork(ipTemp3+k-1)+ii+iOffset
-                iWork(ij) = 1
+                ij = Temp3(k)+ii+iOffset
+                CleanMask(ij) = 1
               End Do
             End If
           End Do
          End Do
          iOffset = iOffset+mBas*mBas
        End Do
-       Call GetMem('Temp1','Free','Inte',ipTemp1,mxOrb)
-       Call GetMem('Temp2','Free','Inte',ipTemp2,mxOrb)
-       Call GetMem('Temp3','Free','Inte',ipTemp3,mxOrb)
+       Call mma_deallocate(Temp1)
+       Call mma_deallocate(Temp2)
+       Call mma_deallocate(Temp3)
        Call ChkIfKey()
       End If
 *
@@ -3295,10 +3325,10 @@ c       write(6,*)          '  --------------------------------------'
       IF (IfCRPR) Then
 * Core shift using a fixed projection operator.
         NCRVEC=NBAS(1)
-        Call GetMem('CRVEC','Allo','Real',LCRVEC,NCRVEC)
+        Call mma_allocate(CRVEC,NCRVEC,Label='CRVec')
         N=NBAS(1)
         NCRPROJ=(N*(N+1)*(N**2+N+2))/8
-        Call GetMem('CRPROJ','Allo','Real',LCRPROJ,NCRPROJ)
+        Call mma_allocate(CRPROJ,NCRPROJ,Label='CRPROJ')
       END IF
 ************************************************************************
 * Generate artificial splitting or RAS into GAS for parallel blocking  *
@@ -3628,11 +3658,10 @@ C Test read failed. JOBOLD cannot be used.
 *
 * ===============================================================
       IF (ICICH.EQ.1) THEN
-        CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
+        CALL mma_allocate(UG2SG_X,NCONF,Label='UG2SG_X')
         CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             CONF,CFTP,IWORK(LUG2SG),
-     *             ICI,JCJ,CCI,MXROOT)
-        CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
+     *             CONF,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
+        CALL mma_deallocate(UG2SG_X)
       END IF
 * ===============================================================
 
@@ -3698,6 +3727,5 @@ C Test read failed. JOBOLD cannot be used.
 *---  Abnormal exit ---------------------------------------------------*
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
-      Return
 
       end subroutine proc_inp

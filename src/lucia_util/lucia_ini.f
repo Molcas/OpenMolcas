@@ -27,15 +27,10 @@ C Input from RASSCF
 #include "oper.fh"
 #include "orbinp.fh"
 #include "gasstr.fh"
-#include "memman.fh"
 C Other definitions
       PARAMETER(MXPKW = 125)
       dimension isetkw(MXPKW)
 *
-C ==================================
-C  Initialize marks in Lucia Memory
-C ==================================
-      Num_Marks = 0
 C ===============================================
 C  Some initialization to avoid compiler warnings
 C ===============================================

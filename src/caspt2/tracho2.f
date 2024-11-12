@@ -10,21 +10,18 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
-      SUBROUTINE TRACHO2(CMO,DREF,FFAO,FIAO,FAAO,IF_TRNSF)
+      SUBROUTINE TRACHO2(CMO,NCMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
       use Cholesky, only: InfVec, nDimRS
+      use EQSOLV
+      use ChoCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 * ----------------------------------------------------------------
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
-#include "WrkSpc.fh"
-************************************************************************
-*  Author : P. A. Malmqvist
-************************************************************************
-      REAL*8 CMO(NBSQT),DREF(NDREF),
+      INTEGER NCMO, NDREF
+      REAL*8 CMO(NCMO),DREF(NDREF),
      &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
       LOGICAL IF_TRNSF
 
@@ -42,19 +39,21 @@
       INTEGER NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
       INTEGER IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NB,NBATCH
       INTEGER IDFIJ,IDIIJ,IDAIJ
-      INTEGER IP_LFT,IP_LHT
-      INTEGER IPDA,IPDA_RED,IPDF,IPDF_RED,IPDI,IPDI_RED
-      INTEGER LC,LCNAT,LO,LOCC,LSC,LSO
-      INTEGER LFA_RED,LFF_RED,LFI_RED
+      INTEGER IP_LHT
+      INTEGER LC,LO,LSC,LSO
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v
+      INTEGER ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
 
       REAL*8, EXTERNAL :: DDOT_
+      REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
+      REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
+      REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
+      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
 
 ************************************************************************
 * ======================================================================
@@ -67,53 +66,50 @@
       END DO
 
 * Compute natural orbitals for the reference wave function:
-      Call Getmem('OCC','ALLO','REAL',LOCC,NBasT)
-      Call Getmem('CNAT','ALLO','REAL',LCNAT,NBSQT)
+      Call mma_allocate(OCC,NBasT,Label='OCC')
+      Call mma_allocate(CNAT,NBSQT,Label='CNAT')
 *      write(6,*)' Active/Active density matrix, triangular'
 *      IF( NASHT.GT.0 ) THEN
 *        call TRIPRT(' ',' ',DREF,NASHT)
 *      ENDIF
-      CALL REF_NATO(DREF,CMO,WORK(LOCC),WORK(LCNAT))
+      CALL REF_NATO(DREF,CMO,OCC,CNAT)
 
 c Initialize Fock matrices in AO basis to zero:
-      CALL DCOPY_(NBTRI,[0.0D0],0,FFAO,1)
-      CALL DCOPY_(NBTRI,[0.0D0],0,FIAO,1)
-      CALL DCOPY_(NBTRI,[0.0D0],0,FAAO,1)
+      FFAO(:)=0.0D0
+      FIAO(:)=0.0D0
+      FAAO(:)=0.0D0
 * Construct density matrix for frozen orbitals
-      Call Getmem('DF','ALLO','REAL',ipDF,NBTRI)
+      Call mma_allocate(DF,NBTRI,Label='DF')
       DO ISYM=1,NSYM
        ISTART(ISYM)=1
        NUSE(ISYM)=NFRO(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          WORK(LCNAT),WORK(LOCC),WORK(IPDF))
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DF)
 * Construct density matrix for inactive orbitals
-      Call Getmem('DI','ALLO','REAL',ipDI,NBTRI)
+      Call mma_allocate(DI,NBTRI,Label='DI')
       DO ISYM=1,NSYM
        ISTART(ISYM)=NFRO(ISYM)+1
        NUSE(ISYM)=NISH(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          WORK(LCNAT),WORK(LOCC),WORK(IPDI))
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DI)
 * Same, for active density:
-      Call Getmem('DA ','ALLO','REAL',ipDA ,NBTRI)
+      Call mma_allocate(DA ,NBTRI,Label='DA')
       DO ISYM=1,NSYM
        ISTART(ISYM)=NFRO(ISYM)+NISH(ISYM)+1
        NUSE(ISYM)=NASH(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,
-     &                          WORK(LCNAT),WORK(LOCC),WORK(IPDA ))
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DA)
 * The Cholesky routines want density matrices in a particular storage, and
 * also the off-diagonal elements should be doubled. Double them:
-      IDFIJ=IPDF
-      IDIIJ=IPDI
-      IDAIJ=IPDA
+      IDFIJ=1
+      IDIIJ=1
+      IDAIJ=1
       DO ISYM=1,NSYM
        DO I=1,NBAS(ISYM)
         DO J=1,I-1
-         WORK(IDFIJ)=2.0D0*WORK(IDFIJ)
-         WORK(IDIIJ)=2.0D0*WORK(IDIIJ)
-         WORK(IDAIJ)=2.0D0*WORK(IDAIJ)
+         DF(IDFIJ)=2.0D0*DF(IDFIJ)
+         DI(IDIIJ)=2.0D0*DI(IDIIJ)
+         DA(IDAIJ)=2.0D0*DA(IDAIJ)
          IDFIJ=IDFIJ+1
          IDIIJ=IDIIJ+1
          IDAIJ=IDAIJ+1
@@ -127,8 +123,8 @@ c Initialize Fock matrices in AO basis to zero:
 * Scale natural orbitals by multiplying with square root of half the
 * occupation number -- This allows computing the exchange contribution
 * to Fock matrices using the same formula as for closed shells.
-      LSO=LOCC
-      LSC=LCNAT
+      LSO=1
+      LSC=1
       DO ISYM=1,NSYM
        NF=NFRO(ISYM)
        NI=NISH(ISYM)
@@ -137,8 +133,8 @@ c Initialize Fock matrices in AO basis to zero:
        LO=LSO+NF+NI
        LC=LSC+NB*(NF+NI)
        DO IA=1,NA
-        SCL=SQRT(0.5D0*WORK(LO))
-        CALL DSCAL_(NB,SCL,WORK(LC),1)
+        SCL=SQRT(0.5D0*OCC(LO))
+        CALL DSCAL_(NB,SCL,CNAT(LC),1)
         LO=LO+1
         LC=LC+NB
        END DO
@@ -146,10 +142,11 @@ c Initialize Fock matrices in AO basis to zero:
        LSC=LSC+NB**2
       END DO
 * ======================================================================
-      CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('HTSPC','ALLO','REAL',IP_HTSPC,NHTSPC)
+      CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
+      CALL mma_allocate(HTSPC,NHTSPC,LABEL='HTSPC')
+      IP_HTSPC=1
       IF (IF_TRNSF) THEN
-       CALL GETMEM('FTSPC','ALLO','REAL',IP_FTSPC,NFTSPC)
+       CALL mma_allocate(FTSPC,NFTSPC,LABEL='FTSPC')
       END IF
 * ======================================================================
 
@@ -167,17 +164,17 @@ c Initialize Fock matrices in AO basis to zero:
 *     write(6,*)'tracho2:  JRED1,JRED2:',JRED1,JRED2
 
       IF(JSYM.EQ.1) THEN
-* Allocate space for temporary vector 'V' used for Coulomb contrib to
+* Allocate space for temporary vector 'Vec' used for Coulomb contrib to
 * Fock matrices:
-       CALL GETMEM('V_VECTOR','ALLO','REAL',IP_V,MXCHARR)
+       CALL mma_allocate(VEC,MXCHARR,LABEL='VEC')
 * Local density matrices, which will be needed if JSYM=1. At the same time,
 * allocate Fock matrices with the same structure and initialize to zero.
-       CALL GETMEM('DF_RED','ALLO','REAL',IPDF_RED,MXCHARR)
-       CALL GETMEM('DI_RED','ALLO','REAL',IPDI_RED,MXCHARR)
-       CALL GETMEM('DA_RED','ALLO','REAL',IPDA_RED,MXCHARR)
-       CALL GETMEM('FF_RED','ALLO','REAL',LFF_RED,MXCHARR)
-       CALL GETMEM('FI_RED','ALLO','REAL',LFI_RED,MXCHARR)
-       CALL GETMEM('FA_RED','ALLO','REAL',LFA_RED,MXCHARR)
+       CALL mma_allocate(DF_RED,MXCHARR,LABEL='DF_RED')
+       CALL mma_allocate(DI_RED,MXCHARR,LABEL='DI_RED')
+       CALL mma_allocate(DA_RED,MXCHARR,LABEL='DA_RED')
+       CALL mma_allocate(FF_RED,MXCHARR,LABEL='FF_RED')
+       CALL mma_allocate(FI_RED,MXCHARR,LABEL='FI_RED')
+       CALL mma_allocate(FA_RED,MXCHARR,LABEL='FA_RED')
       END IF
 
 
@@ -198,15 +195,15 @@ c Initialize Fock matrices in AO basis to zero:
 
       IF(JSYM.EQ.1) THEN
       NRS=NDIMRS(JSYM,JRED)
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
-      CALL full2red(Work(ipDF),Work(ipDF_Red))
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)
-      CALL full2red(Work(ipDI),Work(ipDI_Red))
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDA_RED),1)
-      CALL full2red(Work(ipDA),Work(ipDA_Red))
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFF_RED),1)
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFI_RED),1)
-      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFA_RED ),1)
+      CALL DCOPY_(NRS,[0.0D0],0,DF_RED,1)
+      CALL full2red(DF,DF_Red)
+      CALL DCOPY_(NRS,[0.0D0],0,DI_RED,1)
+      CALL full2red(DI,DI_Red)
+      CALL DCOPY_(NRS,[0.0D0],0,DA_RED,1)
+      CALL full2red(DA,DA_Red)
+      CALL DCOPY_(NRS,[0.0D0],0,FF_RED,1)
+      CALL DCOPY_(NRS,[0.0D0],0,FI_RED,1)
+      CALL DCOPY_(NRS,[0.0D0],0,FA_RED,1)
       END IF
 
 * Determine batch length for this reduced set.
@@ -224,8 +221,7 @@ c Initialize Fock matrices in AO basis to zero:
 
       JREDC=JRED
 * Read a batch of reduced vectors
-      CALL CHO_VECRD(WORK(IP_CHSPC),NCHSPC,JV1,JV2,JSYM,
-     &                        NUMV,JREDC,MUSED)
+      CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,JSYM,NUMV,JREDC,MUSED)
       IF(NUMV.ne.JNUM) THEN
         write(6,*)' Rats! CHO_VECRD was called, assuming it to'
         write(6,*)' read JNUM vectors. Instead it returned NUMV'
@@ -245,32 +241,32 @@ c Initialize Fock matrices in AO basis to zero:
       IF (JSYM.EQ.1) THEN
 * Coulomb contribution to Fock arrays.
 * V{#J} <- V{#J}  +  sum_rs  L(rs,{#J}) * D(rs)
-* Starting at Work(IP_CHSPC) is now an array of vectors, conceptually
+* Starting at CHSPC is now an array of vectors, conceptually
 * L(rs,J), where temporarily we can regard J as ranging 1..JNUM, and
 * the layout of pair indices rs is unknown ('reduced storage', a secret
-* inside cholesky.) Compute array V(J) at temporary space ip_V:
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
-     &            WORK(IPDF_RED),1,0.0D0,WORK(IP_V),1)
+* inside cholesky.) Compute array V(J) at temporary space VEC:
+       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
+     &            DF_RED,1,0.0D0,VEC,1)
 * F(rs){#J} <- F(rs){#J} + FactC * sum_J L(rs,{#J})*V{#J}
              FactC=1.0D0
-       CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
-     &             WORK(IP_V),1,1.0D0,WORK(LFF_RED),1)
+       CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
+     &             VEC,1,1.0D0,FF_RED,1)
 * The same thing, now for the inactive and active density matrices:
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
-     &            WORK(IPDI_RED),1,0.0D0,WORK(IP_V),1)
-       CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
-     &             WORK(IP_V),1,1.0D0,WORK(LFI_RED),1)
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,WORK(IP_CHSPC),NRS,
-     &             WORK(IPDA_RED),1,0.0D0,WORK(IP_V),1)
-       CALL DGEMV_('N',NRS,JNUM,FactC,WORK(IP_CHSPC),NRS,
-     &             WORK(IP_V),1,1.0D0,WORK(LFA_RED),1)
+       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
+     &            DI_RED,1,0.0D0,VEC,1)
+       CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
+     &             VEC,1,1.0D0,FI_RED,1)
+       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
+     &             DA_RED,1,0.0D0,VEC,1)
+       CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
+     &             VEC,1,1.0D0,FA_RED,1)
 *      write(6,*)' Finished Coulomb contributions to Fock matrix.'
-*      write(6,*)' Frozen Fock mat at Work(LFF_RED)'
-*      write(6,'(1x,8f10.4)')(Work(LFF_RED+i),i=0,nRS-1)
-*      write(6,*)' Inactive Fock mat at Work(LFI_RED)'
-*      write(6,'(1x,8f10.4)')(Work(LFI_RED+i),i=0,nRS-1)
-*      write(6,*)' Active Fock matrix at Work(LFA_RED).'
-*      write(6,'(1x,8f10.4)')(Work(LFA_RED+i),i=0,nRS-1)
+*      write(6,*)' Frozen Fock mat at FF_RED'
+*      write(6,'(1x,8f10.4)')(FF_RED(i),i=1,nRS)
+*      write(6,*)' Inactive Fock mat at FI_RED'
+*      write(6,'(1x,8f10.4)')(FI_RED(i),i=1,nRS)
+*      write(6,*)' Active Fock matrix at FA_RED.'
+*      write(6,'(1x,8f10.4)')(FA_RED(i),i=1,nRS)
       END IF
 
 * Frozen half-transformation:
@@ -282,8 +278,8 @@ c Initialize Fock matrices in AO basis to zero:
        NUSE(ISYMA)=NFRO(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 * Frozen contributions to exchange:
           FactXI=-1.0D0
           ISFF=1
@@ -297,8 +293,8 @@ C ---------------------------------------------------------------------
            NB = NBAS(ISYMB)
            If (NB*NK.ne.0) Then
             CALL DGEMM_TRI('T','N',NB,NB,NK*JNUM,
-     &                  FactXI,Work(ip_HTVec(iSymk)),NK*JNUM,
-     &                  Work(ip_HTVec(iSymk)),NK*JNUM,
+     &                  FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,
+     &                  HTSPC(ip_HTVec(iSymk)),NK*JNUM,
      &                  1.0D0,FFAO(ISFF),NB)
            EndIf
            ISFF = ISFF+(NB*(NB+1))/2
@@ -309,7 +305,7 @@ C ---------------------------------------------------------------------
 * A,B are basis functions of symmetry ISYMA, ISYMB,
 * K is inactive of symmetry ISYMA, J is vector number in 1..NUMV
 * numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at WORK(IP_HTVEC(ISYMA)
+* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=MUL(ISYMA,JSYM)
@@ -318,8 +314,8 @@ C ---------------------------------------------------------------------
        NUSE(ISYMA)=NISH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &     JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+     &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 * Inactive contributions to exchange:
           FactXI=-1.0D0
           ISFI=1
@@ -333,8 +329,8 @@ C ---------------------------------------------------------------------
            NB = NBAS(ISYMB)
            If (NB*NK.ne.0) Then
            CALL DGEMM_TRI('T','N',NB,NB,NK*JNUM,
-     &                   FactXI,Work(ip_HTVec(iSymk)),NK*JNUM,
-     &                   Work(ip_HTVec(iSymk)),NK*JNUM,
+     &                   FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,
+     &                   HTSPC(ip_HTVec(iSymk)),NK*JNUM,
      &                   1.0D0,FIAO(ISFI),NB)
            EndIf
            ISFI = ISFI+(NB*(NB+1))/2
@@ -353,22 +349,20 @@ C ---------------------------------------------------------------------
        N2=NISH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 *   Compute fully transformed TK
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
-        CALL CHOVEC_SAVE(WORK(IP_LFT),1,ISYQ,JSYM,IBATCH_TOT)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
+        CALL CHOVEC_SAVE(FTSPC,1,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
        N1=NSSH(ISYP)
        N2=NISH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 *   Compute fully transformed AK
        IF(N1*N2.GT.0) THEN
 
-C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
+C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
 
 C =SVC= modified for using boxed ordering of pairs, note that the boxed
 C routine is less efficient than the original one (loop over J values)
@@ -376,7 +370,7 @@ C routine is less efficient than the original one (loop over J values)
         NI=N2
 C Allocate memory for small buffer used in FULLTRNSF_BOXED
         NBUFFY=NA*NI
-        CALL GETMEM('BUFFY','ALLO','REAL',IP_BUFFY,NBUFFY)
+        CALL mma_allocate(BUFFY,NBUFFY,Label='BUFFY')
 C Loop over boxes
         DO IASTA=1,NA,nSecBX
          IAEND=MIN(IASTA-1+nSecBX,NA)
@@ -391,12 +385,12 @@ C with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
 C loop over secondary orbital index c is more efficient.
           CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
      &                          N,CMO(IC+N*(IASTA-1)),JNUM,
-     &                          WORK(IP_LHT),WORK(IP_LFT),
-     &                          WORK(IP_BUFFY))
+     &                          HTSPC(IP_LHT),FTSPC,
+     &                          BUFFY)
          ENDDO
         ENDDO
-        CALL GETMEM('BUFFY','FREE','REAL',IP_BUFFY,NBUFFY)
-        CALL CHOVEC_SAVE(WORK(IP_LFT),4,ISYQ,JSYM,IBATCH_TOT)
+        CALL mma_deallocate(BUFFY)
+        CALL CHOVEC_SAVE(FTSPC,4,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
 * End loop ISYQ
@@ -407,7 +401,7 @@ C loop over secondary orbital index c is more efficient.
 * A,B are basis functions of symmetry ISYMA, ISYMB,
 * W is active of symmetry ISYMA, J is vector number in 1..NUMV
 * numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at WORK(IP_HTVEC(ISYMA)
+* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=MUL(ISYMA,JSYM)
@@ -416,8 +410,8 @@ C loop over secondary orbital index c is more efficient.
        NUSE(ISYMA)=NASH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,WORK(LCNAT),ISTART,NUSE,IP_HTVEC)
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+     &    JSYM,JREDC,CNAT,NBSQT,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 * Active (scaled) contributions to exchange:
       FactXA=-1.0D0
       ISFA=1
@@ -431,8 +425,8 @@ C ---------------------------------------------------------------------
        NB = NBAS(ISYMB)
        If (NB*NW.ne.0) Then
        CALL DGEMM_TRI('T','N',NB,NB,NW*JNUM,
-     &               FactXA,Work(ip_HTVec(iSymw)),NW*JNUM,
-     &               Work(ip_HTVec(iSymw)),NW*JNUM,
+     &               FactXA,HTSPC(ip_HTVec(iSymw)),NW*JNUM,
+     &               HTSPC(ip_HTVec(iSymw)),NW*JNUM,
      &               1.0D0,FAAO(ISFA),NB)
        EndIf
        ISFA = ISFA+(NB*(NB+1))/2
@@ -443,8 +437,8 @@ C ---------------------------------------------------------------------
 
 * ---------------------------------------------------
 * Active half-transformation:
-      CALL HALFTRNSF(IRC,WORK(IP_CHSPC),NCHSPC,1,JV1,JNUM,JNUM,
-     &    JSYM,JREDC,CMO,ISTART,NUSE,IP_HTVEC)
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+     &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 
 
       IF (IF_TRNSF) THEN
@@ -458,22 +452,20 @@ C ---------------------------------------------------------------------
        N2=NASH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 * Compute fully transformed TV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
-        CALL CHOVEC_SAVE(WORK(IP_LFT),2,ISYQ,JSYM,IBATCH_TOT)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
+        CALL CHOVEC_SAVE(FTSPC,2,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
        N1=NSSH(ISYP)
        N2=NASH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-       IP_LFT=IP_FTSPC
 *   Compute fully transformed AV
        IF(N1*N2.GT.0) THEN
-        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,WORK(IP_LHT),WORK(IP_LFT))
-        CALL CHOVEC_SAVE(WORK(IP_LFT),3,ISYQ,JSYM,IBATCH_TOT)
+        CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
+        CALL CHOVEC_SAVE(FTSPC,3,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
 * End loop ISYQ
@@ -488,9 +480,9 @@ C ---------------------------------------------------------------------
       IF (jSym.eq.1) THEN
 * Add Coulomb contributions in local Fock matrices (in 'reduced storage')
 * into the global ones:
-        CALL red2full(FFAO,Work(LFF_RED))
-        CALL red2full(FIAO,Work(LFI_RED))
-        CALL red2full(FAAO,Work(LFA_RED))
+        CALL red2full(FFAO,FF_RED)
+        CALL red2full(FIAO,FI_RED)
+        CALL red2full(FAAO,FA_RED)
       END IF
 * End loop JRED
   999 CONTINUE
@@ -498,13 +490,13 @@ C ---------------------------------------------------------------------
 
       IF (jSym.eq.1) THEN
 * Deallocate local density and fock matrices
-        CALL GETMEM('V_VECTOR','FREE','REAL',IP_V,MXCHARR)
-        CALL GETMEM('DF_RED','FREE','REAL',IPDF_RED,MXCHARR)
-        CALL GETMEM('DI_RED','FREE','REAL',IPDI_RED,MXCHARR)
-        CALL GETMEM('DA_RED','FREE','REAL',IPDA_RED,MXCHARR)
-        CALL GETMEM('FF_RED','FREE','REAL',LFF_RED,MXCHARR)
-        CALL GETMEM('FI_RED','FREE','REAL',LFI_RED,MXCHARR)
-        CALL GETMEM('FA_RED','FREE','REAL',LFA_RED,MXCHARR)
+        CALL mma_deallocate(VEC)
+        CALL mma_deallocate(DF_RED)
+        CALL mma_deallocate(DI_RED)
+        CALL mma_deallocate(DA_RED)
+        CALL mma_deallocate(FF_RED)
+        CALL mma_deallocate(FI_RED)
+        CALL mma_deallocate(FA_RED)
       END IF
 * End loop JSYM
  1000 CONTINUE
@@ -513,7 +505,6 @@ C ---------------------------------------------------------------------
       ! if using the RHS on-demand, we need all cholesky vectors on each
       ! process, collect them here
       IF (IF_TRNSF.AND.RHSDIRECT) THEN
-        IP_LFT=IP_FTSPC
         DO JSYM=1,NSYM
           IBSTA=NBTCHES(JSYM)+1
           IBEND=NBTCHES(JSYM)+NBTCH(JSYM)
@@ -522,8 +513,8 @@ C ---------------------------------------------------------------------
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
                 IF (NPQ.EQ.0) CYCLE
-                CALL CHOVEC_LOAD(WORK(IP_LFT),ICASE,ISYQ,JSYM,IB)
-                CALL CHOVEC_COLL(WORK(IP_LFT),ICASE,ISYQ,JSYM,IB)
+                CALL CHOVEC_LOAD(FTSPC,ICASE,ISYQ,JSYM,IB)
+                CALL CHOVEC_COLL(FTSPC,ICASE,ISYQ,JSYM,IB)
               END DO
             END DO
           END DO
@@ -536,12 +527,12 @@ C ---------------------------------------------------------------------
       CALL GADGOP(FAAO,NBTRI,'+')
 
 * Two-electron contribution to the effective core energy
-      ECORE2=0.5D0*DDOT_(NBTRI,WORK(IPDF),1,FFAO,1)
+      ECORE2=0.5D0*DDOT_(NBTRI,DF,1,FFAO,1)
 c Add OneHam to finalize frozen Fock matrix in AO basis.
 c (It is in fact an effective one-electron Hamiltonian).
       CALL ADD1HAM(FFAO)
 * The contraction of frozen Fock matrix with frozen density:
-      E=DDOT_(NBTRI,WORK(IPDF),1,FFAO,1)
+      E=DDOT_(NBTRI,DF,1,FFAO,1)
 * Correct for double-counting two-electron part:
       E=E-ECORE2
 * One-electron part:
@@ -556,16 +547,16 @@ c (It is in fact an effective one-electron Hamiltonian).
        WRITE(6,'(6X,A,ES20.10)') '       TOTAL CORE ENERGY:',ECORE
 #endif
 
-      Call Getmem('OCC','FREE','REAL',LOCC,NBasT)
-      Call Getmem('CNAT','FREE','REAL',LCNAT,NBSQT)
-      Call Getmem('DF','FREE','REAL',ipDF,NBTRI)
-      Call Getmem('DI','FREE','REAL',ipDI,NBTRI)
-      Call Getmem('DA ','FREE','REAL',ipDA ,NBTRI)
+      Call mma_deallocate(OCC)
+      Call mma_deallocate(CNAT)
+      Call mma_deallocate(DF)
+      Call mma_deallocate(DI)
+      Call mma_deallocate(DA)
 
-      CALL GETMEM('CHSPC','FREE','REAL',IP_CHSPC,NCHSPC)
-      CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
+      CALL mma_deallocate(CHSPC)
+      CALL mma_deallocate(HTSPC)
       IF (IF_TRNSF) THEN
-       CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
+       CALL mma_deallocate(FTSPC)
       END IF
 
 #ifdef _DEBUGPRINT_
@@ -611,5 +602,4 @@ c (It is in fact an effective one-electron Hamiltonian).
         END DO
 #endif
 
-      RETURN
-      END
+      END SUBROUTINE TRACHO2

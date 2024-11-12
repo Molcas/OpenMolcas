@@ -21,11 +21,11 @@ subroutine CiOvlp(jRoot,S1,S2,CI_vec)
 !     calling arguments:                                               *
 !     jRoot   : integer                                                *
 !               root identifier                                        *
-!     S1      : array of real*8, input/output                          *
+!     S1      : array of real, input/output                            *
 !               overlap matrix with test vectors                       *
-!     S2      : array of real*8, input/output                          *
+!     S2      : array of real, input/output                            *
 !               norm of the test configurations in the CI vector       *
-!     CI_vec  : array of real*8, input                                 *
+!     CI_vec  : array of real, input                                   *
 !               CI_vector                                              *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -42,11 +42,12 @@ subroutine CiOvlp(jRoot,S1,S2,CI_vec)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rasscf_global, only: lRoots, ITER, nRoots, jCj, cCI
+
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 integer(kind=iwp), intent(in) :: jRoot
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots), S2(lRoots,lRoots)
 real(kind=wp), intent(in) :: CI_vec(nConf)

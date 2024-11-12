@@ -14,15 +14,15 @@
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
       use Cholesky, only: InfVec
-      use caspt2_gradient, only: do_grad
+      use caspt2_global, only: do_grad
+      use stdalloc, only: mma_MaxDBLE
+      use caspt2_global, only: LUDRA, LUDRATOT
+      use EQSOLV
+      use ChoCASPT2
       IMPLICIT NONE
 * ----------------------------------------------------------------
-#include "rasdim.fh"
 #include "warnings.h"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -34,10 +34,7 @@
       INTEGER MXFTARR,MXHTARR
       INTEGER MXSPC
       INTEGER NVACT,NVACC,NVECS_RED
-************************************************************************
-*  Author : P. A. Malmqvist
-************************************************************************
-
+      Real*8 Dummy(1)
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
 * using Francesco's method.
@@ -61,7 +58,7 @@
 * MXCHARR: Largest possible Cholesky vector.
 
 * What is largest possible array that can now be allocated?
-      CALL GETMEM('MXSPC','MAX','REAL',IP_DUMMY,MXSPC)
+      Call mma_MaxDBLE(MXSPC)
 * Subtract 7*MXCHARR (for vector V, etc, see below).
       MXSPC=MXSPC-7*MXCHARR
 
@@ -171,7 +168,7 @@ CSVC: take the global sum of the individual maxima
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
                 IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IBATCH_TOT)=IDISK
-                CALL DDAFILE(LUDRA,0,WORK(IP_DUMMY),NPQ*NVACT,IDISK)
+                CALL DDAFILE(LUDRA,0,DUMMY,NPQ*NVACT,IDISK)
               END DO
             END DO
           END DO
@@ -226,7 +223,7 @@ CSVC: take the global sum of the individual maxima
             DO ICASE=1,4
               NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
               IDGLB_CHOGROUP(ICASE,ISYQ,JSYM,IB)=IDISK
-              CALL DDAFILE(LUDRATOT,0,WORK(IP_DUMMY),NPQ*NV,IDISK)
+              CALL DDAFILE(LUDRATOT,0,DUMMY,NPQ*NV,IDISK)
             END DO
           END DO
         END DO

@@ -20,10 +20,8 @@
      &                            DoLocK, Estimate, Nscreen, Update
       Use Cholesky, only: ChFracMem, timings
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "print.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
       Character*180 KWord, Key, Get_Ln
       External Get_Ln
       Logical  DFonly

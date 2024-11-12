@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine ExpHinvv(rdia,v,u,alpha,beta)
       use Exp, only: H0S, H0F, SBIDT, nExp
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 *     Preconditioning of the state transfer part
 *     of the  electronic hessian with an subunit
@@ -26,7 +27,6 @@
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "stdalloc.fh"
 #include "incdia.fh"
       Real*8 v(*),u(*),rdia(*)
       Real*8, Allocatable:: Tmp1(:), Tmp4(:)

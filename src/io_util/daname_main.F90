@@ -139,7 +139,7 @@ if (inUse == 0) then
     NProfFiles = NProfFiles+1
     LuNameProf(NProfFiles) = StdNam
   else
-    write(u6,*) 'IO error: NProfFiles+1.gt.MxFile'
+    write(u6,*) 'IO error: NProfFiles+1 > MxFile'
     write(u6,*) 'Increase MxFile in module Fast_IO'
     call Abend()
   end if

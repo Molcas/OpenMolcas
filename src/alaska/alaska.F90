@@ -42,6 +42,7 @@ use NAC, only: DoCSF, EDiff, isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use spool, only: Close_LuSpool
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -370,8 +371,8 @@ call mma_deallocate(Rlx)
 ! print full cartesian gradient in Columbus format
 
 if (Columbus == 1) then
-  ! real*8 Cgrad(3,mxatom)
-  ! character CNames(MxAtom)*9
+  ! real Cgrad(3,mxatom)
+  ! character(len=9) CNames(MxAtom)
   ! integer lcartgrd, iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')

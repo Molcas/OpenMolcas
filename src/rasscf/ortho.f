@@ -34,17 +34,18 @@
 ************************************************************************
 *
       use OneDat, only: sNoNuc, sNoOri
-      Implicit Real*8 (A-H,O-Z)
+
+      Implicit None
 *
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
 *
-      Dimension Smat(*),SCRATCH(*),CMO(*),Temp(*)
+      REAL*8 Smat(*),SCRATCH(*),CMO(*),Temp(*)
       character(len=8) :: Label
+      Integer i_Component, i_Opt, i_RC, i_SymLbl, iBas, iOcc, ip_CMO,
+     &        ip_SMat, iSym
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -126,11 +127,5 @@ C           Call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
             ip_CMO=ip_CMO+iBas*iBas
          End If
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-      End
+
+      End Subroutine Ortho_RASSCF

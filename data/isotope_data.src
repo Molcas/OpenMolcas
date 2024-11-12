@@ -17,7 +17,7 @@
 # Last updated: January 2022 (Version 4.1, July 2015)
 
 # Rows with "*" in the notes column are modified:
-#  - treat H(3) and C(14) as natural (assign a non_zero abundance)
+#  - treat H(3) and C(14) as natural (assign a non-zero abundance)
 #  - select most stable isotope for elements 95-118 (data from Wikipedia)
 
              Relative           Isotopic      Standard

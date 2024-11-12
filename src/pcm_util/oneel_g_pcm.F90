@@ -63,9 +63,10 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, niAng, &
                      njAng, nOp(2), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
-logical(kind=iwp) :: AeqB, EQ, IfGrad(3,3)
+logical(kind=iwp) :: IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+logical(kind=iwp), external :: EQ
 #include "print.fh"
 
 iRout = 112
@@ -171,8 +172,6 @@ do ijS=1,nTasks
     IfGrad(iCar+1,1) = iSD(iCar+16,iS) /= 0
   end do
 
-  AeqB = iS == jS
-
   do iCar=0,2
     IndGrd(iCar+1,2) = iSD(iCar+16,jS)
     IfGrad(iCar+1,2) = iSD(iCar+16,jS) /= 0
@@ -191,7 +190,7 @@ do ijS=1,nTasks
 
   ! Gather the elements from 1st order density / Fock matrix.
 
-  call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+  call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 
   ! Project the Fock/1st order density matrix in AO
   ! basis on to the primitive basis.
@@ -257,8 +256,7 @@ do ijS=1,nTasks
         write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
       end if
 
-      ! Desymmetrize the matrix with which we will
-      ! contracte the trace.
+      ! Desymmetrize the matrix with which we will contract the trace.
 
       call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,DAO,iPrim,jPrim,DSOp,nSO,nOp,FactNd)
 

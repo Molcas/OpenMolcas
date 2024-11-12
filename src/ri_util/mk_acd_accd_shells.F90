@@ -28,9 +28,9 @@ use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Extend_Shells, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
-use Integral_interfaces, only: Int_PostProcess, Integral_RICD
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use define_af, only: iTabMx
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -58,6 +58,7 @@ real(kind=wp), allocatable :: A(:), ADiag(:), C(:), Q(:), QTmp(:), Scr(:), Temp(
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: H(:), tVtInv(:), U(:)
 #endif
+procedure(int_wrout) :: Integral_RICD
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -236,12 +237,12 @@ else
   ijS_req = 0
   Int_PostProcess => Integral_RICD
   call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
-  Int_PostProcess => null()
+  nullify(Int_PostProcess)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   ! Let us now decompose and retrieve the most important
-  ! contracted products, indicies stored in iD_c
+  ! contracted products, indices stored in iD_c
 
   call mma_allocate(iD_c,nTInt_c,label='iD_c')
 
@@ -466,7 +467,7 @@ do iBS=0,nBS-1
 
         Int_PostProcess => Integral_RICD
         call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_p,nTInt_p,In_Core,ADiag,Lu_A,ijS_Req,Keep_Shell)
-        Int_PostProcess => null()
+        nullify(Int_PostProcess)
 
         if (.not. In_Core) then
           call WarningMessage(2,'Error in Mk_RICD_Shells')
@@ -612,7 +613,7 @@ do iBS=0,nBS-1
           call iVcPrt('List_TP',' ',LTP,2*nPrim_Max)
 #         endif
           ! Let us now decompose and retrieve the most
-          ! important primitive products, indicies stored in iD_p
+          ! important primitive products, indices stored in iD_p
 
           call mma_allocate(iD_p,nPrim_Max,label='iD_p')
           call mma_allocate(Vec,nPrim_Max**2,label='Vec')

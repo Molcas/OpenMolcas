@@ -176,11 +176,11 @@ return
 !           '   and',i3,'  b_i  coefficients:'/(5ES16.8))
 !616 format(/' Potential is an O-T expansion in  (r-Re)/[',f5.2,'*(r+Re)]  with   Re=',f12.9/5x,'De=',G18.10,'   c0=',ES16.9, &
 !           '   and',i3,'  c_i coefficients:'/(5ES16.8))
-617 format('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =',ES13.6,'[cm-1 Ang','^',I1,']')
+617 format('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =',ES13.6,'[cm-1 angstrom','^',I1,']')
 !618 format(/' Potential is a general GPEF expansion in  (r**',i1,' - Re**',i1,')/(',SP,F5.2,'*r**',SS,i1,SP,F6.2,'*Re**',SS,i1, &
 !           ')'/5x,'with   Re=',f12.9,'   De=',g18.10,'   g0=',ES16.9/5x,'and',i3,'  g_i coefficients:  ',3ES16.8/(5ES16.8:))
-619 format(50x,'C',I1,' =',ES13.6,'[cm-1 Ang','^',I1,']')
-!621 format(50x,'C',I2,'=',ES13.6,'[cm-1 Ang','^',I2,']')
+619 format(50x,'C',I1,' =',ES13.6,'[cm-1 angstrom','^',I1,']')
+!621 format(50x,'C',I2,'=',ES13.6,'[cm-1 angstrom','^',I2,']')
 !620 format(/' Potential is a power series in  r  of  order',i3,' with   V(r=0)=',f11.4/3x,'& coefficients (from linear term):', &
 !           2es16.8:/(5x,4ES16.8:))
 !626 format('   De=',f10.4,'[cm-1]   Re=',f9.6,'[Angst.]   and'/'     Damping function  D(r)= exp[ -',f6.4,'*(',f7.4,'/X -1.0)**', &

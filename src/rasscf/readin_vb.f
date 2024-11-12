@@ -26,13 +26,18 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      use gas_data, only: NGAS, NGSSH, IGSOCCX
+      use rasscf_global, only: iRlxRoot, NAC, NACPAR, NACPR2, NIN, NO2M,
+     &                         NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4,
+     &                         Title, iZROT, iROOT
+
+      Implicit None
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf.fh"
 #include "general.fh"
 #include "jobiph_j.fh"
-#include "gas.fh"
+      Integer IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
+
 *
 *---  set INVEC -> get MOs from JOBIPH file ----------------------------*
       INVEC=3
@@ -160,40 +165,4 @@ CSVC: check if NU<NT are included in the same gas space
       Call Put_iArray('nAsh',nAsh,nSym)
 
 *---  Exit, end -------------------------------------------------------*
-      Return
-      End
-      Subroutine RdPAM(Line,iNumber,rNumber)
-      Implicit Real*8 (A-H,O-Z)
-#include "output_ras.fh"
-*
-*     Subroutine read character line and
-*     read one integer and later one real
-      Character*72 Line
-
-      iStart=1
-      Do While ( Line(iStart:iStart).eq.' ')
-         iStart=iStart+1
-      End Do
-      iEnd=iStart
-      Do While ( Line(iEnd:iEnd)    .ne.' ')
-         iEnd=iEnd+1
-      End Do
-c
-      Read(Line(iStart:iEnd-1),*,err=10,end=20) iNumber
-c
-      iStart=iEnd
-      Do While ( Line(iStart:iStart).eq.' ')
-         iStart=iStart+1
-      End Do
-c
-      Read(Line(iStart:72),*,err=10,end=20) rNumber
-c
-      Return
-c
- 10   continue
-      Write(LF,*) 'RdPAM: I/O error while reading input file'
-      call quit(_RC_INPUT_ERROR_)
- 20   continue
-      Write(LF,*) 'RdPAM: end of file while reading input file'
-      call quit(_RC_INPUT_ERROR_)
-      End
+      End Subroutine Readin_vb

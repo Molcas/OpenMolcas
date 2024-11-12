@@ -16,7 +16,7 @@ subroutine CHO_MCA_INT_1_DBG2()
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, iSP2F, LuPri, Mx2Sh, nBstSh, nnShl
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -137,8 +137,7 @@ end do
 
 call XRLSMEM_INTS()
 call mma_deallocate(INT1)
-nullify(pINT1)
-nullify(pINT2)
+nullify(pINT1,pINT2)
 
 write(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,' #errors: ',NERR
 

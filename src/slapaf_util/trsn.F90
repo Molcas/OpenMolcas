@@ -166,6 +166,6 @@ if (ldB) dBt(:,:,:,:) = Fac*dBt(:,:,:,:)
 
 return
 
-1 format(1X,A,' : Dihedral= ',F10.4,'   / Degree  ',F10.6,' / rad')
+1 format(1X,A,' : Dihedral= ',F10.4,'   / degree  ',F10.6,' / rad')
 
 end subroutine Trsn

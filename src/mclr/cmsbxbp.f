@@ -24,7 +24,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 
@@ -52,7 +51,6 @@
 ******************************************************
 
       Subroutine CalcbX(bX,LOK,R,H)
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -61,7 +59,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
@@ -105,7 +102,6 @@
 ******************************************************
       subroutine CalcbP(bP,CSFOK,LOK,R)
       use ipPage, only: W
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -114,7 +110,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
@@ -151,8 +146,8 @@
 ******************************************************
       subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -161,7 +156,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 

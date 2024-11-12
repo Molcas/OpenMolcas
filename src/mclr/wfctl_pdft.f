@@ -26,10 +26,10 @@
       use Exp, Only: Exp_Close
       use ipPage, only: W
       use PDFT_Util, only: Do_Hybrid, WF_Ratio,PDFT_Ratio
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One, Two
       Implicit Real*8 (a-h,o-z)
 *
-#include "stdalloc.fh"
-
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -38,7 +38,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 
@@ -810,11 +809,11 @@
       Subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 *
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: One
       Implicit Real*8(a-h,o-z)
-#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
-#include "real.fh"
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)

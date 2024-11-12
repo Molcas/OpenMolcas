@@ -43,7 +43,7 @@ subroutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, wp
+use Definitions, only: wp, wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n, nVec, lY

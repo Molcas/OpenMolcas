@@ -66,9 +66,9 @@ if (iOpt == 1) frmt = '(11X,A)'
 
 write(u6,frmt) ' ************************************************ '
 if (iOpt == 0) then
-  write(u6,frmt) ' **** Cartesian Coordinates / Bohr, Angstrom **** '
+  write(u6,frmt) ' **** Cartesian Coordinates / bohr, angstrom **** '
 else
-  write(u6,frmt) ' **** Cartesian Coordinates / Angstrom       **** '
+  write(u6,frmt) ' **** Cartesian Coordinates / angstrom       **** '
 end if
 write(u6,frmt) ' ************************************************ '
 write(u6,*)

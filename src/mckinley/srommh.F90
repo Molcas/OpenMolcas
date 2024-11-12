@@ -17,7 +17,7 @@ subroutine sroMmH( &
                  )
 !***********************************************************************
 !                                                                      *
-!  Object: to compute the number of real*8 the kernel routine will     *
+!  Object: to compute the number of reals the kernel routine will      *
 !          need for the computation of a matrix element between two    *
 !          cartesian Gaussian functions with the total angular momentum*
 !          of la and lb (la=0 s-function, la=1 p-function, etc.)       *

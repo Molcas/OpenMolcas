@@ -14,11 +14,12 @@
 import sys
 import re
 import argparse
+import math
 import numpy as np
 from fractions import Fraction
 import h5py
 
-version = '2.1'
+version = '2.1.1'
 
 ################################################################################
 # FUNCTIONS
@@ -191,8 +192,8 @@ def xfact(n):
 def binom(n, k):
   mk = max(k,n-k)
   try:
-    binom = Fraction(np.math.factorial(n), np.math.factorial(mk))
-    binom *= Fraction(1, np.math.factorial(n-mk))
+    binom = Fraction(math.factorial(n), math.factorial(mk))
+    binom *= Fraction(1, math.factorial(n-mk))
     assert binom.denominator == 1
   except ValueError:
     binom = Fraction(0, 1)
@@ -219,7 +220,7 @@ def cart_coeff(l, m, lx, ly, lz):
     return Fraction(0, 1)
   c = 0
   for i in range((l-am)//2+1):
-    c += binom(l, i) * binom(i, j) * Fraction(np.math.factorial(2*l-2*i), np.math.factorial(l-am-2*i)) * (-1)**i
+    c += binom(l, i) * binom(i, j) * Fraction(math.factorial(2*l-2*i), math.factorial(l-am-2*i)) * (-1)**i
   if c == 0:
     return Fraction(0, 1)
   c_sph = c
@@ -241,9 +242,9 @@ def cart_coeff(l, m, lx, ly, lz):
     lm = 1
   else:
     lm = 2
-  c = Fraction(np.math.factorial(l-am), np.math.factorial(l+am))
-  c *= Fraction(lm, np.math.factorial(l))
-  c *= Fraction(1, np.math.factorial(2*l))
+  c = Fraction(math.factorial(l-am), math.factorial(l+am))
+  c *= Fraction(lm, math.factorial(l))
+  c *= Fraction(1, math.factorial(2*l))
   c_sph *= c
   return c_sph
 

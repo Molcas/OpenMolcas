@@ -10,9 +10,9 @@
 ************************************************************************
        Subroutine ThermoData(in_Freq, in_nFreq)
 *
+       Use Constants, only: auTocm
        Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "constants.fh"
 *----- Compute thermodynamic data at different temperatures.
        Real*8 in_Freq(in_nFreq), Freq(MxAtom*3-6)
 #include "temperatures.fh"
@@ -36,7 +36,7 @@
        Do i = 1, nFreq
 *         Convert frequecnies from cm-1 to hartree
 C         Freq(i) = Freq(i) * 4.55633538D-06
-          Freq(i) = Freq(i) / CONV_AU_TO_CM1_
+          Freq(i) = Freq(i) / auTocm
        End Do
 *
        Do i = 1, NDefTemp
@@ -45,8 +45,9 @@ C         Freq(i) = Freq(i) * 4.55633538D-06
        End
 *
        Subroutine Thermo_Vib(nFreq,Freq,T,nTR,iter)
+       Use Constants, only: auTokcalmol, auTokJ, cal_to_j, kBoltzmann,
+     &                      rNAVO
        Implicit Real*8 (a-h,o-z)
-#include "constants.fh"
        Real*8 Freq(nFreq), T
        Integer first
 *
@@ -55,11 +56,10 @@ C         Freq(i) = Freq(i) * 4.55633538D-06
        One=1.0D00
        Two=2.0D00
 C      r_k = 1.38065800D-23
-       r_k = CONST_BOLTZMANN_
-C      r_J2au=2.29371049D+17 ! Convert Joule to atomic units
-       r_J2au=1.0D-3 / CONV_AU_TO_KJ_
+C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
+       r_J2au=1.0D-3 / auTokJ
 *      Bolzmann's constant in a.u./ K
-       rk = r_k * r_J2au
+       rk = kBoltzmann * r_J2au
 *      Write (*,*) 'Bolzmann''s constant=',rK
        if(T.eq.Zero) then
           beta = 1.0D99
@@ -136,7 +136,7 @@ C      r_J2au=2.29371049D+17 ! Convert Joule to atomic units
 *
        Write (6,*)
        Write (6,*)
-       Write (6,'(A,F6.2,A)') ' Temperature = ',T,' Kelvin'
+       Write (6,'(A,F6.2,A)') ' Temperature = ',T,' kelvin'
        Write (6,'(A)') ' ---------------------------'
        Write (6,*)
 *
@@ -176,9 +176,8 @@ C      r_J2au=2.29371049D+17 ! Convert Joule to atomic units
 *      U-U(0)=-N(d lnq/d beta)_V
 *
 C      r_J2kcalmol=1.43932522D+20 ! conversion J to kcal/mol
-       r_J2kcalmol= CONST_AVOGADRO_
-     &            / (1.0D3 * CONV_CAL_TO_J_)
-       U_TR=DBLE(nTR)*(r_K*T*r_J2kcalmol/Two)
+       r_J2kcalmol= rNAVO / (1.0D3 * cal_to_J)
+       U_TR=DBLE(nTR)*(kBoltzmann*T*r_J2kcalmol/Two)
 *
 *
 *----- G-G(0)=-kT lnQ + kTV(d lnQ /dV)_T, G(0)=0
@@ -189,12 +188,11 @@ C      r_J2kcalmol=1.43932522D+20 ! conversion J to kcal/mol
           DeltaG = -log(q_vib_Tot) * rk * T
        End If
 *
-C      r_au2kcalmol = 6.27509541D+2 ! Conversion au to kcal/mol
-       r_au2kcalmol = r_J2kcalmol * CONV_AU_TO_KJ_ * 1.0D3
-       DeltaG = DeltaG * r_au2kcalmol
+C      auTokcalmol = 6.27509541D+2 ! Conversion au to kcal/mol
+       DeltaG = DeltaG * auTokcalmol
 *
-       DeltaU = U_vib_Tot     * r_au2kcalmol
-       ZPVE   = ZPVE   * r_au2kcalmol
+       DeltaU = U_vib_Tot     * auTokcalmol
+       ZPVE   = ZPVE   * auTokcalmol
        Write (6,'(A,F6.2,A)') '         DeltaG =',DeltaG,' kcal/mol'
        Write (6,'(A,F6.2,A)') '           ZPVE =',  ZPVE,' kcal/mol'
        Write (6,'(A,F6.2,A)') '      TotDeltaU =',DeltaU,' kcal/mol'

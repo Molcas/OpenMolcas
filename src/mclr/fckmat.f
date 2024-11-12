@@ -15,11 +15,11 @@
 *                                                          *
 ************************************************************
       use Arrays, only: FAMO, FIMO, F0SQMO, INT2
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "machine.fh"
       Real*8, Allocatable:: Q(:), Tmp2(:,:), T3(:)
 *

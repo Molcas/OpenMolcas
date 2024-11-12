@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdDens(d1,nd1,d2,nd2)
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 
 #include "SysDef.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "Files_mclr.fh"
       Real*8 D1(nd1),d2(nd2)
       Real*8 rdum(1)

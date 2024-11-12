@@ -8,12 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRANSDREF(TORB,DREF)
+      SUBROUTINE TRANSDREF(TORB,NTORB,DREF,NDREF)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION TORB(*),DREF(NDREF)
+      INTEGER NDREF
+      REAL*8 TORB(NTORB),DREF(NDREF)
+
+      REAL*8, ALLOCATABLE:: DSQ(:), TSQ(:), TMP(:)
 * Purpose: given an orbital transformation array
 * transform the DREF array (blocked triangular, active)
 
@@ -30,9 +32,9 @@
         NAMX=MAX(NAMX,NA)
         NT=NT+NI**2+NR1**2+NR2**2+NR3**2+NS**2
       END DO
-      CALL GETMEM('DSQ','ALLO','REAL',LDSQ,NAMX**2)
-      CALL GETMEM('TSQ','ALLO','REAL',LTSQ,NAMX**2)
-      CALL GETMEM('TMP','ALLO','REAL',LTMP,NAMX**2)
+      CALL mma_allocate(DSQ,NAMX**2,LABEL='DSQ')
+      CALL mma_allocate(TSQ,NAMX**2,LABEL='TSQ')
+      CALL mma_allocate(TMP,NAMX**2,LABEL='TMP')
       IDOFF=0
       ITOFF=0
       DO ISYM=1,NSYM
@@ -45,14 +47,14 @@
         NO=NI+NA+NS
         IF (NO.eq.0) GOTO 99
 * Copy the matrices to square storage: first fill with zeroes.
-        CALL DCOPY_(NA**2,[0.0D0],0,WORK(LTSQ),1)
+        TSQ(1:NA**2)=0.0D0
         IOFF=0
         ITOFF=ITOFF+NI**2
         DO I=1,NR1
          II=IOFF+I
          DO J=1,NR1
           JJ=IOFF+J
-          WORK(LTSQ-1+II+NA*(JJ-1))=TORB(ITOFF+I+NR1*(J-1))
+          TSQ(II+NA*(JJ-1))=TORB(ITOFF+I+NR1*(J-1))
          END DO
         END DO
 *---
@@ -62,7 +64,7 @@
          II=IOFF+I
          DO J=1,NR2
           JJ=IOFF+J
-          WORK(LTSQ-1+II+NA*(JJ-1))=TORB(ITOFF+I+NR2*(J-1))
+          TSQ(II+NA*(JJ-1))=TORB(ITOFF+I+NR2*(J-1))
          END DO
         END DO
 *---
@@ -72,7 +74,7 @@
          II=IOFF+I
          DO J=1,NR3
           JJ=IOFF+J
-          WORK(LTSQ-1+II+NA*(JJ-1))=TORB(ITOFF+I+NR3*(J-1))
+          TSQ(II+NA*(JJ-1))=TORB(ITOFF+I+NR3*(J-1))
          END DO
         END DO
 *--- Finally, the secondary orbitals (non-deleted, virtual).
@@ -83,31 +85,31 @@
         DO I=1,NA
          DO J=1,I
           IJ=IJ+1
-          WORK(LDSQ-1+J+NA*(I-1))=DREF(IDOFF+IJ)
-          WORK(LDSQ-1+I+NA*(J-1))=DREF(IDOFF+IJ)
+          DSQ(J+NA*(I-1))=DREF(IDOFF+IJ)
+          DSQ(I+NA*(J-1))=DREF(IDOFF+IJ)
          END DO
         END DO
 * Transform, first do DSQ*TSQ -> TMP...
-       CALL DGEMM_('N','N',NA,NA,NA,1.0D0,WORK(LDSQ),NA,WORK(LTSQ),NA,
-     &              0.0D0,WORK(LTMP),NA)
+       CALL DGEMM_('N','N',NA,NA,NA,1.0D0,DSQ,NA,TSQ,NA,
+     &              0.0D0,TMP,NA)
 * ... and then do TSQ(transpose)*TMP -> DSQ...
-       CALL DGEMM_('T','N',NA,NA,NA,1.0D0,WORK(LTSQ),NA,WORK(LTMP),NA,
-     &              0.0D0,WORK(LDSQ),NA)
+       CALL DGEMM_('T','N',NA,NA,NA,1.0D0,TSQ,NA,TMP,NA,
+     &              0.0D0,DSQ,NA)
 * Transfer DSQ values back to D, in triangular storage.
        IJ=0
        DO I=1,NA
         DO J=1,I
          IJ=IJ+1
-         DREF(IDOFF+IJ)=WORK(LDSQ-1+I+NA*(J-1))
+         DREF(IDOFF+IJ)=DSQ(I+NA*(J-1))
         END DO
        END DO
        IDOFF=IDOFF+(NA*(NA+1))/2
 * and repeat, using next symmetry block.
   99   CONTINUE
       END DO
-      CALL GETMEM('DSQ','FREE','REAL',LDSQ,NAMX**2)
-      CALL GETMEM('TSQ','FREE','REAL',LTSQ,NAMX**2)
-      CALL GETMEM('TMP','FREE','REAL',LTMP,NAMX**2)
+      CALL mma_deallocate(DSQ)
+      CALL mma_deallocate(TSQ)
+      CALL mma_deallocate(TMP)
 
 
       RETURN

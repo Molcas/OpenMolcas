@@ -19,6 +19,8 @@ use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Nine, Angstrom, auTokJmolnm
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, IsMM(natom)

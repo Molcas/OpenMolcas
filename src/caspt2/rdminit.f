@@ -10,51 +10,51 @@
 *                                                                      *
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      subroutine rdminit
+      subroutine rdminit()
 
-      use caspt2_output, only:iPrGlb,debug
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
 #endif
 
+      use caspt2_global, only:iPrGlb
+      use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
+      use caspt2_global, only: LUONEM
+      use PrintLevel, only: debug
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit real(8) (A-H,O-Z)
 
-
-
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
-      integer offset
-
+      REAL*8, ALLOCATABLE:: CI(:)
 
       if (IPRGLB.GE.DEBUG) then
         write(6,*)' Entered rdminit.'
       end if
 
 * Get CASSCF MO coefficients
-      call getmem('LCMO','ALLO','REAL',LCMO,NCMO)
+      call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
+      CMO=>CMO_Internal
       IDISK=IAD1M(1)
-      call ddafile(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+      call ddafile(LUONEM,2,CMO,NCMO,IDISK)
 
 * Allocate memory for CI vector
-      call getmem('LCI','ALLO','REAL',LCI,Nconf)
+      call mma_allocate(CI,Nconf,Label='CI')
 
 * Initialize array of 1-RDMs with zeros
-      call dcopy_(Nstate*NDREF,[0.0D0],0,WORK(LDMIX),1)
+      DMIX(:,:)=0.0D0
 
 * Start long loop over all states and compute the weighted density
-* of each state using the weights in WORK(LDWGT)
+* of each state using the weights in DWGT
       do I=1,Nstate
 
         if (ISCF.NE.0) then
 * Then we still need the "CI array": It is used in subroutine calls
-          WORK(LCI)=1.0D0
+          CI(1)=1.0D0
         else
 * Get the CI array
-          call loadCI(WORK(LCI),I)
+          call loadCI(CI,I)
         end if
 
         ! compute 1-particle active density matrix GAMMA1
@@ -71,30 +71,28 @@
 
 
 * Compute 1-particle active density matrix GAMMA1
-        call POLY1(WORK(LCI))
+        call POLY1(CI,nConf)
 * Restructure GAMMA1 as DREF array, but keep it in DMIX
-        call GETDREF(WORK(LDREF))
+        call GETDREF(DREF,SIZE(DREF))
 
 * Loop over states to compute the contribution of state I to states J
         do J=1,Nstate
 * Retrieve the weight of the contribution of state I to the density
 * of state J
-          wij = WORK(LDWGT+(I-1) + NSTATE*(J-1))
-* Compute offset to access the density of state J in WORK, needed to
-* know where to store the weighted density of state I
-          offset = NDREF*(J-1)
+          wij = DWGT(I,J)
 * Multiply density of state I with weight wij and add it to whatever
-* is already in LDMIX (contributions of other states already computed)
-* and store it in LDMIX
-          call daxpy_(NDREF,wij,WORK(LDREF),1,WORK(LDMIX+offset),1)
+* is already in DMIX (contributions of other states already computed)
+* and store it in DMIX
+          call daxpy_(SIZE(DREF),wij,DREF,1,DMIX(:,J),1)
         end do
 
 * End of long loop over states
       end do
 
 * Deallocate everything
-      call getmem('LCMO','FREE','REAL',LCMO,NCMO)
-      call getmem('LCI','FREE','REAL',LCI,NCONF)
+      call mma_deallocate(CMO_Internal)
+      nullify(CMO)
+      call mma_deallocate(CI)
 
       return
       end

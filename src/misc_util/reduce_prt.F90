@@ -18,6 +18,7 @@ implicit none
 logical(kind=iwp) :: Reduce_Prt
 integer(kind=iwp) :: i, Err
 character(len=80) :: Word
+integer(kind=iwp), external :: isStructure
 
 Reduce_Prt = .false.
 
@@ -38,13 +39,10 @@ if (Reduce_Prt) then
   if (Word(1:1) == 'N') Reduce_Prt = .false.
 end if
 
-! ... or if we are not inside a loop (EMIL_InLoop < 1)
+! ... or if we are not inside a loop (isStructure < 1)
 
 if (Reduce_Prt) then
-  call GetEnvF('EMIL_InLoop',Word)
-  i = 0
-  read(Word,*,IOSTAT=Err) i
-  if (i < 1) Reduce_Prt = .false.
+  if ((isStructure() /= 1)) Reduce_Prt = .false.
 end if
 
 ! ... or if first iteration of a saddle branch (SADDLE_FIRST = 1)

@@ -22,7 +22,7 @@ C    &                                NORB,NEL,IWAY)
 *
 * Jeppe Olsen, November 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *
       INTEGER ICONF_GAS(MXPORB)
       INTEGER ICONF(*)

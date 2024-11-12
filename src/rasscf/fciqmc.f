@@ -32,7 +32,7 @@
       use linalg_mod, only: abort_
       use stdalloc, only: mma_allocate, mma_deallocate
 
-      use rasscf_data, only: nAcPar, nAcPr2, nroots
+      use rasscf_global, only: nAcPar, nAcPr2, nroots
       use general_data, only: nSym, nConf
 
       use CI_solver_util, only: wait_and_read
@@ -74,7 +74,7 @@
       end type
 
       interface fciqmc_solver_t
-        module procedure construct_FciqmcSolver_t
+        module procedure :: construct_FciqmcSolver_t
       end interface
 
       contains
@@ -128,7 +128,7 @@
      &    )
 
           use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh
-          use rasscf_data, only : iter, nroots, lRoots,
+          use rasscf_global, only : iter, nroots, lRoots,
      &                            S, KSDFT, EMY, rotmax, Ener, Nac,
      &                            nAcPar, nAcpr2
           use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX

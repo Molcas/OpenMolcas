@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     main.F90
      block_interf.F90
      calc_mp2.F90
      check_create_klvab_t3_mem.F90
@@ -53,7 +54,6 @@ set (sources
      grow_w3.F90
      inireord_t3.F90
      klvaa_vvv.F90
-     main.F90
      map2_21_t3.F90
      map3_132_t3.F90
      map3_231_t3.F90

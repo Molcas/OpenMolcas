@@ -12,26 +12,29 @@
 ************************************************************************
       SUBROUTINE PART(SXY,TRA1,TRA2)
       use rasdef, only: NRS1, NRS2, NRS3
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION SXY(NSXY),TRA1(NTRA),TRA2(NTRA)
-      DIMENSION NSIZE(4)
+      Real*8 SXY(NSXY),TRA1(NTRA),TRA2(NTRA)
+      Integer NSIZE(4)
 C  PURPOSE: SXY CONTAINS THE NONSECONDARY PART OF THE MO OVERLAP
 C  MATRIX. UPON RETURN, TRA1 AND TRA2 WILL CONTAIN THE COEFFICIENTS
 C  FOR SEQUENTIAL SINGLE-ORBITAL TRANSFORMATIONS (VI.2, MY IJQC ARTICLE)
 C  TO BIORTHONORMAL ORBITALS. SXY, TRA1 AND TRA2 ARE SYMMETRY-BLOCKED.
 C  ORIGINAL VERSION, MALMQUIST 84-04-04
 C  RASSCF VERSION,   MALMQUIST 89-11-15
-#include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
+      Real*8, allocatable:: ScrMat(:), ScrBuf(:)
+      Integer, allocatable:: ScrPiv(:)
+
       NOMAX=0
       DO ISY=1,NSYM
         NOMAX=MAX(NOSH(ISY),NOMAX)
       ENDDO
-      CALL GETMEM('SCRMAT','ALLO','REAL',LSCRMAT,NOMAX*NOMAX)
-      CALL GETMEM('SCRPIV','ALLO','INTE',LSCRPIV,2*NOMAX)
-      CALL GETMEM('SCRBUF','ALLO','REAL',LSCRBUF,NOMAX)
+      CALL mma_allocate(SCRMAT,NOMAX*NOMAX,Label='ScrMat')
+      CALL mma_allocate(SCRPIV,2*NOMAX,Label='ScrPiv')
+      CALL mma_allocate(SCRBUF,NOMAX,Label='ScrBuf')
       II=1
       DO ISY=1,NSYM
         NDIMEN=NOSH(ISY)
@@ -58,11 +61,11 @@ C  RASSCF VERSION,   MALMQUIST 89-11-15
           NSIZE(NBLOCK)=N
         END IF
         CALL PART1(NDIMEN,NBLOCK,NSIZE,SXY(II),TRA1(II),TRA2(II),
-     *             WORK(LSCRMAT),IWORK(LSCRPIV),WORK(LSCRBUF))
+     &             SCRMAT,SCRPIV,SCRBUF)
         II=II+NDIMEN**2
       ENDDO
-      CALL GETMEM('SCRMAT','FREE','REAL',LSCRMAT,NOMAX*NOMAX)
-      CALL GETMEM('SCRPIV','FREE','INTE',LSCRPIV,2*NOMAX)
-      CALL GETMEM('SCRBUF','FREE','REAL',LSCRBUF,NOMAX)
+      CALL mma_deallocate(SCRMAT)
+      CALL mma_deallocate(SCRPIV)
+      CALL mma_deallocate(SCRBUF)
 
       END SUBROUTINE PART

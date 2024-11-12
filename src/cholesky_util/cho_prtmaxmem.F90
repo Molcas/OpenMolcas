@@ -14,6 +14,7 @@ subroutine Cho_PrtMaxMem(Location)
 ! Purpose: print max. available memory block.
 
 use Cholesky, only: LuPri
+use stdalloc, only: mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

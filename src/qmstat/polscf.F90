@@ -31,6 +31,7 @@ real(kind=wp) :: Dummy, Egun, OneEl, PolFac, R2inv, Rinv
 logical(kind=iwp) :: JaNej
 real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMat(:), rr3(:,:), Scratch(:,:), VpolMat(:), xx(:,:), xxi(:,:), &
                               yy(:,:), yyi(:,:), zz(:,:), zzi(:,:)
+
 #include "warnings.h"
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.

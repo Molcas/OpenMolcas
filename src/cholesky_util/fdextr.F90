@@ -19,7 +19,7 @@ subroutine FdExtr(K_Lap,T,Coeff,R,Theta,DD,StpBA)
 
 use ReMez_mod, only: IW
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: K_Lap

@@ -16,7 +16,6 @@
 * ****************************************************************
       subroutine RHS_CMS(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
-*#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -25,7 +24,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 
 ******Input
@@ -132,7 +130,6 @@
 ******Rewritten from mcpdft/alloc.f
       INTEGER NPUVX
       INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -141,7 +138,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 
@@ -323,10 +319,10 @@
 ******************************************************
       Subroutine CMSRHSGDMat(GDMat)
       use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "Pointers.fh"
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "stdalloc.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 *      Input

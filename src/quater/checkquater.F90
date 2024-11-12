@@ -45,7 +45,7 @@ angle = modangle(Two*acos(Q(0)),Two*pi)
 
 if (debug) then
   call RecPrt('Quaternion',' ',Q(0),4,1)
-  write(u6,'(a8,f10.6,a3,f10.2,a3)') 'Angle = ',angle,'Rad',180*angle/pi,'Deg'
+  write(u6,'(a8,f10.6,a3,f10.2,a3)') 'Angle = ',angle,' rad',180*angle/pi,' deg'
 end if
 axis(:) = Q(1:3)
 call normalizeVec(axis)

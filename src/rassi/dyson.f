@@ -13,16 +13,12 @@
       SUBROUTINE DYSON(IFSBTAB1,
      &    IFSBTAB2,ISSTAB,
      &    DET1,DET2,
-     &    IF10,IF01,DYSAMP,DYSCOF)
+     &    IF10,IF01,DYSAMP,DYSCOF,OrbTab)
 
       IMPLICIT NONE
-      INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*)
-      INTEGER LORBTB
+      INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),OrbTab(*)
       REAL*8 DET1(*),DET2(*),DYSAMP,DYSCOF(*)
       LOGICAL IF10,IF01
-
-#include "symmul.fh"
-#include "WrkSpc.fh"
 
 ! +++ J.Norell 12/7 - 2018
 C Given two CI expansions, using a biorthonormal set of SD's,
@@ -33,9 +29,8 @@ C (2) The Dyson orbital expansion coefficients in the
 C     basis of active biorthonormal orbitals (DYSCOF)
 C More functionality should be added here later.
 
-      LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
-      CALL MKDYSORB(IWORK(LORBTB),ISSTAB,
+      CALL MKDYSORB(ORBTAB,ISSTAB,
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,
      &               IF10,IF01,DYSAMP,DYSCOF)
 

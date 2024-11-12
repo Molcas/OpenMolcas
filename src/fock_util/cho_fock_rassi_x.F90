@@ -35,7 +35,7 @@ use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -61,7 +61,7 @@ character(len=50) :: CFmt
 type(SBA_Type), target :: Laq(2)
 type(twxy_Type) :: Scr
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:)
-real(kind=wp), pointer :: VJ(:) => null()
+real(kind=wp), pointer :: VJ(:)
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI_X'
 logical(kind=iwp), parameter :: DoRead = .false.
@@ -228,7 +228,7 @@ do jSym=1,nSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if ! Coulomb contribution
 

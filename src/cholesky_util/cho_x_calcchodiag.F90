@@ -36,7 +36,7 @@
 subroutine Cho_X_CalcChoDiag(rc,Diag)
 
 use Cholesky, only: iiBstR, IndRed, InfVec, IndRed, nDimRS, nnBstRT, nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 

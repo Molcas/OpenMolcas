@@ -39,7 +39,7 @@ if (l2 < abs(m2)) return
 if (l3 < abs(m3)) return
 if (l4 < abs(m4)) return
 !bs prefactor
-fact1 = Four*Pi/real(L+L+1,wp)
+fact1 = Four*Pi/real(L+L+1,kind=wp)
 !bs determining the sign
 isum = -l3-l1-l4-l2+2*(M+m3+m4)   !???? I am not sure
 if (mod(isum,4) == 0) then

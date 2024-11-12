@@ -33,7 +33,7 @@ use Real_Spherical, only: Sphere
 use Basis_Info, only: dbsc, iCnttp_Dummy, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Thrshld_CD
-use Integral_interfaces, only: Int_PostProcess, Integral_ri_2
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -46,6 +46,7 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCase, iCmp, iDisk, ij, ijF, ijS, ijS_r
 real(kind=wp) :: Thr_CB, ThrAO
 logical(kind=iwp) :: In_Core
 real(kind=wp), allocatable :: ADiag(:), Not_Used(:), QVec(:,:), TInt_c(:), TInt_d(:), Tmp(:,:)
+procedure(int_wrout) :: Integral_ri_2
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -124,7 +125,7 @@ do iAng=0,nTest
 
   Int_PostProcess => Integral_ri_2
   call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,Not_Used,Lu_A,ijS_req,Keep_Shell)
-  Int_PostProcess => null()
+  nullify(Int_PostProcess)
 # ifdef _DEBUGPRINT_
   call TriPrt('TInt_c',' ',TInt_c,nTInt_c)
 # endif

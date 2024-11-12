@@ -40,18 +40,18 @@
 ! D:       INTEGER, is the actual dimension of the arrays as they
 !          are declared in the main program. D >= N is necessary.
 !
-! A:       REAL*8, declared as DIMENSION A(1:D,1:N), is the coefficient
+! A:       REAL, declared as DIMENSION A(1:D,1:N), is the coefficient
 !          matrix. On return it will be over-written by U.
 !
-! B:       REAL*8, declared as DIMENSION B(1:D,1:M), contains the right
+! B:       REAL, declared as DIMENSION B(1:D,1:M), contains the right
 !          hand sides (columnwise). On return each column occupies the
 !          corresponding solution.
 !
-! EPS:     REAL*8, is the tolerance: if a pivotal element is
+! EPS:     REAL, is the tolerance: if a pivotal element is
 !          (absolutely) smaller than EPS, matrix A is considered
 !          to be singular.
 !
-! DET:     REAL*8, will contain the determinant (DET = 0 is set,
+! DET:     REAL, will contain the determinant (DET = 0 is set,
 !          if A is singular). It is scaled such that
 !          1.0e-10 <= ABS(DET) <= 1.0e10 .
 !

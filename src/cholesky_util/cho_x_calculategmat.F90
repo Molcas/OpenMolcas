@@ -39,7 +39,7 @@ subroutine Cho_X_CalculateGMat(irc)
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iiBstR, InfVec, nnBstR, nSym, NumCho
 use Cholesky_procedures, only: Cho_CGM_InfVec
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

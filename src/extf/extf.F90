@@ -20,6 +20,8 @@ subroutine extf(ireturn)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, auToN
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

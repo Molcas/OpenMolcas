@@ -17,11 +17,13 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged,RGD
+      use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -118,6 +120,5 @@ C      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
        Call Quit(_RC_NOT_CONVERGED_)
       END IF
 
-      RETURN
       End Subroutine
 

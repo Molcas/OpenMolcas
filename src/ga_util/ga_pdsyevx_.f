@@ -25,6 +25,7 @@ c*           Victor Vysotskiy                                              *
 c***************************************************************************
 #if defined (_SCALAPACK_) && defined (_MOLCAS_MPP_)
       subroutine ga_pdsyevx_(g_a, g_b, eval, nb8)
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -37,8 +38,8 @@ c***************************************************************************
 
       character*1 jobz, range, uplo
 c
-      integer adra          ! A
-      integer adrb          ! B
+      real*8, allocatable:: adrA(:)          ! A
+      real*8, allocatable:: adrB(:)          ! B
 c
 c
       logical oactive           ! true iff this process participates
@@ -59,11 +60,15 @@ c
       SCALAPACKINT descA(9), descB(9) !descriptor for scalapack
 
 c
-      integer ngaps, adrgaps
-      integer iclu, adrclustr
-      integer adrfail
-      integer liwork, adriwork
-      integer lcwork, adrcwork
+      integer ngaps
+      real*8, allocatable:: adrgaps(:)
+      integer iclu
+      integer, allocatable:: adrclustr(:)
+      integer, allocatable:: adrfail(:)
+      integer liwork
+      integer, allocatable:: adriwork(:)
+      integer lcwork
+      real*8, allocatable:: adrcwork(:)
       SCALAPACKINT lcwork4
       SCALAPACKINT liwork4
 c
@@ -81,8 +86,6 @@ c
       real*8 pdlamch
       external pdlamch
       SCALAPACKINT iceil
-
-#include "WrkSpc.fh"
 
 c
 c     processor dependent; machine dependent
@@ -147,30 +150,29 @@ c
 c
          elemA= mpA*nqA
          if(elemA.ne.0)
-     $   Call GetMem('A','ALLO','REAL',adrA,elemA)
+     $   Call mma_allocate(adrA,elemA,Label='adrA')
 c
 c***  copy g_a to A using the block cyclic scalapack format
 c
 
-         call ga_to_SL2_(g_a, dimA1, dimA2, nb, nb,
-     $        WORK(adrA), lda)
+         call ga_to_SL2_(g_a, dimA1, dimA2, nb, nb, adrA, lda)
 c
          elemB= mpB*nqB
 
          if(elemB.ne.0)
-     $   Call GetMem('B','ALLO','REAL',adrB,elemB)
+     $   Call mma_allocate(adrB,elemB,Label='adrB')
 
 c
          ngaps = nprow2*npcol2
          if(ngaps.ne.0)
-     $   Call GetMem('GAP','ALLO','REAL',adrgaps,ngaps)
+     $   Call mma_allocate(adrgaps,ngaps,Label='adrgaps')
 c
          iclu = 2*nprow2*npcol2
          two4n=two4*n
          iclu = max(two4n,iclu)
          if(iclu.ne.0)
-     $   Call GetMem('ICLUS','ALLO','INTE',adrclustr,iclu)
-         Call GetMem('IFAIL','ALLO','INTE',adrfail,dima18)
+     $   Call mma_allocate(adrclustr,iclu,Label='adrclustr')
+         Call mma_allocate(adrfail,dima18,Label='adrfail')
       endif
       call ga_sync()
       if(oactive) then
@@ -206,7 +208,7 @@ c
          liwork = 6*max(n, nprow2*npcol2+one4, four4)
          liwork=liwork
          if(liwork.ne.0)
-     $   Call GetMem('IWORK','ALLO','INTE',adriwork,liwork)
+     $   Call mma_allocate(adriwork,liwork,Label='adriwork')
 c
          nn = max(n, nb, two4)
          np0 = numroc(nn, nb, zero4, zero4, nprow2)
@@ -219,7 +221,7 @@ c
          lcwork = 5*n +MAX(5*NN,(NP0*MQ0 + 2*nb*nb))+
      $          ICEIL( N, NPROW2*NPCOL2)*NN+1
          if(lcwork.ne.0)
-     $   Call GetMem('CWORK','ALLO','REAL',adrcwork,lcwork)
+     $   Call mma_allocate(adrcwork,lcwork,Label='adrcwork')
 c
 c
          abstol=pdlamch(islctxt2, 'U')
@@ -228,11 +230,11 @@ c
          liwork4=liwork
          lcwork4=lcwork
          call pdsyevx(jobz, range, uplo,
-     $        n, work(adrA), one4, one4, descA,vl,
-     $        vu, il, iu, abstol, m, nz, eval, orfac, work(adrB),
-     $        one4, one4, descB, work(adrcwork), lcwork4,
-     $        iwork(adriwork), liwork4, iwork(adrfail),
-     $        iwork(adrclustr), work(adrgaps), info)
+     $        n, adrA, one4, one4, descA,vl,
+     $        vu, il, iu, abstol, m, nz, eval, orfac, adrB,
+     $        one4, one4, descB, adrcwork, lcwork4,
+     $        adriwork, liwork4, adrfail,
+     $        adrclustr, adrgaps, info)
 c
 
          if (nz .ne. n ) then
@@ -250,27 +252,19 @@ c
 c
 c***  copy solution matrix back to g_c
 c
-         call ga_from_SL2_(g_b, dimA1, dimB2,
-     $        nb, nb, work(adrB),
-     $        ldb)
+         call ga_from_SL2_(g_b, dimA1, dimB2, nb, nb, adrB, ldb)
 c
 c
 c
 c***  deallocate work/SL arrays
 c
-         if ( lcwork .ne. 0 )
-     $   Call GetMem('CWORK','FREE','REAL',adrcwork,lcwork)
-         if ( liwork .ne. 0 )
-     $   Call GetMem('IWORK','FREE','INTE',adriwork,liwork)
-         if ( iclu .ne. 0 )
-     $   Call GetMem('ICLUS','FREE','INTE',adrclustr,iclu)
-         if ( ngaps.ne.0 )
-     $   Call GetMem('GAP','FREE','REAL',adrgaps,ngaps)
-         if ( elemB .ne. 0 )
-     $   Call GetMem('B','FREE','REAL',adrB,elemB)
-         if ( elemA .ne. 0 )
-     $   Call GetMem('A','FREE','REAL',adrA,elemA)
-         Call GetMem('IFAIL','FREE','INTE',adrfail,dimA18)
+         if ( lcwork .ne. 0 ) Call mma_deallocate(adrcwork)
+         if ( liwork .ne. 0 ) Call mma_deallocate(adriwork)
+         if ( iclu .ne. 0 ) Call mma_deallocate(adrclustr)
+         if ( ngaps.ne.0 ) Call mma_deallocate(adrgaps)
+         if ( elemB .ne. 0 ) Call mma_deallocate(adrB)
+         if ( elemA .ne. 0 ) Call mma_deallocate(adrA)
+         Call mma_deallocate(adrfail)
       endif
 c
       call ga_sync()

@@ -66,7 +66,7 @@ use Cholesky, only: nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: Deallocate_DT, DSBA_type, Integer_Pointer, SBA_type
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -89,8 +89,7 @@ logical(kind=iwp) :: Debug
 #endif
 character(len=50) :: CFmt
 type(SBA_Type), target :: Wab
-real(kind=wp), pointer :: LrJs(:,:,:) => null(), Scr(:) => null(), VJ(:) => null(), XdJb(:,:,:) => null(), XgJb(:,:,:) => null(), &
-                          XpJs(:,:,:) => null()
+real(kind=wp), pointer :: LrJs(:,:,:), Scr(:), VJ(:), XdJb(:,:,:), XgJb(:,:,:), XpJs(:,:,:)
 logical(kind=iwp), parameter :: DoRead = .true.
 character(len=*), parameter :: SECNAM = 'CHO_FOCKTWO_RED'
 
@@ -220,6 +219,7 @@ do jSym=1,MaxSym
       if (nq*np <= 0) cycle
 
       iS = iE+1
+      Wab%ipOff(iSymp) = iS
       if ((iSymp > iSymq) .and. (iSkip(iSymp) /= 0)) then
         NumB = np*nq
         iE = iE+NumB*NumV
@@ -250,7 +250,7 @@ do jSym=1,MaxSym
 
     Scr(1:lScr) => Wab%A0(iE+1:iE+lScr)
     call CHO_X_getVfull(irc,Scr,lscr,iVEC,NumV,jSym,iSwap,IREDC,Wab,iSkip,DoRead)
-    Scr => null()
+    nullify(Scr)
 
     if (irc /= 0) then
       rc = irc
@@ -318,7 +318,7 @@ do jSym=1,MaxSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if !jSym=1 & DoCoulomb
 
@@ -394,14 +394,14 @@ do jSym=1,MaxSym
                 texch(1) = texch(1)+(TC1X2-TC1X1)
                 texch(2) = texch(2)+(TW1X2-TW1X1)
 
-                XpJs => null()
+                nullify(XpJs)
 
               end if
 
             end if ! DoExchange(jDen)
 
           end do ! loop over the densities
-          LrJs => null()
+          nullify(LrJs)
 
         end if ! nbas /= 0 & nOcc /= 0
 
@@ -455,7 +455,7 @@ do jSym=1,MaxSym
                 call DGEMM_('T','N',NBAS(ISYMA),NBAS(ISYMB),NBAS(ISYMD)*NUMV,-FactX(jDen),Wab%SB(ISYMG)%A2,NBAS(ISYMD)*NUMV,XdJb, &
                             NBAS(ISYMD)*NUMV,ONE,FSQ(jDen)%SB(ISYMB)%A2,NBAS(ISYMA))
 
-                XdJb => null()
+                nullify(XdJb)
 
               end if
               ! ---------------------------
@@ -480,7 +480,7 @@ do jSym=1,MaxSym
                 call DGEMM_('N','T',NBAS(ISYMG),NBAS(ISYMD),NUMV*NBAS(ISYMB),-FactX(jDen),XgJb,NBAS(ISYMG),Wab%SB(ISYMG)%A2, &
                             NBAS(ISYMD),ONE,FSQ(jDen)%SB(ISYMG)%A2,NBAS(ISYMG))
 
-                XgJb => null()
+                nullify(XgJb)
 
               end if
             end if

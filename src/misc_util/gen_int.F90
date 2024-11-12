@@ -51,7 +51,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
 use TwoDat, only: rcTwo
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

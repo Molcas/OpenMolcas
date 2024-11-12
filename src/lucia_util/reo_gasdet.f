@@ -21,7 +21,7 @@
 * Jeppe Olsen, November 2001, from GASANA
 *
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *
 * =====
 *.Input

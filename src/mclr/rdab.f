@@ -10,9 +10,9 @@
 ************************************************************************
       SubRoutine RdAB
       use Arrays, only: CMO
+      use stdalloc, only: mma_allocate
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "Input.fh"
 #include "SysDef.fh"
       Character*8 Label

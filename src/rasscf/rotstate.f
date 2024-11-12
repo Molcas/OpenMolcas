@@ -11,33 +11,33 @@
 * Copyright (C) 2020, Jie J. Bao                                       *
 ************************************************************************
       Subroutine RotState()
-      use rctfld_module
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,
+     &                         Ener
+      Implicit None
+
+
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "splitcas.fh"
 #include "general.fh"
-#include "gas.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "pamint.fh"
-#include "input_ras.fh"
-#include "stdalloc.fh"
 
 
 
-      Integer LHrot,NHrot                ! storing info in H0_Rotate.txt
-      Integer LRCIVec,LRCItmp,NRCIVec,LRCIScr ! storing CIVec
-      Integer LRState,NRState            ! storing info in Do_Rotate.txt
-      Integer LHScr                      ! calculating rotated H
+      Integer NHrot                ! storing info in H0_Rotate.txt
+      Integer NRState            ! storing info in Do_Rotate.txt
       Integer rcidisk
       INTEGER JRoot,IPRLEV
       CHARACTER(Len=18)::MatInfo
+      Real*8, Allocatable:: CIVEC(:,:), CIScr(:,:), HScr(:), State(:),
+     &                      HRot(:,:)
+      Integer i, iad15
 
       IPRLEV=IPRLOC(3)
 
@@ -62,55 +62,50 @@
 
       NRState=lRoots**2
       NHRot=NRState
-      NRCIVec=lRoots*NConf
 
-      CALL GETMEM('RCIVEC','ALLO','REAL',LRCIVec,NRCIVec)
-      CALL GETMEM('RCIScr','ALLO','REAL',LRCIScr,NRCIVec)
-      CALL GETMEM('HScr','ALLO','REAL',LHScr,NHRot)
-      CALL GETMEM('RState','ALLO','REAL',LRState,NRState)
-      CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
+      CALL mma_allocate(CIVec,nConf,lRoots,Label='CIVec')
+      CALL mma_allocate(CIScr,nConf,lRoots,Label='CIScr')
+      CALL mma_allocate(HScr,NHRot,Label='HScr')
+      CALL mma_allocate(State,NRState,Label='State')
+      CALL mma_allocate(HRot,lRoots,lRoots,Label='HRot')
 
 
 *JB   read rotation matrix in Do_Rotate.txt
-      CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),lRoots,lRoots,
+      CALL ReadMat2('ROT_VEC',MatInfo,State,lRoots,lRoots,
      &              7,18,'T')
       iF(IPRLEV.GE.DEBUG) Then
         write(LF,*)'rotation matrix'
-        CALL RecPrt(' ',' ',WORK(LRState),lRoots,lRoots)
+        CALL RecPrt(' ',' ',State,lRoots,lRoots)
       eND iF
+      HRot(:,:)=0.0D0
       NHRot=lRoots**2
-      CALL DCOPY_(NHRot,[0.0d0],0,WORK(LHRot),1)
       Do I=1,lRoots
-        WORK(LHRot+(I-1)*(lRoots+1))=ENER(I,ITER)
+        HRot(I,I)=ENER(I,ITER)
       End Do
-      Call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0D0,Work(LRState),
-     &     lRoots,Work(LHRot),lRoots,0.0D0,Work(LHScr),lRoots)
-      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
-     &     lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
-      CALL PrintMat2('ROT_HAM',MatInfo,WORK(LHRot),lRoots,lRoots,
+      Call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0D0,State,
+     &     lRoots,HRot,lRoots,0.0D0,HScr,lRoots)
+      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,HScr,
+     &     lRoots,State,lRoots,0.0D0,HRot,lRoots)
+      CALL PrintMat2('ROT_HAM',MatInfo,HRot,lRoots,lRoots,
      &              7,18,'T')
       if(IPRLEV.GE.DEBUG) Then
        write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
-       write(LF,*) (Work(LHRot+jroot),jroot=0,NHRot-1)
+       Call RecPrt('HRot',' ',hRot,lRoots,lRoots)
       End if
 
 *JB   read CI vector from jobiph
       rcidisk=IADR15(4)
-      LRCItmp=LRCIScr
       Do jRoot = 1,lRoots
-        Call DDafile(JOBIPH,2,Work(LRCItmp),nConf,rcidisk)
-        LRCItmp=LRCItmp+NConf
+        Call DDafile(JOBIPH,2,CIScr(:,jRoot),nConf,rcidisk)
       End Do
-      Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,Work(LRCIScr),
-     &     nConf,Work(LRState),lRoots,0.0D0,Work(LRCIVec),nConf)
+      Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,CIScr,
+     &     nConf,State,lRoots,0.0D0,CIVec,nConf)
 
 C     updating final energies as those for rotated states
       rcidisk=IADR15(4)
-      LRCItmp=LRCIVec
       Do I=1,lRoots
-        Call DDafile(JOBIPH,1,Work(LRCItmp),nConf,rcidisk)
-        ENER(I,ITER)=WORK(LHRot+(I-1)*(lRoots+1))
-        LRCItmp=LRCItmp+NConf
+        Call DDafile(JOBIPH,1,CIVec(:,I),nConf,rcidisk)
+        ENER(I,ITER)=HRot(I,I)
       End Do
       IAD15 = IADR15(6)
       CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
@@ -120,20 +115,19 @@ C     updating final energies as those for rotated states
       write(LF,'(2A)')'Printing the coeff of the first CSF',
      &' for each state'
       Do I=1,lRoots
-        write(LF,*)WORK(LRCIVec+(I-1)*NConf)
+        write(LF,*) CIVec(1,I)
       End Do
       End If
 
-      CALL GETMEM('HScr','FREE','REAL',LHScr,NHRot)
-      CALL GETMEM('RCIScr','Free','REAL',LRCIScr,NRCIVec)
-      CALL GETMEM('RState','Free','REAL',LRState,NRState)
-      CALL GETMEM('RCIVEC','FREE','REAL',LRCIVec,NRCIVec)
-      CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
+      Call mma_deallocate(HScr)
+      Call mma_deallocate(CIScr)
+      Call mma_deallocate(State)
+      Call mma_deallocate(CIVec)
+      Call mma_deallocate(HRot)
 
       IF(IPRLEV.ge.USUAL) THEN
       write(LF,*)
       write(LF,*) repeat('=',71)
       END IF
 
-      Return
-      End Subroutine
+      End Subroutine RotState

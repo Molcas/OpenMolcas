@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     main.F90
      adh_hvv2.F90
      adt_t17.F90
      adv_a23.F90
@@ -136,7 +137,6 @@ set (sources
      insreaw4.F90
      insreqo2v4.F90
      joinlvec.F90
-     main.F90
      makechckdata.F90
      maket2m.F90
      maket2pd.F90

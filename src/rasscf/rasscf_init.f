@@ -18,7 +18,8 @@
 *> @author  P. &Aring;. Malmqvist
 *>
 *> @details
-*> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
+*> Sets values in common blocks in general.fh, timers.fh and module
+*> rasscf_global.F90.
 ************************************************************************
 
       Subroutine RasScf_Init()
@@ -29,19 +30,35 @@
       use Cholesky, only: ChFracMem, timings
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
-      Implicit Real*8 (A-H,O-Z)
+      use gas_data, only: NGAS, NGSSH, IGSOCCX
+      use rasscf_global, only: IROOT, CMSStartMat, CMSThreshold,
+     &                         CORESHIFT, Ener, ExFac, hRoots,
+     &                         iAlphaBeta, ICICH, ICICP, iCIonly,
+     &                         ICIRST, ICMSIterMax, ICMSIterMin, iCMSP,
+     &                         iExpand, IfCRPR, IfOrde, InOCalc,
+     &                         iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot,
+     &                         iPhName, iPT2, iRLXRoot, iRoot, irotPsi,
+     &                         iSave_Exp, iSPDen, iSupSM, itCore,
+     &                         ITMAX, ITRIM, iXMSP, kAver, KSDFT,
+     &                         kTight, LowMS, LRoots, LvShft, MaxIt,
+     &                         MaxJT, MaxOrbOut, n_keep, NewFock,
+     &                         NonEq, NQUNE, NROOTS, OutFmt1, OutFmt2,
+     &                         PreThr, ProThr, PrwThr, Purify, QNSTEP,
+     &                         QNUPDT, RFPert, SXSel, ThFact, Thre,
+     &                         ThrEn, ThrSX, TMin, Weight, Title,
+     &                         ixSym, iTri, ThrTE
+
+      Implicit None
 #include "rasdim.fh"
+#include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
-#include "general_mul.fh"
-#include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "orthonormalize.fh"
-#include "WrkSpc.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
+      Integer I
+      Integer, External:: iPrintLevel
 
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
@@ -76,20 +93,6 @@ C        ICIRST=1 ! to be activated!
       END DO
 * Set print levels, and adjust them if needed:
       call setprlev(LF,IPRGLB_IN,IPRLOC_IN)
-*
-* SET UP SYMMETRY MULTIPLICATION TABLE:
-      MUL(1,1)=1
-      M=1
-      DO  N=1,3
-        DO  I=1,M
-          DO  J=1,M
-            MUL(I+M,J)=M+MUL(I,J)
-            MUL(I,J+M)=MUL(I+M,J)
-            MUL(I+M,J+M)=MUL(I,J)
-          END DO
-         END DO
-        M=2*M
-      END DO
 
 * Cholesky-related settings:
       Call DecideOnCholesky(DoCholesky)
@@ -118,9 +121,6 @@ C        ICIRST=1 ! to be activated!
       MAXORBOUT=100
 * Default title line:
       TITLE(1)='(No title given)'
-*
-* assign ipCleanMask to dummy pointer
-      ipCleanMask=ip_Dummy
 *
 * iteration control
 *
@@ -308,7 +308,6 @@ C
       DO I=1,mxOrb
         IXSYM(I)=0
       END DO
-      ICLEAN=0
       PURIFY='NO'
 *
 *     Auxiliary vector ITRI(I)=I*(I-1)/2

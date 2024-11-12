@@ -11,9 +11,9 @@
       SubRoutine DMinvCI_td(rin,rout,rome,idsym)
       use ipPage, only: W
       use negpre
+      use Constants, only: Half
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "real.fh"
 #include "Pointers.fh"
 #include "incdia.fh"
 

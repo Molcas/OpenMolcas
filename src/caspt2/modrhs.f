@@ -8,14 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MODRHS(IVEC,FIMO)
+      SUBROUTINE MODRHS(IVEC,FIMO,NFIMO)
       USE SUPERINDEX
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-      DIMENSION FIMO(NFIMO)
+      INTEGER IVEC, NFIMO
+      REAL*8 FIMO(NFIMO)
+
+      REAL*8, ALLOCATABLE:: WA(:), WC(:), WD(:)
 
 
 ***************************************************************
@@ -29,11 +31,11 @@
        NIS=NISH(ISYM)
        NWA=NAS*NIS
        IF(NWA.EQ.0) GOTO 100
-       CALL GETMEM('WAMOD','ALLO','REAL',LWA,NWA)
+       CALL mma_allocate(WA,NWA,Label='WA')
        CALL RHS_ALLO (NAS,NIS,lg_A)
 C Read W from disk:
        CALL RHS_READ (NAS,NIS,lg_A,ICASE,ISYM,IVEC)
-       CALL RHS_GET (NAS,NIS,lg_A,WORK(LWA))
+       CALL RHS_GET (NAS,NIS,lg_A,WA)
 * Insert one-electron contribution to coupling <A|0>:
 * WA(tvv,j)=FIMO(t,j)/NACTEL (+two-electron part)
        ISYJ=ISYM
@@ -48,16 +50,15 @@ C Read W from disk:
          DO IVABS=1,NASHT
           IW1=KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2=IJ
-          WA=WORK(LWA-1+IW1+NAS*(IW2-1))+VALUE
-          WORK(LWA-1+IW1+NAS*(IW2-1))=WA
+          WA(IW1+NAS*(IW2-1))=WA(IW1+NAS*(IW2-1))+VALUE
          END DO
         END DO
        END DO
-       CALL RHS_PUT (NAS,NIS,lg_A,WORK(LWA))
+       CALL RHS_PUT (NAS,NIS,lg_A,WA)
 C Put W on disk:
        CALL RHS_SAVE (NAS,NIS,lg_A,ICASE,ISYM,IVEC)
-       CALL RHS_FREE (NAS,NIS,lg_A)
-       CALL GETMEM('WAMOD','FREE','REAL',LWA,NWA)
+       CALL RHS_FREE (lg_A)
+       CALL mma_deallocate(WA)
 
  100   CONTINUE
 * End of loop over ISYM.
@@ -75,11 +76,11 @@ C Put W on disk:
        NIS=NSSH(ISYM)
        NWC=NAS*NIS
        IF(NWC.EQ.0) GOTO 200
-       CALL GETMEM('WCMOD','ALLO','REAL',LWC,NWC)
+       CALL mma_allocate(WC,NWC,LABEL='WC')
        CALL RHS_ALLO (NAS,NIS,lg_C)
 C Read W from disk:
        CALL RHS_READ (NAS,NIS,lg_C,ICASE,ISYM,IVEC)
-       CALL RHS_GET (NAS,NIS,lg_C,WORK(LWC))
+       CALL RHS_GET (NAS,NIS,lg_C,WC)
 * Insert one-electron contribution to coupling <C|0>:
 * WC(xuu,a)=(FIMO(a,x)-sum((ay,yx), y=1,NASHT) )/NACTEL (+ two-el part)
        NIX=NISH(ISYM)
@@ -94,22 +95,21 @@ C Read W from disk:
          DO IYABS=1,NASHT
           IYYW=KTUV(IYABS,IYABS,IXABS)-NTUVES(ISYM)
           IYYWA=IYYW+NAS*(IA-1)
-          SUM=SUM-WORK(LWC-1+IYYWA)
+          SUM=SUM-WC(IYYWA)
          END DO
          ONEADD=SUM/DBLE(MAX(1,NACTEL))
          DO IUABS=1,NASHT
           IW1=KTUV(IXABS,IUABS,IUABS)-NTUVES(ISYM)
           IW2=IA
-          WC=WORK(LWC-1+IW1+NAS*(IW2-1))+ONEADD
-          WORK(LWC-1+IW1+NAS*(IW2-1))=WC
+          WC(IW1+NAS*(IW2-1))= WC(IW1+NAS*(IW2-1))+ONEADD
          END DO
         END DO
        END DO
-       CALL RHS_PUT (NAS,NIS,lg_C,WORK(LWC))
+       CALL RHS_PUT (NAS,NIS,lg_C,WC)
 C Put W on disk:
        CALL RHS_SAVE (NAS,NIS,lg_C,ICASE,ISYM,IVEC)
-       CALL RHS_FREE (NAS,NIS,lg_C)
-       CALL GETMEM('WCMOD','FREE','REAL',LWC,NWC)
+       CALL RHS_FREE (lg_C)
+       CALL mma_deallocate(WC)
 
  200   CONTINUE
 * End of loop over ISYM.
@@ -121,17 +121,17 @@ C Put W on disk:
 * Case D1:
       ICASE=5
       ISYM=1
-      IF(NINDEP(ISYM,5).EQ.0) GOTO 300
+      IF(NINDEP(ISYM,5).EQ.0) RETURN
 
       NAS=NASUP(ISYM,5)
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
-      IF(NWD.EQ.0) GOTO 300
-      CALL GETMEM('WDMOD','ALLO','REAL',LWD,NWD)
+      IF(NWD.EQ.0) RETURN
+      CALL mma_allocate(WD,NWD,LABEL='WD')
       CALL RHS_ALLO (NAS,NIS,lg_D)
 C Read W from disk:
       CALL RHS_READ (NAS,NIS,lg_D,ICASE,ISYM,IVEC)
-      CALL RHS_GET (NAS,NIS,lg_D,WORK(LWD))
+      CALL RHS_GET (NAS,NIS,lg_D,WD)
 
 * Insert one-electron contribution to coupling <D1|0>:
 * Compute WD1(vv,aj)=FIMO(a,j)/NACTEL (+ two-el part)
@@ -151,7 +151,7 @@ C Read W from disk:
            IUABS=NAES(ISYU)+IU
            IUU=KTU(IUABS,IUABS)-NTUES(ISYM)
            IWD=IUU+NAS*(IAJ-1)
-           WORK(LWD-1+IWD)=WORK(LWD-1+IWD)+ONEADD
+           WD(IWD)=WD(IWD)+ONEADD
           END DO
          END DO
         END DO
@@ -159,15 +159,11 @@ C Read W from disk:
        NO=NORB(ISYJ)
        IFOFF=IFOFF+(NO*(NO+1))/2
       END DO
-      CALL RHS_PUT (NAS,NIS,lg_D,WORK(LWD))
+      CALL RHS_PUT (NAS,NIS,lg_D,WD)
 
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,ICASE,ISYM,IVEC)
-      CALL RHS_FREE (NAS,NIS,lg_D)
-      CALL GETMEM('WDMOD','FREE','REAL',LWD,NWD)
+      CALL RHS_FREE (lg_D)
+      CALL mma_deallocate(WD)
 
- 300  CONTINUE
-
-
-      RETURN
-      END
+      END SUBROUTINE MODRHS

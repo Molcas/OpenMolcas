@@ -49,11 +49,11 @@
       use negpre, only: SS
       use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
 *     Added for CMS NACs
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Definitions, only: iwp, u6
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.h"
-#include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"
 
@@ -360,10 +360,8 @@ c      idp=rtoi
          Call mma_deallocate(DFTP)
       End if
       Do i = 1, MXCNSM
-         If (Allocated(CNSM(i)%ICONF))
-     &                Call mma_deallocate(CNSM(i)%ICONF)
-         If (Allocated(CNSM(i)%ICTS))
-     &                Call mma_deallocate(CNSM(i)%ICTS)
+        Call mma_deallocate(CNSM(i)%ICONF,safe='*')
+        Call mma_deallocate(CNSM(i)%ICTS,safe='*')
       End Do
 
 *     Free arrays allocated by memstr.f
@@ -414,7 +412,7 @@ c      idp=rtoi
       Call mma_deallocate(ifpRHS)
       Call mma_deallocate(ifpS)
       Call mma_deallocate(ifpK)
-      If (Allocated(SS)) Call mma_deallocate(SS)
+      Call mma_deallocate(SS,safe='*')
 *
 *     Close files
 *

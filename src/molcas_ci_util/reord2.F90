@@ -34,9 +34,9 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !               spin coupling information                              *
 !     nSm     : array of integer                                       *
 !               symmetry per active orbital                            *
-!     CIold   : array of real*8                                        *
+!     CIold   : array of real                                          *
 !               incoming CI vector                                     *
-!     CInew   : array of real*8                                        *
+!     CInew   : array of real                                          *
 !               outgoing CI vector                                     *
 !                                                                      *
 !----------------------------------------------------------------------*

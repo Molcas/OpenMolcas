@@ -17,9 +17,8 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "stdalloc.fh"
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       Real*8 :: EigVec(nState,nState)

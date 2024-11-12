@@ -9,6 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Logical DoBKAP
-      Integer NGASBK
+      Integer NGASBK, IOCCPSPC(20,2)
       COMMON /BKAP_Log/ DoBKAP
-      COMMON /BKAP_int/ NGASBK, IOCCPSPC(20,2)
+      COMMON /BKAP_int/ NGASBK, IOCCPSPC

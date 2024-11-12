@@ -57,6 +57,7 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1,k2
 use Breit, only: nComp
 use k2_structure, only: k2_type
 use k2_arrays, only: BraKet
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -77,7 +78,10 @@ real(kind=wp), intent(inout) :: Wrk(nWork2)
 integer(kind=iwp), intent(out) :: kabcd
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
 logical(kind=iwp), parameter :: Nospecial = .false.
-external :: TERI, ModU2, vCff2D, vRys2D
+procedure(cff2d_kernel) :: vCff2D
+procedure(modu2_kernel) :: ModU2
+procedure(rys2d_kernel) :: vRys2D
+procedure(tval_kernel) :: TERI
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'

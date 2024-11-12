@@ -52,21 +52,24 @@
 *                                                                      *
 ************************************************************************
 
-      Use RunFile_procedures, Only: Get_dExcdRa
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: ECAS, EMY, ExFac, NAC, nFint, VIA
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+
+      Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FMAT    ')
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FMAT    '
 
-      Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
-      Real*8, Allocatable :: TmpFck(:)
+
+      Real*8, allocatable:: Tmp1(:), Tmp2(:)
+      Integer iBas, iFro, iOff, iOff1, iOff2, iOff3, iOrb, iPrLev, iSym
+      Real*8, External:: DDot_
+
 
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -141,18 +144,18 @@ C Local print level (if any)
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 *     create FA in AO basis
-      Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
-      Call Fold(nSym,nBas,D1A,Work(iTmp1))
+      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
+      Call Fold(nSym,nBas,D1A,Tmp1)
 
 *     Inactive-active contribution to ECAS
-      VIA=dDot_(nTot1,FI,1,Work(iTmp1),1)
+      VIA=dDot_(nTot1,FI,1,Tmp1,1)
       ECAS=EMY+VIA
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
         Write(LF,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
         Write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
       End If
-      Call GetMem('Scr1','Free','Real',iTmp1,nTot1)
+      Call mma_deallocate(Tmp1)
 
 *     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
@@ -188,19 +191,19 @@ C Local print level (if any)
         iOrb = nOrb(iSym)
         If (iOrb==0) Cycle
         iFro = nFro(iSym)
-        Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-        Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-        Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
+        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
+        Call Square(FI(iOff1),Tmp1,1,iBas,iBas)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Work(iTmp1),iBas,
+     &               1.0d0,Tmp1,iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Work(iTmp2),iBas)
+     &               0.0d0,Tmp2,iBas)
         Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                 1.0D0,Work(iTmp2),iBas,
+     &                 1.0D0,Tmp2,iBas,
      &                       CMO(iOff2+(iFro*iBas)),iBas,
      &                 0.0D0,FI(iOff3),iOrb)
-        Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-        Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
+        Call mma_deallocate(Tmp2)
+        Call mma_deallocate(Tmp1)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
@@ -216,147 +219,29 @@ C Local print level (if any)
         iOrb = nOrb(iSym)
         If (iOrb==0) Cycle
         iFro = nFro(iSym)
-        Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-        Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-        Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
+        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
+        Call Square(FA(iOff1),Tmp1,1,iBas,iBas)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Work(iTmp1),iBas,
+     &               1.0d0,Tmp1,iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Work(iTmp2),iBas)
+     &               0.0d0,Tmp2,iBas)
         Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                 1.0D0,Work(iTmp2),iBas,
+     &                 1.0D0,Tmp2,iBas,
      &                       CMO(iOff2+(iFro*iBas)),iBas,
      &                 0.0D0,FA(iOff3),iOrb)
-        Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-        Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
+        Call mma_deallocate(Tmp2)
+        Call mma_deallocate(Tmp1)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
-c***********************************************************************
-c              Add DFT part to Fock matrix:                            *
-c***********************************************************************
-      If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM'.and.
-     & (KSDFT(1:2).ne.'T:' .and. KSDFT(1:3).ne.'FT:' ) ) Then
-        ipTmpFckI=-99999
-        ipTmpFckA=-99999
-        Call Get_dExcdRa(TmpFck,nTmpFck)
-        ipTmpFck = ip_of_Work(TmpFck(1))
-        If(nTmpFck.eq.NTOT1) Then
-           ipTmpFckI=ipTmpFck
-        Else If(nTmpFck.eq.2*NTOT1) Then
-           ipTmpFckI=ipTmpFck
-           ipTmpFckA=ipTmpFck+nTot1
-        Else
-           Write(LF,*) ' Somethings wrong in dim. DFT',nTmpFck
-           Call Abend()
-        End If
-        Call GetMem('ScrD1a','Allo','Real',iTmpD1A,nTot1)
-        Call Fold(nSym,nBas,D1A,Work(iTmpD1A))
-        VIA_DFT=dDot_(nTot1,Work(ipTmpFckI),1,Work(iTmpD1A),1)
-        Call GetMem('ScrD1a','Free','Real',iTmpD1A,nTot1)
-*
-*          Transform alpha density from AO to MO
-*
-        iOff1 = 1
-        iOff2 = 1
-        iOff3 = 1
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          If (iBas==0) Cycle
-          iOrb = nOrb(iSym)
-          If (iOrb==0) Cycle
-          iFro = nFro(iSym)
-          Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-          Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-          Call Square(Work(ipTmpFckI+iOff1-1),
-     &                Work(iTmp1),1,iBas,iBas)
-          Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Work(iTmp1),iBas,
-     &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Work(iTmp2),iBas)
-          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                   1.0D0,Work(iTmp2),iBas,
-     &                         CMO(iOff2+(iFro*iBas)),iBas,
-     &                   0.0D0,Work(ipTmpFckI+iOff3-1),iOrb)
-          Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-          Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
-          iOff1 = iOff1 + (iBas*iBas+iBas)/2
-          iOff2 = iOff2 + iBas*iBas
-          iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
-        End Do
-*
-*          Transform Active DFT Fock from AO to MO
-*
-        If(ipTmpFckA.ne.-99999) Then
-        iOff1 = 1
-        iOff2 = 1
-        iOff3 = 1
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          If (iBas==0) Cycle
-          iOrb = nOrb(iSym)
-          If (iOrb==0) Cycle
-          iFro = nFro(iSym)
-          Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-          Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-          Call Square(Work(ipTmpFckA+iOff1-1),
-     &                Work(iTmp1),1,iBas,iBas)
-          Call DGEMM_('N','N',iBas,iOrb,iBas,
-     &               1.0d0,Work(iTmp1),iBas,
-     &               CMO(iOff2+(iFro*iBas)),iBas,
-     &               0.0d0,Work(iTmp2),iBas)
-          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
-     &                   1.0D0,Work(iTmp2),iBas,
-     &                         CMO(iOff2+(iFro*iBas)),iBas,
-     &                   0.0D0,Work(ipTmpFckA+iOff3-1),iOrb)
-          Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-          Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
-          iOff1 = iOff1 + (iBas*iBas+iBas)/2
-          iOff2 = iOff2 + iBas*iBas
-          iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
-        End Do
-        End If
-           iOff1 = 0
-           Do iSym = 1,nSym
-              Do iOrb=1,nOrb(iSym)
-                 Do jOrb=1,iOrb
-                    ij=iOff1+iOrb*(iOrb-1)/2+jOrb
-                    If(iOrb.le.nIsh(iSym)) Then
-                      FI(ij)=FI(ij)+0.5d0*
-     &                  (Work(ipTmpFckI+ij-1)+Work(ipTmpFckA+ij-1))
-                    End If
-                    If (iOrb.gt.nIsh(iSym).and.
-     &                  iOrb.le.nIsh(iSym)+nAsh(iSym)) Then
-                       If (jOrb.le.nIsh(iSym)) Then
-                          FI(ij)=FI(ij)+Work(ipTmpFckA+ij-1)
-                       Else
-                          FI(ij)=FI(ij)+0.5d0*(Work(ipTmpFckI+ij-1)+
-     &                                         Work(ipTmpFckA+ij-1))
-                       End If
-                    End If
-                    If (iOrb.gt.nIsh(iSym)+nAsh(iSym)) Then
-                       If(jOrb.gt.nIsh(iSym).and.
-     &                    jOrb.le.nIsh(iSym)+nAsh(iSym)) Then
-                          FI(ij)=FI(ij)+Work(ipTmpFckI+ij-1)
-                       Else
-                          FI(ij)=FI(ij)+0.5d0*(Work(ipTmpFckI+ij-1)+
-     &                                         Work(ipTmpFckA+ij-1))
-                       End If
-
-                    End If
-                 End Do
-              End Do
-              iOff1 = iOff1 + (nOrb(iSym)*nOrb(iSym)+nOrb(iSym))/2
-           End Do
-        Call mma_deallocate(TmpFck)
-      End If
-************************************************************************
-*     update Fock matrix
+!***********************************************************************
+!     update Fock matrix
       Call Upd_FA_m(PUVX,FA,D,ExFac)
 
-*     print FI and FA
+!     print FI and FA
       If ( iPrLev.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' FI in MO-basis in fmat'
@@ -380,6 +265,4 @@ c***********************************************************************
         End Do
       End If
 
-
-      Return
-      End
+      End Subroutine Fmat_m

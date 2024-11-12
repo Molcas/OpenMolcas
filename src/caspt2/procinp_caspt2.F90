@@ -13,12 +13,14 @@ subroutine procinp_caspt2
   ! initialize global common-block variables appropriately.
   use inputData, only: input
   use definitions, only: iwp,wp
-  use caspt2_output, only: iPrGlb, terse, cmpThr, cntThr, dnmThr
+  use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
-  use caspt2_gradient, only: do_grad, do_nac, do_csf, do_lindep, &
+  use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
                              if_invar, iRoot1, iRoot2, if_invaria, &
-                             ConvInvar
+                             ConvInvar, if_SSDM
+  use caspt2_global, only: IDCIEX
+  use PrintLevel, only: terse
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -33,17 +35,12 @@ subroutine procinp_caspt2
 #if 0
   use OFembed, only:Do_OFemb
 #endif
+  use ChoCASPT2
 
   implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-#include "chocaspt2.fh"
-#include "caspt2_grad.fh"
 
   integer(kind=iwp) :: iDummy
 
@@ -149,18 +146,10 @@ subroutine procinp_caspt2
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_
-#ifdef _GA_
   ! The RHS on-demand algorithm doesn't handle serial calculations
   ! because it's not adapted for use with regular Work arrays, only
   ! global arrays, and needs to be switched off (using rhsall instead)
   RHSDIRECT = (Is_Real_Par() .AND. Input%RHSD)
-#else
-  ! Without the Global Arrays library, we can't use the RHSALL2
-  ! and ADDRHS algorithms in parallel. Here we force the use of
-  ! RHS on-demand instead, depending on if the calculation is
-  ! really parallel or not.
-  RHSDIRECT = Is_Real_Par()
-#endif
 #else
   RHSDIRECT = .False.
 #endif
@@ -645,7 +634,7 @@ subroutine procinp_caspt2
   ! check if the calculation is inside a loop and make analytical
   ! gradients default in this case, unless the user specifically
   ! requested numerical gradients in GATEWAY
-  if ((isStructure() == 1)) then
+  if (isStructure() == 1) then
     ! if MPI is enabled, analytic gradients only with one process
 #ifdef _MOLCAS_MPP_
     if (nProcs == 1) then
@@ -727,15 +716,21 @@ subroutine procinp_caspt2
   !! the state-averaged density matrix or not.
   !! The name of the variable is like state-specific DM,
   !! but not necessarily state-specific. It is a matter of the
-  !! structure of WORK(LDWGT) array or matrix.
-  !! WORK(LDWGT) is a matrix form for SS- and MS-CASPT2 with
+  !! structure of DWGT(:,:) array or matrix.
+  !! DWGT is a matrix form for SS- and MS-CASPT2 with
   !! state-specific DM, XDW-CASPT2, and RMS-CASPT2, while it is an
   !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
   !! option) and XMS-CASPT2.
   if (IFSADREF .or. (nRoots == 1) .or. (IFXMS .and. (.not.IFDW))) then
-    IFSSDM = .false.
+    if_SSDM = .false.
   else
-    IFSSDM = .true.
+    if_SSDM = .true.
+  end if
+
+  !! issue #448
+  if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then
+    call warningMessage(2,'DENS keyword cannot be combined with RAS.')
+    call quit_onUserError
   end if
 
 end subroutine procinp_caspt2

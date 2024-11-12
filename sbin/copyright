@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2017,2020, Ignacio Fdez. Galván                        *
+# Copyright (C) 2017,2020,2024, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 '''
@@ -114,13 +114,14 @@ for filename in sorted(files):
               print(l)
               rc = 1
         if (not header and args['report']):
-          print('{0}*** {1}: No header ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
-          if (splitext(filename)[1] in ['.f', '.F', '.f90', '.F90', '.fh', '.c', '.h']):
+          if (splitext(filename)[1] in ['.f', '.F', '.f90', '.F90', '.fh', '.c', '.h', '.cmake', '.py', '.ascii', '.tbl', '.vim']):
+            print('{0}*** {1}: No header ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
             rc = 1
       except UnicodeDecodeError:
         if (args['report']):
-          print('{0}*** Problem decoding {1} ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
-          rc = 1
+          if (splitext(filename)[1] not in ['.png', '.jpg']):
+            print('{0}*** Problem decoding {1} ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
+            rc = 1
 
   # Write all copyrights
   if (args['print']):

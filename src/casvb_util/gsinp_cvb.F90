@@ -15,7 +15,7 @@
 subroutine gsinp_cvb(orbs,irdorbs,nvbinp,kbasiscvb_inp,mxaobf,mxorb,kbasis,strtvb)
 
 use casvb_global, only: gsinp
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -57,7 +57,7 @@ do
   else if (istr == 2) then
     ! 'STRUC'
     !  If previous orb. permutation disable:
-    if (allocated(gsinp)) call mma_deallocate(gsinp)
+    call mma_deallocate(gsinp,safe='*')
     call mma_maxDBLE(mxread)
     mxread = mxread/2
     call mma_allocate(tmp,mxread,label='tmp')

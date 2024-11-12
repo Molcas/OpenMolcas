@@ -11,7 +11,10 @@
 ! Copyright (C) 2007, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine ChoMP2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
+subroutine ChoMP2_Col( &
+#                     define _CALLING_
+#                     include "cdcol_interface.fh"
+                     )
 !
 ! Thomas Bondo Pedersen, Dec. 2007.
 !
@@ -21,8 +24,7 @@ use ChoMP2, only: EOcc, EVir, iOption_MP2CD, NowSym, nT1am
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), l_Buf
-real(kind=wp), intent(out) :: Col(nDim,nCol), Buf(l_Buf)
+#include "cdcol_interface.fh"
 integer(kind=iwp) :: iSym
 character(len=*), parameter :: SecNam = 'ChoMP2_Col'
 

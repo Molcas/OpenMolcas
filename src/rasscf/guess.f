@@ -33,8 +33,11 @@
 ************************************************************************
 *
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
 
-      Implicit Real*8 (a-h,o-z)
+
+      Implicit None
 
 *     global definitions
 
@@ -42,8 +45,6 @@
 #include "warnings.h"
 #include "general.fh"
 #include "output_ras.fh"
-#include "rasscf.fh"
-#include "WrkSpc.fh"
 
 *     calling arguments
 
@@ -51,15 +52,16 @@
 
 *     local definitions
 
-      Character*8 Label
-      Parameter ( zero = 0.0d0 , one = 1.0d0 )
+      Character(LEN=8) Label
+      Real*8, Allocatable:: Tmp1(:)
+      Integer iRC, i1, i2, iBas, iComp, iOpt, iSyLbl, iSym
 
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 
 *     allocate work space
-      Call GetMem('scr1','Allo','Real',iTmp1,nTot1)
+      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
 
 *     load bare nuclei Hamiltonian
 
@@ -68,7 +70,7 @@
       iComp  =  1
       iSyLbl =  1
       Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
+      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
       If ( iRc.ne.0 ) Then
         Write(LF,*)' RASSCF tried to construct start orbitals from'
         Write(LF,*)' diagonalization of core Hamiltonian, but ran into'
@@ -80,20 +82,19 @@
 
 *     diagonalize bare nuclei Hamiltonian
 
-      i1 = iTmp1
+      i1 = 1
       i2 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
         Call dCopy_(iBas*iBas,[zero],0,CMO(i2),1)
         Call dCopy_(iBas,[one],0,CMO(i2),iBas+1)
-        Call Jacob(Work(i1),CMO(i2),iBas,iBas)
-        Call JacOrd(Work(i1),CMO(i2),iBas,iBas)
+        Call Jacob(Tmp1(i1),CMO(i2),iBas,iBas)
+        Call JacOrd(Tmp1(i1),CMO(i2),iBas,iBas)
         i1 = i1+(iBas*iBas+iBas)/2
         i2 = i2+iBas*iBas
       End Do
 
 *     deallocate work space
-      Call GetMem('scr1','Free','Real',iTmp1,nTot1)
+      Call mma_deallocate(Tmp1)
 
-      Return
-      End
+      End SubRoutine Guess

@@ -28,6 +28,6 @@ do i=1,2
   end if
 end do
 
-if (allocated(Vec2)) call mma_deallocate(Vec2)
+call mma_deallocate(Vec2,safe='*')
 
 end subroutine Get_Int_Close

@@ -28,38 +28,53 @@
 ************************************************************************
 ************* GLMJ ************
       use OneDat, only: sNoOri, sOpSiz
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      use rctfld_module, only: lRF
+      use general_data, only: CleanMask
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: CBLBM, CMax, DE, ECAS, ESX, FDIAG,
+     &                         HALFQ, IBLBM, iPCMRoot, iSPDen, iSupSM,
+     &                         iSymBB, ITER, jBLBM, KSDFT, NAC, NACPAR,
+     &                         NACPR2, NAME, NIN, NONEQ, NSEC, OutFmt1,
+     &                         RFPert, RlxGrd, RotMax, Tot_Charge,
+     &                         Tot_El_Charge, Tot_Nuc_Charge, Via_DFT,
+     &                         ixSym, iADR15, IPT2, iRLXRoot, Ener
+
+      Implicit None
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='OUTCTL  ')
+      Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '
 #include "ciinfo.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "splitcas.fh"
 #include "SysDef.fh"
       Real*8, Allocatable:: DSave(:)
-      Character*8  Fmt2, Label
-      Character*3 lIrrep(8)
-      Character*80 Note
-      Character*120 Line
+      Character(LEN=8)  Fmt2, Label
+      Character(LEN=3) lIrrep(8)
+      Character(LEN=80) Note
+      Character(LEN=120) Line
       Logical FullMlk, get_BasisType
 cnf
       Logical Do_ESPF,lSave, lOPTO
 cnf
-      DIMENSION CMO(*),OCCN(*),SMAT(*)
-      Dimension Temp(2,mxRoot)
-      Dimension Dum(1),iDum(56)
+      Real*8 CMO(*),OCCN(*),SMAT(*)
+      Real*8 Temp(2,mxRoot)
+      Real*8 Dum(1)
+      Integer iDum(56)
 
 ** (SVC) added for new supsym vector input
-*      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
+*     Integer NXSYM(mxOrb),nUND(mxOrb)
 
-      Integer  Cho_X_GetTol
-      External Cho_X_GetTol
+      Integer, External::  Cho_X_GetTol
+      Real*8, Allocatable:: Tmp0(:), X1(:), X2(:), X3(:), X4(:),
+     &                      CMON(:), D(:), X6(:), CMOSO(:)
+
+      Real*8 CASDFT_Funct, EAV, Edc, Emv, EneTmp, Erel, percent
+      Integer i, IAD03, IAD12, IAD14, IAD15, iCharge, iComp, iDimN,
+     &        iDimO, iDImV, iEnd, Ind, iOpt, iPrLev, iRC, iRC1, iRC2,
+     &        iStart, iSyLbl, iSym, iTemp, iTol, kRoot, left, LuTmp,
+     &        NAO, nDCInt, nMVInt, NO
+      Integer, External:: IsFreeUnit
 
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
@@ -172,21 +187,21 @@ C Local print level (if any)
         write(LF,Fmt2//'A,T47,I4)') 'Maximum number of SplitCAS '//
      &                     'iterations', MxIterSplit
         If ( lRF ) then
-           Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
+           Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
            iRc=-1
            iOpt=ibset(0,sNoOri)
            iComp=1
            iSyLbl=1
            Label='Mltpl  0'
-           Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp0),iSyLbl)
-           Tot_Nuc_Charge=Work(iTmp0+nTot1+3)
+           Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+           Tot_Nuc_Charge=Tmp0(nTot1+4)
            If ( iRc.ne.0 ) then
               Write(LF,*) 'OutCtl: iRc from Call RdOne not 0'
               Write(LF,*) 'Label = ',Label
               Write(LF,*) 'iRc = ',iRc
               Call Abend
            Endif
-           Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
+           Call mma_deallocate(Tmp0)
            Tot_El_Charge=0.0D0
            Do iSym=1,nSym
               Tot_El_Charge=Tot_El_Charge
@@ -272,7 +287,7 @@ C Local print level (if any)
           End Do
         End If
 
-        If ( ICLEAN.ne.0 ) then
+        If (Allocated(CleanMask)) then
           Write(LF,Fmt2//'A)')
      &    'The cleanup option has been used to set MO-coefficients'//
      &    ' explicitly to zero'
@@ -298,21 +313,21 @@ C Local print level (if any)
       If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)
-        CALL GETMEM('OPER','ALLO','REAL',LX1,NTOT1)
-        CALL GETMEM('DEN1','ALLO','REAL',LX2,NTOT1)
-        CALL GETMEM('OCCN','ALLO','REAL',LX3,NTOT )
-        CALL GETMEM('CMON','ALLO','REAL',LX4,NTOT2)
+        CALL mma_allocate(X1,NTOT1,Label='X1')
+        CALL mma_allocate(X2,NTOT1,Label='X2')
+        CALL mma_allocate(X3,NTOT ,Label='X3')
+        CALL mma_allocate(X4,NTOT2,Label='X4')
 
         kRoot = lRootSplit
-        CALL DDAFILE(JOBIPH,2,work(LX4),NTOT2,IAD12)
-        CALL DDAFILE(JOBIPH,2,work(LX3),NTOT,IAD12)
+        CALL DDAFILE(JOBIPH,2,X4,NTOT2,IAD12)
+        CALL DDAFILE(JOBIPH,2,X3,NTOT,IAD12)
         Call RelEne(Temp(1,kRoot),Temp(2,kRoot),nSym,nBas,
-     &              work(LX4),work(LX3),work(LX2),work(LX1))
+     &              X4,X3,X2,X1)
 
-        CALL GETMEM('CMON','FREE','REAL',LX4,NTOT2)
-        CALL GETMEM('OCCN','FREE','REAL',LX3,NTOT )
-        CALL GETMEM('DEN1','FREE','REAL',LX2,NTOT1)
-        CALL GETMEM('OPER','FREE','REAL',LX1,NTOT1)
+        CALL mma_deallocate(X4)
+        CALL mma_deallocate(X3)
+        CALL mma_deallocate(X2)
+        CALL mma_deallocate(X1)
       End If
 
       If ( (nMVInt+nDCInt).ne.0) then
@@ -320,7 +335,6 @@ C Local print level (if any)
         Edc=Temp(2,lRootSplit)
         Erel=ENER(lRootSplit,ITER)+Emv+Edc
         EneTmp = Erel
-*          Work(ipEneTmp+i-1) = eRel
       Else
         EneTmp = ENER(lRootSplit,ITER)+CASDFT_Funct-VIA_DFT-HALFQ
       End If
@@ -415,8 +429,8 @@ C Local print level (if any)
       IAD14=IADR15(14)
 *BOR0511
 *     Save original orbitals for the spin density matrices
-      Call GetMem('cmon','ALLO','REAL',icmon,nTot2)
-      call dcopy_(ntot2,cmo,1,work(icmon),1)
+      Call mma_allocate(cmon,nTot2,Label='CMON')
+      call dcopy_(ntot2,cmo,1,cmon,1)
 *BOR0511
       FullMlk=(OutFmt1.NE.'NOTHING ')
 
@@ -434,11 +448,11 @@ C Local print level (if any)
 *
 * Put the density matrix of this state on the runfile for
 *  LoProp utility
-      Call GetMem('DState','ALLO','REAL',ipD,nTot1)
-      call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
-      Call DONE_RASSCF(CMO,OCCN,Work(ipD))
-      Call Put_dArray('D1ao',Work(ipD),NTOT1)
-      Call Free_Work(ipD)
+      Call mma_allocate(D,nTot1,Label='D')
+      D(:)=0.0D0
+      Call DONE_RASSCF(CMO,OCCN,D)
+      Call Put_dArray('D1ao',D,NTOT1)
+      Call mma_deallocate(D)
 
       IF (IPRLEV.GE.USUAL) THEN
 *       Start of if-block E over IPRLEV
@@ -477,12 +491,12 @@ C Local print level (if any)
 *     (Note: this section overwrites the pseudo natural orbitals
 *            with the spin orbitals).
 *
-      CALL GETMEM('RHO1S','ALLO','REAL',LX6,NACPAR)
-      CALL DDAFILE(JOBIPH,0,WORK(LX6),NACPAR,IAD03)
-      CALL DDAFILE(JOBIPH,2,WORK(LX6),NACPAR,IAD03)
-      CALL DDAFILE(JOBIPH,0,WORK(LX6),NACPR2,IAD03)
-      CALL DDAFILE(JOBIPH,0,WORK(LX6),NACPR2,IAD03)
-      CALL DBLOCK(WORK(LX6))
+      CALL mma_allocate(X6,NACPAR,Label='X6')
+      CALL DDAFILE(JOBIPH,0,X6,NACPAR,IAD03)
+      CALL DDAFILE(JOBIPH,2,X6,NACPAR,IAD03)
+      CALL DDAFILE(JOBIPH,0,X6,NACPR2,IAD03)
+      CALL DDAFILE(JOBIPH,0,X6,NACPR2,IAD03)
+      CALL DBLOCK(X6)
 
       IF (IPRLEV.GE.VERBOSE) THEN
 * Start of long if-block F over IPRLEV
@@ -493,7 +507,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '--------------------------------------'
           Write(LF,*)
-          IND=0
+          IND=1
           IDIMV=0
           IDIMO=0
           IDIMN=0
@@ -508,7 +522,7 @@ C Local print level (if any)
               Write(LF,'(/6X,A,I2)')
      &        'symmetry species',ISYM
               Write(LF,*)
-              CALL TRIPRT(' ',' ',WORK(LX6+IND),NASH(ISYM))
+              CALL TRIPRT(' ',' ',X6(IND),NASH(ISYM))
             Endif
             IND=IND+NASH(ISYM)*(NASH(ISYM)+1)/2
   50        CONTINUE
@@ -521,12 +535,12 @@ C Local print level (if any)
 *     Compute spin orbitals and spin population
       CALL DCOPY_(NTOT,[0.0D0],0,OCCN,1)
 *SVC-11-01-2007 store original cmon in cmoso, which gets changed
-      CALL GETMEM('CMOSO','ALLO','REAL',ICMOSO,NTOT2)
-      CALL DCOPY_(NTOT2,WORK(ICMON),1,WORK(ICMOSO),1)
+      CALL mma_allocate(CMOSO,NTOT2,Label='CMOSO')
+      CALL DCOPY_(NTOT2,CMON,1,CMOSO,1)
 
-      CALL SPINORB(WORK(LX6),WORK(ICMOSO),OCCN,lRootSplit)
-      CALL GETMEM('RHO1S','FREE','REAL',LX6,NTOTSP)
-      CALL DDAFILE(JOBIPH,1,WORK(ICMOSO),NTOT2,IAD14)
+      CALL SPINORB(X6,CMOSO,OCCN,lRootSplit)
+      CALL mma_deallocate(X6)
+      CALL DDAFILE(JOBIPH,1,CMOSO,NTOT2,IAD14)
       CALL DDAFILE(JOBIPH,1,OCCN,NTOT,IAD14)
 
       IF (IPRLEV.GE.USUAL) THEN
@@ -537,8 +551,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
-          CALL CHARGE(nsym,nbas,name,Work(icmoso),OCCN,SMAT,3,FullMlk,
-     &               .False.)
+          CALL CHARGE(nsym,nbas,name,cmoso,OCCN,SMAT,3,FullMlk,.False.)
           Write(LF,*)
         ENDIF
 
@@ -570,7 +583,7 @@ C Local print level (if any)
 
 * End of long if-block G over IPRLEV
       END IF
-      CALL GETMEM('CMOSO','FREE','REAL',ICMOSO,NTOT2)
+      CALL mma_deallocate(CMOSO)
 
 *----- ESPF analysis
       Call DecideOnESPF(Do_ESPF)
@@ -584,7 +597,6 @@ C Local print level (if any)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL GETMEM('CMON','FREE','REAL',icmon,NTOT2)
+      CALL mma_deallocate(CMON)
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine OutCtlSplit

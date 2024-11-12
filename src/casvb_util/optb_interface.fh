@@ -10,11 +10,16 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 nparm,dxnrm,grdnrm,close2conv &
+
 #else
+
 integer(kind=iwp), intent(in) :: nparm
 real(kind=wp), intent(out) :: dxnrm
 real(kind=wp), intent(in) :: grdnrm
 logical(kind=iwp), intent(in) :: close2conv
+
 #endif
+
 #undef _CALLING_

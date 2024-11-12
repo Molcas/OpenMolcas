@@ -9,19 +9,21 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRWVF(IORBTAB,ISSTAB,IFSBTAB,PRTHR,CI)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-      REAL*8 CI(*),PRTHR
       INTEGER IORBTAB(*),ISSTAB(*),IFSBTAB(*)
+      REAL*8 CI(*),PRTHR
+
 C     INTEGER MORSBITS,IBLKDET,NPRINTED
       INTEGER          IBLKDET,NPRINTED
 C     INTEGER NASORB,NASPRT,KSPART,KOINFO,KSSTTB,KSBSMRS
       INTEGER        NASPRT,KSPART,       KSSTTB,KSBSMRS
-      INTEGER NFSB,KSTARR,LSBSET,NSSTP,ISUM,ISST,NSBS
+      INTEGER NFSB,KSTARR,NSSTP,ISUM,ISST,NSBS
       INTEGER IFSB,KPOS,ISPART,NBLKDET
       INTEGER ISSTARR(50),NDIMARR(50)
       INTEGER ICREL,ICI,INDX,ISORB,N,I,ISBS,IMORS
-      CHARACTER*80 DETTXT
-#include "WrkSpc.fh"
+      CHARACTER(LEN=80) DETTXT
+      Integer, Allocatable:: SBSET(:)
 
 C The orbital table:
       NASPRT= IORBTAB(9)
@@ -35,10 +37,10 @@ C The FS blocks of the SGM wave function:
       KSTARR=8
 C Make an array with nr of earlier substrings for each
 C substring type:
-      CALL GETMEM('NSBSET','Allo','Inte',LSBSET,NSSTP)
+      CALL mma_allocate(SBSET,NSSTP,Label='SBSET')
       ISUM=0
       DO ISST=1,NSSTP
-        IWORK(LSBSET-1+ISST)=ISUM
+        SBSET(ISST)=ISUM
         NSBS=ISSTAB(KSSTTB+5*(ISST-1))
         ISUM=ISUM+NSBS
       END DO
@@ -68,7 +70,7 @@ C Get occupation array in the form of string DETTXT:
             I=MOD(INDX,N)
             INDX=INDX-N*I
             ISST=ISSTARR(ISPART)
-            ISBS=IWORK(LSBSET-1+ISST)+I+1
+            ISBS=SBSET(ISST)+I+1
             IMORS=ISSTAB(KSBSMRS+2*(ISBS-1))
             N=IORBTAB(KSPART-1+ISPART)
             CALL MORSWRITE(IMORS,DETTXT(ISORB+1:ISORB+N))
@@ -81,6 +83,6 @@ C Get occupation array in the form of string DETTXT:
 C End of loop over FS blocks
       END DO
       IF(NPRINTED.EQ.0) WRITE(6,*)' (PRWVF: Nothing worth printing)'
-      CALL GETMEM('NSBSET','free','Inte',LSBSET,NSSTP)
-      RETURN
-      END
+      CALL mma_deallocate(SBSET)
+
+      END SUBROUTINE PRWVF

@@ -9,23 +9,25 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZTRNSF(N,UR,UI,AR,AI)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION UR(N,N),UI(N,N)
-      DIMENSION AR(N,N),AI(N,N)
-#include "WrkSpc.fh"
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer N
+      Real*8 UR(N,N),UI(N,N)
+      Real*8 AR(N,N),AI(N,N)
 
-      CALL GETMEM('TMPREAL','ALLO','REAL',LCR,N**2)
-      CALL GETMEM('TMPIMAG','ALLO','REAL',LCI,N**2)
-      CALL DGEMM_('N','N',N,N,N, 1.0D0,AR,N,UR,N,0.0D0,WORK(LCR),N)
-      CALL DGEMM_('N','N',N,N,N,-1.0D0,AI,N,UI,N,1.0D0,WORK(LCR),N)
-      CALL DGEMM_('N','N',N,N,N, 1.0D0,AR,N,UI,N,0.0D0,WORK(LCI),N)
-      CALL DGEMM_('N','N',N,N,N, 1.0D0,AI,N,UR,N,1.0D0,WORK(LCI),N)
-      CALL DGEMM_('T','N',N,N,N, 1.0D0,UR,N,WORK(LCR),N,0.0D0,AR,N)
-      CALL DGEMM_('T','N',N,N,N, 1.0D0,UI,N,WORK(LCI),N,1.0D0,AR,N)
-      CALL DGEMM_('T','N',N,N,N, 1.0D0,UR,N,WORK(LCI),N,0.0D0,AI,N)
-      CALL DGEMM_('T','N',N,N,N,-1.0D0,UI,N,WORK(LCR),N,1.0D0,AI,N)
-      CALL GETMEM('TMPREAL','FREE','REAL',LCR,N**2)
-      CALL GETMEM('TMPIMAG','FREE','REAL',LCI,N**2)
+      Real*8, Allocatable:: CR(:,:), CI(:,:)
 
-      RETURN
-      END
+      Call mma_allocate(CR,N,N,Label='CR')
+      Call mma_allocate(CI,N,N,Label='CI')
+      CALL DGEMM_('N','N',N,N,N, 1.0D0,AR,N,UR,N,0.0D0,CR,N)
+      CALL DGEMM_('N','N',N,N,N,-1.0D0,AI,N,UI,N,1.0D0,CR,N)
+      CALL DGEMM_('N','N',N,N,N, 1.0D0,AR,N,UI,N,0.0D0,CI,N)
+      CALL DGEMM_('N','N',N,N,N, 1.0D0,AI,N,UR,N,1.0D0,CI,N)
+      CALL DGEMM_('T','N',N,N,N, 1.0D0,UR,N,CR,N,0.0D0,AR,N)
+      CALL DGEMM_('T','N',N,N,N, 1.0D0,UI,N,CI,N,1.0D0,AR,N)
+      CALL DGEMM_('T','N',N,N,N, 1.0D0,UR,N,CI,N,0.0D0,AI,N)
+      CALL DGEMM_('T','N',N,N,N,-1.0D0,UI,N,CR,N,1.0D0,AI,N)
+      Call mma_deallocate(CI)
+      Call mma_deallocate(CR)
+
+      END SUBROUTINE ZTRNSF

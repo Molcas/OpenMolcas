@@ -159,6 +159,8 @@
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
+      # Work around compiler bug
+      rm CMakeFiles/mod/_single/oneel_inner__genmod.*
     pre_run_script: |
       . /opt/intel/oneapi/setvars.sh intel64
     CC: "icc"

@@ -14,7 +14,7 @@ subroutine cht3(ireturn)
 
 use ChT3_global, only: DimGrpaR, L1Name, L2Name, maxdim, nfr, no, nv, NvGrp, printkey, T2Name, TCpu, TCpu_l, TCpu0, TWall, &
                        TWall_l, TWall0
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

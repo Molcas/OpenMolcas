@@ -29,7 +29,8 @@ subroutine VelVer_First(irc)
 use mh5, only: mh5_put_dset
 use Dynamix_Globals, only: dyn_geom, dyn_time, dyn_vel
 #endif
-use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, USUAL, INSANE
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO
+use PrintLevel, only: USUAL, INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom, Zero, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -44,6 +45,7 @@ logical(kind=iwp) :: hybrid, qmmm
 real(kind=wp), allocatable :: Coord(:), vel(:), xyz(:), force(:), Mass(:), tstxyz(:), force2(:), xyz2(:)
 character(len=2), allocatable :: atom(:), atom2(:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 if (IPRINT == INSANE) write(u6,*) ' Entering VelVer_First'
@@ -166,7 +168,7 @@ if (iPrint >= USUAL) then
   write(u6,'(5X,A,/)') '=========================================='
   write(u6,402) 'Kinetic energy',Ekin,'a.u.'
   write(u6,405) 'Total linear momentum ',totimpl,'a.u.'
-  write(u6,402) 'RMS deviation ',RMS,'Bohr'
+  write(u6,402) 'RMS deviation ',RMS,'bohr'
 end if
 
 time = time+DT

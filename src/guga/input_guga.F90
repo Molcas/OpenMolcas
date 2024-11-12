@@ -21,7 +21,6 @@ use Definitions, only: iwp, u5, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT), ISPAC
-#include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
 integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOM, IONE(8), iOpt, IR, IR1, IR2, iRef, &
                      istatus, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), jStart, LN1, LN2, LSYM, LV, MN, MX, NACTEL, NCOR(8), &
@@ -35,6 +34,8 @@ integer(kind=iwp), parameter :: MLL(64) = [1,2,3,4,5,6,7,8,2,1,4,3,6,5,8,7,3,4,1
                                            7,2,1,4,3,7,8,5,6,3,4,1,2,8,7,6,5,4,3,2,1]
 character(len=*), parameter :: Cmd(nCmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE', &
                                             'NOCO','ONEO','EXTR','NONI','NACT','END ']
+
+#include "warnings.h"
 
 !---  Initialize data and variables -----------------------------------*
 IOM = 55

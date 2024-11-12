@@ -25,6 +25,7 @@ use mh5, only: mh5_is_hdf5
 #endif
 use refwfn, only: refwfn_init, refwfn_info, refwfn_data, refwfn_close
 use nevpt2_cfg, only: curr_dir, do_cholesky, igelo, molcas_project, MultGroup, nr_active_electrons, nr_frozen_orb, nr_states, nspin
+use caspt2_global, only: LUONEM, NCMO
 use info_state_energy, only: e, init_energies                                                     ! energies
 use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initialize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
@@ -37,7 +38,6 @@ character(len=:), allocatable :: refwfnfile
 integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
 integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
-#include "rasdim.fh"
 #include "caspt2.fh"
 
 ! Save current directory into the CurrDir string
@@ -100,7 +100,7 @@ call refwfn_info()
 call refwfn_data()
 call refwfn_close()
 
-!> fill nevpt2 confuguration variables from caspt2.fh commons
+!> fill nevpt2 configuration variables from caspt2.fh commons
 !> ----------------------------------------------------------
 
 !> check if nr_states has been requested as 'all'
@@ -283,7 +283,7 @@ write(u6,'(a/)') ' ---------------------------------------------'
 if (allocated(qcm_group_names)) then
   write(u6,'(a)') ' DMRG wavefunction data will be read from'
   write(u6,'(a)') ' ----------------------------------------'
-  if (.not. allocated(MultGroup%h5_file_name)) call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name')
+  call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name',safe='*')
   MultGroup%h5_file_name = ''
   do istate=1,nr_states
     MultGroup%h5_file_name(istate) = trim(qcm_group_names(1)%states(MultGroup%State(istate)))

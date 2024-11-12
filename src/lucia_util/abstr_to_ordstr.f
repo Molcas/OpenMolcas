@@ -24,7 +24,7 @@
 *
 * Jeppe Olsen, November 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER IA_OC(NAEL),IB_OC(NBEL)
 *. Output

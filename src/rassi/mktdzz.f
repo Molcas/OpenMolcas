@@ -9,15 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ,iRC)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION TDMAB(NTDMAB),TDMZZ(NTDMZZ)
-      DIMENSION CMOA(NCMO),CMOB(NCMO)
-      DIMENSION ISTCMO(8)
+      Real*8 CMOA(NCMO),CMOB(NCMO)
+      Real*8 TDMAB(NTDMAB),TDMZZ(NTDMZZ)
+      Integer iRC
+
+      Integer ISTCMO(8)
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
+      Real*8, Allocatable:: SCR(:)
+
       If (iRC.eq.0) Then
          TDMZZ(:)=0.0D0
          Return
@@ -34,7 +38,7 @@ C NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
         ISY2=MUL(ISY1,ISY12)
         NSCR=MAX(NSCR,NO1*NBASF(ISY2))
       end do
-      CALL GETMEM('SCR   ','ALLO','REAL',LSCR,NSCR)
+      CALL mma_allocate(SCR,NSCR,Label='SCR')
       ISTTA=1
       ISTCA=1
       ISTTZ=1
@@ -51,9 +55,9 @@ C NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
         ELSE
           CALL DGEMM_('N','T',NO1,NB2,NO2,1.0D0,
      &                TDMAB(ISTTA),NO1,CMOB(ISTCB),NB2,
-     &         0.0D0,  WORK(LSCR),NO1)
+     &         0.0D0,  SCR,NO1)
           CALL DGEMM_('N','N',NB1,NB2,NO1,1.0D0,
-     &                 CMOA(ISTCA),NB1,WORK(LSCR),NO1,
+     &                 CMOA(ISTCA),NB1,SCR,NO1,
      &         0.0D0,  TDMZZ(ISTTZ),NB1)
           ISTTA=ISTTA+NO1*NO2
         END IF
@@ -61,6 +65,6 @@ C NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
         ISTCA=ISTCA+NB1*NO1
         ISTTZ=ISTTZ+NB1*NB2
       end do
-      CALL GETMEM('      ','FREE','REAL',LSCR,NSCR)
+      CALL mma_deallocate(SCR)
 
       END SUBROUTINE MKTDZZ

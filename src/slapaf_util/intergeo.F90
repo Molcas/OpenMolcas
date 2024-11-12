@@ -234,7 +234,7 @@ close(Lu_Molden)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (allocated(Cx_p)) call mma_deallocate(Cx_p)
+call mma_deallocate(Cx_p,safe='*')
 call mma_deallocate(Charge)
 !                                                                      *
 !***********************************************************************

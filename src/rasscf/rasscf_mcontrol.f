@@ -14,14 +14,17 @@
       Use Fock_util_global, only: ALGO, dmpk, Nscreen
       Use Cholesky, only: timings
       Use Para_Info, Only: MyRank
-      Implicit Real*8 (a-h,o-z)
+      use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
+
+      Implicit None
 #include "rasdim.fh"
 #include "general.fh"
-#include "rasscf.fh"
 *
       Integer id_call
-      Character*512 List
-      Character*32 Value
+*
+      Integer iCount, iCOunt0
+      Character(LEN=512) List
+      Character(LEN=32) Value
 *******************************************************
 
       icount=0

@@ -21,17 +21,17 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWB
+      SUBROUTINE NEWB()
 #if 0
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 
       INTEGER ICASE,ISYM,NAS,NIS,NCOEF
-      INTEGER LS,IDS,NS,LB,IDB,NB
+      INTEGER IDS,NS,IDB,NB
+      REAL*8, ALLOCATABLE:: S(:), B(:)
 
 C Modify B matrices, if requested.
 
@@ -43,35 +43,33 @@ C Modify B matrices, if requested.
           NCOEF=NAS*NIS
           IF(NCOEF.EQ.0) CYCLE
           NS=(NAS*(NAS+1))/2
-          CALL GETMEM('SMAT','ALLO','REAL',LS,NS)
+          CALL mma_allocate(S,NS,LABEL='S')
           IDS=IDSMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LS),NS,IDS)
+          CALL DDAFILE(LUSBT,2,S,NS,IDS)
           NB=NS
-          CALL GETMEM('BMAT','ALLO','REAL',LB,NB)
+          CALL mma_allocate(B,NB,LABEL='B')
           IDB=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LB),NB,IDB)
+          CALL DDAFILE(LUSBT,2,B,NB,IDB)
 C Modify B matrix, using S matrix and some other data.
-          CALL GETMEM('BMAT','FREE','REAL',LB,NB)
-          CALL GETMEM('SMAT','FREE','REAL',LS,NS)
+          CALL mma_deallocate(B)
+          CALL mma_deallocate(S)
         END DO
       END DO
 
-
-      RETURN
 #endif
-      END
+      END SUBROUTINE NEWB
 
-      SUBROUTINE NEWDIA
+      SUBROUTINE NEWDIA()
 #if 0
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-#include "SysDef.fh"
 
       INTEGER ICASE,ISYM,NIN,NAS,NIS,I
-      INTEGER LBD,LID,LC1,LC2,ID
+      INTEGER JD
+      REAL*8, ALLOCATABLE:: BD(:), ID(:), C1(:), C2(:)
 
 C Post-diagonalization modification of diagonal energy
 C denominator terms for active and for non-active superindex.
@@ -86,41 +84,38 @@ C denominator terms for active and for non-active superindex.
           IF(NIS.EQ.0) CYCLE
 C Remember: NIN values in BDIAG, but must read NAS for correct
 C positioning.
-          CALL GETMEM('LBD','ALLO','REAL',LBD,NAS)
-          CALL GETMEM('LID','ALLO','REAL',LID,NIS)
-          CALL GETMEM('LC1','ALLO','REAL',LC1,NAS)
-          CALL GETMEM('LC2','ALLO','REAL',LC2,NIS)
-          ID=IDBMAT(ISYM,ICASE)
+          CALL mma_allocate(BD,NAS,LABEL='BD')
+          CALL mma_allocate(ID,NIS,LABEL='ID')
+          CALL mma_allocate(C1,NAS,LABEL='C1')
+          CALL mma_allocate(C2,NIS,LABEL='C2')
+          JD=IDBMAT(ISYM,ICASE)
 C Active, and non-active, energy denominators:
-          CALL DDAFILE(LUSBT,2,WORK(LBD),NAS,ID)
-          CALL DDAFILE(LUSBT,2,WORK(LID),NIS,ID)
+          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
+          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
 C Active, and non-active, corrections:
 C (Replace this strange example with something sensible)
-          CALL DCOPY_(NAS,[0.0d0],0,WORK(LC1),1)
-          CALL DCOPY_(NIS,[0.0d0],0,WORK(LC2),1)
+          C1(:)=0.0D0
+          C2(:)=0.0D0
 C Modifications are added to the usual diagonal energies:
           DO I=1,NAS
-            WORK(LBD-1+I)=WORK(LBD-1+I)+WORK(LC1-1+I)
+            BD(I)=BD(I)+C1(I)
           END DO
           DO I=1,NIS
-            WORK(LID-1+I)=WORK(LID-1+I)+WORK(LC2-1+I)
+            ID(I)=ID(I)+C2(I)
           END DO
           ID=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,1,WORK(LBD),NAS,ID)
-          CALL DDAFILE(LUSBT,1,WORK(LID),NIS,ID)
+          CALL DDAFILE(LUSBT,1,BD,NAS,JD)
+          CALL DDAFILE(LUSBT,1,ID,NIS,JD)
 C Added modifications are saved on LUSBT.
-          CALL DDAFILE(LUSBT,1,WORK(LC1),NAS,ID)
-          CALL DDAFILE(LUSBT,1,WORK(LC2),NIS,ID)
+          CALL DDAFILE(LUSBT,1,C1,NAS,JD)
+          CALL DDAFILE(LUSBT,1,C2,NIS,JD)
 
-          CALL GETMEM('LBD','FREE','REAL',LBD,NAS)
-          CALL GETMEM('LID','FREE','REAL',LID,NIS)
-          CALL GETMEM('LC1','FREE','REAL',LC1,NAS)
-          CALL GETMEM('LC2','FREE','REAL',LC2,NIS)
+          CALL mma_deallocate(BD)
+          CALL mma_deallocate(ID)
+          CALL mma_deallocate(C1)
+          CALL mma_deallocate(C2)
           ID=IDBMAT(ISYM,ICASE)
         END DO
       END DO
-
-
-      RETURN
 #endif
-      END
+      END SUBROUTINE NEWDIA

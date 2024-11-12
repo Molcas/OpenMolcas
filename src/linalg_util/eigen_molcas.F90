@@ -25,12 +25,12 @@ subroutine Eigen_Molcas(N,X,D,E)
 !     calling arguments:                                               *
 !     N       : Type integer, input.                                   *
 !               Dimensions of the matrix X and vectors D and E         *
-!     X       : Type real*8 real, input/output                         *
+!     X       : Type real, input/output                                *
 !               on input it is the matrix to diagonalized              *
 !               on output it contains the eigenvectors                 *
-!     D       : Type real*8 real, output.                              *
+!     D       : Type real, output.                                     *
 !               vector of eigenvalues                                  *
-!     E       : Type real*8 real, input/output.                        *
+!     E       : Type real, input/output.                               *
 !               Scratch area of length N                               *
 !                                                                      *
 !----------------------------------------------------------------------*

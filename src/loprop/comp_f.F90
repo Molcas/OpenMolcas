@@ -13,6 +13,7 @@ subroutine Comp_F(h0,Ei,nBas,Delta_i,Energy,S,Refx,Originx)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use spool, only: disable_spool
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas

@@ -66,7 +66,7 @@ if (ipglob > 2) then
 end if
 LWORK = -1
 
-call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
+call zheev_('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
 if (INFO == 0) then
   LWORK = max(1,int(WORK(1))+1)
@@ -76,7 +76,7 @@ else
   call abend()
 end if
 
-call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
+call zheev_('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
 if (ipglob > 4) then
   call dashes()
@@ -212,12 +212,12 @@ if (flag_so) then
   call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
 end if
 
-if (allocated(Hfull)) call mma_deallocate(Hfull)
-if (allocated(Hfull2)) call mma_deallocate(Hfull2)
-if (allocated(Hdiag)) call mma_deallocate(Hdiag)
-if (allocated(SO_CI2)) call mma_deallocate(SO_CI2)
-if (allocated(WORK)) call mma_deallocate(WORK)
-if (allocated(RWORK)) call mma_deallocate(RWORK)
-if (allocated(W)) call mma_deallocate(W)
+call mma_deallocate(Hfull,safe='*')
+call mma_deallocate(Hfull2,safe='*')
+call mma_deallocate(Hdiag,safe='*')
+call mma_deallocate(SO_CI2,safe='*')
+call mma_deallocate(WORK,safe='*')
+call mma_deallocate(RWORK,safe='*')
+call mma_deallocate(W,safe='*')
 
 end subroutine soci

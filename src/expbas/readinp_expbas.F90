@@ -16,6 +16,8 @@ subroutine Readinp_expbas()
 
 use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
 use Definitions, only: iwp, u6
+use spool, only: Spoolinp
+
 
 implicit none
 integer(kind=iwp) :: LuSpool

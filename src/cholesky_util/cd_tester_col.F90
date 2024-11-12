@@ -11,15 +11,16 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
+subroutine CD_Tester_Col( &
+#                        define _CALLING_
+#                        include "cdcol_interface.fh"
+                        )
 
 use CD_Tester_mod, only: Mat
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nDim, nCol, iCol(nCol), lBuf
-real(kind=wp), intent(out) :: Col(nDim,nCol)
-real(kind=wp), intent(in) :: Buf(lBuf)
+#include "cdcol_interface.fh"
 integer(kind=iwp) :: i, kOff
 
 #include "macros.fh"

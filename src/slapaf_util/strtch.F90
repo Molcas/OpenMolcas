@@ -32,12 +32,12 @@ RR = sqrt(R2)
 Avst = RR
 
 aRR = RR*Angstrom
-if (lWrite) write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / Angstrom',RR,' / bohr'
+if (lWrite) write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / angstrom',RR,' / bohr'
 if (aRR < 1.0e-6_wp) then
   call WarningMessage(2,'Abend in Strtch')
   write(u6,*) '***************** ERROR **********************'
   write(u6,*) ' Short (or negative) distance for coordinate: '
-  write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / Angstrom',RR,' / bohr'
+  write(u6,'(1X,A,A,2(F10.6,A))') Label,' : Bond Length=',aRR,' / angstrom',RR,' / bohr'
   write(u6,*) '**********************************************'
   write(u6,*)
   call Quit_OnUserError()

@@ -19,23 +19,23 @@ subroutine CmbnACB2(FA1,FA2,FB1,FB2,rFinal,Fact,nAlpha,nBeta,C,nC,la,lb,iang,jfh
 !
 !******************************************************************************
 !
-! @parameter FA1    The first derivative of Left side. Includes no derivative
-! @parameter FA2    The second derivative of Left side
-! @parameter FB1    The first derivative of Right side. Includes no derivative
-! @parameter FB2    The second derivative of Right side
-! @parameter rFinal Result added up to (out)
-! @parameter Fact   Factor the result is multiplied with before added up
-! @parameter C      Coefficients for SRO
-! @parameter nAlpha Number of exponents LS
-! @parameter nBeta  Number of exponents RS
-! @parameter nC     Number of exponents in SRO
-! @parameter la     Angular monenta LS
-! @parameter lb     Angular monenta RS
-! @parameter iAng   Angular monenta SRO
-! @parameter nBeta  Number of exponents RS
-! @parameter nC     Number of exponents in SRO
-! @parameter Tmp    Working Area nAlpha*nC (SRO case)
-! @parameter lSRO   true for SRO false projection operator
+! @param FA1    The first derivative of Left side. Includes no derivative
+! @param FA2    The second derivative of Left side
+! @param FB1    The first derivative of Right side. Includes no derivative
+! @param FB2    The second derivative of Right side
+! @param rFinal Result added up to (out)
+! @param Fact   Factor the result is multiplied with before added up
+! @param C      Coefficients for SRO
+! @param nAlpha Number of exponents LS
+! @param nBeta  Number of exponents RS
+! @param nC     Number of exponents in SRO
+! @param la     Angular monenta LS
+! @param lb     Angular monenta RS
+! @param iAng   Angular monenta SRO
+! @param nBeta  Number of exponents RS
+! @param nC     Number of exponents in SRO
+! @param Tmp    Working Area nAlpha*nC (SRO case)
+! @param lSRO   true for SRO false projection operator
 !
 !******************************************************************************
 

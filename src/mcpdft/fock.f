@@ -24,19 +24,28 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mcpdft_output, only: lf, iPrLoc
+      use rasscf_global, only: CBLBM, E2act, ECAS, HALFQ1, IBLBM,
+     &                         ISYMBB, JBLBM, NTOT3, VIA_DFT, ISTORP,
+     &                         ISTORD, ITRI, IZROT, ixSYM, CBLB, iBLB,
+     &                         jBLB
+      IMPLICIT None
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      INTEGER IFINAL
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
       real*8 ECAS0
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FOCK    ')
-#include "WrkSpc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FOCK    '
+      Integer iPrLev
+      REAL*8 CASDFT_En, CSX, QNTM
+      Integer ipBM, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
+     &        ISYM, IX, IX1, JSTF, N1, N2, NAO, NAS, NEO, NI, NIA, NIO,
+     &        NIS, NM, NO, NO2, NOR, NP, NPQ, NQ, NSS, NT, NTM, NTT,
+     &        NTU, NTV, NU, NUVX, NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
@@ -54,9 +63,6 @@ C
 C *****************************************
 
 
-      ipFint = ip_Dummy
-      ipP2reo= ip_Dummy
-c
 c     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
 C     LOOP OVER ALL SYMMETRY BLOCKS
@@ -68,6 +74,7 @@ C
       IX1=0
       ISTZ=0
       E2act=0.0d0
+      HALFQ1=0.0D0
 C
 * A long loop over symmetry
       DO ISYM=1,NSYM
@@ -134,31 +141,6 @@ c
         write(6,*) 'Two-electron contribution (Q term):', ECAS-ECAS0
       END IF
 *
-        If(ipFint.ne.ip_Dummy) Then
-          Call GetMem('TmpQ','Allo','Real',ipQ,NAO*NO)
-          If (ipP2reo.ne.ip_Dummy) Then
-             CALL DGEMM_('N','N',
-     &                   NO,NAO,NUVX,
-     &                   1.0d0,Work(ipFint+JSTF-1),NO,
-     &                   Work(ipP2reo+ISTP-1),NUVX,
-     &                   0.0d0,Work(ipQ),NO)
-          Else
-             CALL DGEMM_('N','N',
-     &                   NO,NAO,NUVX,
-     &                   1.0d0,Work(ipFint+JSTF-1),NO,
-     &                   P(ISTP),NUVX,
-     &                   0.0d0,Work(ipQ),NO)
-          End If
-          Call DaXpY_(NAO*NO,1.0d0,Work(ipQ),1,Q,1)
-*
-          DO NT=1,NAO
-            NTT=(NT-1)*NO+NIO+NT
-            HALFQ=HALFQ+0.5D0*Work(ipQ+NTT-1)
-          END DO
-          Call GetMem('TmpQ','Free','Real',ipQ,NAO*NO)
-        End If
-
-c
 c       Fock matrix
 c
         NTM=0
@@ -231,8 +213,7 @@ c
 c
       If ( iPrLev.ge.DEBUG ) then
         CASDFT_En=0.0d0
-        If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
-     &   Call Get_dScalar('CASDFT energy',CASDFT_En)
+        Call Get_dScalar('CASDFT energy',CASDFT_En)
         Write(LF,'(A,2F22.16)') ' RASSCF energy: ',
      &                  ECAS+CASDFT_En,VIA_DFT
       End If
@@ -272,13 +253,6 @@ c     Calculate Fock matrix for occupied orbitals.
 C
       If (iFinal.eq.1) CALL FOCKOC(Q,F,CMO)
 C
-      If(ipFint.ne.ip_Dummy) Then
-        Call GetMem('TmpPUVX','Free','Real',ipFint,nFint)
-      End If
-
-      If(ipP2reo.ne.ip_Dummy) Then
-        CALL GETMEM('P2_reo','FREE','REAL',ipP2reo,nP2reo)
-      End If
 
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -286,8 +260,7 @@ C
          Write(LF,*)
       End If
 C
-      RETURN
-      END
+      END SUBROUTINE FOCK_m
 
       SUBROUTINE FOCK_update(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
 !This subroutine is supposed to add the dft portions of the mcpdft fock
@@ -309,20 +282,29 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
-      use mspdft, only: iFxyMS, iIntS
-      use mspdft_grad, only: dogradmspd
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use printlevel, only: debug
+      use mspdft, only: FxyMS, iIntS
+      use mcpdft_output, only: lf, iPrLoc
+      use mcpdft_input, only: mcpdft_options
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_global, only: E2act, nTot3, nTot4, ISTORP, ISTORD,
+     &                         iTri, CBLB, IBLB, JBLB
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
-      integer ISTSQ(8),ISTAV(8),iTF
+      IMPLICIT None
+      INTEGER IFINAL
+      REAL*8 FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      integer ISTSQ(8),ISTAV(8)
+
+      Real*8, Allocatable:: TF(:)
 
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FOCK    ')
-#include "WrkSpc.fh"
+      Character(LEN=16), Parameter:: ROUTINE='FOCK    '
+      Integer iPrLev
+      Real*8 CSX, E2eP, QNTM
+      Integer i, ipFMCSCF, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ,
+     &        iSym, IX1, JSTF, N1, N2, NAO, NEO, NI, NIO, NM, NO, NO2,
+     &        NOR, NP, NT, NTM, NTT, NTV, NUVX, NV, NVI, NVM
 
 C
       IPRLEV=IPRLOC(4)
@@ -332,8 +314,8 @@ C
 
       Call Unused_real_array(BM)
       Call Unused_integer(ifinal)
-      Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
-      Call dcopy_(ntot4,[0d0],0,Work(iTF),1)
+      Call mma_allocate(TF,NTOT4,Label='TF')
+      TF(:)=0.0D0
 
 
       ISTSQ(1)=0
@@ -342,58 +324,12 @@ C
          ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
          ISTAV(iSym) = ISTAV(iSym-1) + nBas(iSym-1)*nAsh(iSym-1)
       End Do
-C *****************************************
-
-!      Call GetMem('ONTOPT','ALLO','Real',iTEOTP,NFINT)
-!      Call GetMem('ONTOPO','ALLO','Real',iOEOTP,NTOT1)
-      !Read in the one- and two- electron potentials.
-!      Call Get_dArray('ONTOPT',work(iTEOTP),NFINT)
-!      Call Get_dArray('ONTOPO',work(iOEOTP),NTOT1)
+! *****************************************
 
 
-!I think the best way forward is to construct FI, FA (MO basis) using
-!the potentials (v_pqrs and V_pq) instead of the integrals.  I think we
-!want to use the full 2-body density matrix and ExFac = 1.  If we have
-!FI, FA, and Q, then we can use the prescription from fock.f to
-!construct the Focc term (the part of the fock matrix that we want).
-
-
-
-!******************************************************************
-!
-! Build the FA terms using the potentials v.
-!
-!******************************************************************
-
-!      ExFac_tmp = 1.0d0
-!      Call Upd_FA_m(Work(iTEOTP),FP,D,ExFac_tmp)
-!Check - does this regenerate FA if the regular integrals are passed?
-!FP should contain the Fock matrix contribution that we want.
-
-
-!******************************************************************
-!
-! Build the FI terms using the potentials v and V.
-!
-!******************************************************************
-
-
-!      iOff1 = 0
-!      Do ISYM=1,NSYM
-!        Do iOrb=1,norb(iSym)
-!          do jOrb=1,iOrb
-!should we follow the guide of ftwo.f?
-!for starters, I don't seem to have all the necessary 2-body potentials,
-!right?
-
-!          end do
-!        end do
-!      end do
-
-
-c     add FI to FA to obtain FP
+!     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
-C     LOOP OVER ALL SYMMETRY BLOCKS
+!     LOOP OVER ALL SYMMETRY BLOCKS
 
       ISTFCK=0
       ISTFP=0
@@ -402,8 +338,8 @@ C     LOOP OVER ALL SYMMETRY BLOCKS
       IX1=0
       ISTZ=0
       E2act=0.0d0
-C
-* A long loop over symmetry
+
+! A long loop over symmetry
       DO ISYM=1,NSYM
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
@@ -414,7 +350,7 @@ C
        N1=0
        N2=0
        IF(NO.EQ.0) GO TO 90
-       CALL FZERO(Work(iTF-1+ISTFCK+1),NO**2)
+       CALL FZERO(TF(ISTFCK+1),NO**2)
 
 !    First index in F is inactive
 
@@ -423,7 +359,7 @@ C
          DO NI=1,NIO
           N1=MAX(NP,NI)
           N2=MIN(NP,NI)
-          Work(iTF-1+ISTFCK+NO*(NP-1)+NI)=2*FP(ISTFP+(N1**2-N1)/2+N2)
+          TF(ISTFCK+NO*(NP-1)+NI)=2*FP(ISTFP+(N1**2-N1)/2+N2)
          END DO
         END DO
        ENDIF
@@ -480,7 +416,7 @@ c
            NVM=ITRI(MAX(NVI,NM))+MIN(NVI,NM)+ISTFP
            QNTM=QNTM+D(NTV)*FI(NVM)
           END DO
-          Work(iTF-1+ISTFCK+NO*(NM-1)+NT+NIO)=QNTM
+          TF(ISTFCK+NO*(NM-1)+NT+NIO)=QNTM
          END DO
         END DO
        ENDIF
@@ -520,11 +456,11 @@ C
       end do
       write(6,*) 'new fock terms to add:'
       do i=1,Ntot4
-        write(6,*) Work(itF-1+i)
+        write(6,*) TF(i)
       end do
       call xflush(6)
       end if
-      Call DAXPY_(NTOT4,1.0d0,Work(iTF),1,F,1)
+      Call DAXPY_(NTOT4,1.0d0,TF,1,F,1)
 !      write(*,*) 'added new fock terms to old fock matrix'
 !I am going to add the Fock matrix temporarily to the Runfile.  I don't
 !want to construct it again in MCLR in the case of gradients.
@@ -542,8 +478,8 @@ C
 !      Call Dscal_(ntot4,0.5d0,F,1)
 
 !For MCLR
-      IF(DoGradMSPD) THEN
-       CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)
+      IF(mcpdft_options%grad .and. mcpdft_options%mspdft) THEN
+       CALL DCopy_(nTot4,F,1,FxyMS(:,iIntS),1)
       ELSE
        Call put_dArray('Fock_PDFT',F,ntot4)
       END IF
@@ -551,7 +487,6 @@ C
       call xflush(6)
       CALL FOCKOC(Q,F,CMO)
 C
-      Call GetMem('fockt','Free','REAL',iTF,NTOT4)
+      Call mma_deallocate(TF)
 C
-      RETURN
-      END
+      END SUBROUTINE FOCK_update

@@ -40,6 +40,7 @@ use ccsort_global, only: cckey, clopkey, fullprint, IADR15, iokey, IPT2, ISCF, I
                          NELE3, NFRO, nfror, nFroX, NHOLE1, NISH, NISHT, noop, NORB, NROOTS, NSSH, NSSHT, NSYM, t3key, zrkey
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use spool, only: SpoolInp, Close_LuSpool
 
 implicit none
 logical(kind=iwp), intent(out) :: run_triples, run_sort

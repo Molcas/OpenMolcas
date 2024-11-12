@@ -35,6 +35,8 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use spool, only: Spoolinp, Close_LuSpool
+
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
@@ -79,7 +81,7 @@ LuSpool = isFreeUnit(LuSpool)
 call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
-LC_FileOrb = ' '
+LC_FileOrb = 'INPORB'
 do
   Line = Get_Ln(LuSpool)
   call UpCase(Line)
@@ -519,8 +521,8 @@ subroutine Error(code)
   call mma_deallocate(EOrb)
   call mma_deallocate(Ind)
   call mma_deallocate(BName)
-  if (allocated(MOrig)) call mma_deallocate(MOrig)
-  if (allocated(NamAct)) call mma_deallocate(NamAct)
+  call mma_deallocate(MOrig,safe='*')
+  call mma_deallocate(NamAct,safe='*')
 
   ! Print timing.
   ! -------------

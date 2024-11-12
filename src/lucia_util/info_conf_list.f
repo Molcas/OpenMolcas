@@ -18,7 +18,7 @@
 *
 * Jeppe Olsen, November 2001
 *
-#include "implicit.fh"
+      Implicit REAL*8 (A-H,O-Z)
 *. Input
       INTEGER NCONF_PER_OPEN(MAXOP+1)
 *. Output :

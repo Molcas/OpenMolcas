@@ -18,7 +18,7 @@ subroutine CHO_GETDIAG(LCONV)
 use Cholesky, only: Cho_IOVec, Cho_SimRI, Diag, Diag_Hidden, Frac_ChVBuf, IndRed, IndRed_Hidden, IndRSh, IndRSh_Hidden, INF_PASS, &
                     IPRINT, iSimRI, iSP2F, lBuf, LuPri, mmBstrT, Mx2Sh, MySP, n_MySP, nnBstRT, nnShl, nSym, RstCho, RstDia, &
                     Thr_SimRI
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

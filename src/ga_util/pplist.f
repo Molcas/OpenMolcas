@@ -52,7 +52,7 @@ c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
          TskList(1+iE,2) = TskList(i+1,1)
          iE = iE - 1
       End Do
-      TskList => Null()
+      nullify(TskList)
 *
       QLast(1)=Not_Used
       QLast(2)=Not_Used
@@ -114,7 +114,7 @@ c     Write (*,*) 'mTasks=',mTasks
 c        Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
 c        Write (*,*) 'mTasks=',mTasks
 *
-         TskList => Null()
+         nullify(TskList)
       End If
 *
       iStrt_TList=0
@@ -129,7 +129,7 @@ c        Write (*,*) 'mTasks=',mTasks
       Subroutine Free_PPList()
       use TList_Mod
       Use Para_Info, only: nProcs, Is_Real_Par
-#include "stdalloc.fh"
+      Use stdalloc, Only: mma_deallocate
 *
       If (.NOT.Allocated(TskL)) Return
       PP_Status=.False.

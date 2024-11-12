@@ -17,19 +17,19 @@
 !
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
-  use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
+  use caspt2_global, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
                              NBUF1_GRAD
+  use caspt2_global, only: DREF, PREF
+  use caspt2_global, only: LUSOLV, LUSBT
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
+  use EQSOLV
+  use fake_GA, only: GA_Arrays
 
   Implicit None
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
 #include "pt2_guga.fh"
-
-#include "WrkSpc.fh"
 
   integer(kind=iwp), intent(in) :: Mode
   integer(kind=iwp), intent(inout) :: IDSAVGRD
@@ -152,7 +152,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
     !! EASUM
     CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
     EASUM = WRK1(1)
-    CALL GETDPREF(WORK(LDREF),WORK(LPREF))
+    CALL GETDPREF(DREF,SIZE(DREF),PREF,SIZE(PREF))
     EREF=REFENE(JSTATE)
   End If
   Call mma_deallocate(idxG3)
@@ -258,22 +258,22 @@ Contains
           Call RHS_ALLO(NAS,NIS,lg_V1)
           If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
           Else If (IORW == 2) Then
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
-          CALL RHS_FREE(NAS,NIS,lg_V1)
+          CALL RHS_FREE(lg_V1)
         Else
           Call RHS_ALLO(NIN,NIS,lg_V1)
           If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
           Else If (IORW == 2) Then
-            CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
+            CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
-          CALL RHS_FREE(NIN,NIS,lg_V1)
+          CALL RHS_FREE(lg_V1)
         End If
       End Do
     End Do
@@ -289,12 +289,11 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
 ! If this subroutine is updated, the shift at the beginning of
 ! the SavGradParams subroutine should also be updated
 !
-  use caspt2_gradient, only: LUGRAD
+  use caspt2_global, only: LUGRAD
   use definitions, only: iwp,wp
 
   Implicit None
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 
   integer(kind=iwp), intent(in) :: Mode

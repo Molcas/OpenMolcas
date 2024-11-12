@@ -225,7 +225,6 @@
 
       Subroutine Set_nbmx(nbmx_)
       Implicit Real*8 (a-h,o-z)
-#include "rasdim.fh"
 #include "caspt2.fh"
 *
       nbmx=nbmx_

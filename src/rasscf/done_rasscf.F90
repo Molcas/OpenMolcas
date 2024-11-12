@@ -18,11 +18,11 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !     Compute the active one-body density                              *
 !                                                                      *
 !     calling arguments:                                               *
-!     CMO     : input, array of real*8                                 *
+!     CMO     : input, array of real                                   *
 !               MO-coefficients                                        *
-!     OCC     : input, array of real*8                                 *
+!     OCC     : input, array of real                                   *
 !               occupation numbers                                     *
-!     D       : output, array of real*8                                *
+!     D       : output, array of real                                  *
 !               total one-body density                                 *
 !                                                                      *
 !----------------------------------------------------------------------*

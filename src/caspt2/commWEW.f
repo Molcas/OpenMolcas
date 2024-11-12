@@ -18,12 +18,11 @@
 *--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
       USE SUPERINDEX
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only: LUSBT
+      use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "SysDef.fh"
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "eqsolv.fh"
-#include "stdalloc.fh"
       DIMENSION DCOM(NASHT,NASHT)
       REAL*8, ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
 
@@ -54,7 +53,6 @@ C Allocate overlap matrix:
           NS=(NAS*(NAS+1))/2
           CALL MMA_ALLOCATE(SMAT,NS)
           IDS=IDSMAT(ISYM,ICASE)
-C          CALL DAFILE(LUSBT,2,SMAT,RtoI*NS,IDS)
           CALL DDAFILE(LUSBT,2,SMAT,NS,IDS)
 C Compute TBLK as the covariant representation of vector JVEC, by multiplying
 C with the overlap matrix. Then get rid of the overlap matrix.

@@ -30,12 +30,12 @@ subroutine TriPrt(Title,FmtIn,A,N)
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use Spool, only: LuWr
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: A(nTri_Elem(N))
-#include "standard_iounits.fh"
 integer(kind=iwp), parameter :: lPaper = 120
 integer(kind=iwp) :: i, iPmax, iPmin, jEnd, jStart, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
 real(kind=wp) :: Amax, Amin, Pmax, Pmin
@@ -135,6 +135,5 @@ end do
 !----------------------------------------------------------------------*
 ! End procedure                                                        *
 !----------------------------------------------------------------------*
-return
 
 end subroutine TriPrt

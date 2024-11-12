@@ -17,7 +17,7 @@ subroutine chop6_cvb()
 use casvb_global, only: endvar, grad1, grad2, gradx, hessorb, hesst, icase6, icnt_ci, ishstruc, ivbweights, maxdav, mxdav, &
                         mxirrep, mxiter, ncivb, ndet, ndetvb, nirrep, norb, npr, nprorb, nvb, release, sstruc, sstruc2, variat, &
                         vec1, wdx
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
@@ -25,15 +25,15 @@ integer(kind=iwp) :: idav, ir, iremain, mem_applyh, memwrk, ncimx, need
 logical(kind=iwp) :: done
 
 if (release(6)) then
-  if (allocated(sstruc)) call mma_deallocate(sstruc)
-  if (allocated(sstruc2)) call mma_deallocate(sstruc2)
-  if (allocated(hessorb)) call mma_deallocate(hessorb)
-  if (allocated(hesst)) call mma_deallocate(hesst)
-  if (allocated(wdx)) call mma_deallocate(wdx)
-  if (allocated(grad1)) call mma_deallocate(grad1)
-  if (allocated(grad2)) call mma_deallocate(grad2)
-  if (allocated(gradx)) call mma_deallocate(gradx)
-  if (allocated(vec1)) call mma_deallocate(vec1)
+  call mma_deallocate(sstruc,safe='*')
+  call mma_deallocate(sstruc2,safe='*')
+  call mma_deallocate(hessorb,safe='*')
+  call mma_deallocate(hesst,safe='*')
+  call mma_deallocate(wdx,safe='*')
+  call mma_deallocate(grad1,safe='*')
+  call mma_deallocate(grad2,safe='*')
+  call mma_deallocate(gradx,safe='*')
+  call mma_deallocate(vec1,safe='*')
 end if
 release(6) = .true.
 release(7) = .false.
@@ -41,15 +41,15 @@ release(7) = .false.
 icnt_ci(6) = 0
 if (icase6 == 1) then
   !FIXME: These deallocations should not be needed
-  if (allocated(sstruc)) call mma_deallocate(sstruc)
-  if (allocated(sstruc2)) call mma_deallocate(sstruc2)
-  if (allocated(hessorb)) call mma_deallocate(hessorb)
-  if (allocated(hesst)) call mma_deallocate(hesst)
-  if (allocated(wdx)) call mma_deallocate(wdx)
-  if (allocated(grad1)) call mma_deallocate(grad1)
-  if (allocated(grad2)) call mma_deallocate(grad2)
-  if (allocated(gradx)) call mma_deallocate(gradx)
-  if (allocated(vec1)) call mma_deallocate(vec1)
+  call mma_deallocate(sstruc,safe='*')
+  call mma_deallocate(sstruc2,safe='*')
+  call mma_deallocate(hessorb,safe='*')
+  call mma_deallocate(hesst,safe='*')
+  call mma_deallocate(wdx,safe='*')
+  call mma_deallocate(grad1,safe='*')
+  call mma_deallocate(grad2,safe='*')
+  call mma_deallocate(gradx,safe='*')
+  call mma_deallocate(vec1,safe='*')
   ! Standard non-linear optimization procedure:
   call mma_allocate(sstruc,norb*norb+nvb+1+mxirrep,1,label='sstruc')
   call mma_allocate(sstruc2,npr,1,label='sstruc2')
@@ -129,8 +129,8 @@ else if (icase6 == 4) then
   ! Wavefunction analysis:
   if (((.not. variat) .or. endvar) .and. ((ivbweights > 1) .or. (ishstruc == 1))) then
     !FIXME: These deallocations should not be needed
-    if (allocated(sstruc)) call mma_deallocate(sstruc)
-    if (allocated(sstruc2)) call mma_deallocate(sstruc2)
+    call mma_deallocate(sstruc,safe='*')
+    call mma_deallocate(sstruc2,safe='*')
     call mma_allocate(sstruc,nvb,nvb,label='sstruc')
     call mma_allocate(sstruc2,nvb,nvb,label='sstruc2')
   end if

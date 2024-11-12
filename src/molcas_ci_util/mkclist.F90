@@ -27,8 +27,8 @@ integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP,
 logical(kind=iwp) :: Found
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
-if (.not. allocated(CIS%ICase)) call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
-if (.not. allocated(SGS%Scr)) call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
+call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
+call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr',safe='*')
 
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 

@@ -11,7 +11,7 @@
 
 set (sources
      alloc.F90
-     caspt2_data.F90
+     caspt2_global.F90
      check_invec.F90
      chksplit.F90
      cidia_ci_util.F90
@@ -47,6 +47,7 @@ set (sources
      fciqmc_interface.F90
      fndmnx.F90
      fockoc.F90
+     gas_data.F90
      gatvcs.F90
      general_data.F90
      get_cm.F90
@@ -94,6 +95,7 @@ set (sources
      pmat_rasscf.F90
      prttim.F90
      rasdef.F90
+     rasscf_global.F90
      rd1int.F90
      rd2int_rasscf.F90
      recno.F90
@@ -127,8 +129,11 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     caspt2_global.F90
      csfbas.F90
+     gas_data.F90
      gugx.F90
+     rasscf_global.F90
      wadr.F90
 )
 

@@ -14,7 +14,7 @@ subroutine Gamma_new(Int1,Int2,Int1_2,Int2_2,Scr1)
 #include "intent.fh"
 
 use MBPT2_Global, only: CMO, EOcc, EVir, mAdOcc, mAdVir, nBas
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -77,21 +77,21 @@ call mma_allocate(CMO_v,lCMO_v,label='CMO_v')
 ! Copy CMO to CMO_o and CMO_v
 
 do iSym=1,nSym
-  iOff = nBas(iSym)*nFro(iSym)+1
+  iOff = nBas(iSym)*nFro(iSym)
   nNO = nBas(iSym)*nOcc(iSym)
   nNV = nBas(iSym)*nExt(iSym)
 
-  call dCopy_(nNO,CMO(iOffCMO(iSym)+iOff),1,CMO_o(iOffCMO_o(iSym)+1),1)
+  CMO_o(iOffCMO_o(iSym)+1:iOffCMO_o(iSym)+nNO) = CMO(iOffCMO(iSym)+iOff+1:iOffCMO(iSym)+iOff+nNO)
 
   iOff = iOff+nNO
 
-  call dCopy_(nNV,CMO(iOffCMO(iSym)+iOff),1,CMO_v(iOffCMO_v(iSym)+1),1)
+  CMO_v(iOffCMO_v(iSym)+1:iOffCMO_v(iSym)+nNV) = CMO(iOffCMO(iSym)+iOff+1:iOffCMO(iSym)+iOff+nNV)
 end do
 
 #ifdef _DEBUGPRINT_
 ! Print the elements of the Full CMO-matrices as well as CMO_o and CMO_v.
 do iSym=1,nSym
-  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1),nBas(iSym),nTOrb(iSym))
+  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1:),nBas(iSym),nTOrb(iSym))
 end do
 do iSym=1,nSym
   call RecPrt('Occupied CMO',' ',CMO_o(iOffCMO_o(iSym)+1),nBas(iSym),nOcc(iSym))

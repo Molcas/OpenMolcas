@@ -11,14 +11,14 @@
        Subroutine rhs_sa(Fock,SLag)
        use Arrays, only: Int1
        use ipPage, only: W
+       use stdalloc, only: mma_allocate, mma_deallocate
+       use Constants, only: Zero, One, Two, Half, Quart
        Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "Files_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "detdim.fh"
@@ -135,7 +135,7 @@
       End Do
 !      rcore=rCorei+rcoreA
 !      write(*,*) 'In rhs_sa'
-!      Write(*,*) 'Checking energy',0.5d0*renergy+potnuc+half*rcore !yma
+!      Write(*,*) 'Checking energy',0.5d0*renergy+potnuc+Half*rcore !yma
 !      Write(*,*) 'Checking energy',0.5d0*renergy,potnuc,rcore      !yma
 !      write(*,*)
       End if

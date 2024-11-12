@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE PREPSD(WFTP,SGS,CIS,LSYM,
      &                  ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,
-     &                  NCONF,CI,DET,detocc,detcoeff)
+     &                  NCONF,CI,DET,detocc,detcoeff,SPTRA)
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGStruct, CIStruct
       IMPLICIT NONE
@@ -21,8 +21,9 @@
       REAL*8 CI(*),DET(*)
       INTEGER IMODE
       CHARACTER(LEN=8) WFTP
-      character(len=*), intent(out) :: detocc(*)
-      real(8), intent(out) :: detcoeff(*)
+      character(len=*), intent(out) :: detocc(NCONF)
+      real(8), intent(out) :: detcoeff(NCONF)
+      real(8), intent(in) :: SPTRA(*)
       Real*8, Allocatable:: CTMP(:)
 
 C Purpose: Given a RASSCF wave function in Split-GUGA format
@@ -37,7 +38,7 @@ C Transform SGUGA to SymmG:
         CALL SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
 C Transform SymmG to Slater Dets:
         CALL SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CTMP,DET,
-     &               detocc,detcoeff)
+     &               detocc,detcoeff,SPTRA)
         CALL mma_deallocate(CTMP)
       ELSE
         DET(1)=CI(1)

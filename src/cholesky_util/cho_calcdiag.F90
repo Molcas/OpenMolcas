@@ -19,7 +19,7 @@ use Symmetry_Info, only: Mul
 use Cholesky, only: CHO_NO2CENTER, Cho_PreScreen, CHO_USEABS, Damp, DiaMax, iAtomShl, iBasSh, IPRINT, iSP2F, lBuf, LuPri, LuScr, &
                     Mx2Sh, MySP, n_MySP, NBAST, nBasSh, nBstSh, nnBstRSh, nnShl, nShell, nSym, SCDIAG, ShA, ShB, ThrCom, ThrDiag, &
                     XlDiag
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 

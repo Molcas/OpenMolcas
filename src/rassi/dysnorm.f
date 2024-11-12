@@ -36,7 +36,6 @@
       EXTERNAL DDOT_
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 

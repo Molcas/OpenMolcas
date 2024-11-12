@@ -31,10 +31,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SUPINI
+      use stdalloc, only: mma_allocate
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "stdalloc.fh"
       CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
      &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',
@@ -361,8 +360,8 @@ C(index,symmetry) pairs.
       RETURN
       END SUBROUTINE
       SUBROUTINE SUPFREE
+      use stdalloc, only: mma_deallocate
       IMPLICIT NONE
-#include "stdalloc.fh"
       ! deallocate the superindex tables
       CALL MMA_DEALLOCATE(KIGEJ)
       CALL MMA_DEALLOCATE(KIGTJ)

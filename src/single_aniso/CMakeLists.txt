@@ -9,4 +9,26 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     crystalfield_1.F90
+     crystalfield.F90
+     fetch_data_runfile_all.F90
+     fetch_data_runfile_init.F90
+     individual_ranks.F90
+     magnetization.F90
+     newcf.F90
+     readin_single.F90
+     recover_cf.F90
+     restart_check.F90
+     restart_sa.F90
+     single_aniso2.F90
+     single_aniso_open.F90
+     sort_kq.F90
+     susceptibility.F90
+     termcf.F90
+     torque.F90
+     xt_dmoverdh_single.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

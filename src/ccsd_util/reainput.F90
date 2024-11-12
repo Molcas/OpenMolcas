@@ -83,6 +83,7 @@ use ccsd_global, only: ccconv, cycext, dimm, eps, Escf, filerst, firstext, fullp
                        slim, shifto, shiftv, title, typden, typt3, yesext
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use spool, only: SpoolInp, Close_LuSpool
 
 implicit none
 integer(kind=iwp) :: f_iostat, f_recl, LuSpool, nhelp

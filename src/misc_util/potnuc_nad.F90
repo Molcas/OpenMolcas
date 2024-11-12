@@ -138,7 +138,7 @@ end if
 ! Print coordinates of the system  / ZRE_nad energy                    *
 !----------------------------------------------------------------------*
 write(u6,*)
-write(u6,'(6X,A)') 'Atoms cartesian coordinates in Angstrom:'
+write(u6,'(6X,A)') 'Atoms cartesian coordinates in angstrom:'
 write(u6,'(6X,A)') '-----------------------------------------------'
 write(u6,'(6X,A)') 'No.  Charge A/B      X         Y         Z     '
 write(u6,'(6X,A)') '-----------------------------------------------'

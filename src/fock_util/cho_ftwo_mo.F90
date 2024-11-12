@@ -61,7 +61,7 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck, Lunit
 use Data_Structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -87,7 +87,7 @@ character(len=50) :: CFmt
 character(len=6) :: Fname
 type(SBA_Type), target :: Wab, LqJs
 real(kind=wp), allocatable :: Dchk(:)
-real(kind=wp), pointer :: LrJs(:,:,:) => null(), XdJb(:) => null(), XgJk(:) => null(), XkJs(:) => null(), VJ(:) => null()
+real(kind=wp), pointer :: LrJs(:,:,:), VJ(:), XdJb(:), XgJk(:), XkJs(:)
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FTWO_MO'
 
@@ -260,6 +260,7 @@ do jSym=1,MaxSym
 
       if (nk*np <= 0) cycle
       iS = iE+1
+      Wab%ipOff(iSymp) = iS
 
       if ((iSymp == ksym) .and. (iSkip(iSymp) /= 0)) then
         NumB = nk*(nk+1)/2
@@ -345,7 +346,7 @@ do jSym=1,MaxSym
           end if
         end do
 
-        VJ => null()
+        nullify(VJ)
 
         call CWTIME(TCC2,TWC2)
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
@@ -437,14 +438,14 @@ do jSym=1,MaxSym
                 texch(1) = texch(1)+(TC1X2-TC1X1)
                 texch(2) = texch(2)+(TW1X2-TW1X1)
 
-                XkJs => null()
+                nullify(XkJs)
 
               end if ! if kocc /= 0
 
             end if ! Do Exchange(jDen)
 
           end do ! loop over the densities
-          LrJs => null()
+          nullify(LrJs)
 
         end if ! nbas /= 0
 
@@ -557,7 +558,7 @@ do jSym=1,MaxSym
                   call DGEMV_('T',LKV,NBL,-FactX(jDen),XdJb(jjB:),LKV,XdJb(jjB:),1,ONE,FSQ(jDEN)%SB(ISYMB)%A2(jB:,jB),1)
 
                 end do
-                XdJb => null()
+                nullify(XdJb)
                 ! ******************************************************************
 
               end if
@@ -593,11 +594,11 @@ do jSym=1,MaxSym
                               FSQ(jDen)%SB(ISYMG)%A2(jD:,jD),1)
                 end do
 
-                XgJk => null()
+                nullify(XgJk)
               end if
 
             end if
-            LqJs%SB(ISYMG)%A3 => null()
+            nullify(LqJs%SB(ISYMG)%A3)
 
           end do ! loop over orbital symmetries
 

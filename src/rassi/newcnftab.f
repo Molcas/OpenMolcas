@@ -8,24 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER FUNCTION NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,
-     &                           NGASORB,NGASLIM,IFORM)
+      SUBROUTINE NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,
+     &                     NGASORB,NGASLIM,IFORM,ICASE)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "symmul.fh"
-      DIMENSION NGASLIM(2,NGAS)
-      DIMENSION NGASORB(NSYM,NGAS)
+      Integer NEL, NORB, MINOP, MAXOP, LSYM, NGAS
+      Integer NGASORB(NSYM,NGAS)
+      Integer NGASLIM(2,NGAS)
+      Integer IFORM, ICASE
 
-      NEWCNFTAB=-1
-CTEST      write(*,*)' Just entered NEWCNFTAB.'
-CTEST      write(*,'(1x,a,10i8)')'NEL,NORB,MINOP,MAXOP:',NEL,NORB,MINOP,MAXOP
-CTEST      write(*,'(1x,a,10i8)')'NSYM,LSYM,NGAS:',NSYM,LSYM,NGAS
+      Integer, allocatable:: NCNF1(:), NCNF2(:)
+
 C Note how input parameter LSYM is used: If non-zero, only those configurations
 C with symmetry label LSYM are selected. But if LSYM=0, they are all selected.
 C We must figure out sizes before allocating the new configuration table.
 C Set up a table NCNF1(NSYM,NPOS) with NPOS=((NEL+1)*(NEL+2))/2
       NNCNF1=NSYM*((NEL+1)*(NEL+2))/2
-      CALL GETMEM('NCnf1','Allo','Inte',LNCNF1,NNCNF1)
+      CALL mma_allocate(NCNF1,NNCNF1,Label='NCNF1')
 C We need also a table NCNF2, temporarily. Need to know mx nr of active orbitals
 C in any GAS subspace:
       MXO=0
@@ -37,10 +38,10 @@ C in any GAS subspace:
         MXO=MAX(MXO,ISUM)
       END DO
       NNCNF2=NSYM*((MXO+1)*(MXO+2))/2
-      CALL GETMEM('NCnf2','Allo','Inte',LNCNF2,NNCNF2)
-      CALL NRCNF1(NEL,NORB,NGAS,NGASLIM,NGASORB,IWORK(LNCNF1),
-     &            MXO,IWORK(LNCNF2))
-      CALL GETMEM('NCnf2','Free','Inte',LNCNF2,NNCNF2)
+      CALL mma_allocate(NCNF2,NNCNF2,Label='NCNF2')
+      CALL NRCNF1(NEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXO,NCNF2)
+      CALL mma_deallocate(NCNF2)
+
 C NCNF1(ISYM,IPOS) contains the number of possible configurations for symmetry
 C label ISYM, nr of closed shells NCLS, and nr of open shells NOPN. The latter
 C are combined as pair index IPOS=1+NOPN+(NOCC*(NOCC+1))/2 with NOCC=NCLS+NOPN
@@ -68,7 +69,7 @@ C Configuration arrays:
         NCNF=0
         IF(LSYM.GE.1 .AND. LSYM.LE.NSYM) THEN
           IPOS=1+NOPN+(NOCC*(NOCC+1))/2
-          NCNF=IWORK(LNCNF1-1+ISYM+NSYM*(IPOS-1))
+          NCNF=NCNF1(ISYM+NSYM*(IPOS-1))
         END IF
         LENCNF=NOCC
         IF(IFORM.EQ.2) LENCNF=NORB
@@ -79,47 +80,53 @@ C Configuration arrays:
   19   CONTINUE
       END DO
 C Sizes and offsets are known. Now, we can allocate the table:
-      CALL GETMEM('CnfTab','Allo','Inte',LTAB,NTAB)
-      NEWCNFTAB=LTAB
+      Select CASE (ICASE)
+      CASE(1)
+         CALL mma_allocate(CnfTab1,NTAB,Label='CnfTab1')
+         CnfTab=>CnfTab1(:)
+      CASE(2)
+         CALL mma_allocate(CnfTab2,NTAB,Label='CnfTab2')
+         CnfTab=>CnfTab2(:)
+      CASE DEFAULT
+      END SELECT
 C Enter header:
-      IWORK(LTAB+ 0)=NTAB
-      IWORK(LTAB+ 1)=37
-      IWORK(LTAB+ 2)=NEL
-      IWORK(LTAB+ 3)=NORB
-      IWORK(LTAB+ 4)=MINOP
-      IWORK(LTAB+ 5)=MAXOP
-      IWORK(LTAB+ 6)=NSYM
-      IWORK(LTAB+ 7)=LSYM
-      IWORK(LTAB+ 8)=NGAS
-      IWORK(LTAB+ 9)=IFORM
+      CnfTab( 1)=NTAB
+      CnfTab( 2)=37
+      CnfTab( 3)=NEL
+      CnfTab( 4)=NORB
+      CnfTab( 5)=MINOP
+      CnfTab( 6)=MAXOP
+      CnfTab( 7)=NSYM
+      CnfTab( 8)=LSYM
+      CnfTab( 9)=NGAS
+      CnfTab(10)=IFORM
 C Enter copy of NGASORB array:
       DO IGAS=1,NGAS
        ISUM=0
        DO ISYM=1,NSYM
-        L=LTAB+10+ISYM+(NSYM+1)*IGAS
-        IWORK(L)=NGASORB(ISYM,IGAS)
+        L=11+ISYM+(NSYM+1)*IGAS
+        CnfTab(L)=NGASORB(ISYM,IGAS)
         ISUM=ISUM+NGASORB(ISYM,IGAS)
        END DO
-       IWORK(LTAB+10+(NSYM+1)*IGAS)=ISUM
+       CnfTab(11+(NSYM+1)*IGAS)=ISUM
       END DO
       DO ISYM=0,NSYM
        ISUM=0
        DO IGAS=1,NGAS
-        L=LTAB+10+ISYM+(NSYM+1)*IGAS
-        ISUM=ISUM+IWORK(L)
+        L=11+ISYM+(NSYM+1)*IGAS
+        ISUM=ISUM+CnfTab(L)
        END DO
-       IWORK(LTAB+10+ISYM)=ISUM
+       CnfTab(11+ISYM)=ISUM
       END DO
-      L=LTAB+9+(NSYM+1)*(NGAS+1)
+      L=10+(NSYM+1)*(NGAS+1)
 C Enter copy of NGASLIM array:
       DO IGAS=1,NGAS
        L=L+1
-       IWORK(L)=NGASLIM(1,IGAS)
+       CnfTab(L)=NGASLIM(1,IGAS)
        L=L+1
-       IWORK(L)=NGASLIM(2,IGAS)
+       CnfTab(L)=NGASLIM(2,IGAS)
       END DO
 C Construct and enter INFO table.
-      LINFO=LTAB-1+KINFO
 C The INFO table has a relative pointer to configuration arrays:
       KCNFEND=KCNFSTA-1
       DO NOPN=MINOP,MAXOP
@@ -132,16 +139,11 @@ C The INFO table has a relative pointer to configuration arrays:
         DO ISYM=1,NSYM
 C No such configuration is possible.
 C INFO(1,ISYM,NOPN)=NCNF
-         IWORK(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
+         CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
 C INFO(2,ISYM,NOPN)=NTAB+1
-         IWORK(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
+         CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
 C INFO(3,ISYM,NOPN)=LENCNF
-         IWORK(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
-CTEST      write(*,'(1x,a,2I5)')' Test NOPN,ISYM:',NOPN,ISYM
-CTEST      write(*,*)' Impossible configuration.'
-CTEST      write(*,*)' Info array:'
-CTEST      write(*,'(1x,3I8)')(IWORK(LINFO+I+
-CTEST     &                   3*(ISYM-1+NSYM*(NOPN-MINOP))),I=0,2)
+         CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
         END DO
        ELSE
         NOCC=NCLS+NOPN
@@ -151,15 +153,15 @@ C If LSYM=0, all symmetry labels will be accepted. Else, only
 C those with ISYM=LSYM.
          IF(LSYM.EQ.0 .OR. ISYM.EQ.LSYM) THEN
            IPOS=1+NOPN+(NOCC*(NOCC+1))/2
-           NCNF=IWORK(LNCNF1-1+ISYM+NSYM*(IPOS-1))
+           NCNF=NCNF1(ISYM+NSYM*(IPOS-1))
          END IF
          IF(NCNF.EQ.0) THEN
 C INFO(1,ISYM,NOPN)=NCNF
-           IWORK(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
+           CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
 C INFO(2,ISYM,NOPN)=NTAB+1
-           IWORK(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
+           CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
 C INFO(3,ISYM,NOPN)=LENCNF
-           IWORK(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
+           CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
          ELSE
            LENCNF=NOCC
            IF(IFORM.EQ.2) LENCNF=NORB
@@ -169,40 +171,40 @@ C The relative pointer into this configuration array:
            KCNFSTA=KCNFEND+1
            KCNFEND=KCNFEND+NCNF*LENCNF
 C INFO(1,ISYM,NOPN)=NCNF
-           IWORK(LINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=NCNF
+           CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=NCNF
 C INFO(2,ISYM,NOPN)=NTAB+1
-           IWORK(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=KCNFSTA
+           CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=KCNFSTA
 C INFO(3,ISYM,NOPN)=LENCNF
-           IWORK(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=LENCNF
-CTEST      write(*,'(1x,a,2I5)')' Test NOPN,ISYM:',NOPN,ISYM
-CTEST      write(*,*)' Possible configuration.'
-CTEST      write(*,*)' Info array:'
-CTEST      write(*,'(1x,3I8)')(IWORK(LINFO+I+
-CTEST     &                   3*(ISYM-1+NSYM*(NOPN-MINOP))),I=0,2)
+           CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=LENCNF
            DO I=1,NCNF*LENCNF
-             IWORK(LTAB-1+KCNFSTA-1+I)=0
+             CnfTab(KCNFSTA-1+I)=0
            END DO
          END IF
         END DO
        END IF
       END DO
 C The NCNF1 array is no longer needed.
-      CALL GETMEM('NCnf1','Free','Inte',LNCNF1,NNCNF1)
+      CALL mma_deallocate(NCNF1)
 
 C Finally, only now when we know where to store each (ISYM,NOPN) block of
 C configurations, can we compute the actual configuration arrays:
-      CALL MKCONF(IWORK(LTAB))
+      CALL MKCONF(CnfTab)
+      nullify(CnfTab)
 
-      RETURN
-      END
+      END SUBROUTINE NEWCNFTAB
+
       SUBROUTINE NRCNF1(MAXEL,NORB,NGAS,NGASLIM,
      &                  NGASORB,NCNF1,MXTMP,NCNF2)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "symmul.fh"
-      DIMENSION NCNF1( NSYM, ((MAXEL+1)*(MAXEL+2))/2 )
-      DIMENSION NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
-      DIMENSION NCNF2(NSYM, ((MXTMP+1)*(MXTMP+2))/2 )
+      Integer MaxEl, NORB, NGAS
+      Integer NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
+      Integer NCNF1( NSYM, ((MAXEL+1)*(MAXEL+2))/2 )
+      Integer MXTMP
+      Integer NCNF2(NSYM, ((MXTMP+1)*(MXTMP+2))/2 )
+
+      Integer, allocatable:: ISM(:)
 C Returns the array NCNF1, which contains the number of
 C configurations with the following criteria:
 C    Orbital indices range from 1..NORB
@@ -227,7 +229,7 @@ C Initialize:
        END DO
       END DO
       NCNF1(1,1)=1
-      CALL GETMEM('OrbSym','Allo','Inte',LISM,NORB)
+      CALL mma_allocate(ISM,NORB,Label='ISM')
 C Max nr of occupied orbitals so far:
       NOCCMX=0
       DO IGAS=1,NGAS
@@ -240,56 +242,19 @@ C Nr of orbitals in this partition
           NO=NO+NG
           DO I=1,NG
            II=II+1
-           IWORK(LISM-1+II)=ISYM
+           ISM(II)=ISYM
           END DO
         END DO
         NELMN=MAX(0,NGASLIM(1,IGAS))
         NELMX=MIN(2*NO,NGASLIM(2,IGAS))
-C Possibilities within this partition:
-CTEST      write(*,*)' In GAS partition nr IGAS=',IGAS
-CTEST      write(*,*)' Prepare to call NRCNF2.'
-CTEST      write(*,'(1x,a,8I5)')' Input data is: NO=',NO
-CTEST      write(*,'(1x,a,8I5)')'              NSYM=',NSYM
-CTEST      write(*,'(1x,a,8I5)')'               ISM=',
-CTEST     &                       (IWORK(LISM-1+I),I=1,NO)
-CTEST      write(*,*)' Call NRCNF2.'
-        CALL NRCNF2(NO,IWORK(LISM),NCNF2)
-CTEST      write(*,*)' Back from NRCNF2.'
-CTEST      write(*,*)' The NCNF2 array:'
-CTEST      ij=0
-CTEST      do i=0,no
-CTEST       do j=0,i
-CTEST        ij=ij+1
-CTEST        write(*,'(1x,2i5,5x,8i5)')i-j,j,(ncnf2(isym,ij),isym=1,nsym)
-CTEST       end do
-CTEST      end do
-
-CTEST      write(*,*)' GAS partition nr IGAS=',IGAS
-CTEST      write(*,*)' Before this partition, NCNF1 array is:'
-CTEST      ij=0
-CTEST      do i=0,noccmx
-CTEST       do j=0,i
-CTEST        ij=ij+1
-CTEST        write(*,'(1x,2i5,5x,8i5)')i-j,j,(ncnf1(isym,ij),isym=1,nsym)
-CTEST       end do
-CTEST      end do
-
-C Occupied and open within earlier+new partition:
-CTEST        write(*,*)' New NOCCNW up to:',MIN(MAXOCC,MXOCCOLD+NELMX)
+        CALL NRCNF2(NO,ISM,NCNF2)
         DO NOCCNW=MIN(MAXOCC,MXOCCOLD+NELMX),0,-1
         DO NOPNNW=0,NOCCNW
          NCLSNW=NOCCNW-NOPNNW
          IPOSNW=(NOCCNW*(NOCCNW+1))/2+NOPNNW+1
          DO ISYMNW=1,NSYM
           NEW=0
-CTEST        write(*,'(1x,a,3I4)')' NCLSNW,NOPNNW,ISYMNW:',
-CTEST     &                                    NCLSNW,NOPNNW,ISYMNW
-CTEST        write(*,*)' Add the following contributions:'
-CTEST        write(*,*)' Limits on NOCC:',NELMN/2,MIN(NELMX,NO)
-C Occupied and open within the GAS partition:
           DO NOCC=NELMN/2,MIN(NELMX,NO)
-CTEST        write(*,*)' Limits on NOPN:',MAX(0,2*NOCC-NELMX),
-CTEST     &                    MIN(2*NOCC-NELMN,NOCC,NELMX)
           DO NOPN=MAX(0,2*NOCC-NELMX),
      &                    MIN(2*NOCC-NELMN,NOCC,NELMX)
            NCLS=NOCC-NOPN
@@ -307,10 +272,6 @@ CTEST     &                    MIN(2*NOCC-NELMN,NOCC,NELMX)
             IPOSOLD=(NOCCOLD*(NOCCOLD+1))/2+NOPNOLD+1
             NX=NCNF1(ISYMOLD,IPOSOLD)
             IF(NX.EQ.0) GOTO 19
-C Test print:
-CTEST        write(*,'(1x,a,5I4)')' NCLS,NOPN,ISYM,NCNF1,NCNF2:',
-CTEST     &                            NCLS,NOPN,ISYM,NX,NY
-C End of test prints
             NEW=NEW+NCNF1(ISYMOLD,IPOSOLD)*NCNF2(ISYM,IPOS)
             NOCCMX=MAX(NOCCNW,NOCCMX)
   19        CONTINUE
@@ -322,20 +283,12 @@ C End of test prints
         END DO
         END DO
 
-CTEST      write(*,*)' GAS partition nr IGAS=',IGAS
-CTEST      write(*,*)' After this partition, NCNF1 array is:'
-CTEST      ij=0
-CTEST      do i=0,noccmx
-CTEST       do j=0,i
-CTEST        ij=ij+1
-CTEST        write(*,'(1x,2i5,5x,8i5)')i-j,j,(ncnf1(isym,ij),isym=1,nsym)
-CTEST       end do
-CTEST      end do
 
       END DO
-      CALL GETMEM('OrbSym','Free','Inte',LISM,NORB)
-      RETURN
-      END
+      CALL mma_deallocate(ISM)
+
+      END SUBROUTINE NRCNF1
+
       SUBROUTINE NRCNF2(NORB,ISM,NCNF2)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
@@ -391,12 +344,14 @@ CTEST     &         ' New result     :',(NCNF2(I,IPOS1),I=1,NSYM)
           END DO
         END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE NRCNF2
+
       SUBROUTINE MKCONF(ICNFTAB)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
 
       INTEGER ICNFTAB(*)
+
       INTEGER NEL,MINOP,MAXOP,LSYM
       INTEGER MXPRT
       PARAMETER (MXPRT=150)
@@ -407,10 +362,10 @@ CTEST     &         ' New result     :',(NCNF2(I,IPOS1),I=1,NSYM)
       INTEGER INIT1,INIT2,M,MORE,NOP1,NCL2
       INTEGER ISYM,NORB,ICONF
       INTEGER IFORM,IR,ITYPE,IW,KCNFSTA,KGASLIM
-      INTEGER KGASORB,KINFO,KPOS,LCLS,LENCNF,LISM,LOPN,NCNF
+      INTEGER KGASORB,KINFO,KPOS,LCLS,LENCNF,LOPN,NCNF
       INTEGER NCNFSYM(8),NGAS,NOCC,NTAB
       INTEGER I,J,K,IOFF,IO,IORB,N,NCL,NOP
-#include "WrkSpc.fh"
+      INTEGER, ALLOCATABLE:: ISM(:)
 #include "symmul.fh"
 C     INTEGER MIN,MAX
       INTRINSIC MIN,MAX
@@ -487,7 +442,7 @@ C Check and refine the GAS limits:
          CALL ABEND()
       END IF
 C Array for orbital symmetry:
-      CALL GETMEM('OrbSym','Allo','Inte',LISM,NORB)
+      CALL mma_allocate(ISM,NORB,Label='ISM')
 C Initialize table with orbital symmetry.
       IORB=0
       DO IGAS=1,NGAS
@@ -495,7 +450,7 @@ C Initialize table with orbital symmetry.
         N=ICNFTAB(KGASORB+ISYM+(NSYM+1)*IGAS)
         DO K=1,N
          IORB=IORB+1
-         IWORK(LISM-1+IORB)=ISYM
+         ISM(IORB)=ISYM
         END DO
        END DO
       END DO
@@ -644,7 +599,7 @@ CTEST      write(*,'(1x,a,50I3)')' New config:',(ioc(io),io=1,norb)
 CTEST      write(*,*)' Where should it go??'
       ISYM=1
       DO IO=1,NORB
-       IF(IOC(IO).EQ.1) ISYM=MUL(IWORK(LISM-1+IO),ISYM)
+       IF(IOC(IO).EQ.1) ISYM=MUL(ISM(IO),ISYM)
       END DO
 CTEST      write(*,*)' Symmetry ISYM=',ISYM
 C Skip if wrong symmetry:
@@ -805,7 +760,7 @@ C No more IOPDST distribution is possible. Next NOPN value:
  120  CONTINUE
       END DO
 
-      CALL GETMEM('OrbSym','Free','Inte',LISM,NORB)
+      CALL mma_deallocate(ISM)
       RETURN
  900  CONTINUE
       WRITE(6,*)' MKCNF ERROR: Unforeseen calamity.'
@@ -827,4 +782,4 @@ C No more IOPDST distribution is possible. Next NOPN value:
        END DO
       END DO
       CALL ABEND()
-      END
+      END SUBROUTINE MKCONF

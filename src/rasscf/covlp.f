@@ -9,7 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: NROOT, NSXS, ITRI
+
+      IMPLICIT None
 C
 C RASSCF program version IBM-3090: SX section
 C
@@ -21,13 +23,19 @@ C ********** IBM-3090 Release 89 01 25 **********
 CPAM01 Added: replace correct overlap by adding a diagonal
 CPAM01 quantity to the overlap of brillouin states.
 C
-      DIMENSION C1IN(*),C2IN(*),DIA(*),SXN(*),X(*),C1(*),C2(*),PA(*)
+      REAL*8 C1IN(*),C2IN(*),DIA(*),SXN(*),X(*),C1(*),C2(*),PA(*)
+      REAL*8 OVL
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='COVLP   ')
+      Character(LEN=16), Parameter :: ROUTINE='COVLP   '
+      Integer iPrLev
+      REAL*8 C1C2, FAC, OVLADD, PRQS, TERM
+      REAL*8, External:: DDot_
+      Integer I, iAshI, iAshJ, iC1, iC2, ISTBM, ISTC2, iSTIA, ISYM,
+     &        JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NI, NIA, NIAJ, NIO,
+     &        NIOJ, NP, NQ, NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT,
+     &        NVXT, NX, NXT
 
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -179,5 +187,4 @@ C
        Write(LF,'(1X,A,F15.9)') ' OVERLAP IN COVLP:',OVL
       END IF
 
-      RETURN
-      END
+      END SUBROUTINE COVLP

@@ -175,16 +175,16 @@ type(Shell_Info), allocatable :: Shells(:)
 ! Private extensions to mma interfaces
 
 interface cptr2loff
-  module procedure dbsc_cptr2loff
-  module procedure shell_cptr2loff
+  module procedure :: dbsc_cptr2loff
+  module procedure :: shell_cptr2loff
 end interface
 interface mma_Allocate
-  module procedure dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim
-  module procedure shell_mma_allo_1D, shell_mma_allo_1D_lim
+  module procedure :: dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim
+  module procedure :: shell_mma_allo_1D, shell_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure dbsc_mma_free_1D
-  module procedure shell_mma_free_1D
+  module procedure :: dbsc_mma_free_1D
+  module procedure :: shell_mma_free_1D
 end interface
 
 contains
@@ -739,10 +739,10 @@ subroutine Basis_Info_Get()
 
       nM1 = dbsc(i)%nM1
       if (nM1 > 0) then
-        if (.not. allocated(dbsc(i)%M1xp)) call mma_allocate(dbsc(i)%M1xp,nM1,Label='dbsc:M1xp')
+        call mma_allocate(dbsc(i)%M1xp,nM1,Label='dbsc:M1xp',safe='*')
         dbsc(i)%M1xp(:) = rDmp(nAux+1:nAux+nM1,1)
         nAux = nAux+nM1
-        if (.not. allocated(dbsc(i)%M1cf)) call mma_allocate(dbsc(i)%M1cf,nM1,Label='dbsc:M1cf')
+        call mma_allocate(dbsc(i)%M1cf,nM1,Label='dbsc:M1cf',safe='*')
         dbsc(i)%M1cf(:) = rDmp(nAux+1:nAux+nM1,1)
         nAux = nAux+nM1
         !call RecPrt('M1xp',' ',dbsc(i)%M1xp,1,nM1)
@@ -750,10 +750,10 @@ subroutine Basis_Info_Get()
       end if
       nM2 = dbsc(i)%nM2
       if (nM2 > 0) then
-        if (.not. allocated(dbsc(i)%M2xp)) call mma_allocate(dbsc(i)%M2xp,nM2,Label='dbsc:M2xp')
+        call mma_allocate(dbsc(i)%M2xp,nM2,Label='dbsc:M2xp',safe='*')
         dbsc(i)%M2xp(:) = rDmp(nAux+1:nAux+nM2,1)
         nAux = nAux+nM2
-        if (.not. allocated(dbsc(i)%M2cf)) call mma_allocate(dbsc(i)%M2cf,nM2,Label='dbsc:M2cf')
+        call mma_allocate(dbsc(i)%M2cf,nM2,Label='dbsc:M2cf',safe='*')
         dbsc(i)%M2cf(:) = rDmp(nAux+1:nAux+nM2,1)
         nAux = nAux+nM2
         !call RecPrt('M2xp',' ',dbsc(i)%M2xp,1,nM2)
@@ -764,7 +764,7 @@ subroutine Basis_Info_Get()
 
       nFragType = dbsc(i)%nFragType
       if (nFragType > 0) then
-        if (.not. allocated(dbsc(i)%FragType)) call mma_allocate(dbsc(i)%FragType,nFrag_LineWords,nFragType,Label='FragType')
+        call mma_allocate(dbsc(i)%FragType,nFrag_LineWords,nFragType,Label='FragType',safe='*')
         qDmp(1:nFrag_LineWords,1:nFragType) => rDmp(nAux+1:nAux+nFrag_LineWords*nFragType,1)
         dbsc(i)%FragType(:,:) = qDmp(:,:)
         nAux = nAux+nFrag_LineWords*nFragType
@@ -772,7 +772,7 @@ subroutine Basis_Info_Get()
       end if
       nFragCoor = max(0,dbsc(i)%nFragCoor)
       if (nFragCoor > 0) then
-        if (.not. allocated(dbsc(i)%FragCoor)) call mma_allocate(dbsc(i)%FragCoor,5,nFragCoor,Label='FragCoor')
+        call mma_allocate(dbsc(i)%FragCoor,5,nFragCoor,Label='FragCoor',safe='*')
         qDmp(1:5,1:nFragCoor) => rDmp(nAux+1:nAux+5*nFragCoor,1)
         dbsc(i)%FragCoor(:,:) = qDmp(:,:)
         nAux = nAux+5*nFragCoor
@@ -780,7 +780,7 @@ subroutine Basis_Info_Get()
       end if
       nFragEner = dbsc(i)%nFragEner
       if (nFragEner > 0) then
-        if (.not. allocated(dbsc(i)%FragEner)) call mma_allocate(dbsc(i)%FragEner,nFragEner,Label='FragEner')
+        call mma_allocate(dbsc(i)%FragEner,nFragEner,Label='FragEner',safe='*')
         pDmp(1:nFragEner) => rDmp(nAux+1:nAux+nFragEner,1)
         dbsc(i)%FragEner(:) = pDmp(:)
         nAux = nAux+nFragEner
@@ -788,7 +788,7 @@ subroutine Basis_Info_Get()
       end if
       nFragDens = dbsc(i)%nFragDens
       if (nFragDens*nFragEner > 0) then
-        if (.not. allocated(dbsc(i)%FragCoef)) call mma_allocate(dbsc(i)%FragCoef,nFragDens,nFragEner,Label='FragCoef')
+        call mma_allocate(dbsc(i)%FragCoef,nFragDens,nFragEner,Label='FragCoef',safe='*')
         qDmp(1:nFragDens,1:nFragEner) => rDmp(nAux+1:nAux+nFragDens*nFragEner,1)
         dbsc(i)%FragCoef(:,:) = qDmp(:,:)
         nAux = nAux+nFragDens*nFragEner
@@ -807,48 +807,48 @@ subroutine Basis_Info_Get()
 
       nBk = Shells(i)%nBK
       if (nBk > 0) then
-        if (.not. allocated(Shells(i)%Bk)) call mma_allocate(Shells(i)%Bk,nBk,Label='Bk')
+        call mma_allocate(Shells(i)%Bk,nBk,Label='Bk',safe='*')
         Shells(i)%Bk(:) = rDmp(nAux2+1:nAux2+nBk,1)
         nAux2 = nAux2+nBk
-        if (.not. allocated(Shells(i)%Occ)) call mma_allocate(Shells(i)%Occ,nBk,Label='Occ')
+        call mma_allocate(Shells(i)%Occ,nBk,Label='Occ',safe='*')
         Shells(i)%Occ(:) = rDmp(nAux2+1:nAux2+nBk,1)
         nAux2 = nAux2+nBk
       end if
 
       nAkl = Shells(i)%nAkl
       if (nAkl > 0) then
-        if (.not. allocated(Shells(i)%Akl)) call mma_allocate(Shells(i)%Akl,nAkl,nAkl,2,Label='Akl')
+        call mma_allocate(Shells(i)%Akl,nAkl,nAkl,2,Label='Akl',safe='*')
         call DCopy_(2*nAkl**2,rDmp(nAux2+1,1),1,Shells(i)%Akl,1)
         nAux2 = nAux2+2*nAkl**2
       end if
 
       nFockOp = Shells(i)%nFockOp
       if (nFockOp > 0) then
-        if (.not. allocated(Shells(i)%FockOp)) call mma_allocate(Shells(i)%FockOp,nFockOp,nFockOp,Label='FockOp')
+        call mma_allocate(Shells(i)%FockOp,nFockOp,nFockOp,Label='FockOp',safe='*')
         call DCopy_(nFockOp**2,rDmp(nAux2+1,1),1,Shells(i)%FockOp,1)
         nAux2 = nAux2+nFockOp**2
       end if
 
       nExp = Shells(i)%nExp
       if (nExp > 0) then
-        if (.not. allocated(Shells(i)%Exp)) call mma_allocate(Shells(i)%Exp,nExp,Label='Exp')
+        call mma_allocate(Shells(i)%Exp,nExp,Label='Exp',safe='*')
         call DCopy_(nExp,rDmp(nAux2+1,1),1,Shells(i)%Exp,1)
         nAux2 = nAux2+nExp
       end if
 
       nBasis = Shells(i)%nBasis
       if (nExp*nBasis > 0) then
-        if (.not. allocated(Shells(i)%Cff_p)) call mma_allocate(Shells(i)%Cff_p,nExp,nExp,2,Label='Cff_p')
+        call mma_allocate(Shells(i)%Cff_p,nExp,nExp,2,Label='Cff_p',safe='*')
         call DCopy_(2*nExp**2,rDmp(nAux2+1,1),1,Shells(i)%Cff_p,1)
         nAux2 = nAux2+2*nExp**2
       end if
 
       if (nExp*nBasis > 0) then
-        if (.not. allocated(Shells(i)%Cff_c)) call mma_allocate(Shells(i)%Cff_c,nExp,nBasis,2,Label='Cff_c')
+        call mma_allocate(Shells(i)%Cff_c,nExp,nBasis,2,Label='Cff_c',safe='*')
         call DCopy_(2*nExp*nBasis,rDmp(nAux2+1,1),1,Shells(i)%Cff_c,1)
         nAux2 = nAux2+2*nExp*nBasis
 
-        if (.not. allocated(Shells(i)%pCff)) call mma_allocate(Shells(i)%pCff,nExp,nBasis,Label='Cff')
+        call mma_allocate(Shells(i)%pCff,nExp,nBasis,Label='Cff',safe='*')
         Shells(i)%pCff(:,:) = Shells(i)%Cff_c(:,:,1)
       end if
     end do
@@ -914,27 +914,27 @@ subroutine Basis_Info_Free()
 
     ! ECP stuff
 
-    if (allocated(dbsc(i)%M1xp)) call mma_deallocate(dbsc(i)%M1xp)
-    if (allocated(dbsc(i)%M1cf)) call mma_deallocate(dbsc(i)%M1cf)
+    call mma_deallocate(dbsc(i)%M1xp,safe='*')
+    call mma_deallocate(dbsc(i)%M1cf,safe='*')
     dbsc(i)%nM1 = 0
-    if (allocated(dbsc(i)%M2xp)) call mma_deallocate(dbsc(i)%M2xp)
-    if (allocated(dbsc(i)%M2cf)) call mma_deallocate(dbsc(i)%M2cf)
+    call mma_deallocate(dbsc(i)%M2xp,safe='*')
+    call mma_deallocate(dbsc(i)%M2cf,safe='*')
     dbsc(i)%nM2 = 0
 
     ! Fragment stuff
 
-    if (allocated(dbsc(i)%FragType)) call mma_deallocate(dbsc(i)%FragType)
+    call mma_deallocate(dbsc(i)%FragType,safe='*')
     dbsc(i)%nFragType = 0
-    if (allocated(dbsc(i)%FragCoor)) call mma_deallocate(dbsc(i)%FragCoor)
+    call mma_deallocate(dbsc(i)%FragCoor,safe='*')
     dbsc(i)%nFragCoor = 0
-    if (allocated(dbsc(i)%FragEner)) call mma_deallocate(dbsc(i)%FragEner)
+    call mma_deallocate(dbsc(i)%FragEner,safe='*')
     dbsc(i)%nFragEner = 0
-    if (allocated(dbsc(i)%FragCoef)) call mma_deallocate(dbsc(i)%FragCoef)
+    call mma_deallocate(dbsc(i)%FragCoef,safe='*')
     dbsc(i)%nFragDens = 0
 
     ! PAM2 stuff
 
-    if (allocated(dbsc(i)%PAM2)) call mma_deallocate(dbsc(i)%PAM2)
+    call mma_deallocate(dbsc(i)%PAM2,safe='*')
     dbsc(i)%nPAM2 = -1
   end do
   nCnttp = 0
@@ -943,25 +943,25 @@ subroutine Basis_Info_Free()
   ! Stuff on unique basis set shells
 
   do i=1,Max_Shells-1
-    if (allocated(Shells(i)%Bk)) call mma_deallocate(Shells(i)%Bk)
-    if (allocated(Shells(i)%Occ)) call mma_deallocate(Shells(i)%Occ)
+    call mma_deallocate(Shells(i)%Bk,safe='*')
+    call mma_deallocate(Shells(i)%Occ,safe='*')
     Shells(i)%nBk = 0
-    if (allocated(Shells(i)%Akl)) call mma_deallocate(Shells(i)%Akl)
+    call mma_deallocate(Shells(i)%Akl,safe='*')
     Shells(i)%nAkl = 0
-    if (allocated(Shells(i)%FockOp)) call mma_deallocate(Shells(i)%FockOp)
+    call mma_deallocate(Shells(i)%FockOp,safe='*')
     Shells(i)%nFockOp = 0
-    if (allocated(Shells(i)%Exp)) call mma_deallocate(Shells(i)%Exp)
+    call mma_deallocate(Shells(i)%Exp,safe='*')
     Shells(i)%nExp = 0
-    if (allocated(Shells(i)%pCff)) call mma_deallocate(Shells(i)%pCff)
-    if (allocated(Shells(i)%Cff_c)) call mma_deallocate(Shells(i)%Cff_c)
-    if (allocated(Shells(i)%Cff_p)) call mma_deallocate(Shells(i)%Cff_p)
+    call mma_deallocate(Shells(i)%pCff,safe='*')
+    call mma_deallocate(Shells(i)%Cff_c,safe='*')
+    call mma_deallocate(Shells(i)%Cff_p,safe='*')
     Shells(i)%nBasis = 0
     Shells(i)%Transf = .true.
   end do
   Max_Shells = 0
 
-  if (allocated(dbsc)) call mma_deallocate(dbsc)
-  if (allocated(Shells)) call mma_deallocate(Shells)
+  call mma_deallocate(dbsc,safe='*')
+  call mma_deallocate(Shells,safe='*')
   Initiated = .false.
 
   return

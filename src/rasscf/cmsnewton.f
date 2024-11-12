@@ -20,11 +20,14 @@
       use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,
      &              nPosHess,LargestQaaGrad,NCMSScale
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
+     &                         iCMSIterMin, NAC
+      Implicit None
+
+
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "input_ras.fh"
 #include "output_ras.fh"
 #include "warnings.h"
       INTEGER nGD
@@ -40,6 +43,7 @@
      &        nSPair,nSPair2,nScr
       Real*8 Qnew,Qold
       Logical Saved
+      Integer iPrLev
 
       IPRLEV=IPRLOC(6)
 

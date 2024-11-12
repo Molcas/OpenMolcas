@@ -148,6 +148,7 @@
 ******Partially readpated from rhs_sa.f
       use stdalloc, only : mma_allocate, mma_deallocate
       use ipPage, only: W
+      use Constants, only: One, Two
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -157,7 +158,6 @@
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "sa.fh"
-#include "real.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
@@ -341,14 +341,13 @@
 ******************************************************
       Subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
       use Arrays, only: CMO
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "detdim.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "stdalloc.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"

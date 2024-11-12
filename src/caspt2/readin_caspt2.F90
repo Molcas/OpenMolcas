@@ -19,7 +19,7 @@ module InputData
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use definitions, only: wp,iwp,u6
-  use fciqmc_interface, only: DoFCIQMC, NonDiagonal
+  use fciqmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
   use fortran_strings, only: str
 
   implicit none
@@ -236,8 +236,10 @@ contains
 
     ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
     DoFCIQMC = .false.
-    ! User needs to specify that they do not want to sample in pseudo-canonical orbitals
+    ! User needs to specify that they do not want to sample in pseudo-canonical orbitals.
     NonDiagonal = .false.
+    ! for now, non-histogramming remains the default, hopefully that will change soon.
+    TransformToNormalOrder = .false.
 
     rewind (LuIn)
     call RdNLst(LuIn,'CASPT2')
@@ -643,6 +645,8 @@ contains
         DoFciQMC = .true.
       case ('NDIA')
         NonDiagonal = .true.
+      case ('NORD')
+        TransformToNormalOrder = .true.
 
       case ('EFFE')
         Input%JMS = .true.
@@ -777,13 +781,13 @@ contains
 
   subroutine CleanUp_Input()
     if (allocated(Input)) then
-      if (allocated(Input%MultGroup%State)) call mma_deallocate(Input%MultGroup%State)
-      if (allocated(Input%XMulGroup%State)) call mma_deallocate(Input%XMulGroup%State)
-      if (allocated(Input%RMulGroup%State)) call mma_deallocate(Input%RMulGroup%State)
-      if (allocated(Input%NamFro)) call mma_deallocate(Input%NamFro)
-      if (allocated(Input%nFro)) call mma_deallocate(Input%nFro)
-      if (allocated(Input%nDel)) call mma_deallocate(Input%nDel)
-      if (allocated(Input%Heff)) call mma_deallocate(Input%Heff)
+      call mma_deallocate(Input%MultGroup%State,safe='*')
+      call mma_deallocate(Input%XMulGroup%State,safe='*')
+      call mma_deallocate(Input%RMulGroup%State,safe='*')
+      call mma_deallocate(Input%NamFro,safe='*')
+      call mma_deallocate(Input%nFro,safe='*')
+      call mma_deallocate(Input%nDel,safe='*')
+      call mma_deallocate(Input%Heff,safe='*')
       ! The input structure itself is a scalar, allocated outside mma
       deallocate(Input)
     end if

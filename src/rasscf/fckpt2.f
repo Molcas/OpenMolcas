@@ -38,32 +38,46 @@
       use fciqmc, only: tPrepStochCASPT2, tNonDiagStochPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use RASWfn, only: wfn_mocoef
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use rasscf_global, only: NAC
+#endif
+
+      IMPLICIT None
+
+      Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
+     &          WO(*),SQ(*),CMOX(*)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
-      Character*3 Label
+      Character(LEN=3) Label
+      Integer, Allocatable:: OrbSym(:)
 #endif
 
 #ifdef _HDF5_
       integer, allocatable :: indices(:,:)
       real(wp), allocatable :: vals(:), fockmat(:,:), vecs(:,:)
-      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index
+      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index, k
 #endif
 
-
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
-#include "raswfn.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='FCKPT2  ')
+      Character(LEN=16), Parameter :: ROUTINE='FCKPT2  '
+      REAL*8 FMIN
+      Integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD,
+     &        II, ioff, IST, ISTMO, iSym, j, MIN, NA, NA1, NABT, NAO,
+     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NF, NFNB,
+     &        NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOC, NOO,
+     &        NOT, NP, NPQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31,
+     &        NR32, NT, NT1, NTT, NTU, NTUT, NU, NUT, NAB, NEO2, NQ
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Integer ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
+      Integer, External:: IsFreeUnit
+#endif
 
-      DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
-     &          WO(*),SQ(*),CMOX(*)
 
 * Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -110,15 +124,14 @@
       Call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
 * Convert orbital symmetry into MOLPRO format
-      Call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
+      Call mma_allocate(OrbSym,NAC,Label='OrbSym')
       iOrb=1
       Do iSym=1,nSym
         Do jOrb=1,NASH(iSym)
-          iWork(lOrbSym+iOrb-1)=iChMolpro(iSym)
+          OrbSym(iOrb)=iChMolpro(iSym)
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(stSym)
 
       LuFCK=isFreeUnit(27)
 *      open ( unit = LuFCK, file = "FOCK_CHEMPS2",
@@ -127,11 +140,11 @@
       write(LuFCK,'(1X,A12,I2,A1)') '&FOCK NACT= ', norbtot,','
       write(LuFCK,'(2X,A7)',ADVANCE = "NO") 'ORBSYM='
       do iOrb=1,norbtot
-        write(LuFCK,'(I1,A1)',ADVANCE = "NO") iWork(lOrbSym+iOrb-1),','
+        write(LuFCK,'(I1,A1)',ADVANCE = "NO") OrbSym(iOrb),','
       enddo
       write(LuFCK,*)
       write(LuFCK,*) '/'
-      Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
+      Call mma_deallocate(OrbSym)
 #endif
 
       DO ISYM=1,NSYM
@@ -700,5 +713,4 @@
       CALL DDAFILE(JOBIPH,1,FP,NTOT3,IAD15)
       CALL DDAFILE(JOBIPH,1,SQ,NORBT,IAD15)
 *
-      RETURN
-      END
+      END SUBROUTINE FCKPT2

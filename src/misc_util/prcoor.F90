@@ -94,7 +94,7 @@ end do
 ! Print coordinates of the system                                      *
 !----------------------------------------------------------------------*
 write(u6,*)
-write(u6,'(6X,A)') 'Cartesian coordinates in Angstrom:'
+write(u6,'(6X,A)') 'Cartesian coordinates in angstrom:'
 write(u6,'(6X,A)') '-----------------------------------------------------'
 write(u6,'(6X,A)') 'No.  Label        X            Y            Z        '
 write(u6,'(6X,A)') '-----------------------------------------------------'

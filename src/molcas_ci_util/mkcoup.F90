@@ -72,7 +72,7 @@ call mma_allocate(val,[0,SGS%nLev],Label='val')
 call mma_allocate(VTab,nVTab,Label='VTab')
 
 call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
-if (.not. allocated(CIS%ICase)) call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
+call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
 !CIS%nIpWlk = 1+(SGS%MidLev-1)/15
 !CIS%nIpWlk = max(CIS%nIpWlk,1+(nLev-SGS%MidLev-1)/15)

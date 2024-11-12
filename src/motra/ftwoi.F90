@@ -39,7 +39,7 @@ call GETORD(IRC,ISQUAR,NSYM2,NBSX,KEEP)
 ! Compare content of 1el and 2el integral file
 
 if (NSYM2 /= NSYM) then
-  write(u6,*) 'FTwoi: NSYM2.NE.NSYM'
+  write(u6,*) 'FTwoi: NSYM2 /= NSYM'
   write(u6,*) 'NSYM2=',NSYM2
   write(u6,*) 'NSYM=',NSYM
   call Abend()
@@ -48,7 +48,7 @@ do ISYM=1,NSYM
   NB1 = NBAS(ISYM)
   NB2 = NBSX(ISYM)
   if (NB1 /= NB2) then
-    write(u6,*) 'FTwoi: NB1.NE.NB2'
+    write(u6,*) 'FTwoi: NB1 /= NB2'
     write(u6,*) 'NB1=',NB1
     write(u6,*) 'NB2=',NB2
     call Abend()

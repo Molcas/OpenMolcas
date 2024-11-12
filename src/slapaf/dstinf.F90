@@ -133,17 +133,17 @@ end do
 if (SlStop) then
   write(LOut,*) ' NOTE: on convergence the final predicted structure will be printed here.'
   write(LOut,*) ' This is not identical to the structure printed in the head of the output.'
-  call OutCoor('* Nuclear coordinates of the final structure / Bohr     *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.false.)
-  call OutCoor('* Nuclear coordinates of the final structure / Angstrom *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.true.)
+  call OutCoor('* Nuclear coordinates of the final structure / bohr     *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.false.)
+  call OutCoor('* Nuclear coordinates of the final structure / angstrom *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.true.)
 else if (Do_PrintCoords) then
-  call OutCoor('* Nuclear coordinates for the next iteration / Bohr     *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.false.)
-  call OutCoor('* Nuclear coordinates for the next iteration / Angstrom *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.true.)
+  call OutCoor('* Nuclear coordinates for the next iteration / bohr     *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.false.)
+  call OutCoor('* Nuclear coordinates for the next iteration / angstrom *',AtomLbl,size(Coor,2),Coor,3,size(Coor,2),.true.)
 end if
 
 if (nsAtom_p > 0) then
   iOff = nTemp-nsAtom_p+1
-  call OutCoor('* Pseudo charge coordinates for the next iteration / Bohr     *',LblTMP(iOff),nsAtom_p,Cx_p,3,nsAtom_p,.false.)
-  call OutCoor('* Pseudo Charge coordinates for the next iteration / Angstrom *',LblTMP(iOff),nsAtom_p,Cx_p,3,nsAtom_p,.true.)
+  call OutCoor('* Pseudo charge coordinates for the next iteration / bohr     *',LblTMP(iOff),nsAtom_p,Cx_p,3,nsAtom_p,.false.)
+  call OutCoor('* Pseudo Charge coordinates for the next iteration / angstrom *',LblTMP(iOff),nsAtom_p,Cx_p,3,nsAtom_p,.true.)
   call mma_deallocate(Cx_p)
 end if
 

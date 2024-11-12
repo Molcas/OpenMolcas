@@ -360,7 +360,7 @@
 
       if (iPL >= 3) then
         write(u6,*) 'relative excitonic state '//
-     &              'eigenenergies in Hartree:'
+     &              'eigenenergies in hartree:'
         do i=1,dim
           EigEnHa(i) = (Frenkeltri((i*(i+1))/2)-Frenkeltri(1))/auToEV
           write(u6,*) 'EigEn:',i , EigEnHa(i)

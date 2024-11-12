@@ -40,7 +40,7 @@ use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -50,7 +50,6 @@ integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen), nScreen
 type(DSBA_Type), intent(inout) :: FLT(nDen), KLT(nDen)
 type(DSBA_Type), intent(in) :: Porb(nDen), PLT(nDen)
 real(kind=wp), intent(in) :: FactXI, dmpk, dFmat
-#include "warnings.h"
 integer(kind=iwp) :: i, i1, ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, ISYM, iSyma, iTmp, IVEC2, iVrs, jDen, jK, &
                      jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kOff(8,2), krs, kscreen, kSym, l, &
@@ -79,6 +78,8 @@ real(kind=wp), parameter :: FactCI = One
 character(len=*), parameter :: SECNAM = 'CHO_LK_SCF'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
+
+#include "warnings.h"
 
 !***********************************************************************
 #ifdef _DEBUGPRINT_

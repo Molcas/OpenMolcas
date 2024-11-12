@@ -51,9 +51,9 @@
 *                                                                      *
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "real.fh"
-#include "stdalloc.fh"
 #include "warnings.h"
 #include "output_ras.fh"
 *

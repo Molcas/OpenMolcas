@@ -47,7 +47,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: PkAcc
-logical(kind=iwp), intent(inout) :: PkMode
+logical(kind=iwp), intent(in) :: PkMode
 
 !----------------------------------------------------------------------*
 ! Packing is disabled on the C90 due to the CRAY specific data         *
@@ -55,7 +55,11 @@ logical(kind=iwp), intent(inout) :: PkMode
 !----------------------------------------------------------------------*
 
 #ifdef _CRAY_C90_
-PkMode = .false.
+#define _PKMODE_ .false.
+#include "macros.fh"
+unused_var(PkMode)
+#else
+#define _PKMODE_ PkMode
 #endif
 
 !----------------------------------------------------------------------*
@@ -63,7 +67,7 @@ PkMode = .false.
 !----------------------------------------------------------------------*
 
 PkThrs = PkAcc
-isPack = PkMode
+isPack = _PKMODE_
 
 Init_do_setup_e = 1
 Init_do_setup_d = 1

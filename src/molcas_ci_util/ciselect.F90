@@ -18,9 +18,9 @@ subroutine CiSelect(S1,S2)
 !     Select CI_vector which matches best the test vectors             *
 !                                                                      *
 !     calling arguments:                                               *
-!     S1      : array of real*8, input/output                          *
+!     S1      : array of real, input/output                            *
 !               overlap matrix with test vectors                       *
-!     S2      : array of real*8, input                                 *
+!     S2      : array of real, input                                   *
 !               norm of the test configurations in the CI vector       *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -38,10 +38,11 @@ subroutine CiSelect(S1,S2)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
+use rasscf_global, only: lRoots, iRoot, ITER, MAXIT, nRoots
+
 
 implicit none
-#include "rasdim.fh"
-#include "rasscf.fh"
+#include "Molcas.fh"
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots)
 real(kind=wp), intent(in) :: S2(lRoots,lRoots)
 integer(kind=iwp) :: istop, jRoot, kRoot, maxS1

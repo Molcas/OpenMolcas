@@ -23,10 +23,10 @@
 *
 * Jeppe Olsen, Spring of 94
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8(A-H,O-Z)
 *
 #include "detdim.fh"
-#include "stdalloc.fh"
 *. Input
       DIMENSION CKJJ(NKA*NJ,*)
 *. Note if Iroute = 2 the form is C(j,Ka,Jb)

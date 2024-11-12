@@ -11,7 +11,6 @@
       SUBROUTINE MODOP(OP1,NOP2,OP2,NOP3,OP3)
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
 #include "caspt2.fh"
       DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
 

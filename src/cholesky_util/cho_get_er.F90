@@ -52,7 +52,7 @@ subroutine CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 

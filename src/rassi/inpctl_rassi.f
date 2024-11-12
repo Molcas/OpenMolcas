@@ -11,16 +11,16 @@
       SUBROUTINE INPCTL_RASSI()
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
 #ifdef _DMRG_
-      use rasscf_data, only: doDMRG
+      use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
 #endif
       use mspt2_eigenvectors
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use cntrl_data, only: RefEne, HEff
       IMPLICIT NONE
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "centra.fh"
@@ -72,9 +72,9 @@ C Read (and do some checking) the standard input.
       !> initialize eigenvector array for mspt2 hamiltonians
       call init_mspt2_eigenvectors(njob,-1,0)
 * Allocate a bunch of stuff
-      Call GetMem('REFENE','Allo','Real',LREFENE,NSTATE)
-      Call GetMem('HEFF','Allo','Real',L_HEFF,NSTATE**2)
-      Call fzero(Work(L_HEFF),NSTATE**2)
+      Call mma_allocate(REFENE,NSTATE,Label='RefEne')
+      Call mma_allocate(HEFF,NSTATE,NSTATE,Label='HEff')
+      HEff(:,:)=0.0D0
       If (.not.IFHEXT) Then
         Call mma_allocate(HAM,nState,nState,Label='HAM')
         HAM(:,:)=0.0D0
@@ -133,19 +133,11 @@ C Addition of NJOB,MSJOB and MLTPLT on RunFile.
 !     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
 C
 C .. and print it out
-CTEST      CALL PRINF()
-C Set up tables of coordinates and differentiated nuclei:
-#if 0
-      IF(NONA) THEN
-        CALL MKDISP()
-      END IF
-#endif
-
 
 C Additional input processing. Start writing report.
       CALL INPPRC()
 *
-      Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
-      Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
+      Call mma_deallocate(REFENE)
+      Call mma_deallocate(HEff)
 C
       END

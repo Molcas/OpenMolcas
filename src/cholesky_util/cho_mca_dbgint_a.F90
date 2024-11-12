@@ -25,7 +25,7 @@ subroutine CHO_MCA_DBGINT_A()
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: IFCSEW, iSP2F, LuPri, MX2SH, NBAS, nBstSh, nCol_chk, nnShl, nSym
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 

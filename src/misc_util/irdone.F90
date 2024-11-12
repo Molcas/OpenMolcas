@@ -33,7 +33,7 @@ subroutine iRdOne(rc,Option,InLab,Comp,rData,SymLab)
 !     Data    : Data definitions                                       *
 !                                                                      *
 !     Local data declarations:                                         *
-!     Label   : character*8, used to covert incoming names             *
+!     Label   : character(len=8), used to covert incoming names        *
 !     TmpBuf  : I/O buffer                                             *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -271,7 +271,7 @@ subroutine idCopy(n,Src,n1,Dst,n2)
 
   integer(kind=iwp), intent(in) :: n, n1, n2
   real(kind=wp), intent(in) :: Src(*)
-  integer(kind=iwp), intent(_OUT_), target :: Dst(*)
+  integer(kind=iwp), target, intent(_OUT_) :: Dst(*)
   real(kind=wp), pointer :: dDst(:)
 
   call c_f_pointer(c_loc(Dst),dDst,[n])

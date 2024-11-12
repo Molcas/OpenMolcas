@@ -17,14 +17,16 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
+      use caspt2_global, only: LUSBT
+      use EQSOLV
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 ALPHA, BETA
+      INTEGER IVEC, JVEC
 
-#include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-
-#include "SysDef.fh"
+      INTEGER ICASE, ISYM, NIN, NAS, NIS, JD
+      REAL*8, ALLOCATABLE:: BD(:), ID(:)
 
 C Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
 C If real_shift.ne.0.0d0 or imag_shift.ne.0.0d0, use a modified H0
@@ -38,11 +40,11 @@ C If real_shift.ne.0.0d0 or imag_shift.ne.0.0d0, use a modified H0
           IF(NIS.EQ.0) GOTO 101
 C Remember: NIN values in BDIAG, but must read NAS for correct
 C positioning.
-          CALL GETMEM('BD','ALLO','REAL',LBD,NAS)
-          CALL GETMEM('ID','ALLO','REAL',LID,NIS)
-          ID=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LBD),NAS,ID)
-          CALL DDAFILE(LUSBT,2,WORK(LID),NIS,ID)
+          CALL mma_allocate(BD,NAS,LABEL='BD')
+          CALL mma_allocate(ID,NIS,LABEL='ID')
+          JD=IDBMAT(ISYM,ICASE)
+          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
+          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
 
           CALL RHS_ALLO (NIN,NIS,lg_V2)
 
@@ -59,20 +61,20 @@ C positioning.
             IF(BETA.NE.0.0D0) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_SGMDIA (NIN,NIS,lg_V1,WORK(LBD),WORK(LID))
+              CALL RHS_SGMDIA (NIN,NIS,lg_V1,BD,ID)
               CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (NIN,NIS,lg_V1)
+              CALL RHS_FREE (lg_V1)
             ELSE
               CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
-              CALL RHS_SGMDIA (NIN,NIS,lg_V2,WORK(LBD),WORK(LID))
+              CALL RHS_SGMDIA (NIN,NIS,lg_V2,BD,ID)
               CALL RHS_SCAL (NIN,NIS,lg_V2,ALPHA)
             END IF
           END IF
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (NIN,NIS,lg_V2)
-          CALL GETMEM('BD','FREE','REAL',LBD,NAS)
-          CALL GETMEM('ID','FREE','REAL',LID,NIS)
+          CALL RHS_FREE (lg_V2)
+          CALL mma_deallocate(BD)
+          CALL mma_deallocate(ID)
  101    CONTINUE
  100  CONTINUE
       RETURN

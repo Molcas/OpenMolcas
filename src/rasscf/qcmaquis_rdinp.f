@@ -8,6 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
+#include "compiler_features.h"
+
 #ifdef _DMRG_
 !***********************************************************************
 !                                                                      *
@@ -19,6 +22,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_utility_routines, only:
      &    lower_to_upper, find_qcmaquis_keyword
+      use rasscf_global, only: MPSCompressM, DoDelChk
 
       implicit none
 
@@ -33,7 +37,6 @@
       logical                :: compr_flag, donotdelete_flag
       ! Leon: the evil common block that contains the MPSCompressM
       ! option for the MPS compression and the do not delete checkpoints flag
-#include "nevptp.fh"
       donotdelete_flag = .false.
 
       select case(switch)
@@ -177,8 +180,12 @@
       end select
 
       end subroutine qcmaquis_rdinp
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
       subroutine empty_qcmaquis_rdinp()
       end subroutine empty_qcmaquis_rdinp
+
 #endif

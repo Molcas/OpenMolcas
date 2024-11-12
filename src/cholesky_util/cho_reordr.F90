@@ -51,8 +51,7 @@ subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV
 !********************************************************
 
 use Symmetry_Info, only: Mul
-use Index_Functions, only: nTri_Elem
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR
 use Definitions, only: wp, iwp, u6
 

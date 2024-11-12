@@ -15,12 +15,12 @@
 subroutine setretvals_cvb(esym,n_iter)
 
 use Definitions, only: wp, iwp
+use rasscf_global, only: Ener, Emy, Iter, iterci, NAC, lRoots
 
 implicit none
 integer(kind=iwp), intent(in) :: n_iter
 real(kind=wp), intent(in) :: esym(*)
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 
 if (nac == 0) then

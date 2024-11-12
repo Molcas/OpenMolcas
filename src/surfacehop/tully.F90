@@ -22,8 +22,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, NCI
 real(kind=wp), intent(inout) :: CIBigArray(NCI*NSTATE)
-#include "warnings.h"
-
 integer(kind=iwp) :: values(8)
 character(len=8) :: date
 character(len=10) :: time
@@ -50,6 +48,8 @@ integer(kind=iwp) :: nstatesq, nciquery, stateRi, temproot, nsatom
 integer(kind=iwp) :: ISTATE2, iseed, irlxroot
 complex(kind=wp) :: Amatrix(NSTATE,NSTATE), AmatrixDT(NSTATE,NSTATE), ArelaxPrev
 real(kind=wp), external :: Random_Molcas
+
+#include "warnings.h"
 
 CIBigArrayP(:) = Zero
 CIBigArrayPP(:) = Zero

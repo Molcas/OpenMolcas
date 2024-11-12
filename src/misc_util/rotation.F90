@@ -145,7 +145,7 @@ if (TRotC > 1.0e99_wp) nrot = nrot-1
 
 ! Print results
 
-write(u6,'(A)') ' Mass-centered Coordinates (Angstrom):'
+write(u6,'(A)') ' Mass-centered Coordinates (angstrom):'
 write(u6,'(1X,A)') '********************************************************'
 write(u6,'(1X,A)') 'Label        X           Y           Z          Mass  '
 write(u6,'(1X,A)') '--------------------------------------------------------'

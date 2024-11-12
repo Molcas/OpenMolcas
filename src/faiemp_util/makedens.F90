@@ -32,7 +32,7 @@ subroutine MakeDens(nBas,nOrb,Cff,OrbEn,EnergyWeight,Dens)
 !                                                                      *
 !     written by: B. Swerts                                            *
 !     modified by L. Ungur                                             *
-!     simplified version of scf/done_scf.f                             *
+!     simplified version of scf/done_scf.F90                           *
 !                                                                      *
 !***********************************************************************
 
