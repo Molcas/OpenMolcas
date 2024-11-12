@@ -17,12 +17,10 @@ module mspdft
   private
 
   character(len=8) :: mspdftmethod = " Unknown"
-  integer(kind=iwp) :: iIntS
 
   real(kind=wp),allocatable :: heff(:,:)
 
   public :: mspdftmethod,heff
-  public :: iIntS
 
   public :: mspdft_finalize,mspdft_init
 
