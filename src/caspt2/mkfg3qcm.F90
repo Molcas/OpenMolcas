@@ -16,7 +16,6 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
 
   use stdalloc, only:mma_allocate,mma_deallocate
   use qcmaquis_interface
-  use qcmaquis_interface_caspt2
   use qcmaquis_interface_mpssi
   use definitions, only:wp,iwp,i1
   use gugx, only:SGS
