@@ -27,8 +27,8 @@
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
       use rasscf_global, only: DFTFOCK, nRoots, ExFac,
-     &                         IADR15, IPR, lRoots, lSquare,
-     &                         NAC, NACPAR, NACPR2, nFint, NonEq,
+     &                         IADR15, lRoots,
+     &                         NAC, NACPAR, NACPR2, NonEq,
      &                         PotNuc
       use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,
      &              jobold,nactel,nbas,nish,nfro
@@ -39,13 +39,12 @@
 
       Logical First, Dff, Do_DFT,Found
 
-      real*8, allocatable:: FockI(:),
-     &                      folded_dm1(:), folded_dm1_cas(:),
+      real*8, allocatable:: folded_dm1(:), folded_dm1_cas(:),
      &                      dummy1(:), dummy2(:), folded_dm1s(:),
      &                      dm1_core(:), casdm1(:),
-     &                      focka(:), dm1_cas(:), dm1s(:),
-     &                      casdm1s(:), P2D(:), PUVX(:), P2t(:),
-     &                      Coul(:),tuvx_tmp(:)
+     &                      dm1_cas(:), dm1s(:),
+     &                      casdm1s(:), P2D(:), P2t(:),
+     &                      Coul(:)
       real(kind=wp),allocatable :: hcore(:)
       integer(kind=iwp), external :: get_charge
       integer(kind=iwp) :: IAD19,iJOB,dmDisk, IADR19(1:30)
@@ -103,8 +102,6 @@
       Call mma_allocate(P2d,NACPR2,Label='P2D')
 
 
-      Call mma_allocate(FockI,ntot1,Label='FockI')
-      Call mma_allocate(focka,ntot1,Label='focka')
       Call mma_allocate(coul,ntot1,Label='coul')
 
 !This iSA is used to control gradient calculations.  Analytic gradients
@@ -226,29 +223,7 @@
 
         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
-
-      call mma_allocate(tuvx_tmp,nacpr2,Label='tuvx_tmp')
-      call mma_allocate(puvx,nfint,Label='puvx')
-      tuvx_tmp(:) = zero
-      puvx(:) = zero
-      focka(:) = zero
-      focki(:) = zero
-      coul(:) = zero
-
-    ! This constructs focki and focka for us. Technically,
-    ! focki is a constant but, if we have to recalculate it,
-    ! why store it in memory.
-         CALL TRACTL2(cmo,PUVX,TUVX_tmp,
-     &                dm1_core,focki,
-     &                dm1_cas,focka,
-     &                IPR,lSquare,ExFac)
-
-      call mma_deallocate(tuvx_tmp)
-      call mma_deallocate(puvx)
-
-    ! Note that because ExFac should be 0, we get back
-    ! just Coulomb integrals!
-      coul(:) = focki(:) + focka(:)
+      call get_coulomb(cmo,dm1_core,dm1_cas,coul)
 
       e_mcscf = energy_mcwfn(folded_dm1,hcore,coul,PotNuc,ntot1)
 
@@ -307,9 +282,6 @@
       end if
 
       if (mcpdft_options%mspdft) then
-!      doing exactly the same thing as done in the previous chunck
-!      starting from 'BUILDING OF THE NEW FOCK MATRIX'
-!      Hopefully this code will be neater.
        call savefock_mspdft(CMO,hcore,coul,casdm1,NQ,p2d,jroot)
       end if
 
@@ -372,9 +344,7 @@
       Call mma_deallocate(casdm1s)
       Call mma_deallocate(dm1s)
       call mma_deallocate(hcore)
-      Call mma_deallocate(FockI)
       Call mma_deallocate(coul)
-      Call mma_deallocate(focka)
       Call mma_deallocate(P2D)
       Call mma_deallocate(dm1_core)
 
